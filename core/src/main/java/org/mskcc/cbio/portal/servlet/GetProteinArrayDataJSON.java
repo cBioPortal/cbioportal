@@ -28,20 +28,18 @@
  *
  * You should have received a copy of the GNU Affero General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
-*/
+ */
 
 package org.mskcc.cbio.portal.servlet;
 
+import java.io.*;
+import java.util.ArrayList;
+import javax.servlet.*;
+import javax.servlet.http.*;
+import org.json.simple.*;
 import org.mskcc.cbio.portal.dao.*;
 import org.mskcc.cbio.portal.model.*;
 import org.mskcc.cbio.portal.util.*;
-
-import org.json.simple.*;
-
-import java.io.*;
-import javax.servlet.*;
-import javax.servlet.http.*;
-import java.util.ArrayList;
 
 /**
  * Author: yichaoS
@@ -50,15 +48,15 @@ import java.util.ArrayList;
  * Retrieves protein and/or phosphoprotein levels measured by reverse-phase protein arrays (RPPA).
  */
 public class GetProteinArrayDataJSON extends HttpServlet {
-	
-	// class which process access control to cancer studies
+    // class which process access control to cancer studies
     private AccessControl accessControl;
-    
+
     @Override
     public void init(ServletConfig config) throws ServletException {
         super.init(config);
         accessControl = SpringUtil.getAccessControl();
     }
+
     /**
      * Handles HTTP GET Request.
      *
@@ -66,8 +64,11 @@ public class GetProteinArrayDataJSON extends HttpServlet {
      * @param httpServletResponse HttpServletResponse
      * @throws javax.servlet.ServletException
      */
-    protected void doGet(HttpServletRequest httpServletRequest,
-                         HttpServletResponse httpServletResponse) throws ServletException, IOException {
+    protected void doGet(
+        HttpServletRequest httpServletRequest,
+        HttpServletResponse httpServletResponse
+    )
+        throws ServletException, IOException {
         doPost(httpServletRequest, httpServletResponse);
     }
 
@@ -78,24 +79,40 @@ public class GetProteinArrayDataJSON extends HttpServlet {
      * @param httpServletResponse HttpServletResponse
      * @throws ServletException
      */
-    protected void doPost(HttpServletRequest httpServletRequest,
-                          HttpServletResponse httpServletResponse) throws ServletException, IOException {
-
-        String cancerStudyIdentifier = httpServletRequest.getParameter("cancer_study_id");
+    protected void doPost(
+        HttpServletRequest httpServletRequest,
+        HttpServletResponse httpServletResponse
+    )
+        throws ServletException, IOException {
+        String cancerStudyIdentifier = httpServletRequest.getParameter(
+            "cancer_study_id"
+        );
         String sampleSetId = httpServletRequest.getParameter("case_set_id");
         String sampleIdsKey = httpServletRequest.getParameter("case_ids_key");
-        String proteinArrayId = httpServletRequest.getParameter("protein_array_id");
+        String proteinArrayId = httpServletRequest.getParameter(
+            "protein_array_id"
+        );
         CancerStudy cancerStudy = null;
         try {
-        	if (cancerStudyIdentifier != null) {
-				cancerStudy = DaoCancerStudy.getCancerStudyByStableId(cancerStudyIdentifier);
-				if (cancerStudy == null
-						|| accessControl.isAccessibleCancerStudy(cancerStudy.getCancerStudyStableId()).size() == 0) {
-					return;
-				}
-			} else {
-				return;
-			}
+            if (cancerStudyIdentifier != null) {
+                cancerStudy =
+                    DaoCancerStudy.getCancerStudyByStableId(
+                        cancerStudyIdentifier
+                    );
+                if (
+                    cancerStudy == null ||
+                    accessControl
+                        .isAccessibleCancerStudy(
+                            cancerStudy.getCancerStudyStableId()
+                        )
+                        .size() ==
+                    0
+                ) {
+                    return;
+                }
+            } else {
+                return;
+            }
             int cancerStudyId = cancerStudy.getInternalId();
 
             //Get patient ID list
@@ -117,8 +134,14 @@ public class GetProteinArrayDataJSON extends HttpServlet {
             JSONObject result = new JSONObject();
             DaoProteinArrayData daoPAD = DaoProteinArrayData.getInstance();
             // NOTE - as of 12/12/14, patient lists contain sample ids
-            for (ProteinArrayData pad : daoPAD.getProteinArrayData(cancerStudyId, proteinArrayId,
-                                                                    InternalIdUtil.getInternalNonNormalSampleIds(cancerStudyId, sampleIdList))) {
+            for (ProteinArrayData pad : daoPAD.getProteinArrayData(
+                cancerStudyId,
+                proteinArrayId,
+                InternalIdUtil.getInternalNonNormalSampleIds(
+                    cancerStudyId,
+                    sampleIdList
+                )
+            )) {
                 Sample s = DaoSample.getSampleById(pad.getSampleId());
                 result.put(s.getStableId(), pad.getAbundance());
             }
@@ -126,14 +149,11 @@ public class GetProteinArrayDataJSON extends HttpServlet {
             httpServletResponse.setContentType("application/json");
             PrintWriter out = httpServletResponse.getWriter();
             JSONValue.writeJSONString(result, out);
-
         } catch (DaoException e) {
-                httpServletResponse.setContentType("application/text");
-                PrintWriter out = httpServletResponse.getWriter();
-                out.print("DaoException: " + e.getMessage());
-                out.flush();
+            httpServletResponse.setContentType("application/text");
+            PrintWriter out = httpServletResponse.getWriter();
+            out.print("DaoException: " + e.getMessage());
+            out.flush();
         }
-
     }
 }
-

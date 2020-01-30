@@ -28,32 +28,30 @@
  *
  * You should have received a copy of the GNU Affero General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
-*/
+ */
 
 package org.mskcc.cbio.portal.servlet;
 
 import java.io.*;
 import java.util.*;
-
-import org.json.simple.JSONValue;
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-
+import org.json.simple.JSONValue;
 import org.mskcc.cbio.portal.stats.FisherExact;
 
 /**
  * Calculate the cumulative (one-tail) p-value out of fisher exact test
- * 
+ *
  * @param a a, b, c, d are the four cells in a 2x2 matrix
  * @param b
  * @param c
  * @param d
  * @return one-tailed P-value (right or left, whichever is smallest)
- * 
+ *
  */
-public class CalcFisherExactTest extends HttpServlet  {
+public class CalcFisherExactTest extends HttpServlet {
 
     /**
      * Handles HTTP GET Request.
@@ -62,8 +60,11 @@ public class CalcFisherExactTest extends HttpServlet  {
      * @param httpServletResponse HttpServletResponse
      * @throws ServletException
      */
-    protected void doGet(HttpServletRequest httpServletRequest,
-                         HttpServletResponse httpServletResponse) throws ServletException, IOException {
+    protected void doGet(
+        HttpServletRequest httpServletRequest,
+        HttpServletResponse httpServletResponse
+    )
+        throws ServletException, IOException {
         doPost(httpServletRequest, httpServletResponse);
     }
 
@@ -74,20 +75,24 @@ public class CalcFisherExactTest extends HttpServlet  {
      * @param httpServletResponse HttpServletResponse
      * @throws ServletException
      */
-    protected void doPost(HttpServletRequest httpServletRequest,
-                          HttpServletResponse httpServletResponse) throws ServletException, IOException {
-
-        String[] dataSets = httpServletRequest.getParameter("params").split(":");
+    protected void doPost(
+        HttpServletRequest httpServletRequest,
+        HttpServletResponse httpServletResponse
+    )
+        throws ServletException, IOException {
+        String[] dataSets = httpServletRequest
+            .getParameter("params")
+            .split(":");
         String result = "";
         for (String dataSet : dataSets) {
             if (!dataSet.isEmpty()) {
                 int a = Integer.parseInt(dataSet.split(" ")[0]);
                 int b = Integer.parseInt(dataSet.split(" ")[1]);
                 int c = Integer.parseInt(dataSet.split(" ")[2]);
-                int d = Integer.parseInt(dataSet.split(" ")[3]);    
+                int d = Integer.parseInt(dataSet.split(" ")[3]);
                 FisherExact fisher = new FisherExact(a + b + c + d);
                 double pValue = fisher.getCumlativeP(a, b, c, d);
-                result = result.concat(String.valueOf(pValue) + " ");                
+                result = result.concat(String.valueOf(pValue) + " ");
             }
         }
         result = result.replaceAll("\\s+$", "");
@@ -97,6 +102,3 @@ public class CalcFisherExactTest extends HttpServlet  {
         JSONValue.writeJSONString(result, out);
     }
 }
-
-
-

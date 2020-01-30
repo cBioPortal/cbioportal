@@ -28,34 +28,35 @@
  *
  * You should have received a copy of the GNU Affero General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
-*/
+ */
 
 package org.mskcc.cbio.portal.graph;
 
+import static org.junit.Assert.*;
+
+import edu.uci.ics.jung.graph.Graph;
+import java.util.ArrayList;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mskcc.cbio.portal.dao.DaoException;
-import org.mskcc.cbio.portal.dao.MySQLbulkLoader;
-import org.mskcc.cbio.portal.dao.DaoInteraction;
 import org.mskcc.cbio.portal.dao.DaoGeneOptimized;
+import org.mskcc.cbio.portal.dao.DaoInteraction;
+import org.mskcc.cbio.portal.dao.MySQLbulkLoader;
 import org.mskcc.cbio.portal.model.CanonicalGene;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import org.springframework.test.context.transaction.TransactionConfiguration;
 import org.springframework.transaction.annotation.Transactional;
 
-import static org.junit.Assert.*;
-
-import java.util.ArrayList;
-
-import edu.uci.ics.jung.graph.Graph;
-
 /**
  * JUnit Tests for Network Of Interest.
  */
 @RunWith(SpringJUnit4ClassRunner.class)
 @ContextConfiguration(locations = { "classpath:/applicationContext-dao.xml" })
-@TransactionConfiguration(transactionManager = "transactionManager", defaultRollback = true)
+@TransactionConfiguration(
+    transactionManager = "transactionManager",
+    defaultRollback = true
+)
 @Transactional
 public class TestNetworkOfInterest {
 
@@ -64,16 +65,15 @@ public class TestNetworkOfInterest {
      *
      * @throws org.mskcc.cbio.portal.dao.DaoException Database Error
      */
-	@Test
+    @Test
     public void testDaoInteraction() throws DaoException {
-
-		MySQLbulkLoader.bulkLoadOff();
+        MySQLbulkLoader.bulkLoadOff();
         DaoInteraction daoInteraction = DaoInteraction.getInstance();
 
-        CanonicalGene brca1 = new CanonicalGene (672, "BRCA1");
-        CanonicalGene brca2 = new CanonicalGene (675, "BRCA2");
-        CanonicalGene tp53 = new CanonicalGene (7157, "TP53");
-        CanonicalGene pten = new CanonicalGene (5728, "PTEN");
+        CanonicalGene brca1 = new CanonicalGene(672, "BRCA1");
+        CanonicalGene brca2 = new CanonicalGene(675, "BRCA2");
+        CanonicalGene tp53 = new CanonicalGene(7157, "TP53");
+        CanonicalGene pten = new CanonicalGene(5728, "PTEN");
 
         DaoGeneOptimized daoGene = DaoGeneOptimized.getInstance();
         daoGene.addGene(brca1);
@@ -81,9 +81,30 @@ public class TestNetworkOfInterest {
         daoGene.addGene(tp53);
         daoGene.addGene(pten);
 
-        daoInteraction.addInteraction(brca1, brca2, "pp", "HPRD", "Y2H", "12344");
-        daoInteraction.addInteraction(brca1, tp53, "pp", "HPRD", "Y2H", "12344");
-        daoInteraction.addInteraction(brca1, pten, "pp", "HPRD", "Y2H", "12344");
+        daoInteraction.addInteraction(
+            brca1,
+            brca2,
+            "pp",
+            "HPRD",
+            "Y2H",
+            "12344"
+        );
+        daoInteraction.addInteraction(
+            brca1,
+            tp53,
+            "pp",
+            "HPRD",
+            "Y2H",
+            "12344"
+        );
+        daoInteraction.addInteraction(
+            brca1,
+            pten,
+            "pp",
+            "HPRD",
+            "Y2H",
+            "12344"
+        );
         daoInteraction.addInteraction(tp53, pten, "pp", "HPRD", "Y2H", "12344");
 
         ArrayList<CanonicalGene> geneList = new ArrayList<CanonicalGene>();
@@ -94,8 +115,7 @@ public class TestNetworkOfInterest {
         NetworkOfInterest noi = new NetworkOfInterest(geneList);
         Graph<String, String> graph = noi.getGraph();
 
-        assertEquals (4, graph.getVertexCount());
-        assertEquals (4, graph.getEdgeCount());
+        assertEquals(4, graph.getVertexCount());
+        assertEquals(4, graph.getEdgeCount());
     }
-
 }

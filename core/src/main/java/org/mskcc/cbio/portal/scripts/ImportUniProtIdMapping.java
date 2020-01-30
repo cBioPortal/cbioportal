@@ -28,11 +28,12 @@
  *
  * You should have received a copy of the GNU Affero General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
-*/
+ */
 
 package org.mskcc.cbio.portal.scripts;
 
 import static com.google.common.base.Preconditions.checkNotNull;
+
 import java.io.*;
 import java.net.*;
 import java.util.*;
@@ -56,104 +57,124 @@ public final class ImportUniProtIdMapping {
     public void importData() throws DaoException, IOException {
         Set<String> swissAccessions = null;
         String species = GlobalProperties.getSpecies();
-    	if (!(species.equals("human") || species.equals("mouse"))){
-    		throw new Error("Species not supported: " + species);
-		} 
-    	swissAccessions = ImportUniProtIdMapping.getSwissProtAccession(species);
-        
+        if (!(species.equals("human") || species.equals("mouse"))) {
+            throw new Error("Species not supported: " + species);
+        }
+        swissAccessions = ImportUniProtIdMapping.getSwissProtAccession(species);
+
         MySQLbulkLoader.bulkLoadOn();
-        
-        BufferedReader reader = new BufferedReader(new FileReader(uniProtIdMapping));
-        
+
+        BufferedReader reader = new BufferedReader(
+            new FileReader(uniProtIdMapping)
+        );
+
         Map<String, Integer> mapUniprotAccEntrezGeneId = new HashMap<String, Integer>();
         Map<String, String> mapUniprotAccUniprotId = new HashMap<String, String>();
-        for (String line = reader.readLine(); line != null; line = reader.readLine()) {
+        for (
+            String line = reader.readLine();
+            line != null;
+            line = reader.readLine()
+        ) {
             ProgressMonitor.incrementCurValue();
             ConsoleUtil.showProgress();
-            
+
             String[] parts = line.split("\t");
             if (!swissAccessions.contains(parts[0])) {
                 continue;
             }
-            
+
             if (parts[1].equals("GeneID")) {
-                mapUniprotAccEntrezGeneId.put(parts[0], Integer.valueOf(parts[2]));
+                mapUniprotAccEntrezGeneId.put(
+                    parts[0],
+                    Integer.valueOf(parts[2])
+                );
             } else if (parts[1].equals("UniProtKB-ID")) {
                 mapUniprotAccUniprotId.put(parts[0], parts[2]);
             } else {
-                System.err.println("Wong mapping: "+line);
+                System.err.println("Wong mapping: " + line);
             }
         }
-        
+
         reader.close();
-        
+
         for (Map.Entry<String, String> entry : mapUniprotAccUniprotId.entrySet()) {
             String uniprotAcc = entry.getKey();
             String uniprotId = entry.getValue();
             Integer entrezGeneId = mapUniprotAccEntrezGeneId.get(uniprotAcc);
-            DaoUniProtIdMapping.addUniProtIdMapping(uniprotAcc, uniprotId, entrezGeneId);
+            DaoUniProtIdMapping.addUniProtIdMapping(
+                uniprotAcc,
+                uniprotId,
+                entrezGeneId
+            );
         }
-        
+
         MySQLbulkLoader.flushAll();
     }
-    
-    public static Set<String> getSwissProtAccession(String species) throws IOException {
-    	String strURL = null;
-    	if (species.equals("human")){
-    		strURL = "http://www.uniprot.org/uniprot/?query="
-                    + "taxonomy%3ahuman+AND+reviewed%3ayes&force=yes&format=list";
-		} else if (species.equals("mouse")){
-			strURL = "http://www.uniprot.org/uniprot/?query="
-                    + "taxonomy%3amouse+AND+reviewed%3ayes&force=yes&format=list";
-		} else {
-			throw new Error("Species not supported:"+species);
-		}
-        
+
+    public static Set<String> getSwissProtAccession(String species)
+        throws IOException {
+        String strURL = null;
+        if (species.equals("human")) {
+            strURL =
+                "http://www.uniprot.org/uniprot/?query=" +
+                "taxonomy%3ahuman+AND+reviewed%3ayes&force=yes&format=list";
+        } else if (species.equals("mouse")) {
+            strURL =
+                "http://www.uniprot.org/uniprot/?query=" +
+                "taxonomy%3amouse+AND+reviewed%3ayes&force=yes&format=list";
+        } else {
+            throw new Error("Species not supported:" + species);
+        }
+
         URL url = new URL(strURL);
 
         URLConnection pfamConn = url.openConnection();
 
         BufferedReader in = new BufferedReader(
-                        new InputStreamReader(pfamConn.getInputStream()));
+            new InputStreamReader(pfamConn.getInputStream())
+        );
 
         String line;
         Set<String> accs = new HashSet<String>();
 
         // read all
-        while((line = in.readLine()) != null)
-        {
-                accs.add(line);
+        while ((line = in.readLine()) != null) {
+            accs.add(line);
         }
 
         in.close();
 
-	return accs;
+        return accs;
     }
 
     public static void main(final String[] args) {
         if (args.length < 1) {
-            System.out.println("command line usage: importUniProtIdMapping.pl <uniprot_id_mapping.txt>");
+            System.out.println(
+                "command line usage: importUniProtIdMapping.pl <uniprot_id_mapping.txt>"
+            );
             return;
         }
         ProgressMonitor.setConsoleMode(true);
-		SpringUtil.initDataSource();
+        SpringUtil.initDataSource();
         try {
             DaoUniProtIdMapping.deleteAllRecords();
             File uniProtIdMapping = new File(args[0]);
-            System.out.println("Reading uniprot id mappings from:  " + uniProtIdMapping.getAbsolutePath());
+            System.out.println(
+                "Reading uniprot id mappings from:  " +
+                uniProtIdMapping.getAbsolutePath()
+            );
             int lines = FileUtil.getNumLines(uniProtIdMapping);
             System.out.println(" --> total number of lines:  " + lines);
             ProgressMonitor.setMaxValue(lines);
-            ImportUniProtIdMapping importUniProtIdMapping = new ImportUniProtIdMapping(uniProtIdMapping);
+            ImportUniProtIdMapping importUniProtIdMapping = new ImportUniProtIdMapping(
+                uniProtIdMapping
+            );
             importUniProtIdMapping.importData();
-        }
-        catch (DaoException e) {
+        } catch (DaoException e) {
             e.printStackTrace();
-        }
-        catch (IOException e) {
+        } catch (IOException e) {
             e.printStackTrace();
-        }
-        finally {
+        } finally {
             ConsoleUtil.showWarnings();
             System.err.println("Done.");
         }

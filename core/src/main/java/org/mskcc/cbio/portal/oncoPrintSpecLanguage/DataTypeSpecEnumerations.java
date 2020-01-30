@@ -28,7 +28,7 @@
  *
  * You should have received a copy of the GNU Affero General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
-*/
+ */
 
 package org.mskcc.cbio.portal.oncoPrintSpecLanguage;
 
@@ -37,12 +37,20 @@ import static java.lang.System.out;
 import java.util.ArrayList;
 
 public class DataTypeSpecEnumerations {
-    static public boolean isDataTypeName(String id) {
 
-        if (null == UniqueEnumPrefix.findUniqueEnumMatchingPrefix(
-                GeneticDataTypes.class, id)
-                && null == UniqueEnumPrefix.findUniqueEnumWithNicknameMatchingPrefix(
-                                GeneticDataTypes.class, id)) {
+    public static boolean isDataTypeName(String id) {
+        if (
+            null ==
+            UniqueEnumPrefix.findUniqueEnumMatchingPrefix(
+                GeneticDataTypes.class,
+                id
+            ) &&
+            null ==
+            UniqueEnumPrefix.findUniqueEnumWithNicknameMatchingPrefix(
+                GeneticDataTypes.class,
+                id
+            )
+        ) {
             // out.format( "isDataTypeName: returning false for '%s'%n", id );
             return false;
         }
@@ -50,21 +58,32 @@ public class DataTypeSpecEnumerations {
         return true;
     }
 
-    static public boolean isDataTypeLevel(String id) {
-        if (null == UniqueEnumPrefix.findUniqueEnumMatchingPrefix(
-                GeneticTypeLevel.class, id)
-                && null == UniqueEnumPrefix
-                        .findUniqueEnumWithNicknameMatchingPrefix(
-                                GeneticTypeLevel.class, id)) {
+    public static boolean isDataTypeLevel(String id) {
+        if (
+            null ==
+            UniqueEnumPrefix.findUniqueEnumMatchingPrefix(
+                GeneticTypeLevel.class,
+                id
+            ) &&
+            null ==
+            UniqueEnumPrefix.findUniqueEnumWithNicknameMatchingPrefix(
+                GeneticTypeLevel.class,
+                id
+            )
+        ) {
             //out.format( "isDataTypeLevel: returning false for '%s'%n", id );
             ArrayList<String> levels = new ArrayList<String>();
-            for( GeneticTypeLevel aGeneticTypeLevel: GeneticTypeLevel.values()){
+            for (GeneticTypeLevel aGeneticTypeLevel : GeneticTypeLevel.values()) {
                 levels.add(aGeneticTypeLevel.toString());
-                for( String s : aGeneticTypeLevel.getNicknames()){
-                    levels.add( s );
+                for (String s : aGeneticTypeLevel.getNicknames()) {
+                    levels.add(s);
                 }
             }
-            out.format( "'%s' is not a unique data level; valid levels are %s.%n", id, levels );
+            out.format(
+                "'%s' is not a unique data level; valid levels are %s.%n",
+                id,
+                levels
+            );
             return false;
         }
         // out.format( "isDataTypeLevel: returning true for '%s'%n", id );
@@ -72,6 +91,7 @@ public class DataTypeSpecEnumerations {
     }
 
     public enum DataTypeCategory {
-       Continuous, Discrete
-   };
+        Continuous,
+        Discrete
+    }
 }

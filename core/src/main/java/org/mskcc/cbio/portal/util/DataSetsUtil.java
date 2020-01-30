@@ -28,19 +28,18 @@
  *
  * You should have received a copy of the GNU Affero General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
-*/
+ */
 
 package org.mskcc.cbio.portal.util;
 
+import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.List;
 // imports
 import org.mskcc.cbio.portal.dao.*;
 import org.mskcc.cbio.portal.model.*;
 import org.mskcc.cbio.portal.util.AccessControl;
 import org.mskcc.cbio.portal.web_api.ProtocolException;
-
-import java.util.List;
-import java.util.HashSet;
-import java.util.ArrayList;
 
 /**
  * Utility Class to help generate Data Sets Page.
@@ -48,127 +47,149 @@ import java.util.ArrayList;
  * @author Benjamin Gross.
  */
 public class DataSetsUtil {
+    // ref to our access control object
+    private static AccessControl accessControl = SpringUtil.getAccessControl();
 
-	// ref to our access control object
-	private static AccessControl accessControl = SpringUtil.getAccessControl();
+    // ref to total number of samples for al cancer studies
+    private Integer totalNumberOfSamples;
 
-	// ref to total number of samples for al cancer studies
-	private Integer totalNumberOfSamples;
+    // ref to our list of cancer study stats & total num of samples
+    private List<CancerStudyStats> cancerStudyStats;
 
-	// ref to our list of cancer study stats & total num of samples
-	private List<CancerStudyStats> cancerStudyStats;
+    private DaoSample daoSample;
+    private DaoPatient daoPatient;
+    private DaoSampleList daoSampleList;
 
-	private DaoSample daoSample;
-	private DaoPatient daoPatient;
-	private DaoSampleList daoSampleList;
+    /**
+     * Constructor (private).
+     */
+    public DataSetsUtil() {
+        try {
+            daoSample = new DaoSample();
+            daoPatient = new DaoPatient();
+            daoSampleList = new DaoSampleList();
+            // totalNumberOfSamples will be set while computing stats
+            totalNumberOfSamples = 0;
+            cancerStudyStats = computeCancerStudyStats();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
 
-	/**
-	 * Constructor (private).
-	 */
-	public DataSetsUtil() {
+    /**
+     * Returns the cancer study stats.
+     *
+     * @return List<CancerStudyStats>
+     */
+    public List<CancerStudyStats> getCancerStudyStats() {
+        return cancerStudyStats;
+    }
 
-		try {
-			daoSample = new DaoSample();
-			daoPatient = new DaoPatient();
-			daoSampleList = new DaoSampleList();
-			// totalNumberOfSamples will be set while computing stats
-			totalNumberOfSamples = 0;
-			cancerStudyStats = computeCancerStudyStats();
-		}
-		catch (Exception e) {
-			e.printStackTrace();
-		}
-	}
-
-	/**
-	 * Returns the cancer study stats.
-	 *
-	 * @return List<CancerStudyStats>
-	 */
-	public List<CancerStudyStats> getCancerStudyStats() { return cancerStudyStats; }
-
-	/**
-	 * Gets total number of samples for all studies.
-	 *
+    /**
+     * Gets total number of samples for all studies.
+     *
      * @return Integer
-	 */
-	public Integer getTotalNumberOfSamples() { return totalNumberOfSamples; }
+     */
+    public Integer getTotalNumberOfSamples() {
+        return totalNumberOfSamples;
+    }
 
-	/**
-	 * Routine which constructs and returns a list of CancerStudyStats
-	 *
+    /**
+     * Routine which constructs and returns a list of CancerStudyStats
+     *
      * @return List<CancerStudyStats>
      * @throws DaoException         Database Error.
      * @throws ProtocolException    Protocol Error.
-	 */
-	private List<CancerStudyStats> computeCancerStudyStats() throws DaoException, ProtocolException {
+     */
+    private List<CancerStudyStats> computeCancerStudyStats()
+        throws DaoException, ProtocolException {
+        // what we are returning
+        List<CancerStudyStats> toReturn = new ArrayList<CancerStudyStats>();
 
-		// what we are returning
-		List<CancerStudyStats> toReturn = new ArrayList<CancerStudyStats>();
+        // get list of cancer studies
+        List<CancerStudy> cancerStudyList = accessControl.getCancerStudies();
 
-		// get list of cancer studies
-		List<CancerStudy> cancerStudyList = accessControl.getCancerStudies();
+        // first element is 'all', remove it
+        cancerStudyList.remove(0);
 
-		// first element is 'all', remove it
-		cancerStudyList.remove(0); 
+        // process the list
+        for (CancerStudy cancerStudy : cancerStudyList) {
+            String citation = cancerStudy.getCitation();
+            if (citation == null) {
+                citation = "";
+            } else {
+                String pmid = cancerStudy.getPmid();
+                if (pmid != null) {
+                    citation =
+                        "<a href='http://www.ncbi.nlm.nih.gov/pubmed/" +
+                        pmid +
+                        "'>" +
+                        citation +
+                        "</a>";
+                }
+            }
+            // get genetic profiles
+            int sequenced = getCount(cancerStudy, "_sequenced");
+            int cna = getCount(cancerStudy, "_cna");
+            int RNASEQ = getRNASEQ(cancerStudy);
+            int tumorMRNA = getCount(cancerStudy, "_mrna");
+            int normal = getCount(cancerStudy, "_normal_mrna");
+            int tumorMIRNA = getCount(cancerStudy, "_microrna");
+            int methylationHM27 = getCount(cancerStudy, "_methylation_hm27");
+            int rppa = getCount(cancerStudy, "_rppa");
+            int complete = getCount(cancerStudy, "_3way_complete");
+            int all = getCount(cancerStudy, "_all");
+            totalNumberOfSamples += all;
+            // add to return list
+            toReturn.add(
+                new CancerStudyStats(
+                    cancerStudy.getCancerStudyStableId(),
+                    cancerStudy.getName(),
+                    citation,
+                    all,
+                    sequenced,
+                    cna,
+                    RNASEQ,
+                    tumorMRNA,
+                    normal,
+                    tumorMIRNA,
+                    methylationHM27,
+                    rppa,
+                    complete
+                )
+            );
+        }
 
-		// process the list
-		for (CancerStudy cancerStudy : cancerStudyList) {
-                        String citation = cancerStudy.getCitation();
-                        if (citation==null) {
-                            citation = "";
-                        } else {
-                            String pmid = cancerStudy.getPmid();
-                            if (pmid!=null) {
-                                citation = "<a href='http://www.ncbi.nlm.nih.gov/pubmed/"+pmid+"'>"+citation+"</a>";
-                            }
-                        }
-			// get genetic profiles
-			int sequenced = getCount(cancerStudy, "_sequenced");
-			int cna = getCount(cancerStudy, "_cna");
-			int RNASEQ = getRNASEQ(cancerStudy);
-			int tumorMRNA = getCount(cancerStudy, "_mrna");
-			int normal = getCount(cancerStudy, "_normal_mrna");
-			int tumorMIRNA = getCount(cancerStudy, "_microrna");
-			int methylationHM27 = getCount(cancerStudy, "_methylation_hm27");
-			int rppa = getCount(cancerStudy, "_rppa");
-			int complete = getCount(cancerStudy, "_3way_complete");
-			int all = getCount(cancerStudy, "_all");
-			totalNumberOfSamples += all;
-			// add to return list
-			toReturn.add(new CancerStudyStats(cancerStudy.getCancerStudyStableId(), 
-											  cancerStudy.getName(), citation, all, sequenced,
-											  cna, RNASEQ, tumorMRNA, normal, tumorMIRNA,
-											  methylationHM27, rppa, complete));
-		}
+        // outta here
+        return toReturn;
+    }
 
-		// outta here
-		return toReturn;
-	}
-	
-	private int getRNASEQ(CancerStudy cancerStudy) throws DaoException {
-	    // Looking for RNA SEQ V2
+    private int getRNASEQ(CancerStudy cancerStudy) throws DaoException {
+        // Looking for RNA SEQ V2
         Integer count = getCount(cancerStudy, "_rna_seq_v2_mrna");
-        
+
         // Looking for RNA SEQ if there is no data in v2
-        if(count == null || count == 0) {
+        if (count == null || count == 0) {
             count = getCount(cancerStudy, "_rna_seq_mrna");
         }
         return count;
     }
 
-	private int getCount(CancerStudy cancerStudy, String sampleListSuffix) throws DaoException
-	{
-		int count = 0;
-		
-		String sampleListID = cancerStudy.getCancerStudyStableId() + sampleListSuffix;
-		SampleList desiredSampleList = daoSampleList.getSampleListByStableId(sampleListID);
+    private int getCount(CancerStudy cancerStudy, String sampleListSuffix)
+        throws DaoException {
+        int count = 0;
 
-		if (desiredSampleList != null) {
-			// NOTE - as of 12/12/14, patient lists contain sample ids
-			count = desiredSampleList.getSampleList().size();
-		}
-		
-		return count;
-	}
+        String sampleListID =
+            cancerStudy.getCancerStudyStableId() + sampleListSuffix;
+        SampleList desiredSampleList = daoSampleList.getSampleListByStableId(
+            sampleListID
+        );
+
+        if (desiredSampleList != null) {
+            // NOTE - as of 12/12/14, patient lists contain sample ids
+            count = desiredSampleList.getSampleList().size();
+        }
+
+        return count;
+    }
 }

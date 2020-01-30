@@ -28,15 +28,14 @@
  *
  * You should have received a copy of the GNU Affero General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
-*/
+ */
 
 package org.mskcc.cbio.portal.scripts;
 
+import java.util.ArrayList;
 import org.mskcc.cbio.portal.dao.DaoSampleList;
 import org.mskcc.cbio.portal.model.SampleList;
 import org.mskcc.cbio.portal.util.ProgressMonitor;
-
-import java.util.ArrayList;
 
 /**
  * Command Line Tool to Export All Sample Lists to the Console.
@@ -47,10 +46,15 @@ public class GetAllSampleLists {
         // an extra --noprogress option can be given to avoid the messages regarding memory usage and % complete
         ProgressMonitor.setConsoleModeAndParseShowProgress(args);
         DaoSampleList daoSampleList = new DaoSampleList();
-        ArrayList <SampleList> sampleListMaster = daoSampleList.getAllSampleLists();
-        for (SampleList sampleList:  sampleListMaster) {
-            System.out.println (sampleList.getSampleListId() + ": "
-                    + sampleList.getStableId() + ": " + sampleList.getName());
+        ArrayList<SampleList> sampleListMaster = daoSampleList.getAllSampleLists();
+        for (SampleList sampleList : sampleListMaster) {
+            System.out.println(
+                sampleList.getSampleListId() +
+                ": " +
+                sampleList.getStableId() +
+                ": " +
+                sampleList.getName()
+            );
         }
     }
 }

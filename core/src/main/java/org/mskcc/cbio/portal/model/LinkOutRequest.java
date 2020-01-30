@@ -28,22 +28,21 @@
  *
  * You should have received a copy of the GNU Affero General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
-*/
+ */
 
 package org.mskcc.cbio.portal.model;
 
-import org.mskcc.cbio.portal.servlet.ServletXssUtil;
-import org.mskcc.cbio.portal.web_api.ProtocolException;
+import java.io.UnsupportedEncodingException;
+import java.net.URLEncoder;
+import java.util.HashSet;
+import java.util.Set;
+import javax.servlet.http.HttpServletRequest;
+import org.apache.log4j.Logger;
 import org.mskcc.cbio.portal.dao.DaoCancerStudy;
 import org.mskcc.cbio.portal.dao.DaoException;
+import org.mskcc.cbio.portal.servlet.ServletXssUtil;
+import org.mskcc.cbio.portal.web_api.ProtocolException;
 import org.owasp.validator.html.PolicyException;
-import org.apache.log4j.Logger;
-
-import javax.servlet.http.HttpServletRequest;
-import java.net.URLEncoder;
-import java.io.UnsupportedEncodingException;
-import java.util.Set;
-import java.util.HashSet;
 
 /**
  * Encapsulates parameters for a Link Out Request.
@@ -63,7 +62,8 @@ public class LinkOutRequest {
     private ServletXssUtil xssUtil;
     private boolean isCrossCancerQuery = false;
 
-    public LinkOutRequest(HttpServletRequest httpServletRequest) throws ProtocolException, DaoException {
+    public LinkOutRequest(HttpServletRequest httpServletRequest)
+        throws ProtocolException, DaoException {
         try {
             xssUtil = ServletXssUtil.getInstance();
         } catch (PolicyException e) {
@@ -90,10 +90,16 @@ public class LinkOutRequest {
     }
 
     private void getParametersSafely(HttpServletRequest httpServletRequest) {
-        cancerStudyId = xssUtil.getCleanInput(httpServletRequest, STABLE_PARAM_CANCER_STUDY_ID);
-        geneList = xssUtil.getCleanInput(httpServletRequest, STABLE_PARAM_GENE_LIST);
-        if (geneList==null) {
-            geneList = xssUtil.getCleanInput(httpServletRequest, STABLE_PARAM_QUERY);
+        cancerStudyId =
+            xssUtil.getCleanInput(
+                httpServletRequest,
+                STABLE_PARAM_CANCER_STUDY_ID
+            );
+        geneList =
+            xssUtil.getCleanInput(httpServletRequest, STABLE_PARAM_GENE_LIST);
+        if (geneList == null) {
+            geneList =
+                xssUtil.getCleanInput(httpServletRequest, STABLE_PARAM_QUERY);
         }
         report = xssUtil.getCleanInput(httpServletRequest, STABLE_PARAM_REPORT);
     }
@@ -110,18 +116,25 @@ public class LinkOutRequest {
 
     private void validateGeneList() throws ProtocolException {
         if (geneList == null || geneList.length() == 0) {
-            throw new ProtocolException (LinkOutRequest.STABLE_PARAM_GENE_LIST + " is not specified");
+            throw new ProtocolException(
+                LinkOutRequest.STABLE_PARAM_GENE_LIST + " is not specified"
+            );
         }
     }
 
-    private void validateCancerStudyId() throws ProtocolException, DaoException {
-        if (cancerStudyId == null || cancerStudyId.length() == 0 || cancerStudyId.equalsIgnoreCase("all")) {
+    private void validateCancerStudyId()
+        throws ProtocolException, DaoException {
+        if (
+            cancerStudyId == null ||
+            cancerStudyId.length() == 0 ||
+            cancerStudyId.equalsIgnoreCase("all")
+        ) {
             isCrossCancerQuery = true;
         }
-//        CancerStudy cancerStudy = DaoCancerStudy.getCancerStudyByStableId(cancerStudyId);
-//        if (cancerStudy == null) {
-//            throw new ProtocolException(cancerStudyId + " is not a recognized cancer study ID.");
-//        }
+        //        CancerStudy cancerStudy = DaoCancerStudy.getCancerStudyByStableId(cancerStudyId);
+        //        if (cancerStudy == null) {
+        //            throw new ProtocolException(cancerStudyId + " is not a recognized cancer study ID.");
+        //        }
     }
 
     private void validateOutput() throws ProtocolException {
@@ -130,7 +143,9 @@ public class LinkOutRequest {
             report = REPORT_FULL;
         } else {
             if (!validOutputs.contains(report.toLowerCase())) {
-                throw new ProtocolException("Unrecognized " + STABLE_PARAM_REPORT + ":  " + report);
+                throw new ProtocolException(
+                    "Unrecognized " + STABLE_PARAM_REPORT + ":  " + report
+                );
             }
         }
     }

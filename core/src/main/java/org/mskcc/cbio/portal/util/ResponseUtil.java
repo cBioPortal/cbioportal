@@ -28,16 +28,15 @@
  *
  * You should have received a copy of the GNU Affero General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
-*/
+ */
 
 package org.mskcc.cbio.portal.util;
-
-import org.apache.commons.httpclient.HttpMethodBase;
 
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import org.apache.commons.httpclient.HttpMethodBase;
 
 /**
  * Response Utility Class.
@@ -51,9 +50,10 @@ public class ResponseUtil {
      * @return Response String.
      * @throws IOException IO Error.
      */
-    public static String getResponseString(HttpMethodBase method) throws IOException {
-		return getResponseString(method.getResponseBodyAsStream());
-	}
+    public static String getResponseString(HttpMethodBase method)
+        throws IOException {
+        return getResponseString(method.getResponseBodyAsStream());
+    }
 
     /**
      * Reads in the Response String from Server.
@@ -62,7 +62,8 @@ public class ResponseUtil {
      * @return Response String.
      * @throws IOException IO Error.
      */
-    public static String getResponseString(InputStream inStream) throws IOException {
+    public static String getResponseString(InputStream inStream)
+        throws IOException {
         BufferedReader in = new BufferedReader(new InputStreamReader(inStream));
         StringBuffer buf = new StringBuffer();
         String line = in.readLine();

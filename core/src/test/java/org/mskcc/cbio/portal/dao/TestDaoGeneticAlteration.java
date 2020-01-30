@@ -28,10 +28,13 @@
  *
  * You should have received a copy of the GNU Affero General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
-*/
+ */
 
 package org.mskcc.cbio.portal.dao;
 
+import static org.junit.Assert.*;
+
+import java.util.*;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -41,32 +44,33 @@ import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import org.springframework.test.context.transaction.TransactionConfiguration;
 import org.springframework.transaction.annotation.Transactional;
 
-import static org.junit.Assert.*;
-
-import java.util.*;
-
 /**
  * JUnit tests for DaoGeneticAlteration class.
  */
 @RunWith(SpringJUnit4ClassRunner.class)
 @ContextConfiguration(locations = { "classpath:/applicationContext-dao.xml" })
-@TransactionConfiguration(transactionManager = "transactionManager", defaultRollback = true)
+@TransactionConfiguration(
+    transactionManager = "transactionManager",
+    defaultRollback = true
+)
 @Transactional
 public class TestDaoGeneticAlteration {
-	
-	CancerStudy study;
-	ArrayList<Integer> internalSampleIds;
-	int geneticProfileId;
-	
-	@Before
-	public void setUp() throws DaoException {
-		study = DaoCancerStudy.getCancerStudyByStableId("study_tcga_pub");
-		geneticProfileId = DaoGeneticProfile.getGeneticProfileByStableId("study_tcga_pub_mutations").getGeneticProfileId();
-		
-		internalSampleIds = new ArrayList<Integer>();
+    CancerStudy study;
+    ArrayList<Integer> internalSampleIds;
+    int geneticProfileId;
+
+    @Before
+    public void setUp() throws DaoException {
+        study = DaoCancerStudy.getCancerStudyByStableId("study_tcga_pub");
+        geneticProfileId =
+            DaoGeneticProfile
+                .getGeneticProfileByStableId("study_tcga_pub_mutations")
+                .getGeneticProfileId();
+
+        internalSampleIds = new ArrayList<Integer>();
         Patient p = new Patient(study, "TCGA-1");
         int pId = DaoPatient.addPatient(p);
-        
+
         DaoSample.reCache();
         Sample s = new Sample("XCGA-A1-A0SB-01", pId, "brca");
         internalSampleIds.add(DaoSample.addSample(s));
@@ -76,55 +80,59 @@ public class TestDaoGeneticAlteration {
         internalSampleIds.add(DaoSample.addSample(s));
         s = new Sample("XCGA-A1-A0SF-01", pId, "brca");
         internalSampleIds.add(DaoSample.addSample(s));
-	}
+    }
 
-	@Test
+    @Test
     public void testDaoGeneticAlterationBulkOn() throws DaoException {
-        
         // test with MySQLbulkLoader.isBulkLoad()
-		runTheTest();
-	}
+        runTheTest();
+    }
 
-	@Test
+    @Test
     public void testDaoGeneticAlterationBulkOff() throws DaoException {
-        
         // test without MySQLbulkLoader.isBulkLoad()
         MySQLbulkLoader.bulkLoadOff();
         runTheTest();
         MySQLbulkLoader.bulkLoadOn();
     }
-    
-    private void runTheTest() throws DaoException{
 
+    private void runTheTest() throws DaoException {
         //  Add the Sample List
-        int numRows = DaoGeneticProfileSamples.addGeneticProfileSamples(geneticProfileId, internalSampleIds);
-        assertEquals (1, numRows);
+        int numRows = DaoGeneticProfileSamples.addGeneticProfileSamples(
+            geneticProfileId,
+            internalSampleIds
+        );
+        assertEquals(1, numRows);
 
         //  Add Some Data
         String data = "200:400:600:800";
         String values[] = data.split(":");
         DaoGeneticAlteration dao = DaoGeneticAlteration.getInstance();
         numRows = dao.addGeneticAlterations(geneticProfileId, 672, values);
-        assertEquals (1, numRows);
+        assertEquals(1, numRows);
 
         // if bulkLoading, execute LOAD FILE
-        if( MySQLbulkLoader.isBulkLoad()){
-           MySQLbulkLoader.flushAll();
+        if (MySQLbulkLoader.isBulkLoad()) {
+            MySQLbulkLoader.flushAll();
         }
 
-        HashMap<Integer, String> valueMap = dao.getGeneticAlterationMap(geneticProfileId, 672);
-        assertEquals ("200", valueMap.get(internalSampleIds.get(0)));
-        assertEquals ("400", valueMap.get(internalSampleIds.get(1)));
-        assertEquals ("600", valueMap.get(internalSampleIds.get(2)));
-        assertEquals ("800", valueMap.get(internalSampleIds.get(3)));
+        HashMap<Integer, String> valueMap = dao.getGeneticAlterationMap(
+            geneticProfileId,
+            672
+        );
+        assertEquals("200", valueMap.get(internalSampleIds.get(0)));
+        assertEquals("400", valueMap.get(internalSampleIds.get(1)));
+        assertEquals("600", valueMap.get(internalSampleIds.get(2)));
+        assertEquals("800", valueMap.get(internalSampleIds.get(3)));
 
         //  Test the getGenesInProfile method
-        Set <CanonicalGene> geneSet = dao.getGenesInProfile(geneticProfileId);
-        ArrayList <CanonicalGene> geneList = new ArrayList <CanonicalGene> (geneSet);
-        assertEquals (1, geneList.size());
+        Set<CanonicalGene> geneSet = dao.getGenesInProfile(geneticProfileId);
+        ArrayList<CanonicalGene> geneList = new ArrayList<CanonicalGene>(
+            geneSet
+        );
+        assertEquals(1, geneList.size());
         CanonicalGene gene = geneList.get(0);
-        assertEquals ("BRCA1", gene.getHugoGeneSymbolAllCaps());
-        assertEquals (672, gene.getEntrezGeneId());
-        
+        assertEquals("BRCA1", gene.getHugoGeneSymbolAllCaps());
+        assertEquals(672, gene.getEntrezGeneId());
     }
 }

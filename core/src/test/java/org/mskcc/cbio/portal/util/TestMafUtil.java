@@ -28,16 +28,13 @@
  *
  * You should have received a copy of the GNU Affero General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
-*/
+ */
 
 package org.mskcc.cbio.portal.util;
 
 import java.io.BufferedReader;
 import java.io.FileReader;
 import java.io.IOException;
-import org.mskcc.cbio.portal.model.ExtendedMutation;
-import org.mskcc.cbio.portal.model.ExtendedMutation.MutationEvent;
-
 import java.util.*;
 import java.util.regex.Matcher;
 import org.junit.Assert;
@@ -47,6 +44,8 @@ import org.mskcc.cbio.maf.MafUtil;
 import org.mskcc.cbio.portal.dao.DaoException;
 import org.mskcc.cbio.portal.dao.DaoGeneticProfile;
 import org.mskcc.cbio.portal.model.AlleleSpecificCopyNumber;
+import org.mskcc.cbio.portal.model.ExtendedMutation;
+import org.mskcc.cbio.portal.model.ExtendedMutation.MutationEvent;
 import org.mskcc.cbio.portal.model.GeneticProfile;
 
 /**
@@ -55,7 +54,9 @@ import org.mskcc.cbio.portal.model.GeneticProfile;
  */
 public class TestMafUtil {
     private final String ASCN_NAMESPACE = "ascn";
-    private final Set<String> VALID_NAMESPACES = new LinkedHashSet<>(Arrays.asList("namespace1", "namespace2"));
+    private final Set<String> VALID_NAMESPACES = new LinkedHashSet<>(
+        Arrays.asList("namespace1", "namespace2")
+    );
     private final String INVALID_NAMESPACE = "invalid_namespace";
 
     @Test
@@ -65,12 +66,20 @@ public class TestMafUtil {
 
         int failCount = 0;
         for (ExtendedMutation record : makeMockExtendedMutationRecords()) {
-            String resolvedAllele = MafUtil.resolveTumorSeqAllele(record.getReferenceAllele(),
-                    record.getTumorSeqAllele1(), record.getTumorSeqAllele2());
+            String resolvedAllele = MafUtil.resolveTumorSeqAllele(
+                record.getReferenceAllele(),
+                record.getTumorSeqAllele1(),
+                record.getTumorSeqAllele2()
+            );
             if (!resolvedAllele.equals(record.getTumorSeqAllele())) {
                 failCount++;
-                errorMessage.append("\n\tResolved tumor seq allele does not match expected value:  ")
-                        .append(resolvedAllele).append(" != ").append(record.getTumorSeqAllele());
+                errorMessage
+                    .append(
+                        "\n\tResolved tumor seq allele does not match expected value:  "
+                    )
+                    .append(resolvedAllele)
+                    .append(" != ")
+                    .append(record.getTumorSeqAllele());
             }
         }
         if (failCount > 0) {
@@ -87,15 +96,19 @@ public class TestMafUtil {
      */
     private List<ExtendedMutation> makeMockExtendedMutationRecords() {
         List<ExtendedMutation> records = new ArrayList<>();
-        String referenceAllele; String tumorSeqAllele;
-        String tumorSeqAllele1; String tumorSeqAllele2;
+        String referenceAllele;
+        String tumorSeqAllele;
+        String tumorSeqAllele1;
+        String tumorSeqAllele2;
 
         ExtendedMutation mut = new ExtendedMutation();
         MutationEvent me = new MutationEvent();
 
         // mock del variant
-        referenceAllele = "AACG"; tumorSeqAllele = "-";
-        tumorSeqAllele1 = "AACG"; tumorSeqAllele2 = "-";
+        referenceAllele = "AACG";
+        tumorSeqAllele = "-";
+        tumorSeqAllele1 = "AACG";
+        tumorSeqAllele2 = "-";
         me.setReferenceAllele(referenceAllele);
         me.setTumorSeqAllele(tumorSeqAllele);
         mut.setTumorSeqAllele1(tumorSeqAllele1);
@@ -103,9 +116,12 @@ public class TestMafUtil {
         mut.setEvent(me);
         records.add(mut);
 
-        referenceAllele = "AACG"; tumorSeqAllele = "-";
-        tumorSeqAllele1 = "-"; tumorSeqAllele2 = "AACG";
-        mut = new ExtendedMutation(); me = new MutationEvent();
+        referenceAllele = "AACG";
+        tumorSeqAllele = "-";
+        tumorSeqAllele1 = "-";
+        tumorSeqAllele2 = "AACG";
+        mut = new ExtendedMutation();
+        me = new MutationEvent();
         me.setReferenceAllele(referenceAllele);
         me.setTumorSeqAllele(tumorSeqAllele);
         mut.setTumorSeqAllele1(tumorSeqAllele1);
@@ -114,9 +130,12 @@ public class TestMafUtil {
         records.add(mut);
 
         // mock insertion variants
-        referenceAllele = "-"; tumorSeqAllele = "ATGC";
-        tumorSeqAllele1 = "ATGC"; tumorSeqAllele2 = "-";
-        mut = new ExtendedMutation(); me = new MutationEvent();
+        referenceAllele = "-";
+        tumorSeqAllele = "ATGC";
+        tumorSeqAllele1 = "ATGC";
+        tumorSeqAllele2 = "-";
+        mut = new ExtendedMutation();
+        me = new MutationEvent();
         me.setReferenceAllele(referenceAllele);
         me.setTumorSeqAllele(tumorSeqAllele);
         mut.setTumorSeqAllele1(tumorSeqAllele1);
@@ -124,9 +143,12 @@ public class TestMafUtil {
         mut.setEvent(me);
         records.add(mut);
 
-        referenceAllele = "-"; tumorSeqAllele = "ATGC";
-        tumorSeqAllele1 = "-"; tumorSeqAllele2 = "ATGC";
-        mut = new ExtendedMutation(); me = new MutationEvent();
+        referenceAllele = "-";
+        tumorSeqAllele = "ATGC";
+        tumorSeqAllele1 = "-";
+        tumorSeqAllele2 = "ATGC";
+        mut = new ExtendedMutation();
+        me = new MutationEvent();
         me.setReferenceAllele(referenceAllele);
         me.setTumorSeqAllele(tumorSeqAllele);
         mut.setTumorSeqAllele1(tumorSeqAllele1);
@@ -134,9 +156,12 @@ public class TestMafUtil {
         mut.setEvent(me);
         records.add(mut);
 
-        referenceAllele = "-"; tumorSeqAllele = "C";
-        tumorSeqAllele1 = "C"; tumorSeqAllele2 = "A";
-        mut = new ExtendedMutation(); me = new MutationEvent();
+        referenceAllele = "-";
+        tumorSeqAllele = "C";
+        tumorSeqAllele1 = "C";
+        tumorSeqAllele2 = "A";
+        mut = new ExtendedMutation();
+        me = new MutationEvent();
         me.setReferenceAllele(referenceAllele);
         me.setTumorSeqAllele(tumorSeqAllele);
         mut.setTumorSeqAllele1(tumorSeqAllele1);
@@ -145,9 +170,12 @@ public class TestMafUtil {
         records.add(mut);
 
         // mock indel variants
-        referenceAllele = "AACG"; tumorSeqAllele = "ATGC";
-        tumorSeqAllele1 = "ATGC"; tumorSeqAllele2 = "TGCA";
-        mut = new ExtendedMutation(); me = new MutationEvent();
+        referenceAllele = "AACG";
+        tumorSeqAllele = "ATGC";
+        tumorSeqAllele1 = "ATGC";
+        tumorSeqAllele2 = "TGCA";
+        mut = new ExtendedMutation();
+        me = new MutationEvent();
         me.setReferenceAllele(referenceAllele);
         me.setTumorSeqAllele(tumorSeqAllele);
         mut.setTumorSeqAllele1(tumorSeqAllele1);
@@ -155,9 +183,12 @@ public class TestMafUtil {
         mut.setEvent(me);
         records.add(mut);
 
-        referenceAllele = "AAGA"; tumorSeqAllele = "CA";
-        tumorSeqAllele1 = "-"; tumorSeqAllele2 = "CA";
-        mut = new ExtendedMutation(); me = new MutationEvent();
+        referenceAllele = "AAGA";
+        tumorSeqAllele = "CA";
+        tumorSeqAllele1 = "-";
+        tumorSeqAllele2 = "CA";
+        mut = new ExtendedMutation();
+        me = new MutationEvent();
         me.setReferenceAllele(referenceAllele);
         me.setTumorSeqAllele(tumorSeqAllele);
         mut.setTumorSeqAllele1(tumorSeqAllele1);
@@ -166,9 +197,12 @@ public class TestMafUtil {
         records.add(mut);
 
         // mock cases where snps preferred over dels
-        referenceAllele = "A"; tumorSeqAllele = "T";
-        tumorSeqAllele1 = "T"; tumorSeqAllele2 = "C";
-        mut = new ExtendedMutation(); me = new MutationEvent();
+        referenceAllele = "A";
+        tumorSeqAllele = "T";
+        tumorSeqAllele1 = "T";
+        tumorSeqAllele2 = "C";
+        mut = new ExtendedMutation();
+        me = new MutationEvent();
         me.setReferenceAllele(referenceAllele);
         me.setTumorSeqAllele(tumorSeqAllele);
         mut.setTumorSeqAllele1(tumorSeqAllele1);
@@ -176,9 +210,12 @@ public class TestMafUtil {
         mut.setEvent(me);
         records.add(mut);
 
-        referenceAllele = "A"; tumorSeqAllele = "C";
-        tumorSeqAllele1 = "A"; tumorSeqAllele2 = "C";
-        mut = new ExtendedMutation(); me = new MutationEvent();
+        referenceAllele = "A";
+        tumorSeqAllele = "C";
+        tumorSeqAllele1 = "A";
+        tumorSeqAllele2 = "C";
+        mut = new ExtendedMutation();
+        me = new MutationEvent();
         me.setReferenceAllele(referenceAllele);
         me.setTumorSeqAllele(tumorSeqAllele);
         mut.setTumorSeqAllele1(tumorSeqAllele1);
@@ -186,9 +223,12 @@ public class TestMafUtil {
         mut.setEvent(me);
         records.add(mut);
 
-        referenceAllele = "A"; tumorSeqAllele = "C";
-        tumorSeqAllele1 = "-"; tumorSeqAllele2 = "C";
-        mut = new ExtendedMutation(); me = new MutationEvent();
+        referenceAllele = "A";
+        tumorSeqAllele = "C";
+        tumorSeqAllele1 = "-";
+        tumorSeqAllele2 = "C";
+        mut = new ExtendedMutation();
+        me = new MutationEvent();
         me.setReferenceAllele(referenceAllele);
         me.setTumorSeqAllele(tumorSeqAllele);
         mut.setTumorSeqAllele1(tumorSeqAllele1);
@@ -196,9 +236,12 @@ public class TestMafUtil {
         mut.setEvent(me);
         records.add(mut);
 
-        referenceAllele = "A"; tumorSeqAllele = "C";
-        tumorSeqAllele1 = "C"; tumorSeqAllele2 = "-";
-        mut = new ExtendedMutation(); me = new MutationEvent();
+        referenceAllele = "A";
+        tumorSeqAllele = "C";
+        tumorSeqAllele1 = "C";
+        tumorSeqAllele2 = "-";
+        mut = new ExtendedMutation();
+        me = new MutationEvent();
         me.setReferenceAllele(referenceAllele);
         me.setTumorSeqAllele(tumorSeqAllele);
         mut.setTumorSeqAllele1(tumorSeqAllele1);
@@ -207,19 +250,25 @@ public class TestMafUtil {
         records.add(mut);
 
         // test null cases
-        referenceAllele = "G"; tumorSeqAllele = "-";
-        tumorSeqAllele1 = null; tumorSeqAllele2 = "-";
-        mut = new ExtendedMutation(); me = new MutationEvent();
+        referenceAllele = "G";
+        tumorSeqAllele = "-";
+        tumorSeqAllele1 = null;
+        tumorSeqAllele2 = "-";
+        mut = new ExtendedMutation();
+        me = new MutationEvent();
         me.setReferenceAllele(referenceAllele);
         me.setTumorSeqAllele(tumorSeqAllele);
         mut.setTumorSeqAllele1(tumorSeqAllele1);
         mut.setTumorSeqAllele2(tumorSeqAllele2);
         mut.setEvent(me);
         records.add(mut);
-        
-        referenceAllele = "G"; tumorSeqAllele = "A";
-        tumorSeqAllele1 = "NA"; tumorSeqAllele2 = "A";
-        mut = new ExtendedMutation(); me = new MutationEvent();
+
+        referenceAllele = "G";
+        tumorSeqAllele = "A";
+        tumorSeqAllele1 = "NA";
+        tumorSeqAllele2 = "A";
+        mut = new ExtendedMutation();
+        me = new MutationEvent();
         me.setReferenceAllele(referenceAllele);
         me.setTumorSeqAllele(tumorSeqAllele);
         mut.setTumorSeqAllele1(tumorSeqAllele1);
@@ -232,12 +281,13 @@ public class TestMafUtil {
 
     /**
      * Test that expected namespaces are resolved correctly from MAF header.
-     * @throws Exception 
+     * @throws Exception
      */
     @Test
     public void testResolveAnnotationNamespaces() throws Exception {
-        
-        FileReader reader = new FileReader("src/test/resources/data_mutations_extended_json_annotation.txt");
+        FileReader reader = new FileReader(
+            "src/test/resources/data_mutations_extended_json_annotation.txt"
+        );
         BufferedReader buf = new BufferedReader(reader);
         String line = buf.readLine().trim();
         while (line.startsWith("#")) {
@@ -247,37 +297,55 @@ public class TestMafUtil {
         Assert.assertTrue(mafUtil.getNamespaceIndexMap().size() == 2);
         for (String ns : VALID_NAMESPACES) {
             if (!mafUtil.getNamespaceIndexMap().containsKey(ns)) {
-                Assert.fail("maUtil.getNamespaceIndexMap() is missing expected namespace: '" + ns + "'");
+                Assert.fail(
+                    "maUtil.getNamespaceIndexMap() is missing expected namespace: '" +
+                    ns +
+                    "'"
+                );
             }
         }
-        Assert.assertFalse("Invalid namespace found in mafUtil.getNamespaceIndexMap(): " + INVALID_NAMESPACE, mafUtil.getNamespaceIndexMap().containsKey(INVALID_NAMESPACE));
+        Assert.assertFalse(
+            "Invalid namespace found in mafUtil.getNamespaceIndexMap(): " +
+            INVALID_NAMESPACE,
+            mafUtil.getNamespaceIndexMap().containsKey(INVALID_NAMESPACE)
+        );
         buf.close();
     }
 
     /**
      * Test that ASCN namespace is resolved correctly from MAF.
-     * @throws Exception 
+     * @throws Exception
      */
     @Test
     public void testResolveAscnAnnotationNamespace() throws Exception {
-        
-        FileReader reader = new FileReader("src/test/resources/data_mutations_extended_json_annotation.txt");
+        FileReader reader = new FileReader(
+            "src/test/resources/data_mutations_extended_json_annotation.txt"
+        );
         BufferedReader buf = new BufferedReader(reader);
         String line = buf.readLine().trim();
         while (line.startsWith("#")) {
             line = buf.readLine().trim();
         }
-        MafUtil mafUtil = new MafUtil(line, new LinkedHashSet<>(Arrays.asList(ASCN_NAMESPACE)));
+        MafUtil mafUtil = new MafUtil(
+            line,
+            new LinkedHashSet<>(Arrays.asList(ASCN_NAMESPACE))
+        );
         Assert.assertTrue(mafUtil.getNamespaceIndexMap().size() == 1);
-        Assert.assertTrue(mafUtil.getNamespaceIndexMap().containsKey(ASCN_NAMESPACE));
+        Assert.assertTrue(
+            mafUtil.getNamespaceIndexMap().containsKey(ASCN_NAMESPACE)
+        );
 
         List<AlleleSpecificCopyNumber> ascnRecords = new ArrayList<>();
-        while((line=buf.readLine()) != null) {
+        while ((line = buf.readLine()) != null) {
             if (!line.startsWith("#") && line.trim().length() > 0) {
                 MafRecord record = mafUtil.parseRecord(line);
                 // every record in test MAF should have ASCN data
-                Assert.assertTrue(record.getNamespacesMap().containsKey(ASCN_NAMESPACE));
-                Map<String, String> ascnData = record.getNamespacesMap().get(ASCN_NAMESPACE);
+                Assert.assertTrue(
+                    record.getNamespacesMap().containsKey(ASCN_NAMESPACE)
+                );
+                Map<String, String> ascnData = record
+                    .getNamespacesMap()
+                    .get(ASCN_NAMESPACE);
                 ascnRecords.add(new AlleleSpecificCopyNumber(ascnData));
             }
         }

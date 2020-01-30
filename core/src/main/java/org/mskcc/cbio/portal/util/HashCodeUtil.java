@@ -28,7 +28,7 @@
  *
  * You should have received a copy of the GNU Affero General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
-*/
+ */
 
 package org.mskcc.cbio.portal.util;
 
@@ -36,11 +36,11 @@ import java.lang.reflect.Array;
 
 /**
  * Collected methods which allow easy implementation of <code>hashCode</code>.
- * 
+ *
  * From http://www.javapractices.com/topic/TopicAction.do;Id=28
- * 
+ *
  * Example use case:
- * 
+ *
  * <pre>
  * public int hashCode() {
  *     int result = HashCodeUtil.SEED;
@@ -53,7 +53,6 @@ import java.lang.reflect.Array;
  * </pre>
  */
 public final class HashCodeUtil {
-
     /**
      * An initial value for a <code>hashCode</code>, to which is added
      * contributions from fields. Using a non-zero value decreases collisons of
@@ -110,7 +109,7 @@ public final class HashCodeUtil {
     /**
      * <code>aObject</code> is a possibly-null object field, and possibly an
      * array.
-     * 
+     *
      * If <code>aObject</code> is an array, then each element may be a primitive
      * or a possibly-null object.
      */

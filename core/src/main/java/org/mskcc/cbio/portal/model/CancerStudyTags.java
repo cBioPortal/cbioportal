@@ -1,7 +1,6 @@
 package org.mskcc.cbio.portal.model;
 
 public class CancerStudyTags {
-
     private int cancerStudyId;
     private String tags;
 

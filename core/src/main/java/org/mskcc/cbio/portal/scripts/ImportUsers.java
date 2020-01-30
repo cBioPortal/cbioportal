@@ -28,17 +28,16 @@
  *
  * You should have received a copy of the GNU Affero General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
-*/
+ */
 
 package org.mskcc.cbio.portal.scripts;
 
-// imports
-import org.mskcc.cbio.portal.model.*;
-import org.mskcc.cbio.portal.dao.*;
-import org.mskcc.cbio.portal.util.*;
-
 import java.io.*;
 import java.util.*;
+import org.mskcc.cbio.portal.dao.*;
+// imports
+import org.mskcc.cbio.portal.model.*;
+import org.mskcc.cbio.portal.util.*;
 
 /**
  * Import a file of users and their authorities.
@@ -48,7 +47,7 @@ import java.util.*;
  * EMAIL_ADDRESS\tUSERNAME\tENABLED\tAUTHORITIES
  *
  * AUTHORITIES is semicolon separated list of authorites
- * 
+ *
  * @author Arthur Goldberg goldberg@cbio.mskcc.org
  * @author Benjamin Gross
  */
@@ -56,13 +55,15 @@ public class ImportUsers {
 
     public static void main(String[] args) throws Exception {
         if (args.length == 0) {
-            System.out.println("command line usage: java org.mskcc.cbio.portal.scripts.ImportUsers <users_file.txt>");
+            System.out.println(
+                "command line usage: java org.mskcc.cbio.portal.scripts.ImportUsers <users_file.txt>"
+            );
             return;
         }
 
         ProgressMonitor.setConsoleMode(true);
 
-		SpringUtil.initDataSource();
+        SpringUtil.initDataSource();
 
         File file = new File(args[0]);
         FileReader reader = new FileReader(file);
@@ -77,7 +78,9 @@ public class ImportUsers {
                     addUser(line);
                     count++;
                 } catch (Exception e) {
-                    System.err.println("Could not add line '" + line + "'. " + e);
+                    System.err.println(
+                        "Could not add line '" + line + "'. " + e
+                    );
                 }
             }
             line = buf.readLine();
@@ -91,7 +94,9 @@ public class ImportUsers {
         line = line.trim();
         String parts[] = line.split("\t");
         if (parts.length != 4) {
-            throw new IllegalArgumentException("Missing a user attribute, parts: " + parts.length);
+            throw new IllegalArgumentException(
+                "Missing a user attribute, parts: " + parts.length
+            );
         }
         String email = parts[0];
         String name = parts[1];
@@ -106,13 +111,18 @@ public class ImportUsers {
         }
 
         // if exist, delete user authorities
-        UserAuthorities currentAuthorities = DaoUserAuthorities.getUserAuthorities(user);
+        UserAuthorities currentAuthorities = DaoUserAuthorities.getUserAuthorities(
+            user
+        );
         if (currentAuthorities != null) {
             DaoUserAuthorities.removeUserAuthorities(user);
         }
 
         // add new authorities
-        UserAuthorities userAuthorities = new UserAuthorities(email, authorities);
+        UserAuthorities userAuthorities = new UserAuthorities(
+            email,
+            authorities
+        );
         DaoUserAuthorities.addUserAuthorities(userAuthorities);
     }
 }

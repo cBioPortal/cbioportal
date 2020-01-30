@@ -28,7 +28,7 @@
  *
  * You should have received a copy of the GNU Affero General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
-*/
+ */
 
 package org.mskcc.cbio.portal.model;
 
@@ -53,13 +53,18 @@ public class MutSig {
     private int numMutations;
     private float pValue;
     private float qValue;
-    
-    public MutSig() {
-        
-    }
 
-    public MutSig(int cancerType, CanonicalGene canonicalGene, int rank,
-            int numBasesCovered, int numMutations, float pValue, float qValue) {
+    public MutSig() {}
+
+    public MutSig(
+        int cancerType,
+        CanonicalGene canonicalGene,
+        int rank,
+        int numBasesCovered,
+        int numMutations,
+        float pValue,
+        float qValue
+    ) {
         this.cancerType = cancerType;
         this.rank = rank;
         this.canonicalGene = canonicalGene;
@@ -68,11 +73,11 @@ public class MutSig {
         this.pValue = pValue;
         this.qValue = qValue;
     }
+
     // ignoring fields :
     //      nVal, nVer, cpg, cAndG, aAndT, inDel, adjustedQValue
 
-
-//  note: getCanonicalGene will return a CanonicalGene object.
+    //  note: getCanonicalGene will return a CanonicalGene object.
 
     public MutSig getInstance() throws DaoException {
         return this;
@@ -135,7 +140,12 @@ public class MutSig {
     }
 
     public String toString() {
-        return  String.format("[canonicalGene: %s, numBasesCovered: %d, numMutations: %d, qValue: %f]",
-                        this.getCanonicalGene(), this.numBasesCovered, this.numMutations, this.qValue);
+        return String.format(
+            "[canonicalGene: %s, numBasesCovered: %d, numMutations: %d, qValue: %f]",
+            this.getCanonicalGene(),
+            this.numBasesCovered,
+            this.numMutations,
+            this.qValue
+        );
     }
 }

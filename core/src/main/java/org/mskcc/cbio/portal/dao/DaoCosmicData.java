@@ -28,7 +28,7 @@
  *
  * You should have received a copy of the GNU Affero General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
-*/
+ */
 
 package org.mskcc.cbio.portal.dao;
 
@@ -54,66 +54,85 @@ import org.mskcc.cbio.portal.model.ExtendedMutation;
  * @author jgao
  */
 public class DaoCosmicData {
-    public static int addCosmic(CosmicMutationFrequency cosmic) throws DaoException {
-            if (!MySQLbulkLoader.isBulkLoad()) {
-                throw new DaoException("You have to turn on MySQLbulkLoader in order to insert mutations");
-            } else {
 
-                    // use this code if bulk loading
-                    // write to the temp file maintained by the MySQLbulkLoader
-                    MySQLbulkLoader.getMySQLbulkLoader("cosmic_mutation").insertRecord(
-                            cosmic.getId(),
-                            cosmic.getChr(),
-                            Long.toString(cosmic.getStartPosition()),
-                            cosmic.getReferenceAllele(),
-                            cosmic.getTumorSeqAllele(),
-                            cosmic.getStrand(),
-                            cosmic.getCds(),
-                            Long.toString(cosmic.getEntrezGeneId()),
-                            cosmic.getAminoAcidChange(),
-                            Integer.toString(cosmic.getFrequency()),
-                            cosmic.getKeyword());
+    public static int addCosmic(CosmicMutationFrequency cosmic)
+        throws DaoException {
+        if (!MySQLbulkLoader.isBulkLoad()) {
+            throw new DaoException(
+                "You have to turn on MySQLbulkLoader in order to insert mutations"
+            );
+        } else {
+            // use this code if bulk loading
+            // write to the temp file maintained by the MySQLbulkLoader
+            MySQLbulkLoader
+                .getMySQLbulkLoader("cosmic_mutation")
+                .insertRecord(
+                    cosmic.getId(),
+                    cosmic.getChr(),
+                    Long.toString(cosmic.getStartPosition()),
+                    cosmic.getReferenceAllele(),
+                    cosmic.getTumorSeqAllele(),
+                    cosmic.getStrand(),
+                    cosmic.getCds(),
+                    Long.toString(cosmic.getEntrezGeneId()),
+                    cosmic.getAminoAcidChange(),
+                    Integer.toString(cosmic.getFrequency()),
+                    cosmic.getKeyword()
+                );
 
-                    return 1;
-            }
+            return 1;
+        }
     }
-    
+
     /**
-     * 
+     *
      * @param mutations
      * @return Map of event id to map of aa change to count
-     * @throws DaoException 
+     * @throws DaoException
      */
     public static Map<Long, Set<CosmicMutationFrequency>> getCosmicForMutationEvents(
-            List<ExtendedMutation> mutations) throws DaoException {
+        List<ExtendedMutation> mutations
+    )
+        throws DaoException {
         Set<String> mutKeywords = new HashSet<String>();
         for (ExtendedMutation mut : mutations) {
             mutKeywords.add(mut.getKeyword());
         }
-        
-        Map<String, Set<CosmicMutationFrequency>> map = 
-                DaoCosmicData.getCosmicDataByKeyword(mutKeywords);
-        Map<Long, Set<CosmicMutationFrequency>> ret
-                = new HashMap<Long, Set<CosmicMutationFrequency>>(map.size());
+
+        Map<String, Set<CosmicMutationFrequency>> map = DaoCosmicData.getCosmicDataByKeyword(
+            mutKeywords
+        );
+        Map<Long, Set<CosmicMutationFrequency>> ret = new HashMap<Long, Set<CosmicMutationFrequency>>(
+            map.size()
+        );
         for (ExtendedMutation mut : mutations) {
             String keyword = mut.getKeyword();
-            Set<CosmicMutationFrequency> cmfs = filterTruncatingCosmicByPosition(mut, map.get(keyword));
-            
-            if (cmfs==null || cmfs.isEmpty()) {
+            Set<CosmicMutationFrequency> cmfs = filterTruncatingCosmicByPosition(
+                mut,
+                map.get(keyword)
+            );
+
+            if (cmfs == null || cmfs.isEmpty()) {
                 continue;
             }
-            
+
             ret.put(mut.getMutationEventId(), cmfs);
         }
         return ret;
     }
-    
+
     private static Set<CosmicMutationFrequency> filterTruncatingCosmicByPosition(
-            ExtendedMutation mut, Set<CosmicMutationFrequency> cmfs) {
-        if (mut.getKeyword()==null || !mut.getKeyword().endsWith("truncating") || cmfs==null) {
+        ExtendedMutation mut,
+        Set<CosmicMutationFrequency> cmfs
+    ) {
+        if (
+            mut.getKeyword() == null ||
+            !mut.getKeyword().endsWith("truncating") ||
+            cmfs == null
+        ) {
             return cmfs;
         }
-        
+
         Set<CosmicMutationFrequency> ret = new HashSet<CosmicMutationFrequency>();
         Pattern p = Pattern.compile("[0-9]+");
         int mutPos = mut.getOncotatorProteinPosStart();
@@ -122,34 +141,42 @@ public class DaoCosmicData {
             Matcher m = p.matcher(aa);
             if (m.find()) {
                 int cmfPos = Integer.parseInt(m.group());
-                if (mutPos==cmfPos) {
+                if (mutPos == cmfPos) {
                     ret.add(cmf);
                 }
             }
         }
         return ret;
     }
-    
+
     /**
-     * 
+     *
      * @param keywordS
      * @return Map<keyword, List<cosmic>>
-     * @throws DaoException 
+     * @throws DaoException
      */
-    public static Map<String,Set<CosmicMutationFrequency>> getCosmicDataByKeyword(Collection<String> keywordS) throws DaoException {
+    public static Map<String, Set<CosmicMutationFrequency>> getCosmicDataByKeyword(
+        Collection<String> keywordS
+    )
+        throws DaoException {
         Connection con = null;
         PreparedStatement pstmt = null;
         ResultSet rs = null;
         try {
             con = JdbcUtil.getDbConnection(DaoCosmicData.class);
-            pstmt = con.prepareStatement("SELECT * FROM cosmic_mutation "
-                    + " WHERE KEYWORD in ('" + StringUtils.join(keywordS, "','") + "')");
+            pstmt =
+                con.prepareStatement(
+                    "SELECT * FROM cosmic_mutation " +
+                    " WHERE KEYWORD in ('" +
+                    StringUtils.join(keywordS, "','") +
+                    "')"
+                );
             rs = pstmt.executeQuery();
-            Map<String,Set<CosmicMutationFrequency>> ret = new HashMap<String,Set<CosmicMutationFrequency>>();
+            Map<String, Set<CosmicMutationFrequency>> ret = new HashMap<String, Set<CosmicMutationFrequency>>();
             while (rs.next()) {
                 CosmicMutationFrequency cmf = extractCosmic(rs);
                 Set<CosmicMutationFrequency> cmfs = ret.get(cmf.getKeyword());
-                if (cmfs==null) {
+                if (cmfs == null) {
                     cmfs = new HashSet<CosmicMutationFrequency>();
                     ret.put(cmf.getKeyword(), cmfs);
                 }
@@ -162,8 +189,9 @@ public class DaoCosmicData {
             JdbcUtil.closeAll(DaoCosmicData.class, con, pstmt, rs);
         }
     }
-    
-    private static CosmicMutationFrequency extractCosmic(ResultSet rs) throws SQLException {
+
+    private static CosmicMutationFrequency extractCosmic(ResultSet rs)
+        throws SQLException {
         String id = rs.getString("COSMIC_MUTATION_ID");
         long entrez = rs.getLong("ENTREZ_GENE_ID");
         String aa = rs.getString("PROTEIN_CHANGE");
@@ -171,7 +199,7 @@ public class DaoCosmicData {
         int count = rs.getInt("COUNT");
         return new CosmicMutationFrequency(id, entrez, aa, keyword, count);
     }
-    
+
     public static void deleteAllRecords() throws DaoException {
         Connection con = null;
         PreparedStatement pstmt = null;

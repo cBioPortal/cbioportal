@@ -28,7 +28,7 @@
  *
  * You should have received a copy of the GNU Affero General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
-*/
+ */
 
 package org.mskcc.cbio.portal.util;
 
@@ -40,34 +40,31 @@ import com.google.common.base.Strings;
  */
 public enum DynamicState {
     INSTANCE;
-    
+
     private String currentUser = "";
-    private String failedUser ="";
-    
+    private String failedUser = "";
+
     public void setCurrentUser(String aUser) {
         // n.b allow property yo be set to null or empty
         currentUser = aUser;
-        failedUser ="";
+        failedUser = "";
     }
-    
+
     public String getCurrentUser() {
         return currentUser;
     }
-
 
     /*
     failedUser attribute represents a Google+ username that failed cBio authorization
     once set, it can only be accessed once before being cleared
      */
-    public void setFailedUser(String aUser){
-        failedUser = (Strings.isNullOrEmpty(failedUser))?aUser:"unknown";
+    public void setFailedUser(String aUser) {
+        failedUser = (Strings.isNullOrEmpty(failedUser)) ? aUser : "unknown";
     }
 
-    public String getFailedUser(){
+    public String getFailedUser() {
         String s = failedUser;
-        failedUser="";
+        failedUser = "";
         return s;
     }
-    
-    
 }

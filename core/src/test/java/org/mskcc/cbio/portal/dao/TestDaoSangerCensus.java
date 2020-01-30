@@ -28,10 +28,13 @@
  *
  * You should have received a copy of the GNU Affero General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
-*/
+ */
 
 package org.mskcc.cbio.portal.dao;
 
+import static org.junit.Assert.*;
+
+import java.util.HashMap;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mskcc.cbio.portal.model.CanonicalGene;
@@ -41,50 +44,77 @@ import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import org.springframework.test.context.transaction.TransactionConfiguration;
 import org.springframework.transaction.annotation.Transactional;
 
-import static org.junit.Assert.*;
-
-import java.util.HashMap;
-
 /**
  * JUnit tests for DaoSangerCensus class.
  */
 
 @RunWith(SpringJUnit4ClassRunner.class)
 @ContextConfiguration(locations = { "classpath:/applicationContext-dao.xml" })
-@TransactionConfiguration(transactionManager = "transactionManager", defaultRollback = true)
+@TransactionConfiguration(
+    transactionManager = "transactionManager",
+    defaultRollback = true
+)
 @Transactional
 public class TestDaoSangerCensus {
 
-	@Test
+    @Test
     public void testDaoMutation() throws DaoException {
         CanonicalGene brca1 = DaoGeneOptimized.getInstance().getGene("BRCA1");
 
         DaoSangerCensus daoCensus = DaoSangerCensus.getInstance();
         daoCensus.deleteAllRecords();
-        daoCensus.addGene(brca1, true, true, "CML, ALL, T-ALL", "AML, leukemia, breast",
-                "Familial neuroblastoma", "L, E, M", "T, Mis, A", "BCR, ETV6, NUP214", true,
-                "Cardio-facio-cutaneous syndrome");
+        daoCensus.addGene(
+            brca1,
+            true,
+            true,
+            "CML, ALL, T-ALL",
+            "AML, leukemia, breast",
+            "Familial neuroblastoma",
+            "L, E, M",
+            "T, Mis, A",
+            "BCR, ETV6, NUP214",
+            true,
+            "Cardio-facio-cutaneous syndrome"
+        );
 
         HashMap<String, SangerCancerGene> cancerCensus = daoCensus.getCancerGeneSet();
         SangerCancerGene cancerGene = cancerCensus.get("BRCA1");
-        assertEquals (true, cancerGene.isCancerGermlineMutation());
-        assertEquals (true, cancerGene.isCancerSomaticMutation());
+        assertEquals(true, cancerGene.isCancerGermlineMutation());
+        assertEquals(true, cancerGene.isCancerSomaticMutation());
 
-        assertEquals ("CML, ALL, T-ALL", cancerGene.getTumorTypesSomaticMutation());
-        assertEquals (3, cancerGene.getTumorTypesSomaticMutationList().size());
-        assertEquals ("chronic myeloid leukemia", cancerGene.getTumorTypesSomaticMutationList().get(0));
-        assertEquals ("AML, leukemia, breast", cancerGene.getTumorTypesGermlineMutation());
-        assertEquals (3, cancerGene.getTumorTypesGermlineMutationList().size());
-        assertEquals ("acute myelogenous leukemia", cancerGene.getTumorTypesGermlineMutationList().get(0));
-        assertEquals ("Familial neuroblastoma", cancerGene.getCancerSyndrome());
-        assertEquals ("L, E, M", cancerGene.getTissueType());
-        assertEquals (3, cancerGene.getTissueTypeList().size());
-        assertEquals ("leukaemia/lymphoma", cancerGene.getTissueTypeList().get(0));
-        assertEquals ("T, Mis, A", cancerGene.getMutationType());
-        assertEquals (3, cancerGene.getMutationTypeList().size());
-        assertEquals ("translocation", cancerGene.getMutationTypeList().get(0));
-        assertEquals ("BCR, ETV6, NUP214", cancerGene.getTranslocationPartner());
-        assertEquals (true, cancerGene.getOtherGermlineMut());
-        assertEquals ("Cardio-facio-cutaneous syndrome", cancerGene.getOtherDisease());
+        assertEquals(
+            "CML, ALL, T-ALL",
+            cancerGene.getTumorTypesSomaticMutation()
+        );
+        assertEquals(3, cancerGene.getTumorTypesSomaticMutationList().size());
+        assertEquals(
+            "chronic myeloid leukemia",
+            cancerGene.getTumorTypesSomaticMutationList().get(0)
+        );
+        assertEquals(
+            "AML, leukemia, breast",
+            cancerGene.getTumorTypesGermlineMutation()
+        );
+        assertEquals(3, cancerGene.getTumorTypesGermlineMutationList().size());
+        assertEquals(
+            "acute myelogenous leukemia",
+            cancerGene.getTumorTypesGermlineMutationList().get(0)
+        );
+        assertEquals("Familial neuroblastoma", cancerGene.getCancerSyndrome());
+        assertEquals("L, E, M", cancerGene.getTissueType());
+        assertEquals(3, cancerGene.getTissueTypeList().size());
+        assertEquals(
+            "leukaemia/lymphoma",
+            cancerGene.getTissueTypeList().get(0)
+        );
+        assertEquals("T, Mis, A", cancerGene.getMutationType());
+        assertEquals(3, cancerGene.getMutationTypeList().size());
+        assertEquals("translocation", cancerGene.getMutationTypeList().get(0));
+        assertEquals("BCR, ETV6, NUP214", cancerGene.getTranslocationPartner());
+        assertEquals(true, cancerGene.getOtherGermlineMut());
+        assertEquals(
+            "Cardio-facio-cutaneous syndrome",
+            cancerGene.getOtherDisease()
+        );
     }
 }

@@ -28,16 +28,16 @@
  *
  * You should have received a copy of the GNU Affero General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
-*/
+ */
 
 package org.mskcc.cbio.portal.servlet;
 
+import java.io.IOException;
+import java.io.PrintWriter;
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import java.io.IOException;
-import java.io.PrintWriter;
 import org.apache.commons.math3.distribution.ChiSquaredDistribution;
 
 /**
@@ -61,9 +61,11 @@ public class SurvivalChiSquareDistributionCalc extends HttpServlet {
      * @param httpServletResponse HttpServletResponse
      * @throws javax.servlet.ServletException
      */
-    protected void doGet(HttpServletRequest httpServletRequest,
-                         HttpServletResponse httpServletResponse)
-            throws ServletException, IOException {
+    protected void doGet(
+        HttpServletRequest httpServletRequest,
+        HttpServletResponse httpServletResponse
+    )
+        throws ServletException, IOException {
         doPost(httpServletRequest, httpServletResponse);
     }
 
@@ -74,13 +76,21 @@ public class SurvivalChiSquareDistributionCalc extends HttpServlet {
      * @param httpServletResponse HttpServletResponse
      * @throws ServletException
      */
-    protected void doPost(HttpServletRequest httpServletRequest,
-                          HttpServletResponse httpServletResponse)
-            throws ServletException, IOException {
-        String chi_square_score = httpServletRequest.getParameter("chi_square_score");
+    protected void doPost(
+        HttpServletRequest httpServletRequest,
+        HttpServletResponse httpServletResponse
+    )
+        throws ServletException, IOException {
+        String chi_square_score = httpServletRequest.getParameter(
+            "chi_square_score"
+        );
         ChiSquaredDistribution distribution;
         distribution = new ChiSquaredDistribution(1);
-        double p_value = 1 - distribution.cumulativeProbability(Float.parseFloat(chi_square_score));
+        double p_value =
+            1 -
+            distribution.cumulativeProbability(
+                Float.parseFloat(chi_square_score)
+            );
         httpServletResponse.setContentType("text/plain");
         PrintWriter out = httpServletResponse.getWriter();
         out.write(Double.toString(p_value));

@@ -28,7 +28,7 @@
  *
  * You should have received a copy of the GNU Affero General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
-*/
+ */
 
 package org.mskcc.cbio.portal.mut_diagram;
 
@@ -44,14 +44,14 @@ import java.util.Map;
 public final class Sequence {
     private int length;
     private List<Markup> markups;
-    private List<Motif> motifs; 
+    private List<Motif> motifs;
     private List<Region> regions;
     private Map<String, Object> metadata;
     private Options options;
 
     public void setLength(final int length) {
         this.length = length;
-    }   
+    }
 
     public int getLength() {
         return length;
@@ -131,8 +131,7 @@ public final class Sequence {
         if (markups != null && !markups.isEmpty()) {
             if (sequence.getMarkups() == null) {
                 sequence.setMarkups(newArrayList(markups));
-            }
-            else {
+            } else {
                 sequence.getMarkups().addAll(markups);
             }
         }

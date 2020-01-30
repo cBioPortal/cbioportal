@@ -28,18 +28,17 @@
  *
  * You should have received a copy of the GNU Affero General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
-*/
+ */
 
 package org.mskcc.cbio.portal.model;
-
-import org.mskcc.cbio.portal.dao.DaoException;
-import org.mskcc.cbio.portal.dao.DaoSangerCensus;
 
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
+import org.mskcc.cbio.portal.dao.DaoException;
+import org.mskcc.cbio.portal.dao.DaoSangerCensus;
 
 /**
  * Class to wrap Entrez Gene ID, HUGO Gene Symbols,etc.
@@ -55,9 +54,9 @@ public class CanonicalGene extends Gene {
     private String type;
 
     /**
-     * @deprecated: hardly used (2 places that are not relevant, 
-     * potentially dead code), should be deprecated 
-     * 
+     * @deprecated: hardly used (2 places that are not relevant,
+     * potentially dead code), should be deprecated
+     *
      * @param hugoGeneSymbol
      */
     public CanonicalGene(String hugoGeneSymbol) {
@@ -65,25 +64,25 @@ public class CanonicalGene extends Gene {
     }
 
     /**
-     * This constructor can be used to get a rather empty object 
-     * representing this gene symbol. 
-     * 
+     * This constructor can be used to get a rather empty object
+     * representing this gene symbol.
+     *
      * Note: Its most important use is for data loading of "phosphogenes"
      * (ImportTabDelimData.importPhosphoGene) where a dummy gene record
      * is generated on the fly for this entity. TODO this constructor needs
-     * to be deprecated once "phosphogenes" become a genetic entity on their own. 
-     * 
+     * to be deprecated once "phosphogenes" become a genetic entity on their own.
+     *
      * @param hugoGeneSymbol
      */
     public CanonicalGene(String hugoGeneSymbol, Set<String> aliases) {
         this(-1, -1, hugoGeneSymbol, aliases);
     }
-    
-    /** 
-     * This constructor can be used when geneticEntityId is not yet known, 
+
+    /**
+     * This constructor can be used when geneticEntityId is not yet known,
      * e.g. in case of a new gene (like when adding new genes in ImportGeneData), or is
      * not needed (like when retrieving mutation data)
-     * 
+     *
      * @param entrezGeneId
      * @param hugoGeneSymbol
      */
@@ -92,21 +91,30 @@ public class CanonicalGene extends Gene {
     }
 
     /**
-     * This constructor can be used when geneticEntityId is not yet known, 
+     * This constructor can be used when geneticEntityId is not yet known,
      * e.g. in case of a new gene (like when adding new genes in ImportGeneData), or is
      * not needed (like when retrieving mutation data)
-     * 
+     *
      * @param entrezGeneId
      * @param hugoGeneSymbol
      * @param aliases
      */
-    public CanonicalGene(long entrezGeneId, String hugoGeneSymbol, Set<String> aliases) {
-    	this(-1, entrezGeneId, hugoGeneSymbol, aliases);
+    public CanonicalGene(
+        long entrezGeneId,
+        String hugoGeneSymbol,
+        Set<String> aliases
+    ) {
+        this(-1, entrezGeneId, hugoGeneSymbol, aliases);
     }
-    
-    public CanonicalGene(int geneticEntityId, long entrezGeneId, String hugoGeneSymbol, Set<String> aliases) {
-   		this.geneticEntityId = geneticEntityId;
-    	this.entrezGeneId = entrezGeneId;
+
+    public CanonicalGene(
+        int geneticEntityId,
+        long entrezGeneId,
+        String hugoGeneSymbol,
+        Set<String> aliases
+    ) {
+        this.geneticEntityId = geneticEntityId;
+        this.entrezGeneId = entrezGeneId;
         this.hugoGeneSymbol = hugoGeneSymbol;
         setAliases(aliases);
     }
@@ -120,30 +128,30 @@ public class CanonicalGene extends Gene {
     }
 
     public Set<String> getAliases() {
-        if (aliases==null) {
+        if (aliases == null) {
             return Collections.emptySet();
         }
         return Collections.unmodifiableSet(aliases);
     }
 
     public void setAliases(Set<String> aliases) {
-        if (aliases==null) {
+        if (aliases == null) {
             this.aliases = null;
             return;
         }
-        
-        Map<String,String> map = new HashMap<String,String>(aliases.size());
+
+        Map<String, String> map = new HashMap<String, String>(aliases.size());
         for (String alias : aliases) {
             map.put(alias.toUpperCase(), alias);
         }
-        
+
         this.aliases = new HashSet<String>(map.values());
     }
-    
+
     public int getGeneticEntityId() {
-    	return geneticEntityId;
+        return geneticEntityId;
     }
-    
+
     public void setGeneticEntityId(int geneticEntityId) {
         this.geneticEntityId = geneticEntityId;
     }
@@ -167,11 +175,11 @@ public class CanonicalGene extends Gene {
     public void setHugoGeneSymbol(String hugoGeneSymbol) {
         this.hugoGeneSymbol = hugoGeneSymbol;
     }
-    
+
     public boolean isMicroRNA() {
         return MIRNA_TYPE.equals(type);
     }
-    
+
     public boolean isPhosphoProtein() {
         return PHOSPHOPROTEIN_TYPE.equals(type);
     }
@@ -186,7 +194,7 @@ public class CanonicalGene extends Gene {
         if (!(obj0 instanceof CanonicalGene)) {
             return false;
         }
-        
+
         CanonicalGene gene0 = (CanonicalGene) obj0;
         if (gene0.getEntrezGeneId() == entrezGeneId) {
             return true;

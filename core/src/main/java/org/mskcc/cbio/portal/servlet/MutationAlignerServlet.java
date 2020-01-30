@@ -1,5 +1,15 @@
 package org.mskcc.cbio.portal.servlet;
 
+import java.io.*;
+import java.net.HttpURLConnection;
+import java.net.URL;
+import java.net.URLConnection;
+import java.util.HashMap;
+import java.util.Map;
+import javax.servlet.ServletException;
+import javax.servlet.http.HttpServlet;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 /*
  * Copyright (c) 2015 Memorial Sloan-Kettering Cancer Center.
  *
@@ -30,94 +40,88 @@ package org.mskcc.cbio.portal.servlet;
  *
  * You should have received a copy of the GNU Affero General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
-*/
+ */
 
 import org.json.simple.JSONValue;
-
-import javax.servlet.ServletException;
-import javax.servlet.http.HttpServlet;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-import java.io.*;
-import java.net.HttpURLConnection;
-import java.net.URL;
-import java.net.URLConnection;
-import java.util.HashMap;
-import java.util.Map;
 
 /**
  * Servlet class to request information from Mutation Aligner web service.
  *
  * @author Selcuk Onur Sumer
  */
-public class MutationAlignerServlet extends HttpServlet
-{
-	public final static String MUTATION_ALIGNER_API = "http://mutationaligner.org/api/domains/";
-	public final static String MUTATION_ALIGNER_API_SUFFIX = "?metadata=true";
-	public final static String MUTATION_ALIGNER_BASE_LINK = "http://mutationaligner.org/domains/";
+public class MutationAlignerServlet extends HttpServlet {
+    public static final String MUTATION_ALIGNER_API =
+        "http://mutationaligner.org/api/domains/";
+    public static final String MUTATION_ALIGNER_API_SUFFIX = "?metadata=true";
+    public static final String MUTATION_ALIGNER_BASE_LINK =
+        "http://mutationaligner.org/domains/";
 
-	private static String makeRequest(String pfamAccession) throws IOException
-	{
-		StringBuilder urlBuilder = new StringBuilder();
+    private static String makeRequest(String pfamAccession) throws IOException {
+        StringBuilder urlBuilder = new StringBuilder();
 
-		urlBuilder.append(MUTATION_ALIGNER_API);
-		urlBuilder.append(pfamAccession);
-		urlBuilder.append(MUTATION_ALIGNER_API_SUFFIX);
+        urlBuilder.append(MUTATION_ALIGNER_API);
+        urlBuilder.append(pfamAccession);
+        urlBuilder.append(MUTATION_ALIGNER_API_SUFFIX);
 
-		String url = urlBuilder.toString();
+        String url = urlBuilder.toString();
 
-		URL aligner = new URL(url);
-		URLConnection alignerCxn = aligner.openConnection();
+        URL aligner = new URL(url);
+        URLConnection alignerCxn = aligner.openConnection();
 
-		StringBuilder sb = new StringBuilder();
+        StringBuilder sb = new StringBuilder();
 
-		// not found!
-		if (((HttpURLConnection)alignerCxn).getResponseCode() != HttpURLConnection.HTTP_OK)
-		{
-			sb.append("");
-		}
-		else
-		{
-			BufferedReader in = new BufferedReader(new InputStreamReader(alignerCxn.getInputStream()));
-			String line;
+        // not found!
+        if (
+            ((HttpURLConnection) alignerCxn).getResponseCode() !=
+            HttpURLConnection.HTTP_OK
+        ) {
+            sb.append("");
+        } else {
+            BufferedReader in = new BufferedReader(
+                new InputStreamReader(alignerCxn.getInputStream())
+            );
+            String line;
 
-			// Read all
-			while((line = in.readLine()) != null)
-			{
-				sb.append(line);
-			}
+            // Read all
+            while ((line = in.readLine()) != null) {
+                sb.append(line);
+            }
 
-			in.close();
-		}
+            in.close();
+        }
 
+        return sb.toString();
+    }
 
-		return sb.toString();
-	}
+    protected void doGet(
+        HttpServletRequest httpServletRequest,
+        HttpServletResponse httpServletResponse
+    )
+        throws ServletException, IOException {
+        doPost(httpServletRequest, httpServletResponse);
+    }
 
+    protected void doPost(
+        HttpServletRequest httpServletRequest,
+        HttpServletResponse httpServletResponse
+    )
+        throws ServletException, IOException {
+        String pfamAccession = httpServletRequest.getParameter("pfamAccession");
+        String response = makeRequest(pfamAccession);
 
-	protected void doGet(HttpServletRequest httpServletRequest,
-			HttpServletResponse httpServletResponse)throws ServletException, IOException
-	{
-		doPost(httpServletRequest, httpServletResponse);
-	}
+        httpServletResponse.setContentType("application/json");
 
-	protected void doPost(HttpServletRequest httpServletRequest,
-			HttpServletResponse httpServletResponse)throws ServletException, IOException
-	{
-		String pfamAccession = httpServletRequest.getParameter("pfamAccession");
-		String response = makeRequest(pfamAccession);
+        Map<String, Object> data = new HashMap<String, Object>();
 
-		httpServletResponse.setContentType("application/json");
+        if (response != null && response.length() > 0) {
+            data.put(
+                "linkToMutationAligner",
+                MUTATION_ALIGNER_BASE_LINK + pfamAccession
+            );
+        }
 
-		Map<String, Object> data = new HashMap<String, Object>();
-
-		if (response != null && response.length() > 0)
-		{
-			data.put("linkToMutationAligner", MUTATION_ALIGNER_BASE_LINK + pfamAccession);
-		}
-
-		PrintWriter out = httpServletResponse.getWriter();
-		String jsonText = JSONValue.toJSONString(data);
-		out.write(jsonText);
-	}
+        PrintWriter out = httpServletResponse.getWriter();
+        String jsonText = JSONValue.toJSONString(data);
+        out.write(jsonText);
+    }
 }

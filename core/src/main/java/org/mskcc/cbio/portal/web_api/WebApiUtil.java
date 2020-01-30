@@ -28,7 +28,7 @@
  *
  * You should have received a copy of the GNU Affero General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
-*/
+ */
 
 package org.mskcc.cbio.portal.web_api;
 
@@ -48,36 +48,41 @@ import org.mskcc.cbio.portal.util.GeneComparator;
  * Utility class for web api
  */
 public class WebApiUtil {
-    private static HashSet <String> microRnaIdSet;
-    private static HashSet <String> variantMicroRnaIdSet;
+    private static HashSet<String> microRnaIdSet;
+    private static HashSet<String> variantMicroRnaIdSet;
     public static final String TAB = "\t";
     public static final String NEW_LINE = "\n";
 
-    public static List <Gene> getGeneList (List<String> targetGeneList,
-                    GeneticAlterationType alterationType, StringBuffer warningBuffer,
-                    List<String> warningList) throws DaoException {
+    public static List<Gene> getGeneList(
+        List<String> targetGeneList,
+        GeneticAlterationType alterationType,
+        StringBuffer warningBuffer,
+        List<String> warningList
+    )
+        throws DaoException {
         DaoGeneOptimized daoGene = DaoGeneOptimized.getInstance();
 
-	    ServletXssUtil xssUtil = null;
+        ServletXssUtil xssUtil = null;
 
-	    try {
-		    xssUtil = ServletXssUtil.getInstance();
-	    }
-	    catch (Exception e) {
-	    }
+        try {
+            xssUtil = ServletXssUtil.getInstance();
+        } catch (Exception e) {}
 
-	    //  Iterate through all the genes specified by the client
+        //  Iterate through all the genes specified by the client
         //  Genes might be specified as Integers, e.g. Entrez Gene Ids or Strings, e.g. HUGO
         //  Symbols or microRNA Ids or aliases.
-        List <Gene> geneList = new ArrayList<Gene>();
-        for (String geneId:  targetGeneList) {
+        List<Gene> geneList = new ArrayList<Gene>();
+        for (String geneId : targetGeneList) {
             Gene gene = daoGene.getNonAmbiguousGene(geneId);
             if (gene == null) {
                 //  If that fails, try as micro RNA ID.
                 if (geneId.startsWith("hsa")) {
                     if (microRnaIdSet.contains(geneId)) {
                         //  Conditionally Expand Micro RNAs
-                        if (alterationType == GeneticAlterationType.COPY_NUMBER_ALTERATION) {
+                        if (
+                            alterationType ==
+                            GeneticAlterationType.COPY_NUMBER_ALTERATION
+                        ) {
                             //  Option 1:  Client has specified a variant ID and really wants CNA
                             //  data for this variant
                             if (variantMicroRnaIdSet.contains(geneId)) {
@@ -87,21 +92,21 @@ public class WebApiUtil {
                         } else {
                             MicroRna microRna = new MicroRna(geneId);
                             geneList.add(microRna);
-						 }
+                        }
                     } else {
-	                    if (xssUtil != null) {
-		                    geneId = xssUtil.getCleanerInput(geneId);
-	                    }
+                        if (xssUtil != null) {
+                            geneId = xssUtil.getCleanerInput(geneId);
+                        }
                         String msg = "# Warning:  Unknown microRNA:  " + geneId;
-                        warningBuffer.append(msg).append ("\n");
+                        warningBuffer.append(msg).append("\n");
                         warningList.add(msg);
                     }
                 } else {
-	                if (xssUtil != null) {
-		                geneId = xssUtil.getCleanerInput(geneId);
-	                }
+                    if (xssUtil != null) {
+                        geneId = xssUtil.getCleanerInput(geneId);
+                    }
                     String msg = "# Warning:  Unknown gene:  " + geneId;
-                    warningBuffer.append(msg).append ("\n");
+                    warningBuffer.append(msg).append("\n");
                     warningList.add(msg);
                 }
             } else {

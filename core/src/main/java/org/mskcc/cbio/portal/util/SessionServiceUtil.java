@@ -28,7 +28,7 @@
  *
  * You should have received a copy of the GNU Affero General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
-*/
+ */
 
 package org.mskcc.cbio.portal.util;
 
@@ -63,11 +63,10 @@ import org.springframework.web.client.RestTemplate;
  */
 
 public class SessionServiceUtil {
-
     private static Log LOG = LogFactory.getLog(SessionServiceUtil.class);
 
     /**
-     * Returns an ServletRequest parameter map for a given sessionId. 
+     * Returns an ServletRequest parameter map for a given sessionId.
      * Returns null if the session was not found.
      *
      * @param sessionId
@@ -83,7 +82,11 @@ public class SessionServiceUtil {
         Map<String, String[]> parameterMap = null;
         HttpURLConnection conn = null;
         try {
-            URL url = new URL(GlobalProperties.getSessionServiceUrl() + "main_session/" + sessionId);
+            URL url = new URL(
+                GlobalProperties.getSessionServiceUrl() +
+                "main_session/" +
+                sessionId
+            );
             LOG.debug("SessionServiceUtil.getSession(): url = '" + url + "'");
             conn = (HttpURLConnection) url.openConnection();
             // Use basic authentication if provided (https://stackoverflow.com/questions/496651)
@@ -92,27 +95,65 @@ public class SessionServiceUtil {
             }
             if (conn.getResponseCode() == HttpURLConnection.HTTP_OK) {
                 StringWriter stringWriter = new StringWriter();
-                IOUtils.copy(conn.getInputStream(), stringWriter, Charset.forName("UTF-8"));
+                IOUtils.copy(
+                    conn.getInputStream(),
+                    stringWriter,
+                    Charset.forName("UTF-8")
+                );
                 String contentString = stringWriter.toString();
-                LOG.debug("SessionServiceUtil.getSession(): response = '" + contentString + "'");
+                LOG.debug(
+                    "SessionServiceUtil.getSession(): response = '" +
+                    contentString +
+                    "'"
+                );
                 JsonNode json = new ObjectMapper().readTree(contentString);
-                LOG.debug("SessionServiceUtil.getSession(): response.data = '" + json.get("data").textValue() + "'");
-                parameterMap = new ObjectMapper().readValue(json.get("data").toString(), new TypeReference<Map<String, String[]>>(){});
+                LOG.debug(
+                    "SessionServiceUtil.getSession(): response.data = '" +
+                    json.get("data").textValue() +
+                    "'"
+                );
+                parameterMap =
+                    new ObjectMapper()
+                    .readValue(
+                            json.get("data").toString(),
+                            new TypeReference<Map<String, String[]>>() {}
+                        );
             } else {
-                LOG.warn("SessionServiceUtil.getSession(): conn.getResponseCode() = '" + conn.getResponseCode() + "'");
-                if (conn.getResponseCode() == HttpURLConnection.HTTP_NOT_FOUND) {
+                LOG.warn(
+                    "SessionServiceUtil.getSession(): conn.getResponseCode() = '" +
+                    conn.getResponseCode() +
+                    "'"
+                );
+                if (
+                    conn.getResponseCode() == HttpURLConnection.HTTP_NOT_FOUND
+                ) {
                     return null;
-                } else if (conn.getResponseCode() == HttpURLConnection.HTTP_INTERNAL_ERROR) {
+                } else if (
+                    conn.getResponseCode() ==
+                    HttpURLConnection.HTTP_INTERNAL_ERROR
+                ) {
                     throw new HttpException("Internal server error");
                 } else {
-                    throw new HttpException("Unexpected error, response code '" + conn.getResponseCode() +"'");
+                    throw new HttpException(
+                        "Unexpected error, response code '" +
+                        conn.getResponseCode() +
+                        "'"
+                    );
                 }
             }
         } catch (MalformedURLException mfue) {
-            LOG.warn("SessionServiceUtil.getSession(): MalformedURLException = '" + mfue.getMessage() + "'");
+            LOG.warn(
+                "SessionServiceUtil.getSession(): MalformedURLException = '" +
+                mfue.getMessage() +
+                "'"
+            );
             throw mfue;
         } catch (IOException ioe) {
-            LOG.warn("SessionServiceUtil.getSession(): IOException = '" + ioe.getMessage() + "'");
+            LOG.warn(
+                "SessionServiceUtil.getSession(): IOException = '" +
+                ioe.getMessage() +
+                "'"
+            );
             throw ioe;
         } finally {
             if (conn != null) {
@@ -123,24 +164,35 @@ public class SessionServiceUtil {
     }
 
     public static Boolean isBasicAuthEnabled() {
-        return !GlobalProperties.getSessionServiceUser().equals("") && !GlobalProperties.getSessionServicePassword().equals("");
+        return (
+            !GlobalProperties.getSessionServiceUser().equals("") &&
+            !GlobalProperties.getSessionServicePassword().equals("")
+        );
     }
 
     public static String getBasicAuthString() {
-        String auth = GlobalProperties.getSessionServiceUser() + ":" + GlobalProperties.getSessionServicePassword();
-        byte[] encodedAuth = Base64.encodeBase64(auth.getBytes(Charset.forName("US-ASCII")));
+        String auth =
+            GlobalProperties.getSessionServiceUser() +
+            ":" +
+            GlobalProperties.getSessionServicePassword();
+        byte[] encodedAuth = Base64.encodeBase64(
+            auth.getBytes(Charset.forName("US-ASCII"))
+        );
         String authHeader = "Basic " + new String(encodedAuth);
         return authHeader;
     }
 
     public static HttpHeaders getHttpHeaders() {
-        return new HttpHeaders() {{
-            if (isBasicAuthEnabled()) {
-                set( "Authorization", getBasicAuthString());
+        return new HttpHeaders() {
+
+            {
+                if (isBasicAuthEnabled()) {
+                    set("Authorization", getBasicAuthString());
+                }
+                set("Content-Type", "application/json");
             }
-            set( "Content-Type", "application/json");
-        }};
-     }
+        };
+    }
 
     /**
      * Return cohort object if there is success response from
@@ -152,18 +204,30 @@ public class SessionServiceUtil {
         if (!GlobalProperties.getSessionServiceUrl().equals("")) {
             try {
                 RestTemplate restTemplate = new RestTemplate();
-                HttpEntity<String> headers =  new HttpEntity<String>(getHttpHeaders());
+                HttpEntity<String> headers = new HttpEntity<String>(
+                    getHttpHeaders()
+                );
                 ResponseEntity<VirtualStudy> responseEntity = restTemplate.exchange(
-                        GlobalProperties.getSessionServiceUrl() +  "virtual_study/" + virtualStudyId,
-                        HttpMethod.GET,
-                        headers,
-                        VirtualStudy.class);
+                    GlobalProperties.getSessionServiceUrl() +
+                    "virtual_study/" +
+                    virtualStudyId,
+                    HttpMethod.GET,
+                    headers,
+                    VirtualStudy.class
+                );
                 return responseEntity.getBody();
             } catch (HttpStatusCodeException exception) {
-                LOG.warn("SessionServiceUtil.getVirtualCohortData(): HttpStatusCodeException = '" + exception.getStatusCode() + "'");
-            }
-            catch (Exception exception) {
-                LOG.warn("SessionServiceUtil.getVirtualCohortData(): Exception = '" + exception.getMessage() + "'");
+                LOG.warn(
+                    "SessionServiceUtil.getVirtualCohortData(): HttpStatusCodeException = '" +
+                    exception.getStatusCode() +
+                    "'"
+                );
+            } catch (Exception exception) {
+                LOG.warn(
+                    "SessionServiceUtil.getVirtualCohortData(): Exception = '" +
+                    exception.getMessage() +
+                    "'"
+                );
             }
         }
         return null;

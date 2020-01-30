@@ -28,26 +28,23 @@
  *
  * You should have received a copy of the GNU Affero General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
-*/
+ */
 
 package org.mskcc.cbio.portal.util.internal;
 
+import java.util.*;
+import org.apache.commons.logging.*;
 // imports
 import org.mskcc.cbio.portal.dao.*;
-import org.mskcc.cbio.portal.util.*;
 import org.mskcc.cbio.portal.model.CancerStudy;
+import org.mskcc.cbio.portal.util.*;
 import org.mskcc.cbio.portal.web_api.ProtocolException;
-
-import org.apache.commons.logging.*;
-
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.security.core.Authentication;
-import org.springframework.security.core.userdetails.UserDetails;
-import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.authentication.AnonymousAuthenticationToken;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Component;
-
-import java.util.*;
 
 /**
  * Utilities for managing access control.
@@ -56,7 +53,6 @@ import java.util.*;
  */
 @Component
 public class AccessControlImpl implements AccessControl {
-
     // ref to log
     private static Log log = LogFactory.getLog(AccessControlImpl.class);
 
@@ -70,8 +66,8 @@ public class AccessControlImpl implements AccessControl {
      * We use @PostFilter annotation to remove elements
      * in the return list inaccessible to the user.
      */
-    public List<CancerStudy> getCancerStudies() throws DaoException, ProtocolException {
-
+    public List<CancerStudy> getCancerStudies()
+        throws DaoException, ProtocolException {
         if (log.isDebugEnabled()) {
             log.debug("getCancerStudies(), getting accessible cancer studies.");
         }
@@ -84,19 +80,27 @@ public class AccessControlImpl implements AccessControl {
 
         //  Then, insert "All" Cancer Types at beginning  //TODO - fix this! It conflicts with ALL (Acute Lymphoid Leukemia)!
         ArrayList<CancerStudy> finalCancerStudiesList = new ArrayList<CancerStudy>();
-        String allCancerStudyTitle = (GlobalProperties.usersMustAuthenticate()) ?
-            "All Authorized Cancer Studies" : "All Cancer Studies";
-        CancerStudy allCancerStudy = new CancerStudy(allCancerStudyTitle, allCancerStudyTitle,
-             "all", "all", true);
+        String allCancerStudyTitle = (GlobalProperties.usersMustAuthenticate())
+            ? "All Authorized Cancer Studies"
+            : "All Cancer Studies";
+        CancerStudy allCancerStudy = new CancerStudy(
+            allCancerStudyTitle,
+            allCancerStudyTitle,
+            "all",
+            "all",
+            true
+        );
         finalCancerStudiesList.add(allCancerStudy);
         finalCancerStudiesList.addAll(allCancerStudies);
 
         if (finalCancerStudiesList.size() > 1) {
             return finalCancerStudiesList;
         } else {
-            throw new ProtocolException("No cancer studies accessible; "+
-                                        "either provide credentials to access private studies, " +
-                                        "or ask administrator to load public ones.\n");
+            throw new ProtocolException(
+                "No cancer studies accessible; " +
+                "either provide credentials to access private studies, " +
+                "or ask administrator to load public ones.\n"
+            );
         }
     }
 
@@ -107,39 +111,47 @@ public class AccessControlImpl implements AccessControl {
      * @return List<CancerStudy>
      * @throws DaoException
      *
-     * We use @PostFilter rather than @PreAuthorize annotation to provide 
+     * We use @PostFilter rather than @PreAuthorize annotation to provide
      * permission evaluation on this cancer study so that we can process
      * invalid permissions via QueryBuilder.validateForm().  If we use @PreAuthorize,
      * thread execution does not return from this method call if a user has invalid permissions.
      */
-    public List<CancerStudy> isAccessibleCancerStudy(String stableStudyId) throws DaoException {
-
+    public List<CancerStudy> isAccessibleCancerStudy(String stableStudyId)
+        throws DaoException {
         if (log.isDebugEnabled()) {
-            log.debug("isAccessibleCancerStudy(), stableStudyId: " + stableStudyId);
+            log.debug(
+                "isAccessibleCancerStudy(), stableStudyId: " + stableStudyId
+            );
         }
 
         // get cancer study by stable id
         List<CancerStudy> toReturn = new ArrayList<CancerStudy>();
-        CancerStudy cancerStudy = DaoCancerStudy.getCancerStudyByStableId(stableStudyId);
+        CancerStudy cancerStudy = DaoCancerStudy.getCancerStudyByStableId(
+            stableStudyId
+        );
         if (cancerStudy != null) {
             toReturn.add(cancerStudy);
         }
-        
+
         // outta here
         return toReturn;
     }
 
-    public UserDetails getUserDetails()
-    {
+    public UserDetails getUserDetails() {
         if (GlobalProperties.usersMustAuthenticate()) {
-            Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+            Authentication auth = SecurityContextHolder
+                .getContext()
+                .getAuthentication();
             if (auth == null) {
-                String errorMessage = "Possible configuration error detected: authorization=true but no authentication found. "
-                        + "If authentication is turned off, authorization should be set to false";
+                String errorMessage =
+                    "Possible configuration error detected: authorization=true but no authentication found. " +
+                    "If authentication is turned off, authorization should be set to false";
                 log.error(errorMessage);
                 throw new RuntimeException(errorMessage);
             }
-            return !(auth instanceof AnonymousAuthenticationToken) ? (UserDetails)auth.getPrincipal() : null;
+            return !(auth instanceof AnonymousAuthenticationToken)
+                ? (UserDetails) auth.getPrincipal()
+                : null;
         }
         return null;
     }

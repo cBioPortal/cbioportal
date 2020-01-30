@@ -28,7 +28,7 @@
  *
  * You should have received a copy of the GNU Affero General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
-*/
+ */
 
 package org.mskcc.cbio.portal.scripts;
 
@@ -42,7 +42,6 @@ import org.mskcc.cbio.portal.util.*;
  * @author Arthur Goldberg goldberg@cbio.mskcc.org
  */
 public class ResetDatabase {
-
     public static final int MAX_RESET_SIZE = 6;
 
     /**
@@ -91,19 +90,22 @@ public class ResetDatabase {
     }
 
     public static void resetDatabase() throws DaoException {
-
         // safety measure: don't reset a big database
         if (MAX_RESET_SIZE < DaoCancerStudy.getCount()) {
-            throw new DaoException("Database has " + DaoCancerStudy.getCount() +
-                    " studies, and we don't reset a database with more than " + MAX_RESET_SIZE + " records.");
+            throw new DaoException(
+                "Database has " +
+                DaoCancerStudy.getCount() +
+                " studies, and we don't reset a database with more than " +
+                MAX_RESET_SIZE +
+                " records."
+            );
         } else {
             resetAnySizeDatabase();
         }
-
     }
 
     public static void main(String[] args) throws DaoException {
-		SpringUtil.initDataSource();
+        SpringUtil.initDataSource();
         StatDatabase.statDb();
         ResetDatabase.resetDatabase();
         System.err.println("Database Cleared and Reset.");

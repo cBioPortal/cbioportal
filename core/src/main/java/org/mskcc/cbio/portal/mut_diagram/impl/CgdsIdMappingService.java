@@ -28,7 +28,7 @@
  *
  * You should have received a copy of the GNU Affero General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
-*/
+ */
 
 package org.mskcc.cbio.portal.mut_diagram.impl;
 
@@ -36,7 +36,6 @@ import static com.google.common.base.Preconditions.checkNotNull;
 
 import java.util.Collections;
 import java.util.List;
-
 import org.apache.log4j.Logger;
 import org.mskcc.cbio.portal.dao.DaoException;
 import org.mskcc.cbio.portal.dao.DaoGeneOptimized;
@@ -48,7 +47,9 @@ import org.mskcc.cbio.portal.mut_diagram.IdMappingService;
  * Implementation of IdMappingService that reads from the CGDS data source.
  */
 public final class CgdsIdMappingService implements IdMappingService {
-    private static final Logger logger = Logger.getLogger(CgdsIdMappingService.class);
+    private static final Logger logger = Logger.getLogger(
+        CgdsIdMappingService.class
+    );
     private final DaoGeneOptimized geneDao;
 
     public CgdsIdMappingService(final DaoGeneOptimized geneDao) {
@@ -56,30 +57,44 @@ public final class CgdsIdMappingService implements IdMappingService {
     }
 
     /** {@inheritDoc} */
-    public List<String> mapFromHugoToUniprotAccessions(final String hugoGeneSymbol) {
+    public List<String> mapFromHugoToUniprotAccessions(
+        final String hugoGeneSymbol
+    ) {
         checkNotNull(hugoGeneSymbol, "hugoGeneSymbol must not be null");
         try {
             CanonicalGene gene = geneDao.getGene(hugoGeneSymbol);
             if (gene == null) {
-                logger.warn("could not find gene with hugoGeneSymbol " + hugoGeneSymbol + " for uniprot id mapping");
+                logger.warn(
+                    "could not find gene with hugoGeneSymbol " +
+                    hugoGeneSymbol +
+                    " for uniprot id mapping"
+                );
+            } else {
+                return DaoUniProtIdMapping.mapFromEntrezGeneIdToUniprotAccession(
+                    (int) gene.getEntrezGeneId()
+                ); // is entrez gene id really a long?
             }
-            else {
-                return DaoUniProtIdMapping.mapFromEntrezGeneIdToUniprotAccession((int) gene.getEntrezGeneId()); // is entrez gene id really a long?
-            }
-        }
-        catch (DaoException e) {
-            logger.error("could not find uniprot id mapping for hugoGeneSymbol " + hugoGeneSymbol, e);
+        } catch (DaoException e) {
+            logger.error(
+                "could not find uniprot id mapping for hugoGeneSymbol " +
+                hugoGeneSymbol,
+                e
+            );
         }
         return Collections.emptyList();
     }
-    
-    public String  mapFromUniprotIdToUniprotAccession(String uniprotId) {
+
+    public String mapFromUniprotIdToUniprotAccession(String uniprotId) {
         checkNotNull(uniprotId, "uniprotId must not be null");
         try {
-            return DaoUniProtIdMapping.mapFromUniprotAccessionToUniprotId(uniprotId);
-        }
-        catch (DaoException e) {
-            logger.error("could not find uniprot id mapping for " + uniprotId, e);
+            return DaoUniProtIdMapping.mapFromUniprotAccessionToUniprotId(
+                uniprotId
+            );
+        } catch (DaoException e) {
+            logger.error(
+                "could not find uniprot id mapping for " + uniprotId,
+                e
+            );
         }
         return null;
     }

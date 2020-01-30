@@ -24,7 +24,9 @@ public class TestStructuralVariantUtil {
         record.setSite2HugoSymbol("ALK1");
         record.setSite2EnsemblTranscriptId("ENST2843757657");
         record.setSite2Exon(1);
-        Assert.assertTrue(structuralVariantUtil.hasRequiredStructuralVariantFields(record));
+        Assert.assertTrue(
+            structuralVariantUtil.hasRequiredStructuralVariantFields(record)
+        );
     }
 
     @Test
@@ -40,7 +42,9 @@ public class TestStructuralVariantUtil {
         record.setSite2HugoSymbol("ALK1");
         record.setSite2EnsemblTranscriptId("NA");
         record.setSite2Exon(1);
-        Assert.assertFalse(structuralVariantUtil.hasRequiredStructuralVariantFields(record));
+        Assert.assertFalse(
+            structuralVariantUtil.hasRequiredStructuralVariantFields(record)
+        );
     }
 
     @Test
@@ -57,7 +61,9 @@ public class TestStructuralVariantUtil {
         record.setSite2HugoSymbol("ALK1");
         record.setSite2EnsemblTranscriptId("ENST2843757657");
         record.setSite2Exon(1);
-        Assert.assertFalse(structuralVariantUtil.hasRequiredStructuralVariantFields(record));
+        Assert.assertFalse(
+            structuralVariantUtil.hasRequiredStructuralVariantFields(record)
+        );
     }
 
     @Test
@@ -74,7 +80,9 @@ public class TestStructuralVariantUtil {
         record.setSite2HugoSymbol("ALK1");
         record.setSite2EnsemblTranscriptId("ENST2843757657");
         record.setSite2Exon(1);
-        Assert.assertFalse(structuralVariantUtil.hasRequiredStructuralVariantFields(record));
+        Assert.assertFalse(
+            structuralVariantUtil.hasRequiredStructuralVariantFields(record)
+        );
     }
 
     @Test
@@ -91,6 +99,8 @@ public class TestStructuralVariantUtil {
         record.setSite2HugoSymbol("ALK1");
         record.setSite2EnsemblTranscriptId("NA");
         record.setSite2Exon(-1);
-        Assert.assertTrue(structuralVariantUtil.hasRequiredStructuralVariantFields(record));
+        Assert.assertTrue(
+            structuralVariantUtil.hasRequiredStructuralVariantFields(record)
+        );
     }
 }

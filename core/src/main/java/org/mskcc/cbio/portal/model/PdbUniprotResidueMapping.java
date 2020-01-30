@@ -28,7 +28,7 @@
  *
  * You should have received a copy of the GNU Affero General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
-*/
+ */
 
 package org.mskcc.cbio.portal.model;
 
@@ -37,76 +37,71 @@ package org.mskcc.cbio.portal.model;
  *
  * @author Selcuk Onur Sumer
  */
-public class PdbUniprotResidueMapping
-{
-	private Integer alignmentId;
-	private Integer pdbPos;
-	private String pdbInsertionCode;
-	private Integer uniprotPos;
-	private String match;
+public class PdbUniprotResidueMapping {
+    private Integer alignmentId;
+    private Integer pdbPos;
+    private String pdbInsertionCode;
+    private Integer uniprotPos;
+    private String match;
 
-	public PdbUniprotResidueMapping(Integer alignmentId,
-			Integer pdbPos,
-			String pdbInsertionCode,
-			Integer uniprotPos,
-			String match)
-	{
-		this.alignmentId = alignmentId;
-		this.pdbPos = pdbPos;
-                this.pdbInsertionCode = pdbInsertionCode;
-		this.uniprotPos = uniprotPos;
-		this.match = match;
-	}
+    public PdbUniprotResidueMapping(
+        Integer alignmentId,
+        Integer pdbPos,
+        String pdbInsertionCode,
+        Integer uniprotPos,
+        String match
+    ) {
+        this.alignmentId = alignmentId;
+        this.pdbPos = pdbPos;
+        this.pdbInsertionCode = pdbInsertionCode;
+        this.uniprotPos = uniprotPos;
+        this.match = match;
+    }
 
-	public Integer getAlignmentId()
-	{
-		return alignmentId;
-	}
+    public Integer getAlignmentId() {
+        return alignmentId;
+    }
 
-	public void setAlignmentId(Integer alignmentId)
-	{
-		this.alignmentId = alignmentId;
-	}
+    public void setAlignmentId(Integer alignmentId) {
+        this.alignmentId = alignmentId;
+    }
 
-	public Integer getPdbPos()
-	{
-		return pdbPos;
-	}
+    public Integer getPdbPos() {
+        return pdbPos;
+    }
 
-	public void setPdbPos(Integer pdbPos)
-	{
-		this.pdbPos = pdbPos;
-	}
+    public void setPdbPos(Integer pdbPos) {
+        this.pdbPos = pdbPos;
+    }
 
-	public Integer getUniprotPos()
-	{
-		return uniprotPos;
-	}
+    public Integer getUniprotPos() {
+        return uniprotPos;
+    }
 
-	public void setUniprotPos(Integer uniprotPos)
-	{
-		this.uniprotPos = uniprotPos;
-	}
+    public void setUniprotPos(Integer uniprotPos) {
+        this.uniprotPos = uniprotPos;
+    }
 
-	public String getMatch()
-	{
-		return match;
-	}
+    public String getMatch() {
+        return match;
+    }
 
-	public void setMatch(String match)
-	{
-		this.match = match;
-	}
+    public void setMatch(String match) {
+        this.match = match;
+    }
 
-        public String getPdbInsertionCode() {
-            return pdbInsertionCode;
-        }
+    public String getPdbInsertionCode() {
+        return pdbInsertionCode;
+    }
 
-        public void setPdbInsertionCode(String pdbInsertionCode) {
-            this.pdbInsertionCode = pdbInsertionCode;
-        }
-        
-        public String getJmolPdbResidue() {
-            return pdbPos.toString() + (pdbInsertionCode==null?"":("^"+pdbInsertionCode));
-        }
+    public void setPdbInsertionCode(String pdbInsertionCode) {
+        this.pdbInsertionCode = pdbInsertionCode;
+    }
+
+    public String getJmolPdbResidue() {
+        return (
+            pdbPos.toString() +
+            (pdbInsertionCode == null ? "" : ("^" + pdbInsertionCode))
+        );
+    }
 }

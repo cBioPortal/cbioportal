@@ -28,7 +28,7 @@
  *
  * You should have received a copy of the GNU Affero General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
-*/
+ */
 
 package org.mskcc.cbio.portal.model;
 
@@ -49,8 +49,8 @@ public class GeneWithScore {
      * Constructor.
      */
     public GeneWithScore() {
-       // apg: was: counterPrefs = new GeneCounterPrefs();
-       // TODO: decide if this constructor is needed: aGeneWithSpec = new GeneWithSpec();
+        // apg: was: counterPrefs = new GeneCounterPrefs();
+        // TODO: decide if this constructor is needed: aGeneWithSpec = new GeneWithSpec();
     }
 
     /**
@@ -116,10 +116,9 @@ public class GeneWithScore {
         return counterPrefs;
     }
      */
-   public GeneWithSpec getaGeneWithSpec() {
-      return aGeneWithSpec;
-   }
-
+    public GeneWithSpec getaGeneWithSpec() {
+        return aGeneWithSpec;
+    }
 
     /**
      * Sets the Counter Prefs;
@@ -130,8 +129,7 @@ public class GeneWithScore {
         this.counterPrefs = counterPrefs;
     }
     */
-   public void setaGeneWithSpec(GeneWithSpec aGeneWithSpec) {
-      this.aGeneWithSpec = aGeneWithSpec;
-   }
-    
+    public void setaGeneWithSpec(GeneWithSpec aGeneWithSpec) {
+        this.aGeneWithSpec = aGeneWithSpec;
+    }
 }

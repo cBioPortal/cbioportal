@@ -28,7 +28,7 @@
  *
  * You should have received a copy of the GNU Affero General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
-*/
+ */
 
 package org.mskcc.cbio.portal.scripts;
 
@@ -43,96 +43,127 @@ import org.mskcc.cbio.portal.util.SpringUtil;
 
 /**
  * Imports timeline data for display in patient view
- * 
+ *
  * @author jgao, inodb
  */
 public class ImportTimelineData extends ConsoleRunnable {
 
-	private static void importData(String dataFile, int cancerStudyId) throws IOException, DaoException {
-		MySQLbulkLoader.bulkLoadOn();
-		SpringUtil.initDataSource();
+    private static void importData(String dataFile, int cancerStudyId)
+        throws IOException, DaoException {
+        MySQLbulkLoader.bulkLoadOn();
+        SpringUtil.initDataSource();
 
-		ProgressMonitor.setCurrentMessage("Reading file " + dataFile);
-		FileReader reader = new FileReader(dataFile);
-		BufferedReader buff = new BufferedReader(reader);
-		try {
-			String line = buff.readLine();
-	
-			// Check event category agnostic headers
-			String[] headers = line.split("\t");
-			int indexCategorySpecificField = -1;
-			if (headers[0].equals("PATIENT_ID") && headers[1].equals("START_DATE")) {
-				if ("STOP_DATE".equals(headers[2]) && "EVENT_TYPE".equals(headers[3])) {
-					indexCategorySpecificField = 4;
-				} else if (headers[2].equals("EVENT_TYPE")) {
-					indexCategorySpecificField = 3;
-				}
-			}
-			if (indexCategorySpecificField == -1) {
-				throw new RuntimeException("The first line must start with\n'PATIENT_ID\tSTART_DATE\tEVENT_TYPE'\nor\n"
-					+ "PATIENT_ID\tSTART_DATE\tSTOP_DATE\tEVENT_TYPE");
-			}
-	
-			long clinicalEventId = DaoClinicalEvent.getLargestClinicalEventId();
-	
-			while ((line = buff.readLine()) != null) {
-				line = line.trim();
-	
-				String[] fields = line.split("\t");
-				if (fields.length > headers.length) {
-					//TODO - should better throw an exception here...
-					ProgressMonitor.logWarning("more attributes than header: " + line + ". Skipping entry.");
-					continue;
-				}
-				String patientId = fields[0];
-				Patient patient = DaoPatient.getPatientByCancerStudyAndPatientId(cancerStudyId, patientId);
-				if (patient == null) {
-					ProgressMonitor.logWarning("Patient " + patientId + " not found in study " + cancerStudyId + ". Skipping entry.");
-					continue;
-				}
-				ClinicalEvent event = new ClinicalEvent();
-				event.setClinicalEventId(++clinicalEventId);
-				event.setPatientId(patient.getInternalId());
-				event.setStartDate(Long.valueOf(fields[1]));
-				if (indexCategorySpecificField != 3 && !fields[2].isEmpty()) {
-					event.setStopDate(Long.valueOf(fields[2]));
-				}
-				event.setEventType(fields[indexCategorySpecificField - 1]);
-				Map<String, String> eventData = new HashMap<String, String>();
-				for (int i = indexCategorySpecificField; i < fields.length; i++) {
-					if (!fields[i].isEmpty()) {
-						eventData.put(headers[i], fields[i]);
-					}
-				}
-				event.setEventData(eventData);
-	
-				DaoClinicalEvent.addClinicalEvent(event);
-			}
-	
-			MySQLbulkLoader.flushAll();
-		}
-		finally {
-			buff.close();
-		}
-	}
+        ProgressMonitor.setCurrentMessage("Reading file " + dataFile);
+        FileReader reader = new FileReader(dataFile);
+        BufferedReader buff = new BufferedReader(reader);
+        try {
+            String line = buff.readLine();
+
+            // Check event category agnostic headers
+            String[] headers = line.split("\t");
+            int indexCategorySpecificField = -1;
+            if (
+                headers[0].equals("PATIENT_ID") &&
+                headers[1].equals("START_DATE")
+            ) {
+                if (
+                    "STOP_DATE".equals(headers[2]) &&
+                    "EVENT_TYPE".equals(headers[3])
+                ) {
+                    indexCategorySpecificField = 4;
+                } else if (headers[2].equals("EVENT_TYPE")) {
+                    indexCategorySpecificField = 3;
+                }
+            }
+            if (indexCategorySpecificField == -1) {
+                throw new RuntimeException(
+                    "The first line must start with\n'PATIENT_ID\tSTART_DATE\tEVENT_TYPE'\nor\n" +
+                    "PATIENT_ID\tSTART_DATE\tSTOP_DATE\tEVENT_TYPE"
+                );
+            }
+
+            long clinicalEventId = DaoClinicalEvent.getLargestClinicalEventId();
+
+            while ((line = buff.readLine()) != null) {
+                line = line.trim();
+
+                String[] fields = line.split("\t");
+                if (fields.length > headers.length) {
+                    //TODO - should better throw an exception here...
+                    ProgressMonitor.logWarning(
+                        "more attributes than header: " +
+                        line +
+                        ". Skipping entry."
+                    );
+                    continue;
+                }
+                String patientId = fields[0];
+                Patient patient = DaoPatient.getPatientByCancerStudyAndPatientId(
+                    cancerStudyId,
+                    patientId
+                );
+                if (patient == null) {
+                    ProgressMonitor.logWarning(
+                        "Patient " +
+                        patientId +
+                        " not found in study " +
+                        cancerStudyId +
+                        ". Skipping entry."
+                    );
+                    continue;
+                }
+                ClinicalEvent event = new ClinicalEvent();
+                event.setClinicalEventId(++clinicalEventId);
+                event.setPatientId(patient.getInternalId());
+                event.setStartDate(Long.valueOf(fields[1]));
+                if (indexCategorySpecificField != 3 && !fields[2].isEmpty()) {
+                    event.setStopDate(Long.valueOf(fields[2]));
+                }
+                event.setEventType(fields[indexCategorySpecificField - 1]);
+                Map<String, String> eventData = new HashMap<String, String>();
+                for (
+                    int i = indexCategorySpecificField;
+                    i < fields.length;
+                    i++
+                ) {
+                    if (!fields[i].isEmpty()) {
+                        eventData.put(headers[i], fields[i]);
+                    }
+                }
+                event.setEventData(eventData);
+
+                DaoClinicalEvent.addClinicalEvent(event);
+            }
+
+            MySQLbulkLoader.flushAll();
+        } finally {
+            buff.close();
+        }
+    }
 
     public void run() {
         try {
-		    String description = "Import 'timeline' data";
-            
-		    OptionSet options = ConsoleUtil.parseStandardDataAndMetaOptions(args, description, true);
-		    String dataFile = (String) options.valueOf("data");
-		    File descriptorFile = new File((String) options.valueOf("meta"));
-            
-			Properties properties = new TrimmedProperties();
-			properties.load(new FileInputStream(descriptorFile));
-            
-			int cancerStudyInternalId = ValidationUtils.getInternalStudyId(properties.getProperty("cancer_study_identifier"));
-            
-			importData(dataFile, cancerStudyInternalId);
+            String description = "Import 'timeline' data";
+
+            OptionSet options = ConsoleUtil.parseStandardDataAndMetaOptions(
+                args,
+                description,
+                true
+            );
+            String dataFile = (String) options.valueOf("data");
+            File descriptorFile = new File((String) options.valueOf("meta"));
+
+            Properties properties = new TrimmedProperties();
+            properties.load(new FileInputStream(descriptorFile));
+
+            int cancerStudyInternalId = ValidationUtils.getInternalStudyId(
+                properties.getProperty("cancer_study_identifier")
+            );
+
+            importData(dataFile, cancerStudyInternalId);
         } catch (RuntimeException e) {
             throw e;
-        } catch (IOException|DaoException e) {
+        } catch (IOException | DaoException e) {
             throw new RuntimeException(e);
         }
     }

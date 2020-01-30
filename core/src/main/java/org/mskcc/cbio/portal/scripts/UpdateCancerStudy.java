@@ -19,53 +19,63 @@
  *
  * You should have received a copy of the GNU Affero General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
-*/
+ */
 
 package org.mskcc.cbio.portal.scripts;
 
-import org.mskcc.cbio.portal.util.*;
 import org.mskcc.cbio.portal.dao.DaoCancerStudy;
 import org.mskcc.cbio.portal.dao.DaoException;
 import org.mskcc.cbio.portal.model.*;
-
+import org.mskcc.cbio.portal.util.*;
 
 /**
  * Command Line Tool to update the status of a Single Cancer Study.
  */
 public class UpdateCancerStudy extends ConsoleRunnable {
+
     public void run() {
         try {
-  		  // check args
-          String progName = "updateCancerStudy";
-          String argSpec = "<study identifier> <status>";
-  	      if (args.length < 2) {
-  	         // an extra --noprogress option can be given to avoid the messages regarding memory usage and % complete
-             throw new UsageException(
-                     progName,
-                     null,
-                     argSpec);
-  	      }
+            // check args
+            String progName = "updateCancerStudy";
+            String argSpec = "<study identifier> <status>";
+            if (args.length < 2) {
+                // an extra --noprogress option can be given to avoid the messages regarding memory usage and % complete
+                throw new UsageException(progName, null, argSpec);
+            }
 
-  	      String cancerStudyIdentifier = args[0];
-  	      String cancerStudyStatus = args[1];
-  	      //validate:
-  	      DaoCancerStudy.Status status;
-  	      try {
-  	    	status = DaoCancerStudy.Status.valueOf(cancerStudyStatus);
-  	      }
-  	      catch (IllegalArgumentException ia) {
-              throw new UsageException(progName, null, argSpec,
-                      "Invalid study status parameter: " + cancerStudyStatus);
-  	      }
+            String cancerStudyIdentifier = args[0];
+            String cancerStudyStatus = args[1];
+            //validate:
+            DaoCancerStudy.Status status;
+            try {
+                status = DaoCancerStudy.Status.valueOf(cancerStudyStatus);
+            } catch (IllegalArgumentException ia) {
+                throw new UsageException(
+                    progName,
+                    null,
+                    argSpec,
+                    "Invalid study status parameter: " + cancerStudyStatus
+                );
+            }
 
-  	 	  SpringUtil.initDataSource();
-  	      CancerStudy theCancerStudy = DaoCancerStudy.getCancerStudyByStableId(cancerStudyIdentifier);
-  	      if (theCancerStudy == null) {
-  	          throw new IllegalArgumentException("cancer study identified by cancer_study_identifier '"
-  	                   + cancerStudyIdentifier + "' not found in dbms or inaccessible to user.");
-  	      }
-  	      ProgressMonitor.setCurrentMessage("Updating study status to :  '" + status.name() + "' for study: " + cancerStudyIdentifier); 
-  	      DaoCancerStudy.setStatus(status, cancerStudyIdentifier);
+            SpringUtil.initDataSource();
+            CancerStudy theCancerStudy = DaoCancerStudy.getCancerStudyByStableId(
+                cancerStudyIdentifier
+            );
+            if (theCancerStudy == null) {
+                throw new IllegalArgumentException(
+                    "cancer study identified by cancer_study_identifier '" +
+                    cancerStudyIdentifier +
+                    "' not found in dbms or inaccessible to user."
+                );
+            }
+            ProgressMonitor.setCurrentMessage(
+                "Updating study status to :  '" +
+                status.name() +
+                "' for study: " +
+                cancerStudyIdentifier
+            );
+            DaoCancerStudy.setStatus(status, cancerStudyIdentifier);
         } catch (RuntimeException e) {
             throw e;
         } catch (DaoException e) {

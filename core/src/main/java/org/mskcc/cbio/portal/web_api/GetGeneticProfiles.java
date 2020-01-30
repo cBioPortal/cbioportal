@@ -28,7 +28,7 @@
  *
  * You should have received a copy of the GNU Affero General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
-*/
+ */
 
 package org.mskcc.cbio.portal.web_api;
 
@@ -53,11 +53,17 @@ public class GetGeneticProfiles {
      * @return ArrayList of GeneticProfile Objects.
      * @throws DaoException Remote / Network IO Error.
      */
-    public static ArrayList<GeneticProfile> getGeneticProfiles(String cancerStudyId)
-            throws DaoException {
-        CancerStudy cancerStudy = DaoCancerStudy.getCancerStudyByStableId(cancerStudyId);
+    public static ArrayList<GeneticProfile> getGeneticProfiles(
+        String cancerStudyId
+    )
+        throws DaoException {
+        CancerStudy cancerStudy = DaoCancerStudy.getCancerStudyByStableId(
+            cancerStudyId
+        );
         if (cancerStudy != null) {
-            return DaoGeneticProfile.getAllGeneticProfiles(cancerStudy.getInternalId());
+            return DaoGeneticProfile.getAllGeneticProfiles(
+                cancerStudy.getInternalId()
+            );
         } else {
             return new ArrayList<GeneticProfile>();
         }
@@ -70,29 +76,44 @@ public class GetGeneticProfiles {
      * @return Genetic Profiles Table Output.
      * @throws DaoException Database Exception.
      */
-    public static String getGeneticProfilesAsTable(String cancerStudyStableId) throws DaoException {
-        CancerStudy cancerStudy = DaoCancerStudy.getCancerStudyByStableId(cancerStudyStableId);
+    public static String getGeneticProfilesAsTable(String cancerStudyStableId)
+        throws DaoException {
+        CancerStudy cancerStudy = DaoCancerStudy.getCancerStudyByStableId(
+            cancerStudyStableId
+        );
         StringBuilder buf = new StringBuilder();
         if (cancerStudy != null) {
             int cancerStudyInternalId = cancerStudy.getInternalId();
-            ArrayList<GeneticProfile> list =
-                    DaoGeneticProfile.getAllGeneticProfiles(cancerStudyInternalId);
+            ArrayList<GeneticProfile> list = DaoGeneticProfile.getAllGeneticProfiles(
+                cancerStudyInternalId
+            );
             if (list.size() > 0) {
-
-                buf.append("genetic_profile_id\tgenetic_profile_name\tgenetic_profile_description\t" +
-                        "cancer_study_id\t" +
-                        "genetic_alteration_type\tshow_profile_in_analysis_tab\n");
+                buf.append(
+                    "genetic_profile_id\tgenetic_profile_name\tgenetic_profile_description\t" +
+                    "cancer_study_id\t" +
+                    "genetic_alteration_type\tshow_profile_in_analysis_tab\n"
+                );
                 for (GeneticProfile geneticProfile : list) {
                     buf.append(geneticProfile.getStableId()).append("\t");
                     buf.append(geneticProfile.getProfileName()).append("\t");
-                    buf.append(geneticProfile.getProfileDescription()).append("\t");
+                    buf
+                        .append(geneticProfile.getProfileDescription())
+                        .append("\t");
                     buf.append(geneticProfile.getCancerStudyId()).append("\t");
-                    buf.append(geneticProfile.getGeneticAlterationType().name()).append("\t");
-                    buf.append(geneticProfile.showProfileInAnalysisTab()).append("\n");
+                    buf
+                        .append(
+                            geneticProfile.getGeneticAlterationType().name()
+                        )
+                        .append("\t");
+                    buf
+                        .append(geneticProfile.showProfileInAnalysisTab())
+                        .append("\n");
                 }
             } else {
-                buf.append("Error:  No genetic profiles available for: ")
-                        .append(cancerStudyStableId).append(".\n");
+                buf
+                    .append("Error:  No genetic profiles available for: ")
+                    .append(cancerStudyStableId)
+                    .append(".\n");
                 return buf.toString();
             }
         }

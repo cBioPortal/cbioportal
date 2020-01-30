@@ -28,23 +28,21 @@
  *
  * You should have received a copy of the GNU Affero General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
-*/
+ */
 
 package org.mskcc.cbio.portal.oncoPrintSpecLanguage;
+
 import static org.junit.Assert.*;
+
 import org.junit.Test;
 import org.mskcc.cbio.portal.oncoPrintSpecLanguage.CallOncoPrintSpecParser;
 import org.mskcc.cbio.portal.oncoPrintSpecLanguage.ParserOutput;
 
-
-
 public class TestCallOncoPrintSpecParser {
-   
-   // TODO
-	@Test
-   public void testCallOncoPrintSpecParser() {
-      assertTrue(true);
-      
-   }
 
+    // TODO
+    @Test
+    public void testCallOncoPrintSpecParser() {
+        assertTrue(true);
+    }
 }

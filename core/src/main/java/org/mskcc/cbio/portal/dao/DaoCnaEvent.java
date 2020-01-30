@@ -28,62 +28,70 @@
  *
  * You should have received a copy of the GNU Affero General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
-*/
+ */
 
 package org.mskcc.cbio.portal.dao;
 
+import java.sql.*;
+import java.util.*;
 import org.apache.commons.lang.StringUtils;
 import org.mskcc.cbio.portal.model.CnaEvent;
 import org.mskcc.cbio.portal.model.Sample;
-
-import java.sql.*;
-import java.util.*;
 
 /**
  *
  * @author jgao
  */
 public final class DaoCnaEvent {
+
     private DaoCnaEvent() {}
-    
-    public static void addCaseCnaEvent(CnaEvent cnaEvent, boolean newCnaEvent) throws DaoException {
+
+    public static void addCaseCnaEvent(CnaEvent cnaEvent, boolean newCnaEvent)
+        throws DaoException {
         if (!MySQLbulkLoader.isBulkLoad()) {
-            throw new DaoException("You have to turn on MySQLbulkLoader in order to insert sample_cna_event");
-        }
-        else {
-        	long eventId = cnaEvent.getEventId();
-        	if (newCnaEvent) {
+            throw new DaoException(
+                "You have to turn on MySQLbulkLoader in order to insert sample_cna_event"
+            );
+        } else {
+            long eventId = cnaEvent.getEventId();
+            if (newCnaEvent) {
                 eventId = addCnaEventDirectly(cnaEvent);
                 // update object based on new DB id (since this object is locally cached after this):
                 cnaEvent.setEventId(eventId);
             }
-            
-            MySQLbulkLoader.getMySQLbulkLoader("sample_cna_event").insertRecord(
+
+            MySQLbulkLoader
+                .getMySQLbulkLoader("sample_cna_event")
+                .insertRecord(
                     Long.toString(eventId),
                     Integer.toString(cnaEvent.getSampleId()),
                     Integer.toString(cnaEvent.getCnaProfileId())
-                    );
+                );
         }
     }
-    
+
     /**
      * Add new event directly and return the auto increment value.
-     * 
+     *
      * @param cnaEvent
      * @return
-     * @throws DaoException 
+     * @throws DaoException
      */
-    private static long addCnaEventDirectly(CnaEvent cnaEvent) throws DaoException {
+    private static long addCnaEventDirectly(CnaEvent cnaEvent)
+        throws DaoException {
         Connection con = null;
         PreparedStatement pstmt = null;
         ResultSet rs = null;
         try {
             con = JdbcUtil.getDbConnection(DaoCnaEvent.class);
-            pstmt = con.prepareStatement
-                    ("INSERT INTO cna_event (" +
-                            "`ENTREZ_GENE_ID`," +
-                            "`ALTERATION` )" +
-                            " VALUES(?,?)", Statement.RETURN_GENERATED_KEYS);
+            pstmt =
+                con.prepareStatement(
+                    "INSERT INTO cna_event (" +
+                    "`ENTREZ_GENE_ID`," +
+                    "`ALTERATION` )" +
+                    " VALUES(?,?)",
+                    Statement.RETURN_GENERATED_KEYS
+                );
             pstmt.setLong(1, cnaEvent.getEntrezGeneId());
             pstmt.setShort(2, cnaEvent.getAlteration().getCode());
             pstmt.executeUpdate();
@@ -96,15 +104,19 @@ public final class DaoCnaEvent {
         } finally {
             JdbcUtil.closeAll(DaoCnaEvent.class, con, pstmt, rs);
         }
-	}
-    
+    }
+
     public static Map<Sample, Set<Long>> getSamplesWithAlterations(
-            Collection<Long> eventIds) throws DaoException {
+        Collection<Long> eventIds
+    )
+        throws DaoException {
         return getSamplesWithAlterations(StringUtils.join(eventIds, ","));
     }
-    
-    public static Map<Sample, Set<Long>> getSamplesWithAlterations(String concatEventIds)
-            throws DaoException {
+
+    public static Map<Sample, Set<Long>> getSamplesWithAlterations(
+        String concatEventIds
+    )
+        throws DaoException {
         if (concatEventIds.isEmpty()) {
             return Collections.emptyMap();
         }
@@ -113,12 +125,14 @@ public final class DaoCnaEvent {
         ResultSet rs = null;
         try {
             con = JdbcUtil.getDbConnection(DaoCnaEvent.class);
-            String sql = "SELECT * FROM sample_cna_event"
-                    + " WHERE `CNA_EVENT_ID` IN ("
-                    + concatEventIds + ")";
+            String sql =
+                "SELECT * FROM sample_cna_event" +
+                " WHERE `CNA_EVENT_ID` IN (" +
+                concatEventIds +
+                ")";
             pstmt = con.prepareStatement(sql);
-            
-            Map<Sample, Set<Long>>  map = new HashMap<Sample, Set<Long>> ();
+
+            Map<Sample, Set<Long>> map = new HashMap<Sample, Set<Long>>();
             rs = pstmt.executeQuery();
             while (rs.next()) {
                 Sample sample = DaoSample.getSampleById(rs.getInt("SAMPLE_ID"));
@@ -139,30 +153,53 @@ public final class DaoCnaEvent {
             JdbcUtil.closeAll(DaoCnaEvent.class, con, pstmt, rs);
         }
     }
-    
-    public static List<CnaEvent> getCnaEvents(List<Integer> sampleIds, Collection<Long> entrezGeneIds , int profileId, Collection<Short> cnaLevels) throws DaoException {
+
+    public static List<CnaEvent> getCnaEvents(
+        List<Integer> sampleIds,
+        Collection<Long> entrezGeneIds,
+        int profileId,
+        Collection<Short> cnaLevels
+    )
+        throws DaoException {
         Connection con = null;
         PreparedStatement pstmt = null;
         ResultSet rs = null;
         try {
             con = JdbcUtil.getDbConnection(DaoCnaEvent.class);
-            pstmt = con.prepareStatement
-		("SELECT sample_cna_event.CNA_EVENT_ID, SAMPLE_ID, GENETIC_PROFILE_ID,"
-                    + " ENTREZ_GENE_ID, ALTERATION FROM sample_cna_event, cna_event"
-                    + " WHERE `GENETIC_PROFILE_ID`=?"
-                    + " AND sample_cna_event.CNA_EVENT_ID=cna_event.CNA_EVENT_ID"
-                    + (entrezGeneIds==null?"":" AND ENTREZ_GENE_ID IN(" + StringUtils.join(entrezGeneIds,",") + ")")
-                    + " AND ALTERATION IN (" + StringUtils.join(cnaLevels,",") + ")"
-                    + " AND SAMPLE_ID in ('"+StringUtils.join(sampleIds, "','")+"')");
+            pstmt =
+                con.prepareStatement(
+                    "SELECT sample_cna_event.CNA_EVENT_ID, SAMPLE_ID, GENETIC_PROFILE_ID," +
+                    " ENTREZ_GENE_ID, ALTERATION FROM sample_cna_event, cna_event" +
+                    " WHERE `GENETIC_PROFILE_ID`=?" +
+                    " AND sample_cna_event.CNA_EVENT_ID=cna_event.CNA_EVENT_ID" +
+                    (
+                        entrezGeneIds == null
+                            ? ""
+                            : " AND ENTREZ_GENE_ID IN(" +
+                            StringUtils.join(entrezGeneIds, ",") +
+                            ")"
+                    ) +
+                    " AND ALTERATION IN (" +
+                    StringUtils.join(cnaLevels, ",") +
+                    ")" +
+                    " AND SAMPLE_ID in ('" +
+                    StringUtils.join(sampleIds, "','") +
+                    "')"
+                );
             pstmt.setInt(1, profileId);
             rs = pstmt.executeQuery();
             List<CnaEvent> events = new ArrayList<CnaEvent>();
             while (rs.next()) {
                 try {
-                    Sample sample = DaoSample.getSampleById(rs.getInt("SAMPLE_ID"));
-                    CnaEvent event = new CnaEvent(sample.getInternalId(),
-                            rs.getInt("GENETIC_PROFILE_ID"),
-                            rs.getLong("ENTREZ_GENE_ID"), rs.getShort("ALTERATION"));
+                    Sample sample = DaoSample.getSampleById(
+                        rs.getInt("SAMPLE_ID")
+                    );
+                    CnaEvent event = new CnaEvent(
+                        sample.getInternalId(),
+                        rs.getInt("GENETIC_PROFILE_ID"),
+                        rs.getLong("ENTREZ_GENE_ID"),
+                        rs.getShort("ALTERATION")
+                    );
                     event.setEventId(rs.getLong("CNA_EVENT_ID"));
                     events.add(event);
                 } catch (IllegalArgumentException e) {
@@ -185,8 +222,7 @@ public final class DaoCnaEvent {
         ResultSet rs = null;
         try {
             con = JdbcUtil.getDbConnection(DaoCnaEvent.class);
-            pstmt = con.prepareStatement
-		("SELECT * FROM cna_event");
+            pstmt = con.prepareStatement("SELECT * FROM cna_event");
             rs = pstmt.executeQuery();
             List<CnaEvent.Event> events = new ArrayList<CnaEvent.Event>();
             while (rs.next()) {
@@ -207,14 +243,23 @@ public final class DaoCnaEvent {
             JdbcUtil.closeAll(DaoCnaEvent.class, con, pstmt, rs);
         }
     }
-    
+
     public static Map<Long, Map<Integer, Integer>> countSamplesWithCNAGenes(
-            Collection<Long> entrezGeneIds, int profileId) throws DaoException {
-        return countSamplesWithCNAGenes(StringUtils.join(entrezGeneIds, ","), profileId);
+        Collection<Long> entrezGeneIds,
+        int profileId
+    )
+        throws DaoException {
+        return countSamplesWithCNAGenes(
+            StringUtils.join(entrezGeneIds, ","),
+            profileId
+        );
     }
-    
+
     public static Map<Long, Map<Integer, Integer>> countSamplesWithCNAGenes(
-            String concatEntrezGeneIds, int profileId) throws DaoException {
+        String concatEntrezGeneIds,
+        int profileId
+    )
+        throws DaoException {
         if (concatEntrezGeneIds.isEmpty()) {
             return Collections.emptyMap();
         }
@@ -223,15 +268,17 @@ public final class DaoCnaEvent {
         ResultSet rs = null;
         try {
             con = JdbcUtil.getDbConnection(DaoCnaEvent.class);
-            String sql = "SELECT `ENTREZ_GENE_ID`, `ALTERATION`, count(*)"
-                    + " FROM sample_cna_event, cna_event"
-                    + " WHERE `GENETIC_PROFILE_ID`=" + profileId
-                    + " and sample_cna_event.`CNA_EVENT_ID`=cna_event.`CNA_EVENT_ID`"
-                    + " and `ENTREZ_GENE_ID` IN ("
-                    + concatEntrezGeneIds
-                    + ") GROUP BY `ENTREZ_GENE_ID`, `ALTERATION`";
+            String sql =
+                "SELECT `ENTREZ_GENE_ID`, `ALTERATION`, count(*)" +
+                " FROM sample_cna_event, cna_event" +
+                " WHERE `GENETIC_PROFILE_ID`=" +
+                profileId +
+                " and sample_cna_event.`CNA_EVENT_ID`=cna_event.`CNA_EVENT_ID`" +
+                " and `ENTREZ_GENE_ID` IN (" +
+                concatEntrezGeneIds +
+                ") GROUP BY `ENTREZ_GENE_ID`, `ALTERATION`";
             pstmt = con.prepareStatement(sql);
-            
+
             Map<Long, Map<Integer, Integer>> map = new HashMap<Long, Map<Integer, Integer>>();
             rs = pstmt.executeQuery();
             while (rs.next()) {
@@ -239,7 +286,7 @@ public final class DaoCnaEvent {
                 Integer alt = rs.getInt(2);
                 Integer count = rs.getInt(3);
                 Map<Integer, Integer> mapII = map.get(entrez);
-                if (mapII==null) {
+                if (mapII == null) {
                     mapII = new HashMap<Integer, Integer>();
                     map.put(entrez, mapII);
                 }
@@ -252,14 +299,23 @@ public final class DaoCnaEvent {
             JdbcUtil.closeAll(DaoCnaEvent.class, con, pstmt, rs);
         }
     }
-    
-    public static Map<Long, Integer> countSamplesWithCnaEvents(Collection<Long> eventIds,
-            int profileId) throws DaoException {
-        return countSamplesWithCnaEvents(StringUtils.join(eventIds, ","), profileId);
+
+    public static Map<Long, Integer> countSamplesWithCnaEvents(
+        Collection<Long> eventIds,
+        int profileId
+    )
+        throws DaoException {
+        return countSamplesWithCnaEvents(
+            StringUtils.join(eventIds, ","),
+            profileId
+        );
     }
-    
-    public static Map<Long, Integer> countSamplesWithCnaEvents(String concatEventIds,
-            int profileId) throws DaoException {
+
+    public static Map<Long, Integer> countSamplesWithCnaEvents(
+        String concatEventIds,
+        int profileId
+    )
+        throws DaoException {
         if (concatEventIds.isEmpty()) {
             return Collections.emptyMap();
         }
@@ -268,13 +324,15 @@ public final class DaoCnaEvent {
         ResultSet rs = null;
         try {
             con = JdbcUtil.getDbConnection(DaoCnaEvent.class);
-            String sql = "SELECT `CNA_EVENT_ID`, count(*) FROM sample_cna_event"
-                    + " WHERE `GENETIC_PROFILE_ID`=" + profileId
-                    + " and `CNA_EVENT_ID` IN ("
-                    + concatEventIds
-                    + ") GROUP BY `CNA_EVENT_ID`";
+            String sql =
+                "SELECT `CNA_EVENT_ID`, count(*) FROM sample_cna_event" +
+                " WHERE `GENETIC_PROFILE_ID`=" +
+                profileId +
+                " and `CNA_EVENT_ID` IN (" +
+                concatEventIds +
+                ") GROUP BY `CNA_EVENT_ID`";
             pstmt = con.prepareStatement(sql);
-            
+
             Map<Long, Integer> map = new HashMap<Long, Integer>();
             rs = pstmt.executeQuery();
             while (rs.next()) {
@@ -287,9 +345,9 @@ public final class DaoCnaEvent {
             JdbcUtil.closeAll(DaoCnaEvent.class, con, pstmt, rs);
         }
     }
-    
+
     public static Set<Long> getAlteredGenes(String concatEventIds)
-            throws DaoException {
+        throws DaoException {
         if (concatEventIds.isEmpty()) {
             return Collections.emptySet();
         }
@@ -298,12 +356,13 @@ public final class DaoCnaEvent {
         ResultSet rs = null;
         try {
             con = JdbcUtil.getDbConnection(DaoCnaEvent.class);
-            String sql = "SELECT DISTINCT ENTREZ_GENE_ID FROM cna_event "
-                    + "WHERE CNA_EVENT_ID in ("
-                    +       concatEventIds
-                    + ")";
+            String sql =
+                "SELECT DISTINCT ENTREZ_GENE_ID FROM cna_event " +
+                "WHERE CNA_EVENT_ID in (" +
+                concatEventIds +
+                ")";
             pstmt = con.prepareStatement(sql);
-            
+
             Set<Long> set = new HashSet<Long>();
             rs = pstmt.executeQuery();
             while (rs.next()) {

@@ -28,13 +28,12 @@
  *
  * You should have received a copy of the GNU Affero General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
-*/
+ */
 
 package org.mskcc.cbio.portal.graph;
 
 import edu.uci.ics.jung.graph.Graph;
 import edu.uci.ics.jung.graph.util.Pair;
-
 import java.util.Iterator;
 
 /**
@@ -48,8 +47,7 @@ public final class JungToTabDelim {
     /**
      * Private Constructor to prevent instantiation.
      */
-    private JungToTabDelim() {
-    }
+    private JungToTabDelim() {}
 
     /**
      * Converts the Specified JUNG Graph to a Cytoscape SIF Format.
@@ -63,7 +61,13 @@ public final class JungToTabDelim {
             Pair pair = g.getEndpoints(edge);
             String geneA = (String) pair.getFirst();
             String geneB = (String) pair.getSecond();
-            buf.append(geneA).append(TAB).append(edge).append(TAB).append(geneB).append("\n");
+            buf
+                .append(geneA)
+                .append(TAB)
+                .append(edge)
+                .append(TAB)
+                .append(geneB)
+                .append("\n");
         }
         return buf.toString();
     }

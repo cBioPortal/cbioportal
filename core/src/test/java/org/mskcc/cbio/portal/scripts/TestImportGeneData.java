@@ -28,17 +28,15 @@
  *
  * You should have received a copy of the GNU Affero General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
-*/
+ */
 
 package org.mskcc.cbio.portal.scripts;
-
-import org.junit.Test;
-import org.junit.runner.RunWith;
 
 import static org.junit.Assert.assertEquals;
 
 import java.io.File;
-
+import org.junit.Test;
+import org.junit.runner.RunWith;
 import org.mskcc.cbio.portal.dao.DaoGeneOptimized;
 import org.mskcc.cbio.portal.dao.DaoReferenceGenomeGene;
 import org.mskcc.cbio.portal.model.CanonicalGene;
@@ -55,19 +53,22 @@ import org.springframework.transaction.annotation.Transactional;
  */
 @RunWith(SpringJUnit4ClassRunner.class)
 @ContextConfiguration(locations = { "classpath:/applicationContext-dao.xml" })
-@TransactionConfiguration(transactionManager = "transactionManager", defaultRollback = true)
+@TransactionConfiguration(
+    transactionManager = "transactionManager",
+    defaultRollback = true
+)
 @Transactional
 public class TestImportGeneData {
 
     @Test
     /*
-     * Checks that ImportGeneData works by calculating the length from three genes 
+     * Checks that ImportGeneData works by calculating the length from three genes
      * in genes_test.txt. The file genes_test.txt contains real data.
      */
     public void testImportGeneData() throws Exception {
         DaoGeneOptimized daoGene = DaoGeneOptimized.getInstance();
         ProgressMonitor.setConsoleMode(false);
-        
+
         File file = new File("src/test/resources/genes_test.txt");
         ImportGeneData.importData(file, "GRCh37");
 

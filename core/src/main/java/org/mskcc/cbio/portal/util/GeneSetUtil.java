@@ -28,15 +28,14 @@
  *
  * You should have received a copy of the GNU Affero General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
-*/
+ */
 
 package org.mskcc.cbio.portal.util;
-
-import org.mskcc.cbio.portal.model.SetOfGenes;
 
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
+import org.mskcc.cbio.portal.model.SetOfGenes;
 
 /**
  * Singleton to store arbitrary gene sets, to be displayed to the user.

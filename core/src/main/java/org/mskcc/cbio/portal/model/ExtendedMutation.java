@@ -28,13 +28,12 @@
  *
  * You should have received a copy of the GNU Affero General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
-*/
+ */
 
 package org.mskcc.cbio.portal.model;
 
-import org.codehaus.jackson.annotate.JsonIgnore;
-
 import org.apache.commons.lang.builder.ToStringBuilder;
+import org.codehaus.jackson.annotate.JsonIgnore;
 import org.mskcc.cbio.maf.MafUtil;
 
 /**
@@ -42,13 +41,13 @@ import org.mskcc.cbio.maf.MafUtil;
  *
  * @author Ethan Cerami.
  */
-public final class ExtendedMutation
-{
-    public final static class MutationEvent {
+public final class ExtendedMutation {
+
+    public static final class MutationEvent {
         private long mutationEventId;
         private CanonicalGene gene;
         private String chr;
-            private long startPosition;
+        private long startPosition;
         private long endPosition;
         private String proteinChange; // amino acid change
         private String mutationType; // variant classification
@@ -57,7 +56,7 @@ public final class ExtendedMutation
         private String linkXVar;
         private String linkPdb;
         private String linkMsa;
-            private String keyword;
+        private String keyword;
         private String ncbiBuild;
         private String strand;
         private String variantType;
@@ -272,7 +271,9 @@ public final class ExtendedMutation
             return oncotatorUniprotAccession;
         }
 
-        public void setOncotatorUniprotAccession(String oncotatorUniprotAccession) {
+        public void setOncotatorUniprotAccession(
+            String oncotatorUniprotAccession
+        ) {
             this.oncotatorUniprotAccession = oncotatorUniprotAccession;
         }
 
@@ -315,12 +316,42 @@ public final class ExtendedMutation
         public int hashCode() {
             int hash = 3;
             hash = 37 * hash + (this.gene != null ? this.gene.hashCode() : 0);
-            hash = 37 * hash + (this.chr != null ? this.chr.toUpperCase().hashCode() : 0);
-            hash = 37 * hash + (int) (this.startPosition ^ (this.startPosition >>> 32));
-            hash = 37 * hash + (int) (this.endPosition ^ (this.endPosition >>> 32));
-            hash = 37 * hash + (this.proteinChange != null ? this.proteinChange.toUpperCase().hashCode() : 0);
-            hash = 37 * hash + (this.tumorSeqAllele != null ? this.tumorSeqAllele.toUpperCase().hashCode() : 0);
-            hash = 37 * hash + (this.mutationType != null ? this.mutationType.toUpperCase().hashCode() : 0);
+            hash =
+                37 *
+                hash +
+                (this.chr != null ? this.chr.toUpperCase().hashCode() : 0);
+            hash =
+                37 *
+                hash +
+                (int) (this.startPosition ^ (this.startPosition >>> 32));
+            hash =
+                37 *
+                hash +
+                (int) (this.endPosition ^ (this.endPosition >>> 32));
+            hash =
+                37 *
+                hash +
+                (
+                    this.proteinChange != null
+                        ? this.proteinChange.toUpperCase().hashCode()
+                        : 0
+                );
+            hash =
+                37 *
+                hash +
+                (
+                    this.tumorSeqAllele != null
+                        ? this.tumorSeqAllele.toUpperCase().hashCode()
+                        : 0
+                );
+            hash =
+                37 *
+                hash +
+                (
+                    this.mutationType != null
+                        ? this.mutationType.toUpperCase().hashCode()
+                        : 0
+                );
             return hash;
         }
 
@@ -333,10 +364,17 @@ public final class ExtendedMutation
                 return false;
             }
             final MutationEvent other = (MutationEvent) obj;
-            if (this.gene != other.gene && (this.gene == null || !this.gene.equals(other.gene))) {
+            if (
+                this.gene != other.gene &&
+                (this.gene == null || !this.gene.equals(other.gene))
+            ) {
                 return false;
             }
-            if ((this.chr == null) ? (other.chr != null) : !this.chr.equalsIgnoreCase(other.chr)) {
+            if (
+                (this.chr == null)
+                    ? (other.chr != null)
+                    : !this.chr.equalsIgnoreCase(other.chr)
+            ) {
                 return false;
             }
             if (this.startPosition != other.startPosition) {
@@ -345,18 +383,33 @@ public final class ExtendedMutation
             if (this.endPosition != other.endPosition) {
                 return false;
             }
-            if ((this.proteinChange == null) ? (other.proteinChange != null) : !this.proteinChange.equalsIgnoreCase(other.proteinChange)) {
+            if (
+                (this.proteinChange == null)
+                    ? (other.proteinChange != null)
+                    : !this.proteinChange.equalsIgnoreCase(other.proteinChange)
+            ) {
                 return false;
             }
-            if ((this.tumorSeqAllele == null) ? (other.tumorSeqAllele != null) : !this.tumorSeqAllele.equalsIgnoreCase(other.tumorSeqAllele)) {
+            if (
+                (this.tumorSeqAllele == null)
+                    ? (other.tumorSeqAllele != null)
+                    : !this.tumorSeqAllele.equalsIgnoreCase(
+                            other.tumorSeqAllele
+                        )
+            ) {
                 return false;
             }
-            if ((this.mutationType == null) ? (other.mutationType != null) : !this.mutationType.equalsIgnoreCase(other.mutationType)) {
+            if (
+                (this.mutationType == null)
+                    ? (other.mutationType != null)
+                    : !this.mutationType.equalsIgnoreCase(other.mutationType)
+            ) {
                 return false;
             }
             return true;
         }
     }
+
     private static final String GERMLINE = "germline";
 
     private MutationEvent event;
@@ -381,7 +434,7 @@ public final class ExtendedMutation
     private String validationMethod;
     private String score;
     private String bamFile;
-	private String aminoAcidChange;
+    private String aminoAcidChange;
     private Integer tumorAltCount;
     private Integer tumorRefCount;
     private Integer normalAltCount;
@@ -395,9 +448,9 @@ public final class ExtendedMutation
     public ExtendedMutation() {
         this(new MutationEvent());
     }
-    
+
     public ExtendedMutation(MutationEvent event) {
-         this.event = event;
+        this.event = event;
     }
 
     /**
@@ -408,8 +461,12 @@ public final class ExtendedMutation
      * @param mutationStatus    Mutation Status, e.g. Somatic or Germline.
      * @param mutationType      Mutation Type, e.g. Nonsense_Mutation, Frame_Shift_Del, etc.
      */
-    public ExtendedMutation(CanonicalGene gene, String validationStatus, String mutationStatus,
-            String mutationType) {
+    public ExtendedMutation(
+        CanonicalGene gene,
+        String validationStatus,
+        String mutationStatus,
+        String mutationType
+    ) {
         this();
         this.setGene(gene);
         this.mutationStatus = mutationStatus;
@@ -443,7 +500,10 @@ public final class ExtendedMutation
 
     @JsonIgnore
     public boolean isGermlineMutation() {
-        return getMutationStatus() != null && getMutationStatus().equalsIgnoreCase(GERMLINE);
+        return (
+            getMutationStatus() != null &&
+            getMutationStatus().equalsIgnoreCase(GERMLINE)
+        );
     }
 
     /**
@@ -534,17 +594,15 @@ public final class ExtendedMutation
         event.setProteinChange(proteinChange);
     }
 
-	public String getAminoAcidChange()
-	{
-		return aminoAcidChange;
-	}
+    public String getAminoAcidChange() {
+        return aminoAcidChange;
+    }
 
-	public void setAminoAcidChange(String aminoAcidChange)
-	{
-		this.aminoAcidChange = aminoAcidChange;
-	}
+    public void setAminoAcidChange(String aminoAcidChange) {
+        this.aminoAcidChange = aminoAcidChange;
+    }
 
-	public String getFunctionalImpactScore() {
+    public String getFunctionalImpactScore() {
         return event.getFunctionalImpactScore();
     }
 
@@ -647,11 +705,9 @@ public final class ExtendedMutation
     public void setTumorSeqAllele2(String tumorSeqAllele2) {
         this.tumorSeqAllele2 = tumorSeqAllele2;
     }
-        
-        
-        
+
     /**
-     * Set alleles. 
+     * Set alleles.
      * For variant allele: one of the tumor sequence alleles is selected.
      * @see MafUtil#resolveTumorSeqAllele(String referenceAllele, String tumorSeqAllele1, String tumorSeqAllele2)
      *
@@ -660,12 +716,17 @@ public final class ExtendedMutation
      * @param refAllele  the reference allele
      * @return tumor sequence allele
      */
-    public void setAllele(String varAllele1, String varAllele2, String refAllele)
-    {
+    public void setAllele(
+        String varAllele1,
+        String varAllele2,
+        String refAllele
+    ) {
         this.setReferenceAllele(refAllele);
         this.setTumorSeqAllele1(varAllele1);
         this.setTumorSeqAllele2(varAllele2);
-        this.setTumorSeqAllele(MafUtil.resolveTumorSeqAllele(refAllele, varAllele1, varAllele2));
+        this.setTumorSeqAllele(
+                MafUtil.resolveTumorSeqAllele(refAllele, varAllele1, varAllele2)
+            );
     }
 
     public String getDbSnpRs() {
@@ -728,7 +789,9 @@ public final class ExtendedMutation
         return matchNormValidationAllele1;
     }
 
-    public void setMatchNormValidationAllele1(String matchNormValidationAllele1) {
+    public void setMatchNormValidationAllele1(
+        String matchNormValidationAllele1
+    ) {
         this.matchNormValidationAllele1 = matchNormValidationAllele1;
     }
 
@@ -736,7 +799,9 @@ public final class ExtendedMutation
         return matchNormValidationAllele2;
     }
 
-    public void setMatchNormValidationAllele2(String matchNormValidationAllele2) {
+    public void setMatchNormValidationAllele2(
+        String matchNormValidationAllele2
+    ) {
         this.matchNormValidationAllele2 = matchNormValidationAllele2;
     }
 
@@ -828,18 +893,15 @@ public final class ExtendedMutation
         event.setOncotatorDbSnpRs(oncotatorDbSnpRs);
     }
 
-    public String getOncotatorRefseqMrnaId()
-    {
+    public String getOncotatorRefseqMrnaId() {
         return event.getOncotatorRefseqMrnaId();
     }
 
-    public void setOncotatorRefseqMrnaId(String oncotatorRefseqMrnaId)
-    {
+    public void setOncotatorRefseqMrnaId(String oncotatorRefseqMrnaId) {
         event.setOncotatorRefseqMrnaId(oncotatorRefseqMrnaId);
     }
 
-    public String getOncotatorUniprotName()
-    {
+    public String getOncotatorUniprotName() {
         return event.getOncotatorUniprotName();
     }
 
@@ -851,58 +913,47 @@ public final class ExtendedMutation
      *             {@link #setOncotatorUniprotAccession(String)} instead
      */
     @Deprecated
-    public void setOncotatorUniprotName(String oncotatorUniprotName)
-    {
+    public void setOncotatorUniprotName(String oncotatorUniprotName) {
         event.setOncotatorUniprotName(oncotatorUniprotName);
     }
 
-    public String getOncotatorUniprotAccession()
-    {
+    public String getOncotatorUniprotAccession() {
         return event.getOncotatorUniprotAccession();
     }
 
-    public void setOncotatorUniprotAccession(String oncotatorUniprotAccession)
-    {
+    public void setOncotatorUniprotAccession(String oncotatorUniprotAccession) {
         event.setOncotatorUniprotAccession(oncotatorUniprotAccession);
     }
 
-    public String getOncotatorCodonChange()
-    {
+    public String getOncotatorCodonChange() {
         return event.getOncotatorCodonChange();
     }
 
-    public void setOncotatorCodonChange(String oncotatorCodonChange)
-    {
+    public void setOncotatorCodonChange(String oncotatorCodonChange) {
         event.setOncotatorCodonChange(oncotatorCodonChange);
     }
 
-    public int getOncotatorProteinPosStart()
-    {
+    public int getOncotatorProteinPosStart() {
         return event.getOncotatorProteinPosStart();
     }
 
-    public void setOncotatorProteinPosStart(int oncotatorProteinPosStart)
-    {
+    public void setOncotatorProteinPosStart(int oncotatorProteinPosStart) {
         event.setOncotatorProteinPosStart(oncotatorProteinPosStart);
     }
 
-    public int getOncotatorProteinPosEnd()
-    {
+    public int getOncotatorProteinPosEnd() {
         return event.getOncotatorProteinPosEnd();
     }
 
-    public void setOncotatorProteinPosEnd(int oncotatorProteinPosEnd)
-    {
+    public void setOncotatorProteinPosEnd(int oncotatorProteinPosEnd) {
         event.setOncotatorProteinPosEnd(oncotatorProteinPosEnd);
     }
 
-    public boolean isCanonicalTranscript()
-    {
+    public boolean isCanonicalTranscript() {
         return event.isCanonicalTranscript();
     }
 
-    public void setCanonicalTranscript(boolean canonicalTranscript)
-    {
+    public void setCanonicalTranscript(boolean canonicalTranscript) {
         event.setCanonicalTranscript(canonicalTranscript);
     }
 
@@ -949,11 +1000,11 @@ public final class ExtendedMutation
     public void setEvent(MutationEvent event) {
         this.event = event;
     }
-    
+
     public void setDriverFilter(String driverFilter) {
         this.driverFilter = driverFilter;
     }
-	
+
     public String getDriverFilter() {
         return driverFilter;
     }
@@ -1013,7 +1064,10 @@ public final class ExtendedMutation
             return false;
         }
         final ExtendedMutation other = (ExtendedMutation) obj;
-        if (this.event != other.event && (this.event == null || !this.event.equals(other.event))) {
+        if (
+            this.event != other.event &&
+            (this.event == null || !this.event.equals(other.event))
+        ) {
             return false;
         }
         if (this.geneticProfileId != other.geneticProfileId) {

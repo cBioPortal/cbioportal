@@ -28,7 +28,7 @@
  *
  * You should have received a copy of the GNU Affero General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
-*/
+ */
 
 package org.mskcc.cbio.portal.util;
 
@@ -36,6 +36,7 @@ import java.lang.StringBuilder;
 import org.mskcc.cbio.portal.dao.DaoInfo;
 
 public class VersionUtil {
+
     public static void main(String[] args) {
         StringBuilder logMessageBuilder = new StringBuilder(117);
         int versionCheck = DaoInfo.checkVersion(logMessageBuilder) ? 0 : 1;

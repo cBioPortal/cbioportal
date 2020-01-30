@@ -28,7 +28,7 @@
  *
  * You should have received a copy of the GNU Affero General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
-*/
+ */
 
 package org.mskcc.cbio.portal.scripts;
 
@@ -41,32 +41,32 @@ package org.mskcc.cbio.portal.scripts;
  * @author jgao
  */
 public class ConvertSvsImages {
-//    public static void main(String[] args) {
-//        if (args.length<1) {
-//            System.err.println("specify at least the input file");
-//        }
-//        
-//        String svs = args[0];
-//        String ext = ".jpg";
-//        
-//        SVSReader svsReader = new SVSReader();
-//        
-//        try {
-//            svsReader.setId(svs);
-//            int nSeries = svsReader.getSeriesCount();
-//            System.out.println(nSeries+" series in this SVS file");
-//            
-//            for (int i=1; i<=nSeries; i++) {
-//                System.out.println("Convert images series "+i);
-//                svsReader.setSeries(i);
-//                String out = svs.replace(".svs", "")+".series"+i+ext;
-//                JPEGWriter writer = new JPEGWriter();
-//                FormatTools.convert(svsReader, writer, out);
-//                writer.close();
-//            }
-//            svsReader.close();
-//        } catch (Exception ex) {
-//            ex.printStackTrace();
-//        }
-//    }
+    //    public static void main(String[] args) {
+    //        if (args.length<1) {
+    //            System.err.println("specify at least the input file");
+    //        }
+    //
+    //        String svs = args[0];
+    //        String ext = ".jpg";
+    //
+    //        SVSReader svsReader = new SVSReader();
+    //
+    //        try {
+    //            svsReader.setId(svs);
+    //            int nSeries = svsReader.getSeriesCount();
+    //            System.out.println(nSeries+" series in this SVS file");
+    //
+    //            for (int i=1; i<=nSeries; i++) {
+    //                System.out.println("Convert images series "+i);
+    //                svsReader.setSeries(i);
+    //                String out = svs.replace(".svs", "")+".series"+i+ext;
+    //                JPEGWriter writer = new JPEGWriter();
+    //                FormatTools.convert(svsReader, writer, out);
+    //                writer.close();
+    //            }
+    //            svsReader.close();
+    //        } catch (Exception ex) {
+    //            ex.printStackTrace();
+    //        }
+    //    }
 }

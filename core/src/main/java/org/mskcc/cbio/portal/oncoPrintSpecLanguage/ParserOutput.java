@@ -28,7 +28,7 @@
  *
  * You should have received a copy of the GNU Affero General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
-*/
+ */
 
 package org.mskcc.cbio.portal.oncoPrintSpecLanguage;
 
@@ -39,37 +39,38 @@ import java.util.ArrayList;
  * @author Arthur Goldberg
  */
 public class ParserOutput {
-   ArrayList<String> syntaxErrors;
-   ArrayList<OncoPrintLangException> semanticsErrors;
-   OncoPrintSpecification theOncoPrintSpecification;
+    ArrayList<String> syntaxErrors;
+    ArrayList<OncoPrintLangException> semanticsErrors;
+    OncoPrintSpecification theOncoPrintSpecification;
 
-   public ParserOutput(ArrayList<String> syntaxErrors, ArrayList<OncoPrintLangException> semanticsErrors,
-        OncoPrintSpecification theOncoPrintSpecification) {
-      // TODO: make sure parser cannot store nulls in these 2, and remove the conditionals
-      if( null == syntaxErrors ){
-         this.syntaxErrors = new ArrayList<String>();
-      }else{
-         this.syntaxErrors = syntaxErrors;
-      }
-      if( null == semanticsErrors ){
-         this.semanticsErrors = new ArrayList<OncoPrintLangException>();
-      }else{
-         this.semanticsErrors = semanticsErrors;
-      }
-     this.theOncoPrintSpecification = theOncoPrintSpecification;
-  }
+    public ParserOutput(
+        ArrayList<String> syntaxErrors,
+        ArrayList<OncoPrintLangException> semanticsErrors,
+        OncoPrintSpecification theOncoPrintSpecification
+    ) {
+        // TODO: make sure parser cannot store nulls in these 2, and remove the conditionals
+        if (null == syntaxErrors) {
+            this.syntaxErrors = new ArrayList<String>();
+        } else {
+            this.syntaxErrors = syntaxErrors;
+        }
+        if (null == semanticsErrors) {
+            this.semanticsErrors = new ArrayList<OncoPrintLangException>();
+        } else {
+            this.semanticsErrors = semanticsErrors;
+        }
+        this.theOncoPrintSpecification = theOncoPrintSpecification;
+    }
 
-   public ArrayList<String> getSyntaxErrors() {
-      return syntaxErrors;
-   }
+    public ArrayList<String> getSyntaxErrors() {
+        return syntaxErrors;
+    }
 
-   public ArrayList<OncoPrintLangException> getSemanticsErrors() {
-      return semanticsErrors;
-   }
+    public ArrayList<OncoPrintLangException> getSemanticsErrors() {
+        return semanticsErrors;
+    }
 
-   public OncoPrintSpecification getTheOncoPrintSpecification() {
-      return theOncoPrintSpecification;
-   }
-   
+    public OncoPrintSpecification getTheOncoPrintSpecification() {
+        return theOncoPrintSpecification;
+    }
 }
-

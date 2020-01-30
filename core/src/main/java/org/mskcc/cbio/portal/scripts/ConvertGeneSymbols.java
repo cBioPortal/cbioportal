@@ -28,18 +28,17 @@
  *
  * You should have received a copy of the GNU Affero General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
-*/
+ */
 
 package org.mskcc.cbio.portal.scripts;
-
-import org.mskcc.cbio.portal.dao.DaoException;
-import org.mskcc.cbio.portal.dao.DaoGeneOptimized;
-import org.mskcc.cbio.portal.model.CanonicalGene;
 
 import java.io.BufferedReader;
 import java.io.FileReader;
 import java.io.IOException;
 import java.util.List;
+import org.mskcc.cbio.portal.dao.DaoException;
+import org.mskcc.cbio.portal.dao.DaoGeneOptimized;
+import org.mskcc.cbio.portal.model.CanonicalGene;
 
 /**
  * Given a list of Genes in a File (specified as Gene Symbols or Aliases),
@@ -51,7 +50,9 @@ public class ConvertGeneSymbols {
 
     public static void main(String[] args) throws DaoException, IOException {
         if (args.length < 1) {
-            System.out.println("command line usage:  updateGeneSymbols.pl " + "<file_name.txt>");
+            System.out.println(
+                "command line usage:  updateGeneSymbols.pl " + "<file_name.txt>"
+            );
             return;
         }
         String fileName = args[0];

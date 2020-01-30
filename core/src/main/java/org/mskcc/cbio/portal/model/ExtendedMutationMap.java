@@ -28,7 +28,7 @@
  *
  * You should have received a copy of the GNU Affero General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
-*/
+ */
 
 package org.mskcc.cbio.portal.model;
 
@@ -42,17 +42,20 @@ import java.util.HashMap;
  */
 public class ExtendedMutationMap {
     private static final String DELIMITER = ":";
-    private HashMap <String, ArrayList<ExtendedMutation>> mutationCaseMap =
-            new HashMap<String, ArrayList<ExtendedMutation>>();
-    private HashMap <String, ArrayList<ExtendedMutation>> mutationMap =
-            new HashMap<String, ArrayList<ExtendedMutation>>();
+    private HashMap<String, ArrayList<ExtendedMutation>> mutationCaseMap = new HashMap<String, ArrayList<ExtendedMutation>>();
+    private HashMap<String, ArrayList<ExtendedMutation>> mutationMap = new HashMap<String, ArrayList<ExtendedMutation>>();
     private ArrayList<Integer> sampleList;
 
-    public ExtendedMutationMap (ArrayList<ExtendedMutation> mutationList,
-            ArrayList<Integer> sampleList) {
+    public ExtendedMutationMap(
+        ArrayList<ExtendedMutation> mutationList,
+        ArrayList<Integer> sampleList
+    ) {
         this.sampleList = sampleList;
-        for (ExtendedMutation mutation:  mutationList) {
-            String key = getKey(mutation.getGeneSymbol(), mutation.getSampleId());
+        for (ExtendedMutation mutation : mutationList) {
+            String key = getKey(
+                mutation.getGeneSymbol(),
+                mutation.getSampleId()
+            );
             appendToMap(key, mutation, mutationCaseMap);
             appendToMap(mutation.getGeneSymbol(), mutation, mutationMap);
         }
@@ -64,7 +67,10 @@ public class ExtendedMutationMap {
      * @param sampleId        Case ID.
      * @return ArrayList of ExtendedMutation Objects.
      */
-    public ArrayList <ExtendedMutation> getExtendedMutations(String geneSymbol, Integer sampleId) {
+    public ArrayList<ExtendedMutation> getExtendedMutations(
+        String geneSymbol,
+        Integer sampleId
+    ) {
         String key = getKey(geneSymbol.toUpperCase(), sampleId);
         return mutationCaseMap.get(key);
     }
@@ -74,12 +80,14 @@ public class ExtendedMutationMap {
      * @param geneSymbol    Gene Symbol.
      * @return ArrayList of ExtendedMutation Objects.
      */
-    public ArrayList <ExtendedMutation> getExtendedMutations(String geneSymbol) {
+    public ArrayList<ExtendedMutation> getExtendedMutations(String geneSymbol) {
         return mutationMap.get(geneSymbol.toUpperCase());
     }
 
     public int getNumExtendedMutations(String geneSymbol) {
-        ArrayList<ExtendedMutation> mutationList = mutationMap.get(geneSymbol.toUpperCase());
+        ArrayList<ExtendedMutation> mutationList = mutationMap.get(
+            geneSymbol.toUpperCase()
+        );
         if (mutationList == null) {
             return 0;
         } else {
@@ -95,13 +103,16 @@ public class ExtendedMutationMap {
         return sampleList;
     }
 
-    private void appendToMap(String key, ExtendedMutation mutation,
-            HashMap <String, ArrayList<ExtendedMutation>> map) {
+    private void appendToMap(
+        String key,
+        ExtendedMutation mutation,
+        HashMap<String, ArrayList<ExtendedMutation>> map
+    ) {
         if (map.containsKey(key)) {
             ArrayList<ExtendedMutation> currentList = map.get(key);
             currentList.add(mutation);
         } else {
-            ArrayList <ExtendedMutation> currentList = new ArrayList <ExtendedMutation> ();
+            ArrayList<ExtendedMutation> currentList = new ArrayList<ExtendedMutation>();
             currentList.add(mutation);
             map.put(key, currentList);
         }

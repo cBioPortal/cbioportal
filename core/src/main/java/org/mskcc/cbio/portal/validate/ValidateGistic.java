@@ -28,16 +28,15 @@
  *
  * You should have received a copy of the GNU Affero General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
-*/
+ */
 
 package org.mskcc.cbio.portal.validate;
 
+import java.util.ArrayList;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.mskcc.cbio.portal.model.CanonicalGene;
 import org.mskcc.cbio.portal.model.Gistic;
-
-import java.util.ArrayList;
 
 // todo: later this can be refactored into a factory method.
 public class ValidateGistic {
@@ -49,7 +48,6 @@ public class ValidateGistic {
      * @throws validationException
      */
     public static void validateBean(Gistic gistic) throws validationException {
-        
         int chromosome = gistic.getChromosome();
         int peakStart = gistic.getPeakStart();
         int peakEnd = gistic.getPeakEnd();
@@ -69,17 +67,22 @@ public class ValidateGistic {
         }
 
         if (peakEnd <= peakStart) {
-            throw new validationException("Peak end is <= peak start: (start=" + peakStart + ", end=" + peakEnd + ")");
+            throw new validationException(
+                "Peak end is <= peak start: (start=" +
+                peakStart +
+                ", end=" +
+                peakEnd +
+                ")"
+            );
         }
 
         if (qValue < 0 || qValue > 1) {
             throw new validationException("Invalid qValue=" + qValue);
         }
 
-        if (genes_in_ROI.isEmpty()){
+        if (genes_in_ROI.isEmpty()) {
             throw new validationException("No genes in ROI");
         }
-
         // todo: how do you validate ampdel?
     }
 
@@ -89,28 +92,32 @@ public class ValidateGistic {
      * @throws validationException
      */
 
-    public static void validateFieldNames_tabularFile(String[] fields) throws validationException {
+    public static void validateFieldNames_tabularFile(String[] fields)
+        throws validationException {
         int fields_len = fields.length;
 
-        for (int i = 0; i < fields_len; i+=1) {
+        for (int i = 0; i < fields_len; i += 1) {
             // each field should be one of the following
-            if (!(fields[i].equals("chromosome")
-                    || fields[i].equals("peak_start")
-                    || fields[i].equals("peak_end")
-                    || fields[i].equals("genes_in_region")
-                    || fields[i].equals("genes_in_peak")
-                    || fields[i].equals("n_genes_on_chip")
-                    || fields[i].equals("genes_on_chip")
-                    || fields[i].equals("top 3")
-                    || fields[i].equals("n_genes_in_region")
-                    || fields[i].equals("n_genes_in_peak")
-                    || fields[i].equals("region_start")
-                    || fields[i].equals("region_end")
-                    || fields[i].equals("enlarged_peak_start")
-                    || fields[i].equals("enlarged_peak_end")
-                    || fields[i].equals("index")))
-            {
-//                System.out.println(fields.toString());
+            if (
+                !(
+                    fields[i].equals("chromosome") ||
+                    fields[i].equals("peak_start") ||
+                    fields[i].equals("peak_end") ||
+                    fields[i].equals("genes_in_region") ||
+                    fields[i].equals("genes_in_peak") ||
+                    fields[i].equals("n_genes_on_chip") ||
+                    fields[i].equals("genes_on_chip") ||
+                    fields[i].equals("top 3") ||
+                    fields[i].equals("n_genes_in_region") ||
+                    fields[i].equals("n_genes_in_peak") ||
+                    fields[i].equals("region_start") ||
+                    fields[i].equals("region_end") ||
+                    fields[i].equals("enlarged_peak_start") ||
+                    fields[i].equals("enlarged_peak_end") ||
+                    fields[i].equals("index")
+                )
+            ) {
+                //                System.out.println(fields.toString());
                 throw new validationException(fields[i]);
             }
         }
@@ -121,19 +128,26 @@ public class ValidateGistic {
      * @param cols
      * @throws validationException
      */
-    public static void validateNonTabularRow(String[] cols) throws validationException {
+    public static void validateNonTabularRow(String[] cols)
+        throws validationException {
         int cols_len = cols.length;
 
         String field_name = cols[0];
 
-        for (int i = 0; i < cols_len; i+=1) {
+        for (int i = 0; i < cols_len; i += 1) {
             // each field should be one of the following
-            if (!((field_name.equals("q value")
-                    || field_name.equals("residual q value"))
-                    || field_name.equals("genes in wide peak")
-                    || field_name.equals("cytoband")
-                    || field_name.equals("")                    // likely to actually contain a gene
-                    || field_name.equals("wide peak boundaries"))) {
+            if (
+                !(
+                    (
+                        field_name.equals("q value") ||
+                        field_name.equals("residual q value")
+                    ) ||
+                    field_name.equals("genes in wide peak") ||
+                    field_name.equals("cytoband") ||
+                    field_name.equals("") || // likely to actually contain a gene
+                    field_name.equals("wide peak boundaries")
+                )
+            ) {
                 {
                     throw new validationException(field_name);
                 }
@@ -147,8 +161,8 @@ public class ValidateGistic {
      * @param ampdel2       ampdel from another gistic file
      * @throws validationException
      */
-    public static void validateAmpdels(boolean ampdel1, boolean ampdel2) throws validationException {
-
+    public static void validateAmpdels(boolean ampdel1, boolean ampdel2)
+        throws validationException {
         if (ampdel1 != ampdel2) {
             String x = ampdel1 == Gistic.AMPLIFIED ? "Amplified" : "Deleted";
             String y = ampdel2 == Gistic.AMPLIFIED ? "Amplified" : "Deleted";

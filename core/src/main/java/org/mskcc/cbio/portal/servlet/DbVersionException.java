@@ -19,12 +19,12 @@
  *
  * You should have received a copy of the GNU Affero General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
-*/
+ */
 
 package org.mskcc.cbio.portal.servlet;
 
 /**
- * Throw this when there is a mismatch between DB version and portal expected version. 
+ * Throw this when there is a mismatch between DB version and portal expected version.
  *
  * @author Pieter Lukasse
  */
@@ -34,5 +34,4 @@ public class DbVersionException extends Exception {
     public DbVersionException(String errorMessage) {
         super(errorMessage);
     }
-
 }

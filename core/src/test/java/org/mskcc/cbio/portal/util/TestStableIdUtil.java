@@ -19,10 +19,9 @@
  *
  * You should have received a copy of the GNU Affero General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
-*/
+ */
 
 package org.mskcc.cbio.portal.util;
-
 
 import static org.junit.Assert.assertEquals;
 
@@ -34,13 +33,11 @@ import org.junit.Test;
  * @author pieter lukasse.
  */
 public class TestStableIdUtil {
-	
-	@Test
+
+    @Test
     public void testId1() {
         String barcode = "TCGA-13-1479-01A-01W";
         String sampleId = StableIdUtil.getSampleId(barcode);
-        assertEquals ("TCGA-13-1479-01", sampleId);
+        assertEquals("TCGA-13-1479-01", sampleId);
     }
-
-
 }

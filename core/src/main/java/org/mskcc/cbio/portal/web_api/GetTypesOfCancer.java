@@ -28,24 +28,23 @@
  *
  * You should have received a copy of the GNU Affero General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
-*/
+ */
 
 package org.mskcc.cbio.portal.web_api;
 
 import java.util.ArrayList;
-import java.util.Comparator;
 import java.util.Collections;
-
+import java.util.Comparator;
 import org.mskcc.cbio.portal.dao.DaoCancerStudy;
-import org.mskcc.cbio.portal.dao.DaoTypeOfCancer;
 import org.mskcc.cbio.portal.dao.DaoException;
-import org.mskcc.cbio.portal.model.TypeOfCancer;
+import org.mskcc.cbio.portal.dao.DaoTypeOfCancer;
 import org.mskcc.cbio.portal.model.CancerStudy;
+import org.mskcc.cbio.portal.model.TypeOfCancer;
 
 /**
  * Get Types of Cancer and Cancer Studies.
  * Used by the Web API.
- * 
+ *
  * @author Ethan Cerami, Arthur Goldberg.
  */
 public class GetTypesOfCancer {
@@ -57,15 +56,18 @@ public class GetTypesOfCancer {
      * @throws DaoException Database AccessException.
      * @throws ProtocolException Protocol Error.
      */
-    public static String getTypesOfCancer() throws DaoException, ProtocolException {
+    public static String getTypesOfCancer()
+        throws DaoException, ProtocolException {
         ArrayList<TypeOfCancer> typeOfCancerList = DaoTypeOfCancer.getAllTypesOfCancer();
         StringBuilder buf = new StringBuilder();
         if (typeOfCancerList == null || typeOfCancerList.isEmpty()) {
-            throw new ProtocolException ("No Types of Cancer Available.");
+            throw new ProtocolException("No Types of Cancer Available.");
         } else {
             buf.append("type_of_cancer_id\tname\n");
             for (TypeOfCancer typeOfCancer : typeOfCancerList) {
-                buf.append(typeOfCancer.getTypeOfCancerId()).append(WebApiUtil.TAB);
+                buf
+                    .append(typeOfCancer.getTypeOfCancerId())
+                    .append(WebApiUtil.TAB);
                 buf.append(typeOfCancer.getName()).append(WebApiUtil.NEW_LINE);
             }
             return buf.toString();
@@ -79,11 +81,12 @@ public class GetTypesOfCancer {
      * @throws DaoException Database Access Error.
      * @throws ProtocolException Protocol Error.
      */
-    public static String getCancerStudies() throws DaoException, ProtocolException {
+    public static String getCancerStudies()
+        throws DaoException, ProtocolException {
         ArrayList<CancerStudy> cancerStudyList = DaoCancerStudy.getAllCancerStudies();
 
         if (cancerStudyList == null || cancerStudyList.isEmpty()) {
-            throw new ProtocolException ("No Cancer Studies Available.");
+            throw new ProtocolException("No Cancer Studies Available.");
         } else {
             //  Before returning the list, sort it alphabetically
             Collections.sort(cancerStudyList, new CancerStudiesComparator());
@@ -93,9 +96,13 @@ public class GetTypesOfCancer {
 
             //  Iterate through all cancer studies
             for (CancerStudy cancerStudy : cancerStudyList) {
-                buf.append(cancerStudy.getCancerStudyStableId()).append(WebApiUtil.TAB);
+                buf
+                    .append(cancerStudy.getCancerStudyStableId())
+                    .append(WebApiUtil.TAB);
                 buf.append(cancerStudy.getName()).append(WebApiUtil.TAB);
-                buf.append(cancerStudy.getDescription()).append(WebApiUtil.NEW_LINE);
+                buf
+                    .append(cancerStudy.getDescription())
+                    .append(WebApiUtil.NEW_LINE);
             }
             return buf.toString();
         }

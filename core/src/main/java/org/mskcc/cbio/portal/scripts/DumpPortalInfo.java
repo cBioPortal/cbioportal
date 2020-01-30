@@ -22,27 +22,24 @@
 
 package org.mskcc.cbio.portal.scripts;
 
-import java.util.List;
-import java.util.Arrays;
-import java.io.Serializable;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import java.io.File;
 import java.io.IOException;
-
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.core.JsonProcessingException;
-import org.cbioportal.web.config.CustomObjectMapper;
-
-import org.mskcc.cbio.portal.util.SpringUtil;
-import org.mskcc.cbio.portal.util.ProgressMonitor;
-import org.mskcc.cbio.portal.service.ApiService;
-import org.cbioportal.service.GenesetService;
+import java.io.Serializable;
+import java.util.Arrays;
+import java.util.List;
 import org.cbioportal.service.GenePanelService;
+import org.cbioportal.service.GenesetService;
+import org.cbioportal.web.config.CustomObjectMapper;
+import org.mskcc.cbio.portal.service.ApiService;
+import org.mskcc.cbio.portal.util.ProgressMonitor;
+import org.mskcc.cbio.portal.util.SpringUtil;
 
 /**
  * Command line tool to generate JSON files used by the validation script.
  */
 public class DumpPortalInfo extends ConsoleRunnable {
-
     // these names are defined in annotations to the methods of ApiController,
     // in org.mskcc.cbio.portal.web
     private static final String API_CANCER_TYPES = "/cancertypes";
@@ -57,58 +54,66 @@ public class DumpPortalInfo extends ConsoleRunnable {
     private static File nameJsonFile(File dirName, String apiName) {
         // Determine the first alphabetic character
         int i;
-        for (
-                i = 0;
-                !Character.isLetter(apiName.charAt(i));
-                i++) {}
+        for (i = 0; !Character.isLetter(apiName.charAt(i)); i++) {}
         // make a string without the initial non-alphanumeric characters
         String fileName = apiName.substring(i).replace('/', '_') + ".json";
         return new File(dirName, fileName);
     }
 
     private static void writeJsonFile(
-            List<? extends Serializable> objectList,
-            File outputFile) throws IOException {
-            ObjectMapper mapper = new CustomObjectMapper();
-            try {
-                mapper.writeValue(outputFile, objectList);
-            } catch (JsonProcessingException e) {
-                throw new RuntimeException(
-                        "Error converting API data to JSON file: " +
-                                e.toString(),
-                        e);
-            }
+        List<? extends Serializable> objectList,
+        File outputFile
+    )
+        throws IOException {
+        ObjectMapper mapper = new CustomObjectMapper();
+        try {
+            mapper.writeValue(outputFile, objectList);
+        } catch (JsonProcessingException e) {
+            throw new RuntimeException(
+                "Error converting API data to JSON file: " + e.toString(),
+                e
+            );
+        }
     }
 
     public void run() {
         try {
             // check args
-            if (args.length != 1 ||
-                    args[0].equals("-h") || args[0].equals("--help")) {
+            if (
+                args.length != 1 ||
+                args[0].equals("-h") ||
+                args[0].equals("--help")
+            ) {
                 throw new UsageException(
-                        "dumpPortalInfo.pl",
-                        "Generate a folder of files describing the portal " +
-                                "configuration.\n" +
-                                "\n" +
-                                "This is a subset of the information provided " +
-                                "by the web API,\n" +
-                                "intended for offline use of the validation " +
-                                "script for study data.",
-                        "<name for the output directory>");
+                    "dumpPortalInfo.pl",
+                    "Generate a folder of files describing the portal " +
+                    "configuration.\n" +
+                    "\n" +
+                    "This is a subset of the information provided " +
+                    "by the web API,\n" +
+                    "intended for offline use of the validation " +
+                    "script for study data.",
+                    "<name for the output directory>"
+                );
             }
             String outputDirName = args[0];
             ProgressMonitor.setCurrentMessage(
-                    "Writing portal info files to directory '" +
-                    outputDirName + "'...\n");
+                "Writing portal info files to directory '" +
+                outputDirName +
+                "'...\n"
+            );
 
             // initialize application context, including database connection
             SpringUtil.initDataSource();
-            ApiService apiService = SpringUtil.getApplicationContext().getBean(
-                    ApiService.class);
-            GenesetService genesetService = SpringUtil.getApplicationContext().getBean(
-                GenesetService.class);
-            GenePanelService genePanelService = SpringUtil.getApplicationContext().getBean(
-                GenePanelService.class);
+            ApiService apiService = SpringUtil
+                .getApplicationContext()
+                .getBean(ApiService.class);
+            GenesetService genesetService = SpringUtil
+                .getApplicationContext()
+                .getBean(GenesetService.class);
+            GenePanelService genePanelService = SpringUtil
+                .getApplicationContext()
+                .getBean(GenePanelService.class);
 
             File outputDir = new File(outputDirName);
             // this will do nothing if the directory already exists:
@@ -116,39 +121,54 @@ public class DumpPortalInfo extends ConsoleRunnable {
             outputDir.mkdir();
             if (!outputDir.isDirectory()) {
                 throw new IOException(
-                        "Could not create directory '" +
-                        outputDir.getPath() + "'");
+                    "Could not create directory '" + outputDir.getPath() + "'"
+                );
             }
 
             try {
                 writeJsonFile(
-                        apiService.getCancerTypes(),
-                        nameJsonFile(outputDir, API_CANCER_TYPES));
+                    apiService.getCancerTypes(),
+                    nameJsonFile(outputDir, API_CANCER_TYPES)
+                );
                 writeJsonFile(
-                        apiService.getGenes(),
-                        nameJsonFile(outputDir, API_GENES));
+                    apiService.getGenes(),
+                    nameJsonFile(outputDir, API_GENES)
+                );
                 writeJsonFile(
-                        apiService.getGenesAliases(),
-                        nameJsonFile(outputDir, API_GENE_ALIASES));
+                    apiService.getGenesAliases(),
+                    nameJsonFile(outputDir, API_GENE_ALIASES)
+                );
                 writeJsonFile(
-                    genesetService.getAllGenesets("SUMMARY", MAX_PAGE_SIZE, MIN_PAGE_NUMBER),
-                    nameJsonFile(outputDir, API_GENESETS));
+                    genesetService.getAllGenesets(
+                        "SUMMARY",
+                        MAX_PAGE_SIZE,
+                        MIN_PAGE_NUMBER
+                    ),
+                    nameJsonFile(outputDir, API_GENESETS)
+                );
                 writeJsonFile(
                     Arrays.asList(genesetService.getGenesetVersion()),
-                    nameJsonFile(outputDir, API_GENESET_VERSION));
+                    nameJsonFile(outputDir, API_GENESET_VERSION)
+                );
                 writeJsonFile(
-                    genePanelService.getAllGenePanels("SUMMARY", MAX_PAGE_SIZE, MIN_PAGE_NUMBER, null, "ASC"),
-                    nameJsonFile(outputDir, API_GENE_PANELS));
+                    genePanelService.getAllGenePanels(
+                        "SUMMARY",
+                        MAX_PAGE_SIZE,
+                        MIN_PAGE_NUMBER,
+                        null,
+                        "ASC"
+                    ),
+                    nameJsonFile(outputDir, API_GENE_PANELS)
+                );
             } catch (IOException e) {
                 throw new IOException(
-                        "Error writing portal info file: " + e.toString(),
-                        e);
+                    "Error writing portal info file: " + e.toString(),
+                    e
+                );
             }
-        }
-        catch (RuntimeException e) {
+        } catch (RuntimeException e) {
             throw e;
-        }
-        catch (IOException e) {
+        } catch (IOException e) {
             throw new RuntimeException(e);
         }
     }

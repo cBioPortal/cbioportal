@@ -28,7 +28,7 @@
  *
  * You should have received a copy of the GNU Affero General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
-*/
+ */
 
 package org.mskcc.cbio.portal.model;
 
@@ -46,8 +46,12 @@ public class AnnotatedSampleSets {
 
     private SampleList defaultSampleList;
 
-    public AnnotatedSampleSets(List<SampleList> sampleSetList, Integer priorityLevel) {
-        this.defaultSampleList = determineDefaultSampleSet(sampleSetList, priorityLevel);
+    public AnnotatedSampleSets(
+        List<SampleList> sampleSetList,
+        Integer priorityLevel
+    ) {
+        this.defaultSampleList =
+            determineDefaultSampleSet(sampleSetList, priorityLevel);
     }
 
     public AnnotatedSampleSets(List<SampleList> sampleSetList) {
@@ -71,7 +75,10 @@ public class AnnotatedSampleSets {
      * @param priorityLevel Priority level, all priorities below this one will be ignored
      * @return the "best" default sample set.
      */
-    private SampleList determineDefaultSampleSet(List<SampleList> sampleSetList, Integer priorityLevel) {
+    private SampleList determineDefaultSampleSet(
+        List<SampleList> sampleSetList,
+        Integer priorityLevel
+    ) {
         List<SampleSetWithPriority> priSampleList = new ArrayList<SampleSetWithPriority>();
         for (SampleList sampleSet : sampleSetList) {
             Integer priority = null;
@@ -90,16 +97,27 @@ public class AnnotatedSampleSets {
             }
 
             // If category matches none of the overrides, fallback to the old way
-            if(priority == null) {
-                registerPrioritySampleList(sampleSet, ALL_COMPLETE_TUMORS, 3, priSampleList);
-                registerPrioritySampleList(sampleSet, ALL_TUMORS, 4, priSampleList);
+            if (priority == null) {
+                registerPrioritySampleList(
+                    sampleSet,
+                    ALL_COMPLETE_TUMORS,
+                    3,
+                    priSampleList
+                );
+                registerPrioritySampleList(
+                    sampleSet,
+                    ALL_TUMORS,
+                    4,
+                    priSampleList
+                );
                 registerPrioritySampleList(sampleSet, ALL, 5, priSampleList);
             } else {
                 // If we define a higher t-hold, just shift the priority level
-                if(priority < priorityLevel)
-                    priority += 10;
+                if (priority < priorityLevel) priority += 10;
 
-                priSampleList.add(new SampleSetWithPriority(sampleSet, priority));
+                priSampleList.add(
+                    new SampleSetWithPriority(sampleSet, priority)
+                );
             }
         }
 
@@ -119,8 +137,12 @@ public class AnnotatedSampleSets {
         }
     }
 
-    private void registerPrioritySampleList (SampleList sampleSet, String target, int priority,
-            List<SampleSetWithPriority> priSampleList) {
+    private void registerPrioritySampleList(
+        SampleList sampleSet,
+        String target,
+        int priority,
+        List<SampleSetWithPriority> priSampleList
+    ) {
         String name = sampleSet.getName();
         if (name.toUpperCase().startsWith(target)) {
             priSampleList.add(new SampleSetWithPriority(sampleSet, priority));
@@ -151,6 +173,7 @@ class SampleSetWithPriorityComparator implements Comparator {
     public int compare(Object o0, Object o1) {
         SampleSetWithPriority sampleSet0 = (SampleSetWithPriority) o0;
         SampleSetWithPriority sampleSet1 = (SampleSetWithPriority) o1;
-        return new Integer(sampleSet0.getPriority()).compareTo(sampleSet1.getPriority());
+        return new Integer(sampleSet0.getPriority())
+        .compareTo(sampleSet1.getPriority());
     }
 }

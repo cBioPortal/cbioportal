@@ -19,38 +19,42 @@
  *
  * You should have received a copy of the GNU Affero General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
-*/
+ */
 
 /*
  * @author Sander Tan
-*/
+ */
 
 package org.mskcc.cbio.portal.model;
 
 import java.io.Serializable;
 
 public class GeneticProfileLink implements Serializable {
-	
-	private int referringGeneticProfileId;
-	private int referredGeneticProfileId;
-	private String referenceType;
-	
-	public int getReferringGeneticProfileId() {
-		return referringGeneticProfileId;
-	}
-	public void setReferringGeneticProfileId(int referringGeneticProfileId) {
-		this.referringGeneticProfileId = referringGeneticProfileId;
-	}
-	public int getReferredGeneticProfileId() {
-		return referredGeneticProfileId;
-	}
-	public void setReferredGeneticProfileId(int referredGeneticProfileId) {
-		this.referredGeneticProfileId = referredGeneticProfileId;
-	}
-	public String getReferenceType() {
-		return referenceType;
-	}
-	public void setReferenceType(String referenceType) {
-		this.referenceType = referenceType;
-	}
+    private int referringGeneticProfileId;
+    private int referredGeneticProfileId;
+    private String referenceType;
+
+    public int getReferringGeneticProfileId() {
+        return referringGeneticProfileId;
+    }
+
+    public void setReferringGeneticProfileId(int referringGeneticProfileId) {
+        this.referringGeneticProfileId = referringGeneticProfileId;
+    }
+
+    public int getReferredGeneticProfileId() {
+        return referredGeneticProfileId;
+    }
+
+    public void setReferredGeneticProfileId(int referredGeneticProfileId) {
+        this.referredGeneticProfileId = referredGeneticProfileId;
+    }
+
+    public String getReferenceType() {
+        return referenceType;
+    }
+
+    public void setReferenceType(String referenceType) {
+        this.referenceType = referenceType;
+    }
 }

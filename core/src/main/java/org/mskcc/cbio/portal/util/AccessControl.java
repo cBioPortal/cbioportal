@@ -28,19 +28,17 @@
  *
  * You should have received a copy of the GNU Affero General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
-*/
+ */
 
 package org.mskcc.cbio.portal.util;
 
+import java.util.List;
+import org.mskcc.cbio.portal.dao.DaoException;
 // imports
 import org.mskcc.cbio.portal.model.CancerStudy;
-import org.mskcc.cbio.portal.dao.DaoException;
 import org.mskcc.cbio.portal.web_api.ProtocolException;
-
 import org.springframework.security.access.prepost.PostFilter;
 import org.springframework.security.core.userdetails.UserDetails;
-
-import java.util.List;
 
 /**
  * Utilities for managing access control.
@@ -48,7 +46,6 @@ import java.util.List;
  * @author Benjamin Gross
  */
 public interface AccessControl {
-
     public static final String ALL_CANCER_STUDIES_ID = "all";
     public static final String ALL_TCGA_CANCER_STUDIES_ID = "all_tcga";
     public static final String ALL_TARGET_CANCER_STUDIES_ID = "all_nci_target";
@@ -61,18 +58,21 @@ public interface AccessControl {
      * @throws DaoException         Database Error.
      * @throws ProtocolException    Protocol Error.
      */
-    @PostFilter("hasPermission(filterObject.getCancerStudyStableId(), 'CancerStudyId', 'read')")
+    @PostFilter(
+        "hasPermission(filterObject.getCancerStudyStableId(), 'CancerStudyId', 'read')"
+    )
     List<CancerStudy> getCancerStudies() throws DaoException, ProtocolException;
 
     /**
      * Return true if the user can access the study, false otherwise.
-	 *
+     *
      * @param stableStudyId
      * @return ListCancerStudy
      * @throws DaoException
      */
     @PostFilter("hasPermission(#stableStudyId, 'CancerStudyId', 'read')")
-    List<CancerStudy> isAccessibleCancerStudy(String stableStudyId) throws DaoException;
+    List<CancerStudy> isAccessibleCancerStudy(String stableStudyId)
+        throws DaoException;
 
     UserDetails getUserDetails();
 }

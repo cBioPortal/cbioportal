@@ -28,7 +28,7 @@
  *
  * You should have received a copy of the GNU Affero General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
-*/
+ */
 
 package org.mskcc.cbio.portal.oncoPrintSpecLanguage;
 
@@ -39,15 +39,15 @@ import java.util.ArrayList;
  * this exception is thrown by a method that's declared to throw OncoPrintLangException (org.antlr.runtime.OncoPrintLangException extends java.lang.Exception)
  */
 public class ListOfOncoPrintLangException extends RuntimeException {
+    private ArrayList<OncoPrintLangException> theOncoPrintLangExceptions;
 
-   private ArrayList<OncoPrintLangException> theOncoPrintLangExceptions; 
+    public ListOfOncoPrintLangException(
+        ArrayList<OncoPrintLangException> theOncoPrintLangExceptions
+    ) {
+        this.theOncoPrintLangExceptions = theOncoPrintLangExceptions;
+    }
 
-   public ListOfOncoPrintLangException(ArrayList<OncoPrintLangException> theOncoPrintLangExceptions) {
-      this.theOncoPrintLangExceptions = theOncoPrintLangExceptions;
-  }
-
-   public ArrayList<OncoPrintLangException> getTheOncoPrintLangExceptions() {
-      return theOncoPrintLangExceptions;
-   }
-   
+    public ArrayList<OncoPrintLangException> getTheOncoPrintLangExceptions() {
+        return theOncoPrintLangExceptions;
+    }
 }

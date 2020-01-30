@@ -28,7 +28,7 @@
  *
  * You should have received a copy of the GNU Affero General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
-*/
+ */
 
 package org.mskcc.cbio.portal.util;
 
@@ -56,27 +56,38 @@ public class DatabaseProperties {
             dbProperties = new DatabaseProperties();
             //  Get DB Properties from portal.properties.
             dbProperties.setDbHost(GlobalProperties.getProperty("db.host"));
-            dbProperties.setDbName(GlobalProperties.getProperty("db.portal_db_name"));
+            dbProperties.setDbName(
+                GlobalProperties.getProperty("db.portal_db_name")
+            );
             dbProperties.setDbUser(GlobalProperties.getProperty("db.user"));
-            dbProperties.setDbPassword(GlobalProperties.getProperty("db.password"));
-            dbProperties.setDbEncryptedKey(GlobalProperties.getProperty("db.encryptedKey"));
-            dbProperties.setDbDriverClassName(GlobalProperties.getProperty("db.driver"));
-            dbProperties.setDbUseSSL(GlobalProperties.getProperty("db.use_ssl"));
-            dbProperties.setDbEnablePooling(GlobalProperties.getProperty("db.enable_pooling"));
+            dbProperties.setDbPassword(
+                GlobalProperties.getProperty("db.password")
+            );
+            dbProperties.setDbEncryptedKey(
+                GlobalProperties.getProperty("db.encryptedKey")
+            );
+            dbProperties.setDbDriverClassName(
+                GlobalProperties.getProperty("db.driver")
+            );
+            dbProperties.setDbUseSSL(
+                GlobalProperties.getProperty("db.use_ssl")
+            );
+            dbProperties.setDbEnablePooling(
+                GlobalProperties.getProperty("db.enable_pooling")
+            );
         }
         return dbProperties;
     }
 
     public String getDbEncryptedKey() {
-      return dbEncryptedKey;
-   }
-
-   public void setDbEncryptedKey(String dbEncryptedKey) {
-      this.dbEncryptedKey = dbEncryptedKey;
-   }
-
-   private DatabaseProperties() {
+        return dbEncryptedKey;
     }
+
+    public void setDbEncryptedKey(String dbEncryptedKey) {
+        this.dbEncryptedKey = dbEncryptedKey;
+    }
+
+    private DatabaseProperties() {}
 
     public String getDbHost() {
         return dbHost;
@@ -117,7 +128,7 @@ public class DatabaseProperties {
     public void setDbDriverClassName(String dbDriverClassName) {
         this.dbDriverClassName = dbDriverClassName;
     }
-    
+
     public String getDbUseSSL() {
         return dbUseSSL;
     }
@@ -133,5 +144,4 @@ public class DatabaseProperties {
     public void setDbEnablePooling(String dbEnablePooling) {
         this.dbEnablePooling = dbEnablePooling;
     }
-
 }

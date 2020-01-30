@@ -28,16 +28,15 @@
  *
  * You should have received a copy of the GNU Affero General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
-*/
+ */
 
 package org.mskcc.cbio.portal.web_api;
 
+import java.util.ArrayList;
 import org.mskcc.cbio.portal.dao.DaoException;
 import org.mskcc.cbio.portal.dao.DaoGeneOptimized;
-import org.mskcc.cbio.portal.model.CanonicalGene;
 import org.mskcc.cbio.portal.graph.NetworkOfInterest;
-
-import java.util.ArrayList;
+import org.mskcc.cbio.portal.model.CanonicalGene;
 
 /**
  * Gets a Network of Interest, Based on Input Seed Gene List.
@@ -45,7 +44,6 @@ import java.util.ArrayList;
  * @author Ethan Cerami.
  */
 public class GetNetwork {
-    
 
     /**
      * Gets Network of Interest, Based on Input Seed Gene List.
@@ -55,24 +53,23 @@ public class GetNetwork {
      * @throws DaoException Database Error.
      * @throws ProtocolException Protocol Exception.
      */
-    public static String getNetwork(ArrayList<String> targetGeneList) throws DaoException,
-        ProtocolException {
-
+    public static String getNetwork(ArrayList<String> targetGeneList)
+        throws DaoException, ProtocolException {
         //  Convert Gene Symbols to Canonical Gene List.
         ArrayList<CanonicalGene> canonicalGeneList = new ArrayList<CanonicalGene>();
         DaoGeneOptimized daoGeneOptimized = DaoGeneOptimized.getInstance();
-        for (String geneSymbol:  targetGeneList) {
+        for (String geneSymbol : targetGeneList) {
             CanonicalGene canonicalGene = daoGeneOptimized.getGene(geneSymbol);
             if (canonicalGene != null) {
                 canonicalGeneList.add(canonicalGene);
             }
         }
         if (canonicalGeneList.isEmpty()) {
-            throw new ProtocolException ("You must specify at least one gene.");
+            throw new ProtocolException("You must specify at least one gene.");
         }
 
         //  Get the Network of Interest
-        NetworkOfInterest noi = new NetworkOfInterest(canonicalGeneList,null);
+        NetworkOfInterest noi = new NetworkOfInterest(canonicalGeneList, null);
         return noi.getTabDelim();
     }
 }

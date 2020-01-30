@@ -28,23 +28,21 @@
  *
  * You should have received a copy of the GNU Affero General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
-*/
+ */
 
 package org.mskcc.cbio.portal.scripts;
 
 import java.io.BufferedReader;
 import java.io.FileReader;
 import java.io.IOException;
-
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.LinkedHashMap;
 import java.util.HashSet;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Scanner;
 import java.util.Set;
-
 import org.mskcc.cbio.portal.model.SetOfGenes;
 import org.mskcc.cbio.portal.util.GeneSetUtil;
 
@@ -55,39 +53,47 @@ import org.mskcc.cbio.portal.util.GeneSetUtil;
  */
 public class GeneSetsVerification {
     private String ncbiGeneFile;
-    
+
     public GeneSetsVerification(String ncbiGeneFile) {
         this.ncbiGeneFile = ncbiGeneFile;
     }
-    
+
     /**
      * Verify if genes in gene sets are all latest HUPO gene symbols.
      * @return true of all updated, otherwise, false.
-     * @throws IOException 
+     * @throws IOException
      */
     public boolean verify() throws IOException {
-        Map<String,List<String>> geneSetMap = getGeneSet();
+        Map<String, List<String>> geneSetMap = getGeneSet();
         Set<String> ncbiSymbols = getNCBISymbols();
-        
+
         // go over all genes in geneset
         boolean ret = true;
-        for (Map.Entry<String,List<String>> entry : geneSetMap.entrySet()) {
+        for (Map.Entry<String, List<String>> entry : geneSetMap.entrySet()) {
             String geneSetName = entry.getKey();
             for (String gene : entry.getValue()) {
                 if (!ncbiSymbols.contains(gene)) {
                     ret = false;
-                    System.err.println("Gene symbol "+gene+" is out of date "
-                            + "(in gene set of " + geneSetName + ")");
+                    System.err.println(
+                        "Gene symbol " +
+                        gene +
+                        " is out of date " +
+                        "(in gene set of " +
+                        geneSetName +
+                        ")"
+                    );
                 }
             }
         }
         return ret;
     }
-    
-    private Map<String,List<String>> getGeneSet() throws IOException {
+
+    private Map<String, List<String>> getGeneSet() throws IOException {
         GeneSetUtil geneSetUtil = GeneSetUtil.getInstance();
         ArrayList<SetOfGenes> geneSetList = geneSetUtil.getGeneSetList();
-        Map<String,List<String>> map = new LinkedHashMap<String,List<String>>(geneSetList.size());
+        Map<String, List<String>> map = new LinkedHashMap<String, List<String>>(
+            geneSetList.size()
+        );
         for (SetOfGenes setOfGenes : geneSetList) {
             String geneSetName = setOfGenes.getName();
             String geneList = setOfGenes.getGeneList();
@@ -95,7 +101,7 @@ public class GeneSetsVerification {
         }
         return map;
     }
-    
+
     private Set<String> getNCBISymbols() throws IOException {
         Set<String> set = new HashSet<String>();
         FileReader reader = new FileReader(ncbiGeneFile);
@@ -111,20 +117,24 @@ public class GeneSetsVerification {
         set.add("");
         return set;
     }
-    
+
     public static void main(String[] args) throws Exception {
         if (args.length == 0) {
-            System.out.println("command line usage:  verifyGeneSets.pl"
-                    + " <ncbi_genes.txt>");
+            System.out.println(
+                "command line usage:  verifyGeneSets.pl" + " <ncbi_genes.txt>"
+            );
             return;
         }
-        
+
         String ncbiGeneFile = args[0];
-        GeneSetsVerification geneSetsVerification
-                = new GeneSetsVerification(ncbiGeneFile);
+        GeneSetsVerification geneSetsVerification = new GeneSetsVerification(
+            ncbiGeneFile
+        );
         if (!geneSetsVerification.verify()) {
-            System.out.println("Please update the gene symbols in the sample"
-                    + " gene sets. \nPress enter to continue...");
+            System.out.println(
+                "Please update the gene symbols in the sample" +
+                " gene sets. \nPress enter to continue..."
+            );
             Scanner keyboard = new Scanner(System.in);
             keyboard.nextLine();
         }

@@ -28,10 +28,15 @@
  *
  * You should have received a copy of the GNU Affero General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
-*/
+ */
 
 package org.mskcc.cbio.portal.web_api;
 
+import static org.junit.Assert.*;
+
+import java.io.File;
+import java.io.IOException;
+import java.util.ArrayList;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -43,41 +48,44 @@ import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import org.springframework.test.context.transaction.TransactionConfiguration;
 import org.springframework.transaction.annotation.Transactional;
 
-import static org.junit.Assert.*;
-
-import java.io.File;
-import java.io.IOException;
-import java.util.ArrayList;
-
 /**
  * JUnit test for GetProfileData class.
  */
 @RunWith(SpringJUnit4ClassRunner.class)
 @ContextConfiguration(locations = { "classpath:/applicationContext-dao.xml" })
-@TransactionConfiguration(transactionManager = "transactionManager", defaultRollback = true)
+@TransactionConfiguration(
+    transactionManager = "transactionManager",
+    defaultRollback = true
+)
 @Transactional
 public class TestGetProfileData {
-	
-	int geneticProfileId;
-	
-	@Before
-	public void setUp() throws DaoException {
-		int studyId = DaoCancerStudy.getCancerStudyByStableId("study_tcga_pub").getInternalId();
-		
-		DaoPatient.reCache();
-		DaoSample.reCache();
-		DaoGeneticProfile.reCache();
-		
-		GeneticProfile newGeneticProfile = new GeneticProfile();
-		newGeneticProfile.setCancerStudyId(studyId);
-		newGeneticProfile.setGeneticAlterationType(GeneticAlterationType.COPY_NUMBER_ALTERATION);
-		newGeneticProfile.setStableId("study_tcga_pub_test");
-		newGeneticProfile.setProfileName("Barry CNA Results");
-		newGeneticProfile.setDatatype("test");
-		DaoGeneticProfile.addGeneticProfile(newGeneticProfile);
-		
-		geneticProfileId =  DaoGeneticProfile.getGeneticProfileByStableId("study_tcga_pub_test").getGeneticProfileId();
-	}
+    int geneticProfileId;
+
+    @Before
+    public void setUp() throws DaoException {
+        int studyId = DaoCancerStudy
+            .getCancerStudyByStableId("study_tcga_pub")
+            .getInternalId();
+
+        DaoPatient.reCache();
+        DaoSample.reCache();
+        DaoGeneticProfile.reCache();
+
+        GeneticProfile newGeneticProfile = new GeneticProfile();
+        newGeneticProfile.setCancerStudyId(studyId);
+        newGeneticProfile.setGeneticAlterationType(
+            GeneticAlterationType.COPY_NUMBER_ALTERATION
+        );
+        newGeneticProfile.setStableId("study_tcga_pub_test");
+        newGeneticProfile.setProfileName("Barry CNA Results");
+        newGeneticProfile.setDatatype("test");
+        DaoGeneticProfile.addGeneticProfile(newGeneticProfile);
+
+        geneticProfileId =
+            DaoGeneticProfile
+                .getGeneticProfileByStableId("study_tcga_pub_test")
+                .getGeneticProfileId();
+    }
 
     @Test
     public void testGetProfileData() throws DaoException, IOException {
@@ -91,29 +99,43 @@ public class TestGetProfileData {
         daoGene.addGene(new CanonicalGene(672, "BRCA1"));
         daoGene.addGene(new CanonicalGene(675, "BRCA2"));
 
-        ArrayList <String> targetGeneList = new ArrayList<String> ();
+        ArrayList<String> targetGeneList = new ArrayList<String>();
         targetGeneList.add("AKT1");
         targetGeneList.add("AKT2");
         targetGeneList.add("AKT3");
         targetGeneList.add("ATM");
         targetGeneList.add("BRCA1");
 
-        ArrayList <String> geneticProfileIdList = new ArrayList<String>();
+        ArrayList<String> geneticProfileIdList = new ArrayList<String>();
         geneticProfileIdList.add("study_tcga_pub_gistic");
 
-        ArrayList <String> sampleIdList = new ArrayList <String>();
+        ArrayList<String> sampleIdList = new ArrayList<String>();
         sampleIdList.add("TCGA-A1-A0SB-01");
         sampleIdList.add("TCGA-A1-A0SD-01");
         sampleIdList.add("TCGA-A1-A0SE-01");
 
-        GetProfileData getProfileData = new GetProfileData(geneticProfileIdList, targetGeneList,
-                sampleIdList, new Boolean(false));
+        GetProfileData getProfileData = new GetProfileData(
+            geneticProfileIdList,
+            targetGeneList,
+            sampleIdList,
+            new Boolean(false)
+        );
         String out = getProfileData.getRawContent();
         String lines[] = out.split("\n");
-        assertEquals("# DATA_TYPE\t Putative copy-number alterations from GISTIC" , lines[0]);
-        assertEquals("# COLOR_GRADIENT_SETTINGS\t COPY_NUMBER_ALTERATION", lines[1]);
-        assertTrue(lines[2].startsWith("GENE_ID\tCOMMON\tTCGA-A1-A0SB-01\t" +
-                "TCGA-A1-A0SD-01\tTCGA-A1-A0SE-01"));
+        assertEquals(
+            "# DATA_TYPE\t Putative copy-number alterations from GISTIC",
+            lines[0]
+        );
+        assertEquals(
+            "# COLOR_GRADIENT_SETTINGS\t COPY_NUMBER_ALTERATION",
+            lines[1]
+        );
+        assertTrue(
+            lines[2].startsWith(
+                    "GENE_ID\tCOMMON\tTCGA-A1-A0SB-01\t" +
+                    "TCGA-A1-A0SD-01\tTCGA-A1-A0SE-01"
+                )
+        );
         assertTrue(lines[3].startsWith("207\tAKT1\t0\t0\t0"));
         assertTrue(lines[4].startsWith("208\tAKT2\t0\t0\t0"));
     }

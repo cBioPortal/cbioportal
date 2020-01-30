@@ -28,32 +28,31 @@
  *
  * You should have received a copy of the GNU Affero General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
-*/
+ */
 
 package org.mskcc.cbio.portal.util;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
-import org.apache.commons.lang.StringUtils;
-
 import java.util.Collections;
 import java.util.Enumeration;
-import java.util.Map;
 import java.util.HashMap;
-
+import java.util.Map;
 import javax.servlet.*;
 import javax.servlet.http.*;
+import org.apache.commons.lang.StringUtils;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 
 /**
- * 
+ *
  * @author Manda Wilson
  */
 public class SessionServiceRequestWrapper extends HttpServletRequestWrapper {
-
     public static final String SESSION_ERROR = "session_error";
     public static final String SESSION_ID_PARAM = "session_id";
 
-    private static Log LOG = LogFactory.getLog(SessionServiceRequestWrapper.class);
+    private static Log LOG = LogFactory.getLog(
+        SessionServiceRequestWrapper.class
+    );
     private Map<String, String[]> storedParameters;
     private String sessionId;
 
@@ -70,16 +69,34 @@ public class SessionServiceRequestWrapper extends HttpServletRequestWrapper {
         super(request);
         LOG.debug("new SessionServiceRequestWrapper()");
         sessionId = super.getParameter(SESSION_ID_PARAM);
-        LOG.debug("new SessionServiceRequestWrapper(): request parameter '" + SESSION_ID_PARAM + "' = '" + sessionId + "'");
+        LOG.debug(
+            "new SessionServiceRequestWrapper(): request parameter '" +
+            SESSION_ID_PARAM +
+            "' = '" +
+            sessionId +
+            "'"
+        );
         if (!StringUtils.isBlank(sessionId)) {
-            LOG.debug("new SessionServiceRequestWrapper(): retrieved parameters = '" + storedParameters + "'");
+            LOG.debug(
+                "new SessionServiceRequestWrapper(): retrieved parameters = '" +
+                storedParameters +
+                "'"
+            );
             try {
-                storedParameters = SessionServiceUtil.getSession(sessionId); 
+                storedParameters = SessionServiceUtil.getSession(sessionId);
                 if (storedParameters == null || storedParameters.size() == 0) {
-                    request.setAttribute(SESSION_ERROR, "Session with id '" + sessionId + "' not found.");
+                    request.setAttribute(
+                        SESSION_ERROR,
+                        "Session with id '" + sessionId + "' not found."
+                    );
                 }
-            } catch (Exception e) { 
-                request.setAttribute(SESSION_ERROR, "Session service error. Session with id '" + sessionId + "' not loaded. Try again later.  If problem persists contact site administrator.");
+            } catch (Exception e) {
+                request.setAttribute(
+                    SESSION_ERROR,
+                    "Session service error. Session with id '" +
+                    sessionId +
+                    "' not loaded. Try again later.  If problem persists contact site administrator."
+                );
             }
         }
     }
@@ -87,47 +104,84 @@ public class SessionServiceRequestWrapper extends HttpServletRequestWrapper {
     @Override
     public String getParameter(final String name) {
         if (storedParameters != null && !SESSION_ID_PARAM.equals(name)) {
-            LOG.debug("SessionServiceRequestWrapper.getParameter(" + name + "): accessing parameters from stored session with id '" + sessionId + "'");
+            LOG.debug(
+                "SessionServiceRequestWrapper.getParameter(" +
+                name +
+                "): accessing parameters from stored session with id '" +
+                sessionId +
+                "'"
+            );
             if (storedParameters.containsKey(name)) {
                 String value = storedParameters.get(name)[0];
-                LOG.debug("SessionServiceRequestWrapper.getParameter(" + name + "): returning '" + value + "'");
+                LOG.debug(
+                    "SessionServiceRequestWrapper.getParameter(" +
+                    name +
+                    "): returning '" +
+                    value +
+                    "'"
+                );
                 return value;
             }
-            LOG.debug("SessionServiceRequestWrapper.getParameter(" + name + "): returning null - parameter name not found");
+            LOG.debug(
+                "SessionServiceRequestWrapper.getParameter(" +
+                name +
+                "): returning null - parameter name not found"
+            );
             return null;
         }
-        LOG.debug("SessionServiceRequestWrapper.getParameter(" + name + "): accessing current request parameters");
+        LOG.debug(
+            "SessionServiceRequestWrapper.getParameter(" +
+            name +
+            "): accessing current request parameters"
+        );
         return super.getParameter(name);
     }
 
     @Override
     public Map<String, String[]> getParameterMap() {
         if (storedParameters != null) {
-            LOG.debug("SessionServiceRequestWrapper.getParameterMap(): accessing parameters from stored session with id '" + sessionId + "'");
+            LOG.debug(
+                "SessionServiceRequestWrapper.getParameterMap(): accessing parameters from stored session with id '" +
+                sessionId +
+                "'"
+            );
             return Collections.unmodifiableMap(storedParameters);
         }
-        LOG.debug("SessionServiceRequestWrapper.getParameterMap(): accessing current request parameters");
+        LOG.debug(
+            "SessionServiceRequestWrapper.getParameterMap(): accessing current request parameters"
+        );
         return super.getParameterMap();
     }
 
     @Override
     public Enumeration<String> getParameterNames() {
         if (storedParameters != null) {
-            LOG.debug("SessionServiceRequestWrapper.getParameterNames(): accessing parameters from stored session with id '" + sessionId + "'");
+            LOG.debug(
+                "SessionServiceRequestWrapper.getParameterNames(): accessing parameters from stored session with id '" +
+                sessionId +
+                "'"
+            );
             return Collections.enumeration(storedParameters.keySet());
         }
-        LOG.debug("SessionServiceRequestWrapper.getParameterNames(): accessing current request parameters");
+        LOG.debug(
+            "SessionServiceRequestWrapper.getParameterNames(): accessing current request parameters"
+        );
         return super.getParameterNames();
     }
 
     @Override
     public String[] getParameterValues(final String name) {
         if (storedParameters != null) {
-            LOG.debug("SessionServiceRequestWrapper.getParameterValues(): accessing parameters from stored session with id '" + sessionId + "'");
-            return storedParameters.get(name); 
+            LOG.debug(
+                "SessionServiceRequestWrapper.getParameterValues(): accessing parameters from stored session with id '" +
+                sessionId +
+                "'"
+            );
+            return storedParameters.get(name);
         }
-        LOG.debug("SessionServiceRequestWrapper.getParameterValues(): accessing current request parameters");
+        LOG.debug(
+            "SessionServiceRequestWrapper.getParameterValues(): accessing current request parameters"
+        );
         return super.getParameterValues(name);
     }
-
 }

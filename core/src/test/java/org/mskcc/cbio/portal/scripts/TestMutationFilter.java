@@ -28,7 +28,7 @@
  *
  * You should have received a copy of the GNU Affero General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
-*/
+ */
 
 package org.mskcc.cbio.portal.scripts;
 
@@ -52,142 +52,144 @@ import org.springframework.transaction.annotation.Transactional;
  */
 @RunWith(SpringJUnit4ClassRunner.class)
 @ContextConfiguration(locations = { "classpath:/applicationContext-dao.xml" })
-@TransactionConfiguration(transactionManager = "transactionManager", defaultRollback = true)
+@TransactionConfiguration(
+    transactionManager = "transactionManager",
+    defaultRollback = true
+)
 @Transactional
 public class TestMutationFilter {
-	
-	@Before
-	public void setUp() throws DaoException {
-	      // load genes
-	      loadGene( "FOO", 3L  );
-	      loadGene( "BAR", 234L  );
-	      loadGene( "BIG", 234234L  );
-	}
-   
-   
-   @Test
-   public void testNoWhitelists( ){
-      MutationFilter myMutationFilter = new MutationFilter( );
-      alwaysRejectTheseMutations( myMutationFilter );
-      
-      // accept all of these, because a MutationFilter without whitelists
-      // accepts all mutations other than Silent, LOH, Intron and Wildtype mutations
-      // not valid && somatic
-      nowTestAcceptMutation( 
-               myMutationFilter,
-               true, 
-               4L, 
-               "Unknown",        // validationStatus,
-               "Unknown",        // mutationStatus,
-               "Unknown"         // mutationType
-            );
 
-      // valid but not somatic
-      nowTestAcceptMutation( 
-               myMutationFilter,
-               true, 
-               4L, 
-               "Valid",        // validationStatus,
-               "Unknown",        // mutationStatus,
-               "Unknown"         // mutationType
-            );
+    @Before
+    public void setUp() throws DaoException {
+        // load genes
+        loadGene("FOO", 3L);
+        loadGene("BAR", 234L);
+        loadGene("BIG", 234234L);
+    }
 
-      // not valid but somatic
-      nowTestAcceptMutation( 
-               myMutationFilter,
-               true, 
-               4L, 
-               "Unknown",        // validationStatus,
-               "Somatic",        // mutationStatus,
-               "Unknown"         // mutationType
-            );
+    @Test
+    public void testNoWhitelists() {
+        MutationFilter myMutationFilter = new MutationFilter();
+        alwaysRejectTheseMutations(myMutationFilter);
 
-      // valid && somatic
-      nowTestAcceptMutation( 
-               myMutationFilter,
-               true, 
-               4L, 
-               "Valid",        // validationStatus,
-               "Somatic",        // mutationStatus,
-               "Unknown"         // mutationType
-            );
+        // accept all of these, because a MutationFilter without whitelists
+        // accepts all mutations other than Silent, LOH, Intron and Wildtype mutations
+        // not valid && somatic
+        nowTestAcceptMutation(
+            myMutationFilter,
+            true,
+            4L,
+            "Unknown", // validationStatus,
+            "Unknown", // mutationStatus,
+            "Unknown" // mutationType
+        );
 
-      // valid && somatic
-      // testing safeStringTest()
-      nowTestAcceptMutation( 
-               myMutationFilter,
-               true, 
-               4L, 
-               "vALid_as_hell",        // validationStatus,
-               "SOMatic_for_sure",        // mutationStatus,
-               "Unknown"         // mutationType
-            );
+        // valid but not somatic
+        nowTestAcceptMutation(
+            myMutationFilter,
+            true,
+            4L,
+            "Valid", // validationStatus,
+            "Unknown", // mutationStatus,
+            "Unknown" // mutationType
+        );
 
-   }
+        // not valid but somatic
+        nowTestAcceptMutation(
+            myMutationFilter,
+            true,
+            4L,
+            "Unknown", // validationStatus,
+            "Somatic", // mutationStatus,
+            "Unknown" // mutationType
+        );
 
-   
+        // valid && somatic
+        nowTestAcceptMutation(
+            myMutationFilter,
+            true,
+            4L,
+            "Valid", // validationStatus,
+            "Somatic", // mutationStatus,
+            "Unknown" // mutationType
+        );
+
+        // valid && somatic
+        // testing safeStringTest()
+        nowTestAcceptMutation(
+            myMutationFilter,
+            true,
+            4L,
+            "vALid_as_hell", // validationStatus,
+            "SOMatic_for_sure", // mutationStatus,
+            "Unknown" // mutationType
+        );
+    }
+
     private void nowTestAcceptMutation(
-            MutationFilter myMutationFilter,
-            boolean expectedResult,
-            long entrezGeneId,
-            String validationStatus,
-            String mutationStatus,
-            String mutationType
+        MutationFilter myMutationFilter,
+        boolean expectedResult,
+        long entrezGeneId,
+        String validationStatus,
+        String mutationStatus,
+        String mutationType
     ) {
         CanonicalGene gene = new CanonicalGene(entrezGeneId, "XXX");
         ExtendedMutation anExtendedMutation = new ExtendedMutation(
-                gene,                   // gene,
-                validationStatus,       // validationStatus,
-                mutationStatus,         // mutationStatus,
-                mutationType            // mutationType
+            gene, // gene,
+            validationStatus, // validationStatus,
+            mutationStatus, // mutationStatus,
+            mutationType // mutationType
         );
         if (expectedResult) {
-            assertTrue(myMutationFilter.acceptMutation(anExtendedMutation, null));
+            assertTrue(
+                myMutationFilter.acceptMutation(anExtendedMutation, null)
+            );
         } else {
-            assertFalse(myMutationFilter.acceptMutation(anExtendedMutation, null));
+            assertFalse(
+                myMutationFilter.acceptMutation(anExtendedMutation, null)
+            );
         }
     }
-   
-   private void alwaysRejectTheseMutations(MutationFilter myMutationFilter){
 
-      // REJECT: Silent, LOH, Intron and Wildtype mutations
-      nowTestAcceptMutation( 
-               myMutationFilter,
-               false, 
-               1L, 
-               "Unknown",
-               "Unknown",
-               "Silent"
-            );
-      nowTestAcceptMutation( 
-               myMutationFilter,
-               false, 
-               1L, 
-               "Unknown",
-               "Unknown",
-               "Intron"
-            );
-      nowTestAcceptMutation( 
-               myMutationFilter,
-               false, 
-               1L, 
-               "Unknown",
-               "LOH",
-               "Unknown"
-            );
-      nowTestAcceptMutation( 
-               myMutationFilter,
-               false, 
-               1L, 
-               "Unknown",
-               "Wildtype",
-               "Unknown"
-            );
-      
-   }
-   
-   private void loadGene( String geneSymbol, long geneID ) throws DaoException {
+    private void alwaysRejectTheseMutations(MutationFilter myMutationFilter) {
+        // REJECT: Silent, LOH, Intron and Wildtype mutations
+        nowTestAcceptMutation(
+            myMutationFilter,
+            false,
+            1L,
+            "Unknown",
+            "Unknown",
+            "Silent"
+        );
+        nowTestAcceptMutation(
+            myMutationFilter,
+            false,
+            1L,
+            "Unknown",
+            "Unknown",
+            "Intron"
+        );
+        nowTestAcceptMutation(
+            myMutationFilter,
+            false,
+            1L,
+            "Unknown",
+            "LOH",
+            "Unknown"
+        );
+        nowTestAcceptMutation(
+            myMutationFilter,
+            false,
+            1L,
+            "Unknown",
+            "Wildtype",
+            "Unknown"
+        );
+    }
+
+    private void loadGene(String geneSymbol, long geneID) throws DaoException {
         DaoGeneOptimized daoGene = DaoGeneOptimized.getInstance();
-        daoGene.addGene(new CanonicalGene( geneID, geneSymbol ));
+        daoGene.addGene(new CanonicalGene(geneID, geneSymbol));
     }
 }

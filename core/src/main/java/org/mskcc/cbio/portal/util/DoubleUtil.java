@@ -28,7 +28,7 @@
  *
  * You should have received a copy of the GNU Affero General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
-*/
+ */
 
 package org.mskcc.cbio.portal.util;
 
@@ -36,8 +36,8 @@ package org.mskcc.cbio.portal.util;
  * Derived from the web:  http://stackoverflow.com/questions/356807/java-double-comparison-epsilon
  */
 public class DoubleUtil {
+    private static final double EPSILON = 0.00001;
 
-    private final static double EPSILON = 0.00001;
     /**
      * Returns true if two doubles are considered equal.  Tests if the absolute
      * difference between two doubles has a difference less then .00001.   This
@@ -48,9 +48,10 @@ public class DoubleUtil {
      * @param b double to compare.
      * @return true true if two doubles are considered equal.
      */
-    public static boolean equals(double a, double b){
-            return a == b ? true : Math.abs(a - b) < EPSILON;
+    public static boolean equals(double a, double b) {
+        return a == b ? true : Math.abs(a - b) < EPSILON;
     }
+
     /**
      * Returns true if two doubles are considered equal. Tests if the absolute
      * difference between the two doubles has a difference less then a given
@@ -63,7 +64,7 @@ public class DoubleUtil {
      * doubles to determine if they are equal.
      * @return true if a is considered equal to b.
      */
-    public static boolean equals(double a, double b, double epsilon){
-            return a == b ? true : Math.abs(a - b) < epsilon;
+    public static boolean equals(double a, double b, double epsilon) {
+        return a == b ? true : Math.abs(a - b) < epsilon;
     }
 }

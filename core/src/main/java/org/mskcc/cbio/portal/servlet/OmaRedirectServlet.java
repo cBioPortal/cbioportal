@@ -28,7 +28,7 @@
  *
  * You should have received a copy of the GNU Affero General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
-*/
+ */
 
 package org.mskcc.cbio.portal.servlet;
 
@@ -39,9 +39,9 @@ import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import org.apache.log4j.Logger;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.apache.log4j.Logger;
 import org.mskcc.cbio.portal.util.OmaLinkUtil;
 
 /**
@@ -50,11 +50,13 @@ import org.mskcc.cbio.portal.util.OmaLinkUtil;
  * @author Ethan Cerami.
  */
 public class OmaRedirectServlet extends HttpServlet {
-
     private static Logger logger = Logger.getLogger(OmaRedirectServlet.class);
 
-    protected void doGet(HttpServletRequest request, HttpServletResponse response)
-            throws ServletException, IOException {
+    protected void doGet(
+        HttpServletRequest request,
+        HttpServletResponse response
+    )
+        throws ServletException, IOException {
         response.setContentType("text/html");
         String omaQueryString = request.getQueryString();
         PrintWriter writer = response.getWriter();
@@ -76,14 +78,19 @@ public class OmaRedirectServlet extends HttpServlet {
     private void sendHtmlRedirect(PrintWriter writer, String omaUrl) {
         writer.write("<html>");
         writer.write("<head>");
-        writer.write("<meta http-equiv=\"refresh\" content=\"0;url=" + omaUrl + "\"/>");
+        writer.write(
+            "<meta http-equiv=\"refresh\" content=\"0;url=" + omaUrl + "\"/>"
+        );
         writer.write("</head>");
         writer.write("</html>");
     }
 
     private void logError(String urlString, MalformedURLException e) {
-        logger.warn("a request to OmaRedirectServlet contained a malformed URL:" + urlString);
-        logger.warn("   exception message: " +  e.getMessage());
+        logger.warn(
+            "a request to OmaRedirectServlet contained a malformed URL:" +
+            urlString
+        );
+        logger.warn("   exception message: " + e.getMessage());
     }
 
     private void sendErrorPage(PrintWriter writer, MalformedURLException e) {
@@ -92,9 +99,13 @@ public class OmaRedirectServlet extends HttpServlet {
         writer.write("<title>Error during redirect</title>");
         writer.write("</head>");
         writer.write("<body>");
-        writer.write("<p>An error occurred during the navigation to the requested link.");
+        writer.write(
+            "<p>An error occurred during the navigation to the requested link."
+        );
         writer.write("&nbsp;<br>&nbsp;");
-        writer.write("<p>This error has been recorded in the webserver logs. We appologize for this problem, and we will try to correct it.");
+        writer.write(
+            "<p>This error has been recorded in the webserver logs. We appologize for this problem, and we will try to correct it."
+        );
         writer.write("</body>");
         writer.write("</html>");
     }

@@ -28,7 +28,7 @@
  *
  * You should have received a copy of the GNU Affero General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
-*/
+ */
 
 package org.mskcc.cbio.portal.mut_diagram;
 
@@ -38,7 +38,6 @@ import java.util.List;
  * Feature service.
  */
 public interface FeatureService {
-
     /**
      * Return an immutable list of zero or more sequences for the specified UniProt id, populated
      * with sequence features such as regions, motifs, and markups.

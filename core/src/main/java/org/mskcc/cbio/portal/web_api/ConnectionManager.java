@@ -28,7 +28,7 @@
  *
  * You should have received a copy of the GNU Affero General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
-*/
+ */
 
 package org.mskcc.cbio.portal.web_api;
 
@@ -56,18 +56,21 @@ public class ConnectionManager {
         }
         return connectionManager;
     }
-    
+
     /**
      * Get a HttpClient
      * @param timeOut milliseconds
-     * @return 
+     * @return
      */
     public static HttpClient getHttpClient(int timeOut) {
-        if (timeOut<=0) {
+        if (timeOut <= 0) {
             return new HttpClient(getConnectionManager());
         } else {
             HttpClientParams params = new HttpClientParams();
-            params.setIntParameter(CoreConnectionPNames.CONNECTION_TIMEOUT, timeOut);
+            params.setIntParameter(
+                CoreConnectionPNames.CONNECTION_TIMEOUT,
+                timeOut
+            );
             params.setIntParameter(CoreConnectionPNames.SO_TIMEOUT, timeOut);
             return new HttpClient(params, getConnectionManager());
         }

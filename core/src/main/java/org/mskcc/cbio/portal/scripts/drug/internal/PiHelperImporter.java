@@ -28,10 +28,14 @@
  *
  * You should have received a copy of the GNU Affero General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
-*/
+ */
 
 package org.mskcc.cbio.portal.scripts.drug.internal;
 
+import java.io.InputStream;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Scanner;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.mskcc.cbio.portal.dao.*;
@@ -40,11 +44,6 @@ import org.mskcc.cbio.portal.model.Drug;
 import org.mskcc.cbio.portal.model.DrugInteraction;
 import org.mskcc.cbio.portal.scripts.drug.AbstractDrugInfoImporter;
 import org.mskcc.cbio.portal.scripts.drug.DrugDataResource;
-
-import java.io.InputStream;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Scanner;
 
 public class PiHelperImporter extends AbstractDrugInfoImporter {
     private static final String separator = "\t";
@@ -60,7 +59,11 @@ public class PiHelperImporter extends AbstractDrugInfoImporter {
         super(dataResource);
     }
 
-    public PiHelperImporter(DrugDataResource dataResource, DaoDrug drugDao, DaoInteraction daoInteraction) {
+    public PiHelperImporter(
+        DrugDataResource dataResource,
+        DaoDrug drugDao,
+        DaoInteraction daoInteraction
+    ) {
         super(dataResource, drugDao, daoInteraction);
     }
 
@@ -83,10 +86,12 @@ public class PiHelperImporter extends AbstractDrugInfoImporter {
     @Override
     public void importData() throws Exception {
         // These are necessary files, hence the check below
-        if(getDrugInfoFile() == null || getDrugTargetsFile() == null) {
-            throw new IllegalArgumentException("Please provide drug and drug targets before you stat importing.");
+        if (getDrugInfoFile() == null || getDrugTargetsFile() == null) {
+            throw new IllegalArgumentException(
+                "Please provide drug and drug targets before you stat importing."
+            );
         }
-		MySQLbulkLoader.bulkLoadOff();
+        MySQLbulkLoader.bulkLoadOff();
         importDrugs();
         importDrugTargets();
     }
@@ -99,12 +104,12 @@ public class PiHelperImporter extends AbstractDrugInfoImporter {
         int lineNo = 0, saved = 0;
         while (scanner.hasNextLine()) {
             String line = scanner.nextLine();
-            if(line.startsWith("#")) continue;
-            if((++lineNo) == 1) continue;
+            if (line.startsWith("#")) continue;
+            if ((++lineNo) == 1) continue;
 
             String[] tokens = line.split(separator, -1);
-            assert tokens.length ==  5;
-            if(tokens.length < 5) continue;
+            assert tokens.length == 5;
+            if (tokens.length < 5) continue;
             /*
                 0 - PiHelperId
                 1 - Symbol
@@ -120,18 +125,20 @@ public class PiHelperImporter extends AbstractDrugInfoImporter {
 
             Drug drug = nameToDrugMap.get(drugName);
 
-            if(drug==null || drug == DRUG_SKIP)
-                continue;
+            if (drug == null || drug == DRUG_SKIP) continue;
 
-            CanonicalGene gene = daoGeneOptimized.getNonAmbiguousGene(geneSymbol);
-            if (gene!=null) {
+            CanonicalGene gene = daoGeneOptimized.getNonAmbiguousGene(
+                geneSymbol
+            );
+            if (gene != null) {
                 daoDrugInteraction.addDrugInteraction(
-                        drug,
-                        gene,
-                        DRUG_INTERACTION_TYPE,
-                        datasources,
-                        "",
-                        refs);
+                    drug,
+                    gene,
+                    DRUG_INTERACTION_TYPE,
+                    datasources,
+                    "",
+                    refs
+                );
                 saved++;
             }
         }
@@ -148,27 +155,28 @@ public class PiHelperImporter extends AbstractDrugInfoImporter {
         int lineNo = 0;
         while (scanner.hasNextLine()) {
             String line = scanner.nextLine();
-            if(line.startsWith("#")) continue;
-            if((++lineNo) == 1) continue;
+            if (line.startsWith("#")) continue;
+            if ((++lineNo) == 1) continue;
 
             try {
                 importDrug(line);
             } catch (Exception e) {
-                System.err.println("Failed to load drug "+line);
+                System.err.println("Failed to load drug " + line);
                 e.printStackTrace();
             }
-
         }
 
         scanner.close();
 
-        System.out.println("Number of drugs imported: " + nameToDrugMap.keySet().size());
+        System.out.println(
+            "Number of drugs imported: " + nameToDrugMap.keySet().size()
+        );
     }
-    
+
     private void importDrug(String line) throws DaoException {
         String[] t = line.split(separator, -1);
-            assert t.length ==  12;
-            /*
+        assert t.length == 12;
+        /*
                 0 PiHelper_Drug_ID
                 1 Drug_Name
                 2 Drug_Synonyms
@@ -183,25 +191,25 @@ public class PiHelperImporter extends AbstractDrugInfoImporter {
                 11 References
              */
 
-            Drug drug = new Drug(
-                t[0].trim(),  // id
-                t[1].trim(),  // name
-                t[3].trim().replace("\"", ""),  // desc
-                t[2].trim(),  // synonyms
-                t[11].trim(), // refs
-                t[10].trim(), // resource
-                t[5].trim(), // atc
-                Boolean.parseBoolean(t[6].trim()), // fda approval
-                Boolean.parseBoolean(t[7].trim()), // is cancer drug
-                Boolean.parseBoolean(t[8].trim()), // is Nutraceutical
-                Integer.parseInt(t[9])
-            );
+        Drug drug = new Drug(
+            t[0].trim(), // id
+            t[1].trim(), // name
+            t[3].trim().replace("\"", ""), // desc
+            t[2].trim(), // synonyms
+            t[11].trim(), // refs
+            t[10].trim(), // resource
+            t[5].trim(), // atc
+            Boolean.parseBoolean(t[6].trim()), // fda approval
+            Boolean.parseBoolean(t[7].trim()), // is cancer drug
+            Boolean.parseBoolean(t[8].trim()), // is Nutraceutical
+            Integer.parseInt(t[9])
+        );
 
-            if(drug.isNutraceuitical()) { // We don't want these drugs within the database
-                nameToDrugMap.put(drug.getName(), DRUG_SKIP);
-            } else {
-                getDrugDao().addDrug(drug);
-                nameToDrugMap.put(drug.getName(), drug);
-            }
+        if (drug.isNutraceuitical()) { // We don't want these drugs within the database
+            nameToDrugMap.put(drug.getName(), DRUG_SKIP);
+        } else {
+            getDrugDao().addDrug(drug);
+            nameToDrugMap.put(drug.getName(), drug);
+        }
     }
 }

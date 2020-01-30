@@ -28,7 +28,7 @@
  *
  * You should have received a copy of the GNU Affero General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
-*/
+ */
 
 package org.mskcc.cbio.maf;
 
@@ -317,7 +317,9 @@ public class MafRecord {
         return matchNormValidationAllele1;
     }
 
-    public void setMatchNormValidationAllele1(String matchNormValidationAllele1) {
+    public void setMatchNormValidationAllele1(
+        String matchNormValidationAllele1
+    ) {
         this.matchNormValidationAllele1 = matchNormValidationAllele1;
     }
 
@@ -325,7 +327,9 @@ public class MafRecord {
         return matchNormValidationAllele2;
     }
 
-    public void setMatchNormValidationAllele2(String matchNormValidationAllele2) {
+    public void setMatchNormValidationAllele2(
+        String matchNormValidationAllele2
+    ) {
         this.matchNormValidationAllele2 = matchNormValidationAllele2;
     }
 
@@ -525,7 +529,9 @@ public class MafRecord {
         return oncotatorVariantClassification;
     }
 
-    public void setOncotatorVariantClassification(String oncotatorVariantClassification) {
+    public void setOncotatorVariantClassification(
+        String oncotatorVariantClassification
+    ) {
         this.oncotatorVariantClassification = oncotatorVariantClassification;
     }
 
@@ -669,7 +675,9 @@ public class MafRecord {
         return namespacesMap;
     }
 
-    public void setNamespacesMap(Map<String, Map<String, String>> namespacesMap) {
+    public void setNamespacesMap(
+        Map<String, Map<String, String>> namespacesMap
+    ) {
         this.namespacesMap = namespacesMap;
     }
 }

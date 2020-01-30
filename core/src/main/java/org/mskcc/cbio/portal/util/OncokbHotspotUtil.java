@@ -28,7 +28,7 @@
  *
  * You should have received a copy of the GNU Affero General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
-*/
+ */
 package org.mskcc.cbio.portal.util;
 
 import java.io.BufferedReader;
@@ -44,73 +44,82 @@ import java.util.regex.Pattern;
  * @author jgao
  */
 public final class OncokbHotspotUtil {
+
     private OncokbHotspotUtil() {}
-    private static Map<String,Map<String, Integer>> linkMap = null;
-    
-    
+
+    private static Map<String, Map<String, Integer>> linkMap = null;
+
     /**
-     * 
+     *
      * @param gene
      * @param alteration
      * @return
      */
-    public static Boolean getOncokbHotspot(String gene, String alteration) throws IOException {
-        if (linkMap==null) {
+    public static Boolean getOncokbHotspot(String gene, String alteration)
+        throws IOException {
+        if (linkMap == null) {
             linkMap = getOncokbHotspot();
         }
-        
+
         Map<String, Integer> geneInfo = linkMap.get(gene);
         if (geneInfo != null) {
             Pattern p = Pattern.compile("([A-Z][0-9]+)([A-Z])");
             Matcher m = p.matcher(alteration);
             if (m.matches()) {
                 String codon = m.group(1);
-                if(geneInfo.containsKey(codon)) {
+                if (geneInfo.containsKey(codon)) {
                     return true;
-                }else{
+                } else {
                     return false;
                 }
-            }else{
+            } else {
                 return false;
             }
         }
-        
+
         return false;
     }
-    
-    /**
-     * 
-     * @return Map<Gene, Map<Varaint, number exists in samples>>
-     * @throws IOException 
-     */
-    private static Map<String,Map<String, Integer>> getOncokbHotspot() throws IOException {
-        Map<String,Map<String, Integer>> hotspots
-                = new HashMap<>();
 
-        InputStream inputStream = OncokbHotspotUtil.class.getClassLoader().getResourceAsStream("chang_hotspot.txt");
-        BufferedReader br = new BufferedReader(new InputStreamReader(inputStream));
+    /**
+     *
+     * @return Map<Gene, Map<Varaint, number exists in samples>>
+     * @throws IOException
+     */
+    private static Map<String, Map<String, Integer>> getOncokbHotspot()
+        throws IOException {
+        Map<String, Map<String, Integer>> hotspots = new HashMap<>();
+
+        InputStream inputStream =
+            OncokbHotspotUtil.class.getClassLoader()
+                .getResourceAsStream("chang_hotspot.txt");
+        BufferedReader br = new BufferedReader(
+            new InputStreamReader(inputStream)
+        );
         String line;
         while ((line = br.readLine()) != null) {
             String[] items = line.split("\t");
-            if(items.length > 1 && items.length < 4) {
+            if (items.length > 1 && items.length < 4) {
                 String hugoSymbol = items[0];
                 String codon = items[1];
-//                String[] variants = items.length>2?items[2].split("\\|"):null;
+                //                String[] variants = items.length>2?items[2].split("\\|"):null;
 
-                if(codon != null) {
-                    if(!hotspots.containsKey(hugoSymbol)) {
-                        hotspots.put(hugoSymbol, new HashMap<String, Integer>());
+                if (codon != null) {
+                    if (!hotspots.containsKey(hugoSymbol)) {
+                        hotspots.put(
+                            hugoSymbol,
+                            new HashMap<String, Integer>()
+                        );
                     }
-//                    if(variants != null && variants.length > 0) {
-//                        for(String aa : variants) {
-//                            String [] datum = aa.split(":");
-//                            if(datum.length == 2) {
-//                                hotspots.get(hugoSymbol).put(codon+datum[0], Integer.parseInt(datum[1]));
-//                            }
-//                        }
-//                    }else{
-                        hotspots.get(hugoSymbol).put(codon, 1000000);
-//                    }
+                    //                    if(variants != null && variants.length > 0) {
+                    //                        for(String aa : variants) {
+                    //                            String [] datum = aa.split(":");
+                    //                            if(datum.length == 2) {
+                    //                                hotspots.get(hugoSymbol).put(codon+datum[0], Integer.parseInt(datum[1]));
+                    //                            }
+                    //                        }
+                    //                    }else{
+                    hotspots.get(hugoSymbol).put(codon, 1000000);
+                    //                    }
                 }
             }
         }
@@ -118,4 +127,3 @@ public final class OncokbHotspotUtil {
         return hotspots;
     }
 }
-

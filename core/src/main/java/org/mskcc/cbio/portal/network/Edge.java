@@ -28,7 +28,7 @@
  *
  * You should have received a copy of the GNU Affero General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
-*/
+ */
 
 package org.mskcc.cbio.portal.network;
 
@@ -42,26 +42,31 @@ import java.util.Map;
 public class Edge {
     private boolean directed;
     private String interactionType;
-    private Map<String,Object> attrs;
+    private Map<String, Object> attrs;
     private String sourceID;
     private String targetID;
-    
+
     /**
-     * 
-     * @param interactionType 
+     *
+     * @param interactionType
      */
     public Edge(boolean directed, String interactionType) {
         this.directed = directed;
         this.interactionType = interactionType;
-        attrs = new LinkedHashMap<String,Object>();
+        attrs = new LinkedHashMap<String, Object>();
     }
 
-	public Edge(boolean directed, String interactionType, String sourceID, String targetID) {
+    public Edge(
+        boolean directed,
+        String interactionType,
+        String sourceID,
+        String targetID
+    ) {
         this.directed = directed;
         this.interactionType = interactionType;
         this.sourceID = sourceID;
         this.targetID = targetID;
-        attrs = new LinkedHashMap<String,Object>();
+        attrs = new LinkedHashMap<String, Object>();
     }
 
     public String getInteractionType() {
@@ -73,15 +78,15 @@ public class Edge {
     }
 
     /**
-     * 
+     *
      * @return edge attributes
      */
-    public Map<String,Object> getAttributes() {
+    public Map<String, Object> getAttributes() {
         return attrs;
     }
-    
+
     /**
-     * 
+     *
      * @param attr attribute name
      * @param value attribute value
      */
@@ -96,28 +101,31 @@ public class Edge {
     public void setDirected(boolean directed) {
         this.directed = directed;
     }
-    
+
     public String getSourceID() {
-		return sourceID;
-	}
+        return sourceID;
+    }
 
-	public void setSourceID(String sourceID) {
-		this.sourceID = sourceID;
-	}
+    public void setSourceID(String sourceID) {
+        this.sourceID = sourceID;
+    }
 
-	public String getTargetID() {
-		return targetID;
-	}
+    public String getTargetID() {
+        return targetID;
+    }
 
-	public void setTargetID(String targetID) {
-		this.targetID = targetID;
-	}
-	
-	public boolean hasSameSourceTargetAndType(Edge other)
-	{
-		
-		return  other.getSourceID().equals(this.getSourceID()) && 
-				other.getTargetID().equals(this.getTargetID()) &&
-				other.getAttributes().get("INTERACTION_TYPE").equals(this.getAttributes().get("INTERACTION_TYPE"));
-	}
+    public void setTargetID(String targetID) {
+        this.targetID = targetID;
+    }
+
+    public boolean hasSameSourceTargetAndType(Edge other) {
+        return (
+            other.getSourceID().equals(this.getSourceID()) &&
+            other.getTargetID().equals(this.getTargetID()) &&
+            other
+                .getAttributes()
+                .get("INTERACTION_TYPE")
+                .equals(this.getAttributes().get("INTERACTION_TYPE"))
+        );
+    }
 }

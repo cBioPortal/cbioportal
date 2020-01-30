@@ -28,7 +28,7 @@
  *
  * You should have received a copy of the GNU Affero General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
-*/
+ */
 
 package org.mskcc.cbio.portal.servlet;
 
@@ -56,69 +56,73 @@ import org.mskcc.cbio.portal.model.DrugInteraction;
  */
 public class DrugsJSON extends HttpServlet {
     private static Logger logger = Logger.getLogger(DrugsJSON.class);
-    
+
     public static final String DRUG_IDS = "drug_ids";
-    
-    /** 
+
+    /**
      * Processes requests for both HTTP <code>GET</code> and <code>POST</code> methods.
      * @param request servlet request
      * @param response servlet response
      * @throws ServletException if a servlet-specific error occurs
      * @throws IOException if an I/O error occurs
      */
-    protected void processRequest(HttpServletRequest request, HttpServletResponse response)
-            throws ServletException, IOException {
+    protected void processRequest(
+        HttpServletRequest request,
+        HttpServletResponse response
+    )
+        throws ServletException, IOException {
         JSONArray table = new JSONArray();
 
         String strDrugIds = request.getParameter(DRUG_IDS);
         String[] drugIds = strDrugIds.split("[ ,]+");
-        
+
         List<Drug> drugs = Collections.emptyList();
-        Map<String,List<String>> drugInteractions = Collections.emptyMap();
-        
+        Map<String, List<String>> drugInteractions = Collections.emptyMap();
+
         try {
             DaoDrug daoDrug = DaoDrug.getInstance();
             DaoDrugInteraction daoDrugInteraction = DaoDrugInteraction.getInstance();
             DaoGeneOptimized daoGene = DaoGeneOptimized.getInstance();
-            
+
             drugs = daoDrug.getDrugs(Arrays.asList(drugIds));
-            drugInteractions = new HashMap<String,List<String>>();
+            drugInteractions = new HashMap<String, List<String>>();
             for (DrugInteraction di : daoDrugInteraction.getTargets(drugs)) {
                 List<String> dis = drugInteractions.get(di.getDrug());
-                if (dis==null) {
+                if (dis == null) {
                     dis = new ArrayList<String>();
                     drugInteractions.put(di.getDrug(), dis);
                 }
 
-                String symbolAllCaps = daoGene.getGene(di.getTargetGene()).getHugoGeneSymbolAllCaps();
-                if(!dis.contains(symbolAllCaps))
-                    dis.add(symbolAllCaps);
+                String symbolAllCaps = daoGene
+                    .getGene(di.getTargetGene())
+                    .getHugoGeneSymbolAllCaps();
+                if (!dis.contains(symbolAllCaps)) dis.add(symbolAllCaps);
             }
         } catch (DaoException ex) {
             throw new ServletException(ex);
         }
-        
+
         for (Drug drug : drugs) {
             exportDrug(table, drug, drugInteractions.get(drug.getId()));
         }
 
         response.setContentType("application/json");
-        
+
         PrintWriter out = response.getWriter();
         try {
             JSONValue.writeJSONString(table, out);
-        } finally {            
+        } finally {
             out.close();
         }
     }
-    
-    private void exportDrug(JSONArray table, Drug drug, List<String> targets) 
-            throws ServletException {
+
+    private void exportDrug(JSONArray table, Drug drug, List<String> targets)
+        throws ServletException {
         JSONArray row = new JSONArray();
         row.add(drug.getId());
-        row.add(StringUtils.join(targets,", "));
+        row.add(StringUtils.join(targets, ", "));
         row.add(drug.getName());
-        row.add(drug.getSynonyms().replaceAll(";","; "));
+        row.add(drug.getSynonyms().replaceAll(";", "; "));
         row.add(drug.isApprovedFDA());
         row.add(drug.getDescription());
         row.add(drug.getResource());
@@ -126,26 +130,26 @@ public class DrugsJSON extends HttpServlet {
         row.add(drug.getNumberOfClinicalTrials());
         table.add(row);
     }
-    
-    private Map<String,String> getXrefs(String xref) {
-        Map<String,String> map = new HashMap<String,String>();
-        if (xref==null) {
+
+    private Map<String, String> getXrefs(String xref) {
+        Map<String, String> map = new HashMap<String, String>();
+        if (xref == null) {
             return map;
         }
-        
+
         String[] parts = xref.split(";");
         for (String part : parts) {
-            String[] strs = part.split(":",2);
-            if (strs.length==2) {
+            String[] strs = part.split(":", 2);
+            if (strs.length == 2) {
                 map.put(strs[0], strs[1]);
             }
         }
-        
+
         return map;
     }
-    
+
     // <editor-fold defaultstate="collapsed" desc="HttpServlet methods. Click on the + sign on the left to edit the code.">
-    /** 
+    /**
      * Handles the HTTP <code>GET</code> method.
      * @param request servlet request
      * @param response servlet response
@@ -153,12 +157,15 @@ public class DrugsJSON extends HttpServlet {
      * @throws IOException if an I/O error occurs
      */
     @Override
-    protected void doGet(HttpServletRequest request, HttpServletResponse response)
-            throws ServletException, IOException {
+    protected void doGet(
+        HttpServletRequest request,
+        HttpServletResponse response
+    )
+        throws ServletException, IOException {
         processRequest(request, response);
     }
 
-    /** 
+    /**
      * Handles the HTTP <code>POST</code> method.
      * @param request servlet request
      * @param response servlet response
@@ -166,17 +173,20 @@ public class DrugsJSON extends HttpServlet {
      * @throws IOException if an I/O error occurs
      */
     @Override
-    protected void doPost(HttpServletRequest request, HttpServletResponse response)
-            throws ServletException, IOException {
+    protected void doPost(
+        HttpServletRequest request,
+        HttpServletResponse response
+    )
+        throws ServletException, IOException {
         processRequest(request, response);
     }
 
-    /** 
+    /**
      * Returns a short description of the servlet.
      * @return a String containing servlet description
      */
     @Override
     public String getServletInfo() {
         return "Short description";
-    }// </editor-fold>
+    } // </editor-fold>
 }

@@ -28,9 +28,11 @@
  *
  * You should have received a copy of the GNU Affero General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
-*/
+ */
 
 package org.mskcc.cbio.portal.dao;
+
+import static org.junit.Assert.*;
 
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -40,21 +42,34 @@ import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import org.springframework.test.context.transaction.TransactionConfiguration;
 import org.springframework.transaction.annotation.Transactional;
 
-import static org.junit.Assert.*;
-
 @RunWith(SpringJUnit4ClassRunner.class)
 @ContextConfiguration(locations = { "classpath:/applicationContext-dao.xml" })
-@TransactionConfiguration(transactionManager = "transactionManager", defaultRollback = true)
+@TransactionConfiguration(
+    transactionManager = "transactionManager",
+    defaultRollback = true
+)
 @Transactional
 public class TestDaoClinicalAttribute {
-	
-	@Test
-    public void testDaoClinicalAttribute() throws DaoException {
 
-        int added = DaoClinicalAttributeMeta.addDatum(new ClinicalAttribute("attrId", "some attribute", "test attribute", "nonsense", true, "1", 1));
+    @Test
+    public void testDaoClinicalAttribute() throws DaoException {
+        int added = DaoClinicalAttributeMeta.addDatum(
+            new ClinicalAttribute(
+                "attrId",
+                "some attribute",
+                "test attribute",
+                "nonsense",
+                true,
+                "1",
+                1
+            )
+        );
         assertTrue(added == 1);
 
-        ClinicalAttribute clinicalAttribute = DaoClinicalAttributeMeta.getDatum("attrId", 1);
+        ClinicalAttribute clinicalAttribute = DaoClinicalAttributeMeta.getDatum(
+            "attrId",
+            1
+        );
         assertNotNull(clinicalAttribute);
     }
 }

@@ -28,15 +28,14 @@
  *
  * You should have received a copy of the GNU Affero General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
-*/
+ */
 
 package org.mskcc.cbio.portal.scripts;
 
-import org.mskcc.cbio.portal.util.*;
+import java.io.*;
 import org.mskcc.cbio.portal.dao.*;
 import org.mskcc.cbio.portal.model.CanonicalGene;
-
-import java.io.*;
+import org.mskcc.cbio.portal.util.*;
 
 /**
  * Command Line to Import HPRD Interactions.
@@ -73,10 +72,10 @@ public class ImportPathwayCommonsExtSif {
         while ((line = buf.readLine()) != null) {
             ProgressMonitor.incrementCurValue();
             ConsoleUtil.showProgress();
-            
+
             String parts[] = line.split("\t");
-            
-            if (parts.length<4) {
+
+            if (parts.length < 4) {
                 continue;
             }
 
@@ -85,16 +84,27 @@ public class ImportPathwayCommonsExtSif {
             CanonicalGene geneA = daoGene.getNonAmbiguousGene(geneAId, true);
             if (geneA != null) {
                 String geneBId = parts[2];
-                CanonicalGene geneB = daoGene.getNonAmbiguousGene(geneBId, true);
+                CanonicalGene geneB = daoGene.getNonAmbiguousGene(
+                    geneBId,
+                    true
+                );
 
                 if (geneB != null) {
                     String interactionType = parts[1];
                     String dataSource = parts[3];
-                    String pmids = parts.length<=4 ? null : parts[4].replaceAll(";", ",");
+                    String pmids = parts.length <= 4
+                        ? null
+                        : parts[4].replaceAll(";", ",");
                     String expTypes = null;
 
-                    daoInteraction.addInteraction(geneA, geneB, interactionType, dataSource,
-                            expTypes, pmids);
+                    daoInteraction.addInteraction(
+                        geneA,
+                        geneB,
+                        interactionType,
+                        dataSource,
+                        expTypes,
+                        pmids
+                    );
 
                     numInteractionsSaved++;
                 } else {
@@ -107,11 +117,16 @@ public class ImportPathwayCommonsExtSif {
 
         //  Flush database
         if (MySQLbulkLoader.isBulkLoad()) {
-           MySQLbulkLoader.flushAll();
+            MySQLbulkLoader.flushAll();
         }
-        ProgressMonitor.setCurrentMessage("Total number of interactions saved:  " + numInteractionsSaved);
-        ProgressMonitor.setCurrentMessage("Total number of interactions not saved, due to " +
-                "invalid gene IDs:  " + numInteractionsNotSaved);
+        ProgressMonitor.setCurrentMessage(
+            "Total number of interactions saved:  " + numInteractionsSaved
+        );
+        ProgressMonitor.setCurrentMessage(
+            "Total number of interactions not saved, due to " +
+            "invalid gene IDs:  " +
+            numInteractionsNotSaved
+        );
     }
 
     /**
@@ -124,15 +139,19 @@ public class ImportPathwayCommonsExtSif {
             return;
         }
         ProgressMonitor.setConsoleMode(true);
-		SpringUtil.initDataSource();
+        SpringUtil.initDataSource();
 
         try {
             File sifFile = new File(args[0]);
-            System.out.println("Reading interactions from:  " + sifFile.getAbsolutePath());
+            System.out.println(
+                "Reading interactions from:  " + sifFile.getAbsolutePath()
+            );
             int numLines = FileUtil.getNumLines(sifFile);
             System.out.println(" --> total number of lines:  " + numLines);
             ProgressMonitor.setMaxValue(numLines);
-            ImportPathwayCommonsExtSif parser = new ImportPathwayCommonsExtSif(sifFile);
+            ImportPathwayCommonsExtSif parser = new ImportPathwayCommonsExtSif(
+                sifFile
+            );
             parser.importData();
         } catch (IOException e) {
             e.printStackTrace();

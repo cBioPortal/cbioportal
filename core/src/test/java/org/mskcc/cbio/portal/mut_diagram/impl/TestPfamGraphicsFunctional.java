@@ -28,7 +28,7 @@
  *
  * You should have received a copy of the GNU Affero General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
-*/
+ */
 
 package org.mskcc.cbio.portal.mut_diagram.impl;
 
@@ -36,8 +36,8 @@ import static org.codehaus.jackson.map.DeserializationConfig.Feature.ACCEPT_SING
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 
+import com.google.common.cache.CacheLoader;
 import java.util.List;
-
 import org.codehaus.jackson.map.ObjectMapper;
 import org.junit.Before;
 import org.junit.Test;
@@ -45,8 +45,6 @@ import org.mskcc.cbio.portal.mut_diagram.FeatureService;
 import org.mskcc.cbio.portal.mut_diagram.Sequence;
 import org.mskcc.cbio.portal.mut_diagram.impl.CacheFeatureService;
 import org.mskcc.cbio.portal.mut_diagram.impl.PfamGraphicsCacheLoader;
-
-import com.google.common.cache.CacheLoader;
 
 /**
  * Functional test for CacheFeatureService+PfamGraphicsCacheLoader.
@@ -59,7 +57,9 @@ public class TestPfamGraphicsFunctional {
     public void setUp() {
         ObjectMapper objectMapper = new ObjectMapper();
         objectMapper.configure(ACCEPT_SINGLE_VALUE_AS_ARRAY, true);
-        CacheLoader<String, List<Sequence>> cacheLoader = new PfamGraphicsCacheLoader(objectMapper);
+        CacheLoader<String, List<Sequence>> cacheLoader = new PfamGraphicsCacheLoader(
+            objectMapper
+        );
         featureService = new CacheFeatureService(cacheLoader);
     }
 

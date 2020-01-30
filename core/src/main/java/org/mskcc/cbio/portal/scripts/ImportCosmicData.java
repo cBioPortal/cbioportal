@@ -28,17 +28,15 @@
  *
  * You should have received a copy of the GNU Affero General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
-*/
+ */
 
 package org.mskcc.cbio.portal.scripts;
 
-import org.mskcc.cbio.portal.dao.*;
-import org.mskcc.cbio.portal.util.*;
-import org.mskcc.cbio.portal.model.*;
-
 import java.io.*;
-
 import java.util.regex.*;
+import org.mskcc.cbio.portal.dao.*;
+import org.mskcc.cbio.portal.model.*;
+import org.mskcc.cbio.portal.util.*;
 
 public class ImportCosmicData {
     private File file;
@@ -49,7 +47,9 @@ public class ImportCosmicData {
 
     public void importData() throws IOException, DaoException {
         DaoGeneOptimized daoGeneOptimized = DaoGeneOptimized.getInstance();
-        Pattern p = Pattern.compile("GENE=([^;]+);STRAND=(.);CDS=([^;]+);AA=p\\.([^;]+);CNT=([0-9]+)");
+        Pattern p = Pattern.compile(
+            "GENE=([^;]+);STRAND=(.);CDS=([^;]+);AA=p\\.([^;]+);CNT=([0-9]+)"
+        );
         MySQLbulkLoader.bulkLoadOn();
         FileReader reader = new FileReader(file);
         BufferedReader buf = new BufferedReader(reader);
@@ -58,68 +58,82 @@ public class ImportCosmicData {
             ProgressMonitor.incrementCurValue();
             ConsoleUtil.showProgress();
             if (!line.startsWith("#")) {
-                String parts[] = line.split("\t",-1);
-                if (parts.length<8) {
-                    System.err.println("Wrong line in cosmic: "+line);
+                String parts[] = line.split("\t", -1);
+                if (parts.length < 8) {
+                    System.err.println("Wrong line in cosmic: " + line);
                     continue;
                 }
-                
+
                 String id = parts[2];
                 if (!id.matches("COSM[0-9]+")) {
-                    System.err.println("Wrong cosmic ID: "+id);
+                    System.err.println("Wrong cosmic ID: " + id);
                 } else {
                     id = id.substring(4);
                 }
-                
+
                 Matcher m = p.matcher(parts[7]);
                 if (m.find()) {
                     String gene = m.group(1);
-//                    if (gene.contains("_ENST")) {
-//                        gene = gene.substring(0,gene.indexOf("_ENST"));
-//                    }
-//                    if (gene.contains("_HUMAN")) {
-//                        gene = gene.substring(0,gene.indexOf("_HUMAN"));
-//                    }
-                    CanonicalGene canonicalGene = daoGeneOptimized.getNonAmbiguousGene(gene, true);
-                    if (canonicalGene==null) {
-                        System.err.println("Gene symbol in COSMIC not recognized: "+gene);
+                    //                    if (gene.contains("_ENST")) {
+                    //                        gene = gene.substring(0,gene.indexOf("_ENST"));
+                    //                    }
+                    //                    if (gene.contains("_HUMAN")) {
+                    //                        gene = gene.substring(0,gene.indexOf("_HUMAN"));
+                    //                    }
+                    CanonicalGene canonicalGene = daoGeneOptimized.getNonAmbiguousGene(
+                        gene,
+                        true
+                    );
+                    if (canonicalGene == null) {
+                        System.err.println(
+                            "Gene symbol in COSMIC not recognized: " + gene
+                        );
                         continue;
                     }
-                    
+
                     String aa = m.group(4);
-                    String keyword = MutationKeywordUtils.guessCosmicKeyword(aa);
+                    String keyword = MutationKeywordUtils.guessCosmicKeyword(
+                        aa
+                    );
                     if (keyword == null) {
                         continue;
                     }
-                    
+
                     int count = Integer.parseInt(m.group(5));
-                
-                    CosmicMutationFrequency cmf = new CosmicMutationFrequency(id, 
-                            canonicalGene.getEntrezGeneId(), aa, gene + " " + keyword, count);
-                    
+
+                    CosmicMutationFrequency cmf = new CosmicMutationFrequency(
+                        id,
+                        canonicalGene.getEntrezGeneId(),
+                        aa,
+                        gene + " " + keyword,
+                        count
+                    );
+
                     cmf.setChr(parts[0]);
                     cmf.setStartPosition(Long.parseLong(parts[1]));
                     cmf.setReferenceAllele(parts[3]);
                     cmf.setTumorSeqAllele(parts[4]);
                     cmf.setStrand(m.group(2));
                     cmf.setCds(m.group(3));
-                
+
                     DaoCosmicData.addCosmic(cmf);
                 }
             }
         }
         buf.close();
         if (MySQLbulkLoader.isBulkLoad()) {
-           MySQLbulkLoader.flushAll();
-        }        
+            MySQLbulkLoader.flushAll();
+        }
     }
 
     public static void main(String[] args) throws Exception {
         if (args.length == 0) {
-            System.out.println("command line usage:  importCosmicData.pl <CosmicCodingMuts.vcf>");
+            System.out.println(
+                "command line usage:  importCosmicData.pl <CosmicCodingMuts.vcf>"
+            );
             return;
         }
-		SpringUtil.initDataSource();
+        SpringUtil.initDataSource();
         DaoCosmicData.deleteAllRecords();
         ProgressMonitor.setConsoleMode(true);
 

@@ -28,25 +28,24 @@
  *
  * You should have received a copy of the GNU Affero General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
-*/
+ */
 
 package org.mskcc.cbio.portal.util;
-
-import org.mskcc.cbio.portal.dao.*;
-import org.mskcc.cbio.portal.model.*;
-import org.mskcc.cbio.portal.servlet.WebService;
-import org.mskcc.cbio.portal.web_api.ProtocolException;
 
 import java.util.*;
 import java.util.regex.Pattern;
 import javax.servlet.http.HttpServletRequest;
+import org.mskcc.cbio.portal.dao.*;
+import org.mskcc.cbio.portal.model.*;
+import org.mskcc.cbio.portal.servlet.WebService;
+import org.mskcc.cbio.portal.web_api.ProtocolException;
 
 /**
  *
  * @author jgao
  */
 public final class WebserviceParserUtils {
-    
+
     private WebserviceParserUtils() {}
 
     /**
@@ -56,38 +55,47 @@ public final class WebserviceParserUtils {
      * @throws ProtocolException
      * @throws DaoException
      */
-    public static ArrayList<String> getSampleIds(HttpServletRequest request) throws ProtocolException,
-            DaoException {
+    public static ArrayList<String> getSampleIds(HttpServletRequest request)
+        throws ProtocolException, DaoException {
         String samples = request.getParameter(WebService.CASE_LIST);
         String sampleSetId = request.getParameter(WebService.CASE_SET_ID);
         String sampleIdsKey = request.getParameter(WebService.CASE_IDS_KEY);
 
-        if (sampleIdsKey != null)
-        {
-        	samples = SampleSetUtil.getSampleIds(sampleIdsKey);
+        if (sampleIdsKey != null) {
+            samples = SampleSetUtil.getSampleIds(sampleIdsKey);
         }
 
         ArrayList<String> sampleList = new ArrayList<String>();
         if (sampleSetId != null && !(sampleSetId.equals("-1"))) {
             DaoSampleList dao = new DaoSampleList();
-            SampleList selectedSampleList = dao.getSampleListByStableId(sampleSetId);
+            SampleList selectedSampleList = dao.getSampleListByStableId(
+                sampleSetId
+            );
             if (selectedSampleList == null) {
-                throw new ProtocolException("Invalid " + WebService.CASE_SET_ID + ":  " + sampleSetId + ".");
+                throw new ProtocolException(
+                    "Invalid " +
+                    WebService.CASE_SET_ID +
+                    ":  " +
+                    sampleSetId +
+                    "."
+                );
             }
             sampleList = selectedSampleList.getSampleList();
-        }
-        else if (samples != null) {
+        } else if (samples != null) {
             for (String _sample : samples.split("[\\s,]+")) {
                 _sample = _sample.trim();
                 if (_sample.length() == 0) continue;
                 sampleList.add(_sample);
             }
-        }
-        else if (samples != null) {     // todo: this is a hack, samples is just another word for patients
+        } else if (samples != null) { // todo: this is a hack, samples is just another word for patients
             return new ArrayList(Arrays.asList(samples.split(" ")));
-        }
-        else {
-            throw new ProtocolException(WebService.CASE_SET_ID + " or " + WebService.CASE_LIST + " must be specified.");
+        } else {
+            throw new ProtocolException(
+                WebService.CASE_SET_ID +
+                " or " +
+                WebService.CASE_LIST +
+                " must be specified."
+            );
         }
         return sampleList;
     }
@@ -104,8 +112,7 @@ public final class WebserviceParserUtils {
      * @throws ProtocolException
      */
     public static HashSet<String> getCancerStudyIDs(HttpServletRequest request)
-            throws DaoException, ProtocolException {
-
+        throws DaoException, ProtocolException {
         HashSet<String> cancerStudies = new HashSet<String>();
 
         // a CANCER_STUDY_ID is explicitly provided, as in getGeneticProfiles, getCaseLists, etc.
@@ -115,7 +122,7 @@ public final class WebserviceParserUtils {
             if (DaoCancerStudy.doesCancerStudyExistByStableId(studyIDstring)) {
                 cancerStudies.add(studyIDstring);
             }
-            
+
             return cancerStudies;
         }
 
@@ -123,20 +130,30 @@ public final class WebserviceParserUtils {
         if (null != request.getParameter(WebService.GENETIC_PROFILE_ID)) {
             ArrayList<String> geneticProfileIds = getGeneticProfileId(request);
             for (String geneticProfileId : geneticProfileIds) {
-
                 // that's the point of this code??
-//                if (geneticProfileId == null) {
-//                    return cancerStudies;
-//                }
+                //                if (geneticProfileId == null) {
+                //                    return cancerStudies;
+                //                }
 
-                GeneticProfile aGeneticProfile = DaoGeneticProfile.getGeneticProfileByStableId(geneticProfileId);
-                if (aGeneticProfile != null &&
-                        DaoCancerStudy.doesCancerStudyExistByInternalId(aGeneticProfile.getCancerStudyId())) {
-                    cancerStudies.add(DaoCancerStudy.getCancerStudyByInternalId
-                            (aGeneticProfile.getCancerStudyId()).getCancerStudyStableId());
+                GeneticProfile aGeneticProfile = DaoGeneticProfile.getGeneticProfileByStableId(
+                    geneticProfileId
+                );
+                if (
+                    aGeneticProfile != null &&
+                    DaoCancerStudy.doesCancerStudyExistByInternalId(
+                        aGeneticProfile.getCancerStudyId()
+                    )
+                ) {
+                    cancerStudies.add(
+                        DaoCancerStudy
+                            .getCancerStudyByInternalId(
+                                aGeneticProfile.getCancerStudyId()
+                            )
+                            .getCancerStudyStableId()
+                    );
                 }
             }
-            
+
             return cancerStudies;
         }
 
@@ -144,22 +161,39 @@ public final class WebserviceParserUtils {
         String sampleSetId = request.getParameter(WebService.CASE_SET_ID);
         if (sampleSetId != null) {
             DaoSampleList aDaoSampleList = new DaoSampleList();
-            SampleList aSampleList = aDaoSampleList.getSampleListByStableId(sampleSetId);
-            
-            if (aSampleList != null && DaoCancerStudy.doesCancerStudyExistByInternalId(aSampleList.getCancerStudyId())) {
-                cancerStudies.add(DaoCancerStudy.getCancerStudyByInternalId
-                        (aSampleList.getCancerStudyId()).getCancerStudyStableId());
-            } 
-            
+            SampleList aSampleList = aDaoSampleList.getSampleListByStableId(
+                sampleSetId
+            );
+
+            if (
+                aSampleList != null &&
+                DaoCancerStudy.doesCancerStudyExistByInternalId(
+                    aSampleList.getCancerStudyId()
+                )
+            ) {
+                cancerStudies.add(
+                    DaoCancerStudy
+                        .getCancerStudyByInternalId(
+                            aSampleList.getCancerStudyId()
+                        )
+                        .getCancerStudyStableId()
+                );
+            }
+
             return cancerStudies;
         }
-        
+
         return cancerStudies;
     }
 
     // TODO: rename TO getGeneticProfileId, as the return value is PLURAL
-    public static ArrayList<String> getGeneticProfileId(HttpServletRequest request) throws ProtocolException {
-        String geneticProfileIdStr = request.getParameter(WebService.GENETIC_PROFILE_ID);
+    public static ArrayList<String> getGeneticProfileId(
+        HttpServletRequest request
+    )
+        throws ProtocolException {
+        String geneticProfileIdStr = request.getParameter(
+            WebService.GENETIC_PROFILE_ID
+        );
         //  Split on white space or commas
         Pattern p = Pattern.compile("[,\\s]+");
         String geneticProfileIds[] = p.split(geneticProfileIdStr);
@@ -170,7 +204,6 @@ public final class WebserviceParserUtils {
         }
         return geneticProfileIdList;
     }
-    
 
     /**
      * Get Cancer Study ID in a backward compatible fashion.

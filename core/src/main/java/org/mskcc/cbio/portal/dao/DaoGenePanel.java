@@ -28,7 +28,7 @@
  *
  * You should have received a copy of the GNU Affero General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
-*/
+ */
 
 package org.mskcc.cbio.portal.dao;
 
@@ -69,9 +69,10 @@ public class DaoGenePanel {
         return genePanelMap;
     }
 
-    private static Map<String, GenePanel> extractGenePanelMap(ResultSet rs) throws SQLException {
+    private static Map<String, GenePanel> extractGenePanelMap(ResultSet rs)
+        throws SQLException {
         Map<String, GenePanel> genePanelMap = new HashMap<>();
-        while(rs.next()) {
+        while (rs.next()) {
             GenePanel gp = new GenePanel();
             gp.setInternalId(rs.getInt("INTERNAL_ID"));
             gp.setStableId(rs.getString("STABLE_ID"));
@@ -80,5 +81,4 @@ public class DaoGenePanel {
         }
         return genePanelMap;
     }
-
 }

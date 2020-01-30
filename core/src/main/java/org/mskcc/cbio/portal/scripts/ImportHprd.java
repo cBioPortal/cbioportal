@@ -28,15 +28,14 @@
  *
  * You should have received a copy of the GNU Affero General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
-*/
+ */
 
 package org.mskcc.cbio.portal.scripts;
 
-import org.mskcc.cbio.portal.util.*;
+import java.io.*;
 import org.mskcc.cbio.portal.dao.*;
 import org.mskcc.cbio.portal.model.CanonicalGene;
-
-import java.io.*;
+import org.mskcc.cbio.portal.util.*;
 
 /**
  * Command Line to Import HPRD Interactions.
@@ -83,20 +82,36 @@ public class ImportHprd {
                 String expTypes = parts[6];
                 String pmids = parts[7];
 
-                CanonicalGene geneA = daoGene.getNonAmbiguousGene(geneAId, true);
-                CanonicalGene geneB = daoGene.getNonAmbiguousGene(geneBId, true);
+                CanonicalGene geneA = daoGene.getNonAmbiguousGene(
+                    geneAId,
+                    true
+                );
+                CanonicalGene geneB = daoGene.getNonAmbiguousGene(
+                    geneBId,
+                    true
+                );
 
                 //  Log genes that we cannot identify.
                 if (geneA == null) {
-                    ProgressMonitor.logWarning("Cannot identify gene:  " + geneAId);
+                    ProgressMonitor.logWarning(
+                        "Cannot identify gene:  " + geneAId
+                    );
                 }
                 if (geneB == null) {
-                    ProgressMonitor.logWarning("Cannot identify gene:  " + geneBId);
+                    ProgressMonitor.logWarning(
+                        "Cannot identify gene:  " + geneBId
+                    );
                 }
 
                 if (geneA != null && geneB != null) {
-                    daoInteraction.addInteraction(geneA, geneB, interactionType, dataSource,
-                            expTypes, pmids);
+                    daoInteraction.addInteraction(
+                        geneA,
+                        geneB,
+                        interactionType,
+                        dataSource,
+                        expTypes,
+                        pmids
+                    );
                     numInteractionsSaved++;
                 } else {
                     numInteractionsNotSaved++;
@@ -107,11 +122,16 @@ public class ImportHprd {
 
         //  Flush database
         if (MySQLbulkLoader.isBulkLoad()) {
-           MySQLbulkLoader.flushAll();
+            MySQLbulkLoader.flushAll();
         }
-        ProgressMonitor.setCurrentMessage("Total number of interactions saved:  " + numInteractionsSaved);
-        ProgressMonitor.setCurrentMessage("Total number of interactions not saved, due to " +
-                "invalid gene IDs:  " + numInteractionsNotSaved);
+        ProgressMonitor.setCurrentMessage(
+            "Total number of interactions saved:  " + numInteractionsSaved
+        );
+        ProgressMonitor.setCurrentMessage(
+            "Total number of interactions not saved, due to " +
+            "invalid gene IDs:  " +
+            numInteractionsNotSaved
+        );
     }
 
     /**
@@ -125,11 +145,13 @@ public class ImportHprd {
             return;
         }
         ProgressMonitor.setConsoleModeAndParseShowProgress(args);
-		SpringUtil.initDataSource();
+        SpringUtil.initDataSource();
 
         try {
             File geneFile = new File(args[0]);
-            System.out.println("Reading interactions from:  " + geneFile.getAbsolutePath());
+            System.out.println(
+                "Reading interactions from:  " + geneFile.getAbsolutePath()
+            );
             int numLines = FileUtil.getNumLines(geneFile);
             System.out.println(" --> total number of lines:  " + numLines);
             ProgressMonitor.setMaxValue(numLines);

@@ -28,7 +28,7 @@
  *
  * You should have received a copy of the GNU Affero General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
-*/
+ */
 
 package org.mskcc.cbio.portal.model;
 
@@ -40,7 +40,6 @@ import org.mskcc.cbio.portal.model.GeneticEventImpl.*;
  * @author Ethan Cerami, Arthur Goldberg.
  */
 public interface GeneticEvent {
-
     /**
      * Is the Gene Amplified at the Copy Number Level?
      *
@@ -129,7 +128,7 @@ public interface GeneticEvent {
      * @return RPPA Value.
      */
     public RPPA getRPPAValue();
-    
+
     /**
      * Gets the mutations Value.
      *
@@ -143,9 +142,11 @@ public interface GeneticEvent {
      * @return mutation Type.
      */
     public String getMutationType();
-    
+
     /**
      * Set the event's comparator.
      */
-    public void setGeneticEventComparator( GeneticEventComparator geneticEventComparator );
+    public void setGeneticEventComparator(
+        GeneticEventComparator geneticEventComparator
+    );
 }

@@ -19,11 +19,11 @@
  *
  * You should have received a copy of the GNU Affero General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
-*/
+ */
 
 /*
  * @author Pim van Nierop, pim@thehyve.nl
-*/
+ */
 
 package org.mskcc.cbio.portal.scripts;
 
@@ -35,7 +35,6 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-
 import org.cbioportal.model.EntityType;
 import org.cbioportal.model.meta.GenericAssayMeta;
 import org.junit.Test;
@@ -52,65 +51,101 @@ import org.springframework.transaction.annotation.Transactional;
 
 /*
  * JUnit tests for ImportTreatmentData class.
-*/
+ */
 
 @RunWith(SpringJUnit4ClassRunner.class)
 @ContextConfiguration(locations = { "classpath:/applicationContext-dao.xml" })
-@TransactionConfiguration(transactionManager = "transactionManager", defaultRollback = true)
+@TransactionConfiguration(
+    transactionManager = "transactionManager",
+    defaultRollback = true
+)
 @Transactional
 public class TestImportGenericAssayData {
 
-	@Test
+    @Test
     public void testImportTreatmentData() throws Exception {
-
         ProgressMonitor.setConsoleMode(false);
-        
+
         // Open genesets test data file
-        File file = new File("src/test/resources/treatments/data_treatment_ic50.txt");
-        
+        File file = new File(
+            "src/test/resources/treatments/data_treatment_ic50.txt"
+        );
+
         // import data and test all treatments were added
-        ImportGenericAssayEntity.importData(file, GeneticAlterationType.GENERIC_ASSAY, "NAME,DESCRIPTION,URL");
+        ImportGenericAssayEntity.importData(
+            file,
+            GeneticAlterationType.GENERIC_ASSAY,
+            "NAME,DESCRIPTION,URL"
+        );
         assertEquals(10, getNumRecordsForGenericAssay());
- 
-        // test wether a record can be retrieved via stable id 
-        GenericAssayMeta treatment1 = DaoGenericAssay.getGenericAssayMetaByStableId("Irinotecan");
+
+        // test wether a record can be retrieved via stable id
+        GenericAssayMeta treatment1 = DaoGenericAssay.getGenericAssayMetaByStableId(
+            "Irinotecan"
+        );
         assertNotNull(treatment1);
 
         // Test whether fields were populated correctly
-        assertEquals("Name of Irinotecan", treatment1.getGenericEntityMetaProperties().get("NAME"));
-        assertEquals("Desc of Irinotecan", treatment1.getGenericEntityMetaProperties().get("DESCRIPTION"));
-        assertEquals("Url of Irinotecan", treatment1.getGenericEntityMetaProperties().get("URL"));
+        assertEquals(
+            "Name of Irinotecan",
+            treatment1.getGenericEntityMetaProperties().get("NAME")
+        );
+        assertEquals(
+            "Desc of Irinotecan",
+            treatment1.getGenericEntityMetaProperties().get("DESCRIPTION")
+        );
+        assertEquals(
+            "Url of Irinotecan",
+            treatment1.getGenericEntityMetaProperties().get("URL")
+        );
     }
 
     @Test
     public void testImportGenericAssayData() throws Exception {
-
         ProgressMonitor.setConsoleMode(false);
-        
+
         // Open mutational signature test data file
-        File file = new File("src/test/resources/data_mutational_signature.txt");
-        
+        File file = new File(
+            "src/test/resources/data_mutational_signature.txt"
+        );
+
         // import data and test all mutational signatures were added
-        ImportGenericAssayEntity.importData(file, GeneticAlterationType.GENERIC_ASSAY, "name,description");
+        ImportGenericAssayEntity.importData(
+            file,
+            GeneticAlterationType.GENERIC_ASSAY,
+            "name,description"
+        );
         assertEquals(61, getNumRecordsForGenericAssay());
- 
-        // test wether a record can be retrieved via stable id 
-        GenericAssayMeta genericAssayMeta1 = DaoGenericAssay.getGenericAssayMetaByStableId("mean_1");
+
+        // test wether a record can be retrieved via stable id
+        GenericAssayMeta genericAssayMeta1 = DaoGenericAssay.getGenericAssayMetaByStableId(
+            "mean_1"
+        );
         assertNotNull(genericAssayMeta1);
 
         // Test whether fields were populated correctly
-        assertEquals("mean_1", genericAssayMeta1.getGenericEntityMetaProperties().get("name"));
-        assertEquals("mean_1", genericAssayMeta1.getGenericEntityMetaProperties().get("description"));
+        assertEquals(
+            "mean_1",
+            genericAssayMeta1.getGenericEntityMetaProperties().get("name")
+        );
+        assertEquals(
+            "mean_1",
+            genericAssayMeta1
+                .getGenericEntityMetaProperties()
+                .get("description")
+        );
     }
 
     private int getNumRecordsForGenericAssay() {
-
-		Connection con = null;
-		PreparedStatement stat = null;
-		ResultSet rs = null;
-		try {
+        Connection con = null;
+        PreparedStatement stat = null;
+        ResultSet rs = null;
+        try {
             con = JdbcUtil.getDbConnection(DaoGeneticEntity.class);
-            stat = con.prepareStatement("SELECT COUNT(*) FROM genetic_entity WHERE ENTITY_TYPE = 'GENERIC_ASSAY'");
+            stat =
+                con.prepareStatement(
+                    "SELECT COUNT(*) FROM genetic_entity WHERE ENTITY_TYPE = 'GENERIC_ASSAY'"
+                );
             rs = stat.executeQuery();
             if (rs.next()) {
                 return rs.getInt(1);
@@ -124,5 +159,4 @@ public class TestImportGenericAssayData {
 
         return 0;
     }
-
 }

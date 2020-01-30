@@ -28,14 +28,13 @@
  *
  * You should have received a copy of the GNU Affero General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
-*/
+ */
 
 package org.mskcc.cbio.portal.model;
 
-import org.mskcc.cbio.portal.util.ValueParser;
-
 import java.util.ArrayList;
 import java.util.HashMap;
+import org.mskcc.cbio.portal.util.ValueParser;
 
 /**
  * Encapsulates Genetic Profile Data.
@@ -47,7 +46,7 @@ import java.util.HashMap;
 public class ProfileData {
     private String[][] matrix;
     private GeneticProfile geneticProfile;
-    
+
     // primary store of profile's data:
     private HashMap<String, String> mapFromGeneAndCaseToGeneProperties = new HashMap<String, String>();
     private ArrayList<String> caseIdList = new ArrayList<String>();
@@ -72,8 +71,11 @@ public class ProfileData {
      * @param geneList   List of Genes.
      * @param caseIdList List of Case Ids.
      */
-    public ProfileData(HashMap<String, String> hashMap,
-                       ArrayList<String> geneList, ArrayList<String> caseIdList) {
+    public ProfileData(
+        HashMap<String, String> hashMap,
+        ArrayList<String> geneList,
+        ArrayList<String> caseIdList
+    ) {
         this.mapFromGeneAndCaseToGeneProperties = hashMap;
         this.geneList = geneList;
         this.caseIdList = caseIdList;
@@ -116,11 +118,15 @@ public class ProfileData {
      * @param caseId     Case ID.
      * @return value.
      */
-    public ValueParser getValueParsed(String geneSymbol, String caseId, double zScoreThreshold) {
+    public ValueParser getValueParsed(
+        String geneSymbol,
+        String caseId,
+        double zScoreThreshold
+    ) {
         String key = createKey(geneSymbol, caseId);
         String value = mapFromGeneAndCaseToGeneProperties.get(key);
         if (value != null) {
-            return new ValueParser (value, zScoreThreshold);
+            return new ValueParser(value, zScoreThreshold);
         }
         return null;
     }

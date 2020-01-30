@@ -28,13 +28,11 @@
  *
  * You should have received a copy of the GNU Affero General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
-*/
+ */
 
 package org.mskcc.cbio.portal.util;
 
-
 import java.io.IOException;
-
 import org.junit.Test;
 import org.mskcc.cbio.portal.dao.DaoException;
 import org.mskcc.cbio.portal.model.CancerStudy;
@@ -44,7 +42,6 @@ import org.mskcc.cbio.portal.model.User;
  * JUnit test for AccessControl class.
  */
 public class TestAccessControl {
-
     private CancerStudy publicCancerStudy;
     private CancerStudy privateCancerStudy1;
     private CancerStudy privateCancerStudy2;

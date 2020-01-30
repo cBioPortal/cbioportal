@@ -28,10 +28,9 @@
  *
  * You should have received a copy of the GNU Affero General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
-*/
+ */
 
 package org.mskcc.cbio.portal.dao;
-
 
 import java.io.IOException;
 import java.sql.Connection;
@@ -49,8 +48,7 @@ import org.mskcc.cbio.portal.model.Drug;
 public class DaoDrug {
     private static DaoDrug daoDrug;
 
-    private DaoDrug() {
-    }
+    private DaoDrug() {}
 
     /**
      * Gets Global Singleton Instance.
@@ -68,7 +66,9 @@ public class DaoDrug {
 
     public int addDrug(Drug drug) throws DaoException {
         if (MySQLbulkLoader.isBulkLoad()) {
-            MySQLbulkLoader.getMySQLbulkLoader("drug").insertRecord(
+            MySQLbulkLoader
+                .getMySQLbulkLoader("drug")
+                .insertRecord(
                     drug.getId(),
                     drug.getResource(),
                     drug.getName(),
@@ -80,10 +80,10 @@ public class DaoDrug {
                     drug.isCancerDrug() ? "1" : "0",
                     drug.isNutraceuitical() ? "1" : "0",
                     drug.getNumberOfClinicalTrials().toString()
-                    );
+                );
             return 1;
         }
-            
+
         Connection con = null;
         PreparedStatement pstmt = null;
         ResultSet rs = null;
@@ -91,14 +91,15 @@ public class DaoDrug {
             Drug existingDrug = getDrug(drug.getId());
             if (existingDrug == null) {
                 con = JdbcUtil.getDbConnection(DaoDrug.class);
-                pstmt = con.prepareStatement(
-                        "INSERT INTO drug "
-                                + "(`DRUG_ID`, `DRUG_RESOURCE`, `DRUG_NAME`, "
-                                    + "`DRUG_SYNONYMS`, `DRUG_DESCRIPTION`, `DRUG_XREF`, "
-                                    + "`DRUG_ATC_CODE`, `DRUG_APPROVED`, `DRUG_CANCERDRUG`, "
-                                    + "`DRUG_NUTRACEUTICAL`, `DRUG_NUMOFTRIALS`) "
-                                + "VALUES (?,?,?,?,?,?,?,?,?,?,?)"
-                        );
+                pstmt =
+                    con.prepareStatement(
+                        "INSERT INTO drug " +
+                        "(`DRUG_ID`, `DRUG_RESOURCE`, `DRUG_NAME`, " +
+                        "`DRUG_SYNONYMS`, `DRUG_DESCRIPTION`, `DRUG_XREF`, " +
+                        "`DRUG_ATC_CODE`, `DRUG_APPROVED`, `DRUG_CANCERDRUG`, " +
+                        "`DRUG_NUTRACEUTICAL`, `DRUG_NUMOFTRIALS`) " +
+                        "VALUES (?,?,?,?,?,?,?,?,?,?,?)"
+                    );
                 pstmt.setString(1, drug.getId());
                 pstmt.setString(2, drug.getResource());
                 pstmt.setString(3, drug.getName());
@@ -128,8 +129,8 @@ public class DaoDrug {
         ResultSet rs = null;
         try {
             con = JdbcUtil.getDbConnection(DaoDrug.class);
-            pstmt = con.prepareStatement
-                    ("SELECT * FROM drug WHERE DRUG_ID = ?");
+            pstmt =
+                con.prepareStatement("SELECT * FROM drug WHERE DRUG_ID = ?");
             pstmt.setString(1, drugID);
             rs = pstmt.executeQuery();
             if (rs.next()) {
@@ -144,16 +145,20 @@ public class DaoDrug {
         }
     }
 
-    public ArrayList<Drug> getDrugs(Collection<String> drugIds) throws DaoException {
+    public ArrayList<Drug> getDrugs(Collection<String> drugIds)
+        throws DaoException {
         ArrayList<Drug> drugList = new ArrayList<Drug>();
         Connection con = null;
         PreparedStatement pstmt = null;
         ResultSet rs = null;
         try {
             con = JdbcUtil.getDbConnection(DaoDrug.class);
-            pstmt = con.prepareStatement
-                    ("SELECT * FROM drug WHERE DRUG_ID in ('"
-                    + StringUtils.join(drugIds, "','")+"')");
+            pstmt =
+                con.prepareStatement(
+                    "SELECT * FROM drug WHERE DRUG_ID in ('" +
+                    StringUtils.join(drugIds, "','") +
+                    "')"
+                );
             rs = pstmt.executeQuery();
             while (rs.next()) {
                 drugList.add(extractDrug(rs));
@@ -174,8 +179,7 @@ public class DaoDrug {
         ResultSet rs = null;
         try {
             con = JdbcUtil.getDbConnection(DaoDrug.class);
-            pstmt = con.prepareStatement
-                    ("SELECT * FROM drug");
+            pstmt = con.prepareStatement("SELECT * FROM drug");
             rs = pstmt.executeQuery();
             while (rs.next()) {
                 drugList.add(extractDrug(rs));
@@ -187,7 +191,7 @@ public class DaoDrug {
             JdbcUtil.closeAll(DaoDrug.class, con, pstmt, rs);
         }
     }
-    
+
     private Drug extractDrug(ResultSet rs) throws SQLException {
         Drug drug = new Drug();
         drug.setId(rs.getString("DRUG_ID"));
@@ -211,8 +215,7 @@ public class DaoDrug {
 
         try {
             con = JdbcUtil.getDbConnection(DaoDrug.class);
-            pstmt = con.prepareStatement
-                    ("SELECT COUNT(*) FROM drug");
+            pstmt = con.prepareStatement("SELECT COUNT(*) FROM drug");
             rs = pstmt.executeQuery();
             if (rs.next()) {
                 return rs.getInt(1);
@@ -242,4 +245,3 @@ public class DaoDrug {
         }
     }
 }
-

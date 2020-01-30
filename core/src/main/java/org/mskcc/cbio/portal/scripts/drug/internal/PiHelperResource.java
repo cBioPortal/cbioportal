@@ -28,11 +28,10 @@
  *
  * You should have received a copy of the GNU Affero General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
-*/
+ */
 
 package org.mskcc.cbio.portal.scripts.drug.internal;
 
 import org.mskcc.cbio.portal.scripts.drug.DrugDataResource;
 
-public class PiHelperResource extends DrugDataResource {
-}
+public class PiHelperResource extends DrugDataResource {}

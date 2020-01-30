@@ -28,9 +28,11 @@
  *
  * You should have received a copy of the GNU Affero General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
-*/
+ */
 
 package org.mskcc.cbio.portal.dao;
+
+import static org.junit.Assert.*;
 
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -40,26 +42,48 @@ import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import org.springframework.test.context.transaction.TransactionConfiguration;
 import org.springframework.transaction.annotation.Transactional;
 
-import static org.junit.Assert.*;
-
 @RunWith(SpringJUnit4ClassRunner.class)
 @ContextConfiguration(locations = { "classpath:/applicationContext-dao.xml" })
-@TransactionConfiguration(transactionManager = "transactionManager", defaultRollback = true)
+@TransactionConfiguration(
+    transactionManager = "transactionManager",
+    defaultRollback = true
+)
 @Transactional
 public class TestDaoDrug {
-	
-	@Test
-    public void testDaoDrug() throws DaoException {
 
-		// save bulkload setting before turning off
-		boolean isBulkLoad = MySQLbulkLoader.isBulkLoad();
-		MySQLbulkLoader.bulkLoadOff();
+    @Test
+    public void testDaoDrug() throws DaoException {
+        // save bulkload setting before turning off
+        boolean isBulkLoad = MySQLbulkLoader.isBulkLoad();
+        MySQLbulkLoader.bulkLoadOff();
 
         DaoDrug daoDrug = DaoDrug.getInstance();
-        Drug drug = new Drug("Dummy:1", "MyDrug", "description",
-                "synonym,synonym2", "this is an xref", "DUMMY", "B01AE02", true, true, false, 25);
-        Drug drug2 = new Drug("Dummy:2", "MyDrug2", "description2",
-                "synonym", "this is an xref2", "BLA", "L01XX29", false, false, true, -1);
+        Drug drug = new Drug(
+            "Dummy:1",
+            "MyDrug",
+            "description",
+            "synonym,synonym2",
+            "this is an xref",
+            "DUMMY",
+            "B01AE02",
+            true,
+            true,
+            false,
+            25
+        );
+        Drug drug2 = new Drug(
+            "Dummy:2",
+            "MyDrug2",
+            "description2",
+            "synonym",
+            "this is an xref2",
+            "BLA",
+            "L01XX29",
+            false,
+            false,
+            true,
+            -1
+        );
 
         assertEquals(daoDrug.addDrug(drug), 1);
         assertEquals(daoDrug.addDrug(drug2), 1);
@@ -88,9 +112,9 @@ public class TestDaoDrug {
 
         assertEquals(2, daoDrug.getAllDrugs().size());
 
-		// restore bulk setting
-		if (isBulkLoad) {
-			MySQLbulkLoader.bulkLoadOn();
-		}
+        // restore bulk setting
+        if (isBulkLoad) {
+            MySQLbulkLoader.bulkLoadOn();
+        }
     }
 }

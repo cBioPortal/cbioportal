@@ -28,15 +28,14 @@
  *
  * You should have received a copy of the GNU Affero General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
-*/
+ */
 
 package org.mskcc.cbio.portal.scripts;
 
-import org.mskcc.cbio.portal.dao.*;
-import org.mskcc.cbio.portal.util.*;
-import org.mskcc.cbio.portal.model.GeneticProfile;
-
 import java.io.File;
+import org.mskcc.cbio.portal.dao.*;
+import org.mskcc.cbio.portal.model.GeneticProfile;
+import org.mskcc.cbio.portal.util.*;
 
 /**
  * Command Line to Update Meta Data Associated with a Genomic Profile.
@@ -44,40 +43,56 @@ import java.io.File;
 public class UpdateMetaData {
 
     public static void main(String[] args) throws Exception {
-       String usageLine = "command line usage:  updateMetaData.pl <meta_data_file.txt>";
+        String usageLine =
+            "command line usage:  updateMetaData.pl <meta_data_file.txt>";
         if (args.length < 1) {
             System.err.println(usageLine);
             return;
         }
 
         ProgressMonitor.setConsoleMode(true);
-		SpringUtil.initDataSource();
+        SpringUtil.initDataSource();
         File descriptorFile = new File(args[0]);
 
-        GeneticProfile geneticProfile = GeneticProfileReader.loadGeneticProfileFromMeta(descriptorFile);
+        GeneticProfile geneticProfile = GeneticProfileReader.loadGeneticProfileFromMeta(
+            descriptorFile
+        );
 
-        GeneticProfile existingGeneticProfile = DaoGeneticProfile.getGeneticProfileByStableId
-                (geneticProfile.getStableId());
-        
+        GeneticProfile existingGeneticProfile = DaoGeneticProfile.getGeneticProfileByStableId(
+            geneticProfile.getStableId()
+        );
+
         // TODO: handle null existingGeneticProfile
-        System.out.println ("Found Genetic Profile:  " + existingGeneticProfile.getStableId());
-        System.out.println ("Changing name from:  " + existingGeneticProfile.getProfileName());
-        System.out.println ("                to:  " + geneticProfile.getProfileName());
-        System.out.println ("Changing desc from:  " + existingGeneticProfile.getProfileDescription());
-        System.out.println ("                to:  " + geneticProfile.getProfileDescription());
+        System.out.println(
+            "Found Genetic Profile:  " + existingGeneticProfile.getStableId()
+        );
+        System.out.println(
+            "Changing name from:  " + existingGeneticProfile.getProfileName()
+        );
+        System.out.println(
+            "                to:  " + geneticProfile.getProfileName()
+        );
+        System.out.println(
+            "Changing desc from:  " +
+            existingGeneticProfile.getProfileDescription()
+        );
+        System.out.println(
+            "                to:  " + geneticProfile.getProfileDescription()
+        );
 
-        boolean flag = DaoGeneticProfile.updateNameAndDescription
-                (existingGeneticProfile.getGeneticProfileId(),
-                geneticProfile.getProfileName(), geneticProfile.getProfileDescription());
+        boolean flag = DaoGeneticProfile.updateNameAndDescription(
+            existingGeneticProfile.getGeneticProfileId(),
+            geneticProfile.getProfileName(),
+            geneticProfile.getProfileDescription()
+        );
 
         if (flag) {
-            System.out.println ("Success!");
+            System.out.println("Success!");
         } else {
-            System.out.println ("Update Failed!");
+            System.out.println("Update Failed!");
         }
 
         ConsoleUtil.showWarnings();
         System.err.println("Done.");
     }
-
 }

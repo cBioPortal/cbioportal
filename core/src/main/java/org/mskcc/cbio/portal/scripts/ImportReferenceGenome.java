@@ -17,20 +17,18 @@
 
 package org.mskcc.cbio.portal.scripts;
 
-import org.apache.commons.lang3.StringUtils;
-import org.mskcc.cbio.portal.dao.*;
-import org.mskcc.cbio.portal.model.ReferenceGenome;
-import org.mskcc.cbio.portal.util.*;
-
+import java.io.*;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.util.*;
 import joptsimple.OptionException;
 import joptsimple.OptionParser;
 import joptsimple.OptionSet;
 import joptsimple.OptionSpec;
-
-import java.io.*;
-import java.util.*;
-import java.text.SimpleDateFormat;
-import java.text.ParseException;
+import org.apache.commons.lang3.StringUtils;
+import org.mskcc.cbio.portal.dao.*;
+import org.mskcc.cbio.portal.model.ReferenceGenome;
+import org.mskcc.cbio.portal.util.*;
 
 /**
  * Command Line Tool to Import Reference Genome Used by Molecular Profiling.
@@ -43,8 +41,8 @@ public class ImportReferenceGenome extends ConsoleRunnable {
      * @throws IOException
      * @throws DaoException
      */
-    public static void importData(File referenceGenomeFile) throws IOException, DaoException, ParseException {
-
+    public static void importData(File referenceGenomeFile)
+        throws IOException, DaoException, ParseException {
         try (FileReader reader = new FileReader(referenceGenomeFile)) {
             BufferedReader buf = new BufferedReader(reader);
             String line;
@@ -63,7 +61,11 @@ public class ImportReferenceGenome extends ConsoleRunnable {
                 String url = parts[4];
                 String releaseDate = parts[5];
 
-                ReferenceGenome referenceGenome = new ReferenceGenome(name, species, buildName);
+                ReferenceGenome referenceGenome = new ReferenceGenome(
+                    name,
+                    species,
+                    buildName
+                );
                 if (StringUtils.isNotEmpty(url)) {
                     referenceGenome.setUrl(url);
                 }
@@ -75,7 +77,6 @@ public class ImportReferenceGenome extends ConsoleRunnable {
                 if (StringUtils.isNotEmpty(releaseDate)) {
                     SimpleDateFormat sdf = new SimpleDateFormat("yyyy-mm-dd");
                     referenceGenome.setReleaseDate(sdf.parse(releaseDate));
-
                 }
                 referenceGenomes.add(referenceGenome);
             }
@@ -88,15 +89,25 @@ public class ImportReferenceGenome extends ConsoleRunnable {
      * @param referenceGenomes: reference genomes
      * @throws DaoException
      */
-    private static void addReferenceGenomesToDB(Set<ReferenceGenome> referenceGenomes) throws DaoException {
+    private static void addReferenceGenomesToDB(
+        Set<ReferenceGenome> referenceGenomes
+    )
+        throws DaoException {
         int nrExisting = 0;
-        for (ReferenceGenome refGenome: referenceGenomes) {
-            if (DaoReferenceGenome.getReferenceGenomeByInternalId(refGenome.getReferenceGenomeId()) != null) {
+        for (ReferenceGenome refGenome : referenceGenomes) {
+            if (
+                DaoReferenceGenome.getReferenceGenomeByInternalId(
+                    refGenome.getReferenceGenomeId()
+                ) !=
+                null
+            ) {
                 ProgressMonitor.logWarning("Reference genome updated");
                 try {
                     DaoReferenceGenome.updateReferenceGenome(refGenome);
                 } catch (DaoException e) {
-                    ProgressMonitor.logWarning("No change for " + refGenome.getGenomeName());
+                    ProgressMonitor.logWarning(
+                        "No change for " + refGenome.getGenomeName()
+                    );
                 }
             } else {
                 ProgressMonitor.logWarning("New reference genome added");
@@ -104,7 +115,7 @@ public class ImportReferenceGenome extends ConsoleRunnable {
             }
         }
     }
-    
+
     @Override
     public void run() {
         try {
@@ -114,19 +125,30 @@ public class ImportReferenceGenome extends ConsoleRunnable {
 
             // using a real options parser, helps avoid bugs
             OptionParser parser = new OptionParser();
-            OptionSpec<Void> help = parser.accepts( "help", "print this help info" );
-            parser.accepts( "ref-genome", "reference genome file" ).withRequiredArg().describedAs("reference_genomes.txt").ofType( String.class );
+            OptionSpec<Void> help = parser.accepts(
+                "help",
+                "print this help info"
+            );
+            parser
+                .accepts("ref-genome", "reference genome file")
+                .withRequiredArg()
+                .describedAs("reference_genomes.txt")
+                .ofType(String.class);
 
             String progName = "importReferenceGenomes";
             OptionSet options = null;
             try {
-                options = parser.parse( args );
+                options = parser.parse(args);
             } catch (OptionException e) {
-                throw new UsageException(progName, description, parser,
-                    e.getMessage());
+                throw new UsageException(
+                    progName,
+                    description,
+                    parser,
+                    e.getMessage()
+                );
             }
 
-            if( options.has( help ) ){
+            if (options.has(help)) {
                 throw new UsageException(progName, description, parser);
             }
 
@@ -134,10 +156,15 @@ public class ImportReferenceGenome extends ConsoleRunnable {
 
             File referenceGenomeFile;
             int numLines;
-            if(options.has("ref-genome")) {
-                File referenceFile = new File((String) options.valueOf("ref-genome"));
+            if (options.has("ref-genome")) {
+                File referenceFile = new File(
+                    (String) options.valueOf("ref-genome")
+                );
 
-                System.out.println("Reading reference genome from:  " + referenceFile.getAbsolutePath());
+                System.out.println(
+                    "Reading reference genome from:  " +
+                    referenceFile.getAbsolutePath()
+                );
                 numLines = FileUtil.getNumLines(referenceFile);
                 System.out.println(" --> total number of lines:  " + numLines);
                 ProgressMonitor.setMaxValue(numLines);
@@ -146,13 +173,12 @@ public class ImportReferenceGenome extends ConsoleRunnable {
             }
 
             MySQLbulkLoader.flushAll();
-            System.err.println("Done. Restart tomcat to make sure the cache is replaced with the new data.");
-
-        }
-        catch (RuntimeException e) {
+            System.err.println(
+                "Done. Restart tomcat to make sure the cache is replaced with the new data."
+            );
+        } catch (RuntimeException e) {
             throw e;
-        }
-        catch (Exception e) {
+        } catch (Exception e) {
             throw new RuntimeException(e);
         }
     }
@@ -173,5 +199,4 @@ public class ImportReferenceGenome extends ConsoleRunnable {
         ConsoleRunnable runner = new ImportReferenceGenome(args);
         runner.runInConsole();
     }
-
 }

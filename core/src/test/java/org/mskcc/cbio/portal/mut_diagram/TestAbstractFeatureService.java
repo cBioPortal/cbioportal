@@ -28,7 +28,7 @@
  *
  * You should have received a copy of the GNU Affero General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
-*/
+ */
 
 package org.mskcc.cbio.portal.mut_diagram;
 
@@ -37,7 +37,6 @@ import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.fail;
 
 import java.util.List;
-
 import org.codehaus.jackson.map.ObjectMapper;
 import org.junit.Before;
 import org.junit.Test;
@@ -54,21 +53,22 @@ public class TestAbstractFeatureService {
     public void setUp() {
         ObjectMapper objectMapper = new ObjectMapper();
         objectMapper.configure(ACCEPT_SINGLE_VALUE_AS_ARRAY, true);
-        PfamGraphicsCacheLoader cacheLoader = new PfamGraphicsCacheLoader(objectMapper);
+        PfamGraphicsCacheLoader cacheLoader = new PfamGraphicsCacheLoader(
+            objectMapper
+        );
         featureService = new CacheFeatureService(cacheLoader);
     }
-    
+
     @Test
     public void testCreateFeatureService() {
         assertNotNull(featureService);
     }
-    
+
     @Test
     public void testNullUniProtId() {
         try {
             List<Sequence> sequenceList = featureService.getFeatures(null);
             fail("Null Pointer Exception should have been thrown.");
-        } catch (NullPointerException e) {
-        }
+        } catch (NullPointerException e) {}
     }
 }

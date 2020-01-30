@@ -28,7 +28,7 @@
  *
  * You should have received a copy of the GNU Affero General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
-*/
+ */
 
 package org.mskcc.cbio.portal.network;
 
@@ -41,7 +41,6 @@ import java.util.Map;
 import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-
 import org.apache.commons.lang.StringUtils;
 
 /**
@@ -49,48 +48,47 @@ import org.apache.commons.lang.StringUtils;
  * @author jgao
  */
 public final class NetworkUtils {
+
     private NetworkUtils() {}
-    
+
     public static String getSymbol(Node node) {
-        String strXrefs = (String)node.getAttribute("RELATIONSHIP_XREF");
-        if (strXrefs==null) {
+        String strXrefs = (String) node.getAttribute("RELATIONSHIP_XREF");
+        if (strXrefs == null) {
             return null;
         }
 
-        Pattern pattern = Pattern.compile("HGNC Symbol:([^;]+)|HGNC SYMBOL:([^;]+)|HGNC:([^;]+)");
+        Pattern pattern = Pattern.compile(
+            "HGNC Symbol:([^;]+)|HGNC SYMBOL:([^;]+)|HGNC:([^;]+)"
+        );
         Matcher matcher = pattern.matcher(strXrefs);
-        if (matcher.find()) 
-        {
-        	if (matcher.group(1) != null) {
-        		return matcher.group(1).toUpperCase();
-			}
-        	else if (matcher.group(2) != null) {
-        		return matcher.group(2).toUpperCase();
-			}
-        	else {
-        		return matcher.group(3).toUpperCase();
-			}
-            
+        if (matcher.find()) {
+            if (matcher.group(1) != null) {
+                return matcher.group(1).toUpperCase();
+            } else if (matcher.group(2) != null) {
+                return matcher.group(2).toUpperCase();
+            } else {
+                return matcher.group(3).toUpperCase();
+            }
         } else {
             return null;
         }
     }
-    
+
     /**
-     * 
+     *
      */
     public static interface NodeSelector {
         /**
-         * 
-         * @return 
+         *
+         * @return
          */
         boolean select(Node node);
     }
-    
+
     /**
-     * 
+     *
      * @param net
-     * @param nodeSelector 
+     * @param nodeSelector
      */
     public static void pruneNetwork(Network net, NodeSelector nodeSelector) {
         Set<Node> deleteNodes = new HashSet<Node>();
@@ -99,24 +97,24 @@ public final class NetworkUtils {
                 deleteNodes.add(node);
             }
         }
-        
+
         for (Node node : deleteNodes) {
             net.removeNode(node);
         }
     }
-    
+
     /**
-     * 
-     * @param net 
+     *
+     * @param net
      */
     public static void mergeNodesWithSameSymbol(Network net) {
-        Map<String,Node> mapSymbolNode = new HashMap<String,Node>();
+        Map<String, Node> mapSymbolNode = new HashMap<String, Node>();
         Set<Node> deleteNodes = new HashSet();
         for (Node node : net.getNodes()) {
             String symbol = getSymbol(node);
-            if (symbol!=null) {
+            if (symbol != null) {
                 Node mergeTo = mapSymbolNode.get(symbol);
-                if (mergeTo==null) {
+                if (mergeTo == null) {
                     mapSymbolNode.put(symbol, node);
                 } else {
                     mergeNodes(net, mergeTo, node);
@@ -124,24 +122,24 @@ public final class NetworkUtils {
                 }
             }
         }
-        
+
         for (Node node : deleteNodes) {
             net.removeNode(node);
         }
     }
-    
+
     /**
-     * 
+     *
      * @param net
      * @param mergeTo
-     * @param mergeFrom 
+     * @param mergeFrom
      */
     private static void mergeNodes(Network net, Node mergeTo, Node mergeFrom) {
         // merge attributes
         mergeStringAttributes(mergeTo, mergeFrom, "PARTICIPANT_NAME");
         mergeStringAttributes(mergeTo, mergeFrom, "UNIFICATION_XREF");
         mergeStringAttributes(mergeTo, mergeFrom, "RELATIONSHIP_XREF");
-        
+
         // merge edges
         for (Edge edge : net.getIncidentEdges(mergeFrom)) {
             Node[] ends = net.getNodes(edge);
@@ -150,47 +148,54 @@ public final class NetworkUtils {
             } else {
                 ends[1] = mergeTo;
             }
-            
+
             net.removeEdge(edge);
             //TODO check if this edge already occurs between this nodes
             edge.setSourceID(ends[0].getId());
             edge.setTargetID(ends[1].getId());
-            
-            if (net.findEdgeSet(mergeTo, mergeFrom).size() > 0) 
-            {
-    			for (Iterator iterator = net.findEdgeSet(mergeTo, mergeFrom).iterator(); iterator.hasNext();) 
-    			{
-    				Edge tempEdge = (Edge) iterator.next();
-    				
-    				if(!tempEdge.hasSameSourceTargetAndType(edge))			
-    		            net.addEdge(edge);
-    			}
-    		}
-            
+
+            if (net.findEdgeSet(mergeTo, mergeFrom).size() > 0) {
+                for (
+                    Iterator iterator = net
+                        .findEdgeSet(mergeTo, mergeFrom)
+                        .iterator();
+                    iterator.hasNext();
+                ) {
+                    Edge tempEdge = (Edge) iterator.next();
+
+                    if (!tempEdge.hasSameSourceTargetAndType(edge)) net.addEdge(
+                        edge
+                    );
+                }
+            }
         }
     }
-    
+
     /**
-     * 
+     *
      * @param mergeTo
      * @param mergeFrom
-     * @param attr 
+     * @param attr
      */
-    private static void mergeStringAttributes(Node mergeTo, Node mergeFrom, String attr) {
+    private static void mergeStringAttributes(
+        Node mergeTo,
+        Node mergeFrom,
+        String attr
+    ) {
         Set<String> attrs = new LinkedHashSet<String>();
-        
-        String attr2 = (String)mergeFrom.getAttribute(attr);
-        if (attr2==null) {
+
+        String attr2 = (String) mergeFrom.getAttribute(attr);
+        if (attr2 == null) {
             return;
         }
-        
-        String attr1 = (String)mergeTo.getAttribute(attr);
-        if (attr1!=null) {
+
+        String attr1 = (String) mergeTo.getAttribute(attr);
+        if (attr1 != null) {
             attrs.addAll(Arrays.asList(attr1.split(";")));
         }
-        
+
         if (attrs.addAll(Arrays.asList(attr2.split(";")))) {
-            mergeTo.setAttribute(attr, StringUtils.join(attrs,";"));
+            mergeTo.setAttribute(attr, StringUtils.join(attrs, ";"));
         }
     }
 }

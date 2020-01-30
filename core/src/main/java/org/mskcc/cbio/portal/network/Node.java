@@ -28,7 +28,7 @@
  *
  * You should have received a copy of the GNU Affero General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
-*/
+ */
 
 package org.mskcc.cbio.portal.network;
 
@@ -40,25 +40,25 @@ import java.util.Map;
  * Class for Node
  * @author jj
  */
-public class Node {    
+public class Node {
     private String id;
     private NodeType type = NodeType.UNKNOWN;
-    private Map<String,Object> attrs; // map of attr type to attr value
-    
+    private Map<String, Object> attrs; // map of attr type to attr value
+
     /**
-     * 
+     *
      * @param id cannot be null
      */
     Node(String id) {
-        if (id==null) {
+        if (id == null) {
             throw new IllegalArgumentException("Node ID cannot be null");
         }
         this.id = id;
-        attrs = new LinkedHashMap<String,Object>();
+        attrs = new LinkedHashMap<String, Object>();
     }
 
     /**
-     * 
+     *
      * @return node ID
      */
     public String getId() {
@@ -72,38 +72,38 @@ public class Node {
     public void setType(NodeType type) {
         this.type = type;
     }
-    
+
     /**
-     * 
+     *
      * @return node attributes
      */
-    public Map<String,Object> getAttributes() {
+    public Map<String, Object> getAttributes() {
         return Collections.unmodifiableMap(attrs);
     }
-    
+
     public Object getAttribute(String attrName) {
         return attrs.get(attrName);
     }
-    
+
     /**
-     * 
+     *
      * @param attr attribute name
      * @param value attribute value
      */
     public void setAttribute(String attr, Object value) {
         attrs.put(attr, value);
     }
-    
+
     @Override
     public String toString() {
         return id;
     }
-    
+
     @Override
     public int hashCode() {
         return id.hashCode();
     }
-    
+
     @Override
     public boolean equals(Object obj) {
         return obj instanceof Node && id.equals(((Node) obj).id);

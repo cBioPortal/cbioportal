@@ -28,30 +28,34 @@
  *
  * You should have received a copy of the GNU Affero General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
-*/
+ */
 
 package org.mskcc.cbio.portal.dao;
 
-import org.mskcc.cbio.portal.model.CopyNumberSegmentFile;
-
-import org.apache.commons.lang.StringUtils;
-
 import java.sql.*;
 import java.util.*;
+import org.apache.commons.lang.StringUtils;
+import org.mskcc.cbio.portal.model.CopyNumberSegmentFile;
 
 public final class DaoCopyNumberSegmentFile {
+
     private DaoCopyNumberSegmentFile() {}
-    
-    public static int addCopyNumberSegmentFile(CopyNumberSegmentFile copySegFile) throws DaoException
-    {
+
+    public static int addCopyNumberSegmentFile(
+        CopyNumberSegmentFile copySegFile
+    )
+        throws DaoException {
         Connection con = null;
         PreparedStatement pstmt = null;
         ResultSet rs = null;
         try {
             con = JdbcUtil.getDbConnection(DaoCopyNumberSegmentFile.class);
-            pstmt = con.prepareStatement
-                    ("INSERT INTO copy_number_seg_file (`CANCER_STUDY_ID`, `REFERENCE_GENOME_ID`, `DESCRIPTION`,`FILENAME`)"
-                     + " VALUES (?,?,?,?)", Statement.RETURN_GENERATED_KEYS);
+            pstmt =
+                con.prepareStatement(
+                    "INSERT INTO copy_number_seg_file (`CANCER_STUDY_ID`, `REFERENCE_GENOME_ID`, `DESCRIPTION`,`FILENAME`)" +
+                    " VALUES (?,?,?,?)",
+                    Statement.RETURN_GENERATED_KEYS
+                );
             pstmt.setInt(1, copySegFile.cancerStudyId);
             pstmt.setString(2, copySegFile.referenceGenomeId.toString());
             pstmt.setString(3, copySegFile.description);
@@ -69,37 +73,42 @@ public final class DaoCopyNumberSegmentFile {
         }
     }
 
-    public static CopyNumberSegmentFile getCopyNumberSegmentFile(int cancerStudyId) throws DaoException
-    {
+    public static CopyNumberSegmentFile getCopyNumberSegmentFile(
+        int cancerStudyId
+    )
+        throws DaoException {
         Connection con = null;
         PreparedStatement pstmt = null;
         ResultSet rs = null;
         try {
             con = JdbcUtil.getDbConnection(DaoCopyNumberSegmentFile.class);
-            pstmt = con.prepareStatement("SELECT * from copy_number_seg_file WHERE `CANCER_STUDY_ID` = ?");
+            pstmt =
+                con.prepareStatement(
+                    "SELECT * from copy_number_seg_file WHERE `CANCER_STUDY_ID` = ?"
+                );
             pstmt.setInt(1, cancerStudyId);
             rs = pstmt.executeQuery();
             if (rs.next()) {
                 CopyNumberSegmentFile cnsf = new CopyNumberSegmentFile();
                 cnsf.segFileId = rs.getInt("SEG_FILE_ID");
                 cnsf.cancerStudyId = cancerStudyId;
-                cnsf.referenceGenomeId = CopyNumberSegmentFile.ReferenceGenomeId.valueOf(rs.getString("REFERENCE_GENOME_ID"));
+                cnsf.referenceGenomeId =
+                    CopyNumberSegmentFile.ReferenceGenomeId.valueOf(
+                        rs.getString("REFERENCE_GENOME_ID")
+                    );
                 cnsf.description = rs.getString("DESCRIPTION");
                 cnsf.filename = rs.getString("FILENAME");
                 return cnsf;
             }
             return null;
-        }
-        catch(SQLException e) {
+        } catch (SQLException e) {
             throw new DaoException(e);
-        }
-        finally {
+        } finally {
             JdbcUtil.closeAll(DaoCopyNumberSegmentFile.class, con, pstmt, rs);
         }
     }
 
-    public static void deleteAllRecords() throws DaoException
-    {
+    public static void deleteAllRecords() throws DaoException {
         Connection con = null;
         PreparedStatement pstmt = null;
         ResultSet rs = null;

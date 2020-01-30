@@ -28,15 +28,14 @@
  *
  * You should have received a copy of the GNU Affero General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
-*/
+ */
 
 package org.mskcc.cbio.portal.util;
 
+import java.util.*;
 import org.cbioportal.model.Gene;
 import org.mskcc.cbio.portal.model.*;
 import org.mskcc.cbio.portal.repository.GenePanelRepositoryLegacy;
-
-import java.util.*;
 
 /**
  * Genetic Profile Util Class.
@@ -50,8 +49,10 @@ public class GeneticProfileUtil {
      * @param profileList List of Genetic Profiles.
      * @return GeneticProfile or null.
      */
-    public static GeneticProfile getProfile(String profileId,
-            ArrayList<GeneticProfile> profileList) {
+    public static GeneticProfile getProfile(
+        String profileId,
+        ArrayList<GeneticProfile> profileList
+    ) {
         for (GeneticProfile profile : profileList) {
             if (profile.getStableId().equals(profileId)) {
                 return profile;
@@ -68,13 +69,22 @@ public class GeneticProfileUtil {
      * @param profileList           List of Genetic Profiles.
      * @return true or false.
      */
-    public static boolean outlierExpressionSelected(HashSet<String> geneticProfileIdSet,
-            ArrayList<GeneticProfile> profileList) {
+    public static boolean outlierExpressionSelected(
+        HashSet<String> geneticProfileIdSet,
+        ArrayList<GeneticProfile> profileList
+    ) {
         Iterator<String> geneticProfileIdIterator = geneticProfileIdSet.iterator();
         while (geneticProfileIdIterator.hasNext()) {
             String geneticProfileId = geneticProfileIdIterator.next();
-            GeneticProfile geneticProfile = getProfile (geneticProfileId, profileList);
-            if (geneticProfile != null && geneticProfile.getGeneticAlterationType() == GeneticAlterationType.MRNA_EXPRESSION) {
+            GeneticProfile geneticProfile = getProfile(
+                geneticProfileId,
+                profileList
+            );
+            if (
+                geneticProfile != null &&
+                geneticProfile.getGeneticAlterationType() ==
+                GeneticAlterationType.MRNA_EXPRESSION
+            ) {
                 String profileName = geneticProfile.getProfileName();
                 if (profileName != null) {
                     if (profileName.toLowerCase().contains("outlier")) {
@@ -85,16 +95,23 @@ public class GeneticProfileUtil {
         }
         return false;
     }
-    
+
     public static int getGenePanelId(String panelId) {
-        GenePanelRepositoryLegacy genePanelRepositoryLegacy = (GenePanelRepositoryLegacy)SpringUtil.getApplicationContext().getBean("genePanelRepositoryLegacy");  
-        GenePanel genePanel = genePanelRepositoryLegacy.getGenePanelByStableId(panelId).get(0);
+        GenePanelRepositoryLegacy genePanelRepositoryLegacy = (GenePanelRepositoryLegacy) SpringUtil
+            .getApplicationContext()
+            .getBean("genePanelRepositoryLegacy");
+        GenePanel genePanel = genePanelRepositoryLegacy
+            .getGenePanelByStableId(panelId)
+            .get(0);
         return genePanel.getInternalId();
     }
 
     public static boolean geneInPanel(CanonicalGene gene, GenePanel genePanel) {
-         for (Gene panelGene : genePanel.getGenes()) {
-            if (panelGene.getEntrezGeneId().longValue() == gene.getEntrezGeneId()) {
+        for (Gene panelGene : genePanel.getGenes()) {
+            if (
+                panelGene.getEntrezGeneId().longValue() ==
+                gene.getEntrezGeneId()
+            ) {
                 return true;
             }
         }

@@ -15,6 +15,7 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 package org.mskcc.cbio.portal.model;
+
 /**
  * Class to wrap Reference Genome Gene.
  * @author Kelsey Zhu
@@ -27,7 +28,7 @@ public class ReferenceGenomeGene {
     private int exonicLength;
     private long start;
     private long end;
-    
+
     /**
      *
      * @param entrezGeneId ENTREZ_GENE_ID
@@ -37,19 +38,25 @@ public class ReferenceGenomeGene {
         this.entrezGeneId = entrezGeneId;
         this.referenceGenomeId = referenceGenomeId;
     }
-    
+
     /**
      *
-     * @param referenceGenomeId REFERENCE_GENOME_ID  
+     * @param referenceGenomeId REFERENCE_GENOME_ID
      * @param chr Chromosome name
      * @param cytoband  CYTOBAND of the gene
      * @param exonicLength  EXONIC LENGTH of the gene
-     * @param start start point of the gene 
-     * @param end end point of the gene             
+     * @param start start point of the gene
+     * @param end end point of the gene
      */
-    public ReferenceGenomeGene(long entrezGeneId, int referenceGenomeId, String chr, 
-                               String cytoband, int exonicLength, long start, long end) {
-
+    public ReferenceGenomeGene(
+        long entrezGeneId,
+        int referenceGenomeId,
+        String chr,
+        String cytoband,
+        int exonicLength,
+        long start,
+        long end
+    ) {
         this.referenceGenomeId = referenceGenomeId;
         this.entrezGeneId = entrezGeneId;
         this.chr = chr;
@@ -58,22 +65,21 @@ public class ReferenceGenomeGene {
         this.start = start;
         this.end = end;
     }
-    
 
-    public void setReferenceGenomeId(int referenceGenomeId) { 
-        this.referenceGenomeId = referenceGenomeId; 
+    public void setReferenceGenomeId(int referenceGenomeId) {
+        this.referenceGenomeId = referenceGenomeId;
     }
-    
+
     public int getReferenceGenomeId() {
         return referenceGenomeId;
     }
-    
-    public void setEntrezGeneId(long entrezGeneId) { 
-        this.entrezGeneId = entrezGeneId; 
+
+    public void setEntrezGeneId(long entrezGeneId) {
+        this.entrezGeneId = entrezGeneId;
     }
-    
-    public long getEntrezGeneId() { 
-        return entrezGeneId; 
+
+    public long getEntrezGeneId() {
+        return entrezGeneId;
     }
 
     public String getChr() {
@@ -83,6 +89,7 @@ public class ReferenceGenomeGene {
     public void setChr(String chr) {
         this.chr = chr;
     }
+
     public String getCytoband() {
         return cytoband;
     }
@@ -99,20 +106,20 @@ public class ReferenceGenomeGene {
         this.exonicLength = exonicLength;
     }
 
-    public long getStart() { 
-        return this.start; 
+    public long getStart() {
+        return this.start;
     }
 
-    public void setStart(long start) { 
-        this.start = start; 
+    public void setStart(long start) {
+        this.start = start;
     }
 
-    public long getEnd() { 
-        return this.end = end; 
+    public long getEnd() {
+        return this.end = end;
     }
 
-    public void setEnd(long end) { 
-        this.end = end; 
+    public void setEnd(long end) {
+        this.end = end;
     }
 
     @Override
@@ -122,16 +129,19 @@ public class ReferenceGenomeGene {
         }
 
         ReferenceGenomeGene gene0 = (ReferenceGenomeGene) obj0;
-        if (gene0.entrezGeneId == entrezGeneId && gene0.referenceGenomeId == referenceGenomeId) {
+        if (
+            gene0.entrezGeneId == entrezGeneId &&
+            gene0.referenceGenomeId == referenceGenomeId
+        ) {
             return true;
         }
         return false;
     }
-    
+
     @Override
     public int hashCode() {
         int result = 2;
-        result = 31 * result + (int)this.entrezGeneId;
+        result = 31 * result + (int) this.entrezGeneId;
         result = 31 * result + this.referenceGenomeId;
         return result;
     }

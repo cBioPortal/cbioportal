@@ -28,7 +28,7 @@
  *
  * You should have received a copy of the GNU Affero General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
-*/
+ */
 
 package org.mskcc.cbio.portal.model;
 
@@ -49,10 +49,10 @@ public class SangerCancerGeneAbbreviationMap {
     }
 
     public String getTranslation(String abbreviation) {
-        return abbreviationMap.get(abbreviation); 
+        return abbreviationMap.get(abbreviation);
     }
 
-    private SangerCancerGeneAbbreviationMap () {
+    private SangerCancerGeneAbbreviationMap() {
         initMap();
     }
 
@@ -63,7 +63,10 @@ public class SangerCancerGeneAbbreviationMap {
         abbreviationMap.put("ALCL", "anaplastic large-cell lymphoma");
         abbreviationMap.put("ALL", "acute lymphocytic leukemia");
         abbreviationMap.put("AML", "acute myelogenous leukemia");
-        abbreviationMap.put("AML*", "acute myelogenous leukemia (primarily treatment associated)");
+        abbreviationMap.put(
+            "AML*",
+            "acute myelogenous leukemia (primarily treatment associated)"
+        );
         abbreviationMap.put("APL", "acute promyelocytic leukemia");
         abbreviationMap.put("B-ALL", "B-cell acute lymphocytic leukaemia");
         abbreviationMap.put("B-CLL", "B-cell Lymphocytic leukemia");
@@ -83,10 +86,16 @@ public class SangerCancerGeneAbbreviationMap {
         abbreviationMap.put("JMML", "juvenile myelomonocytic leukemia");
         abbreviationMap.put("L", "leukaemia/lymphoma");
         abbreviationMap.put("M", "mesenchymal");
-        abbreviationMap.put("MALT", "mucosa-associated lymphoid tissue lymphoma");
+        abbreviationMap.put(
+            "MALT",
+            "mucosa-associated lymphoid tissue lymphoma"
+        );
         abbreviationMap.put("MDS", "myelodysplastic syndrome");
         abbreviationMap.put("Mis", "missense");
-        abbreviationMap.put("MLCLS", "mediastinal large cell lymphoma with sclerosis");
+        abbreviationMap.put(
+            "MLCLS",
+            "mediastinal large cell lymphoma with sclerosis"
+        );
         abbreviationMap.put("MM", "multiple myeloma");
         abbreviationMap.put("MPD", "Myeloproliferative disorder");
         abbreviationMap.put("N", "nonsense");
@@ -95,7 +104,10 @@ public class SangerCancerGeneAbbreviationMap {
         abbreviationMap.put("NSCLC", "non small cell lung cancer");
         abbreviationMap.put("O", "other");
         abbreviationMap.put("PMBL", "primary mediastinal B-cell lymphoma");
-        abbreviationMap.put("pre-B All", "pre-B-cell acute lymphoblastic leukaemia");
+        abbreviationMap.put(
+            "pre-B All",
+            "pre-B-cell acute lymphoblastic leukaemia"
+        );
         abbreviationMap.put("Rec", "reccesive");
         abbreviationMap.put("S", "splice site");
         abbreviationMap.put("T", "translocation");

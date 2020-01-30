@@ -28,7 +28,7 @@
  *
  * You should have received a copy of the GNU Affero General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
-*/
+ */
 
 package org.mskcc.cbio.portal.model;
 
@@ -40,16 +40,16 @@ public class DrugInteraction {
     private String experimentTypes;
     private String pubMedIDs;
 
-    public DrugInteraction() {
-    }
+    public DrugInteraction() {}
 
-    public DrugInteraction(String drug,
-                           Integer targetGene,
-                           String interactionType,
-                           String dataSource,
-                           String experimentTypes,
-                           String pubMedIDs) {
-
+    public DrugInteraction(
+        String drug,
+        Integer targetGene,
+        String interactionType,
+        String dataSource,
+        String experimentTypes,
+        String pubMedIDs
+    ) {
         this.drug = drug;
         this.targetGene = targetGene;
         this.interactionType = interactionType;

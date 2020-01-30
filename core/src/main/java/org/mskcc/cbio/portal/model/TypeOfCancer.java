@@ -28,7 +28,7 @@
  *
  * You should have received a copy of the GNU Affero General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
-*/
+ */
 
 package org.mskcc.cbio.portal.model;
 
@@ -41,7 +41,6 @@ package org.mskcc.cbio.portal.model;
  * @author Arman Aksoy
  */
 public class TypeOfCancer {
-
     private String name;
     private String typeOfCancerId;
     private String clinicalTrialKeywords = ""; // Separated by commas

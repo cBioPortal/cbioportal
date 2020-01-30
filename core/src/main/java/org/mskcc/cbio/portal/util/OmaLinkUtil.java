@@ -28,16 +28,16 @@
  *
  * You should have received a copy of the GNU Affero General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
-*/
+ */
 
 package org.mskcc.cbio.portal.util;
 
-import java.net.URL;
 import java.net.MalformedURLException;
-import java.util.HashMap;
+import java.net.URL;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.HashMap;
 
 /**
  * Utility Class for Redirecting to the Online Mutation Assessor (OMA) Web Site.
@@ -51,9 +51,11 @@ import java.util.Collections;
  * @author Ethan Cerami.
  */
 public class OmaLinkUtil {
-    private final static String OMA_REDIRECT_LINK = "omaRedirect.do?";
-    private final static String SITE_PARAM = "site";
-    private final static ArrayList<String> EMPTY_FIELD_MARKERS= new ArrayList<String>(Arrays.asList("", "NA", "[Not Available]"));
+    private static final String OMA_REDIRECT_LINK = "omaRedirect.do?";
+    private static final String SITE_PARAM = "site";
+    private static final ArrayList<String> EMPTY_FIELD_MARKERS = new ArrayList<String>(
+        Arrays.asList("", "NA", "[Not Available]")
+    );
 
     /**
      * Creates a Redirect Link from Portal to OMA.
@@ -68,12 +70,15 @@ public class OmaLinkUtil {
      * @return Redirect Link from Portal to OMA.
      * @throws MalformedURLException Malformed URL Error.
      */
-    public static String createOmaRedirectLink(String omaUrl) throws MalformedURLException {
+    public static String createOmaRedirectLink(String omaUrl)
+        throws MalformedURLException {
         if (EMPTY_FIELD_MARKERS.contains(omaUrl)) {
-            throw new MalformedURLException("value is empty field marker: " + omaUrl);
+            throw new MalformedURLException(
+                "value is empty field marker: " + omaUrl
+            );
         }
         omaUrl = conditionallyPrependHttp(omaUrl);
-        URL url = new URL (omaUrl);
+        URL url = new URL(omaUrl);
         String site = url.getHost();
         String path = url.getPath();
         String query = url.getQuery();
@@ -93,9 +98,12 @@ public class OmaLinkUtil {
      * @return Direct Link to OMA Web Site.
      * @throws MalformedURLException Malformed URL Error.
      */
-    public static String createOmaLink(String omaQueryString) throws MalformedURLException {
+    public static String createOmaLink(String omaQueryString)
+        throws MalformedURLException {
         if (EMPTY_FIELD_MARKERS.contains(omaQueryString)) {
-            throw new MalformedURLException("value is empty field marker: " + omaQueryString);
+            throw new MalformedURLException(
+                "value is empty field marker: " + omaQueryString
+            );
         }
         omaQueryString = removePath(omaQueryString);
         String params[] = omaQueryString.split("&");
@@ -107,7 +115,11 @@ public class OmaLinkUtil {
     }
 
     public static boolean omaLinkIsValid(String omaQueryString) {
-        return !(omaQueryString == null || omaQueryString.length() == 0 || EMPTY_FIELD_MARKERS.contains(omaQueryString));
+        return !(
+            omaQueryString == null ||
+            omaQueryString.length() == 0 ||
+            EMPTY_FIELD_MARKERS.contains(omaQueryString)
+        );
     }
 
     private static String conditionallyPrependHttp(String omaUrl) {
@@ -125,19 +137,21 @@ public class OmaLinkUtil {
         return omaQueryString;
     }
 
-    private static String createQueryString(ArrayList<String> keyList,
-            HashMap<String, String> paramMap) {
+    private static String createQueryString(
+        ArrayList<String> keyList,
+        HashMap<String, String> paramMap
+    ) {
         StringBuffer queryString = new StringBuffer();
-        for (int i=0; i<keyList.size(); i++) {
+        for (int i = 0; i < keyList.size(); i++) {
             String name = keyList.get(i);
-            queryString.append (name + "=" + paramMap.get(name));
+            queryString.append(name + "=" + paramMap.get(name));
             queryString.append(getDelimiter(i, keyList));
         }
         return queryString.toString();
     }
 
     private static String getDelimiter(int i, ArrayList<String> keyList) {
-        if (i < keyList.size() -1) {
+        if (i < keyList.size() - 1) {
             return "&";
         } else {
             return "";
@@ -153,9 +167,11 @@ public class OmaLinkUtil {
         return paramMap;
     }
 
-    private static ArrayList<String> getKeyList(HashMap<String, String> paramMap) {
+    private static ArrayList<String> getKeyList(
+        HashMap<String, String> paramMap
+    ) {
         ArrayList<String> keyList = new ArrayList<String>();
-        for (String currentKey:  paramMap.keySet()) {
+        for (String currentKey : paramMap.keySet()) {
             if (!currentKey.equals(SITE_PARAM)) {
                 keyList.add(currentKey);
             }

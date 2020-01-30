@@ -28,7 +28,7 @@
  *
  * You should have received a copy of the GNU Affero General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
-*/
+ */
 
 package org.mskcc.cbio.portal.model;
 
@@ -44,10 +44,15 @@ public class ProteinArrayInfo {
     private String type;
     private String gene;
     private String residue;
-    private Set<Integer> cancerStudies; 
+    private Set<Integer> cancerStudies;
 
-    public ProteinArrayInfo(String id, String type, String gene, 
-            String residue, Set<Integer> cancerStudies) {
+    public ProteinArrayInfo(
+        String id,
+        String type,
+        String gene,
+        String residue,
+        Set<Integer> cancerStudies
+    ) {
         this.id = id;
         this.type = type;
         this.gene = gene;
@@ -70,7 +75,7 @@ public class ProteinArrayInfo {
     public void setResidue(String residue) {
         this.residue = residue;
     }
-    
+
     public String getId() {
         return id;
     }
@@ -88,7 +93,7 @@ public class ProteinArrayInfo {
     }
 
     public Set<Integer> getCancerStudies() {
-        if (cancerStudies==null) {
+        if (cancerStudies == null) {
             return Collections.emptySet();
         }
         return cancerStudies;

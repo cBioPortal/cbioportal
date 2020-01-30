@@ -28,10 +28,15 @@
  *
  * You should have received a copy of the GNU Affero General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
-*/
+ */
 
 package org.mskcc.cbio.portal.scripts;
 
+import static org.junit.Assert.*;
+
+import java.text.SimpleDateFormat;
+import java.util.ArrayList;
+import java.util.Calendar;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mskcc.cbio.portal.dao.DaoDrug;
@@ -46,39 +51,35 @@ import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import org.springframework.test.context.transaction.TransactionConfiguration;
 import org.springframework.transaction.annotation.Transactional;
 
-import static org.junit.Assert.*;
-
-import java.text.SimpleDateFormat;
-import java.util.ArrayList;
-import java.util.Calendar;
-
 @RunWith(SpringJUnit4ClassRunner.class)
 @ContextConfiguration(locations = { "classpath:/applicationContext-dao.xml" })
-@TransactionConfiguration(transactionManager = "transactionManager", defaultRollback = true)
+@TransactionConfiguration(
+    transactionManager = "transactionManager",
+    defaultRollback = true
+)
 @Transactional
 public class TestPiHelperDrugImporter {
 
-	@Test
-	public void testImporter() throws Exception {
-
+    @Test
+    public void testImporter() throws Exception {
         DaoGeneOptimized daoGeneOptimized = DaoGeneOptimized.getInstance();
         String[] genes = {
-                "F2",
-                "EGFR",
-                "FCGR3B",
-                "C1R",
-                "C1QA",
-                "C1QB",
-                "C1QC",
-                "FCGR3A",
-                "C1S",
-                "FCGR1A",
-                "FCGR2A",
-                "FCGR2B",
-                "FCGR2C",
-                "IL2RA",
-                "IL2RB",
-                "IL2RG"
+            "F2",
+            "EGFR",
+            "FCGR3B",
+            "C1R",
+            "C1QA",
+            "C1QB",
+            "C1QC",
+            "FCGR3A",
+            "C1S",
+            "FCGR1A",
+            "FCGR2A",
+            "FCGR2B",
+            "FCGR2C",
+            "IL2RA",
+            "IL2RB",
+            "IL2RG"
         };
 
         for (String gene : genes) {
@@ -89,16 +90,20 @@ public class TestPiHelperDrugImporter {
         SimpleDateFormat format = new SimpleDateFormat("yyyy-MM");
         String today = format.format(cal.getTime());
         DrugDataResource pihelper = new DrugDataResource(
-                "PiHelper",
-                "https://bitbucket.org/armish/pihelper/downloads/pihelper_data_20121107.zip",
-                today
+            "PiHelper",
+            "https://bitbucket.org/armish/pihelper/downloads/pihelper_data_20121107.zip",
+            today
         );
 
         PiHelperImporter importer = new PiHelperImporter(pihelper);
 
         ClassLoader classLoader = this.getClass().getClassLoader();
-        importer.setDrugInfoFile(classLoader.getResourceAsStream("test_pihelper_drugs.tsv"));
-        importer.setDrugTargetsFile(classLoader.getResourceAsStream("test_pihelper_drugtargets.tsv"));
+        importer.setDrugInfoFile(
+            classLoader.getResourceAsStream("test_pihelper_drugs.tsv")
+        );
+        importer.setDrugTargetsFile(
+            classLoader.getResourceAsStream("test_pihelper_drugtargets.tsv")
+        );
 
         importer.importData();
 
@@ -109,9 +114,12 @@ public class TestPiHelperDrugImporter {
         assertEquals(6, count);
         assertEquals(16, daoDrugInteraction.getCount());
 
-        int[] numOfTargets = {1, 12, 0, 3, 0 ,0};
-        for(int i=0; i < count; i++) {
-            assertEquals(numOfTargets[i], daoDrugInteraction.getTargets(allDrugs.get(i)).size());
+        int[] numOfTargets = { 1, 12, 0, 3, 0, 0 };
+        for (int i = 0; i < count; i++) {
+            assertEquals(
+                numOfTargets[i],
+                daoDrugInteraction.getTargets(allDrugs.get(i)).size()
+            );
         }
 
         Drug cetuximab = daoDrug.getDrug("33612");

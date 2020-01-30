@@ -28,7 +28,7 @@
  *
  * You should have received a copy of the GNU Affero General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
-*/
+ */
 
 package org.mskcc.cbio.portal.mut_diagram;
 
@@ -38,13 +38,11 @@ import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
+import com.google.common.collect.ImmutableList;
 import java.util.Collections;
 import java.util.List;
-
 import org.junit.Test;
 import org.mskcc.cbio.portal.model.ExtendedMutation;
-
-import com.google.common.collect.ImmutableList;
 
 /**
  * Unit test for Pileup.
@@ -72,14 +70,16 @@ public final class TestPileup {
         assertNull(pileup.getLabel());
     }
 
-    @Test(expected=NullPointerException.class)
+    @Test(expected = NullPointerException.class)
     public void testPileupNullMutations() {
         Pileup.pileup(null);
     }
 
     @Test
     public void testPileupEmptyMutations() {
-        List<Pileup> pileups = Pileup.pileup(Collections.<ExtendedMutation>emptyList());
+        List<Pileup> pileups = Pileup.pileup(
+            Collections.<ExtendedMutation>emptyList()
+        );
         assertNotNull(pileups);
         assertTrue(pileups.isEmpty());
     }
@@ -112,7 +112,9 @@ public final class TestPileup {
         mutation1.setSampleId(2);
         mutation2.setSampleId(3);
 
-        List<Pileup> pileups = Pileup.pileup(ImmutableList.of(mutation0, mutation1, mutation2));
+        List<Pileup> pileups = Pileup.pileup(
+            ImmutableList.of(mutation0, mutation1, mutation2)
+        );
         assertNotNull(pileups);
         assertEquals(1, pileups.size());
         Pileup pileup = pileups.get(0);
@@ -134,7 +136,9 @@ public final class TestPileup {
         mutation1.setSampleId(1);
         mutation2.setSampleId(1);
 
-        List<Pileup> pileups = Pileup.pileup(ImmutableList.of(mutation0, mutation1, mutation2));
+        List<Pileup> pileups = Pileup.pileup(
+            ImmutableList.of(mutation0, mutation1, mutation2)
+        );
         assertNotNull(pileups);
         assertEquals(1, pileups.size());
         Pileup pileup = pileups.get(0);
@@ -156,7 +160,9 @@ public final class TestPileup {
         mutation1.setSampleId(2);
         mutation2.setSampleId(3);
 
-        List<Pileup> pileups = Pileup.pileup(ImmutableList.of(mutation0, mutation1, mutation2));
+        List<Pileup> pileups = Pileup.pileup(
+            ImmutableList.of(mutation0, mutation1, mutation2)
+        );
         assertNotNull(pileups);
         assertEquals(1, pileups.size());
         Pileup pileup = pileups.get(0);
@@ -178,7 +184,9 @@ public final class TestPileup {
         mutation1.setSampleId(2);
         mutation2.setSampleId(3);
 
-        List<Pileup> pileups = Pileup.pileup(ImmutableList.of(mutation0, mutation1, mutation2));
+        List<Pileup> pileups = Pileup.pileup(
+            ImmutableList.of(mutation0, mutation1, mutation2)
+        );
         assertNotNull(pileups);
         assertEquals(1, pileups.size());
         Pileup pileup = pileups.get(0);
@@ -201,7 +209,9 @@ public final class TestPileup {
         mutation1.setSampleId(1);
         mutation2.setSampleId(1);
 
-        List<Pileup> pileups = Pileup.pileup(ImmutableList.of(mutation0, mutation1, mutation2));
+        List<Pileup> pileups = Pileup.pileup(
+            ImmutableList.of(mutation0, mutation1, mutation2)
+        );
         assertNotNull(pileups);
         assertEquals(1, pileups.size());
         Pileup pileup = pileups.get(0);
@@ -223,19 +233,19 @@ public final class TestPileup {
         mutation1.setSampleId(2);
         mutation2.setSampleId(3);
 
-        List<Pileup> pileups = Pileup.pileup(ImmutableList.of(mutation0, mutation1, mutation2));
+        List<Pileup> pileups = Pileup.pileup(
+            ImmutableList.of(mutation0, mutation1, mutation2)
+        );
         assertNotNull(pileups);
         assertEquals(2, pileups.size());
         Pileup pileup = pileups.get(0);
         if (pileup.getLocation() == 123) {
             assertEquals("A123K", pileup.getLabel());
             assertEquals(2, pileup.getCount());
-        }
-        else if (pileup.getLocation() == 234) {
+        } else if (pileup.getLocation() == 234) {
             assertEquals("K234G", pileup.getLabel());
             assertEquals(1, pileup.getCount());
-        }
-        else {
+        } else {
             fail();
         }
     }
@@ -252,7 +262,9 @@ public final class TestPileup {
         mutation1.setSampleId(2);
         mutation2.setSampleId(3);
 
-        List<Pileup> pileups = Pileup.pileup(ImmutableList.of(mutation0, mutation1, mutation2));
+        List<Pileup> pileups = Pileup.pileup(
+            ImmutableList.of(mutation0, mutation1, mutation2)
+        );
         assertNotNull(pileups);
         assertEquals(1, pileups.size());
         Pileup pileup = pileups.get(0);
@@ -274,7 +286,9 @@ public final class TestPileup {
         mutation1.setSampleId(2);
         mutation2.setSampleId(3);
 
-        List<Pileup> pileups = Pileup.pileup(ImmutableList.of(mutation0, mutation1, mutation2));
+        List<Pileup> pileups = Pileup.pileup(
+            ImmutableList.of(mutation0, mutation1, mutation2)
+        );
         assertNotNull(pileups);
         assertEquals(1, pileups.size());
         Pileup pileup = pileups.get(0);

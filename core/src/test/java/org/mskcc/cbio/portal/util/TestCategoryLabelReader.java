@@ -28,41 +28,45 @@
  *
  * You should have received a copy of the GNU Affero General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
-*/
+ */
 
 package org.mskcc.cbio.portal.util;
+
+import static org.junit.Assert.*;
 
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.util.Map;
 
-import static org.junit.Assert.*;
+public class TestCategoryLabelReader {
 
-public class TestCategoryLabelReader
-{
-	 /**
+    /**
      * Tests the utility method of the CategoryLabelReader class.
      *
      * @throws java.io.IOException IO Error.
      */
-    public void testCategoryLabelReader() throws IOException
-    {
-		// TBD: change this to use getResourceAsStream()
-        File file = new File("target/test-classes/test_readable_categories.txt");
-        FileInputStream fin = new FileInputStream (file);
+    public void testCategoryLabelReader() throws IOException {
+        // TBD: change this to use getResourceAsStream()
+        File file = new File(
+            "target/test-classes/test_readable_categories.txt"
+        );
+        FileInputStream fin = new FileInputStream(file);
 
-        Map<String, String> labelMap = CategoryLabelReader.readCategoryLabelMap(fin);
-        
+        Map<String, String> labelMap = CategoryLabelReader.readCategoryLabelMap(
+            fin
+        );
+
         // verify the size of the map
         assertEquals(8, labelMap.size());
 
         // verify some of the key,value pairs
-        
-        assertEquals (labelMap.get("TUMORSTAGE"),
-        		"Tumor Stage");
-        
-        assertEquals (labelMap.get("ProgressionFreeStatus"),
-        		"Progression Free Status");
+
+        assertEquals(labelMap.get("TUMORSTAGE"), "Tumor Stage");
+
+        assertEquals(
+            labelMap.get("ProgressionFreeStatus"),
+            "Progression Free Status"
+        );
     }
 }

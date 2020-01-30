@@ -28,23 +28,23 @@
  *
  * You should have received a copy of the GNU Affero General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
-*/
+ */
 
 package org.mskcc.cbio.portal.scripts.drug.internal;
-
-import org.mskcc.cbio.portal.scripts.drug.DrugDataResource;
 
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.zip.GZIPInputStream;
+import org.mskcc.cbio.portal.scripts.drug.DrugDataResource;
 
 public class DrugBankResource extends DrugDataResource {
+
     @Override
     public InputStream getResourceAsStream() throws IOException {
-        if(getResourceURL().toLowerCase().endsWith("gz"))
-            return new GZIPInputStream(super.getResourceAsStream());
-        else
-            return super.getResourceAsStream();
+        if (
+            getResourceURL().toLowerCase().endsWith("gz")
+        ) return new GZIPInputStream(
+            super.getResourceAsStream()
+        ); else return super.getResourceAsStream();
     }
-
 }

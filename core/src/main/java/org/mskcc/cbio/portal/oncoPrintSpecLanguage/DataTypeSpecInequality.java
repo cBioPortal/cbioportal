@@ -28,7 +28,7 @@
  *
  * You should have received a copy of the GNU Affero General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
-*/
+ */
 
 package org.mskcc.cbio.portal.oncoPrintSpecLanguage;
 
@@ -39,17 +39,16 @@ import org.mskcc.cbio.portal.util.HashCodeUtil;
  * Generically record and access a DataTypeSpec inequality, that is a spec that says
  * a value must be greater or less (or >= or <=) a threshold.
  * Subclassed by concrete classes DiscreteDataTypeSpec and ContinuousDataTypeSpec.
- * 
+ *
  * @author Arthur Goldberg
  */
-public abstract class DataTypeSpecInequality extends DataTypeSpec{
-
+public abstract class DataTypeSpecInequality extends DataTypeSpec {
     /**
      * record the range over which a value satisfies the specification.
      * @author Arthur Goldberg
      */
     ComparisonOp comparisonOp;
-    Object threshold; // A level within theGeneticDataType; 
+    Object threshold; // A level within theGeneticDataType;
 
     public ComparisonOp getComparisonOp() {
         return comparisonOp;
@@ -61,28 +60,37 @@ public abstract class DataTypeSpecInequality extends DataTypeSpec{
 
     @Override
     public String toString() {
-        return theGeneticDataType.toString() + comparisonOp.getToken() + 
-            threshold.toString();
+        return (
+            theGeneticDataType.toString() +
+            comparisonOp.getToken() +
+            threshold.toString()
+        );
     }
 
     @Override
-    public boolean equals( Object otherDataTypeSpec) {
-        if( this == otherDataTypeSpec ) return true;
-        if ( !(otherDataTypeSpec instanceof DataTypeSpecInequality) ) return false;
+    public boolean equals(Object otherDataTypeSpec) {
+        if (this == otherDataTypeSpec) return true;
+        if (
+            !(otherDataTypeSpec instanceof DataTypeSpecInequality)
+        ) return false;
         DataTypeSpecInequality that = (DataTypeSpecInequality) otherDataTypeSpec;
-        return
-            EqualsUtil.areEqual(this.theGeneticDataType, that.theGeneticDataType) &&
+        return (
+            EqualsUtil.areEqual(
+                this.theGeneticDataType,
+                that.theGeneticDataType
+            ) &&
             EqualsUtil.areEqual(this.threshold, that.threshold) &&
-            EqualsUtil.areEqual(this.comparisonOp, that.comparisonOp);
+            EqualsUtil.areEqual(this.comparisonOp, that.comparisonOp)
+        );
     }
 
     // TODO: TEST
     @Override
-    public int hashCode( ) {
+    public int hashCode() {
         int result = HashCodeUtil.SEED;
-        result = HashCodeUtil.hash( result, theGeneticDataType );
-        result = HashCodeUtil.hash( result, threshold );
-        result = HashCodeUtil.hash( result, comparisonOp );
+        result = HashCodeUtil.hash(result, theGeneticDataType);
+        result = HashCodeUtil.hash(result, threshold);
+        result = HashCodeUtil.hash(result, comparisonOp);
         return result;
     }
 }

@@ -28,7 +28,7 @@
  *
  * You should have received a copy of the GNU Affero General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
-*/
+ */
 
 package org.mskcc.cbio.portal.model;
 
@@ -41,7 +41,6 @@ import java.util.Set;
  */
 
 public class Geneset implements Serializable {
-    
     private int id;
     private int geneticEntityId;
     private String externalId;
@@ -147,5 +146,4 @@ public class Geneset implements Serializable {
     public void setGenesetGenes(Set<Long> genesetGeneIds) {
         this.genesetGeneIds = genesetGeneIds;
     }
-    
 }

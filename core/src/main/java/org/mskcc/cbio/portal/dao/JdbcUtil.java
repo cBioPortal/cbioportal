@@ -28,7 +28,7 @@
  *
  * You should have received a copy of the GNU Affero General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
-*/
+ */
 
 package org.mskcc.cbio.portal.dao;
 
@@ -47,7 +47,7 @@ import org.mskcc.cbio.portal.util.*;
  */
 public class JdbcUtil {
     private static DataSource dataSource;
-    private static Map<String,Integer> activeConnectionCount = new HashMap<String,Integer>(); // keep track of the number of active connection per class/requester
+    private static Map<String, Integer> activeConnectionCount = new HashMap<String, Integer>(); // keep track of the number of active connection per class/requester
     private static final Log LOG = LogFactory.getLog(JdbcUtil.class);
 
     /**
@@ -87,7 +87,8 @@ public class JdbcUtil {
      * @return Live Connection to Database.
      * @throws java.sql.SQLException Error Connecting to Database.
      */
-    private static Connection getDbConnection(String requester) throws SQLException {
+    private static Connection getDbConnection(String requester)
+        throws SQLException {
         // this method should be syncronized
         // but may slow the speed?
         Connection con;
@@ -99,7 +100,10 @@ public class JdbcUtil {
         }
         if (requester != null) {
             Integer count = activeConnectionCount.get(requester);
-            activeConnectionCount.put(requester, count == null ? 1 : (count + 1));
+            activeConnectionCount.put(
+                requester,
+                count == null ? 1 : (count + 1)
+            );
         }
         return con;
     }
@@ -117,7 +121,7 @@ public class JdbcUtil {
         try {
             if (con != null && !con.isClosed()) {
                 con.close();
-                if (requester!=null) {
+                if (requester != null) {
                     int count = activeConnectionCount.get(requester) - 1;
                     if (count < 0) {
                         // since adding connection is not synchronized, the count may not be the real one
@@ -127,7 +131,12 @@ public class JdbcUtil {
                 }
             }
         } catch (Exception e) {
-            logMessage("Problem Closed a MySQL connection from " + requester + ": " + activeConnectionCount.toString());
+            logMessage(
+                "Problem Closed a MySQL connection from " +
+                requester +
+                ": " +
+                activeConnectionCount.toString()
+            );
             e.printStackTrace();
         }
     }
@@ -138,7 +147,7 @@ public class JdbcUtil {
      * @param rs  ResultSet Object.
      */
     public static void closeAll(ResultSet rs) {
-        JdbcUtil.closeAll((String)null, null, null, rs);
+        JdbcUtil.closeAll((String) null, null, null, rs);
     }
 
     /**
@@ -148,7 +157,12 @@ public class JdbcUtil {
      * @param ps  Prepared Statement Object.
      * @param rs  ResultSet Object.
      */
-    public static void closeAll(Class clazz, Connection con, PreparedStatement ps, ResultSet rs) {
+    public static void closeAll(
+        Class clazz,
+        Connection con,
+        PreparedStatement ps,
+        ResultSet rs
+    ) {
         closeAll(clazz.getName(), con, ps, rs);
     }
 
@@ -158,7 +172,12 @@ public class JdbcUtil {
      * @param con Connection Object.
      * @param rs  ResultSet Object.
      */
-    private static void closeAll(String requester, Connection con, PreparedStatement ps, ResultSet rs) {
+    private static void closeAll(
+        String requester,
+        Connection con,
+        PreparedStatement ps,
+        ResultSet rs
+    ) {
         if (rs != null) {
             try {
                 if (!rs.isClosed()) {
@@ -209,17 +228,20 @@ public class JdbcUtil {
     }
 
     // is it good to put the two methods below here?
-    static Integer readIntegerFromResultSet(ResultSet rs, String column) throws SQLException {
+    static Integer readIntegerFromResultSet(ResultSet rs, String column)
+        throws SQLException {
         int i = rs.getInt(column);
         return rs.wasNull() ? null : i;
     }
 
-    static Long readLongFromResultSet(ResultSet rs, String column) throws SQLException {
+    static Long readLongFromResultSet(ResultSet rs, String column)
+        throws SQLException {
         long l = rs.getInt(column);
         return rs.wasNull() ? null : l;
     }
 
-    static Double readDoubleFromResultSet(ResultSet rs, String column) throws SQLException {
+    static Double readDoubleFromResultSet(ResultSet rs, String column)
+        throws SQLException {
         double d = rs.getDouble(column);
         return rs.wasNull() ? null : d;
     }
@@ -231,7 +253,8 @@ public class JdbcUtil {
      * @param con Database connection
      * @throws SQLException
      */
-    public static void disableForeignKeyCheck(Connection con) throws SQLException {
+    public static void disableForeignKeyCheck(Connection con)
+        throws SQLException {
         Statement stmt = con.createStatement();
         stmt.execute("SET FOREIGN_KEY_CHECKS=0");
         stmt.close();
@@ -242,7 +265,8 @@ public class JdbcUtil {
      * @param con Database Connection
      * @throws SQLException
      */
-    public static void enableForeignKeyCheck(Connection con) throws SQLException {
+    public static void enableForeignKeyCheck(Connection con)
+        throws SQLException {
         Statement stmt = con.createStatement();
         stmt.execute("SET FOREIGN_KEY_CHECKS=1");
         stmt.close();

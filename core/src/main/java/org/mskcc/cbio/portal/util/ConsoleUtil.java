@@ -28,7 +28,7 @@
  *
  * You should have received a copy of the GNU Affero General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
-*/
+ */
 
 package org.mskcc.cbio.portal.util;
 
@@ -36,14 +36,12 @@ import java.io.IOException;
 import java.text.DecimalFormat;
 import java.text.NumberFormat;
 import java.util.List;
-
-import org.mskcc.cbio.portal.dao.MySQLbulkLoader;
-import org.mskcc.cbio.portal.scripts.UsageException;
-
 import joptsimple.OptionException;
 import joptsimple.OptionParser;
 import joptsimple.OptionSet;
 import joptsimple.OptionSpec;
+import org.mskcc.cbio.portal.dao.MySQLbulkLoader;
+import org.mskcc.cbio.portal.scripts.UsageException;
 
 /**
  * Misc Utility Methods for Console Applications.
@@ -66,19 +64,26 @@ public class ConsoleUtil {
             if (currentValue % 100 == 0) {
                 System.err.print(".");
             }
-            
+
             // this writes progress every 1000 records
             if (currentValue % 1000 == 0) {
                 NumberFormat format = DecimalFormat.getPercentInstance();
                 double percent = ProgressMonitor.getPercentComplete();
-                msg = new String("Percentage Complete:  "
-                        + format.format(percent));
+                msg =
+                    new String(
+                        "Percentage Complete:  " + format.format(percent)
+                    );
                 System.err.println("\n" + msg);
                 Runtime rt = Runtime.getRuntime();
                 long used = rt.totalMemory() - rt.freeMemory();
-                System.err.println("Mem Allocated:  " + getMegabytes(rt.totalMemory())
-                        + ", Mem used:  " + getMegabytes(used) + ", Mem free:  "
-                        + getMegabytes(rt.freeMemory()));
+                System.err.println(
+                    "Mem Allocated:  " +
+                    getMegabytes(rt.totalMemory()) +
+                    ", Mem used:  " +
+                    getMegabytes(used) +
+                    ", Mem free:  " +
+                    getMegabytes(rt.freeMemory())
+                );
             }
             if (currentValue == ProgressMonitor.getMaxValue()) {
                 System.err.println();
@@ -96,7 +101,7 @@ public class ConsoleUtil {
             }
         }
     }
-    
+
     /**
      * Prints messages and warnings.
      */
@@ -118,114 +123,176 @@ public class ConsoleUtil {
     }
 
     /**
-     * Default method to be used when Importer class main method expects only 'data' and 'meta' as mandatory options 
+     * Default method to be used when Importer class main method expects only 'data' and 'meta' as mandatory options
      * and an optional 'loadMode' parameter
-     *  
+     *
      * @param args: the same args given to main() method of the tool
      * @param description: short description of the tool (to display in the usage line if necessary)
-     * @param hasLoadMode: set to true to let this method validate whether the command line argument loadMode was given 
-     * 
+     * @param hasLoadMode: set to true to let this method validate whether the command line argument loadMode was given
+     *
      * @return the parsed options
      */
-	public static OptionSet parseStandardDataAndMetaOptions(String[] args, String description, boolean hasLoadMode) {
-		// using a real options parser, helps avoid bugs
-		OptionParser parser = new OptionParser();
-		parser.accepts("noprogress", "this option can be given to avoid the messages regarding memory usage and % complete");
-		OptionSpec<Void> help = parser.accepts( "help", "print this help info" );
-		parser.accepts( "data", "profile data file" ).withRequiredArg().describedAs( "data_file.txt" ).ofType( String.class );
-		parser.accepts( "meta", "meta (description) file" ).withRequiredArg().describedAs( "meta_file.txt" ).ofType( String.class );
-		if (hasLoadMode) {
-			parser.accepts( "loadMode", "direct (per record) or bulk load of data" )
-			          .withRequiredArg().describedAs( "[directLoad|bulkLoad (default)]" ).ofType( String.class );
-		}
-		String progName = "importScript";
-		
-		OptionSet options = null;
-		try {
-			options = parser.parse( args );
-		} catch (OptionException e) {
-			throw new UsageException(progName, description, parser,
-			        e.getMessage());
-		}
-		  
-		if( options.has( help ) ){
-			throw new UsageException(progName, description, parser);
-		}
-		
-		//these extra checks are needed, since withRequiredArg above only indicated that the option 
-		//has a mandatory argument but does not make the option itself mandatory.
-		if(!options.has("data")) {
-			throw new UsageException(progName, description, parser,
-			        "Error: 'data' argument required.");
-		}
-		
-		if(!options.has("meta")) {
-			throw new UsageException(progName, description, parser,
-			        "Error: 'meta' argument required.");
-		}
+    public static OptionSet parseStandardDataAndMetaOptions(
+        String[] args,
+        String description,
+        boolean hasLoadMode
+    ) {
+        // using a real options parser, helps avoid bugs
+        OptionParser parser = new OptionParser();
+        parser.accepts(
+            "noprogress",
+            "this option can be given to avoid the messages regarding memory usage and % complete"
+        );
+        OptionSpec<Void> help = parser.accepts("help", "print this help info");
+        parser
+            .accepts("data", "profile data file")
+            .withRequiredArg()
+            .describedAs("data_file.txt")
+            .ofType(String.class);
+        parser
+            .accepts("meta", "meta (description) file")
+            .withRequiredArg()
+            .describedAs("meta_file.txt")
+            .ofType(String.class);
+        if (hasLoadMode) {
+            parser
+                .accepts("loadMode", "direct (per record) or bulk load of data")
+                .withRequiredArg()
+                .describedAs("[directLoad|bulkLoad (default)]")
+                .ofType(String.class);
+        }
+        String progName = "importScript";
 
-		if (hasLoadMode) {
-			if( options.has( "loadMode" ) ){
-				String actionArg = (String) options.valueOf( "loadMode" );
-				if (actionArg.equalsIgnoreCase("directLoad")) {
-					MySQLbulkLoader.bulkLoadOff();
-				} else if (actionArg.equalsIgnoreCase( "bulkLoad" )) {
-					MySQLbulkLoader.bulkLoadOn();
-				} else {
-					throw new UsageException(progName, description, parser,
-							"Error: unknown loadMode action:  " + actionArg);
-				}
-			}
-			else {
-				throw new UsageException(progName, description, parser,
-						"Error: 'loadMode' argument required.");
-			}
-		}
-		return options;
-	}
-	
-	
+        OptionSet options = null;
+        try {
+            options = parser.parse(args);
+        } catch (OptionException e) {
+            throw new UsageException(
+                progName,
+                description,
+                parser,
+                e.getMessage()
+            );
+        }
+
+        if (options.has(help)) {
+            throw new UsageException(progName, description, parser);
+        }
+
+        //these extra checks are needed, since withRequiredArg above only indicated that the option
+        //has a mandatory argument but does not make the option itself mandatory.
+        if (!options.has("data")) {
+            throw new UsageException(
+                progName,
+                description,
+                parser,
+                "Error: 'data' argument required."
+            );
+        }
+
+        if (!options.has("meta")) {
+            throw new UsageException(
+                progName,
+                description,
+                parser,
+                "Error: 'meta' argument required."
+            );
+        }
+
+        if (hasLoadMode) {
+            if (options.has("loadMode")) {
+                String actionArg = (String) options.valueOf("loadMode");
+                if (actionArg.equalsIgnoreCase("directLoad")) {
+                    MySQLbulkLoader.bulkLoadOff();
+                } else if (actionArg.equalsIgnoreCase("bulkLoad")) {
+                    MySQLbulkLoader.bulkLoadOn();
+                } else {
+                    throw new UsageException(
+                        progName,
+                        description,
+                        parser,
+                        "Error: unknown loadMode action:  " + actionArg
+                    );
+                }
+            } else {
+                throw new UsageException(
+                    progName,
+                    description,
+                    parser,
+                    "Error: 'loadMode' argument required."
+                );
+            }
+        }
+        return options;
+    }
+
     /**
-     * Default method to be used when Importer class main method expects only 'data' and 'study' as mandatory options 
-     *  
+     * Default method to be used when Importer class main method expects only 'data' and 'study' as mandatory options
+     *
      * @param args: the same args given to main() method of the tool
      * @param description: short description of the tool (to display in the usage line if necessary)
-     * 
+     *
      * @return the parsed options
      */
-	public static OptionSet parseStandardDataAndStudyOptions(String[] args, String description) {
-		// using a real options parser, helps avoid bugs
-		OptionParser parser = new OptionParser();
-		parser.accepts("noprogress", "this option can be given to avoid the messages regarding memory usage and % complete");
-		OptionSpec<Void> help = parser.accepts( "help", "print this help info" );
-		parser.accepts( "data", "profile data file" ).withRequiredArg().describedAs( "data_file.txt" ).ofType( String.class );
-		parser.accepts( "study", "cancer study identifier" ).withRequiredArg().describedAs( "e.g. brca_tcga" ).ofType( String.class );
+    public static OptionSet parseStandardDataAndStudyOptions(
+        String[] args,
+        String description
+    ) {
+        // using a real options parser, helps avoid bugs
+        OptionParser parser = new OptionParser();
+        parser.accepts(
+            "noprogress",
+            "this option can be given to avoid the messages regarding memory usage and % complete"
+        );
+        OptionSpec<Void> help = parser.accepts("help", "print this help info");
+        parser
+            .accepts("data", "profile data file")
+            .withRequiredArg()
+            .describedAs("data_file.txt")
+            .ofType(String.class);
+        parser
+            .accepts("study", "cancer study identifier")
+            .withRequiredArg()
+            .describedAs("e.g. brca_tcga")
+            .ofType(String.class);
 
         String progName = "importScript";
 
-		OptionSet options = null;
-		try {
-			options = parser.parse( args );
-		} catch (OptionException e) {
-            throw new UsageException(progName, description, parser,
-                    e.getMessage());
-		}
+        OptionSet options = null;
+        try {
+            options = parser.parse(args);
+        } catch (OptionException e) {
+            throw new UsageException(
+                progName,
+                description,
+                parser,
+                e.getMessage()
+            );
+        }
 
-		if( options.has( help ) ){
-		    throw new UsageException(progName, description, parser);
-		}
-		//these extra checks are needed, since withRequiredArg above only indicated that the option 
-		//has a mandatory argument but does not make the option itself mandatory.
-		if(!options.has("data")) {
-            throw new UsageException(progName, description, parser,
-                    "Error: 'data' argument required.");
-		}
+        if (options.has(help)) {
+            throw new UsageException(progName, description, parser);
+        }
+        //these extra checks are needed, since withRequiredArg above only indicated that the option
+        //has a mandatory argument but does not make the option itself mandatory.
+        if (!options.has("data")) {
+            throw new UsageException(
+                progName,
+                description,
+                parser,
+                "Error: 'data' argument required."
+            );
+        }
 
-		if(!options.has("study")) {
-            throw new UsageException(progName, description, parser,
-                    "Error: 'study' argument required.");
-		}
+        if (!options.has("study")) {
+            throw new UsageException(
+                progName,
+                description,
+                parser,
+                "Error: 'study' argument required."
+            );
+        }
 
-		return options;
-	}
+        return options;
+    }
 }

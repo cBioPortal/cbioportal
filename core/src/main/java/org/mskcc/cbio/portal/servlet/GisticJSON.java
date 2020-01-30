@@ -28,10 +28,19 @@
  *
  * You should have received a copy of the GNU Affero General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
-*/
+ */
 
 package org.mskcc.cbio.portal.servlet;
 
+import java.io.IOException;
+import java.io.PrintWriter;
+import java.util.*;
+import javax.servlet.ServletException;
+import javax.servlet.http.HttpServlet;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.json.simple.JSONArray;
 import org.json.simple.JSONValue;
 import org.mskcc.cbio.portal.dao.DaoCancerStudy;
@@ -44,17 +53,6 @@ import org.mskcc.cbio.portal.util.AccessControl;
 import org.mskcc.cbio.portal.util.SpringUtil;
 import org.owasp.validator.html.PolicyException;
 
-import javax.servlet.ServletException;
-import javax.servlet.http.HttpServlet;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-import java.io.IOException;
-import java.io.PrintWriter;
-import java.util.*;
-
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
-
 /**
  *
  * JSON servlet for fetching Gistic data.
@@ -64,7 +62,7 @@ import org.apache.commons.logging.LogFactory;
 public class GisticJSON extends HttpServlet {
     public static final String SELECTED_CANCER_STUDY = "selected_cancer_type";
     private static Log log = LogFactory.getLog(GisticJSON.class);
-    
+
     // class which process access control to cancer studies
     private AccessControl accessControl;
 
@@ -107,7 +105,7 @@ public class GisticJSON extends HttpServlet {
                 nonSangerGenes.add(g.getHugoGeneSymbolAllCaps());
 
                 if (log.isDebugEnabled()) {
-                    log.debug(e + " :gene <" + g +">");
+                    log.debug(e + " :gene <" + g + ">");
                 }
             }
         }
@@ -116,7 +114,7 @@ public class GisticJSON extends HttpServlet {
         map.put("nonSangerGenes", nonSangerGenes);
         map.put("qval", gistic.getqValue());
         map.put("ampdel", gistic.getAmp());
-        
+
         return map;
     }
 
@@ -129,22 +127,39 @@ public class GisticJSON extends HttpServlet {
      */
     @Override
     public void doGet(HttpServletRequest request, HttpServletResponse response)
-            throws ServletException, IOException {
-
+        throws ServletException, IOException {
         String cancer_study_id = request.getParameter(SELECTED_CANCER_STUDY);
         // Collections.sort(gistics, new sortMutsigByRank());
         JSONArray gisticJSONArray = new JSONArray();
         try {
-            CancerStudy cancerStudy = DaoCancerStudy.getCancerStudyByStableId(cancer_study_id);
-            if(cancerStudy != null && accessControl.isAccessibleCancerStudy(cancerStudy.getCancerStudyStableId()).size() == 1) {
-            	if (log.isDebugEnabled()) {
-                    log.debug("cancerStudyId passed to GisticJSON: " + cancerStudy.getInternalId()) ;
+            CancerStudy cancerStudy = DaoCancerStudy.getCancerStudyByStableId(
+                cancer_study_id
+            );
+            if (
+                cancerStudy != null &&
+                accessControl
+                    .isAccessibleCancerStudy(
+                        cancerStudy.getCancerStudyStableId()
+                    )
+                    .size() ==
+                1
+            ) {
+                if (log.isDebugEnabled()) {
+                    log.debug(
+                        "cancerStudyId passed to GisticJSON: " +
+                        cancerStudy.getInternalId()
+                    );
                 }
 
-                ArrayList<Gistic> gistics = DaoGistic.getAllGisticByCancerStudyId(cancerStudy.getInternalId());
+                ArrayList<Gistic> gistics = DaoGistic.getAllGisticByCancerStudyId(
+                    cancerStudy.getInternalId()
+                );
 
                 if (log.isDebugEnabled()) {
-                    log.debug("list of gistics associated with cancerStudy: " + gistics) ;
+                    log.debug(
+                        "list of gistics associated with cancerStudy: " +
+                        gistics
+                    );
                 }
 
                 for (Gistic gistic : gistics) {
@@ -155,7 +170,7 @@ public class GisticJSON extends HttpServlet {
                     }
                 }
             }
-            
+
             response.setContentType("application/json");
             PrintWriter out = response.getWriter();
 
@@ -177,9 +192,11 @@ public class GisticJSON extends HttpServlet {
      * @throws ServletException
      * @throws IOException
      */
-    public void doPost(HttpServletRequest request, HttpServletResponse response)
-            throws ServletException, IOException
-    {
+    public void doPost(
+        HttpServletRequest request,
+        HttpServletResponse response
+    )
+        throws ServletException, IOException {
         doGet(request, response);
     }
 }

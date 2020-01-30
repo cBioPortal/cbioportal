@@ -28,7 +28,7 @@
  *
  * You should have received a copy of the GNU Affero General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
-*/
+ */
 
 package org.mskcc.cbio.portal.scripts;
 
@@ -37,7 +37,7 @@ import org.mskcc.cbio.portal.util.DatabaseProperties;
 
 /**
  * Command Line Tool to Output Basic Database Stats, including Host Name, DB Name, and User Name / Password.
- * 
+ *
  */
 public class StatDatabase {
 
@@ -51,9 +51,9 @@ public class StatDatabase {
         String userName = dbProperties.getDbUser();
         String password = dbProperties.getDbPassword();
         String database = dbProperties.getDbName();
-        System.out.println ("Host:  " + host);
-        System.out.println ("User Name:  " + userName);
-        System.out.println ("Password:  " + password);
-        System.out.println ("Database:  " + database);
+        System.out.println("Host:  " + host);
+        System.out.println("User Name:  " + userName);
+        System.out.println("Password:  " + password);
+        System.out.println("Database:  " + database);
     }
 }

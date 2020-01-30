@@ -28,7 +28,7 @@
  *
  * You should have received a copy of the GNU Affero General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
-*/
+ */
 
 package org.mskcc.cbio.maf;
 
@@ -42,8 +42,7 @@ import java.util.HashMap;
  *
  * @author Selcuk Onur Sumer
  */
-public class FusionFileUtil
-{
+public class FusionFileUtil {
     public static final String FUSION = "Fusion";
     public static final String DNA_SUPPORT = "DNA_support";
     public static final String RNA_SUPPORT = "RNA_support";
@@ -62,8 +61,7 @@ public class FusionFileUtil
      *
      * @param headerLine    Header Line.
      */
-    public FusionFileUtil(String headerLine)
-    {
+    public FusionFileUtil(String headerLine) {
         // init column index map
         this.columnIndexMap = new HashMap<String, Integer>();
 
@@ -74,44 +72,90 @@ public class FusionFileUtil
         this.headerCount = parts.length;
 
         // find required header indices
-        for (int i=0; i<parts.length; i++)
-        {
-                String header = parts[i];
+        for (int i = 0; i < parts.length; i++) {
+            String header = parts[i];
 
-                // put the index to the map
-                this.columnIndexMap.put(header.toLowerCase(), i);
+            // put the index to the map
+            this.columnIndexMap.put(header.toLowerCase(), i);
         }
     }
 
-    public FusionRecord parseRecord(String line)
-    {
+    public FusionRecord parseRecord(String line) {
         String parts[] = line.split("\t", -1);
 
         FusionRecord record = new FusionRecord();
 
-        record.setHugoGeneSymbol(TabDelimitedFileUtil.getPartStringAllowEmpty(this.getColumnIndex(MafUtil.HUGO_SYMBOL), parts));
-        record.setEntrezGeneId(TabDelimitedFileUtil.getPartLong(this.getColumnIndex(MafUtil.ENTREZ_GENE_ID), parts));
-        record.setCenter(TabDelimitedFileUtil.getPartString(this.getColumnIndex(MafUtil.CENTER), parts));
-        record.setTumorSampleID(TabDelimitedFileUtil.getPartString(this.getColumnIndex(MafUtil.TUMOR_SAMPLE_BARCODE), parts));
-        record.setFusion(TabDelimitedFileUtil.getPartString(this.getColumnIndex(FUSION), parts));
-        record.setDnaSupport(TabDelimitedFileUtil.getPartString(this.getColumnIndex(DNA_SUPPORT), parts));
-        record.setRnaSupport(TabDelimitedFileUtil.getPartString(this.getColumnIndex(RNA_SUPPORT), parts));
-        record.setMethod(TabDelimitedFileUtil.getPartString(this.getColumnIndex(METHOD), parts));
-        record.setFrame(TabDelimitedFileUtil.getPartString(this.getColumnIndex(FRAME), parts));
-        record.setFusionStatus(TabDelimitedFileUtil.getPartString(this.getColumnIndex(FUSION_STATUS), parts));
+        record.setHugoGeneSymbol(
+            TabDelimitedFileUtil.getPartStringAllowEmpty(
+                this.getColumnIndex(MafUtil.HUGO_SYMBOL),
+                parts
+            )
+        );
+        record.setEntrezGeneId(
+            TabDelimitedFileUtil.getPartLong(
+                this.getColumnIndex(MafUtil.ENTREZ_GENE_ID),
+                parts
+            )
+        );
+        record.setCenter(
+            TabDelimitedFileUtil.getPartString(
+                this.getColumnIndex(MafUtil.CENTER),
+                parts
+            )
+        );
+        record.setTumorSampleID(
+            TabDelimitedFileUtil.getPartString(
+                this.getColumnIndex(MafUtil.TUMOR_SAMPLE_BARCODE),
+                parts
+            )
+        );
+        record.setFusion(
+            TabDelimitedFileUtil.getPartString(
+                this.getColumnIndex(FUSION),
+                parts
+            )
+        );
+        record.setDnaSupport(
+            TabDelimitedFileUtil.getPartString(
+                this.getColumnIndex(DNA_SUPPORT),
+                parts
+            )
+        );
+        record.setRnaSupport(
+            TabDelimitedFileUtil.getPartString(
+                this.getColumnIndex(RNA_SUPPORT),
+                parts
+            )
+        );
+        record.setMethod(
+            TabDelimitedFileUtil.getPartString(
+                this.getColumnIndex(METHOD),
+                parts
+            )
+        );
+        record.setFrame(
+            TabDelimitedFileUtil.getPartString(
+                this.getColumnIndex(FRAME),
+                parts
+            )
+        );
+        record.setFusionStatus(
+            TabDelimitedFileUtil.getPartString(
+                this.getColumnIndex(FUSION_STATUS),
+                parts
+            )
+        );
 
         return record;
     }
 
     // TODO this is a duplicate (MafUtil has the same method)
     // try to factor out it into TabDelimitedFileUtil
-    public int getColumnIndex(String colName)
-    {
+    public int getColumnIndex(String colName) {
         Integer index = this.columnIndexMap.get(colName.toLowerCase());
 
-        if (index == null)
-        {
-                index = -1;
+        if (index == null) {
+            index = -1;
         }
 
         return index;

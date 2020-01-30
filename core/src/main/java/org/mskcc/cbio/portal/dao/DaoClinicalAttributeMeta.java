@@ -28,17 +28,15 @@
  *
  * You should have received a copy of the GNU Affero General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
-*/
+ */
 
 package org.mskcc.cbio.portal.dao;
 
-import org.mskcc.cbio.portal.model.*;
-
 import com.google.inject.internal.Join;
-import org.apache.commons.lang.StringUtils;
-
 import java.sql.*;
 import java.util.*;
+import org.apache.commons.lang.StringUtils;
+import org.mskcc.cbio.portal.model.*;
 import org.mskcc.cbio.portal.util.InternalIdUtil;
 
 /**
@@ -48,22 +46,24 @@ import org.mskcc.cbio.portal.util.InternalIdUtil;
  */
 public class DaoClinicalAttributeMeta {
 
-    public static int addDatum(ClinicalAttribute attr)  throws DaoException {
+    public static int addDatum(ClinicalAttribute attr) throws DaoException {
         Connection con = null;
         PreparedStatement pstmt = null;
         ResultSet rs = null;
         try {
             con = JdbcUtil.getDbConnection(DaoClinicalAttributeMeta.class);
-            pstmt = con.prepareStatement
-                    ("INSERT INTO clinical_attribute_meta(" +
-                            "`ATTR_ID`," +
-                            "`DISPLAY_NAME`," +
-                            "`DESCRIPTION`," +
-                            "`DATATYPE`," +
-                            "`PATIENT_ATTRIBUTE`," +
-                            "`PRIORITY`," +
-                            "`CANCER_STUDY_ID`)" +
-                            " VALUES(?,?,?,?,?,?,?)");
+            pstmt =
+                con.prepareStatement(
+                    "INSERT INTO clinical_attribute_meta(" +
+                    "`ATTR_ID`," +
+                    "`DISPLAY_NAME`," +
+                    "`DESCRIPTION`," +
+                    "`DATATYPE`," +
+                    "`PATIENT_ATTRIBUTE`," +
+                    "`PRIORITY`," +
+                    "`CANCER_STUDY_ID`)" +
+                    " VALUES(?,?,?,?,?,?,?)"
+                );
             pstmt.setString(1, attr.getAttrId());
             pstmt.setString(2, attr.getDisplayName());
             pstmt.setString(3, attr.getDescription());
@@ -80,26 +80,39 @@ public class DaoClinicalAttributeMeta {
     }
 
     private static ClinicalAttribute unpack(ResultSet rs) throws SQLException {
-        return new ClinicalAttribute(rs.getString("ATTR_ID"),
+        return new ClinicalAttribute(
+            rs.getString("ATTR_ID"),
             rs.getString("DISPLAY_NAME"),
             rs.getString("DESCRIPTION"),
             rs.getString("DATATYPE"),
             rs.getBoolean("PATIENT_ATTRIBUTE"),
             rs.getString("PRIORITY"),
-            rs.getInt("CANCER_STUDY_ID"));
+            rs.getInt("CANCER_STUDY_ID")
+        );
     }
-    
-    public static ClinicalAttribute getDatum(String attrId, Integer cancerStudyId) throws DaoException {
-        List<ClinicalAttribute> attrs = getDatum(Arrays.asList(attrId), cancerStudyId);
+
+    public static ClinicalAttribute getDatum(
+        String attrId,
+        Integer cancerStudyId
+    )
+        throws DaoException {
+        List<ClinicalAttribute> attrs = getDatum(
+            Arrays.asList(attrId),
+            cancerStudyId
+        );
         if (attrs.isEmpty()) {
             return null;
         }
-        
+
         return attrs.get(0);
     }
 
-    public static List<ClinicalAttribute> getDatum(Collection<String> attrIds, Integer cancerStudyId) throws DaoException {
-        if(attrIds == null || attrIds.isEmpty() ) {
+    public static List<ClinicalAttribute> getDatum(
+        Collection<String> attrIds,
+        Integer cancerStudyId
+    )
+        throws DaoException {
+        if (attrIds == null || attrIds.isEmpty()) {
             return Collections.emptyList();
         }
         Connection con = null;
@@ -108,8 +121,13 @@ public class DaoClinicalAttributeMeta {
         try {
             con = JdbcUtil.getDbConnection(DaoClinicalAttributeMeta.class);
 
-            pstmt = con.prepareStatement("SELECT * FROM clinical_attribute_meta WHERE ATTR_ID IN ('"
-                    + StringUtils.join(attrIds,"','")+"')  AND CANCER_STUDY_ID=" + String.valueOf(cancerStudyId));
+            pstmt =
+                con.prepareStatement(
+                    "SELECT * FROM clinical_attribute_meta WHERE ATTR_ID IN ('" +
+                    StringUtils.join(attrIds, "','") +
+                    "')  AND CANCER_STUDY_ID=" +
+                    String.valueOf(cancerStudyId)
+                );
 
             rs = pstmt.executeQuery();
 
@@ -117,7 +135,7 @@ public class DaoClinicalAttributeMeta {
             while (rs.next()) {
                 list.add(unpack(rs));
             }
-            
+
             return list;
         } catch (SQLException e) {
             throw new DaoException(e);
@@ -125,9 +143,10 @@ public class DaoClinicalAttributeMeta {
             JdbcUtil.closeAll(DaoClinicalAttributeMeta.class, con, pstmt, rs);
         }
     }
-    
-    public static List<ClinicalAttribute> getDatum(Collection<String> attrIds) throws DaoException {
-        if(attrIds == null || attrIds.isEmpty() ) {
+
+    public static List<ClinicalAttribute> getDatum(Collection<String> attrIds)
+        throws DaoException {
+        if (attrIds == null || attrIds.isEmpty()) {
             return Collections.emptyList();
         }
         Connection con = null;
@@ -136,8 +155,12 @@ public class DaoClinicalAttributeMeta {
         try {
             con = JdbcUtil.getDbConnection(DaoClinicalAttributeMeta.class);
 
-            pstmt = con.prepareStatement("SELECT * FROM clinical_attribute_meta WHERE ATTR_ID IN ('"
-                    + StringUtils.join(attrIds,"','")+"')");
+            pstmt =
+                con.prepareStatement(
+                    "SELECT * FROM clinical_attribute_meta WHERE ATTR_ID IN ('" +
+                    StringUtils.join(attrIds, "','") +
+                    "')"
+                );
 
             rs = pstmt.executeQuery();
 
@@ -145,20 +168,20 @@ public class DaoClinicalAttributeMeta {
             while (rs.next()) {
                 list.add(unpack(rs));
             }
-            
+
             return list;
         } catch (SQLException e) {
             throw new DaoException(e);
         } finally {
             JdbcUtil.closeAll(DaoClinicalAttributeMeta.class, con, pstmt, rs);
-        }        
+        }
     }
 
-    public static List<ClinicalAttribute> getDataByStudy(int cancerStudyId) throws DaoException
-    {
+    public static List<ClinicalAttribute> getDataByStudy(int cancerStudyId)
+        throws DaoException {
         List<ClinicalAttribute> attrs = new ArrayList<ClinicalAttribute>();
         attrs.addAll(getDataByCancerStudyId(cancerStudyId));
-        
+
         return attrs;
     }
 
@@ -171,25 +194,30 @@ public class DaoClinicalAttributeMeta {
      * @return
      * @throws DaoException
      */
-    private static List<ClinicalAttribute> getDataByCancerStudyId(int cancerStudyId) throws DaoException {
-        
+    private static List<ClinicalAttribute> getDataByCancerStudyId(
+        int cancerStudyId
+    )
+        throws DaoException {
         Connection con = null;
         ResultSet rs = null;
-		PreparedStatement pstmt = null;
+        PreparedStatement pstmt = null;
 
-        String sql = ("SELECT DISTINCT ATTR_ID FROM clinical_attribute_meta"
-                + " WHERE CANCER_STUDY_ID = " + String.valueOf(cancerStudyId));
+        String sql =
+            (
+                "SELECT DISTINCT ATTR_ID FROM clinical_attribute_meta" +
+                " WHERE CANCER_STUDY_ID = " +
+                String.valueOf(cancerStudyId)
+            );
 
         Set<String> attrIds = new HashSet<String>();
         try {
             con = JdbcUtil.getDbConnection(DaoClinicalAttributeMeta.class);
             pstmt = con.prepareStatement(sql);
             rs = pstmt.executeQuery();
-            
-             while(rs.next()) {
+
+            while (rs.next()) {
                 attrIds.add(rs.getString("ATTR_ID"));
             }
-
         } catch (SQLException e) {
             throw new DaoException(e);
         } finally {
@@ -207,13 +235,13 @@ public class DaoClinicalAttributeMeta {
 
         try {
             con = JdbcUtil.getDbConnection(DaoClinicalAttributeMeta.class);
-            pstmt = con.prepareStatement("SELECT * FROM clinical_attribute_meta");
+            pstmt =
+                con.prepareStatement("SELECT * FROM clinical_attribute_meta");
             rs = pstmt.executeQuery();
 
             while (rs.next()) {
                 all.add(unpack(rs));
             }
-
         } catch (SQLException e) {
             throw new DaoException(e);
         } finally {
@@ -222,14 +250,16 @@ public class DaoClinicalAttributeMeta {
         return all;
     }
 
-	public static Map<String, String> getAllMap() throws DaoException {
-
-		HashMap<String, String> toReturn = new HashMap<String, String>();
-		for (ClinicalAttribute clinicalAttribute : DaoClinicalAttributeMeta.getAll()) {
-			toReturn.put(clinicalAttribute.getAttrId(), clinicalAttribute.getDisplayName());
-		}
-		return toReturn;
-	}
+    public static Map<String, String> getAllMap() throws DaoException {
+        HashMap<String, String> toReturn = new HashMap<String, String>();
+        for (ClinicalAttribute clinicalAttribute : DaoClinicalAttributeMeta.getAll()) {
+            toReturn.put(
+                clinicalAttribute.getAttrId(),
+                clinicalAttribute.getDisplayName()
+            );
+        }
+        return toReturn;
+    }
 
     /**
      * Deletes all Records.
@@ -241,7 +271,8 @@ public class DaoClinicalAttributeMeta {
         ResultSet rs = null;
         try {
             con = JdbcUtil.getDbConnection(DaoClinicalAttributeMeta.class);
-            pstmt = con.prepareStatement("TRUNCATE TABLE clinical_attribute_meta");
+            pstmt =
+                con.prepareStatement("TRUNCATE TABLE clinical_attribute_meta");
             pstmt.executeUpdate();
         } catch (SQLException e) {
             throw new DaoException(e);

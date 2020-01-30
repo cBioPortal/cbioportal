@@ -28,13 +28,12 @@
  *
  * You should have received a copy of the GNU Affero General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
-*/
+ */
 
 package org.mskcc.cbio.portal.network;
 
-import edu.uci.ics.jung.graph.Graph;
 import edu.uci.ics.jung.graph.DirectedSparseMultigraph;
-
+import edu.uci.ics.jung.graph.Graph;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -45,16 +44,16 @@ import java.util.Map;
  * @author jj
  */
 public class Network {
-    private Graph<Node,Edge> graph;
-    private Map<String,Node> nodesByIds;
+    private Graph<Node, Edge> graph;
+    private Map<String, Node> nodesByIds;
 
     public Network() {
-        graph = new DirectedSparseMultigraph<Node,Edge>();
-        nodesByIds = new HashMap<String,Node>();
+        graph = new DirectedSparseMultigraph<Node, Edge>();
+        nodesByIds = new HashMap<String, Node>();
     }
-    
+
     /**
-     * 
+     *
      * @return the number of nodes
      */
     public int countNodes() {
@@ -62,11 +61,10 @@ public class Network {
     }
 
     public int countNodes(boolean excludeDrugs) {
-        if(excludeDrugs) {
+        if (excludeDrugs) {
             int count = 0;
             for (Node node : nodesByIds.values()) {
-                if(node.getType().equals(NodeType.DRUG))
-                    continue;
+                if (node.getType().equals(NodeType.DRUG)) continue;
 
                 count++;
             }
@@ -75,9 +73,9 @@ public class Network {
             return graph.getVertexCount();
         }
     }
-    
+
     /**
-     * 
+     *
      * @return the number of edges
      */
     public int coundEdges() {
@@ -85,13 +83,13 @@ public class Network {
     }
 
     /**
-     * 
+     *
      * @return all edges
      */
     public Collection<Edge> getEdges() {
         return graph.getEdges();
     }
-    
+
     /**
      * Returns the collection of nodes in this network which are connected to edge.
      * @param node
@@ -100,47 +98,47 @@ public class Network {
     public Collection<Edge> getIncidentEdges(Node node) {
         return graph.getIncidentEdges(node);
     }
-    
+
     /**
-     * 
+     *
      * @param node
      * @param edge
-     * @return 
+     * @return
      */
     public Node getOpposite(Node node, Edge edge) {
         return graph.getOpposite(node, edge);
     }
 
     /**
-     * 
+     *
      * @return all nodes
      */
     public Collection<Node> getNodes() {
         return graph.getVertices();
     }
-    
+
     /**
-     * 
+     *
      * @param id node id
      * @return the node with a particular id or null if not exist
      */
     public Node getNodeById(String id) {
         return nodesByIds.get(id);
     }
-    
+
     /**
      * add a node
      * @param node a node
      */
     public void addNode(Node node) {
-        if (nodesByIds.get(node.getId())!=null) {
+        if (nodesByIds.get(node.getId()) != null) {
             return;
         }
-        
-        nodesByIds.put(node.getId(),node);
+
+        nodesByIds.put(node.getId(), node);
         graph.addVertex(node);
     }
-    
+
     /**
      * remove a node
      * @param node a node
@@ -153,59 +151,59 @@ public class Network {
         }
         return ret;
     }
-    
+
     /**
      * add an edge
-     * @param edge an edge 
+     * @param edge an edge
      */
     public void addEdge(Edge edge) {
         Node node1 = nodesByIds.get(edge.getSourceID());
         Node node2 = nodesByIds.get(edge.getTargetID());
-        
-        if (node1==null || node2==null) {
-            throw new java.lang.UnsupportedOperationException("Add nodes before adding an edge");
+
+        if (node1 == null || node2 == null) {
+            throw new java.lang.UnsupportedOperationException(
+                "Add nodes before adding an edge"
+            );
         }
-		
+
         graph.addEdge(edge, node1, node2);
-     
     }
-    
+
     /**
-     * 
+     *
      * @param edge an edge
      * @return true if exists and removed
      */
     public boolean removeEdge(Edge edge) {
         return graph.removeEdge(edge);
     }
-    
+
     /**
-     * 
+     *
      * @param edge
      * @return an array of 2 nodes
      */
     public Node[] getNodes(Edge edge) {
-        return new Node[] {graph.getSource(edge), graph.getDest(edge)};
+        return new Node[] { graph.getSource(edge), graph.getDest(edge) };
     }
-    
+
     /**
-     * 
+     *
      */
     public Collection<Node> getNeighbors(Node node) {
         return graph.getNeighbors(node);
     }
-    
+
     /**
-     * 
+     *
      * @param node
-     * @return 
+     * @return
      */
     public int getDegree(Node node) {
         return graph.degree(node);
     }
-    
-    public Collection findEdgeSet(Node node1, Node node2)
-    {
-    	return this.graph.findEdgeSet(node1, node2);
+
+    public Collection findEdgeSet(Node node1, Node node2) {
+        return this.graph.findEdgeSet(node1, node2);
     }
 }

@@ -28,13 +28,12 @@
  *
  * You should have received a copy of the GNU Affero General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
-*/
+ */
 
 package org.mskcc.cbio.portal.util;
 
 import java.util.ArrayList;
 import java.util.Date;
-
 import javax.servlet.http.HttpServletRequest;
 
 /**
@@ -55,33 +54,34 @@ public class XDebug {
      * Constructor.
      */
     public XDebug() {
-       messages = new ArrayList<XDebugMessage>();
-       parameters = new ArrayList<XDebugParameter>();
-       startTime = null;
-       stopTime = null;
-       timeElapsed = -1;
+        messages = new ArrayList<XDebugMessage>();
+        parameters = new ArrayList<XDebugParameter>();
+        startTime = null;
+        stopTime = null;
+        timeElapsed = -1;
+    }
 
-   }
-    
     // FOR ACCESS CONTROL, so CgdsProtocol can get the session; bit of a hack
     public XDebug(HttpServletRequest request) {
-       this();
-       this.request = request;
+        this();
+        this.request = request;
 
-       // FOR ACCESS CONTROL, DEBUGGING
-       if(UserInfo.isUserAuthenticated(request)) {
-          this.logMsg( this, "Logged in with: " + UserInfo.getEmailId(request));
-       }else{
-          this.logMsg( this, "Not logged in." );
-       }
-       
-   }
+        // FOR ACCESS CONTROL, DEBUGGING
+        if (UserInfo.isUserAuthenticated(request)) {
+            this.logMsg(
+                    this,
+                    "Logged in with: " + UserInfo.getEmailId(request)
+                );
+        } else {
+            this.logMsg(this, "Not logged in.");
+        }
+    }
 
     public HttpServletRequest getRequest() {
-      return request;
-   }
+        return request;
+    }
 
-   /**
+    /**
      * Logs a new message with the specified color code.
      *
      * @param caller object that is making the log request
@@ -90,7 +90,11 @@ public class XDebug {
      */
     public void logMsg(Object caller, String msg, String color) {
         Class callerClass = caller.getClass();
-        XDebugMessage message = new XDebugMessage(callerClass.getName(), msg, color);
+        XDebugMessage message = new XDebugMessage(
+            callerClass.getName(),
+            msg,
+            color
+        );
         messages.add(message);
     }
 

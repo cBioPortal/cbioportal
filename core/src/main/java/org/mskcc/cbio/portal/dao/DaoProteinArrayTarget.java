@@ -28,18 +28,18 @@
  *
  * You should have received a copy of the GNU Affero General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
-*/
+ */
 
 package org.mskcc.cbio.portal.dao;
 
+import java.io.IOException;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.util.HashSet;
-import java.io.IOException;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.HashSet;
 import org.apache.commons.lang.StringUtils;
 
 /**
@@ -53,8 +53,7 @@ public class DaoProteinArrayTarget {
     /**
      * Private Constructor to enforce Singleton Pattern.
      */
-    private DaoProteinArrayTarget() {
-    }
+    private DaoProteinArrayTarget() {}
 
     /**
      * Gets Global Singleton Instance.
@@ -75,15 +74,18 @@ public class DaoProteinArrayTarget {
      * @return number of records successfully added.
      * @throws DaoException Database Error.
      */
-    public int addProteinArrayTarget(String proteinArrayId, long entrezGeneId) throws DaoException {
+    public int addProteinArrayTarget(String proteinArrayId, long entrezGeneId)
+        throws DaoException {
         Connection con = null;
         PreparedStatement pstmt = null;
         ResultSet rs = null;
         try {
             con = JdbcUtil.getDbConnection(DaoProteinArrayTarget.class);
-            pstmt = con.prepareStatement
-                    ("INSERT INTO protein_array_target (`PROTEIN_ARRAY_ID`,`ENTREZ_GENE_ID`) "
-                            + "VALUES (?,?)");
+            pstmt =
+                con.prepareStatement(
+                    "INSERT INTO protein_array_target (`PROTEIN_ARRAY_ID`,`ENTREZ_GENE_ID`) " +
+                    "VALUES (?,?)"
+                );
             pstmt.setString(1, proteinArrayId);
             pstmt.setLong(2, entrezGeneId);
             return pstmt.executeUpdate();
@@ -93,15 +95,18 @@ public class DaoProteinArrayTarget {
             JdbcUtil.closeAll(DaoProteinArrayTarget.class, con, pstmt, rs);
         }
     }
-    
-    public int deleteProteinArrayTarget(String proteinArrayId) throws DaoException {
+
+    public int deleteProteinArrayTarget(String proteinArrayId)
+        throws DaoException {
         Connection con = null;
         PreparedStatement pstmt = null;
         ResultSet rs = null;
         try {
             con = JdbcUtil.getDbConnection(DaoProteinArrayTarget.class);
-            pstmt = con.prepareStatement
-                    ("DELETE FROM protein_array_target WHERE `PROTEIN_ARRAY_ID`=?");
+            pstmt =
+                con.prepareStatement(
+                    "DELETE FROM protein_array_target WHERE `PROTEIN_ARRAY_ID`=?"
+                );
             pstmt.setString(1, proteinArrayId);
             return pstmt.executeUpdate();
         } catch (SQLException e) {
@@ -110,24 +115,27 @@ public class DaoProteinArrayTarget {
             JdbcUtil.closeAll(DaoProteinArrayTarget.class, con, pstmt, rs);
         }
     }
-    
-    public Collection<Long> getEntrezGeneIdOfArray(String arrayId) throws DaoException {
+
+    public Collection<Long> getEntrezGeneIdOfArray(String arrayId)
+        throws DaoException {
         Connection con = null;
         PreparedStatement pstmt = null;
         ResultSet rs = null;
         try {
             con = JdbcUtil.getDbConnection(DaoProteinArrayTarget.class);
-            pstmt = con.prepareStatement
-                    ("SELECT ENTREZ_GENE_ID FROM protein_array_target "
-                    + "WHERE PROTEIN_ARRAY_ID = ?");
+            pstmt =
+                con.prepareStatement(
+                    "SELECT ENTREZ_GENE_ID FROM protein_array_target " +
+                    "WHERE PROTEIN_ARRAY_ID = ?"
+                );
             pstmt.setString(1, arrayId);
-            
+
             Collection<Long> set = new HashSet<Long>();
             rs = pstmt.executeQuery();
             while (rs.next()) {
                 set.add(rs.getLong(1));
             }
-            
+
             return set;
         } catch (SQLException e) {
             throw new DaoException(e);
@@ -143,7 +151,8 @@ public class DaoProteinArrayTarget {
      * @return ProteinArrayInfo Object.
      * @throws DaoException Database Error.
      */
-    public Collection<String> getProteinArrayIds(long entrezId) throws DaoException {
+    public Collection<String> getProteinArrayIds(long entrezId)
+        throws DaoException {
         return getProteinArrayIds(Collections.singleton(entrezId));
     }
 
@@ -154,22 +163,26 @@ public class DaoProteinArrayTarget {
      * @return ProteinArrayInfo Object.
      * @throws DaoException Database Error.
      */
-    public Collection<String> getProteinArrayIds(Collection<Long> entrezIds) throws DaoException {
+    public Collection<String> getProteinArrayIds(Collection<Long> entrezIds)
+        throws DaoException {
         Connection con = null;
         PreparedStatement pstmt = null;
         ResultSet rs = null;
         try {
             con = JdbcUtil.getDbConnection(DaoProteinArrayTarget.class);
-            pstmt = con.prepareStatement
-                    ("SELECT PROTEIN_ARRAY_ID FROM protein_array_target WHERE ENTREZ_GENE_ID in ("
-                    +StringUtils.join(entrezIds,",")+")");
-            
+            pstmt =
+                con.prepareStatement(
+                    "SELECT PROTEIN_ARRAY_ID FROM protein_array_target WHERE ENTREZ_GENE_ID in (" +
+                    StringUtils.join(entrezIds, ",") +
+                    ")"
+                );
+
             Collection<String> set = new HashSet<String>();
             rs = pstmt.executeQuery();
             while (rs.next()) {
                 set.add(rs.getString(1));
             }
-            
+
             return set;
         } catch (SQLException e) {
             throw new DaoException(e);

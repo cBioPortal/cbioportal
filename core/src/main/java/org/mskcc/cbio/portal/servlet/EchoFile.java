@@ -28,11 +28,17 @@
  *
  * You should have received a copy of the GNU Affero General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
-*/
+ */
 
 package org.mskcc.cbio.portal.servlet;
 
 import au.com.bytecode.opencsv.CSVReader;
+import java.io.*;
+import java.util.*;
+import javax.servlet.ServletException;
+import javax.servlet.http.HttpServlet;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 import org.apache.commons.fileupload.FileItem;
 import org.apache.commons.fileupload.FileUploadException;
 import org.apache.commons.fileupload.disk.DiskFileItemFactory;
@@ -42,15 +48,7 @@ import org.codehaus.jackson.map.ObjectMapper;
 import org.json.simple.JSONObject;
 import org.owasp.validator.html.PolicyException;
 
-import javax.servlet.http.HttpServlet;
-import javax.servlet.ServletException;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-import java.io.*;
-import java.util.*;
-
 public class EchoFile extends HttpServlet {
-
     public static final int MAX_NO_GENES = 30;
 
     /**
@@ -59,7 +57,6 @@ public class EchoFile extends HttpServlet {
      * @throws ServletException
      */
     public void init() throws ServletException {
-
         super.init();
     }
 
@@ -75,13 +72,14 @@ public class EchoFile extends HttpServlet {
      * @throws ServletException
      * @throws IOException
      */
-    protected void doPost(HttpServletRequest request,
-                          HttpServletResponse response) throws ServletException, IOException {
-
+    protected void doPost(
+        HttpServletRequest request,
+        HttpServletResponse response
+    )
+        throws ServletException, IOException {
         Writer writer = response.getWriter();
 
         try {
-
             String str = request.getParameter("str");
 
             if (str != null) {
@@ -91,7 +89,10 @@ public class EchoFile extends HttpServlet {
 
             Map fieldName2fileContent = new HashMap<String, String>();
 
-            List<FileItem> items = new ServletFileUpload(new DiskFileItemFactory()).parseRequest(request);
+            List<FileItem> items = new ServletFileUpload(
+                new DiskFileItemFactory()
+            )
+            .parseRequest(request);
 
             for (FileItem item : items) {
                 if (item.getSize() == 0) {
@@ -115,16 +116,15 @@ public class EchoFile extends HttpServlet {
             response.setContentType("application/json");
             ObjectMapper mapper = new ObjectMapper();
             mapper.writeValue(writer, fieldName2fileContent);
-        }
-
-        // catch all exceptions
+        } // catch all exceptions
         catch (Exception e) {
-
             // "log" it
             System.out.println(e);
 
             // hide details from user
-            throw new ServletException("there was an error processing your request");
+            throw new ServletException(
+                "there was an error processing your request"
+            );
         }
     }
 
@@ -138,8 +138,11 @@ public class EchoFile extends HttpServlet {
      * @throws ServletException
      * @throws IOException
      */
-    protected void doGet(HttpServletRequest request,
-                          HttpServletResponse response) throws ServletException, IOException {
+    protected void doGet(
+        HttpServletRequest request,
+        HttpServletResponse response
+    )
+        throws ServletException, IOException {
         doPost(request, response);
     }
 }

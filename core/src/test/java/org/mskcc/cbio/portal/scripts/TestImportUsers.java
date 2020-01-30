@@ -28,52 +28,59 @@
  *
  * You should have received a copy of the GNU Affero General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
-*/
+ */
 
 package org.mskcc.cbio.portal.scripts;
+
+import static org.junit.Assert.*;
 
 // imports
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.mskcc.cbio.portal.model.User;
 import org.mskcc.cbio.portal.dao.DaoUser;
-import org.mskcc.cbio.portal.model.UserAuthorities;
 import org.mskcc.cbio.portal.dao.DaoUserAuthorities;
+import org.mskcc.cbio.portal.model.User;
+import org.mskcc.cbio.portal.model.UserAuthorities;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import org.springframework.test.context.transaction.TransactionConfiguration;
 import org.springframework.transaction.annotation.Transactional;
-
-import static org.junit.Assert.*;
 
 /**
  * JUnit test for ImportUsers class.
  */
 @RunWith(SpringJUnit4ClassRunner.class)
 @ContextConfiguration(locations = { "classpath:/applicationContext-dao.xml" })
-@TransactionConfiguration(transactionManager = "transactionManager", defaultRollback = true)
+@TransactionConfiguration(
+    transactionManager = "transactionManager",
+    defaultRollback = true
+)
 @Transactional
 public class TestImportUsers {
 
-   @Test
-   public void testImportUsers() throws Exception{
+    @Test
+    public void testImportUsers() throws Exception {
+        // TBD: change this to use getResourceAsStream()
+        String args[] = { "src/test/resources/test-users.txt" };
+        ImportUsers.main(args);
 
-      // TBD: change this to use getResourceAsStream()
-      String args[] = {"src/test/resources/test-users.txt"};
-      ImportUsers.main(args);
+        User user = DaoUser.getUserByEmail("Dhorak@yahoo.com");
+        assertTrue(user != null);
+        assertTrue(user.isEnabled());
+        UserAuthorities authorities = DaoUserAuthorities.getUserAuthorities(
+            user
+        );
+        assertTrue(authorities.getAuthorities().contains("ROLE_MANAGER"));
 
-      User user = DaoUser.getUserByEmail("Dhorak@yahoo.com");
-      assertTrue(user != null);
-      assertTrue(user.isEnabled());
-      UserAuthorities authorities = DaoUserAuthorities.getUserAuthorities(user);
-      assertTrue(authorities.getAuthorities().contains("ROLE_MANAGER"));
-
-      user = DaoUser.getUserByEmail("Lonnie@openid.org");
-      assertTrue(user != null);
-      assertFalse(user.isEnabled());
-      authorities = DaoUserAuthorities.getUserAuthorities(user);
-      assertEquals(authorities.getAuthorities().size(), 1);
-      DaoUserAuthorities.removeUserAuthorities(user);
-      assertEquals(DaoUserAuthorities.getUserAuthorities(user).getAuthorities().size(), 0);
-   }
+        user = DaoUser.getUserByEmail("Lonnie@openid.org");
+        assertTrue(user != null);
+        assertFalse(user.isEnabled());
+        authorities = DaoUserAuthorities.getUserAuthorities(user);
+        assertEquals(authorities.getAuthorities().size(), 1);
+        DaoUserAuthorities.removeUserAuthorities(user);
+        assertEquals(
+            DaoUserAuthorities.getUserAuthorities(user).getAuthorities().size(),
+            0
+        );
+    }
 }

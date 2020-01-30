@@ -35,58 +35,85 @@ import org.mskcc.cbio.portal.util.*;
  */
 
 public class ImportStructuralVariantData {
-
     // Initialize variables
     private File structuralVariantFile;
     private int geneticProfileId;
     private String genePanel;
-    private Set<String> sampleSet  = new HashSet<>();
+    private Set<String> sampleSet = new HashSet<>();
 
-    public ImportStructuralVariantData(File structuralVariantFile, int geneticProfileId, String genePanel) throws DaoException {
+    public ImportStructuralVariantData(
+        File structuralVariantFile,
+        int geneticProfileId,
+        String genePanel
+    )
+        throws DaoException {
         this.structuralVariantFile = structuralVariantFile;
         this.geneticProfileId = geneticProfileId;
         this.genePanel = genePanel;
     }
 
     public void importData() throws IOException, DaoException {
-
         FileReader reader = new FileReader(this.structuralVariantFile);
         BufferedReader buf = new BufferedReader(reader);
         DaoGeneOptimized daoGene = DaoGeneOptimized.getInstance();
         String line = buf.readLine();
-        StructuralVariantUtil structuralVariantUtil = new StructuralVariantUtil(line);
+        StructuralVariantUtil structuralVariantUtil = new StructuralVariantUtil(
+            line
+        );
 
         int recordCount = 0;
         // Genetic profile is read in first
-        GeneticProfile geneticProfile = DaoGeneticProfile.getGeneticProfileById(geneticProfileId);
-        ArrayList <Integer> orderedSampleList = new ArrayList<Integer>();
+        GeneticProfile geneticProfile = DaoGeneticProfile.getGeneticProfileById(
+            geneticProfileId
+        );
+        ArrayList<Integer> orderedSampleList = new ArrayList<Integer>();
         while ((line = buf.readLine()) != null) {
             ProgressMonitor.incrementCurValue();
             ConsoleUtil.showProgress();
-            if( !line.startsWith("#") && line.trim().length() > 0) {
+            if (!line.startsWith("#") && line.trim().length() > 0) {
                 recordCount++;
                 String parts[] = line.split("\t", -1);
-                StructuralVariant structuralVariant = structuralVariantUtil.parseStructuralVariantRecord(parts);
+                StructuralVariant structuralVariant = structuralVariantUtil.parseStructuralVariantRecord(
+                    parts
+                );
                 structuralVariant.setGeneticProfileId(geneticProfileId);
-                if (!structuralVariantUtil.hasRequiredStructuralVariantFields(structuralVariant)) {
-                    ProgressMonitor.logWarning("Invalid Site 1 or 2 Ensembl transcript ID or exon found, ignoring structural variant for SV record #" +
-                            recordCount + " (sample, site 1 gene, site 2 gene):  (" +
-                            structuralVariant.getSampleId() + ", " + structuralVariant.getSite1HugoSymbol() +
-                            ", " + structuralVariant.getSite2HugoSymbol() + ")");
+                if (
+                    !structuralVariantUtil.hasRequiredStructuralVariantFields(
+                        structuralVariant
+                    )
+                ) {
+                    ProgressMonitor.logWarning(
+                        "Invalid Site 1 or 2 Ensembl transcript ID or exon found, ignoring structural variant for SV record #" +
+                        recordCount +
+                        " (sample, site 1 gene, site 2 gene):  (" +
+                        structuralVariant.getSampleId() +
+                        ", " +
+                        structuralVariant.getSite1HugoSymbol() +
+                        ", " +
+                        structuralVariant.getSite2HugoSymbol() +
+                        ")"
+                    );
                     continue;
                 }
 
                 // get sample
                 Sample sample = DaoSample.getSampleByCancerStudyAndSampleId(
-                        geneticProfile.getCancerStudyId(),
-                        StableIdUtil.getSampleId(structuralVariant.getSampleId()));
+                    geneticProfile.getCancerStudyId(),
+                    StableIdUtil.getSampleId(structuralVariant.getSampleId())
+                );
 
                 // check sample existence
                 if (sample == null) {
-                    ProgressMonitor.logWarning("Sample not found:  " + structuralVariant.getSampleId() + ". Ignoring it.");
+                    ProgressMonitor.logWarning(
+                        "Sample not found:  " +
+                        structuralVariant.getSampleId() +
+                        ". Ignoring it."
+                    );
                 } else {
                     // Set sample internal id
-                    structuralVariant.setSampleIdInternal(sample.getInternalId());
+                    structuralVariant.setSampleIdInternal(
+                        sample.getInternalId()
+                    );
 
                     // The current structural variant model, the input file always contains 2 genes, so in this implementation both are required.
 
@@ -96,36 +123,74 @@ public class ImportStructuralVariantData {
                     long site1EntrezGeneId = structuralVariant.getSite1EntrezGeneId();
                     long site2EntrezGeneId = structuralVariant.getSite2EntrezGeneId();
 
-                    CanonicalGene site1CanonicalGene = setCanonicalGene(site1EntrezGeneId, site1HugoSymbol, daoGene);
-                    CanonicalGene site2CanonicalGene = setCanonicalGene(site2EntrezGeneId, site2HugoSymbol, daoGene);
+                    CanonicalGene site1CanonicalGene = setCanonicalGene(
+                        site1EntrezGeneId,
+                        site1HugoSymbol,
+                        daoGene
+                    );
+                    CanonicalGene site2CanonicalGene = setCanonicalGene(
+                        site2EntrezGeneId,
+                        site2HugoSymbol,
+                        daoGene
+                    );
 
                     // If neither of the genes is recognized, skip the line
-                    if(site1CanonicalGene == null) {
-                        ProgressMonitor.logWarning("Gene not found:  " + site1HugoSymbol + " ["
-                                + site1EntrezGeneId + "]. Ignoring it "
-                                + "and all fusion data associated with it!");
+                    if (site1CanonicalGene == null) {
+                        ProgressMonitor.logWarning(
+                            "Gene not found:  " +
+                            site1HugoSymbol +
+                            " [" +
+                            site1EntrezGeneId +
+                            "]. Ignoring it " +
+                            "and all fusion data associated with it!"
+                        );
                     } else if (site2CanonicalGene == null) {
-                        ProgressMonitor.logWarning("Gene not found:  " + site2HugoSymbol + " ["
-                                + site2EntrezGeneId + "]. Ignoring it "
-                                + "and all fusion data associated with it!");
-                    // If both genes are recognized, continue
+                        ProgressMonitor.logWarning(
+                            "Gene not found:  " +
+                            site2HugoSymbol +
+                            " [" +
+                            site2EntrezGeneId +
+                            "]. Ignoring it " +
+                            "and all fusion data associated with it!"
+                        );
+                        // If both genes are recognized, continue
                     } else {
                         // Save the Entrez Gene Id if it was not saved before
                         if (site1EntrezGeneId == TabDelimitedFileUtil.NA_LONG) {
-                            structuralVariant.setSite1EntrezGeneId(site1CanonicalGene.getEntrezGeneId());
+                            structuralVariant.setSite1EntrezGeneId(
+                                site1CanonicalGene.getEntrezGeneId()
+                            );
                         }
                         if (site2EntrezGeneId == TabDelimitedFileUtil.NA_LONG) {
-                            structuralVariant.setSite2EntrezGeneId(site2CanonicalGene.getEntrezGeneId());
+                            structuralVariant.setSite2EntrezGeneId(
+                                site2CanonicalGene.getEntrezGeneId()
+                            );
                         }
                         // Add structural variant
-                        DaoStructuralVariant.addStructuralVariantToBulkLoader(structuralVariant);
+                        DaoStructuralVariant.addStructuralVariantToBulkLoader(
+                            structuralVariant
+                        );
 
                         // Add sample to sample profile list, which is important for gene panels
-                        if (!DaoSampleProfile.sampleExistsInGeneticProfile(sample.getInternalId(), geneticProfileId) && !sampleSet.contains(sample.getStableId())) {
+                        if (
+                            !DaoSampleProfile.sampleExistsInGeneticProfile(
+                                sample.getInternalId(),
+                                geneticProfileId
+                            ) &&
+                            !sampleSet.contains(sample.getStableId())
+                        ) {
                             if (genePanel != null) {
-                                DaoSampleProfile.addSampleProfile(sample.getInternalId(), geneticProfileId, GeneticProfileUtil.getGenePanelId(genePanel));
+                                DaoSampleProfile.addSampleProfile(
+                                    sample.getInternalId(),
+                                    geneticProfileId,
+                                    GeneticProfileUtil.getGenePanelId(genePanel)
+                                );
                             } else {
-                                DaoSampleProfile.addSampleProfile(sample.getInternalId(), geneticProfileId, null);
+                                DaoSampleProfile.addSampleProfile(
+                                    sample.getInternalId(),
+                                    geneticProfileId,
+                                    null
+                                );
                             }
                         }
                         sampleSet.add(sample.getStableId());
@@ -134,13 +199,20 @@ public class ImportStructuralVariantData {
                 }
             }
         }
-        DaoGeneticProfileSamples.addGeneticProfileSamples(geneticProfileId, orderedSampleList);
+        DaoGeneticProfileSamples.addGeneticProfileSamples(
+            geneticProfileId,
+            orderedSampleList
+        );
 
         buf.close();
         MySQLbulkLoader.flushAll();
     }
 
-    private CanonicalGene setCanonicalGene(long siteEntrezGeneId, String siteHugoSymbol, DaoGeneOptimized daoGene) {
+    private CanonicalGene setCanonicalGene(
+        long siteEntrezGeneId,
+        String siteHugoSymbol,
+        DaoGeneOptimized daoGene
+    ) {
         CanonicalGene siteCanonicalGene = null;
 
         // If the Entrez Gene Id is not "NA" set the canonical gene.
@@ -150,7 +222,8 @@ public class ImportStructuralVariantData {
 
         // If no gene can be found based on Entrez Gene ID, try Symbol.
         if (siteCanonicalGene == null) {
-            siteCanonicalGene = daoGene.getNonAmbiguousGene(siteHugoSymbol, true);
+            siteCanonicalGene =
+                daoGene.getNonAmbiguousGene(siteHugoSymbol, true);
         }
 
         return siteCanonicalGene;

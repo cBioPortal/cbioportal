@@ -28,30 +28,28 @@
  *
  * You should have received a copy of the GNU Affero General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
-*/
+ */
 
 package org.mskcc.cbio.portal.web_api;
 
+import static org.junit.Assert.*;
 
+import java.io.*;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mskcc.cbio.portal.dao.DaoCancerStudy;
+import org.mskcc.cbio.portal.dao.DaoException;
 import org.mskcc.cbio.portal.dao.DaoGeneOptimized;
 import org.mskcc.cbio.portal.dao.DaoGeneticProfile;
 import org.mskcc.cbio.portal.dao.DaoMutSig;
 import org.mskcc.cbio.portal.model.CancerStudy;
 import org.mskcc.cbio.portal.model.CanonicalGene;
 import org.mskcc.cbio.portal.model.MutSig;
-import org.mskcc.cbio.portal.dao.DaoException;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import org.springframework.test.context.transaction.TransactionConfiguration;
 import org.springframework.transaction.annotation.Transactional;
-
-import static org.junit.Assert.*;
-
-import java.io.*;
 
 /**
  * @author Lennart Bastian
@@ -59,26 +57,29 @@ import java.io.*;
 
 @RunWith(SpringJUnit4ClassRunner.class)
 @ContextConfiguration(locations = { "classpath:/applicationContext-dao.xml" })
-@TransactionConfiguration(transactionManager = "transactionManager", defaultRollback = true)
+@TransactionConfiguration(
+    transactionManager = "transactionManager",
+    defaultRollback = true
+)
 @Transactional
 public class TestGetMutSig {
+    int studyId;
 
-	int studyId;
-	
-	@Before 
-	public void setUp() throws DaoException
-	{
-		studyId = DaoCancerStudy.getCancerStudyByStableId("study_tcga_pub").getInternalId();
-		DaoGeneticProfile.reCache();
-	}
+    @Before
+    public void setUp() throws DaoException {
+        studyId =
+            DaoCancerStudy
+                .getCancerStudyByStableId("study_tcga_pub")
+                .getInternalId();
+        DaoGeneticProfile.reCache();
+    }
 
     @Test
     public void testGetMutSig() throws DaoException, IOException {
-
         DaoGeneOptimized daoGeneOptimized = DaoGeneOptimized.getInstance();
         CanonicalGene gene = daoGeneOptimized.getGene("AKT1");
         CanonicalGene gene2 = daoGeneOptimized.getGene("AKT2");
-        
+
         MutSig mutSig = new MutSig(1, gene, 1, 502500, 20, 1E-11f, 1E-8f);
         MutSig mutSig2 = new MutSig(1, gene2, 14, 273743, 3, 1E-11f, 1E-8f);
 
@@ -91,8 +92,10 @@ public class TestGetMutSig {
         StringBuffer stringBuffer = GetMutSig.getMutSig(studyId);
 
         String lines[] = stringBuffer.toString().split("\n");
-        assertEquals("Cancer\tEntrez\tHugo\tRank\tN\tn\tnVal\tnVer\tCpG\tC+G\tA+T\tINDEL\tp\tq", lines[0]);
+        assertEquals(
+            "Cancer\tEntrez\tHugo\tRank\tN\tn\tnVal\tnVer\tCpG\tC+G\tA+T\tINDEL\tp\tq",
+            lines[0]
+        );
         assertEquals("1\t207\tAKT1\t1\t502500\t20\t1.0E-11\t1.0E-8", lines[1]);
     }
 }
-

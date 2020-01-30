@@ -28,22 +28,20 @@
  *
  * You should have received a copy of the GNU Affero General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
-*/
+ */
 
 package org.mskcc.cbio.portal.dao;
 
-import org.mskcc.cbio.portal.model.Sample;
-
 import java.sql.*;
 import java.util.*;
+import org.mskcc.cbio.portal.model.Sample;
 
 /**
  * Data Access Objects for the Genetic Profile Samples Table.
  *
  * @author Ethan Cerami.
  */
-public final class DaoGeneticProfileSamples
-{
+public final class DaoGeneticProfileSamples {
     private static final String DELIM = ",";
 
     private DaoGeneticProfileSamples() {}
@@ -56,21 +54,29 @@ public final class DaoGeneticProfileSamples
      * @return number of rows added.
      * @throws DaoException Data Access Exception.
      */
-    public static int addGeneticProfileSamples(int geneticProfileId, ArrayList<Integer> orderedSampleList)
-            throws DaoException {
+    public static int addGeneticProfileSamples(
+        int geneticProfileId,
+        ArrayList<Integer> orderedSampleList
+    )
+        throws DaoException {
         Connection con = null;
         PreparedStatement pstmt = null;
         ResultSet rs = null;
         StringBuffer orderedSampleListBuf = new StringBuffer();
         //  Created Joined String, based on DELIM token
-        for (Integer sampleId :  orderedSampleList) {
-            orderedSampleListBuf.append(Integer.toString(sampleId)).append(DELIM);
+        for (Integer sampleId : orderedSampleList) {
+            orderedSampleListBuf
+                .append(Integer.toString(sampleId))
+                .append(DELIM);
         }
         try {
             con = JdbcUtil.getDbConnection(DaoGeneticProfileSamples.class);
-            pstmt = con.prepareStatement
-                    ("INSERT INTO genetic_profile_samples (`GENETIC_PROFILE_ID`, " +
-                    "`ORDERED_SAMPLE_LIST`) "+ "VALUES (?,?)");
+            pstmt =
+                con.prepareStatement(
+                    "INSERT INTO genetic_profile_samples (`GENETIC_PROFILE_ID`, " +
+                    "`ORDERED_SAMPLE_LIST`) " +
+                    "VALUES (?,?)"
+                );
             pstmt.setInt(1, geneticProfileId);
             pstmt.setString(2, orderedSampleListBuf.toString());
             return pstmt.executeUpdate();
@@ -89,14 +95,18 @@ public final class DaoGeneticProfileSamples
      * @param geneticProfileId Genetic Profile ID.
      * @throws DaoException Database Error.
      */
-    public static void deleteAllSamplesInGeneticProfile(int geneticProfileId) throws DaoException {
+    public static void deleteAllSamplesInGeneticProfile(int geneticProfileId)
+        throws DaoException {
         Connection con = null;
         PreparedStatement pstmt = null;
         ResultSet rs = null;
         try {
             con = JdbcUtil.getDbConnection(DaoGeneticProfileSamples.class);
-            pstmt = con.prepareStatement("DELETE from " +
-                    "genetic_profile_samples WHERE GENETIC_PROFILE_ID=?");
+            pstmt =
+                con.prepareStatement(
+                    "DELETE from " +
+                    "genetic_profile_samples WHERE GENETIC_PROFILE_ID=?"
+                );
             pstmt.setLong(1, geneticProfileId);
             pstmt.executeUpdate();
         } catch (SQLException e) {
@@ -112,22 +122,25 @@ public final class DaoGeneticProfileSamples
      * @param geneticProfileId Genetic Profile ID.
      * @throws DaoException Database Error.
      */
-    public static ArrayList <Integer> getOrderedSampleList(int geneticProfileId) throws DaoException {
+    public static ArrayList<Integer> getOrderedSampleList(int geneticProfileId)
+        throws DaoException {
         Connection con = null;
         PreparedStatement pstmt = null;
         ResultSet rs = null;
         try {
             con = JdbcUtil.getDbConnection(DaoGeneticProfileSamples.class);
-            pstmt = con.prepareStatement
-                    ("SELECT * FROM genetic_profile_samples WHERE GENETIC_PROFILE_ID = ?");
+            pstmt =
+                con.prepareStatement(
+                    "SELECT * FROM genetic_profile_samples WHERE GENETIC_PROFILE_ID = ?"
+                );
             pstmt.setInt(1, geneticProfileId);
             rs = pstmt.executeQuery();
-            if  (rs.next()) {
+            if (rs.next()) {
                 String orderedSampleList = rs.getString("ORDERED_SAMPLE_LIST");
 
                 //  Split, based on DELIM token
                 String parts[] = orderedSampleList.split(DELIM);
-                ArrayList <Integer> sampleList = new ArrayList <Integer>();
+                ArrayList<Integer> sampleList = new ArrayList<Integer>();
                 for (String internalSampleId : parts) {
                     sampleList.add(Integer.parseInt(internalSampleId));
                 }
@@ -152,7 +165,8 @@ public final class DaoGeneticProfileSamples
         ResultSet rs = null;
         try {
             con = JdbcUtil.getDbConnection(DaoGeneticProfileSamples.class);
-            pstmt = con.prepareStatement("TRUNCATE TABLE genetic_profile_samples");
+            pstmt =
+                con.prepareStatement("TRUNCATE TABLE genetic_profile_samples");
             pstmt.executeUpdate();
         } catch (SQLException e) {
             throw new DaoException(e);

@@ -28,7 +28,7 @@
  *
  * You should have received a copy of the GNU Affero General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
-*/
+ */
 
 package org.mskcc.cbio.portal.network;
 
@@ -39,9 +39,9 @@ package org.mskcc.cbio.portal.network;
 public class Attribute {
     private String name;
     private Object value;
-    
+
     /**
-     * 
+     *
      * @param name attribute name
      * @param value attribute value
      */
@@ -51,7 +51,7 @@ public class Attribute {
     }
 
     /**
-     * 
+     *
      * @return attribute name
      */
     public String getName() {
@@ -59,7 +59,7 @@ public class Attribute {
     }
 
     /**
-     * 
+     *
      * @return attribute value
      */
     public Object getValue() {

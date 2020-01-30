@@ -28,7 +28,7 @@
  *
  * You should have received a copy of the GNU Affero General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
-*/
+ */
 
 package org.mskcc.cbio.portal.model;
 
@@ -42,7 +42,12 @@ public class ProteinArrayData {
     private int sampleId;
     private double abundance;
 
-    public ProteinArrayData(int cancerStudyId, String arrayId, int sampleId, double abundance) {
+    public ProteinArrayData(
+        int cancerStudyId,
+        String arrayId,
+        int sampleId,
+        double abundance
+    ) {
         this.cancerStudyId = cancerStudyId;
         this.arrayId = arrayId;
         this.sampleId = sampleId;
@@ -80,6 +85,4 @@ public class ProteinArrayData {
     public void setSampleId(int sampleId) {
         this.sampleId = sampleId;
     }
-    
-    
 }

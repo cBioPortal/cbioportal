@@ -28,24 +28,22 @@
  *
  * You should have received a copy of the GNU Affero General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
-*/
+ */
 
 package org.mskcc.cbio.portal.scripts;
 
+import java.io.*;
+import java.util.*;
+import joptsimple.*;
 import org.mskcc.cbio.portal.dao.*;
 import org.mskcc.cbio.portal.model.*;
 import org.mskcc.cbio.portal.util.*;
-
-import java.io.*;
-import joptsimple.*;
-import java.util.*;
 
 /**
  *
  * @author heinsz, sandertan
  */
 public class ImportGenePanelProfileMap extends ConsoleRunnable {
-
     private File genePanelProfileMapFile;
     private String cancerStudyStableId;
 
@@ -57,37 +55,56 @@ public class ImportGenePanelProfileMap extends ConsoleRunnable {
             // usage: --data <data_file.txt> --meta <meta_file.txt> [--noprogress]
 
             OptionParser parser = new OptionParser();
-            OptionSpec<String> data = parser.accepts( "data",
-                   "gene panel file" ).withRequiredArg().describedAs( "data_file.txt" ).ofType( String.class );
-            OptionSpec<String> meta = parser.accepts( "meta",
-                   "gene panel file" ).withRequiredArg().describedAs( "meta_file.txt" ).ofType( String.class );
-            parser.accepts("noprogress", "this option can be given to avoid the messages regarding memory usage and % complete");
+            OptionSpec<String> data = parser
+                .accepts("data", "gene panel file")
+                .withRequiredArg()
+                .describedAs("data_file.txt")
+                .ofType(String.class);
+            OptionSpec<String> meta = parser
+                .accepts("meta", "gene panel file")
+                .withRequiredArg()
+                .describedAs("meta_file.txt")
+                .ofType(String.class);
+            parser.accepts(
+                "noprogress",
+                "this option can be given to avoid the messages regarding memory usage and % complete"
+            );
 
             OptionSet options;
             try {
-                options = parser.parse( args );
+                options = parser.parse(args);
             } catch (OptionException e) {
                 throw new UsageException(
-                        progName, description, parser,
-                        e.getMessage());
+                    progName,
+                    description,
+                    parser,
+                    e.getMessage()
+                );
             }
             File genePanel_f;
-            if( options.has( data ) ){
-                genePanel_f = new File( options.valueOf( data ) );
+            if (options.has(data)) {
+                genePanel_f = new File(options.valueOf(data));
             } else {
                 throw new UsageException(
-                        progName, description, parser,
-                        "'data' argument required.");
+                    progName,
+                    description,
+                    parser,
+                    "'data' argument required."
+                );
             }
 
-            if( options.has( meta ) ){
+            if (options.has(meta)) {
                 Properties properties = new TrimmedProperties();
                 properties.load(new FileInputStream(options.valueOf(meta)));
-                cancerStudyStableId = properties.getProperty("cancer_study_identifier");
+                cancerStudyStableId =
+                    properties.getProperty("cancer_study_identifier");
             } else {
                 throw new UsageException(
-                        progName, description, parser,
-                        "'meta' argument required.");
+                    progName,
+                    description,
+                    parser,
+                    "'meta' argument required."
+                );
             }
 
             setFile(genePanel_f);
@@ -101,52 +118,69 @@ public class ImportGenePanelProfileMap extends ConsoleRunnable {
     }
 
     public void importData() throws Exception {
-        
-        ProgressMonitor.setCurrentMessage("Reading data from: " + genePanelProfileMapFile.getAbsolutePath());
+        ProgressMonitor.setCurrentMessage(
+            "Reading data from: " + genePanelProfileMapFile.getAbsolutePath()
+        );
         FileReader reader = new FileReader(genePanelProfileMapFile);
         BufferedReader buff = new BufferedReader(reader);
-        
+
         // Extract and parse first line which contains the profile names
         List<String> profiles = getProfilesLine(buff);
         Integer sampleIdIndex = profiles.indexOf("SAMPLE_ID");
         if (sampleIdIndex < 0) {
-            throw new RuntimeException("Missing SAMPLE_ID column in file " + genePanelProfileMapFile.getAbsolutePath());
+            throw new RuntimeException(
+                "Missing SAMPLE_ID column in file " +
+                genePanelProfileMapFile.getAbsolutePath()
+            );
         }
-        profiles.remove((int)sampleIdIndex);
+        profiles.remove((int) sampleIdIndex);
         List<Integer> profileIds = getProfileIds(profiles);
-        
+
         // Get cancer study
-        CancerStudy cancerStudy = DaoCancerStudy.getCancerStudyByStableId(cancerStudyStableId);
-        
+        CancerStudy cancerStudy = DaoCancerStudy.getCancerStudyByStableId(
+            cancerStudyStableId
+        );
+
         // Loop over gene panel matrix and load into database
-        ProgressMonitor.setCurrentMessage("Loading gene panel profile matrix data to database..");
+        ProgressMonitor.setCurrentMessage(
+            "Loading gene panel profile matrix data to database.."
+        );
         String row;
-        while((row = buff.readLine()) != null) {
-            List<String> row_data = new LinkedList<>(Arrays.asList(row.split("\t")));
-            
+        while ((row = buff.readLine()) != null) {
+            List<String> row_data = new LinkedList<>(
+                Arrays.asList(row.split("\t"))
+            );
+
             // Extract and parse sample ID
             String sampleId = row_data.get(sampleIdIndex);
-            Sample sample = DaoSample.getSampleByCancerStudyAndSampleId(cancerStudy.getInternalId(), sampleId);
-            row_data.remove((int)sampleIdIndex);
-            
+            Sample sample = DaoSample.getSampleByCancerStudyAndSampleId(
+                cancerStudy.getInternalId(),
+                sampleId
+            );
+            row_data.remove((int) sampleIdIndex);
+
             // Loop over the values in the row
             for (int i = 0; i < row_data.size(); i++) {
-                
                 // Extract gene panel ID
                 String genePanelName = row_data.get(i);
-                GenePanel genePanel = DaoGenePanel.getGenePanelByStableId(genePanelName);
+                GenePanel genePanel = DaoGenePanel.getGenePanelByStableId(
+                    genePanelName
+                );
 
                 // Add gene panel information to database
                 if (genePanel != null) {
                     DaoSampleProfile.updateSampleProfile(
-                        sample.getInternalId(), 
-                        profileIds.get(i), 
-                        genePanel.getInternalId());
-
-                // Throw an error if gene panel is not in database and is not NA
+                        sample.getInternalId(),
+                        profileIds.get(i),
+                        genePanel.getInternalId()
+                    );
+                    // Throw an error if gene panel is not in database and is not NA
                 } else {
                     if (!genePanelName.equals("NA")) {
-                        throw new RuntimeException("Gene panel cannot be found in database: " + genePanelName);
+                        throw new RuntimeException(
+                            "Gene panel cannot be found in database: " +
+                            genePanelName
+                        );
                     }
                 }
             }
@@ -155,7 +189,7 @@ public class ImportGenePanelProfileMap extends ConsoleRunnable {
 
     private List<String> getProfilesLine(BufferedReader buff) throws Exception {
         String line = buff.readLine();
-        while(line.startsWith("#")) {
+        while (line.startsWith("#")) {
             line = buff.readLine();
         }
         return new LinkedList<>(Arrays.asList(line.split("\t")));
@@ -163,24 +197,27 @@ public class ImportGenePanelProfileMap extends ConsoleRunnable {
 
     private List<Integer> getProfileIds(List<String> profiles) {
         List<Integer> geneticProfileIds = new LinkedList<>();
-        for(String profile : profiles) {
+        for (String profile : profiles) {
             if (!profile.startsWith(cancerStudyStableId)) {
                 profile = cancerStudyStableId + "_" + profile;
             }
-            GeneticProfile geneticProfile = DaoGeneticProfile.getGeneticProfileByStableId(profile);
+            GeneticProfile geneticProfile = DaoGeneticProfile.getGeneticProfileByStableId(
+                profile
+            );
             if (geneticProfile != null) {
                 geneticProfileIds.add(geneticProfile.getGeneticProfileId());
-            }
-            else {
-                throw new RuntimeException("Cannot find genetic profile " + profile + " in the database.");
+            } else {
+                throw new RuntimeException(
+                    "Cannot find genetic profile " +
+                    profile +
+                    " in the database."
+                );
             }
         }
         return geneticProfileIds;
     }
 
-
-    public void setFile(File genePanelProfileMapFile)
-    {
+    public void setFile(File genePanelProfileMapFile) {
         this.genePanelProfileMapFile = genePanelProfileMapFile;
     }
 

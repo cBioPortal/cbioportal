@@ -28,7 +28,7 @@
  *
  * You should have received a copy of the GNU Affero General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
-*/
+ */
 
 package org.mskcc.cbio.portal.dao;
 
@@ -58,8 +58,8 @@ public final class DaoCancerStudy {
 
     private static final Map<String, java.util.Date> cacheDateByStableId = new HashMap<String, java.util.Date>();
     private static final Map<Integer, java.util.Date> cacheDateByInternalId = new HashMap<Integer, java.util.Date>();
-    private static final Map<String,CancerStudy> byStableId = new HashMap<String,CancerStudy>();
-    private static final Map<Integer,CancerStudy> byInternalId = new HashMap<Integer,CancerStudy>();
+    private static final Map<String, CancerStudy> byStableId = new HashMap<String, CancerStudy>();
+    private static final Map<Integer, CancerStudy> byInternalId = new HashMap<Integer, CancerStudy>();
 
     static {
         SpringUtil.initDataSource();
@@ -102,7 +102,10 @@ public final class DaoCancerStudy {
         }
     }
 
-    private static void cacheCancerStudy(CancerStudy study, java.util.Date importDate) {
+    private static void cacheCancerStudy(
+        CancerStudy study,
+        java.util.Date importDate
+    ) {
         cacheDateByStableId.put(study.getCancerStudyStableId(), importDate);
         cacheDateByInternalId.put(study.getInternalId(), importDate);
         byStableId.put(study.getCancerStudyStableId(), study);
@@ -114,25 +117,38 @@ public final class DaoCancerStudy {
      * @param internalCancerStudyId Internal cancer study ID
      */
     private static void removeCancerStudyFromCache(int internalCancerStudyId) {
-        String stableId = byInternalId.get(internalCancerStudyId).getCancerStudyStableId();
+        String stableId = byInternalId
+            .get(internalCancerStudyId)
+            .getCancerStudyStableId();
         cacheDateByStableId.remove(stableId);
         cacheDateByInternalId.remove(internalCancerStudyId);
         byStableId.remove(stableId);
         byInternalId.remove(internalCancerStudyId);
     }
 
-    public static void setStatus(Status status, String stableCancerStudyId, Integer ... internalId) throws DaoException {
+    public static void setStatus(
+        Status status,
+        String stableCancerStudyId,
+        Integer... internalId
+    )
+        throws DaoException {
         Connection con = null;
         PreparedStatement pstmt = null;
         ResultSet rs = null;
         try {
             con = JdbcUtil.getDbConnection(DaoCancerStudy.class);
             if (internalId.length > 0) {
-                pstmt = con.prepareStatement("UPDATE cancer_study set status = ? where cancer_study_id = ?");
+                pstmt =
+                    con.prepareStatement(
+                        "UPDATE cancer_study set status = ? where cancer_study_id = ?"
+                    );
                 pstmt.setInt(1, status.ordinal());
                 pstmt.setInt(2, internalId[0]);
             } else {
-                pstmt = con.prepareStatement("UPDATE cancer_study set status = ? where cancer_study_identifier = ?");
+                pstmt =
+                    con.prepareStatement(
+                        "UPDATE cancer_study set status = ? where cancer_study_identifier = ?"
+                    );
                 pstmt.setInt(1, status.ordinal());
                 pstmt.setString(2, stableCancerStudyId);
             }
@@ -146,17 +162,27 @@ public final class DaoCancerStudy {
         }
     }
 
-    public static Status getStatus(String stableCancerStudyId, Integer ... internalId) throws DaoException {
+    public static Status getStatus(
+        String stableCancerStudyId,
+        Integer... internalId
+    )
+        throws DaoException {
         Connection con = null;
         PreparedStatement pstmt = null;
         ResultSet rs = null;
         try {
             con = JdbcUtil.getDbConnection(DaoCancerStudy.class);
             if (internalId.length > 0) {
-                pstmt = con.prepareStatement("SELECT status FROM cancer_study where cancer_study_id = ?");
+                pstmt =
+                    con.prepareStatement(
+                        "SELECT status FROM cancer_study where cancer_study_id = ?"
+                    );
                 pstmt.setInt(1, internalId[0]);
             } else {
-                pstmt = con.prepareStatement("SELECT status FROM cancer_study where cancer_study_identifier = ?");
+                pstmt =
+                    con.prepareStatement(
+                        "SELECT status FROM cancer_study where cancer_study_identifier = ?"
+                    );
                 pstmt.setString(1, stableCancerStudyId);
             }
             rs = pstmt.executeQuery();
@@ -165,7 +191,7 @@ public final class DaoCancerStudy {
                 if (rs.wasNull()) {
                     return Status.AVAILABLE;
                 }
-                if (status>=Status.values().length) {
+                if (status >= Status.values().length) {
                     return Status.AVAILABLE;
                 }
                 return Status.values()[status];
@@ -205,7 +231,10 @@ public final class DaoCancerStudy {
         ResultSet rs = null;
         try {
             con = JdbcUtil.getDbConnection(DaoCancerStudy.class);
-            pstmt = con.prepareStatement("UPDATE cancer_study set IMPORT_DATE = NOW() where cancer_study_id = ?");
+            pstmt =
+                con.prepareStatement(
+                    "UPDATE cancer_study set IMPORT_DATE = NOW() where cancer_study_id = ?"
+                );
             pstmt.setInt(1, internalId);
             pstmt.executeUpdate();
         } catch (SQLException e) {
@@ -218,17 +247,27 @@ public final class DaoCancerStudy {
         }
     }
 
-    public static java.util.Date getImportDate(String stableCancerStudyId, Integer ... internalId) throws DaoException, ParseException {
+    public static java.util.Date getImportDate(
+        String stableCancerStudyId,
+        Integer... internalId
+    )
+        throws DaoException, ParseException {
         Connection con = null;
         PreparedStatement pstmt = null;
         ResultSet rs = null;
         try {
             con = JdbcUtil.getDbConnection(DaoCancerStudy.class);
             if (internalId.length > 0) {
-                pstmt = con.prepareStatement("SELECT IMPORT_DATE FROM cancer_study where cancer_study_id = ?");
+                pstmt =
+                    con.prepareStatement(
+                        "SELECT IMPORT_DATE FROM cancer_study where cancer_study_id = ?"
+                    );
                 pstmt.setInt(1, internalId[0]);
             } else {
-                pstmt = con.prepareStatement("SELECT IMPORT_DATE FROM cancer_study where cancer_study_identifier = ?");
+                pstmt =
+                    con.prepareStatement(
+                        "SELECT IMPORT_DATE FROM cancer_study where cancer_study_identifier = ?"
+                    );
                 pstmt.setString(1, stableCancerStudyId);
             }
             rs = pstmt.executeQuery();
@@ -259,7 +298,8 @@ public final class DaoCancerStudy {
      * @param cancerStudy   Cancer Study Object.
      * @throws DaoException Database Error.
      */
-    public static void addCancerStudy(CancerStudy cancerStudy) throws DaoException {
+    public static void addCancerStudy(CancerStudy cancerStudy)
+        throws DaoException {
         addCancerStudy(cancerStudy, false);
     }
 
@@ -269,12 +309,22 @@ public final class DaoCancerStudy {
      * @param overwrite if true, overwrite if exist.
      * @throws DaoException
      */
-    public static void addCancerStudy(CancerStudy cancerStudy, boolean overwrite) throws DaoException {
+    public static void addCancerStudy(
+        CancerStudy cancerStudy,
+        boolean overwrite
+    )
+        throws DaoException {
         // make sure that cancerStudy refers to a valid TypeOfCancerId
         // TODO: have a foreign key constraint do this; why not?
-        TypeOfCancer aTypeOfCancer = DaoTypeOfCancer.getTypeOfCancerById(cancerStudy.getTypeOfCancerId());
+        TypeOfCancer aTypeOfCancer = DaoTypeOfCancer.getTypeOfCancerById(
+            cancerStudy.getTypeOfCancerId()
+        );
         if (null == aTypeOfCancer) {
-            throw new DaoException("cancerStudy.getTypeOfCancerId() '" + cancerStudy.getTypeOfCancerId() + "' does not refer to a TypeOfCancer.");
+            throw new DaoException(
+                "cancerStudy.getTypeOfCancerId() '" +
+                cancerStudy.getTypeOfCancerId() +
+                "' does not refer to a TypeOfCancer."
+            );
         }
         // CANCER_STUDY_IDENTIFIER cannot be null
         String stableId = cancerStudy.getCancerStudyStableId();
@@ -282,12 +332,14 @@ public final class DaoCancerStudy {
             throw new DaoException("Cancer study stable ID cannot be null.");
         }
         CancerStudy existing = getCancerStudyByStableId(stableId);
-        if (existing!=null) {
+        if (existing != null) {
             if (overwrite) {
                 //setStatus(Status.UNAVAILABLE, stableId);
                 deleteCancerStudy(existing.getInternalId());
             } else {
-                throw new DaoException("Cancer study " + stableId + "is already imported.");
+                throw new DaoException(
+                    "Cancer study " + stableId + "is already imported."
+                );
             }
         }
         Connection con = null;
@@ -295,11 +347,14 @@ public final class DaoCancerStudy {
         ResultSet rs = null;
         try {
             con = JdbcUtil.getDbConnection(DaoCancerStudy.class);
-            pstmt = con.prepareStatement("INSERT INTO cancer_study " +
-                    "( `CANCER_STUDY_IDENTIFIER`, `NAME`, "
-                    + "`DESCRIPTION`, `PUBLIC`, `TYPE_OF_CANCER_ID`, "
-                    + "`PMID`, `CITATION`, `GROUPS`, `SHORT_NAME`, `STATUS`, `IMPORT_DATE`,`REFERENCE_GENOME_ID` ) VALUES (?,?,?,?,?,?,?,?,?,?,?,?)",
-                    Statement.RETURN_GENERATED_KEYS);
+            pstmt =
+                con.prepareStatement(
+                    "INSERT INTO cancer_study " +
+                    "( `CANCER_STUDY_IDENTIFIER`, `NAME`, " +
+                    "`DESCRIPTION`, `PUBLIC`, `TYPE_OF_CANCER_ID`, " +
+                    "`PMID`, `CITATION`, `GROUPS`, `SHORT_NAME`, `STATUS`, `IMPORT_DATE`,`REFERENCE_GENOME_ID` ) VALUES (?,?,?,?,?,?,?,?,?,?,?,?)",
+                    Statement.RETURN_GENERATED_KEYS
+                );
             pstmt.setString(1, stableId);
             pstmt.setString(2, cancerStudy.getName());
             pstmt.setString(3, cancerStudy.getDescription());
@@ -308,7 +363,7 @@ public final class DaoCancerStudy {
             pstmt.setString(6, cancerStudy.getPmid());
             pstmt.setString(7, cancerStudy.getCitation());
             Set<String> groups = cancerStudy.getGroups();
-            if (groups==null) {
+            if (groups == null) {
                 pstmt.setString(8, null);
             } else {
                 pstmt.setString(8, StringUtils.join(groups, ";"));
@@ -320,10 +375,11 @@ public final class DaoCancerStudy {
             pstmt.setInt(10, Status.UNAVAILABLE.ordinal());
             pstmt.setDate(11, java.sql.Date.valueOf(LocalDate.now()));
             try {
-                ReferenceGenome referenceGenome = DaoReferenceGenome.getReferenceGenomeByGenomeName(cancerStudy.getReferenceGenome());
+                ReferenceGenome referenceGenome = DaoReferenceGenome.getReferenceGenomeByGenomeName(
+                    cancerStudy.getReferenceGenome()
+                );
                 pstmt.setInt(12, referenceGenome.getReferenceGenomeId());
-            }
-            catch (NullPointerException e) {
+            } catch (NullPointerException e) {
                 throw new DaoException("Unsupported reference genome");
             }
             pstmt.executeUpdate();
@@ -341,24 +397,27 @@ public final class DaoCancerStudy {
         reCacheAll();
     }
 
-    public static void addCancerStudyTags(CancerStudyTags cancerStudyTags) throws DaoException {
-    
-            Connection con = null;
-            PreparedStatement pstmt = null;
-            ResultSet rs = null;
-            try {
-                con = JdbcUtil.getDbConnection(DaoCancerStudy.class);
-                pstmt = con.prepareStatement("INSERT INTO cancer_study_tags " +
-                        "( `CANCER_STUDY_ID`,`TAGS` ) VALUES (?,?)");
-                pstmt.setInt(1, cancerStudyTags.getCancerStudyId());
-                pstmt.setString(2, cancerStudyTags.getTags());
-                pstmt.executeUpdate();
-            } catch (SQLException e) {
-                throw new DaoException(e);
-            } finally {
-                JdbcUtil.closeAll(DaoCancerStudy.class, con, pstmt, rs);
-            }
-        } 
+    public static void addCancerStudyTags(CancerStudyTags cancerStudyTags)
+        throws DaoException {
+        Connection con = null;
+        PreparedStatement pstmt = null;
+        ResultSet rs = null;
+        try {
+            con = JdbcUtil.getDbConnection(DaoCancerStudy.class);
+            pstmt =
+                con.prepareStatement(
+                    "INSERT INTO cancer_study_tags " +
+                    "( `CANCER_STUDY_ID`,`TAGS` ) VALUES (?,?)"
+                );
+            pstmt.setInt(1, cancerStudyTags.getCancerStudyId());
+            pstmt.setString(2, cancerStudyTags.getTags());
+            pstmt.executeUpdate();
+        } catch (SQLException e) {
+            throw new DaoException(e);
+        } finally {
+            JdbcUtil.closeAll(DaoCancerStudy.class, con, pstmt, rs);
+        }
+    }
 
     /**
      * Return the cancerStudy identified by the internal cancer study ID, if it exists.
@@ -366,7 +425,8 @@ public final class DaoCancerStudy {
      * @param internalId     Internal (int) Cancer Study ID.
      * @return Cancer Study Object, or null if there's no such study.
      */
-    public static CancerStudy getCancerStudyByInternalId(int internalId) throws DaoException {
+    public static CancerStudy getCancerStudyByInternalId(int internalId)
+        throws DaoException {
         return byInternalId.get(internalId);
     }
 
@@ -376,7 +436,8 @@ public final class DaoCancerStudy {
      * @param stableId Cancer Study Stable ID.
      * @return the CancerStudy, or null if there's no such study.
      */
-    public static CancerStudy getCancerStudyByStableId(String stableId) throws DaoException {
+    public static CancerStudy getCancerStudyByStableId(String stableId)
+        throws DaoException {
         return byStableId.get(stableId);
     }
 
@@ -386,7 +447,9 @@ public final class DaoCancerStudy {
      * @param cancerStudyStableId Cancer Study Stable ID.
      * @return true if the CancerStudy exists, otherwise false
      */
-    public static boolean doesCancerStudyExistByStableId(String cancerStudyStableId) {
+    public static boolean doesCancerStudyExistByStableId(
+        String cancerStudyStableId
+    ) {
         return byStableId.containsKey(cancerStudyStableId);
     }
 
@@ -397,7 +460,9 @@ public final class DaoCancerStudy {
      * @param internalCancerStudyId Internal Cancer Study ID.
      * @return true if the CancerStudy exists, otherwise false
      */
-    public static boolean doesCancerStudyExistByInternalId(int internalCancerStudyId) {
+    public static boolean doesCancerStudyExistByInternalId(
+        int internalCancerStudyId
+    ) {
         return byInternalId.containsKey(internalCancerStudyId);
     }
 
@@ -451,21 +516,26 @@ public final class DaoCancerStudy {
      * @throws DaoException
      * @deprecated
      */
-    public static void deleteCancerStudy(String cancerStudyStableId) throws DaoException {
+    public static void deleteCancerStudy(String cancerStudyStableId)
+        throws DaoException {
         CancerStudy study = getCancerStudyByStableId(cancerStudyStableId);
-        if (study != null){
+        if (study != null) {
             //setStatus(Status.UNAVAILABLE, cancerStudyStableId);
             deleteCancerStudy(study.getInternalId());
         }
     }
 
-    public static Set<String> getFreshGroups(int internalCancerStudyId) throws DaoException {
+    public static Set<String> getFreshGroups(int internalCancerStudyId)
+        throws DaoException {
         Connection con = null;
         PreparedStatement pstmt = null;
         ResultSet rs = null;
         try {
             con = JdbcUtil.getDbConnection(DaoCancerStudy.class);
-            pstmt = con.prepareStatement("SELECT * FROM cancer_study where cancer_study_id = ?");
+            pstmt =
+                con.prepareStatement(
+                    "SELECT * FROM cancer_study where cancer_study_id = ?"
+                );
             pstmt.setInt(1, internalCancerStudyId);
             rs = pstmt.executeQuery();
             if (rs.next()) {
@@ -486,7 +556,8 @@ public final class DaoCancerStudy {
      * @param cancerStudyStableId
      * @throws DaoException
      */
-    public static void deleteCancerStudyByCascade(String cancerStudyStableId) throws DaoException {
+    public static void deleteCancerStudyByCascade(String cancerStudyStableId)
+        throws DaoException {
         CancerStudy study = getCancerStudyByStableId(cancerStudyStableId);
         if (study != null) {
             deleteCancerStudyByCascade(study.getInternalId());
@@ -498,18 +569,24 @@ public final class DaoCancerStudy {
      * @param internalCancerStudyId
      * @throws DaoException
      */
-    public static void deleteCancerStudyByCascade(int internalCancerStudyId) throws DaoException {
+    public static void deleteCancerStudyByCascade(int internalCancerStudyId)
+        throws DaoException {
         Connection con = null;
         PreparedStatement pstmt = null;
         ResultSet rs = null;
         try {
             con = JdbcUtil.getDbConnection(DaoCancerStudy.class);
-            pstmt = con.prepareStatement("DELETE FROM cancer_study WHERE cancer_study_id = ?");
+            pstmt =
+                con.prepareStatement(
+                    "DELETE FROM cancer_study WHERE cancer_study_id = ?"
+                );
             pstmt.setInt(1, internalCancerStudyId);
             int rows = pstmt.executeUpdate();
             // throw dao exception if no rows affected by update
             if (rows == 0) {
-                throw new DaoException("deleteCancerStudyByCascade() failed: No rows affected");
+                throw new DaoException(
+                    "deleteCancerStudyByCascade() failed: No rows affected"
+                );
             }
             removeCancerStudyFromCache(internalCancerStudyId);
         } catch (SQLException e) {
@@ -519,7 +596,7 @@ public final class DaoCancerStudy {
         }
         purgeUnreferencedRecordsAfterDeletionOfStudy();
         reCacheAll();
-        System.out.println("deleted study:\nID: "+internalCancerStudyId);
+        System.out.println("deleted study:\nID: " + internalCancerStudyId);
     }
 
     /**
@@ -537,37 +614,38 @@ public final class DaoCancerStudy {
      * @throws DaoException Database Error.
      * @deprecated
      */
-    public static void deleteCancerStudy(int internalCancerStudyId) throws DaoException {
+    public static void deleteCancerStudy(int internalCancerStudyId)
+        throws DaoException {
         String[] deleteStudyStatements = {
-                "DELETE FROM sample_cna_event WHERE GENETIC_PROFILE_ID IN (SELECT GENETIC_PROFILE_ID FROM genetic_profile WHERE CANCER_STUDY_ID=?)",
-                "DELETE FROM generic_entity_properties WHERE GENETIC_ENTITY_ID IN (SELECT GENETIC_ENTITY_ID FROM genetic_alteration WHERE GENETIC_PROFILE_ID IN (SELECT GENETIC_PROFILE_ID FROM genetic_profile WHERE CANCER_STUDY_ID=?))",
-                "DELETE FROM genetic_entity WHERE ID IN (SELECT GENETIC_ENTITY_ID FROM genetic_alteration WHERE GENETIC_PROFILE_ID IN (SELECT GENETIC_PROFILE_ID FROM genetic_profile WHERE CANCER_STUDY_ID=? AND GENETIC_ALTERATION_TYPE='GENERIC_ASSAY'))",
-                "DELETE FROM genetic_alteration WHERE GENETIC_PROFILE_ID IN (SELECT GENETIC_PROFILE_ID FROM genetic_profile WHERE CANCER_STUDY_ID=?)",
-                "DELETE FROM genetic_profile_samples WHERE GENETIC_PROFILE_ID IN (SELECT GENETIC_PROFILE_ID FROM genetic_profile WHERE CANCER_STUDY_ID=?)",
-                "DELETE FROM sample_profile WHERE GENETIC_PROFILE_ID IN (SELECT GENETIC_PROFILE_ID FROM genetic_profile WHERE CANCER_STUDY_ID=?)",
-                "DELETE FROM mutation WHERE GENETIC_PROFILE_ID IN (SELECT GENETIC_PROFILE_ID FROM genetic_profile WHERE CANCER_STUDY_ID=?)",
-                "DELETE FROM mutation_count_by_keyword WHERE GENETIC_PROFILE_ID IN (SELECT GENETIC_PROFILE_ID FROM genetic_profile WHERE CANCER_STUDY_ID=?)",
-                "DELETE FROM clinical_attribute_meta WHERE CANCER_STUDY_ID=?",
-                "DELETE FROM clinical_event_data WHERE CLINICAL_EVENT_ID IN (SELECT CLINICAL_EVENT_ID FROM clinical_event WHERE PATIENT_ID IN (SELECT INTERNAL_ID FROM patient WHERE CANCER_STUDY_ID=?))",
-                "DELETE FROM clinical_event WHERE PATIENT_ID IN (SELECT INTERNAL_ID FROM patient WHERE CANCER_STUDY_ID=?)",
-                "DELETE FROM sample_list_list WHERE LIST_ID IN (SELECT LIST_ID FROM sample_list WHERE CANCER_STUDY_ID=?)",
-                "DELETE FROM clinical_sample WHERE INTERNAL_ID IN (SELECT INTERNAL_ID FROM sample WHERE PATIENT_ID IN (SELECT INTERNAL_ID FROM patient WHERE CANCER_STUDY_ID=?))",
-                "DELETE FROM copy_number_seg WHERE CANCER_STUDY_ID=?",
-                "DELETE FROM copy_number_seg_file WHERE CANCER_STUDY_ID=?",
-                "DELETE FROM protein_array_data WHERE CANCER_STUDY_ID=?",
-                "DELETE FROM protein_array_cancer_study WHERE CANCER_STUDY_ID=?",
-                "DELETE FROM sample WHERE PATIENT_ID IN (SELECT INTERNAL_ID FROM patient WHERE CANCER_STUDY_ID=?)",
-                "DELETE FROM clinical_patient WHERE INTERNAL_ID IN (SELECT INTERNAL_ID FROM patient WHERE CANCER_STUDY_ID=?)",
-                "DELETE FROM patient WHERE CANCER_STUDY_ID=?",
-                "DELETE FROM sample_list WHERE CANCER_STUDY_ID=?",
-                "DELETE FROM structural_variant WHERE GENETIC_PROFILE_ID IN (SELECT GENETIC_PROFILE_ID FROM genetic_profile WHERE CANCER_STUDY_ID=?)",
-                "DELETE FROM genetic_profile_link WHERE REFERRED_GENETIC_PROFILE_ID IN (select GENETIC_PROFILE_ID FROM genetic_profile where CANCER_STUDY_ID=?)",
-                "DELETE FROM genetic_profile WHERE CANCER_STUDY_ID=?",
-                "DELETE FROM gistic_to_gene WHERE GISTIC_ROI_ID IN (SELECT GISTIC_ROI_ID FROM gistic WHERE CANCER_STUDY_ID=?)",
-                "DELETE FROM gistic WHERE CANCER_STUDY_ID=?",
-                "DELETE FROM mut_sig WHERE CANCER_STUDY_ID=?",
-                "DELETE FROM cancer_study WHERE CANCER_STUDY_ID=?;"
-                };
+            "DELETE FROM sample_cna_event WHERE GENETIC_PROFILE_ID IN (SELECT GENETIC_PROFILE_ID FROM genetic_profile WHERE CANCER_STUDY_ID=?)",
+            "DELETE FROM generic_entity_properties WHERE GENETIC_ENTITY_ID IN (SELECT GENETIC_ENTITY_ID FROM genetic_alteration WHERE GENETIC_PROFILE_ID IN (SELECT GENETIC_PROFILE_ID FROM genetic_profile WHERE CANCER_STUDY_ID=?))",
+            "DELETE FROM genetic_entity WHERE ID IN (SELECT GENETIC_ENTITY_ID FROM genetic_alteration WHERE GENETIC_PROFILE_ID IN (SELECT GENETIC_PROFILE_ID FROM genetic_profile WHERE CANCER_STUDY_ID=? AND GENETIC_ALTERATION_TYPE='GENERIC_ASSAY'))",
+            "DELETE FROM genetic_alteration WHERE GENETIC_PROFILE_ID IN (SELECT GENETIC_PROFILE_ID FROM genetic_profile WHERE CANCER_STUDY_ID=?)",
+            "DELETE FROM genetic_profile_samples WHERE GENETIC_PROFILE_ID IN (SELECT GENETIC_PROFILE_ID FROM genetic_profile WHERE CANCER_STUDY_ID=?)",
+            "DELETE FROM sample_profile WHERE GENETIC_PROFILE_ID IN (SELECT GENETIC_PROFILE_ID FROM genetic_profile WHERE CANCER_STUDY_ID=?)",
+            "DELETE FROM mutation WHERE GENETIC_PROFILE_ID IN (SELECT GENETIC_PROFILE_ID FROM genetic_profile WHERE CANCER_STUDY_ID=?)",
+            "DELETE FROM mutation_count_by_keyword WHERE GENETIC_PROFILE_ID IN (SELECT GENETIC_PROFILE_ID FROM genetic_profile WHERE CANCER_STUDY_ID=?)",
+            "DELETE FROM clinical_attribute_meta WHERE CANCER_STUDY_ID=?",
+            "DELETE FROM clinical_event_data WHERE CLINICAL_EVENT_ID IN (SELECT CLINICAL_EVENT_ID FROM clinical_event WHERE PATIENT_ID IN (SELECT INTERNAL_ID FROM patient WHERE CANCER_STUDY_ID=?))",
+            "DELETE FROM clinical_event WHERE PATIENT_ID IN (SELECT INTERNAL_ID FROM patient WHERE CANCER_STUDY_ID=?)",
+            "DELETE FROM sample_list_list WHERE LIST_ID IN (SELECT LIST_ID FROM sample_list WHERE CANCER_STUDY_ID=?)",
+            "DELETE FROM clinical_sample WHERE INTERNAL_ID IN (SELECT INTERNAL_ID FROM sample WHERE PATIENT_ID IN (SELECT INTERNAL_ID FROM patient WHERE CANCER_STUDY_ID=?))",
+            "DELETE FROM copy_number_seg WHERE CANCER_STUDY_ID=?",
+            "DELETE FROM copy_number_seg_file WHERE CANCER_STUDY_ID=?",
+            "DELETE FROM protein_array_data WHERE CANCER_STUDY_ID=?",
+            "DELETE FROM protein_array_cancer_study WHERE CANCER_STUDY_ID=?",
+            "DELETE FROM sample WHERE PATIENT_ID IN (SELECT INTERNAL_ID FROM patient WHERE CANCER_STUDY_ID=?)",
+            "DELETE FROM clinical_patient WHERE INTERNAL_ID IN (SELECT INTERNAL_ID FROM patient WHERE CANCER_STUDY_ID=?)",
+            "DELETE FROM patient WHERE CANCER_STUDY_ID=?",
+            "DELETE FROM sample_list WHERE CANCER_STUDY_ID=?",
+            "DELETE FROM structural_variant WHERE GENETIC_PROFILE_ID IN (SELECT GENETIC_PROFILE_ID FROM genetic_profile WHERE CANCER_STUDY_ID=?)",
+            "DELETE FROM genetic_profile_link WHERE REFERRED_GENETIC_PROFILE_ID IN (select GENETIC_PROFILE_ID FROM genetic_profile where CANCER_STUDY_ID=?)",
+            "DELETE FROM genetic_profile WHERE CANCER_STUDY_ID=?",
+            "DELETE FROM gistic_to_gene WHERE GISTIC_ROI_ID IN (SELECT GISTIC_ROI_ID FROM gistic WHERE CANCER_STUDY_ID=?)",
+            "DELETE FROM gistic WHERE CANCER_STUDY_ID=?",
+            "DELETE FROM mut_sig WHERE CANCER_STUDY_ID=?",
+            "DELETE FROM cancer_study WHERE CANCER_STUDY_ID=?;"
+        };
         Connection con = null;
         PreparedStatement pstmt = null;
         ResultSet rs = null;
@@ -589,18 +667,19 @@ public final class DaoCancerStudy {
         }
         purgeUnreferencedRecordsAfterDeletionOfStudy();
         reCacheAll();
-        System.out.println("deleted study:\nID: "+internalCancerStudyId);
+        System.out.println("deleted study:\nID: " + internalCancerStudyId);
     }
 
     /**
      * Cleans up unreferenced records after cancer study deletion
      * @throws DaoException
      */
-    public static void purgeUnreferencedRecordsAfterDeletionOfStudy() throws DaoException {
+    public static void purgeUnreferencedRecordsAfterDeletionOfStudy()
+        throws DaoException {
         String[] deleteStudyStatements = {
-                "DELETE FROM cna_event WHERE NOT EXISTS (SELECT * FROM sample_cna_event WHERE sample_cna_event.CNA_EVENT_ID = cna_event.CNA_EVENT_ID)",
-                "DELETE FROM mutation_event WHERE NOT EXISTS (SELECT * FROM mutation WHERE mutation.MUTATION_EVENT_ID = mutation_event.MUTATION_EVENT_ID)"
-                };
+            "DELETE FROM cna_event WHERE NOT EXISTS (SELECT * FROM sample_cna_event WHERE sample_cna_event.CNA_EVENT_ID = cna_event.CNA_EVENT_ID)",
+            "DELETE FROM mutation_event WHERE NOT EXISTS (SELECT * FROM mutation WHERE mutation.MUTATION_EVENT_ID = mutation_event.MUTATION_EVENT_ID)"
+        };
         Connection con = null;
         PreparedStatement pstmt = null;
         ResultSet rs = null;
@@ -621,28 +700,39 @@ public final class DaoCancerStudy {
     /**
      * Extracts Cancer Study JDBC Results.
      */
-    private static CancerStudy extractCancerStudy(ResultSet rs) throws DaoException {
+    private static CancerStudy extractCancerStudy(ResultSet rs)
+        throws DaoException {
         try {
-            CancerStudy cancerStudy = new CancerStudy(rs.getString("NAME"),
-                    rs.getString("DESCRIPTION"),
-                    rs.getString("CANCER_STUDY_IDENTIFIER"),
-                    rs.getString("TYPE_OF_CANCER_ID"),
-                    rs.getBoolean("PUBLIC"));
+            CancerStudy cancerStudy = new CancerStudy(
+                rs.getString("NAME"),
+                rs.getString("DESCRIPTION"),
+                rs.getString("CANCER_STUDY_IDENTIFIER"),
+                rs.getString("TYPE_OF_CANCER_ID"),
+                rs.getBoolean("PUBLIC")
+            );
             cancerStudy.setPmid(rs.getString("PMID"));
             cancerStudy.setCitation(rs.getString("CITATION"));
             cancerStudy.setGroupsInUpperCase(rs.getString("GROUPS"));
             cancerStudy.setShortName(rs.getString("SHORT_NAME"));
             cancerStudy.setInternalId(rs.getInt("CANCER_STUDY_ID"));
             cancerStudy.setImportDate(rs.getDate("IMPORT_DATE"));
-            cancerStudy.setReferenceGenome(DaoReferenceGenome.getReferenceGenomeByInternalId(
-                rs.getInt("REFERENCE_GENOME_ID")).getGenomeName());
+            cancerStudy.setReferenceGenome(
+                DaoReferenceGenome
+                    .getReferenceGenomeByInternalId(
+                        rs.getInt("REFERENCE_GENOME_ID")
+                    )
+                    .getGenomeName()
+            );
             return cancerStudy;
         } catch (SQLException e) {
             throw new DaoException(e);
         }
     }
 
-    private static boolean studyNeedsRecaching(String stableId, Integer ... internalId) {
+    private static boolean studyNeedsRecaching(
+        String stableId,
+        Integer... internalId
+    ) {
         if (cacheOutOfSyncWithDb()) {
             return true;
         }
@@ -653,13 +743,19 @@ public final class DaoCancerStudy {
                 importDate = getImportDate(null, internalId[0]);
                 cacheDate = cacheDateByInternalId.get(internalId[0]);
             } else {
-                if (stableId.equals(org.mskcc.cbio.portal.util.AccessControl.ALL_CANCER_STUDIES_ID)) {
+                if (
+                    stableId.equals(
+                        org.mskcc.cbio.portal.util.AccessControl.ALL_CANCER_STUDIES_ID
+                    )
+                ) {
                     return false;
                 }
                 importDate = getImportDate(stableId);
                 cacheDate = cacheDateByStableId.get(stableId);
             }
-            return (importDate == null || cacheDate == null) ? false : cacheDate.before(importDate);
+            return (importDate == null || cacheDate == null)
+                ? false
+                : cacheDate.before(importDate);
         } catch (ParseException e) {
             return false;
         } catch (DaoException e) {
@@ -670,8 +766,7 @@ public final class DaoCancerStudy {
     private static boolean cacheOutOfSyncWithDb() {
         try {
             return getStudyCount() != byStableId.size();
-        } catch (DaoException e) {
-        }
+        } catch (DaoException e) {}
         return false;
     }
 }

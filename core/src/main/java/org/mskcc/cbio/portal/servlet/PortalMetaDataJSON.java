@@ -28,7 +28,7 @@
  *
  * You should have received a copy of the GNU Affero General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
-*/
+ */
 
 package org.mskcc.cbio.portal.servlet;
 
@@ -49,7 +49,6 @@ import org.mskcc.cbio.portal.web_api.*;
  * @author Ethan Cerami.
  */
 public class PortalMetaDataJSON extends HttpServlet {
-
     // class which process access control to cancer studies
     private AccessControl accessControl;
     public static final String STUDY_ID = "study_id";
@@ -79,35 +78,47 @@ public class PortalMetaDataJSON extends HttpServlet {
      * @return A Map representing the given study.
      * @throws DaoException
      */
-    protected Map cancerStudyMap(CancerStudy cancerStudy, boolean partial) throws DaoException {
+    protected Map cancerStudyMap(CancerStudy cancerStudy, boolean partial)
+        throws DaoException {
         Map ret = new LinkedHashMap();
         ret.put("name", cancerStudy.getName());
         ret.put("type_of_cancer", cancerStudy.getTypeOfCancerId());
         ret.put("description", cancerStudy.getDescription());
-	ArrayList<SampleList> caseSets = GetSampleLists.getSampleLists(cancerStudy.getCancerStudyStableId());
-	int numSamples = 0;
-	for (SampleList pl: caseSets) {
-		String suffix = pl.getStableId().substring(pl.getStableId().length()-4);
-		if (suffix.equals("_all")) {
-			numSamples = pl.getSampleList().size();
-			break;
-		}
-	}
-	ret.put("num_samples", numSamples);
-	
+        ArrayList<SampleList> caseSets = GetSampleLists.getSampleLists(
+            cancerStudy.getCancerStudyStableId()
+        );
+        int numSamples = 0;
+        for (SampleList pl : caseSets) {
+            String suffix = pl
+                .getStableId()
+                .substring(pl.getStableId().length() - 4);
+            if (suffix.equals("_all")) {
+                numSamples = pl.getSampleList().size();
+                break;
+            }
+        }
+        ret.put("num_samples", numSamples);
+
         if (partial) {
             ret.put("partial", "true");
         } else {
             // at this point we have the study corresponding to the given ID
-            ArrayList<GeneticProfile> geneticProfiles
-                    = GetGeneticProfiles.getGeneticProfiles(cancerStudy.getCancerStudyStableId());
+            ArrayList<GeneticProfile> geneticProfiles = GetGeneticProfiles.getGeneticProfiles(
+                cancerStudy.getCancerStudyStableId()
+            );
 
             JSONArray jsonGenomicProfileList = new JSONArray();
             for (GeneticProfile geneticProfile : geneticProfiles) {
                 Map map = new LinkedHashMap();
                 map.put("id", geneticProfile.getStableId());
-                map.put("alteration_type", geneticProfile.getGeneticAlterationType().name());
-                map.put("show_in_analysis_tab", geneticProfile.showProfileInAnalysisTab());
+                map.put(
+                    "alteration_type",
+                    geneticProfile.getGeneticAlterationType().name()
+                );
+                map.put(
+                    "show_in_analysis_tab",
+                    geneticProfile.showProfileInAnalysisTab()
+                );
                 map.put("name", geneticProfile.getProfileName());
                 map.put("description", geneticProfile.getProfileDescription());
                 map.put("datatype", geneticProfile.getDatatype());
@@ -128,7 +139,10 @@ public class PortalMetaDataJSON extends HttpServlet {
             ret.put("pmid", cancerStudy.getPmid());
             ret.put("genomic_profiles", jsonGenomicProfileList);
             ret.put("case_sets", jsonCaseList);
-            ret.put("has_mutation_data", cancerStudy.hasMutationData(geneticProfiles));
+            ret.put(
+                "has_mutation_data",
+                cancerStudy.hasMutationData(geneticProfiles)
+            );
             ret.put("has_cna_data", cancerStudy.hasCnaData());
             ret.put("has_mutsig_data", cancerStudy.hasMutSigData());
             ret.put("has_gistic_data", cancerStudy.hasGisticData());
@@ -147,9 +161,11 @@ public class PortalMetaDataJSON extends HttpServlet {
      * @throws javax.servlet.ServletException Servlet Error.
      * @throws java.io.IOException IO Error.
      */
-    protected void doGet(HttpServletRequest httpServletRequest,
-            HttpServletResponse httpServletResponse) throws ServletException,
-            IOException {
+    protected void doGet(
+        HttpServletRequest httpServletRequest,
+        HttpServletResponse httpServletResponse
+    )
+        throws ServletException, IOException {
         XDebug xdebug = new XDebug(httpServletRequest);
         String studyId = httpServletRequest.getParameter(STUDY_ID);
         String geneSetId = httpServletRequest.getParameter(GENESET_ID);
@@ -186,7 +202,9 @@ public class PortalMetaDataJSON extends HttpServlet {
                     }
                 }
                 if (cancerStudy == null) {
-                    String jsonText = JSONValue.toJSONString(new LinkedHashMap());
+                    String jsonText = JSONValue.toJSONString(
+                        new LinkedHashMap()
+                    );
                     PrintWriter writer = httpServletResponse.getWriter();
                     writer.write(jsonText);
                     writer.flush();
@@ -208,12 +226,21 @@ public class PortalMetaDataJSON extends HttpServlet {
 
                 // Also get cancer study types and add it to the metadata
                 ArrayList<TypeOfCancer> allTypesOfCancer = DaoTypeOfCancer.getAllTypesOfCancer();
-                Collections.sort(allTypesOfCancer, new Comparator<TypeOfCancer>() {
-                    @Override
-                    public int compare(TypeOfCancer typeOfCancer, TypeOfCancer typeOfCancer1) {
-                        return typeOfCancer.getName().compareTo(typeOfCancer1.getName());
+                Collections.sort(
+                    allTypesOfCancer,
+                    new Comparator<TypeOfCancer>() {
+
+                        @Override
+                        public int compare(
+                            TypeOfCancer typeOfCancer,
+                            TypeOfCancer typeOfCancer1
+                        ) {
+                            return typeOfCancer
+                                .getName()
+                                .compareTo(typeOfCancer1.getName());
+                        }
                     }
-                });
+                );
                 Map<String, TypeOfCancer> typeOfCancerMap = new HashMap<>();
                 Map<String, String> visibleTypeOfCancerMap = new HashMap<String, String>();
                 Map<String, String> cancerColors = new HashMap<String, String>();
@@ -222,10 +249,22 @@ public class PortalMetaDataJSON extends HttpServlet {
                 Map<String, String> visibleShortNames = new HashMap<String, String>();
                 Map<String, String> parentTypeOfCancer = new HashMap<String, String>();
                 for (TypeOfCancer typeOfCancer : allTypesOfCancer) {
-                    typeOfCancerMap.put(typeOfCancer.getTypeOfCancerId(), typeOfCancer);
-                    cancerColors.put(typeOfCancer.getTypeOfCancerId(), typeOfCancer.getDedicatedColor());
-                    shortNames.put(typeOfCancer.getTypeOfCancerId(), typeOfCancer.getShortName());
-                    parentTypeOfCancer.put(typeOfCancer.getTypeOfCancerId(), typeOfCancer.getParentTypeOfCancerId());
+                    typeOfCancerMap.put(
+                        typeOfCancer.getTypeOfCancerId(),
+                        typeOfCancer
+                    );
+                    cancerColors.put(
+                        typeOfCancer.getTypeOfCancerId(),
+                        typeOfCancer.getDedicatedColor()
+                    );
+                    shortNames.put(
+                        typeOfCancer.getTypeOfCancerId(),
+                        typeOfCancer.getShortName()
+                    );
+                    parentTypeOfCancer.put(
+                        typeOfCancer.getTypeOfCancerId(),
+                        typeOfCancer.getParentTypeOfCancerId()
+                    );
                 }
 
                 //  Cancer All Cancer Studies
@@ -233,41 +272,83 @@ public class PortalMetaDataJSON extends HttpServlet {
 
                 //  Get all Genomic Profiles and Case Sets for each Cancer Study
                 rootMap.put("cancer_studies", cancerStudyMap);
-                String partial_studies_s = httpServletRequest.getParameter(PARTIAL_STUDIES);
-                
-                boolean full_studies_data = (partial_studies_s == null || partial_studies_s.equals("false"));
-                
+                String partial_studies_s = httpServletRequest.getParameter(
+                    PARTIAL_STUDIES
+                );
+
+                boolean full_studies_data =
+                    (
+                        partial_studies_s == null ||
+                        partial_studies_s.equals("false")
+                    );
+
                 for (CancerStudy cancerStudy : cancerStudiesList) {
-                	//TODO - skip the dummy "all" study still being added by accessControl.getCancerStudies() above
-                    Map jsonCancerStudySubMap = cancerStudyMap(cancerStudy, !full_studies_data);
-                    cancerStudyMap.put(cancerStudy.getCancerStudyStableId(), jsonCancerStudySubMap);
-                    String typeOfCancerId = cancerStudy.getTypeOfCancerId().toLowerCase();
+                    //TODO - skip the dummy "all" study still being added by accessControl.getCancerStudies() above
+                    Map jsonCancerStudySubMap = cancerStudyMap(
+                        cancerStudy,
+                        !full_studies_data
+                    );
+                    cancerStudyMap.put(
+                        cancerStudy.getCancerStudyStableId(),
+                        jsonCancerStudySubMap
+                    );
+                    String typeOfCancerId = cancerStudy
+                        .getTypeOfCancerId()
+                        .toLowerCase();
                     if (typeOfCancerMap.get(typeOfCancerId) == null) {
-                    	//should not occur if DB is on InnoDB mode with referential constraints:
-                    	throw new RuntimeException("Cancer type record not found for: " + typeOfCancerId);
+                        //should not occur if DB is on InnoDB mode with referential constraints:
+                        throw new RuntimeException(
+                            "Cancer type record not found for: " +
+                            typeOfCancerId
+                        );
                     }
-                    visibleTypeOfCancerMap.put(typeOfCancerId, typeOfCancerMap.get(typeOfCancerId).getName());
+                    visibleTypeOfCancerMap.put(
+                        typeOfCancerId,
+                        typeOfCancerMap.get(typeOfCancerId).getName()
+                    );
 
                     // climb the oncotree
-				    String parentId = typeOfCancerMap.get(typeOfCancerId).getParentTypeOfCancerId();
-				    String childId = typeOfCancerId;
-				    while (!parentId.equals("tissue")) {
-				    	//validations: TODO - these validations need to be at data loading level to block 
-				    	//				such entries...but keeping these exceptions here to help other with troubleshooting in case of old data:
-				    	if (typeOfCancerMap.get(parentId) == null) {
-				    		//if parent type of cancer is wrong, give error:
-	                    	throw new RuntimeException("Cancer type record not found for given 'parent type of cancer': " + parentId);
-				    	}
-				    	if (childId.equalsIgnoreCase(parentId)) {
-				    		//this is also an error as it causes infinite loop when building the tree 
-				    		throw new RuntimeException("Cancer type and parent cancer type cannot be the same. Found: " + childId + "," + parentId);
-				    	}
-					    visibleTypeOfCancerMap.put(parentId, typeOfCancerMap.get(parentId).getName());
-					    childId = parentId;
-					    parentId = typeOfCancerMap.get(parentId).getParentTypeOfCancerId();
-				    }
-                    visibleCancerColors.put(typeOfCancerId, cancerColors.get(typeOfCancerId));
-                    visibleShortNames.put(typeOfCancerId, shortNames.get(typeOfCancerId));
+                    String parentId = typeOfCancerMap
+                        .get(typeOfCancerId)
+                        .getParentTypeOfCancerId();
+                    String childId = typeOfCancerId;
+                    while (!parentId.equals("tissue")) {
+                        //validations: TODO - these validations need to be at data loading level to block
+                        //				such entries...but keeping these exceptions here to help other with troubleshooting in case of old data:
+                        if (typeOfCancerMap.get(parentId) == null) {
+                            //if parent type of cancer is wrong, give error:
+                            throw new RuntimeException(
+                                "Cancer type record not found for given 'parent type of cancer': " +
+                                parentId
+                            );
+                        }
+                        if (childId.equalsIgnoreCase(parentId)) {
+                            //this is also an error as it causes infinite loop when building the tree
+                            throw new RuntimeException(
+                                "Cancer type and parent cancer type cannot be the same. Found: " +
+                                childId +
+                                "," +
+                                parentId
+                            );
+                        }
+                        visibleTypeOfCancerMap.put(
+                            parentId,
+                            typeOfCancerMap.get(parentId).getName()
+                        );
+                        childId = parentId;
+                        parentId =
+                            typeOfCancerMap
+                                .get(parentId)
+                                .getParentTypeOfCancerId();
+                    }
+                    visibleCancerColors.put(
+                        typeOfCancerId,
+                        cancerColors.get(typeOfCancerId)
+                    );
+                    visibleShortNames.put(
+                        typeOfCancerId,
+                        shortNames.get(typeOfCancerId)
+                    );
                 }
 
                 // Only put visible ones
@@ -281,9 +362,15 @@ public class PortalMetaDataJSON extends HttpServlet {
                 Map jsonGeneSetMap = new LinkedHashMap();
                 rootMap.put("gene_sets", jsonGeneSetMap);
                 ArrayList<SetOfGenes> geneSetList = geneSetUtil.getGeneSetList();
-                String partial_genesets_s = httpServletRequest.getParameter(PARTIAL_GENESETS);
-                boolean full_genesets_data = (partial_genesets_s == null || partial_genesets_s.equals("false"));
-                
+                String partial_genesets_s = httpServletRequest.getParameter(
+                    PARTIAL_GENESETS
+                );
+                boolean full_genesets_data =
+                    (
+                        partial_genesets_s == null ||
+                        partial_genesets_s.equals("false")
+                    );
+
                 for (SetOfGenes setOfGenes : geneSetList) {
                     Map geneSetMap = new LinkedHashMap();
                     geneSetMap.put("name", setOfGenes.getName());
@@ -308,5 +395,4 @@ public class PortalMetaDataJSON extends HttpServlet {
             throw new ServletException(e);
         }
     }
-
 }

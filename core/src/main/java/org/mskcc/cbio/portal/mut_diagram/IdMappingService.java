@@ -28,7 +28,7 @@
  *
  * You should have received a copy of the GNU Affero General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
-*/
+ */
 
 package org.mskcc.cbio.portal.mut_diagram;
 
@@ -38,7 +38,6 @@ import java.util.List;
  * Id mapping service.
  */
 public interface IdMappingService {
-
     /**
      * Return a list of UniProt accessions for the specified HUGO gene symbol, or an empty list if no such accessions exist.
      *
@@ -46,11 +45,11 @@ public interface IdMappingService {
      * @return a list of UniProt accessions for the specified HUGO gene symbol, or an empty list if no such accessions exist
      */
     List<String> mapFromHugoToUniprotAccessions(String hugoGeneSymbol);
-    
+
     /**
-     * 
+     *
      * @param uniprotId
-     * @return 
+     * @return
      */
     String mapFromUniprotIdToUniprotAccession(String uniprotId);
 }

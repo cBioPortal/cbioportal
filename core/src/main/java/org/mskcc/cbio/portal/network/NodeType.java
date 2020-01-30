@@ -28,33 +28,33 @@
  *
  * You should have received a copy of the GNU Affero General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
-*/
+ */
 
 package org.mskcc.cbio.portal.network;
 
-import java.util.Map;
 import java.util.HashMap;
+import java.util.Map;
 
 /**
  *
  * @author jgao
  */
 public enum NodeType {
-    PROTEIN("Protein","ProteinReference"),
-    RNAREF("Protein","RnaReference"),
-    RNAREGREF("Protein","RnaRegionReference"),
-    DNAREF("Protein","DnaReference"),
-    DNAREGREF("Protein","DnaRegionReference"),
-    NUCACIDREF("Protein","NuecleicAcidReference"),
-    NUCACIDREGREF("Protein","NuecleicAcidRegionReference"),
+    PROTEIN("Protein", "ProteinReference"),
+    RNAREF("Protein", "RnaReference"),
+    RNAREGREF("Protein", "RnaRegionReference"),
+    DNAREF("Protein", "DnaReference"),
+    DNAREGREF("Protein", "DnaRegionReference"),
+    NUCACIDREF("Protein", "NuecleicAcidReference"),
+    NUCACIDREGREF("Protein", "NuecleicAcidRegionReference"),
     SMALL_MOLECULE("SmallMolecule", "SmallMoleculeReference"),
-    COMPLEX_GROUP("ComplexGroup","ComplexGroup"),
-    GENERIC_PROTEIN("GenericProtein","GenericProtein"),
-    GENERIC_COMPLEX("GenericComplex","GenericComplex"),
-    GENERIC_SMALL_MOLECULE("GenericSmallMolecule","GenericSmallMolecule"),
-    GENERIC("Generic","Generic"),
+    COMPLEX_GROUP("ComplexGroup", "ComplexGroup"),
+    GENERIC_PROTEIN("GenericProtein", "GenericProtein"),
+    GENERIC_COMPLEX("GenericComplex", "GenericComplex"),
+    GENERIC_SMALL_MOLECULE("GenericSmallMolecule", "GenericSmallMolecule"),
+    GENERIC("Generic", "Generic"),
     DRUG("Drug", "Drug"),
-    UNKNOWN("Unknown","Unknown");
+    UNKNOWN("Unknown", "Unknown");
 
     private final String desc;
     private final String cpath2Keyword;
@@ -64,48 +64,41 @@ public enum NodeType {
         this.cpath2Keyword = cpath2Keyword;
     }
 
-    private boolean isProtein(String [] cpath2Keywords)
-    {
-    	for (int i = 0; i < cpath2Keywords.length; i++)
-    	{
-			if (mapCpath2NodeType.get(cpath2Keywords[i]).desc.equals("Protein"))
-			{
-				return true;
-			}
-		}
-    	return false;
+    private boolean isProtein(String[] cpath2Keywords) {
+        for (int i = 0; i < cpath2Keywords.length; i++) {
+            if (
+                mapCpath2NodeType.get(cpath2Keywords[i]).desc.equals("Protein")
+            ) {
+                return true;
+            }
+        }
+        return false;
     }
 
-    private static final Map<String,NodeType> mapCpath2NodeType;
+    private static final Map<String, NodeType> mapCpath2NodeType;
+
     static {
-        mapCpath2NodeType = new HashMap<String,NodeType>();
+        mapCpath2NodeType = new HashMap<String, NodeType>();
         for (NodeType type : NodeType.values()) {
             mapCpath2NodeType.put(type.cpath2Keyword, type);
         }
     }
 
     public static NodeType getByCpath2Keyword(final String cpath2Keyword) {
-    	String [] cpath2References = cpath2Keyword.split(";");
-    	NodeType nodeType = mapCpath2NodeType.get(cpath2References[0]);
+        String[] cpath2References = cpath2Keyword.split(";");
+        NodeType nodeType = mapCpath2NodeType.get(cpath2References[0]);
 
-    	for (int i = 0; i < cpath2References.length; i++)
-    	{
-    		NodeType newType = mapCpath2NodeType.get(cpath2References[i]);
+        for (int i = 0; i < cpath2References.length; i++) {
+            NodeType newType = mapCpath2NodeType.get(cpath2References[i]);
 
-    		//That means something is going terribly wrong here !
-    		//Two different result for cpath2Keyword e.g. protein and small molecule !
-    		if (!newType.desc.equals(nodeType.desc))
-    		{
-				  return UNKNOWN;
-			  }
-    		else
-    			nodeType = newType;
-		  }
+            //That means something is going terribly wrong here !
+            //Two different result for cpath2Keyword e.g. protein and small molecule !
+            if (!newType.desc.equals(nodeType.desc)) {
+                return UNKNOWN;
+            } else nodeType = newType;
+        }
 
-    	if (nodeType != null)
-			       return nodeType;
-    	else
-             return UNKNOWN;
+        if (nodeType != null) return nodeType; else return UNKNOWN;
     }
 
     @Override

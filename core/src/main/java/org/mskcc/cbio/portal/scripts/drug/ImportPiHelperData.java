@@ -28,23 +28,23 @@
  *
  * You should have received a copy of the GNU Affero General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
-*/
+ */
 
 package org.mskcc.cbio.portal.scripts.drug;
-
-import org.mskcc.cbio.portal.scripts.drug.internal.PiHelperImporter;
 
 import java.io.FileInputStream;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
+import org.mskcc.cbio.portal.scripts.drug.internal.PiHelperImporter;
 
 public class ImportPiHelperData {
+
     public static void main(String arg[]) throws Exception {
-        if(arg.length < 2) {
+        if (arg.length < 2) {
             System.err.println(
-                    "Missing options!\nUsage: "
-                            + ImportPiHelperData.class.getSimpleName()
-                            + " drugs.tsv drugtargets.tsv"
+                "Missing options!\nUsage: " +
+                ImportPiHelperData.class.getSimpleName() +
+                " drugs.tsv drugtargets.tsv"
             );
             return;
         }
@@ -53,9 +53,9 @@ public class ImportPiHelperData {
         SimpleDateFormat format = new SimpleDateFormat("yyyy-MM");
         String today = format.format(cal.getTime());
         DrugDataResource pihelper = new DrugDataResource(
-                "PiHelper",
-                "https://bitbucket.org/armish/pihelper/downloads/pihelper_data_20121107.zip",
-                today
+            "PiHelper",
+            "https://bitbucket.org/armish/pihelper/downloads/pihelper_data_20121107.zip",
+            today
         );
 
         PiHelperImporter piHelperImporter = new PiHelperImporter(pihelper);

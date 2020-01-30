@@ -28,7 +28,7 @@
  *
  * You should have received a copy of the GNU Affero General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
-*/
+ */
 
 package org.mskcc.cbio.portal.scripts;
 
@@ -50,105 +50,117 @@ import org.apache.commons.lang.StringUtils;
  * @author jgao
  */
 public class FilterCases {
+
     public static void main(String[] args) throws Exception {
-	if (args.length == 0) {
-            System.out.println("command line usage:  filterCases.pl regex.txt input_file output_file id_row_or_col starting_row_or_col:\n"
-		    + "\te.g. filterCases.pl case_id.txt input_file output_file c10 r1");
+        if (args.length == 0) {
+            System.out.println(
+                "command line usage:  filterCases.pl regex.txt input_file output_file id_row_or_col starting_row_or_col:\n" +
+                "\te.g. filterCases.pl case_id.txt input_file output_file c10 r1"
+            );
             return;
         }
-	
-	Set<String> regexes = fileToSet(args[0]);
-	String concatRegex = "(("+StringUtils.join(regexes, ")|(")+"))";
-	
-	String strIdIx = args[3].toLowerCase(); // row or column of IDs
-	int idIx = Integer.parseInt(strIdIx.substring(1));
-	
-	String strStart = args[4].toLowerCase(); // starting to filter
-	boolean byRow = strStart.startsWith("r");
-	int start = Integer.parseInt(strStart.substring(1));
-	
-	if (byRow) {
-	    cutRows(args[1], args[2], concatRegex, idIx, start);
-	} else {
-	    cutColumns(args[1], args[2], concatRegex, idIx, start);
-	}
-	
+
+        Set<String> regexes = fileToSet(args[0]);
+        String concatRegex = "((" + StringUtils.join(regexes, ")|(") + "))";
+
+        String strIdIx = args[3].toLowerCase(); // row or column of IDs
+        int idIx = Integer.parseInt(strIdIx.substring(1));
+
+        String strStart = args[4].toLowerCase(); // starting to filter
+        boolean byRow = strStart.startsWith("r");
+        int start = Integer.parseInt(strStart.substring(1));
+
+        if (byRow) {
+            cutRows(args[1], args[2], concatRegex, idIx, start);
+        } else {
+            cutColumns(args[1], args[2], concatRegex, idIx, start);
+        }
     }
-    
+
     private static Set<String> fileToSet(String caseIdFile) throws IOException {
-	BufferedReader in = new BufferedReader(new FileReader(caseIdFile));
-	Set<String> ret = new HashSet<String>();
-	for (String line = in.readLine(); line != null; line = in.readLine()) {
-	    ret.add(line);
-	}
-	return ret;
+        BufferedReader in = new BufferedReader(new FileReader(caseIdFile));
+        Set<String> ret = new HashSet<String>();
+        for (String line = in.readLine(); line != null; line = in.readLine()) {
+            ret.add(line);
+        }
+        return ret;
     }
-    
-    private static void cutColumns(String inFile, String outFile,
-	    String concatRegex, int idRow, int startColum) throws IOException {
-	
-	BufferedReader in = new BufferedReader(new FileReader(inFile));
-	
-	for (int i=0; i<idRow; i++) {
-	    in.readLine();
-	}
-	
-	Pattern p = Pattern.compile(concatRegex);
-	String line = in.readLine();
-	
-	String[] headers = line.split("\t");
-	boolean[] keep = new boolean[headers.length];
-	
-	for (int i=0; i<startColum; i++) {
-	    keep[i] = true;
-	}
-	
-	for (int i=startColum; i<headers.length; i++) {
-	    Matcher m = p.matcher(headers[i]);
-	    keep[i] = m.find();
-	}
-	
-	in.close();
-	
-	in = new BufferedReader(new FileReader(inFile));
-	BufferedWriter out = new BufferedWriter(new FileWriter(outFile));
-	
-	for (line = in.readLine(); line != null; line = in.readLine()) {
-	    String[] parts = line.split("\t");
-	    List<String> partsKept = new ArrayList<String>();
-	    for (int i=0; i<parts.length; i++) {
-		if (keep[i]) {
-		    partsKept.add(parts[i]);
-		}
-	    }
-	    out.write(StringUtils.join(partsKept,"\t"));
-	    out.newLine();
-	}
-	in.close();
-	out.close();
+
+    private static void cutColumns(
+        String inFile,
+        String outFile,
+        String concatRegex,
+        int idRow,
+        int startColum
+    )
+        throws IOException {
+        BufferedReader in = new BufferedReader(new FileReader(inFile));
+
+        for (int i = 0; i < idRow; i++) {
+            in.readLine();
+        }
+
+        Pattern p = Pattern.compile(concatRegex);
+        String line = in.readLine();
+
+        String[] headers = line.split("\t");
+        boolean[] keep = new boolean[headers.length];
+
+        for (int i = 0; i < startColum; i++) {
+            keep[i] = true;
+        }
+
+        for (int i = startColum; i < headers.length; i++) {
+            Matcher m = p.matcher(headers[i]);
+            keep[i] = m.find();
+        }
+
+        in.close();
+
+        in = new BufferedReader(new FileReader(inFile));
+        BufferedWriter out = new BufferedWriter(new FileWriter(outFile));
+
+        for (line = in.readLine(); line != null; line = in.readLine()) {
+            String[] parts = line.split("\t");
+            List<String> partsKept = new ArrayList<String>();
+            for (int i = 0; i < parts.length; i++) {
+                if (keep[i]) {
+                    partsKept.add(parts[i]);
+                }
+            }
+            out.write(StringUtils.join(partsKept, "\t"));
+            out.newLine();
+        }
+        in.close();
+        out.close();
     }
-    
-    private static void cutRows(String inFile, String outFile,
-	    String concatRegex, int idIx, int startColumn) throws IOException {
-	
-	BufferedReader in = new BufferedReader(new FileReader(inFile));
-	BufferedWriter out = new BufferedWriter(new FileWriter(outFile));
-	for (int i=0; i<startColumn; i++) {
-	    out.append(in.readLine());
-	    out.newLine();
-	}
-	
-	Pattern p = Pattern.compile(concatRegex);
-	
-	for (String line = in.readLine(); line != null; line = in.readLine()) {
-	    String[] parts = line.split("\t");
-	    Matcher m = p.matcher(parts[idIx]);
-	    if (m.find()) {
-		out.append(line);
-		out.newLine();
-	    }
-	}
-	in.close();
-	out.close();
+
+    private static void cutRows(
+        String inFile,
+        String outFile,
+        String concatRegex,
+        int idIx,
+        int startColumn
+    )
+        throws IOException {
+        BufferedReader in = new BufferedReader(new FileReader(inFile));
+        BufferedWriter out = new BufferedWriter(new FileWriter(outFile));
+        for (int i = 0; i < startColumn; i++) {
+            out.append(in.readLine());
+            out.newLine();
+        }
+
+        Pattern p = Pattern.compile(concatRegex);
+
+        for (String line = in.readLine(); line != null; line = in.readLine()) {
+            String[] parts = line.split("\t");
+            Matcher m = p.matcher(parts[idIx]);
+            if (m.find()) {
+                out.append(line);
+                out.newLine();
+            }
+        }
+        in.close();
+        out.close();
     }
 }

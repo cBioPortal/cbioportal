@@ -28,13 +28,12 @@
  *
  * You should have received a copy of the GNU Affero General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
-*/
+ */
 
 package org.mskcc.cbio.portal.util;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.support.ClassPathXmlApplicationContext;
@@ -42,8 +41,7 @@ import org.springframework.context.support.GenericXmlApplicationContext;
 import org.springframework.stereotype.Component;
 
 @Component
-public class SpringUtil
-{
+public class SpringUtil {
     private static final Log log = LogFactory.getLog(SpringUtil.class);
 
     private static AccessControl accessControl;
@@ -56,15 +54,17 @@ public class SpringUtil
         SpringUtil.accessControl = accessControl;
     }
 
-    public static AccessControl getAccessControl()
-    {
+    public static AccessControl getAccessControl() {
         return accessControl;
     }
 
-    public static synchronized void initDataSource()
-    {
+    public static synchronized void initDataSource() {
         if (SpringUtil.context == null) {
-            context = new ClassPathXmlApplicationContext("classpath:applicationContext-business.xml", "classpath:applicationContext-ehcache.xml");
+            context =
+                new ClassPathXmlApplicationContext(
+                    "classpath:applicationContext-business.xml",
+                    "classpath:applicationContext-ehcache.xml"
+                );
         }
     }
 
@@ -93,8 +93,7 @@ public class SpringUtil
      *
      * @param context
      */
-    public static synchronized void initDataSource(ApplicationContext context)
-    {
+    public static synchronized void initDataSource(ApplicationContext context) {
         SpringUtil.context = context;
     }
 }

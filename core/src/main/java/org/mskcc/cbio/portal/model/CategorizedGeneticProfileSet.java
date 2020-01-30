@@ -28,7 +28,7 @@
  *
  * You should have received a copy of the GNU Affero General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
-*/
+ */
 
 package org.mskcc.cbio.portal.model;
 
@@ -56,7 +56,9 @@ public class CategorizedGeneticProfileSet {
      *
      * @param geneticProfileList All genetic profiles associated with a cancer study.
      */
-    public CategorizedGeneticProfileSet(ArrayList<GeneticProfile> geneticProfileList) {
+    public CategorizedGeneticProfileSet(
+        ArrayList<GeneticProfile> geneticProfileList
+    ) {
         for (GeneticProfile currentProfile : geneticProfileList) {
             addGeneticProfile(currentProfile);
         }
@@ -77,20 +79,26 @@ public class CategorizedGeneticProfileSet {
      * @return GeneticProfile Object.
      */
     public GeneticProfile getDefaultCnaProfile() {
-        ArrayList<ArrayList<GeneticProfile>> orderOfPredenceList
-                = new ArrayList<ArrayList<GeneticProfile>>();
+        ArrayList<ArrayList<GeneticProfile>> orderOfPredenceList = new ArrayList<ArrayList<GeneticProfile>>();
         orderOfPredenceList.add(gisticProfileList);
         orderOfPredenceList.add(raeProfileList);
         // Now prioritize the ones that are shown in the analysis tab
-        Collections.sort(otherCnaProfileList, new Comparator<GeneticProfile>() {
-            @Override
-            public int compare(GeneticProfile geneticProfileA, GeneticProfile geneticProfileB) {
-                int a = geneticProfileA.showProfileInAnalysisTab() ? 1 : 0;
-                int b = geneticProfileB.showProfileInAnalysisTab() ? 1 : 0;
+        Collections.sort(
+            otherCnaProfileList,
+            new Comparator<GeneticProfile>() {
 
-                return b-a;
+                @Override
+                public int compare(
+                    GeneticProfile geneticProfileA,
+                    GeneticProfile geneticProfileB
+                ) {
+                    int a = geneticProfileA.showProfileInAnalysisTab() ? 1 : 0;
+                    int b = geneticProfileB.showProfileInAnalysisTab() ? 1 : 0;
+
+                    return b - a;
+                }
             }
-        });
+        );
         orderOfPredenceList.add(otherCnaProfileList);
         return getFirstPriorityProfile(orderOfPredenceList);
     }
@@ -147,14 +155,21 @@ public class CategorizedGeneticProfileSet {
      *
      * @return HashMap of Genetic Profiles, indexed by their stable IDs.
      */
-    private HashMap<String, GeneticProfile> getDefaultGeneticProfileMap(boolean includeCNA, boolean includeMutation) {
+    private HashMap<String, GeneticProfile> getDefaultGeneticProfileMap(
+        boolean includeCNA,
+        boolean includeMutation
+    ) {
         HashMap<String, GeneticProfile> defaultProfileSet = new HashMap<String, GeneticProfile>();
 
-        if(includeCNA)
-            conditionallyAddProfileToSet(getDefaultCnaProfile(), defaultProfileSet);
+        if (includeCNA) conditionallyAddProfileToSet(
+            getDefaultCnaProfile(),
+            defaultProfileSet
+        );
 
-        if(includeMutation)
-            conditionallyAddProfileToSet(getDefaultMutationProfile(), defaultProfileSet);
+        if (includeMutation) conditionallyAddProfileToSet(
+            getDefaultMutationProfile(),
+            defaultProfileSet
+        );
 
         return defaultProfileSet;
     }
@@ -170,15 +185,22 @@ public class CategorizedGeneticProfileSet {
 
     private void addGeneticProfile(GeneticProfile geneticProfile) {
         GeneticAlterationType geneticAlterationType = geneticProfile.getGeneticAlterationType();
-        if (geneticAlterationType == GeneticAlterationType.COPY_NUMBER_ALTERATION) {
+        if (
+            geneticAlterationType ==
+            GeneticAlterationType.COPY_NUMBER_ALTERATION
+        ) {
             addCopyNumberProfile(geneticProfile);
-        } else if (geneticAlterationType == GeneticAlterationType.MUTATION_EXTENDED) {
+        } else if (
+            geneticAlterationType == GeneticAlterationType.MUTATION_EXTENDED
+        ) {
             addMutationProfile(geneticProfile);
         }
     }
 
-    private void conditionallyAddProfileToSet(GeneticProfile geneticProfile,
-            HashMap<String, GeneticProfile> defaultProfileSet) {
+    private void conditionallyAddProfileToSet(
+        GeneticProfile geneticProfile,
+        HashMap<String, GeneticProfile> defaultProfileSet
+    ) {
         if (geneticProfile != null) {
             defaultProfileSet.put(geneticProfile.getStableId(), geneticProfile);
         }
@@ -189,8 +211,8 @@ public class CategorizedGeneticProfileSet {
     }
 
     private void addCopyNumberProfile(GeneticProfile copyNumberProfile) {
-    	//Using stableId as this is currently the more reliable than the name for example,
-    	//since stableId is strictly validated before loading into DB:
+        //Using stableId as this is currently the more reliable than the name for example,
+        //since stableId is strictly validated before loading into DB:
         String stableId = copyNumberProfile.getStableId();
         if (stableId.toLowerCase().endsWith(GISTIC.toLowerCase())) {
             addGisticProfile(copyNumberProfile);
@@ -213,9 +235,10 @@ public class CategorizedGeneticProfileSet {
         otherCnaProfileList.add(otherCnaProfile);
     }
 
-    private GeneticProfile getFirstPriorityProfile(ArrayList<ArrayList<GeneticProfile>>
-            orderOfPredenceList) {
-        for (ArrayList<GeneticProfile> currentList:  orderOfPredenceList) {
+    private GeneticProfile getFirstPriorityProfile(
+        ArrayList<ArrayList<GeneticProfile>> orderOfPredenceList
+    ) {
+        for (ArrayList<GeneticProfile> currentList : orderOfPredenceList) {
             if (currentList.size() > 0) {
                 return currentList.get(0);
             }

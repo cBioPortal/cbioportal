@@ -28,24 +28,23 @@
  *
  * You should have received a copy of the GNU Affero General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
-*/
+ */
 
 package org.mskcc.cbio.portal.servlet;
 
+import java.io.IOException;
+import java.io.PrintWriter;
+import java.util.HashMap;
+import java.util.Map;
+import javax.servlet.ServletException;
+import javax.servlet.http.HttpServlet;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 import org.json.simple.JSONArray;
 import org.json.simple.JSONValue;
 import org.mskcc.cbio.portal.dao.DaoGeneOptimized;
 import org.mskcc.cbio.portal.model.CanonicalGene;
 import org.mskcc.cbio.portal.util.XssRequestWrapper;
-
-import javax.servlet.ServletException;
-import javax.servlet.http.HttpServlet;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-import java.io.IOException;
-import java.io.PrintWriter;
-import java.util.HashMap;
-import java.util.Map;
 
 /**
  * A JSON servlet for checking gene symbols
@@ -63,43 +62,46 @@ public class CheckGeneSymbolJSON extends HttpServlet {
         super.init();
     }
 
-    protected void doGet(HttpServletRequest request,
-                         HttpServletResponse response) throws ServletException, IOException
-    {
+    protected void doGet(
+        HttpServletRequest request,
+        HttpServletResponse response
+    )
+        throws ServletException, IOException {
         this.doPost(request, response);
     }
-
 
     /**
      * Handles HTTP GET Request.
      */
-    protected void doPost(HttpServletRequest httpServletRequest,
-            HttpServletResponse httpServletResponse) throws ServletException,
-            IOException {
+    protected void doPost(
+        HttpServletRequest httpServletRequest,
+        HttpServletResponse httpServletResponse
+    )
+        throws ServletException, IOException {
         new HashMap();
         JSONArray geneArray = new JSONArray();
         String genes = httpServletRequest.getParameter(GENES);
 
-	    // we need the raw gene list
-	    if (httpServletRequest instanceof XssRequestWrapper)
-	    {
-		    genes = ((XssRequestWrapper)httpServletRequest).getRawParameter(GENES);
-	    }
+        // we need the raw gene list
+        if (httpServletRequest instanceof XssRequestWrapper) {
+            genes =
+                ((XssRequestWrapper) httpServletRequest).getRawParameter(GENES);
+        }
 
         DaoGeneOptimized daoGene = DaoGeneOptimized.getInstance();
 
         //  Use the OQL Parser to Extract the Gene Symbols
         String[] geneList;
-	if (genes.length() > 0) {
-		geneList = genes.split(",");
-	} else {
-		geneList = new String[0];
-	}
+        if (genes.length() > 0) {
+            geneList = genes.split(",");
+        } else {
+            geneList = new String[0];
+        }
 
-        for(String symbol: geneList) {
+        for (String symbol : geneList) {
             Map map = new HashMap();
             JSONArray symbols = new JSONArray();
-            for(CanonicalGene gene: daoGene.guessGene(symbol)) {
+            for (CanonicalGene gene : daoGene.guessGene(symbol)) {
                 symbols.add(gene.getStandardSymbol());
             }
             map.put("symbols", symbols);
@@ -115,6 +117,5 @@ public class CheckGeneSymbolJSON extends HttpServlet {
         } finally {
             out.close();
         }
-
     }
 }

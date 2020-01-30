@@ -28,7 +28,7 @@
  *
  * You should have received a copy of the GNU Affero General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
-*/
+ */
 
 package org.mskcc.cbio.portal.network;
 
@@ -49,8 +49,8 @@ import org.mskcc.cbio.portal.model.Drug;
 import org.mskcc.cbio.portal.model.DrugInteraction;
 import org.mskcc.cbio.portal.model.Interaction;
 import org.mskcc.cbio.portal.scripts.drug.AbstractDrugInfoImporter;
-import org.mskcc.cbio.portal.web_api.ConnectionManager;
 import org.mskcc.cbio.portal.util.GlobalProperties;
+import org.mskcc.cbio.portal.web_api.ConnectionManager;
 
 /**
  *
@@ -67,7 +67,7 @@ public final class NetworkIO {
     /**
      * private constructor for utility class.
      */
-    private NetworkIO(){}
+    private NetworkIO() {}
 
     /**
      * Interface for get label from a node
@@ -82,8 +82,10 @@ public final class NetworkIO {
     }
 
     public static String getCPath2URL(Set<String> genes) {
-        StringBuilder sbUrl = new StringBuilder(GlobalProperties.getPathwayCommonsUrl());
-			sbUrl.append("/graph?format=EXTENDED_BINARY_SIF&kind=NEIGHBORHOOD");
+        StringBuilder sbUrl = new StringBuilder(
+            GlobalProperties.getPathwayCommonsUrl()
+        );
+        sbUrl.append("/graph?format=EXTENDED_BINARY_SIF&kind=NEIGHBORHOOD");
         for (String gene : genes) {
             sbUrl.append("&source=");
             sbUrl.append(gene.toUpperCase());
@@ -92,28 +94,40 @@ public final class NetworkIO {
         return sbUrl.toString();
     }
 
-    public static Network readNetworkFromCPath2(Set<String> genes, boolean removeSelfEdge)
-            throws DaoException, IOException {
+    public static Network readNetworkFromCPath2(
+        Set<String> genes,
+        boolean removeSelfEdge
+    )
+        throws DaoException, IOException {
         String cPath2Url = getCPath2URL(genes);
 
-        MultiThreadedHttpConnectionManager connectionManager =
-                ConnectionManager.getConnectionManager();
+        MultiThreadedHttpConnectionManager connectionManager = ConnectionManager.getConnectionManager();
         HttpClient client = new HttpClient(connectionManager);
 
         GetMethod method = new GetMethod(cPath2Url);
         try {
             int statusCode = client.executeMethod(method);
             if (statusCode == HttpStatus.SC_OK) {
-                Network network = readNetworkFromCPath2(method.getResponseBodyAsStream(), true);
-                Set<Node> seedNodes = addMissingGenesAndReturnSeedNodes(network, genes);
+                Network network = readNetworkFromCPath2(
+                    method.getResponseBodyAsStream(),
+                    true
+                );
+                Set<Node> seedNodes = addMissingGenesAndReturnSeedNodes(
+                    network,
+                    genes
+                );
                 classifyNodes(network, seedNodes);
                 return network;
             } else {
                 //  Otherwise, throw HTTP Exception Object
-                throw new HttpException(statusCode + ": " + HttpStatus.getStatusText(statusCode)
-                        + " Base URL:  " + cPath2Url);
+                throw new HttpException(
+                    statusCode +
+                    ": " +
+                    HttpStatus.getStatusText(statusCode) +
+                    " Base URL:  " +
+                    cPath2Url
+                );
             }
-
         } finally {
             //  Must release connection back to Apache Commons Connection Pool
             method.releaseConnection();
@@ -126,35 +140,55 @@ public final class NetworkIO {
      * @return a network
      * @throws IOException if connection failed
      */
-    public static Network readNetworkFromCPath2(InputStream isSif, boolean removeSelfEdge) throws IOException {
+    public static Network readNetworkFromCPath2(
+        InputStream isSif,
+        boolean removeSelfEdge
+    )
+        throws IOException {
         Network network = new Network();
-        BufferedReader bufReader = new BufferedReader(new InputStreamReader(isSif));
+        BufferedReader bufReader = new BufferedReader(
+            new InputStreamReader(isSif)
+        );
 
         // read edges
         String line = bufReader.readLine();
-        if (!line.startsWith("PARTICIPANT_A\tINTERACTION_TYPE\tPARTICIPANT_B")) {// if empty
+        if (
+            !line.startsWith("PARTICIPANT_A\tINTERACTION_TYPE\tPARTICIPANT_B")
+        ) { // if empty
             return network;
         }
 
         String[] edgeHeaders = line.split("\t");
         ArrayList<String> edgeLines = new ArrayList<String>();
-        for (line = bufReader.readLine(); !line.isEmpty(); line = bufReader.readLine()) {
+        for (
+            line = bufReader.readLine();
+            !line.isEmpty();
+            line = bufReader.readLine()
+        ) {
             edgeLines.add(line);
         }
 
         // read nodes
         line = bufReader.readLine();
-        if (!line.startsWith("PARTICIPANT\tPARTICIPANT_TYPE\tPARTICIPANT_NAME\t"
-                + "UNIFICATION_XREF\tRELATIONSHIP_XREF")) {
+        if (
+            !line.startsWith(
+                "PARTICIPANT\tPARTICIPANT_TYPE\tPARTICIPANT_NAME\t" +
+                "UNIFICATION_XREF\tRELATIONSHIP_XREF"
+            )
+        ) {
             System.err.print("cPath2 format changed.");
             //return network;
         }
 
         String[] nodeHeaders = line.split("\t");
-        for (line = bufReader.readLine(); line!=null && !line.isEmpty(); line = bufReader.readLine()) {
+        for (
+            line = bufReader.readLine();
+            line != null && !line.isEmpty();
+            line = bufReader.readLine()
+        ) {
             String[] strs = line.split("\t");
             Node node = new Node(strs[0]);
-            for (int i=1; i<strs.length && i<nodeHeaders.length; i++) {
+            for (int i = 1; i < strs.length && i < nodeHeaders.length; i++) {
                 if (nodeHeaders[i].equals("PARTICIPANT_TYPE")) {
                     NodeType type = NodeType.getByCpath2Keyword(strs[i]);
                     node.setType(type);
@@ -170,7 +204,7 @@ public final class NetworkIO {
         for (String edgeLine : edgeLines) {
             String[] strs = edgeLine.split("\t");
 
-            if (strs.length<3) {// sth. is wrong
+            if (strs.length < 3) { // sth. is wrong
                 continue;
             }
 
@@ -182,7 +216,7 @@ public final class NetworkIO {
             boolean isDirect = isEdgeDirected(interaction);
             Edge edge = new Edge(isDirect, interaction, strs[0], strs[2]);
 
-            for (int i=0; i<strs.length&&i<edgeHeaders.length; i++) {
+            for (int i = 0; i < strs.length && i < edgeHeaders.length; i++) {
                 /*if (edgeHeaders[i].equals("INTERACTION_PUBMED_ID")
                         && !strs[i].startsWith("PubMed:")) {
                     //TODO: REMOVE THIS CHECK AFTER THE CPATH2 PUBMED ISSUE IS FIXED
@@ -199,13 +233,15 @@ public final class NetworkIO {
         return network;
     }
 
-//TODO FIX THIS PART FOR NEW INTERACTION TYPES !!
+    //TODO FIX THIS PART FOR NEW INTERACTION TYPES !!
     private static boolean isEdgeDirected(String interaction) {
-        if (interaction==null) {
+        if (interaction == null) {
             return false;
         }
 
-        if (interaction.equals(AbstractDrugInfoImporter.DRUG_INTERACTION_TYPE)) {
+        if (
+            interaction.equals(AbstractDrugInfoImporter.DRUG_INTERACTION_TYPE)
+        ) {
             return true;
         }
 
@@ -254,17 +290,27 @@ public final class NetworkIO {
      * @return
      * @throws Exception
      */
-    public static Network readNetworkFromCGDS(Set<String> genes, NetworkSize netSize,
-            Collection<String> dataSources, boolean removeSelfEdge) throws DaoException {
+    public static Network readNetworkFromCGDS(
+        Set<String> genes,
+        NetworkSize netSize,
+        Collection<String> dataSources,
+        boolean removeSelfEdge
+    )
+        throws DaoException {
         DaoInteraction daoInteraction = DaoInteraction.getInstance();
         DaoGeneOptimized daoGeneOptimized = DaoGeneOptimized.getInstance();
-        Map<Long,String> entrezHugoMap = getEntrezHugoMap(genes);
+        Map<Long, String> entrezHugoMap = getEntrezHugoMap(genes);
         Set<Long> seedGenes = new HashSet<Long>(entrezHugoMap.keySet());
         List<Interaction> interactionList;
-        if (netSize==NetworkSize.SMALL) {
-            interactionList = daoInteraction.getInteractionsAmongSeeds(seedGenes, dataSources);
+        if (netSize == NetworkSize.SMALL) {
+            interactionList =
+                daoInteraction.getInteractionsAmongSeeds(
+                    seedGenes,
+                    dataSources
+                );
         } else {
-            interactionList = daoInteraction.getInteractions(seedGenes, dataSources);
+            interactionList =
+                daoInteraction.getInteractions(seedGenes, dataSources);
         }
         Network net = new Network();
         for (Interaction interaction : interactionList) {
@@ -277,8 +323,16 @@ public final class NetworkIO {
             String geneAID = Long.toString(geneA);
             String geneBID = Long.toString(geneB);
 
-            addNode(net, geneAID, entrezToHugo(entrezHugoMap, geneA, daoGeneOptimized));
-            addNode(net, geneBID, entrezToHugo(entrezHugoMap, geneB, daoGeneOptimized));
+            addNode(
+                net,
+                geneAID,
+                entrezToHugo(entrezHugoMap, geneA, daoGeneOptimized)
+            );
+            addNode(
+                net,
+                geneBID,
+                entrezToHugo(entrezHugoMap, geneB, daoGeneOptimized)
+            );
 
             String interactionType = interaction.getInteractionType();
             String pubmed = interaction.getPmids();
@@ -286,13 +340,13 @@ public final class NetworkIO {
             String exp = interaction.getExperimentTypes();
             boolean isDirected = isEdgeDirected(interactionType); //TODO: how about HPRD
             Edge edge = new Edge(isDirected, interactionType, geneAID, geneBID);
-            if (pubmed!=null) {
+            if (pubmed != null) {
                 edge.addAttribute("INTERACTION_PUBMED_ID", pubmed);
             }
-            if (source!=null) {
+            if (source != null) {
                 edge.addAttribute("INTERACTION_DATA_SOURCE", source);
             }
-            if (exp!=null) {
+            if (exp != null) {
                 edge.addAttribute("EXPERIMENTAL_TYPE", exp);
             }
 
@@ -301,19 +355,25 @@ public final class NetworkIO {
 
         Set<Node> seedNodes = addMissingGenesAndReturnSeedNodes(net, genes);
         classifyNodes(net, seedNodes);
-        if (netSize==NetworkSize.MEDIUM) {
+        if (netSize == NetworkSize.MEDIUM) {
             pruneMediumNetwork(net, seedNodes);
         }
 
         DaoDrugInteraction daoDrugInteraction = DaoDrugInteraction.getInstance();
         DaoDrug daoDrug = DaoDrug.getInstance();
-        for(DrugInteraction interaction: daoDrugInteraction.getInteractions(seedGenes)) {
+        for (DrugInteraction interaction : daoDrugInteraction.getInteractions(
+            seedGenes
+        )) {
             String drugID = interaction.getDrug();
             Long targetGene = interaction.getTargetGene();
             String geneID = Long.toString(targetGene);
 
             addDrugNode(net, daoDrug.getDrug(drugID));
-            addNode(net, geneID, entrezToHugo(entrezHugoMap, targetGene, daoGeneOptimized));
+            addNode(
+                net,
+                geneID,
+                entrezToHugo(entrezHugoMap, targetGene, daoGeneOptimized)
+            );
 
             String interactionType = interaction.getInteractionType();
             String pubmed = interaction.getPubMedIDs();
@@ -323,13 +383,13 @@ public final class NetworkIO {
             boolean isDirected = isEdgeDirected(interactionType);
             Edge edge = new Edge(isDirected, interactionType, drugID, geneID);
 
-            if (pubmed!=null) {
+            if (pubmed != null) {
                 edge.addAttribute("INTERACTION_PUBMED_ID", pubmed);
             }
-            if (source!=null) {
+            if (source != null) {
                 edge.addAttribute("INTERACTION_DATA_SOURCE", source);
             }
-            if (exp!=null) {
+            if (exp != null) {
                 edge.addAttribute("EXPERIMENTAL_TYPE", exp);
             }
 
@@ -339,8 +399,11 @@ public final class NetworkIO {
         return net;
     }
 
-    private static Set<Node> addMissingGenesAndReturnSeedNodes(Network net, Set<String> seedGenes)
-            throws DaoException {
+    private static Set<Node> addMissingGenesAndReturnSeedNodes(
+        Network net,
+        Set<String> seedGenes
+    )
+        throws DaoException {
         Set<Node> seedNodes = new HashSet<Node>(seedGenes.size());
         Set<String> missingGenes = new HashSet<String>(seedGenes);
         for (Node node : net.getNodes()) {
@@ -350,9 +413,13 @@ public final class NetworkIO {
             }
         }
 
-        Map<Long,String> entrezHugoMap = getEntrezHugoMap(missingGenes);
-        for (Map.Entry<Long,String> entry : entrezHugoMap.entrySet()) {
-            Node node = addNode(net, entry.getKey().toString(), entry.getValue());
+        Map<Long, String> entrezHugoMap = getEntrezHugoMap(missingGenes);
+        for (Map.Entry<Long, String> entry : entrezHugoMap.entrySet()) {
+            Node node = addNode(
+                net,
+                entry.getKey().toString(),
+                entry.getValue()
+            );
             seedNodes.add(node);
         }
 
@@ -365,7 +432,7 @@ public final class NetworkIO {
             //seed.setAttribute("IN_MEDIUM", "true");
         }
 
-        for (Node node:  net.getNodes()) {
+        for (Node node : net.getNodes()) {
             if (seedNodes.contains(node)) {
                 continue;
             }
@@ -379,24 +446,31 @@ public final class NetworkIO {
      * @param net
      * @param seedNodes
      */
-    private static void pruneMediumNetwork(final Network net, final Set<Node> seedNodes) {
-        NetworkUtils.pruneNetwork(net, new NetworkUtils.NodeSelector() {
-            public boolean select(Node node) {
-                if (seedNodes.contains(node)) {
-                    return false;
-                }
+    private static void pruneMediumNetwork(
+        final Network net,
+        final Set<Node> seedNodes
+    ) {
+        NetworkUtils.pruneNetwork(
+            net,
+            new NetworkUtils.NodeSelector() {
 
-                int seedDegree = 0;
-                for (Node neighbor : net.getNeighbors(node)) {
-                    if (seedNodes.contains(neighbor)) {
-                        if (++seedDegree >= 2) {
-                            return false;
+                public boolean select(Node node) {
+                    if (seedNodes.contains(node)) {
+                        return false;
+                    }
+
+                    int seedDegree = 0;
+                    for (Node neighbor : net.getNeighbors(node)) {
+                        if (seedNodes.contains(neighbor)) {
+                            if (++seedDegree >= 2) {
+                                return false;
+                            }
                         }
                     }
+                    return true;
                 }
-                return true;
             }
-        });
+        );
     }
 
     private static Node addNode(Network net, String entrez, String hugo) {
@@ -407,12 +481,16 @@ public final class NetworkIO {
 
         node = new Node(entrez);
         node.setType(NodeType.PROTEIN);
-        node.setAttribute("RELATIONSHIP_XREF", "HGNC:"+hugo+";Entrez Gene:"+entrez);
+        node.setAttribute(
+            "RELATIONSHIP_XREF",
+            "HGNC:" + hugo + ";Entrez Gene:" + entrez
+        );
         net.addNode(node);
         return node;
     }
 
-    private static Node addDrugNode(Network net, Drug drug) throws DaoException {
+    private static Node addDrugNode(Network net, Drug drug)
+        throws DaoException {
         Node node = net.getNodeById(drug.getId());
         if (node != null) {
             return node;
@@ -425,7 +503,10 @@ public final class NetworkIO {
         node.setAttribute("ATC_CODE", drug.getATCCode());
         node.setAttribute("FDA_APPROVAL", drug.isApprovedFDA() + "");
         node.setAttribute("CANCER_DRUG", drug.isCancerDrug() + "");
-        node.setAttribute("NUMBER_OF_CLINICAL_TRIALS", drug.getNumberOfClinicalTrials());
+        node.setAttribute(
+            "NUMBER_OF_CLINICAL_TRIALS",
+            drug.getNumberOfClinicalTrials()
+        );
         node.setAttribute("DESCRIPTION", drug.getDescription());
         node.setAttribute("SYNONYMS", drug.getSynonyms());
         node.setAttribute("TARGETS", createDrugTargetList(drug));
@@ -439,32 +520,41 @@ public final class NetworkIO {
         DaoGeneOptimized daoGeneOptimized = DaoGeneOptimized.getInstance();
         String targets = "";
 
-        for (DrugInteraction interaction : daoDrugInteraction.getTargets(drug)) {
-            CanonicalGene gene = daoGeneOptimized.getGene(interaction.getTargetGene());
+        for (DrugInteraction interaction : daoDrugInteraction.getTargets(
+            drug
+        )) {
+            CanonicalGene gene = daoGeneOptimized.getGene(
+                interaction.getTargetGene()
+            );
             targets += gene.getStandardSymbol() + ";";
         }
-        if(targets.length() > 0)
-            targets = targets.substring(0, targets.length()-1);
+        if (targets.length() > 0) targets =
+            targets.substring(0, targets.length() - 1);
 
         return targets;
     }
 
-    private static Map<Long,String> getEntrezHugoMap(Set<String> genes) throws DaoException {
-        Map<Long,String> map = new HashMap<Long,String>(genes.size());
+    private static Map<Long, String> getEntrezHugoMap(Set<String> genes)
+        throws DaoException {
+        Map<Long, String> map = new HashMap<Long, String>(genes.size());
         DaoGeneOptimized daoGeneOptimized = DaoGeneOptimized.getInstance();
         for (String gene : genes) {
             CanonicalGene cGene = daoGeneOptimized.getGene(gene);
-            if (cGene!=null) {
-                map.put(cGene.getEntrezGeneId(),gene.toUpperCase());
+            if (cGene != null) {
+                map.put(cGene.getEntrezGeneId(), gene.toUpperCase());
             }
         }
         return map;
     }
 
-    private static String entrezToHugo(Map<Long,String> mapEntrezHugo, long entrez,
-            DaoGeneOptimized daoGeneOptimized) throws DaoException {
+    private static String entrezToHugo(
+        Map<Long, String> mapEntrezHugo,
+        long entrez,
+        DaoGeneOptimized daoGeneOptimized
+    )
+        throws DaoException {
         String hugo = mapEntrezHugo.get(entrez);
-        if (hugo==null) {
+        if (hugo == null) {
             hugo = daoGeneOptimized.getGene(entrez).getHugoGeneSymbolAllCaps();
             mapEntrezHugo.put(entrez, hugo);
         }
@@ -477,7 +567,10 @@ public final class NetworkIO {
      * @param nlh
      * @return a string in SIF format
      */
-    public static String writeNetwork2Sif(Network network, NodeLabelHandler nlh) {
+    public static String writeNetwork2Sif(
+        Network network,
+        NodeLabelHandler nlh
+    ) {
         StringBuilder sb = new StringBuilder();
 
         for (Edge edge : network.getEdges()) {
@@ -499,9 +592,12 @@ public final class NetworkIO {
      * @param nlh
      * @return a tring in GraphML format
      */
-    public static String writeNetwork2GraphML(Network network, NodeLabelHandler nlh) {
-        Map<String,String> mapNodeAttrNameType = new HashMap<String,String>();
-        Map<String,String> mapEdgeAttrNameType = new HashMap<String,String>();
+    public static String writeNetwork2GraphML(
+        Network network,
+        NodeLabelHandler nlh
+    ) {
+        Map<String, String> mapNodeAttrNameType = new HashMap<String, String>();
+        Map<String, String> mapEdgeAttrNameType = new HashMap<String, String>();
 
         StringBuilder sbNodeEdge = new StringBuilder();
 
@@ -517,7 +613,11 @@ public final class NetworkIO {
             sbNodeEdge.append(node.getType().toString());
             sbNodeEdge.append("</data>\n");
 
-            exportAttributes(node.getAttributes(),sbNodeEdge,mapNodeAttrNameType);
+            exportAttributes(
+                node.getAttributes(),
+                sbNodeEdge,
+                mapNodeAttrNameType
+            );
             sbNodeEdge.append("  </node>\n");
         }
 
@@ -535,33 +635,43 @@ public final class NetworkIO {
             sbNodeEdge.append(edge.getInteractionType());
             sbNodeEdge.append("</data>\n");
 
-            exportAttributes(edge.getAttributes(),sbNodeEdge,mapEdgeAttrNameType);
+            exportAttributes(
+                edge.getAttributes(),
+                sbNodeEdge,
+                mapEdgeAttrNameType
+            );
             sbNodeEdge.append("  </edge>\n");
         }
 
         StringBuilder sb = new StringBuilder();
         sb.append("<graphml>\n");
-        sb.append(" <key id=\"label\" for=\"node\" attr.name=\"label\" attr.type=\"string\"/>\n");
-        sb.append(" <key id=\"type\" for=\"all\" attr.name=\"type\" attr.type=\"string\"/>\n");
+        sb.append(
+            " <key id=\"label\" for=\"node\" attr.name=\"label\" attr.type=\"string\"/>\n"
+        );
+        sb.append(
+            " <key id=\"type\" for=\"all\" attr.name=\"type\" attr.type=\"string\"/>\n"
+        );
 
-        for (Map.Entry<String,String> entry : mapNodeAttrNameType.entrySet()) {
-            sb.append(" <key id=\"")
-              .append(entry.getKey())
-              .append("\" for=\"node\" attr.name=\"")
-              .append(entry.getKey())
-              .append("\" attr.type=\"")
-              .append(entry.getValue())
-              .append("\"/>\n");
+        for (Map.Entry<String, String> entry : mapNodeAttrNameType.entrySet()) {
+            sb
+                .append(" <key id=\"")
+                .append(entry.getKey())
+                .append("\" for=\"node\" attr.name=\"")
+                .append(entry.getKey())
+                .append("\" attr.type=\"")
+                .append(entry.getValue())
+                .append("\"/>\n");
         }
 
-        for (Map.Entry<String,String> entry : mapEdgeAttrNameType.entrySet()) {
-            sb.append(" <key id=\"")
-              .append(entry.getKey())
-              .append("\" for=\"edge\" attr.name=\"")
-              .append(entry.getKey())
-              .append("\" attr.type=\"")
-              .append(entry.getValue())
-              .append("\"/>\n");
+        for (Map.Entry<String, String> entry : mapEdgeAttrNameType.entrySet()) {
+            sb
+                .append(" <key id=\"")
+                .append(entry.getKey())
+                .append("\" for=\"edge\" attr.name=\"")
+                .append(entry.getKey())
+                .append("\" attr.type=\"")
+                .append(entry.getValue())
+                .append("\"/>\n");
         }
 
         sb.append(" <graph edgedefault=\"undirected\">\n");
@@ -573,9 +683,12 @@ public final class NetworkIO {
         return sb.toString();
     }
 
-    private static void exportAttributes(Map<String,Object> attrs,
-            StringBuilder to, Map<String,String> mapAttrNameType) {
-        for (Map.Entry<String,Object> entry : attrs.entrySet()) {
+    private static void exportAttributes(
+        Map<String, Object> attrs,
+        StringBuilder to,
+        Map<String, String> mapAttrNameType
+    ) {
+        for (Map.Entry<String, Object> entry : attrs.entrySet()) {
             String attr = entry.getKey();
             Object value = entry.getValue();
 
@@ -588,7 +701,7 @@ public final class NetworkIO {
             String type = getAttrType(value);
 
             String pre = mapAttrNameType.get(attr);
-            if (pre!=null) {
+            if (pre != null) {
                 if (!pre.equals(type)) {
                     mapAttrNameType.put(attr, "string");
                 }

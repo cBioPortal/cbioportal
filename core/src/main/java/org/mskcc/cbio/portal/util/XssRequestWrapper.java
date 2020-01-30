@@ -28,18 +28,16 @@
  *
  * You should have received a copy of the GNU Affero General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
-*/
+ */
 
 package org.mskcc.cbio.portal.util;
 
-import org.mskcc.cbio.portal.servlet.ServletXssUtil;
-import org.owasp.validator.html.PolicyException;
-
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
-
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletRequestWrapper;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+import org.mskcc.cbio.portal.servlet.ServletXssUtil;
+import org.owasp.validator.html.PolicyException;
 
 /**
  * Wrapper designed for all requests.
@@ -49,42 +47,48 @@ import javax.servlet.http.HttpServletRequestWrapper;
  * The generous Apache License will very likely allow you to use it in your
  * applications as well.
  */
-public class XssRequestWrapper extends HttpServletRequestWrapper
-{
-	private static Log LOG = LogFactory.getLog(XssRequestWrapper.class);
-	protected ServletXssUtil xssUtil;
+public class XssRequestWrapper extends HttpServletRequestWrapper {
+    private static Log LOG = LogFactory.getLog(XssRequestWrapper.class);
+    protected ServletXssUtil xssUtil;
 
-	public XssRequestWrapper(HttpServletRequest request) {
-		super(request);
+    public XssRequestWrapper(HttpServletRequest request) {
+        super(request);
+        try {
+            xssUtil = ServletXssUtil.getInstance();
+        } catch (PolicyException e) {
+            // TODO log?
+            xssUtil = null;
+        }
+    }
 
-		try
-		{
-			xssUtil = ServletXssUtil.getInstance();
-		}
-		catch (PolicyException e)
-		{
-			// TODO log?
-			xssUtil = null;
-		}
-	}
+    public String getParameter(String name) {
+        String parameter = super.getParameter(name);
 
-	public String getParameter(String name)
-	{
-		String parameter = super.getParameter(name);
+        LOG.debug(
+            "XssRequestWrapper.getParameter(" + name + "): '" + parameter + "'"
+        );
+        String clean = xssUtil.getCleanerInput(parameter);
+        LOG.debug(
+            "XssRequestWrapper.getParameter(" +
+            name +
+            "): cleaned = '" +
+            clean +
+            "'"
+        );
 
-		LOG.debug("XssRequestWrapper.getParameter(" + name + "): '" + parameter + "'");
-		String clean = xssUtil.getCleanerInput(parameter);
-		LOG.debug("XssRequestWrapper.getParameter(" + name + "): cleaned = '" + clean + "'");
+        return clean;
+    }
 
-		return clean;
-	}
-
-	public String getRawParameter(String name)
-	{
-		String raw = super.getParameter(name);
-		LOG.debug("XssRequestWrapper.getRawParameter(" + name + "): cleaned = '" + raw + "'");
-		return raw;
-	}
-
-	// TODO also overwrite getParameterValues & getAttribute method?
+    public String getRawParameter(String name) {
+        String raw = super.getParameter(name);
+        LOG.debug(
+            "XssRequestWrapper.getRawParameter(" +
+            name +
+            "): cleaned = '" +
+            raw +
+            "'"
+        );
+        return raw;
+    }
+    // TODO also overwrite getParameterValues & getAttribute method?
 }

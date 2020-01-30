@@ -28,7 +28,7 @@
  *
  * You should have received a copy of the GNU Affero General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
-*/
+ */
 
 package org.mskcc.cbio.portal.dao;
 
@@ -53,8 +53,7 @@ public class DaoDrugInteraction {
 
     private static final Log log = LogFactory.getLog(DaoDrugInteraction.class);
 
-    private DaoDrugInteraction() {
-    }
+    private DaoDrugInteraction() {}
 
     public static DaoDrugInteraction getInstance() throws DaoException {
         if (daoDrugInteraction == null) {
@@ -64,17 +63,22 @@ public class DaoDrugInteraction {
         return daoDrugInteraction;
     }
 
-    public int addDrugInteraction(Drug drug,
-                                  CanonicalGene targetGene,
-                                  String interactionType,
-                                  String dataSource,
-                                  String experimentTypes,
-                                  String pmids) throws DaoException {
+    public int addDrugInteraction(
+        Drug drug,
+        CanonicalGene targetGene,
+        String interactionType,
+        String dataSource,
+        String experimentTypes,
+        String pmids
+    )
+        throws DaoException {
         if (interactionType == null) {
-            throw new IllegalArgumentException ("Drug interaction type cannot be null");
+            throw new IllegalArgumentException(
+                "Drug interaction type cannot be null"
+            );
         }
         if (dataSource == null) {
-            throw new IllegalArgumentException ("Data Source cannot be null");
+            throw new IllegalArgumentException("Data Source cannot be null");
         }
         if (experimentTypes == null) {
             experimentTypes = NA;
@@ -82,15 +86,18 @@ public class DaoDrugInteraction {
         if (pmids == null) {
             pmids = NA;
         }
-        
+
         if (MySQLbulkLoader.isBulkLoad()) {
-            MySQLbulkLoader.getMySQLbulkLoader("drug_interaction").insertRecord(
+            MySQLbulkLoader
+                .getMySQLbulkLoader("drug_interaction")
+                .insertRecord(
                     drug.getId(),
                     Long.toString(targetGene.getEntrezGeneId()),
                     interactionType,
                     dataSource,
                     experimentTypes,
-                    pmids);
+                    pmids
+                );
 
             return 1;
         }
@@ -98,13 +105,15 @@ public class DaoDrugInteraction {
         Connection con = null;
         PreparedStatement pstmt = null;
         ResultSet rs = null;
-        
+
         try {
             con = JdbcUtil.getDbConnection(DaoDrugInteraction.class);
-            pstmt = con.prepareStatement
-                    ("INSERT INTO drug_interaction (`DRUG`,`TARGET`, `INTERACTION_TYPE`," +
-                            "`DATA_SOURCE`, `EXPERIMENT_TYPES`, `PMIDS`)"
-                            + "VALUES (?,?,?,?,?,?)");
+            pstmt =
+                con.prepareStatement(
+                    "INSERT INTO drug_interaction (`DRUG`,`TARGET`, `INTERACTION_TYPE`," +
+                    "`DATA_SOURCE`, `EXPERIMENT_TYPES`, `PMIDS`)" +
+                    "VALUES (?,?,?,?,?,?)"
+                );
             pstmt.setString(1, drug.getId());
             pstmt.setLong(2, targetGene.getEntrezGeneId());
             pstmt.setString(3, interactionType);
@@ -120,18 +129,20 @@ public class DaoDrugInteraction {
         }
     }
 
-    public ArrayList<DrugInteraction> getInteractions(long entrezGeneId) throws DaoException {
+    public ArrayList<DrugInteraction> getInteractions(long entrezGeneId)
+        throws DaoException {
         return getInteractions(Collections.singleton(entrezGeneId));
     }
 
-    public ArrayList<DrugInteraction> getInteractions(CanonicalGene gene) throws DaoException {
+    public ArrayList<DrugInteraction> getInteractions(CanonicalGene gene)
+        throws DaoException {
         return getInteractions(Collections.singleton(gene));
     }
 
-    public ArrayList<DrugInteraction> getInteractions(Collection<?> genes) throws DaoException {
+    public ArrayList<DrugInteraction> getInteractions(Collection<?> genes)
+        throws DaoException {
         ArrayList<DrugInteraction> interactionList = new ArrayList<DrugInteraction>();
-        if (genes.isEmpty())
-            return interactionList;
+        if (genes.isEmpty()) return interactionList;
 
         Connection con = null;
         PreparedStatement pstmt = null;
@@ -142,17 +153,19 @@ public class DaoDrugInteraction {
             Set<Long> entrezGeneIds = new HashSet<Long>();
 
             for (Object gene : genes) {
-                if(gene instanceof CanonicalGene)
-                    entrezGeneIds.add(((CanonicalGene) gene).getEntrezGeneId());
-                else if(gene instanceof Long)
-                    entrezGeneIds.add((Long) gene);
-                else
-                    entrezGeneIds.add(Long.parseLong(gene.toString()));
+                if (gene instanceof CanonicalGene) entrezGeneIds.add(
+                    ((CanonicalGene) gene).getEntrezGeneId()
+                ); else if (gene instanceof Long) entrezGeneIds.add(
+                    (Long) gene
+                ); else entrezGeneIds.add(Long.parseLong(gene.toString()));
             }
 
             String idStr = "(" + StringUtils.join(entrezGeneIds, ",") + ")";
 
-            pstmt = con.prepareStatement("SELECT * FROM drug_interaction WHERE TARGET IN " + idStr);
+            pstmt =
+                con.prepareStatement(
+                    "SELECT * FROM drug_interaction WHERE TARGET IN " + idStr
+                );
             rs = pstmt.executeQuery();
 
             while (rs.next()) {
@@ -161,15 +174,19 @@ public class DaoDrugInteraction {
             }
 
             return interactionList;
-
         } catch (SQLException e) {
             throw new DaoException(e);
         } finally {
             JdbcUtil.closeAll(DaoDrugInteraction.class, con, pstmt, rs);
         }
     }
-    
-    public Map<Long, List<String>> getDrugs(Set<Long> entrezGeneIds, boolean fdaOnly, boolean cancerSpecific) throws DaoException {
+
+    public Map<Long, List<String>> getDrugs(
+        Set<Long> entrezGeneIds,
+        boolean fdaOnly,
+        boolean cancerSpecific
+    )
+        throws DaoException {
         if (entrezGeneIds.isEmpty()) {
             return Collections.emptyMap();
         }
@@ -180,23 +197,28 @@ public class DaoDrugInteraction {
 
         try {
             con = JdbcUtil.getDbConnection(DaoDrugInteraction.class);
-            
+
             String sql;
             if (fdaOnly || cancerSpecific) {
-                sql = "SELECT DRUG,TARGET FROM drug_interaction, drug"
-                    + " WHERE TARGET IN (" + StringUtils.join(entrezGeneIds, ",") + ")"
-                    + " AND drug_interaction.DRUG=drug.DRUG_ID";
+                sql =
+                    "SELECT DRUG,TARGET FROM drug_interaction, drug" +
+                    " WHERE TARGET IN (" +
+                    StringUtils.join(entrezGeneIds, ",") +
+                    ")" +
+                    " AND drug_interaction.DRUG=drug.DRUG_ID";
                 if (fdaOnly) {
                     sql += " AND DRUG_APPROVED=1";
                 }
-                 
+
                 if (cancerSpecific) {
                     sql += " AND DRUG_CANCERDRUG=1";
                 }
             } else {
-                sql = "SELECT DRUG,TARGET FROM drug_interaction"
-                    + " WHERE TARGET IN (" 
-                    + StringUtils.join(entrezGeneIds, ",") + ")";
+                sql =
+                    "SELECT DRUG,TARGET FROM drug_interaction" +
+                    " WHERE TARGET IN (" +
+                    StringUtils.join(entrezGeneIds, ",") +
+                    ")";
             }
 
             pstmt = con.prepareStatement(sql);
@@ -206,16 +228,15 @@ public class DaoDrugInteraction {
             while (rs.next()) {
                 long entrez = rs.getLong("TARGET");
                 List<String> drugs = map.get(entrez);
-                if (drugs==null) {
+                if (drugs == null) {
                     drugs = new ArrayList<String>();
                     map.put(entrez, drugs);
                 }
-                
+
                 drugs.add(rs.getString("DRUG"));
             }
 
             return map;
-
         } catch (SQLException e) {
             throw new DaoException(e);
         } finally {
@@ -223,14 +244,15 @@ public class DaoDrugInteraction {
         }
     }
 
-    public ArrayList<DrugInteraction> getTargets(Drug drug) throws DaoException {
+    public ArrayList<DrugInteraction> getTargets(Drug drug)
+        throws DaoException {
         return getTargets(Collections.singleton(drug));
     }
 
-    public ArrayList<DrugInteraction> getTargets(Collection<Drug> drugs) throws DaoException {
+    public ArrayList<DrugInteraction> getTargets(Collection<Drug> drugs)
+        throws DaoException {
         ArrayList<DrugInteraction> interactionList = new ArrayList<DrugInteraction>();
-        if (drugs.isEmpty())
-            return interactionList;
+        if (drugs.isEmpty()) return interactionList;
 
         Connection con = null;
         PreparedStatement pstmt = null;
@@ -239,12 +261,14 @@ public class DaoDrugInteraction {
         try {
             con = JdbcUtil.getDbConnection(DaoDrugInteraction.class);
             Set<String> drugIDs = new HashSet<String>();
-            for (Drug drug : drugs)
-                drugIDs.add("'" + drug.getId() + "'");
+            for (Drug drug : drugs) drugIDs.add("'" + drug.getId() + "'");
 
             String idStr = "(" + StringUtils.join(drugIDs, ",") + ")";
 
-            pstmt = con.prepareStatement("SELECT * FROM drug_interaction WHERE DRUG IN " + idStr);
+            pstmt =
+                con.prepareStatement(
+                    "SELECT * FROM drug_interaction WHERE DRUG IN " + idStr
+                );
             rs = pstmt.executeQuery();
 
             while (rs.next()) {
@@ -253,25 +277,22 @@ public class DaoDrugInteraction {
             }
 
             return interactionList;
-
         } catch (SQLException e) {
             throw new DaoException(e);
         } finally {
             JdbcUtil.closeAll(DaoDrugInteraction.class, con, pstmt, rs);
         }
     }
-
 
     public ArrayList<DrugInteraction> getAllInteractions() throws DaoException {
         Connection con = null;
         PreparedStatement pstmt = null;
         ResultSet rs = null;
-        ArrayList<DrugInteraction> interactionList = new ArrayList <DrugInteraction>();
+        ArrayList<DrugInteraction> interactionList = new ArrayList<DrugInteraction>();
 
         try {
             con = JdbcUtil.getDbConnection(DaoDrugInteraction.class);
-            pstmt = con.prepareStatement
-                    ("SELECT * FROM drug_interaction");
+            pstmt = con.prepareStatement("SELECT * FROM drug_interaction");
             rs = pstmt.executeQuery();
 
             while (rs.next()) {
@@ -287,7 +308,8 @@ public class DaoDrugInteraction {
         }
     }
 
-    private DrugInteraction extractInteraction(ResultSet rs) throws SQLException {
+    private DrugInteraction extractInteraction(ResultSet rs)
+        throws SQLException {
         DrugInteraction interaction = new DrugInteraction();
         interaction.setDrug(rs.getString("DRUG"));
         interaction.setTargetGene(rs.getLong("TARGET"));
@@ -309,8 +331,8 @@ public class DaoDrugInteraction {
         ResultSet rs = null;
         try {
             con = JdbcUtil.getDbConnection(DaoDrugInteraction.class);
-            pstmt = con.prepareStatement
-                    ("SELECT COUNT(*) FROM drug_interaction");
+            pstmt =
+                con.prepareStatement("SELECT COUNT(*) FROM drug_interaction");
             rs = pstmt.executeQuery();
             if (rs.next()) {
                 return rs.getInt(1);
@@ -337,19 +359,30 @@ public class DaoDrugInteraction {
             JdbcUtil.closeAll(DaoDrugInteraction.class, con, pstmt, rs);
         }
     }
-    
+
     // Temporary way of handling cases such as akt inhibitor for pten loss
-    private static final String DRUG_TARGET_FILE = "/drug_target_annotation.txt";
-    private static  Map<Long,Map<String,Set<Long>>> drugTargetAnnotation = null; // map <entrez of gene of event, map <event, target genes> >
-    
-    private static synchronized Map<Long,Map<String,Set<Long>>> getDrugTargetAnnotation() {
-        if (drugTargetAnnotation==null) {
-            drugTargetAnnotation = new HashMap<Long,Map<String,Set<Long>>>();
+    private static final String DRUG_TARGET_FILE =
+        "/drug_target_annotation.txt";
+    private static Map<Long, Map<String, Set<Long>>> drugTargetAnnotation =
+        null; // map <entrez of gene of event, map <event, target genes> >
+
+    private static synchronized Map<Long, Map<String, Set<Long>>> getDrugTargetAnnotation() {
+        if (drugTargetAnnotation == null) {
+            drugTargetAnnotation = new HashMap<Long, Map<String, Set<Long>>>();
             try {
                 DaoGeneOptimized daoGeneOptimized = DaoGeneOptimized.getInstance();
                 BufferedReader in = new BufferedReader(
-                        new InputStreamReader(DaoDrugInteraction.class.getResourceAsStream(DRUG_TARGET_FILE)));
-                for (String line=in.readLine(); line!=null; line=in.readLine()) {
+                    new InputStreamReader(
+                        DaoDrugInteraction.class.getResourceAsStream(
+                                DRUG_TARGET_FILE
+                            )
+                    )
+                );
+                for (
+                    String line = in.readLine();
+                    line != null;
+                    line = in.readLine()
+                ) {
                     if (line.startsWith("#")) {
                         continue;
                     }
@@ -358,22 +391,27 @@ public class DaoDrugInteraction {
                     String[] genesOfEvents = parts[0].split(",");
                     String[] events = parts[1].split(",");
                     String[] targetGenes = parts[2].split(",");
-                    Set<Long> targetEntrez = new HashSet<Long>(targetGenes.length);
+                    Set<Long> targetEntrez = new HashSet<Long>(
+                        targetGenes.length
+                    );
                     for (String target : targetGenes) {
                         CanonicalGene gene = daoGeneOptimized.getGene(target);
-                        if(gene == null)
-                            log.warn("Could not find gene: " + target);
-                        else
-                            targetEntrez.add(gene.getEntrezGeneId());
+                        if (gene == null) log.warn(
+                            "Could not find gene: " + target
+                        ); else targetEntrez.add(gene.getEntrezGeneId());
                     }
 
                     for (String gene : genesOfEvents) {
-                        CanonicalGene canonicalGene = daoGeneOptimized.getGene(gene);
+                        CanonicalGene canonicalGene = daoGeneOptimized.getGene(
+                            gene
+                        );
                         if (canonicalGene == null) continue;
                         long entrez = canonicalGene.getEntrezGeneId();
-                        Map<String,Set<Long>> mapEventTargets = drugTargetAnnotation.get(entrez);
-                        if (mapEventTargets==null) {
-                            mapEventTargets = new HashMap<String,Set<Long>>();
+                        Map<String, Set<Long>> mapEventTargets = drugTargetAnnotation.get(
+                            entrez
+                        );
+                        if (mapEventTargets == null) {
+                            mapEventTargets = new HashMap<String, Set<Long>>();
                             drugTargetAnnotation.put(entrez, mapEventTargets);
                         }
 
@@ -383,27 +421,28 @@ public class DaoDrugInteraction {
                     }
                 }
                 in.close();
-            } catch(Exception e) {
+            } catch (Exception e) {
                 e.printStackTrace();
             }
         }
-        
+
         return drugTargetAnnotation;
     }
-    
+
     public Set<Long> getMoreTargets(long geneOfEvent, String event) {
-        Map<String,Set<Long>> mapEventTargets = getDrugTargetAnnotation().get(geneOfEvent);
-        if (mapEventTargets==null) {
+        Map<String, Set<Long>> mapEventTargets = getDrugTargetAnnotation()
+            .get(geneOfEvent);
+        if (mapEventTargets == null) {
             return Collections.emptySet();
         }
-        
+
         Set<Long> set = mapEventTargets.get(event);
-        if (set==null) {
+        if (set == null) {
             return Collections.emptySet();
         }
-        
+
         return set;
     }
     // end of Temporary way of handling cases such as akt inhibitor for pten loss
-    
+
 }

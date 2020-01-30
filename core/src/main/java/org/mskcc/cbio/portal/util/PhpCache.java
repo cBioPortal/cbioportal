@@ -28,17 +28,16 @@
  *
  * You should have received a copy of the GNU Affero General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
-*/
+ */
 
 package org.mskcc.cbio.portal.util;
 
+import java.io.IOException;
+import java.util.Date;
 import org.apache.commons.httpclient.HttpClient;
 import org.apache.commons.httpclient.HttpException;
 import org.apache.commons.httpclient.HttpStatus;
 import org.apache.commons.httpclient.methods.GetMethod;
-
-import java.io.IOException;
-import java.util.Date;
 
 /**
  * PHP Cache of Global Components.
@@ -154,5 +153,4 @@ public class PhpCache {
             return ("Could not retrieve:  " + component);
         }
     }
-
 }

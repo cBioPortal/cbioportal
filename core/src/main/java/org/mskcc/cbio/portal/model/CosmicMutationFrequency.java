@@ -28,7 +28,7 @@
  *
  * You should have received a copy of the GNU Affero General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
-*/
+ */
 
 package org.mskcc.cbio.portal.model;
 
@@ -49,8 +49,13 @@ public class CosmicMutationFrequency {
     private String keyword;
     private int frequency;
 
-    public CosmicMutationFrequency(String id, long entrezGeneId, String aminoAcidChange,
-            String keyword, int frequency) {
+    public CosmicMutationFrequency(
+        String id,
+        long entrezGeneId,
+        String aminoAcidChange,
+        String keyword,
+        int frequency
+    ) {
         this.id = id;
         this.entrezGeneId = entrezGeneId;
         this.aminoAcidChange = aminoAcidChange;
@@ -162,7 +167,9 @@ public class CosmicMutationFrequency {
             return false;
         }
         final CosmicMutationFrequency other = (CosmicMutationFrequency) obj;
-        if ((this.id == null) ? (other.id != null) : !this.id.equals(other.id)) {
+        if (
+            (this.id == null) ? (other.id != null) : !this.id.equals(other.id)
+        ) {
             return false;
         }
         return true;

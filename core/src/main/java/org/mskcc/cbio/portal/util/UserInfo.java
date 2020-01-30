@@ -28,7 +28,7 @@
  *
  * You should have received a copy of the GNU Affero General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
-*/
+ */
 
 package org.mskcc.cbio.portal.util;
 
@@ -64,7 +64,7 @@ public class UserInfo {
      * @param request HttpServletRequest.
      * @return email address.
      */
-    public static String getEmailId (HttpServletRequest request) {
+    public static String getEmailId(HttpServletRequest request) {
         return (String) request.getSession().getAttribute(EMAIL);
     }
 
@@ -74,8 +74,10 @@ public class UserInfo {
      * @param emailAddress Email Address.
      * @param request HttpServletRequest.
      */
-    public static void loginUser(String emailAddress,
-            HttpServletRequest request) {
+    public static void loginUser(
+        String emailAddress,
+        HttpServletRequest request
+    ) {
         request.getSession().setAttribute(EMAIL, emailAddress);
     }
 

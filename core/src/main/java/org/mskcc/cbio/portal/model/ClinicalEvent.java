@@ -28,7 +28,7 @@
  *
  * You should have received a copy of the GNU Affero General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
-*/
+ */
 
 package org.mskcc.cbio.portal.model;
 
@@ -95,7 +95,7 @@ public class ClinicalEvent {
     public void setEventData(Map<String, String> eventData) {
         this.eventData = eventData;
     }
-    
+
     public void addEventDatum(String key, String value) {
         eventData.put(key, value);
     }

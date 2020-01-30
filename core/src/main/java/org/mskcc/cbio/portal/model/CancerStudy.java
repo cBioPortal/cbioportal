@@ -28,7 +28,7 @@
  *
  * You should have received a copy of the GNU Affero General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
-*/
+ */
 
 package org.mskcc.cbio.portal.model;
 
@@ -41,8 +41,6 @@ import java.util.Set;
 import org.mskcc.cbio.portal.dao.*;
 import org.mskcc.cbio.portal.util.*;
 import org.mskcc.cbio.portal.web_api.GetGeneticProfiles;
-
-
 
 /**
  * This represents a cancer study, with a set of cases and some data sets.
@@ -59,15 +57,14 @@ public class CancerStudy {
     private String name;
     private String description;
     private String cancerStudyIdentifier;
-    private String typeOfCancerId;  // required
-    private boolean publicStudy;  // if true, a public study, otherwise private
+    private String typeOfCancerId; // required
+    private boolean publicStudy; // if true, a public study, otherwise private
     private String pmid;
     private String citation;
     private Set<String> groups;
     private String shortName;
     private Date importDate;
     private String referenceGenome;
-    
 
     /**
      * Constructor.
@@ -77,8 +74,13 @@ public class CancerStudy {
      * @param typeOfCancerId        Type of Cancer.
      * @param publicStudy           Flag to indicate if this is a public study.
      */
-    public CancerStudy(String name, String description, String cancerStudyIdentifier,
-            String typeOfCancerId, boolean publicStudy) {
+    public CancerStudy(
+        String name,
+        String description,
+        String cancerStudyIdentifier,
+        String typeOfCancerId,
+        boolean publicStudy
+    ) {
         super();
         this.studyID = CancerStudy.NO_SUCH_STUDY;
         this.name = name;
@@ -192,9 +194,11 @@ public class CancerStudy {
     public void setCitation(String citation) {
         this.citation = citation;
     }
-    
-    public String getReferenceGenome() { return referenceGenome; }
-    
+
+    public String getReferenceGenome() {
+        return referenceGenome;
+    }
+
     public void setReferenceGenome(String referenceGenome) {
         this.referenceGenome = referenceGenome;
     }
@@ -219,11 +223,17 @@ public class CancerStudy {
      * @return mutation profile if there is mutation data; otherwise, null.
      * @param geneticProfiles genetic profiles to search mutations on
      */
-    public GeneticProfile getMutationProfile(ArrayList<GeneticProfile> geneticProfiles,
-            String caseId) throws DaoException {
-        for(GeneticProfile geneticProfile: geneticProfiles) {
-            if(geneticProfile.getGeneticAlterationType() == GeneticAlterationType.MUTATION_EXTENDED &&
-               acceptableCaseId(caseId, geneticProfile)) {
+    public GeneticProfile getMutationProfile(
+        ArrayList<GeneticProfile> geneticProfiles,
+        String caseId
+    )
+        throws DaoException {
+        for (GeneticProfile geneticProfile : geneticProfiles) {
+            if (
+                geneticProfile.getGeneticAlterationType() ==
+                GeneticAlterationType.MUTATION_EXTENDED &&
+                acceptableCaseId(caseId, geneticProfile)
+            ) {
                 return geneticProfile;
             }
         }
@@ -231,76 +241,99 @@ public class CancerStudy {
         return null;
     }
 
-    private boolean acceptableCaseId(String caseId, GeneticProfile geneticProfile) throws DaoException {
+    private boolean acceptableCaseId(
+        String caseId,
+        GeneticProfile geneticProfile
+    )
+        throws DaoException {
         if (caseId == null) return true;
-        Sample sample = DaoSample.getSampleByCancerStudyAndSampleId(geneticProfile.getCancerStudyId(),
-                                                                    StableIdUtil.getSampleId(caseId));
-        return DaoSampleProfile.sampleExistsInGeneticProfile(sample.getInternalId(), geneticProfile.getGeneticProfileId());
+        Sample sample = DaoSample.getSampleByCancerStudyAndSampleId(
+            geneticProfile.getCancerStudyId(),
+            StableIdUtil.getSampleId(caseId)
+        );
+        return DaoSampleProfile.sampleExistsInGeneticProfile(
+            sample.getInternalId(),
+            geneticProfile.getGeneticProfileId()
+        );
     }
-    
-    public GeneticProfile getMutationProfile(String caseId) throws DaoException {
-        return getMutationProfile(getGeneticProfiles(),caseId);
+
+    public GeneticProfile getMutationProfile(String caseId)
+        throws DaoException {
+        return getMutationProfile(getGeneticProfiles(), caseId);
     }
-    
+
     public GeneticProfile getMutationProfile() throws DaoException {
         return getMutationProfile(null);
     }
-    
+
     /**
      * Checks if there is any mutation data associated with this cancer study.
      *
      * @return true if there is mutation data
      * @param geneticProfiles genetic profiles to search mutations on
      */
-    public boolean hasMutationData(ArrayList<GeneticProfile> geneticProfiles) throws DaoException {
-        return null != getMutationProfile(geneticProfiles,null);
+    public boolean hasMutationData(ArrayList<GeneticProfile> geneticProfiles)
+        throws DaoException {
+        return null != getMutationProfile(geneticProfiles, null);
     }
-    
+
     /**
      * Get copy number alteration profile if any; otherwise, return null.
      *
-     * @return cn profile if there is mutation data; otherwise, null. If 
+     * @return cn profile if there is mutation data; otherwise, null. If
      *         showInAnalysisOnly is true, return cn profile shown in analysis tab only.
      * @param geneticProfiles genetic profiles to search cna on
      */
-    public GeneticProfile getCopyNumberAlterationProfile(boolean showInAnalysisOnly)
-            throws DaoException {
-        return getCopyNumberAlterationProfile(null,showInAnalysisOnly);
+    public GeneticProfile getCopyNumberAlterationProfile(
+        boolean showInAnalysisOnly
+    )
+        throws DaoException {
+        return getCopyNumberAlterationProfile(null, showInAnalysisOnly);
     }
 
     public boolean hasCnaData() throws DaoException {
-        GeneticProfile copyNumberAlterationProfile = getCopyNumberAlterationProfile(true);
+        GeneticProfile copyNumberAlterationProfile = getCopyNumberAlterationProfile(
+            true
+        );
         return copyNumberAlterationProfile != null;
     }
 
     /**
      * Get copy number alteration profile if any; otherwise, return null.
      *
-     * @return cn profile if there is cna data; otherwise, null. If 
+     * @return cn profile if there is cna data; otherwise, null. If
      *         showInAnalysisOnly is true, return cn profile shown in analysis tab only.
      * @param geneticProfiles genetic profiles to search cna on
      */
-    public GeneticProfile getCopyNumberAlterationProfile(String caseId, boolean showInAnalysisOnly)
-            throws DaoException {
-        for(GeneticProfile geneticProfile: getGeneticProfiles()) {
-            if(geneticProfile.getGeneticAlterationType() == GeneticAlterationType.COPY_NUMBER_ALTERATION &&
-               (!showInAnalysisOnly || geneticProfile.showProfileInAnalysisTab()) &&
-               acceptableCaseId(caseId, geneticProfile)) {
+    public GeneticProfile getCopyNumberAlterationProfile(
+        String caseId,
+        boolean showInAnalysisOnly
+    )
+        throws DaoException {
+        for (GeneticProfile geneticProfile : getGeneticProfiles()) {
+            if (
+                geneticProfile.getGeneticAlterationType() ==
+                GeneticAlterationType.COPY_NUMBER_ALTERATION &&
+                (
+                    !showInAnalysisOnly ||
+                    geneticProfile.showProfileInAnalysisTab()
+                ) &&
+                acceptableCaseId(caseId, geneticProfile)
+            ) {
                 return geneticProfile;
             }
         }
 
         return null;
     }
-    
+
     /**
      * Get mRNA profile.. try to get a RNA-seq first then microarray.
      *
-     * @return cn profile if there is mrna data; otherwise, null. 
+     * @return cn profile if there is mrna data; otherwise, null.
      * @param geneticProfiles genetic profiles to search mutations on
      */
-    public GeneticProfile getMRnaZscoresProfile()
-            throws DaoException {
+    public GeneticProfile getMRnaZscoresProfile() throws DaoException {
         return getMRnaZscoresProfile(null);
     }
 
@@ -316,11 +349,14 @@ public class CancerStudy {
      * @param geneticProfiles genetic profiles to search mrna on
      */
     public GeneticProfile getMRnaZscoresProfile(String caseId)
-            throws DaoException {
+        throws DaoException {
         GeneticProfile ret = null;
-        for(GeneticProfile geneticProfile: getGeneticProfiles()) {
-            if(geneticProfile.getGeneticAlterationType() == GeneticAlterationType.MRNA_EXPRESSION &&
-               acceptableCaseId(caseId, geneticProfile)) {
+        for (GeneticProfile geneticProfile : getGeneticProfiles()) {
+            if (
+                geneticProfile.getGeneticAlterationType() ==
+                GeneticAlterationType.MRNA_EXPRESSION &&
+                acceptableCaseId(caseId, geneticProfile)
+            ) {
                 String stableId = geneticProfile.getStableId().toLowerCase();
                 if (stableId.matches(".+rna_seq.*_zscores")) {
                     return geneticProfile;
@@ -345,23 +381,22 @@ public class CancerStudy {
     public boolean hasMutationData() throws DaoException {
         return hasMutationData(getGeneticProfiles());
     }
-    
+
     /**
-     * 
+     *
      * @return true if copy number segment data exist for this study; false, otherwise.
-     * @throws DaoException 
+     * @throws DaoException
      */
     public boolean hasCnaSegmentData() throws DaoException {
         return DaoCopyNumberSegment.segmentDataExistForCancerStudy(studyID);
     }
 
-    public Set<String> getFreshGroups() throws DaoException
-    {
+    public Set<String> getFreshGroups() throws DaoException {
         return DaoCancerStudy.getFreshGroups(studyID);
     }
 
     public Set<String> getGroups() {
-        if (groups==null) {
+        if (groups == null) {
             return Collections.emptySet();
         }
         return groups;
@@ -369,19 +404,20 @@ public class CancerStudy {
 
     /**
      * Determines the set of groups by splitting the given groups string
-     * on ';' and transforming all group names to their UPPER CASE 
-     * representation (this last one is in compliance to what is expected 
+     * on ';' and transforming all group names to their UPPER CASE
+     * representation (this last one is in compliance to what is expected
      * in CancerStudyPermissionEvaluator.hasPermission() ).
-     * 
+     *
      * @param groups semi-colon (;) delimited groups
      */
     public void setGroupsInUpperCase(String groups) {
-        if (groups==null) {
+        if (groups == null) {
             this.groups = null;
             return;
         }
-        
-        this.groups = new HashSet<String>(Arrays.asList(groups.toUpperCase().split(";")));
+
+        this.groups =
+            new HashSet<String>(Arrays.asList(groups.toUpperCase().split(";")));
     }
 
     /**
@@ -394,20 +430,23 @@ public class CancerStudy {
         if (this == otherCancerStudy) {
             return true;
         }
-        
+
         if (!(otherCancerStudy instanceof CancerStudy)) {
             return false;
         }
-        
+
         CancerStudy that = (CancerStudy) otherCancerStudy;
-        return
-                EqualsUtil.areEqual(this.publicStudy, that.publicStudy) &&
-                        EqualsUtil.areEqual(this.cancerStudyIdentifier,
-                                that.cancerStudyIdentifier) &&
-                        EqualsUtil.areEqual(this.description, that.description) &&
-                        EqualsUtil.areEqual(this.name, that.name) &&
-                        EqualsUtil.areEqual(this.typeOfCancerId, that.typeOfCancerId) &&
-                        EqualsUtil.areEqual(this.studyID, that.studyID);
+        return (
+            EqualsUtil.areEqual(this.publicStudy, that.publicStudy) &&
+            EqualsUtil.areEqual(
+                this.cancerStudyIdentifier,
+                that.cancerStudyIdentifier
+            ) &&
+            EqualsUtil.areEqual(this.description, that.description) &&
+            EqualsUtil.areEqual(this.name, that.name) &&
+            EqualsUtil.areEqual(this.typeOfCancerId, that.typeOfCancerId) &&
+            EqualsUtil.areEqual(this.studyID, that.studyID)
+        );
     }
 
     @Override
@@ -415,9 +454,22 @@ public class CancerStudy {
         int hash = 5;
         hash = 11 * hash + this.studyID;
         hash = 11 * hash + (this.name != null ? this.name.hashCode() : 0);
-        hash = 11 * hash + (this.description != null ? this.description.hashCode() : 0);
-        hash = 11 * hash + (this.cancerStudyIdentifier != null ? this.cancerStudyIdentifier.hashCode() : 0);
-        hash = 11 * hash + (this.typeOfCancerId != null ? this.typeOfCancerId.hashCode() : 0);
+        hash =
+            11 *
+            hash +
+            (this.description != null ? this.description.hashCode() : 0);
+        hash =
+            11 *
+            hash +
+            (
+                this.cancerStudyIdentifier != null
+                    ? this.cancerStudyIdentifier.hashCode()
+                    : 0
+            );
+        hash =
+            11 *
+            hash +
+            (this.typeOfCancerId != null ? this.typeOfCancerId.hashCode() : 0);
         hash = 11 * hash + (this.publicStudy ? 1 : 0);
         return hash;
     }
@@ -428,9 +480,21 @@ public class CancerStudy {
      */
     @Override
     public String toString() {
-        return "CancerStudy [studyID=" + studyID + ", name=" + name + ", description="
-                + description + ", cancerStudyIdentifier=" + cancerStudyIdentifier
-                + ", typeOfCancerId=" + typeOfCancerId + ", publicStudy=" + publicStudy + "]";
+        return (
+            "CancerStudy [studyID=" +
+            studyID +
+            ", name=" +
+            name +
+            ", description=" +
+            description +
+            ", cancerStudyIdentifier=" +
+            cancerStudyIdentifier +
+            ", typeOfCancerId=" +
+            typeOfCancerId +
+            ", publicStudy=" +
+            publicStudy +
+            "]"
+        );
     }
 
     public boolean hasMutSigData() throws DaoException {
@@ -440,23 +504,27 @@ public class CancerStudy {
     public boolean hasGisticData() throws DaoException {
         return DaoGistic.hasGistic(this);
     }
-    
+
     public boolean hasSurvivalData() throws DaoException {
         Set<String> attrs = DaoClinicalData.getDistinctParameters(studyID);
-        return attrs.contains(ClinicalAttribute.OS_STATUS) ||
-                    attrs.contains(ClinicalAttribute.DFS_STATUS);
+        return (
+            attrs.contains(ClinicalAttribute.OS_STATUS) ||
+            attrs.contains(ClinicalAttribute.DFS_STATUS)
+        );
     }
 
     /**
-     * Check if study has fusion data 
+     * Check if study has fusion data
      * @return true if has fusion data, false when it's not
      */
     public boolean hasFusionData() {
-        ArrayList<GeneticProfile> geneticProfiles = DaoGeneticProfile.getAllGeneticProfiles(studyID);
+        ArrayList<GeneticProfile> geneticProfiles = DaoGeneticProfile.getAllGeneticProfiles(
+            studyID
+        );
         boolean hasFusionData = false;
         for (GeneticProfile geneticProfile : geneticProfiles) {
             if (geneticProfile.getDatatype().equals("SV")) { // check if genetic profiles contains Structural Variant
-                                                             // data type
+                // data type
                 hasFusionData = true;
                 break;
             }
@@ -465,7 +533,7 @@ public class CancerStudy {
     }
 
     public String getShortName() {
-        if (shortName==null || shortName.length()==0) {
+        if (shortName == null || shortName.length() == 0) {
             return cancerStudyIdentifier;
         }
         return shortName;
@@ -474,9 +542,11 @@ public class CancerStudy {
     public void setShortName(String shortName) {
         this.shortName = shortName;
     }
-    
+
     public String getTypeOfCancer() throws DaoException {
-        return DaoTypeOfCancer.getTypeOfCancerById(this.typeOfCancerId).getName();
+        return DaoTypeOfCancer
+            .getTypeOfCancerById(this.typeOfCancerId)
+            .getName();
     }
 
     /**

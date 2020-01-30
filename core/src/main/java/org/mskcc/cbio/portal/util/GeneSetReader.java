@@ -28,17 +28,16 @@
  *
  * You should have received a copy of the GNU Affero General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
-*/
+ */
 
 package org.mskcc.cbio.portal.util;
 
-import org.mskcc.cbio.portal.model.SetOfGenes;
-
-import java.io.InputStreamReader;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.util.ArrayList;
+import org.mskcc.cbio.portal.model.SetOfGenes;
 
 /**
  * Reads in Gene Sets from an InputStream.
@@ -54,7 +53,8 @@ public class GeneSetReader {
      * @return ArrayList of GeneSet Objects.
      * @throws IOException  IO Error.
      */
-    public static ArrayList<SetOfGenes> readGeneSets (InputStream in) throws IOException {
+    public static ArrayList<SetOfGenes> readGeneSets(InputStream in)
+        throws IOException {
         ArrayList<SetOfGenes> geneSetList = new ArrayList<SetOfGenes>();
 
         //  User-Defined Gene Set Goes First
@@ -63,7 +63,9 @@ public class GeneSetReader {
         g0.setGeneList("");
         geneSetList.add(g0);
 
-        BufferedReader bufReader = new BufferedReader(new InputStreamReader(in));
+        BufferedReader bufReader = new BufferedReader(
+            new InputStreamReader(in)
+        );
         String line = bufReader.readLine();
         while (line != null) {
             line = line.trim();

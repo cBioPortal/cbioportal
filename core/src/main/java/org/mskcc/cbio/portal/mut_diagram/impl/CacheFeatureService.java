@@ -28,29 +28,29 @@
  *
  * You should have received a copy of the GNU Affero General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
-*/
+ */
 
 package org.mskcc.cbio.portal.mut_diagram.impl;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 
-import java.util.Collections;
-import java.util.List;
-
-import org.apache.log4j.Logger;
-import org.mskcc.cbio.portal.mut_diagram.FeatureService;
-import org.mskcc.cbio.portal.mut_diagram.Sequence;
-
 import com.google.common.cache.Cache;
 import com.google.common.cache.CacheBuilder;
 import com.google.common.cache.CacheLoader;
+import java.util.Collections;
+import java.util.List;
+import org.apache.log4j.Logger;
+import org.mskcc.cbio.portal.mut_diagram.FeatureService;
+import org.mskcc.cbio.portal.mut_diagram.Sequence;
 
 /**
  * Implementation of FeatureService based on CacheBuilder.
  */
 public final class CacheFeatureService implements FeatureService {
     private static final List<Sequence> EMPTY = Collections.emptyList();
-    private static final Logger logger = Logger.getLogger(CacheFeatureService.class);
+    private static final Logger logger = Logger.getLogger(
+        CacheFeatureService.class
+    );
     private final Cache<String, List<Sequence>> cache;
 
     /**
@@ -58,7 +58,9 @@ public final class CacheFeatureService implements FeatureService {
      *
      * @param cacheLoader cache loader, must not be null
      */
-    public CacheFeatureService(final CacheLoader<String, List<Sequence>> cacheLoader) {
+    public CacheFeatureService(
+        final CacheLoader<String, List<Sequence>> cacheLoader
+    ) {
         checkNotNull(cacheLoader, "cacheLoader must not be null");
         cache = CacheBuilder.newBuilder().build(cacheLoader);
     }

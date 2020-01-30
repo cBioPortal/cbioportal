@@ -28,16 +28,15 @@
  *
  * You should have received a copy of the GNU Affero General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
-*/
+ */
 
 package org.mskcc.cbio.portal.scripts;
 
+import java.io.*;
+import java.util.*;
 import org.mskcc.cbio.portal.dao.*;
 import org.mskcc.cbio.portal.model.*;
 import org.mskcc.cbio.portal.util.*;
-
-import java.io.*;
-import java.util.*;
 
 /**
  * Export all Data Associated with a Single Genomic Profile.
@@ -51,15 +50,24 @@ public class ExportProfileData {
     public static void main(String[] args) throws DaoException, IOException {
         // check args
         if (args.length < 1) {
-            System.out.println("command line usage:  exportProfileData.pl " + "<stable_genetic_profile_id>");
+            System.out.println(
+                "command line usage:  exportProfileData.pl " +
+                "<stable_genetic_profile_id>"
+            );
             // an extra --noprogress option can be given to avoid the messages regarding memory usage and % complete
             return;
         }
         String stableGeneticProfileId = args[0];
-        System.out.println("Using genetic profile ID:  " + stableGeneticProfileId);
-        GeneticProfile geneticProfile = DaoGeneticProfile.getGeneticProfileByStableId(stableGeneticProfileId);
+        System.out.println(
+            "Using genetic profile ID:  " + stableGeneticProfileId
+        );
+        GeneticProfile geneticProfile = DaoGeneticProfile.getGeneticProfileByStableId(
+            stableGeneticProfileId
+        );
         if (geneticProfile == null) {
-            System.out.println("Genetic Profile not recognized:  " + stableGeneticProfileId);
+            System.out.println(
+                "Genetic Profile not recognized:  " + stableGeneticProfileId
+            );
             return;
         } else {
             System.out.println(geneticProfile.getProfileName());
@@ -68,31 +76,47 @@ public class ExportProfileData {
         }
     }
 
-    public static void export(GeneticProfile profile) throws IOException, DaoException {
+    public static void export(GeneticProfile profile)
+        throws IOException, DaoException {
         String fileName = profile.getStableId() + ".txt";
-        FileWriter writer = new FileWriter (fileName);
+        FileWriter writer = new FileWriter(fileName);
         ArrayList<Integer> sampleList = outputHeader(profile, writer);
 
         DaoGeneticAlteration daoGeneticAlteration = DaoGeneticAlteration.getInstance();
-        Set<CanonicalGene> geneSet = daoGeneticAlteration.getGenesInProfile(profile.getGeneticProfileId());
+        Set<CanonicalGene> geneSet = daoGeneticAlteration.getGenesInProfile(
+            profile.getGeneticProfileId()
+        );
         ProgressMonitor.setMaxValue(geneSet.size());
         Iterator<CanonicalGene> geneIterator = geneSet.iterator();
-        outputProfileData(profile, writer, sampleList, daoGeneticAlteration, geneIterator);
-        System.out.println ("\nProfile data written to:  " + fileName);
+        outputProfileData(
+            profile,
+            writer,
+            sampleList,
+            daoGeneticAlteration,
+            geneIterator
+        );
+        System.out.println("\nProfile data written to:  " + fileName);
     }
 
-    private static void outputProfileData(GeneticProfile profile, FileWriter writer,
-            ArrayList<Integer> sampleList, DaoGeneticAlteration daoGeneticAlteration,
-            Iterator<CanonicalGene> geneIterator) throws IOException, DaoException {
+    private static void outputProfileData(
+        GeneticProfile profile,
+        FileWriter writer,
+        ArrayList<Integer> sampleList,
+        DaoGeneticAlteration daoGeneticAlteration,
+        Iterator<CanonicalGene> geneIterator
+    )
+        throws IOException, DaoException {
         while (geneIterator.hasNext()) {
             ConsoleUtil.showProgress();
             ProgressMonitor.incrementCurValue();
             CanonicalGene currentGene = geneIterator.next();
             writer.write(currentGene.getHugoGeneSymbolAllCaps() + TAB);
             writer.write(Long.toString(currentGene.getEntrezGeneId()));
-            HashMap<Integer, String> valueMap = daoGeneticAlteration.getGeneticAlterationMap
-                    (profile.getGeneticProfileId(), currentGene.getEntrezGeneId());
-            for (Integer sampleId:  sampleList) {
+            HashMap<Integer, String> valueMap = daoGeneticAlteration.getGeneticAlterationMap(
+                profile.getGeneticProfileId(),
+                currentGene.getEntrezGeneId()
+            );
+            for (Integer sampleId : sampleList) {
                 writer.write(TAB + valueMap.get(sampleId));
             }
             writer.write(NEW_LINE);
@@ -100,8 +124,14 @@ public class ExportProfileData {
         writer.close();
     }
 
-    private static ArrayList<Integer> outputHeader(GeneticProfile profile, FileWriter writer) throws DaoException, IOException {
-        ArrayList<Integer> sampleList = DaoGeneticProfileSamples.getOrderedSampleList(profile.getGeneticProfileId());
+    private static ArrayList<Integer> outputHeader(
+        GeneticProfile profile,
+        FileWriter writer
+    )
+        throws DaoException, IOException {
+        ArrayList<Integer> sampleList = DaoGeneticProfileSamples.getOrderedSampleList(
+            profile.getGeneticProfileId()
+        );
         writer.write("SYMBOL" + TAB);
         writer.write("ENTREZ_GENE_ID");
         for (Integer sampleId : sampleList) {

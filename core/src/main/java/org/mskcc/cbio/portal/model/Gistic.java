@@ -28,7 +28,7 @@
  *
  * You should have received a copy of the GNU Affero General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
-*/
+ */
 
 package org.mskcc.cbio.portal.model;
 
@@ -41,10 +41,9 @@ import java.util.ArrayList;
  */
 
 public class Gistic {
-
     public static final int NO_SUCH_GISTIC = -1;
-    public static final boolean AMPLIFIED = true;       // ROI is an amplified region
-    public static final boolean DELETED = false;        // ROI is a deleted region
+    public static final boolean AMPLIFIED = true; // ROI is an amplified region
+    public static final boolean DELETED = false; // ROI is a deleted region
 
     private int gisticID;
     private int cancerStudyId;
@@ -66,9 +65,16 @@ public class Gistic {
      * @param genes_in_ROI      genes in the ROI
      * @param amp_del           region is amplified or deleted. To set use Gistic.AMPLIFIED or Gistic.DELETED
      */
-    public Gistic(int cancerStudyId, int chromosome, String cytoband, int peakStart, int peakEnd,
-                  double qValue, ArrayList<CanonicalGene> genes_in_ROI, boolean amp_del) {
-
+    public Gistic(
+        int cancerStudyId,
+        int chromosome,
+        String cytoband,
+        int peakStart,
+        int peakEnd,
+        double qValue,
+        ArrayList<CanonicalGene> genes_in_ROI,
+        boolean amp_del
+    ) {
         this.gisticID = NO_SUCH_GISTIC;
         this.cancerStudyId = cancerStudyId;
         this.chromosome = chromosome;
@@ -104,24 +110,27 @@ public class Gistic {
     public int peakSize() {
         return this.peakEnd - this.peakStart;
     }
-    
-    @Override public String toString() {
-        
-        return String.format("cancerStudyId=%d, " +
-                "chromosome: %d, " +
-                "cytoband: %s, " +
-                "peakStart: %d, " +
-                "peakEnd: %d, " +
-                "qValue: %s, " +
-                "genes_in_ROI: %s, " +
-                "amp: %s", this.cancerStudyId,
-                this.chromosome,
-                this.cytoband,
-                this.peakStart,
-                this.peakEnd,
-                Double.toString(this.qValue),
-                this.genes_in_ROI,
-                this.amp);
+
+    @Override
+    public String toString() {
+        return String.format(
+            "cancerStudyId=%d, " +
+            "chromosome: %d, " +
+            "cytoband: %s, " +
+            "peakStart: %d, " +
+            "peakEnd: %d, " +
+            "qValue: %s, " +
+            "genes_in_ROI: %s, " +
+            "amp: %s",
+            this.cancerStudyId,
+            this.chromosome,
+            this.cytoband,
+            this.peakStart,
+            this.peakEnd,
+            Double.toString(this.qValue),
+            this.genes_in_ROI,
+            this.amp
+        );
     }
 
     /**
@@ -153,7 +162,7 @@ public class Gistic {
      * Sets the cytoband of a gistic
      * @param cytoband
      */
-    public void setCytoband (String cytoband) {
+    public void setCytoband(String cytoband) {
         this.cytoband = cytoband;
     }
 

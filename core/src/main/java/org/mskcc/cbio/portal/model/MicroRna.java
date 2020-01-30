@@ -28,14 +28,14 @@
  *
  * You should have received a copy of the GNU Affero General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
-*/
+ */
 
 package org.mskcc.cbio.portal.model;
 
 /**
  * Class for micro rna data
  */
-public class MicroRna extends Gene{
+public class MicroRna extends Gene {
     private String microRnaId;
 
     public MicroRna(String microRnaId) {

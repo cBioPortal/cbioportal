@@ -28,12 +28,12 @@
  *
  * You should have received a copy of the GNU Affero General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
-*/
+ */
 
 package org.mskcc.cbio.portal.model;
 
-import java.util.HashMap;
 import java.util.ArrayList;
+import java.util.HashMap;
 
 /**
  * Encapsulates a Gene from the Sanger Cancer Gene Census.
@@ -96,7 +96,9 @@ public class SangerCancerGene {
         return extractParts(tumorTypesGermlineMutation);
     }
 
-    public void setTumorTypesGermlineMutation(String tumorTypesGermlineMutation) {
+    public void setTumorTypesGermlineMutation(
+        String tumorTypesGermlineMutation
+    ) {
         this.tumorTypesGermlineMutation = tumorTypesGermlineMutation;
     }
 
@@ -159,8 +161,8 @@ public class SangerCancerGene {
     private ArrayList<String> extractParts(String target) {
         String parts[] = target.split(",");
         SangerCancerGeneAbbreviationMap abbrevMap = SangerCancerGeneAbbreviationMap.getInstance();
-        ArrayList <String> partList = new ArrayList<String>();
-        for (String part:  parts) {
+        ArrayList<String> partList = new ArrayList<String>();
+        for (String part : parts) {
             String translation = abbrevMap.getTranslation(part.trim());
             if (translation != null) {
                 partList.add(translation);

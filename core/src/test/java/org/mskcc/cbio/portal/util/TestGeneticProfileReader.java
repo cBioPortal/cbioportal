@@ -28,10 +28,15 @@
  *
  * You should have received a copy of the GNU Affero General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
-*/
+ */
 
 package org.mskcc.cbio.portal.util;
 
+import static org.junit.Assert.*;
+
+import java.io.File;
+import java.io.IOException;
+import java.util.ArrayList;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mskcc.cbio.portal.dao.DaoCancerStudy;
@@ -45,18 +50,15 @@ import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import org.springframework.test.context.transaction.TransactionConfiguration;
 import org.springframework.transaction.annotation.Transactional;
 
-import static org.junit.Assert.*;
-
-import java.io.File;
-import java.io.IOException;
-import java.util.ArrayList;
-
 /**
  * JUnit test for GeneticProfileReader class.
  */
 @RunWith(SpringJUnit4ClassRunner.class)
 @ContextConfiguration(locations = { "classpath:/applicationContext-dao.xml" })
-@TransactionConfiguration(transactionManager = "transactionManager", defaultRollback = true)
+@TransactionConfiguration(
+    transactionManager = "transactionManager",
+    defaultRollback = true
+)
 @Transactional
 public class TestGeneticProfileReader {
 
@@ -67,31 +69,49 @@ public class TestGeneticProfileReader {
         // TBD: change this to use getResourceAsStream()
 
         File file = new File("target/test-classes/genetic_profile_test.txt");
-        GeneticProfile geneticProfile = GeneticProfileReader.loadGeneticProfile(file);
+        GeneticProfile geneticProfile = GeneticProfileReader.loadGeneticProfile(
+            file
+        );
         assertEquals("Barry", geneticProfile.getTargetLine());
         assertEquals("Blah Blah.", geneticProfile.getProfileDescription());
 
-        CancerStudy cancerStudy = DaoCancerStudy.getCancerStudyByStableId("study_tcga_pub");
-        ArrayList<GeneticProfile> list = DaoGeneticProfile.getAllGeneticProfiles
-                (cancerStudy.getInternalId());
+        CancerStudy cancerStudy = DaoCancerStudy.getCancerStudyByStableId(
+            "study_tcga_pub"
+        );
+        ArrayList<GeneticProfile> list = DaoGeneticProfile.getAllGeneticProfiles(
+            cancerStudy.getInternalId()
+        );
         geneticProfile = list.get(0);
 
-        assertEquals(cancerStudy.getInternalId(), geneticProfile.getCancerStudyId());
-        assertEquals("Putative copy-number alterations from GISTIC", geneticProfile.getProfileName());
-        assertEquals(GeneticAlterationType.COPY_NUMBER_ALTERATION,
-                geneticProfile.getGeneticAlterationType());
+        assertEquals(
+            cancerStudy.getInternalId(),
+            geneticProfile.getCancerStudyId()
+        );
+        assertEquals(
+            "Putative copy-number alterations from GISTIC",
+            geneticProfile.getProfileName()
+        );
+        assertEquals(
+            GeneticAlterationType.COPY_NUMBER_ALTERATION,
+            geneticProfile.getGeneticAlterationType()
+        );
     }
 
     @Test(expected = RuntimeException.class)
-    public void testTreatmentResponseMissingPivotField() throws IOException, DaoException {
-        File file = new File("target/test-classes/test_meta_treatment_missing_pivot.txt");
+    public void testTreatmentResponseMissingPivotField()
+        throws IOException, DaoException {
+        File file = new File(
+            "target/test-classes/test_meta_treatment_missing_pivot.txt"
+        );
         GeneticProfileReader.loadGeneticProfile(file);
     }
 
     @Test(expected = RuntimeException.class)
-    public void testTreatmentResponseMissingSortOrderField() throws IOException, DaoException {
-        File file = new File("target/test-classes/test_meta_treatment_missing_sortorder.txt");
+    public void testTreatmentResponseMissingSortOrderField()
+        throws IOException, DaoException {
+        File file = new File(
+            "target/test-classes/test_meta_treatment_missing_sortorder.txt"
+        );
         GeneticProfileReader.loadGeneticProfile(file);
     }
-
 }

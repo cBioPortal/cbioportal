@@ -28,8 +28,7 @@
  *
  * You should have received a copy of the GNU Affero General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
-*/
-
+ */
 
 package org.mskcc.cbio.portal.stats;
 
@@ -43,7 +42,6 @@ import java.util.Arrays;
  * @author Steven Maere, Karel Heymans, and Ethan Cerami
  */
 public final class BenjaminiHochbergFDR {
-
     /**
      * the raw p-values that were given as input for the constructor.
      */
@@ -75,7 +73,6 @@ public final class BenjaminiHochbergFDR {
      * the false discovery rate.
      */
     public void calculate() {
-
         // order the pvalues.
         Arrays.sort(pvalues);
 

@@ -28,19 +28,18 @@
  *
  * You should have received a copy of the GNU Affero General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
-*/
+ */
 
 package org.mskcc.cbio.portal.servlet;
 
+import java.io.InputStream;
+import javax.servlet.http.HttpServletRequest;
 import org.apache.commons.lang.StringEscapeUtils;
-import org.owasp.validator.html.Policy;
 import org.owasp.validator.html.AntiSamy;
+import org.owasp.validator.html.CleanResults;
+import org.owasp.validator.html.Policy;
 import org.owasp.validator.html.PolicyException;
 import org.owasp.validator.html.ScanException;
-import org.owasp.validator.html.CleanResults;
-
-import javax.servlet.http.HttpServletRequest;
-import java.io.InputStream;
 
 /**
  * Servlet Cross Site Scripting Util Class.
@@ -52,11 +51,13 @@ public class ServletXssUtil {
 
     /**
      * Private Constructor.
-     * 
+     *
      * @throws PolicyException Policy Error.
      */
     private ServletXssUtil() throws PolicyException {
-        InputStream inputStream = getClass().getClassLoader().getResourceAsStream("antisamy.xml");
+        InputStream inputStream = getClass()
+            .getClassLoader()
+            .getResourceAsStream("antisamy.xml");
         policy = Policy.getInstance(inputStream);
         as = new AntiSamy();
     }
@@ -82,7 +83,10 @@ public class ServletXssUtil {
      * @throws ScanException        Scan Error.
      * @throws PolicyException      Policy Error.
      */
-    public String getCleanInput (HttpServletRequest httpServletRequest, String parameter) {
+    public String getCleanInput(
+        HttpServletRequest httpServletRequest,
+        String parameter
+    ) {
         String dirtyInput = httpServletRequest.getParameter(parameter);
         try {
             if (dirtyInput != null) {
@@ -106,7 +110,7 @@ public class ServletXssUtil {
      * @param dirty Dirty User Input.
      * @return Clean User Input.
      */
-    public String getCleanInput (String dirty) {
+    public String getCleanInput(String dirty) {
         try {
             CleanResults cr = as.scan(dirty, policy);
             return cr.getCleanHTML();
@@ -117,57 +121,58 @@ public class ServletXssUtil {
         }
     }
 
-	/**
-	 * Gets Cleaner XSS User Input. In addition to applying antisamy rules,
-	 * this method also escapes JavaScript characters.
-	 *
-	 * @param dirty Dirty User Input.
-	 * @return Clean User Input.
-	 */
-	public String getCleanerInput(String dirty)
-	{
-		String clean = this.getCleanInput(dirty);
+    /**
+     * Gets Cleaner XSS User Input. In addition to applying antisamy rules,
+     * this method also escapes JavaScript characters.
+     *
+     * @param dirty Dirty User Input.
+     * @return Clean User Input.
+     */
+    public String getCleanerInput(String dirty) {
+        String clean = this.getCleanInput(dirty);
 
-		if (clean != null)
-		{
-			clean = this.getJavascriptFreeInput(clean);
-		}
+        if (clean != null) {
+            clean = this.getJavascriptFreeInput(clean);
+        }
 
-		return clean;
-	}
+        return clean;
+    }
 
-	/**
-	 * /**
-	 * Gets Cleaner XSS User Input. In addition to applying antisamy rules,
-	 * this method also escapes JavaScript characters.
-	 *
-	 * @param request   HTTP servlet request
-	 * @param parameter name of the parameter
-	 * @return  cleaned and escaped user input
-	 */
-	public String getCleanerInput(HttpServletRequest request, String parameter)
-	{
-		String dirty = request.getParameter(parameter);
+    /**
+     * /**
+     * Gets Cleaner XSS User Input. In addition to applying antisamy rules,
+     * this method also escapes JavaScript characters.
+     *
+     * @param request   HTTP servlet request
+     * @param parameter name of the parameter
+     * @return  cleaned and escaped user input
+     */
+    public String getCleanerInput(
+        HttpServletRequest request,
+        String parameter
+    ) {
+        String dirty = request.getParameter(parameter);
 
-		return this.getCleanerInput(dirty);
-	}
+        return this.getCleanerInput(dirty);
+    }
 
-	/**
-	 * Escapes JavaScript characters for the given string. Also strips all
-	 * occurrences of the word "javascript" from the string.
-	 *
-	 * @param dirty unescaped input string
-	 * @return  JavaScript escaped string
-	 */
-	public String getJavascriptFreeInput(String dirty)
-	{
-		String clean = null;
+    /**
+     * Escapes JavaScript characters for the given string. Also strips all
+     * occurrences of the word "javascript" from the string.
+     *
+     * @param dirty unescaped input string
+     * @return  JavaScript escaped string
+     */
+    public String getJavascriptFreeInput(String dirty) {
+        String clean = null;
 
-		if (dirty != null)
-		{
-			clean = StringEscapeUtils.escapeJavaScript(dirty).replaceAll("(?i)javascript", "");
-		}
+        if (dirty != null) {
+            clean =
+                StringEscapeUtils
+                    .escapeJavaScript(dirty)
+                    .replaceAll("(?i)javascript", "");
+        }
 
-		return clean;
-	}
+        return clean;
+    }
 }

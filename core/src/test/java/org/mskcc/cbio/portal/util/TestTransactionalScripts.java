@@ -12,26 +12,33 @@ import org.springframework.test.context.transaction.TransactionConfiguration;
 import org.springframework.transaction.annotation.Transactional;
 
 @RunWith(SpringJUnit4ClassRunner.class)
-@ContextConfiguration(locations = { "classpath:/demoScript.xml", "classpath:/applicationContext-dao.xml" })
-@TransactionConfiguration(transactionManager = "transactionManager", defaultRollback = true)
+@ContextConfiguration(
+    locations = {
+        "classpath:/demoScript.xml", "classpath:/applicationContext-dao.xml"
+    }
+)
+@TransactionConfiguration(
+    transactionManager = "transactionManager",
+    defaultRollback = true
+)
 @Transactional
 public class TestTransactionalScripts {
-
-	@Autowired
+    @Autowired
     private ApplicationContext applicationContext;
 
-	@Before
-	public void setUp() {
-		DaoCancerStudy.reCacheAll();
-	}
+    @Before
+    public void setUp() {
+        DaoCancerStudy.reCacheAll();
+    }
 
-	/**
-	 * A basic test of using the context to drive a set of scripts.
-	 */
-	@Test
-	public void testScripts() {
-		TransactionalScripts scripts = applicationContext.getBean(TransactionalScripts.class);
-		scripts.run();
-	}
-
+    /**
+     * A basic test of using the context to drive a set of scripts.
+     */
+    @Test
+    public void testScripts() {
+        TransactionalScripts scripts = applicationContext.getBean(
+            TransactionalScripts.class
+        );
+        scripts.run();
+    }
 }

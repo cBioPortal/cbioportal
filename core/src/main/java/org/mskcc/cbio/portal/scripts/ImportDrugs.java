@@ -28,15 +28,14 @@
  *
  * You should have received a copy of the GNU Affero General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
-*/
+ */
 
 package org.mskcc.cbio.portal.scripts;
 
-import org.mskcc.cbio.portal.util.*;
+import java.io.*;
 import org.mskcc.cbio.portal.dao.*;
 import org.mskcc.cbio.portal.model.CanonicalGene;
-
-import java.io.*;
+import org.mskcc.cbio.portal.util.*;
 
 /**
  * Command Line tool to import background drug information.
@@ -68,7 +67,6 @@ public class ImportDrugs {
 
                 //  Load up the specified genes from the master table
                 CanonicalGene gene = daoGene.getGene(geneSymbol);
-
             }
             line = buf.readLine();
         }
@@ -76,14 +74,18 @@ public class ImportDrugs {
 
     public static void main(String[] args) throws Exception {
         if (args.length == 0) {
-            System.out.println("command line usage:  importDrugs.pl <XXXX.txt>");
+            System.out.println(
+                "command line usage:  importDrugs.pl <XXXX.txt>"
+            );
             return;
         }
         ProgressMonitor.setConsoleMode(true);
-		SpringUtil.initDataSource();
+        SpringUtil.initDataSource();
 
         File file = new File(args[0]);
-        System.out.println("Reading drug data from:  " + file.getAbsolutePath());
+        System.out.println(
+            "Reading drug data from:  " + file.getAbsolutePath()
+        );
         int numLines = FileUtil.getNumLines(file);
         System.out.println(" --> total number of lines:  " + numLines);
         ProgressMonitor.setMaxValue(numLines);

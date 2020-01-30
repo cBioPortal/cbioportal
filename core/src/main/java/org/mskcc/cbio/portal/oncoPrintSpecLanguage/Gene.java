@@ -28,7 +28,7 @@
  *
  * You should have received a copy of the GNU Affero General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
-*/
+ */
 
 package org.mskcc.cbio.portal.oncoPrintSpecLanguage;
 
@@ -36,14 +36,12 @@ public class Gene {
 
     /**
      * indicates whether name is a valid gene name
-     * 
+     *
      * @param name
      * @return
      */
-    static public boolean valid(String name) {
-       // TODO: remove this class when ASTwalker stops calling it
-       return true;
+    public static boolean valid(String name) {
+        // TODO: remove this class when ASTwalker stops calling it
+        return true;
     }
-
 }
-

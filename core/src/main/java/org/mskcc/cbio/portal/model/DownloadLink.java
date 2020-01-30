@@ -28,7 +28,7 @@
  *
  * You should have received a copy of the GNU Affero General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
-*/
+ */
 
 package org.mskcc.cbio.portal.model;
 
@@ -52,8 +52,12 @@ public class DownloadLink implements Serializable {
      * @param caseIds  Whitespace-delimited list of case Ids.
      * @param content  Content from the CGDS Server.
      */
-    public DownloadLink(GeneticProfile profile, ArrayList<String> geneList,
-                        String caseIds, String content) {
+    public DownloadLink(
+        GeneticProfile profile,
+        ArrayList<String> geneList,
+        String caseIds,
+        String content
+    ) {
         this.profile = profile;
         this.geneList = geneList;
         this.caseIds = caseIds;

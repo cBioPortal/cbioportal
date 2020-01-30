@@ -28,13 +28,13 @@
  *
  * You should have received a copy of the GNU Affero General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
-*/
+ */
 
 package org.mskcc.cbio.portal.scripts;
 
-import org.mskcc.cbio.portal.util.*;
 import org.mskcc.cbio.portal.dao.DaoCancerStudy;
 import org.mskcc.cbio.portal.dao.DaoException;
+import org.mskcc.cbio.portal.util.*;
 
 /**
  * Command Line Tool to Remove a Single Cancer Study.
@@ -42,34 +42,41 @@ import org.mskcc.cbio.portal.dao.DaoException;
 public class RemoveCancerStudy extends ConsoleRunnable {
 
     public void run() {
-    	try {
-	        if (args.length < 1) {
-	            // an extra --noprogress option can be given to avoid the messages regarding memory usage and % complete
+        try {
+            if (args.length < 1) {
+                // an extra --noprogress option can be given to avoid the messages regarding memory usage and % complete
                 throw new UsageException(
-                        "removeCancerStudy",
-                        null,
-                        "<cancer_study_identifier>");
-	        }
-	        String cancerStudyIdentifier = args[0];
-	
-			SpringUtil.initDataSource();
+                    "removeCancerStudy",
+                    null,
+                    "<cancer_study_identifier>"
+                );
+            }
+            String cancerStudyIdentifier = args[0];
+
+            SpringUtil.initDataSource();
             ProgressMonitor.setCurrentMessage(
-                    "Checking if Cancer study with identifier " +
+                "Checking if Cancer study with identifier " +
+                cancerStudyIdentifier +
+                " already exists before removing..."
+            );
+            if (
+                DaoCancerStudy.doesCancerStudyExistByStableId(
+                    cancerStudyIdentifier
+                )
+            ) {
+                ProgressMonitor.setCurrentMessage(
+                    "Cancer study with identifier " +
                     cancerStudyIdentifier +
-                    " already exists before removing...");
-	        if (DaoCancerStudy.doesCancerStudyExistByStableId(cancerStudyIdentifier)) {
-	            ProgressMonitor.setCurrentMessage(
-	                    "Cancer study with identifier " +
-	                    cancerStudyIdentifier +
-	                    " found in database, removing...");
-	            DaoCancerStudy.deleteCancerStudy(cancerStudyIdentifier);
-	        }
-	        else {
-	            ProgressMonitor.setCurrentMessage(
-	                    "Cancer study with identifier " +
-	                    cancerStudyIdentifier +
-	                    " does not exist the the database, not removing...");
-	        }
+                    " found in database, removing..."
+                );
+                DaoCancerStudy.deleteCancerStudy(cancerStudyIdentifier);
+            } else {
+                ProgressMonitor.setCurrentMessage(
+                    "Cancer study with identifier " +
+                    cancerStudyIdentifier +
+                    " does not exist the the database, not removing..."
+                );
+            }
         } catch (RuntimeException e) {
             throw e;
         } catch (DaoException e) {

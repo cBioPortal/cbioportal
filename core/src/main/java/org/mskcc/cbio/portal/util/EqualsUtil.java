@@ -28,7 +28,7 @@
  *
  * You should have received a copy of the GNU Affero General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
-*/
+ */
 
 package org.mskcc.cbio.portal.util;
 
@@ -56,42 +56,41 @@ package org.mskcc.cbio.portal.util;
  * This is because the <code>Arrays.equals</code> methods should be used for
  * array fields.
  */
- public final class EqualsUtil {
+public final class EqualsUtil {
 
-   static public boolean areEqual(boolean aThis, boolean aThat){
-     //System.out.println("boolean");
-     return aThis == aThat;
-   }
+    public static boolean areEqual(boolean aThis, boolean aThat) {
+        //System.out.println("boolean");
+        return aThis == aThat;
+    }
 
-   static public boolean areEqual(char aThis, char aThat){
-     //System.out.println("char");
-     return aThis == aThat;
-   }
+    public static boolean areEqual(char aThis, char aThat) {
+        //System.out.println("char");
+        return aThis == aThat;
+    }
 
-   static public boolean areEqual(long aThis, long aThat){
-     /*
-     * Note that byte, short, and int are handled by this method, through
-     * implicit conversion.
+    public static boolean areEqual(long aThis, long aThat) {
+        /*
+         * Note that byte, short, and int are handled by this method, through
+         * implicit conversion.
+         */
+        return aThis == aThat;
+    }
+
+    public static boolean areEqual(float aThis, float aThat) {
+        return Float.floatToIntBits(aThis) == Float.floatToIntBits(aThat);
+    }
+
+    public static boolean areEqual(double aThis, double aThat) {
+        return Double.doubleToLongBits(aThis) == Double.doubleToLongBits(aThat);
+    }
+
+    /**
+     * Possibly-null object field.
+     *
+     * Includes type-safe enumerations and collections, but does not include
+     * arrays. See class comment.
      */
-     return aThis == aThat;
-   }
-
-   static public boolean areEqual(float aThis, float aThat){
-     return Float.floatToIntBits(aThis) == Float.floatToIntBits(aThat);
-   }
-
-   static public boolean areEqual(double aThis, double aThat){
-     return Double.doubleToLongBits(aThis) == Double.doubleToLongBits(aThat);
-   }
-
-   /**
-   * Possibly-null object field.
-   *
-   * Includes type-safe enumerations and collections, but does not include
-   * arrays. See class comment.
-   */
-   static public boolean areEqual(Object aThis, Object aThat){
-     return aThis == null ? aThat == null : aThis.equals(aThat);
-   }
- }
-  
+    public static boolean areEqual(Object aThis, Object aThat) {
+        return aThis == null ? aThat == null : aThis.equals(aThat);
+    }
+}

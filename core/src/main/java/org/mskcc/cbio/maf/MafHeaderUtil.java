@@ -28,7 +28,7 @@
  *
  * You should have received a copy of the GNU Affero General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
-*/
+ */
 
 package org.mskcc.cbio.maf;
 
@@ -43,57 +43,50 @@ import java.util.List;
  *
  * @author Selcuk Onur Sumer
  */
-public class MafHeaderUtil
-{
-	public static final String DEFAULT_COMMENT_CHAR = "#";
+public class MafHeaderUtil {
+    public static final String DEFAULT_COMMENT_CHAR = "#";
 
-	private String headerLine;
-	private List<String> comments;
-	private String commentChar;
+    private String headerLine;
+    private List<String> comments;
+    private String commentChar;
 
-	public MafHeaderUtil(String commentChar)
-	{
-		this.comments = new ArrayList<String>();
-		this.headerLine = null;
-		this.commentChar = commentChar;
-	}
+    public MafHeaderUtil(String commentChar) {
+        this.comments = new ArrayList<String>();
+        this.headerLine = null;
+        this.commentChar = commentChar;
+    }
 
-	public MafHeaderUtil()
-	{
-		this(DEFAULT_COMMENT_CHAR);
-	}
+    public MafHeaderUtil() {
+        this(DEFAULT_COMMENT_CHAR);
+    }
 
-	public String extractHeader(BufferedReader reader) throws IOException
-	{
-		String line;
-		boolean done = false;
+    public String extractHeader(BufferedReader reader) throws IOException {
+        String line;
+        boolean done = false;
 
-		while (!done)
-		{
-			line = reader.readLine();
+        while (!done) {
+            line = reader.readLine();
 
-			if (line == null ||
-			    (line.trim().length() > 0) && !line.trim().startsWith(this.commentChar))
-			{
-				done = true;
-				this.headerLine = line;
-			}
-			else
-			{
-				this.comments.add(line);
-			}
-		}
+            if (
+                line == null ||
+                (line.trim().length() > 0) &&
+                !line.trim().startsWith(this.commentChar)
+            ) {
+                done = true;
+                this.headerLine = line;
+            } else {
+                this.comments.add(line);
+            }
+        }
 
-		return this.headerLine;
-	}
+        return this.headerLine;
+    }
 
-	public List<String> getComments()
-	{
-		return comments;
-	}
+    public List<String> getComments() {
+        return comments;
+    }
 
-	public String getHeaderLine()
-	{
-		return headerLine;
-	}
+    public String getHeaderLine() {
+        return headerLine;
+    }
 }

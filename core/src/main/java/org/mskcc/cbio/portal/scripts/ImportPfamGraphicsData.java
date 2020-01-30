@@ -28,15 +28,14 @@
  *
  * You should have received a copy of the GNU Affero General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
-*/
+ */
 
 package org.mskcc.cbio.portal.scripts;
 
-import org.mskcc.cbio.portal.dao.*;
-import org.mskcc.cbio.portal.util.*;
-
 import java.io.*;
 import java.util.*;
+import org.mskcc.cbio.portal.dao.*;
+import org.mskcc.cbio.portal.util.*;
 
 /**
  * Imports a pfam graphics mapping file.
@@ -44,82 +43,71 @@ import java.util.*;
  *
  * @author Selcuk Onur Sumer
  */
-public class ImportPfamGraphicsData
-{
-	private File pfamFile;
+public class ImportPfamGraphicsData {
+    private File pfamFile;
 
-	/**
-	 * Constructor.
-	 *
-	 * @param pfamFile  pfam file containing (uniprot id -> json data) mapping
-	 */
-	public ImportPfamGraphicsData(File pfamFile)
-	{
-		this.pfamFile = pfamFile;
-	}
+    /**
+     * Constructor.
+     *
+     * @param pfamFile  pfam file containing (uniprot id -> json data) mapping
+     */
+    public ImportPfamGraphicsData(File pfamFile) {
+        this.pfamFile = pfamFile;
+    }
 
-	/**
-	 * Imports pfam graphics data into the portal DB by processing the
-	 * input mapping file.
-	 *
-	 * @throws IOException
-	 * @throws DaoException
-	 */
-	public void importData() throws IOException, DaoException
-	{
-		DaoPfamGraphics dao = new DaoPfamGraphics();
-		BufferedReader in = new BufferedReader(new FileReader(pfamFile));
-		String line;
-		int rows = 0;
-		Set<String> keySet = new HashSet<String>();
+    /**
+     * Imports pfam graphics data into the portal DB by processing the
+     * input mapping file.
+     *
+     * @throws IOException
+     * @throws DaoException
+     */
+    public void importData() throws IOException, DaoException {
+        DaoPfamGraphics dao = new DaoPfamGraphics();
+        BufferedReader in = new BufferedReader(new FileReader(pfamFile));
+        String line;
+        int rows = 0;
+        Set<String> keySet = new HashSet<String>();
 
-		while ((line = in.readLine()) != null)
-		{
-			// parts[0]: uniprot id, parts[1]: pfam data as JSON
-			String[] parts = line.split("\t");
+        while ((line = in.readLine()) != null) {
+            // parts[0]: uniprot id, parts[1]: pfam data as JSON
+            String[] parts = line.split("\t");
 
-			if (parts.length > 1)
-			{
-				String uniprotId = parts[0];
-				String jsonString = parts[1];
+            if (parts.length > 1) {
+                String uniprotId = parts[0];
+                String jsonString = parts[1];
 
-				// avoid to add a duplicate entry
-				if (!keySet.contains(uniprotId))
-				{
-					keySet.add(uniprotId);
-					dao.addPfamGraphics(uniprotId, jsonString);
-					rows++;
-				}
-			}
-		}
+                // avoid to add a duplicate entry
+                if (!keySet.contains(uniprotId)) {
+                    keySet.add(uniprotId);
+                    dao.addPfamGraphics(uniprotId, jsonString);
+                    rows++;
+                }
+            }
+        }
 
-		System.out.println("Total number of pfam graphics saved: " + rows);
+        System.out.println("Total number of pfam graphics saved: " + rows);
 
-		in.close();
-	}
+        in.close();
+    }
 
-	/**
-	 * args[0]: input pfam mapping file
-	 */
-	public static void main(String[] args)
-	{
-		if (args.length < 1)
-		{
-			System.out.println("error: no input file specified");
+    /**
+     * args[0]: input pfam mapping file
+     */
+    public static void main(String[] args) {
+        if (args.length < 1) {
+            System.out.println("error: no input file specified");
             return;
-		}
+        }
 
-		SpringUtil.initDataSource();
-		File input = new File(args[0]);
-		ImportPfamGraphicsData importer = new ImportPfamGraphicsData(input);
+        SpringUtil.initDataSource();
+        File input = new File(args[0]);
+        ImportPfamGraphicsData importer = new ImportPfamGraphicsData(input);
 
-		try
-		{
-			importer.importData();
-		}
-		catch (Exception e)
-		{
-			e.printStackTrace();
-		}
-	}
+        try {
+            importer.importData();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
 }

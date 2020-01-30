@@ -28,13 +28,14 @@
  *
  * You should have received a copy of the GNU Affero General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
-*/
+ */
 
 package org.mskcc.cbio.portal.util;
 
+import static org.junit.Assert.*;
+
 import java.net.MalformedURLException;
 import org.junit.*;
-import static org.junit.Assert.*;
 
 /**
  * Tests the OmaLink Utility Class.
@@ -43,26 +44,38 @@ import static org.junit.Assert.*;
  */
 public class TestOmaLinkUtil {
     private String queryStringParams1 = "cm=var&fts=all&var=17,7517830,G,C";
-    private String queryStringParams2 = "from=601&prot=EGFR_HUMAN&to=800&var=C620Y";
+    private String queryStringParams2 =
+        "from=601&prot=EGFR_HUMAN&to=800&var=C620Y";
 
     @Test
     public void testOmaLinkUtil1() throws MalformedURLException {
         String omaLinkIn = "http://mutationassessor.org/?" + queryStringParams1;
         String omaLinkOut = OmaLinkUtil.createOmaRedirectLink(omaLinkIn);
-        assertEquals("omaRedirect.do?site=mutationassessor.org/&" + queryStringParams1, omaLinkOut);
+        assertEquals(
+            "omaRedirect.do?site=mutationassessor.org/&" + queryStringParams1,
+            omaLinkOut
+        );
         String omaLink = OmaLinkUtil.createOmaLink(omaLinkOut);
-        assertEquals (omaLinkIn, omaLink);
-        omaLink = OmaLinkUtil.createOmaLink("site=mutationassessor.org/&" + queryStringParams1);
-        assertEquals (omaLinkIn, omaLink);
+        assertEquals(omaLinkIn, omaLink);
+        omaLink =
+            OmaLinkUtil.createOmaLink(
+                "site=mutationassessor.org/&" + queryStringParams1
+            );
+        assertEquals(omaLinkIn, omaLink);
     }
 
     @Test
     public void testOmaLinkUtil2() throws MalformedURLException {
-        String omaLinkIn = "http://mutationassessor.org/pdb.php?" + queryStringParams2;
+        String omaLinkIn =
+            "http://mutationassessor.org/pdb.php?" + queryStringParams2;
         String omaLinkOut = OmaLinkUtil.createOmaRedirectLink(omaLinkIn);
-        assertEquals("omaRedirect.do?site=mutationassessor.org/pdb.php&" + queryStringParams2, omaLinkOut);
+        assertEquals(
+            "omaRedirect.do?site=mutationassessor.org/pdb.php&" +
+            queryStringParams2,
+            omaLinkOut
+        );
         String omaLink = OmaLinkUtil.createOmaLink(omaLinkOut);
-        assertEquals (omaLinkIn, omaLink);
+        assertEquals(omaLinkIn, omaLink);
     }
 
     @Test
@@ -70,22 +83,32 @@ public class TestOmaLinkUtil {
         String omaLinkIn = "http://xvar.org/pdb.php?" + queryStringParams2;
         String omaLinkOut = OmaLinkUtil.createOmaRedirectLink(omaLinkIn);
         String omaLink = OmaLinkUtil.createOmaLink(omaLinkOut);
-        assertEquals (omaLinkIn, omaLink);
+        assertEquals(omaLinkIn, omaLink);
     }
 
     @Test
     public void testOmaLinkUtil4() throws MalformedURLException {
         String omaLinkIn = "mutationassessor.org/?" + queryStringParams1;
         String omaLinkOut = OmaLinkUtil.createOmaRedirectLink(omaLinkIn);
-        assertEquals("omaRedirect.do?site=mutationassessor.org/&" + queryStringParams1, omaLinkOut);
-        String omaLink = OmaLinkUtil.createOmaLink("site=mutationassessor.org/&" + queryStringParams1);
-        assertEquals ("http://" + omaLinkIn, omaLink);
+        assertEquals(
+            "omaRedirect.do?site=mutationassessor.org/&" + queryStringParams1,
+            omaLinkOut
+        );
+        String omaLink = OmaLinkUtil.createOmaLink(
+            "site=mutationassessor.org/&" + queryStringParams1
+        );
+        assertEquals("http://" + omaLinkIn, omaLink);
     }
 
     private void testExpectedMalformedLink(String omaLinkIn) {
         try {
             String omaLinkOut = OmaLinkUtil.createOmaRedirectLink(omaLinkIn);
-            fail("call to OmaLinkUtil.createOmaRedirectLink(\"" + omaLinkIn + "\") was expected to generate an exception but returned: " + omaLinkOut);
+            fail(
+                "call to OmaLinkUtil.createOmaRedirectLink(\"" +
+                omaLinkIn +
+                "\") was expected to generate an exception but returned: " +
+                omaLinkOut
+            );
         } catch (MalformedURLException e) {
             // expected .. no failure
         }

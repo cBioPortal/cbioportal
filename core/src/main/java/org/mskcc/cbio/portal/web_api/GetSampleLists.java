@@ -28,14 +28,13 @@
  *
  * You should have received a copy of the GNU Affero General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
-*/
+ */
 
 package org.mskcc.cbio.portal.web_api;
 
+import java.util.ArrayList;
 import org.mskcc.cbio.portal.dao.*;
 import org.mskcc.cbio.portal.model.*;
-
-import java.util.ArrayList;
 
 /**
  * Web API for Getting Patient Lists.
@@ -52,11 +51,15 @@ public class GetSampleLists {
      * @throws DaoException Database Error.
      */
     public static ArrayList<SampleList> getSampleLists(String cancerStudyId)
-            throws DaoException {
-        CancerStudy cancerStudy = DaoCancerStudy.getCancerStudyByStableId(cancerStudyId);
+        throws DaoException {
+        CancerStudy cancerStudy = DaoCancerStudy.getCancerStudyByStableId(
+            cancerStudyId
+        );
         if (cancerStudy != null) {
             DaoSampleList daoSampleList = new DaoSampleList();
-            ArrayList<SampleList> sampleList = daoSampleList.getAllSampleLists(cancerStudy.getInternalId());
+            ArrayList<SampleList> sampleList = daoSampleList.getAllSampleLists(
+                cancerStudy.getInternalId()
+            );
             return sampleList;
         } else {
             ArrayList<SampleList> sampleList = new ArrayList<SampleList>();
@@ -71,16 +74,24 @@ public class GetSampleLists {
      * @return Table output.
      * @throws DaoException Database Error.
      */
-    public static String getSampleListsAsTable(String cancerStudyStableId) throws DaoException {
-        CancerStudy cancerStudy = DaoCancerStudy.getCancerStudyByStableId(cancerStudyStableId);
+    public static String getSampleListsAsTable(String cancerStudyStableId)
+        throws DaoException {
+        CancerStudy cancerStudy = DaoCancerStudy.getCancerStudyByStableId(
+            cancerStudyStableId
+        );
         StringBuilder buf = new StringBuilder();
         if (cancerStudy != null) {
             int cancerStudyInternalId = cancerStudy.getInternalId();
             DaoSampleList daoSampleList = new DaoSampleList();
-            ArrayList<SampleList> list = daoSampleList.getAllSampleLists(cancerStudyInternalId);
+            ArrayList<SampleList> list = daoSampleList.getAllSampleLists(
+                cancerStudyInternalId
+            );
             if (list.size() > 0) {
-                buf.append("case_list_id\tcase_list_name\tcase_list_description\t"
-                        + "cancer_study_id\t" + "case_ids\n");
+                buf.append(
+                    "case_list_id\tcase_list_name\tcase_list_description\t" +
+                    "cancer_study_id\t" +
+                    "case_ids\n"
+                );
                 for (SampleList sampleList : list) {
                     buf.append(sampleList.getStableId()).append("\t");
                     buf.append(sampleList.getName()).append("\t");
@@ -92,11 +103,13 @@ public class GetSampleLists {
                     buf.append("\n");
                 }
             } else {
-                buf.append("Error:  No case lists available for:  ").append(cancerStudyStableId).append(".\n");
+                buf
+                    .append("Error:  No case lists available for:  ")
+                    .append(cancerStudyStableId)
+                    .append(".\n");
                 return buf.toString();
             }
         }
         return buf.toString();
     }
 }
-

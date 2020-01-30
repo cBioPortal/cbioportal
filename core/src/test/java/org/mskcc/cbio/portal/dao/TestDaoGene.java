@@ -28,12 +28,14 @@
  *
  * You should have received a copy of the GNU Affero General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
-*/
+ */
 
 package org.mskcc.cbio.portal.dao;
 
-import java.util.Arrays;
+import static org.junit.Assert.*;
 
+import java.util.Arrays;
+import java.util.HashSet;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mskcc.cbio.portal.dao.DaoException;
@@ -45,16 +47,15 @@ import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import org.springframework.test.context.transaction.TransactionConfiguration;
 import org.springframework.transaction.annotation.Transactional;
 
-import static org.junit.Assert.*;
-
-import java.util.HashSet;
-
 /**
  * JUnit Tests for DaoGene and DaoGeneOptimized.
  */
 @RunWith(SpringJUnit4ClassRunner.class)
 @ContextConfiguration(locations = { "classpath:/applicationContext-dao.xml" })
-@TransactionConfiguration(transactionManager = "transactionManager", defaultRollback = true)
+@TransactionConfiguration(
+    transactionManager = "transactionManager",
+    defaultRollback = true
+)
 @Transactional
 public class TestDaoGene {
 
@@ -62,48 +63,56 @@ public class TestDaoGene {
      * Tests DaoGene and DaoGeneOptimized.
      * @throws DaoException Database Error.
      */
-	@Test
+    @Test
     public void testAddExistingGene() throws DaoException {
-
-		// save bulkload setting before turning off
-		boolean isBulkLoad = MySQLbulkLoader.isBulkLoad();
-		MySQLbulkLoader.bulkLoadOff();
+        // save bulkload setting before turning off
+        boolean isBulkLoad = MySQLbulkLoader.isBulkLoad();
+        MySQLbulkLoader.bulkLoadOff();
 
         //  Add BRCA1 and BRCA2 Genes
-        CanonicalGene gene = new CanonicalGene(672, "BRCA1",
-                new HashSet<String>(Arrays.asList("BRCAI|BRCC1|BROVCA1|IRIS|PNCA4|PSCP|RNF53".split("\\|"))));
+        CanonicalGene gene = new CanonicalGene(
+            672,
+            "BRCA1",
+            new HashSet<String>(
+                Arrays.asList(
+                    "BRCAI|BRCC1|BROVCA1|IRIS|PNCA4|PSCP|RNF53".split("\\|")
+                )
+            )
+        );
         DaoGeneOptimized daoGeneOptimized = DaoGeneOptimized.getInstance();
         int num = daoGeneOptimized.addGene(gene);
         assertEquals(5, num);
 
-		// restore bulk setting
-		if (isBulkLoad) {
-			MySQLbulkLoader.bulkLoadOn();
-		}
+        // restore bulk setting
+        if (isBulkLoad) {
+            MySQLbulkLoader.bulkLoadOn();
+        }
     }
 
     /**
      * Tests DaoGene and DaoGeneOptimized.
      * @throws DaoException Database Error.
      */
-	@Test
+    @Test
     public void testAddNewGene() throws DaoException {
-
-		// save bulkload setting before turning off
-		boolean isBulkLoad = MySQLbulkLoader.isBulkLoad();
-		MySQLbulkLoader.bulkLoadOff();
+        // save bulkload setting before turning off
+        boolean isBulkLoad = MySQLbulkLoader.isBulkLoad();
+        MySQLbulkLoader.bulkLoadOff();
 
         //  Add BRCA1 and BRCA2 Genes
-        CanonicalGene gene = new CanonicalGene(1956, "EGFR",
-                new HashSet<String>(Arrays.asList("ERBB1|ERBB|HER1".split("\\|"))));
+        CanonicalGene gene = new CanonicalGene(
+            1956,
+            "EGFR",
+            new HashSet<String>(Arrays.asList("ERBB1|ERBB|HER1".split("\\|")))
+        );
         DaoGeneOptimized daoGeneOptimized = DaoGeneOptimized.getInstance();
         int num = daoGeneOptimized.addGene(gene);
         assertEquals(4, num);
 
-		// restore bulk setting
-		if (isBulkLoad) {
-			MySQLbulkLoader.bulkLoadOn();
-		}
+        // restore bulk setting
+        if (isBulkLoad) {
+            MySQLbulkLoader.bulkLoadOn();
+        }
     }
 
     /**
@@ -135,5 +144,4 @@ public class TestDaoGene {
         assertEquals("BRCA2", gene.getHugoGeneSymbolAllCaps());
         assertEquals(675, gene.getEntrezGeneId());
     }
-
 }

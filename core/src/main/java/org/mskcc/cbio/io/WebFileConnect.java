@@ -28,7 +28,7 @@
  *
  * You should have received a copy of the GNU Affero General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
-*/
+ */
 
 package org.mskcc.cbio.io;
 
@@ -43,10 +43,9 @@ import java.util.ArrayList;
  *
  * @author Ethan Cerami.
  */
-public class WebFileConnect
-{
-	public static final String TAB = "\t";
-	public static final String NEW_LINE = "\n";
+public class WebFileConnect {
+    public static final String TAB = "\t";
+    public static final String NEW_LINE = "\n";
 
     /**
      * Retrieves the Content from the Specified File.
@@ -89,7 +88,7 @@ public class WebFileConnect
 
         // Ignore all lines starting with # sign;  these are comments or warnings, not data.
         ArrayList<String> finalLines = new ArrayList<String>();
-        for (String currentLine:  rawLines) {
+        for (String currentLine : rawLines) {
             if (!currentLine.startsWith("#")) {
                 finalLines.add(currentLine);
             }
@@ -107,7 +106,7 @@ public class WebFileConnect
         if (numRows > 0 && numCols > 0) {
             matrix = new String[numRows][numCols];
             for (int i = 0; i < lines.length; i++) {
-                String parts[] = lines[i].split(TAB,numCols);
+                String parts[] = lines[i].split(TAB, numCols);
                 for (int j = 0; j < parts.length; j++) {
                     matrix[i][j] = parts[j];
                 }

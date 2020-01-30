@@ -28,7 +28,7 @@
  *
  * You should have received a copy of the GNU Affero General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
-*/
+ */
 
 package org.mskcc.cbio.portal.model;
 
@@ -43,7 +43,7 @@ public class CnaEvent {
     private int sampleId;
     private int cnaProfileId;
     private Event event;
-    
+
     public static class Event {
         private long eventId;
         private CanonicalGene gene;
@@ -68,8 +68,10 @@ public class CnaEvent {
         public void setEntrezGeneId(long entrezGeneId) {
             setGene(DaoGeneOptimized.getInstance().getGene(entrezGeneId));
             if (gene == null) {
-                throw new IllegalArgumentException("Could not find entrez gene id: "+entrezGeneId);
-            } 
+                throw new IllegalArgumentException(
+                    "Could not find entrez gene id: " + entrezGeneId
+                );
+            }
         }
 
         public CNA getAlteration() {
@@ -79,11 +81,13 @@ public class CnaEvent {
         public void setAlteration(CNA alteration) {
             this.alteration = alteration;
         }
-        
+
         public void setAlteration(short alteration) {
             this.alteration = CNA.getByCode(alteration);
             if (this.alteration == null) {
-                throw new IllegalArgumentException("wrong copy number alteration");
+                throw new IllegalArgumentException(
+                    "wrong copy number alteration"
+                );
             }
         }
 
@@ -91,7 +95,10 @@ public class CnaEvent {
         public int hashCode() {
             int hash = 3;
             hash = 97 * hash + (this.gene != null ? this.gene.hashCode() : 0);
-            hash = 97 * hash + (this.alteration != null ? this.alteration.hashCode() : 0);
+            hash =
+                97 *
+                hash +
+                (this.alteration != null ? this.alteration.hashCode() : 0);
             return hash;
         }
 
@@ -104,7 +111,10 @@ public class CnaEvent {
                 return false;
             }
             final Event other = (Event) obj;
-            if (this.gene != other.gene && (this.gene == null || !this.gene.equals(other.gene))) {
+            if (
+                this.gene != other.gene &&
+                (this.gene == null || !this.gene.equals(other.gene))
+            ) {
                 return false;
             }
             if (this.alteration != other.alteration) {
@@ -112,10 +122,14 @@ public class CnaEvent {
             }
             return true;
         }
-        
     }
 
-    public CnaEvent(int sampleId, int cnaProfileId, long entrezGeneId, short alteration) {
+    public CnaEvent(
+        int sampleId,
+        int cnaProfileId,
+        long entrezGeneId,
+        short alteration
+    ) {
         event = new Event();
         setEntrezGeneId(entrezGeneId);
         this.sampleId = sampleId;
@@ -154,7 +168,7 @@ public class CnaEvent {
     public long getEntrezGeneId() {
         return event.getGene().getEntrezGeneId();
     }
-    
+
     public String getGeneSymbol() {
         return event.getGene().getHugoGeneSymbolAllCaps();
     }
@@ -162,8 +176,10 @@ public class CnaEvent {
     public void setEntrezGeneId(long entrezGeneId) {
         event.setEntrezGeneId(entrezGeneId);
         if (event.gene == null) {
-            throw new IllegalArgumentException("Could not find entrez gene id: "+entrezGeneId);
-        } 
+            throw new IllegalArgumentException(
+                "Could not find entrez gene id: " + entrezGeneId
+            );
+        }
     }
 
     public long getEventId() {
@@ -203,11 +219,12 @@ public class CnaEvent {
         if (this.cnaProfileId != other.cnaProfileId) {
             return false;
         }
-        if (this.event != other.event && (this.event == null || !this.event.equals(other.event))) {
+        if (
+            this.event != other.event &&
+            (this.event == null || !this.event.equals(other.event))
+        ) {
             return false;
         }
         return true;
     }
-    
-    
 }

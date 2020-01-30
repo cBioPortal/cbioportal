@@ -28,7 +28,7 @@
  *
  * You should have received a copy of the GNU Affero General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
-*/
+ */
 
 package org.mskcc.cbio.portal.model;
 
@@ -46,8 +46,15 @@ public class CopyNumberSegment {
     private int numProbes;
     private double segMean;
 
-    public CopyNumberSegment(int cancerStudyId, int sampleId, String chr,
-            long start, long end, int numProbes, double segMean) {
+    public CopyNumberSegment(
+        int cancerStudyId,
+        int sampleId,
+        String chr,
+        long start,
+        long end,
+        int numProbes,
+        double segMean
+    ) {
         this.cancerStudyId = cancerStudyId;
         this.sampleId = sampleId;
         this.chr = chr;

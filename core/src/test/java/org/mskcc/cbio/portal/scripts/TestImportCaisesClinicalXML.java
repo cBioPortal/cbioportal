@@ -28,12 +28,11 @@
  *
  * You should have received a copy of the GNU Affero General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
-*/
+ */
 
 package org.mskcc.cbio.portal.scripts;
 
 import java.io.File;
-
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -56,10 +55,13 @@ import org.springframework.transaction.annotation.Transactional;
  */
 @RunWith(SpringJUnit4ClassRunner.class)
 @ContextConfiguration(locations = { "classpath:/applicationContext-dao.xml" })
-@TransactionConfiguration(transactionManager = "transactionManager", defaultRollback = true)
+@TransactionConfiguration(
+    transactionManager = "transactionManager",
+    defaultRollback = true
+)
 @Transactional
 public class TestImportCaisesClinicalXML {
-    
+
     @Before
     public void setUp() throws Exception {
         TypeOfCancer typeOfCancer = new TypeOfCancer();
@@ -68,44 +70,59 @@ public class TestImportCaisesClinicalXML {
         typeOfCancer.setShortName("prad");
         DaoTypeOfCancer.addTypeOfCancer(typeOfCancer);
 
-        CancerStudy cancerStudy = new CancerStudy("prad","prad","prad","prad",true);
+        CancerStudy cancerStudy = new CancerStudy(
+            "prad",
+            "prad",
+            "prad",
+            "prad",
+            true
+        );
         cancerStudy.setReferenceGenome("hg19");
         DaoCancerStudy.addCancerStudy(cancerStudy);
-        
-        int studyId = DaoCancerStudy.getCancerStudyByStableId("prad").getInternalId();
+
+        int studyId = DaoCancerStudy
+            .getCancerStudyByStableId("prad")
+            .getInternalId();
 
         DaoPatient.addPatient(new Patient(cancerStudy, "97115001"));
         DaoPatient.addPatient(new Patient(cancerStudy, "97115002"));
         DaoPatient.addPatient(new Patient(cancerStudy, "97115003"));
 
-        int patient1 = DaoPatient.getPatientByCancerStudyAndPatientId(studyId, "97115001").getInternalId();
-        int patient2 = DaoPatient.getPatientByCancerStudyAndPatientId(studyId, "97115002").getInternalId();
+        int patient1 = DaoPatient
+            .getPatientByCancerStudyAndPatientId(studyId, "97115001")
+            .getInternalId();
+        int patient2 = DaoPatient
+            .getPatientByCancerStudyAndPatientId(studyId, "97115002")
+            .getInternalId();
 
         DaoSample.addSample(new Sample("SC_9022-Tumor", patient1, "prad"));
         DaoSample.addSample(new Sample("SC_9023-Tumor", patient2, "prad"));
     }
-    
+
     // TODO add test methods here.
     // The methods must be annotated with annotation @Test. For example:
     //
-     @Test
-     public void test() throws Exception {
+    @Test
+    public void test() throws Exception {
         File xmlFile = new File("target/test-classes/data_clinical_caises.xml");
-        CancerStudy cancerStudy = DaoCancerStudy.getCancerStudyByStableId("prad");
-        ImportCaisesClinicalXML importCaisesClinicalXML = new ImportCaisesClinicalXML(null);
+        CancerStudy cancerStudy = DaoCancerStudy.getCancerStudyByStableId(
+            "prad"
+        );
+        ImportCaisesClinicalXML importCaisesClinicalXML = new ImportCaisesClinicalXML(
+            null
+        );
         importCaisesClinicalXML.setFile(xmlFile, cancerStudy);
         importCaisesClinicalXML.importData();
-     }
-     
-//     @Test
-//     public void temp() throws Exception {
-//        CancerStudy cancerStudy = new CancerStudy("prad_su2c","prad_su2c","prad_su2c","prad",true);
-//        cancerStudy.setInternalId(1);
-//        DaoCancerStudy.addCancerStudy(cancerStudy);
-//        
-//        ImportClinicalData.main(new String[]{"/Users/jgao/projects/cbio-portal-data/studies/prad/su2c/data_clinical.txt", "prad_su2c"});
-//        ImportCaisesClinicalXML.main(new String[] {"--data","/Users/jgao/projects/cbio-portal-data/studies/prad/su2c/data_clinical_caises.xml",
-//            "--meta","/Users/jgao/projects/cbio-portal-data/studies/prad/su2c/meta_clinical_caises.txt",
-//            "--loadMode", "bulkLoad"});
-//     }
+    }
+    //     @Test
+    //     public void temp() throws Exception {
+    //        CancerStudy cancerStudy = new CancerStudy("prad_su2c","prad_su2c","prad_su2c","prad",true);
+    //        cancerStudy.setInternalId(1);
+    //        DaoCancerStudy.addCancerStudy(cancerStudy);
+    //
+    //        ImportClinicalData.main(new String[]{"/Users/jgao/projects/cbio-portal-data/studies/prad/su2c/data_clinical.txt", "prad_su2c"});
+    //        ImportCaisesClinicalXML.main(new String[] {"--data","/Users/jgao/projects/cbio-portal-data/studies/prad/su2c/data_clinical_caises.xml",
+    //            "--meta","/Users/jgao/projects/cbio-portal-data/studies/prad/su2c/meta_clinical_caises.txt",
+    //            "--loadMode", "bulkLoad"});
+    //     }
 }

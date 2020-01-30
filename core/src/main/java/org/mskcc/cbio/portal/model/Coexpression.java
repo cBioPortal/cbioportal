@@ -28,7 +28,7 @@
  *
  * You should have received a copy of the GNU Affero General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
-*/
+ */
 
 package org.mskcc.cbio.portal.model;
 
@@ -46,7 +46,13 @@ public class Coexpression {
     private double pearson;
     private double spearman;
 
-    public Coexpression(long gene1, long gene2, int profileId, double pearson, double spearman) {
+    public Coexpression(
+        long gene1,
+        long gene2,
+        int profileId,
+        double pearson,
+        double spearman
+    ) {
         this.gene1 = gene1;
         this.gene2 = gene2;
         this.profileId = profileId;
@@ -117,22 +123,18 @@ public class Coexpression {
         if (this.profileId != other.profileId) {
             return false;
         }
-        
+
         Set<Long> genes = new HashSet<Long>(2);
         genes.add(gene1);
         genes.add(gene2);
-        
+
         Set<Long> otherGenes = new HashSet<Long>(2);
         genes.add(other.gene1);
         genes.add(other.gene2);
-        
+
         if (!genes.equals(otherGenes)) {
             return false;
         }
         return true;
     }
-    
-    
-    
-    
 }

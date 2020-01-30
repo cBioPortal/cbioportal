@@ -28,26 +28,24 @@
  *
  * You should have received a copy of the GNU Affero General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
-*/
+ */
 
 package org.mskcc.cbio.portal.scripts;
 
-import org.mskcc.cbio.portal.util.ProgressMonitor;
+import java.io.BufferedReader;
+import java.io.File;
+import java.io.FileReader;
+import java.io.IOException;
+import java.util.HashSet;
+import org.mskcc.cbio.portal.dao.*;
 import org.mskcc.cbio.portal.util.ConsoleUtil;
 import org.mskcc.cbio.portal.util.FileUtil;
-import org.mskcc.cbio.portal.dao.*;
-
-import java.io.File;
-import java.io.IOException;
-import java.io.FileReader;
-import java.io.BufferedReader;
-import java.util.HashSet;
+import org.mskcc.cbio.portal.util.ProgressMonitor;
 
 /**
  * Command Line Tool to Remove Exclused Cases.
  */
 public class CutInvalidCases {
-
     private File caseExclusionFile;
     private File dataFile;
 
@@ -63,21 +61,27 @@ public class CutInvalidCases {
         BufferedReader buf = new BufferedReader(reader);
         String headerLine = buf.readLine();
         String parts[] = headerLine.split("\t");
-        boolean includeColumn[] = new boolean [parts.length];
+        boolean includeColumn[] = new boolean[parts.length];
 
         //  Mark all columns for inclusion / exclusion
-        ProgressMonitor.setCurrentMessage("Total number of columns to process:  " + parts.length);
+        ProgressMonitor.setCurrentMessage(
+            "Total number of columns to process:  " + parts.length
+        );
         for (int i = 0; i < parts.length; i++) {
             String colHeading = parts[i].trim();
             if (excludedCaseSet.contains(colHeading)) {
                 includeColumn[i] = false;
-                ProgressMonitor.setCurrentMessage ("Marking for exclusion, col #" + i
-                        + ", Case ID:  " + colHeading);
+                ProgressMonitor.setCurrentMessage(
+                    "Marking for exclusion, col #" +
+                    i +
+                    ", Case ID:  " +
+                    colHeading
+                );
             } else {
                 includeColumn[i] = true;
                 revisedText.append(colHeading);
-                if (i < parts.length-1) {
-                    revisedText.append ("\t");
+                if (i < parts.length - 1) {
+                    revisedText.append("\t");
                 }
             }
         }
@@ -88,11 +92,11 @@ public class CutInvalidCases {
             ProgressMonitor.incrementCurValue();
             ConsoleUtil.showProgress();
             parts = line.split("\t");
-            for (int i=0; i<parts.length; i++) {
+            for (int i = 0; i < parts.length; i++) {
                 if (includeColumn[i]) {
-                    revisedText.append (parts[i]);
-                    if (i < parts.length-1) {
-                        revisedText.append ("\t");
+                    revisedText.append(parts[i]);
+                    if (i < parts.length - 1) {
+                        revisedText.append("\t");
                     }
                 }
             }
@@ -120,23 +124,26 @@ public class CutInvalidCases {
 
     public static void main(String[] args) throws Exception {
         if (args.length < 2) {
-            System.out.println("command line usage:  cutInvalidCases.pl " +
-                    "<cases_excluded.txt> <data_file.txt>");
+            System.out.println(
+                "command line usage:  cutInvalidCases.pl " +
+                "<cases_excluded.txt> <data_file.txt>"
+            );
             return;
         }
 
         ProgressMonitor.setConsoleModeAndParseShowProgress(args);
-        File casesExcludedFile = new File (args[0]);
+        File casesExcludedFile = new File(args[0]);
         File dataFile = new File(args[1]);
-
 
         System.err.println("Reading data from:  " + dataFile.getAbsolutePath());
         int numLines = FileUtil.getNumLines(dataFile);
         ProgressMonitor.setMaxValue(numLines);
-        CutInvalidCases parser = new CutInvalidCases(casesExcludedFile,
-                dataFile);
+        CutInvalidCases parser = new CutInvalidCases(
+            casesExcludedFile,
+            dataFile
+        );
         String out = parser.process();
-        System.out.print (out);
+        System.out.print(out);
         ConsoleUtil.showWarnings();
         System.err.println("Done.");
     }

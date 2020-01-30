@@ -28,7 +28,7 @@
  *
  * You should have received a copy of the GNU Affero General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
-*/
+ */
 
 package org.mskcc.cbio.portal.model;
 
@@ -44,7 +44,7 @@ public class MutationStatus {
         //if (value < -1 || value > 1) {
         //    throw new IllegalArgumentException("Can't handle mutation value of:  " + value);
         //} else {
-		return (value.equals("0")) ? NOT_MUTATED : MUTATED;
-		//}
+        return (value.equals("0")) ? NOT_MUTATED : MUTATED;
+        //}
     }
 }

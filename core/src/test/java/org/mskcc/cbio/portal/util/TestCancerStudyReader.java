@@ -28,12 +28,13 @@
  *
  * You should have received a copy of the GNU Affero General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
-*/
+ */
 
 package org.mskcc.cbio.portal.util;
 
-import java.io.File;
+import static org.junit.Assert.*;
 
+import java.io.File;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mskcc.cbio.portal.dao.DaoCancerStudy;
@@ -43,50 +44,56 @@ import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import org.springframework.test.context.transaction.TransactionConfiguration;
 import org.springframework.transaction.annotation.Transactional;
 
-import static org.junit.Assert.*;
-
 /**
  * JUnit test for CancerStudyReader class.
  */
 @RunWith(SpringJUnit4ClassRunner.class)
 @ContextConfiguration(locations = { "classpath:/applicationContext-dao.xml" })
-@TransactionConfiguration(transactionManager = "transactionManager", defaultRollback = true)
+@TransactionConfiguration(
+    transactionManager = "transactionManager",
+    defaultRollback = true
+)
 @Transactional
 public class TestCancerStudyReader {
 
-   @Test
-   public void testCancerStudyReaderCancerType() throws Exception {
+    @Test
+    public void testCancerStudyReaderCancerType() throws Exception {
+        File file = new File("src/test/resources/cancer_study.txt");
+        CancerStudy cancerStudy = CancerStudyReader.loadCancerStudy(file);
 
-      File file = new File("src/test/resources/cancer_study.txt");
-      CancerStudy cancerStudy = CancerStudyReader.loadCancerStudy( file );
-      
-      CancerStudy expectedCancerStudy = DaoCancerStudy.getCancerStudyByStableId( "test_brca" );
-      assertEquals(expectedCancerStudy, cancerStudy);
-      // TBD: change this to use getResourceAsStream()
-      file = new File("src/test/resources/cancer_study_bad.txt");
-      try {
-         cancerStudy = CancerStudyReader.loadCancerStudy( file );
-         fail( "Should have thrown DaoException." );
-      } catch (Exception e) {
-    	 assertEquals("brcaxxx is not a supported cancer type.", e.getMessage());
-      }
-   }
+        CancerStudy expectedCancerStudy = DaoCancerStudy.getCancerStudyByStableId(
+            "test_brca"
+        );
+        assertEquals(expectedCancerStudy, cancerStudy);
+        // TBD: change this to use getResourceAsStream()
+        file = new File("src/test/resources/cancer_study_bad.txt");
+        try {
+            cancerStudy = CancerStudyReader.loadCancerStudy(file);
+            fail("Should have thrown DaoException.");
+        } catch (Exception e) {
+            assertEquals(
+                "brcaxxx is not a supported cancer type.",
+                e.getMessage()
+            );
+        }
+    }
 
-	@Test
-	   public void testCancerStudyReaderShortName() throws Exception {
+    @Test
+    public void testCancerStudyReaderShortName() throws Exception {
+        File file = new File("src/test/resources/cancer_study.txt");
+        CancerStudy cancerStudy = CancerStudyReader.loadCancerStudy(file);
 
-	      File file = new File("src/test/resources/cancer_study.txt");
-	      CancerStudy cancerStudy = CancerStudyReader.loadCancerStudy( file );
-	      
-	      CancerStudy expectedCancerStudy = DaoCancerStudy.getCancerStudyByStableId( "test_brca" );
-	      assertEquals(expectedCancerStudy, cancerStudy);
-	      // TBD: change this to use getResourceAsStream()
-	      file = new File("src/test/resources/cancer_study_bad_short_name.txt");
-	      try {
-	         cancerStudy = CancerStudyReader.loadCancerStudy( file );
-	         fail( "Should have thrown DaoException." );
-	      } catch (Exception e) {
-	    	 assertEquals("short_name is not specified.", e.getMessage());
-	      }
-	   }
+        CancerStudy expectedCancerStudy = DaoCancerStudy.getCancerStudyByStableId(
+            "test_brca"
+        );
+        assertEquals(expectedCancerStudy, cancerStudy);
+        // TBD: change this to use getResourceAsStream()
+        file = new File("src/test/resources/cancer_study_bad_short_name.txt");
+        try {
+            cancerStudy = CancerStudyReader.loadCancerStudy(file);
+            fail("Should have thrown DaoException.");
+        } catch (Exception e) {
+            assertEquals("short_name is not specified.", e.getMessage());
+        }
+    }
 }

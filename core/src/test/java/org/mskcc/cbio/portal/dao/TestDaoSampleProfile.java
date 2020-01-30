@@ -28,10 +28,13 @@
  *
  * You should have received a copy of the GNU Affero General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
-*/
+ */
 
 package org.mskcc.cbio.portal.dao;
 
+import static org.junit.Assert.*;
+
+import java.util.ArrayList;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -41,59 +44,85 @@ import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import org.springframework.test.context.transaction.TransactionConfiguration;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.ArrayList;
-
-import static org.junit.Assert.*;
-
 /**
  * JUnit test for DaoSample class
  */
 @RunWith(SpringJUnit4ClassRunner.class)
 @ContextConfiguration(locations = { "classpath:/applicationContext-dao.xml" })
-@TransactionConfiguration(transactionManager = "transactionManager", defaultRollback = true)
+@TransactionConfiguration(
+    transactionManager = "transactionManager",
+    defaultRollback = true
+)
 @Transactional
 public class TestDaoSampleProfile {
+    CancerStudy study;
+    ArrayList<Integer> internalSampleIds;
+    int geneticProfileId;
 
-	CancerStudy study;
-	ArrayList<Integer> internalSampleIds;
-	int geneticProfileId;
-	
-	@Before
-	public void setUp() throws DaoException {
-		study = DaoCancerStudy.getCancerStudyByStableId("study_tcga_pub");
-		geneticProfileId = DaoGeneticProfile.getGeneticProfileByStableId("study_tcga_pub_mutations").getGeneticProfileId();
-		
-		internalSampleIds = new ArrayList<Integer>();
+    @Before
+    public void setUp() throws DaoException {
+        study = DaoCancerStudy.getCancerStudyByStableId("study_tcga_pub");
+        geneticProfileId =
+            DaoGeneticProfile
+                .getGeneticProfileByStableId("study_tcga_pub_mutations")
+                .getGeneticProfileId();
+
+        internalSampleIds = new ArrayList<Integer>();
         Patient p = new Patient(study, "TCGA-12345");
         int pId = DaoPatient.addPatient(p);
-        
+
         DaoSample.reCache();
         Sample s = new Sample("TCGA-12345-01", pId, "brca");
         internalSampleIds.add(DaoSample.addSample(s));
         s = new Sample("TCGA-123456-01", pId, "brca");
         internalSampleIds.add(DaoSample.addSample(s));
-	}
-
-	@Test
-    public void testDaoSampleProfile() throws DaoException {
-
-        Patient patient = DaoPatient.getPatientByCancerStudyAndPatientId(study.getInternalId(), "TCGA-12345");
-        Sample sample = DaoSample.getSampleByPatientAndSampleId(patient.getInternalId(), "TCGA-12345-01");
-
-        int num = DaoSampleProfile.addSampleProfile(sample.getInternalId(), geneticProfileId, null);
-        assertEquals(1, num);
-
-        boolean exists = DaoSampleProfile.sampleExistsInGeneticProfile(sample.getInternalId(), geneticProfileId);
-        assertTrue(exists);
-
-        assertEquals(geneticProfileId, DaoSampleProfile.getProfileIdForSample(sample.getInternalId()));
-
-        sample = DaoSample.getSampleByPatientAndSampleId(patient.getInternalId(), "TCGA-123456-01");
-        num = DaoSampleProfile.addSampleProfile(sample.getInternalId(), geneticProfileId, null);
-        assertEquals(1, num);
-
-        ArrayList<Integer> sampleIds = DaoSampleProfile.getAllSampleIdsInProfile(geneticProfileId);
-        assertEquals(9, sampleIds.size());
     }
 
+    @Test
+    public void testDaoSampleProfile() throws DaoException {
+        Patient patient = DaoPatient.getPatientByCancerStudyAndPatientId(
+            study.getInternalId(),
+            "TCGA-12345"
+        );
+        Sample sample = DaoSample.getSampleByPatientAndSampleId(
+            patient.getInternalId(),
+            "TCGA-12345-01"
+        );
+
+        int num = DaoSampleProfile.addSampleProfile(
+            sample.getInternalId(),
+            geneticProfileId,
+            null
+        );
+        assertEquals(1, num);
+
+        boolean exists = DaoSampleProfile.sampleExistsInGeneticProfile(
+            sample.getInternalId(),
+            geneticProfileId
+        );
+        assertTrue(exists);
+
+        assertEquals(
+            geneticProfileId,
+            DaoSampleProfile.getProfileIdForSample(sample.getInternalId())
+        );
+
+        sample =
+            DaoSample.getSampleByPatientAndSampleId(
+                patient.getInternalId(),
+                "TCGA-123456-01"
+            );
+        num =
+            DaoSampleProfile.addSampleProfile(
+                sample.getInternalId(),
+                geneticProfileId,
+                null
+            );
+        assertEquals(1, num);
+
+        ArrayList<Integer> sampleIds = DaoSampleProfile.getAllSampleIdsInProfile(
+            geneticProfileId
+        );
+        assertEquals(9, sampleIds.size());
+    }
 }

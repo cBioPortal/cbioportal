@@ -28,20 +28,18 @@
  *
  * You should have received a copy of the GNU Affero General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
-*/
+ */
 
 package org.mskcc.cbio.portal.model;
 
 // TODO: I think this can be deleted
 public class GeneCounterPrefs {
-
     private boolean mrnaUp;
     private boolean mrnaDown;
     private boolean ignoreMrna;
     private boolean cnaUp;
     private boolean cnaDown;
     private boolean ignoreCna;
-
 
     public boolean mrnaUp() {
         return mrnaUp;

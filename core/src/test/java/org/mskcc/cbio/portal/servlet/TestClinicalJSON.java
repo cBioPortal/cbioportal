@@ -28,37 +28,47 @@
  *
  * You should have received a copy of the GNU Affero General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
-*/
+ */
 
 package org.mskcc.cbio.portal.servlet;
 
+import static org.junit.Assert.*;
 
-import org.mskcc.cbio.portal.model.ClinicalData;
-import org.mskcc.cbio.portal.model.ClinicalAttribute;
-
+import java.util.Map;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletRequestWrapper;
-import java.util.Map;
-
-import static org.junit.Assert.*;
+import org.mskcc.cbio.portal.model.ClinicalAttribute;
+import org.mskcc.cbio.portal.model.ClinicalData;
 
 public class TestClinicalJSON {
 
     public void testReflectToMap() {
         ClinicalJSON clinicalJSON = new ClinicalJSON();
 
-        Map<String, String> map = clinicalJSON.reflectToMap( new ClinicalData(-1, "caseId", "attrId", "attrVal") );
+        Map<String, String> map = clinicalJSON.reflectToMap(
+            new ClinicalData(-1, "caseId", "attrId", "attrVal")
+        );
 
-        assertTrue( map.get("attr_id").equals("attrId") );
-        assertTrue( map.get("attr_val").equals("attrVal") );
-//        assertTrue( map.get("cancer_study_id").equals("-1") );
-        assertTrue( map.get("case_id").equals("caseId") );
+        assertTrue(map.get("attr_id").equals("attrId"));
+        assertTrue(map.get("attr_val").equals("attrVal"));
+        //        assertTrue( map.get("cancer_study_id").equals("-1") );
+        assertTrue(map.get("case_id").equals("caseId"));
 
-        map = clinicalJSON.reflectToMap(new ClinicalAttribute("attrId", "displayName", "description", "datatype", true, "1", 1));
-        assertTrue( map.get("attr_id").equals("attrId") );
-        assertTrue( map.get("display_name").equals("displayName") );
-        assertTrue( map.get("description").equals("description") );
-        assertTrue( map.get("datatype").equals("datatype") );
-
+        map =
+            clinicalJSON.reflectToMap(
+                new ClinicalAttribute(
+                    "attrId",
+                    "displayName",
+                    "description",
+                    "datatype",
+                    true,
+                    "1",
+                    1
+                )
+            );
+        assertTrue(map.get("attr_id").equals("attrId"));
+        assertTrue(map.get("display_name").equals("displayName"));
+        assertTrue(map.get("description").equals("description"));
+        assertTrue(map.get("datatype").equals("datatype"));
     }
 }

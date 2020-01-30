@@ -19,27 +19,25 @@
  *
  * You should have received a copy of the GNU Affero General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
-*/
+ */
 package org.mskcc.cbio.portal.scripts;
 
 import java.util.Properties;
 
 @SuppressWarnings("serial")
 /**
- * This class overrides getProperties method to return the trimmed 
- * value of the property. 
- * 
+ * This class overrides getProperties method to return the trimmed
+ * value of the property.
+ *
  * @author pieterlukasse
  *
  */
 public class TrimmedProperties extends Properties {
 
-	@Override
-	public String getProperty(String key) {
-		if (super.getProperty(key) == null)
-			return null;
-		else
-			return super.getProperty(key).trim();
-	}
-
+    @Override
+    public String getProperty(String key) {
+        if (super.getProperty(key) == null) return null; else return super
+            .getProperty(key)
+            .trim();
+    }
 }

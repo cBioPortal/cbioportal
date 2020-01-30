@@ -28,20 +28,20 @@
  *
  * You should have received a copy of the GNU Affero General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
-*/
+ */
 
 package org.mskcc.cbio.portal.util;
 
 import java.util.ArrayList;
 import java.util.HashSet;
+import org.mskcc.cbio.portal.model.GeneticAlterationType;
+import org.mskcc.cbio.portal.model.GeneticProfile;
 import org.mskcc.cbio.portal.oncoPrintSpecLanguage.CallOncoPrintSpecParser;
 import org.mskcc.cbio.portal.oncoPrintSpecLanguage.GeneticDataTypes;
 import org.mskcc.cbio.portal.oncoPrintSpecLanguage.OncoPrintGeneDisplaySpec;
 import org.mskcc.cbio.portal.oncoPrintSpecLanguage.OncoPrintLangException;
 import org.mskcc.cbio.portal.oncoPrintSpecLanguage.OncoPrintSpecification;
 import org.mskcc.cbio.portal.oncoPrintSpecLanguage.ParserOutput;
-import org.mskcc.cbio.portal.model.GeneticAlterationType;
-import org.mskcc.cbio.portal.model.GeneticProfile;
 
 public class OncoPrintSpecificationDriver {
 
@@ -67,41 +67,87 @@ public class OncoPrintSpecificationDriver {
      *           all profiles for the selected cancer type
      * @return output from parsing geneListStr
      */
-    static public ParserOutput callOncoPrintSpecParserDriver(String geneListStr, HashSet<String> geneticProfileIdSet,
-            ArrayList<GeneticProfile> profileList, double zScoreThreshold, double rppaScoreThreshold) {
+    public static ParserOutput callOncoPrintSpecParserDriver(
+        String geneListStr,
+        HashSet<String> geneticProfileIdSet,
+        ArrayList<GeneticProfile> profileList,
+        double zScoreThreshold,
+        double rppaScoreThreshold
+    ) {
         // I. LimitLanguageDefaultToProfile: Create an OncoPrintGeneDisplaySpec
         // from the geneticProfileIdSet, and use that as the default for the parse
         // make an OncoPrintGeneDisplaySpec, from geneticProfileIdSet, profileList and zScoreThreshold
         OncoPrintGeneDisplaySpec checkboxInputOncoPrintGeneDisplaySpec = new OncoPrintGeneDisplaySpec();
         for (GeneticProfile geneticProfile : profileList) {
             if (geneticProfileIdSet.contains(geneticProfile.getStableId())) {
-                if (geneticProfile.getGeneticAlterationType() == GeneticAlterationType.COPY_NUMBER_ALTERATION) {
-                    checkboxInputOncoPrintGeneDisplaySpec.setDefault( GeneticDataTypes.CopyNumberAlteration );
+                if (
+                    geneticProfile.getGeneticAlterationType() ==
+                    GeneticAlterationType.COPY_NUMBER_ALTERATION
+                ) {
+                    checkboxInputOncoPrintGeneDisplaySpec.setDefault(
+                        GeneticDataTypes.CopyNumberAlteration
+                    );
                 }
-                if (geneticProfile.getGeneticAlterationType() == GeneticAlterationType.MRNA_EXPRESSION) {
-                    checkboxInputOncoPrintGeneDisplaySpec.setDefaultExpression(zScoreThreshold, GeneticDataTypes.Expression);
+                if (
+                    geneticProfile.getGeneticAlterationType() ==
+                    GeneticAlterationType.MRNA_EXPRESSION
+                ) {
+                    checkboxInputOncoPrintGeneDisplaySpec.setDefaultExpression(
+                        zScoreThreshold,
+                        GeneticDataTypes.Expression
+                    );
                 }
-                if (geneticProfile.getGeneticAlterationType() == GeneticAlterationType.PROTEIN_LEVEL) {
-                    checkboxInputOncoPrintGeneDisplaySpec.setDefaultExpression(rppaScoreThreshold, GeneticDataTypes.RPPA);
+                if (
+                    geneticProfile.getGeneticAlterationType() ==
+                    GeneticAlterationType.PROTEIN_LEVEL
+                ) {
+                    checkboxInputOncoPrintGeneDisplaySpec.setDefaultExpression(
+                        rppaScoreThreshold,
+                        GeneticDataTypes.RPPA
+                    );
                 }
-                if (geneticProfile.getGeneticAlterationType() == GeneticAlterationType.PROTEIN_ARRAY_PROTEIN_LEVEL) {
-                    checkboxInputOncoPrintGeneDisplaySpec.setDefaultExpression(rppaScoreThreshold, GeneticDataTypes.RPPA);
+                if (
+                    geneticProfile.getGeneticAlterationType() ==
+                    GeneticAlterationType.PROTEIN_ARRAY_PROTEIN_LEVEL
+                ) {
+                    checkboxInputOncoPrintGeneDisplaySpec.setDefaultExpression(
+                        rppaScoreThreshold,
+                        GeneticDataTypes.RPPA
+                    );
                 }
-                if (geneticProfile.getGeneticAlterationType() == GeneticAlterationType.MUTATION_EXTENDED) {
-                    checkboxInputOncoPrintGeneDisplaySpec.setDefault( GeneticDataTypes.Mutation );
+                if (
+                    geneticProfile.getGeneticAlterationType() ==
+                    GeneticAlterationType.MUTATION_EXTENDED
+                ) {
+                    checkboxInputOncoPrintGeneDisplaySpec.setDefault(
+                        GeneticDataTypes.Mutation
+                    );
                 }
             }
         }
-        ParserOutput theOncoPrintSpecParserOutput = CallOncoPrintSpecParser.callOncoPrintSpecParser(geneListStr, checkboxInputOncoPrintGeneDisplaySpec);
+        ParserOutput theOncoPrintSpecParserOutput = CallOncoPrintSpecParser.callOncoPrintSpecParser(
+            geneListStr,
+            checkboxInputOncoPrintGeneDisplaySpec
+        );
         // II. LanguageCannotOverrunProfile: If the OncoSpec asked for data types
         // not in the geneticProfileIdSet, add semantics error(s)
         OncoPrintSpecification anOncoPrintSpecification = theOncoPrintSpecParserOutput.getTheOncoPrintSpecification();
         ArrayList<OncoPrintLangException> theSemanticsErrors = theOncoPrintSpecParserOutput.getSemanticsErrors();
         OncoPrintGeneDisplaySpec unionOncoPrintGeneDisplaySpec = anOncoPrintSpecification.getUnionOfPossibleLevels();
         for (GeneticDataTypes aGeneticDataType : GeneticDataTypes.values()) {
-            if (unionOncoPrintGeneDisplaySpec.typeDifference(checkboxInputOncoPrintGeneDisplaySpec, aGeneticDataType)) {
-                theSemanticsErrors.add(new OncoPrintLangException("Error: " +  aGeneticDataType +
-                        " specified in the list of genes, but not selected in the Genetic Profile Checkboxes."));
+            if (
+                unionOncoPrintGeneDisplaySpec.typeDifference(
+                    checkboxInputOncoPrintGeneDisplaySpec,
+                    aGeneticDataType
+                )
+            ) {
+                theSemanticsErrors.add(
+                    new OncoPrintLangException(
+                        "Error: " +
+                        aGeneticDataType +
+                        " specified in the list of genes, but not selected in the Genetic Profile Checkboxes."
+                    )
+                );
             }
         }
         return theOncoPrintSpecParserOutput;
@@ -124,18 +170,33 @@ public class OncoPrintSpecificationDriver {
      * @param geneListStr an OncoPrintSpec specification
      * @return output from parsing geneListStr
      */
-    static public ParserOutput callOncoPrintSpecParserDriver(String geneListStr) {
+    public static ParserOutput callOncoPrintSpecParserDriver(
+        String geneListStr
+    ) {
         OncoPrintGeneDisplaySpec checkboxInputOncoPrintGeneDisplaySpec = new OncoPrintGeneDisplaySpec();
-        ParserOutput theOncoPrintSpecParserOutput = CallOncoPrintSpecParser.callOncoPrintSpecParser(geneListStr, checkboxInputOncoPrintGeneDisplaySpec);
+        ParserOutput theOncoPrintSpecParserOutput = CallOncoPrintSpecParser.callOncoPrintSpecParser(
+            geneListStr,
+            checkboxInputOncoPrintGeneDisplaySpec
+        );
         // II. LanguageCannotOverrunProfile: If the OncoSpec asked for data types
         // not in the geneticProfileIdSet, add semantics error(s)
         OncoPrintSpecification anOncoPrintSpecification = theOncoPrintSpecParserOutput.getTheOncoPrintSpecification();
         ArrayList<OncoPrintLangException> theSemanticsErrors = theOncoPrintSpecParserOutput.getSemanticsErrors();
         OncoPrintGeneDisplaySpec unionOncoPrintGeneDisplaySpec = anOncoPrintSpecification.getUnionOfPossibleLevels();
         for (GeneticDataTypes aGeneticDataType : GeneticDataTypes.values()) {
-            if (unionOncoPrintGeneDisplaySpec.typeDifference(checkboxInputOncoPrintGeneDisplaySpec, aGeneticDataType)) {
-                theSemanticsErrors.add( new OncoPrintLangException("Error: " +  aGeneticDataType +
-                        " specified in the list of genes, but not selected in the Genetic Profile Checkboxes."));
+            if (
+                unionOncoPrintGeneDisplaySpec.typeDifference(
+                    checkboxInputOncoPrintGeneDisplaySpec,
+                    aGeneticDataType
+                )
+            ) {
+                theSemanticsErrors.add(
+                    new OncoPrintLangException(
+                        "Error: " +
+                        aGeneticDataType +
+                        " specified in the list of genes, but not selected in the Genetic Profile Checkboxes."
+                    )
+                );
             }
         }
         return theOncoPrintSpecParserOutput;

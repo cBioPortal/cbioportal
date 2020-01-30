@@ -28,26 +28,23 @@
  *
  * You should have received a copy of the GNU Affero General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
-*/
+ */
 
 package org.mskcc.cbio.portal.servlet;
 
+import static org.junit.Assert.*;
 
+import java.util.ArrayList;
+import java.util.Map;
+import javax.servlet.http.HttpServletRequest;
 import org.mskcc.cbio.portal.dao.DaoGistic;
 import org.mskcc.cbio.portal.model.CanonicalGene;
 import org.mskcc.cbio.portal.model.Gistic;
 import org.mskcc.cbio.portal.servlet.GisticJSON;
 
-import javax.servlet.http.HttpServletRequest;
-import java.util.ArrayList;
-import java.util.Map;
-
-import static org.junit.Assert.*;
-
 public class TestGisticJSON {
 
     public void testGisticJSON() {
-
         // test JSON map
         ArrayList<CanonicalGene> genes = new ArrayList<CanonicalGene>();
 
@@ -59,7 +56,16 @@ public class TestGisticJSON {
         genes.add(jj);
         genes.add(tp53);
 
-        Gistic gistic = new Gistic(1, 7, "1q11.1", 10000, 10001, 0.05d, genes, Gistic.AMPLIFIED);
+        Gistic gistic = new Gistic(
+            1,
+            7,
+            "1q11.1",
+            10000,
+            10001,
+            0.05d,
+            genes,
+            Gistic.AMPLIFIED
+        );
 
         Map map = null;
         map = GisticJSON.Gistic_toMap(gistic);
@@ -67,10 +73,9 @@ public class TestGisticJSON {
         assertTrue(map.get("chromosome").equals(7));
         assertTrue(map.get("peakStart").equals(10000));
         assertTrue(map.get("peakEnd").equals(10001));
-//        System.out.println(map.get("genes_in_ROI"));
-//        assertTrue(map.get("genes_in_ROI").equals(genes));
+        //        System.out.println(map.get("genes_in_ROI"));
+        //        assertTrue(map.get("genes_in_ROI").equals(genes));
         assertTrue(map.get("qval").equals(0.05d));
         assertTrue(map.get("ampdel").equals(Gistic.AMPLIFIED));
     }
-
 }

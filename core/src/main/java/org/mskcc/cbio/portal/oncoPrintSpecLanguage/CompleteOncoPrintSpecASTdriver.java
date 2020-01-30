@@ -28,7 +28,7 @@
  *
  * You should have received a copy of the GNU Affero General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
-*/
+ */
 
 package org.mskcc.cbio.portal.oncoPrintSpecLanguage;
 
@@ -39,7 +39,6 @@ import java.io.IOException;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.Random;
-
 import org.antlr.runtime.ANTLRInputStream;
 import org.antlr.runtime.CommonTokenStream;
 import org.antlr.runtime.RecognitionException;
@@ -49,14 +48,19 @@ import org.antlr.runtime.tree.CommonTreeNodeStream;
 public class CompleteOncoPrintSpecASTdriver {
 
     public static void main(String[] args) throws Exception {
-       
-       // TODO: MOVE TO TEST CODE
-       for( int j=0; j<20; j++){
-          String s = randomInput( 100 ) ;
-          out.println( j + ": " + s );
-          printObject( (OncoPrintSpecification)parseMethod( "oncoPrintSpecification",  s, args ) );
-       }
-       /*
+        // TODO: MOVE TO TEST CODE
+        for (int j = 0; j < 20; j++) {
+            String s = randomInput(100);
+            out.println(j + ": " + s);
+            printObject(
+                (OncoPrintSpecification) parseMethod(
+                    "oncoPrintSpecification",
+                    s,
+                    args
+                )
+            );
+        }
+        /*
        printObject( (OncoPrintSpecification)parseMethod( "oncoPrintSpecification",  
              "DATATYPES : EXP MUT ; gene2 g3:  CNA 2 ; g4 notGene \n", args ) );
        printObject( parseMethod( "oncoPrintSpecification", "", args ) );
@@ -99,122 +103,141 @@ public class CompleteOncoPrintSpecASTdriver {
        printObject( parseMethod( "dataTypeSpec",  "Methy < -1", args ) );
        printObject( parseMethod( "dataTypeSpec",  "Ugly <= -1", args ) );
        */
-       
-       printObject( parseMethod( "dataTypeSpec",  "CNA", args ) );
-       printObject( parseMethod( "dataTypeSpec",  "GAI", args ) );
-       printObject( parseMethod( "dataTypeSpec",  "EXP", args ) );
 
-       printObject( parseMethod( "dataTypeSpec",  "mrna", args ) );
-       printObject( parseMethod( "dataTypeSpec",  "FOO", args ) );
-       printObject( parseMethod( "dataTypeSpec",  "CNA < 3.5", args ) );
-       printObject( parseMethod( "dataTypeSpec",  "Exp << 3.5", args ) );
-       printObject( parseMethod( "dataTypeSpec",  "Exp < x", args ) );
-       printObject( parseMethod( "dataTypeSpec",  "foo < 3.5", args ) );
-       printObject( parseMethod( "dataTypeSpec", "foo < 3.5", args ) );
+        printObject(parseMethod("dataTypeSpec", "CNA", args));
+        printObject(parseMethod("dataTypeSpec", "GAI", args));
+        printObject(parseMethod("dataTypeSpec", "EXP", args));
+
+        printObject(parseMethod("dataTypeSpec", "mrna", args));
+        printObject(parseMethod("dataTypeSpec", "FOO", args));
+        printObject(parseMethod("dataTypeSpec", "CNA < 3.5", args));
+        printObject(parseMethod("dataTypeSpec", "Exp << 3.5", args));
+        printObject(parseMethod("dataTypeSpec", "Exp < x", args));
+        printObject(parseMethod("dataTypeSpec", "foo < 3.5", args));
+        printObject(parseMethod("dataTypeSpec", "foo < 3.5", args));
     }
-    
-    static void printObject( Object o){
-       if( null == o){
-          // out.println( "null object" );
-       }else{
-          out.println( o.toString() );
-       }
+
+    static void printObject(Object o) {
+        if (null == o) {
+            // out.println( "null object" );
+        } else {
+            out.println(o.toString());
+        }
     }
-    
+
     /**
      * return a string of n random tokens
      * @param n
      * @return
      */
     static Random r = new Random(17);
-    private static String randomInput( int n ){
-       StringBuffer sb=new StringBuffer();
-       String tokens = "\\\" \t \r \n 0 1 2 3 4 5 6 .3 3. 0.2 . - + : ; : ; : ; : ; = == <= < > >= nonGene exp cna c mut methy expre mrna " +
-       		"Gene1 gene2 DATATYPES \" DATATYPES \" { } { } { }";
-       String[] tokenList = tokens.split( " +");
-       // Random r = new Random();
-       for( int i=0; i<n; i++){
-          sb.append( tokenList[ r.nextInt(tokenList.length) ] ).append(" ");
-       }
-       return sb.toString();
+
+    private static String randomInput(int n) {
+        StringBuffer sb = new StringBuffer();
+        String tokens =
+            "\\\" \t \r \n 0 1 2 3 4 5 6 .3 3. 0.2 . - + : ; : ; : ; : ; = == <= < > >= nonGene exp cna c mut methy expre mrna " +
+            "Gene1 gene2 DATATYPES \" DATATYPES \" { } { } { }";
+        String[] tokenList = tokens.split(" +");
+        // Random r = new Random();
+        for (int i = 0; i < n; i++) {
+            sb.append(tokenList[r.nextInt(tokenList.length)]).append(" ");
+        }
+        return sb.toString();
     }
-    
+
     // call method 'method' in the lexer and parser
     // loads of reflection
-    public static Object parseMethod( String method, String prog, String[] args ) throws RecognitionException{
+    public static Object parseMethod(String method, String prog, String[] args)
+        throws RecognitionException {
+        try {
+            CommonTokenStream tokens = getCommonTokenStream(prog, args);
+            // Create a parser attached to the token stream
+            completeOncoPrintSpecASTParser parser = new completeOncoPrintSpecASTParser(
+                tokens
+            );
 
-          try {
-            CommonTokenStream tokens = getCommonTokenStream( prog, args );
-             // Create a parser attached to the token stream
-             completeOncoPrintSpecASTParser parser = new completeOncoPrintSpecASTParser(tokens);
+            // Invoke the program rule in get return value
+            // get parser class
+            Class<?> parserClass = parser.getClass(); // Class.forName("main.completeOncoPrintSpecASTParser.parser");
+            //System.out.println( "parserClass is: " + parserClass.getName() );
+            // create (empty) arg list
+            Class<?>[] emptyArgList = new Class[] {};
+            // get method
+            Method parserMethod = parserClass.getDeclaredMethod(
+                method,
+                emptyArgList
+            );
+            //System.out.println( "parserMethod is: " + parserMethod.getName() );
 
-             // Invoke the program rule in get return value
-             // get parser class
-             Class<?> parserClass = parser.getClass(); // Class.forName("main.completeOncoPrintSpecASTParser.parser");
-             //System.out.println( "parserClass is: " + parserClass.getName() );
-             // create (empty) arg list
-             Class<?>[] emptyArgList = new Class[] {};
-             // get method
-             Method parserMethod = parserClass.getDeclaredMethod( method, emptyArgList);
-             //System.out.println( "parserMethod is: " + parserMethod.getName() );
-             
-             // call method
-             // was completeOncoPrintSpecASTParser.fullDataTypeSpec_return r = parser.fullDataTypeSpec();
-             Object parserRV = parserMethod.invoke( parser );
+            // call method
+            // was completeOncoPrintSpecASTParser.fullDataTypeSpec_return r = parser.fullDataTypeSpec();
+            Object parserRV = parserMethod.invoke(parser);
 
-             // now call returnedObject's getTree() 
-             // get return value class
-             Class<?> rvClass = parserRV.getClass();
-             //System.out.println( "rvClass is: " + rvClass.getName() );
-             // get method
-             Method rvClassGetTree = rvClass.getDeclaredMethod( "getTree", emptyArgList);
-             //System.out.println( "rvClassGetTree is: " + rvClassGetTree.getName() );
-             // call method
-             // was: CommonTree t = (CommonTree)r.getTree();
-             CommonTree theCommonTree = (CommonTree)rvClassGetTree.invoke(parserRV );
-             //System.out.println( "theCommonTree is: " + "\n"+ theCommonTree.toStringTree() );
+            // now call returnedObject's getTree()
+            // get return value class
+            Class<?> rvClass = parserRV.getClass();
+            //System.out.println( "rvClass is: " + rvClass.getName() );
+            // get method
+            Method rvClassGetTree = rvClass.getDeclaredMethod(
+                "getTree",
+                emptyArgList
+            );
+            //System.out.println( "rvClassGetTree is: " + rvClassGetTree.getName() );
+            // call method
+            // was: CommonTree t = (CommonTree)r.getTree();
+            CommonTree theCommonTree = (CommonTree) rvClassGetTree.invoke(
+                parserRV
+            );
+            //System.out.println( "theCommonTree is: " + "\n"+ theCommonTree.toStringTree() );
 
-             // Walk resulting tree; create treenode stream first
-             CommonTreeNodeStream nodes = new CommonTreeNodeStream(theCommonTree);
-             // AST nodes have payloads that point into token stream
-             nodes.setTokenStream(tokens); 
-             // Create a tree Walker attached to the nodes stream
-             completeOncoPrintSpecASTwalker walker = new completeOncoPrintSpecASTwalker(nodes);
+            // Walk resulting tree; create treenode stream first
+            CommonTreeNodeStream nodes = new CommonTreeNodeStream(
+                theCommonTree
+            );
+            // AST nodes have payloads that point into token stream
+            nodes.setTokenStream(tokens);
+            // Create a tree Walker attached to the nodes stream
+            completeOncoPrintSpecASTwalker walker = new completeOncoPrintSpecASTwalker(
+                nodes
+            );
 
-             // Invoke the start symbol, rule program
-             // invoke method 'method' on walker
-             return walker.getClass().getDeclaredMethod(method, emptyArgList).invoke(walker, (Object[])null);
-             // was: return walker.fullDataTypeSpec();
-             
-         } catch (SecurityException e) {
-            
-            e.printStackTrace();
-         } catch (IllegalArgumentException e) {
-            
-            e.printStackTrace();
-         } catch (IOException e) {
-            e.printStackTrace();
-         } catch (NoSuchMethodException e) {
-            
-            e.printStackTrace();
-         } catch (IllegalAccessException e) {
-            
-            e.printStackTrace();
-         } catch (InvocationTargetException e) {
-            
-            e.printStackTrace();
-         }
+            // Invoke the start symbol, rule program
+            // invoke method 'method' on walker
+            return walker
+                .getClass()
+                .getDeclaredMethod(method, emptyArgList)
+                .invoke(walker, (Object[]) null);
+            // was: return walker.fullDataTypeSpec();
 
-      return null;
+        } catch (SecurityException e) {
+            e.printStackTrace();
+        } catch (IllegalArgumentException e) {
+            e.printStackTrace();
+        } catch (IOException e) {
+            e.printStackTrace();
+        } catch (NoSuchMethodException e) {
+            e.printStackTrace();
+        } catch (IllegalAccessException e) {
+            e.printStackTrace();
+        } catch (InvocationTargetException e) {
+            e.printStackTrace();
+        }
+
+        return null;
     }
 
-    static private CommonTokenStream getCommonTokenStream( String prog, String[] args )throws IOException{
-       ByteArrayInputStream bs = new ByteArrayInputStream( prog.getBytes());
-       ANTLRInputStream input = new ANTLRInputStream(bs);
-       // Create a lexer attached to that input stream
-       completeOncoPrintSpecASTLexer lexer = new completeOncoPrintSpecASTLexer(input);
-       // Create a stream of tokens pulled from the lexer
-       return new CommonTokenStream(lexer);
+    private static CommonTokenStream getCommonTokenStream(
+        String prog,
+        String[] args
+    )
+        throws IOException {
+        ByteArrayInputStream bs = new ByteArrayInputStream(prog.getBytes());
+        ANTLRInputStream input = new ANTLRInputStream(bs);
+        // Create a lexer attached to that input stream
+        completeOncoPrintSpecASTLexer lexer = new completeOncoPrintSpecASTLexer(
+            input
+        );
+        // Create a stream of tokens pulled from the lexer
+        return new CommonTokenStream(lexer);
     }
-       
 }

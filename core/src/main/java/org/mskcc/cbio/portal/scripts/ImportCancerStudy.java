@@ -28,48 +28,53 @@
  *
  * You should have received a copy of the GNU Affero General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
-*/
+ */
 
 package org.mskcc.cbio.portal.scripts;
 
-import org.mskcc.cbio.portal.util.*;
-import org.mskcc.cbio.portal.model.*;
-
 import java.io.File;
+import org.mskcc.cbio.portal.model.*;
+import org.mskcc.cbio.portal.util.*;
 
 /**
  * Command Line Tool to Import a Single Cancer Study.
  */
 public class ImportCancerStudy extends ConsoleRunnable {
-    
+
     public void run() {
         try {
             if (args.length < 1) {
                 // an extra --noprogress option can be given to avoid the messages regarding memory usage and % complete
                 throw new UsageException(
-                        "importCancerStudy.pl",
-                        null,
-                        "<cancer_study.txt>");
+                    "importCancerStudy.pl",
+                    null,
+                    "<cancer_study.txt>"
+                );
             }
-            
+
             File file = new File(args[0]);
             SpringUtil.initDataSource();
             CancerStudy cancerStudy = CancerStudyReader.loadCancerStudy(file);
-            CancerStudyTags cancerStudyTags = CancerStudyTagsReader.loadCancerStudyTags(file, cancerStudy);
-            String message = "Loaded the following cancer study:" +
-                "\n --> Study ID:  " + cancerStudy.getInternalId() +
-                "\n --> Name:  " + cancerStudy.getName() +
-                "\n --> Description:  " + cancerStudy.getDescription();
+            CancerStudyTags cancerStudyTags = CancerStudyTagsReader.loadCancerStudyTags(
+                file,
+                cancerStudy
+            );
+            String message =
+                "Loaded the following cancer study:" +
+                "\n --> Study ID:  " +
+                cancerStudy.getInternalId() +
+                "\n --> Name:  " +
+                cancerStudy.getName() +
+                "\n --> Description:  " +
+                cancerStudy.getDescription();
 
             if (cancerStudyTags != null) {
                 message += "\n --> Study Tags:  " + cancerStudyTags.getTags();
             }
             ProgressMonitor.setCurrentMessage(message);
-        }
-        catch (RuntimeException e) {
+        } catch (RuntimeException e) {
             throw e;
-        }
-        catch (Exception e) {
+        } catch (Exception e) {
             throw new RuntimeException(e);
         }
     }

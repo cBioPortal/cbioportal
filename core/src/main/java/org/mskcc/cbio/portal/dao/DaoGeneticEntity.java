@@ -5,7 +5,6 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
-
 import org.cbioportal.model.EntityType;
 import org.cbioportal.model.GeneticEntity;
 
@@ -14,11 +13,13 @@ public class DaoGeneticEntity {
     /**
      * Private Constructor to enforce Singleton Pattern.
      */
-    private DaoGeneticEntity() {
-    }
+    private DaoGeneticEntity() {}
 
     private enum SqlAction {
-        INSERT, UPDATE, SELECT, DELETE
+        INSERT,
+        UPDATE,
+        SELECT,
+        DELETE
     }
 
     /**
@@ -29,12 +30,14 @@ public class DaoGeneticEntity {
      * @throws DaoException Database Error.
      */
 
-    public static GeneticEntity addNewGeneticEntity(GeneticEntity geneticEntity) throws DaoException {
-
+    public static GeneticEntity addNewGeneticEntity(
+        GeneticEntity geneticEntity
+    )
+        throws DaoException {
         DbContainer container = executeSQLstatment(
             SqlAction.INSERT,
-            "INSERT INTO genetic_entity (`ENTITY_TYPE`, `STABLE_ID`) "
-            + "VALUES(?,?)",
+            "INSERT INTO genetic_entity (`ENTITY_TYPE`, `STABLE_ID`) " +
+            "VALUES(?,?)",
             geneticEntity.getEntityType(),
             geneticEntity.getStableId()
         );
@@ -48,19 +51,29 @@ public class DaoGeneticEntity {
      * Given an external id, returns a GeneticEntity record.
      * @param stableId
      * @return GeneticEntity record
-     * @throws DaoException 
+     * @throws DaoException
      */
-    public static GeneticEntity getGeneticEntityByStableId(String stableId) throws DaoException {
-        DbContainer container = executeSQLstatment(SqlAction.SELECT, "SELECT * FROM genetic_entity WHERE `STABLE_ID` = ?", stableId);
+    public static GeneticEntity getGeneticEntityByStableId(String stableId)
+        throws DaoException {
+        DbContainer container = executeSQLstatment(
+            SqlAction.SELECT,
+            "SELECT * FROM genetic_entity WHERE `STABLE_ID` = ?",
+            stableId
+        );
         return container.getGeneticEntity();
     }
-    
+
     /**
      * Get GeneticEntity record.
      * @param id genetic_entity id
      */
-    public static GeneticEntity getGeneticEntityById(int id) throws DaoException {
-        DbContainer container = executeSQLstatment(SqlAction.SELECT, "SELECT * FROM genetic_entity WHERE ID = ?", String.valueOf(id));
+    public static GeneticEntity getGeneticEntityById(int id)
+        throws DaoException {
+        DbContainer container = executeSQLstatment(
+            SqlAction.SELECT,
+            "SELECT * FROM genetic_entity WHERE ID = ?",
+            String.valueOf(id)
+        );
         return container.getGeneticEntity();
     }
 
@@ -69,47 +82,58 @@ public class DaoGeneticEntity {
      * @param rs
      * @return Geneset record
      * @throws SQLException
-     * @throws DaoException 
+     * @throws DaoException
      */
-    private static GeneticEntity extractGeneticEntity(ResultSet rs) throws SQLException, DaoException {
-
+    private static GeneticEntity extractGeneticEntity(ResultSet rs)
+        throws SQLException, DaoException {
         Integer id = rs.getInt("ID");
         String stableId = rs.getString("STABLE_ID");
         String entityType = rs.getString("ENTITY_TYPE");
-        
-        GeneticEntity geneticEntity = new GeneticEntity(id, entityType, stableId);
+
+        GeneticEntity geneticEntity = new GeneticEntity(
+            id,
+            entityType,
+            stableId
+        );
 
         return geneticEntity;
     }
-    
+
     /**
      * Helper method for retrieval of a geneticEntity record from the database
      * @param action type of MySQL operation
      * @param statement MySQL statement
      * @param keys Series of values used in the statement (order is important)
-     * @return Object return data from 
-     * @throws DaoException 
+     * @return Object return data from
+     * @throws DaoException
      */
-    private static DbContainer executeSQLstatment(SqlAction action, String statement, String ... keys) throws DaoException {
+    private static DbContainer executeSQLstatment(
+        SqlAction action,
+        String statement,
+        String... keys
+    )
+        throws DaoException {
         Connection con = null;
         PreparedStatement pstmt = null;
-        ResultSet rs = null;        
+        ResultSet rs = null;
         try {
             con = JdbcUtil.getDbConnection(DaoGeneticEntity.class);
 
             // for insert statements the number of affected records is returned
             // this requires the RETURN_GENERATED_KEYS to be set for insert statements.
             int switchGetGeneratedKeys = PreparedStatement.NO_GENERATED_KEYS;
-            if (action == SqlAction.INSERT)
-                switchGetGeneratedKeys = PreparedStatement.RETURN_GENERATED_KEYS;
+            if (action == SqlAction.INSERT) switchGetGeneratedKeys =
+                PreparedStatement.RETURN_GENERATED_KEYS;
 
             pstmt = con.prepareStatement(statement, switchGetGeneratedKeys);
 
             int cnt = 1;
-            for (int i = 0; i < keys.length; i++)
-                pstmt.setString(cnt++, keys[i]);
+            for (int i = 0; i < keys.length; i++) pstmt.setString(
+                cnt++,
+                keys[i]
+            );
 
-            switch(action) {
+            switch (action) {
                 case INSERT:
                     pstmt.executeUpdate();
                     rs = pstmt.getGeneratedKeys();
@@ -125,31 +149,27 @@ public class DaoGeneticEntity {
                     pstmt.executeUpdate();
                     return null;
             }
-            
-        }
-        catch (SQLException e) {
+        } catch (SQLException e) {
             throw new DaoException(e);
-        } 
-        finally {
+        } finally {
             JdbcUtil.closeAll(DaoGeneticEntity.class, con, pstmt, rs);
         }
     }
 
-    final static class DbContainer {
+    static final class DbContainer {
         private int id;
         private GeneticEntity geneticEntity;
 
-        public DbContainer(){
-        }
+        public DbContainer() {}
 
-        public DbContainer(int id){
+        public DbContainer(int id) {
             this.id = id;
         }
-        
+
         public DbContainer(GeneticEntity geneticEntity) {
             this.geneticEntity = geneticEntity;
         }
-        
+
         /**
          * @return the geneticEntity
          */
@@ -163,6 +183,5 @@ public class DaoGeneticEntity {
         public int getId() {
             return id;
         }
-        
     }
 }

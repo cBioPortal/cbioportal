@@ -28,10 +28,19 @@
  *
  * You should have received a copy of the GNU Affero General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
-*/
+ */
 
 package org.mskcc.cbio.portal.servlet;
 
+import java.io.IOException;
+import java.io.PrintWriter;
+import java.util.*;
+import javax.servlet.ServletException;
+import javax.servlet.http.HttpServlet;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.json.simple.JSONArray;
 import org.json.simple.JSONValue;
 import org.mskcc.cbio.portal.dao.DaoCancerStudy;
@@ -40,18 +49,6 @@ import org.mskcc.cbio.portal.dao.DaoMutSig;
 import org.mskcc.cbio.portal.model.CancerStudy;
 import org.mskcc.cbio.portal.model.MutSig;
 import org.owasp.validator.html.PolicyException;
-
-import javax.servlet.ServletException;
-import javax.servlet.http.HttpServlet;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-import java.io.IOException;
-import java.io.PrintWriter;
-import java.util.*;
-
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
-
 
 /**
  *
@@ -88,8 +85,8 @@ public class MutSigJSON extends HttpServlet {
      * So actually we are sorting by q-value
      */
     private class sortMutsigByRank implements Comparator<MutSig> {
-        public int compare(MutSig mutSig1, MutSig mutSig2) {
 
+        public int compare(MutSig mutSig1, MutSig mutSig2) {
             // Collections.sort is in ascending order and
             // we want the smallest q-value at the top
             return mutSig1.getRank() - mutSig2.getRank();
@@ -101,35 +98,43 @@ public class MutSigJSON extends HttpServlet {
     //
     @Override
     public void doGet(HttpServletRequest request, HttpServletResponse response)
-            throws ServletException, IOException
-    {
-
+        throws ServletException, IOException {
         String cancer_study_id = request.getParameter(SELECTED_CANCER_STUDY);
         JSONArray mutSigJSONArray = new JSONArray();
 
         try {
-            CancerStudy cancerStudy = DaoCancerStudy.getCancerStudyByStableId(cancer_study_id);
+            CancerStudy cancerStudy = DaoCancerStudy.getCancerStudyByStableId(
+                cancer_study_id
+            );
 
             if (log.isDebugEnabled()) {
-                log.debug("cancerStudyId passed to MutSigJSON: " + cancerStudy.getInternalId());
+                log.debug(
+                    "cancerStudyId passed to MutSigJSON: " +
+                    cancerStudy.getInternalId()
+                );
             }
 
-            ArrayList<MutSig> mutSigList = DaoMutSig.getAllMutSig(cancerStudy.getInternalId());
+            ArrayList<MutSig> mutSigList = DaoMutSig.getAllMutSig(
+                cancerStudy.getInternalId()
+            );
 
             if (log.isDebugEnabled()) {
-                log.debug("no of mutsigs associated with cancerStudy: " + mutSigList.size() + "\n");
+                log.debug(
+                    "no of mutsigs associated with cancerStudy: " +
+                    mutSigList.size() +
+                    "\n"
+                );
             }
 
             Collections.sort(mutSigList, new sortMutsigByRank());
 
             int i = 0;
             for (MutSig mutsig : mutSigList) {
-
-//                log.debug("" + mutsig.toString() + " " + i++);
+                //                log.debug("" + mutsig.toString() + " " + i++);
 
                 Map map = MutSigtoMap(mutsig);
 
-//                log.debug(map);
+                //                log.debug(map);
 
                 if (!map.isEmpty()) {
                     mutSigJSONArray.add(map);
@@ -143,17 +148,17 @@ public class MutSigJSON extends HttpServlet {
             } finally {
                 out.close();
             }
-
         } catch (DaoException e) {
             throw new ServletException(e);
         }
     }
 
     // Just in case the request changes from GET to POST
-    public void doPost(HttpServletRequest request, HttpServletResponse response)
-            throws ServletException, IOException
-    {
+    public void doPost(
+        HttpServletRequest request,
+        HttpServletResponse response
+    )
+        throws ServletException, IOException {
         doGet(request, response);
     }
-
 }

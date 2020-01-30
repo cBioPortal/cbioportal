@@ -28,16 +28,19 @@
  *
  * You should have received a copy of the GNU Affero General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
-*/
+ */
 
 package org.mskcc.cbio.portal.dao;
 
-import java.util.Arrays;
+import static org.junit.Assert.*;
 
+import java.sql.SQLException;
+import java.util.ArrayList;
+import java.util.Arrays;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.mskcc.cbio.portal.dao.DaoGeneOptimized;
 import org.mskcc.cbio.portal.dao.DaoException;
+import org.mskcc.cbio.portal.dao.DaoGeneOptimized;
 import org.mskcc.cbio.portal.dao.DaoGistic;
 import org.mskcc.cbio.portal.model.CanonicalGene;
 import org.mskcc.cbio.portal.model.Gistic;
@@ -47,32 +50,33 @@ import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import org.springframework.test.context.transaction.TransactionConfiguration;
 import org.springframework.transaction.annotation.Transactional;
 
-import static org.junit.Assert.*;
-
-import java.sql.SQLException;
-import java.util.ArrayList;
-
 @RunWith(SpringJUnit4ClassRunner.class)
 @ContextConfiguration(locations = { "classpath:/applicationContext-dao.xml" })
-@TransactionConfiguration(transactionManager = "transactionManager", defaultRollback = true)
+@TransactionConfiguration(
+    transactionManager = "transactionManager",
+    defaultRollback = true
+)
 @Transactional
 public class TestDaoGistic {
 
-	@Test
-    public void testDaoGistic() throws SQLException, DaoException, validationException {
-
+    @Test
+    public void testDaoGistic()
+        throws SQLException, DaoException, validationException {
         // initialize dummy parameters
-		CanonicalGene brca1 = DaoGeneOptimized.getInstance().getGene("BRCA1");
-		CanonicalGene brca2 = DaoGeneOptimized.getInstance().getGene("BRCA2");
-		CanonicalGene kras = DaoGeneOptimized.getInstance().getGene("KRAS");
-				
-        ArrayList<CanonicalGene> geneList =
-			new ArrayList<CanonicalGene>(Arrays.asList(brca1, brca2, kras));
+        CanonicalGene brca1 = DaoGeneOptimized.getInstance().getGene("BRCA1");
+        CanonicalGene brca2 = DaoGeneOptimized.getInstance().getGene("BRCA2");
+        CanonicalGene kras = DaoGeneOptimized.getInstance().getGene("KRAS");
+
+        ArrayList<CanonicalGene> geneList = new ArrayList<CanonicalGene>(
+            Arrays.asList(brca1, brca2, kras)
+        );
 
         Gistic gisticIn1;
         Gistic gisticIn2;
-        gisticIn1 = new Gistic(1, 1, "1q11.1", 1, 2, 0.01f, geneList, Gistic.AMPLIFIED);
-        gisticIn2 = new Gistic(1, 2, "2q22.2", 1, 2, 0.01f, geneList, Gistic.AMPLIFIED);
+        gisticIn1 =
+            new Gistic(1, 1, "1q11.1", 1, 2, 0.01f, geneList, Gistic.AMPLIFIED);
+        gisticIn2 =
+            new Gistic(1, 2, "2q22.2", 1, 2, 0.01f, geneList, Gistic.AMPLIFIED);
 
         // end initialize
 
@@ -89,8 +93,8 @@ public class TestDaoGistic {
 
         // -- get stuff back --
 
-//        DaoGistic.getGisticByROI("1q11", 1,2);  Perhaps this is a new project of some sort?
-// ROIs across various cancers.
+        //        DaoGistic.getGisticByROI("1q11", 1,2);  Perhaps this is a new project of some sort?
+        // ROIs across various cancers.
 
         ArrayList<Gistic> gisticOut = DaoGistic.getAllGisticByCancerStudyId(1);
         assertTrue(gisticOut != null);

@@ -28,19 +28,17 @@
  *
  * You should have received a copy of the GNU Affero General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
-*/
+ */
 
 package org.mskcc.cbio.portal.model;
 
 import java.util.ArrayList;
-
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.EnumMap;
 import java.util.HashMap;
-
-import org.mskcc.cbio.portal.oncoPrintSpecLanguage.GeneticTypeLevel;
 import org.mskcc.cbio.portal.oncoPrintSpecLanguage.GeneWithSpec;
+import org.mskcc.cbio.portal.oncoPrintSpecLanguage.GeneticTypeLevel;
 import org.mskcc.cbio.portal.oncoPrintSpecLanguage.OncoPrintSpecification;
 import org.mskcc.cbio.portal.util.ValueParser;
 
@@ -50,41 +48,42 @@ import org.mskcc.cbio.portal.util.ValueParser;
 public class ProfileDataSummary {
     private HashMap<String, Double> geneAlteredMap = new HashMap<String, Double>();
     private HashMap<String, Double> geneMutatedMap = new HashMap<String, Double>();
-    private HashMap<String, EnumMap<GeneticTypeLevel,Double>> geneCNALevelMap
-                = new HashMap<String, EnumMap<GeneticTypeLevel,Double>>();
+    private HashMap<String, EnumMap<GeneticTypeLevel, Double>> geneCNALevelMap = new HashMap<String, EnumMap<GeneticTypeLevel, Double>>();
     private HashMap<String, double[]> geneMRNAUpDownMap = new HashMap<String, double[]>();
     private HashMap<String, Integer> numCasesAlteredMap = new HashMap<String, Integer>();
     private ArrayList<GeneWithScore> geneAlteredList = new ArrayList<GeneWithScore>();
     private HashMap<String, Boolean> caseAlteredMap = null; //lazy init
-    private HashMap<String,HashMap<String,ValueParser>> mapGeneCaseParser = 
-            new HashMap<String,HashMap<String,ValueParser>>();
+    private HashMap<String, HashMap<String, ValueParser>> mapGeneCaseParser = new HashMap<String, HashMap<String, ValueParser>>();
     private double percentOfCasesWithAlteredPathway;
     private ProfileData profileData;
     private double zScoreThreshold;
     private double rppaScoreThreshold;
     private OncoPrintSpecification theOncoPrintSpecification;
     private int numCasesAffected;
-    
+
     /**
-     * Calculate summary statistics for the cancer profiles in data, as filtered 
-     * through theOncoPrintSpecification and the 
+     * Calculate summary statistics for the cancer profiles in data, as filtered
+     * through theOncoPrintSpecification and the
      * zScoreThreshold.
-     * 
+     *
      * @param data
      * @param theOncoPrintSpecification
      * @param zScoreThreshold
      */
-    public ProfileDataSummary(ProfileData data, 
-            OncoPrintSpecification theOncoPrintSpecification,  
-            double zScoreThreshold,
-            double rppaScoreThreshold) {
+    public ProfileDataSummary(
+        ProfileData data,
+        OncoPrintSpecification theOncoPrintSpecification,
+        double zScoreThreshold,
+        double rppaScoreThreshold
+    ) {
         this.profileData = data;
         this.theOncoPrintSpecification = theOncoPrintSpecification;
         this.zScoreThreshold = zScoreThreshold;
         this.rppaScoreThreshold = rppaScoreThreshold;
         ArrayList<String> geneList = data.getGeneList();
         ArrayList<String> caseList = data.getCaseIdList();
-        geneAlteredList = determineFrequencyOfGeneAlteration(geneList, caseList);
+        geneAlteredList =
+            determineFrequencyOfGeneAlteration(geneList, caseList);
     }
 
     /**
@@ -134,7 +133,7 @@ public class ProfileDataSummary {
     public boolean isCaseAltered(String caseId) {
         determineFrequencyOfCaseAlteration();
         if (caseAlteredMap.get(caseId) != null) {
-            return caseAlteredMap.get(caseId);    
+            return caseAlteredMap.get(caseId);
         }
         return false;
     }
@@ -151,31 +150,37 @@ public class ProfileDataSummary {
 
     /**
      * Gets number of cases that contain an alteration in at least one gene in the set.
-     * 
+     *
      * @return number of cases.
      */
     public int getNumCasesAffected() {
         determineFrequencyOfCaseAlteration();
         return this.numCasesAffected;
     }
-    
+
     private ValueParser getValueParser(String gene, String caseId) {
-        HashMap<String,ValueParser> mapCaseParser = mapGeneCaseParser.get(gene);
-        if (mapCaseParser==null) {
-            mapCaseParser = new HashMap<String,ValueParser>();
+        HashMap<String, ValueParser> mapCaseParser = mapGeneCaseParser.get(
+            gene
+        );
+        if (mapCaseParser == null) {
+            mapCaseParser = new HashMap<String, ValueParser>();
             mapGeneCaseParser.put(gene, mapCaseParser);
         }
-        
+
         ValueParser parser = mapCaseParser.get(caseId);
-        if (parser==null) {
+        if (parser == null) {
             String value = profileData.getValue(gene, caseId);
-            parser = ValueParser.generateValueParser(gene, value, 
-                    this.zScoreThreshold, this.rppaScoreThreshold,
-                    this.theOncoPrintSpecification);
+            parser =
+                ValueParser.generateValueParser(
+                    gene,
+                    value,
+                    this.zScoreThreshold,
+                    this.rppaScoreThreshold,
+                    this.theOncoPrintSpecification
+                );
             mapCaseParser.put(caseId, parser);
         }
         return parser;
-        
     }
 
     /**
@@ -187,8 +192,8 @@ public class ProfileDataSummary {
      */
     public boolean isGeneAltered(String gene, String caseId) {
         ValueParser parser = getValueParser(gene, caseId);
-        if( null != parser ){
-           return parser.isGeneAltered();
+        if (null != parser) {
+            return parser.isGeneAltered();
         }
         return false;
     }
@@ -202,12 +207,12 @@ public class ProfileDataSummary {
      */
     public boolean isGeneMutated(String gene, String caseId) {
         ValueParser parser = getValueParser(gene, caseId);
-        if( null != parser ){
-           return parser.isMutated();
+        if (null != parser) {
+            return parser.isMutated();
         }
         return false;
     }
-    
+
     /**
      * Get the CNA level of gene X in case Y.
      *
@@ -217,20 +222,20 @@ public class ProfileDataSummary {
      */
     public GeneticTypeLevel getCNALevel(String gene, String caseId) {
         ValueParser parser = getValueParser(gene, caseId);
-        if( null != parser ){
-           if (parser.isCnaAmplified()) {
-               return GeneticTypeLevel.Amplified;
-           } else if (parser.isCnaGained()) {
-               return GeneticTypeLevel.Gained;
-           } else if (parser.isCnaHemizygouslyDeleted()) {
-               return GeneticTypeLevel.HemizygouslyDeleted;
-           } else if (parser.isCnaHomozygouslyDeleted()) {
-               return GeneticTypeLevel.HomozygouslyDeleted;
-           }
+        if (null != parser) {
+            if (parser.isCnaAmplified()) {
+                return GeneticTypeLevel.Amplified;
+            } else if (parser.isCnaGained()) {
+                return GeneticTypeLevel.Gained;
+            } else if (parser.isCnaHemizygouslyDeleted()) {
+                return GeneticTypeLevel.HemizygouslyDeleted;
+            } else if (parser.isCnaHomozygouslyDeleted()) {
+                return GeneticTypeLevel.HomozygouslyDeleted;
+            }
         }
         return null;
     }
-    
+
     /**
      * Determines if the gene X is mutated in case Y.
      *
@@ -240,12 +245,12 @@ public class ProfileDataSummary {
      */
     public boolean isMRNAWayUp(String gene, String caseId) {
         ValueParser parser = getValueParser(gene, caseId);
-        if( null != parser ){
-           return parser.isMRNAWayUp();
+        if (null != parser) {
+            return parser.isMRNAWayUp();
         }
         return false;
     }
-    
+
     /**
      * Determines if the gene X is mutated in case Y.
      *
@@ -255,39 +260,42 @@ public class ProfileDataSummary {
      */
     public boolean isMRNAWayDown(String gene, String caseId) {
         ValueParser parser = getValueParser(gene, caseId);
-        if( null != parser ){
-           return parser.isMRNAWayDown();
+        if (null != parser) {
+            return parser.isMRNAWayDown();
         }
         return false;
     }
-    
+
     /**
      * Gene percentage of cases where gene X is at a certain CNA level.
      *
      * @param gene gene symbol.
      * @return percentage value.
-     */    
-    public double getPercentCasesWhereGeneIsAtCNALevel(String gene, GeneticTypeLevel cnaLevel) {
-        EnumMap<GeneticTypeLevel,Double> map = geneCNALevelMap.get(gene);
+     */
+    public double getPercentCasesWhereGeneIsAtCNALevel(
+        String gene,
+        GeneticTypeLevel cnaLevel
+    ) {
+        EnumMap<GeneticTypeLevel, Double> map = geneCNALevelMap.get(gene);
         if (map == null) {
-            map = new EnumMap<GeneticTypeLevel,Double>(GeneticTypeLevel.class);
+            map = new EnumMap<GeneticTypeLevel, Double>(GeneticTypeLevel.class);
             for (GeneticTypeLevel level : GeneticTypeLevel.values()) {
                 map.put(level, 0.0);
             }
-            
+
             ArrayList<String> caseList = profileData.getCaseIdList();
             double delta = 1.0 / caseList.size();
             for (String caseId : caseList) {
-                 GeneticTypeLevel level = getCNALevel(gene, caseId);
-                 if (level!=null) {
-                    map.put(level, map.get(level)+delta);
-                 }
+                GeneticTypeLevel level = getCNALevel(gene, caseId);
+                if (level != null) {
+                    map.put(level, map.get(level) + delta);
+                }
             }
         }
-        
+
         return map.get(cnaLevel);
     }
-    
+
     /**
      * Gene percentage of cases where gene X is up regulated.
      *
@@ -297,7 +305,7 @@ public class ProfileDataSummary {
     public double getPercentCasesWhereMRNAIsUpRegulated(String gene) {
         return getPercentCasesWhereMRNAIsUpOrDownRegulated(gene, true);
     }
-    
+
     /**
      * Gene percentage of cases where gene X is down regulated.
      *
@@ -306,9 +314,8 @@ public class ProfileDataSummary {
      */
     public double getPercentCasesWhereMRNAIsDownRegulated(String gene) {
         return getPercentCasesWhereMRNAIsUpOrDownRegulated(gene, false);
-    }    
-    
-    
+    }
+
     /**
      * Gene percentage of cases where gene X is up/down regulated.
      *
@@ -316,8 +323,11 @@ public class ProfileDataSummary {
      * @param upOrDown true if up regulated; false if down regulated.
      * @return percentage value.
      */
-    private double getPercentCasesWhereMRNAIsUpOrDownRegulated(String gene, boolean up) {
-        if (geneMRNAUpDownMap.get(gene)==null) {
+    private double getPercentCasesWhereMRNAIsUpOrDownRegulated(
+        String gene,
+        boolean up
+    ) {
+        if (geneMRNAUpDownMap.get(gene) == null) {
             int numSamplesWhereGeneIsUpRegulated = 0;
             int numSamplesWhereGeneIsDownRegulated = 0;
             ArrayList<String> caseList = profileData.getCaseIdList();
@@ -328,18 +338,19 @@ public class ProfileDataSummary {
                     numSamplesWhereGeneIsDownRegulated++;
                 }
             }
-            geneMRNAUpDownMap.put(gene, new double[]{
-                1.0*numSamplesWhereGeneIsUpRegulated/caseList.size(),
-                1.0*numSamplesWhereGeneIsDownRegulated/caseList.size()
+            geneMRNAUpDownMap.put(
+                gene,
+                new double[] {
+                    1.0 * numSamplesWhereGeneIsUpRegulated / caseList.size(),
+                    1.0 * numSamplesWhereGeneIsDownRegulated / caseList.size()
                 }
             );
         }
-        
+
         double[] percs = geneMRNAUpDownMap.get(gene);
         return up ? percs[0] : percs[1];
-    } 
-    
-    
+    }
+
     /**
      * Gene percentage of cases where gene X is mutated.
      *
@@ -347,7 +358,7 @@ public class ProfileDataSummary {
      * @return percentage value.
      */
     public double getPercentCasesWhereGeneIsMutated(String gene) {
-        if (geneMutatedMap.get(gene)==null) {
+        if (geneMutatedMap.get(gene) == null) {
             int numSamplesWhereGeneIsMutated = 0;
             ArrayList<String> caseList = profileData.getCaseIdList();
             for (String caseId : caseList) {
@@ -355,18 +366,22 @@ public class ProfileDataSummary {
                     numSamplesWhereGeneIsMutated++;
                 }
             }
-            geneMutatedMap.put(gene, 1.0*numSamplesWhereGeneIsMutated/caseList.size());
+            geneMutatedMap.put(
+                gene,
+                1.0 * numSamplesWhereGeneIsMutated / caseList.size()
+            );
         }
-        
+
         return geneMutatedMap.get(gene);
-    }    
-    
+    }
 
     /**
      * Determines frequency with which each gene is altered.
      */
-    private ArrayList<GeneWithScore> determineFrequencyOfGeneAlteration(ArrayList<String> geneList,
-                                                                        ArrayList<String> caseList) {
+    private ArrayList<GeneWithScore> determineFrequencyOfGeneAlteration(
+        ArrayList<String> geneList,
+        ArrayList<String> caseList
+    ) {
         ArrayList<GeneWithScore> localGeneList = new ArrayList<GeneWithScore>();
         //  First, determine frequency with which each gene is altered.
         //  Iterate through all genes.
@@ -375,7 +390,6 @@ public class ProfileDataSummary {
 
             //  Iterate through all cases.
             for (String caseId : caseList) {
-
                 //  Determine if gene is altered in this case
                 boolean isAltered = isGeneAltered(gene, caseId);
 
@@ -384,20 +398,22 @@ public class ProfileDataSummary {
                     numSamplesWhereGeneIsAltered++;
                 }
             }
-            double percent = numSamplesWhereGeneIsAltered / (double) caseList.size();
+            double percent =
+                numSamplesWhereGeneIsAltered / (double) caseList.size();
             geneAlteredMap.put(gene, percent);
             numCasesAlteredMap.put(gene, numSamplesWhereGeneIsAltered);
             GeneWithScore geneWithScore = new GeneWithScore();
             geneWithScore.setGene(gene);
             geneWithScore.setScore(percent);
 
-            if (this.theOncoPrintSpecification.containsGene(gene) ) {
-               // TODO: this isn't right, as the same gene could appear multiple times in a spec;
-               // thus, we need a more complex way to find the given gene
-               // for now, return the 1st one 
-               GeneWithSpec aGeneWithSpec = this.theOncoPrintSpecification.getGeneWithSpec(gene); 
-               geneWithScore.setaGeneWithSpec(aGeneWithSpec);
-           }
+            if (this.theOncoPrintSpecification.containsGene(gene)) {
+                // TODO: this isn't right, as the same gene could appear multiple times in a spec;
+                // thus, we need a more complex way to find the given gene
+                // for now, return the 1st one
+                GeneWithSpec aGeneWithSpec =
+                    this.theOncoPrintSpecification.getGeneWithSpec(gene);
+                geneWithScore.setaGeneWithSpec(aGeneWithSpec);
+            }
             localGeneList.add(geneWithScore);
         }
 
@@ -414,14 +430,14 @@ public class ProfileDataSummary {
         if (caseAlteredMap != null) {
             return;
         }
-        
+
         caseAlteredMap = new HashMap<String, Boolean>();
-        
+
         numCasesAffected = 0;
 
         ArrayList<String> caseList = profileData.getCaseIdList();
         ArrayList<String> geneList = profileData.getGeneList();
-        
+
         //  Iterate through all cases
         for (String caseId : caseList) {
             boolean caseIsAltered = false;
@@ -438,9 +454,9 @@ public class ProfileDataSummary {
             }
             caseAlteredMap.put(caseId, caseIsAltered);
         }
-        
-        percentOfCasesWithAlteredPathway = numCasesAffected
-                / (double) caseList.size();
+
+        percentOfCasesWithAlteredPathway =
+            numCasesAffected / (double) caseList.size();
     }
 }
 

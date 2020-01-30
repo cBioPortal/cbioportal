@@ -28,21 +28,20 @@
  *
  * You should have received a copy of the GNU Affero General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
-*/
+ */
 
 package org.mskcc.cbio.portal.dao;
 
-import org.mskcc.cbio.portal.model.*;
-
-import org.apache.commons.lang.StringUtils;
-
 import java.sql.*;
 import java.util.*;
+import org.apache.commons.lang.StringUtils;
+import org.mskcc.cbio.portal.model.*;
 
 /**
  * Data access object for sample_profile table
  */
 public final class DaoSampleProfile {
+
     /**
      * Adds a record to the sample_profile table. This is part of adding records from genetic profiles.
      * Can use the bulk loader.
@@ -52,23 +51,33 @@ public final class DaoSampleProfile {
     private static final int NO_SUCH_PROFILE_ID = -1;
     private static final String TABLE_NAME = "sample_profile";
 
-    public static int addSampleProfile(Integer sampleId, Integer geneticProfileId, Integer panelId) throws DaoException {        
+    public static int addSampleProfile(
+        Integer sampleId,
+        Integer geneticProfileId,
+        Integer panelId
+    )
+        throws DaoException {
         if (MySQLbulkLoader.isBulkLoad()) {
-
             // Add new record using bulk loader. Order of fields is:
             // 1. sample ID
             // 2. genetic Profile ID
             // 3. gene panel ID
             if (panelId != null) {
-                MySQLbulkLoader.getMySQLbulkLoader(TABLE_NAME).insertRecord(
-                    Integer.toString(sampleId),
-                    Integer.toString(geneticProfileId),
-                    Integer.toString(panelId));
+                MySQLbulkLoader
+                    .getMySQLbulkLoader(TABLE_NAME)
+                    .insertRecord(
+                        Integer.toString(sampleId),
+                        Integer.toString(geneticProfileId),
+                        Integer.toString(panelId)
+                    );
             } else {
-                MySQLbulkLoader.getMySQLbulkLoader(TABLE_NAME).insertRecord(
-                    Integer.toString(sampleId),
-                    Integer.toString(geneticProfileId),
-                    null);
+                MySQLbulkLoader
+                    .getMySQLbulkLoader(TABLE_NAME)
+                    .insertRecord(
+                        Integer.toString(sampleId),
+                        Integer.toString(geneticProfileId),
+                        null
+                    );
             }
 
             return 1;
@@ -82,15 +91,16 @@ public final class DaoSampleProfile {
         try {
             if (!sampleExistsInGeneticProfile(sampleId, geneticProfileId)) {
                 con = JdbcUtil.getDbConnection(DaoSampleProfile.class);
-                pstmt = con.prepareStatement
-                        ("INSERT INTO sample_profile (`SAMPLE_ID`, `GENETIC_PROFILE_ID`, `PANEL_ID`) "
-                                + "VALUES (?,?,?)");
+                pstmt =
+                    con.prepareStatement(
+                        "INSERT INTO sample_profile (`SAMPLE_ID`, `GENETIC_PROFILE_ID`, `PANEL_ID`) " +
+                        "VALUES (?,?,?)"
+                    );
                 pstmt.setInt(1, sampleId);
                 pstmt.setInt(2, geneticProfileId);
                 if (panelId != null) {
                     pstmt.setInt(3, panelId);
-                }
-                else {
+                } else {
                     pstmt.setNull(3, java.sql.Types.INTEGER);
                 }
                 return pstmt.executeUpdate();
@@ -107,10 +117,15 @@ public final class DaoSampleProfile {
         }
     }
 
-    public static void updateSampleProfile(Integer sampleId, Integer geneticProfileId, Integer panelId) throws DaoException {
+    public static void updateSampleProfile(
+        Integer sampleId,
+        Integer geneticProfileId,
+        Integer panelId
+    )
+        throws DaoException {
         /**
-         * Update a record in the sample_profile table when adding gene panel field from the sample profile matrix. 
-         * Can not use the bulk loader, because the sample might already be added, which requires an UPDATE of the 
+         * Update a record in the sample_profile table when adding gene panel field from the sample profile matrix.
+         * Can not use the bulk loader, because the sample might already be added, which requires an UPDATE of the
          * record.
          */
         Connection con = null;
@@ -120,14 +135,18 @@ public final class DaoSampleProfile {
         try {
             con = JdbcUtil.getDbConnection(DaoSampleProfile.class);
             if (!sampleExistsInGeneticProfile(sampleId, geneticProfileId)) {
-                pstmt = con.prepareStatement
-                    ("INSERT INTO sample_profile (`SAMPLE_ID`, `GENETIC_PROFILE_ID`, `PANEL_ID`) VALUES (?,?,?)");
+                pstmt =
+                    con.prepareStatement(
+                        "INSERT INTO sample_profile (`SAMPLE_ID`, `GENETIC_PROFILE_ID`, `PANEL_ID`) VALUES (?,?,?)"
+                    );
                 pstmt.setInt(1, sampleId);
                 pstmt.setInt(2, geneticProfileId);
                 pstmt.setInt(3, panelId);
             } else {
-                pstmt = con.prepareStatement
-                    ("UPDATE `sample_profile` SET `PANEL_ID` = ? WHERE (`SAMPLE_ID` = ? AND `GENETIC_PROFILE_ID` = ?)");
+                pstmt =
+                    con.prepareStatement(
+                        "UPDATE `sample_profile` SET `PANEL_ID` = ? WHERE (`SAMPLE_ID` = ? AND `GENETIC_PROFILE_ID` = ?)"
+                    );
                 pstmt.setInt(1, panelId);
                 pstmt.setInt(2, sampleId);
                 pstmt.setInt(3, geneticProfileId);
@@ -141,17 +160,22 @@ public final class DaoSampleProfile {
             JdbcUtil.closeAll(DaoSampleProfile.class, con, pstmt, rs);
         }
     }
-    
-    public static boolean sampleExistsInGeneticProfile(int sampleId, int geneticProfileId)
-            throws DaoException {
+
+    public static boolean sampleExistsInGeneticProfile(
+        int sampleId,
+        int geneticProfileId
+    )
+        throws DaoException {
         Connection con = null;
         PreparedStatement pstmt = null;
         ResultSet rs = null;
 
         try {
             con = JdbcUtil.getDbConnection(DaoSampleProfile.class);
-            pstmt = con.prepareStatement
-                    ("SELECT * FROM sample_profile WHERE SAMPLE_ID = ? AND GENETIC_PROFILE_ID = ?");
+            pstmt =
+                con.prepareStatement(
+                    "SELECT * FROM sample_profile WHERE SAMPLE_ID = ? AND GENETIC_PROFILE_ID = ?"
+                );
             pstmt.setInt(1, sampleId);
             pstmt.setInt(2, geneticProfileId);
             rs = pstmt.executeQuery();
@@ -165,14 +189,17 @@ public final class DaoSampleProfile {
         }
     }
 
-    public static int countSamplesInProfile(int geneticProfileId) throws DaoException {
+    public static int countSamplesInProfile(int geneticProfileId)
+        throws DaoException {
         Connection con = null;
         PreparedStatement pstmt = null;
         ResultSet rs = null;
         try {
             con = JdbcUtil.getDbConnection(DaoSampleProfile.class);
-            pstmt = con.prepareStatement
-                    ("SELECT count(*) FROM sample_profile WHERE GENETIC_PROFILE_ID = ?");
+            pstmt =
+                con.prepareStatement(
+                    "SELECT count(*) FROM sample_profile WHERE GENETIC_PROFILE_ID = ?"
+                );
             pstmt.setInt(1, geneticProfileId);
             rs = pstmt.executeQuery();
             if (rs.next()) {
@@ -193,13 +220,16 @@ public final class DaoSampleProfile {
 
         try {
             con = JdbcUtil.getDbConnection(DaoSampleProfile.class);
-            pstmt = con.prepareStatement("SELECT GENETIC_PROFILE_ID FROM sample_profile WHERE SAMPLE_ID = ?");
+            pstmt =
+                con.prepareStatement(
+                    "SELECT GENETIC_PROFILE_ID FROM sample_profile WHERE SAMPLE_ID = ?"
+                );
             pstmt.setInt(1, sampleId);
             rs = pstmt.executeQuery();
-            if( rs.next() ) {
-               return rs.getInt("GENETIC_PROFILE_ID");
-            }else{
-               return NO_SUCH_PROFILE_ID;
+            if (rs.next()) {
+                return rs.getInt("GENETIC_PROFILE_ID");
+            } else {
+                return NO_SUCH_PROFILE_ID;
             }
         } catch (NullPointerException e) {
             throw new DaoException(e);
@@ -210,14 +240,19 @@ public final class DaoSampleProfile {
         }
     }
 
-    public static ArrayList<Integer> getAllSampleIdsInProfile(int geneticProfileId) throws DaoException {
+    public static ArrayList<Integer> getAllSampleIdsInProfile(
+        int geneticProfileId
+    )
+        throws DaoException {
         Connection con = null;
         PreparedStatement pstmt = null;
         ResultSet rs = null;
         try {
             con = JdbcUtil.getDbConnection(DaoSampleProfile.class);
-            pstmt = con.prepareStatement
-                    ("SELECT * FROM sample_profile WHERE GENETIC_PROFILE_ID = ?");
+            pstmt =
+                con.prepareStatement(
+                    "SELECT * FROM sample_profile WHERE GENETIC_PROFILE_ID = ?"
+                );
             pstmt.setInt(1, geneticProfileId);
             rs = pstmt.executeQuery();
             ArrayList<Integer> sampleIds = new ArrayList<Integer>();
@@ -241,8 +276,7 @@ public final class DaoSampleProfile {
         ResultSet rs = null;
         try {
             con = JdbcUtil.getDbConnection(DaoSampleProfile.class);
-            pstmt = con.prepareStatement
-                    ("SELECT * FROM sample_profile");
+            pstmt = con.prepareStatement("SELECT * FROM sample_profile");
             rs = pstmt.executeQuery();
             ArrayList<Integer> sampleIds = new ArrayList<Integer>();
             while (rs.next()) {
@@ -267,7 +301,10 @@ public final class DaoSampleProfile {
      * @author Gideon Dresdner <dresdnerg@cbio.mskcc.org>
      *
      */
-    public static List<Map<String, Object>> metaData(List<CancerStudy> cancerStudies) throws DaoException {
+    public static List<Map<String, Object>> metaData(
+        List<CancerStudy> cancerStudies
+    )
+        throws DaoException {
         // collect all mutationProfileIds
         Map<Integer, GeneticProfile> id2MutationProfile = new HashMap<Integer, GeneticProfile>();
         for (CancerStudy cancerStudy : cancerStudies) {
@@ -288,9 +325,12 @@ public final class DaoSampleProfile {
         try {
             con = JdbcUtil.getDbConnection(DaoMutation.class);
 
-            String sql = "select `GENETIC_PROFILE_ID`, count(`SAMPLE_ID`) from sample_profile " +
-                    " where `GENETIC_PROFILE_ID` in ("+ StringUtils.join(id2MutationProfile.keySet(), ",") + ")" +
-                    " group by `GENETIC_PROFILE_ID`";
+            String sql =
+                "select `GENETIC_PROFILE_ID`, count(`SAMPLE_ID`) from sample_profile " +
+                " where `GENETIC_PROFILE_ID` in (" +
+                StringUtils.join(id2MutationProfile.keySet(), ",") +
+                ")" +
+                " group by `GENETIC_PROFILE_ID`";
 
             pstmt = con.prepareStatement(sql);
             rs = pstmt.executeQuery();
@@ -301,27 +341,35 @@ public final class DaoSampleProfile {
                 Integer mutationProfileId = rs.getInt(1);
                 Integer numSequencedSamples = rs.getInt(2);
 
-                GeneticProfile mutationProfile = id2MutationProfile.get(mutationProfileId);
+                GeneticProfile mutationProfile = id2MutationProfile.get(
+                    mutationProfileId
+                );
                 Integer cancerStudyId = mutationProfile.getCancerStudyId();
-                CancerStudy cancerStudy = DaoCancerStudy.getCancerStudyByInternalId(cancerStudyId);
+                CancerStudy cancerStudy = DaoCancerStudy.getCancerStudyByInternalId(
+                    cancerStudyId
+                );
                 String cancerStudyName = cancerStudy.getName();
                 String cancerType = cancerStudy.getTypeOfCancerId();
 
                 datum.put("cancer_study", cancerStudyName);
                 datum.put("cancer_type", cancerType);
-                datum.put("color", DaoTypeOfCancer.getTypeOfCancerById(cancerType).getDedicatedColor());
+                datum.put(
+                    "color",
+                    DaoTypeOfCancer
+                        .getTypeOfCancerById(cancerType)
+                        .getDedicatedColor()
+                );
                 datum.put("num_sequenced_samples", numSequencedSamples);
 
                 data.add(datum);
             }
-
         } catch (SQLException e) {
             throw new DaoException(e);
         } finally {
             JdbcUtil.closeAll(DaoMutation.class, con, pstmt, rs);
         }
 
-    return data;
+        return data;
     }
 
     public static void deleteAllRecords() throws DaoException {
@@ -339,14 +387,21 @@ public final class DaoSampleProfile {
         }
     }
 
-    public static void deleteRecords(List<Integer> sampleIds, List<Integer> profileIds) throws DaoException {
+    public static void deleteRecords(
+        List<Integer> sampleIds,
+        List<Integer> profileIds
+    )
+        throws DaoException {
         Connection con = null;
         PreparedStatement pstmt = null;
         ResultSet rs = null;
         try {
             con = JdbcUtil.getDbConnection(DaoSampleProfile.class);
             for (int i = 0; i < sampleIds.size(); i++) {
-                pstmt = con.prepareCall("DELETE FROM sample_profile WHERE sample_id = ? and genetic_profile_id = ?");
+                pstmt =
+                    con.prepareCall(
+                        "DELETE FROM sample_profile WHERE sample_id = ? and genetic_profile_id = ?"
+                    );
                 pstmt.setInt(1, sampleIds.get(i));
                 pstmt.setInt(2, profileIds.get(i));
                 pstmt.executeUpdate();

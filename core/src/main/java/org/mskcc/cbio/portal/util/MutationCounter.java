@@ -28,15 +28,14 @@
  *
  * You should have received a copy of the GNU Affero General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
-*/
+ */
 
 package org.mskcc.cbio.portal.util;
 
-import org.mskcc.cbio.portal.model.ExtendedMutationMap;
-import org.mskcc.cbio.portal.model.ExtendedMutation;
-
-import java.util.ArrayList;
 import java.text.DecimalFormat;
+import java.util.ArrayList;
+import org.mskcc.cbio.portal.model.ExtendedMutation;
+import org.mskcc.cbio.portal.model.ExtendedMutationMap;
 
 /**
  * Calculates Somatic and Germline Mutation Frequency.
@@ -52,11 +51,11 @@ public class MutationCounter {
 
     private int totalNumSamples;
 
-    public MutationCounter (String gene, ExtendedMutationMap mutationMap) {
+    public MutationCounter(String gene, ExtendedMutationMap mutationMap) {
         this.gene = gene;
         this.mutationMap = mutationMap;
         totalNumSamples = mutationMap.getSampleList().size();
-        for (Integer sampleId:  mutationMap.getSampleList()) {
+        for (Integer sampleId : mutationMap.getSampleList()) {
             if (sampleIsMutated(sampleId)) {
                 numSamplesWithMutation++;
                 MutationStatus mutationStatus = getMutationStatus(sampleId);
@@ -102,20 +101,29 @@ public class MutationCounter {
     }
 
     private boolean sampleIsMutated(Integer sampleId) {
-        ArrayList<ExtendedMutation> mutationList = mutationMap.getExtendedMutations(gene, sampleId);
+        ArrayList<ExtendedMutation> mutationList = mutationMap.getExtendedMutations(
+            gene,
+            sampleId
+        );
         return mutationList != null && mutationList.size() > 0;
     }
 
     private MutationStatus getMutationStatus(Integer sampleId) {
-        ArrayList<ExtendedMutation> mutationList = mutationMap.getExtendedMutations(gene, sampleId);
+        ArrayList<ExtendedMutation> mutationList = mutationMap.getExtendedMutations(
+            gene,
+            sampleId
+        );
         MutationStatus mutationStatus = new MutationStatus();
-        for (ExtendedMutation mutation:  mutationList) {
+        for (ExtendedMutation mutation : mutationList) {
             setMutationStatus(mutation, mutationStatus);
         }
         return mutationStatus;
     }
 
-    private void setMutationStatus(ExtendedMutation mutation, MutationStatus mutationStatus) {
+    private void setMutationStatus(
+        ExtendedMutation mutation,
+        MutationStatus mutationStatus
+    ) {
         if (mutation.isGermlineMutation()) {
             mutationStatus.setGermlineMutated(true);
         } else {

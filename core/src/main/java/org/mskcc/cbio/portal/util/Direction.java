@@ -28,7 +28,7 @@
  *
  * You should have received a copy of the GNU Affero General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
-*/
+ */
 
 package org.mskcc.cbio.portal.util;
 
@@ -37,4 +37,7 @@ package org.mskcc.cbio.portal.util;
  * TODO: collect all enums in one class, and then reference them as inner classes to avoid ridiculously tiny classes like this.
  * @author Arthur Goldberg
  */
-public enum Direction { higher, lower };
+public enum Direction {
+    higher,
+    lower
+}

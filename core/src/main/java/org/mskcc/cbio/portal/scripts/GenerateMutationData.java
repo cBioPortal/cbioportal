@@ -28,25 +28,24 @@
  *
  * You should have received a copy of the GNU Affero General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
-*/
+ */
 
 package org.mskcc.cbio.portal.scripts;
 
+import java.io.BufferedReader;
+import java.io.File;
+import java.io.FileReader;
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
 import org.mskcc.cbio.portal.dao.DaoException;
 import org.mskcc.cbio.portal.dao.DaoGeneOptimized;
 import org.mskcc.cbio.portal.model.CanonicalGene;
 import org.mskcc.cbio.portal.util.ConsoleUtil;
 import org.mskcc.cbio.portal.util.ProgressMonitor;
-
-import java.util.Set;
-import java.util.Map;
-import java.util.List;
-import java.util.HashMap;
-import java.util.ArrayList;
-import java.io.File;
-import java.io.FileReader;
-import java.io.IOException;
-import java.io.BufferedReader;
 
 /**
  * Class to Generate Mutation Data, Ready for Import into CGDS.
@@ -64,7 +63,7 @@ import java.io.BufferedReader;
  * 2)  multiple mutations within the same gene in the same case are output as one line.
  */
 public class GenerateMutationData {
-	public static final String MAP_KEY_DELIMETER = ":::";
+    public static final String MAP_KEY_DELIMETER = ":::";
     private File allCasesFile;
     private File sequencedGeneFile;
     private File sequencedCaseFile;
@@ -77,8 +76,12 @@ public class GenerateMutationData {
      * @param sequencedCaseFile     File containing all cases, which were sequenced.
      * @param knownMutationFile     File containing discovered mutations.
      */
-    public GenerateMutationData (File allCasesFile, File sequencedGeneFile, File sequencedCaseFile,
-            File knownMutationFile) {
+    public GenerateMutationData(
+        File allCasesFile,
+        File sequencedGeneFile,
+        File sequencedCaseFile,
+        File knownMutationFile
+    ) {
         this.allCasesFile = allCasesFile;
         this.sequencedGeneFile = sequencedGeneFile;
         this.sequencedCaseFile = sequencedCaseFile;
@@ -89,13 +92,13 @@ public class GenerateMutationData {
      * Executes the process.
      * @throws IOException IO Error.
      */
-    public String execute () throws IOException {
+    public String execute() throws IOException {
         List<String> allCasesList = getList(allCasesFile);
         List<String> sequencedGeneList = getList(sequencedGeneFile);
         List<String> sequencedCaseList = getList(sequencedCaseFile);
 
         // create mutation map
-        Map<String,String> mutationsMap = new HashMap<String,String>();
+        Map<String, String> mutationsMap = new HashMap<String, String>();
 
         // overlay no mutation on top of mutation map
         applyNoMutationData(sequencedGeneList, sequencedCaseList, mutationsMap);
@@ -108,167 +111,194 @@ public class GenerateMutationData {
     }
 
     /**
-	 * Extracts a list of "things", e.g. caseIds or genes from a file.
-	 *
-	 * @param file File containing cases.
-	 * @return Arrayist <String> of "things", e.g. caseIds or genes.
-	 */
-	private ArrayList<String> getList(File file) throws IOException {
-
-		// list to return
-		ArrayList<String> toReturn = new ArrayList<String>();
+     * Extracts a list of "things", e.g. caseIds or genes from a file.
+     *
+     * @param file File containing cases.
+     * @return Arrayist <String> of "things", e.g. caseIds or genes.
+     */
+    private ArrayList<String> getList(File file) throws IOException {
+        // list to return
+        ArrayList<String> toReturn = new ArrayList<String>();
 
         FileReader reader = new FileReader(file);
         BufferedReader buf = new BufferedReader(reader);
 
-		String line = buf.readLine();
-		while (line != null) {
-            if (line.trim().length() > 0 && ! line.startsWith("#")) {
+        String line = buf.readLine();
+        while (line != null) {
+            if (line.trim().length() > 0 && !line.startsWith("#")) {
                 toReturn.add(line.trim());
             }
             line = buf.readLine();
-		}
+        }
 
-		// outta here
-		buf.close();
-		return toReturn;
-	}
+        // outta here
+        buf.close();
+        return toReturn;
+    }
 
-	/**
-	 * Returns hash map of all gene, case combinations set to NaN.
-	 *
-	 * @param allCasesList List
-	 * @return Map<String, String>
-	 */
-	private Map<String,String> getMutationMap(List<String> allCasesList)
-            throws DaoException, IOException {
-
-		// map to return
-		Map<String,String> toReturn = new HashMap<String,String>();
+    /**
+     * Returns hash map of all gene, case combinations set to NaN.
+     *
+     * @param allCasesList List
+     * @return Map<String, String>
+     */
+    private Map<String, String> getMutationMap(List<String> allCasesList)
+        throws DaoException, IOException {
+        // map to return
+        Map<String, String> toReturn = new HashMap<String, String>();
 
         DaoGeneOptimized daoGene = DaoGeneOptimized.getInstance();
-		ArrayList<CanonicalGene> geneList = daoGene.getAllGenes();
+        ArrayList<CanonicalGene> geneList = daoGene.getAllGenes();
 
-		for (CanonicalGene canonicalGene : geneList) {
-			for (String caseId : allCasesList) {
-				toReturn.put(Long.toString(canonicalGene.getEntrezGeneId())
-                        + GenerateMutationData.MAP_KEY_DELIMETER + caseId, "NaN");
-			}
-		}
+        for (CanonicalGene canonicalGene : geneList) {
+            for (String caseId : allCasesList) {
+                toReturn.put(
+                    Long.toString(canonicalGene.getEntrezGeneId()) +
+                    GenerateMutationData.MAP_KEY_DELIMETER +
+                    caseId,
+                    "NaN"
+                );
+            }
+        }
 
-		// outta here
-		return toReturn;
-	}
+        // outta here
+        return toReturn;
+    }
 
-	/**
-	 * Applies no mutation data to mutation map.
-	 *
-	 * @param sequencedGeneList List<String>
-	 * @param sequencedCaseList List<String>
-	 * @param mutationsMap Map<String,String>
-	 */
-	private void applyNoMutationData(List<String> sequencedGeneList, List<String> sequencedCaseList,
-            Map<String,String> mutationsMap) {
-
-		for (String sequencedGene : sequencedGeneList) {
-			for (String sequencedCase : sequencedCaseList) {
+    /**
+     * Applies no mutation data to mutation map.
+     *
+     * @param sequencedGeneList List<String>
+     * @param sequencedCaseList List<String>
+     * @param mutationsMap Map<String,String>
+     */
+    private void applyNoMutationData(
+        List<String> sequencedGeneList,
+        List<String> sequencedCaseList,
+        Map<String, String> mutationsMap
+    ) {
+        for (String sequencedGene : sequencedGeneList) {
+            for (String sequencedCase : sequencedCaseList) {
                 String key = createKey(sequencedGene, sequencedCase);
                 mutationsMap.put(key, "0");
-			}
-		}
-	}
+            }
+        }
+    }
 
     private String createKey(String sequencedGene, String sequencedCase) {
-        if (sequencedGene == null || sequencedCase == null
-                || sequencedGene.length() == 0 || sequencedCase.length() ==0) {
-            throw new IllegalArgumentException ("One or more parameters is null or empty.");
+        if (
+            sequencedGene == null ||
+            sequencedCase == null ||
+            sequencedGene.length() == 0 ||
+            sequencedCase.length() == 0
+        ) {
+            throw new IllegalArgumentException(
+                "One or more parameters is null or empty."
+            );
         }
-        String key = sequencedGene + GenerateMutationData.MAP_KEY_DELIMETER + sequencedCase;
+        String key =
+            sequencedGene +
+            GenerateMutationData.MAP_KEY_DELIMETER +
+            sequencedCase;
         return key;
     }
 
     /**
-	 * Applies know mutations to mutation map
-	 *
-	 * @param knownMutationsFile File
-	 * @param mutationsMap Map<String,String>
-	 */
-	private void applyKnownMutationsData(File knownMutationsFile,
-            Map<String,String> mutationsMap) throws IOException {
-
-		// setup reader
+     * Applies know mutations to mutation map
+     *
+     * @param knownMutationsFile File
+     * @param mutationsMap Map<String,String>
+     */
+    private void applyKnownMutationsData(
+        File knownMutationsFile,
+        Map<String, String> mutationsMap
+    )
+        throws IOException {
+        // setup reader
         FileReader reader = new FileReader(knownMutationsFile);
         BufferedReader buf = new BufferedReader(reader);
 
-		// read header
-		String line = buf.readLine();
-		if (!line.startsWith("Entrez_Gene_Id")) {
-			ProgressMonitor.logWarning("Missing header in: " + knownMutationsFile.getCanonicalPath()
-                    + " aborting mutation file import...");
-			return;
-		}
+        // read header
+        String line = buf.readLine();
+        if (!line.startsWith("Entrez_Gene_Id")) {
+            ProgressMonitor.logWarning(
+                "Missing header in: " +
+                knownMutationsFile.getCanonicalPath() +
+                " aborting mutation file import..."
+            );
+            return;
+        }
 
-		// concatentate all know mutations by gene/case
-		Map<String,String> knownMutationsMap = new HashMap<String,String>();		
-		line = buf.readLine();
-		while (line != null) {
+        // concatentate all know mutations by gene/case
+        Map<String, String> knownMutationsMap = new HashMap<String, String>();
+        line = buf.readLine();
+        while (line != null) {
             if (!line.startsWith("#")) {
                 String[] parts = line.split("\t");
-                String key = createKey (parts[0], parts[1]);
+                String key = createKey(parts[0], parts[1]);
                 String mutation = knownMutationsMap.get(key);
-                mutation = (mutation == null) ? parts[2] : mutation + "," + parts[2];
+                mutation =
+                    (mutation == null) ? parts[2] : mutation + "," + parts[2];
                 knownMutationsMap.put(key, mutation);
             }
             line = buf.readLine();
-		}
-		buf.close();
+        }
+        buf.close();
 
-		// apply known mutations to mutations map
-		Set<String> keys = knownMutationsMap.keySet();
-		for (String key : keys) {
-			if (!mutationsMap.containsKey(key)) {
-				String[] parts = key.split(":::");
-				ProgressMonitor.logWarning("Missing gene/case combination: " + parts[0] + " " + parts[1]
-                        + " in mutationMap.  In other words, it looks like we have a mutation "
-                        + "call for this gene/case combination, but the case is not listed as being "
-                        + " sequenced in the first place!");
-				continue;
-			}
-			mutationsMap.put(key, knownMutationsMap.get(key));
-		}
-	}
+        // apply known mutations to mutations map
+        Set<String> keys = knownMutationsMap.keySet();
+        for (String key : keys) {
+            if (!mutationsMap.containsKey(key)) {
+                String[] parts = key.split(":::");
+                ProgressMonitor.logWarning(
+                    "Missing gene/case combination: " +
+                    parts[0] +
+                    " " +
+                    parts[1] +
+                    " in mutationMap.  In other words, it looks like we have a mutation " +
+                    "call for this gene/case combination, but the case is not listed as being " +
+                    " sequenced in the first place!"
+                );
+                continue;
+            }
+            mutationsMap.put(key, knownMutationsMap.get(key));
+        }
+    }
 
-	/**
-	 * Generates mutation file for import
-	 *
-	 * @param mutationsMap Map<String,String>
-	 */
-	private String generateMutationFile(Map<String,String> mutationsMap) throws IOException {
-
-		// write header
+    /**
+     * Generates mutation file for import
+     *
+     * @param mutationsMap Map<String,String>
+     */
+    private String generateMutationFile(Map<String, String> mutationsMap)
+        throws IOException {
+        // write header
         StringBuffer out = new StringBuffer();
-        out.append ("Entrez_Gene_Id\tTumor_Case\tPROT_STRING\n");
+        out.append("Entrez_Gene_Id\tTumor_Case\tPROT_STRING\n");
 
-		// write data
-		Set<String> keys = mutationsMap.keySet();
-		for (String key : keys) {
-			String[] parts = key.split(GenerateMutationData.MAP_KEY_DELIMETER);
-			out.append(parts[0] + "\t" + parts[1] + "\t" + mutationsMap.get(key) + "\n");
-		}
+        // write data
+        Set<String> keys = mutationsMap.keySet();
+        for (String key : keys) {
+            String[] parts = key.split(GenerateMutationData.MAP_KEY_DELIMETER);
+            out.append(
+                parts[0] + "\t" + parts[1] + "\t" + mutationsMap.get(key) + "\n"
+            );
+        }
         return out.toString();
     }
 
     public static void main(String[] args) throws Exception {
-
-		// check args
+        // check args
         if (args.length < 4) {
-            System.out.println("command line usage:  generateMutationData.pl " +
-                    "<case-list> <sequenced-gene-list> <sequenced-cases> <known-mutation-file>");
+            System.out.println(
+                "command line usage:  generateMutationData.pl " +
+                "<case-list> <sequenced-gene-list> <sequenced-cases> <known-mutation-file>"
+            );
             // an extra --noprogress option can be given to avoid the messages regarding memory usage and % complete
             return;
         }
 
-		// setup some vars
+        // setup some vars
         ProgressMonitor.setConsoleModeAndParseShowProgress(args);
         ProgressMonitor.setCurrentMessage("Generating mutation data file...");
         File allCasesFile = new File(args[0]);
@@ -276,15 +306,19 @@ public class GenerateMutationData {
         File sequencedCaseFile = new File(args[2]);
         File knownMutationFile = new File(args[3]);
 
-		try {
-			// construct our lists
-            GenerateMutationData util = new GenerateMutationData(allCasesFile, sequencedGeneFile,
-                    sequencedCaseFile, knownMutationFile);
+        try {
+            // construct our lists
+            GenerateMutationData util = new GenerateMutationData(
+                allCasesFile,
+                sequencedGeneFile,
+                sequencedCaseFile,
+                knownMutationFile
+            );
             String out = util.execute();
-            System.out.println (out);
+            System.out.println(out);
         } catch (IOException e) {
-			System.err.println(e.getMessage());
-		}
+            System.err.println(e.getMessage());
+        }
 
         ConsoleUtil.showWarnings();
         System.err.println("Done.");

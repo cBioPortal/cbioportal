@@ -28,13 +28,14 @@
  *
  * You should have received a copy of the GNU Affero General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
-*/
+ */
 
 package org.mskcc.cbio.portal.model;
 
+import static org.junit.Assert.assertEquals;
+
 import java.util.ArrayList;
 import org.junit.Test;
-import static org.junit.Assert.assertEquals;
 
 /**
  * JUnit Tests for the Categorized GeneticProfileSet.
@@ -46,42 +47,62 @@ public class TestCategorizedGeneticProfileSet {
     @Test
     public void testEmptyList() {
         ArrayList<GeneticProfile> profileList = new ArrayList<GeneticProfile>();
-        CategorizedGeneticProfileSet categorizedSet = new CategorizedGeneticProfileSet(profileList);
-        assertEquals (0, categorizedSet.getNumDefaultMutationAndCopyNumberProfiles());
-        assertEquals (null, categorizedSet.getDefaultCnaProfile());
-        assertEquals (null, categorizedSet.getDefaultMutationProfile());
+        CategorizedGeneticProfileSet categorizedSet = new CategorizedGeneticProfileSet(
+            profileList
+        );
+        assertEquals(
+            0,
+            categorizedSet.getNumDefaultMutationAndCopyNumberProfiles()
+        );
+        assertEquals(null, categorizedSet.getDefaultCnaProfile());
+        assertEquals(null, categorizedSet.getDefaultMutationProfile());
     }
 
     @Test
     public void testMRNADataOnly() {
         ArrayList<GeneticProfile> profileList = new ArrayList<GeneticProfile>();
         addMRNAProfile(profileList);
-        CategorizedGeneticProfileSet categorizedSet = new CategorizedGeneticProfileSet(profileList);
-        assertEquals (0, categorizedSet.getNumDefaultMutationAndCopyNumberProfiles());
-        assertEquals (null, categorizedSet.getDefaultCnaProfile());
-        assertEquals (null, categorizedSet.getDefaultMutationProfile());
+        CategorizedGeneticProfileSet categorizedSet = new CategorizedGeneticProfileSet(
+            profileList
+        );
+        assertEquals(
+            0,
+            categorizedSet.getNumDefaultMutationAndCopyNumberProfiles()
+        );
+        assertEquals(null, categorizedSet.getDefaultCnaProfile());
+        assertEquals(null, categorizedSet.getDefaultMutationProfile());
     }
 
     @Test
     public void testGisticProfile() {
         ArrayList<GeneticProfile> profileList = buildProfileList1();
-        CategorizedGeneticProfileSet categorizedSet = new CategorizedGeneticProfileSet(profileList);
-        assertEquals (2, categorizedSet.getNumDefaultMutationAndCopyNumberProfiles());
+        CategorizedGeneticProfileSet categorizedSet = new CategorizedGeneticProfileSet(
+            profileList
+        );
+        assertEquals(
+            2,
+            categorizedSet.getNumDefaultMutationAndCopyNumberProfiles()
+        );
         GeneticProfile defaultCnaProfile = categorizedSet.getDefaultCnaProfile();
-        assertEquals ("gbm_gistic", defaultCnaProfile.getStableId());
+        assertEquals("gbm_gistic", defaultCnaProfile.getStableId());
         GeneticProfile defaultMutProfile = categorizedSet.getDefaultMutationProfile();
-        assertEquals ("gbm_mut", defaultMutProfile.getStableId());
+        assertEquals("gbm_mut", defaultMutProfile.getStableId());
     }
 
     @Test
     public void testRaeProfile() {
         ArrayList<GeneticProfile> profileList = buildProfileList2();
-        CategorizedGeneticProfileSet categorizedSet = new CategorizedGeneticProfileSet(profileList);
-        assertEquals (2, categorizedSet.getNumDefaultMutationAndCopyNumberProfiles());
+        CategorizedGeneticProfileSet categorizedSet = new CategorizedGeneticProfileSet(
+            profileList
+        );
+        assertEquals(
+            2,
+            categorizedSet.getNumDefaultMutationAndCopyNumberProfiles()
+        );
         GeneticProfile defaultCnaProfile = categorizedSet.getDefaultCnaProfile();
-        assertEquals ("gbm_rae", defaultCnaProfile.getStableId());
+        assertEquals("gbm_rae", defaultCnaProfile.getStableId());
         GeneticProfile defaultMutProfile = categorizedSet.getDefaultMutationProfile();
-        assertEquals ("gbm_mut", defaultMutProfile.getStableId());
+        assertEquals("gbm_mut", defaultMutProfile.getStableId());
     }
 
     private ArrayList<GeneticProfile> buildProfileList1() {
@@ -101,37 +122,67 @@ public class TestCategorizedGeneticProfileSet {
     }
 
     private void addMRNAProfile(ArrayList<GeneticProfile> profileList) {
-        GeneticProfile geneticProfile = new GeneticProfile("gbm_mrna", 1,
-                                                           GeneticAlterationType.MRNA_EXPRESSION,
-                                                           "CONTINUOUS", "GBM mRNA", "GBM Affymetrix mRNA", true);
+        GeneticProfile geneticProfile = new GeneticProfile(
+            "gbm_mrna",
+            1,
+            GeneticAlterationType.MRNA_EXPRESSION,
+            "CONTINUOUS",
+            "GBM mRNA",
+            "GBM Affymetrix mRNA",
+            true
+        );
         profileList.add(geneticProfile);
     }
 
     private void addRaeProfile(ArrayList<GeneticProfile> profileList) {
-        GeneticProfile gisticProfile = new GeneticProfile("gbm_rae", 1,
-                                                          GeneticAlterationType.COPY_NUMBER_ALTERATION,
-                                                          "DISCRETE", "GBM RAE", "GBM RAE Results", true);
+        GeneticProfile gisticProfile = new GeneticProfile(
+            "gbm_rae",
+            1,
+            GeneticAlterationType.COPY_NUMBER_ALTERATION,
+            "DISCRETE",
+            "GBM RAE",
+            "GBM RAE Results",
+            true
+        );
         profileList.add(gisticProfile);
     }
 
     private void addMutationProfile(ArrayList<GeneticProfile> profileList) {
-        GeneticProfile mutationProfile = new GeneticProfile("gbm_mut", 1,
-                                                            GeneticAlterationType.MUTATION_EXTENDED,
-                                                            "MAF", "GBM Mutations", "GBM Whole Exome Mutations", true);
+        GeneticProfile mutationProfile = new GeneticProfile(
+            "gbm_mut",
+            1,
+            GeneticAlterationType.MUTATION_EXTENDED,
+            "MAF",
+            "GBM Mutations",
+            "GBM Whole Exome Mutations",
+            true
+        );
         profileList.add(mutationProfile);
     }
 
     private void addGisticProfile(ArrayList<GeneticProfile> profileList) {
-        GeneticProfile gisticProfile = new GeneticProfile("gbm_gistic", 1,
-                                                          GeneticAlterationType.COPY_NUMBER_ALTERATION,
-                                                          "DISCRETE", "GBM GISTIC", "GBM GISTIC Results", true);
+        GeneticProfile gisticProfile = new GeneticProfile(
+            "gbm_gistic",
+            1,
+            GeneticAlterationType.COPY_NUMBER_ALTERATION,
+            "DISCRETE",
+            "GBM GISTIC",
+            "GBM GISTIC Results",
+            true
+        );
         profileList.add(gisticProfile);
     }
 
     private void addCnaPathwayProfile(ArrayList<GeneticProfile> profileList) {
-        GeneticProfile otherCNAProfile = new GeneticProfile("cna_pathways", 1,
-                                                            GeneticAlterationType.COPY_NUMBER_ALTERATION,
-                                                            "DISCRETE", "CNA Pathways", "CNA Pathway Results", true);
+        GeneticProfile otherCNAProfile = new GeneticProfile(
+            "cna_pathways",
+            1,
+            GeneticAlterationType.COPY_NUMBER_ALTERATION,
+            "DISCRETE",
+            "CNA Pathways",
+            "CNA Pathway Results",
+            true
+        );
         profileList.add(otherCNAProfile);
     }
 }

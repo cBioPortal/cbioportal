@@ -28,24 +28,23 @@
  *
  * You should have received a copy of the GNU Affero General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
-*/
+ */
 
 package org.mskcc.cbio.portal.dao;
 
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.sql.Statement;
+import java.util.ArrayList;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.mskcc.cbio.portal.model.CancerStudy;
 import org.mskcc.cbio.portal.model.CanonicalGene;
 import org.mskcc.cbio.portal.model.Gistic;
 import org.mskcc.cbio.portal.validate.ValidateGistic;
 import org.mskcc.cbio.portal.validate.validationException;
-
-import java.sql.Connection;
-import java.sql.Statement;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
-import java.sql.SQLException;
-import java.util.ArrayList;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
 
 /**
  * A gistic includes a ROI and GISTIC information concerning that region.
@@ -63,7 +62,8 @@ public class DaoGistic {
 
     private static final Log log = LogFactory.getLog(DaoGistic.class);
 
-    public static void addGistic(Gistic gistic) throws DaoException, validationException {
+    public static void addGistic(Gistic gistic)
+        throws DaoException, validationException {
         if (gistic == null) {
             throw new DaoException("Given a null gistic object");
         }
@@ -77,19 +77,21 @@ public class DaoGistic {
         try {
             con = JdbcUtil.getDbConnection(DaoGistic.class);
             // insert into SQL gistic table
-            pstmt = con.prepareStatement
-				("INSERT INTO gistic (`CANCER_STUDY_ID`," +
-				  "`CHROMOSOME`, " +
-                  "`CYTOBAND`, " +
-				  "`WIDE_PEAK_START`, " +
-				  "`WIDE_PEAK_END`, " +
-				  "`Q_VALUE`, "  +
-				  "`AMP`) "  +
-				  "VALUES (?,?,?,?,?,?,?)",
-				 Statement.RETURN_GENERATED_KEYS);
+            pstmt =
+                con.prepareStatement(
+                    "INSERT INTO gistic (`CANCER_STUDY_ID`," +
+                    "`CHROMOSOME`, " +
+                    "`CYTOBAND`, " +
+                    "`WIDE_PEAK_START`, " +
+                    "`WIDE_PEAK_END`, " +
+                    "`Q_VALUE`, " +
+                    "`AMP`) " +
+                    "VALUES (?,?,?,?,?,?,?)",
+                    Statement.RETURN_GENERATED_KEYS
+                );
 
             pstmt.setInt(1, gistic.getCancerStudyId());
-            pstmt.setInt(2, gistic.getChromosome()) ;
+            pstmt.setInt(2, gistic.getChromosome());
             pstmt.setString(3, gistic.getCytoband());
             pstmt.setInt(4, gistic.getPeakStart());
             pstmt.setInt(5, gistic.getPeakEnd());
@@ -104,7 +106,6 @@ public class DaoGistic {
                 gistic.setInternalId(autoId);
             }
             addGisticGenes(gistic, con);
-
         } catch (SQLException e) {
             throw new DaoException(e);
         } finally {
@@ -118,38 +119,38 @@ public class DaoGistic {
      * @throws SQLException
      * @throws DaoException
      */
-    private static void addGisticGenes(Gistic gistic, Connection con) throws DaoException {
+    private static void addGisticGenes(Gistic gistic, Connection con)
+        throws DaoException {
         ArrayList<CanonicalGene> genes = gistic.getGenes_in_ROI();
         PreparedStatement pstmt;
 
         try {
             if (!genes.isEmpty()) {
                 for (CanonicalGene g : genes) {
-
                     // EntrezId = -1 if it does not exist in the gene table
                     // if this is the case, we are going to simply skip over this gene
                     if (g.getEntrezGeneId() != -1) {
-                    pstmt = con.prepareStatement
-                            ("INSERT INTO gistic_to_gene (`GISTIC_ROI_ID`," +
-                                    "`ENTREZ_GENE_ID`)" +
-                                    "VALUES (?,?)");
+                        pstmt =
+                            con.prepareStatement(
+                                "INSERT INTO gistic_to_gene (`GISTIC_ROI_ID`," +
+                                "`ENTREZ_GENE_ID`)" +
+                                "VALUES (?,?)"
+                            );
 
-                    pstmt.setInt(1, gistic.getInternalId());
-                    pstmt.setLong(2, g.getEntrezGeneId());
+                        pstmt.setInt(1, gistic.getInternalId());
+                        pstmt.setLong(2, g.getEntrezGeneId());
 
-                    pstmt.executeUpdate();
-                    }
-
-                    else {
-                        throw new DaoException("gene not found, skipping: " + g);
+                        pstmt.executeUpdate();
+                    } else {
+                        throw new DaoException(
+                            "gene not found, skipping: " + g
+                        );
                     }
                 }
             } else {
                 throw new DaoException("No genes associated with given gistic");
             }
-
         } catch (SQLException e) {
-
             if (log.isDebugEnabled()) {
                 log.debug(e + " : " + genes);
             }
@@ -166,40 +167,46 @@ public class DaoGistic {
      * @throws SQLException
      * @throws DaoException
      */
-    private static Gistic extractGistic(Connection con, ResultSet rs) throws DaoException {
-
+    private static Gistic extractGistic(Connection con, ResultSet rs)
+        throws DaoException {
         // get the genes from the SQL gistic_to_gene table
         // associated with a particular GISTIC_ROI_ID
-        PreparedStatement pstmt  ;
+        PreparedStatement pstmt;
         ResultSet _rs = null;
         Gistic gistic;
         ArrayList<CanonicalGene> genes = new ArrayList<CanonicalGene>();
 
         try {
-
             int id = rs.getInt("GISTIC_ROI_ID");
 
-            pstmt = con.prepareStatement("SELECT * FROM gistic_to_gene WHERE GISTIC_ROI_ID = ?");
+            pstmt =
+                con.prepareStatement(
+                    "SELECT * FROM gistic_to_gene WHERE GISTIC_ROI_ID = ?"
+                );
             pstmt.setInt(1, id);
 
             _rs = pstmt.executeQuery();
 
-            while ( _rs.next() ) {
+            while (_rs.next()) {
                 long entrez = _rs.getLong("ENTREZ_GENE_ID");
-                CanonicalGene gene = DaoGeneOptimized.getInstance().getGene(entrez);
+                CanonicalGene gene = DaoGeneOptimized
+                    .getInstance()
+                    .getGene(entrez);
                 genes.add(gene);
             }
 
             // create gistic return object
-            gistic = new Gistic(rs.getInt("CANCER_STUDY_ID"),
-                    rs.getInt("CHROMOSOME") ,
-                    rs.getString("CYTOBAND") ,
+            gistic =
+                new Gistic(
+                    rs.getInt("CANCER_STUDY_ID"),
+                    rs.getInt("CHROMOSOME"),
+                    rs.getString("CYTOBAND"),
                     rs.getInt("WIDE_PEAK_START"),
                     rs.getInt("WIDE_PEAK_END"),
-                    rs.getFloat("Q_VALUE") ,
+                    rs.getFloat("Q_VALUE"),
                     genes,
-                    rs.getBoolean("AMP"));
-
+                    rs.getBoolean("AMP")
+                );
         } catch (SQLException e) {
             throw new DaoException(e);
         } finally {
@@ -218,16 +225,24 @@ public class DaoGistic {
      * @return
      * @throws DaoException
      */
-    public static ArrayList<Gistic> getGisticByROI(int chromosome, int peakStart, int peakEnd) throws DaoException {
+    public static ArrayList<Gistic> getGisticByROI(
+        int chromosome,
+        int peakStart,
+        int peakEnd
+    )
+        throws DaoException {
         Connection con = null;
         PreparedStatement pstmt = null;
         ResultSet rs = null;
 
         try {
             con = JdbcUtil.getDbConnection(DaoGistic.class);
-            pstmt = con.prepareStatement("SELECT * FROM gistic WHERE CHROMOSOME = ? " +
+            pstmt =
+                con.prepareStatement(
+                    "SELECT * FROM gistic WHERE CHROMOSOME = ? " +
                     "AND WIDE_PEAK_START = ? " +
-                    "AND WIDE_PEAK_END = ?");
+                    "AND WIDE_PEAK_END = ?"
+                );
 
             pstmt.setInt(1, chromosome);
             pstmt.setInt(2, peakStart);
@@ -235,13 +250,12 @@ public class DaoGistic {
 
             rs = pstmt.executeQuery();
             ArrayList<Gistic> list = new ArrayList<Gistic>();
-            
-            while( rs.next() ) {
+
+            while (rs.next()) {
                 Gistic gistic = extractGistic(con, rs);
                 list.add(gistic);
             }
             return list;
-
         } catch (SQLException e) {
             throw new DaoException(e);
         } finally {
@@ -254,26 +268,30 @@ public class DaoGistic {
      * @param cancerStudyId         CancerStudyId (of a database record)
      * @return
      */
-    public static ArrayList<Gistic> getAllGisticByCancerStudyId(int cancerStudyId) throws DaoException {
-
+    public static ArrayList<Gistic> getAllGisticByCancerStudyId(
+        int cancerStudyId
+    )
+        throws DaoException {
         Connection con = null;
         PreparedStatement pstmt = null;
         ResultSet rs = null;
 
         try {
             con = JdbcUtil.getDbConnection(DaoGistic.class);
-            pstmt = con.prepareStatement("SELECT * FROM gistic WHERE CANCER_STUDY_ID = ? ");
+            pstmt =
+                con.prepareStatement(
+                    "SELECT * FROM gistic WHERE CANCER_STUDY_ID = ? "
+                );
             pstmt.setInt(1, cancerStudyId);
 
             rs = pstmt.executeQuery();
             ArrayList<Gistic> list = new ArrayList<Gistic>();
 
-            while( rs.next() ) {
+            while (rs.next()) {
                 Gistic gistic = extractGistic(con, rs);
                 list.add(gistic);
             }
             return list;
-
         } catch (SQLException e) {
             throw new DaoException(e);
         } finally {
@@ -294,8 +312,10 @@ public class DaoGistic {
 
         try {
             con = JdbcUtil.getDbConnection(DaoGistic.class);
-            pstmt = con.prepareStatement
-                    ("SELECT count(*) FROM gistic WHERE CANCER_STUDY_ID = ?");
+            pstmt =
+                con.prepareStatement(
+                    "SELECT count(*) FROM gistic WHERE CANCER_STUDY_ID = ?"
+                );
             pstmt.setInt(1, cancerStudy);
             rs = pstmt.executeQuery();
 
@@ -304,7 +324,6 @@ public class DaoGistic {
             }
 
             return 0;
-
         } catch (SQLException e) {
             throw new DaoException(e);
         } finally {
@@ -330,8 +349,6 @@ public class DaoGistic {
 
             pstmt = con.prepareStatement("TRUNCATE TABLE gistic");
             pstmt.executeUpdate();
-
-
         } catch (SQLException e) {
             throw new DaoException(e);
         } finally {
@@ -353,14 +370,19 @@ public class DaoGistic {
         try {
             con = JdbcUtil.getDbConnection(DaoGistic.class);
 
-            pstmt = con.prepareStatement("DELETE from gistic_to_gene WHERE GISTIC_ROI_ID=?");
+            pstmt =
+                con.prepareStatement(
+                    "DELETE from gistic_to_gene WHERE GISTIC_ROI_ID=?"
+                );
             pstmt.setInt(1, gisticInternalId);
             pstmt.executeUpdate();
 
-            pstmt = con.prepareStatement("DELETE from gistic WHERE GISTIC_ROI_ID=?");
+            pstmt =
+                con.prepareStatement(
+                    "DELETE from gistic WHERE GISTIC_ROI_ID=?"
+                );
             pstmt.setInt(1, gisticInternalId);
             pstmt.executeUpdate();
-
         } catch (SQLException e) {
             throw new DaoException(e);
         } finally {
@@ -374,7 +396,8 @@ public class DaoGistic {
      * @return True is there are gistics for cancerStudy, false if there are not.
      * @throws DaoException
      */
-    public static boolean hasGistic(CancerStudy cancerStudy) throws DaoException {
+    public static boolean hasGistic(CancerStudy cancerStudy)
+        throws DaoException {
         return !(countGistic(cancerStudy.getInternalId()) == 0);
     }
 
@@ -395,12 +418,11 @@ public class DaoGistic {
             rs = pstmt.executeQuery();
             ArrayList<Gistic> list = new ArrayList<Gistic>();
 
-            while( rs.next() ) {
+            while (rs.next()) {
                 Gistic gistic = extractGistic(con, rs);
                 list.add(gistic);
             }
             return list;
-
         } catch (SQLException e) {
             throw new DaoException(e);
         } finally {

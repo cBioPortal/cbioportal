@@ -28,34 +28,34 @@
  *
  * You should have received a copy of the GNU Affero General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
-*/
+ */
 
 package org.mskcc.cbio.portal.oncoPrintSpecLanguage;
 
 import java.util.Arrays;
-
 import org.mskcc.cbio.portal.util.EqualsUtil;
 
-enum ComparisonOpDirection{
+enum ComparisonOpDirection {
     Bigger,
     Smaller,
-    Equal;
+    Equal
 }
 
 public enum ComparisonOp {
-    GreaterEqual    (">=", ComparisonOpDirection.Bigger),
-    Greater         (">", ComparisonOpDirection.Bigger),
-    LessEqual       ("<=", ComparisonOpDirection.Smaller),
-    Less            ("<", ComparisonOpDirection.Smaller),
-    Equal           ("=", ComparisonOpDirection.Equal);
+    GreaterEqual(">=", ComparisonOpDirection.Bigger),
+    Greater(">", ComparisonOpDirection.Bigger),
+    LessEqual("<=", ComparisonOpDirection.Smaller),
+    Less("<", ComparisonOpDirection.Smaller),
+    Equal("=", ComparisonOpDirection.Equal);
 
     private final String token;
     private final ComparisonOpDirection theComparisonOpDirection;
-    ComparisonOp( String token, ComparisonOpDirection theComparisonOpDirection){
+
+    ComparisonOp(String token, ComparisonOpDirection theComparisonOpDirection) {
         this.token = token;
         this.theComparisonOpDirection = theComparisonOpDirection;
     }
-    
+
     public ComparisonOpDirection getTheComparisonOpDirection() {
         return theComparisonOpDirection;
     }
@@ -66,40 +66,42 @@ public enum ComparisonOp {
      * @return a ComparisonOp enum for the token
      * @throws IllegalArgumentException when the token isn't a valid token for a ComparisonOp
      */
-    public static ComparisonOp convertCode( String parsedToken ) throws IllegalArgumentException{
-        for( ComparisonOp v: ComparisonOp.values() ){
-            if( v.token.equals(parsedToken) ){
+    public static ComparisonOp convertCode(String parsedToken)
+        throws IllegalArgumentException {
+        for (ComparisonOp v : ComparisonOp.values()) {
+            if (v.token.equals(parsedToken)) {
                 return v;
             }
         }
-        throw new IllegalArgumentException( "Invalid parsedToken: " + parsedToken );
+        throw new IllegalArgumentException(
+            "Invalid parsedToken: " + parsedToken
+        );
     }
 
     public String getToken() {
         return token;
     }
-    
+
     /**
      * useful for testing.
      * @param aComparisonOp
      * @return
      */
-    public ComparisonOp oppositeComparisonOp( ){
+    public ComparisonOp oppositeComparisonOp() {
         switch (this) {
-        case GreaterEqual:
-            return Less;
-        case Greater:
-            return LessEqual;
-        case LessEqual:
-            return Greater;
-        case Less:
-            return GreaterEqual;
-        case Equal:
-            return Equal; //todo: not correct
+            case GreaterEqual:
+                return Less;
+            case Greater:
+                return LessEqual;
+            case LessEqual:
+                return Greater;
+            case Less:
+                return GreaterEqual;
+            case Equal:
+                return Equal; //todo: not correct
         }
         // keep compiler happy
-        (new UnreachableCodeException( "")).printStackTrace();
+        (new UnreachableCodeException("")).printStackTrace();
         return null;
     }
-
-}    
+}

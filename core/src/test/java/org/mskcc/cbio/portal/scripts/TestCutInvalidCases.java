@@ -28,28 +28,31 @@
  *
  * You should have received a copy of the GNU Affero General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
-*/
+ */
 
 package org.mskcc.cbio.portal.scripts;
-
-import org.junit.Test;
 
 import static org.junit.Assert.*;
 
 import java.io.File;
+import org.junit.Test;
 
 /**
  * JUnit test for CutInvalidCases class.
  */
 public class TestCutInvalidCases {
-    
-	@Test
+
+    @Test
     public void testCutInvalidCases() throws Exception {
-		// TBD: change this to use getResourceAsStream()
-        File casesExcludedFile = new File("src/test/resources/cases_excluded_test.txt");
+        // TBD: change this to use getResourceAsStream()
+        File casesExcludedFile = new File(
+            "src/test/resources/cases_excluded_test.txt"
+        );
         File dataFile = new File("src/test/resources/cna_test.txt");
-        CutInvalidCases parser = new CutInvalidCases(casesExcludedFile,
-                dataFile);
+        CutInvalidCases parser = new CutInvalidCases(
+            casesExcludedFile,
+            dataFile
+        );
         String out = parser.process();
 
         String lines[] = out.split("\n");
@@ -68,7 +71,7 @@ public class TestCutInvalidCases {
         parts = lines[4].split("\t");
 
         //  Should go from 16 to 13 columns.
-        assertEquals (13, numHeaders);
-        assertEquals (13, parts.length);
+        assertEquals(13, numHeaders);
+        assertEquals(13, parts.length);
     }
 }

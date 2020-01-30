@@ -28,7 +28,7 @@
  *
  * You should have received a copy of the GNU Affero General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
-*/
+ */
 
 package org.mskcc.cbio.portal.oncoPrintSpecLanguage;
 
@@ -37,28 +37,32 @@ import org.mskcc.cbio.portal.util.HashCodeUtil;
 
 public class ConcreteDataTypeSpec extends DataTypeSpec {
 
-    public ConcreteDataTypeSpec( GeneticDataTypes theGeneticDataType) {
+    public ConcreteDataTypeSpec(GeneticDataTypes theGeneticDataType) {
         this.theGeneticDataType = theGeneticDataType;
     }
 
-    public ConcreteDataTypeSpec( String name ) {
-        this.theGeneticDataType = findDataType( name );
+    public ConcreteDataTypeSpec(String name) {
+        this.theGeneticDataType = findDataType(name);
     }
-    
-    public static ConcreteDataTypeSpec concreteDataTypeSpecGenerator( String name ){
+
+    public static ConcreteDataTypeSpec concreteDataTypeSpecGenerator(
+        String name
+    ) {
         try {
-         return new ConcreteDataTypeSpec( DataTypeSpec.genericFindDataType( name ) );
-      } catch (IllegalArgumentException e) {
-         return null;
-      }
+            return new ConcreteDataTypeSpec(
+                DataTypeSpec.genericFindDataType(name)
+            );
+        } catch (IllegalArgumentException e) {
+            return null;
+        }
     }
-    
-    public static GeneticDataTypes findDataType( String name )
-    throws IllegalArgumentException{
-        return DataTypeSpec.genericFindDataType( name );
+
+    public static GeneticDataTypes findDataType(String name)
+        throws IllegalArgumentException {
+        return DataTypeSpec.genericFindDataType(name);
     }
-    
-    public boolean satisfy( GeneticDataTypes value) {
+
+    public boolean satisfy(GeneticDataTypes value) {
         return this.theGeneticDataType.equals(value);
     }
 
@@ -68,19 +72,23 @@ public class ConcreteDataTypeSpec extends DataTypeSpec {
     }
 
     @Override
-    public boolean equals( Object otherConcreteDataTypeSpec) {
-        if( this == otherConcreteDataTypeSpec ) return true;
-        if ( !(otherConcreteDataTypeSpec instanceof ConcreteDataTypeSpec) ) return false;
+    public boolean equals(Object otherConcreteDataTypeSpec) {
+        if (this == otherConcreteDataTypeSpec) return true;
+        if (
+            !(otherConcreteDataTypeSpec instanceof ConcreteDataTypeSpec)
+        ) return false;
         ConcreteDataTypeSpec that = (ConcreteDataTypeSpec) otherConcreteDataTypeSpec;
-        return
-            EqualsUtil.areEqual(this.theGeneticDataType, that.theGeneticDataType);
+        return EqualsUtil.areEqual(
+            this.theGeneticDataType,
+            that.theGeneticDataType
+        );
     }
 
     // TODO: TEST
     @Override
-    public int hashCode( ) {
+    public int hashCode() {
         int result = HashCodeUtil.SEED;
-        result = HashCodeUtil.hash( result, theGeneticDataType );
+        result = HashCodeUtil.hash(result, theGeneticDataType);
         return result;
     }
 }

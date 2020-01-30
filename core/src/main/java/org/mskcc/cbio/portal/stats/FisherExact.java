@@ -28,7 +28,7 @@
  *
  * You should have received a copy of the GNU Affero General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
-*/
+ */
 
 package org.mskcc.cbio.portal.stats;
 
@@ -83,7 +83,9 @@ public class FisherExact {
             return Double.NaN;
         }
         double p;
-        p = (f[a + b] + f[c + d] + f[a + c] + f[b + d]) - (f[a] + f[b] + f[c] + f[d] + f[n]);
+        p =
+            (f[a + b] + f[c + d] + f[a + c] + f[b + d]) -
+            (f[a] + f[b] + f[c] + f[d] + f[n]);
         return Math.exp(p);
     }
 
@@ -111,7 +113,9 @@ public class FisherExact {
         }
         if ((a * d) >= (b * c)) {
             if (DEBUG) {
-                System.out.println("doing R-tail: a=" + a + " b=" + b + " c=" + c + " d=" + d);
+                System.out.println(
+                    "doing R-tail: a=" + a + " b=" + b + " c=" + c + " d=" + d
+                );
             }
             min = (c < b) ? c : b;
             for (i = 0; i < min; i++) {
@@ -120,13 +124,17 @@ public class FisherExact {
                 }
                 p += getP(++a, --b, --c, ++d);
                 if (DEBUG) {
-                    System.out.println("\ta=" + a + " b=" + b + " c=" + c + " d=" + d);
+                    System.out.println(
+                        "\ta=" + a + " b=" + b + " c=" + c + " d=" + d
+                    );
                 }
             }
         }
         if ((a * d) < (b * c)) {
             if (DEBUG) {
-                System.out.println("doing L-tail: a=" + a + " b=" + b + " c=" + c + " d=" + d);
+                System.out.println(
+                    "doing L-tail: a=" + a + " b=" + b + " c=" + c + " d=" + d
+                );
             }
             min = (a < d) ? a : d;
             for (i = 0; i < min; i++) {
@@ -139,7 +147,9 @@ public class FisherExact {
                 }
                 p += pTemp;
                 if (DEBUG) {
-                    System.out.println("\ta=" + a + " b=" + b + " c=" + c + " d=" + d);
+                    System.out.println(
+                        "\ta=" + a + " b=" + b + " c=" + c + " d=" + d
+                    );
                 }
             }
         }
@@ -168,12 +178,13 @@ public class FisherExact {
             System.out.println("p = " + p);
         }
         if (DEBUG) {
-            System.out.println("doing R-tail: a=" + a + " b=" + b + " c=" + c + " d=" + d);
+            System.out.println(
+                "doing R-tail: a=" + a + " b=" + b + " c=" + c + " d=" + d
+            );
         }
         min = (c < b) ? c : b;
         for (i = 0; i < min; i++) {
             p += getP(++a, --b, --c, ++d);
-
         }
         return p;
     }
@@ -200,7 +211,9 @@ public class FisherExact {
             System.out.println("p = " + p);
         }
         if (DEBUG) {
-            System.out.println("doing L-tail: a=" + a + " b=" + b + " c=" + c + " d=" + d);
+            System.out.println(
+                "doing L-tail: a=" + a + " b=" + b + " c=" + c + " d=" + d
+            );
         }
         min = (a < d) ? a : d;
         for (i = 0; i < min; i++) {
@@ -213,10 +226,11 @@ public class FisherExact {
             }
             p += pTemp;
             if (DEBUG) {
-                System.out.println("\ta=" + a + " b=" + b + " c=" + c + " d=" + d);
+                System.out.println(
+                    "\ta=" + a + " b=" + b + " c=" + c + " d=" + d
+                );
             }
         }
-
 
         return p;
     }
@@ -246,12 +260,12 @@ public class FisherExact {
         double p = 0;
 
         double baseP = getP(a, b, c, d);
-//         in order for a table under consideration to have its p-value included
-//         in the final result, it must have a p-value less than the baseP, i.e.
-//         Fisher's exact test computes the probability, given the observed marginal
-//         frequencies, of obtaining exactly the frequencies observed and any configuration more extreme.
-//         By "more extreme," we mean any configuration (given observed marginals) with a smaller probability of
-//         occurrence in the same direction (one-tailed) or in both directions (two-tailed).
+        //         in order for a table under consideration to have its p-value included
+        //         in the final result, it must have a p-value less than the baseP, i.e.
+        //         Fisher's exact test computes the probability, given the observed marginal
+        //         frequencies, of obtaining exactly the frequencies observed and any configuration more extreme.
+        //         By "more extreme," we mean any configuration (given observed marginals) with a smaller probability of
+        //         occurrence in the same direction (one-tailed) or in both directions (two-tailed).
 
         if (DEBUG) {
             System.out.println("baseP = " + baseP);
@@ -262,7 +276,16 @@ public class FisherExact {
             System.out.println("p = " + p);
         }
         if (DEBUG) {
-            System.out.println("Starting with R-tail: a=" + a + " b=" + b + " c=" + c + " d=" + d);
+            System.out.println(
+                "Starting with R-tail: a=" +
+                a +
+                " b=" +
+                b +
+                " c=" +
+                c +
+                " d=" +
+                d
+            );
         }
         min = (c < b) ? c : b;
         for (i = 0; i < min; i++) {
@@ -272,12 +295,20 @@ public class FisherExact {
             double tempP = getP(++a, --b, --c, ++d);
             if (tempP <= baseP) {
                 if (DEBUG) {
-                    System.out.print("\ttempP (" + tempP + ") is less than baseP (" + baseP + ")");
+                    System.out.print(
+                        "\ttempP (" +
+                        tempP +
+                        ") is less than baseP (" +
+                        baseP +
+                        ")"
+                    );
                 }
                 p += tempP;
             }
             if (DEBUG) {
-                System.out.println(" a=" + a + " b=" + b + " c=" + c + " d=" + d);
+                System.out.println(
+                    " a=" + a + " b=" + b + " c=" + c + " d=" + d
+                );
             }
         }
 
@@ -288,7 +319,9 @@ public class FisherExact {
         d = initialD;
 
         if (DEBUG) {
-            System.out.println("Now doing L-tail: a=" + a + " b=" + b + " c=" + c + " d=" + d);
+            System.out.println(
+                "Now doing L-tail: a=" + a + " b=" + b + " c=" + c + " d=" + d
+            );
         }
         min = (a < d) ? a : d;
         if (DEBUG) {
@@ -304,12 +337,20 @@ public class FisherExact {
             }
             if (pTemp <= baseP) {
                 if (DEBUG) {
-                    System.out.print("\ttempP (" + pTemp + ") is less than baseP (" + baseP + ")");
+                    System.out.print(
+                        "\ttempP (" +
+                        pTemp +
+                        ") is less than baseP (" +
+                        baseP +
+                        ")"
+                    );
                 }
                 p += pTemp;
             }
             if (DEBUG) {
-                System.out.println(" a=" + a + " b=" + b + " c=" + c + " d=" + d);
+                System.out.println(
+                    " a=" + a + " b=" + b + " c=" + c + " d=" + d
+                );
             }
         }
         return p;

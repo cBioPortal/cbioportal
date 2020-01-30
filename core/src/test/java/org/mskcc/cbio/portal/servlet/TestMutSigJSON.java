@@ -28,31 +28,40 @@
  *
  * You should have received a copy of the GNU Affero General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
-*/
+ */
 
 package org.mskcc.cbio.portal.servlet;
 
+import static org.junit.Assert.*;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
 import java.util.HashSet;
-
 import org.junit.Test;
 import org.mskcc.cbio.portal.model.CanonicalGene;
 import org.mskcc.cbio.portal.model.MutSig;
 
-import static org.junit.Assert.*;
-
 public class TestMutSigJSON {
 
     @Test
-    public void testMutSigtoMap()
-    {
+    public void testMutSigtoMap() {
         // make a stupid test
-        CanonicalGene canonicalGene = new CanonicalGene(12, "hello", new HashSet<String>());
+        CanonicalGene canonicalGene = new CanonicalGene(
+            12,
+            "hello",
+            new HashSet<String>()
+        );
 
         // test one of the values of the map.  probably a waste of time
-        MutSig mutsig = new MutSig(1, canonicalGene, 1, 502500, 20, 1E-11f, 1E-8f);
+        MutSig mutsig = new MutSig(
+            1,
+            canonicalGene,
+            1,
+            502500,
+            20,
+            1E-11f,
+            1E-8f
+        );
         assertTrue(!MutSigJSON.MutSigtoMap(mutsig).isEmpty());
         assertTrue(MutSigJSON.MutSigtoMap(mutsig).get("qval").equals(1E-8f));
 
@@ -64,7 +73,6 @@ public class TestMutSigJSON {
         mutsig = new MutSig(1, canonicalGene, 1, 502500, 20, 1E-8f, 1E-8f);
         assertTrue(!MutSigJSON.MutSigtoMap((mutsig)).isEmpty());
         assertTrue(MutSigJSON.MutSigtoMap(mutsig).get("qval").equals(1E-8f));
-
         // untested : functionality of DoGet method
         //
         // this is the most important part!
@@ -72,4 +80,3 @@ public class TestMutSigJSON {
         // I've been doing this from the browser
     }
 }
-

@@ -32,90 +32,105 @@
 
 package org.mskcc.cbio.portal.scripts;
 
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
-
 import static org.junit.Assert.*;
-
-import org.mskcc.cbio.portal.model.CanonicalGene;
-import org.mskcc.cbio.portal.dao.DaoGeneOptimized;
-import org.springframework.test.context.ContextConfiguration;
-import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
-import org.springframework.test.context.transaction.TransactionConfiguration;
-import org.springframework.transaction.annotation.Transactional;
 
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
 import java.net.URL;
 import java.util.ArrayList;
+import org.junit.Before;
+import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.mskcc.cbio.portal.dao.DaoGeneOptimized;
+import org.mskcc.cbio.portal.model.CanonicalGene;
+import org.springframework.test.context.ContextConfiguration;
+import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
+import org.springframework.test.context.transaction.TransactionConfiguration;
+import org.springframework.transaction.annotation.Transactional;
 
 @RunWith(SpringJUnit4ClassRunner.class)
 @ContextConfiguration(locations = { "classpath:/applicationContext-dao.xml" })
-@TransactionConfiguration(transactionManager = "transactionManager", defaultRollback = true)
+@TransactionConfiguration(
+    transactionManager = "transactionManager",
+    defaultRollback = true
+)
 @Transactional
 public class TestNormalizeExpressionLevels {
+    private String validationFile;
+    private String[] args;
 
-	private String validationFile;
-	private String[] args;
+    @Before
+    public void initialize() {
+        URL url = this.getClass().getResource("/correct_data_mRNA_ZbyNorm.txt");
+        validationFile = url.getFile().toString();
 
-	@Before
-	public void initialize() {
-		URL url = this.getClass().getResource("/correct_data_mRNA_ZbyNorm.txt");
-		validationFile = url.getFile().toString();
+        URL url1 =
+            TestNormalizeExpressionLevels.class.getResource(
+                    "/test_all_thresholded.by_genes.txt"
+                );
+        URL url2 =
+            TestNormalizeExpressionLevels.class.getResource(
+                    "/test_PR_GDAC_CANCER.medianexp.txt"
+                );
+        URL url3 =
+            TestNormalizeExpressionLevels.class.getResource(
+                    "/data_mRNA_ZbyNorm.txt"
+                );
 
-		URL url1 = TestNormalizeExpressionLevels.class.getResource("/test_all_thresholded.by_genes.txt");
-		URL url2 = TestNormalizeExpressionLevels.class.getResource("/test_PR_GDAC_CANCER.medianexp.txt");
-		URL url3 = TestNormalizeExpressionLevels.class.getResource("/data_mRNA_ZbyNorm.txt");
+        args =
+            new String[] {
+                url1.getFile().toString(),
+                url2.getFile().toString(),
+                url3.getFile().toString(),
+                NormalizeExpressionLevels.TCGA_NORMAL_SUFFIX,
+                "4"
+            };
+    }
 
-		args = new String[] { 
-				url1.getFile().toString(),
-				url2.getFile().toString(), 
-				url3.getFile().toString(),
-				NormalizeExpressionLevels.TCGA_NORMAL_SUFFIX, "4" };
-	}
+    // TBD: change this to use getResourceAsStream()
 
-	// TBD: change this to use getResourceAsStream()
+    @Test
+    public void testNormalizeExpressionLevels() {
+        try {
+            DaoGeneOptimized daoGene = DaoGeneOptimized.getInstance();
+            daoGene.addGene(new CanonicalGene(65985, "AACS"));
+            daoGene.addGene(new CanonicalGene(63916, "ELMO2"));
+            daoGene.addGene(new CanonicalGene(9240, "PNMA1"));
+            daoGene.addGene(new CanonicalGene(6205, "RPS11"));
+            daoGene.addGene(new CanonicalGene(7157, "TP53"));
+            daoGene.addGene(new CanonicalGene(367, "AR"));
+            NormalizeExpressionLevels.main(args);
+            // compare with correct
+            String line;
+            Process p = Runtime
+                .getRuntime()
+                .exec("diff" + " " + validationFile + " " + args[2]);
+            BufferedReader input = new BufferedReader(
+                new InputStreamReader(p.getInputStream())
+            );
+            while ((line = input.readLine()) != null) {
+                assertEquals("", line);
+            }
+            input.close();
+        } catch (Exception e) {
+            // TODO Auto-generated catch block
+            e.printStackTrace();
+        }
 
-	@Test
-	public void testNormalizeExpressionLevels() {
+        assertTrue(
+            NormalizeExpressionLevels.isNormal("TCGA-A7-A0CG-11A-11D-A011-01")
+        );
+        assertFalse(
+            NormalizeExpressionLevels.isNormal("TCGA-A7-A0CG-01A-11D-A011-01")
+        );
+    }
 
-		try {
-
-			DaoGeneOptimized daoGene = DaoGeneOptimized.getInstance();
-			daoGene.addGene(new CanonicalGene(65985, "AACS"));
-			daoGene.addGene(new CanonicalGene(63916, "ELMO2"));
-			daoGene.addGene(new CanonicalGene(9240, "PNMA1"));
-			daoGene.addGene(new CanonicalGene(6205, "RPS11"));
-			daoGene.addGene(new CanonicalGene(7157, "TP53"));
-			daoGene.addGene(new CanonicalGene(367, "AR"));
-			NormalizeExpressionLevels.main(args);
-			// compare with correct
-			String line;
-			Process p = Runtime.getRuntime().exec(
-					"diff" + " " + validationFile + " " + args[2]);
-			BufferedReader input = new BufferedReader(new InputStreamReader(
-					p.getInputStream()));
-			while ((line = input.readLine()) != null) {
-				assertEquals("", line);
-			}
-			input.close();
-
-		} catch (Exception e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-
-		assertTrue(NormalizeExpressionLevels.isNormal("TCGA-A7-A0CG-11A-11D-A011-01"));
-		assertFalse(NormalizeExpressionLevels.isNormal("TCGA-A7-A0CG-01A-11D-A011-01"));
-	}
-
-	@Test
-	public void testJoin() {
-		ArrayList<String> l = new ArrayList<String>();
-		l.add("out");
-		l.add("of");
-		l.add("order");
-		assertEquals("out-of-order", NormalizeExpressionLevels.join(l, "-"));
-	}
+    @Test
+    public void testJoin() {
+        ArrayList<String> l = new ArrayList<String>();
+        l.add("out");
+        l.add("of");
+        l.add("order");
+        assertEquals("out-of-order", NormalizeExpressionLevels.join(l, "-"));
+    }
 }

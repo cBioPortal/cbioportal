@@ -28,11 +28,16 @@
  *
  * You should have received a copy of the GNU Affero General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
-*/
+ */
 
 package org.mskcc.cbio.portal.dao;
 
+import static org.junit.Assert.*;
+
 import java.io.IOException;
+import java.util.*;
+import org.codehaus.jackson.map.ObjectMapper;
+import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -42,32 +47,35 @@ import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import org.springframework.test.context.transaction.TransactionConfiguration;
 import org.springframework.transaction.annotation.Transactional;
 
-import static org.junit.Assert.*;
-
-import java.util.*;
-import org.codehaus.jackson.map.ObjectMapper;
-import org.junit.Assert;
-
 /**
  * JUnit tests for DaoMutation class.
  */
 @RunWith(SpringJUnit4ClassRunner.class)
 @ContextConfiguration(locations = { "classpath:/applicationContext-dao.xml" })
-@TransactionConfiguration(transactionManager = "transactionManager", defaultRollback = true)
+@TransactionConfiguration(
+    transactionManager = "transactionManager",
+    defaultRollback = true
+)
 @Transactional
 public class TestDaoMutation {
-
     int geneticProfileId;
     int sampleId;
     CanonicalGene gene;
 
     @Before
     public void setUp() throws DaoException {
-        int studyId = DaoCancerStudy.getCancerStudyByStableId("study_tcga_pub").getInternalId();
-        ArrayList<GeneticProfile> list = DaoGeneticProfile.getAllGeneticProfiles(studyId);
+        int studyId = DaoCancerStudy
+            .getCancerStudyByStableId("study_tcga_pub")
+            .getInternalId();
+        ArrayList<GeneticProfile> list = DaoGeneticProfile.getAllGeneticProfiles(
+            studyId
+        );
         geneticProfileId = list.get(0).getGeneticProfileId();
 
-        sampleId = DaoSample.getSampleByCancerStudyAndSampleId(studyId, "TCGA-A1-A0SB-01").getInternalId();
+        sampleId =
+            DaoSample
+                .getSampleByCancerStudyAndSampleId(studyId, "TCGA-A1-A0SB-01")
+                .getInternalId();
 
         gene = new CanonicalGene(321, "BLAH");
         DaoGeneOptimized daoGeneOptimized = DaoGeneOptimized.getInstance();
@@ -80,7 +88,7 @@ public class TestDaoMutation {
         runTheTest();
     }
 
-    private void runTheTest() throws DaoException{
+    private void runTheTest() throws DaoException {
         //  Add a fake gene
 
         ExtendedMutation mutation = new ExtendedMutation();
@@ -140,20 +148,28 @@ public class TestDaoMutation {
         mutation.setCanonicalTranscript(true);
         mutation.setAnnotationJson(makeMockAnnotationJsonString());
 
-        DaoMutation.addMutation(mutation,true);
+        DaoMutation.addMutation(mutation, true);
 
         // if bulkLoading, execute LOAD FILE
-        if( MySQLbulkLoader.isBulkLoad()){
+        if (MySQLbulkLoader.isBulkLoad()) {
             MySQLbulkLoader.flushAll();
         }
-        ArrayList<ExtendedMutation> mutationList = DaoMutation.getMutations(geneticProfileId, 1, 321);
+        ArrayList<ExtendedMutation> mutationList = DaoMutation.getMutations(
+            geneticProfileId,
+            1,
+            321
+        );
         validateMutation(mutationList.get(0));
 
         //  Test the getGenesInProfile method
-        Set<CanonicalGene> geneSet = DaoMutation.getGenesInProfile(geneticProfileId);
+        Set<CanonicalGene> geneSet = DaoMutation.getGenesInProfile(
+            geneticProfileId
+        );
         assertEquals(1, geneSet.size());
 
-        ArrayList<CanonicalGene> geneList = new ArrayList<CanonicalGene>(geneSet);
+        ArrayList<CanonicalGene> geneList = new ArrayList<CanonicalGene>(
+            geneSet
+        );
         CanonicalGene gene = geneList.get(0);
         assertEquals(321, gene.getEntrezGeneId());
         assertEquals("BLAH", gene.getHugoGeneSymbolAllCaps());
@@ -185,7 +201,10 @@ public class TestDaoMutation {
         assertEquals("ATGC", mutation.getTumorSeqAllele2());
         assertEquals("rs12345", mutation.getDbSnpRs());
         assertEquals("by2Hit2Allele;byCluster", mutation.getDbSnpValStatus());
-        assertEquals("TCGA-02-0021-10A-01D-0002-04", mutation.getMatchedNormSampleBarcode());
+        assertEquals(
+            "TCGA-02-0021-10A-01D-0002-04",
+            mutation.getMatchedNormSampleBarcode()
+        );
         assertEquals("TGCA", mutation.getMatchNormSeqAllele1());
         assertEquals("TGCA", mutation.getMatchNormSeqAllele2());
         assertEquals("AT-GC", mutation.getTumorValidationAllele1());
@@ -195,7 +214,10 @@ public class TestDaoMutation {
         assertEquals("Verified", mutation.getVerificationStatus());
         assertEquals("Phase_6", mutation.getSequencingPhase());
         assertEquals("PCR;Capture;WGS", mutation.getSequenceSource());
-        assertEquals("Sanger_PCR_WGA;Sanger_PCR_gDNA", mutation.getValidationMethod());
+        assertEquals(
+            "Sanger_PCR_WGA;Sanger_PCR_gDNA",
+            mutation.getValidationMethod()
+        );
         assertEquals("NA", mutation.getScore());
         assertEquals("NA", mutation.getBamFile());
         assertEquals(Integer.valueOf(6), mutation.getTumorAltCount());
@@ -211,14 +233,17 @@ public class TestDaoMutation {
         assertEquals(678, mutation.getOncotatorProteinPosEnd());
         assertEquals(true, mutation.isCanonicalTranscript());
         validateMockAnnotationJson(mutation);
-
     }
 
     private void validateMockAnnotationJson(ExtendedMutation mutation) {
         Map<String, Map<String, String>> annotationJsonMap = new HashMap<>();
         ObjectMapper mapper = new ObjectMapper();
         try {
-            annotationJsonMap = mapper.readValue(mutation.getAnnotationJson(), annotationJsonMap.getClass());
+            annotationJsonMap =
+                mapper.readValue(
+                    mutation.getAnnotationJson(),
+                    annotationJsonMap.getClass()
+                );
         } catch (IOException ex) {
             throw new RuntimeException(ex);
         }
@@ -226,29 +251,50 @@ public class TestDaoMutation {
 
         // confirm expected sizes
         Assert.assertTrue(annotationJsonMap.containsKey("namespace1"));
-        Assert.assertEquals(expectedAnnotationJsonMap.get("namespace1").size(), annotationJsonMap.get("namespace1").size());
+        Assert.assertEquals(
+            expectedAnnotationJsonMap.get("namespace1").size(),
+            annotationJsonMap.get("namespace1").size()
+        );
         Assert.assertEquals(2, annotationJsonMap.get("namespace1").size());
         Assert.assertTrue(annotationJsonMap.containsKey("namespace2"));
         Assert.assertEquals(1, annotationJsonMap.get("namespace2").size());
-        Assert.assertEquals(expectedAnnotationJsonMap.get("namespace2").size(), annotationJsonMap.get("namespace2").size());
+        Assert.assertEquals(
+            expectedAnnotationJsonMap.get("namespace2").size(),
+            annotationJsonMap.get("namespace2").size()
+        );
 
         // compare namespace 1 annotation map values
         Map<String, String> namespace1Map = annotationJsonMap.get("namespace1");
-        Map<String, String> expectedNamespace1Map = expectedAnnotationJsonMap.get("namespace1");
-        Assert.assertEquals(expectedNamespace1Map.get("header1"), namespace1Map.get("header1"));
-        Assert.assertEquals(expectedNamespace1Map.get("header2"), namespace1Map.get("header2"));
+        Map<String, String> expectedNamespace1Map = expectedAnnotationJsonMap.get(
+            "namespace1"
+        );
+        Assert.assertEquals(
+            expectedNamespace1Map.get("header1"),
+            namespace1Map.get("header1")
+        );
+        Assert.assertEquals(
+            expectedNamespace1Map.get("header2"),
+            namespace1Map.get("header2")
+        );
 
         // compare namespace 2 annotation map values
         Map<String, String> namespace2Map = annotationJsonMap.get("namespace2");
-        Map<String, String> expectedNamespace2Map = expectedAnnotationJsonMap.get("namespace2");
-        Assert.assertEquals(expectedNamespace2Map.get("header1"), namespace2Map.get("header1"));
+        Map<String, String> expectedNamespace2Map = expectedAnnotationJsonMap.get(
+            "namespace2"
+        );
+        Assert.assertEquals(
+            expectedNamespace2Map.get("header1"),
+            namespace2Map.get("header1")
+        );
     }
 
     private String makeMockAnnotationJsonString() {
         // return annotation json map as a string
         ObjectMapper mapper = new ObjectMapper();
         try {
-            return mapper.writeValueAsString(makeMockExpectedAnnotationJsonMap());
+            return mapper.writeValueAsString(
+                makeMockExpectedAnnotationJsonMap()
+            );
         } catch (IOException ex) {
             throw new RuntimeException(ex);
         }

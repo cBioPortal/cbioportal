@@ -28,7 +28,7 @@
  *
  * You should have received a copy of the GNU Affero General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
-*/
+ */
 
 package org.mskcc.cbio.portal.dao;
 
@@ -42,76 +42,68 @@ import java.sql.SQLException;
  *
  * @author Selcuk Onur Sumer
  */
-public class DaoPfamGraphics
-{
-	/**
-	 * Inserts the given key and text pair to the database.
-	 *
-	 * @param uniprotAcc	uniprot accession
-	 * @param jsonData	pfam graphics data as a JSON object
-	 * @throws DaoException	if an entity already exists with the same key
-	 */
-	public int addPfamGraphics(String uniprotAcc, String jsonData) throws DaoException
-	{
-		Connection con = null;
-		PreparedStatement pstmt = null;
-		ResultSet rs = null;
+public class DaoPfamGraphics {
 
-		try
-		{
-			con = JdbcUtil.getDbConnection(DaoTextCache.class);
-			pstmt = con.prepareStatement(
-				"INSERT INTO pfam_graphics (`UNIPROT_ACC`, `JSON_DATA`) VALUES (?,?)");
-			pstmt.setString(1, uniprotAcc);
-			pstmt.setString(2, jsonData);
+    /**
+     * Inserts the given key and text pair to the database.
+     *
+     * @param uniprotAcc	uniprot accession
+     * @param jsonData	pfam graphics data as a JSON object
+     * @throws DaoException	if an entity already exists with the same key
+     */
+    public int addPfamGraphics(String uniprotAcc, String jsonData)
+        throws DaoException {
+        Connection con = null;
+        PreparedStatement pstmt = null;
+        ResultSet rs = null;
 
-			return pstmt.executeUpdate();
-		}
-		catch (SQLException e)
-		{
-			throw new DaoException(e);
-		}
-		finally
-		{
-			JdbcUtil.closeAll(DaoTextCache.class, con, pstmt, rs);
-		}
-	}
+        try {
+            con = JdbcUtil.getDbConnection(DaoTextCache.class);
+            pstmt =
+                con.prepareStatement(
+                    "INSERT INTO pfam_graphics (`UNIPROT_ACC`, `JSON_DATA`) VALUES (?,?)"
+                );
+            pstmt.setString(1, uniprotAcc);
+            pstmt.setString(2, jsonData);
 
-	/**
-	 * Retrieves the text corresponding to the given key form the DB.
-	 *
-	 * @param uniprotAcc	a uniprot acession
-	 * @return  pfam data as a JSON string
-	 * @throws DaoException
-	 */
-	public String getPfamGraphics(String uniprotAcc) throws DaoException
-	{
-		Connection con = null;
-		PreparedStatement pstmt = null;
-		ResultSet rs = null;
+            return pstmt.executeUpdate();
+        } catch (SQLException e) {
+            throw new DaoException(e);
+        } finally {
+            JdbcUtil.closeAll(DaoTextCache.class, con, pstmt, rs);
+        }
+    }
 
-		try
-		{
-			con = JdbcUtil.getDbConnection(DaoTextCache.class);
-			pstmt = con.prepareStatement(
-					"SELECT * FROM pfam_graphics WHERE UNIPROT_ACC=?");
-			pstmt.setString(1, uniprotAcc);
-			rs = pstmt.executeQuery();
+    /**
+     * Retrieves the text corresponding to the given key form the DB.
+     *
+     * @param uniprotAcc	a uniprot acession
+     * @return  pfam data as a JSON string
+     * @throws DaoException
+     */
+    public String getPfamGraphics(String uniprotAcc) throws DaoException {
+        Connection con = null;
+        PreparedStatement pstmt = null;
+        ResultSet rs = null;
 
-			if (rs.next())
-			{
-				return rs.getString("JSON_DATA");
-			}
+        try {
+            con = JdbcUtil.getDbConnection(DaoTextCache.class);
+            pstmt =
+                con.prepareStatement(
+                    "SELECT * FROM pfam_graphics WHERE UNIPROT_ACC=?"
+                );
+            pstmt.setString(1, uniprotAcc);
+            rs = pstmt.executeQuery();
 
-			return null;
-		}
-		catch (SQLException e)
-		{
-			throw new DaoException(e);
-		}
-		finally
-		{
-			JdbcUtil.closeAll(DaoTextCache.class, con, pstmt, rs);
-		}
-	}
+            if (rs.next()) {
+                return rs.getString("JSON_DATA");
+            }
+
+            return null;
+        } catch (SQLException e) {
+            throw new DaoException(e);
+        } finally {
+            JdbcUtil.closeAll(DaoTextCache.class, con, pstmt, rs);
+        }
+    }
 }

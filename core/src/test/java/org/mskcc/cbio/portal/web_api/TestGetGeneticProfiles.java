@@ -28,9 +28,11 @@
  *
  * You should have received a copy of the GNU Affero General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
-*/
+ */
 
 package org.mskcc.cbio.portal.web_api;
+
+import static org.junit.Assert.*;
 
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -40,23 +42,32 @@ import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import org.springframework.test.context.transaction.TransactionConfiguration;
 import org.springframework.transaction.annotation.Transactional;
 
-import static org.junit.Assert.*;
-
 /**
  * JUnit test for GeneticProfile class.
  */
 @RunWith(SpringJUnit4ClassRunner.class)
 @ContextConfiguration(locations = { "classpath:/applicationContext-dao.xml" })
-@TransactionConfiguration(transactionManager = "transactionManager", defaultRollback = true)
+@TransactionConfiguration(
+    transactionManager = "transactionManager",
+    defaultRollback = true
+)
 @Transactional
 public class TestGetGeneticProfiles {
 
     @Test
     public void testDaoGeneticProfile() throws DaoException {
-
-    	
-        String output = GetGeneticProfiles.getGeneticProfilesAsTable("study_tcga_pub");
-        assertTrue(output.contains("study_tcga_pub_mrna\tmRNA expression (microarray)\tExpression levels (Agilent microarray).\t1\tMRNA_EXPRESSION\tfalse"));
-        assertTrue(output.contains("study_tcga_pub_mutations\tMutations\tMutation data from whole exome sequencing.\t1\tMUTATION_EXTENDED\ttrue"));
+        String output = GetGeneticProfiles.getGeneticProfilesAsTable(
+            "study_tcga_pub"
+        );
+        assertTrue(
+            output.contains(
+                "study_tcga_pub_mrna\tmRNA expression (microarray)\tExpression levels (Agilent microarray).\t1\tMRNA_EXPRESSION\tfalse"
+            )
+        );
+        assertTrue(
+            output.contains(
+                "study_tcga_pub_mutations\tMutations\tMutation data from whole exome sequencing.\t1\tMUTATION_EXTENDED\ttrue"
+            )
+        );
     }
 }

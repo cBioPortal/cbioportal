@@ -28,7 +28,7 @@
  *
  * You should have received a copy of the GNU Affero General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
-*/
+ */
 
 package org.mskcc.cbio.portal.dao;
 
@@ -39,7 +39,6 @@ import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
 import java.util.Arrays;
-
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mskcc.cbio.portal.model.User;
@@ -54,36 +53,69 @@ import org.springframework.transaction.annotation.Transactional;
  */
 @RunWith(SpringJUnit4ClassRunner.class)
 @ContextConfiguration(locations = { "classpath:/applicationContext-dao.xml" })
-@TransactionConfiguration(transactionManager = "transactionManager", defaultRollback = true)
+@TransactionConfiguration(
+    transactionManager = "transactionManager",
+    defaultRollback = true
+)
 @Transactional
 public class TestDaoUserAuthorities {
 
-   @Test
-   public void testDaoUserAuthorities() throws Exception {
+    @Test
+    public void testDaoUserAuthorities() throws Exception {
+        User userJoe = new User("joe@goggle.com", "Joe User", true);
+        User userJane = new User("jane@hotmail.com", "Jane User", true);
+        UserAuthorities authorities = DaoUserAuthorities.getUserAuthorities(
+            userJoe
+        );
+        assertEquals(authorities.getAuthorities().size(), 0);
 
-      User userJoe = new User("joe@goggle.com", "Joe User", true);
-      User userJane = new User("jane@hotmail.com", "Jane User", true);
-      UserAuthorities authorities = DaoUserAuthorities.getUserAuthorities(userJoe);
-      assertEquals(authorities.getAuthorities().size(), 0);
+        authorities =
+            new UserAuthorities(
+                userJane.getEmail(),
+                Arrays.asList("ROLE_USER")
+            );
+        DaoUserAuthorities.addUserAuthorities(authorities);
 
-      authorities = new UserAuthorities(userJane.getEmail(), Arrays.asList("ROLE_USER"));
-      DaoUserAuthorities.addUserAuthorities(authorities);
+        authorities =
+            new UserAuthorities(
+                userJoe.getEmail(),
+                Arrays.asList("ROLE_MANAGER", "ROLE_USER")
+            );
+        DaoUserAuthorities.addUserAuthorities(authorities);
 
-      authorities = new UserAuthorities(userJoe.getEmail(), Arrays.asList("ROLE_MANAGER", "ROLE_USER"));
-      DaoUserAuthorities.addUserAuthorities(authorities);
+        assertTrue(
+            DaoUserAuthorities
+                .getUserAuthorities(userJoe)
+                .getAuthorities()
+                .contains("ROLE_MANAGER")
+        );
+        assertFalse(
+            DaoUserAuthorities
+                .getUserAuthorities(userJane)
+                .getAuthorities()
+                .contains("ROLE_MANAGER")
+        );
 
-      assertTrue(DaoUserAuthorities.getUserAuthorities(userJoe).getAuthorities().contains("ROLE_MANAGER"));
-      assertFalse(DaoUserAuthorities.getUserAuthorities(userJane).getAuthorities().contains("ROLE_MANAGER"));
+        try {
+            DaoUserAuthorities.removeUserAuthorities(userJane);
+            assertFalse(
+                DaoUserAuthorities
+                    .getUserAuthorities(userJane)
+                    .getAuthorities()
+                    .contains("ROLE_USER")
+            );
+        } catch (Exception e) {
+            fail("Should not throw Exception " + e.getMessage());
+        }
 
-      try {
-          DaoUserAuthorities.removeUserAuthorities(userJane);
-          assertFalse(DaoUserAuthorities.getUserAuthorities(userJane).getAuthorities().contains("ROLE_USER"));
-      } catch (Exception e) {
-         fail("Should not throw Exception " + e.getMessage());
-      }
-
-      assertTrue(DaoUserAuthorities.getUserAuthorities(userJoe) != null);
-      DaoUserAuthorities.deleteAllRecords();
-      assertEquals(DaoUserAuthorities.getUserAuthorities(userJoe).getAuthorities().size(), 0);
-   }
+        assertTrue(DaoUserAuthorities.getUserAuthorities(userJoe) != null);
+        DaoUserAuthorities.deleteAllRecords();
+        assertEquals(
+            DaoUserAuthorities
+                .getUserAuthorities(userJoe)
+                .getAuthorities()
+                .size(),
+            0
+        );
+    }
 }

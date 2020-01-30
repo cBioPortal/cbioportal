@@ -28,14 +28,9 @@
  *
  * You should have received a copy of the GNU Affero General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
-*/
+ */
 
 package org.mskcc.cbio.portal.util;
-
-import org.mskcc.cbio.maf.MafRecord;
-import org.mskcc.cbio.maf.TabDelimitedFileUtil;
-import org.mskcc.cbio.portal.model.CanonicalGene;
-import org.mskcc.cbio.portal.model.ExtendedMutation;
 
 import java.util.Arrays;
 import java.util.HashMap;
@@ -43,6 +38,10 @@ import java.util.List;
 import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import org.mskcc.cbio.maf.MafRecord;
+import org.mskcc.cbio.maf.TabDelimitedFileUtil;
+import org.mskcc.cbio.portal.model.CanonicalGene;
+import org.mskcc.cbio.portal.model.ExtendedMutation;
 
 /**
  * Utility class related to ExtendedMutation.
@@ -51,7 +50,10 @@ public class ExtendedMutationUtil {
     // originally NA (case ignored) was the only value for empty values in this column,
     // but [Not Available] occurs in many TCGA studies.
     // TODO if this list grows, create NotAvailableValues enum like in ImportClinicalData.java
-    public static final List <String> NOT_AVAILABLE = Arrays.asList("NA", "[Not Available]");
+    public static final List<String> NOT_AVAILABLE = Arrays.asList(
+        "NA",
+        "[Not Available]"
+    );
 
     public static String getCaseId(String barCode) {
         // process bar code
@@ -62,13 +64,13 @@ public class ExtendedMutationUtil {
         String caseId = null;
 
         try {
-            caseId = barCodeParts[0] + "-" + barCodeParts[1] + "-" + barCodeParts[2];
+            caseId =
+                barCodeParts[0] + "-" + barCodeParts[1] + "-" + barCodeParts[2];
 
             // the following condition was prompted by case ids coming from
             // private cancer studies (like SKCM_BROAD) with case id's of
             // the form MEL-JWCI-WGS-XX or MEL-Ma-Mel-XX or MEL-UKRV-Mel-XX
-            if (!barCode.startsWith("TCGA") &&
-                barCodeParts.length == 4) {
+            if (!barCode.startsWith("TCGA") && barCodeParts.length == 4) {
                 caseId += "-" + barCodeParts[3];
             }
         } catch (ArrayIndexOutOfBoundsException e) {
@@ -127,7 +129,10 @@ public class ExtendedMutationUtil {
         return aminoAcidChange;
     }
 
-    public static int getProteinPosStart(String proteinPosition, String proteinChange) {
+    public static int getProteinPosStart(
+        String proteinPosition,
+        String proteinChange
+    ) {
         // parts[0] is the protein start-end positions, parts[1] is the length
         String[] parts = proteinPosition.split("/");
 
@@ -136,7 +141,9 @@ public class ExtendedMutationUtil {
         // there is a case where the protein change is "-"
         if (position == TabDelimitedFileUtil.NA_INT) {
             // try to extract it from protein change value
-            Map<String, Integer> annotation = annotateProteinChange(proteinChange);
+            Map<String, Integer> annotation = annotateProteinChange(
+                proteinChange
+            );
 
             if (annotation.get("start") != null) {
                 position = annotation.get("start");
@@ -146,7 +153,10 @@ public class ExtendedMutationUtil {
         return position;
     }
 
-    public static int getProteinPosEnd(String proteinPosition, String proteinChange) {
+    public static int getProteinPosEnd(
+        String proteinPosition,
+        String proteinChange
+    ) {
         // parts[0] is the protein start-end positions, parts[1] is the length
         String[] parts = proteinPosition.split("/");
 
@@ -155,7 +165,9 @@ public class ExtendedMutationUtil {
         // if no end position is provided,
         // then use start position as end position
         if (end == -1) {
-            Map<String, Integer> annotation = annotateProteinChange(proteinChange);
+            Map<String, Integer> annotation = annotateProteinChange(
+                proteinChange
+            );
             if (annotation.get("end") != null) {
                 end = annotation.get("end");
             }
@@ -165,19 +177,24 @@ public class ExtendedMutationUtil {
     }
 
     public static boolean isValidProteinChange(String proteinChange) {
-        boolean invalid = proteinChange == null ||
-                proteinChange.length() == 0 ||
-                proteinChange.equalsIgnoreCase("NULL") ||
-                NOT_AVAILABLE.stream().anyMatch(s -> s.equalsIgnoreCase(proteinChange));
+        boolean invalid =
+            proteinChange == null ||
+            proteinChange.length() == 0 ||
+            proteinChange.equalsIgnoreCase("NULL") ||
+            NOT_AVAILABLE
+                .stream()
+                .anyMatch(s -> s.equalsIgnoreCase(proteinChange));
         return !invalid;
     }
 
     public static boolean isAcceptableMutation(String mutationType) {
         // check for null or NA values
-        if (mutationType == null ||
-                mutationType.length() == 0 ||
-                mutationType.equals("NULL") ||
-                mutationType.equals(TabDelimitedFileUtil.NA_STRING)) {
+        if (
+            mutationType == null ||
+            mutationType.length() == 0 ||
+            mutationType.equals("NULL") ||
+            mutationType.equals(TabDelimitedFileUtil.NA_STRING)
+        ) {
             return false;
         }
 
@@ -191,16 +208,20 @@ public class ExtendedMutationUtil {
         boolean igr = mutationType.toLowerCase().startsWith("igr");
         boolean rna = mutationType.equalsIgnoreCase("rna");
 
-        return !(silent || loh || wildtype || utr3 || utr5 || flank5 || igr || rna);
+        return !(
+            silent || loh || wildtype || utr3 || utr5 || flank5 || igr || rna
+        );
     }
 
     public static String getMutationType(MafRecord record) {
         String mutationType = record.getOncotatorVariantClassification();
 
-        if (mutationType == null ||
-                mutationType.length() == 0 ||
-                mutationType.equals("NULL") ||
-                mutationType.equals(TabDelimitedFileUtil.NA_STRING)) {
+        if (
+            mutationType == null ||
+            mutationType.length() == 0 ||
+            mutationType.equals("NULL") ||
+            mutationType.equals(TabDelimitedFileUtil.NA_STRING)
+        ) {
             mutationType = record.getVariantClassification();
         }
 
@@ -212,10 +233,12 @@ public class ExtendedMutationUtil {
 
         if (record.getTumorAltCount() != TabDelimitedFileUtil.NA_INT) {
             result = record.getTumorAltCount();
-        } else if(record.getTVarCov() != TabDelimitedFileUtil.NA_INT) {
+        } else if (record.getTVarCov() != TabDelimitedFileUtil.NA_INT) {
             result = record.getTVarCov();
-        } else if((record.getTumorDepth() != TabDelimitedFileUtil.NA_INT) &&
-                (record.getTumorVaf() != TabDelimitedFileUtil.NA_INT)) {
+        } else if (
+            (record.getTumorDepth() != TabDelimitedFileUtil.NA_INT) &&
+            (record.getTumorVaf() != TabDelimitedFileUtil.NA_INT)
+        ) {
             result = Math.round(record.getTumorDepth() * record.getTumorVaf());
         }
 
@@ -227,12 +250,18 @@ public class ExtendedMutationUtil {
 
         if (record.getTumorRefCount() != TabDelimitedFileUtil.NA_INT) {
             result = record.getTumorRefCount();
-        } else if((record.getTVarCov() != TabDelimitedFileUtil.NA_INT) &&
-                (record.getTTotCov() != TabDelimitedFileUtil.NA_INT)) {
-            result = record.getTTotCov()-record.getTVarCov();
-        } else if((record.getTumorDepth() != TabDelimitedFileUtil.NA_INT) &&
-                (record.getTumorVaf() != TabDelimitedFileUtil.NA_INT)) {
-            result = record.getTumorDepth() - Math.round(record.getTumorDepth() * record.getTumorVaf());
+        } else if (
+            (record.getTVarCov() != TabDelimitedFileUtil.NA_INT) &&
+            (record.getTTotCov() != TabDelimitedFileUtil.NA_INT)
+        ) {
+            result = record.getTTotCov() - record.getTVarCov();
+        } else if (
+            (record.getTumorDepth() != TabDelimitedFileUtil.NA_INT) &&
+            (record.getTumorVaf() != TabDelimitedFileUtil.NA_INT)
+        ) {
+            result =
+                record.getTumorDepth() -
+                Math.round(record.getTumorDepth() * record.getTumorVaf());
         }
 
         return result;
@@ -243,11 +272,14 @@ public class ExtendedMutationUtil {
 
         if (record.getNormalAltCount() != TabDelimitedFileUtil.NA_INT) {
             result = record.getNormalAltCount();
-        } else if(record.getNVarCov() != TabDelimitedFileUtil.NA_INT) {
+        } else if (record.getNVarCov() != TabDelimitedFileUtil.NA_INT) {
             result = record.getNVarCov();
-        } else if((record.getNormalDepth() != TabDelimitedFileUtil.NA_INT) &&
-                (record.getNormalVaf() != TabDelimitedFileUtil.NA_INT)) {
-            result = Math.round(record.getNormalDepth() * record.getNormalVaf());
+        } else if (
+            (record.getNormalDepth() != TabDelimitedFileUtil.NA_INT) &&
+            (record.getNormalVaf() != TabDelimitedFileUtil.NA_INT)
+        ) {
+            result =
+                Math.round(record.getNormalDepth() * record.getNormalVaf());
         }
 
         return result;
@@ -258,12 +290,18 @@ public class ExtendedMutationUtil {
 
         if (record.getNormalRefCount() != TabDelimitedFileUtil.NA_INT) {
             result = record.getNormalRefCount();
-        } else if((record.getNVarCov() != TabDelimitedFileUtil.NA_INT) &&
-                (record.getNTotCov() != TabDelimitedFileUtil.NA_INT)) {
-            result = record.getNTotCov()-record.getNVarCov();
-        } else if((record.getNormalDepth() != TabDelimitedFileUtil.NA_INT) &&
-                (record.getNormalVaf() != TabDelimitedFileUtil.NA_INT)) {
-            result = record.getNormalDepth() - Math.round(record.getNormalDepth() * record.getNormalVaf());
+        } else if (
+            (record.getNVarCov() != TabDelimitedFileUtil.NA_INT) &&
+            (record.getNTotCov() != TabDelimitedFileUtil.NA_INT)
+        ) {
+            result = record.getNTotCov() - record.getNVarCov();
+        } else if (
+            (record.getNormalDepth() != TabDelimitedFileUtil.NA_INT) &&
+            (record.getNormalVaf() != TabDelimitedFileUtil.NA_INT)
+        ) {
+            result =
+                record.getNormalDepth() -
+                Math.round(record.getNormalDepth() * record.getNormalVaf());
         }
 
         return result;
@@ -338,7 +376,9 @@ public class ExtendedMutationUtil {
         return mutation;
     }
 
-    private static Map<String, Integer> annotateProteinChange(String proteinChange) {
+    private static Map<String, Integer> annotateProteinChange(
+        String proteinChange
+    ) {
         int start = -1;
         int end = -1;
         Map<String, Integer> annotation = new HashMap<>();
@@ -354,7 +394,8 @@ public class ExtendedMutationUtil {
         }
 
         if (proteinChange.indexOf("[") != -1) {
-            proteinChange = proteinChange.substring(0, proteinChange.indexOf("["));
+            proteinChange =
+                proteinChange.substring(0, proteinChange.indexOf("["));
         }
 
         proteinChange = proteinChange.trim();
@@ -382,7 +423,10 @@ public class ExtendedMutationUtil {
                 end = start + refL - 1;
             }
         } else {
-            p = Pattern.compile("[A-Z]?([0-9]+)(_[A-Z]?([0-9]+))?(delins|ins)([A-Z]+)");
+            p =
+                Pattern.compile(
+                    "[A-Z]?([0-9]+)(_[A-Z]?([0-9]+))?(delins|ins)([A-Z]+)"
+                );
             m = p.matcher(proteinChange);
             if (m.matches()) {
                 start = Integer.valueOf(m.group(1));
@@ -392,7 +436,10 @@ public class ExtendedMutationUtil {
                     end = start;
                 }
             } else {
-                p = Pattern.compile("[A-Z]?([0-9]+)(_[A-Z]?([0-9]+))?(_)?splice");
+                p =
+                    Pattern.compile(
+                        "[A-Z]?([0-9]+)(_[A-Z]?([0-9]+))?(_)?splice"
+                    );
                 m = p.matcher(proteinChange);
                 if (m.matches()) {
                     start = Integer.valueOf(m.group(1));
@@ -416,7 +463,10 @@ public class ExtendedMutationUtil {
                             end = start;
                         } else {
                             // Check for inframe insertion, deletion or duplication
-                            p = Pattern.compile("([A-Z]+)?([0-9]+)((ins)|(del)|(dup))");
+                            p =
+                                Pattern.compile(
+                                    "([A-Z]+)?([0-9]+)((ins)|(del)|(dup))"
+                                );
                             m = p.matcher(proteinChange);
                             if (m.matches()) {
                                 start = Integer.valueOf(m.group(2));

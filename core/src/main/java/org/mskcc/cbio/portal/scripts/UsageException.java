@@ -1,7 +1,6 @@
 package org.mskcc.cbio.portal.scripts;
 
 import java.io.IOException;
-
 import joptsimple.OptionParser;
 
 /**
@@ -10,7 +9,6 @@ import joptsimple.OptionParser;
  * @see {@link ConsoleRunnable}
  */
 public class UsageException extends IllegalArgumentException {
-    
     // the name of the command
     private String prog;
     // an OptionParser configured with the accepted options
@@ -21,7 +19,7 @@ public class UsageException extends IllegalArgumentException {
     private String description;
     // a final error/exit message
     private String msg;
-    
+
     /**
      * Instantiates a UsageException using an OptionParser.
      *
@@ -31,15 +29,16 @@ public class UsageException extends IllegalArgumentException {
      * @param parser  an OptionParser configured with the accepted options
      */
     public UsageException(
-            String prog,
-            String description,
-            OptionParser parser) {
+        String prog,
+        String description,
+        OptionParser parser
+    ) {
         super("Invalid usage of the " + prog + " script");
         this.prog = prog;
         this.description = description;
         this.parser = parser;
     }
-    
+
     /**
      * Instantiates a UsageException using an explicit argument specification.
      *
@@ -53,10 +52,7 @@ public class UsageException extends IllegalArgumentException {
      *           syntax conventions
      *       </a>
      */
-    public UsageException(
-            String prog,
-            String description,
-            String argspec) {
+    public UsageException(String prog, String description, String argspec) {
         super("Invalid usage of the " + prog + " script");
         this.prog = prog;
         this.description = description;
@@ -72,17 +68,18 @@ public class UsageException extends IllegalArgumentException {
      * @param parser  an OptionParser configured with the accepted options
      */
     public UsageException(
-            String prog,
-            String description,
-            OptionParser parser,
-            String msg) {
+        String prog,
+        String description,
+        OptionParser parser,
+        String msg
+    ) {
         super(msg);
         this.prog = prog;
         this.description = description;
         this.parser = parser;
         this.msg = msg;
     }
-    
+
     /**
      * Instantiates a UsageException using an explicit argument specification.
      *
@@ -98,22 +95,23 @@ public class UsageException extends IllegalArgumentException {
      *       </a>
      */
     public UsageException(
-            String prog,
-            String description,
-            String argspec,
-            String msg) {
+        String prog,
+        String description,
+        String argspec,
+        String msg
+    ) {
         super(msg);
         this.prog = prog;
         this.description = description;
         this.argspec = argspec;
         this.msg = msg;
     }
-    
+
     /**
      * Prints a helpful message about command line usage of the utility.
      */
     public void printUsageLine() {
-        if (msg != null){
+        if (msg != null) {
             System.err.printf("%s\n", msg);
         }
         if (argspec != null) {

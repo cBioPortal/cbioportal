@@ -28,7 +28,7 @@
  *
  * You should have received a copy of the GNU Affero General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
-*/
+ */
 
 package org.mskcc.cbio.portal.scripts.drug;
 
@@ -36,18 +36,23 @@ import org.mskcc.cbio.portal.dao.DaoDrug;
 import org.mskcc.cbio.portal.dao.DaoException;
 import org.mskcc.cbio.portal.dao.DaoInteraction;
 
-abstract public class AbstractDrugInfoImporter {
+public abstract class AbstractDrugInfoImporter {
     public static String DRUG_INTERACTION_TYPE = "DRUG_TARGET";
 
     private DrugDataResource dataResource;
     private DaoDrug drugDao;
     private DaoInteraction daoInteraction;
 
-    public AbstractDrugInfoImporter(DrugDataResource dataResource) throws DaoException {
+    public AbstractDrugInfoImporter(DrugDataResource dataResource)
+        throws DaoException {
         this(dataResource, DaoDrug.getInstance(), DaoInteraction.getInstance());
     }
 
-    public AbstractDrugInfoImporter(DrugDataResource dataResource, DaoDrug drugDao, DaoInteraction daoInteraction) {
+    public AbstractDrugInfoImporter(
+        DrugDataResource dataResource,
+        DaoDrug drugDao,
+        DaoInteraction daoInteraction
+    ) {
         this.dataResource = dataResource;
         this.drugDao = drugDao;
         this.daoInteraction = daoInteraction;
@@ -77,5 +82,5 @@ abstract public class AbstractDrugInfoImporter {
         this.daoInteraction = daoInteraction;
     }
 
-    abstract public void importData() throws Exception;
+    public abstract void importData() throws Exception;
 }

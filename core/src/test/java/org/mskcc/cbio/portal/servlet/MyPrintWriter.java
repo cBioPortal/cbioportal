@@ -28,7 +28,7 @@
  *
  * You should have received a copy of the GNU Affero General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
-*/
+ */
 
 package org.mskcc.cbio.portal.servlet;
 
@@ -38,8 +38,8 @@ import java.io.StringWriter;
  * A JUnit-related class required for NullHttpServletResponse.
  */
 public class MyPrintWriter extends java.io.PrintWriter {
-   public MyPrintWriter(StringWriter myStringWriter) {
-      super(myStringWriter);
-   }
 
+    public MyPrintWriter(StringWriter myStringWriter) {
+        super(myStringWriter);
+    }
 }

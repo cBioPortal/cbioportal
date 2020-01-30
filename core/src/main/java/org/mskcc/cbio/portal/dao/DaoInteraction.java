@@ -28,12 +28,9 @@
  *
  * You should have received a copy of the GNU Affero General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
-*/
+ */
 
 package org.mskcc.cbio.portal.dao;
-
-import org.mskcc.cbio.portal.model.CanonicalGene;
-import org.mskcc.cbio.portal.model.Interaction;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
@@ -43,8 +40,9 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashSet;
-
 import org.apache.commons.lang.StringUtils;
+import org.mskcc.cbio.portal.model.CanonicalGene;
+import org.mskcc.cbio.portal.model.Interaction;
 
 /**
  * Data Access Object to Interaction Table.
@@ -58,8 +56,7 @@ public class DaoInteraction {
     /**
      * Private Constructor to enforce Singleton Pattern.
      */
-    private DaoInteraction() {
-    }
+    private DaoInteraction() {}
 
     /**
      * Gets Global Singleton Instance.
@@ -87,19 +84,27 @@ public class DaoInteraction {
      * @return number of records added.
      * @throws DaoException Database Error.
      */
-    public int addInteraction(CanonicalGene geneA, CanonicalGene geneB,
-            String interactionType, String dataSource, String experimentTypes, String pmids)
-            throws DaoException {
+    public int addInteraction(
+        CanonicalGene geneA,
+        CanonicalGene geneB,
+        String interactionType,
+        String dataSource,
+        String experimentTypes,
+        String pmids
+    )
+        throws DaoException {
         Connection con = null;
         PreparedStatement pstmt = null;
         ResultSet rs = null;
 
         //  Basic Parameter Checking.  Some are required.  Some are not.
         if (interactionType == null) {
-            throw new IllegalArgumentException ("Interaction type cannot be null");
+            throw new IllegalArgumentException(
+                "Interaction type cannot be null"
+            );
         }
         if (dataSource == null) {
-            throw new IllegalArgumentException ("Data Source cannot be null");
+            throw new IllegalArgumentException("Data Source cannot be null");
         }
         if (experimentTypes == null) {
             experimentTypes = NA;
@@ -107,12 +112,19 @@ public class DaoInteraction {
         if (pmids == null) {
             pmids = NA;
         }
-        
+
         if (MySQLbulkLoader.isBulkLoad()) {
             //  write to the temp file maintained by the MySQLbulkLoader
-            MySQLbulkLoader.getMySQLbulkLoader("interaction").insertRecord(Long.toString(geneA.getEntrezGeneId()),
-                    Long.toString(geneB.getEntrezGeneId()), interactionType,
-                    dataSource, experimentTypes, pmids);
+            MySQLbulkLoader
+                .getMySQLbulkLoader("interaction")
+                .insertRecord(
+                    Long.toString(geneA.getEntrezGeneId()),
+                    Long.toString(geneB.getEntrezGeneId()),
+                    interactionType,
+                    dataSource,
+                    experimentTypes,
+                    pmids
+                );
 
             // return 1 because normal insert will return 1 if no error occurs
             return 1;
@@ -120,10 +132,12 @@ public class DaoInteraction {
 
         try {
             con = JdbcUtil.getDbConnection(DaoInteraction.class);
-            pstmt = con.prepareStatement
-                    ("INSERT INTO interaction (`GENE_A`,`GENE_B`, `INTERACTION_TYPE`," +
-                            "`DATA_SOURCE`, `EXPERIMENT_TYPES`, `PMIDS`)"
-                            + "VALUES (?,?,?,?,?,?)");
+            pstmt =
+                con.prepareStatement(
+                    "INSERT INTO interaction (`GENE_A`,`GENE_B`, `INTERACTION_TYPE`," +
+                    "`DATA_SOURCE`, `EXPERIMENT_TYPES`, `PMIDS`)" +
+                    "VALUES (?,?,?,?,?,?)"
+                );
             pstmt.setLong(1, geneA.getEntrezGeneId());
             pstmt.setLong(2, geneB.getEntrezGeneId());
             pstmt.setString(3, interactionType);
@@ -145,7 +159,7 @@ public class DaoInteraction {
      * @return ArrayList of Interaction Objects.
      * @throws DaoException Database Error.
      */
-    public ArrayList<Interaction> getInteractions (CanonicalGene gene)
+    public ArrayList<Interaction> getInteractions(CanonicalGene gene)
         throws DaoException {
         return getInteractions(gene, null);
     }
@@ -158,14 +172,21 @@ public class DaoInteraction {
      * @return ArrayList of Interaction Objects.
      * @throws DaoException Database Error.
      */
-    public ArrayList<Interaction> getInteractions (CanonicalGene gene,
-            Collection<String> dataSources)
+    public ArrayList<Interaction> getInteractions(
+        CanonicalGene gene,
+        Collection<String> dataSources
+    )
         throws DaoException {
         Connection con = null;
         try {
             con = JdbcUtil.getDbConnection(DaoInteraction.class);
-            return getInteractions(Collections.singleton(gene.getEntrezGeneId()),
-                    false, true, dataSources, con);
+            return getInteractions(
+                Collections.singleton(gene.getEntrezGeneId()),
+                false,
+                true,
+                dataSources,
+                con
+            );
         } catch (SQLException e) {
             throw new DaoException(e);
         } finally {
@@ -181,22 +202,30 @@ public class DaoInteraction {
      * @return ArrayList of Interaction Objects.
      * @throws DaoException Database Error.
      */
-    public ArrayList<Interaction> getInteractions (CanonicalGene gene, 
-            boolean seedGeneOnly, boolean includeEdgesAmongLinkerGenes,
-            Collection<String> dataSources)
+    public ArrayList<Interaction> getInteractions(
+        CanonicalGene gene,
+        boolean seedGeneOnly,
+        boolean includeEdgesAmongLinkerGenes,
+        Collection<String> dataSources
+    )
         throws DaoException {
         Connection con = null;
         try {
             con = JdbcUtil.getDbConnection(DaoInteraction.class);
-            return getInteractions(Collections.singleton(gene.getEntrezGeneId()),
-                    seedGeneOnly, includeEdgesAmongLinkerGenes, dataSources, con);
+            return getInteractions(
+                Collections.singleton(gene.getEntrezGeneId()),
+                seedGeneOnly,
+                includeEdgesAmongLinkerGenes,
+                dataSources,
+                con
+            );
         } catch (SQLException e) {
             throw new DaoException(e);
         } finally {
             JdbcUtil.closeConnection(DaoInteraction.class, con);
         }
     }
-    
+
     /**
      * Gets all Interactions involving the Specified Genes and Interactions among
      * linker genes.
@@ -204,32 +233,49 @@ public class DaoInteraction {
      * @return ArrayList of Interaction Objects.
      * @throws DaoException Database Error.
      */
-    public ArrayList<Interaction> getInteractions (Collection<Long> entrezGeneIds,
-            Collection<String> dataSources) throws DaoException {
+    public ArrayList<Interaction> getInteractions(
+        Collection<Long> entrezGeneIds,
+        Collection<String> dataSources
+    )
+        throws DaoException {
         Connection con = null;
         try {
             con = JdbcUtil.getDbConnection(DaoInteraction.class);
-            return getInteractions(entrezGeneIds, false, true, dataSources, con); 
+            return getInteractions(
+                entrezGeneIds,
+                false,
+                true,
+                dataSources,
+                con
+            );
         } catch (SQLException e) {
             throw new DaoException(e);
         } finally {
             JdbcUtil.closeConnection(DaoInteraction.class, con);
         }
     }
-    
+
     /**
      * Gets all Interactions involving the Specified Genes.
      * @param entrezGeneIds Entrez Gene IDs.
      * @return ArrayList of Interaction Objects.
      * @throws DaoException Database Error.
      */
-    public ArrayList<Interaction> getInteractionsAmongSeeds (Collection<Long> entrezGeneIds,
-            Collection<String> dataSources)
+    public ArrayList<Interaction> getInteractionsAmongSeeds(
+        Collection<Long> entrezGeneIds,
+        Collection<String> dataSources
+    )
         throws DaoException {
         Connection con = null;
         try {
             con = JdbcUtil.getDbConnection(DaoInteraction.class);
-            return getInteractions(entrezGeneIds, true, false, dataSources, con); 
+            return getInteractions(
+                entrezGeneIds,
+                true,
+                false,
+                dataSources,
+                con
+            );
         } catch (SQLException e) {
             throw new DaoException(e);
         } finally {
@@ -245,26 +291,39 @@ public class DaoInteraction {
      * @return ArrayList of Interaction Objects.
      * @throws DaoException Database Error.
      */
-    public ArrayList<Interaction> getInteractions (Collection<Long> entrezGeneIds,
-            boolean seedGeneOnly, boolean includeEdgesAmongLinkerGenes, 
-            Collection<String> dataSources, Connection con)
+    public ArrayList<Interaction> getInteractions(
+        Collection<Long> entrezGeneIds,
+        boolean seedGeneOnly,
+        boolean includeEdgesAmongLinkerGenes,
+        Collection<String> dataSources,
+        Connection con
+    )
         throws DaoException {
         if (con == null) {
             throw new NullPointerException("Null SQL connection");
         }
-        ArrayList <Interaction> interactionList = new ArrayList <Interaction>();
+        ArrayList<Interaction> interactionList = new ArrayList<Interaction>();
         if (entrezGeneIds.isEmpty()) {
             return interactionList;
         }
         PreparedStatement pstmt;
         ResultSet rs = null;
         try {
-            String idStr = "("+StringUtils.join(entrezGeneIds, ",")+")";
-            String dsStr = dataSources==null?null:("('"+StringUtils.join(dataSources,"','")+"')");
+            String idStr = "(" + StringUtils.join(entrezGeneIds, ",") + ")";
+            String dsStr = dataSources == null
+                ? null
+                : ("('" + StringUtils.join(dataSources, "','") + "')");
             if (seedGeneOnly) {
-                String sql = "SELECT * FROM interaction where GENE_A IN "
-                        + idStr + " AND GENE_B IN "+idStr
-                        + (dataSources==null?"":(" AND DATA_SOURCE IN "+dsStr));
+                String sql =
+                    "SELECT * FROM interaction where GENE_A IN " +
+                    idStr +
+                    " AND GENE_B IN " +
+                    idStr +
+                    (
+                        dataSources == null
+                            ? ""
+                            : (" AND DATA_SOURCE IN " + dsStr)
+                    );
                 pstmt = con.prepareStatement(sql);
                 rs = pstmt.executeQuery();
                 while (rs.next()) {
@@ -273,19 +332,32 @@ public class DaoInteraction {
                 }
                 return interactionList;
             } else {
-                String sql = "SELECT * FROM interaction where GENE_A IN "
-                        + idStr + " OR GENE_B IN "+idStr
-                        + (dataSources==null?"":(" AND DATA_SOURCE IN "+dsStr));
+                String sql =
+                    "SELECT * FROM interaction where GENE_A IN " +
+                    idStr +
+                    " OR GENE_B IN " +
+                    idStr +
+                    (
+                        dataSources == null
+                            ? ""
+                            : (" AND DATA_SOURCE IN " + dsStr)
+                    );
                 pstmt = con.prepareStatement(sql);
                 rs = pstmt.executeQuery();
-                
+
                 if (includeEdgesAmongLinkerGenes) {
                     HashSet<Long> allGenes = new HashSet<Long>();
                     while (rs.next()) {
                         allGenes.add(rs.getLong("GENE_A"));
                         allGenes.add(rs.getLong("GENE_B"));
                     }
-                    return getInteractions(allGenes, true, true, dataSources, con);
+                    return getInteractions(
+                        allGenes,
+                        true,
+                        true,
+                        dataSources,
+                        con
+                    );
                 } else {
                     while (rs.next()) {
                         Interaction interaction = extractInteraction(rs);
@@ -311,11 +383,10 @@ public class DaoInteraction {
         Connection con = null;
         PreparedStatement pstmt = null;
         ResultSet rs = null;
-        ArrayList <Interaction> interactionList = new ArrayList <Interaction>();
+        ArrayList<Interaction> interactionList = new ArrayList<Interaction>();
         try {
             con = JdbcUtil.getDbConnection(DaoInteraction.class);
-            pstmt = con.prepareStatement
-                    ("SELECT * FROM interaction");
+            pstmt = con.prepareStatement("SELECT * FROM interaction");
             rs = pstmt.executeQuery();
             while (rs.next()) {
                 Interaction interaction = extractInteraction(rs);
@@ -339,16 +410,18 @@ public class DaoInteraction {
         interaction.setPmids(rs.getString("PMIDS"));
         return interaction;
     }
-    
+
     public ArrayList<String> getDataSources() throws DaoException {
         Connection con = null;
         PreparedStatement pstmt = null;
         ResultSet rs = null;
-        ArrayList <String> interactionList = new ArrayList <String>();
+        ArrayList<String> interactionList = new ArrayList<String>();
         try {
             con = JdbcUtil.getDbConnection(DaoInteraction.class);
-            pstmt = con.prepareStatement
-                    ("SELECT DISTINCT DATA_SOURCE FROM interaction");
+            pstmt =
+                con.prepareStatement(
+                    "SELECT DISTINCT DATA_SOURCE FROM interaction"
+                );
             rs = pstmt.executeQuery();
             while (rs.next()) {
                 interactionList.add(rs.getString(1));
@@ -373,8 +446,7 @@ public class DaoInteraction {
         ResultSet rs = null;
         try {
             con = JdbcUtil.getDbConnection(DaoInteraction.class);
-            pstmt = con.prepareStatement
-                    ("SELECT COUNT(*) FROM interaction");
+            pstmt = con.prepareStatement("SELECT COUNT(*) FROM interaction");
             rs = pstmt.executeQuery();
             if (rs.next()) {
                 return rs.getInt(1);

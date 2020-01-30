@@ -1,25 +1,23 @@
 package org.mskcc.cbio.portal.model.converter;
 
-import org.mskcc.cbio.portal.model.Mutation;
-import org.mskcc.cbio.portal.model.MutationCount;
-import org.mskcc.cbio.portal.model.MutationEvent;
-import org.mskcc.cbio.portal.model.KeywordSampleCount;
-import org.mskcc.cbio.portal.model.MutatedGeneSampleCount;
-import org.mskcc.cbio.portal.model.SignificantlyMutatedGene;
-import org.mskcc.cbio.portal.model.CanonicalGene;
-import org.mskcc.cbio.portal.model.ExtendedMutation;
-import org.springframework.stereotype.Component;
-
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import org.mskcc.cbio.portal.model.CanonicalGene;
+import org.mskcc.cbio.portal.model.ExtendedMutation;
+import org.mskcc.cbio.portal.model.KeywordSampleCount;
+import org.mskcc.cbio.portal.model.MutatedGeneSampleCount;
+import org.mskcc.cbio.portal.model.Mutation;
+import org.mskcc.cbio.portal.model.MutationCount;
+import org.mskcc.cbio.portal.model.MutationEvent;
+import org.mskcc.cbio.portal.model.SignificantlyMutatedGene;
+import org.springframework.stereotype.Component;
 
 @Component
 public class MutationModelConverter {
 
     public List<ExtendedMutation> convert(List<Mutation> mutationList) {
-
         List<ExtendedMutation> extendedMutationList = new ArrayList<>();
         for (Mutation mutation : mutationList) {
             extendedMutationList.add(convert(mutation));
@@ -29,11 +27,10 @@ public class MutationModelConverter {
     }
 
     public ExtendedMutation convert(Mutation mutation) {
-
         MutationEvent mutationEvent = mutation.getMutationEvent();
         ExtendedMutation.MutationEvent event = new ExtendedMutation.MutationEvent();
 
-        if(mutationEvent.getMutationEventId() != null) {
+        if (mutationEvent.getMutationEventId() != null) {
             event.setMutationEventId(mutationEvent.getMutationEventId());
         }
         if (mutationEvent.getChr() != null) {
@@ -52,7 +49,9 @@ public class MutationModelConverter {
             event.setMutationType(mutationEvent.getMutationType());
         }
         if (mutationEvent.getFunctionalImpactScore() != null) {
-            event.setFunctionalImpactScore(mutationEvent.getFunctionalImpactScore());
+            event.setFunctionalImpactScore(
+                mutationEvent.getFunctionalImpactScore()
+            );
         }
         if (mutationEvent.getFisValue() != null) {
             event.setFisValue(mutationEvent.getFisValue());
@@ -88,25 +87,39 @@ public class MutationModelConverter {
             event.setOncotatorDbSnpRs(mutationEvent.getOncotatorDbsnpRs());
         }
         if (mutationEvent.getOncotatorRefseqMrnaId() != null) {
-            event.setOncotatorRefseqMrnaId(mutationEvent.getOncotatorRefseqMrnaId());
+            event.setOncotatorRefseqMrnaId(
+                mutationEvent.getOncotatorRefseqMrnaId()
+            );
         }
         if (mutationEvent.getOncotatorCodonChange() != null) {
-            event.setOncotatorCodonChange(mutationEvent.getOncotatorCodonChange());
+            event.setOncotatorCodonChange(
+                mutationEvent.getOncotatorCodonChange()
+            );
         }
         if (mutationEvent.getOncotatorUniprotEntryName() != null) {
-            event.setOncotatorUniprotName(mutationEvent.getOncotatorUniprotEntryName());
+            event.setOncotatorUniprotName(
+                mutationEvent.getOncotatorUniprotEntryName()
+            );
         }
         if (mutationEvent.getOncotatorUniprotAccession() != null) {
-            event.setOncotatorUniprotAccession(mutationEvent.getOncotatorUniprotAccession());
+            event.setOncotatorUniprotAccession(
+                mutationEvent.getOncotatorUniprotAccession()
+            );
         }
         if (mutationEvent.getOncotatorProteinPosStart() != null) {
-            event.setOncotatorProteinPosStart(mutationEvent.getOncotatorProteinPosStart());
+            event.setOncotatorProteinPosStart(
+                mutationEvent.getOncotatorProteinPosStart()
+            );
         }
         if (mutationEvent.getOncotatorProteinPosEnd() != null) {
-            event.setOncotatorProteinPosEnd(mutationEvent.getOncotatorProteinPosEnd());
+            event.setOncotatorProteinPosEnd(
+                mutationEvent.getOncotatorProteinPosEnd()
+            );
         }
         if (mutationEvent.getCanonicalTranscript() != null) {
-            event.setCanonicalTranscript(mutationEvent.getCanonicalTranscript());
+            event.setCanonicalTranscript(
+                mutationEvent.getCanonicalTranscript()
+            );
         }
         if (mutationEvent.getTumorSeqAllele() != null) {
             event.setTumorSeqAllele(mutationEvent.getTumorSeqAllele());
@@ -115,17 +128,23 @@ public class MutationModelConverter {
             event.setKeyword(mutationEvent.getKeyword());
         }
         if (mutation.getGene() != null) {
-            CanonicalGene canonicalGene = new CanonicalGene(mutation.getGene().getEntrezGeneId(),
-                    mutation.getGene().getHugoGeneSymbol());
+            CanonicalGene canonicalGene = new CanonicalGene(
+                mutation.getGene().getEntrezGeneId(),
+                mutation.getGene().getHugoGeneSymbol()
+            );
             event.setGene(canonicalGene);
         }
 
         ExtendedMutation extendedMutation = new ExtendedMutation(event);
         if (mutation.getGeneticProfileId() != null) {
-            extendedMutation.setGeneticProfileId(Integer.parseInt(mutation.getGeneticProfileId().toString()));
+            extendedMutation.setGeneticProfileId(
+                Integer.parseInt(mutation.getGeneticProfileId().toString())
+            );
         }
         if (mutation.getSampleId() != null) {
-            extendedMutation.setSampleId(Integer.parseInt(mutation.getSampleId().toString()));
+            extendedMutation.setSampleId(
+                Integer.parseInt(mutation.getSampleId().toString())
+            );
         }
         if (mutation.getCenter() != null) {
             extendedMutation.setSequencingCenter(mutation.getCenter());
@@ -137,7 +156,9 @@ public class MutationModelConverter {
             extendedMutation.setMutationStatus(mutation.getMutationStatus());
         }
         if (mutation.getValidationStatus() != null) {
-            extendedMutation.setValidationStatus(mutation.getValidationStatus());
+            extendedMutation.setValidationStatus(
+                mutation.getValidationStatus()
+            );
         }
         if (mutation.getTumorSeqAllele1() != null) {
             extendedMutation.setTumorSeqAllele1(mutation.getTumorSeqAllele1());
@@ -146,28 +167,44 @@ public class MutationModelConverter {
             extendedMutation.setTumorSeqAllele2(mutation.getTumorSeqAllele2());
         }
         if (mutation.getMatchedNormSampleBarcode() != null) {
-            extendedMutation.setMatchedNormSampleBarcode(mutation.getMatchedNormSampleBarcode());
+            extendedMutation.setMatchedNormSampleBarcode(
+                mutation.getMatchedNormSampleBarcode()
+            );
         }
         if (mutation.getMatchNormSeqAllele1() != null) {
-            extendedMutation.setMatchNormSeqAllele1(mutation.getMatchNormSeqAllele1());
+            extendedMutation.setMatchNormSeqAllele1(
+                mutation.getMatchNormSeqAllele1()
+            );
         }
         if (mutation.getMatchNormSeqAllele2() != null) {
-            extendedMutation.setMatchNormSeqAllele2(mutation.getMatchNormSeqAllele2());
+            extendedMutation.setMatchNormSeqAllele2(
+                mutation.getMatchNormSeqAllele2()
+            );
         }
         if (mutation.getTumorValidationAllele1() != null) {
-            extendedMutation.setTumorValidationAllele1(mutation.getTumorValidationAllele1());
+            extendedMutation.setTumorValidationAllele1(
+                mutation.getTumorValidationAllele1()
+            );
         }
         if (mutation.getTumorValidationAllele2() != null) {
-            extendedMutation.setTumorValidationAllele2(mutation.getTumorValidationAllele2());
+            extendedMutation.setTumorValidationAllele2(
+                mutation.getTumorValidationAllele2()
+            );
         }
         if (mutation.getMatchNormValidationAllele1() != null) {
-            extendedMutation.setMatchNormValidationAllele1(mutation.getMatchNormValidationAllele1());
+            extendedMutation.setMatchNormValidationAllele1(
+                mutation.getMatchNormValidationAllele1()
+            );
         }
         if (mutation.getMatchNormValidationAllele2() != null) {
-            extendedMutation.setMatchNormValidationAllele2(mutation.getMatchNormValidationAllele2());
+            extendedMutation.setMatchNormValidationAllele2(
+                mutation.getMatchNormValidationAllele2()
+            );
         }
         if (mutation.getVerificationStatus() != null) {
-            extendedMutation.setVerificationStatus(mutation.getVerificationStatus());
+            extendedMutation.setVerificationStatus(
+                mutation.getVerificationStatus()
+            );
         }
         if (mutation.getSequencingPhase() != null) {
             extendedMutation.setSequencingPhase(mutation.getSequencingPhase());
@@ -176,7 +213,9 @@ public class MutationModelConverter {
             extendedMutation.setSequenceSource(mutation.getSequenceSource());
         }
         if (mutation.getValidationMethod() != null) {
-            extendedMutation.setValidationMethod(mutation.getValidationMethod());
+            extendedMutation.setValidationMethod(
+                mutation.getValidationMethod()
+            );
         }
         if (mutation.getScore() != null) {
             extendedMutation.setScore(mutation.getScore());
@@ -200,61 +239,86 @@ public class MutationModelConverter {
         return extendedMutation;
     }
 
-    public Map<String, String> convertSampleIdAndEntrezGeneIdToMap(List<Mutation> mutationList) {
-
+    public Map<String, String> convertSampleIdAndEntrezGeneIdToMap(
+        List<Mutation> mutationList
+    ) {
         Map<String, String> map = new HashMap<>();
-        for(Mutation mutation : mutationList) {
-            map.put(mutation.getSampleId().toString() + mutation.getEntrezGeneId(), "");
+        for (Mutation mutation : mutationList) {
+            map.put(
+                mutation.getSampleId().toString() + mutation.getEntrezGeneId(),
+                ""
+            );
         }
 
         return map;
     }
 
     public Map<Long, Map<String, String>> convertSignificantlyMutatedGeneToMap(
-            List<SignificantlyMutatedGene> significantlyMutatedGenes) {
-
+        List<SignificantlyMutatedGene> significantlyMutatedGenes
+    ) {
         Map<Long, Map<String, String>> map = new HashMap<>();
 
         for (SignificantlyMutatedGene significantlyMutatedGene : significantlyMutatedGenes) {
             Map<String, String> value = new HashMap<>();
-            value.put("caseIds", significantlyMutatedGene.getConcatenatedSampleIds());
+            value.put(
+                "caseIds",
+                significantlyMutatedGene.getConcatenatedSampleIds()
+            );
             value.put("count", significantlyMutatedGene.getCount().toString());
-            map.put(significantlyMutatedGene.getEntrezGeneId().longValue(), value);
+            map.put(
+                significantlyMutatedGene.getEntrezGeneId().longValue(),
+                value
+            );
         }
 
         return map;
     }
 
-    public Map<Integer, Integer> convertMutationCountToMap(List<MutationCount> mutationCounts) {
-
+    public Map<Integer, Integer> convertMutationCountToMap(
+        List<MutationCount> mutationCounts
+    ) {
         Map<Integer, Integer> map = new HashMap<>();
 
         for (MutationCount mutationCount : mutationCounts) {
-            map.put(mutationCount.getSampleId(), mutationCount.getMutationCount());
+            map.put(
+                mutationCount.getSampleId(),
+                mutationCount.getMutationCount()
+            );
         }
 
         return map;
     }
 
-    public Map<Long, Integer> convertMutatedGeneSampleCountToMap(List<MutatedGeneSampleCount> mutatedGeneSampleCounts) {
-
+    public Map<Long, Integer> convertMutatedGeneSampleCountToMap(
+        List<MutatedGeneSampleCount> mutatedGeneSampleCounts
+    ) {
         Map<Long, Integer> map = new HashMap<>();
 
         for (MutatedGeneSampleCount mutatedGeneSampleCount : mutatedGeneSampleCounts) {
-            if (mutatedGeneSampleCount != null && mutatedGeneSampleCount.getEntrezGeneId() != null) {
-                map.put(mutatedGeneSampleCount.getEntrezGeneId().longValue(), mutatedGeneSampleCount.getCount());
+            if (
+                mutatedGeneSampleCount != null &&
+                mutatedGeneSampleCount.getEntrezGeneId() != null
+            ) {
+                map.put(
+                    mutatedGeneSampleCount.getEntrezGeneId().longValue(),
+                    mutatedGeneSampleCount.getCount()
+                );
             }
         }
 
         return map;
     }
 
-    public Map<String, Integer> convertKeywordSampleCountToMap(List<KeywordSampleCount> keywordSampleCounts) {
-
+    public Map<String, Integer> convertKeywordSampleCountToMap(
+        List<KeywordSampleCount> keywordSampleCounts
+    ) {
         Map<String, Integer> map = new HashMap<>();
 
         for (KeywordSampleCount keywordSampleCount : keywordSampleCounts) {
-            map.put(keywordSampleCount.getKeyword(), keywordSampleCount.getCount());
+            map.put(
+                keywordSampleCount.getKeyword(),
+                keywordSampleCount.getCount()
+            );
         }
 
         return map;

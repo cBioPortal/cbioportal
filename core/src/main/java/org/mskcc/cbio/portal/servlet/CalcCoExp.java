@@ -28,30 +28,26 @@
  *
  * You should have received a copy of the GNU Affero General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
-*/
+ */
 
 package org.mskcc.cbio.portal.servlet;
 
 import java.io.*;
-import java.util.*;
 import java.lang.Math;
-
-import org.json.simple.JSONObject;
+import java.util.*;
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-
+import org.apache.commons.math3.stat.correlation.PearsonsCorrelation;
+import org.apache.commons.math3.stat.correlation.SpearmansCorrelation;
+import org.codehaus.jackson.JsonNode;
+import org.codehaus.jackson.map.ObjectMapper;
+import org.codehaus.jackson.node.ObjectNode;
+import org.json.simple.JSONObject;
 import org.json.simple.JSONValue;
 import org.mskcc.cbio.portal.dao.*;
 import org.mskcc.cbio.portal.model.*;
-
-import org.codehaus.jackson.JsonNode;
-import org.codehaus.jackson.node.ObjectNode;
-import org.codehaus.jackson.map.ObjectMapper;
-
-import org.apache.commons.math3.stat.correlation.PearsonsCorrelation;
-import org.apache.commons.math3.stat.correlation.SpearmansCorrelation;
 import org.mskcc.cbio.portal.util.CoExpUtil;
 import org.mskcc.cbio.portal.util.XssRequestWrapper;
 
@@ -61,9 +57,9 @@ import org.mskcc.cbio.portal.util.XssRequestWrapper;
  * @param : geneXarr -- String of profile data for the x axis gene
  * @param : geneYarr -- String of profile data for the y axis gene
  * @return : Pearson and spearman co-expression scores
- * 
+ *
  */
-public class CalcCoExp extends HttpServlet  {
+public class CalcCoExp extends HttpServlet {
 
     /**
      * Handles HTTP GET Request.
@@ -72,8 +68,11 @@ public class CalcCoExp extends HttpServlet  {
      * @param httpServletResponse HttpServletResponse
      * @throws ServletException
      */
-    protected void doGet(HttpServletRequest httpServletRequest,
-                         HttpServletResponse httpServletResponse) throws ServletException, IOException {
+    protected void doGet(
+        HttpServletRequest httpServletRequest,
+        HttpServletResponse httpServletResponse
+    )
+        throws ServletException, IOException {
         doPost(httpServletRequest, httpServletResponse);
     }
 
@@ -84,9 +83,11 @@ public class CalcCoExp extends HttpServlet  {
      * @param httpServletResponse HttpServletResponse
      * @throws ServletException
      */
-    protected void doPost(HttpServletRequest httpServletRequest,
-                          HttpServletResponse httpServletResponse) throws ServletException, IOException {
-
+    protected void doPost(
+        HttpServletRequest httpServletRequest,
+        HttpServletResponse httpServletResponse
+    )
+        throws ServletException, IOException {
         String geneXArr = httpServletRequest.getParameter("gene_x");
         String geneYArr = httpServletRequest.getParameter("gene_y");
 
@@ -102,18 +103,21 @@ public class CalcCoExp extends HttpServlet  {
             _geneXvalArr[i] = _valX;
             _geneYvalArr[i] = _valY;
         }
-        
+
         //Calculate Scores
         PearsonsCorrelation pearsonsCorrelation = new PearsonsCorrelation();
         SpearmansCorrelation spearmansCorrelation = new SpearmansCorrelation();
-        double pearson = pearsonsCorrelation.correlation(_geneXvalArr, _geneYvalArr);
-        double spearman = spearmansCorrelation.correlation(_geneXvalArr, _geneYvalArr);
+        double pearson = pearsonsCorrelation.correlation(
+            _geneXvalArr,
+            _geneYvalArr
+        );
+        double spearman = spearmansCorrelation.correlation(
+            _geneXvalArr,
+            _geneYvalArr
+        );
 
         httpServletResponse.setContentType("text/html");
         PrintWriter out = httpServletResponse.getWriter();
         JSONValue.writeJSONString(pearson + " " + spearman, out);
     }
 }
-
-
-

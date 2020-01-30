@@ -28,7 +28,7 @@
  *
  * You should have received a copy of the GNU Affero General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
-*/
+ */
 
 package org.mskcc.cbio.portal.util;
 
@@ -41,9 +41,9 @@ package org.mskcc.cbio.portal.util;
 public class Logger {
     private static boolean log = false;
 
-    public static void log (String msg) {
+    public static void log(String msg) {
         if (log) {
-            System.out.println (msg);
+            System.out.println(msg);
         }
     }
 }

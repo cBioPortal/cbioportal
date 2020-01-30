@@ -28,7 +28,7 @@
  *
  * You should have received a copy of the GNU Affero General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
-*/
+ */
 
 package org.mskcc.cbio.portal.dao;
 
@@ -39,23 +39,31 @@ import org.mskcc.cbio.portal.model.*;
  */
 public final class DaoAlleleSpecificCopyNumber {
 
-    public static int addAlleleSpecificCopyNumber(AlleleSpecificCopyNumber ascn) throws DaoException {
+    public static int addAlleleSpecificCopyNumber(
+        AlleleSpecificCopyNumber ascn
+    )
+        throws DaoException {
         if (!MySQLbulkLoader.isBulkLoad()) {
-            throw new DaoException("You have to turn on MySQLbulkLoader in order to insert allele specific copy numbers");
+            throw new DaoException(
+                "You have to turn on MySQLbulkLoader in order to insert allele specific copy numbers"
+            );
         } else {
             int result = 1;
-            MySQLbulkLoader.getMySQLbulkLoader("allele_specific_copy_number").insertRecord(
-                resolveValueToString(ascn.getMutationEventId()),
-                resolveValueToString(ascn.getGeneticProfileId()),
-                resolveValueToString(ascn.getSampleId()),
-                resolveValueToString(ascn.getAscnIntegerCopyNumber()),
-                ascn.getAscnMethod(),
-                resolveValueToString(ascn.getCcfMCopiesUpper()),
-                resolveValueToString(ascn.getCcfMCopies()),
-                resolveBooleanToString(ascn.getClonal()),
-                resolveValueToString(ascn.getMinorCopyNumber()),
-                resolveValueToString(ascn.getMutantCopies()),
-                resolveValueToString(ascn.getTotalCopyNumber()));
+            MySQLbulkLoader
+                .getMySQLbulkLoader("allele_specific_copy_number")
+                .insertRecord(
+                    resolveValueToString(ascn.getMutationEventId()),
+                    resolveValueToString(ascn.getGeneticProfileId()),
+                    resolveValueToString(ascn.getSampleId()),
+                    resolveValueToString(ascn.getAscnIntegerCopyNumber()),
+                    ascn.getAscnMethod(),
+                    resolveValueToString(ascn.getCcfMCopiesUpper()),
+                    resolveValueToString(ascn.getCcfMCopies()),
+                    resolveBooleanToString(ascn.getClonal()),
+                    resolveValueToString(ascn.getMinorCopyNumber()),
+                    resolveValueToString(ascn.getMutantCopies()),
+                    resolveValueToString(ascn.getTotalCopyNumber())
+                );
             return result;
         }
     }

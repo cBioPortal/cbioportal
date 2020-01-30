@@ -19,14 +19,18 @@
  *
  * You should have received a copy of the GNU Affero General Public License
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
-*/
+ */
 
 /*
  * @author Sander Tan
-*/
+ */
 
 package org.mskcc.cbio.portal.scripts;
 
+import static org.junit.Assert.*;
+
+import java.io.*;
+import java.sql.*;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -37,19 +41,19 @@ import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import org.springframework.test.context.transaction.TransactionConfiguration;
 import org.springframework.transaction.annotation.Transactional;
-import static org.junit.Assert.*;
-import java.io.*;
-import java.sql.*;
 
 /**
  * Test class to test functionality of ImportStructralVariantData
-*/
+ */
 @SuppressWarnings("deprecation")
 @RunWith(SpringJUnit4ClassRunner.class)
 @ContextConfiguration(locations = { "classpath:/applicationContext-dao.xml" })
-@TransactionConfiguration(transactionManager = "transactionManager", defaultRollback = true)
+@TransactionConfiguration(
+    transactionManager = "transactionManager",
+    defaultRollback = true
+)
 @Transactional
-public class TestImportStructuralVariantData{
+public class TestImportStructuralVariantData {
     int studyId;
     int geneticProfileId;
 
@@ -60,34 +64,61 @@ public class TestImportStructuralVariantData{
      * @throws SQLException
      * @throws DaoException
      */
-    private StructuralVariant extractStructuralVariant(ResultSet rs) throws SQLException, DaoException {
+    private StructuralVariant extractStructuralVariant(ResultSet rs)
+        throws SQLException, DaoException {
         StructuralVariant structuralVariant = new StructuralVariant();
         structuralVariant.setGeneticProfileId(rs.getInt("GENETIC_PROFILE_ID"));
         structuralVariant.setSampleIdInternal(rs.getInt("SAMPLE_ID"));
-        structuralVariant.setSite1EntrezGeneId(rs.getLong("SITE1_ENTREZ_GENE_ID"));
-        structuralVariant.setSite1EnsemblTranscriptId(rs.getString("SITE1_ENSEMBL_TRANSCRIPT_ID"));
+        structuralVariant.setSite1EntrezGeneId(
+            rs.getLong("SITE1_ENTREZ_GENE_ID")
+        );
+        structuralVariant.setSite1EnsemblTranscriptId(
+            rs.getString("SITE1_ENSEMBL_TRANSCRIPT_ID")
+        );
         structuralVariant.setSite1Exon(rs.getInt("SITE1_EXON"));
         structuralVariant.setSite1Chromosome(rs.getString("SITE1_CHROMOSOME"));
         structuralVariant.setSite1Position(rs.getInt("SITE1_POSITION"));
-        structuralVariant.setSite1Description(rs.getString("SITE1_DESCRIPTION"));
-        structuralVariant.setSite2EntrezGeneId(rs.getLong("SITE2_ENTREZ_GENE_ID"));
-        structuralVariant.setSite2EnsemblTranscriptId(rs.getString("SITE2_ENSEMBL_TRANSCRIPT_ID"));
+        structuralVariant.setSite1Description(
+            rs.getString("SITE1_DESCRIPTION")
+        );
+        structuralVariant.setSite2EntrezGeneId(
+            rs.getLong("SITE2_ENTREZ_GENE_ID")
+        );
+        structuralVariant.setSite2EnsemblTranscriptId(
+            rs.getString("SITE2_ENSEMBL_TRANSCRIPT_ID")
+        );
         structuralVariant.setSite2Exon(rs.getInt("SITE2_EXON"));
         structuralVariant.setSite2Chromosome(rs.getString("SITE2_CHROMOSOME"));
         structuralVariant.setSite2Position(rs.getInt("SITE2_POSITION"));
-        structuralVariant.setSite2Description(rs.getString("SITE2_DESCRIPTION"));
-        structuralVariant.setSite2EffectOnFrame(rs.getString("SITE2_EFFECT_ON_FRAME"));
+        structuralVariant.setSite2Description(
+            rs.getString("SITE2_DESCRIPTION")
+        );
+        structuralVariant.setSite2EffectOnFrame(
+            rs.getString("SITE2_EFFECT_ON_FRAME")
+        );
         structuralVariant.setNcbiBuild(rs.getString("NCBI_BUILD"));
         structuralVariant.setDnaSupport(rs.getString("DNA_SUPPORT"));
         structuralVariant.setRnaSupport(rs.getString("RNA_SUPPORT"));
         structuralVariant.setNormalReadCount(rs.getInt("NORMAL_READ_COUNT"));
         structuralVariant.setTumorReadCount(rs.getInt("TUMOR_READ_COUNT"));
-        structuralVariant.setNormalVariantCount(rs.getInt("NORMAL_VARIANT_COUNT"));
-        structuralVariant.setTumorVariantCount(rs.getInt("TUMOR_VARIANT_COUNT"));
-        structuralVariant.setNormalPairedEndReadCount(rs.getInt("NORMAL_PAIRED_END_READ_COUNT"));
-        structuralVariant.setTumorPairedEndReadCount(rs.getInt("TUMOR_PAIRED_END_READ_COUNT"));
-        structuralVariant.setNormalSplitReadCount(rs.getInt("NORMAL_SPLIT_READ_COUNT"));
-        structuralVariant.setTumorSplitReadCount(rs.getInt("TUMOR_SPLIT_READ_COUNT"));
+        structuralVariant.setNormalVariantCount(
+            rs.getInt("NORMAL_VARIANT_COUNT")
+        );
+        structuralVariant.setTumorVariantCount(
+            rs.getInt("TUMOR_VARIANT_COUNT")
+        );
+        structuralVariant.setNormalPairedEndReadCount(
+            rs.getInt("NORMAL_PAIRED_END_READ_COUNT")
+        );
+        structuralVariant.setTumorPairedEndReadCount(
+            rs.getInt("TUMOR_PAIRED_END_READ_COUNT")
+        );
+        structuralVariant.setNormalSplitReadCount(
+            rs.getInt("NORMAL_SPLIT_READ_COUNT")
+        );
+        structuralVariant.setTumorSplitReadCount(
+            rs.getInt("TUMOR_SPLIT_READ_COUNT")
+        );
         structuralVariant.setAnnotation(rs.getString("ANNOTATION"));
         structuralVariant.setBreakpointType(rs.getString("BREAKPOINT_TYPE"));
         structuralVariant.setCenter(rs.getString("CENTER"));
@@ -96,28 +127,48 @@ public class TestImportStructuralVariantData{
         structuralVariant.setVariantClass(rs.getString("CLASS"));
         structuralVariant.setLength(rs.getInt("LENGTH"));
         structuralVariant.setComments(rs.getString("COMMENTS"));
-        structuralVariant.setExternalAnnotation(rs.getString("EXTERNAL_ANNOTATION"));
+        structuralVariant.setExternalAnnotation(
+            rs.getString("EXTERNAL_ANNOTATION")
+        );
         structuralVariant.setDriverFilter(rs.getString("DRIVER_FILTER"));
-        structuralVariant.setDriverFilterAnn(rs.getString("DRIVER_FILTER_ANNOTATION"));
-        structuralVariant.setDriverTiersFilter(rs.getString("DRIVER_TIERS_FILTER"));
-        structuralVariant.setDriverTiersFilterAnn(rs.getString("DRIVER_TIERS_FILTER_ANNOTATION"));
+        structuralVariant.setDriverFilterAnn(
+            rs.getString("DRIVER_FILTER_ANNOTATION")
+        );
+        structuralVariant.setDriverTiersFilter(
+            rs.getString("DRIVER_TIERS_FILTER")
+        );
+        structuralVariant.setDriverTiersFilterAnn(
+            rs.getString("DRIVER_TIERS_FILTER_ANNOTATION")
+        );
         return structuralVariant;
     }
 
     @Before
-    public void setUp() throws DaoException
-    {
-        studyId = DaoCancerStudy.getCancerStudyByStableId("study_tcga_pub").getInternalId();
-        geneticProfileId = DaoGeneticProfile.getGeneticProfileByStableId("study_tcga_pub_structural_variants").getGeneticProfileId();
+    public void setUp() throws DaoException {
+        studyId =
+            DaoCancerStudy
+                .getCancerStudyByStableId("study_tcga_pub")
+                .getInternalId();
+        geneticProfileId =
+            DaoGeneticProfile
+                .getGeneticProfileByStableId(
+                    "study_tcga_pub_structural_variants"
+                )
+                .getGeneticProfileId();
     }
 
     @Test
-    public void testImportStructuralVariantData() throws DaoException, IOException {
+    public void testImportStructuralVariantData()
+        throws DaoException, IOException {
         ProgressMonitor.setConsoleMode(false);
 
         // Load test structural variants
         File file = new File("src/test/resources/data_structural_variants.txt");
-        ImportStructuralVariantData importer = new ImportStructuralVariantData(file, geneticProfileId, null);
+        ImportStructuralVariantData importer = new ImportStructuralVariantData(
+            file,
+            geneticProfileId,
+            null
+        );
         importer.importData();
         MySQLbulkLoader.flushAll();
 
@@ -133,17 +184,21 @@ public class TestImportStructuralVariantData{
             // Test first structural variant entry
             rs.next();
             StructuralVariant structuralVariant = extractStructuralVariant(rs);
-            assertEquals("KIAA1549-BRAF.K16B10.COSF509_2", structuralVariant.getSite2Description());
+            assertEquals(
+                "KIAA1549-BRAF.K16B10.COSF509_2",
+                structuralVariant.getSite2Description()
+            );
 
             // Test second structural variant entry
             rs.next();
             structuralVariant = extractStructuralVariant(rs);
-            assertEquals("ENST00000318522", structuralVariant.getSite1EnsemblTranscriptId());
-        }
-        catch (SQLException e) {
+            assertEquals(
+                "ENST00000318522",
+                structuralVariant.getSite1EnsemblTranscriptId()
+            );
+        } catch (SQLException e) {
             throw new DaoException(e);
-        }
-        finally {
+        } finally {
             JdbcUtil.closeAll(DaoGeneset.class, con, pstmt, rs);
         }
     }

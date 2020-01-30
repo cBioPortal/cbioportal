@@ -28,16 +28,17 @@
  *
  * You should have received a copy of the GNU Affero General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
-*/
+ */
 
 package org.mskcc.cbio.portal.oncoPrintSpecLanguage;
 
 /**
- * used to report errors in the AST walker 
+ * used to report errors in the AST walker
  * @author Arthur Goldberg
  */
-public class OncoPrintLangException extends RuntimeException{
-   public OncoPrintLangException( String msg){
-      super(msg);
-   }
+public class OncoPrintLangException extends RuntimeException {
+
+    public OncoPrintLangException(String msg) {
+        super(msg);
+    }
 }

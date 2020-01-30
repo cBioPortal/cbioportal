@@ -28,45 +28,57 @@
  *
  * You should have received a copy of the GNU Affero General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
-*/
+ */
 
 package org.mskcc.cbio.portal.stats;
-
-import junit.framework.TestCase;
-import org.mskcc.cbio.portal.model.ProfileData;
-import org.mskcc.cbio.portal.model.ProfileDataSummary;
-import org.mskcc.cbio.portal.oncoPrintSpecLanguage.OncoPrintSpecification;
-import org.mskcc.cbio.portal.util.ProfileMerger;
-import org.mskcc.cbio.io.WebFileConnect;
-import org.mskcc.cbio.portal.util.ZScoreUtil;
-import org.mskcc.cbio.portal.model.GeneticProfile;
-import org.mskcc.cbio.portal.model.GeneticAlterationType;
 
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
+import junit.framework.TestCase;
+import org.mskcc.cbio.io.WebFileConnect;
+import org.mskcc.cbio.portal.model.GeneticAlterationType;
+import org.mskcc.cbio.portal.model.GeneticProfile;
+import org.mskcc.cbio.portal.model.ProfileData;
+import org.mskcc.cbio.portal.model.ProfileDataSummary;
+import org.mskcc.cbio.portal.oncoPrintSpecLanguage.OncoPrintSpecification;
+import org.mskcc.cbio.portal.util.ProfileMerger;
+import org.mskcc.cbio.portal.util.ZScoreUtil;
 
 public class TestOddsRatio extends TestCase {
 
     public void testFisherExact() throws IOException {
         ArrayList<ProfileData> profileList = new ArrayList<ProfileData>();
 
-        GeneticProfile profile0 =
-                new GeneticProfile("gbm", 1,
-                                   GeneticAlterationType.COPY_NUMBER_ALTERATION, "DISCRETE",
-                                   "CNA", "CNA", true);
+        GeneticProfile profile0 = new GeneticProfile(
+            "gbm",
+            1,
+            GeneticAlterationType.COPY_NUMBER_ALTERATION,
+            "DISCRETE",
+            "CNA",
+            "CNA",
+            true
+        );
         // TBD: change this to use getResourceAsStream()
-        String matrix0[][] = WebFileConnect.retrieveMatrix(new File("target/test-classes/cna_sample2.txt"));
+        String matrix0[][] = WebFileConnect.retrieveMatrix(
+            new File("target/test-classes/cna_sample2.txt")
+        );
         ProfileData data0 = new ProfileData(profile0, matrix0);
         profileList.add(data0);
-        
+
         String[] genes = { "BRCA1", "BRCA2" };
-        OncoPrintSpecification anOncoPrintSpecification = new OncoPrintSpecification( genes );
-        
+        OncoPrintSpecification anOncoPrintSpecification = new OncoPrintSpecification(
+            genes
+        );
+
         ProfileMerger merger = new ProfileMerger(profileList);
         ProfileData mergedProfile = merger.getMergedProfile();
-        ProfileDataSummary pDataSummary = new ProfileDataSummary(mergedProfile, anOncoPrintSpecification,
-                ZScoreUtil.Z_SCORE_THRESHOLD_DEFAULT, ZScoreUtil.RPPA_SCORE_THRESHOLD_DEFAULT);
+        ProfileDataSummary pDataSummary = new ProfileDataSummary(
+            mergedProfile,
+            anOncoPrintSpecification,
+            ZScoreUtil.Z_SCORE_THRESHOLD_DEFAULT,
+            ZScoreUtil.RPPA_SCORE_THRESHOLD_DEFAULT
+        );
 
         OddsRatio oddsRatio = new OddsRatio(pDataSummary, "BRCA1", "BRCA2");
         double oddsRatioValue = oddsRatio.getOddsRatio();

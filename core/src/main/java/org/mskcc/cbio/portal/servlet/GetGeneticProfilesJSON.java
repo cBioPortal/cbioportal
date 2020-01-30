@@ -28,7 +28,7 @@
  *
  * You should have received a copy of the GNU Affero General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
-*/
+ */
 
 package org.mskcc.cbio.portal.servlet;
 
@@ -53,11 +53,10 @@ import org.mskcc.cbio.portal.util.*;
  * @param case_set_id, case_ids_key, gene_list (optional)
  * @return JSON objects of genetic profiles
  */
-public class GetGeneticProfilesJSON extends HttpServlet  {
-
-	// class which process access control to cancer studies
+public class GetGeneticProfilesJSON extends HttpServlet {
+    // class which process access control to cancer studies
     private AccessControl accessControl;
-    
+
     /**
      * Initializes the servlet.
      */
@@ -65,7 +64,7 @@ public class GetGeneticProfilesJSON extends HttpServlet  {
         super.init();
         accessControl = SpringUtil.getAccessControl();
     }
-    
+
     /**
      * Handles HTTP GET Request.
      *
@@ -73,8 +72,11 @@ public class GetGeneticProfilesJSON extends HttpServlet  {
      * @param httpServletResponse HttpServletResponse
      * @throws ServletException
      */
-    protected void doGet(HttpServletRequest httpServletRequest,
-                         HttpServletResponse httpServletResponse) throws ServletException, IOException {
+    protected void doGet(
+        HttpServletRequest httpServletRequest,
+        HttpServletResponse httpServletResponse
+    )
+        throws ServletException, IOException {
         doPost(httpServletRequest, httpServletResponse);
     }
 
@@ -85,78 +87,131 @@ public class GetGeneticProfilesJSON extends HttpServlet  {
      * @param httpServletResponse HttpServletResponse
      * @throws ServletException
      */
-    protected void doPost(HttpServletRequest httpServletRequest,
-                          HttpServletResponse httpServletResponse) throws ServletException, IOException {
-
-        String cancerStudyIdentifier = httpServletRequest.getParameter("cancer_study_id");
+    protected void doPost(
+        HttpServletRequest httpServletRequest,
+        HttpServletResponse httpServletResponse
+    )
+        throws ServletException, IOException {
+        String cancerStudyIdentifier = httpServletRequest.getParameter(
+            "cancer_study_id"
+        );
         String sampleSetId = httpServletRequest.getParameter("case_set_id");
         String sampleIdsKey = httpServletRequest.getParameter("case_ids_key");
         String geneListStr = httpServletRequest.getParameter("gene_list");
         if (httpServletRequest instanceof XssRequestWrapper) {
-            geneListStr = ((XssRequestWrapper)httpServletRequest).getRawParameter("gene_list");
+            geneListStr =
+                ((XssRequestWrapper) httpServletRequest).getRawParameter(
+                        "gene_list"
+                    );
         }
 
-		CancerStudy cancerStudy = null;
-		try {
-			if (cancerStudyIdentifier != null) {
-				cancerStudy = DaoCancerStudy.getCancerStudyByStableId(cancerStudyIdentifier);
-				if (cancerStudy == null
-						|| accessControl.isAccessibleCancerStudy(cancerStudy.getCancerStudyStableId()).size() == 0) {
-					return;
-				}
-			} else {
-				return;
-			}
-		} catch (DaoException e) {
-			System.out.println("DaoException Caught:" + e.getMessage());
-			return;
-		}
-		
-        if (cancerStudy != null) {
+        CancerStudy cancerStudy = null;
+        try {
+            if (cancerStudyIdentifier != null) {
+                cancerStudy =
+                    DaoCancerStudy.getCancerStudyByStableId(
+                        cancerStudyIdentifier
+                    );
+                if (
+                    cancerStudy == null ||
+                    accessControl
+                        .isAccessibleCancerStudy(
+                            cancerStudy.getCancerStudyStableId()
+                        )
+                        .size() ==
+                    0
+                ) {
+                    return;
+                }
+            } else {
+                return;
+            }
+        } catch (DaoException e) {
+            System.out.println("DaoException Caught:" + e.getMessage());
+            return;
+        }
 
+        if (cancerStudy != null) {
             int cancerStudyId = cancerStudy.getInternalId();
 
             JSONObject result = new JSONObject();
-            ArrayList<GeneticProfile> list =
-                    DaoGeneticProfile.getAllGeneticProfiles(cancerStudyId);
+            ArrayList<GeneticProfile> list = DaoGeneticProfile.getAllGeneticProfiles(
+                cancerStudyId
+            );
 
             if (list.size() > 0) {
                 //Retrieve all the profiles available for this cancer study
                 if (sampleSetId == null && geneListStr == null) {
                     for (GeneticProfile geneticProfile : list) {
                         JSONObject tmpProfileObj = new JSONObject();
-                        tmpProfileObj.put("STABLE_ID", geneticProfile.getStableId());
-                        tmpProfileObj.put("NAME", geneticProfile.getProfileName());
-                        tmpProfileObj.put("DESCRIPTION", geneticProfile.getProfileDescription());
-                        tmpProfileObj.put("GENETIC_ALTERATION_TYPE", geneticProfile.getGeneticAlterationType().name());
-                        tmpProfileObj.put("CANCER_STUDY_ID", geneticProfile.getCancerStudyId());
-                        tmpProfileObj.put("SHOW_PROFILE_IN_ANALYSIS_TAB", geneticProfile.showProfileInAnalysisTab());
+                        tmpProfileObj.put(
+                            "STABLE_ID",
+                            geneticProfile.getStableId()
+                        );
+                        tmpProfileObj.put(
+                            "NAME",
+                            geneticProfile.getProfileName()
+                        );
+                        tmpProfileObj.put(
+                            "DESCRIPTION",
+                            geneticProfile.getProfileDescription()
+                        );
+                        tmpProfileObj.put(
+                            "GENETIC_ALTERATION_TYPE",
+                            geneticProfile.getGeneticAlterationType().name()
+                        );
+                        tmpProfileObj.put(
+                            "CANCER_STUDY_ID",
+                            geneticProfile.getCancerStudyId()
+                        );
+                        tmpProfileObj.put(
+                            "SHOW_PROFILE_IN_ANALYSIS_TAB",
+                            geneticProfile.showProfileInAnalysisTab()
+                        );
                         // added datatype to be able to make distinction between log data and non-log data
-                        tmpProfileObj.put("DATATYPE", geneticProfile.getDatatype());
+                        tmpProfileObj.put(
+                            "DATATYPE",
+                            geneticProfile.getDatatype()
+                        );
                         result.put(geneticProfile.getStableId(), tmpProfileObj);
                     }
                     httpServletResponse.setContentType("application/json");
                     PrintWriter out = httpServletResponse.getWriter();
                     JSONValue.writeJSONString(result, out);
-                } else if (geneListStr != null && sampleSetId != null && sampleIdsKey != null) { //Only return data available profiles for each queried gene
+                } else if (
+                    geneListStr != null &&
+                    sampleSetId != null &&
+                    sampleIdsKey != null
+                ) { //Only return data available profiles for each queried gene
                     String[] geneList = geneListStr.split("\\s+");
                     try {
                         //Get patient ID list
                         DaoSampleList daoSampleList = new DaoSampleList();
                         SampleList sampleList;
                         ArrayList<String> sampleIdList = new ArrayList<String>();
-                        if (sampleSetId.equals("-1") && sampleIdsKey.length() != 0) {
-                            String strSampleIds = SampleSetUtil.getSampleIds(sampleIdsKey);
+                        if (
+                            sampleSetId.equals("-1") &&
+                            sampleIdsKey.length() != 0
+                        ) {
+                            String strSampleIds = SampleSetUtil.getSampleIds(
+                                sampleIdsKey
+                            );
                             String[] sampleArray = strSampleIds.split("\\s+");
                             for (String item : sampleArray) {
                                 sampleIdList.add(item);
                             }
                         } else {
-                            sampleList = daoSampleList.getSampleListByStableId(sampleSetId);
+                            sampleList =
+                                daoSampleList.getSampleListByStableId(
+                                    sampleSetId
+                                );
                             sampleIdList = sampleList.getSampleList();
                         }
                         // NOTE - as of 12/12/14, patient lists contain sample ids
-                        List<Integer> internalSampleIds = InternalIdUtil.getInternalNonNormalSampleIds(cancerStudyId, sampleIdList);
+                        List<Integer> internalSampleIds = InternalIdUtil.getInternalNonNormalSampleIds(
+                            cancerStudyId,
+                            sampleIdList
+                        );
 
                         for (String geneId : geneList) {
                             //Get gene
@@ -166,26 +221,57 @@ public class GetGeneticProfilesJSON extends HttpServlet  {
                             JSONObject tmpResult = new JSONObject();
                             for (GeneticProfile geneticProfile : list) {
                                 ArrayList<String> tmpProfileDataArr = GeneticAlterationUtil.getGeneticAlterationDataRow(
-                                        gene,
-                                        internalSampleIds,
-                                        DaoGeneticProfile.getGeneticProfileByStableId(geneticProfile.getStableId()));
+                                    gene,
+                                    internalSampleIds,
+                                    DaoGeneticProfile.getGeneticProfileByStableId(
+                                        geneticProfile.getStableId()
+                                    )
+                                );
                                 if (isDataAvailable(tmpProfileDataArr)) {
                                     JSONObject tmpProfileObj = new JSONObject();
-                                    tmpProfileObj.put("STABLE_ID", geneticProfile.getStableId());
-                                    tmpProfileObj.put("NAME", geneticProfile.getProfileName());
-                                    tmpProfileObj.put("DESCRIPTION", geneticProfile.getProfileDescription());
-                                    tmpProfileObj.put("GENETIC_ALTERATION_TYPE", geneticProfile.getGeneticAlterationType().name());
-                                    tmpProfileObj.put("CANCER_STUDY_ID", geneticProfile.getCancerStudyId());
-                                    tmpProfileObj.put("SHOW_PROFILE_IN_ANALYSIS_TAB", geneticProfile.showProfileInAnalysisTab());
+                                    tmpProfileObj.put(
+                                        "STABLE_ID",
+                                        geneticProfile.getStableId()
+                                    );
+                                    tmpProfileObj.put(
+                                        "NAME",
+                                        geneticProfile.getProfileName()
+                                    );
+                                    tmpProfileObj.put(
+                                        "DESCRIPTION",
+                                        geneticProfile.getProfileDescription()
+                                    );
+                                    tmpProfileObj.put(
+                                        "GENETIC_ALTERATION_TYPE",
+                                        geneticProfile
+                                            .getGeneticAlterationType()
+                                            .name()
+                                    );
+                                    tmpProfileObj.put(
+                                        "CANCER_STUDY_ID",
+                                        geneticProfile.getCancerStudyId()
+                                    );
+                                    tmpProfileObj.put(
+                                        "SHOW_PROFILE_IN_ANALYSIS_TAB",
+                                        geneticProfile.showProfileInAnalysisTab()
+                                    );
                                     // added datatype to be able to make distinction between log data and non-log data
-                                    tmpProfileObj.put("DATATYPE", geneticProfile.getDatatype());
-                                    tmpResult.put(geneticProfile.getStableId(), tmpProfileObj);
+                                    tmpProfileObj.put(
+                                        "DATATYPE",
+                                        geneticProfile.getDatatype()
+                                    );
+                                    tmpResult.put(
+                                        geneticProfile.getStableId(),
+                                        tmpProfileObj
+                                    );
                                 }
                             }
                             result.put(geneId, tmpResult);
                         }
                     } catch (DaoException e) {
-                        System.out.println("DaoException Caught:" + e.getMessage());
+                        System.out.println(
+                            "DaoException Caught:" + e.getMessage()
+                        );
                     }
                     httpServletResponse.setContentType("application/json");
                     PrintWriter out = httpServletResponse.getWriter();
@@ -193,16 +279,20 @@ public class GetGeneticProfilesJSON extends HttpServlet  {
                 } else {
                     httpServletResponse.setContentType("application/text");
                     PrintWriter out = httpServletResponse.getWriter();
-                    out.print("Error: Please provide both GENE ID and CASE_SET_ID/CASE_IDS_KEY");
+                    out.print(
+                        "Error: Please provide both GENE ID and CASE_SET_ID/CASE_IDS_KEY"
+                    );
                     out.flush();
                 }
             } else {
                 httpServletResponse.setContentType("application/text");
                 PrintWriter out = httpServletResponse.getWriter();
-                out.print("Error:  No genetic profiles available for: " + cancerStudyId);
+                out.print(
+                    "Error:  No genetic profiles available for: " +
+                    cancerStudyId
+                );
                 out.flush();
             }
-
         }
     }
 
@@ -215,5 +305,4 @@ public class GetGeneticProfilesJSON extends HttpServlet  {
         }
         return false;
     }
-
 }

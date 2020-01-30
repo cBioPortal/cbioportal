@@ -28,7 +28,7 @@
  *
  * You should have received a copy of the GNU Affero General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
-*/
+ */
 
 package org.mskcc.cbio.portal.model;
 
@@ -37,162 +37,132 @@ package org.mskcc.cbio.portal.model;
  *
  * @author Selcuk Onur Sumer
  */
-public class PdbUniprotAlignment
-{
-	private Integer alignmentId;
-	private String pdbId;
-	private String chain;
-	private String uniprotId;
-	private String pdbFrom;
-	private String pdbTo;
-	private Integer uniprotFrom;
-	private Integer uniprotTo;
-	private Float eValue;
-	private Float identity;
-	private Float identityPerc;
+public class PdbUniprotAlignment {
+    private Integer alignmentId;
+    private String pdbId;
+    private String chain;
+    private String uniprotId;
+    private String pdbFrom;
+    private String pdbTo;
+    private Integer uniprotFrom;
+    private Integer uniprotTo;
+    private Float eValue;
+    private Float identity;
+    private Float identityPerc;
 
-	private String uniprotAlign;
-	private String pdbAlign;
-	private String midlineAlign;
+    private String uniprotAlign;
+    private String pdbAlign;
+    private String midlineAlign;
 
-	public String getMidlineAlign()
-	{
-		return midlineAlign;
-	}
+    public String getMidlineAlign() {
+        return midlineAlign;
+    }
 
-	public void setMidlineAlign(String midlineAlign)
-	{
-		this.midlineAlign = midlineAlign;
-	}
+    public void setMidlineAlign(String midlineAlign) {
+        this.midlineAlign = midlineAlign;
+    }
 
-	public String getUniprotAlign()
-	{
-		return uniprotAlign;
-	}
+    public String getUniprotAlign() {
+        return uniprotAlign;
+    }
 
-	public void setUniprotAlign(String uniprotAlign)
-	{
-		this.uniprotAlign = uniprotAlign;
-	}
+    public void setUniprotAlign(String uniprotAlign) {
+        this.uniprotAlign = uniprotAlign;
+    }
 
-	public String getPdbAlign()
-	{
-		return pdbAlign;
-	}
+    public String getPdbAlign() {
+        return pdbAlign;
+    }
 
-	public void setPdbAlign(String pdbAlign)
-	{
-		this.pdbAlign = pdbAlign;
-	}
+    public void setPdbAlign(String pdbAlign) {
+        this.pdbAlign = pdbAlign;
+    }
 
-	public Float getEValue()
-	{
-		return eValue;
-	}
+    public Float getEValue() {
+        return eValue;
+    }
 
-	public void setEValue(Float eValue)
-	{
-		this.eValue = eValue;
-	}
+    public void setEValue(Float eValue) {
+        this.eValue = eValue;
+    }
 
-	public Float getIdentity()
-	{
-		return identity;
-	}
+    public Float getIdentity() {
+        return identity;
+    }
 
-	public void setIdentity(Float identity)
-	{
-		this.identity = identity;
-	}
+    public void setIdentity(Float identity) {
+        this.identity = identity;
+    }
 
-	public Float getIdentityPerc()
-	{
-		return identityPerc;
-	}
+    public Float getIdentityPerc() {
+        return identityPerc;
+    }
 
-	public void setIdentityPerc(Float identityPerc)
-	{
-		this.identityPerc = identityPerc;
-	}
+    public void setIdentityPerc(Float identityPerc) {
+        this.identityPerc = identityPerc;
+    }
 
-	public Integer getAlignmentId()
-	{
-		return alignmentId;
-	}
+    public Integer getAlignmentId() {
+        return alignmentId;
+    }
 
-	public void setAlignmentId(Integer alignmentId)
-	{
-		this.alignmentId = alignmentId;
-	}
+    public void setAlignmentId(Integer alignmentId) {
+        this.alignmentId = alignmentId;
+    }
 
-	public String getPdbId()
-	{
-		return pdbId;
-	}
+    public String getPdbId() {
+        return pdbId;
+    }
 
-	public void setPdbId(String pdbId)
-	{
-		this.pdbId = pdbId;
-	}
+    public void setPdbId(String pdbId) {
+        this.pdbId = pdbId;
+    }
 
-	public String getChain()
-	{
-		return chain;
-	}
+    public String getChain() {
+        return chain;
+    }
 
-	public void setChain(String chain)
-	{
-		this.chain = chain;
-	}
+    public void setChain(String chain) {
+        this.chain = chain;
+    }
 
-	public String getUniprotId()
-	{
-		return uniprotId;
-	}
+    public String getUniprotId() {
+        return uniprotId;
+    }
 
-	public void setUniprotId(String uniprotId)
-	{
-		this.uniprotId = uniprotId;
-	}
+    public void setUniprotId(String uniprotId) {
+        this.uniprotId = uniprotId;
+    }
 
-	public String getPdbFrom()
-	{
-		return pdbFrom;
-	}
+    public String getPdbFrom() {
+        return pdbFrom;
+    }
 
-	public void setPdbFrom(String pdbFrom)
-	{
-		this.pdbFrom = pdbFrom;
-	}
+    public void setPdbFrom(String pdbFrom) {
+        this.pdbFrom = pdbFrom;
+    }
 
-	public String getPdbTo()
-	{
-		return pdbTo;
-	}
+    public String getPdbTo() {
+        return pdbTo;
+    }
 
-	public void setPdbTo(String pdbTo)
-	{
-		this.pdbTo = pdbTo;
-	}
+    public void setPdbTo(String pdbTo) {
+        this.pdbTo = pdbTo;
+    }
 
-	public Integer getUniprotFrom()
-	{
-		return uniprotFrom;
-	}
+    public Integer getUniprotFrom() {
+        return uniprotFrom;
+    }
 
-	public void setUniprotFrom(Integer uniprotFrom)
-	{
-		this.uniprotFrom = uniprotFrom;
-	}
+    public void setUniprotFrom(Integer uniprotFrom) {
+        this.uniprotFrom = uniprotFrom;
+    }
 
-	public Integer getUniprotTo()
-	{
-		return uniprotTo;
-	}
+    public Integer getUniprotTo() {
+        return uniprotTo;
+    }
 
-	public void setUniprotTo(Integer uniprotTo)
-	{
-		this.uniprotTo = uniprotTo;
-	}
-        
+    public void setUniprotTo(Integer uniprotTo) {
+        this.uniprotTo = uniprotTo;
+    }
 }

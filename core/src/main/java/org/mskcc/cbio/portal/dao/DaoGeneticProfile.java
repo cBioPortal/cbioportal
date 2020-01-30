@@ -28,7 +28,7 @@
  *
  * You should have received a copy of the GNU Affero General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
-*/
+ */
 
 package org.mskcc.cbio.portal.dao;
 
@@ -45,11 +45,12 @@ import org.mskcc.cbio.portal.util.SpringUtil;
  * Data access object for Genetic Profile table
  */
 public final class DaoGeneticProfile {
+
     private DaoGeneticProfile() {}
-    
-    private static final Map<String,GeneticProfile> byStableId = new HashMap<String,GeneticProfile>();
-    private static final Map<Integer,GeneticProfile> byInternalId = new HashMap<Integer,GeneticProfile>();
-    private static final Map<Integer,List<GeneticProfile>> byStudy = new HashMap<Integer,List<GeneticProfile>>();
+
+    private static final Map<String, GeneticProfile> byStableId = new HashMap<String, GeneticProfile>();
+    private static final Map<Integer, GeneticProfile> byInternalId = new HashMap<Integer, GeneticProfile>();
+    private static final Map<Integer, List<GeneticProfile>> byStudy = new HashMap<Integer, List<GeneticProfile>>();
 
     static {
         SpringUtil.initDataSource();
@@ -66,8 +67,7 @@ public final class DaoGeneticProfile {
         try {
             con = JdbcUtil.getDbConnection(DaoGeneticProfile.class);
 
-            pstmt = con.prepareStatement
-                    ("SELECT * FROM genetic_profile");
+            pstmt = con.prepareStatement("SELECT * FROM genetic_profile");
             rs = pstmt.executeQuery();
             while (rs.next()) {
                 GeneticProfile profileType = extractGeneticProfile(rs);
@@ -79,19 +79,20 @@ public final class DaoGeneticProfile {
             JdbcUtil.closeAll(DaoGeneticProfile.class, con, pstmt, rs);
         }
     }
-    
+
     private static void cacheGeneticProfile(GeneticProfile profile) {
         byStableId.put(profile.getStableId(), profile);
         byInternalId.put(profile.getGeneticProfileId(), profile);
         List<GeneticProfile> list = byStudy.get(profile.getCancerStudyId());
-        if (list==null) {
+        if (list == null) {
             list = new ArrayList<GeneticProfile>();
             byStudy.put(profile.getCancerStudyId(), list);
         }
         list.add(profile);
     }
-   
-    public static int addGeneticProfile(GeneticProfile profile) throws DaoException {
+
+    public static int addGeneticProfile(GeneticProfile profile)
+        throws DaoException {
         Connection con = null;
         PreparedStatement pstmt = null;
         ResultSet rs = null;
@@ -99,11 +100,13 @@ public final class DaoGeneticProfile {
         try {
             con = JdbcUtil.getDbConnection(DaoGeneticProfile.class);
 
-            pstmt = con.prepareStatement
-                    ("INSERT INTO genetic_profile (`STABLE_ID`, `CANCER_STUDY_ID`, "+
-                            "`GENETIC_ALTERATION_TYPE`, `DATATYPE`, `NAME`, `DESCRIPTION`, "+
-                            "`SHOW_PROFILE_IN_ANALYSIS_TAB`, `PIVOT_THRESHOLD`, `SORT_ORDER`, `GENERIC_ASSAY_TYPE`) " +
-                            "VALUES (?,?,?,?,?,?,?,?,?,?)");
+            pstmt =
+                con.prepareStatement(
+                    "INSERT INTO genetic_profile (`STABLE_ID`, `CANCER_STUDY_ID`, " +
+                    "`GENETIC_ALTERATION_TYPE`, `DATATYPE`, `NAME`, `DESCRIPTION`, " +
+                    "`SHOW_PROFILE_IN_ANALYSIS_TAB`, `PIVOT_THRESHOLD`, `SORT_ORDER`, `GENERIC_ASSAY_TYPE`) " +
+                    "VALUES (?,?,?,?,?,?,?,?,?,?)"
+                );
             pstmt.setString(1, profile.getStableId());
             pstmt.setInt(2, profile.getCancerStudyId());
             pstmt.setString(3, profile.getGeneticAlterationType().name());
@@ -112,7 +115,7 @@ public final class DaoGeneticProfile {
             pstmt.setString(6, profile.getProfileDescription());
             pstmt.setBoolean(7, profile.showProfileInAnalysisTab());
 
-            // `pivot_threshold_value` and `value_sort_order` fields are treatment data 
+            // `pivot_threshold_value` and `value_sort_order` fields are treatment data
             // specific. These fields are set to null when not present in profile object.
             if (profile.getPivotThreshold() == null) {
                 pstmt.setNull(8, java.sql.Types.FLOAT);
@@ -128,15 +131,14 @@ public final class DaoGeneticProfile {
             } else {
                 pstmt.setString(10, profile.getGenericAssayType());
             }
-            
-            rows = pstmt.executeUpdate();
 
+            rows = pstmt.executeUpdate();
         } catch (SQLException e) {
             throw new DaoException(e);
         } finally {
             JdbcUtil.closeAll(DaoGeneticProfile.class, con, pstmt, rs);
         }
-        
+
         reCache();
         return rows;
     }
@@ -149,7 +151,11 @@ public final class DaoGeneticProfile {
      * @return                  Returns True if Genetic Profile was Updated.
      * @throws DaoException     Data Access Error.
      */
-    public static boolean updateNameAndDescription (int geneticProfileId, String name, String description)
+    public static boolean updateNameAndDescription(
+        int geneticProfileId,
+        String name,
+        String description
+    )
         throws DaoException {
         Connection con = null;
         PreparedStatement pstmt = null;
@@ -157,8 +163,11 @@ public final class DaoGeneticProfile {
         boolean ret = false;
         try {
             con = JdbcUtil.getDbConnection(DaoGeneticProfile.class);
-            pstmt = con.prepareStatement("UPDATE genetic_profile SET NAME=?, DESCRIPTION=? " +
-                    "WHERE GENETIC_PROFILE_ID=?");
+            pstmt =
+                con.prepareStatement(
+                    "UPDATE genetic_profile SET NAME=?, DESCRIPTION=? " +
+                    "WHERE GENETIC_PROFILE_ID=?"
+                );
             pstmt.setString(1, name);
             pstmt.setString(2, description);
             pstmt.setInt(3, geneticProfileId);
@@ -168,31 +177,35 @@ public final class DaoGeneticProfile {
         } finally {
             JdbcUtil.closeAll(DaoGeneticProfile.class, con, pstmt, rs);
         }
-        
+
         reCache();
         return ret;
     }
-    
-    public static int deleteGeneticProfile(GeneticProfile profile) throws DaoException {
-       int rows = 0;
-       Connection con = null;
-       PreparedStatement pstmt = null;
-       ResultSet rs = null;
-       try {
-           con = JdbcUtil.getDbConnection(DaoGeneticProfile.class);
-           pstmt = con.prepareStatement("DELETE FROM genetic_profile WHERE STABLE_ID = ?");
-           pstmt.setString(1, profile.getStableId());
-           rows = pstmt.executeUpdate();
-       } catch (SQLException e) {
-           throw new DaoException(e);
-       } finally {
-           JdbcUtil.closeAll(DaoGeneticProfile.class, con, pstmt, rs);
-       }
-       
-       reCache();
-       return rows;
-   }
-    
+
+    public static int deleteGeneticProfile(GeneticProfile profile)
+        throws DaoException {
+        int rows = 0;
+        Connection con = null;
+        PreparedStatement pstmt = null;
+        ResultSet rs = null;
+        try {
+            con = JdbcUtil.getDbConnection(DaoGeneticProfile.class);
+            pstmt =
+                con.prepareStatement(
+                    "DELETE FROM genetic_profile WHERE STABLE_ID = ?"
+                );
+            pstmt.setString(1, profile.getStableId());
+            rows = pstmt.executeUpdate();
+        } catch (SQLException e) {
+            throw new DaoException(e);
+        } finally {
+            JdbcUtil.closeAll(DaoGeneticProfile.class, con, pstmt, rs);
+        }
+
+        reCache();
+        return rows;
+    }
+
     public static GeneticProfile getGeneticProfileByStableId(String stableId) {
         return byStableId.get(stableId);
     }
@@ -200,19 +213,23 @@ public final class DaoGeneticProfile {
     public static GeneticProfile getGeneticProfileById(int geneticProfileId) {
         return byInternalId.get(geneticProfileId);
     }
-    
+
     // TODO: UNIT TEST
-    public static ArrayList <GeneticProfile> getGeneticProfiles (int[] geneticProfileIds) throws
-            DaoException {
-        ArrayList <GeneticProfile> geneticProfileList = new ArrayList <GeneticProfile>();
-        for (int geneticProfileId:  geneticProfileIds) {
-            GeneticProfile geneticProfile =
-                    DaoGeneticProfile.getGeneticProfileById(geneticProfileId);
+    public static ArrayList<GeneticProfile> getGeneticProfiles(
+        int[] geneticProfileIds
+    )
+        throws DaoException {
+        ArrayList<GeneticProfile> geneticProfileList = new ArrayList<GeneticProfile>();
+        for (int geneticProfileId : geneticProfileIds) {
+            GeneticProfile geneticProfile = DaoGeneticProfile.getGeneticProfileById(
+                geneticProfileId
+            );
             if (geneticProfile != null) {
                 geneticProfileList.add(geneticProfile);
             } else {
-                throw new IllegalArgumentException ("Could not find genetic profile for:  "
-                        + geneticProfileId);
+                throw new IllegalArgumentException(
+                    "Could not find genetic profile for:  " + geneticProfileId
+                );
             }
         }
         return geneticProfileList;
@@ -222,7 +239,8 @@ public final class DaoGeneticProfile {
         return byStableId.size();
     }
 
-    private static GeneticProfile extractGeneticProfile(ResultSet rs) throws SQLException {
+    private static GeneticProfile extractGeneticProfile(ResultSet rs)
+        throws SQLException {
         GeneticProfile profileType = new GeneticProfile();
         profileType.setStableId(rs.getString("STABLE_ID"));
 
@@ -230,31 +248,45 @@ public final class DaoGeneticProfile {
         profileType.setProfileName(rs.getString("NAME"));
         profileType.setProfileDescription(rs.getString("DESCRIPTION"));
         try {
-            profileType.setShowProfileInAnalysisTab(rs.getBoolean("SHOW_PROFILE_IN_ANALYSIS_TAB"));
+            profileType.setShowProfileInAnalysisTab(
+                rs.getBoolean("SHOW_PROFILE_IN_ANALYSIS_TAB")
+            );
         } catch (SQLException e) {
             profileType.setShowProfileInAnalysisTab(true);
         }
-        profileType.setGeneticAlterationType(GeneticAlterationType.valueOf(rs.getString("GENETIC_ALTERATION_TYPE")));
+        profileType.setGeneticAlterationType(
+            GeneticAlterationType.valueOf(
+                rs.getString("GENETIC_ALTERATION_TYPE")
+            )
+        );
         profileType.setDatatype(rs.getString("DATATYPE"));
         profileType.setGeneticProfileId(rs.getInt("GENETIC_PROFILE_ID"));
         if (rs.getFloat("PIVOT_THRESHOLD") != 0) {
             profileType.setPivotThreshold(rs.getFloat("PIVOT_THRESHOLD"));
         }
-        if (rs.getString("SORT_ORDER") != null && ! rs.getString("SORT_ORDER").equals("") ) {
+        if (
+            rs.getString("SORT_ORDER") != null &&
+            !rs.getString("SORT_ORDER").equals("")
+        ) {
             profileType.setSortOrder(rs.getString("SORT_ORDER"));
         }
-        if (rs.getString("GENERIC_ASSAY_TYPE") != null && ! rs.getString("GENERIC_ASSAY_TYPE").equals("") ) {
+        if (
+            rs.getString("GENERIC_ASSAY_TYPE") != null &&
+            !rs.getString("GENERIC_ASSAY_TYPE").equals("")
+        ) {
             profileType.setGenericAssayType(rs.getString("GENERIC_ASSAY_TYPE"));
         }
         return profileType;
     }
 
-    public static ArrayList<GeneticProfile> getAllGeneticProfiles(int cancerStudyId) {
+    public static ArrayList<GeneticProfile> getAllGeneticProfiles(
+        int cancerStudyId
+    ) {
         List<GeneticProfile> list = byStudy.get(cancerStudyId);
-        if (list==null) {
+        if (list == null) {
             return new ArrayList<GeneticProfile>();
         }
-        
+
         // TODO: refactor the code to use List
         return new ArrayList<GeneticProfile>(list);
     }

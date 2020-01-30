@@ -28,7 +28,7 @@
  *
  * You should have received a copy of the GNU Affero General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
-*/
+ */
 
 package org.mskcc.cbio.portal.scripts;
 
@@ -47,183 +47,168 @@ import org.mskcc.cbio.portal.util.ProgressMonitor;
  *
  * @author Selcuk Onur Sumer
  */
-public class FetchPfamGraphicsData
-{
-	public static final String URL_PREFIX = "http://pfam.xfam.org/protein/";
-	public static final String URL_SUFFIX = "/graphic";
+public class FetchPfamGraphicsData {
+    public static final String URL_PREFIX = "http://pfam.xfam.org/protein/";
+    public static final String URL_SUFFIX = "/graphic";
 
-	/**
-	 * Parses the given input file and creates an output with pfam graphics data
-	 * for each uniprot id.
-	 *
-	 * @param inputFilename     name of the uniprot id mapping file
-	 * @param outputFilename    name of the output pfam graphics file
-	 * @param incremental       indicates incremental fetching
-	 * @return  total number of errors
-	 */
-	public static int driver(String outputFilename,
-			boolean incremental) throws IOException
-	{
-		BufferedWriter out = new BufferedWriter(new FileWriter(outputFilename));
+    /**
+     * Parses the given input file and creates an output with pfam graphics data
+     * for each uniprot id.
+     *
+     * @param inputFilename     name of the uniprot id mapping file
+     * @param outputFilename    name of the output pfam graphics file
+     * @param incremental       indicates incremental fetching
+     * @return  total number of errors
+     */
+    public static int driver(String outputFilename, boolean incremental)
+        throws IOException {
+        BufferedWriter out = new BufferedWriter(new FileWriter(outputFilename));
 
-		int numErrors = 0;
+        int numErrors = 0;
 
-		// TODO if incremental:
-		// 1. open the file in append mode, do not overwrite
-		// 2. check if a certain uniprot id is already mapped in the file
-		// 3. populate key set if incremental option is selected
-		Set<String> keySet = initKeySet(outputFilename, incremental);
-				Set<String> uniprotAccs = null;
-				String species = GlobalProperties.getSpecies();
-		    	if (!(species.equals("human") || species.equals("mouse"))){
-		    		throw new Error("Species not supported: " + species);
-				} 
-		    	uniprotAccs = ImportUniProtIdMapping.getSwissProtAccession(species);
-                ProgressMonitor.setMaxValue(uniprotAccs.size());
+        // TODO if incremental:
+        // 1. open the file in append mode, do not overwrite
+        // 2. check if a certain uniprot id is already mapped in the file
+        // 3. populate key set if incremental option is selected
+        Set<String> keySet = initKeySet(outputFilename, incremental);
+        Set<String> uniprotAccs = null;
+        String species = GlobalProperties.getSpecies();
+        if (!(species.equals("human") || species.equals("mouse"))) {
+            throw new Error("Species not supported: " + species);
+        }
+        uniprotAccs = ImportUniProtIdMapping.getSwissProtAccession(species);
+        ProgressMonitor.setMaxValue(uniprotAccs.size());
 
-		// read all
-		for (String uniprotId : uniprotAccs)
-		{
-                            ProgressMonitor.incrementCurValue();
-                            ConsoleUtil.showProgress();
-                            
-                            // avoid to add a duplicate entry
-                            if (keySet.contains(uniprotId))
-                            {
-                                    continue;
-                            }
+        // read all
+        for (String uniprotId : uniprotAccs) {
+            ProgressMonitor.incrementCurValue();
+            ConsoleUtil.showProgress();
 
-                            String pfamJson = fetch(uniprotId);
-                            keySet.add(uniprotId);
+            // avoid to add a duplicate entry
+            if (keySet.contains(uniprotId)) {
+                continue;
+            }
 
-                            // replace all tabs and new lines with a single space
-                            pfamJson = pfamJson.trim().replaceAll("\t", " ").replaceAll("\n", " ");
+            String pfamJson = fetch(uniprotId);
+            keySet.add(uniprotId);
 
-                            // verify if it is really a JSON object
-                            // TODO this verification may not be safe...
-                            if (pfamJson.startsWith("[") || pfamJson.startsWith("{"))
-                            {
-                                    out.write(uniprotId);
-                                    out.write("\t");
-                                    out.write(pfamJson);
-                                    out.write("\n");
-                            }
-                            else
-                            {
-                                    System.out.println("Invalid data for: " + uniprotId);
-                                    numErrors++;
-                            }
-		}
+            // replace all tabs and new lines with a single space
+            pfamJson =
+                pfamJson.trim().replaceAll("\t", " ").replaceAll("\n", " ");
 
-		out.close();
+            // verify if it is really a JSON object
+            // TODO this verification may not be safe...
+            if (pfamJson.startsWith("[") || pfamJson.startsWith("{")) {
+                out.write(uniprotId);
+                out.write("\t");
+                out.write(pfamJson);
+                out.write("\n");
+            } else {
+                System.out.println("Invalid data for: " + uniprotId);
+                numErrors++;
+            }
+        }
 
-		return numErrors;
-	}
+        out.close();
 
-	private static Set<String> initKeySet(String outputFilename, boolean incremental)
-	{
-		HashSet<String> keySet = new HashSet<String>();
+        return numErrors;
+    }
 
-		if (incremental)
-		{
-			// TODO populate keyset by processing output file
-		}
+    private static Set<String> initKeySet(
+        String outputFilename,
+        boolean incremental
+    ) {
+        HashSet<String> keySet = new HashSet<String>();
 
-		return keySet;
-	}
+        if (incremental) {
+            // TODO populate keyset by processing output file
+        }
 
-	/**
-	 * Fetches the JSON data from the PFAM graphics service for the
-	 * specified uniprot accession.
-	 *
-	 * @param uniprotAcc a uniprot accession
-	 * @return  pfam graphic data as a JSON string
-	 * @throws  IOException
-	 */
-	private static String fetch(String uniprotAcc) throws IOException
-	{
-		URL url = new URL(URL_PREFIX + uniprotAcc + URL_SUFFIX);
+        return keySet;
+    }
 
-		URLConnection pfamConn = url.openConnection();
+    /**
+     * Fetches the JSON data from the PFAM graphics service for the
+     * specified uniprot accession.
+     *
+     * @param uniprotAcc a uniprot accession
+     * @return  pfam graphic data as a JSON string
+     * @throws  IOException
+     */
+    private static String fetch(String uniprotAcc) throws IOException {
+        URL url = new URL(URL_PREFIX + uniprotAcc + URL_SUFFIX);
 
-		BufferedReader in = new BufferedReader(
-				new InputStreamReader(pfamConn.getInputStream()));
+        URLConnection pfamConn = url.openConnection();
 
-		String line;
-		StringBuilder sb = new StringBuilder();
+        BufferedReader in = new BufferedReader(
+            new InputStreamReader(pfamConn.getInputStream())
+        );
 
-		// read all
-		while((line = in.readLine()) != null)
-		{
-			sb.append(line);
-		}
+        String line;
+        StringBuilder sb = new StringBuilder();
 
-		in.close();
+        // read all
+        while ((line = in.readLine()) != null) {
+            sb.append(line);
+        }
 
-		return sb.toString();
-	}
+        in.close();
 
-	public static void main(String[] args) throws Exception
-	{
-		// default config params
-		boolean noFetch = false;     // skip fetching
-		boolean incremental = false; // overwrite or append data
+        return sb.toString();
+    }
 
-		// process program arguments
+    public static void main(String[] args) throws Exception {
+        // default config params
+        boolean noFetch = false; // skip fetching
+        boolean incremental = false; // overwrite or append data
 
-		int i;
+        // process program arguments
 
-		// this is for program arguments starting with a dash
-		// these arguments must come before IO file names
-		for (i = 0; i < args.length; i++)
-		{
-			if (args[i].startsWith("-"))
-			{
-				if (args[i].equalsIgnoreCase("-nofetch"))
-				{
-					noFetch = true;
-				}
-				else if (args[i].equalsIgnoreCase("-append"))
-				{
-					incremental = true;
-				}
-			}
-			else
-			{
-				break;
-			}
-		}
+        int i;
 
-		// check IO file name args
-		if (args.length - i < 1)
-		{
-			System.out.println("command line usage:  fetchPfamGraphicsData.sh <output_pfam_mapping_file>");
+        // this is for program arguments starting with a dash
+        // these arguments must come before IO file names
+        for (i = 0; i < args.length; i++) {
+            if (args[i].startsWith("-")) {
+                if (args[i].equalsIgnoreCase("-nofetch")) {
+                    noFetch = true;
+                } else if (args[i].equalsIgnoreCase("-append")) {
+                    incremental = true;
+                }
+            } else {
+                break;
+            }
+        }
+
+        // check IO file name args
+        if (args.length - i < 1) {
+            System.out.println(
+                "command line usage:  fetchPfamGraphicsData.sh <output_pfam_mapping_file>"
+            );
             return;
-		}
+        }
 
-		String output = args[i];
+        String output = args[i];
 
-		if (noFetch)
-		{
-			// do nothing, just terminate
-			System.out.println("-nofetch argument provided, terminating...");
-			return;
-		}
+        if (noFetch) {
+            // do nothing, just terminate
+            System.out.println("-nofetch argument provided, terminating...");
+            return;
+        }
 
-                    System.out.println("Fetching started...");
-                    Date start = new Date();
-                    ProgressMonitor.setConsoleMode(true);
-                    int numErrors = driver(output, incremental);
-                    Date end = new Date();
-                    System.out.println("Fetching finished.");
+        System.out.println("Fetching started...");
+        Date start = new Date();
+        ProgressMonitor.setConsoleMode(true);
+        int numErrors = driver(output, incremental);
+        Date end = new Date();
+        System.out.println("Fetching finished.");
 
-                    double timeElapsed = (end.getTime() - start.getTime()) / 1000.0;
+        double timeElapsed = (end.getTime() - start.getTime()) / 1000.0;
 
-                    System.out.println("\nTotal time elapsed: " + timeElapsed + " seconds");
+        System.out.println("\nTotal time elapsed: " + timeElapsed + " seconds");
 
-                    if (numErrors > 0)
-                    {
-                            System.out.println("Total number of errors: " + numErrors);
-                    }
-	}
+        if (numErrors > 0) {
+            System.out.println("Total number of errors: " + numErrors);
+        }
+    }
 }

@@ -28,10 +28,13 @@
  *
  * You should have received a copy of the GNU Affero General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
-*/
+ */
 
 package org.mskcc.cbio.portal.util;
 
+import static org.junit.Assert.*;
+
+import java.io.File;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -42,36 +45,35 @@ import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import org.springframework.test.context.transaction.TransactionConfiguration;
 import org.springframework.transaction.annotation.Transactional;
 
-import static org.junit.Assert.*;
-
-import java.io.File;
-
 @RunWith(SpringJUnit4ClassRunner.class)
 @ContextConfiguration(locations = { "classpath:/applicationContext-dao.xml" })
-@TransactionConfiguration(transactionManager = "transactionManager", defaultRollback = true)
+@TransactionConfiguration(
+    transactionManager = "transactionManager",
+    defaultRollback = true
+)
 @Transactional
 public class TestMutSigReader {
-
-	// TBD: change these to use getResourceAsStream()
+    // TBD: change these to use getResourceAsStream()
     File properties = new File("target/test-classes/testCancerStudy.txt");
     File mutSigFile = new File("target/test-classes/test_mut_sig_data.txt");
 
-	int studyId;
-	
-	@Before 
-	public void setUp() throws DaoException
-	{
-		studyId = DaoCancerStudy.getCancerStudyByStableId("study_tcga_pub").getInternalId();
-		DaoGeneticProfile.reCache();
-	}
+    int studyId;
+
+    @Before
+    public void setUp() throws DaoException {
+        studyId =
+            DaoCancerStudy
+                .getCancerStudyByStableId("study_tcga_pub")
+                .getInternalId();
+        DaoGeneticProfile.reCache();
+    }
 
     @Test
     public void testloadMutSig() throws Exception {
-
         ProgressMonitor.setConsoleMode(false);
 
         MutSigReader.loadMutSig(studyId, mutSigFile);
-        
+
         // Is the data in the database?
         MutSig mutSig = DaoMutSig.getMutSig("AKT1", studyId);
         assertTrue(mutSig != null);

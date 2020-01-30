@@ -28,16 +28,14 @@
  *
  * You should have received a copy of the GNU Affero General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
-*/
+ */
 
 package org.mskcc.cbio.portal.model;
+
 import static org.junit.Assert.assertEquals;
 
 import java.util.ArrayList;
-
 import org.junit.Test;
-
-
 
 /**
  * Tests the Extended Mutation Map.
@@ -57,22 +55,31 @@ public class TestExtendedMutationMap {
         ExtendedMutation mutation2 = createMutation1(brca1, SAMPLE_A);
         ExtendedMutation mutation3 = createMutation1(brca2, SAMPLE_A);
 
-        ArrayList<ExtendedMutation> mutationList =
-                createMutationList(mutation1, mutation2, mutation3);
+        ArrayList<ExtendedMutation> mutationList = createMutationList(
+            mutation1,
+            mutation2,
+            mutation3
+        );
 
         ArrayList<Integer> sampleList = new ArrayList<Integer>();
         sampleList.add(SAMPLE_A);
 
-        ExtendedMutationMap map = new ExtendedMutationMap(mutationList, sampleList);
-        ArrayList<ExtendedMutation> mutationReturnList = map.getExtendedMutations(BRCA1, SAMPLE_A);
-        assertEquals (2, mutationReturnList.size());
+        ExtendedMutationMap map = new ExtendedMutationMap(
+            mutationList,
+            sampleList
+        );
+        ArrayList<ExtendedMutation> mutationReturnList = map.getExtendedMutations(
+            BRCA1,
+            SAMPLE_A
+        );
+        assertEquals(2, mutationReturnList.size());
 
         // Try with mixed sample
         mutationReturnList = map.getExtendedMutations("brCA1", SAMPLE_A);
-        assertEquals (2, mutationReturnList.size());
+        assertEquals(2, mutationReturnList.size());
 
         mutationReturnList = map.getExtendedMutations(BRCA2, SAMPLE_A);
-        assertEquals (1, mutationReturnList.size());
+        assertEquals(1, mutationReturnList.size());
 
         mutationReturnList = map.getExtendedMutations(BRCA1);
         assertEquals(2, mutationReturnList.size());
@@ -81,8 +88,11 @@ public class TestExtendedMutationMap {
         assertEquals(2, map.getNumExtendedMutations(BRCA1));
     }
 
-    private ArrayList<ExtendedMutation> createMutationList(ExtendedMutation mutation1,
-            ExtendedMutation mutation2, ExtendedMutation mutation3) {
+    private ArrayList<ExtendedMutation> createMutationList(
+        ExtendedMutation mutation1,
+        ExtendedMutation mutation2,
+        ExtendedMutation mutation3
+    ) {
         ArrayList<ExtendedMutation> mutationList = new ArrayList<ExtendedMutation>();
         mutationList.add(mutation1);
         mutationList.add(mutation2);
@@ -90,12 +100,14 @@ public class TestExtendedMutationMap {
         return mutationList;
     }
 
-    private ExtendedMutation createMutation1(CanonicalGene gene, Integer sampleId) {
+    private ExtendedMutation createMutation1(
+        CanonicalGene gene,
+        Integer sampleId
+    ) {
         ExtendedMutation mutation2 = new ExtendedMutation();
         mutation2.setGene(gene);
         mutation2.setSampleId(sampleId);
         mutation2.setProteinChange("C22G");
         return mutation2;
     }
-
 }

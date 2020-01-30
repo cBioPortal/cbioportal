@@ -28,17 +28,17 @@
  *
  * You should have received a copy of the GNU Affero General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
-*/
+ */
 
 package org.mskcc.cbio.portal.util;
 
-import org.apache.log4j.*;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.TreeSet;
+import org.apache.log4j.*;
 
 /**
  * Monitors Progress of Long Term Tasks.
@@ -50,7 +50,9 @@ public class ProgressMonitor {
     private int curValue;
     private String currentMessage;
     private StringBuffer log = new StringBuffer();
-    private static org.apache.log4j.Logger logger = org.apache.log4j.Logger.getLogger(ProgressMonitor.class);
+    private static org.apache.log4j.Logger logger = org.apache.log4j.Logger.getLogger(
+        ProgressMonitor.class
+    );
     private boolean consoleMode;
     private boolean showProgress;
     private TreeSet<String> warnings = new TreeSet<>();
@@ -62,13 +64,12 @@ public class ProgressMonitor {
     /**
      * Private ctor for enforcing singleton
      */
-    private ProgressMonitor() {
-        
-    }
-    
+    private ProgressMonitor() {}
+
     private static boolean isRunningOnServer() {
         return ServerDetector.getServerId() != null;
-    } 
+    }
+
     /**
      * Sets Console Flag.
      * When set to true Progress Monitor Messages are displayed to System.out.
@@ -78,45 +79,44 @@ public class ProgressMonitor {
     public static void setConsoleMode(boolean consoleFlag) {
         progressMonitor.consoleMode = consoleFlag;
     }
-    
+
     /**
-     * Sets consoleMode to true and tries to infer showProgress mode from args. If an argument 
+     * Sets consoleMode to true and tries to infer showProgress mode from args. If an argument
      * with name "--noprogress" is found, then showProgress is set to false
-     * 
+     *
      * @param args
      */
     public static void setConsoleModeAndParseShowProgress(String[] args) {
-    	//default
-		setConsoleMode(true);
-    	if (Arrays.asList(args).contains("--noprogress")) {
-    		setShowProgress(false);
-    	} else {
-    		//default:
-    		setShowProgress(true);
-    	}
-    		
+        //default
+        setConsoleMode(true);
+        if (Arrays.asList(args).contains("--noprogress")) {
+            setShowProgress(false);
+        } else {
+            //default:
+            setShowProgress(true);
+        }
     }
 
     /**
-     * Whether the progress (in % complete and memory used) should be 
-     * printed to the console. 
-     * 
+     * Whether the progress (in % complete and memory used) should be
+     * printed to the console.
+     *
      * @param showProgress : set to false to avoid extra messages about % complete and memory usage.
      */
     public static void setShowProgress(boolean showProgress) {
-    	progressMonitor.showProgress = showProgress;
+        progressMonitor.showProgress = showProgress;
     }
-    
+
     /**
-     * Whether the progress (in % complete and memory used) should be 
-     * printed to the console. 
-     * 
+     * Whether the progress (in % complete and memory used) should be
+     * printed to the console.
+     *
      * @return returns true if !isRunningOnServer() and progressMonitor.showProgress==true
      */
     public static boolean isShowProgress() {
-    	return !isRunningOnServer() && progressMonitor.showProgress;
+        return !isRunningOnServer() && progressMonitor.showProgress;
     }
-    
+
     /**
      * Gets Console Mode Flag.
      *
@@ -135,7 +135,9 @@ public class ProgressMonitor {
         if (progressMonitor.curValue == 0) {
             return 0.0;
         } else {
-            return (progressMonitor.curValue / (double) progressMonitor.maxValue);
+            return (
+                progressMonitor.curValue / (double) progressMonitor.maxValue
+            );
         }
     }
 
@@ -198,8 +200,7 @@ public class ProgressMonitor {
      * @return String Object.
      */
     public static String getLog() {
-        if (isRunningOnServer())
-            return null;
+        if (isRunningOnServer()) return null;
         return progressMonitor.log.toString();
     }
 
@@ -209,8 +210,7 @@ public class ProgressMonitor {
      * @param currentMessage Current Task Message.
      */
     public static void setCurrentMessage(String currentMessage) {
-        if (isRunningOnServer())
-            return;
+        if (isRunningOnServer()) return;
         progressMonitor.currentMessage = currentMessage;
         progressMonitor.log.append(currentMessage + "\n");
         if (progressMonitor.consoleMode) {
@@ -220,48 +220,50 @@ public class ProgressMonitor {
 
     public static void logWarning(String warning) {
         logger.log(Level.WARN, warning);
-        if (isRunningOnServer())
-            return;
+        if (isRunningOnServer()) return;
         progressMonitor.warnings.add(warning);
         if (!progressMonitor.warningCounts.containsKey(warning)) {
             progressMonitor.warningCounts.put(warning, 0);
         }
-        progressMonitor.warningCounts.put(warning, progressMonitor.warningCounts.get(warning)+1);
+        progressMonitor.warningCounts.put(
+            warning,
+            progressMonitor.warningCounts.get(warning) + 1
+        );
     }
 
     public static void logDebug(String debugMessage) {
         logger.log(Level.DEBUG, debugMessage);
-        if (isShowProgress())
-        	progressMonitor.debugMessages.add(debugMessage);
+        if (isShowProgress()) progressMonitor.debugMessages.add(debugMessage);
     }
-    
+
     public static ArrayList<String> getWarnings() {
         ArrayList<String> ret = new ArrayList<>();
-        if (isRunningOnServer())
-            return ret;
-        for(Iterator<String> sit = progressMonitor.warnings.iterator(); sit.hasNext(); ) {
+        if (isRunningOnServer()) return ret;
+        for (
+            Iterator<String> sit = progressMonitor.warnings.iterator();
+            sit.hasNext();
+        ) {
             String w = sit.next();
-            ret.add(w + "; "+progressMonitor.warningCounts.get(w)+"x");
+            ret.add(w + "; " + progressMonitor.warningCounts.get(w) + "x");
         }
         return ret;
     }
-    
+
     /**
      * Reset the warnings list.
      */
     public static void resetWarnings() {
-    	progressMonitor.warnings.clear();
-    	progressMonitor.warningCounts.clear();
+        progressMonitor.warnings.clear();
+        progressMonitor.warningCounts.clear();
     }
-    
-    public static ArrayList<String> getMessages() {
-    	ArrayList<String> ret = getWarnings();
-    	ret.addAll(progressMonitor.debugMessages);
-    	return ret;
-    }
-    
-    public static List<String> getDebugMessages() {
-    	return progressMonitor.debugMessages;
 
+    public static ArrayList<String> getMessages() {
+        ArrayList<String> ret = getWarnings();
+        ret.addAll(progressMonitor.debugMessages);
+        return ret;
+    }
+
+    public static List<String> getDebugMessages() {
+        return progressMonitor.debugMessages;
     }
 }

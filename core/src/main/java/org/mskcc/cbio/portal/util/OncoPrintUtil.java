@@ -28,14 +28,13 @@
  *
  * You should have received a copy of the GNU Affero General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
-*/
+ */
 
 package org.mskcc.cbio.portal.util;
 
-import org.mskcc.cbio.portal.model.SampleList;
-
 import java.util.Formatter;
 import java.util.List;
+import org.mskcc.cbio.portal.model.SampleList;
 
 public class OncoPrintUtil {
 
@@ -47,12 +46,16 @@ public class OncoPrintUtil {
      *
      * @return String
      */
-    public static String getSampleSetDescription(String sampleSetId, List<SampleList> sampleSets) {
-
+    public static String getSampleSetDescription(
+        String sampleSetId,
+        List<SampleList> sampleSets
+    ) {
         StringBuilder builder = new StringBuilder();
         for (SampleList sampleSet : sampleSets) {
             if (sampleSetId.equals(sampleSet.getStableId())) {
-                builder.append(sampleSet.getName() + ": " + sampleSet.getDescription());
+                builder.append(
+                    sampleSet.getName() + ": " + sampleSet.getDescription()
+                );
             }
         }
         return builder.toString();
@@ -73,7 +76,6 @@ public class OncoPrintUtil {
      * @return String
      */
     public static String alterationValueToString(double value) {
-
         // in oncoPrint show 0 percent as 0%, not --
         if (0.0 < value && value <= 0.01) {
             return "<1%";

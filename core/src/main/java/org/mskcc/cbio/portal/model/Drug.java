@@ -28,7 +28,7 @@
  *
  * You should have received a copy of the GNU Affero General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
-*/
+ */
 
 package org.mskcc.cbio.portal.model;
 
@@ -45,21 +45,21 @@ public class Drug {
     private Integer numberOfClinicalTrials = -1;
     private String ATCCode;
 
-    public Drug() {
-    }
+    public Drug() {}
 
-    public Drug(String id,
-                String name,
-                String description,
-                String synonyms,
-                String externalReference,
-                String resource,
-                String ATCCode,
-                boolean approvedFDA,
-                boolean cancerDrug,
-                boolean nutraceuitical,
-                Integer numberOfClinicalTrials) {
-
+    public Drug(
+        String id,
+        String name,
+        String description,
+        String synonyms,
+        String externalReference,
+        String resource,
+        String ATCCode,
+        boolean approvedFDA,
+        boolean cancerDrug,
+        boolean nutraceuitical,
+        Integer numberOfClinicalTrials
+    ) {
         this.id = id;
         this.name = name;
         this.description = description;

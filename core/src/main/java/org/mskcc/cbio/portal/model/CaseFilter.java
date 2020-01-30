@@ -28,7 +28,7 @@
  *
  * You should have received a copy of the GNU Affero General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
-*/
+ */
 
 package org.mskcc.cbio.portal.model;
 
@@ -54,7 +54,7 @@ public class CaseFilter {
     public String toString() {
         StringBuffer buf = new StringBuffer();
         buf.append("Filter:  " + paramName + " [");
-        for (String value:  valueSet) {
+        for (String value : valueSet) {
             buf.append(value + "#");
         }
         buf.append("]");

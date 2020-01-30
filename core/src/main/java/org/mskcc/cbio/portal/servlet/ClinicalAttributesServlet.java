@@ -28,13 +28,21 @@
  *
  * You should have received a copy of the GNU Affero General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
-*/
+ */
 
 package org.mskcc.cbio.portal.servlet;
 
+import java.io.IOException;
+import java.io.PrintWriter;
+import java.util.List;
+import javax.servlet.ServletException;
+import javax.servlet.http.HttpServlet;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.json.simple.JSONArray;
+import org.mskcc.cbio.portal.dao.DaoCancerStudy;
 import org.mskcc.cbio.portal.dao.DaoClinicalAttributeMeta;
 import org.mskcc.cbio.portal.dao.DaoException;
 import org.mskcc.cbio.portal.model.CancerStudy;
@@ -43,18 +51,9 @@ import org.mskcc.cbio.portal.util.AccessControl;
 import org.mskcc.cbio.portal.util.SpringUtil;
 import org.mskcc.cbio.portal.util.WebserviceParserUtils;
 
-import javax.servlet.ServletException;
-import javax.servlet.http.HttpServlet;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-import java.io.IOException;
-import java.io.PrintWriter;
-import java.util.List;
-import org.mskcc.cbio.portal.dao.DaoCancerStudy;
-
 public class ClinicalAttributesServlet extends HttpServlet {
     private static Log log = LogFactory.getLog(ClinicalAttributesServlet.class);
-    
+
     // class which process access control to cancer studies
     private AccessControl accessControl;
 
@@ -77,27 +76,39 @@ public class ClinicalAttributesServlet extends HttpServlet {
      * @param response
      * @throws ServletException
      */
-    public void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException {
+    public void doGet(HttpServletRequest request, HttpServletResponse response)
+        throws ServletException {
         try {
             JSONArray toWrite = new JSONArray();
             response.setContentType("text/json");
-            
-            String cancerStudyId = WebserviceParserUtils.getCancerStudyId(request);
-            
-            if(cancerStudyId != null) {
-            	CancerStudy cancerStudy = DaoCancerStudy
-                        .getCancerStudyByStableId(cancerStudyId);
-            	if(cancerStudy != null && accessControl.isAccessibleCancerStudy(cancerStudy.getCancerStudyStableId()).size() == 1) {
-                    List<ClinicalAttribute> clinicalAttributes = DaoClinicalAttributeMeta.getDataByStudy(cancerStudy.getInternalId());
 
+            String cancerStudyId = WebserviceParserUtils.getCancerStudyId(
+                request
+            );
+
+            if (cancerStudyId != null) {
+                CancerStudy cancerStudy = DaoCancerStudy.getCancerStudyByStableId(
+                    cancerStudyId
+                );
+                if (
+                    cancerStudy != null &&
+                    accessControl
+                        .isAccessibleCancerStudy(
+                            cancerStudy.getCancerStudyStableId()
+                        )
+                        .size() ==
+                    1
+                ) {
+                    List<ClinicalAttribute> clinicalAttributes = DaoClinicalAttributeMeta.getDataByStudy(
+                        cancerStudy.getInternalId()
+                    );
 
                     for (ClinicalAttribute attr : clinicalAttributes) {
                         toWrite.add(ClinicalJSON.reflectToMap(attr));
                     }
-            	}
+                }
             }
 
-            
             PrintWriter out = response.getWriter();
             JSONArray.writeJSONString(toWrite, out);
         } catch (DaoException e) {
@@ -107,7 +118,11 @@ public class ClinicalAttributesServlet extends HttpServlet {
         }
     }
 
-    public void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException {
+    public void doPost(
+        HttpServletRequest request,
+        HttpServletResponse response
+    )
+        throws ServletException {
         doGet(request, response);
     }
 }

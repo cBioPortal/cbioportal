@@ -28,14 +28,14 @@
  *
  * You should have received a copy of the GNU Affero General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
-*/
+ */
 
 package org.mskcc.cbio.portal.util;
 
+import java.io.IOException;
 import javax.servlet.*;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletRequestWrapper;
-import java.io.IOException;
 
 /**
  * Filter that wraps an underlying request. This is intended to filter
@@ -44,25 +44,24 @@ import java.io.IOException;
  * <P>This filter should be configured only for those operations that use a
  * file upload request.
  */
-public class XssFilter <W extends HttpServletRequestWrapper> implements Filter
-{
-	public void init(FilterConfig aConfig) throws ServletException
-	{
-		//do nothing
-	}
+public class XssFilter<W extends HttpServletRequestWrapper> implements Filter {
 
-	public void destroy() {
-		//do nothing
-	}
+    public void init(FilterConfig aConfig) throws ServletException {
+        //do nothing
+    }
 
-	public void doFilter(ServletRequest aRequest,
-		ServletResponse aResponse,
-		FilterChain aChain)
-			throws IOException, ServletException
-	{
-		HttpServletRequest request = (HttpServletRequest) aRequest;
-		XssRequestWrapper wrapper = new XssRequestWrapper(request);
-		aChain.doFilter(wrapper, aResponse);
-	}
+    public void destroy() {
+        //do nothing
+    }
 
+    public void doFilter(
+        ServletRequest aRequest,
+        ServletResponse aResponse,
+        FilterChain aChain
+    )
+        throws IOException, ServletException {
+        HttpServletRequest request = (HttpServletRequest) aRequest;
+        XssRequestWrapper wrapper = new XssRequestWrapper(request);
+        aChain.doFilter(wrapper, aResponse);
+    }
 }

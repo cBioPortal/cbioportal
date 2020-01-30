@@ -28,162 +28,227 @@
  *
  * You should have received a copy of the GNU Affero General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
-*/
+ */
 
 package org.mskcc.cbio.portal.scripts;
-
-import org.mskcc.cbio.portal.dao.*;
-import org.mskcc.cbio.portal.util.*;
-import org.mskcc.cbio.portal.model.*;
-
-import joptsimple.*;
 
 import java.io.*;
 import java.math.BigDecimal;
 import java.util.*;
+import joptsimple.*;
+import org.mskcc.cbio.portal.dao.*;
+import org.mskcc.cbio.portal.model.*;
+import org.mskcc.cbio.portal.util.*;
 
 /**
  * Import Segment data into database.
  * @author jj
  */
 public class ImportCopyNumberSegmentData extends ConsoleRunnable {
-
     private int entriesSkipped;
-    
-    private void importData(File file, int cancerStudyId) throws IOException, DaoException {
+
+    private void importData(File file, int cancerStudyId)
+        throws IOException, DaoException {
         MySQLbulkLoader.bulkLoadOn();
         FileReader reader = new FileReader(file);
         BufferedReader buf = new BufferedReader(reader);
         try {
             String line = buf.readLine(); // skip header line
             long segId = DaoCopyNumberSegment.getLargestId();
-            while ((line=buf.readLine()) != null) {
+            while ((line = buf.readLine()) != null) {
                 ProgressMonitor.incrementCurValue();
                 ConsoleUtil.showProgress();
-                
+
                 String[] strs = line.split("\t");
-                if (strs.length<6) {
-                    System.err.println("wrong format: "+line);
+                if (strs.length < 6) {
+                    System.err.println("wrong format: " + line);
                 }
 
-                CancerStudy cancerStudy = DaoCancerStudy.getCancerStudyByInternalId(cancerStudyId);
-                String chrom = strs[1].trim(); 
+                CancerStudy cancerStudy = DaoCancerStudy.getCancerStudyByInternalId(
+                    cancerStudyId
+                );
+                String chrom = strs[1].trim();
                 //validate in same way as GistitReader:
                 ValidationUtils.validateChromosome(chrom);
-                
+
                 long start = Double.valueOf(strs[2]).longValue();
                 long end = Double.valueOf(strs[3]).longValue();
                 if (start >= end) {
                     //workaround to skip with warning, according to https://github.com/cBioPortal/cbioportal/issues/839#issuecomment-203452415
-                    ProgressMonitor.logWarning("Start position of segment is not lower than end position. Skipping this entry.");
+                    ProgressMonitor.logWarning(
+                        "Start position of segment is not lower than end position. Skipping this entry."
+                    );
                     entriesSkipped++;
                     continue;
-                }            
+                }
                 int numProbes = new BigDecimal((strs[4])).intValue();
                 double segMean = Double.parseDouble(strs[5]);
 
                 String sampleId = StableIdUtil.getSampleId(strs[0]);
-                Sample s = DaoSample.getSampleByCancerStudyAndSampleId(cancerStudyId, sampleId);
+                Sample s = DaoSample.getSampleByCancerStudyAndSampleId(
+                    cancerStudyId,
+                    sampleId
+                );
                 if (s == null) {
                     if (StableIdUtil.isNormal(sampleId)) {
                         entriesSkipped++;
                         continue;
-                    }
-                    else {
+                    } else {
                         //this likely will not be reached since samples are added on the fly above if not known to database
-                        throw new RuntimeException("Unknown sample id '" + sampleId + "' found in seg file: " + file.getCanonicalPath());
+                        throw new RuntimeException(
+                            "Unknown sample id '" +
+                            sampleId +
+                            "' found in seg file: " +
+                            file.getCanonicalPath()
+                        );
                     }
                 }
-                CopyNumberSegment cns = new CopyNumberSegment(cancerStudyId, s.getInternalId(), chrom, start, end, numProbes, segMean);
+                CopyNumberSegment cns = new CopyNumberSegment(
+                    cancerStudyId,
+                    s.getInternalId(),
+                    chrom,
+                    start,
+                    end,
+                    numProbes,
+                    segMean
+                );
                 cns.setSegId(++segId);
                 DaoCopyNumberSegment.addCopyNumberSegment(cns);
             }
             MySQLbulkLoader.flushAll();
-        }
-        finally {
+        } finally {
             buf.close();
         }
     }
-    
+
     public void run() {
         try {
             String description = "Import 'segment data' files";
-            
-            OptionSet options = ConsoleUtil.parseStandardDataAndMetaOptions(args, description, true);
+
+            OptionSet options = ConsoleUtil.parseStandardDataAndMetaOptions(
+                args,
+                description,
+                true
+            );
             String dataFile = (String) options.valueOf("data");
             File descriptorFile = new File((String) options.valueOf("meta"));
-        
+
             Properties properties = new Properties();
             properties.load(new FileInputStream(descriptorFile));
-            
-            ProgressMonitor.setCurrentMessage("Reading data from:  " + dataFile);
-            
+
+            ProgressMonitor.setCurrentMessage(
+                "Reading data from:  " + dataFile
+            );
+
             SpringUtil.initDataSource();
             CancerStudy cancerStudy = getCancerStudy(properties);
-            
+
             if (segmentDataExistsForCancerStudy(cancerStudy)) {
-                 throw new IllegalArgumentException("Seg data for cancer study " + cancerStudy.getCancerStudyStableId() + " has already been imported: " + dataFile);
+                throw new IllegalArgumentException(
+                    "Seg data for cancer study " +
+                    cancerStudy.getCancerStudyStableId() +
+                    " has already been imported: " +
+                    dataFile
+                );
             }
-        
+
             importCopyNumberSegmentFileMetadata(cancerStudy, properties);
             importCopyNumberSegmentFileData(cancerStudy, dataFile);
-            DaoCopyNumberSegment.createFractionGenomeAlteredClinicalData(cancerStudy.getInternalId());
-            if( MySQLbulkLoader.isBulkLoad()) {
+            DaoCopyNumberSegment.createFractionGenomeAlteredClinicalData(
+                cancerStudy.getInternalId()
+            );
+            if (MySQLbulkLoader.isBulkLoad()) {
                 MySQLbulkLoader.flushAll();
             }
         } catch (RuntimeException e) {
             throw e;
-        } catch (IOException|DaoException e) {
+        } catch (IOException | DaoException e) {
             throw new RuntimeException(e);
         }
     }
 
-    private static CancerStudy getCancerStudy(Properties properties) throws DaoException {
-        CancerStudy cancerStudy = DaoCancerStudy.getCancerStudyByStableId(properties.getProperty("cancer_study_identifier").trim());
+    private static CancerStudy getCancerStudy(Properties properties)
+        throws DaoException {
+        CancerStudy cancerStudy = DaoCancerStudy.getCancerStudyByStableId(
+            properties.getProperty("cancer_study_identifier").trim()
+        );
         if (cancerStudy == null) {
-            throw new RuntimeException("Unknown cancer study: " + properties.getProperty("cancer_study_identifier").trim());
+            throw new RuntimeException(
+                "Unknown cancer study: " +
+                properties.getProperty("cancer_study_identifier").trim()
+            );
         }
         return cancerStudy;
     }
 
-    private static boolean segmentDataExistsForCancerStudy(CancerStudy cancerStudy) throws DaoException {
-        return (DaoCopyNumberSegment.segmentDataExistForCancerStudy(cancerStudy.getInternalId()));
+    private static boolean segmentDataExistsForCancerStudy(
+        CancerStudy cancerStudy
+    )
+        throws DaoException {
+        return (
+            DaoCopyNumberSegment.segmentDataExistForCancerStudy(
+                cancerStudy.getInternalId()
+            )
+        );
     }
 
-    private static void importCopyNumberSegmentFileMetadata(CancerStudy cancerStudy, Properties properties) throws DaoException {
+    private static void importCopyNumberSegmentFileMetadata(
+        CancerStudy cancerStudy,
+        Properties properties
+    )
+        throws DaoException {
         CopyNumberSegmentFile copyNumSegFile = new CopyNumberSegmentFile();
         copyNumSegFile.cancerStudyId = cancerStudy.getInternalId();
-        String referenceGenomeId = properties.getProperty("reference_genome_id").trim();
+        String referenceGenomeId = properties
+            .getProperty("reference_genome_id")
+            .trim();
         String referenceGenome = cancerStudy.getReferenceGenome();
         if (referenceGenome == null) {
             referenceGenome = ReferenceGenome.HOMO_SAPIENS_DEFAULT_GENOME_NAME;
         }
         if (!referenceGenomeId.equalsIgnoreCase(referenceGenome)) {
-            ProgressMonitor.setCurrentMessage(" Genome Build Name does not match, expecting " 
-                    + cancerStudy.getReferenceGenome());
+            ProgressMonitor.setCurrentMessage(
+                " Genome Build Name does not match, expecting " +
+                cancerStudy.getReferenceGenome()
+            );
         }
-        copyNumSegFile.referenceGenomeId = getRefGenId(referenceGenomeId); 
-        copyNumSegFile.description = properties.getProperty("description").trim();
-        copyNumSegFile.filename = properties.getProperty("data_filename").trim();
+        copyNumSegFile.referenceGenomeId = getRefGenId(referenceGenomeId);
+        copyNumSegFile.description =
+            properties.getProperty("description").trim();
+        copyNumSegFile.filename =
+            properties.getProperty("data_filename").trim();
         DaoCopyNumberSegmentFile.addCopyNumberSegmentFile(copyNumSegFile);
     }
 
-    private void importCopyNumberSegmentFileData(CancerStudy cancerStudy, String dataFilename) throws IOException, DaoException {
+    private void importCopyNumberSegmentFileData(
+        CancerStudy cancerStudy,
+        String dataFilename
+    )
+        throws IOException, DaoException {
         File file = new File(dataFilename);
         int numLines = FileUtil.getNumLines(file);
-        ProgressMonitor.setCurrentMessage(" --> total number of data lines:  " + (numLines-1));
+        ProgressMonitor.setCurrentMessage(
+            " --> total number of data lines:  " + (numLines - 1)
+        );
         ProgressMonitor.setMaxValue(numLines);
         entriesSkipped = 0;
         importData(file, cancerStudy.getInternalId());
-        ProgressMonitor.setCurrentMessage(" --> total number of entries skipped:  " + entriesSkipped);
+        ProgressMonitor.setCurrentMessage(
+            " --> total number of entries skipped:  " + entriesSkipped
+        );
     }
 
-    private static CopyNumberSegmentFile.ReferenceGenomeId getRefGenId(String potentialRefGenId) {
+    private static CopyNumberSegmentFile.ReferenceGenomeId getRefGenId(
+        String potentialRefGenId
+    ) {
         if (CopyNumberSegmentFile.ReferenceGenomeId.has(potentialRefGenId)) {
-            return CopyNumberSegmentFile.ReferenceGenomeId.valueOf(potentialRefGenId);
-        }
-        else {
-            throw new RuntimeException ("Unknown reference genome id: " + potentialRefGenId);
+            return CopyNumberSegmentFile.ReferenceGenomeId.valueOf(
+                potentialRefGenId
+            );
+        } else {
+            throw new RuntimeException(
+                "Unknown reference genome id: " + potentialRefGenId
+            );
         }
     }
 

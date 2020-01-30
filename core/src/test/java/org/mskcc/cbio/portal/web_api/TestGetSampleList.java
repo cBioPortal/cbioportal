@@ -28,9 +28,11 @@
  *
  * You should have received a copy of the GNU Affero General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
-*/
+ */
 
 package org.mskcc.cbio.portal.web_api;
+
+import static org.junit.Assert.*;
 
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -39,21 +41,27 @@ import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import org.springframework.test.context.transaction.TransactionConfiguration;
 import org.springframework.transaction.annotation.Transactional;
 
-import static org.junit.Assert.*;
-
 /**
  * JUnit test for GetSampleLists class.
  */
 @RunWith(SpringJUnit4ClassRunner.class)
 @ContextConfiguration(locations = { "classpath:/applicationContext-dao.xml" })
-@TransactionConfiguration(transactionManager = "transactionManager", defaultRollback = true)
+@TransactionConfiguration(
+    transactionManager = "transactionManager",
+    defaultRollback = true
+)
 @Transactional
 public class TestGetSampleList {
 
-   @Test
-   public void testGetSampleList() throws Exception {
-
-      String[] sampleList = GetSampleLists.getSampleListsAsTable("study_tcga_pub").split("\n");
-      assertTrue(sampleList[1].startsWith("study_tcga_pub_all\tAll Tumors\tAll tumor samples (14 samples)\t1\tTCGA-A1-A0SB-01"));
-   }
+    @Test
+    public void testGetSampleList() throws Exception {
+        String[] sampleList = GetSampleLists
+            .getSampleListsAsTable("study_tcga_pub")
+            .split("\n");
+        assertTrue(
+            sampleList[1].startsWith(
+                    "study_tcga_pub_all\tAll Tumors\tAll tumor samples (14 samples)\t1\tTCGA-A1-A0SB-01"
+                )
+        );
+    }
 }

@@ -28,7 +28,7 @@
  *
  * You should have received a copy of the GNU Affero General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
-*/
+ */
 
 package org.mskcc.cbio.portal.model;
 
@@ -50,18 +50,21 @@ public enum SampleListCategory {
     ALL_CASES_WITH_MRNA_RNA_SEQ_DATA("all_cases_with_mrna_rnaseq_data"),
     ALL_CASES_WITH_RPPA_DATA("all_cases_with_rppa_data"),
     ALL_CASES_WITH_MICRO_RNA_DATA("all_cases_with_microrna_data"),
-    ALL_CASES_WITH_MUTATION_AND_CNA_DATA("all_cases_with_mutation_and_cna_data"),
-    ALL_CASES_WITH_MUTATION_AND_CNA_AND_MRNA_DATA("all_cases_with_mutation_and_cna_and_mrna_data"),
+    ALL_CASES_WITH_MUTATION_AND_CNA_DATA(
+        "all_cases_with_mutation_and_cna_data"
+    ),
+    ALL_CASES_WITH_MUTATION_AND_CNA_AND_MRNA_DATA(
+        "all_cases_with_mutation_and_cna_and_mrna_data"
+    ),
     ALL_CASES_WITH_GSVA_DATA("all_cases_with_gsva_data"),
     ALL_CASES_WITH_SV_DATA("all_cases_with_sv_data"),
     OTHER("other");
 
     // Init the look up map.
-    private static final Map<String, SampleListCategory> lookup
-            = new HashMap<String, SampleListCategory>();
+    private static final Map<String, SampleListCategory> lookup = new HashMap<String, SampleListCategory>();
 
     static {
-        for(SampleListCategory c : EnumSet.allOf(SampleListCategory.class))  {
+        for (SampleListCategory c : EnumSet.allOf(SampleListCategory.class)) {
             lookup.put(c.getCategory(), c);
         }
     }
@@ -72,7 +75,9 @@ public enum SampleListCategory {
         this.category = category;
     }
 
-    public String getCategory() { return category; }
+    public String getCategory() {
+        return category;
+    }
 
     /**
      * Gets the matching category by category name.
@@ -85,12 +90,19 @@ public enum SampleListCategory {
             return match;
         } else {
             StringBuffer validOptions = new StringBuffer();
-            for(SampleListCategory c : EnumSet.allOf(SampleListCategory.class))  {
+            for (SampleListCategory c : EnumSet.allOf(
+                SampleListCategory.class
+            )) {
                 validOptions.append(c.getCategory() + ", ");
             }
-            String validStr = validOptions.substring(0, validOptions.length()-2) + ".";
-            throw new IllegalArgumentException("Invalid Patient List Category:  " + category
-                + ".  Valid options are:  " + validStr);
+            String validStr =
+                validOptions.substring(0, validOptions.length() - 2) + ".";
+            throw new IllegalArgumentException(
+                "Invalid Patient List Category:  " +
+                category +
+                ".  Valid options are:  " +
+                validStr
+            );
         }
     }
 }

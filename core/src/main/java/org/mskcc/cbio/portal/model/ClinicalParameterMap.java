@@ -28,7 +28,7 @@
  *
  * You should have received a copy of the GNU Affero General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
-*/
+ */
 
 package org.mskcc.cbio.portal.model;
 
@@ -40,22 +40,19 @@ import java.util.Set;
 /**
  * Encapsulates any type of Clinical Parameter.
  */
-public class ClinicalParameterMap
-{
+public class ClinicalParameterMap {
     public static final String NA = "NA";
     private String name;
-    private Map <String, String> valueMap;
+    private Map<String, String> valueMap;
     private Set<String> uniqueCategories = new HashSet<String>();
 
-    public ClinicalParameterMap(String name, Map<String, String> valueMap)
-    {
+    public ClinicalParameterMap(String name, Map<String, String> valueMap) {
         this.name = name;
         this.valueMap = valueMap;
 
         Iterator<String> keyIterator = valueMap.keySet().iterator();
-        
-        while (keyIterator.hasNext())
-        {
+
+        while (keyIterator.hasNext()) {
             String caseId = keyIterator.next();
             String value = valueMap.get(caseId);
             uniqueCategories.add(value);
@@ -70,8 +67,7 @@ public class ClinicalParameterMap
         return this.uniqueCategories;
     }
 
-    public String getValue(String caseId)
-    {
+    public String getValue(String caseId) {
         if (valueMap.containsKey(caseId)) {
             return valueMap.get(caseId);
         } else {

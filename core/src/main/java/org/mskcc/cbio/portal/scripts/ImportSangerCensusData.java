@@ -28,15 +28,14 @@
  *
  * You should have received a copy of the GNU Affero General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
-*/
+ */
 
 package org.mskcc.cbio.portal.scripts;
 
+import java.io.*;
 import org.mskcc.cbio.portal.dao.*;
 import org.mskcc.cbio.portal.model.CanonicalGene;
 import org.mskcc.cbio.portal.util.*;
-
-import java.io.*;
 
 /**
  * Command Line Tool to Import Sanger Cancer Gene Census Data.
@@ -54,7 +53,7 @@ public class ImportSangerCensusData {
         daoCensus.deleteAllRecords();
         FileReader reader = new FileReader(censusFile);
         BufferedReader buf = new BufferedReader(reader);
-        buf.readLine();   //  Skip Header Line
+        buf.readLine(); //  Skip Header Line
         String line = buf.readLine();
         DaoGeneOptimized daoGene = DaoGeneOptimized.getInstance();
         while (line != null) {
@@ -70,22 +69,33 @@ public class ImportSangerCensusData {
                 String tumorTypesGermlineMutation = getColumn(parts, 8);
                 String cancerSyndrome = getColumn(parts, 9);
                 String tissueType = getColumn(parts, 10);
-                String mutationType = getColumn (parts, 12);
-                String translocationPartner = getColumn (parts, 13);
+                String mutationType = getColumn(parts, 12);
+                String translocationPartner = getColumn(parts, 13);
                 boolean otherGermlineMutation = getBoolean(parts, 14);
                 String otherDisease = getColumn(parts, 15);
-                daoCensus.addGene(gene, cancerSomaticMutation, cancerGermlineMutation,
-                        tumorTypesSomaticMutation, tumorTypesGermlineMutation, cancerSyndrome,
-                        tissueType, mutationType, translocationPartner, otherGermlineMutation,
-                        otherDisease);
+                daoCensus.addGene(
+                    gene,
+                    cancerSomaticMutation,
+                    cancerGermlineMutation,
+                    tumorTypesSomaticMutation,
+                    tumorTypesGermlineMutation,
+                    cancerSyndrome,
+                    tissueType,
+                    mutationType,
+                    translocationPartner,
+                    otherGermlineMutation,
+                    otherDisease
+                );
             } else {
-                ProgressMonitor.setCurrentMessage("Cannot identify gene:  " + entrezGeneId);
+                ProgressMonitor.setCurrentMessage(
+                    "Cannot identify gene:  " + entrezGeneId
+                );
             }
             line = buf.readLine();
         }
     }
 
-    private String getColumn (String parts[], int index) {
+    private String getColumn(String parts[], int index) {
         try {
             String part = parts[index];
             return part.replaceAll("\"", "");
@@ -94,7 +104,7 @@ public class ImportSangerCensusData {
         }
     }
 
-    private boolean getBoolean (String parts[], int index) {
+    private boolean getBoolean(String parts[], int index) {
         String value = getColumn(parts, index);
         if (value != null && value.equalsIgnoreCase("yes")) {
             return true;
@@ -103,15 +113,16 @@ public class ImportSangerCensusData {
         }
     }
 
-
     public static void main(String[] args) throws Exception {
         if (args.length == 0) {
-            System.out.println("command line usage:  importSangerCensus.pl <sanger.txt>");
+            System.out.println(
+                "command line usage:  importSangerCensus.pl <sanger.txt>"
+            );
             return;
         }
         ProgressMonitor.setConsoleMode(true);
 
-		SpringUtil.initDataSource();
+        SpringUtil.initDataSource();
 
         File geneFile = new File(args[0]);
         System.out.println("Reading data from:  " + geneFile.getAbsolutePath());

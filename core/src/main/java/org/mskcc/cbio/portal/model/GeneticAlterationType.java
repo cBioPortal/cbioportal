@@ -28,7 +28,7 @@
  *
  * You should have received a copy of the GNU Affero General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
-*/
+ */
 
 package org.mskcc.cbio.portal.model;
 
@@ -54,4 +54,4 @@ public enum GeneticAlterationType {
     PROTEIN_ARRAY_PHOSPHORYLATION,
     GENESET_SCORE,
     GENERIC_ASSAY
-};
+}

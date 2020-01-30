@@ -28,36 +28,32 @@
  *
  * You should have received a copy of the GNU Affero General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
-*/
+ */
 
 package org.mskcc.cbio.portal.servlet;
 
-// imports
-import org.mskcc.cbio.portal.util.XDebug;
-import org.mskcc.cbio.portal.util.FileUploadRequestWrapper;
-
+import java.io.IOException;
+import java.io.PrintWriter;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+import javax.servlet.RequestDispatcher;
 import javax.servlet.ServletContext;
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
-import javax.servlet.RequestDispatcher;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-
 import org.apache.commons.fileupload.FileItem;
+import org.mskcc.cbio.portal.util.FileUploadRequestWrapper;
+// imports
+import org.mskcc.cbio.portal.util.XDebug;
 import org.mskcc.cbio.portal.util.XssRequestWrapper;
 import org.owasp.validator.html.PolicyException;
-
-import java.io.PrintWriter;
-import java.io.IOException;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
 /**
  * Servlet responsible for converting OncoPrint into SVG.
  */
 public class OncoPrintConverter extends HttpServlet {
-
-	private Pattern svgXPosPattern;
+    private Pattern svgXPosPattern;
 
     /**
      * Initializes the servlet.
@@ -65,9 +61,8 @@ public class OncoPrintConverter extends HttpServlet {
      * @throws ServletException
      */
     public void init() throws ServletException {
-
         super.init();
-	    svgXPosPattern = Pattern.compile("( x=\"(\\d+)\")");
+        svgXPosPattern = Pattern.compile("( x=\"(\\d+)\")");
     }
 
     /**
@@ -77,10 +72,11 @@ public class OncoPrintConverter extends HttpServlet {
      * @param httpServletResponse HttpServletResponse
      * @throws ServletException
      */
-    protected void doGet(HttpServletRequest httpServletRequest,
-                         HttpServletResponse httpServletResponse) throws ServletException,
-            IOException {
-
+    protected void doGet(
+        HttpServletRequest httpServletRequest,
+        HttpServletResponse httpServletResponse
+    )
+        throws ServletException, IOException {
         doPost(httpServletRequest, httpServletResponse);
     }
 
@@ -91,92 +87,99 @@ public class OncoPrintConverter extends HttpServlet {
      * @param httpServletResponse HttpServletResponse
      * @throws ServletException
      */
-    protected void doPost(HttpServletRequest httpServletRequest,
-                          HttpServletResponse httpServletResponse) throws ServletException, IOException {
+    protected void doPost(
+        HttpServletRequest httpServletRequest,
+        HttpServletResponse httpServletResponse
+    )
+        throws ServletException, IOException {
+        // setup a debug object
+        XDebug xdebug = new XDebug(httpServletRequest);
+        xdebug.logMsg(this, "Attempting to parse request parameters.");
 
-		// setup a debug object 
-        XDebug xdebug = new XDebug( httpServletRequest );
-		xdebug.logMsg(this, "Attempting to parse request parameters.");
+        String xml = "";
+        String format = "";
+        if (httpServletRequest instanceof FileUploadRequestWrapper) {
+            // get instance of our request wrapper
+            FileUploadRequestWrapper wrapper = (FileUploadRequestWrapper) httpServletRequest;
 
-		String xml = "";
-		String format = "";
-		if (httpServletRequest instanceof FileUploadRequestWrapper) {
+            // get format parameter
+            format = wrapper.getParameter("format");
 
-			// get instance of our request wrapper
-			FileUploadRequestWrapper wrapper = (FileUploadRequestWrapper)httpServletRequest;
+            // get xml parameter
+            xml = wrapper.getParameter("xml");
+        } else {
+            httpServletRequest.getParameter("format");
+            xml = httpServletRequest.getParameter("xml");
 
-			// get format parameter
-			format = wrapper.getParameter("format");
-
-			// get xml parameter
-			xml = wrapper.getParameter("xml");
-		}
-		else {
-			httpServletRequest.getParameter("format");
-			xml = httpServletRequest.getParameter("xml");
-
-			// TODO - update antisamy.xml to support svg-xml
-			if (httpServletRequest instanceof XssRequestWrapper)
-			{
-				xml = ((XssRequestWrapper) httpServletRequest).getRawParameter("xml");
-			}
-
-		}
+            // TODO - update antisamy.xml to support svg-xml
+            if (httpServletRequest instanceof XssRequestWrapper) {
+                xml =
+                    ((XssRequestWrapper) httpServletRequest).getRawParameter(
+                            "xml"
+                        );
+            }
+        }
 
         String xmlHeader = "<?xml version='1.0'?>";
         xml = xmlHeader + xml;
-        if(!xml.contains("svg xmlns")) {
-            xml = xml.replace("<svg", "<svg xmlns='http://www.w3.org/2000/svg' version='1.1'");
+        if (!xml.contains("svg xmlns")) {
+            xml =
+                xml.replace(
+                    "<svg",
+                    "<svg xmlns='http://www.w3.org/2000/svg' version='1.1'"
+                );
         }
 
         // sanity check
-		//if (!format.equals("svg")) {
-		//	forwardToErrorPage(getServletContext(), httpServletRequest, httpServletResponse, xdebug);
-		//}
+        //if (!format.equals("svg")) {
+        //	forwardToErrorPage(getServletContext(), httpServletRequest, httpServletResponse, xdebug);
+        //}
 
-		// outta here
-		convertToSVG(httpServletResponse, xml);
-	}
+        // outta here
+        convertToSVG(httpServletResponse, xml);
+    }
 
-	/**
-	 * Reflect given svg xml back to browser for saving.
-	 *
-	 * @param response HttpServletResponse
-	 * @param xml String
-	 */
-	private void convertToSVG(HttpServletResponse response, String xml) throws ServletException {
+    /**
+     * Reflect given svg xml back to browser for saving.
+     *
+     * @param response HttpServletResponse
+     * @param xml String
+     */
+    private void convertToSVG(HttpServletResponse response, String xml)
+        throws ServletException {
+        try {
+            response.setContentType("application/svg+xml");
+            PrintWriter writer = response.getWriter();
+            try {
+                writer.write(xml);
+            } finally {
+                writer.flush();
+                writer.close();
+            }
+        } catch (IOException e) {
+            throw new ServletException(e);
+        }
+    }
 
-		try {
-			response.setContentType("application/svg+xml");
-			PrintWriter writer = response.getWriter();
-			try {
-				writer.write(xml);
-			}
-			finally {
-				writer.flush();
-				writer.close();
-			}
-		}
-		catch (IOException e) {
-			throw new ServletException(e);
-		}
-	}
-
-	/**
-	 * Method called when exception occurs.
-	 * 
-	 * @param servletContext ServletContext
-	 * @param request HttpServletRequest
-	 * @param response HttpServletResponse
-	 * @param xdebug XDebug
-	 */
-    private static void forwardToErrorPage(ServletContext servletContext,
-                                           HttpServletRequest request,
-										   HttpServletResponse response,
-										   XDebug xdebug) throws ServletException, IOException {
-
-       request.setAttribute("xdebug_object", xdebug);
-	   RequestDispatcher dispatcher = servletContext.getRequestDispatcher("/WEB-INF/jsp/error.jsp");
-	   dispatcher.forward(request, response);
+    /**
+     * Method called when exception occurs.
+     *
+     * @param servletContext ServletContext
+     * @param request HttpServletRequest
+     * @param response HttpServletResponse
+     * @param xdebug XDebug
+     */
+    private static void forwardToErrorPage(
+        ServletContext servletContext,
+        HttpServletRequest request,
+        HttpServletResponse response,
+        XDebug xdebug
+    )
+        throws ServletException, IOException {
+        request.setAttribute("xdebug_object", xdebug);
+        RequestDispatcher dispatcher = servletContext.getRequestDispatcher(
+            "/WEB-INF/jsp/error.jsp"
+        );
+        dispatcher.forward(request, response);
     }
 }

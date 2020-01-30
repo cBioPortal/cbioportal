@@ -28,9 +28,11 @@
  *
  * You should have received a copy of the GNU Affero General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
-*/
+ */
 
 package org.mskcc.cbio.portal.dao;
+
+import static org.junit.Assert.*;
 
 import org.junit.Before;
 import org.junit.Test;
@@ -46,31 +48,53 @@ import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import org.springframework.test.context.transaction.TransactionConfiguration;
 import org.springframework.transaction.annotation.Transactional;
 
-import static org.junit.Assert.*;
-
 @RunWith(SpringJUnit4ClassRunner.class)
 @ContextConfiguration(locations = { "classpath:/applicationContext-dao.xml" })
-@TransactionConfiguration(transactionManager = "transactionManager", defaultRollback = true)
+@TransactionConfiguration(
+    transactionManager = "transactionManager",
+    defaultRollback = true
+)
 @Transactional
 public class TestDaoDrugInteraction {
-	
-	@Before 
-	public void setUp() throws DaoException {
-        DaoDrug daoDrug = DaoDrug.getInstance();
-        Drug drug1 = new Drug("DRUG:1", "MyDrug", "description",
-                "synonym,synonym2", "this is an xref", "DUMMY", "B01AE02", true, true, false, 25);
-        daoDrug.addDrug(drug1);
-        Drug drug2 = new Drug("DRUG:2", "MyDrug2", "description2",
-                "synonym", "this is an xref2", "BLA", "L01XX29", false, false, true, -1);
-        daoDrug.addDrug(drug2);
-	}
-	
-	@Test
-    public void testDaoDrugInteraction() throws DaoException {
 
-		// save bulkload setting before turning off
-		boolean isBulkLoad = MySQLbulkLoader.isBulkLoad();
-		MySQLbulkLoader.bulkLoadOff();
+    @Before
+    public void setUp() throws DaoException {
+        DaoDrug daoDrug = DaoDrug.getInstance();
+        Drug drug1 = new Drug(
+            "DRUG:1",
+            "MyDrug",
+            "description",
+            "synonym,synonym2",
+            "this is an xref",
+            "DUMMY",
+            "B01AE02",
+            true,
+            true,
+            false,
+            25
+        );
+        daoDrug.addDrug(drug1);
+        Drug drug2 = new Drug(
+            "DRUG:2",
+            "MyDrug2",
+            "description2",
+            "synonym",
+            "this is an xref2",
+            "BLA",
+            "L01XX29",
+            false,
+            false,
+            true,
+            -1
+        );
+        daoDrug.addDrug(drug2);
+    }
+
+    @Test
+    public void testDaoDrugInteraction() throws DaoException {
+        // save bulkload setting before turning off
+        boolean isBulkLoad = MySQLbulkLoader.isBulkLoad();
+        MySQLbulkLoader.bulkLoadOff();
 
         DaoDrugInteraction daoDrugInteraction = DaoDrugInteraction.getInstance();
 
@@ -87,30 +111,74 @@ public class TestDaoDrugInteraction {
         CanonicalGene gene2 = new CanonicalGene(41, "forty-one");
         CanonicalGene gene3 = new CanonicalGene(42, "forty-two");
 
-        assertEquals(1, daoDrugInteraction.addDrugInteraction(drug, gene, type, dataSource, "", ""));
-        daoDrugInteraction.addDrugInteraction(drug2, gene, type, dataSource, "", "");
-        daoDrugInteraction.addDrugInteraction(drug2, gene2, type, dataSource, "", "");
-        daoDrugInteraction.addDrugInteraction(drug, gene3, type, dataSource, "", "");
-        daoDrugInteraction.addDrugInteraction(drug, gene2, type, dataSource, "", "");
+        assertEquals(
+            1,
+            daoDrugInteraction.addDrugInteraction(
+                drug,
+                gene,
+                type,
+                dataSource,
+                "",
+                ""
+            )
+        );
+        daoDrugInteraction.addDrugInteraction(
+            drug2,
+            gene,
+            type,
+            dataSource,
+            "",
+            ""
+        );
+        daoDrugInteraction.addDrugInteraction(
+            drug2,
+            gene2,
+            type,
+            dataSource,
+            "",
+            ""
+        );
+        daoDrugInteraction.addDrugInteraction(
+            drug,
+            gene3,
+            type,
+            dataSource,
+            "",
+            ""
+        );
+        daoDrugInteraction.addDrugInteraction(
+            drug,
+            gene2,
+            type,
+            dataSource,
+            "",
+            ""
+        );
 
         assertEquals(5, daoDrugInteraction.getCount());
         assertEquals(2, daoDrugInteraction.getInteractions(gene).size());
         assertEquals(1, daoDrugInteraction.getInteractions(gene3).size());
 
-        DrugInteraction interaction = daoDrugInteraction.getInteractions(gene3).iterator().next();
+        DrugInteraction interaction = daoDrugInteraction
+            .getInteractions(gene3)
+            .iterator()
+            .next();
         assertEquals(type, interaction.getInteractionType());
         assertEquals(dataSource, interaction.getDataSource());
         assertEquals(gene3.getEntrezGeneId(), interaction.getTargetGene());
         assertEquals(drug.getId(), interaction.getDrug());
 
         assertEquals(2, daoDrugInteraction.getTargets(drug2).size());
-        DrugInteraction interaction2 = daoDrugInteraction.getTargets(drug2).iterator().next();
+        DrugInteraction interaction2 = daoDrugInteraction
+            .getTargets(drug2)
+            .iterator()
+            .next();
         assertEquals(drug2.getId(), interaction2.getDrug());
         assertEquals(gene.getEntrezGeneId(), interaction2.getTargetGene());
 
-		// restore bulk setting
-		if (isBulkLoad) {
-			MySQLbulkLoader.bulkLoadOn();
-		}
+        // restore bulk setting
+        if (isBulkLoad) {
+            MySQLbulkLoader.bulkLoadOn();
+        }
     }
 }

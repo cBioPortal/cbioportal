@@ -28,10 +28,13 @@
  *
  * You should have received a copy of the GNU Affero General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
-*/
+ */
 
 package org.mskcc.cbio.portal.dao;
 
+import static org.junit.Assert.*;
+
+import java.io.IOException;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mskcc.cbio.portal.model.CanonicalGene;
@@ -41,18 +44,16 @@ import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import org.springframework.test.context.transaction.TransactionConfiguration;
 import org.springframework.transaction.annotation.Transactional;
 
-import static org.junit.Assert.*;
-
-import java.io.IOException;
-
 /**
  * @author Lennart Bastian
  */
 
-
 @RunWith(SpringJUnit4ClassRunner.class)
 @ContextConfiguration(locations = { "classpath:/applicationContext-dao.xml" })
-@TransactionConfiguration(transactionManager = "transactionManager", defaultRollback = true)
+@TransactionConfiguration(
+    transactionManager = "transactionManager",
+    defaultRollback = true
+)
 @Transactional
 public class TestDaoMutSig {
 
@@ -63,9 +64,8 @@ public class TestDaoMutSig {
      *          Database Error.
      */
 
-	@Test
+    @Test
     public void testDaoMutSig() throws DaoException, IOException {
-        
         DaoGeneOptimized daoGeneOptimized = DaoGeneOptimized.getInstance();
 
         // Add Gene TP53 to both gene table and mut_sig table
@@ -84,7 +84,7 @@ public class TestDaoMutSig {
         CanonicalGene testGene = mutSig.getCanonicalGene();
         assertTrue("TP53".equals(testGene.getHugoGeneSymbolAllCaps()));
         assertEquals(1, mutSig.getCancerType());
-        
+
         //get pten from mutsig table using entrez ID
         long foo = 10298321;
         MutSig mutSig2 = DaoMutSig.getMutSig(foo, 1);

@@ -24,9 +24,8 @@ package org.mskcc.cbio.portal.util;
 
 import org.apache.log4j.Logger;
 
-
 /**
- * 
+ *
  *
  * @author Brian Wing Shun Chan
  *
@@ -74,8 +73,7 @@ public class ServerDetector {
 
     public static final String JONAS_ID = "jonas";
 
-    public static final String OC4J_CLASS =
-        "oracle.oc4j.util.ClassUtils";
+    public static final String OC4J_CLASS = "oracle.oc4j.util.ClassUtils";
 
     public static final String OC4J_ID = "oc4j";
 
@@ -120,51 +118,38 @@ public class ServerDetector {
         if (!isInstanceInitialized) {
             if (isGeronimo()) {
                 sd.serverId = GERONIMO_ID;
-            }
-            else if (isGlassfish()) {
+            } else if (isGlassfish()) {
                 sd.serverId = GLASSFISH_ID;
-            }
-            else if (isJBoss()) {
+            } else if (isJBoss()) {
                 sd.serverId = JBOSS_ID;
-            }
-            else if (isJOnAS()) {
+            } else if (isJOnAS()) {
                 sd.serverId = JONAS_ID;
-            }
-            else if (isOC4J()) {
+            } else if (isOC4J()) {
                 sd.serverId = OC4J_ID;
-            }
-            else if (isOrion()) {
+            } else if (isOrion()) {
                 sd.serverId = ORION_ID;
-            }
-            else if (isPramati()) {
+            } else if (isPramati()) {
                 sd.serverId = PRAMATI_ID;
-            }
-            else if (isResin()) {
+            } else if (isResin()) {
                 sd.serverId = RESIN_ID;
-            }
-            else if (isRexIP()) {
+            } else if (isRexIP()) {
                 sd.serverId = REXIP_ID;
-            }
-            else if (isWebLogic()) {
+            } else if (isWebLogic()) {
                 sd.serverId = WEBLOGIC_ID;
-            }
-            else if (isWebSphere()) {
+            } else if (isWebSphere()) {
                 sd.serverId = WEBSPHERE_ID;
             }
 
             if (isJetty()) {
                 if (sd.serverId == null) {
                     sd.serverId = JETTY_ID;
-                }
-                else {
+                } else {
                     sd.serverId += "-" + JETTY_ID;
                 }
-            }
-            else if (isTomcat()) {
+            } else if (isTomcat()) {
                 if (sd.serverId == null) {
                     sd.serverId = TOMCAT_ID;
-                }
-                else {
+                } else {
                     sd.serverId += "-" + TOMCAT_ID;
                 }
             }
@@ -196,8 +181,7 @@ public class ServerDetector {
 
             if (value != null) {
                 sd.glassfish = Boolean.TRUE;
-            }
-            else {
+            } else {
                 sd.glassfish = Boolean.FALSE;
             }
         }
@@ -324,23 +308,18 @@ public class ServerDetector {
             ClassLoader.getSystemClassLoader().loadClass(className);
 
             return Boolean.TRUE;
-        }
-        catch (ClassNotFoundException cnfe) {
+        } catch (ClassNotFoundException cnfe) {
             ServerDetector sd = instance;
 
             Class<?> c = sd.getClass();
 
             if (c.getResource(className) != null) {
                 return Boolean.TRUE;
-            }
-            else {
+            } else {
                 return Boolean.FALSE;
             }
         }
     }
 
-    private ServerDetector() {
-    }
-
-
+    private ServerDetector() {}
 }

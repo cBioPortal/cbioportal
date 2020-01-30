@@ -28,69 +28,80 @@
  *
  * You should have received a copy of the GNU Affero General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
-*/
+ */
 
 package org.mskcc.cbio.portal.scripts;
 
 import java.io.*;
 import java.util.ArrayList;
-
+import joptsimple.OptionSet;
+import org.mskcc.cbio.portal.dao.*;
 import org.mskcc.cbio.portal.model.Gistic;
 import org.mskcc.cbio.portal.util.*;
-import org.mskcc.cbio.portal.dao.*;
 import org.mskcc.cbio.portal.validate.validationException;
 
-import joptsimple.OptionSet;
-
-
 /**
- * Command line utility for importing (amp/del) Gistic data 
+ * Command line utility for importing (amp/del) Gistic data
  */
 public class ImportGisticData extends ConsoleRunnable {
 
-    public void run () {
+    public void run() {
         try {
-	    	String description = "Import GISTIC data.\n" +
-                    " Note that gistic-data-file.txt must be a massaged file, it does not come straight from the Broad";
-	    	
-	    	OptionSet options = ConsoleUtil.parseStandardDataAndStudyOptions(args, description);
-		    String dataFile = (String) options.valueOf("data");
-		    String studyId = (String) options.valueOf("study");
-	
-			SpringUtil.initDataSource();
-	        
-	        File gistic_f = new File(dataFile);
-	        int cancerStudyInternalId = ValidationUtils.getInternalStudyId(studyId);
-	
-	        ProgressMonitor.setCurrentMessage(
-	                "Reading data from: " + gistic_f.getAbsolutePath());
-	        ProgressMonitor.setCurrentMessage(
-	                "CancerStudyId: " + cancerStudyInternalId);
-	
-	        int lines = FileUtil.getNumLines(gistic_f);
-	        ProgressMonitor.setCurrentMessage(
-	                " --> total number of lines: " + lines);
-	        ProgressMonitor.setMaxValue(lines);
-	
-	        GisticReader gisticReader = new GisticReader();
-	        ArrayList<Gistic> gistics = gisticReader.parse(gistic_f, cancerStudyInternalId);
-	
-	        if (gistics == null) {
-	            throw new RuntimeException("Error: didn't get any data");
-	        }
-	
-	        // add to CGDS database
-	        for (Gistic g : gistics) {
-	            try {
-	                DaoGistic.addGistic(g);
-	            } catch (validationException e) {
-	                // only catching validationException, not DaoException
-	                ProgressMonitor.logWarning("Error: " + e.getMessage() + ". Skipping record.");
-	            }
-	        }
+            String description =
+                "Import GISTIC data.\n" +
+                " Note that gistic-data-file.txt must be a massaged file, it does not come straight from the Broad";
+
+            OptionSet options = ConsoleUtil.parseStandardDataAndStudyOptions(
+                args,
+                description
+            );
+            String dataFile = (String) options.valueOf("data");
+            String studyId = (String) options.valueOf("study");
+
+            SpringUtil.initDataSource();
+
+            File gistic_f = new File(dataFile);
+            int cancerStudyInternalId = ValidationUtils.getInternalStudyId(
+                studyId
+            );
+
+            ProgressMonitor.setCurrentMessage(
+                "Reading data from: " + gistic_f.getAbsolutePath()
+            );
+            ProgressMonitor.setCurrentMessage(
+                "CancerStudyId: " + cancerStudyInternalId
+            );
+
+            int lines = FileUtil.getNumLines(gistic_f);
+            ProgressMonitor.setCurrentMessage(
+                " --> total number of lines: " + lines
+            );
+            ProgressMonitor.setMaxValue(lines);
+
+            GisticReader gisticReader = new GisticReader();
+            ArrayList<Gistic> gistics = gisticReader.parse(
+                gistic_f,
+                cancerStudyInternalId
+            );
+
+            if (gistics == null) {
+                throw new RuntimeException("Error: didn't get any data");
+            }
+
+            // add to CGDS database
+            for (Gistic g : gistics) {
+                try {
+                    DaoGistic.addGistic(g);
+                } catch (validationException e) {
+                    // only catching validationException, not DaoException
+                    ProgressMonitor.logWarning(
+                        "Error: " + e.getMessage() + ". Skipping record."
+                    );
+                }
+            }
         } catch (RuntimeException e) {
             throw e;
-        } catch (IOException|DaoException e) {
+        } catch (IOException | DaoException e) {
             throw new RuntimeException(e);
         }
     }

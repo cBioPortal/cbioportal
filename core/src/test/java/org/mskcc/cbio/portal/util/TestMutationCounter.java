@@ -28,17 +28,16 @@
  *
  * You should have received a copy of the GNU Affero General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
-*/
+ */
 
 package org.mskcc.cbio.portal.util;
 
+import static org.junit.Assert.*;
+
+import java.util.ArrayList;
 import org.mskcc.cbio.portal.model.CanonicalGene;
 import org.mskcc.cbio.portal.model.ExtendedMutation;
 import org.mskcc.cbio.portal.model.ExtendedMutationMap;
-
-import java.util.ArrayList;
-
-import static org.junit.Assert.*;
 
 /**
  * Tests the Mutation Counder Class.
@@ -62,20 +61,32 @@ public class TestMutationCounter {
         ExtendedMutation mutation2 = createMutation1(brca1, CASE_A);
         ExtendedMutation mutation3 = createMutation1(brca2, CASE_A);
 
-        ArrayList<ExtendedMutation> mutationList =
-                createMutationList(mutation1, mutation2, mutation3);
+        ArrayList<ExtendedMutation> mutationList = createMutationList(
+            mutation1,
+            mutation2,
+            mutation3
+        );
 
         ArrayList<Integer> sampleList = new ArrayList<Integer>();
         sampleList.add(CASE_A);
         sampleList.add(CASE_B);
 
-        ExtendedMutationMap mutationMap = new ExtendedMutationMap(mutationList, sampleList);
-        MutationCounter mutationCounter = new MutationCounter (BRCA1, mutationMap);
-        assertEquals (0.5, mutationCounter.getMutationRate(), 0.01);
-        assertEquals (0.5, mutationCounter.getSomaticMutationRate(), 0.01);
-        assertEquals (0.0, mutationCounter.getGermlineMutationRate(), 0.01);
+        ExtendedMutationMap mutationMap = new ExtendedMutationMap(
+            mutationList,
+            sampleList
+        );
+        MutationCounter mutationCounter = new MutationCounter(
+            BRCA1,
+            mutationMap
+        );
+        assertEquals(0.5, mutationCounter.getMutationRate(), 0.01);
+        assertEquals(0.5, mutationCounter.getSomaticMutationRate(), 0.01);
+        assertEquals(0.0, mutationCounter.getGermlineMutationRate(), 0.01);
 
-        assertEquals ("[Somatic Mutation Rate:  50%]", mutationCounter.getTextSummary());
+        assertEquals(
+            "[Somatic Mutation Rate:  50%]",
+            mutationCounter.getTextSummary()
+        );
     }
 
     public void test2() {
@@ -88,20 +99,31 @@ public class TestMutationCounter {
         ExtendedMutation mutation2 = createMutation1(brca1, CASE_A);
         ExtendedMutation mutation3 = createMutation1(brca2, CASE_A);
 
-        ArrayList<ExtendedMutation> mutationList =
-                createMutationList(mutation1, mutation2, mutation3);
+        ArrayList<ExtendedMutation> mutationList = createMutationList(
+            mutation1,
+            mutation2,
+            mutation3
+        );
 
         ArrayList<Integer> sampleList = new ArrayList<Integer>();
         sampleList.add(CASE_A);
         sampleList.add(CASE_B);
 
-        ExtendedMutationMap mutationMap = new ExtendedMutationMap(mutationList, sampleList);
-        MutationCounter mutationCounter = new MutationCounter (BRCA1, mutationMap);
-        assertEquals (0.5, mutationCounter.getMutationRate(), 0.01);
-        assertEquals (0.5, mutationCounter.getSomaticMutationRate(), 0.01);
-        assertEquals (0.5, mutationCounter.getGermlineMutationRate(), 0.01);
-        assertEquals ("[Germline Mutation Rate:  50%, Somatic Mutation Rate:  50%]",
-                mutationCounter.getTextSummary());
+        ExtendedMutationMap mutationMap = new ExtendedMutationMap(
+            mutationList,
+            sampleList
+        );
+        MutationCounter mutationCounter = new MutationCounter(
+            BRCA1,
+            mutationMap
+        );
+        assertEquals(0.5, mutationCounter.getMutationRate(), 0.01);
+        assertEquals(0.5, mutationCounter.getSomaticMutationRate(), 0.01);
+        assertEquals(0.5, mutationCounter.getGermlineMutationRate(), 0.01);
+        assertEquals(
+            "[Germline Mutation Rate:  50%, Somatic Mutation Rate:  50%]",
+            mutationCounter.getTextSummary()
+        );
     }
 
     public void test3() {
@@ -113,8 +135,11 @@ public class TestMutationCounter {
         ExtendedMutation mutation2 = createMutation1(brca1, CASE_A);
         ExtendedMutation mutation3 = createMutation1(brca2, CASE_A);
 
-        ArrayList<ExtendedMutation> mutationList =
-                createMutationList(mutation1, mutation2, mutation3);
+        ArrayList<ExtendedMutation> mutationList = createMutationList(
+            mutation1,
+            mutation2,
+            mutation3
+        );
 
         ArrayList<Integer> sampleList = new ArrayList<Integer>();
         sampleList.add(CASE_A);
@@ -122,16 +147,28 @@ public class TestMutationCounter {
         sampleList.add(CASE_C);
         sampleList.add(CASE_D);
 
-        ExtendedMutationMap mutationMap = new ExtendedMutationMap(mutationList, sampleList);
-        MutationCounter mutationCounter = new MutationCounter (BRCA1, mutationMap);
-        assertEquals (0.25, mutationCounter.getMutationRate(), 0.01);
-        assertEquals (0.25, mutationCounter.getSomaticMutationRate(), 0.01);
-        assertEquals (0.0, mutationCounter.getGermlineMutationRate(), 0.01);
-        assertEquals ("[Somatic Mutation Rate:  25%]", mutationCounter.getTextSummary());
+        ExtendedMutationMap mutationMap = new ExtendedMutationMap(
+            mutationList,
+            sampleList
+        );
+        MutationCounter mutationCounter = new MutationCounter(
+            BRCA1,
+            mutationMap
+        );
+        assertEquals(0.25, mutationCounter.getMutationRate(), 0.01);
+        assertEquals(0.25, mutationCounter.getSomaticMutationRate(), 0.01);
+        assertEquals(0.0, mutationCounter.getGermlineMutationRate(), 0.01);
+        assertEquals(
+            "[Somatic Mutation Rate:  25%]",
+            mutationCounter.getTextSummary()
+        );
     }
 
-    private ArrayList<ExtendedMutation> createMutationList(ExtendedMutation
-            mutation1, ExtendedMutation mutation2, ExtendedMutation mutation3) {
+    private ArrayList<ExtendedMutation> createMutationList(
+        ExtendedMutation mutation1,
+        ExtendedMutation mutation2,
+        ExtendedMutation mutation3
+    ) {
         ArrayList<ExtendedMutation> mutationList = new ArrayList<ExtendedMutation>();
         mutationList.add(mutation1);
         mutationList.add(mutation2);
@@ -139,8 +176,10 @@ public class TestMutationCounter {
         return mutationList;
     }
 
-    private ExtendedMutation createMutation1(CanonicalGene
-            gene, Integer sampleId) {
+    private ExtendedMutation createMutation1(
+        CanonicalGene gene,
+        Integer sampleId
+    ) {
         ExtendedMutation mutation2 = new ExtendedMutation();
         mutation2.setGene(gene);
         mutation2.setSampleId(sampleId);

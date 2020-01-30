@@ -28,23 +28,22 @@
  *
  * You should have received a copy of the GNU Affero General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
-*/
+ */
 
 package org.mskcc.cbio.portal.servlet;
 
-import org.mskcc.cbio.portal.model.DownloadLink;
-import org.mskcc.cbio.portal.util.XDebug;
-import org.owasp.validator.html.PolicyException;
-
+import java.io.IOException;
+import java.io.PrintWriter;
+import java.util.ArrayList;
 import javax.servlet.RequestDispatcher;
 import javax.servlet.ServletContext;
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import java.io.IOException;
-import java.io.PrintWriter;
-import java.util.ArrayList;
+import org.mskcc.cbio.portal.model.DownloadLink;
+import org.mskcc.cbio.portal.util.XDebug;
+import org.owasp.validator.html.PolicyException;
 
 /**
  * Shows Content Already Retrieved from the CGDS Server.
@@ -60,14 +59,21 @@ public class ShowData extends HttpServlet {
      * @throws javax.servlet.ServletException Servlet Error.
      * @throws java.io.IOException            IO Error.
      */
-    protected void doGet(HttpServletRequest request, HttpServletResponse response)
+    protected void doGet(
+        HttpServletRequest request,
+        HttpServletResponse response
+    )
         throws ServletException, IOException {
-        XDebug xdebug = new XDebug( request );
+        XDebug xdebug = new XDebug(request);
         showData(getServletContext(), request, response, xdebug);
     }
 
-    private static void showData(ServletContext servletContext, HttpServletRequest request,
-                                 HttpServletResponse response, XDebug xdebug)
+    private static void showData(
+        ServletContext servletContext,
+        HttpServletRequest request,
+        HttpServletResponse response,
+        XDebug xdebug
+    )
         throws ServletException, IOException {
         String index = request.getParameter(INDEX);
         if (index == null || index.trim().length() == 0) {
@@ -75,7 +81,13 @@ public class ShowData extends HttpServlet {
         } else {
             try {
                 int i = Integer.parseInt(index);
-                showDataAtSpecifiedIndex(servletContext, request, response, i, xdebug);
+                showDataAtSpecifiedIndex(
+                    servletContext,
+                    request,
+                    response,
+                    i,
+                    xdebug
+                );
             } catch (NumberFormatException e) {
                 forwardToErrorPage(servletContext, request, response, xdebug);
             }
@@ -92,12 +104,17 @@ public class ShowData extends HttpServlet {
      * @throws IOException      IO Error.
      * @throws ServletException Servlet Error.
      */
-    public static void showDataAtSpecifiedIndex(ServletContext servletContext,
-                                                HttpServletRequest request, HttpServletResponse response, int i,
-                                                XDebug xdebug)
+    public static void showDataAtSpecifiedIndex(
+        ServletContext servletContext,
+        HttpServletRequest request,
+        HttpServletResponse response,
+        int i,
+        XDebug xdebug
+    )
         throws IOException, ServletException {
-        ArrayList<DownloadLink> downloadLinkList = (ArrayList<DownloadLink>)
-            request.getSession().getAttribute(QueryBuilder.DOWNLOAD_LINKS);
+        ArrayList<DownloadLink> downloadLinkList = (ArrayList<DownloadLink>) request
+            .getSession()
+            .getAttribute(QueryBuilder.DOWNLOAD_LINKS);
         if (downloadLinkList == null || downloadLinkList.size() == 0) {
             xdebug.logMsg(xdebug, "Download link list is null or empty");
             forwardToErrorPage(servletContext, request, response, xdebug);
@@ -106,24 +123,40 @@ public class ShowData extends HttpServlet {
                 DownloadLink downloadLink = downloadLinkList.get(i);
                 PrintWriter writer = response.getWriter();
                 response.setContentType("text/plain");
-                response.setHeader("Content-Disposition", "attachment;filename=cBioPortal_data.txt");
+                response.setHeader(
+                    "Content-Disposition",
+                    "attachment;filename=cBioPortal_data.txt"
+                );
                 String transposeStr = request.getParameter(
-                    QueryBuilder.CLIENT_TRANSPOSE_MATRIX);
+                    QueryBuilder.CLIENT_TRANSPOSE_MATRIX
+                );
                 boolean transpose = false;
                 if (transposeStr != null) {
                     transpose = true;
                 }
-                outputData(downloadLink.getContent(), writer, transpose, xdebug);
+                outputData(
+                    downloadLink.getContent(),
+                    writer,
+                    transpose,
+                    xdebug
+                );
                 writer.flush();
             } catch (ArrayIndexOutOfBoundsException e) {
-                xdebug.logMsg(xdebug, "Array Index out of bounds:  " + e.getMessage());
+                xdebug.logMsg(
+                    xdebug,
+                    "Array Index out of bounds:  " + e.getMessage()
+                );
                 forwardToErrorPage(servletContext, request, response, xdebug);
             }
         }
     }
 
-    private static void outputData(String content, PrintWriter writer, boolean transpose,
-                                   XDebug xdebug) {
+    private static void outputData(
+        String content,
+        PrintWriter writer,
+        boolean transpose,
+        XDebug xdebug
+    ) {
         String lines[] = content.split("\n");
 
         int numRows = 0;
@@ -141,7 +174,10 @@ public class ShowData extends HttpServlet {
                 }
             }
         }
-        xdebug.logMsg(xdebug, "Data matrix is size:  " + numRows + " x " + numCols + ".");
+        xdebug.logMsg(
+            xdebug,
+            "Data matrix is size:  " + numRows + " x " + numCols + "."
+        );
         String matrix[][] = new String[numRows][numCols];
         for (int i = 0; i < dataLines.size(); i++) {
             String line = dataLines.get(i);
@@ -166,15 +202,19 @@ public class ShowData extends HttpServlet {
                 writer.write("\n");
             }
         }
-
     }
 
-    private static void forwardToErrorPage(ServletContext servletContext,
-                                           HttpServletRequest request, HttpServletResponse response, XDebug xdebug)
+    private static void forwardToErrorPage(
+        ServletContext servletContext,
+        HttpServletRequest request,
+        HttpServletResponse response,
+        XDebug xdebug
+    )
         throws ServletException, IOException {
         request.setAttribute("xdebug_object", xdebug);
-        RequestDispatcher dispatcher =
-            servletContext.getRequestDispatcher("/WEB-INF/jsp/error.jsp");
+        RequestDispatcher dispatcher = servletContext.getRequestDispatcher(
+            "/WEB-INF/jsp/error.jsp"
+        );
         dispatcher.forward(request, response);
     }
 }

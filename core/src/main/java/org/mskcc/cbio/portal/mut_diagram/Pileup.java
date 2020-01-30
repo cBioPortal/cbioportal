@@ -28,21 +28,11 @@
  *
  * You should have received a copy of the GNU Affero General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
-*/
+ */
 
 package org.mskcc.cbio.portal.mut_diagram;
 
 import static com.google.common.base.Preconditions.checkNotNull;
-
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-
-import org.apache.log4j.Logger;
-import org.mskcc.cbio.portal.model.ExtendedMutation;
 
 import com.google.common.base.Joiner;
 import com.google.common.collect.ArrayListMultimap;
@@ -52,6 +42,14 @@ import com.google.common.collect.ListMultimap;
 import com.google.common.collect.Lists;
 import com.google.common.collect.SetMultimap;
 import com.google.common.collect.Sets;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import org.apache.log4j.Logger;
+import org.mskcc.cbio.portal.model.ExtendedMutation;
 
 /**
  * Pileup of one or mutations at a single location.
@@ -61,16 +59,18 @@ public final class Pileup {
     private final String label;
     private final int location;
     private final int count;
-	private final int missenseCount;
+    private final int missenseCount;
 
-    public Pileup(final String label,
-		    final int location,
-		    final int count,
-		    final int missenseCount) {
+    public Pileup(
+        final String label,
+        final int location,
+        final int count,
+        final int missenseCount
+    ) {
         this.label = label;
         this.location = location;
         this.count = count;
-	    this.missenseCount = missenseCount;
+        this.missenseCount = missenseCount;
     }
 
     /**
@@ -100,14 +100,14 @@ public final class Pileup {
         return count;
     }
 
-	/**
-	 * Return the count of missense mutations at this location.
-	 *
-	 * @return the count of missense mutations as this location
-	 */
-	public int getMissenseCount() {
-		return missenseCount;
-	}
+    /**
+     * Return the count of missense mutations at this location.
+     *
+     * @return the count of missense mutations as this location
+     */
+    public int getMissenseCount() {
+        return missenseCount;
+    }
 
     /**
      * Return a list of pileups for the specified list of mutations.  The list of
@@ -126,39 +126,52 @@ public final class Pileup {
             String label = mutation.getProteinChange();
             if (label != null) {
                 try {
-                    int location = Integer.valueOf(label.replaceAll("[A-Za-z\\.*]+", ""));
+                    int location = Integer.valueOf(
+                        label.replaceAll("[A-Za-z\\.*]+", "")
+                    );
                     labels.put(location, label);
                     mutationsByLocation.put(location, mutation);
-                }
-                catch (NumberFormatException e) {
-                    logger.warn("ignoring extended mutation " + label + ", no location information");
+                } catch (NumberFormatException e) {
+                    logger.warn(
+                        "ignoring extended mutation " +
+                        label +
+                        ", no location information"
+                    );
                 }
             }
         }
 
-        for (Map.Entry<Integer, Collection<ExtendedMutation>> entry : mutationsByLocation.asMap().entrySet())
-        {
+        for (Map.Entry<Integer, Collection<ExtendedMutation>> entry : mutationsByLocation
+            .asMap()
+            .entrySet()) {
             int location = entry.getKey();
             Set<String> locationLabels = labels.get(location);
             List<String> sortedLocationLabels = new ArrayList<String>();
             sortedLocationLabels.addAll(locationLabels);
             Collections.sort(sortedLocationLabels);
             String label = Joiner.on("/").join(sortedLocationLabels);
-	        int missenseCount = 0;
+            int missenseCount = 0;
             Set<String> caseIds = Sets.newHashSet();
 
-	        for (ExtendedMutation mutation : entry.getValue())
-	        {
-                caseIds.add(mutation.getSampleId() + ":" + mutation.getProteinChange());
+            for (ExtendedMutation mutation : entry.getValue()) {
+                caseIds.add(
+                    mutation.getSampleId() + ":" + mutation.getProteinChange()
+                );
 
-		        if (mutation.getMutationType() != null &&
-		            mutation.getMutationType().toLowerCase().contains("missense"))
-		        {
-			        missenseCount++;
-		        }
+                if (
+                    mutation.getMutationType() != null &&
+                    mutation
+                        .getMutationType()
+                        .toLowerCase()
+                        .contains("missense")
+                ) {
+                    missenseCount++;
+                }
             }
 
-            pileups.add(new Pileup(label, location, caseIds.size(), missenseCount));
+            pileups.add(
+                new Pileup(label, location, caseIds.size(), missenseCount)
+            );
         }
 
         return ImmutableList.copyOf(pileups);

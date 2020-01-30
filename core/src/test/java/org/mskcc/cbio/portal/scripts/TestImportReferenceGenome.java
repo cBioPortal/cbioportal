@@ -1,12 +1,10 @@
 package org.mskcc.cbio.portal.scripts;
 
-import org.junit.Test;
-import org.junit.runner.RunWith;
-
 import static org.junit.Assert.assertEquals;
 
 import java.io.File;
-
+import org.junit.Test;
+import org.junit.runner.RunWith;
 import org.mskcc.cbio.portal.dao.DaoReferenceGenome;
 import org.mskcc.cbio.portal.model.ReferenceGenome;
 import org.mskcc.cbio.portal.util.ProgressMonitor;
@@ -20,7 +18,10 @@ import org.springframework.transaction.annotation.Transactional;
  */
 @RunWith(SpringJUnit4ClassRunner.class)
 @ContextConfiguration(locations = { "classpath:/applicationContext-dao.xml" })
-@TransactionConfiguration(transactionManager = "transactionManager", defaultRollback = true)
+@TransactionConfiguration(
+    transactionManager = "transactionManager",
+    defaultRollback = true
+)
 @Transactional
 public class TestImportReferenceGenome {
 
@@ -33,8 +34,13 @@ public class TestImportReferenceGenome {
         ProgressMonitor.setConsoleMode(false);
         File file = new File("src/test/resources/reference_genomes.txt");
         ImportReferenceGenome.importData(file);
-        ReferenceGenome genome = DaoReferenceGenome.getReferenceGenomeByInternalId(1);
+        ReferenceGenome genome = DaoReferenceGenome.getReferenceGenomeByInternalId(
+            1
+        );
         assertEquals("GRCh37", genome.getBuildName());
-        assertEquals(1, DaoReferenceGenome.getReferenceGenomeIdByName("GRCh37"));
+        assertEquals(
+            1,
+            DaoReferenceGenome.getReferenceGenomeIdByName("GRCh37")
+        );
     }
 }

@@ -28,7 +28,7 @@
  *
  * You should have received a copy of the GNU Affero General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
-*/
+ */
 
 package org.mskcc.cbio.portal.model;
 
@@ -49,9 +49,14 @@ public class ClinicalData {
     public ClinicalData() {
         this(-1, "", "", "");
     }
-    
+
     public ClinicalData(ClinicalData other) {
-        this(other.getCancerStudyId(), other.getStableId(), other.getAttrId(), other.getAttrVal());
+        this(
+            other.getCancerStudyId(),
+            other.getStableId(),
+            other.getAttrId(),
+            other.getAttrVal()
+        );
     }
 
     /**
@@ -62,11 +67,12 @@ public class ClinicalData {
      * @param attrId            database id of the attribute
      * @param attrVal           value of the clinical attribute given above
      */
-    public ClinicalData(int cancerStudyId,
-                        String stableId,
-                        String attrId,
-                        String attrVal) {
-
+    public ClinicalData(
+        int cancerStudyId,
+        String stableId,
+        String attrId,
+        String attrVal
+    ) {
         this.cancerStudyId = cancerStudyId;
         this.stableId = stableId;
         this.attrId = attrId;
@@ -106,6 +112,12 @@ public class ClinicalData {
     }
 
     public String toString() {
-        return String.format("ClinicalData[cancerStudyId=%d, %s, %s, %s]", cancerStudyId, stableId, attrId, attrVal);
+        return String.format(
+            "ClinicalData[cancerStudyId=%d, %s, %s, %s]",
+            cancerStudyId,
+            stableId,
+            attrId,
+            attrVal
+        );
     }
 }

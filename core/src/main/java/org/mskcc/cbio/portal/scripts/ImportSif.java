@@ -28,16 +28,15 @@
  *
  * You should have received a copy of the GNU Affero General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
-*/
+ */
 
 package org.mskcc.cbio.portal.scripts;
 
-import org.mskcc.cbio.portal.util.*;
-import org.mskcc.cbio.portal.dao.*;
-import org.mskcc.cbio.portal.model.CanonicalGene;
-
 import java.io.*;
 import java.util.*;
+import org.mskcc.cbio.portal.dao.*;
+import org.mskcc.cbio.portal.model.CanonicalGene;
+import org.mskcc.cbio.portal.util.*;
 
 /**
  * Command Line to Import SIF Interactions.
@@ -86,24 +85,39 @@ public class ImportSif {
                 String interactionType = parts[1];
                 String geneBId = parts[2];
 
-                CanonicalGene geneA = daoGeneOptimized.getNonAmbiguousGene(geneAId, true);
-                CanonicalGene geneB = daoGeneOptimized.getNonAmbiguousGene(geneBId, true);
+                CanonicalGene geneA = daoGeneOptimized.getNonAmbiguousGene(
+                    geneAId,
+                    true
+                );
+                CanonicalGene geneB = daoGeneOptimized.getNonAmbiguousGene(
+                    geneBId,
+                    true
+                );
 
                 //  Log genes that we cannot identify.
                 if (geneA == null) {
-                    ProgressMonitor.logWarning("Cannot identify gene:  " + geneAId);
+                    ProgressMonitor.logWarning(
+                        "Cannot identify gene:  " + geneAId
+                    );
                 }
                 if (geneB == null) {
-                    ProgressMonitor.logWarning("Cannot identify gene:  " + geneBId);
+                    ProgressMonitor.logWarning(
+                        "Cannot identify gene:  " + geneBId
+                    );
                 }
 
                 if (geneA != null && geneB != null) {
-
                     String key = createKey(geneA, geneB, interactionType);
                     if (!interactionSet.contains(key)) {
                         //  SIF Interactions do not have experiment details or PMIDs.  So, we set to null.
-                        daoInteraction.addInteraction(geneA, geneB, interactionType, dataSource,
-                                null, null);
+                        daoInteraction.addInteraction(
+                            geneA,
+                            geneB,
+                            interactionType,
+                            dataSource,
+                            null,
+                            null
+                        );
                         numInteractionsSaved++;
                         interactionSet.add(key);
                     } else {
@@ -112,20 +126,26 @@ public class ImportSif {
                 } else {
                     numInteractionsNotSaved++;
                 }
-
             }
             line = buf.readLine();
         }
 
         //  Flush database
         if (MySQLbulkLoader.isBulkLoad()) {
-           MySQLbulkLoader.flushAll();
+            MySQLbulkLoader.flushAll();
         }
-        ProgressMonitor.setCurrentMessage("Total number of interactions saved:  " + numInteractionsSaved);
-        ProgressMonitor.setCurrentMessage("Total number of interactions not saved, due to " +
-                "invalid gene IDs:  " + numInteractionsNotSaved);
-        ProgressMonitor.setCurrentMessage("Total number of redundant interactions skipped:  "
-                + numRedundantInteractionsSkipped);
+        ProgressMonitor.setCurrentMessage(
+            "Total number of interactions saved:  " + numInteractionsSaved
+        );
+        ProgressMonitor.setCurrentMessage(
+            "Total number of interactions not saved, due to " +
+            "invalid gene IDs:  " +
+            numInteractionsNotSaved
+        );
+        ProgressMonitor.setCurrentMessage(
+            "Total number of redundant interactions skipped:  " +
+            numRedundantInteractionsSkipped
+        );
     }
 
     /**
@@ -135,13 +155,15 @@ public class ImportSif {
      * @param interactionType Interaction Type.
      * @return key.
      */
-    private String createKey (CanonicalGene geneA, CanonicalGene geneB,
-            String interactionType) {
+    private String createKey(
+        CanonicalGene geneA,
+        CanonicalGene geneB,
+        String interactionType
+    ) {
         long idA = geneA.getEntrezGeneId();
         long idB = geneB.getEntrezGeneId();
         return new String(idA + ":" + interactionType + ":" + idB);
     }
-
 
     /**
      * Command Line Util.
@@ -149,17 +171,21 @@ public class ImportSif {
      */
     public static void main(String[] args) {
         if (args.length < 2) {
-            System.out.println("command line usage:  importSif.pl <sif.txt> <data_source>");
+            System.out.println(
+                "command line usage:  importSif.pl <sif.txt> <data_source>"
+            );
             return;
         }
         ProgressMonitor.setConsoleMode(true);
 
-		SpringUtil.initDataSource();
+        SpringUtil.initDataSource();
 
         try {
             File geneFile = new File(args[0]);
             String dataSource = args[1];
-            System.out.println("Reading interactions from:  " + geneFile.getAbsolutePath());
+            System.out.println(
+                "Reading interactions from:  " + geneFile.getAbsolutePath()
+            );
             int numLines = FileUtil.getNumLines(geneFile);
             System.out.println(" --> total number of lines:  " + numLines);
             ProgressMonitor.setMaxValue(numLines);

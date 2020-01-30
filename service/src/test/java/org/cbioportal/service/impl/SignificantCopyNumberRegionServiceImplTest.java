@@ -1,5 +1,8 @@
 package org.cbioportal.service.impl;
 
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
 import org.cbioportal.model.Gistic;
 import org.cbioportal.model.GisticToGene;
 import org.cbioportal.model.meta.BaseMeta;
@@ -14,42 +17,59 @@ import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.runners.MockitoJUnitRunner;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-
 @RunWith(MockitoJUnitRunner.class)
-public class SignificantCopyNumberRegionServiceImplTest extends BaseServiceImplTest {
-    
+public class SignificantCopyNumberRegionServiceImplTest
+    extends BaseServiceImplTest {
     @InjectMocks
     private SignificantCopyNumberRegionServiceImpl significantCopyNumberRegionService;
-    
+
     @Mock
     private SignificantCopyNumberRegionRepository significantCopyNumberRegionRepository;
+
     @Mock
     private StudyService studyService;
-    
+
     @Test
     public void getSignificantCopyNumberRegions() throws Exception {
-
         List<Gistic> expectedGisticList = new ArrayList<>();
         Gistic gistic = new Gistic();
         gistic.setGisticRoiId(GISTIC_ROI_ID);
         expectedGisticList.add(gistic);
 
-        Mockito.when(significantCopyNumberRegionRepository.getSignificantCopyNumberRegions(STUDY_ID, PROJECTION, 
-            PAGE_SIZE, PAGE_NUMBER, SORT, DIRECTION)).thenReturn(expectedGisticList);
-        
+        Mockito
+            .when(
+                significantCopyNumberRegionRepository.getSignificantCopyNumberRegions(
+                    STUDY_ID,
+                    PROJECTION,
+                    PAGE_SIZE,
+                    PAGE_NUMBER,
+                    SORT,
+                    DIRECTION
+                )
+            )
+            .thenReturn(expectedGisticList);
+
         List<GisticToGene> expectedGisticToGeneList = new ArrayList<>();
         GisticToGene gisticToGene = new GisticToGene();
         gisticToGene.setGisticRoiId(GISTIC_ROI_ID);
         expectedGisticToGeneList.add(gisticToGene);
-        
-        Mockito.when(significantCopyNumberRegionRepository.getGenesOfRegions(Arrays.asList(GISTIC_ROI_ID)))
+
+        Mockito
+            .when(
+                significantCopyNumberRegionRepository.getGenesOfRegions(
+                    Arrays.asList(GISTIC_ROI_ID)
+                )
+            )
             .thenReturn(expectedGisticToGeneList);
-        
-        List<Gistic> result = significantCopyNumberRegionService.getSignificantCopyNumberRegions(STUDY_ID, PROJECTION,
-            PAGE_SIZE, PAGE_NUMBER, SORT, DIRECTION);
+
+        List<Gistic> result = significantCopyNumberRegionService.getSignificantCopyNumberRegions(
+            STUDY_ID,
+            PROJECTION,
+            PAGE_SIZE,
+            PAGE_NUMBER,
+            SORT,
+            DIRECTION
+        );
 
         Assert.assertEquals(1, result.size());
         Assert.assertEquals(gistic, result.get(0));
@@ -58,28 +78,46 @@ public class SignificantCopyNumberRegionServiceImplTest extends BaseServiceImplT
     }
 
     @Test(expected = StudyNotFoundException.class)
-    public void getSignificantCopyNumberRegionsStudyNotFound() throws Exception {
-        
-        Mockito.when(studyService.getStudy(STUDY_ID)).thenThrow(new StudyNotFoundException(STUDY_ID));
-        significantCopyNumberRegionService.getSignificantCopyNumberRegions(STUDY_ID, PROJECTION, PAGE_SIZE, PAGE_NUMBER, 
-            SORT, DIRECTION);
+    public void getSignificantCopyNumberRegionsStudyNotFound()
+        throws Exception {
+        Mockito
+            .when(studyService.getStudy(STUDY_ID))
+            .thenThrow(new StudyNotFoundException(STUDY_ID));
+        significantCopyNumberRegionService.getSignificantCopyNumberRegions(
+            STUDY_ID,
+            PROJECTION,
+            PAGE_SIZE,
+            PAGE_NUMBER,
+            SORT,
+            DIRECTION
+        );
     }
 
     @Test
     public void getMetaSignificantCopyNumberRegions() throws Exception {
-
         BaseMeta expectedBaseMeta = new BaseMeta();
-        Mockito.when(significantCopyNumberRegionRepository.getMetaSignificantCopyNumberRegions(STUDY_ID))
+        Mockito
+            .when(
+                significantCopyNumberRegionRepository.getMetaSignificantCopyNumberRegions(
+                    STUDY_ID
+                )
+            )
             .thenReturn(expectedBaseMeta);
-        BaseMeta result = significantCopyNumberRegionService.getMetaSignificantCopyNumberRegions(STUDY_ID);
+        BaseMeta result = significantCopyNumberRegionService.getMetaSignificantCopyNumberRegions(
+            STUDY_ID
+        );
 
         Assert.assertEquals(expectedBaseMeta, result);
     }
 
     @Test(expected = StudyNotFoundException.class)
-    public void getMetaSignificantCopyNumberRegionsStudyNotFound() throws Exception {
-        
-        Mockito.when(studyService.getStudy(STUDY_ID)).thenThrow(new StudyNotFoundException(STUDY_ID));
-        significantCopyNumberRegionService.getMetaSignificantCopyNumberRegions(STUDY_ID);
+    public void getMetaSignificantCopyNumberRegionsStudyNotFound()
+        throws Exception {
+        Mockito
+            .when(studyService.getStudy(STUDY_ID))
+            .thenThrow(new StudyNotFoundException(STUDY_ID));
+        significantCopyNumberRegionService.getMetaSignificantCopyNumberRegions(
+            STUDY_ID
+        );
     }
 }

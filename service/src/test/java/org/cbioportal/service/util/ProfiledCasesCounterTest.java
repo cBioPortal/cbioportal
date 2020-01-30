@@ -3,7 +3,6 @@ package org.cbioportal.service.util;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
-
 import org.cbioportal.model.AlterationCountByGene;
 import org.cbioportal.model.GenePanel;
 import org.cbioportal.model.GenePanelData;
@@ -20,7 +19,6 @@ import org.mockito.runners.MockitoJUnitRunner;
 
 @RunWith(MockitoJUnitRunner.class)
 public class ProfiledCasesCounterTest {
-
     private static final String MOLECULAR_PROFILE_ID = "molecular_profile_id";
     private static final String GENE_PANEL_ID_1 = "gene_panel_id_1";
     private static final String GENE_PANEL_ID_2 = "gene_panel_id_2";
@@ -32,18 +30,18 @@ public class ProfiledCasesCounterTest {
     private static final String SAMPLE_ID_3 = "sample_id_3";
     private static final String PATIENT_ID_1 = "patient_id_1";
     private static final String PATIENT_ID_2 = "patient_id_2";
-    
+
     @InjectMocks
     private ProfiledCasesCounter profiledSamplesCounter;
 
     @Mock
     private SampleListService sampleListService;
+
     @Mock
     private GenePanelService genePanelService;
 
     @Test
     public void calculate() throws Exception {
-
         List<GenePanelData> genePanelDataList = new ArrayList<>();
         GenePanelData genePanelData1 = new GenePanelData();
         genePanelData1.setGenePanelId(GENE_PANEL_ID_1);
@@ -63,9 +61,18 @@ public class ProfiledCasesCounterTest {
         genePanelData3.setPatientId(PATIENT_ID_2);
         genePanelDataList.add(genePanelData3);
 
-        Mockito.when(genePanelService.fetchGenePanelDataInMultipleMolecularProfiles(
-                Arrays.asList(MOLECULAR_PROFILE_ID, MOLECULAR_PROFILE_ID, MOLECULAR_PROFILE_ID),
-                Arrays.asList(SAMPLE_ID_1, SAMPLE_ID_2, SAMPLE_ID_3))).thenReturn(genePanelDataList);
+        Mockito
+            .when(
+                genePanelService.fetchGenePanelDataInMultipleMolecularProfiles(
+                    Arrays.asList(
+                        MOLECULAR_PROFILE_ID,
+                        MOLECULAR_PROFILE_ID,
+                        MOLECULAR_PROFILE_ID
+                    ),
+                    Arrays.asList(SAMPLE_ID_1, SAMPLE_ID_2, SAMPLE_ID_3)
+                )
+            )
+            .thenReturn(genePanelDataList);
 
         List<GenePanel> genePanels = new ArrayList<>();
         GenePanel genePanel1 = new GenePanel();
@@ -88,8 +95,14 @@ public class ProfiledCasesCounterTest {
         genePanel2.setGenes(genes2);
         genePanels.add(genePanel2);
 
-        Mockito.when(genePanelService.fetchGenePanels(Arrays.asList(GENE_PANEL_ID_2, GENE_PANEL_ID_1), "DETAILED"))
-                .thenReturn(genePanels);
+        Mockito
+            .when(
+                genePanelService.fetchGenePanels(
+                    Arrays.asList(GENE_PANEL_ID_2, GENE_PANEL_ID_1),
+                    "DETAILED"
+                )
+            )
+            .thenReturn(genePanels);
 
         List<AlterationCountByGene> alterationCounts = new ArrayList<>();
         AlterationCountByGene alterationCount1 = new AlterationCountByGene();
@@ -103,21 +116,51 @@ public class ProfiledCasesCounterTest {
         alterationCounts.add(alterationCount3);
 
         profiledSamplesCounter.calculate(
-                Arrays.asList(MOLECULAR_PROFILE_ID, MOLECULAR_PROFILE_ID, MOLECULAR_PROFILE_ID),
-                Arrays.asList(SAMPLE_ID_1, SAMPLE_ID_2, SAMPLE_ID_3), alterationCounts, false);
+            Arrays.asList(
+                MOLECULAR_PROFILE_ID,
+                MOLECULAR_PROFILE_ID,
+                MOLECULAR_PROFILE_ID
+            ),
+            Arrays.asList(SAMPLE_ID_1, SAMPLE_ID_2, SAMPLE_ID_3),
+            alterationCounts,
+            false
+        );
 
-        Assert.assertEquals(new Integer(3), alterationCounts.get(0).getNumberOfProfiledCases());
-        Assert.assertEquals(new Integer(2), alterationCounts.get(1).getNumberOfProfiledCases());
-        Assert.assertEquals(new Integer(3), alterationCounts.get(2).getNumberOfProfiledCases());
-        
-        
+        Assert.assertEquals(
+            new Integer(3),
+            alterationCounts.get(0).getNumberOfProfiledCases()
+        );
+        Assert.assertEquals(
+            new Integer(2),
+            alterationCounts.get(1).getNumberOfProfiledCases()
+        );
+        Assert.assertEquals(
+            new Integer(3),
+            alterationCounts.get(2).getNumberOfProfiledCases()
+        );
+
         profiledSamplesCounter.calculate(
-                Arrays.asList(MOLECULAR_PROFILE_ID, MOLECULAR_PROFILE_ID, MOLECULAR_PROFILE_ID),
-                Arrays.asList(SAMPLE_ID_1, SAMPLE_ID_2, SAMPLE_ID_3), alterationCounts, true);
+            Arrays.asList(
+                MOLECULAR_PROFILE_ID,
+                MOLECULAR_PROFILE_ID,
+                MOLECULAR_PROFILE_ID
+            ),
+            Arrays.asList(SAMPLE_ID_1, SAMPLE_ID_2, SAMPLE_ID_3),
+            alterationCounts,
+            true
+        );
 
-        Assert.assertEquals(new Integer(2), alterationCounts.get(0).getNumberOfProfiledCases());
-        Assert.assertEquals(new Integer(2), alterationCounts.get(1).getNumberOfProfiledCases());
-        Assert.assertEquals(new Integer(2), alterationCounts.get(2).getNumberOfProfiledCases());
-
+        Assert.assertEquals(
+            new Integer(2),
+            alterationCounts.get(0).getNumberOfProfiledCases()
+        );
+        Assert.assertEquals(
+            new Integer(2),
+            alterationCounts.get(1).getNumberOfProfiledCases()
+        );
+        Assert.assertEquals(
+            new Integer(2),
+            alterationCounts.get(2).getNumberOfProfiledCases()
+        );
     }
 }

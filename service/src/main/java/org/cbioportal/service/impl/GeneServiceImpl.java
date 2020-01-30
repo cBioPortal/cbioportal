@@ -1,5 +1,12 @@
 package org.cbioportal.service.impl;
 
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.function.Function;
+import java.util.stream.Collectors;
+import javax.annotation.PostConstruct;
 import org.cbioportal.model.Gene;
 import org.cbioportal.model.GeneAlias;
 import org.cbioportal.model.meta.BaseMeta;
@@ -11,20 +18,10 @@ import org.mybatis.spring.MyBatisSystemException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import javax.annotation.PostConstruct;
-
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.function.Function;
-import java.util.stream.Collectors;
-
 @Service
 public class GeneServiceImpl implements GeneService {
-
     public static final String ENTREZ_GENE_ID_GENE_ID_TYPE = "ENTREZ_GENE_ID";
-    
+
     @Autowired
     private GeneRepository geneRepository;
 
@@ -35,25 +32,64 @@ public class GeneServiceImpl implements GeneService {
         // query all genes so they would be cached
         getAllGenes(null, null, "SUMMARY", null, null, null, null);
 
-        geneAliasMap = geneRepository.getAllAliases().stream().collect(Collectors.groupingBy(
-            GeneAlias::getEntrezGeneId, Collectors.mapping(GeneAlias::getGeneAlias, Collectors.toList())));
+        geneAliasMap =
+            geneRepository
+                .getAllAliases()
+                .stream()
+                .collect(
+                    Collectors.groupingBy(
+                        GeneAlias::getEntrezGeneId,
+                        Collectors.mapping(
+                            GeneAlias::getGeneAlias,
+                            Collectors.toList()
+                        )
+                    )
+                );
     }
 
-	@Override
-    public List<Gene> getAllGenes(String keyword, String alias, String projection, Integer pageSize, Integer pageNumber, String sortBy,
-                                  String direction) {
+    @Override
+    public List<Gene> getAllGenes(
+        String keyword,
+        String alias,
+        String projection,
+        Integer pageSize,
+        Integer pageNumber,
+        String sortBy,
+        String direction
+    ) {
+        List<Gene> geneList = geneRepository.getAllGenes(
+            keyword,
+            alias,
+            projection,
+            pageSize,
+            pageNumber,
+            sortBy,
+            direction
+        );
 
-        List<Gene> geneList = geneRepository.getAllGenes(keyword, alias, projection, pageSize, pageNumber, sortBy, direction);
-
-        if (keyword != null && (pageSize == null || geneList.size() < pageSize)) {
+        if (
+            keyword != null && (pageSize == null || geneList.size() < pageSize)
+        ) {
             List<Gene> aliasMatchingGenes = findAliasMatchingGenes(keyword);
             if (pageSize != null) {
-                int toIndex = aliasMatchingGenes.size() > pageSize - geneList.size() ? 
-                    pageSize - geneList.size() : aliasMatchingGenes.size();
+                int toIndex = aliasMatchingGenes.size() >
+                    pageSize -
+                    geneList.size()
+                    ? pageSize - geneList.size()
+                    : aliasMatchingGenes.size();
                 aliasMatchingGenes = aliasMatchingGenes.subList(0, toIndex);
             }
             for (Gene gene : aliasMatchingGenes) {
-                if (!geneList.stream().anyMatch(c -> c.getEntrezGeneId().equals(gene.getEntrezGeneId()))) {
+                if (
+                    !geneList
+                        .stream()
+                        .anyMatch(
+                            c ->
+                                c
+                                    .getEntrezGeneId()
+                                    .equals(gene.getEntrezGeneId())
+                        )
+                ) {
                     geneList.add(gene);
                 }
             }
@@ -64,34 +100,40 @@ public class GeneServiceImpl implements GeneService {
 
     @Override
     public BaseMeta getMetaGenes(String keyword, String alias) {
-
         if (keyword == null) {
             return geneRepository.getMetaGenes(keyword, alias);
-        }
-        else {
+        } else {
             BaseMeta baseMeta = new BaseMeta();
-            baseMeta.setTotalCount(getAllGenes(keyword, null, "SUMMARY", null, null, null, null).size());
+            baseMeta.setTotalCount(
+                getAllGenes(keyword, null, "SUMMARY", null, null, null, null)
+                    .size()
+            );
             return baseMeta;
         }
     }
 
     @Override
-    public Gene getGeneByGeneticEntityId(Integer geneticEntityId) throws GeneNotFoundException {
-
+    public Gene getGeneByGeneticEntityId(Integer geneticEntityId)
+        throws GeneNotFoundException {
         Gene gene;
         gene = geneRepository.getGeneByGeneticEntityId(geneticEntityId);
-        if (gene == null) throw new GeneNotFoundException(Integer.toString(geneticEntityId));
+        if (gene == null) throw new GeneNotFoundException(
+            Integer.toString(geneticEntityId)
+        );
         return gene;
-    }  
+    }
 
     @Override
-    public Gene getGene(String geneId) throws GeneNotFoundException, GeneWithMultipleEntrezIdsException {
-
+    public Gene getGene(String geneId)
+        throws GeneNotFoundException, GeneWithMultipleEntrezIdsException {
         Gene gene;
 
         try {
             if (isInteger(geneId)) {
-                gene = geneRepository.getGeneByEntrezGeneId(Integer.valueOf(geneId));
+                gene =
+                    geneRepository.getGeneByEntrezGeneId(
+                        Integer.valueOf(geneId)
+                    );
             } else {
                 gene = geneRepository.getGeneByHugoGeneSymbol(geneId);
             }
@@ -105,27 +147,40 @@ public class GeneServiceImpl implements GeneService {
     }
 
     @Override
-    public List<String> getAliasesOfGene(String geneId) throws GeneNotFoundException, GeneWithMultipleEntrezIdsException {
-        
+    public List<String> getAliasesOfGene(String geneId)
+        throws GeneNotFoundException, GeneWithMultipleEntrezIdsException {
         getGene(geneId);
 
         if (isInteger(geneId)) {
-            return geneRepository.getAliasesOfGeneByEntrezGeneId(Integer.valueOf(geneId));
+            return geneRepository.getAliasesOfGeneByEntrezGeneId(
+                Integer.valueOf(geneId)
+            );
         } else {
             return geneRepository.getAliasesOfGeneByHugoGeneSymbol(geneId);
         }
     }
 
     @Override
-    public List<Gene> fetchGenes(List<String> geneIds, String geneIdType, String projection) {
-        
+    public List<Gene> fetchGenes(
+        List<String> geneIds,
+        String geneIdType,
+        String projection
+    ) {
         List<Gene> geneList;
-        
+
         if (geneIdType.equals(ENTREZ_GENE_ID_GENE_ID_TYPE)) {
-            geneList = geneRepository.fetchGenesByEntrezGeneIds(geneIds.stream().filter(this::isInteger)
-                .map(Integer::valueOf).collect(Collectors.toList()), projection);
+            geneList =
+                geneRepository.fetchGenesByEntrezGeneIds(
+                    geneIds
+                        .stream()
+                        .filter(this::isInteger)
+                        .map(Integer::valueOf)
+                        .collect(Collectors.toList()),
+                    projection
+                );
         } else {
-            geneList = geneRepository.fetchGenesByHugoGeneSymbols(geneIds, projection);
+            geneList =
+                geneRepository.fetchGenesByHugoGeneSymbols(geneIds, projection);
         }
 
         return filterGenesWithMultipleEntrezIds(geneList);
@@ -133,16 +188,21 @@ public class GeneServiceImpl implements GeneService {
 
     @Override
     public BaseMeta fetchMetaGenes(List<String> geneIds, String geneIdType) {
-
         BaseMeta baseMeta;
 
         if (geneIdType.equals(ENTREZ_GENE_ID_GENE_ID_TYPE)) {
-            baseMeta = geneRepository.fetchMetaGenesByEntrezGeneIds(geneIds.stream().filter(this::isInteger)
-                .map(Integer::valueOf).collect(Collectors.toList()));
+            baseMeta =
+                geneRepository.fetchMetaGenesByEntrezGeneIds(
+                    geneIds
+                        .stream()
+                        .filter(this::isInteger)
+                        .map(Integer::valueOf)
+                        .collect(Collectors.toList())
+                );
         } else {
             baseMeta = geneRepository.fetchMetaGenesByHugoGeneSymbols(geneIds);
         }
-        
+
         return baseMeta;
     }
 
@@ -151,7 +211,6 @@ public class GeneServiceImpl implements GeneService {
     }
 
     private List<Gene> findAliasMatchingGenes(String keyword) {
-
         List<Gene> matchingGenes = new ArrayList<>();
 
         List<String> matchingEntrezGeneIds = new ArrayList<>();
@@ -161,27 +220,38 @@ public class GeneServiceImpl implements GeneService {
             }
         }
         if (!matchingEntrezGeneIds.isEmpty()) {
-            matchingGenes = fetchGenes(matchingEntrezGeneIds, ENTREZ_GENE_ID_GENE_ID_TYPE, "SUMMARY");
+            matchingGenes =
+                fetchGenes(
+                    matchingEntrezGeneIds,
+                    ENTREZ_GENE_ID_GENE_ID_TYPE,
+                    "SUMMARY"
+                );
         }
         return matchingGenes;
     }
-    
-    private List<Gene> filterGenesWithMultipleEntrezIds(List<Gene> geneList) {
 
+    private List<Gene> filterGenesWithMultipleEntrezIds(List<Gene> geneList) {
         Map<String, Long> geneFrequencyMap = geneList
-                .stream()
-                .map(Gene::getHugoGeneSymbol)
-                .collect(Collectors.groupingBy(Function.identity(), Collectors.counting()));
+            .stream()
+            .map(Gene::getHugoGeneSymbol)
+            .collect(
+                Collectors.groupingBy(
+                    Function.identity(),
+                    Collectors.counting()
+                )
+            );
 
         Map<String, Long> genesToRemoveMap = geneFrequencyMap
-                .entrySet()
-                .stream()
-                .filter(record -> record.getValue() > 1)
-                .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
+            .entrySet()
+            .stream()
+            .filter(record -> record.getValue() > 1)
+            .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
 
         return geneList
-                .stream()
-                .filter(gene -> !genesToRemoveMap.containsKey(gene.getHugoGeneSymbol()))
-                .collect(Collectors.toList());
+            .stream()
+            .filter(
+                gene -> !genesToRemoveMap.containsKey(gene.getHugoGeneSymbol())
+            )
+            .collect(Collectors.toList());
     }
 }

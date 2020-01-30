@@ -4,7 +4,6 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-
 import org.cbioportal.model.AlterationEnrichment;
 import org.cbioportal.model.MolecularProfileCaseIdentifier;
 import org.cbioportal.model.MutationCountByGene;
@@ -20,12 +19,12 @@ import org.mockito.runners.MockitoJUnitRunner;
 
 @RunWith(MockitoJUnitRunner.class)
 public class MutationEnrichmentServiceImplTest extends BaseServiceImplTest {
-
     @InjectMocks
     private MutationEnrichmentServiceImpl mutationEnrichmentService;
 
     @Mock
     private MutationService mutationService;
+
     @Mock
     private AlterationEnrichmentUtil alterationEnrichmentUtil;
 
@@ -53,32 +52,59 @@ public class MutationEnrichmentServiceImplTest extends BaseServiceImplTest {
         molecularProfileCaseSet2.add(molecularProfileCase4);
 
         Map<String, List<MolecularProfileCaseIdentifier>> groupMolecularProfileCaseSets = new HashMap<String, List<MolecularProfileCaseIdentifier>>();
-        groupMolecularProfileCaseSets.put("altered group", molecularProfileCaseSet1);
-        groupMolecularProfileCaseSets.put("unaltered group", molecularProfileCaseSet2);
+        groupMolecularProfileCaseSets.put(
+            "altered group",
+            molecularProfileCaseSet1
+        );
+        groupMolecularProfileCaseSets.put(
+            "unaltered group",
+            molecularProfileCaseSet2
+        );
 
         List<MutationCountByGene> mutationSampleCountByGeneList = new ArrayList<>();
 
         for (String molecularProfileId : groupMolecularProfileCaseSets.keySet()) {
-
             List<String> molecularProfileIds = new ArrayList<>();
             List<String> sampleIds = new ArrayList<>();
 
-            groupMolecularProfileCaseSets.getOrDefault(molecularProfileId, new ArrayList<>())
-                    .forEach(molecularProfileCase -> {
-                        molecularProfileIds.add(molecularProfileCase.getMolecularProfileId());
+            groupMolecularProfileCaseSets
+                .getOrDefault(molecularProfileId, new ArrayList<>())
+                .forEach(
+                    molecularProfileCase -> {
+                        molecularProfileIds.add(
+                            molecularProfileCase.getMolecularProfileId()
+                        );
                         sampleIds.add(molecularProfileCase.getCaseId());
-                    });
+                    }
+                );
 
-            Mockito.when(mutationService.getSampleCountInMultipleMolecularProfiles(new ArrayList<>(molecularProfileIds),
-                    new ArrayList<>(sampleIds), null, false)).thenReturn(mutationSampleCountByGeneList);
+            Mockito
+                .when(
+                    mutationService.getSampleCountInMultipleMolecularProfiles(
+                        new ArrayList<>(molecularProfileIds),
+                        new ArrayList<>(sampleIds),
+                        null,
+                        false
+                    )
+                )
+                .thenReturn(mutationSampleCountByGeneList);
         }
 
         List<AlterationEnrichment> expectedAlterationEnrichments = new ArrayList<>();
-        Mockito.when(alterationEnrichmentUtil.createAlterationEnrichments(new HashMap<>(),
-                groupMolecularProfileCaseSets, "SAMPLE")).thenReturn(expectedAlterationEnrichments);
+        Mockito
+            .when(
+                alterationEnrichmentUtil.createAlterationEnrichments(
+                    new HashMap<>(),
+                    groupMolecularProfileCaseSets,
+                    "SAMPLE"
+                )
+            )
+            .thenReturn(expectedAlterationEnrichments);
 
-        List<AlterationEnrichment> result = mutationEnrichmentService
-                .getMutationEnrichments(groupMolecularProfileCaseSets, "SAMPLE");
+        List<AlterationEnrichment> result = mutationEnrichmentService.getMutationEnrichments(
+            groupMolecularProfileCaseSets,
+            "SAMPLE"
+        );
         Assert.assertEquals(result, expectedAlterationEnrichments);
     }
 }

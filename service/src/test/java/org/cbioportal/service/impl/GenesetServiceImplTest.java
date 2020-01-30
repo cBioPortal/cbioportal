@@ -2,7 +2,6 @@ package org.cbioportal.service.impl;
 
 import java.util.ArrayList;
 import java.util.List;
-
 import org.cbioportal.model.Gene;
 import org.cbioportal.model.Geneset;
 import org.cbioportal.model.meta.BaseMeta;
@@ -20,7 +19,6 @@ import org.mockito.runners.MockitoJUnitRunner;
 
 @RunWith(MockitoJUnitRunner.class)
 public class GenesetServiceImplTest extends BaseServiceImplTest {
-
     public static final String GENESET_ID_1 = "geneset_id_1";
     private static final Integer INTERNAL_ID_1 = 1;
     public static final String GENESET_ID_2 = "geneset_id_2";
@@ -31,28 +29,41 @@ public class GenesetServiceImplTest extends BaseServiceImplTest {
 
     @Mock
     private GenesetRepository genesetRepository;
+
     @Mock
     private SampleService sampleService;
+
     @Mock
     private MolecularProfileService geneticProfileService;
 
     @Test
     public void getAllGenesets() {
-
         List<Geneset> genesetList = createGenesetList();
-        Mockito.when(genesetRepository.getAllGenesets(PROJECTION, PAGE_SIZE, PAGE_NUMBER))
+        Mockito
+            .when(
+                genesetRepository.getAllGenesets(
+                    PROJECTION,
+                    PAGE_SIZE,
+                    PAGE_NUMBER
+                )
+            )
             .thenReturn(genesetList);
 
-        List<Geneset> result = genesetService.getAllGenesets(PROJECTION, PAGE_SIZE, PAGE_NUMBER);
+        List<Geneset> result = genesetService.getAllGenesets(
+            PROJECTION,
+            PAGE_SIZE,
+            PAGE_NUMBER
+        );
 
         Assert.assertEquals(genesetList, result);
     }
 
     @Test
     public void getMetaGenesets() {
-
         BaseMeta expectedBaseMeta = new BaseMeta();
-        Mockito.when(genesetRepository.getMetaGenesets()).thenReturn(expectedBaseMeta);
+        Mockito
+            .when(genesetRepository.getMetaGenesets())
+            .thenReturn(expectedBaseMeta);
         BaseMeta result = genesetService.getMetaGenesets();
 
         Assert.assertEquals(expectedBaseMeta, result);
@@ -60,34 +71,36 @@ public class GenesetServiceImplTest extends BaseServiceImplTest {
 
     @Test
     public void getGeneset() throws GenesetNotFoundException {
-
         Geneset geneset = createGenesetList().get(0);
-        Mockito.when(genesetRepository.getGeneset(GENESET_ID_1))
+        Mockito
+            .when(genesetRepository.getGeneset(GENESET_ID_1))
             .thenReturn(geneset);
 
         Geneset result = genesetService.getGeneset(GENESET_ID_1);
         Assert.assertEquals(geneset, result);
     }
-    
-    @Test(expected = GenesetNotFoundException.class)
-    public void getGeneByEntrezGeneIdNotFound() throws GenesetNotFoundException {
 
+    @Test(expected = GenesetNotFoundException.class)
+    public void getGeneByEntrezGeneIdNotFound()
+        throws GenesetNotFoundException {
         Geneset geneset = createGenesetList().get(0);
-        Mockito.when(genesetRepository.getGeneset(GENESET_ID_1))
+        Mockito
+            .when(genesetRepository.getGeneset(GENESET_ID_1))
             .thenReturn(geneset);
         //expect GenesetNotFoundException here:
         genesetService.getGeneset("wrongId");
     }
-    
+
     @Test
     public void getGenesByGenesetId() throws GenesetNotFoundException {
-
         List<Gene> genes = createGeneList();
-        Mockito.when(genesetRepository.getGenesByGenesetId(GENESET_ID_2))
+        Mockito
+            .when(genesetRepository.getGenesByGenesetId(GENESET_ID_2))
             .thenReturn(genes);
-        
+
         Geneset geneset = createGenesetList().get(1);
-        Mockito.when(genesetRepository.getGeneset(GENESET_ID_2))
+        Mockito
+            .when(genesetRepository.getGeneset(GENESET_ID_2))
             .thenReturn(geneset);
 
         List<Gene> result = genesetService.getGenesByGenesetId(GENESET_ID_2);

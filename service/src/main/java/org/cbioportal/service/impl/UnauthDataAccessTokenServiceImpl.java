@@ -28,14 +28,13 @@
  *
  * You should have received a copy of the GNU Affero General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
-*/
+ */
 
 package org.cbioportal.service.impl;
 
+import java.util.*;
 import org.cbioportal.model.DataAccessToken;
 import org.cbioportal.service.DataAccessTokenService;
-
-import java.util.*;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.stereotype.Component;
 import org.springframework.stereotype.Service;
@@ -46,56 +45,79 @@ import org.springframework.stereotype.Service;
  */
 @Service
 @Component("none")
-public class UnauthDataAccessTokenServiceImpl implements DataAccessTokenService {
+public class UnauthDataAccessTokenServiceImpl
+    implements DataAccessTokenService {
 
     @Override
     public DataAccessToken createDataAccessToken(String username) {
-        throw new AccessDeniedException("Data Access Tokens are not supported for unauthenticated portals.");
+        throw new AccessDeniedException(
+            "Data Access Tokens are not supported for unauthenticated portals."
+        );
     }
 
     @Override
-    public DataAccessToken createDataAccessToken(String username, boolean allowRevocationOfOtherTokens) {
-        throw new AccessDeniedException("Data Access Tokens are not supported for unauthenticated portals.");
+    public DataAccessToken createDataAccessToken(
+        String username,
+        boolean allowRevocationOfOtherTokens
+    ) {
+        throw new AccessDeniedException(
+            "Data Access Tokens are not supported for unauthenticated portals."
+        );
     }
 
     @Override
     public List<DataAccessToken> getAllDataAccessTokens(String username) {
-        throw new AccessDeniedException("Data Access Tokens are not supported for unauthenticated portals.");
+        throw new AccessDeniedException(
+            "Data Access Tokens are not supported for unauthenticated portals."
+        );
     }
 
     @Override
     public DataAccessToken getDataAccessToken(String username) {
-        throw new AccessDeniedException("Data Access Tokens are not supported for unauthenticated portals.");
+        throw new AccessDeniedException(
+            "Data Access Tokens are not supported for unauthenticated portals."
+        );
     }
 
     @Override
     public DataAccessToken getDataAccessTokenInfo(String token) {
-        throw new AccessDeniedException("Data Access Tokens are not supported for unauthenticated portals.");
+        throw new AccessDeniedException(
+            "Data Access Tokens are not supported for unauthenticated portals."
+        );
     }
 
     @Override
     public void revokeAllDataAccessTokens(String username) {
-        throw new AccessDeniedException("Data Access Tokens are not supported for unauthenticated portals.");
+        throw new AccessDeniedException(
+            "Data Access Tokens are not supported for unauthenticated portals."
+        );
     }
 
     @Override
     public void revokeDataAccessToken(String token) {
-        throw new AccessDeniedException("Data Access Tokens are not supported for unauthenticated portals.");
+        throw new AccessDeniedException(
+            "Data Access Tokens are not supported for unauthenticated portals."
+        );
     }
 
     @Override
     public String getUsername(String token) {
-        throw new AccessDeniedException("Data Access Tokens are not supported for unauthenticated portals.");
+        throw new AccessDeniedException(
+            "Data Access Tokens are not supported for unauthenticated portals."
+        );
     }
 
     @Override
     public Date getExpiration(String token) {
-        throw new AccessDeniedException("Data Access Tokens are not supported for unauthenticated portals.");
+        throw new AccessDeniedException(
+            "Data Access Tokens are not supported for unauthenticated portals."
+        );
     }
 
     @Override
     public Boolean isValid(String token) {
-        throw new AccessDeniedException("Data Access Tokens are not supported for unauthenticated portals.");
+        throw new AccessDeniedException(
+            "Data Access Tokens are not supported for unauthenticated portals."
+        );
     }
-
 }

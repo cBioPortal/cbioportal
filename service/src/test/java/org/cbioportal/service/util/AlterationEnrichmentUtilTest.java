@@ -2,7 +2,6 @@ package org.cbioportal.service.util;
 
 import java.math.BigDecimal;
 import java.util.*;
-
 import org.cbioportal.model.*;
 import org.cbioportal.service.GeneService;
 import org.junit.Assert;
@@ -13,18 +12,17 @@ import org.mockito.runners.MockitoJUnitRunner;
 
 @RunWith(MockitoJUnitRunner.class)
 public class AlterationEnrichmentUtilTest {
-
     @InjectMocks
     private AlterationEnrichmentUtil alterationEnrichmentUtil;
 
     @Mock
     private FisherExactTestCalculator fisherExactTestCalculator;
+
     @Mock
     private GeneService geneService;
 
     @Test
     public void createAlterationEnrichments() throws Exception {
-
         // create molecularProfileCaseSet1, molecularProfileCaseSet2 list of entities
         MolecularProfileCaseIdentifier molecularProfileCase1 = new MolecularProfileCaseIdentifier();
         molecularProfileCase1.setCaseId("sample_id_1");
@@ -90,95 +88,200 @@ public class AlterationEnrichmentUtilTest {
         gene2.setGeneticEntityId(3);
         genes.add(gene2);
 
-        Mockito.when(geneService.fetchGenes(Arrays.asList("2", "3"), "ENTREZ_GENE_ID", "SUMMARY")).thenReturn(genes);
+        Mockito
+            .when(
+                geneService.fetchGenes(
+                    Arrays.asList("2", "3"),
+                    "ENTREZ_GENE_ID",
+                    "SUMMARY"
+                )
+            )
+            .thenReturn(genes);
 
         Map<String, List<? extends AlterationCountByGene>> mutationCountsbyEntrezGeneIdAndGroup = new HashMap<>();
-        mutationCountsbyEntrezGeneIdAndGroup.put("group1", Arrays.asList(alterationSampleCountByGene1, alterationSampleCount1ByGene1));
-        mutationCountsbyEntrezGeneIdAndGroup.put("group2", Arrays.asList(alterationSampleCountByGene2, alterationSampleCount1ByGene2));
+        mutationCountsbyEntrezGeneIdAndGroup.put(
+            "group1",
+            Arrays.asList(
+                alterationSampleCountByGene1,
+                alterationSampleCount1ByGene1
+            )
+        );
+        mutationCountsbyEntrezGeneIdAndGroup.put(
+            "group2",
+            Arrays.asList(
+                alterationSampleCountByGene2,
+                alterationSampleCount1ByGene2
+            )
+        );
 
         // START: for 2 groups
 
-        Mockito.when(fisherExactTestCalculator.getCumulativePValue(1, 1, 2, 0)).thenReturn(1.0);
-        Mockito.when(fisherExactTestCalculator.getCumulativePValue(2, 0, 0, 2)).thenReturn(0.3);
+        Mockito
+            .when(fisherExactTestCalculator.getCumulativePValue(1, 1, 2, 0))
+            .thenReturn(1.0);
+        Mockito
+            .when(fisherExactTestCalculator.getCumulativePValue(2, 0, 0, 2))
+            .thenReturn(0.3);
 
         List<AlterationEnrichment> result = alterationEnrichmentUtil.createAlterationEnrichments(
-                mutationCountsbyEntrezGeneIdAndGroup, groupMolecularProfileCaseSets, "SAMPLE");
+            mutationCountsbyEntrezGeneIdAndGroup,
+            groupMolecularProfileCaseSets,
+            "SAMPLE"
+        );
 
         Assert.assertEquals(2, result.size());
         AlterationEnrichment alterationEnrichment1 = result.get(0);
-        Assert.assertEquals((Integer) 2, alterationEnrichment1.getEntrezGeneId());
+        Assert.assertEquals(
+            (Integer) 2,
+            alterationEnrichment1.getEntrezGeneId()
+        );
         Assert.assertEquals("HUGO2", alterationEnrichment1.getHugoGeneSymbol());
         Assert.assertEquals(null, alterationEnrichment1.getCytoband());
         Assert.assertEquals(2, alterationEnrichment1.getCounts().size());
-        Assert.assertEquals(new BigDecimal("1.0"), alterationEnrichment1.getpValue());
-        alterationEnrichment1.getCounts().forEach(countSummary -> {
-            if (countSummary.getName().equals("group2")) {
-                Assert.assertEquals((Integer) 0, countSummary.getAlteredCount());
-            } else if (countSummary.getName().equals("group1")) {
-                Assert.assertEquals((Integer) 1, countSummary.getAlteredCount());
-            }
-        });
+        Assert.assertEquals(
+            new BigDecimal("1.0"),
+            alterationEnrichment1.getpValue()
+        );
+        alterationEnrichment1
+            .getCounts()
+            .forEach(
+                countSummary -> {
+                    if (countSummary.getName().equals("group2")) {
+                        Assert.assertEquals(
+                            (Integer) 0,
+                            countSummary.getAlteredCount()
+                        );
+                    } else if (countSummary.getName().equals("group1")) {
+                        Assert.assertEquals(
+                            (Integer) 1,
+                            countSummary.getAlteredCount()
+                        );
+                    }
+                }
+            );
 
         AlterationEnrichment alterationEnrichment2 = result.get(1);
-        Assert.assertEquals((Integer) 3, alterationEnrichment2.getEntrezGeneId());
+        Assert.assertEquals(
+            (Integer) 3,
+            alterationEnrichment2.getEntrezGeneId()
+        );
         Assert.assertEquals("HUGO3", alterationEnrichment2.getHugoGeneSymbol());
         Assert.assertEquals(null, alterationEnrichment2.getCytoband());
         Assert.assertEquals(2, alterationEnrichment2.getCounts().size());
-        Assert.assertEquals(new BigDecimal("0.3"), alterationEnrichment2.getpValue());
-        alterationEnrichment2.getCounts().forEach(countSummary -> {
-            if (countSummary.getName().equals("group2")) {
-                Assert.assertEquals((Integer) 2, countSummary.getAlteredCount());
-            } else if (countSummary.getName().equals("group1")) {
-                Assert.assertEquals((Integer) 0, countSummary.getAlteredCount());
-            }
-        });
+        Assert.assertEquals(
+            new BigDecimal("0.3"),
+            alterationEnrichment2.getpValue()
+        );
+        alterationEnrichment2
+            .getCounts()
+            .forEach(
+                countSummary -> {
+                    if (countSummary.getName().equals("group2")) {
+                        Assert.assertEquals(
+                            (Integer) 2,
+                            countSummary.getAlteredCount()
+                        );
+                    } else if (countSummary.getName().equals("group1")) {
+                        Assert.assertEquals(
+                            (Integer) 0,
+                            countSummary.getAlteredCount()
+                        );
+                    }
+                }
+            );
 
         // END: for 2 groups
 
         // START: for 3 groups
 
         groupMolecularProfileCaseSets.put("group3", molecularProfileCaseSet3);
-        mutationCountsbyEntrezGeneIdAndGroup.put("group3",
-                Arrays.asList(alterationSampleCountByGene1, alterationSampleCountByGene2));
+        mutationCountsbyEntrezGeneIdAndGroup.put(
+            "group3",
+            Arrays.asList(
+                alterationSampleCountByGene1,
+                alterationSampleCountByGene2
+            )
+        );
 
-        result = alterationEnrichmentUtil.createAlterationEnrichments(mutationCountsbyEntrezGeneIdAndGroup,
-                groupMolecularProfileCaseSets, "SAMPLE");
+        result =
+            alterationEnrichmentUtil.createAlterationEnrichments(
+                mutationCountsbyEntrezGeneIdAndGroup,
+                groupMolecularProfileCaseSets,
+                "SAMPLE"
+            );
 
         Assert.assertEquals(2, result.size());
         alterationEnrichment1 = result.get(0);
-        Assert.assertEquals((Integer) 2, alterationEnrichment1.getEntrezGeneId());
+        Assert.assertEquals(
+            (Integer) 2,
+            alterationEnrichment1.getEntrezGeneId()
+        );
         Assert.assertEquals("HUGO2", alterationEnrichment1.getHugoGeneSymbol());
         Assert.assertEquals(null, alterationEnrichment1.getCytoband());
         Assert.assertEquals(3, alterationEnrichment1.getCounts().size());
 
-        Assert.assertEquals(new BigDecimal("0.4723665527410149"), alterationEnrichment1.getpValue());
-        alterationEnrichment1.getCounts().forEach(countSummary -> {
-            if (countSummary.getName().equals("group3")) {
-                Assert.assertEquals((Integer) 1, countSummary.getAlteredCount());
-            } else if (countSummary.getName().equals("group2")) {
-                Assert.assertEquals((Integer) 0, countSummary.getAlteredCount());
-            } else if (countSummary.getName().equals("group1")) {
-                Assert.assertEquals((Integer) 1, countSummary.getAlteredCount());
-            }
-        });
+        Assert.assertEquals(
+            new BigDecimal("0.4723665527410149"),
+            alterationEnrichment1.getpValue()
+        );
+        alterationEnrichment1
+            .getCounts()
+            .forEach(
+                countSummary -> {
+                    if (countSummary.getName().equals("group3")) {
+                        Assert.assertEquals(
+                            (Integer) 1,
+                            countSummary.getAlteredCount()
+                        );
+                    } else if (countSummary.getName().equals("group2")) {
+                        Assert.assertEquals(
+                            (Integer) 0,
+                            countSummary.getAlteredCount()
+                        );
+                    } else if (countSummary.getName().equals("group1")) {
+                        Assert.assertEquals(
+                            (Integer) 1,
+                            countSummary.getAlteredCount()
+                        );
+                    }
+                }
+            );
 
         alterationEnrichment2 = result.get(1);
-        Assert.assertEquals((Integer) 3, alterationEnrichment2.getEntrezGeneId());
+        Assert.assertEquals(
+            (Integer) 3,
+            alterationEnrichment2.getEntrezGeneId()
+        );
         Assert.assertEquals("HUGO3", alterationEnrichment2.getHugoGeneSymbol());
         Assert.assertEquals(null, alterationEnrichment2.getCytoband());
         Assert.assertEquals(3, alterationEnrichment2.getCounts().size());
 
-        Assert.assertEquals(new BigDecimal("0.04978706836786395"), alterationEnrichment2.getpValue());
-        alterationEnrichment2.getCounts().forEach(countSummary -> {
-            if (countSummary.getName().equals("group3")) {
-                Assert.assertEquals((Integer) 2, countSummary.getAlteredCount());
-            } else if (countSummary.getName().equals("group2")) {
-                Assert.assertEquals((Integer) 2, countSummary.getAlteredCount());
-            } else if (countSummary.getName().equals("group1")) {
-                Assert.assertEquals((Integer) 0, countSummary.getAlteredCount());
-            }
-        });
-
+        Assert.assertEquals(
+            new BigDecimal("0.04978706836786395"),
+            alterationEnrichment2.getpValue()
+        );
+        alterationEnrichment2
+            .getCounts()
+            .forEach(
+                countSummary -> {
+                    if (countSummary.getName().equals("group3")) {
+                        Assert.assertEquals(
+                            (Integer) 2,
+                            countSummary.getAlteredCount()
+                        );
+                    } else if (countSummary.getName().equals("group2")) {
+                        Assert.assertEquals(
+                            (Integer) 2,
+                            countSummary.getAlteredCount()
+                        );
+                    } else if (countSummary.getName().equals("group1")) {
+                        Assert.assertEquals(
+                            (Integer) 0,
+                            countSummary.getAlteredCount()
+                        );
+                    }
+                }
+            );
         // END: for 3 groups
     }
 }

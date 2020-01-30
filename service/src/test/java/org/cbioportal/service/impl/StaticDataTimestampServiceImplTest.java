@@ -1,5 +1,7 @@
 package org.cbioportal.service.impl;
 
+import java.util.Collections;
+import java.util.HashMap;
 import org.cbioportal.model.TableTimestampPair;
 import org.cbioportal.persistence.StaticDataTimeStampRepository;
 import org.junit.Assert;
@@ -9,9 +11,6 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.runners.MockitoJUnitRunner;
-
-import java.util.Collections;
-import java.util.HashMap;
 
 @RunWith(MockitoJUnitRunner.class)
 public class StaticDataTimestampServiceImplTest extends BaseServiceImplTest {
@@ -28,12 +27,14 @@ public class StaticDataTimestampServiceImplTest extends BaseServiceImplTest {
         TableTimestampPair pair = new TableTimestampPair();
         pair.setTableName("gene");
         pair.setUpdateTime("2019-11-11 08:41:15");
-        
-        Mockito.when(repository.getTimestamps(Mockito.anyList())).thenReturn(
-                Collections.singletonList(pair));
-        
+
+        Mockito
+            .when(repository.getTimestamps(Mockito.anyList()))
+            .thenReturn(Collections.singletonList(pair));
+
         Assert.assertEquals(
-                infoService.getTimestamps(Collections.singletonList("gene")),
-                pairs);
+            infoService.getTimestamps(Collections.singletonList("gene")),
+            pairs
+        );
     }
 }

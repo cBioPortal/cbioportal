@@ -44,7 +44,7 @@
  *
  * You should have received a copy of the GNU Affero General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
-*/
+ */
 
 package org.cbioportal.service.exception;
 
@@ -57,5 +57,4 @@ public class DataAccessTokenNoUserIdentityException extends RuntimeException {
     public DataAccessTokenNoUserIdentityException(String message) {
         super(message);
     }
-
 }

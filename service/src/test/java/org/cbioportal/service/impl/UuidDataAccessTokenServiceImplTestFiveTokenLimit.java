@@ -44,22 +44,19 @@
  *
  * You should have received a copy of the GNU Affero General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
-*/
+ */
 
 package org.cbioportal.service.impl;
+
 //TODO package org.cbioportal.security.spring.authentication.token;
 
 import java.util.*;
 import org.apache.commons.logging.*;
+import org.cbioportal.model.DataAccessToken;
+import org.cbioportal.persistence.DataAccessTokenRepository;
 import org.cbioportal.service.exception.InvalidDataAccessTokenException;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Qualifier;
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.stereotype.Component;
-import org.springframework.context.annotation.Import;
-import org.springframework.test.context.ContextConfiguration;
-import org.springframework.test.context.TestPropertySource;
-import org.springframework.test.context.junit4.SpringRunner;
+import org.cbioportal.service.exception.MaxNumberTokensExceededException;
+import org.cbioportal.service.impl.UuidDataAccessTokenServiceImpl;
 import org.junit.Assert;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -67,23 +64,29 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.runners.MockitoJUnitRunner;
-import org.cbioportal.model.DataAccessToken;
-import org.cbioportal.persistence.DataAccessTokenRepository;
-import org.cbioportal.service.exception.MaxNumberTokensExceededException;
-import org.cbioportal.service.impl.UuidDataAccessTokenServiceImpl;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.context.annotation.Import;
+import org.springframework.stereotype.Component;
+import org.springframework.test.context.ContextConfiguration;
+import org.springframework.test.context.TestPropertySource;
+import org.springframework.test.context.junit4.SpringRunner;
 
 @TestPropertySource(
-    properties = { "dat.jwt.secret_key = +NbopXzb/AIQNrVEGzxzP5CF42e5drvrXTQot3gfW/s=",
-                    "dat.uuid.max_number_per_user = 5",
-                    "dat.uuid.revoke_other_tokens = true",
-                    "dat.ttl_seconds = 2"
+    properties = {
+        "dat.jwt.secret_key = +NbopXzb/AIQNrVEGzxzP5CF42e5drvrXTQot3gfW/s=",
+        "dat.uuid.max_number_per_user = 5",
+        "dat.uuid.revoke_other_tokens = true",
+        "dat.ttl_seconds = 2"
     },
     inheritLocations = false
 )
-@ContextConfiguration(classes=UuidDataAccessTokenServiceImplTestConfiguration.class)
+@ContextConfiguration(
+    classes = UuidDataAccessTokenServiceImplTestConfiguration.class
+)
 @RunWith(SpringRunner.class)
 public class UuidDataAccessTokenServiceImplTestFiveTokenLimit {
-
     @Autowired
     private UuidDataAccessTokenServiceImplTestConfiguration uuidDataAccessTokenServiceImplTestConfiguration;
 
@@ -94,14 +97,17 @@ public class UuidDataAccessTokenServiceImplTestFiveTokenLimit {
     @Qualifier("uuidDataAccessTokenServiceImpl")
     private UuidDataAccessTokenServiceImpl uuidDataAccessTokenServiceImpl;
 
-    @Value("${dat.ttl_seconds}") 
+    @Value("${dat.ttl_seconds}")
     private int datTtlSeconds;
-    
+
     /* Test for checking exception thrown when token limit reached
      */
     @Test(expected = MaxNumberTokensExceededException.class)
     public void testNonAutoExpireCreateTokenWhenLimitReached() {
-        DataAccessToken newDataAccessToken = uuidDataAccessTokenServiceImpl.createDataAccessToken(UuidDataAccessTokenServiceImplTestConfiguration.MOCK_USERNAME_WITH_FIVE_TOKENS, false);
+        DataAccessToken newDataAccessToken = uuidDataAccessTokenServiceImpl.createDataAccessToken(
+            UuidDataAccessTokenServiceImplTestConfiguration.MOCK_USERNAME_WITH_FIVE_TOKENS,
+            false
+        );
     }
 
     /* Test for creating a token when autoexpire is on
@@ -113,15 +119,42 @@ public class UuidDataAccessTokenServiceImplTestFiveTokenLimit {
         uuidDataAccessTokenServiceImplTestConfiguration.resetAddedDataAccessToken();
         uuidDataAccessTokenServiceImplTestConfiguration.resetDeletedDataAccessToken();
         // Testing for service with limit 5 tokens
-        DataAccessToken newDataAccessToken = uuidDataAccessTokenServiceImpl.createDataAccessToken(UuidDataAccessTokenServiceImplTestConfiguration.MOCK_USERNAME_WITH_FIVE_TOKENS, true);
+        DataAccessToken newDataAccessToken = uuidDataAccessTokenServiceImpl.createDataAccessToken(
+            UuidDataAccessTokenServiceImplTestConfiguration.MOCK_USERNAME_WITH_FIVE_TOKENS,
+            true
+        );
         Date expectedExpirationDate = getExpectedExpirationDate();
         String deletedDataAccessToken = uuidDataAccessTokenServiceImplTestConfiguration.getDeletedDataAccessToken();
         DataAccessToken createdDataAccessToken = uuidDataAccessTokenServiceImplTestConfiguration.getAddedDataAccessToken();
-        if (createdDataAccessTokenWithWrongInformation(createdDataAccessToken, UuidDataAccessTokenServiceImplTestConfiguration.MOCK_USERNAME_WITH_FIVE_TOKENS, expectedExpirationDate)) {
-            Assert.fail("Created token (Username: " + createdDataAccessToken.getUsername() + ", Expiration: " + createdDataAccessToken.getExpiration() + ") differs from expected (Username: " + UuidDataAccessTokenServiceImplTestConfiguration.MOCK_USERNAME_WITH_FIVE_TOKENS + ", Expiration: " + expectedExpirationDate.toString() + ")");
+        if (
+            createdDataAccessTokenWithWrongInformation(
+                createdDataAccessToken,
+                UuidDataAccessTokenServiceImplTestConfiguration.MOCK_USERNAME_WITH_FIVE_TOKENS,
+                expectedExpirationDate
+            )
+        ) {
+            Assert.fail(
+                "Created token (Username: " +
+                createdDataAccessToken.getUsername() +
+                ", Expiration: " +
+                createdDataAccessToken.getExpiration() +
+                ") differs from expected (Username: " +
+                UuidDataAccessTokenServiceImplTestConfiguration.MOCK_USERNAME_WITH_FIVE_TOKENS +
+                ", Expiration: " +
+                expectedExpirationDate.toString() +
+                ")"
+            );
         }
-        if (deletedDataAccessToken != uuidDataAccessTokenServiceImplTestConfiguration.OLDEST_TOKEN_UUID) {
-            Assert.fail("Expired token: " + deletedDataAccessToken + ", expected to expire token:" + uuidDataAccessTokenServiceImplTestConfiguration.OLDEST_TOKEN_UUID);
+        if (
+            deletedDataAccessToken !=
+            uuidDataAccessTokenServiceImplTestConfiguration.OLDEST_TOKEN_UUID
+        ) {
+            Assert.fail(
+                "Expired token: " +
+                deletedDataAccessToken +
+                ", expected to expire token:" +
+                uuidDataAccessTokenServiceImplTestConfiguration.OLDEST_TOKEN_UUID
+            );
         }
     }
 
@@ -132,12 +165,22 @@ public class UuidDataAccessTokenServiceImplTestFiveTokenLimit {
         return expectedExpirationDate;
     }
 
-    private boolean createdDataAccessTokenWithWrongInformation(DataAccessToken createdDataAccessToken, String expectedUsername, Date expectedExpirationDate) {
+    private boolean createdDataAccessTokenWithWrongInformation(
+        DataAccessToken createdDataAccessToken,
+        String expectedUsername,
+        Date expectedExpirationDate
+    ) {
         boolean createdDataAccessTokenWithWrongInformation = false;
         if (createdDataAccessToken.getUsername() != expectedUsername) {
             createdDataAccessTokenWithWrongInformation = true;
         }
-        if (Math.abs(createdDataAccessToken.getExpiration().getTime() - expectedExpirationDate.getTime()) > UuidDataAccessTokenServiceImplTestConfiguration.MAXIMUM_TIME_DIFFERENCE_BETWEEN_CREATED_AND_EXPECTED_TOKEN) {
+        if (
+            Math.abs(
+                createdDataAccessToken.getExpiration().getTime() -
+                expectedExpirationDate.getTime()
+            ) >
+            UuidDataAccessTokenServiceImplTestConfiguration.MAXIMUM_TIME_DIFFERENCE_BETWEEN_CREATED_AND_EXPECTED_TOKEN
+        ) {
             createdDataAccessTokenWithWrongInformation = true;
         }
         return createdDataAccessTokenWithWrongInformation;

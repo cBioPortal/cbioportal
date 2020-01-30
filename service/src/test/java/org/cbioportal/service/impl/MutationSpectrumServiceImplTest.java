@@ -1,5 +1,8 @@
 package org.cbioportal.service.impl;
 
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
 import org.cbioportal.model.Mutation;
 import org.cbioportal.model.MutationSpectrum;
 import org.cbioportal.service.MutationService;
@@ -11,33 +14,45 @@ import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.runners.MockitoJUnitRunner;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-
 @RunWith(MockitoJUnitRunner.class)
 public class MutationSpectrumServiceImplTest extends BaseServiceImplTest {
-    
     @InjectMocks
     private MutationSpectrumServiceImpl mutationSpectrumService;
-    
+
     @Mock
     private MutationService mutationService;
-    
+
     @Test
     public void getMutationSpectrums() throws Exception {
-
         List<Mutation> mutationList = createMutationList();
 
-        Mockito.when(mutationService.getMutationsInMolecularProfileBySampleListId(MOLECULAR_PROFILE_ID, SAMPLE_LIST_ID, 
-            null, true, "SUMMARY", null, null, null, null)).thenReturn(mutationList);
-        
-        List<MutationSpectrum> result = mutationSpectrumService.getMutationSpectrums(MOLECULAR_PROFILE_ID, 
-            SAMPLE_LIST_ID);
+        Mockito
+            .when(
+                mutationService.getMutationsInMolecularProfileBySampleListId(
+                    MOLECULAR_PROFILE_ID,
+                    SAMPLE_LIST_ID,
+                    null,
+                    true,
+                    "SUMMARY",
+                    null,
+                    null,
+                    null,
+                    null
+                )
+            )
+            .thenReturn(mutationList);
+
+        List<MutationSpectrum> result = mutationSpectrumService.getMutationSpectrums(
+            MOLECULAR_PROFILE_ID,
+            SAMPLE_LIST_ID
+        );
 
         Assert.assertEquals(2, result.size());
         MutationSpectrum mutationSpectrum1 = result.get(0);
-        Assert.assertEquals(MOLECULAR_PROFILE_ID, mutationSpectrum1.getMolecularProfileId());
+        Assert.assertEquals(
+            MOLECULAR_PROFILE_ID,
+            mutationSpectrum1.getMolecularProfileId()
+        );
         Assert.assertEquals(SAMPLE_ID1, mutationSpectrum1.getSampleId());
         Assert.assertEquals((Integer) 2, mutationSpectrum1.getCtoA());
         Assert.assertEquals((Integer) 0, mutationSpectrum1.getCtoG());
@@ -46,7 +61,10 @@ public class MutationSpectrumServiceImplTest extends BaseServiceImplTest {
         Assert.assertEquals((Integer) 0, mutationSpectrum1.getTtoC());
         Assert.assertEquals((Integer) 0, mutationSpectrum1.getTtoG());
         MutationSpectrum mutationSpectrum2 = result.get(1);
-        Assert.assertEquals(MOLECULAR_PROFILE_ID, mutationSpectrum2.getMolecularProfileId());
+        Assert.assertEquals(
+            MOLECULAR_PROFILE_ID,
+            mutationSpectrum2.getMolecularProfileId()
+        );
         Assert.assertEquals(SAMPLE_ID2, mutationSpectrum2.getSampleId());
         Assert.assertEquals((Integer) 0, mutationSpectrum2.getCtoA());
         Assert.assertEquals((Integer) 0, mutationSpectrum2.getCtoG());
@@ -58,18 +76,35 @@ public class MutationSpectrumServiceImplTest extends BaseServiceImplTest {
 
     @Test
     public void fetchMutationSpectrums() throws Exception {
-
         List<Mutation> mutationList = createMutationList();
 
-        Mockito.when(mutationService.fetchMutationsInMolecularProfile(MOLECULAR_PROFILE_ID, Arrays.asList(SAMPLE_ID1, 
-            SAMPLE_ID2), null, true, "SUMMARY", null, null, null, null)).thenReturn(mutationList);
+        Mockito
+            .when(
+                mutationService.fetchMutationsInMolecularProfile(
+                    MOLECULAR_PROFILE_ID,
+                    Arrays.asList(SAMPLE_ID1, SAMPLE_ID2),
+                    null,
+                    true,
+                    "SUMMARY",
+                    null,
+                    null,
+                    null,
+                    null
+                )
+            )
+            .thenReturn(mutationList);
 
-        List<MutationSpectrum> result = mutationSpectrumService.fetchMutationSpectrums(MOLECULAR_PROFILE_ID,
-            Arrays.asList(SAMPLE_ID1, SAMPLE_ID2));
+        List<MutationSpectrum> result = mutationSpectrumService.fetchMutationSpectrums(
+            MOLECULAR_PROFILE_ID,
+            Arrays.asList(SAMPLE_ID1, SAMPLE_ID2)
+        );
 
         Assert.assertEquals(2, result.size());
         MutationSpectrum mutationSpectrum1 = result.get(0);
-        Assert.assertEquals(MOLECULAR_PROFILE_ID, mutationSpectrum1.getMolecularProfileId());
+        Assert.assertEquals(
+            MOLECULAR_PROFILE_ID,
+            mutationSpectrum1.getMolecularProfileId()
+        );
         Assert.assertEquals(SAMPLE_ID1, mutationSpectrum1.getSampleId());
         Assert.assertEquals((Integer) 2, mutationSpectrum1.getCtoA());
         Assert.assertEquals((Integer) 0, mutationSpectrum1.getCtoG());
@@ -78,7 +113,10 @@ public class MutationSpectrumServiceImplTest extends BaseServiceImplTest {
         Assert.assertEquals((Integer) 0, mutationSpectrum1.getTtoC());
         Assert.assertEquals((Integer) 0, mutationSpectrum1.getTtoG());
         MutationSpectrum mutationSpectrum2 = result.get(1);
-        Assert.assertEquals(MOLECULAR_PROFILE_ID, mutationSpectrum2.getMolecularProfileId());
+        Assert.assertEquals(
+            MOLECULAR_PROFILE_ID,
+            mutationSpectrum2.getMolecularProfileId()
+        );
         Assert.assertEquals(SAMPLE_ID2, mutationSpectrum2.getSampleId());
         Assert.assertEquals((Integer) 0, mutationSpectrum2.getCtoA());
         Assert.assertEquals((Integer) 0, mutationSpectrum2.getCtoG());
@@ -87,9 +125,8 @@ public class MutationSpectrumServiceImplTest extends BaseServiceImplTest {
         Assert.assertEquals((Integer) 0, mutationSpectrum2.getTtoC());
         Assert.assertEquals((Integer) 0, mutationSpectrum2.getTtoG());
     }
-    
+
     private List<Mutation> createMutationList() {
-        
         List<Mutation> mutationList = new ArrayList<>();
         Mutation mutation1 = new Mutation();
         mutation1.setSampleId(SAMPLE_ID1);

@@ -1,28 +1,43 @@
 package org.cbioportal.service;
 
+import java.util.List;
 import org.cbioportal.model.SampleList;
 import org.cbioportal.model.meta.BaseMeta;
 import org.cbioportal.service.exception.SampleListNotFoundException;
 import org.cbioportal.service.exception.StudyNotFoundException;
 
-import java.util.List;
-
 public interface SampleListService {
-
-    List<SampleList> getAllSampleLists(String projection, Integer pageSize, Integer pageNumber, String sortBy,
-                                       String direction);
-
+    List<SampleList> getAllSampleLists(
+        String projection,
+        Integer pageSize,
+        Integer pageNumber,
+        String sortBy,
+        String direction
+    );
 
     BaseMeta getMetaSampleLists();
 
-    SampleList getSampleList(String sampleListId) throws SampleListNotFoundException;
+    SampleList getSampleList(String sampleListId)
+        throws SampleListNotFoundException;
 
-    List<SampleList> getAllSampleListsInStudy(String studyId, String projection, Integer pageSize, Integer pageNumber,
-                                              String sortBy, String direction) throws StudyNotFoundException;
+    List<SampleList> getAllSampleListsInStudy(
+        String studyId,
+        String projection,
+        Integer pageSize,
+        Integer pageNumber,
+        String sortBy,
+        String direction
+    )
+        throws StudyNotFoundException;
 
-    BaseMeta getMetaSampleListsInStudy(String studyId) throws StudyNotFoundException;
+    BaseMeta getMetaSampleListsInStudy(String studyId)
+        throws StudyNotFoundException;
 
-    List<String> getAllSampleIdsInSampleList(String sampleListId) throws SampleListNotFoundException;
+    List<String> getAllSampleIdsInSampleList(String sampleListId)
+        throws SampleListNotFoundException;
 
-	List<SampleList> fetchSampleLists(List<String> sampleListIds, String projection);
+    List<SampleList> fetchSampleLists(
+        List<String> sampleListIds,
+        String projection
+    );
 }

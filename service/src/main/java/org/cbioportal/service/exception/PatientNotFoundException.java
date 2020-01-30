@@ -1,7 +1,6 @@
 package org.cbioportal.service.exception;
 
 public class PatientNotFoundException extends Exception {
-
     private String studyId;
     private String patientId;
 

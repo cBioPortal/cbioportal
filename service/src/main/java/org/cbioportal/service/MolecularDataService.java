@@ -1,37 +1,61 @@
 package org.cbioportal.service;
 
+import java.util.List;
 import org.cbioportal.model.GeneMolecularAlteration;
 import org.cbioportal.model.GeneMolecularData;
 import org.cbioportal.model.meta.BaseMeta;
 import org.cbioportal.service.exception.MolecularProfileNotFoundException;
 
-import java.util.List;
-
 public interface MolecularDataService {
-
-    List<GeneMolecularData> getMolecularData(String molecularProfileId, String sampleListId,
-                                             List<Integer> entrezGeneIds, String projection)
+    List<GeneMolecularData> getMolecularData(
+        String molecularProfileId,
+        String sampleListId,
+        List<Integer> entrezGeneIds,
+        String projection
+    )
         throws MolecularProfileNotFoundException;
 
-    BaseMeta getMetaMolecularData(String molecularProfileId, String sampleListId, List<Integer> entrezGeneIds)
+    BaseMeta getMetaMolecularData(
+        String molecularProfileId,
+        String sampleListId,
+        List<Integer> entrezGeneIds
+    )
         throws MolecularProfileNotFoundException;
 
-    List<GeneMolecularData> fetchMolecularData(String molecularProfileId, List<String> sampleIds,
-                                               List<Integer> entrezGeneIds, String projection)
+    List<GeneMolecularData> fetchMolecularData(
+        String molecularProfileId,
+        List<String> sampleIds,
+        List<Integer> entrezGeneIds,
+        String projection
+    )
         throws MolecularProfileNotFoundException;
 
-    BaseMeta fetchMetaMolecularData(String molecularProfileId, List<String> sampleIds, List<Integer> entrezGeneIds)
+    BaseMeta fetchMetaMolecularData(
+        String molecularProfileId,
+        List<String> sampleIds,
+        List<Integer> entrezGeneIds
+    )
         throws MolecularProfileNotFoundException;
 
-    Iterable<GeneMolecularAlteration> getMolecularAlterations(String molecularProfileId, List<Integer> entrezGeneIds,
-                                                              String projection) throws MolecularProfileNotFoundException;
+    Iterable<GeneMolecularAlteration> getMolecularAlterations(
+        String molecularProfileId,
+        List<Integer> entrezGeneIds,
+        String projection
+    )
+        throws MolecularProfileNotFoundException;
 
     Integer getNumberOfSamplesInMolecularProfile(String molecularProfileId);
 
-    List<GeneMolecularData> getMolecularDataInMultipleMolecularProfiles(List<String> molecularProfileIds,
-                                                                        List<String> sampleIds, List<Integer> entrezGeneIds,
-                                                                        String projection);
+    List<GeneMolecularData> getMolecularDataInMultipleMolecularProfiles(
+        List<String> molecularProfileIds,
+        List<String> sampleIds,
+        List<Integer> entrezGeneIds,
+        String projection
+    );
 
-	BaseMeta getMetaMolecularDataInMultipleMolecularProfiles(List<String> molecularProfileIds, List<String> sampleIds,
-		                                                     List<Integer> entrezGeneIds);
+    BaseMeta getMetaMolecularDataInMultipleMolecularProfiles(
+        List<String> molecularProfileIds,
+        List<String> sampleIds,
+        List<Integer> entrezGeneIds
+    );
 }

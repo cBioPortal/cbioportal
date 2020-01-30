@@ -44,35 +44,37 @@
  *
  * You should have received a copy of the GNU Affero General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
-*/
+ */
 
 package org.cbioportal.service.util;
 
 import com.mysql.jdbc.StringUtils;
-import org.cbioportal.model.DataAccessToken;
-import org.cbioportal.service.exception.InvalidDataAccessTokenException;
-
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.ExpiredJwtException;
-import io.jsonwebtoken.io.Decoders;
 import io.jsonwebtoken.Jws;
 import io.jsonwebtoken.Jwts;
-import io.jsonwebtoken.security.Keys;
 import io.jsonwebtoken.SignatureAlgorithm;
 import io.jsonwebtoken.SignatureException;
+import io.jsonwebtoken.io.Decoders;
+import io.jsonwebtoken.security.Keys;
 import java.util.*;
 import javax.crypto.SecretKey;
 import org.apache.commons.logging.*;
+import org.cbioportal.model.DataAccessToken;
+import org.cbioportal.service.exception.InvalidDataAccessTokenException;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
 @Component
 public class JwtUtils {
-
     private byte[] decodedSecretKey;
+
     @Value("${dat.jwt.secret_key:none}") // default value is none
     private void setDecodedSecretKey(String secretKey) {
-        if (!StringUtils.isNullOrEmpty(secretKey) && !secretKey.equalsIgnoreCase("none")) {
+        if (
+            !StringUtils.isNullOrEmpty(secretKey) &&
+            !secretKey.equalsIgnoreCase("none")
+        ) {
             this.decodedSecretKey = Decoders.BASE64.decode(secretKey);
         }
     }
@@ -94,11 +96,13 @@ public class JwtUtils {
         Date creationDate = calendar.getTime();
         calendar.add(Calendar.SECOND, jwtTtlSeconds);
         Date expirationDate = calendar.getTime();
-        String jws = Jwts.builder()
+        String jws = Jwts
+            .builder()
             .setSubject(username)
             .setIssuedAt(creationDate)
             .setExpiration(expirationDate)
-            .signWith(SignatureAlgorithm.HS256, decodedSecretKey).compact();
+            .signWith(SignatureAlgorithm.HS256, decodedSecretKey)
+            .compact();
         return new DataAccessToken(jws, username, expirationDate, creationDate);
     }
 
@@ -106,24 +110,29 @@ public class JwtUtils {
         Map<String, Object> properties = extractClaims(token);
     }
 
-    public String extractSubject(String token) throws InvalidDataAccessTokenException {
+    public String extractSubject(String token)
+        throws InvalidDataAccessTokenException {
         Claims claims = extractClaims(token);
         return claims.getSubject();
     }
 
-    public Date extractExpirationDate(String token) throws InvalidDataAccessTokenException {
+    public Date extractExpirationDate(String token)
+        throws InvalidDataAccessTokenException {
         Claims claims = extractClaims(token);
         return claims.getExpiration();
     }
 
-    public Map<String, Object> extractProperties(String token) throws InvalidDataAccessTokenException {
+    public Map<String, Object> extractProperties(String token)
+        throws InvalidDataAccessTokenException {
         return extractClaims(token);
     }
 
-    public Claims extractClaims(String token) throws InvalidDataAccessTokenException {
+    public Claims extractClaims(String token)
+        throws InvalidDataAccessTokenException {
         Claims claims = null;
         try {
-            Jws<Claims> jwsClaims = Jwts.parser()
+            Jws<Claims> jwsClaims = Jwts
+                .parser()
                 .setSigningKey(decodedSecretKey)
                 .parseClaimsJws(token);
             claims = jwsClaims.getBody();
@@ -139,7 +148,9 @@ public class JwtUtils {
 
     public static String createNewSecretKey() {
         SecretKey key = Keys.secretKeyFor(SignatureAlgorithm.HS256); // TODO: consider other Algorithms .. or parameterizing this choice
-        String encodedKey = Base64.getEncoder().encodeToString(key.getEncoded());
+        String encodedKey = Base64
+            .getEncoder()
+            .encodeToString(key.getEncoded());
         return encodedKey;
     }
 
@@ -148,7 +159,9 @@ public class JwtUtils {
             usage();
         }
         if (args[0].equals("--make-key")) {
-            System.out.println("Creating new secret key for JWTS token signing:");
+            System.out.println(
+                "Creating new secret key for JWTS token signing:"
+            );
             System.out.println(createNewSecretKey());
         }
     }
@@ -156,5 +169,4 @@ public class JwtUtils {
     public static void usage() {
         System.out.println("usage: JwtUtils --make-key");
     }
-
 }

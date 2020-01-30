@@ -1,7 +1,6 @@
 package org.cbioportal.service.exception;
 
 public class CancerTypeNotFoundException extends Exception {
-
     private String cancerTypeId;
 
     public CancerTypeNotFoundException(String cancerTypeId) {

@@ -1,7 +1,6 @@
 package org.cbioportal.service.exception;
 
 public class GenePanelNotFoundException extends Exception {
-
     private String genePanelId;
 
     public GenePanelNotFoundException(String genePanelId) {

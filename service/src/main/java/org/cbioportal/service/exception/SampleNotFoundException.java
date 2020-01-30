@@ -1,7 +1,6 @@
 package org.cbioportal.service.exception;
 
 public class SampleNotFoundException extends Exception {
-
     private String studyId;
     private String sampleId;
 

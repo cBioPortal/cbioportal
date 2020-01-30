@@ -44,42 +44,44 @@
  *
  * You should have received a copy of the GNU Affero General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
-*/
+ */
 
 package org.cbioportal.service.impl;
+
 //TODO package org.cbioportal.security.spring.authentication.token;
 
 import java.util.*;
 import org.apache.commons.logging.*;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.stereotype.Component;
-import org.springframework.context.annotation.Configuration;
-import org.springframework.test.context.ContextConfiguration;
-import org.springframework.test.context.TestPropertySource;
-import org.springframework.context.annotation.Bean;
-import org.junit.Assert;
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.mockito.InjectMocks;
-import org.mockito.Mock;
-import org.mockito.Matchers;
-import org.mockito.Mockito;
-import org.mockito.stubbing.Answer;
-import org.mockito.invocation.InvocationOnMock;
-import org.mockito.runners.MockitoJUnitRunner;
 import org.cbioportal.model.DataAccessToken;
 import org.cbioportal.persistence.DataAccessTokenRepository;
 import org.cbioportal.service.exception.MaxNumberTokensExceededException;
 import org.cbioportal.service.exception.TokenNotFoundException;
 import org.cbioportal.service.impl.UuidDataAccessTokenServiceImpl;
+import org.junit.Assert;
+import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.mockito.InjectMocks;
+import org.mockito.Matchers;
+import org.mockito.Mock;
+import org.mockito.Mockito;
+import org.mockito.invocation.InvocationOnMock;
+import org.mockito.runners.MockitoJUnitRunner;
+import org.mockito.stubbing.Answer;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Configuration;
+import org.springframework.stereotype.Component;
+import org.springframework.test.context.ContextConfiguration;
+import org.springframework.test.context.TestPropertySource;
 
 @Configuration
 public class UuidDataAccessTokenServiceImplTestConfiguration {
-
     public static String MOCK_USERNAME = "MOCK_USER";
-    public static String MOCK_USERNAME_WITH_ONE_TOKEN = "MOCK_USER_WITH_ONE_TOKEN";
-    public static String MOCK_USERNAME_WITH_FIVE_TOKENS = "MOCK_USER_WITH_FIVE_TOKENS";
+    public static String MOCK_USERNAME_WITH_ONE_TOKEN =
+        "MOCK_USER_WITH_ONE_TOKEN";
+    public static String MOCK_USERNAME_WITH_FIVE_TOKENS =
+        "MOCK_USER_WITH_FIVE_TOKENS";
     public static String NONEXISTENT_TOKEN_STRING = "NONEXISTENT_TOKEN_STRING";
     public static String FAIL_TO_GET_TOKEN_STRING = "FAIL_TO_GET_TOKEN_STRING";
     public static String EXPIRED_TOKEN_STRING = "EXPIRED_TOKEN_STRING";
@@ -87,7 +89,8 @@ public class UuidDataAccessTokenServiceImplTestConfiguration {
     public static String OLDEST_TOKEN_UUID = "OLDEST_TOKEN_UUID";
     public static String NEWEST_TOKEN_UUID = "NEWEST_TOKEN_UUID";
 
-    public static int MAXIMUM_TIME_DIFFERENCE_BETWEEN_CREATED_AND_EXPECTED_TOKEN = 5000;
+    public static int MAXIMUM_TIME_DIFFERENCE_BETWEEN_CREATED_AND_EXPECTED_TOKEN =
+        5000;
 
     private List<DataAccessToken> dataAccessTokenListForMockUserWithOneToken = makeDataAccessTokenListForMockUserWithOneToken();
     private List<DataAccessToken> dataAccessTokenListForMockUserWithFiveTokens = makeDataAccessTokenListForMockUserWithFiveTokens();
@@ -103,41 +106,105 @@ public class UuidDataAccessTokenServiceImplTestConfiguration {
     @Bean
     public DataAccessTokenRepository dataAccessTokenRepository() {
         Answer<Void> dataAccessTokenRepositoryCreateTokenAnswer = new Answer<Void>() {
+
             public Void answer(InvocationOnMock addTokenInvocation) {
-                addedDataAccessToken = (DataAccessToken)addTokenInvocation.getArguments()[0];
+                addedDataAccessToken =
+                    (DataAccessToken) addTokenInvocation.getArguments()[0];
                 return null;
             }
         };
         Answer<Void> dataAccessTokenRepositoryDeleteTokenAnswer = new Answer<Void>() {
+
             public Void answer(InvocationOnMock deleteTokenInvocation) {
-                deletedDataAccessToken = (String)deleteTokenInvocation.getArguments()[0];
+                deletedDataAccessToken =
+                    (String) deleteTokenInvocation.getArguments()[0];
                 return null;
             }
         };
-        DataAccessTokenRepository dataAccessTokenRepository = Mockito.mock(DataAccessTokenRepository.class);
-        Mockito.when(dataAccessTokenRepository.getDataAccessToken(FAIL_TO_GET_TOKEN_STRING)).thenThrow(new RuntimeException("Fail to get this token"));
-        Mockito.when(dataAccessTokenRepository.getDataAccessToken(NONEXISTENT_TOKEN_STRING)).thenReturn(null);
-        Mockito.when(dataAccessTokenRepository.getDataAccessToken(EXPIRED_TOKEN_STRING)).thenReturn(makeExpiredDataAccessToken());
-        Mockito.when(dataAccessTokenRepository.getDataAccessToken(VALID_TOKEN_STRING)).thenReturn(makeValidDataAccessToken());
-        Mockito.when(dataAccessTokenRepository.getAllDataAccessTokensForUsername(MOCK_USERNAME_WITH_ONE_TOKEN)).thenReturn(dataAccessTokenListForMockUserWithOneToken);
-        Mockito.when(dataAccessTokenRepository.getAllDataAccessTokensForUsername(MOCK_USERNAME_WITH_FIVE_TOKENS)).thenReturn(sortByExpiration(dataAccessTokenListForMockUserWithFiveTokens));
-        Mockito.doAnswer(dataAccessTokenRepositoryDeleteTokenAnswer).when(dataAccessTokenRepository).removeDataAccessToken(Matchers.anyString());
-        Mockito.doAnswer(dataAccessTokenRepositoryCreateTokenAnswer).when(dataAccessTokenRepository).addDataAccessToken(Matchers.any(DataAccessToken.class));
+        DataAccessTokenRepository dataAccessTokenRepository = Mockito.mock(
+            DataAccessTokenRepository.class
+        );
+        Mockito
+            .when(
+                dataAccessTokenRepository.getDataAccessToken(
+                    FAIL_TO_GET_TOKEN_STRING
+                )
+            )
+            .thenThrow(new RuntimeException("Fail to get this token"));
+        Mockito
+            .when(
+                dataAccessTokenRepository.getDataAccessToken(
+                    NONEXISTENT_TOKEN_STRING
+                )
+            )
+            .thenReturn(null);
+        Mockito
+            .when(
+                dataAccessTokenRepository.getDataAccessToken(
+                    EXPIRED_TOKEN_STRING
+                )
+            )
+            .thenReturn(makeExpiredDataAccessToken());
+        Mockito
+            .when(
+                dataAccessTokenRepository.getDataAccessToken(VALID_TOKEN_STRING)
+            )
+            .thenReturn(makeValidDataAccessToken());
+        Mockito
+            .when(
+                dataAccessTokenRepository.getAllDataAccessTokensForUsername(
+                    MOCK_USERNAME_WITH_ONE_TOKEN
+                )
+            )
+            .thenReturn(dataAccessTokenListForMockUserWithOneToken);
+        Mockito
+            .when(
+                dataAccessTokenRepository.getAllDataAccessTokensForUsername(
+                    MOCK_USERNAME_WITH_FIVE_TOKENS
+                )
+            )
+            .thenReturn(
+                sortByExpiration(dataAccessTokenListForMockUserWithFiveTokens)
+            );
+        Mockito
+            .doAnswer(dataAccessTokenRepositoryDeleteTokenAnswer)
+            .when(dataAccessTokenRepository)
+            .removeDataAccessToken(Matchers.anyString());
+        Mockito
+            .doAnswer(dataAccessTokenRepositoryCreateTokenAnswer)
+            .when(dataAccessTokenRepository)
+            .addDataAccessToken(Matchers.any(DataAccessToken.class));
         return dataAccessTokenRepository;
     }
 
-    private DataAccessToken makeDataAccessToken(String username, int offsetSeconds) {
+    private DataAccessToken makeDataAccessToken(
+        String username,
+        int offsetSeconds
+    ) {
         String uuid = UUID.randomUUID().toString();
-        DataAccessToken dataAccessToken = makeDataAccessToken(uuid, username, offsetSeconds);
+        DataAccessToken dataAccessToken = makeDataAccessToken(
+            uuid,
+            username,
+            offsetSeconds
+        );
         return dataAccessToken;
     }
 
-    private DataAccessToken makeDataAccessToken(String uuid, String username, int offsetSeconds) {
+    private DataAccessToken makeDataAccessToken(
+        String uuid,
+        String username,
+        int offsetSeconds
+    ) {
         Calendar calendar = Calendar.getInstance();
         Date creationDate = calendar.getTime();
         calendar.add(Calendar.SECOND, offsetSeconds);
         Date expirationDate = calendar.getTime();
-        DataAccessToken dataAccessToken = new DataAccessToken(uuid, username, expirationDate, creationDate);
+        DataAccessToken dataAccessToken = new DataAccessToken(
+            uuid,
+            username,
+            expirationDate,
+            creationDate
+        );
         return dataAccessToken;
     }
 
@@ -151,22 +218,50 @@ public class UuidDataAccessTokenServiceImplTestConfiguration {
 
     private List<DataAccessToken> makeDataAccessTokenListForMockUserWithOneToken() {
         List<DataAccessToken> dataAccessTokenListForMockUserWithOneToken = new ArrayList<DataAccessToken>();
-        dataAccessTokenListForMockUserWithOneToken.add(makeDataAccessToken(OLDEST_TOKEN_UUID, MOCK_USERNAME_WITH_ONE_TOKEN, -150000));
+        dataAccessTokenListForMockUserWithOneToken.add(
+            makeDataAccessToken(
+                OLDEST_TOKEN_UUID,
+                MOCK_USERNAME_WITH_ONE_TOKEN,
+                -150000
+            )
+        );
         return dataAccessTokenListForMockUserWithOneToken;
     }
 
     private List<DataAccessToken> makeDataAccessTokenListForMockUserWithFiveTokens() {
         List<DataAccessToken> dataAccessTokenListForMockUserWithFiveTokens = new ArrayList<DataAccessToken>();
-        dataAccessTokenListForMockUserWithFiveTokens.add(makeDataAccessToken(MOCK_USERNAME_WITH_FIVE_TOKENS, 86400));
-        dataAccessTokenListForMockUserWithFiveTokens.add(makeDataAccessToken(MOCK_USERNAME_WITH_FIVE_TOKENS, 172800));
-        dataAccessTokenListForMockUserWithFiveTokens.add(makeDataAccessToken(MOCK_USERNAME_WITH_FIVE_TOKENS, 529200));
-        dataAccessTokenListForMockUserWithFiveTokens.add(makeDataAccessToken(OLDEST_TOKEN_UUID, MOCK_USERNAME_WITH_FIVE_TOKENS, 45000));
-        dataAccessTokenListForMockUserWithFiveTokens.add(makeDataAccessToken(NEWEST_TOKEN_UUID, MOCK_USERNAME_WITH_FIVE_TOKENS, 1000000));
+        dataAccessTokenListForMockUserWithFiveTokens.add(
+            makeDataAccessToken(MOCK_USERNAME_WITH_FIVE_TOKENS, 86400)
+        );
+        dataAccessTokenListForMockUserWithFiveTokens.add(
+            makeDataAccessToken(MOCK_USERNAME_WITH_FIVE_TOKENS, 172800)
+        );
+        dataAccessTokenListForMockUserWithFiveTokens.add(
+            makeDataAccessToken(MOCK_USERNAME_WITH_FIVE_TOKENS, 529200)
+        );
+        dataAccessTokenListForMockUserWithFiveTokens.add(
+            makeDataAccessToken(
+                OLDEST_TOKEN_UUID,
+                MOCK_USERNAME_WITH_FIVE_TOKENS,
+                45000
+            )
+        );
+        dataAccessTokenListForMockUserWithFiveTokens.add(
+            makeDataAccessToken(
+                NEWEST_TOKEN_UUID,
+                MOCK_USERNAME_WITH_FIVE_TOKENS,
+                1000000
+            )
+        );
         return dataAccessTokenListForMockUserWithFiveTokens;
     }
 
-    private List<DataAccessToken> sortByExpiration(List<DataAccessToken> dataAccessTokenList) {
-        dataAccessTokenList.sort(Comparator.comparing(DataAccessToken::getExpiration));
+    private List<DataAccessToken> sortByExpiration(
+        List<DataAccessToken> dataAccessTokenList
+    ) {
+        dataAccessTokenList.sort(
+            Comparator.comparing(DataAccessToken::getExpiration)
+        );
         return dataAccessTokenList;
     }
 

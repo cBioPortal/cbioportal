@@ -1,17 +1,21 @@
 package org.cbioportal.service.impl;
 
+import java.math.BigDecimal;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
 import org.cbioportal.model.CoExpression;
 import org.cbioportal.model.EntityType;
 import org.cbioportal.model.Gene;
-import org.cbioportal.model.Geneset;
 import org.cbioportal.model.GeneMolecularData;
+import org.cbioportal.model.Geneset;
 import org.cbioportal.model.GenesetMolecularData;
 import org.cbioportal.model.MolecularProfile;
 import org.cbioportal.persistence.SampleListRepository;
 import org.cbioportal.service.GeneService;
+import org.cbioportal.service.GenesetDataService;
 import org.cbioportal.service.GenesetService;
 import org.cbioportal.service.MolecularDataService;
-import org.cbioportal.service.GenesetDataService;
 import org.cbioportal.service.MolecularProfileService;
 import org.junit.Assert;
 import org.junit.Test;
@@ -21,197 +25,387 @@ import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.runners.MockitoJUnitRunner;
 
-import java.math.BigDecimal;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-
 @RunWith(MockitoJUnitRunner.class)
 public class CoExpressionServiceImplTest extends BaseServiceImplTest {
-
     private static final double THRESHOLD = 0.3;
-    
+
     @InjectMocks
     private CoExpressionServiceImpl coExpressionService;
-    
+
     @Mock
     private MolecularDataService molecularDataService;
-    @Mock 
+
+    @Mock
     private GenesetDataService genesetDataService;
+
     @Mock
     private GeneService geneService;
+
     @Mock
     private GenesetService genesetService;
+
     @Mock
     private MolecularProfileService molecularProfileService;
+
     @Mock
     private SampleListRepository sampleListRepository;
-    
+
     @Test
     public void getGeneCorrelationForQueriedGene() throws Exception {
-
         List<GeneMolecularData> molecularDataList = createGeneMolecularData();
-        Mockito.when(molecularDataService.getMolecularData(MOLECULAR_PROFILE_ID_A, SAMPLE_LIST_ID, null, "SUMMARY"))
+        Mockito
+            .when(
+                molecularDataService.getMolecularData(
+                    MOLECULAR_PROFILE_ID_A,
+                    SAMPLE_LIST_ID,
+                    null,
+                    "SUMMARY"
+                )
+            )
             .thenReturn(molecularDataList);
-        Mockito.when(molecularDataService.getMolecularData(MOLECULAR_PROFILE_ID_B, SAMPLE_LIST_ID, null, "SUMMARY"))
+        Mockito
+            .when(
+                molecularDataService.getMolecularData(
+                    MOLECULAR_PROFILE_ID_B,
+                    SAMPLE_LIST_ID,
+                    null,
+                    "SUMMARY"
+                )
+            )
             .thenReturn(molecularDataList);
 
         List<Gene> genes = createGenes();
 
-        Mockito.when(geneService.getGene("2"))
-            .thenReturn(genes.get(0));
+        Mockito.when(geneService.getGene("2")).thenReturn(genes.get(0));
 
-        Mockito.when(geneService.getGene("3"))
-            .thenReturn(genes.get(1));
+        Mockito.when(geneService.getGene("3")).thenReturn(genes.get(1));
 
-        Mockito.when(geneService.getGene("4"))
-            .thenReturn(genes.get(2));
-        
+        Mockito.when(geneService.getGene("4")).thenReturn(genes.get(2));
+
         MolecularProfile geneMolecularProfile = createGeneMolecularProfile();
-        
-        Mockito.when(molecularProfileService.getMolecularProfile(MOLECULAR_PROFILE_ID_A))
+
+        Mockito
+            .when(
+                molecularProfileService.getMolecularProfile(
+                    MOLECULAR_PROFILE_ID_A
+                )
+            )
             .thenReturn(geneMolecularProfile);
-        Mockito.when(molecularProfileService.getMolecularProfile(MOLECULAR_PROFILE_ID_B))
+        Mockito
+            .when(
+                molecularProfileService.getMolecularProfile(
+                    MOLECULAR_PROFILE_ID_B
+                )
+            )
             .thenReturn(geneMolecularProfile);
-        
-        List<CoExpression> result = coExpressionService.getCoExpressions("1", EntityType.GENE, 
-        SAMPLE_LIST_ID, MOLECULAR_PROFILE_ID_A, MOLECULAR_PROFILE_ID_B, THRESHOLD);
+
+        List<CoExpression> result = coExpressionService.getCoExpressions(
+            "1",
+            EntityType.GENE,
+            SAMPLE_LIST_ID,
+            MOLECULAR_PROFILE_ID_A,
+            MOLECULAR_PROFILE_ID_B,
+            THRESHOLD
+        );
 
         Assert.assertEquals(2, result.size());
         CoExpression coExpression1 = result.get(0);
         Assert.assertEquals("2", coExpression1.getGeneticEntityId());
-        Assert.assertEquals(new BigDecimal("0.5"), coExpression1.getSpearmansCorrelation());
-        Assert.assertEquals(new BigDecimal("0.6666666666666667"), coExpression1.getpValue());
+        Assert.assertEquals(
+            new BigDecimal("0.5"),
+            coExpression1.getSpearmansCorrelation()
+        );
+        Assert.assertEquals(
+            new BigDecimal("0.6666666666666667"),
+            coExpression1.getpValue()
+        );
         CoExpression coExpression2 = result.get(1);
         Assert.assertEquals("3", coExpression2.getGeneticEntityId());
-        Assert.assertEquals(new BigDecimal("0.8660254037844386"), coExpression2.getSpearmansCorrelation());
-        Assert.assertEquals(new BigDecimal("0.3333333333333333"), coExpression2.getpValue());
+        Assert.assertEquals(
+            new BigDecimal("0.8660254037844386"),
+            coExpression2.getSpearmansCorrelation()
+        );
+        Assert.assertEquals(
+            new BigDecimal("0.3333333333333333"),
+            coExpression2.getpValue()
+        );
     }
 
     @Test
     public void fetchGeneCoExpressions() throws Exception {
-
         List<GeneMolecularData> molecularDataList = createGeneMolecularData();
-        Mockito.when(molecularDataService.fetchMolecularData(MOLECULAR_PROFILE_ID_A, Arrays.asList(SAMPLE_ID1, SAMPLE_ID2), 
-            null, "SUMMARY")).thenReturn(molecularDataList);
-        Mockito.when(molecularDataService.fetchMolecularData(MOLECULAR_PROFILE_ID_B, Arrays.asList(SAMPLE_ID1, SAMPLE_ID2), 
-            null, "SUMMARY")).thenReturn(molecularDataList);
+        Mockito
+            .when(
+                molecularDataService.fetchMolecularData(
+                    MOLECULAR_PROFILE_ID_A,
+                    Arrays.asList(SAMPLE_ID1, SAMPLE_ID2),
+                    null,
+                    "SUMMARY"
+                )
+            )
+            .thenReturn(molecularDataList);
+        Mockito
+            .when(
+                molecularDataService.fetchMolecularData(
+                    MOLECULAR_PROFILE_ID_B,
+                    Arrays.asList(SAMPLE_ID1, SAMPLE_ID2),
+                    null,
+                    "SUMMARY"
+                )
+            )
+            .thenReturn(molecularDataList);
 
         List<Gene> genes = createGenes();
 
-        Mockito.when(geneService.getGene("2"))
-            .thenReturn(genes.get(0));
+        Mockito.when(geneService.getGene("2")).thenReturn(genes.get(0));
 
-        Mockito.when(geneService.getGene("3"))
-            .thenReturn(genes.get(1));
+        Mockito.when(geneService.getGene("3")).thenReturn(genes.get(1));
 
-        Mockito.when(geneService.getGene("4"))
-            .thenReturn(genes.get(2));
+        Mockito.when(geneService.getGene("4")).thenReturn(genes.get(2));
 
         MolecularProfile geneMolecularProfile = createGeneMolecularProfile();
 
-        Mockito.when(molecularProfileService.getMolecularProfile(MOLECULAR_PROFILE_ID_A))
+        Mockito
+            .when(
+                molecularProfileService.getMolecularProfile(
+                    MOLECULAR_PROFILE_ID_A
+                )
+            )
             .thenReturn(geneMolecularProfile);
-        Mockito.when(molecularProfileService.getMolecularProfile(MOLECULAR_PROFILE_ID_B))
+        Mockito
+            .when(
+                molecularProfileService.getMolecularProfile(
+                    MOLECULAR_PROFILE_ID_B
+                )
+            )
             .thenReturn(geneMolecularProfile);
 
-        List<CoExpression> result = coExpressionService.fetchCoExpressions("1", EntityType.GENE,
-            Arrays.asList(SAMPLE_ID1, SAMPLE_ID2), MOLECULAR_PROFILE_ID_A, MOLECULAR_PROFILE_ID_B, THRESHOLD);
+        List<CoExpression> result = coExpressionService.fetchCoExpressions(
+            "1",
+            EntityType.GENE,
+            Arrays.asList(SAMPLE_ID1, SAMPLE_ID2),
+            MOLECULAR_PROFILE_ID_A,
+            MOLECULAR_PROFILE_ID_B,
+            THRESHOLD
+        );
 
         Assert.assertEquals(2, result.size());
         CoExpression coExpression1 = result.get(0);
         Assert.assertEquals("2", coExpression1.getGeneticEntityId());
-        Assert.assertEquals(new BigDecimal("0.5"), coExpression1.getSpearmansCorrelation());
-        Assert.assertEquals(new BigDecimal("0.6666666666666667"), coExpression1.getpValue());
+        Assert.assertEquals(
+            new BigDecimal("0.5"),
+            coExpression1.getSpearmansCorrelation()
+        );
+        Assert.assertEquals(
+            new BigDecimal("0.6666666666666667"),
+            coExpression1.getpValue()
+        );
         CoExpression coExpression2 = result.get(1);
         Assert.assertEquals("3", coExpression2.getGeneticEntityId());
-        Assert.assertEquals(new BigDecimal("0.8660254037844386"), coExpression2.getSpearmansCorrelation());
-        Assert.assertEquals(new BigDecimal("0.3333333333333333"), coExpression2.getpValue());
+        Assert.assertEquals(
+            new BigDecimal("0.8660254037844386"),
+            coExpression2.getSpearmansCorrelation()
+        );
+        Assert.assertEquals(
+            new BigDecimal("0.3333333333333333"),
+            coExpression2.getpValue()
+        );
     }
 
     @Test
     public void getGenesetCoExpressions() throws Exception {
-
         List<GenesetMolecularData> molecularDataList = createGenesetMolecularData();
-        Mockito.when(genesetDataService.fetchGenesetData("profile_id_gsva_scores_a", SAMPLE_LIST_ID, null))
+        Mockito
+            .when(
+                genesetDataService.fetchGenesetData(
+                    "profile_id_gsva_scores_a",
+                    SAMPLE_LIST_ID,
+                    null
+                )
+            )
             .thenReturn(molecularDataList);
-        Mockito.when(genesetDataService.fetchGenesetData("profile_id_gsva_scores_b", SAMPLE_LIST_ID, null))
+        Mockito
+            .when(
+                genesetDataService.fetchGenesetData(
+                    "profile_id_gsva_scores_b",
+                    SAMPLE_LIST_ID,
+                    null
+                )
+            )
             .thenReturn(molecularDataList);
 
         List<Geneset> genesets = createGenesets();
 
-        Mockito.when(genesetService.getGeneset("BIOCARTA_ASBCELL_PATHWAY"))
+        Mockito
+            .when(genesetService.getGeneset("BIOCARTA_ASBCELL_PATHWAY"))
             .thenReturn(genesets.get(0));
 
-        Mockito.when(genesetService.getGeneset("KEGG_DNA_REPLICATION"))
+        Mockito
+            .when(genesetService.getGeneset("KEGG_DNA_REPLICATION"))
             .thenReturn(genesets.get(1));
 
-        Mockito.when(genesetService.getGeneset("REACTOME_DIGESTION_OF_DIETARY_CARBOHYDRATE"))
+        Mockito
+            .when(
+                genesetService.getGeneset(
+                    "REACTOME_DIGESTION_OF_DIETARY_CARBOHYDRATE"
+                )
+            )
             .thenReturn(genesets.get(2));
-        
+
         MolecularProfile genesetMolecularProfile = createGenesetMolecularProfile();
 
-        Mockito.when(molecularProfileService.getMolecularProfile("profile_id_gsva_scores_a"))
+        Mockito
+            .when(
+                molecularProfileService.getMolecularProfile(
+                    "profile_id_gsva_scores_a"
+                )
+            )
             .thenReturn(genesetMolecularProfile);
-        Mockito.when(molecularProfileService.getMolecularProfile("profile_id_gsva_scores_b"))
+        Mockito
+            .when(
+                molecularProfileService.getMolecularProfile(
+                    "profile_id_gsva_scores_b"
+                )
+            )
             .thenReturn(genesetMolecularProfile);
 
-        List<CoExpression> result = coExpressionService.getCoExpressions("GENESET_ID_TEST", EntityType.GENESET, 
-        SAMPLE_LIST_ID, "profile_id_gsva_scores_a", "profile_id_gsva_scores_b", THRESHOLD);
+        List<CoExpression> result = coExpressionService.getCoExpressions(
+            "GENESET_ID_TEST",
+            EntityType.GENESET,
+            SAMPLE_LIST_ID,
+            "profile_id_gsva_scores_a",
+            "profile_id_gsva_scores_b",
+            THRESHOLD
+        );
 
         Assert.assertEquals(2, result.size());
         CoExpression coExpression1 = result.get(0);
-        Assert.assertEquals("KEGG_DNA_REPLICATION", coExpression1.getGeneticEntityId());
-        Assert.assertEquals(new BigDecimal("0.8660254037844386"), coExpression1.getSpearmansCorrelation());
-        Assert.assertEquals(new BigDecimal("0.3333333333333333"), coExpression1.getpValue());
+        Assert.assertEquals(
+            "KEGG_DNA_REPLICATION",
+            coExpression1.getGeneticEntityId()
+        );
+        Assert.assertEquals(
+            new BigDecimal("0.8660254037844386"),
+            coExpression1.getSpearmansCorrelation()
+        );
+        Assert.assertEquals(
+            new BigDecimal("0.3333333333333333"),
+            coExpression1.getpValue()
+        );
         CoExpression coExpression2 = result.get(1);
-        Assert.assertEquals("BIOCARTA_ASBCELL_PATHWAY", coExpression2.getGeneticEntityId());
-        Assert.assertEquals(new BigDecimal("0.5"), coExpression2.getSpearmansCorrelation());
-        Assert.assertEquals(new BigDecimal("0.6666666666666667"), coExpression2.getpValue());
+        Assert.assertEquals(
+            "BIOCARTA_ASBCELL_PATHWAY",
+            coExpression2.getGeneticEntityId()
+        );
+        Assert.assertEquals(
+            new BigDecimal("0.5"),
+            coExpression2.getSpearmansCorrelation()
+        );
+        Assert.assertEquals(
+            new BigDecimal("0.6666666666666667"),
+            coExpression2.getpValue()
+        );
     }
 
     @Test
     public void fetchGenesetCoExpressions() throws Exception {
-
         List<GenesetMolecularData> molecularDataList = createGenesetMolecularData();
-        Mockito.when(genesetDataService.fetchGenesetData("profile_id_gsva_scores_a", Arrays.asList(SAMPLE_ID1, SAMPLE_ID2), 
-            null)).thenReturn(molecularDataList);
-        Mockito.when(genesetDataService.fetchGenesetData("profile_id_gsva_scores_b", Arrays.asList(SAMPLE_ID1, SAMPLE_ID2), 
-            null)).thenReturn(molecularDataList);
+        Mockito
+            .when(
+                genesetDataService.fetchGenesetData(
+                    "profile_id_gsva_scores_a",
+                    Arrays.asList(SAMPLE_ID1, SAMPLE_ID2),
+                    null
+                )
+            )
+            .thenReturn(molecularDataList);
+        Mockito
+            .when(
+                genesetDataService.fetchGenesetData(
+                    "profile_id_gsva_scores_b",
+                    Arrays.asList(SAMPLE_ID1, SAMPLE_ID2),
+                    null
+                )
+            )
+            .thenReturn(molecularDataList);
 
         List<Geneset> genesets = createGenesets();
 
-        Mockito.when(genesetService.getGeneset("BIOCARTA_ASBCELL_PATHWAY"))
+        Mockito
+            .when(genesetService.getGeneset("BIOCARTA_ASBCELL_PATHWAY"))
             .thenReturn(genesets.get(0));
-    
-        Mockito.when(genesetService.getGeneset("KEGG_DNA_REPLICATION"))
+
+        Mockito
+            .when(genesetService.getGeneset("KEGG_DNA_REPLICATION"))
             .thenReturn(genesets.get(1));
 
-        Mockito.when(genesetService.getGeneset("REACTOME_DIGESTION_OF_DIETARY_CARBOHYDRATE"))
+        Mockito
+            .when(
+                genesetService.getGeneset(
+                    "REACTOME_DIGESTION_OF_DIETARY_CARBOHYDRATE"
+                )
+            )
             .thenReturn(genesets.get(2));
-        
-        Mockito.when(genesetService.getGeneset("BIOCARTA_ASBCELL_PATHWAY"))
+
+        Mockito
+            .when(genesetService.getGeneset("BIOCARTA_ASBCELL_PATHWAY"))
             .thenReturn(genesets.get(0));
-        
+
         MolecularProfile genesetMolecularProfile = createGenesetMolecularProfile();
 
-        Mockito.when(molecularProfileService.getMolecularProfile("profile_id_gsva_scores_a"))
+        Mockito
+            .when(
+                molecularProfileService.getMolecularProfile(
+                    "profile_id_gsva_scores_a"
+                )
+            )
             .thenReturn(genesetMolecularProfile);
-        Mockito.when(genesetDataService.fetchGenesetData("profile_id_gsva_scores_b", Arrays.asList(SAMPLE_ID1, SAMPLE_ID2), 
-            null)).thenReturn(molecularDataList);
+        Mockito
+            .when(
+                genesetDataService.fetchGenesetData(
+                    "profile_id_gsva_scores_b",
+                    Arrays.asList(SAMPLE_ID1, SAMPLE_ID2),
+                    null
+                )
+            )
+            .thenReturn(molecularDataList);
 
-        List<CoExpression> result = coExpressionService.fetchCoExpressions("GENESET_ID_TEST", EntityType.GENESET,
-            Arrays.asList(SAMPLE_ID1, SAMPLE_ID2), "profile_id_gsva_scores_a", "profile_id_gsva_scores_b", THRESHOLD);
+        List<CoExpression> result = coExpressionService.fetchCoExpressions(
+            "GENESET_ID_TEST",
+            EntityType.GENESET,
+            Arrays.asList(SAMPLE_ID1, SAMPLE_ID2),
+            "profile_id_gsva_scores_a",
+            "profile_id_gsva_scores_b",
+            THRESHOLD
+        );
 
         Assert.assertEquals(2, result.size());
         CoExpression coExpression1 = result.get(0);
-        Assert.assertEquals("KEGG_DNA_REPLICATION", coExpression1.getGeneticEntityId());
-        Assert.assertEquals(new BigDecimal("0.8660254037844386"), coExpression1.getSpearmansCorrelation());
-        Assert.assertEquals(new BigDecimal("0.3333333333333333"), coExpression1.getpValue());
+        Assert.assertEquals(
+            "KEGG_DNA_REPLICATION",
+            coExpression1.getGeneticEntityId()
+        );
+        Assert.assertEquals(
+            new BigDecimal("0.8660254037844386"),
+            coExpression1.getSpearmansCorrelation()
+        );
+        Assert.assertEquals(
+            new BigDecimal("0.3333333333333333"),
+            coExpression1.getpValue()
+        );
         CoExpression coExpression2 = result.get(1);
-        Assert.assertEquals("BIOCARTA_ASBCELL_PATHWAY", coExpression2.getGeneticEntityId());
-        Assert.assertEquals(new BigDecimal("0.5"), coExpression2.getSpearmansCorrelation());
-        Assert.assertEquals(new BigDecimal("0.6666666666666667"), coExpression2.getpValue());
+        Assert.assertEquals(
+            "BIOCARTA_ASBCELL_PATHWAY",
+            coExpression2.getGeneticEntityId()
+        );
+        Assert.assertEquals(
+            new BigDecimal("0.5"),
+            coExpression2.getSpearmansCorrelation()
+        );
+        Assert.assertEquals(
+            new BigDecimal("0.6666666666666667"),
+            coExpression2.getpValue()
+        );
     }
 
     private List<GeneMolecularData> createGeneMolecularData() {
@@ -326,15 +520,21 @@ public class CoExpressionServiceImplTest extends BaseServiceImplTest {
         genesetMolecularData9.setValue("3");
         molecularDataList.add(genesetMolecularData9);
         GenesetMolecularData genesetMolecularData10 = new GenesetMolecularData();
-        genesetMolecularData10.setGenesetId("REACTOME_DIGESTION_OF_DIETARY_CARBOHYDRATE");
+        genesetMolecularData10.setGenesetId(
+            "REACTOME_DIGESTION_OF_DIETARY_CARBOHYDRATE"
+        );
         genesetMolecularData10.setValue("1");
         molecularDataList.add(genesetMolecularData10);
         GenesetMolecularData genesetMolecularData11 = new GenesetMolecularData();
-        genesetMolecularData11.setGenesetId("REACTOME_DIGESTION_OF_DIETARY_CARBOHYDRATE");
+        genesetMolecularData11.setGenesetId(
+            "REACTOME_DIGESTION_OF_DIETARY_CARBOHYDRATE"
+        );
         genesetMolecularData11.setValue("4");
         molecularDataList.add(genesetMolecularData11);
         GenesetMolecularData genesetMolecularData12 = new GenesetMolecularData();
-        genesetMolecularData12.setGenesetId("REACTOME_DIGESTION_OF_DIETARY_CARBOHYDRATE");
+        genesetMolecularData12.setGenesetId(
+            "REACTOME_DIGESTION_OF_DIETARY_CARBOHYDRATE"
+        );
         genesetMolecularData12.setValue("0");
         molecularDataList.add(genesetMolecularData12);
         return molecularDataList;
@@ -359,13 +559,17 @@ public class CoExpressionServiceImplTest extends BaseServiceImplTest {
 
     private MolecularProfile createGeneMolecularProfile() {
         MolecularProfile geneMolecularProfile = new MolecularProfile();
-        geneMolecularProfile.setMolecularAlterationType(MolecularProfile.MolecularAlterationType.MRNA_EXPRESSION);
+        geneMolecularProfile.setMolecularAlterationType(
+            MolecularProfile.MolecularAlterationType.MRNA_EXPRESSION
+        );
         return geneMolecularProfile;
     }
 
     private MolecularProfile createGenesetMolecularProfile() {
         MolecularProfile genesetMolecularProfile = new MolecularProfile();
-        genesetMolecularProfile.setMolecularAlterationType(MolecularProfile.MolecularAlterationType.GENESET_SCORE);
+        genesetMolecularProfile.setMolecularAlterationType(
+            MolecularProfile.MolecularAlterationType.GENESET_SCORE
+        );
         return genesetMolecularProfile;
     }
 }

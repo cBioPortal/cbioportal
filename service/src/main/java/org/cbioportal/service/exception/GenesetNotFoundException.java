@@ -1,8 +1,7 @@
 package org.cbioportal.service.exception;
 
 public class GenesetNotFoundException extends Exception {
-    
-	private String genesetId;
+    private String genesetId;
 
     public GenesetNotFoundException(String genesetId) {
         super();

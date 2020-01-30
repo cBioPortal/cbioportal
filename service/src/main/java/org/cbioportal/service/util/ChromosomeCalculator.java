@@ -1,15 +1,13 @@
 package org.cbioportal.service.util;
 
-import org.springframework.stereotype.Component;
-
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import org.springframework.stereotype.Component;
 
 @Component
 public class ChromosomeCalculator {
 
     private String getChromosome(String cytoband) {
-
         if (cytoband == null) {
             return null;
         }

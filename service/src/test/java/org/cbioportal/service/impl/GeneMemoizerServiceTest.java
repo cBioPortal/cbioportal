@@ -1,5 +1,9 @@
 package org.cbioportal.service.impl;
 
+import java.util.Arrays;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.List;
 import org.cbioportal.model.ReferenceGenomeGene;
 import org.cbioportal.service.StaticDataTimestampService;
 import org.junit.Assert;
@@ -9,11 +13,6 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.runners.MockitoJUnitRunner;
-
-import java.util.Arrays;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.List;
 
 @RunWith(MockitoJUnitRunner.class)
 public class GeneMemoizerServiceTest {
@@ -30,19 +29,21 @@ public class GeneMemoizerServiceTest {
         gene("KRAS"),
         gene("SUGT1P4-STRA6LP-CCDC180")
     );
-    
+
     private static ReferenceGenomeGene gene(String name) {
         ReferenceGenomeGene referenceGenomeGene = new ReferenceGenomeGene();
         referenceGenomeGene.setHugoGeneSymbol(name);
         return referenceGenomeGene;
     }
-    
+
     @Test
     public void shouldReturnNullWhenUncached() throws Exception {
         initializeTimestamps(new Date(), new Date());
 
-        List<ReferenceGenomeGene> actual = geneMemoizerService.fetchGenes("hg19");
-        
+        List<ReferenceGenomeGene> actual = geneMemoizerService.fetchGenes(
+            "hg19"
+        );
+
         Assert.assertEquals(null, actual);
     }
 
@@ -50,8 +51,10 @@ public class GeneMemoizerServiceTest {
     public void shouldReturnCachedWhenNeitherExpired() throws Exception {
         initializeTimestamps(new Date(0L), new Date(0L));
         geneMemoizerService.cacheGenes(GENES, GENOME);
-        
-        List<ReferenceGenomeGene> actual = geneMemoizerService.fetchGenes("hg19");
+
+        List<ReferenceGenomeGene> actual = geneMemoizerService.fetchGenes(
+            "hg19"
+        );
 
         Assert.assertEquals(GENES, actual);
     }
@@ -61,7 +64,9 @@ public class GeneMemoizerServiceTest {
         initializeTimestamps(new Date(Long.MAX_VALUE), new Date(0L));
         geneMemoizerService.cacheGenes(GENES, GENOME);
 
-        List<ReferenceGenomeGene> actual = geneMemoizerService.fetchGenes("hg19");
+        List<ReferenceGenomeGene> actual = geneMemoizerService.fetchGenes(
+            "hg19"
+        );
 
         Assert.assertEquals(null, actual);
     }
@@ -71,7 +76,9 @@ public class GeneMemoizerServiceTest {
         initializeTimestamps(new Date(0L), new Date(Long.MAX_VALUE));
         geneMemoizerService.cacheGenes(GENES, GENOME);
 
-        List<ReferenceGenomeGene> actual = geneMemoizerService.fetchGenes("hg19");
+        List<ReferenceGenomeGene> actual = geneMemoizerService.fetchGenes(
+            "hg19"
+        );
 
         Assert.assertEquals(null, actual);
     }
@@ -80,7 +87,8 @@ public class GeneMemoizerServiceTest {
         HashMap<String, Date> timestamps = new HashMap<>();
         timestamps.put("gene", gene);
         timestamps.put("reference_genome_gene", referenceGenomeGene);
-        Mockito.when(timestampService.getTimestampsAsDates(Mockito.anyList()))
+        Mockito
+            .when(timestampService.getTimestampsAsDates(Mockito.anyList()))
             .thenReturn(timestamps);
     }
 }

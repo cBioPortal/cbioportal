@@ -1,11 +1,13 @@
 package org.cbioportal.service.exception;
 
 public class ClinicalAttributeNotFoundException extends Exception {
-
     private String studyId;
     private String clinicalAttributeId;
 
-    public ClinicalAttributeNotFoundException(String studyId, String clinicalAttributeId) {
+    public ClinicalAttributeNotFoundException(
+        String studyId,
+        String clinicalAttributeId
+    ) {
         super();
         this.studyId = studyId;
         this.clinicalAttributeId = clinicalAttributeId;

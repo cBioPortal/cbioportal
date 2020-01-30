@@ -1,5 +1,8 @@
 package org.cbioportal.service.impl;
 
+import java.math.BigDecimal;
+import java.util.ArrayList;
+import java.util.List;
 import org.cbioportal.model.GeneMolecularData;
 import org.cbioportal.model.MolecularProfile;
 import org.cbioportal.model.MrnaPercentile;
@@ -13,24 +16,19 @@ import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.runners.MockitoJUnitRunner;
 
-import java.math.BigDecimal;
-import java.util.ArrayList;
-import java.util.List;
-
 @RunWith(MockitoJUnitRunner.class)
 public class MrnaPercentileServiceImplTest extends BaseServiceImplTest {
-
     @InjectMocks
     private MrnaPercentileServiceImpl mrnaPercentileService;
 
     @Mock
     private MolecularDataService molecularDataService;
+
     @Mock
     private MolecularProfileService molecularProfileService;
 
     @Test
     public void fetchMrnaPercentile() throws Exception {
-
         List<GeneMolecularData> molecularDataList = new ArrayList<>();
         GeneMolecularData molecularData1 = new GeneMolecularData();
         molecularData1.setMolecularProfileId(MOLECULAR_PROFILE_ID);
@@ -70,31 +68,71 @@ public class MrnaPercentileServiceImplTest extends BaseServiceImplTest {
         molecularDataList.add(molecularData6);
 
         MolecularProfile molecularProfile = new MolecularProfile();
-        molecularProfile.setMolecularAlterationType(MolecularProfile.MolecularAlterationType.MRNA_EXPRESSION);
-        Mockito.when(molecularProfileService.getMolecularProfile(MOLECULAR_PROFILE_ID)).thenReturn(molecularProfile);
-        
+        molecularProfile.setMolecularAlterationType(
+            MolecularProfile.MolecularAlterationType.MRNA_EXPRESSION
+        );
+        Mockito
+            .when(
+                molecularProfileService.getMolecularProfile(
+                    MOLECULAR_PROFILE_ID
+                )
+            )
+            .thenReturn(molecularProfile);
+
         List<Integer> entrezGeneIds = new ArrayList<>();
         entrezGeneIds.add(ENTREZ_GENE_ID_1);
         entrezGeneIds.add(2);
 
-        Mockito.when(molecularDataService.fetchMolecularData(MOLECULAR_PROFILE_ID, null, entrezGeneIds, 
-            "SUMMARY")).thenReturn(molecularDataList);
-        
-        List<MrnaPercentile> result = mrnaPercentileService.fetchMrnaPercentile(MOLECULAR_PROFILE_ID, "sample_id_2", 
-            entrezGeneIds);
+        Mockito
+            .when(
+                molecularDataService.fetchMolecularData(
+                    MOLECULAR_PROFILE_ID,
+                    null,
+                    entrezGeneIds,
+                    "SUMMARY"
+                )
+            )
+            .thenReturn(molecularDataList);
+
+        List<MrnaPercentile> result = mrnaPercentileService.fetchMrnaPercentile(
+            MOLECULAR_PROFILE_ID,
+            "sample_id_2",
+            entrezGeneIds
+        );
 
         Assert.assertEquals(2, result.size());
         MrnaPercentile mrnaPercentile1 = result.get(0);
-        Assert.assertEquals(MOLECULAR_PROFILE_ID, mrnaPercentile1.getMolecularProfileId());
+        Assert.assertEquals(
+            MOLECULAR_PROFILE_ID,
+            mrnaPercentile1.getMolecularProfileId()
+        );
         Assert.assertEquals("sample_id_2", mrnaPercentile1.getSampleId());
-        Assert.assertEquals(ENTREZ_GENE_ID_1, mrnaPercentile1.getEntrezGeneId());
-        Assert.assertEquals(new BigDecimal("0.2456"), mrnaPercentile1.getzScore());
-        Assert.assertEquals(new BigDecimal("33.33"), mrnaPercentile1.getPercentile());
+        Assert.assertEquals(
+            ENTREZ_GENE_ID_1,
+            mrnaPercentile1.getEntrezGeneId()
+        );
+        Assert.assertEquals(
+            new BigDecimal("0.2456"),
+            mrnaPercentile1.getzScore()
+        );
+        Assert.assertEquals(
+            new BigDecimal("33.33"),
+            mrnaPercentile1.getPercentile()
+        );
         MrnaPercentile mrnaPercentile2 = result.get(1);
-        Assert.assertEquals(MOLECULAR_PROFILE_ID, mrnaPercentile2.getMolecularProfileId());
+        Assert.assertEquals(
+            MOLECULAR_PROFILE_ID,
+            mrnaPercentile2.getMolecularProfileId()
+        );
         Assert.assertEquals("sample_id_2", mrnaPercentile2.getSampleId());
         Assert.assertEquals((Integer) 2, mrnaPercentile2.getEntrezGeneId());
-        Assert.assertEquals(new BigDecimal("0.1456"), mrnaPercentile2.getzScore());
-        Assert.assertEquals(new BigDecimal("100.00"), mrnaPercentile2.getPercentile());
+        Assert.assertEquals(
+            new BigDecimal("0.1456"),
+            mrnaPercentile2.getzScore()
+        );
+        Assert.assertEquals(
+            new BigDecimal("100.00"),
+            mrnaPercentile2.getPercentile()
+        );
     }
 }

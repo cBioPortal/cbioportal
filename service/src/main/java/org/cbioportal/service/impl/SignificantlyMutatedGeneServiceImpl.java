@@ -1,5 +1,6 @@
 package org.cbioportal.service.impl;
 
+import java.util.List;
 import org.cbioportal.model.MutSig;
 import org.cbioportal.model.meta.BaseMeta;
 import org.cbioportal.persistence.SignificantlyMutatedGeneRepository;
@@ -9,32 +10,44 @@ import org.cbioportal.service.exception.StudyNotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import java.util.List;
-
 @Service
-public class SignificantlyMutatedGeneServiceImpl implements SignificantlyMutatedGeneService {
-
+public class SignificantlyMutatedGeneServiceImpl
+    implements SignificantlyMutatedGeneService {
     @Autowired
     private SignificantlyMutatedGeneRepository significantlyMutatedGeneRepository;
+
     @Autowired
     private StudyService studyService;
 
     @Override
-    public List<MutSig> getSignificantlyMutatedGenes(String studyId, String projection, Integer pageSize,
-                                                     Integer pageNumber, String sortBy, String direction) 
+    public List<MutSig> getSignificantlyMutatedGenes(
+        String studyId,
+        String projection,
+        Integer pageSize,
+        Integer pageNumber,
+        String sortBy,
+        String direction
+    )
         throws StudyNotFoundException {
-        
         studyService.getStudy(studyId);
 
-        return significantlyMutatedGeneRepository.getSignificantlyMutatedGenes(studyId, projection, pageSize,
-            pageNumber, sortBy, direction);
+        return significantlyMutatedGeneRepository.getSignificantlyMutatedGenes(
+            studyId,
+            projection,
+            pageSize,
+            pageNumber,
+            sortBy,
+            direction
+        );
     }
 
     @Override
-    public BaseMeta getMetaSignificantlyMutatedGenes(String studyId) throws StudyNotFoundException {
-
+    public BaseMeta getMetaSignificantlyMutatedGenes(String studyId)
+        throws StudyNotFoundException {
         studyService.getStudy(studyId);
-        
-        return significantlyMutatedGeneRepository.getMetaSignificantlyMutatedGenes(studyId);
+
+        return significantlyMutatedGeneRepository.getMetaSignificantlyMutatedGenes(
+            studyId
+        );
     }
 }

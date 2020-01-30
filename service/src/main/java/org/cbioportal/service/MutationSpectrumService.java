@@ -1,15 +1,19 @@
 package org.cbioportal.service;
 
+import java.util.List;
 import org.cbioportal.model.MutationSpectrum;
 import org.cbioportal.service.exception.MolecularProfileNotFoundException;
 
-import java.util.List;
-
 public interface MutationSpectrumService {
-    
-    List<MutationSpectrum> getMutationSpectrums(String molecularProfileId, String sampleListId) 
+    List<MutationSpectrum> getMutationSpectrums(
+        String molecularProfileId,
+        String sampleListId
+    )
         throws MolecularProfileNotFoundException;
 
-    List<MutationSpectrum> fetchMutationSpectrums(String molecularProfileId, List<String> sampleIds) 
+    List<MutationSpectrum> fetchMutationSpectrums(
+        String molecularProfileId,
+        List<String> sampleIds
+    )
         throws MolecularProfileNotFoundException;
 }

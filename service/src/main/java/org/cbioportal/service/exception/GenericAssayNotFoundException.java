@@ -1,7 +1,6 @@
 package org.cbioportal.service.exception;
 
 public class GenericAssayNotFoundException extends Exception {
-
     private String stableId;
 
     public GenericAssayNotFoundException(String stableId) {

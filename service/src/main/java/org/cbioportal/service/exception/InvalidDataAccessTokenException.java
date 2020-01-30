@@ -44,7 +44,7 @@
  *
  * You should have received a copy of the GNU Affero General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
-*/
+ */
 
 // TODO move back package org.cbioportal.security.exception;
 package org.cbioportal.service.exception;
@@ -58,5 +58,4 @@ public class InvalidDataAccessTokenException extends Exception {
     public InvalidDataAccessTokenException(String message) {
         super(message);
     }
-
 }

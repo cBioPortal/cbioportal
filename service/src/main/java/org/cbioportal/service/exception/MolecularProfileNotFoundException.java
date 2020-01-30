@@ -1,7 +1,6 @@
 package org.cbioportal.service.exception;
 
 public class MolecularProfileNotFoundException extends Exception {
-
     private String molecularProfileId;
 
     public MolecularProfileNotFoundException(String molecularProfileId) {

@@ -1,7 +1,6 @@
 package org.cbioportal.service.exception;
 
 public class CacheNotFoundException extends Exception {
-
     private String cacheName;
 
     public CacheNotFoundException(String cacheName) {
@@ -16,5 +15,4 @@ public class CacheNotFoundException extends Exception {
     public void setCacheName(String cacheName) {
         this.cacheName = cacheName;
     }
-
 }

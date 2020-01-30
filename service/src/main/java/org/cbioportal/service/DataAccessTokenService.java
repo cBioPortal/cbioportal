@@ -28,7 +28,7 @@
  *
  * You should have received a copy of the GNU Affero General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
-*/
+ */
 
 package org.cbioportal.service;
 
@@ -36,9 +36,11 @@ import java.util.*;
 import org.cbioportal.model.DataAccessToken;
 
 public interface DataAccessTokenService {
-
     public DataAccessToken createDataAccessToken(String username);
-    public DataAccessToken createDataAccessToken(String username, boolean allowRevocationOfOtherTokens);
+    public DataAccessToken createDataAccessToken(
+        String username,
+        boolean allowRevocationOfOtherTokens
+    );
     public List<DataAccessToken> getAllDataAccessTokens(String username);
     public DataAccessToken getDataAccessToken(String username);
     public DataAccessToken getDataAccessTokenInfo(String token);
@@ -57,5 +59,4 @@ public interface DataAccessTokenService {
      * @return
      */
     public Boolean isValid(String token);
-
 }

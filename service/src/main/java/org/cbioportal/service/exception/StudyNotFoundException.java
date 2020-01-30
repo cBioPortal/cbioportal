@@ -1,7 +1,6 @@
 package org.cbioportal.service.exception;
 
 public class StudyNotFoundException extends Exception {
-
     private String studyId;
 
     public StudyNotFoundException(String studyId) {

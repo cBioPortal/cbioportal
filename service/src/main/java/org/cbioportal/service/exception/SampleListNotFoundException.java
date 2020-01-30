@@ -1,7 +1,6 @@
 package org.cbioportal.service.exception;
 
 public class SampleListNotFoundException extends Exception {
-
     private String sampleListId;
 
     public SampleListNotFoundException(String sampleListId) {

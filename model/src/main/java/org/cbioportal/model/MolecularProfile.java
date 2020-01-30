@@ -30,11 +30,15 @@ public class MolecularProfile implements Serializable {
     }
 
     private Integer molecularProfileId;
+
     @NotNull
     private String stableId;
+
     private Integer cancerStudyId;
+
     @NotNull
     private String cancerStudyIdentifier;
+
     private MolecularAlterationType molecularAlterationType;
     private String genericAssayType;
     private String datatype;
@@ -81,7 +85,9 @@ public class MolecularProfile implements Serializable {
         return molecularAlterationType;
     }
 
-    public void setMolecularAlterationType(MolecularAlterationType molecularAlterationType) {
+    public void setMolecularAlterationType(
+        MolecularAlterationType molecularAlterationType
+    ) {
         this.molecularAlterationType = molecularAlterationType;
     }
 
@@ -148,5 +154,4 @@ public class MolecularProfile implements Serializable {
     public void setGenericAssayType(String genericAssayType) {
         this.genericAssayType = genericAssayType;
     }
-    
 }

@@ -5,13 +5,15 @@ import java.math.BigDecimal;
 import javax.validation.constraints.NotNull;
 
 public class CoExpression implements Serializable {
-
     @NotNull
     private String geneticEntityId;
+
     @NotNull
     private EntityType geneticEntityType;
+
     @NotNull
     private BigDecimal spearmansCorrelation;
+
     @NotNull
     private BigDecimal pValue;
 
@@ -22,7 +24,7 @@ public class CoExpression implements Serializable {
     public void setGeneticEntityId(String geneticEntityId) {
         this.geneticEntityId = geneticEntityId;
     }
-    
+
     public EntityType getGeneticEntityType() {
         return geneticEntityType;
     }

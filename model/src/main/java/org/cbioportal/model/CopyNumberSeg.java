@@ -4,24 +4,32 @@ import java.math.BigDecimal;
 import javax.validation.constraints.NotNull;
 
 public class CopyNumberSeg extends UniqueKeyBase {
-
     private Long segId;
     private Integer cancerStudyId;
+
     @NotNull
     private String cancerStudyIdentifier;
+
     private Integer sampleId;
+
     @NotNull
     private String sampleStableId;
+
     @NotNull
     private String patientId;
+
     @NotNull
     private String chr;
+
     @NotNull
     private Integer start;
+
     @NotNull
     private Integer end;
+
     @NotNull
     private Integer numProbes;
+
     @NotNull
     private BigDecimal segmentMean;
 

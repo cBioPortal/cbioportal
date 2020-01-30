@@ -3,15 +3,18 @@ package org.cbioportal.model;
 import javax.validation.constraints.NotNull;
 
 public class ClinicalData extends UniqueKeyBase {
-
     private Integer internalId;
     private String sampleId;
+
     @NotNull
     private String patientId;
+
     @NotNull
     private String studyId;
+
     @NotNull
     private String attrId;
+
     private String attrValue;
     private ClinicalAttribute clinicalAttribute;
 

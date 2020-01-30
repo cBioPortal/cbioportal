@@ -4,9 +4,9 @@ import java.io.Serializable;
 import javax.validation.constraints.NotNull;
 
 public class GeneMolecularData extends MolecularData implements Serializable {
-
     @NotNull
     private Integer entrezGeneId;
+
     private Gene gene;
 
     public Integer getEntrezGeneId() {

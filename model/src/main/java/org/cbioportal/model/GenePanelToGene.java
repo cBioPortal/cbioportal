@@ -4,10 +4,11 @@ import java.io.Serializable;
 import javax.validation.constraints.NotNull;
 
 public class GenePanelToGene implements Serializable {
-    
     private String genePanelId;
+
     @NotNull
     private Integer entrezGeneId;
+
     @NotNull
     private String hugoGeneSymbol;
 

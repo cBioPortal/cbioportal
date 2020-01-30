@@ -4,29 +4,39 @@ import java.io.Serializable;
 import javax.validation.constraints.NotNull;
 
 public class Info implements Serializable {
-    
     @NotNull
     private String portalVersion;
+
     @NotNull
     private String dbVersion;
+
     @NotNull
     private String gitBranch;
+
     @NotNull
     private String gitCommitId;
+
     @NotNull
     private String gitCommitIdAbbrev;
+
     @NotNull
     private String gitCommitIdDescribe;
+
     @NotNull
     private String gitCommitIdDescribeShort;
+
     @NotNull
     private String gitCommitMessageFull;
+
     @NotNull
     private String gitCommitMessageShort;
+
     @NotNull
     private String gitCommitMessageUserEmail;
+
     @NotNull
     private String gitCommitMessageUserName;
+
     @NotNull
     private Boolean gitDirty;
 
@@ -109,7 +119,6 @@ public class Info implements Serializable {
     public void isGitDirty(Boolean gitDirty) {
         this.gitDirty = gitDirty;
     }
-
 
     public String getPortalVersion() {
         return portalVersion;

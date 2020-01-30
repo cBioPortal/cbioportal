@@ -3,17 +3,18 @@ package org.cbioportal.model;
 import java.io.Serializable;
 import java.math.BigDecimal;
 import java.util.List;
-
 import javax.validation.constraints.NotNull;
 
 public class AlterationEnrichment implements Serializable {
-
     @NotNull
     private Integer entrezGeneId;
+
     @NotNull
     private String hugoGeneSymbol;
+
     private String cytoband;
     private BigDecimal pValue;
+
     @NotNull
     private List<CountSummary> counts;
 
@@ -56,5 +57,4 @@ public class AlterationEnrichment implements Serializable {
     public void setCounts(List<CountSummary> counts) {
         this.counts = counts;
     }
-
 }

@@ -4,15 +4,18 @@ import java.io.Serializable;
 import javax.validation.constraints.NotNull;
 
 public class CopyNumberCount implements Serializable {
-    
     @NotNull
     private String molecularProfileId;
+
     @NotNull
     private Integer entrezGeneId;
+
     @NotNull
     private Integer alteration;
+
     @NotNull
     private Integer numberOfSamples;
+
     @NotNull
     private Integer numberOfSamplesWithAlterationInGene;
 
@@ -52,7 +55,10 @@ public class CopyNumberCount implements Serializable {
         return numberOfSamplesWithAlterationInGene;
     }
 
-    public void setNumberOfSamplesWithAlterationInGene(Integer numberOfSamplesWithAlterationInGene) {
-        this.numberOfSamplesWithAlterationInGene = numberOfSamplesWithAlterationInGene;
+    public void setNumberOfSamplesWithAlterationInGene(
+        Integer numberOfSamplesWithAlterationInGene
+    ) {
+        this.numberOfSamplesWithAlterationInGene =
+            numberOfSamplesWithAlterationInGene;
     }
 }

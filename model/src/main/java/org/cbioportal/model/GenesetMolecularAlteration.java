@@ -2,8 +2,9 @@ package org.cbioportal.model;
 
 import java.io.Serializable;
 
-public class GenesetMolecularAlteration extends MolecularAlteration implements Serializable {
-    
+public class GenesetMolecularAlteration
+    extends MolecularAlteration
+    implements Serializable {
     private String genesetId;
     private Geneset geneset;
 
@@ -14,7 +15,7 @@ public class GenesetMolecularAlteration extends MolecularAlteration implements S
     public void setGenesetId(String genesetId) {
         this.genesetId = genesetId;
     }
-    
+
     public Geneset getGeneset() {
         return geneset;
     }

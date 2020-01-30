@@ -4,8 +4,8 @@ import java.io.Serializable;
 import javax.validation.constraints.NotNull;
 
 public class SampleListToSampleId implements Serializable {
-    
     private Integer sampleListId;
+
     @NotNull
     private String sampleId;
 
@@ -17,11 +17,11 @@ public class SampleListToSampleId implements Serializable {
         this.sampleListId = sampleListId;
     }
 
-	public String getSampleId() {
-		return sampleId;
-	}
+    public String getSampleId() {
+        return sampleId;
+    }
 
-	public void setSampleId(String sampleId) {
-		this.sampleId = sampleId;
-	}
+    public void setSampleId(String sampleId) {
+        this.sampleId = sampleId;
+    }
 }

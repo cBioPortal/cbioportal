@@ -28,7 +28,7 @@
  *
  * You should have received a copy of the GNU Affero General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
-*/
+ */
 
 package org.cbioportal.model;
 
@@ -36,7 +36,7 @@ import java.io.Serializable;
 
 /**
  * This represents a user, identified by an email address.
- * 
+ *
  * @author Arthur Goldberg goldberg@cbio.mskcc.org
  * @author Benjamin Gross
  */
@@ -47,11 +47,11 @@ public class User implements Serializable {
 
     public User(String email, String name, boolean enabled) {
         if (null == email) {
-            throw new IllegalArgumentException ("email is null.");
+            throw new IllegalArgumentException("email is null.");
         }
         this.email = email;
         if (null == name) {
-            throw new IllegalArgumentException ("name is null.");
+            throw new IllegalArgumentException("name is null.");
         }
         this.name = name;
         this.enabled = enabled;
@@ -90,14 +90,13 @@ public class User implements Serializable {
         if (this == otherUser) {
             return true;
         }
-                
+
         if (!(otherUser instanceof User)) {
             return false;
         }
-                
+
         User that = (User) otherUser;
-        return this.email == that.email
-            && this.name == that.name;
+        return this.email == that.email && this.name == that.name;
     }
 
     @Override

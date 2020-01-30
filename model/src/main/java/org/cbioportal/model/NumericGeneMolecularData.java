@@ -1,22 +1,26 @@
 package org.cbioportal.model;
 
 import java.math.BigDecimal;
-
 import javax.validation.constraints.NotNull;
 
 public class NumericGeneMolecularData extends UniqueKeyBase {
-
     @NotNull
     private Integer entrezGeneId;
+
     private Gene gene;
+
     @NotNull
     private String molecularProfileId;
+
     @NotNull
     private String sampleId;
+
     @NotNull
     private String patientId;
+
     @NotNull
     private String studyId;
+
     @NotNull
     private BigDecimal value;
 

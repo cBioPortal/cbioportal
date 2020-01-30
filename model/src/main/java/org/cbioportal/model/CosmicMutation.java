@@ -4,12 +4,14 @@ import java.io.Serializable;
 import javax.validation.constraints.NotNull;
 
 public class CosmicMutation implements Serializable {
-
     @NotNull
     private String cosmicMutationId;
+
     @NotNull
     private String proteinChange;
+
     private String keyword;
+
     @NotNull
     private Integer count;
 

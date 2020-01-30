@@ -3,7 +3,6 @@ package org.cbioportal.model;
 import java.io.Serializable;
 
 public abstract class UniqueKeyBase implements Serializable {
-    
     private String uniqueSampleKey;
     private String uniquePatientKey;
 

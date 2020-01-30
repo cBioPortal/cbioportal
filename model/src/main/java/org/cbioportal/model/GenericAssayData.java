@@ -4,7 +4,6 @@ import java.io.Serializable;
 import javax.validation.constraints.NotNull;
 
 public class GenericAssayData extends MolecularData implements Serializable {
-
     @NotNull
     private String genericAssayStableId;
 
@@ -22,8 +21,8 @@ public class GenericAssayData extends MolecularData implements Serializable {
         this.genericAssayStableId = genericAssayStableId;
     }
 
-	@Override
-	public String getStableId() {
-		return genericAssayStableId;
-	}
+    @Override
+    public String getStableId() {
+        return genericAssayStableId;
+    }
 }

@@ -6,22 +6,29 @@ import java.util.List;
 import javax.validation.constraints.NotNull;
 
 public class Gistic implements Serializable {
-    
     private Long gisticRoiId;
+
     @NotNull
     private String cancerStudyId;
+
     @NotNull
     private Integer chromosome;
+
     @NotNull
     private String cytoband;
+
     @NotNull
     private Integer widePeakStart;
+
     @NotNull
     private Integer widePeakEnd;
+
     @NotNull
     private BigDecimal qValue;
+
     @NotNull
     private Boolean amp;
+
     private List<GisticToGene> genes;
 
     public Long getGisticRoiId() {

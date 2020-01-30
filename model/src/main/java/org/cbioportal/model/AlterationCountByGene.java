@@ -5,7 +5,6 @@ import java.math.BigDecimal;
 import java.util.Set;
 
 public class AlterationCountByGene implements Serializable {
-
     private Integer entrezGeneId;
     private String hugoGeneSymbol;
     private Integer numberOfAlteredCases;
@@ -45,7 +44,7 @@ public class AlterationCountByGene implements Serializable {
     public void setTotalCount(Integer totalCount) {
         this.totalCount = totalCount;
     }
-    
+
     public Integer getNumberOfProfiledCases() {
         return numberOfProfiledCases;
     }

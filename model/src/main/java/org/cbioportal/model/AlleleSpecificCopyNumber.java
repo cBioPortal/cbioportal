@@ -3,7 +3,6 @@ package org.cbioportal.model;
 import java.io.Serializable;
 
 public class AlleleSpecificCopyNumber implements Serializable {
-
     private Integer ascnIntegerCopyNumber;
     private String ascnMethod;
     private Float ccfMCopiesUpper;
@@ -76,4 +75,4 @@ public class AlleleSpecificCopyNumber implements Serializable {
     public void setTotalCopyNumber(Integer totalCopyNumber) {
         this.totalCopyNumber = totalCopyNumber;
     }
-} 
+}

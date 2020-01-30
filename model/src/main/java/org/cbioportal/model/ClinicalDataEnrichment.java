@@ -2,17 +2,18 @@ package org.cbioportal.model;
 
 import java.io.Serializable;
 import java.math.BigDecimal;
-
 import javax.validation.constraints.NotNull;
 
 public class ClinicalDataEnrichment implements Serializable {
-
     @NotNull
     private ClinicalAttribute clinicalAttribute;
+
     @NotNull
     private BigDecimal score;
+
     @NotNull
     private String method;
+
     @NotNull
     private BigDecimal pValue;
 
@@ -47,5 +48,4 @@ public class ClinicalDataEnrichment implements Serializable {
     public void setpValue(BigDecimal pValue) {
         this.pValue = pValue;
     }
-
 }

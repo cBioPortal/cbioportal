@@ -3,7 +3,6 @@ package org.cbioportal.model;
 import java.io.Serializable;
 
 public class ClinicalAttributeCount implements Serializable {
-
     private String attrId;
     private Integer count;
 
@@ -15,11 +14,11 @@ public class ClinicalAttributeCount implements Serializable {
         this.attrId = attrId;
     }
 
-	public Integer getCount() {
-		return count;
-	}
+    public Integer getCount() {
+        return count;
+    }
 
-	public void setCount(Integer count) {
-		this.count = count;
-	}
+    public void setCount(Integer count) {
+        this.count = count;
+    }
 }

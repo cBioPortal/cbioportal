@@ -5,10 +5,11 @@ import java.util.Date;
 import javax.validation.constraints.NotNull;
 
 public class CancerStudy implements Serializable {
-
     private Integer cancerStudyId;
+
     @NotNull
     private String cancerStudyIdentifier;
+
     private String typeOfCancerId;
     private String name;
     private String shortName;
@@ -180,7 +181,9 @@ public class CancerStudy implements Serializable {
         return mrnaMicroarraySampleCount;
     }
 
-    public void setMrnaMicroarraySampleCount(Integer mrnaMicroarraySampleCount) {
+    public void setMrnaMicroarraySampleCount(
+        Integer mrnaMicroarraySampleCount
+    ) {
         this.mrnaMicroarraySampleCount = mrnaMicroarraySampleCount;
     }
 
@@ -196,7 +199,9 @@ public class CancerStudy implements Serializable {
         return methylationHm27SampleCount;
     }
 
-    public void setMethylationHm27SampleCount(Integer methylationHm27SampleCount) {
+    public void setMethylationHm27SampleCount(
+        Integer methylationHm27SampleCount
+    ) {
         this.methylationHm27SampleCount = methylationHm27SampleCount;
     }
 
@@ -215,8 +220,12 @@ public class CancerStudy implements Serializable {
     public void setCompleteSampleCount(Integer completeSampleCount) {
         this.completeSampleCount = completeSampleCount;
     }
-    
-    public String getReferenceGenome() { return  referenceGenome; }
-    
-    public void setReferenceGenome(String referenceGenome) { this.referenceGenome = referenceGenome; }
+
+    public String getReferenceGenome() {
+        return referenceGenome;
+    }
+
+    public void setReferenceGenome(String referenceGenome) {
+        this.referenceGenome = referenceGenome;
+    }
 }

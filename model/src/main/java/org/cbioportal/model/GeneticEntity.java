@@ -1,9 +1,8 @@
 package org.cbioportal.model;
 
-import java.io.Serializable;  
+import java.io.Serializable;
 
 public class GeneticEntity implements Serializable {
-
     private int id;
     private String stableId;
     private String entityType;
@@ -48,7 +47,7 @@ public class GeneticEntity implements Serializable {
         this.id = id;
     }
 
-	/**
+    /**
      * @return the stableId
      */
     public String getStableId() {

@@ -2,8 +2,9 @@ package org.cbioportal.model;
 
 import java.io.Serializable;
 
-public class GenericAssayMolecularAlteration extends MolecularAlteration implements Serializable {
-    
+public class GenericAssayMolecularAlteration
+    extends MolecularAlteration
+    implements Serializable {
     private String molecularProfileId;
     private String genericAssayStableId;
 
@@ -35,8 +36,8 @@ public class GenericAssayMolecularAlteration extends MolecularAlteration impleme
         this.molecularProfileId = molecularProfileId;
     }
 
-	@Override
-	public String getStableId() {
-		return genericAssayStableId;
-	}
+    @Override
+    public String getStableId() {
+        return genericAssayStableId;
+    }
 }

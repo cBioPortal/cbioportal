@@ -3,9 +3,9 @@ package org.cbioportal.model;
 import javax.validation.constraints.NotNull;
 
 public class MolecularProfileCaseIdentifier {
-
     @NotNull
     private String molecularProfileId;
+
     @NotNull
     private String caseId;
 
@@ -24,5 +24,4 @@ public class MolecularProfileCaseIdentifier {
     public void setCaseId(String caseId) {
         this.caseId = caseId;
     }
-
 }

@@ -5,7 +5,6 @@ import javax.validation.constraints.NotNull;
 public class Sample extends UniqueKeyBase {
 
     public enum SampleType {
-
         PRIMARY_SOLID_TUMOR("Primary Solid Tumor"),
         RECURRENT_SOLID_TUMOR("Recurrent Solid Tumor"),
         PRIMARY_BLOOD_TUMOR("Primary Blood Tumor"),
@@ -25,7 +24,6 @@ public class Sample extends UniqueKeyBase {
         }
 
         public static SampleType fromString(String value) {
-
             if (value != null) {
                 for (SampleType sampleType : SampleType.values()) {
                     if (value.equalsIgnoreCase(sampleType.value)) {
@@ -43,15 +41,21 @@ public class Sample extends UniqueKeyBase {
     }
 
     private Integer internalId;
+
     @NotNull
     private String stableId;
+
     private SampleType sampleType;
     private Integer patientId;
+
     @NotNull
     private String patientStableId;
+
     private Patient patient;
+
     @NotNull
     private String cancerStudyIdentifier;
+
     private Boolean sequenced;
     private Boolean copyNumberSegmentPresent;
     private Boolean profiledForFusions;
@@ -120,13 +124,19 @@ public class Sample extends UniqueKeyBase {
         this.sequenced = sequenced;
     }
 
-    public Boolean getCopyNumberSegmentPresent() { return copyNumberSegmentPresent; }
+    public Boolean getCopyNumberSegmentPresent() {
+        return copyNumberSegmentPresent;
+    }
 
     public void setCopyNumberSegmentPresent(Boolean copyNumberSegmentPresent) {
         this.copyNumberSegmentPresent = copyNumberSegmentPresent;
     }
 
-    public Boolean getProfiledForFusions() { return profiledForFusions; }
+    public Boolean getProfiledForFusions() {
+        return profiledForFusions;
+    }
 
-    public void setProfiledForFusions(Boolean profiledForFusions) { this.profiledForFusions = profiledForFusions; }
+    public void setProfiledForFusions(Boolean profiledForFusions) {
+        this.profiledForFusions = profiledForFusions;
+    }
 }

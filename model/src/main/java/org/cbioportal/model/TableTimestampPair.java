@@ -1,11 +1,12 @@
 package org.cbioportal.model;
 
-import javax.validation.constraints.NotNull;
 import java.io.Serializable;
+import javax.validation.constraints.NotNull;
 
 public class TableTimestampPair implements Serializable {
     @NotNull
     private String tableName;
+
     private String updateTime;
 
     public String getUpdateTime() {

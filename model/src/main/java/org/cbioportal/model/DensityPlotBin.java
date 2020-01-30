@@ -4,7 +4,6 @@ import java.io.Serializable;
 import java.math.BigDecimal;
 
 public class DensityPlotBin implements Serializable {
-
     private Integer count;
     private BigDecimal binX;
     private BigDecimal binY;

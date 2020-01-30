@@ -19,14 +19,12 @@ package org.cbioportal.model;
 
 import java.util.Date;
 
-
 /**
  * This represents the reference genome used by molecular profiling
  *
  * @author Kelsey Zhu
  */
 public class ReferenceGenome {
-
     private int referenceGenomeId; // assigned by DB, auto increment sequence number
     private String genomeName;
     private String species;
@@ -46,9 +44,13 @@ public class ReferenceGenome {
      * Constructor.
      * @param genomeName        Name of the reference genome.
      * @param species           Species of the reference genome.
-     * @param buildName         Name of genome assembly      
+     * @param buildName         Name of genome assembly
      */
-    public ReferenceGenome(String genomeName, String species, String buildName) {
+    public ReferenceGenome(
+        String genomeName,
+        String species,
+        String buildName
+    ) {
         super();
         this.genomeName = genomeName;
         this.species = species;
@@ -62,10 +64,16 @@ public class ReferenceGenome {
      * @param buildName         Name of genome assembly
      * @param genomeSize        Effective genome size
      * @param url               URL to download reference genome
-     * @param releaseDate       Date genome assembly released            
+     * @param releaseDate       Date genome assembly released
      */
-    public ReferenceGenome(String genomeName, String species, String buildName,
-                           Long genomeSize, String url, Date releaseDate) {
+    public ReferenceGenome(
+        String genomeName,
+        String species,
+        String buildName,
+        Long genomeSize,
+        String url,
+        Date releaseDate
+    ) {
         super();
         this.genomeName = genomeName;
         this.species = species;
@@ -103,7 +111,7 @@ public class ReferenceGenome {
         this.buildName = buildName;
     }
 
-    public String getBuildName () {
+    public String getBuildName() {
         return this.buildName;
     }
 
@@ -147,19 +155,27 @@ public class ReferenceGenome {
         }
 
         ReferenceGenome that = (ReferenceGenome) otherReferenceGenome;
-        return
+        return (
             (this.genomeName).equals(that.genomeName) &&
-                (this.species).equals(that.species) &&
-                (this.buildName).equals(that.buildName);
+            (this.species).equals(that.species) &&
+            (this.buildName).equals(that.buildName)
+        );
     }
 
     @Override
     public int hashCode() {
         int result = 3;
         result = 31 * result + this.referenceGenomeId;
-        result = 31 * result + (this.genomeName != null ? this.genomeName.hashCode() : 0);
-        result = 31 * result + (this.buildName != null ? this.buildName.hashCode() : 0);
-        result = 31 * result + (this.species != null ? this.species.hashCode() : 0);
+        result =
+            31 *
+            result +
+            (this.genomeName != null ? this.genomeName.hashCode() : 0);
+        result =
+            31 *
+            result +
+            (this.buildName != null ? this.buildName.hashCode() : 0);
+        result =
+            31 * result + (this.species != null ? this.species.hashCode() : 0);
         return result;
     }
 
@@ -169,8 +185,16 @@ public class ReferenceGenome {
      */
     @Override
     public String toString() {
-        return "Reference Genome [referenceGenomeID=" + referenceGenomeId + ", genomeName=" + genomeName + ", species="
-            + species + ", buildName=" + buildName + "]";
+        return (
+            "Reference Genome [referenceGenomeID=" +
+            referenceGenomeId +
+            ", genomeName=" +
+            genomeName +
+            ", species=" +
+            species +
+            ", buildName=" +
+            buildName +
+            "]"
+        );
     }
-
 }

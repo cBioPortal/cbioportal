@@ -3,10 +3,9 @@ package org.cbioportal.model;
 import java.io.Serializable;
 
 public class GenesetCorrelation implements Serializable {
-
-	private Integer entrezGeneId;
+    private Integer entrezGeneId;
     private String hugoGeneSymbol;
-	private Double correlationValue;
+    private Double correlationValue;
     private String expressionMolecularProfileId;
     private String zScoreMolecularProfileId;
 
@@ -18,14 +17,14 @@ public class GenesetCorrelation implements Serializable {
         this.entrezGeneId = entrezGeneId;
     }
 
-	public String getHugoGeneSymbol() {
-		return hugoGeneSymbol;
-	}
+    public String getHugoGeneSymbol() {
+        return hugoGeneSymbol;
+    }
 
-	public void setHugoGeneSymbol(String hugoGeneSymbol) {
-		this.hugoGeneSymbol = hugoGeneSymbol;
-	}
-	
+    public void setHugoGeneSymbol(String hugoGeneSymbol) {
+        this.hugoGeneSymbol = hugoGeneSymbol;
+    }
+
     public Double getCorrelationValue() {
         return correlationValue;
     }
@@ -38,7 +37,9 @@ public class GenesetCorrelation implements Serializable {
         return expressionMolecularProfileId;
     }
 
-    public void setExpressionMolecularProfileId(String expressionMolecularProfileId) {
+    public void setExpressionMolecularProfileId(
+        String expressionMolecularProfileId
+    ) {
         this.expressionMolecularProfileId = expressionMolecularProfileId;
     }
 

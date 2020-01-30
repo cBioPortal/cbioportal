@@ -3,15 +3,18 @@ package org.cbioportal.model;
 import javax.validation.constraints.NotNull;
 
 public abstract class MolecularData extends UniqueKeyBase {
-
     @NotNull
     private String molecularProfileId;
+
     @NotNull
     private String sampleId;
+
     @NotNull
     private String patientId;
+
     @NotNull
     private String studyId;
+
     @NotNull
     private String value;
 

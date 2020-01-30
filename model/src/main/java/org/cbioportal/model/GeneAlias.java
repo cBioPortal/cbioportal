@@ -3,7 +3,6 @@ package org.cbioportal.model;
 import java.io.Serializable;
 
 public class GeneAlias implements Serializable {
-    
     private Integer entrezGeneId;
     private String geneAlias;
 

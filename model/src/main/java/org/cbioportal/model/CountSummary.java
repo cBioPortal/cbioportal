@@ -1,7 +1,6 @@
 package org.cbioportal.model;
 
 import java.io.Serializable;
-
 import javax.validation.constraints.NotNull;
 
 /**
@@ -9,11 +8,12 @@ import javax.validation.constraints.NotNull;
  * @author ochoaa
  */
 public class CountSummary implements Serializable {
-
     @NotNull
     private String name;
+
     @NotNull
     private Integer alteredCount;
+
     @NotNull
     private Integer profiledCount;
 
@@ -40,5 +40,4 @@ public class CountSummary implements Serializable {
     public void setProfiledCount(Integer profiledCount) {
         this.profiledCount = profiledCount;
     }
-
 }

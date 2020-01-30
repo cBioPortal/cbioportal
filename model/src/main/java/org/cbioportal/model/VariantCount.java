@@ -4,16 +4,20 @@ import java.io.Serializable;
 import javax.validation.constraints.NotNull;
 
 public class VariantCount implements Serializable {
-    
     @NotNull
     private String molecularProfileId;
+
     @NotNull
     private Integer entrezGeneId;
+
     private String keyword;
+
     @NotNull
     private Integer numberOfSamples;
+
     @NotNull
     private Integer numberOfSamplesWithMutationInGene;
+
     @NotNull
     private Integer numberOfSamplesWithKeyword;
 
@@ -53,15 +57,20 @@ public class VariantCount implements Serializable {
         return numberOfSamplesWithMutationInGene;
     }
 
-    public void setNumberOfSamplesWithMutationInGene(Integer numberOfSamplesWithMutationInGene) {
-        this.numberOfSamplesWithMutationInGene = numberOfSamplesWithMutationInGene;
+    public void setNumberOfSamplesWithMutationInGene(
+        Integer numberOfSamplesWithMutationInGene
+    ) {
+        this.numberOfSamplesWithMutationInGene =
+            numberOfSamplesWithMutationInGene;
     }
 
     public Integer getNumberOfSamplesWithKeyword() {
         return numberOfSamplesWithKeyword;
     }
 
-    public void setNumberOfSamplesWithKeyword(Integer numberOfSamplesWithKeyword) {
+    public void setNumberOfSamplesWithKeyword(
+        Integer numberOfSamplesWithKeyword
+    ) {
         this.numberOfSamplesWithKeyword = numberOfSamplesWithKeyword;
     }
 }

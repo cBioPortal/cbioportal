@@ -4,7 +4,6 @@ import java.io.Serializable;
 import java.math.BigDecimal;
 
 public class DataBin implements Serializable {
-
     private String attributeId;
     private String specialValue;
     private BigDecimal start;
@@ -12,12 +11,12 @@ public class DataBin implements Serializable {
     private Integer count;
 
     public String getAttributeId() {
-		return attributeId;
-	}
+        return attributeId;
+    }
 
-	public void setAttributeId(String attributeId) {
-		this.attributeId = attributeId;
-	}
+    public void setAttributeId(String attributeId) {
+        this.attributeId = attributeId;
+    }
 
     public String getSpecialValue() {
         return specialValue;
@@ -44,10 +43,10 @@ public class DataBin implements Serializable {
     }
 
     public Integer getCount() {
-		return count;
-	}
+        return count;
+    }
 
-	public void setCount(Integer count) {
-		this.count = count;
-	}
+    public void setCount(Integer count) {
+        this.count = count;
+    }
 }

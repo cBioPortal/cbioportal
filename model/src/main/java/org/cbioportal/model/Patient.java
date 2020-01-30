@@ -3,13 +3,16 @@ package org.cbioportal.model;
 import javax.validation.constraints.NotNull;
 
 public class Patient extends UniqueKeyBase {
-
     private Integer internalId;
+
     @NotNull
     private String stableId;
+
     private Integer cancerStudyId;
+
     @NotNull
     private String cancerStudyIdentifier;
+
     private CancerStudy cancerStudy;
 
     public Integer getInternalId() {

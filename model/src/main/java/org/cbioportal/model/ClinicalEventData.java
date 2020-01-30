@@ -4,10 +4,11 @@ import java.io.Serializable;
 import javax.validation.constraints.NotNull;
 
 public class ClinicalEventData implements Serializable {
-    
     private Integer clinicalEventId;
+
     @NotNull
     private String key;
+
     @NotNull
     private String value;
 

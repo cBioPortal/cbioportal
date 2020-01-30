@@ -1,7 +1,6 @@
 package org.cbioportal.model.meta;
 
 public class MutationMeta extends BaseMeta {
-    
     private Integer sampleCount;
 
     public Integer getSampleCount() {

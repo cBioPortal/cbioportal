@@ -2,14 +2,14 @@ package org.cbioportal.model;
 
 import java.io.Serializable;
 import java.util.List;
-
 import javax.validation.constraints.NotNull;
 
 public class SampleList implements Serializable {
-    
     private Integer listId;
+
     @NotNull
     private String stableId;
+
     private String category;
     private Integer cancerStudyId;
     private String cancerStudyIdentifier;
@@ -18,7 +18,7 @@ public class SampleList implements Serializable {
     private String description;
     private Integer sampleCount;
     private List<String> sampleIds;
-    
+
     public Integer getListId() {
         return listId;
     }
@@ -91,11 +91,11 @@ public class SampleList implements Serializable {
         this.sampleCount = sampleCount;
     }
 
-	public List<String> getSampleIds() {
-		return sampleIds;
-	}
+    public List<String> getSampleIds() {
+        return sampleIds;
+    }
 
-	public void setSampleIds(List<String> sampleIds) {
-		this.sampleIds = sampleIds;
-	}
+    public void setSampleIds(List<String> sampleIds) {
+        this.sampleIds = sampleIds;
+    }
 }

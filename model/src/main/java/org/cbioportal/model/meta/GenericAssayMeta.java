@@ -1,17 +1,16 @@
 package org.cbioportal.model.meta;
 
 import java.io.Serializable;
-import java.util.HashMap;   
+import java.util.HashMap;
 
 public class GenericAssayMeta implements Serializable {
-    
     private String stableId;
     private String entityType;
     private HashMap<String, String> genericEntityMetaProperties;
 
     /**
      * Create a generic assay meta object from fields
-     * 
+     *
      * @param entityType                  Type of the generic assay meta
      * @param stableId                    Stable identifier of the generic assay
      *                                    meta used in the cBioPortal instance
@@ -30,13 +29,17 @@ public class GenericAssayMeta implements Serializable {
         this.genericEntityMetaProperties = new HashMap<>();
     }
 
-    public GenericAssayMeta(String entityType, String stableId, HashMap<String, String> genericEntityMetaProperties) {
+    public GenericAssayMeta(
+        String entityType,
+        String stableId,
+        HashMap<String, String> genericEntityMetaProperties
+    ) {
         this.entityType = entityType;
         this.stableId = stableId;
         this.genericEntityMetaProperties = genericEntityMetaProperties;
     }
 
-	/**
+    /**
      * @return the stableId
      */
     public String getStableId() {
@@ -70,11 +73,13 @@ public class GenericAssayMeta implements Serializable {
     public HashMap<String, String> getGenericEntityMetaProperties() {
         return genericEntityMetaProperties;
     }
-    
+
     /**
      * @param genericEntityMetaProperties the genericEntityMetaProperties to set
      */
-    public void setGenericEntityMetaProperties(HashMap<String, String> genericEntityMetaProperties) {
+    public void setGenericEntityMetaProperties(
+        HashMap<String, String> genericEntityMetaProperties
+    ) {
         this.genericEntityMetaProperties = genericEntityMetaProperties;
     }
 }

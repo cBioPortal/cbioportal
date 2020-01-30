@@ -4,13 +4,15 @@ import java.io.Serializable;
 import javax.validation.constraints.NotNull;
 
 public class MutationCountByPosition implements Serializable {
-    
     @NotNull
     private Integer entrezGeneId;
+
     @NotNull
     private Integer proteinPosStart;
+
     @NotNull
     private Integer proteinPosEnd;
+
     @NotNull
     private Integer count;
 

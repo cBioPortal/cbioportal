@@ -3,16 +3,20 @@ package org.cbioportal.model;
 import javax.validation.constraints.NotNull;
 
 public class GenePanelData extends UniqueKeyBase {
-    
     @NotNull
     private String molecularProfileId;
+
     @NotNull
     private String sampleId;
+
     @NotNull
     private String patientId;
+
     @NotNull
     private String studyId;
+
     private String genePanelId;
+
     @NotNull
     private Boolean profiled;
 
@@ -56,11 +60,11 @@ public class GenePanelData extends UniqueKeyBase {
         this.genePanelId = genePanelId;
     }
 
-	public Boolean getProfiled() {
-		return profiled;
-	}
+    public Boolean getProfiled() {
+        return profiled;
+    }
 
-	public void setProfiled(Boolean profiled) {
-		this.profiled = profiled;
-	}
+    public void setProfiled(Boolean profiled) {
+        this.profiled = profiled;
+    }
 }

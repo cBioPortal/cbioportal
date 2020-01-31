@@ -10,14 +10,10 @@ cache:
   - $HOME/maven
 env:
   matrix:
-  - 
-  =3.5.4 TEST=core
-  - 
-  =3.5.4 TEST=python-validator
-  - 
-  =3.5.4 TEST=sanity-checks
-  - 
-  =3.5.4 TEST=end-to-end
+  - MAVEN_VERSION=3.5.4 TEST=core
+  - MAVEN_VERSION=3.5.4 TEST=python-validator
+  - MAVEN_VERSION=3.5.4 TEST=sanity-checks
+  - MAVEN_VERSION=3.5.4 TEST=end-to-end
 install:
 - |
   if [[ "${TEST}" == core || "${TEST}" == end-to-end ]]

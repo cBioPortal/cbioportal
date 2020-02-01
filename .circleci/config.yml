@@ -167,12 +167,6 @@ jobs:
     prettier:
         <<: *defaults
         working_directory: /tmp/repos/cbioportal-frontend
-        parameters:
-            arguments:
-              default: '''./**.java'''
-              description: |
-                Arguments to pass to prettier.
-              type: string
         steps:
             - attach_workspace:
                 at: /tmp/repos
@@ -184,7 +178,7 @@ jobs:
             - run:
                 name: 'Checking code with Prettier'
                 command: |
-                    prettier --write <<parameters.arguments>>
+                    prettier --write "**/*.java"
 
 
 workflows:

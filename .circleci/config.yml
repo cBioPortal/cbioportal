@@ -189,9 +189,6 @@ workflows:
                 requires:
                     - pull_frontend_codebase
                     - install_yarn
-
-    install_and_test:
-        jobs:
             - prettier:
                 requires:
                     - install

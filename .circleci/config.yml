@@ -166,15 +166,16 @@ jobs:
 
     prettier:
         <<: *defaults
+        working_directory: /tmp/repos/cbioportal-frontend
         steps:
-        - attach_workspace:
-            at: /tmp/
-        - run:
-            name: 'Check code style with Prettier'
-            command: |
-                cd /tmp/repo/ && yarn global add prettier
-                yarn global add prettier-plugin-java
-                prettier --write "**/*.java" --plugin=./node_modules/prettier-plugin-java
+            - attach_workspace:
+                at: /tmp/repos
+            - run:
+                name: 'Check code style with Prettier'
+                command: |
+                    cd /tmp/repo/ && yarn global add prettier
+                    yarn global add prettier-plugin-java
+                    prettier --write "**/*.java" --plugin=./node_modules/prettier-plugin-java
 
 
 workflows:

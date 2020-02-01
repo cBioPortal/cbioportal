@@ -192,7 +192,6 @@ workflows:
 
     install_and_test:
         jobs:
-            - install
             - prettier:
                 requires:
                     - install

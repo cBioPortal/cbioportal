@@ -173,7 +173,7 @@ jobs:
             - run:
                 name: 'Check code style with Prettier'
                 command: |
-                    cd /tmp/repo/ && yarn global add prettier
+                    yarn global add prettier
                     yarn global add prettier-plugin-java
                     prettier --write "**/*.java" --plugin=./node_modules/prettier-plugin-java
 

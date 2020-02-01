@@ -189,10 +189,13 @@ workflows:
                 requires:
                     - pull_frontend_codebase
                     - install_yarn
-            - install       
+
+    install_and_test:
+        jobs:
+            - pull_frontend_codebase
             - prettier:
                 requires:
-                    - install
+                    - pull_frontend_codebase
                 filters:
                     branches:
                         ignore:

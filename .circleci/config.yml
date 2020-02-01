@@ -164,6 +164,18 @@ jobs:
             FRONTEND_TEST_USE_LOCAL_DIST: true
             NO_PARALLEL: true
 
+    prettier:
+        <<: *defaults
+        steps:
+        - attach_workspace:
+            at: /tmp/
+        - run:
+            name: 'Check code style with Prettier'
+            command: |
+                cd /tmp/repo/ && yarn global add prettier
+                yarn global add prettier-plugin-java
+                prettier --write "**/*.java" --plugin=./node_modules/prettier-plugin-java
+
 
 workflows:
     version: 2
@@ -177,3 +189,16 @@ workflows:
                 requires:
                     - pull_frontend_codebase
                     - install_yarn
+
+    install_and_test:
+        jobs:
+            - install
+            - prettier:
+                requires:
+                    - install
+                filters:
+                    branches:
+                        ignore:
+                            - master
+                            - release-*
+                            - rc

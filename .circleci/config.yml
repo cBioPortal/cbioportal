@@ -175,7 +175,6 @@ jobs:
                 command: |
                     yarn global add prettier
                     yarn global add prettier-plugin-java
-                    prettier --write "**/*.java" --plugin=./node_modules/prettier-plugin-java
             - run:
                 name: 'Checking code with Prettier'
                 command: |

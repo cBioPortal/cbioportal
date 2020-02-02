@@ -191,7 +191,6 @@ workflows:
     install_and_test:
         jobs:
             - pull_frontend_codebase
-            - install_yarn
             - prettier:
                 requires:
                     - pull_frontend_codebase

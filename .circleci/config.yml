@@ -178,7 +178,7 @@ jobs:
             - run:
                 name: 'Checking code with Prettier'
                 command: |
-                    prettier --write "**/*.java"
+                    yarn run prettier --write "**/*.java"
 
 
 workflows:

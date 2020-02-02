@@ -169,10 +169,10 @@ jobs:
         working_directory: /tmp/repos/cbioportal-frontend
         steps:
             - attach_workspace:
-                at: /tmp
+                at: /tmp/repos
             - run:
                 name: 'Check code style with Prettier'
-                command: cd /tmp/repos/ && yarn run prettierCheckCircleCI
+                command: yarn run prettierCheckCircleCI
 
 
 workflows:
@@ -191,6 +191,9 @@ workflows:
     install_and_test:
         jobs:
             - pull_frontend_codebase
+            - install_yarn:
+                requires:
+                    - pull_frontend_codebase
             - prettier:
                 requires:
                     - pull_frontend_codebase

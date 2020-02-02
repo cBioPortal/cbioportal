@@ -170,9 +170,16 @@ jobs:
         steps:
             - attach_workspace:
                 at: /tmp/repos
-            - run:
-                name: 'Check code style with Prettier'
-                command: cd /tmp/repos/cbioportal-frontend && yarn run prettierCheckCircleCI
+                - run:
+                    name: 'Installing Prettier'
+                    command: |
+                        yarn global add prettier
+                        yarn global add prettier-plugin-java
+                - run:
+                    name: 'Checking code with Prettier'
+                    command: |
+                        cd /tmp/repos/cbioportal-frontend
+                        prettier --write "**/*.java"
 
 
 workflows:

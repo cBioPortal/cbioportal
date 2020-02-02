@@ -172,7 +172,7 @@ jobs:
                 at: /tmp/repos
             - run:
                 name: 'Check code style with Prettier'
-                command: yarn run prettierCheckCircleCI
+                command: cd /tmp/repos/cbioportal-frontend && yarn run prettierCheckCircleCI
 
 
 workflows:

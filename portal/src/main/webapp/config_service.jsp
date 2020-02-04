@@ -105,7 +105,9 @@
             "bitly.user",
             "bitly.access.token",
             "oncoprint.custom_driver_annotation.tiers.default",
-            "ensembl.transcript_url"
+            "ensembl.transcript_url",
+            "enable_persistent_cache",
+            "query_product_limit"  
            
         }; 
     

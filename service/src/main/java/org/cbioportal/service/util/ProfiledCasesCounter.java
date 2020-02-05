@@ -16,14 +16,12 @@ public class ProfiledCasesCounter {
 
     public void calculate(List<String> molecularProfileIds, List<String> sampleIds,
             List<? extends AlterationCountByGene> alterationCounts, boolean countByPatients) {
-
         List<GenePanelData> genePanelDataList = genePanelService
                 .fetchGenePanelDataInMultipleMolecularProfiles(molecularProfileIds, sampleIds);
-        Map<String, List<GenePanelData>> genePanelDataMap = genePanelDataList.stream()
-                .filter(g -> g.getGenePanelId() != null).collect(Collectors.groupingBy(GenePanelData::getGenePanelId));
+        Map<String, Set<String>> casesWithDataInGenePanel = extractCasesWithDataInGenePanel(genePanelDataList, countByPatients);
         List<GenePanel> genePanels = new ArrayList<>();
-        if (!genePanelDataMap.isEmpty()) {
-            genePanels = genePanelService.fetchGenePanels(new ArrayList<>(genePanelDataMap.keySet()), "DETAILED");
+        if (!casesWithDataInGenePanel.isEmpty()) {
+            genePanels = genePanelService.fetchGenePanels(new ArrayList<>(casesWithDataInGenePanel.keySet()), "DETAILED");
         }
 
         Map<Integer, List<GenePanel>> geneGenePanelMap = new HashMap<>();
@@ -48,42 +46,59 @@ public class ProfiledCasesCounter {
         Set<String> profiledCases = profiled
                 .stream()
                 // there can be duplicate patient or sample id, append study id
-                .map(x -> x.getStudyId() + (countByPatients ? x.getPatientId() : x.getSampleId()))
+                .map(x -> computeUniqueCaseId(x, countByPatients))
                 .collect(Collectors.toSet());
+        int profiledCasesCount = profiledCases.size();
 
         Set<String> casesWithoutPanelData = profiled
                 .stream()
                 .filter(g -> g.getGenePanelId() == null)
                 // there can be duplicate patient or sample id, append study id
-                .map(x -> x.getStudyId() + (countByPatients ? x.getPatientId() : x.getSampleId()))
+                .map(x -> computeUniqueCaseId(x, countByPatients))
                 .collect(Collectors.toSet());
 
         for (AlterationCountByGene alterationCountByGene : alterationCounts) {
-            final Set<String> profiledCasesForGene = new HashSet<String>();
             Integer entrezGeneId = alterationCountByGene.getEntrezGeneId();
-            List<GenePanel> allPanels = new ArrayList<>();
-            
+
+            Set<String> totalProfiledCases = new HashSet<String>();
+            Set<String> allMatchingGenePanelIds = new HashSet<String>();
+            // different calculations depending on if gene is linked to gene panels
             if (geneGenePanelMap.containsKey(entrezGeneId)) {
-                geneGenePanelMap.get(entrezGeneId).forEach(genePanel -> {
-                    Set<String> casesWithPanelData = genePanelDataMap
-                            .get(genePanel.getStableId())
-                            .stream()
-                            // there can be duplicate patient or sample id, append study id
-                            .map(x -> x.getStudyId() + (countByPatients ? x.getPatientId() : x.getSampleId()))
-                            .collect(Collectors.toSet());
-                    profiledCasesForGene.addAll(casesWithPanelData);
-                    allPanels.add(genePanel);
-                });
-                
-                profiledCasesForGene.addAll(casesWithoutPanelData);
+                // for every gene panel associated containing the gene, use the sum of unique cases
+                // as well as cases without panel data
+                for (GenePanel genePanel : geneGenePanelMap.get(entrezGeneId)) {
+                    allMatchingGenePanelIds.add(genePanel.getStableId());
+                    totalProfiledCases.addAll(casesWithDataInGenePanel.get(genePanel.getStableId()));
+                    totalProfiledCases.addAll(casesWithoutPanelData);
+                }
+                alterationCountByGene.setNumberOfProfiledCases(totalProfiledCases.size());
+                alterationCountByGene.setMatchingGenePanelIds(allMatchingGenePanelIds);
             } else {
-                
-                profiledCasesForGene.addAll(profiledCases);
+                alterationCountByGene.setNumberOfProfiledCases(profiledCasesCount);
+                alterationCountByGene.setMatchingGenePanelIds(allMatchingGenePanelIds);
             }
-            
-            alterationCountByGene.setMatchingGenePanelIds(
-                    allPanels.stream().map(panel -> panel.getStableId()).collect(Collectors.toSet()));
-            alterationCountByGene.setNumberOfProfiledCases(profiledCasesForGene.size());
+        }
+    }
+
+    private Map<String, Set<String>> extractCasesWithDataInGenePanel(List<GenePanelData> genePanelDataList, boolean countByPatients) {
+        Map<String, Set<String>> casesWithDataInGenePanel = new HashMap<String, Set<String>>();
+        // loop through all membership records -- ignore any where g.getGenePanelId == null
+        for (GenePanelData genePanelDataRecord : genePanelDataList) {
+            String associatedGenePanel = genePanelDataRecord.getGenePanelId();
+            if (associatedGenePanel != null) {
+                casesWithDataInGenePanel.putIfAbsent(associatedGenePanel, new HashSet<String>());
+                Set<String> casesForThisGenePanel = casesWithDataInGenePanel.get(associatedGenePanel);
+                casesForThisGenePanel.add(computeUniqueCaseId(genePanelDataRecord, countByPatients));
+            }
+        }
+        return casesWithDataInGenePanel;
+    }
+
+    private String computeUniqueCaseId(GenePanelData genePanelDataRecord, boolean countByPatients) {
+        if (countByPatients) {
+            return genePanelDataRecord.getStudyId() + genePanelDataRecord.getPatientId();
+        } else {
+            return genePanelDataRecord.getStudyId() + genePanelDataRecord.getSampleId();
         }
     }
 }

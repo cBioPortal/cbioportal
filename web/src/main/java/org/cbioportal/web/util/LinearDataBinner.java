@@ -23,6 +23,13 @@ public class LinearDataBinner {
         200.0, 250.0, 500.0, 1000.0,
         2000.0, 2500.0, 5000.0, 10000.0
     };
+    
+    public static final Double[] POSSIBLE_DISCRETE_INTERVALS = {
+            1.0, 2.0, 5.0, 10.0,
+            20.0, 25.0, 50.0, 100.0,
+            200.0, 250.0, 500.0, 1000.0,
+            2000.0, 2500.0, 5000.0, 10000.0
+    };
 
     public static final Integer DEFAULT_INTERVAL_COUNT = 20;
 
@@ -34,6 +41,7 @@ public class LinearDataBinner {
     }
 
     public List<DataBin> calculateDataBins(String attributeId,
+                                           boolean areAllIntegers,
                                            Range<BigDecimal> boxRange,
                                            List<BigDecimal> values,
                                            BigDecimal lowerOutlier,
@@ -41,7 +49,7 @@ public class LinearDataBinner {
         BigDecimal min = lowerOutlier == null ? Collections.min(values) : Collections.min(values).max(lowerOutlier);
         BigDecimal max = upperOutlier == null ? Collections.max(values) : Collections.max(values).min(upperOutlier);
 
-        List<DataBin> dataBins = initDataBins(attributeId, min, max, lowerOutlier, upperOutlier);
+        List<DataBin> dataBins = initDataBins(attributeId, areAllIntegers, min, max, lowerOutlier, upperOutlier);
 
         // special case for "AGE" attributes
         if (dataBinHelper.isAgeAttribute(attributeId) &&
@@ -79,15 +87,20 @@ public class LinearDataBinner {
     }
 
     public List<DataBin> initDataBins(String attributeId,
+                                      boolean areAllIntegers,
                                       BigDecimal min,
                                       BigDecimal max,
                                       BigDecimal lowerOutlier,
                                       BigDecimal upperOutlier) {
         List<DataBin> dataBins = new ArrayList<>();
 
-        BigDecimal interval = calcBinInterval(Arrays.asList(POSSIBLE_INTERVALS).stream().map(val -> BigDecimal.valueOf(val)).collect(Collectors.toList()),
-            max.subtract(min),
-            DEFAULT_INTERVAL_COUNT);
+        List<BigDecimal> possibleIntervals = Arrays
+                .asList(areAllIntegers ? POSSIBLE_DISCRETE_INTERVALS : POSSIBLE_INTERVALS)
+                .stream()
+                .map(val -> BigDecimal.valueOf(val))
+                .collect(Collectors.toList());
+
+        BigDecimal interval = calcBinInterval(possibleIntervals, max.subtract(min), DEFAULT_INTERVAL_COUNT);
 
         BigDecimal start = min.add(interval).subtract(min.remainder(interval));
 

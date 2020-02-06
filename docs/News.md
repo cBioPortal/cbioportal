@@ -1,5 +1,5 @@
 ## Feb 6, 2020
-* **New Feature**: Add the [recent group comparison feature](https://www.cbioportal.org/tutorials#group-comparison) to the _Results View_ page as a tab called `Comparison`. This allows one to quickly compare altered vs unaltered cases by survival, clinical information, mutation and copy number events.
+* **New Feature**: Extend the [recent group comparison feature](https://www.cbioportal.org/tutorials#group-comparison) by allowing comparisons inside the _Results View_ page. The new tab `Comparison` allows for quick comparison of altered vs unaltered cases by survival, clinical information, mutation and copy number events.
 
     * Show overlap between altered vs unaltered cases
     

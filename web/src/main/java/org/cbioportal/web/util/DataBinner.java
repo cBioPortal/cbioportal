@@ -274,10 +274,6 @@ public class DataBinner {
             // In this case, number of bins = number of distinct data values
             dataBins = discreteDataBinner.calculateDataBins(attributeId, withoutOutliers, uniqueValues);
         } else if (withoutOutliers.size() > 0) {
-            BigDecimal lowerOutlier = lowerOutlierBin.getEnd() == null ?
-                boxRange.lowerEndpoint() : boxRange.lowerEndpoint().max(lowerOutlierBin.getEnd());
-            BigDecimal upperOutlier = upperOutlierBin.getStart() == null ?
-                boxRange.upperEndpoint() : boxRange.upperEndpoint().min(upperOutlierBin.getStart());
 
             if (customBins != null) {
                 dataBins = linearDataBinner.calculateDataBins(attributeId, customBins, numericalValues);
@@ -300,7 +296,24 @@ public class DataBinner {
                     boxRange = Range.closed(dataBins.get(0).getStart(), dataBins.get(dataBins.size() - 1).getEnd());
                 }
             } else {
+                Boolean areAllIntegers = uniqueValues
+                        .stream()
+                        .map(value -> value.stripTrailingZeros().scale() <= 0)
+                        .reduce((a, b) -> a && b)
+                        .orElse(false);
+
+                if (areAllIntegers) {
+                    boxRange = Range.closed(new BigDecimal(boxRange.lowerEndpoint().intValue()),
+                            new BigDecimal(boxRange.upperEndpoint().intValue()));
+                }
+
+                BigDecimal lowerOutlier = lowerOutlierBin.getEnd() == null ? boxRange.lowerEndpoint()
+                        : boxRange.lowerEndpoint().max(lowerOutlierBin.getEnd());
+                BigDecimal upperOutlier = upperOutlierBin.getStart() == null ? boxRange.upperEndpoint()
+                        : boxRange.upperEndpoint().min(upperOutlierBin.getStart());
+
                 dataBins = linearDataBinner.calculateDataBins(attributeId,
+                    areAllIntegers,
                     boxRange,
                     withoutOutliers,
                     lowerOutlier,

@@ -1090,7 +1090,7 @@ public class DataBinnerTest {
         Assert.assertEquals(1, dataBins.size());
 
         Assert.assertEquals("<=", dataBins.get(0).getSpecialValue());
-        Assert.assertEquals(new BigDecimal("66.0"), dataBins.get(0).getEnd());
+        Assert.assertEquals(new BigDecimal("66"), dataBins.get(0).getEnd());
         Assert.assertEquals("all values should be included in a single bin",
             values.length, dataBins.get(0).getCount().intValue());
     }

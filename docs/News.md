@@ -1,9 +1,21 @@
-## Jan 29, 2020
+## Jan 30, 2020
+* **Enhancement**: Show HGVSg in mutations table and linkout to [Genome Nexus](https://www.genomenexus.org):
 
+    ![hgvsg genome nexus](https://user-images.githubusercontent.com/1334004/73494837-4d026200-4383-11ea-8968-f9a8a6e00675.png)
+    
+    
+* **Enhancement**: Add a pencil button near gene list in results page which opens interface for quickly modifying the oql of the query:
+
+    ![edit query pencil](https://user-images.githubusercontent.com/1334004/73494684-f72dba00-4382-11ea-8bd0-001fdf0cb681.png)
+
+
+* See more updates [here](https://github.com/cBioPortal/cbioportal/releases/tag/v3.2.1)
+
+## Jan 29, 2020
 *   **Added data** consisting of 197 samples from 2 studies:
      * [Bladder/Urinary Tract Cancer (MSK, 2019)](https://www.cbioportal.org/study/summary?id=utuc_pdx_msk_2019) *78 samples* 
      * [Upper Tract Urothelial Carcinoma (MSK, 2019)](https://www.cbioportal.org/study/summary?id=utuc_msk_2019) *119 samples* 
-     
+
 ## Dec 19, 2019
 * **Enhancement**: We restored support for submitting large queries from external applications using HTTP POST requests.  Accepted parameters are the same
 as appear in the url of a query submitted from the homepage.

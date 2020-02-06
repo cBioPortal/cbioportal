@@ -18,12 +18,14 @@ import java.nio.charset.StandardCharsets;
 
 @RestController
 public class ProxyController {
+    private static final String DEFAULT_ONCOKB_URL = "https://www.oncokb.org/api/v1";
+    
     @Value("${show.oncokb:true}")
     private Boolean showOncokb;
     @Value("${oncokb.token:}")
     private String oncokbToken;
-    @Value("${oncokb.public_api.url:www.oncokb.org}")
-    private String oncokbPublicApiUrl;
+    @Value("${oncokb.public_api.url:}")
+    private String oncokbApiUrl;
 
     private Logger LOG = LoggerFactory.getLogger(ProxyController.class);
 
@@ -31,11 +33,17 @@ public class ProxyController {
     public String proxy(@RequestBody(required = false) String body, HttpMethod method, HttpServletRequest request)
         throws URISyntaxException {
         HttpHeaders httpHeaders = initHeaders(request);
-        return exchangeData(body, buildUri(request.getPathInfo(), request.getQueryString(), false), method, httpHeaders).getBody();
+        
+        return exchangeData(body,
+            buildUri(request.getPathInfo(), request.getQueryString(), false),
+            method,
+            httpHeaders,
+            String.class
+        ).getBody();
     }
 
     @RequestMapping("/oncokb/**")
-    public ResponseEntity<String> proxyOncokb(@RequestBody(required = false) String body, HttpMethod method, HttpServletRequest request)
+    public ResponseEntity<Object> proxyOncokb(@RequestBody(required = false) String body, HttpMethod method, HttpServletRequest request)
         throws URISyntaxException {
         if (!this.showOncokb) {
             return new ResponseEntity<>("OncoKB service is disabled.", HttpStatus.NOT_FOUND);
@@ -49,11 +57,14 @@ public class ProxyController {
         if (!StringUtils.isEmpty(this.oncokbToken)) {
             httpHeaders.add("Authorization", "Bearer " + this.oncokbToken);
         }
-        String oncokbApiUrl = this.oncokbPublicApiUrl;
-        if (StringUtils.isEmpty(oncokbApiUrl)) {
-            oncokbApiUrl = "https://www.oncokb.org/api/v1";
-        }
-        return exchangeData(body, buildUri(oncokbApiUrl + request.getPathInfo().replaceFirst("/oncokb", ""), request.getQueryString()), method, httpHeaders);
+
+        String oncokbApiUrl = StringUtils.isEmpty(this.oncokbApiUrl) ? DEFAULT_ONCOKB_URL: this.oncokbApiUrl;
+        
+        return exchangeData(body, 
+            buildUri(oncokbApiUrl + request.getPathInfo().replaceFirst("/oncokb", ""), request.getQueryString()), 
+            method,
+            httpHeaders,
+            Object.class);
     }
 
     private HttpHeaders initHeaders(HttpServletRequest request) {
@@ -75,9 +86,9 @@ public class ProxyController {
         return new URI(path + (queryString == null ? "" : "?" + queryString));
     }
 
-    private ResponseEntity<String> exchangeData(String body, URI uri, HttpMethod method, HttpHeaders httpHeaders) {
+    private <T> ResponseEntity<T> exchangeData(String body, URI uri, HttpMethod method, HttpHeaders httpHeaders, Class<T> responseType) {
         RestTemplate restTemplate = new RestTemplate();
         restTemplate.getMessageConverters().add(0, new StringHttpMessageConverter(StandardCharsets.UTF_8));
-        return restTemplate.exchange(uri, method, new HttpEntity<>(body, httpHeaders), String.class);
+        return restTemplate.exchange(uri, method, new HttpEntity<>(body, httpHeaders), responseType);
     }
 }

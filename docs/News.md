@@ -1,3 +1,24 @@
+## Feb 6, 2020
+* **New Feature**: Add the [recent group comparison feature](https://www.cbioportal.org/tutorials#group-comparison) to the _Results View_ page as a tab called `Comparison`. This allows one to quickly compare altered vs unaltered cases by survival, clinical information, mutation and copy number events.
+
+    * Show overlap between altered vs unaltered cases
+    
+    
+        ![overlap](https://user-images.githubusercontent.com/1334004/73985398-096ea180-4909-11ea-9e30-19ba2399540d.png)
+
+
+    * Compare mutations between altered vs unaltered groups:
+    
+    
+        ![mutations](https://user-images.githubusercontent.com/1334004/73985020-1fc82d80-4908-11ea-9af8-d26453ebe19d.png)
+
+     * Compare survival between altered vs unaltered groups:
+     
+        ![survival](https://user-images.githubusercontent.com/1334004/73985019-1f2f9700-4908-11ea-96d3-c108ea8a53fa.png)
+
+* **Performance enhancement**: the _Study View_'s mutation table now loads faster for studies with multiple gene panels. For the [genie portal](https://genie.cbioportal.org), which has a study with many different gene panels this resulted in a speed-up from ~90-120s to 5 seconds: 
+* Read more about the v3.2.2 release [here](https://github.com/cBioPortal/cbioportal/releases/tag/v3.2.2)
+
 ## Jan 30, 2020
 * **Enhancement**: Show HGVSg in mutations table and linkout to [Genome Nexus](https://www.genomenexus.org):
 

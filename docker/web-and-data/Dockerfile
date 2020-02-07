@@ -42,10 +42,11 @@ FROM openjdk:8-jre
 # download system dependencies first to take advantage of docker caching
 RUN apt-get update; apt-get install -y --no-install-recommends \
         build-essential \
-        libmysql-java \
+        default-mysql-client \
         default-libmysqlclient-dev \
         python3 \
         python3-setuptools \
+        libpython-dev \
         python3-dev \
         python3-pip \
 	&& rm -rf /var/lib/apt/lists/* \
@@ -64,7 +65,8 @@ COPY --from=build /cbioportal/requirements.txt /cbioportal/requirements.txt
 
 # install build and runtime dependencies
 # ignore update failures
-RUN  pip3 install -r /cbioportal/requirements.txt
+RUN pip3 install awscli
+RUN pip3 install -r /cbioportal/requirements.txt
 
 # add importer scripts to PATH for easy running in containers
 RUN find /cbioportal/core/src/main/scripts/ -type f -executable \! -name '*.pl'  -print0 | xargs -0 -- ln -st /usr/local/bin

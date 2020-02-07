@@ -1,3 +1,11 @@
+## Feb 6, 2020
+* **New Feature**: Extend the [recent group comparison feature](https://www.cbioportal.org/tutorials#group-comparison) by allowing comparisons inside the _Results View_ page. The new tab allows for quick comparison of altered vs unaltered cases by survival, clinical information, mutation, copy number events and mRNA expression:
+
+    ![group_results640px](https://user-images.githubusercontent.com/1334004/74002155-2a041f00-493c-11ea-9867-14740202c368.gif)
+
+* **Performance enhancement**: the _Study View_'s mutation table now loads faster for studies with multiple gene panels. For the [genie portal](https://genie.cbioportal.org), which has a study with many different gene panels this resulted in a speed-up from ~90-120 seconds to 5 seconds. 
+* Read more about the v3.2.2 release [here](https://github.com/cBioPortal/cbioportal/releases/tag/v3.2.2)
+
 ## Jan 30, 2020
 * **Enhancement**: Show HGVSg in mutations table and linkout to [Genome Nexus](https://www.genomenexus.org):
 
@@ -10,6 +18,11 @@
 
 
 * See more updates [here](https://github.com/cBioPortal/cbioportal/releases/tag/v3.2.1)
+
+## Jan 29, 2020
+*   **Added data** consisting of 197 samples from 2 studies:
+     * [Bladder/Urinary Tract Cancer (MSK, 2019)](https://www.cbioportal.org/study/summary?id=utuc_pdx_msk_2019) *78 samples* 
+     * [Upper Tract Urothelial Carcinoma (MSK, 2019)](https://www.cbioportal.org/study/summary?id=utuc_msk_2019) *119 samples* 
 
 ## Dec 19, 2019
 * **Enhancement**: We restored support for submitting large queries from external applications using HTTP POST requests.  Accepted parameters are the same

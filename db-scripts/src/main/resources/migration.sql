@@ -812,3 +812,7 @@ WHERE NOT EXISTS (SELECT * FROM genetic_profile WHERE  STABLE_ID=CONCAT(`fusion_
     AND CANCER_STUDY_ID = `fusion_studies`.CANCER_STUDY_ID);
 DROP TEMPORARY TABLE fusion_studies;
 UPDATE `info` SET `DB_SCHEMA_VERSION`="2.12.3";
+
+##version: 2.12.4
+ALTER TABLE `genetic_profile` ADD COLUMN `ENTITY_TYPE` varchar(255) DEFAULT NULL;
+UPDATE `info` SET `DB_SCHEMA_VERSION`="2.12.4";

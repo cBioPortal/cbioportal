@@ -256,6 +256,7 @@ META_FIELD_MAP = {
         'cancer_study_identifier': True,
         'genetic_alteration_type': True,
         'generic_assay_type': True,
+        'entity_type': False,
         'datatype': True,
         'stable_id': True,
         'profile_name': True,

@@ -53,6 +53,7 @@ public class MolecularProfileControllerTest {
     private static final Float TEST_STUDY_PIVOT_THRESHOLD_1 = 0.1f;
     private static final String TEST_STUDY_SORTORDER_1 = "ASC";
     private static final String TEST_GENERIC_ASSAY_TYPE_1 = "test_generic_assay_type_1";
+    private static final String TEST_ENTITY_TYPE_1 = "test_entity_type_1";
     
     private static final int TEST_MOLECULAR_PROFILE_ID_2 = 2;
     private static final String TEST_STABLE_ID_2 = "test_stable_id_2";
@@ -67,6 +68,7 @@ public class MolecularProfileControllerTest {
     private static final Float TEST_STUDY_PIVOT_THRESHOLD_2 = 0.2f;
     private static final String TEST_STUDY_SORTORDER_2 = "DESC";
     private static final String TEST_GENERIC_ASSAY_TYPE_2 = "test_generic_assay_type_2";
+    private static final String TEST_ENTITY_TYPE_2 = "test_entity_type_2";
 
     @Autowired
     private WebApplicationContext wac;
@@ -110,6 +112,7 @@ public class MolecularProfileControllerTest {
                         .value(TEST_MOLECULAR_ALTERATION_TYPE_1.toString()))
                 .andExpect(MockMvcResultMatchers.jsonPath("$[0].datatype").value(TEST_DATATYPE_1))
                 .andExpect(MockMvcResultMatchers.jsonPath("$[0].genericAssayType").value(TEST_GENERIC_ASSAY_TYPE_1))
+                .andExpect(MockMvcResultMatchers.jsonPath("$[0].entityType").value(TEST_ENTITY_TYPE_1))
                 .andExpect(MockMvcResultMatchers.jsonPath("$[0].name").value(TEST_NAME_1))
                 .andExpect(MockMvcResultMatchers.jsonPath("$[0].description").value(TEST_DESCRIPTION_1))
                 .andExpect(MockMvcResultMatchers.jsonPath("$[0].showProfileInAnalysisTab")
@@ -123,6 +126,7 @@ public class MolecularProfileControllerTest {
                 .value(TEST_MOLECULAR_ALTERATION_TYPE_2.toString()))
                 .andExpect(MockMvcResultMatchers.jsonPath("$[1].datatype").value(TEST_DATATYPE_2))
                 .andExpect(MockMvcResultMatchers.jsonPath("$[1].genericAssayType").value(TEST_GENERIC_ASSAY_TYPE_2))
+                .andExpect(MockMvcResultMatchers.jsonPath("$[1].entityType").value(TEST_ENTITY_TYPE_2))
                 .andExpect(MockMvcResultMatchers.jsonPath("$[1].name").value(TEST_NAME_2))
                 .andExpect(MockMvcResultMatchers.jsonPath("$[1].description").value(TEST_DESCRIPTION_2))
                 .andExpect(MockMvcResultMatchers.jsonPath("$[1].showProfileInAnalysisTab")
@@ -171,6 +175,7 @@ public class MolecularProfileControllerTest {
         molecularProfile.setMolecularAlterationType(TEST_MOLECULAR_ALTERATION_TYPE_1);
         molecularProfile.setDatatype(TEST_DATATYPE_1);
         molecularProfile.setGenericAssayType(TEST_GENERIC_ASSAY_TYPE_1);
+        molecularProfile.setEntityType(TEST_ENTITY_TYPE_1);
         molecularProfile.setName(TEST_NAME_1);
         molecularProfile.setDescription(TEST_DESCRIPTION_1);
         molecularProfile.setShowProfileInAnalysisTab(TEST_SHOW_PROFILE_IN_ANALYSIS_TAB_1);
@@ -198,6 +203,7 @@ public class MolecularProfileControllerTest {
                         .value(TEST_MOLECULAR_ALTERATION_TYPE_1.toString()))
                 .andExpect(MockMvcResultMatchers.jsonPath("$.datatype").value(TEST_DATATYPE_1))
                 .andExpect(MockMvcResultMatchers.jsonPath("$.genericAssayType").value(TEST_GENERIC_ASSAY_TYPE_1))
+                .andExpect(MockMvcResultMatchers.jsonPath("$.entityType").value(TEST_ENTITY_TYPE_1))
                 .andExpect(MockMvcResultMatchers.jsonPath("$.name").value(TEST_NAME_1))
                 .andExpect(MockMvcResultMatchers.jsonPath("$.description").value(TEST_DESCRIPTION_1))
                 .andExpect(MockMvcResultMatchers.jsonPath("$.showProfileInAnalysisTab")
@@ -235,6 +241,7 @@ public class MolecularProfileControllerTest {
                         .value(TEST_MOLECULAR_ALTERATION_TYPE_1.toString()))
                 .andExpect(MockMvcResultMatchers.jsonPath("$[0].datatype").value(TEST_DATATYPE_1))
                 .andExpect(MockMvcResultMatchers.jsonPath("$[0].genericAssayType").value(TEST_GENERIC_ASSAY_TYPE_1))
+                .andExpect(MockMvcResultMatchers.jsonPath("$[0].entityType").value(TEST_ENTITY_TYPE_1))
                 .andExpect(MockMvcResultMatchers.jsonPath("$[0].name").value(TEST_NAME_1))
                 .andExpect(MockMvcResultMatchers.jsonPath("$[0].description").value(TEST_DESCRIPTION_1))
                 .andExpect(MockMvcResultMatchers.jsonPath("$[0].showProfileInAnalysisTab")
@@ -248,6 +255,7 @@ public class MolecularProfileControllerTest {
                         .value(TEST_MOLECULAR_ALTERATION_TYPE_2.toString()))
                 .andExpect(MockMvcResultMatchers.jsonPath("$[1].datatype").value(TEST_DATATYPE_2))
                 .andExpect(MockMvcResultMatchers.jsonPath("$[1].genericAssayType").value(TEST_GENERIC_ASSAY_TYPE_2))
+                .andExpect(MockMvcResultMatchers.jsonPath("$[1].entityType").value(TEST_ENTITY_TYPE_2))
                 .andExpect(MockMvcResultMatchers.jsonPath("$[1].name").value(TEST_NAME_2))
                 .andExpect(MockMvcResultMatchers.jsonPath("$[1].description").value(TEST_DESCRIPTION_2))
                 .andExpect(MockMvcResultMatchers.jsonPath("$[1].showProfileInAnalysisTab")
@@ -296,6 +304,7 @@ public class MolecularProfileControllerTest {
                 .value(TEST_MOLECULAR_ALTERATION_TYPE_1.toString()))
                 .andExpect(MockMvcResultMatchers.jsonPath("$[0].datatype").value(TEST_DATATYPE_1))
                 .andExpect(MockMvcResultMatchers.jsonPath("$[0].genericAssayType").value(TEST_GENERIC_ASSAY_TYPE_1))
+                .andExpect(MockMvcResultMatchers.jsonPath("$[0].entityType").value(TEST_ENTITY_TYPE_1))
                 .andExpect(MockMvcResultMatchers.jsonPath("$[0].name").value(TEST_NAME_1))
                 .andExpect(MockMvcResultMatchers.jsonPath("$[0].description").value(TEST_DESCRIPTION_1))
                 .andExpect(MockMvcResultMatchers.jsonPath("$[0].showProfileInAnalysisTab")
@@ -309,6 +318,7 @@ public class MolecularProfileControllerTest {
                 .value(TEST_MOLECULAR_ALTERATION_TYPE_2.toString()))
                 .andExpect(MockMvcResultMatchers.jsonPath("$[1].datatype").value(TEST_DATATYPE_2))
                 .andExpect(MockMvcResultMatchers.jsonPath("$[1].genericAssayType").value(TEST_GENERIC_ASSAY_TYPE_2))
+                .andExpect(MockMvcResultMatchers.jsonPath("$[1].entityType").value(TEST_ENTITY_TYPE_2))
                 .andExpect(MockMvcResultMatchers.jsonPath("$[1].name").value(TEST_NAME_2))
                 .andExpect(MockMvcResultMatchers.jsonPath("$[1].description").value(TEST_DESCRIPTION_2))
                 .andExpect(MockMvcResultMatchers.jsonPath("$[1].showProfileInAnalysisTab")
@@ -328,6 +338,7 @@ public class MolecularProfileControllerTest {
         molecularProfile1.setMolecularAlterationType(TEST_MOLECULAR_ALTERATION_TYPE_1);
         molecularProfile1.setDatatype(TEST_DATATYPE_1);
         molecularProfile1.setGenericAssayType(TEST_GENERIC_ASSAY_TYPE_1);
+        molecularProfile1.setEntityType(TEST_ENTITY_TYPE_1);
         molecularProfile1.setName(TEST_NAME_1);
         molecularProfile1.setDescription(TEST_DESCRIPTION_1);
         molecularProfile1.setShowProfileInAnalysisTab(TEST_SHOW_PROFILE_IN_ANALYSIS_TAB_1);
@@ -343,6 +354,7 @@ public class MolecularProfileControllerTest {
         molecularProfile2.setMolecularAlterationType(TEST_MOLECULAR_ALTERATION_TYPE_2);
         molecularProfile2.setDatatype(TEST_DATATYPE_2);
         molecularProfile2.setGenericAssayType(TEST_GENERIC_ASSAY_TYPE_2);
+        molecularProfile2.setEntityType(TEST_ENTITY_TYPE_2);
         molecularProfile2.setName(TEST_NAME_2);
         molecularProfile2.setDescription(TEST_DESCRIPTION_2);
         molecularProfile2.setShowProfileInAnalysisTab(TEST_SHOW_PROFILE_IN_ANALYSIS_TAB_2);

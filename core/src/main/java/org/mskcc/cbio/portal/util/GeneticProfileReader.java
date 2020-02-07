@@ -134,6 +134,10 @@ public class GeneticProfileReader {
         if (geneticProfile.getGeneticAlterationType() == GeneticAlterationType.GENERIC_ASSAY) {
             validateGenericAssay(geneticProfile, file);
             geneticProfile.setGenericAssayType(geneticProfile.getOtherMetaDataField("generic_assay_type"));
+            // entityType can be optional, if entityType exist, add it into the profile
+            if (geneticProfile.getOtherMetaDataField("entity_type") != null) {
+                geneticProfile.setEntityType(geneticProfile.getOtherMetaDataField("entity_type"));
+            }
             // if genericAssayType is TREATMENT_RESPONSE, validate if pivotThreshold and sortOrder exist
             if (geneticProfile.getGenericAssayType().equals("TREATMENT_RESPONSE")) {
                 validateTreatmentResponse(geneticProfile, file);

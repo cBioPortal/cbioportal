@@ -37,6 +37,7 @@ public class MolecularProfile implements Serializable {
     private String cancerStudyIdentifier;
     private MolecularAlterationType molecularAlterationType;
     private String genericAssayType;
+    private String entityType;
     private String datatype;
     private String name;
     private String description;
@@ -148,5 +149,13 @@ public class MolecularProfile implements Serializable {
     public void setGenericAssayType(String genericAssayType) {
         this.genericAssayType = genericAssayType;
     }
+
+    public String getEntityType() {
+		return entityType;
+	}
+
+	public void setEntityType(String entityType) {
+		this.entityType = entityType;
+	}
     
 }

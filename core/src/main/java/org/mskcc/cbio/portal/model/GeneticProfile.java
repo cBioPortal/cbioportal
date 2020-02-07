@@ -46,6 +46,7 @@ public class GeneticProfile implements Serializable {
     private int cancerStudyId;
     private GeneticAlterationType geneticAlterationType;
     private String genericAssayType;
+    private String entityType;
     private String datatype;
     private String profileName;
     private String profileDescription;
@@ -195,7 +196,14 @@ public class GeneticProfile implements Serializable {
     public void setGenericAssayType(String genericAssayType) {
         this.genericAssayType = genericAssayType;
     }
-    
+
+    public String getEntityType() {
+        return entityType;
+    }
+
+    public void setEntityType(String entityType) {
+        this.entityType = entityType;
+    }
     
     /**
     * Stores metadata fields only recognized in particular data file types.

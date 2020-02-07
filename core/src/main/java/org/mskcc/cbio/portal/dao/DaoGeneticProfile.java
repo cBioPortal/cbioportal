@@ -102,8 +102,8 @@ public final class DaoGeneticProfile {
             pstmt = con.prepareStatement
                     ("INSERT INTO genetic_profile (`STABLE_ID`, `CANCER_STUDY_ID`, "+
                             "`GENETIC_ALTERATION_TYPE`, `DATATYPE`, `NAME`, `DESCRIPTION`, "+
-                            "`SHOW_PROFILE_IN_ANALYSIS_TAB`, `PIVOT_THRESHOLD`, `SORT_ORDER`, `GENERIC_ASSAY_TYPE`) " +
-                            "VALUES (?,?,?,?,?,?,?,?,?,?)");
+                            "`SHOW_PROFILE_IN_ANALYSIS_TAB`, `PIVOT_THRESHOLD`, `SORT_ORDER`, `GENERIC_ASSAY_TYPE`, `ENTITY_TYPE`) " +
+                            "VALUES (?,?,?,?,?,?,?,?,?,?,?)");
             pstmt.setString(1, profile.getStableId());
             pstmt.setInt(2, profile.getCancerStudyId());
             pstmt.setString(3, profile.getGeneticAlterationType().name());
@@ -127,6 +127,13 @@ public final class DaoGeneticProfile {
                 pstmt.setNull(10, java.sql.Types.VARCHAR);
             } else {
                 pstmt.setString(10, profile.getGenericAssayType());
+            }
+
+            // `ENTITY_TYPE` is also for Generic Assay, this field is set to null when not present in profile object.
+            if (profile.getEntityType() == null) {
+                pstmt.setNull(10, java.sql.Types.VARCHAR);
+            } else {
+                pstmt.setString(10, profile.getEntityType());
             }
             
             rows = pstmt.executeUpdate();
@@ -245,6 +252,9 @@ public final class DaoGeneticProfile {
         }
         if (rs.getString("GENERIC_ASSAY_TYPE") != null && ! rs.getString("GENERIC_ASSAY_TYPE").equals("") ) {
             profileType.setGenericAssayType(rs.getString("GENERIC_ASSAY_TYPE"));
+        }
+        if (rs.getString("ENTITY_TYPE") != null && ! rs.getString("ENTITY_TYPE").equals("") ) {
+            profileType.setEntityType(rs.getString("ENTITY_TYPE"));
         }
         return profileType;
     }

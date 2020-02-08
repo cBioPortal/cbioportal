@@ -1,7 +1,7 @@
 ## Feb 6, 2020
 * **New Feature**: Extend the [recent group comparison feature](https://www.cbioportal.org/tutorials#group-comparison) by allowing comparisons inside the _Results View_ page. The new tab allows for quick comparison of altered vs unaltered cases by survival, clinical information, mutation, copy number events and mRNA expression:
 
-    ![group_results640px](https://user-images.githubusercontent.com/1334004/74002155-2a041f00-493c-11ea-9867-14740202c368.gif)
+    [![group_results640px](https://user-images.githubusercontent.com/1334004/74002155-2a041f00-493c-11ea-9867-14740202c368.gif)](https://www.cbioportal.org/results/comparison?Z_SCORE_THRESHOLD=2.0&cancer_study_id=coadread_tcga_pub&cancer_study_list=coadread_tcga_pub&case_set_id=coadread_tcga_pub_nonhypermut&gene_list=KRAS%20NRAS%20BRAF&gene_set_choice=user-defined-list&genetic_profile_ids_PROFILE_COPY_NUMBER_ALTERATION=coadread_tcga_pub_gistic&genetic_profile_ids_PROFILE_MUTATION_EXTENDED=coadread_tcga_pub_mutations)
 
 * **Performance enhancement**: the _Study View_'s mutation table now loads faster for studies with multiple gene panels. For the [genie portal](https://genie.cbioportal.org), which has a study with many different gene panels this resulted in a speed-up from ~90-120 seconds to 5 seconds. 
 * Read more about the v3.2.2 release [here](https://github.com/cBioPortal/cbioportal/releases/tag/v3.2.2)

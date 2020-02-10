@@ -10,7 +10,7 @@ We are curious to learn more about you! We would love to help you get started! T
 2. Knowledge about cancer genomics but no to little engineering experience
 3. No engineering nor cancer genomics experience but an eagerness to contribute
 
-if you feel like you don't fall into any of these categories, please reach out so you can help us update the above list 🙂! Note that there are many contributions that can be made to an open source commmunity without coding a single line of code. You can reach us through our [public slack channel](https://slack.cbioprtal.org).
+if you feel like you don't fall into any of these categories, please reach out so you can help us update the above list 🙂! Note that there are many contributions that can be made to an open source commmunity without coding a single line of code. You can reach us through our [public slack channel](https://slack.cbioportal.org).
 
 # Join the Slack!
 
@@ -29,14 +29,14 @@ From the [GitHub Help Page of Using Pull Requests](https://help.github.com/artic
  * Make sure you have a [GitHub account](https://github.com/signup/free).
  * Create an issue in our issues tracker, assuming one does not already exist.
  * Fork the cbioportal project on GitHub.  For general instructions on forking a GitHub project, see [Forking a Repo](https://help.github.com/articles/fork-a-repo/) and [Syncing a fork](https://help.github.com/articles/syncing-a-fork/).
- * Familiarize yourself with the [project documentation](https://docs.cbioportal.org), including the [Architecture docs](https://docs.cbioportal.org/2.1-deployment/architecture-overview), the [backend code organization](Backend-Code-Organization.md) and [backend development guidelines](Backend-Development-Guidelines.md).
+ * Familiarize yourself with the [project documentation](https://docs.cbioportal.org), including the [Architecture docs](https://docs.cbioportal.org/2.1-deployment/architecture-overview), the [backend code organization](docs/Backend-Code-Organization.md) and [backend development guidelines](docs/Backend-Development-Guidelines.md).
 
 ## Contributing Code Changes via a Pull Request
 
 Once you have forked the repo, you need to create your code contributions within a new branch of your forked repo.  For general background on creating and managing branches within GitHub, see:  [Git Branching and Merging](https://git-scm.com/book/en/v2/Git-Branching-Basic-Branching-and-Merging).
 
 * To begin, create a topic branch from where you want to base your work.
- * For any change that requires database migrations, this will be the **rc branch**. For all other changes this will be the **master branch**. Read the next section to get an overview of [the branching model in cBioPortal](Branches-within-cBioPortal).
+ * For any change that requires database migrations, this will be the **rc branch**. For all other changes, this will be the **master branch**. For additional details, see [Branches within cBioPortal](#branches-within-cbioportal) below.
 
 You usually create a branch like so:
 
@@ -60,13 +60,13 @@ When you are ready to submit your pull-request:
 * Push your branch to your GitHub project.
 * Open the pull request to the branch you've based your work on
 
-For instructions on submitting a pull-request, please see:  [Using Pull Requests](https://help.github.com/articles/using-pull-requests/) and [Sending Pull Requests](http://help.github.com/send-pull-requests/).
+For more details on submitting a pull-request, please see:  [GitHub Guide to Collaborating with issues and pull requests](https://help.github.com/en/github/collaborating-with-issues-and-pull-requests).
 
 ## Branches within cBioPortal
 
 To figure out where your first pull request might go, it helps to have an understanding of cBioPortal's branching model. The cBioPortal currently maintains three branches in both the [frontend](https://github.com/cbioportal/cbioportal-frontend) and [backend repo](https://github.com/cbioportal/cbioportal):
 
- * **master**:  this reflects what will be released with our next weekly release (https://github.com/cBioPortal/cbioportal/releases). For the [frontend repo](https://github.com/cbioprotal/cbioprtal-frontend) this branch is automatically deployed to production. On the backend it is deployed at least once a week. New features, bug fixes and documentation updates can go here. Only if the feature requires a database migration it should go to **rc**.
+ * **master**:  this reflects what will be released with our next weekly release (https://github.com/cBioPortal/cbioportal/releases). For the [frontend repo](https://github.com/cbioportal/cbioportal-frontend) this branch is automatically deployed to production. On the backend it is deployed at least once a week. New features, bug fixes and documentation updates can go here. Only if the feature requires a database migration it should go to **rc**.
   * **rc**:  release candidate branch, this branch contains new changes that require a database migration. It is deployed to https://rc.cbioportal.org. Once it's ready for more thorough product review a new branch is created with the name **release-x.y.z**. This way people can still continue to submit new changes to **rc**, while more thorough testing takes place of the **release-x.y.z** branch.
   *  **release-x.y.z**: this branch contains changes that require a database migration. It will be merged to master after thorough product review on https://beta.cbioportal.org.
   
@@ -152,4 +152,4 @@ New features:
 
 * [cBioPortal Issue Tracker](https://github.com/cBioPortal/cbioportal/issues)
 * [General GitHub documentation](http://help.github.com/)
-* [GitHub pull request documentation](http://help.github.com/send-pull-requests/)
+* [GitHub Pull Request documentation](https://help.github.com/en/github/collaborating-with-issues-and-pull-requests)

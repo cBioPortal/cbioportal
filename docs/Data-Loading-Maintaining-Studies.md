@@ -38,3 +38,15 @@ For example:
 ```
 ./cbioportalImporter.py -c remove-study -meta /data/brca_small/meta_study.txt
 ```
+
+If you have the Cancer Study Id of the study, or studies you want to remove, you can also use:
+```
+./cbioportalImporter.py -c remove-study -id study1_id
+```
+Where `study1_id` is the Cancer Study Id of the study you would like to remove.
+
+You can also remove multiple studies at once by passing the Cancer Study Ids separated by commas:
+```
+./cbioportalImporter.py -c remove-study -id study1_id,study2_id,study3_id
+```
+Where `study1_id`, `study2_id` and `study3_id` are the Cancer Study IDs of the studies you would like to remove.

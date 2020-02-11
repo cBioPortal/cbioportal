@@ -5,9 +5,9 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
-import org.cbioportal.model.AlterationCountByGene;
 import org.cbioportal.model.AlterationEnrichment;
 import org.cbioportal.model.MolecularProfileCaseIdentifier;
+import org.cbioportal.model.MutationCountByGene;
 import org.cbioportal.service.MutationEnrichmentService;
 import org.cbioportal.service.MutationService;
 import org.cbioportal.service.exception.MolecularProfileNotFoundException;
@@ -21,7 +21,7 @@ public class MutationEnrichmentServiceImpl implements MutationEnrichmentService 
     @Autowired
     private MutationService mutationService;
     @Autowired
-    private AlterationEnrichmentUtil alterationEnrichmentUtil;
+    private AlterationEnrichmentUtil<MutationCountByGene> alterationEnrichmentUtil;
 
     @Override
     public List<AlterationEnrichment> getMutationEnrichments(
@@ -29,7 +29,7 @@ public class MutationEnrichmentServiceImpl implements MutationEnrichmentService 
             String enrichmentType)
             throws MolecularProfileNotFoundException {
 
-        Map<String, List<? extends AlterationCountByGene>> mutationCountsbyEntrezGeneIdAndGroup =
+        Map<String, List<MutationCountByGene>> mutationCountsbyEntrezGeneIdAndGroup =
                 molecularProfileCaseSets
                 .entrySet()
                 .stream()
@@ -49,12 +49,14 @@ public class MutationEnrichmentServiceImpl implements MutationEnrichmentService 
                                         .getSampleCountInMultipleMolecularProfiles(molecularProfileIds,
                                                 sampleIds,
                                                 null,
+                                                true,
                                                 true);
                             } else {
                                 return mutationService
                                         .getPatientCountInMultipleMolecularProfiles(molecularProfileIds,
                                                 sampleIds,
                                                 null,
+                                                true,
                                                 true);
                             }
                         }));

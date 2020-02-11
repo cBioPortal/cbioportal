@@ -5,11 +5,17 @@ on: [push]
 jobs:
 
   build:
-
+    name: Local cBio Docker Build
     runs-on: ubuntu-latest
 
     steps:
     - uses: actions/checkout@v2
-    - name: Build the Docker image
+    - name: Build the local cBioPortal Docker image
       run: 
         docker build --file docker/web-and-data/Dockerfile --tag cbioportal-container:cbio-test-container .
+
+    - uses: actions/checkout@v2
+    - name: Create cBioDB net
+      run: 
+        docker network create cbio-net
+

@@ -5,8 +5,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
-import org.cbioportal.model.AlterationCountByGene;
 import org.cbioportal.model.AlterationEnrichment;
+import org.cbioportal.model.CopyNumberCountByGene;
 import org.cbioportal.model.MolecularProfileCaseIdentifier;
 import org.cbioportal.service.CopyNumberEnrichmentService;
 import org.cbioportal.service.DiscreteCopyNumberService;
@@ -21,7 +21,7 @@ public class CopyNumberEnrichmentServiceImpl implements CopyNumberEnrichmentServ
     @Autowired
     private DiscreteCopyNumberService discreteCopyNumberService;
     @Autowired
-    private AlterationEnrichmentUtil alterationEnrichmentUtil;
+    private AlterationEnrichmentUtil<CopyNumberCountByGene> alterationEnrichmentUtil;
 
     @Override
     public List<AlterationEnrichment> getCopyNumberEnrichments(
@@ -29,7 +29,7 @@ public class CopyNumberEnrichmentServiceImpl implements CopyNumberEnrichmentServ
             List<Integer> alterationTypes,
             String enrichmentType) throws MolecularProfileNotFoundException {
 
-        Map<String, List<? extends AlterationCountByGene>> copyNumberCountByGeneAndGroup =
+        Map<String, List<CopyNumberCountByGene>> copyNumberCountByGeneAndGroup =
                 molecularProfileCaseSets
                 .entrySet()
                 .stream()
@@ -51,6 +51,7 @@ public class CopyNumberEnrichmentServiceImpl implements CopyNumberEnrichmentServ
                                                 sampleIds,
                                                 null,
                                                 alterationTypes,
+                                                true,
                                                 true);
                             } else {
                                 return discreteCopyNumberService
@@ -58,6 +59,7 @@ public class CopyNumberEnrichmentServiceImpl implements CopyNumberEnrichmentServ
                                                 sampleIds,
                                                 null,
                                                 alterationTypes,
+                                                true, 
                                                 true);
                             }
                         }));

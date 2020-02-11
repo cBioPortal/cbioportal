@@ -16,6 +16,7 @@ This page describes the main properties within portal.properties.
 	- [Automatic hiding of putative passenger mutations](#automatic-hiding-of-putative-passenger-mutations)
 - [Gene sets used for gene querying](#gene-sets-used-for-gene-querying)
 - [Ehcache Settings](#ehcache-settings)
+- [Enable GSVA functionality](#enable-gsva-functionality)
 
 # Database Settings
 
@@ -355,3 +356,10 @@ For a list of counts of keys in cache per repository class:
 For more information on Ehcache, refer to the official documentation [here](https://www.ehcache.org/documentation/3.7/index.html)
 
 For more information on how Ehcache is implemented in cBioPortal refer to the [Caching](Caching.md) documentation.
+
+# Enable GSVA functionality
+
+[GSVA functionality](https://github.com/cBioPortal/cbioportal/blob/master/docs/File-Formats.md#gene-set-data) can be enabled by uncommenting this line (and making sure it is set to `true`): 
+```
+skin.show_gsva=true
+```

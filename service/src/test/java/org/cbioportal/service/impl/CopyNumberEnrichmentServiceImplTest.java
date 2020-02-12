@@ -81,7 +81,7 @@ public class CopyNumberEnrichmentServiceImplTest extends BaseServiceImplTest {
                     });
 
             Mockito.when(discreteCopyNumberService.getSampleCountInMultipleMolecularProfiles(molecularProfileIds,
-                    sampleIds, null, null, false)).thenReturn(new ArrayList<CopyNumberCountByGene>());
+                    sampleIds, null, null, false, true)).thenReturn(new ArrayList<CopyNumberCountByGene>());
         }
 
         List<AlterationEnrichment> expectedAlterationEnrichments = new ArrayList<>();

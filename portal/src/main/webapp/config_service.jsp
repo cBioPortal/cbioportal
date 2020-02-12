@@ -107,8 +107,8 @@
             "oncoprint.custom_driver_annotation.tiers.default",
             "ensembl.transcript_url",
             "enable_persistent_cache",
-            "query_product_limit"  
-           
+            "query_product_limit",
+            "skin.show_gsva"
         }; 
     
    

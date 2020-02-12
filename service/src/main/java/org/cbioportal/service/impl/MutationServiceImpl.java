@@ -19,7 +19,7 @@ public class MutationServiceImpl implements MutationService {
     @Autowired
     private MolecularProfileService molecularProfileService;
     @Autowired
-    private AlterationEnrichmentUtil alterationEnrichmentUtil;
+    private AlterationEnrichmentUtil<MutationCountByGene> alterationEnrichmentUtil;
 
     @Override
     public List<Mutation> getMutationsInMolecularProfileBySampleListId(String molecularProfileId, String sampleListId,
@@ -109,7 +109,8 @@ public class MutationServiceImpl implements MutationService {
 
     @Override
 	public List<MutationCountByGene> getSampleCountInMultipleMolecularProfiles(List<String> molecularProfileIds,
-			List<String> sampleIds, List<Integer> entrezGeneIds, boolean includeFrequency) {
+			List<String> sampleIds, List<Integer> entrezGeneIds, boolean includeFrequency,
+            boolean includeMissingAlterationsFromGenePanel) {
         
         List<MutationCountByGene> alterationCountByGenes;
         if (molecularProfileIds.isEmpty()) {
@@ -118,7 +119,7 @@ public class MutationServiceImpl implements MutationService {
             alterationCountByGenes = mutationRepository.getSampleCountInMultipleMolecularProfiles(
                 molecularProfileIds, sampleIds, entrezGeneIds);
             if (includeFrequency) {
-                alterationEnrichmentUtil.includeFrequencyForSamples(molecularProfileIds, sampleIds, alterationCountByGenes);
+                alterationEnrichmentUtil.includeFrequencyForSamples(molecularProfileIds, sampleIds, alterationCountByGenes, includeMissingAlterationsFromGenePanel);
             }
         }
 
@@ -129,7 +130,8 @@ public class MutationServiceImpl implements MutationService {
     public List<MutationCountByGene> getSampleCountInMultipleMolecularProfilesForFusions(List<String> molecularProfileIds,
                                                                                         List<String> sampleIds,
                                                                                         List<Integer> entrezGeneIds,
-                                                                                        boolean includeFrequency) {
+                                                                                        boolean includeFrequency,
+                                                                                        boolean includeMissingAlterationsFromGenePanel) {
         List<MutationCountByGene> result;
         if (molecularProfileIds.isEmpty()) {
             result = Collections.emptyList();
@@ -137,7 +139,7 @@ public class MutationServiceImpl implements MutationService {
             result = mutationRepository.getSampleCountInMultipleMolecularProfilesForFusions(
                 molecularProfileIds, sampleIds, entrezGeneIds);
             if (includeFrequency) {
-                alterationEnrichmentUtil.includeFrequencyForSamples(molecularProfileIds, sampleIds, result);
+                alterationEnrichmentUtil.includeFrequencyForSamples(molecularProfileIds, sampleIds, result, includeMissingAlterationsFromGenePanel);
             }
         }
         return result;
@@ -147,7 +149,8 @@ public class MutationServiceImpl implements MutationService {
     public List<MutationCountByGene> getPatientCountInMultipleMolecularProfiles(List<String> molecularProfileIds,
                                                                                 List<String> patientIds,
                                                                                 List<Integer> entrezGeneIds,
-                                                                                boolean includeFrequency) {
+                                                                                boolean includeFrequency,
+                                                                                boolean includeMissingAlterationsFromGenePanel) {
         
         List<MutationCountByGene> alterationCountByGenes;
         if (molecularProfileIds.isEmpty()) {
@@ -156,7 +159,7 @@ public class MutationServiceImpl implements MutationService {
             alterationCountByGenes = mutationRepository.getPatientCountInMultipleMolecularProfiles(molecularProfileIds, patientIds,
                     entrezGeneIds);
             if (includeFrequency) {
-                alterationEnrichmentUtil.includeFrequencyForPatients(molecularProfileIds, patientIds, alterationCountByGenes);
+                alterationEnrichmentUtil.includeFrequencyForPatients(molecularProfileIds, patientIds, alterationCountByGenes, includeMissingAlterationsFromGenePanel);
             }
         }
 

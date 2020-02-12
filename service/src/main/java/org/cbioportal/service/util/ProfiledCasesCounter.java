@@ -9,13 +9,13 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 @Component
-public class ProfiledCasesCounter {
+public class ProfiledCasesCounter<T extends AlterationCountByGene> {
 
     @Autowired
     private GenePanelService genePanelService;
 
     public void calculate(List<String> molecularProfileIds, List<String> sampleIds,
-            List<? extends AlterationCountByGene> alterationCounts, boolean countByPatients) {
+            List<T> alterationCounts, boolean countByPatients, boolean includeMissingAlterationsFromGenePanel) {
         List<GenePanelData> genePanelDataList = genePanelService
                 .fetchGenePanelDataInMultipleMolecularProfiles(molecularProfileIds, sampleIds);
         Map<String, Set<String>> casesWithDataInGenePanel = extractCasesWithDataInGenePanel(genePanelDataList, countByPatients);
@@ -59,7 +59,6 @@ public class ProfiledCasesCounter {
 
         for (AlterationCountByGene alterationCountByGene : alterationCounts) {
             Integer entrezGeneId = alterationCountByGene.getEntrezGeneId();
-
             Set<String> totalProfiledCases = new HashSet<String>();
             Set<String> allMatchingGenePanelIds = new HashSet<String>();
             // different calculations depending on if gene is linked to gene panels
@@ -69,15 +68,52 @@ public class ProfiledCasesCounter {
                 for (GenePanel genePanel : geneGenePanelMap.get(entrezGeneId)) {
                     allMatchingGenePanelIds.add(genePanel.getStableId());
                     totalProfiledCases.addAll(casesWithDataInGenePanel.get(genePanel.getStableId()));
-                    totalProfiledCases.addAll(casesWithoutPanelData);
                 }
+                totalProfiledCases.addAll(casesWithoutPanelData);
                 alterationCountByGene.setNumberOfProfiledCases(totalProfiledCases.size());
-                alterationCountByGene.setMatchingGenePanelIds(allMatchingGenePanelIds);
             } else {
                 alterationCountByGene.setNumberOfProfiledCases(profiledCasesCount);
-                alterationCountByGene.setMatchingGenePanelIds(allMatchingGenePanelIds);
             }
+            alterationCountByGene.setMatchingGenePanelIds(allMatchingGenePanelIds);
         }
+
+        if (includeMissingAlterationsFromGenePanel) {
+            Map<Integer, Boolean> genesWithAlteration = alterationCounts.stream()
+                    .collect(Collectors.toMap(AlterationCountByGene::getEntrezGeneId, x -> true));
+
+            geneGenePanelMap.entrySet().forEach(entry -> {
+                Integer entrezGeneId = entry.getKey();
+                // add alterationCount object where there are no alterations but have genePanel
+                // object
+                if (!genesWithAlteration.containsKey(entrezGeneId)) {
+                    AlterationCountByGene alterationCountByGene = null;
+
+                    if (alterationCounts.get(0) instanceof MutationCountByGene) {
+                        alterationCountByGene = new MutationCountByGene();
+                    } else {
+                        alterationCountByGene = new CopyNumberCountByGene();
+                    }
+
+                    alterationCountByGene.setEntrezGeneId(entrezGeneId);
+
+                    Set<String> totalProfiledCases = new HashSet<String>();
+                    Set<String> allMatchingGenePanelIds = new HashSet<String>();
+                    for (GenePanel genePanel : geneGenePanelMap.get(entrezGeneId)) {
+                        allMatchingGenePanelIds.add(genePanel.getStableId());
+                        totalProfiledCases.addAll(casesWithDataInGenePanel.get(genePanel.getStableId()));
+                    }
+                    totalProfiledCases.addAll(casesWithoutPanelData);
+
+                    alterationCountByGene.setMatchingGenePanelIds(allMatchingGenePanelIds);
+                    alterationCountByGene.setNumberOfProfiledCases(totalProfiledCases.size());
+                    alterationCountByGene.setNumberOfAlteredCases(0);
+
+                    alterationCounts.add((T) alterationCountByGene);
+                }
+            });
+
+        }
+
     }
 
     private Map<String, Set<String>> extractCasesWithDataInGenePanel(List<GenePanelData> genePanelDataList, boolean countByPatients) {

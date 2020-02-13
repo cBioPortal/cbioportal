@@ -96,7 +96,7 @@ public class ImportGeneData extends ConsoleRunnable {
                     String strAliases = parts[4];
                     String strXrefs = parts[5];
                     String cytoband = parts[7];
-                    String chr = cytoband.split("p|q|;|c")[0]; // various strange characters were found in this column
+                    String chr = cytoband.split("p|q|;|c|\\|| ")[0]; // various strange characters were found in this column
                     int referenceGenomeId = DaoReferenceGenome.getReferenceGenomeByBuildName(genomeBuild).getReferenceGenomeId();
                     String desc = parts[8];
                     String type = parts[9];

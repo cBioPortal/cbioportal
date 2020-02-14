@@ -96,7 +96,7 @@ public class ProxyController {
     public class OncoKBServiceIsDisabledException extends RuntimeException {
     }
 
-    @ResponseStatus(code = HttpStatus.NOT_FOUND, reason = "No OncoKB access token is provided")
+    @ResponseStatus(code = HttpStatus.FORBIDDEN, reason = "No OncoKB access token is provided")
     public class NOOncoKBTokenProvidedException extends RuntimeException {
     }
 

@@ -3810,7 +3810,7 @@ class MultipleDataFileValidator(FeaturewiseFileValidator, metaclass=ABCMeta):
 
         """Check the feature id column."""
 
-        ALLOWED_CHARACTERS = r'[^A-Za-z0-9_-]'
+        ALLOWED_CHARACTERS = r'[^A-Za-z0-9_.-]'
 
         feature_id = nonsample_col_vals[0].strip()
 
@@ -3821,7 +3821,7 @@ class MultipleDataFileValidator(FeaturewiseFileValidator, metaclass=ABCMeta):
         elif re.search(ALLOWED_CHARACTERS, feature_id) is not None:
             self.logger.error('Feature id contains one or more illegal characters',
                                 extra={'line_number': self.line_number,
-                                        'cause': 'id was`'+feature_id+'` and only alpha-numeric, _ and - are allowed.'})
+                                        'cause': 'id was`'+feature_id+'` and only alpha-numeric, _, . and - are allowed.'})
         else:
             # Check if this is the second data file
             if self.get_prior_validated_feature_ids() is not None:

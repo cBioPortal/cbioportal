@@ -2461,7 +2461,7 @@ class ClinicalValidator(Validator):
                 pass
             elif data_type == 'NUMBER':
                 if not self.checkFloat(value):
-                	if value.startswith('>') or value.startswith('<'):
+                	if (value[0] in ('>','<')) and value[1:].isdigit():
                 		pass
                 	else:
                 		self.logger.error(

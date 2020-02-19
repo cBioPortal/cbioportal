@@ -51,7 +51,7 @@ public class StudyController {
     @Value("${authenticate:false}")
     private String authenticate;
 
-    @Value("${app.name:unknown")
+    @Value("${app.name:unknown}")
     private String appName;
     
     private boolean usingAuth() {

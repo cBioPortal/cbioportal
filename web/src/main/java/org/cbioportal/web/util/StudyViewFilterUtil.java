@@ -53,4 +53,8 @@ public class StudyViewFilterUtil {
             }
         }
     }
+
+    public String getCaseUniqueKey(String studyId, String caseId) {
+        return studyId + caseId;
+    }
 }

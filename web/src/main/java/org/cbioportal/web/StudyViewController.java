@@ -133,9 +133,12 @@ public class StudyViewController {
         
         List<String> attributeIds = attributes.stream().map(ClinicalDataBinFilter::getAttributeId).collect(Collectors.toList());
         
-        List<Patient> patients = patientService.getPatientsOfSamples(filteredStudyIds, filteredSampleIds);
-        List<String> filteredPatientIds = patients.stream().map(Patient::getStableId).collect(Collectors.toList());
-        List<String> studyIdsOfPatients = patients.stream().map(Patient::getCancerStudyIdentifier).collect(Collectors.toList());
+        List<String> filteredPatientIds = new ArrayList<>();
+        List<String> studyIdsOfFilteredPatients = new ArrayList<>();
+        patientService.getPatientsOfSamples(filteredStudyIds, filteredSampleIds).stream().forEach(patient -> {
+            filteredPatientIds.add(patient.getStableId());
+            studyIdsOfFilteredPatients.add(patient.getCancerStudyIdentifier());
+        });
         
         List<DataBin> clinicalDataBins = null;
         
@@ -152,7 +155,7 @@ public class StudyViewController {
         List<ClinicalData> filteredClinicalData = fetchClinicalData(filteredStudyIds,
                 filteredSampleIds,
                 filteredPatientIds,
-                studyIdsOfPatients,
+                studyIdsOfFilteredPatients,
                 sampleAttributeIds,
                 patientAttributeIds,
                 conflictingPatientAttributeIds);
@@ -171,6 +174,9 @@ public class StudyViewController {
         
         Map<String, List<ClinicalData>> filteredClinicalDataByAttributeId = 
             filteredClinicalData.stream().collect(Collectors.groupingBy(ClinicalData::getAttrId));
+
+        List<String> filteredUniqueSampleKeys =  getUniqkeyKeys(filteredStudyIds, filteredSampleIds);
+        List<String> filteredUniquePatientKeys =  getUniqkeyKeys(studyIdsOfFilteredPatients, filteredPatientIds);
         
         if (dataBinMethod == DataBinMethod.STATIC) {
             StudyViewFilter filter = studyViewFilter == null ? null : new StudyViewFilter();
@@ -187,13 +193,14 @@ public class StudyViewController {
                     unfilteredSampleIds);
 
             if (!unFilteredSampleIdentifiers.isEmpty()) {
-                List<Patient> unfilteredPatients = patientService.getPatientsOfSamples(unfilteredStudyIds,
-                        unfilteredSampleIds);
-                List<String> unfilteredPatientIds = unfilteredPatients.stream().map(Patient::getStableId)
-                        .collect(Collectors.toList());
-                List<String> unfilteredStudyIdsOfPatients = unfilteredPatients.stream().map(Patient::getCancerStudyIdentifier)
-                        .collect(Collectors.toList());
-
+                List<String> unfilteredPatientIds = new ArrayList<>();
+                List<String> unfilteredStudyIdsOfPatients = new ArrayList<>();
+                patientService.getPatientsOfSamples(unfilteredStudyIds, unfilteredSampleIds).stream()
+                        .forEach(patient -> {
+                            unfilteredPatientIds.add(patient.getStableId());
+                            unfilteredStudyIdsOfPatients.add(patient.getCancerStudyIdentifier());
+                        });
+                
                 List<ClinicalData> unfilteredClinicalData = fetchClinicalData(unfilteredStudyIds, unfilteredSampleIds,
                         unfilteredPatientIds, unfilteredStudyIdsOfPatients, new ArrayList<>(sampleAttributeIds),
                         new ArrayList<>(patientAttributeIds), new ArrayList<>(conflictingPatientAttributeIds));
@@ -201,15 +208,18 @@ public class StudyViewController {
                         .collect(Collectors.groupingBy(ClinicalData::getAttrId));
 
                 if (!unfilteredClinicalData.isEmpty()) {
+                    List<String> unfilteredUniqueSampleKeys =  getUniqkeyKeys(unfilteredStudyIds, unfilteredSampleIds);
+                    List<String> unfilteredUniquePatientKeys =  getUniqkeyKeys(unfilteredStudyIdsOfPatients, unfilteredPatientIds);
+
                     clinicalDataBins = new ArrayList<>();
                     for (ClinicalDataBinFilter attribute : attributes) {
                         if (attributeDatatypeMap.containsKey(attribute.getAttributeId())) {
                             ClinicalDataType clinicalDataType = attributeDatatypeMap.get(attribute.getAttributeId());
-                            List<String> filteredIds = clinicalDataType == ClinicalDataType.PATIENT ? filteredPatientIds
-                                    : filteredSampleIds;
+                            List<String> filteredIds = clinicalDataType == ClinicalDataType.PATIENT ? filteredUniquePatientKeys
+                                    : filteredUniqueSampleKeys;
                             List<String> unfilteredIds = clinicalDataType == ClinicalDataType.PATIENT
-                                    ? unfilteredPatientIds
-                                    : unfilteredSampleIds;
+                                    ? unfilteredUniquePatientKeys
+                                    : unfilteredUniqueSampleKeys;
 
                             List<DataBin> dataBins = dataBinner.calculateClinicalDataBins(attribute, clinicalDataType,
                                     filteredClinicalDataByAttributeId.getOrDefault(attribute.getAttributeId(),
@@ -231,8 +241,8 @@ public class StudyViewController {
 
                     if (attributeDatatypeMap.containsKey(attribute.getAttributeId())) {
                         ClinicalDataType clinicalDataType = attributeDatatypeMap.get(attribute.getAttributeId());
-                        List<String> filteredIds = clinicalDataType == ClinicalDataType.PATIENT ? filteredPatientIds
-                                : filteredSampleIds;
+                        List<String> filteredIds = clinicalDataType == ClinicalDataType.PATIENT ? filteredUniquePatientKeys
+                                : filteredUniqueSampleKeys;
 
                         List<DataBin> dataBins = dataBinner.calculateClinicalDataBins(attribute, clinicalDataType,
                                 filteredClinicalDataByAttributeId.getOrDefault(attribute.getAttributeId(),
@@ -620,6 +630,14 @@ public class StudyViewController {
         }
 
         return combinedResult;
+    }
+
+    private List<String> getUniqkeyKeys(List<String> studyIds, List<String> caseIds) {
+        List<String> uniqkeyKeys = new ArrayList<String>();
+        for (int i = 0; i < caseIds.size(); i++) {
+            uniqkeyKeys.add(studyViewFilterUtil.getCaseUniqueKey(studyIds.get(i), caseIds.get(i)));
+        }
+        return uniqkeyKeys;
     }
     
 }

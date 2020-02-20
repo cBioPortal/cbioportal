@@ -38,6 +38,9 @@
 * [More portal.properties Settings](portal.properties-Reference.md)
 * [Configuring Caching Behavior](Caching.md)
 
+### 2.4 Integration with Other Webservices
+* [OncoKB Data Access](OncoKB-Data-Access.md)
+
 ## 3. cBioPortal Maintenance
 * [Updating your cBioPortal Database Scheme](Updating-your-cBioPortal-installation.md)
 * [Update genes and gene aliases](Updating-gene-and-gene_alias-tables.md)

@@ -1,8 +1,8 @@
 # Introduction
 
-A data access token is required to use OncoKB. Please review OncoKB [terms](https://www.oncokb.org/terms) 
-and request for [data access](https://www.oncokb.org/dataAccess) if you would like to use OncoKB data 
-with your private cBioPortal instance.
+A data access token is required for versions `v3.2.4` and greater to use OncoKB. Please review 
+OncoKB [terms](https://www.oncokb.org/terms) and request for [data access](https://www.oncokb.org/dataAccess) 
+if you would like to use OncoKB data with your private cBioPortal instance.
 
 # Configuration
 

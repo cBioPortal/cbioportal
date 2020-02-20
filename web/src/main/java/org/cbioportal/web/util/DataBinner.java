@@ -469,9 +469,11 @@ public class DataBinner {
         Set<String> uniqueClinicalDataIds;
 
         if (clinicalData != null) {
-            uniqueClinicalDataIds = clinicalDataType == ClinicalDataType.PATIENT ?
-                clinicalData.stream().map(ClinicalData::getPatientId).filter(Objects::nonNull).collect(Collectors.toSet()) :
-                clinicalData.stream().map(ClinicalData::getSampleId).filter(Objects::nonNull).collect(Collectors.toSet());
+            uniqueClinicalDataIds = clinicalData
+                    .stream()
+                    .map(datum -> computeUniqueCaseId(datum, clinicalDataType))
+                    .filter(Objects::nonNull)
+                    .collect(Collectors.toSet());
         } else {
             uniqueClinicalDataIds = Collections.emptySet();
         }
@@ -484,5 +486,13 @@ public class DataBinner {
         count += uniqueInputIds.size();
 
         return count;
+    }
+    
+    private String computeUniqueCaseId(ClinicalData clinicalData, ClinicalDataType clinicalDataType) {
+        if (clinicalDataType == ClinicalDataType.PATIENT) {
+            return studyViewFilterUtil.getCaseUniqueKey(clinicalData.getStudyId(), clinicalData.getPatientId());
+        } else {
+            return studyViewFilterUtil.getCaseUniqueKey(clinicalData.getStudyId(), clinicalData.getSampleId());
+        }
     }
 }

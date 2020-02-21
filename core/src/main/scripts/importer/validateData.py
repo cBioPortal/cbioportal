@@ -2461,7 +2461,10 @@ class ClinicalValidator(Validator):
                 pass
             elif data_type == 'NUMBER':
                 if not self.checkFloat(value):
-                    self.logger.error(
+                	if (value[0] in ('>','<')) and value[1:].isdigit():
+                		pass
+                	else:
+                		self.logger.error(
                         'Value of numeric attribute is not a real number',
                         extra={'line_number': self.line_number,
                                'column_number': col_index + 1,

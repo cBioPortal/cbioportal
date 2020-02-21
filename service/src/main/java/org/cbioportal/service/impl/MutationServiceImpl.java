@@ -195,4 +195,17 @@ public class MutationServiceImpl implements MutationService {
 
         return molecularProfile;
     }
+
+    // TODO: cleanup once fusion/structural data is fixed in database
+    @Override
+    public List<Mutation> getFusionsInMultipleMolecularProfiles(List<String> molecularProfileIds,
+            List<String> sampleIds, List<Integer> entrezGeneIds, String projection, Integer pageSize,
+            Integer pageNumber, String sortBy, String direction) {
+
+        List<Mutation> mutationList = mutationRepository.getFusionsInMultipleMolecularProfiles(molecularProfileIds,
+                sampleIds, entrezGeneIds, projection, pageSize, pageNumber, sortBy, direction);
+
+        return mutationList;
+    }
+    // TODO: cleanup once fusion/structural data is fixed in database
 }

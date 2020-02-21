@@ -7,6 +7,7 @@ This page describes the main properties within portal.properties.
 - [Bitly API Username and Key](#bitly-api-username-and-key)
 - [Google Analytics](#google-analytics)
 - [Password Authentication](#password-authentication)
+- [OncoKB integration](#oncokb-integration)
 - [CIViC integration](#civic-integration)
 - [OncoPrint](#oncoprint)
 - [Custom annotation of driver and passenger mutations](#custom-annotation-of-driver-and-passenger-mutations)
@@ -204,6 +205,17 @@ In addition, set this property in `portal.properties`:
 app.name=cbioportal
 ```
 app.name should be set to the name of the portal instance referenced in the "AUTHORITY" column of the "AUTHORITIES" table.  See the [User Authorization](User-Authorization.md) for more information.
+
+# OncoKB integration
+
+OncoKB integration can be turned on or off with the following property (default: true):
+```
+show.oncokb=true|false
+```
+A private token is required to access the OncoKB Data (for details see the section [OncoKB Data Access](OncoKB-Data-Access.md)):
+```
+oncokb.token=
+```
 
 # CIViC integration
 

@@ -55,4 +55,10 @@ public interface MutationMapper {
 
     MutationCountByPosition getMutationCountByPosition(Integer entrezGeneId, Integer proteinPosStart, 
                                                        Integer proteinPosEnd);
+
+    // TODO: cleanup once fusion/structural data is fixed in database
+    List<Mutation> getFusionsInMultipleMolecularProfiles(List<String> molecularProfileIds, List<String> sampleIds,
+            List<Integer> entrezGeneIds, Boolean snpOnly, String projection, Integer limit, Integer offset,
+            String sortBy, String direction);
+    // TODO: cleanup once fusion/structural data is fixed in database
 }

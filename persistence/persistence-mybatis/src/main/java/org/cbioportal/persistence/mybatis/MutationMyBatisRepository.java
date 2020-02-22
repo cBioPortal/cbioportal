@@ -112,4 +112,16 @@ public class MutationMyBatisRepository implements MutationRepository {
 
         return mutationMapper.getMutationCountByPosition(entrezGeneId, proteinPosStart, proteinPosEnd);
     }
+
+    // TODO: cleanup once fusion/structural data is fixed in database
+    @Override
+    public List<Mutation> getFusionsInMultipleMolecularProfiles(List<String> molecularProfileIds,
+            List<String> sampleIds, List<Integer> entrezGeneIds, String projection, Integer pageSize,
+            Integer pageNumber, String sortBy, String direction) {
+
+        return mutationMapper.getFusionsInMultipleMolecularProfiles(molecularProfileIds, sampleIds, entrezGeneIds,
+                null, projection, pageSize, offsetCalculator.calculate(pageSize, pageNumber), sortBy, direction);
+    }
+    // TODO: cleanup once fusion/structural data is fixed in database
+
 }

@@ -225,6 +225,29 @@
             LIMIT #{limit} OFFSET #{offset}
         </if>
     </select>
+    
+    <!-- TODO: cleanup once fusion/structural data is fixed in database -->
+    <select id="getFusionsInMultipleMolecularProfiles" resultType="org.cbioportal.model.Mutation">
+        SELECT
+        <include refid="select"/>
+        <include refid="from"/>
+        INNER JOIN mutation_event ON mutation.MUTATION_EVENT_ID = mutation_event.MUTATION_EVENT_ID AND mutation_event.MUTATION_TYPE = 'Fusion'
+        <if test="projection == 'DETAILED'">
+            INNER JOIN gene ON mutation.ENTREZ_GENE_ID = gene.ENTREZ_GENE_ID
+            <include refid="includeAlleleSpecificCopyNumber"/>
+        </if>
+        <include refid="whereInMultipleMolecularProfiles"/>
+        <if test="sortBy != null and projection != 'ID'">
+            ORDER BY ${sortBy} ${direction}
+        </if>
+        <if test="projection == 'ID'">
+            ORDER BY genetic_profile.STABLE_ID ASC, sample.STABLE_ID ASC, mutation.ENTREZ_GENE_ID ASC
+        </if>
+        <if test="limit != null and limit != 0">
+            LIMIT #{limit} OFFSET #{offset}
+        </if>
+    </select>
+    <!-- TODO: cleanup once fusion/structural data is fixed in database -->
 
     <select id="getMetaMutationsInMultipleMolecularProfiles" resultType="org.cbioportal.model.meta.MutationMeta">
         SELECT

@@ -86,15 +86,7 @@ public class ProfiledCasesCounter<T extends AlterationCountByGene> {
                 // add alterationCount object where there are no alterations but have genePanel
                 // object
                 if (!genesWithAlteration.containsKey(entrezGeneId)) {
-                    AlterationCountByGene alterationCountByGene = null;
-
-                    if (alterationCounts.get(0) instanceof MutationCountByGene) {
-                        alterationCountByGene = new MutationCountByGene();
-                    } else {
-                        alterationCountByGene = new CopyNumberCountByGene();
-                    }
-
-                    alterationCountByGene.setEntrezGeneId(entrezGeneId);
+                    AlterationCountByGene alterationCountByGene = new AlterationCountByGene();
 
                     Set<String> totalProfiledCases = new HashSet<String>();
                     Set<String> allMatchingGenePanelIds = new HashSet<String>();
@@ -104,6 +96,7 @@ public class ProfiledCasesCounter<T extends AlterationCountByGene> {
                     }
                     totalProfiledCases.addAll(casesWithoutPanelData);
 
+                    alterationCountByGene.setEntrezGeneId(entrezGeneId);
                     alterationCountByGene.setMatchingGenePanelIds(allMatchingGenePanelIds);
                     alterationCountByGene.setNumberOfProfiledCases(totalProfiledCases.size());
                     alterationCountByGene.setNumberOfAlteredCases(0);

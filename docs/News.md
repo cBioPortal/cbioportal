@@ -2,7 +2,7 @@
 *   **Added data** consisting of 1,605 samples from 3studies:
      * [Tumors with TRK fusions (MSK, 2019)](https://www.cbioportal.org/study/summary?id=ntrk_msk_2019) *106 samples* 
      * [Lymphoma Cell Lines (MSKCC, 2020)](https://www.cbioportal.org/study/summary?id=lymphoma_cellline_msk_2020) *34 samples* 
-     * [Prostate Adenocarcinoma (MSKCC, 2020)](https://www.cbioportal.org/study/summary?id=prad_mskcc_2020) *1,465 samples* 
+     * [Prostate Adenocarcinoma (MSKCC, 2020)](https://www.cbioportal.org/study/summary?id=prad_cdk12_mskcc_2020) *1,465 samples* 
 
 ## Feb 6, 2020
 * **New Feature**: Extend the [recent group comparison feature](https://www.cbioportal.org/tutorials#group-comparison) by allowing comparisons inside the _Results View_ page. The new tab allows for quick comparison of altered vs unaltered cases by survival, clinical information, mutation, copy number events and mRNA expression:

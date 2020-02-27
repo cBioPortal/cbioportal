@@ -1,5 +1,5 @@
 ## Feb 12, 2020
-*   **Added data** consisting of 1,605 samples from 3studies:
+*   **Added data** consisting of 1,605 samples from 3 studies:
      * [Tumors with TRK fusions (MSK, 2019)](https://www.cbioportal.org/study/summary?id=ntrk_msk_2019) *106 samples* 
      * [Lymphoma Cell Lines (MSKCC, 2020)](https://www.cbioportal.org/study/summary?id=lymphoma_cellline_msk_2020) *34 samples* 
      * [Prostate Adenocarcinoma (MSKCC, 2020)](https://www.cbioportal.org/study/summary?id=prad_cdk12_mskcc_2020) *1,465 samples* 

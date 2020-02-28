@@ -69,6 +69,8 @@ public class StudyViewController {
     @Autowired
     private ClinicalAttributeUtil clinicalAttributeUtil;
     @Autowired
+    private TreatmentService treatmentService;
+    @Autowired
     private MolecularDataService molecularDataService;
     @Autowired
     private GeneService geneService;
@@ -684,6 +686,80 @@ public class StudyViewController {
                 })
                 .filter(dataCount -> dataCount.getCount() > 0)
                 .collect(Collectors.toList());
+
+    }
+
+
+    @PreAuthorize("hasPermission(#involvedCancerStudies, 'Collection<CancerStudyId>', 'read')")
+    @RequestMapping(value = "/study-view-sample-treatments", method = RequestMethod.POST,
+        consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
+    @ApiOperation("Get study view sample treatment rows")
+    public ResponseEntity<List<SampleTreatmentRow>> getSampleTreatmentRows(
+            @ApiParam(required = true, value = "Study view filter")
+            @Valid
+            @RequestBody(required = false)
+            StudyViewFilter studyViewFilter,
+            
+            @ApiIgnore // prevent reference to this attribute in the swagger-ui interface
+            @RequestAttribute(required = false, value = "involvedCancerStudies")
+            Collection<String> involvedCancerStudies,
+        
+            @ApiIgnore // prevent reference to this attribute in the swagger-ui interface. this attribute is needed for the @PreAuthorize tag above.
+            @Valid @RequestAttribute(required = false, value = "interceptedStudyViewFilter")
+            StudyViewFilter interceptedStudyViewFilter
+    ) {
+        List<String> studyIds = new ArrayList<>();
+        List<String> sampleIds = new ArrayList<>();
+        //TODO: use intercepted filter
+        studyViewFilterUtil.extractStudyAndSampleIds(studyViewFilterApplier.apply(studyViewFilter), studyIds, sampleIds);
+        if (sampleIds.isEmpty() && studyIds.isEmpty()) {
+            return new ResponseEntity<>(new ArrayList<>(), HttpStatus.OK);
+        }
+
+        List<SampleTreatmentRow> reponse = treatmentService.getAllTreatmentSampleRows(
+            sampleIds,
+            studyIds,
+            null
+        );
+        
+        return new ResponseEntity<>(reponse, HttpStatus.OK);
+
+    }
+
+    @PreAuthorize("hasPermission(#involvedCancerStudies, 'Collection<CancerStudyId>', 'read')")
+    @RequestMapping(value = "/study-view-patient-treatments", method = RequestMethod.POST,
+        consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
+    @ApiOperation("Get study view patient treatment rows")
+    public ResponseEntity<List<PatientTreatmentRow>> getPatientTreatmentRows(
+        @ApiParam(required = true, value = "Study view filter")
+        @Valid
+        @RequestBody(required = false)
+        StudyViewFilter studyViewFilter,
+
+        @ApiIgnore // prevent reference to this attribute in the swagger-ui interface
+        @RequestAttribute(required = false, value = "involvedCancerStudies")
+        Collection<String> involvedCancerStudies,
+
+        @ApiIgnore // prevent reference to this attribute in the swagger-ui interface. this attribute is needed for the @PreAuthorize tag above.
+        @Valid @RequestAttribute(required = false, value = "interceptedStudyViewFilter")
+        StudyViewFilter interceptedStudyViewFilter
+    ) {
+        List<String> studyIds = new ArrayList<>();
+        List<String> sampleIds = new ArrayList<>();
+        
+        //TODO: use intercepted filter
+        studyViewFilterUtil.extractStudyAndSampleIds(studyViewFilterApplier.apply(studyViewFilter), studyIds, sampleIds);
+        if (sampleIds.isEmpty() && studyIds.isEmpty()) {
+            return new ResponseEntity<>(new ArrayList<>(), HttpStatus.OK);
+        }
+
+        List<PatientTreatmentRow> reponse = treatmentService.getAllTreatmentPatientRows(
+            sampleIds,
+            studyIds,
+            null
+        );
+
+        return new ResponseEntity<>(reponse, HttpStatus.OK);
 
     }
     

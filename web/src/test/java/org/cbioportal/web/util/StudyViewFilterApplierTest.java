@@ -55,6 +55,9 @@ public class StudyViewFilterApplierTest {
     private GenePanelService genePanelService;
     @Mock
     private GeneService geneService;
+    @Mock
+    private TreatmentService treatmentService;
+
     // Do not mock utility classes, we also want to test their functionality
     @InjectMocks
     private ClinicalDataEqualityFilterApplier clinicalDataEqualityFilterApplier;
@@ -79,7 +82,7 @@ public class StudyViewFilterApplierTest {
 
         studyViewFilterApplier = new StudyViewFilterApplier(sampleService, mutationService, discreteCopyNumberService,
                 molecularProfileService, genePanelService, clinicalDataService, clinicalDataEqualityFilterApplier,
-                clinicalDataIntervalFilterApplier, studyViewFilterUtil, geneService, clinicalAttributeService,
+                clinicalDataIntervalFilterApplier, studyViewFilterUtil, geneService, clinicalAttributeService, treatmentService,
                 molecularDataService, sampleListService);
     }
 

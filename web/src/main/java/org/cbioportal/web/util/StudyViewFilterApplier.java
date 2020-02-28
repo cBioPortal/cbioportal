@@ -12,6 +12,9 @@ import org.cbioportal.model.MolecularProfile.MolecularAlterationType;
 import org.cbioportal.service.*;
 import org.cbioportal.web.parameter.*;
 import org.cbioportal.web.parameter.GeneFilter.SingleGeneQuery;
+import org.cbioportal.web.parameter.filter.AndedPatientTreatmentFilters;
+import org.cbioportal.web.parameter.filter.AndedSampleTreatmentFilters;
+import org.cbioportal.web.parameter.filter.SampleTreatmentFilter;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
@@ -28,6 +31,7 @@ public class StudyViewFilterApplier {
     private StudyViewFilterUtil studyViewFilterUtil;
     private GeneService geneService;
     private ClinicalAttributeService clinicalAttributeService;
+    private TreatmentService treatmentService;
     private MolecularDataService molecularDataService;
     private SampleListService sampleListService;
 
@@ -43,6 +47,7 @@ public class StudyViewFilterApplier {
                                   StudyViewFilterUtil studyViewFilterUtil,
                                   GeneService geneService,
                                   ClinicalAttributeService clinicalAttributeService,
+                                  TreatmentService treatmentService,
                                   MolecularDataService molecularDataService,
                                   SampleListService sampleListService) {
         this.sampleService = sampleService;
@@ -55,6 +60,7 @@ public class StudyViewFilterApplier {
         this.studyViewFilterUtil = studyViewFilterUtil;
         this.geneService = geneService;
         this.clinicalAttributeService = clinicalAttributeService;
+        this.treatmentService = treatmentService;
         this.molecularDataService = molecularDataService;
         this.sampleListService = sampleListService;
     }
@@ -242,7 +248,48 @@ public class StudyViewFilterApplier {
             }
         }
 
+        
+        if (studyViewFilter.getSampleTreatmentFilters() != null) {
+            sampleIdentifiers = filterBySampleTreatments(studyViewFilter.getSampleTreatmentFilters(), sampleIdentifiers, studyIds);
+        }
+        
+        if (studyViewFilter.getPatientTreatmentFilters() != null) {
+            sampleIdentifiers = filterByPatientTreatments(studyViewFilter.getPatientTreatmentFilters(), sampleIdentifiers, studyIds);
+        }
+
         return sampleIdentifiers;
+    }
+
+    private List<SampleIdentifier> filterByPatientTreatments(
+            AndedPatientTreatmentFilters filters,
+            List<SampleIdentifier> identifiers,
+            List<String> studyIds
+    ) {
+        List<String> sampleIds = identifiers.stream().map(SampleIdentifier::getSampleId).collect(Collectors.toList());
+
+        Map<String, PatientTreatmentRow> rows = treatmentService.getAllTreatmentPatientRows(sampleIds, studyIds, null)
+            .stream()
+            .collect(Collectors.toMap(PatientTreatmentRow::calculateKey, Function.identity()));
+        
+        return identifiers.stream()
+            .filter(i -> filters.filter(i, rows))
+            .collect(Collectors.toList());
+    }
+
+    private List<SampleIdentifier> filterBySampleTreatments(
+            AndedSampleTreatmentFilters filters,
+            List<SampleIdentifier> identifiers,
+            List<String> studyIds
+    ) {
+        List<String> sampleIds = identifiers.stream().map(SampleIdentifier::getSampleId).collect(Collectors.toList());
+        
+        Map<String, SampleTreatmentRow> rows = treatmentService.getAllTreatmentSampleRows(sampleIds, studyIds, null)
+            .stream()
+            .collect(Collectors.toMap(SampleTreatmentRow::calculateKey, Function.identity()));
+        
+        return identifiers.stream()
+            .filter(id -> filters.filter(id, rows))
+            .collect(Collectors.toList());
     }
 
     private List<SampleIdentifier> intervalFilterClinicalData(List<SampleIdentifier> sampleIdentifiers,

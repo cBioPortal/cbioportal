@@ -1,0 +1,96 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="org.cbioportal.persistence.mybatis.TreatmentMapper">
+    <select id="getAllTreatments" resultType="org.cbioportal.model.Treatment">
+        SELECT
+            clinical_event_data.VALUE as treatment,
+            clinical_event.PATIENT_ID as patientId,
+            cancer_study.CANCER_STUDY_IDENTIFIER as studyId,
+            clinical_event.START_DATE as start,
+            clinical_event.STOP_DATE as stop
+        FROM
+            clinical_event
+            INNER JOIN clinical_event_data ON clinical_event.CLINICAL_EVENT_ID = clinical_event_data.CLINICAL_EVENT_ID
+            INNER JOIN patient ON clinical_event.PATIENT_ID = patient.INTERNAL_ID
+            INNER JOIN sample ON patient.INTERNAL_ID = sample.PATIENT_ID
+            INNER JOIN cancer_study ON patient.CANCER_STUDY_ID = cancer_study.CANCER_STUDY_ID
+        <include refid="where"/>
+            AND clinical_event_data.KEY = "AGENT"
+    </select>
+
+    <select id="getAllSamples" resultType="org.cbioportal.model.ClinicalEventSample">
+        SELECT
+            sample.STABLE_ID as sampleId,
+            clinical_event.PATIENT_ID as patientId,
+            cancer_study.CANCER_STUDY_IDENTIFIER as studyId,
+            clinical_event.START_DATE as timeTaken
+        FROM
+            clinical_event
+            INNER JOIN clinical_event_data ON clinical_event.CLINICAL_EVENT_ID = clinical_event_data.CLINICAL_EVENT_ID
+            INNER JOIN patient ON clinical_event.PATIENT_ID = patient.INTERNAL_ID
+            INNER JOIN sample ON patient.INTERNAL_ID = sample.PATIENT_ID
+            INNER JOIN cancer_study ON patient.CANCER_STUDY_ID = cancer_study.CANCER_STUDY_ID
+        <include refid="where"/>
+            AND clinical_event_data.KEY = "SAMPLE_ID"
+            AND clinical_event.EVENT_TYPE != "SEQUENCING"
+    </select>
+
+    <select id="getAllUniqueTreatments" resultType="java.lang.String">
+        SELECT 
+            DISTINCT clinical_event_data.VALUE
+        FROM
+            clinical_event
+            INNER JOIN clinical_event_data ON clinical_event.CLINICAL_EVENT_ID = clinical_event_data.CLINICAL_EVENT_ID
+            INNER JOIN patient ON clinical_event.PATIENT_ID = patient.INTERNAL_ID
+            INNER JOIN sample ON patient.INTERNAL_ID = sample.PATIENT_ID
+            INNER JOIN cancer_study ON patient.CANCER_STUDY_ID = cancer_study.CANCER_STUDY_ID
+        <include refid="where"/>
+            AND clinical_event_data.KEY = "AGENT"
+    </select>
+
+    <select id="getTreatmentCount" resultType="java.lang.Integer">
+        SELECT
+            COUNT(clinical_event.PATIENT_ID)
+        FROM
+            clinical_event
+            INNER JOIN clinical_event_data ON clinical_event.CLINICAL_EVENT_ID = clinical_event_data.CLINICAL_EVENT_ID
+            INNER JOIN patient ON clinical_event.PATIENT_ID = patient.INTERNAL_ID
+            INNER JOIN sample ON patient.INTERNAL_ID = sample.PATIENT_ID
+            INNER JOIN cancer_study ON patient.CANCER_STUDY_ID = cancer_study.CANCER_STUDY_ID
+        <include refid="where"/>
+            AND clinical_event_data.KEY = "AGENT"
+    </select>
+    
+
+    <sql id="where">
+        <where>
+            <if test="sampleIds == null and studyIds != null">
+                cancer_study.CANCER_STUDY_IDENTIFIER IN
+                <if test="studyIds.isEmpty()">
+                    (NULL)
+                </if>
+                <if test="!studyIds.isEmpty()">
+                    <foreach item="item" collection="studyIds" open="(" separator="," close=")">
+                        #{item}
+                    </foreach>
+                </if>
+            </if>
+            <if test="sampleIds != null">
+                <if test="@java.util.Arrays@stream(studyIds.toArray()).distinct().count() == 1">
+                    cancer_study.CANCER_STUDY_IDENTIFIER = #{studyIds[0]} AND
+                    sample.STABLE_ID IN
+                    <foreach item="item" collection="sampleIds" open="(" separator="," close=")">
+                        #{item}
+                    </foreach>
+                </if>
+                <if test="@java.util.Arrays@stream(studyIds.toArray()).distinct().count() > 1">
+                    (cancer_study.CANCER_STUDY_IDENTIFIER, sample.STABLE_ID) IN
+                    <foreach index="i" collection="sampleIds" open="(" separator="," close=")">
+                        (#{studyIds[${i}]}, #{sampleIds[${i}]})
+                    </foreach>
+                </if>
+            </if>
+        </where>
+    </sql>
+</mapper>

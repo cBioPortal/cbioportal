@@ -13,6 +13,10 @@ import org.cbioportal.service.*;
 import org.cbioportal.service.exception.MolecularProfileNotFoundException;
 import org.cbioportal.web.parameter.*;
 import org.cbioportal.web.parameter.GeneFilter.SingleGeneQuery;
+import org.cbioportal.web.parameter.filter.AndedPatientTreatmentFilters;
+import org.cbioportal.web.parameter.filter.AndedSampleTreatmentFilters;
+import org.cbioportal.web.util.appliers.PatientTreatmentFilterApplier;
+import org.cbioportal.web.util.appliers.SampleTreatmentFilterApplier;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
@@ -47,6 +51,11 @@ public class StudyViewFilterApplier {
     private GenericAssayService genericAssayService;
     @Autowired
     private DataBinner dataBinner;
+    @Autowired
+    private PatientTreatmentFilterApplier patientTreatmentFilterApplier;
+    
+    @Autowired
+    private SampleTreatmentFilterApplier sampleTreatmentFilterApplier;
 
     Function<Sample, SampleIdentifier> sampleToSampleIdentifier = new Function<Sample, SampleIdentifier>() {
 
@@ -231,6 +240,22 @@ public class StudyViewFilterApplier {
 
                 sampleIdentifiers.retainAll(filteredSampleIdentifiers);
             }
+        }
+        
+        if (studyViewFilter.getSampleTreatmentFilters() != null) {
+            sampleIdentifiers = sampleTreatmentFilterApplier.filter(
+                studyViewFilter.getSampleTreatmentFilters(),
+                sampleIdentifiers,
+                studyIds
+            );
+        }
+
+        if (studyViewFilter.getPatientTreatmentFilters() != null) {
+            sampleIdentifiers = patientTreatmentFilterApplier.filter(
+                sampleIdentifiers,
+                studyViewFilter.getPatientTreatmentFilters(),
+                studyIds
+            );
         }
 
         return sampleIdentifiers;

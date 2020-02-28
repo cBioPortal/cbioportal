@@ -278,7 +278,7 @@
   </profiles>
 
   <properties>
-    <frontend.version>34bc9df26b03837788f58e6c3125caa129ff5db4</frontend.version>
+    <frontend.version>v3.2.5</frontend.version>
     <frontend.groupId>com.github.cbioportal</frontend.groupId>
     <slf4j.version>1.6.6</slf4j.version>
     <spring.version>4.3.14.RELEASE</spring.version>

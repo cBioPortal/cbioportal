@@ -371,7 +371,7 @@ def usage():
                            '--command [%s] --study_directory <path to directory> '
                            '--meta_filename <path to metafile>'
                            '--data_filename <path to datafile>'
-                           '--study_ids <cancer study ids, comma separated>'
+                           '--study_ids <cancer study ids for remove-study command, comma separated>'
                            '--properties-filename <path to properties file> ' % (COMMANDS)), file=OUTPUT_FILE)
 
 def check_args(command):
@@ -409,7 +409,7 @@ def interface():
     parser.add_argument('-data', '--data_filename', type=str, required=False,
                         help='Path to Data file')
     parser.add_argument('-id', '--study_ids', type=str, required=False,
-                        help='Cancer Study IDs, comma separated')
+                        help='Cancer Study IDs for `remove-study` command, comma separated')
     # TODO - add same argument to metaimporter
     # TODO - harmonize on - and _
 

@@ -72,6 +72,8 @@ public class StudyViewController {
     private ClinicalAttributeService clinicalAttributeService;
     @Autowired
     private ClinicalAttributeUtil clinicalAttributeUtil;
+    @Autowired
+    private TreatmentService treatmentService;
 
     @PreAuthorize("hasPermission(#involvedCancerStudies, 'Collection<CancerStudyId>', 'read')")
     @RequestMapping(value = "/clinical-data-counts/fetch", method = RequestMethod.POST,
@@ -598,6 +600,18 @@ public class StudyViewController {
             }
         }
 
+        return new ResponseEntity<>(result, HttpStatus.OK);
+    }
+
+
+    @RequestMapping(value = "/study-view-treatments", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
+    @ApiOperation("Get study view treatment rows")
+    public ResponseEntity<List<TreatmentRow>> getTreatmentRows() {
+        List<String> samples = Arrays.asList("P01_Pri", "P01_Rec", "P04_Pri", "P04_Rec1", "P04_Rec2", "P04_Rec3", "P05_Pri", "P05_Rec", "P06_Pri", "P06_Rec", "P10_Pri", "P10_Rec", "P11_Pri", "P11_Rec", "P17_Pri_A", "P17_Pri_B", "P17_Pri_C", "P17_Rec1_A", "P17_Rec1_B", "P17_Rec1_C", "P17_Rec1_D", "P18_Pri_A", "P18_Pri_B", "P18_Pri_C", "P18_Pri_D", "P18_Rec", "P21_Pri", "P21_Rec", "P24_Pri", "P24_Rec1", "P24_Rec2", "MSK_LX13", "MSK_LX138", "MSK_LX148B", "MSK_LX151", "MSK_LX154", "MSK_LX174", "MSK_LX175", "MSK_LX181", "MSK_LX189", "MSK_LX19", "MSK_LX206", "MSK_LX206B", "MSK_LX213", "MSK_LX216", "MSK_LX224", "MSK_LX229", "MSK_LX234", "MSK_LX239", "MSK_LX242", "MSK_LX25", "MSK_LX263", "MSK_LX267B", "MSK_LX27", "MSK_LX276", "MSK_LX282", "MSK_LX285", "MSK_LX29", "MSK_LX292", "MSK_LX293B", "MSK_LX296", "MSK_LX298", "MSK_LX304", "MSK_LX304B", "MSK_LX307", "MSK_LX318", "MSK_LX326", "MSK_LX337", "MSK_LX349", "MSK_LX366", "MSK_LX369", "MSK_LX376", "MSK_LX382B", "MSK_LX393B", "MSK_LX40", "MSK_LX408", "MSK_LX413", "MSK_LX424", "MSK_LX424B", "MSK_LX462", "MSK_LX465", "MSK_LX479", "MSK_LX482", "MSK_LX489", "MSK_LX491", "MSK_LX512", "MSK_LX513", "MSK_LX524", "MSK_LX55", "MSK_LX585", "MSK_LX59", "MSK_LX631", "MSK_LX632", "MSK_LX640", "MSK_LX651", "MSK_LX666", "MSK_LX87", "MSK_LX95", "MSK_LX96", "TRF050916", "TRF053947", "TRF027871", "TRF043513", "TRF034438", "TRF030123", "TRF050483", "TRF064189", "TRF031593", "TRF030626", "TRF014012", "TRF021125", "TRF029672", "TRF044138", "TRF022408", "TRF014754", "TRF034570", "TRF054303", "TRF021879", "TRF053946", "TRF020252", "TRF019288", "TRF043500", "TRF047202", "TRF043644", "TRF048714", "TRF070135", "TRF024470", "TRF042339", "TRF036869", "TRF054406", "TRF102171", "TRF047623", "TRF050678", "TRF044571", "TRF011251", "TRF036890", "TRF050238", "TRF049276", "TRF042199", "TRF044293", "TRF050394", "TRF045887", "TRF040129", "TRF051443", "TRF036780", "TRF030611", "TRF064641", "TRF078041", "TRF061165", "TRF056390", "TRF034423", "TRF077655", "TRF041606", "TRF065229", "TRF029659", "TRF060980", "TRF077654", "TRF057063", "TRF049396", "TRF050931", "TRF020703", "TRF050912", "TRF016430", "TRF037647", "TRF030125", "TRF036863", "TRF071705", "TRF065699", "TRF042508", "TRF030605", "TRF067088", "TRF047834", "TRF017822", "TRF079056", "TRF034433", "TRF042358", "TRF028383", "TRF036748", "TRF043485", "TRF018658", "TRF050441", "TRF041560", "TRF047609", "TRF018670", "TRF046085", "TRF022348", "TRF035707", "TRF061214", "TRF066283", "TRF030607", "TRF033243", "TRF068126", "TRF060952", "TRF9155", "TRF072363", "TRF030628", "TRF079053", "TRF040046", "TRF033231", "TRF050430", "TRF040878", "TRF024471", "TRF043499", "TRF042507", "TRF043510", "TRF036897", "TRF040880", "TRF023776", "TRF040887", "TRF027848", "TRF036044", "TRF067080", "TRF027872", "TRF083668", "TRF043342", "TRF065134", "TRF042510", "TRF029667", "TRF035201", "TRF054314", "TRF039306", "TRF043651", "TRF051132", "TRF078227", "TRF071913", "TRF043353", "TRF068124", "TRF029674", "TRF027861", "TRF050416", "TRF051089", "TRF053605", "TRF051544", "TRF069124", "TRF027874", "TRF065100", "TRF080374", "TRF054735", "TRF029668", "TRF066660", "TRF043492", "TRF050776", "TRF022209", "TRF061174", "TRF035705", "TRF030609", "TRF022879", "TRF036750", "TRF059651", "TRF056398");
+        List<TreatmentRow> result = treatmentService.getAllTreatmentRows(
+            samples,
+            Arrays.asList("nsclc_tcga_broad_2016")
+        );
         return new ResponseEntity<>(result, HttpStatus.OK);
     }
     

@@ -62,7 +62,7 @@
             </if>
             <if test="keyword != null">
                 AND
-                <foreach item="item" collection="keyword.split(' ')" open="(" separator=") AND (" close=")">
+                <foreach item="item" collection="keyword.trim().split(' ')" open="(" separator=") AND (" close=")">
                     sample.STABLE_ID like CONCAT('%', #{item}, '%')
                 </foreach>
             </if>

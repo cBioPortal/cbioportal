@@ -135,6 +135,14 @@ TP53: MUT = TRUNC INFRAME
 TP53: TRUNC INFRAME
 ```
 
+OQL can also be used to exclude a specific protein change, position or type of mutation. For example, below are examples to query all EGFR mutations except T790M, all BRAF mutations except those at V600 and all TP53 mutations except missense:
+```
+EGFR: MUT != T790M
+BRAF: MUT != V600
+TP53: MUT != MISSENSE
+```
+Note that this will only work to exclude a single event. Because OQL uses 'OR' logic, excluding multiple mutations or excluding a mutation while including another mutation (e.g. `BRAF: MUT=V600 MUT!=V600E`) will result in querying all mutations.
+
 
 <br>
 

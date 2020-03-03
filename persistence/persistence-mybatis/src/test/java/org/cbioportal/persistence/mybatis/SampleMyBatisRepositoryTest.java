@@ -347,6 +347,17 @@ public class SampleMyBatisRepositoryTest {
 
          Assert.assertEquals(expected, actual);
      }
+
+    @Test
+    public void getSamplesByEmptyKeyword() {
+        List<Sample> result = sampleMyBatisRepository.getAllSamples(" ", null, "SUMMARY", 10, 0, null, null);
+        List<String> actual = result.stream().map((Sample::getStableId)).collect(Collectors.toList());
+        List<String> expected = Arrays.asList(
+                "TCGA-A1-A0SB-01", "TCGA-A1-A0SB-01", "TCGA-A1-A0SB-02", "TCGA-A1-A0SD-01", "TCGA-A1-A0SE-01",
+                "TCGA-A1-A0SF-01", "TCGA-A1-A0SG-01", "TCGA-A1-A0SH-01", "TCGA-A1-A0SI-01", "TCGA-A1-A0SJ-01");
+
+        Assert.assertEquals(expected, actual);
+    }
     
     @Test
     public void getSamplesByKeywordFilterByStudies() {

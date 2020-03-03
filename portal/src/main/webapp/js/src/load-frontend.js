@@ -38,8 +38,8 @@ window.loadReactApp = function(config) {
     if (window.localdev || window.localdist || localStorage.netlify) {
         showFrontendPopup(window.frontendConfig.frontendUrl);
     }
-    document.write('<script src="' + window.frontendConfig.frontendUrl + 'reactapp/common.bundle.js?'+ window.frontendConfig.appVersion +'"></scr' + 'ipt>');
-    document.write('<script src="' + window.frontendConfig.frontendUrl + 'reactapp/main.app.js?'+ window.frontendConfig.appVersion +'"></scr' + 'ipt>');
+    document.write('<script type="text/javascript" charset="UTF-8" src="' + window.frontendConfig.frontendUrl + 'reactapp/common.bundle.js?'+ window.frontendConfig.appVersion +'"></scr' + 'ipt>');
+    document.write('<script type="text/javascript" charset="UTF-8" src="' + window.frontendConfig.frontendUrl + 'reactapp/main.app.js?'+ window.frontendConfig.appVersion +'"></scr' + 'ipt>');
 
 };
 

@@ -11,7 +11,7 @@ Currently, the cBioPortal team is woking on a solution that will allow the user 
 cBioPortal currently generates two z-score profiles using two different base populations:
 - Distribution based on **diploid** samples only: The expression distribution for unaltered copies of the gene is estimated by calculating the mean and variance of the expression values for samples in which the gene is diploid (i.e. value is "0" as reported by [discrete CNA data](File-Formats.md#discrete-copy-number-data)). We call this the unaltered distribution. If the gene has no diploid samples, then its normalized expression is reported as NA.
 
-- Distribution based on **all** samples: The expression distribution of the gene is estimated by calculating the mean and variance of all samples with expression values (exclude zero's and non-numeric values like NA, Null or NaN). If the gene has samples whose expression values are all zeros or non-numeric, then its normalized expression is reported as NA.
+- Distribution based on **all** samples: The expression distribution of the gene is estimated by calculating the mean and variance of all samples with expression values (excludes zero's and non-numeric values like NA, Null or NaN). If the gene has samples whose expression values are all zeros or non-numeric, then its normalized expression is reported as NA.
 
 Otherwise for every sample, the gene's normalized expression for both the profiles is reported as
 
@@ -21,7 +21,10 @@ Otherwise for every sample, the gene's normalized expression for both the profil
 where `r` is the raw expression value, and `mu` and `sigma` are the mean and standard deviation of the base population, respectively.
 
 ### How to proceed
-cBioPortal expects z-score normalization to take place per gene. You can produce this extra z-score file yourself, or let cBioPortal do it for your input files by using [convertExpressionZscores.pl](https://github.com/cBioPortal/cbioportal/blob/master/core/src/main/scripts/convertExpressionZscores.pl) (Method 1, diploid samples as base population) AND [NormalizeExpressionLevels_allsampleref.py](https://github.com/cBioPortal/datahub-study-curation-tools/tree/master/generate_Zscores) (Method 2, all samples as base population). Examples of the calculation and running the programs are below.
+cBioPortal expects z-score normalization to take place per gene. You can calculate z-scores with your own preferred method, or use one of the cBioPortal provided approaches:
+- [convertExpressionZscores.pl](https://github.com/cBioPortal/cbioportal/blob/master/core/src/main/scripts/convertExpressionZscores.pl) applies Method 1 (diploid samples as base population)
+- [NormalizeExpressionLevels_allsampleref.py](https://github.com/cBioPortal/datahub-study-curation-tools/tree/master/generate_Zscores) applies Method 2 (all samples as base population)
+Examples of the calculation and running the programs are below.
 
 ## convertExpressionZscores method
 Given expression and Copy Number Variation data for a set of samples (patients), generate normalized expression values.
@@ -35,7 +38,7 @@ Given expression and Copy Number Variation data for a set of samples (patients),
 - `<output_file>` : the output file to be generated
 - `<normal_sample_suffix>` : use this to identify which of your samples are "normal" samples (if any). E.g. normal TCGA samples have a suffix "-11". Set it to some dummy value, e.g. "NONE", if you have no normal samples in your data.
 
-### Transformation Algorithm
+### Algorithm
 Input: [discrete copy number (CNA)](File-Formats.md#discrete-copy-number-data) and [expression (exp)](File-Formats.md#expression-data) files
 
 ```
@@ -91,7 +94,7 @@ and then
 ./convertExpressionZscores.pl  ../../test/scripts/test_data/study_es_0/data_CNA.txt ../../test/scripts/test_data/study_es_0/data_expression_median.txt data_expression_ZSCORES.txt NONE
 ```
 ## NormalizeExpressionLevels_allsampleref method
-Given the expression data for a set of samples, this script generates normalized expression values with the reference population of all samples independent of sample diploid status. The method is explained in detail [here](https://github.com/cBioPortal/datahub-study-curation-tools/tree/master/generate_Zscores)
+Given the expression data for a set of samples, generate normalized expression values with the reference population of all samples independent of sample diploid status.
 
 ### Parameters
 `-i <expression_file> -o <output_file> [-l]`
@@ -100,7 +103,7 @@ Given the expression data for a set of samples, this script generates normalized
 - `<output_file>` : the output file to be generated
 - Use the `-l` option to log transform the data before calculating z-scores.
 
-### Transformation Algorithm
+### Algorithm
 Input [expression data file](File-Formats.md#expression-data)
 ```
 for each gene:

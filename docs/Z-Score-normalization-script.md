@@ -1,8 +1,8 @@
 ## Introduction
-For some data types, when uploading to cBioPortal, it is currently necessary to also provide a z-score transformed version of your input file. The z-score data is essential for the oncoprint functionality. The oncoprint shows over- and underexpression of the data, based on the threshold the user sets when selecting the genomic profile. 
+For some data types, when uploading to cBioPortal, it is currently necessary to also provide a z-score transformed version of your input file. The z-score data is essential for the oncoprint functionality. The oncoprint shows high or low mRNA expression of the genes, based on the threshold the user sets when selecting the genomic profile. 
 
 :warning: 
-Please keep in mind that the z-scores are calculated using only patient data. Hence, overexpressed in this case implies higher expression than the average patient. Also, the source data on which the z-score data is based does not necessarily follow the normal distribution. If your data does not follow the normal distribution, the z-score threshold is less reliable and will result in more false positives or false negatives. You can consider log transforming your value before calculating z-scores to improve this. However, even the logged values may not follow the normal distribution, especially if the data is bimodal.
+Please keep in mind that the z-scores are calculated using only patient data. Hence, 'mRNA High' in this case implies higher expression than the average patient. Also, the source data on which the z-score data is based does not necessarily follow the normal distribution. If your data does not follow the normal distribution, the z-score threshold is less reliable and will result in more false positives or false negatives. You can consider log transforming your value before calculating z-scores to improve this. However, even the logged values may not follow the normal distribution, especially if the data is bimodal.
 
 Currently, the cBioPortal team is woking on a solution that will allow the user to decide whether they want to use zscores, or log values or zscore of log values in the frontend. Furthermore, the team is also working on functionality to be able to use healthy samples in the calculations. 
 
@@ -144,5 +144,5 @@ python NormalizeExpressionLevels_allsampleref.py -i <expression_file> -o <output
 #### Example:
 
 ```
-python NormalizeExpressionLevels.py -i path/to/your/study/data_expression_median.txt -o path/to/your/study/data_mRNA_median_Zscores.txt -l
+python NormalizeExpressionLevels_allsampleref.py -i path/to/your/study/data_expression_median.txt -o path/to/your/study/data_mRNA_median_Zscores.txt -l
 ```

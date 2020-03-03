@@ -24,6 +24,7 @@ where `r` is the raw expression value, and `mu` and `sigma` are the mean and sta
 cBioPortal expects z-score normalization to take place per gene. You can calculate z-scores with your own preferred method, or use one of the cBioPortal provided approaches:
 - [convertExpressionZscores.pl](https://github.com/cBioPortal/cbioportal/blob/master/core/src/main/scripts/convertExpressionZscores.pl) applies Method 1 (diploid samples as base population)
 - [NormalizeExpressionLevels_allsampleref.py](https://github.com/cBioPortal/datahub-study-curation-tools/tree/master/generate_Zscores) applies Method 2 (all samples as base population)
+
 Examples of the calculation and running the programs are below.
 
 ## convertExpressionZscores method

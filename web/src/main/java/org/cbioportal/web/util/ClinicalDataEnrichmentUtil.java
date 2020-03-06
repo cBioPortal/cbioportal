@@ -133,7 +133,6 @@ public class ClinicalDataEnrichmentUtil {
                 return new HashMap<String, Integer>();
             }).collect(Collectors.toList());
 
-            // TODO: should we exclude NA category
             Set<String> allPossibleCategories = categoryCountsByGroup.stream().flatMap(x -> x.keySet().stream())
                     .collect(Collectors.toSet());
 
@@ -240,6 +239,15 @@ public class ClinicalDataEnrichmentUtil {
                 sampleIds, attributeIds);
 
         return clinicalDataCountItems.stream()
+                // Exclude NA category
+                .map(clinicalDataCountItem -> {
+                    List<ClinicalDataCount> filteredClinicalDataCount = clinicalDataCountItem.getCounts()
+                            .stream()
+                            .filter(clinicalDataCount -> !clinicalDataCount.getValue().equals("NA"))
+                            .collect(Collectors.toList());
+                    clinicalDataCountItem.setCounts(filteredClinicalDataCount);
+                    return clinicalDataCountItem;
+                })
                 .collect(Collectors.toMap(clinicalDataCountItem -> clinicalDataCountItem.getAttributeId(),
                         clinicalDataCountItem -> clinicalDataCountItem));
 

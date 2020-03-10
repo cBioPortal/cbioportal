@@ -18,7 +18,6 @@
     * [Gene Panel Data](#gene-panel-data)
     * [Gene Set Data](#gene-set-data)
     * [Study Tags file](#study-tags-file)
-    * [Treatment Response Data](#treatment-response-data)
     * [Generic Assay](#generic-assay)
 
 # Introduction
@@ -1262,60 +1261,6 @@ The cells contain the p-value for the GSVA score: A real number, between 0.0 and
 ## Study Tags file
 YAML or JSON file which contains extra information about the cancer study. No compulsory fields are required for this file (free-form). To enable this feature, you need to add a line in the cancer study meta file with `tags_file:` followed the YAML/JSON file name. The information on the YAML or JSON file will be displayed in a table when mousing over a tag logo in the studies on the query page.
 
-## Treatment Response Data
-Treatment response data relate to outcome variables of treatments (compounds or combinations thereof) on samples (e.g., cell lines). cBioPortal supports any number of response data types imported from separate data files. Meta information on treatments (`entity_stable_id`, `name`, `description` and `url`) are not part of the cBioPortal seed database, but are imported automatically from treatment response data files. For treatments already present in the database the `name`, `description` and `url` fields are overwitten by subsequent imports of treatment response data files. The corresponding `META:name`, `META:description` and `META:url` columns in treatment data files are optional. The `entity_stable_id` and `META:name` fields must be unique within a data file. When the `META:name`, `META:description` and `META:url` fields are not defined in a data file, these fields will receive the value of the `entity_stable_id` field. When multiple treatment data files are loaded as part of study, the `entity_stable_id`, `META:name`, `META:description` and `META:url` columns must be identical is all data files.
-
-### Treatment response meta file
-The meta file will be similar to meta files of other genetic profiles, such as mRNA expression. For treatment response data `LIMIT-VALUE` is used as `datatype`. The `LIMIT-VALUE` is validated to contain any continuous number optionally prefixed with a '>' or '<' threshold symbol (e.g., '>8.00'). One or more treatment response data files can be loaded by means of different data files. For treatment meta files values for `stable_id` are not pre-registered in the cBioPortal implementation, but can be freely chosen by the user. Requirement is that each treatment meta file is assigned an unique `stable_id` by the user. This requirement is validated by the data validation scripts. 
-
-Required fields: 
-```
-cancer_study_identifier: Same value as specified in meta file of the study
-genetic_alteration_type: TREATMENT
-datatype: LIMIT-VALUE
-stable_id: Any unique identifier using a combination of alphanumeric characters, _ and -
-profile_name: A name describing the analysis.
-profile_description: A description of the data processing done.
-data_filename: <name of treatment data file>
-show_profile_in_analysis_tab: true
-pivot_threshold_value: A threshold value beyond which a treatment response is considered effective
-value_sort_order: A flag that determines whether samples with small treatment response values are displayed first or last; can be 'ASC' for small first, 'DESC' for small last. 
-```
-
-Example:
-```
-cancer_study_identifier: study_es_0
-genetic_alteration_type: TREATMENT
-datatype: LIMIT-VALUE
-stable_id: treatment_ic50
-profile_name: IC50 values of compounds on cellular phenotype readout
-profile_description: IC50 (compound concentration resulting in half maximal inhibition) of compounds on cellular phenotype readout of cultured mutant cell lines.
-data_filename: data_treatment_ic50.txt
-show_profile_in_analysis_tab: true
-pivot_threshold_value: 0.1
-value_sort_order: ASC
-```
-
-### Note on `value_sort_order`
-When values are sorted based on the `value_sort_order`, data points at the start of the sequence are considered more significant than data points at the end. This concept is used by the oncoprint when aggregating treatment response data from multiple samples from a single patient. When `value_sort_order` is `ASC` the sample with the smallest response value will be shown for that patient. When `value_sort_order` is `DESC` the sample with the largest response value will be shown for that patient.
-
-### Note on `TREATMENT` genetic_alteration_type and `LIMIT-VALUE` datatype
-Treatment response data is registered to be of the `TREATMENT` genetic_alteration_type and data type `LIMIT-VALUE`. This alteration and data type is intended to be used for any numerical data set with similar structure (entities measured in samples).
-
-### Treatment response data file
-The data file will be a simple tab separated format, similar to the expression data file: each sample is a column, each tested treatment (a compound or combination thereof) is a row, each cell contains treatment response values for that treatment x sample combination.
-
-The first column must be named `entity_stable_id` and contains unique identifiers for the treatments. The `entity_stable_id` column can be followed by optional `META:name`, `META:description` and `META:url` columns. The other columns are sample columns; an additional column for each sample in the dataset using the sample id as the column header.
-
-The cells contain treatment response values that can be postive and negative real numbers including 0. When no response value is measured for a sample/treatment-pair the value should be "NA". Empty cell are not allowed. Numerical values van have a "<" or ">" prefix to indicate that the real value is smaller or larger than the stated response value, respectively. Example with 3 treatments and 3 samples:
-
-<table>
-<thead><tr><th>entity_stable_id</th><th>META:name</th><th>META:description</th><th>META:url</th><th>1321N1_CENTRAL_NERVOUS_SYSTEM</th><th>22RV1_PROSTATE</th><th>42MGBA_CENTRAL_NERVOUS_SYSTEM</th></tr></thead>
-<tr><td>17-AAG</td><td>Tanespimycin</td><td>Hsp90 inhibitor</td><td>https://en.wikipedia.org/wiki/Tanespimycin</td><td>0.228</td><td>0.330</td><td>0.0530</td></tr>
-<tr><td>AEW541</td><td>Larotrectinib</td><td>TrkA/B/C inhibitor</td><td>https://en.wikipedia.org/wiki/Larotrectinib</td><td>>8</td><td>2.33</td><td>2.68</td></tr>
-<tr><td>AZD0530</td><td>Saracatinib</td><td>Src/Bcr-Abl inhibitor</td><td>https://en.wikipedia.org/wiki/Saracatinib</td><td>NA</td><td>>8</td><td>4.60</td></tr>
-</table>
-
 ## Generic Assay
 Generic Assay is a two dimensional matrix generalized to capture non-genetic measurements per sample. Instead of a gene per row and a sample per column, a Generic Assay file contains a generic entity per row and a sample per column. A generic entity is defined by the data curator and generally means something other than a gene. Some examples include, treatment response or mutational signatures. For each generic entity - sample pair, a real number represents a captured measurement.
 
@@ -1324,35 +1269,46 @@ The generic assay metadata file should contain the following fields:
 ```
 cancer_study_identifier: Same value as specified in meta file of the study
 genetic_alteration_type: GENERIC_ASSAY
-generic_assay_type: <GENERIC_ASSAY_TYPE>, e.g., "TREATMENT" or "MUTATIONAL_SIGNATURE"
+generic_assay_type: <GENERIC_ASSAY_TYPE>, e.g., "TREATMENT_RESPONSE" or "MUTATIONAL_SIGNATURE"
 datatype: LIMIT-VALUE
 stable_id: Any unique identifier using a combination of alphanumeric characters, _ and -
 profile_name: A name describing the analysis.
 profile_description: A description of the data processing done.
 data_filename: <name of generic assay data file>
-show_profile_in_analysis_tab: true
-generic_entity_meta_properties: A comma separate list of generic entity properties, e.g., "NAME,DESCRIPTION"
+show_profile_in_analysis_tab: true (or false if you don't want to show this profile in any analysis tab)
+pivot_threshold_value: A threshold value beyond which a generic assay data is considered effective
+value_sort_order: A flag that determines whether samples with small generic assay data values are displayed first or last; can be 'ASC' for small first, 'DESC' for small last. 
+generic_entity_meta_properties: A comma separate list of generic entity properties, e.g., "NAME,DESCRIPTION,URL"
 ```
 
 Example:
 ```
 cancer_study_identifier: study_es_0
 genetic_alteration_type: GENERIC_ASSAY
-generic_assay_type: MUTATIONAL_SIGNATURE
+generic_assay_type: TREATMENT_RESPONSE
 datatype: LIMIT-VALUE
-stable_id: mutational_signature
-profile_name: data of mutational signature
-profile_description: Description of data of mutational signature
-data_filename: data_mutational_signature.txt
+stable_id: treatment_ic50
+profile_name: IC50 values of compounds on cellular phenotype readout
+profile_description: IC50 (compound concentration resulting in half maximal inhibition) of compounds on cellular phenotype readout of cultured mutant cell lines.
+data_filename: data_treatment_ic50.txt
 show_profile_in_analysis_tab: true
-generic_entity_meta_properties: NAME,DESCRIPTION
+pivot_threshold_value: 0.1
+value_sort_order: ASC
+generic_entity_meta_properties: NAME,DESCRIPTION,URL
 ```
 
 ### Note on `stable_id`
 The `stable_id` for the generic assay datatype is a user defined field. The only requirement is that the `stable_id` is unique across all metafiles in the study.
 
+### Note on `value_sort_order`
+When values are sorted based on the `value_sort_order`, data points at the start of the sequence are considered more significant than data points at the end. 
+
+This concept is used by the OncoPrint when aggregating generic assay data from multiple samples from a single patient. When `value_sort_order` is `ASC` the sample with the smallest response value will be shown for that patient. When `value_sort_order` is `DESC` the sample with the largest value will be shown for that patient.
+
+This concept is also used to separate good vs less good response values in the Waterfall plot. When `value_sort_order` is `ASC` small values are represented as downward deflections from the `pivot_threshold_value` in the waterfall plot of Plots Tab.
+
 ### Note on `generic_entity_meta_properties`
-All meta properties must be specified in the `generic_entity_meta_properties` field. Every meta property listed here must appear as a column header in the corresponding data file.
+All meta properties must be specified in the `generic_entity_meta_properties` field. Every meta property listed here must appear as a column header in the corresponding data file. It's highly recommend to add `NAME`, `DESCRIPTION` and an optional `URL` to get the best visualization on OncoPrint tab and Plots tab.
 
 ### Note on `Generic Assay` genetic_alteration_type and `LIMIT-VALUE` datatype
 All generic assay data is registered to be of the type of `genetic_alteration_type` and data type `LIMIT-VALUE`. This alteration and data type is intended to be used for any numerical data set with similar structure (entities measured in samples). The `LIMIT-VALUE` is validated to contain any continuous number optionally prefixed with a '>' or '<' threshold symbol (e.g., '>8.00'). If the value for the generic entity in the respective sample could not (or was not) be measured (or detected), the value should be 'NA'.
@@ -1368,10 +1324,11 @@ And:
 - An additional column for each `generic_entity_meta_properties` in the metafile, using the property name as the column header (e.g., 'NAME').
 - An additional column for each sample in the dataset using the sample id as the column header.
 
-Example with 2 generic entities and 3 samples:
+Example with 3 generic entities and 3 samples:
 
 <table>
-<thead><tr><th>ENTITY_STABLE_ID</th><th>NAME</th><th>DESCRIPTION</th><th>TCGA-AO-A0J</th><th>TCGA-A2-A0Y</th><th>TCGA-A2-A0S</th></tr></thead>
-<tr><td>mut_sig_mean</td><td>name of mean</td><td>description of mean</td><td>0.370</td><td>0.010</td><td>0.005</td></tr>
-<tr><td>mut_sig_confidence</td><td>name of confidence</td><td>description of confidence</td><td>0.653</td><td>0.066</td><td>0.050</td></tr>
+<thead><tr><th>ENTITY_STABLE_ID</th><th>NAME</th><th>DESCRIPTION</th><th>URL</th><th>1321N1_CENTRAL_NERVOUS_SYSTEM</th><th>22RV1_PROSTATE</th><th>42MGBA_CENTRAL_NERVOUS_SYSTEM</th></tr></thead>
+<tr><td>17-AAG</td><td>Tanespimycin</td><td>Hsp90 inhibitor</td><td>https://en.wikipedia.org/wiki/Tanespimycin</td><td>0.228</td><td>0.330</td><td>0.0530</td></tr>
+<tr><td>AEW541</td><td>Larotrectinib</td><td>TrkA/B/C inhibitor</td><td>https://en.wikipedia.org/wiki/Larotrectinib</td><td>>8</td><td>2.33</td><td>2.68</td></tr>
+<tr><td>AZD0530</td><td>Saracatinib</td><td>Src/Bcr-Abl inhibitor</td><td>https://en.wikipedia.org/wiki/Saracatinib</td><td>NA</td><td>>8</td><td>4.60</td></tr>
 </table>

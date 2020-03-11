@@ -40,9 +40,13 @@ import org.apache.commons.logging.LogFactory;
 import org.cbioportal.model.DataAccessToken;
 import org.cbioportal.service.DataAccessTokenService;
 import org.cbioportal.service.exception.InvalidDataAccessTokenException;
+import org.cbioportal.service.impl.JwtDataAccessTokenServiceImpl.ConditionJwtDataAccessTokenService;
 import org.cbioportal.service.util.JwtUtils;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.context.annotation.Profile;
+import org.springframework.context.annotation.Condition;
+import org.springframework.context.annotation.ConditionContext;
+import org.springframework.context.annotation.Conditional;
+import org.springframework.core.type.AnnotatedTypeMetadata;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
@@ -51,8 +55,19 @@ import org.springframework.stereotype.Service;
 
 @Service
 @Component
-@Profile("dat.jwt")
+@Conditional(ConditionJwtDataAccessTokenService.class)
 public class JwtDataAccessTokenServiceImpl implements DataAccessTokenService {
+
+    public class ConditionJwtDataAccessTokenService implements Condition {
+        public ConditionJwtDataAccessTokenService() {
+            super();
+        }
+        @Override
+        public boolean matches(ConditionContext context, AnnotatedTypeMetadata metadata) {
+            String method = context.getEnvironment().getProperty("dat.method");
+            return method.equalsIgnoreCase("jwt");
+        }
+    }
 
     @Autowired
     private JwtUtils jwtUtils;

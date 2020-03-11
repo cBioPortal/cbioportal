@@ -2,8 +2,8 @@
 
 Tests oauth2 security workflow of the API with SAML authentication method for the UI.
 
-- `OfflineTokenDownloadIntegrationTests` tests downloading an offline token to gain access to cioportal API.
-- `Oauth2ResourceServerIntegrationTests` tests API access by different type of users (anonymous, non authorised and authorised).
+- `OfflineTokenDownloadIntegrationTests` tests downloading an offline token to gain access to cbioportal API.
+- `Oauth2ResourceServerIntegrationTests` tests API access by different type of users (anonymous, non authorized and authorized).
 
 ## Start web container with cbioportal and saml IDP
 

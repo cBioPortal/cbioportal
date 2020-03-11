@@ -33,7 +33,7 @@ import org.cbioportal.service.exception.DataAccessTokenProhibitedUserException;
 import org.cbioportal.web.config.annotation.InternalApi;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.context.annotation.Profile;
+import org.springframework.context.annotation.Conditional;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -53,9 +53,9 @@ import io.swagger.annotations.ApiParam;
 @RestController
 @Validated
 @Api(tags = "Data Access Tokens", description = " ")
-@Profile({"dat.uuid", "dat.jwt"})
+@Conditional(DataAccessTokenControllerCondition.class)
 public class DataAccessTokenController {
-    
+
     @Value("${dat.uuid_revoke_other_tokens:false}")
     private Boolean allowRevocationOfOtherTokens;
     

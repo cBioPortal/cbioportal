@@ -37,7 +37,7 @@ import java.util.List;
 
 import org.cbioportal.model.DataAccessToken;
 import org.cbioportal.service.DataAccessTokenService;
-import org.springframework.context.annotation.Profile;
+import org.springframework.context.annotation.Conditional;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Component;
@@ -50,7 +50,7 @@ import org.springframework.stereotype.Service;
  */
 @Service
 @Component
-@Profile("dat.none")
+@Conditional(UnauthDataAccessTokenServiceCondition.class)
 public class UnauthDataAccessTokenServiceImpl implements DataAccessTokenService {
 
     @Override

@@ -24,7 +24,7 @@
     <!-- dbcp profile is defined here to prevent exceptions during war deployment -->
     <context-param>
         <param-name>spring.profiles.active</param-name>
-        <param-value>${dbconnector:dbcp},${authenticate},${google.analytics.tracking:ga-api-tracking-disabled},dat.${dat.method:none}</param-value>
+        <param-value>${dbconnector:dbcp},${authenticate},${google.analytics.tracking:ga-api-tracking-disabled}}</param-value>
     </context-param>
     <context-param>
         <param-name>spring.liveBeansView.mbeanDomain</param-name>

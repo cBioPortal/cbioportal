@@ -48,7 +48,7 @@ import org.cbioportal.service.exception.DataAccessTokenProhibitedUserException;
 import org.cbioportal.web.config.annotation.InternalApi;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.context.annotation.Profile;
+import org.springframework.context.annotation.Conditional;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
@@ -69,7 +69,7 @@ import io.swagger.annotations.ApiParam;
 @RestController
 @Validated
 @Api(tags = "Data Access Tokens", description = " ")
-@Profile("dat.oauth2")
+@Conditional(OAuth2DataAccessTokenControllerCondition.class)
 public class OAuth2DataAccessTokenController {
 
     @Value("${dat.oauth2.userAuthorizationUri}")

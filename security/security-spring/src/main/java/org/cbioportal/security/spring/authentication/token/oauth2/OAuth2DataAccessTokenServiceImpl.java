@@ -42,7 +42,7 @@ import org.codehaus.jackson.JsonNode;
 import org.codehaus.jackson.map.ObjectMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.context.annotation.Profile;
+import org.springframework.context.annotation.Conditional;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.ResponseEntity;
@@ -59,7 +59,7 @@ import org.springframework.web.client.RestTemplate;
 
 @Service
 @Component
-@Profile("dat.oauth2")
+@Conditional(OAuth2DataAccessTokenServiceCondition.class)
 public class OAuth2DataAccessTokenServiceImpl implements DataAccessTokenService {
 
     @Value("${dat.oauth2.issuer:}")

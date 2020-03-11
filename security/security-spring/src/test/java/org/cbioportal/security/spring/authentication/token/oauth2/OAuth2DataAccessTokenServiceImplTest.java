@@ -32,9 +32,9 @@
 
 package org.cbioportal.security.spring.authentication.token.oauth2;
 
+import static org.cbioportal.security.spring.authentication.token.oauth2.OAuth2TokenTestUtils.createJwt;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNull;
-import static org.cbioportal.security.spring.authentication.token.oauth2.OAuth2TokenTestUtils.createJwt;
 
 import org.cbioportal.model.DataAccessToken;
 import org.junit.Test;
@@ -50,6 +50,7 @@ import org.springframework.test.context.junit4.SpringRunner;
 
 @TestPropertySource(
     properties = {
+        "dat.method = oauth2",
         "dat.oauth2.issuer = my_issuer",
         "dat.oauth2.clientId = my_client_id"
     }

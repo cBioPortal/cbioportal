@@ -33,7 +33,6 @@ import org.cbioportal.service.exception.DataAccessTokenProhibitedUserException;
 import org.cbioportal.web.config.annotation.InternalApi;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.context.annotation.Conditional;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -43,36 +42,34 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.client.HttpClientErrorException;
 
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiParam;
 
 @InternalApi
-@RestController
+@RequestMapping // replaces @RestController; controller is created conditionally in DataAccessTokenControllerConfig
 @Validated
 @Api(tags = "Data Access Tokens", description = " ")
-@Conditional(DataAccessTokenControllerCondition.class)
 public class DataAccessTokenController {
 
     @Value("${dat.uuid_revoke_other_tokens:false}")
     private Boolean allowRevocationOfOtherTokens;
-    
+
     @Value("${dat.unauth_users:anonymousUser}")
     private String[] USERS_WHO_CANNOT_USE_TOKENS;
-    
+
     @Autowired
     private DataAccessTokenService tokenService;
     private Set<String> usersWhoCannotUseTokenSet;
-    
+
     @Autowired
     private void initializeUsersWhoCannotUseTokenSet() {
         usersWhoCannotUseTokenSet = new HashSet<>(Arrays.asList(USERS_WHO_CANNOT_USE_TOKENS));
     }
 
     private String fileName = "cbioportal_data_access_token.txt";
-    
+
     @RequestMapping(method = RequestMethod.POST, value = "/data-access-tokens", produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<DataAccessToken> createDataAccessToken(Authentication authentication,
     @RequestParam(required = false) Boolean myAllowRevocationOfOtherTokens) throws HttpClientErrorException {
@@ -83,7 +80,7 @@ public class DataAccessTokenController {
         }
         return new ResponseEntity<>(token, HttpStatus.CREATED);
     }
-        
+
         @RequestMapping(method = RequestMethod.GET, value = "/data-access-tokens")
         public ResponseEntity<List<DataAccessToken>> getAllDataAccessTokens(HttpServletRequest request,
         Authentication authentication) {
@@ -91,14 +88,14 @@ public class DataAccessTokenController {
             List<DataAccessToken> allDataAccessTokens = tokenService.getAllDataAccessTokens(userName);
             return new ResponseEntity<>(allDataAccessTokens, HttpStatus.OK);
         }
-        
+
     @RequestMapping(method = RequestMethod.GET, value = "/data-access-tokens/{token}")
     public ResponseEntity<DataAccessToken> getDataAccessToken(
     @ApiParam(required = true, value = "token") @PathVariable String token) {
         DataAccessToken dataAccessToken = tokenService.getDataAccessTokenInfo(token);
         return new ResponseEntity<>(dataAccessToken, HttpStatus.OK);
     }
-    
+
     @RequestMapping(method = RequestMethod.DELETE, value = "/data-access-tokens")
     public void revokeAllDataAccessTokens(Authentication authentication) {
         tokenService.revokeAllDataAccessTokens(getAuthenticatedUser(authentication));
@@ -121,7 +118,7 @@ public class DataAccessTokenController {
         if (token == null) {
             return new ResponseEntity<>(null, HttpStatus.NOT_FOUND);
         }
-        
+
         return new ResponseEntity<>(token.toString(), HttpStatus.CREATED);
     }
 

@@ -42,7 +42,6 @@ import org.codehaus.jackson.JsonNode;
 import org.codehaus.jackson.map.ObjectMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.context.annotation.Conditional;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.ResponseEntity;
@@ -58,8 +57,7 @@ import org.springframework.web.client.RestTemplate;
 
 
 @Service
-@Component
-@Conditional(OAuth2DataAccessTokenServiceCondition.class)
+@Component("oauth2")
 public class OAuth2DataAccessTokenServiceImpl implements DataAccessTokenService {
 
     @Value("${dat.oauth2.issuer:}")
@@ -185,7 +183,7 @@ public class OAuth2DataAccessTokenServiceImpl implements DataAccessTokenService 
         if (! claimsMap.has("sub")) {
             throw new BadCredentialsException("User name could not be found in offline token.");
         }
-        
+
         String userName = claimsMap.get("sub").asText();
         return userName;
     }

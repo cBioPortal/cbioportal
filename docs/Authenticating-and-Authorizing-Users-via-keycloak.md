@@ -324,7 +324,7 @@ Enable _Full Scope_. This setting will include the user roles defined in the `cb
 
 ![](images/previews/oauth2_client_5.png)
 
-3. Add these parameters to `portal.properties` of the cBioPortal backend .
+3. Add these parameters to `portal.properties` of the cBioPortal backend.
 
 | parameter        | value  | comment  |
 | ------------- |:-------------:| -----:|
@@ -355,4 +355,5 @@ log4j.rootLogger=DEBUG, a
 log4j.category.org.mskcc=DEBUG
 log4j.logger.org.springframework.security=DEBUG
 ```
+
 Then, rebuild the WAR, redeploy, and try to authenticate again.  Your log file will then include hundreds of SAML-specific messages, even the full XML of each SAML message, and this should help you debug the error.

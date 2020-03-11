@@ -46,7 +46,6 @@ import org.cbioportal.service.exception.MaxNumberTokensExceededException;
 import org.cbioportal.service.exception.TokenNotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.context.annotation.Conditional;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
@@ -54,8 +53,7 @@ import org.springframework.stereotype.Component;
 import org.springframework.stereotype.Service;
 
 @Service
-@Component
-@Conditional(UnauthDataAccessTokenServiceCondition.class)
+@Component("uuid")
 public class UuidDataAccessTokenServiceImpl implements DataAccessTokenService {
 
     @Autowired

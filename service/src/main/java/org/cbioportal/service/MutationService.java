@@ -46,19 +46,28 @@ public interface MutationService {
     List<MutationCountByGene> getSampleCountInMultipleMolecularProfiles(List<String> molecularProfileIds,
                                                                         List<String> sampleIds,
                                                                         List<Integer> entrezGeneIds,
-                                                                        boolean includeFrequency);
+                                                                        boolean includeFrequency,
+                                                                        boolean includeMissingAlterationsFromGenePanel);
 
     List<MutationCountByGene> getSampleCountInMultipleMolecularProfilesForFusions(List<String> molecularProfileIds,
                                                                                   List<String> sampleIds,
                                                                                   List<Integer> entrezGeneId,
-                                                                                  boolean includeFrequency);
+                                                                                  boolean includeFrequency,
+                                                                                  boolean includeMissingAlterationsFromGenePanel);
     
     List<MutationCountByGene> getPatientCountInMultipleMolecularProfiles(List<String> molecularProfileIds,
                                                                         List<String> patientIds,
                                                                         List<Integer> entrezGeneIds,
-                                                                        boolean includeFrequency);
+                                                                        boolean includeFrequency,
+                                                                        boolean includeMissingAlterationsFromGenePanel);
 
     List<MutationCountByPosition> fetchMutationCountsByPosition(List<Integer> entrezGeneIds, 
                                                                 List<Integer> proteinPosStarts, 
                                                                 List<Integer> proteinPosEnds);
+
+    // TODO: cleanup once fusion/structural data is fixed in database
+    List<Mutation> getFusionsInMultipleMolecularProfiles(List<String> molecularProfileIds, List<String> sampleIds,
+            List<Integer> entrezGeneIds, String projection, Integer pageSize, Integer pageNumber, String sortBy,
+            String direction);
+    // TODO: cleanup once fusion/structural data is fixed in database
 }

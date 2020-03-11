@@ -18,12 +18,8 @@ public class StudyViewFilterUtil {
     }
 
     public void removeSelfFromFilter(String attributeId, StudyViewFilter studyViewFilter) {
-        if (studyViewFilter!= null && studyViewFilter.getClinicalDataEqualityFilters() != null) {
-            studyViewFilter.getClinicalDataEqualityFilters().removeIf(f -> f.getAttributeId().equals(attributeId));
-        }
-
-        if (studyViewFilter!= null && studyViewFilter.getClinicalDataIntervalFilters() != null) {
-            studyViewFilter.getClinicalDataIntervalFilters().removeIf(f -> f.getAttributeId().equals(attributeId));
+        if (studyViewFilter!= null && studyViewFilter.getClinicalDataFilters() != null) {
+            studyViewFilter.getClinicalDataFilters().removeIf(f -> f.getAttributeId().equals(attributeId));
         }
     }
 
@@ -56,5 +52,9 @@ public class StudyViewFilterUtil {
                 return Range.open(start, end);
             }
         }
+    }
+
+    public String getCaseUniqueKey(String studyId, String caseId) {
+        return studyId + caseId;
     }
 }

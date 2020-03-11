@@ -32,14 +32,12 @@
 
 package org.cbioportal.persistence.util;
 
-import java.io.File;
-import java.io.PrintWriter;
-import java.io.StringWriter;
+import java.io.*;
+import java.net.URL;
 import java.util.*;
 import javax.cache.CacheManager;
 import org.ehcache.config.CacheConfiguration;
 import org.ehcache.config.builders.CacheConfigurationBuilder;
-import org.ehcache.config.builders.CacheManagerBuilder;
 import org.ehcache.config.builders.ResourcePoolsBuilder;
 import org.ehcache.config.Configuration;
 import org.ehcache.config.units.MemoryUnit;
@@ -49,7 +47,6 @@ import org.ehcache.jsr107.EhcacheCachingProvider;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.ehcache.impl.config.persistence.DefaultPersistenceConfiguration;
 import org.cbioportal.persistence.CacheEnabledConfig;
 
@@ -84,6 +81,7 @@ public class CustomEhCachingProvider extends EhcacheCachingProvider {
         CacheManager toReturn = null;
         try {
             if (CacheEnabledConfig.enableCache(cacheType)) {
+                detectCacheConfigurationErrorsAndLog();
                 LOG.info("Caching is enabled, using '" + xmlConfigurationFile + "' for configuration");
                 XmlConfiguration xmlConfiguration = new XmlConfiguration(getClass().getResource(xmlConfigurationFile));
 
@@ -91,7 +89,7 @@ public class CustomEhCachingProvider extends EhcacheCachingProvider {
                 // to add new cache - create cache configuration with its own resource pool + template
                 ResourcePoolsBuilder generalRepositoryCacheResourcePoolsBuilder = ResourcePoolsBuilder.newResourcePoolsBuilder();
                 ResourcePoolsBuilder staticRepositoryCacheOneResourcePoolsBuilder = ResourcePoolsBuilder.newResourcePoolsBuilder();
-        
+
                 // Set up heap resources as long as not disk-only
                 if (!cacheType.equalsIgnoreCase(CacheEnabledConfig.DISK)) {
                     generalRepositoryCacheResourcePoolsBuilder = generalRepositoryCacheResourcePoolsBuilder.heap(generalRepositoryCacheMaxMegaBytes, MemoryUnit.MB);
@@ -104,12 +102,12 @@ public class CustomEhCachingProvider extends EhcacheCachingProvider {
                     staticRepositoryCacheOneResourcePoolsBuilder = staticRepositoryCacheOneResourcePoolsBuilder.disk(staticRepositoryCacheOneMaxMegaBytesLocalDisk, MemoryUnit.MB);
                 }
 
-                CacheConfiguration<Object, Object> generalRepositoryCacheConfiguration = xmlConfiguration.newCacheConfigurationBuilderFromTemplate("RepositoryCacheTemplate", 
+                CacheConfiguration<Object, Object> generalRepositoryCacheConfiguration = xmlConfiguration.newCacheConfigurationBuilderFromTemplate("RepositoryCacheTemplate",
                         Object.class, Object.class, generalRepositoryCacheResourcePoolsBuilder)
                     .withSizeOfMaxObjectGraph(Long.MAX_VALUE)
                     .withSizeOfMaxObjectSize(Long.MAX_VALUE, MemoryUnit.B)
                     .build();
-                CacheConfiguration<Object, Object> staticRepositoryCacheOneConfiguration = xmlConfiguration.newCacheConfigurationBuilderFromTemplate("RepositoryCacheTemplate", 
+                CacheConfiguration<Object, Object> staticRepositoryCacheOneConfiguration = xmlConfiguration.newCacheConfigurationBuilderFromTemplate("RepositoryCacheTemplate",
                         Object.class, Object.class, staticRepositoryCacheOneResourcePoolsBuilder)
                     .withSizeOfMaxObjectGraph(Long.MAX_VALUE)
                     .withSizeOfMaxObjectSize(Long.MAX_VALUE, MemoryUnit.B)
@@ -158,5 +156,129 @@ public class CustomEhCachingProvider extends EhcacheCachingProvider {
         }
         return toReturn;
     }
-}
 
+    public void detectCacheConfigurationErrorsAndLog() {
+        String MESSAGE_PREFIX = "Errors detected during configuration of Ehcache:";
+        StringBuffer messages = new StringBuffer(MESSAGE_PREFIX);
+        boolean usesHeap = false;
+        boolean usesDisk = false;
+        switch (this.cacheType.trim().toLowerCase()) {
+            case "none":
+                break;
+            case "heap":
+                usesHeap = true;
+                break;
+            case "disk":
+                usesDisk = true;
+                break;
+            case "hybrid":
+                usesHeap = true;
+                usesDisk = true;
+                break;
+            default:
+                messages.append("\n  property ehcache.cache_type has value (")
+                        .append(cacheType)
+                        .append(") which is not a recognized value");
+        }
+        if (usesDisk || usesHeap) {
+            if (xmlConfigurationFile == null || xmlConfigurationFile.trim().length() == 0) {
+                messages.append("\n  property ehcache.xml_configuration is required but is unset");
+            } else {
+                URL configFileURL = getClass().getResource(xmlConfigurationFile);
+                if (configFileURL == null) {
+                    messages.append("\n  property ehcache.xml_configuration has value (")
+                            .append(xmlConfigurationFile)
+                            .append(") but this resource is not available to the classloader");
+                } else {
+                    boolean readable = false;
+                    try {
+                        InputStream configFileInputStream = configFileURL.openStream();
+                        configFileInputStream.read();
+                        configFileInputStream.close();
+                        readable = true;
+                    } catch (IOException e) {
+                    }
+                    if (!readable) {
+                        messages.append("\n  property ehcache.xml_configuration has value (")
+                                .append(xmlConfigurationFile)
+                                .append(") but an attempt to read from this resource failed");
+                    }
+                }
+            }
+        }
+        if (usesDisk) {
+            if (generalRepositoryCacheMaxMegaBytesLocalDisk == null) {
+                messages.append("\n  property ehcache.general_repository_cache.max_mega_bytes_local_disk is required to be set, but has no value");
+            } else {
+                if (generalRepositoryCacheMaxMegaBytesLocalDisk <= 0) {
+                    messages.append("\n  property ehcache.general_repository_cache.max_mega_bytes_local_disk must be greater than zero but is not");
+                }
+            }
+            if (staticRepositoryCacheOneMaxMegaBytesLocalDisk == null) {
+                messages.append("\n  property ehcache.static_repository_cache_one.max_mega_bytes_local_disk is required to be set, but has no value");
+            } else {
+                if (staticRepositoryCacheOneMaxMegaBytesLocalDisk <= 0) {
+                    messages.append("\n  property ehcache.static_repository_cache_one.max_mega_bytes_local_disk must be greater than zero but is not");
+                }
+            }
+            if (persistencePath == null || persistencePath.trim().length() == 0) {
+                messages.append("\n  property ehcache.persistence_path is required when using a disk resource but is unset");
+            } else {
+                File persistenceDirectory = new File(persistencePath);
+                boolean accessible = false;
+                try {
+                    if (persistenceDirectory.isDirectory() && persistenceDirectory.canWrite()) {
+                        accessible = true;
+                    }
+                } catch (SecurityException e) {
+                }
+                if (!accessible) {
+                    messages.append("\n  property ehcache.persistence_path has value (")
+                            .append(persistencePath)
+                            .append(") but this path does not exist or is not an accessible directory");
+                }
+            }
+        }
+        if (usesHeap) {
+            if (generalRepositoryCacheMaxMegaBytes == null) {
+                messages.append("\n  property ehcache.general_repository_cache.max_mega_bytes_heap is required to be set, but has no value");
+            } else {
+                if (generalRepositoryCacheMaxMegaBytes <= 0) {
+                    messages.append("\n  property ehcache.general_repository_cache.max_mega_bytes_heap must be greater than zero but is not");
+                }
+            }
+            if (staticRepositoryCacheOneMaxMegaBytes == null) {
+                messages.append("\n  property ehcache.static_repository_cache_one.max_mega_bytes_heap is required to be set, but has no value");
+            } else {
+                if (staticRepositoryCacheOneMaxMegaBytes <= 0) {
+                    messages.append("\n  property ehcache.static_repository_cache_one.max_mega_bytes_heap must be greater than zero but is not");
+                }
+            }
+        }
+        if (usesHeap && usesDisk) {
+            if (generalRepositoryCacheMaxMegaBytesLocalDisk != null
+                    && generalRepositoryCacheMaxMegaBytes != null
+                    && generalRepositoryCacheMaxMegaBytesLocalDisk <= generalRepositoryCacheMaxMegaBytes) {
+                messages.append("\n  property ehcache.general_repository_cache.max_mega_bytes_heap must be set to a value less than the value of ");
+                messages.append("property ehcache.general_repository_cache.max_mega_bytes_local_disk, however ");
+                messages.append(generalRepositoryCacheMaxMegaBytes);
+                messages.append(" is not less than ");
+                messages.append(generalRepositoryCacheMaxMegaBytesLocalDisk);
+            }
+            if (staticRepositoryCacheOneMaxMegaBytesLocalDisk != null
+                    && staticRepositoryCacheOneMaxMegaBytes != null
+                    && staticRepositoryCacheOneMaxMegaBytesLocalDisk <= staticRepositoryCacheOneMaxMegaBytes) {
+                messages.append("\n  property ehcache.static_repository_cache_one.max_mega_bytes_heap must be set to a value less than the value of ");
+                messages.append("property ehcache.static_repository_cache_one.max_mega_bytes_local_disk, however ");
+                messages.append(staticRepositoryCacheOneMaxMegaBytes);
+                messages.append(" is not less than ");
+                messages.append(staticRepositoryCacheOneMaxMegaBytesLocalDisk);
+            }
+        }
+        if (messages.length() > MESSAGE_PREFIX.length()) {
+            LOG.error(messages.toString());
+            LOG.error("because of Ehcache configuration errors, it is likely that an exception will be thrown during startup. Recent observed exceptions contain the string"
+                    + " \"Provider org.redisson.jcache.JCachingProvider not a subtype\" even though the problem is in the Ehcache configuration settings.");
+        }
+    }
+}

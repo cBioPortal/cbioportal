@@ -2,7 +2,6 @@
 function clearDevState(e){
     localStorage.removeItem('localdev');
     localStorage.removeItem('localdist');
-    localStorage.removeItem('heroku');
     localStorage.removeItem('netlify');
     window.location.reload();
 }
@@ -27,7 +26,7 @@ function showFrontendPopup(url) {
 window.loadReactApp = function(config) {
     // Set frontend route to /patient
     window.defaultRoute = '/' + config.defaultRoute;
-    
+
     if (window.frontendConfig.frontendUrl === undefined) {
         // this should never happen
         if (console.error) {
@@ -36,17 +35,20 @@ window.loadReactApp = function(config) {
             console.log('ERROR: No frontend URL defined, should at least be empty string');
         }
     }
-    if (window.localdev || window.localdist || localStorage.heroku || localStorage.netlify) {
+    if (window.localdev || window.localdist || localStorage.netlify) {
         showFrontendPopup(window.frontendConfig.frontendUrl);
     }
+    document.write('<script type="text/javascript" charset="UTF-8" src="' + window.frontendConfig.frontendUrl + 'reactapp/common.bundle.js?'+ window.frontendConfig.appVersion +'"></scr' + 'ipt>');
+    document.write('<script type="text/javascript" charset="UTF-8" src="' + window.frontendConfig.frontendUrl + 'reactapp/main.app.js?'+ window.frontendConfig.appVersion +'"></scr' + 'ipt>');
+
+};
+
+window.loadAppStyles = function() {
     document.write('<link rel="stylesheet" type="text/css" href="' + window.frontendConfig.frontendUrl + 'reactapp/prefixed-bootstrap.min.css?'+ window.frontendConfig.appVersion +'" />');
     // localdev gets styling in another manner
     if (!window.localdev) {
         document.write('<link rel="stylesheet" type="text/css" href="' + window.frontendConfig.frontendUrl + 'reactapp/styles.css?'+ window.frontendConfig.appVersion +'" />');
     }
-    document.write('<script src="' + window.frontendConfig.frontendUrl + 'reactapp/common.bundle.js?'+ window.frontendConfig.appVersion +'"></scr' + 'ipt>');
-    document.write('<script src="' + window.frontendConfig.frontendUrl + 'reactapp/main.app.js?'+ window.frontendConfig.appVersion +'"></scr' + 'ipt>');
-
 };
 
 (function(){

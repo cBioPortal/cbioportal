@@ -1,3 +1,4 @@
+<%@ page import="org.apache.commons.lang.StringUtils" %>
 <%@ page import="org.mskcc.cbio.portal.servlet.CheckDarwinAccessServlet" %>
 <%@ page import="org.mskcc.cbio.portal.util.GlobalProperties" %>
 <%@ page import="org.json.simple.JSONArray" %>
@@ -50,6 +51,7 @@
             "mdacc.heatmap.patient.url",
             "mdacc.heatmap.study.meta.url",
             "mdacc.heatmap.study.url",
+            "show.mdacc.heatmap",
             "oncoprint.custom_driver_annotation.tiers.menu_label",
             "priority_studies",
             "show.hotspot",
@@ -78,6 +80,7 @@
             "skin.right_nav.show_data_sets",
             "skin.right_nav.show_examples",
             "skin.right_nav.show_testimonials",
+            "skin.right_nav.show_whats_new",
             "skin.right_nav.whats_new_blurb",
             "skin.show_about_tab",
             "skin.show_data_tab",
@@ -88,6 +91,8 @@
             "skin.show_tutorials_tab",
             "skin.show_web_api_tab",
             "skin.show_tweet_button",
+            "skin.patientview.filter_genes_profiled_all_samples",
+            "skin.patientview.show_mskcc_slide_viewer",
             "quick_search.enabled",
             "default_cross_cancer_study_session_id",
             "default_cross_cancer_study_list",
@@ -99,8 +104,11 @@
             "bitly.api_key",
             "bitly.user",
             "bitly.access.token",
-            "oncoprint.custom_driver_annotation.tiers.default"
-           
+            "oncoprint.custom_driver_annotation.tiers.default",
+            "ensembl.transcript_url",
+            "enable_persistent_cache",
+            "query_product_limit",
+            "skin.show_gsva"
         }; 
     
    
@@ -148,9 +156,11 @@
                 enableOncoKBandHotspots = "\"custom\"";
         }
              
-        obj.put("oncoprintOncoKbHotspotsDefault",enableOncoKBandHotspots);    
+        obj.put("oncoprintOncoKbHotspotsDefault",enableOncoKBandHotspots);
         
-        obj.put("sessionServiceEnabled",GlobalProperties.getSessionServiceUrl()!= "");        
+        obj.put("oncoKbTokenDefined", !StringUtils.isEmpty(GlobalProperties.getOncoKbToken()));
+        
+        obj.put("sessionServiceEnabled", !StringUtils.isEmpty(GlobalProperties.getSessionServiceUrl()));        
                 
         out.println(obj.toJSONString());       
                       

@@ -3,9 +3,9 @@ package org.cbioportal.web.util;
 import com.google.common.collect.Range;
 import org.apache.commons.lang3.math.NumberUtils;
 import org.cbioportal.model.ClinicalData;
-import org.cbioportal.model.ClinicalDataCountItem.ClinicalDataType;
 import org.cbioportal.model.DataBin;
 import org.cbioportal.web.parameter.ClinicalDataBinFilter;
+import org.cbioportal.web.parameter.ClinicalDataType;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
@@ -39,21 +39,21 @@ public class DataBinner {
     }
 
     public List<DataBin> calculateClinicalDataBins(ClinicalDataBinFilter clinicalDataBinFilter,
+                                                   ClinicalDataType clinicalDataType,
                                                    List<ClinicalData> filteredClinicalData,
                                                    List<ClinicalData> unfilteredClinicalData,
                                                    List<String> filteredIds,
                                                    List<String> unfilteredIds) {
         // calculate data bins for unfiltered clinical data
         List<DataBin> clinicalDataBins = calculateClinicalDataBins(
-            clinicalDataBinFilter, unfilteredClinicalData, unfilteredIds);
-
+            clinicalDataBinFilter, clinicalDataType, unfilteredClinicalData, unfilteredIds);
         // recount
-        return recalcBinCount(clinicalDataBins, filteredClinicalData, clinicalDataBinFilter.getClinicalDataType(), filteredIds);
+        return recalcBinCount(clinicalDataBins, clinicalDataType, filteredClinicalData, filteredIds);
     }
 
     public List<DataBin> recalcBinCount(List<DataBin> clinicalDataBins,
-                                        List<ClinicalData> clinicalData,
                                         ClinicalDataType clinicalDataType,
+                                        List<ClinicalData> clinicalData,
                                         List<String> ids) {
         List<BigDecimal> numericalValues = clinicalData == null ?
             Collections.emptyList() : filterNumericalValues(clinicalData);
@@ -97,6 +97,7 @@ public class DataBinner {
     }
 
     public List<DataBin> calculateClinicalDataBins(ClinicalDataBinFilter clinicalDataBinFilter,
+                                                   ClinicalDataType clinicalDataType,
                                                    List<ClinicalData> clinicalData,
                                                    List<String> ids) {
         String attributeId = clinicalDataBinFilter.getAttributeId();
@@ -141,7 +142,7 @@ public class DataBinner {
 
             dataBins.addAll(calcNonNumericalClinicalDataBins(attributeId, clinicalData));
 
-            DataBin naDataBin = calcNaDataBin(attributeId, clinicalData, clinicalDataBinFilter.getClinicalDataType() ,ids);
+            DataBin naDataBin = calcNaDataBin(attributeId, clinicalData, clinicalDataType ,ids);
             if (!naDataBin.getCount().equals(0)) {
                 dataBins.add(naDataBin);
             }
@@ -273,10 +274,6 @@ public class DataBinner {
             // In this case, number of bins = number of distinct data values
             dataBins = discreteDataBinner.calculateDataBins(attributeId, withoutOutliers, uniqueValues);
         } else if (withoutOutliers.size() > 0) {
-            BigDecimal lowerOutlier = lowerOutlierBin.getEnd() == null ?
-                boxRange.lowerEndpoint() : boxRange.lowerEndpoint().max(lowerOutlierBin.getEnd());
-            BigDecimal upperOutlier = upperOutlierBin.getStart() == null ?
-                boxRange.upperEndpoint() : boxRange.upperEndpoint().min(upperOutlierBin.getStart());
 
             if (customBins != null) {
                 dataBins = linearDataBinner.calculateDataBins(attributeId, customBins, numericalValues);
@@ -299,7 +296,24 @@ public class DataBinner {
                     boxRange = Range.closed(dataBins.get(0).getStart(), dataBins.get(dataBins.size() - 1).getEnd());
                 }
             } else {
+                Boolean areAllIntegers = uniqueValues
+                        .stream()
+                        .map(value -> value.stripTrailingZeros().scale() <= 0)
+                        .reduce((a, b) -> a && b)
+                        .orElse(false);
+
+                if (areAllIntegers) {
+                    boxRange = Range.closed(new BigDecimal(boxRange.lowerEndpoint().intValue()),
+                            new BigDecimal(boxRange.upperEndpoint().intValue()));
+                }
+
+                BigDecimal lowerOutlier = lowerOutlierBin.getEnd() == null ? boxRange.lowerEndpoint()
+                        : boxRange.lowerEndpoint().max(lowerOutlierBin.getEnd());
+                BigDecimal upperOutlier = upperOutlierBin.getStart() == null ? boxRange.upperEndpoint()
+                        : boxRange.upperEndpoint().min(upperOutlierBin.getStart());
+
                 dataBins = linearDataBinner.calculateDataBins(attributeId,
+                    areAllIntegers,
                     boxRange,
                     withoutOutliers,
                     lowerOutlier,
@@ -455,9 +469,11 @@ public class DataBinner {
         Set<String> uniqueClinicalDataIds;
 
         if (clinicalData != null) {
-            uniqueClinicalDataIds = clinicalDataType == ClinicalDataType.PATIENT ?
-                clinicalData.stream().map(ClinicalData::getPatientId).filter(Objects::nonNull).collect(Collectors.toSet()) :
-                clinicalData.stream().map(ClinicalData::getSampleId).filter(Objects::nonNull).collect(Collectors.toSet());
+            uniqueClinicalDataIds = clinicalData
+                    .stream()
+                    .map(datum -> computeUniqueCaseId(datum, clinicalDataType))
+                    .filter(Objects::nonNull)
+                    .collect(Collectors.toSet());
         } else {
             uniqueClinicalDataIds = Collections.emptySet();
         }
@@ -470,5 +486,13 @@ public class DataBinner {
         count += uniqueInputIds.size();
 
         return count;
+    }
+    
+    private String computeUniqueCaseId(ClinicalData clinicalData, ClinicalDataType clinicalDataType) {
+        if (clinicalDataType == ClinicalDataType.PATIENT) {
+            return studyViewFilterUtil.getCaseUniqueKey(clinicalData.getStudyId(), clinicalData.getPatientId());
+        } else {
+            return studyViewFilterUtil.getCaseUniqueKey(clinicalData.getStudyId(), clinicalData.getSampleId());
+        }
     }
 }

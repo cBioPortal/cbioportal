@@ -24,5 +24,9 @@ public interface ClinicalDataMapper {
 			List<String> attributeIds);
 
 	List<ClinicalDataCount> fetchPatientClinicalDataCounts(List<String> studyIds, List<String> patientIds,
-			List<String> attributeIds);
+			List<String> attributeIds, String projection);
+
+    List<ClinicalData> getPatientClinicalDataDetailedToSample(List<String> studyIds, List<String> patientIds,
+            List<String> attributeIds, String projection, Integer limit, Integer offset, String sortBy,
+            String direction);
 }

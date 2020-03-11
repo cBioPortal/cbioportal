@@ -1,6 +1,7 @@
 package org.cbioportal.service.impl;
 
 import org.cbioportal.model.CoExpression;
+import org.cbioportal.model.EntityType;
 import org.cbioportal.model.Gene;
 import org.cbioportal.model.Geneset;
 import org.cbioportal.model.GeneMolecularData;
@@ -73,20 +74,16 @@ public class CoExpressionServiceImplTest extends BaseServiceImplTest {
         Mockito.when(molecularProfileService.getMolecularProfile(MOLECULAR_PROFILE_ID_B))
             .thenReturn(geneMolecularProfile);
         
-        List<CoExpression> result = coExpressionService.getCoExpressions("1", CoExpression.GeneticEntityType.GENE, 
+        List<CoExpression> result = coExpressionService.getCoExpressions("1", EntityType.GENE, 
         SAMPLE_LIST_ID, MOLECULAR_PROFILE_ID_A, MOLECULAR_PROFILE_ID_B, THRESHOLD);
 
         Assert.assertEquals(2, result.size());
         CoExpression coExpression1 = result.get(0);
         Assert.assertEquals("2", coExpression1.getGeneticEntityId());
-        Assert.assertEquals("HUGO2", coExpression1.getGeneticEntityName());
-        Assert.assertEquals("-", coExpression1.getCytoband());
         Assert.assertEquals(new BigDecimal("0.5"), coExpression1.getSpearmansCorrelation());
         Assert.assertEquals(new BigDecimal("0.6666666666666667"), coExpression1.getpValue());
         CoExpression coExpression2 = result.get(1);
         Assert.assertEquals("3", coExpression2.getGeneticEntityId());
-        Assert.assertEquals("HUGO3", coExpression2.getGeneticEntityName());
-        Assert.assertEquals("-", coExpression2.getCytoband());
         Assert.assertEquals(new BigDecimal("0.8660254037844386"), coExpression2.getSpearmansCorrelation());
         Assert.assertEquals(new BigDecimal("0.3333333333333333"), coExpression2.getpValue());
     }
@@ -118,20 +115,16 @@ public class CoExpressionServiceImplTest extends BaseServiceImplTest {
         Mockito.when(molecularProfileService.getMolecularProfile(MOLECULAR_PROFILE_ID_B))
             .thenReturn(geneMolecularProfile);
 
-        List<CoExpression> result = coExpressionService.fetchCoExpressions("1", CoExpression.GeneticEntityType.GENE,
+        List<CoExpression> result = coExpressionService.fetchCoExpressions("1", EntityType.GENE,
             Arrays.asList(SAMPLE_ID1, SAMPLE_ID2), MOLECULAR_PROFILE_ID_A, MOLECULAR_PROFILE_ID_B, THRESHOLD);
 
         Assert.assertEquals(2, result.size());
         CoExpression coExpression1 = result.get(0);
         Assert.assertEquals("2", coExpression1.getGeneticEntityId());
-        Assert.assertEquals("HUGO2", coExpression1.getGeneticEntityName());
-        Assert.assertEquals("-", coExpression1.getCytoband());
         Assert.assertEquals(new BigDecimal("0.5"), coExpression1.getSpearmansCorrelation());
         Assert.assertEquals(new BigDecimal("0.6666666666666667"), coExpression1.getpValue());
         CoExpression coExpression2 = result.get(1);
         Assert.assertEquals("3", coExpression2.getGeneticEntityId());
-        Assert.assertEquals("HUGO3", coExpression2.getGeneticEntityName());
-        Assert.assertEquals("-", coExpression2.getCytoband());
         Assert.assertEquals(new BigDecimal("0.8660254037844386"), coExpression2.getSpearmansCorrelation());
         Assert.assertEquals(new BigDecimal("0.3333333333333333"), coExpression2.getpValue());
     }
@@ -163,20 +156,16 @@ public class CoExpressionServiceImplTest extends BaseServiceImplTest {
         Mockito.when(molecularProfileService.getMolecularProfile("profile_id_gsva_scores_b"))
             .thenReturn(genesetMolecularProfile);
 
-        List<CoExpression> result = coExpressionService.getCoExpressions("GENESET_ID_TEST", CoExpression.GeneticEntityType.GENESET, 
+        List<CoExpression> result = coExpressionService.getCoExpressions("GENESET_ID_TEST", EntityType.GENESET, 
         SAMPLE_LIST_ID, "profile_id_gsva_scores_a", "profile_id_gsva_scores_b", THRESHOLD);
 
         Assert.assertEquals(2, result.size());
         CoExpression coExpression1 = result.get(0);
         Assert.assertEquals("KEGG_DNA_REPLICATION", coExpression1.getGeneticEntityId());
-        Assert.assertEquals("KEGG_DNA_REPLICATION", coExpression1.getGeneticEntityName());
-        Assert.assertEquals("-", coExpression1.getCytoband());
         Assert.assertEquals(new BigDecimal("0.8660254037844386"), coExpression1.getSpearmansCorrelation());
         Assert.assertEquals(new BigDecimal("0.3333333333333333"), coExpression1.getpValue());
         CoExpression coExpression2 = result.get(1);
         Assert.assertEquals("BIOCARTA_ASBCELL_PATHWAY", coExpression2.getGeneticEntityId());
-        Assert.assertEquals("BIOCARTA_ASBCELL_PATHWAY", coExpression2.getGeneticEntityName());
-        Assert.assertEquals("-", coExpression2.getCytoband());
         Assert.assertEquals(new BigDecimal("0.5"), coExpression2.getSpearmansCorrelation());
         Assert.assertEquals(new BigDecimal("0.6666666666666667"), coExpression2.getpValue());
     }
@@ -211,20 +200,16 @@ public class CoExpressionServiceImplTest extends BaseServiceImplTest {
         Mockito.when(genesetDataService.fetchGenesetData("profile_id_gsva_scores_b", Arrays.asList(SAMPLE_ID1, SAMPLE_ID2), 
             null)).thenReturn(molecularDataList);
 
-        List<CoExpression> result = coExpressionService.fetchCoExpressions("GENESET_ID_TEST", CoExpression.GeneticEntityType.GENESET,
+        List<CoExpression> result = coExpressionService.fetchCoExpressions("GENESET_ID_TEST", EntityType.GENESET,
             Arrays.asList(SAMPLE_ID1, SAMPLE_ID2), "profile_id_gsva_scores_a", "profile_id_gsva_scores_b", THRESHOLD);
 
         Assert.assertEquals(2, result.size());
         CoExpression coExpression1 = result.get(0);
         Assert.assertEquals("KEGG_DNA_REPLICATION", coExpression1.getGeneticEntityId());
-        Assert.assertEquals("KEGG_DNA_REPLICATION", coExpression1.getGeneticEntityName());
-        Assert.assertEquals("-", coExpression1.getCytoband());
         Assert.assertEquals(new BigDecimal("0.8660254037844386"), coExpression1.getSpearmansCorrelation());
         Assert.assertEquals(new BigDecimal("0.3333333333333333"), coExpression1.getpValue());
         CoExpression coExpression2 = result.get(1);
         Assert.assertEquals("BIOCARTA_ASBCELL_PATHWAY", coExpression2.getGeneticEntityId());
-        Assert.assertEquals("BIOCARTA_ASBCELL_PATHWAY", coExpression2.getGeneticEntityName());
-        Assert.assertEquals("-", coExpression2.getCytoband());
         Assert.assertEquals(new BigDecimal("0.5"), coExpression2.getSpearmansCorrelation());
         Assert.assertEquals(new BigDecimal("0.6666666666666667"), coExpression2.getpValue());
     }

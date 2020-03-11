@@ -1,5 +1,6 @@
 cancer_study_identifier: brca_tcga_pub
 genetic_alteration_type: GENERIC_ASSAY
+generic_assay_type: TREATMENT_RESPONSE
 datatype: LIMIT-VALUE
 stable_id: treatment ic50
 profile_name: IC50 values of compounds on cellular phenotype readout
@@ -8,3 +9,4 @@ data_filename: data_treatment_ic50.txt
 show_profile_in_analysis_tab: true
 pivot_threshold_value: 0.1
 value_sort_order: ASC
+generic_entity_meta_properties: NAME,DESCRIPTION,URL

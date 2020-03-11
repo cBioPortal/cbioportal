@@ -42,7 +42,7 @@ FROM openjdk:8-jre
 # download system dependencies first to take advantage of docker caching
 RUN apt-get update; apt-get install -y --no-install-recommends \
         build-essential \
-        libmysql-java \
+        default-mysql-client \
         default-libmysqlclient-dev \
         python3 \
         python3-setuptools \

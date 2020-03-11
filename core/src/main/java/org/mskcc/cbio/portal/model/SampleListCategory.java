@@ -42,6 +42,7 @@ import java.util.Map;
 public enum SampleListCategory {
     ALL_CASES_IN_STUDY("all_cases_in_study"),
     ALL_CASES_WITH_MUTATION_DATA("all_cases_with_mutation_data"),
+    ALL_CASES_WITH_FUSION_DATA("all_cases_with_fusion_data"),
     ALL_CASES_WITH_CNA_DATA("all_cases_with_cna_data"),
     ALL_CASES_WITH_LOG2_CNA_DNA("all_cases_with_log2_cna_data"),
     ALL_CASES_WITH_METHYLATION_DATA("all_cases_with_methylation_data"),
@@ -52,6 +53,7 @@ public enum SampleListCategory {
     ALL_CASES_WITH_MUTATION_AND_CNA_DATA("all_cases_with_mutation_and_cna_data"),
     ALL_CASES_WITH_MUTATION_AND_CNA_AND_MRNA_DATA("all_cases_with_mutation_and_cna_and_mrna_data"),
     ALL_CASES_WITH_GSVA_DATA("all_cases_with_gsva_data"),
+    ALL_CASES_WITH_SV_DATA("all_cases_with_sv_data"),
     OTHER("other");
 
     // Init the look up map.

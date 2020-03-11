@@ -55,6 +55,12 @@
             org.apache.commons.fileupload.servlet.FileCleanerCleanup
         </listener-class>
     </listener>
+    <!-- App custom context listener -->
+    <listener>
+        <listener-class>
+            org.cbioportal.web.config.WebServletContextListener
+        </listener-class>
+    </listener>
     <!-- custom location for log4j config -->
     <listener>
       <listener-class>org.springframework.web.util.Log4jConfigListener</listener-class>
@@ -251,6 +257,7 @@
     <servlet-mapping>
         <servlet-name>api</servlet-name>
         <url-pattern>/api/*</url-pattern>
+        <url-pattern>/health</url-pattern>
     </servlet-mapping>
 
     <servlet>

@@ -131,7 +131,7 @@
     <dependency>
         <groupId>com.fasterxml.jackson.core</groupId>
         <artifactId>jackson-databind</artifactId>
-        <version>2.9.7</version>
+        <version>2.9.10.1</version>
     </dependency>
 
     <dependency>
@@ -288,6 +288,11 @@
         </exclusion>
       </exclusions>
     </dependency>
+    <dependency>
+      <groupId>org.mskcc.cbio</groupId>
+      <artifactId>web</artifactId>
+      <version>${project.version}</version>
+   </dependency>
   </dependencies>
 
   <build>
@@ -343,7 +348,7 @@
                       <goal>unpack-dependencies</goal>
                   </goals>
                   <configuration>
-                      <includes>cgds.sql</includes>
+                      <includes>cgds-test.sql</includes>
                       <outputDirectory>${project.build.testOutputDirectory}</outputDirectory>
                       <includeArtifactIds>db-scripts</includeArtifactIds>
                   </configuration>
@@ -378,7 +383,7 @@
               <sqlCommand>SET storage_engine=INNODB</sqlCommand>
               <sqlCommand>SET SESSION sql_mode = 'ANSI_QUOTES'</sqlCommand>
               <srcFiles>
-                <srcFile>${project.build.testOutputDirectory}/cgds.sql</srcFile>
+                <srcFile>${project.build.testOutputDirectory}/cgds-test.sql</srcFile>
                 <srcFile>src/test/resources/seed_mini.sql</srcFile>
               </srcFiles>
               <!-- added encoding to prevent Unknown initial character set index '192' received from server error -->

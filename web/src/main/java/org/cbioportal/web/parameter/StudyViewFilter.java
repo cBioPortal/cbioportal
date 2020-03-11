@@ -9,7 +9,9 @@ import javax.validation.constraints.Size;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonInclude.Include;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 
+@JsonIgnoreProperties(ignoreUnknown = true)
 @JsonInclude(Include.NON_NULL)
 public class StudyViewFilter implements Serializable {
 
@@ -17,15 +19,11 @@ public class StudyViewFilter implements Serializable {
     private List<SampleIdentifier> sampleIdentifiers;
     @Size(min = 1)
     private List<String> studyIds;
-    private List<ClinicalDataEqualityFilter> clinicalDataEqualityFilters;
-    private List<ClinicalDataIntervalFilter> clinicalDataIntervalFilters;
-    private List<MutationGeneFilter> mutatedGenes;
-    private List<FusionGeneFilter> fusionGenes;
-	private List<CopyNumberGeneFilter> cnaGenes;
-    private List<StructuralVariantGeneFilter> svGenes;
-	private RectangleBounds mutationCountVsCNASelection;
-    private Boolean withMutationData;
-    private Boolean withCNAData;
+    private List<ClinicalDataFilter> clinicalDataFilters;
+    private List<GeneFilter> geneFilters;
+	private Boolean withMutationData;
+	private Boolean withCNAData;
+	private Boolean withFusionData;
 
     @AssertTrue
     private boolean isEitherSampleIdentifiersOrStudyIdsPresent() {
@@ -36,8 +34,8 @@ public class StudyViewFilter implements Serializable {
     private boolean isEitherValueOrRangePresentInClinicalDataIntervalFilters() {
         long invalidCount = 0;
 
-        if (clinicalDataIntervalFilters != null) {
-            invalidCount = clinicalDataIntervalFilters.stream()
+        if (clinicalDataFilters != null) {
+            invalidCount = clinicalDataFilters.stream()
                 .flatMap(f -> f.getValues().stream())
                 .filter(Objects::nonNull)
                 .filter(v -> v.getValue() != null == (v.getStart() != null || v.getEnd() != null))
@@ -62,51 +60,21 @@ public class StudyViewFilter implements Serializable {
     public void setStudyIds(List<String> studyIds) {
         this.studyIds = studyIds;
     }
-
-    public List<ClinicalDataEqualityFilter> getClinicalDataEqualityFilters() {
-        return clinicalDataEqualityFilters;
+    
+    public List<ClinicalDataFilter> getClinicalDataFilters() {
+        return clinicalDataFilters;
     }
 
-    public void setClinicalDataEqualityFilters(List<ClinicalDataEqualityFilter> clinicalDataEqualityFilters) {
-        this.clinicalDataEqualityFilters = clinicalDataEqualityFilters;
+    public void setClinicalDataFilters(List<ClinicalDataFilter> clinicalDataFilters) {
+        this.clinicalDataFilters = clinicalDataFilters;
     }
 
-    public List<ClinicalDataIntervalFilter> getClinicalDataIntervalFilters() {
-        return clinicalDataIntervalFilters;
+    public List<GeneFilter> getGeneFilters() {
+        return geneFilters;
     }
 
-    public void setClinicalDataIntervalFilters(List<ClinicalDataIntervalFilter> clinicalDataIntervalFilters) {
-        this.clinicalDataIntervalFilters = clinicalDataIntervalFilters;
-    }
-
-    public List<MutationGeneFilter> getMutatedGenes() {
-        return mutatedGenes;
-    }
-
-	public void setMutatedGenes(List<MutationGeneFilter> mutatedGenes) { this.mutatedGenes = mutatedGenes; }
-
-    public List<FusionGeneFilter> getFusionGenes() {
-        return fusionGenes;
-    }
-
-    public void setFusionGenes(List<FusionGeneFilter> fusionGenes) {
-        this.fusionGenes = fusionGenes;
-    }
-
-    public List<CopyNumberGeneFilter> getCnaGenes() {
-        return cnaGenes;
-    }
-
-    public void setCnaGenes(List<CopyNumberGeneFilter> cnaGenes) {
-        this.cnaGenes = cnaGenes;
-    }
-
-    public List<StructuralVariantGeneFilter> getSVGenes() {
-        return svGenes;
-    }
-
-    public void setSVGenes(List<StructuralVariantGeneFilter> svGenes) {
-        this.svGenes = svGenes;
+    public void setGeneFilters(List<GeneFilter> geneFilters) {
+        this.geneFilters = geneFilters;
     }
 
     public Boolean getWithMutationData() {
@@ -125,11 +93,12 @@ public class StudyViewFilter implements Serializable {
         this.withCNAData = withCNAData;
     }
 
-    public RectangleBounds getMutationCountVsCNASelection() {
-        return mutationCountVsCNASelection;
+    public Boolean getWithFusionData() {
+        return withFusionData;
     }
 
-    public void setMutationCountVsCNASelection(RectangleBounds mutationCountVsCNASelection) {
-        this.mutationCountVsCNASelection = mutationCountVsCNASelection;
+    public void setWithFusionData(Boolean withFusionData) {
+        this.withFusionData = withFusionData;
     }
+
 }

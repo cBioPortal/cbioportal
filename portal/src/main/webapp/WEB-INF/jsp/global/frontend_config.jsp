@@ -9,7 +9,6 @@ window.legacySupportFrontendConfig = {
     appVersion : '<%=GlobalProperties.getAppVersion()%>',
     maxTreeDepth : <%=GlobalProperties.getMaxTreeDepth()%>,
     showOncoKB : <%=GlobalProperties.showOncoKB()%>,
-    oncoKBApiUrl : '<%=GlobalProperties.getOncoKBPublicApiUrl()%>',
     genomeNexusApiUrl : '<%=GlobalProperties.getGenomeNexusApiUrl()%>',
     showCivic : <%=GlobalProperties.showCivic()%>,
     showHotspot : <%=GlobalProperties.showHotspot()%>,
@@ -95,9 +94,6 @@ window.localdist = localStorage.getItem("localdist") === "true";
 
 if (window.localdist || window.localdev) {
 	window.frontendConfig.frontendUrl = '//localhost:3000/'
-} else if (localStorage.heroku) {
-	var herokuInstance = '//' + localStorage.getItem('heroku') + '.herokuapp.com/';
-	window.frontendConfig.frontendUrl = herokuInstance;
 } else if (localStorage.netlify) {
 	var netlifyInstance = '//' + localStorage.getItem('netlify') + '.netlify.com/';
 	window.frontendConfig.frontendUrl = netlifyInstance;

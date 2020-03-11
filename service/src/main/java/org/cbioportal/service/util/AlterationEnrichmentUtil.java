@@ -12,7 +12,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 @Component
-public class AlterationEnrichmentUtil {
+public class AlterationEnrichmentUtil<T extends AlterationCountByGene> {
 
     @Autowired
     private FisherExactTestCalculator fisherExactTestCalculator;
@@ -21,12 +21,12 @@ public class AlterationEnrichmentUtil {
     @Autowired
     private MolecularProfileService molecularProfileService;
     @Autowired
-    private ProfiledCasesCounter profiledCasesCounter;
+    private ProfiledCasesCounter<T> profiledCasesCounter;
     @Autowired
     private SampleService sampleService;
 
     public List<AlterationEnrichment> createAlterationEnrichments(
-            Map<String, List<? extends AlterationCountByGene>> mutationCountsbyGroup,
+            Map<String, List<T>> mutationCountsbyGroup,
             Map<String, List<MolecularProfileCaseIdentifier>> molecularProfileCaseSets,
             String enrichmentType) {
         
@@ -57,67 +57,90 @@ public class AlterationEnrichmentUtil {
                 "ENTREZ_GENE_ID",
                 "SUMMARY");
         
-        return genes.stream().map(gene -> {
-            AlterationEnrichment alterationEnrichment = new AlterationEnrichment();
-            alterationEnrichment.setEntrezGeneId(gene.getEntrezGeneId());
-            alterationEnrichment.setHugoGeneSymbol(gene.getHugoGeneSymbol());
-            List<CountSummary> counts = groups
-                    .stream()
-                    .map(group -> {
+        return genes
+                .stream()
+                .filter(gene -> {
+                    // filter genes where number of altered cases in all groups is 0
+                    return groups.stream().filter(group -> {
+                        AlterationCountByGene mutationCountByGene = mutationCountsbyEntrezGeneIdAndGroup
+                                .getOrDefault(group, new HashMap<Integer, AlterationCountByGene>())
+                                .get(gene.getEntrezGeneId());
+                        return mutationCountByGene == null ? false : mutationCountByGene.getNumberOfAlteredCases() != 0;
+                    }).count() > 0;
+                })
+                .map(gene -> {
+                    AlterationEnrichment alterationEnrichment = new AlterationEnrichment();
+                    alterationEnrichment.setEntrezGeneId(gene.getEntrezGeneId());
+                    alterationEnrichment.setHugoGeneSymbol(gene.getHugoGeneSymbol());
+                    List<CountSummary> counts = groups.stream().map(group -> {
                         CountSummary groupCasesCount = new CountSummary();
                         AlterationCountByGene mutationCountByGene = mutationCountsbyEntrezGeneIdAndGroup
-                                .getOrDefault(group, new HashMap<Integer, AlterationCountByGene>()).get(gene.getEntrezGeneId());
-                      
+                                .getOrDefault(group, new HashMap<Integer, AlterationCountByGene>())
+                                .get(gene.getEntrezGeneId());
+
                         Integer alteredCount = mutationCountByGene != null ? mutationCountByGene.getNumberOfAlteredCases() : 0;
                         Integer profiledCount = mutationCountByGene != null ? mutationCountByGene.getNumberOfProfiledCases() : molecularProfileCaseSets.get(group).size();
                         groupCasesCount.setName(group);
                         groupCasesCount.setAlteredCount(alteredCount);
                         groupCasesCount.setProfiledCount(profiledCount);
                         return groupCasesCount;
-                    })
-                    .collect(Collectors.toList());
+                    }).collect(Collectors.toList());
 
-            double pValue;
-            // if groups size is two do Fisher Exact test else do Chi-Square test
-            if (groups.size() == 2) {
-                
-                int alteredInNoneCount = counts.get(1).getProfiledCount() - counts.get(1).getAlteredCount();
-                int alteredOnlyInQueryGenesCount = counts.get(0).getProfiledCount() - counts.get(0).getAlteredCount();
+                    List<CountSummary> filteredCounts = counts.stream()
+                            .filter(groupCasesCount -> groupCasesCount.getProfiledCount() > 0)
+                            .collect(Collectors.toList());
 
-                pValue = fisherExactTestCalculator.getCumulativePValue(alteredInNoneCount,
-                        counts.get(1).getAlteredCount(), alteredOnlyInQueryGenesCount, counts.get(0).getAlteredCount()); 
-            } else {
+                    // calculate p-value only if more than one group have profile cases count
+                    // greater than 0
+                    if (filteredCounts.size() > 1) {
+                        double pValue;
+                        // if groups size is two do Fisher Exact test else do Chi-Square test
+                        if (groups.size() == 2) {
 
-                long[][] array = counts.stream().map(count -> {
-                    return new long[] { count.getAlteredCount(), count.getProfiledCount() - count.getAlteredCount() };
-                }).toArray(long[][]::new);
+                            int alteredInNoneCount = counts.get(1).getProfiledCount() - counts.get(1).getAlteredCount();
+                            int alteredOnlyInQueryGenesCount = counts.get(0).getProfiledCount()
+                                    - counts.get(0).getAlteredCount();
 
-                ChiSquareTest chiSquareTest = new ChiSquareTest();
-                pValue = chiSquareTest.chiSquareTest(array);
-                
-                // set p-value to 1 when the cases in all groups are altered
-                if (Double.isNaN(pValue)) {
-                    pValue = 1;
-                }
-            }
-            alterationEnrichment.setpValue(BigDecimal.valueOf(pValue));
-            alterationEnrichment.setCounts(counts);
-            return alterationEnrichment;
-        }).collect(Collectors.toList());
+                            pValue = fisherExactTestCalculator.getCumulativePValue(alteredInNoneCount,
+                                    counts.get(1).getAlteredCount(), alteredOnlyInQueryGenesCount,
+                                    counts.get(0).getAlteredCount());
+                        } else {
+
+                            long[][] array = counts.stream().map(count -> {
+                                return new long[] { count.getAlteredCount(),
+                                        count.getProfiledCount() - count.getAlteredCount() };
+                            }).toArray(long[][]::new);
+
+                            ChiSquareTest chiSquareTest = new ChiSquareTest();
+                            pValue = chiSquareTest.chiSquareTest(array);
+
+                            // set p-value to 1 when the cases in all groups are altered
+                            if (Double.isNaN(pValue)) {
+                                pValue = 1;
+                            }
+                        }
+                        alterationEnrichment.setpValue(BigDecimal.valueOf(pValue));
+                    }
+
+                    alterationEnrichment.setCounts(counts);
+                    return alterationEnrichment;
+                }).collect(Collectors.toList());
 
     }
     
     public void includeFrequencyForSamples(List<String> molecularProfileIds,
             List<String> sampleIds,
-            List<? extends AlterationCountByGene> alterationCountByGenes) {
+            List<T> alterationCountByGenes,
+            boolean includeMissingAlterationsFromGenePanel) {
         
-        profiledCasesCounter.calculate(molecularProfileIds, sampleIds, alterationCountByGenes, false);
+        profiledCasesCounter.calculate(molecularProfileIds, sampleIds, alterationCountByGenes, false, includeMissingAlterationsFromGenePanel);
         
     }
     
     public void includeFrequencyForPatients(List<String> molecularProfileIds,
             List<String> patientIds,
-            List<? extends AlterationCountByGene> alterationCountByGenes) {
+            List<T> alterationCountByGenes,
+            boolean includeMissingAlterationsFromGenePanel) {
         
         List<MolecularProfile> molecularProfiles = molecularProfileService
                 .getMolecularProfiles(molecularProfileIds, "SUMMARY");
@@ -148,7 +171,7 @@ public class AlterationEnrichmentUtil {
                 .map(Sample::getStableId)
                 .collect(Collectors.toList());
 
-        profiledCasesCounter.calculate(molecularProfileIdsofSampleIds, sampleIds, alterationCountByGenes, true);
+        profiledCasesCounter.calculate(molecularProfileIdsofSampleIds, sampleIds, alterationCountByGenes, true, includeMissingAlterationsFromGenePanel);
     }
 
 }

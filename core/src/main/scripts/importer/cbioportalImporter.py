@@ -81,7 +81,7 @@ def update_study_status(jvm_args, study_id):
     args.append("--noprogress") # don't report memory usage and % progress
     run_java(*args)
 
-def remove_study(jvm_args, meta_filename):
+def remove_study_meta(jvm_args, meta_filename):
     args = jvm_args.split(' ')
     args.append(REMOVE_STUDY_CLASS)
     meta_dictionary = cbioportal_common.parse_metadata_file(
@@ -91,6 +91,13 @@ def remove_study(jvm_args, meta_filename):
         print('Not a study meta file: ' + meta_filename, file=ERROR_FILE)
         return
     args.append(meta_dictionary['cancer_study_identifier'])
+    args.append("--noprogress") # don't report memory usage and % progress
+    run_java(*args)
+
+def remove_study_id(jvm_args, study_id):
+    args = jvm_args.split(' ')
+    args.append(REMOVE_STUDY_CLASS)
+    args.append(study_id)
     args.append("--noprogress") # don't report memory usage and % progress
     run_java(*args)
 
@@ -179,13 +186,20 @@ def process_case_lists(jvm_args, case_list_dir):
         if not (case_list.startswith('.') or case_list.endswith('~')):
             import_case_list(jvm_args, os.path.join(case_list_dir, case_list))
 
-def process_command(jvm_args, command, meta_filename, data_filename):
+def process_command(jvm_args, command, meta_filename, data_filename, study_ids):
     if command == IMPORT_CANCER_TYPE:
         import_cancer_type(jvm_args, data_filename)
     elif command == IMPORT_STUDY:
         import_study(jvm_args, meta_filename)
     elif command == REMOVE_STUDY:
-        remove_study(jvm_args, meta_filename)
+        if study_ids == None:
+            remove_study_meta(jvm_args, meta_filename)
+        elif meta_filename == None:
+            study_ids = study_ids.split(",")
+            for study_id in study_ids:
+                remove_study_id(jvm_args, study_id)
+        else:
+            raise RuntimeError('Your command uses both -id and -meta. Please, use only one of the two parameters.')
     elif command == IMPORT_STUDY_DATA:
         import_study_data(jvm_args, meta_filename, data_filename)
     elif command == IMPORT_CASE_LIST:
@@ -299,7 +313,7 @@ def process_directory(jvm_args, study_directory):
         raise RuntimeError('No meta_study file found')
     else:
         # First remove study if exists
-        remove_study(jvm_args, study_meta_filename)
+        remove_study_meta(jvm_args, study_meta_filename)
         import_study(jvm_args, study_meta_filename)
 
     # Next, we need to import sample definitions
@@ -357,6 +371,7 @@ def usage():
                            '--command [%s] --study_directory <path to directory> '
                            '--meta_filename <path to metafile>'
                            '--data_filename <path to datafile>'
+                           '--study_ids <cancer study ids for remove-study command, comma separated>'
                            '--properties-filename <path to properties file> ' % (COMMANDS)), file=OUTPUT_FILE)
 
 def check_args(command):
@@ -393,6 +408,8 @@ def interface():
                         help='Path to meta file')
     parser.add_argument('-data', '--data_filename', type=str, required=False,
                         help='Path to Data file')
+    parser.add_argument('-id', '--study_ids', type=str, required=False,
+                        help='Cancer Study IDs for `remove-study` command, comma separated')
     # TODO - add same argument to metaimporter
     # TODO - harmonize on - and _
 
@@ -453,7 +470,7 @@ def main(args):
     else:
         check_args(args.command)
         check_files(args.meta_filename, args.data_filename)
-        process_command(jvm_args, args.command, args.meta_filename, args.data_filename)
+        process_command(jvm_args, args.command, args.meta_filename, args.data_filename, args.study_ids)
 
 # ------------------------------------------------------------------------------
 # ready to roll

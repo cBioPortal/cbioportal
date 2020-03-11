@@ -48,6 +48,10 @@
             <include refid="org.cbioportal.persistence.mybatis.GeneMapper.select">
                 <property name="prefix" value="gene."/>
             </include>
+            ,
+            <include refid="getAlleleSpecificCopyNumber">
+                <property name="prefix" value="alleleSpecificCopyNumber."/>
+            </include>
         </if>
     </sql>
 
@@ -151,6 +155,23 @@
         </where>
     </sql>
 
+    <sql id="getAlleleSpecificCopyNumber">
+        allele_specific_copy_number.ASCN_INTEGER_COPY_NUMBER AS "${prefix}ascnIntegerCopyNumber",
+        allele_specific_copy_number.ASCN_METHOD AS "${prefix}ascnMethod",
+        allele_specific_copy_number.CCF_M_COPIES_UPPER AS "${prefix}ccfMCopiesUpper",
+        allele_specific_copy_number.CCF_M_COPIES AS "${prefix}ccfMCopies",
+        allele_specific_copy_number.CLONAL AS "${prefix}clonal",
+        allele_specific_copy_number.MINOR_COPY_NUMBER AS "${prefix}minorCopyNumber",
+        allele_specific_copy_number.MUTANT_COPIES AS "${prefix}mutantCopies",
+        allele_specific_copy_number.TOTAL_COPY_NUMBER AS "${prefix}totalCopyNumber"
+    </sql>
+
+    <sql id="includeAlleleSpecificCopyNumber">
+        LEFT JOIN allele_specific_copy_number ON mutation.MUTATION_EVENT_ID = allele_specific_copy_number.MUTATION_EVENT_ID
+        AND mutation.GENETIC_PROFILE_ID = allele_specific_copy_number.GENETIC_PROFILE_ID
+        AND mutation.SAMPLE_ID = allele_specific_copy_number.SAMPLE_ID
+    </sql>
+
     <select id="getMutationsBySampleListId" resultType="org.cbioportal.model.Mutation">
         SELECT
         <include refid="select"/>
@@ -160,6 +181,7 @@
         </if>
         <if test="projection == 'DETAILED'">
             INNER JOIN gene ON mutation.ENTREZ_GENE_ID = gene.ENTREZ_GENE_ID
+            <include refid="includeAlleleSpecificCopyNumber"/>
         </if>
         <include refid="whereBySampleListId"/>
         <if test="sortBy != null and projection != 'ID'">
@@ -190,6 +212,7 @@
         </if>
         <if test="projection == 'DETAILED'">
             INNER JOIN gene ON mutation.ENTREZ_GENE_ID = gene.ENTREZ_GENE_ID
+            <include refid="includeAlleleSpecificCopyNumber"/>
         </if>
         <include refid="whereInMultipleMolecularProfiles"/>
         <if test="sortBy != null and projection != 'ID'">
@@ -202,6 +225,29 @@
             LIMIT #{limit} OFFSET #{offset}
         </if>
     </select>
+    
+    <!-- TODO: cleanup once fusion/structural data is fixed in database -->
+    <select id="getFusionsInMultipleMolecularProfiles" resultType="org.cbioportal.model.Mutation">
+        SELECT
+        <include refid="select"/>
+        <include refid="from"/>
+        INNER JOIN mutation_event ON mutation.MUTATION_EVENT_ID = mutation_event.MUTATION_EVENT_ID AND mutation_event.MUTATION_TYPE = 'Fusion'
+        <if test="projection == 'DETAILED'">
+            INNER JOIN gene ON mutation.ENTREZ_GENE_ID = gene.ENTREZ_GENE_ID
+            <include refid="includeAlleleSpecificCopyNumber"/>
+        </if>
+        <include refid="whereInMultipleMolecularProfiles"/>
+        <if test="sortBy != null and projection != 'ID'">
+            ORDER BY ${sortBy} ${direction}
+        </if>
+        <if test="projection == 'ID'">
+            ORDER BY genetic_profile.STABLE_ID ASC, sample.STABLE_ID ASC, mutation.ENTREZ_GENE_ID ASC
+        </if>
+        <if test="limit != null and limit != 0">
+            LIMIT #{limit} OFFSET #{offset}
+        </if>
+    </select>
+    <!-- TODO: cleanup once fusion/structural data is fixed in database -->
 
     <select id="getMetaMutationsInMultipleMolecularProfiles" resultType="org.cbioportal.model.meta.MutationMeta">
         SELECT
@@ -220,6 +266,7 @@
         </if>
         <if test="projection == 'DETAILED'">
             INNER JOIN gene ON mutation.ENTREZ_GENE_ID = gene.ENTREZ_GENE_ID
+            <include refid="includeAlleleSpecificCopyNumber"/>
         </if>
         <include refid="where"/>
         <if test="sortBy != null and projection != 'ID'">

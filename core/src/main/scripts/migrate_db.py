@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 
 import os
+import re
 import sys
 import contextlib
 import argparse
@@ -194,6 +195,10 @@ def check_reference_genome(portal_properties, cursor, force_migration):
         if not force_migration:
             sys.exit(1)
 
+def strip_trailing_comment_from_line(line):
+    line_parts = re.split("--\s",line)
+    return line_parts[0]
+
 def run_migration(db_version, sql_filename, connection, cursor):
     """
         Goes through the sql and runs lines based on the version numbers. SQL version should be stated as follows:
@@ -226,8 +231,9 @@ def run_migration(db_version, sql_filename, connection, cursor):
         # only execute sql line if the last version seen in the file is greater than the db_version
         if run_line:
             line = line.strip()
-            statement = statement + ' ' + line
-            if line.endswith(';'):
+            simplified_line = strip_trailing_comment_from_line(line)
+            statement = statement + ' ' + simplified_line
+            if simplified_line.endswith(';'):
                 if sql_version not in statements:
                     statements[sql_version] = [statement]
                 else:

@@ -20,6 +20,9 @@ specification (https://www.cbioportal.org/api/). Note that the repo where this
 lives in (https://github.com/cBioPortal/cbioportal) also contains Java classes
 to import data as well as the validator.
 
+The backend is organized as a multi-module Maven project.
+See [cBioPortal backend code organization](Backend-Code-Organization.md).
+
 ## Validator
 The
 [validator](https://github.com/cBioPortal/cbioportal/tree/master/core/src/main/scripts/importer)
@@ -57,8 +60,9 @@ For privacy concerns see the section: [A note on privacy](#A-note-on-privacy).
 ### OncoKB
 [OncoKB](https://www.oncokb.org) is a precision oncology knowledge base that
 contains information about the effects and treatment implications of specific
-cancer gene alterations. For information on how to deploy this service yourself
-see: https://github.com/oncokb/oncokb.
+cancer gene alterations. See the section [OncoKB Data Access](OncoKB-Data-Access.md)
+for how to configure external OncoKB service. For information on how to deploy 
+this service yourself see: https://github.com/oncokb/oncokb.
 
 ### CIVIC
 [CIVIC](https://civicdb.org) is a community-edited forum for discussion and

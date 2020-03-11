@@ -1,8 +1,10 @@
 package org.cbioportal.service.impl;
 
+import org.cbioportal.model.MolecularProfile;
 import org.cbioportal.model.Sample;
 import org.cbioportal.model.meta.BaseMeta;
 import org.cbioportal.persistence.CopyNumberSegmentRepository;
+import org.cbioportal.persistence.MolecularProfileRepository;
 import org.cbioportal.persistence.SampleListRepository;
 import org.cbioportal.persistence.SampleRepository;
 import org.cbioportal.service.PatientService;
@@ -39,6 +41,8 @@ public class SampleServiceImplTest extends BaseServiceImplTest {
     private SampleListRepository sampleListRepository;
     @Mock
     private CopyNumberSegmentRepository copyNumberSegmentRepository;
+    @Mock
+    private MolecularProfileRepository molecularProfileRepository;
     
     private Sample createSample(String id) {
         Sample sample = new Sample();
@@ -53,10 +57,10 @@ public class SampleServiceImplTest extends BaseServiceImplTest {
             createSample(SAMPLE_ID3), createSample(SAMPLE_ID4)
         );
         Mockito
-            .when(sampleRepository.getAllSamples("sample_id", PROJECTION, PAGE_SIZE, PAGE_NUMBER, SORT, DIRECTION))
+            .when(sampleRepository.getAllSamples("sample_id", null, PROJECTION, PAGE_SIZE, PAGE_NUMBER, SORT, DIRECTION))
             .thenReturn(samples);
 
-        List<Sample> result = sampleService.getAllSamples("sample_id", PROJECTION, PAGE_SIZE, PAGE_NUMBER, SORT, DIRECTION);
+        List<Sample> result = sampleService.getAllSamples("sample_id", null, PROJECTION, PAGE_SIZE, PAGE_NUMBER, SORT, DIRECTION);
         List<String> actual = result.stream().map(Sample::getStableId).collect(Collectors.toList());
         List<String> expected = Arrays.asList(SAMPLE_ID1, SAMPLE_ID2, SAMPLE_ID3, SAMPLE_ID4);
         
@@ -67,9 +71,9 @@ public class SampleServiceImplTest extends BaseServiceImplTest {
     public void getAllMetaSamples() {
         BaseMeta baseMeta = new BaseMeta();
         baseMeta.setTotalCount(4);
-        Mockito.when(sampleRepository.getMetaSamples("sample_id")).thenReturn(baseMeta);
+        Mockito.when(sampleRepository.getMetaSamples("sample_id", null)).thenReturn(baseMeta);
 
-        BaseMeta result = sampleService.getMetaSamples("sample_id");
+        BaseMeta result = sampleService.getMetaSamples("sample_id", null);
         Integer actual = result.getTotalCount();
         Integer expected = 4;
 
@@ -259,6 +263,15 @@ public class SampleServiceImplTest extends BaseServiceImplTest {
             .thenReturn(new ArrayList<>());
         Mockito.when(copyNumberSegmentRepository.fetchSamplesWithCopyNumberSegments(Mockito.anyListOf(String.class),
             Mockito.anyListOf(String.class), Mockito.anyString())).thenReturn(expectedInternalIdList);
+
+        List<MolecularProfile> expectedMolecularProfileList = new ArrayList<>();
+        MolecularProfile molecularProfile = new MolecularProfile();
+        molecularProfile.setCancerStudyIdentifier(STUDY_ID);
+        molecularProfile.setMolecularAlterationType(MolecularProfile.MolecularAlterationType.STRUCTURAL_VARIANT);
+        expectedMolecularProfileList.add(molecularProfile);
+
+        Mockito.when(molecularProfileRepository.getMolecularProfilesInStudies(Arrays.asList(STUDY_ID), "DETAILED"))
+            .thenReturn(expectedMolecularProfileList);
         
         List<Sample> result = sampleService.fetchSamples(Arrays.asList(STUDY_ID), Arrays.asList(SAMPLE_ID1), "DETAILED");
         Assert.assertEquals(2, result.size());

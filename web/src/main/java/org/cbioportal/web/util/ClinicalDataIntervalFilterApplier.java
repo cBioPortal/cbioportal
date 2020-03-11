@@ -5,9 +5,8 @@ import com.google.common.collect.Range;
 import org.cbioportal.model.ClinicalData;
 import org.cbioportal.service.ClinicalDataService;
 import org.cbioportal.service.PatientService;
-import org.cbioportal.service.SampleService;
-import org.cbioportal.web.parameter.ClinicalDataIntervalFilter;
-import org.cbioportal.web.parameter.ClinicalDataIntervalFilterValue;
+import org.cbioportal.web.parameter.ClinicalDataFilter;
+import org.cbioportal.web.parameter.ClinicalDataFilterValue;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
@@ -18,24 +17,23 @@ import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Component
-public class ClinicalDataIntervalFilterApplier extends ClinicalDataFilterApplier<ClinicalDataIntervalFilter> {
+public class ClinicalDataIntervalFilterApplier extends ClinicalDataFilterApplier {
     @Autowired
     public ClinicalDataIntervalFilterApplier(PatientService patientService,
                                              ClinicalDataService clinicalDataService,
-                                             SampleService sampleService,
                                              StudyViewFilterUtil studyViewFilterUtil) {
-        super(patientService, clinicalDataService, sampleService, studyViewFilterUtil);
+        super(patientService, clinicalDataService, studyViewFilterUtil);
     }
 
     @Override
-    public Integer apply(List<ClinicalDataIntervalFilter> attributes,
+    public Integer apply(List<ClinicalDataFilter> attributes,
                          MultiKeyMap clinicalDataMap,
                          String entityId,
                          String studyId,
                          Boolean negateFilters) {
         int count = 0;
 
-        for (ClinicalDataIntervalFilter filter : attributes) {
+        for (ClinicalDataFilter filter : attributes) {
             List<ClinicalData> entityClinicalData = (List<ClinicalData>)clinicalDataMap.get(entityId, studyId);
             if (entityClinicalData != null) {
                 Optional<ClinicalData> clinicalData = entityClinicalData.stream().filter(c -> c.getAttrId()
@@ -120,7 +118,7 @@ public class ClinicalDataIntervalFilterApplier extends ClinicalDataFilterApplier
         return studyViewFilterUtil.calcRange(min, startInclusive, max, endInclusive);
     }
 
-    private Range<BigDecimal> calculateRangeValueForFilter(ClinicalDataIntervalFilterValue filterValue) {
+    private Range<BigDecimal> calculateRangeValueForFilter(ClinicalDataFilterValue filterValue) {
         BigDecimal start = filterValue.getStart();
         BigDecimal end = filterValue.getEnd();
 
@@ -138,7 +136,7 @@ public class ClinicalDataIntervalFilterApplier extends ClinicalDataFilterApplier
         return studyViewFilterUtil.calcRange(start, startInclusive, end, endInclusive);
     }
 
-    private Boolean containsNA(ClinicalDataIntervalFilter filter) {
+    private Boolean containsNA(ClinicalDataFilter filter) {
         return filter.getValues().stream().anyMatch(
             r -> r.getValue() != null && r.getValue().toUpperCase().equals("NA"));
     }

@@ -2,6 +2,7 @@ package org.cbioportal.web;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.cbioportal.model.CoExpression;
+import org.cbioportal.model.EntityType;
 import org.cbioportal.service.CoExpressionService;
 import org.cbioportal.web.parameter.CoExpressionFilter;
 import org.hamcrest.Matchers;
@@ -34,13 +35,9 @@ import java.util.List;
 public class CoExpressionControllerTest {
 
     private static final String TEST_ENTREZ_GENE_ID_1 = "1";
-    private static final String TEST_HUGO_GENE_SYMBOL_1 = "test_hugo_gene_symbol_1";
-    private static final String TEST_CYTOBAND_1 = "test_cytoband_1";
     private static final BigDecimal TEST_SPEARMANS_CORRELATION_1 = new BigDecimal(2.1);
     private static final BigDecimal TEST_P_VALUE_1 = new BigDecimal(0.33);
     private static final String TEST_ENTREZ_GENE_ID_2 = "2";
-    private static final String TEST_HUGO_GENE_SYMBOL_2 = "test_hugo_gene_symbol_2";
-    private static final String TEST_CYTOBAND_2 = "test_cytoband_2";
     private static final BigDecimal TEST_SPEARMANS_CORRELATION_2 = new BigDecimal(4.1);
     private static final BigDecimal TEST_P_VALUE_2 = new BigDecimal(0.66);
 
@@ -72,22 +69,18 @@ public class CoExpressionControllerTest {
         List<CoExpression> coExpressionList = new ArrayList<>();
         CoExpression coExpression1 = new CoExpression();
         coExpression1.setGeneticEntityId(TEST_ENTREZ_GENE_ID_1);
-        coExpression1.setGeneticEntityName(TEST_HUGO_GENE_SYMBOL_1);
-        coExpression1.setCytoband(TEST_CYTOBAND_1);
         coExpression1.setSpearmansCorrelation(TEST_SPEARMANS_CORRELATION_1);
         coExpression1.setpValue(TEST_P_VALUE_1);
         coExpressionList.add(coExpression1);
         CoExpression coExpression2 = new CoExpression();
         coExpression2.setGeneticEntityId(TEST_ENTREZ_GENE_ID_2);
-        coExpression2.setGeneticEntityName(TEST_HUGO_GENE_SYMBOL_2);
-        coExpression2.setCytoband(TEST_CYTOBAND_2);
         coExpression2.setSpearmansCorrelation(TEST_SPEARMANS_CORRELATION_2);
         coExpression2.setpValue(TEST_P_VALUE_2);
         coExpressionList.add(coExpression2);
 
 
         Mockito.when(coExpressionService.fetchCoExpressions(Mockito.anyString(),
-        Mockito.any(CoExpression.GeneticEntityType.class), Mockito.anyListOf(String.class), Mockito.anyString(), Mockito.anyString(),
+        Mockito.any(EntityType.class), Mockito.anyListOf(String.class), Mockito.anyString(), Mockito.anyString(), 
         Mockito.anyDouble()))
             .thenReturn(coExpressionList);
 
@@ -106,13 +99,9 @@ public class CoExpressionControllerTest {
             .andExpect(MockMvcResultMatchers.content().contentTypeCompatibleWith(MediaType.APPLICATION_JSON))
             .andExpect(MockMvcResultMatchers.jsonPath("$", Matchers.hasSize(2)))
             .andExpect(MockMvcResultMatchers.jsonPath("$[0].geneticEntityId").value(TEST_ENTREZ_GENE_ID_1))
-            .andExpect(MockMvcResultMatchers.jsonPath("$[0].geneticEntityName").value(TEST_HUGO_GENE_SYMBOL_1))
-            .andExpect(MockMvcResultMatchers.jsonPath("$[0].cytoband").value(TEST_CYTOBAND_1))
             .andExpect(MockMvcResultMatchers.jsonPath("$[0].spearmansCorrelation").value(TEST_SPEARMANS_CORRELATION_1))
             .andExpect(MockMvcResultMatchers.jsonPath("$[0].pValue").value(TEST_P_VALUE_1))
             .andExpect(MockMvcResultMatchers.jsonPath("$[1].geneticEntityId").value(TEST_ENTREZ_GENE_ID_2))
-            .andExpect(MockMvcResultMatchers.jsonPath("$[1].geneticEntityName").value(TEST_HUGO_GENE_SYMBOL_2))
-            .andExpect(MockMvcResultMatchers.jsonPath("$[1].cytoband").value(TEST_CYTOBAND_2))
             .andExpect(MockMvcResultMatchers.jsonPath("$[1].spearmansCorrelation").value(TEST_SPEARMANS_CORRELATION_2))
             .andExpect(MockMvcResultMatchers.jsonPath("$[1].pValue").value(TEST_P_VALUE_2));
     }

@@ -2,10 +2,12 @@ This page describes the main properties within portal.properties.
 
 - [Database Settings](#database-settings)
 - [cBioPortal Customization](#cbioportal-customization)
+- [Ensembl transcript lookup URL](#ensembl-transcript-lookup)
 - [Segment File URL](#segment-file-url)
 - [Bitly API Username and Key](#bitly-api-username-and-key)
 - [Google Analytics](#google-analytics)
 - [Password Authentication](#password-authentication)
+- [OncoKB integration](#oncokb-integration)
 - [CIViC integration](#civic-integration)
 - [OncoPrint](#oncoprint)
 - [Custom annotation of driver and passenger mutations](#custom-annotation-of-driver-and-passenger-mutations)
@@ -15,6 +17,7 @@ This page describes the main properties within portal.properties.
 	- [Automatic hiding of putative passenger mutations](#automatic-hiding-of-putative-passenger-mutations)
 - [Gene sets used for gene querying](#gene-sets-used-for-gene-querying)
 - [Ehcache Settings](#ehcache-settings)
+- [Enable GSVA functionality](#enable-gsva-functionality)
 
 # Database Settings
 
@@ -142,6 +145,19 @@ Add a custom logo in the right side of the menu. Place here the full name of the
 skin.right_logo=
 ```
 
+## Control default setting for filtering of genes in mutation and CNA tables of patient view
+Different samples of a patient may have been analyzed with different gene panels. In patient view mutations and discrete CNA's can be filtered based on whether the gene of respective mutations/CNA's was profiled in all samples of the patient (mutations profiled in `all samples`), or not (mutations profiled in `any sample`). Setting this field to `true` will make patient view select the `all samples` filter at startup. When set to false or left blank the patient view will default to the `any samples` filter setting.
+```
+skin.patientview.filter_genes_profiled_all_samples=
+```
+# Ensembl transcript lookup URL
+The Mutations tab contains various links, redirecting the user to external information resources regarding the displayed transcript. The Ensembl template URL can be customized by modifying the property:
+```
+ensembl.transcript_url=
+```
+The default setting is `http://ensembl.org/homo_sapiens/Transcript/Summary?t=<%= transcriptId %>`. The `<%= transcriptId %>` is substituted by the frontend code into respective transcript ID.
+
+
 # Segment File URL
 
 This is a root URL to where segment files can be found.  This is used when you want to provide segment file viewing via external tools such as [IGV](http://www.broadinstitute.org/igv/).
@@ -190,6 +206,17 @@ app.name=cbioportal
 ```
 app.name should be set to the name of the portal instance referenced in the "AUTHORITY" column of the "AUTHORITIES" table.  See the [User Authorization](User-Authorization.md) for more information.
 
+# OncoKB integration
+
+OncoKB integration can be turned on or off with the following property (default: true):
+```
+show.oncokb=true|false
+```
+A private token is required to access the OncoKB Data (for details see the section [OncoKB Data Access](OncoKB-Data-Access.md)):
+```
+oncokb.token=
+```
+
 # CIViC integration
 
 CIViC integration can be turned on or off with the following property (default: true):
@@ -199,6 +226,13 @@ show.civic=true|false
 The CIViC API url is set to https://civic.genome.wustl.edu/api/ by default. It can be overridden using the following property:
 ```
 civic.url=
+```
+
+# MDACC Heatmap Integration
+
+MDACC Heatmap integration (button in OncoPrint heatmap dropdown and tab on Study page can be turned on or off by setting the following property:
+```
+show.mdacc.heatmap=true
 ```
 
 # OncoPrint
@@ -334,3 +368,10 @@ For a list of counts of keys in cache per repository class:
 For more information on Ehcache, refer to the official documentation [here](https://www.ehcache.org/documentation/3.7/index.html)
 
 For more information on how Ehcache is implemented in cBioPortal refer to the [Caching](Caching.md) documentation.
+
+# Enable GSVA functionality
+
+[GSVA functionality](https://github.com/cBioPortal/cbioportal/blob/master/docs/File-Formats.md#gene-set-data) can be enabled by uncommenting this line (and making sure it is set to `true`): 
+```
+skin.show_gsva=true
+```

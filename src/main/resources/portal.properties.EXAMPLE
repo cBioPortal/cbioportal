@@ -75,6 +75,9 @@ skin.right_nav.show_whats_new=true
 # settings controlling what to show in the right navigation bar
 skin.study_view.link_text=To build your own case set, try out our enhanced Study View.
 
+# setting controlling the default setting for filtering genes in patient view
+# skin.patientview.filter_genes_profiled_all_samples=false
+
 ## enable and set this property to specify a study group to be used to identify public studies for which no specific authorization entries are needed in the `authorities` table
 # always_show_study_group=
 
@@ -139,8 +142,9 @@ dat.jwt.secret_key=
 # study view settings
 # always show studies with this group
 always_show_study_group=
-mdacc.heatmap.study.meta.url=//bioinformatics.mdanderson.org/study2url?studyid=
-mdacc.heatmap.study.url=//bioinformatics.mdanderson.org/TCGA/NGCHMPortal/?
+
+# mdacc heatmap integration
+#show.mdacc.heatmap=true
 
 # patient view settings
 patient_view_placeholder=false
@@ -148,14 +152,16 @@ digitalslidearchive.iframe.url=http://cancer.digitalslidearchive.net/index_mskcc
 digitalslidearchive.meta.url=http://cancer.digitalslidearchive.net/local_php/get_slide_list_from_db_groupid_not_needed.php?slide_name_filter=
 tumor_image.url=http://cbio.mskcc.org/cancergenomics/tcga-tumor-images/
 tcga_path_report.url=https://github.com/cbioportal/datahub/raw/master/tcga/pathology_reports/pathology_reports.txt
-mdacc.heatmap.patient.url=//bioinformatics.mdanderson.org/TCGA/NGCHMPortal/?participant=
-mdacc.heatmap.meta.url=//bioinformatics.mdanderson.org/participant2maps?participant=
 
 # various url's
 segfile.url=http://cbio.mskcc.org/cancergenomics/gdac-portal/seg/
 
 # Enable OncoKB annotation (true, false)
 show.oncokb=true
+
+# OncoKB API Token, for more information please check https://www.oncokb.org/dataAccess
+# The token is required if you want to use OncoKB service
+oncokb.token=
 
 # Enable Chang's hotspot list (true, false)
 show.hotspot=true
@@ -265,10 +271,6 @@ ehcache.cache_type=none
 # Enable/Disable quick search (currently in beta, default is false)
 # quick_search.enabled=true
 
-# MatchMiner AWS url
-matchminer.url=
-matchminer.token=
-
 # enable/disable hrrs logging
 # hrrs can be used for debugging - when enabled incoming web requests
 # will be logged into the specified directory
@@ -276,3 +278,19 @@ matchminer.token=
 # see: https://github.com/vy/hrrs/blob/master/README.md
 #hrrs.logging.filepath=
 #hrrs.enable.logging=false
+
+# ensembl URL template for transcript lookup in Mutations tab. Default is http://grch37.ensembl.org/homo_sapiens/Transcript/Summary?t=<%= transcriptId %>
+#ensembl.transcript_url=http://ensembl.org/homo_sapiens/Transcript/Summary?t=<%= transcriptId %>
+
+# Enable/disable Persistent Cache (true, false)
+# The Persistent Cache is a frontend feature that is used to cache semi static
+# data produced by APIs. It uses IndexedDB as a means for persistent storage.
+# This feature is disabled by default.
+# enable_persistent_cache=true
+
+# Limit the size of gene queries (number). gene count * sample count < query_product_limit
+# This limit is enforced on the frontend.
+# query_product_limit=1000000
+
+# Enable gsva to query
+# skin.show_gsva=true

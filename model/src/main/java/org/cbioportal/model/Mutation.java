@@ -2,7 +2,6 @@ package org.cbioportal.model;
 
 import java.io.Serializable;
 import java.math.BigDecimal;
-import javax.validation.constraints.NotNull;
 
 public class Mutation extends Alteration implements Serializable {
     
@@ -36,6 +35,7 @@ public class Mutation extends Alteration implements Serializable {
     private String driverFilterAnnotation;
     private String driverTiersFilter;
     private String driverTiersFilterAnnotation;
+    private AlleleSpecificCopyNumber alleleSpecificCopyNumber;
     
     public String getCenter() {
         return center;
@@ -271,5 +271,13 @@ public class Mutation extends Alteration implements Serializable {
     
     public void setDriverTiersFilterAnnotation(String driverTiersFilterAnnotation) {
         this.driverTiersFilterAnnotation = driverTiersFilterAnnotation;
+    }
+
+    public AlleleSpecificCopyNumber getAlleleSpecificCopyNumber() {
+        return alleleSpecificCopyNumber;
+    }
+
+    public void setAlleleSpecificCopyNumber(AlleleSpecificCopyNumber alleleSpecificCopyNumber) {
+        this.alleleSpecificCopyNumber = alleleSpecificCopyNumber;
     }
 }

@@ -1,9 +1,11 @@
 package org.cbioportal.service.impl;
 
 import org.cbioportal.model.CopyNumberSeg;
+import org.cbioportal.model.MolecularProfile;
 import org.cbioportal.model.Sample;
 import org.cbioportal.model.meta.BaseMeta;
 import org.cbioportal.persistence.CopyNumberSegmentRepository;
+import org.cbioportal.persistence.MolecularProfileRepository;
 import org.cbioportal.persistence.SampleListRepository;
 import org.cbioportal.persistence.SampleRepository;
 import org.cbioportal.service.PatientService;
@@ -13,7 +15,9 @@ import org.cbioportal.service.exception.PatientNotFoundException;
 import org.cbioportal.service.exception.SampleNotFoundException;
 import org.cbioportal.service.exception.StudyNotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
+import org.springframework.security.access.prepost.PostFilter;
 import org.springframework.stereotype.Service;
 
 import java.util.*;
@@ -23,6 +27,7 @@ import java.util.stream.Collectors;
 public class SampleServiceImpl implements SampleService {
 
     private static final String SEQUENCED = "_sequenced";
+    private static final String STRUCTURAL_VARIANT = "_sv";
 
     @Autowired
     private SampleRepository sampleRepository;
@@ -34,18 +39,20 @@ public class SampleServiceImpl implements SampleService {
     private SampleListRepository sampleListRepository;
     @Autowired
     private CopyNumberSegmentRepository copyNumberSegmentRepository;
+    @Autowired
+    private MolecularProfileRepository molecularProfileRepository;
     
     @Override
-    public List<Sample> getAllSamples(String keyword, String projection, Integer pageSize,
-                                      Integer pageNumber, String sort, String direction) {
-        List<Sample> samples = sampleRepository.getAllSamples(keyword, projection, pageSize, pageNumber, sort, direction);
+    public List<Sample> getAllSamples(String keyword, List<String> studyIds, String projection,
+                                      Integer pageSize, Integer pageNumber, String sort, String direction) {
+        List<Sample> samples = sampleRepository.getAllSamples(keyword, studyIds, projection, pageSize, pageNumber, sort, direction);
         processSamples(samples, projection);
         return samples;
     }
 
     @Override
-    public BaseMeta getMetaSamples(String keyword) {
-        return sampleRepository.getMetaSamples(keyword);
+    public BaseMeta getMetaSamples(String keyword, List<String> studyIds) {
+        return sampleRepository.getMetaSamples(keyword, studyIds);
     }
     
     @Override
@@ -171,11 +178,19 @@ public class SampleServiceImpl implements SampleService {
 
         if (projection.equals("DETAILED")) {
             Map<String, Set<String>> sequencedSampleIdsMap = new HashMap<>();
+            Map<String, Set<String>> structuralVariantSampleIdsMap = new HashMap<>();
             List<String> distinctStudyIds = samples.stream().map(Sample::getCancerStudyIdentifier).distinct()
                 .collect(Collectors.toList());
+            List<MolecularProfile> molecularProfiles = molecularProfileRepository.getMolecularProfilesInStudies(distinctStudyIds, projection);
+            List<String> studiesProfiledWithSVs = molecularProfiles.stream()
+                        .filter(p -> p.getMolecularAlterationType().equals(MolecularProfile.MolecularAlterationType.STRUCTURAL_VARIANT))
+                        .map(MolecularProfile::getCancerStudyIdentifier)
+                        .collect(Collectors.toList());
             for (String studyId : distinctStudyIds) {
                 sequencedSampleIdsMap.put(studyId,
                                           new HashSet<String>(sampleListRepository.getAllSampleIdsInSampleList(studyId + SEQUENCED)));
+                structuralVariantSampleIdsMap.put(studyId,
+                                       new HashSet<String>(sampleListRepository.getAllSampleIdsInSampleList(studyId + STRUCTURAL_VARIANT)));
             }
 
             List<Integer> samplesWithCopyNumberSeg = copyNumberSegmentRepository.fetchSamplesWithCopyNumberSegments(
@@ -186,11 +201,26 @@ public class SampleServiceImpl implements SampleService {
             
             Set<Integer> samplesWithCopyNumberSegMap = new HashSet<>();
             samplesWithCopyNumberSegMap.addAll(samplesWithCopyNumberSeg);
-           
+
             samples.forEach(sample -> {
                 sample.setSequenced(sequencedSampleIdsMap.get(sample.getCancerStudyIdentifier())
                     .contains(sample.getStableId()));
                 sample.setCopyNumberSegmentPresent(samplesWithCopyNumberSegMap.contains(sample.getInternalId()));
+                if (studiesProfiledWithSVs.contains(sample.getCancerStudyIdentifier())) {
+                    if (!structuralVariantSampleIdsMap.get(sample.getCancerStudyIdentifier()).isEmpty()) {
+                        sample.setProfiledForFusions(structuralVariantSampleIdsMap.get(sample.getCancerStudyIdentifier()).contains(sample.getStableId()));
+                    } else {
+                        /*
+                         * TODO: Eventually all studies with STRUCTURAL_VARIANT data should have case lists, 
+                         * so there should always be an entry in `structuralVariantSampleIdsMap`. This case is 
+                         * to support old `FUSION` data in the mutations table that don't have case lists. In that 
+                         * case we assume any sample that has been sequenced to have been profiled for fusions as well
+                         */
+                        sample.setProfiledForFusions(sequencedSampleIdsMap.get(sample.getCancerStudyIdentifier()).contains(sample.getStableId()));
+                    }
+                } else {
+                    sample.setProfiledForFusions(false);
+                }
             });
         }
     }

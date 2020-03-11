@@ -1,0 +1,34 @@
+package org.cbioportal.web.parameter;
+
+import java.math.BigDecimal;
+
+public class ClinicalDataFilterValue {
+
+    private BigDecimal start;
+    private BigDecimal end;
+    private String value;
+
+    public BigDecimal getStart() {
+        return start;
+    }
+
+    public void setStart(BigDecimal start) {
+        this.start = start;
+    }
+
+    public BigDecimal getEnd() {
+        return end;
+    }
+
+    public void setEnd(BigDecimal end) {
+        this.end = end;
+    }
+
+    public String getValue() {
+        return value;
+    }
+
+    public void setValue(String value) {
+        this.value = value;
+    }
+}

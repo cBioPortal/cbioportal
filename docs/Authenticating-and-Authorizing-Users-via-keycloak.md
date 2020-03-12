@@ -329,10 +329,12 @@ Enable _Full Scope_. This setting will include the user roles defined in the `cb
 | dat.method       | oauth2 |  |
 | dat.oauth2.clientId       | cbioportal_api |  |
 | dat.oauth2.clientSecret    | ?      | see _Secret_ field in the _Credentials_ tab  |
-| dat.oauth2.accessTokenUri     | _url_/auth/realms/cbioportal/protocol/openid-connect/token      |   _url_ refers to base url of the KeyCloak server |
-| dat.oauth2.jwkUrl  | _url_/auth/realms/cbioportal/protocol/openid-connect/certs      |   _url_ refers to base url of the KeyCloak server |
-| dat.oauth2.issuer      | _url_/auth/realms/cbioportal        |  _url_ refers to base url of the KeyCloak server |
-| dat.oauth2.userAuthorizationUri  | _url_/auth/realms/cbioportal/protocol/openid-connect/auth      |   _url_ refers to base url of the KeyCloak server |
+| dat.oauth2.accessTokenUri     | _backchannel_url_/realms/cbioportal/protocol/openid-connect/token      |   _backchannel_url_ refers to URL of the KeyCloak server from perspective of the cBioPortal instance |
+| dat.oauth2.jwkUrl  | _backchannel_url_/auth/realms/cbioportal/protocol/openid-connect/certs      |   _backchannel_url_ refers to URL of the KeyCloak server from perspective of the cBioPortal instance |
+| dat.oauth2.issuer      | _frontchannel_url_/auth/realms/cbioportal        |  _frontchannel_url_ refers to URL of the KeyCloak server from perspective of the browser |
+| dat.oauth2.userAuthorizationUri  | _frontchannel_url_/auth/realms/cbioportal/protocol/openid-connect/auth      |   _frontchannel_url_ refers to base URL of the browser |
+
+Note: this configuration makes use of the `confidential` OAuth2 workflow. This workflow makes use of a `front channel` (communication between the web browser and KeyCloak IDP) and a `back channel` (communication between cBioPortal backend and KeyCloak IDP). Depending on the cBioPortal deployment the URL for KeyCloak IDP may be different.
 
 More information on configuration of the cBioPortal backend can be found in [Authenticating Users via Tokens](Authenticating-Users-via-Tokens.md).
 

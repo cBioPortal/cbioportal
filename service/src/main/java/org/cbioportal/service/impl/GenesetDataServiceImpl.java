@@ -31,6 +31,7 @@ import java.util.stream.Collectors;
 import org.cbioportal.model.GenesetMolecularAlteration;
 import org.cbioportal.model.GenesetMolecularData;
 import org.cbioportal.model.MolecularProfile;
+import org.cbioportal.model.MolecularProfileSamples;
 import org.cbioportal.model.Sample;
 import org.cbioportal.persistence.MolecularDataRepository;
 import org.cbioportal.service.SampleListService;
@@ -62,13 +63,13 @@ public class GenesetDataServiceImpl implements GenesetDataService {
         
         List<GenesetMolecularData> genesetDataList = new ArrayList<>();
 
-        String commaSeparatedSampleIdsOfGeneticProfile = molecularDataRepository
+        MolecularProfileSamples commaSeparatedSampleIdsOfGeneticProfile = molecularDataRepository
             .getCommaSeparatedSampleIdsOfMolecularProfile(molecularProfileId);
         if (commaSeparatedSampleIdsOfGeneticProfile == null) {
         	//no data, return empty list:
             return genesetDataList;
         }
-        List<Integer> internalSampleIds = Arrays.stream(commaSeparatedSampleIdsOfGeneticProfile.split(","))
+        List<Integer> internalSampleIds = Arrays.stream(commaSeparatedSampleIdsOfGeneticProfile.getSplitSampleIds())
             .mapToInt(Integer::parseInt).boxed().collect(Collectors.toList());
 
         List<Sample> samples;

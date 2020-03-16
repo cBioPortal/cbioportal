@@ -3,6 +3,7 @@ package org.cbioportal.service.impl;
 import org.cbioportal.model.GeneMolecularAlteration;
 import org.cbioportal.model.GeneMolecularData;
 import org.cbioportal.model.MolecularProfile;
+import org.cbioportal.model.MolecularProfileSamples;
 import org.cbioportal.model.Sample;
 import org.cbioportal.model.meta.BaseMeta;
 import org.cbioportal.persistence.MolecularDataRepository;
@@ -42,8 +43,12 @@ public class MolecularDataServiceImplTest extends BaseServiceImplTest {
         Mockito.when(sampleListRepository.getAllSampleIdsInSampleList(SAMPLE_LIST_ID))
             .thenReturn(Arrays.asList(SAMPLE_ID1));
         
+        MolecularProfileSamples molecularProfileSamples = new MolecularProfileSamples();
+        molecularProfileSamples.setMolecularProfileId(MOLECULAR_PROFILE_ID);
+        molecularProfileSamples.setCommaSeparatedSampleIds("1,2,");
+        
         Mockito.when(molecularDataRepository.getCommaSeparatedSampleIdsOfMolecularProfile(MOLECULAR_PROFILE_ID))
-            .thenReturn("1,2,");
+            .thenReturn(molecularProfileSamples);
 
         MolecularProfile molecularProfile = new MolecularProfile();
         molecularProfile.setCancerStudyIdentifier(STUDY_ID);
@@ -86,8 +91,12 @@ public class MolecularDataServiceImplTest extends BaseServiceImplTest {
         Mockito.when(sampleListRepository.getAllSampleIdsInSampleList(SAMPLE_LIST_ID))
             .thenReturn(Arrays.asList(SAMPLE_ID1));
 
+        MolecularProfileSamples molecularProfileSamples = new MolecularProfileSamples();
+        molecularProfileSamples.setMolecularProfileId(MOLECULAR_PROFILE_ID);
+        molecularProfileSamples.setCommaSeparatedSampleIds("1,2,");
+        
         Mockito.when(molecularDataRepository.getCommaSeparatedSampleIdsOfMolecularProfile(MOLECULAR_PROFILE_ID))
-            .thenReturn("1,2,");
+            .thenReturn(molecularProfileSamples);
 
         MolecularProfile molecularProfile = new MolecularProfile();
         molecularProfile.setCancerStudyIdentifier(STUDY_ID);
@@ -126,8 +135,12 @@ public class MolecularDataServiceImplTest extends BaseServiceImplTest {
         molecularProfile.setMolecularAlterationType(MolecularProfile.MolecularAlterationType.MRNA_EXPRESSION);
         Mockito.when(molecularProfileService.getMolecularProfile(MOLECULAR_PROFILE_ID)).thenReturn(molecularProfile);
 
+        MolecularProfileSamples molecularProfileSamples = new MolecularProfileSamples();
+        molecularProfileSamples.setMolecularProfileId(MOLECULAR_PROFILE_ID);
+        molecularProfileSamples.setCommaSeparatedSampleIds("1,2,");
+        
         Mockito.when(molecularDataRepository.getCommaSeparatedSampleIdsOfMolecularProfile(MOLECULAR_PROFILE_ID))
-            .thenReturn("1,2,");
+            .thenReturn(molecularProfileSamples);
 
         List<GeneMolecularAlteration> molecularAlterationList = new ArrayList<>();
         GeneMolecularAlteration molecularAlteration = new GeneMolecularAlteration();
@@ -178,8 +191,12 @@ public class MolecularDataServiceImplTest extends BaseServiceImplTest {
         molecularProfile.setMolecularAlterationType(MolecularProfile.MolecularAlterationType.MRNA_EXPRESSION);
         Mockito.when(molecularProfileService.getMolecularProfile(MOLECULAR_PROFILE_ID)).thenReturn(molecularProfile);
 
+        MolecularProfileSamples molecularProfileSamples = new MolecularProfileSamples();
+        molecularProfileSamples.setMolecularProfileId(MOLECULAR_PROFILE_ID);
+        molecularProfileSamples.setCommaSeparatedSampleIds("1,2,");
+        
         Mockito.when(molecularDataRepository.getCommaSeparatedSampleIdsOfMolecularProfile(MOLECULAR_PROFILE_ID))
-            .thenReturn("1,2,");
+            .thenReturn(molecularProfileSamples);
 
         List<GeneMolecularAlteration> molecularAlterationList = new ArrayList<>();
         GeneMolecularAlteration molecularAlteration = new GeneMolecularAlteration();
@@ -215,8 +232,12 @@ public class MolecularDataServiceImplTest extends BaseServiceImplTest {
     @Test
     public void getNumberOfSamplesInMolecularProfile() throws Exception {
 
+        MolecularProfileSamples molecularProfileSamples = new MolecularProfileSamples();
+        molecularProfileSamples.setMolecularProfileId(MOLECULAR_PROFILE_ID);
+        molecularProfileSamples.setCommaSeparatedSampleIds("1,2,");
+        
         Mockito.when(molecularDataRepository.getCommaSeparatedSampleIdsOfMolecularProfile(MOLECULAR_PROFILE_ID))
-            .thenReturn("1,2,");
+            .thenReturn(molecularProfileSamples);
         
         Integer result = molecularDataService.getNumberOfSamplesInMolecularProfile(MOLECULAR_PROFILE_ID);
         

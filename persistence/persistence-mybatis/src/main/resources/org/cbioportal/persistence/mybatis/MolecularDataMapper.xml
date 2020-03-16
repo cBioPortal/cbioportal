@@ -21,8 +21,10 @@
         </where>
     </sql>
 
-    <select id="getCommaSeparatedSampleIdsOfMolecularProfiles" resultType="string">
-        SELECT genetic_profile_samples.ORDERED_SAMPLE_LIST
+    <select id="getCommaSeparatedSampleIdsOfMolecularProfiles" resultType="org.cbioportal.model.MolecularProfileSamples">
+        SELECT 
+        genetic_profile.STABLE_ID AS molecularProfileId,
+        genetic_profile_samples.ORDERED_SAMPLE_LIST AS "commaSeparatedSampleIds"
         FROM genetic_profile_samples
         INNER JOIN genetic_profile ON genetic_profile_samples.GENETIC_PROFILE_ID = genetic_profile.GENETIC_PROFILE_ID
         <where>
@@ -33,9 +35,6 @@
                 </foreach>
             </if>
         </where>
-        <!-- It seems like in Java, `_` comes before letters when sorted, but in MySQL it comes after. 
-        The code depends on them being the same order, so this is done to make the MySQL ordering same with Java. -->
-        ORDER BY REPLACE(genetic_profile.STABLE_ID, '_', ' '), genetic_profile.STABLE_ID ASC
     </select>
     
     <!-- Any changes to this routine should be kept in sync with getGeneMolecularAlterationsIter below -->

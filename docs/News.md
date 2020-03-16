@@ -1,3 +1,8 @@
+## March 3, 2020
+* **New Feature**: Add Pathways tab to the _Results View_ page which visualizes alteration frequencies of genes in pathways of interest. The pathways are pulled from https://www.pathwaymapper.org. One can add new pathways and edit existing ones there. For more information see the [tutorial](https://www.cbioportal.org/tutorials#pathways).
+
+    [![pathwaymapper_screenshot](https://user-images.githubusercontent.com/1334004/76771001-133fbc00-6775-11ea-8b36-82edb1e7be09.png)](https://www.cbioportal.org/results/pathways?Action=Submit&Z_SCORE_THRESHOLD=1.0&cancer_study_id=gbm_tcga_pub&cancer_study_list=gbm_tcga_pub&case_set_id=gbm_tcga_pub_sequenced&gene_list=TP53%20MDM2%20MDM4&gene_set_choice=user-defined_list&genetic_profile_ids_PROFILE_COPY_NUMBER_ALTERATION=gbm_tcga_pub_cna_rae&genetic_profile_ids_PROFILE_MUTATION_EXTENDED=gbm_tcga_pub_mutations)
+
 ## Feb 12, 2020
 *   **Added data** consisting of 1,605 samples from 3 studies:
      * [Tumors with TRK fusions (MSK, 2019)](https://www.cbioportal.org/study/summary?id=ntrk_msk_2019) *106 samples* 

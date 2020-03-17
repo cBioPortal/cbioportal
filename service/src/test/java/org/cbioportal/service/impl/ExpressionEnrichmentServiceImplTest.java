@@ -13,6 +13,7 @@ import org.cbioportal.model.GeneMolecularAlteration;
 import org.cbioportal.model.GroupStatistics;
 import org.cbioportal.model.MolecularProfile;
 import org.cbioportal.model.MolecularProfileCaseIdentifier;
+import org.cbioportal.model.MolecularProfileSamples;
 import org.cbioportal.model.ReferenceGenome;
 import org.cbioportal.model.Gene;
 import org.cbioportal.model.Sample;
@@ -61,9 +62,13 @@ public class ExpressionEnrichmentServiceImplTest extends BaseServiceImplTest {
 
         Mockito.when(molecularProfileService.getMolecularProfile(MOLECULAR_PROFILE_ID))
                 .thenReturn(geneMolecularProfile);
+        
+        MolecularProfileSamples molecularProfileSamples = new MolecularProfileSamples();
+        molecularProfileSamples.setMolecularProfileId(MOLECULAR_PROFILE_ID);
+        molecularProfileSamples.setCommaSeparatedSampleIds("1,2,3,4");
 
         Mockito.when(molecularDataRepository.getCommaSeparatedSampleIdsOfMolecularProfile(MOLECULAR_PROFILE_ID))
-                .thenReturn("1,2,3,4");
+                .thenReturn(molecularProfileSamples);
 
         List<Sample> samples = new ArrayList<>();
         Sample sample1 = new Sample();

@@ -123,9 +123,9 @@ public class CoExpressionServiceImpl implements CoExpressionService {
         // of the genetic_alteration table is a comma separated list of scalar values.
         // Each value in this list is associated with a sample at the same position found in
         // the genetic_profile_samples.ORDERED_SAMPLE_LIST column.
-        String commaSeparatedSampleIdsOfMolecularProfile = molecularDataRepository
+        MolecularProfileSamples commaSeparatedSampleIdsOfMolecularProfile = molecularDataRepository
             .getCommaSeparatedSampleIdsOfMolecularProfile(molecularProfileId);
-        List<Integer> internalSampleIds = Arrays.stream(commaSeparatedSampleIdsOfMolecularProfile.split(","))
+        List<Integer> internalSampleIds = Arrays.stream(commaSeparatedSampleIdsOfMolecularProfile.getSplitSampleIds())
             .mapToInt(Integer::parseInt).boxed().collect(Collectors.toList());
         Map<Integer, Integer> internalSampleIdToIndexMap = new HashMap<>();
         for (int lc = 0; lc < internalSampleIds.size(); lc++) {

@@ -20,12 +20,12 @@ Keycloak is an [open source identity and access management solution](https://key
 Keycloak boils down to three simple terms:
 * **realm**: A realm secures and manages security metadata for a set of users, application, and registered auth clients.
 * **client**: Clients are entities that can request authentication of a user within a realm.
-* **role**: Roles identify a type or category of user. Keycloak often assigns access and permissions to specific roles rather than individual users for a fine-grained access control. 
+* **role**: Roles identify a type or category of user. Keycloak often assigns access and permissions to specific roles rather than individual users for a fine-grained access control.
 
-Keycloak offers three types of roles: 
-* Realm-level roles are in global namespace shared by all clients. 
-* Client roles have basically a namespace dedicated to a client. 
-* A composite role is a role that has one or more additional roles associated with it. 
+Keycloak offers three types of roles:
+* Realm-level roles are in global namespace shared by all clients.
+* Client roles have basically a namespace dedicated to a client.
+* A composite role is a role that has one or more additional roles associated with it.
 
 
 ### How does Keycloak SAML Authentication work?
@@ -45,7 +45,7 @@ Please note if you are logged in the master realm, this drop-down menu lists all
 ![](images/previews/edit-client.png)
 
 4. Choose _email_ as your **Name ID Format**.
-5. Next, enter a pattern for **Valid Redirect URIs** that Keycloak can use upon a successful authentication, e.g. `http://localhost:8081/*`. :information_source: notice that you can add multiple URLs in this field. You could use this in some cases to support 
+5. Next, enter a pattern for **Valid Redirect URIs** that Keycloak can use upon a successful authentication, e.g. `http://localhost:8081/*`. :information_source: notice that you can add multiple URLs in this field. You could use this in some cases to support
 the URLs with and without port (e.g. if tomcat is running on port `80` and you want to allow both `http://localhost:80/*` and `http://localhost/*` as redirect URLs).
 6. Set **Force POST Binding** and **Front Channel Logout** to _OFF_ and **Force Name ID Format** to _ON_.
 7. Expand the subsection **Fine Grain SAML Endpoint Configuration** and set **Logout Service POST Binding URL** to `http://localhost:8081/saml/logout`.
@@ -83,8 +83,8 @@ on the page about SAML in cBioPortal:
 keytool -genkey -alias secure-key -keyalg RSA -keystore samlKeystore.jks
 ```
 
-**Important:** The validity of this keystore is **90 days**. You can change the default 
-value by adding the `-validity` parameter and the number of days (e.g. `-validity 200` 
+**Important:** The validity of this keystore is **90 days**. You can change the default
+value by adding the `-validity` parameter and the number of days (e.g. `-validity 200`
 for 200 days). If the keystore expires, then **'invalid requester'** errors are thrown.
 
 Install the generated JKS file to `portal/src/main/resources/` if you're compiling cBioPortal yourself or if you're using the Docker container, mount the file in the `/cbioportal-webapp` folder with `-v /path/to/samlKeystore.jks:/cbioportal-webapp/WEB-INF/classes/samlKeystore.jks`.
@@ -196,7 +196,7 @@ Sync** and **Periodic Changed Users Sync**.
 ### Create roles to authorize cBioPortal users
 
 The roles you assign to users will be used to tell cBioPortal which
-studies a user is allowed to see. 
+studies a user is allowed to see.
 
 To create a role, head to the **Roles** tab that is displayed along
 the top while configuring the `cbioportal` client – this tab is _not_
@@ -256,6 +256,8 @@ If this does not happen, see the Troubleshooting Tips  below.
 ### Add client for OAuth2 token-based data access
 
 With cBioPortal instances that require user authentication the API can be queried when including a data access token in the request header (see [Authenticating Users via Tokens](Authenticating-Users-via-Tokens.md)). KeyCloak can be configured as an OAuth2 authentication provider that distributes data access tokens to users and validates these tokens when used while querying the API. This feature is enabled by creating a `cbioportal_api` OpenID Connect client that has access to the user roles defined in the `cbioportal` SAML client.
+
+The step below were verified to work with Keycloak versions 4.8.3.Final and 8.0.2.
 
 1. Create a client with name `cbioportal_api`. Set _Client Protocol_ to `openid-connect`.
 
@@ -342,7 +344,7 @@ More information on configuration of the cBioPortal backend can be found in [Aut
 
 #### Logging
 
-Getting this to work requires many steps, and can be a bit tricky.  If you get stuck or get an obscure error message, your best bet is to turn on all DEBUG logging. 
+Getting this to work requires many steps, and can be a bit tricky.  If you get stuck or get an obscure error message, your best bet is to turn on all DEBUG logging.
  This can be done via `src/main/resources/log4j.properties`.  For example:
 
 ```

@@ -4,6 +4,7 @@ import org.cbioportal.model.GeneMolecularAlteration;
 import org.cbioportal.model.GeneMolecularData;
 import org.cbioportal.model.MolecularProfile;
 import org.cbioportal.model.MolecularProfile.MolecularAlterationType;
+import org.cbioportal.model.MolecularProfileSamples;
 import org.cbioportal.model.Sample;
 import org.cbioportal.model.meta.BaseMeta;
 import org.cbioportal.persistence.MolecularDataRepository;
@@ -62,12 +63,12 @@ public class MolecularDataServiceImpl implements MolecularDataService {
         validateMolecularProfile(molecularProfileId);
         List<GeneMolecularData> molecularDataList = new ArrayList<>();
 
-        String commaSeparatedSampleIdsOfMolecularProfile = molecularDataRepository
+        MolecularProfileSamples commaSeparatedSampleIdsOfMolecularProfile = molecularDataRepository
             .getCommaSeparatedSampleIdsOfMolecularProfile(molecularProfileId);
         if (commaSeparatedSampleIdsOfMolecularProfile == null) {
             return molecularDataList;
         }
-        List<Integer> internalSampleIds = Arrays.stream(commaSeparatedSampleIdsOfMolecularProfile.split(","))
+        List<Integer> internalSampleIds = Arrays.stream(commaSeparatedSampleIdsOfMolecularProfile.getSplitSampleIds())
             .mapToInt(Integer::parseInt).boxed().collect(Collectors.toList());
         Map<Integer, Integer> internalSampleIdsMap = new HashMap<>();
         for (int lc = 0; lc < internalSampleIds.size(); lc++) {
@@ -128,36 +129,38 @@ public class MolecularDataServiceImpl implements MolecularDataService {
     @Override
     public Integer getNumberOfSamplesInMolecularProfile(String molecularProfileId) {
 
-        String commaSeparatedSampleIdsOfMolecularProfile = molecularDataRepository
+        MolecularProfileSamples commaSeparatedSampleIdsOfMolecularProfile = molecularDataRepository
             .getCommaSeparatedSampleIdsOfMolecularProfile(molecularProfileId);
         if (commaSeparatedSampleIdsOfMolecularProfile == null) {
             return null;
         }
 
-        return commaSeparatedSampleIdsOfMolecularProfile.split(",").length;
+        return commaSeparatedSampleIdsOfMolecularProfile.getSplitSampleIds().length;
     }
 
     @Override
-	public List<GeneMolecularData> getMolecularDataInMultipleMolecularProfiles(List<String> molecularProfileIds,
-			List<String> sampleIds, List<Integer> entrezGeneIds, String projection) {
+    public List<GeneMolecularData> getMolecularDataInMultipleMolecularProfiles(List<String> molecularProfileIds,
+            List<String> sampleIds, List<Integer> entrezGeneIds, String projection) {
 
         List<GeneMolecularData> molecularDataList = new ArrayList<>();
         List<String> distinctMolecularProfileIds = molecularProfileIds.stream().distinct().sorted().collect(Collectors.toList());
 
-        List<String> commaSeparatedSampleIdsOfMolecularProfiles = molecularDataRepository
-            .getCommaSeparatedSampleIdsOfMolecularProfiles(distinctMolecularProfileIds);
+        Map<String, MolecularProfileSamples> commaSeparatedSampleIdsOfMolecularProfilesMap =  molecularDataRepository
+                .commaSeparatedSampleIdsOfMolecularProfilesMap(distinctMolecularProfileIds);
 
         Map<String, Map<Integer, Integer>> internalSampleIdsMap = new HashMap<>();
         List<Integer> allInternalSampleIds = new ArrayList<>();
 
         for (int i = 0; i < distinctMolecularProfileIds.size(); i++) {
-            List<Integer> internalSampleIds = Arrays.stream(commaSeparatedSampleIdsOfMolecularProfiles.get(i).split(","))
-                .mapToInt(Integer::parseInt).boxed().collect(Collectors.toList());
+            String molecularProfileId = distinctMolecularProfileIds.get(i);
+            List<Integer> internalSampleIds = Arrays
+                    .stream(commaSeparatedSampleIdsOfMolecularProfilesMap.get(molecularProfileId).getSplitSampleIds())
+                    .mapToInt(Integer::parseInt).boxed().collect(Collectors.toList());
             HashMap<Integer, Integer> molecularProfileSampleMap = new HashMap<Integer, Integer>();
             for (int lc = 0; lc < internalSampleIds.size(); lc++) {
                 molecularProfileSampleMap.put(internalSampleIds.get(lc), lc);
             }
-            internalSampleIdsMap.put(distinctMolecularProfileIds.get(i), molecularProfileSampleMap);
+            internalSampleIdsMap.put(molecularProfileId, molecularProfileSampleMap);
             allInternalSampleIds.addAll(internalSampleIds);
         }
 
@@ -188,7 +191,7 @@ public class MolecularDataServiceImpl implements MolecularDataService {
             .getGeneMolecularAlterationsInMultipleMolecularProfiles(distinctMolecularProfileIds, entrezGeneIds, projection);
         Map<String, List<GeneMolecularAlteration>> molecularAlterationsMap = molecularAlterations.stream().collect(
             Collectors.groupingBy(GeneMolecularAlteration::getMolecularProfileId));
-
+        
         for (Sample sample : samples) {
             for (MolecularProfile molecularProfile : molecularProfileMapByStudyId.get(sample.getCancerStudyIdentifier())) {
                 String molecularProfileId = molecularProfile.getStableId();
@@ -214,18 +217,18 @@ public class MolecularDataServiceImpl implements MolecularDataService {
         }
 
         return molecularDataList;
-	}
+    }
 
     @Override
     @PreAuthorize("hasPermission(#molecularProfileIds, 'Collection<MolecularProfileId>', 'read')")
-	public BaseMeta getMetaMolecularDataInMultipleMolecularProfiles(List<String> molecularProfileIds,
-			List<String> sampleIds, List<Integer> entrezGeneIds) {
+    public BaseMeta getMetaMolecularDataInMultipleMolecularProfiles(List<String> molecularProfileIds,
+            List<String> sampleIds, List<Integer> entrezGeneIds) {
 
-		BaseMeta baseMeta = new BaseMeta();
+        BaseMeta baseMeta = new BaseMeta();
         baseMeta.setTotalCount(getMolecularDataInMultipleMolecularProfiles(molecularProfileIds, sampleIds, entrezGeneIds, "ID")
             .size());
         return baseMeta;
-	}
+    }
 
     private void validateMolecularProfile(String molecularProfileId) throws MolecularProfileNotFoundException {
 

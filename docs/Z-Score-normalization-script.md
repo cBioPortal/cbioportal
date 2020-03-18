@@ -4,8 +4,6 @@ For some data types, when uploading to cBioPortal, it is currently necessary to 
 :warning: 
 Please keep in mind that the z-scores are calculated using only patient data. Hence, 'mRNA High' in this case implies higher expression than the average patient. Also, the source data on which the z-score data is based does not necessarily follow the normal distribution. If your data does not follow the normal distribution, the z-score threshold is less reliable and will result in more false positives or false negatives. You can consider log transforming your value before calculating z-scores to improve this. However, even the logged values may not follow the normal distribution, especially if the data is bimodal.
 
-Currently, the cBioPortal team is woking on a solution that will allow the user to decide whether they want to use zscores, or log values or zscore of log values in the frontend. Furthermore, the team is also working on functionality to be able to use healthy samples in the calculations. 
-
 ## The cBioPortal Z-Score calculation method
 
 cBioPortal currently generates two z-score profiles using two different base populations:

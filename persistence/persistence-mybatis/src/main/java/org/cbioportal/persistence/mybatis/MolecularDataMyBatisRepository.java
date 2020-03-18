@@ -3,12 +3,14 @@ package org.cbioportal.persistence.mybatis;
 import org.cbioportal.model.GeneMolecularAlteration;
 import org.cbioportal.model.GenericAssayMolecularAlteration;
 import org.cbioportal.model.GenesetMolecularAlteration;
+import org.cbioportal.model.MolecularProfileSamples;
 import org.cbioportal.persistence.MolecularDataRepository;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.transaction.annotation.*;
 import org.springframework.stereotype.Repository;
 
 import java.util.*;
+import java.util.function.Function;
+import java.util.stream.Collectors;
 
 @Repository
 public class MolecularDataMyBatisRepository implements MolecularDataRepository {
@@ -17,7 +19,7 @@ public class MolecularDataMyBatisRepository implements MolecularDataRepository {
     private MolecularDataMapper molecularDataMapper;
 
     @Override
-    public String getCommaSeparatedSampleIdsOfMolecularProfile(String molecularProfileId) {
+    public MolecularProfileSamples getCommaSeparatedSampleIdsOfMolecularProfile(String molecularProfileId) {
         try {
             return molecularDataMapper.getCommaSeparatedSampleIdsOfMolecularProfiles(
                 Arrays.asList(molecularProfileId)).get(0);
@@ -27,9 +29,11 @@ public class MolecularDataMyBatisRepository implements MolecularDataRepository {
     }
 
     @Override
-    public List<String> getCommaSeparatedSampleIdsOfMolecularProfiles(List<String> molecularProfileIds) {
+    public Map<String, MolecularProfileSamples> commaSeparatedSampleIdsOfMolecularProfilesMap(List<String> molecularProfileIds) {
 
-        return molecularDataMapper.getCommaSeparatedSampleIdsOfMolecularProfiles(molecularProfileIds);
+        return molecularDataMapper.getCommaSeparatedSampleIdsOfMolecularProfiles(molecularProfileIds)
+                .stream()
+                .collect(Collectors.toMap(MolecularProfileSamples::getMolecularProfileId, Function.identity()));
     }
 
     @Override

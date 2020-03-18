@@ -22,6 +22,7 @@ import org.cbioportal.model.MolecularAlteration;
 import org.cbioportal.model.MolecularProfile;
 import org.cbioportal.model.MolecularProfile.MolecularAlterationType;
 import org.cbioportal.model.MolecularProfileCaseIdentifier;
+import org.cbioportal.model.MolecularProfileSamples;
 import org.cbioportal.model.Gene;
 import org.cbioportal.model.Sample;
 import org.cbioportal.persistence.MolecularDataRepository;
@@ -170,10 +171,10 @@ public class ExpressionEnrichmentServiceImpl implements ExpressionEnrichmentServ
             MolecularProfile molecularProfile) {
         
 
-        String commaSeparatedSampleIdsOfMolecularProfile = molecularDataRepository
+        MolecularProfileSamples commaSeparatedSampleIdsOfMolecularProfile = molecularDataRepository
                 .getCommaSeparatedSampleIdsOfMolecularProfile(molecularProfile.getStableId());
         
-        List<Integer> internalSampleIds = Arrays.stream(commaSeparatedSampleIdsOfMolecularProfile.split(","))
+        List<Integer> internalSampleIds = Arrays.stream(commaSeparatedSampleIdsOfMolecularProfile.getSplitSampleIds())
                 .mapToInt(Integer::parseInt)
                 .boxed()
                 .collect(Collectors.toList());

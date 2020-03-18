@@ -4,13 +4,14 @@ package org.cbioportal.persistence.mybatis;
 import org.cbioportal.model.GeneMolecularAlteration;
 import org.cbioportal.model.GenericAssayMolecularAlteration;
 import org.cbioportal.model.GenesetMolecularAlteration;
+import org.cbioportal.model.MolecularProfileSamples;
 
 import java.util.List;
 import org.apache.ibatis.cursor.Cursor;
 
 public interface MolecularDataMapper {
 
-    List<String> getCommaSeparatedSampleIdsOfMolecularProfiles(List<String> molecularProfileIds);
+    List<MolecularProfileSamples> getCommaSeparatedSampleIdsOfMolecularProfiles(List<String> molecularProfileIds);
 
     List<GeneMolecularAlteration> getGeneMolecularAlterations(String molecularProfileId, List<Integer> entrezGeneIds,
                                                               String projection);

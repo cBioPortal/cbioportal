@@ -1,19 +1,21 @@
 package org.cbioportal.persistence;
 
 import java.util.List;
+import java.util.Map;
 
 import org.cbioportal.model.GeneMolecularAlteration;
 import org.cbioportal.model.GenericAssayMolecularAlteration;
 import org.cbioportal.model.GenesetMolecularAlteration;
 import org.springframework.cache.annotation.Cacheable;
+import org.cbioportal.model.MolecularProfileSamples;
 
 public interface MolecularDataRepository {
 
     @Cacheable(cacheNames = "GeneralRepositoryCache", condition = "@cacheEnabledConfig.getEnabled()")
-    String getCommaSeparatedSampleIdsOfMolecularProfile(String molecularProfileId);
+    MolecularProfileSamples getCommaSeparatedSampleIdsOfMolecularProfile(String molecularProfileId);
 
     @Cacheable(cacheNames = "GeneralRepositoryCache", condition = "@cacheEnabledConfig.getEnabled()")
-    List<String> getCommaSeparatedSampleIdsOfMolecularProfiles(List<String> molecularProfileIds);
+    Map<String, MolecularProfileSamples> commaSeparatedSampleIdsOfMolecularProfilesMap(List<String> molecularProfileIds);
 
     @Cacheable(cacheNames = "GeneralRepositoryCache", condition = "@cacheEnabledConfig.getEnabled()")
     List<GeneMolecularAlteration> getGeneMolecularAlterations(String molecularProfileId, List<Integer> entrezGeneIds,

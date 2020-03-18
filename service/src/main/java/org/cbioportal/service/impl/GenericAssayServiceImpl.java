@@ -16,6 +16,7 @@ import org.cbioportal.model.GenericAssayMolecularAlteration;
 import org.cbioportal.model.MolecularProfile;
 import org.cbioportal.model.Sample;
 import org.cbioportal.model.MolecularProfile.MolecularAlterationType;
+import org.cbioportal.model.MolecularProfileSamples;
 import org.cbioportal.model.meta.GenericAssayMeta;
 import org.cbioportal.persistence.GenericAssayRepository;
 import org.cbioportal.persistence.MolecularDataRepository;
@@ -90,20 +91,22 @@ public class GenericAssayServiceImpl implements GenericAssayService {
 
         List<String> distinctMolecularProfileIds = molecularProfileIds.stream().distinct().sorted().collect(Collectors.toList());
 
-        List<String> commaSeparatedSampleIdsOfMolecularProfiles = molecularDataRepository
-            .getCommaSeparatedSampleIdsOfMolecularProfiles(distinctMolecularProfileIds);
-    
+        Map<String, MolecularProfileSamples> commaSeparatedSampleIdsOfMolecularProfilesMap = molecularDataRepository
+                .commaSeparatedSampleIdsOfMolecularProfilesMap(distinctMolecularProfileIds);
+
         Map<String, Map<Integer, Integer>> internalSampleIdsMap = new HashMap<>();
         List<Integer> allInternalSampleIds = new ArrayList<>();
-        
+
         for (int i = 0; i < distinctMolecularProfileIds.size(); i++) {
-            List<Integer> internalSampleIds = Arrays.stream(commaSeparatedSampleIdsOfMolecularProfiles.get(i).split(","))
-                .mapToInt(Integer::parseInt).boxed().collect(Collectors.toList());
+            String molecularProfileId = distinctMolecularProfileIds.get(i);
+            List<Integer> internalSampleIds = Arrays
+                    .stream(commaSeparatedSampleIdsOfMolecularProfilesMap.get(molecularProfileId).getSplitSampleIds())
+                    .mapToInt(Integer::parseInt).boxed().collect(Collectors.toList());
             HashMap<Integer, Integer> molecularProfileSampleMap = new HashMap<Integer, Integer>();
             for (int lc = 0; lc < internalSampleIds.size(); lc++) {
                 molecularProfileSampleMap.put(internalSampleIds.get(lc), lc);
             }
-            internalSampleIdsMap.put(distinctMolecularProfileIds.get(i), molecularProfileSampleMap);
+            internalSampleIdsMap.put(molecularProfileId, molecularProfileSampleMap);
             allInternalSampleIds.addAll(internalSampleIds);
         }
     

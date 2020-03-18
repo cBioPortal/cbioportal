@@ -7,6 +7,7 @@ import java.util.List;
 import org.cbioportal.model.GenesetMolecularAlteration;
 import org.cbioportal.model.GenesetMolecularData;
 import org.cbioportal.model.MolecularProfile;
+import org.cbioportal.model.MolecularProfileSamples;
 import org.cbioportal.model.Sample;
 import org.cbioportal.persistence.MolecularDataRepository;
 import org.cbioportal.service.MolecularProfileService;
@@ -40,9 +41,13 @@ public class GenesetDataServiceImplTest extends BaseServiceImplTest {
      */
     @Before 
     public void setUp() throws Exception {
+        
+        MolecularProfileSamples molecularProfileSamples = new MolecularProfileSamples();
+        molecularProfileSamples.setMolecularProfileId(MOLECULAR_PROFILE_ID);
+        molecularProfileSamples.setCommaSeparatedSampleIds("1,2,");
+        
         //stub for samples
-        Mockito.when(geneticDataRepository.getCommaSeparatedSampleIdsOfMolecularProfile(MOLECULAR_PROFILE_ID)).thenReturn(
-                "1,2,");
+        Mockito.when(geneticDataRepository.getCommaSeparatedSampleIdsOfMolecularProfile(MOLECULAR_PROFILE_ID)).thenReturn(molecularProfileSamples);
 
         List<Sample> sampleList1 = new ArrayList<>();
         Sample sample = new Sample();

@@ -5,10 +5,12 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import org.cbioportal.model.GenericAssayData;
 import org.cbioportal.model.GenericAssayMolecularAlteration;
 import org.cbioportal.model.MolecularProfile;
+import org.cbioportal.model.MolecularProfileSamples;
 import org.cbioportal.model.Sample;
 import org.cbioportal.model.MolecularProfile.MolecularAlterationType;
 import org.cbioportal.model.meta.GenericAssayMeta;
@@ -66,10 +68,29 @@ public class GenericAssayServiceImpTest extends BaseServiceImplTest {
      */
     @Before 
     public void setUp() throws Exception {
-        //stub for samples
-        Mockito.when(geneticDataRepository.getCommaSeparatedSampleIdsOfMolecularProfiles(Arrays.asList(MOLECULAR_PROFILE_ID_1))).thenReturn(Arrays.asList("1,2,"));
-        Mockito.when(geneticDataRepository.getCommaSeparatedSampleIdsOfMolecularProfiles(Arrays.asList(MOLECULAR_PROFILE_ID_1, MOLECULAR_PROFILE_ID_2))).thenReturn(
-                Arrays.asList("1,2,", "1,2,"));
+
+        MolecularProfileSamples molecularProfileSamples1 = new MolecularProfileSamples();
+        molecularProfileSamples1.setMolecularProfileId(MOLECULAR_PROFILE_ID_1);
+        molecularProfileSamples1.setCommaSeparatedSampleIds("1,2,");
+
+        MolecularProfileSamples molecularProfileSamples2 = new MolecularProfileSamples();
+        molecularProfileSamples2.setMolecularProfileId(MOLECULAR_PROFILE_ID_2);
+        molecularProfileSamples2.setCommaSeparatedSampleIds("1,2,");
+
+        Map<String, MolecularProfileSamples> commaSeparatedSampleIdsOfMolecularProfilesMap1 = new HashMap<>();
+        commaSeparatedSampleIdsOfMolecularProfilesMap1.put(MOLECULAR_PROFILE_ID_1, molecularProfileSamples1);
+
+        Map<String, MolecularProfileSamples> commaSeparatedSampleIdsOfMolecularProfilesMap2 = new HashMap<>();
+        commaSeparatedSampleIdsOfMolecularProfilesMap2.put(MOLECULAR_PROFILE_ID_1, molecularProfileSamples1);
+        commaSeparatedSampleIdsOfMolecularProfilesMap2.put(MOLECULAR_PROFILE_ID_2, molecularProfileSamples2);
+
+        // stub for samples
+        Mockito.when(geneticDataRepository
+                .commaSeparatedSampleIdsOfMolecularProfilesMap(Arrays.asList(MOLECULAR_PROFILE_ID_1)))
+                .thenReturn(commaSeparatedSampleIdsOfMolecularProfilesMap1);
+        Mockito.when(geneticDataRepository.commaSeparatedSampleIdsOfMolecularProfilesMap(
+                Arrays.asList(MOLECULAR_PROFILE_ID_1, MOLECULAR_PROFILE_ID_2)))
+                .thenReturn(commaSeparatedSampleIdsOfMolecularProfilesMap2);
 
         List<Sample> sampleList1 = new ArrayList<>();
         Sample sample = new Sample();

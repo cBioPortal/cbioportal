@@ -2,6 +2,7 @@ package org.cbioportal.web.parameter;
 
 import java.io.Serializable;
 import java.util.List;
+import java.util.Map;
 import java.util.Objects;
 
 import javax.validation.constraints.AssertTrue;
@@ -10,6 +11,11 @@ import javax.validation.constraints.Size;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonInclude.Include;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import org.cbioportal.model.PatientTreatmentRow;
+import org.cbioportal.model.SampleTreatmentRow;
+import org.cbioportal.web.parameter.filter.BooleanOperatorJoinedFilters;
+import org.cbioportal.web.parameter.filter.PatientTreatmentFilter;
+import org.cbioportal.web.parameter.filter.SampleTreatmentFilter;
 
 @JsonIgnoreProperties(ignoreUnknown = true)
 @JsonInclude(Include.NON_NULL)
@@ -21,6 +27,22 @@ public class StudyViewFilter implements Serializable {
     private List<String> studyIds;
     private List<ClinicalDataFilter> clinicalDataFilters;
     private List<GeneFilter> geneFilters;
+    private BooleanOperatorJoinedFilters<
+        SampleIdentifier,
+        Map<String, SampleTreatmentRow>,
+        BooleanOperatorJoinedFilters<
+            SampleIdentifier,
+            Map<String, SampleTreatmentRow>,
+            SampleTreatmentFilter>>
+        sampleTreatmentFilters;
+    private BooleanOperatorJoinedFilters<
+        SampleIdentifier,
+        Map<String, PatientTreatmentRow>,
+        BooleanOperatorJoinedFilters<
+            SampleIdentifier,
+            Map<String, PatientTreatmentRow>,
+            PatientTreatmentFilter>>
+        patientTreatmentFilters;
 	private Boolean withMutationData;
 	private Boolean withCNAData;
 	private Boolean withFusionData;
@@ -101,4 +123,19 @@ public class StudyViewFilter implements Serializable {
         this.withFusionData = withFusionData;
     }
 
+    public BooleanOperatorJoinedFilters<SampleIdentifier, Map<String, SampleTreatmentRow>, BooleanOperatorJoinedFilters<SampleIdentifier, Map<String, SampleTreatmentRow>, SampleTreatmentFilter>> getSampleTreatmentFilters() {
+        return sampleTreatmentFilters;
+    }
+
+    public void setSampleTreatmentFilters(BooleanOperatorJoinedFilters<SampleIdentifier, Map<String, SampleTreatmentRow>, BooleanOperatorJoinedFilters<SampleIdentifier, Map<String, SampleTreatmentRow>, SampleTreatmentFilter>> sampleTreatmentFilters) {
+        this.sampleTreatmentFilters = sampleTreatmentFilters;
+    }
+
+    public BooleanOperatorJoinedFilters<SampleIdentifier, Map<String, PatientTreatmentRow>, BooleanOperatorJoinedFilters<SampleIdentifier, Map<String, PatientTreatmentRow>, PatientTreatmentFilter>> getPatientTreatmentFilters() {
+        return patientTreatmentFilters;
+    }
+
+    public void setPatientTreatmentFilters(BooleanOperatorJoinedFilters<SampleIdentifier, Map<String, PatientTreatmentRow>, BooleanOperatorJoinedFilters<SampleIdentifier, Map<String, PatientTreatmentRow>, PatientTreatmentFilter>> patientTreatmentFilters) {
+        this.patientTreatmentFilters = patientTreatmentFilters;
+    }
 }

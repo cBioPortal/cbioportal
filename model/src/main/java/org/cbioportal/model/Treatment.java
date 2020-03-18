@@ -2,7 +2,8 @@ package org.cbioportal.model;
 
 public class Treatment {
     private String treatment;
-    private Integer patientId;
+    private String studyId;
+    private String patientId;
     private Integer start;
     private Integer stop;
 
@@ -14,11 +15,19 @@ public class Treatment {
         this.treatment = treatment;
     }
 
-    public int getPatientId() {
+    public String getStudyId() {
+        return studyId;
+    }
+
+    public void setStudyId(String studyId) {
+        this.studyId = studyId;
+    }
+
+    public String getPatientId() {
         return patientId;
     }
 
-    public void setPatientId(Integer patientId) {
+    public void setPatientId(String patientId) {
         this.patientId = patientId;
     }
 

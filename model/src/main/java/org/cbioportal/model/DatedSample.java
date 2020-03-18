@@ -1,15 +1,16 @@
 package org.cbioportal.model;
 
 public class DatedSample {
-    private Integer patientId;
+    private String patientId;
     private String sampleId;
+    private String studyId;
     private Integer timeTaken;
 
-    public Integer getPatientId() {
+    public String getPatientId() {
         return patientId;
     }
 
-    public void setPatientId(Integer patientId) {
+    public void setPatientId(String patientId) {
         this.patientId = patientId;
     }
 
@@ -27,5 +28,13 @@ public class DatedSample {
 
     public void setTimeTaken(Integer timeTaken) {
         this.timeTaken = timeTaken;
+    }
+
+    public String getStudyId() {
+        return studyId;
+    }
+
+    public void setStudyId(String studyId) {
+        this.studyId = studyId;
     }
 }

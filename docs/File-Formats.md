@@ -19,6 +19,7 @@
     * [Gene Set Data](#gene-set-data)
     * [Study Tags file](#study-tags-file)
     * [Generic Assay](#generic-assay)
+    * [Resource Data](#resource-data)
 
 # Introduction
 
@@ -1331,4 +1332,91 @@ Example with 3 generic entities and 3 samples:
 <tr><td>17-AAG</td><td>Tanespimycin</td><td>Hsp90 inhibitor</td><td>https://en.wikipedia.org/wiki/Tanespimycin</td><td>0.228</td><td>0.330</td><td>0.0530</td></tr>
 <tr><td>AEW541</td><td>Larotrectinib</td><td>TrkA/B/C inhibitor</td><td>https://en.wikipedia.org/wiki/Larotrectinib</td><td>>8</td><td>2.33</td><td>2.68</td></tr>
 <tr><td>AZD0530</td><td>Saracatinib</td><td>Src/Bcr-Abl inhibitor</td><td>https://en.wikipedia.org/wiki/Saracatinib</td><td>NA</td><td>>8</td><td>4.60</td></tr>
+</table>
+
+## Resource Data
+
+The resource data is used to capture resource data in patients, samples and studies. The resources will be represented by URLs with meta data. The types of resources include:
+- Files: pdf, txt, png, json, etc.
+- Web links: non-file links e.g. URLs to other systems
+
+the resource file is split into a resource definition file, sample resource file, patient resource file and study resource file. All data files are required to have a matching meta file.
+
+### Meta files
+The resource metadata files have to contain the following fields:
+
+1. **cancer_study_identifier**: same value specified in meta_study.txt
+2. **resource_type**: value from (DEFINITION / SAMPLE / PATIENT / STUDY)
+3. **data_filename**: your datafile
+
+### Examples
+An example metadata file, e.g. named meta_resource_definition.txt, would be:
+```
+cancer_study_identifier: brca_tcga_pub
+resource_type: DEFINITION
+data_filename: data_resource_definition.txt
+```
+
+An example metadata file, e.g. named meta_resource_sample.txt, would be:
+```
+cancer_study_identifier: brca_tcga_pub
+resource_type: SAMPLE
+data_filename: data_resource_sample.txt
+```
+
+### Data files
+
+### Resource Definition Data File
+The resource definition file should follow this format, it has three **required** columns:
+- **RESOURCE_ID (required)**: a unique resource ID. This field allows only numbers, letters, points, underscores and hyphens.
+- **DISPLAY_NAME (required)**: a display name for resources.
+- **RESOURCE_TYPE (required)**: resource type for resources, must be SAMPLE, PATIENT or STUDY.
+- **DESCRIPTION (optional)**: a discription for resources.
+- **OPEN_BY_DEFAULT (optional)**: define if the resource will be open by default (`true` / `false`), dafault is `false`.
+- **PRIORITY (optional)**: if not given, will give a default value.
+
+### Example *Resource Definition* data file
+<table>
+<thead><tr><th>RESOURCE_ID</th><th>DISPLAY_NAME</th><th>RESOURCE_TYPE</th><th>DESCRIPTION</th><th>OPEN_BY_DEFAULT</th><th>PRIORITY</th></tr></thead>
+<tr><td>PATHOLOGY_SLIDE</td><td>Pathology Slide</td><td>SAMPLE</td><td>The pathology slide for the sample</td><td>TRUE</td><td>1</td></tr>
+<tr><td>PATIENT_NOTES</td><td>Patient Notes</td><td>PATIENT</td><td>Notes about the patient</td><td>FALSE</td><td>2</td></tr>
+<tr><td>STUDY_SPONSORS</td><td>Study Sponsors</td><td>STUDY</td><td>Sponsors of this study</td><td>TRUE</td><td>3</td></tr>
+</table>
+
+### Sample Resource Data File
+The sample resource file should follow this format, it has four **required** columns:
+- **PATIENT_ID (required)**: a unique patient ID. This field allows only numbers, letters, points, underscores and hyphens.
+- **SAMPLE_ID (required)**: a unique sample ID. This field allows only numbers, letters, points, underscores and hyphens.
+- **RESOURCE_ID (required)**: a unique resource ID which should also be included in the `Resource Definition data file`.
+- **URL (required)**: url to the resources, start with `http` or `https`.
+
+### Example *Sample Resource* data file
+<table>
+<thead><tr><th>PATIENT_ID</th><th>SAMPLE_ID</th><th>RESOURCE_ID</th><th>URL</th></tr></thead>
+<tr><td>TCGA-A2-A04P</td><td>TCGA-A2-A04P-01</td><td>PATHOLOGY_SLIDE</td><td>http://url-to-slide-sample1</td></tr>
+<tr><td>TCGA-A1-A0SK</td><td>TCGA-A1-A0SK-01</td><td>PATHOLOGY_SLIDE</td><td>http://url-to-slide-sample2</td></tr>
+</table>
+
+### Patient Resource Data File
+The patient resource file should follow this format, it has four **required** columns:
+- **PATIENT_ID (required)**: a unique patient ID. This field allows only numbers, letters, points, underscores and hyphens.
+- **RESOURCE_ID (required)**: a unique resource ID which should also be included in the `Resource Definition data file`.
+- **URL (required)**: url to the resources, start with `http` or `https`.
+
+### Example *Patient Resource* data file
+<table>
+<thead><tr><th>PATIENT_ID</th><th>RESOURCE_ID</th><th>URL</th></tr></thead>
+<tr><td>TCGA-A2-A04P</td><td>PATIENT_NOTES</td><td>http://url-to-slide-patient1</td></tr>
+<tr><td>TCGA-A1-A0SK</td><td>PATIENT_NOTES</td><td>http://url-to-slide-patient2</td></tr>
+</table>
+
+### Study Resource Data File
+The study resource file should follow this format, it has four **required** columns:
+- **RESOURCE_ID (required)**: a unique resource ID which should also be included in the `Resource Definition data file`.
+- **URL (required)**: url to the resources, start with `http` or `https`.
+
+### Example *Study Resource* data file
+<table>
+<thead><tr><th>RESOURCE_ID</th><th>URL</th></tr></thead>
+<tr><td>STUDY_SPONSORS</td><td>http://url-to-study-sponsors</td></tr>
 </table>

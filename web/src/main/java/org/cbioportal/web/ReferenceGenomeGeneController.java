@@ -30,7 +30,7 @@ import java.util.stream.Collectors;
 @PublicApi
 @RestController
 @Validated
-@Api(tags = "Reference Genome Genes", description = " ")
+@Api(tags = "R. Reference Genome Genes", description = " ")
 public class ReferenceGenomeGeneController {
     private static final int GENE_MAX_PAGE_SIZE = 100000;
     private static final String GENE_DEFAULT_PAGE_SIZE = "100000";

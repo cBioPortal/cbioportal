@@ -68,6 +68,10 @@ DROP TABLE IF EXISTS `interaction`;
 DROP TABLE IF EXISTS `clinical_attribute_meta`;
 DROP TABLE IF EXISTS `clinical_sample`;
 DROP TABLE IF EXISTS `clinical_patient`;
+DROP TABLE IF EXISTS `resource_definition`;
+DROP TABLE IF EXISTS `resource_sample`;
+DROP TABLE IF EXISTS `resource_patient`;
+DROP TABLE IF EXISTS `resource_study`;
 DROP TABLE IF EXISTS `mutation_count_by_keyword`;
 DROP TABLE IF EXISTS `allele_specific_copy_number`;
 DROP TABLE IF EXISTS `mutation`;
@@ -865,5 +869,46 @@ CREATE TABLE `info` (
   `DB_SCHEMA_VERSION` varchar(24),
   `GENESET_VERSION` varchar(24)
 );
+
+-- --------------------------------------------------------
+CREATE TABLE `resource_definition` (
+  `RESOURCE_ID` varchar(255) NOT NULL,
+  `DISPLAY_NAME` varchar(255) NOT NULL,
+  `DESCRIPTION` varchar(2048) DEFAULT NULL,
+  `RESOURCE_TYPE` ENUM('STUDY', 'PATIENT', 'SAMPLE') NOT NULL,
+  `OPEN_BY_DEFAULT` BOOLEAN DEFAULT 0,
+  `PRIORITY` int(11) NOT NULL,
+  `CANCER_STUDY_ID` int(11) NOT NULL,
+  PRIMARY KEY (`RESOURCE_ID`,`CANCER_STUDY_ID`),
+  FOREIGN KEY (`CANCER_STUDY_ID`) REFERENCES `cancer_study` (`CANCER_STUDY_ID`) ON DELETE CASCADE
+);
+
+-- --------------------------------------------------------
+CREATE TABLE `resource_sample` (
+  `INTERNAL_ID` int(11) NOT NULL,
+  `RESOURCE_ID` varchar(255) NOT NULL,
+  `URL` varchar(255) NOT NULL,
+  PRIMARY KEY (`INTERNAL_ID`, `RESOURCE_ID`, `URL`),
+  FOREIGN KEY (`INTERNAL_ID`) REFERENCES `sample` (`INTERNAL_ID`) ON DELETE CASCADE
+);
+
+-- --------------------------------------------------------
+CREATE TABLE `resource_patient` (
+  `INTERNAL_ID` int(11) NOT NULL,
+  `RESOURCE_ID` varchar(255) NOT NULL,
+  `URL` varchar(255) NOT NULL,
+  PRIMARY KEY (`INTERNAL_ID`, `RESOURCE_ID`, `URL`),
+  FOREIGN KEY (`INTERNAL_ID`) REFERENCES `patient` (`INTERNAL_ID`) ON DELETE CASCADE
+);
+
+-- --------------------------------------------------------
+CREATE TABLE `resource_study` (
+  `INTERNAL_ID` int(11) NOT NULL,
+  `RESOURCE_ID` varchar(255) NOT NULL,
+  `URL` varchar(255) NOT NULL,
+  PRIMARY KEY (`INTERNAL_ID`, `RESOURCE_ID`, `URL`),
+  FOREIGN KEY (`INTERNAL_ID`) REFERENCES `cancer_study` (`CANCER_STUDY_ID`) ON DELETE CASCADE
+);
+
 -- THIS MUST BE KEPT IN SYNC WITH db.version PROPERTY IN pom.xml
-INSERT INTO info VALUES ('2.12.3', NULL);
+INSERT INTO info VALUES ('2.12.4', NULL);

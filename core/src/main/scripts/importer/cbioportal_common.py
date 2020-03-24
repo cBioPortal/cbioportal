@@ -62,6 +62,10 @@ class MetaFileTypes(object):
     GSVA_PVALUES = 'meta_gsva_pvalues'
     GENERIC_ASSAY = 'meta_generic_assay'
     STRUCTURAL_VARIANT = 'meta_structural_variants'
+    SAMPLE_RESOURCES = 'meta_resource_sample'
+    PATIENT_RESOURCES = 'meta_resource_patient'
+    STUDY_RESOURCES = 'meta_resource_study'
+    RESOURCES_DEFINITION = 'meta_resource_definition'
 
 
 # fields allowed in each meta file type, maps to True if required
@@ -276,7 +280,27 @@ META_FIELD_MAP = {
         'profile_description': True,
         'data_filename': True,
         'gene_panel': False,
-    }
+    },
+    MetaFileTypes.SAMPLE_RESOURCES: {
+        'cancer_study_identifier': True,
+        'resource_type': True,
+        'data_filename': True
+    },
+    MetaFileTypes.PATIENT_RESOURCES: {
+        'cancer_study_identifier': True,
+        'resource_type': True,
+        'data_filename': True
+    },
+    MetaFileTypes.STUDY_RESOURCES: {
+        'cancer_study_identifier': True,
+        'resource_type': True,
+        'data_filename': True
+    },
+    MetaFileTypes.RESOURCES_DEFINITION: {
+        'cancer_study_identifier': True,
+        'resource_type': True,
+        'data_filename': True
+    },
 }
 
 IMPORTER_CLASSNAME_BY_META_TYPE = {
@@ -301,7 +325,11 @@ IMPORTER_CLASSNAME_BY_META_TYPE = {
     MetaFileTypes.GSVA_SCORES: "org.mskcc.cbio.portal.scripts.ImportProfileData",
     MetaFileTypes.GSVA_PVALUES: "org.mskcc.cbio.portal.scripts.ImportProfileData",
     MetaFileTypes.GENERIC_ASSAY: "org.mskcc.cbio.portal.scripts.ImportProfileData",
-    MetaFileTypes.STRUCTURAL_VARIANT: "org.mskcc.cbio.portal.scripts.ImportProfileData"
+    MetaFileTypes.STRUCTURAL_VARIANT: "org.mskcc.cbio.portal.scripts.ImportProfileData",
+    MetaFileTypes.SAMPLE_RESOURCES: "org.mskcc.cbio.portal.scripts.ImportResourceData",
+    MetaFileTypes.PATIENT_RESOURCES: "org.mskcc.cbio.portal.scripts.ImportResourceData",
+    MetaFileTypes.STUDY_RESOURCES: "org.mskcc.cbio.portal.scripts.ImportResourceData",
+    MetaFileTypes.RESOURCES_DEFINITION: "org.mskcc.cbio.portal.scripts.ImportResourceDefinition",
 }
 
 IMPORTER_REQUIRES_METADATA = {
@@ -311,7 +339,9 @@ IMPORTER_REQUIRES_METADATA = {
     "org.mskcc.cbio.portal.scripts.ImportMutSigData" : False,
     "org.mskcc.cbio.portal.scripts.ImportProfileData" : True,
     "org.mskcc.cbio.portal.scripts.ImportTimelineData" : True,
-    "org.mskcc.cbio.portal.scripts.ImportGenePanelProfileMap" : False
+    "org.mskcc.cbio.portal.scripts.ImportGenePanelProfileMap" : False,
+    "org.mskcc.cbio.portal.scripts.ImportResourceData" : True,
+    "org.mskcc.cbio.portal.scripts.ImportResourceDefinition" : True
 }
 
 # ------------------------------------------------------------------------------
@@ -583,6 +613,15 @@ def get_meta_file_type(meta_dictionary, logger, filename):
         result = MetaFileTypes.STUDY
     elif 'type_of_cancer' in meta_dictionary:
         result = MetaFileTypes.CANCER_TYPE
+    elif 'cancer_study_identifier' in meta_dictionary and 'resource_type' in meta_dictionary:
+        if meta_dictionary['resource_type'] == 'PATIENT':
+            result = MetaFileTypes.PATIENT_RESOURCES
+        elif meta_dictionary['resource_type'] == 'SAMPLE':
+            result = MetaFileTypes.SAMPLE_RESOURCES
+        elif meta_dictionary['resource_type'] == 'STUDY':
+            result = MetaFileTypes.STUDY_RESOURCES
+        elif meta_dictionary['resource_type'] == 'DEFINITION':
+            result = MetaFileTypes.RESOURCES_DEFINITION
     else:
         logger.error('Could not determine the file type. Did not find expected meta file fields. Please check your meta files for correct configuration.',
                          extra={'filename_': filename})

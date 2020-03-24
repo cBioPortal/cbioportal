@@ -181,4 +181,10 @@ public class GlobalExceptionHandler {
         return new ResponseEntity<>(new ErrorResponse("stableId not found: " + ex.getStableId()),
             HttpStatus.NOT_FOUND);
     }
+
+    @ExceptionHandler(ResourceDefinitionNotFoundException.class)
+    public ResponseEntity<ErrorResponse> handleResourceDefinitionNotFound(ResourceDefinitionNotFoundException ex) {
+        return new ResponseEntity<>(new ErrorResponse("Resource not found: " + ex.getResourceId()),
+                HttpStatus.NOT_FOUND);
+    }
 }

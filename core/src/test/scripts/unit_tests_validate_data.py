@@ -2566,5 +2566,33 @@ def _resetMultipleFileHandlerClassVars():
         c.prior_validated_feature_ids = None
         c.prior_validated_header = None
 
+# --------------------------- resource definition wise test ------------------------------
+
+class ResourceDefinitionWiseTestCase(PostClinicalDataFileTestCase):
+
+    def test_resource_definition_missing_resourceId(self):
+
+        self.logger.setLevel(logging.ERROR)
+        record_list = self.validate('data_resource_definition_missing_resourceId.txt',
+                            validateData.ResourceDefinitionValidator)
+
+        self.assertEqual(len(record_list), 1)
+        record = record_list.pop()
+        self.assertEqual(record.levelno, logging.ERROR)
+        self.assertIn('Missing RESOURCE_ID', record.getMessage())
+
+    def test_resource_definition_missing_url_column(self):
+
+        self.logger.setLevel(logging.ERROR)
+        record_list = self.validate('data_resource_is_not_url.txt',
+                            validateData.SampleResourceValidator)
+
+        self.assertEqual(len(record_list), 1)
+        record = record_list.pop()
+        self.assertEqual(record.levelno, logging.ERROR)
+        self.assertIn('not an url', record.getMessage())
+
+# -------------------------- end resource definition wise test ----------------------------
+
 if __name__ == '__main__':
     unittest.main(buffer=True)

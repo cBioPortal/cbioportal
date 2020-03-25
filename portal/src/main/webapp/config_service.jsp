@@ -108,7 +108,8 @@
             "ensembl.transcript_url",
             "enable_persistent_cache",
             "query_product_limit",
-            "skin.show_gsva"
+            "skin.show_gsva",
+            "skin.citation_rule_text"
         }; 
     
    

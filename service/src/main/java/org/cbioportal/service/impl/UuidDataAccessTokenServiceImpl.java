@@ -49,11 +49,9 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
-import org.springframework.stereotype.Component;
 import org.springframework.stereotype.Service;
 
-@Service
-@Component("uuid")
+@Service("uuid")
 public class UuidDataAccessTokenServiceImpl implements DataAccessTokenService {
 
     @Autowired

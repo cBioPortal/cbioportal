@@ -62,13 +62,13 @@ public class OAuth2TokenAuthenticationProvider implements AuthenticationProvider
     public Authentication authenticate(Authentication authentication) throws AuthenticationException {
 
         String offlineToken = (String) ((OAuth2BearerAuthenticationToken) authentication).getCredentials();
-        
-        // Note: validity of the offline token is not checked in cBioPortal 
+
+        // Note: validity of the offline token is not checked in cBioPortal
         // backend, is handeled by the OAuth2 authentication server.
 
         // request an access token from the OAuth2 identity provider
         final String accessToken = tokenRefreshRestTemplate.getAccessToken(offlineToken);
-        
+
         Set<GrantedAuthority> authorities = extractAuthorities(accessToken);
 
         return new OAuth2BearerAuthenticationToken(authentication.getPrincipal(), authorities);
@@ -89,7 +89,7 @@ public class OAuth2TokenAuthenticationProvider implements AuthenticationProvider
             String cbioportalClientId = "cbioportal";
             final Iterable<JsonNode> roles = () -> claimsMap.get("resource_access").get(cbioportalClientId).get("roles")
                     .getElements();
-                    
+
             authorities = StreamSupport.stream(roles.spliterator(), false).map(role -> role.toString().replaceAll("\"", ""))
                     .map(role -> new SimpleGrantedAuthority(role)).collect(Collectors.toSet());
         } catch (Exception e) {

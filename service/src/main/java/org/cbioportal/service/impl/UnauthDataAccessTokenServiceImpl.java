@@ -39,7 +39,6 @@ import org.cbioportal.model.DataAccessToken;
 import org.cbioportal.service.DataAccessTokenService;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.core.Authentication;
-import org.springframework.stereotype.Component;
 import org.springframework.stereotype.Service;
 
 
@@ -47,8 +46,7 @@ import org.springframework.stereotype.Service;
  *
  * @author ochoaa
  */
-@Service
-@Component("none")
+@Service("none")
 public class UnauthDataAccessTokenServiceImpl implements DataAccessTokenService {
 
     @Override

@@ -29,10 +29,11 @@
 * You should have received a copy of the GNU Affero General Public License
 * along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
-package org.cbioportal.web.config;
+package org.cbioportal.security.spring.config;
 
-import org.cbioportal.web.DataAccessTokenController;
-import org.cbioportal.web.OAuth2DataAccessTokenController;
+import org.cbioportal.security.spring.authentication.social.PortalUserDetailsService;
+import org.cbioportal.security.spring.authentication.token.TokenUserDetailsAuthenticationProvider;
+import org.cbioportal.security.spring.authentication.token.oauth2.OAuth2TokenAuthenticationProvider;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Conditional;
 import org.springframework.context.annotation.Configuration;
@@ -44,18 +45,23 @@ import org.springframework.context.annotation.PropertySources;
     @PropertySource(value="classpath:portal.properties", ignoreResourceNotFound=true),
     @PropertySource(value="file:///${PORTAL_HOME}/portal.properties", ignoreResourceNotFound=true)
 })
-public class DataAccessTokenControllerConfig {
+public class TokenAuthenticationProviderConfig {
 
-    @Bean
+    @Bean("tokenAuthenticationProvider")
     @Conditional(OAuth2DatMethodCondition.class)
-    public OAuth2DataAccessTokenController oauth2Controller() {
-        return new OAuth2DataAccessTokenController();
+    public OAuth2TokenAuthenticationProvider oauth2TokenAuthenticationProvider() {
+        return new OAuth2TokenAuthenticationProvider();
+    }
+
+    @Bean("tokenAuthenticationProvider")
+    @Conditional(OtherDatMethodCondition.class)
+    public TokenUserDetailsAuthenticationProvider userDetailsTokenAuthenticationProvider() {
+        return new TokenUserDetailsAuthenticationProvider(tokenUserDetailsService());
     }
 
     @Bean
-    @Conditional(OtherDatMethodCondition.class)
-    public DataAccessTokenController otherController() {
-        return new DataAccessTokenController();
+    public PortalUserDetailsService tokenUserDetailsService() {
+        return new PortalUserDetailsService();
     }
 
 }

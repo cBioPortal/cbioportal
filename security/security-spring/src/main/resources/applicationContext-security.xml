@@ -40,7 +40,8 @@
     -->
 
     <!-- make sure externally defined beans are added to the spring context -->
-    <context:component-scan base-package="org.cbioportal.security.spring.authentication.token.oauth2"/>
+    <context:component-scan base-package="org.cbioportal.security.spring.authentication.token.oauth2" />
+    <context:component-scan base-package="org.cbioportal.security.spring.config" />
 
     <!-- Choose a supported Data Access Token method implementation [uuid, jwt, oauth2, none (default)] by setting value of dat.method in portal.properties.
         Note: UUID implementation requires a backend database/token store but allows for greater control over tokens -->
@@ -60,20 +61,10 @@
         so you must add <authentication-provider ref="tokenAuthenticationProvider"/> to your
         other authentication-manager, and tokenAuthenticationProvider should come before other authentication-providers. -->
     <authentication-manager alias="tokenAuthenticationManager">
-        <!-- use a different authentication provider for oauth2 protocol -->
         <authentication-provider ref="tokenAuthenticationProvider" />
     </authentication-manager>
 
     <b:bean id="tokenSuccessRedirectHandler" class="org.cbioportal.security.spring.authentication.token.TokenAuthenticationSuccessHandler"/>
-
-    <!-- Used to compare token returned by authentication-provider against portal user db tables -->
-    <b:bean id="tokenUserDetailsService" class="org.cbioportal.security.spring.authentication.social.PortalUserDetailsService"/>
-
-    <b:bean id="tokenAuthenticationProvider" class="org.cbioportal.security.spring.authentication.token.TokenUserDetailsAuthenticationProvider">
-        <b:constructor-arg index="0" ref="tokenUserDetailsService" />
-    </b:bean>
-    <b:bean id="oauth2TokenAuthenticationProvider" class="org.cbioportal.security.spring.authentication.token.oauth2.OAuth2TokenAuthenticationProvider" />
-    <b:alias name="#{'${dat.method}'.equals('oauth2)}?'oauth2TokenAuthenticationProvider':'tokenAuthenticationProvider'" alias="tokenAuthenticationProvider" />
 
     <!-- End of Data Access Tokens beans -->
 

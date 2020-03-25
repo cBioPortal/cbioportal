@@ -60,22 +60,22 @@ import org.springframework.web.client.RestTemplate;
 @Component("oauth2")
 public class OAuth2DataAccessTokenServiceImpl implements DataAccessTokenService {
 
-    @Value("${dat.oauth2.issuer:}")
+    @Value("${dat.oauth2.issuer}")
     private String issuer;
 
-    @Value("${dat.oauth2.clientId:}")
+    @Value("${dat.oauth2.clientId}")
     private String clientId;
 
-    @Value("${dat.oauth2.clientSecret:}")
+    @Value("${dat.oauth2.clientSecret}")
     private String clientSecret;
 
-    @Value("${dat.oauth2.accessTokenUri:}")
+    @Value("${dat.oauth2.accessTokenUri}")
     private String accessTokenUri;
 
-    @Value("${dat.oauth2.userAuthorizationUri:}")
+    @Value("${dat.oauth2.userAuthorizationUri}")
     private String userAuthorizationUri;
 
-    @Value("${dat.oauth2.redirectUri:}")
+    @Value("${dat.oauth2.redirectUri}")
     private String redirectUri;
 
     @Autowired

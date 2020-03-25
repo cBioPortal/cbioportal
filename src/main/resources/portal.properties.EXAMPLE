@@ -149,9 +149,10 @@ dat.jwt.secret_key=
 #dat.oauth2.clientId=<client-id>
 #dat.oauth2.clientSecret=<client-secret>
 #dat.oauth2.issuer=<token-issuer>
-#dat.oauth2.accessTokenUri=<authorization-server-url>/token
-#dat.oauth2.userAuthorizationUri=<authorization-server-url>/auth
-#dat.oauth2.jwkUrl=<authorization-server-url>/certs
+#dat.oauth2.accessTokenUri=<authorization-server-url>/.../token
+#dat.oauth2.userAuthorizationUri=<authorization-server-url>/.../auth
+#dat.oauth2.jwkUrl=<authorization-server-url>/.../certs
+#dat.oauth2.redirectUri=<cbioportal-url>/.../api/data-access-token/oauth2
 
 # study view settings
 # always show studies with this group

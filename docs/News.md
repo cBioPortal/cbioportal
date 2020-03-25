@@ -2,7 +2,7 @@
 *   **Added data** consisting of 1,393 samples from 3 studies:
      * [Breast Cancer (Alpelisib plus AI, Nature Cancer 2020)](https://www.cbioportal.org/study/summary?id=breast_alpelisib_2020) *141 samples* 
      * [Glioma (MSKCC, Clin Cancer Res 2019)](https://www.cbioportal.org/study/summary?id=glioma_mskcc_2019) *1,004 samples* 
-     * [Mixed cfDNA (MSK, Nature Medicine 2019)](https://www.cbioportal.org/study/summary?id=mixed_cfdna_msk_2019) *248 samples* 
+     * [Mixed cfDNA (MSK, Nature Medicine 2019)](https://www.cbioportal.org/study/summary?id=cfdna_msk_2019) *248 samples* 
      
 ## March 3, 2020
 * **New Feature**: Add Pathways tab to the _Results View_ page which visualizes alteration frequencies of genes in pathways of interest. The pathways are pulled from https://www.pathwaymapper.org and shown in a read only view. One can edit these pathways in the PathwayMapper editor. For more information see the [tutorial](https://www.cbioportal.org/tutorials#pathways).

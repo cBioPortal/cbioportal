@@ -61,7 +61,7 @@
         other authentication-manager, and tokenAuthenticationProvider should come before other authentication-providers. -->
     <authentication-manager alias="tokenAuthenticationManager">
         <!-- use a different authentication provider for oauth2 protocol -->
-        <authentication-provider ref="#{'${dat.method}'.equals('oauth2)}?'oauth2TokenAuthenticationProvider':'tokenAuthenticationProvider'" />
+        <authentication-provider ref="tokenAuthenticationProvider" />
     </authentication-manager>
 
     <b:bean id="tokenSuccessRedirectHandler" class="org.cbioportal.security.spring.authentication.token.TokenAuthenticationSuccessHandler"/>
@@ -73,6 +73,7 @@
         <b:constructor-arg index="0" ref="tokenUserDetailsService" />
     </b:bean>
     <b:bean id="oauth2TokenAuthenticationProvider" class="org.cbioportal.security.spring.authentication.token.oauth2.OAuth2TokenAuthenticationProvider" />
+    <b:alias name="#{'${dat.method}'.equals('oauth2)}?'oauth2TokenAuthenticationProvider':'tokenAuthenticationProvider'" alias="tokenAuthenticationProvider" />
 
     <!-- End of Data Access Tokens beans -->
 

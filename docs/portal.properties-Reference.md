@@ -129,6 +129,11 @@ Setting controlling the blurb: you can add any HTML code here that you want to v
 skin.blurb=
 ```
 
+Setting controlling the citation below the blurb: you can add any HTML code here that you want to visualize. If the field is left empty, this HTML code will be shown: `Please cite: <a href="http://cancerdiscovery.aacrjournals.org/content/2/5/401.abstract" target="_blank">Cerami et al., 2012</a> &amp; <a href="http://www.ncbi.nlm.nih.gov/pubmed/23550210" target="_blank">Gao et al., 2013</a>`).
+```
+skin.citation_rule_text=
+```
+
 Setting controlling the footer: you can add any HTML code here that you want to visualize. If the field is left empty, the default footer (from www.cbioportal.org) will be shown.
 ```
 skin.footer=

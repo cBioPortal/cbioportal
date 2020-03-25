@@ -41,8 +41,8 @@ import org.springframework.context.annotation.PropertySources;
 
 @Configuration
 @PropertySources({
-    @PropertySource("classpath:portal.properties"),
-    @PropertySource("file:///${PORTAL_HOME}/portal.properties")
+    @PropertySource("file:///${PORTAL_HOME}/portal.properties", ignoreResourceNotFound=true),
+    @PropertySource("classpath:portal.properties", ignoreResourceNotFound=true)
 })
 public class DataAccessTokenControllerConfig {
 

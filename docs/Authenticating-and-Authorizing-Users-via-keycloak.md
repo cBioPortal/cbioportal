@@ -336,6 +336,7 @@ Enable _Full Scope_. This setting will include the user roles defined in the `cb
 | dat.oauth2.issuer      | _keycloak_url_/auth/realms/cbioportal        |  _keycloak_url_ refers to URL of the KeyCloak server from perspective of the browser |
 | dat.oauth2.userAuthorizationUri  | _keycloak_url_/auth/realms/cbioportal/protocol/openid-connect/auth      |  _keycloak_url_ refers to URL of the KeyCloak server from perspective of the browser |
 | dat.oauth2.redirectUri  | _cbioportal_url_/api/data-access-token/oauth2 | _cbioportal_url_ is url up to _/api_ path |
+| dat.oauth2.jwtRolesPath  | '::'-separated path to array with user roles in JWT token returned by Keycloak | example: _resource_access::cbioportal::roles_ |
 
 More information on configuration of the cBioPortal backend can be found in [Authenticating Users via Tokens](Authenticating-Users-via-Tokens.md).
 

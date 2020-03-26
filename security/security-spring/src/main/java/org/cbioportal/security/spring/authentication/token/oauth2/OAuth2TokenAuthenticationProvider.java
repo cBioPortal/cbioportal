@@ -39,16 +39,21 @@ import java.util.stream.StreamSupport;
 import org.codehaus.jackson.JsonNode;
 import org.codehaus.jackson.map.ObjectMapper;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.authentication.AuthenticationProvider;
 import org.springframework.security.authentication.BadCredentialsException;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
+
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.core.GrantedAuthority;
-import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.jwt.Jwt;
 import org.springframework.security.jwt.JwtHelper;
 
 public class OAuth2TokenAuthenticationProvider implements AuthenticationProvider {
+
+    @Value("${dat.oauth2.jwtRolesPath:resource_access::cbioportal::roles}")
+    private String jwtRolesPath;
 
     @Autowired
     OAuth2TokenRefreshRestTemplate tokenRefreshRestTemplate;
@@ -74,28 +79,32 @@ public class OAuth2TokenAuthenticationProvider implements AuthenticationProvider
         return new OAuth2BearerAuthenticationToken(authentication.getPrincipal(), authorities);
     }
 
+    // Read roles/authorities from JWT token.
     private Set<GrantedAuthority> extractAuthorities(final String token) throws BadCredentialsException {
-        final Jwt tokenDecoded = JwtHelper.decode(token);
-        final String claims = tokenDecoded.getClaims();
-        final Set<GrantedAuthority> authorities;
         try {
+            final Jwt tokenDecoded = JwtHelper.decode(token);
+            final String claims = tokenDecoded.getClaims();
             JsonNode claimsMap = new ObjectMapper().readTree(claims);
+            JsonNode rolesArrayCursor = claimsMap;
+            for (String keyName: jwtRolesPath.split("::")) {
+                if (rolesArrayCursor.has(keyName)) {
+                    rolesArrayCursor = rolesArrayCursor.get(keyName);
+                } else {
+                    throw new BadCredentialsException("Cannot find user roles in JWT access token with path '"
+                        + jwtRolesPath + "''. Please ensure the dat.oauth2.jwtRolesPath property is correct.");
+                }
+            }
+            final JsonNode rolesArrayPointer = rolesArrayCursor;
+            final Iterable<JsonNode> roles = () -> rolesArrayPointer.getElements();
 
-            // Read roles/authorities from cbioportal client (not cbioportal_api client!).
-            // Note: For this to work "Full scope allowed" must be enabled for
-            //       the cbioportal_api client in the KeyCloak configuration.
-            //       This ensures that the cbioportal_api client can add
-            //       cbioportal studies/roles to the JWT token.
-            String cbioportalClientId = "cbioportal";
-            final Iterable<JsonNode> roles = () -> claimsMap.get("resource_access").get(cbioportalClientId).get("roles")
-                    .getElements();
+            return StreamSupport.stream(roles.spliterator(), false)
+                .map(role -> role.toString().replaceAll("\"", ""))
+                .map(role -> new SimpleGrantedAuthority(role))
+                .collect(Collectors.toSet());
 
-            authorities = StreamSupport.stream(roles.spliterator(), false).map(role -> role.toString().replaceAll("\"", ""))
-                    .map(role -> new SimpleGrantedAuthority(role)).collect(Collectors.toSet());
         } catch (Exception e) {
             throw new BadCredentialsException("Authorities could not be extracted from access token.");
         }
-        return authorities;
     }
 
 }

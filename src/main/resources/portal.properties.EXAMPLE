@@ -153,6 +153,7 @@ dat.jwt.secret_key=
 #dat.oauth2.userAuthorizationUri=<authorization-server-url>/.../auth
 #dat.oauth2.jwkUrl=<authorization-server-url>/.../certs
 #dat.oauth2.redirectUri=<cbioportal-url>/.../api/data-access-token/oauth2
+#dat.oauth2.jwtRolesPath=resource_access::cbioportal::roles
 
 # study view settings
 # always show studies with this group

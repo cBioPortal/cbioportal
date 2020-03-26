@@ -104,6 +104,7 @@
                             <dat.oauth2.userAuthorizationUri>http://localhost:8443/auth/realms/cbio/auth
                             </dat.oauth2.userAuthorizationUri>
                             <dat.oauth2.jwkUrl>http://localhost:8443/auth/realms/cbio/jwkUrl</dat.oauth2.jwkUrl>
+                            <dat.oauth2.jwtRolesPath>resource_access::cbioportal::roles</dat.oauth2.jwtRolesPath>
                         </systemProperties>
                     </container>
                     <configuration>

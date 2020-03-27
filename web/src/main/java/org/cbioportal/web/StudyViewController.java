@@ -22,12 +22,7 @@ import org.cbioportal.web.util.DataBinner;
 import org.cbioportal.web.util.StudyViewFilterApplier;
 import org.cbioportal.web.util.StudyViewFilterUtil;
 import org.springframework.validation.annotation.Validated;
-import org.springframework.web.bind.annotation.RequestAttribute;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -406,7 +401,7 @@ public class StudyViewController {
     @RequestMapping(value = "/sample-counts/fetch", method = RequestMethod.POST,
         consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
     @ApiOperation("Fetch sample counts by study view filter")
-    public ResponseEntity<MolecularProfileSampleCount> fetchMolecularProfileSampleCounts(
+    public List<GenomicDataCount> fetchMolecularProfileSampleCounts(
         @ApiParam(required = true, value = "Study view filter")
         @Valid @RequestBody(required = false) StudyViewFilter studyViewFilter,
         @ApiIgnore // prevent reference to this attribute in the swagger-ui interface
@@ -416,43 +411,61 @@ public class StudyViewController {
 
         List<String> studyIds = new ArrayList<>();
         List<String> sampleIds = new ArrayList<>();
-        studyViewFilterUtil.extractStudyAndSampleIds(studyViewFilterApplier.apply(interceptedStudyViewFilter), studyIds, sampleIds);
-        MolecularProfileSampleCount molecularProfileSampleCount = new MolecularProfileSampleCount();
-        if (sampleIds.isEmpty()) {
-            molecularProfileSampleCount.setNumberOfMutationProfiledSamples(0);
-            molecularProfileSampleCount.setNumberOfMutationUnprofiledSamples(0);
-            molecularProfileSampleCount.setNumberOfCNAProfiledSamples(0);
-            molecularProfileSampleCount.setNumberOfCNAUnprofiledSamples(0);
-        } else {
-            int sampleCount = sampleIds.size();
-            List<String> mutationSampleIds = new ArrayList<>(sampleIds);
-            List<String> firstMutationProfileIds = molecularProfileService.getFirstMutationProfileIds(studyIds, mutationSampleIds);
-            if (!firstMutationProfileIds.isEmpty()) {
-                molecularProfileSampleCount.setNumberOfMutationProfiledSamples(Math.toIntExact(genePanelService
-                    .fetchGenePanelDataInMultipleMolecularProfiles(firstMutationProfileIds, mutationSampleIds).stream().filter(
-                        g -> g.getProfiled()).count()));
-                molecularProfileSampleCount.setNumberOfMutationUnprofiledSamples(sampleCount -
-                    molecularProfileSampleCount.getNumberOfMutationProfiledSamples());
+        studyViewFilterUtil.extractStudyAndSampleIds(studyViewFilterApplier.apply(interceptedStudyViewFilter), studyIds,
+                sampleIds);
+        
+        List<MolecularProfile> molecularProfiles = molecularProfileService.getMolecularProfilesInStudies(studyIds,
+                "SUMMARY");
+
+        Map<String, List<MolecularProfile>> studyMolecularProfilesSet = molecularProfiles.stream()
+                .collect(Collectors.groupingBy(MolecularProfile::getCancerStudyIdentifier));
+
+        List<String> queryMolecularProfileIds = new ArrayList<>();
+        List<String> querySampleIds = new ArrayList<>();
+        for (int i = 0; i < studyIds.size(); i++) {
+            String studyId = studyIds.get(i);
+            String sampleId = sampleIds.get(i);
+            if (studyMolecularProfilesSet.containsKey(studyId)) {
+                studyMolecularProfilesSet.get(studyId).stream().forEach(molecularProfile -> {
+                    queryMolecularProfileIds.add(molecularProfile.getStableId());
+                    querySampleIds.add(sampleId);
+                });
             }
-            List<String> cnaSampleIds = new ArrayList<>(sampleIds);
-            List<String> firstDiscreteCNAProfileIds = molecularProfileService.getFirstDiscreteCNAProfileIds(studyIds, cnaSampleIds);
-            if (!firstDiscreteCNAProfileIds.isEmpty()) {
-                molecularProfileSampleCount.setNumberOfCNAProfiledSamples(Math.toIntExact(genePanelService
-                    .fetchGenePanelDataInMultipleMolecularProfiles(firstDiscreteCNAProfileIds, cnaSampleIds).stream().filter(
-                        g -> g.getProfiled()).count()));
-                molecularProfileSampleCount.setNumberOfCNAUnprofiledSamples(sampleCount -
-                    molecularProfileSampleCount.getNumberOfCNAProfiledSamples());
-            }
-            molecularProfileSampleCount.setNumberOfCNSegmentSamples(Math.toIntExact(sampleService
-                .fetchSamples(studyIds, sampleIds, Projection.DETAILED.name()).stream().filter(
-                    s -> s.getCopyNumberSegmentPresent()).count()));
-            molecularProfileSampleCount.setNumberOfFusionProfiledSamples(Math.toIntExact(sampleService
-                .fetchSamples(studyIds, sampleIds, Projection.DETAILED.name()).stream().filter(
-                    s -> s.getProfiledForFusions()).count()));
-            molecularProfileSampleCount.setNumberOfFusionUnprofiledSamples(sampleCount -
-                molecularProfileSampleCount.getNumberOfFusionProfiledSamples());
         }
-        return new ResponseEntity<>(molecularProfileSampleCount, HttpStatus.OK);
+
+        List<GenePanelData> genePanelData = genePanelService
+                .fetchGenePanelDataInMultipleMolecularProfiles(queryMolecularProfileIds, querySampleIds);
+        HashMap<String, Integer> molecularPorfileSampleCountSet = new HashMap<String, Integer>();
+
+        for (GenePanelData datum : genePanelData) {
+            if (datum.getProfiled()) {
+                Integer count = molecularPorfileSampleCountSet.getOrDefault(datum.getMolecularProfileId(), 0);
+                molecularPorfileSampleCountSet.put(datum.getMolecularProfileId(), count + 1);
+            }
+        }
+
+        Map<String, List<MolecularProfile>> molecularProfileSet = studyViewFilterUtil
+                .categorizeMolecularPorfiles(molecularProfiles);
+
+        return molecularProfileSet
+                .entrySet()
+                .stream()
+                .map(entry -> {
+                    GenomicDataCount dataCount = new GenomicDataCount();
+                    dataCount.setValue(entry.getKey());
+
+                    Integer count = entry.getValue().stream().mapToInt(molecularProfile -> {
+                        return molecularPorfileSampleCountSet.getOrDefault(molecularProfile.getStableId(), 0);
+                    }).sum();
+        
+                    dataCount.setCount(count);
+                    dataCount.setLabel(entry.getValue().get(0).getName());
+        
+                    return dataCount;
+                })
+                .filter(dataCount -> dataCount.getCount() > 0)
+                .collect(Collectors.toList());
+
     }
 
     @PreAuthorize("hasPermission(#involvedCancerStudies, 'Collection<CancerStudyId>', 'read')")

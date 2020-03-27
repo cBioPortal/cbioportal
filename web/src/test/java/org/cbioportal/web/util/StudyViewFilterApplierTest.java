@@ -300,10 +300,6 @@ public class StudyViewFilterApplierTest {
         Mockito.when(patientService.getPatientsOfSamples(Arrays.asList(STUDY_ID, STUDY_ID, STUDY_ID, STUDY_ID, STUDY_ID), 
                 Arrays.asList(SAMPLE_ID1, SAMPLE_ID2, SAMPLE_ID3, SAMPLE_ID4, SAMPLE_ID5))).thenReturn(updatedPatients);
 
-        Mockito.when(molecularProfileService
-                .getFirstMutationProfileIds(Arrays.asList(STUDY_ID, STUDY_ID, STUDY_ID, STUDY_ID), updatedSampleIds))
-                .thenReturn(Arrays.asList(MOLECULAR_PROFILE_ID_1, MOLECULAR_PROFILE_ID_1, MOLECULAR_PROFILE_ID_1,
-                        MOLECULAR_PROFILE_ID_1));
         
         MolecularProfile molecularProfile1 = new MolecularProfile();
         molecularProfile1.setStableId(MOLECULAR_PROFILE_ID_1);
@@ -317,7 +313,7 @@ public class StudyViewFilterApplierTest {
         molecularProfile2.setDatatype("DISCRETE");
         
         Mockito.when(molecularProfileService
-                .getMolecularProfiles(Arrays.asList(MOLECULAR_PROFILE_ID_2, MOLECULAR_PROFILE_ID_1), "SUMMARY"))
+                .getMolecularProfilesInStudies(Arrays.asList(STUDY_ID), "SUMMARY"))
                 .thenReturn(Arrays.asList(molecularProfile1, molecularProfile2));
 
         List<Mutation> mutations = new ArrayList<>();

@@ -61,12 +61,11 @@ public class StudyViewControllerTest {
     private static final String TEST_PATIENT_ID_1 = "test_patient_id_1";
     private static final String TEST_PATIENT_ID_2 = "test_patient_id_2";
     private static final String TEST_ATTRIBUTE_ID = "test_attribute_id";
-    private static final String TEST_MOLEULAR_PROFILE_ID_1 = "test_molecular_profile_id_1";
-    private static final String TEST_MOLEULAR_PROFILE_ID_2 = "test_molecular_profile_id_2";
+    private static final String TEST_MOLEULAR_PROFILE_ID_1 = "test_study_id_profile_type_1";
+    private static final String TEST_MOLEULAR_PROFILE_ID_2 = "test_study_id_profile_type_2";
     private static final String TEST_CLINICAL_DATA_VALUE_1 = "value1";
     private static final String TEST_CLINICAL_DATA_VALUE_2 = "value2";
     private static final String TEST_CLINICAL_DATA_VALUE_3 = "3";
-    private static final String TEST_CLINICAL_DATA_VALUE_4 = "NA";
     private static final Integer TEST_ENTREZ_GENE_ID_1 = 1;
     private static final Integer TEST_ENTREZ_GENE_ID_2 = 2;
     private static final String TEST_HUGO_GENE_SYMBOL_1 = "test_hugo_gene_symbol_1";
@@ -454,10 +453,6 @@ public class StudyViewControllerTest {
     @Test
     public void fetchSampleCounts() throws Exception {
 
-        MolecularProfile molecularProfile = new MolecularProfile();
-        molecularProfile.setCancerStudyIdentifier(TEST_STUDY_ID);
-        Mockito.when(molecularProfileService.getMolecularProfile(Mockito.anyString())).thenReturn(molecularProfile);
-
         List<SampleIdentifier> filteredSampleIdentifiers = new ArrayList<>();
         SampleIdentifier sampleIdentifier1 = new SampleIdentifier();
         sampleIdentifier1.setSampleId(TEST_SAMPLE_ID_1);
@@ -473,22 +468,32 @@ public class StudyViewControllerTest {
         filteredSampleIdentifiers.add(sampleIdentifier3);
         Mockito.when(studyViewFilterApplier.apply(Mockito.anyObject())).thenReturn(filteredSampleIdentifiers);
 
+        MolecularProfile molecularProfile1 = new MolecularProfile();
+        molecularProfile1.setCancerStudyIdentifier(TEST_STUDY_ID);
+        molecularProfile1.setStableId(TEST_MOLEULAR_PROFILE_ID_1);
+        molecularProfile1.setName("Profile 1");
+
+        MolecularProfile molecularProfile2 = new MolecularProfile();
+        molecularProfile2.setCancerStudyIdentifier(TEST_STUDY_ID);
+        molecularProfile2.setStableId(TEST_MOLEULAR_PROFILE_ID_2);
+        molecularProfile2.setName("Profile 2");
+
+        Mockito.when(molecularProfileService.getMolecularProfilesInStudies(Mockito.anyListOf(String.class),
+                Mockito.anyString())).thenReturn(Arrays.asList(molecularProfile1, molecularProfile2));
+
         List<GenePanelData> genePanelDataList = new ArrayList<>();
         GenePanelData genePanelData1 = new GenePanelData();
+        genePanelData1.setMolecularProfileId(TEST_MOLEULAR_PROFILE_ID_1);
         genePanelData1.setProfiled(true);
         genePanelDataList.add(genePanelData1);
         GenePanelData genePanelData2 = new GenePanelData();
+        genePanelData2.setMolecularProfileId(TEST_MOLEULAR_PROFILE_ID_1);
         genePanelData2.setProfiled(true);
         genePanelDataList.add(genePanelData2);
         GenePanelData genePanelData3 = new GenePanelData();
-        genePanelData3.setProfiled(false);
+        genePanelData3.setMolecularProfileId(TEST_MOLEULAR_PROFILE_ID_2);
+        genePanelData3.setProfiled(true);
         genePanelDataList.add(genePanelData3);
-
-        Mockito.when(molecularProfileService.getFirstMutationProfileIds(Mockito.anyListOf(String.class), Mockito.anyListOf(String.class)))
-            .thenReturn(Arrays.asList(TEST_MOLEULAR_PROFILE_ID_1));
-
-        Mockito.when(molecularProfileService.getFirstDiscreteCNAProfileIds(Mockito.anyListOf(String.class), Mockito.anyListOf(String.class)))
-            .thenReturn(Arrays.asList(TEST_MOLEULAR_PROFILE_ID_2));
 
         Mockito.when(genePanelService.fetchGenePanelDataInMultipleMolecularProfiles(Mockito.anyListOf(String.class),
             Mockito.anyListOf(String.class))).thenReturn(genePanelDataList);
@@ -502,10 +507,12 @@ public class StudyViewControllerTest {
             .content(objectMapper.writeValueAsString(studyViewFilter)))
             .andExpect(MockMvcResultMatchers.status().isOk())
             .andExpect(MockMvcResultMatchers.content().contentTypeCompatibleWith(MediaType.APPLICATION_JSON))
-            .andExpect(MockMvcResultMatchers.jsonPath("$.numberOfMutationProfiledSamples").value(2))
-            .andExpect(MockMvcResultMatchers.jsonPath("$.numberOfMutationUnprofiledSamples").value(1))
-            .andExpect(MockMvcResultMatchers.jsonPath("$.numberOfCNAProfiledSamples").value(2))
-            .andExpect(MockMvcResultMatchers.jsonPath("$.numberOfCNAUnprofiledSamples").value(1));
+            .andExpect(MockMvcResultMatchers.jsonPath("$[0].label").value("Profile 2"))
+            .andExpect(MockMvcResultMatchers.jsonPath("$[0].value").value("profile_type_2"))
+            .andExpect(MockMvcResultMatchers.jsonPath("$[0].count").value(1))
+            .andExpect(MockMvcResultMatchers.jsonPath("$[1].label").value("Profile 1"))
+            .andExpect(MockMvcResultMatchers.jsonPath("$[1].value").value("profile_type_1"))
+            .andExpect(MockMvcResultMatchers.jsonPath("$[1].count").value(2));
     }
 
     @Test

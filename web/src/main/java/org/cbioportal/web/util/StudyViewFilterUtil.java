@@ -1,12 +1,16 @@
 package org.cbioportal.web.util;
 
 import com.google.common.collect.Range;
+
+import org.cbioportal.model.MolecularProfile;
 import org.cbioportal.web.parameter.SampleIdentifier;
 import org.cbioportal.web.parameter.StudyViewFilter;
 import org.springframework.stereotype.Component;
 
 import java.math.BigDecimal;
 import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
 
 @Component
 public class StudyViewFilterUtil {
@@ -56,5 +60,11 @@ public class StudyViewFilterUtil {
 
     public String getCaseUniqueKey(String studyId, String caseId) {
         return studyId + caseId;
+    }
+
+    public Map<String, List<MolecularProfile>> categorizeMolecularPorfiles(List<MolecularProfile> molecularProfiles) {
+        return molecularProfiles.stream().collect(Collectors.groupingBy(molecularProfile -> {
+            return molecularProfile.getStableId().replace(molecularProfile.getCancerStudyIdentifier() + "_", "");
+        }));
     }
 }

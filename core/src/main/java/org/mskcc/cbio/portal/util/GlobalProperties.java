@@ -314,6 +314,10 @@ public class GlobalProperties {
 	@Value("${genomenexus.url:v1.genomenexus.org}") // default
 	public void setGenomeNexusApiUrl(String property) { genomeNexusApiUrl = parseUrl(property); }
 
+	private static String genomeNexusGrch38ApiUrl;
+	@Value("${genomenexus.url.grch38:grch38.genomenexus.org}") // default
+	public void setGenomeNexusGrch38ApiUrl(String property) { genomeNexusGrch38ApiUrl = parseUrl(property); }
+
     private static String frontendUrl;
     @Value("${frontend.url:}") // default is empty string
     public void setFrontendUrl(String property) { frontendUrl = parseUrl(property); }
@@ -865,6 +869,10 @@ public class GlobalProperties {
 
     public static String getGenomeNexusApiUrl() {
         return genomeNexusApiUrl;
+    }
+
+    public static String getGenomeNexusGrch38ApiUrl() {
+        return genomeNexusGrch38ApiUrl;
     }
 
     public static boolean showOncoKB() {

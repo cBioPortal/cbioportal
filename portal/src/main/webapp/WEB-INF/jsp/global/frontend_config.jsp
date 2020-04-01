@@ -10,6 +10,7 @@ window.legacySupportFrontendConfig = {
     maxTreeDepth : <%=GlobalProperties.getMaxTreeDepth()%>,
     showOncoKB : <%=GlobalProperties.showOncoKB()%>,
     genomeNexusApiUrl : '<%=GlobalProperties.getGenomeNexusApiUrl()%>',
+    genomeNexusGrch38ApiUrl : '<%=GlobalProperties.getGenomeNexusGrch38ApiUrl()%>',
     showCivic : <%=GlobalProperties.showCivic()%>,
     showHotspot : <%=GlobalProperties.showHotspot()%>,
     showMyCancerGenome : <%=GlobalProperties.showMyCancerGenomeUrl()%>,

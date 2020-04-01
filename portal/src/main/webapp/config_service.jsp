@@ -40,6 +40,7 @@
             "oncoprint.oncokb.default",
             "oncoprint.hotspots.default",
             "genomenexus.url",
+            "genomenexus.url.grch38",
             "google_analytics_profile_id",
             "analytics_report_url",
             "oncoprint.hide_vus.default",

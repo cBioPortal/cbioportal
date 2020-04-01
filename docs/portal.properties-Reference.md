@@ -233,6 +233,25 @@ The CIViC API url is set to https://civic.genome.wustl.edu/api/ by default. It c
 civic.url=
 ```
 
+# Genome Nexus Integration
+Genome Nexus provides annotations of mutations in cBioPortal. The mutations tab relies heavily on the Genome Nexus API, therefore that tab won't work well without it. By default cBioPortal will use the public Genome Nexus API, such that no extra configuration is necessary.
+
+## Genome Build
+Genome Nexus supports both GRCh37 and GRCh38, but support for the latter is limited. Several annotation sources served by Genome Nexus might not have official GRCh38 support yet i.e. [OncoKB](https://www.oncokb.org/), [CIViC](https://civicdb.org/), [Cancer Hotspots](https://www.cancerhotspots.org/), [My Cancer Genome](https://www.mycancergenome.org/) and [3D structures](https://g2s.genomenexus.org/). Although most of the time the canonical transcript for a gene will be the same between GRCh37 and GRCh38 there might be some that cause issues. In addition the complete integration of cBioPortal with Genome Nexus' GRCh38 is not complete yet. That is cBioPortal currently only connects to one Genome Nexus API by default (the GRCh37 one), so it's not possible to have multiple genome builds in one instance of cBioPortal and get the correct annotations from Genome Nexus for both. Currently only the [mutation mapper tool page](https://www.cbioportal.org/mutation_mapper) is able to handle both.
+
+## Properties
+By default the Genome Nexus API url is set to https://v1.genomenexus.org/, which uses GRCh37. It can be overridden using the following property:
+
+```
+genomenexus.url=
+```
+
+The mutation mapper tool page can annotate GRCh38 coordinates. By default it uses https://grch38.genomenexus.org. It can be overridden by setting:
+
+```
+genomenexus.url.grch38=
+```
+
 # MDACC Heatmap Integration
 
 MDACC Heatmap integration (button in OncoPrint heatmap dropdown and tab on Study page can be turned on or off by setting the following property:

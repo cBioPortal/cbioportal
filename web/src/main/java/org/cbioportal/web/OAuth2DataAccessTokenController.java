@@ -46,6 +46,7 @@ import org.cbioportal.model.DataAccessToken;
 import org.cbioportal.service.DataAccessTokenService;
 import org.cbioportal.service.exception.DataAccessTokenProhibitedUserException;
 import org.cbioportal.web.config.annotation.InternalApi;
+import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpHeaders;
@@ -65,6 +66,7 @@ import io.swagger.annotations.ApiParam;
 
 @InternalApi
 @RequestMapping // replaces @RestController; controller is created conditionally in DataAccessTokenControllerConfig
+@ResponseBody   // needed when not using @RestController annotation
 @Validated
 @Api(tags = "Data Access Tokens", description = " ")
 public class OAuth2DataAccessTokenController {

@@ -30,6 +30,7 @@ import org.cbioportal.model.DataAccessToken;
 import org.cbioportal.service.DataAccessTokenService;
 import org.cbioportal.service.exception.DataAccessTokenNoUserIdentityException;
 import org.cbioportal.service.exception.DataAccessTokenProhibitedUserException;
+import org.springframework.web.bind.annotation.ResponseBody;
 import org.cbioportal.web.config.annotation.InternalApi;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -49,6 +50,7 @@ import io.swagger.annotations.ApiParam;
 
 @InternalApi
 @RequestMapping // replaces @RestController; controller is created conditionally in DataAccessTokenControllerConfig
+@ResponseBody   // needed when not using @RestController annotation
 @Validated
 @Api(tags = "Data Access Tokens", description = " ")
 public class DataAccessTokenController {

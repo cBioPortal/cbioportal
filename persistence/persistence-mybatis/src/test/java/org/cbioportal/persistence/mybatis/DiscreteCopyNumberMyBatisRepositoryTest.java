@@ -149,7 +149,7 @@ public class DiscreteCopyNumberMyBatisRepositoryTest {
     }
 
     @Test
-    public void getSampleCountByGeneAndAlteration() throws Exception {
+    public void getSampleCountByGeneAndAlterationAndSampleIds() throws Exception {
 
         List<CopyNumberCountByGene> result  = discreteCopyNumberMyBatisRepository
             .getSampleCountByGeneAndAlterationAndSampleIds("study_tcga_pub_gistic", null, 
@@ -167,7 +167,7 @@ public class DiscreteCopyNumberMyBatisRepositoryTest {
     }
 
     @Test
-    public void getPatientCountByGeneAndAlterationAndPatientIds() throws Exception {
+    public void getPatientCountInMultipleMolecularProfiles() throws Exception {
 
         List<CopyNumberCountByGene> result  = discreteCopyNumberMyBatisRepository
             .getPatientCountInMultipleMolecularProfiles(Arrays.asList("study_tcga_pub_gistic"), null, 

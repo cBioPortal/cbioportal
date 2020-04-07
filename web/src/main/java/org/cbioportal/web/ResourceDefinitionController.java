@@ -11,7 +11,7 @@ import org.cbioportal.service.exception.ResourceDefinitionNotFoundException;
 import org.cbioportal.service.exception.StudyNotFoundException;
 import org.cbioportal.web.config.annotation.PublicApi;
 import org.cbioportal.web.parameter.*;
-import org.cbioportal.web.parameter.sort.ClinicalAttributeSortBy;
+import org.cbioportal.web.parameter.sort.ResourceDefinitionSortBy;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.*;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -48,7 +48,7 @@ public class ResourceDefinitionController {
             @Min(PagingConstants.MIN_PAGE_NUMBER)
             @RequestParam(defaultValue = PagingConstants.DEFAULT_PAGE_NUMBER) Integer pageNumber,
             @ApiParam("Name of the property that the result list is sorted by")
-            @RequestParam(required = false) ClinicalAttributeSortBy sortBy,
+            @RequestParam(required = false) ResourceDefinitionSortBy sortBy,
             @ApiParam("Direction of the sort")
             @RequestParam(defaultValue = "ASC") Direction direction) throws StudyNotFoundException {
 

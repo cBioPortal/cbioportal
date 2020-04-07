@@ -14,7 +14,7 @@ import org.cbioportal.web.config.annotation.PublicApi;
 import org.cbioportal.web.parameter.Direction;
 import org.cbioportal.web.parameter.PagingConstants;
 import org.cbioportal.web.parameter.Projection;
-import org.cbioportal.web.parameter.sort.ClinicalDataSortBy;
+import org.cbioportal.web.parameter.sort.ResourceDataSortBy;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.*;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -58,7 +58,7 @@ public class ResourceDataController {
         @Min(PagingConstants.MIN_PAGE_NUMBER)
         @RequestParam(defaultValue = PagingConstants.DEFAULT_PAGE_NUMBER) Integer pageNumber,
         @ApiParam("Name of the property that the result list is sorted by")
-        @RequestParam(required = false) ClinicalDataSortBy sortBy,
+        @RequestParam(required = false) ResourceDataSortBy sortBy,
         @ApiParam("Direction of the sort")
         @RequestParam(defaultValue = "ASC") Direction direction) throws SampleNotFoundException,
         StudyNotFoundException {
@@ -94,7 +94,7 @@ public class ResourceDataController {
         @Min(PagingConstants.MIN_PAGE_NUMBER)
         @RequestParam(defaultValue = PagingConstants.DEFAULT_PAGE_NUMBER) Integer pageNumber,
         @ApiParam("Name of the property that the result list is sorted by")
-        @RequestParam(required = false) ClinicalDataSortBy sortBy,
+        @RequestParam(required = false) ResourceDataSortBy sortBy,
         @ApiParam("Direction of the sort")
         @RequestParam(defaultValue = "ASC") Direction direction) throws PatientNotFoundException,
         StudyNotFoundException {
@@ -113,10 +113,10 @@ public class ResourceDataController {
     @RequestMapping(value = "/studies/{studyId}/resource-data", method = RequestMethod.GET,
         produces = MediaType.APPLICATION_JSON_VALUE)
     @ApiOperation("Get all resource data for a study")
-    public ResponseEntity<List<ResourceData>> getAllClinicalDataInStudy(
+    public ResponseEntity<List<ResourceData>> getAllStudyResourceDataInStudy(
         @ApiParam(required = true, value = "Study ID e.g. acc_tcga")
         @PathVariable String studyId,
-        @ApiParam("Resource ID e.g. CANCER_TYPE")
+        @ApiParam("Resource ID")
         @RequestParam(required = false) String resourceId,
         @ApiParam("Level of detail of the response")
         @RequestParam(defaultValue = "SUMMARY") Projection projection,
@@ -128,7 +128,7 @@ public class ResourceDataController {
         @Min(PagingConstants.MIN_PAGE_NUMBER)
         @RequestParam(defaultValue = PagingConstants.DEFAULT_PAGE_NUMBER) Integer pageNumber,
         @ApiParam("Name of the property that the result list is sorted by")
-        @RequestParam(required = false) ClinicalDataSortBy sortBy,
+        @RequestParam(required = false) ResourceDataSortBy sortBy,
         @ApiParam("Direction of the sort")
         @RequestParam(defaultValue = "ASC") Direction direction) throws StudyNotFoundException {
 

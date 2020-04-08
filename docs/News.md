@@ -1,3 +1,21 @@
+
+## April 3, 2020
+*   **New Feature**: Extended the _Comparison_ tab to support the comparison of altered samples per gene or alteration. This [example query](https://www.cbioportal.org/results/comparison?Action=Submit&RPPA_SCORE_THRESHOLD=2.0&Z_SCORE_THRESHOLD=2.0&cancer_study_list=msk_impact_2017&case_set_id=msk_impact_2017_Non-Small_Cell_Lung_Cancer&comparison_createdGroupsSessionId=5e8a2d4ae4b0ff7ef5fdd7d0&comparison_selectedGroups=%5B%22EGFR%3A%20AMP%20%26%20MUT%22%2C%22EGFR%3A%20MUT%20only%22%2C%22EGFR%3A%20AMP%20only%22%5D&comparison_subtab=survival&data_priority=0&gene_list=EGFR%253AAMP%250AEGFR%253AMUT_DRIVER&geneset_list=%20&genetic_profile_ids_PROFILE_COPY_NUMBER_ALTERATION=msk_impact_2017_cna&genetic_profile_ids_PROFILE_MUTATION_EXTENDED=msk_impact_2017_mutations&profileFilter=0&tab_index=tab_visualize) compares NSCLC patients with 1) both mutated and amplified EGFR, 2) mutated EGFR only, and 3) amplified EGFR only.
+
+![image](https://user-images.githubusercontent.com/840895/78508085-3ea13f80-7752-11ea-8e87-e486061def12.png)
+
+## March 27, 2020
+*   **Enhancement**: User selections in the Plots tab are now saved in the URL. [example](https://www.cbioportal.org/results/plots?Action=Submit&RPPA_SCORE_THRESHOLD=2.0&Z_SCORE_THRESHOLD=2.0&cancer_study_id=coadread_tcga_pub&cancer_study_list=ov_tcga_pan_can_atlas_2018&case_set_id=ov_tcga_pan_can_atlas_2018_cnaseq&data_priority=0&gene_list=TP53&gene_set_choice=user-defined-list&geneset_list=%20&genetic_profile_ids_PROFILE_COPY_NUMBER_ALTERATION=ov_tcga_pan_can_atlas_2018_gistic&genetic_profile_ids_PROFILE_MUTATION_EXTENDED=ov_tcga_pan_can_atlas_2018_mutations&plots_horz_selection=%7B%22dataType%22%3A%22MUTATION_EXTENDED%22%7D&profileFilter=0&tab_index=tab_visualize)
+
+*   **New Feature**: Added table of data availability per profile in the _Study View_. [example](https://www.cbioportal.org/study/summary?id=ucec_tcga_pub)
+
+<img src="https://user-images.githubusercontent.com/840895/78508182-e454ae80-7752-11ea-914b-bac17f725a9f.png" width="300">
+
+## March 20, 2020
+*   **Enhancement**: Extended _Survival Analysis_ to support more outcome measures. [example](https://www.cbioportal.org/results/comparison?Action=Submit&RPPA_SCORE_THRESHOLD=2.0&Z_SCORE_THRESHOLD=2.0&cancer_study_list=luad_tcga_pan_can_atlas_2018&case_set_id=luad_tcga_pan_can_atlas_2018_cnaseq&comparison_selectedGroups=%5B%22Unaltered%20group%22%2C%22Altered%20group%22%5D&comparison_subtab=survival&data_priority=0&gene_list=KRAS%250ATP53&geneset_list=%20&genetic_profile_ids_PROFILE_COPY_NUMBER_ALTERATION=luad_tcga_pan_can_atlas_2018_gistic&genetic_profile_ids_PROFILE_MUTATION_EXTENDED=luad_tcga_pan_can_atlas_2018_mutations&profileFilter=0&tab_index=tab_visualize)
+
+![image](https://user-images.githubusercontent.com/840895/78508508-5c23d880-7755-11ea-9e16-36bff32678ad.png)
+
 ## March 18, 2020
 *   **Added data** consisting of 1,393 samples from 3 studies:
      * [Breast Cancer (Alpelisib plus AI, Nature Cancer 2020)](https://www.cbioportal.org/study/summary?id=breast_alpelisib_2020) *141 samples* 
@@ -5,7 +23,7 @@
      * [Mixed cfDNA (MSK, Nature Medicine 2019)](https://www.cbioportal.org/study/summary?id=cfdna_msk_2019) *248 samples* 
      
 ## March 3, 2020
-* **New Feature**: Add Pathways tab to the _Results View_ page which visualizes alteration frequencies of genes in pathways of interest. The pathways are pulled from https://www.pathwaymapper.org and shown in a read only view. One can edit these pathways in the PathwayMapper editor. For more information see the [tutorial](https://www.cbioportal.org/tutorials#pathways).
+* **New Feature**: Added Pathways tab to the _Results View_ page, which visualizes the alteration frequencies of genes in pathways of interest. The pathways are pulled from https://www.pathwaymapper.org and shown in a read only view. One can edit these pathways in the PathwayMapper editor. For more information see the [tutorial](https://www.cbioportal.org/tutorials#pathways).
 
     [![pathwaymapper_screenshot](https://user-images.githubusercontent.com/1334004/76771001-133fbc00-6775-11ea-8b36-82edb1e7be09.png)](https://www.cbioportal.org/results/pathways?Action=Submit&Z_SCORE_THRESHOLD=1.0&cancer_study_id=gbm_tcga_pub&cancer_study_list=gbm_tcga_pub&case_set_id=gbm_tcga_pub_sequenced&gene_list=TP53%20MDM2%20MDM4&gene_set_choice=user-defined_list&genetic_profile_ids_PROFILE_COPY_NUMBER_ALTERATION=gbm_tcga_pub_cna_rae&genetic_profile_ids_PROFILE_MUTATION_EXTENDED=gbm_tcga_pub_mutations)
 

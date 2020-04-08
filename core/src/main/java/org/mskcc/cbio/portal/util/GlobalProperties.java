@@ -271,6 +271,10 @@ public class GlobalProperties {
     @Value("${show.genomenexus:true}") // default is true
     public void setShowGenomeNexus(String property) { showGenomeNexus = Boolean.parseBoolean(property); }
 
+    private static boolean showMutationMapperToolGrch38;
+    @Value("${show.mutation_mappert_tool.grch38:true}") // default is true
+    public void setShowMutationMapperToolGrch38(String property) { showMutationMapperToolGrch38 = Boolean.parseBoolean(property); }
+
     private static boolean datRevokeOtherTokens;
     @Value("${dat.uuid.revoke_other_tokens:true}") // default is true
     public void setDatRevokeOtherTokens(String property) { datRevokeOtherTokens = Boolean.parseBoolean(property);}
@@ -907,6 +911,10 @@ public class GlobalProperties {
 
     public static boolean showGenomeNexus() {
         return showGenomeNexus;
+    }
+
+    public static boolean showMutationMapperToolGrch38() {
+        return showMutationMapperToolGrch38;
     }
 
     public static String getFrontendUrl() {

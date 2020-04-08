@@ -15,6 +15,7 @@ window.legacySupportFrontendConfig = {
     showHotspot : <%=GlobalProperties.showHotspot()%>,
     showMyCancerGenome : <%=GlobalProperties.showMyCancerGenomeUrl()%>,
     showGenomeNexus : <%=GlobalProperties.showGenomeNexus()%>,
+    showMutationMapperToolGrch38 : <%=GlobalProperties.showMutationMapperToolGrch38()%>,
     querySetsOfGenes : JSON.parse('<%=GlobalProperties.getQuerySetsOfGenes()%>'),
     skinBlurb : '<%=GlobalProperties.getBlurb()%>',
     skinExampleStudyQueries : '<%=GlobalProperties.getExampleStudyQueries().replace("\n","\\n")%>'.split("\n"),

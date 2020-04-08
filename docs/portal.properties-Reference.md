@@ -252,6 +252,8 @@ The mutation mapper tool page can annotate GRCh38 coordinates. By default it use
 genomenexus.url.grch38=
 ```
 
+The GRCh38 annotation in mutation mapper can be hidden by setting `show.mutation_mappert_tool.grch38=false`, by default it's set to `true`;
+
 # MDACC Heatmap Integration
 
 MDACC Heatmap integration (button in OncoPrint heatmap dropdown and tab on Study page can be turned on or off by setting the following property:

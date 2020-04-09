@@ -551,7 +551,7 @@ public class DataBinnerTest {
         List<ClinicalData> clinicalData = mockClinicalData(attributeId, studyId, values);
         List<String> patientIds = getCaseIds(clinicalData, true);
         
-        List<DataBin> dataBins = dataBinner.calculateClinicalDataBins(clinicalDataBinFilter, ClinicalDataType.PATIENT, clinicalData, patientIds);
+        List<DataBin> dataBins = dataBinner.calculateDataBins(clinicalDataBinFilter, ClinicalDataType.PATIENT, clinicalData, patientIds);
 
         Assert.assertEquals(11, dataBins.size());
 
@@ -614,7 +614,7 @@ public class DataBinnerTest {
         List<ClinicalData> clinicalData = mockClinicalData(attributeId, studyId, values);
         List<String> patientIds = getCaseIds(clinicalData, true);
 
-        List<DataBin> dataBins = dataBinner.calculateClinicalDataBins(clinicalDataBinFilter, ClinicalDataType.PATIENT, clinicalData, patientIds);
+        List<DataBin> dataBins = dataBinner.calculateDataBins(clinicalDataBinFilter, ClinicalDataType.PATIENT, clinicalData, patientIds);
 
         Assert.assertEquals(8, dataBins.size());
 
@@ -649,7 +649,7 @@ public class DataBinnerTest {
         List<ClinicalData> clinicalData = mockClinicalData(attributeId, studyId, values);
         List<String> patientIds = getCaseIds(clinicalData, true);
 
-        List<DataBin> dataBins = dataBinner.calculateClinicalDataBins(clinicalDataBinFilter, ClinicalDataType.PATIENT, clinicalData, patientIds);
+        List<DataBin> dataBins = dataBinner.calculateDataBins(clinicalDataBinFilter, ClinicalDataType.PATIENT, clinicalData, patientIds);
 
         Assert.assertEquals(8, dataBins.size());
 
@@ -683,7 +683,7 @@ public class DataBinnerTest {
         List<ClinicalData> clinicalData = mockClinicalData(attributeId, studyId, values);
         List<String> patientIds = getCaseIds(clinicalData, true);
 
-        List<DataBin> dataBins = dataBinner.calculateClinicalDataBins(clinicalDataBinFilter, ClinicalDataType.PATIENT, clinicalData, patientIds);
+        List<DataBin> dataBins = dataBinner.calculateDataBins(clinicalDataBinFilter, ClinicalDataType.PATIENT, clinicalData, patientIds);
 
         Assert.assertEquals(9, dataBins.size());
 
@@ -722,7 +722,7 @@ public class DataBinnerTest {
         List<ClinicalData> clinicalData = mockClinicalData(attributeId, studyId, values);
         List<String> patientIds = getCaseIds(clinicalData, true);
 
-        List<DataBin> dataBins = dataBinner.calculateClinicalDataBins(clinicalDataBinFilter, ClinicalDataType.PATIENT, clinicalData, patientIds);
+        List<DataBin> dataBins = dataBinner.calculateDataBins(clinicalDataBinFilter, ClinicalDataType.PATIENT, clinicalData, patientIds);
 
         Assert.assertEquals(4, dataBins.size());
 
@@ -755,7 +755,7 @@ public class DataBinnerTest {
         List<ClinicalData> unfilteredClinicalData = mockClinicalData(attributeId, studyId, values);
         List<String> unfilteredPatientIds =
             getCaseIds(unfilteredClinicalData, true);
-        List<DataBin> unfilteredDataBins = dataBinner.calculateClinicalDataBins(
+        List<DataBin> unfilteredDataBins = dataBinner.calculateDataBins(
             clinicalDataBinFilter, ClinicalDataType.PATIENT, unfilteredClinicalData, unfilteredPatientIds);
         
         List<ClinicalData> filteredClinicalData = unfilteredClinicalData.subList(0, 108); // (0, 60] interval
@@ -849,7 +849,7 @@ public class DataBinnerTest {
         List<String> patientIds = getCaseIds(clinicalData, true);
         patientIds.addAll(Arrays.asList(patientsWithNoClinicalData));
 
-        List<DataBin> dataBins = dataBinner.calculateClinicalDataBins(clinicalDataBinFilter, ClinicalDataType.PATIENT, clinicalData, patientIds);
+        List<DataBin> dataBins = dataBinner.calculateDataBins(clinicalDataBinFilter, ClinicalDataType.PATIENT, clinicalData, patientIds);
 
         Assert.assertEquals(10, dataBins.size());
 
@@ -909,7 +909,7 @@ public class DataBinnerTest {
         List<String> patientIds = getCaseIds(clinicalData, true);
         patientIds.addAll(Arrays.asList(patientsWithNoClinicalData));
 
-        List<DataBin> dataBins = dataBinner.calculateClinicalDataBins(clinicalDataBinFilter, ClinicalDataType.PATIENT, clinicalData, patientIds);
+        List<DataBin> dataBins = dataBinner.calculateDataBins(clinicalDataBinFilter, ClinicalDataType.PATIENT, clinicalData, patientIds);
 
         Assert.assertEquals(10, dataBins.size());
 
@@ -969,7 +969,7 @@ public class DataBinnerTest {
         List<String> patientIds = getCaseIds(clinicalData, true);
         patientIds.addAll(Arrays.asList(patientsWithNoClinicalData));
 
-        List<DataBin> dataBins = dataBinner.calculateClinicalDataBins(clinicalDataBinFilter, ClinicalDataType.PATIENT, clinicalData, patientIds);
+        List<DataBin> dataBins = dataBinner.calculateDataBins(clinicalDataBinFilter, ClinicalDataType.PATIENT, clinicalData, patientIds);
 
         Assert.assertEquals(6, dataBins.size());
 
@@ -1009,7 +1009,7 @@ public class DataBinnerTest {
         List<ClinicalData> clinicalData = mockClinicalData(attributeId, studyId, values);
         List<String> sampleIds = getCaseIds(clinicalData, false);
 
-        List<DataBin> dataBins = dataBinner.calculateClinicalDataBins(clinicalDataBinFilter, ClinicalDataType.SAMPLE, clinicalData, sampleIds);
+        List<DataBin> dataBins = dataBinner.calculateDataBins(clinicalDataBinFilter, ClinicalDataType.SAMPLE, clinicalData, sampleIds);
 
         Assert.assertEquals(7, dataBins.size());
 
@@ -1053,7 +1053,7 @@ public class DataBinnerTest {
         List<ClinicalData> clinicalData = mockClinicalData(attributeId, studyId, values);
         List<String> patientIds = getCaseIds(clinicalData, true);
 
-        List<DataBin> dataBins = dataBinner.calculateClinicalDataBins(clinicalDataBinFilter, ClinicalDataType.PATIENT, clinicalData, patientIds);
+        List<DataBin> dataBins = dataBinner.calculateDataBins(clinicalDataBinFilter, ClinicalDataType.PATIENT, clinicalData, patientIds);
 
         Assert.assertEquals(15, dataBins.size());
 
@@ -1128,7 +1128,7 @@ public class DataBinnerTest {
         List<ClinicalData> clinicalData = mockClinicalData(attributeId, studyId, values);
         List<String> sampleIds = getCaseIds(clinicalData, false);
 
-        List<DataBin> dataBins = dataBinner.calculateClinicalDataBins(clinicalDataBinFilter, ClinicalDataType.SAMPLE, clinicalData, sampleIds);
+        List<DataBin> dataBins = dataBinner.calculateDataBins(clinicalDataBinFilter, ClinicalDataType.SAMPLE, clinicalData, sampleIds);
 
         Assert.assertEquals(19, dataBins.size());
 
@@ -1153,7 +1153,7 @@ public class DataBinnerTest {
         List<ClinicalData> clinicalData = mockClinicalData(attributeId, studyId, values);
         List<String> sampleIds = getCaseIds(clinicalData, false);
 
-        List<DataBin> dataBins = dataBinner.calculateClinicalDataBins(clinicalDataBinFilter, ClinicalDataType.SAMPLE, clinicalData, sampleIds);
+        List<DataBin> dataBins = dataBinner.calculateDataBins(clinicalDataBinFilter, ClinicalDataType.SAMPLE, clinicalData, sampleIds);
 
         Assert.assertEquals(1, dataBins.size());
 
@@ -1174,7 +1174,7 @@ public class DataBinnerTest {
         List<ClinicalData> clinicalData = mockClinicalData(attributeId, studyId, values);
         List<String> sampleIds = getCaseIds(clinicalData, false);
 
-        List<DataBin> dataBins = dataBinner.calculateClinicalDataBins(clinicalDataBinFilter, ClinicalDataType.SAMPLE, clinicalData, sampleIds);
+        List<DataBin> dataBins = dataBinner.calculateDataBins(clinicalDataBinFilter, ClinicalDataType.SAMPLE, clinicalData, sampleIds);
 
         Assert.assertEquals(5, dataBins.size());
 
@@ -1214,7 +1214,7 @@ public class DataBinnerTest {
         List<String> sampleIds = getCaseIds(clinicalData, false);
         sampleIds.addAll(Arrays.asList(samplesWithNoClinicalData));
 
-        List<DataBin> dataBins = dataBinner.calculateClinicalDataBins(clinicalDataBinFilter, ClinicalDataType.SAMPLE, clinicalData, sampleIds);
+        List<DataBin> dataBins = dataBinner.calculateDataBins(clinicalDataBinFilter, ClinicalDataType.SAMPLE, clinicalData, sampleIds);
 
         Assert.assertEquals(5, dataBins.size());
 
@@ -1297,7 +1297,7 @@ public class DataBinnerTest {
         List<ClinicalData> clinicalData = mockClinicalData(attributeId, studyId, values);
         List<String> patientIds = getCaseIds(clinicalData, true);
 
-        List<DataBin> dataBins = dataBinner.calculateClinicalDataBins(clinicalDataBinFilter, ClinicalDataType.PATIENT, clinicalData, patientIds);
+        List<DataBin> dataBins = dataBinner.calculateDataBins(clinicalDataBinFilter, ClinicalDataType.PATIENT, clinicalData, patientIds);
 
         Assert.assertEquals(7, dataBins.size());
 
@@ -1342,7 +1342,7 @@ public class DataBinnerTest {
         List<ClinicalData> clinicalData = mockClinicalData(attributeId, studyId, values);
         List<String> patientIds = getCaseIds(clinicalData, true);
 
-        List<DataBin> dataBins = dataBinner.calculateClinicalDataBins(clinicalDataBinFilter, ClinicalDataType.PATIENT, clinicalData, patientIds);
+        List<DataBin> dataBins = dataBinner.calculateDataBins(clinicalDataBinFilter, ClinicalDataType.PATIENT, clinicalData, patientIds);
 
         Assert.assertEquals(17, dataBins.size());
 
@@ -1370,7 +1370,7 @@ public class DataBinnerTest {
         List<ClinicalData> clinicalData = mockClinicalData(attributeId, studyId, values);
         List<String> patientIds = getCaseIds(clinicalData, true);
 
-        List<DataBin> dataBins = dataBinner.calculateClinicalDataBins(clinicalDataBinFilter, ClinicalDataType.PATIENT, clinicalData, patientIds);
+        List<DataBin> dataBins = dataBinner.calculateDataBins(clinicalDataBinFilter, ClinicalDataType.PATIENT, clinicalData, patientIds);
 
         Assert.assertEquals(2, dataBins.size());
 
@@ -1394,7 +1394,7 @@ public class DataBinnerTest {
         List<ClinicalData> clinicalData = mockClinicalData(attributeId, studyId, values);
         List<String> patientIds = getCaseIds(clinicalData, true);
 
-        List<DataBin> dataBins = dataBinner.calculateClinicalDataBins(clinicalDataBinFilter, ClinicalDataType.PATIENT, clinicalData, patientIds);
+        List<DataBin> dataBins = dataBinner.calculateDataBins(clinicalDataBinFilter, ClinicalDataType.PATIENT, clinicalData, patientIds);
 
         Assert.assertEquals(5, dataBins.size());
 
@@ -1428,7 +1428,7 @@ public class DataBinnerTest {
         List<ClinicalData> clinicalData = mockClinicalData(attributeId, studyId, values);
         List<String> patientIds = getCaseIds(clinicalData, true);
 
-        List<DataBin> dataBins = dataBinner.calculateClinicalDataBins(clinicalDataBinFilter, ClinicalDataType.PATIENT, clinicalData, patientIds);
+        List<DataBin> dataBins = dataBinner.calculateDataBins(clinicalDataBinFilter, ClinicalDataType.PATIENT, clinicalData, patientIds);
 
         Assert.assertEquals(14, dataBins.size());
 

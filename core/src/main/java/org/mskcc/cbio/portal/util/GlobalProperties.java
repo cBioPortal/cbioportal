@@ -271,6 +271,10 @@ public class GlobalProperties {
     @Value("${show.genomenexus:true}") // default is true
     public void setShowGenomeNexus(String property) { showGenomeNexus = Boolean.parseBoolean(property); }
 
+    private static boolean showMutationMapperToolGrch38;
+    @Value("${show.mutation_mappert_tool.grch38:true}") // default is true
+    public void setShowMutationMapperToolGrch38(String property) { showMutationMapperToolGrch38 = Boolean.parseBoolean(property); }
+
     private static boolean datRevokeOtherTokens;
     @Value("${dat.uuid.revoke_other_tokens:true}") // default is true
     public void setDatRevokeOtherTokens(String property) { datRevokeOtherTokens = Boolean.parseBoolean(property);}
@@ -313,6 +317,10 @@ public class GlobalProperties {
 	private static String genomeNexusApiUrl;
 	@Value("${genomenexus.url:v1.genomenexus.org}") // default
 	public void setGenomeNexusApiUrl(String property) { genomeNexusApiUrl = parseUrl(property); }
+
+	private static String genomeNexusGrch38ApiUrl;
+	@Value("${genomenexus.url.grch38:grch38.genomenexus.org}") // default
+	public void setGenomeNexusGrch38ApiUrl(String property) { genomeNexusGrch38ApiUrl = parseUrl(property); }
 
     private static String frontendUrl;
     @Value("${frontend.url:}") // default is empty string
@@ -867,6 +875,10 @@ public class GlobalProperties {
         return genomeNexusApiUrl;
     }
 
+    public static String getGenomeNexusGrch38ApiUrl() {
+        return genomeNexusGrch38ApiUrl;
+    }
+
     public static boolean showOncoKB() {
         String showOncokb = portalProperties.getProperty(SHOW_ONCOKB);
         if (showOncokb==null || showOncokb.isEmpty()) {
@@ -899,6 +911,10 @@ public class GlobalProperties {
 
     public static boolean showGenomeNexus() {
         return showGenomeNexus;
+    }
+
+    public static boolean showMutationMapperToolGrch38() {
+        return showMutationMapperToolGrch38;
     }
 
     public static String getFrontendUrl() {

@@ -1,9 +1,8 @@
-package org.cbioportal.web.parameter;
+package org.cbioportal.model;
 
 import java.io.Serializable;
 
-public class ClinicalDataBinFilter extends DataBinFilter implements Serializable {
-
+public class ClinicalDataBin extends DataBin implements Serializable {
     private String attributeId;
 
     public String getAttributeId() {

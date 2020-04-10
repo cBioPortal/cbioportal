@@ -3,11 +3,9 @@ package org.cbioportal.web.parameter;
 import java.io.Serializable;
 import java.util.List;
 
-public class ClinicalDataFilter implements Serializable {
+public class ClinicalDataFilter extends DataFilter implements Serializable {
 
     private String attributeId;
-
-    private List<ClinicalDataFilterValue> values;
 
     public String getAttributeId() {
         return attributeId;
@@ -15,14 +13,6 @@ public class ClinicalDataFilter implements Serializable {
 
     public void setAttributeId(String attributeId) {
         this.attributeId = attributeId;
-    }
-
-    public List<ClinicalDataFilterValue> getValues() {
-        return values;
-    }
-
-    public void setValues(List<ClinicalDataFilterValue> values) {
-        this.values = values;
     }
 
 }

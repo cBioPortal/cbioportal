@@ -19,7 +19,7 @@ public class DataBinHelper {
         this.studyViewFilterUtil = studyViewFilterUtil;
     }
 
-    public DataBin calcUpperOutlierBin(String attributeId, List<BigDecimal> gteValues, List<BigDecimal> gtValues) {
+    public DataBin calcUpperOutlierBin(List<BigDecimal> gteValues, List<BigDecimal> gtValues) {
         BigDecimal gteMin = gteValues.size() > 0 ? Collections.min(gteValues) : null;
         BigDecimal gtMin = gtValues.size() > 0 ? Collections.min(gtValues) : null;
         BigDecimal min;
@@ -39,7 +39,6 @@ public class DataBinHelper {
 
         DataBin dataBin = new DataBin();
 
-        dataBin.setAttributeId(attributeId);
         dataBin.setCount(gteValues.size() + gtValues.size());
         dataBin.setSpecialValue(value);
         dataBin.setStart(min);
@@ -47,7 +46,7 @@ public class DataBinHelper {
         return dataBin;
     }
 
-    public DataBin calcLowerOutlierBin(String attributeId, List<BigDecimal> lteValues, List<BigDecimal> ltValues) {
+    public DataBin calcLowerOutlierBin(List<BigDecimal> lteValues, List<BigDecimal> ltValues) {
         BigDecimal lteMax = lteValues.size() > 0 ? Collections.max(lteValues) : null;
         BigDecimal ltMax = ltValues.size() > 0 ? Collections.max(ltValues) : null;
         BigDecimal max;
@@ -66,7 +65,6 @@ public class DataBinHelper {
 
         DataBin dataBin = new DataBin();
 
-        dataBin.setAttributeId(attributeId);
         dataBin.setCount(lteValues.size() + ltValues.size());
         dataBin.setSpecialValue(specialValue);
         dataBin.setEnd(max);
@@ -167,33 +165,29 @@ public class DataBinHelper {
             .collect(Collectors.toList());
     }
 
-    public List<DataBin> initDataBins(String attributeId,
-                                      List<BigDecimal> values,
+    public List<DataBin> initDataBins(List<BigDecimal> values,
                                       List<BigDecimal> intervals,
                                       BigDecimal lowerOutlier,
                                       BigDecimal upperOutlier) {
-        return initDataBins(attributeId,
-            values,
+        return initDataBins(values,
             filterIntervals(intervals, lowerOutlier, upperOutlier));
     }
 
-    public List<DataBin> initDataBins(String attributeId,
-                                      List<BigDecimal> values,
+    public List<DataBin> initDataBins(List<BigDecimal> values,
                                       List<BigDecimal> intervals) {
-        List<DataBin> dataBins = initDataBins(attributeId, intervals);
+        List<DataBin> dataBins = initDataBins(intervals);
 
         calcCounts(dataBins, values);
 
         return dataBins;
     }
 
-    public List<DataBin> initDataBins(String attributeId, List<BigDecimal> intervalValues) {
+    public List<DataBin> initDataBins(List<BigDecimal> intervalValues) {
         List<DataBin> dataBins = new ArrayList<>();
 
         for (int i = 0; i < intervalValues.size() - 1; i++) {
             DataBin dataBin = new DataBin();
 
-            dataBin.setAttributeId(attributeId);
             dataBin.setCount(0);
             dataBin.setStart(intervalValues.get(i));
             dataBin.setEnd(intervalValues.get(i+1));

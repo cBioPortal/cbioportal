@@ -1249,7 +1249,7 @@ public class DataBinnerTest {
         List<ClinicalData> clinicalData = mockClinicalData(attributeId, studyId, values);
         List<String> sampleIds = getCaseIds(clinicalData, false);
 
-        List<DataBin> dataBins = dataBinner.calculateClinicalDataBins(clinicalDataBinFilter, ClinicalDataType.SAMPLE, clinicalData, sampleIds);
+        List<DataBin> dataBins = dataBinner.calculateDataBins(clinicalDataBinFilter, ClinicalDataType.SAMPLE, clinicalData, sampleIds);
 
         Assert.assertEquals(8, dataBins.size());
 

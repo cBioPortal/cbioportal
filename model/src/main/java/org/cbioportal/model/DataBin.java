@@ -5,19 +5,10 @@ import java.math.BigDecimal;
 
 public class DataBin implements Serializable {
 
-    private String attributeId;
     private String specialValue;
     private BigDecimal start;
     private BigDecimal end;
     private Integer count;
-
-    public String getAttributeId() {
-		return attributeId;
-	}
-
-	public void setAttributeId(String attributeId) {
-		this.attributeId = attributeId;
-	}
 
     public String getSpecialValue() {
         return specialValue;

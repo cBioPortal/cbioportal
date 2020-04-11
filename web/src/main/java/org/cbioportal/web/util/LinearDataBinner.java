@@ -10,6 +10,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Component
@@ -40,19 +41,20 @@ public class LinearDataBinner {
         this.dataBinHelper = dataBinHelper;
     }
 
-    public List<DataBin> calculateDataBins(String attributeId,
-                                           boolean areAllIntegers,
+    public List<DataBin> calculateDataBins(boolean areAllIntegers,
                                            Range<BigDecimal> boxRange,
                                            List<BigDecimal> values,
                                            BigDecimal lowerOutlier,
-                                           BigDecimal upperOutlier) {
+                                           BigDecimal upperOutlier,
+                                           Optional<String> attributeId) {
         BigDecimal min = lowerOutlier == null ? Collections.min(values) : Collections.min(values).max(lowerOutlier);
         BigDecimal max = upperOutlier == null ? Collections.max(values) : Collections.max(values).min(upperOutlier);
 
-        List<DataBin> dataBins = initDataBins(attributeId, areAllIntegers, min, max, lowerOutlier, upperOutlier);
+        List<DataBin> dataBins = initDataBins(areAllIntegers, min, max, lowerOutlier, upperOutlier);
 
         // special case for "AGE" attributes
-        if (dataBinHelper.isAgeAttribute(attributeId) &&
+        if (attributeId.isPresent() &&
+            dataBinHelper.isAgeAttribute(attributeId.get()) &&
             min.doubleValue() < 18 &&
             boxRange.upperEndpoint().subtract(boxRange.lowerEndpoint()).divide(BigDecimal.valueOf(2)).compareTo(BigDecimal.valueOf(18)) == 1 &&
             dataBins.get(0).getEnd().compareTo(BigDecimal.valueOf(18)) == 1) {
@@ -65,19 +67,17 @@ public class LinearDataBinner {
         return dataBins;
     }
 
-    public List<DataBin> calculateDataBins(String attributeId,
-                                           List<BigDecimal> customBins,
+    public List<DataBin> calculateDataBins(List<BigDecimal> customBins,
                                            List<BigDecimal> values) {
-        List<DataBin> dataBins = initDataBins(attributeId, customBins);
+        List<DataBin> dataBins = initDataBins(customBins);
         dataBinHelper.calcCounts(dataBins, values);
         return dataBins;
     }
 
-    public List<DataBin> initDataBins(String attributeId, List<BigDecimal> bins) {
+    public List<DataBin> initDataBins(List<BigDecimal> bins) {
         List<DataBin> dataBins = new ArrayList<>();
         for (int i = 0; i < bins.size() - 1; i++) {
             DataBin dataBin = new DataBin();
-            dataBin.setAttributeId(attributeId);
             dataBin.setStart(bins.get(i));
             dataBin.setEnd(bins.get(i + 1));
             dataBin.setCount(0);
@@ -86,8 +86,7 @@ public class LinearDataBinner {
         return dataBins;
     }
 
-    public List<DataBin> initDataBins(String attributeId,
-                                      boolean areAllIntegers,
+    public List<DataBin> initDataBins(boolean areAllIntegers,
                                       BigDecimal min,
                                       BigDecimal max,
                                       BigDecimal lowerOutlier,
@@ -116,7 +115,6 @@ public class LinearDataBinner {
             DataBin dataBin = new DataBin();
             BigDecimal newEnd = d.add(interval);
 
-            dataBin.setAttributeId(attributeId);
             dataBin.setStart(d);
             dataBin.setEnd(newEnd);
             dataBin.setCount(0);

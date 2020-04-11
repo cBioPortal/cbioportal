@@ -22,6 +22,7 @@ public class StudyViewFilter implements Serializable {
     private List<ClinicalDataFilter> clinicalDataFilters;
     private List<GeneFilter> geneFilters;
     private List<List<String>> genomicProfiles;
+    private List<GenomicDataFilter> genomicDataFilters;
 
     @AssertTrue
     private boolean isEitherSampleIdentifiersOrStudyIdsPresent() {
@@ -34,6 +35,22 @@ public class StudyViewFilter implements Serializable {
 
         if (clinicalDataFilters != null) {
             invalidCount = clinicalDataFilters.stream()
+                    .flatMap(f -> f.getValues().stream())
+                    .filter(Objects::nonNull)
+                    .filter(v -> v.getValue() != null == (v.getStart() != null || v.getEnd() != null))
+                    .count();
+        }
+
+        return invalidCount == 0;
+    }
+
+    @AssertTrue
+    private boolean isEitherValueOrRangePresentInGenomicDataIntervalFilters() {
+        long invalidCount = 0;
+
+        if (genomicDataFilters != null) {
+            invalidCount = genomicDataFilters
+                    .stream()
                     .flatMap(f -> f.getValues().stream())
                     .filter(Objects::nonNull)
                     .filter(v -> v.getValue() != null == (v.getStart() != null || v.getEnd() != null))
@@ -83,4 +100,11 @@ public class StudyViewFilter implements Serializable {
         this.genomicProfiles = genomicProfiles;
     }
 
+    public List<GenomicDataFilter> getGenomicDataFilters() {
+        return genomicDataFilters;
+    }
+
+    public void setGenomicDataFilters(List<GenomicDataFilter> genomicDataFilters) {
+        this.genomicDataFilters = genomicDataFilters;
+    }
 }

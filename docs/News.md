@@ -3,11 +3,7 @@
 
     <img src="https://user-images.githubusercontent.com/1334004/79270846-da2a6280-7e6c-11ea-8cb9-b40e7d201ea1.png" width=500 />
     
-    Combine this with the group comparison feature to compare e.g. high vs low expression:
-    
-    <img src="https://user-images.githubusercontent.com/1334004/79237592-56588200-7e3c-11ea-8923-d4bf7378e336.png" width=400 />
-    
-    or all quartiles of expression:
+    Combine this with the group comparison feature to compare e.g. all quartiles of expression:
     
     <img src="https://user-images.githubusercontent.com/1334004/79270618-79028f00-7e6c-11ea-8a30-9eaedee948ca.png" width=400 />
 

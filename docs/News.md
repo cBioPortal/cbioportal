@@ -1,11 +1,15 @@
 ## April 3, 2020
-*   **New Feature**: Make cohorts on the _Study View_ using continuous molecular profiles of one or more gene(s), such as mRNA expression, methylation, RPPA and continuous CNA. [example](https://www.cbioportal.org/study/summary?id=brca_tcga#filterJson={"genomicDataFilters":[{"hugoGeneSymbol":"ERBB2","profileType":"mrna_median_Zscores","values":[{"start":1.5,"end":2},{"start":2,"end":2.5},{"start":2.5,"end":3},{"start":3,"end":3.5},{"start":3.5,"end":4},{"start":4}]}],"studyIds":["brca_tcga"]})
+*   **New Feature**: Make cohorts on the _Study View_ using continuous molecular profiles of one or more gene(s), such as mRNA expression, methylation, RPPA and continuous CNA. [example](https://www.cbioportal.org/study/summary?id=brca_tcga#filterJson={"genomicDataFilters":[{"hugoGeneSymbol":"ERBB2","profileType":"mrna_median_Zscores","values":[{"start":1.5,"end":2},{"start":2,"end":2.5},{"start":2.5,"end":3},{"start":3,"end":3.5},{"start":3.5,"end":4},{"start":4}]}],"genomicProfiles":[["mrna_median_Zscores"]],"studyIds":["brca_tcga"]})
 
-    <img src="https://user-images.githubusercontent.com/1334004/79235878-2c9e5b80-7e3a-11ea-8064-57cb23a749c7.png" width=500 />
+    <img src="https://user-images.githubusercontent.com/1334004/79270132-8d925780-7e6b-11ea-9f45-1977528801c8.png" width=500 />
     
     Combine this with the group comparison feature to compare e.g. high vs low expression:
     
     <img src="https://user-images.githubusercontent.com/1334004/79237592-56588200-7e3c-11ea-8923-d4bf7378e336.png" width=400 />
+    
+    or all quartiles of expression:
+    
+    <img src="https://user-images.githubusercontent.com/1334004/79270618-79028f00-7e6c-11ea-8a30-9eaedee948ca.png" width=400 />
 
 *   **New Feature**: Annotate mutations using the _Mutation Mapper Tool_ on the GRCh38 reference genome:
 

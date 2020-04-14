@@ -1,7 +1,7 @@
 ## April 3, 2020
 *   **New Feature**: Make cohorts on the _Study View_ using continuous molecular profiles of one or more gene(s), such as mRNA expression, methylation, RPPA and continuous CNA. [example](https://www.cbioportal.org/study/summary?id=brca_tcga#filterJson={"genomicDataFilters":[{"hugoGeneSymbol":"ERBB2","profileType":"mrna_median_Zscores","values":[{"start":1.5,"end":2},{"start":2,"end":2.5},{"start":2.5,"end":3},{"start":3,"end":3.5},{"start":3.5,"end":4},{"start":4}]}],"genomicProfiles":[["mrna_median_Zscores"]],"studyIds":["brca_tcga"]})
 
-    <img src="https://user-images.githubusercontent.com/1334004/79270132-8d925780-7e6b-11ea-9f45-1977528801c8.png" width=500 />
+    <img src="https://user-images.githubusercontent.com/1334004/79270846-da2a6280-7e6c-11ea-8cb9-b40e7d201ea1.png" width=500 />
     
     Combine this with the group comparison feature to compare e.g. high vs low expression:
     

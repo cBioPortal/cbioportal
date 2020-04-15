@@ -1,3 +1,15 @@
+## April 3, 2020
+*   **New Feature**: Make cohorts on the _Study View_ using continuous molecular profiles of one or more gene(s), such as mRNA expression, methylation, RPPA and continuous CNA. [example](https://www.cbioportal.org/study/summary?id=brca_tcga#filterJson={"genomicDataFilters":[{"hugoGeneSymbol":"ERBB2","profileType":"mrna_median_Zscores","values":[{"start":1.5,"end":2},{"start":2,"end":2.5},{"start":2.5,"end":3},{"start":3,"end":3.5},{"start":3.5,"end":4},{"start":4}]}],"genomicProfiles":[["mrna_median_Zscores"]],"studyIds":["brca_tcga"]})
+
+    <img src="https://user-images.githubusercontent.com/1334004/79270846-da2a6280-7e6c-11ea-8cb9-b40e7d201ea1.png" width=500 />
+    
+    Combine this with the group comparison feature to compare e.g. all quartiles of expression:
+    
+    <img src="https://user-images.githubusercontent.com/1334004/79270618-79028f00-7e6c-11ea-8a30-9eaedee948ca.png" width=400 />
+
+*   **New Feature**: Annotate mutations using the _Mutation Mapper Tool_ on the GRCh38 reference genome:
+
+    [![mutation_mapper_tool_grch38](https://user-images.githubusercontent.com/1334004/79233555-07f4b480-7e37-11ea-9d0a-0cafff434fa5.png)](https://www.cbioportal.org/mutation_mapper)
 
 ## April 3, 2020
 *   **New Feature**: Extended the _Comparison_ tab to support the comparison of altered samples per gene or alteration. This [example query](https://www.cbioportal.org/results/comparison?Action=Submit&RPPA_SCORE_THRESHOLD=2.0&Z_SCORE_THRESHOLD=2.0&cancer_study_list=msk_impact_2017&case_set_id=msk_impact_2017_Non-Small_Cell_Lung_Cancer&comparison_createdGroupsSessionId=5e8a2d4ae4b0ff7ef5fdd7d0&comparison_selectedGroups=%5B%22EGFR%3A%20AMP%20%26%20MUT%22%2C%22EGFR%3A%20MUT%20only%22%2C%22EGFR%3A%20AMP%20only%22%5D&comparison_subtab=survival&data_priority=0&gene_list=EGFR%253AAMP%250AEGFR%253AMUT_DRIVER&geneset_list=%20&genetic_profile_ids_PROFILE_COPY_NUMBER_ALTERATION=msk_impact_2017_cna&genetic_profile_ids_PROFILE_MUTATION_EXTENDED=msk_impact_2017_mutations&profileFilter=0&tab_index=tab_visualize) compares NSCLC patients with 1) both mutated and amplified EGFR, 2) mutated EGFR only, and 3) amplified EGFR only.

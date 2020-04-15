@@ -394,12 +394,7 @@ def check_dir(study_directory):
         print('Study cannot be found: ' + study_directory, file=ERROR_FILE)
         sys.exit(2)
 
-def interface():
-    parser = argparse.ArgumentParser(description='cBioPortal meta Importer')
-    parser.add_argument('-c', '--command', type=str, required=False,
-                        help='Command for import. Allowed commands: import-cancer-type, '
-                             'import-study, import-study-data, import-case-list or '
-                             'remove-study')
+def add_parser_args(parser):
     parser.add_argument('-s', '--study_directory', type=str, required=False,
                         help='Path to Study Directory')
     parser.add_argument('-jar', '--jar_path', type=str, required=False,
@@ -410,6 +405,25 @@ def interface():
                         help='Path to Data file')
     parser.add_argument('-id', '--study_ids', type=str, required=False,
                         help='Cancer Study IDs for `remove-study` command, comma separated')
+
+def interface():
+    parser = argparse.ArgumentParser(description='cBioPortal meta Importer')
+    subparsers = parser.add_subparsers(title='commands', dest='command',
+                          help='Command for import. Allowed commands: import-cancer-type, '
+                          'import-study, import-study-data, import-case-list or '
+                          'remove-study')
+    import_cancer_type = subparsers.add_parser('import-cancer-type')
+    import_study = subparsers.add_parser('import-study')
+    import_study_data = subparsers.add_parser('import-study-data')
+    import_case_list = subparsers.add_parser('import-case-list')
+    remove_study = subparsers.add_parser('remove-study')
+
+    add_parser_args(import_cancer_type)
+    add_parser_args(import_study)
+    add_parser_args(import_study_data)
+    add_parser_args(import_case_list)
+    add_parser_args(remove_study)
+    
     # TODO - add same argument to metaimporter
     # TODO - harmonize on - and _
 

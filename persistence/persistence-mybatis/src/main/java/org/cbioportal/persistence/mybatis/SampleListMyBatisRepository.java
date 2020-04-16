@@ -46,10 +46,10 @@ public class SampleListMyBatisRepository implements SampleListRepository {
     }
 
     @Override
-    public List<SampleList> getAllSampleListsInStudy(String studyId, String projection, Integer pageSize,
+    public List<SampleList> getAllSampleListsInStudies(List<String> studyIds, String projection, Integer pageSize,
                                                      Integer pageNumber, String sortBy, String direction) {
         
-        return sampleListMapper.getAllSampleLists(studyId, projection, pageSize,
+        return sampleListMapper.getAllSampleLists(studyIds, projection, pageSize,
             offsetCalculator.calculate(pageSize, pageNumber), sortBy, direction);
     }
 

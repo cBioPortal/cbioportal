@@ -24,7 +24,7 @@ public interface SampleListRepository {
     List<SampleList> getSampleLists(List<String> sampleListIds, String projection);
 
     @Cacheable(cacheNames = "GeneralRepositoryCache", condition = "@cacheEnabledConfig.getEnabled()")
-    List<SampleList> getAllSampleListsInStudy(String studyId, String projection, Integer pageSize, Integer pageNumber,
+    List<SampleList> getAllSampleListsInStudies(List<String> studyIds, String projection, Integer pageSize, Integer pageNumber,
                                               String sortBy, String direction);
 
     @Cacheable(cacheNames = "GeneralRepositoryCache", condition = "@cacheEnabledConfig.getEnabled()")

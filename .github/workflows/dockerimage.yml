@@ -1,0 +1,20 @@
+name: Docker Image CI
+
+on:
+  push:
+    branches: [ master ]
+
+jobs:
+
+  build:
+
+    runs-on: ubuntu-latest
+    
+    steps:
+    - uses: actions/checkout@v1
+
+    - name: Build Web and Data Dockerfile
+      run: docker build -t cbioportal/cbioportal:{TAG} -f docker/web-and-data/Dockerfile .
+
+    - name: Build Web Dockerfile
+      run: docker build -t cbioportal/cbioportal:{TAG}-web-shenandoah -f docker/web/Dockerfile .

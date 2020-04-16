@@ -8,7 +8,7 @@ import java.util.List;
 
 public interface SampleListMapper {
     
-    List<SampleList> getAllSampleLists(String studyId, String projection, Integer limit, Integer offset, String sortBy, 
+    List<SampleList> getAllSampleLists(List<String> studyIds, String projection, Integer limit, Integer offset, String sortBy, 
                                        String direction);
     
     BaseMeta getMetaSampleLists(String studyId);

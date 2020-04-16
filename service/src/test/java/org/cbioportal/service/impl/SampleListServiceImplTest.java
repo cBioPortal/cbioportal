@@ -121,7 +121,7 @@ public class SampleListServiceImplTest extends BaseServiceImplTest {
         
         Mockito.when(sampleListRepository.getSampleListSampleIds(Arrays.asList(1))).thenReturn(expectedSampleListSampleIds);
 
-        Mockito.when(sampleListRepository.getAllSampleListsInStudy(STUDY_ID, "DETAILED", PAGE_SIZE, PAGE_NUMBER,
+        Mockito.when(sampleListRepository.getAllSampleListsInStudies(Arrays.asList(STUDY_ID), "DETAILED", PAGE_SIZE, PAGE_NUMBER,
             SORT, DIRECTION)).thenReturn(expectedSampleLists);
 
         List<SampleList> result = sampleListService.getAllSampleListsInStudy(STUDY_ID, "DETAILED", PAGE_SIZE, 

@@ -72,6 +72,8 @@ public class StudyViewController {
     private MolecularDataService molecularDataService;
     @Autowired
     private GeneService geneService;
+    @Autowired
+    private SampleListService sampleListService;
 
     @PreAuthorize("hasPermission(#involvedCancerStudies, 'Collection<CancerStudyId>', 'read')")
     @RequestMapping(value = "/clinical-data-counts/fetch", method = RequestMethod.POST,
@@ -411,7 +413,7 @@ public class StudyViewController {
     }
 
     @PreAuthorize("hasPermission(#involvedCancerStudies, 'Collection<CancerStudyId>', 'read')")
-    @RequestMapping(value = "/sample-counts/fetch", method = RequestMethod.POST,
+    @RequestMapping(value = "/molecular-profile-sample-counts/fetch", method = RequestMethod.POST,
         consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
     @ApiOperation("Fetch sample counts by study view filter")
     public List<GenomicDataCount> fetchMolecularProfileSampleCounts(
@@ -625,6 +627,64 @@ public class StudyViewController {
         }
 
         return new ResponseEntity<>(result, HttpStatus.OK);
+    }
+
+    @PreAuthorize("hasPermission(#involvedCancerStudies, 'Collection<CancerStudyId>', 'read')")
+    @RequestMapping(value = "/sample-lists-counts/fetch", method = RequestMethod.POST,
+        consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
+    @ApiOperation("Fetch case list sample counts by study view filter")
+    public List<CaseListDataCount> fetchCaseListCounts(
+        @ApiParam(required = true, value = "Study view filter")
+        @Valid @RequestBody(required = false) StudyViewFilter studyViewFilter,
+        @ApiIgnore // prevent reference to this attribute in the swagger-ui interface
+        @RequestAttribute(required = false, value = "involvedCancerStudies") Collection<String> involvedCancerStudies,
+        @ApiIgnore // prevent reference to this attribute in the swagger-ui interface. this attribute is needed for the @PreAuthorize tag above.
+        @Valid @RequestAttribute(required = false, value = "interceptedStudyViewFilter") StudyViewFilter interceptedStudyViewFilter) {
+
+        List<String> studyIds = new ArrayList<>();
+        List<String> sampleIds = new ArrayList<>();
+        List<SampleIdentifier> filteredSampleIdentifiers = studyViewFilterApplier.apply(interceptedStudyViewFilter);
+        studyViewFilterUtil.extractStudyAndSampleIds(filteredSampleIdentifiers, studyIds, sampleIds);
+        List<SampleList> sampleLists = sampleListService.getAllSampleListsInStudies(studyIds,
+                Projection.DETAILED.name());
+
+        HashMap<String, Integer> sampleCountBySampleListId = new HashMap<String, Integer>();
+
+        Map<String, SampleIdentifier> filteredSampleSet = filteredSampleIdentifiers.stream()
+                .collect(Collectors.toMap(sampleidentifier -> studyViewFilterUtil
+                        .getCaseUniqueKey(sampleidentifier.getStudyId(), sampleidentifier.getSampleId()),
+                        Function.identity()));
+
+        for (SampleList sampleList : sampleLists) {
+            for (String sampleId : sampleList.getSampleIds()) {
+                if (filteredSampleSet.containsKey(
+                        studyViewFilterUtil.getCaseUniqueKey(sampleList.getCancerStudyIdentifier(), sampleId))) {
+                    Integer count = sampleCountBySampleListId.getOrDefault(sampleList.getStableId(), 0);
+                    sampleCountBySampleListId.put(sampleList.getStableId(), count + 1);
+                }
+            }
+        }
+
+        return studyViewFilterUtil
+                .categorizeSampleLists(sampleLists)
+                .entrySet()
+                .stream()
+                .map(entry -> {
+                    CaseListDataCount dataCount = new CaseListDataCount();
+                    dataCount.setValue(entry.getKey());
+        
+                    Integer count = entry.getValue().stream().mapToInt(sampleList -> {
+                        return sampleCountBySampleListId.getOrDefault(sampleList.getStableId(), 0);
+                    }).sum();
+        
+                    dataCount.setCount(count);
+                    dataCount.setLabel(entry.getValue().get(0).getName());
+        
+                    return dataCount;
+                })
+                .filter(dataCount -> dataCount.getCount() > 0)
+                .collect(Collectors.toList());
+
     }
     
     private List<ClinicalData> fetchClinicalData(List<String> studyIds,

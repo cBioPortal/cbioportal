@@ -66,6 +66,8 @@ public class StudyViewFilterApplierTest {
     private ClinicalAttributeService clinicalAttributeService;
     @Mock
     private MolecularDataService molecularDataService;
+    @Mock
+    private SampleListService sampleListService;
 
     // TODO test clinicalDataEqualityFilterApplier, clinicalDataIntervalFilterApplier and studyViewFilterUtil separately
     // to avoid spies and manual instantiation of studyViewFilterApplier
@@ -75,10 +77,10 @@ public class StudyViewFilterApplierTest {
         // manually setup studyViewFilterApplier, since we need combination of mocks and spies
         MockitoAnnotations.initMocks(this);
 
-        studyViewFilterApplier = new StudyViewFilterApplier(
-            sampleService, mutationService, discreteCopyNumberService,
-            molecularProfileService, genePanelService, clinicalDataService, clinicalDataEqualityFilterApplier,
-            clinicalDataIntervalFilterApplier, studyViewFilterUtil, geneService, clinicalAttributeService, molecularDataService);
+        studyViewFilterApplier = new StudyViewFilterApplier(sampleService, mutationService, discreteCopyNumberService,
+                molecularProfileService, genePanelService, clinicalDataService, clinicalDataEqualityFilterApplier,
+                clinicalDataIntervalFilterApplier, studyViewFilterUtil, geneService, clinicalAttributeService,
+                molecularDataService, sampleListService);
     }
 
     @Test

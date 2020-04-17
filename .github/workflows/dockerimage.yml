@@ -15,5 +15,5 @@ jobs:
           image_name: agandolf/cbioportal-test
           image_tag: latest
           context: cbioportal
-          dockerfile: /docker/web-and-data/Dockerfile
+          dockerfile: docker/web-and-data/Dockerfile
           pull_image_and_stages: false

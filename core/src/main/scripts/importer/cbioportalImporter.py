@@ -408,7 +408,7 @@ def interface():
     parent_parser = argparse.ArgumentParser(description='cBioPortal meta Importer')
     add_parser_args(parent_parser)
     parser = argparse.ArgumentParser()
-    subparsers = parser.add_subparsers(title='subcommands', dest='command',
+    subparsers = parser.add_subparsers(title='subcommands', dest='subcommand',
                           help='Command for import. Allowed commands: import-cancer-type, '
                           'import-study, import-study-data, import-case-list or '
                           'remove-study')
@@ -433,6 +433,11 @@ def interface():
     # TODO - harmonize on - and _
 
     parser = parser.parse_args()
+    if parser.command is not None and parser.subcommand is not None:
+        print('Cannot call multiple commands')
+        sys.exit(2)
+    elif parser.subcommand is not None:
+        parser.command = parser.subcommand
     return parser
 
 

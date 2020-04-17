@@ -4,7 +4,7 @@ on:
     branches-ignore: master
 
 jobs:
-  build_and_publish Web and Data:
+  build_and_publish_web_and_data:
     runs-on: ubuntu-latest
     steps:
       - name: 'Checkout git repo'
@@ -20,7 +20,7 @@ jobs:
           dockerfile: docker/web-and-data/Dockerfile
           pull_image_and_stages: false
 
-  build_and_publish Web:
+  build_and_publish_web:
       runs-on: ubuntu-latest
       steps:
         - name: 'Checkout git repo'

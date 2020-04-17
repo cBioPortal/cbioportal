@@ -1,7 +1,9 @@
 name: Docker Image CI
 on:
   push:
-    branches-ignore: master
+    branches: 
+      - master
+      - rc
 
 jobs:
   build_and_publish_web_and_data:

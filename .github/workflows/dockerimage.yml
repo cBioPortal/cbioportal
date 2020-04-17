@@ -2,20 +2,39 @@ name: Docker Image CI
 on:
   push:
     branches-ignore: master
-    tags-ignore: '*'
 
 jobs:
-  build_and_publish:
+  build_and_publish Web and Data:
     runs-on: ubuntu-latest
     steps:
       - name: 'Checkout git repo'
         uses: actions/checkout@v1
-      - uses: whoan/docker-build-with-cache-action@v4
+      - name: 'Docker build with cache'
+        uses: whoan/docker-build-with-cache-action@v4
         with:
           username: "${{ secrets.DOCKER_USERNAME }}"
           password: "${{ secrets.DOCKER_PASSWORD }}"
           image_name: agandolf/cbioportal-test
-          image_tag: latest
+          image_tag: "${{ github.ref }}"
           context: .
           dockerfile: docker/web-and-data/Dockerfile
           pull_image_and_stages: false
+
+  build_and_publish Web:
+      runs-on: ubuntu-latest
+      steps:
+        - name: 'Checkout git repo'
+          uses: actions/checkout@v1
+        - name: 'Docker build with cache'
+          uses: whoan/docker-build-with-cache-action@v4
+          with:
+            username: "${{ secrets.DOCKER_USERNAME }}"
+            password: "${{ secrets.DOCKER_PASSWORD }}"
+            image_name: agandolf/cbioportal-test
+            image_tag: "${{ github.ref }}-web-shenandoah"
+            context: .
+            dockerfile: docker/web/Dockerfile
+            pull_image_and_stages: false
+            
+            
+# Reference: https://github.com/marketplace/actions/build-docker-images-using-cache

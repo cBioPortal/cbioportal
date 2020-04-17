@@ -222,7 +222,7 @@ The following steps are used during releases/updates to build new importers with
 ls -tlra /data/portal-cron/lib
 ```
 
-### Deployment Script
+## Deployment Script
 The wrapper script is found on pipelines here:
 `/data/portal-cron/git-repos/pipelines-configuration/build-importer-jars/buildproductionjars.sh`.
 

@@ -421,7 +421,8 @@ def interface():
     remove_study.add_argument('-id', '--study_ids', type=str, required=False,
                         help='Cancer Study IDs for `remove-study` command, comma separated')
     parser.add_argument('-c', '--command', type=str, required=False, 
-                        help='Command for import. Allowed commands: import-cancer-type, '
+                        help='This argument is outdated. Please use the listed subcommands, without the -c flag. '
+                        'Command for import. Allowed commands: import-cancer-type, '
                         'import-study, import-study-data, import-case-list or '
                         'remove-study')
     add_parser_args(parser)

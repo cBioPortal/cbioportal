@@ -172,13 +172,20 @@ echo 'https://cbioportal-frontend.netlify.com' > /srv/www/triage-tomcat/frontend
 ```
 
 ## Upgrading Related Backend Components
-Backend upgrades which involve changes to `TODO: database schema,DAO classes, ssL/security, application context`, require updates to databases and importers. CBioPortal has multiple databases (located both internally on pipelines and in AWS) backing different portals. Similarly there are multiple importers responsible for loading portal-specific data. Every database must be manually migrated on an individual basis; all importers can be updated simultaenously through an existing deployment script.
+Backend upgrades which involve changes to `TODO: database schema,DAO classes, ssL/security, application context`, require updates to databases and importers. CBioPortal has multiple databases (located both internally on pipelines and in AWS) backing different portals. Similarly there are multiple importers responsible for loading portal-specific data. Every database must be manually migrated on an individual basis; all importers/data fetchers can be updated simultaenously through an existing deployment script.
+
+Before upgrading, make sure to turn off import jobs in the crontab and alert the backend pipelines team (Avery, Angelica, Rob, Manda). 
+
+To access the crontab, log in to pipelines,log in as cbioportal_importer: `sudo su - cbioportal_importer`, and run `crontab -e`. Comment out any lines that run import jobs, save, and exit. Make sure to uncomment these lines once the upgrade (database and importers) is complete.
 
 ## Updating Databases
-The first step is to backup the database being migrated using mysqldump. 
+First, make sure there is a backup of the database being migrated. 
+If there is not a weekly dump, backup the database being migrated using mysqldump. This process may take awhile depending on the size of the database. 
+
 ```
-mysqldump -u <user> -h <host> -p <database name> | gzip -9 -c > <database_name>_`date +%Y%m%d_%H%M`.sql.gz 
+mysqldump -u <user> -h <host> -p <database name> | gzip > <database_name>_`date +%Y%m%d_%H%M`.sql.gz 
 ```
+    
 The second step is to migrate the database. It is recommended to first test the migration script manually line-by-line in a copy of the existing database. This will catch any data-related bugs that might not be captured by the python migration script. After testing is successful, migrate the production databases following these steps [here](Updating-your-cBioPortal-installation.md#Running-the-migration-script). 
 
 These are all cBioPortal databases and their locations:
@@ -191,23 +198,31 @@ These are all cBioPortal databases and their locations:
 
 To obtain information such as usernames, passwords, hostnames - ask Avery, Angelica, Rob, Manda, and Ino. 
 
-## Updating Importers
-Importers (code found [here]()) use code from the cBioPortal codebase. This dependency is packaged with the genome-nexus-annotation-pipeline and specified in the pipelines importer pom [here]().
+## Updating Importers/Data Fetchers
+Importers (code found [here](https://github.com/knowledgesystems/pipelines)) and data fetchers (code found [here](https://github.com/knowledgesystems/cmo-pipelines)) use code from the cBioPortal codebase. This dependency is packaged with the genome-nexus-annotation-pipeline and specified in the pipelines importer pom.
 
-The following steps are used during releases/updates to build new importers with the **most-up-to-date** cBioPortal and genome-nexus-annotation-pipeline code. Similar steps can used for development
+The following steps are used during releases/updates to build new importers with the **most-up-to-date** cBioPortal and genome-nexus-annotation-pipeline code. All steps should be performed on the pipelines machine. 
 
-1. Set the jitpack hash [here]() in the genome-nexus-annotation-pipeline codebase to the most recent cbioportal/cbioportal commit hash.
+1. Set the jitpack hash [here](https://github.com/genome-nexus/genome-nexus-annotation-pipeline/blob/master/pom.xml#L71) in the genome-nexus-annotation-pipeline codebase to the most recent cbioportal/cbioportal commit hash.
+
 2. Merge this change into genome-nexus-annotation-pipeline/master.
-3. Set the jitpack hash [here]() in the pipelines codebase to the most most recent genome-nexus/genome-nexus-annotation-pipeline commit hash **(after merge specfied in step 2)**.
-4. Merge this change into pipelines/master.
-5. Run the deployment wrapper script found on pipelines at `/data/portal-cron/git-repos/pipelines-configuration/build-importer-jars/buildproductionjars.sh`. Make sure the `--git-hash` argument is set to the same hash used in step 1. For more details, refer to this [section]().
 
-After running the wrapper script, verify new importers have been placed in `/data/portal-cron/lib` by checking timestamps.
+3. Set the jitpack hash [here](https://github.com/knowledgesystems/pipelines/blob/master/pom.xml#L76) in the pipelines codebase to the most most recent genome-nexus/genome-nexus-annotation-pipeline commit hash **(after merge specfied in step 2)**.
+
+4. Merge this change into pipelines/master.
+
+5. Set the jitpack hash [here](https://github.com/knowledgesystems/cmo-pipelines/blob/master/cvr/pom.xml#L70) in the cmo-pipelines codebase to the most recent genome-nexus/genome-nexus-annotation-pipeline commit hash **(after merge specified in step 2)
+
+6. Merge this change into cmo-pipelines/master
+
+7. Run the deployment wrapper script found on pipelines at `/data/portal-cron/git-repos/pipelines-configuration/build-importer-jars/buildproductionjars.sh`. Make sure the `--git-hash` argument is set to the same hash used in step 1. For more details, refer to this [section](#Deplyoment-Script).
+
+After running the wrapper script, verify new importers/data fetchers have been placed in `/data/portal-cron/lib` by checking timestamps.
 ```
 ls -tlra /data/portal-cron/lib
 ```
 
 ### Deployment Script
 The wrapper script takes two arguments:
-1. --git-hash: When bui
-2. --skip-deployment: 
+1. --git-hash (required): Set to the cBioPortal commit hash being used in the pipelines build (hash specified in step 1 of [updating importers](#Updating-Importers). This must match because the build copies out resource files (e.g application-context-business.xml) from the cbioportal codebase. 
+2. --skip-deployment (optional): Set to true to skip auto-deployment to `/data/portal-cron/lib`. Built jars will be found in `/data/portal-cron/git-repos/pipelines-configuration/build-importer-jars/` and can be be manually moved.

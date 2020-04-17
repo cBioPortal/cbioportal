@@ -403,26 +403,30 @@ def add_parser_args(parser):
                         help='Path to meta file')
     parser.add_argument('-data', '--data_filename', type=str, required=False,
                         help='Path to Data file')
-    parser.add_argument('-id', '--study_ids', type=str, required=False,
-                        help='Cancer Study IDs for `remove-study` command, comma separated')
 
 def interface():
-    parser = argparse.ArgumentParser(description='cBioPortal meta Importer')
-    subparsers = parser.add_subparsers(title='commands', dest='command',
+    parent_parser = argparse.ArgumentParser(description='cBioPortal meta Importer')
+    add_parser_args(parent_parser)
+    parser = argparse.ArgumentParser()
+    subparsers = parser.add_subparsers(title='subcommands', dest='command',
                           help='Command for import. Allowed commands: import-cancer-type, '
                           'import-study, import-study-data, import-case-list or '
                           'remove-study')
-    import_cancer_type = subparsers.add_parser('import-cancer-type')
-    import_study = subparsers.add_parser('import-study')
-    import_study_data = subparsers.add_parser('import-study-data')
-    import_case_list = subparsers.add_parser('import-case-list')
-    remove_study = subparsers.add_parser('remove-study')
-
-    add_parser_args(import_cancer_type)
-    add_parser_args(import_study)
-    add_parser_args(import_study_data)
-    add_parser_args(import_case_list)
-    add_parser_args(remove_study)
+    import_cancer_type = subparsers.add_parser('import-cancer-type', parents=[parent_parser], add_help=False)
+    import_study = subparsers.add_parser('import-study', parents=[parent_parser], add_help=False)
+    import_study_data = subparsers.add_parser('import-study-data', parents=[parent_parser], add_help=False)
+    import_case_list = subparsers.add_parser('import-case-list', parents=[parent_parser], add_help=False)
+    remove_study = subparsers.add_parser('remove-study', parents=[parent_parser], add_help=False)
+    
+    remove_study.add_argument('-id', '--study_ids', type=str, required=False,
+                        help='Cancer Study IDs for `remove-study` command, comma separated')
+    parser.add_argument('-c', '--command', type=str, required=False, 
+                        help='Command for import. Allowed commands: import-cancer-type, '
+                        'import-study, import-study-data, import-case-list or '
+                        'remove-study')
+    add_parser_args(parser)
+    parser.add_argument('-id', '--study_ids', type=str, required=False,
+                        help='Cancer Study IDs for `remove-study` command, comma separated')
     
     # TODO - add same argument to metaimporter
     # TODO - harmonize on - and _

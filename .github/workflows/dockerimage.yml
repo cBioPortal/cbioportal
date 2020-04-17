@@ -14,6 +14,6 @@ jobs:
           password: "${{ secrets.DOCKER_PASSWORD }}"
           image_name: agandolf/cbioportal-test
           image_tag: latest
-          context: /docker/web-and-data/
+          context: .
           dockerfile: docker/web-and-data/Dockerfile
           pull_image_and_stages: false

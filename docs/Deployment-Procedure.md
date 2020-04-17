@@ -211,7 +211,7 @@ The following steps are used during releases/updates to build new importers with
 
 4. Merge this change into pipelines/master.
 
-5. Set the jitpack hash [here](https://github.com/knowledgesystems/cmo-pipelines/blob/master/cvr/pom.xml#L70) in the cmo-pipelines codebase to the most recent genome-nexus/genome-nexus-annotation-pipeline commit hash **(after merge specified in step 2)
+5. Set the jitpack hash [here](https://github.com/knowledgesystems/cmo-pipelines/blob/master/cvr/pom.xml#L70) in the cmo-pipelines codebase to the most recent genome-nexus/genome-nexus-annotation-pipeline commit hash **(after merge specified in step 2)**
 
 6. Merge this change into cmo-pipelines/master
 

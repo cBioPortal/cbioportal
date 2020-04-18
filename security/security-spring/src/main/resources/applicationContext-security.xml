@@ -349,6 +349,7 @@
         <b:constructor-arg>
             <b:bean class="org.springframework.security.saml.metadata.MetadataGenerator">
                 <b:property name="entityId" value="${saml.sp.metadata.entityid}"/>
+                <b:property name="entityBaseURL" value="${saml.sp.metadata.entitybaseurl}"/>
                 <b:property name="extendedMetadata">
                     <b:bean class="org.springframework.security.saml.metadata.ExtendedMetadata">
                         <b:property name="idpDiscoveryEnabled" value="true"/>

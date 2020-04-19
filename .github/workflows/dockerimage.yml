@@ -3,10 +3,12 @@ on:
   push:
     branches: 
       - master
+      - release-*
       - rc
 
 jobs:
   build_and_publish_web_and_data:
+    if: github.repository == 'cBioPortal/cbioportal'
     runs-on: ubuntu-latest
     steps:
       - name: 'Checkout git repo'
@@ -26,6 +28,7 @@ jobs:
           pull_image_and_stages: false
 
   build_and_publish_web:
+      if: github.repository == 'cBioPortal/cbioportal'
       runs-on: ubuntu-latest
       steps:
         - name: 'Checkout git repo'

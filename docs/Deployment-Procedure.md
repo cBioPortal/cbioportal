@@ -176,7 +176,7 @@ Backend upgrades which involve changes to `TODO: database schema,DAO classes, ss
 
 Before upgrading, make sure to turn off import jobs in the crontab and alert the backend pipelines team (Avery, Angelica, Rob, Manda). 
 
-To access the crontab, log in to pipelines,log in as cbioportal_importer: `sudo su - cbioportal_importer`, and run `crontab -e`. Comment out any lines that run import jobs, save, and exit. Make sure to uncomment these lines once the upgrade (database and importers) is complete. Lines that need to be commented out will be under the `Import Jobs` section, shown [here]().
+To access the crontab, log in to pipelines,log in as cbioportal_importer: `sudo su - cbioportal_importer`, and run `crontab -e`. Comment out any lines that run import jobs, save, and exit. Make sure to uncomment these lines once the upgrade (database and importers) is complete. Lines that need to be commented out will be under the `Import Jobs` section, shown [here](https://github.com/knowledgesystems/cmo-pipelines/blob/942de83c0f9a731e301151d10dad73744cd9c9a0/import-scripts/mycrontab#L4).
 
 ## Updating Databases
 First, make sure there is a backup of the database being migrated. 

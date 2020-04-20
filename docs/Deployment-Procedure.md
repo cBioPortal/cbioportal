@@ -176,7 +176,7 @@ Backend upgrades which involve changes to `TODO: database schema,DAO classes, ss
 
 Before upgrading, make sure to turn off import jobs in the crontab and alert the backend pipelines team (Avery, Angelica, Rob, Manda). 
 
-To access the crontab, log in to pipelines,log in as cbioportal_importer: `sudo su - cbioportal_importer`, and run `crontab -e`. Comment out any lines that run import jobs, save, and exit. Make sure to uncomment these lines once the upgrade (database and importers) is complete.
+To access the crontab, log in to pipelines,log in as cbioportal_importer: `sudo su - cbioportal_importer`, and run `crontab -e`. Comment out any lines that run import jobs, save, and exit. Make sure to uncomment these lines once the upgrade (database and importers) is complete. Lines that need to be commented out will be under the `Import Jobs` section, shown [here]().
 
 ## Updating Databases
 First, make sure there is a backup of the database being migrated. 
@@ -203,15 +203,15 @@ Importers (code found [here](https://github.com/knowledgesystems/pipelines)) and
 
 The following steps are used during releases/updates to build new importers with the **most-up-to-date** cBioPortal and genome-nexus-annotation-pipeline code. All steps should be performed on the pipelines machine. 
 
-1. Set the jitpack hash [here](https://github.com/genome-nexus/genome-nexus-annotation-pipeline/blob/master/pom.xml#L71) in the genome-nexus-annotation-pipeline codebase to the most recent cbioportal/cbioportal commit hash.
+1. Set the jitpack hash [here](https://github.com/genome-nexus/genome-nexus-annotation-pipeline/blob/9510299395986653d9e9b672a38d472e52e7625b/pom.xml#L71) in the genome-nexus-annotation-pipeline codebase to the most recent cbioportal/cbioportal commit hash in master.
 
 2. Merge this change into genome-nexus-annotation-pipeline/master.
 
-3. Set the jitpack hash [here](https://github.com/knowledgesystems/pipelines/blob/master/pom.xml#L76) in the pipelines codebase to the most most recent genome-nexus/genome-nexus-annotation-pipeline commit hash **(after merge specfied in step 2)**.
+3. Set the commit hash [here](https://github.com/knowledgesystems/pipelines/blob/f6c52bbda86b3929222d42c9bc84581fd6333fb4/pom.xml#L76) in the pipelines codebase to the most most recent genome-nexus/genome-nexus-annotation-pipeline commit hash **(after merge specfied in step 2)**.
 
 4. Merge this change into pipelines/master.
 
-5. Set the jitpack hash [here](https://github.com/knowledgesystems/cmo-pipelines/blob/master/cvr/pom.xml#L70) in the cmo-pipelines codebase to the most recent genome-nexus/genome-nexus-annotation-pipeline commit hash **(after merge specified in step 2)**
+5. Set the commit hash [here](https://github.com/knowledgesystems/cmo-pipelines/blob/e740c9fa3d409ab75988e7a157682733e261fca5/cvr/pom.xml#L70) in the cmo-pipelines codebase to the most recent genome-nexus/genome-nexus-annotation-pipeline commit hash **(after merge specified in step 2)**
 
 6. Merge this change into cmo-pipelines/master
 
@@ -227,7 +227,7 @@ The wrapper script is found on pipelines here:
 `/data/portal-cron/git-repos/pipelines-configuration/build-importer-jars/buildproductionjars.sh`.
 
 The wrapper script takes two arguments:
-1. --git-hash (required): Set to the cBioPortal commit hash being used in the pipelines build (hash specified in step 1 of [updating importers](#Updating-Importers). This must match because the build copies out resource files (e.g application-context-business.xml) from the cbioportal codebase. 
+1. --cbioportal-git-hash (required): Set to the cBioPortal commit hash being used in the pipelines build (hash specified in step 1 of [updating importers](#Updating-Importers). This must match because the build copies out resource files (e.g application-context-business.xml) from the cbioportal codebase. 
 2. --skip-deployment (optional): Set to true to skip auto-deployment to `/data/portal-cron/lib`. Built jars will be found in `/data/portal-cron/git-repos/pipelines-configuration/build-importer-jars/` and can be be manually moved.
 
 The wrapper script will automatically backup the importers/data-fetchers to `/data/portal-cron/lib/backup`.

@@ -196,8 +196,8 @@ public class CoExpressionServiceImpl implements CoExpressionService {
     // transaction needs to be setup here in order to return Iterable from molecularDataService in fetchCoExpressions
     @Transactional(readOnly=true)
     public List<CoExpression> fetchCoExpressions(String geneticEntityId,
-            EntityType geneticEntityType, List<String> sampleIds, String molecularProfileIdB,
-            String molecularProfileIdA, Double threshold) throws MolecularProfileNotFoundException, GenesetNotFoundException, GeneNotFoundException {
+            EntityType geneticEntityType, List<String> sampleIds, String molecularProfileIdA,
+            String molecularProfileIdB, Double threshold) throws MolecularProfileNotFoundException, GenesetNotFoundException, GeneNotFoundException {
 
         if (molecularProfileIdA.equals(molecularProfileIdB)) {
             return fetchCoExpressions(molecularProfileIdA, sampleIds, geneticEntityId, geneticEntityType, threshold);
@@ -210,7 +210,7 @@ public class CoExpressionServiceImpl implements CoExpressionService {
             molecularDataListA = molecularDataService.fetchMolecularData(molecularProfileIdA, sampleIds, null,
                     "SUMMARY");
         } else if (geneticEntityType.equals(EntityType.GENESET)) {
-            molecularDataListA = genesetDataService.fetchGenesetData(molecularProfileIdB, sampleIds, null);
+            molecularDataListA = genesetDataService.fetchGenesetData(molecularProfileIdA, sampleIds, null);
         }
         MolecularProfile molecularProfileB = molecularProfileService.getMolecularProfile(molecularProfileIdB);
         Boolean isMolecularProfileBOfGenesetType = molecularProfileB.getMolecularAlterationType()

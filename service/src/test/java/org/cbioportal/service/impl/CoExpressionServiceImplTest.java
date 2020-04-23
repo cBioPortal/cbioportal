@@ -195,7 +195,7 @@ public class CoExpressionServiceImplTest extends BaseServiceImplTest {
         
         MolecularProfile genesetMolecularProfile = createGenesetMolecularProfile();
 
-        Mockito.when(molecularProfileService.getMolecularProfile("profile_id_gsva_scores_a"))
+        Mockito.when(molecularProfileService.getMolecularProfile("profile_id_gsva_scores_b"))
             .thenReturn(genesetMolecularProfile);
         Mockito.when(genesetDataService.fetchGenesetData("profile_id_gsva_scores_b", Arrays.asList(SAMPLE_ID1, SAMPLE_ID2), 
             null)).thenReturn(molecularDataList);

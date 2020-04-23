@@ -219,6 +219,8 @@ def process_directory(jvm_args, study_directory):
     study_meta_dictionary = {}
     cancer_type_filepairs = []
     sample_attr_filepair = None
+    sample_resource_filepair = None
+    resource_definition_filepair = None
     regular_filepairs = []
     gene_panel_matrix_filepair = None
     zscore_filepairs = []
@@ -271,6 +273,14 @@ def process_directory(jvm_args, study_directory):
             # Determine the study meta filename
             study_meta_filename = meta_filename
             study_meta_dictionary[study_meta_filename] = meta_dictionary
+        # Check for resource definitions
+        elif meta_file_type == MetaFileTypes.RESOURCES_DEFINITION:
+            if resource_definition_filepair is not None:
+                raise RuntimeError(
+                    'Multiple resource definition files found: {} and {}'.format(
+                        resource_definition_filepair[0], meta_filename))   # pylint: disable=unsubscriptable-object
+            resource_definition_filepair = (
+                meta_filename, os.path.join(study_directory, meta_dictionary['data_filename']))            
         # Check for sample attributes
         elif meta_file_type == MetaFileTypes.SAMPLE_ATTRIBUTES:
             if sample_attr_filepair is not None:
@@ -278,6 +288,13 @@ def process_directory(jvm_args, study_directory):
                     'Multiple sample attribute files found: {} and {}'.format(
                         sample_attr_filepair[0], meta_filename))   # pylint: disable=unsubscriptable-object
             sample_attr_filepair = (
+                meta_filename, os.path.join(study_directory, meta_dictionary['data_filename']))
+        elif meta_file_type == MetaFileTypes.SAMPLE_RESOURCES:
+            if sample_resource_filepair is not None:
+                raise RuntimeError(
+                    'Multiple sample resource files found: {} and {}'.format(
+                        sample_resource_filepair[0], meta_filename))   # pylint: disable=unsubscriptable-object
+            sample_resource_filepair = (
                 meta_filename, os.path.join(study_directory, meta_dictionary['data_filename']))
         # Check for gene panel matrix
         elif meta_file_type == MetaFileTypes.GENE_PANEL_MATRIX:
@@ -321,6 +338,16 @@ def process_directory(jvm_args, study_directory):
         raise RuntimeError('No sample attribute file found')
     else:
         meta_filename, data_filename = sample_attr_filepair
+        import_study_data(jvm_args, meta_filename, data_filename, study_meta_dictionary[meta_filename])
+
+    # Next, we need to import resource definitions for resource data
+    if resource_definition_filepair is not None:
+        meta_filename, data_filename = resource_definition_filepair
+        import_study_data(jvm_args, meta_filename, data_filename, study_meta_dictionary[meta_filename])
+
+    # Next, we need to import sample definitions for resource data
+    if sample_resource_filepair is not None:
+        meta_filename, data_filename = sample_resource_filepair
         import_study_data(jvm_args, meta_filename, data_filename, study_meta_dictionary[meta_filename])
 
     # Next, import everything else except gene panel, fusion data, GSVA and

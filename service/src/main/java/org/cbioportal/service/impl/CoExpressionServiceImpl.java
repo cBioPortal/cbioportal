@@ -15,6 +15,7 @@ import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
 import java.util.*;
+import java.util.Map.Entry;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
@@ -250,11 +251,22 @@ public class CoExpressionServiceImpl implements CoExpressionService {
         }
 
         List<CoExpression> coExpressionList = new ArrayList<>();
-        List<String> valuesB = finalMolecularDataListA.stream().map(g -> g.getValue()).collect(Collectors.toList());
-        for (String entityId : molecularDataMapB.keySet()) {
-            List<String> internalValues = molecularDataMapB.get(entityId).stream().map(g -> g.getValue())
-                .collect(Collectors.toList());
-            CoExpression co = computeCoExpressions(entityId, internalValues, valuesB, isMolecularProfileBOfGenesetType, threshold, molecularProfileId);
+
+        Map<String, ? extends MolecularData> dataMapA = finalMolecularDataListA.stream()
+                .collect(Collectors.toMap(MolecularData::getSampleId, Function.identity()));
+
+        for (Entry<String, List<MolecularData>> entry : molecularDataMapB.entrySet()) {
+            List<String> valuesA = new ArrayList<>();
+            List<String> valuesB = new ArrayList<>();
+
+            entry.getValue().stream().forEach(molecularData -> {
+                if (dataMapA.containsKey(molecularData.getSampleId())) {
+                    valuesA.add(molecularData.getValue());
+                    valuesB.add(dataMapA.get(molecularData.getSampleId()).getValue());
+                }
+            });
+
+            CoExpression co = computeCoExpressions(entry.getKey(), valuesA, valuesB, isMolecularProfileBOfGenesetType, threshold, molecularProfileId);
             if (co != null) {
                 coExpressionList.add(co);
             }

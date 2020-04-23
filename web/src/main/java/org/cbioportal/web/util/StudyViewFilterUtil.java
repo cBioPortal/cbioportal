@@ -6,6 +6,7 @@ import org.cbioportal.model.ClinicalDataBin;
 import org.cbioportal.model.DataBin;
 import org.cbioportal.model.GenomicDataBin;
 import org.cbioportal.model.MolecularProfile;
+import org.cbioportal.model.SampleList;
 import org.cbioportal.web.parameter.ClinicalDataBinFilter;
 import org.cbioportal.web.parameter.GenomicDataBinFilter;
 import org.cbioportal.web.parameter.SampleIdentifier;
@@ -117,6 +118,12 @@ public class StudyViewFilterUtil {
     public Map<String, List<MolecularProfile>> categorizeMolecularPorfiles(List<MolecularProfile> molecularProfiles) {
         return molecularProfiles.stream().collect(Collectors.groupingBy(molecularProfile -> {
             return molecularProfile.getStableId().replace(molecularProfile.getCancerStudyIdentifier() + "_", "");
+        }));
+    }
+
+    public Map<String, List<SampleList>> categorizeSampleLists(List<SampleList> sampleLists) {
+        return sampleLists.stream().collect(Collectors.groupingBy(sampleList -> {
+            return sampleList.getStableId().replace(sampleList.getCancerStudyIdentifier() + "_", "");
         }));
     }
 }

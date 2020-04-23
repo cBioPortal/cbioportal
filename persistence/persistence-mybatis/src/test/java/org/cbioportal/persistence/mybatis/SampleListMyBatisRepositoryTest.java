@@ -176,7 +176,7 @@ public class SampleListMyBatisRepositoryTest {
     @Test
     public void getAllSampleListsInStudySummaryProjection() throws Exception {
 
-        List<SampleList> result = sampleListMyBatisRepository.getAllSampleListsInStudy("study_tcga_pub",
+        List<SampleList> result = sampleListMyBatisRepository.getAllSampleListsInStudies(Arrays.asList("study_tcga_pub"),
             "SUMMARY", null, null, null, null);
 
         Assert.assertEquals(13, result.size());
@@ -195,7 +195,7 @@ public class SampleListMyBatisRepositoryTest {
     @Test
     public void getAllSampleListsInStudyDetailedProjection() throws Exception {
 
-        List<SampleList> result = sampleListMyBatisRepository.getAllSampleListsInStudy("study_tcga_pub",
+        List<SampleList> result = sampleListMyBatisRepository.getAllSampleListsInStudies(Arrays.asList("study_tcga_pub"),
             "DETAILED", null, null, null, null);
 
         Assert.assertEquals(13, result.size());

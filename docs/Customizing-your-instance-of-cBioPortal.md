@@ -38,12 +38,6 @@ Below you can find the complete list of all the available skin properties.
 			<td>Any HTML text</td>
 		</tr>
 		<tr>
-			<td>skin.custom_header_tabs</td>
-			<td>defines custom tabs to be added to the header. For each page to be added, two values have to be provided. The first is the page, the second the tab-title. e.g. skin.custom_header_tabs=networks.jsp, Networks, oncoprinter.jsp, Oncoprinter</td>
-			<td></td>
-			<td>comma separated text</td>
-		</tr>
-		<tr>
 			<td>skin.example_study_queries</td>
 			<td>\n-separated list of study query suggestions displayed when clicking the ‘select a cancer study' search box</td>
 			<td>tcga\ntcga -provisional\ntcga -moratorium\ntcga OR icgc\n-"cell line"\nprostate mskcc\nesophageal OR stomach\nserous\nbreast</td>

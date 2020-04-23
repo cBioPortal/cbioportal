@@ -60,6 +60,7 @@ import org.cbioportal.model.MutSig;
 import org.cbioportal.model.Mutation;
 import org.cbioportal.model.MutationSpectrum;
 import org.cbioportal.model.Patient;
+import org.cbioportal.model.ResourceDefinition;
 import org.cbioportal.model.Sample;
 import org.cbioportal.model.SampleList;
 import org.cbioportal.model.TypeOfCancer;
@@ -84,6 +85,7 @@ import org.cbioportal.web.mixin.MutSigMixin;
 import org.cbioportal.web.mixin.MutationMixin;
 import org.cbioportal.web.mixin.MutationSpectrumMixin;
 import org.cbioportal.web.mixin.PatientMixin;
+import org.cbioportal.web.mixin.ResourceDefinitionMixin;
 import org.cbioportal.web.mixin.SampleListMixin;
 import org.cbioportal.web.mixin.SampleMixin;
 import org.cbioportal.web.mixin.TypeOfCancerMixin;
@@ -119,6 +121,7 @@ public class CustomObjectMapper extends ObjectMapper {
         mixinMap.put(Sample.class, SampleMixin.class);
         mixinMap.put(SampleList.class, SampleListMixin.class);
         mixinMap.put(TypeOfCancer.class, TypeOfCancerMixin.class);
+        mixinMap.put(ResourceDefinition.class, ResourceDefinitionMixin.class);
         super.setMixIns(mixinMap);
     }
 }

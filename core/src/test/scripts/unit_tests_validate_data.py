@@ -2566,5 +2566,156 @@ def _resetMultipleFileHandlerClassVars():
         c.prior_validated_feature_ids = None
         c.prior_validated_header = None
 
+# --------------------------- resources wise test ------------------------------
+
+class ResourceDefinitionWiseTestCase(PostClinicalDataFileTestCase):
+
+    def test_resource_definition_missing_resourceId(self):
+
+        self.logger.setLevel(logging.ERROR)
+        record_list = self.validate('data_resource_definition_missing_resourceId.txt',
+                            validateData.ResourceDefinitionValidator)
+
+        self.assertEqual(len(record_list), 1)
+        record = record_list.pop()
+        self.assertEqual(record.levelno, logging.ERROR)
+        self.assertIn('Missing RESOURCE_ID', record.getMessage())
+
+class ResourceWiseTestCase(PostClinicalDataFileTestCase):
+    def test_resource_is_not_url(self):
+        # set RESOURCE_DEFINITION_DICTIONARY (which should be initialized before validate resource data)
+        validateData.RESOURCE_DEFINITION_DICTIONARY = {'PATHOLOGY_SLIDE': ['SAMPLE']}
+        self.logger.setLevel(logging.ERROR)
+        record_list = self.validate('data_resource_is_not_url.txt',
+                            validateData.ResourceValidator)
+
+        self.assertEqual(len(record_list), 1)
+        record = record_list.pop()
+        self.assertEqual(record.levelno, logging.ERROR)
+        self.assertIn('not an url', record.getMessage())
+        # reset RESOURCE_DEFINITION_DICTIONARY
+        validateData.RESOURCE_DEFINITION_DICTIONARY = {}
+
+    # sample resources tests
+    def test_sample_resource_should_have_definition(self):
+        # reset RESOURCE_DEFINITION_DICTIONARY
+        validateData.RESOURCE_DEFINITION_DICTIONARY = {}
+        self.logger.setLevel(logging.ERROR)
+        record_list = self.validate('data_resource_sample_valid.txt',
+                            validateData.SampleResourceValidator)
+
+        self.assertEqual(len(record_list), 6)
+        record = record_list.pop()
+        self.assertEqual(record.levelno, logging.ERROR)
+        self.assertIn('sample resource is not defined correctly', record.getMessage())
+
+    def test_sample_resource_has_definition_in_different_type(self):
+        # set RESOURCE_DEFINITION_DICTIONARY (which should be initialized before validate resource data)
+        # PATHOLOGY_SLIDE is duplicated in SAMPLE and PATIENT
+        validateData.RESOURCE_DEFINITION_DICTIONARY = {'PATHOLOGY_SLIDE': ['SAMPLE', 'PATIENT']}
+        self.logger.setLevel(logging.WARNING)
+        record_list = self.validate('data_resource_sample_valid.txt',
+                            validateData.SampleResourceValidator)
+
+        self.assertEqual(len(record_list), 3)
+        record = record_list.pop()
+        self.assertEqual(record.levelno, logging.WARNING)
+        self.assertIn('sample resource has been used by more than one RESOURCE_TYPE', record.getMessage())
+
+    def test_sample_resource_has_duplication(self):
+        self.logger.setLevel(logging.ERROR)
+        record_list = self.validate('data_resource_sample_duplicate.txt',
+                            validateData.SampleResourceValidator)
+
+        self.assertEqual(len(record_list), 1)
+        record = record_list.pop()
+        self.assertEqual(record.levelno, logging.ERROR)
+        self.assertIn('Duplicated resources found', record.getMessage())
+
+    # patient resources tests
+    def test_patient_resource_should_have_definition(self):
+        # reset global variables
+        validateData.RESOURCE_DEFINITION_DICTIONARY = {}
+        validateData.RESOURCE_PATIENTS_WITH_SAMPLES = set(["TCGA-A2-A04P", "TCGA-A1-A0SK", "TCGA-A2-A0CM"])
+        self.logger.setLevel(logging.ERROR)
+        record_list = self.validate('data_resource_patient_valid.txt',
+                            validateData.PatientResourceValidator)
+
+        self.assertEqual(len(record_list), 6)
+        record = record_list.pop()
+        self.assertEqual(record.levelno, logging.ERROR)
+        self.assertIn('patient resource is not defined correctly', record.getMessage())
+
+        # reset global variables
+        validateData.RESOURCE_PATIENTS_WITH_SAMPLES = None
+
+    def test_patient_resource_has_definition_in_different_type(self):
+        # set RESOURCE_DEFINITION_DICTIONARY (which should be initialized before validate resource data)
+        # PATHOLOGY_SLIDE is duplicated in SAMPLE and PATIENT
+        validateData.RESOURCE_DEFINITION_DICTIONARY = {'PATIENT_NOTES': ['SAMPLE', 'PATIENT']}
+        validateData.RESOURCE_PATIENTS_WITH_SAMPLES = set(["TCGA-A2-A04P", "TCGA-A1-A0SK", "TCGA-A2-A0CM"])
+        self.logger.setLevel(logging.WARNING)
+        record_list = self.validate('data_resource_patient_valid.txt',
+                            validateData.PatientResourceValidator)
+
+        self.assertEqual(len(record_list), 3)
+        record = record_list.pop()
+        self.assertEqual(record.levelno, logging.WARNING)
+        self.assertIn('patient resource has been used by more than one RESOURCE_TYPE', record.getMessage())
+
+        # reset global variables
+        validateData.RESOURCE_PATIENTS_WITH_SAMPLES = None
+
+    def test_patient_resource_has_duplication(self):
+        validateData.RESOURCE_PATIENTS_WITH_SAMPLES = set(["TCGA-A2-A04P", "TCGA-A1-A0SK", "TCGA-A2-A0CM"])
+        self.logger.setLevel(logging.ERROR)
+        record_list = self.validate('data_resource_patient_duplicate.txt',
+                            validateData.PatientResourceValidator)
+
+        self.assertEqual(len(record_list), 1)
+        record = record_list.pop()
+        self.assertEqual(record.levelno, logging.ERROR)
+        self.assertIn('Duplicated resources found', record.getMessage())
+
+        # reset global variables
+        validateData.RESOURCE_PATIENTS_WITH_SAMPLES = None
+
+    # study resources tests
+    def test_study_resource_should_have_definition(self):
+        # reset global variables
+        validateData.RESOURCE_DEFINITION_DICTIONARY = {}
+        self.logger.setLevel(logging.ERROR)
+        record_list = self.validate('data_resource_study_valid.txt',
+                            validateData.StudyResourceValidator)
+
+        self.assertEqual(len(record_list), 4)
+        record = record_list.pop()
+        self.assertEqual(record.levelno, logging.ERROR)
+        self.assertIn('study resource is not defined correctly', record.getMessage())
+
+    def test_study_resource_has_definition_in_different_type(self):
+        # set RESOURCE_DEFINITION_DICTIONARY (which should be initialized before validate resource data)
+        # PATHOLOGY_SLIDE is duplicated in SAMPLE and STUDY
+        validateData.RESOURCE_DEFINITION_DICTIONARY = {'STUDY_SPONSORS': ['STUDY', 'SAMPLE']}
+        self.logger.setLevel(logging.WARNING)
+        record_list = self.validate('data_resource_study_valid.txt',
+                            validateData.StudyResourceValidator)
+
+        self.assertEqual(len(record_list), 2)
+        record = record_list.pop()
+        self.assertEqual(record.levelno, logging.WARNING)
+        self.assertIn('study resource has been used by more than one RESOURCE_TYPE', record.getMessage())
+
+    def test_study_resource_has_duplication(self):
+        self.logger.setLevel(logging.ERROR)
+        record_list = self.validate('data_resource_study_duplicate.txt',
+                            validateData.StudyResourceValidator)
+
+        self.assertEqual(len(record_list), 1)
+        record = record_list.pop()
+        self.assertEqual(record.levelno, logging.ERROR)
+        self.assertIn('Duplicated resources found', record.getMessage())
+# -------------------------- end resource definition wise test ----------------------------
+
 if __name__ == '__main__':
     unittest.main(buffer=True)

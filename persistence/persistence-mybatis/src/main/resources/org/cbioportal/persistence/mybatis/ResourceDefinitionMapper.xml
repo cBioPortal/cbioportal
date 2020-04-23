@@ -1,0 +1,60 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="org.cbioportal.persistence.mybatis.ResourceDefinitionMapper">
+    
+    <sql id="select">
+        resource_definition.RESOURCE_ID AS "${prefix}resourceId",
+        cancer_study.CANCER_STUDY_IDENTIFIER AS "${prefix}cancerStudyIdentifier",
+        resource_definition.CANCER_STUDY_ID AS "${prefix}cancerStudyId",
+        resource_definition.DISPLAY_NAME AS "${prefix}displayName"
+        <if test="projection == 'SUMMARY' || projection == 'DETAILED'">
+            ,
+            resource_definition.OPEN_BY_DEFAULT AS "${prefix}openByDefault",
+            resource_definition.DESCRIPTION AS "${prefix}description",
+            resource_definition.RESOURCE_TYPE AS "${prefix}resourceType",
+            resource_definition.PRIORITY AS "${prefix}priority"
+        </if>
+    </sql>
+
+    <select id="getResourceDefinitions" resultType="org.cbioportal.model.ResourceDefinition">
+        SELECT
+        <include refid="select">
+            <property name="prefix" value=""/>
+        </include>
+        FROM resource_definition
+        INNER JOIN cancer_study ON resource_definition.CANCER_STUDY_ID = cancer_study.CANCER_STUDY_ID
+        <where>
+            <if test="studyId != null">
+                cancer_study.CANCER_STUDY_IDENTIFIER = #{studyId}
+            </if>
+        </where>
+        <if test="sortBy != null and projection != 'ID'">
+            ORDER BY ${sortBy} ${direction}
+        </if>
+        <if test="projection == 'ID'">
+            ORDER BY resource_definition.RESOURCE_ID ASC
+        </if>
+        <if test="limit != null and limit != 0">
+            LIMIT #{limit} OFFSET #{offset}
+        </if>
+    </select>
+    
+    <select id="getResourceDefinition" resultType="org.cbioportal.model.ResourceDefinition">
+        SELECT
+        <include refid="select">
+            <property name="prefix" value=""/>
+        </include>
+        FROM resource_definition
+        INNER JOIN cancer_study ON resource_definition.CANCER_STUDY_ID = cancer_study.CANCER_STUDY_ID
+        <where>
+            <if test="studyId != null">
+                cancer_study.CANCER_STUDY_IDENTIFIER = #{studyId}
+            </if>
+            <if test="resourceId != null">
+                AND resource_definition.RESOURCE_ID = #{resourceId}
+            </if>
+        </where>
+    </select>
+
+</mapper>

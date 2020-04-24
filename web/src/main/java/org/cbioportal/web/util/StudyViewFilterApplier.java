@@ -29,6 +29,7 @@ public class StudyViewFilterApplier {
     private GeneService geneService;
     private ClinicalAttributeService clinicalAttributeService;
     private MolecularDataService molecularDataService;
+    private SampleListService sampleListService;
 
     @Autowired
     public StudyViewFilterApplier(SampleService sampleService,
@@ -42,7 +43,8 @@ public class StudyViewFilterApplier {
                                   StudyViewFilterUtil studyViewFilterUtil,
                                   GeneService geneService,
                                   ClinicalAttributeService clinicalAttributeService,
-                                  MolecularDataService molecularDataService) {
+                                  MolecularDataService molecularDataService,
+                                  SampleListService sampleListService) {
         this.sampleService = sampleService;
         this.mutationService = mutationService;
         this.discreteCopyNumberService = discreteCopyNumberService;
@@ -54,6 +56,7 @@ public class StudyViewFilterApplier {
         this.geneService = geneService;
         this.clinicalAttributeService = clinicalAttributeService;
         this.molecularDataService = molecularDataService;
+        this.sampleListService = sampleListService;
     }
 
     Function<Sample, SampleIdentifier> sampleToSampleIdentifier = new Function<Sample, SampleIdentifier>() {
@@ -215,6 +218,30 @@ public class StudyViewFilterApplier {
                 sampleIdentifiers.retainAll(filteredSampleIdentifiers);
             }
         }
+
+        if (!CollectionUtils.isEmpty(studyViewFilter.getCaseLists())) {
+            List<SampleList> sampleLists = sampleListService.getAllSampleListsInStudies(studyIds,
+                    Projection.DETAILED.name());
+            Map<String, List<SampleList>> groupedSampleListByListType = studyViewFilterUtil
+                    .categorizeSampleLists(sampleLists);
+
+            for (List<String> sampleListTypes : studyViewFilter.getCaseLists()) {
+                List<SampleIdentifier> filteredSampleIdentifiers = sampleListTypes.stream()
+                        .flatMap(sampleListType -> groupedSampleListByListType
+                                .getOrDefault(sampleListType, new ArrayList<>()).stream().flatMap(sampleList -> {
+                                    return sampleList.getSampleIds().stream().map(sampleId -> {
+                                        SampleIdentifier sampleIdentifier = new SampleIdentifier();
+                                        sampleIdentifier.setStudyId(sampleList.getCancerStudyIdentifier());
+                                        sampleIdentifier.setSampleId(sampleId);
+                                        return sampleIdentifier;
+                                    });
+                                }))
+                        .collect(Collectors.toList());
+
+                sampleIdentifiers.retainAll(filteredSampleIdentifiers);
+            }
+        }
+
         return sampleIdentifiers;
     }
 

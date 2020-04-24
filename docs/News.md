@@ -1,5 +1,5 @@
 ## April 24, 2020
-* **New Feature**: Add a new chart on the _Study View_ to select pre-defined case sets: 
+* **New Feature**: Add a new chart on the _Study View_ for selecting samples based on pre-defined case lists: 
 
     <img width="333" alt="Screen Shot 2020-04-24 at 9 18 25 AM" src="https://user-images.githubusercontent.com/1334004/80216807-a1c51a00-860c-11ea-8ba5-3781bd603ee5.png">
 

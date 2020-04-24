@@ -172,7 +172,7 @@ echo 'https://cbioportal-frontend.netlify.com' > /srv/www/triage-tomcat/frontend
 ```
 
 ## Upgrading Related Backend Components
-Backend upgrades which involve changes to `TODO: database schema,DAO classes, ssL/security, application context`, require updates to databases and importers. CBioPortal has multiple databases (located both internally on pipelines and in AWS) backing different portals. Similarly there are multiple importers responsible for loading portal-specific data. Every database must be manually migrated on an individual basis; all importers/data fetchers can be updated simultaenously through an existing deployment script.
+Backend upgrades involving the database schema, DAO classes, etc. require updates to databases and importers. CBioPortal has multiple databases (located both internally on pipelines and in AWS) backing different portals. Similarly there are multiple importers responsible for loading portal-specific data. Every database must be manually migrated on an individual basis; all importers/data fetchers can be updated simultaenously through an existing deployment script.
 
 Before upgrading, make sure to turn off import jobs in the crontab and alert the backend pipelines team (Avery, Angelica, Rob, Manda). 
 
@@ -192,7 +192,7 @@ These are all cBioPortal databases and their locations:
 | Website  | Database | Location |
 | ------------- | ------------- | ------------- |
 | cbioportal.mskcc.org  | cgds_gdac  | pipelines |
-| cbioportal.org  | cgds_public  | pipelines |
+| cbioportal.org  | cgds_public  | AWS |
 | genie.cbioportal.org | cgds_genie | AWS | 
 | triage.cbioportal.org | cgds_triage | pipelines |
 

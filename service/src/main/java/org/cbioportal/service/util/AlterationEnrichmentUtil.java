@@ -90,9 +90,17 @@ public class AlterationEnrichmentUtil<T extends AlterationCountByGene> {
                             .filter(groupCasesCount -> groupCasesCount.getProfiledCount() > 0)
                             .collect(Collectors.toList());
 
+                    // groups where number of altered cases is greater than profiled cases.
+                    // This is a temporary fix for https://github.com/cBioPortal/cbioportal/issues/7274
+                    // and https://github.com/cBioPortal/cbioportal/issues/7418
+                    long invalidDataGroups = filteredCounts
+                            .stream()
+                            .filter( groupCasesCount -> groupCasesCount.getAlteredCount() > groupCasesCount.getProfiledCount())
+                            .count();
+
                     // calculate p-value only if more than one group have profile cases count
                     // greater than 0
-                    if (filteredCounts.size() > 1) {
+                    if (filteredCounts.size() > 1 && invalidDataGroups == 0) {
                         double pValue;
                         // if groups size is two do Fisher Exact test else do Chi-Square test
                         if (groups.size() == 2) {

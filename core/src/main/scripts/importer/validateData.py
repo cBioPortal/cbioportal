@@ -2655,30 +2655,51 @@ class PatientClinicalValidator(ClinicalValidator):
                                    'column_number': col_index + 1,
                                    'cause': value})
             elif col_name == 'OS_STATUS':
-                if value == 'DECEASED':
+                if value == '1:DECEASED':
                     osstatus_is_deceased = True
                 elif (value.lower() not in self.NULL_VALUES and
-                        value not in ('LIVING', 'DECEASED')):
+                        value not in ('LIVING', 'DECEASED', '0:LIVING', '1:DECEASED')):
                     self.logger.error(
-                            'Value in OS_STATUS column is not LIVING or '
-                            'DECEASED',
+                            'Value in OS_STATUS column is not LIVING, 0:LIVING, DECEASED or'
+                            '1:DECEASED',
                             extra={'line_number': self.line_number,
                                    'column_number': col_index + 1,
                                    'cause': value})
             elif col_name == 'DFS_STATUS':
                 if (value.lower() not in self.NULL_VALUES and
-                        value not in ('DiseaseFree',
+                        value not in ('0:DiseaseFree',
+                                      '1:Recurred/Progressed',
+                                      '1:Recurred',
+                                      '1:Progressed',
+                                      'DiseaseFree',
                                       'Recurred/Progressed',
                                       'Recurred',
                                       'Progressed')):
                     self.logger.error(
-                            'Value in DFS_STATUS column is not DiseaseFree, '
-                            'Recurred/Progressed, Recurred or Progressed',
+                            'Value in DFS_STATUS column is not 0:DiseaseFree, '
+                            '1:Recurred/Progressed, 1:Recurred, 1:Progressed',
+                            'DiseaseFree, Recurred/Progressed, Recurred or Progressed',
                             extra={'line_number': self.line_number,
                                    'column_number': col_index + 1,
                                    'cause': value})
             elif col_name == 'OS_MONTHS':
                 osmonths_value = value
+            # check other survival data
+            elif col_name.endswith('_STATUS'):
+                # get survival attribute prefix
+                survival_prefix = col_name[:len(col_name) - 7]
+                if (survival_prefix + '_MONTHS') in self.cols:
+                    # attribute that has both _months and _status is a survival attribute
+                    # this attribute should have prefix "0:" or "1:", or NULL_VALUES
+                    splited_value = value.lower().split(':')
+                    if len(splited_value) <= 1 or len(splited_value) >= 2 and splited_value[0] not in ('0', '1'):
+                        if value.lower() not in self.NULL_VALUES:
+                            self.logger.error(
+                                    'Value in %s column should be formated like "0:LIVING" (status:lable) ',
+                                    col_name,
+                                    extra={'line_number': self.line_number,
+                                        'column_number': col_index + 1,
+                                        'cause': value})
 
         if osstatus_is_deceased and (
                     osmonths_value is None or

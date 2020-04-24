@@ -1,3 +1,8 @@
+## April 24, 2020
+* **New Feature**: Add a new chart on the _Study View_ for selecting samples based on pre-defined case lists: 
+
+    <img width="333" alt="Screen Shot 2020-04-24 at 9 18 25 AM" src="https://user-images.githubusercontent.com/1334004/80216807-a1c51a00-860c-11ea-8ba5-3781bd603ee5.png">
+
 ## April 10, 2020
 *   **New Feature**: Make cohorts on the _Study View_ using continuous molecular profiles of one or more gene(s), such as mRNA expression, methylation, RPPA and continuous CNA. [example](https://www.cbioportal.org/study/summary?id=brca_tcga#filterJson={"genomicDataFilters":[{"hugoGeneSymbol":"ERBB2","profileType":"mrna_median_Zscores","values":[{"start":1.5,"end":2},{"start":2,"end":2.5},{"start":2.5,"end":3},{"start":3,"end":3.5},{"start":3.5,"end":4},{"start":4}]}],"genomicProfiles":[["mrna_median_Zscores"]],"studyIds":["brca_tcga"]})
 

@@ -176,7 +176,7 @@ Backend upgrades involving the database schema, DAO classes, etc. require update
 
 Before upgrading, make sure to turn off import jobs in the crontab and alert the backend pipelines team (Avery, Angelica, Rob, Manda). 
 
-To access the crontab, log in to pipelines,log in as cbioportal_importer: `sudo su - cbioportal_importer`, and run `crontab -e`. Comment out any lines that run import jobs, save, and exit. Make sure to uncomment these lines once the upgrade (database and importers) is complete. Lines that need to be commented out will be under the `Import Jobs` section, shown [here](https://github.com/knowledgesystems/cmo-pipelines/blob/942de83c0f9a731e301151d10dad73744cd9c9a0/import-scripts/mycrontab#L4).
+To access the crontab, log in to pipelines, log in as cbioportal_importer: `sudo su - cbioportal_importer`, and run `crontab -e`. Comment out any lines that run import jobs, save, and exit. Make sure to uncomment these lines once the upgrade (database and importers) is complete. Lines that need to be commented out will be under the `Import Jobs` section, shown [here](https://github.com/knowledgesystems/cmo-pipelines/blob/942de83c0f9a731e301151d10dad73744cd9c9a0/import-scripts/mycrontab#L4).
 
 ## Updating Databases
 First, make sure there is a backup of the database being migrated. 
@@ -207,7 +207,7 @@ The following steps are used during releases/updates to build new importers with
 
 2. Merge this change into genome-nexus-annotation-pipeline/master.
 
-3. Set the commit hash [here](https://github.com/knowledgesystems/pipelines/blob/f6c52bbda86b3929222d42c9bc84581fd6333fb4/pom.xml#L76) in the pipelines codebase to the most most recent genome-nexus/genome-nexus-annotation-pipeline commit hash **(after merge specfied in step 2)**. Also ensure the db version in the pom [here](https://github.com/knowledgesystems/pipelines/blob/f6c52bbda86b3929222d42c9bc84581fd6333fb4/pom.xml#L76) matches the db schema version in the cbiportal codebase. 
+3. Set the commit hash [here](https://github.com/knowledgesystems/pipelines/blob/f6c52bbda86b3929222d42c9bc84581fd6333fb4/pom.xml#L76) in the pipelines codebase to the most most recent genome-nexus/genome-nexus-annotation-pipeline commit hash **(after merge specfied in step 2)**. Also ensure the db version in the pom [here](https://github.com/knowledgesystems/pipelines/blob/f6c52bbda86b3929222d42c9bc84581fd6333fb4/pom.xml#L76) matches the db schema version in the cbioportal codebase. 
 
 4. Merge this change into pipelines/master.
 
@@ -226,8 +226,10 @@ ls -tlra /data/portal-cron/lib
 The wrapper script is found on pipelines here:
 `/data/portal-cron/git-repos/pipelines-configuration/build-importer-jars/buildproductionjars.sh`.
 
+Run `git pull` to pull in any updates to the build script.
+
 The wrapper script takes two arguments:
-1. --cbioportal-git-hash (required): Set to the cBioPortal commit hash being used in the pipelines build (hash specified in step 1 of [updating importers](#Updating-Importers). This must match because the build copies out resource files (e.g application-context-business.xml) from the cbioportal codebase. 
+1. --cbioportal-git-hash (required): Set to the cBioPortal commit hash being used in the pipelines build (hash specified in **step 1** of [updating importers](#Updating-Importers). This must match because the build copies out resource files (e.g application-context-business.xml) from the cbioportal codebase. 
 2. --skip-deployment (optional): Set to true to skip auto-deployment to `/data/portal-cron/lib`. Built jars will be found in `/data/portal-cron/git-repos/pipelines-configuration/build-importer-jars/` and can be be manually moved.
 
 The wrapper script will automatically backup the importers/data-fetchers to `/data/portal-cron/lib/backup`.

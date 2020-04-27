@@ -207,7 +207,7 @@ The following steps are used during releases/updates to build new importers with
 
 2. Merge this change into genome-nexus-annotation-pipeline/master.
 
-3. Set the commit hash [here](https://github.com/knowledgesystems/pipelines/blob/f6c52bbda86b3929222d42c9bc84581fd6333fb4/pom.xml#L76) in the pipelines codebase to the most most recent genome-nexus/genome-nexus-annotation-pipeline commit hash **(after merge specfied in step 2)**.
+3. Set the commit hash [here](https://github.com/knowledgesystems/pipelines/blob/f6c52bbda86b3929222d42c9bc84581fd6333fb4/pom.xml#L76) in the pipelines codebase to the most most recent genome-nexus/genome-nexus-annotation-pipeline commit hash **(after merge specfied in step 2)**. Also ensure the db version in the pom [here] (https://github.com/knowledgesystems/pipelines/blob/f6c52bbda86b3929222d42c9bc84581fd6333fb4/pom.xml#L76) matches the db schema version in the cbiportal codebase. 
 
 4. Merge this change into pipelines/master.
 

@@ -229,7 +229,7 @@ The wrapper script is found on pipelines here:
 Run `git pull` to pull in any updates to the build script.
 
 The wrapper script takes two arguments:
-1. --cbioportal-git-hash (required): Set to the cBioPortal commit hash being used in the pipelines build (hash specified in **step 1** of [updating importers](#Updating-Importers)). This must match because the build copies out resource files (e.g application-context-business.xml) from the cbioportal codebase. 
+1. --cbioportal-git-hash (required): Set to the cBioPortal commit hash being used in the pipelines build (hash specified in step 1 of [updating importers](#Updating-Importers)). This must match because the build copies out resource files (e.g application-context-business.xml) from the cbioportal codebase. 
 2. --skip-deployment (optional): Set to true to skip auto-deployment to `/data/portal-cron/lib`. Built jars will be found in `/data/portal-cron/git-repos/pipelines-configuration/build-importer-jars/` and can be be manually moved.
 
 The wrapper script will automatically backup the importers/data-fetchers to `/data/portal-cron/lib/backup`.

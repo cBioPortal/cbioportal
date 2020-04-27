@@ -95,8 +95,9 @@ public class DaoGeneOptimized {
                 if (gene==null) {
                     ProgressMonitor.logWarning(line+" in config file [resources" + GENE_SYMBOL_DISAMBIGUATION_FILE +
                             "]is not valid. You should either update this file or update the `gene` and `gene_alias` tables to fix this.");
+                } else {
+                    disambiguousGenes.put(parts[0], gene);
                 }
-                disambiguousGenes.put(parts[0], gene);
             }
             in.close();
         } catch(IOException e) {

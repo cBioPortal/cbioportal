@@ -86,7 +86,7 @@ public class DaoGenericAssay {
         }
     }
 
-    public static boolean shouldGenericAssayMetaBeDeleted(int cancerStudyId) throws DaoException {
+    public static boolean geneticEntitiesOnlyExistInSingleStudy(int cancerStudyId) throws DaoException {
         Connection con = null;
         PreparedStatement pstmt = null;
         ResultSet rs = null;
@@ -101,6 +101,7 @@ public class DaoGenericAssay {
             while(rs.next()) {
                 studies.add(rs.getInt("CANCER_STUDY_ID"));
             }
+            // check if entities only exist in single study
             return studies.size() == 1;
         } catch (SQLException e) {
             e.printStackTrace();

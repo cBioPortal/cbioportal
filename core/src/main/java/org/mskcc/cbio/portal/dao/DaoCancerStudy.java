@@ -574,8 +574,11 @@ public final class DaoCancerStudy {
         PreparedStatement pstmt = null;
         ResultSet rs = null;
         try {
+            // check whether should delete generic assay meta
+            if (DaoGenericAssay.geneticEntitiesOnlyExistInSingleStudy(internalCancerStudyId)) {
+                deleteGenericAssayMeta(internalCancerStudyId);
+            }
             con = JdbcUtil.getDbConnection(DaoCancerStudy.class);
-            deleteGenericAssayMeta(internalCancerStudyId);
             for (String statementString : deleteStudyStatements) {
                 pstmt = con.prepareStatement(statementString);
                 if (statementString.contains("?")) {
@@ -635,15 +638,13 @@ public final class DaoCancerStudy {
         ResultSet rs = null;
         try {
             con = JdbcUtil.getDbConnection(DaoCancerStudy.class);
-            if (DaoGenericAssay.shouldGenericAssayMetaBeDeleted(internalCancerStudyId)) {
-                for (String statementString : deleteGenericAssayStatements) {
-                    pstmt = con.prepareStatement(statementString);
-                    if (statementString.contains("?")) {
-                        pstmt.setInt(1, internalCancerStudyId);
-                    }
-                    pstmt.executeUpdate();
-                    pstmt.close();
+            for (String statementString : deleteGenericAssayStatements) {
+                pstmt = con.prepareStatement(statementString);
+                if (statementString.contains("?")) {
+                    pstmt.setInt(1, internalCancerStudyId);
                 }
+                pstmt.executeUpdate();
+                pstmt.close();
             }
         } catch (SQLException e) {
             throw new DaoException(e);

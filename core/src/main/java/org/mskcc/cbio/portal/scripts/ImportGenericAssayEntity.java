@@ -121,10 +121,10 @@ public class ImportGenericAssayEntity extends ConsoleRunnable {
                 "'entityType' argument required");
             }
             
-            // Check options, set default as true
-            boolean updateInfo = true;
-            if (options.has("update-info") && (options.valueOf(updateInfoArg).equalsIgnoreCase("false") || options.valueOf(updateInfoArg).equals("0"))) {
-                updateInfo = false;
+            // Check options, set default as false
+            boolean updateInfo = false;
+            if (options.has("update-info") && (options.valueOf(updateInfoArg).equalsIgnoreCase("true") || options.valueOf(updateInfoArg).equals("1"))) {
+                updateInfo = true;
             }
             
             ProgressMonitor.setCurrentMessage("Adding new generic assay to the database\n");

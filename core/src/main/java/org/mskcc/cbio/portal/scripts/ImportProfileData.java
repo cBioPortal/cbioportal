@@ -59,10 +59,10 @@ public class ImportProfileData extends ConsoleRunnable {
             OptionSet options = ConsoleUtil.parseStandardDataAndMetaUpdateOptions(args, description, true);
             File dataFile = new File((String) options.valueOf("data"));
             File descriptorFile = new File((String) options.valueOf( "meta" ) );
-            // Check options, set default as true
-            boolean updateInfo = true;
-            if (options.has("update-info") && (((String) options.valueOf("update-info")).equalsIgnoreCase("false") || options.valueOf("update-info").equals("0"))) {
-                updateInfo = false;
+            // Check options, set default as false
+            boolean updateInfo = false;
+            if (options.has("update-info") && (((String) options.valueOf("update-info")).equalsIgnoreCase("true") || options.valueOf("update-info").equals("1"))) {
+                updateInfo = true;
             }
             SpringUtil.initDataSource();
             ProgressMonitor.setCurrentMessage("Reading data from:  " + dataFile.getAbsolutePath());

@@ -114,10 +114,10 @@ def import_study_data(jvm_args, meta_filename, data_filename, update_generic_ass
     # Retrieve meta file type
     meta_file_type = meta_file_dictionary['meta_file_type']
 
-    # Update entities by default
-    shouldUpdateGenericAssayEntities = True
-    if update_generic_assay_entity != None and update_generic_assay_entity.casefold() == "False".casefold():
-        shouldUpdateGenericAssayEntities = False
+    # Do not update entities by default
+    shouldUpdateGenericAssayEntities = False
+    if update_generic_assay_entity != None and update_generic_assay_entity.casefold() == "True".casefold():
+        shouldUpdateGenericAssayEntities = True
 
     # invalid file, skip
     if meta_file_type is None:

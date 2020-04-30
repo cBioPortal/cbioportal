@@ -5,6 +5,7 @@ on:
       - master
       - release-*
       - rc
+    tags: '*'
 
 jobs:
   build_and_publish_web_and_data:
@@ -13,16 +14,21 @@ jobs:
     steps:
       - name: 'Checkout git repo'
         uses: actions/checkout@v1
-      - name: Extract branch name
-        run: echo "##[set-output name=branch;]$(echo ${GITHUB_REF#refs/heads/})"
-        id: extract_branch
+      - name: Extract branch or tag name
+        # The GITHUB_REF variable is like "refs/head/branch_name" or
+        # "refs/tag/tag_name". If the tag is prefixed with v, this is a new
+        # version and we want to push it with the tag "latest" as well because
+        # that is the version we refer to in the docucmentation. One can give 
+        # the same image multiple tags by using ","
+        run: echo "##[set-output name=image_tag_names;]$(echo ${GITHUB_REF##*/} | sed 's/^v/latest,/g')"
+        id: extract_tags
       - name: 'Docker build with cache'
         uses: whoan/docker-build-with-cache-action@v4
         with:
           username: "${{ secrets.DOCKER_USERNAME }}"
           password: "${{ secrets.DOCKER_PASSWORD }}"
           image_name: cbioportal/cbioportal
-          image_tag: ${{ steps.extract_branch.outputs.branch }}
+          image_tag: ${{ steps.extract_tags.outputs.image_tag_names }}
           context: .
           dockerfile: docker/web-and-data/Dockerfile
           pull_image_and_stages: false
@@ -33,19 +39,21 @@ jobs:
       steps:
         - name: 'Checkout git repo'
           uses: actions/checkout@v1
-        - name: Extract branch name
-          run: echo "##[set-output name=branch;]$(echo ${GITHUB_REF#refs/heads/})"
-          id: extract_branch
+        - name: Extract branch or tag name
+          # For the web docker image we don't publish it as latest
+          # just extract branch/tag name and strip v prefix
+          run: echo "##[set-output name=image_tag_names;]$(echo ${GITHUB_REF##*/} | sed 's/^v//g')"
+          id: extract_tags
         - name: 'Docker build with cache'
           uses: whoan/docker-build-with-cache-action@v4
           with:
             username: "${{ secrets.DOCKER_USERNAME }}"
             password: "${{ secrets.DOCKER_PASSWORD }}"
             image_name: cbioportal/cbioportal
-            image_tag: ${{ steps.extract_branch.outputs.branch }}-web-shenandoah
+            image_tag: ${{ steps.extract_tags.outputs.image_tag_names }}-web-shenandoah
             context: .
             dockerfile: docker/web/Dockerfile
             pull_image_and_stages: false
-            
-            
+
+
 # Reference: https://github.com/marketplace/actions/build-docker-images-using-cache

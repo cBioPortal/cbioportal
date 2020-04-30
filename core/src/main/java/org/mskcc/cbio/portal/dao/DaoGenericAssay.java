@@ -85,4 +85,29 @@ public class DaoGenericAssay {
             JdbcUtil.closeAll(DaoGeneticEntity.class, con, pstmt, rs);
         }
     }
+
+    public static boolean shouldGenericAssayMetaBeDeleted(int cancerStudyId) throws DaoException {
+        Connection con = null;
+        PreparedStatement pstmt = null;
+        ResultSet rs = null;
+
+        try {
+            con = JdbcUtil.getDbConnection(DaoGeneticEntity.class);
+            pstmt = con.prepareStatement("SELECT DISTINCT CANCER_STUDY_ID FROM genetic_profile WHERE GENETIC_PROFILE_ID IN (SELECT GENETIC_PROFILE_ID FROM genetic_alteration WHERE GENETIC_ENTITY_ID IN (SELECT GENETIC_ENTITY_ID FROM genetic_alteration WHERE GENETIC_PROFILE_ID IN (SELECT GENETIC_PROFILE_ID FROM genetic_profile WHERE CANCER_STUDY_ID=?)))");
+            pstmt.setInt(1, cancerStudyId);
+            rs = pstmt.executeQuery();
+
+            List<Integer> studies = new ArrayList<Integer>();
+            while(rs.next()) {
+                studies.add(rs.getInt("CANCER_STUDY_ID"));
+            }
+            return studies.size() == 1;
+        } catch (SQLException e) {
+            e.printStackTrace();
+        } finally {
+            JdbcUtil.closeAll(DaoGeneticEntity.class, con, pstmt, rs);
+        }
+        // do not update if there is an error
+        return false;
+    }
 }

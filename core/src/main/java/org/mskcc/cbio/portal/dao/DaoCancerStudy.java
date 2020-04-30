@@ -540,8 +540,6 @@ public final class DaoCancerStudy {
     public static void deleteCancerStudy(int internalCancerStudyId) throws DaoException {
         String[] deleteStudyStatements = {
                 "DELETE FROM sample_cna_event WHERE GENETIC_PROFILE_ID IN (SELECT GENETIC_PROFILE_ID FROM genetic_profile WHERE CANCER_STUDY_ID=?)",
-                "DELETE FROM generic_entity_properties WHERE GENETIC_ENTITY_ID IN (SELECT GENETIC_ENTITY_ID FROM genetic_alteration WHERE GENETIC_PROFILE_ID IN (SELECT GENETIC_PROFILE_ID FROM genetic_profile WHERE CANCER_STUDY_ID=?))",
-                "DELETE FROM genetic_entity WHERE ID IN (SELECT GENETIC_ENTITY_ID FROM genetic_alteration WHERE GENETIC_PROFILE_ID IN (SELECT GENETIC_PROFILE_ID FROM genetic_profile WHERE CANCER_STUDY_ID=? AND GENETIC_ALTERATION_TYPE='GENERIC_ASSAY'))",
                 "DELETE FROM genetic_alteration WHERE GENETIC_PROFILE_ID IN (SELECT GENETIC_PROFILE_ID FROM genetic_profile WHERE CANCER_STUDY_ID=?)",
                 "DELETE FROM genetic_profile_samples WHERE GENETIC_PROFILE_ID IN (SELECT GENETIC_PROFILE_ID FROM genetic_profile WHERE CANCER_STUDY_ID=?)",
                 "DELETE FROM sample_profile WHERE GENETIC_PROFILE_ID IN (SELECT GENETIC_PROFILE_ID FROM genetic_profile WHERE CANCER_STUDY_ID=?)",
@@ -577,6 +575,7 @@ public final class DaoCancerStudy {
         ResultSet rs = null;
         try {
             con = JdbcUtil.getDbConnection(DaoCancerStudy.class);
+            deleteGenericAssayMeta(internalCancerStudyId);
             for (String statementString : deleteStudyStatements) {
                 pstmt = con.prepareStatement(statementString);
                 if (statementString.contains("?")) {
@@ -614,6 +613,37 @@ public final class DaoCancerStudy {
                 pstmt = con.prepareStatement(statementString);
                 pstmt.executeUpdate();
                 pstmt.close();
+            }
+        } catch (SQLException e) {
+            throw new DaoException(e);
+        } finally {
+            JdbcUtil.closeAll(DaoCancerStudy.class, con, pstmt, rs);
+        }
+    }
+
+    /**
+     * delete generic assay meta records if meta is not shared with other studies
+     * @throws DaoException
+     */
+    public static void deleteGenericAssayMeta(int internalCancerStudyId) throws DaoException {
+        String[] deleteGenericAssayStatements = {
+                "DELETE FROM generic_entity_properties WHERE GENETIC_ENTITY_ID IN (SELECT GENETIC_ENTITY_ID FROM genetic_alteration WHERE GENETIC_PROFILE_ID IN (SELECT GENETIC_PROFILE_ID FROM genetic_profile WHERE CANCER_STUDY_ID=?))",
+                "DELETE FROM genetic_entity WHERE ID IN (SELECT GENETIC_ENTITY_ID FROM genetic_alteration WHERE GENETIC_PROFILE_ID IN (SELECT GENETIC_PROFILE_ID FROM genetic_profile WHERE CANCER_STUDY_ID=? AND GENETIC_ALTERATION_TYPE='GENERIC_ASSAY'))"
+                };
+        Connection con = null;
+        PreparedStatement pstmt = null;
+        ResultSet rs = null;
+        try {
+            con = JdbcUtil.getDbConnection(DaoCancerStudy.class);
+            if (DaoGenericAssay.shouldGenericAssayMetaBeDeleted(internalCancerStudyId)) {
+                for (String statementString : deleteGenericAssayStatements) {
+                    pstmt = con.prepareStatement(statementString);
+                    if (statementString.contains("?")) {
+                        pstmt.setInt(1, internalCancerStudyId);
+                    }
+                    pstmt.executeUpdate();
+                    pstmt.close();
+                }
             }
         } catch (SQLException e) {
             throw new DaoException(e);

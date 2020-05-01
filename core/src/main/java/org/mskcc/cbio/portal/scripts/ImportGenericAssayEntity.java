@@ -39,7 +39,9 @@ package org.mskcc.cbio.portal.scripts;
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileReader;
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 
 import org.cbioportal.model.EntityType;
 import org.cbioportal.model.GeneticEntity;
@@ -90,6 +92,10 @@ public class ImportGenericAssayEntity extends ConsoleRunnable {
             // don't require additional properties
             OptionSpec<String> additionalProperties = parser.accepts("additional-properties", "Additional properties need to be imported")
             .withOptionalArg().ofType(String.class);
+
+            // don't require updateInfo, default as true
+            OptionSpec<String> updateInfoArg = parser.accepts("update-info", "Update information for existing entities in the database")
+            .withOptionalArg().ofType(String.class);
             
             OptionSet options = null;
             try {
@@ -115,8 +121,11 @@ public class ImportGenericAssayEntity extends ConsoleRunnable {
                 "'entityType' argument required");
             }
             
-            // Check options
-            boolean updateInfo = options.has("update-info");
+            // Check options, set default as false
+            boolean updateInfo = false;
+            if (options.has("update-info") && (options.valueOf(updateInfoArg).equalsIgnoreCase("true") || options.valueOf(updateInfoArg).equals("1"))) {
+                updateInfo = true;
+            }
             
             ProgressMonitor.setCurrentMessage("Adding new generic assay to the database\n");
             startImport(options, data, entityType, additionalProperties, updateInfo);
@@ -138,7 +147,7 @@ public class ImportGenericAssayEntity extends ConsoleRunnable {
             File genericAssayFile = new File(options.valueOf(data));
             GeneticAlterationType geneticAlterationTypeArg = GeneticAlterationType.valueOf(options.valueOf(geneticAlterationType));
             String additionalPropertiesArg = options.valueOf(additionalProperties);
-            importData(genericAssayFile, geneticAlterationTypeArg, additionalPropertiesArg);
+            importData(genericAssayFile, geneticAlterationTypeArg, additionalPropertiesArg, updateInfo);
         }
     }
     
@@ -150,7 +159,7 @@ public class ImportGenericAssayEntity extends ConsoleRunnable {
     * @param additionalProperties
     * @throws Exception
     */
-    public static void importData(File dataFile, GeneticAlterationType geneticAlterationType, String additionalProperties) throws Exception {
+    public static void importData(File dataFile, GeneticAlterationType geneticAlterationType, String additionalProperties, boolean updateInfo) throws Exception {
         
         ProgressMonitor.setCurrentMessage("Reading data from: " + dataFile.getCanonicalPath());
         
@@ -163,6 +172,11 @@ public class ImportGenericAssayEntity extends ConsoleRunnable {
         // read generic assay data
         int indexStableIdField = getStableIdIndex(headerNames);
 
+        // entities have been overriden
+        List<String> updatedEntities = new ArrayList<>();
+        List<String> notUpdatedEntities = new ArrayList<>();
+        List<String> newEntities = new ArrayList<>();
+        
         currentLine = buf.readLine();
         
         while (currentLine != null) {
@@ -172,6 +186,7 @@ public class ImportGenericAssayEntity extends ConsoleRunnable {
             // get stableId and get the meta by the stableId
             String genericAssayMetaStableId = parts[indexStableIdField];
             GenericAssayMeta genericAssayMeta = DaoGenericAssay.getGenericAssayMetaByStableId(genericAssayMetaStableId);
+            GeneticEntity genericAssayEntity = DaoGeneticEntity.getGeneticEntityByStableId(genericAssayMetaStableId);
             
             // generic assay meta are always updated to based on the current import;
             // also when present in db a new record is created.
@@ -191,10 +206,23 @@ public class ImportGenericAssayEntity extends ConsoleRunnable {
 
             // log for the existing entities
             if (genericAssayMeta != null) {
-                ProgressMonitor.setCurrentMessage("Cannot add new entity, entity exists: " + genericAssayMetaStableId);
+                if (updateInfo) {
+                    updatedEntities.add(stableId);
+                    DaoGenericAssay.deleteGenericEntityPropertiesByStableId(stableId);
+                    propertiesMap.forEach((k, v) -> {	
+                        try {	
+                            DaoGenericAssay.setGenericEntityProperty(genericAssayEntity.getId(), k, v);	
+                        } catch (DaoException e) {	
+                            e.printStackTrace();	
+                        }	
+                    });
+                } else {
+                    notUpdatedEntities.add(stableId);
+                }
             }
             // create a new generic assay meta and add to the database
             else {
+                newEntities.add(stableId);
                 GeneticEntity newGeneticEntity = new GeneticEntity(geneticAlterationType.name(), stableId);
                 GeneticEntity createdGeneticEntity = DaoGeneticEntity.addNewGeneticEntity(newGeneticEntity);
                 propertiesMap.forEach((k, v) -> {
@@ -207,6 +235,17 @@ public class ImportGenericAssayEntity extends ConsoleRunnable {
             }
 
             currentLine = buf.readLine();
+        }
+        
+        // show import result message
+        if (updatedEntities.size() > 0) {
+            ProgressMonitor.setCurrentMessage("--> Entities updated: " + updatedEntities.size() + " generic entities existing in the database that were overridden during import.");
+        }
+        if (notUpdatedEntities.size() > 0) {
+            ProgressMonitor.setCurrentMessage("--> Entities not updated: " + notUpdatedEntities.size() + " generic entities existing in the database that were not overridden during import.");
+        }
+        if (newEntities.size() > 0) {
+            ProgressMonitor.setCurrentMessage("--> New Entities: " + newEntities.size() + " generic entities have been imported into database during import.");
         }
         
         reader.close();

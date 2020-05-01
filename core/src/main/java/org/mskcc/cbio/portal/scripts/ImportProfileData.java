@@ -56,9 +56,14 @@ public class ImportProfileData extends ConsoleRunnable {
             // Parse arguments
             // using a real options parser, helps avoid bugs
             String description = "Import 'profile' files that contain data matrices indexed by gene, case";
-            OptionSet options = ConsoleUtil.parseStandardDataAndMetaOptions(args, description, true);
+            OptionSet options = ConsoleUtil.parseStandardDataAndMetaUpdateOptions(args, description, true);
             File dataFile = new File((String) options.valueOf("data"));
             File descriptorFile = new File((String) options.valueOf( "meta" ) );
+            // Check options, set default as false
+            boolean updateInfo = false;
+            if (options.has("update-info") && (((String) options.valueOf("update-info")).equalsIgnoreCase("true") || options.valueOf("update-info").equals("1"))) {
+                updateInfo = true;
+            }
             SpringUtil.initDataSource();
             ProgressMonitor.setCurrentMessage("Reading data from:  " + dataFile.getAbsolutePath());
             // Load genetic profile and gene panel
@@ -100,7 +105,7 @@ public class ImportProfileData extends ConsoleRunnable {
                 importer.importData();
             } else if (geneticProfile.getGeneticAlterationType() == GeneticAlterationType.GENERIC_ASSAY) {
                 // add all missing `genetic_entities` for this assay to the database
-                ImportGenericAssayEntity.importData(dataFile, geneticProfile.getGeneticAlterationType(), geneticProfile.getOtherMetaDataField("generic_entity_meta_properties"));
+                ImportGenericAssayEntity.importData(dataFile, geneticProfile.getGeneticAlterationType(), geneticProfile.getOtherMetaDataField("generic_entity_meta_properties"), updateInfo);
                 
                 ImportTabDelimData genericAssayProfileImporter = new ImportTabDelimData(dataFile, geneticProfile.getTargetLine(), geneticProfile.getGeneticProfileId(), genePanel, geneticProfile.getOtherMetaDataField("generic_entity_meta_properties"));
                 genericAssayProfileImporter.importData(numLines);

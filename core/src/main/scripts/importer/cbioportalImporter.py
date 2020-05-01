@@ -102,7 +102,7 @@ def remove_study_id(jvm_args, study_id):
     run_java(*args)
 
 
-def import_study_data(jvm_args, meta_filename, data_filename, meta_file_dictionary = None):
+def import_study_data(jvm_args, meta_filename, data_filename, update_generic_assay_entity, meta_file_dictionary = None):
     args = jvm_args.split(' ')
 
     # In case the meta file is already parsed in a previous function, it is not
@@ -113,6 +113,11 @@ def import_study_data(jvm_args, meta_filename, data_filename, meta_file_dictiona
 
     # Retrieve meta file type
     meta_file_type = meta_file_dictionary['meta_file_type']
+
+    # Do not update entities by default
+    shouldUpdateGenericAssayEntities = False
+    if update_generic_assay_entity != None and update_generic_assay_entity.casefold() == "True".casefold():
+        shouldUpdateGenericAssayEntities = True
 
     # invalid file, skip
     if meta_file_type is None:
@@ -133,6 +138,12 @@ def import_study_data(jvm_args, meta_filename, data_filename, meta_file_dictiona
         args.append(meta_filename)
         args.append("--loadMode")
         args.append("bulkload")
+    if importer == "org.mskcc.cbio.portal.scripts.ImportProfileData" and shouldUpdateGenericAssayEntities:
+        args.append("--update-info")
+        args.append("True")
+    elif importer == "org.mskcc.cbio.portal.scripts.ImportProfileData" and not shouldUpdateGenericAssayEntities:
+        args.append("--update-info")
+        args.append("False")
     if importer in ("org.mskcc.cbio.portal.scripts.ImportMutSigData", "org.mskcc.cbio.portal.scripts.ImportGisticData"):
         args.append("--data")
         args.append(data_filename)
@@ -186,7 +197,7 @@ def process_case_lists(jvm_args, case_list_dir):
         if not (case_list.startswith('.') or case_list.endswith('~')):
             import_case_list(jvm_args, os.path.join(case_list_dir, case_list))
 
-def process_command(jvm_args, command, meta_filename, data_filename, study_ids):
+def process_command(jvm_args, command, meta_filename, data_filename, study_ids, update_generic_assay_entity = None):
     if command == IMPORT_CANCER_TYPE:
         import_cancer_type(jvm_args, data_filename)
     elif command == IMPORT_STUDY:
@@ -201,11 +212,11 @@ def process_command(jvm_args, command, meta_filename, data_filename, study_ids):
         else:
             raise RuntimeError('Your command uses both -id and -meta. Please, use only one of the two parameters.')
     elif command == IMPORT_STUDY_DATA:
-        import_study_data(jvm_args, meta_filename, data_filename)
+        import_study_data(jvm_args, meta_filename, data_filename, update_generic_assay_entity)
     elif command == IMPORT_CASE_LIST:
         import_case_list(jvm_args, meta_filename)
 
-def process_directory(jvm_args, study_directory):
+def process_directory(jvm_args, study_directory, update_generic_assay_entity = None):
     """
     Import an entire study directory based on meta files found.
 
@@ -338,47 +349,47 @@ def process_directory(jvm_args, study_directory):
         raise RuntimeError('No sample attribute file found')
     else:
         meta_filename, data_filename = sample_attr_filepair
-        import_study_data(jvm_args, meta_filename, data_filename, study_meta_dictionary[meta_filename])
+        import_study_data(jvm_args, meta_filename, data_filename, update_generic_assay_entity, study_meta_dictionary[meta_filename])
 
     # Next, we need to import resource definitions for resource data
     if resource_definition_filepair is not None:
         meta_filename, data_filename = resource_definition_filepair
-        import_study_data(jvm_args, meta_filename, data_filename, study_meta_dictionary[meta_filename])
+        import_study_data(jvm_args, meta_filename, data_filename, update_generic_assay_entity, study_meta_dictionary[meta_filename])
 
     # Next, we need to import sample definitions for resource data
     if sample_resource_filepair is not None:
         meta_filename, data_filename = sample_resource_filepair
-        import_study_data(jvm_args, meta_filename, data_filename, study_meta_dictionary[meta_filename])
+        import_study_data(jvm_args, meta_filename, data_filename, update_generic_assay_entity, study_meta_dictionary[meta_filename])
 
     # Next, import everything else except gene panel, fusion data, GSVA and
     # z-score expression. If in the future more types refer to each other, (like
     # in a tree structure) this could be programmed in a recursive fashion.
     for meta_filename, data_filename in regular_filepairs:
-        import_study_data(jvm_args, meta_filename, data_filename, study_meta_dictionary[meta_filename])
+        import_study_data(jvm_args, meta_filename, data_filename, update_generic_assay_entity, study_meta_dictionary[meta_filename])
 
     # Import fusion data (after mutation)
     if fusion_filepair is not None:
         meta_filename, data_filename = fusion_filepair
-        import_study_data(jvm_args, meta_filename, data_filename, study_meta_dictionary[meta_filename])
+        import_study_data(jvm_args, meta_filename, data_filename, update_generic_assay_entity, study_meta_dictionary[meta_filename])
 
     # Import expression z-score (after expression)
     for meta_filename, data_filename in zscore_filepairs:
-        import_study_data(jvm_args, meta_filename, data_filename, study_meta_dictionary[meta_filename])
+        import_study_data(jvm_args, meta_filename, data_filename, update_generic_assay_entity, study_meta_dictionary[meta_filename])
 
     # Import GSVA genetic profiles (after expression and z-scores)
     if gsva_score_filepair is not None:
 
         # First import the GSVA score data
         meta_filename, data_filename = gsva_score_filepair
-        import_study_data(jvm_args, meta_filename, data_filename, study_meta_dictionary[meta_filename])
+        import_study_data(jvm_args, meta_filename, data_filename, update_generic_assay_entity, study_meta_dictionary[meta_filename])
 
         # Second import the GSVA p-value data
         meta_filename, data_filename = gsva_pvalue_filepair
-        import_study_data(jvm_args, meta_filename, data_filename, study_meta_dictionary[meta_filename])
+        import_study_data(jvm_args, meta_filename, data_filename, update_generic_assay_entity, study_meta_dictionary[meta_filename])
 
     if gene_panel_matrix_filepair is not None:
         meta_filename, data_filename = gene_panel_matrix_filepair
-        import_study_data(jvm_args, meta_filename, data_filename, study_meta_dictionary[meta_filename])
+        import_study_data(jvm_args, meta_filename, data_filename, update_generic_assay_entity, study_meta_dictionary[meta_filename])
 
     # Import the case lists
     case_list_dirname = os.path.join(study_directory, 'case_lists')
@@ -456,6 +467,8 @@ def interface():
     parser.add_argument('-id', '--study_ids', type=str, required=False,
                         help='Cancer Study IDs for `remove-study` command, comma separated')
     
+    parser.add_argument('-update', '--update_generic_assay_entity', type=str, required=False,
+                        help='Set as True to update the existing generic assay entities, set as False to keep the existing generic assay entities for generic assay')
     # TODO - add same argument to metaimporter
     # TODO - harmonize on - and _
 
@@ -517,11 +530,11 @@ def main(args):
 
     if study_directory != None:
         check_dir(study_directory)
-        process_directory(jvm_args, study_directory)
+        process_directory(jvm_args, study_directory, args.update_generic_assay_entity)
     else:
         check_args(args.command)
         check_files(args.meta_filename, args.data_filename)
-        process_command(jvm_args, args.command, args.meta_filename, args.data_filename, args.study_ids)
+        process_command(jvm_args, args.command, args.meta_filename, args.data_filename, args.study_ids, args.update_generic_assay_entity)
 
 # ------------------------------------------------------------------------------
 # ready to roll

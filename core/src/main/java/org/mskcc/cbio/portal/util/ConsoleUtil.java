@@ -227,5 +227,73 @@ public class ConsoleUtil {
 		}
 
 		return options;
+    }
+    
+    /**
+     * Default method to be used when Importer class main method expects only 'data' and 'meta' as mandatory options 
+     * and an optional 'loadMode' parameter and an optional 'update-info' parameter
+     *  
+     * @param args: the same args given to main() method of the tool
+     * @param description: short description of the tool (to display in the usage line if necessary)
+     * @param hasLoadMode: set to true to let this method validate whether the command line argument loadMode was given 
+     * 
+     * @return the parsed options
+     */
+	public static OptionSet parseStandardDataAndMetaUpdateOptions(String[] args, String description, boolean hasLoadMode) {
+		// using a real options parser, helps avoid bugs
+		OptionParser parser = new OptionParser();
+		parser.accepts("noprogress", "this option can be given to avoid the messages regarding memory usage and % complete");
+		OptionSpec<Void> help = parser.accepts( "help", "print this help info" );
+        parser.accepts( "data", "profile data file" ).withRequiredArg().describedAs( "data_file.txt" ).ofType( String.class );
+        parser.accepts( "update-info", "Update information for existing entities in the database").withOptionalArg().ofType(String.class);
+		parser.accepts( "meta", "meta (description) file" ).withRequiredArg().describedAs( "meta_file.txt" ).ofType( String.class );
+		if (hasLoadMode) {
+			parser.accepts( "loadMode", "direct (per record) or bulk load of data" )
+			          .withRequiredArg().describedAs( "[directLoad|bulkLoad (default)]" ).ofType( String.class );
+		}
+		String progName = "importScript";
+		
+		OptionSet options = null;
+		try {
+			options = parser.parse( args );
+		} catch (OptionException e) {
+			throw new UsageException(progName, description, parser,
+			        e.getMessage());
+		}
+		  
+		if( options.has( help ) ){
+			throw new UsageException(progName, description, parser);
+		}
+		
+		//these extra checks are needed, since withRequiredArg above only indicated that the option 
+		//has a mandatory argument but does not make the option itself mandatory.
+		if(!options.has("data")) {
+			throw new UsageException(progName, description, parser,
+			        "Error: 'data' argument required.");
+		}
+		
+		if(!options.has("meta")) {
+			throw new UsageException(progName, description, parser,
+			        "Error: 'meta' argument required.");
+		}
+
+		if (hasLoadMode) {
+			if( options.has( "loadMode" ) ){
+				String actionArg = (String) options.valueOf( "loadMode" );
+				if (actionArg.equalsIgnoreCase("directLoad")) {
+					MySQLbulkLoader.bulkLoadOff();
+				} else if (actionArg.equalsIgnoreCase( "bulkLoad" )) {
+					MySQLbulkLoader.bulkLoadOn();
+				} else {
+					throw new UsageException(progName, description, parser,
+							"Error: unknown loadMode action:  " + actionArg);
+				}
+			}
+			else {
+				throw new UsageException(progName, description, parser,
+						"Error: 'loadMode' argument required.");
+			}
+		}
+		return options;
 	}
 }

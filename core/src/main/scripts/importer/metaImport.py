@@ -105,6 +105,8 @@ def interface():
                              'report. For example, set this to a high number to '
                              'report all genes that could not be loaded, instead '
                              'of reporting "(GeneA, GeneB, GeneC, 213 more)".')
+    parser.add_argument('-update', '--update_generic_assay_entity', type=str, required=False, default="False",
+                        help='Set as True to update the existing generic assay entities, set as False to keep the existing generic assay entities for generic assay')
     parser = parser.parse_args()
     return parser
 

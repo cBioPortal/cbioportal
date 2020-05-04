@@ -295,7 +295,7 @@
     <bundle.namespace>org.mskcc.mondrian</bundle.namespace>
     <timestamp>${maven.build.timestamp}</timestamp>
     <maven.build.timestamp.format>yyyyMMdd-HHmm</maven.build.timestamp.format>
-    <jacoco-maven-plugin.version>0.7.6.201602180812</jacoco-maven-plugin.version>
+    <jacoco-maven-plugin.version>0.8.5</jacoco-maven-plugin.version>
     <mockito.version>1.10.19</mockito.version>
 
     <final.war.name>cbioportal</final.war.name>

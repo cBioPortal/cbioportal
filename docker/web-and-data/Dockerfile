@@ -11,7 +11,7 @@
 # NOTE: the .git folder is included in the build stage, but excluded 
 # from the final image. No confidential information is exposed.
 # (see: stackoverflow.com/questions/56278325)
-FROM maven:3.5.4 as build
+FROM maven:3-openjdk-11 as build
 
 # download maven dependencies first to take advantage of docker caching
 COPY pom.xml                                     /cbioportal/
@@ -37,7 +37,7 @@ RUN mvn dependency:go-offline --fail-never
 COPY $PWD /cbioportal
 RUN mvn -DskipTests clean install
 
-FROM openjdk:8-jre
+FROM openjdk:11-jre-slim
 
 # download system dependencies first to take advantage of docker caching
 RUN apt-get update; apt-get install -y --no-install-recommends \
@@ -48,6 +48,7 @@ RUN apt-get update; apt-get install -y --no-install-recommends \
         python3-setuptools \
         python3-dev \
         python3-pip \
+        unzip \
 	&& rm -rf /var/lib/apt/lists/* \
     && pip3 install wheel
 

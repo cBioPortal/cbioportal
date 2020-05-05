@@ -74,6 +74,7 @@ DEFINED_CANCER_TYPES = None
 mutation_sample_ids = None
 mutation_file_sample_ids = set()
 fusion_file_sample_ids = set()
+sampleid_panel_map = {}
 
 # resource globals
 RESOURCE_DEFINITION_DICTIONARY = {}
@@ -1484,16 +1485,34 @@ class MutationsExtendedValidator(Validator):
         if 'Hugo_Symbol' in self.cols:
             hugo_symbol = data[self.cols.index('Hugo_Symbol')].strip()
             # treat the empty string or 'Unknown' as a missing value
-            if hugo_symbol in ('', 'Unknown'):
+            if hugo_symbol in ('NA','', 'Unknown'):
                 hugo_symbol = None
         if 'Entrez_Gene_Id' in self.cols:
             entrez_id = data[self.cols.index('Entrez_Gene_Id')].strip()
             # treat the empty string or 0 as a missing value
-            if entrez_id in ('', '0'):
+            if entrez_id in ('NA','', '0'):
                 entrez_id = None
         # validate hugo and entrez together:
-        self.checkGeneIdentification(hugo_symbol, entrez_id)
-
+        normalized_gene = self.checkGeneIdentification(hugo_symbol, entrez_id)
+        matching_panel_by_sampleid = sampleid_panel_map[data[sample_id_column_index]]
+        
+        try:
+            normalized_gene = int(normalized_gene)
+        except:
+            pass
+            
+        if normalized_gene and normalized_gene not in self.portal.gene_panel_list[matching_panel_by_sampleid]:
+            if hugo_symbol:
+                self.logger.error(
+                        'Off panel variant. Gene symbol not known to the targeted panel.',
+                        extra={'line_number': self.line_number,
+                        'cause': hugo_symbol})
+            else:
+                self.logger.error(
+                        'Off panel variant. Gene symbol is not provided and Entrez gene id not known to the targeted panel.',
+                        extra={'line_number': self.line_number,
+                        'cause': entrez_id})
+            
         # parse custom driver annotation values to validate them together
         driver_value = None
         driver_annotation = None
@@ -2470,10 +2489,10 @@ class ClinicalValidator(Validator):
                 pass
             elif data_type == 'NUMBER':
                 if not self.checkFloat(value):
-                	if (value[0] in ('>','<')) and value[1:].isdigit():
-                		pass
-                	else:
-                		self.logger.error(
+                    if (value[0] in ('>','<')) and value[1:].isdigit():
+                        pass
+                    else:
+                        self.logger.error(
                         'Value of numeric attribute is not a real number',
                         extra={'line_number': self.line_number,
                                'column_number': col_index + 1,
@@ -3235,7 +3254,7 @@ class GenePanelMatrixValidator(Validator):
 
             # If stable id is mutation and value not NA, check whether sample ID is in sequenced case list
             if self.mutation_stable_id_index is not None:
-
+                sampleid_panel_map[sample_id] = data[self.mutation_stable_id_index - 1]
                 # Sample ID has been removed from list, so subtract 1 position.
                 if data[self.mutation_stable_id_index - 1] != 'NA':
                     if sample_id not in mutation_sample_ids:
@@ -4744,7 +4763,7 @@ def validate_defined_caselists(cancer_study_id, case_list_ids, file_types, logge
 def validateStudyTags(tags_file_path, logger):
         """Validate the study tags file."""
         logger.debug('Starting validation of study tags file',
-        	extra={'filename_': tags_file_path})
+            extra={'filename_': tags_file_path})
         with open(tags_file_path, 'r') as stream:
             try:
                 parsedYaml = yaml.load(stream)
@@ -4861,6 +4880,19 @@ def request_from_portal_api(server_url, api_name, logger):
         raise ConnectionError(
             'Failed to fetch metadata from the portal at [{}]'.format(service_url)
         ) from e
+        
+    if api_name == 'gene-panels':
+        gene_panels = []
+        for data_item in response.json():
+            panel = {}
+            panel_id = data_item['genePanelId']
+            panel_url = service_url.strip("?pageSize=9999999")+'/'+panel_id+"?pageSize=9999999"
+            response = requests.get(panel_url).json()
+            panel['description'] = response['description']
+            panel['genes'] = response['genes']
+            panel['genePanelId'] = response['genePanelId']
+            gene_panels.append(panel)
+        return(gene_panels)
     return response.json()
 
 
@@ -4948,6 +4980,15 @@ def extract_ids(json_data, id_key):
         result_set.add(data_item[id_key])
     return list(result_set)
 
+def extract_panels(json_data, id_key):
+    panel_dict = {}
+    for data_item in json_data:
+        gene_list = []
+        for entrez_id in data_item['genes']:
+            gene_list.append(entrez_id['entrezGeneId'])
+        panel_dict[data_item[id_key]] = gene_list
+    return panel_dict
+
 # there is no dump function implemented for the /info API. Unable to retrieve version.
 def load_portal_metadata(json_data):
     return json_data
@@ -4976,7 +5017,7 @@ def load_portal_info(path, logger, offline=False):
             ('genesets_version',
                 lambda json_data: str(json_data).strip(' \'[]')),
             ('gene-panels',
-                lambda json_data: extract_ids(json_data, 'genePanelId'))):
+                lambda json_data: extract_panels(json_data, 'genePanelId'))):
         if offline:
             parsed_json = read_portal_json_file(path, api_name, logger)
         else:
@@ -5224,26 +5265,7 @@ def validate_study(study_dir, portal_instance, logger, relaxed_mode, strict_maf_
     # then validate the study tags YAML file if it exists
     if tags_file_path is not None:
         validateStudyTags(tags_file_path, logger=logger)
-    # next validate all other data files
-    for meta_file_type in sorted(validators_by_meta_type):
-        # skip cancer type and clinical files, they have already been validated
-        if meta_file_type in (cbioportal_common.MetaFileTypes.CANCER_TYPE,
-                              cbioportal_common.MetaFileTypes.SAMPLE_ATTRIBUTES,
-                              cbioportal_common.MetaFileTypes.RESOURCES_DEFINITION,
-                              cbioportal_common.MetaFileTypes.SAMPLE_RESOURCES,
-                              cbioportal_common.MetaFileTypes.GENE_PANEL_MATRIX):
-            continue
-        for validator in sorted(
-                validators_by_meta_type[meta_file_type],
-                key=lambda validator: validator and validator.filename):
-            # if there was no validator for this meta file
-            if validator is None:
-                continue
-            validator.validate()
-
-    # additional validation between meta files, after all meta files are processed
-    validate_data_relations(validators_by_meta_type, logger)
-
+        
     # validate the case list directory if present
     case_list_dirname = os.path.join(study_dir, 'case_lists')
     if not os.path.isdir(case_list_dirname):
@@ -5266,6 +5288,26 @@ def validate_study(study_dir, portal_instance, logger, relaxed_mode, strict_maf_
         else:
             # pass stable_ids to data file
             validators_by_meta_type[cbioportal_common.MetaFileTypes.GENE_PANEL_MATRIX][0].validate()
+    
+    # next validate all other data files
+    for meta_file_type in sorted(validators_by_meta_type):
+        # skip cancer type and clinical files, they have already been validated
+        if meta_file_type in (cbioportal_common.MetaFileTypes.CANCER_TYPE,
+                              cbioportal_common.MetaFileTypes.SAMPLE_ATTRIBUTES,
+                              cbioportal_common.MetaFileTypes.RESOURCES_DEFINITION,
+                              cbioportal_common.MetaFileTypes.SAMPLE_RESOURCES,
+                              cbioportal_common.MetaFileTypes.GENE_PANEL_MATRIX):
+            continue
+        for validator in sorted(
+                validators_by_meta_type[meta_file_type],
+                key=lambda validator: validator and validator.filename):
+            # if there was no validator for this meta file
+            if validator is None:
+                continue
+            validator.validate()
+
+    # additional validation between meta files, after all meta files are processed
+    validate_data_relations(validators_by_meta_type, logger)
 
     logger.info('Validation complete')
 

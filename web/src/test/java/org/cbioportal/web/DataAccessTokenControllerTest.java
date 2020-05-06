@@ -23,7 +23,7 @@ import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.mockito.Matchers;
+import org.mockito.ArgumentMatchers;
 import org.mockito.Mockito;
 import org.mockito.invocation.InvocationOnMock;
 import org.mockito.stubbing.Answer;
@@ -144,7 +144,7 @@ public class DataAccessTokenControllerTest {
                 return null;
             }
         };
-        Mockito.doAnswer(tokenServiceRevokeTokenAnswer).when(tokenService).revokeDataAccessToken(Matchers.anyString());
+        Mockito.doAnswer(tokenServiceRevokeTokenAnswer).when(tokenService).revokeDataAccessToken(ArgumentMatchers.anyString());
         HttpSession session = getSession(MOCK_USER, MOCK_PASSWORD);
         MvcResult result = mockMvc.perform(MockMvcRequestBuilders.delete("/data-access-tokens/" + VALID_TOKEN_STRING)
             .session((MockHttpSession) session)
@@ -182,7 +182,7 @@ public class DataAccessTokenControllerTest {
      */
     @Test
     public void createTokenValidUserTest() throws Exception {
-        Mockito.when(tokenService.createDataAccessToken(Matchers.anyString())).thenReturn(MOCK_TOKEN_INFO);
+        Mockito.when(tokenService.createDataAccessToken(ArgumentMatchers.anyString())).thenReturn(MOCK_TOKEN_INFO);
         HttpSession session = getSession(MOCK_USER, MOCK_PASSWORD);
         MvcResult result = mockMvc.perform(MockMvcRequestBuilders.post("/data-access-tokens")
             .session((MockHttpSession) session)
@@ -205,7 +205,7 @@ public class DataAccessTokenControllerTest {
                 return null;
             }
         };
-        Mockito.doAnswer(tokenServiceRevokeAllTokensAnswer).when(tokenService).revokeAllDataAccessTokens(Matchers.anyString());
+        Mockito.doAnswer(tokenServiceRevokeAllTokensAnswer).when(tokenService).revokeAllDataAccessTokens(ArgumentMatchers.anyString());
         HttpSession session = getSession(MOCK_USER, MOCK_PASSWORD);
         MvcResult result = mockMvc.perform(MockMvcRequestBuilders.delete("/data-access-tokens")
             .session((MockHttpSession) session)
@@ -231,7 +231,7 @@ public class DataAccessTokenControllerTest {
                 return null;
             }
         };
-        Mockito.doAnswer(tokenServiceGetAllTokensAnswer).when(tokenService).getAllDataAccessTokens(Matchers.anyString());
+        Mockito.doAnswer(tokenServiceGetAllTokensAnswer).when(tokenService).getAllDataAccessTokens(ArgumentMatchers.anyString());
         HttpSession session = getSession(MOCK_USER, MOCK_PASSWORD);
         MvcResult result = mockMvc.perform(MockMvcRequestBuilders.get("/data-access-tokens")
             .session((MockHttpSession) session)

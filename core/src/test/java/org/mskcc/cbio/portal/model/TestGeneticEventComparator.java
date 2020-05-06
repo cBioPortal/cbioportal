@@ -36,7 +36,7 @@ package org.mskcc.cbio.portal.model;
 import java.util.ArrayList;
 import java.util.EnumSet;
 
-import junit.framework.Assert;
+import org.junit.Assert;
 import junit.framework.TestCase;
 
 import org.junit.Test;
@@ -52,7 +52,7 @@ public class TestGeneticEventComparator extends TestCase{
       GeneticEventComparator aGeneticEventComparator = new GeneticEventComparator();
 
       GeneticEventImpl ge1 = new GeneticEventImpl( 1, 1, 1,true );
-      testReflexiveEquals( aGeneticEventComparator, ge1, new Integer(0), false );
+      testReflexiveEquals( aGeneticEventComparator, ge1, Integer.valueOf(0), false );
 
       GeneticEventImpl ge2 = new GeneticEventImpl( 1, 1, 1, true );
       testReflexiveEquals( aGeneticEventComparator, ge1, ge2, true );
@@ -93,7 +93,7 @@ public class TestGeneticEventComparator extends TestCase{
 
       GeneticEventImpl ge1 = new GeneticEventImpl( CNA.AMPLIFIED, MRNA.NORMAL, RPPA.NORMAL, mutations.MUTATED );
 
-      Assert.assertEquals( false, aGeneticEventComparator.equals(ge1, new Integer(0)) );
+      Assert.assertEquals( false, aGeneticEventComparator.equals(ge1, Integer.valueOf(0)) );
 
       GeneticEventImpl ge2 = new GeneticEventImpl( CNA.AMPLIFIED, MRNA.NORMAL, RPPA.NORMAL, mutations.MUTATED );
       testReflexiveEquals( aGeneticEventComparator, ge1, ge2, true );

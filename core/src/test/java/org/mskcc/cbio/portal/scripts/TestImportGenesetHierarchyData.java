@@ -48,9 +48,9 @@ import org.mskcc.cbio.portal.model.Geneset;
 import org.mskcc.cbio.portal.model.GenesetHierarchy;
 import org.mskcc.cbio.portal.model.GenesetHierarchyLeaf;
 import org.mskcc.cbio.portal.util.ProgressMonitor;
+import org.springframework.test.annotation.Rollback;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
-import org.springframework.test.context.transaction.TransactionConfiguration;
 import org.springframework.transaction.annotation.Transactional;
 
 /*
@@ -59,7 +59,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 @RunWith(SpringJUnit4ClassRunner.class)
 @ContextConfiguration(locations = { "classpath:/applicationContext-dao.xml" })
-@TransactionConfiguration(transactionManager = "transactionManager", defaultRollback = true)
+@Rollback
 @Transactional
 public class TestImportGenesetHierarchyData {
 

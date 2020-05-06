@@ -3,7 +3,7 @@
      * [Uterine Sarcoma/Mesenchymal (MSK, Clin Cancer Res 2020)](https://www.cbioportal.org/study/summary?id=usarc_msk_2020) *108 samples* 
      * [Metastatic castration-sensitive prostate cancer (MSK, Clin Cancer Res 2020)](https://www.cbioportal.org/study/summary?id=prad_mcspc_mskcc_2020) *424 samples* 
     *  [Glioblastoma (Columbia, Nat Med. 2019)](https://www.cbioportal.org/study/summary?id=gbm_columbia_2019) *42 samples* 
-*   **Updated Information:**
+*   **Updated one study:**
      *  [The Metastatic Breast Cancer Project (Provisional, October 2018)](http://www.cbioportal.org/study?id=brca_mbcproject_wagle_2017) was updated with Expression Data.
 
 ## April 24, 2020

@@ -1,0 +1,11 @@
+MAPPING_TO_ONE	MAPPING_TO_ZERO
+deceased	living,alive
+recurred/progressed	diseasefree
+progressed	not progressed
+progression	progressionfree,no progression,progression free
+recurred	ned
+yes	no
+1	0
+event	censored,censure,censor
+dead of melanoma,dead with tumor	alive or censored,alive or dead tumor free
+metastatic relapse,localized relapse	no relapse

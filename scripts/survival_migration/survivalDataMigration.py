@@ -8,9 +8,9 @@ import shutil
 
 PARENT_PARSER_NAME = 'survival data migration tool'
 NULL_VALUES = ["[not applicable]", "[not available]", "[pending]", "[discrepancy]", "[completed]", "[null]", "", "na"]
-ZERO_MAPPING_FILE_PATH = os.getcwd() + '/survivalStatusVocabulariesMappingToZero.txt'
-ONE_MAPPING_FILE_PATH = os.getcwd() + '/survivalStatusVocabulariesMappingToOne.txt'
-
+MAPPING_FILE_PATH = os.getcwd() + '/survivalStatusVocabularies.txt'
+MAPPING_TO_ONE_COLUMN = "MAPPING_TO_ONE"
+MAPPING_TO_ZERO_COLUMN = "MAPPING_TO_ZERO"
 
 def migrateAttibuteValue(value, vocabulariesMappingToOne, vocabulariesMappingToZero):
     if value.lower() in NULL_VALUES:
@@ -22,6 +22,17 @@ def migrateAttibuteValue(value, vocabulariesMappingToOne, vocabulariesMappingToZ
     else:
         sys.exit("cannot find the mapping for vocabulary {} , please provide the the mapping rules with option -a".format(value))
         return value
+
+def generateVocabularies(vocabulariesMappingToOne, vocabulariesMappingToZero):
+    df = pd.read_csv(MAPPING_FILE_PATH, sep='\t')
+    oneValues = df[MAPPING_TO_ONE_COLUMN].tolist()
+    for unparsedValue in oneValues:
+        for parsedValue in unparsedValue.split(","):
+            vocabulariesMappingToOne.append(parsedValue)
+    zeroValues = df[MAPPING_TO_ZERO_COLUMN].tolist()
+    for unparsedValue in zeroValues:
+        for parsedValue in unparsedValue.split(","):
+            vocabulariesMappingToZero.append(parsedValue)
 
 def splitAdditionalVocabularies(voc, oneVoc, zeroVoc):
     zeroAndOneSplit = voc.split('#')
@@ -45,20 +56,23 @@ def splitAdditionalVocabularies(voc, oneVoc, zeroVoc):
                         newVocAddingToOne.append(value.lower())
         else:
             print("additionalVocabularies format is incorrect, please check the example by using -h option")
-    if len(newVocAddingToZero) > 0:
+
+    # save vocabularies to file
+    separator = ','
+    oneUpdateString = separator.join(newVocAddingToOne)
+    zeroUpdateString = separator.join(newVocAddingToZero)
+    df = pd.read_csv(MAPPING_FILE_PATH, sep='\t')
+
+    if len(newVocAddingToZero) > 0 or len(newVocAddingToOne) > 0:
         # get vocabularies
-        with open(ZERO_MAPPING_FILE_PATH, 'a') as f:
-            writer = csv.writer(f)
-            for voc in newVocAddingToZero:
-                writer.writerow(voc.split())
-                print("vocabulary {} has been added to zero mapping".format(voc))
-    if len(newVocAddingToOne) > 0:
-        # get vocabularies
-        with open(ONE_MAPPING_FILE_PATH, 'a') as f:
-            writer = csv.writer(f)
-            for voc in newVocAddingToOne:
-                writer.writerow(voc.split())
-                print("vocabulary {} has been added to one mapping".format(voc))
+        df2 = pd.DataFrame([[oneUpdateString, zeroUpdateString]], columns=[MAPPING_TO_ONE_COLUMN, MAPPING_TO_ZERO_COLUMN])
+        df = df.append(df2, ignore_index=True)
+        if len(newVocAddingToOne) > 0:
+            print("vocabulary {} has been added to one mapping".format(oneUpdateString))
+        if len(newVocAddingToZero) > 0:
+            print("vocabulary {} has been added to zero mapping".format(zeroUpdateString))
+
+    df.to_csv(MAPPING_FILE_PATH, index=False, sep='\t', header=True)
 
 def migrate_file(args):
     clinicalFile = args.clinicalFile
@@ -67,10 +81,9 @@ def migrate_file(args):
     tmpFile = os.path.dirname(args.clinicalFile) + "/tmp_data_clinical_patients.txt"
 
     # get vocabularies
-    with open(ONE_MAPPING_FILE_PATH) as f:
-        vocabulariesMappingToOne = f.read().splitlines()
-    with open(ZERO_MAPPING_FILE_PATH) as f:
-        vocabulariesMappingToZero = f.read().splitlines()
+    vocabulariesMappingToOne = []
+    vocabulariesMappingToZero = []
+    generateVocabularies(vocabulariesMappingToOne, vocabulariesMappingToZero)
 
     if args.additionalVocabularies != None and args.additionalVocabularies != '':
         splitAdditionalVocabularies(args.additionalVocabularies, vocabulariesMappingToOne, vocabulariesMappingToZero)

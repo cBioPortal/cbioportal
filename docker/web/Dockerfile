@@ -17,12 +17,12 @@
 # WARNING: Be careful about publishing images generated like this publicly
 # because your .git folder is exposed in the build step. We are not sure if
 # this is a security risk: stackoverflow.com/questions/56278325
-FROM maven:3.5.4 as build
+FROM maven:3-openjdk-11 as build
 COPY $PWD /cbioportal
 WORKDIR /cbioportal
 RUN mvn -DskipTests clean install
 
-FROM shipilev/openjdk-shenandoah:8
+FROM shipilev/openjdk-shenandoah:11
 
 ENV PORTAL_WEB_HOME=/cbioportal-webapp
 

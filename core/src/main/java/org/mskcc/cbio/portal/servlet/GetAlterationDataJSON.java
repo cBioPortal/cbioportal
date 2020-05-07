@@ -154,7 +154,7 @@ public class GetAlterationDataJSON extends HttpServlet {
                         _geneArr.add(_datum);                        
                     }
                 }
-                ((ObjectNode)_result).put(geneId, _geneArr);
+                ((ObjectNode)_result).set(geneId, _geneArr);
             }
             ((ObjectNode)_result).put("profile_name", final_gp.getProfileName());
             ((ObjectNode)_result).put("profile_description", final_gp.getProfileDescription());

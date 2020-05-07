@@ -41,6 +41,12 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.core.JsonParseException;
+import com.fasterxml.jackson.databind.JsonMappingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
+
 import org.cbioportal.model.GenericAssayData;
 import org.cbioportal.model.GenesetMolecularData;
 import org.cbioportal.model.StructuralVariant;
@@ -48,11 +54,6 @@ import org.cbioportal.persistence.PersistenceConstants;
 import org.cbioportal.service.GenericAssayService;
 import org.cbioportal.service.GenesetDataService;
 import org.cbioportal.service.StructuralVariantService;
-import org.codehaus.jackson.JsonParseException;
-import org.codehaus.jackson.annotate.JsonIgnoreProperties;
-import org.codehaus.jackson.annotate.JsonProperty;
-import org.codehaus.jackson.map.JsonMappingException;
-import org.codehaus.jackson.map.ObjectMapper;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;

@@ -45,7 +45,9 @@ import org.springframework.transaction.annotation.Transactional;
 import static org.junit.Assert.*;
 
 import java.util.*;
-import org.codehaus.jackson.map.ObjectMapper;
+
+import com.fasterxml.jackson.databind.ObjectMapper;
+
 import org.junit.Assert;
 
 /**

@@ -41,6 +41,7 @@ import org.hamcrest.Matchers;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.mockito.ArgumentMatchers;
 import org.mockito.Mockito;
 import org.mskcc.cbio.portal.model.MutationalSignature;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -83,7 +84,7 @@ public class MutationalSignatureControllerTest {
    public void mutationalSignaturesBySampleIdTest() throws Exception {
         List<MutationalSignature> mockResponse = new ArrayList<>();
         mockResponse.add(signature1);
-        Mockito.when(mutationalSignatureServiceMock.getMutationalSignaturesBySampleIds(org.mockito.Matchers.anyString(), org.mockito.Matchers.anyList()))
+        Mockito.when(mutationalSignatureServiceMock.getMutationalSignaturesBySampleIds(ArgumentMatchers.anyString(), ArgumentMatchers.anyList()))
             .thenReturn(mockResponse);
 
         String[] sample_ids = new String[]{"sample1"};
@@ -111,7 +112,7 @@ public class MutationalSignatureControllerTest {
         List<MutationalSignature> mockResponse = new ArrayList<>();
         mockResponse.add(signature1);
         mockResponse.add(signature2);
-        Mockito.when(mutationalSignatureServiceMock.getMutationalSignatures(org.mockito.Matchers.anyString()))
+        Mockito.when(mutationalSignatureServiceMock.getMutationalSignatures(ArgumentMatchers.anyString()))
             .thenReturn(mockResponse);
 
         this.mockMvc.perform(

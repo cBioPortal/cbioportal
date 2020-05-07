@@ -29,7 +29,7 @@ import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.junit.MockitoJUnitRunner;
 
-@RunWith(MockitoJUnitRunner.class)
+@RunWith(MockitoJUnitRunner.Silent.class)
 public class GenericAssayServiceImpTest extends BaseServiceImplTest {
 
     public static final String GENERIC_ASSAY_ID_1 = "generic_assay_id_1";

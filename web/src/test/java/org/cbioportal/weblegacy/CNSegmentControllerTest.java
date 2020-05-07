@@ -91,8 +91,8 @@ public class CNSegmentControllerTest {
         mockResponse.add(cnSegmentData2);
         Mockito.when(
                 cnSegmentServiceMock.getCNSegmentData(org.mockito.Matchers.anyString(),
-                                                        org.mockito.Matchers.anyListOf(String.class),
-                                                        org.mockito.Matchers.anyListOf(String.class)))
+                                                        org.mockito.Matchers.anyList(),
+                                                        org.mockito.Matchers.anyList()))
                 .thenReturn(mockResponse)
                 ;
         this.mockMvc.perform(

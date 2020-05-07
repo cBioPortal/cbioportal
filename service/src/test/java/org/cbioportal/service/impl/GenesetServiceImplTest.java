@@ -18,7 +18,7 @@ import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.junit.MockitoJUnitRunner;
 
-@RunWith(MockitoJUnitRunner.class)
+@RunWith(MockitoJUnitRunner.Silent.class)
 public class GenesetServiceImplTest extends BaseServiceImplTest {
 
     public static final String GENESET_ID_1 = "geneset_id_1";

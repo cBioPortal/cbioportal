@@ -189,10 +189,10 @@ public class GetProfileDataJSON extends HttpServlet  {
                 }
 
                 for (String stableSampleId : stableSampleIds) {
-                    ((ObjectNode)tmpGeneObj).put(stableSampleId, tmpObjMap.get(stableSampleId));
+                    ((ObjectNode)tmpGeneObj).set(stableSampleId, tmpObjMap.get(stableSampleId));
                 }
 
-                ((ObjectNode)result).put(geneId, tmpGeneObj);
+                ((ObjectNode)result).set(geneId, tmpGeneObj);
 
             }
         } catch (DaoException e) {

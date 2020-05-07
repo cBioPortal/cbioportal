@@ -16,7 +16,11 @@ public class WebServletContextListener implements ServletContextListener, Initia
     
     private String oncokbToken;
     
+    private String oncokbURL;
+    
     private Properties properties;
+
+    private static final String DEFAULT_ONCOKB_URL = "https://public.api.oncokb.org/api/v1";
 
     @Override
     public void contextDestroyed(ServletContextEvent arg0) {
@@ -30,6 +34,7 @@ public class WebServletContextListener implements ServletContextListener, Initia
         
         this.showOncokb = Boolean.parseBoolean(getProperty("show.oncokb", "true"));
         this.oncokbToken = getProperty("oncokb.token", "");
+        this.oncokbURL = getProperty("oncokb.public_api.url", "");
 
         if (this.showOncokb) {
             checkOncokbInfo();
@@ -41,12 +46,11 @@ public class WebServletContextListener implements ServletContextListener, Initia
     }
 
     private void checkOncokbInfo() {
-        if(StringUtils.isEmpty(this.oncokbToken)) {
+        if(StringUtils.isEmpty(this.oncokbToken) && (StringUtils.isEmpty(this.oncokbURL) || this.oncokbURL.equalsIgnoreCase(DEFAULT_ONCOKB_URL))) {
             System.out.println("----------------------------------------------------------------------------------------------------------------");
             // oncokb.org is deprecated, www.oncokb.org should be used
-            System.out.println("-- OncoKB requires a token to access the latest data.");
-            System.out.println("-- You will not be able to use OncoKB service within your instance without an access token.");
-            System.out.println("-- Please review OncoKB terms(https://www.oncokb.org/terms) and register an account accordingly.");
+            System.out.println("-- You are connecting to the OncoKB public instance which does not include any therapeutic information.");
+            System.out.println("-- Please consider obtaining a license to support future OncoKB development by following https://docs.cbioportal.org/2.4-integration-with-other-webservices/oncokb-data-access.");
             System.out.println("-- Thank you.");
             System.out.println("----------------------------------------------------------------------------------------------------------------");
         }

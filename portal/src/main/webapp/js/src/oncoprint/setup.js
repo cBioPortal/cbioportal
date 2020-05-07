@@ -2332,7 +2332,7 @@ window.CreateCBioPortalOncoprintWithToolbar = function (ctr_selector, toolbar_se
 			window.open("http://www.cancerhotspots.org");
 		    });
 		    $('#oncoprint_diagram_mutation_color').find('#colorby_oncokb_info').click(function () {
-			window.open("http://www.oncokb.org");
+			window.open("https://www.oncokb.org");
 		    });
 		    addQTipTo($('#oncoprint_diagram_mutation_color').find('#putative_driver_info_icon'), {
 			content: {text: "For missense, inframe, and truncating mutations."},

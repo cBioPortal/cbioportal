@@ -26,7 +26,7 @@ import java.util.Properties;
 
 @RestController
 public class ProxyController {
-    private static final String DEFAULT_ONCOKB_URL = "https://www.oncokb.org/api/v1";
+    private static final String DEFAULT_ONCOKB_URL = "https://public.api.oncokb.org/api/v1";
     private Properties properties;
 
     private Logger LOG = LoggerFactory.getLogger(ProxyController.class);
@@ -55,8 +55,6 @@ public class ProxyController {
 
         if (!showOncokb) {
             throw new OncoKBServiceIsDisabledException();
-        } else if (StringUtils.isEmpty(oncokbToken)) {
-            throw new NOOncoKBTokenProvidedException();
         }
 
         HttpHeaders httpHeaders = initHeaders(request);

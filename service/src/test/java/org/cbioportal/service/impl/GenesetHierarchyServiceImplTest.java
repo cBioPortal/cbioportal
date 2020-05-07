@@ -23,7 +23,7 @@ import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.junit.MockitoJUnitRunner;
 
-@RunWith(MockitoJUnitRunner.class)
+@RunWith(MockitoJUnitRunner.Silent.class)
 public class GenesetHierarchyServiceImplTest extends BaseServiceImplTest {
 
     @InjectMocks

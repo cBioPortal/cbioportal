@@ -132,7 +132,7 @@ public class GenePanelControllerLegacyTest {
         String[] genesquery = {"OFFPANEL1", "OFFPANEL2"};
         mockResponse.add(gpq1);
 
-        Mockito.when(genePanelServiceLegacyMock.getGenePanelDataByProfileAndGenes(org.mockito.Matchers.anyString(), org.mockito.Matchers.anyListOf(String.class))).thenReturn(mockResponse);
+        Mockito.when(genePanelServiceLegacyMock.getGenePanelDataByProfileAndGenes(org.mockito.Matchers.anyString(), org.mockito.Matchers.anyList())).thenReturn(mockResponse);
         this.mockMvc.perform(
         MockMvcRequestBuilders.get("/genepanel/data")
         .accept(MediaType.parseMediaType("application/json;charset=UTF-8"))
@@ -160,7 +160,7 @@ public class GenePanelControllerLegacyTest {
         String[] genesquery = {"OFFPANEL1", "BRAF"};
         mockResponse.add(gpq1);
 
-        Mockito.when(genePanelServiceLegacyMock.getGenePanelDataByProfileAndGenes(org.mockito.Matchers.anyString(), org.mockito.Matchers.anyListOf(String.class))).thenReturn(mockResponse);
+        Mockito.when(genePanelServiceLegacyMock.getGenePanelDataByProfileAndGenes(org.mockito.Matchers.anyString(), org.mockito.Matchers.anyList())).thenReturn(mockResponse);
         this.mockMvc.perform(
         MockMvcRequestBuilders.get("/genepanel/data")
         .accept(MediaType.parseMediaType("application/json;charset=UTF-8"))
@@ -190,7 +190,7 @@ public class GenePanelControllerLegacyTest {
         String[] genesquery = {"EGFR", "BRAF"};
         mockResponse.add(gpq1);
 
-        Mockito.when(genePanelServiceLegacyMock.getGenePanelDataByProfileAndGenes(org.mockito.Matchers.anyString(), org.mockito.Matchers.anyListOf(String.class))).thenReturn(mockResponse);
+        Mockito.when(genePanelServiceLegacyMock.getGenePanelDataByProfileAndGenes(org.mockito.Matchers.anyString(), org.mockito.Matchers.anyList())).thenReturn(mockResponse);
         this.mockMvc.perform(
         MockMvcRequestBuilders.get("/genepanel/data")
         .accept(MediaType.parseMediaType("application/json;charset=UTF-8"))

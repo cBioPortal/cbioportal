@@ -407,7 +407,7 @@ public final class DaoMutation {
      */
     @Deprecated
     public static ArrayList<ExtendedMutation> getMutations (int geneticProfileId, int sampleId) throws DaoException {
-        return getMutations(geneticProfileId, Arrays.asList(new Integer(sampleId)));
+        return getMutations(geneticProfileId, Arrays.asList(Integer.valueOf(sampleId)));
     }
 
     /**

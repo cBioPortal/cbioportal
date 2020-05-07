@@ -50,7 +50,7 @@ public class ContinuousDataTypeSpec extends DataTypeSpecInequality{
         }
         this.theGeneticDataType = theGeneticDataType;
         this.comparisonOp = comparisonOp;
-        this.threshold = new Float(threshold); 
+        this.threshold = Float.valueOf(threshold); 
     }
  
    /**

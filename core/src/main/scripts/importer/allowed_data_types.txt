@@ -51,6 +51,7 @@ FUSION	FUSION	fusion
 PROTEIN_LEVEL	LOG2-VALUE	rppa
 PROTEIN_LEVEL	Z-SCORE	rppa_Zscores
 PROTEIN_LEVEL	CONTINUOUS	protein_quantification
+PROTEIN_LEVEL	LOG2-VALUE	protein_quantification
 PROTEIN_LEVEL	Z-SCORE	protein_quantification_zscores
 GENESET_SCORE	GSVA-SCORE	gsva_scores
 GENESET_SCORE	P-VALUE	gsva_pvalues

@@ -8,7 +8,7 @@ import shutil
 
 PARENT_PARSER_NAME = 'survival data migration tool'
 NULL_VALUES = ["[not applicable]", "[not available]", "[pending]", "[discrepancy]", "[completed]", "[null]", "", "na"]
-MAPPING_FILE_PATH = os.getcwd() + '/survivalStatusVocabularies.txt'
+DEFAULT_MAPPING_FILE_PATH = os.getcwd() + '/survivalStatusVocabularies.txt'
 MAPPING_TO_ONE_COLUMN = "MAPPING_TO_ONE"
 MAPPING_TO_ZERO_COLUMN = "MAPPING_TO_ZERO"
 
@@ -23,8 +23,8 @@ def migrateAttibuteValue(value, vocabulariesMappingToOne, vocabulariesMappingToZ
         sys.exit("cannot find the mapping for vocabulary {} , please provide the the mapping rules with option -a".format(value))
         return value
 
-def generateVocabularies(vocabulariesMappingToOne, vocabulariesMappingToZero):
-    df = pd.read_csv(MAPPING_FILE_PATH, sep='\t')
+def generateVocabularies(vocabulariesMappingToOne, vocabulariesMappingToZero, vocabulariesFile):
+    df = pd.read_csv(vocabulariesFile, sep='\t')
     oneValues = df[MAPPING_TO_ONE_COLUMN].tolist()
     for unparsedValue in oneValues:
         for parsedValue in unparsedValue.split(","):
@@ -34,7 +34,7 @@ def generateVocabularies(vocabulariesMappingToOne, vocabulariesMappingToZero):
         for parsedValue in unparsedValue.split(","):
             vocabulariesMappingToZero.append(parsedValue)
 
-def splitAdditionalVocabularies(voc, oneVoc, zeroVoc):
+def splitAdditionalVocabularies(voc, oneVoc, zeroVoc, vocabulariesFile):
     zeroAndOneSplit = voc.split('#')
     newVocAddingToZero = []
     newVocAddingToOne = []
@@ -61,7 +61,7 @@ def splitAdditionalVocabularies(voc, oneVoc, zeroVoc):
     separator = ','
     oneUpdateString = separator.join(newVocAddingToOne)
     zeroUpdateString = separator.join(newVocAddingToZero)
-    df = pd.read_csv(MAPPING_FILE_PATH, sep='\t')
+    df = pd.read_csv(vocabulariesFile, sep='\t')
 
     if len(newVocAddingToZero) > 0 or len(newVocAddingToOne) > 0:
         # get vocabularies
@@ -72,7 +72,7 @@ def splitAdditionalVocabularies(voc, oneVoc, zeroVoc):
         if len(newVocAddingToZero) > 0:
             print("vocabulary {} has been added to zero mapping".format(zeroUpdateString))
 
-    df.to_csv(MAPPING_FILE_PATH, index=False, sep='\t', header=True)
+    df.to_csv(vocabulariesFile, index=False, sep='\t', header=True)
 
 def migrate_file(args):
     clinicalFile = args.clinicalFile
@@ -83,10 +83,11 @@ def migrate_file(args):
     # get vocabularies
     vocabulariesMappingToOne = []
     vocabulariesMappingToZero = []
-    generateVocabularies(vocabulariesMappingToOne, vocabulariesMappingToZero)
+    vocabulariesFile = args.vocabulariesFile if args.vocabulariesFile != None else DEFAULT_MAPPING_FILE_PATH
+    generateVocabularies(vocabulariesMappingToOne, vocabulariesMappingToZero, vocabulariesFile)
 
     if args.additionalVocabularies != None and args.additionalVocabularies != '':
-        splitAdditionalVocabularies(args.additionalVocabularies, vocabulariesMappingToOne, vocabulariesMappingToZero)
+        splitAdditionalVocabularies(args.additionalVocabularies, vocabulariesMappingToOne, vocabulariesMappingToZero, vocabulariesFile)
 
     print("vocabularies will be mapping to one: ")
     print(vocabulariesMappingToOne)
@@ -167,6 +168,8 @@ def interface():
                         help='override the old file or not')
     parser.add_argument('-n', '--newFile', type=str, required=False, 
                         help='absolute path to save the new migrated file')
+    parser.add_argument('-v', '--vocabulariesFile', type=str, required=False, 
+                        help='absolute path to the custom vocabularies file to map the value')
     parser.add_argument('-a', '--additionalVocabularies', type=str, required=False, 
                         help='additional vocabularies to map the value, example format: 1:mapToOne_1,mapToOne2#0:mapToZero_1,mapToZero2')
     parser = parser.parse_args()
@@ -178,11 +181,14 @@ def interface():
 def main(args):
     clinicalFile = args.clinicalFile
     newFile = args.newFile
+    vocabulariesFile = args.vocabulariesFile
 
     if clinicalFile != None:
         check_dir(clinicalFile)
     if newFile != None:
         check_new_file_path(newFile)
+    if vocabulariesFile != None:
+        check_dir(vocabulariesFile)
     migrate_file(args)
 
 

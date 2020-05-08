@@ -161,12 +161,21 @@ tcga_path_report.url=https://github.com/cbioportal/datahub/raw/master/tcga/patho
 # various url's
 segfile.url=http://cbio.mskcc.org/cancergenomics/gdac-portal/seg/
 
+
+# The default OncoKB instance, the portal is connecting to, does not include any therapeutic information and the token is not required.
+# If you wish to include such information, please consider obtaining a license to support future OncoKB development by following 
+# https://docs.cbioportal.org/2.4-integration-with-other-webservices/oncokb-data-access.
+
 # Enable OncoKB annotation (true, false)
 show.oncokb=true
 
-# OncoKB API Token, for more information please check https://www.oncokb.org/dataAccess
-# The token is required if you want to use OncoKB service
+# The URL of the OncoKB instance to connect to.
+# The default address does not require authentication and is freely to use.
+oncokb.public_api.url=https://public.api.oncokb.org/api/v1
+
+# Your OncoKB Token which an be found under https://www.oncokb.org/account/settings
 oncokb.token=
+
 
 # Enable Chang's hotspot list (true, false)
 show.hotspot=true

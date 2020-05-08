@@ -8,7 +8,6 @@ import shutil
 
 PARENT_PARSER_NAME = 'survival data migration tool'
 NULL_VALUES = ["[not applicable]", "[not available]", "[pending]", "[discrepancy]", "[completed]", "[null]", "", "na"]
-DEFAULT_MAPPING_FILE_PATH = os.getcwd() + '/survivalStatusVocabularies.txt'
 MAPPING_TO_ONE_COLUMN = "MAPPING_TO_ONE"
 MAPPING_TO_ZERO_COLUMN = "MAPPING_TO_ZERO"
 
@@ -76,6 +75,7 @@ def splitAdditionalVocabularies(voc, oneVoc, zeroVoc, vocabulariesFile):
 
 def migrate_file(args):
     clinicalFile = args.clinicalFile
+    vocabulariesFile = args.vocabulariesFile
     shouldOverrive = args.override
     newFile = os.path.dirname(args.clinicalFile) + "/new_data_clinical_patients.txt"
     tmpFile = os.path.dirname(args.clinicalFile) + "/tmp_data_clinical_patients.txt"
@@ -83,7 +83,6 @@ def migrate_file(args):
     # get vocabularies
     vocabulariesMappingToOne = []
     vocabulariesMappingToZero = []
-    vocabulariesFile = args.vocabulariesFile if args.vocabulariesFile != None else DEFAULT_MAPPING_FILE_PATH
     generateVocabularies(vocabulariesMappingToOne, vocabulariesMappingToZero, vocabulariesFile)
 
     if args.additionalVocabularies != None and args.additionalVocabularies != '':
@@ -164,12 +163,12 @@ def interface():
 
     parser.add_argument('-f', '--clinicalFile', type=str, required=True, 
                         help='absolute path to the file that need to be replaced')
+    parser.add_argument('-v', '--vocabulariesFile', type=str, required=True, 
+                        help='absolute path to the custom vocabularies file to map the value')
     parser.add_argument('-o', '--override', type=str2bool, required=False, default=False,
                         help='override the old file or not')
     parser.add_argument('-n', '--newFile', type=str, required=False, 
                         help='absolute path to save the new migrated file')
-    parser.add_argument('-v', '--vocabulariesFile', type=str, required=False, 
-                        help='absolute path to the custom vocabularies file to map the value')
     parser.add_argument('-a', '--additionalVocabularies', type=str, required=False, 
                         help='additional vocabularies to map the value, example format: 1:mapToOne_1,mapToOne2#0:mapToZero_1,mapToZero2')
     parser = parser.parse_args()

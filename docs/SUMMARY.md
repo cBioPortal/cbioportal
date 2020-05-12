@@ -48,6 +48,7 @@
 ## 4. Development      
 * [cBioPortal Entity-relationship Diagram](cBioPortal-ER-Diagram.md)
 * [Build cBioPortal with a different frontend version](Build-Different-Frontend.md)
+* [Manual test cases](manual-test-cases.md)
 * [Release Procedure](Release-Procedure.md)
 * [Deployment Procedure](Deployment-Procedure.md)
 

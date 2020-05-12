@@ -5,33 +5,60 @@ import os
 import sys
 import argparse
 import shutil
+import atexit
+import ntpath
 
+# constant values
 PARENT_PARSER_NAME = 'survival data migration tool'
 NULL_VALUES = ["[not applicable]", "[not available]", "[pending]", "[discrepancy]", "[completed]", "[null]", "", "na"]
 MAPPING_TO_ONE_COLUMN = "MAPPING_TO_ONE"
 MAPPING_TO_ZERO_COLUMN = "MAPPING_TO_ZERO"
+# program values
+tmpFile = None
+newFile = None
+isMigrationCompleted = False
+
+@atexit.register
+def cleanUp():
+    if not isMigrationCompleted and (tmpFile != None or newFile != None):
+        print("Cleanup:")
+        if tmpFile != None and os.path.exists(tmpFile):
+            os.remove(tmpFile)
+            print("temporary file removed.")
+        if newFile != None and os.path.exists(newFile):
+            os.remove(newFile)
+            print("new file removed.")
+
+def validateAttibuteValue(value, vocabulariesMappingToOne, vocabulariesMappingToZero, noMappingVocabularies):
+    if value.strip().lower() in NULL_VALUES or value.strip().lower() in vocabulariesMappingToOne or value.strip().lower() in vocabulariesMappingToZero:
+        return value
+    else:
+        if value not in noMappingVocabularies:
+            noMappingVocabularies.append(value)
 
 def migrateAttibuteValue(value, vocabulariesMappingToOne, vocabulariesMappingToZero):
-    if value.lower() in NULL_VALUES:
+    if value.strip().lower() in NULL_VALUES:
         return value
-    if value.lower() in vocabulariesMappingToOne:
+    if value.strip().lower() in vocabulariesMappingToOne:
         return "1:" + value
-    elif value.lower() in vocabulariesMappingToZero:
+    elif value.strip().lower() in vocabulariesMappingToZero:
         return "0:" + value
     else:
         sys.exit("cannot find the mapping for vocabulary {} , please provide the the mapping rules with option -a".format(value))
-        return value
 
 def generateVocabularies(vocabulariesMappingToOne, vocabulariesMappingToZero, vocabulariesFile):
     df = pd.read_csv(vocabulariesFile, sep='\t')
+    df = df.replace(np.nan, '', regex=True)
     oneValues = df[MAPPING_TO_ONE_COLUMN].tolist()
     for unparsedValue in oneValues:
-        for parsedValue in unparsedValue.split(","):
-            vocabulariesMappingToOne.append(parsedValue)
+        if unparsedValue != None and unparsedValue != '':
+            for parsedValue in unparsedValue.split(","):
+                vocabulariesMappingToOne.append(parsedValue)
     zeroValues = df[MAPPING_TO_ZERO_COLUMN].tolist()
     for unparsedValue in zeroValues:
-        for parsedValue in unparsedValue.split(","):
-            vocabulariesMappingToZero.append(parsedValue)
+        if unparsedValue != None and unparsedValue != '':
+            for parsedValue in unparsedValue.split(","):
+                vocabulariesMappingToZero.append(parsedValue)
 
 def splitAdditionalVocabularies(voc, oneVoc, zeroVoc, vocabulariesFile):
     zeroAndOneSplit = voc.split('#')
@@ -45,14 +72,14 @@ def splitAdditionalVocabularies(voc, oneVoc, zeroVoc, vocabulariesFile):
             values = mapAndValuesSplit[1].split(',')
             if mapId == '0':
                 for value in values:
-                    if value.lower() not in zeroVoc:
-                        zeroVoc.append(value.lower())
-                        newVocAddingToZero.append(value.lower())
+                    if value.strip().lower() not in zeroVoc:
+                        zeroVoc.append(value.strip().lower())
+                        newVocAddingToZero.append(value.strip().lower())
             elif mapId == '1':
                 for value in values:
-                    if value.lower() not in oneVoc:
-                        oneVoc.append(value.lower())
-                        newVocAddingToOne.append(value.lower())
+                    if value.strip().lower() not in oneVoc:
+                        oneVoc.append(value.strip().lower())
+                        newVocAddingToOne.append(value.strip().lower())
         else:
             print("additionalVocabularies format is incorrect, please check the example by using -h option")
 
@@ -74,11 +101,15 @@ def splitAdditionalVocabularies(voc, oneVoc, zeroVoc, vocabulariesFile):
     df.to_csv(vocabulariesFile, index=False, sep='\t', header=True)
 
 def migrate_file(args):
+    global newFile
+    global tmpFile
+    global isMigrationCompleted
+
     clinicalFile = args.clinicalFile
     vocabulariesFile = args.vocabulariesFile
     shouldOverrive = args.override
-    newFile = os.path.dirname(args.clinicalFile) + "/new_data_clinical_patients.txt"
-    tmpFile = os.path.dirname(args.clinicalFile) + "/tmp_data_clinical_patients.txt"
+    newFile = os.path.dirname(clinicalFile) + "/migrated_" + ntpath.basename(clinicalFile)
+    tmpFile = os.path.dirname(clinicalFile) + "/tmp_" + ntpath.basename(clinicalFile)
 
     # get vocabularies
     vocabulariesMappingToOne = []
@@ -94,9 +125,9 @@ def migrate_file(args):
     print(vocabulariesMappingToZero)
 
     # write files
-    input = open(clinicalFile, 'rb')
-    output = open(newFile, 'wb')
-    tmp_output = open(tmpFile, 'wb')
+    input = open(clinicalFile, 'rt')
+    output = open(newFile, 'wt')
+    tmp_output = open(tmpFile, 'wt')
 
     writer = csv.writer(output)
     tmpwritter = csv.writer(tmp_output)
@@ -113,29 +144,46 @@ def migrate_file(args):
     df = pd.read_csv(tmpFile, sep='\t')
     df = df.replace(np.nan, '', regex=True)
 
+    # remove tmp file
+    os.remove(tmpFile)   
+
     # find attributes candidates
     candidates = list(filter(lambda column: column.endswith('_STATUS'), df.columns))
     targetAttributes = list(filter(lambda candidate: (candidate[:candidate.index("_STATUS")] + '_MONTHS') in df.columns, candidates))
 
+    # check if all values are mappable
+    noMappingVocabularies = []
+    for targetAttribute in targetAttributes:
+        df.apply(lambda row: validateAttibuteValue(row[targetAttribute], vocabulariesMappingToOne, vocabulariesMappingToZero, noMappingVocabularies), axis=1)
+    # throw warning and exit if vocabularies cannot be found
+    if len(noMappingVocabularies) > 0:
+        print("The following vocabularies cannot find mapping, please provide the the mapping rules with option -a")
+        for vocabulary in noMappingVocabularies:
+            print("Vocabulary cannot find mapping: " + vocabulary)
+        exit(2)
+
+    # migrate attribute value
     for targetAttribute in targetAttributes:
         df[targetAttribute] = df.apply(lambda row: migrateAttibuteValue(row[targetAttribute], vocabulariesMappingToOne, vocabulariesMappingToZero), axis=1)
 
-
-    df.to_csv(newFile, mode='a', index=False, sep='\t', header=True)
-
-    # copy and remove files, print messages
-    if shouldOverrive == True:
-        shutil.copy(newFile, clinicalFile)
-        os.remove(newFile)
-        print("File is overridden at {}".format(clinicalFile))
-    elif args.newFile != None:
-        shutil.copy(newFile, args.newFile)
-        os.remove(newFile)
-        print("New file is generated at {}".format(args.newFile))
+    # write migrated result
+    if len(targetAttributes) > 0:
+        df.to_csv(newFile, mode='a', index=False, sep='\t', header=True)
+        # copy and remove files, print messages
+        if shouldOverrive == True:
+            shutil.copy(newFile, clinicalFile)
+            os.remove(newFile)
+            print("File is overridden at {}".format(clinicalFile))
+        elif args.newFile != None:
+            shutil.copy(newFile, args.newFile)
+            os.remove(newFile)
+            print("New file is generated at {}".format(args.newFile))
+        else:
+            print("New file is generated at {}".format(newFile))
+        # set isMigrationCompleted to true
+        isMigrationCompleted = True
     else:
-        print("New file is generated at {}".format(newFile))
-    # remove tmp file anyway
-    os.remove(tmpFile)   
+        print("No survival status attributes exist in this file. No migration proceed.")
 
 def check_dir(file):
     # check existence of directory
@@ -176,7 +224,6 @@ def interface():
     return parser
 
 
-
 def main(args):
     clinicalFile = args.clinicalFile
     newFile = args.newFile
@@ -189,7 +236,6 @@ def main(args):
     if vocabulariesFile != None:
         check_dir(vocabulariesFile)
     migrate_file(args)
-
 
 if __name__ == '__main__':
     parsed_args = interface()

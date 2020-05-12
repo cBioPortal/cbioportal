@@ -84,25 +84,24 @@
                             <!--I had to use specificBinding because of this bug https://github.com/spring-projects/spring-security-saml/issues/460 -->
                             <saml.idp.comm.binding.settings>specificBinding</saml.idp.comm.binding.settings>
                             <saml.idp.comm.binding.type>bindings:HTTP-Redirect</saml.idp.comm.binding.type>
+                            <saml.sp.metadata.entitybaseurl>#{null}</saml.sp.metadata.entitybaseurl>
                             <saml.sp.metadata.entityid>cbioportal</saml.sp.metadata.entityid>
                             <saml.idp.metadata.entityid>spring.security.saml.idp.id</saml.idp.metadata.entityid>
                             <saml.idp.metadata.attribute.email>User.email</saml.idp.metadata.attribute.email>
                             <saml.custom.userservice.class>
                                 org.cbioportal.security.spring.authentication.saml.SAMLUserDetailsServiceImpl
                             </saml.custom.userservice.class>
-                            l
                             <saml.logout.local>false</saml.logout.local>
-                            <!--FIXME Our test saml idp does not sing assertions for some reason-->
+                            <!--FIXME Our test saml idp does not sign assertions for some reason-->
                             <saml.sp.metadata.wantAssertionSigned>false</saml.sp.metadata.wantAssertionSigned>
                             <saml.logout.url>/</saml.logout.url>
                             <!-- OAuth2 settings -->
                             <dat.oauth2.clientId>client_id</dat.oauth2.clientId>
                             <dat.oauth2.clientSecret>client_secret</dat.oauth2.clientSecret>
                             <dat.oauth2.issuer>token_issuer</dat.oauth2.issuer>
-                            <dat.oauth2.accessTokenUri>http://localhost:8443/auth/realms/cbio/token
-                            </dat.oauth2.accessTokenUri>
-                            <dat.oauth2.userAuthorizationUri>http://localhost:8443/auth/realms/cbio/auth
-                            </dat.oauth2.userAuthorizationUri>
+                            <dat.oauth2.accessTokenUri>http://localhost:8443/auth/realms/cbio/token</dat.oauth2.accessTokenUri>
+                            <dat.oauth2.redirectUri>http://localhost:8081/api/data-access-token/oauth2</dat.oauth2.redirectUri>
+                            <dat.oauth2.userAuthorizationUri>http://localhost:8443/auth/realms/cbio/auth</dat.oauth2.userAuthorizationUri>
                             <dat.oauth2.jwkUrl>http://localhost:8443/auth/realms/cbio/jwkUrl</dat.oauth2.jwkUrl>
                             <dat.oauth2.jwtRolesPath>resource_access::cbioportal::roles</dat.oauth2.jwtRolesPath>
                         </systemProperties>

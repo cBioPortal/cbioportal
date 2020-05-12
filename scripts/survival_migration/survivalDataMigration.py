@@ -17,17 +17,22 @@ MAPPING_TO_ZERO_COLUMN = "MAPPING_TO_ZERO"
 tmpFile = None
 newFile = None
 isMigrationCompleted = False
+isExitNormally = False
+
+def conditionalPrint(message, shouldPrint):
+    if shouldPrint == True:
+        print(message)
 
 @atexit.register
 def cleanUp():
     if not isMigrationCompleted and (tmpFile != None or newFile != None):
-        print("Cleanup:")
+        conditionalPrint("Cleanup:", not isExitNormally)
         if tmpFile != None and os.path.exists(tmpFile):
             os.remove(tmpFile)
-            print("temporary file removed.")
+            conditionalPrint("temporary file removed.", not isExitNormally)
         if newFile != None and os.path.exists(newFile):
             os.remove(newFile)
-            print("new file removed.")
+            conditionalPrint("new file removed.", not isExitNormally)
 
 def validateAttibuteValue(value, vocabulariesMappingToOne, vocabulariesMappingToZero, noMappingVocabularies):
     if value.strip().lower() in NULL_VALUES or value.strip().lower() in vocabulariesMappingToOne or value.strip().lower() in vocabulariesMappingToZero:
@@ -225,6 +230,7 @@ def interface():
 
 
 def main(args):
+    global isExitNormally
     clinicalFile = args.clinicalFile
     newFile = args.newFile
     vocabulariesFile = args.vocabulariesFile
@@ -236,6 +242,7 @@ def main(args):
     if vocabulariesFile != None:
         check_dir(vocabulariesFile)
     migrate_file(args)
+    isExitNormally = True
 
 if __name__ == '__main__':
     parsed_args = interface()

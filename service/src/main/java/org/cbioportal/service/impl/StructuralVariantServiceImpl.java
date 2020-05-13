@@ -26,8 +26,12 @@ package org.cbioportal.service.impl;
 import java.util.List;
 
 import org.cbioportal.model.StructuralVariant;
+import org.cbioportal.model.StructuralVariantCountByGene;
+import org.cbioportal.persistence.MutationRepository;
 import org.cbioportal.persistence.StructuralVariantRepository;
 import org.cbioportal.service.StructuralVariantService;
+import org.cbioportal.service.util.AlterationEnrichmentUtil;
+import org.cbioportal.service.util.MutationMapperUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -36,12 +40,42 @@ public class StructuralVariantServiceImpl implements StructuralVariantService {
 
     @Autowired
     private StructuralVariantRepository structuralVariantRepository;
-    
+    @Autowired
+    private MutationRepository mutationRepository;
+    @Autowired
+    private MutationMapperUtils mutationMapperUtils;
+    @Autowired
+    private AlterationEnrichmentUtil<StructuralVariantCountByGene> alterationEnrichmentUtil;
+
     @Override
-    public List<StructuralVariant> fetchStructuralVariants(List<String> molecularProfileIds, 
-            List<Integer> entrezGeneIds,  List<String> sampleIds) {
-        
-        return structuralVariantRepository.fetchStructuralVariants(molecularProfileIds, entrezGeneIds, sampleIds);
+    public List<StructuralVariant> fetchStructuralVariants(List<String> molecularProfileIds,
+            List<Integer> entrezGeneIds, List<String> sampleIds) {
+
+        List<StructuralVariant> structuralVariants = mutationMapperUtils.mapFusionsToStructuralVariants(
+                mutationRepository.getFusionsInMultipleMolecularProfiles(molecularProfileIds, sampleIds, entrezGeneIds,
+                        "DETAILED", null, null, null, null));
+
+        structuralVariants.addAll(
+                structuralVariantRepository.fetchStructuralVariants(molecularProfileIds, entrezGeneIds, sampleIds));
+
+        return structuralVariants;
+    }
+
+    @Override
+    public List<StructuralVariantCountByGene> getSampleCountInMultipleMolecularProfiles(
+            List<String> molecularProfileIds, List<String> sampleIds, List<Integer> entrezGeneIds,
+            boolean includeFrequency, boolean includeMissingAlterationsFromGenePanel) {
+
+        List<StructuralVariantCountByGene> countByGenes = mutationMapperUtils.mapFusionCoutsToStructuralVariantCounts(
+                mutationRepository.getSampleCountInMultipleMolecularProfilesForFusions(molecularProfileIds, sampleIds,
+                        entrezGeneIds));
+        countByGenes.addAll(structuralVariantRepository.getSampleCountInMultipleMolecularProfiles(molecularProfileIds,
+                sampleIds, entrezGeneIds));
+        if (includeFrequency) {
+            alterationEnrichmentUtil.includeFrequencyForSamples(molecularProfileIds, sampleIds, countByGenes,
+                    includeMissingAlterationsFromGenePanel);
+        }
+        return countByGenes;
     }
 
 }

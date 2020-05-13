@@ -74,6 +74,9 @@ public class StudyViewController {
     private GeneService geneService;
     @Autowired
     private SampleListService sampleListService;
+    @Autowired
+    private StructuralVariantService structuralVariantService;
+    
 
     @PreAuthorize("hasPermission(#involvedCancerStudies, 'Collection<CancerStudyId>', 'read')")
     @RequestMapping(value = "/clinical-data-counts/fetch", method = RequestMethod.POST,
@@ -309,7 +312,7 @@ public class StudyViewController {
     @RequestMapping(value = "/fusion-genes/fetch", method = RequestMethod.POST,
         consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
     @ApiOperation("Fetch fusion genes by study view filter")
-    public ResponseEntity<List<MutationCountByGene>> fetchFusionGenes(
+    public ResponseEntity<List<StructuralVariantCountByGene>> fetchFusionGenes(
         @ApiParam(required = true, value = "Study view filter")
         @Valid @RequestBody(required = false) StudyViewFilter studyViewFilter,
         @ApiIgnore // prevent reference to this attribute in the swagger-ui interface. This attribute is needed for the @PreAuthorize tag above.
@@ -317,13 +320,14 @@ public class StudyViewController {
         @ApiIgnore // prevent reference to this attribute in the swagger-ui interface.
         @Valid @RequestAttribute(required = false, value = "interceptedStudyViewFilter") StudyViewFilter interceptedStudyViewFilter) throws StudyNotFoundException {
         List<SampleIdentifier> filteredSampleIdentifiers = studyViewFilterApplier.apply(interceptedStudyViewFilter);
-        List<MutationCountByGene> result = new ArrayList<>();
+        List<StructuralVariantCountByGene> result = new ArrayList<>();
         if (!filteredSampleIdentifiers.isEmpty()) {
             List<String> studyIds = new ArrayList<>();
             List<String> sampleIds = new ArrayList<>();
             studyViewFilterUtil.extractStudyAndSampleIds(filteredSampleIdentifiers, studyIds, sampleIds);
-            result = mutationService.getSampleCountInMultipleMolecularProfilesForFusions(molecularProfileService
-                .getFirstMutationProfileIds(studyIds, sampleIds), sampleIds, null, true, false);
+
+            result = structuralVariantService.getSampleCountInMultipleMolecularProfiles(molecularProfileService
+                .getFirstStructuralVariantProfileIds(studyIds, sampleIds), sampleIds, null, true, false);
             result.sort((a, b) -> b.getNumberOfAlteredCases() - a.getNumberOfAlteredCases());
             List<String> distinctStudyIds = studyIds.stream().distinct().collect(Collectors.toList());
             if (distinctStudyIds.size() == 1 && !result.isEmpty()) {

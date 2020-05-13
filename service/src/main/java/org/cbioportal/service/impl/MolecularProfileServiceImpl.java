@@ -16,6 +16,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 import java.util.ArrayList;
+import java.util.HashMap;
 
 @Service
 public class MolecularProfileServiceImpl implements MolecularProfileService {
@@ -154,4 +155,41 @@ public class MolecularProfileServiceImpl implements MolecularProfileService {
         }
         return molecularProfileIds;
 	}
+
+    @Override
+    public List<String> getFirstStructuralVariantProfileIds(List<String> studyIds, List<String> sampleIds) {
+        List<String> molecularProfileIds = new ArrayList<>();
+        Map<String, MolecularProfile> mapByStudyId = new HashMap<>();
+
+        //TODO: remove mutation profile once fusions are migrated to structural variant in the database
+        getMolecularProfilesInStudies(studyIds, "SUMMARY").stream().forEach(molecularProfile -> {
+            if (!mapByStudyId.containsKey(molecularProfile.getCancerStudyIdentifier())) {
+                if (molecularProfile.getMolecularAlterationType()
+                        .equals(MolecularProfile.MolecularAlterationType.MUTATION_EXTENDED)
+                        || (molecularProfile.getMolecularAlterationType()
+                                .equals(MolecularProfile.MolecularAlterationType.STRUCTURAL_VARIANT)
+                                && molecularProfile.getDatatype() == "SV")) {
+                    mapByStudyId.put(molecularProfile.getCancerStudyIdentifier(), molecularProfile);
+                }
+            } else {
+                if (molecularProfile.getMolecularAlterationType()
+                        .equals(MolecularProfile.MolecularAlterationType.STRUCTURAL_VARIANT)
+                        && molecularProfile.getDatatype() == "SV") {
+                    mapByStudyId.put(molecularProfile.getCancerStudyIdentifier(), molecularProfile);
+                }
+            }
+        });
+
+        int removedSampleCount = 0;
+        for (int i = 0; i < studyIds.size(); i++) {
+            String studyId = studyIds.get(i);
+            if (mapByStudyId.containsKey(studyId)) {
+                molecularProfileIds.add(mapByStudyId.get(studyId).getStableId());
+            } else {
+                sampleIds.remove(i - removedSampleCount);
+                removedSampleCount++;
+            }
+        }
+        return molecularProfileIds;
+    }
 }

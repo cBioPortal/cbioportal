@@ -56,8 +56,9 @@
 	<bean id="dbcpDataSource" destroy-method="close" class="org.apache.commons.dbcp2.BasicDataSource">
 		<property name="driverClassName" value="com.mysql.jdbc.Driver" />
 		<property name="url" value="jdbc:mysql://localhost:3306/cgds_test" />
-		<property name="username" value="${db.test.username}" />
-		<property name="password" value="${db.test.password}" />
+        <!-- - test db credentials should be keep in sync with parent pom.xml -->
+		<property name="username" value="${db.test.username:cbio_user}" />
+		<property name="password" value="${db.test.password:somepassword}" />
 		<property name="minIdle" value="0" />
 		<property name="maxIdle" value="10" />
 		<property name="maxTotal" value="100" />
@@ -69,6 +70,9 @@
         <property name="dataSource" ref="businessDataSource" />
         <property name="typeAliasesPackage" value="org.mskcc.cbio.portal.model" />
         <property name="typeHandlersPackage" value="org.cbioportal.persistence.mybatis.typehandler" /><!-- this can prob. be multiple , separated items like other package config below -->
+        <!-- mapper locations is set here to support interdependency between mappers without -->
+        <!-- having to autowire repositories into java classes that do not make direct uses of them -->
+        <property name="mapperLocations" value="classpath*:org/cbioportal/persistence/mybatis/**/*.xml"/>
     </bean>
     
     <!-- scan for mappers and let them be autowired -->

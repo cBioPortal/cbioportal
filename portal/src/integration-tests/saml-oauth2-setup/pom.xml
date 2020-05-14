@@ -95,12 +95,12 @@
                             <!--FIXME Our test saml idp does not sign assertions for some reason-->
                             <saml.sp.metadata.wantAssertionSigned>false</saml.sp.metadata.wantAssertionSigned>
                             <saml.logout.url>/</saml.logout.url>
-                            <!-- OAuth2 settings -->
+                            <dat.method>oauth2</dat.method>
                             <dat.oauth2.clientId>client_id</dat.oauth2.clientId>
                             <dat.oauth2.clientSecret>client_secret</dat.oauth2.clientSecret>
                             <dat.oauth2.issuer>token_issuer</dat.oauth2.issuer>
                             <dat.oauth2.accessTokenUri>http://localhost:8443/auth/realms/cbio/token</dat.oauth2.accessTokenUri>
-                            <dat.oauth2.redirectUri>http://localhost:8081/api/data-access-token/oauth2</dat.oauth2.redirectUri>
+                            <dat.oauth2.redirectUri>http://localhost:8080/api/data-access-token/oauth2</dat.oauth2.redirectUri>
                             <dat.oauth2.userAuthorizationUri>http://localhost:8443/auth/realms/cbio/auth</dat.oauth2.userAuthorizationUri>
                             <dat.oauth2.jwkUrl>http://localhost:8443/auth/realms/cbio/jwkUrl</dat.oauth2.jwkUrl>
                             <dat.oauth2.jwtRolesPath>resource_access::cbioportal::roles</dat.oauth2.jwtRolesPath>

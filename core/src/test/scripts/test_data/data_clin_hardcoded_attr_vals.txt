@@ -1,13 +1,13 @@
-#Patient Identifier	Overall Survival (Months)	Overall Survival Status	Disease Free (Months)	Disease Free Status
-#Identifier to uniquely specify a patient.	Overall survival in months since initial diagnosis.	Overall patient survival status.	Disease free (months) since initial treatment.	Disease free status since initial treatment.
-#STRING	NUMBER	STRING	NUMBER	STRING
-#1	1	1	1	1
-PATIENT_ID	OS_MONTHS	OS_STATUS	DFS_MONTHS	DFS_STATUS
-TEST-PAT1	272	ALIVE	272	Recurred/Progressed
-TEST-PAT3	208	LIVING	208	LIVING
-TEST-PAT4	60	DECEASED	60	Recurred/Progressed
-TEST-PAT6	151	living	151	Recurred/Progressed
-TEST-PAT5	290	LIVING	290	Progressed
-TEST-PAT7	88	LIVING	88	recurred/progressed
-TEST-PAT9	72	LIVING	72	Recurred/Progressed
-TEST-PAT2	NA	DECEASED	161	NA
+#Patient Identifier	Overall Survival (Months)	Overall Survival Status	Disease Free (Months)	Disease Free Status	Progress Free Survival (Months)	Progression Free Status
+#Identifier to uniquely specify a patient.	Overall survival in months since initial diagnosis.	Overall patient survival status.	Disease free (months) since initial treatment.	Disease free status since initial treatment.	Progress Free Survival (Months)	Progression Free Status
+#STRING	NUMBER	STRING	NUMBER	STRING	NUMBER	STRING
+#1	1	1	1	1	1	1
+PATIENT_ID	OS_MONTHS	OS_STATUS	DFS_MONTHS	DFS_STATUS	PFS_MONTHS	PFS_STATUS
+TEST-PAT1	272	0:ALIVE	272	1:Recurred/Progressed	272	1:PROGRESSION
+TEST-PAT3	208	0:LIVING	208	0:LIVING	208	0:NO PROGRESSION
+TEST-PAT4	60	1:DECEASED	60	1:Recurred/Progressed	60	PROGRESSION
+TEST-PAT6	151	0:living	151	1:Recurred/Progressed	151	1:PROGRESSION
+TEST-PAT5	290	0:LIVING	290	1:Progressed	290	1:PROGRESSION
+TEST-PAT7	88	0:LIVING	88	1:recurred/progressed	88	0:NO PROGRESSION
+TEST-PAT9	72	0:LIVING	72	1:Recurred/Progressed	72	1:PROGRESSION
+TEST-PAT2	NA	1:DECEASED	161	NA	161	NA

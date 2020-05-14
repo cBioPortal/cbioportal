@@ -241,17 +241,19 @@ public class TestImportClinicalData {
         caseSet.add("TCGA-A1-A0SB");
         caseSet.add("TCGA-A1-A0SE");
         caseSet.add("TCGA-A1-A0SI");
+        caseSet.add("TCGA-A1-A0SC");
+        caseSet.add("TCGA-04-1341");
         
         //get survival data, unsorted:
         List<Patient> clinicalCaseList = DaoClinicalData.getSurvivalData(cancerStudy.getInternalId(), caseSet);
-        assertEquals (3, clinicalCaseList.size());
+        assertEquals (5, clinicalCaseList.size());
         
         int countChecks = 0;
         for (Patient patientData : clinicalCaseList) {
         	if (patientData.getStableId().equals("TCGA-A1-A0SB")) {
                 assertEquals (new Double(79.04), patientData.getAgeAtDiagnosis());
-                assertEquals ("DECEASED", patientData.getOverallSurvivalStatus());
-                assertEquals ("Recurred/Progressed", patientData.getDiseaseFreeSurvivalStatus());
+                assertEquals ("1:DECEASED", patientData.getOverallSurvivalStatus());
+                assertEquals ("1:Recurred/Progressed", patientData.getDiseaseFreeSurvivalStatus());
                 assertEquals (new Double(43.8), patientData.getOverallSurvivalMonths());
                 assertEquals (new Double(15.05), patientData.getDiseaseFreeSurvivalMonths());
                 assertEquals (new Integer(1), patientData.getSampleCount());
@@ -262,19 +264,37 @@ public class TestImportClinicalData {
                 assertEquals (new Integer(1), patientData.getSampleCount());
                 countChecks++;
         	}
-        	else {
+        	else if (patientData.getStableId().equals("TCGA-A1-A0SI")) {
         		assertEquals ("TCGA-A1-A0SI", patientData.getStableId());
         		assertEquals (new Double(55.53), patientData.getAgeAtDiagnosis());
-                assertEquals ("LIVING", patientData.getOverallSurvivalStatus());
-                assertEquals ("DiseaseFree", patientData.getDiseaseFreeSurvivalStatus());
+                assertEquals ("0:LIVING", patientData.getOverallSurvivalStatus());
+                assertEquals ("0:DiseaseFree", patientData.getDiseaseFreeSurvivalStatus());
                 assertEquals (new Double(49.02), patientData.getOverallSurvivalMonths());
                 assertEquals (new Double(49.02), patientData.getDiseaseFreeSurvivalMonths());
                 assertEquals (new Integer(1), patientData.getSampleCount());
                 countChecks++;
-        	}
+        	} else if (patientData.getStableId().equals("TCGA-A1-A0SC")) {
+        		assertEquals ("TCGA-A1-A0SC", patientData.getStableId());
+        		assertEquals (new Double(70.64), patientData.getAgeAtDiagnosis());
+                assertEquals ("1:DECEASED", patientData.getOverallSurvivalStatus());
+                assertEquals ("1:Recurred/Progressed", patientData.getDiseaseFreeSurvivalStatus());
+                assertEquals (new Double(40.89), patientData.getOverallSurvivalMonths());
+                assertEquals (new Double(12.95), patientData.getDiseaseFreeSurvivalMonths());
+                assertEquals (new Integer(1), patientData.getSampleCount());
+                countChecks++;
+            } else {
+        		assertEquals ("TCGA-04-1341", patientData.getStableId());
+        		assertEquals (new Double(85.52), patientData.getAgeAtDiagnosis());
+                assertEquals ("0:LIVING", patientData.getOverallSurvivalStatus());
+                assertEquals ("0:DiseaseFree", patientData.getDiseaseFreeSurvivalStatus());
+                assertEquals (null, patientData.getOverallSurvivalMonths());
+                assertEquals (null, patientData.getDiseaseFreeSurvivalMonths());
+                assertEquals (new Integer(1), patientData.getSampleCount());
+                countChecks++;
+            }
         }
         //make sure all entries were checked:
-        assertEquals(3, countChecks);
+        assertEquals(5, countChecks);
 	}
 	
 	/**

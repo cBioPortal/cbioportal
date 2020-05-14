@@ -33,7 +33,7 @@ jobs:
             - run:
                 name: "Install yarn at specific version"
                 command:
-                    sudo npm install --global yarn@1.21.1
+                    sudo npm install --global yarn@1.22.4
             - run:
                 name: "Show yarn and node versions"
                 command: |

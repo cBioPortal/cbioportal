@@ -14,5 +14,5 @@ The sample code is distributed under Apache License, Version 2.0.
 
 ```$xml
     <!--FIXME Our test saml idp does not sing assertions for some reason-->
-    <saml.sp.metadata.wantAssertionSigned>false</saml.sp.metadata.wantAssertionSigned>
+    <saml.sp.metadata.wantassertionsigned>false</saml.sp.metadata.wantassertionsigned>
 ```

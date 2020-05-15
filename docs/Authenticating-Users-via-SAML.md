@@ -128,6 +128,7 @@ Within portal.properties, make sure that:
 Then, modify the section labeled `authentication`. See SAML parameters shown in example below:
 
     saml.sp.metadata.entityid=cbioportal
+    saml.sp.metadata.wantassertionsigned=true
     saml.idp.metadata.location=classpath:/onelogin_metadata_620035.xml
     saml.idp.metadata.entityid=https://app.onelogin.com/saml/metadata/620035
     saml.keystore.location=classpath:/samlKeystore.jks
@@ -142,7 +143,6 @@ Then, modify the section labeled `authentication`. See SAML parameters shown in 
     # global logout (as opposed to local logout):
     saml.logout.local=false
     saml.logout.url=/
-    saml.sp.metadata.wantAssertionSigned=true
 
 Please note that you will have to modify all the above to match your own settings. `saml.idp.comm.binding.type` can be left empty if `saml.idp.comm.binding.settings=defaultBinding`. The `saml.logout.*` settings above reflect the settings of an IDP that supports Single Logout (hopefully the default in most cases - more details in section below).
 

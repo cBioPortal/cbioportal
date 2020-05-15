@@ -18,7 +18,6 @@ You can start tomcat to play with the setup with the following command (replace 
 
 ```$bash
 cd portal/src/integration-tests/saml-oauth2-setup
-mvn clean install
 CBIO_TEST_DB_USR=cbio_user \
     CBIO_TEST_DB_PSW=somepassword \
     CBIO_TEST_DB_HOST=127.0.0.1:3306 \
@@ -30,8 +29,9 @@ CBIO_TEST_DB_USR=cbio_user \
 
 ## Run integration tests only
 
-Change working directory to the root of the project. After starting the tomcat server above, you can run all tests with:
+After starting the tomcat server above, you can run all tests with:
 
 ```$bash
+cd portal/src/integration-tests/saml-oauth2-setup
 mvn test failsafe:integration-test
 ```

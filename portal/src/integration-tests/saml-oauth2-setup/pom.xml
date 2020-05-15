@@ -93,9 +93,8 @@
                             </saml.custom.userservice.class>
                             <saml.logout.local>false</saml.logout.local>
                             <!--FIXME Our test saml idp does not sign assertions for some reason-->
-                            <saml.sp.metadata.wantAssertionSigned>false</saml.sp.metadata.wantAssertionSigned>
+                            <saml.sp.metadata.wantassertionsigned>false</saml.sp.metadata.wantassertionsigned>
                             <saml.logout.url>/</saml.logout.url>
-                            <dat.method>oauth2</dat.method>
                             <dat.oauth2.clientId>client_id</dat.oauth2.clientId>
                             <dat.oauth2.clientSecret>client_secret</dat.oauth2.clientSecret>
                             <dat.oauth2.issuer>token_issuer</dat.oauth2.issuer>
@@ -109,10 +108,10 @@
                     <configuration>
                         <properties>
                             <cargo.servlet.port>8080</cargo.servlet.port>
-                            <cargo.jvmargs>
+                            <cargo.start.jvmargs>
                                 -Xms2g
                                 -Xmx4g
-                            </cargo.jvmargs>
+                            </cargo.start.jvmargs>
                         </properties>
                     </configuration>
                     <wait>false</wait>

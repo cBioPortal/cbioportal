@@ -100,10 +100,10 @@ microsoftlive.consumer.secret=
 
 ## SAML settings
 saml.sp.metadata.entityid=
+saml.sp.metadata.wantassertionsigned=true
 # change this url if behind reverse proxy that handles SSL, see docs/Authenticating-Users-via-SAML.md
 saml.sp.metadata.entitybaseurl=#{null}
 saml.idp.metadata.location=
-saml.idp.metadata.entityid=
 # saml keystore settings:
 saml.keystore.location=
 saml.keystore.password=
@@ -120,7 +120,6 @@ saml.idp.comm.binding.type=
 saml.custom.userservice.class=org.cbioportal.security.spring.authentication.saml.SAMLUserDetailsServiceImpl
 # Change this to configure to configure a custom logout URL: (default: /login.jsp?logout_success=true)
 saml.logout.url=/login.jsp?logout_success=true
-saml.sp.metadata.wantAssertionSigned=true
 
 ## settings to connect to an Active Directory domain controller
 ad.domain=

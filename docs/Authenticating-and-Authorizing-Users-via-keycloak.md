@@ -114,6 +114,7 @@ should now see the certificate and no private key.
 ```properties
     filter_groups_by_appname=false
     saml.sp.metadata.entityid=cbioportal
+    saml.sp.metadata.wantassertionsigned=true
     saml.idp.metadata.location=classpath:/client-tailored-saml-idp-metadata.xml
     saml.idp.metadata.entityid=http://localhost:8080/auth/realms/cbioportal
     saml.keystore.location=classpath:/samlKeystore.jks
@@ -129,7 +130,6 @@ should now see the certificate and no private key.
     # global logout (as opposed to local logout):
     saml.logout.local=false
     saml.logout.url=/
-    saml.sp.metadata.wantAssertionSigned=true
 ```
 
 ## Obtain user identities

@@ -129,7 +129,8 @@ public class OfflineTokenDownloadIntegrationTests {
         //7. Then we get redirected to originally requested page
         assertEquals(302, requestAssertionsConsumerRepsonse.code);
         String dataAccessTokenLocation = requestAssertionsConsumerRepsonse.headers.get("Location").get(0);
-        assertEquals(cbioPageUrl, dataAccessTokenLocation);
+        
+        assertEquals("/cbioportal/restore?key=login-redirect", dataAccessTokenLocation);
 
         //8. Finally we can reach the home page
         HttpHelper.HttpResponse homePageResponse = HttpHelper.sendGetRequest(cbioPageUrl, null, cbioCookie);

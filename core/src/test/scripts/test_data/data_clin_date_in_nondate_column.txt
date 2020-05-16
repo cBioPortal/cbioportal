@@ -3,10 +3,10 @@
 #STRING	STRING	NUMBER	STRING	NUMBER	STRING
 #1	1	1	1	1	1
 PATIENT_ID	OS_STATUS	OS_MONTHS	DFS_STATUS	DFS_MONTHS	SOME_SCORE
-TCGA-A2-A04P			Recurred/Progressed	[Not Available]	5
-TCGA-A1-A0SK	DECEASED	31.77		[Not Available]	31-77
-TCGA-A2-A0CM	DECEASED	24.77	Recurred/Progressed	[Not Available]	Jan-14
-TCGA-AR-A1AR	DECEASED	17.18	[Not Available]	[Not Available]	4-Oct
-TCGA-B6-A0WX	DECEASED	21.45	Recurred/Progressed	[Not Available]	21.45
-TCGA-BH-A1F0	DECEASED	25.79	Recurred/Progressed	[Not Available]	25.79
-TCGA-B6-A0I6	DECEASED	32.56	Recurred/Progressed	[Not Available]	32.56
+TCGA-A2-A04P			1:Recurred/Progressed	[Not Available]	5
+TCGA-A1-A0SK	1:DECEASED	31.77		[Not Available]	31-77
+TCGA-A2-A0CM	1:DECEASED	24.77	1:Recurred/Progressed	[Not Available]	Jan-14
+TCGA-AR-A1AR	1:DECEASED	17.18	[Not Available]	[Not Available]	4-Oct
+TCGA-B6-A0WX	1:DECEASED	21.45	1:Recurred/Progressed	[Not Available]	21.45
+TCGA-BH-A1F0	1:DECEASED	25.79	1:Recurred/Progressed	[Not Available]	25.79
+TCGA-B6-A0I6	1:DECEASED	32.56	1:Recurred/Progressed	[Not Available]	32.56

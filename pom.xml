@@ -311,7 +311,7 @@
     <tomcat.session.timeout>720</tomcat.session.timeout>
 
     <!-- THIS SHOULD BE KEPT IN SYNC TO VERSION IN CGDS.SQL -->
-    <db.version>2.12.4</db.version>
+    <db.version>2.12.5</db.version>
   </properties>
 
   <modules>

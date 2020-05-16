@@ -67,7 +67,6 @@ script:
           -e \
           -U \
           -Ppublic \
-          -Dauthenticate=false \
           -Dfinal.war.name=cbioportal \
           clean \
           install \

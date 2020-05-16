@@ -1,4 +1,4 @@
-#!/usr/bin/perl
+#!/usr/bin/env perl
 require "../scripts/env.pl";
 
 $startTime = time;

@@ -1,4 +1,4 @@
-#!/usr/bin/perl
+#!/usr/bin/env perl
 # author: Arthur Goldberg, goldberg@cbio.mskcc.org
 require "../scripts/env.pl";
 

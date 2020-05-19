@@ -74,8 +74,7 @@ DEFINED_CANCER_TYPES = None
 mutation_sample_ids = None
 mutation_file_sample_ids = set()
 fusion_file_sample_ids = set()
-sampleid_panel_map = {}
-
+sample_ids_panel_dict = {}
 # resource globals
 RESOURCE_DEFINITION_DICTIONARY = {}
 RESOURCE_PATIENTS_WITH_SAMPLES = None
@@ -1081,6 +1080,7 @@ class FeaturewiseFileValidator(Validator):
         num_errors = super(FeaturewiseFileValidator, self).checkHeader(cols)
         # collect non-sample columns:
         for col_name in self.cols:
+            print(col_name)
             if col_name in self.REQUIRED_HEADERS + self.OPTIONAL_HEADERS:
                 # add it to the list of non-sample columns in the file:
                 self.nonsample_cols.append(col_name)
@@ -1485,34 +1485,22 @@ class MutationsExtendedValidator(Validator):
         if 'Hugo_Symbol' in self.cols:
             hugo_symbol = data[self.cols.index('Hugo_Symbol')].strip()
             # treat the empty string or 'Unknown' as a missing value
-            if hugo_symbol in ('NA','', 'Unknown'):
+            if hugo_symbol in ('NA', '', 'Unknown'):
                 hugo_symbol = None
         if 'Entrez_Gene_Id' in self.cols:
             entrez_id = data[self.cols.index('Entrez_Gene_Id')].strip()
             # treat the empty string or 0 as a missing value
-            if entrez_id in ('NA','', '0'):
+            if entrez_id in ('NA', '', '0'):
                 entrez_id = None
         # validate hugo and entrez together:
         normalized_gene = self.checkGeneIdentification(hugo_symbol, entrez_id)
-        matching_panel_by_sampleid = sampleid_panel_map[data[sample_id_column_index]]
         
-        try:
-            normalized_gene = int(normalized_gene)
-        except:
-            pass
-            
-        if normalized_gene and normalized_gene not in self.portal.gene_panel_list[matching_panel_by_sampleid]:
-            if hugo_symbol:
-                self.logger.error(
-                        'Off panel variant. Gene symbol not known to the targeted panel.',
-                        extra={'line_number': self.line_number,
-                        'cause': hugo_symbol})
-            else:
-                self.logger.error(
-                        'Off panel variant. Gene symbol is not provided and Entrez gene id not known to the targeted panel.',
-                        extra={'line_number': self.line_number,
-                        'cause': entrez_id})
-            
+        # validate the gene to make sure its from the targeted panel
+        if normalized_gene and self.portal.gene_panel_list and data[sample_id_column_index] in sample_ids_panel_dict:
+            panel_id = sample_ids_panel_dict[data[sample_id_column_index]]
+            if panel_id in self.portal.gene_panel_list and panel_id != 'NA':
+                self.checkOffPanelVariant(data, normalized_gene, panel_id, hugo_symbol, entrez_id)
+        
         # parse custom driver annotation values to validate them together
         driver_value = None
         driver_annotation = None
@@ -1846,6 +1834,23 @@ class MutationsExtendedValidator(Validator):
             # If for LOH (9C) not implemented, because mutation will not be loaded in cBioPortal
 
         return True
+
+    def checkOffPanelVariant(self, data, normalized_gene, panel_id, hugo_symbol, entrez_id):
+        try:
+            normalized_gene = int(normalized_gene)
+        except:
+            pass
+        if normalized_gene not in self.portal.gene_panel_list[panel_id]:
+            if hugo_symbol:
+                self.logger.warning(
+                        'Off panel variant. Gene symbol not known to the targeted panel.',
+                        extra={'line_number': self.line_number,
+                            'cause': hugo_symbol})
+            else:
+                self.logger.warning(
+                        'Off panel variant. Gene symbol is not provided and Entrez gene id not known to the targeted panel.',
+                        extra={'line_number': self.line_number,
+                        'cause': entrez_id})
 
     def printDataInvalidStatement(self, value, col_index):
         """Prints out statement for invalid values detected."""
@@ -3254,7 +3259,7 @@ class GenePanelMatrixValidator(Validator):
 
             # If stable id is mutation and value not NA, check whether sample ID is in sequenced case list
             if self.mutation_stable_id_index is not None:
-                sampleid_panel_map[sample_id] = data[self.mutation_stable_id_index - 1]
+                sample_ids_panel_dict[sample_id] = data[self.mutation_stable_id_index - 1]
                 # Sample ID has been removed from list, so subtract 1 position.
                 if data[self.mutation_stable_id_index - 1] != 'NA':
                     if sample_id not in mutation_sample_ids:

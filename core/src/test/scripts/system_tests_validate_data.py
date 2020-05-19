@@ -93,7 +93,7 @@ class ValidateDataSystemTester(unittest.TestCase):
         # execute main function with arguments provided as if from sys.argv
         args = validateData.interface(args)
         exit_status = validateData.main_validate(args)
-        self.assertEqual(0, exit_status)
+        self.assertEqual(3, exit_status)
 
     def test_exit_status_failure(self):
         '''study 1 : errors, expected exit_status = 1.'''
@@ -141,7 +141,7 @@ class ValidateDataSystemTester(unittest.TestCase):
         args = validateData.interface(args)
         # Execute main function with arguments provided through sys.argv
         exit_status = validateData.main_validate(args)
-        self.assertEqual(0, exit_status)
+        self.assertEqual(3, exit_status)
         self.assertFileGenerated(out_file_name,
                                  'test_data/study_es_0/result_report.html')
 

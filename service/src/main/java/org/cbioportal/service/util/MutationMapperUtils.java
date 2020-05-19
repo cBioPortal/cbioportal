@@ -36,7 +36,7 @@ public class MutationMapperUtils {
         }).collect(Collectors.toList());
     }
 
-    public List<StructuralVariantCountByGene> mapFusionCoutsToStructuralVariantCounts(
+    public List<StructuralVariantCountByGene> mapFusionCountsToStructuralVariantCounts(
             List<MutationCountByGene> mutationCountByGenes) {
 
         return mutationCountByGenes.stream().map(fusion -> {

@@ -41,10 +41,6 @@ public class StructuralVariantMyBatisRepository implements StructuralVariantRepo
     public List<StructuralVariant> fetchStructuralVariants(List<String> molecularProfileIds,
             List<Integer> entrezGeneIds, List<String> sampleIds) {
 
-        if ((sampleIds.size() > 0) && (molecularProfileIds.size() != sampleIds.size())) {
-            throw new RuntimeException("molecularProfileIds list and sampleIds list should be the same length.");
-        }
-
         return structuralVariantMapper.fetchStructuralVariants(molecularProfileIds, entrezGeneIds, sampleIds);
     }
 

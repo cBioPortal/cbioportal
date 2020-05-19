@@ -75,6 +75,7 @@ mutation_sample_ids = None
 mutation_file_sample_ids = set()
 fusion_file_sample_ids = set()
 sample_ids_panel_dict = {}
+
 # resource globals
 RESOURCE_DEFINITION_DICTIONARY = {}
 RESOURCE_PATIENTS_WITH_SAMPLES = None
@@ -1080,7 +1081,6 @@ class FeaturewiseFileValidator(Validator):
         num_errors = super(FeaturewiseFileValidator, self).checkHeader(cols)
         # collect non-sample columns:
         for col_name in self.cols:
-            print(col_name)
             if col_name in self.REQUIRED_HEADERS + self.OPTIONAL_HEADERS:
                 # add it to the list of non-sample columns in the file:
                 self.nonsample_cols.append(col_name)

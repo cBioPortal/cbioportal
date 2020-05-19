@@ -5,7 +5,7 @@ Please see the full reference documentation for the API
 [here](https://www.cbioportal.org/api/swagger-ui.html).
 
 ## API Clients
-The cBioPortal REST API is described using Swagger/OpenAPI, which allows one to generate a client in most programming languages. One can use the command line tool `curl` for dowloading data on the command line or use another language such as `Python` or `R` to make visualizations. We list some common examples below, but if your language is not listed, there is likely a generator available elsewhere. Do reach out if you'd like us to add a language.
+The cBioPortal REST API is described using Swagger/OpenAPI, which allows one to generate a client in most programming languages. One can use the command line tool `curl` for dowloading data on the command line or use another language such as `Python` or `R` to make visualizations. We list some common examples below, but if your language is not listed, there is likely a client generator available elsewhere (see e.g. https://swagger.io/tools/swagger-codegen/). Do reach out if you'd like us to add a language.
 
 ### R client
 There are multiple ways to access the API using R. The recommended way is to use `cBioPortalData`.
@@ -18,7 +18,9 @@ cBioPortalData aims to import all cBioPortal datasets as MultiAssayExperiment ob
 3. It provides complete datasets, not just for subsets of genes
 4. It provides automatic local caching, thanks to BiocFileCache.
 
-For a comprehensive user guide see: https://waldronlab.io/cBioPortalData/articles/cBioPortalData.html
+For a comprehensive user guide to `cBioportalData` see: https://waldronlab.io/cBioPortalData/articles/cBioPortalData.html
+
+See also the workshop materials from our webinar which include an intro to `cBioPortalData`: https://github.com/cBioPortal/2020-cbioportal-r-workshop
 
 #### rapiclient
 Although we recommend to use [cBioPortalData](#cBioPortalData) for most use cases, it is possible to connect to the API directly using [rapiclient](https://github.com/bergant/rapiclient):

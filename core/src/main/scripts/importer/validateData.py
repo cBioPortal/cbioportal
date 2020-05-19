@@ -4890,9 +4890,9 @@ def request_from_portal_api(server_url, api_name, logger):
         gene_panels = []
         for data_item in response.json():
             panel = {}
-            panel_id = data_item['genePanelId']
-            panel_url = service_url.strip("?pageSize=9999999")+'/'+panel_id+"?pageSize=9999999"
-            response = requests.get(panel_url).json()
+            gene_panel_id = data_item['genePanelId']
+            gene_panel_url = service_url.strip("?pageSize=9999999")+'/'+gene_panel_id+"?pageSize=9999999"
+            response = requests.get(gene_panel_url).json()
             panel['description'] = response['description']
             panel['genes'] = response['genes']
             panel['genePanelId'] = response['genePanelId']
@@ -4986,13 +4986,13 @@ def extract_ids(json_data, id_key):
     return list(result_set)
 
 def extract_panels(json_data, id_key):
-    panel_dict = {}
+    gene_panel_list = {}
     for data_item in json_data:
         gene_list = []
         for entrez_id in data_item['genes']:
             gene_list.append(entrez_id['entrezGeneId'])
-        panel_dict[data_item[id_key]] = gene_list
-    return panel_dict
+        gene_panel_list[data_item[id_key]] = gene_list
+    return gene_panel_list
 
 # there is no dump function implemented for the /info API. Unable to retrieve version.
 def load_portal_metadata(json_data):

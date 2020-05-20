@@ -1,3 +1,17 @@
+### Importing gene panel ###
+
+Use this command to import a gene panel. Specify the gene panel file by replacing 
+`<path_to_genepanel_file>` with the absolute path to the gene panel file.
+
+```shell
+docker run -it --rm \
+    --net cbio-net \
+    -v /<path_to_config_file>/portal.properties:/cbioportal/portal.properties:ro \
+    -v <path_to_genepanel_file>:/gene_panels/gene_panel.txt:ro \
+    cbioportal/cbioportal:latest \
+    bash -c 'cd /cbioportal/core/src/main/scripts/ && ./importGenePanel.pl --data /gene_panels/gene_panel.txt'
+```
+
 ### Importing data ###
 
 Use this command to validate a dataset. Specify the study directory by replacing 

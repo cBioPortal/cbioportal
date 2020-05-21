@@ -175,6 +175,7 @@ echo $LATEST_VERSION
 ```
 
 ## Data loading & more commands ##
+For documentation on how to import a study, see [this tutorial](import_data.md)
 For more uses of the cBioPortal image, see [this file](example_commands.md)
 
 To Dockerize a Keycloak authentication service alongside cBioPortal,

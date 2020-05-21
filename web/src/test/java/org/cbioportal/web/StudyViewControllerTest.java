@@ -333,7 +333,7 @@ public class StudyViewControllerTest {
         StudyViewFilter studyViewFilter = new StudyViewFilter();
         studyViewFilter.setStudyIds(Arrays.asList(TEST_STUDY_ID));
 
-        mockMvc.perform(MockMvcRequestBuilders.post("/fusion-genes/fetch")
+        mockMvc.perform(MockMvcRequestBuilders.post("/structural-variant-genes/fetch")
             .accept(MediaType.APPLICATION_JSON)
             .contentType(MediaType.APPLICATION_JSON)
             .content(objectMapper.writeValueAsString(studyViewFilter)))

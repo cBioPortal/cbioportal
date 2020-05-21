@@ -184,6 +184,8 @@
             <include refid="includeAlleleSpecificCopyNumber"/>
         </if>
         <include refid="whereBySampleListId"/>
+        <!-- TODO: Remove once fusions are removed from mutation table -->
+        AND mutation_event.MUTATION_TYPE != 'Fusion'
         <if test="sortBy != null and projection != 'ID'">
             ORDER BY ${sortBy} ${direction}
         </if>
@@ -215,6 +217,8 @@
             <include refid="includeAlleleSpecificCopyNumber"/>
         </if>
         <include refid="whereInMultipleMolecularProfiles"/>
+        <!-- TODO: Remove once fusions are removed from mutation table -->
+        AND mutation_event.MUTATION_TYPE != 'Fusion'
         <if test="sortBy != null and projection != 'ID'">
             ORDER BY ${sortBy} ${direction}
         </if>
@@ -226,7 +230,7 @@
         </if>
     </select>
     
-    <!-- TODO: cleanup once fusion/structural data is fixed in database -->
+    <!-- TODO: Remove once fusions are removed from mutation table -->
     <select id="getFusionsInMultipleMolecularProfiles" resultType="org.cbioportal.model.Mutation">
         SELECT
         <include refid="select"/>
@@ -247,7 +251,7 @@
             LIMIT #{limit} OFFSET #{offset}
         </if>
     </select>
-    <!-- TODO: cleanup once fusion/structural data is fixed in database -->
+    <!-- TODO: Remove once fusions are removed from mutation table -->
 
     <select id="getMetaMutationsInMultipleMolecularProfiles" resultType="org.cbioportal.model.meta.MutationMeta">
         SELECT
@@ -255,6 +259,8 @@
         COUNT(DISTINCT(mutation.SAMPLE_ID)) AS sampleCount
         <include refid="from"/>
         <include refid="whereInMultipleMolecularProfiles"/>
+        <!-- TODO: Remove once fusions are removed from mutation table -->
+        AND mutation_event.MUTATION_TYPE != 'Fusion'
     </select>
 
     <select id="getMutationsBySampleIds" resultType="org.cbioportal.model.Mutation">
@@ -269,6 +275,8 @@
             <include refid="includeAlleleSpecificCopyNumber"/>
         </if>
         <include refid="where"/>
+        <!-- TODO: Remove once fusions are removed from mutation table -->
+        AND mutation_event.MUTATION_TYPE != 'Fusion'
         <if test="sortBy != null and projection != 'ID'">
             ORDER BY ${sortBy} ${direction}
         </if>
@@ -286,6 +294,8 @@
         COUNT(DISTINCT(mutation.SAMPLE_ID)) AS sampleCount
         <include refid="from"/>
         <include refid="where"/>
+        <!-- TODO: Remove once fusions are removed from mutation table -->
+        AND mutation_event.MUTATION_TYPE != 'Fusion'
     </select>
 
     <select id="getSampleCountByEntrezGeneIdsAndSampleIds" resultType="org.cbioportal.model.MutationCountByGene">
@@ -299,6 +309,8 @@
         INNER JOIN sample ON mutation.SAMPLE_ID = sample.INTERNAL_ID
         INNER JOIN gene ON mutation.ENTREZ_GENE_ID = gene.ENTREZ_GENE_ID
         <include refid="where"/>
+        <!-- TODO: Remove once fusions are removed from mutation table -->
+        AND mutation_event.MUTATION_TYPE != 'Fusion'
         GROUP BY mutation.ENTREZ_GENE_ID
     </select>
 
@@ -309,7 +321,9 @@
         COUNT(*) AS totalCount,
         COUNT(DISTINCT(mutation.SAMPLE_ID)) AS numberOfAlteredCases
         FROM mutation
-        INNER JOIN mutation_event ON mutation_event.MUTATION_EVENT_ID = mutation.MUTATION_EVENT_ID AND mutation_event.MUTATION_TYPE != 'Fusion'
+        INNER JOIN mutation_event ON mutation_event.MUTATION_EVENT_ID = mutation.MUTATION_EVENT_ID
+        <!-- TODO: Remove once fusions are removed from mutation table -->
+        AND mutation_event.MUTATION_TYPE != 'Fusion'
         INNER JOIN genetic_profile ON mutation.GENETIC_PROFILE_ID = genetic_profile.GENETIC_PROFILE_ID
         INNER JOIN sample ON mutation.SAMPLE_ID = sample.INTERNAL_ID
         INNER JOIN gene ON mutation.ENTREZ_GENE_ID = gene.ENTREZ_GENE_ID
@@ -317,6 +331,7 @@
         GROUP BY mutation.ENTREZ_GENE_ID
     </select>
 
+    <!-- TODO: Remove once fusions are removed from mutation table -->
     <select id="getSampleCountInMultipleMolecularProfilesForFusions" resultType="org.cbioportal.model.MutationCountByGene">
         SELECT
         mutation.ENTREZ_GENE_ID AS entrezGeneId,
@@ -379,6 +394,8 @@
             AND mutation_event.REFERENCE_ALLELE IN ('A','T','C','G')
             AND mutation_event.TUMOR_SEQ_ALLELE IN ('A','T','C','G')
         </if>
+        <!-- TODO: Remove once fusions are removed from mutation table -->
+        AND mutation_event.MUTATION_TYPE != 'Fusion'
         GROUP BY mutation.ENTREZ_GENE_ID
     </select>
     
@@ -393,5 +410,7 @@
         WHERE mutation_event.ENTREZ_GENE_ID = #{entrezGeneId}
         AND mutation_event.ONCOTATOR_PROTEIN_POS_START >= #{proteinPosStart}
         AND mutation_event.ONCOTATOR_PROTEIN_POS_END <![CDATA[ <= ]]> #{proteinPosEnd}
+        <!-- TODO: Remove once fusions are removed from mutation table -->
+        AND mutation_event.MUTATION_TYPE != 'Fusion'
     </select>
 </mapper>

@@ -24,11 +24,15 @@
 package org.cbioportal.persistence.mybatis;
 
 import org.cbioportal.model.StructuralVariant;
+import org.cbioportal.model.StructuralVariantCountByGene;
 
 import java.util.List;
 
 public interface StructuralVariantMapper {
 
-    List<StructuralVariant> fetchStructuralVariants(List<String> molecularProfileIds, 
-            List<Integer> entrezGeneIds, List<String> sampleIds);
+    List<StructuralVariant> fetchStructuralVariants(List<String> molecularProfileIds, List<Integer> entrezGeneIds,
+            List<String> sampleIds);
+
+    List<StructuralVariantCountByGene> getSampleCountInMultipleMolecularProfiles(List<String> molecularProfileIds,
+            List<String> sampleIds, List<Integer> entrezGeneIds);
 }

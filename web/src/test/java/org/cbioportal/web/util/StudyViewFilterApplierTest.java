@@ -68,6 +68,8 @@ public class StudyViewFilterApplierTest {
     private MolecularDataService molecularDataService;
     @Mock
     private SampleListService sampleListService;
+    @Mock
+    private StructuralVariantService structuralVariantService;
 
     // TODO test clinicalDataEqualityFilterApplier, clinicalDataIntervalFilterApplier and studyViewFilterUtil separately
     // to avoid spies and manual instantiation of studyViewFilterApplier
@@ -80,7 +82,7 @@ public class StudyViewFilterApplierTest {
         studyViewFilterApplier = new StudyViewFilterApplier(sampleService, mutationService, discreteCopyNumberService,
                 molecularProfileService, genePanelService, clinicalDataService, clinicalDataEqualityFilterApplier,
                 clinicalDataIntervalFilterApplier, studyViewFilterUtil, geneService, clinicalAttributeService,
-                molecularDataService, sampleListService);
+                molecularDataService, sampleListService, structuralVariantService);
     }
 
     @Test

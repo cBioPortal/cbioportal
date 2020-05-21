@@ -47,12 +47,8 @@
 
 ## 4. Development      
 * [cBioPortal Entity-relationship Diagram](cBioPortal-ER-Diagram.md)
-* [Using the Data Manager to Get Data and Set Session Parameters](Data-Manager.md)
-* [Accessing Services via the Web-API](cBioPortal-Web-API.md)
-   * [API and API Client](The-API-and-API-Client-[Beta].md)
-* [Providing cBioPortal Parameters](providing-cBioPortal-parameters.md)
-* [Manual test cases](manual-test-cases.md)
 * [Build cBioPortal with a different frontend version](Build-Different-Frontend.md)
+* [Manual test cases](manual-test-cases.md)
 * [Release Procedure](Release-Procedure.md)
 * [Deployment Procedure](Deployment-Procedure.md)
 
@@ -72,3 +68,6 @@
 
 ### 5.2 Datasets
 * [Downloads](Downloads.md)
+
+## 6. Web API and Clients
+ * [API and API Client](API-and-API-Clients.md)

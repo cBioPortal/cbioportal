@@ -171,6 +171,10 @@ def migrate_file(args):
     for targetAttribute in targetAttributes:
         df[targetAttribute] = df.apply(lambda row: migrateAttibuteValue(row[targetAttribute], vocabulariesMappingToOne, vocabulariesMappingToZero), axis=1)
 
+    # rewrite newFile by using df.to_csv
+    new_df = pd.read_csv(newFile, sep='\t')
+    new_df.to_csv(newFile, index=False, sep='\t', header=True)
+
     # write migrated result
     if len(targetAttributes) > 0:
         df.to_csv(newFile, mode='a', index=False, sep='\t', header=True)

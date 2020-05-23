@@ -70,4 +70,4 @@
 * [Downloads](Downloads.md)
 
 ## 6. Web API and Clients
- * [API and API Client](API-and-API-Clients.md)
+ * [API and API Clients](API-and-API-Clients.md)

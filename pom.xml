@@ -280,7 +280,7 @@
   <properties>
     <frontend.version>fb7029b3be8758f80255d15875c0df0cee72fa30</frontend.version>
     <frontend.groupId>com.github.cbioportal</frontend.groupId>
-    <slf4j.version>1.6.6</slf4j.version>
+    <slf4j.version>1.7.30</slf4j.version>
     <spring.version>4.3.14.RELEASE</spring.version>
     <spring.context.support.version>4.3.14.RELEASE</spring.context.support.version>
     <spring.integration.version>4.3.14.RELEASE</spring.integration.version>
@@ -359,7 +359,7 @@
     <dependency>
       <groupId>commons-beanutils</groupId>
       <artifactId>commons-beanutils</artifactId>
-      <version>1.9.1</version>
+      <version>1.9.4</version>
     </dependency>
     <!-- Apache http components -->
     <dependency>
@@ -392,9 +392,9 @@
     </dependency>
     <!-- log4j -->
     <dependency>
-      <groupId>log4j</groupId>
-      <artifactId>log4j</artifactId>
-      <version>1.2.16</version>
+      <groupId>org.apache.logging.log4j</groupId>
+      <artifactId>log4j-core</artifactId>
+      <version>2.13.3</version>
     </dependency>
     <!-- mysql -->
     <dependency>

@@ -163,7 +163,7 @@ public class MutationMyBatisRepositoryTest {
         Assert.assertEquals("FACETS", alleleSpecificCopyNumber.getAscnMethod());
         Assert.assertEquals((Float) (1.25f), alleleSpecificCopyNumber.getCcfExpectedCopiesUpper());
         Assert.assertEquals((Float) (1.75f), alleleSpecificCopyNumber.getCcfExpectedCopies());
-        Assert.assertEquals((Boolean) (true), alleleSpecificCopyNumber.getClonal());
+        Assert.assertEquals("CLONAL", alleleSpecificCopyNumber.getClonal());
         Assert.assertEquals((Integer) (2), alleleSpecificCopyNumber.getMinorCopyNumber());
         Assert.assertEquals((Integer) (1), alleleSpecificCopyNumber.getExpectedAltCopies());
         Assert.assertEquals((Integer) (4), alleleSpecificCopyNumber.getTotalCopyNumber());

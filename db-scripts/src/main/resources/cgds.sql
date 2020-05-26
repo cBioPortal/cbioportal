@@ -1,5 +1,5 @@
 --
--- Copyright (c) 2016 - 2019 Memorial Sloan-Kettering Cancer Center.
+-- Copyright (c) 2016 - 2020 Memorial Sloan-Kettering Cancer Center.
 --
 -- This library is distributed in the hope that it will be useful, but WITHOUT
 -- ANY WARRANTY, WITHOUT EVEN THE IMPLIED WARRANTY OF MERCHANTABILITY OR FITNESS
@@ -855,7 +855,7 @@ CREATE TABLE `allele_specific_copy_number` (
     `ASCN_METHOD` varchar(24) NOT NULL,
     `CCF_EXPECTED_COPIES_UPPER` float DEFAULT NULL,
     `CCF_EXPECTED_COPIES` float DEFAULT NULL,
-    `CLONAL` boolean DEFAULT NULL,
+    `CLONAL` varchar(16) DEFAULT NULL,
     `MINOR_COPY_NUMBER` int DEFAULT NULL,
     `EXPECTED_ALT_COPIES` int DEFAULT NULL,
     `TOTAL_COPY_NUMBER` int DEFAULT NULL,
@@ -911,4 +911,4 @@ CREATE TABLE `resource_study` (
 );
 
 -- THIS MUST BE KEPT IN SYNC WITH db.version PROPERTY IN pom.xml
-INSERT INTO info VALUES ('2.12.5', NULL);
+INSERT INTO info VALUES ('2.12.6', NULL);

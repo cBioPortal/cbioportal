@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2019 Memorial Sloan-Kettering Cancer Center.
+ * Copyright (c) 2019 - 2020 Memorial Sloan-Kettering Cancer Center.
  *
  * This library is distributed in the hope that it will be useful, but WITHOUT
  * ANY WARRANTY, WITHOUT EVEN THE IMPLIED WARRANTY OF MERCHANTABILITY OR FITNESS
@@ -52,7 +52,7 @@ public final class DaoAlleleSpecificCopyNumber {
                 ascn.getAscnMethod(),
                 resolveValueToString(ascn.getCcfExpectedCopiesUpper()),
                 resolveValueToString(ascn.getCcfExpectedCopies()),
-                resolveBooleanToString(ascn.getClonal()),
+                ascn.getClonal(),
                 resolveValueToString(ascn.getMinorCopyNumber()),
                 resolveValueToString(ascn.getExpectedAltCopies()),
                 resolveValueToString(ascn.getTotalCopyNumber()));
@@ -63,13 +63,6 @@ public final class DaoAlleleSpecificCopyNumber {
     private static String resolveValueToString(Object value) {
         if (value != null) {
             return String.valueOf(value);
-        }
-        return null;
-    }
-
-    private static String resolveBooleanToString(Boolean value) {
-        if (value != null) {
-            return (value ? "1" : "0");
         }
         return null;
     }

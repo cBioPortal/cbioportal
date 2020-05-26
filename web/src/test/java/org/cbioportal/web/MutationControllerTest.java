@@ -78,7 +78,7 @@ public class MutationControllerTest {
     private static final String TEST_ASCN_METHOD_1 = "FACETS";
     private static final double TEST_CCF_EXPECTED_COPIES_UPPER_1 = 1.25;
     private static final double TEST_CCF_EXPECTED_COPIES_1 = 1.75;
-    private static final boolean TEST_CLONAL_1 = true;
+    private static final String TEST_CLONAL_1 = "CLONAL";
     private static final int TEST_MINOR_COPY_NUMBER_1 = 2;
     private static final int TEST_EXPECTED_ALT_COPIES_1 = 1;
     private static final int TEST_TOTAL_COPY_NUMBER_1 = 4;
@@ -131,7 +131,7 @@ public class MutationControllerTest {
     private static final String TEST_ASCN_METHOD_2 = "ASCN_METHOD2";
     private static final double TEST_CCF_EXPECTED_COPIES_UPPER_2 = 1.5;
     private static final double TEST_CCF_EXPECTED_COPIES_2 = 1.95;
-    private static final boolean TEST_CLONAL_2 = false;
+    private static final String TEST_CLONAL_2 = "SUBCLONAL";
     private static final int TEST_MINOR_COPY_NUMBER_2 = 1;
     private static final int TEST_EXPECTED_ALT_COPIES_2 = 1;
     private static final int TEST_TOTAL_COPY_NUMBER_2 = 2;
@@ -843,7 +843,7 @@ public class MutationControllerTest {
         alleleSpecificCopyNumber1.setAscnMethod("FACETS");
         alleleSpecificCopyNumber1.setCcfExpectedCopiesUpper(1.25f);
         alleleSpecificCopyNumber1.setCcfExpectedCopies(1.75f);
-        alleleSpecificCopyNumber1.setClonal(true);
+        alleleSpecificCopyNumber1.setClonal("CLONAL");
         alleleSpecificCopyNumber1.setMinorCopyNumber(2);
         alleleSpecificCopyNumber1.setExpectedAltCopies(1);
         alleleSpecificCopyNumber1.setTotalCopyNumber(4);
@@ -858,7 +858,7 @@ public class MutationControllerTest {
         alleleSpecificCopyNumber2.setAscnMethod("ASCN_METHOD2");
         alleleSpecificCopyNumber2.setCcfExpectedCopiesUpper(1.5f);
         alleleSpecificCopyNumber2.setCcfExpectedCopies(1.95f);
-        alleleSpecificCopyNumber2.setClonal(false);
+        alleleSpecificCopyNumber2.setClonal("SUBCLONAL");
         alleleSpecificCopyNumber2.setMinorCopyNumber(1);
         alleleSpecificCopyNumber2.setExpectedAltCopies(1);
         alleleSpecificCopyNumber2.setTotalCopyNumber(2);

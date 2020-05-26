@@ -8,7 +8,7 @@ public class AlleleSpecificCopyNumber implements Serializable {
     private String ascnMethod;
     private Float ccfExpectedCopiesUpper;
     private Float ccfExpectedCopies;
-    private Boolean clonal;
+    private String clonal;
     private Integer minorCopyNumber;
     private Integer expectedAltCopies;
     private Integer totalCopyNumber;
@@ -45,11 +45,11 @@ public class AlleleSpecificCopyNumber implements Serializable {
         this.ccfExpectedCopies = ccfExpectedCopies;
     }
 
-    public Boolean getClonal() {
+    public String getClonal() {
         return clonal;
     }
 
-    public void setClonal(Boolean clonal) {
+    public void setClonal(String clonal) {
         this.clonal = clonal;
     }
 

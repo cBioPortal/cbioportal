@@ -91,7 +91,7 @@ public class ExpressionEnrichmentServiceImpl implements ExpressionEnrichmentServ
                 // ignore group if there are less than 2 values or non numeric values
                 if (molecularDataValues.size() < 2
                         || molecularDataValues.stream().filter(a -> !NumberUtils.isNumber(a)).count() > 0) {
-                    break;
+                    continue;
                 }
 
                 double[] values = getAlterationValues(molecularDataValues, molecularProfile.getStableId());
@@ -102,7 +102,7 @@ public class ExpressionEnrichmentServiceImpl implements ExpressionEnrichmentServ
 
                 // ignore if mean or standard deviation are not numbers
                 if (Double.isNaN(alteredMean) || Double.isNaN(alteredStandardDeviation)) {
-                    break;
+                    continue;
                 }
 
                 groupedValues.add(values);
@@ -112,8 +112,8 @@ public class ExpressionEnrichmentServiceImpl implements ExpressionEnrichmentServ
                 groupsStatistics.add(groupStatistics);
             }
 
-            // ignore gene enrichment if any of the group is ignored
-            if (groupsStatistics.size() == groupIndicesMap.size()) {
+            // calculate p-value and add enrichment if atleast 2 groups have data
+            if (groupsStatistics.size() > 1) {
                 double pValue = calculatePValue(groupedValues);
                 if (Double.isNaN(pValue)) {
                     continue;

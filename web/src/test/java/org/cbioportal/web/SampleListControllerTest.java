@@ -84,8 +84,8 @@ public class SampleListControllerTest {
 
         List<SampleList> sampleLists = createExampleSampleLists();
 
-        Mockito.when(sampleListService.getAllSampleLists(Mockito.anyString(), Mockito.anyInt(),
-            Mockito.anyInt(), Mockito.anyString(), Mockito.anyString())).thenReturn(sampleLists);
+        Mockito.when(sampleListService.getAllSampleLists(Mockito.any(), Mockito.any(),
+            Mockito.any(), Mockito.any(), Mockito.any())).thenReturn(sampleLists);
 
         mockMvc.perform(MockMvcRequestBuilders.get("/sample-lists")
             .accept(MediaType.APPLICATION_JSON))
@@ -112,8 +112,8 @@ public class SampleListControllerTest {
         List<SampleList> sampleLists = new ArrayList<>();
         sampleLists.add(createExampleSampleListWithStudy());
 
-        Mockito.when(sampleListService.getAllSampleLists(Mockito.anyString(), Mockito.anyInt(),
-            Mockito.anyInt(), Mockito.anyString(), Mockito.anyString())).thenReturn(sampleLists);
+        Mockito.when(sampleListService.getAllSampleLists(Mockito.any(), Mockito.any(),
+            Mockito.any(), Mockito.any(), Mockito.any())).thenReturn(sampleLists);
 
         mockMvc.perform(MockMvcRequestBuilders.get("/sample-lists")
             .param("projection", "DETAILED")
@@ -182,8 +182,8 @@ public class SampleListControllerTest {
 
         List<SampleList> sampleLists = createExampleSampleLists();
 
-        Mockito.when(sampleListService.getAllSampleListsInStudy(Mockito.anyString(), Mockito.anyString(),
-            Mockito.anyInt(), Mockito.anyInt(), Mockito.anyString(), Mockito.anyString()))
+        Mockito.when(sampleListService.getAllSampleListsInStudy(Mockito.any(), Mockito.any(),
+            Mockito.any(), Mockito.any(), Mockito.any(), Mockito.any()))
             .thenReturn(sampleLists);
 
         mockMvc.perform(MockMvcRequestBuilders.get("/studies/test_study_id/sample-lists")
@@ -211,8 +211,8 @@ public class SampleListControllerTest {
         List<SampleList> sampleLists = new ArrayList<>();
         sampleLists.add(createExampleSampleListWithStudy());
 
-        Mockito.when(sampleListService.getAllSampleListsInStudy(Mockito.anyString(), Mockito.anyString(),
-            Mockito.anyInt(), Mockito.anyInt(), Mockito.anyString(), Mockito.anyString())).thenReturn(sampleLists);
+        Mockito.when(sampleListService.getAllSampleListsInStudy(Mockito.any(), Mockito.any(),
+            Mockito.any(), Mockito.any(), Mockito.any(), Mockito.any())).thenReturn(sampleLists);
 
         mockMvc.perform(MockMvcRequestBuilders.get("/studies/test_study_id/sample-lists")
             .param("projection", "DETAILED")
@@ -266,7 +266,7 @@ public class SampleListControllerTest {
 
         List<SampleList> sampleLists = createExampleSampleLists();
 
-        Mockito.when(sampleListService.fetchSampleLists(Mockito.anyListOf(String.class), Mockito.anyString()))
+        Mockito.when(sampleListService.fetchSampleLists(Mockito.anyList(), Mockito.anyString()))
             .thenReturn(sampleLists);
 
         mockMvc.perform(MockMvcRequestBuilders.post("/sample-lists/fetch")

@@ -182,7 +182,7 @@ public class TestOncoPrintSpecificationLibrary{
         Assert.assertTrue( aContinuousDataTypeSpec.satisfy(0.5) );
         Assert.assertFalse( aContinuousDataTypeSpec.satisfy(1.0) );
         Assert.assertTrue( aContinuousDataTypeSpec.equals( aContinuousDataTypeSpec ) );
-        Assert.assertFalse( aContinuousDataTypeSpec.equals( new Float( 0.3f ) ) );
+        Assert.assertFalse( aContinuousDataTypeSpec.equals( Float.valueOf(0.3f) ) );
         Assert.assertTrue( aContinuousDataTypeSpec.equals(
                  new ContinuousDataTypeSpec( GeneticDataTypes.Expression,
                           ComparisonOp.convertCode("<"), 1.0f ) ) );
@@ -446,7 +446,7 @@ public class TestOncoPrintSpecificationLibrary{
         Assert.assertTrue( aDiscreteDataTypeSpec.satisfy( GeneticTypeLevel.Diploid ) );
         Assert.assertFalse( aDiscreteDataTypeSpec.satisfy(GeneticTypeLevel.Gained) );
         Assert.assertTrue( aDiscreteDataTypeSpec.equals( aDiscreteDataTypeSpec ) );
-        Assert.assertFalse( aDiscreteDataTypeSpec.equals( new Float( 0.3f ) ) );
+        Assert.assertFalse( aDiscreteDataTypeSpec.equals( Float.valueOf(0.3f) ) );
         Assert.assertTrue( aDiscreteDataTypeSpec.equals( 
                 new DiscreteDataTypeSpec( GeneticDataTypes.CopyNumberAlteration,
                 ComparisonOp.convertCode("<"), GeneticTypeLevel.Gained ) ) );
@@ -534,7 +534,7 @@ public class TestOncoPrintSpecificationLibrary{
        
        Assert.assertTrue( aGeneSet.equals(aGeneSet) );
        Assert.assertFalse( aGeneSet.equals(null) );
-       Assert.assertFalse( aGeneSet.equals( new Float( 1 )) );
+       Assert.assertFalse( aGeneSet.equals( Float.valueOf(1) ) );
        Assert.assertFalse( aGeneSet.equals( anotherGeneSet ) );
        
        anotherGeneSet = new GeneSet( "foo" );

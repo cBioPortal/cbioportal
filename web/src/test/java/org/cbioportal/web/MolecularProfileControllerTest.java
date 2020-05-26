@@ -95,8 +95,8 @@ public class MolecularProfileControllerTest {
 
         List<MolecularProfile> molecularProfileList = createExampleMolecularProfiles();
 
-        Mockito.when(molecularProfileService.getAllMolecularProfiles(Mockito.anyString(), Mockito.anyInt(),
-                Mockito.anyInt(), Mockito.anyString(), Mockito.anyString())).thenReturn(molecularProfileList);
+        Mockito.when(molecularProfileService.getAllMolecularProfiles(Mockito.any(), Mockito.any(),
+                Mockito.any(), Mockito.any(), Mockito.any())).thenReturn(molecularProfileList);
 
         mockMvc.perform(MockMvcRequestBuilders.get("/molecular-profiles")
                 .accept(MediaType.APPLICATION_JSON))
@@ -219,8 +219,8 @@ public class MolecularProfileControllerTest {
 
         List<MolecularProfile> molecularProfileList = createExampleMolecularProfiles();
 
-        Mockito.when(molecularProfileService.getAllMolecularProfilesInStudy(Mockito.anyString(), Mockito.anyString(),
-                Mockito.anyInt(), Mockito.anyInt(), Mockito.anyString(), Mockito.anyString()))
+        Mockito.when(molecularProfileService.getAllMolecularProfilesInStudy(Mockito.any(), Mockito.any(),
+                Mockito.any(), Mockito.any(), Mockito.any(), Mockito.any()))
                 .thenReturn(molecularProfileList);
 
         mockMvc.perform(MockMvcRequestBuilders.get("/studies/test_study_id/molecular-profiles")
@@ -275,7 +275,7 @@ public class MolecularProfileControllerTest {
 
         List<MolecularProfile> molecularProfileList = createExampleMolecularProfiles();
 
-        Mockito.when(molecularProfileService.getMolecularProfilesInStudies(Mockito.anyListOf(String.class),
+        Mockito.when(molecularProfileService.getMolecularProfilesInStudies(Mockito.anyList(),
             Mockito.anyString())).thenReturn(molecularProfileList);
 
         MolecularProfileFilter molecularProfileFilter = new MolecularProfileFilter();

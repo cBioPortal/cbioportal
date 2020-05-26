@@ -96,8 +96,8 @@ public class SignificantlyMutatedGenesControllerTest {
         mutSig2.setqValue(TEST_Q_VALUE_2);
         mutSigList.add(mutSig2);
 
-        Mockito.when(significantlyMutatedGeneService.getSignificantlyMutatedGenes(Mockito.anyString(),
-            Mockito.anyString(), Mockito.anyInt(), Mockito.anyInt(), Mockito.anyString(), Mockito.anyString()))
+        Mockito.when(significantlyMutatedGeneService.getSignificantlyMutatedGenes(Mockito.any(),
+            Mockito.any(), Mockito.any(), Mockito.any(), Mockito.any(), Mockito.any()))
             .thenReturn(mutSigList);
 
         mockMvc.perform(MockMvcRequestBuilders.get("/studies/test_study_id/significantly-mutated-genes")

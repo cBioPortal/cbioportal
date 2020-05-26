@@ -88,8 +88,8 @@ public class DiscreteCopyNumberControllerTest {
         List<DiscreteCopyNumberData> discreteCopyNumberDataList = createExampleDiscreteCopyNumberData();
 
         Mockito.when(discreteCopyNumberService.getDiscreteCopyNumbersInMolecularProfileBySampleListId(
-            Mockito.anyString(), Mockito.anyString(), Mockito.anyListOf(Integer.class),
-            Mockito.anyListOf(Integer.class), Mockito.anyString())).thenReturn(discreteCopyNumberDataList);
+            Mockito.any(), Mockito.any(), Mockito.any(),
+            Mockito.any(), Mockito.any())).thenReturn(discreteCopyNumberDataList);
 
         mockMvc.perform(MockMvcRequestBuilders.get("/molecular-profiles/test_molecular_profile_id/discrete-copy-number")
             .param("sampleListId", TEST_SAMPLE_LIST_ID)
@@ -118,8 +118,8 @@ public class DiscreteCopyNumberControllerTest {
         List<DiscreteCopyNumberData> discreteCopyNumberDataList = createExampleDiscreteCopyNumberDataWithGenes();
 
         Mockito.when(discreteCopyNumberService.getDiscreteCopyNumbersInMolecularProfileBySampleListId(
-            Mockito.anyString(), Mockito.anyString(), Mockito.anyListOf(Integer.class),
-            Mockito.anyListOf(Integer.class), Mockito.anyString())).thenReturn(discreteCopyNumberDataList);
+            Mockito.any(), Mockito.any(), Mockito.any(),
+            Mockito.any(), Mockito.any())).thenReturn(discreteCopyNumberDataList);
 
         mockMvc.perform(MockMvcRequestBuilders.get("/molecular-profiles/test_molecular_profile_id/discrete-copy-number")
             .param("sampleListId", TEST_SAMPLE_LIST_ID)
@@ -154,8 +154,8 @@ public class DiscreteCopyNumberControllerTest {
         baseMeta.setTotalCount(2);
 
         Mockito.when(discreteCopyNumberService.getMetaDiscreteCopyNumbersInMolecularProfileBySampleListId(
-            Mockito.anyString(), Mockito.anyString(), Mockito.anyListOf(Integer.class),
-            Mockito.anyListOf(Integer.class))).thenReturn(baseMeta);
+            Mockito.any(), Mockito.any(), Mockito.any(),
+            Mockito.any())).thenReturn(baseMeta);
 
         mockMvc.perform(MockMvcRequestBuilders.get("/molecular-profiles/test_molecular_profile_id/discrete-copy-number")
             .param("sampleListId", TEST_SAMPLE_LIST_ID)
@@ -171,7 +171,7 @@ public class DiscreteCopyNumberControllerTest {
         List<DiscreteCopyNumberData> discreteCopyNumberDataList = createExampleDiscreteCopyNumberData();
 
         Mockito.when(discreteCopyNumberService.fetchDiscreteCopyNumbersInMolecularProfile(Mockito.anyString(),
-            Mockito.anyListOf(String.class), Mockito.anyListOf(Integer.class), Mockito.anyListOf(Integer.class),
+            Mockito.anyList(), Mockito.anyList(), Mockito.anyList(),
             Mockito.anyString())).thenReturn(discreteCopyNumberDataList);
 
         DiscreteCopyNumberFilter discreteCopyNumberFilter = createDiscreteCopyNumberFilter();
@@ -203,7 +203,7 @@ public class DiscreteCopyNumberControllerTest {
         List<DiscreteCopyNumberData> discreteCopyNumberDataList = createExampleDiscreteCopyNumberDataWithGenes();
 
         Mockito.when(discreteCopyNumberService.fetchDiscreteCopyNumbersInMolecularProfile(Mockito.anyString(),
-            Mockito.anyListOf(String.class), Mockito.anyListOf(Integer.class), Mockito.anyListOf(Integer.class),
+            Mockito.anyList(), Mockito.anyList(), Mockito.anyList(),
             Mockito.anyString()))
             .thenReturn(discreteCopyNumberDataList);
 
@@ -244,7 +244,7 @@ public class DiscreteCopyNumberControllerTest {
         baseMeta.setTotalCount(2);
 
         Mockito.when(discreteCopyNumberService.fetchMetaDiscreteCopyNumbersInMolecularProfile(Mockito.anyString(),
-            Mockito.anyListOf(String.class), Mockito.anyListOf(Integer.class), Mockito.anyListOf(Integer.class)))
+            Mockito.anyList(), Mockito.anyList(), Mockito.anyList()))
             .thenReturn(baseMeta);
 
         DiscreteCopyNumberFilter discreteCopyNumberFilter = createDiscreteCopyNumberFilter();
@@ -279,7 +279,7 @@ public class DiscreteCopyNumberControllerTest {
         copyNumberCountList.add(copyNumberCount2);
 
         Mockito.when(discreteCopyNumberService.fetchCopyNumberCounts(Mockito.anyString(),
-            Mockito.anyListOf(Integer.class), Mockito.anyListOf(Integer.class))).thenReturn(copyNumberCountList);
+            Mockito.anyList(), Mockito.anyList())).thenReturn(copyNumberCountList);
 
         List<CopyNumberCountIdentifier> copyNumberCountIdentifiers = new ArrayList<>();
         CopyNumberCountIdentifier copyNumberCountIdentifier1 = new CopyNumberCountIdentifier();

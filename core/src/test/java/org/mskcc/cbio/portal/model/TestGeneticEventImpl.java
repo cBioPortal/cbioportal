@@ -33,7 +33,7 @@
 package org.mskcc.cbio.portal.model;
 
 import static org.junit.Assert.fail;
-import junit.framework.Assert;
+import org.junit.Assert;
 
 import org.junit.Test;
 import org.mskcc.cbio.portal.model.GeneticEventImpl.CNA;

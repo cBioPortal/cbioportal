@@ -504,7 +504,7 @@ as appear in the url of a query submitted from the homepage.
 ## October 7, 2016
 *   **New features**:
     * All data sets can now be downloaded as flat files from the new [Data Hub](https://github.com/cBioPortal/datahub)
-    * Annotation of putative driver missense mutations in OncoPrints, based on [OncoKB](http://oncokb.org), mutation hotspots, and recurrence in cBioPortal and COSMIC
+    * Annotation of putative driver missense mutations in OncoPrints, based on [OncoKB](https://www.oncokb.org), mutation hotspots, and recurrence in cBioPortal and COSMIC
     
     ![OncoPrint-OncoKB](https://cloud.githubusercontent.com/assets/840895/19208804/094dd320-8ccd-11e6-8012-f30104b62ff4.png)
     
@@ -547,7 +547,7 @@ as appear in the url of a query submitted from the homepage.
 
 ## June 6, 2016
 *   **New features**:
-    * Annotation of mutation effect and drug sensitivity on the Mutations tab and the patient view pages (via [OncoKB](http://oncokb.org))  
+    * Annotation of mutation effect and drug sensitivity on the Mutations tab and the patient view pages (via [OncoKB](https://www.oncokb.org))  
     ![oncokb-screenshot](https://cloud.githubusercontent.com/assets/840895/15825344/54bbbc44-2bd1-11e6-8b65-e265e03f453a.png)
 *   **Improvements**:
     * Improved OncoPrint visualization using WebGL: faster, more zooming flexibility, visualization of recurrent variants

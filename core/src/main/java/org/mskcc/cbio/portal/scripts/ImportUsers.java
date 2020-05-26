@@ -95,7 +95,7 @@ public class ImportUsers {
         }
         String email = parts[0];
         String name = parts[1];
-        Boolean enabled = new Boolean(parts[2]);
+        Boolean enabled = Boolean.valueOf(parts[2]);
         List authorities = Arrays.asList(parts[3].split(";"));
 
         // if user doesn't exist create them

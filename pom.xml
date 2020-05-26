@@ -32,6 +32,14 @@
         <enabled>false</enabled>
       </snapshots>
     </repository>
+    <repository>
+      <id>alfresco</id>
+      <name>Alfresco</name>
+      <url>https://artifacts.alfresco.com/nexus/content/repositories/public/</url>
+      <snapshots>
+        <enabled>false</enabled>
+      </snapshots>
+    </repository>
   </repositories>
   <pluginRepositories>
     <pluginRepository>
@@ -280,15 +288,14 @@
   <properties>
     <frontend.version>v3.3.5</frontend.version>
     <frontend.groupId>com.github.cbioportal</frontend.groupId>
-    <slf4j.version>1.6.6</slf4j.version>
-    <spring.version>4.3.14.RELEASE</spring.version>
-    <spring.context.support.version>4.3.14.RELEASE</spring.context.support.version>
-    <spring.integration.version>4.3.14.RELEASE</spring.integration.version>
-    <spring.security.version>5.0.7.RELEASE</spring.security.version>
-    <spring.security.saml.version>1.0.3.RELEASE</spring.security.saml.version>
-    <mybatis.spring.version>1.3.0</mybatis.spring.version>
-    <mybatis.version>3.4.1</mybatis.version>
-    <hibernate.version>3.6.9.Final</hibernate.version>
+    <slf4j.version>1.7.30</slf4j.version>
+    <spring.version>5.0.14.RELEASE</spring.version>
+    <spring.context.support.version>5.0.14.RELEASE</spring.context.support.version>
+    <spring.integration.version>5.0.14.RELEASE</spring.integration.version>
+    <spring.security.version>5.3.1.RELEASE</spring.security.version>
+    <spring.security.saml.version>1.0.10.RELEASE</spring.security.saml.version>
+    <mybatis.spring.version>2.0.4</mybatis.spring.version>
+    <mybatis.version>3.5.4</mybatis.version>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
     <bundle.symbolicName.prefix>org.mskcc</bundle.symbolicName.prefix>
@@ -296,7 +303,8 @@
     <timestamp>${maven.build.timestamp}</timestamp>
     <maven.build.timestamp.format>yyyyMMdd-HHmm</maven.build.timestamp.format>
     <jacoco-maven-plugin.version>0.8.5</jacoco-maven-plugin.version>
-    <mockito.version>1.10.19</mockito.version>
+    <mockito.version>3.3.3</mockito.version>
+    <jackson.version>2.11.0</jackson.version>
 
     <final.war.name>cbioportal</final.war.name>
 
@@ -358,7 +366,7 @@
     <dependency>
       <groupId>commons-beanutils</groupId>
       <artifactId>commons-beanutils</artifactId>
-      <version>1.9.1</version>
+      <version>1.9.4</version>
     </dependency>
     <!-- Apache http components -->
     <dependency>
@@ -391,9 +399,9 @@
     </dependency>
     <!-- log4j -->
     <dependency>
-      <groupId>log4j</groupId>
-      <artifactId>log4j</artifactId>
-      <version>1.2.16</version>
+      <groupId>org.apache.logging.log4j</groupId>
+      <artifactId>log4j-core</artifactId>
+      <version>2.13.3</version>
     </dependency>
     <!-- mysql -->
     <dependency>

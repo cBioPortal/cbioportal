@@ -215,7 +215,7 @@ public class ClinicalDataEnrichmentControllerTest {
                 .andExpect(MockMvcResultMatchers.status().isOk())
                 .andExpect(MockMvcResultMatchers.jsonPath("$", Matchers.hasSize(0)));
 
-        Mockito.when(sampleService.fetchSamples(Mockito.anyListOf(String.class), Mockito.anyListOf(String.class),
+        Mockito.when(sampleService.fetchSamples(Mockito.anyList(), Mockito.anyList(),
                 Mockito.anyString())).thenReturn(Arrays.asList(sample1, sample2, sample3, sample4, sample5));
 
         List<ClinicalAttribute> attributes = Arrays.asList(attribute1, attribute3);

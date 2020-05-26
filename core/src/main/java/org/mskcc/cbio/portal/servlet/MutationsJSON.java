@@ -37,10 +37,12 @@ import java.util.*;
 import java.util.regex.Pattern;
 import javax.servlet.ServletConfig;
 import javax.servlet.http.*;
+
+import com.fasterxml.jackson.databind.ObjectMapper;
+
 import javax.servlet.ServletException;
 import org.apache.log4j.Logger;
 import org.mskcc.cbio.portal.repository.MutationRepositoryLegacy;
-import org.codehaus.jackson.map.ObjectMapper;
 import org.mskcc.cbio.portal.dao.DaoCancerStudy;
 import org.mskcc.cbio.portal.dao.DaoCosmicData;
 import org.mskcc.cbio.portal.dao.DaoDrugInteraction;

@@ -41,6 +41,7 @@ import org.hamcrest.Matchers;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.mockito.ArgumentMatchers;
 import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
@@ -90,9 +91,9 @@ public class CNSegmentControllerTest {
         mockResponse.add(cnSegmentData1);
         mockResponse.add(cnSegmentData2);
         Mockito.when(
-                cnSegmentServiceMock.getCNSegmentData(org.mockito.Matchers.anyString(),
-                                                        org.mockito.Matchers.anyListOf(String.class),
-                                                        org.mockito.Matchers.anyListOf(String.class)))
+                cnSegmentServiceMock.getCNSegmentData(ArgumentMatchers.anyString(),
+                                                        ArgumentMatchers.anyList(),
+                                                        ArgumentMatchers.anyList()))
                 .thenReturn(mockResponse)
                 ;
         this.mockMvc.perform(

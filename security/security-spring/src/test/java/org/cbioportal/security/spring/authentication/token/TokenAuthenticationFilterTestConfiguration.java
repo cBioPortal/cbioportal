@@ -57,7 +57,7 @@ import org.cbioportal.service.util.JwtUtils;
 import java.util.*;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import org.mockito.Matchers;
+import org.mockito.ArgumentMatchers;
 import org.mockito.Mockito;
 import org.springframework.beans.factory.config.ServiceLocatorFactoryBean;
 import org.springframework.context.annotation.Bean;
@@ -81,7 +81,7 @@ public class TokenAuthenticationFilterTestConfiguration {
         Mockito.when(userDetails.isAccountNonExpired()).thenReturn(true);
         Mockito.when(userDetails.isCredentialsNonExpired()).thenReturn(true);
         Mockito.when(userDetails.getUsername()).thenReturn(TEST_SUBJECT);
-        Mockito.when(userDetailsService.loadUserByUsername(Matchers.anyString())).thenReturn(userDetails);
+        Mockito.when(userDetailsService.loadUserByUsername(ArgumentMatchers.anyString())).thenReturn(userDetails);
         TokenUserDetailsAuthenticationProvider authenticationProvider = new TokenUserDetailsAuthenticationProvider(userDetailsService);
         authenticationProviderList.add(authenticationProvider);
         return new ProviderManager(authenticationProviderList);
@@ -104,7 +104,7 @@ public class TokenAuthenticationFilterTestConfiguration {
     @Bean
     public DataAccessTokenServiceFactory dataAccessTokenServiceFactory() {
         DataAccessTokenServiceFactory factory = Mockito.mock(DataAccessTokenServiceFactory.class);
-        Mockito.when(factory.getDataAccessTokenService(Matchers.anyString())).thenReturn(tokenService());
+        Mockito.when(factory.getDataAccessTokenService(ArgumentMatchers.anyString())).thenReturn(tokenService());
         return factory;
     }
 

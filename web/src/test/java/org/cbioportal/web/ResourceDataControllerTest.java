@@ -69,9 +69,9 @@ public class ResourceDataControllerTest {
         List<ResourceData> resourceDataList = Arrays
                 .asList(objectMapper.readValue(resourceDatasJson, ResourceData[].class));
 
-        Mockito.when(resourceDataService.getAllResourceDataOfSampleInStudy(Mockito.anyString(), Mockito.anyString(),
-                Mockito.anyString(), Mockito.anyString(), Mockito.anyInt(), Mockito.anyInt(), Mockito.anyString(),
-                Mockito.anyString())).thenReturn(resourceDataList);
+        Mockito.when(resourceDataService.getAllResourceDataOfSampleInStudy(Mockito.any(), Mockito.any(),
+                Mockito.any(), Mockito.any(), Mockito.any(), Mockito.any(), Mockito.any(),
+                Mockito.any())).thenReturn(resourceDataList);
 
         mockMvc.perform(MockMvcRequestBuilders.get("/studies/test_study_id/samples/test_sample_id/resource-data")
                 .accept(MediaType.APPLICATION_JSON)).andExpect(MockMvcResultMatchers.status().isOk())
@@ -99,9 +99,9 @@ public class ResourceDataControllerTest {
         List<ResourceData> resourceDataList = Arrays
                 .asList(objectMapper.readValue(resourceDatasJson, ResourceData[].class));
 
-        Mockito.when(resourceDataService.getAllResourceDataOfPatientInStudy(Mockito.anyString(), Mockito.anyString(),
-                Mockito.anyString(), Mockito.anyString(), Mockito.anyInt(), Mockito.anyInt(), Mockito.anyString(),
-                Mockito.anyString())).thenReturn(resourceDataList);
+        Mockito.when(resourceDataService.getAllResourceDataOfPatientInStudy(Mockito.any(), Mockito.any(),
+                Mockito.any(), Mockito.any(), Mockito.any(), Mockito.any(), Mockito.any(),
+                Mockito.any())).thenReturn(resourceDataList);
 
         mockMvc.perform(MockMvcRequestBuilders.get("/studies/test_study_id/patients/test_sample_id/resource-data")
                 .accept(MediaType.APPLICATION_JSON)).andExpect(MockMvcResultMatchers.status().isOk())
@@ -127,8 +127,8 @@ public class ResourceDataControllerTest {
         List<ResourceData> resourceDataList = Arrays
                 .asList(objectMapper.readValue(resourceDatasJson, ResourceData[].class));
 
-        Mockito.when(resourceDataService.getAllResourceDataForStudy(Mockito.anyString(), Mockito.anyString(),
-                Mockito.anyString(), Mockito.anyInt(), Mockito.anyInt(), Mockito.anyString(), Mockito.anyString()))
+        Mockito.when(resourceDataService.getAllResourceDataForStudy(Mockito.any(), Mockito.any(),
+                Mockito.any(), Mockito.any(), Mockito.any(), Mockito.any(), Mockito.any()))
                 .thenReturn(resourceDataList);
 
         mockMvc.perform(

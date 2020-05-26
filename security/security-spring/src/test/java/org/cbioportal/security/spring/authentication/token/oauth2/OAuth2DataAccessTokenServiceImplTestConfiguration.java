@@ -68,7 +68,7 @@ public class OAuth2DataAccessTokenServiceImplTestConfiguration {
 
         Mockito.doAnswer(invocation -> {
             @SuppressWarnings("unchecked")
-            HttpEntity<LinkedMultiValueMap<String, Object>> httpEntity = invocation.getArgumentAt(1, HttpEntity.class);
+            HttpEntity<LinkedMultiValueMap<String, Object>> httpEntity = (HttpEntity<LinkedMultiValueMap<String, Object>>) invocation.getArguments()[1];
             String code = (String) httpEntity.getBody().get("code").get(0);
             if (code.equals(OAuth2DataAccessTokenServiceImplTest.ACCESS_CODE_VALID)) {
                 return responseSuccess;

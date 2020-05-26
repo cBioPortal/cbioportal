@@ -81,7 +81,7 @@ public class OAuth2TokenAuthenticationProviderTestConfiguration {
 
         OAuth2TokenRefreshRestTemplate template = mock(OAuth2TokenRefreshRestTemplate.class);
         Mockito.doAnswer(invocation -> {
-            String offlineToken = invocation.getArgumentAt(0, String.class);
+            String offlineToken = (String) invocation.getArguments()[0];
             if (offlineToken.equals(OAuth2TokenAuthenticationProviderTest.OFFLINE_TOKEN_MALFORMED_JSON)) {
                 return accessTokenMalformedJson;
             }

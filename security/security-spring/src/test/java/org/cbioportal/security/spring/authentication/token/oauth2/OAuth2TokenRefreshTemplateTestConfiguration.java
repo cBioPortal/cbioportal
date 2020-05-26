@@ -67,7 +67,7 @@ public class OAuth2TokenRefreshTemplateTestConfiguration {
         Mockito.doAnswer(invocation -> {
             @SuppressWarnings("unchecked")
 			final
-            HttpEntity<LinkedMultiValueMap<String, Object>> httpEntity = invocation.getArgumentAt(1, HttpEntity.class);
+            HttpEntity<LinkedMultiValueMap<String, Object>> httpEntity = (HttpEntity<LinkedMultiValueMap<String, Object>>) invocation.getArguments()[1];
             final String code = (String) httpEntity.getBody().get("refresh_token").get(0);
             if (code.equals(OAuth2TokenRefreshTemplateTest.OFFLINE_TOKEN_VALID)) {
                 return responseSuccess;

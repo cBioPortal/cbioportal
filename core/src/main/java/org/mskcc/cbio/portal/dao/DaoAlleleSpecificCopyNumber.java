@@ -50,11 +50,11 @@ public final class DaoAlleleSpecificCopyNumber {
                 resolveValueToString(ascn.getSampleId()),
                 resolveValueToString(ascn.getAscnIntegerCopyNumber()),
                 ascn.getAscnMethod(),
-                resolveValueToString(ascn.getCcfMCopiesUpper()),
-                resolveValueToString(ascn.getCcfMCopies()),
+                resolveValueToString(ascn.getCcfExpectedCopiesUpper()),
+                resolveValueToString(ascn.getCcfExpectedCopies()),
                 resolveBooleanToString(ascn.getClonal()),
                 resolveValueToString(ascn.getMinorCopyNumber()),
-                resolveValueToString(ascn.getMutantCopies()),
+                resolveValueToString(ascn.getExpectedAltCopies()),
                 resolveValueToString(ascn.getTotalCopyNumber()));
             return result;
         }

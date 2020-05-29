@@ -19,9 +19,9 @@ public class TreatmentServiceImpl implements TreatmentService {
     TreatmentRepository treatmentRepository;
     
     @Override
-    public List<SampleTreatmentRow> getAllTreatmentSampleRows(List<String> sampleIds, List<String> studyIds, Set<String> treatments) {
+    public List<SampleTreatmentRow> getAllTreatmentSampleRows(List<String> sampleIds, List<String> studyIds) {
         Map<String, List<DatedSample>> samplesByPatient = treatmentRepository.getSamplesByPatient(sampleIds, studyIds);
-        Map<String, List<Treatment>> treatmentsByPatient = treatmentRepository.getTreatmentsByPatient(sampleIds, studyIds, treatments);
+        Map<String, List<Treatment>> treatmentsByPatient = treatmentRepository.getTreatmentsByPatient(sampleIds, studyIds);
 
         Stream<SampleTreatmentRow> rows = samplesByPatient.keySet().stream()
             .flatMap(patientId -> streamPatientRows(patientId, samplesByPatient, treatmentsByPatient))
@@ -68,13 +68,11 @@ public class TreatmentServiceImpl implements TreatmentService {
 
 
     @Override
-    public List<PatientTreatmentRow> getAllTreatmentPatientRows(List<String> sampleIds, List<String> studyIds, Set<String> treatments) {
-        Map<String, List<Treatment>> treatmentsByPatient = treatmentRepository.getTreatmentsByPatient(sampleIds, studyIds, treatments);
+    public List<PatientTreatmentRow> getAllTreatmentPatientRows(List<String> sampleIds, List<String> studyIds) {
+        Map<String, List<Treatment>> treatmentsByPatient = treatmentRepository.getTreatmentsByPatient(sampleIds, studyIds);
         Map<String, List<DatedSample>> samplesByPatient = treatmentRepository.getSamplesByPatient(sampleIds, studyIds);
-
-        if (treatments == null) {
-            treatments = treatmentRepository.getAllUniqueTreatments(sampleIds, studyIds);
-        }
+        Set<String> treatments = treatmentRepository.getAllUniqueTreatments(sampleIds, studyIds);
+        
         return treatments.stream()
             .flatMap(t -> createPatientTreatmentRowsForTreatment(t, treatmentsByPatient, samplesByPatient))
             .collect(Collectors.toList());

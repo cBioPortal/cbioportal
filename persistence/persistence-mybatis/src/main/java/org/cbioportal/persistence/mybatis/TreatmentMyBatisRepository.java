@@ -19,8 +19,8 @@ public class TreatmentMyBatisRepository implements TreatmentRepository {
     private TreatmentMapper treatmentMapper;
     
     @Override
-    public Map<String, List<Treatment>> getTreatmentsByPatient(List<String> sampleIds, List<String> studyIds, Set<String> treatments) {
-        return treatmentMapper.getAllTreatments(sampleIds, studyIds, treatments)
+    public Map<String, List<Treatment>> getTreatmentsByPatient(List<String> sampleIds, List<String> studyIds) {
+        return treatmentMapper.getAllTreatments(sampleIds, studyIds)
             .stream()
             .sorted(Comparator.comparingInt(Treatment::getStart))
             .collect(groupingBy(Treatment::getPatientId));

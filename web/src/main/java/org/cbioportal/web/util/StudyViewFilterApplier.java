@@ -267,7 +267,7 @@ public class StudyViewFilterApplier {
     ) {
         List<String> sampleIds = identifiers.stream().map(SampleIdentifier::getSampleId).collect(Collectors.toList());
 
-        Map<String, PatientTreatmentRow> rows = treatmentService.getAllTreatmentPatientRows(sampleIds, studyIds, null)
+        Map<String, PatientTreatmentRow> rows = treatmentService.getAllTreatmentPatientRows(sampleIds, studyIds)
             .stream()
             .collect(Collectors.toMap(PatientTreatmentRow::calculateKey, Function.identity()));
         
@@ -283,7 +283,7 @@ public class StudyViewFilterApplier {
     ) {
         List<String> sampleIds = identifiers.stream().map(SampleIdentifier::getSampleId).collect(Collectors.toList());
         
-        Map<String, SampleTreatmentRow> rows = treatmentService.getAllTreatmentSampleRows(sampleIds, studyIds, null)
+        Map<String, SampleTreatmentRow> rows = treatmentService.getAllTreatmentSampleRows(sampleIds, studyIds)
             .stream()
             .collect(Collectors.toMap(SampleTreatmentRow::calculateKey, Function.identity()));
         

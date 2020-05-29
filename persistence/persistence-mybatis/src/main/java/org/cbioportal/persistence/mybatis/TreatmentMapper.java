@@ -7,7 +7,7 @@ import java.util.List;
 import java.util.Set;
 
 public interface TreatmentMapper {
-    List<Treatment> getAllTreatments(List<String> sampleIds, List<String> studyIds, Set<String> treatments);
+    List<Treatment> getAllTreatments(List<String> sampleIds, List<String> studyIds);
 
     List<DatedSample> getAllSamples(List<String> sampleIds, List<String> studyIds);
     

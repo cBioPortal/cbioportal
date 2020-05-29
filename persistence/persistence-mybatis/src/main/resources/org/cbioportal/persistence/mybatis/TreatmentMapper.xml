@@ -17,12 +17,6 @@
             INNER JOIN cancer_study ON patient.CANCER_STUDY_ID = cancer_study.CANCER_STUDY_ID
         <include refid="where"/>
             AND clinical_event_data.KEY = "AGENT"
-        <if test="treatments != null and !treatments.isEmpty()">
-            AND clinical_event_data.VALUE IN
-            <foreach item="item" collection="treatments" open="(" separator="," close=")">
-                #{item}
-            </foreach>
-        </if>
     </select>
 
     <select id="getAllSamples" resultType="org.cbioportal.model.DatedSample">

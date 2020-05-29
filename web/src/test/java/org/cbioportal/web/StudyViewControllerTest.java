@@ -16,6 +16,7 @@ import org.cbioportal.model.GenePanelData;
 import org.cbioportal.model.MolecularProfile;
 import org.cbioportal.model.MutationCountByGene;
 import org.cbioportal.model.Sample;
+import org.cbioportal.model.StructuralVariantCountByGene;
 import org.cbioportal.service.ClinicalAttributeService;
 import org.cbioportal.service.ClinicalDataService;
 import org.cbioportal.service.DiscreteCopyNumberService;
@@ -24,6 +25,7 @@ import org.cbioportal.service.MolecularProfileService;
 import org.cbioportal.service.MutationService;
 import org.cbioportal.service.PatientService;
 import org.cbioportal.service.SampleService;
+import org.cbioportal.service.StructuralVariantService;
 import org.cbioportal.web.parameter.ClinicalDataBinCountFilter;
 import org.cbioportal.web.parameter.ClinicalDataBinFilter;
 import org.cbioportal.web.parameter.ClinicalDataCountFilter;
@@ -94,6 +96,8 @@ public class StudyViewControllerTest {
     private ClinicalAttributeService clinicalAttributeService;
     @Autowired
     private PatientService patientService;
+    @Autowired
+    private StructuralVariantService structuralVariantService;
 
     private ObjectMapper objectMapper = new ObjectMapper();
 
@@ -313,22 +317,23 @@ public class StudyViewControllerTest {
         filteredSampleIdentifiers.add(sampleIdentifier);
         Mockito.when(studyViewFilterApplier.apply(Mockito.anyObject())).thenReturn(filteredSampleIdentifiers);
 
-        List<MutationCountByGene> fusionCounts = new ArrayList<>();
-        MutationCountByGene fusionCount1 = new MutationCountByGene();
-        fusionCount1.setEntrezGeneId(TEST_ENTREZ_GENE_ID_1);
-        fusionCount1.setHugoGeneSymbol(TEST_HUGO_GENE_SYMBOL_1);
-        fusionCount1.setNumberOfAlteredCases(1);
-        fusionCount1.setTotalCount(1);
-        fusionCounts.add(fusionCount1);
-        MutationCountByGene fusionCount2 = new MutationCountByGene();
-        fusionCount2.setEntrezGeneId(TEST_ENTREZ_GENE_ID_2);
-        fusionCount2.setHugoGeneSymbol(TEST_HUGO_GENE_SYMBOL_2);
-        fusionCount2.setNumberOfAlteredCases(2);
-        fusionCount2.setTotalCount(2);
-        fusionCounts.add(fusionCount2);
-
-        Mockito.when(mutationService.getSampleCountInMultipleMolecularProfilesForFusions(Mockito.anyListOf(String.class),
-            Mockito.anyListOf(String.class), Mockito.anyListOf(Integer.class), Mockito.anyBoolean(), Mockito.anyBoolean())).thenReturn(fusionCounts);
+        List<StructuralVariantCountByGene> svCounts = new ArrayList<>();
+        StructuralVariantCountByGene svCount1 = new StructuralVariantCountByGene();
+        svCount1.setEntrezGeneId(TEST_ENTREZ_GENE_ID_1);
+        svCount1.setHugoGeneSymbol(TEST_HUGO_GENE_SYMBOL_1);
+        svCount1.setNumberOfAlteredCases(1);
+        svCount1.setTotalCount(1);
+        svCounts.add(svCount1);
+        StructuralVariantCountByGene svCount2 = new StructuralVariantCountByGene();
+        svCount2.setEntrezGeneId(TEST_ENTREZ_GENE_ID_2);
+        svCount2.setHugoGeneSymbol(TEST_HUGO_GENE_SYMBOL_2);
+        svCount2.setNumberOfAlteredCases(2);
+        svCount2.setTotalCount(2);
+        svCounts.add(svCount2);
+        
+        Mockito.when(structuralVariantService.getSampleCountInMultipleMolecularProfiles(Mockito.anyListOf(String.class),
+                Mockito.anyListOf(String.class), Mockito.anyListOf(Integer.class), Mockito.anyBoolean(),
+                Mockito.anyBoolean())).thenReturn(svCounts);
 
         StudyViewFilter studyViewFilter = new StudyViewFilter();
         studyViewFilter.setStudyIds(Arrays.asList(TEST_STUDY_ID));

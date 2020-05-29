@@ -170,7 +170,7 @@ public class ClinicalDataEnrichmentControllerTest {
                 MockMvcRequestBuilders.post("/clinical-data-enrichments/fetch").accept(MediaType.APPLICATION_JSON)
                         .contentType(MediaType.APPLICATION_JSON).content(objectMapper.writeValueAsString(groupFilter)))
                 .andExpect(MockMvcResultMatchers.status().isBadRequest()).andExpect(MockMvcResultMatchers
-                        .jsonPath("$.message").value("groups size must be between 2 and 2147483647"));
+                        .jsonPath("$.message").value("interceptedGroupFilter size must be between 2 and 2147483647"));
 
         Group group1 = new Group();
         group1.setName("1");
@@ -203,7 +203,7 @@ public class ClinicalDataEnrichmentControllerTest {
                         .contentType(MediaType.APPLICATION_JSON).content(objectMapper.writeValueAsString(groupFilter)))
                 .andExpect(MockMvcResultMatchers.status().isBadRequest())
                 .andExpect(MockMvcResultMatchers.jsonPath("$.message")
-                        .value("groups[1].sampleIdentifiers size must be between 1 and 10000000"));
+                        .value("interceptedGroupFilter size must be between 1 and 10000000"));
 
         group2.setSampleIdentifiers(new ArrayList<SampleIdentifier>(
                 Arrays.asList(sampleIdentifier3, sampleIdentifier4, sampleIdentifier5)));

@@ -46,7 +46,7 @@ public class CopyNumberStatus {
     public static int getCNAStatus(int entrezGeneId, String caseId, String valueStr) {
 
 		try {
-			Double value = new Double(valueStr);
+			Double value = Double.valueOf(valueStr);
 			if (value < -2 || value > 2) {
 				throw new IllegalArgumentException("Can't handle CNA value of:  " + value
                                         + " Case ID:  " + caseId + ", Entrez Gene ID:  " + entrezGeneId);

@@ -127,7 +127,7 @@ public class StudyViewControllerTest {
         sampleIdentifier.setSampleId(TEST_SAMPLE_ID_1);
         sampleIdentifier.setStudyId(TEST_STUDY_ID);
         filteredSampleIdentifiers.add(sampleIdentifier);
-        Mockito.when(studyViewFilterApplier.apply(Mockito.anyObject())).thenReturn(filteredSampleIdentifiers);
+        Mockito.when(studyViewFilterApplier.apply(Mockito.any())).thenReturn(filteredSampleIdentifiers);
 
         List<ClinicalDataCountItem> clinicalDataCountItems = new ArrayList<>();
         ClinicalDataCountItem clinicalDataCountItem = new ClinicalDataCountItem();
@@ -146,8 +146,8 @@ public class StudyViewControllerTest {
         clinicalDataCountItem.setCounts(clinicalDataCounts);
         clinicalDataCountItems.add(clinicalDataCountItem);
         
-        Mockito.when(clinicalDataService.fetchClinicalDataCounts(Mockito.anyListOf(String.class), Mockito.anyListOf(String.class), 
-            Mockito.anyListOf(String.class))).thenReturn(clinicalDataCountItems);
+        Mockito.when(clinicalDataService.fetchClinicalDataCounts(Mockito.anyList(), Mockito.anyList(), 
+            Mockito.anyList())).thenReturn(clinicalDataCountItems);
 
         ClinicalDataCountFilter clinicalDataCountFilter = new ClinicalDataCountFilter();
         ClinicalDataFilter clinicalDataFilter = new ClinicalDataFilter();
@@ -180,7 +180,7 @@ public class StudyViewControllerTest {
         sampleIdentifier.setSampleId(TEST_SAMPLE_ID_1);
         sampleIdentifier.setStudyId(TEST_STUDY_ID);
         filteredSampleIdentifiers.add(sampleIdentifier);
-        Mockito.when(studyViewFilterApplier.apply(Mockito.anyObject())).thenReturn(filteredSampleIdentifiers);
+        Mockito.when(studyViewFilterApplier.apply(Mockito.any())).thenReturn(filteredSampleIdentifiers);
 
         List<ClinicalData> clinicalData = new ArrayList<>();
         ClinicalData clinicalData1 = new ClinicalData();
@@ -204,8 +204,8 @@ public class StudyViewControllerTest {
         clinicalData3.setSampleId(TEST_SAMPLE_ID_3);
         clinicalData.add(clinicalData3);
 
-        Mockito.when(clinicalDataService.fetchClinicalData(Mockito.anyListOf(String.class), Mockito.anyListOf(String.class),
-            Mockito.anyListOf(String.class), Mockito.any(String.class), Mockito.any(String.class))).thenReturn(clinicalData);
+        Mockito.when(clinicalDataService.fetchClinicalData(Mockito.anyList(), Mockito.anyList(),
+            Mockito.anyList(), Mockito.any(String.class), Mockito.any(String.class))).thenReturn(clinicalData);
 
         ClinicalAttribute clinicalAttribute1 =new ClinicalAttribute();
         clinicalAttribute1.setAttrId(TEST_ATTRIBUTE_ID);
@@ -215,7 +215,7 @@ public class StudyViewControllerTest {
                 Mockito.anyList(), Mockito.anyList()))
         .thenReturn(Arrays.asList(clinicalAttribute1));
 
-        Mockito.when(patientService.getPatientsOfSamples(Mockito.anyListOf(String.class), Mockito.anyListOf(String.class))).thenReturn(Arrays.asList());
+        Mockito.when(patientService.getPatientsOfSamples(Mockito.anyList(), Mockito.anyList())).thenReturn(Arrays.asList());
 
         ClinicalDataBinCountFilter clinicalDataBinCountFilter = new ClinicalDataBinCountFilter();
         ClinicalDataBinFilter clinicalDataBinFilter = new ClinicalDataBinFilter();
@@ -254,14 +254,14 @@ public class StudyViewControllerTest {
 
         MolecularProfile molecularProfile = new MolecularProfile();
         molecularProfile.setCancerStudyIdentifier(TEST_STUDY_ID);
-        Mockito.when(molecularProfileService.getMolecularProfile(Mockito.anyString())).thenReturn(molecularProfile);
+        Mockito.when(molecularProfileService.getMolecularProfile(Mockito.any())).thenReturn(molecularProfile);
 
         List<SampleIdentifier> filteredSampleIdentifiers = new ArrayList<>();
         SampleIdentifier sampleIdentifier = new SampleIdentifier();
         sampleIdentifier.setSampleId(TEST_SAMPLE_ID_1);
         sampleIdentifier.setStudyId(TEST_STUDY_ID);
         filteredSampleIdentifiers.add(sampleIdentifier);
-        Mockito.when(studyViewFilterApplier.apply(Mockito.anyObject())).thenReturn(filteredSampleIdentifiers);
+        Mockito.when(studyViewFilterApplier.apply(Mockito.any())).thenReturn(filteredSampleIdentifiers);
 
         List<MutationCountByGene> mutationCounts = new ArrayList<>();
         MutationCountByGene mutationCount1 = new MutationCountByGene();
@@ -277,8 +277,8 @@ public class StudyViewControllerTest {
         mutationCount2.setTotalCount(2);
         mutationCounts.add(mutationCount2);
 
-        Mockito.when(mutationService.getSampleCountInMultipleMolecularProfiles(Mockito.anyListOf(String.class),
-            Mockito.anyListOf(String.class), Mockito.anyListOf(Integer.class), Mockito.anyBoolean(), Mockito.anyBoolean())).thenReturn(mutationCounts);
+        Mockito.when(mutationService.getSampleCountInMultipleMolecularProfiles(Mockito.anyList(),
+            Mockito.anyList(), Mockito.any(), Mockito.anyBoolean(), Mockito.anyBoolean())).thenReturn(mutationCounts);
 
         StudyViewFilter studyViewFilter = new StudyViewFilter();
         studyViewFilter.setStudyIds(Arrays.asList(TEST_STUDY_ID));
@@ -304,14 +304,14 @@ public class StudyViewControllerTest {
 
         MolecularProfile molecularProfile = new MolecularProfile();
         molecularProfile.setCancerStudyIdentifier(TEST_STUDY_ID);
-        Mockito.when(molecularProfileService.getMolecularProfile(Mockito.anyString())).thenReturn(molecularProfile);
+        Mockito.when(molecularProfileService.getMolecularProfile(Mockito.any())).thenReturn(molecularProfile);
 
         List<SampleIdentifier> filteredSampleIdentifiers = new ArrayList<>();
         SampleIdentifier sampleIdentifier = new SampleIdentifier();
         sampleIdentifier.setSampleId(TEST_SAMPLE_ID_1);
         sampleIdentifier.setStudyId(TEST_STUDY_ID);
         filteredSampleIdentifiers.add(sampleIdentifier);
-        Mockito.when(studyViewFilterApplier.apply(Mockito.anyObject())).thenReturn(filteredSampleIdentifiers);
+        Mockito.when(studyViewFilterApplier.apply(Mockito.any())).thenReturn(filteredSampleIdentifiers);
 
         List<MutationCountByGene> fusionCounts = new ArrayList<>();
         MutationCountByGene fusionCount1 = new MutationCountByGene();
@@ -327,8 +327,8 @@ public class StudyViewControllerTest {
         fusionCount2.setTotalCount(2);
         fusionCounts.add(fusionCount2);
 
-        Mockito.when(mutationService.getSampleCountInMultipleMolecularProfilesForFusions(Mockito.anyListOf(String.class),
-            Mockito.anyListOf(String.class), Mockito.anyListOf(Integer.class), Mockito.anyBoolean(), Mockito.anyBoolean())).thenReturn(fusionCounts);
+        Mockito.when(mutationService.getSampleCountInMultipleMolecularProfilesForFusions(Mockito.anyList(),
+            Mockito.anyList(), Mockito.any(), Mockito.anyBoolean(), Mockito.anyBoolean())).thenReturn(fusionCounts);
 
         StudyViewFilter studyViewFilter = new StudyViewFilter();
         studyViewFilter.setStudyIds(Arrays.asList(TEST_STUDY_ID));
@@ -354,14 +354,14 @@ public class StudyViewControllerTest {
 
         MolecularProfile molecularProfile = new MolecularProfile();
         molecularProfile.setCancerStudyIdentifier(TEST_STUDY_ID);
-        Mockito.when(molecularProfileService.getMolecularProfile(Mockito.anyString())).thenReturn(molecularProfile);
+        Mockito.when(molecularProfileService.getMolecularProfile(Mockito.any())).thenReturn(molecularProfile);
 
         List<SampleIdentifier> filteredSampleIdentifiers = new ArrayList<>();
         SampleIdentifier sampleIdentifier = new SampleIdentifier();
         sampleIdentifier.setSampleId(TEST_SAMPLE_ID_1);
         sampleIdentifier.setStudyId(TEST_STUDY_ID);
         filteredSampleIdentifiers.add(sampleIdentifier);
-        Mockito.when(studyViewFilterApplier.apply(Mockito.anyObject())).thenReturn(filteredSampleIdentifiers);
+        Mockito.when(studyViewFilterApplier.apply(Mockito.any())).thenReturn(filteredSampleIdentifiers);
 
         List<CopyNumberCountByGene> cnaCounts = new ArrayList<>();
         CopyNumberCountByGene cnaCount1 = new CopyNumberCountByGene();
@@ -379,8 +379,8 @@ public class StudyViewControllerTest {
         cnaCount2.setAlteration(2);
         cnaCounts.add(cnaCount2);
 
-        Mockito.when(discreteCopyNumberService.getSampleCountInMultipleMolecularProfiles(Mockito.anyListOf(String.class),
-            Mockito.anyListOf(String.class), Mockito.anyListOf(Integer.class), Mockito.anyListOf(Integer.class), Mockito.anyBoolean(), Mockito.anyBoolean()))
+        Mockito.when(discreteCopyNumberService.getSampleCountInMultipleMolecularProfiles(Mockito.anyList(),
+            Mockito.anyList(), Mockito.any(), Mockito.anyList(), Mockito.anyBoolean(), Mockito.anyBoolean()))
             .thenReturn(cnaCounts);
 
         StudyViewFilter studyViewFilter = new StudyViewFilter();
@@ -415,8 +415,8 @@ public class StudyViewControllerTest {
         sampleIdentifier.setStudyId(TEST_STUDY_ID);
         filteredSampleIdentifiers.add(sampleIdentifier);
 
-        Mockito.when(studyViewFilterApplier.apply(Mockito.anyObject())).thenReturn(filteredSampleIdentifiers);
-        Mockito.when(studyViewFilterApplier.apply(Mockito.anyObject(), Mockito.eq(false))).thenReturn(filteredSampleIdentifiers);
+        Mockito.when(studyViewFilterApplier.apply(Mockito.any())).thenReturn(filteredSampleIdentifiers);
+        Mockito.when(studyViewFilterApplier.apply(Mockito.any(), Mockito.eq(false))).thenReturn(filteredSampleIdentifiers);
 
         List<Sample> filteredSamples = new ArrayList<>();
         Sample sample1 = new Sample();
@@ -430,7 +430,7 @@ public class StudyViewControllerTest {
         sample2.setCancerStudyIdentifier(TEST_STUDY_ID);
         filteredSamples.add(sample2);
 
-        Mockito.when(sampleService.fetchSamples(Mockito.anyListOf(String.class), Mockito.anyListOf(String.class),
+        Mockito.when(sampleService.fetchSamples(Mockito.anyList(), Mockito.anyList(),
             Mockito.anyString())).thenReturn(filteredSamples);
 
         StudyViewFilter studyViewFilter = new StudyViewFilter();
@@ -466,7 +466,7 @@ public class StudyViewControllerTest {
         sampleIdentifier3.setSampleId(TEST_SAMPLE_ID_3);
         sampleIdentifier3.setStudyId(TEST_STUDY_ID);
         filteredSampleIdentifiers.add(sampleIdentifier3);
-        Mockito.when(studyViewFilterApplier.apply(Mockito.anyObject())).thenReturn(filteredSampleIdentifiers);
+        Mockito.when(studyViewFilterApplier.apply(Mockito.any())).thenReturn(filteredSampleIdentifiers);
 
         MolecularProfile molecularProfile1 = new MolecularProfile();
         molecularProfile1.setCancerStudyIdentifier(TEST_STUDY_ID);
@@ -478,7 +478,7 @@ public class StudyViewControllerTest {
         molecularProfile2.setStableId(TEST_MOLEULAR_PROFILE_ID_2);
         molecularProfile2.setName("Profile 2");
 
-        Mockito.when(molecularProfileService.getMolecularProfilesInStudies(Mockito.anyListOf(String.class),
+        Mockito.when(molecularProfileService.getMolecularProfilesInStudies(Mockito.anyList(),
                 Mockito.anyString())).thenReturn(Arrays.asList(molecularProfile1, molecularProfile2));
 
         List<GenePanelData> genePanelDataList = new ArrayList<>();
@@ -495,8 +495,8 @@ public class StudyViewControllerTest {
         genePanelData3.setProfiled(true);
         genePanelDataList.add(genePanelData3);
 
-        Mockito.when(genePanelService.fetchGenePanelDataInMultipleMolecularProfiles(Mockito.anyListOf(String.class),
-            Mockito.anyListOf(String.class))).thenReturn(genePanelDataList);
+        Mockito.when(genePanelService.fetchGenePanelDataInMultipleMolecularProfiles(Mockito.anyList(),
+            Mockito.anyList())).thenReturn(genePanelDataList);
 
         StudyViewFilter studyViewFilter = new StudyViewFilter();
         studyViewFilter.setStudyIds(Arrays.asList(TEST_STUDY_ID));
@@ -523,7 +523,7 @@ public class StudyViewControllerTest {
         sampleIdentifier.setSampleId(TEST_SAMPLE_ID_1);
         sampleIdentifier.setStudyId(TEST_STUDY_ID);
         filteredSampleIdentifiers.add(sampleIdentifier);
-        Mockito.when(studyViewFilterApplier.apply(Mockito.anyObject())).thenReturn(filteredSampleIdentifiers);
+        Mockito.when(studyViewFilterApplier.apply(Mockito.any())).thenReturn(filteredSampleIdentifiers);
 
         ClinicalAttribute clinicalAttribute1 =new ClinicalAttribute();
         clinicalAttribute1.setAttrId("FRACTION_GENOME_ALTERED");
@@ -575,8 +575,8 @@ public class StudyViewControllerTest {
         clinicalData6.setSampleId(TEST_SAMPLE_ID_3);
         clinicalData.add(clinicalData6);
         
-        Mockito.when(clinicalDataService.fetchClinicalData(Mockito.anyListOf(String.class), Mockito.anyListOf(String.class), 
-            Mockito.anyListOf(String.class), Mockito.anyString(), Mockito.anyString())).thenReturn(clinicalData);
+        Mockito.when(clinicalDataService.fetchClinicalData(Mockito.anyList(), Mockito.anyList(), 
+            Mockito.anyList(), Mockito.anyString(), Mockito.anyString())).thenReturn(clinicalData);
 
         StudyViewFilter studyViewFilter = new StudyViewFilter();
         studyViewFilter.setStudyIds(Arrays.asList(TEST_STUDY_ID));

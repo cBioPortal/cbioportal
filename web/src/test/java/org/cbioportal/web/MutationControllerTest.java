@@ -163,9 +163,9 @@ public class MutationControllerTest {
 
         List<Mutation> mutationList = createExampleMutations();
 
-        Mockito.when(mutationService.getMutationsInMolecularProfileBySampleListId(Mockito.anyString(),
-            Mockito.anyString(), Mockito.anyListOf(Integer.class), Mockito.anyBoolean(), Mockito.anyString(),
-            Mockito.anyInt(), Mockito.anyInt(), Mockito.anyString(), Mockito.anyString())).thenReturn(mutationList);
+        Mockito.when(mutationService.getMutationsInMolecularProfileBySampleListId(Mockito.any(),
+            Mockito.any(), Mockito.any(), Mockito.any(), Mockito.any(),
+            Mockito.any(), Mockito.any(), Mockito.any(), Mockito.any())).thenReturn(mutationList);
 
         mockMvc.perform(MockMvcRequestBuilders.get("/molecular-profiles/test_molecular_profile_id/mutations")
             .param("sampleListId", TEST_SAMPLE_LIST_ID)
@@ -250,9 +250,9 @@ public class MutationControllerTest {
 
         List<Mutation> mutationList = createExampleMutationsWithGeneAndAlleleSpecificCopyNumber();
 
-        Mockito.when(mutationService.getMutationsInMolecularProfileBySampleListId(Mockito.anyString(),
-            Mockito.anyString(), Mockito.anyListOf(Integer.class), Mockito.anyBoolean(), Mockito.anyString(),
-            Mockito.anyInt(), Mockito.anyInt(), Mockito.anyString(), Mockito.anyString())).thenReturn(mutationList);
+        Mockito.when(mutationService.getMutationsInMolecularProfileBySampleListId(Mockito.any(),
+            Mockito.any(), Mockito.any(), Mockito.any(), Mockito.any(),
+            Mockito.any(), Mockito.any(), Mockito.any(), Mockito.any())).thenReturn(mutationList);
 
         mockMvc.perform(MockMvcRequestBuilders.get("/molecular-profiles/test_molecular_profile_id/mutations")
             .param("sampleListId", TEST_SAMPLE_LIST_ID)
@@ -359,8 +359,8 @@ public class MutationControllerTest {
         mutationMeta.setTotalCount(2);
         mutationMeta.setSampleCount(3);
 
-        Mockito.when(mutationService.getMetaMutationsInMolecularProfileBySampleListId(Mockito.anyString(),
-            Mockito.anyString(), Mockito.anyListOf(Integer.class))).thenReturn(mutationMeta);
+        Mockito.when(mutationService.getMetaMutationsInMolecularProfileBySampleListId(Mockito.any(),
+            Mockito.any(), Mockito.any())).thenReturn(mutationMeta);
 
         mockMvc.perform(MockMvcRequestBuilders.get("/molecular-profiles/test_molecular_profile_id/mutations")
             .param("sampleListId", TEST_SAMPLE_LIST_ID)
@@ -375,9 +375,9 @@ public class MutationControllerTest {
 
         List<Mutation> mutationList = createExampleMutations();
 
-        Mockito.when(mutationService.getMutationsInMultipleMolecularProfiles(Mockito.anyListOf(String.class),
-            Mockito.anyListOf(String.class), Mockito.anyListOf(Integer.class), Mockito.anyString(), Mockito.anyInt(),
-            Mockito.anyInt(), Mockito.anyString(), Mockito.anyString())).thenReturn(mutationList);
+        Mockito.when(mutationService.getMutationsInMultipleMolecularProfiles(Mockito.any(),
+            Mockito.any(), Mockito.any(), Mockito.any(), Mockito.any(),
+            Mockito.any(), Mockito.any(), Mockito.any())).thenReturn(mutationList);
 
         List<SampleMolecularIdentifier> sampleMolecularIdentifiers = new ArrayList<>();
         SampleMolecularIdentifier sampleMolecularIdentifier1 = new SampleMolecularIdentifier();
@@ -475,9 +475,9 @@ public class MutationControllerTest {
 
         List<Mutation> mutationList = createExampleMutations();
 
-        Mockito.when(mutationService.fetchMutationsInMolecularProfile(Mockito.anyString(),
-            Mockito.anyListOf(String.class), Mockito.anyListOf(Integer.class), Mockito.anyBoolean(),
-            Mockito.anyString(), Mockito.anyInt(), Mockito.anyInt(), Mockito.anyString(), Mockito.anyString()))
+        Mockito.when(mutationService.fetchMutationsInMolecularProfile(Mockito.any(),
+            Mockito.any(), Mockito.any(), Mockito.any(),
+            Mockito.any(), Mockito.any(), Mockito.any(), Mockito.any(), Mockito.any()))
             .thenReturn(mutationList);
 
         List<String> sampleIds = new ArrayList<>();
@@ -570,9 +570,9 @@ public class MutationControllerTest {
 
         List<Mutation> mutationList = createExampleMutationsWithGeneAndAlleleSpecificCopyNumber();
 
-        Mockito.when(mutationService.fetchMutationsInMolecularProfile(Mockito.anyString(),
-            Mockito.anyListOf(String.class), Mockito.anyListOf(Integer.class), Mockito.anyBoolean(),
-            Mockito.anyString(), Mockito.anyInt(), Mockito.anyInt(), Mockito.anyString(), Mockito.anyString()))
+        Mockito.when(mutationService.fetchMutationsInMolecularProfile(Mockito.any(),
+            Mockito.any(), Mockito.any(), Mockito.any(),
+            Mockito.any(), Mockito.any(), Mockito.any(), Mockito.any(), Mockito.any()))
             .thenReturn(mutationList);
 
         List<String> sampleIds = new ArrayList<>();
@@ -688,8 +688,8 @@ public class MutationControllerTest {
         mutationMeta.setTotalCount(2);
         mutationMeta.setSampleCount(3);
 
-        Mockito.when(mutationService.fetchMetaMutationsInMolecularProfile(Mockito.anyString(),
-            Mockito.anyListOf(String.class), Mockito.anyListOf(Integer.class))).thenReturn(mutationMeta);
+        Mockito.when(mutationService.fetchMetaMutationsInMolecularProfile(Mockito.any(),
+            Mockito.any(), Mockito.any())).thenReturn(mutationMeta);
 
         List<String> sampleIds = new ArrayList<>();
         sampleIds.add(TEST_SAMPLE_STABLE_ID_1);
@@ -723,8 +723,8 @@ public class MutationControllerTest {
         mutationCountByPosition2.setCount(TEST_MUTATION_COUNT_2);
         mutationCountByPositionList.add(mutationCountByPosition2);
 
-        Mockito.when(mutationService.fetchMutationCountsByPosition(Mockito.anyListOf(Integer.class),
-            Mockito.anyListOf(Integer.class), Mockito.anyListOf(Integer.class)))
+        Mockito.when(mutationService.fetchMutationCountsByPosition(Mockito.anyList(),
+            Mockito.anyList(), Mockito.anyList()))
             .thenReturn(mutationCountByPositionList);
 
         List<MutationPositionIdentifier> mutationPositionIdentifiers = new ArrayList<>();

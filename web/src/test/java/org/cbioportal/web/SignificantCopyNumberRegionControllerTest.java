@@ -126,8 +126,8 @@ public class SignificantCopyNumberRegionControllerTest {
         gistic2.setGenes(gisticToGeneList2);
         gisticList.add(gistic2);
 
-        Mockito.when(significantCopyNumberRegionService.getSignificantCopyNumberRegions(Mockito.anyString(),
-            Mockito.anyString(), Mockito.anyInt(), Mockito.anyInt(), Mockito.anyString(), Mockito.anyString()))
+        Mockito.when(significantCopyNumberRegionService.getSignificantCopyNumberRegions(Mockito.any(),
+            Mockito.any(), Mockito.any(), Mockito.any(), Mockito.any(), Mockito.any()))
             .thenReturn(gisticList);
 
         mockMvc.perform(MockMvcRequestBuilders.get("/studies/test_study_id/significant-copy-number-regions")

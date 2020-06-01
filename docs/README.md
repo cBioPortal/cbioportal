@@ -20,6 +20,7 @@ We also maintain an active [list of RFCs (Requests for Comments)](RFC-List.md) w
 
 ### 2.1.1 Deploy with Docker (Recommended)
 * [Deploy with Docker](docker/README.md)
+* [Import data with Docker](docker/import_data.md)
 * [Example Commands](docker/example_commands.md)
 * [Authenticating and Authorizing Users using Keycloak in Docker](docker/using-keycloak.md)
 

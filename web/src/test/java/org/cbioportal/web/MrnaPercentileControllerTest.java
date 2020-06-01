@@ -82,7 +82,7 @@ public class MrnaPercentileControllerTest {
         mrnaPercentileList.add(mrnaPercentile2);
 
         Mockito.when(mrnaPercentileService.fetchMrnaPercentile(Mockito.anyString(), Mockito.anyString(),
-            Mockito.anyListOf(Integer.class))).thenReturn(mrnaPercentileList);
+            Mockito.anyList())).thenReturn(mrnaPercentileList);
 
         List<Integer> entrezGeneIds = new ArrayList<>();
         entrezGeneIds.add(TEST_ENTREZ_GENE_ID_1);

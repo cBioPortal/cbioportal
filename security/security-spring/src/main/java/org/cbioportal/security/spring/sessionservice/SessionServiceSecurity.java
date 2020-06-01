@@ -63,7 +63,7 @@ public class SessionServiceSecurity {
     LOG.debug("SessionServiceSecurity.check() -- " + count + 
       " session service API requests made by this session (MAX_SESSION_SERVICE_REQ = " + 
       MAX_SESSION_SERVICE_REQ + ")");
-    request.getSession().setAttribute(NUM_SESSION_SERVICE_REQ, new Integer(count));
+    request.getSession().setAttribute(NUM_SESSION_SERVICE_REQ, Integer.valueOf(count));
     if (MAX_SESSION_SERVICE_REQ < count) {
       LOG.warn("SessionServiceSecurity.check() -- too many requests (" + count + 
         ") made by this session to the session service API (MAX_SESSION_SERVICE_REQ = " + 

@@ -86,8 +86,8 @@ public class VariantCountControllerTest {
         variantCount2.setNumberOfSamplesWithKeyword(TEST_NUMBER_OF_SAMPLES_WITH_KEYWORD_2);
         variantCountList.add(variantCount2);
 
-        Mockito.when(variantCountService.fetchVariantCounts(Mockito.anyString(), Mockito.anyListOf(Integer.class),
-            Mockito.anyListOf(String.class))).thenReturn(variantCountList);
+        Mockito.when(variantCountService.fetchVariantCounts(Mockito.anyString(), Mockito.anyList(),
+            Mockito.anyList())).thenReturn(variantCountList);
 
         List<VariantCountIdentifier> variantCountIdentifiers = new ArrayList<>();
         VariantCountIdentifier variantCountIdentifier1 = new VariantCountIdentifier();

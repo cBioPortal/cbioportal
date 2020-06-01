@@ -124,8 +124,8 @@ public class GenePanelControllerTest {
         genePanelList.add(genePanel2);
 
 
-        Mockito.when(genePanelService.getAllGenePanels(Mockito.anyString(), Mockito.anyInt(),
-            Mockito.anyInt(), Mockito.anyString(), Mockito.anyString())).thenReturn(genePanelList);
+        Mockito.when(genePanelService.getAllGenePanels(Mockito.any(), Mockito.any(),
+            Mockito.any(), Mockito.any(), Mockito.any())).thenReturn(genePanelList);
 
         mockMvc.perform(MockMvcRequestBuilders.get("/gene-panels")
             .accept(MediaType.APPLICATION_JSON))
@@ -251,8 +251,8 @@ public class GenePanelControllerTest {
 
         List<GenePanelData> genePanelDataList = createExampleGenePanelData();
 
-        Mockito.when(genePanelService.fetchGenePanelDataInMultipleMolecularProfiles(Mockito.anyListOf(String.class),
-            Mockito.anyListOf(String.class))).thenReturn(genePanelDataList);
+        Mockito.when(genePanelService.fetchGenePanelDataInMultipleMolecularProfiles(Mockito.anyList(),
+            Mockito.anyList())).thenReturn(genePanelDataList);
 
         List<SampleMolecularIdentifier> sampleMolecularIdentifiers = new ArrayList<>();
         SampleMolecularIdentifier sampleMolecularIdentifier1 = new SampleMolecularIdentifier();

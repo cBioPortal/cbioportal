@@ -37,11 +37,13 @@ import org.mskcc.cbio.portal.dao.*;
 import org.mskcc.cbio.portal.util.*;
 import org.apache.log4j.Logger;
 import org.cbioportal.model.CNA;
-import org.codehaus.jackson.map.ObjectMapper;
 
 import java.io.*;
 import java.util.*;
 import javax.servlet.http.*;
+
+import com.fasterxml.jackson.databind.ObjectMapper;
+
 import javax.servlet.ServletConfig;
 import javax.servlet.ServletException;
 

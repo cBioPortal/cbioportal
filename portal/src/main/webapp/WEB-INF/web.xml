@@ -61,10 +61,6 @@
             org.cbioportal.web.config.WebServletContextListener
         </listener-class>
     </listener>
-    <!-- custom location for log4j config -->
-    <listener>
-      <listener-class>org.springframework.web.util.Log4jConfigListener</listener-class>
-    </listener>
 
     <!-- filters -->
     <filter>
@@ -661,6 +657,7 @@
         <url-pattern>/study.do/*</url-pattern>
         <url-pattern>/loading/*</url-pattern>
         <url-pattern>/comparison/*</url-pattern>
+        <url-pattern>/restore</url-pattern>
     </servlet-mapping>
 
     <servlet>

@@ -113,53 +113,52 @@ public class InvolvedCancerStudyExtractorInterceptor extends HandlerInterceptorA
         if (!request.getMethod().equals("POST")) {
             return true; // no attribute extraction needed because all user supplied filter objects are in POST requests
         }
-        ResettableHttpServletRequestWrapper wrappedRequest = new ResettableHttpServletRequestWrapper((HttpServletRequest) request);
         String requestPathInfo = request.getPathInfo();
         if (requestPathInfo.equals(PATIENT_FETCH_PATH)) {
-            return extractAttributesFromPatientFilter(wrappedRequest);
+            return extractAttributesFromPatientFilter(request);
         } else if (requestPathInfo.equals(SAMPLE_FETCH_PATH)) {
-            return extractAttributesFromSampleFilter(wrappedRequest);
+            return extractAttributesFromSampleFilter(request);
         } else if (requestPathInfo.equals(MOLECULAR_PROFILE_FETCH_PATH)) {
-            return extractAttributesFromMolecularProfileFilter(wrappedRequest);
+            return extractAttributesFromMolecularProfileFilter(request);
         } else if (requestPathInfo.equals(CLINICAL_ATTRIBUTE_COUNT_FETCH_PATH)) {
-            return extractAttributesFromClinicalAttributeCountFilter(wrappedRequest);
+            return extractAttributesFromClinicalAttributeCountFilter(request);
         } else if (requestPathInfo.equals(CLINICAL_DATA_FETCH_PATH)) {
-            return extractAttributesFromClinicalDataMultiStudyFilter(wrappedRequest);
+            return extractAttributesFromClinicalDataMultiStudyFilter(request);
         } else if (requestPathInfo.equals(GENE_PANEL_DATA_FETCH_PATH)) {
-            return extractAttributesFromGenePanelSampleMolecularIdentifiers(wrappedRequest);
+            return extractAttributesFromGenePanelSampleMolecularIdentifiers(request);
         } else if (requestPathInfo.equals(MOLECULAR_DATA_MULTIPLE_STUDY_FETCH_PATH)) {
-            return extractAttributesFromMolecularDataMultipleStudyFilter(wrappedRequest);
+            return extractAttributesFromMolecularDataMultipleStudyFilter(request);
         } else if (requestPathInfo.equals(MUTATION_MULTIPLE_STUDY_FETCH_PATH)) {
-            return extractAttributesFromMutationMultipleStudyFilter(wrappedRequest);
+            return extractAttributesFromMutationMultipleStudyFilter(request);
         } else if (requestPathInfo.equals(COPY_NUMBER_SEG_FETCH_PATH)) {
-            return extractAttributesFromSampleIdentifiers(wrappedRequest);
+            return extractAttributesFromSampleIdentifiers(request);
         } else if (requestPathInfo.equals(STUDY_VIEW_CLINICAL_DATA_BIN_COUNTS_PATH)) {
-            return extractAttributesFromClinicalDataBinCountFilter(wrappedRequest);
+            return extractAttributesFromClinicalDataBinCountFilter(request);
         } else if (requestPathInfo.equals(STUDY_VIEW_GENOMICL_DATA_BIN_COUNTS_PATH)) {
-            return extractAttributesFromGenomicDataBinCountFilter(wrappedRequest);
+            return extractAttributesFromGenomicDataBinCountFilter(request);
         } else if (requestPathInfo.equals(STUDY_VIEW_CLINICAL_DATA_COUNTS_PATH)) {
-            return extractAttributesFromClinicalDataCountFilter(wrappedRequest);
+            return extractAttributesFromClinicalDataCountFilter(request);
         } else if (Arrays.asList(STUDY_VIEW_CLINICAL_DATA_DENSITY_PATH, STUDY_VIEW_CNA_GENES,
                 STUDY_VIEW_FILTERED_SAMPLES, STUDY_VIEW_MUTATED_GENES, STUDY_VIEW_FUSION_GENES,
                 STUDY_VIEW_SAMPLE_COUNTS, STUDY_VIEW_SAMPLE_LIST_COUNTS_PATH).contains(requestPathInfo)) {
-            return extractAttributesFromStudyViewFilter(wrappedRequest);
+            return extractAttributesFromStudyViewFilter(request);
         } else if (requestPathInfo.equals(CLINICAL_DATA_ENRICHMENT_FETCH_PATH)) {
-            return extractAttributesFromGroupFilter(wrappedRequest);
+            return extractAttributesFromGroupFilter(request);
         } else if (requestPathInfo.equals(MUTATION_ENRICHMENT_FETCH_PATH) || requestPathInfo.equals(COPY_NUMBER_ENRICHMENT_FETCH_PATH) || requestPathInfo.equals(EXPRESSION_ENRICHMENT_FETCH_PATH)) {
-            return extractAttributesFromMolecularProfileCasesGroups(wrappedRequest);
+            return extractAttributesFromMolecularProfileCasesGroups(request);
         } else if (requestPathInfo.equals(STRUCTURAL_VARIANT_FETCH_PATH)) {
-            return extractAttributesFromStructuralVariantFilter(wrappedRequest);
+            return extractAttributesFromStructuralVariantFilter(request);
         } else if (requestPathInfo.equals(GENERIC_ASSAY_DATA_MULTIPLE_STUDY_FETCH_PATH)) {
-            return extractAttributesFromGenericAssayDataMultipleStudyFilter(wrappedRequest);
+            return extractAttributesFromGenericAssayDataMultipleStudyFilter(request);
         } else if (requestPathInfo.equals(GENERIC_ASSAY_META_FETCH_PATH)) {
-            return extractAttributesFromGenericAssayMetaFilter(wrappedRequest);
+            return extractAttributesFromGenericAssayMetaFilter(request);
         }
         return true;
     }
 
     private boolean extractAttributesFromPatientFilter(HttpServletRequest request) {
         try {
-            PatientFilter patientFilter = objectMapper.readValue(request.getReader(), PatientFilter.class);
+            PatientFilter patientFilter = objectMapper.readValue(request.getInputStream(), PatientFilter.class);
             LOG.debug("extracted patientFilter: " + patientFilter.toString());
             LOG.debug("setting interceptedPatientFilter to " + patientFilter);
             request.setAttribute("interceptedPatientFilter", patientFilter);
@@ -190,7 +189,7 @@ public class InvolvedCancerStudyExtractorInterceptor extends HandlerInterceptorA
 
     private boolean extractAttributesFromSampleFilter(HttpServletRequest request) {
         try {
-            SampleFilter sampleFilter = objectMapper.readValue(request.getReader(), SampleFilter.class);
+            SampleFilter sampleFilter = objectMapper.readValue(request.getInputStream(), SampleFilter.class);
             LOG.debug("extracted sampleFilter: " + sampleFilter.toString());
             LOG.debug("setting interceptedSampleFilter to " + sampleFilter);
             request.setAttribute("interceptedSampleFilter", sampleFilter);
@@ -221,7 +220,7 @@ public class InvolvedCancerStudyExtractorInterceptor extends HandlerInterceptorA
 
     private boolean extractAttributesFromMolecularProfileFilter(HttpServletRequest request) {
         try {
-            MolecularProfileFilter molecularProfileFilter = objectMapper.readValue(request.getReader(), MolecularProfileFilter.class);
+            MolecularProfileFilter molecularProfileFilter = objectMapper.readValue(request.getInputStream(), MolecularProfileFilter.class);
             LOG.debug("extracted molecularProfileFilter: " + molecularProfileFilter.toString());
             LOG.debug("setting interceptedMolecularProfileFilter to " + molecularProfileFilter);
             request.setAttribute("interceptedMolecularProfileFilter", molecularProfileFilter);
@@ -250,7 +249,7 @@ public class InvolvedCancerStudyExtractorInterceptor extends HandlerInterceptorA
 
     private boolean extractAttributesFromClinicalAttributeCountFilter(HttpServletRequest request) {
         try {
-            ClinicalAttributeCountFilter clinicalAttributeCountFilter = objectMapper.readValue(request.getReader(), ClinicalAttributeCountFilter.class);
+            ClinicalAttributeCountFilter clinicalAttributeCountFilter = objectMapper.readValue(request.getInputStream(), ClinicalAttributeCountFilter.class);
             LOG.debug("extracted clinicalAttributeCountFilter: " + clinicalAttributeCountFilter.toString());
             LOG.debug("setting interceptedClinicalAttributeCountFilter to " + clinicalAttributeCountFilter);
             request.setAttribute("interceptedClinicalAttributeCountFilter", clinicalAttributeCountFilter);
@@ -279,7 +278,7 @@ public class InvolvedCancerStudyExtractorInterceptor extends HandlerInterceptorA
 
     private boolean extractAttributesFromClinicalDataMultiStudyFilter(HttpServletRequest request) {
         try {
-            ClinicalDataMultiStudyFilter clinicalDataMultiStudyFilter = objectMapper.readValue(request.getReader(), ClinicalDataMultiStudyFilter.class);
+            ClinicalDataMultiStudyFilter clinicalDataMultiStudyFilter = objectMapper.readValue(request.getInputStream(), ClinicalDataMultiStudyFilter.class);
             LOG.debug("extracted clinicalDataMultiStudyFilter: " + clinicalDataMultiStudyFilter.toString());
             LOG.debug("setting interceptedClinicalDataMultiStudyFilter to " + clinicalDataMultiStudyFilter);
             request.setAttribute("interceptedClinicalDataMultiStudyFilter", clinicalDataMultiStudyFilter);
@@ -306,7 +305,7 @@ public class InvolvedCancerStudyExtractorInterceptor extends HandlerInterceptorA
 
     private boolean extractAttributesFromGenePanelSampleMolecularIdentifiers(HttpServletRequest request) {
         try {
-            List<SampleMolecularIdentifier> sampleMolecularIdentifiers = Arrays.asList(objectMapper.readValue(request.getReader(), SampleMolecularIdentifier[].class));
+            List<SampleMolecularIdentifier> sampleMolecularIdentifiers = Arrays.asList(objectMapper.readValue(request.getInputStream(), SampleMolecularIdentifier[].class));
             LOG.debug("extracted sampleMolecularIdentifiers: " + sampleMolecularIdentifiers.toString());
             LOG.debug("setting interceptedGenePanelSampleMolecularIdentifers to " + sampleMolecularIdentifiers);
             request.setAttribute("interceptedGenePanelSampleMolecularIdentifiers", sampleMolecularIdentifiers);
@@ -330,7 +329,7 @@ public class InvolvedCancerStudyExtractorInterceptor extends HandlerInterceptorA
 
     private boolean extractAttributesFromMolecularDataMultipleStudyFilter(HttpServletRequest request) {
         try {
-            MolecularDataMultipleStudyFilter molecularDataMultipleStudyFilter = objectMapper.readValue(request.getReader(), MolecularDataMultipleStudyFilter.class);
+            MolecularDataMultipleStudyFilter molecularDataMultipleStudyFilter = objectMapper.readValue(request.getInputStream(), MolecularDataMultipleStudyFilter.class);
             LOG.debug("extracted molecularDataMultipleStudyFilter: " + molecularDataMultipleStudyFilter.toString());
             LOG.debug("setting interceptedMolecularDataMultipleStudyFilter to " + molecularDataMultipleStudyFilter);
             request.setAttribute("interceptedMolecularDataMultipleStudyFilter", molecularDataMultipleStudyFilter);
@@ -358,7 +357,7 @@ public class InvolvedCancerStudyExtractorInterceptor extends HandlerInterceptorA
 
     private boolean extractAttributesFromGenericAssayMetaFilter(HttpServletRequest request) {
         try {
-            GenericAssayMetaFilter genericAssayMetaFilter = objectMapper.readValue(request.getReader(), GenericAssayMetaFilter.class);
+            GenericAssayMetaFilter genericAssayMetaFilter = objectMapper.readValue(request.getInputStream(), GenericAssayMetaFilter.class);
             LOG.debug("extracted genericAssayMetaFilter: " + genericAssayMetaFilter.toString());
             LOG.debug("setting interceptedGenericAssayMetaFilter to " + genericAssayMetaFilter);
             request.setAttribute("interceptedGenericAssayMetaFilter", genericAssayMetaFilter);
@@ -387,7 +386,7 @@ public class InvolvedCancerStudyExtractorInterceptor extends HandlerInterceptorA
 
     private boolean extractAttributesFromGenericAssayDataMultipleStudyFilter(HttpServletRequest request) {
         try {
-            GenericAssayDataMultipleStudyFilter genericAssayDataMultipleStudyFilter = objectMapper.readValue(request.getReader(), GenericAssayDataMultipleStudyFilter.class);
+            GenericAssayDataMultipleStudyFilter genericAssayDataMultipleStudyFilter = objectMapper.readValue(request.getInputStream(), GenericAssayDataMultipleStudyFilter.class);
             LOG.debug("extracted genericAssayDataMultipleStudyFilter: " + genericAssayDataMultipleStudyFilter.toString());
             LOG.debug("setting interceptedGenericAssayDataMultipleStudyFilter to " + genericAssayDataMultipleStudyFilter);
             request.setAttribute("interceptedGenericAssayDataMultipleStudyFilter", genericAssayDataMultipleStudyFilter);
@@ -415,7 +414,7 @@ public class InvolvedCancerStudyExtractorInterceptor extends HandlerInterceptorA
 
     private boolean extractAttributesFromMutationMultipleStudyFilter(HttpServletRequest request) {
         try {
-            MutationMultipleStudyFilter mutationMultipleStudyFilter = objectMapper.readValue(request.getReader(), MutationMultipleStudyFilter.class);
+            MutationMultipleStudyFilter mutationMultipleStudyFilter = objectMapper.readValue(request.getInputStream(), MutationMultipleStudyFilter.class);
             LOG.debug("extracted mutationMultipleStudyFilter: " + mutationMultipleStudyFilter.toString());
             LOG.debug("setting interceptedMutationMultipleStudyFilter to " + mutationMultipleStudyFilter);
             request.setAttribute("interceptedMutationMultipleStudyFilter", mutationMultipleStudyFilter);
@@ -443,7 +442,7 @@ public class InvolvedCancerStudyExtractorInterceptor extends HandlerInterceptorA
 
     private boolean extractAttributesFromSampleIdentifiers(HttpServletRequest request) {
         try {
-            List<SampleIdentifier> sampleIdentifiers = Arrays.asList(objectMapper.readValue(request.getReader(), SampleIdentifier[].class));
+            List<SampleIdentifier> sampleIdentifiers = Arrays.asList(objectMapper.readValue(request.getInputStream(), SampleIdentifier[].class));
             LOG.debug("extracted sampleIdentifiers: " + sampleIdentifiers.toString());
             LOG.debug("setting interceptedSampleIdentifiers to " + sampleIdentifiers);
             request.setAttribute("interceptedSampleIdentifiers", sampleIdentifiers);
@@ -461,7 +460,7 @@ public class InvolvedCancerStudyExtractorInterceptor extends HandlerInterceptorA
 
     private boolean extractAttributesFromClinicalDataBinCountFilter(HttpServletRequest request) {
         try {
-            ClinicalDataBinCountFilter clinicalDataBinCountFilter = objectMapper.readValue(request.getReader(),
+            ClinicalDataBinCountFilter clinicalDataBinCountFilter = objectMapper.readValue(request.getInputStream(),
                     ClinicalDataBinCountFilter.class);
             LOG.debug("extracted clinicalDataBinCountFilter: " + clinicalDataBinCountFilter.toString());
             LOG.debug("setting interceptedClinicalDataBinCountFilter to " + clinicalDataBinCountFilter);
@@ -481,7 +480,7 @@ public class InvolvedCancerStudyExtractorInterceptor extends HandlerInterceptorA
     
     private boolean extractAttributesFromGenomicDataBinCountFilter(HttpServletRequest request) {
         try {
-            GenomicDataBinCountFilter genomicDataBinCountFilter = objectMapper.readValue(request.getReader(),
+            GenomicDataBinCountFilter genomicDataBinCountFilter = objectMapper.readValue(request.getInputStream(),
                     GenomicDataBinCountFilter.class);
             LOG.debug("extracted genomicDataBinCountFilter: " + genomicDataBinCountFilter.toString());
             LOG.debug("setting interceptedGenomicDataBinCountFilter to " + genomicDataBinCountFilter);
@@ -501,7 +500,7 @@ public class InvolvedCancerStudyExtractorInterceptor extends HandlerInterceptorA
 
     private boolean extractAttributesFromClinicalDataCountFilter(HttpServletRequest request) {
         try {
-            ClinicalDataCountFilter clinicalDataCountFilter = objectMapper.readValue(request.getReader(),
+            ClinicalDataCountFilter clinicalDataCountFilter = objectMapper.readValue(request.getInputStream(),
                     ClinicalDataCountFilter.class);
             LOG.debug("extracted clinicalDataBinCountFilter: " + clinicalDataCountFilter.toString());
             LOG.debug("setting interceptedClinicalDataCountFilter to " + clinicalDataCountFilter);
@@ -521,7 +520,7 @@ public class InvolvedCancerStudyExtractorInterceptor extends HandlerInterceptorA
 
     private boolean extractAttributesFromGroupFilter(HttpServletRequest request) {
         try {
-            GroupFilter groupFilter = objectMapper.readValue(request.getReader(),
+            GroupFilter groupFilter = objectMapper.readValue(request.getInputStream(),
                     GroupFilter.class);
             LOG.debug("extracted groupFilter: " + groupFilter.toString());
             LOG.debug("setting interceptedGroupFilter to " + groupFilter);
@@ -542,7 +541,7 @@ public class InvolvedCancerStudyExtractorInterceptor extends HandlerInterceptorA
 
     private boolean extractAttributesFromStudyViewFilter(HttpServletRequest request) {
         try {
-            StudyViewFilter studyViewFilter = objectMapper.readValue(request.getReader(), StudyViewFilter.class);
+            StudyViewFilter studyViewFilter = objectMapper.readValue(request.getInputStream(), StudyViewFilter.class);
             LOG.debug("extracted studyViewFilter: " + studyViewFilter.toString());
             LOG.debug("setting interceptedStudyViewFilter to " + studyViewFilter);
             request.setAttribute("interceptedStudyViewFilter", studyViewFilter);
@@ -561,7 +560,7 @@ public class InvolvedCancerStudyExtractorInterceptor extends HandlerInterceptorA
     private boolean extractAttributesFromMolecularProfileCasesGroups(HttpServletRequest request) {
         try {
             List<MolecularProfileCasesGroupFilter> molecularProfileCasesGroupFilters = Arrays
-                    .asList(objectMapper.readValue(request.getReader(), MolecularProfileCasesGroupFilter[].class));
+                    .asList(objectMapper.readValue(request.getInputStream(), MolecularProfileCasesGroupFilter[].class));
             LOG.debug("extracted molecularProfileCasesGroupFilters: " + molecularProfileCasesGroupFilters.toString());
             LOG.debug("setting interceptedMolecularProfileCasesGroupFilters to " + molecularProfileCasesGroupFilters);
             request.setAttribute("interceptedMolecularProfileCasesGroupFilters", molecularProfileCasesGroupFilters);
@@ -580,7 +579,7 @@ public class InvolvedCancerStudyExtractorInterceptor extends HandlerInterceptorA
 
     private boolean extractAttributesFromStructuralVariantFilter(HttpServletRequest request) {
         try {
-            StructuralVariantFilter structuralVariantFilter = objectMapper.readValue(request.getReader(),
+            StructuralVariantFilter structuralVariantFilter = objectMapper.readValue(request.getInputStream(),
                     StructuralVariantFilter.class);
             LOG.debug("extracted structuralVariantFilter: " + structuralVariantFilter.toString());
             LOG.debug("setting interceptedStructuralVariantFilter to " + structuralVariantFilter);

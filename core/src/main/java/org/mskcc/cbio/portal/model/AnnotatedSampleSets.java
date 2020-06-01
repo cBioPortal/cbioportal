@@ -151,6 +151,6 @@ class SampleSetWithPriorityComparator implements Comparator {
     public int compare(Object o0, Object o1) {
         SampleSetWithPriority sampleSet0 = (SampleSetWithPriority) o0;
         SampleSetWithPriority sampleSet1 = (SampleSetWithPriority) o1;
-        return new Integer(sampleSet0.getPriority()).compareTo(sampleSet1.getPriority());
+        return Integer.valueOf(sampleSet0.getPriority()).compareTo(sampleSet1.getPriority());
     }
 }

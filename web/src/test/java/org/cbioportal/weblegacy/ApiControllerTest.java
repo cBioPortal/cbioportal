@@ -51,6 +51,7 @@ import org.junit.Before;
 import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.mockito.ArgumentMatchers;
 import org.mockito.Mockito;
 import org.mskcc.cbio.portal.model.DBCancerType;
 import org.mskcc.cbio.portal.model.DBGeneticProfile;
@@ -142,7 +143,7 @@ public class ApiControllerTest {
         List<String> args = new ArrayList<String>(2);
         args.add("nmzl");
         args.add("tcca");
-        Mockito.when(cancerTypeMapperLegacyMock.getCancerTypes(org.mockito.Matchers.anyListOf(String.class))).thenReturn(mockResponse);
+        Mockito.when(cancerTypeMapperLegacyMock.getCancerTypes(ArgumentMatchers.anyList())).thenReturn(mockResponse);
         this.mockMvc.perform(
                 MockMvcRequestBuilders.get("/cancertypes")
                 .accept(MediaType.parseMediaType("application/json;charset=UTF-8"))
@@ -166,13 +167,13 @@ public class ApiControllerTest {
         List<Mutation> mockResponse = getGeneticprofiledataQuery1ServiceMock();
         List<DBGeneticProfile> ctMockResponse = getGeneticProfileQuery1ServiceMock();
         Mockito.when(geneticProfileMapperLegacyMock.getGeneticProfiles(
-                        org.mockito.Matchers.anyListOf(String.class)
+                        ArgumentMatchers.anyList()
 )).thenReturn(ctMockResponse);
         Mockito.when(mutationMapperLegacy.getMutationsDetailed(
-                        org.mockito.Matchers.anyListOf(String.class),
-                        org.mockito.Matchers.anyListOf(String.class),
-                        org.mockito.Matchers.anyListOf(String.class),
-                        org.mockito.Matchers.anyString()
+                        ArgumentMatchers.anyList(),
+                        ArgumentMatchers.anyList(),
+                        ArgumentMatchers.anyList(),
+                        ArgumentMatchers.anyString()
                     )).thenReturn(mockResponse);
         this.mockMvc.perform(
                 MockMvcRequestBuilders.get("/geneticprofiledata")
@@ -356,13 +357,13 @@ public class ApiControllerTest {
         List<Mutation> mockResponse = getGeneticprofiledataQuery1ServiceMock().subList(0,2);
         List<DBGeneticProfile> ctMockResponse = getGeneticProfileQuery1ServiceMock();
         Mockito.when(geneticProfileMapperLegacyMock.getGeneticProfiles(
-                        org.mockito.Matchers.anyListOf(String.class)
+                        ArgumentMatchers.anyList()
 )).thenReturn(ctMockResponse);
         Mockito.when(mutationMapperLegacy.getMutationsDetailed(
-                        org.mockito.Matchers.anyListOf(String.class),
-                        org.mockito.Matchers.anyListOf(String.class),
-                        org.mockito.Matchers.anyListOf(String.class),
-                        org.mockito.Matchers.anyString()
+                        ArgumentMatchers.anyList(),
+                        ArgumentMatchers.anyList(),
+                        ArgumentMatchers.anyList(),
+                        ArgumentMatchers.anyString()
                     )).thenReturn(mockResponse);
         this.mockMvc.perform(
                 MockMvcRequestBuilders.get("/geneticprofiledata")
@@ -438,13 +439,13 @@ public class ApiControllerTest {
         List<Mutation> mockResponse = getGeneticprofiledataQuery1ServiceMock().subList(0,0);
         List<DBGeneticProfile> ctMockResponse = getGeneticProfileQuery1ServiceMock();
         Mockito.when(geneticProfileMapperLegacyMock.getGeneticProfiles(
-                        org.mockito.Matchers.anyListOf(String.class)
+                        ArgumentMatchers.anyList()
 )).thenReturn(ctMockResponse);
         Mockito.when(mutationMapperLegacy.getMutationsDetailed(
-                        org.mockito.Matchers.anyListOf(String.class),
-                        org.mockito.Matchers.anyListOf(String.class),
-                        org.mockito.Matchers.anyListOf(String.class),
-                        org.mockito.Matchers.anyString()
+                        ArgumentMatchers.anyList(),
+                        ArgumentMatchers.anyList(),
+                        ArgumentMatchers.anyList(),
+                        ArgumentMatchers.anyString()
                     )).thenReturn(mockResponse);
         this.mockMvc.perform(
                 MockMvcRequestBuilders.get("/geneticprofiledata")
@@ -466,13 +467,13 @@ public class ApiControllerTest {
         List<Mutation> mockResponse = getGeneticprofiledataQuery1ServiceMock().subList(0,2);
         List<DBGeneticProfile> ctMockResponse = getGeneticProfileQuery1ServiceMock();
         Mockito.when(geneticProfileMapperLegacyMock.getGeneticProfiles(
-                        org.mockito.Matchers.anyListOf(String.class)
+                        ArgumentMatchers.anyList()
 )).thenReturn(ctMockResponse);
         Mockito.when(mutationMapperLegacy.getMutationsDetailed(
-                        org.mockito.Matchers.anyListOf(String.class),
-                        org.mockito.Matchers.anyListOf(String.class),
-                        org.mockito.Matchers.anyListOf(String.class),
-                        org.mockito.Matchers.anyString()
+                        ArgumentMatchers.anyList(),
+                        ArgumentMatchers.anyList(),
+                        ArgumentMatchers.anyList(),
+                        ArgumentMatchers.anyString()
                     )).thenReturn(mockResponse);
         this.mockMvc.perform(
                 MockMvcRequestBuilders.get("/geneticprofiledata")

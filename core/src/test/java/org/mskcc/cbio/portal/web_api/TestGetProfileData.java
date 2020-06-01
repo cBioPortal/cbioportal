@@ -38,9 +38,9 @@ import org.junit.runner.RunWith;
 import org.mskcc.cbio.portal.dao.*;
 import org.mskcc.cbio.portal.model.*;
 import org.mskcc.cbio.portal.util.*;
+import org.springframework.test.annotation.Rollback;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
-import org.springframework.test.context.transaction.TransactionConfiguration;
 import org.springframework.transaction.annotation.Transactional;
 
 import static org.junit.Assert.*;
@@ -54,7 +54,7 @@ import java.util.ArrayList;
  */
 @RunWith(SpringJUnit4ClassRunner.class)
 @ContextConfiguration(locations = { "classpath:/applicationContext-dao.xml" })
-@TransactionConfiguration(transactionManager = "transactionManager", defaultRollback = true)
+@Rollback
 @Transactional
 public class TestGetProfileData {
 	
@@ -107,7 +107,7 @@ public class TestGetProfileData {
         sampleIdList.add("TCGA-A1-A0SE-01");
 
         GetProfileData getProfileData = new GetProfileData(geneticProfileIdList, targetGeneList,
-                sampleIdList, new Boolean(false));
+                sampleIdList, Boolean.FALSE);
         String out = getProfileData.getRawContent();
         String lines[] = out.split("\n");
         assertEquals("# DATA_TYPE\t Putative copy-number alterations from GISTIC" , lines[0]);

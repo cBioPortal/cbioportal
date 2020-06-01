@@ -63,11 +63,11 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
-import org.mockito.Matchers;
+import org.mockito.ArgumentMatchers;
 import org.mockito.Mockito;
 import org.mockito.stubbing.Answer;
 import org.mockito.invocation.InvocationOnMock;
-import org.mockito.runners.MockitoJUnitRunner;
+import org.mockito.junit.MockitoJUnitRunner;
 import org.cbioportal.model.DataAccessToken;
 import org.cbioportal.persistence.DataAccessTokenRepository;
 import org.cbioportal.service.exception.MaxNumberTokensExceededException;
@@ -121,8 +121,8 @@ public class UuidDataAccessTokenServiceImplTestConfiguration {
         Mockito.when(dataAccessTokenRepository.getDataAccessToken(VALID_TOKEN_STRING)).thenReturn(makeValidDataAccessToken());
         Mockito.when(dataAccessTokenRepository.getAllDataAccessTokensForUsername(MOCK_USERNAME_WITH_ONE_TOKEN)).thenReturn(dataAccessTokenListForMockUserWithOneToken);
         Mockito.when(dataAccessTokenRepository.getAllDataAccessTokensForUsername(MOCK_USERNAME_WITH_FIVE_TOKENS)).thenReturn(sortByExpiration(dataAccessTokenListForMockUserWithFiveTokens));
-        Mockito.doAnswer(dataAccessTokenRepositoryDeleteTokenAnswer).when(dataAccessTokenRepository).removeDataAccessToken(Matchers.anyString());
-        Mockito.doAnswer(dataAccessTokenRepositoryCreateTokenAnswer).when(dataAccessTokenRepository).addDataAccessToken(Matchers.any(DataAccessToken.class));
+        Mockito.doAnswer(dataAccessTokenRepositoryDeleteTokenAnswer).when(dataAccessTokenRepository).removeDataAccessToken(ArgumentMatchers.anyString());
+        Mockito.doAnswer(dataAccessTokenRepositoryCreateTokenAnswer).when(dataAccessTokenRepository).addDataAccessToken(ArgumentMatchers.any(DataAccessToken.class));
         return dataAccessTokenRepository;
     }
 

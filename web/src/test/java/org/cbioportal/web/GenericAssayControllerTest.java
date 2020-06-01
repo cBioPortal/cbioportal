@@ -78,8 +78,8 @@ public class GenericAssayControllerTest {
     @Test	
     public void testGenericAssayDataFetch() throws Exception {	
         List<GenericAssayData> genericAssayDataItems = createGenericAssayDataItemsList();	
-        Mockito.when(genericAssayService.fetchGenericAssayData(Mockito.anyString(), Mockito.anyListOf(String.class),	
-            Mockito.anyListOf(String.class), Mockito.anyString())).thenReturn(genericAssayDataItems);	
+        Mockito.when(genericAssayService.fetchGenericAssayData(Mockito.anyString(), Mockito.anyList(),	
+            Mockito.anyList(), Mockito.anyString())).thenReturn(genericAssayDataItems);	
 
         GenericAssayDataFilter genericAssayDataFilter = new GenericAssayDataFilter();	
         genericAssayDataFilter.setSampleIds(Arrays.asList(SAMPLE_ID));	
@@ -108,8 +108,8 @@ public class GenericAssayControllerTest {
         GenericAssayDataMultipleStudyFilter genericAssayDataMultipleStudyFilter = new GenericAssayDataMultipleStudyFilter();
         genericAssayDataMultipleStudyFilter.setSampleMolecularIdentifiers(createSampleMolecularIdentifiers());
         
-        Mockito.when(genericAssayService.fetchGenericAssayData(Mockito.anyListOf(String.class), Mockito.anyListOf(String.class),
-            Mockito.anyListOf(String.class), Mockito.anyString())).thenReturn(genericAssayDataItems);
+        Mockito.when(genericAssayService.fetchGenericAssayData(Mockito.anyList(), Mockito.any(),
+            Mockito.any(), Mockito.any())).thenReturn(genericAssayDataItems);
 
         mockMvc.perform(MockMvcRequestBuilders.post("/generic_assay_data/fetch")
                 .accept(MediaType.APPLICATION_JSON)
@@ -135,7 +135,7 @@ public class GenericAssayControllerTest {
         GenericAssayMetaFilter genericAssayMetaFilter = new GenericAssayMetaFilter();
         genericAssayMetaFilter.setGenericAssayStableIds(genericAssayStableIds);
         
-        Mockito.when(genericAssayService.getGenericAssayMetaByStableIdsAndMolecularIds(Mockito.anyListOf(String.class), Mockito.anyListOf(String.class), Mockito.anyString())).thenReturn(genericAssayMetaItems);
+        Mockito.when(genericAssayService.getGenericAssayMetaByStableIdsAndMolecularIds(Mockito.any(), Mockito.any(), Mockito.any())).thenReturn(genericAssayMetaItems);
 
         mockMvc.perform(MockMvcRequestBuilders.post("/generic_assay_meta/fetch")
                 .accept(MediaType.APPLICATION_JSON)

@@ -64,6 +64,11 @@
           ${tomcat.catalina.scope}
       </scope>
     </dependency>
+    <dependency>
+    <groupId>com.fasterxml.jackson.datatype</groupId>
+    <artifactId>jackson-datatype-jdk8</artifactId>
+    <version>${jackson.version}</version>
+</dependency>
   </dependencies>
 
   <repositories>
@@ -89,9 +94,9 @@
             <configuration>
               <artifactItems>
                 <artifactItem>
-                  <groupId>com.github.jsimone</groupId>
+                  <groupId>com.heroku</groupId>
                   <artifactId>webapp-runner</artifactId>
-                  <version>8.5.37.1</version>
+                  <version>8.5.51.0</version>
                   <destFileName>webapp-runner.jar</destFileName>
                 </artifactItem>
               </artifactItems>

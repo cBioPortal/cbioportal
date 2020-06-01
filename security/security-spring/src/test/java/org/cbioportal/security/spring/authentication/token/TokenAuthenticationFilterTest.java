@@ -40,7 +40,7 @@ import org.cbioportal.service.util.JwtUtils;
 import org.junit.Assert;
 import org.junit.runner.RunWith;
 import org.junit.Test;
-import org.mockito.Matchers;
+import org.mockito.ArgumentMatchers;
 import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.authentication.BadCredentialsException;
@@ -84,7 +84,7 @@ public class TokenAuthenticationFilterTest {
         String token = jwtUtils.createToken(TokenAuthenticationFilterTestConfiguration.TEST_SUBJECT).getToken();
         LOG.debug("testAttemptAuthentication_success() token = " + token);
         Mockito.reset(request);
-        Mockito.when(request.getHeader(Matchers.anyString())).thenReturn("Bearer " + token);
+        Mockito.when(request.getHeader(ArgumentMatchers.anyString())).thenReturn("Bearer " + token);
         // response object is autowired above
         Authentication authentication = tokenAuthenticationFilter.attemptAuthentication(request, response);
         UserDetails userDetails = (UserDetails) authentication.getPrincipal();
@@ -101,7 +101,7 @@ public class TokenAuthenticationFilterTest {
     @Test(expected = BadCredentialsException.class)
     public void testAttemptAuthentication_nullToken() {
         Mockito.reset(request);
-        Mockito.when(request.getHeader(Matchers.anyString())).thenReturn(null);
+        Mockito.when(request.getHeader(ArgumentMatchers.anyString())).thenReturn(null);
         // response object is autowired above
         tokenAuthenticationFilter.attemptAuthentication(request, response);
         // make sure we call Mockito.reset(request) in other methods
@@ -112,7 +112,7 @@ public class TokenAuthenticationFilterTest {
         String token = jwtUtils.createToken(TokenAuthenticationFilterTestConfiguration.TEST_SUBJECT, TEST_TOKEN_EXPIRATION_SECONDS).getToken();
         LOG.debug("testAttemptAuthentication_expiredToken() token = " + token);
         Mockito.reset(request);
-        Mockito.when(request.getHeader(Matchers.anyString())).thenReturn("Bearer " + token);
+        Mockito.when(request.getHeader(ArgumentMatchers.anyString())).thenReturn("Bearer " + token);
         Thread.sleep((TEST_TOKEN_EXPIRATION_SECONDS * 1000L) + 10L); // NOTE: sleep time must be adequate to allow created token to expire
         // response object is autowired above
         tokenAuthenticationFilter.attemptAuthentication(request, response);

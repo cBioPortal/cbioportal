@@ -34,7 +34,6 @@ package org.mskcc.cbio.portal.model;
 
 import java.util.HashMap;
 import java.util.Map;
-import org.codehaus.jackson.annotate.JsonIgnoreProperties;
 
 /**
  *

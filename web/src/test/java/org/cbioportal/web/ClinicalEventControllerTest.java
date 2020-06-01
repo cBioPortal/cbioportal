@@ -77,8 +77,8 @@ public class ClinicalEventControllerTest {
 
         List<ClinicalEvent> clinicalEventList = createExampleClinicalEventList();
 
-        Mockito.when(clinicalEventService.getAllClinicalEventsOfPatientInStudy(Mockito.anyString(), Mockito.anyString(),
-            Mockito.anyString(), Mockito.anyInt(), Mockito.anyInt(), Mockito.anyString(), Mockito.anyString()))
+        Mockito.when(clinicalEventService.getAllClinicalEventsOfPatientInStudy(Mockito.any(), Mockito.any(),
+            Mockito.any(), Mockito.any(), Mockito.any(), Mockito.any(), Mockito.any()))
             .thenReturn(clinicalEventList);
 
         mockMvc.perform(MockMvcRequestBuilders.get("/studies/test_study_id/patients/test_patient_id/clinical-events")
@@ -128,8 +128,8 @@ public class ClinicalEventControllerTest {
 
         List<ClinicalEvent> clinicalEventList = createExampleClinicalEventList();
 
-        Mockito.when(clinicalEventService.getAllClinicalEventsInStudy(Mockito.anyString(),
-            Mockito.anyString(), Mockito.anyInt(), Mockito.anyInt(), Mockito.anyString(), Mockito.anyString()))
+        Mockito.when(clinicalEventService.getAllClinicalEventsInStudy(Mockito.any(),
+            Mockito.any(), Mockito.any(), Mockito.any(), Mockito.any(), Mockito.any()))
             .thenReturn(clinicalEventList);
 
         mockMvc.perform(MockMvcRequestBuilders.get("/studies/test_study_id/clinical-events")

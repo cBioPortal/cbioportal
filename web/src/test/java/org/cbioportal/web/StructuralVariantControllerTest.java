@@ -276,7 +276,7 @@ public class StructuralVariantControllerTest {
                 .content(objectMapper.writeValueAsString(structuralVariantFilter)))
                 .andExpect(MockMvcResultMatchers.status().isBadRequest())
                 .andExpect(MockMvcResultMatchers.jsonPath("$.message")
-                        .value("eitherMolecularProfileIdsOrSampleMolecularIdentifiersPresent must be true"));
+                        .value("interceptedStructuralVariantFilter must be true"));
     }
 
     private List<StructuralVariant> createExampleStructuralVariant() {

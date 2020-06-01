@@ -112,7 +112,7 @@ public class CopyNumberEnrichmentControllerTest {
 
         Mockito.when(copyNumberEnrichmentService.getCopyNumberEnrichments(
                 Mockito.anyMap(),
-                Mockito.anyListOf(Integer.class),
+                Mockito.anyList(),
                 Mockito.anyString()))
         .thenReturn(alterationEnrichments);
 

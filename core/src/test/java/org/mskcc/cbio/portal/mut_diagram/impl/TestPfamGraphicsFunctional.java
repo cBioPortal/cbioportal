@@ -32,13 +32,12 @@
 
 package org.mskcc.cbio.portal.mut_diagram.impl;
 
-import static org.codehaus.jackson.map.DeserializationConfig.Feature.ACCEPT_SINGLE_VALUE_AS_ARRAY;
+import static com.fasterxml.jackson.databind.DeserializationFeature.ACCEPT_SINGLE_VALUE_AS_ARRAY;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 
 import java.util.List;
 
-import org.codehaus.jackson.map.ObjectMapper;
 import org.junit.Before;
 import org.junit.Test;
 import org.mskcc.cbio.portal.mut_diagram.FeatureService;
@@ -46,6 +45,7 @@ import org.mskcc.cbio.portal.mut_diagram.Sequence;
 import org.mskcc.cbio.portal.mut_diagram.impl.CacheFeatureService;
 import org.mskcc.cbio.portal.mut_diagram.impl.PfamGraphicsCacheLoader;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.cache.CacheLoader;
 
 /**

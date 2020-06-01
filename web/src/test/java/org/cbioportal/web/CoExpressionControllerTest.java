@@ -80,7 +80,7 @@ public class CoExpressionControllerTest {
 
 
         Mockito.when(coExpressionService.fetchCoExpressions(Mockito.anyString(),
-        Mockito.any(EntityType.class), Mockito.anyListOf(String.class), Mockito.anyString(), Mockito.anyString(), 
+        Mockito.any(EntityType.class), Mockito.anyList(), Mockito.anyString(), Mockito.anyString(), 
         Mockito.anyDouble()))
             .thenReturn(coExpressionList);
 

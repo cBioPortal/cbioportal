@@ -34,7 +34,7 @@ package org.mskcc.cbio.portal.util;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
-import junit.framework.Assert;
+import org.junit.Assert;
 
 import org.junit.Test;
 import org.mskcc.cbio.portal.oncoPrintSpecLanguage.ComparisonOp;
@@ -49,8 +49,6 @@ import org.mskcc.cbio.portal.oncoPrintSpecLanguage.OncoPrintGeneDisplaySpec;
 import org.mskcc.cbio.portal.oncoPrintSpecLanguage.OncoPrintSpecification;
 import org.mskcc.cbio.portal.oncoPrintSpecLanguage.ParsedFullDataTypeSpec;
 import org.mskcc.cbio.portal.oncoPrintSpecLanguage.TestOncoPrintSpecificationLibrary;
-
-import static org.junit.Assert.*;
 
 public class TestValueParser {
    // TODO: reorganize to test individual methods separately in different

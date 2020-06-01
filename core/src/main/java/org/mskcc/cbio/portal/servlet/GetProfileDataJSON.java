@@ -43,13 +43,12 @@ import org.mskcc.cbio.portal.dao.*;
 import org.mskcc.cbio.portal.model.*;
 import org.mskcc.cbio.portal.util.*;
 
-import org.codehaus.jackson.JsonNode;
-import org.codehaus.jackson.node.ObjectNode;
-import org.codehaus.jackson.map.ObjectMapper;
-
 import javax.servlet.ServletException;
 import javax.servlet.http.*;
 
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.node.ObjectNode;
 
 /**
  * Retrieves genomic profile data for one or more genes.
@@ -190,10 +189,10 @@ public class GetProfileDataJSON extends HttpServlet  {
                 }
 
                 for (String stableSampleId : stableSampleIds) {
-                    ((ObjectNode)tmpGeneObj).put(stableSampleId, tmpObjMap.get(stableSampleId));
+                    ((ObjectNode)tmpGeneObj).set(stableSampleId, tmpObjMap.get(stableSampleId));
                 }
 
-                ((ObjectNode)result).put(geneId, tmpGeneObj);
+                ((ObjectNode)result).set(geneId, tmpGeneObj);
 
             }
         } catch (DaoException e) {
@@ -208,7 +207,7 @@ public class GetProfileDataJSON extends HttpServlet  {
             String result_str = "";
             if (format.equals("tab")) {
                 String sampleId_str = "GENE_ID" + "\t" + "COMMON" + "\t";
-                Iterator<String> sampleIds = result.get(geneIdList[0]).getFieldNames();
+                Iterator<String> sampleIds = result.get(geneIdList[0]).fieldNames();
                 while (sampleIds.hasNext()) {
                     sampleId_str += sampleIds.next() + "\t";
                 }
@@ -216,14 +215,14 @@ public class GetProfileDataJSON extends HttpServlet  {
 
                 String val_str = "";
                 DaoGeneOptimized daoGene = DaoGeneOptimized.getInstance();
-                Iterator<String> geneSymbols = result.getFieldNames();
+                Iterator<String> geneSymbols = result.fieldNames();
                 while (geneSymbols.hasNext()) {
                     String geneSymbol = geneSymbols.next();
                     CanonicalGene gene = daoGene.getGene(geneSymbol);
                     long entrezGeneId = gene.getEntrezGeneId();
                     val_str += geneSymbol + "\t" + entrezGeneId + "\t";
                     JsonNode dataObj = result.get(geneSymbol);
-                    Iterator<String> sampleIds_val = dataObj.getFieldNames();
+                    Iterator<String> sampleIds_val = dataObj.fieldNames();
                     while (sampleIds_val.hasNext()) {
                         String sampleId = sampleIds_val.next();
                         String _val = dataObj.get(sampleId).get(geneticProfileIds[0]).toString();
@@ -239,7 +238,7 @@ public class GetProfileDataJSON extends HttpServlet  {
                         val_str = "";
 
                 gene_str += "GENE_ID" + "\t";
-                Iterator<String> geneSymbols = result.getFieldNames();
+                Iterator<String> geneSymbols = result.fieldNames();
                 DaoGeneOptimized daoGene = DaoGeneOptimized.getInstance();
                 while (geneSymbols.hasNext()) {
                     String geneSymbol = geneSymbols.next();
@@ -252,7 +251,7 @@ public class GetProfileDataJSON extends HttpServlet  {
                 }
                 gene_str += "\n";
 
-                Iterator<String> sampleIds = result.get(geneIdList[0]).getFieldNames();
+                Iterator<String> sampleIds = result.get(geneIdList[0]).fieldNames();
                 while (sampleIds.hasNext()) {
                     String sampleId = sampleIds.next();
                     val_str += sampleId + "\t";

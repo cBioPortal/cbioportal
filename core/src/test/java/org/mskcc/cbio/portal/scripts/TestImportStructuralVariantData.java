@@ -33,9 +33,9 @@ import org.junit.runner.RunWith;
 import org.mskcc.cbio.portal.dao.*;
 import org.mskcc.cbio.portal.model.*;
 import org.mskcc.cbio.portal.util.*;
+import org.springframework.test.annotation.Rollback;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
-import org.springframework.test.context.transaction.TransactionConfiguration;
 import org.springframework.transaction.annotation.Transactional;
 import static org.junit.Assert.*;
 import java.io.*;
@@ -44,10 +44,9 @@ import java.sql.*;
 /**
  * Test class to test functionality of ImportStructralVariantData
 */
-@SuppressWarnings("deprecation")
 @RunWith(SpringJUnit4ClassRunner.class)
 @ContextConfiguration(locations = { "classpath:/applicationContext-dao.xml" })
-@TransactionConfiguration(transactionManager = "transactionManager", defaultRollback = true)
+@Rollback
 @Transactional
 public class TestImportStructuralVariantData{
     int studyId;

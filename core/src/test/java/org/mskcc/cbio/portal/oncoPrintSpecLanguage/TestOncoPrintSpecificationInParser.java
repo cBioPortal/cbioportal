@@ -557,7 +557,7 @@ public class TestOncoPrintSpecificationInParser {
       for (String[] ruleInputError : errorFilledInputAndErrors) {
          langFrag.append(ruleInputError[1]+"\n" );
          // increment line #s
-         Integer n = new Integer( i+1 );
+         Integer n = Integer.valueOf(i+1);
          errors[i++ ] = ruleInputError[2].replaceFirst("line 1", "line " + n.toString() ) ;
       }
       tryOncoPrintSpecification(langFrag.toString(), errors);

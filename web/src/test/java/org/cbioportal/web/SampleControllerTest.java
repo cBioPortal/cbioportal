@@ -68,8 +68,8 @@ public class SampleControllerTest {
 
         List<Sample> sampleList = createExampleSamples();
 
-        Mockito.when(sampleService.getAllSamplesInStudy(Mockito.anyString(), Mockito.anyString(), Mockito.anyInt(),
-            Mockito.anyInt(), Mockito.anyString(), Mockito.anyString())).thenReturn(sampleList);
+        Mockito.when(sampleService.getAllSamplesInStudy(Mockito.any(), Mockito.any(), Mockito.any(),
+            Mockito.any(), Mockito.any(), Mockito.any())).thenReturn(sampleList);
 
         mockMvc.perform(MockMvcRequestBuilders.get("/studies/test_study_id/samples")
             .accept(MediaType.APPLICATION_JSON))
@@ -127,8 +127,8 @@ public class SampleControllerTest {
         
         Mockito
             .when(sampleService.getAllSamples(
-                Mockito.anyString(), Mockito.anyObject(), Mockito.anyString(), Mockito.anyInt(),
-                Mockito.anyInt(), Mockito.anyString(), Mockito.anyString()
+                Mockito.any(), Mockito.any(), Mockito.any(), Mockito.any(),
+                Mockito.any(), Mockito.any(), Mockito.any()
             )).thenReturn(samples);
         
         mockMvc.perform(
@@ -186,8 +186,8 @@ public class SampleControllerTest {
 
         List<Sample> sampleList = createExampleSamples();
 
-        Mockito.when(sampleService.getAllSamplesOfPatientInStudy(Mockito.anyString(), Mockito.anyString(),
-            Mockito.anyString(), Mockito.anyInt(), Mockito.anyInt(), Mockito.anyString(), Mockito.anyString()))
+        Mockito.when(sampleService.getAllSamplesOfPatientInStudy(Mockito.any(), Mockito.any(),
+            Mockito.any(), Mockito.any(), Mockito.any(), Mockito.any(), Mockito.any()))
             .thenReturn(sampleList);
 
         mockMvc.perform(MockMvcRequestBuilders.get("/studies/test_study_id/patients/test_patient_id/samples")
@@ -233,7 +233,7 @@ public class SampleControllerTest {
 
         List<Sample> sampleList = createExampleSamples();
 
-        Mockito.when(sampleService.fetchSamples(Mockito.anyListOf(String.class), Mockito.anyListOf(String.class),
+        Mockito.when(sampleService.fetchSamples(Mockito.anyList(), Mockito.anyList(),
             Mockito.anyString())).thenReturn(sampleList);
 
         SampleFilter sampleFilter = new SampleFilter();
@@ -278,7 +278,7 @@ public class SampleControllerTest {
 
         List<Sample> sampleList = createExampleSamples();
 
-        Mockito.when(sampleService.fetchSamples(Mockito.anyListOf(String.class), Mockito.anyListOf(String.class),
+        Mockito.when(sampleService.fetchSamples(Mockito.anyList(), Mockito.anyList(),
             Mockito.anyString())).thenReturn(sampleList);
 
         SampleFilter sampleFilter = new SampleFilter();
@@ -318,8 +318,8 @@ public class SampleControllerTest {
         BaseMeta baseMeta = new BaseMeta();
         baseMeta.setTotalCount(2);
 
-        Mockito.when(sampleService.fetchMetaSamples(Mockito.anyListOf(String.class),
-            Mockito.anyListOf(String.class))).thenReturn(baseMeta);
+        Mockito.when(sampleService.fetchMetaSamples(Mockito.anyList(),
+            Mockito.anyList())).thenReturn(baseMeta);
 
         SampleFilter sampleFilter = new SampleFilter();
         List<SampleIdentifier> sampleIdentifiers = new ArrayList<>();

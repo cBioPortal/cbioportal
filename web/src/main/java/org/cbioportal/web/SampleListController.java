@@ -7,6 +7,7 @@ import org.cbioportal.model.SampleList;
 import org.cbioportal.service.SampleListService;
 import org.cbioportal.service.exception.SampleListNotFoundException;
 import org.cbioportal.service.exception.StudyNotFoundException;
+import org.cbioportal.web.config.PublicApiTags;
 import org.cbioportal.web.config.annotation.PublicApi;
 import org.cbioportal.web.parameter.Direction;
 import org.cbioportal.web.parameter.HeaderKeyConstants;
@@ -35,7 +36,7 @@ import java.util.List;
 @PublicApi
 @RestController
 @Validated
-@Api(tags = "E. Sample Lists", description = " ")
+@Api(tags = PublicApiTags.SAMPLE_LISTS, description = " ")
 public class SampleListController {
 
     @Autowired

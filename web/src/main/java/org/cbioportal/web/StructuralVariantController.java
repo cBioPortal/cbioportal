@@ -30,6 +30,8 @@ import org.cbioportal.web.parameter.StructuralVariantFilter;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
+
+import org.cbioportal.web.config.PublicApiTags;
 import org.cbioportal.web.config.annotation.PublicApi;
 import org.cbioportal.web.parameter.SampleMolecularIdentifier;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -51,7 +53,7 @@ import java.util.*;
 @PublicApi
 @RestController
 @Validated
-@Api(tags = "Q. Structural Variants", description = " ")
+@Api(tags = PublicApiTags.STRUCTURAL_VARIANTS, description = " ")
 public class StructuralVariantController {
     @Autowired
     private StructuralVariantService structuralVariantService;

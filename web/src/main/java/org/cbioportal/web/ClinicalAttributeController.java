@@ -13,6 +13,7 @@ import org.cbioportal.model.ClinicalAttributeCount;
 import org.cbioportal.service.ClinicalAttributeService;
 import org.cbioportal.service.exception.ClinicalAttributeNotFoundException;
 import org.cbioportal.service.exception.StudyNotFoundException;
+import org.cbioportal.web.config.PublicApiTags;
 import org.cbioportal.web.config.annotation.PublicApi;
 import org.cbioportal.web.parameter.ClinicalAttributeCountFilter;
 import org.cbioportal.web.parameter.Direction;
@@ -40,7 +41,7 @@ import springfox.documentation.annotations.ApiIgnore;
 @PublicApi
 @RestController
 @Validated
-@Api(tags = "F. Clinical Attributes", description = " ")
+@Api(tags = PublicApiTags.CLINICAL_ATTRIBUTES, description = " ")
 public class ClinicalAttributeController {
 
     @Autowired

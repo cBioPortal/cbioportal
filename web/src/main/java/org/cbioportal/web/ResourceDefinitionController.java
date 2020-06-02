@@ -9,6 +9,7 @@ import org.cbioportal.model.ResourceDefinition;
 import org.cbioportal.service.ResourceDefinitionService;
 import org.cbioportal.service.exception.ResourceDefinitionNotFoundException;
 import org.cbioportal.service.exception.StudyNotFoundException;
+import org.cbioportal.web.config.PublicApiTags;
 import org.cbioportal.web.config.annotation.PublicApi;
 import org.cbioportal.web.parameter.*;
 import org.cbioportal.web.parameter.sort.ResourceDefinitionSortBy;
@@ -25,7 +26,7 @@ import io.swagger.annotations.ApiParam;
 @PublicApi
 @RestController
 @Validated
-@Api(tags = "S. Resource Definitions", description = " ")
+@Api(tags = PublicApiTags.RESOURCE_DEFINITIONS, description = " ")
 public class ResourceDefinitionController {
 
     @Autowired

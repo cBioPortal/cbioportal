@@ -8,6 +8,7 @@ import org.cbioportal.service.GeneService;
 import org.cbioportal.service.exception.GeneNotFoundException;
 import org.cbioportal.service.exception.GeneWithMultipleEntrezIdsException;
 import org.cbioportal.web.config.annotation.PublicApi;
+import org.cbioportal.web.config.PublicApiTags;
 import org.cbioportal.web.parameter.Direction;
 import org.cbioportal.web.parameter.GeneIdType;
 import org.cbioportal.web.parameter.HeaderKeyConstants;
@@ -35,7 +36,7 @@ import java.util.List;
 @PublicApi
 @RestController
 @Validated
-@Api(tags = "N. Genes", description = " ")
+@Api(tags = PublicApiTags.GENES, description = " ")
 public class GeneController {
 
     private static final int GENE_MAX_PAGE_SIZE = 100000;

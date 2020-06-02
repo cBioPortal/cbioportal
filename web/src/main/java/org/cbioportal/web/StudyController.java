@@ -7,6 +7,7 @@ import org.cbioportal.model.CancerStudy;
 import org.cbioportal.model.CancerStudyTags;
 import org.cbioportal.service.StudyService;
 import org.cbioportal.service.exception.StudyNotFoundException;
+import org.cbioportal.web.config.PublicApiTags;
 import org.cbioportal.web.config.annotation.PublicApi;
 import org.cbioportal.web.parameter.Direction;
 import org.cbioportal.web.parameter.HeaderKeyConstants;
@@ -46,7 +47,7 @@ import java.util.Map;
 @PublicApi
 @RestController
 @Validated
-@Api(tags = "B. Studies", description = " ")
+@Api(tags = PublicApiTags.STUDIES, description = " ")
 public class StudyController {
     @Value("${authenticate:false}")
     private String authenticate;

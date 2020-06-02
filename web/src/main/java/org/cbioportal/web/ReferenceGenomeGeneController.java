@@ -8,6 +8,7 @@ import org.cbioportal.service.GeneMemoizerService;
 import org.cbioportal.service.ReferenceGenomeGeneService;
 import org.cbioportal.service.StaticDataTimestampService;
 import org.cbioportal.service.exception.GeneNotFoundException;
+import org.cbioportal.web.config.PublicApiTags;
 import org.cbioportal.web.config.annotation.PublicApi;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -30,7 +31,7 @@ import java.util.stream.Collectors;
 @PublicApi
 @RestController
 @Validated
-@Api(tags = "R. Reference Genome Genes", description = " ")
+@Api(tags = PublicApiTags.REFERENCE_GENOME_GENES, description = " ")
 public class ReferenceGenomeGeneController {
     private static final int GENE_MAX_PAGE_SIZE = 100000;
     private static final String GENE_DEFAULT_PAGE_SIZE = "100000";

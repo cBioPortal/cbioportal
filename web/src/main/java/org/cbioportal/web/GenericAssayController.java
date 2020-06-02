@@ -17,6 +17,7 @@ import org.cbioportal.model.meta.GenericAssayMeta;
 import org.cbioportal.service.GenericAssayService;
 import org.cbioportal.service.exception.GenericAssayNotFoundException;
 import org.cbioportal.service.exception.MolecularProfileNotFoundException;
+import org.cbioportal.web.config.PublicApiTags;
 import org.cbioportal.web.config.annotation.PublicApi;
 import org.cbioportal.web.parameter.GenericAssayDataFilter;
 import org.cbioportal.web.parameter.HeaderKeyConstants;
@@ -42,7 +43,7 @@ import org.springframework.web.bind.annotation.RestController;
 @PublicApi
 @RestController
 @Validated
-@Api(tags = "P. Generic Assay", description = " ")
+@Api(tags = PublicApiTags.GENERIC_ASSAYS, description = " ")
 public class GenericAssayController {
     
     @Autowired

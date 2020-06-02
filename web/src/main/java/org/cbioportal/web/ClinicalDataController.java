@@ -12,6 +12,7 @@ import org.cbioportal.service.ClinicalDataService;
 import org.cbioportal.service.exception.PatientNotFoundException;
 import org.cbioportal.service.exception.SampleNotFoundException;
 import org.cbioportal.service.exception.StudyNotFoundException;
+import org.cbioportal.web.config.PublicApiTags;
 import org.cbioportal.web.config.annotation.PublicApi;
 import org.cbioportal.web.parameter.ClinicalDataIdentifier;
 import org.cbioportal.web.parameter.ClinicalDataMultiStudyFilter;
@@ -41,7 +42,7 @@ import springfox.documentation.annotations.ApiIgnore;
 @PublicApi
 @RestController
 @Validated
-@Api(tags = "G. Clinical Data", description = " ")
+@Api(tags = PublicApiTags.CLINICAL_DATA, description = " ")
 public class ClinicalDataController {
 
     public static final int CLINICAL_DATA_MAX_PAGE_SIZE = 10000000;

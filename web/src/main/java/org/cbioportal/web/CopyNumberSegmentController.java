@@ -7,6 +7,7 @@ import org.cbioportal.model.CopyNumberSeg;
 import org.cbioportal.service.CopyNumberSegmentService;
 import org.cbioportal.service.exception.SampleNotFoundException;
 import org.cbioportal.service.exception.StudyNotFoundException;
+import org.cbioportal.web.config.PublicApiTags;
 import org.cbioportal.web.config.annotation.PublicApi;
 import org.cbioportal.web.parameter.Direction;
 import org.cbioportal.web.parameter.HeaderKeyConstants;
@@ -38,7 +39,7 @@ import java.util.*;
 @PublicApi
 @RestController
 @Validated
-@Api(tags = "M. Copy Number Segments", description = " ")
+@Api(tags = PublicApiTags.COPY_NUMBER_SEGMENTS, description = " ")
 public class CopyNumberSegmentController {
 
     private static final int COPY_NUMBER_SEGMENT_MAX_PAGE_SIZE = 20000;

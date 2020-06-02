@@ -55,7 +55,7 @@ public class TreatmentController {
         @Valid
         @RequestAttribute(required = false, value = "interceptedStudyViewFilter")
         StudyViewFilter interceptedStudyViewFilter
-    ) throws StudyNotFoundException {
+    ) {
         List<SampleIdentifier> sampleIdentifiers = studyViewFilterApplier.apply(interceptedStudyViewFilter);
         List<String> sampleIds = sampleIdentifiers.stream()
             .map(SampleIdentifier::getSampleId)
@@ -66,6 +66,33 @@ public class TreatmentController {
             .distinct()
             .collect(Collectors.toList());
         List<PatientTreatmentRow> treatments = treatmentService.getAllTreatmentPatientRows(sampleIds, studyIds);
+        return new ResponseEntity<>(treatments, HttpStatus.OK);
+    }
+
+
+    @PreAuthorize("hasPermission(#involvedCancerStudies, 'Collection<CancerStudyId>', 'read')")
+    @RequestMapping(value = "/treatments/{studyId}/sample", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
+    @ApiOperation("Get all cancer types")
+    public ResponseEntity<List<SampleTreatmentRow>> getAllSampleTreatments(
+        @ApiParam(required = true, value = "Study view filter")
+        @Valid @RequestBody(required = false) StudyViewFilter studyViewFilter,
+        @ApiIgnore // prevent reference to this attribute in the swagger-ui interface
+        @RequestAttribute(required = false, value = "involvedCancerStudies") Collection<String> involvedCancerStudies,
+        @ApiIgnore // prevent reference to this attribute in the swagger-ui interface. this attribute is needed for the @PreAuthorize tag above.
+        @Valid
+        @RequestAttribute(required = false, value = "interceptedStudyViewFilter")
+        StudyViewFilter interceptedStudyViewFilter
+    ) {
+        List<SampleIdentifier> sampleIdentifiers = studyViewFilterApplier.apply(interceptedStudyViewFilter);
+        List<String> sampleIds = sampleIdentifiers.stream()
+            .map(SampleIdentifier::getSampleId)
+            .distinct()
+            .collect(Collectors.toList());
+        List<String> studyIds = sampleIdentifiers.stream()
+            .map(SampleIdentifier::getStudyId)
+            .distinct()
+            .collect(Collectors.toList());
+        List<SampleTreatmentRow> treatments = treatmentService.getAllTreatmentSampleRows(sampleIds, studyIds);
         return new ResponseEntity<>(treatments, HttpStatus.OK);
     }
 }

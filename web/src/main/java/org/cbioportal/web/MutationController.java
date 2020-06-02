@@ -9,6 +9,7 @@ import org.cbioportal.model.MutationCountByPosition;
 import org.cbioportal.service.exception.MolecularProfileNotFoundException;
 import org.cbioportal.service.MolecularProfileService;
 import org.cbioportal.service.MutationService;
+import org.cbioportal.web.config.PublicApiTags;
 import org.cbioportal.web.config.annotation.PublicApi;
 import org.cbioportal.web.parameter.Direction;
 import org.cbioportal.web.parameter.HeaderKeyConstants;
@@ -44,7 +45,7 @@ import java.util.*;
 @PublicApi
 @RestController
 @Validated
-@Api(tags = "K. Mutations", description = " ")
+@Api(tags = PublicApiTags.MUTATIONS, description = " ")
 public class MutationController {
 
     public static final int MUTATION_MAX_PAGE_SIZE = 10000000;

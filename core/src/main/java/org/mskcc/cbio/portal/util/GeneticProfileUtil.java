@@ -32,9 +32,8 @@
 
 package org.mskcc.cbio.portal.util;
 
-import org.cbioportal.model.Gene;
 import org.mskcc.cbio.portal.model.*;
-import org.mskcc.cbio.portal.repository.GenePanelRepositoryLegacy;
+import org.mskcc.cbio.portal.dao.DaoGenePanel;
 
 import java.util.*;
 
@@ -85,16 +84,15 @@ public class GeneticProfileUtil {
         }
         return false;
     }
-    
+
     public static int getGenePanelId(String panelId) {
-        GenePanelRepositoryLegacy genePanelRepositoryLegacy = (GenePanelRepositoryLegacy)SpringUtil.getApplicationContext().getBean("genePanelRepositoryLegacy");  
-        GenePanel genePanel = genePanelRepositoryLegacy.getGenePanelByStableId(panelId).get(0);
+        GenePanel genePanel = DaoGenePanel.getGenePanelByStableId(panelId);
         return genePanel.getInternalId();
     }
 
     public static boolean geneInPanel(CanonicalGene gene, GenePanel genePanel) {
-         for (Gene panelGene : genePanel.getGenes()) {
-            if (panelGene.getEntrezGeneId().longValue() == gene.getEntrezGeneId()) {
+         for (CanonicalGene panelGene : genePanel.getGenes()) {
+            if (panelGene.getEntrezGeneId() == gene.getEntrezGeneId()) {
                 return true;
             }
         }

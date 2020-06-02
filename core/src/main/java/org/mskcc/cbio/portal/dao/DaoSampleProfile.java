@@ -357,4 +357,27 @@ public final class DaoSampleProfile {
             JdbcUtil.closeAll(DaoSampleProfile.class, con, pstmt, rs);
         }
     }
+
+    public static boolean sampleProfileMappingExistsByPanel(Integer panelId) throws DaoException {
+        Connection con = null;
+        PreparedStatement pstmt = null;
+        ResultSet rs = null;
+        try {
+            con = JdbcUtil.getDbConnection(DaoSampleProfile.class);
+            pstmt = con.prepareStatement("select count(*) from sample_profile where PANEL_ID = ?");
+            pstmt.setInt(1, panelId);
+            rs = pstmt.executeQuery();
+            if (rs.next()) {
+                return (rs.getInt(1) > 0);
+            }
+            else {
+                return false;
+            }
+        } catch (SQLException e) {
+            throw new DaoException(e);
+        } finally {
+            JdbcUtil.closeAll(DaoSampleProfile.class, con, pstmt, rs);
+        }
+    }
+
 }

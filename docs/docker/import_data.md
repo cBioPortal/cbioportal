@@ -63,7 +63,7 @@ docker restart cbioportal-container
 
 You can find all public studies at [cbioportal.org](http://www.cbioportal.org/data_sets.jsp) a zipped folder with staging files from each study can be downloaded. These zip files are compressed versions of the study folders in [datahub](https://github.com/cBioPortal/datahub).
 
-Download and extract the zip file for study `Cholangiocarcinoma (TCGA, PanCancer Atlas)`. Study `Cholangiocarcinoma (TCGA, PanCancer Atlas)` is a whole exome study. You can therefore skip [step 1 from the import data instructions section](import_data.md#step-1---import-gene-panels): the default gene panel is whole exome. Proceed with the command from step2.
+Download and extract the zip file for study `Cholangiocarcinoma (TCGA, PanCancer Atlas)`. Study `Cholangiocarcinoma (TCGA, PanCancer Atlas)` is a whole exome study. You can therefore skip [step 1 from the import data instructions section](import_data.md#step-1-import-gene-panels): the default gene panel is whole exome. Proceed with the command from step2.
 
 Specify the study directory by replacing 
 `<path_to_study_directory>` with the absolute path to the study folder (e.g. path of folder `chol_tcga_pan_can_atlas_2018`).

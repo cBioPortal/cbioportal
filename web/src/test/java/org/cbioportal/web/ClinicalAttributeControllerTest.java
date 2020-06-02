@@ -83,8 +83,8 @@ public class ClinicalAttributeControllerTest {
 
         List<ClinicalAttribute> clinicalAttributes = createExampleClinicalAttributes();
 
-        Mockito.when(clinicalAttributeService.getAllClinicalAttributes(Mockito.anyString(), Mockito.anyInt(),
-            Mockito.anyInt(), Mockito.anyString(), Mockito.anyString())).thenReturn(clinicalAttributes);
+        Mockito.when(clinicalAttributeService.getAllClinicalAttributes(Mockito.any(), Mockito.any(),
+            Mockito.any(), Mockito.any(), Mockito.any())).thenReturn(clinicalAttributes);
 
         mockMvc.perform(MockMvcRequestBuilders.get("/clinical-attributes")
             .accept(MediaType.APPLICATION_JSON))
@@ -128,8 +128,8 @@ public class ClinicalAttributeControllerTest {
 
         List<ClinicalAttribute> clinicalAttributes = createExampleClinicalAttributes();
 
-        Mockito.when(clinicalAttributeService.getAllClinicalAttributesInStudy(Mockito.anyString(), Mockito.anyString(),
-            Mockito.anyInt(), Mockito.anyInt(), Mockito.anyString(), Mockito.anyString()))
+        Mockito.when(clinicalAttributeService.getAllClinicalAttributesInStudy(Mockito.any(), Mockito.any(),
+            Mockito.any(), Mockito.any(), Mockito.any(), Mockito.any()))
             .thenReturn(clinicalAttributes);
 
         mockMvc.perform(MockMvcRequestBuilders.get("/studies/test_study_id/clinical-attributes")
@@ -220,7 +220,7 @@ public class ClinicalAttributeControllerTest {
 
         List<ClinicalAttribute> clinicalAttributes = createExampleClinicalAttributes();
 
-        Mockito.when(clinicalAttributeService.fetchClinicalAttributes(Mockito.anyListOf(String.class), Mockito.anyString()))
+        Mockito.when(clinicalAttributeService.fetchClinicalAttributes(Mockito.anyList(), Mockito.anyString()))
             .thenReturn(clinicalAttributes);
 
         List<String> studyIds = new ArrayList<>();
@@ -266,8 +266,8 @@ public class ClinicalAttributeControllerTest {
         clinicalAttributeCount2.setCount(TEST_ATTRIBUTE_COUNT_2);
         clinicalAttributes.add(clinicalAttributeCount2);
 
-        Mockito.when(clinicalAttributeService.getClinicalAttributeCountsBySampleIds(Mockito.anyListOf(String.class),
-            Mockito.anyListOf(String.class))).thenReturn(clinicalAttributes);
+        Mockito.when(clinicalAttributeService.getClinicalAttributeCountsBySampleIds(Mockito.any(),
+            Mockito.any())).thenReturn(clinicalAttributes);
 
         ClinicalAttributeCountFilter clinicalAttributeCountFilter = new ClinicalAttributeCountFilter();
         List<SampleIdentifier> sampleIdentifierList = new ArrayList<>();

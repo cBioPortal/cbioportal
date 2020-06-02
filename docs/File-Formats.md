@@ -1398,7 +1398,7 @@ The sample resource file should follow this format, it has four **required** col
 </table>
 
 ### Patient Resource Data File
-The patient resource file should follow this format, it has four **required** columns:
+The patient resource file should follow this format, it has three **required** columns:
 - **PATIENT_ID (required)**: a unique patient ID. This field allows only numbers, letters, points, underscores and hyphens.
 - **RESOURCE_ID (required)**: a unique resource ID which should also be included in the `Resource Definition data file`.
 - **URL (required)**: url to the resources, start with `http` or `https`.
@@ -1411,7 +1411,7 @@ The patient resource file should follow this format, it has four **required** co
 </table>
 
 ### Study Resource Data File
-The study resource file should follow this format, it has four **required** columns:
+The study resource file should follow this format, it has two **required** columns:
 - **RESOURCE_ID (required)**: a unique resource ID which should also be included in the `Resource Definition data file`.
 - **URL (required)**: url to the resources, start with `http` or `https`.
 

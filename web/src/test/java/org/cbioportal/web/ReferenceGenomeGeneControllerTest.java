@@ -149,7 +149,7 @@ public class ReferenceGenomeGeneControllerTest {
 
         List<ReferenceGenomeGene> geneList = createGeneList();
 
-        Mockito.when(referenceGenomeGeneService.fetchGenesByGenomeName(Mockito.anyListOf(Integer.class), Mockito.anyString()))
+        Mockito.when(referenceGenomeGeneService.fetchGenesByGenomeName(Mockito.anyList(), Mockito.anyString()))
             .thenReturn(geneList);
 
         List<String> geneIds = new ArrayList<>();

@@ -43,6 +43,7 @@ import org.hamcrest.Matchers;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.mockito.ArgumentMatchers;
 import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
@@ -107,7 +108,7 @@ public class GenePanelControllerLegacyTest {
     public void genePanelByStableIdTest() throws Exception {
         List<GenePanel> mockResponse = new ArrayList<>();
         mockResponse.add(genePanel1);
-        Mockito.when(genePanelServiceLegacyMock.getGenePanelByStableId(org.mockito.Matchers.anyString())).thenReturn(mockResponse);
+        Mockito.when(genePanelServiceLegacyMock.getGenePanelByStableId(ArgumentMatchers.anyString())).thenReturn(mockResponse);
         this.mockMvc.perform(
         MockMvcRequestBuilders.get("/genepanel")
         .accept(MediaType.parseMediaType("application/json;charset=UTF-8"))
@@ -132,7 +133,7 @@ public class GenePanelControllerLegacyTest {
         String[] genesquery = {"OFFPANEL1", "OFFPANEL2"};
         mockResponse.add(gpq1);
 
-        Mockito.when(genePanelServiceLegacyMock.getGenePanelDataByProfileAndGenes(org.mockito.Matchers.anyString(), org.mockito.Matchers.anyListOf(String.class))).thenReturn(mockResponse);
+        Mockito.when(genePanelServiceLegacyMock.getGenePanelDataByProfileAndGenes(ArgumentMatchers.anyString(), ArgumentMatchers.anyList())).thenReturn(mockResponse);
         this.mockMvc.perform(
         MockMvcRequestBuilders.get("/genepanel/data")
         .accept(MediaType.parseMediaType("application/json;charset=UTF-8"))
@@ -160,7 +161,7 @@ public class GenePanelControllerLegacyTest {
         String[] genesquery = {"OFFPANEL1", "BRAF"};
         mockResponse.add(gpq1);
 
-        Mockito.when(genePanelServiceLegacyMock.getGenePanelDataByProfileAndGenes(org.mockito.Matchers.anyString(), org.mockito.Matchers.anyListOf(String.class))).thenReturn(mockResponse);
+        Mockito.when(genePanelServiceLegacyMock.getGenePanelDataByProfileAndGenes(ArgumentMatchers.anyString(), ArgumentMatchers.anyList())).thenReturn(mockResponse);
         this.mockMvc.perform(
         MockMvcRequestBuilders.get("/genepanel/data")
         .accept(MediaType.parseMediaType("application/json;charset=UTF-8"))
@@ -190,7 +191,7 @@ public class GenePanelControllerLegacyTest {
         String[] genesquery = {"EGFR", "BRAF"};
         mockResponse.add(gpq1);
 
-        Mockito.when(genePanelServiceLegacyMock.getGenePanelDataByProfileAndGenes(org.mockito.Matchers.anyString(), org.mockito.Matchers.anyListOf(String.class))).thenReturn(mockResponse);
+        Mockito.when(genePanelServiceLegacyMock.getGenePanelDataByProfileAndGenes(ArgumentMatchers.anyString(), ArgumentMatchers.anyList())).thenReturn(mockResponse);
         this.mockMvc.perform(
         MockMvcRequestBuilders.get("/genepanel/data")
         .accept(MediaType.parseMediaType("application/json;charset=UTF-8"))

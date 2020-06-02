@@ -76,7 +76,7 @@ public class MolecularDataControllerTest {
         List<GeneMolecularData> geneMolecularDataList = createExampleMolecularData();
 
         Mockito.when(molecularDataService.getMolecularData(Mockito.anyString(),
-            Mockito.anyString(), Mockito.anyListOf(Integer.class), Mockito.anyString()))
+            Mockito.anyString(), Mockito.anyList(), Mockito.anyString()))
             .thenReturn(geneMolecularDataList);
 
         mockMvc.perform(MockMvcRequestBuilders.get("/molecular-profiles/test_molecular_profile_id/molecular-data")
@@ -110,7 +110,7 @@ public class MolecularDataControllerTest {
         geneMolecularDataList.add(geneMolecularData2);
 
         Mockito.when(molecularDataService.getMolecularData(Mockito.anyString(), Mockito.anyString(),
-            Mockito.anyListOf(Integer.class), Mockito.anyString())).thenReturn(geneMolecularDataList);
+            Mockito.anyList(), Mockito.anyString())).thenReturn(geneMolecularDataList);
 
         mockMvc.perform(MockMvcRequestBuilders.get("/molecular-profiles/test_molecular_profile_id/molecular-data")
             .param("sampleListId", TEST_SAMPLE_LIST_ID)
@@ -126,7 +126,7 @@ public class MolecularDataControllerTest {
         List<GeneMolecularData> geneMolecularDataList = createExampleMolecularData();
 
         Mockito.when(molecularDataService.fetchMolecularData(Mockito.anyString(),
-            Mockito.anyListOf(String.class), Mockito.anyListOf(Integer.class), Mockito.anyString()))
+            Mockito.anyList(), Mockito.anyList(), Mockito.anyString()))
             .thenReturn(geneMolecularDataList);
 
         MolecularDataFilter molecularDataFilter = createMolecularDataFilter();
@@ -162,8 +162,8 @@ public class MolecularDataControllerTest {
         GeneMolecularData geneMolecularData2 = new GeneMolecularData();
         geneMolecularDataList.add(geneMolecularData2);
 
-        Mockito.when(molecularDataService.fetchMolecularData(Mockito.anyString(), Mockito.anyListOf(String.class),
-            Mockito.anyListOf(Integer.class), Mockito.anyString())).thenReturn(geneMolecularDataList);
+        Mockito.when(molecularDataService.fetchMolecularData(Mockito.anyString(), Mockito.anyList(),
+            Mockito.anyList(), Mockito.anyString())).thenReturn(geneMolecularDataList);
 
         MolecularDataFilter molecularDataFilter = createMolecularDataFilter();
 
@@ -181,8 +181,8 @@ public class MolecularDataControllerTest {
 
         List<GeneMolecularData> geneMolecularDataList = createExampleMolecularData();
 
-        Mockito.when(molecularDataService.getMolecularDataInMultipleMolecularProfiles(Mockito.anyListOf(String.class),
-            Mockito.anyListOf(String.class), Mockito.anyListOf(Integer.class), Mockito.anyString()))
+        Mockito.when(molecularDataService.getMolecularDataInMultipleMolecularProfiles(Mockito.any(),
+            Mockito.any(), Mockito.any(), Mockito.any()))
             .thenReturn(geneMolecularDataList);
 
         MolecularDataMultipleStudyFilter molecularDataMultipleStudyFilter = new MolecularDataMultipleStudyFilter();

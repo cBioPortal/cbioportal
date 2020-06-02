@@ -276,7 +276,7 @@ public class LargeTestSetGenerator {
 	private static int[] getRandomIdx(int size, int nrItems) {
         ArrayList<Integer> list = new ArrayList<Integer>();
         for (int i=0; i<size; i++) {
-            list.add(new Integer(i));
+            list.add(Integer.valueOf(i));
         }
         int[] result = new int[nrItems];
         Collections.shuffle(list);

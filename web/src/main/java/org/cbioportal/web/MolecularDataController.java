@@ -8,6 +8,7 @@ import org.cbioportal.model.GeneMolecularData;
 import org.cbioportal.model.NumericGeneMolecularData;
 import org.cbioportal.service.exception.MolecularProfileNotFoundException;
 import org.cbioportal.service.MolecularDataService;
+import org.cbioportal.web.config.PublicApiTags;
 import org.cbioportal.web.config.annotation.PublicApi;
 import org.cbioportal.web.parameter.HeaderKeyConstants;
 import org.cbioportal.web.parameter.MolecularDataFilter;
@@ -37,7 +38,7 @@ import java.util.*;
 @PublicApi
 @RestController
 @Validated
-@Api(tags = "I. Molecular Data", description = " ")
+@Api(tags = PublicApiTags.MOLECULAR_DATA, description = " ")
 public class MolecularDataController {
 
     @Autowired

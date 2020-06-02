@@ -39,7 +39,6 @@ import org.mskcc.cbio.portal.dao.*;
 import org.mskcc.cbio.portal.model.*;
 import org.mskcc.cbio.portal.model.ExtendedMutation.MutationEvent;
 import org.mskcc.cbio.portal.util.*;
-import org.mskcc.cbio.portal.repository.GenePanelRepositoryLegacy;
 
 /**
  * Imports a fusion file.
@@ -68,11 +67,7 @@ public class ImportFusionData {
         long mutationEventId = DaoMutation.getLargestMutationEventId();
         GenePanel genePanel = null;
         if (genePanelID != null) {
-            GenePanelRepositoryLegacy genePanelRepositoryLegacy = (GenePanelRepositoryLegacy)SpringUtil.getApplicationContext().getBean("genePanelRepositoryLegacy");
-            List<GenePanel> genePanels = genePanelRepositoryLegacy.getGenePanelByStableId(genePanelID);
-            if (genePanels != null && genePanels.size() == 1) {
-                genePanel = genePanels.get(0);
-            }
+            genePanel = DaoGenePanel.getGenePanelByStableId(genePanelID);
         }
 
         // Initialize, this makes sure that mutation_events are always loaded before mutations:

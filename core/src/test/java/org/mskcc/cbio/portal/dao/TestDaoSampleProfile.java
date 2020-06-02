@@ -32,18 +32,19 @@
 
 package org.mskcc.cbio.portal.dao;
 
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
 import org.mskcc.cbio.portal.model.*;
+
 import org.springframework.test.annotation.Rollback;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.ArrayList;
-
+import org.junit.Test;
+import org.junit.Before;
+import org.junit.runner.RunWith;
 import static org.junit.Assert.*;
+
+import java.util.*;
 
 /**
  * JUnit test for DaoSample class
@@ -55,18 +56,29 @@ import static org.junit.Assert.*;
 public class TestDaoSampleProfile {
 
 	CancerStudy study;
+    GenePanel genePanel;
 	ArrayList<Integer> internalSampleIds;
 	int geneticProfileId;
-	
+
 	@Before
 	public void setUp() throws DaoException {
+        CanonicalGene brca1 = DaoGeneOptimized.getInstance().getGene("BRCA1");
+        CanonicalGene brca2 = DaoGeneOptimized.getInstance().getGene("BRCA2");
+        CanonicalGene kras = DaoGeneOptimized.getInstance().getGene("KRAS");
+        HashSet<CanonicalGene> canonicalGenes = new HashSet<CanonicalGene>();
+        canonicalGenes.add(brca1);
+        canonicalGenes.add(brca2);
+        canonicalGenes.add(kras);
+        DaoGenePanel.addGenePanel("testGenePanel", "Test gene panel description", canonicalGenes);
+        genePanel = DaoGenePanel.getGenePanelByStableId("testGenePanel");
+
 		study = DaoCancerStudy.getCancerStudyByStableId("study_tcga_pub");
 		geneticProfileId = DaoGeneticProfile.getGeneticProfileByStableId("study_tcga_pub_mutations").getGeneticProfileId();
-		
+
 		internalSampleIds = new ArrayList<Integer>();
         Patient p = new Patient(study, "TCGA-12345");
         int pId = DaoPatient.addPatient(p);
-        
+
         DaoSample.reCache();
         Sample s = new Sample("TCGA-12345-01", pId, "brca");
         internalSampleIds.add(DaoSample.addSample(s));
@@ -89,8 +101,11 @@ public class TestDaoSampleProfile {
         assertEquals(geneticProfileId, DaoSampleProfile.getProfileIdForSample(sample.getInternalId()));
 
         sample = DaoSample.getSampleByPatientAndSampleId(patient.getInternalId(), "TCGA-123456-01");
-        num = DaoSampleProfile.addSampleProfile(sample.getInternalId(), geneticProfileId, null);
+        num = DaoSampleProfile.addSampleProfile(sample.getInternalId(), geneticProfileId, genePanel.getInternalId());
         assertEquals(1, num);
+
+        boolean existsByPanelId = DaoSampleProfile.sampleProfileMappingExistsByPanel(genePanel.getInternalId());
+        assertTrue(existsByPanelId);
 
         ArrayList<Integer> sampleIds = DaoSampleProfile.getAllSampleIdsInProfile(geneticProfileId);
         assertEquals(9, sampleIds.size());

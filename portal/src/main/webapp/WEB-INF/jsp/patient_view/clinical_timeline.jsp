@@ -159,7 +159,7 @@
 
                 for (i=0; i < prefixes.length; i++) {
                     var prefix = prefixes[i];
-                    if (patientInfo[prefix+"OS_STATUS"] === "DECEASED" &&
+                    if (patientInfo[prefix+"OS_STATUS"] === "1:DECEASED" &&
                         prefix + "OS_MONTHS" in patientInfo) {
                         var days = parseInt(parseInt(patientInfo[prefix+"OS_MONTHS"])*30.4);
                         var timePoint = {
@@ -170,7 +170,7 @@
                             "tooltip_tables":[
                                 [
                                     ["START_DATE", days],
-                                    ["STATUS", "DECEASED"]
+                                    ["STATUS", "1:DECEASED"]
                                 ]
                             ]
                         }

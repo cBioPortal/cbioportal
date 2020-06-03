@@ -177,13 +177,13 @@ The file containing the patient attributes has one **required** column:
 
 The following columns are used by the study view as well as the patient view. In the [study view](https://www.cbioportal.org/study?id=brca_tcga) they are used to create the survival plots. In the patient view they are used to add information to the [header](https://www.cbioportal.org/patient?studyId=lgg_ucsf_2014&caseId=P05). 
 - **OS_STATUS**:  Overall patient survival status
-    - Possible values: DECEASED, LIVING
-    - In the patient view, LIVING creates a green label, DECEASED a red label.
-    - In visualisation of [Timeline data](#timeline-data), DECEASED will result in a new event of type STATUS
+    - Possible values: 1:DECEASED, 0:LIVING
+    - In the patient view, 0:LIVING creates a green label, 1:DECEASED a red label.
+    - In visualisation of [Timeline data](#timeline-data), 1:DECEASED will result in a new event of type STATUS
 - **OS_MONTHS**:  Overall survival in months since initial diagnosis
 - **DFS_STATUS**: Disease free status since initial treatment
-    - Possible values: DiseaseFree, Recurred/Progressed
-    - In the patient view, DiseaseFree creates a green label, Recurred/Progressed a red label.
+    - Possible values: 0:DiseaseFree, 1:Recurred/Progressed
+    - In the patient view, 0:DiseaseFree creates a green label, 1:Recurred/Progressed a red label.
 - **DFS_MONTHS**: Disease free (months) since initial treatment
 
 These columns, when provided, add additional information to the patient description in the header:
@@ -202,8 +202,8 @@ Custom attributes:
 #STRING<TAB>STRING<TAB>NUMBER<TAB>STRING<TAB>NUMBER<TAB>...
 #1<TAB>1<TAB>1<TAB>1<TAB>1<TAB>
 PATIENT_ID<TAB>OS_STATUS<TAB>OS_MONTHS<TAB>DFS_STATUS<TAB>DFS_MONTHS<TAB>...
-PATIENT_ID_1<TAB>DECEASED<TAB>17.97<TAB>Recurred/Progressed<TAB>30.98<TAB>...
-PATIENT_ID_2<TAB>LIVING<TAB>63.01<TAB>DiseaseFree<TAB>63.01<TAB>...
+PATIENT_ID_1<TAB>1:DECEASED<TAB>17.97<TAB>1:Recurred/Progressed<TAB>30.98<TAB>...
+PATIENT_ID_2<TAB>0:LIVING<TAB>63.01<TAB>0:DiseaseFree<TAB>63.01<TAB>...
 ...
 ```
 

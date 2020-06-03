@@ -194,13 +194,13 @@ public class LargeTestSetGenerator {
 				resultFile.write("Cancer_type" + cancerType + "_Sub" +cancerTypeDetailed + "\t");
 			}
 			
-			String [] osStatus = {"DECEASED", "LIVING"};
+			String [] osStatus = {"1:DECEASED", "0:LIVING"};
 			resultFile.write(osStatus[random(0,1)] + "\t");
 			//os_months
 			int osMonths = random(0,300);
 			resultFile.write(osMonths + "\t");
 			
-			String [] dfsStatus = {"NA","Recurred/Progressed","DiseaseFree"};
+			String [] dfsStatus = {"NA","1:Recurred/Progressed","0:DiseaseFree"};
 			resultFile.write(dfsStatus[random(0,2)] + "\t");
 			//repeat os_months
 			resultFile.write(osMonths + "");			

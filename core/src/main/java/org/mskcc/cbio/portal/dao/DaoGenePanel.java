@@ -32,13 +32,9 @@
 
 package org.mskcc.cbio.portal.dao;
 
-import java.sql.Connection;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
-import java.sql.SQLException;
+import java.sql.*;
 import java.util.*;
-import org.mskcc.cbio.portal.model.CancerStudy;
-import org.mskcc.cbio.portal.model.GenePanel;
+import org.mskcc.cbio.portal.model.*;
 
 /**
  *
@@ -57,28 +53,132 @@ public class DaoGenePanel {
         PreparedStatement pstmt = null;
         ResultSet rs = null;
         try {
-            con = JdbcUtil.getDbConnection(DaoCancerStudy.class);
+            con = JdbcUtil.getDbConnection(DaoGenePanel.class);
             pstmt = con.prepareStatement("SELECT * FROM gene_panel");
             rs = pstmt.executeQuery();
             genePanelMap = extractGenePanelMap(rs);
         } catch (SQLException e) {
             e.printStackTrace();
+        } catch (DaoException e) {
+            e.printStackTrace();
         } finally {
-            JdbcUtil.closeAll(DaoCancerStudy.class, con, pstmt, rs);
+            JdbcUtil.closeAll(DaoGenePanel.class, con, pstmt, rs);
         }
         return genePanelMap;
     }
 
-    private static Map<String, GenePanel> extractGenePanelMap(ResultSet rs) throws SQLException {
+    private static Map<String, GenePanel> extractGenePanelMap(ResultSet rs) throws DaoException {
         Map<String, GenePanel> genePanelMap = new HashMap<>();
-        while(rs.next()) {
-            GenePanel gp = new GenePanel();
-            gp.setInternalId(rs.getInt("INTERNAL_ID"));
-            gp.setStableId(rs.getString("STABLE_ID"));
-            gp.setDescription(rs.getString("DESCRIPTION"));
-            genePanelMap.put(gp.getStableId(), gp);
+        try {
+            while(rs.next()) {
+                GenePanel gp = new GenePanel();
+                gp.setInternalId(rs.getInt("INTERNAL_ID"));
+                gp.setStableId(rs.getString("STABLE_ID"));
+                gp.setDescription(rs.getString("DESCRIPTION"));
+                gp.setGenes(extractGenePanelGenes(gp.getInternalId()));
+                genePanelMap.put(gp.getStableId(), gp);
+            }
+        }
+        catch (SQLException e) {
+            throw new DaoException(e);
         }
         return genePanelMap;
     }
 
+    private static Set<CanonicalGene> extractGenePanelGenes(Integer genePanelId) throws DaoException {
+        Connection con = null;
+        PreparedStatement pstmt = null;
+        ResultSet rs = null;
+        HashSet<CanonicalGene> toReturn = new HashSet<CanonicalGene>();
+        try {
+            con = JdbcUtil.getDbConnection(DaoGenePanel.class);
+            pstmt = con.prepareStatement("SELECT * FROM gene_panel_list where INTERNAL_ID = ?");
+            pstmt.setInt(1, genePanelId);
+            rs = pstmt.executeQuery();
+            DaoGeneOptimized daoGeneOpt = DaoGeneOptimized.getInstance();
+            while (rs.next()) {
+                CanonicalGene gene = daoGeneOpt.getGene(rs.getLong(2));
+                toReturn.add(gene);
+            }
+        }
+        catch (SQLException e) {
+            throw new DaoException(e);
+        }
+        finally {
+            JdbcUtil.closeAll(DaoGenePanel.class, con, pstmt, rs);
+        }
+        return toReturn;
+    }
+
+    public static void addGenePanel(String stableId, String description, Set<CanonicalGene> canonicalGenes) throws DaoException {
+        Connection con = null;
+        PreparedStatement pstmt = null;
+        ResultSet rs = null;
+
+        if (stableId == null) {
+            throw new DaoException("Gene Panel stable ID cannot be null.");
+        }
+        if (canonicalGenes == null || canonicalGenes.isEmpty()) {
+            throw new DaoException("Gene Panel gene list cannot be null or empty.");
+        }
+
+        try {
+            con = JdbcUtil.getDbConnection(DaoGenePanel.class);
+            pstmt = con.prepareStatement("INSERT INTO gene_panel (`STABLE_ID`, `DESCRIPTION`) VALUES (?,?)", Statement.RETURN_GENERATED_KEYS);
+            pstmt.setString(1, stableId);
+            pstmt.setString(2, description);
+            pstmt.executeUpdate();
+            rs = pstmt.getGeneratedKeys();
+            if (rs.next()) {
+                addGenePanelGeneList(rs.getInt(1), canonicalGenes);
+                // add panel to class map
+                GenePanel gp = new GenePanel();
+                gp.setInternalId(rs.getInt(1));
+                gp.setStableId(stableId);
+                gp.setDescription(description);
+                gp.setGenes(canonicalGenes);
+                genePanelMap.put(stableId, gp);
+            }
+        } catch (SQLException e) {
+            throw new DaoException(e);
+        } finally {
+            JdbcUtil.closeAll(DaoGenePanel.class, con, pstmt, rs);
+        }
+    }
+
+    private static void addGenePanelGeneList(Integer internalId, Set<CanonicalGene> canonicalGenes) throws DaoException {
+        Connection con = null;
+        PreparedStatement pstmt = null;
+        ResultSet rs = null;
+        try {
+            con = JdbcUtil.getDbConnection(DaoGenePanel.class);
+            for (CanonicalGene canonicalGene : canonicalGenes) {
+                pstmt = con.prepareStatement("INSERT INTO gene_panel_list (`INTERNAL_ID`, `GENE_ID`) VALUES (?,?)");
+                pstmt.setInt(1, internalId);
+                pstmt.setLong(2, canonicalGene.getEntrezGeneId());
+                pstmt.executeUpdate();
+            }
+        } catch (SQLException e) {
+            throw new DaoException(e);
+        } finally {
+            JdbcUtil.closeAll(DaoGenePanel.class, con, pstmt, rs);
+        }
+    }
+
+
+    public static void deleteGenePanel(GenePanel genePanel) throws DaoException {
+        Connection con = null;
+        PreparedStatement pstmt = null;
+        try {
+            con = JdbcUtil.getDbConnection(DaoGenePanel.class);
+            pstmt = con.prepareStatement("DELETE from gene_panel WHERE INTERNAL_ID = ?");
+            pstmt.setInt(1, genePanel.getInternalId());
+            pstmt.executeUpdate();
+            genePanelMap.remove(genePanel.getStableId());
+        } catch (SQLException e) {
+            throw new DaoException(e);
+        } finally {
+            JdbcUtil.closeAll(DaoGenePanel.class, con, pstmt, null);
+        }
+    }
 }

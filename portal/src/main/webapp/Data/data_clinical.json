@@ -20,9 +20,9 @@
     "MICRO_RNA_CLUSTER":"4",
     "MICRO_RNA_SCORE":"0.891767554",
     "CASE_ID":"TCGA-A5-A0G1",
-    "OS_STATUS":"Deceased",
+    "OS_STATUS":"1:DECEASED",
     "OS_MONTHS":"106.8113163",
-    "DFS_STATUS":"DiseaseFree",
+    "DFS_STATUS":"0:DiseaseFree",
     "DFS_MONTHS":"106.8113163"
   },
   {
@@ -72,7 +72,7 @@
     "MICRO_RNA_CLUSTER":"4",
     "MICRO_RNA_SCORE":"0.877287726",
     "CASE_ID":"TCGA-A5-A0G3",
-    "OS_STATUS":"Living",
+    "OS_STATUS":"0:LIVING",
     "OS_MONTHS":"46.91681319",
     "DFS_STATUS":"Recurred",
     "DFS_MONTHS":"26.1196544"
@@ -98,9 +98,9 @@
     "MICRO_RNA_CLUSTER":"4",
     "MICRO_RNA_SCORE":"0.886489497",
     "CASE_ID":"TCGA-A5-A0G5",
-    "OS_STATUS":"Living",
+    "OS_STATUS":"0:LIVING",
     "OS_MONTHS":"36.99463001",
-    "DFS_STATUS":"DiseaseFree",
+    "DFS_STATUS":"0:DiseaseFree",
     "DFS_MONTHS":"36.99463001"
   },
   {
@@ -124,9 +124,9 @@
     "MICRO_RNA_CLUSTER":"6",
     "MICRO_RNA_SCORE":"0.936182815",
     "CASE_ID":"TCGA-A5-A0G9",
-    "OS_STATUS":"Living",
+    "OS_STATUS":"0:LIVING",
     "OS_MONTHS":"83.45147445",
-    "DFS_STATUS":"DiseaseFree",
+    "DFS_STATUS":"0:DiseaseFree",
     "DFS_MONTHS":"83.45147445"
   },
   {
@@ -150,7 +150,7 @@
     "MICRO_RNA_CLUSTER":"4",
     "MICRO_RNA_SCORE":"0.923555802",
     "CASE_ID":"TCGA-A5-A0GA",
-    "OS_STATUS":"Deceased",
+    "OS_STATUS":"1:DECEASED",
     "OS_MONTHS":"17.84021678",
     "DFS_STATUS":"Recurred",
     "DFS_MONTHS":"NA"
@@ -176,9 +176,9 @@
     "MICRO_RNA_CLUSTER":"NA",
     "MICRO_RNA_SCORE":"NA",
     "CASE_ID":"TCGA-A5-A0GB",
-    "OS_STATUS":"Living",
+    "OS_STATUS":"0:LIVING",
     "OS_MONTHS":"32.75634647",
-    "DFS_STATUS":"DiseaseFree",
+    "DFS_STATUS":"0:DiseaseFree",
     "DFS_MONTHS":"32.75634647"
   },
   {
@@ -202,9 +202,9 @@
     "MICRO_RNA_CLUSTER":"1",
     "MICRO_RNA_SCORE":"0.795833159",
     "CASE_ID":"TCGA-A5-A0GD",
-    "OS_STATUS":"Deceased",
+    "OS_STATUS":"1:DECEASED",
     "OS_MONTHS":"112.4295061",
-    "DFS_STATUS":"DiseaseFree",
+    "DFS_STATUS":"0:DiseaseFree",
     "DFS_MONTHS":"112.4295061"
   },
   {
@@ -228,9 +228,9 @@
     "MICRO_RNA_CLUSTER":"4",
     "MICRO_RNA_SCORE":"0.8681518",
     "CASE_ID":"TCGA-A5-A0GE",
-    "OS_STATUS":"Living",
+    "OS_STATUS":"0:LIVING",
     "OS_MONTHS":"105.2999904",
-    "DFS_STATUS":"DiseaseFree",
+    "DFS_STATUS":"0:DiseaseFree",
     "DFS_MONTHS":"105.2999904"
   },
   {
@@ -254,9 +254,9 @@
     "MICRO_RNA_CLUSTER":"2",
     "MICRO_RNA_SCORE":"0.953263868",
     "CASE_ID":"TCGA-A5-A0GG",
-    "OS_STATUS":"Living",
+    "OS_STATUS":"0:LIVING",
     "OS_MONTHS":"87.26264415",
-    "DFS_STATUS":"DiseaseFree",
+    "DFS_STATUS":"0:DiseaseFree",
     "DFS_MONTHS":"87.26264415"
   },
   {
@@ -280,9 +280,9 @@
     "MICRO_RNA_CLUSTER":"4",
     "MICRO_RNA_SCORE":"0.923555802",
     "CASE_ID":"TCGA-A5-A0GH",
-    "OS_STATUS":"Living",
+    "OS_STATUS":"0:LIVING",
     "OS_MONTHS":"74.02211493",
-    "DFS_STATUS":"DiseaseFree",
+    "DFS_STATUS":"0:DiseaseFree",
     "DFS_MONTHS":"74.02211493"
   },
   {
@@ -306,9 +306,9 @@
     "MICRO_RNA_CLUSTER":"5",
     "MICRO_RNA_SCORE":"0.869799717",
     "CASE_ID":"TCGA-A5-A0GI",
-    "OS_STATUS":"Living",
+    "OS_STATUS":"0:LIVING",
     "OS_MONTHS":"57.4960946",
-    "DFS_STATUS":"DiseaseFree",
+    "DFS_STATUS":"0:DiseaseFree",
     "DFS_MONTHS":"57.4960946"
   },
   {
@@ -332,7 +332,7 @@
     "MICRO_RNA_CLUSTER":"3",
     "MICRO_RNA_SCORE":"0.888897494",
     "CASE_ID":"TCGA-A5-A0GJ",
-    "OS_STATUS":"Living",
+    "OS_STATUS":"0:LIVING",
     "OS_MONTHS":"65.7098224",
     "DFS_STATUS":"Recurred",
     "DFS_MONTHS":"0.394258934"
@@ -358,9 +358,9 @@
     "MICRO_RNA_CLUSTER":"6",
     "MICRO_RNA_SCORE":"0.769037046",
     "CASE_ID":"TCGA-A5-A0GM",
-    "OS_STATUS":"Living",
+    "OS_STATUS":"0:LIVING",
     "OS_MONTHS":"60.45303661",
-    "DFS_STATUS":"DiseaseFree",
+    "DFS_STATUS":"0:DiseaseFree",
     "DFS_MONTHS":"60.45303661"
   },
   {
@@ -384,9 +384,9 @@
     "MICRO_RNA_CLUSTER":"NA",
     "MICRO_RNA_SCORE":"NA",
     "CASE_ID":"TCGA-A5-A0GN",
-    "OS_STATUS":"Living",
+    "OS_STATUS":"0:LIVING",
     "OS_MONTHS":"60.48589152",
-    "DFS_STATUS":"DiseaseFree",
+    "DFS_STATUS":"0:DiseaseFree",
     "DFS_MONTHS":"60.48589152"
   },
   {
@@ -410,9 +410,9 @@
     "MICRO_RNA_CLUSTER":"6",
     "MICRO_RNA_SCORE":"0.751790929",
     "CASE_ID":"TCGA-A5-A0GP",
-    "OS_STATUS":"Living",
+    "OS_STATUS":"0:LIVING",
     "OS_MONTHS":"46.52255426",
-    "DFS_STATUS":"DiseaseFree",
+    "DFS_STATUS":"0:DiseaseFree",
     "DFS_MONTHS":"46.52255426"
   },
   {
@@ -436,9 +436,9 @@
     "MICRO_RNA_CLUSTER":"6",
     "MICRO_RNA_SCORE":"0.936182815",
     "CASE_ID":"TCGA-A5-A0GQ",
-    "OS_STATUS":"Living",
+    "OS_STATUS":"0:LIVING",
     "OS_MONTHS":"38.34168137",
-    "DFS_STATUS":"DiseaseFree",
+    "DFS_STATUS":"0:DiseaseFree",
     "DFS_MONTHS":"38.34168137"
   },
   {
@@ -462,9 +462,9 @@
     "MICRO_RNA_CLUSTER":"1",
     "MICRO_RNA_SCORE":"0.86844934",
     "CASE_ID":"TCGA-A5-A0GR",
-    "OS_STATUS":"Living",
+    "OS_STATUS":"0:LIVING",
     "OS_MONTHS":"36.79750054",
-    "DFS_STATUS":"DiseaseFree",
+    "DFS_STATUS":"0:DiseaseFree",
     "DFS_MONTHS":"36.79750054"
   },
   {
@@ -488,9 +488,9 @@
     "MICRO_RNA_CLUSTER":"6",
     "MICRO_RNA_SCORE":"0.936182815",
     "CASE_ID":"TCGA-A5-A0GU",
-    "OS_STATUS":"Living",
+    "OS_STATUS":"0:LIVING",
     "OS_MONTHS":"28.22236872",
-    "DFS_STATUS":"DiseaseFree",
+    "DFS_STATUS":"0:DiseaseFree",
     "DFS_MONTHS":"28.22236872"
   },
   {
@@ -514,7 +514,7 @@
     "MICRO_RNA_CLUSTER":"5",
     "MICRO_RNA_SCORE":"0.932869329",
     "CASE_ID":"TCGA-A5-A0GV",
-    "OS_STATUS":"Living",
+    "OS_STATUS":"0:LIVING",
     "OS_MONTHS":"20.79715879",
     "DFS_STATUS":"Recurred",
     "DFS_MONTHS":"9.987893005"
@@ -540,9 +540,9 @@
     "MICRO_RNA_CLUSTER":"2",
     "MICRO_RNA_SCORE":"0.79763473",
     "CASE_ID":"TCGA-A5-A0GW",
-    "OS_STATUS":"Living",
+    "OS_STATUS":"0:LIVING",
     "OS_MONTHS":"23.19556731",
-    "DFS_STATUS":"DiseaseFree",
+    "DFS_STATUS":"0:DiseaseFree",
     "DFS_MONTHS":"23.19556731"
   },
   {
@@ -566,9 +566,9 @@
     "MICRO_RNA_CLUSTER":"2",
     "MICRO_RNA_SCORE":"0.953263868",
     "CASE_ID":"TCGA-A5-A0GX",
-    "OS_STATUS":"Living",
+    "OS_STATUS":"0:LIVING",
     "OS_MONTHS":"68.56819967",
-    "DFS_STATUS":"DiseaseFree",
+    "DFS_STATUS":"0:DiseaseFree",
     "DFS_MONTHS":"68.56819967"
   },
   {
@@ -592,9 +592,9 @@
     "MICRO_RNA_CLUSTER":"4",
     "MICRO_RNA_SCORE":"0.836740624",
     "CASE_ID":"TCGA-A5-A0R6",
-    "OS_STATUS":"Living",
+    "OS_STATUS":"0:LIVING",
     "OS_MONTHS":"19.9429311",
-    "DFS_STATUS":"DiseaseFree",
+    "DFS_STATUS":"0:DiseaseFree",
     "DFS_MONTHS":"19.9429311"
   },
   {
@@ -618,9 +618,9 @@
     "MICRO_RNA_CLUSTER":"4",
     "MICRO_RNA_SCORE":"0.877287726",
     "CASE_ID":"TCGA-A5-A0R7",
-    "OS_STATUS":"Living",
+    "OS_STATUS":"0:LIVING",
     "OS_MONTHS":"17.54452258",
-    "DFS_STATUS":"DiseaseFree",
+    "DFS_STATUS":"0:DiseaseFree",
     "DFS_MONTHS":"17.54452258"
   },
   {
@@ -644,7 +644,7 @@
     "MICRO_RNA_CLUSTER":"1",
     "MICRO_RNA_SCORE":"0.71082576",
     "CASE_ID":"TCGA-A5-A0R8",
-    "OS_STATUS":"Living",
+    "OS_STATUS":"0:LIVING",
     "OS_MONTHS":"19.54867216",
     "DFS_STATUS":"Recurred",
     "DFS_MONTHS":"1.37990627"
@@ -670,9 +670,9 @@
     "MICRO_RNA_CLUSTER":"6",
     "MICRO_RNA_SCORE":"0.936182815",
     "CASE_ID":"TCGA-A5-A0R9",
-    "OS_STATUS":"Living",
+    "OS_STATUS":"0:LIVING",
     "OS_MONTHS":"24.60832849",
-    "DFS_STATUS":"DiseaseFree",
+    "DFS_STATUS":"0:DiseaseFree",
     "DFS_MONTHS":"24.60832849"
   },
   {
@@ -696,9 +696,9 @@
     "MICRO_RNA_CLUSTER":"4",
     "MICRO_RNA_SCORE":"0.923555802",
     "CASE_ID":"TCGA-A5-A0RA",
-    "OS_STATUS":"Living",
+    "OS_STATUS":"0:LIVING",
     "OS_MONTHS":"29.01088659",
-    "DFS_STATUS":"DiseaseFree",
+    "DFS_STATUS":"0:DiseaseFree",
     "DFS_MONTHS":"29.01088659"
   },
   {
@@ -722,9 +722,9 @@
     "MICRO_RNA_CLUSTER":"4",
     "MICRO_RNA_SCORE":"0.70262485",
     "CASE_ID":"TCGA-A5-A0VO",
-    "OS_STATUS":"Living",
+    "OS_STATUS":"0:LIVING",
     "OS_MONTHS":"11.95918768",
-    "DFS_STATUS":"DiseaseFree",
+    "DFS_STATUS":"0:DiseaseFree",
     "DFS_MONTHS":"11.95918768"
   },
   {
@@ -748,9 +748,9 @@
     "MICRO_RNA_CLUSTER":"1",
     "MICRO_RNA_SCORE":"0.874537804",
     "CASE_ID":"TCGA-A5-A0VP",
-    "OS_STATUS":"Living",
+    "OS_STATUS":"0:LIVING",
     "OS_MONTHS":"42.28427071",
-    "DFS_STATUS":"DiseaseFree",
+    "DFS_STATUS":"0:DiseaseFree",
     "DFS_MONTHS":"42.28427071"
   },
   {
@@ -774,9 +774,9 @@
     "MICRO_RNA_CLUSTER":"5",
     "MICRO_RNA_SCORE":"0.932869329",
     "CASE_ID":"TCGA-A5-A0VQ",
-    "OS_STATUS":"Living",
+    "OS_STATUS":"0:LIVING",
     "OS_MONTHS":"15.93463193",
-    "DFS_STATUS":"DiseaseFree",
+    "DFS_STATUS":"0:DiseaseFree",
     "DFS_MONTHS":"15.93463193"
   },
   {
@@ -800,9 +800,9 @@
     "MICRO_RNA_CLUSTER":"4",
     "MICRO_RNA_SCORE":"0.923555802",
     "CASE_ID":"TCGA-A5-A1OF",
-    "OS_STATUS":"Living",
+    "OS_STATUS":"0:LIVING",
     "OS_MONTHS":"7.918033599",
-    "DFS_STATUS":"DiseaseFree",
+    "DFS_STATUS":"0:DiseaseFree",
     "DFS_MONTHS":"7.918033599"
   },
   {
@@ -826,7 +826,7 @@
     "MICRO_RNA_CLUSTER":"4",
     "MICRO_RNA_SCORE":"0.877287726",
     "CASE_ID":"TCGA-A5-A1OG",
-    "OS_STATUS":"Living",
+    "OS_STATUS":"0:LIVING",
     "OS_MONTHS":"11.4335091",
     "DFS_STATUS":"Recurred",
     "DFS_MONTHS":"11.07210507"
@@ -852,9 +852,9 @@
     "MICRO_RNA_CLUSTER":"5",
     "MICRO_RNA_SCORE":"0.890025216",
     "CASE_ID":"TCGA-A5-A1OJ",
-    "OS_STATUS":"Living",
+    "OS_STATUS":"0:LIVING",
     "OS_MONTHS":"9.59363407",
-    "DFS_STATUS":"DiseaseFree",
+    "DFS_STATUS":"0:DiseaseFree",
     "DFS_MONTHS":"9.59363407"
   },
   {
@@ -878,9 +878,9 @@
     "MICRO_RNA_CLUSTER":"2",
     "MICRO_RNA_SCORE":"0.953263868",
     "CASE_ID":"TCGA-A5-A1OK",
-    "OS_STATUS":"Living",
+    "OS_STATUS":"0:LIVING",
     "OS_MONTHS":"7.983743422",
-    "DFS_STATUS":"DiseaseFree",
+    "DFS_STATUS":"0:DiseaseFree",
     "DFS_MONTHS":"7.983743422"
   },
   {
@@ -904,7 +904,7 @@
     "MICRO_RNA_CLUSTER":"3",
     "MICRO_RNA_SCORE":"0.835714286",
     "CASE_ID":"TCGA-AJ-A23M",
-    "OS_STATUS":"Living",
+    "OS_STATUS":"0:LIVING",
     "OS_MONTHS":"1.018502247",
     "DFS_STATUS":"",
     "DFS_MONTHS":"NA"
@@ -930,7 +930,7 @@
     "MICRO_RNA_CLUSTER":"2",
     "MICRO_RNA_SCORE":"0.908260689",
     "CASE_ID":"TCGA-AJ-A23O",
-    "OS_STATUS":"Deceased",
+    "OS_STATUS":"1:DECEASED",
     "OS_MONTHS":"10.25073229",
     "DFS_STATUS":"",
     "DFS_MONTHS":"NA"
@@ -956,9 +956,9 @@
     "MICRO_RNA_CLUSTER":"5",
     "MICRO_RNA_SCORE":"0.932869329",
     "CASE_ID":"TCGA-AP-A051",
-    "OS_STATUS":"Living",
+    "OS_STATUS":"0:LIVING",
     "OS_MONTHS":"83.615749",
-    "DFS_STATUS":"DiseaseFree",
+    "DFS_STATUS":"0:DiseaseFree",
     "DFS_MONTHS":"83.615749"
   },
   {
@@ -982,7 +982,7 @@
     "MICRO_RNA_CLUSTER":"NA",
     "MICRO_RNA_SCORE":"NA",
     "CASE_ID":"TCGA-AP-A052",
-    "OS_STATUS":"Deceased",
+    "OS_STATUS":"1:DECEASED",
     "OS_MONTHS":"21.97993559",
     "DFS_STATUS":"Recurred",
     "DFS_MONTHS":"12.9119801"
@@ -1008,9 +1008,9 @@
     "MICRO_RNA_CLUSTER":"4",
     "MICRO_RNA_SCORE":"0.877287726",
     "CASE_ID":"TCGA-AP-A053",
-    "OS_STATUS":"Living",
+    "OS_STATUS":"0:LIVING",
     "OS_MONTHS":"5.946738927",
-    "DFS_STATUS":"DiseaseFree",
+    "DFS_STATUS":"0:DiseaseFree",
     "DFS_MONTHS":"5.946738927"
   },
   {
@@ -1034,7 +1034,7 @@
     "MICRO_RNA_CLUSTER":"3",
     "MICRO_RNA_SCORE":"0.897648505",
     "CASE_ID":"TCGA-AP-A054",
-    "OS_STATUS":"Deceased",
+    "OS_STATUS":"1:DECEASED",
     "OS_MONTHS":"23.29413204",
     "DFS_STATUS":"Recurred",
     "DFS_MONTHS":"18.59587974"
@@ -1060,9 +1060,9 @@
     "MICRO_RNA_CLUSTER":"NA",
     "MICRO_RNA_SCORE":"NA",
     "CASE_ID":"TCGA-AP-A056",
-    "OS_STATUS":"Living",
+    "OS_STATUS":"0:LIVING",
     "OS_MONTHS":"86.01415752",
-    "DFS_STATUS":"DiseaseFree",
+    "DFS_STATUS":"0:DiseaseFree",
     "DFS_MONTHS":"86.01415752"
   },
   {
@@ -1086,9 +1086,9 @@
     "MICRO_RNA_CLUSTER":"2",
     "MICRO_RNA_SCORE":"0.953263868",
     "CASE_ID":"TCGA-AP-A059",
-    "OS_STATUS":"Living",
+    "OS_STATUS":"0:LIVING",
     "OS_MONTHS":"8.2137278",
-    "DFS_STATUS":"DiseaseFree",
+    "DFS_STATUS":"0:DiseaseFree",
     "DFS_MONTHS":"8.2137278"
   },
   {
@@ -1112,9 +1112,9 @@
     "MICRO_RNA_CLUSTER":"NA",
     "MICRO_RNA_SCORE":"NA",
     "CASE_ID":"TCGA-AP-A05A",
-    "OS_STATUS":"Deceased",
+    "OS_STATUS":"1:DECEASED",
     "OS_MONTHS":"63.83709246",
-    "DFS_STATUS":"DiseaseFree",
+    "DFS_STATUS":"0:DiseaseFree",
     "DFS_MONTHS":"63.83709246"
   },
   {
@@ -1138,9 +1138,9 @@
     "MICRO_RNA_CLUSTER":"NA",
     "MICRO_RNA_SCORE":"NA",
     "CASE_ID":"TCGA-AP-A05D",
-    "OS_STATUS":"Living",
+    "OS_STATUS":"0:LIVING",
     "OS_MONTHS":"57.75893389",
-    "DFS_STATUS":"DiseaseFree",
+    "DFS_STATUS":"0:DiseaseFree",
     "DFS_MONTHS":"57.75893389"
   },
   {
@@ -1164,9 +1164,9 @@
     "MICRO_RNA_CLUSTER":"NA",
     "MICRO_RNA_SCORE":"NA",
     "CASE_ID":"TCGA-AP-A05H",
-    "OS_STATUS":"Living",
+    "OS_STATUS":"0:LIVING",
     "OS_MONTHS":"45.50405201",
-    "DFS_STATUS":"DiseaseFree",
+    "DFS_STATUS":"0:DiseaseFree",
     "DFS_MONTHS":"45.50405201"
   },
   {
@@ -1190,9 +1190,9 @@
     "MICRO_RNA_CLUSTER":"NA",
     "MICRO_RNA_SCORE":"NA",
     "CASE_ID":"TCGA-AP-A05J",
-    "OS_STATUS":"Living",
+    "OS_STATUS":"0:LIVING",
     "OS_MONTHS":"36.86321037",
-    "DFS_STATUS":"DiseaseFree",
+    "DFS_STATUS":"0:DiseaseFree",
     "DFS_MONTHS":"36.86321037"
   },
   {
@@ -1216,9 +1216,9 @@
     "MICRO_RNA_CLUSTER":"NA",
     "MICRO_RNA_SCORE":"NA",
     "CASE_ID":"TCGA-AP-A05N",
-    "OS_STATUS":"Deceased",
+    "OS_STATUS":"1:DECEASED",
     "OS_MONTHS":"23.85266553",
-    "DFS_STATUS":"DiseaseFree",
+    "DFS_STATUS":"0:DiseaseFree",
     "DFS_MONTHS":"23.85266553"
   },
   {
@@ -1242,7 +1242,7 @@
     "MICRO_RNA_CLUSTER":"2",
     "MICRO_RNA_SCORE":"0.953263868",
     "CASE_ID":"TCGA-AP-A05O",
-    "OS_STATUS":"Living",
+    "OS_STATUS":"0:LIVING",
     "OS_MONTHS":"12.18917206",
     "DFS_STATUS":"Recurred",
     "DFS_MONTHS":"11.17066981"
@@ -1268,9 +1268,9 @@
     "MICRO_RNA_CLUSTER":"1",
     "MICRO_RNA_SCORE":"0.918650794",
     "CASE_ID":"TCGA-AP-A05P",
-    "OS_STATUS":"Living",
+    "OS_STATUS":"0:LIVING",
     "OS_MONTHS":"20.89572352",
-    "DFS_STATUS":"DiseaseFree",
+    "DFS_STATUS":"0:DiseaseFree",
     "DFS_MONTHS":"20.89572352"
   },
   {
@@ -1294,7 +1294,7 @@
     "MICRO_RNA_CLUSTER":"1",
     "MICRO_RNA_SCORE":"0.918650794",
     "CASE_ID":"TCGA-AP-A0L8",
-    "OS_STATUS":"Deceased",
+    "OS_STATUS":"1:DECEASED",
     "OS_MONTHS":"48.75668822",
     "DFS_STATUS":"Recurred",
     "DFS_MONTHS":"47.70533106"
@@ -1320,9 +1320,9 @@
     "MICRO_RNA_CLUSTER":"3",
     "MICRO_RNA_SCORE":"0.888897494",
     "CASE_ID":"TCGA-AP-A0L9",
-    "OS_STATUS":"Living",
+    "OS_STATUS":"0:LIVING",
     "OS_MONTHS":"125.3086313",
-    "DFS_STATUS":"DiseaseFree",
+    "DFS_STATUS":"0:DiseaseFree",
     "DFS_MONTHS":"125.3086313"
   },
   {
@@ -1346,9 +1346,9 @@
     "MICRO_RNA_CLUSTER":"2",
     "MICRO_RNA_SCORE":"0.790575691",
     "CASE_ID":"TCGA-AP-A0LD",
-    "OS_STATUS":"Living",
+    "OS_STATUS":"0:LIVING",
     "OS_MONTHS":"117.9162763",
-    "DFS_STATUS":"DiseaseFree",
+    "DFS_STATUS":"0:DiseaseFree",
     "DFS_MONTHS":"117.9162763"
   },
   {
@@ -1372,9 +1372,9 @@
     "MICRO_RNA_CLUSTER":"5",
     "MICRO_RNA_SCORE":"0.932869329",
     "CASE_ID":"TCGA-AP-A0LE",
-    "OS_STATUS":"Living",
+    "OS_STATUS":"0:LIVING",
     "OS_MONTHS":"110.2939369",
-    "DFS_STATUS":"DiseaseFree",
+    "DFS_STATUS":"0:DiseaseFree",
     "DFS_MONTHS":"110.2939369"
   },
   {
@@ -1398,7 +1398,7 @@
     "MICRO_RNA_CLUSTER":"4",
     "MICRO_RNA_SCORE":"0.877755907",
     "CASE_ID":"TCGA-AP-A0LF",
-    "OS_STATUS":"Living",
+    "OS_STATUS":"0:LIVING",
     "OS_MONTHS":"3.384055854",
     "DFS_STATUS":"Recurred",
     "DFS_MONTHS":"NA"
@@ -1424,9 +1424,9 @@
     "MICRO_RNA_CLUSTER":"5",
     "MICRO_RNA_SCORE":"0.932869329",
     "CASE_ID":"TCGA-AP-A0LG",
-    "OS_STATUS":"Living",
+    "OS_STATUS":"0:LIVING",
     "OS_MONTHS":"63.11428442",
-    "DFS_STATUS":"DiseaseFree",
+    "DFS_STATUS":"0:DiseaseFree",
     "DFS_MONTHS":"63.11428442"
   },
   {
@@ -1450,7 +1450,7 @@
     "MICRO_RNA_CLUSTER":"4",
     "MICRO_RNA_SCORE":"0.886489497",
     "CASE_ID":"TCGA-AP-A0LH",
-    "OS_STATUS":"Deceased",
+    "OS_STATUS":"1:DECEASED",
     "OS_MONTHS":"36.33753179",
     "DFS_STATUS":"Recurred",
     "DFS_MONTHS":"9.889328271"
@@ -1476,9 +1476,9 @@
     "MICRO_RNA_CLUSTER":"4",
     "MICRO_RNA_SCORE":"0.886489497",
     "CASE_ID":"TCGA-AP-A0LI",
-    "OS_STATUS":"Living",
+    "OS_STATUS":"0:LIVING",
     "OS_MONTHS":"97.64479609",
-    "DFS_STATUS":"DiseaseFree",
+    "DFS_STATUS":"0:DiseaseFree",
     "DFS_MONTHS":"97.64479609"
   },
   {
@@ -1502,9 +1502,9 @@
     "MICRO_RNA_CLUSTER":"4",
     "MICRO_RNA_SCORE":"0.923555802",
     "CASE_ID":"TCGA-AP-A0LJ",
-    "OS_STATUS":"Living",
+    "OS_STATUS":"0:LIVING",
     "OS_MONTHS":"31.70498931",
-    "DFS_STATUS":"DiseaseFree",
+    "DFS_STATUS":"0:DiseaseFree",
     "DFS_MONTHS":"31.70498931"
   },
   {
@@ -1528,7 +1528,7 @@
     "MICRO_RNA_CLUSTER":"5",
     "MICRO_RNA_SCORE":"0.932869329",
     "CASE_ID":"TCGA-AP-A0LL",
-    "OS_STATUS":"Living",
+    "OS_STATUS":"0:LIVING",
     "OS_MONTHS":"83.9114432",
     "DFS_STATUS":"Recurred",
     "DFS_MONTHS":"25.95537985"
@@ -1554,9 +1554,9 @@
     "MICRO_RNA_CLUSTER":"2",
     "MICRO_RNA_SCORE":"0.953263868",
     "CASE_ID":"TCGA-AP-A0LM",
-    "OS_STATUS":"Living",
+    "OS_STATUS":"0:LIVING",
     "OS_MONTHS":"27.10530174",
-    "DFS_STATUS":"DiseaseFree",
+    "DFS_STATUS":"0:DiseaseFree",
     "DFS_MONTHS":"27.10530174"
   },
   {
@@ -1580,9 +1580,9 @@
     "MICRO_RNA_CLUSTER":"6",
     "MICRO_RNA_SCORE":"0.460983716",
     "CASE_ID":"TCGA-AP-A0LN",
-    "OS_STATUS":"Living",
+    "OS_STATUS":"0:LIVING",
     "OS_MONTHS":"82.46582711",
-    "DFS_STATUS":"DiseaseFree",
+    "DFS_STATUS":"0:DiseaseFree",
     "DFS_MONTHS":"82.46582711"
   },
   {
@@ -1606,7 +1606,7 @@
     "MICRO_RNA_CLUSTER":"NA",
     "MICRO_RNA_SCORE":"NA",
     "CASE_ID":"TCGA-AP-A0LO",
-    "OS_STATUS":"Deceased",
+    "OS_STATUS":"1:DECEASED",
     "OS_MONTHS":"33.38058978",
     "DFS_STATUS":"Recurred",
     "DFS_MONTHS":"16.95313418"
@@ -1632,9 +1632,9 @@
     "MICRO_RNA_CLUSTER":"6",
     "MICRO_RNA_SCORE":"0.936182815",
     "CASE_ID":"TCGA-AP-A0LP",
-    "OS_STATUS":"Living",
+    "OS_STATUS":"0:LIVING",
     "OS_MONTHS":"61.6029585",
-    "DFS_STATUS":"DiseaseFree",
+    "DFS_STATUS":"0:DiseaseFree",
     "DFS_MONTHS":"61.6029585"
   },
   {
@@ -1658,9 +1658,9 @@
     "MICRO_RNA_CLUSTER":"4",
     "MICRO_RNA_SCORE":"0.923555802",
     "CASE_ID":"TCGA-AP-A0LQ",
-    "OS_STATUS":"Living",
+    "OS_STATUS":"0:LIVING",
     "OS_MONTHS":"80.72451682",
-    "DFS_STATUS":"DiseaseFree",
+    "DFS_STATUS":"0:DiseaseFree",
     "DFS_MONTHS":"80.72451682"
   },
   {
@@ -1684,9 +1684,9 @@
     "MICRO_RNA_CLUSTER":"6",
     "MICRO_RNA_SCORE":"0.936182815",
     "CASE_ID":"TCGA-AP-A0LS",
-    "OS_STATUS":"Living",
+    "OS_STATUS":"0:LIVING",
     "OS_MONTHS":"63.01571968",
-    "DFS_STATUS":"DiseaseFree",
+    "DFS_STATUS":"0:DiseaseFree",
     "DFS_MONTHS":"63.01571968"
   },
   {
@@ -1710,9 +1710,9 @@
     "MICRO_RNA_CLUSTER":"5",
     "MICRO_RNA_SCORE":"0.932869329",
     "CASE_ID":"TCGA-AP-A0LT",
-    "OS_STATUS":"Living",
+    "OS_STATUS":"0:LIVING",
     "OS_MONTHS":"49.18380207",
-    "DFS_STATUS":"DiseaseFree",
+    "DFS_STATUS":"0:DiseaseFree",
     "DFS_MONTHS":"49.18380207"
   },
   {
@@ -1736,9 +1736,9 @@
     "MICRO_RNA_CLUSTER":"4",
     "MICRO_RNA_SCORE":"0.923555802",
     "CASE_ID":"TCGA-AP-A0LV",
-    "OS_STATUS":"Living",
+    "OS_STATUS":"0:LIVING",
     "OS_MONTHS":"25.06829725",
-    "DFS_STATUS":"DiseaseFree",
+    "DFS_STATUS":"0:DiseaseFree",
     "DFS_MONTHS":"25.06829725"
   },
   {
@@ -1762,9 +1762,9 @@
     "MICRO_RNA_CLUSTER":"3",
     "MICRO_RNA_SCORE":"0.897648505",
     "CASE_ID":"TCGA-AP-A1DH",
-    "OS_STATUS":"Living",
+    "OS_STATUS":"0:LIVING",
     "OS_MONTHS":"71.62370642",
-    "DFS_STATUS":"DiseaseFree",
+    "DFS_STATUS":"0:DiseaseFree",
     "DFS_MONTHS":"71.62370642"
   },
   {
@@ -1788,9 +1788,9 @@
     "MICRO_RNA_CLUSTER":"2",
     "MICRO_RNA_SCORE":"0.953263868",
     "CASE_ID":"TCGA-AP-A1DK",
-    "OS_STATUS":"Living",
+    "OS_STATUS":"0:LIVING",
     "OS_MONTHS":"60.32161696",
-    "DFS_STATUS":"DiseaseFree",
+    "DFS_STATUS":"0:DiseaseFree",
     "DFS_MONTHS":"60.32161696"
   },
   {
@@ -1814,9 +1814,9 @@
     "MICRO_RNA_CLUSTER":"5",
     "MICRO_RNA_SCORE":"0.932869329",
     "CASE_ID":"TCGA-AP-A1DM",
-    "OS_STATUS":"Living",
+    "OS_STATUS":"0:LIVING",
     "OS_MONTHS":"55.85334904",
-    "DFS_STATUS":"DiseaseFree",
+    "DFS_STATUS":"0:DiseaseFree",
     "DFS_MONTHS":"55.85334904"
   },
   {
@@ -1840,9 +1840,9 @@
     "MICRO_RNA_CLUSTER":"5",
     "MICRO_RNA_SCORE":"0.932869329",
     "CASE_ID":"TCGA-AP-A1DO",
-    "OS_STATUS":"Living",
+    "OS_STATUS":"0:LIVING",
     "OS_MONTHS":"30.98218126",
-    "DFS_STATUS":"DiseaseFree",
+    "DFS_STATUS":"0:DiseaseFree",
     "DFS_MONTHS":"30.98218126"
   },
   {
@@ -1866,7 +1866,7 @@
     "MICRO_RNA_CLUSTER":"5",
     "MICRO_RNA_SCORE":"0.932869329",
     "CASE_ID":"TCGA-AP-A1DP",
-    "OS_STATUS":"Deceased",
+    "OS_STATUS":"1:DECEASED",
     "OS_MONTHS":"35.51615901",
     "DFS_STATUS":"Recurred",
     "DFS_MONTHS":"27.2695763"
@@ -1892,7 +1892,7 @@
     "MICRO_RNA_CLUSTER":"4",
     "MICRO_RNA_SCORE":"0.652238476",
     "CASE_ID":"TCGA-AP-A1DQ",
-    "OS_STATUS":"Deceased",
+    "OS_STATUS":"1:DECEASED",
     "OS_MONTHS":"46.75253864",
     "DFS_STATUS":"Recurred",
     "DFS_MONTHS":"29.70083972"
@@ -1918,9 +1918,9 @@
     "MICRO_RNA_CLUSTER":"5",
     "MICRO_RNA_SCORE":"0.80219575",
     "CASE_ID":"TCGA-AP-A1DR",
-    "OS_STATUS":"Living",
+    "OS_STATUS":"0:LIVING",
     "OS_MONTHS":"49.11809224",
-    "DFS_STATUS":"DiseaseFree",
+    "DFS_STATUS":"0:DiseaseFree",
     "DFS_MONTHS":"49.11809224"
   },
   {
@@ -1944,9 +1944,9 @@
     "MICRO_RNA_CLUSTER":"6",
     "MICRO_RNA_SCORE":"0.898513296",
     "CASE_ID":"TCGA-AP-A1DV",
-    "OS_STATUS":"Living",
+    "OS_STATUS":"0:LIVING",
     "OS_MONTHS":"6.702401885",
-    "DFS_STATUS":"DiseaseFree",
+    "DFS_STATUS":"0:DiseaseFree",
     "DFS_MONTHS":"6.702401885"
   },
   {
@@ -1970,9 +1970,9 @@
     "MICRO_RNA_CLUSTER":"1",
     "MICRO_RNA_SCORE":"0.918650794",
     "CASE_ID":"TCGA-AP-A1E0",
-    "OS_STATUS":"Living",
+    "OS_STATUS":"0:LIVING",
     "OS_MONTHS":"30.88361653",
-    "DFS_STATUS":"DiseaseFree",
+    "DFS_STATUS":"0:DiseaseFree",
     "DFS_MONTHS":"30.88361653"
   },
   {
@@ -1996,9 +1996,9 @@
     "MICRO_RNA_CLUSTER":"5",
     "MICRO_RNA_SCORE":"0.932869329",
     "CASE_ID":"TCGA-AP-A1E1",
-    "OS_STATUS":"Living",
+    "OS_STATUS":"0:LIVING",
     "OS_MONTHS":"10.41500685",
-    "DFS_STATUS":"DiseaseFree",
+    "DFS_STATUS":"0:DiseaseFree",
     "DFS_MONTHS":"10.41500685"
   },
   {
@@ -2022,7 +2022,7 @@
     "MICRO_RNA_CLUSTER":"2",
     "MICRO_RNA_SCORE":"0.953263868",
     "CASE_ID":"TCGA-AP-A1E3",
-    "OS_STATUS":"Living",
+    "OS_STATUS":"0:LIVING",
     "OS_MONTHS":"27.82810979",
     "DFS_STATUS":"Recurred",
     "DFS_MONTHS":"NA"
@@ -2048,7 +2048,7 @@
     "MICRO_RNA_CLUSTER":"1",
     "MICRO_RNA_SCORE":"0.918650794",
     "CASE_ID":"TCGA-AP-A1E4",
-    "OS_STATUS":"Living",
+    "OS_STATUS":"0:LIVING",
     "OS_MONTHS":"16.23032613",
     "DFS_STATUS":"Recurred",
     "DFS_MONTHS":"5.19107597"
@@ -2074,9 +2074,9 @@
     "MICRO_RNA_CLUSTER":"3",
     "MICRO_RNA_SCORE":"0.897648505",
     "CASE_ID":"TCGA-AW-A1PO",
-    "OS_STATUS":"Living",
+    "OS_STATUS":"0:LIVING",
     "OS_MONTHS":"0.55853349",
-    "DFS_STATUS":"DiseaseFree",
+    "DFS_STATUS":"0:DiseaseFree",
     "DFS_MONTHS":"0.55853349"
   },
   {
@@ -2100,7 +2100,7 @@
     "MICRO_RNA_CLUSTER":"4",
     "MICRO_RNA_SCORE":"0.909932648",
     "CASE_ID":"TCGA-AX-A05S",
-    "OS_STATUS":"Deceased",
+    "OS_STATUS":"1:DECEASED",
     "OS_MONTHS":"13.56907833",
     "DFS_STATUS":"Recurred",
     "DFS_MONTHS":"11.07210507"
@@ -2126,9 +2126,9 @@
     "MICRO_RNA_CLUSTER":"5",
     "MICRO_RNA_SCORE":"0.890025216",
     "CASE_ID":"TCGA-AX-A05T",
-    "OS_STATUS":"Living",
+    "OS_STATUS":"0:LIVING",
     "OS_MONTHS":"19.81151145",
-    "DFS_STATUS":"DiseaseFree",
+    "DFS_STATUS":"0:DiseaseFree",
     "DFS_MONTHS":"19.81151145"
   },
   {
@@ -2152,9 +2152,9 @@
     "MICRO_RNA_CLUSTER":"6",
     "MICRO_RNA_SCORE":"0.936182815",
     "CASE_ID":"TCGA-AX-A05U",
-    "OS_STATUS":"Living",
+    "OS_STATUS":"0:LIVING",
     "OS_MONTHS":"29.6351299",
-    "DFS_STATUS":"DiseaseFree",
+    "DFS_STATUS":"0:DiseaseFree",
     "DFS_MONTHS":"29.6351299"
   },
   {
@@ -2178,9 +2178,9 @@
     "MICRO_RNA_CLUSTER":"4",
     "MICRO_RNA_SCORE":"0.923555802",
     "CASE_ID":"TCGA-AX-A05W",
-    "OS_STATUS":"Living",
+    "OS_STATUS":"0:LIVING",
     "OS_MONTHS":"68.27250547",
-    "DFS_STATUS":"DiseaseFree",
+    "DFS_STATUS":"0:DiseaseFree",
     "DFS_MONTHS":"68.27250547"
   },
   {
@@ -2204,7 +2204,7 @@
     "MICRO_RNA_CLUSTER":"6",
     "MICRO_RNA_SCORE":"0.936182815",
     "CASE_ID":"TCGA-AX-A05Y",
-    "OS_STATUS":"Living",
+    "OS_STATUS":"0:LIVING",
     "OS_MONTHS":"71.98511044",
     "DFS_STATUS":"Recurred",
     "DFS_MONTHS":"6.340997862"
@@ -2230,9 +2230,9 @@
     "MICRO_RNA_CLUSTER":"4",
     "MICRO_RNA_SCORE":"0.842435138",
     "CASE_ID":"TCGA-AX-A05Z",
-    "OS_STATUS":"Living",
+    "OS_STATUS":"0:LIVING",
     "OS_MONTHS":"46.42398953",
-    "DFS_STATUS":"DiseaseFree",
+    "DFS_STATUS":"0:DiseaseFree",
     "DFS_MONTHS":"46.42398953"
   },
   {
@@ -2256,9 +2256,9 @@
     "MICRO_RNA_CLUSTER":"5",
     "MICRO_RNA_SCORE":"0.932869329",
     "CASE_ID":"TCGA-AX-A060",
-    "OS_STATUS":"Living",
+    "OS_STATUS":"0:LIVING",
     "OS_MONTHS":"35.31902954",
-    "DFS_STATUS":"DiseaseFree",
+    "DFS_STATUS":"0:DiseaseFree",
     "DFS_MONTHS":"35.31902954"
   },
   {
@@ -2282,9 +2282,9 @@
     "MICRO_RNA_CLUSTER":"4",
     "MICRO_RNA_SCORE":"0.923555802",
     "CASE_ID":"TCGA-AX-A062",
-    "OS_STATUS":"Living",
+    "OS_STATUS":"0:LIVING",
     "OS_MONTHS":"45.93116586",
-    "DFS_STATUS":"DiseaseFree",
+    "DFS_STATUS":"0:DiseaseFree",
     "DFS_MONTHS":"45.93116586"
   },
   {
@@ -2308,9 +2308,9 @@
     "MICRO_RNA_CLUSTER":"5",
     "MICRO_RNA_SCORE":"0.932869329",
     "CASE_ID":"TCGA-AX-A063",
-    "OS_STATUS":"Living",
+    "OS_STATUS":"0:LIVING",
     "OS_MONTHS":"66.49834027",
-    "DFS_STATUS":"DiseaseFree",
+    "DFS_STATUS":"0:DiseaseFree",
     "DFS_MONTHS":"66.49834027"
   },
   {
@@ -2334,9 +2334,9 @@
     "MICRO_RNA_CLUSTER":"NA",
     "MICRO_RNA_SCORE":"NA",
     "CASE_ID":"TCGA-AX-A064",
-    "OS_STATUS":"Living",
+    "OS_STATUS":"0:LIVING",
     "OS_MONTHS":"34.95762552",
-    "DFS_STATUS":"DiseaseFree",
+    "DFS_STATUS":"0:DiseaseFree",
     "DFS_MONTHS":"34.95762552"
   },
   {
@@ -2360,9 +2360,9 @@
     "MICRO_RNA_CLUSTER":"2",
     "MICRO_RNA_SCORE":"0.953263868",
     "CASE_ID":"TCGA-AX-A06B",
-    "OS_STATUS":"Living",
+    "OS_STATUS":"0:LIVING",
     "OS_MONTHS":"53.84919946",
-    "DFS_STATUS":"DiseaseFree",
+    "DFS_STATUS":"0:DiseaseFree",
     "DFS_MONTHS":"53.84919946"
   },
   {
@@ -2386,7 +2386,7 @@
     "MICRO_RNA_CLUSTER":"1",
     "MICRO_RNA_SCORE":"0.918650794",
     "CASE_ID":"TCGA-AX-A06D",
-    "OS_STATUS":"Deceased",
+    "OS_STATUS":"1:DECEASED",
     "OS_MONTHS":"12.25488188",
     "DFS_STATUS":"Recurred",
     "DFS_MONTHS":"8.312292534"
@@ -2412,9 +2412,9 @@
     "MICRO_RNA_CLUSTER":"4",
     "MICRO_RNA_SCORE":"0.914765853",
     "CASE_ID":"TCGA-AX-A06F",
-    "OS_STATUS":"Living",
+    "OS_STATUS":"0:LIVING",
     "OS_MONTHS":"51.056532",
-    "DFS_STATUS":"DiseaseFree",
+    "DFS_STATUS":"0:DiseaseFree",
     "DFS_MONTHS":"51.056532"
   },
   {
@@ -2438,9 +2438,9 @@
     "MICRO_RNA_CLUSTER":"2",
     "MICRO_RNA_SCORE":"0.953263868",
     "CASE_ID":"TCGA-AX-A06H",
-    "OS_STATUS":"Living",
+    "OS_STATUS":"0:LIVING",
     "OS_MONTHS":"27.36814103",
-    "DFS_STATUS":"DiseaseFree",
+    "DFS_STATUS":"0:DiseaseFree",
     "DFS_MONTHS":"27.36814103"
   },
   {
@@ -2464,9 +2464,9 @@
     "MICRO_RNA_CLUSTER":"4",
     "MICRO_RNA_SCORE":"0.828806248",
     "CASE_ID":"TCGA-AX-A06J",
-    "OS_STATUS":"Living",
+    "OS_STATUS":"0:LIVING",
     "OS_MONTHS":"29.99653393",
-    "DFS_STATUS":"DiseaseFree",
+    "DFS_STATUS":"0:DiseaseFree",
     "DFS_MONTHS":"29.99653393"
   },
   {
@@ -2490,9 +2490,9 @@
     "MICRO_RNA_CLUSTER":"6",
     "MICRO_RNA_SCORE":"0.936182815",
     "CASE_ID":"TCGA-AX-A06L",
-    "OS_STATUS":"Living",
+    "OS_STATUS":"0:LIVING",
     "OS_MONTHS":"60.58445625",
-    "DFS_STATUS":"DiseaseFree",
+    "DFS_STATUS":"0:DiseaseFree",
     "DFS_MONTHS":"60.58445625"
   },
   {
@@ -2516,7 +2516,7 @@
     "MICRO_RNA_CLUSTER":"5",
     "MICRO_RNA_SCORE":"0.843520432",
     "CASE_ID":"TCGA-AX-A0IS",
-    "OS_STATUS":"Living",
+    "OS_STATUS":"0:LIVING",
     "OS_MONTHS":"34.99048043",
     "DFS_STATUS":"Recurred",
     "DFS_MONTHS":"14.71900022"
@@ -2542,9 +2542,9 @@
     "MICRO_RNA_CLUSTER":"6",
     "MICRO_RNA_SCORE":"0.452596592",
     "CASE_ID":"TCGA-AX-A0IU",
-    "OS_STATUS":"Living",
+    "OS_STATUS":"0:LIVING",
     "OS_MONTHS":"28.51806292",
-    "DFS_STATUS":"DiseaseFree",
+    "DFS_STATUS":"0:DiseaseFree",
     "DFS_MONTHS":"28.51806292"
   },
   {
@@ -2568,9 +2568,9 @@
     "MICRO_RNA_CLUSTER":"4",
     "MICRO_RNA_SCORE":"0.877287726",
     "CASE_ID":"TCGA-AX-A0IW",
-    "OS_STATUS":"Living",
+    "OS_STATUS":"0:LIVING",
     "OS_MONTHS":"37.71743806",
-    "DFS_STATUS":"DiseaseFree",
+    "DFS_STATUS":"0:DiseaseFree",
     "DFS_MONTHS":"37.71743806"
   },
   {
@@ -2594,9 +2594,9 @@
     "MICRO_RNA_CLUSTER":"2",
     "MICRO_RNA_SCORE":"0.912165907",
     "CASE_ID":"TCGA-AX-A0IZ",
-    "OS_STATUS":"Living",
+    "OS_STATUS":"0:LIVING",
     "OS_MONTHS":"43.79559663",
-    "DFS_STATUS":"DiseaseFree",
+    "DFS_STATUS":"0:DiseaseFree",
     "DFS_MONTHS":"43.79559663"
   },
   {
@@ -2620,9 +2620,9 @@
     "MICRO_RNA_CLUSTER":"4",
     "MICRO_RNA_SCORE":"0.877287726",
     "CASE_ID":"TCGA-AX-A0J0",
-    "OS_STATUS":"Living",
+    "OS_STATUS":"0:LIVING",
     "OS_MONTHS":"40.05013675",
-    "DFS_STATUS":"DiseaseFree",
+    "DFS_STATUS":"0:DiseaseFree",
     "DFS_MONTHS":"40.05013675"
   },
   {
@@ -2646,9 +2646,9 @@
     "MICRO_RNA_CLUSTER":"4",
     "MICRO_RNA_SCORE":"0.876855817",
     "CASE_ID":"TCGA-AX-A0J1",
-    "OS_STATUS":"Living",
+    "OS_STATUS":"0:LIVING",
     "OS_MONTHS":"65.84124204",
-    "DFS_STATUS":"DiseaseFree",
+    "DFS_STATUS":"0:DiseaseFree",
     "DFS_MONTHS":"65.84124204"
   },
   {
@@ -2672,7 +2672,7 @@
     "MICRO_RNA_CLUSTER":"5",
     "MICRO_RNA_SCORE":"0.932869329",
     "CASE_ID":"TCGA-AX-A1C4",
-    "OS_STATUS":"Living",
+    "OS_STATUS":"0:LIVING",
     "OS_MONTHS":"13.27338412",
     "DFS_STATUS":"",
     "DFS_MONTHS":"NA"
@@ -2698,7 +2698,7 @@
     "MICRO_RNA_CLUSTER":"3",
     "MICRO_RNA_SCORE":"0.390770931",
     "CASE_ID":"TCGA-AX-A1C5",
-    "OS_STATUS":"Living",
+    "OS_STATUS":"0:LIVING",
     "OS_MONTHS":"19.18726814",
     "DFS_STATUS":"",
     "DFS_MONTHS":"NA"
@@ -2724,7 +2724,7 @@
     "MICRO_RNA_CLUSTER":"3",
     "MICRO_RNA_SCORE":"0.840372671",
     "CASE_ID":"TCGA-AX-A1C7",
-    "OS_STATUS":"Living",
+    "OS_STATUS":"0:LIVING",
     "OS_MONTHS":"16.92027927",
     "DFS_STATUS":"Recurred",
     "DFS_MONTHS":"12.81341537"
@@ -2750,7 +2750,7 @@
     "MICRO_RNA_CLUSTER":"4",
     "MICRO_RNA_SCORE":"0.886489497",
     "CASE_ID":"TCGA-AX-A1C8",
-    "OS_STATUS":"Living",
+    "OS_STATUS":"0:LIVING",
     "OS_MONTHS":"13.53622341",
     "DFS_STATUS":"",
     "DFS_MONTHS":"NA"
@@ -2776,9 +2776,9 @@
     "MICRO_RNA_CLUSTER":"1",
     "MICRO_RNA_SCORE":"0.911154351",
     "CASE_ID":"TCGA-AX-A1C9",
-    "OS_STATUS":"Living",
+    "OS_STATUS":"0:LIVING",
     "OS_MONTHS":"15.2446788",
-    "DFS_STATUS":"DiseaseFree",
+    "DFS_STATUS":"0:DiseaseFree",
     "DFS_MONTHS":"15.2446788"
   },
   {
@@ -2802,9 +2802,9 @@
     "MICRO_RNA_CLUSTER":"6",
     "MICRO_RNA_SCORE":"0.877057267",
     "CASE_ID":"TCGA-AX-A1CA",
-    "OS_STATUS":"Living",
+    "OS_STATUS":"0:LIVING",
     "OS_MONTHS":"20.27148021",
-    "DFS_STATUS":"DiseaseFree",
+    "DFS_STATUS":"0:DiseaseFree",
     "DFS_MONTHS":"20.27148021"
   },
   {
@@ -2828,9 +2828,9 @@
     "MICRO_RNA_CLUSTER":"1",
     "MICRO_RNA_SCORE":"0.891243726",
     "CASE_ID":"TCGA-AX-A1CC",
-    "OS_STATUS":"Living",
+    "OS_STATUS":"0:LIVING",
     "OS_MONTHS":"12.41915643",
-    "DFS_STATUS":"DiseaseFree",
+    "DFS_STATUS":"0:DiseaseFree",
     "DFS_MONTHS":"12.41915643"
   },
   {
@@ -2854,7 +2854,7 @@
     "MICRO_RNA_CLUSTER":"6",
     "MICRO_RNA_SCORE":"0.802482844",
     "CASE_ID":"TCGA-AX-A1CE",
-    "OS_STATUS":"Living",
+    "OS_STATUS":"0:LIVING",
     "OS_MONTHS":"20.04149583",
     "DFS_STATUS":"",
     "DFS_MONTHS":"NA"
@@ -2880,7 +2880,7 @@
     "MICRO_RNA_CLUSTER":"4",
     "MICRO_RNA_SCORE":"0.596528",
     "CASE_ID":"TCGA-AX-A1CF",
-    "OS_STATUS":"Living",
+    "OS_STATUS":"0:LIVING",
     "OS_MONTHS":"76.78192747",
     "DFS_STATUS":"Recurred",
     "DFS_MONTHS":"28.7480473"
@@ -2906,9 +2906,9 @@
     "MICRO_RNA_CLUSTER":"1",
     "MICRO_RNA_SCORE":"0.894790354",
     "CASE_ID":"TCGA-AX-A1CI",
-    "OS_STATUS":"Living",
+    "OS_STATUS":"0:LIVING",
     "OS_MONTHS":"72.51078902",
-    "DFS_STATUS":"DiseaseFree",
+    "DFS_STATUS":"0:DiseaseFree",
     "DFS_MONTHS":"72.51078902"
   },
   {
@@ -2932,9 +2932,9 @@
     "MICRO_RNA_CLUSTER":"6",
     "MICRO_RNA_SCORE":"0.936182815",
     "CASE_ID":"TCGA-AX-A1CJ",
-    "OS_STATUS":"Living",
+    "OS_STATUS":"0:LIVING",
     "OS_MONTHS":"54.04632892",
-    "DFS_STATUS":"DiseaseFree",
+    "DFS_STATUS":"0:DiseaseFree",
     "DFS_MONTHS":"54.04632892"
   },
   {
@@ -2958,7 +2958,7 @@
     "MICRO_RNA_CLUSTER":"3",
     "MICRO_RNA_SCORE":"0.829517277",
     "CASE_ID":"TCGA-AX-A1CK",
-    "OS_STATUS":"Living",
+    "OS_STATUS":"0:LIVING",
     "OS_MONTHS":"67.41827778",
     "DFS_STATUS":"Recurred",
     "DFS_MONTHS":"NA"
@@ -2984,9 +2984,9 @@
     "MICRO_RNA_CLUSTER":"3",
     "MICRO_RNA_SCORE":"0.897648505",
     "CASE_ID":"TCGA-AX-A1CN",
-    "OS_STATUS":"Living",
+    "OS_STATUS":"0:LIVING",
     "OS_MONTHS":"25.10115216",
-    "DFS_STATUS":"DiseaseFree",
+    "DFS_STATUS":"0:DiseaseFree",
     "DFS_MONTHS":"25.10115216"
   },
   {
@@ -3010,7 +3010,7 @@
     "MICRO_RNA_CLUSTER":"1",
     "MICRO_RNA_SCORE":"0.918650794",
     "CASE_ID":"TCGA-AX-A1CP",
-    "OS_STATUS":"Living",
+    "OS_STATUS":"0:LIVING",
     "OS_MONTHS":"36.3703867",
     "DFS_STATUS":"Recurred",
     "DFS_MONTHS":"23.72124589"
@@ -3036,9 +3036,9 @@
     "MICRO_RNA_CLUSTER":"4",
     "MICRO_RNA_SCORE":"0.923555802",
     "CASE_ID":"TCGA-AX-A1CR",
-    "OS_STATUS":"Living",
+    "OS_STATUS":"0:LIVING",
     "OS_MONTHS":"11.07210507",
-    "DFS_STATUS":"DiseaseFree",
+    "DFS_STATUS":"0:DiseaseFree",
     "DFS_MONTHS":"11.07210507"
   },
   {
@@ -3062,7 +3062,7 @@
     "MICRO_RNA_CLUSTER":"4",
     "MICRO_RNA_SCORE":"0.871917175",
     "CASE_ID":"TCGA-AX-A2H5",
-    "OS_STATUS":"Living",
+    "OS_STATUS":"0:LIVING",
     "OS_MONTHS":"71.19659257",
     "DFS_STATUS":"",
     "DFS_MONTHS":"NA"
@@ -3088,9 +3088,9 @@
     "MICRO_RNA_CLUSTER":"4",
     "MICRO_RNA_SCORE":"0.877287726",
     "CASE_ID":"TCGA-AX-A2H8",
-    "OS_STATUS":"Living",
+    "OS_STATUS":"0:LIVING",
     "OS_MONTHS":"61.14298974",
-    "DFS_STATUS":"DiseaseFree",
+    "DFS_STATUS":"0:DiseaseFree",
     "DFS_MONTHS":"61.14298974"
   },
   {
@@ -3114,7 +3114,7 @@
     "MICRO_RNA_CLUSTER":"3",
     "MICRO_RNA_SCORE":"0.897648505",
     "CASE_ID":"TCGA-AX-A2HC",
-    "OS_STATUS":"Living",
+    "OS_STATUS":"0:LIVING",
     "OS_MONTHS":"33.38058978",
     "DFS_STATUS":"Recurred",
     "DFS_MONTHS":"NA"
@@ -3140,9 +3140,9 @@
     "MICRO_RNA_CLUSTER":"5",
     "MICRO_RNA_SCORE":"0.842998833",
     "CASE_ID":"TCGA-AX-A2HD",
-    "OS_STATUS":"Living",
+    "OS_STATUS":"0:LIVING",
     "OS_MONTHS":"40.4772506",
-    "DFS_STATUS":"DiseaseFree",
+    "DFS_STATUS":"0:DiseaseFree",
     "DFS_MONTHS":"40.4772506"
   },
   {
@@ -3166,9 +3166,9 @@
     "MICRO_RNA_CLUSTER":"3",
     "MICRO_RNA_SCORE":"0.840372671",
     "CASE_ID":"TCGA-AX-A2HF",
-    "OS_STATUS":"Living",
+    "OS_STATUS":"0:LIVING",
     "OS_MONTHS":"16.06605158",
-    "DFS_STATUS":"DiseaseFree",
+    "DFS_STATUS":"0:DiseaseFree",
     "DFS_MONTHS":"16.06605158"
   },
   {
@@ -3192,9 +3192,9 @@
     "MICRO_RNA_CLUSTER":"1",
     "MICRO_RNA_SCORE":"0.918650794",
     "CASE_ID":"TCGA-AX-A2HG",
-    "OS_STATUS":"Living",
+    "OS_STATUS":"0:LIVING",
     "OS_MONTHS":"21.68424139",
-    "DFS_STATUS":"DiseaseFree",
+    "DFS_STATUS":"0:DiseaseFree",
     "DFS_MONTHS":"21.68424139"
   },
   {
@@ -3218,9 +3218,9 @@
     "MICRO_RNA_CLUSTER":"1",
     "MICRO_RNA_SCORE":"0.918650794",
     "CASE_ID":"TCGA-AX-A2HH",
-    "OS_STATUS":"Living",
+    "OS_STATUS":"0:LIVING",
     "OS_MONTHS":"17.70879714",
-    "DFS_STATUS":"DiseaseFree",
+    "DFS_STATUS":"0:DiseaseFree",
     "DFS_MONTHS":"17.70879714"
   },
   {
@@ -3244,9 +3244,9 @@
     "MICRO_RNA_CLUSTER":"3",
     "MICRO_RNA_SCORE":"0.897648505",
     "CASE_ID":"TCGA-AX-A2HJ",
-    "OS_STATUS":"Living",
+    "OS_STATUS":"0:LIVING",
     "OS_MONTHS":"27.30243121",
-    "DFS_STATUS":"DiseaseFree",
+    "DFS_STATUS":"0:DiseaseFree",
     "DFS_MONTHS":"27.30243121"
   },
   {
@@ -3270,7 +3270,7 @@
     "MICRO_RNA_CLUSTER":"6",
     "MICRO_RNA_SCORE":"0.936182815",
     "CASE_ID":"TCGA-AX-A2HK",
-    "OS_STATUS":"Deceased",
+    "OS_STATUS":"1:DECEASED",
     "OS_MONTHS":"2.956942008",
     "DFS_STATUS":"",
     "DFS_MONTHS":"NA"
@@ -3296,9 +3296,9 @@
     "MICRO_RNA_CLUSTER":"4",
     "MICRO_RNA_SCORE":"0.886489497",
     "CASE_ID":"TCGA-B5-A0JN",
-    "OS_STATUS":"Living",
+    "OS_STATUS":"0:LIVING",
     "OS_MONTHS":"80.33025788",
-    "DFS_STATUS":"DiseaseFree",
+    "DFS_STATUS":"0:DiseaseFree",
     "DFS_MONTHS":"80.33025788"
   },
   {
@@ -3322,9 +3322,9 @@
     "MICRO_RNA_CLUSTER":"NA",
     "MICRO_RNA_SCORE":"NA",
     "CASE_ID":"TCGA-B5-A0JR",
-    "OS_STATUS":"Living",
+    "OS_STATUS":"0:LIVING",
     "OS_MONTHS":"56.87185129",
-    "DFS_STATUS":"DiseaseFree",
+    "DFS_STATUS":"0:DiseaseFree",
     "DFS_MONTHS":"56.87185129"
   },
   {
@@ -3348,9 +3348,9 @@
     "MICRO_RNA_CLUSTER":"6",
     "MICRO_RNA_SCORE":"0.936182815",
     "CASE_ID":"TCGA-B5-A0JS",
-    "OS_STATUS":"Living",
+    "OS_STATUS":"0:LIVING",
     "OS_MONTHS":"46.71968373",
-    "DFS_STATUS":"DiseaseFree",
+    "DFS_STATUS":"0:DiseaseFree",
     "DFS_MONTHS":"46.71968373"
   },
   {
@@ -3374,9 +3374,9 @@
     "MICRO_RNA_CLUSTER":"2",
     "MICRO_RNA_SCORE":"0.953263868",
     "CASE_ID":"TCGA-B5-A0JT",
-    "OS_STATUS":"Living",
+    "OS_STATUS":"0:LIVING",
     "OS_MONTHS":"43.10564349",
-    "DFS_STATUS":"DiseaseFree",
+    "DFS_STATUS":"0:DiseaseFree",
     "DFS_MONTHS":"43.10564349"
   },
   {
@@ -3400,9 +3400,9 @@
     "MICRO_RNA_CLUSTER":"5",
     "MICRO_RNA_SCORE":"0.932869329",
     "CASE_ID":"TCGA-B5-A0JU",
-    "OS_STATUS":"Living",
+    "OS_STATUS":"0:LIVING",
     "OS_MONTHS":"48.72383331",
-    "DFS_STATUS":"DiseaseFree",
+    "DFS_STATUS":"0:DiseaseFree",
     "DFS_MONTHS":"48.72383331"
   },
   {
@@ -3426,7 +3426,7 @@
     "MICRO_RNA_CLUSTER":"1",
     "MICRO_RNA_SCORE":"0.918650794",
     "CASE_ID":"TCGA-B5-A0JV",
-    "OS_STATUS":"Living",
+    "OS_STATUS":"0:LIVING",
     "OS_MONTHS":"40.64152515",
     "DFS_STATUS":"Recurred",
     "DFS_MONTHS":"22.93272802"
@@ -3452,9 +3452,9 @@
     "MICRO_RNA_CLUSTER":"2",
     "MICRO_RNA_SCORE":"0.953263868",
     "CASE_ID":"TCGA-B5-A0JX",
-    "OS_STATUS":"Living",
+    "OS_STATUS":"0:LIVING",
     "OS_MONTHS":"44.68267923",
-    "DFS_STATUS":"DiseaseFree",
+    "DFS_STATUS":"0:DiseaseFree",
     "DFS_MONTHS":"44.68267923"
   },
   {
@@ -3478,9 +3478,9 @@
     "MICRO_RNA_CLUSTER":"4",
     "MICRO_RNA_SCORE":"0.923555802",
     "CASE_ID":"TCGA-B5-A0JY",
-    "OS_STATUS":"Living",
+    "OS_STATUS":"0:LIVING",
     "OS_MONTHS":"32.95347593",
-    "DFS_STATUS":"DiseaseFree",
+    "DFS_STATUS":"0:DiseaseFree",
     "DFS_MONTHS":"32.95347593"
   },
   {
@@ -3504,7 +3504,7 @@
     "MICRO_RNA_CLUSTER":"5",
     "MICRO_RNA_SCORE":"0.930343034",
     "CASE_ID":"TCGA-B5-A0JZ",
-    "OS_STATUS":"Living",
+    "OS_STATUS":"0:LIVING",
     "OS_MONTHS":"28.61662766",
     "DFS_STATUS":"Recurred",
     "DFS_MONTHS":"11.69634839"
@@ -3530,9 +3530,9 @@
     "MICRO_RNA_CLUSTER":"5",
     "MICRO_RNA_SCORE":"0.890025216",
     "CASE_ID":"TCGA-B5-A0K0",
-    "OS_STATUS":"Living",
+    "OS_STATUS":"0:LIVING",
     "OS_MONTHS":"28.32093345",
-    "DFS_STATUS":"DiseaseFree",
+    "DFS_STATUS":"0:DiseaseFree",
     "DFS_MONTHS":"28.32093345"
   },
   {
@@ -3556,9 +3556,9 @@
     "MICRO_RNA_CLUSTER":"6",
     "MICRO_RNA_SCORE":"0.936182815",
     "CASE_ID":"TCGA-B5-A0K1",
-    "OS_STATUS":"Living",
+    "OS_STATUS":"0:LIVING",
     "OS_MONTHS":"30.48935759",
-    "DFS_STATUS":"DiseaseFree",
+    "DFS_STATUS":"0:DiseaseFree",
     "DFS_MONTHS":"30.48935759"
   },
   {
@@ -3582,9 +3582,9 @@
     "MICRO_RNA_CLUSTER":"4",
     "MICRO_RNA_SCORE":"0.78035969",
     "CASE_ID":"TCGA-B5-A0K2",
-    "OS_STATUS":"Living",
+    "OS_STATUS":"0:LIVING",
     "OS_MONTHS":"25.88967003",
-    "DFS_STATUS":"DiseaseFree",
+    "DFS_STATUS":"0:DiseaseFree",
     "DFS_MONTHS":"25.88967003"
   },
   {
@@ -3608,7 +3608,7 @@
     "MICRO_RNA_CLUSTER":"4",
     "MICRO_RNA_SCORE":"0.923555802",
     "CASE_ID":"TCGA-B5-A0K3",
-    "OS_STATUS":"Deceased",
+    "OS_STATUS":"1:DECEASED",
     "OS_MONTHS":"27.23672138",
     "DFS_STATUS":"Recurred",
     "DFS_MONTHS":"7.95088851"
@@ -3634,9 +3634,9 @@
     "MICRO_RNA_CLUSTER":"6",
     "MICRO_RNA_SCORE":"0.936182815",
     "CASE_ID":"TCGA-B5-A0K4",
-    "OS_STATUS":"Living",
+    "OS_STATUS":"0:LIVING",
     "OS_MONTHS":"17.87307169",
-    "DFS_STATUS":"DiseaseFree",
+    "DFS_STATUS":"0:DiseaseFree",
     "DFS_MONTHS":"17.87307169"
   },
   {
@@ -3660,9 +3660,9 @@
     "MICRO_RNA_CLUSTER":"5",
     "MICRO_RNA_SCORE":"0.932869329",
     "CASE_ID":"TCGA-B5-A0K6",
-    "OS_STATUS":"Living",
+    "OS_STATUS":"0:LIVING",
     "OS_MONTHS":"13.99619217",
-    "DFS_STATUS":"DiseaseFree",
+    "DFS_STATUS":"0:DiseaseFree",
     "DFS_MONTHS":"13.99619217"
   },
   {
@@ -3686,7 +3686,7 @@
     "MICRO_RNA_CLUSTER":"5",
     "MICRO_RNA_SCORE":"0.756697585",
     "CASE_ID":"TCGA-B5-A0K7",
-    "OS_STATUS":"Living",
+    "OS_STATUS":"0:LIVING",
     "OS_MONTHS":"17.05169891",
     "DFS_STATUS":"Recurred",
     "DFS_MONTHS":"10.5464265"
@@ -3712,9 +3712,9 @@
     "MICRO_RNA_CLUSTER":"6",
     "MICRO_RNA_SCORE":"0.936182815",
     "CASE_ID":"TCGA-B5-A0K8",
-    "OS_STATUS":"Living",
+    "OS_STATUS":"0:LIVING",
     "OS_MONTHS":"17.80736187",
-    "DFS_STATUS":"DiseaseFree",
+    "DFS_STATUS":"0:DiseaseFree",
     "DFS_MONTHS":"17.80736187"
   },
   {
@@ -3740,7 +3740,7 @@
     "CASE_ID":"TCGA-B5-A0K9",
     "OS_STATUS":"",
     "OS_MONTHS":"NA",
-    "DFS_STATUS":"DiseaseFree",
+    "DFS_STATUS":"0:DiseaseFree",
     "DFS_MONTHS":"NA"
   },
   {
@@ -3764,9 +3764,9 @@
     "MICRO_RNA_CLUSTER":"4",
     "MICRO_RNA_SCORE":"0.923555802",
     "CASE_ID":"TCGA-B5-A0KB",
-    "OS_STATUS":"Living",
+    "OS_STATUS":"0:LIVING",
     "OS_MONTHS":"4.074008989",
-    "DFS_STATUS":"DiseaseFree",
+    "DFS_STATUS":"0:DiseaseFree",
     "DFS_MONTHS":"4.074008989"
   },
   {
@@ -3790,9 +3790,9 @@
     "MICRO_RNA_CLUSTER":"3",
     "MICRO_RNA_SCORE":"0.897648505",
     "CASE_ID":"TCGA-B5-A11E",
-    "OS_STATUS":"Living",
+    "OS_STATUS":"0:LIVING",
     "OS_MONTHS":"8.706551468",
-    "DFS_STATUS":"DiseaseFree",
+    "DFS_STATUS":"0:DiseaseFree",
     "DFS_MONTHS":"8.706551468"
   },
   {
@@ -3816,7 +3816,7 @@
     "MICRO_RNA_CLUSTER":"6",
     "MICRO_RNA_SCORE":"0.936182815",
     "CASE_ID":"TCGA-B5-A11F",
-    "OS_STATUS":"Living",
+    "OS_STATUS":"0:LIVING",
     "OS_MONTHS":"185.6302483",
     "DFS_STATUS":"Recurred",
     "DFS_MONTHS":"52.89640703"
@@ -3842,7 +3842,7 @@
     "MICRO_RNA_CLUSTER":"5",
     "MICRO_RNA_SCORE":"0.480973374",
     "CASE_ID":"TCGA-B5-A11G",
-    "OS_STATUS":"Living",
+    "OS_STATUS":"0:LIVING",
     "OS_MONTHS":"113.2508789",
     "DFS_STATUS":"",
     "DFS_MONTHS":"NA"
@@ -3868,9 +3868,9 @@
     "MICRO_RNA_CLUSTER":"6",
     "MICRO_RNA_SCORE":"0.936182815",
     "CASE_ID":"TCGA-B5-A11H",
-    "OS_STATUS":"Living",
+    "OS_STATUS":"0:LIVING",
     "OS_MONTHS":"88.28114639",
-    "DFS_STATUS":"DiseaseFree",
+    "DFS_STATUS":"0:DiseaseFree",
     "DFS_MONTHS":"88.28114639"
   },
   {
@@ -3894,7 +3894,7 @@
     "MICRO_RNA_CLUSTER":"4",
     "MICRO_RNA_SCORE":"0.923555802",
     "CASE_ID":"TCGA-B5-A11I",
-    "OS_STATUS":"Living",
+    "OS_STATUS":"0:LIVING",
     "OS_MONTHS":"75.66486049",
     "DFS_STATUS":"Recurred",
     "DFS_MONTHS":"22.96558293"
@@ -3920,9 +3920,9 @@
     "MICRO_RNA_CLUSTER":"6",
     "MICRO_RNA_SCORE":"0.936182815",
     "CASE_ID":"TCGA-B5-A11J",
-    "OS_STATUS":"Living",
+    "OS_STATUS":"0:LIVING",
     "OS_MONTHS":"54.40773295",
-    "DFS_STATUS":"DiseaseFree",
+    "DFS_STATUS":"0:DiseaseFree",
     "DFS_MONTHS":"54.40773295"
   },
   {
@@ -3946,9 +3946,9 @@
     "MICRO_RNA_CLUSTER":"2",
     "MICRO_RNA_SCORE":"0.953263868",
     "CASE_ID":"TCGA-B5-A11L",
-    "OS_STATUS":"Living",
+    "OS_STATUS":"0:LIVING",
     "OS_MONTHS":"45.86545604",
-    "DFS_STATUS":"DiseaseFree",
+    "DFS_STATUS":"0:DiseaseFree",
     "DFS_MONTHS":"45.86545604"
   },
   {
@@ -3972,9 +3972,9 @@
     "MICRO_RNA_CLUSTER":"1",
     "MICRO_RNA_SCORE":"0.820773525",
     "CASE_ID":"TCGA-B5-A11M",
-    "OS_STATUS":"Living",
+    "OS_STATUS":"0:LIVING",
     "OS_MONTHS":"44.71553414",
-    "DFS_STATUS":"DiseaseFree",
+    "DFS_STATUS":"0:DiseaseFree",
     "DFS_MONTHS":"44.71553414"
   },
   {
@@ -3998,9 +3998,9 @@
     "MICRO_RNA_CLUSTER":"5",
     "MICRO_RNA_SCORE":"0.932869329",
     "CASE_ID":"TCGA-B5-A11N",
-    "OS_STATUS":"Living",
+    "OS_STATUS":"0:LIVING",
     "OS_MONTHS":"43.92701627",
-    "DFS_STATUS":"DiseaseFree",
+    "DFS_STATUS":"0:DiseaseFree",
     "DFS_MONTHS":"43.92701627"
   },
   {
@@ -4024,9 +4024,9 @@
     "MICRO_RNA_CLUSTER":"4",
     "MICRO_RNA_SCORE":"0.879877208",
     "CASE_ID":"TCGA-B5-A11O",
-    "OS_STATUS":"Living",
+    "OS_STATUS":"0:LIVING",
     "OS_MONTHS":"40.90436444",
-    "DFS_STATUS":"DiseaseFree",
+    "DFS_STATUS":"0:DiseaseFree",
     "DFS_MONTHS":"40.90436444"
   },
   {
@@ -4050,9 +4050,9 @@
     "MICRO_RNA_CLUSTER":"6",
     "MICRO_RNA_SCORE":"0.936182815",
     "CASE_ID":"TCGA-B5-A11P",
-    "OS_STATUS":"Living",
+    "OS_STATUS":"0:LIVING",
     "OS_MONTHS":"36.79750054",
-    "DFS_STATUS":"DiseaseFree",
+    "DFS_STATUS":"0:DiseaseFree",
     "DFS_MONTHS":"36.79750054"
   },
   {
@@ -4076,9 +4076,9 @@
     "MICRO_RNA_CLUSTER":"6",
     "MICRO_RNA_SCORE":"0.936182815",
     "CASE_ID":"TCGA-B5-A11Q",
-    "OS_STATUS":"Living",
+    "OS_STATUS":"0:LIVING",
     "OS_MONTHS":"32.03353842",
-    "DFS_STATUS":"DiseaseFree",
+    "DFS_STATUS":"0:DiseaseFree",
     "DFS_MONTHS":"32.03353842"
   },
   {
@@ -4102,9 +4102,9 @@
     "MICRO_RNA_CLUSTER":"3",
     "MICRO_RNA_SCORE":"0.366698565",
     "CASE_ID":"TCGA-B5-A11R",
-    "OS_STATUS":"Living",
+    "OS_STATUS":"0:LIVING",
     "OS_MONTHS":"33.47915451",
-    "DFS_STATUS":"DiseaseFree",
+    "DFS_STATUS":"0:DiseaseFree",
     "DFS_MONTHS":"33.47915451"
   },
   {
@@ -4128,7 +4128,7 @@
     "MICRO_RNA_CLUSTER":"6",
     "MICRO_RNA_SCORE":"0.936182815",
     "CASE_ID":"TCGA-B5-A11S",
-    "OS_STATUS":"Living",
+    "OS_STATUS":"0:LIVING",
     "OS_MONTHS":"27.30243121",
     "DFS_STATUS":"Recurred",
     "DFS_MONTHS":"1.314196448"
@@ -4154,9 +4154,9 @@
     "MICRO_RNA_CLUSTER":"2",
     "MICRO_RNA_SCORE":"0.953263868",
     "CASE_ID":"TCGA-B5-A11U",
-    "OS_STATUS":"Living",
+    "OS_STATUS":"0:LIVING",
     "OS_MONTHS":"16.7231498",
-    "DFS_STATUS":"DiseaseFree",
+    "DFS_STATUS":"0:DiseaseFree",
     "DFS_MONTHS":"16.7231498"
   },
   {
@@ -4180,9 +4180,9 @@
     "MICRO_RNA_CLUSTER":"5",
     "MICRO_RNA_SCORE":"0.762721706",
     "CASE_ID":"TCGA-B5-A11V",
-    "OS_STATUS":"Living",
+    "OS_STATUS":"0:LIVING",
     "OS_MONTHS":"19.51581725",
-    "DFS_STATUS":"DiseaseFree",
+    "DFS_STATUS":"0:DiseaseFree",
     "DFS_MONTHS":"19.51581725"
   },
   {
@@ -4206,9 +4206,9 @@
     "MICRO_RNA_CLUSTER":"6",
     "MICRO_RNA_SCORE":"0.936182815",
     "CASE_ID":"TCGA-B5-A11W",
-    "OS_STATUS":"Living",
+    "OS_STATUS":"0:LIVING",
     "OS_MONTHS":"19.45010743",
-    "DFS_STATUS":"DiseaseFree",
+    "DFS_STATUS":"0:DiseaseFree",
     "DFS_MONTHS":"19.45010743"
   },
   {
@@ -4232,7 +4232,7 @@
     "MICRO_RNA_CLUSTER":"3",
     "MICRO_RNA_SCORE":"0.888897494",
     "CASE_ID":"TCGA-B5-A11X",
-    "OS_STATUS":"Living",
+    "OS_STATUS":"0:LIVING",
     "OS_MONTHS":"19.54867216",
     "DFS_STATUS":"Recurred",
     "DFS_MONTHS":"13.01054484"
@@ -4258,9 +4258,9 @@
     "MICRO_RNA_CLUSTER":"4",
     "MICRO_RNA_SCORE":"0.921320947",
     "CASE_ID":"TCGA-B5-A11Y",
-    "OS_STATUS":"Living",
+    "OS_STATUS":"0:LIVING",
     "OS_MONTHS":"18.36589536",
-    "DFS_STATUS":"DiseaseFree",
+    "DFS_STATUS":"0:DiseaseFree",
     "DFS_MONTHS":"18.36589536"
   },
   {
@@ -4284,9 +4284,9 @@
     "MICRO_RNA_CLUSTER":"5",
     "MICRO_RNA_SCORE":"0.932869329",
     "CASE_ID":"TCGA-B5-A11Z",
-    "OS_STATUS":"Living",
+    "OS_STATUS":"0:LIVING",
     "OS_MONTHS":"17.34739311",
-    "DFS_STATUS":"DiseaseFree",
+    "DFS_STATUS":"0:DiseaseFree",
     "DFS_MONTHS":"17.34739311"
   },
   {
@@ -4310,9 +4310,9 @@
     "MICRO_RNA_CLUSTER":"2",
     "MICRO_RNA_SCORE":"0.953263868",
     "CASE_ID":"TCGA-B5-A121",
-    "OS_STATUS":"Living",
+    "OS_STATUS":"0:LIVING",
     "OS_MONTHS":"16.55887524",
-    "DFS_STATUS":"DiseaseFree",
+    "DFS_STATUS":"0:DiseaseFree",
     "DFS_MONTHS":"16.55887524"
   },
   {
@@ -4336,9 +4336,9 @@
     "MICRO_RNA_CLUSTER":"4",
     "MICRO_RNA_SCORE":"0.886489497",
     "CASE_ID":"TCGA-B5-A1MR",
-    "OS_STATUS":"Living",
+    "OS_STATUS":"0:LIVING",
     "OS_MONTHS":"191.7084069",
-    "DFS_STATUS":"DiseaseFree",
+    "DFS_STATUS":"0:DiseaseFree",
     "DFS_MONTHS":"191.7084069"
   },
   {
@@ -4362,7 +4362,7 @@
     "MICRO_RNA_CLUSTER":"2",
     "MICRO_RNA_SCORE":"0.912165907",
     "CASE_ID":"TCGA-B5-A1MU",
-    "OS_STATUS":"Deceased",
+    "OS_STATUS":"1:DECEASED",
     "OS_MONTHS":"50.82654763",
     "DFS_STATUS":"Recurred",
     "DFS_MONTHS":"44.84695379"
@@ -4388,9 +4388,9 @@
     "MICRO_RNA_CLUSTER":"2",
     "MICRO_RNA_SCORE":"0.953263868",
     "CASE_ID":"TCGA-B5-A1MV",
-    "OS_STATUS":"Living",
+    "OS_STATUS":"0:LIVING",
     "OS_MONTHS":"14.39045111",
-    "DFS_STATUS":"DiseaseFree",
+    "DFS_STATUS":"0:DiseaseFree",
     "DFS_MONTHS":"14.39045111"
   },
   {
@@ -4414,7 +4414,7 @@
     "MICRO_RNA_CLUSTER":"5",
     "MICRO_RNA_SCORE":"0.932869329",
     "CASE_ID":"TCGA-B5-A1MW",
-    "OS_STATUS":"Living",
+    "OS_STATUS":"0:LIVING",
     "OS_MONTHS":"14.68614531",
     "DFS_STATUS":"Recurred",
     "DFS_MONTHS":"10.21787738"
@@ -4440,9 +4440,9 @@
     "MICRO_RNA_CLUSTER":"3",
     "MICRO_RNA_SCORE":"0.897648505",
     "CASE_ID":"TCGA-B5-A1MX",
-    "OS_STATUS":"Living",
+    "OS_STATUS":"0:LIVING",
     "OS_MONTHS":"11.66349348",
-    "DFS_STATUS":"DiseaseFree",
+    "DFS_STATUS":"0:DiseaseFree",
     "DFS_MONTHS":"11.66349348"
   },
   {
@@ -4466,7 +4466,7 @@
     "MICRO_RNA_CLUSTER":"1",
     "MICRO_RNA_SCORE":"0.86844934",
     "CASE_ID":"TCGA-B5-A1MY",
-    "OS_STATUS":"Deceased",
+    "OS_STATUS":"1:DECEASED",
     "OS_MONTHS":"11.86062294",
     "DFS_STATUS":"Recurred",
     "DFS_MONTHS":"10.94068543"
@@ -4492,9 +4492,9 @@
     "MICRO_RNA_CLUSTER":"5",
     "MICRO_RNA_SCORE":"0.932869329",
     "CASE_ID":"TCGA-B5-A1MZ",
-    "OS_STATUS":"Living",
+    "OS_STATUS":"0:LIVING",
     "OS_MONTHS":"15.27753371",
-    "DFS_STATUS":"DiseaseFree",
+    "DFS_STATUS":"0:DiseaseFree",
     "DFS_MONTHS":"15.27753371"
   },
   {
@@ -4518,7 +4518,7 @@
     "MICRO_RNA_CLUSTER":"2",
     "MICRO_RNA_SCORE":"0.953263868",
     "CASE_ID":"TCGA-B5-A1N2",
-    "OS_STATUS":"Living",
+    "OS_STATUS":"0:LIVING",
     "OS_MONTHS":"12.78056046",
     "DFS_STATUS":"",
     "DFS_MONTHS":"NA"
@@ -4544,9 +4544,9 @@
     "MICRO_RNA_CLUSTER":"5",
     "MICRO_RNA_SCORE":"0.932869329",
     "CASE_ID":"TCGA-BG-A0LW",
-    "OS_STATUS":"Living",
+    "OS_STATUS":"0:LIVING",
     "OS_MONTHS":"18.56302483",
-    "DFS_STATUS":"DiseaseFree",
+    "DFS_STATUS":"0:DiseaseFree",
     "DFS_MONTHS":"18.56302483"
   },
   {
@@ -4570,9 +4570,9 @@
     "MICRO_RNA_CLUSTER":"3",
     "MICRO_RNA_SCORE":"0.897648505",
     "CASE_ID":"TCGA-BG-A0LX",
-    "OS_STATUS":"Living",
+    "OS_STATUS":"0:LIVING",
     "OS_MONTHS":"20.14006057",
-    "DFS_STATUS":"DiseaseFree",
+    "DFS_STATUS":"0:DiseaseFree",
     "DFS_MONTHS":"20.14006057"
   },
   {
@@ -4596,9 +4596,9 @@
     "MICRO_RNA_CLUSTER":"6",
     "MICRO_RNA_SCORE":"0.936182815",
     "CASE_ID":"TCGA-BG-A0M0",
-    "OS_STATUS":"Living",
+    "OS_STATUS":"0:LIVING",
     "OS_MONTHS":"19.28583287",
-    "DFS_STATUS":"DiseaseFree",
+    "DFS_STATUS":"0:DiseaseFree",
     "DFS_MONTHS":"19.28583287"
   },
   {
@@ -4622,9 +4622,9 @@
     "MICRO_RNA_CLUSTER":"6",
     "MICRO_RNA_SCORE":"0.936182815",
     "CASE_ID":"TCGA-BG-A0M2",
-    "OS_STATUS":"Living",
+    "OS_STATUS":"0:LIVING",
     "OS_MONTHS":"20.89572352",
-    "DFS_STATUS":"DiseaseFree",
+    "DFS_STATUS":"0:DiseaseFree",
     "DFS_MONTHS":"20.89572352"
   },
   {
@@ -4648,9 +4648,9 @@
     "MICRO_RNA_CLUSTER":"5",
     "MICRO_RNA_SCORE":"0.396873131",
     "CASE_ID":"TCGA-BG-A0M3",
-    "OS_STATUS":"Living",
+    "OS_STATUS":"0:LIVING",
     "OS_MONTHS":"35.1876099",
-    "DFS_STATUS":"DiseaseFree",
+    "DFS_STATUS":"0:DiseaseFree",
     "DFS_MONTHS":"35.1876099"
   },
   {
@@ -4674,9 +4674,9 @@
     "MICRO_RNA_CLUSTER":"4",
     "MICRO_RNA_SCORE":"0.923555802",
     "CASE_ID":"TCGA-BG-A0M4",
-    "OS_STATUS":"Living",
+    "OS_STATUS":"0:LIVING",
     "OS_MONTHS":"34.95762552",
-    "DFS_STATUS":"DiseaseFree",
+    "DFS_STATUS":"0:DiseaseFree",
     "DFS_MONTHS":"34.95762552"
   },
   {
@@ -4700,9 +4700,9 @@
     "MICRO_RNA_CLUSTER":"4",
     "MICRO_RNA_SCORE":"0.757451043",
     "CASE_ID":"TCGA-BG-A0M6",
-    "OS_STATUS":"Deceased",
+    "OS_STATUS":"1:DECEASED",
     "OS_MONTHS":"22.04564542",
-    "DFS_STATUS":"DiseaseFree",
+    "DFS_STATUS":"0:DiseaseFree",
     "DFS_MONTHS":"22.04564542"
   },
   {
@@ -4726,9 +4726,9 @@
     "MICRO_RNA_CLUSTER":"4",
     "MICRO_RNA_SCORE":"0.190161319",
     "CASE_ID":"TCGA-BG-A0M7",
-    "OS_STATUS":"Living",
+    "OS_STATUS":"0:LIVING",
     "OS_MONTHS":"38.34168137",
-    "DFS_STATUS":"DiseaseFree",
+    "DFS_STATUS":"0:DiseaseFree",
     "DFS_MONTHS":"38.34168137"
   },
   {
@@ -4752,9 +4752,9 @@
     "MICRO_RNA_CLUSTER":"5",
     "MICRO_RNA_SCORE":"0.900667706",
     "CASE_ID":"TCGA-BG-A0M8",
-    "OS_STATUS":"Living",
+    "OS_STATUS":"0:LIVING",
     "OS_MONTHS":"36.46895143",
-    "DFS_STATUS":"DiseaseFree",
+    "DFS_STATUS":"0:DiseaseFree",
     "DFS_MONTHS":"36.46895143"
   },
   {
@@ -4778,9 +4778,9 @@
     "MICRO_RNA_CLUSTER":"6",
     "MICRO_RNA_SCORE":"0.576051552",
     "CASE_ID":"TCGA-BG-A0M9",
-    "OS_STATUS":"Living",
+    "OS_STATUS":"0:LIVING",
     "OS_MONTHS":"28.25522363",
-    "DFS_STATUS":"DiseaseFree",
+    "DFS_STATUS":"0:DiseaseFree",
     "DFS_MONTHS":"28.25522363"
   },
   {
@@ -4804,7 +4804,7 @@
     "MICRO_RNA_CLUSTER":"6",
     "MICRO_RNA_SCORE":"0.936182815",
     "CASE_ID":"TCGA-BG-A0MA",
-    "OS_STATUS":"Deceased",
+    "OS_STATUS":"1:DECEASED",
     "OS_MONTHS":"10.71070105",
     "DFS_STATUS":"Recurred",
     "DFS_MONTHS":"2.792667452"
@@ -4830,9 +4830,9 @@
     "MICRO_RNA_CLUSTER":"4",
     "MICRO_RNA_SCORE":"0.739984154",
     "CASE_ID":"TCGA-BG-A0MC",
-    "OS_STATUS":"Living",
+    "OS_STATUS":"0:LIVING",
     "OS_MONTHS":"41.49575285",
-    "DFS_STATUS":"DiseaseFree",
+    "DFS_STATUS":"0:DiseaseFree",
     "DFS_MONTHS":"41.49575285"
   },
   {
@@ -4856,9 +4856,9 @@
     "MICRO_RNA_CLUSTER":"4",
     "MICRO_RNA_SCORE":"0.798974359",
     "CASE_ID":"TCGA-BG-A0MG",
-    "OS_STATUS":"Living",
+    "OS_STATUS":"0:LIVING",
     "OS_MONTHS":"48.52670384",
-    "DFS_STATUS":"DiseaseFree",
+    "DFS_STATUS":"0:DiseaseFree",
     "DFS_MONTHS":"48.52670384"
   },
   {
@@ -4882,7 +4882,7 @@
     "MICRO_RNA_CLUSTER":"5",
     "MICRO_RNA_SCORE":"0.867965161",
     "CASE_ID":"TCGA-BG-A0MH",
-    "OS_STATUS":"Living",
+    "OS_STATUS":"0:LIVING",
     "OS_MONTHS":"44.05843592",
     "DFS_STATUS":"",
     "DFS_MONTHS":"NA"
@@ -4908,9 +4908,9 @@
     "MICRO_RNA_CLUSTER":"5",
     "MICRO_RNA_SCORE":"0.932869329",
     "CASE_ID":"TCGA-BG-A0MI",
-    "OS_STATUS":"Deceased",
+    "OS_STATUS":"1:DECEASED",
     "OS_MONTHS":"23.4584066",
-    "DFS_STATUS":"DiseaseFree",
+    "DFS_STATUS":"0:DiseaseFree",
     "DFS_MONTHS":"23.4584066"
   },
   {
@@ -4934,7 +4934,7 @@
     "MICRO_RNA_CLUSTER":"5",
     "MICRO_RNA_SCORE":"0.900509523",
     "CASE_ID":"TCGA-BG-A0MO",
-    "OS_STATUS":"Living",
+    "OS_STATUS":"0:LIVING",
     "OS_MONTHS":"42.97422385",
     "DFS_STATUS":"",
     "DFS_MONTHS":"NA"
@@ -4960,9 +4960,9 @@
     "MICRO_RNA_CLUSTER":"3",
     "MICRO_RNA_SCORE":"0.897648505",
     "CASE_ID":"TCGA-BG-A0MQ",
-    "OS_STATUS":"Living",
+    "OS_STATUS":"0:LIVING",
     "OS_MONTHS":"39.2944738",
-    "DFS_STATUS":"DiseaseFree",
+    "DFS_STATUS":"0:DiseaseFree",
     "DFS_MONTHS":"39.2944738"
   },
   {
@@ -4986,9 +4986,9 @@
     "MICRO_RNA_CLUSTER":"5",
     "MICRO_RNA_SCORE":"0.932869329",
     "CASE_ID":"TCGA-BG-A0MS",
-    "OS_STATUS":"Living",
+    "OS_STATUS":"0:LIVING",
     "OS_MONTHS":"30.78505179",
-    "DFS_STATUS":"DiseaseFree",
+    "DFS_STATUS":"0:DiseaseFree",
     "DFS_MONTHS":"30.78505179"
   },
   {
@@ -5012,7 +5012,7 @@
     "MICRO_RNA_CLUSTER":"6",
     "MICRO_RNA_SCORE":"0.936182815",
     "CASE_ID":"TCGA-BG-A0MT",
-    "OS_STATUS":"Living",
+    "OS_STATUS":"0:LIVING",
     "OS_MONTHS":"21.15856281",
     "DFS_STATUS":"Recurred",
     "DFS_MONTHS":"18.56302483"
@@ -5038,9 +5038,9 @@
     "MICRO_RNA_CLUSTER":"5",
     "MICRO_RNA_SCORE":"0.932869329",
     "CASE_ID":"TCGA-BG-A0MU",
-    "OS_STATUS":"Living",
+    "OS_STATUS":"0:LIVING",
     "OS_MONTHS":"7.589484487",
-    "DFS_STATUS":"DiseaseFree",
+    "DFS_STATUS":"0:DiseaseFree",
     "DFS_MONTHS":"7.589484487"
   },
   {
@@ -5064,9 +5064,9 @@
     "MICRO_RNA_CLUSTER":"5",
     "MICRO_RNA_SCORE":"0.875250932",
     "CASE_ID":"TCGA-BG-A0RY",
-    "OS_STATUS":"Living",
+    "OS_STATUS":"0:LIVING",
     "OS_MONTHS":"15.40895335",
-    "DFS_STATUS":"DiseaseFree",
+    "DFS_STATUS":"0:DiseaseFree",
     "DFS_MONTHS":"15.40895335"
   },
   {
@@ -5090,9 +5090,9 @@
     "MICRO_RNA_CLUSTER":"5",
     "MICRO_RNA_SCORE":"0.930343034",
     "CASE_ID":"TCGA-BG-A0VT",
-    "OS_STATUS":"Living",
+    "OS_STATUS":"0:LIVING",
     "OS_MONTHS":"7.359500109",
-    "DFS_STATUS":"DiseaseFree",
+    "DFS_STATUS":"0:DiseaseFree",
     "DFS_MONTHS":"7.359500109"
   },
   {
@@ -5116,9 +5116,9 @@
     "MICRO_RNA_CLUSTER":"6",
     "MICRO_RNA_SCORE":"0.936182815",
     "CASE_ID":"TCGA-BG-A0VV",
-    "OS_STATUS":"Living",
+    "OS_STATUS":"0:LIVING",
     "OS_MONTHS":"8.542276912",
-    "DFS_STATUS":"DiseaseFree",
+    "DFS_STATUS":"0:DiseaseFree",
     "DFS_MONTHS":"8.542276912"
   },
   {
@@ -5142,9 +5142,9 @@
     "MICRO_RNA_CLUSTER":"6",
     "MICRO_RNA_SCORE":"0.936182815",
     "CASE_ID":"TCGA-BG-A0VW",
-    "OS_STATUS":"Living",
+    "OS_STATUS":"0:LIVING",
     "OS_MONTHS":"4.303993367",
-    "DFS_STATUS":"DiseaseFree",
+    "DFS_STATUS":"0:DiseaseFree",
     "DFS_MONTHS":"4.303993367"
   },
   {
@@ -5168,9 +5168,9 @@
     "MICRO_RNA_CLUSTER":"4",
     "MICRO_RNA_SCORE":"0.918013002",
     "CASE_ID":"TCGA-BG-A0VX",
-    "OS_STATUS":"Living",
+    "OS_STATUS":"0:LIVING",
     "OS_MONTHS":"16.09890649",
-    "DFS_STATUS":"DiseaseFree",
+    "DFS_STATUS":"0:DiseaseFree",
     "DFS_MONTHS":"16.09890649"
   },
   {
@@ -5194,7 +5194,7 @@
     "MICRO_RNA_CLUSTER":"6",
     "MICRO_RNA_SCORE":"0.936182815",
     "CASE_ID":"TCGA-BG-A0VZ",
-    "OS_STATUS":"Living",
+    "OS_STATUS":"0:LIVING",
     "OS_MONTHS":"28.51806292",
     "DFS_STATUS":"",
     "DFS_MONTHS":"NA"
@@ -5220,9 +5220,9 @@
     "MICRO_RNA_CLUSTER":"6",
     "MICRO_RNA_SCORE":"0.936182815",
     "CASE_ID":"TCGA-BG-A0W1",
-    "OS_STATUS":"Living",
+    "OS_STATUS":"0:LIVING",
     "OS_MONTHS":"29.79940446",
-    "DFS_STATUS":"DiseaseFree",
+    "DFS_STATUS":"0:DiseaseFree",
     "DFS_MONTHS":"29.79940446"
   },
   {
@@ -5246,9 +5246,9 @@
     "MICRO_RNA_CLUSTER":"6",
     "MICRO_RNA_SCORE":"0.936182815",
     "CASE_ID":"TCGA-BG-A0W2",
-    "OS_STATUS":"Living",
+    "OS_STATUS":"0:LIVING",
     "OS_MONTHS":"37.81600279",
-    "DFS_STATUS":"DiseaseFree",
+    "DFS_STATUS":"0:DiseaseFree",
     "DFS_MONTHS":"37.81600279"
   },
   {
@@ -5272,9 +5272,9 @@
     "MICRO_RNA_CLUSTER":"3",
     "MICRO_RNA_SCORE":"0.897648505",
     "CASE_ID":"TCGA-BG-A0YU",
-    "OS_STATUS":"Living",
+    "OS_STATUS":"0:LIVING",
     "OS_MONTHS":"14.81756495",
-    "DFS_STATUS":"DiseaseFree",
+    "DFS_STATUS":"0:DiseaseFree",
     "DFS_MONTHS":"14.81756495"
   },
   {
@@ -5298,9 +5298,9 @@
     "MICRO_RNA_CLUSTER":"4",
     "MICRO_RNA_SCORE":"0.877287726",
     "CASE_ID":"TCGA-BG-A0YV",
-    "OS_STATUS":"Living",
+    "OS_STATUS":"0:LIVING",
     "OS_MONTHS":"12.55057608",
-    "DFS_STATUS":"DiseaseFree",
+    "DFS_STATUS":"0:DiseaseFree",
     "DFS_MONTHS":"12.55057608"
   },
   {
@@ -5324,9 +5324,9 @@
     "MICRO_RNA_CLUSTER":"5",
     "MICRO_RNA_SCORE":"0.932869329",
     "CASE_ID":"TCGA-BG-A186",
-    "OS_STATUS":"Living",
+    "OS_STATUS":"0:LIVING",
     "OS_MONTHS":"13.76620779",
-    "DFS_STATUS":"DiseaseFree",
+    "DFS_STATUS":"0:DiseaseFree",
     "DFS_MONTHS":"13.76620779"
   },
   {
@@ -5350,9 +5350,9 @@
     "MICRO_RNA_CLUSTER":"6",
     "MICRO_RNA_SCORE":"0.936182815",
     "CASE_ID":"TCGA-BG-A187",
-    "OS_STATUS":"Living",
+    "OS_STATUS":"0:LIVING",
     "OS_MONTHS":"14.71900022",
-    "DFS_STATUS":"DiseaseFree",
+    "DFS_STATUS":"0:DiseaseFree",
     "DFS_MONTHS":"14.71900022"
   },
   {
@@ -5376,9 +5376,9 @@
     "MICRO_RNA_CLUSTER":"2",
     "MICRO_RNA_SCORE":"0.953263868",
     "CASE_ID":"TCGA-BG-A18A",
-    "OS_STATUS":"Living",
+    "OS_STATUS":"0:LIVING",
     "OS_MONTHS":"13.99619217",
-    "DFS_STATUS":"DiseaseFree",
+    "DFS_STATUS":"0:DiseaseFree",
     "DFS_MONTHS":"13.99619217"
   },
   {
@@ -5402,9 +5402,9 @@
     "MICRO_RNA_CLUSTER":"1",
     "MICRO_RNA_SCORE":"0.807377395",
     "CASE_ID":"TCGA-BG-A18B",
-    "OS_STATUS":"Living",
+    "OS_STATUS":"0:LIVING",
     "OS_MONTHS":"15.44180826",
-    "DFS_STATUS":"DiseaseFree",
+    "DFS_STATUS":"0:DiseaseFree",
     "DFS_MONTHS":"15.44180826"
   },
   {
@@ -5428,9 +5428,9 @@
     "MICRO_RNA_CLUSTER":"3",
     "MICRO_RNA_SCORE":"0.45957569",
     "CASE_ID":"TCGA-BG-A18C",
-    "OS_STATUS":"Living",
+    "OS_STATUS":"0:LIVING",
     "OS_MONTHS":"15.44180826",
-    "DFS_STATUS":"DiseaseFree",
+    "DFS_STATUS":"0:DiseaseFree",
     "DFS_MONTHS":"15.44180826"
   },
   {
@@ -5454,9 +5454,9 @@
     "MICRO_RNA_CLUSTER":"NA",
     "MICRO_RNA_SCORE":"NA",
     "CASE_ID":"TCGA-BG-A220",
-    "OS_STATUS":"Living",
+    "OS_STATUS":"0:LIVING",
     "OS_MONTHS":"14.25903146",
-    "DFS_STATUS":"DiseaseFree",
+    "DFS_STATUS":"0:DiseaseFree",
     "DFS_MONTHS":"14.25903146"
   },
   {
@@ -5480,9 +5480,9 @@
     "MICRO_RNA_CLUSTER":"4",
     "MICRO_RNA_SCORE":"0.923555802",
     "CASE_ID":"TCGA-BG-A221",
-    "OS_STATUS":"Living",
+    "OS_STATUS":"0:LIVING",
     "OS_MONTHS":"1.807020116",
-    "DFS_STATUS":"DiseaseFree",
+    "DFS_STATUS":"0:DiseaseFree",
     "DFS_MONTHS":"1.807020116"
   },
   {
@@ -5506,9 +5506,9 @@
     "MICRO_RNA_CLUSTER":"5",
     "MICRO_RNA_SCORE":"0.932869329",
     "CASE_ID":"TCGA-BG-A222",
-    "OS_STATUS":"Living",
+    "OS_STATUS":"0:LIVING",
     "OS_MONTHS":"9.560779159",
-    "DFS_STATUS":"DiseaseFree",
+    "DFS_STATUS":"0:DiseaseFree",
     "DFS_MONTHS":"9.560779159"
   },
   {
@@ -5532,7 +5532,7 @@
     "MICRO_RNA_CLUSTER":"1",
     "MICRO_RNA_SCORE":"0.918650794",
     "CASE_ID":"TCGA-BG-A2AD",
-    "OS_STATUS":"Living",
+    "OS_STATUS":"0:LIVING",
     "OS_MONTHS":"0",
     "DFS_STATUS":"",
     "DFS_MONTHS":"NA"
@@ -5558,7 +5558,7 @@
     "MICRO_RNA_CLUSTER":"3",
     "MICRO_RNA_SCORE":"0.822827613",
     "CASE_ID":"TCGA-BG-A2AE",
-    "OS_STATUS":"Living",
+    "OS_STATUS":"0:LIVING",
     "OS_MONTHS":"0.525678579",
     "DFS_STATUS":"",
     "DFS_MONTHS":"NA"
@@ -5584,7 +5584,7 @@
     "MICRO_RNA_CLUSTER":"6",
     "MICRO_RNA_SCORE":"0.936182815",
     "CASE_ID":"TCGA-BK-A0C9",
-    "OS_STATUS":"Living",
+    "OS_STATUS":"0:LIVING",
     "OS_MONTHS":"12.68199572",
     "DFS_STATUS":"Recurred",
     "DFS_MONTHS":"NA"
@@ -5610,9 +5610,9 @@
     "MICRO_RNA_CLUSTER":"2",
     "MICRO_RNA_SCORE":"0.953263868",
     "CASE_ID":"TCGA-BK-A0CA",
-    "OS_STATUS":"Living",
+    "OS_STATUS":"0:LIVING",
     "OS_MONTHS":"12.18917206",
-    "DFS_STATUS":"DiseaseFree",
+    "DFS_STATUS":"0:DiseaseFree",
     "DFS_MONTHS":"12.18917206"
   },
   {
@@ -5636,9 +5636,9 @@
     "MICRO_RNA_CLUSTER":"NA",
     "MICRO_RNA_SCORE":"NA",
     "CASE_ID":"TCGA-BK-A0CB",
-    "OS_STATUS":"Living",
+    "OS_STATUS":"0:LIVING",
     "OS_MONTHS":"6.176723306",
-    "DFS_STATUS":"DiseaseFree",
+    "DFS_STATUS":"0:DiseaseFree",
     "DFS_MONTHS":"6.176723306"
   },
   {
@@ -5662,9 +5662,9 @@
     "MICRO_RNA_CLUSTER":"4",
     "MICRO_RNA_SCORE":"0.886489497",
     "CASE_ID":"TCGA-BK-A0CC",
-    "OS_STATUS":"Living",
+    "OS_STATUS":"0:LIVING",
     "OS_MONTHS":"10.21787738",
-    "DFS_STATUS":"DiseaseFree",
+    "DFS_STATUS":"0:DiseaseFree",
     "DFS_MONTHS":"10.21787738"
   },
   {
@@ -5688,9 +5688,9 @@
     "MICRO_RNA_CLUSTER":"4",
     "MICRO_RNA_SCORE":"0.877287726",
     "CASE_ID":"TCGA-BK-A139",
-    "OS_STATUS":"Living",
+    "OS_STATUS":"0:LIVING",
     "OS_MONTHS":"10.15216756",
-    "DFS_STATUS":"DiseaseFree",
+    "DFS_STATUS":"0:DiseaseFree",
     "DFS_MONTHS":"10.15216756"
   },
   {
@@ -5714,9 +5714,9 @@
     "MICRO_RNA_CLUSTER":"6",
     "MICRO_RNA_SCORE":"0.936182815",
     "CASE_ID":"TCGA-BK-A13C",
-    "OS_STATUS":"Living",
+    "OS_STATUS":"0:LIVING",
     "OS_MONTHS":"13.53622341",
-    "DFS_STATUS":"DiseaseFree",
+    "DFS_STATUS":"0:DiseaseFree",
     "DFS_MONTHS":"13.53622341"
   },
   {
@@ -5740,9 +5740,9 @@
     "MICRO_RNA_CLUSTER":"4",
     "MICRO_RNA_SCORE":"0.877287726",
     "CASE_ID":"TCGA-BK-A26L",
-    "OS_STATUS":"Living",
+    "OS_STATUS":"0:LIVING",
     "OS_MONTHS":"11.92633277",
-    "DFS_STATUS":"DiseaseFree",
+    "DFS_STATUS":"0:DiseaseFree",
     "DFS_MONTHS":"11.92633277"
   },
   {
@@ -5766,7 +5766,7 @@
     "MICRO_RNA_CLUSTER":"4",
     "MICRO_RNA_SCORE":"0.877287726",
     "CASE_ID":"TCGA-BS-A0T9",
-    "OS_STATUS":"Deceased",
+    "OS_STATUS":"1:DECEASED",
     "OS_MONTHS":"46.91681319",
     "DFS_STATUS":"Recurred",
     "DFS_MONTHS":"20.79715879"
@@ -5792,7 +5792,7 @@
     "MICRO_RNA_CLUSTER":"4",
     "MICRO_RNA_SCORE":"0.923555802",
     "CASE_ID":"TCGA-BS-A0TA",
-    "OS_STATUS":"Living",
+    "OS_STATUS":"0:LIVING",
     "OS_MONTHS":"23.4584066",
     "DFS_STATUS":"Recurred",
     "DFS_MONTHS":"12.94483501"
@@ -5818,9 +5818,9 @@
     "MICRO_RNA_CLUSTER":"5",
     "MICRO_RNA_SCORE":"0.932869329",
     "CASE_ID":"TCGA-BS-A0TC",
-    "OS_STATUS":"Living",
+    "OS_STATUS":"0:LIVING",
     "OS_MONTHS":"74.25209931",
-    "DFS_STATUS":"DiseaseFree",
+    "DFS_STATUS":"0:DiseaseFree",
     "DFS_MONTHS":"74.25209931"
   },
   {
@@ -5844,9 +5844,9 @@
     "MICRO_RNA_CLUSTER":"4",
     "MICRO_RNA_SCORE":"0.923555802",
     "CASE_ID":"TCGA-BS-A0TD",
-    "OS_STATUS":"Living",
+    "OS_STATUS":"0:LIVING",
     "OS_MONTHS":"65.77553222",
-    "DFS_STATUS":"DiseaseFree",
+    "DFS_STATUS":"0:DiseaseFree",
     "DFS_MONTHS":"65.77553222"
   },
   {
@@ -5870,7 +5870,7 @@
     "MICRO_RNA_CLUSTER":"5",
     "MICRO_RNA_SCORE":"0.930343034",
     "CASE_ID":"TCGA-BS-A0TE",
-    "OS_STATUS":"Deceased",
+    "OS_STATUS":"1:DECEASED",
     "OS_MONTHS":"4.796817035",
     "DFS_STATUS":"Recurred",
     "DFS_MONTHS":"1.90558485"
@@ -5896,7 +5896,7 @@
     "MICRO_RNA_CLUSTER":"4",
     "MICRO_RNA_SCORE":"0.923555802",
     "CASE_ID":"TCGA-BS-A0TG",
-    "OS_STATUS":"Living",
+    "OS_STATUS":"0:LIVING",
     "OS_MONTHS":"61.76723306",
     "DFS_STATUS":"Recurred",
     "DFS_MONTHS":"NA"
@@ -5922,9 +5922,9 @@
     "MICRO_RNA_CLUSTER":"5",
     "MICRO_RNA_SCORE":"0.909680147",
     "CASE_ID":"TCGA-BS-A0TI",
-    "OS_STATUS":"Living",
+    "OS_STATUS":"0:LIVING",
     "OS_MONTHS":"47.40963686",
-    "DFS_STATUS":"DiseaseFree",
+    "DFS_STATUS":"0:DiseaseFree",
     "DFS_MONTHS":"47.40963686"
   },
   {
@@ -5948,9 +5948,9 @@
     "MICRO_RNA_CLUSTER":"3",
     "MICRO_RNA_SCORE":"0.840372671",
     "CASE_ID":"TCGA-BS-A0TJ",
-    "OS_STATUS":"Living",
+    "OS_STATUS":"0:LIVING",
     "OS_MONTHS":"49.74233556",
-    "DFS_STATUS":"DiseaseFree",
+    "DFS_STATUS":"0:DiseaseFree",
     "DFS_MONTHS":"49.74233556"
   },
   {
@@ -5974,9 +5974,9 @@
     "MICRO_RNA_CLUSTER":"4",
     "MICRO_RNA_SCORE":"0.869465256",
     "CASE_ID":"TCGA-BS-A0U5",
-    "OS_STATUS":"Living",
+    "OS_STATUS":"0:LIVING",
     "OS_MONTHS":"72.41222428",
-    "DFS_STATUS":"DiseaseFree",
+    "DFS_STATUS":"0:DiseaseFree",
     "DFS_MONTHS":"72.41222428"
   },
   {
@@ -6000,9 +6000,9 @@
     "MICRO_RNA_CLUSTER":"4",
     "MICRO_RNA_SCORE":"0.920652251",
     "CASE_ID":"TCGA-BS-A0U7",
-    "OS_STATUS":"Deceased",
+    "OS_STATUS":"1:DECEASED",
     "OS_MONTHS":"30.68648706",
-    "DFS_STATUS":"DiseaseFree",
+    "DFS_STATUS":"0:DiseaseFree",
     "DFS_MONTHS":"30.68648706"
   },
   {
@@ -6026,9 +6026,9 @@
     "MICRO_RNA_CLUSTER":"5",
     "MICRO_RNA_SCORE":"0.932869329",
     "CASE_ID":"TCGA-BS-A0U8",
-    "OS_STATUS":"Living",
+    "OS_STATUS":"0:LIVING",
     "OS_MONTHS":"85.61989859",
-    "DFS_STATUS":"DiseaseFree",
+    "DFS_STATUS":"0:DiseaseFree",
     "DFS_MONTHS":"85.61989859"
   },
   {
@@ -6052,9 +6052,9 @@
     "MICRO_RNA_CLUSTER":"3",
     "MICRO_RNA_SCORE":"0.897648505",
     "CASE_ID":"TCGA-BS-A0U9",
-    "OS_STATUS":"Living",
+    "OS_STATUS":"0:LIVING",
     "OS_MONTHS":"57.46323969",
-    "DFS_STATUS":"DiseaseFree",
+    "DFS_STATUS":"0:DiseaseFree",
     "DFS_MONTHS":"57.46323969"
   },
   {
@@ -6078,7 +6078,7 @@
     "MICRO_RNA_CLUSTER":"5",
     "MICRO_RNA_SCORE":"0.932869329",
     "CASE_ID":"TCGA-BS-A0UA",
-    "OS_STATUS":"Living",
+    "OS_STATUS":"0:LIVING",
     "OS_MONTHS":"83.45147445",
     "DFS_STATUS":"Recurred",
     "DFS_MONTHS":"17.05169891"
@@ -6104,9 +6104,9 @@
     "MICRO_RNA_CLUSTER":"5",
     "MICRO_RNA_SCORE":"-0.14185334",
     "CASE_ID":"TCGA-BS-A0UF",
-    "OS_STATUS":"Living",
+    "OS_STATUS":"0:LIVING",
     "OS_MONTHS":"60.55160134",
-    "DFS_STATUS":"DiseaseFree",
+    "DFS_STATUS":"0:DiseaseFree",
     "DFS_MONTHS":"60.55160134"
   },
   {
@@ -6130,9 +6130,9 @@
     "MICRO_RNA_CLUSTER":"6",
     "MICRO_RNA_SCORE":"0.936182815",
     "CASE_ID":"TCGA-BS-A0UJ",
-    "OS_STATUS":"Living",
+    "OS_STATUS":"0:LIVING",
     "OS_MONTHS":"0.887082602",
-    "DFS_STATUS":"DiseaseFree",
+    "DFS_STATUS":"0:DiseaseFree",
     "DFS_MONTHS":"0.887082602"
   },
   {
@@ -6156,9 +6156,9 @@
     "MICRO_RNA_CLUSTER":"2",
     "MICRO_RNA_SCORE":"0.953263868",
     "CASE_ID":"TCGA-BS-A0UL",
-    "OS_STATUS":"Living",
+    "OS_STATUS":"0:LIVING",
     "OS_MONTHS":"1.182776803",
-    "DFS_STATUS":"DiseaseFree",
+    "DFS_STATUS":"0:DiseaseFree",
     "DFS_MONTHS":"1.182776803"
   },
   {
@@ -6182,7 +6182,7 @@
     "MICRO_RNA_CLUSTER":"5",
     "MICRO_RNA_SCORE":"0.928732873",
     "CASE_ID":"TCGA-BS-A0UM",
-    "OS_STATUS":"Living",
+    "OS_STATUS":"0:LIVING",
     "OS_MONTHS":"71.98511044",
     "DFS_STATUS":"Recurred",
     "DFS_MONTHS":"47.77104088"
@@ -6208,9 +6208,9 @@
     "MICRO_RNA_CLUSTER":"5",
     "MICRO_RNA_SCORE":"0.81473312",
     "CASE_ID":"TCGA-BS-A0UT",
-    "OS_STATUS":"Living",
+    "OS_STATUS":"0:LIVING",
     "OS_MONTHS":"19.54867216",
-    "DFS_STATUS":"DiseaseFree",
+    "DFS_STATUS":"0:DiseaseFree",
     "DFS_MONTHS":"19.54867216"
   },
   {
@@ -6234,9 +6234,9 @@
     "MICRO_RNA_CLUSTER":"4",
     "MICRO_RNA_SCORE":"0.923555802",
     "CASE_ID":"TCGA-BS-A0UV",
-    "OS_STATUS":"Living",
+    "OS_STATUS":"0:LIVING",
     "OS_MONTHS":"4.895381769",
-    "DFS_STATUS":"DiseaseFree",
+    "DFS_STATUS":"0:DiseaseFree",
     "DFS_MONTHS":"4.895381769"
   },
   {
@@ -6260,9 +6260,9 @@
     "MICRO_RNA_CLUSTER":"5",
     "MICRO_RNA_SCORE":"0.930343034",
     "CASE_ID":"TCGA-BS-A0V4",
-    "OS_STATUS":"Living",
+    "OS_STATUS":"0:LIVING",
     "OS_MONTHS":"1.018502247",
-    "DFS_STATUS":"DiseaseFree",
+    "DFS_STATUS":"0:DiseaseFree",
     "DFS_MONTHS":"1.018502247"
   },
   {
@@ -6286,9 +6286,9 @@
     "MICRO_RNA_CLUSTER":"2",
     "MICRO_RNA_SCORE":"0.936305291",
     "CASE_ID":"TCGA-BS-A0V6",
-    "OS_STATUS":"Living",
+    "OS_STATUS":"0:LIVING",
     "OS_MONTHS":"54.21060348",
-    "DFS_STATUS":"DiseaseFree",
+    "DFS_STATUS":"0:DiseaseFree",
     "DFS_MONTHS":"54.21060348"
   },
   {
@@ -6312,9 +6312,9 @@
     "MICRO_RNA_CLUSTER":"2",
     "MICRO_RNA_SCORE":"0.953263868",
     "CASE_ID":"TCGA-BS-A0V7",
-    "OS_STATUS":"Living",
+    "OS_STATUS":"0:LIVING",
     "OS_MONTHS":"46.9496681",
-    "DFS_STATUS":"DiseaseFree",
+    "DFS_STATUS":"0:DiseaseFree",
     "DFS_MONTHS":"46.9496681"
   },
   {
@@ -6338,9 +6338,9 @@
     "MICRO_RNA_CLUSTER":"2",
     "MICRO_RNA_SCORE":"0.953263868",
     "CASE_ID":"TCGA-BS-A0V8",
-    "OS_STATUS":"Living",
+    "OS_STATUS":"0:LIVING",
     "OS_MONTHS":"49.51235118",
-    "DFS_STATUS":"DiseaseFree",
+    "DFS_STATUS":"0:DiseaseFree",
     "DFS_MONTHS":"49.51235118"
   },
   {
@@ -6364,9 +6364,9 @@
     "MICRO_RNA_CLUSTER":"5",
     "MICRO_RNA_SCORE":"0.890025216",
     "CASE_ID":"TCGA-BS-A0VI",
-    "OS_STATUS":"Living",
+    "OS_STATUS":"0:LIVING",
     "OS_MONTHS":"54.5720075",
-    "DFS_STATUS":"DiseaseFree",
+    "DFS_STATUS":"0:DiseaseFree",
     "DFS_MONTHS":"54.5720075"
   },
   {
@@ -6390,9 +6390,9 @@
     "MICRO_RNA_CLUSTER":"6",
     "MICRO_RNA_SCORE":"0.936182815",
     "CASE_ID":"TCGA-BS-A0WQ",
-    "OS_STATUS":"Living",
+    "OS_STATUS":"0:LIVING",
     "OS_MONTHS":"39.65587782",
-    "DFS_STATUS":"DiseaseFree",
+    "DFS_STATUS":"0:DiseaseFree",
     "DFS_MONTHS":"39.65587782"
   },
   {
@@ -6416,7 +6416,7 @@
     "MICRO_RNA_CLUSTER":"5",
     "MICRO_RNA_SCORE":"0.677581832",
     "CASE_ID":"TCGA-D1-A0ZN",
-    "OS_STATUS":"Living",
+    "OS_STATUS":"0:LIVING",
     "OS_MONTHS":"16.82171453",
     "DFS_STATUS":"Recurred",
     "DFS_MONTHS":"14.71900022"
@@ -6442,9 +6442,9 @@
     "MICRO_RNA_CLUSTER":"2",
     "MICRO_RNA_SCORE":"0.953263868",
     "CASE_ID":"TCGA-D1-A0ZO",
-    "OS_STATUS":"Living",
+    "OS_STATUS":"0:LIVING",
     "OS_MONTHS":"19.77865654",
-    "DFS_STATUS":"DiseaseFree",
+    "DFS_STATUS":"0:DiseaseFree",
     "DFS_MONTHS":"19.77865654"
   },
   {
@@ -6468,7 +6468,7 @@
     "MICRO_RNA_CLUSTER":"4",
     "MICRO_RNA_SCORE":"0.886489497",
     "CASE_ID":"TCGA-D1-A0ZP",
-    "OS_STATUS":"Living",
+    "OS_STATUS":"0:LIVING",
     "OS_MONTHS":"29.9308241",
     "DFS_STATUS":"Recurred",
     "DFS_MONTHS":"20.66573914"
@@ -6494,9 +6494,9 @@
     "MICRO_RNA_CLUSTER":"2",
     "MICRO_RNA_SCORE":"0.953263868",
     "CASE_ID":"TCGA-D1-A0ZQ",
-    "OS_STATUS":"Living",
+    "OS_STATUS":"0:LIVING",
     "OS_MONTHS":"8.542276912",
-    "DFS_STATUS":"DiseaseFree",
+    "DFS_STATUS":"0:DiseaseFree",
     "DFS_MONTHS":"8.542276912"
   },
   {
@@ -6520,9 +6520,9 @@
     "MICRO_RNA_CLUSTER":"6",
     "MICRO_RNA_SCORE":"0.770817643",
     "CASE_ID":"TCGA-D1-A0ZR",
-    "OS_STATUS":"Living",
+    "OS_STATUS":"0:LIVING",
     "OS_MONTHS":"0.55853349",
-    "DFS_STATUS":"DiseaseFree",
+    "DFS_STATUS":"0:DiseaseFree",
     "DFS_MONTHS":"0.55853349"
   },
   {
@@ -6546,9 +6546,9 @@
     "MICRO_RNA_CLUSTER":"2",
     "MICRO_RNA_SCORE":"0.9151894",
     "CASE_ID":"TCGA-D1-A0ZS",
-    "OS_STATUS":"Living",
+    "OS_STATUS":"0:LIVING",
     "OS_MONTHS":"4.829671946",
-    "DFS_STATUS":"DiseaseFree",
+    "DFS_STATUS":"0:DiseaseFree",
     "DFS_MONTHS":"4.829671946"
   },
   {
@@ -6572,9 +6572,9 @@
     "MICRO_RNA_CLUSTER":"2",
     "MICRO_RNA_SCORE":"0.953263868",
     "CASE_ID":"TCGA-D1-A0ZU",
-    "OS_STATUS":"Living",
+    "OS_STATUS":"0:LIVING",
     "OS_MONTHS":"28.64948257",
-    "DFS_STATUS":"DiseaseFree",
+    "DFS_STATUS":"0:DiseaseFree",
     "DFS_MONTHS":"28.64948257"
   },
   {
@@ -6598,9 +6598,9 @@
     "MICRO_RNA_CLUSTER":"4",
     "MICRO_RNA_SCORE":"0.923555802",
     "CASE_ID":"TCGA-D1-A0ZV",
-    "OS_STATUS":"Living",
+    "OS_STATUS":"0:LIVING",
     "OS_MONTHS":"23.91837535",
-    "DFS_STATUS":"DiseaseFree",
+    "DFS_STATUS":"0:DiseaseFree",
     "DFS_MONTHS":"23.91837535"
   },
   {
@@ -6624,9 +6624,9 @@
     "MICRO_RNA_CLUSTER":"4",
     "MICRO_RNA_SCORE":"0.877287726",
     "CASE_ID":"TCGA-D1-A0ZZ",
-    "OS_STATUS":"Living",
+    "OS_STATUS":"0:LIVING",
     "OS_MONTHS":"22.50561417",
-    "DFS_STATUS":"DiseaseFree",
+    "DFS_STATUS":"0:DiseaseFree",
     "DFS_MONTHS":"22.50561417"
   },
   {
@@ -6650,9 +6650,9 @@
     "MICRO_RNA_CLUSTER":"2",
     "MICRO_RNA_SCORE":"0.953263868",
     "CASE_ID":"TCGA-D1-A101",
-    "OS_STATUS":"Living",
+    "OS_STATUS":"0:LIVING",
     "OS_MONTHS":"1.741310294",
-    "DFS_STATUS":"DiseaseFree",
+    "DFS_STATUS":"0:DiseaseFree",
     "DFS_MONTHS":"1.741310294"
   },
   {
@@ -6676,9 +6676,9 @@
     "MICRO_RNA_CLUSTER":"5",
     "MICRO_RNA_SCORE":"0.887382298",
     "CASE_ID":"TCGA-D1-A102",
-    "OS_STATUS":"Living",
+    "OS_STATUS":"0:LIVING",
     "OS_MONTHS":"4.435413012",
-    "DFS_STATUS":"DiseaseFree",
+    "DFS_STATUS":"0:DiseaseFree",
     "DFS_MONTHS":"4.435413012"
   },
   {
@@ -6702,9 +6702,9 @@
     "MICRO_RNA_CLUSTER":"6",
     "MICRO_RNA_SCORE":"0.877018213",
     "CASE_ID":"TCGA-D1-A103",
-    "OS_STATUS":"Living",
+    "OS_STATUS":"0:LIVING",
     "OS_MONTHS":"21.97993559",
-    "DFS_STATUS":"DiseaseFree",
+    "DFS_STATUS":"0:DiseaseFree",
     "DFS_MONTHS":"21.97993559"
   },
   {
@@ -6728,9 +6728,9 @@
     "MICRO_RNA_CLUSTER":"1",
     "MICRO_RNA_SCORE":"0.918650794",
     "CASE_ID":"TCGA-D1-A15V",
-    "OS_STATUS":"Living",
+    "OS_STATUS":"0:LIVING",
     "OS_MONTHS":"39.45874835",
-    "DFS_STATUS":"DiseaseFree",
+    "DFS_STATUS":"0:DiseaseFree",
     "DFS_MONTHS":"39.45874835"
   },
   {
@@ -6754,9 +6754,9 @@
     "MICRO_RNA_CLUSTER":"2",
     "MICRO_RNA_SCORE":"0.953263868",
     "CASE_ID":"TCGA-D1-A15W",
-    "OS_STATUS":"Living",
+    "OS_STATUS":"0:LIVING",
     "OS_MONTHS":"30.06224375",
-    "DFS_STATUS":"DiseaseFree",
+    "DFS_STATUS":"0:DiseaseFree",
     "DFS_MONTHS":"30.06224375"
   },
   {
@@ -6780,9 +6780,9 @@
     "MICRO_RNA_CLUSTER":"4",
     "MICRO_RNA_SCORE":"0.921320947",
     "CASE_ID":"TCGA-D1-A15X",
-    "OS_STATUS":"Living",
+    "OS_STATUS":"0:LIVING",
     "OS_MONTHS":"29.86511428",
-    "DFS_STATUS":"DiseaseFree",
+    "DFS_STATUS":"0:DiseaseFree",
     "DFS_MONTHS":"29.86511428"
   },
   {
@@ -6806,9 +6806,9 @@
     "MICRO_RNA_CLUSTER":"6",
     "MICRO_RNA_SCORE":"0.936182815",
     "CASE_ID":"TCGA-D1-A15Z",
-    "OS_STATUS":"Deceased",
+    "OS_STATUS":"1:DECEASED",
     "OS_MONTHS":"1.90558485",
-    "DFS_STATUS":"DiseaseFree",
+    "DFS_STATUS":"0:DiseaseFree",
     "DFS_MONTHS":"1.90558485"
   },
   {
@@ -6832,9 +6832,9 @@
     "MICRO_RNA_CLUSTER":"6",
     "MICRO_RNA_SCORE":"0.936182815",
     "CASE_ID":"TCGA-D1-A160",
-    "OS_STATUS":"Living",
+    "OS_STATUS":"0:LIVING",
     "OS_MONTHS":"3.679750054",
-    "DFS_STATUS":"DiseaseFree",
+    "DFS_STATUS":"0:DiseaseFree",
     "DFS_MONTHS":"3.679750054"
   },
   {
@@ -6858,9 +6858,9 @@
     "MICRO_RNA_CLUSTER":"2",
     "MICRO_RNA_SCORE":"0.953263868",
     "CASE_ID":"TCGA-D1-A161",
-    "OS_STATUS":"Living",
+    "OS_STATUS":"0:LIVING",
     "OS_MONTHS":"29.30658079",
-    "DFS_STATUS":"DiseaseFree",
+    "DFS_STATUS":"0:DiseaseFree",
     "DFS_MONTHS":"29.30658079"
   },
   {
@@ -6884,9 +6884,9 @@
     "MICRO_RNA_CLUSTER":"6",
     "MICRO_RNA_SCORE":"0.88209171",
     "CASE_ID":"TCGA-D1-A162",
-    "OS_STATUS":"Living",
+    "OS_STATUS":"0:LIVING",
     "OS_MONTHS":"37.61887332",
-    "DFS_STATUS":"DiseaseFree",
+    "DFS_STATUS":"0:DiseaseFree",
     "DFS_MONTHS":"37.61887332"
   },
   {
@@ -6910,7 +6910,7 @@
     "MICRO_RNA_CLUSTER":"5",
     "MICRO_RNA_SCORE":"0.932869329",
     "CASE_ID":"TCGA-D1-A163",
-    "OS_STATUS":"Living",
+    "OS_STATUS":"0:LIVING",
     "OS_MONTHS":"32.559217",
     "DFS_STATUS":"Recurred",
     "DFS_MONTHS":"7.326645198"
@@ -6936,9 +6936,9 @@
     "MICRO_RNA_CLUSTER":"2",
     "MICRO_RNA_SCORE":"0.953263868",
     "CASE_ID":"TCGA-D1-A165",
-    "OS_STATUS":"Living",
+    "OS_STATUS":"0:LIVING",
     "OS_MONTHS":"0.657098224",
-    "DFS_STATUS":"DiseaseFree",
+    "DFS_STATUS":"0:DiseaseFree",
     "DFS_MONTHS":"0.657098224"
   },
   {
@@ -6962,9 +6962,9 @@
     "MICRO_RNA_CLUSTER":"6",
     "MICRO_RNA_SCORE":"0.93181747",
     "CASE_ID":"TCGA-D1-A167",
-    "OS_STATUS":"Living",
+    "OS_STATUS":"0:LIVING",
     "OS_MONTHS":"15.70464755",
-    "DFS_STATUS":"DiseaseFree",
+    "DFS_STATUS":"0:DiseaseFree",
     "DFS_MONTHS":"15.70464755"
   },
   {
@@ -6988,9 +6988,9 @@
     "MICRO_RNA_CLUSTER":"2",
     "MICRO_RNA_SCORE":"0.788513777",
     "CASE_ID":"TCGA-D1-A168",
-    "OS_STATUS":"Living",
+    "OS_STATUS":"0:LIVING",
     "OS_MONTHS":"36.0746925",
-    "DFS_STATUS":"DiseaseFree",
+    "DFS_STATUS":"0:DiseaseFree",
     "DFS_MONTHS":"36.0746925"
   },
   {
@@ -7014,7 +7014,7 @@
     "MICRO_RNA_CLUSTER":"5",
     "MICRO_RNA_SCORE":"0.905982296",
     "CASE_ID":"TCGA-D1-A169",
-    "OS_STATUS":"Living",
+    "OS_STATUS":"0:LIVING",
     "OS_MONTHS":"37.29032421",
     "DFS_STATUS":"Recurred",
     "DFS_MONTHS":"17.05169891"
@@ -7040,9 +7040,9 @@
     "MICRO_RNA_CLUSTER":"4",
     "MICRO_RNA_SCORE":"0.877287726",
     "CASE_ID":"TCGA-D1-A16B",
-    "OS_STATUS":"Living",
+    "OS_STATUS":"0:LIVING",
     "OS_MONTHS":"36.33753179",
-    "DFS_STATUS":"DiseaseFree",
+    "DFS_STATUS":"0:DiseaseFree",
     "DFS_MONTHS":"36.33753179"
   },
   {
@@ -7066,9 +7066,9 @@
     "MICRO_RNA_CLUSTER":"1",
     "MICRO_RNA_SCORE":"0.918650794",
     "CASE_ID":"TCGA-D1-A16D",
-    "OS_STATUS":"Living",
+    "OS_STATUS":"0:LIVING",
     "OS_MONTHS":"37.48745368",
-    "DFS_STATUS":"DiseaseFree",
+    "DFS_STATUS":"0:DiseaseFree",
     "DFS_MONTHS":"37.48745368"
   },
   {
@@ -7092,9 +7092,9 @@
     "MICRO_RNA_CLUSTER":"2",
     "MICRO_RNA_SCORE":"0.953263868",
     "CASE_ID":"TCGA-D1-A16E",
-    "OS_STATUS":"Living",
+    "OS_STATUS":"0:LIVING",
     "OS_MONTHS":"36.76464563",
-    "DFS_STATUS":"DiseaseFree",
+    "DFS_STATUS":"0:DiseaseFree",
     "DFS_MONTHS":"36.76464563"
   },
   {
@@ -7118,9 +7118,9 @@
     "MICRO_RNA_CLUSTER":"1",
     "MICRO_RNA_SCORE":"0.519368529",
     "CASE_ID":"TCGA-D1-A16F",
-    "OS_STATUS":"Living",
+    "OS_STATUS":"0:LIVING",
     "OS_MONTHS":"2.628392896",
-    "DFS_STATUS":"DiseaseFree",
+    "DFS_STATUS":"0:DiseaseFree",
     "DFS_MONTHS":"2.628392896"
   },
   {
@@ -7144,7 +7144,7 @@
     "MICRO_RNA_CLUSTER":"4",
     "MICRO_RNA_SCORE":"0.886489497",
     "CASE_ID":"TCGA-D1-A16G",
-    "OS_STATUS":"Deceased",
+    "OS_STATUS":"1:DECEASED",
     "OS_MONTHS":"27.40099594",
     "DFS_STATUS":"Recurred",
     "DFS_MONTHS":"21.09285299"
@@ -7170,9 +7170,9 @@
     "MICRO_RNA_CLUSTER":"2",
     "MICRO_RNA_SCORE":"0.953263868",
     "CASE_ID":"TCGA-D1-A16I",
-    "OS_STATUS":"Deceased",
+    "OS_STATUS":"1:DECEASED",
     "OS_MONTHS":"11.46636401",
-    "DFS_STATUS":"DiseaseFree",
+    "DFS_STATUS":"0:DiseaseFree",
     "DFS_MONTHS":"11.46636401"
   },
   {
@@ -7196,9 +7196,9 @@
     "MICRO_RNA_CLUSTER":"4",
     "MICRO_RNA_SCORE":"0.891829399",
     "CASE_ID":"TCGA-D1-A16J",
-    "OS_STATUS":"Living",
+    "OS_STATUS":"0:LIVING",
     "OS_MONTHS":"29.86511428",
-    "DFS_STATUS":"DiseaseFree",
+    "DFS_STATUS":"0:DiseaseFree",
     "DFS_MONTHS":"29.86511428"
   },
   {
@@ -7222,9 +7222,9 @@
     "MICRO_RNA_CLUSTER":"6",
     "MICRO_RNA_SCORE":"0.819387387",
     "CASE_ID":"TCGA-D1-A16N",
-    "OS_STATUS":"Living",
+    "OS_STATUS":"0:LIVING",
     "OS_MONTHS":"31.04789108",
-    "DFS_STATUS":"DiseaseFree",
+    "DFS_STATUS":"0:DiseaseFree",
     "DFS_MONTHS":"31.04789108"
   },
   {
@@ -7248,9 +7248,9 @@
     "MICRO_RNA_CLUSTER":"5",
     "MICRO_RNA_SCORE":"0.667510536",
     "CASE_ID":"TCGA-D1-A16O",
-    "OS_STATUS":"Living",
+    "OS_STATUS":"0:LIVING",
     "OS_MONTHS":"33.57771925",
-    "DFS_STATUS":"DiseaseFree",
+    "DFS_STATUS":"0:DiseaseFree",
     "DFS_MONTHS":"33.57771925"
   },
   {
@@ -7274,9 +7274,9 @@
     "MICRO_RNA_CLUSTER":"1",
     "MICRO_RNA_SCORE":"0.837571802",
     "CASE_ID":"TCGA-D1-A16Q",
-    "OS_STATUS":"Living",
+    "OS_STATUS":"0:LIVING",
     "OS_MONTHS":"10.64499123",
-    "DFS_STATUS":"DiseaseFree",
+    "DFS_STATUS":"0:DiseaseFree",
     "DFS_MONTHS":"10.64499123"
   },
   {
@@ -7300,9 +7300,9 @@
     "MICRO_RNA_CLUSTER":"5",
     "MICRO_RNA_SCORE":"0.932869329",
     "CASE_ID":"TCGA-D1-A16R",
-    "OS_STATUS":"Living",
+    "OS_STATUS":"0:LIVING",
     "OS_MONTHS":"0.689953135",
-    "DFS_STATUS":"DiseaseFree",
+    "DFS_STATUS":"0:DiseaseFree",
     "DFS_MONTHS":"0.689953135"
   },
   {
@@ -7326,9 +7326,9 @@
     "MICRO_RNA_CLUSTER":"4",
     "MICRO_RNA_SCORE":"0.784111389",
     "CASE_ID":"TCGA-D1-A16S",
-    "OS_STATUS":"Living",
+    "OS_STATUS":"0:LIVING",
     "OS_MONTHS":"18.66158956",
-    "DFS_STATUS":"DiseaseFree",
+    "DFS_STATUS":"0:DiseaseFree",
     "DFS_MONTHS":"18.66158956"
   },
   {
@@ -7352,7 +7352,7 @@
     "MICRO_RNA_CLUSTER":"6",
     "MICRO_RNA_SCORE":"-0.102733132",
     "CASE_ID":"TCGA-D1-A16V",
-    "OS_STATUS":"Deceased",
+    "OS_STATUS":"1:DECEASED",
     "OS_MONTHS":"3.942589344",
     "DFS_STATUS":"",
     "DFS_MONTHS":"NA"
@@ -7378,9 +7378,9 @@
     "MICRO_RNA_CLUSTER":"5",
     "MICRO_RNA_SCORE":"0.890025216",
     "CASE_ID":"TCGA-D1-A16X",
-    "OS_STATUS":"Living",
+    "OS_STATUS":"0:LIVING",
     "OS_MONTHS":"3.646895143",
-    "DFS_STATUS":"DiseaseFree",
+    "DFS_STATUS":"0:DiseaseFree",
     "DFS_MONTHS":"3.646895143"
   },
   {
@@ -7404,9 +7404,9 @@
     "MICRO_RNA_CLUSTER":"4",
     "MICRO_RNA_SCORE":"0.877287726",
     "CASE_ID":"TCGA-D1-A16Y",
-    "OS_STATUS":"Living",
+    "OS_STATUS":"0:LIVING",
     "OS_MONTHS":"17.47881276",
-    "DFS_STATUS":"DiseaseFree",
+    "DFS_STATUS":"0:DiseaseFree",
     "DFS_MONTHS":"17.47881276"
   },
   {
@@ -7430,9 +7430,9 @@
     "MICRO_RNA_CLUSTER":"5",
     "MICRO_RNA_SCORE":"0.887382298",
     "CASE_ID":"TCGA-D1-A174",
-    "OS_STATUS":"Living",
+    "OS_STATUS":"0:LIVING",
     "OS_MONTHS":"19.51581725",
-    "DFS_STATUS":"DiseaseFree",
+    "DFS_STATUS":"0:DiseaseFree",
     "DFS_MONTHS":"19.51581725"
   },
   {
@@ -7456,9 +7456,9 @@
     "MICRO_RNA_CLUSTER":"5",
     "MICRO_RNA_SCORE":"0.932869329",
     "CASE_ID":"TCGA-D1-A175",
-    "OS_STATUS":"Living",
+    "OS_STATUS":"0:LIVING",
     "OS_MONTHS":"6.636692062",
-    "DFS_STATUS":"DiseaseFree",
+    "DFS_STATUS":"0:DiseaseFree",
     "DFS_MONTHS":"6.636692062"
   },
   {
@@ -7482,9 +7482,9 @@
     "MICRO_RNA_CLUSTER":"5",
     "MICRO_RNA_SCORE":"0.594277483",
     "CASE_ID":"TCGA-D1-A176",
-    "OS_STATUS":"Living",
+    "OS_STATUS":"0:LIVING",
     "OS_MONTHS":"30.12795357",
-    "DFS_STATUS":"DiseaseFree",
+    "DFS_STATUS":"0:DiseaseFree",
     "DFS_MONTHS":"30.12795357"
   },
   {
@@ -7508,7 +7508,7 @@
     "MICRO_RNA_CLUSTER":"5",
     "MICRO_RNA_SCORE":"0.930343034",
     "CASE_ID":"TCGA-D1-A177",
-    "OS_STATUS":"Living",
+    "OS_STATUS":"0:LIVING",
     "OS_MONTHS":"18.00449134",
     "DFS_STATUS":"Recurred",
     "DFS_MONTHS":"11.40065419"
@@ -7534,7 +7534,7 @@
     "MICRO_RNA_CLUSTER":"1",
     "MICRO_RNA_SCORE":"0.469920802",
     "CASE_ID":"TCGA-D1-A179",
-    "OS_STATUS":"Deceased",
+    "OS_STATUS":"1:DECEASED",
     "OS_MONTHS":"14.71900022",
     "DFS_STATUS":"Recurred",
     "DFS_MONTHS":"14.02904708"
@@ -7560,9 +7560,9 @@
     "MICRO_RNA_CLUSTER":"1",
     "MICRO_RNA_SCORE":"0.918650794",
     "CASE_ID":"TCGA-D1-A17A",
-    "OS_STATUS":"Living",
+    "OS_STATUS":"0:LIVING",
     "OS_MONTHS":"1.577035738",
-    "DFS_STATUS":"DiseaseFree",
+    "DFS_STATUS":"0:DiseaseFree",
     "DFS_MONTHS":"1.577035738"
   },
   {
@@ -7586,9 +7586,9 @@
     "MICRO_RNA_CLUSTER":"4",
     "MICRO_RNA_SCORE":"0.923555802",
     "CASE_ID":"TCGA-D1-A17B",
-    "OS_STATUS":"Living",
+    "OS_STATUS":"0:LIVING",
     "OS_MONTHS":"6.965241174",
-    "DFS_STATUS":"DiseaseFree",
+    "DFS_STATUS":"0:DiseaseFree",
     "DFS_MONTHS":"6.965241174"
   },
   {
@@ -7612,9 +7612,9 @@
     "MICRO_RNA_CLUSTER":"2",
     "MICRO_RNA_SCORE":"0.953263868",
     "CASE_ID":"TCGA-D1-A17C",
-    "OS_STATUS":"Living",
+    "OS_STATUS":"0:LIVING",
     "OS_MONTHS":"0.985647336",
-    "DFS_STATUS":"DiseaseFree",
+    "DFS_STATUS":"0:DiseaseFree",
     "DFS_MONTHS":"0.985647336"
   },
   {
@@ -7638,9 +7638,9 @@
     "MICRO_RNA_CLUSTER":"3",
     "MICRO_RNA_SCORE":"0.85566506",
     "CASE_ID":"TCGA-D1-A17D",
-    "OS_STATUS":"Living",
+    "OS_STATUS":"0:LIVING",
     "OS_MONTHS":"30.42364777",
-    "DFS_STATUS":"DiseaseFree",
+    "DFS_STATUS":"0:DiseaseFree",
     "DFS_MONTHS":"30.42364777"
   },
   {
@@ -7664,9 +7664,9 @@
     "MICRO_RNA_CLUSTER":"6",
     "MICRO_RNA_SCORE":"0.936182815",
     "CASE_ID":"TCGA-D1-A17F",
-    "OS_STATUS":"Living",
+    "OS_STATUS":"0:LIVING",
     "OS_MONTHS":"1.281341537",
-    "DFS_STATUS":"DiseaseFree",
+    "DFS_STATUS":"0:DiseaseFree",
     "DFS_MONTHS":"1.281341537"
   },
   {
@@ -7690,9 +7690,9 @@
     "MICRO_RNA_CLUSTER":"2",
     "MICRO_RNA_SCORE":"0.953263868",
     "CASE_ID":"TCGA-D1-A17H",
-    "OS_STATUS":"Living",
+    "OS_STATUS":"0:LIVING",
     "OS_MONTHS":"27.99238434",
-    "DFS_STATUS":"DiseaseFree",
+    "DFS_STATUS":"0:DiseaseFree",
     "DFS_MONTHS":"27.99238434"
   },
   {
@@ -7716,7 +7716,7 @@
     "MICRO_RNA_CLUSTER":"3",
     "MICRO_RNA_SCORE":"0.888897494",
     "CASE_ID":"TCGA-D1-A17K",
-    "OS_STATUS":"Living",
+    "OS_STATUS":"0:LIVING",
     "OS_MONTHS":"28.05809416",
     "DFS_STATUS":"Recurred",
     "DFS_MONTHS":"26.77675263"
@@ -7742,9 +7742,9 @@
     "MICRO_RNA_CLUSTER":"6",
     "MICRO_RNA_SCORE":"0.936182815",
     "CASE_ID":"TCGA-D1-A17L",
-    "OS_STATUS":"Living",
+    "OS_STATUS":"0:LIVING",
     "OS_MONTHS":"26.34963878",
-    "DFS_STATUS":"DiseaseFree",
+    "DFS_STATUS":"0:DiseaseFree",
     "DFS_MONTHS":"26.34963878"
   },
   {
@@ -7768,9 +7768,9 @@
     "MICRO_RNA_CLUSTER":"5",
     "MICRO_RNA_SCORE":"0.932869329",
     "CASE_ID":"TCGA-D1-A17M",
-    "OS_STATUS":"Living",
+    "OS_STATUS":"0:LIVING",
     "OS_MONTHS":"10.21787738",
-    "DFS_STATUS":"DiseaseFree",
+    "DFS_STATUS":"0:DiseaseFree",
     "DFS_MONTHS":"10.21787738"
   },
   {
@@ -7794,9 +7794,9 @@
     "MICRO_RNA_CLUSTER":"2",
     "MICRO_RNA_SCORE":"0.837730267",
     "CASE_ID":"TCGA-D1-A17N",
-    "OS_STATUS":"Living",
+    "OS_STATUS":"0:LIVING",
     "OS_MONTHS":"1.511325915",
-    "DFS_STATUS":"DiseaseFree",
+    "DFS_STATUS":"0:DiseaseFree",
     "DFS_MONTHS":"1.511325915"
   },
   {
@@ -7820,9 +7820,9 @@
     "MICRO_RNA_CLUSTER":"3",
     "MICRO_RNA_SCORE":"0.888581036",
     "CASE_ID":"TCGA-D1-A17Q",
-    "OS_STATUS":"Living",
+    "OS_STATUS":"0:LIVING",
     "OS_MONTHS":"1.774165205",
-    "DFS_STATUS":"DiseaseFree",
+    "DFS_STATUS":"0:DiseaseFree",
     "DFS_MONTHS":"1.774165205"
   },
   {
@@ -7846,9 +7846,9 @@
     "MICRO_RNA_CLUSTER":"5",
     "MICRO_RNA_SCORE":"0.932869329",
     "CASE_ID":"TCGA-D1-A17R",
-    "OS_STATUS":"Deceased",
+    "OS_STATUS":"1:DECEASED",
     "OS_MONTHS":"11.1378149",
-    "DFS_STATUS":"DiseaseFree",
+    "DFS_STATUS":"0:DiseaseFree",
     "DFS_MONTHS":"11.1378149"
   },
   {
@@ -7872,9 +7872,9 @@
     "MICRO_RNA_CLUSTER":"6",
     "MICRO_RNA_SCORE":"0.936182815",
     "CASE_ID":"TCGA-D1-A17S",
-    "OS_STATUS":"Living",
+    "OS_STATUS":"0:LIVING",
     "OS_MONTHS":"24.27977938",
-    "DFS_STATUS":"DiseaseFree",
+    "DFS_STATUS":"0:DiseaseFree",
     "DFS_MONTHS":"24.27977938"
   },
   {
@@ -7898,9 +7898,9 @@
     "MICRO_RNA_CLUSTER":"6",
     "MICRO_RNA_SCORE":"0.807152783",
     "CASE_ID":"TCGA-D1-A17T",
-    "OS_STATUS":"Living",
+    "OS_STATUS":"0:LIVING",
     "OS_MONTHS":"2.299843784",
-    "DFS_STATUS":"DiseaseFree",
+    "DFS_STATUS":"0:DiseaseFree",
     "DFS_MONTHS":"2.299843784"
   },
   {
@@ -7924,9 +7924,9 @@
     "MICRO_RNA_CLUSTER":"2",
     "MICRO_RNA_SCORE":"0.908260689",
     "CASE_ID":"TCGA-D1-A17U",
-    "OS_STATUS":"Living",
+    "OS_STATUS":"0:LIVING",
     "OS_MONTHS":"22.89987311",
-    "DFS_STATUS":"DiseaseFree",
+    "DFS_STATUS":"0:DiseaseFree",
     "DFS_MONTHS":"22.89987311"
   },
   {
@@ -7950,9 +7950,9 @@
     "MICRO_RNA_CLUSTER":"4",
     "MICRO_RNA_SCORE":"0.923555802",
     "CASE_ID":"TCGA-D1-A1NS",
-    "OS_STATUS":"Living",
+    "OS_STATUS":"0:LIVING",
     "OS_MONTHS":"1.412761182",
-    "DFS_STATUS":"DiseaseFree",
+    "DFS_STATUS":"0:DiseaseFree",
     "DFS_MONTHS":"1.412761182"
   },
   {
@@ -7976,9 +7976,9 @@
     "MICRO_RNA_CLUSTER":"6",
     "MICRO_RNA_SCORE":"0.936182815",
     "CASE_ID":"TCGA-D1-A1NU",
-    "OS_STATUS":"Living",
+    "OS_STATUS":"0:LIVING",
     "OS_MONTHS":"13.2076743",
-    "DFS_STATUS":"DiseaseFree",
+    "DFS_STATUS":"0:DiseaseFree",
     "DFS_MONTHS":"13.2076743"
   },
   {
@@ -8002,9 +8002,9 @@
     "MICRO_RNA_CLUSTER":"6",
     "MICRO_RNA_SCORE":"0.736696762",
     "CASE_ID":"TCGA-D1-A1NW",
-    "OS_STATUS":"Living",
+    "OS_STATUS":"0:LIVING",
     "OS_MONTHS":"0.722808046",
-    "DFS_STATUS":"DiseaseFree",
+    "DFS_STATUS":"0:DiseaseFree",
     "DFS_MONTHS":"0.722808046"
   },
   {
@@ -8028,7 +8028,7 @@
     "MICRO_RNA_CLUSTER":"6",
     "MICRO_RNA_SCORE":"0.936182815",
     "CASE_ID":"TCGA-D1-A1NX",
-    "OS_STATUS":"Living",
+    "OS_STATUS":"0:LIVING",
     "OS_MONTHS":"18.23447572",
     "DFS_STATUS":"Recurred",
     "DFS_MONTHS":"15.63893773"
@@ -8054,9 +8054,9 @@
     "MICRO_RNA_CLUSTER":"2",
     "MICRO_RNA_SCORE":"0.706422825",
     "CASE_ID":"TCGA-D1-A1NY",
-    "OS_STATUS":"Living",
+    "OS_STATUS":"0:LIVING",
     "OS_MONTHS":"16.85456945",
-    "DFS_STATUS":"DiseaseFree",
+    "DFS_STATUS":"0:DiseaseFree",
     "DFS_MONTHS":"16.85456945"
   },
   {
@@ -8080,9 +8080,9 @@
     "MICRO_RNA_CLUSTER":"1",
     "MICRO_RNA_SCORE":"0.918650794",
     "CASE_ID":"TCGA-D1-A1NZ",
-    "OS_STATUS":"Living",
+    "OS_STATUS":"0:LIVING",
     "OS_MONTHS":"18.00449134",
-    "DFS_STATUS":"DiseaseFree",
+    "DFS_STATUS":"0:DiseaseFree",
     "DFS_MONTHS":"18.00449134"
   },
   {
@@ -8106,9 +8106,9 @@
     "MICRO_RNA_CLUSTER":"3",
     "MICRO_RNA_SCORE":"0.897648505",
     "CASE_ID":"TCGA-D1-A1O0",
-    "OS_STATUS":"Living",
+    "OS_STATUS":"0:LIVING",
     "OS_MONTHS":"2.069859406",
-    "DFS_STATUS":"DiseaseFree",
+    "DFS_STATUS":"0:DiseaseFree",
     "DFS_MONTHS":"2.069859406"
   },
   {
@@ -8132,9 +8132,9 @@
     "MICRO_RNA_CLUSTER":"3",
     "MICRO_RNA_SCORE":"0.897648505",
     "CASE_ID":"TCGA-D1-A1O5",
-    "OS_STATUS":"Living",
+    "OS_STATUS":"0:LIVING",
     "OS_MONTHS":"15.04754933",
-    "DFS_STATUS":"DiseaseFree",
+    "DFS_STATUS":"0:DiseaseFree",
     "DFS_MONTHS":"15.04754933"
   },
   {
@@ -8158,9 +8158,9 @@
     "MICRO_RNA_CLUSTER":"6",
     "MICRO_RNA_SCORE":"0.936182815",
     "CASE_ID":"TCGA-D1-A1O7",
-    "OS_STATUS":"Living",
+    "OS_STATUS":"0:LIVING",
     "OS_MONTHS":"1.051357158",
-    "DFS_STATUS":"DiseaseFree",
+    "DFS_STATUS":"0:DiseaseFree",
     "DFS_MONTHS":"1.051357158"
   },
   {
@@ -8184,9 +8184,9 @@
     "MICRO_RNA_CLUSTER":"5",
     "MICRO_RNA_SCORE":"0.883397264",
     "CASE_ID":"TCGA-D1-A1O8",
-    "OS_STATUS":"Living",
+    "OS_STATUS":"0:LIVING",
     "OS_MONTHS":"5.651044726",
-    "DFS_STATUS":"DiseaseFree",
+    "DFS_STATUS":"0:DiseaseFree",
     "DFS_MONTHS":"5.651044726"
   },
   {
@@ -8210,9 +8210,9 @@
     "MICRO_RNA_CLUSTER":"6",
     "MICRO_RNA_SCORE":"0.936182815",
     "CASE_ID":"TCGA-D1-A2G0",
-    "OS_STATUS":"Living",
+    "OS_STATUS":"0:LIVING",
     "OS_MONTHS":"3.515475498",
-    "DFS_STATUS":"DiseaseFree",
+    "DFS_STATUS":"0:DiseaseFree",
     "DFS_MONTHS":"3.515475498"
   },
   {
@@ -8236,7 +8236,7 @@
     "MICRO_RNA_CLUSTER":"6",
     "MICRO_RNA_SCORE":"0.936182815",
     "CASE_ID":"TCGA-D1-A2G5",
-    "OS_STATUS":"Living",
+    "OS_STATUS":"0:LIVING",
     "OS_MONTHS":"41.39718811",
     "DFS_STATUS":"Recurred",
     "DFS_MONTHS":"NA"
@@ -8262,7 +8262,7 @@
     "MICRO_RNA_CLUSTER":"2",
     "MICRO_RNA_SCORE":"0.912165907",
     "CASE_ID":"TCGA-D1-A2G6",
-    "OS_STATUS":"Deceased",
+    "OS_STATUS":"1:DECEASED",
     "OS_MONTHS":"8.47656709",
     "DFS_STATUS":"Recurred",
     "DFS_MONTHS":"NA"
@@ -8288,7 +8288,7 @@
     "MICRO_RNA_CLUSTER":"5",
     "MICRO_RNA_SCORE":"0.900244534",
     "CASE_ID":"TCGA-DI-A0WH",
-    "OS_STATUS":"Living",
+    "OS_STATUS":"0:LIVING",
     "OS_MONTHS":"16.26318104",
     "DFS_STATUS":"",
     "DFS_MONTHS":"NA"
@@ -8314,7 +8314,7 @@
     "MICRO_RNA_CLUSTER":"5",
     "MICRO_RNA_SCORE":"0.930343034",
     "CASE_ID":"TCGA-DI-A1BU",
-    "OS_STATUS":"Living",
+    "OS_STATUS":"0:LIVING",
     "OS_MONTHS":"39.26161888",
     "DFS_STATUS":"",
     "DFS_MONTHS":"NA"
@@ -8340,7 +8340,7 @@
     "MICRO_RNA_CLUSTER":"2",
     "MICRO_RNA_SCORE":"0.934636502",
     "CASE_ID":"TCGA-DI-A1BY",
-    "OS_STATUS":"Living",
+    "OS_STATUS":"0:LIVING",
     "OS_MONTHS":"36.60037108",
     "DFS_STATUS":"",
     "DFS_MONTHS":"NA"
@@ -8366,7 +8366,7 @@
     "MICRO_RNA_CLUSTER":"2",
     "MICRO_RNA_SCORE":"0.953263868",
     "CASE_ID":"TCGA-DI-A1C3",
-    "OS_STATUS":"Living",
+    "OS_STATUS":"0:LIVING",
     "OS_MONTHS":"24.27977938",
     "DFS_STATUS":"",
     "DFS_MONTHS":"NA"
@@ -8392,7 +8392,7 @@
     "MICRO_RNA_CLUSTER":"4",
     "MICRO_RNA_SCORE":"0.923555802",
     "CASE_ID":"TCGA-DI-A1NN",
-    "OS_STATUS":"Living",
+    "OS_STATUS":"0:LIVING",
     "OS_MONTHS":"35.35188445",
     "DFS_STATUS":"Recurred",
     "DFS_MONTHS":"33.57771925"
@@ -8418,7 +8418,7 @@
     "MICRO_RNA_CLUSTER":"3",
     "MICRO_RNA_SCORE":"0.840372671",
     "CASE_ID":"TCGA-DI-A1NO",
-    "OS_STATUS":"Deceased",
+    "OS_STATUS":"1:DECEASED",
     "OS_MONTHS":"9.363649692",
     "DFS_STATUS":"Recurred",
     "DFS_MONTHS":"NA"
@@ -8444,9 +8444,9 @@
     "MICRO_RNA_CLUSTER":"4",
     "MICRO_RNA_SCORE":"0.757451043",
     "CASE_ID":"TCGA-E6-A1LX",
-    "OS_STATUS":"Living",
+    "OS_STATUS":"0:LIVING",
     "OS_MONTHS":"23.35984186",
-    "DFS_STATUS":"DiseaseFree",
+    "DFS_STATUS":"0:DiseaseFree",
     "DFS_MONTHS":"23.35984186"
   },
   {
@@ -8470,9 +8470,9 @@
     "MICRO_RNA_CLUSTER":"4",
     "MICRO_RNA_SCORE":"0.886489497",
     "CASE_ID":"TCGA-E6-A1LZ",
-    "OS_STATUS":"Living",
+    "OS_STATUS":"0:LIVING",
     "OS_MONTHS":"48.32957438",
-    "DFS_STATUS":"DiseaseFree",
+    "DFS_STATUS":"0:DiseaseFree",
     "DFS_MONTHS":"48.32957438"
   },
   {
@@ -8496,9 +8496,9 @@
     "MICRO_RNA_CLUSTER":"3",
     "MICRO_RNA_SCORE":"0.811767884",
     "CASE_ID":"TCGA-E6-A1M0",
-    "OS_STATUS":"Living",
+    "OS_STATUS":"0:LIVING",
     "OS_MONTHS":"17.018844",
-    "DFS_STATUS":"DiseaseFree",
+    "DFS_STATUS":"0:DiseaseFree",
     "DFS_MONTHS":"17.018844"
   },
   {
@@ -8522,9 +8522,9 @@
     "MICRO_RNA_CLUSTER":"6",
     "MICRO_RNA_SCORE":"0.936182815",
     "CASE_ID":"TCGA-EC-A1NJ",
-    "OS_STATUS":"Living",
+    "OS_STATUS":"0:LIVING",
     "OS_MONTHS":"8.575131823",
-    "DFS_STATUS":"DiseaseFree",
+    "DFS_STATUS":"0:DiseaseFree",
     "DFS_MONTHS":"8.575131823"
   },
   {
@@ -8548,7 +8548,7 @@
     "MICRO_RNA_CLUSTER":"4",
     "MICRO_RNA_SCORE":"0.923555802",
     "CASE_ID":"TCGA-EC-A1QX",
-    "OS_STATUS":"Living",
+    "OS_STATUS":"0:LIVING",
     "OS_MONTHS":"7.326645198",
     "DFS_STATUS":"Recurred",
     "DFS_MONTHS":"7.162370642"
@@ -8574,7 +8574,7 @@
     "MICRO_RNA_CLUSTER":"2",
     "MICRO_RNA_SCORE":"0.953263868",
     "CASE_ID":"TCGA-EC-A24G",
-    "OS_STATUS":"Living",
+    "OS_STATUS":"0:LIVING",
     "OS_MONTHS":"1.511325915",
     "DFS_STATUS":"",
     "DFS_MONTHS":"NA"
@@ -8600,9 +8600,9 @@
     "MICRO_RNA_CLUSTER":"4",
     "MICRO_RNA_SCORE":"0.877287726",
     "CASE_ID":"TCGA-EO-A1Y5",
-    "OS_STATUS":"Living",
+    "OS_STATUS":"0:LIVING",
     "OS_MONTHS":"10.90783052",
-    "DFS_STATUS":"DiseaseFree",
+    "DFS_STATUS":"0:DiseaseFree",
     "DFS_MONTHS":"10.90783052"
   },
   {
@@ -8626,9 +8626,9 @@
     "MICRO_RNA_CLUSTER":"3",
     "MICRO_RNA_SCORE":"0.897648505",
     "CASE_ID":"TCGA-EO-A1Y7",
-    "OS_STATUS":"Living",
+    "OS_STATUS":"0:LIVING",
     "OS_MONTHS":"7.983743422",
-    "DFS_STATUS":"DiseaseFree",
+    "DFS_STATUS":"0:DiseaseFree",
     "DFS_MONTHS":"7.983743422"
   },
   {
@@ -8652,9 +8652,9 @@
     "MICRO_RNA_CLUSTER":"1",
     "MICRO_RNA_SCORE":"0.777473716",
     "CASE_ID":"TCGA-EO-A1Y8",
-    "OS_STATUS":"Living",
+    "OS_STATUS":"0:LIVING",
     "OS_MONTHS":"10.77641087",
-    "DFS_STATUS":"DiseaseFree",
+    "DFS_STATUS":"0:DiseaseFree",
     "DFS_MONTHS":"10.77641087"
   },
   {
@@ -8678,7 +8678,7 @@
     "MICRO_RNA_CLUSTER":"1",
     "MICRO_RNA_SCORE":"0.872298235",
     "CASE_ID":"TCGA-EY-A1G7",
-    "OS_STATUS":"Deceased",
+    "OS_STATUS":"1:DECEASED",
     "OS_MONTHS":"6.209578217",
     "DFS_STATUS":"Recurred",
     "DFS_MONTHS":"3.121216564"
@@ -8704,9 +8704,9 @@
     "MICRO_RNA_CLUSTER":"1",
     "MICRO_RNA_SCORE":"0.77520147",
     "CASE_ID":"TCGA-EY-A1G8",
-    "OS_STATUS":"Deceased",
+    "OS_STATUS":"1:DECEASED",
     "OS_MONTHS":"14.9489846",
-    "DFS_STATUS":"DiseaseFree",
+    "DFS_STATUS":"0:DiseaseFree",
     "DFS_MONTHS":"14.9489846"
   },
   {
@@ -8730,9 +8730,9 @@
     "MICRO_RNA_CLUSTER":"6",
     "MICRO_RNA_SCORE":"0.858645969",
     "CASE_ID":"TCGA-EY-A1GC",
-    "OS_STATUS":"Living",
+    "OS_STATUS":"0:LIVING",
     "OS_MONTHS":"4.533977746",
-    "DFS_STATUS":"DiseaseFree",
+    "DFS_STATUS":"0:DiseaseFree",
     "DFS_MONTHS":"4.533977746"
   },
   {
@@ -8756,9 +8756,9 @@
     "MICRO_RNA_CLUSTER":"6",
     "MICRO_RNA_SCORE":"0.641019608",
     "CASE_ID":"TCGA-EY-A1GD",
-    "OS_STATUS":"Living",
+    "OS_STATUS":"0:LIVING",
     "OS_MONTHS":"8.148017978",
-    "DFS_STATUS":"DiseaseFree",
+    "DFS_STATUS":"0:DiseaseFree",
     "DFS_MONTHS":"8.148017978"
   },
   {
@@ -8782,9 +8782,9 @@
     "MICRO_RNA_CLUSTER":"5",
     "MICRO_RNA_SCORE":"0.930343034",
     "CASE_ID":"TCGA-EY-A1GE",
-    "OS_STATUS":"Living",
+    "OS_STATUS":"0:LIVING",
     "OS_MONTHS":"24.3454892",
-    "DFS_STATUS":"DiseaseFree",
+    "DFS_STATUS":"0:DiseaseFree",
     "DFS_MONTHS":"24.3454892"
   },
   {
@@ -8808,9 +8808,9 @@
     "MICRO_RNA_CLUSTER":"6",
     "MICRO_RNA_SCORE":"0.694269048",
     "CASE_ID":"TCGA-EY-A1GF",
-    "OS_STATUS":"Living",
+    "OS_STATUS":"0:LIVING",
     "OS_MONTHS":"27.13815665",
-    "DFS_STATUS":"DiseaseFree",
+    "DFS_STATUS":"0:DiseaseFree",
     "DFS_MONTHS":"27.13815665"
   },
   {
@@ -8834,9 +8834,9 @@
     "MICRO_RNA_CLUSTER":"6",
     "MICRO_RNA_SCORE":"0.435212832",
     "CASE_ID":"TCGA-EY-A1GH",
-    "OS_STATUS":"Living",
+    "OS_STATUS":"0:LIVING",
     "OS_MONTHS":"23.29413204",
-    "DFS_STATUS":"DiseaseFree",
+    "DFS_STATUS":"0:DiseaseFree",
     "DFS_MONTHS":"23.29413204"
   },
   {
@@ -8860,9 +8860,9 @@
     "MICRO_RNA_CLUSTER":"2",
     "MICRO_RNA_SCORE":"0.953263868",
     "CASE_ID":"TCGA-EY-A1GI",
-    "OS_STATUS":"Living",
+    "OS_STATUS":"0:LIVING",
     "OS_MONTHS":"23.29413204",
-    "DFS_STATUS":"DiseaseFree",
+    "DFS_STATUS":"0:DiseaseFree",
     "DFS_MONTHS":"23.29413204"
   },
   {
@@ -8886,9 +8886,9 @@
     "MICRO_RNA_CLUSTER":"1",
     "MICRO_RNA_SCORE":"0.918650794",
     "CASE_ID":"TCGA-EY-A1GJ",
-    "OS_STATUS":"Living",
+    "OS_STATUS":"0:LIVING",
     "OS_MONTHS":"23.88552044",
-    "DFS_STATUS":"DiseaseFree",
+    "DFS_STATUS":"0:DiseaseFree",
     "DFS_MONTHS":"23.88552044"
   },
   {
@@ -8912,9 +8912,9 @@
     "MICRO_RNA_CLUSTER":"2",
     "MICRO_RNA_SCORE":"0.32464941",
     "CASE_ID":"TCGA-EY-A1GK",
-    "OS_STATUS":"Living",
+    "OS_STATUS":"0:LIVING",
     "OS_MONTHS":"22.76845346",
-    "DFS_STATUS":"DiseaseFree",
+    "DFS_STATUS":"0:DiseaseFree",
     "DFS_MONTHS":"22.76845346"
   },
   {
@@ -8938,9 +8938,9 @@
     "MICRO_RNA_CLUSTER":"4",
     "MICRO_RNA_SCORE":"0.907347869",
     "CASE_ID":"TCGA-EY-A1GL",
-    "OS_STATUS":"Living",
+    "OS_STATUS":"0:LIVING",
     "OS_MONTHS":"13.93048235",
-    "DFS_STATUS":"DiseaseFree",
+    "DFS_STATUS":"0:DiseaseFree",
     "DFS_MONTHS":"13.93048235"
   },
   {
@@ -8964,9 +8964,9 @@
     "MICRO_RNA_CLUSTER":"3",
     "MICRO_RNA_SCORE":"0.888897494",
     "CASE_ID":"TCGA-EY-A1GM",
-    "OS_STATUS":"Living",
+    "OS_STATUS":"0:LIVING",
     "OS_MONTHS":"6.866676441",
-    "DFS_STATUS":"DiseaseFree",
+    "DFS_STATUS":"0:DiseaseFree",
     "DFS_MONTHS":"6.866676441"
   },
   {
@@ -8990,7 +8990,7 @@
     "MICRO_RNA_CLUSTER":"6",
     "MICRO_RNA_SCORE":"0.875629713",
     "CASE_ID":"TCGA-EY-A1GO",
-    "OS_STATUS":"Living",
+    "OS_STATUS":"0:LIVING",
     "OS_MONTHS":"19.25297796",
     "DFS_STATUS":"Recurred",
     "DFS_MONTHS":"16.98598909"
@@ -9016,9 +9016,9 @@
     "MICRO_RNA_CLUSTER":"1",
     "MICRO_RNA_SCORE":"0.918650794",
     "CASE_ID":"TCGA-EY-A1GP",
-    "OS_STATUS":"Living",
+    "OS_STATUS":"0:LIVING",
     "OS_MONTHS":"18.82586412",
-    "DFS_STATUS":"DiseaseFree",
+    "DFS_STATUS":"0:DiseaseFree",
     "DFS_MONTHS":"18.82586412"
   },
   {
@@ -9042,7 +9042,7 @@
     "MICRO_RNA_CLUSTER":"2",
     "MICRO_RNA_SCORE":"0.953263868",
     "CASE_ID":"TCGA-EY-A1GQ",
-    "OS_STATUS":"Living",
+    "OS_STATUS":"0:LIVING",
     "OS_MONTHS":"17.87307169",
     "DFS_STATUS":"Recurred",
     "DFS_MONTHS":"10.97354034"
@@ -9068,9 +9068,9 @@
     "MICRO_RNA_CLUSTER":"6",
     "MICRO_RNA_SCORE":"0.936182815",
     "CASE_ID":"TCGA-EY-A1GR",
-    "OS_STATUS":"Living",
+    "OS_STATUS":"0:LIVING",
     "OS_MONTHS":"17.6102324",
-    "DFS_STATUS":"DiseaseFree",
+    "DFS_STATUS":"0:DiseaseFree",
     "DFS_MONTHS":"17.6102324"
   },
   {
@@ -9094,7 +9094,7 @@
     "MICRO_RNA_CLUSTER":"4",
     "MICRO_RNA_SCORE":"0.886489497",
     "CASE_ID":"TCGA-EY-A1GS",
-    "OS_STATUS":"Living",
+    "OS_STATUS":"0:LIVING",
     "OS_MONTHS":"15.08040424",
     "DFS_STATUS":"Recurred",
     "DFS_MONTHS":"NA"
@@ -9120,9 +9120,9 @@
     "MICRO_RNA_CLUSTER":"4",
     "MICRO_RNA_SCORE":"0.877287726",
     "CASE_ID":"TCGA-EY-A1GT",
-    "OS_STATUS":"Living",
+    "OS_STATUS":"0:LIVING",
     "OS_MONTHS":"16.09890649",
-    "DFS_STATUS":"DiseaseFree",
+    "DFS_STATUS":"0:DiseaseFree",
     "DFS_MONTHS":"16.09890649"
   },
   {
@@ -9146,9 +9146,9 @@
     "MICRO_RNA_CLUSTER":"5",
     "MICRO_RNA_SCORE":"0.910202499",
     "CASE_ID":"TCGA-EY-A1GU",
-    "OS_STATUS":"Living",
+    "OS_STATUS":"0:LIVING",
     "OS_MONTHS":"12.41915643",
-    "DFS_STATUS":"DiseaseFree",
+    "DFS_STATUS":"0:DiseaseFree",
     "DFS_MONTHS":"12.41915643"
   },
   {
@@ -9172,9 +9172,9 @@
     "MICRO_RNA_CLUSTER":"4",
     "MICRO_RNA_SCORE":"0.886489497",
     "CASE_ID":"TCGA-EY-A1GV",
-    "OS_STATUS":"Living",
+    "OS_STATUS":"0:LIVING",
     "OS_MONTHS":"15.80321229",
-    "DFS_STATUS":"DiseaseFree",
+    "DFS_STATUS":"0:DiseaseFree",
     "DFS_MONTHS":"15.80321229"
   },
   {
@@ -9198,7 +9198,7 @@
     "MICRO_RNA_CLUSTER":"6",
     "MICRO_RNA_SCORE":"0.866569291",
     "CASE_ID":"TCGA-EY-A1GW",
-    "OS_STATUS":"Deceased",
+    "OS_STATUS":"1:DECEASED",
     "OS_MONTHS":"11.07210507",
     "DFS_STATUS":"Recurred",
     "DFS_MONTHS":"6.242433128"
@@ -9224,9 +9224,9 @@
     "MICRO_RNA_CLUSTER":"5",
     "MICRO_RNA_SCORE":"-0.164556962",
     "CASE_ID":"TCGA-EY-A1GX",
-    "OS_STATUS":"Living",
+    "OS_STATUS":"0:LIVING",
     "OS_MONTHS":"6.472417506",
-    "DFS_STATUS":"DiseaseFree",
+    "DFS_STATUS":"0:DiseaseFree",
     "DFS_MONTHS":"6.472417506"
   },
   {
@@ -9250,7 +9250,7 @@
     "MICRO_RNA_CLUSTER":"3",
     "MICRO_RNA_SCORE":"0.897648505",
     "CASE_ID":"TCGA-EY-A1H0",
-    "OS_STATUS":"Living",
+    "OS_STATUS":"0:LIVING",
     "OS_MONTHS":"19.31868779",
     "DFS_STATUS":"Recurred",
     "DFS_MONTHS":"14.71900022"
@@ -9276,9 +9276,9 @@
     "MICRO_RNA_CLUSTER":"3",
     "MICRO_RNA_SCORE":"0.888897494",
     "CASE_ID":"TCGA-EY-A210",
-    "OS_STATUS":"Living",
+    "OS_STATUS":"0:LIVING",
     "OS_MONTHS":"12.58343099",
-    "DFS_STATUS":"DiseaseFree",
+    "DFS_STATUS":"0:DiseaseFree",
     "DFS_MONTHS":"12.58343099"
   },
   {
@@ -9302,7 +9302,7 @@
     "MICRO_RNA_CLUSTER":"4",
     "MICRO_RNA_SCORE":"0.774263515",
     "CASE_ID":"TCGA-EY-A212",
-    "OS_STATUS":"Deceased",
+    "OS_STATUS":"1:DECEASED",
     "OS_MONTHS":"9.955038094",
     "DFS_STATUS":"Recurred",
     "DFS_MONTHS":"NA"
@@ -9328,9 +9328,9 @@
     "MICRO_RNA_CLUSTER":"6",
     "MICRO_RNA_SCORE":"0.936182815",
     "CASE_ID":"TCGA-EY-A214",
-    "OS_STATUS":"Living",
+    "OS_STATUS":"0:LIVING",
     "OS_MONTHS":"14.39045111",
-    "DFS_STATUS":"DiseaseFree",
+    "DFS_STATUS":"0:DiseaseFree",
     "DFS_MONTHS":"14.39045111"
   },
   {
@@ -9354,9 +9354,9 @@
     "MICRO_RNA_CLUSTER":"6",
     "MICRO_RNA_SCORE":"0.936182815",
     "CASE_ID":"TCGA-EY-A215",
-    "OS_STATUS":"Living",
+    "OS_STATUS":"0:LIVING",
     "OS_MONTHS":"18.85871903",
-    "DFS_STATUS":"DiseaseFree",
+    "DFS_STATUS":"0:DiseaseFree",
     "DFS_MONTHS":"18.85871903"
   },
   {
@@ -9380,9 +9380,9 @@
     "MICRO_RNA_CLUSTER":"4",
     "MICRO_RNA_SCORE":"0.923555802",
     "CASE_ID":"TCGA-FI-A2CX",
-    "OS_STATUS":"Living",
+    "OS_STATUS":"0:LIVING",
     "OS_MONTHS":"39.98442693",
-    "DFS_STATUS":"DiseaseFree",
+    "DFS_STATUS":"0:DiseaseFree",
     "DFS_MONTHS":"39.98442693"
   },
   {
@@ -9406,9 +9406,9 @@
     "MICRO_RNA_CLUSTER":"4",
     "MICRO_RNA_SCORE":"0.921856623",
     "CASE_ID":"TCGA-FI-A2CY",
-    "OS_STATUS":"Living",
+    "OS_STATUS":"0:LIVING",
     "OS_MONTHS":"34.95762552",
-    "DFS_STATUS":"DiseaseFree",
+    "DFS_STATUS":"0:DiseaseFree",
     "DFS_MONTHS":"34.95762552"
   },
   {
@@ -9432,9 +9432,9 @@
     "MICRO_RNA_CLUSTER":"4",
     "MICRO_RNA_SCORE":"0.923555802",
     "CASE_ID":"TCGA-FI-A2D0",
-    "OS_STATUS":"Living",
+    "OS_STATUS":"0:LIVING",
     "OS_MONTHS":"33.97197818",
-    "DFS_STATUS":"DiseaseFree",
+    "DFS_STATUS":"0:DiseaseFree",
     "DFS_MONTHS":"33.97197818"
   },
   {
@@ -9458,9 +9458,9 @@
     "MICRO_RNA_CLUSTER":"4",
     "MICRO_RNA_SCORE":"0.853878533",
     "CASE_ID":"TCGA-FI-A2D2",
-    "OS_STATUS":"Living",
+    "OS_STATUS":"0:LIVING",
     "OS_MONTHS":"35.97612776",
-    "DFS_STATUS":"DiseaseFree",
+    "DFS_STATUS":"0:DiseaseFree",
     "DFS_MONTHS":"35.97612776"
   },
   {
@@ -9484,7 +9484,7 @@
     "MICRO_RNA_CLUSTER":"3",
     "MICRO_RNA_SCORE":"0.897648505",
     "CASE_ID":"TCGA-FI-A2D4",
-    "OS_STATUS":"Deceased",
+    "OS_STATUS":"1:DECEASED",
     "OS_MONTHS":"7.95088851",
     "DFS_STATUS":"Recurred",
     "DFS_MONTHS":"NA"
@@ -9510,7 +9510,7 @@
     "MICRO_RNA_CLUSTER":"2",
     "MICRO_RNA_SCORE":"0.912165907",
     "CASE_ID":"TCGA-FI-A2D5",
-    "OS_STATUS":"Deceased",
+    "OS_STATUS":"1:DECEASED",
     "OS_MONTHS":"13.99619217",
     "DFS_STATUS":"Recurred",
     "DFS_MONTHS":"NA"
@@ -9536,9 +9536,9 @@
     "MICRO_RNA_CLUSTER":"1",
     "MICRO_RNA_SCORE":"0.739874405",
     "CASE_ID":"TCGA-FI-A2D6",
-    "OS_STATUS":"Living",
+    "OS_STATUS":"0:LIVING",
     "OS_MONTHS":"8.969390758",
-    "DFS_STATUS":"DiseaseFree",
+    "DFS_STATUS":"0:DiseaseFree",
     "DFS_MONTHS":"8.969390758"
   },
   {
@@ -9562,9 +9562,9 @@
     "MICRO_RNA_CLUSTER":"4",
     "MICRO_RNA_SCORE":"0.923555802",
     "CASE_ID":"TCGA-FI-A2EU",
-    "OS_STATUS":"Living",
+    "OS_STATUS":"0:LIVING",
     "OS_MONTHS":"84.01000794",
-    "DFS_STATUS":"DiseaseFree",
+    "DFS_STATUS":"0:DiseaseFree",
     "DFS_MONTHS":"84.01000794"
   },
   {
@@ -9588,7 +9588,7 @@
     "MICRO_RNA_CLUSTER":"4",
     "MICRO_RNA_SCORE":"0.886489497",
     "CASE_ID":"TCGA-FI-A2EW",
-    "OS_STATUS":"Living",
+    "OS_STATUS":"0:LIVING",
     "OS_MONTHS":"58.9745656",
     "DFS_STATUS":"Recurred",
     "DFS_MONTHS":"NA"
@@ -9614,7 +9614,7 @@
     "MICRO_RNA_CLUSTER":"4",
     "MICRO_RNA_SCORE":"0.886489497",
     "CASE_ID":"TCGA-FI-A2EX",
-    "OS_STATUS":"Living",
+    "OS_STATUS":"0:LIVING",
     "OS_MONTHS":"9.067955491",
     "DFS_STATUS":"Recurred",
     "DFS_MONTHS":"NA"
@@ -9640,9 +9640,9 @@
     "MICRO_RNA_CLUSTER":"6",
     "MICRO_RNA_SCORE":"0.936182815",
     "CASE_ID":"TCGA-FI-A2F4",
-    "OS_STATUS":"Living",
+    "OS_STATUS":"0:LIVING",
     "OS_MONTHS":"28.91232186",
-    "DFS_STATUS":"DiseaseFree",
+    "DFS_STATUS":"0:DiseaseFree",
     "DFS_MONTHS":"28.91232186"
   },
   {
@@ -9666,9 +9666,9 @@
     "MICRO_RNA_CLUSTER":"6",
     "MICRO_RNA_SCORE":"0.936182815",
     "CASE_ID":"TCGA-FI-A2F8",
-    "OS_STATUS":"Living",
+    "OS_STATUS":"0:LIVING",
     "OS_MONTHS":"25.00258742",
-    "DFS_STATUS":"DiseaseFree",
+    "DFS_STATUS":"0:DiseaseFree",
     "DFS_MONTHS":"25.00258742"
   },
   {
@@ -9692,9 +9692,9 @@
     "MICRO_RNA_CLUSTER":"6",
     "MICRO_RNA_SCORE":"-0.061109725",
     "CASE_ID":"TCGA-FI-A2F9",
-    "OS_STATUS":"Living",
+    "OS_STATUS":"0:LIVING",
     "OS_MONTHS":"25.98823476",
-    "DFS_STATUS":"DiseaseFree",
+    "DFS_STATUS":"0:DiseaseFree",
     "DFS_MONTHS":"25.98823476"
   }
 ]

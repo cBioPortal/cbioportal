@@ -35,13 +35,13 @@ package org.mskcc.cbio.portal.scripts;
 import org.mskcc.cbio.portal.dao.*;
 import org.mskcc.cbio.portal.model.*;
 import org.mskcc.cbio.portal.util.*;
+import org.mskcc.cbio.portal.util.SurvivalAttributeUtil.SurvivalStatusAttributes;
 
 import java.io.*;
 import joptsimple.*;
 import java.util.*;
 import java.util.regex.*;
 import org.apache.commons.collections.map.MultiKeyMap;
-import org.apache.commons.lang.StringUtils;
 
 public class ImportClinicalData extends ConsoleRunnable {
 
@@ -559,7 +559,12 @@ public class ImportClinicalData extends ConsoleRunnable {
         // attribute value exists and if so, perfom an update
         if (attrType.equals(ClinicalAttribute.PATIENT_ATTRIBUTE)) {
             numPatientSpecificClinicalAttributesAdded++;
-            DaoClinicalData.addPatientDatum(internalId, attrId, attrVal.trim());
+            // add prefix for OS or DFS attributes
+            if (SurvivalStatusAttributes.has(attrId)) {
+                DaoClinicalData.addPatientDatum(internalId, attrId, SurvivalAttributeUtil.getModifiedAttributeValue(attrVal.trim()));
+            } else {
+                DaoClinicalData.addPatientDatum(internalId, attrId, attrVal.trim());
+            }
         }
         else {
             numSampleSpecificClinicalAttributesAdded++;

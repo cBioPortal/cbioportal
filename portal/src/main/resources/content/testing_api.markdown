@@ -241,9 +241,9 @@ A tab-delimited file with the following columns:
 
 * **case\_id**:  Unique Case Identifier.
 * **overall\_survival\_months**:  Overall survival, in months.
-* **overall\_survival\_status**:  Overall survival status, usually indicated as "LIVING" or "DECEASED".
+* **overall\_survival\_status**:  Overall survival status, usually indicated as "0" -> "LIVING" or "1" -> "DECEASED".
 * **disease\_free\_survival\_months**:  Disease free survival, in months.
-* **disease\_free\_survival\_status**:  Disease free survival status, usually indicated as "DiseaseFree" or "Recurred/Progressed".
+* **disease\_free\_survival\_status**:  Disease free survival status, usually indicated as "0" -> "DiseaseFree" or "1" -> "Recurred/Progressed".
 * **age_at_diagnosis**:  Age at diagnosis.
 
 ### Example

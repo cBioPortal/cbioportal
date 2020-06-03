@@ -850,3 +850,22 @@ CREATE TABLE `resource_study` (
   FOREIGN KEY (`INTERNAL_ID`) REFERENCES `cancer_study` (`CANCER_STUDY_ID`) ON DELETE CASCADE
 );
 UPDATE `info` SET `DB_SCHEMA_VERSION`="2.12.4";
+
+##version: 2.12.5
+-- survival data migration
+-- create temporary table to store survival attributes
+CREATE TEMPORARY TABLE IF NOT EXISTS survival_attributes AS 
+  (SELECT DISTINCT Concat(Substr(ATTR_ID, 1, Char_length(ATTR_ID) - 7), 
+                   "_STATUS") AS ATTR_ID 
+   FROM   clinical_attribute_meta 
+   WHERE  ATTR_ID LIKE "%_STATUS" 
+          AND Substr(ATTR_ID, 1, Char_length(ATTR_ID) - 7)IN (SELECT DISTINCT 
+              Substr(ATTR_ID, 1, Char_length(ATTR_ID) - 7) AS 
+              SurvivalDataStatusPrefix 
+              FROM   clinical_attribute_meta 
+              WHERE  ATTR_ID LIKE "%_MONTHS")); 
+
+-- mapping to 0/1
+UPDATE clinical_patient SET ATTR_VALUE = CONCAT("1:",ATTR_VALUE) WHERE ATTR_ID in (SELECT ATTR_ID FROM survival_attributes) AND ATTR_VALUE in ('DECEASED','Recurred/Progressed','Recurred','Progressed','Yes','yes','1','PROGRESSION','Event','DEAD OF MELANOMA','DEAD WITH TUMOR','Metastatic Relapse','Localized Relapse');
+UPDATE clinical_patient SET ATTR_VALUE = CONCAT("0:",ATTR_VALUE) WHERE ATTR_ID in (SELECT ATTR_ID FROM survival_attributes) AND ATTR_VALUE in ('LIVING','ALIVE','DiseaseFree','No','0','ProgressionFree','NO PROGRESSION','Not Progressed','CENSORED','Censor','ALIVE OR CENSORED','ALIVE OR DEAD TUMOR FREE','Censored','No Relapse','Progression free','Censure','no','NED');
+UPDATE `info` SET `DB_SCHEMA_VERSION`="2.12.5";

@@ -8,6 +8,7 @@ import org.cbioportal.model.MolecularProfile;
 import org.cbioportal.service.exception.MolecularProfileNotFoundException;
 import org.cbioportal.service.exception.StudyNotFoundException;
 import org.cbioportal.service.MolecularProfileService;
+import org.cbioportal.web.config.PublicApiTags;
 import org.cbioportal.web.config.annotation.PublicApi;
 import org.cbioportal.web.parameter.Direction;
 import org.cbioportal.web.parameter.HeaderKeyConstants;
@@ -39,7 +40,7 @@ import java.util.*;
 @PublicApi
 @RestController
 @Validated
-@Api(tags = "J. Molecular Profiles", description = " ")
+@Api(tags = PublicApiTags.MOLECULAR_PROFILES, description = " ")
 public class MolecularProfileController {
 
     @Autowired

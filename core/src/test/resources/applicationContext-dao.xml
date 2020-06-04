@@ -82,14 +82,6 @@
 
     <!-- these are required to get properly autowired mappers into our service classes -->
     <!-- when creating services via manually loading this context file -->
-    <bean id="genePanelMapperLegacy" class="org.mybatis.spring.mapper.MapperFactoryBean">
-        <property name="mapperInterface" value="org.mskcc.cbio.portal.persistence.GenePanelMapperLegacy" />
-        <property name="sqlSessionFactory" ref="sqlSessionFactory" />
-    </bean>
-    <bean id="genePanelRepositoryLegacy" class="org.mskcc.cbio.portal.repository.GenePanelMyBatisRepositoryLegacy">
-        <property name="genePanelMapper" ref="genePanelMapperLegacy" />
-    </bean>
-
     <bean id="cnSegmentMapper" class="org.mybatis.spring.mapper.MapperFactoryBean">
         <property name="mapperInterface" value="org.mskcc.cbio.portal.persistence.CNSegmentMapper" />
         <property name="sqlSessionFactory" ref="sqlSessionFactory" />

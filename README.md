@@ -46,11 +46,11 @@ You can then use a JAVA IDE to connect to that port. E.g. in [VSCode](https://co
 ## 🌳 Branch Information
 | | main branch | upcoming release branch | later release candidate branch |
 | --- | --- | --- | --- |
-| Branch name | [`master`](https://github.com/cBioPortal/cbioportal/tree/master) |  release-3.4.0 |  [`rc`](https://github.com/cBioPortal/cbioportal/tree/rc) |
+| Branch name | [`master`](https://github.com/cBioPortal/cbioportal/tree/master) |  -- |  [`rc`](https://github.com/cBioPortal/cbioportal/tree/rc) |
 | Description | All bug fixes and features not requiring database migrations go here. This code is either already in production or will be released this week | Next release that requires database migrations. Thorough manual product review often takes place for this branch before release | Later releases with features that require database migrations. This is useful to allow merging in new features without affecting the upcoming release. Could be seen as a development branch, but note that only high quality pull requests are merged. That is the feature should be pretty much ready for release after merge. |
-| Live instance | https://www.cbioportal.org / https://master.cbioportal.org | https://beta.cbioportal.org | https://rc.cbioportal.org |
-| Live instance version | https://www.cbioportal.org/api/info / https://master.cbioportal.org/api/info | https://beta.cbioportal.org/api/info | https://rc.cbioportal.org/api/info |
-| Docker Image | cbioportal/cbioportal:master | cbioportal/cbioportal:release-3.4.0 | cbioportal/cbioportal:rc |
+| Live instance | https://www.cbioportal.org / https://master.cbioportal.org | -- | https://rc.cbioportal.org |
+| Live instance version | https://www.cbioportal.org/api/info / https://master.cbioportal.org/api/info | -- | https://rc.cbioportal.org/api/info |
+| Docker Image | cbioportal/cbioportal:master | --| cbioportal/cbioportal:rc |
 | Kubernetes Config | [production](https://github.com/knowledgesystems/knowledgesystems-k8s-deployment/blob/master/cbioportal/cbioportal_spring_boot.yaml) / [master](https://github.com/knowledgesystems/knowledgesystems-k8s-deployment/blob/master/cbioportal/cbioportal_backend_master.yaml) | -- | [rc](https://github.com/knowledgesystems/knowledgesystems-k8s-deployment/blob/master/cbioportal/cbioportal_backend_rc.yaml) |
 | Status | [![master build status](https://travis-ci.org/cBioPortal/cbioportal.svg?branch=master)](https://travis-ci.org/cBioPortal/cbioportal/branches) | -- | [![Build Status](https://travis-ci.org/cBioPortal/cbioportal.svg?branch=rc)](https://travis-ci.org/cBioPortal/cbioportal/branches) |
 

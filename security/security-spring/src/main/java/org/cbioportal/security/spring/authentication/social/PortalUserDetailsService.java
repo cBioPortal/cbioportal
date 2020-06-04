@@ -61,7 +61,7 @@ import java.util.List;
  *
  * @author criscuof
  */
-@Service
+@Service("tokenUserDetailsService")
 public class PortalUserDetailsService implements UserDetailsService {
 
     private static final Log log = LogFactory.getLog(PortalUserDetailsService.class);

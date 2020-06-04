@@ -8,18 +8,6 @@
                         http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context.xsd
                         http://www.springframework.org/schema/security http://www.springframework.org/schema/security/spring-security.xsd">
 
-    <b:bean id="propertyPlaceholderConfigurer" class="org.springframework.beans.factory.config.PropertyPlaceholderConfigurer">
-        <b:property name="systemPropertiesModeName" value="SYSTEM_PROPERTIES_MODE_OVERRIDE" />
-        <b:property name="searchSystemEnvironment" value="true" />
-        <b:property name="ignoreResourceNotFound" value="true" />
-        <b:property name="locations">
-            <b:list>
-            <b:value>classpath:portal.properties</b:value>
-            <b:value>file:///#{systemEnvironment['PORTAL_HOME']}/portal.properties</b:value>
-            </b:list>
-        </b:property>
-    </b:bean>
-
     <!-- profiles
         spring profiles determine the authentication mode of cBioPortal.
         profiles are selected through the java system property "authenticate" (e.g. java -Dauthenticate=saml) or the portal.properties property "authenticate".
@@ -41,14 +29,6 @@
 
     <!-- make sure externally defined beans are added to the spring context -->
     <context:component-scan base-package="org.cbioportal.security.spring.authentication.token.oauth2" />
-    <context:component-scan base-package="org.cbioportal.security.spring.config" />
-
-    <!-- Choose a supported Data Access Token method implementation [uuid, jwt, oauth2, none (default)] by setting value of dat.method in portal.properties.
-        Note: UUID implementation requires a backend database/token store but allows for greater control over tokens -->
-    <b:alias name="${dat.method:none}" alias="tokenService" />
-    <b:bean  id="tokenServiceFactory" class="org.springframework.beans.factory.config.ServiceLocatorFactoryBean">
-        <b:property name="serviceLocatorInterface" value="org.cbioportal.service.DataAccessTokenServiceFactory"/>
-    </b:bean>
 
     <b:bean id="tokenAuthenticationFilter" class="org.cbioportal.security.spring.authentication.token.TokenAuthenticationFilter">
         <b:property name="authenticationManager" ref="tokenAuthenticationManager" />

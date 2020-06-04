@@ -29,22 +29,29 @@
  * You should have received a copy of the GNU Affero General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
-package org.cbioportal.web.config;
+package org.cbioportal.web.config.annotation;
 
+import org.cbioportal.web.config.annotation.ConditionalOnDatMethod;
 import org.springframework.context.annotation.Condition;
 import org.springframework.context.annotation.ConditionContext;
 import org.springframework.core.type.AnnotatedTypeMetadata;
 
-public class OAuth2DatMethodCondition implements Condition {
+import java.util.Map;
 
-    public OAuth2DatMethodCondition() {
+public class DatMethodCondition implements Condition {
+
+    public DatMethodCondition() {
         super();
     }
 
     @Override
     public boolean matches(ConditionContext context, AnnotatedTypeMetadata metadata) {
         String datMethod = context.getEnvironment().getProperty("dat.method");
-        return datMethod != null && datMethod.equalsIgnoreCase("oauth2");
+        Map<String, Object> attributes = metadata.getAnnotationAttributes(ConditionalOnDatMethod.class.getName());
+        String value = (String) attributes.get("value");
+        boolean isNot = (boolean) attributes.get("isNot");
+        boolean matches = isNot? !datMethod.equalsIgnoreCase(value) : datMethod.equalsIgnoreCase(value);
+        return datMethod != null && matches;
     }
 
 }

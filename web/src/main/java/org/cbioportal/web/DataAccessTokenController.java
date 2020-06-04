@@ -30,7 +30,8 @@ import org.cbioportal.model.DataAccessToken;
 import org.cbioportal.service.DataAccessTokenService;
 import org.cbioportal.service.exception.DataAccessTokenNoUserIdentityException;
 import org.cbioportal.service.exception.DataAccessTokenProhibitedUserException;
-import org.springframework.web.bind.annotation.ResponseBody;
+import org.cbioportal.web.config.annotation.ConditionalOnDatMethod;
+import org.springframework.web.bind.annotation.*;
 import org.cbioportal.web.config.annotation.InternalApi;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -39,18 +40,14 @@ import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.validation.annotation.Validated;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
-import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.client.HttpClientErrorException;
 
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiParam;
 
 @InternalApi
-@RequestMapping // replaces @RestController; controller is created conditionally in DataAccessTokenControllerConfig
-@ResponseBody   // needed when not using @RestController annotation
+@RestController
+@ConditionalOnDatMethod(value = "oauth2", isNot = true)
 @Validated
 @Api(tags = "Data Access Tokens", description = " ")
 public class DataAccessTokenController {

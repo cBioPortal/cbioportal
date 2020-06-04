@@ -36,6 +36,7 @@ import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.StreamSupport;
 
+import org.cbioportal.service.config.annotation.ConditionalOnDatMethod;
 import org.codehaus.jackson.JsonNode;
 import org.codehaus.jackson.map.ObjectMapper;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -49,7 +50,10 @@ import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.jwt.Jwt;
 import org.springframework.security.jwt.JwtHelper;
+import org.springframework.stereotype.Component;
 
+@Component("tokenAuthenticationProvider")
+@ConditionalOnDatMethod(value = "oauth2")
 public class OAuth2TokenAuthenticationProvider implements AuthenticationProvider {
 
     @Value("${dat.oauth2.jwtRolesPath:resource_access::cbioportal::roles}")

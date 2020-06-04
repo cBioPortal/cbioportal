@@ -39,6 +39,7 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.cbioportal.model.DataAccessToken;
 import org.cbioportal.service.DataAccessTokenService;
+import org.cbioportal.service.config.annotation.ConditionalOnDatMethod;
 import org.cbioportal.service.exception.InvalidDataAccessTokenException;
 import org.cbioportal.service.util.JwtUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -47,7 +48,8 @@ import org.springframework.security.authentication.UsernamePasswordAuthenticatio
 import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Service;
 
-@Service("jwt")
+@Service
+@ConditionalOnDatMethod(value = "jwt")
 public class JwtDataAccessTokenServiceImpl implements DataAccessTokenService {
 
     @Autowired

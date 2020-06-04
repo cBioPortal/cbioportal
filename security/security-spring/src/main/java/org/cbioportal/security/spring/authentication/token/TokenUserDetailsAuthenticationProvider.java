@@ -35,15 +35,19 @@ package org.cbioportal.security.spring.authentication.token;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.cbioportal.security.spring.authentication.social.PortalUserDetailsService;
+import org.cbioportal.service.config.annotation.ConditionalOnDatMethod;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.authentication.dao.AbstractUserDetailsAuthenticationProvider;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.stereotype.Component;
 
 /**
  *
  * @author Manda Wilson
  */
+@Component("tokenAuthenticationProvider")
+@ConditionalOnDatMethod(value = "oauth2", isNot = true)
 public class TokenUserDetailsAuthenticationProvider extends AbstractUserDetailsAuthenticationProvider {
 
     private static final Log LOG = LogFactory.getLog(TokenUserDetailsAuthenticationProvider.class);

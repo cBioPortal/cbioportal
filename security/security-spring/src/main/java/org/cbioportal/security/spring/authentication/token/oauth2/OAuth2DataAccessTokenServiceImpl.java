@@ -38,6 +38,7 @@ import java.util.List;
 
 import org.cbioportal.model.DataAccessToken;
 import org.cbioportal.service.DataAccessTokenService;
+import org.cbioportal.service.config.annotation.ConditionalOnDatMethod;
 import org.codehaus.jackson.JsonNode;
 import org.codehaus.jackson.map.ObjectMapper;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -55,7 +56,8 @@ import org.springframework.util.MultiValueMap;
 import org.springframework.web.client.RestTemplate;
 
 
-@Service("oauth2")
+@Service
+@ConditionalOnDatMethod(value = "oauth2")
 public class OAuth2DataAccessTokenServiceImpl implements DataAccessTokenService {
 
     @Value("${dat.oauth2.issuer}")

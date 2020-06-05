@@ -311,16 +311,6 @@
 		<url-pattern>/portalMetadata.json</url-pattern>
 	</servlet-mapping>
 
-    <!-- need to keep this for legacy network page -->
-    <servlet>
-        <servlet-name>network</servlet-name>
-        <servlet-class>org.mskcc.cbio.portal.servlet.NetworkServlet</servlet-class>
-    </servlet>
-    <servlet-mapping>
-        <servlet-name>network</servlet-name>
-        <url-pattern>/network.do</url-pattern>
-    </servlet-mapping>
-
 	<servlet>
 		<servlet-name>network_sbgn</servlet-name>
 		<servlet-class>org.mskcc.cbio.portal.servlet.NetworkSbgnServlet</servlet-class>
@@ -383,15 +373,6 @@
 		<servlet-name>mutation_aligner_json</servlet-name>
 		<url-pattern>/getMutationAligner.json</url-pattern>
 	</servlet-mapping>
-
-	<servlet>
-		<servlet-name>mutation_data_json</servlet-name>
-		<servlet-class>org.mskcc.cbio.portal.servlet.MutationDataServlet</servlet-class>
-	</servlet>
-    <servlet-mapping>
-        <servlet-name>mutation_data_json</servlet-name>
-        <url-pattern>/getMutationData.json</url-pattern>
-    </servlet-mapping>
 
     <servlet>
         <servlet-name>oncoprint_converter</servlet-name>
@@ -480,30 +461,12 @@
     </servlet-mapping>
 
     <servlet>
-        <servlet-name>CrossCancerMutationJSON</servlet-name>
-        <servlet-class>org.mskcc.cbio.portal.servlet.CrossCancerMutationDataServlet</servlet-class>
-    </servlet>
-    <servlet-mapping>
-        <servlet-name>CrossCancerMutationJSON</servlet-name>
-        <url-pattern>/crosscancermutation.json</url-pattern>
-    </servlet-mapping>
-
-    <servlet>
         <servlet-name>CheckDarwinAccessServlet</servlet-name>
         <servlet-class>org.mskcc.cbio.portal.servlet.CheckDarwinAccessServlet</servlet-class>
     </servlet>
     <servlet-mapping>
         <servlet-name>CheckDarwinAccessServlet</servlet-name>
         <url-pattern>/checkDarwinAccess.do</url-pattern>
-    </servlet-mapping>
-
-    <servlet>
-        <servlet-name>MutationsJSON</servlet-name>
-        <servlet-class>org.mskcc.cbio.portal.servlet.MutationsJSON</servlet-class>
-    </servlet>
-    <servlet-mapping>
-        <servlet-name>MutationsJSON</servlet-name>
-        <url-pattern>/mutations.json</url-pattern>
     </servlet-mapping>
 
     <servlet>
@@ -540,24 +503,6 @@
     <servlet-mapping>
         <servlet-name>DrugsJSON</servlet-name>
         <url-pattern>/drugs.json</url-pattern>
-    </servlet-mapping>
-
-    <servlet>
-        <servlet-name>GetGeneticProfileJSON</servlet-name>
-        <servlet-class>org.mskcc.cbio.portal.servlet.GetGeneticProfilesJSON</servlet-class>
-    </servlet>
-    <servlet-mapping>
-        <servlet-name>GetGeneticProfileJSON</servlet-name>
-        <url-pattern>/getGeneticProfile.json</url-pattern>
-    </servlet-mapping>
-
-    <servlet>
-        <servlet-name>GetProfileDataJSON</servlet-name>
-        <servlet-class>org.mskcc.cbio.portal.servlet.GetProfileDataJSON</servlet-class>
-    </servlet>
-    <servlet-mapping>
-        <servlet-name>GetProfileDataJSON</servlet-name>
-        <url-pattern>/getProfileData.json</url-pattern>
     </servlet-mapping>
 
     <servlet>
@@ -606,15 +551,6 @@
     </servlet-mapping>
 
     <servlet>
-        <servlet-name>getAlterationData</servlet-name>
-        <servlet-class>org.mskcc.cbio.portal.servlet.GetAlterationDataJSON</servlet-class>
-    </servlet>
-    <servlet-mapping>
-        <servlet-name>getAlterationData</servlet-name>
-        <url-pattern>/getAlterationData.json</url-pattern>
-    </servlet-mapping>
-
-    <servlet>
         <servlet-name>calcCoExp</servlet-name>
         <servlet-class>org.mskcc.cbio.portal.servlet.CalcCoExp</servlet-class>
     </servlet>
@@ -630,15 +566,6 @@
     <servlet-mapping>
         <servlet-name>calcFisherExactTest</servlet-name>
         <url-pattern>/calcFisherExact.do</url-pattern>
-    </servlet-mapping>
-
-    <servlet>
-        <servlet-name>overRepresentationAnalysisJSON</servlet-name>
-        <servlet-class>org.mskcc.cbio.portal.servlet.EnrichmentsJSON</servlet-class>
-    </servlet>
-    <servlet-mapping>
-        <servlet-name>overRepresentationAnalysisJSON</servlet-name>
-        <url-pattern>/oranalysis.do</url-pattern>
     </servlet-mapping>
 
     <servlet>

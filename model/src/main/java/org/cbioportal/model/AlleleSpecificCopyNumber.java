@@ -6,11 +6,11 @@ public class AlleleSpecificCopyNumber implements Serializable {
 
     private Integer ascnIntegerCopyNumber;
     private String ascnMethod;
-    private Float ccfMCopiesUpper;
-    private Float ccfMCopies;
-    private Boolean clonal;
+    private Float ccfExpectedCopiesUpper;
+    private Float ccfExpectedCopies;
+    private String clonal;
     private Integer minorCopyNumber;
-    private Integer mutantCopies;
+    private Integer expectedAltCopies;
     private Integer totalCopyNumber;
 
     public Integer getAscnIntegerCopyNumber() {
@@ -29,27 +29,27 @@ public class AlleleSpecificCopyNumber implements Serializable {
         this.ascnMethod = ascnMethod;
     }
 
-    public Float getCcfMCopiesUpper() {
-        return ccfMCopiesUpper;
+    public Float getCcfExpectedCopiesUpper() {
+        return ccfExpectedCopiesUpper;
     }
 
-    public void setCcfMCopiesUpper(Float ccfMCopiesUpper) {
-        this.ccfMCopiesUpper = ccfMCopiesUpper;
+    public void setCcfExpectedCopiesUpper(Float ccfExpectedCopiesUpper) {
+        this.ccfExpectedCopiesUpper = ccfExpectedCopiesUpper;
     }
 
-    public Float getCcfMCopies() {
-        return ccfMCopies;
+    public Float getCcfExpectedCopies() {
+        return ccfExpectedCopies;
     }
 
-    public void setCcfMCopies(Float ccfMCopies) {
-        this.ccfMCopies = ccfMCopies;
+    public void setCcfExpectedCopies(Float ccfExpectedCopies) {
+        this.ccfExpectedCopies = ccfExpectedCopies;
     }
 
-    public Boolean getClonal() {
+    public String getClonal() {
         return clonal;
     }
 
-    public void setClonal(Boolean clonal) {
+    public void setClonal(String clonal) {
         this.clonal = clonal;
     }
 
@@ -61,12 +61,12 @@ public class AlleleSpecificCopyNumber implements Serializable {
         this.minorCopyNumber = minorCopyNumber;
     }
 
-    public Integer getMutantCopies() {
-        return mutantCopies;
+    public Integer getExpectedAltCopies() {
+        return expectedAltCopies;
     }
 
-    public void setMutantCopies(Integer mutantCopies) {
-        this.mutantCopies = mutantCopies;
+    public void setExpectedAltCopies(Integer expectedAltCopies) {
+        this.expectedAltCopies = expectedAltCopies;
     }
 
     public Integer getTotalCopyNumber() {
@@ -76,4 +76,4 @@ public class AlleleSpecificCopyNumber implements Serializable {
     public void setTotalCopyNumber(Integer totalCopyNumber) {
         this.totalCopyNumber = totalCopyNumber;
     }
-} 
+}

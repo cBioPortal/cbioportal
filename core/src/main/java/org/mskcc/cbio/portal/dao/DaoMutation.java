@@ -215,9 +215,9 @@ public final class DaoMutation {
     }
 
     /**
-     * @deprecated  We believe that this method is no longer called by any part of the codebase, and it will soon be deleted.
+     * Used by GeneticAlterationUtil (which is used by GetProfileData via webservice.do).  This use comes out of an
+     * effort to discontinue the use of the business module.
      */
-    @Deprecated
     public static ArrayList<ExtendedMutation> getMutations (int geneticProfileId, Collection<Integer> targetSampleList,
             long entrezGeneId) throws DaoException {
         Connection con = null;
@@ -499,9 +499,9 @@ public final class DaoMutation {
     }
 
     /**
-     * @deprecated  We believe that this method is no longer called by any part of the codebase, and it will soon be deleted.
+     * Used by GetMutationData via webservice.do.  This use comes out of an effort to
+     * discontinue the use of the business module.
      */
-    @Deprecated
     public static ArrayList<ExtendedMutation> getMutations (int geneticProfileId,
             long entrezGeneId) throws DaoException {
         Connection con = null;
@@ -689,10 +689,17 @@ public final class DaoMutation {
             mutation.setValidationMethod(rs.getString("VALIDATION_METHOD"));
             mutation.setScore(rs.getString("SCORE"));
             mutation.setBamFile(rs.getString("BAM_FILE"));
+            // the following checks/set of null is to maintain
+            // behavior with MutationRepositoryLegacy (mybatis) behavior
+            // whose use is being retired in this PR
             mutation.setTumorAltCount(rs.getInt("TUMOR_ALT_COUNT"));
+            if (rs.wasNull()) mutation.setTumorAltCount(null);
             mutation.setTumorRefCount(rs.getInt("TUMOR_REF_COUNT"));
+            if (rs.wasNull()) mutation.setTumorRefCount(null);
             mutation.setNormalAltCount(rs.getInt("NORMAL_ALT_COUNT"));
+            if (rs.wasNull()) mutation.setNormalAltCount(null);
             mutation.setNormalRefCount(rs.getInt("NORMAL_REF_COUNT"));
+            if (rs.wasNull()) mutation.setNormalRefCount(null);
             mutation.setAnnotationJson(rs.getString("ANNOTATION_JSON"));
             return mutation;
         }

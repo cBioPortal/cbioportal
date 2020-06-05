@@ -119,9 +119,9 @@
 
 	  <!-- Spring Social Live -->
       <dependency>
-        <groupId>com.github.kalletlak</groupId>
+        <groupId>com.github.cbioportal</groupId>
         <artifactId>spring-social-live</artifactId>
-        <version>master-SNAPSHOT</version>
+        <version>40100de1ad80e2865c834f2b64b32bb6c2b368ce</version>
         <exclusions>
           <exclusion>
             <groupId>javax.servlet</groupId>

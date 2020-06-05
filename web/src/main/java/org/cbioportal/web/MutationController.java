@@ -7,7 +7,6 @@ import org.cbioportal.model.meta.MutationMeta;
 import org.cbioportal.model.Mutation;
 import org.cbioportal.model.MutationCountByPosition;
 import org.cbioportal.service.exception.MolecularProfileNotFoundException;
-import org.cbioportal.service.MolecularProfileService;
 import org.cbioportal.service.MutationService;
 import org.cbioportal.web.config.PublicApiTags;
 import org.cbioportal.web.config.annotation.PublicApi;
@@ -48,13 +47,8 @@ import java.util.*;
 @Api(tags = PublicApiTags.MUTATIONS, description = " ")
 public class MutationController {
 
-    public static final int MUTATION_MAX_PAGE_SIZE = 10000000;
-    private static final String MUTATION_DEFAULT_PAGE_SIZE = "10000000";
-
     @Autowired
     private MutationService mutationService;
-    @Autowired
-    private MolecularProfileService molecularProfileService;
 
     @PreAuthorize("hasPermission(#molecularProfileId, 'MolecularProfileId', 'read')")
     @RequestMapping(value = "/molecular-profiles/{molecularProfileId}/mutations", method = RequestMethod.GET,
@@ -70,9 +64,9 @@ public class MutationController {
         @ApiParam("Level of detail of the response")
         @RequestParam(defaultValue = "SUMMARY") Projection projection,
         @ApiParam("Page size of the result list")
-        @Max(MUTATION_MAX_PAGE_SIZE)
+        @Max(PagingConstants.MAX_PAGE_SIZE)
         @Min(PagingConstants.MIN_PAGE_SIZE)
-        @RequestParam(defaultValue = MUTATION_DEFAULT_PAGE_SIZE) Integer pageSize,
+        @RequestParam(defaultValue = PagingConstants.DEFAULT_PAGE_SIZE) Integer pageSize,
         @ApiParam("Page number of the result list")
         @Min(PagingConstants.MIN_PAGE_NUMBER)
         @RequestParam(defaultValue = PagingConstants.DEFAULT_PAGE_NUMBER) Integer pageNumber,
@@ -108,9 +102,9 @@ public class MutationController {
         @ApiParam("Level of detail of the response")
         @RequestParam(defaultValue = "SUMMARY") Projection projection,
         @ApiParam("Page size of the result list")
-        @Max(MUTATION_MAX_PAGE_SIZE)
+        @Max(PagingConstants.MAX_PAGE_SIZE)
         @Min(PagingConstants.MIN_PAGE_SIZE)
-        @RequestParam(defaultValue = MUTATION_DEFAULT_PAGE_SIZE) Integer pageSize,
+        @RequestParam(defaultValue = PagingConstants.DEFAULT_PAGE_SIZE) Integer pageSize,
         @ApiParam("Page number of the result list")
         @Min(PagingConstants.MIN_PAGE_NUMBER)
         @RequestParam(defaultValue = PagingConstants.DEFAULT_PAGE_NUMBER) Integer pageNumber,
@@ -164,9 +158,9 @@ public class MutationController {
         @ApiParam("Level of detail of the response")
         @RequestParam(defaultValue = "SUMMARY") Projection projection,
         @ApiParam("Page size of the result list")
-        @Max(MUTATION_MAX_PAGE_SIZE)
+        @Max(PagingConstants.MAX_PAGE_SIZE)
         @Min(PagingConstants.MIN_PAGE_SIZE)
-        @RequestParam(defaultValue = MUTATION_DEFAULT_PAGE_SIZE) Integer pageSize,
+        @RequestParam(defaultValue = PagingConstants.DEFAULT_PAGE_SIZE) Integer pageSize,
         @ApiParam("Page number of the result list")
         @Min(PagingConstants.MIN_PAGE_NUMBER)
         @RequestParam(defaultValue = PagingConstants.DEFAULT_PAGE_NUMBER) Integer pageNumber,
@@ -220,7 +214,7 @@ public class MutationController {
     @ApiOperation("Fetch mutation counts in all studies by gene and position")
     public ResponseEntity<List<MutationCountByPosition>> fetchMutationCountsByPosition(
         @ApiParam(required = true, value = "List of gene and positions")
-        @Size(min = 1, max = MUTATION_MAX_PAGE_SIZE)
+        @Size(min = 1, max = PagingConstants.MAX_PAGE_SIZE)
         @RequestBody List<MutationPositionIdentifier> mutationPositionIdentifiers) {
 
         List<Integer> entrezGeneIds = new ArrayList<>();

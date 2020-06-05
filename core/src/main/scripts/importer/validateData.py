@@ -207,7 +207,7 @@ class Jinja2HtmlHandler(logging.handlers.BufferingHandler):
 
     def generateHtml(self, **kwargs):
         """Render the HTML page for the current content in self.buffer
-        
+
         **kwargs allows to override logger variables to display.
         """
         # require Jinja2 only if it is actually used
@@ -1312,10 +1312,10 @@ class MutationsExtendedValidator(Validator):
         'ASCN.ASCN_INTEGER_COPY_NUMBER',
         'ASCN.TOTAL_COPY_NUMBER',
         'ASCN.MINOR_COPY_NUMBER',
-        'ASCN.CCF_M_COPIES',
-        'ASCN.CCF_M_COPIES_UPPER',
+        'ASCN.CCF_EXPECTED_COPIES',
+        'ASCN.CCF_EXPECTED_COPIES_UPPER',
         'ASCN.CLONAL',
-        'ASCN.MUTANT_COPIES'
+        'ASCN.EXPECTED_ALT_COPIES'
     ]
 
     # Used for mapping column names to the corresponding function that does a check on the value.
@@ -1431,7 +1431,7 @@ class MutationsExtendedValidator(Validator):
                 if not defined_namespace_found:
                     self.logger.error('%s namespace defined but MAF '
                                       'does not have any matching columns' % (defined_namespace))
-                    num_errors += 1 
+                    num_errors += 1
         return num_errors
 
     def checkLine(self, data):
@@ -1494,13 +1494,13 @@ class MutationsExtendedValidator(Validator):
                 entrez_id = None
         # validate hugo and entrez together:
         normalized_gene = self.checkGeneIdentification(hugo_symbol, entrez_id)
-        
+
         # validate the gene to make sure its from the targeted panel
         if normalized_gene and self.portal.gene_panel_list and data[sample_id_column_index] in sample_ids_panel_dict:
             panel_id = sample_ids_panel_dict[data[sample_id_column_index]]
             if panel_id in self.portal.gene_panel_list and panel_id != 'NA':
                 self.checkOffPanelVariant(data, normalized_gene, panel_id, hugo_symbol, entrez_id)
-        
+
         # parse custom driver annotation values to validate them together
         driver_value = None
         driver_annotation = None
@@ -3620,7 +3620,7 @@ class ResourceDefinitionValidator(Validator):
                                'cause': value})
 
             if col_name == 'PRIORITY':
-                try: 
+                try:
                     int(value.strip())
                 except ValueError:
                     self.logger.error(
@@ -3746,7 +3746,7 @@ class SampleResourceValidator(ResourceValidator):
                         'RESOURCE_ID for sample resource is not defined correctly in resource definition file',
                         extra={'line_number': self.line_number,
                                'column_number': col_index + 1,
-                               'cause': value})      
+                               'cause': value})
                 if value in RESOURCE_DEFINITION_DICTIONARY and len(RESOURCE_DEFINITION_DICTIONARY[value]) > 1:
                     self.logger.warning(
                         'RESOURCE_ID for sample resource has been used by more than one RESOURCE_TYPE',
@@ -3807,13 +3807,13 @@ class PatientResourceValidator(ResourceValidator):
                         'RESOURCE_ID for patient resource is not defined correctly in resource definition file',
                         extra={'line_number': self.line_number,
                                'column_number': col_index + 1,
-                               'cause': value})      
+                               'cause': value})
                 if value in RESOURCE_DEFINITION_DICTIONARY and len(RESOURCE_DEFINITION_DICTIONARY[value]) > 1:
                     self.logger.warning(
                         'RESOURCE_ID for patient resource has been used by more than one RESOURCE_TYPE',
                         extra={'line_number': self.line_number,
                                'column_number': col_index + 1,
-                               'cause': RESOURCE_DEFINITION_DICTIONARY[value]})    
+                               'cause': RESOURCE_DEFINITION_DICTIONARY[value]})
                 resource_id = value
             if col_name == 'PATIENT_ID':
                 if value not in RESOURCE_PATIENTS_WITH_SAMPLES:
@@ -3874,13 +3874,13 @@ class StudyResourceValidator(ResourceValidator):
                         'RESOURCE_ID for study resource is not defined correctly in resource definition file',
                         extra={'line_number': self.line_number,
                                'column_number': col_index + 1,
-                               'cause': value})      
+                               'cause': value})
                 if value in RESOURCE_DEFINITION_DICTIONARY and len(RESOURCE_DEFINITION_DICTIONARY[value]) > 1:
                     self.logger.warning(
                         'RESOURCE_ID for study resource has been used by more than one RESOURCE_TYPE',
                         extra={'line_number': self.line_number,
                                'column_number': col_index + 1,
-                               'cause': RESOURCE_DEFINITION_DICTIONARY[value]})   
+                               'cause': RESOURCE_DEFINITION_DICTIONARY[value]})
             resource_id = value
             if col_name == 'URL':
                 resource_url = value
@@ -4400,7 +4400,7 @@ class GenericAssayValidator(GenericAssayWiseFileValidator):
         # prior to evaluation of the numeric value
         hasTruncSymbol = re.match("^[><]", stripped_value)
         stripped_value = re.sub(r"^[><]\s*","", stripped_value)
-        
+
         try:
             numeric_value = float(stripped_value)
         except ValueError:
@@ -4429,7 +4429,7 @@ class GenericAssayValidator(GenericAssayWiseFileValidator):
                 extra={'line_number': self.line_number,
                 'column_number': col_index + 1,
                 'cause': value})
-                
+
         return
 
 # ------------------------------------------------------------------------------
@@ -4906,7 +4906,7 @@ def request_from_portal_api(server_url, api_name, logger):
         raise ConnectionError(
             'Failed to fetch metadata from the portal at [{}]'.format(service_url)
         ) from e
-        
+
     if api_name == 'gene-panels':
         gene_panels = []
         for data_item in response.json():
@@ -5051,7 +5051,7 @@ def load_portal_info(path, logger, offline=False):
         if parsed_json is not None and transform_function is not None:
             parsed_json = transform_function(parsed_json)
         portal_dict[api_name] = parsed_json
-    
+
     if all(d is None for d in list(portal_dict.values())):
         raise LookupError('No portal information found at {}'.format(path))
     return PortalInstance(portal_info_dict=portal_dict['info'],
@@ -5291,7 +5291,7 @@ def validate_study(study_dir, portal_instance, logger, relaxed_mode, strict_maf_
     # then validate the study tags YAML file if it exists
     if tags_file_path is not None:
         validateStudyTags(tags_file_path, logger=logger)
-        
+
     # validate the case list directory if present
     case_list_dirname = os.path.join(study_dir, 'case_lists')
     if not os.path.isdir(case_list_dirname):
@@ -5314,7 +5314,7 @@ def validate_study(study_dir, portal_instance, logger, relaxed_mode, strict_maf_
         else:
             # pass stable_ids to data file
             validators_by_meta_type[cbioportal_common.MetaFileTypes.GENE_PANEL_MATRIX][0].validate()
-    
+
     # next validate all other data files
     for meta_file_type in sorted(validators_by_meta_type):
         # skip cancer type and clinical files, they have already been validated

@@ -35,11 +35,16 @@ package org.cbioportal.security.spring.authentication.token.oauth2;
 import org.springframework.security.jwt.JwtHelper;
 import org.springframework.security.jwt.crypto.sign.MacSigner;
 
+import java.util.HashMap;
+import java.util.Map;
+
 public class OAuth2TokenTestUtils {
 
     public static String createJwt(String claimsJson) {
         MacSigner signer = new MacSigner("dummy_private_key");
-        return JwtHelper.encode(claimsJson, signer).getEncoded();
+        Map<String, String> header = new HashMap<>();
+        header.put("kid", "my_token_id");
+        return JwtHelper.encode(claimsJson, signer, header).getEncoded();
     }
 
 }

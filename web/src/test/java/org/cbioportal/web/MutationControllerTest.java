@@ -76,11 +76,11 @@ public class MutationControllerTest {
     private static final String TEST_CHROMOSOME_1 = "test_chromosome_1";
     private static final int TEST_ASCN_INTEGER_COPY_NUMBER_1 = 3;
     private static final String TEST_ASCN_METHOD_1 = "FACETS";
-    private static final double TEST_CCF_M_COPIES_UPPER_1 = 1.25;
-    private static final double TEST_CCF_M_COPIES_1 = 1.75;
-    private static final boolean TEST_CLONAL_1 = true;
+    private static final double TEST_CCF_EXPECTED_COPIES_UPPER_1 = 1.25;
+    private static final double TEST_CCF_EXPECTED_COPIES_1 = 1.75;
+    private static final String TEST_CLONAL_1 = "CLONAL";
     private static final int TEST_MINOR_COPY_NUMBER_1 = 2;
-    private static final int TEST_MUTANT_COPIES_1 = 1;
+    private static final int TEST_EXPECTED_ALT_COPIES_1 = 1;
     private static final int TEST_TOTAL_COPY_NUMBER_1 = 4;
     private static final int TEST_MOLECULAR_PROFILE_ID_2 = 2;
     private static final String TEST_MOLECULAR_PROFILE_STABLE_ID_2 = "test_molecular_profile_stable_id_2";
@@ -129,13 +129,13 @@ public class MutationControllerTest {
     private static final String TEST_DRIVER_TIERS_FILTER_ANNOTATION_2 = "test_driver_tiers_filter_annotation_2";
     private static final int TEST_ASCN_INTEGER_COPY_NUMBER_2 = 2;
     private static final String TEST_ASCN_METHOD_2 = "ASCN_METHOD2";
-    private static final double TEST_CCF_M_COPIES_UPPER_2 = 1.5;
-    private static final double TEST_CCF_M_COPIES_2 = 1.95;
-    private static final boolean TEST_CLONAL_2 = false;
+    private static final double TEST_CCF_EXPECTED_COPIES_UPPER_2 = 1.5;
+    private static final double TEST_CCF_EXPECTED_COPIES_2 = 1.95;
+    private static final String TEST_CLONAL_2 = "SUBCLONAL";
     private static final int TEST_MINOR_COPY_NUMBER_2 = 1;
-    private static final int TEST_MUTANT_COPIES_2 = 1;
+    private static final int TEST_EXPECTED_ALT_COPIES_2 = 1;
     private static final int TEST_TOTAL_COPY_NUMBER_2 = 2;
-    
+
     @Autowired
     private WebApplicationContext wac;
 
@@ -300,11 +300,11 @@ public class MutationControllerTest {
             .andExpect(MockMvcResultMatchers.jsonPath("$[0].gene.type").value(TEST_TYPE_1))
             .andExpect(MockMvcResultMatchers.jsonPath("$[0].alleleSpecificCopyNumber.ascnIntegerCopyNumber").value(TEST_ASCN_INTEGER_COPY_NUMBER_1))
             .andExpect(MockMvcResultMatchers.jsonPath("$[0].alleleSpecificCopyNumber.ascnMethod").value(TEST_ASCN_METHOD_1))
-            .andExpect(MockMvcResultMatchers.jsonPath("$[0].alleleSpecificCopyNumber.ccfMCopiesUpper").value(TEST_CCF_M_COPIES_UPPER_1))
-            .andExpect(MockMvcResultMatchers.jsonPath("$[0].alleleSpecificCopyNumber.ccfMCopies").value(TEST_CCF_M_COPIES_1))
+            .andExpect(MockMvcResultMatchers.jsonPath("$[0].alleleSpecificCopyNumber.ccfExpectedCopiesUpper").value(TEST_CCF_EXPECTED_COPIES_UPPER_1))
+            .andExpect(MockMvcResultMatchers.jsonPath("$[0].alleleSpecificCopyNumber.ccfExpectedCopies").value(TEST_CCF_EXPECTED_COPIES_1))
             .andExpect(MockMvcResultMatchers.jsonPath("$[0].alleleSpecificCopyNumber.clonal").value(TEST_CLONAL_1))
             .andExpect(MockMvcResultMatchers.jsonPath("$[0].alleleSpecificCopyNumber.minorCopyNumber").value(TEST_MINOR_COPY_NUMBER_1))
-            .andExpect(MockMvcResultMatchers.jsonPath("$[0].alleleSpecificCopyNumber.mutantCopies").value(TEST_MUTANT_COPIES_1))
+            .andExpect(MockMvcResultMatchers.jsonPath("$[0].alleleSpecificCopyNumber.expectedAltCopies").value(TEST_EXPECTED_ALT_COPIES_1))
             .andExpect(MockMvcResultMatchers.jsonPath("$[0].alleleSpecificCopyNumber.totalCopyNumber").value(TEST_TOTAL_COPY_NUMBER_1))
             .andExpect(MockMvcResultMatchers.jsonPath("$[1].molecularProfileId").value(TEST_MOLECULAR_PROFILE_STABLE_ID_2))
             .andExpect(MockMvcResultMatchers.jsonPath("$[1].sampleId").value(TEST_SAMPLE_STABLE_ID_2))
@@ -344,11 +344,11 @@ public class MutationControllerTest {
             .andExpect(MockMvcResultMatchers.jsonPath("$[1].gene.type").value(TEST_TYPE_2))
             .andExpect(MockMvcResultMatchers.jsonPath("$[1].alleleSpecificCopyNumber.ascnIntegerCopyNumber").value(TEST_ASCN_INTEGER_COPY_NUMBER_2))
             .andExpect(MockMvcResultMatchers.jsonPath("$[1].alleleSpecificCopyNumber.ascnMethod").value(TEST_ASCN_METHOD_2))
-            .andExpect(MockMvcResultMatchers.jsonPath("$[1].alleleSpecificCopyNumber.ccfMCopiesUpper").value(TEST_CCF_M_COPIES_UPPER_2))
-            .andExpect(MockMvcResultMatchers.jsonPath("$[1].alleleSpecificCopyNumber.ccfMCopies").value(TEST_CCF_M_COPIES_2))
+            .andExpect(MockMvcResultMatchers.jsonPath("$[1].alleleSpecificCopyNumber.ccfExpectedCopiesUpper").value(TEST_CCF_EXPECTED_COPIES_UPPER_2))
+            .andExpect(MockMvcResultMatchers.jsonPath("$[1].alleleSpecificCopyNumber.ccfExpectedCopies").value(TEST_CCF_EXPECTED_COPIES_2))
             .andExpect(MockMvcResultMatchers.jsonPath("$[1].alleleSpecificCopyNumber.clonal").value(TEST_CLONAL_2))
             .andExpect(MockMvcResultMatchers.jsonPath("$[1].alleleSpecificCopyNumber.minorCopyNumber").value(TEST_MINOR_COPY_NUMBER_2))
-            .andExpect(MockMvcResultMatchers.jsonPath("$[1].alleleSpecificCopyNumber.mutantCopies").value(TEST_MUTANT_COPIES_2))
+            .andExpect(MockMvcResultMatchers.jsonPath("$[1].alleleSpecificCopyNumber.expectedAltCopies").value(TEST_EXPECTED_ALT_COPIES_2))
             .andExpect(MockMvcResultMatchers.jsonPath("$[1].alleleSpecificCopyNumber.totalCopyNumber").value(TEST_TOTAL_COPY_NUMBER_2));
     }
 
@@ -628,11 +628,11 @@ public class MutationControllerTest {
             .andExpect(MockMvcResultMatchers.jsonPath("$[0].gene.type").value(TEST_TYPE_1))
             .andExpect(MockMvcResultMatchers.jsonPath("$[0].alleleSpecificCopyNumber.ascnIntegerCopyNumber").value(TEST_ASCN_INTEGER_COPY_NUMBER_1))
             .andExpect(MockMvcResultMatchers.jsonPath("$[0].alleleSpecificCopyNumber.ascnMethod").value(TEST_ASCN_METHOD_1))
-            .andExpect(MockMvcResultMatchers.jsonPath("$[0].alleleSpecificCopyNumber.ccfMCopiesUpper").value(TEST_CCF_M_COPIES_UPPER_1))
-            .andExpect(MockMvcResultMatchers.jsonPath("$[0].alleleSpecificCopyNumber.ccfMCopies").value(TEST_CCF_M_COPIES_1))
+            .andExpect(MockMvcResultMatchers.jsonPath("$[0].alleleSpecificCopyNumber.ccfExpectedCopiesUpper").value(TEST_CCF_EXPECTED_COPIES_UPPER_1))
+            .andExpect(MockMvcResultMatchers.jsonPath("$[0].alleleSpecificCopyNumber.ccfExpectedCopies").value(TEST_CCF_EXPECTED_COPIES_1))
             .andExpect(MockMvcResultMatchers.jsonPath("$[0].alleleSpecificCopyNumber.clonal").value(TEST_CLONAL_1))
             .andExpect(MockMvcResultMatchers.jsonPath("$[0].alleleSpecificCopyNumber.minorCopyNumber").value(TEST_MINOR_COPY_NUMBER_1))
-            .andExpect(MockMvcResultMatchers.jsonPath("$[0].alleleSpecificCopyNumber.mutantCopies").value(TEST_MUTANT_COPIES_1))
+            .andExpect(MockMvcResultMatchers.jsonPath("$[0].alleleSpecificCopyNumber.expectedAltCopies").value(TEST_EXPECTED_ALT_COPIES_1))
             .andExpect(MockMvcResultMatchers.jsonPath("$[0].alleleSpecificCopyNumber.totalCopyNumber").value(TEST_TOTAL_COPY_NUMBER_1))
             .andExpect(MockMvcResultMatchers.jsonPath("$[1].molecularProfileId")
                 .value(TEST_MOLECULAR_PROFILE_STABLE_ID_2))
@@ -673,11 +673,11 @@ public class MutationControllerTest {
             .andExpect(MockMvcResultMatchers.jsonPath("$[1].gene.type").value(TEST_TYPE_2))
             .andExpect(MockMvcResultMatchers.jsonPath("$[1].alleleSpecificCopyNumber.ascnIntegerCopyNumber").value(TEST_ASCN_INTEGER_COPY_NUMBER_2))
             .andExpect(MockMvcResultMatchers.jsonPath("$[1].alleleSpecificCopyNumber.ascnMethod").value(TEST_ASCN_METHOD_2))
-            .andExpect(MockMvcResultMatchers.jsonPath("$[1].alleleSpecificCopyNumber.ccfMCopiesUpper").value(TEST_CCF_M_COPIES_UPPER_2))
-            .andExpect(MockMvcResultMatchers.jsonPath("$[1].alleleSpecificCopyNumber.ccfMCopies").value(TEST_CCF_M_COPIES_2))
+            .andExpect(MockMvcResultMatchers.jsonPath("$[1].alleleSpecificCopyNumber.ccfExpectedCopiesUpper").value(TEST_CCF_EXPECTED_COPIES_UPPER_2))
+            .andExpect(MockMvcResultMatchers.jsonPath("$[1].alleleSpecificCopyNumber.ccfExpectedCopies").value(TEST_CCF_EXPECTED_COPIES_2))
             .andExpect(MockMvcResultMatchers.jsonPath("$[1].alleleSpecificCopyNumber.clonal").value(TEST_CLONAL_2))
             .andExpect(MockMvcResultMatchers.jsonPath("$[1].alleleSpecificCopyNumber.minorCopyNumber").value(TEST_MINOR_COPY_NUMBER_2))
-            .andExpect(MockMvcResultMatchers.jsonPath("$[1].alleleSpecificCopyNumber.mutantCopies").value(TEST_MUTANT_COPIES_2))
+            .andExpect(MockMvcResultMatchers.jsonPath("$[1].alleleSpecificCopyNumber.expectedAltCopies").value(TEST_EXPECTED_ALT_COPIES_2))
             .andExpect(MockMvcResultMatchers.jsonPath("$[1].alleleSpecificCopyNumber.totalCopyNumber").value(TEST_TOTAL_COPY_NUMBER_2));
     }
 
@@ -841,14 +841,14 @@ public class MutationControllerTest {
         AlleleSpecificCopyNumber alleleSpecificCopyNumber1 = new AlleleSpecificCopyNumber();
         alleleSpecificCopyNumber1.setAscnIntegerCopyNumber(3);
         alleleSpecificCopyNumber1.setAscnMethod("FACETS");
-        alleleSpecificCopyNumber1.setCcfMCopiesUpper(1.25f);
-        alleleSpecificCopyNumber1.setCcfMCopies(1.75f);
-        alleleSpecificCopyNumber1.setClonal(true);
+        alleleSpecificCopyNumber1.setCcfExpectedCopiesUpper(1.25f);
+        alleleSpecificCopyNumber1.setCcfExpectedCopies(1.75f);
+        alleleSpecificCopyNumber1.setClonal("CLONAL");
         alleleSpecificCopyNumber1.setMinorCopyNumber(2);
-        alleleSpecificCopyNumber1.setMutantCopies(1);
+        alleleSpecificCopyNumber1.setExpectedAltCopies(1);
         alleleSpecificCopyNumber1.setTotalCopyNumber(4);
         mutationList.get(0).setGene(gene1);
-        mutationList.get(0).setAlleleSpecificCopyNumber(alleleSpecificCopyNumber1); 
+        mutationList.get(0).setAlleleSpecificCopyNumber(alleleSpecificCopyNumber1);
         Gene gene2 = new Gene();
         gene2.setEntrezGeneId(TEST_ENTREZ_GENE_ID_2);
         gene2.setHugoGeneSymbol(TEST_HUGO_GENE_SYMBOL_2);
@@ -856,14 +856,14 @@ public class MutationControllerTest {
         AlleleSpecificCopyNumber alleleSpecificCopyNumber2 = new AlleleSpecificCopyNumber();
         alleleSpecificCopyNumber2.setAscnIntegerCopyNumber(2);
         alleleSpecificCopyNumber2.setAscnMethod("ASCN_METHOD2");
-        alleleSpecificCopyNumber2.setCcfMCopiesUpper(1.5f);
-        alleleSpecificCopyNumber2.setCcfMCopies(1.95f);
-        alleleSpecificCopyNumber2.setClonal(false);
+        alleleSpecificCopyNumber2.setCcfExpectedCopiesUpper(1.5f);
+        alleleSpecificCopyNumber2.setCcfExpectedCopies(1.95f);
+        alleleSpecificCopyNumber2.setClonal("SUBCLONAL");
         alleleSpecificCopyNumber2.setMinorCopyNumber(1);
-        alleleSpecificCopyNumber2.setMutantCopies(1);
+        alleleSpecificCopyNumber2.setExpectedAltCopies(1);
         alleleSpecificCopyNumber2.setTotalCopyNumber(2);
         mutationList.get(1).setGene(gene2);
-        mutationList.get(1).setAlleleSpecificCopyNumber(alleleSpecificCopyNumber2); 
+        mutationList.get(1).setAlleleSpecificCopyNumber(alleleSpecificCopyNumber2);
         return mutationList;
     }
 }

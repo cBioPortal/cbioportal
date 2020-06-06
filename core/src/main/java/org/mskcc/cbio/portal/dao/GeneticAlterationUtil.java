@@ -32,13 +32,12 @@
 
 package org.mskcc.cbio.portal.dao;
 
-import java.util.*;
-import org.apache.commons.math3.stat.correlation.PearsonsCorrelation;
-import org.mskcc.cbio.portal.repository.MutationRepositoryLegacy;
 import org.mskcc.cbio.portal.model.*;
-import org.mskcc.cbio.portal.model.converter.MutationModelConverter;
-import org.springframework.beans.factory.annotation.Autowired;
+
 import org.springframework.stereotype.Component;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.apache.commons.math3.stat.correlation.PearsonsCorrelation;
+import java.util.*;
 
 /**
  * Utility Class for Retrieving Genetic Alteration Data.
@@ -52,14 +51,6 @@ import org.springframework.stereotype.Component;
 @Component
 public class GeneticAlterationUtil {
     private static final String NAN = "NaN";
-    private static MutationRepositoryLegacy mutationRepositoryLegacy;
-    private static MutationModelConverter mutationModelConverter;
-
-    @Autowired
-    public GeneticAlterationUtil(MutationRepositoryLegacy mutationRepositoryLegacy, MutationModelConverter mutationModelConverter) {
-        GeneticAlterationUtil.mutationRepositoryLegacy = mutationRepositoryLegacy;
-        GeneticAlterationUtil.mutationModelConverter = mutationModelConverter;
-    }
 
     /**
      * Gets a Row of data corresponding to:  target gene, within the target genetic profile
@@ -141,8 +132,7 @@ public class GeneticAlterationUtil {
     private static HashMap <Integer, String> getMutationMap (List<Integer> targetSampleList,
                                                              int geneticProfileId, long entrezGeneId) throws DaoException {
         HashMap <Integer, String> mutationMap = new HashMap <Integer, String>();
-        List <ExtendedMutation> mutationList = mutationModelConverter.convert(
-                mutationRepositoryLegacy.getMutations(targetSampleList, (int) entrezGeneId, geneticProfileId));
+        List <ExtendedMutation> mutationList = DaoMutation.getMutations(geneticProfileId, targetSampleList, entrezGeneId);
         for (ExtendedMutation mutation : mutationList) {
             Integer sampleId = mutation.getSampleId();
             //  Handle the possibility of multiple mutations in the same gene / sample

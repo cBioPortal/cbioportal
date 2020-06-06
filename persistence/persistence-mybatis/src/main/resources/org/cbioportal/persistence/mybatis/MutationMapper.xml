@@ -2,7 +2,7 @@
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 
 <mapper namespace="org.cbioportal.persistence.mybatis.MutationMapper">
-    
+
 
     <sql id="select">
         genetic_profile.STABLE_ID AS molecularProfileId,
@@ -79,7 +79,7 @@
                 </foreach>
             </if>
             <if test="snpOnly != null and snpOnly == true">
-                AND mutation_event.REFERENCE_ALLELE IN ('A','T','C','G') 
+                AND mutation_event.REFERENCE_ALLELE IN ('A','T','C','G')
                 AND mutation_event.TUMOR_SEQ_ALLELE IN ('A','T','C','G')
             </if>
         </where>
@@ -107,7 +107,7 @@
             </if>
         </where>
     </sql>
-    
+
     <sql id="whereInMultipleMolecularProfiles">
         <where>
             <if test="sampleIds != null and !sampleIds.isEmpty()">
@@ -115,7 +115,7 @@
                 SELECT sample.INTERNAL_ID from sample
                 INNER JOIN patient ON sample.PATIENT_ID = patient.INTERNAL_ID
                 INNER JOIN genetic_profile ON patient.CANCER_STUDY_ID = genetic_profile.CANCER_STUDY_ID
-                WHERE 
+                WHERE
                 <if test="@java.util.Arrays@stream(molecularProfileIds.toArray()).distinct().count() == 1">
                     genetic_profile.STABLE_ID = #{molecularProfileIds[0]} AND
                     sample.STABLE_ID IN
@@ -133,7 +133,7 @@
                         #{item}
                     </foreach>
                 </if>
-                AND sample.INTERNAL_ID = mutation.SAMPLE_ID 
+                AND sample.INTERNAL_ID = mutation.SAMPLE_ID
                 AND genetic_profile.GENETIC_PROFILE_ID = mutation.GENETIC_PROFILE_ID)
             </if>
             <if test="sampleIds == null">
@@ -158,11 +158,11 @@
     <sql id="getAlleleSpecificCopyNumber">
         allele_specific_copy_number.ASCN_INTEGER_COPY_NUMBER AS "${prefix}ascnIntegerCopyNumber",
         allele_specific_copy_number.ASCN_METHOD AS "${prefix}ascnMethod",
-        allele_specific_copy_number.CCF_M_COPIES_UPPER AS "${prefix}ccfMCopiesUpper",
-        allele_specific_copy_number.CCF_M_COPIES AS "${prefix}ccfMCopies",
+        allele_specific_copy_number.CCF_EXPECTED_COPIES_UPPER AS "${prefix}ccfExpectedCopiesUpper",
+        allele_specific_copy_number.CCF_EXPECTED_COPIES AS "${prefix}ccfExpectedCopies",
         allele_specific_copy_number.CLONAL AS "${prefix}clonal",
         allele_specific_copy_number.MINOR_COPY_NUMBER AS "${prefix}minorCopyNumber",
-        allele_specific_copy_number.MUTANT_COPIES AS "${prefix}mutantCopies",
+        allele_specific_copy_number.EXPECTED_ALT_COPIES AS "${prefix}expectedAltCopies",
         allele_specific_copy_number.TOTAL_COPY_NUMBER AS "${prefix}totalCopyNumber"
     </sql>
 
@@ -202,7 +202,7 @@
         <include refid="from"/>
         <include refid="whereBySampleListId"/>
     </select>
-    
+
     <select id="getMutationsInMultipleMolecularProfiles" resultType="org.cbioportal.model.Mutation">
         SELECT
         <include refid="select"/>
@@ -225,7 +225,7 @@
             LIMIT #{limit} OFFSET #{offset}
         </if>
     </select>
-    
+
     <!-- TODO: cleanup once fusion/structural data is fixed in database -->
     <select id="getFusionsInMultipleMolecularProfiles" resultType="org.cbioportal.model.Mutation">
         SELECT
@@ -381,7 +381,7 @@
         </if>
         GROUP BY mutation.ENTREZ_GENE_ID
     </select>
-    
+
     <select id="getMutationCountByPosition" resultType="org.cbioportal.model.MutationCountByPosition">
         SELECT
         #{entrezGeneId} AS entrezGeneId,

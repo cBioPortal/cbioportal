@@ -110,7 +110,7 @@ public class OAuth2DataAccessTokenServiceImplTest {
     }
 
     @Test
-    public void testGetExpirtaionReturnsNull() {
+    public void testGetExpirationReturnsNull() {
         assertNull(service.getExpiration("dummy_token"));
     }
 

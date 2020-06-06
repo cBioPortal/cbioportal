@@ -50,14 +50,10 @@ import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.jwt.Jwt;
 import org.springframework.security.jwt.JwtHelper;
-import org.springframework.stereotype.Service;
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
 import org.springframework.web.client.RestTemplate;
 
-
-@Service
-@ConditionalOnDatMethod(value = "oauth2")
 public class OAuth2DataAccessTokenServiceImpl implements DataAccessTokenService {
 
     @Value("${dat.oauth2.issuer}")

@@ -28,7 +28,7 @@
     -->
 
     <!-- make sure externally defined beans are added to the spring context -->
-    <context:component-scan base-package="org.cbioportal.security.spring.authentication.token.oauth2" />
+    <context:component-scan base-package="org.cbioportal.security.spring.authentication.token" />
 
     <b:bean id="tokenAuthenticationFilter" class="org.cbioportal.security.spring.authentication.token.TokenAuthenticationFilter">
         <b:property name="authenticationManager" ref="tokenAuthenticationManager" />

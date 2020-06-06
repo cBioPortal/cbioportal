@@ -32,23 +32,19 @@
 
 package org.cbioportal.service.impl;
 
-import java.util.Date;
-import java.util.List;
-
 import org.cbioportal.model.DataAccessToken;
 import org.cbioportal.service.DataAccessTokenService;
-import org.cbioportal.service.config.annotation.ConditionalOnDatMethod;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.core.Authentication;
-import org.springframework.stereotype.Service;
+
+import java.util.Date;
+import java.util.List;
 
 
 /**
  *
  * @author ochoaa
  */
-@Service
-@ConditionalOnDatMethod(value = "none")
 public class UnauthDataAccessTokenServiceImpl implements DataAccessTokenService {
 
     @Override

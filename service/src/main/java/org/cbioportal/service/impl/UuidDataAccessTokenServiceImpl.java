@@ -32,17 +32,11 @@
 
 package org.cbioportal.service.impl;
 
-import java.util.Calendar;
-import java.util.Date;
-import java.util.List;
-import java.util.UUID;
-
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.cbioportal.model.DataAccessToken;
 import org.cbioportal.persistence.DataAccessTokenRepository;
 import org.cbioportal.service.DataAccessTokenService;
-import org.cbioportal.service.config.annotation.ConditionalOnDatMethod;
 import org.cbioportal.service.exception.MaxNumberTokensExceededException;
 import org.cbioportal.service.exception.TokenNotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -50,11 +44,12 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
-import org.springframework.stereotype.Service;
-import org.springframework.web.bind.annotation.RestController;
 
-@Service
-@ConditionalOnDatMethod(value = "uuid")
+import java.util.Calendar;
+import java.util.Date;
+import java.util.List;
+import java.util.UUID;
+
 public class UuidDataAccessTokenServiceImpl implements DataAccessTokenService {
 
     @Autowired

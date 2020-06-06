@@ -50,10 +50,7 @@ import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.jwt.Jwt;
 import org.springframework.security.jwt.JwtHelper;
-import org.springframework.stereotype.Component;
 
-@Component("tokenAuthenticationProvider")
-@ConditionalOnDatMethod(value = "oauth2")
 public class OAuth2TokenAuthenticationProvider implements AuthenticationProvider {
 
     @Value("${dat.oauth2.jwtRolesPath:resource_access::cbioportal::roles}")
@@ -99,7 +96,7 @@ public class OAuth2TokenAuthenticationProvider implements AuthenticationProvider
                 }
             }
             final JsonNode rolesArrayPointer = rolesArrayCursor;
-            final Iterable<JsonNode> roles = () -> rolesArrayPointer.getElements();
+            final Iterable<JsonNode> roles = () -> rolesArrayPointer.elements();
 
             return StreamSupport.stream(roles.spliterator(), false)
                 .map(role -> role.toString().replaceAll("\"", ""))

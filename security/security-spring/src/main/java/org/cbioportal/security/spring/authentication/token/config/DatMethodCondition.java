@@ -29,14 +29,20 @@
  * You should have received a copy of the GNU Affero General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
-package org.cbioportal.service.config.annotation;
+package org.cbioportal.security.spring.authentication.token.config;
 
 import org.springframework.context.annotation.Condition;
 import org.springframework.context.annotation.ConditionContext;
+import org.springframework.context.annotation.PropertySource;
+import org.springframework.context.annotation.PropertySources;
 import org.springframework.core.type.AnnotatedTypeMetadata;
 
 import java.util.Map;
 
+@PropertySources({
+        @PropertySource(value="classpath:portal.properties", ignoreResourceNotFound=true),
+        @PropertySource(value="file:///${PORTAL_HOME}/portal.properties", ignoreResourceNotFound=true)
+})
 public class DatMethodCondition implements Condition {
 
     public DatMethodCondition() {
@@ -46,11 +52,12 @@ public class DatMethodCondition implements Condition {
     @Override
     public boolean matches(ConditionContext context, AnnotatedTypeMetadata metadata) {
         String datMethod = context.getEnvironment().getProperty("dat.method");
+        if (datMethod == null)
+            datMethod = "none";
         Map<String, Object> attributes = metadata.getAnnotationAttributes(ConditionalOnDatMethod.class.getName());
         String value = (String) attributes.get("value");
         boolean isNot = (boolean) attributes.get("isNot");
-        boolean matches = isNot? !datMethod.equalsIgnoreCase(value) : datMethod.equalsIgnoreCase(value);
-        return datMethod != null && matches;
+        return isNot ? !datMethod.equalsIgnoreCase(value) : datMethod.equalsIgnoreCase(value);
     }
 
 }

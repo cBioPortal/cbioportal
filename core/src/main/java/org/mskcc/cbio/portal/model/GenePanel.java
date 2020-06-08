@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2016 Memorial Sloan-Kettering Cancer Center.
+ * Copyright (c) 2016 Memorial Sloan Kettering Cancer Center.
  *
  * This library is distributed in the hope that it will be useful, but WITHOUT
  * ANY WARRANTY, WITHOUT EVEN THE IMPLIED WARRANTY OF MERCHANTABILITY OR FITNESS
@@ -29,38 +29,57 @@
  * You should have received a copy of the GNU Affero General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
-
-package org.mskcc.cbio.portal.repository;
+package org.mskcc.cbio.portal.model;
 
 /**
  *
  * @author heinsz
  */
 
-import org.cbioportal.model.*;
-import org.mskcc.cbio.portal.model.GenePanel;
-import org.mskcc.cbio.portal.model.GenePanelWithSamples;
+import org.mskcc.cbio.portal.model.CanonicalGene;
 
-import java.util.*;
+import java.io.Serializable;
+import java.util.Set;
 
-public interface GenePanelRepositoryLegacy {
-    
-        List<GenePanelWithSamples> getGenePanelsByProfile(String profileId);
-        // TODO: All of the below methods are for importing purposes only. They should be
-        // removed once a proper import solution is put in place.
-        List<GenePanel> getGenePanelByStableId(String stableId);
-        List<GenePanel> getGenePanels();
-        MolecularProfile getGeneticProfileByStableId(String stableId);
-        Gene getGeneByEntrezGeneId(Integer geneId);
-        Gene getGeneByHugoSymbol(String symbol);
-        Gene getGeneByAlias(String symbol);
-        boolean sampleProfileMappingExistsByProfile(Integer profileId);
-        boolean sampleProfileMappingExistsByPanel(Integer panelId);
-        void insertGenePanel(Map<String, Object> map);
-        void deleteGenePanel(Integer internalId);        
-        void deleteGenePanelList(Integer internalId);    
-        void deleteSampleProfileMappingByProfile(Integer profileId);            
-        void deleteSampleProfileMappingByPanel(Integer panelId);
-        void insertGenePanelList(Map<String, Object> map);
-        void insertGenePanelListByHugo(Map<String, Object> map);
+public class GenePanel  implements Serializable {
+
+    private Integer internalId;
+    private String stableId;
+    private String description;
+    private Set<CanonicalGene> genes;
+
+    public GenePanel() {}
+
+    public Integer getInternalId() {
+        return internalId;
+    }
+
+    public void setInternalId(Integer internalId) {
+        this.internalId = internalId;
+    }
+
+    public String getStableId() {
+        return stableId;
+    }
+
+    public void setStableId(String stableId) {
+        this.stableId = stableId;
+    }
+
+    public String getDescription() {
+        return description;
+    }
+
+    public void setDescription(String description) {
+        this.description = description;
+    }
+
+    public Set<CanonicalGene> getGenes() {
+        return genes;
+    }
+
+    public void setGenes(Set<CanonicalGene> genes) {
+        this.genes = genes;
+    }
+
 }

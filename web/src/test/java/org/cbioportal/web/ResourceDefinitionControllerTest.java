@@ -91,8 +91,8 @@ public class ResourceDefinitionControllerTest {
         List<ResourceDefinition> resourceDefinitions = Arrays
                 .asList(objectMapper.readValue(resourceDefinitionsJson, ResourceDefinition[].class));
 
-        Mockito.when(resourceDefinitionService.getAllResourceDefinitionsInStudy(Mockito.anyString(),
-                Mockito.anyString(), Mockito.anyInt(), Mockito.anyInt(), Mockito.anyString(), Mockito.anyString()))
+        Mockito.when(resourceDefinitionService.getAllResourceDefinitionsInStudy(Mockito.any(),
+                Mockito.any(), Mockito.any(), Mockito.any(), Mockito.any(), Mockito.any()))
                 .thenReturn(resourceDefinitions);
 
         mockMvc.perform(MockMvcRequestBuilders.get("/studies/test_study_id/resource-definitions")

@@ -16,9 +16,9 @@ import org.mskcc.cbio.portal.scripts.ImportSampleList;
 import org.mskcc.cbio.portal.scripts.ImportProfileData;
 import org.mskcc.cbio.portal.util.*;
 import org.mskcc.cbio.portal.web_api.GetSampleLists;
+import org.springframework.test.annotation.Rollback;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
-import org.springframework.test.context.transaction.TransactionConfiguration;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.ArrayList;
@@ -30,7 +30,7 @@ import static org.junit.Assert.assertEquals;
 
 @RunWith(SpringJUnit4ClassRunner.class)
 @ContextConfiguration(locations = { "classpath:/applicationContext-dao.xml" })
-@TransactionConfiguration(transactionManager = "transactionManager", defaultRollback = true)
+@Rollback
 @Transactional
 public class TestPanCancerStudySummaryImport {
 

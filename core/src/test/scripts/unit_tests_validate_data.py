@@ -403,33 +403,39 @@ class PatientAttrFileTestCase(PostClinicalDataFileTestCase):
         self.logger.setLevel(logging.WARNING)
         record_list = self.validate('data_clin_hardcoded_attr_vals.txt',
                                     validateData.PatientClinicalValidator)
-        self.assertEqual(len(record_list), 5)
+        self.assertEqual(len(record_list), 6)
         record_iterator = iter(record_list)
-        # OS_STATUS not in controlled vocabulary
+        # OS_STATUS not 0:LIVING
         record = next(record_iterator)
         self.assertEqual(record.levelno, logging.ERROR)
         self.assertEqual(record.line_number, 6)
         self.assertEqual(record.column_number, 3)
-        self.assertEqual(record.cause, 'ALIVE')
+        self.assertEqual(record.cause, '0:ALIVE')
         # DFS_STATUS having an OS_STATUS value
+        record = next(record_iterator)	
+        self.assertEqual(record.levelno, logging.ERROR)	
+        self.assertEqual(record.line_number, 7)	
+        self.assertEqual(record.column_number, 5)	
+        self.assertEqual(record.cause, '0:LIVING')
+        # PFS_STATUS not start with 0 / 1
         record = next(record_iterator)
         self.assertEqual(record.levelno, logging.ERROR)
-        self.assertEqual(record.line_number, 7)
-        self.assertEqual(record.column_number, 5)
-        self.assertEqual(record.cause, 'LIVING')
-        # wrong casing for OS_STATUS
+        self.assertEqual(record.line_number, 8)
+        self.assertEqual(record.column_number, 7)
+        self.assertEqual(record.cause, 'PROGRESSION')
+        # wrong casing for OS_STATUS	
         record = next(record_iterator)
         self.assertEqual(record.levelno, logging.ERROR)
         self.assertEqual(record.line_number, 9)
         self.assertEqual(record.column_number, 3)
-        self.assertEqual(record.cause, 'living')
-        # DFS_STATUS not in controlled vocabulary (wrong casing)
+        self.assertEqual(record.cause, '0:living')
+        # DFS_STATUS not 1:Recurred/Progressed
         record = next(record_iterator)
         self.assertEqual(record.levelno, logging.ERROR)
         self.assertEqual(record.line_number, 11)
         self.assertEqual(record.column_number, 5)
-        self.assertEqual(record.cause, 'recurred/progressed')
-        # unspecified OS_MONTHS while OS_STATUS is DECEASED
+        self.assertEqual(record.cause, '1:recurred/progressed')
+        # unspecified OS_MONTHS while OS_STATUS is 1:DECEASED
         record = next(record_iterator)
         self.assertEqual(record.levelno, logging.WARNING)
         self.assertEqual(record.line_number, 13)

@@ -35,16 +35,16 @@ package org.mskcc.cbio.portal.dao;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mskcc.cbio.portal.model.Drug;
+import org.springframework.test.annotation.Rollback;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
-import org.springframework.test.context.transaction.TransactionConfiguration;
 import org.springframework.transaction.annotation.Transactional;
 
 import static org.junit.Assert.*;
 
 @RunWith(SpringJUnit4ClassRunner.class)
 @ContextConfiguration(locations = { "classpath:/applicationContext-dao.xml" })
-@TransactionConfiguration(transactionManager = "transactionManager", defaultRollback = true)
+@Rollback
 @Transactional
 public class TestDaoDrug {
 	
@@ -74,7 +74,7 @@ public class TestDaoDrug {
         assertTrue(tmpDrug.isApprovedFDA());
         assertTrue(tmpDrug.isCancerDrug());
         assertFalse(tmpDrug.isNutraceuitical());
-        assertEquals(new Integer(25), tmpDrug.getNumberOfClinicalTrials());
+        assertEquals(Integer.valueOf(25), tmpDrug.getNumberOfClinicalTrials());
 
         Drug tmpDrug2 = daoDrug.getDrug("Dummy:2");
         assertNotNull(tmpDrug2);
@@ -82,7 +82,7 @@ public class TestDaoDrug {
         assertFalse(tmpDrug2.isApprovedFDA());
         assertFalse(tmpDrug2.isCancerDrug());
         assertTrue(tmpDrug2.isNutraceuitical());
-        assertEquals(new Integer(-1), tmpDrug2.getNumberOfClinicalTrials());
+        assertEquals(Integer.valueOf(-1), tmpDrug2.getNumberOfClinicalTrials());
 
         assertNull(daoDrug.getDrug("Dummy:BLABLA"));
 

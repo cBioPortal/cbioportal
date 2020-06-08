@@ -78,9 +78,9 @@ public class ClinicalDataControllerTest {
         sampleClinicalData2.setAttrValue(TEST_ATTR_VALUE_2);
         sampleClinicalData2.setInternalId(TEST_INTERNAL_ID_2);
         sampleClinicalDataList.add(sampleClinicalData2);
-        Mockito.when(clinicalDataService.getAllClinicalDataOfSampleInStudy(Mockito.anyString(), Mockito.anyString(),
-                Mockito.anyString(), Mockito.anyString(), Mockito.anyInt(), Mockito.anyInt(),
-                Mockito.anyString(), Mockito.anyString())).thenReturn(sampleClinicalDataList);
+        Mockito.when(clinicalDataService.getAllClinicalDataOfSampleInStudy(Mockito.any(), Mockito.any(),
+                Mockito.any(), Mockito.any(), Mockito.any(), Mockito.any(),
+                Mockito.any(), Mockito.any())).thenReturn(sampleClinicalDataList);
 
         mockMvc.perform(MockMvcRequestBuilders.get("/studies/test_study_id/samples/test_sample_id/clinical-data")
                 .accept(MediaType.APPLICATION_JSON))
@@ -105,8 +105,8 @@ public class ClinicalDataControllerTest {
         BaseMeta baseMeta = new BaseMeta();
         baseMeta.setTotalCount(2);
 
-        Mockito.when(clinicalDataService.getMetaSampleClinicalData(Mockito.anyString(), Mockito.anyString(),
-                Mockito.anyString())).thenReturn(baseMeta);
+        Mockito.when(clinicalDataService.getMetaSampleClinicalData(Mockito.any(), Mockito.any(),
+                Mockito.any())).thenReturn(baseMeta);
 
         mockMvc.perform(MockMvcRequestBuilders.get("/studies/test_study_id/samples/test_sample_id/clinical-data")
                 .param("projection", "META"))
@@ -128,9 +128,9 @@ public class ClinicalDataControllerTest {
         patientClinicalData2.setAttrValue(TEST_ATTR_VALUE_2);
         patientClinicalData2.setInternalId(TEST_INTERNAL_ID_2);
         patientClinicalDataList.add(patientClinicalData2);
-        Mockito.when(clinicalDataService.getAllClinicalDataOfPatientInStudy(Mockito.anyString(), Mockito.anyString(),
-                Mockito.anyString(), Mockito.anyString(), Mockito.anyInt(), Mockito.anyInt(),
-                Mockito.anyString(), Mockito.anyString())).thenReturn(patientClinicalDataList);
+        Mockito.when(clinicalDataService.getAllClinicalDataOfPatientInStudy(Mockito.any(), Mockito.any(),
+                Mockito.any(), Mockito.any(), Mockito.any(), Mockito.any(),
+                Mockito.any(), Mockito.any())).thenReturn(patientClinicalDataList);
 
         mockMvc.perform(MockMvcRequestBuilders.get("/studies/test_study_id/patients/test_patient_id/clinical-data")
                 .accept(MediaType.APPLICATION_JSON))
@@ -155,8 +155,8 @@ public class ClinicalDataControllerTest {
         BaseMeta baseMeta = new BaseMeta();
         baseMeta.setTotalCount(2);
 
-        Mockito.when(clinicalDataService.getMetaPatientClinicalData(Mockito.anyString(), Mockito.anyString(),
-                Mockito.anyString())).thenReturn(baseMeta);
+        Mockito.when(clinicalDataService.getMetaPatientClinicalData(Mockito.any(), Mockito.any(),
+                Mockito.any())).thenReturn(baseMeta);
 
         mockMvc.perform(MockMvcRequestBuilders.get("/studies/test_study_id/patients/test_patient_id/clinical-data")
                 .param("projection", "META"))
@@ -179,8 +179,8 @@ public class ClinicalDataControllerTest {
         patientClinicalData2.setInternalId(TEST_INTERNAL_ID_2);
         patientClinicalDataList.add(patientClinicalData2);
         Mockito.when(clinicalDataService.getAllClinicalDataInStudy(
-                Mockito.anyString(), Mockito.anyString(), Mockito.anyString(), Mockito.anyString(), Mockito.anyInt(),
-                Mockito.anyInt(), Mockito.anyString(), Mockito.anyString())).thenReturn(patientClinicalDataList);
+                Mockito.any(), Mockito.any(), Mockito.any(), Mockito.any(), Mockito.any(),
+                Mockito.any(), Mockito.any(), Mockito.any())).thenReturn(patientClinicalDataList);
 
         mockMvc.perform(MockMvcRequestBuilders.get("/studies/test_study_id/clinical-data")
                 .param("clinicalDataType", "PATIENT")
@@ -206,8 +206,8 @@ public class ClinicalDataControllerTest {
         BaseMeta baseMeta = new BaseMeta();
         baseMeta.setTotalCount(2);
 
-        Mockito.when(clinicalDataService.getMetaAllClinicalData(Mockito.anyString(), Mockito.anyString(),
-                Mockito.anyString())).thenReturn(baseMeta);
+        Mockito.when(clinicalDataService.getMetaAllClinicalData(Mockito.any(), Mockito.any(),
+                Mockito.any())).thenReturn(baseMeta);
 
         mockMvc.perform(MockMvcRequestBuilders.get("/studies/test_study_id/clinical-data")
                 .param("projection", "META")
@@ -231,8 +231,8 @@ public class ClinicalDataControllerTest {
         patientClinicalData2.setAttrValue(TEST_ATTR_VALUE_2);
         patientClinicalData2.setInternalId(TEST_INTERNAL_ID_2);
         patientClinicalDataList.add(patientClinicalData2);
-        Mockito.when(clinicalDataService.fetchAllClinicalDataInStudy(Mockito.anyString(),
-            Mockito.anyListOf(String.class), Mockito.anyListOf(String.class), Mockito.anyString(), Mockito.anyString()))
+        Mockito.when(clinicalDataService.fetchAllClinicalDataInStudy(Mockito.any(),
+            Mockito.any(), Mockito.any(), Mockito.any(), Mockito.any()))
             .thenReturn(patientClinicalDataList);
 
         List<String> ids = new ArrayList<>();
@@ -267,8 +267,8 @@ public class ClinicalDataControllerTest {
         BaseMeta baseMeta = new BaseMeta();
         baseMeta.setTotalCount(2);
 
-        Mockito.when(clinicalDataService.fetchMetaClinicalDataInStudy(Mockito.anyString(),
-            Mockito.anyListOf(String.class), Mockito.anyListOf(String.class), Mockito.anyString()))
+        Mockito.when(clinicalDataService.fetchMetaClinicalDataInStudy(Mockito.any(),
+            Mockito.any(), Mockito.any(), Mockito.any()))
             .thenReturn(baseMeta);
 
         List<String> ids = new ArrayList<>();
@@ -301,8 +301,8 @@ public class ClinicalDataControllerTest {
         patientClinicalData2.setInternalId(TEST_INTERNAL_ID_2);
         patientClinicalDataList.add(patientClinicalData2);
         Mockito.when(clinicalDataService.fetchClinicalData(
-                Mockito.anyListOf(String.class), Mockito.anyListOf(String.class), Mockito.anyListOf(String.class),
-                Mockito.anyString(), Mockito.anyString())).thenReturn(patientClinicalDataList);
+                Mockito.any(), Mockito.any(), Mockito.any(),
+                Mockito.any(), Mockito.any())).thenReturn(patientClinicalDataList);
 
         List<ClinicalDataIdentifier> clinicalDataIdentifiers = new ArrayList<>();
         ClinicalDataIdentifier clinicalDataIdentifier1 = new ClinicalDataIdentifier();
@@ -342,8 +342,8 @@ public class ClinicalDataControllerTest {
         BaseMeta baseMeta = new BaseMeta();
         baseMeta.setTotalCount(2);
 
-        Mockito.when(clinicalDataService.fetchMetaClinicalData(Mockito.anyListOf(String.class),
-                Mockito.anyListOf(String.class), Mockito.anyListOf(String.class), Mockito.anyString())).thenReturn(baseMeta);
+        Mockito.when(clinicalDataService.fetchMetaClinicalData(Mockito.any(),
+                Mockito.any(), Mockito.any(), Mockito.any())).thenReturn(baseMeta);
 
         List<ClinicalDataIdentifier> clinicalDataIdentifiers = new ArrayList<>();
         ClinicalDataIdentifier clinicalDataIdentifier1 = new ClinicalDataIdentifier();

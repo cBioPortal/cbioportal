@@ -76,8 +76,8 @@ public class PatientControllerTest {
 
         List<Patient> patientList = createExamplePatients();
 
-        Mockito.when(patientService.getAllPatients(Mockito.anyString(), Mockito.anyString(), Mockito.anyInt(),
-            Mockito.anyInt(), Mockito.anyString(), Mockito.anyString())).thenReturn(patientList);
+        Mockito.when(patientService.getAllPatients(Mockito.any(), Mockito.any(), Mockito.any(),
+            Mockito.any(), Mockito.any(), Mockito.any())).thenReturn(patientList);
 
         mockMvc.perform(MockMvcRequestBuilders.get("/patients")
             .accept(MediaType.APPLICATION_JSON))
@@ -102,7 +102,7 @@ public class PatientControllerTest {
         BaseMeta baseMeta = new BaseMeta();
         baseMeta.setTotalCount(2);
 
-        Mockito.when(patientService.getMetaPatients(Mockito.anyString())).thenReturn(baseMeta);
+        Mockito.when(patientService.getMetaPatients(Mockito.any())).thenReturn(baseMeta);
 
         mockMvc.perform(MockMvcRequestBuilders.get("/patients")
             .param("projection", "META"))
@@ -115,8 +115,8 @@ public class PatientControllerTest {
 
         List<Patient> patientList = createExamplePatients();
 
-        Mockito.when(patientService.getAllPatientsInStudy(Mockito.anyString(), Mockito.anyString(), Mockito.anyInt(),
-            Mockito.anyInt(), Mockito.anyString(), Mockito.anyString())).thenReturn(patientList);
+        Mockito.when(patientService.getAllPatientsInStudy(Mockito.any(), Mockito.any(), Mockito.any(),
+            Mockito.any(), Mockito.any(), Mockito.any())).thenReturn(patientList);
 
         mockMvc.perform(MockMvcRequestBuilders.get("/studies/test_study_id/patients")
             .accept(MediaType.APPLICATION_JSON))
@@ -196,7 +196,7 @@ public class PatientControllerTest {
 
         List<Patient> patientList = createExamplePatients();
 
-        Mockito.when(patientService.fetchPatients(Mockito.anyListOf(String.class), Mockito.anyListOf(String.class),
+        Mockito.when(patientService.fetchPatients(Mockito.anyList(), Mockito.anyList(),
             Mockito.anyString())).thenReturn(patientList);
 
         PatientFilter patientFilter = new PatientFilter();
@@ -235,7 +235,7 @@ public class PatientControllerTest {
 
         List<Patient> patientList = createExamplePatients();
 
-        Mockito.when(patientService.fetchPatients(Mockito.anyListOf(String.class), Mockito.anyListOf(String.class),
+        Mockito.when(patientService.fetchPatients(Mockito.anyList(), Mockito.anyList(),
             Mockito.anyString())).thenReturn(patientList);
 
         PatientFilter patientFilter = new PatientFilter();
@@ -269,8 +269,8 @@ public class PatientControllerTest {
         BaseMeta baseMeta = new BaseMeta();
         baseMeta.setTotalCount(2);
 
-        Mockito.when(patientService.fetchMetaPatients(Mockito.anyListOf(String.class),
-            Mockito.anyListOf(String.class))).thenReturn(baseMeta);
+        Mockito.when(patientService.fetchMetaPatients(Mockito.anyList(),
+            Mockito.anyList())).thenReturn(baseMeta);
 
         PatientFilter patientFilter = new PatientFilter();
         List<PatientIdentifier> patientIdentifiers = new ArrayList<>();

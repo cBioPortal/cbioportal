@@ -11,6 +11,7 @@ import org.cbioportal.service.exception.PatientNotFoundException;
 import org.cbioportal.service.exception.SampleNotFoundException;
 import org.cbioportal.service.exception.StudyNotFoundException;
 import org.cbioportal.service.SampleService;
+import org.cbioportal.web.config.PublicApiTags;
 import org.cbioportal.web.config.annotation.PublicApi;
 import org.cbioportal.web.parameter.*;
 import org.cbioportal.web.parameter.sort.SampleSortBy;
@@ -41,7 +42,7 @@ import java.util.stream.Collectors;
 @PublicApi
 @RestController
 @Validated
-@Api(tags = "D. Samples", description = " ")
+@Api(tags = PublicApiTags.SAMPLES, description = " ")
 public class SampleController {
 
     public static final int SAMPLE_MAX_PAGE_SIZE = 10000000;

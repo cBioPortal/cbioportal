@@ -120,15 +120,15 @@
     content: " years old";
 }
 /* attributes with special colors */
-.clinical-attribute[attr-id="OS_STATUS"][attr-value="DECEASED"],
-.clinical-attribute[attr-id="OS_STATUS"][attr-value="DEAD"],
+.clinical-attribute[attr-id="OS_STATUS"][attr-value="1:DECEASED"],
+.clinical-attribute[attr-id="OS_STATUS"][attr-value="1:DEAD"],
 .clinical-attribute[attr-id="DFS_STATUS"] {
     color: #f00;
 }
-.clinical-attribute[attr-id="OS_STATUS"][attr-value="LIVING"],
-.clinical-attribute[attr-id="OS_STATUS"][attr-value="ALIVE"],
-.clinical-attribute[attr-id="DFS_STATUS"][attr-value="DiseaseFree"],
-.clinical-attribute[attr-id="DFS_STATUS"][attr-value="Yes"] {
+.clinical-attribute[attr-id="OS_STATUS"][attr-value="0:LIVING"],
+.clinical-attribute[attr-id="OS_STATUS"][attr-value="0:ALIVE"],
+.clinical-attribute[attr-id="DFS_STATUS"][attr-value="0:DiseaseFree"],
+.clinical-attribute[attr-id="DFS_STATUS"][attr-value="0:Yes"] {
     color: rgb(0, 128, 0);
 }
 .clinical-attribute[attr-id="DERIVED_NORMALIZED_CASE_TYPE"][attr-value='Primary'] {

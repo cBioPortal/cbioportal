@@ -18,14 +18,14 @@ import org.junit.runner.RunWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.Mockito;
-import org.mockito.runners.MockitoJUnitRunner;
+import org.mockito.junit.MockitoJUnitRunner;
 
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
 
-@RunWith(MockitoJUnitRunner.class)
+@RunWith(MockitoJUnitRunner.Silent.class)
 public class SampleServiceImplTest extends BaseServiceImplTest {
 
     @InjectMocks
@@ -91,8 +91,8 @@ public class SampleServiceImplTest extends BaseServiceImplTest {
                 DIRECTION)).thenReturn(expectedSampleList);
         Mockito.when(sampleListRepository.getAllSampleIdsInSampleList(Mockito.anyString()))
             .thenReturn(new ArrayList<>());
-        Mockito.when(copyNumberSegmentRepository.fetchCopyNumberSegments(Mockito.anyListOf(String.class), 
-            Mockito.anyListOf(String.class), Mockito.anyString(), Mockito.anyString())).thenReturn(new ArrayList<>());
+        Mockito.when(copyNumberSegmentRepository.fetchCopyNumberSegments(Mockito.anyList(), 
+            Mockito.anyList(), Mockito.anyString(), Mockito.anyString())).thenReturn(new ArrayList<>());
 
         List<Sample> result = sampleService.getAllSamplesInStudy(STUDY_ID, PROJECTION, PAGE_SIZE, PAGE_NUMBER, SORT,
                 DIRECTION);
@@ -145,8 +145,8 @@ public class SampleServiceImplTest extends BaseServiceImplTest {
         Mockito.when(sampleRepository.getSampleInStudy(STUDY_ID, SAMPLE_ID1)).thenReturn(expectedSample);
         Mockito.when(sampleListRepository.getAllSampleIdsInSampleList(Mockito.anyString()))
             .thenReturn(new ArrayList<>());
-        Mockito.when(copyNumberSegmentRepository.fetchCopyNumberSegments(Mockito.anyListOf(String.class),
-            Mockito.anyListOf(String.class), Mockito.anyString(), Mockito.anyString())).thenReturn(new ArrayList<>());
+        Mockito.when(copyNumberSegmentRepository.fetchCopyNumberSegments(Mockito.anyList(),
+            Mockito.anyList(), Mockito.anyString(), Mockito.anyString())).thenReturn(new ArrayList<>());
         
         Sample result = sampleService.getSampleInStudy(STUDY_ID, SAMPLE_ID1);
 
@@ -164,8 +164,8 @@ public class SampleServiceImplTest extends BaseServiceImplTest {
                 PAGE_NUMBER, SORT, DIRECTION)).thenReturn(expectedSampleList);
         Mockito.when(sampleListRepository.getAllSampleIdsInSampleList(Mockito.anyString()))
             .thenReturn(new ArrayList<>());
-        Mockito.when(copyNumberSegmentRepository.fetchCopyNumberSegments(Mockito.anyListOf(String.class),
-            Mockito.anyListOf(String.class), Mockito.anyString(), Mockito.anyString())).thenReturn(new ArrayList<>());
+        Mockito.when(copyNumberSegmentRepository.fetchCopyNumberSegments(Mockito.anyList(),
+            Mockito.anyList(), Mockito.anyString(), Mockito.anyString())).thenReturn(new ArrayList<>());
 
         List<Sample> result = sampleService.getAllSamplesOfPatientInStudy(STUDY_ID, PATIENT_ID_1, PROJECTION, PAGE_SIZE,
                 PAGE_NUMBER, SORT, DIRECTION);
@@ -211,8 +211,8 @@ public class SampleServiceImplTest extends BaseServiceImplTest {
             .thenReturn(expectedSampleList);
         Mockito.when(sampleListRepository.getAllSampleIdsInSampleList(Mockito.anyString()))
             .thenReturn(new ArrayList<>());
-        Mockito.when(copyNumberSegmentRepository.fetchCopyNumberSegments(Mockito.anyListOf(String.class),
-            Mockito.anyListOf(String.class), Mockito.anyString(), Mockito.anyString())).thenReturn(new ArrayList<>());
+        Mockito.when(copyNumberSegmentRepository.fetchCopyNumberSegments(Mockito.anyList(),
+            Mockito.anyList(), Mockito.anyString(), Mockito.anyString())).thenReturn(new ArrayList<>());
 
         List<Sample> result = sampleService.getAllSamplesOfPatientsInStudy(STUDY_ID, Arrays.asList(PATIENT_ID_1), PROJECTION);
 
@@ -230,8 +230,8 @@ public class SampleServiceImplTest extends BaseServiceImplTest {
                 .thenReturn(expectedSampleList);
         Mockito.when(sampleListRepository.getAllSampleIdsInSampleList(Mockito.anyString()))
             .thenReturn(new ArrayList<>());
-        Mockito.when(copyNumberSegmentRepository.fetchCopyNumberSegments(Mockito.anyListOf(String.class),
-            Mockito.anyListOf(String.class), Mockito.anyString(), Mockito.anyString())).thenReturn(new ArrayList<>());
+        Mockito.when(copyNumberSegmentRepository.fetchCopyNumberSegments(Mockito.anyList(),
+            Mockito.anyList(), Mockito.anyString(), Mockito.anyString())).thenReturn(new ArrayList<>());
 
         List<Sample> result = sampleService.fetchSamples(Arrays.asList(STUDY_ID), Arrays.asList(SAMPLE_ID1), PROJECTION);
 
@@ -261,8 +261,8 @@ public class SampleServiceImplTest extends BaseServiceImplTest {
                 .thenReturn(expectedSampleList);
         Mockito.when(sampleListRepository.getAllSampleIdsInSampleList(Mockito.anyString()))
             .thenReturn(new ArrayList<>());
-        Mockito.when(copyNumberSegmentRepository.fetchSamplesWithCopyNumberSegments(Mockito.anyListOf(String.class),
-            Mockito.anyListOf(String.class), Mockito.anyString())).thenReturn(expectedInternalIdList);
+        Mockito.when(copyNumberSegmentRepository.fetchSamplesWithCopyNumberSegments(Mockito.anyList(),
+            Mockito.anyList(), Mockito.any())).thenReturn(expectedInternalIdList);
 
         List<MolecularProfile> expectedMolecularProfileList = new ArrayList<>();
         MolecularProfile molecularProfile = new MolecularProfile();

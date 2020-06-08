@@ -1,5 +1,5 @@
 --
--- Copyright (c) 2016 - 2019 Memorial Sloan-Kettering Cancer Center.
+-- Copyright (c) 2016 - 2020 Memorial Sloan-Kettering Cancer Center.
 --
 -- This library is distributed in the hope that it will be useful, but WITHOUT
 -- ANY WARRANTY, WITHOUT EVEN THE IMPLIED WARRANTY OF MERCHANTABILITY OR FITNESS
@@ -396,11 +396,11 @@ CREATE TABLE `reference_genome` (
     UNIQUE INDEX `BUILD_NAME_UNIQUE` (`BUILD_NAME` ASC)
 );
 
-INSERT INTO `reference_genome` 
+INSERT INTO `reference_genome`
 VALUES (1, 'human', 'hg19', 'GRCh37', 2897310462, 'http://hgdownload.cse.ucsc.edu/goldenPath/hg19/bigZips', '2009-02-01');
-INSERT INTO `reference_genome` 
+INSERT INTO `reference_genome`
 VALUES (2, 'human', 'hg38', 'GRCh38', 3049315783, 'http://hgdownload.cse.ucsc.edu/goldenPath/hg38/bigZips', '2013-12-01');
-INSERT INTO `reference_genome` 
+INSERT INTO `reference_genome`
 VALUES (3, 'mouse', 'mm10', 'GRCm38', 2652783500, 'http://hgdownload.cse.ucsc.edu//goldenPath/mm10/bigZips', '2012-01-01');
 
 CREATE TABLE `reference_genome_gene` (
@@ -850,3 +850,45 @@ CREATE TABLE `resource_study` (
   FOREIGN KEY (`INTERNAL_ID`) REFERENCES `cancer_study` (`CANCER_STUDY_ID`) ON DELETE CASCADE
 );
 UPDATE `info` SET `DB_SCHEMA_VERSION`="2.12.4";
+
+##version: 2.12.5
+-- survival data migration
+-- create temporary table to store survival attributes
+CREATE TEMPORARY TABLE IF NOT EXISTS survival_attributes AS 
+  (SELECT DISTINCT Concat(Substr(ATTR_ID, 1, Char_length(ATTR_ID) - 7), 
+                   "_STATUS") AS ATTR_ID 
+   FROM   clinical_attribute_meta 
+   WHERE  ATTR_ID LIKE "%_STATUS" 
+          AND Substr(ATTR_ID, 1, Char_length(ATTR_ID) - 7)IN (SELECT DISTINCT 
+              Substr(ATTR_ID, 1, Char_length(ATTR_ID) - 7) AS 
+              SurvivalDataStatusPrefix 
+              FROM   clinical_attribute_meta 
+              WHERE  ATTR_ID LIKE "%_MONTHS")); 
+
+-- mapping to 0/1
+UPDATE clinical_patient SET ATTR_VALUE = CONCAT("1:",ATTR_VALUE) WHERE ATTR_ID in (SELECT ATTR_ID FROM survival_attributes) AND ATTR_VALUE in ('DECEASED','Recurred/Progressed','Recurred','Progressed','Yes','yes','1','PROGRESSION','Event','DEAD OF MELANOMA','DEAD WITH TUMOR','Metastatic Relapse','Localized Relapse');
+UPDATE clinical_patient SET ATTR_VALUE = CONCAT("0:",ATTR_VALUE) WHERE ATTR_ID in (SELECT ATTR_ID FROM survival_attributes) AND ATTR_VALUE in ('LIVING','ALIVE','DiseaseFree','No','0','ProgressionFree','NO PROGRESSION','Not Progressed','CENSORED','Censor','ALIVE OR CENSORED','ALIVE OR DEAD TUMOR FREE','Censored','No Relapse','Progression free','Censure','no','NED');
+UPDATE `info` SET `DB_SCHEMA_VERSION`="2.12.5";
+
+##version: 2.12.6
+-- WARNING: old allele specific copy number (ASCN) schema is incompatible with the new schema
+-- studies that contain ASCN data will lose any existing ASCN data and should be reimported
+DROP TABLE IF EXISTS `allele_specific_copy_number`;
+CREATE TABLE `allele_specific_copy_number` (
+    `MUTATION_EVENT_ID` int(255) NOT NULL,
+    `GENETIC_PROFILE_ID` int(11) NOT NULL,
+    `SAMPLE_ID` int(11) NOT NULL,
+    `ASCN_INTEGER_COPY_NUMBER` int DEFAULT NULL,
+    `ASCN_METHOD` varchar(24) NOT NULL,
+    `CCF_EXPECTED_COPIES_UPPER` float DEFAULT NULL,
+    `CCF_EXPECTED_COPIES` float DEFAULT NULL,
+    `CLONAL` varchar(16) DEFAULT NULL,
+    `MINOR_COPY_NUMBER` int DEFAULT NULL,
+    `EXPECTED_ALT_COPIES` int DEFAULT NULL,
+    `TOTAL_COPY_NUMBER` int DEFAULT NULL,
+    UNIQUE KEY `UQ_ASCN_MUTATION_EVENT_ID_GENETIC_PROFILE_ID_SAMPLE_ID` (`MUTATION_EVENT_ID`,`GENETIC_PROFILE_ID`,`SAMPLE_ID`), -- Constraint to block duplicated mutation entries
+    FOREIGN KEY (`MUTATION_EVENT_ID`) REFERENCES `mutation_event` (`MUTATION_EVENT_ID`),
+    FOREIGN KEY (`GENETIC_PROFILE_ID`) REFERENCES `genetic_profile` (`GENETIC_PROFILE_ID`) ON DELETE CASCADE,
+    FOREIGN KEY (`SAMPLE_ID`) REFERENCES `sample` (`INTERNAL_ID`) ON DELETE CASCADE
+);
+UPDATE `info` SET `DB_SCHEMA_VERSION`="2.12.6";

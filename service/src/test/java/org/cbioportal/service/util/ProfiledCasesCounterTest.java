@@ -16,7 +16,7 @@ import org.junit.runner.RunWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.Mockito;
-import org.mockito.runners.MockitoJUnitRunner;
+import org.mockito.junit.MockitoJUnitRunner;
 
 @RunWith(MockitoJUnitRunner.class)
 public class ProfiledCasesCounterTest {
@@ -110,29 +110,29 @@ public class ProfiledCasesCounterTest {
                 Arrays.asList(MOLECULAR_PROFILE_ID, MOLECULAR_PROFILE_ID, MOLECULAR_PROFILE_ID),
                 Arrays.asList(SAMPLE_ID_1, SAMPLE_ID_2, SAMPLE_ID_3), alterationCounts, false, false);
 
-        Assert.assertEquals(new Integer(3), alterationCounts.get(0).getNumberOfProfiledCases());
-        Assert.assertEquals(new Integer(2), alterationCounts.get(1).getNumberOfProfiledCases());
-        Assert.assertEquals(new Integer(3), alterationCounts.get(2).getNumberOfProfiledCases());
+        Assert.assertEquals(Integer.valueOf(3), alterationCounts.get(0).getNumberOfProfiledCases());
+        Assert.assertEquals(Integer.valueOf(2), alterationCounts.get(1).getNumberOfProfiledCases());
+        Assert.assertEquals(Integer.valueOf(3), alterationCounts.get(2).getNumberOfProfiledCases());
         
         
         profiledSamplesCounter.calculate(
                 Arrays.asList(MOLECULAR_PROFILE_ID, MOLECULAR_PROFILE_ID, MOLECULAR_PROFILE_ID),
                 Arrays.asList(SAMPLE_ID_1, SAMPLE_ID_2, SAMPLE_ID_3), alterationCounts, true, false);
 
-        Assert.assertEquals(new Integer(2), alterationCounts.get(0).getNumberOfProfiledCases());
-        Assert.assertEquals(new Integer(2), alterationCounts.get(1).getNumberOfProfiledCases());
-        Assert.assertEquals(new Integer(2), alterationCounts.get(2).getNumberOfProfiledCases());
+        Assert.assertEquals(Integer.valueOf(2), alterationCounts.get(0).getNumberOfProfiledCases());
+        Assert.assertEquals(Integer.valueOf(2), alterationCounts.get(1).getNumberOfProfiledCases());
+        Assert.assertEquals(Integer.valueOf(2), alterationCounts.get(2).getNumberOfProfiledCases());
 
         profiledSamplesCounter.calculate(
                 Arrays.asList(MOLECULAR_PROFILE_ID, MOLECULAR_PROFILE_ID, MOLECULAR_PROFILE_ID),
                 Arrays.asList(SAMPLE_ID_1, SAMPLE_ID_2, SAMPLE_ID_3), alterationCounts, true, true);
 
         Assert.assertEquals(4, alterationCounts.size());
-        Assert.assertEquals(new Integer(2), alterationCounts.get(0).getNumberOfProfiledCases());
-        Assert.assertEquals(new Integer(2), alterationCounts.get(1).getNumberOfProfiledCases());
-        Assert.assertEquals(new Integer(2), alterationCounts.get(2).getNumberOfProfiledCases());
-        Assert.assertEquals(new Integer(2), alterationCounts.get(3).getNumberOfProfiledCases());
-        Assert.assertEquals(new Integer(4), alterationCounts.get(3).getEntrezGeneId());
+        Assert.assertEquals(Integer.valueOf(2), alterationCounts.get(0).getNumberOfProfiledCases());
+        Assert.assertEquals(Integer.valueOf(2), alterationCounts.get(1).getNumberOfProfiledCases());
+        Assert.assertEquals(Integer.valueOf(2), alterationCounts.get(2).getNumberOfProfiledCases());
+        Assert.assertEquals(Integer.valueOf(2), alterationCounts.get(3).getNumberOfProfiledCases());
+        Assert.assertEquals(Integer.valueOf(4), alterationCounts.get(3).getEntrezGeneId());
 
     }
 }

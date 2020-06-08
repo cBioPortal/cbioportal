@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2019 Memorial Sloan-Kettering Cancer Center.
+ * Copyright (c) 2019-2020 Memorial Sloan-Kettering Cancer Center.
  *
  * This library is distributed in the hope that it will be useful, but WITHOUT
  * ANY WARRANTY, WITHOUT EVEN THE IMPLIED WARRANTY OF MERCHANTABILITY OR FITNESS
@@ -42,34 +42,36 @@ import java.util.*;
 public class AlleleSpecificCopyNumber implements Serializable {
     private final String ASCN_INT_COPY_NUMBER = "ascn_integer_copy_number";
     private final String ASCN_METHOD = "ascn_method";
-    private final String CCF_M_COPIES_UPPER = "ccf_m_copies_upper";
-    private final String CCF_M_COPIES = "ccf_m_copies";
+    private final String CCF_EXPECTED_COPIES_UPPER = "ccf_expected_copies_upper";
+    private final String CCF_EXPECTED_COPIES = "ccf_expected_copies";
     private final String CLONAL = "clonal";
     private final String MINOR_COPY_NUMBER = "minor_copy_number";
-    private final String MUTANT_COPIES = "mutant_copies";
+    private final String EXPECTED_ALT_COPIES = "expected_alt_copies";
     private final String TOTAL_COPY_NUMBER = "total_copy_number";
 
+    private final Set<String> ACCEPTED_CLONAL_VALUES = new HashSet<String>(Arrays.asList("CLONAL", "SUBCLONAL", "INDETERMINATE", "NA"));
+    
     private long mutationEventId;
     private int geneticProfileId;
     private int sampleId;
     private Integer ascnIntegerCopyNumber;
     private String ascnMethod;
-    private Float ccfMCopiesUpper;
-    private Float ccfMCopies;
-    private Boolean clonal;
+    private Float ccfExpectedCopiesUpper;
+    private Float ccfExpectedCopies;
+    private String clonal;
     private Integer minorCopyNumber;
-    private Integer mutantCopies;
+    private Integer expectedAltCopies;
     private Integer totalCopyNumber;
 
     public AlleleSpecificCopyNumber(Map<String,String> ascnData) {
-        this.ascnIntegerCopyNumber = (!ascnData.get(ASCN_INT_COPY_NUMBER).isEmpty() ? Integer.parseInt(ascnData.get(ASCN_INT_COPY_NUMBER)) : null);
-        this.ascnMethod = (!ascnData.get(ASCN_METHOD).isEmpty() ? ascnData.get(ASCN_METHOD) : null);
-        this.ccfMCopiesUpper = (!ascnData.get(CCF_M_COPIES_UPPER).isEmpty() ? Float.parseFloat(ascnData.get(CCF_M_COPIES_UPPER)) : null);
-        this.ccfMCopies = (!ascnData.get(CCF_M_COPIES).isEmpty() ? Float.parseFloat(ascnData.get(CCF_M_COPIES)) : null);
-        this.clonal = (!ascnData.get(CLONAL).isEmpty() ? Boolean.parseBoolean(ascnData.get(CLONAL)) : null);
-        this.minorCopyNumber = (!ascnData.get(MINOR_COPY_NUMBER).isEmpty() ? Integer.parseInt(ascnData.get(MINOR_COPY_NUMBER)) : null);
-        this.mutantCopies = (!ascnData.get(MUTANT_COPIES).isEmpty() ? Integer.parseInt(ascnData.get(MUTANT_COPIES)) : null);
-        this.totalCopyNumber = (!ascnData.get(TOTAL_COPY_NUMBER).isEmpty() ? Integer.parseInt(ascnData.get(TOTAL_COPY_NUMBER)) : null);
+        this.ascnIntegerCopyNumber = mapContainsValueForKey(ascnData, ASCN_INT_COPY_NUMBER) ? Integer.parseInt(ascnData.get(ASCN_INT_COPY_NUMBER)) : null;
+        this.ascnMethod = mapContainsValueForKey(ascnData, ASCN_METHOD) ? ascnData.get(ASCN_METHOD) : null;
+        this.ccfExpectedCopiesUpper = mapContainsValueForKey(ascnData, CCF_EXPECTED_COPIES_UPPER) ? Float.parseFloat(ascnData.get(CCF_EXPECTED_COPIES_UPPER)) : null;
+        this.ccfExpectedCopies = mapContainsValueForKey(ascnData, CCF_EXPECTED_COPIES) ? Float.parseFloat(ascnData.get(CCF_EXPECTED_COPIES)) : null;
+        this.clonal = mapContainsValueForKey(ascnData, CLONAL) ? normalizeClonalValue(ascnData.get(CLONAL)) : null;
+        this.minorCopyNumber = mapContainsValueForKey(ascnData, MINOR_COPY_NUMBER) ? Integer.parseInt(ascnData.get(MINOR_COPY_NUMBER)) : null;
+        this.expectedAltCopies = mapContainsValueForKey(ascnData, EXPECTED_ALT_COPIES) ? Integer.parseInt(ascnData.get(EXPECTED_ALT_COPIES)) : null;
+        this.totalCopyNumber = mapContainsValueForKey(ascnData, TOTAL_COPY_NUMBER) ? Integer.parseInt(ascnData.get(TOTAL_COPY_NUMBER)) : null;
     }
 
     public void updateAscnUniqueKeyDetails(ExtendedMutation mutation) {
@@ -118,27 +120,27 @@ public class AlleleSpecificCopyNumber implements Serializable {
         this.ascnMethod = ascnMethod;
     }
 
-    public Float getCcfMCopiesUpper() {
-        return ccfMCopiesUpper;
+    public Float getCcfExpectedCopiesUpper() {
+        return ccfExpectedCopiesUpper;
     }
 
-    public void setCcfMCopiesUpper(Float ccfMCopiesUpper) {
-        this.ccfMCopiesUpper = ccfMCopiesUpper;
+    public void setCcfExpectedCopiesUpper(Float ccfExpectedCopiesUpper) {
+        this.ccfExpectedCopiesUpper = ccfExpectedCopiesUpper;
     }
 
-    public Float getCcfMCopies() {
-        return ccfMCopies;
+    public Float getCcfExpectedCopies() {
+        return ccfExpectedCopies;
     }
 
-    public void setCcfMCopies(Float ccfMCopies) {
-        this.ccfMCopies = ccfMCopies;
+    public void setCcfExpectedCopies(Float ccfExpectedCopies) {
+        this.ccfExpectedCopies = ccfExpectedCopies;
     }
 
-    public Boolean getClonal() {
+    public String getClonal() {
         return clonal;
     }
 
-    public void setClonal(Boolean clonal) {
+    public void setClonal(String clonal) {
         this.clonal = clonal;
     }
 
@@ -150,12 +152,12 @@ public class AlleleSpecificCopyNumber implements Serializable {
         this.minorCopyNumber = minorCopyNumber;
     }
 
-    public Integer getMutantCopies() {
-        return mutantCopies;
+    public Integer getExpectedAltCopies() {
+        return expectedAltCopies;
     }
 
-    public void setMutantCopies(Integer mutantCopies) {
-        this.mutantCopies = mutantCopies;
+    public void setExpectedAltCopies(Integer expectedAltCopies) {
+        this.expectedAltCopies = expectedAltCopies;
     }
 
     public Integer getTotalCopyNumber() {
@@ -164,5 +166,17 @@ public class AlleleSpecificCopyNumber implements Serializable {
 
     public void setTotalCopyNumber(Integer totalCopyNumber) {
         this.totalCopyNumber = totalCopyNumber;
+    }
+
+    private String normalizeClonalValue(String clonal) {
+        String upperCaseClonal = clonal.toUpperCase();
+        if (ACCEPTED_CLONAL_VALUES.contains(upperCaseClonal)) {
+            return upperCaseClonal;
+        }
+        return "NA";
+    }
+
+    private boolean mapContainsValueForKey(Map<String, String> data, String key) {
+        return data.containsKey(key) && !data.get(key).isEmpty();
     }
 }

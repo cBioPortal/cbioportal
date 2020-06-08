@@ -32,14 +32,13 @@
 
 package org.mskcc.cbio.portal.scripts;
 
+import org.mskcc.cbio.portal.model.*;
+import org.mskcc.cbio.portal.dao.*;
+import org.mskcc.cbio.portal.util.ProgressMonitor;
+
 import java.io.*;
 import java.util.*;
-import org.mskcc.cbio.portal.repository.GenePanelRepositoryLegacy;
-import org.mskcc.cbio.portal.model.GenePanel;
-import org.cbioportal.model.Gene;
 import joptsimple.*;
-import org.mskcc.cbio.portal.util.ProgressMonitor;
-import org.mskcc.cbio.portal.util.SpringUtil;
 
 /**
  *
@@ -78,7 +77,6 @@ public class ImportGenePanel extends ConsoleRunnable {
             }
 
             setFile(genePanel_f);
-            SpringUtil.initDataSource();
             importData();
         } catch (RuntimeException e) {
             throw e;
@@ -92,39 +90,29 @@ public class ImportGenePanel extends ConsoleRunnable {
         Properties properties = new Properties();
         properties.load(new FileInputStream(genePanelFile));
 
-        GenePanelRepositoryLegacy genePanelRepositoryLegacy = (GenePanelRepositoryLegacy)SpringUtil.getApplicationContext().getBean("genePanelRepositoryLegacy");
-
         String stableId = getPropertyValue("stable_id", properties, true);
         String description = getPropertyValue("description", properties, false);
-        Set<Integer> genes = getGenes("gene_list", properties, genePanelRepositoryLegacy);
+        Set<CanonicalGene> canonicalGenes = getGenes("gene_list", properties);
 
-        GenePanel genePanel = new GenePanel();
-        List<GenePanel> genePanelResult = genePanelRepositoryLegacy.getGenePanelByStableId(stableId);
+        GenePanel genePanel = DaoGenePanel.getGenePanelByStableId(stableId);
         boolean panelUsed = false;
-        if (genePanelResult != null && genePanelResult.size() > 0) {
-            genePanel = genePanelResult.get(0);
-            if (genePanelRepositoryLegacy.sampleProfileMappingExistsByPanel(genePanel.getInternalId())) {
+        if (genePanel != null) {
+            if (DaoSampleProfile.sampleProfileMappingExistsByPanel(genePanel.getInternalId())) {
                 ProgressMonitor.logWarning("Gene panel " + stableId + " already exists in databasel and is being used! Cannot import the gene panel!");
                 panelUsed = true;
             }
             else {
-                genePanelRepositoryLegacy.deleteGenePanel(genePanel.getInternalId());
+                DaoGenePanel.deleteGenePanel(genePanel);
                 ProgressMonitor.logWarning("Gene panel " + stableId + " already exists in the database but is not being used. Overwriting old gene panel data.");
             }
         }
 
         if(!panelUsed) {
-            Map<String, Object> map = new HashMap<String, Object>();
-            map.put("stableId", stableId);
-            map.put("description", description);
-            genePanelRepositoryLegacy.insertGenePanel(map);
-            genePanel = genePanelRepositoryLegacy.getGenePanelByStableId(stableId).get(0);
-
-            if (genes.size() > 0) {
-                map = new HashMap<String, Object>();
-                map.put("panelId", genePanel.getInternalId());
-                map.put("genes", genes);
-                genePanelRepositoryLegacy.insertGenePanelList(map);
+            if (canonicalGenes != null) {
+                DaoGenePanel.addGenePanel(stableId, description, canonicalGenes);
+            }
+            else {
+                ProgressMonitor.logWarning("Gene panel " + stableId + " cannot be imported because one or more genes in the panel are not found in the database." );
             }
         }
     }
@@ -143,39 +131,40 @@ public class ImportGenePanel extends ConsoleRunnable {
         return propertyValue;
     }
 
-    private static Set<Integer> getGenes(String propertyName, Properties properties, GenePanelRepositoryLegacy genePanelRepositoryLegacy) {
+    private static Set<CanonicalGene> getGenes(String propertyName, Properties properties) {
         String propertyValue = properties.getProperty(propertyName).trim();
         if (propertyValue == null || propertyValue.length() == 0) {
             throw new IllegalArgumentException(propertyName + " is not specified.");
         }
 
-        Set<Integer> geneIds = new HashSet<>();
         String[] genes = propertyValue.split("\t");
+        Set<CanonicalGene> canonicalGenes = new HashSet<CanonicalGene>();
+        DaoGeneOptimized daoGeneOptimized = DaoGeneOptimized.getInstance();
         for (String panelGene : genes) {
-            Gene gene = null;
             try {
-                Integer geneId = Integer.parseInt(panelGene);
-                gene = genePanelRepositoryLegacy.getGeneByEntrezGeneId(geneId);
-                if (gene != null) {
-                    geneIds.add(geneId);
+                Long geneId = Long.parseLong(panelGene);
+                CanonicalGene canonicalGene = daoGeneOptimized.getGene(geneId);
+                if (canonicalGene != null) {
+                    canonicalGenes.add(canonicalGene);
                 }
                 else {
-                    throw new RuntimeException("Could not find gene in the database: " + String.valueOf(geneId));
+                    ProgressMonitor.logWarning("Could not find gene in the database: " + String.valueOf(geneId));
                 }
             }
             catch (NumberFormatException e) {
-                gene = genePanelRepositoryLegacy.getGeneByHugoSymbol(panelGene);
-                if (gene == null) {
-                    gene = genePanelRepositoryLegacy.getGeneByAlias(panelGene);
+                List<CanonicalGene> canonicalGenesList = daoGeneOptimized.getGene(panelGene, true);
+                if (canonicalGenesList != null && !canonicalGenesList.isEmpty()) {
+                    // we do not want multiple genes added to the gene panel object
+                    // for a single gene symbol found in the data file 
+                    canonicalGenes.add(canonicalGenesList.get(0));
                 }
-
-                if (gene != null) {
-                    geneIds.add(gene.getEntrezGeneId());
+                else {
+                    ProgressMonitor.logWarning("Could not find gene in the database: " + panelGene);
                 }
             }
         }
 
-        return geneIds;
+        return (canonicalGenes.size() == genes.length) ? canonicalGenes : null;
     }
 
     public void setFile(File genePanelFile)

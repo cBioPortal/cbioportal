@@ -105,3 +105,4 @@ db-scripts/src/main/resources/cgds-test.sql
 pom.xml.*
 Dockerfile.local
 .factorypath
+Dockerfile

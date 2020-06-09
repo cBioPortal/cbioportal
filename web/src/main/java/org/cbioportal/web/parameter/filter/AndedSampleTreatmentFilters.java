@@ -8,7 +8,7 @@ import java.util.List;
 import java.util.Map;
 
 public class AndedSampleTreatmentFilters {
-    private List<SampleTreatmentFilter> filters; // anded
+    private List<OredSampleTreatmentFilters> filters;
 
     public boolean filter(SampleIdentifier sampleId, Map<String, SampleTreatmentRow> treatments) {
         if (filters == null || filters.isEmpty()) {
@@ -19,11 +19,11 @@ public class AndedSampleTreatmentFilters {
             .allMatch(f -> f.filter(sampleId, treatments));
     }
 
-    public List<SampleTreatmentFilter> getFilters() {
+    public List<OredSampleTreatmentFilters> getFilters() {
         return filters;
     }
 
-    public void setFilters(List<SampleTreatmentFilter> filters) {
+    public void setFilters(List<OredSampleTreatmentFilters> filters) {
         this.filters = filters;
     }
 }

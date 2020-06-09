@@ -7,7 +7,7 @@ import java.util.List;
 import java.util.Map;
 
 public class OredSampleTreatmentFilters {
-    private List<AndedSampleTreatmentFilters> filters; // ored
+    private List<SampleTreatmentFilter> filters; // ored
 
     public boolean filter(SampleIdentifier sampleId, Map<String, SampleTreatmentRow> treatments) {
         if (filters == null || filters.isEmpty()) {
@@ -18,11 +18,11 @@ public class OredSampleTreatmentFilters {
             .anyMatch(f -> f.filter(sampleId, treatments));
     }
 
-    public List<AndedSampleTreatmentFilters> getFilters() {
+    public List<SampleTreatmentFilter> getFilters() {
         return filters;
     }
 
-    public void setFilters(List<AndedSampleTreatmentFilters> filters) {
+    public void setFilters(List<SampleTreatmentFilter> filters) {
         this.filters = filters;
     }
 }

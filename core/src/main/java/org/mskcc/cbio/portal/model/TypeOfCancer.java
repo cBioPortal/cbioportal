@@ -32,6 +32,10 @@
 
 package org.mskcc.cbio.portal.model;
 
+import java.io.Serializable;
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonProperty;
+
 /**
  * A TypeOfCancer is a clinical cancer type, such as Glioblastoma, Ovarian, etc.
  * Eventually, we'll have ontology problems with this, but initially the dbms
@@ -40,13 +44,23 @@ package org.mskcc.cbio.portal.model;
  * @author Arthur Goldberg goldberg@cbio.mskcc.org
  * @author Arman Aksoy
  */
-public class TypeOfCancer {
+public class TypeOfCancer implements Serializable {
 
     private String name;
+    @JsonProperty("id")
+    // to preserve json output in DumpPortalInfo.java after migrating from ApiService
     private String typeOfCancerId;
+    @JsonIgnore
+    // to preserve json output in DumpPortalInfo.java after migrating from ApiService
     private String clinicalTrialKeywords = ""; // Separated by commas
+    @JsonProperty("color")
+    // to preserve json output in DumpPortalInfo.java after migrating from ApiService
     private String dedicatedColor = "white";
+    @JsonIgnore
+    // to preserve json output in DumpPortalInfo.java after migrating from ApiService
     private String shortName = "";
+    @JsonIgnore
+    // to preserve json output in DumpPortalInfo.java after migrating from ApiService
     private String parentTypeOfCancerId;
 
     public String getName() {

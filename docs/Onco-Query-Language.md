@@ -56,6 +56,7 @@ Keyword | Applicable Data Type | Explanation
 `DRIVER` | Mutations <br> Fusions <br> Copy Number Alterations | Include only mutations, fusions and copy number alterations which are driver events, as defined in OncoPrint (default: OncoKB and CancerHotspots).
 `GERMLINE` | Mutations | Include only mutations that are defined as germline events by the study.
 `SOMATIC` | Mutations | Include all mutations that are not defined as germline.
+`(a-b)` (protein position range) | Mutations | Include all mutations that overlap with the protein position range `a-b`, where `a` and `b` are integers. If you add a `*` (i.e. `(a-b*)`) then it will only include those mutations that are fully contained inside `a-b`. The open-ended ranges `(a-)` and `(-b)` are also allowed. 
 
 <br>
 

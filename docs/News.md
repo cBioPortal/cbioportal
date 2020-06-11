@@ -1,3 +1,19 @@
+## Jun 11, 2020
+*   **Added data** consisting of 267 samples from 2 studies:
+     * [Gastric Cancer (OncoSG, 2018)](https://www.cbioportal.org/study/summary?id=stad_oncosg_2018) *147 samples* 
+     * 120 ctDNA samples added to [Non-Small Cell Lung Cancer (TRACERx, NEJM & Nature 2017)](https://www.cbioportal.org/study/summary?id=nsclc_tracerx_2017) *447 samples* 
+
+## Jun 9, 2020
+
+*   **New Feature**: you can now send the OncoPrint data to the [OncoPrinter tool](https://www.cbioportal.org/oncoprinter) for customization.
+![image](https://user-images.githubusercontent.com/840895/84318326-3c85a380-ab3c-11ea-97c1-34343cb3e996.png)
+
+## Jun 2, 2020
+
+*   **Enhancement**: Pediatric cancer studies are now grouped and highlighted in the query page
+![image](https://user-images.githubusercontent.com/840895/84318659-c897cb00-ab3c-11ea-8209-93c940321a0f.png)
+
+
 ## May 6, 2020
 *   **Added data** consisting of 574 samples from 3 studies:
      * [Uterine Sarcoma/Mesenchymal (MSK, Clin Cancer Res 2020)](https://www.cbioportal.org/study/summary?id=usarc_msk_2020) *108 samples* 

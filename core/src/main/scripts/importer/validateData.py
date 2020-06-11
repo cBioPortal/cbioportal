@@ -4484,7 +4484,7 @@ def process_metadata_files(directory, portal_instance, logger, relaxed_mode, str
             continue
 
         # check if geneset version is the same in database
-        if 'geneset_def_version' in meta_dictionary:
+        if portal_instance.geneset_version is not None and 'geneset_def_version' in meta_dictionary:
             geneset_def_version = meta_dictionary['geneset_def_version'].strip()
             if (geneset_def_version != portal_instance.geneset_version):
                 logger.error(
@@ -5146,7 +5146,8 @@ def validate_study(study_dir, portal_instance, logger, relaxed_mode, strict_maf_
             portal_instance.alias_entrez_map is None):
         logger.warning('Skipping validations relating to gene identifiers and '
                        'aliases defined in the portal')
-    if portal_instance.gene_set_list is None:
+    if (portal_instance.gene_set_list is None or
+            portal_instance.geneset_version is None):
         logger.warning('Skipping validations relating to gene set identifiers')
     if portal_instance.gene_panel_list is None:
         logger.warning('Skipping validations relating to gene panel identifiers')

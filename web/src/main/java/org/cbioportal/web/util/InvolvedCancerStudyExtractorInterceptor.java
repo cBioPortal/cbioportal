@@ -106,8 +106,8 @@ public class InvolvedCancerStudyExtractorInterceptor extends HandlerInterceptorA
     public static final String EXPRESSION_ENRICHMENT_FETCH_PATH = "/expression-enrichments/fetch";
     public static final String TREATMENT_FETCH_PATH = "/treatments/fetch";
     public static final String STRUCTURAL_VARIANT_FETCH_PATH = "/structuralvariant/fetch";
-    public static final String GENERIC_ASSAY_DATA_MULTIPLE_STUDY_FETCH_PATH = "/generic_assay_data/fetch";
-    public static final String GENERIC_ASSAY_META_FETCH_PATH = "/generic_assay_meta/fetch";
+    public static final String GENERIC_ASSAY_DATA_MULTIPLE_STUDY_FETCH_PATH = "/generic-assay-data/fetch";
+    public static final String GENERIC_ASSAY_META_FETCH_PATH = "/generic-assay-entity/fetch";
 
     @Override public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object handler) throws Exception {
         if (!request.getMethod().equals("POST")) {

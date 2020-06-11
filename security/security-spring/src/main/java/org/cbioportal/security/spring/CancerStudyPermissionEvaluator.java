@@ -50,7 +50,7 @@ import org.springframework.security.core.authority.AuthorityUtils;
  *
  * @author Benjamin Gross
  */
-class CancerStudyPermissionEvaluator implements PermissionEvaluator {
+public class CancerStudyPermissionEvaluator implements PermissionEvaluator {
 
     @Autowired
     private CacheMapUtil cacheMapUtil;
@@ -220,7 +220,6 @@ class CancerStudyPermissionEvaluator implements PermissionEvaluator {
      * Helper function to determine if given user has access to given cancer study.
      *
      * @param cancerStudy cancer study to check for
-     * @param user Spring Authentication of the logged-in user.
      * @return boolean
      */
     private boolean hasAccessToCancerStudy(Authentication authentication, CancerStudy cancerStudy) {

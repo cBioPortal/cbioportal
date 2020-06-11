@@ -1,0 +1,156 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!--
+   Copyright (c) 2016 Memorial Sloan-Kettering Cancer Center.
+
+   This library is distributed in the hope that it will be useful, but WITHOUT
+   ANY WARRANTY, WITHOUT EVEN THE IMPLIED WARRANTY OF MERCHANTABILITY OR FITNESS
+   FOR A PARTICULAR PURPOSE. The software and documentation provided hereunder
+   is on an "as is" basis, and Memorial Sloan-Kettering Cancer Center has no
+   obligations to provide maintenance, support, updates, enhancements or
+   modifications. In no event shall Memorial Sloan-Kettering Cancer Center be
+   liable to any party for direct, indirect, special, incidental or
+   consequential damages, including lost profits, arising out of the use of this
+   software and its documentation, even if Memorial Sloan-Kettering Cancer
+   Center has been advised of the possibility of such damage.
+
+   This file is part of cBioPortal.
+
+   cBioPortal is free software: you can redistribute it and/or modify
+   it under the terms of the GNU Affero General Public License as
+   published by the Free Software Foundation, either version 3 of the
+   License.
+
+   This program is distributed in the hope that it will be useful,
+   but WITHOUT ANY WARRANTY; without even the implied warranty of
+   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+   GNU Affero General Public License for more details.
+
+   You should have received a copy of the GNU Affero General Public License
+   along with this program.  If not, see <http://www.gnu.org/licenses/>.
+-->
+
+<beans
+    xmlns="http://www.springframework.org/schema/beans"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xmlns:util="http://www.springframework.org/schema/util"
+    xmlns:context="http://www.springframework.org/schema/context"
+    xsi:schemaLocation="http://www.springframework.org/schema/beans
+                      http://www.springframework.org/schema/beans/spring-beans.xsd
+                      http://www.springframework.org/schema/context
+                      http://www.springframework.org/schema/context/spring-context.xsd
+                      http://www.springframework.org/schema/util
+                      http://www.springframework.org/schema/util/spring-util.xsd">
+
+    <!-- Mock beans for EhCache manager and statistics -->
+    <bean id="cacheManager" class="org.mockito.Mockito" factory-method="mock">
+        <constructor-arg value="javax.cache.CacheManager" />
+    </bean>
+    <bean id="ehCacheStatistics" class="org.mockito.Mockito" factory-method="mock">
+        <constructor-arg value="org.cbioportal.persistence.util.EhCacheStatistics" />
+    </bean>
+
+    <bean id="cacheMapUtil" class="org.mockito.Mockito" factory-method="mock">
+        <constructor-arg value="org.cbioportal.persistence.mybatis.util.CacheMapUtil" />
+    </bean>
+
+    <bean id="cancerTypeRepository" class="org.mockito.Mockito" factory-method="mock">
+        <constructor-arg value="org.cbioportal.persistence.CancerTypeRepository" />
+    </bean>
+    <bean id="clinicalAttributeRepository" class="org.mockito.Mockito" factory-method="mock">
+        <constructor-arg value="org.cbioportal.persistence.ClinicalAttributeRepository" />
+    </bean>
+    <bean id="VariantCountRepository" class="org.mockito.Mockito" factory-method="mock">
+        <constructor-arg value="org.cbioportal.persistence.VariantCountRepository" />
+    </bean>
+    <bean id="StudyRepository" class="org.mockito.Mockito" factory-method="mock">
+        <constructor-arg value="org.cbioportal.persistence.StudyRepository" />
+    </bean>
+    <bean id="RepositoryStructuralVariantRepository" class="org.mockito.Mockito" factory-method="mock">
+        <constructor-arg value="org.cbioportal.persistence.StructuralVariantRepository" />
+    </bean>
+    <bean id="StaticDataTimeStampRepository" class="org.mockito.Mockito" factory-method="mock">
+        <constructor-arg value="org.cbioportal.persistence.StaticDataTimeStampRepository" />
+    </bean>
+    <bean id="SignificantlyMutatedGeneRepository" class="org.mockito.Mockito" factory-method="mock">
+        <constructor-arg value="org.cbioportal.persistence.SignificantlyMutatedGeneRepository" />
+    </bean>
+    <bean id="SignificantCopyNumberRegionRepository" class="org.mockito.Mockito" factory-method="mock">
+        <constructor-arg value="org.cbioportal.persistence.SignificantCopyNumberRegionRepository" />
+    </bean>
+    <bean id="SecurityRepository" class="org.mockito.Mockito" factory-method="mock">
+        <constructor-arg value="org.cbioportal.persistence.SecurityRepository" />
+    </bean>
+    <bean id="SampleRepository" class="org.mockito.Mockito" factory-method="mock">
+        <constructor-arg value="org.cbioportal.persistence.SampleRepository" />
+    </bean>
+    <bean id="SampleListRepository" class="org.mockito.Mockito" factory-method="mock">
+        <constructor-arg value="org.cbioportal.persistence.SampleListRepository" />
+    </bean>
+    <bean id="ResourceDefinitionRepository" class="org.mockito.Mockito" factory-method="mock">
+        <constructor-arg value="org.cbioportal.persistence.ResourceDefinitionRepository" />
+    </bean>
+    <bean id="ResourceDataRepository" class="org.mockito.Mockito" factory-method="mock">
+        <constructor-arg value="org.cbioportal.persistence.ResourceDataRepository" />
+    </bean>
+    <bean id="ReferenceGenomeGeneRepository" class="org.mockito.Mockito" factory-method="mock">
+        <constructor-arg value="org.cbioportal.persistence.ReferenceGenomeGeneRepository" />
+    </bean>
+    <bean id="PatientRepository" class="org.mockito.Mockito" factory-method="mock">
+        <constructor-arg value="org.cbioportal.persistence.PatientRepository" />
+    </bean>
+    <bean id="MutationRepository" class="org.mockito.Mockito" factory-method="mock">
+        <constructor-arg value="org.cbioportal.persistence.MutationRepository" />
+    </bean>
+    <bean id="MolecularProfileRepository" class="org.mockito.Mockito" factory-method="mock">
+        <constructor-arg value="org.cbioportal.persistence.MolecularProfileRepository" />
+    </bean>
+    <bean id="MolecularDataRepository" class="org.mockito.Mockito" factory-method="mock">
+        <constructor-arg value="org.cbioportal.persistence.MolecularDataRepository" />
+    </bean>
+    <bean id="GenesetRepository" class="org.mockito.Mockito" factory-method="mock">
+        <constructor-arg value="org.cbioportal.persistence.GenesetRepository" />
+    </bean>
+    <bean id="GenesetHierarchyRepository" class="org.mockito.Mockito" factory-method="mock">
+        <constructor-arg value="org.cbioportal.persistence.GenesetHierarchyRepository" />
+    </bean>
+    <bean id="GenericAssayRepository" class="org.mockito.Mockito" factory-method="mock">
+        <constructor-arg value="org.cbioportal.persistence.GenericAssayRepository" />
+    </bean>
+    <bean id="GeneRepository" class="org.mockito.Mockito" factory-method="mock">
+        <constructor-arg value="org.cbioportal.persistence.GeneRepository" />
+    </bean>
+    <bean id="GenePanelRepository" class="org.mockito.Mockito" factory-method="mock">
+        <constructor-arg value="org.cbioportal.persistence.GenePanelRepository" />
+    </bean>
+    <bean id="DiscreteCopyNumberRepository" class="org.mockito.Mockito" factory-method="mock">
+        <constructor-arg value="org.cbioportal.persistence.DiscreteCopyNumberRepository" />
+    </bean>
+    <bean id="DataAccessTokenRepository" class="org.mockito.Mockito" factory-method="mock">
+        <constructor-arg value="org.cbioportal.persistence.DataAccessTokenRepository" />
+    </bean>
+    <bean id="CosmicCountRepository" class="org.mockito.Mockito" factory-method="mock">
+        <constructor-arg value="org.cbioportal.persistence.CosmicCountRepository" />
+    </bean>
+    <bean id="CopyNumberSegmentRepository" class="org.mockito.Mockito" factory-method="mock">
+        <constructor-arg value="org.cbioportal.persistence.CopyNumberSegmentRepository" />
+    </bean>
+    <bean id="ClinicalEventRepository" class="org.mockito.Mockito" factory-method="mock">
+        <constructor-arg value="org.cbioportal.persistence.ClinicalEventRepository" />
+    </bean>
+    <bean id="ClinicalDataRepository" class="org.mockito.Mockito" factory-method="mock">
+        <constructor-arg value="org.cbioportal.persistence.ClinicalDataRepository" />
+    </bean>
+    <bean id="mutationalSignatureRepository" class="org.mockito.Mockito" factory-method="mock">
+        <constructor-arg value="org.mskcc.cbio.portal.repository.MutationalSignatureMyBatisRepository" />
+    </bean>
+    <bean id="MutationalSignatureMapper" class="org.mockito.Mockito" factory-method="mock">
+        <constructor-arg value="org.mskcc.cbio.portal.persistence.MutationalSignatureMapper" />
+    </bean>
+    <bean id="cnSegmentRepository" class="org.mockito.Mockito" factory-method="mock">
+        <constructor-arg value="org.mskcc.cbio.portal.repository.CNSegmentMyBatisRepository" />
+    </bean>
+    <bean id="cnSegmentMapper" class="org.mockito.Mockito" factory-method="mock">
+        <constructor-arg value="org.mskcc.cbio.portal.persistence.CNSegmentMapper" />
+    </bean>
+</beans>

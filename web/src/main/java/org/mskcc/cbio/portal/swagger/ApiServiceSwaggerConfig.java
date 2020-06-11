@@ -17,7 +17,7 @@ import springfox.documentation.swagger2.annotations.EnableSwagger2;
 public class ApiServiceSwaggerConfig {
     @Bean
     public Docket api() {
-        return new Docket(DocumentationType.SWAGGER_2)
+        return new Docket(DocumentationType.SWAGGER_2).groupName("legacy")
                 .select()
                 .apis(RequestHandlerSelectors.basePackage("org.cbioportal.weblegacy"))
                 .build()

@@ -51,7 +51,6 @@ import java.util.Arrays;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
-import org.mskcc.cbio.portal.persistence.MutationMapperLegacy;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationContext;
 
@@ -454,16 +453,14 @@ public class TestImportExtendedMutationData {
         MySQLbulkLoader.flushAll();
         ConsoleUtil.showMessages();
         // fetch mutations for test genetic profile
-        MutationMapperLegacy mutationMapperLegacy = applicationContext.getBean(MutationMapperLegacy.class);
-        List<String> geneticProfileStableIds = new ArrayList<String>();
-        geneticProfileStableIds.add("test_dup_mut_events");
-        List<Mutation> mutations = mutationMapperLegacy.getMutationsDetailed(geneticProfileStableIds, null, null, null);
+        int geneticProfileId = DaoGeneticProfile.getGeneticProfileByStableId("test_dup_mut_events").getGeneticProfileId();
+        List<ExtendedMutation> mutations = DaoMutation.getAllMutations(geneticProfileId);
         // there are 2 identical mutation records from 2 different samples in test MAF
         // verify that only one mutation event is associated with these samples
         assertEquals(2, mutations.size());
-        Set<Integer> events = new HashSet<>();
-        for (Mutation mut : mutations) {
-            events.add(mut.getMutationEvent().getMutationEventId());
+        Set<Long> events = new HashSet<>();
+        for (ExtendedMutation mut : mutations) {
+            events.add(mut.getMutationEventId());
         }
         assertEquals(1, events.size());
     }

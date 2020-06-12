@@ -18,6 +18,7 @@ public class SampleTreatmentRow {
         this.count = count;
         this.samples = samples;
         this.studies = studies;
+        this.frequency = 1; // TODO this is wrong
     }
 
     public TemporalRelation getTime() {

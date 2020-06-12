@@ -16,7 +16,7 @@
   <dependencies>
     <dependency>
       <groupId>org.mskcc.cbio</groupId>
-      <artifactId>business</artifactId>
+      <artifactId>persistence-connections</artifactId>
       <version>${project.version}</version>
     </dependency>
     <dependency>

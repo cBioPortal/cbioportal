@@ -32,7 +32,7 @@
 
     <context-param>
         <param-name>contextConfigLocation</param-name>
-        <param-value>classpath:applicationContext-business.xml classpath:applicationContext-security.xml classpath:applicationContext-core.xml classpath:applicationContext-logging.xml classpath:applicationContext-ehcache.xml</param-value>
+        <param-value>classpath:applicationContext-persistenceConnections.xml classpath:applicationContext-security.xml classpath:applicationContext-logging.xml classpath:applicationContext-ehcache.xml</param-value>
     </context-param>
 
     <context-param>

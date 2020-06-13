@@ -32,22 +32,12 @@
 
 package org.cbioportal.web;
 
-import java.io.IOException;
-import java.io.UnsupportedEncodingException;
-import java.net.URLEncoder;
-import java.nio.charset.StandardCharsets;
-import java.util.List;
-
-import javax.annotation.PostConstruct;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-
+import io.swagger.annotations.Api;
+import io.swagger.annotations.ApiParam;
 import org.cbioportal.model.DataAccessToken;
 import org.cbioportal.service.DataAccessTokenService;
 import org.cbioportal.service.exception.DataAccessTokenProhibitedUserException;
-import org.cbioportal.web.config.annotation.ConditionalOnDatMethod;
 import org.cbioportal.web.config.annotation.InternalApi;
-import org.springframework.web.bind.annotation.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpHeaders;
@@ -56,14 +46,21 @@ import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.validation.annotation.Validated;
+import org.springframework.web.bind.annotation.*;
 import org.springframework.web.client.HttpClientErrorException;
 
-import io.swagger.annotations.Api;
-import io.swagger.annotations.ApiParam;
+import javax.annotation.PostConstruct;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+import java.io.IOException;
+import java.io.UnsupportedEncodingException;
+import java.net.URLEncoder;
+import java.nio.charset.StandardCharsets;
+import java.util.List;
 
 @InternalApi
-@RestController
-@ConditionalOnDatMethod(value = "oauth2")
+@RequestMapping // replaces @RestController; controller is created conditionally in DataAccessTokenConfig of security-spring module
+@ResponseBody   // needed when not using @RestController annotation
 @Validated
 @Api(tags = "Data Access Tokens", description = " ")
 public class OAuth2DataAccessTokenController {

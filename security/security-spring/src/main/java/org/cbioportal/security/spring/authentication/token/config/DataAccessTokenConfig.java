@@ -7,7 +7,10 @@ import org.cbioportal.security.spring.authentication.token.oauth2.OAuth2TokenAut
 import org.cbioportal.service.impl.JwtDataAccessTokenServiceImpl;
 import org.cbioportal.service.impl.UnauthDataAccessTokenServiceImpl;
 import org.cbioportal.service.impl.UuidDataAccessTokenServiceImpl;
-import org.springframework.context.annotation.*;
+import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.PropertySource;
+import org.springframework.context.annotation.PropertySources;
 
 @Configuration
 @PropertySources({
@@ -16,12 +19,27 @@ import org.springframework.context.annotation.*;
 })
 public class DataAccessTokenConfig {
 
+    // provider
     @Bean("tokenAuthenticationProvider")
     @ConditionalOnDatMethod(value = "oauth2")
     public OAuth2TokenAuthenticationProvider oauth2TokenAuthenticationProvider() {
         return new OAuth2TokenAuthenticationProvider();
     }
 
+    @Bean("tokenAuthenticationProvider")
+    @ConditionalOnDatMethod(value = "oauth2", isNot = true)
+    public TokenUserDetailsAuthenticationProvider userDetailsTokenAuthenticationProvider() {
+        return new TokenUserDetailsAuthenticationProvider(tokenUserDetailsService());
+    }
+
+    @Bean
+    @ConditionalOnDatMethod(value = "oauth2", isNot = true)
+    public PortalUserDetailsService tokenUserDetailsService() {
+        return new PortalUserDetailsService();
+    }
+
+
+    // service
     @Bean("dataAccessTokenService")
     @ConditionalOnDatMethod(value = "oauth2")
     public OAuth2DataAccessTokenServiceImpl oauth2DataAccessTokenService() {
@@ -44,18 +62,6 @@ public class DataAccessTokenConfig {
     @ConditionalOnDatMethod(value = "jwt")
     public JwtDataAccessTokenServiceImpl jwtDataAccessTokenService() {
         return new JwtDataAccessTokenServiceImpl();
-    }
-
-    @Bean("tokenAuthenticationProvider")
-    @ConditionalOnDatMethod(value = "oauth2", isNot = true)
-    public TokenUserDetailsAuthenticationProvider userDetailsTokenAuthenticationProvider() {
-        return new TokenUserDetailsAuthenticationProvider(tokenUserDetailsService());
-    }
-
-    @Bean
-    @ConditionalOnDatMethod(value = "oauth2", isNot = true)
-    public PortalUserDetailsService tokenUserDetailsService() {
-        return new PortalUserDetailsService();
     }
 
 }

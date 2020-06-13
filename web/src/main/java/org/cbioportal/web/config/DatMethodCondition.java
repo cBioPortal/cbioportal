@@ -29,15 +29,21 @@
  * You should have received a copy of the GNU Affero General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
-package org.cbioportal.web.config.annotation;
+package org.cbioportal.web.config;
 
 import org.cbioportal.web.config.annotation.ConditionalOnDatMethod;
 import org.springframework.context.annotation.Condition;
 import org.springframework.context.annotation.ConditionContext;
+import org.springframework.context.annotation.PropertySource;
+import org.springframework.context.annotation.PropertySources;
 import org.springframework.core.type.AnnotatedTypeMetadata;
 
 import java.util.Map;
 
+@PropertySources({
+        @PropertySource(value="classpath:portal.properties", ignoreResourceNotFound=true),
+        @PropertySource(value="file:///${PORTAL_HOME}/portal.properties", ignoreResourceNotFound=true)
+})
 public class DatMethodCondition implements Condition {
 
     public DatMethodCondition() {

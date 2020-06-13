@@ -100,10 +100,10 @@ microsoftlive.consumer.secret=
 
 ## SAML settings
 saml.sp.metadata.entityid=
-saml.sp.metadata.wantassertionsigned=true
 # change this url if behind reverse proxy that handles SSL, see docs/Authenticating-Users-via-SAML.md
-saml.sp.metadata.entitybaseurl=#{null}
+saml.sp.metadata.entityBaseURL=#{null}
 saml.idp.metadata.location=
+saml.idp.metadata.entityid=
 # saml keystore settings:
 saml.keystore.location=
 saml.keystore.password=

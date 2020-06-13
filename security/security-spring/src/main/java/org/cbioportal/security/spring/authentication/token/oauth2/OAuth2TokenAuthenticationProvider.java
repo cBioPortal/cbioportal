@@ -32,24 +32,22 @@
 
 package org.cbioportal.security.spring.authentication.token.oauth2;
 
-import java.util.Set;
-import java.util.stream.Collectors;
-import java.util.stream.StreamSupport;
-
-import org.cbioportal.service.config.annotation.ConditionalOnDatMethod;
 import org.codehaus.jackson.JsonNode;
 import org.codehaus.jackson.map.ObjectMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.authentication.AuthenticationProvider;
 import org.springframework.security.authentication.BadCredentialsException;
-import org.springframework.security.core.authority.SimpleGrantedAuthority;
-
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.jwt.Jwt;
 import org.springframework.security.jwt.JwtHelper;
+
+import java.util.Set;
+import java.util.stream.Collectors;
+import java.util.stream.StreamSupport;
 
 public class OAuth2TokenAuthenticationProvider implements AuthenticationProvider {
 
@@ -96,7 +94,7 @@ public class OAuth2TokenAuthenticationProvider implements AuthenticationProvider
                 }
             }
             final JsonNode rolesArrayPointer = rolesArrayCursor;
-            final Iterable<JsonNode> roles = () -> rolesArrayPointer.elements();
+            final Iterable<JsonNode> roles = () -> rolesArrayPointer.getElements();
 
             return StreamSupport.stream(roles.spliterator(), false)
                 .map(role -> role.toString().replaceAll("\"", ""))

@@ -66,7 +66,6 @@ public class Oauth2ResourceServerIntegrationTests {
             request()
                 .withMethod("POST")
                 .withPath("/auth/realms/cbio/token")
-                .withHeader("Content-Type", "application/x-www-form-urlencoded")
                 .withBody(subString("refresh_token=" + URLEncoder.encode(encodedOfflineToken, "UTF-8"))))
             .respond(response().withStatusCode(401));
 
@@ -88,7 +87,6 @@ public class Oauth2ResourceServerIntegrationTests {
             request()
                 .withMethod("POST")
                 .withPath("/auth/realms/cbio/token")
-                .withHeader("Content-Type", "application/x-www-form-urlencoded")
                 .withBody(subString("refresh_token=" + URLEncoder.encode(encodedOfflineToken, "UTF-8"))))
             .respond(
                 response()

@@ -22,21 +22,20 @@
 
 package org.mskcc.cbio.portal.scripts;
 
-import java.util.List;
-import java.util.Arrays;
-import java.io.Serializable;
-import java.io.File;
-import java.io.IOException;
+import org.mskcc.cbio.portal.util.SpringUtil;
+import org.mskcc.cbio.portal.util.ProgressMonitor;
+import org.cbioportal.service.GenesetService;
+import org.cbioportal.service.GenePanelService;
+import org.cbioportal.web.config.CustomObjectMapper;
+
+import org.mskcc.cbio.portal.dao.*;
+import org.mskcc.cbio.portal.model.*;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.core.JsonProcessingException;
-import org.cbioportal.web.config.CustomObjectMapper;
 
-import org.mskcc.cbio.portal.util.SpringUtil;
-import org.mskcc.cbio.portal.util.ProgressMonitor;
-import org.mskcc.cbio.portal.service.ApiService;
-import org.cbioportal.service.GenesetService;
-import org.cbioportal.service.GenePanelService;
+import java.io.*;
+import java.util.*;
 
 /**
  * Command line tool to generate JSON files used by the validation script.
@@ -53,6 +52,25 @@ public class DumpPortalInfo extends ConsoleRunnable {
     private static final String API_GENE_PANELS = "/gene-panels";
     private static final int MAX_PAGE_SIZE = 10000000;
     private static final int MIN_PAGE_NUMBER = 0;
+
+    static class GeneAlias implements Serializable {
+        public String gene_alias;
+        public String entrez_gene_id;
+    }
+
+    private static List<GeneAlias> extractGeneAliases(List<CanonicalGene> canonicalGenes) {
+        List<GeneAlias> toReturn = new ArrayList<GeneAlias>();
+        for (CanonicalGene canonicalGene : canonicalGenes) {
+            String entrezGeneId = String.valueOf(canonicalGene.getEntrezGeneId()); 
+            for (String alias : canonicalGene.getAliases()) {
+                GeneAlias geneAlias = new GeneAlias();
+                geneAlias.gene_alias = alias;
+                geneAlias.entrez_gene_id = entrezGeneId;
+                toReturn.add(geneAlias);
+            }
+        }
+        return toReturn;
+    }
 
     private static File nameJsonFile(File dirName, String apiName) {
         // Determine the first alphabetic character
@@ -103,8 +121,6 @@ public class DumpPortalInfo extends ConsoleRunnable {
 
             // initialize application context, including database connection
             SpringUtil.initDataSource();
-            ApiService apiService = SpringUtil.getApplicationContext().getBean(
-                    ApiService.class);
             GenesetService genesetService = SpringUtil.getApplicationContext().getBean(
                 GenesetService.class);
             GenePanelService genePanelService = SpringUtil.getApplicationContext().getBean(
@@ -122,13 +138,15 @@ public class DumpPortalInfo extends ConsoleRunnable {
 
             try {
                 writeJsonFile(
-                        apiService.getCancerTypes(),
+                        DaoTypeOfCancer.getAllTypesOfCancer(),
                         nameJsonFile(outputDir, API_CANCER_TYPES));
+                DaoGeneOptimized daoGeneOptimized = DaoGeneOptimized.getInstance();
+                List<CanonicalGene> allGenes = daoGeneOptimized.getAllGenes();
                 writeJsonFile(
-                        apiService.getGenes(),
+                        allGenes,
                         nameJsonFile(outputDir, API_GENES));
                 writeJsonFile(
-                        apiService.getGenesAliases(),
+                        extractGeneAliases(allGenes),
                         nameJsonFile(outputDir, API_GENE_ALIASES));
                 writeJsonFile(
                     genesetService.getAllGenesets("SUMMARY", MAX_PAGE_SIZE, MIN_PAGE_NUMBER),
@@ -139,6 +157,8 @@ public class DumpPortalInfo extends ConsoleRunnable {
                 writeJsonFile(
                     genePanelService.getAllGenePanels("SUMMARY", MAX_PAGE_SIZE, MIN_PAGE_NUMBER, null, "ASC"),
                     nameJsonFile(outputDir, API_GENE_PANELS));
+            } catch (DaoException e) {
+                throw new RuntimeException(e);
             } catch (IOException e) {
                 throw new IOException(
                         "Error writing portal info file: " + e.toString(),

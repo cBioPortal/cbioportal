@@ -18,6 +18,7 @@ import org.cbioportal.model.Sample;
 import org.cbioportal.model.MolecularProfile.MolecularAlterationType;
 import org.cbioportal.model.MolecularProfileSamples;
 import org.cbioportal.model.meta.GenericAssayMeta;
+import org.cbioportal.model.GenericAssayAdditionalProperty;
 import org.cbioportal.persistence.GenericAssayRepository;
 import org.cbioportal.persistence.MolecularDataRepository;
 import org.cbioportal.persistence.SampleListRepository;
@@ -74,14 +75,19 @@ public class GenericAssayServiceImpl implements GenericAssayService {
                     metaResults.add(new GenericAssayMeta(meta.getStableId()));
                 }
             } else {
-                // get additional properties for each meta data
+                List<GenericAssayAdditionalProperty> additionalProperties = genericAssayRepository.getGenericAssayAdditionalproperties(distinctStableIds);
                 for (GenericAssayMeta meta : metaData) {
-                    int geneticEntityId = genericAssayRepository.getGeneticEntityIdByStableId(meta.getStableId());
+                    String stableId = meta.getStableId();
                     HashMap<String, String> map = new HashMap<>();
-                    for (HashMap<String, String> data : genericAssayRepository.getGenericAssayMetaPropertiesMap(geneticEntityId)) {
-                        map.put(data.get("key"), data.get("value"));
+                    List<GenericAssayAdditionalProperty> filteredAdditionalProperties = additionalProperties
+                            .stream()
+                            .filter(additionalProperty -> additionalProperty.getStableId().equals(stableId))
+                            .collect(Collectors.toList());
+                    for (GenericAssayAdditionalProperty additionalProperty : filteredAdditionalProperties) {
+                        map.put(additionalProperty.getName(), additionalProperty.getValue());
                     }
-                    metaResults.add(new GenericAssayMeta(meta.getEntityType(), meta.getStableId(), map));
+                    meta.setGenericEntityMetaProperties(map);
+                    metaResults.add(meta);
                 }
             }
         }

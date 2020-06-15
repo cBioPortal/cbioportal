@@ -4,10 +4,6 @@
 <mapper namespace="org.cbioportal.persistence.mybatis.GenericAssayMapper">
     <cache readOnly="true"/>
 
-    <resultMap id="typeForGenericAssayMetaProperties" type="java.util.HashMap">
-                <result property="key" column="NAME"/> 
-                <result property="value" column="VALUE"/> 
-    </resultMap>
 
     <select id="getGenericAssayMeta" resultType="org.cbioportal.model.meta.GenericAssayMeta">
         SELECT genetic_entity.STABLE_ID as stableId,
@@ -21,21 +17,24 @@
         </where>
     </select>
 
-    <select id="getGeneticEntityIdByStableId" parameterType="string" resultType="int">
-        SELECT genetic_entity.ID
-        FROM genetic_entity
-        <where>
-            genetic_entity.STABLE_ID = #{stableId}
-        </where>
-    </select>
-
-    <select id="getGenericAssayMetaPropertiesMap" resultMap="typeForGenericAssayMetaProperties">
-        SELECT generic_entity_properties.NAME,
-        generic_entity_properties.VALUE
+    <select id="getGenericAssayAdditionalproperties" resultType="org.cbioportal.model.GenericAssayAdditionalProperty">
+        SELECT generic_entity_properties.NAME as name,
+        generic_entity_properties.VALUE as value,
+        genetic_entity.STABLE_ID as stableId
         FROM generic_entity_properties
-        <where>
-            generic_entity_properties.GENETIC_ENTITY_ID = #{geneticEntityId}
-        </where>
+        INNER JOIN genetic_entity ON genetic_entity.ID = generic_entity_properties.GENETIC_ENTITY_ID
+        WHERE
+            generic_entity_properties.GENETIC_ENTITY_ID IN 
+            (
+                SELECT genetic_entity.ID
+                FROM genetic_entity
+                    <where>
+                        genetic_entity.STABLE_ID IN
+                            <foreach item="item" collection="list" open="(" separator="," close=")">
+                                #{item}
+                            </foreach>
+                    </where>
+            )
     </select>
 
     <select id="getMolecularProfileInternalIdsByMolecularProfileIds" resultType="int">

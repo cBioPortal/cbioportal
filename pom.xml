@@ -539,7 +539,7 @@
     <dependency>
         <groupId>org.hibernate</groupId>
         <artifactId>hibernate-validator</artifactId>
-        <version>5.3.4.Final</version>
+        <version>5.3.5.Final</version>
     </dependency>
     <dependency>
         <groupId>javax.el</groupId>

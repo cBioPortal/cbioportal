@@ -1,0 +1,111 @@
+{
+  "id": "cbio",
+  "realm": "cbio",
+  "displayName": "cBioPortal",
+  "enabled": true,
+  "sslRequired": "none",
+  "defaultGroups": [
+    "PUBLIC_STUDIES"
+  ],
+  "loginWithEmailAllowed": false,
+  "clients": [
+    {
+      "clientId": "cbioportal",
+      "enabled": true,
+      "protocol": "saml",
+      "fullScopeAllowed": false,
+      "adminUrl": "http://localhost/saml",
+      "redirectUris": [
+        "http://localhost/*",
+        "http://localhost:80/*"
+      ],
+      "attributes": {
+        "saml_single_logout_service_url_post": "http://localhost/saml/logout",
+        "saml_name_id_format": "email",
+        "saml_force_name_id_format": "true",
+        "saml.force.post.binding": "false",
+        "saml.server.signature": "true",
+        "saml.assertion.signature": "false",
+        "saml.signature.algorithm": "RSA_SHA256",
+        "saml.client.signature": "true",
+        "saml.authnstatement": "true",
+        "saml_signature_canonicalization_method": "http://www.w3.org/2001/10/xml-exc-c14n#",
+        "saml.signing.certificate": "MIIDdzCCAl+gAwIBAgIEURHX+zANBgkqhkiG9w0BAQsFADBsMRAwDgYDVQQGEwdVbmtub3duMRAwDgYDVQQIEwdVbmtub3duMRAwDgYDVQQHEwdVbmtub3duMRAwDgYDVQQKEwdVbmtub3duMRAwDgYDVQQLEwdVbmtub3duMRAwDgYDVQQDEwdVbmtub3duMB4XDTIwMDMzMDA5MTQ1NloXDTMxMDMxMzA5MTQ1NlowbDEQMA4GA1UEBhMHVW5rbm93bjEQMA4GA1UECBMHVW5rbm93bjEQMA4GA1UEBxMHVW5rbm93bjEQMA4GA1UEChMHVW5rbm93bjEQMA4GA1UECxMHVW5rbm93bjEQMA4GA1UEAxMHVW5rbm93bjCCASIwDQYJKoZIhvcNAQEBBQADggEPADCCAQoCggEBAJGll7H7RqGWzXvK5dBt7r4vMczGSahHiIv4CrwGT4UMMGhq4cg8a5K7uxqJzMv2hmW7l1eRx12s5f1kAisM352KS3Oq70wYojyQshHKq4bCZmQY54mBftpL+QZOUet6fEJntLbV9dHIi1TFsIJDI/r4je80ozuAB2w1F5EPQCzWsPX8DvJnJNzP8II4P0inCdF25Fi20d7l7s3+JuirJvt2ClF/otooV1gflVIyZsH8AUEI5EM3SLvn/ranm8iE9qBx4UFUElpTPYWgRntp7dT9L1NrYE8Wsgor4Mmcil49sPWRjMZv+lQg+tdiswfkAzajKeoWWTElg6uJ5KLXOOUCAwEAAaMhMB8wHQYDVR0OBBYEFEpCNQ1/uaE9c05zhevGuzXYdEBXMA0GCSqGSIb3DQEBCwUAA4IBAQBM6kdKRj19BJNIUZ5LtNZQ+8YANOP95u8q/OFqZag1xBm2yhR9k3UFYvF5HyhbQ4vyX0bEY2XYlw20L0DS6sEXfZer+3/jfRnzGHdNfS449oKWc+RKDXucB/7dDQM69XDK6SdNBLGvYLqefFx2UAl2Xks9DqrcU0dU/2KfuDbWBZmKeiPayr4Y5xK4qv8SbhLQWbnEsCt7YpOkfiq2pSdww3fUTnsFxwGlcq0JTXfU2ARNImiJ+4XXM+S3eCS8zvRgbLu3LON22bhBvZ5fBeoti9+2od+9Q2wwsvJI2YohbH+4TI4I9sfiQhIco8nvEGPHmgTw1T3TNT7JA5JnuJ41",
+        "signing.private.key": "MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAkaWXsftGoZbNe8rl0G3uvi8xzMZJqEeIi/gKvAZPhQwwaGrhyDxrkru7GonMy/aGZbuXV5HHXazl/WQCKwzfnYpLc6rvTBiiPJCyEcqrhsJmZBjniYF+2kv5Bk5R63p8Qme0ttX10ciLVMWwgkMj+viN7zSjO4AHbDUXkQ9ALNaw9fwO8mck3M/wgjg/SKcJ0XbkWLbR3uXuzf4m6Ksm+3YKUX+i2ihXWB+VUjJmwfwBQQjkQzdIu+f+tqebyIT2oHHhQVQSWlM9haBGe2nt1P0vU2tgTxayCivgyZyKXj2w9ZGMxm/6VCD612KzB+QDNqMp6hZZMSWDq4nkotc45QIDAQAB"
+      },
+      "protocolMappers": [
+        {
+          "name": "role list",
+          "protocol": "saml",
+          "protocolMapper": "saml-role-list-mapper",
+          "consentRequired": false,
+          "config": {
+            "single": "false",
+            "attribute.name": "Role",
+            "attribute.nameformat": "Basic"
+          }
+        },
+        {
+          "name": "X500 email",
+          "protocol": "saml",
+          "protocolMapper": "saml-user-property-mapper",
+          "consentRequired": false,
+          "consentText": "${email}",
+          "config": {
+            "user.attribute": "email",
+            "friendly.name": "email",
+            "attribute.name": "email",
+            "attribute.nameformat": "Basic"
+          }
+        }
+      ],
+      "defaultClientScopes": [],
+      "optionalClientScopes": []
+    },
+    {
+      "clientId": "cbioportal_api",
+      "name": "cBioPortal OIDC client",
+      "enabled": true,
+      "protocol": "openid-connect",
+      "fullScopeAllowed": true,
+      "redirectUris": [
+        "http://localhost/*",
+        "http://localhost:80/*"
+      ],
+      "protocolMappers": [
+        {
+          "name": "cbioportal_api_audience",
+          "protocol": "openid-connect",
+          "protocolMapper": "oidc-audience-mapper",
+          "config": {
+            "included.client.audience": "cbioportal_api",
+            "id.token.claim": "false",
+            "access.token.claim": "true"
+          }
+        }
+      ],
+      "defaultClientScopes": [
+        "roles"
+      ],
+      "optionalClientScopes": [
+        "offline_access"
+      ]
+    }
+  ],
+  "users": [
+    {
+      "username": "testuser",
+      "enabled": true,
+      "email": "testuser@thehyve.nl",
+      "credentials": [
+        {
+          "type": "password",
+          "value": "P@ssword1"
+        }
+      ],
+      "realmRoles": [
+        "offline_access"
+      ]
+    }
+  ]
+}

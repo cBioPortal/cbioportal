@@ -2,13 +2,9 @@ package org.mskcc.cbio.portal.auth_integration_test;
 
 import org.openqa.selenium.chrome.ChromeOptions;
 import org.springframework.test.context.TestPropertySource;
-import org.testcontainers.containers.BindMode;
-import org.testcontainers.containers.GenericContainer;
-import org.testcontainers.containers.MariaDBContainer;
-import org.testcontainers.containers.Network;
+import org.testcontainers.containers.*;
 import org.testcontainers.containers.wait.strategy.Wait;
 import org.testcontainers.images.builder.ImageFromDockerfile;
-import org.testcontainers.containers.BrowserWebDriverContainer;
 
 import java.io.File;
 import java.io.IOException;
@@ -46,8 +42,9 @@ public abstract class AbstractAuthIntegrationTest {
     //            .withDockerfile(absolutePath("docker/web-and-data/Dockerfile"));
 
     public static GenericContainer cbioportal = new GenericContainer(cbioImage)
-            .withReuse(true) // experimental: container reuse together with .testcontainers.properties?
+            .withReuse(true) // experimental    : container reuse together with .testcontainers.properties?
             .withNetwork(network)
+            .withNetworkAliases("cbio")
             .withCommand("sh","-c", String.format(
                     "java -Xms2G -Xmx8G" +
                     " -Dauthenticate=${AUTHENTICATE}" +
@@ -85,7 +82,7 @@ public abstract class AbstractAuthIntegrationTest {
      * @param path path to file or directory from the root of the maven project
      * @return Absolute path to file
      */
-    private static Path absolutePath(String path) {
+    public static Path absolutePath(String path) {
         return Paths.get(new File("../" + path).getAbsolutePath());
     }
 

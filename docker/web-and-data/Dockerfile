@@ -18,7 +18,6 @@ COPY pom.xml                                     /cbioportal/
 COPY version.sh                                  /cbioportal/
 WORKDIR /cbioportal
 
-COPY business/pom.xml                         business/
 COPY core/pom.xml                             core/
 COPY db-scripts/pom.xml                       db-scripts/
 COPY model/pom.xml                            model/

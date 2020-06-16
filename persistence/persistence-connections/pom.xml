@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd" xmlns="http://maven.apache.org/POM/4.0.0"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+  <modelVersion>4.0.0</modelVersion>
+  <parent>
+      <artifactId>persistence</artifactId>
+      <groupId>org.mskcc.cbio</groupId>
+      <!-- project version is generated through git or can be passed as
+           PROJECT_VERSION env variable (see version.sh) -->
+      <version>0-unknown-version-SNAPSHOT</version>
+  </parent>
+
+  <artifactId>persistence-connections</artifactId>
+
+  <build>
+      <plugins>
+          <plugin>
+              <artifactId>maven-remote-resources-plugin</artifactId>
+              <version>1.7.0</version>
+              <executions>
+                  <execution>
+                      <goals>
+                          <goal>bundle</goal>
+                      </goals>
+                  </execution>
+              </executions>
+              <configuration>
+                  <includes>
+                      <include>**/*.xml</include>
+                  </includes>
+              </configuration>
+          </plugin>
+      </plugins>
+  </build>
+</project>

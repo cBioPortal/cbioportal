@@ -80,26 +80,7 @@
         <property name="basePackage" value="org.mskcc.cbio.portal.persistence,org.cbioportal.persistence.mybatis" />
     </bean>
 
-    <!-- these are required to get properly autowired mappers into our service classes -->
-    <!-- when creating services via manually loading this context file -->
-    <bean id="cnSegmentMapper" class="org.mybatis.spring.mapper.MapperFactoryBean">
-        <property name="mapperInterface" value="org.mskcc.cbio.portal.persistence.CNSegmentMapper" />
-        <property name="sqlSessionFactory" ref="sqlSessionFactory" />
-    </bean>
-    <bean id="cnSegmentRepository" class="org.mskcc.cbio.portal.repository.CNSegmentMyBatisRepository">
-        <property name="cnSegmentMapper" ref="cnSegmentMapper" />
-    </bean>
-
-    <bean id="mutationalSignatureMapper" class="org.mybatis.spring.mapper.MapperFactoryBean">
-        <property name="mapperInterface" value="org.mskcc.cbio.portal.persistence.MutationalSignatureMapper" />
-        <property name="sqlSessionFactory" ref="sqlSessionFactory" />
-    </bean>
-    <bean id="mutationalSignatureRepository" class="org.mskcc.cbio.portal.repository.MutationalSignatureMyBatisRepository">
-        <property name="mutationalSignatureMapper" ref="mutationalSignatureMapper" />
-    </bean>
-
     <!-- enable component scanning (beware that this does not enable mapper scanning!) -->
-    <context:component-scan base-package="org.mskcc.cbio.portal.service" />
     <context:component-scan base-package="org.cbioportal.persistence" />
     <context:component-scan base-package="org.cbioportal.service" />
    

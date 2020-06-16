@@ -7,6 +7,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import org.cbioportal.model.GenericAssayAdditionalProperty;
 import org.cbioportal.model.GenericAssayData;
 import org.cbioportal.model.GenericAssayMolecularAlteration;
 import org.cbioportal.model.MolecularProfile;
@@ -42,12 +43,18 @@ public class GenericAssayServiceImpTest extends BaseServiceImplTest {
 
     private static final String PROFILE_ID = "test_profile_id";
     private static final List<String> PROFILE_ID_LIST = Arrays.asList(PROFILE_ID);
-    private static final List<String> idList = Arrays.asList(GENERIC_ASSAY_ID_1);
+    private static final List<String> idList = Arrays.asList(GENERIC_ASSAY_ID_1, GENERIC_ASSAY_ID_2);
     private static final List<GenericAssayMeta> mockGenericAssayMetaList = createGenericAssayMetaList();
+    private static final List<GenericAssayAdditionalProperty> mockGenericAssayAdditionalPropertyList = createGenericAssayAdditionalPropertyList();
     private static final String MOLECULAR_PROFILE_ID_1 = "molecular_profile_id_1";
     private static final String MOLECULAR_PROFILE_ID_2 = "molecular_profile_id_2";
     private static final String STABLE_ID_1 = "stable_id_1";
     private static final String STABLE_ID_2 = "stable_id_2";   
+
+    private static final String PROPERTY_NAME_1 = "property_name_1";
+    private static final String PROPERTY_NAME_2 = "property_name_2";
+    private static final String PROPERTY_VALUE_1 = "property_value_1";
+    private static final String PROPERTY_VALUE_2 = "property_value_2";
 
     @InjectMocks
     private GenericAssayServiceImpl genericAssayService;
@@ -260,15 +267,8 @@ public class GenericAssayServiceImpTest extends BaseServiceImplTest {
         Mockito.when(genericAssayRepository.getGenericAssayStableIdsByMolecularIds(PROFILE_ID_LIST))
         .thenReturn(idList);
 
-        Mockito.when(genericAssayRepository.getGeneticEntityIdByStableId(GENERIC_ASSAY_ID_1))
-        .thenReturn(INTERNAL_ID_1);
-        Mockito.when(genericAssayRepository.getGeneticEntityIdByStableId(GENERIC_ASSAY_ID_2))
-        .thenReturn(INTERNAL_ID_2);
-
-        Mockito.when(genericAssayRepository.getGenericAssayMetaPropertiesMap(INTERNAL_ID_1))
-        .thenReturn(new ArrayList<HashMap<String,String>>());
-        Mockito.when(genericAssayRepository.getGenericAssayMetaPropertiesMap(INTERNAL_ID_2))
-        .thenReturn(new ArrayList<HashMap<String,String>>());
+        Mockito.when(genericAssayRepository.getGenericAssayAdditionalproperties(idList))
+        .thenReturn(mockGenericAssayAdditionalPropertyList);
 
         List<GenericAssayMeta> result = genericAssayService.getGenericAssayMetaByStableIdsAndMolecularIds(idList, PROFILE_ID_LIST, PersistenceConstants.SUMMARY_PROJECTION);
         GenericAssayMeta meta1 = result.get(0);
@@ -288,11 +288,29 @@ public class GenericAssayServiceImpTest extends BaseServiceImplTest {
 
 
         GenericAssayMeta meta1 = new GenericAssayMeta(GENERIC_ASSAY_ID_1,ENTITY_TYPE);
+        HashMap<String, String> map1 = new HashMap<String, String>();
+        map1.put(PROPERTY_NAME_1, PROPERTY_VALUE_1);
+        meta1.setGenericEntityMetaProperties(map1);
         genericAssayMetaList.add(meta1);
 
         GenericAssayMeta meta2 = new GenericAssayMeta(GENERIC_ASSAY_ID_2,ENTITY_TYPE);
+        HashMap<String, String> map2 = new HashMap<String, String>();
+        map2.put(PROPERTY_NAME_2, PROPERTY_VALUE_2);
+        meta2.setGenericEntityMetaProperties(map2);
         genericAssayMetaList.add(meta2);
         return genericAssayMetaList;
+    }
+
+    private static List<GenericAssayAdditionalProperty> createGenericAssayAdditionalPropertyList() {
+
+        List<GenericAssayAdditionalProperty> genericAssayAdditionalPropertyList = new ArrayList<>();
+
+        GenericAssayAdditionalProperty property1 = new GenericAssayAdditionalProperty(PROPERTY_NAME_1, PROPERTY_VALUE_1, GENERIC_ASSAY_ID_1);
+        genericAssayAdditionalPropertyList.add(property1);
+
+        GenericAssayAdditionalProperty property2 = new GenericAssayAdditionalProperty(PROPERTY_NAME_2, PROPERTY_VALUE_2, GENERIC_ASSAY_ID_2);
+        genericAssayAdditionalPropertyList.add(property2);
+        return genericAssayAdditionalPropertyList;
     }
 
 }

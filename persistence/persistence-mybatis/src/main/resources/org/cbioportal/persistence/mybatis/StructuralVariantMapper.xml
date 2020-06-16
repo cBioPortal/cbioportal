@@ -5,8 +5,6 @@
     
     <sql id="select">
         genetic_profile.STABLE_ID AS "${prefix}molecularProfileId",
-        structural_variant.INTERNAL_ID AS "${prefix}structuralVariantId",
-        structural_variant.SAMPLE_ID AS "${prefix}sampleIdInternal",
         sample.STABLE_ID AS "${prefix}sampleId",
         patient.STABLE_ID AS "${prefix}patientId",
         cancer_study.CANCER_STUDY_IDENTIFIER AS "${prefix}studyId",
@@ -112,15 +110,17 @@
             <foreach item="item" collection="molecularProfileIds" open="(" separator="," close=")">
                 #{item}
             </foreach>
-            AND (structural_variant.SITE1_ENTREZ_GENE_ID in 
-            <foreach item="item" collection="entrezGeneIds" open="(" separator="," close=")">
-                #{item}
-            </foreach>
-            OR structural_variant.SITE2_ENTREZ_GENE_ID IN
-            <foreach item="item" collection="entrezGeneIds" open="(" separator="," close=")">
-                #{item}
-            </foreach>
-            )
+            <if test="entrezGeneIds != null and !entrezGeneIds.isEmpty()">
+	            AND (structural_variant.SITE1_ENTREZ_GENE_ID in 
+	            <foreach item="item" collection="entrezGeneIds" open="(" separator="," close=")">
+	                #{item}
+	            </foreach>
+	            OR structural_variant.SITE2_ENTREZ_GENE_ID IN
+	            <foreach item="item" collection="entrezGeneIds" open="(" separator="," close=")">
+	                #{item}
+	            </foreach>
+	            )
+            </if>
             <if test="molecularProfileIds.size() > 0 and sampleIds.size() > 0">
                 AND (genetic_profile.STABLE_ID, sample.STABLE_ID) IN
                 <foreach index="i" collection="sampleIds" open="(" separator="," close=")"> 

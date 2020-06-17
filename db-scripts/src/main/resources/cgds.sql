@@ -1,5 +1,5 @@
 --
--- Copyright (c) 2016 - 2019 Memorial Sloan-Kettering Cancer Center.
+-- Copyright (c) 2016 - 2020 Memorial Sloan-Kettering Cancer Center.
 --
 -- This library is distributed in the hope that it will be useful, but WITHOUT
 -- ANY WARRANTY, WITHOUT EVEN THE IMPLIED WARRANTY OF MERCHANTABILITY OR FITNESS
@@ -68,6 +68,10 @@ DROP TABLE IF EXISTS `interaction`;
 DROP TABLE IF EXISTS `clinical_attribute_meta`;
 DROP TABLE IF EXISTS `clinical_sample`;
 DROP TABLE IF EXISTS `clinical_patient`;
+DROP TABLE IF EXISTS `resource_definition`;
+DROP TABLE IF EXISTS `resource_sample`;
+DROP TABLE IF EXISTS `resource_patient`;
+DROP TABLE IF EXISTS `resource_study`;
 DROP TABLE IF EXISTS `mutation_count_by_keyword`;
 DROP TABLE IF EXISTS `allele_specific_copy_number`;
 DROP TABLE IF EXISTS `mutation`;
@@ -144,7 +148,7 @@ CREATE TABLE `cancer_study` (
   PRIMARY KEY (`CANCER_STUDY_ID`),
   UNIQUE (`CANCER_STUDY_IDENTIFIER`),
   FOREIGN KEY (`TYPE_OF_CANCER_ID`) REFERENCES `type_of_cancer` (`TYPE_OF_CANCER_ID`),
-  FOREIGN KEY (`REFERENCE_GENOME_ID`) REFERENCES `reference_genome` (`REFERENCE_GENOME_ID`) ON DELETE RESTRICT 
+  FOREIGN KEY (`REFERENCE_GENOME_ID`) REFERENCES `reference_genome` (`REFERENCE_GENOME_ID`) ON DELETE RESTRICT
 );
 
 -- --------------------------------------------------------
@@ -499,7 +503,7 @@ CREATE TABLE `mutation` (
   `DRIVER_FILTER_ANNOTATION` VARCHAR(80),
   `DRIVER_TIERS_FILTER` VARCHAR(50),
   `DRIVER_TIERS_FILTER_ANNOTATION` VARCHAR(80),
-  `ANNOTATION_JSON` JSON, 
+  `ANNOTATION_JSON` JSON,
   UNIQUE KEY `UQ_MUTATION_EVENT_ID_GENETIC_PROFILE_ID_SAMPLE_ID` (`MUTATION_EVENT_ID`,`GENETIC_PROFILE_ID`,`SAMPLE_ID`), -- Constraint to block duplicated mutation entries
   KEY (`GENETIC_PROFILE_ID`,`ENTREZ_GENE_ID`),
   KEY (`GENETIC_PROFILE_ID`,`SAMPLE_ID`),
@@ -849,11 +853,11 @@ CREATE TABLE `allele_specific_copy_number` (
     `SAMPLE_ID` int(11) NOT NULL,
     `ASCN_INTEGER_COPY_NUMBER` int DEFAULT NULL,
     `ASCN_METHOD` varchar(24) NOT NULL,
-    `CCF_M_COPIES_UPPER` float DEFAULT NULL,
-    `CCF_M_COPIES` float DEFAULT NULL,
-    `CLONAL` boolean DEFAULT NULL,
+    `CCF_EXPECTED_COPIES_UPPER` float DEFAULT NULL,
+    `CCF_EXPECTED_COPIES` float DEFAULT NULL,
+    `CLONAL` varchar(16) DEFAULT NULL,
     `MINOR_COPY_NUMBER` int DEFAULT NULL,
-    `MUTANT_COPIES` int DEFAULT NULL,
+    `EXPECTED_ALT_COPIES` int DEFAULT NULL,
     `TOTAL_COPY_NUMBER` int DEFAULT NULL,
     UNIQUE KEY `UQ_ASCN_MUTATION_EVENT_ID_GENETIC_PROFILE_ID_SAMPLE_ID` (`MUTATION_EVENT_ID`,`GENETIC_PROFILE_ID`,`SAMPLE_ID`), -- Constraint to block duplicated mutation entries
     FOREIGN KEY (`MUTATION_EVENT_ID`) REFERENCES `mutation_event` (`MUTATION_EVENT_ID`),
@@ -865,5 +869,46 @@ CREATE TABLE `info` (
   `DB_SCHEMA_VERSION` varchar(24),
   `GENESET_VERSION` varchar(24)
 );
+
+-- --------------------------------------------------------
+CREATE TABLE `resource_definition` (
+  `RESOURCE_ID` varchar(255) NOT NULL,
+  `DISPLAY_NAME` varchar(255) NOT NULL,
+  `DESCRIPTION` varchar(2048) DEFAULT NULL,
+  `RESOURCE_TYPE` ENUM('STUDY', 'PATIENT', 'SAMPLE') NOT NULL,
+  `OPEN_BY_DEFAULT` BOOLEAN DEFAULT 0,
+  `PRIORITY` int(11) NOT NULL,
+  `CANCER_STUDY_ID` int(11) NOT NULL,
+  PRIMARY KEY (`RESOURCE_ID`,`CANCER_STUDY_ID`),
+  FOREIGN KEY (`CANCER_STUDY_ID`) REFERENCES `cancer_study` (`CANCER_STUDY_ID`) ON DELETE CASCADE
+);
+
+-- --------------------------------------------------------
+CREATE TABLE `resource_sample` (
+  `INTERNAL_ID` int(11) NOT NULL,
+  `RESOURCE_ID` varchar(255) NOT NULL,
+  `URL` varchar(255) NOT NULL,
+  PRIMARY KEY (`INTERNAL_ID`, `RESOURCE_ID`, `URL`),
+  FOREIGN KEY (`INTERNAL_ID`) REFERENCES `sample` (`INTERNAL_ID`) ON DELETE CASCADE
+);
+
+-- --------------------------------------------------------
+CREATE TABLE `resource_patient` (
+  `INTERNAL_ID` int(11) NOT NULL,
+  `RESOURCE_ID` varchar(255) NOT NULL,
+  `URL` varchar(255) NOT NULL,
+  PRIMARY KEY (`INTERNAL_ID`, `RESOURCE_ID`, `URL`),
+  FOREIGN KEY (`INTERNAL_ID`) REFERENCES `patient` (`INTERNAL_ID`) ON DELETE CASCADE
+);
+
+-- --------------------------------------------------------
+CREATE TABLE `resource_study` (
+  `INTERNAL_ID` int(11) NOT NULL,
+  `RESOURCE_ID` varchar(255) NOT NULL,
+  `URL` varchar(255) NOT NULL,
+  PRIMARY KEY (`INTERNAL_ID`, `RESOURCE_ID`, `URL`),
+  FOREIGN KEY (`INTERNAL_ID`) REFERENCES `cancer_study` (`CANCER_STUDY_ID`) ON DELETE CASCADE
+);
+
 -- THIS MUST BE KEPT IN SYNC WITH db.version PROPERTY IN pom.xml
-INSERT INTO info VALUES ('2.12.3', NULL);
+INSERT INTO info VALUES ('2.12.6', NULL);

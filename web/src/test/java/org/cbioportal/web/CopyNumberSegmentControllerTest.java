@@ -83,9 +83,9 @@ public class CopyNumberSegmentControllerTest {
 
         List<CopyNumberSeg> copyNumberSegList = createExampleCopyNumberSegs();
 
-        Mockito.when(copyNumberSegmentService.getCopyNumberSegmentsInSampleInStudy(Mockito.anyString(),
-            Mockito.anyString(), Mockito.anyString(), Mockito.anyString(), Mockito.anyInt(), Mockito.anyInt(),
-            Mockito.anyString(), Mockito.anyString())).thenReturn(copyNumberSegList);
+        Mockito.when(copyNumberSegmentService.getCopyNumberSegmentsInSampleInStudy(Mockito.any(),
+            Mockito.any(), Mockito.any(), Mockito.any(), Mockito.any(), Mockito.any(),
+            Mockito.any(), Mockito.any())).thenReturn(copyNumberSegList);
 
         mockMvc.perform(MockMvcRequestBuilders.get("/studies/test_study_id/samples/test_sample_id/copy-number-segments")
             .accept(MediaType.APPLICATION_JSON))
@@ -116,8 +116,8 @@ public class CopyNumberSegmentControllerTest {
         BaseMeta baseMeta = new BaseMeta();
         baseMeta.setTotalCount(2);
 
-        Mockito.when(copyNumberSegmentService.getMetaCopyNumberSegmentsInSampleInStudy(Mockito.anyString(),
-            Mockito.anyString(), Mockito.anyString())).thenReturn(baseMeta);
+        Mockito.when(copyNumberSegmentService.getMetaCopyNumberSegmentsInSampleInStudy(Mockito.any(),
+            Mockito.any(), Mockito.any())).thenReturn(baseMeta);
 
         mockMvc.perform(MockMvcRequestBuilders.get("/studies/test_study_id/samples/test_sample_id/copy-number-segments")
             .param("projection", "META"))
@@ -130,8 +130,8 @@ public class CopyNumberSegmentControllerTest {
 
         List<CopyNumberSeg> copyNumberSegList = createExampleCopyNumberSegs();
 
-        Mockito.when(copyNumberSegmentService.fetchCopyNumberSegments(Mockito.anyListOf(String.class),
-            Mockito.anyListOf(String.class), Mockito.anyString(), Mockito.anyString())).thenReturn(copyNumberSegList);
+        Mockito.when(copyNumberSegmentService.fetchCopyNumberSegments(Mockito.any(),
+            Mockito.any(), Mockito.any(), Mockito.any())).thenReturn(copyNumberSegList);
 
         List<SampleIdentifier> sampleIdentifiers = new ArrayList<>();
         SampleIdentifier sampleIdentifier1 = new SampleIdentifier();
@@ -174,8 +174,8 @@ public class CopyNumberSegmentControllerTest {
         BaseMeta baseMeta = new BaseMeta();
         baseMeta.setTotalCount(2);
 
-        Mockito.when(copyNumberSegmentService.fetchMetaCopyNumberSegments(Mockito.anyListOf(String.class),
-            Mockito.anyListOf(String.class), Mockito.anyString())).thenReturn(baseMeta);
+        Mockito.when(copyNumberSegmentService.fetchMetaCopyNumberSegments(Mockito.any(),
+            Mockito.any(), Mockito.any())).thenReturn(baseMeta);
 
         List<SampleIdentifier> sampleIdentifiers = new ArrayList<>();
         SampleIdentifier sampleIdentifier1 = new SampleIdentifier();

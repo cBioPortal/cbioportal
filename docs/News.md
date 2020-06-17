@@ -1,5 +1,76 @@
+## Jun 11, 2020
+*   **Added data** consisting of 267 samples from 2 studies:
+     * [Gastric Cancer (OncoSG, 2018)](https://www.cbioportal.org/study/summary?id=stad_oncosg_2018) *147 samples* 
+     * 120 ctDNA samples added to [Non-Small Cell Lung Cancer (TRACERx, NEJM & Nature 2017)](https://www.cbioportal.org/study/summary?id=nsclc_tracerx_2017) *447 samples* 
+
+## Jun 9, 2020
+
+*   **Enhancement**: using [OQL](https://www.cbioportal.org/oql#oql-modifiers) to query for mutations based on a protein position range. [example](https://www.cbioportal.org/results/mutations?Action=Submit&RPPA_SCORE_THRESHOLD=2.0&Z_SCORE_THRESHOLD=2.0&cancer_study_list=msk_impact_2017&case_set_id=msk_impact_2017_cnaseq&data_priority=0&gene_list=TP53%253AMUT_(95-288*)&geneset_list=%20&genetic_profile_ids_PROFILE_COPY_NUMBER_ALTERATION=msk_impact_2017_cna&genetic_profile_ids_PROFILE_MUTATION_EXTENDED=msk_impact_2017_mutations&profileFilter=0&tab_index=tab_visualize)
+![image](https://user-images.githubusercontent.com/840895/84427197-83ce6b80-abf2-11ea-9d18-3a4f4524e545.png)
+
+*   **New Feature**: you can now send the OncoPrint data to the [OncoPrinter tool](https://www.cbioportal.org/oncoprinter) for customization.
+![image](https://user-images.githubusercontent.com/840895/84318326-3c85a380-ab3c-11ea-97c1-34343cb3e996.png)
+
+*   **Enhancement**: Mutational spectrum data can be downloaded from OncoPrint
+![image](https://user-images.githubusercontent.com/840895/84322695-68585780-ab43-11ea-9224-a965331e35fc.png)
+
+
+## Jun 2, 2020
+
+*   **Enhancement**: Pediatric cancer studies are now grouped and highlighted in the query page
+![image](https://user-images.githubusercontent.com/840895/84318659-c897cb00-ab3c-11ea-8209-93c940321a0f.png)
+
+## May 6, 2020
+*   **Added data** consisting of 574 samples from 3 studies:
+     * [Uterine Sarcoma/Mesenchymal (MSK, Clin Cancer Res 2020)](https://www.cbioportal.org/study/summary?id=usarc_msk_2020) *108 samples* 
+     * [Metastatic castration-sensitive prostate cancer (MSK, Clin Cancer Res 2020)](https://www.cbioportal.org/study/summary?id=prad_mcspc_mskcc_2020) *424 samples* 
+    *  [Glioblastoma (Columbia, Nat Med. 2019)](https://www.cbioportal.org/study/summary?id=gbm_columbia_2019) *42 samples* 
+*   **Updated one study:**
+     *  Expression data was added to [The Metastatic Breast Cancer Project (Provisional, February 2020)](http://www.cbioportal.org/study?id=brca_mbcproject_wagle_2017).
+
+## April 24, 2020
+* **New Feature**: Add a new chart on the _Study View_ for selecting samples based on pre-defined case lists: 
+
+    <img width="333" alt="Screen Shot 2020-04-24 at 9 18 25 AM" src="https://user-images.githubusercontent.com/1334004/80216807-a1c51a00-860c-11ea-8ba5-3781bd603ee5.png">
+
+## April 10, 2020
+*   **New Feature**: Make cohorts on the _Study View_ using continuous molecular profiles of one or more gene(s), such as mRNA expression, methylation, RPPA and continuous CNA. [example](https://www.cbioportal.org/study/summary?id=brca_tcga#filterJson={"genomicDataFilters":[{"hugoGeneSymbol":"ERBB2","profileType":"mrna_median_Zscores","values":[{"start":1.5,"end":2},{"start":2,"end":2.5},{"start":2.5,"end":3},{"start":3,"end":3.5},{"start":3.5,"end":4},{"start":4}]}],"genomicProfiles":[["mrna_median_Zscores"]],"studyIds":["brca_tcga"]})
+
+    <img src="https://user-images.githubusercontent.com/1334004/79270846-da2a6280-7e6c-11ea-8cb9-b40e7d201ea1.png" width=500 />
+    
+    Combine this with the group comparison feature to compare e.g. all quartiles of expression:
+    
+    <img src="https://user-images.githubusercontent.com/1334004/79270618-79028f00-7e6c-11ea-8a30-9eaedee948ca.png" width=400 />
+
+*   **New Feature**: Annotate mutations using the _Mutation Mapper Tool_ on the GRCh38 reference genome:
+
+    [![mutation_mapper_tool_grch38](https://user-images.githubusercontent.com/1334004/79233555-07f4b480-7e37-11ea-9d0a-0cafff434fa5.png)](https://www.cbioportal.org/mutation_mapper)
+
+## April 3, 2020
+*   **New Feature**: Extended the _Comparison_ tab to support the comparison of altered samples per gene or alteration. This [example query](https://www.cbioportal.org/results/comparison?Action=Submit&RPPA_SCORE_THRESHOLD=2.0&Z_SCORE_THRESHOLD=2.0&cancer_study_list=msk_impact_2017&case_set_id=msk_impact_2017_Non-Small_Cell_Lung_Cancer&comparison_createdGroupsSessionId=5e8a2d4ae4b0ff7ef5fdd7d0&comparison_selectedGroups=%5B%22EGFR%3A%20AMP%20%26%20MUT%22%2C%22EGFR%3A%20MUT%20only%22%2C%22EGFR%3A%20AMP%20only%22%5D&comparison_subtab=survival&data_priority=0&gene_list=EGFR%253AAMP%250AEGFR%253AMUT_DRIVER&geneset_list=%20&genetic_profile_ids_PROFILE_COPY_NUMBER_ALTERATION=msk_impact_2017_cna&genetic_profile_ids_PROFILE_MUTATION_EXTENDED=msk_impact_2017_mutations&profileFilter=0&tab_index=tab_visualize) compares NSCLC patients with 1) both mutated and amplified EGFR, 2) mutated EGFR only, and 3) amplified EGFR only.
+
+![image](https://user-images.githubusercontent.com/840895/78508085-3ea13f80-7752-11ea-8e87-e486061def12.png)
+
+## March 27, 2020
+*   **Enhancement**: User selections in the Plots tab are now saved in the URL. [example](https://www.cbioportal.org/results/plots?Action=Submit&RPPA_SCORE_THRESHOLD=2.0&Z_SCORE_THRESHOLD=2.0&cancer_study_id=coadread_tcga_pub&cancer_study_list=ov_tcga_pan_can_atlas_2018&case_set_id=ov_tcga_pan_can_atlas_2018_cnaseq&data_priority=0&gene_list=TP53&gene_set_choice=user-defined-list&geneset_list=%20&genetic_profile_ids_PROFILE_COPY_NUMBER_ALTERATION=ov_tcga_pan_can_atlas_2018_gistic&genetic_profile_ids_PROFILE_MUTATION_EXTENDED=ov_tcga_pan_can_atlas_2018_mutations&plots_horz_selection=%7B%22dataType%22%3A%22MUTATION_EXTENDED%22%7D&profileFilter=0&tab_index=tab_visualize)
+
+*   **New Feature**: Added table of data availability per profile in the _Study View_. [example](https://www.cbioportal.org/study/summary?id=ucec_tcga_pub)
+
+<img src="https://user-images.githubusercontent.com/840895/78508182-e454ae80-7752-11ea-914b-bac17f725a9f.png" width="300">
+
+## March 20, 2020
+*   **Enhancement**: Extended _Survival Analysis_ to support more outcome measures. [example](https://www.cbioportal.org/results/comparison?Action=Submit&RPPA_SCORE_THRESHOLD=2.0&Z_SCORE_THRESHOLD=2.0&cancer_study_list=luad_tcga_pan_can_atlas_2018&case_set_id=luad_tcga_pan_can_atlas_2018_cnaseq&comparison_selectedGroups=%5B%22Unaltered%20group%22%2C%22Altered%20group%22%5D&comparison_subtab=survival&data_priority=0&gene_list=KRAS%250ATP53&geneset_list=%20&genetic_profile_ids_PROFILE_COPY_NUMBER_ALTERATION=luad_tcga_pan_can_atlas_2018_gistic&genetic_profile_ids_PROFILE_MUTATION_EXTENDED=luad_tcga_pan_can_atlas_2018_mutations&profileFilter=0&tab_index=tab_visualize)
+
+![image](https://user-images.githubusercontent.com/840895/78508508-5c23d880-7755-11ea-9e16-36bff32678ad.png)
+
+## March 18, 2020
+*   **Added data** consisting of 1,393 samples from 3 studies:
+     * [Breast Cancer (Alpelisib plus AI, Nature Cancer 2020)](https://www.cbioportal.org/study/summary?id=breast_alpelisib_2020) *141 samples* 
+     * [Glioma (MSKCC, Clin Cancer Res 2019)](https://www.cbioportal.org/study/summary?id=glioma_mskcc_2019) *1,004 samples* 
+     * [Mixed cfDNA (MSK, Nature Medicine 2019)](https://www.cbioportal.org/study/summary?id=cfdna_msk_2019) *248 samples* 
+     
 ## March 3, 2020
-* **New Feature**: Add Pathways tab to the _Results View_ page which visualizes alteration frequencies of genes in pathways of interest. The pathways are pulled from https://www.pathwaymapper.org and shown in a read only view. One can edit these pathways in the PathwayMapper editor. For more information see the [tutorial](https://www.cbioportal.org/tutorials#pathways).
+* **New Feature**: Added Pathways tab to the _Results View_ page, which visualizes the alteration frequencies of genes in pathways of interest. The pathways are pulled from https://www.pathwaymapper.org and shown in a read only view. One can edit these pathways in the PathwayMapper editor. For more information see the [tutorial](https://www.cbioportal.org/tutorials#pathways).
 
     [![pathwaymapper_screenshot](https://user-images.githubusercontent.com/1334004/76771001-133fbc00-6775-11ea-8b36-82edb1e7be09.png)](https://www.cbioportal.org/results/pathways?Action=Submit&Z_SCORE_THRESHOLD=1.0&cancer_study_id=gbm_tcga_pub&cancer_study_list=gbm_tcga_pub&case_set_id=gbm_tcga_pub_sequenced&gene_list=TP53%20MDM2%20MDM4&gene_set_choice=user-defined_list&genetic_profile_ids_PROFILE_COPY_NUMBER_ALTERATION=gbm_tcga_pub_cna_rae&genetic_profile_ids_PROFILE_MUTATION_EXTENDED=gbm_tcga_pub_mutations)
 
@@ -455,7 +526,7 @@ as appear in the url of a query submitted from the homepage.
 ## October 7, 2016
 *   **New features**:
     * All data sets can now be downloaded as flat files from the new [Data Hub](https://github.com/cBioPortal/datahub)
-    * Annotation of putative driver missense mutations in OncoPrints, based on [OncoKB](http://oncokb.org), mutation hotspots, and recurrence in cBioPortal and COSMIC
+    * Annotation of putative driver missense mutations in OncoPrints, based on [OncoKB](https://www.oncokb.org), mutation hotspots, and recurrence in cBioPortal and COSMIC
     
     ![OncoPrint-OncoKB](https://cloud.githubusercontent.com/assets/840895/19208804/094dd320-8ccd-11e6-8012-f30104b62ff4.png)
     
@@ -498,7 +569,7 @@ as appear in the url of a query submitted from the homepage.
 
 ## June 6, 2016
 *   **New features**:
-    * Annotation of mutation effect and drug sensitivity on the Mutations tab and the patient view pages (via [OncoKB](http://oncokb.org))  
+    * Annotation of mutation effect and drug sensitivity on the Mutations tab and the patient view pages (via [OncoKB](https://www.oncokb.org))  
     ![oncokb-screenshot](https://cloud.githubusercontent.com/assets/840895/15825344/54bbbc44-2bd1-11e6-8b65-e265e03f453a.png)
 *   **Improvements**:
     * Improved OncoPrint visualization using WebGL: faster, more zooming flexibility, visualization of recurrent variants

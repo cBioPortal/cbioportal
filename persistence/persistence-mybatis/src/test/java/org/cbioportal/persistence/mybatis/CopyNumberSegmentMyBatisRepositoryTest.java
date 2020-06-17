@@ -40,7 +40,7 @@ public class CopyNumberSegmentMyBatisRepositoryTest {
         
         Assert.assertEquals(2, result0.size());
         CopyNumberSeg copyNumberSeg = result0.get(0);
-        Assert.assertEquals(new Long(50236594L), copyNumberSeg.getSegId());
+        Assert.assertEquals(Long.valueOf(50236594L), copyNumberSeg.getSegId());
         Assert.assertEquals((Integer) 1, copyNumberSeg.getCancerStudyId());
         Assert.assertEquals("study_tcga_pub", copyNumberSeg.getCancerStudyIdentifier());
         Assert.assertEquals((Integer) 1, copyNumberSeg.getSampleId());
@@ -111,7 +111,7 @@ public class CopyNumberSegmentMyBatisRepositoryTest {
 
         Assert.assertEquals(2, result.size());
         CopyNumberSeg copyNumberSeg = result.get(0);
-        Assert.assertEquals(new Long(50236594L), copyNumberSeg.getSegId());
+        Assert.assertEquals(Long.valueOf(50236594L), copyNumberSeg.getSegId());
         Assert.assertEquals((Integer) 1, copyNumberSeg.getCancerStudyId());
         Assert.assertEquals("study_tcga_pub", copyNumberSeg.getCancerStudyIdentifier());
         Assert.assertEquals((Integer) 1, copyNumberSeg.getSampleId());
@@ -230,7 +230,7 @@ public class CopyNumberSegmentMyBatisRepositoryTest {
 
         Assert.assertEquals(1, result0.size());
         CopyNumberSeg copyNumberSeg = result0.get(0);
-        Assert.assertEquals(new Long(50236593L), copyNumberSeg.getSegId());
+        Assert.assertEquals(Long.valueOf(50236593L), copyNumberSeg.getSegId());
         Assert.assertEquals((Integer) 1, copyNumberSeg.getCancerStudyId());
         Assert.assertEquals("study_tcga_pub", copyNumberSeg.getCancerStudyIdentifier());
         Assert.assertEquals((Integer) 2, copyNumberSeg.getSampleId());

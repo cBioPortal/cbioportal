@@ -8,6 +8,7 @@ import org.cbioportal.model.GenePanelData;
 import org.cbioportal.service.exception.GenePanelNotFoundException;
 import org.cbioportal.service.exception.MolecularProfileNotFoundException;
 import org.cbioportal.service.GenePanelService;
+import org.cbioportal.web.config.PublicApiTags;
 import org.cbioportal.web.config.annotation.PublicApi;
 import org.cbioportal.web.parameter.Direction;
 import org.cbioportal.web.parameter.GenePanelDataFilter;
@@ -41,7 +42,7 @@ import java.util.*;
 @PublicApi
 @RestController
 @Validated
-@Api(tags = "O. Gene Panels", description = " ")
+@Api(tags = PublicApiTags.GENE_PANELS, description = " ")
 public class GenePanelController {
 
     @Autowired

@@ -57,6 +57,9 @@ skin.right_nav.whats_new_blurb=<p> &bull;<a href="news.jsp"> <b>New data and fea
 # setting controlling the blurb
 skin.blurb=The cBioPortal for Cancer Genomics provides <b>visualization</b>, <b>analysis</b> and <b>download</b> of large-scale cancer genomics data sets.  <p>Please adhere to <u><a href="http://cancergenome.nih.gov/abouttcga/policies/publicationguidelines"> the TCGA publication guidelines</a></u> when using TCGA data in your publications.</p> <p><b>Please cite</b> <a href="http://www.ncbi.nlm.nih.gov/pubmed/23550210">Gao et al. <i>Sci. Signal.</i> 2013</a> &amp;  <a href="http://cancerdiscovery.aacrjournals.org/content/2/5/401.abstract">Cerami et al. <i>Cancer Discov.</i> 2012</a> when publishing results based on cBioPortal.</p>
 
+# setting controlling the citation below the blurb
+# skin.citation_rule_text=Please cite: <a href="http://cancerdiscovery.aacrjournals.org/content/2/5/401.abstract" target="_blank">Cerami et al., 2012</a> &amp; <a href="http://www.ncbi.nlm.nih.gov/pubmed/23550210" target="_blank">Gao et al., 2013</a>
+
 # setting controlling the footer
 skin.footer= | <a href="http://www.mskcc.org/mskcc/html/44.cfm">MSKCC</a> | <a href="http://cancergenome.nih.gov/">TCGA</a>
 
@@ -97,6 +100,8 @@ microsoftlive.consumer.secret=
 
 ## SAML settings
 saml.sp.metadata.entityid=
+# change this url if behind reverse proxy that handles SSL, see docs/Authenticating-Users-via-SAML.md
+saml.sp.metadata.entityBaseURL=#{null}
 saml.idp.metadata.location=
 saml.idp.metadata.entityid=
 # saml keystore settings:
@@ -156,12 +161,21 @@ tcga_path_report.url=https://github.com/cbioportal/datahub/raw/master/tcga/patho
 # various url's
 segfile.url=http://cbio.mskcc.org/cancergenomics/gdac-portal/seg/
 
+
+# The default OncoKB instance, the portal is connecting to, does not include any therapeutic information and the token is not required.
+# If you wish to include such information, please consider obtaining a license to support future OncoKB development by following 
+# https://docs.cbioportal.org/2.4-integration-with-other-webservices/oncokb-data-access.
+
 # Enable OncoKB annotation (true, false)
 show.oncokb=true
 
-# OncoKB API Token, for more information please check https://www.oncokb.org/dataAccess
-# The token is required if you want to use OncoKB service
+# The URL of the OncoKB instance to connect to.
+# The default address does not require authentication and is freely to use.
+oncokb.public_api.url=https://public.api.oncokb.org/api/v1
+
+# Your OncoKB Token which an be found under https://www.oncokb.org/account/settings
 oncokb.token=
+
 
 # Enable Chang's hotspot list (true, false)
 show.hotspot=true

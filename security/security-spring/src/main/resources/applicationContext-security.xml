@@ -122,8 +122,8 @@
 
     <!-- Handler deciding where to redirect user after successful login -->
     <b:bean id="successRedirectHandler" class="org.cbioportal.security.spring.PortalSavedRequestAwareAuthenticationSuccessHandler">
-        <b:property name="defaultTargetUrl" value="/index.do"/>
-        <b:property name="alwaysUseDefaultTargetUrl" value="false"/>
+        <b:property name="defaultTargetUrl" value="/restore?key=login-redirect"/>
+        <b:property name="alwaysUseDefaultTargetUrl" value="true"/>
         <b:property name="targetUrlParameter" value="spring-security-redirect"/>
     </b:bean>
 
@@ -138,7 +138,9 @@
         <intercept-url pattern="/favicon.ico" access="permitAll"/>
         <intercept-url pattern="/login.jsp*" access="permitAll"/>
         <intercept-url pattern="/case.do*" access="permitAll"/>
-        <intercept-url pattern="/patient*" access="permitAll"/>
+        <intercept-url pattern="/patient/**" access="permitAll"/>
+        <intercept-url pattern="/study/**" access="permitAll"/>
+        <intercept-url pattern="/results/**" access="permitAll"/>
         <intercept-url pattern="/network.do*" access="permitAll"/>
         <intercept-url pattern="/webservice.do*" access="isAuthenticated() or hasIpAddress('127.0.0.1')"/>
         <intercept-url pattern="/**" access="isAuthenticated()"/>
@@ -270,7 +272,9 @@
         <intercept-url pattern="/favicon.ico" access="permitAll"/>
         <intercept-url pattern="/login.jsp*" access="permitAll"/>
         <intercept-url pattern="/case.do*" access="permitAll"/>
-        <intercept-url pattern="/patient*" access="permitAll"/>
+        <intercept-url pattern="/patient/**" access="permitAll"/>
+        <intercept-url pattern="/study/**" access="permitAll"/>
+        <intercept-url pattern="/results/**" access="permitAll"/>
         <intercept-url pattern="/network.do*" access="permitAll"/>
         <intercept-url pattern="/webservice.do*" access="isAuthenticated() or hasIpAddress('127.0.0.1')"/>
         <intercept-url pattern="/**" access="isAuthenticated()"/>
@@ -349,6 +353,7 @@
         <b:constructor-arg>
             <b:bean class="org.springframework.security.saml.metadata.MetadataGenerator">
                 <b:property name="entityId" value="${saml.sp.metadata.entityid}"/>
+                <b:property name="entityBaseURL" value="${saml.sp.metadata.entitybaseurl}"/>
                 <b:property name="extendedMetadata">
                     <b:bean class="org.springframework.security.saml.metadata.ExtendedMetadata">
                         <b:property name="idpDiscoveryEnabled" value="true"/>
@@ -534,7 +539,9 @@
             <intercept-url pattern="/favicon.ico" access="permitAll"/>
             <intercept-url pattern="/login.jsp*" access="permitAll"/>
             <intercept-url pattern="/case.do*" access="permitAll"/>
-            <intercept-url pattern="/patient*" access="permitAll"/>
+            <intercept-url pattern="/patient/**" access="permitAll"/>
+            <intercept-url pattern="/study/**" access="permitAll"/>
+            <intercept-url pattern="/results/**" access="permitAll"/>
             <intercept-url pattern="/network.do*" access="permitAll"/>
             <intercept-url pattern="/webservice.do*" access="isAuthenticated() or hasIpAddress('127.0.0.1')"/>
             <intercept-url pattern="/**" access="isAuthenticated()"/>
@@ -569,7 +576,9 @@
             <intercept-url pattern="/favicon.ico" access="permitAll"/>
             <intercept-url pattern="/login.jsp*" access="permitAll"/>
             <intercept-url pattern="/case.do*" access="permitAll"/>
-            <intercept-url pattern="/patient*" access="permitAll"/>
+            <intercept-url pattern="/patient/**" access="permitAll"/>
+            <intercept-url pattern="/study/**" access="permitAll"/>
+            <intercept-url pattern="/results/**" access="permitAll"/>
             <intercept-url pattern="/network.do*" access="permitAll"/>
             <intercept-url pattern="/webservice.do*" access="isAuthenticated() or hasIpAddress('127.0.0.1')"/>
             <intercept-url pattern="/**" access="isAuthenticated()"/>
@@ -650,8 +659,8 @@
 
 	    <!-- Handler deciding where to redirect user after successful login -->
 	    <b:bean id="successRedirectHandler" class="org.cbioportal.security.spring.PortalSavedRequestAwareAuthenticationSuccessHandler">
-	        <b:property name="defaultTargetUrl" value="/index.do"/>
-	        <b:property name="alwaysUseDefaultTargetUrl" value="false"/>
+            <b:property name="defaultTargetUrl" value="/restore?key=login-redirect"/>
+            <b:property name="alwaysUseDefaultTargetUrl" value="true"/>
 	        <b:property name="targetUrlParameter" value="spring-security-redirect"/>
 	    </b:bean>
 

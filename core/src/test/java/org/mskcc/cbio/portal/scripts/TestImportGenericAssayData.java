@@ -45,9 +45,9 @@ import org.mskcc.cbio.portal.dao.DaoGeneticEntity;
 import org.mskcc.cbio.portal.dao.JdbcUtil;
 import org.mskcc.cbio.portal.model.GeneticAlterationType;
 import org.mskcc.cbio.portal.util.ProgressMonitor;
+import org.springframework.test.annotation.Rollback;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
-import org.springframework.test.context.transaction.TransactionConfiguration;
 import org.springframework.transaction.annotation.Transactional;
 
 /*
@@ -56,7 +56,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 @RunWith(SpringJUnit4ClassRunner.class)
 @ContextConfiguration(locations = { "classpath:/applicationContext-dao.xml" })
-@TransactionConfiguration(transactionManager = "transactionManager", defaultRollback = true)
+@Rollback
 @Transactional
 public class TestImportGenericAssayData {
 
@@ -69,7 +69,7 @@ public class TestImportGenericAssayData {
         File file = new File("src/test/resources/treatments/data_treatment_ic50.txt");
         
         // import data and test all treatments were added
-        ImportGenericAssayEntity.importData(file, GeneticAlterationType.GENERIC_ASSAY, "NAME,DESCRIPTION,URL");
+        ImportGenericAssayEntity.importData(file, GeneticAlterationType.GENERIC_ASSAY, "NAME,DESCRIPTION,URL", true);
         assertEquals(10, getNumRecordsForGenericAssay());
  
         // test wether a record can be retrieved via stable id 
@@ -80,6 +80,12 @@ public class TestImportGenericAssayData {
         assertEquals("Name of Irinotecan", treatment1.getGenericEntityMetaProperties().get("NAME"));
         assertEquals("Desc of Irinotecan", treatment1.getGenericEntityMetaProperties().get("DESCRIPTION"));
         assertEquals("Url of Irinotecan", treatment1.getGenericEntityMetaProperties().get("URL"));
+
+        // test fields are updated after loading new treatment file
+        File fileNewDesc = new File("src/test/resources/treatments/data_treatment_ic50_newdesc.txt");
+        ImportGenericAssayEntity.importData(fileNewDesc, GeneticAlterationType.GENERIC_ASSAY, "NAME,DESCRIPTION,URL", true);
+        GenericAssayMeta treatment2 = DaoGenericAssay.getGenericAssayMetaByStableId("Irinotecan");
+        assertEquals("New desc of Irinotecan", treatment2.getGenericEntityMetaProperties().get("DESCRIPTION"));
     }
 
     @Test
@@ -91,7 +97,7 @@ public class TestImportGenericAssayData {
         File file = new File("src/test/resources/data_mutational_signature.txt");
         
         // import data and test all mutational signatures were added
-        ImportGenericAssayEntity.importData(file, GeneticAlterationType.GENERIC_ASSAY, "name,description");
+        ImportGenericAssayEntity.importData(file, GeneticAlterationType.GENERIC_ASSAY, "name,description", false);
         assertEquals(61, getNumRecordsForGenericAssay());
  
         // test wether a record can be retrieved via stable id 
@@ -101,6 +107,18 @@ public class TestImportGenericAssayData {
         // Test whether fields were populated correctly
         assertEquals("mean_1", genericAssayMeta1.getGenericEntityMetaProperties().get("name"));
         assertEquals("mean_1", genericAssayMeta1.getGenericEntityMetaProperties().get("description"));
+
+        // // test fields should not be updated after loading new generic assay meta file
+        File fileNewDesc = new File("src/test/resources/data_mutational_signature_new.txt");
+        ImportGenericAssayEntity.importData(fileNewDesc, GeneticAlterationType.GENERIC_ASSAY, "name,description", false);
+        GenericAssayMeta genericAssayMeta2 = DaoGenericAssay.getGenericAssayMetaByStableId("mean_1");
+        assertEquals("mean_1", genericAssayMeta2.getGenericEntityMetaProperties().get("description"));
+
+        // // test fields should be updated after loading new generic assay meta file
+        ImportGenericAssayEntity.importData(fileNewDesc, GeneticAlterationType.GENERIC_ASSAY, "name,description", true);
+        GenericAssayMeta genericAssayMeta3 = DaoGenericAssay.getGenericAssayMetaByStableId("mean_1");
+        assertEquals("new mean_1", genericAssayMeta3.getGenericEntityMetaProperties().get("description"));
+
     }
 
     private int getNumRecordsForGenericAssay() {

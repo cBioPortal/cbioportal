@@ -86,8 +86,8 @@ public class CancerTypeControllerTest {
         typeOfCancer2.setParent(TEST_PARENT_2);
         typeOfCancerList.add(typeOfCancer2);
 
-        Mockito.when(cancerTypeService.getAllCancerTypes(Mockito.anyString(), Mockito.anyInt(), Mockito.anyInt(),
-                Mockito.anyString(), Mockito.anyString())).thenReturn(typeOfCancerList);
+        Mockito.when(cancerTypeService.getAllCancerTypes(Mockito.any(), Mockito.any(), Mockito.any(),
+                Mockito.any(), Mockito.any())).thenReturn(typeOfCancerList);
 
         mockMvc.perform(MockMvcRequestBuilders.get("/cancer-types")
                 .accept(MediaType.APPLICATION_JSON))

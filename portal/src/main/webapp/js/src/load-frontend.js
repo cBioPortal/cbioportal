@@ -9,6 +9,7 @@ function clearDevState(e){
 function showFrontendPopup(url) {
     document.addEventListener("DOMContentLoaded", function(event) {
         var newDiv = document.createElement("div");
+        newDiv.setAttribute('class', 'local-dev-banner')
         newDiv.setAttribute('style', 'position: fixed; z-index:100; top: 0; left: 0; width: 100%');
         document.body.appendChild(newDiv);
         newDiv.innerHTML = '<div style="">' +

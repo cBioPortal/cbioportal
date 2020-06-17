@@ -1,6 +1,8 @@
 sudo: required
 language: java
-jdk: openjdk8
+jdk:
+- openjdk8
+- openjdk11
 services:
 - docker
 - mysql
@@ -67,8 +69,6 @@ script:
           -Ppublic \
           -Dauthenticate=false \
           -Dfinal.war.name=cbioportal \
-          -Ddb.test.username=cbio_user \
-          -Ddb.test.password=somepassword \
           clean \
           install \
           integration-test

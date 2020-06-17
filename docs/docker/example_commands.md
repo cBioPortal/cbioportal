@@ -1,3 +1,17 @@
+### Importing gene panel ###
+
+Use this command to import a gene panel. Specify the gene panel file by replacing 
+`<path_to_genepanel_file>` with the absolute path to the gene panel file.
+
+```shell
+docker run -it --rm \
+    --net cbio-net \
+    -v /<path_to_config_file>/portal.properties:/cbioportal/portal.properties:ro \
+    -v <path_to_genepanel_file>:/gene_panels/gene_panel.txt:ro \
+    cbioportal/cbioportal:latest \
+    bash -c 'cd /cbioportal/core/src/main/scripts/ && ./importGenePanel.pl --data /gene_panels/gene_panel.txt'
+```
+
 ### Importing data ###
 
 Use this command to validate a dataset. Specify the study directory by replacing 
@@ -66,3 +80,16 @@ docker run -it --rm \
     mysql:5.7 \
     sh -c 'mysql -h"$MYSQL_HOST" -u"$MYSQL_USER" -p"$MYSQL_PASSWORD" "$MYSQL_DATABASE"'
 ```
+
+### Deleting a study ###
+
+To remove a study, run:
+
+```shell
+docker run -it --rm --net cbio-net \
+    -v /<path_to_config_file>/portal.properties:/cbioportal/portal.properties:ro \
+    cbioportal/cbioportal:latest \
+    cbioportalImporter.py -c remove-study -id study_id
+```
+
+Where `study_id` is the `cancer_study_identifier` of the study you would like to remove.

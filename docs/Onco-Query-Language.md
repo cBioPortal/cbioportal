@@ -56,6 +56,7 @@ Keyword | Applicable Data Type | Explanation
 `DRIVER` | Mutations <br> Fusions <br> Copy Number Alterations | Include only mutations, fusions and copy number alterations which are driver events, as defined in OncoPrint (default: OncoKB and CancerHotspots).
 `GERMLINE` | Mutations | Include only mutations that are defined as germline events by the study.
 `SOMATIC` | Mutations | Include all mutations that are not defined as germline.
+`(a-b)` (protein position range) | Mutations | Include all mutations that overlap with the protein position range `a-b`, where `a` and `b` are integers. If you add a `*` (i.e. `(a-b*)`) then it will only include those mutations that are fully contained inside `a-b`. The open-ended ranges `(a-)` and `(-b)` are also allowed. 
 
 <br>
 
@@ -194,7 +195,7 @@ Modifiers can be used on their own or in combination with other OQL terms for mu
 
 <a name="driver"></a>
 ### Driver
-The `DRIVER` modifier applies to mutations, fusions and copy number alterations. The definition of what qualifies as a driver alteration comes from the "Mutation Color" menu in OncoPrint. By default, drivers are defined as mutations, fusions and copy number alterations in <a href="http://oncokb.org">OncoKB</a> or <a href="http://www.cancerhotspots.org">CancerHotspots</a>.
+The `DRIVER` modifier applies to mutations, fusions and copy number alterations. The definition of what qualifies as a driver alteration comes from the "Mutation Color" menu in OncoPrint. By default, drivers are defined as mutations, fusions and copy number alterations in <a href="https://www.oncokb.org">OncoKB</a> or <a href="http://www.cancerhotspots.org">CancerHotspots</a>.
 
 On its own, the `DRIVER` modifier includes driver mutations, fusions and copy number alterations:
 ```

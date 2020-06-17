@@ -46,6 +46,7 @@ from pathlib import Path
 from base64 import urlsafe_b64encode
 import math
 from abc import ABCMeta, abstractmethod
+from urllib.parse import urlparse
 
 # configure relative imports if running as a script; see PEP 366
 # it might passed as empty string by certain tooling to mark a top level module
@@ -73,6 +74,11 @@ DEFINED_CANCER_TYPES = None
 mutation_sample_ids = None
 mutation_file_sample_ids = set()
 fusion_file_sample_ids = set()
+sample_ids_panel_dict = {}
+
+# resource globals
+RESOURCE_DEFINITION_DICTIONARY = {}
+RESOURCE_PATIENTS_WITH_SAMPLES = None
 
 # globals required for gene set scoring validation
 prior_validated_sample_ids = None
@@ -103,7 +109,11 @@ VALIDATOR_IDS = {
     cbioportal_common.MetaFileTypes.GSVA_SCORES:'GsvaScoreValidator',
     cbioportal_common.MetaFileTypes.GSVA_PVALUES:'GsvaPvalueValidator',
     cbioportal_common.MetaFileTypes.GENERIC_ASSAY:'GenericAssayValidator',
-    cbioportal_common.MetaFileTypes.STRUCTURAL_VARIANT:'StructuralVariantValidator'
+    cbioportal_common.MetaFileTypes.STRUCTURAL_VARIANT:'StructuralVariantValidator',
+    cbioportal_common.MetaFileTypes.SAMPLE_RESOURCES:'SampleResourceValidator',
+    cbioportal_common.MetaFileTypes.PATIENT_RESOURCES:'PatientResourceValidator',
+    cbioportal_common.MetaFileTypes.STUDY_RESOURCES:'StudyResourceValidator',
+    cbioportal_common.MetaFileTypes.RESOURCES_DEFINITION:'ResourceDefinitionValidator',
 }
 
 
@@ -197,7 +207,7 @@ class Jinja2HtmlHandler(logging.handlers.BufferingHandler):
 
     def generateHtml(self, **kwargs):
         """Render the HTML page for the current content in self.buffer
-        
+
         **kwargs allows to override logger variables to display.
         """
         # require Jinja2 only if it is actually used
@@ -1302,10 +1312,10 @@ class MutationsExtendedValidator(Validator):
         'ASCN.ASCN_INTEGER_COPY_NUMBER',
         'ASCN.TOTAL_COPY_NUMBER',
         'ASCN.MINOR_COPY_NUMBER',
-        'ASCN.CCF_M_COPIES',
-        'ASCN.CCF_M_COPIES_UPPER',
+        'ASCN.CCF_EXPECTED_COPIES',
+        'ASCN.CCF_EXPECTED_COPIES_UPPER',
         'ASCN.CLONAL',
-        'ASCN.MUTANT_COPIES'
+        'ASCN.EXPECTED_ALT_COPIES'
     ]
 
     # Used for mapping column names to the corresponding function that does a check on the value.
@@ -1421,7 +1431,7 @@ class MutationsExtendedValidator(Validator):
                 if not defined_namespace_found:
                     self.logger.error('%s namespace defined but MAF '
                                       'does not have any matching columns' % (defined_namespace))
-                    num_errors += 1 
+                    num_errors += 1
         return num_errors
 
     def checkLine(self, data):
@@ -1475,15 +1485,21 @@ class MutationsExtendedValidator(Validator):
         if 'Hugo_Symbol' in self.cols:
             hugo_symbol = data[self.cols.index('Hugo_Symbol')].strip()
             # treat the empty string or 'Unknown' as a missing value
-            if hugo_symbol in ('', 'Unknown'):
+            if hugo_symbol in ('NA', '', 'Unknown'):
                 hugo_symbol = None
         if 'Entrez_Gene_Id' in self.cols:
             entrez_id = data[self.cols.index('Entrez_Gene_Id')].strip()
             # treat the empty string or 0 as a missing value
-            if entrez_id in ('', '0'):
+            if entrez_id in ('NA', '', '0'):
                 entrez_id = None
         # validate hugo and entrez together:
-        self.checkGeneIdentification(hugo_symbol, entrez_id)
+        normalized_gene = self.checkGeneIdentification(hugo_symbol, entrez_id)
+
+        # validate the gene to make sure its from the targeted panel
+        if normalized_gene and self.portal.gene_panel_list and data[sample_id_column_index] in sample_ids_panel_dict:
+            panel_id = sample_ids_panel_dict[data[sample_id_column_index]]
+            if panel_id in self.portal.gene_panel_list and panel_id != 'NA':
+                self.checkOffPanelVariant(data, normalized_gene, panel_id, hugo_symbol, entrez_id)
 
         # parse custom driver annotation values to validate them together
         driver_value = None
@@ -1818,6 +1834,23 @@ class MutationsExtendedValidator(Validator):
             # If for LOH (9C) not implemented, because mutation will not be loaded in cBioPortal
 
         return True
+
+    def checkOffPanelVariant(self, data, normalized_gene, panel_id, hugo_symbol, entrez_id):
+        try:
+            normalized_gene = int(normalized_gene)
+        except:
+            pass
+        if normalized_gene not in self.portal.gene_panel_list[panel_id]:
+            if hugo_symbol:
+                self.logger.warning(
+                        'Off panel variant. Gene symbol not known to the targeted panel.',
+                        extra={'line_number': self.line_number,
+                            'cause': hugo_symbol})
+            else:
+                self.logger.warning(
+                        'Off panel variant. Gene symbol is not provided and Entrez gene id not known to the targeted panel.',
+                        extra={'line_number': self.line_number,
+                        'cause': entrez_id})
 
     def printDataInvalidStatement(self, value, col_index):
         """Prints out statement for invalid values detected."""
@@ -2461,10 +2494,10 @@ class ClinicalValidator(Validator):
                 pass
             elif data_type == 'NUMBER':
                 if not self.checkFloat(value):
-                	if (value[0] in ('>','<')) and value[1:].isdigit():
-                		pass
-                	else:
-                		self.logger.error(
+                    if (value[0] in ('>','<')) and value[1:].isdigit():
+                        pass
+                    else:
+                        self.logger.error(
                         'Value of numeric attribute is not a real number',
                         extra={'line_number': self.line_number,
                                'column_number': col_index + 1,
@@ -2646,30 +2679,51 @@ class PatientClinicalValidator(ClinicalValidator):
                                    'column_number': col_index + 1,
                                    'cause': value})
             elif col_name == 'OS_STATUS':
-                if value == 'DECEASED':
+                if value == '1:DECEASED':
                     osstatus_is_deceased = True
                 elif (value.lower() not in self.NULL_VALUES and
-                        value not in ('LIVING', 'DECEASED')):
+                        value not in ('LIVING', 'DECEASED', '0:LIVING', '1:DECEASED')):
                     self.logger.error(
-                            'Value in OS_STATUS column is not LIVING or '
-                            'DECEASED',
+                            'Value in OS_STATUS column is not LIVING, 0:LIVING, DECEASED or'
+                            '1:DECEASED',
                             extra={'line_number': self.line_number,
                                    'column_number': col_index + 1,
                                    'cause': value})
             elif col_name == 'DFS_STATUS':
                 if (value.lower() not in self.NULL_VALUES and
-                        value not in ('DiseaseFree',
+                        value not in ('0:DiseaseFree',
+                                      '1:Recurred/Progressed',
+                                      '1:Recurred',
+                                      '1:Progressed',
+                                      'DiseaseFree',
                                       'Recurred/Progressed',
                                       'Recurred',
                                       'Progressed')):
                     self.logger.error(
-                            'Value in DFS_STATUS column is not DiseaseFree, '
-                            'Recurred/Progressed, Recurred or Progressed',
+                            'Value in DFS_STATUS column is not 0:DiseaseFree, '
+                            '1:Recurred/Progressed, 1:Recurred, 1:Progressed',
+                            'DiseaseFree, Recurred/Progressed, Recurred or Progressed',
                             extra={'line_number': self.line_number,
                                    'column_number': col_index + 1,
                                    'cause': value})
             elif col_name == 'OS_MONTHS':
                 osmonths_value = value
+            # check other survival data
+            elif col_name.endswith('_STATUS'):
+                # get survival attribute prefix
+                survival_prefix = col_name[:len(col_name) - 7]
+                if (survival_prefix + '_MONTHS') in self.cols:
+                    # attribute that has both _months and _status is a survival attribute
+                    # this attribute should have prefix "0:" or "1:", or NULL_VALUES
+                    splited_value = value.lower().split(':')
+                    if len(splited_value) <= 1 or len(splited_value) >= 2 and splited_value[0] not in ('0', '1'):
+                        if value.lower() not in self.NULL_VALUES:
+                            self.logger.error(
+                                    'Value in %s column should be formated like "0:LIVING" (status:lable) ',
+                                    col_name,
+                                    extra={'line_number': self.line_number,
+                                        'column_number': col_index + 1,
+                                        'cause': value})
 
         if osstatus_is_deceased and (
                     osmonths_value is None or
@@ -3226,7 +3280,7 @@ class GenePanelMatrixValidator(Validator):
 
             # If stable id is mutation and value not NA, check whether sample ID is in sequenced case list
             if self.mutation_stable_id_index is not None:
-
+                sample_ids_panel_dict[sample_id] = data[self.mutation_stable_id_index - 1]
                 # Sample ID has been removed from list, so subtract 1 position.
                 if data[self.mutation_stable_id_index - 1] != 'NA':
                     if sample_id not in mutation_sample_ids:
@@ -3490,6 +3544,354 @@ class CancerTypeValidator(Validator):
         finally:
             self.logger.logger.removeHandler(tracking_handler)
 
+class ResourceDefinitionValidator(Validator):
+    # 'RESOURCE_ID', 'RESOURCE_TYPE', 'DISPLAY_NAME' are required
+    REQUIRE_COLUMN_ORDER = False
+    REQUIRED_HEADERS = ['RESOURCE_ID', 'RESOURCE_TYPE', 'DISPLAY_NAME']
+    NULL_VALUES = ["[not applicable]", "[not available]", "[pending]", "[discrepancy]", "[completed]", "[null]", "", "na"]
+    RESOURCE_TYPES = ["SAMPLE", "PATIENT", "STUDY"]
+    ALLOW_BLANKS = True
+
+    def __init__(self, *args, **kwargs):
+        """Initialize a ResourceDefinitionValidator with the given parameters."""
+        super(ResourceDefinitionValidator, self).__init__(*args, **kwargs)
+        self.resource_definition_dictionary = {}
+
+    def checkLine(self, data):
+        """Check the values in a line of data."""
+        super(ResourceDefinitionValidator, self).checkLine(data)
+        resource_id = ''
+        resource_type = ''
+        for col_index, col_name in enumerate(self.cols):
+            # treat cells beyond the end of the line as blanks,
+            # super().checkLine() has already logged an error
+            value = ''
+            if col_index < len(data):
+                value = data[col_index].strip()
+
+            # make sure that RESOURCE_ID is present
+            if col_name == 'RESOURCE_ID':
+                if value.strip().lower() in self.NULL_VALUES:
+                    self.logger.error(
+                        'Missing RESOURCE_ID',
+                        extra={'line_number': self.line_number,
+                               'column_number': col_index + 1,
+                               'cause': value})
+                else:
+                    resource_id = value
+
+            # make sure that RESOURCE_TYPE is present and correct
+            if col_name == 'RESOURCE_TYPE':
+                if value.strip().lower() in self.NULL_VALUES:
+                    self.logger.error(
+                        'Missing RESOURCE_TYPE',
+                        extra={'line_number': self.line_number,
+                               'column_number': col_index + 1,
+                               'cause': value})
+                elif value.strip() not in self.RESOURCE_TYPES:
+                    self.logger.error(
+                        'RESOURCE_TYPE is not one of the following : SAMPLE, PATIENT or STUDY',
+                        extra={'line_number': self.line_number,
+                               'column_number': col_index + 1,
+                               'cause': value})
+                else:
+                    resource_type = value
+
+            # make sure that DISPLAY_NAME is present
+            if col_name == 'DISPLAY_NAME':
+                if value.strip().lower() in self.NULL_VALUES:
+                    self.logger.error(
+                        'Missing DISPLAY_NAME',
+                        extra={'line_number': self.line_number,
+                               'column_number': col_index + 1,
+                               'cause': value})
+
+            # pass for other null columns
+            if value.strip().lower() in self.NULL_VALUES:
+                    pass
+
+            # validate if OPEN_BY_DEFAULT and priority are correct
+            if col_name == 'OPEN_BY_DEFAULT':
+                if not (value.strip().lower() == 'true' or value.strip().lower() == 'false'):
+                    self.logger.error(
+                        'wrong value of OPEN_BY_DEFAULT, should be true or false',
+                        extra={'line_number': self.line_number,
+                               'column_number': col_index + 1,
+                               'cause': value})
+
+            if col_name == 'PRIORITY':
+                try:
+                    int(value.strip())
+                except ValueError:
+                    self.logger.error(
+                        'wrong value of PRIORITY, the value should be integer',
+                        extra={'line_number': self.line_number,
+                               'column_number': col_index + 1,
+                               'cause': value})
+        # add resource_id into dictionary
+        self.resource_definition_dictionary.setdefault(resource_id, []).append(resource_type)
+
+class ResourceValidator(Validator):
+
+    """Abstract Validator class for resource data files.
+
+    Subclasses define the columns that must be present in REQUIRED_HEADERS.
+    """
+
+    REQUIRE_COLUMN_ORDER = False
+    NULL_VALUES = ["[not applicable]", "[not available]", "[pending]", "[discrepancy]", "[completed]", "[null]", "", "na"]
+    ALLOW_BLANKS = True
+
+    INVALID_ID_CHARACTERS = r'[^A-Za-z0-9._-]'
+
+    def __init__(self, *args, **kwargs):
+        """Initialize the instance attributes of the data file validator."""
+        super(ResourceValidator, self).__init__(*args, **kwargs)
+
+    def url_validator(self, url):
+        try:
+            result = urlparse(url)
+            return all([result.scheme, result.netloc])
+        except:
+            return False
+
+    def checkLine(self, data):
+        """Check the values in a line of data."""
+        super(ResourceValidator, self).checkLine(data)
+        for col_index, col_name in enumerate(self.cols):
+            # treat cells beyond the end of the line as blanks,
+            # super().checkLine() has already logged an error
+            value = ''
+            if col_index < len(data):
+                value = data[col_index].strip()
+
+            # make sure that RESOURCE_ID is present
+            if col_name == 'RESOURCE_ID':
+                if value.strip().lower() in self.NULL_VALUES:
+                    self.logger.error(
+                        'Missing RESOURCE_ID',
+                        extra={'line_number': self.line_number,
+                               'column_number': col_index + 1,
+                               'cause': value})
+                # make sure that RESOURCE_ID is defined in the resource definition file
+                if value not in RESOURCE_DEFINITION_DICTIONARY:
+                    self.logger.error(
+                        'RESOURCE_ID is not defined in resource definition file',
+                        extra={'line_number': self.line_number,
+                               'column_number': col_index + 1,
+                               'cause': value})
+            # if not blank, check if values match the datatype
+            if value.strip().lower() in self.NULL_VALUES:
+                pass
+
+            if col_name == 'URL':
+                # value should be a url
+                # Characters that affect netloc parsing under NFKC normalization will raise ValueError
+                if self.url_validator(value.strip()):
+                    pass
+                else:
+                    self.logger.error(
+                        'Value of resource is not an url, url should start with http or https',
+                        extra={'line_number': self.line_number,
+                               'column_number': col_index + 1,
+                               'column_name': col_name,
+                               'cause': value})
+            # make sure that PATIENT_ID is present
+            if col_name == 'PATIENT_ID':
+                if value.strip().lower() in self.NULL_VALUES:
+                    self.logger.error(
+                        'Missing PATIENT_ID',
+                        extra={'line_number': self.line_number,
+                               'column_number': col_index + 1,
+                               'cause': value})
+
+            if col_name == 'PATIENT_ID' or col_name == 'SAMPLE_ID':
+                if re.findall(self.INVALID_ID_CHARACTERS, value):
+                    self.logger.error(
+                        'PATIENT_ID and SAMPLE_ID can only contain letters, '
+                        'numbers, points, underscores and/or hyphens',
+                        extra={'line_number': self.line_number,
+                               'column_number': col_index + 1,
+                               'cause': value})
+
+class SampleResourceValidator(ResourceValidator):
+    """Validator for files defining and setting sample-level attributes."""
+
+    REQUIRED_HEADERS = ['SAMPLE_ID', 'PATIENT_ID', 'RESOURCE_ID', 'URL']
+
+    def __init__(self, *args, **kwargs):
+        """Initialize a SampleResourceValidator with the given parameters."""
+        super(SampleResourceValidator, self).__init__(*args, **kwargs)
+        self.sample_id_lines = {}
+        self.sampleIds = self.sample_id_lines.keys()
+        self.patient_ids = set()
+        self.defined_resources = {}
+
+    def checkLine(self, data):
+        """Check the values in a line of data."""
+        super(SampleResourceValidator, self).checkLine(data)
+        resource_id = ''
+        sample_id = ''
+        resource_url = ''
+        for col_index, col_name in enumerate(self.cols):
+            # treat cells beyond the end of the line as blanks,
+            # super().checkLine() has already logged an error
+            value = ''
+            if col_index < len(data):
+                value = data[col_index].strip()
+            # make sure RESOURCE_ID is defined correctly
+            if col_name == 'RESOURCE_ID':
+                if value not in RESOURCE_DEFINITION_DICTIONARY or 'SAMPLE' not in RESOURCE_DEFINITION_DICTIONARY[value]:
+                    self.logger.error(
+                        'RESOURCE_ID for sample resource is not defined correctly in resource definition file',
+                        extra={'line_number': self.line_number,
+                               'column_number': col_index + 1,
+                               'cause': value})
+                if value in RESOURCE_DEFINITION_DICTIONARY and len(RESOURCE_DEFINITION_DICTIONARY[value]) > 1:
+                    self.logger.warning(
+                        'RESOURCE_ID for sample resource has been used by more than one RESOURCE_TYPE',
+                        extra={'line_number': self.line_number,
+                               'column_number': col_index + 1,
+                               'cause': RESOURCE_DEFINITION_DICTIONARY[value]})
+                resource_id = value
+            if col_name == 'SAMPLE_ID':
+                if value.strip().lower() in self.NULL_VALUES:
+                    self.logger.error(
+                        'Missing SAMPLE_ID',
+                        extra={'line_number': self.line_number,
+                               'column_number': col_index + 1,
+                               'cause': value})
+                    continue
+                if value not in self.sample_id_lines:
+                    self.sample_id_lines[value] = self.line_number
+                sample_id = value
+            elif col_name == 'PATIENT_ID':
+                self.patient_ids.add(value)
+            if col_name == 'URL':
+                resource_url = value
+        # check duplicate
+        if (resource_id, sample_id, resource_url) in self.defined_resources:
+            self.logger.error(
+                'Duplicated resources found',
+                extra={'line_number': self.line_number,
+                        'duplicated_line_number': self.defined_resources[(resource_id, sample_id, resource_url)]})
+        else:
+            self.defined_resources[(resource_id, sample_id, resource_url)] = self.line_number
+
+class PatientResourceValidator(ResourceValidator):
+
+    REQUIRED_HEADERS = ['PATIENT_ID', 'RESOURCE_ID', 'URL']
+
+    def __init__(self, *args, **kwargs):
+        """Initialize a PatientResourceValidator with the given parameters."""
+        super(PatientResourceValidator, self).__init__(*args, **kwargs)
+        self.patient_id_lines = {}
+        self.defined_resources = {}
+
+    def checkLine(self, data):
+        """Check the values in a line of data."""
+        super(PatientResourceValidator, self).checkLine(data)
+        resource_id = ''
+        patient_id = ''
+        resource_url = ''
+        for col_index, col_name in enumerate(self.cols):
+            # treat cells beyond the end of the line as blanks,
+            # super().checkLine() has already logged an error
+            value = ''
+            if col_index < len(data):
+                value = data[col_index].strip()
+            # make sure RESOURCE_ID is defined correctly
+            if col_name == 'RESOURCE_ID':
+                if value not in RESOURCE_DEFINITION_DICTIONARY or 'PATIENT' not in RESOURCE_DEFINITION_DICTIONARY[value]:
+                    self.logger.error(
+                        'RESOURCE_ID for patient resource is not defined correctly in resource definition file',
+                        extra={'line_number': self.line_number,
+                               'column_number': col_index + 1,
+                               'cause': value})
+                if value in RESOURCE_DEFINITION_DICTIONARY and len(RESOURCE_DEFINITION_DICTIONARY[value]) > 1:
+                    self.logger.warning(
+                        'RESOURCE_ID for patient resource has been used by more than one RESOURCE_TYPE',
+                        extra={'line_number': self.line_number,
+                               'column_number': col_index + 1,
+                               'cause': RESOURCE_DEFINITION_DICTIONARY[value]})
+                resource_id = value
+            if col_name == 'PATIENT_ID':
+                if value not in RESOURCE_PATIENTS_WITH_SAMPLES:
+                    self.logger.warning(
+                        'Resource data defined for a patient with '
+                        'no samples',
+                        extra={'line_number': self.line_number,
+                                'column_number': col_index + 1,
+                                'cause': value})
+                if value not in self.patient_id_lines:
+                    self.patient_id_lines[value] = self.line_number
+                patient_id = value
+            if col_name == 'URL':
+                resource_url = value
+        # check duplicate
+        if (resource_id, patient_id, resource_url) in self.defined_resources:
+            self.logger.error(
+                'Duplicated resources found',
+                extra={'line_number': self.line_number,
+                        'duplicated_line_number': self.defined_resources[(resource_id, patient_id, resource_url)]})
+        else:
+            self.defined_resources[(resource_id, patient_id, resource_url)] = self.line_number
+
+    def onComplete(self):
+        """Perform final validations based on the data parsed."""
+        for patient_id in RESOURCE_PATIENTS_WITH_SAMPLES:
+            if patient_id not in self.patient_id_lines:
+                self.logger.warning(
+                    'Missing resource data for a patient associated with '
+                    'samples',
+                    extra={'cause': patient_id})
+        super(PatientResourceValidator, self).onComplete()
+
+class StudyResourceValidator(ResourceValidator):
+
+    REQUIRED_HEADERS = ['RESOURCE_ID', 'URL']
+
+    def __init__(self, *args, **kwargs):
+        """Initialize a StudyResourceValidator with the given parameters."""
+        super(StudyResourceValidator, self).__init__(*args, **kwargs)
+        self.defined_resources = {}
+
+    def checkLine(self, data):
+        """Check the values in a line of data."""
+        super(StudyResourceValidator, self).checkLine(data)
+        resource_id = ''
+        resource_url = ''
+        for col_index, col_name in enumerate(self.cols):
+            # treat cells beyond the end of the line as blanks,
+            # super().checkLine() has already logged an error
+            value = ''
+            if col_index < len(data):
+                value = data[col_index].strip()
+            # make sure RESOURCE_ID is defined correctly
+            if col_name == 'RESOURCE_ID':
+                if value not in RESOURCE_DEFINITION_DICTIONARY or 'STUDY' not in RESOURCE_DEFINITION_DICTIONARY[value]:
+                    self.logger.error(
+                        'RESOURCE_ID for study resource is not defined correctly in resource definition file',
+                        extra={'line_number': self.line_number,
+                               'column_number': col_index + 1,
+                               'cause': value})
+                if value in RESOURCE_DEFINITION_DICTIONARY and len(RESOURCE_DEFINITION_DICTIONARY[value]) > 1:
+                    self.logger.warning(
+                        'RESOURCE_ID for study resource has been used by more than one RESOURCE_TYPE',
+                        extra={'line_number': self.line_number,
+                               'column_number': col_index + 1,
+                               'cause': RESOURCE_DEFINITION_DICTIONARY[value]})
+            resource_id = value
+            if col_name == 'URL':
+                resource_url = value
+        # check duplicate
+        if (resource_id, resource_url) in self.defined_resources:
+            self.logger.error(
+                'Duplicated resources found',
+                extra={'line_number': self.line_number,
+                        'duplicated_line_number': self.defined_resources[(resource_id, resource_url)]})
+        else:
+            self.defined_resources[(resource_id, resource_url)] = self.line_number
 
 class GisticGenesValidator(Validator):
 
@@ -3998,7 +4400,7 @@ class GenericAssayValidator(GenericAssayWiseFileValidator):
         # prior to evaluation of the numeric value
         hasTruncSymbol = re.match("^[><]", stripped_value)
         stripped_value = re.sub(r"^[><]\s*","", stripped_value)
-        
+
         try:
             numeric_value = float(stripped_value)
         except ValueError:
@@ -4027,7 +4429,7 @@ class GenericAssayValidator(GenericAssayWiseFileValidator):
                 extra={'line_number': self.line_number,
                 'column_number': col_index + 1,
                 'cause': value})
-                
+
         return
 
 # ------------------------------------------------------------------------------
@@ -4082,7 +4484,7 @@ def process_metadata_files(directory, portal_instance, logger, relaxed_mode, str
             continue
 
         # check if geneset version is the same in database
-        if 'geneset_def_version' in meta_dictionary:
+        if portal_instance.geneset_version is not None and 'geneset_def_version' in meta_dictionary:
             geneset_def_version = meta_dictionary['geneset_def_version'].strip()
             if (geneset_def_version != portal_instance.geneset_version):
                 logger.error(
@@ -4387,7 +4789,7 @@ def validate_defined_caselists(cancer_study_id, case_list_ids, file_types, logge
 def validateStudyTags(tags_file_path, logger):
         """Validate the study tags file."""
         logger.debug('Starting validation of study tags file',
-        	extra={'filename_': tags_file_path})
+            extra={'filename_': tags_file_path})
         with open(tags_file_path, 'r') as stream:
             try:
                 parsedYaml = yaml.load(stream)
@@ -4504,6 +4906,19 @@ def request_from_portal_api(server_url, api_name, logger):
         raise ConnectionError(
             'Failed to fetch metadata from the portal at [{}]'.format(service_url)
         ) from e
+
+    if api_name == 'gene-panels':
+        gene_panels = []
+        for data_item in response.json():
+            panel = {}
+            gene_panel_id = data_item['genePanelId']
+            gene_panel_url = service_url.strip("?pageSize=9999999")+'/'+gene_panel_id+"?pageSize=9999999"
+            response = requests.get(gene_panel_url).json()
+            panel['description'] = response['description']
+            panel['genes'] = response['genes']
+            panel['genePanelId'] = response['genePanelId']
+            gene_panels.append(panel)
+        return(gene_panels)
     return response.json()
 
 
@@ -4591,6 +5006,15 @@ def extract_ids(json_data, id_key):
         result_set.add(data_item[id_key])
     return list(result_set)
 
+def extract_panels(json_data, id_key):
+    gene_panel_list = {}
+    for data_item in json_data:
+        gene_list = []
+        for entrez_id in data_item['genes']:
+            gene_list.append(entrez_id['entrezGeneId'])
+        gene_panel_list[data_item[id_key]] = gene_list
+    return gene_panel_list
+
 # there is no dump function implemented for the /info API. Unable to retrieve version.
 def load_portal_metadata(json_data):
     return json_data
@@ -4619,7 +5043,7 @@ def load_portal_info(path, logger, offline=False):
             ('genesets_version',
                 lambda json_data: str(json_data).strip(' \'[]')),
             ('gene-panels',
-                lambda json_data: extract_ids(json_data, 'genePanelId'))):
+                lambda json_data: extract_panels(json_data, 'genePanelId'))):
         if offline:
             parsed_json = read_portal_json_file(path, api_name, logger)
         else:
@@ -4627,7 +5051,7 @@ def load_portal_info(path, logger, offline=False):
         if parsed_json is not None and transform_function is not None:
             parsed_json = transform_function(parsed_json)
         portal_dict[api_name] = parsed_json
-    
+
     if all(d is None for d in list(portal_dict.values())):
         raise LookupError('No portal information found at {}'.format(path))
     return PortalInstance(portal_info_dict=portal_dict['info'],
@@ -4712,6 +5136,8 @@ def validate_study(study_dir, portal_instance, logger, relaxed_mode, strict_maf_
     global DEFINED_SAMPLE_IDS
     global DEFINED_SAMPLE_ATTRIBUTES
     global PATIENTS_WITH_SAMPLES
+    global RESOURCE_DEFINITION_DICTIONARY
+    global RESOURCE_PATIENTS_WITH_SAMPLES
 
     if portal_instance.cancer_type_dict is None:
         logger.warning('Skipping validations relating to cancer types '
@@ -4720,7 +5146,8 @@ def validate_study(study_dir, portal_instance, logger, relaxed_mode, strict_maf_
             portal_instance.alias_entrez_map is None):
         logger.warning('Skipping validations relating to gene identifiers and '
                        'aliases defined in the portal')
-    if portal_instance.gene_set_list is None:
+    if (portal_instance.gene_set_list is None or
+            portal_instance.geneset_version is None):
         logger.warning('Skipping validations relating to gene set identifiers')
     if portal_instance.gene_panel_list is None:
         logger.warning('Skipping validations relating to gene panel identifiers')
@@ -4807,26 +5234,64 @@ def validate_study(study_dir, portal_instance, logger, relaxed_mode, strict_maf_
                 validators_by_meta_type[
                     cbioportal_common.MetaFileTypes.PATIENT_ATTRIBUTES])})
 
+    # validate resources definition before validate the other resources data
+    if cbioportal_common.MetaFileTypes.RESOURCES_DEFINITION in validators_by_meta_type:
+        if len(validators_by_meta_type[
+                cbioportal_common.MetaFileTypes.RESOURCES_DEFINITION]) > 1:
+            logger.error(
+                'Multiple resource definition files detected',
+                extra={'cause': ', '.join(
+                    validator.filenameShort for validator in
+                    validators_by_meta_type[
+                        cbioportal_common.MetaFileTypes.RESOURCES_DEFINITION])})
+        for resources_definition_validator in validators_by_meta_type[
+            cbioportal_common.MetaFileTypes.RESOURCES_DEFINITION]:
+            resources_definition_validator.validate()
+        RESOURCE_DEFINITION_DICTIONARY = resources_definition_validator.resource_definition_dictionary
+
+    # then validate the resource data if exist
+    if cbioportal_common.MetaFileTypes.SAMPLE_RESOURCES in validators_by_meta_type:
+        if len(validators_by_meta_type[
+                cbioportal_common.MetaFileTypes.SAMPLE_RESOURCES]) > 1:
+            logger.error(
+                'Multiple sample resources files detected',
+                extra={'cause': ', '.join(
+                    validator.filenameShort for validator in
+                    validators_by_meta_type[
+                        cbioportal_common.MetaFileTypes.SAMPLE_RESOURCES])})
+
+        # parse the data file(s) that define sample IDs valid for this study
+        defined_resource_sample_ids = None
+        for sample_validator in validators_by_meta_type[
+                cbioportal_common.MetaFileTypes.SAMPLE_RESOURCES]:
+            sample_validator.validate()
+            if sample_validator.fileCouldBeParsed:
+                if defined_resource_sample_ids is None:
+                    defined_resource_sample_ids = set()
+                # include parsed sample IDs in the set (union)
+                defined_resource_sample_ids |= sample_validator.sampleIds
+        # this will be set if a file was successfully parsed
+        if defined_resource_sample_ids is None:
+            logger.error("Sample file could not be parsed. Please fix "
+                            "the problems found there first before continuing.")
+            if not relaxed_mode:
+                return
+        RESOURCE_PATIENTS_WITH_SAMPLES = sample_validator.patient_ids
+
+    if cbioportal_common.MetaFileTypes.PATIENT_RESOURCES in validators_by_meta_type:
+        if len(validators_by_meta_type.get(
+                cbioportal_common.MetaFileTypes.PATIENT_RESOURCES,
+                [])) > 1:
+            logger.error(
+                'Multiple patient resources files detected',
+                extra={'cause': ', '.join(
+                    validator.filenameShort for validator in
+                    validators_by_meta_type[
+                        cbioportal_common.MetaFileTypes.PATIENT_RESOURCES])})
+
     # then validate the study tags YAML file if it exists
     if tags_file_path is not None:
         validateStudyTags(tags_file_path, logger=logger)
-    # next validate all other data files
-    for meta_file_type in sorted(validators_by_meta_type):
-        # skip cancer type and clinical files, they have already been validated
-        if meta_file_type in (cbioportal_common.MetaFileTypes.CANCER_TYPE,
-                              cbioportal_common.MetaFileTypes.SAMPLE_ATTRIBUTES,
-                              cbioportal_common.MetaFileTypes.GENE_PANEL_MATRIX):
-            continue
-        for validator in sorted(
-                validators_by_meta_type[meta_file_type],
-                key=lambda validator: validator and validator.filename):
-            # if there was no validator for this meta file
-            if validator is None:
-                continue
-            validator.validate()
-
-    # additional validation between meta files, after all meta files are processed
-    validate_data_relations(validators_by_meta_type, logger)
 
     # validate the case list directory if present
     case_list_dirname = os.path.join(study_dir, 'case_lists')
@@ -4850,6 +5315,26 @@ def validate_study(study_dir, portal_instance, logger, relaxed_mode, strict_maf_
         else:
             # pass stable_ids to data file
             validators_by_meta_type[cbioportal_common.MetaFileTypes.GENE_PANEL_MATRIX][0].validate()
+
+    # next validate all other data files
+    for meta_file_type in sorted(validators_by_meta_type):
+        # skip cancer type and clinical files, they have already been validated
+        if meta_file_type in (cbioportal_common.MetaFileTypes.CANCER_TYPE,
+                              cbioportal_common.MetaFileTypes.SAMPLE_ATTRIBUTES,
+                              cbioportal_common.MetaFileTypes.RESOURCES_DEFINITION,
+                              cbioportal_common.MetaFileTypes.SAMPLE_RESOURCES,
+                              cbioportal_common.MetaFileTypes.GENE_PANEL_MATRIX):
+            continue
+        for validator in sorted(
+                validators_by_meta_type[meta_file_type],
+                key=lambda validator: validator and validator.filename):
+            # if there was no validator for this meta file
+            if validator is None:
+                continue
+            validator.validate()
+
+    # additional validation between meta files, after all meta files are processed
+    validate_data_relations(validators_by_meta_type, logger)
 
     logger.info('Validation complete')
 

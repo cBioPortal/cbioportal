@@ -40,6 +40,7 @@
             "oncoprint.oncokb.default",
             "oncoprint.hotspots.default",
             "genomenexus.url",
+            "genomenexus.url.grch38",
             "google_analytics_profile_id",
             "analytics_report_url",
             "oncoprint.hide_vus.default",
@@ -58,6 +59,7 @@
             "show.oncokb",
             "show.civic",
             "show.genomenexus",
+            "show.mutation_mappert_tool.grch38",
             "skin.documentation.about",
             "skin.documentation.baseurl",
             "skin.example_study_queries",
@@ -108,7 +110,9 @@
             "ensembl.transcript_url",
             "enable_persistent_cache",
             "query_product_limit",
-            "skin.show_gsva"
+            "skin.show_gsva",
+            "saml.logout.local",
+            "skin.citation_rule_text"
         }; 
     
    

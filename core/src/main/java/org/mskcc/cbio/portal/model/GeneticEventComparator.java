@@ -83,25 +83,25 @@ public class GeneticEventComparator implements Comparator<Object>{
       // all CNAs
       for (CNA aCNA : CNA.values()){
          //System.out.println( aCNA + ": " + val );
-         cnaSortOrderHash.put(aCNA, new Integer( val++ ) );
+         cnaSortOrderHash.put(aCNA, Integer.valueOf( val++ ) );
       }
 
       // all MRNAs
       val = 1;
       for (MRNA aMRNA : MRNA.values()){
-         mrnaSortOrderHash.put(aMRNA, new Integer( val++ ) );
+         mrnaSortOrderHash.put(aMRNA, Integer.valueOf( val++ ) );
       }
 
       // all RPPAs
       val = 1;
       for (RPPA aRPPA : RPPA.values()){
-         rppaSortOrderHash.put(aRPPA, new Integer( val++ ) );
+         rppaSortOrderHash.put(aRPPA, Integer.valueOf( val++ ) );
       }
       
       // all mutations
       val = 1;
       for (mutations aMutations : mutations.values()){
-         mutationsSortOrderHash.put(aMutations, new Integer( val++ ) );
+         mutationsSortOrderHash.put(aMutations, Integer.valueOf( val++ ) );
       }
    }
    
@@ -148,7 +148,7 @@ public class GeneticEventComparator implements Comparator<Object>{
       int val = 1;
       for( EnumSet<CNA> aCNAset: cnaSortOrder){
          for( CNA aCNA : aCNAset){
-            cnaSortOrderHash.put(aCNA, new Integer(val) );
+            cnaSortOrderHash.put(aCNA, Integer.valueOf(val) );
             //System.out.println( aCNA + ": " + val );
          }
          val++;
@@ -165,7 +165,7 @@ public class GeneticEventComparator implements Comparator<Object>{
       val = 1;
       for( EnumSet<MRNA> aMRNAset: mRnaSortOrder){
          for( MRNA aMRNA : aMRNAset){
-            mrnaSortOrderHash.put(aMRNA, new Integer(val) );
+            mrnaSortOrderHash.put(aMRNA, Integer.valueOf(val) );
             //System.out.println( aMRNA + ": " + val );
          }
          val++;
@@ -181,7 +181,7 @@ public class GeneticEventComparator implements Comparator<Object>{
       val = 1;
       for( EnumSet<RPPA> aRPPAset: rppaSortOrder){
          for( RPPA aRPPA : aRPPAset){
-            rppaSortOrderHash.put(aRPPA, new Integer(val) );
+            rppaSortOrderHash.put(aRPPA, Integer.valueOf(val) );
             //System.out.println( aMRNA + ": " + val );
          }
          val++;
@@ -197,7 +197,7 @@ public class GeneticEventComparator implements Comparator<Object>{
       val = 1;
       for( EnumSet<mutations> aMutationsSet: mutationsSortOrder){
          for( mutations aMutations : aMutationsSet){
-            mutationsSortOrderHash.put( aMutations, new Integer(val) );
+            mutationsSortOrderHash.put( aMutations, Integer.valueOf(val) );
             //System.out.println( aMutations + ": " + val );
          }
          val++;

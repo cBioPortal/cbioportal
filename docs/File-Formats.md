@@ -19,6 +19,7 @@
     * [Gene Set Data](#gene-set-data)
     * [Study Tags file](#study-tags-file)
     * [Generic Assay](#generic-assay)
+    * [Resource Data](#resource-data)
 
 # Introduction
 
@@ -176,13 +177,13 @@ The file containing the patient attributes has one **required** column:
 
 The following columns are used by the study view as well as the patient view. In the [study view](https://www.cbioportal.org/study?id=brca_tcga) they are used to create the survival plots. In the patient view they are used to add information to the [header](https://www.cbioportal.org/patient?studyId=lgg_ucsf_2014&caseId=P05). 
 - **OS_STATUS**:  Overall patient survival status
-    - Possible values: DECEASED, LIVING
-    - In the patient view, LIVING creates a green label, DECEASED a red label.
-    - In visualisation of [Timeline data](#timeline-data), DECEASED will result in a new event of type STATUS
+    - Possible values: 1:DECEASED, 0:LIVING
+    - In the patient view, 0:LIVING creates a green label, 1:DECEASED a red label.
+    - In visualisation of [Timeline data](#timeline-data), 1:DECEASED will result in a new event of type STATUS
 - **OS_MONTHS**:  Overall survival in months since initial diagnosis
 - **DFS_STATUS**: Disease free status since initial treatment
-    - Possible values: DiseaseFree, Recurred/Progressed
-    - In the patient view, DiseaseFree creates a green label, Recurred/Progressed a red label.
+    - Possible values: 0:DiseaseFree, 1:Recurred/Progressed
+    - In the patient view, 0:DiseaseFree creates a green label, 1:Recurred/Progressed a red label.
 - **DFS_MONTHS**: Disease free (months) since initial treatment
 
 These columns, when provided, add additional information to the patient description in the header:
@@ -201,8 +202,8 @@ Custom attributes:
 #STRING<TAB>STRING<TAB>NUMBER<TAB>STRING<TAB>NUMBER<TAB>...
 #1<TAB>1<TAB>1<TAB>1<TAB>1<TAB>
 PATIENT_ID<TAB>OS_STATUS<TAB>OS_MONTHS<TAB>DFS_STATUS<TAB>DFS_MONTHS<TAB>...
-PATIENT_ID_1<TAB>DECEASED<TAB>17.97<TAB>Recurred/Progressed<TAB>30.98<TAB>...
-PATIENT_ID_2<TAB>LIVING<TAB>63.01<TAB>DiseaseFree<TAB>63.01<TAB>...
+PATIENT_ID_1<TAB>1:DECEASED<TAB>17.97<TAB>1:Recurred/Progressed<TAB>30.98<TAB>...
+PATIENT_ID_2<TAB>0:LIVING<TAB>63.01<TAB>0:DiseaseFree<TAB>63.01<TAB>...
 ...
 ```
 
@@ -675,6 +676,36 @@ The `cbp_driver` column flags the mutation as either driver or passenger. In cBi
 
 You can learn more about configuring these annotations in the [portal.properties documentation](portal.properties-Reference.md#custom-annotation). When properly configured, the customized annotations appear in the "Mutation Color" menu of the OncoPrint view: \
 ![schreenshot mutation color menu](images/screenshot-mutation-color-menu.png) 
+
+### Adding your own mutation annotation columns
+Adding additional mutation annotation columns to the extended MAF rows can also be done. In this way, the portal will parse and store your own MAF fields in the database. For example, mutation data that you find on cBioPortal.org comes from MAF files that have been further enriched with information from [mutationassessor.org](http://mutationassessor.org/), which leads to a "Mutation Assessor" column in the [mutation table](https://www.cbioportal.org/index.do?cancer_study_list=acc_tcga&cancer_study_id=acc_tcga&genetic_profile_ids_PROFILE_MUTATION_EXTENDED=acc_tcga_mutations&Z_SCORE_THRESHOLD=2.0&RPPA_SCORE_THRESHOLD=2.0&data_priority=0&case_set_id=acc_tcga_sequenced&case_ids=&patient_case_select=sample&gene_set_choice=user-defined-list&gene_list=ZFPM1&clinical_param_selection=null&tab_index=tab_visualize&Action=Submit).
+
+### Adding mutation annotation columns through namespaces
+Additional columns may also be added into the MAF and imported through the namespace mechanism. Any columns starting with a prefix specified in the `namespaces` field in the metafile will be imported into the database. Namespace columns should be formatted as the namespace and namespace attribute seperated with a period (e.g ASCN.total_copy_number where ASCN is the namespace and total_copy_number is the attribute). 
+
+An example MAF with the following **additional** columns:
+```
+ASCN.total_copy_number    ASCN.clonal     MUTATION.name    MUTATION.type
+```
+imported with the following `namepsaces` field in the metafile:
+```
+namespaces: ascn
+```
+will import the `ASCN.total_copy_number` and `ASCN.clonal` column into the database. `MUTATION.name` and `MUTATION.type` will be ignored because `mutation` is not specified in the `namespaces` field. 
+
+### Allele specific copy number (ASCN) annotations
+Allele specific copy number (ASCN) annotation is also supported and may be added using namespaces, described [here](#adding-mutation-annotation-columns-through-namespaces). If ASCN data is present in the MAF, the deployed cBioPortal instance will display additional columns in the mutation table showing ASCN data.
+
+**The ASCN columns below are optional by default. If `ascn` is a defined namespace in `meta_mutations_extended.txt`, then these columns are ALL required.**
+
+42. **ASCN.ASCN_METHOD (Optional)**: Method used to obtain ASCN data e.g "FACETS".
+43. **ASCN.CCF_EXPECTED_COPIES (Optional)**: Cancer-cell fraction if mutation exists on major allele. 
+44. **ASCN.CCF_EXPECTED_COPIES_UPPER (Optional)**: Upper error for CCF estimate.
+45. **ASCN.EXPECTED_ALT_COPIES (Optional)**: Estimated number of copies harboring mutant allele.
+46. **ASCN.CLONAL (Optional)**: "Clonal", "Subclonal", or "Indeterminate". 
+47. **ASCN.TOTAL_COPY_NUMBER (Optional)**: Total copy number of the gene.
+48. **ASCN.MINOR_COPY_NUMBER (Optional)**: Copy number of the minor allele.
+49. **ASCN.ASCN_INTEGER_COPY_NUMER (Optional)**: Absolute integer copy-number estimate.
 
 ### Example MAF
 An example MAF can be found in the cBioPortal test study [study_es_0](https://github.com/cBioPortal/cbioportal/blob/master/core/src/test/scripts/test_data/study_es_0/data_mutations_extended.maf).
@@ -1331,4 +1362,91 @@ Example with 3 generic entities and 3 samples:
 <tr><td>17-AAG</td><td>Tanespimycin</td><td>Hsp90 inhibitor</td><td>https://en.wikipedia.org/wiki/Tanespimycin</td><td>0.228</td><td>0.330</td><td>0.0530</td></tr>
 <tr><td>AEW541</td><td>Larotrectinib</td><td>TrkA/B/C inhibitor</td><td>https://en.wikipedia.org/wiki/Larotrectinib</td><td>>8</td><td>2.33</td><td>2.68</td></tr>
 <tr><td>AZD0530</td><td>Saracatinib</td><td>Src/Bcr-Abl inhibitor</td><td>https://en.wikipedia.org/wiki/Saracatinib</td><td>NA</td><td>>8</td><td>4.60</td></tr>
+</table>
+
+## Resource Data
+
+The resource data is used to capture resource data in patients, samples and studies. The resources will be represented by URLs with meta data. The types of resources include:
+- Files: pdf, txt, png, json, etc.
+- Web links: non-file links e.g. URLs to other systems
+
+the resource file is split into a resource definition file, sample resource file, patient resource file and study resource file. All data files are required to have a matching meta file.
+
+### Meta files
+The resource metadata files have to contain the following fields:
+
+1. **cancer_study_identifier**: same value specified in meta_study.txt
+2. **resource_type**: value from (DEFINITION / SAMPLE / PATIENT / STUDY)
+3. **data_filename**: your datafile
+
+### Examples
+An example metadata file, e.g. named meta_resource_definition.txt, would be:
+```
+cancer_study_identifier: brca_tcga_pub
+resource_type: DEFINITION
+data_filename: data_resource_definition.txt
+```
+
+An example metadata file, e.g. named meta_resource_sample.txt, would be:
+```
+cancer_study_identifier: brca_tcga_pub
+resource_type: SAMPLE
+data_filename: data_resource_sample.txt
+```
+
+### Data files
+
+### Resource Definition Data File
+The resource definition file should follow this format, it has three **required** columns:
+- **RESOURCE_ID (required)**: a unique resource ID. This field allows only numbers, letters, points, underscores and hyphens.
+- **DISPLAY_NAME (required)**: a display name for resources.
+- **RESOURCE_TYPE (required)**: resource type for resources, must be SAMPLE, PATIENT or STUDY.
+- **DESCRIPTION (optional)**: a discription for resources.
+- **OPEN_BY_DEFAULT (optional)**: define if the resource will be open by default (`true` / `false`), dafault is `false`.
+- **PRIORITY (optional)**: if not given, will give a default value.
+
+### Example *Resource Definition* data file
+<table>
+<thead><tr><th>RESOURCE_ID</th><th>DISPLAY_NAME</th><th>RESOURCE_TYPE</th><th>DESCRIPTION</th><th>OPEN_BY_DEFAULT</th><th>PRIORITY</th></tr></thead>
+<tr><td>PATHOLOGY_SLIDE</td><td>Pathology Slide</td><td>SAMPLE</td><td>The pathology slide for the sample</td><td>TRUE</td><td>1</td></tr>
+<tr><td>PATIENT_NOTES</td><td>Patient Notes</td><td>PATIENT</td><td>Notes about the patient</td><td>FALSE</td><td>2</td></tr>
+<tr><td>STUDY_SPONSORS</td><td>Study Sponsors</td><td>STUDY</td><td>Sponsors of this study</td><td>TRUE</td><td>3</td></tr>
+</table>
+
+### Sample Resource Data File
+The sample resource file should follow this format, it has four **required** columns:
+- **PATIENT_ID (required)**: a unique patient ID. This field allows only numbers, letters, points, underscores and hyphens.
+- **SAMPLE_ID (required)**: a unique sample ID. This field allows only numbers, letters, points, underscores and hyphens.
+- **RESOURCE_ID (required)**: a unique resource ID which should also be included in the `Resource Definition data file`.
+- **URL (required)**: url to the resources, start with `http` or `https`.
+
+### Example *Sample Resource* data file
+<table>
+<thead><tr><th>PATIENT_ID</th><th>SAMPLE_ID</th><th>RESOURCE_ID</th><th>URL</th></tr></thead>
+<tr><td>TCGA-A2-A04P</td><td>TCGA-A2-A04P-01</td><td>PATHOLOGY_SLIDE</td><td>http://url-to-slide-sample1</td></tr>
+<tr><td>TCGA-A1-A0SK</td><td>TCGA-A1-A0SK-01</td><td>PATHOLOGY_SLIDE</td><td>http://url-to-slide-sample2</td></tr>
+</table>
+
+### Patient Resource Data File
+The patient resource file should follow this format, it has three **required** columns:
+- **PATIENT_ID (required)**: a unique patient ID. This field allows only numbers, letters, points, underscores and hyphens.
+- **RESOURCE_ID (required)**: a unique resource ID which should also be included in the `Resource Definition data file`.
+- **URL (required)**: url to the resources, start with `http` or `https`.
+
+### Example *Patient Resource* data file
+<table>
+<thead><tr><th>PATIENT_ID</th><th>RESOURCE_ID</th><th>URL</th></tr></thead>
+<tr><td>TCGA-A2-A04P</td><td>PATIENT_NOTES</td><td>http://url-to-slide-patient1</td></tr>
+<tr><td>TCGA-A1-A0SK</td><td>PATIENT_NOTES</td><td>http://url-to-slide-patient2</td></tr>
+</table>
+
+### Study Resource Data File
+The study resource file should follow this format, it has two **required** columns:
+- **RESOURCE_ID (required)**: a unique resource ID which should also be included in the `Resource Definition data file`.
+- **URL (required)**: url to the resources, start with `http` or `https`.
+
+### Example *Study Resource* data file
+<table>
+<thead><tr><th>RESOURCE_ID</th><th>URL</th></tr></thead>
+<tr><td>STUDY_SPONSORS</td><td>http://url-to-study-sponsors</td></tr>
 </table>

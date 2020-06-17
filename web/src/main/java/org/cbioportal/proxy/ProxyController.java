@@ -13,20 +13,21 @@ import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.client.RestTemplate;
 
 import javax.servlet.http.HttpServletRequest;
+
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.IOException;
+import java.io.InputStream;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.nio.charset.StandardCharsets;
+import java.util.Properties;
 
 @RestController
 public class ProxyController {
-    private static final String DEFAULT_ONCOKB_URL = "https://www.oncokb.org/api/v1";
-    
-    @Value("${show.oncokb:true}")
-    private Boolean showOncokb;
-    @Value("${oncokb.token:}")
-    private String oncokbToken;
-    @Value("${oncokb.public_api.url:}")
-    private String oncokbApiUrl;
+    private static final String DEFAULT_ONCOKB_URL = "https://public.api.oncokb.org/api/v1";
+    private Properties properties;
 
     private Logger LOG = LoggerFactory.getLogger(ProxyController.class);
 
@@ -46,19 +47,21 @@ public class ProxyController {
     @RequestMapping("/oncokb/**")
     public String proxyOncokb(@RequestBody(required = false) String body, HttpMethod method, HttpServletRequest request)
         throws URISyntaxException {
-        if (!this.showOncokb) {
+        // load portal.properties
+        this.properties = loadProperties(getResourceStream("portal.properties"));
+        Boolean showOncokb = Boolean.parseBoolean(getProperty("show.oncokb", "true"));
+        String oncokbToken = getProperty("oncokb.token", "");
+        String oncokbApiUrl = getProperty("oncokb.public_api.url", DEFAULT_ONCOKB_URL);
+
+        if (!showOncokb) {
             throw new OncoKBServiceIsDisabledException();
-        } else if (StringUtils.isEmpty(oncokbToken)) {
-            throw new NOOncoKBTokenProvidedException();
         }
 
         HttpHeaders httpHeaders = initHeaders(request);
         
-        if (!StringUtils.isEmpty(this.oncokbToken)) {
-            httpHeaders.add("Authorization", "Bearer " + this.oncokbToken);
+        if (!StringUtils.isEmpty(oncokbToken)) {
+            httpHeaders.add("Authorization", "Bearer " + oncokbToken);
         }
-
-        String oncokbApiUrl = StringUtils.isEmpty(this.oncokbApiUrl) ? DEFAULT_ONCOKB_URL: this.oncokbApiUrl;
         
         return exchangeData(body, 
             buildUri(oncokbApiUrl + request.getPathInfo().replaceFirst("/oncokb", ""), request.getQueryString()), 
@@ -90,6 +93,48 @@ public class ProxyController {
         RestTemplate restTemplate = new RestTemplate();
         restTemplate.getMessageConverters().add(0, new StringHttpMessageConverter(StandardCharsets.UTF_8));
         return restTemplate.exchange(uri, method, new HttpEntity<>(body, httpHeaders), responseType);
+    }
+
+    private String getProperty(String key, String defaultValue) {
+        String propertyValue = this.properties.getProperty(key, defaultValue);
+        return System.getProperty(key, propertyValue);
+    }
+
+    private InputStream getResourceStream(String propertiesFileName)
+    {
+        String resourceFilename = null;
+        InputStream resourceFIS = null;
+
+        try {
+            String home = System.getenv("PORTAL_HOME");
+            if (home != null) {
+                resourceFilename =
+                    home + File.separator + propertiesFileName;
+                resourceFIS = new FileInputStream(resourceFilename);
+            }
+        } catch (FileNotFoundException e) {
+        }
+
+        if (resourceFIS == null) {
+            resourceFIS = this.getClass().getClassLoader().
+                getResourceAsStream(propertiesFileName);
+        }
+
+        return resourceFIS;
+    }
+    private Properties loadProperties(InputStream resourceInputStream)
+    {
+        Properties properties = new Properties();
+
+        try {
+            properties.load(resourceInputStream);
+            resourceInputStream.close();
+        }
+        catch (IOException e) {
+            System.out.println("Error loading properties file: " + e.getMessage());
+        }
+
+        return properties;
     }
 
     @ResponseStatus(code = HttpStatus.NOT_FOUND, reason = "OncoKB service is disabled")

@@ -21,7 +21,7 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.Spy;
-import org.mockito.runners.MockitoJUnitRunner;
+import org.mockito.junit.MockitoJUnitRunner;
 
 @RunWith(MockitoJUnitRunner.class)
 public class ClinicalDataEnrichmentUtilTest {
@@ -146,8 +146,8 @@ public class ClinicalDataEnrichmentUtilTest {
         group1patientClinicalDataCountItem
                 .setCounts(Arrays.asList(patientClinicalDataCount1, patientClinicalDataCount2));
 
-        Mockito.when(clinicalDataService.fetchClinicalDataCounts(Mockito.anyListOf(String.class),
-                Mockito.anyListOf(String.class), Mockito.anyListOf(String.class)))
+        Mockito.when(clinicalDataService.fetchClinicalDataCounts(Mockito.anyList(),
+                Mockito.anyList(), Mockito.anyList()))
                 .thenReturn(new ArrayList<ClinicalDataCountItem>());
 
         // when there is no data
@@ -288,8 +288,8 @@ public class ClinicalDataEnrichmentUtilTest {
         patientClinicalData2.setStudyId(STUDY_ID1);
 
         Mockito.when(
-                clinicalDataService.fetchClinicalData(Mockito.anyListOf(String.class), Mockito.anyListOf(String.class),
-                        Mockito.anyListOf(String.class), Mockito.any(String.class), Mockito.any(String.class)))
+                clinicalDataService.fetchClinicalData(Mockito.anyList(), Mockito.anyList(),
+                        Mockito.anyList(), Mockito.any(String.class), Mockito.any(String.class)))
                 .thenReturn(new ArrayList<ClinicalData>());
 
         // when no data

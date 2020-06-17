@@ -21,9 +21,9 @@ public class StudyViewFilter implements Serializable {
     private List<String> studyIds;
     private List<ClinicalDataFilter> clinicalDataFilters;
     private List<GeneFilter> geneFilters;
-	private Boolean withMutationData;
-	private Boolean withCNAData;
-	private Boolean withFusionData;
+    private List<List<String>> genomicProfiles;
+    private List<GenomicDataFilter> genomicDataFilters;
+    private List<List<String>> caseLists;
 
     @AssertTrue
     private boolean isEitherSampleIdentifiersOrStudyIdsPresent() {
@@ -36,10 +36,26 @@ public class StudyViewFilter implements Serializable {
 
         if (clinicalDataFilters != null) {
             invalidCount = clinicalDataFilters.stream()
-                .flatMap(f -> f.getValues().stream())
-                .filter(Objects::nonNull)
-                .filter(v -> v.getValue() != null == (v.getStart() != null || v.getEnd() != null))
-                .count();
+                    .flatMap(f -> f.getValues().stream())
+                    .filter(Objects::nonNull)
+                    .filter(v -> v.getValue() != null == (v.getStart() != null || v.getEnd() != null))
+                    .count();
+        }
+
+        return invalidCount == 0;
+    }
+
+    @AssertTrue
+    private boolean isEitherValueOrRangePresentInGenomicDataIntervalFilters() {
+        long invalidCount = 0;
+
+        if (genomicDataFilters != null) {
+            invalidCount = genomicDataFilters
+                    .stream()
+                    .flatMap(f -> f.getValues().stream())
+                    .filter(Objects::nonNull)
+                    .filter(v -> v.getValue() != null == (v.getStart() != null || v.getEnd() != null))
+                    .count();
         }
 
         return invalidCount == 0;
@@ -60,7 +76,7 @@ public class StudyViewFilter implements Serializable {
     public void setStudyIds(List<String> studyIds) {
         this.studyIds = studyIds;
     }
-    
+
     public List<ClinicalDataFilter> getClinicalDataFilters() {
         return clinicalDataFilters;
     }
@@ -77,28 +93,27 @@ public class StudyViewFilter implements Serializable {
         this.geneFilters = geneFilters;
     }
 
-    public Boolean getWithMutationData() {
-        return withMutationData;
+    public List<List<String>> getGenomicProfiles() {
+        return genomicProfiles;
     }
 
-    public void setWithMutationData(Boolean withMutationData) {
-        this.withMutationData = withMutationData;
+    public void setGenomicProfiles(List<List<String>> genomicProfiles) {
+        this.genomicProfiles = genomicProfiles;
     }
 
-    public Boolean getWithCNAData() {
-        return withCNAData;
+    public List<GenomicDataFilter> getGenomicDataFilters() {
+        return genomicDataFilters;
     }
 
-    public void setWithCNAData(Boolean withCNAData) {
-        this.withCNAData = withCNAData;
+    public void setGenomicDataFilters(List<GenomicDataFilter> genomicDataFilters) {
+        this.genomicDataFilters = genomicDataFilters;
     }
 
-    public Boolean getWithFusionData() {
-        return withFusionData;
+    public List<List<String>> getCaseLists() {
+        return caseLists;
     }
 
-    public void setWithFusionData(Boolean withFusionData) {
-        this.withFusionData = withFusionData;
+    public void setCaseLists(List<List<String>> caseLists) {
+        this.caseLists = caseLists;
     }
-
 }

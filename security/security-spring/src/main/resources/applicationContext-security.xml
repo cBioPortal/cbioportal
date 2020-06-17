@@ -400,8 +400,20 @@
     <b:bean id="customUserService" class="${saml.custom.userservice.class}">
     </b:bean>
 
-    <!-- Provider of default SAML Context -->
-    <b:bean id="contextProvider" class="org.springframework.security.saml.context.SAMLContextProviderImpl"/>
+    <!-- Provider of default SAML Context to process IDP initiated login SAML response-->
+    <b:bean id="contextProvider" class="org.springframework.security.saml.context.SAMLContextProviderImpl">
+        <b:property name="storageFactory">
+            <b:bean class="org.springframework.security.saml.storage.EmptyStorageFactory"/>
+        </b:property>
+    </b:bean>
+
+    <!--
+        RelayState success handler to process return URL for IDP initiated login SAML response.
+        Application landing page is going to be RelayState URL upon successfull authentication.
+    -->
+    <b:bean id="successRedirectHandler" class="org.springframework.security.saml.SAMLRelayStateSuccessHandler">
+        <b:property name="defaultTargetUrl" value="/" />
+    </b:bean>
 
     <!-- Processing filter for WebSSO profile messages -->
     <b:bean id="samlWebSSOProcessingFilter" class="org.springframework.security.saml.SAMLProcessingFilter">

@@ -41,13 +41,6 @@
       <version>${project.version}</version>
       <scope>runtime</scope>
     </dependency>
-    <!-- business portal module -->
-    <dependency>
-      <groupId>org.mskcc.cbio</groupId>
-      <artifactId>business</artifactId>
-      <version>${project.version}</version>
-      <scope>runtime</scope>
-    </dependency>
     <!-- web portal module -->
     <dependency>
       <groupId>org.mskcc.cbio</groupId>
@@ -136,7 +129,7 @@
           <filteringDeploymentDescriptors>true</filteringDeploymentDescriptors>
           <webResources>
             <resource>
-              <directory>${project.parent.basedir}/business/src/main/resources</directory>
+              <directory>${project.parent.basedir}/persistence/persistence-connections/src/main/resources</directory>
               <targetPath>WEB-INF/classes</targetPath>
               <!-- do not hard-set portal.properties config at build-time -->
               <filtering>false</filtering>

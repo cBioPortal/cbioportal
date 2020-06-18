@@ -474,9 +474,9 @@ public class TestIntegrationTest {
 
     @JsonIgnoreProperties(ignoreUnknown = true)
     static class TestGene {
-        @JsonProperty("hugo_gene_symbol")
+        @JsonProperty("hugoGeneSymbol")
         String hugoGeneSymbol;
-        @JsonProperty("entrez_gene_id")
+        @JsonProperty("entrezGeneId")
         int entrezGeneId;
     }
 
@@ -484,7 +484,7 @@ public class TestIntegrationTest {
     static class TestGeneAlias {
         @JsonProperty("gene_alias")
         String geneAlias;
-        @JsonProperty("entrez_gene_id")
+        @JsonProperty("entrezGeneId")
         int entrezGeneId;
     }
 

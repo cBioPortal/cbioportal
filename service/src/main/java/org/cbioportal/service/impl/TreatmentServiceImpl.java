@@ -2,6 +2,7 @@ package org.cbioportal.service.impl;
 
 import org.cbioportal.model.*;
 import org.cbioportal.persistence.TreatmentRepository;
+import org.cbioportal.service.SampleService;
 import org.cbioportal.service.TreatmentService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -18,14 +19,19 @@ public class TreatmentServiceImpl implements TreatmentService {
     @Autowired
     TreatmentRepository treatmentRepository;
     
+    @Autowired
+    SampleService sampleService;
+    
     @Override
-    public List<SampleTreatmentRow> getAllTreatmentSampleRows(List<String> sampleIds, List<String> studyIds) {
+    public List<SampleTreatmentRow> getAllSampleTreatmentRows(List<String> sampleIds, List<String> studyIds) {
+        Integer sampleCount = sampleService.fetchMetaSamples(sampleIds, studyIds).getTotalCount();
         Map<String, List<DatedSample>> samplesByPatient = treatmentRepository.getSamplesByPatient(sampleIds, studyIds);
         Map<String, List<Treatment>> treatmentsByPatient = treatmentRepository.getTreatmentsByPatient(sampleIds, studyIds);
 
         Stream<SampleTreatmentRow> rows = samplesByPatient.keySet().stream()
             .flatMap(patientId -> streamPatientRows(patientId, samplesByPatient, treatmentsByPatient))
-            .filter(row -> row.getCount() != 0);
+            .filter(row -> row.getCount() != 0)
+            .peek(row -> row.setFrequency((float)row.getCount() / sampleCount));
         
         return flattenAndSortRows(rows);
     }
@@ -68,13 +74,15 @@ public class TreatmentServiceImpl implements TreatmentService {
 
 
     @Override
-    public List<PatientTreatmentRow> getAllTreatmentPatientRows(List<String> sampleIds, List<String> studyIds) {
+    public List<PatientTreatmentRow> getAllPatientTreatmentRows(List<String> sampleIds, List<String> studyIds) {
+        Integer sampleCount = sampleService.fetchMetaSamples(sampleIds, studyIds).getTotalCount();
         Map<String, List<Treatment>> treatmentsByPatient = treatmentRepository.getTreatmentsByPatient(sampleIds, studyIds);
         Map<String, List<DatedSample>> samplesByPatient = treatmentRepository.getSamplesByPatient(sampleIds, studyIds);
         Set<String> treatments = treatmentRepository.getAllUniqueTreatments(sampleIds, studyIds);
         
         return treatments.stream()
             .flatMap(t -> createPatientTreatmentRowsForTreatment(t, treatmentsByPatient, samplesByPatient))
+            .peek(row -> row.setFrequency((float)row.getCount() / sampleCount))
             .collect(Collectors.toList());
     }
 

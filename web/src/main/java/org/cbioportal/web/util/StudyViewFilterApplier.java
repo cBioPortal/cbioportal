@@ -14,7 +14,6 @@ import org.cbioportal.web.parameter.*;
 import org.cbioportal.web.parameter.GeneFilter.SingleGeneQuery;
 import org.cbioportal.web.parameter.filter.AndedPatientTreatmentFilters;
 import org.cbioportal.web.parameter.filter.AndedSampleTreatmentFilters;
-import org.cbioportal.web.parameter.filter.SampleTreatmentFilter;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
@@ -267,7 +266,7 @@ public class StudyViewFilterApplier {
     ) {
         List<String> sampleIds = identifiers.stream().map(SampleIdentifier::getSampleId).collect(Collectors.toList());
 
-        Map<String, PatientTreatmentRow> rows = treatmentService.getAllTreatmentPatientRows(sampleIds, studyIds)
+        Map<String, PatientTreatmentRow> rows = treatmentService.getAllPatientTreatmentRows(sampleIds, studyIds)
             .stream()
             .collect(Collectors.toMap(PatientTreatmentRow::calculateKey, Function.identity()));
         
@@ -283,7 +282,7 @@ public class StudyViewFilterApplier {
     ) {
         List<String> sampleIds = identifiers.stream().map(SampleIdentifier::getSampleId).collect(Collectors.toList());
         
-        Map<String, SampleTreatmentRow> rows = treatmentService.getAllTreatmentSampleRows(sampleIds, studyIds)
+        Map<String, SampleTreatmentRow> rows = treatmentService.getAllSampleTreatmentRows(sampleIds, studyIds)
             .stream()
             .collect(Collectors.toMap(SampleTreatmentRow::calculateKey, Function.identity()));
         

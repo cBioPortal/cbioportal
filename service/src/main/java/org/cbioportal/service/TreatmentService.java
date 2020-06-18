@@ -7,6 +7,6 @@ import java.util.List;
 import java.util.Set;
 
 public interface TreatmentService {
-    public List<SampleTreatmentRow> getAllTreatmentSampleRows(List<String> samples, List<String> studies);
-    public List<PatientTreatmentRow> getAllTreatmentPatientRows(List<String> samples, List<String> studies);
+    public List<SampleTreatmentRow> getAllSampleTreatmentRows(List<String> samples, List<String> studies);
+    public List<PatientTreatmentRow> getAllPatientTreatmentRows(List<String> samples, List<String> studies);
 }

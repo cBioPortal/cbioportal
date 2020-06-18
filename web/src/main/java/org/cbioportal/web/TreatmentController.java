@@ -5,17 +5,11 @@ import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
 import org.cbioportal.model.PatientTreatmentRow;
 import org.cbioportal.model.SampleTreatmentRow;
-import org.cbioportal.model.TypeOfCancer;
-import org.cbioportal.service.CancerTypeService;
 import org.cbioportal.service.TreatmentService;
-import org.cbioportal.service.exception.CancerTypeNotFoundException;
-import org.cbioportal.service.exception.StudyNotFoundException;
 import org.cbioportal.web.config.annotation.PublicApi;
 import org.cbioportal.web.parameter.*;
-import org.cbioportal.web.parameter.sort.CancerTypeSortBy;
 import org.cbioportal.web.util.StudyViewFilterApplier;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -25,8 +19,6 @@ import org.springframework.web.bind.annotation.*;
 import springfox.documentation.annotations.ApiIgnore;
 
 import javax.validation.Valid;
-import javax.validation.constraints.Max;
-import javax.validation.constraints.Min;
 import java.util.Collection;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -65,7 +57,7 @@ public class TreatmentController {
             .map(SampleIdentifier::getStudyId)
             .distinct()
             .collect(Collectors.toList());
-        List<PatientTreatmentRow> treatments = treatmentService.getAllTreatmentPatientRows(sampleIds, studyIds);
+        List<PatientTreatmentRow> treatments = treatmentService.getAllPatientTreatmentRows(sampleIds, studyIds);
         return new ResponseEntity<>(treatments, HttpStatus.OK);
     }
 
@@ -92,7 +84,7 @@ public class TreatmentController {
             .map(SampleIdentifier::getStudyId)
             .distinct()
             .collect(Collectors.toList());
-        List<SampleTreatmentRow> treatments = treatmentService.getAllTreatmentSampleRows(sampleIds, studyIds);
+        List<SampleTreatmentRow> treatments = treatmentService.getAllSampleTreatmentRows(sampleIds, studyIds);
         return new ResponseEntity<>(treatments, HttpStatus.OK);
     }
 }

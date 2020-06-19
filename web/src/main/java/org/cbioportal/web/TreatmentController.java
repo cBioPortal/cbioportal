@@ -36,7 +36,7 @@ public class TreatmentController {
     private StudyViewFilterApplier studyViewFilterApplier;
 
     @PreAuthorize("hasPermission(#involvedCancerStudies, 'Collection<CancerStudyId>', 'read')")
-    @RequestMapping(value = "/treatments/{studyId}/patient", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
+    @RequestMapping(value = "/treatments/{studyId}/patient", method = RequestMethod.POST, produces = MediaType.APPLICATION_JSON_VALUE)
     @ApiOperation("Get all cancer types")
     public ResponseEntity<List<PatientTreatmentRow>> getAllPatientTreatmens(
         @ApiParam(required = true, value = "Study view filter")
@@ -63,7 +63,7 @@ public class TreatmentController {
 
 
     @PreAuthorize("hasPermission(#involvedCancerStudies, 'Collection<CancerStudyId>', 'read')")
-    @RequestMapping(value = "/treatments/{studyId}/sample", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
+    @RequestMapping(value = "/treatments/{studyId}/sample", method = RequestMethod.POST, produces = MediaType.APPLICATION_JSON_VALUE)
     @ApiOperation("Get all cancer types")
     public ResponseEntity<List<SampleTreatmentRow>> getAllSampleTreatments(
         @ApiParam(required = true, value = "Study view filter")

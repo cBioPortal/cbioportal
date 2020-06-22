@@ -6,7 +6,6 @@ public class SampleTreatmentRow {
     private TemporalRelation time;
     private String treatment;
     private int count;
-    private float frequency;
     private Set<String> samples;
     private Set<String> studies;
 
@@ -18,7 +17,6 @@ public class SampleTreatmentRow {
         this.count = count;
         this.samples = samples;
         this.studies = studies;
-        this.frequency = 1; // TODO this is wrong
     }
 
     public TemporalRelation getTime() {
@@ -43,14 +41,6 @@ public class SampleTreatmentRow {
 
     public void setCount(int count) {
         this.count = count;
-    }
-
-    public float getFrequency() {
-        return frequency;
-    }
-
-    public void setFrequency(float frequency) {
-        this.frequency = frequency;
     }
 
     public Set<String> getSamples() {

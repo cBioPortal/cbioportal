@@ -30,9 +30,7 @@ public class TreatmentServiceImpl implements TreatmentService {
 
         Stream<SampleTreatmentRow> rows = samplesByPatient.keySet().stream()
             .flatMap(patientId -> streamPatientRows(patientId, samplesByPatient, treatmentsByPatient))
-            .filter(row -> row.getCount() != 0)
-            .peek(row -> row.setFrequency((float)row.getCount() / sampleCount));
-        
+            .filter(row -> row.getCount() != 0);
         return flattenAndSortRows(rows);
     }
 

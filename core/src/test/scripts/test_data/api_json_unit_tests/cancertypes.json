@@ -1,7 +1,0 @@
-[
-{"id":"breast","name":"Breast","color":"HotPink"},
-{"id":"prostate","name":"Prostate","color":"Cyan"},
-{"id":"lung","name":"Lung","color":"Gainsboro"},
-{"id":"brca","name":"Invasive Breast Carcinoma","color":"HotPink"},
-{"id":"prad","name":"Prostate Adenocarcinoma","color":"Cyan"}
-]

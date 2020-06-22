@@ -761,7 +761,7 @@ class Validator(object):
                         if self.portal.hugo_entrez_map is not None and self.portal.alias_entrez_map is not None:
                             if gene_symbol not in self.portal.hugo_entrez_map and \
                                     gene_symbol not in self.portal.alias_entrez_map:
-                                self.logger.error('Hugo Symbol is not in gene or alias table and starts with a '
+                                self.logger.warning('Hugo Symbol is not in gene or alias table and starts with a '
                                 'number. This can be caused by unintentional gene conversion in Excel.',
                                                     extra={'line_number': self.line_number, 'cause': gene_symbol})
                         # If alias table cannot be checked report warning that hugo symbols normally do not start

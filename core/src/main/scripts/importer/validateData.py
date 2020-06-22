@@ -761,7 +761,7 @@ class Validator(object):
                         if self.portal.hugo_entrez_map is not None and self.portal.alias_entrez_map is not None:
                             if gene_symbol not in self.portal.hugo_entrez_map and \
                                     gene_symbol not in self.portal.alias_entrez_map:
-                                self.logger.error('Hugo Symbol is not in gene or alias table and starts with a '
+                                self.logger.warning('Hugo Symbol is not in gene or alias table and starts with a '
                                 'number. This can be caused by unintentional gene conversion in Excel.',
                                                     extra={'line_number': self.line_number, 'cause': gene_symbol})
                         # If alias table cannot be checked report warning that hugo symbols normally do not start
@@ -4885,14 +4885,13 @@ def validate_data_relations(validators_by_meta_type, logger):
 def request_from_portal_api(server_url, api_name, logger):
     """Send a request to the portal API and return the decoded JSON object."""
 
-    if api_name in ['info', 'genesets', 'gene-panels']:
+    if api_name in ['info', 'cancer-types', 'genesets', 'gene-panels']:
         service_url = server_url + '/api/' + api_name + "?pageSize=9999999"
-
-    # TODO: change API for genes, gene aliases and cancer types to non-legacy
+    # TODO: make subsequent calls to /genes/{geneId}/aliases
+    elif api_name in ['genes']:
+        service_url = server_url + '/api/' + api_name + '?pageSize=100000'
     elif api_name in ['genesets_version']:
         service_url = server_url + '/api/genesets/version'
-    else:
-        service_url = server_url + '/api-legacy/' + api_name
 
     logger.debug("Requesting %s from portal at '%s'",
                 api_name, server_url)
@@ -4975,13 +4974,13 @@ def transform_symbol_entrez_map(json_data,
     of corresponding `values_field` entries.
 
     >>> transform_symbol_entrez_map(
-    ...     [{"hugo_gene_symbol": "A1BG", "entrez_gene_id": 1},
-    ...      {"hugo_gene_symbol": "A2M", "entrez_gene_id": 2}])
+    ...     [{"hugoGeneSymbol": "A1BG", "entrezGeneId": 1},
+    ...      {"hugoGeneSymbol": "A2M", "entrezGeneId": 2}])
     {'A2M': [2], 'A1BG': [1]}
     >>> transform_symbol_entrez_map(
-    ...     [{"gene_alias": "A1B", "entrez_gene_id": 1},
-    ...      {"gene_alias": "ANG3", "entrez_gene_id": 738},
-    ...      {"gene_alias": "ANG3", "entrez_gene_id": 9068}],
+    ...     [{"gene_alias": "A1B", "entrezGeneId": 1},
+    ...      {"gene_alias": "ANG3", "entrezGeneId": 738},
+    ...      {"gene_alias": "ANG3", "entrezGeneId": 9068}],
     ...     id_field="gene_alias")
     {'ANG3': [738, 9068], 'A1B': [1]}
     """
@@ -4991,7 +4990,7 @@ def transform_symbol_entrez_map(json_data,
         if symbol not in result_dict:
             result_dict[symbol] = []
         result_dict[symbol].append(
-                data_item['entrez_gene_id'])
+                data_item['entrezGeneId'])
     return result_dict
 
 
@@ -5030,14 +5029,11 @@ def load_portal_info(path, logger, offline=False):
     for api_name, transform_function in (
             ('info',
                 lambda json_data: load_portal_metadata(json_data)),
-            ('cancertypes',
-                lambda json_data: index_api_data(json_data, 'id')),
+            ('cancer-types',
+                lambda json_data: index_api_data(json_data, 'cancerTypeId')),
             ('genes',
                 lambda json_data: transform_symbol_entrez_map(
-                                        json_data, 'hugo_gene_symbol')),
-            ('genesaliases',
-                lambda json_data: transform_symbol_entrez_map(
-                                        json_data, 'gene_alias')),
+                                        json_data, 'hugoGeneSymbol')),
             ('genesets',
                 lambda json_data: extract_ids(json_data, 'genesetId')),
             ('genesets_version',
@@ -5055,9 +5051,10 @@ def load_portal_info(path, logger, offline=False):
     if all(d is None for d in list(portal_dict.values())):
         raise LookupError('No portal information found at {}'.format(path))
     return PortalInstance(portal_info_dict=portal_dict['info'],
-                          cancer_type_dict=portal_dict['cancertypes'],
+                          cancer_type_dict=portal_dict['cancer-types'],
                           hugo_entrez_map=portal_dict['genes'],
-                          alias_entrez_map=portal_dict['genesaliases'],
+                          # TODO - create a /genealiases equivalent in the new api
+                          alias_entrez_map={},
                           gene_set_list=portal_dict['genesets'],
                           gene_panel_list=portal_dict['gene-panels'],
                           geneset_version = portal_dict['genesets_version'],

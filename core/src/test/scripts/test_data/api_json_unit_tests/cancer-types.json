@@ -1,0 +1,7 @@
+[
+{"cancerTypeId":"breast","name":"Breast","color":"HotPink"},
+{"cancerTypeId":"prostate","name":"Prostate","color":"Cyan"},
+{"cancerTypeId":"lung","name":"Lung","color":"Gainsboro"},
+{"cancerTypeId":"brca","name":"Invasive Breast Carcinoma","color":"HotPink"},
+{"cancerTypeId":"prad","name":"Prostate Adenocarcinoma","color":"Cyan"}
+]

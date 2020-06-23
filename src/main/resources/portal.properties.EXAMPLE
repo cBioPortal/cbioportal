@@ -101,7 +101,7 @@ microsoftlive.consumer.secret=
 ## SAML settings
 saml.sp.metadata.entityid=
 # change this url if behind reverse proxy that handles SSL, see docs/Authenticating-Users-via-SAML.md
-saml.sp.metadata.entityBaseURL=#{null}
+saml.sp.metadata.entitybaseurl=#{null}
 saml.idp.metadata.location=
 saml.idp.metadata.entityid=
 # saml keystore settings:
@@ -163,7 +163,7 @@ segfile.url=http://cbio.mskcc.org/cancergenomics/gdac-portal/seg/
 
 
 # The default OncoKB instance, the portal is connecting to, does not include any therapeutic information and the token is not required.
-# If you wish to include such information, please consider obtaining a license to support future OncoKB development by following 
+# If you wish to include such information, please consider obtaining a license to support future OncoKB development by following
 # https://docs.cbioportal.org/2.4-integration-with-other-webservices/oncokb-data-access.
 
 # Enable OncoKB annotation (true, false)

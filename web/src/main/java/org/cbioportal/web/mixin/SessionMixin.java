@@ -1,4 +1,4 @@
-package org.cbioportal.weblegacy.mixin;
+package org.cbioportal.web.mixin;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 

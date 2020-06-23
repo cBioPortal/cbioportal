@@ -46,6 +46,7 @@ import org.cbioportal.model.ClinicalData;
 import org.cbioportal.model.ClinicalDataCount;
 import org.cbioportal.model.ClinicalEvent;
 import org.cbioportal.model.ClinicalEventData;
+import org.cbioportal.model.DataAccessToken;
 import org.cbioportal.model.CopyNumberSeg;
 import org.cbioportal.model.Gene;
 import org.cbioportal.model.GenePanel;
@@ -63,7 +64,13 @@ import org.cbioportal.model.Patient;
 import org.cbioportal.model.ResourceDefinition;
 import org.cbioportal.model.Sample;
 import org.cbioportal.model.SampleList;
+import org.cbioportal.session_service.domain.Session;
 import org.cbioportal.model.TypeOfCancer;
+import org.cbioportal.web.parameter.PageSettings;
+import org.cbioportal.web.parameter.PageSettingsData;
+import org.cbioportal.web.parameter.StudyPageSettings;
+import org.cbioportal.web.parameter.VirtualStudy;
+import org.cbioportal.web.parameter.VirtualStudyData;
 import org.cbioportal.web.mixin.CancerStudyMixin;
 import org.cbioportal.web.mixin.ClinicalAttributeCountMixin;
 import org.cbioportal.web.mixin.ClinicalAttributeMixin;
@@ -72,6 +79,7 @@ import org.cbioportal.web.mixin.ClinicalDataMixin;
 import org.cbioportal.web.mixin.ClinicalEventDataMixin;
 import org.cbioportal.web.mixin.ClinicalEventMixin;
 import org.cbioportal.web.mixin.CopyNumberSegMixin;
+import org.cbioportal.web.mixin.DataAccessTokenMixin;
 import org.cbioportal.web.mixin.GeneMixin;
 import org.cbioportal.web.mixin.GenePanelMixin;
 import org.cbioportal.web.mixin.GenePanelToGeneMixin;
@@ -88,6 +96,8 @@ import org.cbioportal.web.mixin.PatientMixin;
 import org.cbioportal.web.mixin.ResourceDefinitionMixin;
 import org.cbioportal.web.mixin.SampleListMixin;
 import org.cbioportal.web.mixin.SampleMixin;
+import org.cbioportal.web.mixin.SessionMixin;
+import org.cbioportal.web.mixin.SessionDataMixin;
 import org.cbioportal.web.mixin.TypeOfCancerMixin;
 
 public class CustomObjectMapper extends ObjectMapper {
@@ -105,6 +115,7 @@ public class CustomObjectMapper extends ObjectMapper {
         mixinMap.put(ClinicalEvent.class, ClinicalEventMixin.class);
         mixinMap.put(ClinicalEventData.class, ClinicalEventDataMixin.class);
         mixinMap.put(CopyNumberSeg.class, CopyNumberSegMixin.class);
+        mixinMap.put(DataAccessToken.class, DataAccessTokenMixin.class);
         mixinMap.put(Gene.class, GeneMixin.class);
         mixinMap.put(GenePanel.class, GenePanelMixin.class);
         mixinMap.put(GenePanelToGene.class, GenePanelToGeneMixin.class);
@@ -117,11 +128,17 @@ public class CustomObjectMapper extends ObjectMapper {
         mixinMap.put(Mutation.class, MutationMixin.class);
         mixinMap.put(MutationSpectrum.class, MutationSpectrumMixin.class);
         mixinMap.put(MutSig.class, MutSigMixin.class);
+        mixinMap.put(PageSettings.class, SessionMixin.class);
+        mixinMap.put(PageSettingsData.class, SessionDataMixin.class);
         mixinMap.put(Patient.class, PatientMixin.class);
         mixinMap.put(Sample.class, SampleMixin.class);
         mixinMap.put(SampleList.class, SampleListMixin.class);
+        mixinMap.put(Session.class, SessionMixin.class);
+        mixinMap.put(StudyPageSettings.class, SessionDataMixin.class);
         mixinMap.put(TypeOfCancer.class, TypeOfCancerMixin.class);
         mixinMap.put(ResourceDefinition.class, ResourceDefinitionMixin.class);
+        mixinMap.put(VirtualStudy.class, SessionMixin.class);
+        mixinMap.put(VirtualStudyData.class, SessionDataMixin.class);
         super.setMixIns(mixinMap);
     }
 }

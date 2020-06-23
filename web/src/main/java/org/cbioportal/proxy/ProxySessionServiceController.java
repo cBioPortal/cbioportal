@@ -1,4 +1,4 @@
-package org.mskcc.cbio.portal.web;
+package org.cbioportal.proxy;
 
 import java.io.IOException;
 import java.nio.charset.Charset;

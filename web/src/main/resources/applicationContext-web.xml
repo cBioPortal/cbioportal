@@ -34,6 +34,7 @@
     </bean>
 
     <context:component-scan base-package="org.cbioportal.web" />
+    <context:component-scan base-package="org.cbioportal.documentation" />
     <aop:aspectj-autoproxy/>
 
     <mvc:resources mapping="/swagger-ui.html" location="classpath:/META-INF/resources/"/>

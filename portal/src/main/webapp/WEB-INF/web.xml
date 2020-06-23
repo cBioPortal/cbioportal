@@ -189,7 +189,6 @@
     <filter-mapping>
         <filter-name>ResettableHttpServletRequestFilter</filter-name>
         <url-pattern>/api/*</url-pattern>
-        <url-pattern>/api-legacy/*</url-pattern>
     </filter-mapping>
 
     <!-- make sure XssFilter runs last, so that any new parameters added
@@ -212,21 +211,6 @@
 
 
     <!-- servlet definitions & mappings -->
-
-    <servlet>
-        <servlet-name>api-legacy</servlet-name>
-        <servlet-class>org.springframework.web.servlet.DispatcherServlet</servlet-class>
-        <init-param>
-            <param-name>contextConfigLocation</param-name>
-            <param-value>classpath:applicationContext-weblegacy.xml</param-value>
-        </init-param>
-        <load-on-startup>1</load-on-startup>
-    </servlet>
-    <servlet-mapping>
-        <servlet-name>api-legacy</servlet-name>
-        <url-pattern>/api-legacy/*</url-pattern>
-    </servlet-mapping>
-
     <servlet>
         <servlet-name>url_shortener</servlet-name>
         <servlet-class>org.springframework.web.servlet.DispatcherServlet</servlet-class>

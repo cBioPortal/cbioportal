@@ -16,8 +16,7 @@
       "fullScopeAllowed": false,
       "adminUrl": "http://localhost/saml",
       "redirectUris": [
-        "http://localhost/*",
-        "http://localhost:80/*"
+        "http://cbio:8080/*"
       ],
       "attributes": {
         "saml_single_logout_service_url_post": "http://localhost/saml/logout",

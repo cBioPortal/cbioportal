@@ -63,6 +63,9 @@ public abstract class AbstractAuthIntegrationTest {
     public static BrowserWebDriverContainer chrome =
             new BrowserWebDriverContainer()
                     .withCapabilities(new ChromeOptions());
+    static {
+        chrome.withNetwork(network);
+    }
 
     static {
         try {

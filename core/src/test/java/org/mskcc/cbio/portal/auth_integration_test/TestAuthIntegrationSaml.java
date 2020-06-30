@@ -1,6 +1,8 @@
 package org.mskcc.cbio.portal.auth_integration_test;
 
+import org.hamcrest.Matchers;
 import org.junit.AfterClass;
+import org.junit.Assert;
 import org.junit.BeforeClass;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -91,7 +93,9 @@ public class TestAuthIntegrationSaml extends AbstractAuthIntegrationTest {
         userNameInput.sendKeys("testuser");
         passwordInput.sendKeys("P@ssword1");
         loginButton.click();
-        // test should be expanded to test actual login
+        // TODO We are getting now "You are not authorized to access this resource..." page.
+        // Assert the username when the authorization problem will be solved.
+        Assert.assertThat(driver.getTitle(), Matchers.startsWith("cBioPortal for Cancer Genomics"));
     }
 
 }

@@ -49,7 +49,7 @@ public class TestAuthIntegrationSaml extends AbstractAuthIntegrationTest {
         System.out.println("portal starting with saml ...");
         cbioportal.withFileSystemBind(
                 absolutePath("core/src/test/resources/auth_integration/portal.properties.saml").toString()
-                , "/cbioportal/portal.properties",
+                , "/cbioportal-webapp/WEB-INF/classes/portal.properties",
                 BindMode.READ_ONLY
         );
         kcIdpMetadata = kcIdpMetadata.replaceAll("http://cbiokc", "http://localhost:" + keycloak.getMappedPort(8080));

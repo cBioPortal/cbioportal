@@ -52,6 +52,12 @@ If you see an error like this when you importing the data:
 
 please follow the first step to import gene panels (e.g. import `data_gene_panel_testpanel1` and `data_gene_panel_testpanel2` for `study_es_0`), then try to import the data again.
 
+### Error occurred during validation step
+
+Please make sure this line was included when [setting up the database](README.md#step-2-run-mysql-with-seed-database):
+
+`-v /<path_to_seed_database>/seed-cbioportal_<genome_build>_<seed_version>.sql.gz:/docker-entrypoint-initdb.d/seed_part1.sql.gz:ro \`.
+
 ### Study imported correctly, but got error when trying to query something
 
 Remember to restart the `cbioportal-container` after data imported.

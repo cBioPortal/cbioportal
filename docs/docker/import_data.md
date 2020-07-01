@@ -54,7 +54,7 @@ please follow the first step to import gene panels (e.g. import `data_gene_panel
 
 ### Error occurred during validation step
 
-please make sure this line was included when [set up the database](README.md#step-2-run-mysql-with-seed-database):
+Please make sure this line was included when [setting up the database](README.md#step-2-run-mysql-with-seed-database):
 
 `-v /<path_to_seed_database>/seed-cbioportal_<genome_build>_<seed_version>.sql.gz:/docker-entrypoint-initdb.d/seed_part1.sql.gz:ro \`.
 

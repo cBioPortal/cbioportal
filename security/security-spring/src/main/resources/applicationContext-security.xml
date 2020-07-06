@@ -403,7 +403,7 @@
     <!-- Provider of default SAML Context to process IDP initiated login SAML response-->
     <b:bean id="contextProvider" class="org.springframework.security.saml.context.SAMLContextProviderImpl">
         <b:property name="storageFactory">
-            <b:bean class="org.springframework.security.saml.storage.EmptyStorageFactory"/>
+            <b:bean class="${saml.context.default}"/>
         </b:property>
     </b:bean>
 

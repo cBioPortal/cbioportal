@@ -403,7 +403,7 @@
     <!-- Provider of default SAML Context -->
     <b:bean id="contextProvider" class="org.springframework.security.saml.context.SAMLContextProviderImpl">
         <b:property name="storageFactory">
-            <b:bean class="${saml.context.default}"/>
+            <b:bean class="${saml.context.default:org.springframework.security.saml.storage.HttpSessionStorageFactory}"/>
         </b:property>
     </b:bean>
 

@@ -121,8 +121,8 @@ saml.custom.userservice.class=org.cbioportal.security.spring.authentication.saml
 # Change this to configure to configure a custom logout URL: (default: /login.jsp?logout_success=true)
 saml.logout.url=/login.jsp?logout_success=true
 # Default SAML Context
-# Use org.springframework.security.saml.storage.EmptyStorageFactory class as default context for IDP initiated logins
-saml.context.default=org.springframework.security.saml.storage.HttpSessionStorageFactory
+# Uncomment for IDP initiated logins
+# saml.context.default=org.springframework.security.saml.storage.EmptyStorageFactory
 
 ## settings to connect to an Active Directory domain controller
 ad.domain=

@@ -1,33 +1,35 @@
-<?xml version="1.0" encoding="UTF-8"?>
 <EntitiesDescriptor Name="urn:keycloak" xmlns="urn:oasis:names:tc:SAML:2.0:metadata"
                     xmlns:dsig="http://www.w3.org/2000/09/xmldsig#">
-    <EntityDescriptor entityID="cbioportal">
+    <EntityDescriptor entityID="http://cbiokc:8080/auth/realms/cbio">
         <IDPSSODescriptor WantAuthnRequestsSigned="true"
                           protocolSupportEnumeration="urn:oasis:names:tc:SAML:2.0:protocol">
             <KeyDescriptor use="signing">
                 <dsig:KeyInfo>
                     <dsig:KeyName>LM8WSjnaCOUqXS7LVrGAp1dn7Nvkh1_Fj8x_1div-1E</dsig:KeyName>
                     <dsig:X509Data>
-                        <dsig:X509Certificate>
-                            MIIClzCCAX8CBgFyfjGqjTANBgkqhkiG9w0BAQsFADAPMQ0wCwYDVQQDDARjYmlvMB4XDTIwMDYwNDA3MTYyM1oXDTMwMDYwNDA3MTgwM1owDzENMAsGA1UEAwwEY2JpbzCCASIwDQYJKoZIhvcNAQEBBQADggEPADCCAQoCggEBAK70DgilyAXyyqsH/PpbiQpQs4hrL0YKfM4JD9U+trItX+CUu7ATLJQ18yq+zqcONH+uDgK5jDV5rqwL7Tp8qHpaWyGwAOXi9z4bSEiF6E0475TMpGImHfNidcRxx/BliP40jWyY8lMJcB0khmM1EppmSky51BOxrCR0cFlxnuE+gF22tqAFkQNeM+b7udH/tkDOG5yMX20kAxqiKbg+l1LIc6sIGYkZ+MkkiaW3DddwxsS/r4ZCfNAyVS5xr4ok1Aq86pkubpbpByUrOBrbjuSkXBMX10P+DzoNcolwwIpeC8BSj10PQ+U0q6AvcQ5Z/Qz7x8qsNQKc5EXoUJOSO8ECAwEAATANBgkqhkiG9w0BAQsFAAOCAQEASM3edg85FYxEB5FyilJ6mx3cP6wXn8DmdbhvogVkr6W8tQCwmVpFSoVBDtGIWqdFVrP2wscTgbbAYIG91sWrIpPR0F+CW1iYeqDKUylnVwkZLDPSnDygN0TtzMzazFTE7/p15maaR95m5nJn9sNhFfwWCQg2ezOQoEJIvwKtSEpZGbhZ7978UB+4i9lCu2Y9dnWfnLUJe42opjSs84dcTvvpZGAVDHNc1tOiIgnz9EBW7bwJ09qbuUY6sfb1QmQd1GMq1ghe2xZHxucNzuXAS3on0z+8ZmuqFxaoYAAzPXOO0jAm+DKiJrXsnXa/rbLEnR+2fHWzTvDh7fXlJPRfgQ==
-                        </dsig:X509Certificate>
+                        <dsig:X509Certificate>MIIClzCCAX8CBgFzKKQexDANBgkqhkiG9w0BAQsFADAPMQ0wCwYDVQQDDARjYmlvMB4XDTIwMDcwNzA5MzY1MVoXDTMwMDcwNzA5MzgzMVowDzENMAsGA1UEAwwEY2JpbzCCASIwDQYJKoZIhvcNAQEBBQADggEPADCCAQoCggEBAIH4pyOzpeW72eRgst7ijRqUy5RJsqGFH1aSxeu6qLO+O1UG1Vkw/FlFlRVbnAidbvWcSGolI4pYjenHx0hTIYLhjMabwXBKnIGMt3LXSB8ecViHvdT4uc6hvNXZtD+qnhXwVQKVLmfubcKaPgMBps/DOig6aw8kbath1NSX7ql4OIAbCIneGIJUOgx7qPmT57wgchwPzP804/hhE0Pw2ijBm7WlEwIzkMrjMqTCRmP4hOlEx8S1cfkcU7W6IAumCgYk40Y5gbUkaIqeC12Z1MyW0k5L9AzsTSMI5Ty2rbhzzHtdN8C02kPgqfWsLw+EqJdEDK9D5CNPBxDPRtd26gMCAwEAATANBgkqhkiG9w0BAQsFAAOCAQEARjsWwvOoKIX2ABzmEVlogDuYQDnuWjCtp23TRdz3pOf2R7dhzhvN0YZhyw0fwkOXgCntB7pRwN+fanobzOyJ8WUiDjA7HKiQmcKGvHzOlLoNXklOAuqwzh8gTn+oEYJ5UAXFrLNuuhHsCLn0vybEJm/307yVTFLmDqKHuC+DUhdE24IcCYzqLuiAaH1PWKQ22MbfmLRNvI6yf9vqfYggm/FrwCzwXVMv58yfifLgix/9noegjmUxKLTNKLHYGkegskA1EY5jTdVz9GHC54eEoZJ1IbR4hzNgk+Qme87GWJ438/uIA1ojEeEUnxBc7MIG1BJfwcYX0N3kIVEXjfpD8g==</dsig:X509Certificate>
                     </dsig:X509Data>
                 </dsig:KeyInfo>
             </KeyDescriptor>
-            <SingleLogoutService Binding="urn:oasis:names:tc:SAML:2.0:bindings:HTTP-POST"
-                                 Location="http://cbiokc:8080/auth/realms/cbio/protocol/saml"/>
-            <SingleLogoutService Binding="urn:oasis:names:tc:SAML:2.0:bindings:HTTP-Redirect"
-                                 Location="http://cbiokc:8080/auth/realms/cbio/protocol/saml"/>
+
+            <SingleLogoutService
+                    Binding="urn:oasis:names:tc:SAML:2.0:bindings:HTTP-POST"
+                    Location="http://cbiokc:8080/auth/realms/cbio/protocol/saml" />
+            <SingleLogoutService
+                    Binding="urn:oasis:names:tc:SAML:2.0:bindings:HTTP-Redirect"
+                    Location="http://cbiokc:8080/auth/realms/cbio/protocol/saml" />
             <NameIDFormat>urn:oasis:names:tc:SAML:2.0:nameid-format:persistent</NameIDFormat>
             <NameIDFormat>urn:oasis:names:tc:SAML:2.0:nameid-format:transient</NameIDFormat>
             <NameIDFormat>urn:oasis:names:tc:SAML:1.1:nameid-format:unspecified</NameIDFormat>
             <NameIDFormat>urn:oasis:names:tc:SAML:1.1:nameid-format:emailAddress</NameIDFormat>
             <SingleSignOnService Binding="urn:oasis:names:tc:SAML:2.0:bindings:HTTP-POST"
-                                 Location="http://cbiokc:8080/auth/realms/cbio/protocol/saml"/>
-            <SingleSignOnService Binding="urn:oasis:names:tc:SAML:2.0:bindings:HTTP-Redirect"
-                                 Location="http://cbiokc:8080/auth/realms/cbio/protocol/saml"/>
-            <SingleSignOnService Binding="urn:oasis:names:tc:SAML:2.0:bindings:SOAP"
-                                 Location="http://cbiokc:8080/auth/realms/cbio/protocol/saml"/>
+                                 Location="http://cbiokc:8080/auth/realms/cbio/protocol/saml" />
+            <SingleSignOnService
+                    Binding="urn:oasis:names:tc:SAML:2.0:bindings:HTTP-Redirect"
+                    Location="http://cbiokc:8080/auth/realms/cbio/protocol/saml" />
+            <SingleSignOnService
+                    Binding="urn:oasis:names:tc:SAML:2.0:bindings:SOAP"
+                    Location="http://cbiokc:8080/auth/realms/cbio/protocol/saml" />
         </IDPSSODescriptor>
     </EntityDescriptor>
 </EntitiesDescriptor>

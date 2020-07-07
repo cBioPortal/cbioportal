@@ -1,7 +1,7 @@
 authenticate=saml
 saml.sp.metadata.entityid=cbioportal
 saml.idp.metadata.location=classpath:/client-tailored-saml-idp-metadata.xml
-saml.idp.metadata.entityid=https://cbiokc:8080/auth/realms/cbio
+saml.idp.metadata.entityid=http://cbiokc:8080/auth/realms/cbio
 saml.sp.metadata.entitybaseurl=#{null}
 saml.keystore.location=classpath:/samlKeystore.jks
 saml.keystore.password=P@ssword1

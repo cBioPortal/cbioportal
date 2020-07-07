@@ -1,4 +1,4 @@
-package org.mskcc.cbio.portal.web;
+package org.cbioportal.proxy;
 
 import org.apache.commons.codec.binary.Base64;
 import org.apache.commons.logging.Log;

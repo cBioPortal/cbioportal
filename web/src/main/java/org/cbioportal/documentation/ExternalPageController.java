@@ -1,4 +1,4 @@
-package org.mskcc.cbio.portal.documentation;
+package org.cbioportal.documentation;
 
 import org.springframework.stereotype.Controller;
 import org.springframework.transaction.annotation.Transactional;

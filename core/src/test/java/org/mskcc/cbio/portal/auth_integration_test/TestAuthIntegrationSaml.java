@@ -1,6 +1,5 @@
 package org.mskcc.cbio.portal.auth_integration_test;
 
-import org.hamcrest.Matchers;
 import org.junit.AfterClass;
 import org.junit.Assert;
 import org.junit.BeforeClass;
@@ -13,6 +12,7 @@ import org.springframework.test.context.TestExecutionListeners;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import org.testcontainers.containers.BindMode;
 import org.testcontainers.containers.GenericContainer;
+import org.testcontainers.containers.wait.strategy.Wait;
 
 import java.io.BufferedWriter;
 import java.io.File;
@@ -40,12 +40,17 @@ public class TestAuthIntegrationSaml extends AbstractAuthIntegrationTest {
                             BindMode.READ_ONLY
                     )
                     .withNetwork(network)
-                    .withNetworkAliases("cbiokc");
+                    .withNetworkAliases("cbiokc")
+                    .waitingFor(Wait.forLogMessage(".*Keycloak.*started in.*", 1));
 
 
     @BeforeClass
-    public static void setUp() throws IOException {
+    public static void setUp() throws IOException, InterruptedException {
+
+        // start keycloak and export saml idp metadata
         keycloak.start();
+        String samlIdpMetadata = keycloak.execInContainer("curl", "http://cbiokc:8080/auth/realms/cbio/protocol/saml/descriptor").getStdout();
+
         System.out.println("portal starting with saml ...");
         cbioportal.withFileSystemBind(
                 absolutePath("core/src/test/resources/auth_integration/portal.properties.saml").toString()
@@ -53,7 +58,7 @@ public class TestAuthIntegrationSaml extends AbstractAuthIntegrationTest {
                 BindMode.READ_ONLY
         );
         cbioportal.withFileSystemBind(
-            absolutePath("core/src/test/resources/auth_integration/client-tailored-saml-idp-metadata.xml").toString(),
+                tempFile(samlIdpMetadata),
                 "/cbioportal-webapp/WEB-INF/classes/client-tailored-saml-idp-metadata.xml",
                 BindMode.READ_ONLY
         );
@@ -73,6 +78,14 @@ public class TestAuthIntegrationSaml extends AbstractAuthIntegrationTest {
         keycloak.stop();
     }
 
+    private static String tempFile(String samlIdpMetadata) throws IOException {
+        String absolutePath = File.createTempFile("temp-idp-metadata", Long.toString(System.nanoTime())).getAbsolutePath();
+        BufferedWriter bw = new BufferedWriter(new FileWriter(absolutePath));
+        bw.write(samlIdpMetadata);
+        bw.close();
+        return absolutePath;
+    }
+
     @Test
     public void myFirstTest() {
         RemoteWebDriver driver = chrome.getWebDriver();
@@ -83,9 +96,8 @@ public class TestAuthIntegrationSaml extends AbstractAuthIntegrationTest {
         userNameInput.sendKeys("testuser");
         passwordInput.sendKeys("P@ssword1");
         loginButton.click();
-        // TODO We are getting now "You are not authorized to access this resource..." page.
-        // Assert the username when the authorization problem will be solved.
-        Assert.assertThat(driver.getTitle(), Matchers.startsWith("cBioPortal for Cancer Genomics"));
+        WebElement loggedInButton = driver.findElement(By.id("dat-dropdown"));
+        Assert.assertEquals("Logged in as testuser@thehyve.nl", loggedInButton.getText());
     }
 
 }

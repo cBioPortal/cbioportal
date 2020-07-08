@@ -1,4 +1,4 @@
-package org.cbioportal.proxy;
+package org.cbioportal.web;
 
 import java.io.IOException;
 import java.nio.charset.Charset;
@@ -52,10 +52,10 @@ import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 @Controller
-@RequestMapping("/proxy/session")
-public class ProxySessionServiceController {
+@RequestMapping("/session")
+public class SessionServiceController {
 
-    private static final Log LOG = LogFactory.getLog(ProxySessionServiceController.class);
+    private static final Log LOG = LogFactory.getLog(SessionServiceController.class);
 
     @Value("${session.service.url:}")
     private String sessionServiceURL;

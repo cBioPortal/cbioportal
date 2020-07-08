@@ -1,4 +1,4 @@
-package org.cbioportal.proxy;
+package org.cbioportal.web;
 
 import org.apache.commons.codec.binary.Base64;
 import org.apache.commons.logging.Log;
@@ -21,7 +21,7 @@ import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 
 @RestController
-@RequestMapping("/proxy/matchminer")
+@RequestMapping("/matchminer")
 public class MatchMinerController {
 
     private static final Log LOG = LogFactory.getLog( MatchMinerController.class);
@@ -35,7 +35,7 @@ public class MatchMinerController {
     @RequestMapping(value = "/**", produces = "application/json")
     public ResponseEntity<Object> proxy(@RequestBody(required = false) JSONObject body, HttpMethod method, HttpServletRequest request) {
         try {
-            String path = request.getPathInfo().replace("/proxy/matchminer", "");
+            String path = request.getPathInfo().replace("/matchminer", "");
             URI uri = new URI(this.url + path);
 
             HttpHeaders httpHeaders = new HttpHeaders();

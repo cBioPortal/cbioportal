@@ -30,7 +30,7 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-package org.mskcc.cbio.portal.web;
+package org.cbioportal.proxy;
 
 import java.io.IOException;
 import java.net.URI;
@@ -57,7 +57,7 @@ import org.springframework.web.client.RestTemplate;
 
 @Controller
 @RequestMapping("/proxy")
-public class ProxyController {
+public class LegacyProxyController {
 
     private String hotspotsURL;
     private String bitlyURL;

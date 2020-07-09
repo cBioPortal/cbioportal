@@ -165,7 +165,7 @@ public class StudyViewFilterApplier {
                 }
                 if (!structuralVariantGeneFilters.isEmpty()) {
                     sampleIdentifiers = filterStructuralVariantGenes(structuralVariantGeneFilters, molecularProfileMap,
-                            MolecularAlterationType.FUSION, sampleIdentifiers);
+                            MolecularAlterationType.STRUCTURAL_VARIANT, sampleIdentifiers);
                 }
                 if (!cnaGeneFilters.isEmpty()) {
                     sampleIdentifiers = filterCNAGenes(cnaGeneFilters, molecularProfileMap, sampleIdentifiers);

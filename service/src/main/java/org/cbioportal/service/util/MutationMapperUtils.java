@@ -1,6 +1,7 @@
 package org.cbioportal.service.util;
 
 import java.util.List;
+import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
@@ -23,7 +24,8 @@ public class MutationMapperUtils {
     @Autowired
     private GeneService geneService;
 
-    public List<StructuralVariant> mapFusionsToStructuralVariants(List<Mutation> fusions) {
+    public List<StructuralVariant> mapFusionsToStructuralVariants(List<Mutation> fusions,
+            Map<String, String> molecularProfileIdReplaceMap) {
 
         
         // gene symbols containing "-" is not considered in the pattern
@@ -37,7 +39,8 @@ public class MutationMapperUtils {
             structuralVariant.setPatientId(fusion.getPatientId());
             structuralVariant.setSampleId(fusion.getSampleId());
             structuralVariant.setStudyId(fusion.getStudyId());
-            structuralVariant.setMolecularProfileId(fusion.getMolecularProfileId());
+            structuralVariant.setMolecularProfileId(molecularProfileIdReplaceMap
+                    .getOrDefault(fusion.getMolecularProfileId(), fusion.getMolecularProfileId()));
 
             // Fusion details
             structuralVariant.setSite1EntrezGeneId(fusion.getEntrezGeneId());
@@ -73,9 +76,10 @@ public class MutationMapperUtils {
                             // ZSWIM4-SLC1A6 or ZNF595-TERT fusion
                             site1GeneSymbol = matcher.group(1);
                             site2GeneSymbol = matcher.group(2);
-                            if (EnumUtils.isValidEnum(VariantType.class, matcher.group(3).toUpperCase())) {
-                                variantType = EnumUtils.getEnum(VariantType.class, matcher.group(3).toUpperCase());
-                            }
+							if (matcher.group(3) != null
+									&& EnumUtils.isValidEnum(VariantType.class, matcher.group(3).toUpperCase())) {
+								variantType = EnumUtils.getEnum(VariantType.class, matcher.group(3).toUpperCase());
+							}
                         }
 
                         // only set site2Gene if its not null

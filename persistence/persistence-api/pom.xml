@@ -27,6 +27,11 @@
           <artifactId>ehcache</artifactId>
           <version>3.7.1</version>
         </dependency>
+        <dependency>
+          <groupId>org.redisson</groupId>
+          <artifactId>redisson</artifactId>
+          <version>3.13.2</version>
+        </dependency>
     </dependencies>
 
     <build>

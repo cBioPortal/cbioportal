@@ -41,7 +41,7 @@ import org.springframework.stereotype.Component;
 import java.util.Map;
 import javax.annotation.PostConstruct;
 
-@Component
+//@Component
 public class EhCacheStatistics {
 
     private static String TIER_NOT_IN_USE = "Tier not in use";
@@ -59,7 +59,7 @@ public class EhCacheStatistics {
         this.cacheManager = cacheManager;
     }
 
-    @PostConstruct
+    //@PostConstruct
     public void initializeStatisticsService () {
         try {
             statisticsService = new DefaultStatisticsService();
@@ -77,6 +77,7 @@ public class EhCacheStatistics {
     public String getCacheStatistics() {
         StringBuilder builder = new StringBuilder();
         builder.append("\n\nCACHE_STATISTICS START\n\n");
+        /*
         for (String cacheName : cacheManager.getCacheNames()) {
             builder.append("Cache: " + cacheName + "\n");
             builder.append("Allocated (heap): " + getAllocatedBytes(cacheName, ResourceType.Core.HEAP) + "\n");
@@ -85,6 +86,7 @@ public class EhCacheStatistics {
             builder.append("Occupied (disk): " + getOccupiedBytes(cacheName, "Disk", ResourceType.Core.DISK) + "\n");
             builder.append("\n");
         }
+        */
         builder.append("CACHE_STATISTICS END\n");
         return builder.toString();
     }

@@ -9,7 +9,7 @@
     http://www.springframework.org/schema/cache http://www.springframework.org/schema/cache/spring-cache.xsd
     http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-4.0.xsd">
 
-    <cache:annotation-driven cache-manager="cacheManager" key-generator="customKeyGenerator"/>
+    <cache:annotation-driven cache-manager="redisCacheManager" key-generator="customKeyGenerator"/>
 
     <bean id="cacheEnabledConfig" class="org.cbioportal.persistence.CacheEnabledConfig">
         <constructor-arg value="${ehcache.cache_type:none}"/>
@@ -22,7 +22,7 @@
         <property name="targetMethod" value="getRedissionClient" />
     </bean>
 
-    <bean id="cacheManager" class="org.springframework.beans.factory.config.MethodInvokingFactoryBean">
+    <bean id="redisCacheManager" class="org.springframework.beans.factory.config.MethodInvokingFactoryBean">
         <property name="targetObject" ref="customRedisCacheProvider" />
         <property name="targetMethod" value="getCacheManager" />
         <property name="arguments">

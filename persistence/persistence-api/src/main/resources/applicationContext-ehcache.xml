@@ -10,34 +10,33 @@
     http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-4.0.xsd">
 
 <!--
-    <cache:annotation-driven cache-manager="cacheManager" key-generator="customKeyGenerator"/>
-
+    <cache:annotation-driven cache-manager="ehcacheCacheManager" key-generator="customKeyGenerator"/>
+-->
     <bean id="cacheEnabledConfig" class="org.cbioportal.persistence.CacheEnabledConfig">
         <constructor-arg value="${ehcache.cache_type:none}"/>
     </bean>
 
     <bean id="customEhCacheProvider" class="org.cbioportal.persistence.util.CustomEhCachingProvider"/>
 
-    <bean id="getCacheManager" class="org.springframework.beans.factory.config.MethodInvokingFactoryBean">
+    <bean id="getEhcacheCacheManager" class="org.springframework.beans.factory.config.MethodInvokingFactoryBean">
         <property name="targetObject" ref="customEhCacheProvider" />
         <property name="targetMethod" value="getCacheManager" />
     </bean>
 
-    <bean id="cacheManager" class="org.springframework.cache.jcache.JCacheCacheManager">
-        <property name="cacheManager" ref="getCacheManager"/>
+    <bean id="ehcacheCacheManager" class="org.springframework.cache.jcache.JCacheCacheManager">
+        <property name="cacheManager" ref="getEhcacheCacheManager"/>
     </bean>
 
     <bean id="customKeyGenerator" class="org.cbioportal.persistence.util.CustomKeyGenerator"/>
 
-    <bean id="ehCacheStatistics" class="org.cbioportal.persistence.util.EhCacheStatistics">
-        <constructor-arg ref="getCacheManager"/>
+    <bean id="ehcacheStatistics" class="org.cbioportal.persistence.util.EhCacheStatistics">
+        <constructor-arg ref="getEhcacheCacheManager"/>
     </bean>
 
     <bean class="org.springframework.beans.factory.config.MethodInvokingFactoryBean">
         <property name="staticMethod" value="org.cbioportal.persistence.util.CacheEventLogger.setCacheStatistics" />
         <property name="arguments">
-            <list><ref bean="ehCacheStatistics"/></list>
+            <list><ref bean="ehcacheStatistics"/></list>
         </property>
     </bean>
--->
 </beans>

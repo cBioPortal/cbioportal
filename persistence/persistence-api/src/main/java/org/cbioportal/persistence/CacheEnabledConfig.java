@@ -16,11 +16,9 @@ public class CacheEnabledConfig {
 
     public CacheEnabledConfig(String cacheType) {
         this.enabled = enableCache(cacheType);
-        this.enabled = true;
     }
 
     public static boolean enableCache(String cacheType) {
-        if (1 > 0) return true;
         for (String validCacheType : validCacheTypes) {
             if (validCacheType.equalsIgnoreCase(cacheType)) {
                 return true;
@@ -30,21 +28,15 @@ public class CacheEnabledConfig {
     }
 
     public String getEnabled() {
-        return "true";
-/*
         if (enabled) {
             return "true";
         } else {
             return "false";
         }
-*/
     }
 
     public boolean isEnabled() {
-        return true;
-/*
         return enabled;
-*/
     }
 
 }

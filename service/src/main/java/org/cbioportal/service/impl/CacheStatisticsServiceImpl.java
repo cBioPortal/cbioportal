@@ -15,10 +15,10 @@ import org.springframework.stereotype.Service;
 @Service
 public class CacheStatisticsServiceImpl implements CacheStatisticsService {
 
-    //@Autowired
+    @Autowired
     public CacheManager cacheManager;
 
-    //@Autowired
+    @Autowired
     public EhCacheStatistics ehCacheStatistics;
 
     @Value("${cache.statistics_endpoint_enabled:false}")
@@ -32,7 +32,6 @@ public class CacheStatisticsServiceImpl implements CacheStatisticsService {
 
     @Override
     public List<String> getKeyCountsPerClass(String cacheName) throws CacheNotFoundException {
-/*
         checkIfCacheStatisticsEndpointEnabled();
         Cache<String, Object> cache = cacheManager.getCache(cacheName);
         if (cache == null) {
@@ -52,13 +51,10 @@ public class CacheStatisticsServiceImpl implements CacheStatisticsService {
             keyCountsPerClass.add(entry.getKey().toString() + ": " + entry.getValue().toString() + " keys");
         }
         return keyCountsPerClass;
-*/
-        return new ArrayList<String>();
     }
 
     @Override
     public List<String> getKeysInCache(String cacheName) throws CacheNotFoundException {
-/*
         checkIfCacheStatisticsEndpointEnabled();
         Cache<String, Object> cache = cacheManager.getCache(cacheName);
         if (cache == null) {
@@ -74,16 +70,11 @@ public class CacheStatisticsServiceImpl implements CacheStatisticsService {
         }
         keysInCache.add("Total Number of Keys: " + numberOfKeys.toString());
         return keysInCache;
-*/
-        return new ArrayList<String>();
     }
 
     @Override
     public String getCacheStatistics() {
-/*
         checkIfCacheStatisticsEndpointEnabled();
         return ehCacheStatistics.getCacheStatistics();
-*/
-        return "currently disabled";
     }
 }

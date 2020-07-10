@@ -1,8 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
 <web-app version="3.0" xmlns="http://java.sun.com/xml/ns/javaee"
-    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-    xsi:schemaLocation="http://java.sun.com/xml/ns/javaee http://java.sun.com/xml/ns/javaee/web-app_3_0.xsd">
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xmlns:mvc="http://www.springframework.org/schema/mvc"
+         xsi:schemaLocation="http://java.sun.com/xml/ns/javaee http://java.sun.com/xml/ns/javaee/web-app_3_0.xsd">
 
     <!-- general settings -->
 
@@ -210,7 +211,29 @@
     </filter-mapping>
 
 
-    <!-- servlet definitions & mappings -->
+    <!-- servlet definitions & mappings -->    
+    <servlet-mapping>
+        <servlet-name>default</servlet-name>
+        <url-pattern>/js/*</url-pattern>
+        <url-pattern>/reactapp/*</url-pattern>
+        <url-pattern>/images/*</url-pattern>
+        <url-pattern>/css/*</url-pattern>
+    </servlet-mapping>
+    
+    <servlet>
+        <servlet-name>api-legacy</servlet-name>
+        <servlet-class>org.springframework.web.servlet.DispatcherServlet</servlet-class>
+        <init-param>
+            <param-name>contextConfigLocation</param-name>
+            <param-value>classpath:applicationContext-weblegacy.xml</param-value>
+        </init-param>
+        <load-on-startup>1</load-on-startup>
+    </servlet>
+    <servlet-mapping>
+        <servlet-name>api-legacy</servlet-name>
+        <url-pattern>/api-legacy/*</url-pattern>
+    </servlet-mapping>
+
     <servlet>
         <servlet-name>url_shortener</servlet-name>
         <servlet-class>org.springframework.web.servlet.DispatcherServlet</servlet-class>
@@ -552,6 +575,65 @@
         <url-pattern>/calcFisherExact.do</url-pattern>
     </servlet-mapping>
 
+    <!--All the JSPs need specific routes-->
+    <!--To stop them from being directed to the SPA jsp instead-->
+    <servlet>
+        <servlet-name>LoginJSP</servlet-name>
+        <jsp-file>/login.jsp</jsp-file>
+    </servlet>
+    <servlet-mapping>
+        <servlet-name>LoginJSP</servlet-name>
+        <url-pattern>/login.jsp</url-pattern>
+    </servlet-mapping>
+    <servlet>
+        <servlet-name>NetworksJSP</servlet-name>
+        <jsp-file>/networks.jsp</jsp-file>
+    </servlet>
+    <servlet-mapping>
+        <servlet-name>NetworksJSP</servlet-name>
+        <url-pattern>/networks.jsp</url-pattern>
+    </servlet-mapping>
+    <servlet>
+        <servlet-name>ReleaseNotesMutationMapperJSP</servlet-name>
+        <jsp-file>/release_notes_mutation_mapper.jsp</jsp-file>
+    </servlet>
+    <servlet-mapping>
+        <servlet-name>ReleaseNotesMutationMapperJSP</servlet-name>
+        <url-pattern>/release_notes_mutation_mapper.jsp</url-pattern>
+    </servlet-mapping>
+    <servlet>
+        <servlet-name>ReleaseNotesOncoprinterJSP</servlet-name>
+        <jsp-file>/release_notes_oncoprinter.jsp</jsp-file>
+    </servlet>
+    <servlet-mapping>
+        <servlet-name>ReleaseNotesOncoprinterJSP</servlet-name>
+        <url-pattern>/release_notes_oncoprinter.jsp</url-pattern>
+    </servlet-mapping>
+    <servlet>
+        <servlet-name>RestfulLoginJSP</servlet-name>
+        <jsp-file>/restful_login.jsp</jsp-file>
+    </servlet>
+    <servlet-mapping>
+        <servlet-name>RestfulLoginJSP</servlet-name>
+        <url-pattern>/restful_login.jsp</url-pattern>
+    </servlet-mapping>
+    <servlet>
+        <servlet-name>SciSignalReprintJSP</servlet-name>
+        <jsp-file>/sci_signal_reprint.jsp</jsp-file>
+    </servlet>
+    <servlet-mapping>
+        <servlet-name>SciSignalReprintJSP</servlet-name>
+        <url-pattern>/sci_signal_reprint.jsp</url-pattern>
+    </servlet-mapping>
+    <servlet>
+        <servlet-name>TrackingIncludeJSP</servlet-name>
+        <jsp-file>/tracking_include.jsp</jsp-file>
+    </servlet>
+    <servlet-mapping>
+        <servlet-name>TrackingIncludeJSP</servlet-name>
+        <url-pattern>/tracking_include.jsp</url-pattern>
+    </servlet-mapping>
+
     <servlet>
         <servlet-name>SinglePageApplication</servlet-name>
         <jsp-file>/index.jsp</jsp-file>
@@ -569,6 +651,7 @@
         <url-pattern>/loading/*</url-pattern>
         <url-pattern>/comparison/*</url-pattern>
         <url-pattern>/restore</url-pattern>
+        <url-pattern>/</url-pattern>
     </servlet-mapping>
 
     <servlet>
@@ -607,10 +690,10 @@
         <servlet-name>SiteConfiguration</servlet-name>
         <url-pattern>/config_service.json</url-pattern>
     </servlet-mapping>
-
+    
     <error-page>
-        <error-code>404</error-code>
-        <location>/index.jsp</location>
+        <exception-type>org.springframework.security.web.firewall.RequestRejectedException</exception-type>
+        <location>/error.html</location>
     </error-page>
 
 </web-app>

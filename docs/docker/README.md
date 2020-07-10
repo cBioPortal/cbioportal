@@ -92,7 +92,7 @@ database irreversibly incompatible with older versions of the portal code.
 ```
 docker run --rm -it --net cbio-net \
     -v /<path_to_config_file>/portal.properties:/cbioportal/portal.properties:ro \
-    cbioportal/cbioportal:latest \
+    cbioportal/cbioportal:3.4.2 \
     migrate_db.py -p /cbioportal/portal.properties -s /cbioportal/db-scripts/src/main/resources/migration.sql
 ```
 
@@ -135,7 +135,7 @@ docker run -d --restart=always \
         -Dsession.service.url=http://cbio-session-service:5000/api/sessions/my_portal/
     ' \
     -p 8081:8080 \
-    cbioportal/cbioportal:latest \
+    cbioportal/cbioportal:3.4.2 \
     /bin/sh -c 'java ${JAVA_OPTS} -jar webapp-runner.jar /cbioportal-webapp'
 ```
 
@@ -156,22 +156,6 @@ Activity of Docker containers can be seen with:
 
 ```
 docker ps -a
-```
-
-## A note on versioning ##
-
-For production you might want to deploy a specific docker image tag, instead of
-the `latest` image. The version can be seen in the footer of the home page. The
-various image versions can be found here:
-https://hub.docker.com/r/cbioportal/cbioportal/tags. You can also get the
-latest version programmatically like this:
-
-```
-LATEST_VERSION=$(curl --silent "https://api.github.com/repos/cBioPortal/cbioportal/releases/latest" \
-    | grep "tag_name" \
-    | cut -d'"' -f4 \
-    | cut -dv -f2)
-echo $LATEST_VERSION
 ```
 
 ## Data loading & more commands ##
@@ -207,5 +191,5 @@ Finally we remove the cached Docker images.
 ```
 docker rmi mysql:5.7
 docker rmi mongo:3.6.6
-docker rmi cbioportal/cbioportal:latest
+docker rmi cbioportal/cbioportal:3.4.2
 ```

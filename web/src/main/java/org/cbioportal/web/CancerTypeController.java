@@ -24,8 +24,6 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import javax.validation.constraints.Max;
 import javax.validation.constraints.Min;
@@ -36,8 +34,6 @@ import java.util.List;
 @Validated
 @Api(tags = PublicApiTags.CANCER_TYPES, description = " ")
 public class CancerTypeController {
-
-    private static final Logger LOG = LoggerFactory.getLogger(CancerTypeController.class);
 
     @Autowired
     private CancerTypeService cancerTypeService;
@@ -59,10 +55,6 @@ public class CancerTypeController {
         @ApiParam("Direction of the sort")
         @RequestParam(defaultValue = "ASC") final Direction direction) {
 
-        LOG.error("test log error");
-        LOG.warn("test log warn");
-        LOG.info("test log info");
-        LOG.debug("test log debug");
         if (projection == Projection.META) {
             final HttpHeaders responseHeaders = new HttpHeaders();
             responseHeaders.add(HeaderKeyConstants.TOTAL_COUNT, cancerTypeService.getMetaCancerTypes().getTotalCount()
@@ -81,10 +73,6 @@ public class CancerTypeController {
     public ResponseEntity<TypeOfCancer> getCancerType(
         @ApiParam(required = true, value = "Cancer Type ID e.g. acc")
         @PathVariable final String cancerTypeId) throws CancerTypeNotFoundException {
-        LOG.error("test log error");
-        LOG.warn("test log warn");
-        LOG.info("test log info");
-        LOG.debug("test log debug");
         return new ResponseEntity<>(cancerTypeService.getCancerType(cancerTypeId), HttpStatus.OK);
     }
 }

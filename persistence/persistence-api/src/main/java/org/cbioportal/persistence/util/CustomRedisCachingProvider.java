@@ -72,6 +72,9 @@ public class CustomRedisCachingProvider {
     @Value("${ehcache.static_repository_cache_one.max_mega_bytes_local_disk:32}")
     private Integer staticRepositoryCacheOneMaxMegaBytesLocalDisk;
 
+    @Value("${app.name:cbioportal}")
+    private String appName;
+
     public RedissonClient getRedissionClient() {
         Config config = new Config();
         config.useMasterSlaveServers()
@@ -90,8 +93,8 @@ public class CustomRedisCachingProvider {
         
         Map<String, CacheConfig> config = new HashMap<String, CacheConfig>();
         // create "testMap" cache with ttl = 24 hours and maxIdleTime = 12 hours
-        config.put("GeneralRepositoryCache", new CacheConfig(24*60*60*1000, 12*60*60*1000));
-        config.put("StaticRepositoryCacheOne", new CacheConfig(24*60*60*1000, 12*60*60*1000));
+        config.put(appName + "GeneralRepositoryCache", new CacheConfig(24*60*60*1000, 12*60*60*1000));
+        config.put(appName + "StaticRepositoryCacheOne", new CacheConfig(24*60*60*1000, 12*60*60*1000));
         toReturn = new RedissonSpringCacheManager(redissonClient, config);
         LOG.info("Created Redisson CacheManager: " + toReturn);
 

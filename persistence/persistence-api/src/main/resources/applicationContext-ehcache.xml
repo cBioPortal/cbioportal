@@ -39,4 +39,14 @@
             <list><ref bean="ehcacheStatistics"/></list>
         </property>
     </bean>
+
+    <bean id="generalRepositoryCacheResolver" class="org.springframework.cache.interceptor.NamedCacheResolver">
+        <constructor-arg index="0" ref="ehcacheCacheManager"/>
+        <constructor-arg index="1" value="GeneralRepositoryCache"/>
+    </bean>
+
+    <bean id="staticRepositoryCacheOneResolver" class="org.springframework.cache.interceptor.NamedCacheResolver">
+        <constructor-arg index="0" ref="ehcacheCacheManager"/>
+        <constructor-arg index="1" value="StaticRepositoryCacheOne"/>
+    </bean>
 </beans>

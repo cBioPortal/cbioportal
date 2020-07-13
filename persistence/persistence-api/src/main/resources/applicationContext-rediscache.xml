@@ -30,6 +30,16 @@
         </property>
     </bean>
 
+    <bean id="generalRepositoryCacheResolver" class="org.springframework.cache.interceptor.NamedCacheResolver">
+        <constructor-arg index="0" ref="redisCacheManager"/>
+        <constructor-arg index="1" value="${app.name:cbioportal}GeneralRepositoryCache"/>
+    </bean>
+
+    <bean id="staticRepositoryCacheOneResolver" class="org.springframework.cache.interceptor.NamedCacheResolver">
+        <constructor-arg index="0" ref="redisCacheManager"/>
+        <constructor-arg index="1" value="${app.name:cbioportal}StaticRepositoryCacheOne"/>
+    </bean>
+
 <!--
     Note : the following bean is missing arguments to the constructor
     <bean id="cacheManager" class="org.redisson.spring.cache.RedissonSpringCacheManager">

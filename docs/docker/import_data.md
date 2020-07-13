@@ -13,7 +13,7 @@ These are the commands for importing `study_es_0` gene panels (`data_gene_panel_
 docker run -it --rm \
     --net cbio-net \
     -v /<path_to_config_file>/portal.properties:/cbioportal/portal.properties:ro \
-    cbioportal/cbioportal:latest \
+    cbioportal/cbioportal:3.4.2 \
     bash -c 'cd /cbioportal/core/src/main/scripts/ && ./importGenePanel.pl --data /cbioportal/core/src/test/scripts/test_data/study_es_0/data_gene_panel_testpanel1.txt'
 ```
 
@@ -21,7 +21,7 @@ docker run -it --rm \
 docker run -it --rm \
     --net cbio-net \
     -v /<path_to_config_file>/portal.properties:/cbioportal/portal.properties:ro \
-    cbioportal/cbioportal:latest \
+    cbioportal/cbioportal:3.4.2 \
     bash -c 'cd /cbioportal/core/src/main/scripts/ && ./importGenePanel.pl --data /cbioportal/core/src/test/scripts/test_data/study_es_0/data_gene_panel_testpanel2.txt'
 ```
 
@@ -34,7 +34,7 @@ Command for importing `study_es_0` data:
 ```shell
 docker run -it --rm --net cbio-net \
     -v /<path_to_config_file>/portal.properties:/cbioportal/portal.properties:ro \
-    cbioportal/cbioportal:latest \
+    cbioportal/cbioportal:3.4.2 \
     metaImport.py -u http://cbioportal-container:8080 -s /cbioportal/core/src/test/scripts/test_data/study_es_0
 ```
 
@@ -77,7 +77,7 @@ Specify the study directory by replacing
 docker run -it --rm --net cbio-net \
     -v /<path_to_config_file>/portal.properties:/cbioportal/portal.properties:ro \
     -v "<path_to_study_directory>:/study:ro" \
-    cbioportal/cbioportal:latest \
+    cbioportal/cbioportal:3.4.2 \
     metaImport.py -u http://cbioportal-container:8080 -s /study -o --html=/report/report.html
 ```
 after data imported successfully:

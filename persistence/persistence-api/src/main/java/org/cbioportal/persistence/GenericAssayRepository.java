@@ -8,12 +8,12 @@ import org.springframework.cache.annotation.Cacheable;
 
 public interface GenericAssayRepository {
 
-    @Cacheable(cacheNames = "GeneralRepositoryCache", condition = "@cacheEnabledConfig.getEnabled()")
+    @Cacheable(cacheResolver = "generalRepositoryCacheResolver", condition = "@cacheEnabledConfig.getEnabled()")
     List<GenericAssayMeta> getGenericAssayMeta(List<String> stableIds);
 
-    @Cacheable(cacheNames = "GeneralRepositoryCache", condition = "@cacheEnabledConfig.getEnabled()")
+    @Cacheable(cacheResolver = "generalRepositoryCacheResolver", condition = "@cacheEnabledConfig.getEnabled()")
     List<GenericAssayAdditionalProperty> getGenericAssayAdditionalproperties(List<String> stableIds);
 
-    @Cacheable(cacheNames = "GeneralRepositoryCache", condition = "@cacheEnabledConfig.getEnabled()")
+    @Cacheable(cacheResolver = "generalRepositoryCacheResolver", condition = "@cacheEnabledConfig.getEnabled()")
     List<String> getGenericAssayStableIdsByMolecularIds(List<String> molecularProfileIds);
 }

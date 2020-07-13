@@ -8,7 +8,7 @@ docker run -it --rm \
     --net cbio-net \
     -v /<path_to_config_file>/portal.properties:/cbioportal/portal.properties:ro \
     -v <path_to_genepanel_file>:/gene_panels/gene_panel.txt:ro \
-    cbioportal/cbioportal:latest \
+    cbioportal/cbioportal:3.4.2 \
     bash -c 'cd /cbioportal/core/src/main/scripts/ && ./importGenePanel.pl --data /gene_panels/gene_panel.txt'
 ```
 
@@ -25,7 +25,7 @@ docker run -it --rm --net cbio-net \
     -v /<path_to_config_file>/portal.properties:/cbioportal/portal.properties:ro \
     -v "<path_to_study_directory>:/study:ro" \
     -v "<path_to_report_folder>:/report" \
-    cbioportal/cbioportal:latest \
+    cbioportal/cbioportal:3.4.2 \
     metaImport.py -u http://cbioportal-container:8080 -s /study --html=/report/report.html
 ```
 :warning: after importing a study, remember to restart `cbioportal-container`
@@ -40,7 +40,7 @@ docker run --rm --net cbio-net \
     -v /<path_to_config_file>/portal.properties:/cbioportal/portal.properties:ro \
     -v "<path_to_portalinfo>/portalinfo:/portalinfo" \
     -w /cbioportal/core/src/main/scripts \
-    cbioportal/cbioportal:latest \
+    cbioportal/cbioportal:3.4.2 \
     ./dumpPortalInfo.pl /portalinfo
 ```
 
@@ -52,7 +52,7 @@ docker run -it --rm --net cbio-net \
     -v "<path_to_study_directory>:/study:ro" \
     -v "<path_to_report_folder>:/report" \
     -v "<path_to_portalinfo>/portalinfo:/portalinfo:ro" \
-    cbioportal/cbioportal:latest \
+    cbioportal/cbioportal:3.4.2 \
     metaImport.py -p /portalinfo -s /study --html=/report/report.html
 ```
 
@@ -88,7 +88,7 @@ To remove a study, run:
 ```shell
 docker run -it --rm --net cbio-net \
     -v /<path_to_config_file>/portal.properties:/cbioportal/portal.properties:ro \
-    cbioportal/cbioportal:latest \
+    cbioportal/cbioportal:3.4.2 \
     cbioportalImporter.py -c remove-study -id study_id
 ```
 

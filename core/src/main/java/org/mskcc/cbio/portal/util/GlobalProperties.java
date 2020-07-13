@@ -267,6 +267,10 @@ public class GlobalProperties {
     @Value("${sitemaps:false}") // default is false
     public void setSitemaps(String property) { sitemaps = Boolean.parseBoolean(property); }
 
+    private static boolean showTranscriptDropdown;
+    @Value("${show.transcript_dropdown:false}") // default is false
+    public void setShowTranscriptDropdown(String property) { showTranscriptDropdown = Boolean.parseBoolean(property); }
+
     private static boolean showGenomeNexus;
     @Value("${show.genomenexus:true}") // default is true
     public void setShowGenomeNexus(String property) { showGenomeNexus = Boolean.parseBoolean(property); }
@@ -907,6 +911,10 @@ public class GlobalProperties {
 
     public static boolean showCivic() {
         return showCivic;
+    }
+
+    public static boolean showTranscriptDropdown() {
+        return showTranscriptDropdown;
     }
 
     public static boolean showGenomeNexus() {

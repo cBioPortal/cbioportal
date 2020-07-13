@@ -187,6 +187,9 @@ show.civic=false
 # Link to My Cancer Genome. Please disable (set to false) when using cBioPortal with patient identifiable data due My Cancer Genome license restrictions.
 mycancergenome.show=true
 
+# Enable transcript switch dropdown (true, false)
+# show.transcript_dropdown=false
+
 # igv bam linking
 igv.bam.linking=
 # colon delimited

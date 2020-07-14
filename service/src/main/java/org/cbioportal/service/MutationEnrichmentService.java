@@ -1,6 +1,7 @@
 package org.cbioportal.service;
 
 import org.cbioportal.model.AlterationEnrichment;
+import org.cbioportal.model.AlterationFilter;
 import org.cbioportal.model.EnrichmentType;
 import org.cbioportal.model.MolecularProfileCaseIdentifier;
 import org.cbioportal.service.exception.MolecularProfileNotFoundException;
@@ -12,6 +13,7 @@ public interface MutationEnrichmentService {
 
     List<AlterationEnrichment> getMutationEnrichments(
         Map<String, List<MolecularProfileCaseIdentifier>> molecularProfileCaseSets,
-        EnrichmentType enrichmentType)
+        EnrichmentType enrichmentType,
+        AlterationFilter alterationFilter)
         throws MolecularProfileNotFoundException;
 }

@@ -1,0 +1,311 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="org.cbioportal.persistence.mybatis.AlterationCountsMapper">
+
+    <select id="getSampleAlterationCounts" resultType="org.cbioportal.model.AlterationCountByGene">
+        SELECT 
+            ENTREZ_GENE_ID AS entrezGeneId,
+            HUGO_GENE_SYMBOL AS hugoGeneSymbol,
+            COUNT(*) AS totalCount,
+            COUNT(DISTINCT(SAMPLE_ID)) AS numberOfAlteredCases
+        FROM
+        (
+            SELECT
+                mutation.SAMPLE_ID,
+                mutation.ENTREZ_GENE_ID,
+                gene.HUGO_GENE_SYMBOL,
+                mutation.GENETIC_PROFILE_ID,
+                mutation_event.MUTATION_TYPE
+            FROM mutation_event
+            INNER JOIN mutation ON mutation_event.MUTATION_EVENT_ID = mutation.MUTATION_EVENT_ID
+            INNER JOIN gene ON mutation_event.ENTREZ_GENE_ID = gene.ENTREZ_GENE_ID
+            <where>
+                <choose>
+                    <when test="mutationTypes.hasNone()">NULL</when>
+                    <when test="!mutationTypes.hasAll()">
+                        LOWER(mutation_event.MUTATION_TYPE) IN
+                        <foreach item="type" collection="mutationTypes" open="(" separator="," close=")">
+                            LOWER(#{type})
+                        </foreach>
+                    </when>
+                    <!--
+                    BEWARE: at the moment fusions are in the mutations table with MUTATION_TYPE 'Fusion'
+                    this results in undesired interaction of fusion vs mutation queries and the ability to 
+                    pass a list of mutation types (that can include fusion events).
+                    Now, fusions can be only filtered out when there is no limit on the mutation types
+                    ('mutationTypes.hasAll()'). This code should be changed when fusions move
+                    to the strucural variants table.
+                    -->
+                    <when test="mutationTypes.hasAll()">
+                        <include refid="whereSearchFusions"/>
+                    </when>
+                </choose>
+                <include refid="whereInternalSampleIdsMutation"/>
+            </where>
+            UNION ALL
+            SELECT
+                sample_cna_event.SAMPLE_ID,
+                cna_event.ENTREZ_GENE_ID,
+                gene.HUGO_GENE_SYMBOL,
+                sample_cna_event.GENETIC_PROFILE_ID,
+                CAST(cna_event.ALTERATION AS CHAR(3))
+            FROM cna_event
+            INNER JOIN sample_cna_event ON cna_event.CNA_EVENT_ID = sample_cna_event.CNA_EVENT_ID
+            INNER JOIN gene ON cna_event.ENTREZ_GENE_ID = gene.ENTREZ_GENE_ID
+            <where>
+                <choose>
+                    <when test="cnaTypes.hasNone()">NULL</when>
+                    <when test="!cnaTypes.hasAll()">
+                        cna_event.ALTERATION IN
+                        <foreach item="type" collection="cnaTypes" open="(" separator="," close=")">
+                            #{type}
+                        </foreach>
+                    </when>
+                </choose>
+                <include refid="whereInternalSampleIdsCna"/>
+            </where>
+        ) as JoinedTable
+        <where>
+            <include refid="whereGene"/>
+        </where>
+        GROUP BY ENTREZ_GENE_ID, HUGO_GENE_SYMBOL;
+    </select>
+
+    <select id="getPatientAlterationCounts" resultType="org.cbioportal.model.AlterationCountByGene">
+        SELECT
+            ENTREZ_GENE_ID AS entrezGeneId,
+            HUGO_GENE_SYMBOL AS hugoGeneSymbol,
+            COUNT(*) AS totalCount,
+            COUNT(DISTINCT(PATIENT_ID)) AS numberOfAlteredCases
+        FROM
+        (
+            SELECT
+                patient.STABLE_ID as PATIENT_ID,
+                mutation.ENTREZ_GENE_ID,
+                gene.HUGO_GENE_SYMBOL,
+                mutation_event.MUTATION_TYPE as alteration,
+                genetic_profile.STABLE_ID as GENETIC_PROFILE_STABLE_ID
+            FROM mutation_event
+            INNER JOIN mutation ON mutation_event.MUTATION_EVENT_ID = mutation.MUTATION_EVENT_ID
+            INNER JOIN gene ON mutation_event.ENTREZ_GENE_ID = gene.ENTREZ_GENE_ID
+            INNER JOIN sample_profile ON sample_profile.SAMPLE_ID = mutation.SAMPLE_ID
+            AND sample_profile.GENETIC_PROFILE_ID = mutation.GENETIC_PROFILE_ID
+            INNER JOIN genetic_profile on sample_profile.GENETIC_PROFILE_ID = genetic_profile.GENETIC_PROFILE_ID
+            INNER JOIN sample ON sample_profile.SAMPLE_ID = sample.INTERNAL_ID
+            INNER JOIN patient ON sample.PATIENT_ID = patient.INTERNAL_ID
+            <where>
+                <choose>
+                    <when test="mutationTypes.hasNone()">NULL</when>
+                    <when test="!mutationTypes.hasAll()">
+                        LOWER(mutation_event.MUTATION_TYPE) IN
+                        <foreach item="type" collection="mutationTypes" open="(" separator="," close=")">
+                            LOWER(#{type})
+                        </foreach>
+                    </when>
+                    <!--
+                    BEWARE: at the moment fusions are in the mutations table with MUTATION_TYPE 'Fusion'
+                    this results in undesired interaction of fusion vs mutation queries and the ability to 
+                    pass a list of mutation types (that can include fusion events).
+                    Now, fusions can be only filtered out when there is no limit on the mutation types
+                    ('mutationTypes.hasAll()'). This code should be changed when fusions move
+                    to the strucural variants table.
+                    -->
+                    <when test="mutationTypes.hasAll()">
+                        <include refid="whereSearchFusions"/>
+                    </when>
+                </choose>
+                <include refid="whereInternalPatientIds"/>
+            </where>
+            UNION ALL
+            SELECT
+                patient.STABLE_ID as PATIENT_ID,
+                cna_event.ENTREZ_GENE_ID , gene.HUGO_GENE_SYMBOL,
+                CAST(cna_event.ALTERATION AS CHAR(3)),
+                genetic_profile.STABLE_ID as GENETIC_PROFILE_STABLE_ID
+            FROM cna_event
+            INNER JOIN sample_cna_event ON cna_event.CNA_EVENT_ID = sample_cna_event.CNA_EVENT_ID
+            INNER JOIN gene ON cna_event.ENTREZ_GENE_ID = gene.ENTREZ_GENE_ID
+            INNER JOIN genetic_profile on sample_cna_event.GENETIC_PROFILE_ID = genetic_profile.GENETIC_PROFILE_ID
+            INNER JOIN sample ON sample_cna_event.SAMPLE_ID = sample.INTERNAL_ID
+            INNER JOIN patient ON sample.PATIENT_ID = patient.INTERNAL_ID
+            <where>
+                <choose>
+                    <when test="cnaTypes.hasNone()">NULL</when>
+                    <when test="!cnaTypes.hasAll()">
+                        cna_event.ALTERATION IN
+                        <foreach item="type" collection="cnaTypes" open="(" separator="," close=")">
+                            #{type}
+                        </foreach>
+                    </when>
+                </choose>
+                <include refid="whereInternalPatientIds"/>
+            </where>
+        ) as JoinedTable
+        <where>
+            <include refid="whereGene"/>
+        </where>
+        GROUP BY ENTREZ_GENE_ID, HUGO_GENE_SYMBOL;
+    </select>
+
+    <select id="getSampleInternalIds" resultType="Integer">
+        SELECT sample.INTERNAL_ID
+        from sample
+        INNER JOIN patient ON sample.PATIENT_ID = patient.INTERNAL_ID
+        INNER JOIN genetic_profile ON patient.CANCER_STUDY_ID = genetic_profile.CANCER_STUDY_ID
+        <where>
+            <choose>
+                <when test="list == null or list.isEmpty()">
+                    NULL
+                </when>
+                <otherwise>
+                    (sample.STABLE_ID, genetic_profile.STABLE_ID) IN
+                    <foreach item="id" collection="list" open="(" separator="," close=")">
+                        ('${id.getCaseId()}', '${id.getMolecularProfileId()}')
+                    </foreach>
+                </otherwise>
+            </choose>
+        </where>
+    </select>
+
+    <select id="getPatientInternalIds" resultType="Integer">
+        SELECT patient.INTERNAL_ID
+        from patient
+        INNER JOIN genetic_profile ON patient.CANCER_STUDY_ID = genetic_profile.CANCER_STUDY_ID
+        <where>
+            <choose>
+                <when test="list == null or list.isEmpty()">
+                    NULL
+                </when>
+                <otherwise>
+                    (patient.STABLE_ID, genetic_profile.STABLE_ID) IN
+                    <foreach item="id" collection="list" open="(" separator="," close=")">
+                        ('${id.getCaseId()}', '${id.getMolecularProfileId()}')
+                    </foreach>
+                </otherwise>
+            </choose>
+        </where>
+    </select>
+
+    <select id="getSampleCnaCounts" resultType="org.cbioportal.model.CopyNumberCountByGene">
+        SELECT
+            cna_event.ENTREZ_GENE_ID AS entrezGeneId,
+            gene.HUGO_GENE_SYMBOL AS hugoGeneSymbol,
+            reference_genome_gene.CYTOBAND as cytoband,
+            cna_event.ALTERATION AS alteration,
+            COUNT(DISTINCT(sample_cna_event.SAMPLE_ID)) AS numberOfAlteredCases
+        FROM cna_event
+        INNER JOIN sample_cna_event ON cna_event.CNA_EVENT_ID = sample_cna_event.CNA_EVENT_ID
+        INNER JOIN genetic_profile ON sample_cna_event.GENETIC_PROFILE_ID = genetic_profile.GENETIC_PROFILE_ID
+        INNER JOIN gene ON cna_event.ENTREZ_GENE_ID = gene.ENTREZ_GENE_ID
+        INNER JOIN cancer_study ON cancer_study.CANCER_STUDY_ID = genetic_profile.CANCER_STUDY_ID
+        INNER JOIN reference_genome_gene ON reference_genome_gene.ENTREZ_GENE_ID = cna_event.ENTREZ_GENE_ID
+        AND reference_genome_gene.reference_genome_id = cancer_study.reference_genome_id
+        <where>
+            <include refid="whereInternalSampleIdsCna"/>
+            <include refid="whereGeneCna"/>
+        </where>
+        GROUP BY cna_event.ENTREZ_GENE_ID, cna_event.ALTERATION, reference_genome_gene.CYTOBAND, gene.HUGO_GENE_SYMBOL
+    </select>
+
+    <select id="getPatientCnaCounts" resultType="org.cbioportal.model.CopyNumberCountByGene">
+        SELECT
+            cna_event.ENTREZ_GENE_ID AS entrezGeneId,
+            gene.HUGO_GENE_SYMBOL AS hugoGeneSymbol,
+            cna_event.ALTERATION AS alteration,
+            COUNT(DISTINCT(patient.INTERNAL_ID)) AS numberOfAlteredCases
+        FROM cna_event
+        INNER JOIN sample_cna_event ON cna_event.CNA_EVENT_ID = sample_cna_event.CNA_EVENT_ID
+        INNER JOIN genetic_profile ON sample_cna_event.GENETIC_PROFILE_ID = genetic_profile.GENETIC_PROFILE_ID
+        INNER JOIN sample ON sample_cna_event.SAMPLE_ID = sample.INTERNAL_ID
+        INNER JOIN patient ON sample.PATIENT_ID = patient.INTERNAL_ID
+        INNER JOIN gene ON cna_event.ENTREZ_GENE_ID = gene.ENTREZ_GENE_ID
+        <where>
+            <include refid="whereInternalPatientIds"/>
+            <include refid="whereGeneCna"/>
+        </where>
+        GROUP BY cna_event.ENTREZ_GENE_ID, cna_event.ALTERATION, gene.HUGO_GENE_SYMBOL
+    </select>
+
+    <sql id="whereSearchFusions">
+        <if test="searchFusions.name() == 'ACTIVE'">
+            AND
+            LOWER(mutation_event.MUTATION_TYPE) = 'fusion'
+        </if>
+        <if test="searchFusions.name() == 'INACTIVE'">
+            AND
+            LOWER(mutation_event.MUTATION_TYPE) != 'fusion'
+        </if>
+    </sql>
+
+    <sql id="whereGene">
+        <choose>
+        <when test="entrezGeneIds == null or entrezGeneIds.hasNone()">
+            AND NULL
+        </when>
+        <when test="entrezGeneIds.hasValues()">
+            AND JoinedTable.ENTREZ_GENE_ID IN
+            <foreach item="entrezGeneId" collection="entrezGeneIds" open="(" separator="," close=")">
+                #{entrezGeneId}
+            </foreach>
+        </when>
+        </choose>
+    </sql>
+    
+    <sql id="whereGeneCna">
+        <choose>
+            <when test="entrezGeneIds == null or entrezGeneIds.hasNone()">
+                AND NULL
+            </when>
+            <when test="entrezGeneIds.hasValues()">
+                AND cna_event.ENTREZ_GENE_ID IN
+                <foreach item="entrezGeneId" collection="entrezGeneIds" open="(" separator="," close=")">
+                    #{entrezGeneId}
+                </foreach>
+            </when>
+        </choose>
+    </sql>
+    
+    <sql id="whereInternalSampleIdsMutation">
+        <choose>
+            <when test="internalSampleIds == null or internalSampleIds.isEmpty()">
+                NULL
+            </when>
+            <otherwise>
+                AND mutation.SAMPLE_ID IN
+                <foreach item="internalSampleId" collection="internalSampleIds" open="(" separator="," close=")">
+                    #{internalSampleId}
+                </foreach>
+            </otherwise>
+        </choose>
+    </sql>
+    
+    <sql id="whereInternalSampleIdsCna">
+        <choose>
+            <when test="internalSampleIds == null or internalSampleIds.isEmpty()">
+                NULL
+            </when>
+            <otherwise>
+                AND sample_cna_event.SAMPLE_ID IN
+                <foreach item="internalSampleId" collection="internalSampleIds" open="(" separator="," close=")">
+                    #{internalSampleId}
+                </foreach>
+            </otherwise>
+        </choose>
+    </sql>
+    
+    <sql id="whereInternalPatientIds">
+        <choose>
+            <when test="internalPatientIds == null or internalPatientIds.isEmpty()">
+                NULL
+            </when>
+            <otherwise>
+                AND patient.INTERNAL_ID IN
+                <foreach item="internalPatientId" collection="internalPatientIds" open="(" separator="," close=")">
+                    #{internalPatientId}
+                </foreach>
+            </otherwise>
+        </choose>
+    </sql>
+
+</mapper>

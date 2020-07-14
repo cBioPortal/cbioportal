@@ -9,6 +9,13 @@ public class MolecularProfileCaseIdentifier {
     @NotNull
     private String caseId;
 
+    public MolecularProfileCaseIdentifier() {}
+
+    public MolecularProfileCaseIdentifier(String caseId, String molecularProfileId) {
+        this.molecularProfileId = molecularProfileId;
+        this.caseId = caseId;
+    }
+
     public String getMolecularProfileId() {
         return molecularProfileId;
     }

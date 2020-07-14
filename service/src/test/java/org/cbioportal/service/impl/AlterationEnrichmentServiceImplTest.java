@@ -5,10 +5,10 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import org.cbioportal.model.AlterationEnrichment;
-import org.cbioportal.model.MolecularProfileCaseIdentifier;
-import org.cbioportal.model.MutationCountByGene;
-import org.cbioportal.service.MutationService;
+import org.cbioportal.model.*;
+import org.cbioportal.model.QueryElement;
+import org.cbioportal.model.util.Select;
+import org.cbioportal.service.AlterationCountService;
 import org.cbioportal.service.util.AlterationEnrichmentUtil;
 import org.junit.Assert;
 import org.junit.Test;
@@ -19,18 +19,17 @@ import org.mockito.Mockito;
 import org.mockito.junit.MockitoJUnitRunner;
 
 @RunWith(MockitoJUnitRunner.Silent.class)
-public class MutationEnrichmentServiceImplTest extends BaseServiceImplTest {
+public class AlterationEnrichmentServiceImplTest extends BaseServiceImplTest {
 
     @InjectMocks
-    private MutationEnrichmentServiceImpl mutationEnrichmentService;
-
+    private AlterationEnrichmentServiceImpl alterationEnrichmentService;
     @Mock
-    private MutationService mutationService;
+    private AlterationCountService alterationCountService;
     @Mock
     private AlterationEnrichmentUtil alterationEnrichmentUtil;
 
     @Test
-    public void getMutationEnrichments() throws Exception {
+    public void getAlterationEnrichments() throws Exception {
         // create set1, set2 list of entities
         MolecularProfileCaseIdentifier molecularProfileCase1 = new MolecularProfileCaseIdentifier();
         molecularProfileCase1.setCaseId("sample_id_1");
@@ -56,29 +55,29 @@ public class MutationEnrichmentServiceImplTest extends BaseServiceImplTest {
         groupMolecularProfileCaseSets.put("altered group", molecularProfileCaseSet1);
         groupMolecularProfileCaseSets.put("unaltered group", molecularProfileCaseSet2);
 
-        List<MutationCountByGene> mutationSampleCountByGeneList = new ArrayList<>();
+        List<AlterationCountByGene> alterationSampleCountByGeneList = new ArrayList<>();
+        Select<MutationEventType> mutationTypes = Select.none();
+        Select<CNA> cnaTypes = Select.none();
 
+        //  return counts for each of the two groups 
         for (String molecularProfileId : groupMolecularProfileCaseSets.keySet()) {
-
-            List<String> molecularProfileIds = new ArrayList<>();
-            List<String> sampleIds = new ArrayList<>();
-
-            groupMolecularProfileCaseSets.getOrDefault(molecularProfileId, new ArrayList<>())
-                    .forEach(molecularProfileCase -> {
-                        molecularProfileIds.add(molecularProfileCase.getMolecularProfileId());
-                        sampleIds.add(molecularProfileCase.getCaseId());
-                    });
-
-            Mockito.when(mutationService.getSampleCountInMultipleMolecularProfiles(new ArrayList<>(molecularProfileIds),
-                    new ArrayList<>(sampleIds), null, false, true)).thenReturn(mutationSampleCountByGeneList);
+            Mockito.when(alterationCountService.getSampleAlterationCounts(
+                groupMolecularProfileCaseSets.get(molecularProfileId),
+                null, false, true,
+                mutationTypes, cnaTypes, QueryElement.PASS)
+            ).thenReturn(alterationSampleCountByGeneList);
         }
 
         List<AlterationEnrichment> expectedAlterationEnrichments = new ArrayList<>();
         Mockito.when(alterationEnrichmentUtil.createAlterationEnrichments(new HashMap<>(),
-                groupMolecularProfileCaseSets, "SAMPLE")).thenReturn(expectedAlterationEnrichments);
+                groupMolecularProfileCaseSets)).thenReturn(expectedAlterationEnrichments);
 
-        List<AlterationEnrichment> result = mutationEnrichmentService
-                .getMutationEnrichments(groupMolecularProfileCaseSets, "SAMPLE");
+        List<AlterationEnrichment> result = alterationEnrichmentService
+            .getAlterationEnrichments(
+                groupMolecularProfileCaseSets,
+                mutationTypes,
+                cnaTypes,
+                EnrichmentType.SAMPLE);
         Assert.assertEquals(result, expectedAlterationEnrichments);
     }
 }

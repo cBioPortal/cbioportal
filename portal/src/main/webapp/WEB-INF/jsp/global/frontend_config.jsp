@@ -14,6 +14,7 @@ window.legacySupportFrontendConfig = {
     showCivic : <%=GlobalProperties.showCivic()%>,
     showHotspot : <%=GlobalProperties.showHotspot()%>,
     showMyCancerGenome : <%=GlobalProperties.showMyCancerGenomeUrl()%>,
+    showTranscriptDropdown : <%=GlobalProperties.showTranscriptDropdown()%>,
     showGenomeNexus : <%=GlobalProperties.showGenomeNexus()%>,
     showMutationMapperToolGrch38 : <%=GlobalProperties.showMutationMapperToolGrch38()%>,
     querySetsOfGenes : JSON.parse('<%=GlobalProperties.getQuerySetsOfGenes()%>'),

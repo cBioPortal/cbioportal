@@ -71,6 +71,6 @@ docker run -d --restart=always \
         -Dsession.service.url=http://cbio-session-service:5000/api/sessions/my_portal/
     ' \
     -p 8081:8080 \
-    cbioportal/cbioportal:latest \
+    cbioportal/cbioportal:3.4.2 \
     /bin/sh -c 'java ${JAVA_OPTS} -jar webapp-runner.jar /cbioportal-webapp'
 </pre>

@@ -60,6 +60,7 @@
             "show.civic",
             "show.genomenexus",
             "show.mutation_mappert_tool.grch38",
+            "show.transcript_dropdown",
             "skin.documentation.about",
             "skin.documentation.baseurl",
             "skin.example_study_queries",

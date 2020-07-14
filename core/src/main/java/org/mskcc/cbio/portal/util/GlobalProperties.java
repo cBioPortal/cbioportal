@@ -231,8 +231,6 @@ public class GlobalProperties {
     public static final String ONCOKB_GENE_STATUS = "oncokb.geneStatus";
     public static final String SHOW_HOTSPOT = "show.hotspot";
     
-    public static final String RECACHE_STUDY_AFTER_UPDATE = "recache_study_after_update";
-    
     public static final String DB_VERSION = "db.version";
     private static boolean suppressSchemaVersionMismatchErrors;
     @Value("${db.suppress_schema_version_mismatch_errors:false}") // default is false
@@ -952,14 +950,6 @@ public class GlobalProperties {
     public static String getOncoKBGeneStatus()
     {
         return portalProperties.getProperty(ONCOKB_GENE_STATUS);
-    }
-    
-    public static boolean getRecacheStudyAfterUpdate() {
-        String recacheStudyAfterUpdate = portalProperties.getProperty(RECACHE_STUDY_AFTER_UPDATE);
-        if (recacheStudyAfterUpdate==null || recacheStudyAfterUpdate.isEmpty()) {
-            return false;
-        }
-        return Boolean.parseBoolean(recacheStudyAfterUpdate);
     }
     
     public static String getBitlyUser() {

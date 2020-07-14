@@ -1,6 +1,7 @@
 package org.cbioportal.service.impl;
 
 import org.cbioportal.model.*;
+import org.cbioportal.model.GeneFilterQuery;
 import org.cbioportal.model.meta.BaseMeta;
 import org.cbioportal.persistence.DiscreteCopyNumberRepository;
 import org.cbioportal.service.DiscreteCopyNumberService;
@@ -11,6 +12,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -87,28 +89,48 @@ public class DiscreteCopyNumberServiceImpl implements DiscreteCopyNumberService 
     }
 
     @Override
-    public List<DiscreteCopyNumberData> getDiscreteCopyNumbersInMultipleMolecularProfiles(List<String> molecularProfileIds, 
-                                                                                          List<String> sampleIds, 
+    public List<DiscreteCopyNumberData> getDiscreteCopyNumbersInMultipleMolecularProfiles(List<String> molecularProfileIds,
+                                                                                          List<String> sampleIds,
                                                                                           List<Integer> entrezGeneIds,
-                                                                                          List<Integer> alterationTypes, 
+                                                                                          List<Integer> alterationTypes,
                                                                                           String projection) {
-        
+
         if (isHomdelOrAmpOnly(alterationTypes)) {
             return discreteCopyNumberRepository.getDiscreteCopyNumbersInMultipleMolecularProfiles(molecularProfileIds,
                 sampleIds, entrezGeneIds, alterationTypes, projection);
         }
-        
+
         return molecularDataService.getMolecularDataInMultipleMolecularProfiles(
-                molecularProfileIds,
-                sampleIds,
-                entrezGeneIds,
-                projection)
+            molecularProfileIds,
+            sampleIds,
+            entrezGeneIds,
+            projection)
             .stream()
             .filter(g -> isValidAlteration(alterationTypes, g))
             .map(this::convert)
             .collect(Collectors.toList());
+    }
+
+    @Override
+    public List<DiscreteCopyNumberData> getDiscreteCopyNumbersInMultipleMolecularProfilesByGeneQueries(List<String> molecularProfileIds,
+                                                                                                       List<String> sampleIds,
+                                                                                                       List<GeneFilterQuery> geneQueries,
+                                                                                                       String projection) {
+
+        List<CNA> cnas = geneQueries.stream().map(q -> q.getAlterations()).flatMap(List::stream).collect(Collectors.toList());
+        if (cnas.isEmpty())
+            return Collections.emptyList();
         
-	}
+        if (isHomdelOrAmpOnlyCna(cnas)) {
+            return discreteCopyNumberRepository.getDiscreteCopyNumbersInMultipleMolecularProfilesByGeneQueries(molecularProfileIds,
+                sampleIds, geneQueries, projection);
+        }
+        
+        return molecularDataService.getMolecularDataInMultipleMolecularProfilesByGeneQueries(molecularProfileIds, sampleIds,
+            geneQueries, projection).stream()
+            .map(this::convert)
+            .collect(Collectors.toList());
+    }
 
     @Override
     public BaseMeta fetchMetaDiscreteCopyNumbersInMolecularProfile(String molecularProfileId,
@@ -195,8 +217,11 @@ public class DiscreteCopyNumberServiceImpl implements DiscreteCopyNumberService 
     }
 
     private boolean isHomdelOrAmpOnly(List<Integer> alterationTypes) {
-
         return !alterationTypes.contains(-1) && !alterationTypes.contains(0) && !alterationTypes.contains(1);
+    }
+    
+    private boolean isHomdelOrAmpOnlyCna(List<CNA> alterationTypes) {
+        return !alterationTypes.contains(CNA.HETLOSS) && !alterationTypes.contains(CNA.DIPLOID) && !alterationTypes.contains(CNA.GAIN);
     }
 
     private boolean isValidAlteration(List<Integer> alterationTypes, GeneMolecularData molecularData) {

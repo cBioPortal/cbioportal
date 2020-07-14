@@ -213,9 +213,6 @@ google_analytics_profile_id=
 # genomespace linking
 genomespace=true
 
-# set this to true if you update cancer studies in your production database without shutting the web server
-recache_study_after_update=false
-
 # session-service url: http://[host]:[port]/[session_service_app]/api/sessions/[portal_instance]/
 # example session-service url: http://localhost:8080/session_service/api/sessions/public_portal/
 # see: https://github.com/cBioPortal/session-service

@@ -3,6 +3,7 @@ package org.cbioportal.web;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.apache.commons.math3.util.Pair;
 import org.cbioportal.model.AlterationCountByGene;
+import org.cbioportal.model.AlterationFilter;
 import org.cbioportal.model.ClinicalAttribute;
 import org.cbioportal.model.ClinicalData;
 import org.cbioportal.model.ClinicalDataCount;
@@ -11,7 +12,6 @@ import org.cbioportal.model.CopyNumberCountByGene;
 import org.cbioportal.model.GenePanelData;
 import org.cbioportal.model.MolecularProfile;
 import org.cbioportal.model.Sample;
-import org.cbioportal.model.util.Select;
 import org.cbioportal.persistence.AlterationRepository;
 import org.cbioportal.service.AlterationCountService;
 import org.cbioportal.service.ClinicalAttributeService;
@@ -309,10 +309,11 @@ public class StudyViewControllerTest {
             argThat(new SelectMockitoArgumentMatcher("ALL")),
             anyBoolean(),
             anyBoolean(),
-            any(Select.class))).thenReturn(mutationCountsMockedData);
+            any(AlterationFilter.class))).thenReturn(mutationCountsMockedData);
 
         StudyViewFilter studyViewFilter = new StudyViewFilter();
         studyViewFilter.setStudyIds(Arrays.asList(TEST_STUDY_ID));
+        studyViewFilter.setAlterationFilter(new AlterationFilter());
 
         mockMvc.perform(MockMvcRequestBuilders.post("/mutated-genes/fetch")
             .accept(MediaType.APPLICATION_JSON)
@@ -357,17 +358,19 @@ public class StudyViewControllerTest {
         fusionCount2.setNumberOfAlteredCases(2);
         fusionCount2.setTotalCount(2);
         fusionCounts.add(fusionCount2);
-        
+
         Pair<List<AlterationCountByGene>, Long> fusionCountsMockedData = new Pair<>(fusionCounts, 0L);
 
         Mockito.when(alterationCountService.getSampleStructuralVariantCounts(
             anyList(),
             argThat(new SelectMockitoArgumentMatcher("ALL")),
             anyBoolean(),
-            anyBoolean())).thenReturn(fusionCountsMockedData);
+            anyBoolean(),
+            any(AlterationFilter.class))).thenReturn(fusionCountsMockedData);
 
         StudyViewFilter studyViewFilter = new StudyViewFilter();
         studyViewFilter.setStudyIds(Arrays.asList(TEST_STUDY_ID));
+        studyViewFilter.setAlterationFilter(new AlterationFilter());
 
         mockMvc.perform(MockMvcRequestBuilders.post("/structuralvariant-genes/fetch")
             .accept(MediaType.APPLICATION_JSON)
@@ -423,10 +426,11 @@ public class StudyViewControllerTest {
             argThat(new SelectMockitoArgumentMatcher("ALL")),
             anyBoolean(),
             anyBoolean(),
-            any(Select.class))).thenReturn(cnaCountsMockedData);
+            any(AlterationFilter.class))).thenReturn(cnaCountsMockedData);
 
         StudyViewFilter studyViewFilter = new StudyViewFilter();
         studyViewFilter.setStudyIds(Arrays.asList(TEST_STUDY_ID));
+        studyViewFilter.setAlterationFilter(new AlterationFilter());
 
         mockMvc.perform(MockMvcRequestBuilders.post("/cna-genes/fetch")
             .accept(MediaType.APPLICATION_JSON)
@@ -622,6 +626,7 @@ public class StudyViewControllerTest {
 
         StudyViewFilter studyViewFilter = new StudyViewFilter();
         studyViewFilter.setStudyIds(Arrays.asList(TEST_STUDY_ID));
+        studyViewFilter.setAlterationFilter(new AlterationFilter());
 
         mockMvc.perform(MockMvcRequestBuilders.post("/clinical-data-density-plot/fetch")
             .accept(MediaType.APPLICATION_JSON)

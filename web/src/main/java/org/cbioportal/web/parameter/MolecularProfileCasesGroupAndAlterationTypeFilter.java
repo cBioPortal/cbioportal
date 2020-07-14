@@ -1,19 +1,18 @@
 package org.cbioportal.web.parameter;
 
 import io.swagger.annotations.ApiModelProperty;
-
-import java.util.List;
+import org.cbioportal.model.AlterationFilter;
 
 import javax.validation.constraints.Size;
+import java.util.List;
 
 public class MolecularProfileCasesGroupAndAlterationTypeFilter {
 
-
-    private AlterationEventTypeFilter alterationEventTypes;
     @Size(min = 1, max = PagingConstants.MAX_PAGE_SIZE)
     @ApiModelProperty(required = true)
     private List<MolecularProfileCasesGroupFilter> molecularProfileCasesGroupFilter;
- 
+    @ApiModelProperty(required = true)
+    private AlterationFilter alterationFilter;
 
     public List<MolecularProfileCasesGroupFilter> getMolecularProfileCasesGroupFilter() {
         return this.molecularProfileCasesGroupFilter;
@@ -24,11 +23,11 @@ public class MolecularProfileCasesGroupAndAlterationTypeFilter {
                 this.molecularProfileCasesGroupFilter = molecularProfileCasesGroupFilter;
     }
 
-    public AlterationEventTypeFilter getAlterationEventTypes() {
-        return this.alterationEventTypes;
+    public AlterationFilter getAlterationFilter() {
+        return this.alterationFilter;
     }
 
-    public void setAlterationEventTypes(AlterationEventTypeFilter alterationEventTypes) {
-        this.alterationEventTypes = alterationEventTypes;
+    public void setAlterationFilter(AlterationFilter alterationFilter) {
+        this.alterationFilter = alterationFilter;
     }
 }

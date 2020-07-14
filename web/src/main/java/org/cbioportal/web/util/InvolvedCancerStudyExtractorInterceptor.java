@@ -38,8 +38,10 @@ import java.util.stream.Collectors;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import org.cbioportal.model.MolecularProfileCaseIdentifier;
+
+import org.cbioportal.model.AlterationFilter;
 import org.cbioportal.model.MolecularProfile;
+import org.cbioportal.model.MolecularProfileCaseIdentifier;
 import org.cbioportal.model.SampleList;
 import org.cbioportal.persistence.mybatis.util.CacheMapUtil;
 import org.cbioportal.web.parameter.*;
@@ -600,8 +602,8 @@ public class InvolvedCancerStudyExtractorInterceptor extends HandlerInterceptorA
             LOG.debug("extracted molecularProfileCasesGroupFilters: " + molecularProfileCasesGroupFilters.toString());
             LOG.debug("setting interceptedMolecularProfileCasesGroupFilters to " + molecularProfileCasesGroupFilters);
             request.setAttribute("interceptedMolecularProfileCasesGroupFilters", molecularProfileCasesGroupFilters);
-            if (molecularProfileCasesAndAlterationTypesGroupFilters.getAlterationEventTypes() != null) {
-                AlterationEventTypeFilter alterationEnrichmentEventTypes = molecularProfileCasesAndAlterationTypesGroupFilters.getAlterationEventTypes();
+            if (molecularProfileCasesAndAlterationTypesGroupFilters.getAlterationFilter() != null) {
+                AlterationFilter alterationEnrichmentEventTypes = molecularProfileCasesAndAlterationTypesGroupFilters.getAlterationFilter();
                 LOG.debug("extracted alterationEventTypes: " + alterationEnrichmentEventTypes.toString());
                 LOG.debug("setting alterationEventTypes to " + alterationEnrichmentEventTypes);
                 request.setAttribute("alterationEventTypes", alterationEnrichmentEventTypes);

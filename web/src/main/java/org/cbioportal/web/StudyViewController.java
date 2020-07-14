@@ -42,6 +42,7 @@ import org.cbioportal.service.SignificantlyMutatedGeneService;
 import org.cbioportal.service.exception.StudyNotFoundException;
 import org.cbioportal.service.util.ClinicalAttributeUtil;
 import org.cbioportal.web.config.annotation.InternalApi;
+import org.cbioportal.model.AlterationFilter;
 import org.cbioportal.web.parameter.ClinicalDataBinCountFilter;
 import org.cbioportal.web.parameter.ClinicalDataBinFilter;
 import org.cbioportal.web.parameter.ClinicalDataCountFilter;
@@ -324,6 +325,8 @@ public class StudyViewController {
         @ApiIgnore // prevent reference to this attribute in the swagger-ui interface. this attribute is needed for the @PreAuthorize tag above.
         @Valid @RequestAttribute(required = false, value = "interceptedStudyViewFilter") StudyViewFilter interceptedStudyViewFilter) throws StudyNotFoundException {
 
+        AlterationFilter annotationFilters = interceptedStudyViewFilter.getAlterationFilter();    
+
         List<SampleIdentifier> filteredSampleIdentifiers = studyViewFilterApplier.apply(interceptedStudyViewFilter);
         Pair<List<AlterationCountByGene>, Long> result = new Pair<>(new ArrayList<>(), 0L);
         if (!filteredSampleIdentifiers.isEmpty()) {
@@ -340,7 +343,7 @@ public class StudyViewController {
                 Select.all(),
                 true, 
                 false,
-                Select.all());
+                annotationFilters);
             result.getFirst().sort((a, b) -> b.getNumberOfAlteredCases() - a.getNumberOfAlteredCases());
             List<String> distinctStudyIds = studyIds.stream().distinct().collect(Collectors.toList());
             if (distinctStudyIds.size() == 1 && !result.getFirst().isEmpty()) {
@@ -369,6 +372,9 @@ public class StudyViewController {
         @RequestAttribute(required = false, value = "involvedCancerStudies") Collection<String> involvedCancerStudies,
         @ApiIgnore // prevent reference to this attribute in the swagger-ui interface.
         @Valid @RequestAttribute(required = false, value = "interceptedStudyViewFilter") StudyViewFilter interceptedStudyViewFilter) throws StudyNotFoundException {
+
+        AlterationFilter annotationFilters = interceptedStudyViewFilter.getAlterationFilter();
+        
         List<SampleIdentifier> filteredSampleIdentifiers = studyViewFilterApplier.apply(interceptedStudyViewFilter);
         Pair<List<AlterationCountByGene>, Long> result = new Pair<>(new ArrayList<>(), 0L);
         if (!filteredSampleIdentifiers.isEmpty()) {
@@ -385,7 +391,8 @@ public class StudyViewController {
                 caseIdentifiers,
                 Select.all(),
                 true,
-                false);
+                false,
+                annotationFilters);
             result.getFirst().sort((a, b) -> b.getNumberOfAlteredCases() - a.getNumberOfAlteredCases());
             List<String> distinctStudyIds = studyIds.stream().distinct().collect(Collectors.toList());
             if (distinctStudyIds.size() == 1 && !result.getFirst().isEmpty()) {
@@ -416,6 +423,8 @@ public class StudyViewController {
         @ApiIgnore // prevent reference to this attribute in the swagger-ui interface. this attribute is needed for the @PreAuthorize tag above.
         @Valid @RequestAttribute(required = false, value = "interceptedStudyViewFilter") StudyViewFilter interceptedStudyViewFilter) throws StudyNotFoundException {
 
+        AlterationFilter alterationFilter = interceptedStudyViewFilter.getAlterationFilter();
+
         // TODO refactor resolution of sampleids to List<MolecularProfileCaseIdentifier> and share between methods
         List<SampleIdentifier> filteredSampleIdentifiers = studyViewFilterApplier.apply(interceptedStudyViewFilter);
         Pair<List<CopyNumberCountByGene>, Long> result = new Pair<>(new ArrayList<>(), 0L);
@@ -434,7 +443,7 @@ public class StudyViewController {
                 Select.all(),
                 true,
                 false,
-                cnaTypes);
+                alterationFilter);
             result.getFirst().sort((a, b) -> b.getNumberOfAlteredCases() - a.getNumberOfAlteredCases());
             List<String> distinctStudyIds = studyIds.stream().distinct().collect(Collectors.toList());
             if (distinctStudyIds.size() == 1 && !result.getFirst().isEmpty()) {

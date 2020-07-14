@@ -1,6 +1,8 @@
 package org.cbioportal.service;
 
-import org.cbioportal.model.*;
+import org.cbioportal.model.GeneFilterQuery;
+import org.cbioportal.model.Mutation;
+import org.cbioportal.model.MutationCountByPosition;
 import org.cbioportal.model.meta.MutationMeta;
 import org.cbioportal.service.exception.MolecularProfileNotFoundException;
 
@@ -23,6 +25,11 @@ public interface MutationService {
                                                            Integer pageSize, Integer pageNumber,
                                                            String sortBy, String direction);
 
+    List<Mutation> getMutationsInMultipleMolecularProfilesByGeneQueries(List<String> molecularProfileIds, List<String> sampleIds,
+                                                                      List<GeneFilterQuery> geneQueries,
+                                                                      String projection, Integer pageSize, Integer pageNumber,
+                                                                      String sortBy, String direction);
+
     MutationMeta getMetaMutationsInMultipleMolecularProfiles(List<String> molecularProfileIds, List<String> sampleIds,
                                                              List<Integer> entrezGeneIds);
 
@@ -44,5 +51,11 @@ public interface MutationService {
     List<Mutation> getFusionsInMultipleMolecularProfiles(List<String> molecularProfileIds, List<String> sampleIds,
                                                          List<Integer> entrezGeneIds, String projection, Integer pageSize, Integer pageNumber, String sortBy,
                                                          String direction);
+
+    List<Mutation> getFusionsInMultipleMolecularProfilesByGeneQueries(List<String> molecularProfileIds, List<String> sampleIds,
+                                                                      List<GeneFilterQuery> geneQueries,
+                                                                      String projection, Integer pageSize, Integer pageNumber,
+                                                                      String sortBy, String direction);
+
     // TODO: cleanup once fusion/structural data is fixed in database
 }

@@ -14,6 +14,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -30,12 +31,22 @@ public class CopyNumberEnrichmentServiceImpl implements CopyNumberEnrichmentServ
     public List<AlterationEnrichment> getCopyNumberEnrichments(
         Map<String, List<MolecularProfileCaseIdentifier>> molecularProfileCaseSets,
         CNA copyNumberEventType,
-        EnrichmentType enrichmentType) throws MolecularProfileNotFoundException {
+        EnrichmentType enrichmentType,
+        boolean includeDriver,
+        boolean includeVUS,
+        boolean includeUnknownOncogenicity,
+        Select<String> selectedTiers,
+        boolean includeUnknownTier) throws MolecularProfileNotFoundException {
 
         Map<String, List<CopyNumberCountByGene>> copyNumberCountByGeneAndGroup = getCopyNumberCountByGeneAndGroup(
             molecularProfileCaseSets,
             copyNumberEventType,
-            enrichmentType);
+            enrichmentType,
+            includeDriver,
+            includeVUS,
+            includeUnknownOncogenicity,
+            selectedTiers,
+            includeUnknownTier);
 
         return alterationEnrichmentUtil
             .createAlterationEnrichments(
@@ -46,7 +57,11 @@ public class CopyNumberEnrichmentServiceImpl implements CopyNumberEnrichmentServ
     public Map<String, List<CopyNumberCountByGene>> getCopyNumberCountByGeneAndGroup(
         Map<String, List<MolecularProfileCaseIdentifier>> molecularProfileCaseSets,
         CNA copyNumberEventType,
-        EnrichmentType enrichmentType) {
+        EnrichmentType enrichmentType,
+        boolean includeDriver,
+        boolean includeVUS,
+        boolean includeUnknownOncogenicity,
+        Select<String> selectedTiers, boolean includeUnknownTier) {
         return molecularProfileCaseSets
             .entrySet()
             .stream()
@@ -62,20 +77,32 @@ public class CopyNumberEnrichmentServiceImpl implements CopyNumberEnrichmentServ
                         sampleIds.add(molecularProfileCase.getCaseId());
                     });
 
+                    Select<CNA> cnaTypes = Select.byValues(Arrays.asList(copyNumberEventType));
+
                     if (enrichmentType.name().equals("SAMPLE")) {
                         return alterationCountService.getSampleCnaCounts(
                             entry.getValue(),
                             Select.all(),
                             true,
                             true,
-                            Select.all());
+                            cnaTypes,
+                            includeDriver,
+                            includeVUS,
+                            includeUnknownOncogenicity,
+                            selectedTiers,
+                            includeUnknownTier);
                     } else {
                         return alterationCountService.getPatientCnaCounts(
                             entry.getValue(),
                             Select.all(),
                             true,
                             true,
-                            Select.all());
+                            cnaTypes,
+                            includeDriver,
+                            includeVUS,
+                            includeUnknownOncogenicity,
+                            selectedTiers,
+                            includeUnknownTier);
                     }
                 }));
     }

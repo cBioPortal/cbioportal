@@ -1,12 +1,10 @@
 package org.cbioportal.service.impl;
 
-import org.cbioportal.model.GeneMolecularAlteration;
-import org.cbioportal.model.GeneMolecularData;
-import org.cbioportal.model.MolecularProfile;
+import org.cbioportal.model.*;
+import org.cbioportal.model.GeneFilterQuery;
 import org.cbioportal.model.MolecularProfile.MolecularAlterationType;
-import org.cbioportal.model.MolecularProfileSamples;
-import org.cbioportal.model.Sample;
 import org.cbioportal.model.meta.BaseMeta;
+import org.cbioportal.persistence.DiscreteCopyNumberRepository;
 import org.cbioportal.persistence.MolecularDataRepository;
 import org.cbioportal.persistence.SampleListRepository;
 import org.cbioportal.service.MolecularDataService;
@@ -21,6 +19,9 @@ import java.util.*;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
+import static java.util.stream.Collectors.groupingBy;
+import static java.util.stream.Collectors.toMap;
+
 @Service
 public class MolecularDataServiceImpl implements MolecularDataService {
 
@@ -32,6 +33,8 @@ public class MolecularDataServiceImpl implements MolecularDataService {
     private MolecularProfileService molecularProfileService;
     @Autowired
     private SampleListRepository sampleListRepository;
+    @Autowired
+    private DiscreteCopyNumberRepository discreteCopyNumberRepository;
 
     @Override
     public List<GeneMolecularData> getMolecularData(String molecularProfileId, String sampleListId,
@@ -170,7 +173,7 @@ public class MolecularDataServiceImpl implements MolecularDataService {
         Map<String, MolecularProfile> molecularProfileMapById = distinctMolecularProfiles.stream().collect(
             Collectors.toMap(MolecularProfile::getStableId, Function.identity()));
         Map<String, List<MolecularProfile>> molecularProfileMapByStudyId = distinctMolecularProfiles.stream().collect(
-            Collectors.groupingBy(MolecularProfile::getCancerStudyIdentifier));
+            groupingBy(MolecularProfile::getCancerStudyIdentifier));
         List<Sample> samples;
         if (sampleIds == null) {
             samples = sampleService.getSamplesByInternalIds(allInternalSampleIds);
@@ -190,7 +193,7 @@ public class MolecularDataServiceImpl implements MolecularDataService {
         List<GeneMolecularAlteration> molecularAlterations = molecularDataRepository
             .getGeneMolecularAlterationsInMultipleMolecularProfiles(distinctMolecularProfileIds, entrezGeneIds, projection);
         Map<String, List<GeneMolecularAlteration>> molecularAlterationsMap = molecularAlterations.stream().collect(
-            Collectors.groupingBy(GeneMolecularAlteration::getMolecularProfileId));
+            groupingBy(GeneMolecularAlteration::getMolecularProfileId));
         
         for (Sample sample : samples) {
             for (MolecularProfile molecularProfile : molecularProfileMapByStudyId.get(sample.getCancerStudyIdentifier())) {
@@ -215,6 +218,43 @@ public class MolecularDataServiceImpl implements MolecularDataService {
                 }
             }
         }
+
+        return molecularDataList;
+    }
+
+    @Override
+    public List<GeneMolecularData> getMolecularDataInMultipleMolecularProfilesByGeneQueries(List<String> molecularProfileIds,
+                                                                                            List<String> sampleIds,
+                                                                                            List<GeneFilterQuery> geneQueries,
+                                                                                            String projection) {
+        // Molecular alterations for all genes in the geneQueries
+        List<Integer> entrezGeneIds = geneQueries.stream().map(q -> q.getEntrezGeneId()).collect(Collectors.toList());
+        List<GeneMolecularData> molecularDataList = getMolecularDataInMultipleMolecularProfiles(molecularProfileIds, sampleIds, entrezGeneIds, projection);
+
+        // All CNA events that match requested geneQueries
+        List<DiscreteCopyNumberData> copyNumberData = discreteCopyNumberRepository
+            .getDiscreteCopyNumbersInMultipleMolecularProfilesByGeneQueries(molecularProfileIds, sampleIds,
+                geneQueries, projection);
+        
+        // molecularProfile->entrezGeneId->sampleId->alterationType lookup table for CNA events
+        Map<String, Map<Integer, Map<String, Map<Integer, String>>>> cnaEventLookup = copyNumberData.stream()
+            .collect(
+                groupingBy(d -> d.getMolecularProfileId(),
+                    groupingBy(d -> d.getEntrezGeneId(),
+                        groupingBy(d -> d.getSampleId(),
+                                toMap(d -> d.getAlteration(), d -> d.getSampleId())
+                        )
+                    )
+                )
+            );
+        
+        // remove molecular data that is not covered by a CNA event
+        molecularDataList = molecularDataList.stream().filter(
+            d -> cnaEventLookup.containsKey(d.getMolecularProfileId())
+                && cnaEventLookup.get(d.getMolecularProfileId()).containsKey(d.getEntrezGeneId())
+                && cnaEventLookup.get(d.getMolecularProfileId()).get(d.getEntrezGeneId()).containsKey(d.getSampleId())
+                && cnaEventLookup.get(d.getMolecularProfileId()).get(d.getEntrezGeneId()).get(d.getSampleId()).containsKey(Integer.parseInt(d.getValue()))
+        ).collect(Collectors.toList());
 
         return molecularDataList;
     }

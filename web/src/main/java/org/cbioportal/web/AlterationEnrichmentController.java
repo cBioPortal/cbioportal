@@ -66,11 +66,27 @@ public class AlterationEnrichmentController {
         Select<CNA> cnaEventTypes = allOptionsSelected(alterationEventTypes.getCopyNumberAlterationEventTypes()) ?
             Select.all() : Select.byValues(selectedCnas);
 
+        Select<String> selectedTiers = Select.byValues(
+            alterationEventTypes.getSelectedTiers().entrySet().stream()
+                .filter(e -> e.getValue())
+                .map(e -> e.getKey()));
+        if (alterationEventTypes.getSelectedTiers().keySet().size() > 0
+            && alterationEventTypes.getSelectedTiers().entrySet().stream().allMatch(e -> e.getValue()))
+            selectedTiers.hasAll(true);
+
         List<AlterationEnrichment> alterationEnrichments = alterationEnrichmentService.getAlterationEnrichments(
             groupCaseIdentifierSet,
             mutationEventTypes,
             cnaEventTypes,
-            enrichmentType);
+            enrichmentType,
+            alterationEventTypes.isIncludeDriver(),
+            alterationEventTypes.isIncludeVUS(),
+            alterationEventTypes.isIncludeUnknownOncogenicity(),
+            selectedTiers,
+            alterationEventTypes.isIncludeUnknownTier(),
+            alterationEventTypes.isIncludeGermline(),
+            alterationEventTypes.isIncludeSomatic(),
+            alterationEventTypes.isIncludeUnknownStatus());
 
         return new ResponseEntity<>(alterationEnrichments, HttpStatus.OK);
     }

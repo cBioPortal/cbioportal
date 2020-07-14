@@ -2,12 +2,14 @@ package org.cbioportal.persistence.mybatis;
 
 import org.cbioportal.model.CopyNumberCountByGene;
 import org.cbioportal.model.DiscreteCopyNumberData;
+import org.cbioportal.model.GeneFilterQuery;
 import org.cbioportal.model.meta.BaseMeta;
 import org.cbioportal.persistence.DiscreteCopyNumberRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Repository
 public class DiscreteCopyNumberMyBatisRepository implements DiscreteCopyNumberRepository {
@@ -50,13 +52,22 @@ public class DiscreteCopyNumberMyBatisRepository implements DiscreteCopyNumberRe
 
     @Override
     public List<DiscreteCopyNumberData> getDiscreteCopyNumbersInMultipleMolecularProfiles(List<String> molecularProfileIds,
-                                                                                           List<String> sampleIds,
-                                                                                           List<Integer> entrezGeneIds,
-                                                                                           List<Integer> alterationTypes,
-                                                                                           String projection) {
-
-        return discreteCopyNumberMapper.getDiscreteCopyNumbersInMultipleMolecularProfiles(molecularProfileIds, 
+                                                                                          List<String> sampleIds,
+                                                                                          List<Integer> entrezGeneIds,
+                                                                                          List<Integer> alterationTypes,
+                                                                                          String projection) {
+        return discreteCopyNumberMapper.getDiscreteCopyNumbersInMultipleMolecularProfiles(molecularProfileIds,
             sampleIds, entrezGeneIds, alterationTypes, projection);
+    }
+
+    @Override
+    public List<DiscreteCopyNumberData> getDiscreteCopyNumbersInMultipleMolecularProfilesByGeneQueries(List<String> molecularProfileIds,
+                                                                                           List<String> sampleIds,
+                                                                                           List<GeneFilterQuery> geneQueries,
+                                                                                           String projection) {
+        
+        return discreteCopyNumberMapper.getDiscreteCopyNumbersInMultipleMolecularProfilesByGeneQueries(molecularProfileIds, 
+            sampleIds, projection, geneQueries);
     }
 
     @Override

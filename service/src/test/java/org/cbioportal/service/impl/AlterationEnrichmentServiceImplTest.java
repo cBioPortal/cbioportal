@@ -64,7 +64,9 @@ public class AlterationEnrichmentServiceImplTest extends BaseServiceImplTest {
             Mockito.when(alterationCountService.getSampleAlterationCounts(
                 groupMolecularProfileCaseSets.get(molecularProfileId),
                 null, false, true,
-                mutationTypes, cnaTypes, QueryElement.PASS)
+                mutationTypes, cnaTypes, QueryElement.PASS,
+                true, true, true, null,
+                true, true, true, true)
             ).thenReturn(alterationSampleCountByGeneList);
         }
 
@@ -77,7 +79,15 @@ public class AlterationEnrichmentServiceImplTest extends BaseServiceImplTest {
                 groupMolecularProfileCaseSets,
                 mutationTypes,
                 cnaTypes,
-                EnrichmentType.SAMPLE);
+                EnrichmentType.SAMPLE,
+                true,
+                true,
+                true,
+                Select.none(),
+                true,
+                true,
+                true,
+                true);
         Assert.assertEquals(result, expectedAlterationEnrichments);
     }
 }

@@ -159,6 +159,16 @@ Different samples of a patient may have been analyzed with different gene panels
 skin.patientview.filter_genes_profiled_all_samples=
 ```
 
+## Control the appearance of the settings menu in study view and group comparison that controls custom annotation-based filtering
+A settings menu that allows the user to filter alterations in study view and group comparison may be used
+when [custom driver annotations](File-Formats.md#custom-driver-annotations) were loaded for the study or studies displayed
+in these sections. This menu will only appear, when setting the property _skin.show_settings_menu_ to _true_.
+
+```
+skin.show_settings_menu=
+```
+
+
 ## Hide p- and q-values in survival types table
 ```
 # Show/hide p- and q-values in survival types table (default is true)

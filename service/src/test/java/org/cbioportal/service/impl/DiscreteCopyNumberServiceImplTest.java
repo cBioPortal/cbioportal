@@ -1,11 +1,6 @@
 package org.cbioportal.service.impl;
 
-import org.cbioportal.model.CopyNumberCount;
-import org.cbioportal.model.CopyNumberCountByGene;
-import org.cbioportal.model.DiscreteCopyNumberData;
-import org.cbioportal.model.Gene;
-import org.cbioportal.model.GeneMolecularData;
-import org.cbioportal.model.MolecularProfile;
+import org.cbioportal.model.*;
 import org.cbioportal.model.meta.BaseMeta;
 import org.cbioportal.persistence.DiscreteCopyNumberRepository;
 import org.cbioportal.service.MolecularDataService;
@@ -23,6 +18,9 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
+
+import static org.mockito.ArgumentMatchers.anyList;
+import static org.mockito.ArgumentMatchers.anyString;
 
 @RunWith(MockitoJUnitRunner.class)
 public class DiscreteCopyNumberServiceImplTest extends BaseServiceImplTest {
@@ -77,18 +75,18 @@ public class DiscreteCopyNumberServiceImplTest extends BaseServiceImplTest {
         
         List<String> profiles = Arrays.asList("profile1", "profile2");
         List<String> samples = Arrays.asList("sample1", "sample2");
-        List<Integer> geneIds = Arrays.asList(0, 1);
+        List<GeneFilterQuery> geneQueries = Arrays.asList();
         List<Integer> alterationTypes = Arrays.asList(-2, 1, 0, -1, 2);
-        Mockito.when(molecularDataService.getMolecularDataInMultipleMolecularProfiles(
-                profiles,
-                samples,
-                geneIds,
-                PROJECTION
+        Mockito.when(molecularDataService.getMolecularDataInMultipleMolecularProfilesByGeneQueries(
+                anyList(),
+                anyList(),
+                anyList(),
+                anyString()
             ))
             .thenReturn(returned);
 
-        List<DiscreteCopyNumberData> actual = discreteCopyNumberService.getDiscreteCopyNumbersInMultipleMolecularProfiles(
-            profiles, samples, geneIds, alterationTypes, PROJECTION
+        List<DiscreteCopyNumberData> actual = discreteCopyNumberService.getDiscreteCopyNumbersInMultipleMolecularProfilesByGeneQueries(
+            profiles, samples, geneQueries, PROJECTION
         );
         List<DiscreteCopyNumberData> expected = Arrays.asList(
             discreteCopyNumberData("sample1", "study1", -2),

@@ -25,15 +25,24 @@ public class AlterationMyBatisRepository implements AlterationRepository {
                                                                  Select<Integer> entrezGeneIds,
                                                                  final Select<MutationEventType> mutationEventTypes,
                                                                  final Select<CNA> cnaEventTypes,
-                                                                 QueryElement searchFusions) {
+                                                                 QueryElement searchFusions,
+                                                                 boolean includeDriver,
+                                                                 boolean includeVUS,
+                                                                 boolean includeUnknownOncogenicity,
+                                                                 Select<String> selectedTiers,
+                                                                 boolean includeUnknownTier,
+                                                                 boolean includeGermline,
+                                                                 boolean includeSomatic,
+                                                                 boolean includeUnknownStatus) {
 
-        // TODO add test
         if (mutationEventTypes != null && !mutationEventTypes.hasAll() && searchFusions != QueryElement.PASS)
             throw new IllegalArgumentException("Filtering for mutations vs. fusions and specifying mutation types" +
                 "simultaneously is not permitted.");
 
         if (((mutationEventTypes == null || mutationEventTypes.hasNone()) && (cnaEventTypes == null || cnaEventTypes.hasNone()))
-            || (molecularProfileCaseIdentifiers == null || molecularProfileCaseIdentifiers.isEmpty())) {
+            || (molecularProfileCaseIdentifiers == null || molecularProfileCaseIdentifiers.isEmpty())
+            || (!includeGermline && !includeSomatic && !includeUnknownStatus
+            && !includeDriver && !includeVUS && !includeUnknownOncogenicity && selectedTiers.hasNone() && !includeUnknownTier)) {
             return Collections.emptyList();
         }
 
@@ -44,7 +53,15 @@ public class AlterationMyBatisRepository implements AlterationRepository {
             entrezGeneIds,
             createMutationTypeList(mutationEventTypes),
             createCnaTypeList(cnaEventTypes),
-            searchFusions);
+            searchFusions,
+            includeDriver,
+            includeVUS,
+            includeUnknownOncogenicity,
+            selectedTiers,
+            includeUnknownTier,
+            includeGermline,
+            includeSomatic,
+            includeUnknownStatus);
     }
 
     @Override
@@ -52,14 +69,23 @@ public class AlterationMyBatisRepository implements AlterationRepository {
                                                                   Select<Integer> entrezGeneIds,
                                                                   Select<MutationEventType> mutationEventTypes,
                                                                   Select<CNA> cnaEventTypes,
-                                                                  QueryElement searchFusions) {
+                                                                  QueryElement searchFusions,
+                                                                  boolean includeDriver,
+                                                                  boolean includeVUS,
+                                                                  boolean includeUnknownOncogenicity,
+                                                                  Select<String> selectedTiers,
+                                                                  boolean includeUnknownTier, boolean includeGermline,
+                                                                  boolean includeSomatic,
+                                                                  boolean includeUnknownStatus) {
 
         if (mutationEventTypes != null && !mutationEventTypes.hasAll() && searchFusions != QueryElement.PASS)
             throw new IllegalArgumentException("Filtering for mutations vs. fusions and specifying mutation types" +
                 "simultaneously is not permitted.");
 
         if (((mutationEventTypes == null || mutationEventTypes.hasNone()) && (cnaEventTypes == null || cnaEventTypes.hasNone()))
-            || (molecularProfileCaseIdentifiers == null || molecularProfileCaseIdentifiers.isEmpty())) {
+            || (molecularProfileCaseIdentifiers == null || molecularProfileCaseIdentifiers.isEmpty())
+            || (!includeGermline && !includeSomatic && !includeUnknownStatus
+            && !includeDriver && !includeVUS && !includeUnknownOncogenicity && selectedTiers.hasNone() && !includeUnknownTier)) {
             return Collections.emptyList();
         }
 
@@ -70,16 +96,29 @@ public class AlterationMyBatisRepository implements AlterationRepository {
             entrezGeneIds,
             createMutationTypeList(mutationEventTypes),
             createCnaTypeList(cnaEventTypes),
-            searchFusions);
+            searchFusions,
+            includeDriver,
+            includeVUS,
+            includeUnknownOncogenicity,
+            selectedTiers,
+            includeUnknownTier,
+            includeGermline,
+            includeSomatic,
+            includeUnknownStatus);
     }
 
     @Override
     public List<CopyNumberCountByGene> getSampleCnaCounts(List<MolecularProfileCaseIdentifier> molecularProfileCaseIdentifiers,
                                                           Select<Integer> entrezGeneIds,
-                                                          Select<CNA> cnaEventTypes) {
+                                                          Select<CNA> cnaEventTypes,
+                                                          boolean includeDriver,
+                                                          boolean includeVUS,
+                                                          boolean includeUnknownOncogenicity,
+                                                          Select<String> selectedTiers, boolean includeUnknownTier) {
 
         if (molecularProfileCaseIdentifiers == null || molecularProfileCaseIdentifiers.isEmpty()
-            || cnaEventTypes == null || cnaEventTypes.hasNone()) {
+            || cnaEventTypes == null || cnaEventTypes.hasNone()
+            || (!includeDriver && !includeVUS && !includeUnknownOncogenicity && selectedTiers.hasNone() && !includeUnknownTier)) {
             return Collections.emptyList();
         }
 
@@ -88,16 +127,27 @@ public class AlterationMyBatisRepository implements AlterationRepository {
         return alterationCountsMapper.getSampleCnaCounts(
             internalSampleIds,
             entrezGeneIds,
-            createCnaTypeList(cnaEventTypes));
+            createCnaTypeList(cnaEventTypes),
+            includeDriver,
+            includeVUS,
+            includeUnknownOncogenicity,
+            selectedTiers,
+            includeUnknownTier);
     }
 
     @Override
     public List<CopyNumberCountByGene> getPatientCnaCounts(List<MolecularProfileCaseIdentifier> molecularProfileCaseIdentifiers,
                                                            Select<Integer> entrezGeneIds,
-                                                           Select<CNA> cnaEventTypes) {
+                                                           Select<CNA> cnaEventTypes,
+                                                           boolean includeDriver,
+                                                           boolean includeVUS,
+                                                           boolean includeUnknownOncogenicity,
+                                                           Select<String> selectedTiers,
+                                                           boolean includeUnknownTier) {
 
         if (molecularProfileCaseIdentifiers == null || molecularProfileCaseIdentifiers.isEmpty()
-            || cnaEventTypes == null || cnaEventTypes.hasNone()) {
+            || cnaEventTypes == null || cnaEventTypes.hasNone()
+            || (!includeDriver && !includeVUS && !includeUnknownOncogenicity && selectedTiers.hasNone() && !includeUnknownTier)) {
             return Collections.emptyList();
         }
 
@@ -106,7 +156,12 @@ public class AlterationMyBatisRepository implements AlterationRepository {
         return alterationCountsMapper.getPatientCnaCounts(
             internalPatientIds,
             entrezGeneIds,
-            createCnaTypeList(cnaEventTypes));
+            createCnaTypeList(cnaEventTypes),
+            includeDriver,
+            includeVUS,
+            includeUnknownOncogenicity,
+            selectedTiers,
+            includeUnknownTier);
     }
     
     private Select<Short> createCnaTypeList(final Select<CNA> cnaEventTypes) {

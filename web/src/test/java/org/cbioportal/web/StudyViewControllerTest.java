@@ -50,6 +50,7 @@ import org.springframework.web.context.WebApplicationContext;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
 
 import static org.mockito.ArgumentMatchers.*;
@@ -306,10 +307,19 @@ public class StudyViewControllerTest {
             argThat(new SelectMockitoArgumentMatcher("ALL")),
             anyBoolean(),
             anyBoolean(),
-            any(Select.class))).thenReturn(mutationCounts);
+            ny(Select.class),
+            anyBoolean(),
+            anyBoolean(),
+            anyBoolean(),
+            any(Select.class),
+            anyBoolean(),
+            anyBoolean(),
+            anyBoolean(),
+            anyBoolean())).thenReturn(mutationCounts);
 
         StudyViewFilter studyViewFilter = new StudyViewFilter();
         studyViewFilter.setStudyIds(Arrays.asList(TEST_STUDY_ID));
+        studyViewFilter.setSelectedTiers(new HashMap<>());
 
         mockMvc.perform(MockMvcRequestBuilders.post("/mutated-genes/fetch")
             .accept(MediaType.APPLICATION_JSON)
@@ -360,10 +370,19 @@ public class StudyViewControllerTest {
             argThat(new SelectMockitoArgumentMatcher("ALL")),
             anyBoolean(),
             anyBoolean(),
-            any(Select.class))).thenReturn(fusionCounts);
+            ny(Select.class),
+            anyBoolean(),
+            anyBoolean(),
+            anyBoolean(),
+            any(Select.class),
+            anyBoolean(),
+            anyBoolean(),
+            anyBoolean(),
+            anyBoolean())).thenReturn(fusionCounts);
 
         StudyViewFilter studyViewFilter = new StudyViewFilter();
         studyViewFilter.setStudyIds(Arrays.asList(TEST_STUDY_ID));
+        studyViewFilter.setSelectedTiers(new HashMap<>());
 
         mockMvc.perform(MockMvcRequestBuilders.post("/fusion-genes/fetch")
             .accept(MediaType.APPLICATION_JSON)
@@ -417,10 +436,16 @@ public class StudyViewControllerTest {
             argThat(new SelectMockitoArgumentMatcher("ALL")),
             anyBoolean(),
             anyBoolean(),
-            any(Select.class))).thenReturn(cnaCounts);
+            any(Select.class),
+            anyBoolean(),
+            anyBoolean(),
+            anyBoolean(),
+            any(Select.class),
+            anyBoolean())).thenReturn(cnaCounts);
 
         StudyViewFilter studyViewFilter = new StudyViewFilter();
         studyViewFilter.setStudyIds(Arrays.asList(TEST_STUDY_ID));
+        studyViewFilter.setSelectedTiers(new HashMap<>());
 
         mockMvc.perform(MockMvcRequestBuilders.post("/cna-genes/fetch")
             .accept(MediaType.APPLICATION_JSON)
@@ -616,6 +641,7 @@ public class StudyViewControllerTest {
 
         StudyViewFilter studyViewFilter = new StudyViewFilter();
         studyViewFilter.setStudyIds(Arrays.asList(TEST_STUDY_ID));
+        studyViewFilter.setSelectedTiers(new HashMap<>());
 
         mockMvc.perform(MockMvcRequestBuilders.post("/clinical-data-density-plot/fetch")
             .accept(MediaType.APPLICATION_JSON)

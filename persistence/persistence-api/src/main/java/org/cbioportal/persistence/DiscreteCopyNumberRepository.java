@@ -19,7 +19,8 @@ public interface DiscreteCopyNumberRepository {
 
 
     @Cacheable(cacheResolver = "generalRepositoryCacheResolver", condition = "@cacheEnabledConfig.getEnabled()")
-    BaseMeta getMetaDiscreteCopyNumbersInMolecularProfileBySampleListId(String molecularProfileId, String sampleListId,
+    BaseMeta getMetaDiscreteCopyNumbersInMolecularProfileBySampleListId(String molecularProfileId,
+                                                                        String sampleListId,
                                                                         List<Integer> entrezGeneIds,
                                                                         List<Integer> alterationTypes);
 
@@ -37,9 +38,17 @@ public interface DiscreteCopyNumberRepository {
                                                                                    List<Integer> alterationTypes, 
                                                                                    String projection);
 
+
+    @Cacheable(cacheNames = "GeneralRepositoryCache", condition = "@cacheEnabledConfig.getEnabled()")
+    List<DiscreteCopyNumberData> getDiscreteCopyNumbersInMultipleMolecularProfilesByGeneQueries(List<String> molecularProfileIds,
+                                                                                                List<String> sampleIds,
+                                                                                                List<GeneFilterQuery> geneFilterQuery,
+                                                                                                String projection);
     @Cacheable(cacheResolver = "generalRepositoryCacheResolver", condition = "@cacheEnabledConfig.getEnabled()")
-    BaseMeta fetchMetaDiscreteCopyNumbersInMolecularProfile(String molecularProfileId, List<String> sampleIds,
-                                                            List<Integer> entrezGeneIds, List<Integer> alterationTypes);
+    BaseMeta fetchMetaDiscreteCopyNumbersInMolecularProfile(String molecularProfileId,
+                                                            List<String> sampleIds,
+                                                            List<Integer> entrezGeneIds,
+                                                            List<Integer> alterationTypes);
 
     @Cacheable(cacheResolver = "generalRepositoryCacheResolver", condition = "@cacheEnabledConfig.getEnabled()")
     List<CopyNumberCountByGene> getSampleCountByGeneAndAlterationAndSampleIds(String molecularProfileId,

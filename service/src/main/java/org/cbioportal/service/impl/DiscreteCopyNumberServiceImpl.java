@@ -1,6 +1,7 @@
 package org.cbioportal.service.impl;
 
 import org.cbioportal.model.*;
+import org.cbioportal.model.GeneFilterQuery;
 import org.cbioportal.model.meta.BaseMeta;
 import org.cbioportal.persistence.DiscreteCopyNumberRepository;
 import org.cbioportal.service.DiscreteCopyNumberService;
@@ -87,28 +88,27 @@ public class DiscreteCopyNumberServiceImpl implements DiscreteCopyNumberService 
     }
 
     @Override
-    public List<DiscreteCopyNumberData> getDiscreteCopyNumbersInMultipleMolecularProfiles(List<String> molecularProfileIds, 
-                                                                                          List<String> sampleIds, 
+    public List<DiscreteCopyNumberData> getDiscreteCopyNumbersInMultipleMolecularProfiles(List<String> molecularProfileIds,
+                                                                                          List<String> sampleIds,
                                                                                           List<Integer> entrezGeneIds,
-                                                                                          List<Integer> alterationTypes, 
+                                                                                          List<Integer> alterationTypes,
                                                                                           String projection) {
-        
-        if (isHomdelOrAmpOnly(alterationTypes)) {
-            return discreteCopyNumberRepository.getDiscreteCopyNumbersInMultipleMolecularProfiles(molecularProfileIds,
-                sampleIds, entrezGeneIds, alterationTypes, projection);
-        }
-        
-        return molecularDataService.getMolecularDataInMultipleMolecularProfiles(
-                molecularProfileIds,
-                sampleIds,
-                entrezGeneIds,
-                projection)
-            .stream()
-            .filter(g -> isValidAlteration(alterationTypes, g))
+
+        return discreteCopyNumberRepository.getDiscreteCopyNumbersInMultipleMolecularProfiles(molecularProfileIds,
+            sampleIds, entrezGeneIds, alterationTypes, projection);
+    }
+
+    @Override
+    public List<DiscreteCopyNumberData> getDiscreteCopyNumbersInMultipleMolecularProfilesByGeneQueries(List<String> molecularProfileIds,
+                                                                                                       List<String> sampleIds,
+                                                                                                       List<GeneFilterQuery> geneQueries,
+                                                                                                       String projection) {
+
+        return molecularDataService.getMolecularDataInMultipleMolecularProfilesByGeneQueries(molecularProfileIds, sampleIds,
+            geneQueries, projection).stream()
             .map(this::convert)
             .collect(Collectors.toList());
-        
-	}
+    }
 
     @Override
     public BaseMeta fetchMetaDiscreteCopyNumbersInMolecularProfile(String molecularProfileId,

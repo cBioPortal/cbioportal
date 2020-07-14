@@ -13,6 +13,14 @@ public interface AlterationEnrichmentService {
         Map<String, List<MolecularProfileCaseIdentifier>> molecularProfileCaseSets,
         final Select<MutationEventType> mutationEventTypes,
         final Select<CNA> cnaEventTypes,
-        EnrichmentType enrichmentType)
+        EnrichmentType enrichmentType,
+        boolean includeDriver,
+        boolean includeVUS,
+        boolean includeUnknownOncogenicity,
+        Select<String> selectedTiers,
+        boolean includeUnknownTier,
+        boolean includeGermline,
+        boolean includeSomatic,
+        boolean includeUnknownStatus)
         throws MolecularProfileNotFoundException;
 }

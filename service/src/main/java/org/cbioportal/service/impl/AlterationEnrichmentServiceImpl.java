@@ -22,22 +22,39 @@ public class AlterationEnrichmentServiceImpl implements AlterationEnrichmentServ
     private AlterationEnrichmentUtil<AlterationCountByGene> alterationEnrichmentUtil;
 
     @Override
-    public List<AlterationEnrichment> getAlterationEnrichments(
-        Map<String, List<MolecularProfileCaseIdentifier>> molecularProfileCaseSets, final Select<MutationEventType> mutationEventTypes,
-        final Select<CNA> cnaEventTypes, EnrichmentType enrichmentType) {
+    public List<AlterationEnrichment> getAlterationEnrichments(Map<String, List<MolecularProfileCaseIdentifier>> molecularProfileCaseSets,
+                                                               final Select<MutationEventType> mutationEventTypes,
+                                                               final Select<CNA> cnaEventTypes,
+                                                               EnrichmentType enrichmentType,
+                                                               boolean includeDriver,
+                                                               boolean includeVUS,
+                                                               boolean includeUnknownOncogenicity,
+                                                               Select<String> selectedTiers,
+                                                               boolean includeUnknownTier,
+                                                               boolean includeGermline,
+                                                               boolean includeSomatic,
+                                                               boolean includeUnknownStatus) {
 
         Map<String, List<AlterationCountByGene>> alterationCountsbyEntrezGeneIdAndGroup = getAlterationCountsbyEntrezGeneIdAndGroup(
-            molecularProfileCaseSets, mutationEventTypes, cnaEventTypes, enrichmentType);
+            molecularProfileCaseSets, mutationEventTypes, cnaEventTypes, enrichmentType, includeDriver, includeVUS,
+            includeUnknownOncogenicity, selectedTiers, includeUnknownTier, includeGermline, includeSomatic, includeUnknownStatus);
 
         return alterationEnrichmentUtil.createAlterationEnrichments(alterationCountsbyEntrezGeneIdAndGroup,
-                molecularProfileCaseSets);
+            molecularProfileCaseSets);
     }
 
-    public Map<String, List<AlterationCountByGene>> getAlterationCountsbyEntrezGeneIdAndGroup(
-        Map<String, List<MolecularProfileCaseIdentifier>> molecularProfileCaseSets,
-        Select<MutationEventType> mutationEventTypes,
-        Select<CNA> cnaEventTypes,
-        EnrichmentType enrichmentType) {
+    public Map<String, List<AlterationCountByGene>> getAlterationCountsbyEntrezGeneIdAndGroup(Map<String, List<MolecularProfileCaseIdentifier>> molecularProfileCaseSets,
+                                                                                              Select<MutationEventType> mutationEventTypes,
+                                                                                              Select<CNA> cnaEventTypes,
+                                                                                              EnrichmentType enrichmentType,
+                                                                                              boolean includeDriver,
+                                                                                              boolean includeVUS,
+                                                                                              boolean includeUnknownOncogenicity,
+                                                                                              Select<String> selectedTiers,
+                                                                                              boolean includeUnknownTier,
+                                                                                              boolean includeGermline,
+                                                                                              boolean includeSomatic,
+                                                                                              boolean includeUnknownStatus) {
         return molecularProfileCaseSets
             .entrySet()
             .stream()
@@ -54,7 +71,15 @@ public class AlterationEnrichmentServiceImpl implements AlterationEnrichmentServ
                                 true,
                                 mutationEventTypes,
                                 cnaEventTypes,
-                                QueryElement.PASS);
+                                QueryElement.PASS,
+                                includeDriver,
+                                includeVUS,
+                                includeUnknownOncogenicity,
+                                selectedTiers,
+                                includeUnknownTier,
+                                includeGermline,
+                                includeSomatic,
+                                includeUnknownStatus);
                     } else {
                         return alterationCountService
                             .getPatientAlterationCounts(
@@ -64,7 +89,15 @@ public class AlterationEnrichmentServiceImpl implements AlterationEnrichmentServ
                                 true,
                                 mutationEventTypes,
                                 cnaEventTypes,
-                                QueryElement.PASS);
+                                QueryElement.PASS,
+                                includeDriver,
+                                includeVUS,
+                                includeUnknownOncogenicity,
+                                selectedTiers,
+                                includeUnknownTier,
+                                includeGermline,
+                                includeSomatic,
+                                includeUnknownStatus);
                     }
                 }));
     }

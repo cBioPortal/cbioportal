@@ -1,16 +1,18 @@
 package org.cbioportal.web.parameter;
 
-import java.io.Serializable;
-import java.util.List;
-import java.util.Objects;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import com.fasterxml.jackson.annotation.JsonInclude;
+import com.fasterxml.jackson.annotation.JsonInclude.Include;
+import org.cbioportal.model.GeneFilter;
+import org.cbioportal.web.parameter.filter.AndedPatientTreatmentFilters;
+import org.cbioportal.web.parameter.filter.AndedSampleTreatmentFilters;
 
 import javax.validation.constraints.AssertTrue;
 import javax.validation.constraints.Size;
-
-import com.fasterxml.jackson.annotation.JsonInclude;
-import com.fasterxml.jackson.annotation.JsonInclude.Include;
-import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
-import org.cbioportal.web.parameter.filter.*;
+import java.io.Serializable;
+import java.util.List;
+import java.util.Map;
+import java.util.Objects;
 
 @JsonIgnoreProperties(ignoreUnknown = true)
 @JsonInclude(Include.NON_NULL)
@@ -29,6 +31,78 @@ public class StudyViewFilter implements Serializable {
     private List<GenericAssayDataFilter> genericAssayDataFilters;
     private List<List<String>> caseLists;
     private List<ClinicalDataFilter> customDataFilters;
+    private Map<String,Boolean> selectedTiers;
+    private boolean includeDriver;
+    private boolean includeVUS;
+    private boolean includeUnknownOncogenicity;
+    private boolean includeUnknownTier;
+    private boolean includeGermline;
+    private boolean includeSomatic;
+    private boolean includeUnknownStatus;
+
+    public Map<String, Boolean> getSelectedTiers() {
+        return selectedTiers;
+    }
+
+    public void setSelectedTiers(Map<String, Boolean> selectedTiers) {
+        this.selectedTiers = selectedTiers;
+    }
+
+    public boolean isIncludeDriver() {
+        return includeDriver;
+    }
+
+    public void setIncludeDriver(boolean includeDriver) {
+        this.includeDriver = includeDriver;
+    }
+
+    public boolean isIncludeVUS() {
+        return includeVUS;
+    }
+
+    public void setIncludeVUS(boolean includeVUS) {
+        this.includeVUS = includeVUS;
+    }
+
+    public boolean isIncludeUnknownOncogenicity() {
+        return includeUnknownOncogenicity;
+    }
+
+    public void setIncludeUnknownOncogenicity(boolean includeUnknownOncogenicity) {
+        this.includeUnknownOncogenicity = includeUnknownOncogenicity;
+    }
+
+    public boolean isIncludeUnknownTier() {
+        return includeUnknownTier;
+    }
+
+    public void setIncludeUnknownTier(boolean includeUnknownTier) {
+        this.includeUnknownTier = includeUnknownTier;
+    }
+
+    public boolean isIncludeGermline() {
+        return includeGermline;
+    }
+
+    public void setIncludeGermline(boolean includeGermline) {
+        this.includeGermline = includeGermline;
+    }
+
+    public boolean isIncludeSomatic() {
+        return includeSomatic;
+    }
+
+    public void setIncludeSomatic(boolean includeSomatic) {
+        this.includeSomatic = includeSomatic;
+    }
+
+    public boolean isIncludeUnknownStatus() {
+        return includeUnknownStatus;
+    }
+
+    public void setIncludeUnknownStatus(boolean includeUnknownStatus) {
+        this.includeUnknownStatus = includeUnknownStatus;
+    }
 
     @AssertTrue
     private boolean isEitherSampleIdentifiersOrStudyIdsPresent() {

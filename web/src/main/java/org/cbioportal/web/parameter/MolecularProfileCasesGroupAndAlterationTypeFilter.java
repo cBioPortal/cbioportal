@@ -8,12 +8,11 @@ import javax.validation.constraints.Size;
 
 public class MolecularProfileCasesGroupAndAlterationTypeFilter {
 
-
-    private AlterationEventTypeFilter alterationEventTypes;
     @Size(min = 1, max = PagingConstants.MAX_PAGE_SIZE)
     @ApiModelProperty(required = true)
     private List<MolecularProfileCasesGroupFilter> molecularProfileCasesGroupFilter;
- 
+    @ApiModelProperty(required = true)
+    private AlterationEventTypeFilter alterationEventTypes;
 
     public List<MolecularProfileCasesGroupFilter> getMolecularProfileCasesGroupFilter() {
         return this.molecularProfileCasesGroupFilter;

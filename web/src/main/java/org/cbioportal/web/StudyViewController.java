@@ -338,7 +338,15 @@ public class StudyViewController {
                 Select.all(),
                 true, 
                 false,
-                Select.all());
+                Select.all(),
+                interceptedStudyViewFilter.isIncludeDriver(),
+                interceptedStudyViewFilter.isIncludeVUS(),
+                interceptedStudyViewFilter.isIncludeUnknownOncogenicity(),
+                selectedTiers,
+                interceptedStudyViewFilter.isIncludeUnknownTier(),
+                interceptedStudyViewFilter.isIncludeGermline(),
+                interceptedStudyViewFilter.isIncludeSomatic(),
+                interceptedStudyViewFilter.isIncludeUnknownStatus());
             result.sort((a, b) -> b.getNumberOfAlteredCases() - a.getNumberOfAlteredCases());
             List<String> distinctStudyIds = studyIds.stream().distinct().collect(Collectors.toList());
             if (distinctStudyIds.size() == 1 && !result.isEmpty()) {
@@ -383,7 +391,15 @@ public class StudyViewController {
                 Select.all(),
                 true,
                 false,
-                Select.all());
+                Select.all(),
+                interceptedStudyViewFilter.isIncludeDriver(),
+                interceptedStudyViewFilter.isIncludeVUS(),
+                interceptedStudyViewFilter.isIncludeUnknownOncogenicity(),
+                selectedTiers,
+                interceptedStudyViewFilter.isIncludeUnknownTier(),
+                interceptedStudyViewFilter.isIncludeGermline(),
+                interceptedStudyViewFilter.isIncludeSomatic(),
+                interceptedStudyViewFilter.isIncludeUnknownStatus());
             result.sort((a, b) -> b.getNumberOfAlteredCases() - a.getNumberOfAlteredCases());
             List<String> distinctStudyIds = studyIds.stream().distinct().collect(Collectors.toList());
             if (distinctStudyIds.size() == 1 && !result.isEmpty()) {
@@ -414,6 +430,14 @@ public class StudyViewController {
         @ApiIgnore // prevent reference to this attribute in the swagger-ui interface. this attribute is needed for the @PreAuthorize tag above.
         @Valid @RequestAttribute(required = false, value = "interceptedStudyViewFilter") StudyViewFilter interceptedStudyViewFilter) throws StudyNotFoundException {
 
+        Select<String> selectedTiers = Select.byValues(
+            interceptedStudyViewFilter.getSelectedTiers().entrySet().stream()
+                .filter(e -> e.getValue())
+                .map(e -> e.getKey()));
+        if (interceptedStudyViewFilter.getSelectedTiers().keySet().size() > 0
+            && interceptedStudyViewFilter.getSelectedTiers().entrySet().stream().allMatch(e -> e.getValue()))
+            selectedTiers.hasAll(true);
+        
         // TODO refactor resolution of sampleids to List<MolecularProfileCaseIdentifier> and share between methods
         List<SampleIdentifier> filteredSampleIdentifiers = studyViewFilterApplier.apply(interceptedStudyViewFilter);
         List<CopyNumberCountByGene> result = new ArrayList<>();
@@ -432,7 +456,12 @@ public class StudyViewController {
                 Select.all(),
                 true,
                 false,
-                cnaTypes);
+                cnaTypes,
+                interceptedStudyViewFilter.isIncludeDriver(),
+                interceptedStudyViewFilter.isIncludeVUS(),
+                interceptedStudyViewFilter.isIncludeUnknownOncogenicity(),
+                selectedTiers,
+                interceptedStudyViewFilter.isIncludeUnknownTier());
             result.sort((a, b) -> b.getNumberOfAlteredCases() - a.getNumberOfAlteredCases());
             List<String> distinctStudyIds = studyIds.stream().distinct().collect(Collectors.toList());
             if (distinctStudyIds.size() == 1 && !result.isEmpty()) {

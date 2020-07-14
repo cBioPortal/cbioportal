@@ -4,6 +4,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import org.cbioportal.model.AlterationEnrichment;
 import org.cbioportal.model.CountSummary;
 import org.cbioportal.model.MolecularProfileCaseIdentifier;
+import org.cbioportal.model.Select;
 import org.cbioportal.service.MutationEnrichmentService;
 import org.cbioportal.web.parameter.MolecularProfileCasesGroupFilter;
 import org.hamcrest.Matchers;
@@ -29,8 +30,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.anyMap;
+import static org.mockito.ArgumentMatchers.*;
 
 @RunWith(SpringJUnit4ClassRunner.class)
 @WebAppConfiguration
@@ -108,7 +108,15 @@ public class MutationEnrichmentControllerTest {
 
         Mockito.when(mutationEnrichmentService.getMutationEnrichments(
             anyMap(),
-            any()))
+            any(),
+            anyBoolean(),
+            anyBoolean(),
+            anyBoolean(),
+            any(Select.class),
+            anyBoolean(),
+            anyBoolean(),
+            anyBoolean(),
+            anyBoolean()))
             .thenReturn(alterationEnrichments);
 
         MolecularProfileCaseIdentifier entity1 = new MolecularProfileCaseIdentifier();

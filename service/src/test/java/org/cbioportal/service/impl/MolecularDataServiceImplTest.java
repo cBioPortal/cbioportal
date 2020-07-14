@@ -1,11 +1,8 @@
 package org.cbioportal.service.impl;
 
-import org.cbioportal.model.GeneMolecularAlteration;
-import org.cbioportal.model.GeneMolecularData;
-import org.cbioportal.model.MolecularProfile;
-import org.cbioportal.model.MolecularProfileSamples;
-import org.cbioportal.model.Sample;
+import org.cbioportal.model.*;
 import org.cbioportal.model.meta.BaseMeta;
+import org.cbioportal.persistence.DiscreteCopyNumberRepository;
 import org.cbioportal.persistence.MolecularDataRepository;
 import org.cbioportal.persistence.SampleListRepository;
 import org.cbioportal.service.MolecularProfileService;
@@ -16,11 +13,16 @@ import org.junit.runner.RunWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.Mockito;
+import org.mockito.Spy;
 import org.mockito.junit.MockitoJUnitRunner;
 
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+
+import static org.mockito.ArgumentMatchers.anyList;
+import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.Mockito.*;
 
 @RunWith(MockitoJUnitRunner.class)
 public class MolecularDataServiceImplTest extends BaseServiceImplTest {
@@ -31,6 +33,8 @@ public class MolecularDataServiceImplTest extends BaseServiceImplTest {
     @Mock
     private MolecularDataRepository molecularDataRepository;
     @Mock
+    private DiscreteCopyNumberRepository discreteCopyNumberRepository;
+    @Mock
     private SampleService sampleService;
     @Mock
     private MolecularProfileService molecularProfileService;
@@ -40,27 +44,27 @@ public class MolecularDataServiceImplTest extends BaseServiceImplTest {
     @Test
     public void getMolecularData() throws Exception {
         
-        Mockito.when(sampleListRepository.getAllSampleIdsInSampleList(SAMPLE_LIST_ID))
+        when(sampleListRepository.getAllSampleIdsInSampleList(SAMPLE_LIST_ID))
             .thenReturn(Arrays.asList(SAMPLE_ID1));
         
         MolecularProfileSamples molecularProfileSamples = new MolecularProfileSamples();
         molecularProfileSamples.setMolecularProfileId(MOLECULAR_PROFILE_ID);
         molecularProfileSamples.setCommaSeparatedSampleIds("1,2,");
         
-        Mockito.when(molecularDataRepository.getCommaSeparatedSampleIdsOfMolecularProfile(MOLECULAR_PROFILE_ID))
+        when(molecularDataRepository.getCommaSeparatedSampleIdsOfMolecularProfile(MOLECULAR_PROFILE_ID))
             .thenReturn(molecularProfileSamples);
 
         MolecularProfile molecularProfile = new MolecularProfile();
         molecularProfile.setCancerStudyIdentifier(STUDY_ID);
         molecularProfile.setMolecularAlterationType(MolecularProfile.MolecularAlterationType.MRNA_EXPRESSION);
-        Mockito.when(molecularProfileService.getMolecularProfile(MOLECULAR_PROFILE_ID)).thenReturn(molecularProfile);
+        when(molecularProfileService.getMolecularProfile(MOLECULAR_PROFILE_ID)).thenReturn(molecularProfile);
         
         List<Sample> sampleList = new ArrayList<>();
         Sample sample = new Sample();
         sample.setInternalId(1);
         sample.setStableId(SAMPLE_ID1);
         sampleList.add(sample);
-        Mockito.when(sampleService.fetchSamples(Arrays.asList(STUDY_ID), Arrays.asList(SAMPLE_ID1), "ID"))
+        when(sampleService.fetchSamples(Arrays.asList(STUDY_ID), Arrays.asList(SAMPLE_ID1), "ID"))
             .thenReturn(sampleList);
 
         List<GeneMolecularAlteration> molecularAlterationList = new ArrayList<>();
@@ -71,7 +75,7 @@ public class MolecularDataServiceImplTest extends BaseServiceImplTest {
 
         List<Integer> entrezGeneIds = new ArrayList<>();
         entrezGeneIds.add(ENTREZ_GENE_ID_1);
-        Mockito.when(molecularDataRepository.getGeneMolecularAlterations(MOLECULAR_PROFILE_ID, entrezGeneIds, 
+        when(molecularDataRepository.getGeneMolecularAlterations(MOLECULAR_PROFILE_ID, entrezGeneIds, 
             PROJECTION)).thenReturn(molecularAlterationList);
 
         List<GeneMolecularData> result = molecularDataService.getMolecularData(MOLECULAR_PROFILE_ID, SAMPLE_LIST_ID, 
@@ -88,27 +92,27 @@ public class MolecularDataServiceImplTest extends BaseServiceImplTest {
     @Test
     public void getMetaMolecularData() throws Exception {
 
-        Mockito.when(sampleListRepository.getAllSampleIdsInSampleList(SAMPLE_LIST_ID))
+        when(sampleListRepository.getAllSampleIdsInSampleList(SAMPLE_LIST_ID))
             .thenReturn(Arrays.asList(SAMPLE_ID1));
 
         MolecularProfileSamples molecularProfileSamples = new MolecularProfileSamples();
         molecularProfileSamples.setMolecularProfileId(MOLECULAR_PROFILE_ID);
         molecularProfileSamples.setCommaSeparatedSampleIds("1,2,");
         
-        Mockito.when(molecularDataRepository.getCommaSeparatedSampleIdsOfMolecularProfile(MOLECULAR_PROFILE_ID))
+        when(molecularDataRepository.getCommaSeparatedSampleIdsOfMolecularProfile(MOLECULAR_PROFILE_ID))
             .thenReturn(molecularProfileSamples);
 
         MolecularProfile molecularProfile = new MolecularProfile();
         molecularProfile.setCancerStudyIdentifier(STUDY_ID);
         molecularProfile.setMolecularAlterationType(MolecularProfile.MolecularAlterationType.MRNA_EXPRESSION);
-        Mockito.when(molecularProfileService.getMolecularProfile(MOLECULAR_PROFILE_ID)).thenReturn(molecularProfile);
+        when(molecularProfileService.getMolecularProfile(MOLECULAR_PROFILE_ID)).thenReturn(molecularProfile);
 
         List<Sample> sampleList = new ArrayList<>();
         Sample sample = new Sample();
         sample.setInternalId(1);
         sample.setStableId(SAMPLE_ID1);
         sampleList.add(sample);
-        Mockito.when(sampleService.fetchSamples(Arrays.asList(STUDY_ID), Arrays.asList(SAMPLE_ID1), "ID"))
+        when(sampleService.fetchSamples(Arrays.asList(STUDY_ID), Arrays.asList(SAMPLE_ID1), "ID"))
             .thenReturn(sampleList);
 
         List<GeneMolecularAlteration> molecularAlterationList = new ArrayList<>();
@@ -119,7 +123,7 @@ public class MolecularDataServiceImplTest extends BaseServiceImplTest {
 
         List<Integer> entrezGeneIds = new ArrayList<>();
         entrezGeneIds.add(ENTREZ_GENE_ID_1);
-        Mockito.when(molecularDataRepository.getGeneMolecularAlterations(MOLECULAR_PROFILE_ID, entrezGeneIds, "ID"))
+        when(molecularDataRepository.getGeneMolecularAlterations(MOLECULAR_PROFILE_ID, entrezGeneIds, "ID"))
             .thenReturn(molecularAlterationList);
 
         BaseMeta result = molecularDataService.getMetaMolecularData(MOLECULAR_PROFILE_ID, SAMPLE_LIST_ID, 
@@ -133,13 +137,13 @@ public class MolecularDataServiceImplTest extends BaseServiceImplTest {
 
         MolecularProfile molecularProfile = new MolecularProfile();
         molecularProfile.setMolecularAlterationType(MolecularProfile.MolecularAlterationType.MRNA_EXPRESSION);
-        Mockito.when(molecularProfileService.getMolecularProfile(MOLECULAR_PROFILE_ID)).thenReturn(molecularProfile);
+        when(molecularProfileService.getMolecularProfile(MOLECULAR_PROFILE_ID)).thenReturn(molecularProfile);
 
         MolecularProfileSamples molecularProfileSamples = new MolecularProfileSamples();
         molecularProfileSamples.setMolecularProfileId(MOLECULAR_PROFILE_ID);
         molecularProfileSamples.setCommaSeparatedSampleIds("1,2,");
         
-        Mockito.when(molecularDataRepository.getCommaSeparatedSampleIdsOfMolecularProfile(MOLECULAR_PROFILE_ID))
+        when(molecularDataRepository.getCommaSeparatedSampleIdsOfMolecularProfile(MOLECULAR_PROFILE_ID))
             .thenReturn(molecularProfileSamples);
 
         List<GeneMolecularAlteration> molecularAlterationList = new ArrayList<>();
@@ -150,7 +154,7 @@ public class MolecularDataServiceImplTest extends BaseServiceImplTest {
 
         List<Integer> entrezGeneIds = new ArrayList<>();
         entrezGeneIds.add(ENTREZ_GENE_ID_1);
-        Mockito.when(molecularDataRepository.getGeneMolecularAlterations(MOLECULAR_PROFILE_ID, entrezGeneIds, 
+        when(molecularDataRepository.getGeneMolecularAlterations(MOLECULAR_PROFILE_ID, entrezGeneIds, 
             PROJECTION)).thenReturn(molecularAlterationList);
         
         List<Integer> internalIds = new ArrayList<>();
@@ -166,7 +170,7 @@ public class MolecularDataServiceImplTest extends BaseServiceImplTest {
         sample2.setInternalId(2);
         sample2.setStableId("sample_id_2");
         samples.add(sample2);
-        Mockito.when(sampleService.getSamplesByInternalIds(internalIds)).thenReturn(samples);
+        when(sampleService.getSamplesByInternalIds(internalIds)).thenReturn(samples);
 
         List<GeneMolecularData> result = molecularDataService.fetchMolecularData(MOLECULAR_PROFILE_ID, null, 
             entrezGeneIds, PROJECTION);
@@ -189,13 +193,13 @@ public class MolecularDataServiceImplTest extends BaseServiceImplTest {
 
         MolecularProfile molecularProfile = new MolecularProfile();
         molecularProfile.setMolecularAlterationType(MolecularProfile.MolecularAlterationType.MRNA_EXPRESSION);
-        Mockito.when(molecularProfileService.getMolecularProfile(MOLECULAR_PROFILE_ID)).thenReturn(molecularProfile);
+        when(molecularProfileService.getMolecularProfile(MOLECULAR_PROFILE_ID)).thenReturn(molecularProfile);
 
         MolecularProfileSamples molecularProfileSamples = new MolecularProfileSamples();
         molecularProfileSamples.setMolecularProfileId(MOLECULAR_PROFILE_ID);
         molecularProfileSamples.setCommaSeparatedSampleIds("1,2,");
         
-        Mockito.when(molecularDataRepository.getCommaSeparatedSampleIdsOfMolecularProfile(MOLECULAR_PROFILE_ID))
+        when(molecularDataRepository.getCommaSeparatedSampleIdsOfMolecularProfile(MOLECULAR_PROFILE_ID))
             .thenReturn(molecularProfileSamples);
 
         List<GeneMolecularAlteration> molecularAlterationList = new ArrayList<>();
@@ -206,7 +210,7 @@ public class MolecularDataServiceImplTest extends BaseServiceImplTest {
 
         List<Integer> entrezGeneIds = new ArrayList<>();
         entrezGeneIds.add(ENTREZ_GENE_ID_1);
-        Mockito.when(molecularDataRepository.getGeneMolecularAlterations(MOLECULAR_PROFILE_ID, entrezGeneIds, "ID"))
+        when(molecularDataRepository.getGeneMolecularAlterations(MOLECULAR_PROFILE_ID, entrezGeneIds, "ID"))
             .thenReturn(molecularAlterationList);
 
         List<Integer> internalIds = new ArrayList<>();
@@ -222,7 +226,7 @@ public class MolecularDataServiceImplTest extends BaseServiceImplTest {
         sample2.setInternalId(2);
         sample2.setStableId("sample_id_2");
         samples.add(sample2);
-        Mockito.when(sampleService.getSamplesByInternalIds(internalIds)).thenReturn(samples);
+        when(sampleService.getSamplesByInternalIds(internalIds)).thenReturn(samples);
 
         BaseMeta result = molecularDataService.fetchMetaMolecularData(MOLECULAR_PROFILE_ID, null, entrezGeneIds);
 
@@ -236,11 +240,48 @@ public class MolecularDataServiceImplTest extends BaseServiceImplTest {
         molecularProfileSamples.setMolecularProfileId(MOLECULAR_PROFILE_ID);
         molecularProfileSamples.setCommaSeparatedSampleIds("1,2,");
         
-        Mockito.when(molecularDataRepository.getCommaSeparatedSampleIdsOfMolecularProfile(MOLECULAR_PROFILE_ID))
+        when(molecularDataRepository.getCommaSeparatedSampleIdsOfMolecularProfile(MOLECULAR_PROFILE_ID))
             .thenReturn(molecularProfileSamples);
         
         Integer result = molecularDataService.getNumberOfSamplesInMolecularProfile(MOLECULAR_PROFILE_ID);
         
         Assert.assertEquals((Integer) 2, result);
+    }
+
+    @Test
+    public void getMolecularDataInMultipleMolecularProfilesByGeneQueries() {
+
+        List<GeneMolecularData> unfilteredData = new ArrayList<>();
+        GeneMolecularData geneMolecularData1 = new GeneMolecularData();
+        geneMolecularData1.setEntrezGeneId(1);
+        geneMolecularData1.setMolecularProfileId("profile1");
+        geneMolecularData1.setValue("-2");
+        geneMolecularData1.setSampleId("sample1");
+        GeneMolecularData geneMolecularData2 = new GeneMolecularData();
+        geneMolecularData2.setEntrezGeneId(1);
+        geneMolecularData2.setMolecularProfileId("profile1");
+        geneMolecularData2.setValue("-1");
+        geneMolecularData2.setSampleId("sample2");
+        unfilteredData.add(geneMolecularData1);
+        unfilteredData.add(geneMolecularData2);
+        
+        MolecularDataServiceImpl spy = spy(molecularDataService);
+        doReturn(unfilteredData).when(spy).getMolecularDataInMultipleMolecularProfiles(anyList(), anyList(), anyList(), anyString());
+
+        List<DiscreteCopyNumberData> selectedCnaEvents = new ArrayList<>();
+        DiscreteCopyNumberData discreteCopyNumberData1 = new DiscreteCopyNumberData();
+        discreteCopyNumberData1.setEntrezGeneId(1);
+        discreteCopyNumberData1.setMolecularProfileId("profile1");
+        discreteCopyNumberData1.setAlteration(-2);
+        discreteCopyNumberData1.setSampleId("sample1");
+        selectedCnaEvents.add(discreteCopyNumberData1);
+
+        when(discreteCopyNumberRepository.getDiscreteCopyNumbersInMultipleMolecularProfilesByGeneQueries(anyList(), anyList(), anyList(), anyString())).thenReturn(selectedCnaEvents);
+
+        List<GeneMolecularData> filteredData = spy.getMolecularDataInMultipleMolecularProfilesByGeneQueries(Arrays.asList(), Arrays.asList(), Arrays.asList(), "projection");
+        
+        Assert.assertEquals(1, filteredData.size());
+        Assert.assertEquals("sample1", filteredData.get(0).getSampleId());
+
     }
 }

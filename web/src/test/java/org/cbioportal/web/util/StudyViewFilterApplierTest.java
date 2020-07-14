@@ -1,17 +1,50 @@
 package org.cbioportal.web.util;
 
-import java.math.BigDecimal;
-import java.util.*;
-import org.cbioportal.model.*;
+import org.cbioportal.model.ClinicalAttribute;
+import org.cbioportal.model.ClinicalData;
+import org.cbioportal.model.DiscreteCopyNumberData;
+import org.cbioportal.model.Gene;
+import org.cbioportal.model.MolecularProfile;
 import org.cbioportal.model.MolecularProfile.MolecularAlterationType;
-import org.cbioportal.service.*;
-import org.cbioportal.web.parameter.*;
+import org.cbioportal.model.Mutation;
+import org.cbioportal.model.Patient;
+import org.cbioportal.model.Sample;
+import org.cbioportal.service.ClinicalAttributeService;
+import org.cbioportal.service.ClinicalDataService;
+import org.cbioportal.service.DiscreteCopyNumberService;
+import org.cbioportal.service.GenePanelService;
+import org.cbioportal.service.GeneService;
+import org.cbioportal.service.GenericAssayService;
+import org.cbioportal.service.MolecularDataService;
+import org.cbioportal.service.MolecularProfileService;
+import org.cbioportal.service.MutationService;
+import org.cbioportal.service.PatientService;
+import org.cbioportal.service.SampleListService;
+import org.cbioportal.service.SampleService;
+import org.cbioportal.web.parameter.ClinicalDataFilter;
+import org.cbioportal.web.parameter.DataFilterValue;
+import org.cbioportal.web.parameter.GeneFilter;
+import org.cbioportal.web.parameter.GeneIdType;
+import org.cbioportal.web.parameter.Projection;
+import org.cbioportal.web.parameter.SampleIdentifier;
+import org.cbioportal.web.parameter.StudyViewFilter;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.mockito.*;
+import org.mockito.InjectMocks;
+import org.mockito.Mock;
+import org.mockito.Mockito;
+import org.mockito.MockitoAnnotations;
+import org.mockito.Spy;
 import org.mockito.junit.MockitoJUnitRunner;
+
+import java.math.BigDecimal;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.HashSet;
+import java.util.List;
 
 @RunWith(MockitoJUnitRunner.Silent.class)
 public class StudyViewFilterApplierTest {

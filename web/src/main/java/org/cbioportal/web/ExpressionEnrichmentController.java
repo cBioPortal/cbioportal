@@ -13,7 +13,7 @@ import org.cbioportal.service.ExpressionEnrichmentService;
 import org.cbioportal.service.exception.GenericAssayNotFoundException;
 import org.cbioportal.service.exception.MolecularProfileNotFoundException;
 import org.cbioportal.web.config.annotation.InternalApi;
-import org.cbioportal.web.parameter.EnrichmentType;
+import org.cbioportal.model.EnrichmentType;
 import org.cbioportal.web.parameter.MolecularProfileCasesGroupFilter;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -78,8 +78,8 @@ public class ExpressionEnrichmentController {
     }
 
     private <S extends ExpressionEnrichment> List<S> fetchExpressionEnrichments(EnrichmentType enrichmentType,
-            List<MolecularProfileCasesGroupFilter> interceptedMolecularProfileCasesGroupFilters,
-            Boolean isRequestForGenericAssayEnrichments) throws MolecularProfileNotFoundException {
+                                                                                List<MolecularProfileCasesGroupFilter> interceptedMolecularProfileCasesGroupFilters,
+                                                                                Boolean isRequestForGenericAssayEnrichments) throws MolecularProfileNotFoundException {
 
         Map<String, List<MolecularProfileCaseIdentifier>> groupCaseIdentifierSet = interceptedMolecularProfileCasesGroupFilters
                 .stream().collect(Collectors.toMap(MolecularProfileCasesGroupFilter::getName,

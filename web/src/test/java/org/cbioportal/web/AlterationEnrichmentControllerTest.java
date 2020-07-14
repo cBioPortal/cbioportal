@@ -2,14 +2,20 @@ package org.cbioportal.web;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.cbioportal.model.AlterationEnrichment;
+import org.cbioportal.model.CNA;
 import org.cbioportal.model.CountSummary;
 import org.cbioportal.model.MolecularProfileCaseIdentifier;
-import org.cbioportal.service.MutationEnrichmentService;
+import org.cbioportal.model.MutationEventType;
+import org.cbioportal.service.AlterationEnrichmentService;
+import org.cbioportal.web.parameter.AlterationEventTypeFilter;
+import org.cbioportal.web.parameter.MolecularProfileCasesGroupAndAlterationTypeFilter;
 import org.cbioportal.web.parameter.MolecularProfileCasesGroupFilter;
+import org.cbioportal.web.util.SelectMockitoArgumentMatcher;
 import org.hamcrest.Matchers;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.mockito.ArgumentMatcher;
 import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
@@ -27,16 +33,19 @@ import org.springframework.web.context.WebApplicationContext;
 import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.anyMap;
+import static org.mockito.ArgumentMatchers.argThat;
+import static org.mockito.Mockito.when;
 
 @RunWith(SpringJUnit4ClassRunner.class)
 @WebAppConfiguration
 @ContextConfiguration("/applicationContext-web-test.xml")
 @Configuration
-public class MutationEnrichmentControllerTest {
+public class AlterationEnrichmentControllerTest {
 
     private static final int TEST_ENTREZ_GENE_ID_1 = 1;
     private static final String TEST_HUGO_GENE_SYMBOL_1 = "test_hugo_gene_symbol_1";
@@ -57,27 +66,39 @@ public class MutationEnrichmentControllerTest {
     private WebApplicationContext wac;
 
     @Autowired
-    private MutationEnrichmentService mutationEnrichmentService;
+    private AlterationEnrichmentService alterationEnrichmentService;
 
     private ObjectMapper objectMapper = new ObjectMapper();
 
     private MockMvc mockMvc;
+    private ArrayList<AlterationEnrichment> alterationEnrichments;
+    private AlterationEventTypeFilter eventTypes;
 
     @Bean
-    public MutationEnrichmentService mutationEnrichmentService() {
-        return Mockito.mock(MutationEnrichmentService.class);
+    public AlterationEnrichmentService alterationEnrichmentService() {
+        return Mockito.mock(AlterationEnrichmentService.class);
     }
 
+    private MolecularProfileCasesGroupAndAlterationTypeFilter filter;
+
+    private static class caseIdMatcher implements ArgumentMatcher<Map> {
+        @Override
+        public boolean matches(Map map) {
+            Map<String, List<MolecularProfileCaseIdentifier>> e = (Map<String, List<MolecularProfileCaseIdentifier>>) map;
+            return e.containsKey("altered group")
+                && e.containsKey("unaltered group")
+                && e.get("altered group").size() == 1
+                && e.get("unaltered group").size() == 1
+                && e.get("altered group").get(0).getCaseId().equals("test_sample_id_1")
+                && e.get("unaltered group").get(0).getCaseId().equals("test_sample_id_2");
+        }
+    }
+        
     @Before
     public void setUp() throws Exception {
-        Mockito.reset(mutationEnrichmentService);
-        mockMvc = MockMvcBuilders.webAppContextSetup(wac).build();
-    }
+        Mockito.reset(alterationEnrichmentService);
 
-    @Test
-    public void fetchMutationEnrichments() throws Exception {
-
-        List<AlterationEnrichment> alterationEnrichments = new ArrayList<>();
+        alterationEnrichments = new ArrayList<>();
         AlterationEnrichment alterationEnrichment1 = new AlterationEnrichment();
         CountSummary alterationEnrichment1Set1Count = new CountSummary();
         CountSummary alterationEnrichment1Set2Count = new CountSummary();
@@ -106,11 +127,6 @@ public class MutationEnrichmentControllerTest {
         alterationEnrichment2.setCounts(Arrays.asList(alterationEnrichment2Set1Count,alterationEnrichment2Set2Count));
         alterationEnrichments.add(alterationEnrichment2);
 
-        Mockito.when(mutationEnrichmentService.getMutationEnrichments(
-            anyMap(),
-            any()))
-            .thenReturn(alterationEnrichments);
-
         MolecularProfileCaseIdentifier entity1 = new MolecularProfileCaseIdentifier();
         entity1.setCaseId("test_sample_id_1");
         entity1.setMolecularProfileId("test_1_mutations");
@@ -126,11 +142,39 @@ public class MutationEnrichmentControllerTest {
         casesGroup2.setName("unaltered group");
         casesGroup2.setMolecularProfileCaseIdentifiers(Arrays.asList(entity2));
 
+        filter = new MolecularProfileCasesGroupAndAlterationTypeFilter();
+        filter.setMolecularProfileCasesGroupFilter(Arrays.asList(casesGroup1,casesGroup2));
+
+        eventTypes = new AlterationEventTypeFilter();
+        Map<MutationEventType, Boolean> mutationEventTypeMap = new HashMap();
+        mutationEventTypeMap.put(MutationEventType.missense_mutation, true);
+        mutationEventTypeMap.put(MutationEventType.feature_truncation, true);
+        Map<CNA, Boolean> cnaEventTypeMap = new HashMap();
+        cnaEventTypeMap.put(CNA.AMP, true);
+        cnaEventTypeMap.put(CNA.HOMDEL, true);
+        eventTypes.setMutationEventTypes(mutationEventTypeMap);
+        eventTypes.setCopyNumberAlterationEventTypes(cnaEventTypeMap);
+        filter.setAlterationEventTypes(eventTypes);
+        
+        mockMvc = MockMvcBuilders.webAppContextSetup(wac).build();
+        
+    }
+
+    @Test
+    public void fetchAlterationEnrichmentsAllTypes() throws Exception {
+
+        when(alterationEnrichmentService.getAlterationEnrichments(
+            argThat(new caseIdMatcher()),
+            argThat(new SelectMockitoArgumentMatcher("ALL")),
+            argThat(new SelectMockitoArgumentMatcher("ALL")),
+            any()))
+            .thenReturn(alterationEnrichments);
+        
         mockMvc.perform(MockMvcRequestBuilders.post(
-            "/mutation-enrichments/fetch")
+            "/alteration-enrichments/fetch")
             .accept(MediaType.APPLICATION_JSON)
             .contentType(MediaType.APPLICATION_JSON)
-            .content(objectMapper.writeValueAsString(Arrays.asList(casesGroup1,casesGroup2))))
+            .content(objectMapper.writeValueAsString(filter)))
             .andExpect(MockMvcResultMatchers.status().isOk())
             .andExpect(MockMvcResultMatchers.content().contentTypeCompatibleWith(MediaType.APPLICATION_JSON))
             .andExpect(MockMvcResultMatchers.jsonPath("$", Matchers.hasSize(2)))
@@ -150,5 +194,99 @@ public class MutationEnrichmentControllerTest {
             .andExpect(MockMvcResultMatchers.jsonPath("$[1].pValue").value(TEST_P_VALUE_2))
             .andExpect(MockMvcResultMatchers.jsonPath("$[1].counts[0].profiledCount").value(TEST_NUMBER_OF_SAMPLES_PROFILED_IN_SET_1))
             .andExpect(MockMvcResultMatchers.jsonPath("$[1].counts[1].profiledCount").value(TEST_NUMBER_OF_SAMPLES_PROFILED_IN_SET_2));
+    }
+
+    @Test
+    public void fetchAlterationEnrichmentsNoTypes() throws Exception {
+
+        when(alterationEnrichmentService.getAlterationEnrichments(
+            argThat(new caseIdMatcher()),
+            argThat(new SelectMockitoArgumentMatcher("EMPTY")),
+            argThat(new SelectMockitoArgumentMatcher("EMPTY")),
+            any()))
+            .thenReturn(alterationEnrichments);
+        
+        filter.getAlterationEventTypes().getMutationEventTypes().put(MutationEventType.missense_mutation, false);
+        filter.getAlterationEventTypes().getMutationEventTypes().put(MutationEventType.feature_truncation, false);
+        filter.getAlterationEventTypes().getCopyNumberAlterationEventTypes().put(CNA.AMP, false);
+        filter.getAlterationEventTypes().getCopyNumberAlterationEventTypes().put(CNA.HOMDEL, false);
+
+        mockMvc.perform(MockMvcRequestBuilders.post(
+            "/alteration-enrichments/fetch")
+            .accept(MediaType.APPLICATION_JSON)
+            .contentType(MediaType.APPLICATION_JSON)
+            .content(objectMapper.writeValueAsString(filter)))
+            .andExpect(MockMvcResultMatchers.status().isOk())
+            .andExpect(MockMvcResultMatchers.content().contentTypeCompatibleWith(MediaType.APPLICATION_JSON))
+            .andExpect(MockMvcResultMatchers.jsonPath("$", Matchers.hasSize(2)));
+    }
+
+    @Test
+    public void fetchAlterationEnrichmentsNullMutationTypes() throws Exception {
+
+        when(alterationEnrichmentService.getAlterationEnrichments(
+            argThat(new caseIdMatcher()),
+            argThat(new SelectMockitoArgumentMatcher("EMPTY")),
+            argThat(new SelectMockitoArgumentMatcher("ALL")),
+            any()))
+            .thenReturn(alterationEnrichments);
+
+        filter.getAlterationEventTypes().getMutationEventTypes().put(MutationEventType.missense_mutation, false);
+        filter.getAlterationEventTypes().getMutationEventTypes().put(MutationEventType.feature_truncation, false);
+
+        mockMvc.perform(MockMvcRequestBuilders.post(
+            "/alteration-enrichments/fetch")
+            .accept(MediaType.APPLICATION_JSON)
+            .contentType(MediaType.APPLICATION_JSON)
+            .content(objectMapper.writeValueAsString(filter)))
+            .andExpect(MockMvcResultMatchers.status().isOk())
+            .andExpect(MockMvcResultMatchers.content().contentTypeCompatibleWith(MediaType.APPLICATION_JSON))
+            .andExpect(MockMvcResultMatchers.jsonPath("$", Matchers.hasSize(2)));
+    }
+
+    @Test
+    public void fetchAlterationEnrichmentsNullCnaTypes() throws Exception {
+
+        when(alterationEnrichmentService.getAlterationEnrichments(
+            argThat(new caseIdMatcher()),
+            argThat(new SelectMockitoArgumentMatcher("ALL")),
+            argThat(new SelectMockitoArgumentMatcher("EMPTY")),
+            any()))
+            .thenReturn(alterationEnrichments);
+
+        filter.getAlterationEventTypes().getCopyNumberAlterationEventTypes().put(CNA.AMP, false);
+        filter.getAlterationEventTypes().getCopyNumberAlterationEventTypes().put(CNA.HOMDEL, false);
+
+        mockMvc.perform(MockMvcRequestBuilders.post(
+            "/alteration-enrichments/fetch")
+            .accept(MediaType.APPLICATION_JSON)
+            .contentType(MediaType.APPLICATION_JSON)
+            .content(objectMapper.writeValueAsString(filter)))
+            .andExpect(MockMvcResultMatchers.status().isOk())
+            .andExpect(MockMvcResultMatchers.content().contentTypeCompatibleWith(MediaType.APPLICATION_JSON))
+            .andExpect(MockMvcResultMatchers.jsonPath("$", Matchers.hasSize(2)));
+    }
+
+    @Test
+    public void fetchAlterationEnrichmentsSubsetTypes() throws Exception {
+
+        when(alterationEnrichmentService.getAlterationEnrichments(
+            argThat(new caseIdMatcher()),
+            argThat(new SelectMockitoArgumentMatcher("SOME")),
+            argThat(new SelectMockitoArgumentMatcher("SOME")),
+            any()))
+            .thenReturn(alterationEnrichments);
+
+        filter.getAlterationEventTypes().getMutationEventTypes().put(MutationEventType.missense_mutation, false);
+        filter.getAlterationEventTypes().getCopyNumberAlterationEventTypes().put(CNA.HOMDEL, false);
+
+        mockMvc.perform(MockMvcRequestBuilders.post(
+            "/alteration-enrichments/fetch")
+            .accept(MediaType.APPLICATION_JSON)
+            .contentType(MediaType.APPLICATION_JSON)
+            .content(objectMapper.writeValueAsString(filter)))
+            .andExpect(MockMvcResultMatchers.status().isOk())
+            .andExpect(MockMvcResultMatchers.content().contentTypeCompatibleWith(MediaType.APPLICATION_JSON))
+            .andExpect(MockMvcResultMatchers.jsonPath("$", Matchers.hasSize(2)));
     }
 }

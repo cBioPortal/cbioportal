@@ -102,7 +102,7 @@ public class AlterationEnrichmentUtilTest {
         Mockito.when(fisherExactTestCalculator.getCumulativePValue(2, 0, 0, 2)).thenReturn(0.3);
 
         List<AlterationEnrichment> result = alterationEnrichmentUtil.createAlterationEnrichments(
-                mutationCountsbyEntrezGeneIdAndGroup, groupMolecularProfileCaseSets, "SAMPLE");
+                mutationCountsbyEntrezGeneIdAndGroup, groupMolecularProfileCaseSets);
 
         Assert.assertEquals(2, result.size());
         AlterationEnrichment alterationEnrichment1 = result.get(0);
@@ -142,7 +142,7 @@ public class AlterationEnrichmentUtilTest {
                 Arrays.asList(alterationSampleCountByGene1, alterationSampleCountByGene2));
 
         result = alterationEnrichmentUtil.createAlterationEnrichments(mutationCountsbyEntrezGeneIdAndGroup,
-                groupMolecularProfileCaseSets, "SAMPLE");
+                groupMolecularProfileCaseSets);
 
         Assert.assertEquals(2, result.size());
         alterationEnrichment1 = result.get(0);

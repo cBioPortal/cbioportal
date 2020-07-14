@@ -30,28 +30,6 @@ public interface MutationMapper {
 
     MutationMeta getMetaMutationsBySampleIds(String molecularProfileId, List<String> sampleIds, 
                                              List<Integer> entrezGeneIds, Boolean snpOnly);
-    
-    List<MutationCountByGene> getSampleCountByEntrezGeneIdsAndSampleIds(String molecularProfileId,
-                                                                        List<String> sampleIds,
-                                                                        List<Integer> entrezGeneIds,
-                                                                        Boolean snpOnly);
-
-    List<MutationCountByGene> getSampleCountInMultipleMolecularProfiles(List<String> molecularProfileIds,
-                                                                        List<String> sampleIds,
-                                                                        List<Integer> entrezGeneIds,
-                                                                        Boolean snpOnly);
-
-    List<MutationCountByGene> getPatientCountInMultipleMolecularProfiles(List<String> molecularProfileIds,
-                                                                         List<String> patientIds,
-                                                                         List<Integer> entrezGeneIds,
-                                                                         Boolean snpOnly);
-    
-    List<MutationCountByGene> getSampleCountInMultipleMolecularProfilesForFusions(List<String> molecularProfileIds,
-                                                                                           List<String> sampleIds,
-                                                                                           List<Integer> entrezGeneIds,
-                                                                                           Boolean snpOnly);
-    
-    
 
     MutationCountByPosition getMutationCountByPosition(Integer entrezGeneId, Integer proteinPosStart, 
                                                        Integer proteinPosEnd);

@@ -33,13 +33,4 @@ public interface DiscreteCopyNumberMapper {
                                                                               List<Integer> entrezGeneIds,
                                                                               List<Integer> alterations);
 
-    List<CopyNumberCountByGene> getSampleCountInMultipleMolecularProfiles(List<String> molecularProfileIds,
-                                                                          List<String> sampleIds, 
-                                                                          List<Integer> entrezGeneIds, 
-                                                                          List<Integer> alterations);
-
-    List<CopyNumberCountByGene> getPatientCountInMultipleMolecularProfiles(List<String> molecularProfileIds,
-                                                                                List<String> patientIds,
-                                                                                List<Integer> entrezGeneIds,
-                                                                                List<Integer> alterations);
 }

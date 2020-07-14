@@ -3,7 +3,6 @@
 
 <mapper namespace="org.cbioportal.persistence.mybatis.MutationMapper">
 
-
     <sql id="select">
         genetic_profile.STABLE_ID AS molecularProfileId,
         sample.STABLE_ID AS sampleId,
@@ -303,86 +302,6 @@
         INNER JOIN sample ON mutation.SAMPLE_ID = sample.INTERNAL_ID
         INNER JOIN gene ON mutation.ENTREZ_GENE_ID = gene.ENTREZ_GENE_ID
         <include refid="where"/>
-        GROUP BY mutation.ENTREZ_GENE_ID
-    </select>
-
-    <select id="getSampleCountInMultipleMolecularProfiles" resultType="org.cbioportal.model.MutationCountByGene">
-        SELECT
-        mutation.ENTREZ_GENE_ID AS entrezGeneId,
-        gene.HUGO_GENE_SYMBOL AS hugoGeneSymbol,
-        COUNT(*) AS totalCount,
-        COUNT(DISTINCT(mutation.SAMPLE_ID)) AS numberOfAlteredCases
-        FROM mutation
-        INNER JOIN mutation_event ON mutation_event.MUTATION_EVENT_ID = mutation.MUTATION_EVENT_ID AND mutation_event.MUTATION_TYPE != 'Fusion'
-        INNER JOIN genetic_profile ON mutation.GENETIC_PROFILE_ID = genetic_profile.GENETIC_PROFILE_ID
-        INNER JOIN sample ON mutation.SAMPLE_ID = sample.INTERNAL_ID
-        INNER JOIN gene ON mutation.ENTREZ_GENE_ID = gene.ENTREZ_GENE_ID
-        <include refid="whereInMultipleMolecularProfiles"/>
-        GROUP BY mutation.ENTREZ_GENE_ID
-    </select>
-
-    <select id="getSampleCountInMultipleMolecularProfilesForFusions" resultType="org.cbioportal.model.MutationCountByGene">
-        SELECT
-        mutation.ENTREZ_GENE_ID AS entrezGeneId,
-        gene.HUGO_GENE_SYMBOL AS hugoGeneSymbol,
-        COUNT(*) AS totalCount,
-        COUNT(DISTINCT(mutation.SAMPLE_ID)) AS numberOfAlteredCases
-        FROM mutation
-        INNER JOIN mutation_event ON mutation_event.MUTATION_EVENT_ID = mutation.MUTATION_EVENT_ID AND mutation_event.MUTATION_TYPE = 'Fusion'
-        INNER JOIN genetic_profile ON mutation.GENETIC_PROFILE_ID = genetic_profile.GENETIC_PROFILE_ID
-        INNER JOIN sample ON mutation.SAMPLE_ID = sample.INTERNAL_ID
-        INNER JOIN gene ON mutation.ENTREZ_GENE_ID = gene.ENTREZ_GENE_ID
-        <include refid="whereInMultipleMolecularProfiles"/>
-        GROUP BY mutation.ENTREZ_GENE_ID
-    </select>
-
-    <select id="getPatientCountInMultipleMolecularProfiles" resultType="org.cbioportal.model.MutationCountByGene">
-        SELECT
-        mutation.ENTREZ_GENE_ID AS entrezGeneId,
-        gene.HUGO_GENE_SYMBOL AS hugoGeneSymbol,
-        COUNT(*) AS totalCount,
-        COUNT(DISTINCT(patient.INTERNAL_ID)) AS numberOfAlteredCases
-        FROM mutation
-        INNER JOIN genetic_profile ON mutation.GENETIC_PROFILE_ID = genetic_profile.GENETIC_PROFILE_ID
-        INNER JOIN sample ON mutation.SAMPLE_ID = sample.INTERNAL_ID
-        INNER JOIN patient ON sample.PATIENT_ID = patient.INTERNAL_ID
-        INNER JOIN gene ON mutation.ENTREZ_GENE_ID = gene.ENTREZ_GENE_ID
-        WHERE
-        <if test="patientIds != null and !patientIds.isEmpty()">
-            <if test="@java.util.Arrays@stream(molecularProfileIds.toArray()).distinct().count() == 1">
-                genetic_profile.STABLE_ID = #{molecularProfileIds[0]}
-                AND patient.STABLE_ID IN
-                <foreach item="item" collection="patientIds" open="(" separator="," close=")">
-                    #{item}
-                </foreach>
-            </if>
-            <if test="@java.util.Arrays@stream(molecularProfileIds.toArray()).distinct().count() > 1">
-                (patient.STABLE_ID, genetic_profile.STABLE_ID) IN
-                <foreach index="i" collection="patientIds" open="(" separator="," close=")">
-                      (#{patientIds[${i}]}, #{molecularProfileIds[${i}]})
-                </foreach>
-                AND genetic_profile.STABLE_ID IN
-                <foreach item="item" collection="molecularProfileIds" open="(" separator="," close=")">
-                    #{item}
-                </foreach>
-            </if>
-        </if>
-		<if test="patientIds == null">
-		    genetic_profile.STABLE_ID IN
-			<foreach item="item" collection="molecularProfileIds" open="(" separator="," close=")">
-			    #{item}
-			</foreach>
-		</if>
-        <if test="entrezGeneIds != null and !entrezGeneIds.isEmpty()">
-            AND mutation.ENTREZ_GENE_ID IN
-            <foreach item="item" collection="entrezGeneIds" open="(" separator="," close=")">
-                #{item}
-            </foreach>
-        </if>
-        <if test="snpOnly != null and snpOnly == true">
-            AND mutation_event.REFERENCE_ALLELE IN ('A','T','C','G')
-            AND mutation_event.TUMOR_SEQ_ALLELE IN ('A','T','C','G')
-        </if>
         GROUP BY mutation.ENTREZ_GENE_ID
     </select>
 

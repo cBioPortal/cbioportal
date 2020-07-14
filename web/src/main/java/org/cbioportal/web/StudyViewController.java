@@ -11,6 +11,7 @@ import org.cbioportal.service.*;
 import org.cbioportal.service.exception.StudyNotFoundException;
 import org.cbioportal.service.util.ClinicalAttributeUtil;
 import org.cbioportal.web.config.annotation.InternalApi;
+import org.cbioportal.model.AlterationFilter;
 import org.cbioportal.web.parameter.ClinicalDataBinCountFilter;
 import org.cbioportal.web.parameter.ClinicalDataCountFilter;
 import org.cbioportal.web.parameter.ClinicalDataFilter;
@@ -163,13 +164,16 @@ public class StudyViewController {
         @ApiIgnore // prevent reference to this attribute in the swagger-ui interface. this attribute is needed for the @PreAuthorize tag above.
         @Valid @RequestAttribute(required = false, value = "interceptedStudyViewFilter") StudyViewFilter interceptedStudyViewFilter
     ) throws StudyNotFoundException {
+
+        AlterationFilter annotationFilters = interceptedStudyViewFilter.getAlterationFilter();
+
         List<SampleIdentifier> sampleIdentifiers = studyViewFilterApplier.apply(interceptedStudyViewFilter);
         List<AlterationCountByGene> alterationCountByGenes = new ArrayList<>();
         if(CollectionUtils.isNotEmpty(sampleIdentifiers)) {
             List<String> studyIds = new ArrayList<>();
             List<String> sampleIds = new ArrayList<>();
             studyViewFilterUtil.extractStudyAndSampleIds(sampleIdentifiers, studyIds, sampleIds);
-            alterationCountByGenes = studyViewService.getMutationAlterationCountByGenes(studyIds, sampleIds);
+            alterationCountByGenes = studyViewService.getMutationAlterationCountByGenes(studyIds, sampleIds, annotationFilters);
         }
         return new ResponseEntity<>(alterationCountByGenes, HttpStatus.OK);
     }
@@ -186,13 +190,16 @@ public class StudyViewController {
         @ApiIgnore // prevent reference to this attribute in the swagger-ui interface.
         @Valid @RequestAttribute(required = false, value = "interceptedStudyViewFilter") StudyViewFilter interceptedStudyViewFilter
     ) throws StudyNotFoundException {
+
+        AlterationFilter annotationFilters = interceptedStudyViewFilter.getAlterationFilter();
+        
         List<SampleIdentifier> sampleIdentifiers = studyViewFilterApplier.apply(interceptedStudyViewFilter);
         List<AlterationCountByGene> alterationCountByGenes = new ArrayList<>();
         if(CollectionUtils.isNotEmpty(sampleIdentifiers)) {
             List<String> studyIds = new ArrayList<>();
             List<String> sampleIds = new ArrayList<>();
             studyViewFilterUtil.extractStudyAndSampleIds(sampleIdentifiers, studyIds, sampleIds);
-            alterationCountByGenes = studyViewService.getStructuralVariantAlterationCountByGenes(studyIds, sampleIds);
+            alterationCountByGenes = studyViewService.getStructuralVariantAlterationCountByGenes(studyIds, sampleIds, annotationFilters);
         }
         return new ResponseEntity<>(alterationCountByGenes, HttpStatus.OK);
     }
@@ -210,13 +217,16 @@ public class StudyViewController {
         @ApiIgnore // prevent reference to this attribute in the swagger-ui interface. this attribute is needed for the @PreAuthorize tag above.
         @Valid @RequestAttribute(required = false, value = "interceptedStudyViewFilter") StudyViewFilter interceptedStudyViewFilter
     ) throws StudyNotFoundException {
+
+        AlterationFilter alterationFilter = interceptedStudyViewFilter.getAlterationFilter();
+        
         List<SampleIdentifier> sampleIdentifiers = studyViewFilterApplier.apply(interceptedStudyViewFilter);
         List<CopyNumberCountByGene> copyNumberCountByGenes = new ArrayList<>();
         if(CollectionUtils.isNotEmpty(sampleIdentifiers)) {
             List<String> studyIds = new ArrayList<>();
             List<String> sampleIds = new ArrayList<>();
             studyViewFilterUtil.extractStudyAndSampleIds(sampleIdentifiers, studyIds, sampleIds);
-            copyNumberCountByGenes = studyViewService.getCNAAlterationCountByGenes(studyIds, sampleIds);
+            copyNumberCountByGenes = studyViewService.getCNAAlterationCountByGenes(studyIds, sampleIds, alterationFilter);
         }
         return new ResponseEntity<>(copyNumberCountByGenes, HttpStatus.OK);
     }

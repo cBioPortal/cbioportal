@@ -86,10 +86,10 @@ jobs:
         run: |
           # TODO: change if treatment data is ever added
           . ./.github/k8s/run_endpoint_test.sh ${{ steps.extract_pod_name.outputs.pod_name }} "$MAX_WAIT_TIME_IN_SECONDS" "$URL" "NA" "$POST_BODY" 1 0
-      - name: POST Request for /fusion-genes/fetch endpoint
+      - name: POST Request for /structuralvariant-genes/fetch endpoint
         env:
           MAX_WAIT_TIME_IN_SECONDS: 180
-          URL: "http://localhost:8888/api/fusion-genes/fetch"
+          URL: "http://localhost:8888/api/structuralvariant-genes/fetch"
           SEARCH_STR: "entrezGeneId"
           POST_BODY: "@sampleIdentifiers.json"
         run: |

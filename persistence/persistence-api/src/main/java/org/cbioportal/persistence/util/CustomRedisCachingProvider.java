@@ -92,9 +92,17 @@ public class CustomRedisCachingProvider {
         RedissonSpringCacheManager toReturn = null;
         
         Map<String, CacheConfig> config = new HashMap<String, CacheConfig>();
-        // create "testMap" cache with ttl = 24 hours and maxIdleTime = 12 hours
-        config.put(appName + "GeneralRepositoryCache", new CacheConfig(24*60*60*1000, 12*60*60*1000));
-        config.put(appName + "StaticRepositoryCacheOne", new CacheConfig(24*60*60*1000, 12*60*60*1000));
+        /*
+            create cache with ttl and maxIdleTime
+            ttl - - time to live for key\value entry in milliseconds. If 0 then time to live doesn't affect entry expiration.
+            maxIdleTime - - max idle time for key\value entry in milliseconds.
+            if maxIdleTime and ttl params are equal to 0 then entry stores infinitely.
+            we rely on the server having maxmemory set and maxmemory-policy set to allkeys-lru or allkeys-lfu
+            NOTE: for some reason having ttl and maxIdleTime set to 0 caused the portal to not start up even
+            with allkeys-lfu eviction policy, so added maxIdleTime back.
+        */
+        config.put(appName + "GeneralRepositoryCache", new CacheConfig(0, 12*60*60*1000));
+        config.put(appName + "StaticRepositoryCacheOne", new CacheConfig(0, 12*60*60*1000));
         toReturn = new RedissonSpringCacheManager(redissonClient, config);
         LOG.info("Created Redisson CacheManager: " + toReturn);
 

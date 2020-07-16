@@ -135,6 +135,7 @@ public class MutationControllerTest {
     private static final int TEST_MINOR_COPY_NUMBER_2 = 1;
     private static final int TEST_EXPECTED_ALT_COPIES_2 = 1;
     private static final int TEST_TOTAL_COPY_NUMBER_2 = 2;
+    private static final String NAME_SPACE_COLUMNS = "{\"columnName\":{\"fieldName\":\"fieldValue\"}}";
 
     @Autowired
     private WebApplicationContext wac;
@@ -208,6 +209,7 @@ public class MutationControllerTest {
             .andExpect(MockMvcResultMatchers.jsonPath("$[0].proteinPosEnd").value(TEST_ONCOTATOR_PROTEIN_POS_END_1))
             .andExpect(MockMvcResultMatchers.jsonPath("$[0].keyword").value(TEST_KEYWORD_1))
             .andExpect(MockMvcResultMatchers.jsonPath("$[0].gene").doesNotExist())
+            .andExpect(MockMvcResultMatchers.jsonPath("$[0].namespaceColumns.columnName.fieldName").value("fieldValue"))
             .andExpect(MockMvcResultMatchers.jsonPath("$[1].molecularProfileId")
                 .value(TEST_MOLECULAR_PROFILE_STABLE_ID_2))
             .andExpect(MockMvcResultMatchers.jsonPath("$[1].sampleId").value(TEST_SAMPLE_STABLE_ID_2))
@@ -242,7 +244,8 @@ public class MutationControllerTest {
             .andExpect(MockMvcResultMatchers.jsonPath("$[1].proteinPosStart").value(TEST_ONCOTATOR_PROTEIN_POS_START_2))
             .andExpect(MockMvcResultMatchers.jsonPath("$[1].proteinPosEnd").value(TEST_ONCOTATOR_PROTEIN_POS_END_2))
             .andExpect(MockMvcResultMatchers.jsonPath("$[1].keyword").value(TEST_KEYWORD_2))
-            .andExpect(MockMvcResultMatchers.jsonPath("$[1].gene").doesNotExist());
+            .andExpect(MockMvcResultMatchers.jsonPath("$[1].gene").doesNotExist())
+            .andExpect(MockMvcResultMatchers.jsonPath("$[1].namespaceColumns.columnName.fieldName").value("fieldValue"));
     }
 
     @Test
@@ -792,6 +795,7 @@ public class MutationControllerTest {
         mutation1.setOncotatorProteinPosStart(TEST_ONCOTATOR_PROTEIN_POS_START_1);
         mutation1.setOncotatorProteinPosEnd(TEST_ONCOTATOR_PROTEIN_POS_END_1);
         mutation1.setKeyword(TEST_KEYWORD_1);
+        mutation1.setAnnotationJSON(NAME_SPACE_COLUMNS);
         mutationList.add(mutation1);
         Mutation mutation2 = new Mutation();
         mutation2.setMolecularProfileId(TEST_MOLECULAR_PROFILE_STABLE_ID_2);
@@ -826,6 +830,7 @@ public class MutationControllerTest {
         mutation2.setOncotatorProteinPosStart(TEST_ONCOTATOR_PROTEIN_POS_START_2);
         mutation2.setOncotatorProteinPosEnd(TEST_ONCOTATOR_PROTEIN_POS_END_2);
         mutation2.setKeyword(TEST_KEYWORD_2);
+        mutation2.setAnnotationJSON(NAME_SPACE_COLUMNS);
         mutationList.add(mutation2);
 
         return mutationList;

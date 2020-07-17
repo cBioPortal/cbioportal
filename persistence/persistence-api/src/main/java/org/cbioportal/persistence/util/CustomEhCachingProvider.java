@@ -57,7 +57,7 @@ public class CustomEhCachingProvider extends EhcacheCachingProvider {
     @Value("${ehcache.xml_configuration:/ehcache.xml}")
     private String xmlConfigurationFile;
 
-    @Value("${ehcache.cache_type:none}")
+    @Value("${persistence.cache_type:no-cache}")
     private String cacheType;
 
     @Value("${ehcache.general_repository_cache.max_mega_bytes_heap:1024}")
@@ -163,20 +163,22 @@ public class CustomEhCachingProvider extends EhcacheCachingProvider {
         boolean usesHeap = false;
         boolean usesDisk = false;
         switch (this.cacheType.trim().toLowerCase()) {
-            case "none":
+            case "no-cache":
                 break;
-            case "heap":
+            case "ehcache-heap":
                 usesHeap = true;
                 break;
-            case "disk":
+            case "ehcache-disk":
                 usesDisk = true;
                 break;
-            case "hybrid":
+            case "ehcache-hybrid":
                 usesHeap = true;
                 usesDisk = true;
                 break;
+            case "redis":
+                break; // we should not be in here in this case
             default:
-                messages.append("\n  property ehcache.cache_type has value (")
+                messages.append("\n  property persistence.cache_type has value (")
                         .append(cacheType)
                         .append(") which is not a recognized value");
         }

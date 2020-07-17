@@ -55,7 +55,7 @@ public class TestGenerateMutationData {
 
     @Test
     public void testGenerateMutationData() throws Exception {
-
+        assertTrue(false);
 		// TBD: change this to use getResourceAsStream()
         File allCasesFile = new File ("target/test-classes/all_cases.txt");
         File sequencedGeneFile = new File ("target/test-classes/sequenced_genes.txt");

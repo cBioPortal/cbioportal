@@ -9,63 +9,40 @@
     http://www.springframework.org/schema/cache http://www.springframework.org/schema/cache/spring-cache.xsd
     http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-4.0.xsd">
 
-    <cache:annotation-driven cache-manager="redisCacheManager" key-generator="customKeyGenerator"/>
+    <beans profile="redis">
 
-    <bean id="cacheEnabledConfig" class="org.cbioportal.persistence.CacheEnabledConfig">
-        <constructor-arg value="${ehcache.cache_type:none}"/>
-    </bean>
+        <cache:annotation-driven cache-manager="redisCacheManager" key-generator="customKeyGenerator"/>
 
-    <bean id="customRedisCacheProvider" class="org.cbioportal.persistence.util.CustomRedisCachingProvider"/>
+        <bean id="cacheEnabledConfig" class="org.cbioportal.persistence.CacheEnabledConfig">
+            <constructor-arg value="${persistence.cache_type:no-cache}"/>
+        </bean>
 
-    <bean id="redissonClient" class="org.springframework.beans.factory.config.MethodInvokingFactoryBean">
-        <property name="targetObject" ref="customRedisCacheProvider" />
-        <property name="targetMethod" value="getRedissionClient" />
-    </bean>
+        <bean id="customRedisCacheProvider" class="org.cbioportal.persistence.util.CustomRedisCachingProvider"/>
 
-    <bean id="redisCacheManager" class="org.springframework.beans.factory.config.MethodInvokingFactoryBean">
-        <property name="targetObject" ref="customRedisCacheProvider" />
-        <property name="targetMethod" value="getCacheManager" />
-        <property name="arguments">
-            <list><ref bean="redissonClient"/></list>
-        </property>
-    </bean>
+        <bean id="redissonClient" class="org.springframework.beans.factory.config.MethodInvokingFactoryBean">
+            <property name="targetObject" ref="customRedisCacheProvider" />
+            <property name="targetMethod" value="getRedissionClient" />
+        </bean>
 
-    <bean id="generalRepositoryCacheResolver" class="org.springframework.cache.interceptor.NamedCacheResolver">
-        <constructor-arg index="0" ref="redisCacheManager"/>
-        <constructor-arg index="1" value="${app.name:cbioportal}GeneralRepositoryCache"/>
-    </bean>
+        <bean id="redisCacheManager" class="org.springframework.beans.factory.config.MethodInvokingFactoryBean">
+            <property name="targetObject" ref="customRedisCacheProvider" />
+            <property name="targetMethod" value="getCacheManager" />
+            <property name="arguments">
+                <list><ref bean="redissonClient"/></list>
+            </property>
+        </bean>
 
-    <bean id="staticRepositoryCacheOneResolver" class="org.springframework.cache.interceptor.NamedCacheResolver">
-        <constructor-arg index="0" ref="redisCacheManager"/>
-        <constructor-arg index="1" value="${app.name:cbioportal}StaticRepositoryCacheOne"/>
-    </bean>
+        <bean id="generalRepositoryCacheResolver" class="org.springframework.cache.interceptor.NamedCacheResolver">
+            <constructor-arg index="0" ref="redisCacheManager"/>
+            <constructor-arg index="1" value="${app.name:cbioportal}GeneralRepositoryCache"/>
+        </bean>
 
-<!--
-    Note : the following bean is missing arguments to the constructor
-    <bean id="cacheManager" class="org.redisson.spring.cache.RedissonSpringCacheManager">
-        <property name="cacheManager" ref="getCacheManager"/>
-    </bean>
+        <bean id="staticRepositoryCacheOneResolver" class="org.springframework.cache.interceptor.NamedCacheResolver">
+            <constructor-arg index="0" ref="redisCacheManager"/>
+            <constructor-arg index="1" value="${app.name:cbioportal}StaticRepositoryCacheOne"/>
+        </bean>
 
-    <bean id="springCacheManager" class="org.springframework.cache.CacheManager">
-        <property name="cacheManager" ref="getCacheManager"/>
-    </bean>
-
-    <bean id="cacheManager" class="org.springframework.cache.jcache.JCacheCacheManager">
-        <property name="cacheManager" ref="getCacheManager"/>
-    </bean>
-
--->
     <bean id="customKeyGenerator" class="org.cbioportal.persistence.util.CustomKeyGenerator"/>
 
-    <!--bean id="ehCacheStatistics" class="org.cbioportal.persistence.util.EhCacheStatistics">
-        <constructor-arg ref="getCacheManager"/>
-    </bean-->
-
-    <!-- bean class="org.springframework.beans.factory.config.MethodInvokingFactoryBean">
-        <property name="staticMethod" value="org.cbioportal.persistence.util.CacheEventLogger.setCacheStatistics" />
-        <property name="arguments">
-            <list><ref bean="ehCacheStatistics"/></list>
-        </property>
-    </bean-->
-    
+    </beans>
 </beans>

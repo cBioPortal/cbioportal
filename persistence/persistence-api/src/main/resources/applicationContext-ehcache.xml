@@ -13,7 +13,7 @@
         EhCacheStatistics is autowired, and requires a javax.cache.CacheManager
         so all (or most) of these beans need to be created even if ehcache is not running
     -->
-    <!--beans profile="ehcache-disk,ehcache-heap,ehcache-hybrid"-->
+    <beans profile="ehcache-disk,ehcache-heap,ehcache-hybrid">
 
         <cache:annotation-driven cache-manager="ehcacheCacheManager" key-generator="customKeyGenerator"/>
 
@@ -55,5 +55,5 @@
             <constructor-arg index="1" value="StaticRepositoryCacheOne"/>
         </bean>
 
-    <!--/beans-->
+    </beans>
 </beans>

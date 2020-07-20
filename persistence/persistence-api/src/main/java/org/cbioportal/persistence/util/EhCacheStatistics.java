@@ -36,12 +36,14 @@ import org.ehcache.core.statistics.*;
 import org.ehcache.config.ResourceType;
 import org.ehcache.impl.internal.statistics.DefaultStatisticsService;
 
+import org.springframework.context.annotation.Profile;
 import org.springframework.stereotype.Component;
 
 import java.util.Map;
 import javax.annotation.PostConstruct;
 
 @Component
+@Profile({"ehcache-heap", "ehcache-disk", "ehcache-hybrid"})
 public class EhCacheStatistics {
 
     private static String TIER_NOT_IN_USE = "Tier not in use";

@@ -42,7 +42,7 @@
             <constructor-arg index="1" value="${app.name:cbioportal}StaticRepositoryCacheOne"/>
         </bean>
 
-    <bean id="customKeyGenerator" class="org.cbioportal.persistence.util.CustomKeyGenerator"/>
+        <bean id="customKeyGenerator" class="org.cbioportal.persistence.util.CustomKeyGenerator"/>
 
     </beans>
 </beans>

@@ -72,6 +72,7 @@ public class CustomRedisCachingProvider {
     }
 
     public CacheManager getCacheManager(RedissonClient redissonClient) {
+        LOG.error("in getCacheManager");
 
         //RedissonSpringCacheManager toReturn = null;
         //Map<String, CacheConfig> caches = new HashMap<String, CacheConfig>();
@@ -91,8 +92,9 @@ public class CustomRedisCachingProvider {
         MutableConfiguration<String, String> jcacheConfig = new MutableConfiguration<>();
         Configuration<String, String> config = RedissonConfiguration.fromInstance(redissonClient, jcacheConfig);
         CachingProvider redisCachingProvider = null;
+        LOG.error("loop through caching providers");
         for (CachingProvider cachingProvider : Caching.getCachingProviders()) {
-            LOG.debug("CachingProvider: " + cachingProvider);
+            LOG.error("CachingProvider: " + cachingProvider);
             if (cachingProvider instanceof JCachingProvider) {
                 redisCachingProvider = cachingProvider;
                 break;
@@ -105,8 +107,9 @@ public class CustomRedisCachingProvider {
             return null;
         }
         CacheManager manager = redisCachingProvider.getCacheManager();
-        manager.createCache("TEST" + appName + "GeneralRepositoryCache", config);
-        manager.createCache("TEST" + appName + "StaticRepositoryCacheOne", config);
+        //CacheManager manager = Caching.getCachingProvider().getCacheManager();
+        manager.createCache(appName + "GeneralRepositoryCache", config);
+        manager.createCache(appName + "StaticRepositoryCacheOne", config);
         return manager;
     }
 

@@ -221,20 +221,6 @@
     </servlet-mapping>
     
     <servlet>
-        <servlet-name>api-legacy</servlet-name>
-        <servlet-class>org.springframework.web.servlet.DispatcherServlet</servlet-class>
-        <init-param>
-            <param-name>contextConfigLocation</param-name>
-            <param-value>classpath:applicationContext-weblegacy.xml</param-value>
-        </init-param>
-        <load-on-startup>1</load-on-startup>
-    </servlet>
-    <servlet-mapping>
-        <servlet-name>api-legacy</servlet-name>
-        <url-pattern>/api-legacy/*</url-pattern>
-    </servlet-mapping>
-
-    <servlet>
         <servlet-name>url_shortener</servlet-name>
         <servlet-class>org.springframework.web.servlet.DispatcherServlet</servlet-class>
         <init-param>

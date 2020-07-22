@@ -107,11 +107,6 @@
         <csrf disabled="true"/>
         <custom-filter ref="tokenAuthenticationFilter" before="FORM_LOGIN_FILTER"/>
     </http>
-    <http use-expressions="true" pattern="/api-legacy/**" entry-point-ref="restAuthenticationEntryPoint" create-session="never">
-        <intercept-url pattern="/**" access="isAuthenticated()"/>
-        <csrf disabled="true"/>
-        <custom-filter ref="tokenAuthenticationFilter" before="FORM_LOGIN_FILTER"/>
-    </http>
     <http use-expressions="true" pattern="/webservice.do" entry-point-ref="restAuthenticationEntryPoint" create-session="never">
         <intercept-url pattern="/**" access="isAuthenticated()"/>
         <csrf disabled="true"/>
@@ -629,7 +624,7 @@
         <!-- create-session is never so spring security will not create the session,
             this relies on the app creating the session -->
         <http use-expressions="true" entry-point-ref="restAuthenticationEntryPoint" create-session="never">
-            <intercept-url pattern="/api-legacy/proxy/session-service/**" access="@sessionSecurity.checkWrite(request)"/>
+            <intercept-url pattern="/api/session-service/**" access="@sessionSecurity.checkWrite(request)"/>
             <intercept-url pattern="/**" access="permitAll"/>
             <csrf disabled="true"/>
         </http>

@@ -3,7 +3,7 @@ version: '3'
 services:
   cbioportal:
     restart: unless-stopped
-    image: cbioportal/cbioportal:docker-compose-layer
+    image: inodb/cbioportal:docker-compose-layer
     container_name: cbioportal_container
     environment:
       SHOW_DEBUG_INFO: "true"

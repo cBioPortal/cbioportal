@@ -3,8 +3,10 @@ version: '3'
 services:
   cbioportal:
     restart: unless-stopped
-    image: cbioportal/cbioportal:latest
+    image: cbioportal/cbioportal:docker-compose-layer
     container_name: cbioportal_container
+    environment:
+      SHOW_DEBUG_INFO: "true"
     ports:
       - "8080:8080"
     volumes:
@@ -28,18 +30,16 @@ services:
     volumes:
      - ./data/cgds.sql:/docker-entrypoint-initdb.d/cgds.sql:ro
      - ./data/seed-cbioportal_hg19_v2.7.3.sql.gz:/docker-entrypoint-initdb.d/seed.sql.gz:ro
-     - cbioportal_data:/var/lib/mysql
+     - cbioportal_mysql_data:/var/lib/mysql
     networks:
      - cbio-net
   cbioportal_session:
     restart: unless-stopped
-    image: cbioportal/session-service:latest
+    image: cbioportal/session-service:0.2.0
     container_name: cbioportal_session_container
     environment:
       SERVER_PORT: 5000
       JAVA_OPTS: -Dspring.data.mongodb.uri=mongodb://cbioportal_session_database:27017/session-service
-    volumes:
-      - cbioportal_data:/data/db
     depends_on:
       - cbioportal_session_database
     networks:
@@ -50,6 +50,8 @@ services:
     container_name: cbioportal_session_database_container
     environment:
       MONGO_INITDB_DATABASE: session_service
+    volumes:
+      - cbioportal_mongo_data:/data/db
     networks:
       - cbio-net
 
@@ -57,4 +59,5 @@ networks:
   cbio-net: 
   
 volumes:
-  cbioportal_data:
+  cbioportal_mysql_data:
+  cbioportal_mongo_data:

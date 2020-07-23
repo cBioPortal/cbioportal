@@ -6,7 +6,8 @@
 ![image](https://user-images.githubusercontent.com/840895/88309239-07907300-ccdc-11ea-995b-7ddd658ec46e.png)
 
 *   **New Feature**: You can now share custom groups in the *Study View* [example](https://www.cbioportal.org/study/summary?id=msk_impact_2017#sharedGroups=5d092670e4b0ab4137876374,5c99454ee4b0ab4137873dc5)
-<img width="333" alt="" src="https://user-images.githubusercontent.com/840895/88309724-b7fe7700-ccdc-11ea-969a-28ed8551ffd7.png">
+
+    <img width="333" alt="" src="https://user-images.githubusercontent.com/840895/88309724-b7fe7700-ccdc-11ea-969a-28ed8551ffd7.png">
 
 
 ## Jun 11, 2020

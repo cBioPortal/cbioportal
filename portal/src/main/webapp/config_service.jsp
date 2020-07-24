@@ -94,6 +94,7 @@
             "skin.show_tutorials_tab",
             "skin.show_web_api_tab",
             "skin.show_tweet_button",
+            "skin.study_view.blurb",
             "skin.patientview.filter_genes_profiled_all_samples",
             "skin.patientview.show_mskcc_slide_viewer",
             "quick_search.enabled",

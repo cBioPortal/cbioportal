@@ -1,3 +1,15 @@
+# July 21, 2020
+*   **New Feature**: The *Mutations* tab now has the option to show mutation effects for different transcripts / isoforms. Note that some annotation features are only available for the canonical isoform. [example](https://www.cbioportal.org/results/mutations?Action=Submit&RPPA_SCORE_THRESHOLD=2.0&Z_SCORE_THRESHOLD=2.0&cancer_study_list=msk_impact_2017&case_set_id=msk_impact_2017_cnaseq&data_priority=0&gene_list=FGFR2&geneset_list=%20&genetic_profile_ids_PROFILE_COPY_NUMBER_ALTERATION=msk_impact_2017_cna&genetic_profile_ids_PROFILE_MUTATION_EXTENDED=msk_impact_2017_mutations&mutations_transcript_id=ENST00000358487&profileFilter=0&tab_index=tab_visualize)
+![image](https://user-images.githubusercontent.com/840895/88306535-d95d6400-ccd8-11ea-9e64-0c6600f65e50.png)
+
+*   **Enhancement**: The *Plots* tab is now supported in multi-study queries. [example](https://www.cbioportal.org/results/plots?Action=Submit&RPPA_SCORE_THRESHOLD=2.0&Z_SCORE_THRESHOLD=2.0&cancer_study_list=laml_tcga_pan_can_atlas_2018%2Cacc_tcga_pan_can_atlas_2018%2Cblca_tcga_pan_can_atlas_2018%2Clgg_tcga_pan_can_atlas_2018%2Cbrca_tcga_pan_can_atlas_2018%2Ccesc_tcga_pan_can_atlas_2018%2Cchol_tcga_pan_can_atlas_2018%2Ccoadread_tcga_pan_can_atlas_2018%2Cdlbc_tcga_pan_can_atlas_2018%2Cesca_tcga_pan_can_atlas_2018%2Cgbm_tcga_pan_can_atlas_2018%2Chnsc_tcga_pan_can_atlas_2018%2Ckich_tcga_pan_can_atlas_2018%2Ckirc_tcga_pan_can_atlas_2018%2Ckirp_tcga_pan_can_atlas_2018%2Clihc_tcga_pan_can_atlas_2018%2Cluad_tcga_pan_can_atlas_2018%2Clusc_tcga_pan_can_atlas_2018%2Cmeso_tcga_pan_can_atlas_2018%2Cov_tcga_pan_can_atlas_2018%2Cpaad_tcga_pan_can_atlas_2018%2Cpcpg_tcga_pan_can_atlas_2018%2Cprad_tcga_pan_can_atlas_2018%2Csarc_tcga_pan_can_atlas_2018%2Cskcm_tcga_pan_can_atlas_2018%2Cstad_tcga_pan_can_atlas_2018%2Ctgct_tcga_pan_can_atlas_2018%2Cthym_tcga_pan_can_atlas_2018%2Cthca_tcga_pan_can_atlas_2018%2Cucs_tcga_pan_can_atlas_2018%2Cucec_tcga_pan_can_atlas_2018%2Cuvm_tcga_pan_can_atlas_2018&case_set_id=all&data_priority=0&gene_list=TP53%2520PTEN%2520BRCA1%2520IGF2%2520EGFR&geneset_list=%20&plots_coloring_selection=%7B%22colorByCopyNumber%22%3A%22false%22%7D&plots_horz_selection=%7B%22selectedGeneOption%22%3A1956%7D&plots_vert_selection=%7B%22logScale%22%3A%22true%22%7D&profileFilter=0&tab_index=tab_visualize)
+![image](https://user-images.githubusercontent.com/840895/88309239-07907300-ccdc-11ea-995b-7ddd658ec46e.png)
+
+*   **New Feature**: You can now share custom groups in the *Study View* [example](https://www.cbioportal.org/study/summary?id=msk_impact_2017#sharedGroups=5d092670e4b0ab4137876374,5c99454ee4b0ab4137873dc5)
+
+    <img width="333" alt="" src="https://user-images.githubusercontent.com/840895/88309724-b7fe7700-ccdc-11ea-969a-28ed8551ffd7.png">
+
+
 ## Jun 11, 2020
 *   **Added data** consisting of 267 samples from 2 studies:
      * [Gastric Cancer (OncoSG, 2018)](https://www.cbioportal.org/study/summary?id=stad_oncosg_2018) *147 samples* 

@@ -38,6 +38,8 @@
 * [Customizing your cBioPortal Instance via portal.properties](Customizing-your-instance-of-cBioPortal.md)
 * [More portal.properties Settings](portal.properties-Reference.md)
 * [Configuring Caching Behavior](Caching.md)
+* [How does the study view organize the charts](study-view/layout.md)
+* [Utilize priority setting from database to visualize charts](study-view/priority.md)
 
 ### 2.4 Integration with Other Webservices
 * [OncoKB Data Access](OncoKB-Data-Access.md)

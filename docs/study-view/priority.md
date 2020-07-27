@@ -30,10 +30,3 @@ Currently, we preassigned priority to few charts, but as long as you assign a pr
 | CNA Bar Chart                                              	| 20                        	|                                                 	|
 | GENDER, SEX                                                	| 9                         	|                                                 	|
 | AGE                                                        	| 8                         	|                                                 	|
-
-## Layout
-Study view page is fully responsive, it will try to fit more charts in the same height as many as possible base on the browser width.
-
-The layout of a chart is determined mainly based on priority. Higher priority will promote chart closer to the left-top. 
-
-In order to improve the layout, we added a layout algorithm layer. The study view page is using grid layout. All charts will be put into 2-dimensional systems. For example, pie chart, by default, takes 1 block and bar chart uses two blocks. All charts will be placed from left to right, top to bottom. In order to prevent misalignment, we promote small charts to fit into the space. 

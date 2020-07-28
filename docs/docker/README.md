@@ -92,7 +92,13 @@ To import studies you can run:
 ```
 docker-compose run cbioportal metaImport.py -u http://cbioportal:8080 -s study/lgg_ucsf_2014/ -o
 ```
-This will import the [lgg_ucsf_2014 study](https://www.cbioportal.org/patient?studyId=lgg_ucsf_2014) into your local database. It will take a few minutes to import. After that you can visist http://localhost:8080 again and you should be able to see the new study.
+This will import the [lgg_ucsf_2014 study](https://www.cbioportal.org/patient?studyId=lgg_ucsf_2014) into your local database. It will take a few minutes to import. After importing, restart the cbioportal web container:
+
+```
+docker-compose restart cbioportal
+```
+
+You can visit http://localhost:8080 again and you should be able to see the new study.
 
 All public studies can be downloaded from https://www.cbioportal.org/datasets, or https://github.com/cBioPortal/datahub/. You can add any of them to the `./study` folder and import them. There's also a script (`./study/init.sh`) to download multiple studies. You can set `DATAHUB_STUDIES` to any public study id (e.g. `lgg_ucsf_2014`) and run `./init.sh`.
 

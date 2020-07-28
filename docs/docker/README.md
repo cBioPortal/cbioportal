@@ -112,8 +112,7 @@ If you would like to enable OncoKB see [OncoKB data access](../OncoKB-Data-Acces
 how to obtain a data access token. After obtaining a valid token use:
 
 #### Step 4 - Customize cBioPortal setup
-To read more about the various ways to use authentication and parameters for running the cBioPortal web app see the relevant [backend deployment
-documentation](../Deploying.md#run-the-cbioportal-backend).
+To read more about the various ways to use authentication and parameters for running the cBioPortal web app see the relevant [backend deployment documentation](../Deploying.md#run-the-cbioportal-backend).
 
 On server systems that can easily spare 4 GiB or more of memory, set the `-Xms`
 and `-Xmx` options to the same number. This should increase performance of
@@ -130,30 +129,6 @@ To Dockerize a Keycloak authentication service alongside cBioPortal,
 see [this file](using-keycloak.md).
 
 ## Uninstalling cBioPortal ##
-First we stop the Docker containers.
 ```
-docker stop cbioDB
-docker stop cbioportal-container
-docker stop mongoDB
-docker stop cbio-session-service
-```
-
-Then we remove the Docker containers.
-```
-docker rm cbioDB
-docker rm cbioportal-container
-docker rm mongoDB
-docker rm cbio-session-service
-```
-
-Cached Docker images can be seen with:
-```
-docker images
-```
-
-Finally we remove the cached Docker images.
-```
-docker rmi mysql:5.7
-docker rmi mongo:3.6.6
-docker rmi cbioportal/cbioportal:3.4.2
+docker compose down -v --rmi all
 ```

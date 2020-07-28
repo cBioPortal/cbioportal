@@ -24,7 +24,9 @@
 package org.cbioportal.service.impl;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -62,14 +64,20 @@ public class StructuralVariantServiceImpl implements StructuralVariantService {
         // TODO: Remove once fusions are removed from mutation table
         
         // Replace any fusion profile id with  mutation profile id
-        molecularProfileIds = molecularProfileIds
+        List<String>  mutationMolecularProfileIds = molecularProfileIds
                 .stream()
                 .map(molecularProfileId->molecularProfileId.replace("_fusion", "_mutations"))
                 .collect(Collectors.toList());
-        
+
+        Map<String, String> molecularProfileIdReplaceMap = new HashMap<>();
+
+        for (int i = 0; i < molecularProfileIds.size(); i++) {
+            molecularProfileIdReplaceMap.put(mutationMolecularProfileIds.get(i), molecularProfileIds.get(i));
+        }
+
         List<StructuralVariant> variantsFromMutationtable = mutationMapperUtils.mapFusionsToStructuralVariants(
-                mutationRepository.getFusionsInMultipleMolecularProfiles(molecularProfileIds, sampleIds, entrezGeneIds,
-                        "DETAILED", null, null, null, null));
+                mutationRepository.getFusionsInMultipleMolecularProfiles(mutationMolecularProfileIds, sampleIds, entrezGeneIds,
+                        "DETAILED", null, null, null, null), molecularProfileIdReplaceMap);
         // TODO: Remove once fusions are removed from mutation table
 
         return Stream.concat(structuralVariants.stream(), variantsFromMutationtable.stream())

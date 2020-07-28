@@ -184,7 +184,8 @@ public class GenePanelServiceImpl implements GenePanelService {
                 resultGenePanelData.setProfiled(true);
             } else {
                 List<SampleList> sampleLists = sampleListMap.get(studyId);
-                if (molecularProfile.getMolecularAlterationType().equals(MolecularProfile.MolecularAlterationType.MUTATION_EXTENDED) && 
+                if ((molecularProfile.getMolecularAlterationType().equals(MolecularProfile.MolecularAlterationType.MUTATION_EXTENDED) ||
+                        molecularProfile.getMolecularAlterationType().equals(MolecularProfile.MolecularAlterationType.STRUCTURAL_VARIANT)) && 
                     (sampleLists == null || (sampleLists != null && sampleLists.get(0).getSampleIds().contains(sampleId)))) {
                     resultGenePanelData.setProfiled(true);
                 } else {

@@ -290,7 +290,7 @@ public class ExpressionEnrichmentServiceImpl implements ExpressionEnrichmentServ
     private void validateMolecularProfile(MolecularProfile molecularProfile) throws MolecularProfileNotFoundException {
         if (molecularProfile.getMolecularAlterationType().equals(MolecularAlterationType.MUTATION_EXTENDED)
                 || molecularProfile.getMolecularAlterationType().equals(MolecularAlterationType.MUTATION_UNCALLED)
-                || molecularProfile.getMolecularAlterationType().equals(MolecularAlterationType.FUSION)) {
+                || molecularProfile.getMolecularAlterationType().equals(MolecularAlterationType.STRUCTURAL_VARIANT)) {
 
             throw new MolecularProfileNotFoundException(molecularProfile.getStableId());
         }

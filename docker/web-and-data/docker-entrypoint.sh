@@ -57,18 +57,22 @@ migrate_db() {
 }
 
 _main() {
-    # Parse database config. Use command line parameters (e.g. -Ddb.host) if
-    # available, otherwise use portal.properties
-    if [ -n "$SHOW_DEBUG_INFO" ] && [ "$SHOW_DEBUG_INFO" != "false" ]; then
-        echo "Using database config:"
-        parse_db_params_from_config_and_command_line $@
-    fi
+    # when running the webapp, check db and do migration first
+    # check if command is something like "java -jar webapp-runner.jar"
+    if [[ "$@" == *java* ]] && [[ "$@" == *-jar* ]] && [[ "$@" == *webapp-runner.jar* ]]; then
+        # Parse database config. Use command line parameters (e.g. -Ddb.host) if
+        # available, otherwise use portal.properties
+        if [ -n "$SHOW_DEBUG_INFO" ] && [ "$SHOW_DEBUG_INFO" != "false" ]; then
+            echo "Using database config:"
+            parse_db_params_from_config_and_command_line $@
+        fi
 
-    check_db_connection $@
-    migrate_db $@
+        check_db_connection $@
+        migrate_db $@
 
-    if [ -n "$SHOW_DEBUG_INFO" ] && [ "$SHOW_DEBUG_INFO" != "false" ]; then
-        echo Running: "$@"
+        if [ -n "$SHOW_DEBUG_INFO" ] && [ "$SHOW_DEBUG_INFO" != "false" ]; then
+            echo Running: "$@"
+        fi
     fi
     exec "$@"
 }

@@ -28,7 +28,7 @@ parse_db_params_from_config_and_command_line() {
         if $(parse_db_params_from_command_line $@ | grep -q $param); then
             parse_db_params_from_command_line $@ | grep "^$param"
         else
-        grep -v '^#' $PROPERTIES_FILE | grep "^$param"
+            grep -v '^#' $PROPERTIES_FILE | grep "^$param"
         fi
     done
 }
@@ -40,6 +40,9 @@ check_db_connection() {
     while ! mysqladmin ping -s -h $(echo ${db_host} | cut -d: -f1) -u${db_user} -p${db_password};
     do
         sleep 5s;
+        if [ -n "$SHOW_DEBUG_INFO" ] && [ "$SHOW_DEBUG_INFO" != "false" ]; then
+            echo mysqladmin ping -s -h $(echo ${db_host} | cut -d: -f1) -u${db_user} -p${db_password}
+        fi
         echo "Database not available yet (first time can take a few minutes to load seed database)... Attempting reconnect..."
     done
     echo "Database connection success"

@@ -4,6 +4,8 @@
 .DS_Store
 .github
 target
-docker
 docs
 */target/*
+docker
+# don't ignore entrypoint scripts
+!docker/web-and-data/docker-entrypoint.sh

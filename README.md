@@ -23,7 +23,7 @@ Note: internally we have a dev database available with the public data set that 
 
 ### 🕵️‍♀️ Debugging
 
-If you want to attach a debugger you can change the `JAVA_OPTS` parameter in the docker-compose file to: `-Xdebug -Xrunjdwp:transport=dt_socket,server=y,suspend=n,address=5005` and make sure to expose that port by adding `5005:5005`.
+If you want to attach a debugger you can change the `docker-compose.yml` file to include the paramaters: `-Xdebug -Xrunjdwp:transport=dt_socket,server=y,suspend=n,address=5005`. <ake sure to expose that port by adding `5005:5005` in the ports section of the cbioportal container.
 
 You can then use a JAVA IDE to connect to that port. E.g. in [VSCode](https://code.visualstudio.com/), one would add the following configuration to `launch.json` to connect:
 

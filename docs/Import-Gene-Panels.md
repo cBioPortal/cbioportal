@@ -31,12 +31,13 @@ cd <cbioportal_source_folder>/core/src/main/scripts
 
 After loading gene panels into the database, please restart Tomcat so that the validator can retrieve gene panel information from the cBioPortal API. 
 
-#### Reimport existing gene panel
+#### Update existing gene panel
 
-If a gene panel exists in the database with the same name as the one being imported, and there exists cancer study data that refers to this gene panel, this command will abort.  In order to import the gene panel in this situation, either remove the cancer study from the database that refers to this gene panel or explicitly remove the gene panel from the data and then rerun the ImportGenePanel command.  To remove the gene panel from the database, run the following commands from the MySQL console:
+If a gene panel exists in the database with the same name as the one being imported, and there exists cancer study data that refers to this gene panel, the ImportGenePanel command will abort.  In order to reimport the gene panel in this situation, run the UpdateGenePanel command.  
+
+If the incoming gene panel is the same as the original gene panel, whether through importing or updating, then no changes shall be made to the gene panel.  If the incoming gene panel is empty, then the script will abort.  Genes in the incoming gene panel that were not in the original shall be added to the existing gene panel. Conversely, genes not in the incoming gene panel that were in the original shall be removed from the existing gene panel.  The UpdateGenePanel command will prompt twice to confirm changes made to the gene panel, such as genes to be added or removed.  
 
 ```
-delete from gene_panel_list where internal_id = (select internal_id from gene_panel where stable_id = "TESTPANEL1");
-delete from gene_panel where stable_id = "TESTPANEL1";
+cd <cbioportal_source_folder>/core/src/main/scripts
+./updateGenePanel.pl --data ../../test/scripts/test_data/study_es_0/data_gene_panel_testpanel1.txt
 ```
-In this example we are removing the gene panel with the stable_id `TESTPANEL1`, the example gene_panel from the study_es_0 sample dataset.

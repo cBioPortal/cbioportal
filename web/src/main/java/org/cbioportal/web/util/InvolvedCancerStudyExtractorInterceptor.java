@@ -32,7 +32,6 @@
 
 package org.cbioportal.web.util;
 
-import com.fasterxml.jackson.databind.exc.MismatchedInputException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import java.util.*;
 import java.util.stream.Collectors;
@@ -48,6 +47,7 @@ import org.cbioportal.web.parameter.ClinicalDataBinCountFilter;
 import org.cbioportal.web.parameter.ClinicalDataCountFilter;
 import org.cbioportal.web.parameter.ClinicalDataIdentifier;
 import org.cbioportal.web.parameter.ClinicalDataMultiStudyFilter;
+import org.cbioportal.web.parameter.GenericAssayDataBinCountFilter;
 import org.cbioportal.web.parameter.GenomicDataBinCountFilter;
 import org.cbioportal.web.parameter.GroupFilter;
 import org.cbioportal.web.parameter.GenericAssayDataMultipleStudyFilter;
@@ -92,6 +92,7 @@ public class InvolvedCancerStudyExtractorInterceptor extends HandlerInterceptorA
     public static final String COPY_NUMBER_SEG_FETCH_PATH = "/copy-number-segments/fetch";
     public static final String STUDY_VIEW_CLINICAL_DATA_BIN_COUNTS_PATH = "/clinical-data-bin-counts/fetch";
     public static final String STUDY_VIEW_GENOMICL_DATA_BIN_COUNTS_PATH = "/genomic-data-bin-counts/fetch";
+    public static final String STUDY_VIEW_GENERIC_ASSAY_DATA_BIN_COUNTS_PATH = "/generic-assay-data-bin-counts/fetch";
     public static final String STUDY_VIEW_CLINICAL_DATA_COUNTS_PATH = "/clinical-data-counts/fetch";
     public static final String STUDY_VIEW_CLINICAL_DATA_DENSITY_PATH = "/clinical-data-density-plot/fetch";
     public static final String STUDY_VIEW_CNA_GENES = "/cna-genes/fetch";
@@ -136,6 +137,8 @@ public class InvolvedCancerStudyExtractorInterceptor extends HandlerInterceptorA
             return extractAttributesFromClinicalDataBinCountFilter(request);
         } else if (requestPathInfo.equals(STUDY_VIEW_GENOMICL_DATA_BIN_COUNTS_PATH)) {
             return extractAttributesFromGenomicDataBinCountFilter(request);
+        } else if (requestPathInfo.equals(STUDY_VIEW_GENERIC_ASSAY_DATA_BIN_COUNTS_PATH)) {
+            return extractAttributesFromGenericAssayDataBinCountFilter(request);
         } else if (requestPathInfo.equals(STUDY_VIEW_CLINICAL_DATA_COUNTS_PATH)) {
             return extractAttributesFromClinicalDataCountFilter(request);
         } else if (Arrays.asList(STUDY_VIEW_CLINICAL_DATA_DENSITY_PATH, STUDY_VIEW_CNA_GENES,
@@ -498,6 +501,26 @@ public class InvolvedCancerStudyExtractorInterceptor extends HandlerInterceptorA
         return true;
     }
 
+    private boolean extractAttributesFromGenericAssayDataBinCountFilter(HttpServletRequest request) {
+        try {
+            GenericAssayDataBinCountFilter genericAssayDataBinCountFilter = objectMapper
+                    .readValue(request.getInputStream(), GenericAssayDataBinCountFilter.class);
+            LOG.debug("extracted genericAssayDataBinCountFilter: " + genericAssayDataBinCountFilter.toString());
+            LOG.debug("setting interceptedGenericAssayDataBinCountFilter to " + genericAssayDataBinCountFilter);
+            request.setAttribute("interceptedGenericAssayDataBinCountFilter", genericAssayDataBinCountFilter);
+            if (cacheMapUtil.hasCacheEnabled()) {
+                Collection<String> cancerStudyIdCollection = extractCancerStudyIdsFromGenericAssayDataBinCountFilter(
+                        genericAssayDataBinCountFilter);
+                LOG.debug("setting involvedCancerStudies to " + cancerStudyIdCollection);
+                request.setAttribute("involvedCancerStudies", cancerStudyIdCollection);
+            }
+        } catch (Exception e) {
+            LOG.error("exception thrown during extraction of genericAssayDataBinCountFilter: " + e);
+            return false;
+        }
+        return true;
+    }
+
     private boolean extractAttributesFromClinicalDataCountFilter(HttpServletRequest request) {
         try {
             ClinicalDataCountFilter clinicalDataCountFilter = objectMapper.readValue(request.getInputStream(),
@@ -666,6 +689,14 @@ public class InvolvedCancerStudyExtractorInterceptor extends HandlerInterceptorA
             GenomicDataBinCountFilter genomicDataBinCountFilter) {
         if (genomicDataBinCountFilter.getStudyViewFilter() != null) {
             return extractCancerStudyIdsFromStudyViewFilter(genomicDataBinCountFilter.getStudyViewFilter());
+        }
+        return new HashSet<String>();
+    }
+
+    private Set<String> extractCancerStudyIdsFromGenericAssayDataBinCountFilter(
+            GenericAssayDataBinCountFilter genericAssayDataBinCountFilter) {
+        if (genericAssayDataBinCountFilter.getStudyViewFilter() != null) {
+            return extractCancerStudyIdsFromStudyViewFilter(genericAssayDataBinCountFilter.getStudyViewFilter());
         }
         return new HashSet<String>();
     }

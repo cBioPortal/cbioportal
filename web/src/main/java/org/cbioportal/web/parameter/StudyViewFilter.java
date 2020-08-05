@@ -23,6 +23,7 @@ public class StudyViewFilter implements Serializable {
     private List<GeneFilter> geneFilters;
     private List<List<String>> genomicProfiles;
     private List<GenomicDataFilter> genomicDataFilters;
+    private List<GenericAssayDataFilter> genericAssayDataFilters;
     private List<List<String>> caseLists;
 
     @AssertTrue
@@ -51,6 +52,22 @@ public class StudyViewFilter implements Serializable {
 
         if (genomicDataFilters != null) {
             invalidCount = genomicDataFilters
+                    .stream()
+                    .flatMap(f -> f.getValues().stream())
+                    .filter(Objects::nonNull)
+                    .filter(v -> v.getValue() != null == (v.getStart() != null || v.getEnd() != null))
+                    .count();
+        }
+
+        return invalidCount == 0;
+    }
+
+    @AssertTrue
+    private boolean isEitherValueOrRangePresentInGenericAssayDataIntervalFilters() {
+        long invalidCount = 0;
+
+        if (genericAssayDataFilters != null) {
+            invalidCount = genericAssayDataFilters
                     .stream()
                     .flatMap(f -> f.getValues().stream())
                     .filter(Objects::nonNull)
@@ -116,4 +133,13 @@ public class StudyViewFilter implements Serializable {
     public void setCaseLists(List<List<String>> caseLists) {
         this.caseLists = caseLists;
     }
+
+	public List<GenericAssayDataFilter> getGenericAssayDataFilters() {
+		return genericAssayDataFilters;
+	}
+
+	public void setGenericAssayDataFilters(List<GenericAssayDataFilter> genericAssayDataFilters) {
+		this.genericAssayDataFilters = genericAssayDataFilters;
+	}
+
 }

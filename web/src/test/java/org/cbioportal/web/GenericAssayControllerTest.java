@@ -10,7 +10,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import org.cbioportal.model.GenericAssayData;
 import org.cbioportal.model.meta.GenericAssayMeta;
 import org.cbioportal.service.GenericAssayService;
-import org.cbioportal.web.parameter.GenericAssayDataFilter;
+import org.cbioportal.web.parameter.GenericAssayFilter;
 import org.cbioportal.web.parameter.GenericAssayDataMultipleStudyFilter;
 import org.cbioportal.web.parameter.GenericAssayMetaFilter;
 import org.cbioportal.web.parameter.SampleMolecularIdentifier;
@@ -81,7 +81,7 @@ public class GenericAssayControllerTest {
         Mockito.when(genericAssayService.fetchGenericAssayData(Mockito.anyString(), Mockito.anyList(),	
             Mockito.anyList(), Mockito.anyString())).thenReturn(genericAssayDataItems);	
 
-        GenericAssayDataFilter genericAssayDataFilter = new GenericAssayDataFilter();	
+        GenericAssayFilter genericAssayDataFilter = new GenericAssayFilter();	
         genericAssayDataFilter.setSampleIds(Arrays.asList(SAMPLE_ID));	
         genericAssayDataFilter.setGenericAssayStableIds(Arrays.asList(GENERIC_ASSAY_STABLE_ID_1, GENERIC_ASSAY_STABLE_ID_2));	
 

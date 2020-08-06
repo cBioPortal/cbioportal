@@ -190,6 +190,10 @@ mycancergenome.show=true
 # Enable transcript switch dropdown (true, false)
 # show.transcript_dropdown=false
 
+# Set Genome Nexus annotation sources, please list all sources name with comma-separated.
+# Available sources: mutation_assessor
+# show.genomenexus.annotation_sources=mutation_assessor
+
 # igv bam linking
 igv.bam.linking=
 # colon delimited

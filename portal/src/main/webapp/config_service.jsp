@@ -59,6 +59,7 @@
             "show.oncokb",
             "show.civic",
             "show.genomenexus",
+            "show.genomenexus.annotation_sources",
             "show.mutation_mappert_tool.grch38",
             "show.transcript_dropdown",
             "skin.documentation.about",

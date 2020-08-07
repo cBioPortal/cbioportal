@@ -44,6 +44,7 @@ This file contains metadata about the cancer study. The file contains the follow
 8. **groups (Optional)**: When using an authenticating cBioPortal, lists the user-groups that are allowed access to this study. Multiple groups are separated with a semicolon ";". The study will be invisible to users not in _at least one_ of the listed groups, as if it wasn't loaded at all. e.g., "PUBLIC;GDAC;SU2C-PI3K". see [User-Authorization](User-Authorization.md) for more information on groups
 9. **add_global_case_list (Optional)**: set to 'true' if you would like the "All samples" case list to be generated automatically for you. See also [Case lists](#case-lists).
 10. **tags_file (Optional)**: the file name containing custom study tags for the [study tags](#study-tags-file).
+11. **reference_genome (Optional)**: the study reference genome (e.g. `hg19`, `hg38`). Without specifying this property, the study will be assigned to the reference genome specified in `portal.properties` (property `ucsc.build`).
 
 ### Example  
 An example meta_study.txt file would be:

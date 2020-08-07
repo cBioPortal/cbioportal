@@ -1,4 +1,6 @@
 <%@ taglib prefix='c' uri='http://java.sun.com/jsp/jstl/core' %>
+<%@ page import="org.mskcc.cbio.portal.util.GlobalProperties" %>
+
 <% 
     String sentryEndpoint = GlobalProperties.getFrontendSentryEndpoint();
 %>

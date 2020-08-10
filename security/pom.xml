@@ -16,6 +16,17 @@
     </modules>
 
     <dependencies>
+        <!-- jackson -->
+        <dependency>
+          <groupId>com.fasterxml.jackson.core</groupId>
+          <artifactId>jackson-core</artifactId>
+          <version>${jackson.version}</version>
+        </dependency>
+        <dependency>
+          <groupId>com.fasterxml.jackson.core</groupId>
+          <artifactId>jackson-databind</artifactId>
+          <version>${jackson.version}</version>
+        </dependency>
         <dependency>
             <groupId>io.jsonwebtoken</groupId>
             <artifactId>jjwt-api</artifactId>
@@ -32,6 +43,11 @@
             <artifactId>jjwt-jackson</artifactId>
             <version>0.10.5</version>
             <scope>runtime</scope>
+        </dependency>
+        <dependency>
+            <groupId>com.auth0</groupId>
+            <artifactId>jwks-rsa</artifactId>
+            <version>0.9.0</version>
         </dependency>
     </dependencies>
 

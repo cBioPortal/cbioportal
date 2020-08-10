@@ -208,6 +208,40 @@
           </execution>
         </executions>
       </plugin>
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-invoker-plugin</artifactId>
+        <version>3.2.1</version>
+        <configuration>
+          <streamLogs>true</streamLogs>
+          <projectsDirectory>src/integration-tests</projectsDirectory>
+          <pomIncludes>
+            <pomInclude>*/pom.xml</pomInclude>
+          </pomIncludes>
+          <cloneProjectsTo>${project.build.directory}/integration-tests</cloneProjectsTo>
+          <skipInstallation>${skipTests}</skipInstallation>
+          <skipInvocation>${skipTests}</skipInvocation>
+          <goals>clean verify</goals>
+          <environmentVariables>
+              <CBIO_WAR_LOCATION>${project.build.directory}/cbioportal.war</CBIO_WAR_LOCATION>
+              <!-- We neither create nor populate the database here. Instead we rely on DB created for the integration tests in the core module. -->
+              <CBIO_TEST_DB_USR>${db.test.username}</CBIO_TEST_DB_USR>
+              <CBIO_TEST_DB_PSW>${db.test.password}</CBIO_TEST_DB_PSW>
+              <CBIO_TEST_DB_HOST>127.0.0.1:3306</CBIO_TEST_DB_HOST>
+              <CBIO_TEST_DB_NAME>cgds_test</CBIO_TEST_DB_NAME>
+              <CBIO_TEST_DB_CONNECTION_STRING>${db.test.url}</CBIO_TEST_DB_CONNECTION_STRING>
+          </environmentVariables>
+        </configuration>
+        <executions>
+          <execution>
+            <id>integration-test</id>
+            <goals>
+              <goal>integration-test</goal>
+              <goal>verify</goal>
+            </goals>
+          </execution>
+        </executions>
+      </plugin>
     </plugins>
 
     <filters>

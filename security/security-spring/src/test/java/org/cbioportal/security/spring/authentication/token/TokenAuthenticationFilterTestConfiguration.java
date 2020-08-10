@@ -50,21 +50,20 @@ package org.cbioportal.security.spring.authentication.token;
 
 import org.cbioportal.security.spring.authentication.social.PortalUserDetailsService;
 import org.cbioportal.service.DataAccessTokenService;
-import org.cbioportal.service.DataAccessTokenServiceFactory;
 import org.cbioportal.service.impl.JwtDataAccessTokenServiceImpl;
 import org.cbioportal.service.util.JwtUtils;
-
-import java.util.*;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
 import org.mockito.ArgumentMatchers;
 import org.mockito.Mockito;
-import org.springframework.beans.factory.config.ServiceLocatorFactoryBean;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.authentication.AuthenticationProvider;
 import org.springframework.security.authentication.ProviderManager;
 import org.springframework.security.core.userdetails.UserDetails;
+
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+import java.util.ArrayList;
+import java.util.List;
 
 @Configuration
 public class TokenAuthenticationFilterTestConfiguration {
@@ -92,20 +91,6 @@ public class TokenAuthenticationFilterTestConfiguration {
         TokenAuthenticationFilter filter = new TokenAuthenticationFilter();
         filter.setAuthenticationManager(authenticationManager());
         return filter;
-    }
-
-    @Bean
-    public ServiceLocatorFactoryBean tokenServiceFactory() {
-        ServiceLocatorFactoryBean factoryBean = new ServiceLocatorFactoryBean();
-        factoryBean.setServiceLocatorInterface(DataAccessTokenServiceFactory.class);
-        return factoryBean;
-    }
-
-    @Bean
-    public DataAccessTokenServiceFactory dataAccessTokenServiceFactory() {
-        DataAccessTokenServiceFactory factory = Mockito.mock(DataAccessTokenServiceFactory.class);
-        Mockito.when(factory.getDataAccessTokenService(ArgumentMatchers.anyString())).thenReturn(tokenService());
-        return factory;
     }
 
     @Bean

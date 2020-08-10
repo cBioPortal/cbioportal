@@ -61,7 +61,6 @@ import java.util.List;
  *
  * @author criscuof
  */
-@Service
 public class PortalUserDetailsService implements UserDetailsService {
 
     private static final Log log = LogFactory.getLog(PortalUserDetailsService.class);
@@ -104,8 +103,8 @@ public class PortalUserDetailsService implements UserDetailsService {
                 toReturn = new PortalUserDetails(username, grantedAuthorities);
                 toReturn.setEmail(user.getEmail());
                 toReturn.setName(user.getName());
-             
-                
+
+
             }
         }
 
@@ -116,7 +115,7 @@ public class PortalUserDetailsService implements UserDetailsService {
             }
             // use the Exception message to attache the username to the request object
             throw new UsernameNotFoundException(username);
-        }    
+        }
         else {
             if (log.isDebugEnabled()) {
                 log.debug("loadUserByUsername(), successfully authenticated user, user name: " + username);

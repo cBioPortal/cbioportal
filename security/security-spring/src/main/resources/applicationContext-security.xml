@@ -1,10 +1,10 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
 <b:beans xmlns="http://www.springframework.org/schema/security"
-         xmlns:b="http://www.springframework.org/schema/beans"
-         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-         xmlns:context="http://www.springframework.org/schema/context"
-         xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd
+        xmlns:b="http://www.springframework.org/schema/beans"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xmlns:context="http://www.springframework.org/schema/context"
+        xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd
                         http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context.xsd
                         http://www.springframework.org/schema/security http://www.springframework.org/schema/security/spring-security.xsd">
 
@@ -27,36 +27,25 @@
         All studies are available to all users in the following profiles: social_auth_google(which is same as social_auth), social_auth_microsoft, false, noauthsessionservice
     -->
 
-    <!-- Data Access Tokens beans -->
+    <!-- make sure externally defined beans are added to the spring context -->
+    <context:component-scan base-package="org.cbioportal.security.spring.authentication.token" />
+
     <b:bean id="tokenAuthenticationFilter" class="org.cbioportal.security.spring.authentication.token.TokenAuthenticationFilter">
         <b:property name="authenticationManager" ref="tokenAuthenticationManager" />
         <b:property name="authenticationSuccessHandler" ref="tokenSuccessRedirectHandler"/>
     </b:bean>
 
-    <!-- Choose a supported Data Access Token method implementation [uuid, jwt, none (default)] by setting value of dat.method in portal.properties.
-        Note: UUID implementation requires a backend database/token store but allows for greater control over tokens -->
-    <b:alias name="${dat.method:none}" alias="tokenService" />
-    <b:bean  id="tokenServiceFactory" class="org.springframework.beans.factory.config.ServiceLocatorFactoryBean">
-        <b:property name="serviceLocatorInterface" value="org.cbioportal.service.DataAccessTokenServiceFactory"/>
-    </b:bean>
-
     <!-- WARNING: if you define another authentication-manager AFTER this one, this one
         will be overridden, even if you use <http ... pattern="/api/**" ... authentication-manager-ref="tokenAuthenticationManager">
         AND even though the authenticationManager is defined as a property of tokenAuthenticationFilter
-        so you must add <authentication-provider ref="tokenUserDetailsAuthenticationProvider"/> to your
-        other authentication-manager, and tokenUserDetailsAuthenticationProvider should come before other authentication-providers -->
+        so you must add <authentication-provider ref="tokenAuthenticationProvider"/> to your
+        other authentication-manager, and tokenAuthenticationProvider should come before other authentication-providers. -->
     <authentication-manager alias="tokenAuthenticationManager">
-        <authentication-provider ref="tokenUserDetailsAuthenticationProvider"/>
+        <authentication-provider ref="tokenAuthenticationProvider" />
     </authentication-manager>
 
     <b:bean id="tokenSuccessRedirectHandler" class="org.cbioportal.security.spring.authentication.token.TokenAuthenticationSuccessHandler"/>
 
-    <b:bean id="tokenUserDetailsAuthenticationProvider" class="org.cbioportal.security.spring.authentication.token.TokenUserDetailsAuthenticationProvider">
-        <b:constructor-arg index="0" ref="tokenUserDetailsService" />
-    </b:bean>
-
-    <!-- Used to compare token returned by authentication-provider against portal user db tables -->
-    <b:bean id="tokenUserDetailsService" class="org.cbioportal.security.spring.authentication.social.PortalUserDetailsService"/>
     <!-- End of Data Access Tokens beans -->
 
     <!-- beans shared across any authentication system -->
@@ -71,7 +60,7 @@
                <b:value>file:///#{systemEnvironment['PORTAL_HOME']}/portal.properties</b:value>
              </b:list>
            </b:property>
-        </b:bean>
+    </b:bean>
 
     <!-- support for general annotations within class definitions (used in AccessControl) -->
     <context:annotation-config/>
@@ -171,7 +160,7 @@
          checked in the order they are declared when attempting to authenticate a user. -->
     <authentication-manager alias="authenticationManager">
         <!-- token access for the API -->
-        <authentication-provider ref="tokenUserDetailsAuthenticationProvider"/>
+        <authentication-provider ref="tokenAuthenticationProvider"/>
         <authentication-provider ref="socialAuthenticationProvider"/>
     </authentication-manager>
 
@@ -250,7 +239,7 @@
 
     <authentication-manager alias="authenticationManager">
         <!-- token access for the API -->
-        <authentication-provider ref="tokenUserDetailsAuthenticationProvider"/>
+        <authentication-provider ref="tokenAuthenticationProvider"/>
     </authentication-manager>
 
     <b:bean id="customUserService" class="org.cbioportal.security.spring.authentication.openID.PortalUserDetailsService">
@@ -307,7 +296,7 @@
 
     <authentication-manager alias="authenticationManager">
         <!-- token access for the API -->
-        <authentication-provider ref="tokenUserDetailsAuthenticationProvider"/>
+        <authentication-provider ref="tokenAuthenticationProvider"/>
         <authentication-provider ref="samlAuthenticationProvider"/>
     </authentication-manager>
 
@@ -348,6 +337,7 @@
         <b:constructor-arg>
             <b:bean class="org.springframework.security.saml.metadata.MetadataGenerator">
                 <b:property name="entityId" value="${saml.sp.metadata.entityid}"/>
+                <b:property name="wantAssertionSigned" value="${saml.sp.metadata.wantassertionsigned:true}"/>
                 <b:property name="entityBaseURL" value="${saml.sp.metadata.entitybaseurl}"/>
                 <b:property name="extendedMetadata">
                     <b:bean class="org.springframework.security.saml.metadata.ExtendedMetadata">
@@ -548,7 +538,7 @@
         <!-- Add Authentication Manager -->
         <authentication-manager>
             <!-- token access for the API -->
-            <authentication-provider ref="tokenUserDetailsAuthenticationProvider"/>
+            <authentication-provider ref="tokenAuthenticationProvider"/>
             <authentication-provider ref="adAuthenticationProvider" />
         </authentication-manager>
 
@@ -600,7 +590,7 @@
 
         <authentication-manager>
             <!-- token access for the API -->
-            <authentication-provider ref="tokenUserDetailsAuthenticationProvider"/>
+            <authentication-provider ref="tokenAuthenticationProvider"/>
             <ldap-authentication-provider
                 server-ref="ldapServer" user-search-filter="(${ldap.attributes.username}={0})"
                 user-search-base="${ldap.user_search_base}"
@@ -630,7 +620,7 @@
         </http>
         <authentication-manager alias="authenticationManager"/>
     </b:beans>
-    
+
     <!-- social_auth included for backward compatibility -->
     <b:beans profile="social_auth | social_auth_google | social_auth_microsoft">
 
@@ -689,33 +679,33 @@
 	        <!-- UsernameNotFoundException will be stored in session with username as message -->
 	        <b:property name="allowSessionCreation" value="true" />
 	    </b:bean>
-	    
+
 	    <authentication-manager alias="authenticationManager">
-	    	<authentication-provider ref="tokenUserDetailsAuthenticationProvider"/>
+	    	<authentication-provider ref="tokenAuthenticationProvider"/>
 	        <authentication-provider ref="socialAuthenticationProvider"/>
 	    </authentication-manager>
-	    
+
 	    <!-- configure the social authentication provider which processes authentication requests -->
 	    <b:bean id="socialAuthenticationProvider" class="org.springframework.social.security.SocialAuthenticationProvider">
 	        <b:constructor-arg index="0" ref="usersConnectionRepository" />
 	        <b:constructor-arg index="1" ref="socialUserDetailsService" />
 	    </b:bean>
-	    
+
 	    <b:bean id="socialUserDetailsService" class="org.cbioportal.security.spring.authentication.social.CustomUserDetailsService" />
-	    
+
 	    <!-- returns the spring security account id for the user -->
 	    <!--Implementation of UserIdSource that returns the Spring Security Authentication's name as the user ID -->
 	    <b:bean id="userIdSource" class="org.springframework.social.security.AuthenticationNameUserIdSource"/>
-	
-	    <b:bean id="usersConnectionRepository" 
+
+	    <b:bean id="usersConnectionRepository"
 	            class="org.springframework.social.connect.mem.InMemoryUsersConnectionRepository">
 	        <b:constructor-arg ref="connectionFactoryLocator" />
 	        <b:property name="connectionSignUp" ref="connectionSignUp"/>
 	    </b:bean>
 	    <b:bean id="connectionSignUp" class="org.cbioportal.security.spring.authentication.social.SocialConnectionSignUp"/>
-	    
+
 	</b:beans>
-	 
+
 	 <b:beans profile="social_auth_microsoft">
 		<b:bean id="connectionFactoryLocator"
 			class="org.springframework.social.security.SocialAuthenticationServiceRegistry">
@@ -734,7 +724,7 @@
 				</b:list>
 			</b:property>
 		</b:bean>
-	
+
 		<b:bean id="microsoftliveConnectionFactory"
 			class="org.cbioportal.security.spring.authentication.live.LiveConnectionFactory">
 			<b:constructor-arg
@@ -743,7 +733,7 @@
 				value="${microsoftlive.consumer.secret}" />
 		</b:bean>
 	</b:beans>
-	
+
 	<!-- social_auth included for backward compatibility -->
 	<b:beans profile="social_auth | social_auth_google">
 		<b:bean id="connectionFactoryLocator"
@@ -772,7 +762,7 @@
 				value="${googleplus.consumer.secret}" />
 		</b:bean>
 	</b:beans>
-	
+
 	<!-- social_auth included for backward compatibility -->
 	<b:beans profile="(social_auth | social_auth_google) &amp; social_auth_microsoft">
 		<b:bean id="connectionFactoryLocator"
@@ -818,5 +808,5 @@
 				value="${microsoftlive.consumer.secret}" />
 		</b:bean>
 	</b:beans>
-	
+
 </b:beans>

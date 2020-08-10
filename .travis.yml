@@ -64,10 +64,10 @@ script:
   if [[ "${TEST}" == core ]]
   then
       ~/maven/$MAVEN_VERSION/bin/mvn \
+          -q \
           -e \
           -U \
           -Ppublic \
-          -Dauthenticate=false \
           -Dfinal.war.name=cbioportal \
           clean \
           install \

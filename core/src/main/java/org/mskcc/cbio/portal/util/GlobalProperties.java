@@ -282,6 +282,11 @@ public class GlobalProperties {
     @Value("${show.genomenexus:true}") // default is true
     public void setShowGenomeNexus(String property) { showGenomeNexus = Boolean.parseBoolean(property); }
 
+    // TODO should support more sources such as clinvar,gnomad,sift
+    private static String showGenomeNexusAnnotationSources;
+    @Value("${show.genomenexus.annotation_sources:mutation_assessor}") // Available sources: mutation_assessor
+    public void setShowGenomeNexusAnnotationSources(String property) { showGenomeNexusAnnotationSources = property; }
+
     private static boolean showMutationMapperToolGrch38;
     @Value("${show.mutation_mappert_tool.grch38:true}") // default is true
     public void setShowMutationMapperToolGrch38(String property) { showMutationMapperToolGrch38 = Boolean.parseBoolean(property); }
@@ -923,6 +928,10 @@ public class GlobalProperties {
 
     public static boolean showGenomeNexus() {
         return showGenomeNexus;
+    }
+
+    public static String setShowGenomeNexusAnnotationSources() {
+        return showGenomeNexusAnnotationSources;
     }
 
     public static boolean showMutationMapperToolGrch38() {

@@ -16,6 +16,7 @@ window.legacySupportFrontendConfig = {
     showMyCancerGenome : <%=GlobalProperties.showMyCancerGenomeUrl()%>,
     showTranscriptDropdown : <%=GlobalProperties.showTranscriptDropdown()%>,
     showGenomeNexus : <%=GlobalProperties.showGenomeNexus()%>,
+    showGenomeNexusAnnotationSources : <%=GlobalProperties.showGenomeNexusAnnotationSources()%>,
     showMutationMapperToolGrch38 : <%=GlobalProperties.showMutationMapperToolGrch38()%>,
     querySetsOfGenes : JSON.parse('<%=GlobalProperties.getQuerySetsOfGenes()%>'),
     skinBlurb : '<%=GlobalProperties.getBlurb()%>',

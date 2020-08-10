@@ -32,6 +32,24 @@
 
 package org.mskcc.cbio.portal.util;
 
+import java.io.BufferedReader;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.FileReader;
+import java.io.IOException;
+import java.io.InputStream;
+import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
+import java.nio.file.Paths;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Properties;
+
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.springframework.beans.factory.annotation.Value;
@@ -39,15 +57,6 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Component;
 import org.springframework.util.ResourceUtils;
-import org.springframework.util.StringUtils;
-
-import java.io.*;
-import java.nio.file.Files;
-import java.nio.file.Paths;
-import java.nio.charset.StandardCharsets;
-import java.net.HttpURLConnection;
-import java.util.*;
-import java.net.URL;
 
 
 /**
@@ -281,9 +290,6 @@ public class GlobalProperties {
     @Value("${dat.uuid.revoke_other_tokens:true}") // default is true
     public void setDatRevokeOtherTokens(String property) { datRevokeOtherTokens = Boolean.parseBoolean(property);}
 
-    private static String datMethod;
-    @Value("${dat.method:none}") // default is 'none'
-    public void setDatMethod(String property) { datMethod = property;}
 	/*
      * Trim whitespace of url and append / if it does not exist. Return empty
      * string otherwise.
@@ -1091,7 +1097,7 @@ public class GlobalProperties {
     
     public static void main(String[] args)
     {
-        System.out.println(getAppVersion());
+        System.out.println(getAppVersion());    
     }
     
     public static boolean showBinaryCustomDriverAnnotation() {
@@ -1175,10 +1181,6 @@ public class GlobalProperties {
         return datRevokeOtherTokens;
     }
 
-    public static String getDatMethod() {
-        return datMethod;
-    }
-    
     public static String getReferenceGenomeName() {
         return portalProperties.getProperty(UCSC_BUILD, DEFAULT_UCSC_BUILD);
     }

@@ -32,7 +32,6 @@
 
 package org.cbioportal.service.impl;
 
-import java.util.*;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.cbioportal.model.DataAccessToken;
@@ -41,12 +40,16 @@ import org.cbioportal.service.DataAccessTokenService;
 import org.cbioportal.service.exception.MaxNumberTokensExceededException;
 import org.cbioportal.service.exception.TokenNotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Service;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.stereotype.Component;
+import org.springframework.security.authentication.BadCredentialsException;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.Authentication;
 
-@Service
-@Component("uuid")
+import java.util.Calendar;
+import java.util.Date;
+import java.util.List;
+import java.util.UUID;
+
 public class UuidDataAccessTokenServiceImpl implements DataAccessTokenService {
 
     @Autowired
@@ -172,5 +175,21 @@ public class UuidDataAccessTokenServiceImpl implements DataAccessTokenService {
         List<DataAccessToken> allDataAccessTokens = dataAccessTokenRepository.getAllDataAccessTokensForUsername(username);
         DataAccessToken oldestDataAccessToken = allDataAccessTokens.get(0);
         dataAccessTokenRepository.removeDataAccessToken(oldestDataAccessToken.getToken());
+    }
+
+    @Override
+    public Authentication createAuthenticationRequest(String token) {
+
+        if (!isValid(token)) {
+            log.error("invalid token = " + token);
+            throw new BadCredentialsException("Invalid access token");
+        }
+        String userName = getUsername(token);
+
+        // when DaoAuthenticationProvider does authentication on user returned by PortalUserDetailsService
+        // which has password "unused", this password won't match, and then there is a BadCredentials exception thrown
+        // this is a good way to catch that the wrong authetication provider is being used
+        return new UsernamePasswordAuthenticationToken(userName, "does not match unused");
+
     }
 }

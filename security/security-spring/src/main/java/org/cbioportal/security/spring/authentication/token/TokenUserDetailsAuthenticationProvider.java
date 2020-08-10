@@ -35,8 +35,8 @@ package org.cbioportal.security.spring.authentication.token;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.cbioportal.security.spring.authentication.social.PortalUserDetailsService;
-import org.springframework.security.authentication.dao.AbstractUserDetailsAuthenticationProvider;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.authentication.dao.AbstractUserDetailsAuthenticationProvider;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.core.userdetails.UserDetails;
 
@@ -46,18 +46,22 @@ import org.springframework.security.core.userdetails.UserDetails;
  */
 public class TokenUserDetailsAuthenticationProvider extends AbstractUserDetailsAuthenticationProvider {
 
+    private static final Log LOG = LogFactory.getLog(TokenUserDetailsAuthenticationProvider.class);
+
     private PortalUserDetailsService userDetailsService;
 
     public TokenUserDetailsAuthenticationProvider(PortalUserDetailsService userDetailsService) {
         this.userDetailsService = userDetailsService;
     }
 
-    private static final Log LOG = LogFactory.getLog(TokenUserDetailsAuthenticationProvider.class);
+    @Override
+    public boolean supports(Class<?> authentication) {
+        return authentication.isAssignableFrom(UsernamePasswordAuthenticationToken.class);
+    }
 
     @Override
     protected void additionalAuthenticationChecks(UserDetails userDetails, UsernamePasswordAuthenticationToken authentication)
         throws AuthenticationException {
-        // TODO?
     }
 
     @Override

@@ -128,6 +128,7 @@ Within portal.properties, make sure that:
 Then, modify the section labeled `authentication`. See SAML parameters shown in example below:
 
     saml.sp.metadata.entityid=cbioportal
+    saml.sp.metadata.wantassertionsigned=true
     saml.idp.metadata.location=classpath:/onelogin_metadata_620035.xml
     saml.idp.metadata.entityid=https://app.onelogin.com/saml/metadata/620035
     saml.keystore.location=classpath:/samlKeystore.jks

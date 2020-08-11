@@ -101,7 +101,7 @@ microsoftlive.consumer.secret=
 ## SAML settings
 saml.sp.metadata.entityid=
 # change this url if behind reverse proxy that handles SSL, see docs/Authenticating-Users-via-SAML.md
-saml.sp.metadata.entitybaseurl=#{null}
+saml.sp.metadata.entityBaseURL=#{null}
 saml.idp.metadata.location=
 saml.idp.metadata.entityid=
 # saml keystore settings:
@@ -143,6 +143,16 @@ dat.ttl_seconds=2592000
 dat.uuid.max_number_per_user=1
 dat.uuid.revoke_other_tokens=true
 dat.jwt.secret_key=
+
+# OAuth2 token data access settings
+#dat.oauth2.clientId=<client-id>
+#dat.oauth2.clientSecret=<client-secret>
+#dat.oauth2.issuer=<token-issuer>
+#dat.oauth2.accessTokenUri=<authorization-server-url>/.../token
+#dat.oauth2.userAuthorizationUri=<authorization-server-url>/.../auth
+#dat.oauth2.jwkUrl=<authorization-server-url>/.../certs
+#dat.oauth2.redirectUri=<cbioportal-url>/.../api/data-access-token/oauth2
+#dat.oauth2.jwtRolesPath=resource_access::cbioportal::roles
 
 # study view settings
 # always show studies with this group
@@ -189,6 +199,10 @@ mycancergenome.show=true
 
 # Enable transcript switch dropdown (true, false)
 # show.transcript_dropdown=false
+
+# Set Genome Nexus annotation sources, please list all sources name with comma-separated.
+# Available sources: mutation_assessor
+# show.genomenexus.annotation_sources=mutation_assessor
 
 # igv bam linking
 igv.bam.linking=

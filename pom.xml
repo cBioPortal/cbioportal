@@ -286,8 +286,8 @@
   </profiles>
 
   <properties>
-    <frontend.version>c64cf73cdd9237253d122affb543bbebdf5b1dd8</frontend.version>
-    <frontend.groupId>com.github.cbioportal</frontend.groupId>
+    <frontend.version>7923905f775e947471240ff80c5e9274abe07501</frontend.version>
+    <frontend.groupId>com.github.alisman</frontend.groupId>
     <slf4j.version>1.7.30</slf4j.version>
     <spring.version>5.2.6.RELEASE</spring.version>
     <spring.context.support.version>5.2.6.RELEASE</spring.context.support.version>

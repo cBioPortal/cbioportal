@@ -39,8 +39,8 @@ import java.util.List;
 @Api(tags = PublicApiTags.GENES, description = " ")
 public class GeneController {
 
-    private static final int GENE_MAX_PAGE_SIZE = 100000;
-    private static final String GENE_DEFAULT_PAGE_SIZE = "100000";
+    private static final int GENE_MAX_PAGE_SIZE = 9999999;
+    private static final String GENE_DEFAULT_PAGE_SIZE = "9999999";
 
     @Autowired
     private GeneService geneService;

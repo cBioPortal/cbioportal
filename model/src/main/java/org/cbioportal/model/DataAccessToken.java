@@ -2,10 +2,11 @@ package org.cbioportal.model;
 
 import java.io.Serializable;
 import java.util.Date;
-import javax.validation.constraints.NotNull;
 
 public class DataAccessToken implements Serializable {
 
+    private static final long serialVersionUID = 1L;
+    
     private String token;
     private String username;
     private Date expiration;
@@ -58,5 +59,17 @@ public class DataAccessToken implements Serializable {
 
     public boolean hasEarlierExpirationThanToken(DataAccessToken dataAccessToken) {
         return (this.expiration != null && this.expiration.before(dataAccessToken.getExpiration()));
+    }
+
+    @Override
+    public String toString() {
+        StringBuilder b = new StringBuilder().append("token: ").append(token).append("\n");
+        if (creation != null) {
+            b.append("creation_date: ").append(creation.toString()).append("\n");
+        }
+        if (expiration != null) {
+            b.append("expiration_date: ").append(expiration.toString()).append("\n");
+        }
+        return b.toString();
     }
 }

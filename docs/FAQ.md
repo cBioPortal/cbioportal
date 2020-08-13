@@ -76,6 +76,8 @@
     * [Other pages](#other-pages)
         * [Does the Mutual Exclusivity tab calculate its statistics using all samples/alterations or only a specific subset?](#does-the-mutual-exclusivity-tab-calculate-its-statistics-using-all-samplesalterations-or-only-a-specific-subset)
         * [What are the values of the box and whiskers in a boxplot?](#what-are-the-values-of-the-box-and-whiskers-in-a-boxplot)
+* [Study View](#study-view)
+    * [How to use filter in the URL of Study View page?](#how-to-use-filter-in-the-url-of-study-view-page)
 * [What if I have other questions or comments?](#what-if-i-have-other-questions-or-comments)
 
 ## General Questions
@@ -271,6 +273,50 @@ Some studies include data from one or more targeted sequencing platforms which d
 The calculations on the Mutual Exclusivity tab are performed using all samples included in the query. A sample is defined as altered or unaltered for each gene based on the [OQL](https://www.cbioportal.org/onco_query_lang_desc.jsp) utilized in the query - by default, this will be non-synonymous mutations, fusions, amplifications and deep deletions.
 #### What are the values of the box and whiskers in a boxplot?
 In boxplots on cBioPortal, the box is drawn from the 25th percentile (Q1) to the 75th percentile (Q3), with the horizontal line in between representing the median. Whiskers are drawn independently above and below the box, and will extend to the maximum or minimum data values, unless there are outlier values, in which case the whisker will extend to 1.5 * IQR (interquartile range = Q3-Q1). Outliers are defined as values that extend beyond 1.5 * IQR.
+
+## Study View
+### How to use filter in the URL of Study View page?
+You can filter the study based on values of one attribute in the URL. For example, <https://www.cbioportal.org/study/summary?id=msk_impact_2017#filterJson={"clinicalDataFilters":[{"attributeId":"CANCER_TYPE","values":[{"value":"Melanoma"}]}]}>
+
+filterJson is set in the url hash string. Here are the allowed parameters and format for it in filterJson:
+```
+{
+	"caseLists": [
+		["string"]
+	],
+	"clinicalDataFilters": [{
+		"attributeId": "string",
+		"values": [{
+			"end": 0,
+			"start": 0,
+			"value": "string"
+		}]
+	}],
+	"geneFilters": [{
+		"geneQueries": [
+			["string"]
+		],
+		"molecularProfileIds": ["string"]
+	}],
+	"genomicDataFilters": [{
+		"hugoGeneSymbol": "string",
+		"profileType": "string",
+		"values": [{
+			"end": 0,
+			"start": 0,
+			"value": "string"
+		}]
+	}],
+	"genomicProfiles": [
+		["string"]
+	],
+	"sampleIdentifiers": [{
+		"sampleId": "string",
+		"studyId": "string"
+	}],
+	"studyIds": ["string"]
+}
+```
 
 ## What if I have other questions or comments?
 Please contact us at [cbioportal@googlegroups.com](mailto:cbioportal@googlegroups.com). Previous discussions about cBioPortal are available on the [user discussion mailing list](http://groups.google.com/group/cbioportal).

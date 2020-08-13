@@ -1,0 +1,88 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<beans xmlns="http://www.springframework.org/schema/beans"
+     xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+     xmlns:tx="http://www.springframework.org/schema/tx"
+     xmlns:context="http://www.springframework.org/schema/context"
+     xsi:schemaLocation="
+     http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context-4.0.xsd
+     http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-4.0.xsd
+     http://www.springframework.org/schema/tx http://www.springframework.org/schema/tx/spring-tx-4.0.xsd">
+
+    <beans profile="dbcp,jndi">
+        <bean id="propertyPlaceholderConfigurer" class="org.springframework.beans.factory.config.PropertyPlaceholderConfigurer">
+            <property name="systemPropertiesModeName" value="SYSTEM_PROPERTIES_MODE_OVERRIDE" />
+            <property name="searchSystemEnvironment" value="true" />
+            <property name="ignoreResourceNotFound" value="true" />
+            <property name="locations">
+                <list>
+                    <value>classpath:/portal.properties</value>
+                    <value>file:///#{systemEnvironment['PORTAL_HOME']}/portal.properties</value>
+                </list>
+            </property>
+        </bean>
+
+        <!-- scan for mappers and let them be autowired -->
+        <bean class="org.mybatis.spring.mapper.MapperScannerConfigurer">
+            <property name="basePackage" value="org.mskcc.cbio.portal.persistence,org.cbioportal.persistence.mybatis" />
+        </bean>
+
+        <!-- enable component scanning (beware that this does not enable mapper scanning!) -->
+        <context:component-scan base-package="org.mskcc.cbio.portal.util"/> <!-- - mainly to inject into global properties -->
+        <context:component-scan base-package="org.cbioportal.persistence" />
+        <context:component-scan base-package="org.cbioportal.service" />
+
+        <!-- enable autowire -->
+        <context:annotation-config />
+
+        <!-- enable transaction demarcation with annotations -->
+        <tx:annotation-driven />
+
+        <!-- transaction manager, use JtaTransactionManager for global tx -->
+        <bean id="transactionManager" class="org.springframework.jdbc.datasource.DataSourceTransactionManager">
+            <property name="dataSource" ref="businessDataSource" />
+        </bean>
+
+        <bean id="customObjectFactory" class="org.cbioportal.persistence.mybatis.util.CustomMyBatisObjectFactory" />
+
+        <!-- define the SqlSessionFactory -->
+        <bean id="sqlSessionFactory" class="org.mybatis.spring.SqlSessionFactoryBean">
+            <property name="dataSource" ref="businessDataSource" />
+            <property name="typeAliasesPackage" value="org.mskcc.cbio.portal.model" />
+            <property name="typeHandlersPackage" value="org.cbioportal.persistence.mybatis.typehandler" />
+            <property name="objectFactory" ref="customObjectFactory" />
+            <property name="configuration">
+                <bean class="org.apache.ibatis.session.Configuration">
+                    <!-- second level caching is provided via Ehcache -->
+                    <property name="cacheEnabled" value="false" />
+                </bean>
+            </property>
+            <!-- mapper locations is set here to support interdependency between mappers without -->
+            <!-- having to autowire repositories into java classes that do not make direct use of them -->
+            <property name="mapperLocations" value="classpath*:org/cbioportal/persistence/mybatis/**/*.xml" />
+        </bean>
+    </beans>
+  
+    <beans profile="dbcp">
+        <bean id="businessDataSource" destroy-method="close"
+            class="org.mskcc.cbio.portal.dao.JdbcDataSource" />
+        <bean class="org.springframework.beans.factory.config.MethodInvokingFactoryBean">
+            <property name="staticMethod" value="org.mskcc.cbio.portal.dao.JdbcUtil.setDataSource"/>
+            <property name="arguments">
+                <list><ref bean="businessDataSource"/></list>
+            </property>
+        </bean>
+    </beans>
+
+    <beans profile="jndi">
+        <bean id="businessDataSource" class="org.springframework.jndi.JndiObjectFactoryBean">
+            <property name="jndiName" value="java:comp/env/${db.tomcat_resource_name}"/>
+        </bean>
+        <bean class="org.springframework.beans.factory.config.MethodInvokingFactoryBean">
+            <property name="staticMethod" value="org.mskcc.cbio.portal.dao.JdbcUtil.setDataSource"/>
+            <property name="arguments">
+                <list><ref bean="businessDataSource"/></list>
+            </property>
+        </bean>
+    </beans>
+</beans>

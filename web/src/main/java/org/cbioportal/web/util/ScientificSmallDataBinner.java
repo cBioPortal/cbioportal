@@ -7,6 +7,7 @@ import org.springframework.stereotype.Component;
 
 import java.math.BigDecimal;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -28,6 +29,8 @@ public class ScientificSmallDataBinner {
             .map(d -> BigDecimal.valueOf(dataBinHelper.calcExponent(d)))
             .filter(d -> d.compareTo(new BigDecimal("0")) != 0)
             .collect(Collectors.toList());
+
+        Collections.sort(exponents);
 
         Range<BigDecimal> exponentBoxRange = dataBinHelper.calcBoxRange(exponents);
 

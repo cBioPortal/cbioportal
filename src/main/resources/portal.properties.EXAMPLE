@@ -144,6 +144,16 @@ dat.uuid.max_number_per_user=1
 dat.uuid.revoke_other_tokens=true
 dat.jwt.secret_key=
 
+# OAuth2 token data access settings
+#dat.oauth2.clientId=<client-id>
+#dat.oauth2.clientSecret=<client-secret>
+#dat.oauth2.issuer=<token-issuer>
+#dat.oauth2.accessTokenUri=<authorization-server-url>/.../token
+#dat.oauth2.userAuthorizationUri=<authorization-server-url>/.../auth
+#dat.oauth2.jwkUrl=<authorization-server-url>/.../certs
+#dat.oauth2.redirectUri=<cbioportal-url>/.../api/data-access-token/oauth2
+#dat.oauth2.jwtRolesPath=resource_access::cbioportal::roles
+
 # study view settings
 # always show studies with this group
 always_show_study_group=
@@ -163,7 +173,7 @@ segfile.url=http://cbio.mskcc.org/cancergenomics/gdac-portal/seg/
 
 
 # The default OncoKB instance, the portal is connecting to, does not include any therapeutic information and the token is not required.
-# If you wish to include such information, please consider obtaining a license to support future OncoKB development by following 
+# If you wish to include such information, please consider obtaining a license to support future OncoKB development by following
 # https://docs.cbioportal.org/2.4-integration-with-other-webservices/oncokb-data-access.
 
 # Enable OncoKB annotation (true, false)
@@ -187,6 +197,13 @@ show.civic=false
 # Link to My Cancer Genome. Please disable (set to false) when using cBioPortal with patient identifiable data due My Cancer Genome license restrictions.
 mycancergenome.show=true
 
+# Enable transcript switch dropdown (true, false)
+# show.transcript_dropdown=false
+
+# Set Genome Nexus annotation sources, please list all sources name with comma-separated.
+# Available sources: mutation_assessor
+# show.genomenexus.annotation_sources=mutation_assessor
+
 # igv bam linking
 igv.bam.linking=
 # colon delimited
@@ -209,9 +226,6 @@ google_analytics_profile_id=
 
 # genomespace linking
 genomespace=true
-
-# set this to true if you update cancer studies in your production database without shutting the web server
-recache_study_after_update=false
 
 # session-service url: http://[host]:[port]/[session_service_app]/api/sessions/[portal_instance]/
 # example session-service url: http://localhost:8080/session_service/api/sessions/public_portal/

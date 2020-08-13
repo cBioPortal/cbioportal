@@ -1,66 +1,62 @@
 /*
- * This file is part of cBioPortal.
- *
- * cBioPortal is free software: you can redistribute it and/or modify
- * it under the terms of the GNU Affero General Public License as
- * published by the Free Software Foundation, either version 3 of the
- * License.
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU Affero General Public License for more details.
- *
- * You should have received a copy of the GNU Affero General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+* This file is part of cBioPortal.
+*
+* cBioPortal is free software: you can redistribute it and/or modify
+* it under the terms of the GNU Affero General Public License as
+* published by the Free Software Foundation, either version 3 of the
+* License.
+*
+* This program is distributed in the hope that it will be useful,
+* but WITHOUT ANY WARRANTY; without even the implied warranty of
+* MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+* GNU Affero General Public License for more details.
+*
+* You should have received a copy of the GNU Affero General Public License
+* along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
 package org.cbioportal.web;
 
+import io.swagger.annotations.Api;
+import io.swagger.annotations.ApiParam;
 import org.cbioportal.model.DataAccessToken;
 import org.cbioportal.service.DataAccessTokenService;
-import org.cbioportal.service.DataAccessTokenServiceFactory;
 import org.cbioportal.service.exception.DataAccessTokenNoUserIdentityException;
 import org.cbioportal.service.exception.DataAccessTokenProhibitedUserException;
-import org.cbioportal.service.impl.UnauthDataAccessTokenServiceImpl;
 import org.cbioportal.web.config.annotation.InternalApi;
-
-import io.swagger.annotations.*;
-import java.util.*;
-import javax.annotation.PostConstruct;
-import org.springframework.beans.factory.annotation.*;
-import org.springframework.http.*;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.client.HttpClientErrorException;
 
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+import java.io.IOException;
+import java.util.Arrays;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
+
 @InternalApi
-@RestController
+@RequestMapping // replaces @RestController; controller is created conditionally in DataAccessTokenConfig of security-spring module
+@ResponseBody   // needed when not using @RestController annotation
 @Validated
 @Api(tags = "Data Access Tokens", description = " ")
 public class DataAccessTokenController {
 
-    private final List<String> SUPPORTED_DAT_METHODS = Arrays.asList("uuid", "jwt", "none");
-
-    @Value("${dat.method:none}") // default value is none
-    private String datMethod;
-
-    @Autowired
-    private DataAccessTokenServiceFactory dataAccessTokenServiceFactory;
-
-    private DataAccessTokenService tokenService;
-    @PostConstruct
-    public void postConstruct() {
-        if (datMethod == null || !SUPPORTED_DAT_METHODS.contains(datMethod)) {
-            throw new RuntimeException("Specified data access token method, " + datMethod + " is not supported");
-        } else {
-            this.tokenService = this.dataAccessTokenServiceFactory.getDataAccessTokenService(this.datMethod);
-        }
-    }
+    @Value("${dat.uuid_revoke_other_tokens:false}")
+    private Boolean allowRevocationOfOtherTokens;
 
     @Value("${dat.unauth_users:anonymousUser}")
     private String[] USERS_WHO_CANNOT_USE_TOKENS;
+
+    @Autowired
+    private DataAccessTokenService tokenService;
     private Set<String> usersWhoCannotUseTokenSet;
 
     @Autowired
@@ -68,31 +64,30 @@ public class DataAccessTokenController {
         usersWhoCannotUseTokenSet = new HashSet<>(Arrays.asList(USERS_WHO_CANNOT_USE_TOKENS));
     }
 
+    private String fileName = "cbioportal_data_access_token.txt";
+
     @RequestMapping(method = RequestMethod.POST, value = "/data-access-tokens", produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<DataAccessToken> createDataAccessToken(Authentication authentication,
-                                    @RequestParam(required = false) Boolean allowRevocationOfOtherTokens) throws HttpClientErrorException {
-        DataAccessToken createdToken;
-        if (allowRevocationOfOtherTokens != null) {
-            createdToken = tokenService.createDataAccessToken(getAuthenticatedUser(authentication), allowRevocationOfOtherTokens);
+    @RequestParam(required = false) Boolean myAllowRevocationOfOtherTokens) throws HttpClientErrorException {
+        String userName = getAuthenticatedUser(authentication);
+        DataAccessToken token = createDataAccessToken(userName, myAllowRevocationOfOtherTokens);
+        if (token == null) {
+            return new ResponseEntity<>(token, HttpStatus.NOT_FOUND);
         }
-        else {
-            createdToken = tokenService.createDataAccessToken(getAuthenticatedUser(authentication));
-        }
-        if (createdToken == null) {
-            return new ResponseEntity<>(new DataAccessToken(null), HttpStatus.NOT_FOUND);
-        }
-        return new ResponseEntity<>(createdToken, HttpStatus.CREATED);
+        return new ResponseEntity<>(token, HttpStatus.CREATED);
     }
 
-    @RequestMapping(method = RequestMethod.GET, value = "/data-access-tokens")
-    public ResponseEntity<List<DataAccessToken>> getAllDataAccessTokens(Authentication authentication) {
-        List<DataAccessToken> allDataAccessTokens = tokenService.getAllDataAccessTokens(getAuthenticatedUser(authentication));
-        return new ResponseEntity<>(allDataAccessTokens, HttpStatus.OK);
-    }
+        @RequestMapping(method = RequestMethod.GET, value = "/data-access-tokens")
+        public ResponseEntity<List<DataAccessToken>> getAllDataAccessTokens(HttpServletRequest request,
+        Authentication authentication) {
+            String userName = getAuthenticatedUser(authentication);
+            List<DataAccessToken> allDataAccessTokens = tokenService.getAllDataAccessTokens(userName);
+            return new ResponseEntity<>(allDataAccessTokens, HttpStatus.OK);
+        }
 
     @RequestMapping(method = RequestMethod.GET, value = "/data-access-tokens/{token}")
     public ResponseEntity<DataAccessToken> getDataAccessToken(
-            @ApiParam(required = true, value = "token") @PathVariable String token) {
+    @ApiParam(required = true, value = "token") @PathVariable String token) {
         DataAccessToken dataAccessToken = tokenService.getDataAccessTokenInfo(token);
         return new ResponseEntity<>(dataAccessToken, HttpStatus.OK);
     }
@@ -103,9 +98,24 @@ public class DataAccessTokenController {
     }
 
     @RequestMapping(method = RequestMethod.DELETE, value = "/data-access-tokens/{token}")
-    public void revokeDataAccessToken(
-            @ApiParam(required = true, value = "token") @PathVariable String token) {
+    public void revokeDataAccessToken(@ApiParam(required = true, value = "token") @PathVariable String token) {
         tokenService.revokeDataAccessToken(token);
+    }
+
+    // this is the entrypoint for the cBioPortal frontend to download a single user token
+    @RequestMapping("/data-access-token")
+    public ResponseEntity<String> downloadDataAccessToken(Authentication authentication,
+        HttpServletRequest request, HttpServletResponse response) throws IOException {
+
+        // for other methods add header to trigger download of the token by the browser
+        response.setHeader("Content-Disposition", "attachment; filename=" + fileName);
+        String userName = getAuthenticatedUser(authentication);
+        DataAccessToken token = createDataAccessToken(userName, allowRevocationOfOtherTokens);
+        if (token == null) {
+            return new ResponseEntity<>(null, HttpStatus.NOT_FOUND);
+        }
+
+        return new ResponseEntity<>(token.toString(), HttpStatus.CREATED);
     }
 
     private String getAuthenticatedUser(Authentication authentication) {
@@ -118,4 +128,15 @@ public class DataAccessTokenController {
         }
         return username;
     }
+
+    private DataAccessToken createDataAccessToken(String userName, Boolean myAllowRevocationOfOtherTokens) {
+        DataAccessToken token;
+        if (myAllowRevocationOfOtherTokens != null) {
+            token = tokenService.createDataAccessToken(userName, myAllowRevocationOfOtherTokens);
+        }  else {
+            token = tokenService.createDataAccessToken(userName);
+        }
+        return token;
+    }
+
 }

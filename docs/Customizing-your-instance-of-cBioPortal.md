@@ -217,6 +217,19 @@ Below you can find the complete list of all the available skin properties.
             <td>false</td>
             <td>true / false</td>
         </tr>
+      <tr>
+            <td>google_analytics_profile_id</td>
+            <td>enables google analaytics tracking on your site</td>
+            <td>disabled</td>
+            <td>string</td>
+        </tr>
+                
+           
+        
+
+        
+       
+        
    </tbody>
 </table>
 

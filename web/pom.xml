@@ -23,11 +23,6 @@
   <dependencies>
     <dependency>
       <groupId>org.mskcc.cbio</groupId>
-      <artifactId>business</artifactId>
-      <version>${project.version}</version>
-    </dependency>
-    <dependency>
-      <groupId>org.mskcc.cbio</groupId>
       <artifactId>service</artifactId>
       <version>${project.version}</version>
     </dependency>
@@ -152,6 +147,43 @@
         </exclusion>
       </exclusions>
     </dependency>
+    <!-- required after disconnect from business module -->
+    <dependency>
+        <groupId>com.fasterxml.jackson.core</groupId>
+        <artifactId>jackson-databind</artifactId>
+        <version>${jackson.version}</version>
+    </dependency>
   </dependencies>
+
+  <build>
+    <plugins>
+      <!-- this plugin lets us grab shared resources from our parent -->
+      <!-- springfox.properties was coming from business pom prior to its decommission  -->
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-resources-plugin</artifactId>
+        <executions>
+          <execution>
+            <id>copy-parent-resources</id>
+            <phase>process-sources</phase>
+            <goals>
+              <goal>copy-resources</goal>
+            </goals>
+            <configuration>
+              <outputDirectory>${project.build.directory}/classes</outputDirectory>
+              <resources>
+                <resource>
+                  <directory>${project.parent.basedir}/src/main/resources</directory>
+                  <includes>
+                    <include>**/springfox.properties</include>
+                  </includes>
+                </resource>
+              </resources>
+            </configuration>
+          </execution>
+        </executions>
+      </plugin>
+    </plugins>
+  </build>
 
 </project>

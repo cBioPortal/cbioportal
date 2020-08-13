@@ -1,6 +1,6 @@
 [
 {"_comment": "aliases for gistic data",
- "entrez_gene_id":"619562", "gene_alias":"SNORA3"},
-{"entrez_gene_id":"677823", "gene_alias":"SNORA42"},
-{"entrez_gene_id":"7504", "gene_alias":"NA"}
+ "entrezGeneId":"619562", "gene_alias":"SNORA3"},
+{"entrezGeneId":"677823", "gene_alias":"SNORA42"},
+{"entrezGeneId":"7504", "gene_alias":"NA"}
 ]

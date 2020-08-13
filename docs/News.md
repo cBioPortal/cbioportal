@@ -1,3 +1,52 @@
+## Aug 11, 2020
+*   **New Feature**: microbiome data of TCGA samples from [Poore et al. 2020](https://www.nature.com/articles/s41586-020-2095-1) are now available for analysis in the *OncoPrint* and *Plots* tabs. [Example: Orthohepadnavirus across TCGA cancers](https://www.cbioportal.org/results/plots?Action=Submit&RPPA_SCORE_THRESHOLD=2.0&Z_SCORE_THRESHOLD=2.0&cancer_study_list=laml_tcga_pan_can_atlas_2018%2Cacc_tcga_pan_can_atlas_2018%2Cblca_tcga_pan_can_atlas_2018%2Clgg_tcga_pan_can_atlas_2018%2Cbrca_tcga_pan_can_atlas_2018%2Ccesc_tcga_pan_can_atlas_2018%2Cchol_tcga_pan_can_atlas_2018%2Ccoadread_tcga_pan_can_atlas_2018%2Cdlbc_tcga_pan_can_atlas_2018%2Cesca_tcga_pan_can_atlas_2018%2Cgbm_tcga_pan_can_atlas_2018%2Chnsc_tcga_pan_can_atlas_2018%2Ckich_tcga_pan_can_atlas_2018%2Ckirc_tcga_pan_can_atlas_2018%2Ckirp_tcga_pan_can_atlas_2018%2Clihc_tcga_pan_can_atlas_2018%2Cluad_tcga_pan_can_atlas_2018%2Clusc_tcga_pan_can_atlas_2018%2Cmeso_tcga_pan_can_atlas_2018%2Cov_tcga_pan_can_atlas_2018%2Cpaad_tcga_pan_can_atlas_2018%2Cpcpg_tcga_pan_can_atlas_2018%2Cprad_tcga_pan_can_atlas_2018%2Csarc_tcga_pan_can_atlas_2018%2Cskcm_tcga_pan_can_atlas_2018%2Cstad_tcga_pan_can_atlas_2018%2Ctgct_tcga_pan_can_atlas_2018%2Cthym_tcga_pan_can_atlas_2018%2Cthca_tcga_pan_can_atlas_2018%2Cucs_tcga_pan_can_atlas_2018%2Cucec_tcga_pan_can_atlas_2018%2Cuvm_tcga_pan_can_atlas_2018&case_set_id=all&data_priority=0&gene_list=EGFR&geneset_list=%20&plots_coloring_selection=%7B%22selectedOption%22%3A%22-1_undefined%22%2C%22colorByMutationType%22%3A%22false%22%2C%22colorByCopyNumber%22%3A%22false%22%7D&plots_horz_selection=%7B%22selectedGeneOption%22%3A1956%2C%22dataType%22%3A%22clinical_attribute%22%2C%22selectedDataSourceOption%22%3A%22CANCER_TYPE%22%2C%22mutationCountBy%22%3A%22MutationType%22%2C%22logScale%22%3A%22false%22%7D&plots_vert_selection=%7B%22selectedGeneOption%22%3A1956%2C%22selectedGenericAssayOption%22%3A%22Orthohepadnavirus%22%2C%22dataType%22%3A%22MICROBIOME_SIGNATURE%22%2C%22selectedDataSourceOption%22%3A%22microbiome_signature%22%2C%22mutationCountBy%22%3A%22MutationType%22%2C%22logScale%22%3A%22false%22%7D&profileFilter=0&tab_index=tab_visualize)
+![image](https://user-images.githubusercontent.com/840895/90060684-1783ed00-dcb3-11ea-8368-e96dd69c552c.png)
+
+*   **New Feature**: You can now compare *DNA Methylation* data between groups using the *Comparison* feature. [Example: Comparing DNA methylation levels between samples with high vs low BRCA1 expression](https://www.cbioportal.org/results/comparison?Action=Submit&RPPA_SCORE_THRESHOLD=2.0&Z_SCORE_THRESHOLD=2.0&cancer_study_id=ov_tcga_pub&cancer_study_list=ov_tcga_pub&case_set_id=ov_tcga_pub_3way_complete&comparison_selectedGroups=%5B%22BRCA1%3A%20EXP%3E1%22%2C%22BRCA1%3A%20EXP%3C-1%22%5D&comparison_subtab=dna_methylation&data_priority=0&gene_list=BRCA1%253AEXP%253E1%2520%250ABRCA1%253A%2520EXP%253C-1&gene_set_choice=user-defined-list&geneset_list=%20&genetic_profile_ids_PROFILE_MRNA_EXPRESSION=ov_tcga_pub_mrna_median_Zscores&genetic_profile_ids_PROFILE_MUTATION_EXTENDED=ov_tcga_pub_mutations&plots_coloring_selection=%7B%7D&plots_horz_selection=%7B%7D&plots_vert_selection=%7B%22selectedDataSourceOption%22%3A%22mrna_median_Zscores%22%7D&profileFilter=0&tab_index=tab_visualize)
+![image](https://user-images.githubusercontent.com/840895/89957811-632c8d00-dc06-11ea-87dc-bdbb4fa23a0b.png)
+
+*   **Added data** consisting of 513 samples from 3 studies:
+     * [Breast Cancer (SMC 2018)](https://www.cbioportal.org/study/summary?id=brca_smc_2018) *187 samples* 
+     * [Germ Cell Tumors and Shared Leukemias (MSK     2020)](https://www.cbioportal.org/study/summary?id=gct_msk_2020) *21 samples* 
+     * [Lung Adenocarcinoma (OncoSG, Nat Genet 2020)](https://www.cbioportal.org/study/summary?id=luad_oncosg_2020) *305 samples* 
+     
+ *   **Added RPPA data** in addition to the microbiome data for [31 TCGA Pancan studies (except LAML)](https://www.cbioportal.org/study/summary?id=acc_tcga_pan_can_atlas_2018%2Cblca_tcga_pan_can_atlas_2018%2Clgg_tcga_pan_can_atlas_2018%2Cbrca_tcga_pan_can_atlas_2018%2Ccesc_tcga_pan_can_atlas_2018%2Cchol_tcga_pan_can_atlas_2018%2Ccoadread_tcga_pan_can_atlas_2018%2Cdlbc_tcga_pan_can_atlas_2018%2Cesca_tcga_pan_can_atlas_2018%2Cgbm_tcga_pan_can_atlas_2018%2Chnsc_tcga_pan_can_atlas_2018%2Ckich_tcga_pan_can_atlas_2018%2Ckirc_tcga_pan_can_atlas_2018%2Ckirp_tcga_pan_can_atlas_2018%2Clihc_tcga_pan_can_atlas_2018%2Cluad_tcga_pan_can_atlas_2018%2Clusc_tcga_pan_can_atlas_2018%2Cmeso_tcga_pan_can_atlas_2018%2Cov_tcga_pan_can_atlas_2018%2Cpaad_tcga_pan_can_atlas_2018%2Cpcpg_tcga_pan_can_atlas_2018%2Cprad_tcga_pan_can_atlas_2018%2Csarc_tcga_pan_can_atlas_2018%2Cskcm_tcga_pan_can_atlas_2018%2Cstad_tcga_pan_can_atlas_2018%2Ctgct_tcga_pan_can_atlas_2018%2Cthym_tcga_pan_can_atlas_2018%2Cthca_tcga_pan_can_atlas_2018%2Cucs_tcga_pan_can_atlas_2018%2Cucec_tcga_pan_can_atlas_2018%2Cuvm_tcga_pan_can_atlas_2018)
+  <img width="400" alt="" src="https://user-images.githubusercontent.com/840895/90141147-ba3a7b00-dd48-11ea-964f-840dd591e535.png">
+
+## Jul 21, 2020
+*   **New Feature**: The *Mutations* tab now has the option to show mutation effects for different transcripts / isoforms. Note that some annotation features are only available for the canonical isoform. [example](https://www.cbioportal.org/results/mutations?Action=Submit&RPPA_SCORE_THRESHOLD=2.0&Z_SCORE_THRESHOLD=2.0&cancer_study_list=msk_impact_2017&case_set_id=msk_impact_2017_cnaseq&data_priority=0&gene_list=FGFR2&geneset_list=%20&genetic_profile_ids_PROFILE_COPY_NUMBER_ALTERATION=msk_impact_2017_cna&genetic_profile_ids_PROFILE_MUTATION_EXTENDED=msk_impact_2017_mutations&mutations_transcript_id=ENST00000358487&profileFilter=0&tab_index=tab_visualize)
+![image](https://user-images.githubusercontent.com/840895/88306535-d95d6400-ccd8-11ea-9e64-0c6600f65e50.png)
+
+*   **Enhancement**: The *Plots* tab is now supported in multi-study queries. [example](https://www.cbioportal.org/results/plots?Action=Submit&RPPA_SCORE_THRESHOLD=2.0&Z_SCORE_THRESHOLD=2.0&cancer_study_list=laml_tcga_pan_can_atlas_2018%2Cacc_tcga_pan_can_atlas_2018%2Cblca_tcga_pan_can_atlas_2018%2Clgg_tcga_pan_can_atlas_2018%2Cbrca_tcga_pan_can_atlas_2018%2Ccesc_tcga_pan_can_atlas_2018%2Cchol_tcga_pan_can_atlas_2018%2Ccoadread_tcga_pan_can_atlas_2018%2Cdlbc_tcga_pan_can_atlas_2018%2Cesca_tcga_pan_can_atlas_2018%2Cgbm_tcga_pan_can_atlas_2018%2Chnsc_tcga_pan_can_atlas_2018%2Ckich_tcga_pan_can_atlas_2018%2Ckirc_tcga_pan_can_atlas_2018%2Ckirp_tcga_pan_can_atlas_2018%2Clihc_tcga_pan_can_atlas_2018%2Cluad_tcga_pan_can_atlas_2018%2Clusc_tcga_pan_can_atlas_2018%2Cmeso_tcga_pan_can_atlas_2018%2Cov_tcga_pan_can_atlas_2018%2Cpaad_tcga_pan_can_atlas_2018%2Cpcpg_tcga_pan_can_atlas_2018%2Cprad_tcga_pan_can_atlas_2018%2Csarc_tcga_pan_can_atlas_2018%2Cskcm_tcga_pan_can_atlas_2018%2Cstad_tcga_pan_can_atlas_2018%2Ctgct_tcga_pan_can_atlas_2018%2Cthym_tcga_pan_can_atlas_2018%2Cthca_tcga_pan_can_atlas_2018%2Cucs_tcga_pan_can_atlas_2018%2Cucec_tcga_pan_can_atlas_2018%2Cuvm_tcga_pan_can_atlas_2018&case_set_id=all&data_priority=0&gene_list=TP53%2520PTEN%2520BRCA1%2520IGF2%2520EGFR&geneset_list=%20&plots_coloring_selection=%7B%22colorByCopyNumber%22%3A%22false%22%7D&plots_horz_selection=%7B%22selectedGeneOption%22%3A1956%7D&plots_vert_selection=%7B%22logScale%22%3A%22true%22%7D&profileFilter=0&tab_index=tab_visualize)
+![image](https://user-images.githubusercontent.com/840895/88309239-07907300-ccdc-11ea-995b-7ddd658ec46e.png)
+
+*   **New Feature**: You can now share custom groups in the *Study View* [example](https://www.cbioportal.org/study/summary?id=msk_impact_2017#sharedGroups=5d092670e4b0ab4137876374,5c99454ee4b0ab4137873dc5)
+
+    <img width="333" alt="" src="https://user-images.githubusercontent.com/840895/88309724-b7fe7700-ccdc-11ea-969a-28ed8551ffd7.png">
+
+
+## Jun 11, 2020
+*   **Added data** consisting of 267 samples from 2 studies:
+     * [Gastric Cancer (OncoSG, 2018)](https://www.cbioportal.org/study/summary?id=stad_oncosg_2018) *147 samples* 
+     * 120 ctDNA samples added to [Non-Small Cell Lung Cancer (TRACERx, NEJM & Nature 2017)](https://www.cbioportal.org/study/summary?id=nsclc_tracerx_2017) *447 samples* 
+
+## Jun 9, 2020
+
+*   **Enhancement**: using [OQL](https://www.cbioportal.org/oql#oql-modifiers) to query for mutations based on a protein position range. [example](https://www.cbioportal.org/results/mutations?Action=Submit&RPPA_SCORE_THRESHOLD=2.0&Z_SCORE_THRESHOLD=2.0&cancer_study_list=msk_impact_2017&case_set_id=msk_impact_2017_cnaseq&data_priority=0&gene_list=TP53%253AMUT_(95-288*)&geneset_list=%20&genetic_profile_ids_PROFILE_COPY_NUMBER_ALTERATION=msk_impact_2017_cna&genetic_profile_ids_PROFILE_MUTATION_EXTENDED=msk_impact_2017_mutations&profileFilter=0&tab_index=tab_visualize)
+![image](https://user-images.githubusercontent.com/840895/84427197-83ce6b80-abf2-11ea-9d18-3a4f4524e545.png)
+
+*   **New Feature**: you can now send the OncoPrint data to the [OncoPrinter tool](https://www.cbioportal.org/oncoprinter) for customization.
+![image](https://user-images.githubusercontent.com/840895/84318326-3c85a380-ab3c-11ea-97c1-34343cb3e996.png)
+
+*   **Enhancement**: Mutational spectrum data can be downloaded from OncoPrint
+![image](https://user-images.githubusercontent.com/840895/84322695-68585780-ab43-11ea-9224-a965331e35fc.png)
+
+
+## Jun 2, 2020
+
+*   **Enhancement**: Pediatric cancer studies are now grouped and highlighted in the query page
+![image](https://user-images.githubusercontent.com/840895/84318659-c897cb00-ab3c-11ea-8209-93c940321a0f.png)
+
 ## May 6, 2020
 *   **Added data** consisting of 574 samples from 3 studies:
      * [Uterine Sarcoma/Mesenchymal (MSK, Clin Cancer Res 2020)](https://www.cbioportal.org/study/summary?id=usarc_msk_2020) *108 samples* 

@@ -14,7 +14,9 @@ window.legacySupportFrontendConfig = {
     showCivic : <%=GlobalProperties.showCivic()%>,
     showHotspot : <%=GlobalProperties.showHotspot()%>,
     showMyCancerGenome : <%=GlobalProperties.showMyCancerGenomeUrl()%>,
+    showTranscriptDropdown : <%=GlobalProperties.showTranscriptDropdown()%>,
     showGenomeNexus : <%=GlobalProperties.showGenomeNexus()%>,
+    showGenomeNexusAnnotationSources : <%=GlobalProperties.showGenomeNexusAnnotationSources()%>,
     showMutationMapperToolGrch38 : <%=GlobalProperties.showMutationMapperToolGrch38()%>,
     querySetsOfGenes : JSON.parse('<%=GlobalProperties.getQuerySetsOfGenes()%>'),
     skinBlurb : '<%=GlobalProperties.getBlurb()%>',
@@ -97,7 +99,7 @@ window.localdist = localStorage.getItem("localdist") === "true";
 if (window.localdist || window.localdev) {
 	window.frontendConfig.frontendUrl = '//localhost:3000/'
 } else if (localStorage.netlify) {
-	var netlifyInstance = '//' + localStorage.getItem('netlify') + '.netlify.com/';
+	var netlifyInstance = '//' + localStorage.getItem('netlify') + '.netlify.app/';
 	window.frontendConfig.frontendUrl = netlifyInstance;
 }
 // clean userEmailAddress config

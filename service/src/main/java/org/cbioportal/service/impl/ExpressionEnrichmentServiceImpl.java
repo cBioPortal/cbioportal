@@ -256,7 +256,14 @@ public class ExpressionEnrichmentServiceImpl implements ExpressionEnrichmentServ
     private double[] getAlterationValues(List<String> molecularDataValues, String molecularProfileId) {
 
         if (molecularProfileId.contains(RNA_SEQ)) {
-            return molecularDataValues.stream().mapToDouble(g -> Math.log(Double.parseDouble(g)) / LOG2).toArray();
+            return molecularDataValues
+                    .stream()
+                    .mapToDouble(d -> {
+                        double datum = Double.parseDouble(d);
+                        // reset to 0 if there are any negative values and then do log1p
+                        return Math.log1p(datum < 0 ? 0 : datum) / LOG2;
+                    })
+                    .toArray();
         } else {
             return molecularDataValues.stream().mapToDouble(g -> Double.parseDouble(g)).toArray();
         }

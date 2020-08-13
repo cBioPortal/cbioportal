@@ -18,7 +18,6 @@ COPY pom.xml                                     /cbioportal/
 COPY version.sh                                  /cbioportal/
 WORKDIR /cbioportal
 
-COPY business/pom.xml                         business/
 COPY core/pom.xml                             core/
 COPY db-scripts/pom.xml                       db-scripts/
 COPY model/pom.xml                            model/
@@ -75,3 +74,7 @@ ENV PORTAL_HOME=/cbioportal
 
 RUN mkdir -p $PORTAL_WEB_HOME
 RUN unzip /app.war -d  $PORTAL_WEB_HOME
+
+# add entrypoint
+COPY --from=build /cbioportal/docker/web-and-data/docker-entrypoint.sh /usr/local/bin/
+ENTRYPOINT ["docker-entrypoint.sh"]

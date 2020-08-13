@@ -13,7 +13,7 @@ See [https://docs.cbioportal.org](https://docs.cbioportal.org)
 See [LICENSE](./LICENSE)
 
 ## 💻 Run Backend
-cBioPortal consists of several components, please read the [Architecture docs](https://docs.cbioportal.org/2.1-deployment/architecture-overview) to figure out what repo would be relevant to edit. If you e.g. only want to make frontend changes, one can directly edit [the frontend repo](https://github.com/cbioportal/cbioportal-frontend) instead. Read the instructions in that repo for more info on how to do frontend development. This repo only contains the backend part. Before editing the backend, it's good to read the [backend code organization](docs/Backend-Code-Organization.md). For development of the backend repo one should first set up a database. Please follow the [Docker deployment documentation](https://docs.cbioportal.org/2.1.1-deploy-with-docker-recommended/docker) to do so. In step 6 instead of using the `latest` image, you can create your own image and use that:
+cBioPortal consists of several components, please read the [Architecture docs](https://docs.cbioportal.org/2.1-deployment/architecture-overview) to figure out what repo would be relevant to edit. If you e.g. only want to make frontend changes, one can directly edit [the frontend repo](https://github.com/cbioportal/cbioportal-frontend) instead. Read the instructions in that repo for more info on how to do frontend development. This repo only contains the backend part. Before editing the backend, it's good to read the [backend code organization](docs/Backend-Code-Organization.md). For development of the backend repo one should first set up a database. Please follow the [Docker deployment documentation](https://docs.cbioportal.org/2.1.1-deploy-with-docker-recommended/docker) to do so. Change the [docker-compose](https://github.com/cBioPortal/cbioportal-docker-compose/blob/5da068f0eb9b4f42db52ab5e91321b26a1826d7a/docker-compose.yml#L6) file to use your image instead:
 
 ```
 docker build -t cbioportal/cbioportal:my-dev-cbioportal-image -f docker/web-and-data/Dockerfile .
@@ -23,7 +23,7 @@ Note: internally we have a dev database available with the public data set that 
 
 ### 🕵️‍♀️ Debugging
 
-If you want to attach a debugger you can change the command in step 6, by adding to the `JAVA_OPTS` parameter: `-Xdebug -Xrunjdwp:transport=dt_socket,server=y,suspend=n,address=5005` and make sure to expose that port with `-p 5005:5005`.
+If you want to attach a debugger you can change the `docker-compose.yml` file to include the paramaters: `-Xdebug -Xrunjdwp:transport=dt_socket,server=y,suspend=n,address=5005`. <ake sure to expose that port by adding `5005:5005` in the ports section of the cbioportal container.
 
 You can then use a JAVA IDE to connect to that port. E.g. in [VSCode](https://code.visualstudio.com/), one would add the following configuration to `launch.json` to connect:
 

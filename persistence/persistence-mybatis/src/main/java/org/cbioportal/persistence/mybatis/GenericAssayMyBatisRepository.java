@@ -1,15 +1,11 @@
 package org.cbioportal.persistence.mybatis;
 
-import org.cbioportal.model.GeneMolecularAlteration;
-import org.cbioportal.model.GenesetMolecularAlteration;
 import org.cbioportal.model.meta.GenericAssayMeta;
+import org.cbioportal.model.GenericAssayAdditionalProperty;
 import org.cbioportal.persistence.GenericAssayRepository;
-import org.cbioportal.persistence.MolecularDataRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
 import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.HashMap;
 import java.util.List;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -29,6 +25,11 @@ public class GenericAssayMyBatisRepository implements GenericAssayRepository {
     }
 
     @Override
+    public List<GenericAssayAdditionalProperty> getGenericAssayAdditionalproperties(List<String> stableIds) {
+        return genericAssayMapper.getGenericAssayAdditionalproperties(stableIds);
+    }
+
+    @Override
     public List<String> getGenericAssayStableIdsByMolecularIds(List<String> molecularProfileIds) {
         
         List<Integer> molecularProfileInternalIds = genericAssayMapper.getMolecularProfileInternalIdsByMolecularProfileIds(molecularProfileIds);
@@ -45,17 +46,5 @@ public class GenericAssayMyBatisRepository implements GenericAssayRepository {
         }
         // log error and return empty list if something went wrong
         return new ArrayList<String>();
-    }
-
-    @Override
-    public int getGeneticEntityIdByStableId(String stableId) {
-
-        return genericAssayMapper.getGeneticEntityIdByStableId(stableId);
-    }
-
-    @Override
-    public List<HashMap<String, String>> getGenericAssayMetaPropertiesMap(int geneticEntityId) {
-
-        return genericAssayMapper.getGenericAssayMetaPropertiesMap(geneticEntityId);
     }
 }

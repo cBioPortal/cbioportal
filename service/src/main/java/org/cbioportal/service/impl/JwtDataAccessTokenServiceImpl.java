@@ -32,19 +32,20 @@
 
 package org.cbioportal.service.impl;
 
-import java.util.*;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.cbioportal.model.DataAccessToken;
 import org.cbioportal.service.DataAccessTokenService;
 import org.cbioportal.service.exception.InvalidDataAccessTokenException;
 import org.cbioportal.service.util.JwtUtils;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Service;
-import org.cbioportal.model.DataAccessToken;
-import org.springframework.stereotype.Component;
+import org.springframework.security.authentication.BadCredentialsException;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.Authentication;
 
-@Service
-@Component("jwt")
+import java.util.Date;
+import java.util.List;
+
 public class JwtDataAccessTokenServiceImpl implements DataAccessTokenService {
 
     @Autowired
@@ -118,4 +119,21 @@ public class JwtDataAccessTokenServiceImpl implements DataAccessTokenService {
             return null;
         }
     }
+
+    @Override
+    public Authentication createAuthenticationRequest(String token) {
+
+        if (!isValid(token)) {
+            LOG.error("invalid token = " + token);
+            throw new BadCredentialsException("Invalid access token");
+        }
+        String userName = getUsername(token);
+
+        // When DaoAuthenticationProvider does authentication on user returned by PortalUserDetailsService
+        // which has password "unused", this password won't match, and then there is a BadCredentials exception thrown
+        // this is a good way to catch that the wrong authetication provider is being used.
+        return new UsernamePasswordAuthenticationToken(userName, "does not match unused");
+
+    }
+
 }

@@ -592,7 +592,7 @@ as appear in the url of a query submitted from the homepage.
 * Updated **TCGA provisional studies**
     *   updated to the Firehose run of January 28, 2016
     *   RPPA data updated with the latest data from MD Anderson
-    *   [OncoTree](https://oncotree.mskcc.org/) codes assigned per sample
+    *   [OncoTree](http://oncotree.mskcc.org/) codes assigned per sample
 
 ## June 6, 2016
 *   **New features**:

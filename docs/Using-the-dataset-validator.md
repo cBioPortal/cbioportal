@@ -95,7 +95,7 @@ INFO: meta_CNA.txt: Validation of meta file complete
 DEBUG: brca_tcga_meta_cna_hg19_seg.txt: Starting validation of meta file
 INFO: brca_tcga_meta_cna_hg19_seg.txt: Validation of meta file complete
 
-DEBUG: -: Retrieving chromosome lengths from 'http://hgdownload.cse.ucsc.edu/goldenPath/hg19/bigZips/hg19.chrom.sizes'
+DEBUG: -: Retrieving chromosome lengths from 'https://hgdownload.cse.ucsc.edu/goldenPath/hg19/bigZips/hg19.chrom.sizes'
 
 DEBUG: meta_patients.txt: Starting validation of meta file
 INFO: meta_patients.txt: Validation of meta file complete
@@ -242,7 +242,7 @@ INFO: meta_CNA.txt: Validation of meta file complete
 DEBUG: brca_tcga_meta_cna_hg19_seg.txt: Starting validation of meta file
 INFO: brca_tcga_meta_cna_hg19_seg.txt: Validation of meta file complete
 
-DEBUG: -: Retrieving chromosome lengths from 'http://hgdownload.cse.ucsc.edu/goldenPath/hg19/bigZips/hg19.chrom.sizes'
+DEBUG: -: Retrieving chromosome lengths from 'https://hgdownload.cse.ucsc.edu/goldenPath/hg19/bigZips/hg19.chrom.sizes'
 
 DEBUG: meta_patients.txt: Starting validation of meta file
 INFO: meta_patients.txt: Validation of meta file complete
@@ -347,7 +347,7 @@ INFO: meta_CNA.txt: Validation of meta file complete
 DEBUG: brca_tcga_meta_cna_hg19_seg.txt: Starting validation of meta file
 INFO: brca_tcga_meta_cna_hg19_seg.txt: Validation of meta file complete
 
-DEBUG: -: Retrieving chromosome lengths from 'http://hgdownload.cse.ucsc.edu/goldenPath/hg19/bigZips/hg19.chrom.sizes'
+DEBUG: -: Retrieving chromosome lengths from 'https://hgdownload.cse.ucsc.edu/goldenPath/hg19/bigZips/hg19.chrom.sizes'
 
 DEBUG: meta_patients.txt: Starting validation of meta file
 INFO: meta_patients.txt: Validation of meta file complete

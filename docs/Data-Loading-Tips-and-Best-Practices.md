@@ -1,7 +1,7 @@
 Here we describe some Tips and Best Practices.
 
 ## Running GISTIC 2.0
-To generate discrete copy number data file you may need to run GISTIC 2.0. GISTIC 2.0 can be [installed](http://www.broadinstitute.org/cgi-bin/cancer/publications/pub_paper.cgi?mode=view&paper_id=216&p=t) or run online using the GISTIC 2.0 module on [GenePattern](https://cloud.genepattern.org). 
+To generate discrete copy number data file you may need to run GISTIC 2.0. GISTIC 2.0 can be [installed](https://www.broadinstitute.org/cgi-bin/cancer/publications/pub_paper.cgi?mode=view&paper_id=216&p=t) or run online using the GISTIC 2.0 module on [GenePattern](https://cloud.genepattern.org). 
 Running GISTIC 2.0 requires two input files: 
 
 1. A segmentation file, which contains the segmented data 

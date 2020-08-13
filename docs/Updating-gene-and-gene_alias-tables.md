@@ -62,7 +62,7 @@ SELECT count(*) FROM cbioportal.gene_alias;
 
 7- Additionally, there are other tables you may want to update now (only in human).
 
-* Updating the COSMIC coding mutations, can be downloaded from [here](http://cancer.sanger.ac.uk/cosmic/download) and require the script `importCosmicData.pl`
+* Updating the COSMIC coding mutations, can be downloaded from [here](https://cancer.sanger.ac.uk/cosmic/download) and require the script `importCosmicData.pl`
 
 8- Clean-up old data:
 ```sql

@@ -129,7 +129,7 @@ Setting controlling the blurb: you can add any HTML code here that you want to v
 skin.blurb=
 ```
 
-Setting controlling the citation below the blurb: you can add any HTML code here that you want to visualize. If the field is left empty, this HTML code will be shown: `Please cite: <a href="http://cancerdiscovery.aacrjournals.org/content/2/5/401.abstract" target="_blank">Cerami et al., 2012</a> &amp; <a href="http://www.ncbi.nlm.nih.gov/pubmed/23550210" target="_blank">Gao et al., 2013</a>`).
+Setting controlling the citation below the blurb: you can add any HTML code here that you want to visualize. If the field is left empty, this HTML code will be shown: `Please cite: <a href="https://cancerdiscovery.aacrjournals.org/content/2/5/401.abstract" target="_blank">Cerami et al., 2012</a> &amp; <a href="https://www.ncbi.nlm.nih.gov/pubmed/23550210" target="_blank">Gao et al., 2013</a>`).
 ```
 skin.citation_rule_text=
 ```
@@ -160,12 +160,12 @@ The Mutations tab contains various links, redirecting the user to external infor
 ```
 ensembl.transcript_url=
 ```
-The default setting is `http://ensembl.org/homo_sapiens/Transcript/Summary?t=<%= transcriptId %>`. The `<%= transcriptId %>` is substituted by the frontend code into respective transcript ID.
+The default setting is `https://ensembl.org/homo_sapiens/Transcript/Summary?t=<%= transcriptId %>`. The `<%= transcriptId %>` is substituted by the frontend code into respective transcript ID.
 
 
 # Segment File URL
 
-This is a root URL to where segment files can be found.  This is used when you want to provide segment file viewing via external tools such as [IGV](http://www.broadinstitute.org/igv/).
+This is a root URL to where segment files can be found.  This is used when you want to provide segment file viewing via external tools such as [IGV](https://www.broadinstitute.org/igv/).
 
 ```
 segfile.url=

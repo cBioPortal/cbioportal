@@ -53,7 +53,7 @@
      * [Metastatic castration-sensitive prostate cancer (MSK, Clin Cancer Res 2020)](https://www.cbioportal.org/study/summary?id=prad_mcspc_mskcc_2020) *424 samples* 
     *  [Glioblastoma (Columbia, Nat Med. 2019)](https://www.cbioportal.org/study/summary?id=gbm_columbia_2019) *42 samples* 
 *   **Updated one study:**
-     *  Expression data was added to [The Metastatic Breast Cancer Project (Provisional, February 2020)](http://www.cbioportal.org/study?id=brca_mbcproject_wagle_2017).
+     *  Expression data was added to [The Metastatic Breast Cancer Project (Provisional, February 2020)](https://www.cbioportal.org/study?id=brca_mbcproject_wagle_2017).
 
 ## April 24, 2020
 * **New Feature**: Add a new chart on the _Study View_ for selecting samples based on pre-defined case lists: 
@@ -260,8 +260,8 @@ as appear in the url of a query submitted from the homepage.
 ## July 13, 2019
  *   **Public Release 6.1 of AACR Project GENIE:**
      *   The sixth data set, GENIE 6.0-public, was released in early July 2019.  A patch to GENIE 6.0-public, GENIE 6.1-pubic, was subsequently released on July 13, 2019.  The combined data set now includes nearly 70,000 de-identified genomic records collected from patients who were treated at each of the consortium's participating institutions, making it among the largest fully public cancer genomic data sets released to date. The combined data set now includes data for nearly 80 major cancer types, including data from nearly 11,000 patients with lung cancer, greater than  9,700 patients with breast cancer, and nearly 7,000 patients with colorectal cancer.
- *   More detailed information can be found in the [AACR GENIE Data Guide](http://www.aacr.org/Research/Research/Documents/GENIE%20Data%20Guide.pdf).  In addition to accessing the data via the cBioPortal, users can download the data directly from [Sage Bionetworks](http://synapse.org/genie). Users will need to create an account for either site and agree to the [terms of access](http://www.aacr.org/Documents/Terms%20of%20Access.pdf).
- *   For frequently asked questions, visit the [AACR FAQ page](http://www.aacr.org/Research/Research/Pages/aacr-project-genie.aspx).
+ *   More detailed information can be found in the [AACR GENIE Data Guide](https://www.aacr.org/Research/Research/Documents/GENIE%20Data%20Guide.pdf).  In addition to accessing the data via the cBioPortal, users can download the data directly from [Sage Bionetworks](https://synapse.org/genie). Users will need to create an account for either site and agree to the [terms of access](https://www.aacr.org/Documents/Terms%20of%20Access.pdf).
+ *   For frequently asked questions, visit the [AACR FAQ page](https://www.aacr.org/Research/Research/Pages/aacr-project-genie.aspx).
 ## July 2, 2019
 *   **Added data** consistng of 785 samples from 4 studies:
     *  [Non-Small Cell Lung Cancer (TRACERx, NEJM 2017)](https://www.cbioportal.org/study/summary?id=nsclc_tracerx_2017) *327 samples* 
@@ -270,7 +270,7 @@ as appear in the url of a query submitted from the homepage.
     *  [Colon Adenocarcinoma (CaseCCC, PNAS 2015)](https://www.cbioportal.org/study/summary?id=coad_caseccc_2015) *29 samples* 
 
 ## June 19, 2019
-* **New Feature**: Show *Genome Aggregation Database (gnomAD)* population frequencies in the mutations table - see [example](http://bit.ly/2ISHgiu):
+* **New Feature**: Show *Genome Aggregation Database (gnomAD)* population frequencies in the mutations table - see [example](https://bit.ly/2ISHgiu):
     
     ![gnomad feature news](https://user-images.githubusercontent.com/1334004/59794400-e07c9c00-92a6-11e9-97ea-a79bfc8f3885.gif)
 
@@ -288,7 +288,7 @@ as appear in the url of a query submitted from the homepage.
 
 
 ## May 8, 2019
-* **New Feature**: Show *Post Translational Modification (PTM)* information from [dbPTM](http://dbptm.mbc.nctu.edu.tw/) on the _Mutation Mapper_ - see [example](https://bit.ly/2VVrWdi):
+* **New Feature**: Show *Post Translational Modification (PTM)* information from [dbPTM](https://dbptm.mbc.nctu.edu.tw/) on the _Mutation Mapper_ - see [example](https://bit.ly/2VVrWdi):
     
     ![ptm feature_news](https://user-images.githubusercontent.com/1334004/57391288-34667200-718c-11e9-9fcc-b849542c74b3.gif)
 
@@ -463,7 +463,7 @@ as appear in the url of a query submitted from the homepage.
 
 ## March 20, 2018
  *   The sixth phase of the cBioPortal architectural upgrade is now complete: The _Download_ tab has been moved to the new architecture.
- *   Data can now be downloaded in [tabular format](http://blog.thehyve.nl/blog/downloading-data-from-the-cbioportal-oncoprint-view) from OncoPrint.
+ *   Data can now be downloaded in [tabular format](https://blog.thehyve.nl/blog/downloading-data-from-the-cbioportal-oncoprint-view) from OncoPrint.
  *   Added an option to download an SVG file on the _Cancer Type Summary_ tab.
 
  ![image](https://ptpb.pw/jMli.png)
@@ -522,7 +522,7 @@ as appear in the url of a query submitted from the homepage.
 
 
 ## May 5, 2017
-*   First phase of cBioPortal architectural upgrade complete: Patient view now has fresh look and faster performance. [example](http://bit.ly/2pNY961)
+*   First phase of cBioPortal architectural upgrade complete: Patient view now has fresh look and faster performance. [example](https://bit.ly/2pNY961)
 
 ## March 28, 2017
 *   **New features**:
@@ -557,7 +557,7 @@ as appear in the url of a query submitted from the homepage.
     
     ![OncoPrint-OncoKB](https://cloud.githubusercontent.com/assets/840895/19208804/094dd320-8ccd-11e6-8012-f30104b62ff4.png)
     
-    * Copy number segments visualization directly in the browser in a new *CN Segments* tab via [IGV.js](http://igv.org/)
+    * Copy number segments visualization directly in the browser in a new *CN Segments* tab via [IGV.js](https://igv.org/)
     
     ![image](https://cloud.githubusercontent.com/assets/840895/19200747/ad03c824-8c98-11e6-8051-91fc40e1dc56.png)
     
@@ -592,7 +592,7 @@ as appear in the url of a query submitted from the homepage.
 * Updated **TCGA provisional studies**
     *   updated to the Firehose run of January 28, 2016
     *   RPPA data updated with the latest data from MD Anderson
-    *   [OncoTree](http://oncotree.mskcc.org/) codes assigned per sample
+    *   [OncoTree](https://oncotree.mskcc.org/) codes assigned per sample
 
 ## June 6, 2016
 *   **New features**:
@@ -638,7 +638,7 @@ as appear in the url of a query submitted from the homepage.
     *   [Gastric Adenocarcinoma (TMUCIH, PNAS 2015)](https://www.cbioportal.org/study?id=egc_tmucih_2015)
     *   [Primary Central Nervous System Lymphoma (Mayo Clinic, Clin Cancer Res 2015)](https://www.cbioportal.org/study?id=pcnsl_mayo_2015)
     *   [Desmoplastic Melanoma (Broad Institute, Nat Genet 2015)](https://www.cbioportal.org/study?id=desm_broad_2015)
-*   All mutation data mapped to [UniProt canonical isoforms](http://www.uniprot.org/help/canonical_and_isoforms)
+*   All mutation data mapped to [UniProt canonical isoforms](https://www.uniprot.org/help/canonical_and_isoforms)
 
 ## December 23, 2015
 *   **New features**:
@@ -652,7 +652,7 @@ as appear in the url of a query submitted from the homepage.
 
 
 ## December 1, 2015
-*   **New feature**: Annotated statistically recurrent hotspots, via new algorithm by [Chang et al. 2015](http://www.nature.com/nbt/journal/vaop/ncurrent/full/nbt.3391.html)</br>
+*   **New feature**: Annotated statistically recurrent hotspots, via new algorithm by [Chang et al. 2015](https://www.nature.com/nbt/journal/vaop/ncurrent/full/nbt.3391.html)</br>
         ![Annotate recurrent hotspots](https://cloud.githubusercontent.com/assets/840895/11794851/7729839e-a281-11e5-9413-12dc885b947d.png)
 
 
@@ -737,7 +737,7 @@ as appear in the url of a query submitted from the homepage.
 *   **New features**:
     *   Redesigned **Mutual Exclusivity** tab
     *   Added **correlation scores** for scatter plots on the Plots tab
-    *   Download links to [**GenomeSpace**](http://www.genomespace.org/)
+    *   Download links to [**GenomeSpace**](https://www.genomespace.org/)
 
 ## October 24, 2014
 
@@ -846,7 +846,7 @@ as appear in the url of a query submitted from the homepage.
 
 *   Multi-gene correlation plots.
 *   Variant allele frequency distribution plots for individual tumor samples.
-*   Tissue images for TCGA samples in the patient view, via [Digital Slide Archive](http://cancer.digitalslidearchive.net/). [Example](https://www.cbioportal.org/patient?studyId=ucec_tcga&caseId=TCGA-BK-A0CC&tab=tissueImageTab).
+*   Tissue images for TCGA samples in the patient view, via [Digital Slide Archive](https://cancer.digitalslidearchive.net/). [Example](https://www.cbioportal.org/patient?studyId=ucec_tcga&caseId=TCGA-BK-A0CC&tab=tissueImageTab).
 
 ## July 16, 2013
 
@@ -895,7 +895,7 @@ as appear in the url of a query submitted from the homepage.
 
 ## February 16, 2013
 
-*   The cBio Portal now contains mutation data from all provisional TCGA projects. Please adhere to [the TCGA publication guidelines](http://cancergenome.nih.gov/abouttcga/policies/publicationguidelines) when using these and any TCGA data in your publications.
+*   The cBio Portal now contains mutation data from all provisional TCGA projects. Please adhere to [the TCGA publication guidelines](https://cancergenome.nih.gov/abouttcga/policies/publicationguidelines) when using these and any TCGA data in your publications.
 *   All data updated to the October Firehose run (October 24, 2012).
 *   **Sequencing read counts and frequencies** are now shown in the Mutation Details table when available.
 *   Improved OncoPrints, resulting in performance improvements.
@@ -947,8 +947,8 @@ as appear in the url of a query submitted from the homepage.
 
 ## December 22, 2011
 
-*   **Fourteen new [TCGA](http://cancergenome.nih.gov/) cancer studies**: This includes complete data for TCGA Colorectal Carcinoma and provisional data for thirteen other cancer types in the TCGA production pipeline. Please note that data from these thirteen new cancer types are provisional, not final and do not yet include mutation data. As per NCI guidelines, preliminary mutation data cannot be redistributed until they have been validated.
-    ![TCGA](http://cancergenome.nih.gov/PublishedContent/Images/SharedItems/Images/TCGA_54px-Logo.png)
+*   **Fourteen new [TCGA](https://cancergenome.nih.gov/) cancer studies**: This includes complete data for TCGA Colorectal Carcinoma and provisional data for thirteen other cancer types in the TCGA production pipeline. Please note that data from these thirteen new cancer types are provisional, not final and do not yet include mutation data. As per NCI guidelines, preliminary mutation data cannot be redistributed until they have been validated.
+    ![TCGA](https://cancergenome.nih.gov/PublishedContent/Images/SharedItems/Images/TCGA_54px-Logo.png)
 
 *   **Four new data types**:
     *   Reverse-phase protein array (RPPA) data.
@@ -958,20 +958,20 @@ as appear in the url of a query submitted from the homepage.
 *   Updated TCGA GBM copy-number, expression, and methylation data.
 *   New **gene symbol validation** service. You can now use gene aliases and/or Entrez Gene IDs within your gene sets.
 *   **Links to IGV** for visualization of DNA copy-number changes.
-*   Background information from the [Sanger Cancer Gene Census](http://www.sanger.ac.uk/genetics/CGP/Census/).
+*   Background information from the [Sanger Cancer Gene Census](https://www.sanger.ac.uk/genetics/CGP/Census/).
 *   Two **new [Tutorials](https://www.cbioportal.org/tutorials)** to get you quickly started in using the portal.  
 
 ## November 14, 2011
 
 *   New and **improved mutation details**, with sorting and filtering capabilities.
-*   In collaboration with Bilkent University, we have added a **new Network tab** to our results pages. The network tab enables users to visualize, analyze and filter cancer genomic data in the context of pathways and interaction networks derived from [Pathway Commons](http://www.pathwaycommons.org).
+*   In collaboration with Bilkent University, we have added a **new Network tab** to our results pages. The network tab enables users to visualize, analyze and filter cancer genomic data in the context of pathways and interaction networks derived from [Pathway Commons](https://www.pathwaycommons.org).
     ![GBM Network](https://user-images.githubusercontent.com/1334004/47188328-9f8e4b00-d305-11e8-87d7-6336285f7572.png)
 
 ## September 3, 2011
 
 *   You can now query across different cancer studies (feature available directly from the home page).
 *   Our [MATLAB CGDS Cancer Genomics Toolbox](https://www.cbioportal.org/cgds_r.jsp) is now available. The toolbox enables you to download data from the cBio Portal, and import it directly into MATLAB.
-*   The code for the cBio Portal has now been fully open sourced, and made available at [Google Code](http://code.google.com/p/cbio-cancer-genomics-portal/). If you would like to join our open source efforts and make the portal even better, drop us an email.  
+*   The code for the cBio Portal has now been fully open sourced, and made available at [Google Code](https://code.google.com/p/cbio-cancer-genomics-portal/). If you would like to join our open source efforts and make the portal even better, drop us an email.  
 
 ## March 2, 2011
 

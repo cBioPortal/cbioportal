@@ -6,7 +6,7 @@ This page describes various system software required to run the cBioPortal.
 
 The cBioPortal software should run properly on MySQL version 5.7.x. Versions higher than 5.7.x can cause an issue
 while loading the database schema. Minor versions lower than 5.7.x will cause issues with persistent cache invalidation.
-The software can be found and downloaded from the [MySQL website](http://www.mysql.com/).
+The software can be found and downloaded from the [MySQL website](https://www.mysql.com/).
 
 On Ubuntu:  ```sudo apt-get install mysql-server```
 
@@ -16,7 +16,7 @@ The session service uses MongoDB 3.6.6
 
 ## Java
 
-As of this writing, the cBioPortal can be compiled and run from Java 8.0 and above.  The software can be found and download from the [Oracle](http://www.oracle.com/us/technologies/java/overview/index.html) website.
+As of this writing, the cBioPortal can be compiled and run from Java 8.0 and above.  The software can be found and download from the [Oracle](https://www.oracle.com/us/technologies/java/overview/index.html) website.
 
 On Ubuntu:  ```sudo apt-get install default-jdk```
 

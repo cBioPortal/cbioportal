@@ -1,43 +1,19 @@
-## Aug 12, 2020
+## Aug 11, 2020
+*   **New Feature**: microbiome data of TCGA samples from [Poore et al. 2020](https://www.nature.com/articles/s41586-020-2095-1) are now available for analysis in the *OncoPrint* and *Plots* tabs. [Example: Orthohepadnavirus across TCGA cancers](https://www.cbioportal.org/results/plots?Action=Submit&RPPA_SCORE_THRESHOLD=2.0&Z_SCORE_THRESHOLD=2.0&cancer_study_list=laml_tcga_pan_can_atlas_2018%2Cacc_tcga_pan_can_atlas_2018%2Cblca_tcga_pan_can_atlas_2018%2Clgg_tcga_pan_can_atlas_2018%2Cbrca_tcga_pan_can_atlas_2018%2Ccesc_tcga_pan_can_atlas_2018%2Cchol_tcga_pan_can_atlas_2018%2Ccoadread_tcga_pan_can_atlas_2018%2Cdlbc_tcga_pan_can_atlas_2018%2Cesca_tcga_pan_can_atlas_2018%2Cgbm_tcga_pan_can_atlas_2018%2Chnsc_tcga_pan_can_atlas_2018%2Ckich_tcga_pan_can_atlas_2018%2Ckirc_tcga_pan_can_atlas_2018%2Ckirp_tcga_pan_can_atlas_2018%2Clihc_tcga_pan_can_atlas_2018%2Cluad_tcga_pan_can_atlas_2018%2Clusc_tcga_pan_can_atlas_2018%2Cmeso_tcga_pan_can_atlas_2018%2Cov_tcga_pan_can_atlas_2018%2Cpaad_tcga_pan_can_atlas_2018%2Cpcpg_tcga_pan_can_atlas_2018%2Cprad_tcga_pan_can_atlas_2018%2Csarc_tcga_pan_can_atlas_2018%2Cskcm_tcga_pan_can_atlas_2018%2Cstad_tcga_pan_can_atlas_2018%2Ctgct_tcga_pan_can_atlas_2018%2Cthym_tcga_pan_can_atlas_2018%2Cthca_tcga_pan_can_atlas_2018%2Cucs_tcga_pan_can_atlas_2018%2Cucec_tcga_pan_can_atlas_2018%2Cuvm_tcga_pan_can_atlas_2018&case_set_id=all&data_priority=0&gene_list=EGFR&geneset_list=%20&plots_coloring_selection=%7B%22selectedOption%22%3A%22-1_undefined%22%2C%22colorByMutationType%22%3A%22false%22%2C%22colorByCopyNumber%22%3A%22false%22%7D&plots_horz_selection=%7B%22selectedGeneOption%22%3A1956%2C%22dataType%22%3A%22clinical_attribute%22%2C%22selectedDataSourceOption%22%3A%22CANCER_TYPE%22%2C%22mutationCountBy%22%3A%22MutationType%22%2C%22logScale%22%3A%22false%22%7D&plots_vert_selection=%7B%22selectedGeneOption%22%3A1956%2C%22selectedGenericAssayOption%22%3A%22Orthohepadnavirus%22%2C%22dataType%22%3A%22MICROBIOME_SIGNATURE%22%2C%22selectedDataSourceOption%22%3A%22microbiome_signature%22%2C%22mutationCountBy%22%3A%22MutationType%22%2C%22logScale%22%3A%22false%22%7D&profileFilter=0&tab_index=tab_visualize)
+![image](https://user-images.githubusercontent.com/840895/90060684-1783ed00-dcb3-11ea-8368-e96dd69c552c.png)
+
+*   **New Feature**: You can now compare *DNA Methylation* data between groups using the *Comparison* feature. [Example: Comparing DNA methylation levels between samples with high vs low BRCA1 expression](https://www.cbioportal.org/results/comparison?Action=Submit&RPPA_SCORE_THRESHOLD=2.0&Z_SCORE_THRESHOLD=2.0&cancer_study_id=ov_tcga_pub&cancer_study_list=ov_tcga_pub&case_set_id=ov_tcga_pub_3way_complete&comparison_selectedGroups=%5B%22BRCA1%3A%20EXP%3E1%22%2C%22BRCA1%3A%20EXP%3C-1%22%5D&comparison_subtab=dna_methylation&data_priority=0&gene_list=BRCA1%253AEXP%253E1%2520%250ABRCA1%253A%2520EXP%253C-1&gene_set_choice=user-defined-list&geneset_list=%20&genetic_profile_ids_PROFILE_MRNA_EXPRESSION=ov_tcga_pub_mrna_median_Zscores&genetic_profile_ids_PROFILE_MUTATION_EXTENDED=ov_tcga_pub_mutations&plots_coloring_selection=%7B%7D&plots_horz_selection=%7B%7D&plots_vert_selection=%7B%22selectedDataSourceOption%22%3A%22mrna_median_Zscores%22%7D&profileFilter=0&tab_index=tab_visualize)
+![image](https://user-images.githubusercontent.com/840895/89957811-632c8d00-dc06-11ea-87dc-bdbb4fa23a0b.png)
+
 *   **Added data** consisting of 513 samples from 3 studies:
      * [Breast Cancer (SMC 2018)](https://www.cbioportal.org/study/summary?id=brca_smc_2018) *187 samples* 
      * [Germ Cell Tumors and Shared Leukemias (MSK     2020)](https://www.cbioportal.org/study/summary?id=gct_msk_2020) *21 samples* 
      * [Lung Adenocarcinoma (OncoSG, Nat Genet 2020)](https://www.cbioportal.org/study/summary?id=luad_oncosg_2020) *305 samples* 
+     
+ *   **Added RPPA data** in addition to the microbiome data for [31 TCGA Pancan studies (except LAML)](https://www.cbioportal.org/study/summary?id=acc_tcga_pan_can_atlas_2018%2Cblca_tcga_pan_can_atlas_2018%2Clgg_tcga_pan_can_atlas_2018%2Cbrca_tcga_pan_can_atlas_2018%2Ccesc_tcga_pan_can_atlas_2018%2Cchol_tcga_pan_can_atlas_2018%2Ccoadread_tcga_pan_can_atlas_2018%2Cdlbc_tcga_pan_can_atlas_2018%2Cesca_tcga_pan_can_atlas_2018%2Cgbm_tcga_pan_can_atlas_2018%2Chnsc_tcga_pan_can_atlas_2018%2Ckich_tcga_pan_can_atlas_2018%2Ckirc_tcga_pan_can_atlas_2018%2Ckirp_tcga_pan_can_atlas_2018%2Clihc_tcga_pan_can_atlas_2018%2Cluad_tcga_pan_can_atlas_2018%2Clusc_tcga_pan_can_atlas_2018%2Cmeso_tcga_pan_can_atlas_2018%2Cov_tcga_pan_can_atlas_2018%2Cpaad_tcga_pan_can_atlas_2018%2Cpcpg_tcga_pan_can_atlas_2018%2Cprad_tcga_pan_can_atlas_2018%2Csarc_tcga_pan_can_atlas_2018%2Cskcm_tcga_pan_can_atlas_2018%2Cstad_tcga_pan_can_atlas_2018%2Ctgct_tcga_pan_can_atlas_2018%2Cthym_tcga_pan_can_atlas_2018%2Cthca_tcga_pan_can_atlas_2018%2Cucs_tcga_pan_can_atlas_2018%2Cucec_tcga_pan_can_atlas_2018%2Cuvm_tcga_pan_can_atlas_2018)
+![image](https://user-images.githubusercontent.com/840895/90140523-dee22300-dd47-11ea-8657-7e07ff26ef4b.png)
 
- *   **Added microbiome and RPPA data** for 31 TCGA Pancan studies (except LAML)
-	    * [Adrenocortical Carcinoma (TCGA, PanCancer Atlas)](https://www.cbioportal.org/study/summary?id=acc_tcga_pan_can_atlas_2018)
-	    * [Kidney Renal Clear Cell Carcinoma (TCGA, PanCancer Atlas)](https://www.cbioportal.org/study/summary?id=kirc_tcga_pan_can_atlas_2018)
-	    * [Prostate Adenocarcinoma (TCGA, PanCancer Atlas)](https://www.cbioportal.org/study/summary?id=prad_tcga_pan_can_atlas_2018)
-	    * [Bladder Urothelial Carcinoma (TCGA, PanCancer Atlas)](https://www.cbioportal.org/study/summary?id=blca_tcga_pan_can_atlas_2018)
-	    * [Kidney Renal Papillary Cell Carcinoma (TCGA, PanCancer Atlas)](https://www.cbioportal.org/study/summary?id=kirp_tcga_pan_can_atlas_2018)
-	    * [Sarcoma (TCGA, PanCancer Atlas)](https://www.cbioportal.org/study/summary?id=sarc_tcga_pan_can_atlas_2018)
-	    * [Breast Invasive Carcinoma (TCGA, PanCancer Atlas)](https://www.cbioportal.org/study/summary?id=brca_tcga_pan_can_atlas_2018)
-	    * [Skin Cutaneous Melanoma (TCGA, PanCancer Atlas)](https://www.cbioportal.org/study/summary?id=skcm_tcga_pan_can_atlas_2018)
-	    * [Cervical Squamous Cell Carcinoma (TCGA, PanCancer Atlas)](https://www.cbioportal.org/study/summary?id=cesc_tcga_pan_can_atlas_2018)
-	    * [Brain Lower Grade Glioma (TCGA, PanCancer Atlas)](https://www.cbioportal.org/study/summary?id=lgg_tcga_pan_can_atlas_2018)
-	    * [Stomach Adenocarcinoma (TCGA, PanCancer Atlas)](https://www.cbioportal.org/study/summary?id=stad_tcga_pan_can_atlas_2018)
-	    * [Cholangiocarcinoma (TCGA, PanCancer Atlas)](https://www.cbioportal.org/study/summary?id=chol_tcga_pan_can_atlas_2018)
-	    * [Liver Hepatocellular Carcinoma (TCGA, PanCancer Atlas)](https://www.cbioportal.org/study/summary?id=lihc_tcga_pan_can_atlas_2018)
-	    * [Testicular Germ Cell Tumors (TCGA, PanCancer Atlas)](https://www.cbioportal.org/study/summary?id=tgct_tcga_pan_can_atlas_2018)
-	    * [Colorectal Adenocarcinoma (TCGA, PanCancer Atlas)](https://www.cbioportal.org/study/summary?id=coadread_tcga_pan_can_atlas_2018)
-	    * [Lung Adenocarcinoma (TCGA, PanCancer Atlas)](https://www.cbioportal.org/study/summary?id=luad_tcga_pan_can_atlas_2018)
-	    * [Thyroid Carcinoma (TCGA, PanCancer Atlas)](https://www.cbioportal.org/study/summary?id=thca_tcga_pan_can_atlas_2018)
-	    * [Diffuse Large B-Cell Lymphoma (TCGA, PanCancer Atlas)](https://www.cbioportal.org/study/summary?id=dlbc_tcga_pan_can_atlas_2018)
-	    * [Lung Squamous Cell Carcinoma (TCGA, PanCancer Atlas)](https://www.cbioportal.org/study/summary?id=lusc_tcga_pan_can_atlas_2018)
-	    * [Thymoma (TCGA, PanCancer Atlas)](https://www.cbioportal.org/study/summary?id=thym_tcga_pan_can_atlas_2018)
-	    * [Esophageal Adenocarcinoma (TCGA, PanCancer Atlas)](https://www.cbioportal.org/study/summary?id=esca_tcga_pan_can_atlas_2018)
-	    * [Mesothelioma (TCGA, PanCancer Atlas)](https://www.cbioportal.org/study/summary?id=meso_tcga_pan_can_atlas_2018)
-	    * [Uterine Corpus Endometrial Carcinoma (TCGA, PanCancer Atlas)](https://www.cbioportal.org/study/summary?id=ucec_tcga_pan_can_atlas_2018)
-	    * [Glioblastoma Multiforme (TCGA, PanCancer Atlas)](https://www.cbioportal.org/study/summary?id=gbm_tcga_pan_can_atlas_2018)
-	    * [Ovarian Serous Cystadenocarcinoma (TCGA, PanCancer Atlas)](https://www.cbioportal.org/study/summary?id=ov_tcga_pan_can_atlas_2018)
-	    * [Uterine Carcinosarcoma (TCGA, PanCancer Atlas)](https://www.cbioportal.org/study/summary?id=ucs_tcga_pan_can_atlas_2018)
-	    * [Head and Neck Squamous Cell Carcinoma (TCGA, PanCancer Atlas)](https://www.cbioportal.org/study/summary?id=hnsc_tcga_pan_can_atlas_2018)
-	    * [Pancreatic Adenocarcinoma (TCGA, PanCancer Atlas)](https://www.cbioportal.org/study/summary?id=paad_tcga_pan_can_atlas_2018)
-	    * [Uveal Melanoma (TCGA, PanCancer Atlas)](https://www.cbioportal.org/study/summary?id=uvm_tcga_pan_can_atlas_2018)
-	    * [Kidney Chromophobe (TCGA, PanCancer Atlas)](https://www.cbioportal.org/study/summary?id=kich_tcga_pan_can_atlas_2018)
-	    * [Pheochromocytoma and Paraganglioma (TCGA, PanCancer Atlas)](https://www.cbioportal.org/study/summary?id=pcpg_tcga_pan_can_atlas_2018)
-
-## July 21, 2020
+## Jul 21, 2020
 *   **New Feature**: The *Mutations* tab now has the option to show mutation effects for different transcripts / isoforms. Note that some annotation features are only available for the canonical isoform. [example](https://www.cbioportal.org/results/mutations?Action=Submit&RPPA_SCORE_THRESHOLD=2.0&Z_SCORE_THRESHOLD=2.0&cancer_study_list=msk_impact_2017&case_set_id=msk_impact_2017_cnaseq&data_priority=0&gene_list=FGFR2&geneset_list=%20&genetic_profile_ids_PROFILE_COPY_NUMBER_ALTERATION=msk_impact_2017_cna&genetic_profile_ids_PROFILE_MUTATION_EXTENDED=msk_impact_2017_mutations&mutations_transcript_id=ENST00000358487&profileFilter=0&tab_index=tab_visualize)
 ![image](https://user-images.githubusercontent.com/840895/88306535-d95d6400-ccd8-11ea-9e64-0c6600f65e50.png)
 

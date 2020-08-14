@@ -64,14 +64,14 @@ Updating the database is described [here](https://github.com/cBioPortal/cbioport
 ## Import Gene Sets
 
 ### File formats
-Once you have initialized MySQL with cBioPortal database, it is possible to import gene sets. The format of the gene set data file is [the Gene Matrix Transposed file format (.gmt)](http://software.broadinstitute.org/cancer/software/gsea/wiki/index.php/Data_formats#GMT:_Gene_Matrix_Transposed_file_format_.28.2A.gmt.29). This format is also used by the [MSigDB](#references), which hosts several collections of gene sets on: [http://software.broadinstitute.org/gsea/msigdb/](http://software.broadinstitute.org/gsea/msigdb/)
+Once you have initialized MySQL with cBioPortal database, it is possible to import gene sets. The format of the gene set data file is [the Gene Matrix Transposed file format (.gmt)](https://software.broadinstitute.org/cancer/software/gsea/wiki/index.php/Data_formats#GMT:_Gene_Matrix_Transposed_file_format_.28.2A.gmt.29). This format is also used by the [MSigDB](#references), which hosts several collections of gene sets on: [https://software.broadinstitute.org/gsea/msigdb/](https://software.broadinstitute.org/gsea/msigdb/)
 
 Sample of .gmt file:
 
 ```
-GLI1_UP.V1_DN<TAB>http://...<TAB>22818<TAB>143384
-GLI1_UP.V1_UP<TAB>http://...<TAB>3489<TAB>3119
-E2F1_UP.V1_DN<TAB>http://...<TAB>7041<TAB>6374<TAB>5460
+GLI1_UP.V1_DN<TAB>https://...<TAB>22818<TAB>143384
+GLI1_UP.V1_UP<TAB>https://...<TAB>3489<TAB>3119
+E2F1_UP.V1_DN<TAB>https://...<TAB>7041<TAB>6374<TAB>5460
 ```
 
 GMT files contain a row for every gene set. The first column contains the EXTERNAL_ID or `stable id` (MsigDB calls this "standard name"), e.g. GO_POTASSIUM_ION_TRANSPORT, not longer than 100 characters. The second column contains the REF_LINK. This is an optional URL linking to external information about this gene set. Column 3 to N contain the Entrez gene IDs that belong to this gene set.
@@ -147,10 +147,10 @@ A description of GSVA study data can be found in the [cBioPortal File Formats do
 ## References
 **GSVA: gene set variation analysis for microarray and RNA-Seq data**<br>
 Sonja Hänzelmann, Robert Castelo and Justin Guinney, *BMC Bioinformatics, 2013*<br>
-http://bmcbioinformatics.biomedcentral.com/articles/10.1186/1471-2105-14-7 <br>
-http://www.bioconductor.org/packages/release/bioc/html/GSVA.html
+https://bmcbioinformatics.biomedcentral.com/articles/10.1186/1471-2105-14-7 <br>
+https://www.bioconductor.org/packages/release/bioc/html/GSVA.html
 
 **Gene set enrichment analysis: A knowledge-based approach for interpreting genome-wide expression profiles**<br>
 Aravind Subramanian, Pablo Tamayo, Vamsi K. Mootha, Sayan Mukherjee, Benjamin L. Ebert, Michael A. Gillette, Amanda Paulovich, Scott L. Pomeroy, Todd R. Golub, Eric S. Lander, and Jill P. Mesirov, *PNAS, 2005*<br>
-http://www.pnas.org/content/102/43/15545 <br>
-http://software.broadinstitute.org/gsea/msigdb
+https://www.pnas.org/content/102/43/15545 <br>
+https://software.broadinstitute.org/gsea/msigdb

@@ -4885,11 +4885,8 @@ def validate_data_relations(validators_by_meta_type, logger):
 def request_from_portal_api(server_url, api_name, logger):
     """Send a request to the portal API and return the decoded JSON object."""
 
-    if api_name in ['info', 'cancer-types', 'genesets', 'gene-panels']:
+    if api_name in ['info', 'cancer-types', 'genes', 'genesets', 'gene-panels']:
         service_url = server_url + '/api/' + api_name + "?pageSize=9999999"
-    # TODO: make subsequent calls to /genes/{geneId}/aliases
-    elif api_name in ['genes']:
-        service_url = server_url + '/api/' + api_name + '?pageSize=100000'
     elif api_name in ['genesets_version']:
         service_url = server_url + '/api/genesets/version'
 

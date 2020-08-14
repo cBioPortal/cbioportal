@@ -52,7 +52,7 @@ Below you can find the complete list of all the available skin properties.
 		<tr>
 			<td>skin.data_sets_header</td>
 			<td>sets the text that is shown below the Data Sets title, after clicking on the "DATA SETS" tab in the header. By adding &lt;NUM_CANCER_STUDIES&gt; to the text, the number of cancer studies is inserted</td>
-			<td>Data sets of TCGA studies were downloaded from Broad Firehose (http://gdac.broadinstitute.org) and updated monthly. In some studies, data sets were from the TCGA working groups directly.</td>
+			<td>Data sets of TCGA studies were downloaded from Broad Firehose (https://gdac.broadinstitute.org) and updated monthly. In some studies, data sets were from the TCGA working groups directly.</td>
 			<td>Any HTML text</td>
 		</tr>
       <tr>

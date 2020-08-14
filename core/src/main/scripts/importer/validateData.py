@@ -961,6 +961,9 @@ class Validator(object):
                                     'If it does not exist you can download it using the script '
                                     'downloadChromosomeSizes.py.')
 
+        logger.debug("Retrieving chromosome lengths from '%s'",
+                     chrom_size_file)
+
         try:
             chrom_size_dict = chrom_sizes[genome_build]
         except KeyError:

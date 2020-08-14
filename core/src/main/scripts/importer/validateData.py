@@ -952,9 +952,10 @@ class Validator(object):
         The dict will not include unplaced contigs, alternative haplotypes or
         the mitochondrial chromosome.
         """
+        chrom_size_file = os.path.join(os.path.dirname(os.path.realpath(__file__)), 'chromosome_sizes.json')
         try:
-            with open('chromosome_sizes.json','r') as f:
-                chrom_sizes = json.load(f.read())
+            with open(chrom_size_file,'r') as f:
+                chrom_sizes = json.load(f)
         except FileNotFoundError:
             raise FileNotFoundError('Could not open chromosome_sizes.json. '
                                     'If it does not exist you can download it using the script '

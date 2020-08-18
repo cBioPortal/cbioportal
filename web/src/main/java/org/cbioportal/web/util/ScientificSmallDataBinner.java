@@ -13,12 +13,9 @@ import java.util.stream.Collectors;
 
 @Component
 public class ScientificSmallDataBinner {
-    private DataBinHelper dataBinHelper;
-
+    
     @Autowired
-    public ScientificSmallDataBinner(DataBinHelper dataBinHelper) {
-        this.dataBinHelper = dataBinHelper;
-    }
+    private DataBinHelper dataBinHelper;
 
     public List<DataBin> calculateDataBins(List<BigDecimal> sortedNumericalValues,
                                            List<BigDecimal> valuesWithoutOutliers,

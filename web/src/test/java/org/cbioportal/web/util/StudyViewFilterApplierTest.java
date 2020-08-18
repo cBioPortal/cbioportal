@@ -36,7 +36,7 @@ public class StudyViewFilterApplierTest {
     public static final String MOLECULAR_PROFILE_ID_1 = "molecular_profile_id1";
     public static final String MOLECULAR_PROFILE_ID_2 = "molecular_profile_id2";
 
-    //@InjectMocks -- TODO enable this after refactoring the tests
+    @InjectMocks
     private StudyViewFilterApplier studyViewFilterApplier;
 
     @Mock
@@ -55,32 +55,34 @@ public class StudyViewFilterApplierTest {
     private GenePanelService genePanelService;
     @Mock
     private GeneService geneService;
-    // Do not mock utility classes, we also want to test their functionality
-    @InjectMocks
-    private ClinicalDataEqualityFilterApplier clinicalDataEqualityFilterApplier;
-    @InjectMocks
-    private ClinicalDataIntervalFilterApplier clinicalDataIntervalFilterApplier;
-    @Spy
-    private StudyViewFilterUtil studyViewFilterUtil;
     @Mock
     private ClinicalAttributeService clinicalAttributeService;
     @Mock
     private MolecularDataService molecularDataService;
     @Mock
     private SampleListService sampleListService;
+    @Mock
+    private GenericAssayService genericAssayService;
+    // Do not mock utility classes, we also want to test their functionality
+    @Spy
+    @InjectMocks
+    private ClinicalDataEqualityFilterApplier clinicalDataEqualityFilterApplier;
+    @Spy
+    @InjectMocks
+    private ClinicalDataIntervalFilterApplier clinicalDataIntervalFilterApplier;
+    @Spy
+    @InjectMocks
+    private StudyViewFilterUtil studyViewFilterUtil;
+    @Spy
+    @InjectMocks
+    private DataBinner dataBinner;
+    @Spy
+    @InjectMocks
+    private DataBinHelper dataBinHelper;
 
-    // TODO test clinicalDataEqualityFilterApplier, clinicalDataIntervalFilterApplier and studyViewFilterUtil separately
-    // to avoid spies and manual instantiation of studyViewFilterApplier
-    // (This means that most of the tests should also move to those new test classes)
     @Before
     public void setup() {
-        // manually setup studyViewFilterApplier, since we need combination of mocks and spies
         MockitoAnnotations.initMocks(this);
-
-        studyViewFilterApplier = new StudyViewFilterApplier(sampleService, mutationService, discreteCopyNumberService,
-                molecularProfileService, genePanelService, clinicalDataService, clinicalDataEqualityFilterApplier,
-                clinicalDataIntervalFilterApplier, studyViewFilterUtil, geneService, clinicalAttributeService,
-                molecularDataService, sampleListService);
     }
 
     @Test
@@ -132,12 +134,12 @@ public class StudyViewFilterApplierTest {
         clinicalDataEqualityFilters.add(clinicalDataEqualityFilter1);
         ClinicalDataFilter clinicalDataEqualityFilter2 = new ClinicalDataFilter();
         clinicalDataEqualityFilter2.setAttributeId(CLINICAL_ATTRIBUTE_ID_2);
-        
+
         DataFilterValue filterValue1 = new DataFilterValue();
         filterValue1.setValue("value1");
         DataFilterValue filterValue2 = new DataFilterValue();
         filterValue2.setValue("NA");
-        clinicalDataEqualityFilter2.setValues(Arrays.asList(filterValue1,filterValue2));
+        clinicalDataEqualityFilter2.setValues(Arrays.asList(filterValue1, filterValue2));
         clinicalDataEqualityFilters.add(clinicalDataEqualityFilter2);
         studyViewFilter.setClinicalDataFilters(clinicalDataEqualityFilters);
         List<GeneFilter> geneFilters = new ArrayList<>();
@@ -145,13 +147,13 @@ public class StudyViewFilterApplierTest {
         mutationGeneFilter.setGeneQueries(Arrays.asList(Arrays.asList(HUGO_GENE_SYMBOL_1)));
         mutationGeneFilter.setMolecularProfileIds(new HashSet<>(Arrays.asList(MOLECULAR_PROFILE_ID_1)));
         geneFilters.add(mutationGeneFilter);
-        
+
         GeneFilter copyNumberGeneFilter = new GeneFilter();
-        copyNumberGeneFilter.setGeneQueries(Arrays.asList(Arrays.asList(HUGO_GENE_SYMBOL_2+":HOMDEL")));
+        copyNumberGeneFilter.setGeneQueries(Arrays.asList(Arrays.asList(HUGO_GENE_SYMBOL_2 + ":HOMDEL")));
         copyNumberGeneFilter.setMolecularProfileIds(new HashSet<>(Arrays.asList(MOLECULAR_PROFILE_ID_2)));
         geneFilters.add(copyNumberGeneFilter);
         studyViewFilter.setGeneFilters(geneFilters);
-        
+
         List<Sample> samples = new ArrayList<>();
         Sample sample1 = new Sample();
         sample1.setStableId(SAMPLE_ID1);
@@ -223,9 +225,10 @@ public class StudyViewFilterApplierTest {
         patientClinicalData3.setSampleId(SAMPLE_ID3);
         patientClinicalData3.setStudyId(STUDY_ID);
         patientClinicalDataList.add(patientClinicalData3);
-        
-        Mockito.when(clinicalDataService.getPatientClinicalDataDetailedToSample(Arrays.asList(STUDY_ID, STUDY_ID, STUDY_ID, STUDY_ID), patientIds,
-            Arrays.asList(CLINICAL_ATTRIBUTE_ID_1, CLINICAL_ATTRIBUTE_ID_2))).thenReturn(patientClinicalDataList);
+
+        Mockito.when(clinicalDataService.getPatientClinicalDataDetailedToSample(
+                Arrays.asList(STUDY_ID, STUDY_ID, STUDY_ID, STUDY_ID), patientIds,
+                Arrays.asList(CLINICAL_ATTRIBUTE_ID_1, CLINICAL_ATTRIBUTE_ID_2))).thenReturn(patientClinicalDataList);
 
         List<String> updatedPatientIds = new ArrayList<>();
         updatedPatientIds.add(PATIENT_ID1);
@@ -239,7 +242,7 @@ public class StudyViewFilterApplierTest {
         updatedSamples.add(sample5);
 
         Mockito.when(sampleService.getSamplesOfPatientsInMultipleStudies(Arrays.asList(STUDY_ID, STUDY_ID, STUDY_ID),
-            updatedPatientIds, "ID")).thenReturn(updatedSamples);
+                updatedPatientIds, "ID")).thenReturn(updatedSamples);
 
         List<ClinicalData> sampleClinicalDataList = new ArrayList<>();
         ClinicalData sampleClinicalData1 = new ClinicalData();
@@ -278,7 +281,7 @@ public class StudyViewFilterApplierTest {
         updatedSampleIds.add(SAMPLE_ID2);
         updatedSampleIds.add(SAMPLE_ID4);
         updatedSampleIds.add(SAMPLE_ID5);
-        
+
         Mockito.when(
                 clinicalDataService.fetchClinicalData(Arrays.asList(STUDY_ID, STUDY_ID, STUDY_ID, STUDY_ID, STUDY_ID),
                         Arrays.asList(SAMPLE_ID1, SAMPLE_ID2, SAMPLE_ID3, SAMPLE_ID4, SAMPLE_ID5),
@@ -299,23 +302,23 @@ public class StudyViewFilterApplierTest {
         updatedPatient3.setCancerStudyIdentifier(STUDY_ID);
         updatedPatients.add(updatedPatient3);
 
-        Mockito.when(patientService.getPatientsOfSamples(Arrays.asList(STUDY_ID, STUDY_ID, STUDY_ID, STUDY_ID, STUDY_ID), 
-                Arrays.asList(SAMPLE_ID1, SAMPLE_ID2, SAMPLE_ID3, SAMPLE_ID4, SAMPLE_ID5))).thenReturn(updatedPatients);
+        Mockito.when(
+                patientService.getPatientsOfSamples(Arrays.asList(STUDY_ID, STUDY_ID, STUDY_ID, STUDY_ID, STUDY_ID),
+                        Arrays.asList(SAMPLE_ID1, SAMPLE_ID2, SAMPLE_ID3, SAMPLE_ID4, SAMPLE_ID5)))
+                .thenReturn(updatedPatients);
 
-        
         MolecularProfile molecularProfile1 = new MolecularProfile();
         molecularProfile1.setStableId(MOLECULAR_PROFILE_ID_1);
         molecularProfile1.setMolecularAlterationType(MolecularAlterationType.MUTATION_EXTENDED);
         molecularProfile1.setCancerStudyIdentifier(STUDY_ID);
-        
+
         MolecularProfile molecularProfile2 = new MolecularProfile();
         molecularProfile2.setStableId(MOLECULAR_PROFILE_ID_2);
         molecularProfile2.setCancerStudyIdentifier(STUDY_ID);
         molecularProfile2.setMolecularAlterationType(MolecularAlterationType.COPY_NUMBER_ALTERATION);
         molecularProfile2.setDatatype("DISCRETE");
-        
-        Mockito.when(molecularProfileService
-                .getMolecularProfilesInStudies(Arrays.asList(STUDY_ID), "SUMMARY"))
+
+        Mockito.when(molecularProfileService.getMolecularProfilesInStudies(Arrays.asList(STUDY_ID), "SUMMARY"))
                 .thenReturn(Arrays.asList(molecularProfile1, molecularProfile2));
 
         List<Mutation> mutations = new ArrayList<>();
@@ -352,7 +355,8 @@ public class StudyViewFilterApplierTest {
         updatedSampleIds.add(SAMPLE_ID4);
 
         Mockito.when(molecularProfileService.getFirstDiscreteCNAProfileIds(Arrays.asList(STUDY_ID, STUDY_ID, STUDY_ID),
-            updatedSampleIds)).thenReturn(Arrays.asList(MOLECULAR_PROFILE_ID_2, MOLECULAR_PROFILE_ID_2, MOLECULAR_PROFILE_ID_2));
+                updatedSampleIds))
+                .thenReturn(Arrays.asList(MOLECULAR_PROFILE_ID_2, MOLECULAR_PROFILE_ID_2, MOLECULAR_PROFILE_ID_2));
 
         List<DiscreteCopyNumberData> discreteCopyNumberDataList = new ArrayList<>();
         DiscreteCopyNumberData discreteCopyNumberData1 = new DiscreteCopyNumberData();
@@ -373,9 +377,9 @@ public class StudyViewFilterApplierTest {
         Mockito.when(geneService.fetchGenes(Arrays.asList(HUGO_GENE_SYMBOL_2), GeneIdType.HUGO_GENE_SYMBOL.name(),
                 Projection.SUMMARY.name())).thenReturn(Arrays.asList(gene2));
 
-        Mockito.when(discreteCopyNumberService.getDiscreteCopyNumbersInMultipleMolecularProfiles(Arrays.asList(
-            MOLECULAR_PROFILE_ID_2, MOLECULAR_PROFILE_ID_2, MOLECULAR_PROFILE_ID_2), updatedSampleIds,
-            Arrays.asList(ENTREZ_GENE_ID_2), Arrays.asList(-2), "ID")).thenReturn(discreteCopyNumberDataList);
+        Mockito.when(discreteCopyNumberService.getDiscreteCopyNumbersInMultipleMolecularProfiles(
+                Arrays.asList(MOLECULAR_PROFILE_ID_2, MOLECULAR_PROFILE_ID_2, MOLECULAR_PROFILE_ID_2), updatedSampleIds,
+                Arrays.asList(ENTREZ_GENE_ID_2), Arrays.asList(-2), "ID")).thenReturn(discreteCopyNumberDataList);
 
         List<ClinicalAttribute> clinicalAttributeList = new ArrayList<>();
         ClinicalAttribute clinicalAttribute1 = new ClinicalAttribute();
@@ -459,7 +463,7 @@ public class StudyViewFilterApplierTest {
         sample5.setStableId(SAMPLE_ID5);
         sample5.setCancerStudyIdentifier(STUDY_ID);
         samples.add(sample5);
-        
+
         List<Patient> patients = new ArrayList<>();
         Patient patient1 = new Patient();
         patient1.setStableId(PATIENT_ID1);
@@ -513,10 +517,13 @@ public class StudyViewFilterApplierTest {
         sampleClinicalData5.setStudyId(STUDY_ID);
         sampleClinicalDataList.add(sampleClinicalData5);
 
-        Mockito.when(clinicalDataService.fetchClinicalData(Arrays.asList(STUDY_ID, STUDY_ID, STUDY_ID, STUDY_ID, STUDY_ID),
-            sampleIds, Arrays.asList(CLINICAL_ATTRIBUTE_ID_3), "SAMPLE", "SUMMARY")).thenReturn(sampleClinicalDataList);
-        
-        Mockito.when(clinicalDataService.getPatientClinicalDataDetailedToSample(Arrays.asList(STUDY_ID, STUDY_ID, STUDY_ID, STUDY_ID), sampleIds,
+        Mockito.when(
+                clinicalDataService.fetchClinicalData(Arrays.asList(STUDY_ID, STUDY_ID, STUDY_ID, STUDY_ID, STUDY_ID),
+                        sampleIds, Arrays.asList(CLINICAL_ATTRIBUTE_ID_3), "SAMPLE", "SUMMARY"))
+                .thenReturn(sampleClinicalDataList);
+
+        Mockito.when(clinicalDataService.getPatientClinicalDataDetailedToSample(
+                Arrays.asList(STUDY_ID, STUDY_ID, STUDY_ID, STUDY_ID), sampleIds,
                 Arrays.asList(CLINICAL_ATTRIBUTE_ID_3))).thenReturn(new ArrayList<ClinicalData>());
 
         List<ClinicalDataFilter> clinicalDataIntervalFilters = new ArrayList<>();

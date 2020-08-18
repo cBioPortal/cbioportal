@@ -2,7 +2,7 @@ package org.cbioportal.web.parameter;
 
 import java.io.Serializable;
 
-public class GenericAssayDataFilter extends DataFilter implements Serializable {
+public class GenericAssayDataBinFilter extends DataBinFilter implements Serializable {
     private String stableId;
     private String profileType;
 

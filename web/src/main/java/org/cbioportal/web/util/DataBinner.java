@@ -17,27 +17,17 @@ import java.util.stream.Collectors;
 
 @Component
 public class DataBinner {
-    private DataBinHelper dataBinHelper;
-    private DiscreteDataBinner discreteDataBinner;
-    private LinearDataBinner linearDataBinner;
-    private ScientificSmallDataBinner scientificSmallDataBinner;
-    private StudyViewFilterUtil studyViewFilterUtil;
-    private LogScaleDataBinner logScaleDataBinner;
 
     @Autowired
-    public DataBinner(DataBinHelper dataBinHelper,
-                      DiscreteDataBinner discreteDataBinner,
-                      LinearDataBinner linearDataBinner,
-                      ScientificSmallDataBinner scientificSmallDataBinner,
-                      StudyViewFilterUtil studyViewFilterUtil,
-                      LogScaleDataBinner logScaleDataBinner) {
-        this.dataBinHelper = dataBinHelper;
-        this.discreteDataBinner = discreteDataBinner;
-        this.linearDataBinner = linearDataBinner;
-        this.scientificSmallDataBinner = scientificSmallDataBinner;
-        this.studyViewFilterUtil = studyViewFilterUtil;
-        this.logScaleDataBinner = logScaleDataBinner;
-    }
+    private DataBinHelper dataBinHelper;
+    @Autowired
+    private DiscreteDataBinner discreteDataBinner;
+    @Autowired
+    private LinearDataBinner linearDataBinner;
+    @Autowired
+    private ScientificSmallDataBinner scientificSmallDataBinner;
+    @Autowired
+    private LogScaleDataBinner logScaleDataBinner;
 
     public <T extends DataBinFilter> List<DataBin> calculateClinicalDataBins(T dataBinFilter,
                                                    ClinicalDataType clinicalDataType,
@@ -106,7 +96,7 @@ public class DataBinner {
         boolean numericalOnly = false;
 
         Range<BigDecimal> range = dataBinFilter.getStart() == null && dataBinFilter.getEnd() == null ?
-            Range.all() : studyViewFilterUtil.calcRange(dataBinFilter.getStart(), true, dataBinFilter.getEnd(), true);
+            Range.all() : dataBinHelper.calcRange(dataBinFilter.getStart(), true, dataBinFilter.getEnd(), true);
 
         if (range.hasUpperBound()) {
             clinicalData = filterSmallerThanUpperBound(clinicalData, range.upperEndpoint());
@@ -484,12 +474,10 @@ public class DataBinner {
 
         return count;
     }
-    
+
     private String computeUniqueCaseId(ClinicalData clinicalData, ClinicalDataType clinicalDataType) {
-        if (clinicalDataType == ClinicalDataType.PATIENT) {
-            return studyViewFilterUtil.getCaseUniqueKey(clinicalData.getStudyId(), clinicalData.getPatientId());
-        } else {
-            return studyViewFilterUtil.getCaseUniqueKey(clinicalData.getStudyId(), clinicalData.getSampleId());
-        }
+        return clinicalData.getStudyId() + (clinicalDataType == ClinicalDataType.PATIENT
+                ? clinicalData.getPatientId()
+                : clinicalData.getSampleId());
     }
 }

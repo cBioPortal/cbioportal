@@ -2,7 +2,6 @@ package org.cbioportal.web.util;
 
 import com.google.common.collect.Range;
 import org.cbioportal.model.DataBin;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import java.math.BigDecimal;
@@ -12,13 +11,7 @@ import java.util.stream.Collectors;
 
 @Component
 public class DataBinHelper {
-    private StudyViewFilterUtil studyViewFilterUtil;
-
-    @Autowired
-    public DataBinHelper(StudyViewFilterUtil studyViewFilterUtil) {
-        this.studyViewFilterUtil = studyViewFilterUtil;
-    }
-
+   
     public DataBin calcUpperOutlierBin(List<BigDecimal> gteValues, List<BigDecimal> gtValues) {
         BigDecimal gteMin = gteValues.size() > 0 ? Collections.min(gteValues) : null;
         BigDecimal gtMin = gtValues.size() > 0 ? Collections.min(gtValues) : null;
@@ -253,7 +246,7 @@ public class DataBinHelper {
             startInclusive = endInclusive = true;
         }
 
-        return studyViewFilterUtil.calcRange(dataBin.getStart(), startInclusive, dataBin.getEnd(), endInclusive);
+        return calcRange(dataBin.getStart(), startInclusive, dataBin.getEnd(), endInclusive);
     }
 
     public Range<BigDecimal> calcRange(String operator, BigDecimal value) {
@@ -262,7 +255,7 @@ public class DataBinHelper {
         boolean endInclusive = !"<".equals(operator);
         BigDecimal end = operator.contains("<") ? value : null;
 
-        return studyViewFilterUtil.calcRange(start, startInclusive, end, endInclusive);
+        return calcRange(start, startInclusive, end, endInclusive);
     }
 
     public boolean isNA(String value) {
@@ -307,5 +300,36 @@ public class DataBinHelper {
 
     public boolean isAgeAttribute(String attributeId) {
         return attributeId != null && attributeId.matches("(^AGE$)|(^AGE_.*)|(.*_AGE_.*)|(.*_AGE&)");
+    }
+
+    public Range<BigDecimal> calcRange(BigDecimal start, boolean startInclusive, BigDecimal end, boolean endInclusive) {
+        // check for invalid filter (no start or end provided)
+        if (start == null && end == null) {
+            return null;
+        } else if (start == null) {
+            if (endInclusive) {
+                return Range.atMost(end);
+            } else {
+                return Range.lessThan(end);
+            }
+        } else if (end == null) {
+            if (startInclusive) {
+                return Range.atLeast(start);
+            } else {
+                return Range.greaterThan(start);
+            }
+        } else if (startInclusive) {
+            if (endInclusive) {
+                return Range.closed(start, end);
+            } else {
+                return Range.closedOpen(start, end);
+            }
+        } else {
+            if (endInclusive) {
+                return Range.openClosed(start, end);
+            } else {
+                return Range.open(start, end);
+            }
+        }
     }
 }

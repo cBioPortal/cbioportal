@@ -63,6 +63,8 @@ public class StudyViewFilterApplierTest {
     private SampleListService sampleListService;
     @Mock
     private GenericAssayService genericAssayService;
+    @Mock
+    private TreatmentService treatmentService;
     // Do not mock utility classes, we also want to test their functionality
     @Spy
     @InjectMocks

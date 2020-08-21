@@ -681,7 +681,7 @@ public class StudyViewController {
                 .collect(Collectors.toList());
 
     }
-    
+
     private List<ClinicalData> fetchClinicalData(List<String> studyIds,
             List<String> sampleIds,
             List<String> patientIds,

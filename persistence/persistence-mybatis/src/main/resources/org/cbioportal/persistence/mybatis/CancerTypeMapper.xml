@@ -9,7 +9,6 @@
         <if test="projection == 'SUMMARY' || projection == 'DETAILED'">
             ,
             type_of_cancer.NAME AS "${prefix}name",
-            type_of_cancer.CLINICAL_TRIAL_KEYWORDS AS "${prefix}clinicalTrialKeywords",
             type_of_cancer.DEDICATED_COLOR AS "${prefix}dedicatedColor",
             type_of_cancer.SHORT_NAME AS "${prefix}shortName",
             type_of_cancer.PARENT AS "${prefix}parent"

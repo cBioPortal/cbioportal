@@ -49,9 +49,8 @@ public class TypeOfCancer implements Serializable {
     private String name;
     @JsonProperty("cancerTypeId")
     private String typeOfCancerId;
-    @JsonIgnore
-    private String clinicalTrialKeywords = ""; // Separated by commas
-    @JsonProperty("dedicatedColor")
+    @JsonProperty("color")
+    // to preserve json output in DumpPortalInfo.java after migrating from ApiService
     private String dedicatedColor = "white";
     @JsonIgnore
     private String shortName = "";
@@ -72,14 +71,6 @@ public class TypeOfCancer implements Serializable {
 
     public void setTypeOfCancerId(String typeOfCancerId) {
         this.typeOfCancerId = typeOfCancerId;
-    }
-
-    public String getClinicalTrialKeywords() {
-        return clinicalTrialKeywords;
-    }
-
-    public void setClinicalTrialKeywords(String clinicalTrialKeywords) {
-        this.clinicalTrialKeywords = clinicalTrialKeywords;
     }
 
     public String getDedicatedColor() {

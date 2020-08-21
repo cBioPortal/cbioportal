@@ -62,7 +62,6 @@
 <%@ page import="org.mskcc.cbio.portal.dao.DaoException" %><%
     String cancerTypeId = cancerStudy.getTypeOfCancerId().trim();
     TypeOfCancer typeOfCancerById = DaoTypeOfCancer.getTypeOfCancerById(cancerTypeId);
-    String trialKeywords = typeOfCancerById.getClinicalTrialKeywords();
 %>
 
 <!-- Add React root node for cbioportal-frontend -->

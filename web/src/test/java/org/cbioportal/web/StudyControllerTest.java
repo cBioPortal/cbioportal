@@ -65,7 +65,6 @@ public class StudyControllerTest {
     private static final String TEST_DATE_2 = "2013-10-12 11:11:15";
     private static final String TEST_TAGS_2 = "{}";
     private static final String TEST_TYPE_OF_CANCER_NAME = "test_type_of_cancer_name";
-    private static final String TEST_CLINICAL_TRIAL_KEYWORDS = "test_clinical_trial_keywords";
     private static final String TEST_DEDICATED_COLOR = "test_dedicated_color";
     private static final String TEST_TYPE_OF_CANCER_SHORT_NAME = "test_type_of_cancer_short_name";
     private static final String TEST_PARENT = "test_parent";
@@ -182,7 +181,6 @@ public class StudyControllerTest {
         TypeOfCancer typeOfCancer = new TypeOfCancer();
         typeOfCancer.setTypeOfCancerId(TEST_TYPE_OF_CANCER_ID_1);
         typeOfCancer.setName(TEST_TYPE_OF_CANCER_NAME);
-        typeOfCancer.setClinicalTrialKeywords(TEST_CLINICAL_TRIAL_KEYWORDS);
         typeOfCancer.setDedicatedColor(TEST_DEDICATED_COLOR);
         typeOfCancer.setShortName(TEST_TYPE_OF_CANCER_SHORT_NAME);
         typeOfCancer.setParent(TEST_PARENT);
@@ -209,8 +207,6 @@ public class StudyControllerTest {
                 .andExpect(MockMvcResultMatchers.jsonPath("$.cancerType.cancerTypeId")
                         .value(TEST_TYPE_OF_CANCER_ID_1))
                 .andExpect(MockMvcResultMatchers.jsonPath("$.cancerType.name").value(TEST_TYPE_OF_CANCER_NAME))
-                .andExpect(MockMvcResultMatchers.jsonPath("$.cancerType.clinicalTrialKeywords")
-                        .value(TEST_CLINICAL_TRIAL_KEYWORDS))
                 .andExpect(MockMvcResultMatchers.jsonPath("$.cancerType.dedicatedColor").value(TEST_DEDICATED_COLOR))
                 .andExpect(MockMvcResultMatchers.jsonPath("$.cancerType.shortName")
                         .value(TEST_TYPE_OF_CANCER_SHORT_NAME))

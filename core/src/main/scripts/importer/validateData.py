@@ -875,7 +875,7 @@ class Validator(object):
             elif num_entrezs_for_alias == 1:
                 # set the value to be returned
                 identified_entrez_id = \
-                    self.portal.alias_entrez_map[gene_symbol][0]
+                    str(self.portal.alias_entrez_map[gene_symbol][0])
             # no canonical symbol, and multiple different aliases
             elif num_entrezs_for_alias > 1:
                 # Loader deals with this, so give warning

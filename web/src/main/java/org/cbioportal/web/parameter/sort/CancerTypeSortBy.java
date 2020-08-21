@@ -4,7 +4,6 @@ public enum CancerTypeSortBy {
 
     cancerTypeId("typeOfCancerId"),
     name("name"),
-    clinicalTrialKeywords("clinicalTrialKeywords"),
     dedicatedColor("dedicatedColor"),
     shortName("shortName"),
     parent("parent");

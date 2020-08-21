@@ -90,7 +90,6 @@ public class ImportTypesOfCancers extends ConsoleRunnable {
             else {
 	            aTypeOfCancer.setTypeOfCancerId(typeOfCancerId.toLowerCase());
 	            aTypeOfCancer.setName(tokens[1].trim());
-	            aTypeOfCancer.setClinicalTrialKeywords(tokens[2].trim().toLowerCase());
 	            aTypeOfCancer.setDedicatedColor(tokens[3].trim());
 	            aTypeOfCancer.setShortName(typeOfCancerId);
 	            aTypeOfCancer.setParentTypeOfCancerId(tokens[4].trim().toLowerCase());

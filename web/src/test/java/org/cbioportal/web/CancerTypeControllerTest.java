@@ -34,13 +34,11 @@ public class CancerTypeControllerTest {
 
     private static final String TEST_TYPE_OF_CANCER_ID_1 = "test_type_of_cancer_id_1";
     private static final String TEST_NAME_1 = "test_type_of_cancer_name_1";
-    private static final String TEST_CLINICAL_TRIAL_KEYWORDS_1 = "test_clinical_trial_keywords_1";
     private static final String TEST_DEDICATED_COLOR_1 = "test_dedicated_color_1";
     private static final String TEST_SHORT_NAME_1 = "test_type_of_cancer_short_name_1";
     private static final String TEST_PARENT_1 = "test_parent_1";
     private static final String TEST_TYPE_OF_CANCER_ID_2 = "test_type_of_cancer_id_2";
     private static final String TEST_NAME_2 = "test_type_of_cancer_name_2";
-    private static final String TEST_CLINICAL_TRIAL_KEYWORDS_2 = "test_clinical_trial_keywords_2";
     private static final String TEST_DEDICATED_COLOR_2 = "test_dedicated_color_2";
     private static final String TEST_SHORT_NAME_2 = "test_type_of_cancer_short_name_2";
     private static final String TEST_PARENT_2 = "test_parent_2";
@@ -72,7 +70,6 @@ public class CancerTypeControllerTest {
         TypeOfCancer typeOfCancer1 = new TypeOfCancer();
         typeOfCancer1.setTypeOfCancerId(TEST_TYPE_OF_CANCER_ID_1);
         typeOfCancer1.setName(TEST_NAME_1);
-        typeOfCancer1.setClinicalTrialKeywords(TEST_CLINICAL_TRIAL_KEYWORDS_1);
         typeOfCancer1.setDedicatedColor(TEST_DEDICATED_COLOR_1);
         typeOfCancer1.setShortName(TEST_SHORT_NAME_1);
         typeOfCancer1.setParent(TEST_PARENT_1);
@@ -80,7 +77,6 @@ public class CancerTypeControllerTest {
         TypeOfCancer typeOfCancer2 = new TypeOfCancer();
         typeOfCancer2.setTypeOfCancerId(TEST_TYPE_OF_CANCER_ID_2);
         typeOfCancer2.setName(TEST_NAME_2);
-        typeOfCancer2.setClinicalTrialKeywords(TEST_CLINICAL_TRIAL_KEYWORDS_2);
         typeOfCancer2.setDedicatedColor(TEST_DEDICATED_COLOR_2);
         typeOfCancer2.setShortName(TEST_SHORT_NAME_2);
         typeOfCancer2.setParent(TEST_PARENT_2);
@@ -96,15 +92,11 @@ public class CancerTypeControllerTest {
                 .andExpect(MockMvcResultMatchers.jsonPath("$", Matchers.hasSize(2)))
                 .andExpect(MockMvcResultMatchers.jsonPath("$[0].cancerTypeId").value(TEST_TYPE_OF_CANCER_ID_1))
                 .andExpect(MockMvcResultMatchers.jsonPath("$[0].name").value(TEST_NAME_1))
-                .andExpect(MockMvcResultMatchers.jsonPath("$[0].clinicalTrialKeywords")
-                        .value(TEST_CLINICAL_TRIAL_KEYWORDS_1))
                 .andExpect(MockMvcResultMatchers.jsonPath("$[0].dedicatedColor").value(TEST_DEDICATED_COLOR_1))
                 .andExpect(MockMvcResultMatchers.jsonPath("$[0].shortName").value(TEST_SHORT_NAME_1))
                 .andExpect(MockMvcResultMatchers.jsonPath("$[0].parent").value(TEST_PARENT_1))
                 .andExpect(MockMvcResultMatchers.jsonPath("$[1].cancerTypeId").value(TEST_TYPE_OF_CANCER_ID_2))
                 .andExpect(MockMvcResultMatchers.jsonPath("$[1].name").value(TEST_NAME_2))
-                .andExpect(MockMvcResultMatchers.jsonPath("$[1].clinicalTrialKeywords")
-                        .value(TEST_CLINICAL_TRIAL_KEYWORDS_2))
                 .andExpect(MockMvcResultMatchers.jsonPath("$[1].dedicatedColor").value(TEST_DEDICATED_COLOR_2))
                 .andExpect(MockMvcResultMatchers.jsonPath("$[1].shortName").value(TEST_SHORT_NAME_2))
                 .andExpect(MockMvcResultMatchers.jsonPath("$[1].parent").value(TEST_PARENT_2));
@@ -142,7 +134,6 @@ public class CancerTypeControllerTest {
         TypeOfCancer typeOfCancer = new TypeOfCancer();
         typeOfCancer.setTypeOfCancerId(TEST_TYPE_OF_CANCER_ID_1);
         typeOfCancer.setName(TEST_NAME_1);
-        typeOfCancer.setClinicalTrialKeywords(TEST_CLINICAL_TRIAL_KEYWORDS_1);
         typeOfCancer.setDedicatedColor(TEST_DEDICATED_COLOR_1);
         typeOfCancer.setShortName(TEST_SHORT_NAME_1);
         typeOfCancer.setParent(TEST_PARENT_1);
@@ -155,8 +146,6 @@ public class CancerTypeControllerTest {
                 .andExpect(MockMvcResultMatchers.content().contentTypeCompatibleWith(MediaType.APPLICATION_JSON))
                 .andExpect(MockMvcResultMatchers.jsonPath("$.cancerTypeId").value(TEST_TYPE_OF_CANCER_ID_1))
                 .andExpect(MockMvcResultMatchers.jsonPath("$.name").value(TEST_NAME_1))
-                .andExpect(MockMvcResultMatchers.jsonPath("$.clinicalTrialKeywords")
-                        .value(TEST_CLINICAL_TRIAL_KEYWORDS_1))
                 .andExpect(MockMvcResultMatchers.jsonPath("$.dedicatedColor").value(TEST_DEDICATED_COLOR_1))
                 .andExpect(MockMvcResultMatchers.jsonPath("$.shortName").value(TEST_SHORT_NAME_1))
                 .andExpect(MockMvcResultMatchers.jsonPath("$.parent").value(TEST_PARENT_1));

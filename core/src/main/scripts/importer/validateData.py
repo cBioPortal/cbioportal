@@ -804,7 +804,7 @@ class Validator(object):
         # try to use the portal maps to resolve to a single Entrez gene id
         identified_entrez_id = None
         if entrez_id is not None:
-            if entrez_id in self.portal.entrez_set:
+            if entrez_as_int in self.portal.entrez_set:
                 # set the value to be returned
                 identified_entrez_id = entrez_id
                 # some warnings if the gene symbol is specified too
@@ -818,7 +818,7 @@ class Validator(object):
                             'wrong mapping, new or deprecated gene symbol.',
                             extra={'line_number': self.line_number,
                                    'cause': gene_symbol})
-                    elif entrez_id not in itertools.chain(
+                    elif entrez_as_int not in itertools.chain(
                             self.portal.hugo_entrez_map.get(gene_symbol, []),
                             self.portal.alias_entrez_map.get(gene_symbol, [])):
                         self.logger.warning(

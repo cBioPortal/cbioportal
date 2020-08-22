@@ -10,6 +10,7 @@ import javax.validation.constraints.Size;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonInclude.Include;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import org.cbioportal.web.parameter.filter.*;
 
 @JsonIgnoreProperties(ignoreUnknown = true)
 @JsonInclude(Include.NON_NULL)
@@ -21,7 +22,9 @@ public class StudyViewFilter implements Serializable {
     private List<String> studyIds;
     private List<ClinicalDataFilter> clinicalDataFilters;
     private List<GeneFilter> geneFilters;
-    private List<List<String>> genomicProfiles;
+    private AndedSampleTreatmentFilters sampleTreatmentFilters;
+    private AndedPatientTreatmentFilters patientTreatmentFilters;
+	private List<List<String>> genomicProfiles;
     private List<GenomicDataFilter> genomicDataFilters;
     private List<GenericAssayDataFilter> genericAssayDataFilters;
     private List<List<String>> caseLists;
@@ -124,6 +127,22 @@ public class StudyViewFilter implements Serializable {
 
     public void setGenomicDataFilters(List<GenomicDataFilter> genomicDataFilters) {
         this.genomicDataFilters = genomicDataFilters;
+    }
+
+    public AndedSampleTreatmentFilters getSampleTreatmentFilters() {
+        return sampleTreatmentFilters;
+    }
+
+    public void setSampleTreatmentFilters(AndedSampleTreatmentFilters sampleTreatmentFilters) {
+        this.sampleTreatmentFilters = sampleTreatmentFilters;
+    }
+
+    public AndedPatientTreatmentFilters getPatientTreatmentFilters() {
+        return patientTreatmentFilters;
+    }
+
+    public void setPatientTreatmentFilters(AndedPatientTreatmentFilters patientTreatmentFilters) {
+        this.patientTreatmentFilters = patientTreatmentFilters;
     }
 
     public List<List<String>> getCaseLists() {

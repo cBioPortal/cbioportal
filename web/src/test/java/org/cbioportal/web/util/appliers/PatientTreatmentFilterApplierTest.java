@@ -1,6 +1,12 @@
 package org.cbioportal.web.util.appliers;
 
-import org.cbioportal.model.ClinicalEvent;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
+import java.util.stream.Collectors;
+
 import org.cbioportal.model.ClinicalEventSample;
 import org.cbioportal.model.PatientTreatmentRow;
 import org.cbioportal.service.TreatmentService;
@@ -17,12 +23,6 @@ import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
 import org.mockito.junit.MockitoJUnitRunner;
-import org.springframework.beans.factory.annotation.Autowired;
-
-import java.util.*;
-import java.util.stream.Collectors;
-
-import static org.junit.Assert.*;
 
 @RunWith(MockitoJUnitRunner.Silent.class)
 public class PatientTreatmentFilterApplierTest {
@@ -158,10 +158,6 @@ public class PatientTreatmentFilterApplierTest {
         return filter;
     }
     
-    private Set<String> toSet(String... strings) {
-        return new HashSet<>(Arrays.asList(strings));
-    }
-
     private Set<ClinicalEventSample> toSet(ClinicalEventSample... samples) {
         return new HashSet<>(Arrays.asList(samples));
     }

@@ -1,11 +1,8 @@
 package org.cbioportal.web.parameter.filter;
 
-import org.cbioportal.model.ClinicalEventSample;
-import org.cbioportal.model.PatientTreatmentRow;
-import org.cbioportal.web.parameter.SampleIdentifier;
-
 import java.util.Map;
-import java.util.Set;
+
+import org.cbioportal.web.parameter.SampleIdentifier;
 
 public class PatientTreatmentFilter {
     private String treatment;

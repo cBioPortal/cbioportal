@@ -1,18 +1,16 @@
 package org.cbioportal.web.util.appliers;
 
-import org.cbioportal.model.ClinicalEventSample;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
+
 import org.cbioportal.model.PatientTreatmentRow;
 import org.cbioportal.service.TreatmentService;
 import org.cbioportal.web.parameter.SampleIdentifier;
 import org.cbioportal.web.parameter.filter.AndedPatientTreatmentFilters;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
-
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-import java.util.stream.Collectors;
 
 @Component
 public class PatientTreatmentFilterApplier {

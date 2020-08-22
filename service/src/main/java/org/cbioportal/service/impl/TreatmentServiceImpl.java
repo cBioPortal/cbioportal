@@ -82,7 +82,6 @@ public class TreatmentServiceImpl implements TreatmentService {
     private static class TreatmentRowTriplet {
         private final Set<ClinicalEventSample> pre, post, unknown;
         private final String treatment;
-        private final Set<String> studyIds;
 
         TreatmentRowTriplet(List<ClinicalEventSample> samples, String treatment) {
             this.treatment = treatment;
@@ -92,9 +91,6 @@ public class TreatmentServiceImpl implements TreatmentService {
                 .collect(Collectors.toSet());
             unknown = samples.stream()
                 .filter(s -> s.getTimeTaken() == null)
-                .collect(Collectors.toSet());
-            studyIds = samples.stream()
-                .map(ClinicalEventSample::getStudyId)
                 .collect(Collectors.toSet());
         }
 

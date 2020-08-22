@@ -6,10 +6,9 @@ import org.junit.Assert;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.InjectMocks;
-import org.mockito.Matchers;
 import org.mockito.Mock;
 import org.mockito.Mockito;
-import org.mockito.runners.MockitoJUnitRunner;
+import org.mockito.junit.MockitoJUnitRunner;
 
 import java.util.*;
 import java.util.stream.Collectors;
@@ -249,20 +248,20 @@ public class TreatmentServiceImplTest {
     private void mockTreatmentsByPatient(Treatment... treatments) {
         Map<String, List<Treatment>> treatmentsByPatient = Arrays.stream(treatments)
             .collect(Collectors.groupingBy(Treatment::getPatientId));
-        Mockito.when(treatmentRepository.getTreatmentsByPatientId(Matchers.any(), Matchers.any()))
+        Mockito.when(treatmentRepository.getTreatmentsByPatientId(Mockito.any(), Mockito.any()))
             .thenReturn(treatmentsByPatient);
     }
     
     private void mockSamplesByPatient(ClinicalEventSample... samples) {
         Map<String, List<ClinicalEventSample>> samplesByPatient = Arrays.stream(samples)
             .collect(Collectors.groupingBy(ClinicalEventSample::getPatientId));
-        Mockito.when(treatmentRepository.getSamplesByPatientId(Matchers.any(), Matchers.any()))
+        Mockito.when(treatmentRepository.getSamplesByPatientId(Mockito.any(), Mockito.any()))
             .thenReturn(samplesByPatient);
     }
     
     private void mockAllTreatments(String... treatments) {
         Set<String> allTreatments = new HashSet<>(Arrays.asList(treatments));
-        Mockito.when(treatmentRepository.getAllUniqueTreatments(Matchers.any(), Matchers.any()))
+        Mockito.when(treatmentRepository.getAllUniqueTreatments(Mockito.any(), Mockito.any()))
             .thenReturn(allTreatments);
     }
 

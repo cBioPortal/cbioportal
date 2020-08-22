@@ -161,10 +161,6 @@ public class SampleTreatmentFilterApplierTest {
         return filter;
     }
 
-    private Set<String> toSet(String... strings) {
-        return new HashSet<>(Arrays.asList(strings));
-    }
-    
     private Set<ClinicalEventSample> toSet(ClinicalEventSample... samples) {
         return new HashSet<>(Arrays.asList(samples));
     }

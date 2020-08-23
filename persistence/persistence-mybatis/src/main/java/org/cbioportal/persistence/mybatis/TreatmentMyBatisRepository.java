@@ -1,17 +1,16 @@
 package org.cbioportal.persistence.mybatis;
 
+import static java.util.stream.Collectors.groupingBy;
+
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+
 import org.cbioportal.model.ClinicalEventSample;
 import org.cbioportal.model.Treatment;
 import org.cbioportal.persistence.TreatmentRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
-
-import java.util.Comparator;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-
-import static java.util.stream.Collectors.groupingBy;
 
 @Repository
 public class TreatmentMyBatisRepository implements TreatmentRepository {

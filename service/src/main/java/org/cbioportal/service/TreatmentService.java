@@ -1,10 +1,9 @@
 package org.cbioportal.service;
 
+import java.util.List;
+
 import org.cbioportal.model.PatientTreatmentRow;
 import org.cbioportal.model.SampleTreatmentRow;
-
-import java.util.List;
-import java.util.Set;
 
 public interface TreatmentService {
     public List<SampleTreatmentRow> getAllSampleTreatmentRows(List<String> samples, List<String> studies);

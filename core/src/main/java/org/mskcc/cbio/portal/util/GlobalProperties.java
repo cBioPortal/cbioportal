@@ -930,7 +930,7 @@ public class GlobalProperties {
         return showGenomeNexus;
     }
 
-    public static String setShowGenomeNexusAnnotationSources() {
+    public static String showGenomeNexusAnnotationSources() {
         return showGenomeNexusAnnotationSources;
     }
 

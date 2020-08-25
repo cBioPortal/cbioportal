@@ -73,4 +73,10 @@ public class MolecularDataMyBatisRepository implements MolecularDataRepository {
     public List<GenericAssayMolecularAlteration> getGenericAssayMolecularAlterations(String molecularProfileId, List<String> stableIds, String projection) {
         return molecularDataMapper.getGenericAssayMolecularAlterations(molecularProfileId, stableIds, projection);
     }
+
+	@Override
+	public Iterable<GenericAssayMolecularAlteration> getGenericAssayMolecularAlterationsIterable(
+			String molecularProfileId, List<String> stableIds, String projection) {
+		return molecularDataMapper.getGenericAssayMolecularAlterationsIter(molecularProfileId, stableIds, projection);
+	}
 }

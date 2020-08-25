@@ -8,27 +8,25 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import java.util.stream.Collectors;
 import java.util.function.Function;
+import java.util.stream.Collectors;
 
+import org.cbioportal.model.GenericAssayAdditionalProperty;
 import org.cbioportal.model.GenericAssayData;
 import org.cbioportal.model.GenericAssayMolecularAlteration;
 import org.cbioportal.model.MolecularProfile;
-import org.cbioportal.model.Sample;
 import org.cbioportal.model.MolecularProfile.MolecularAlterationType;
 import org.cbioportal.model.MolecularProfileSamples;
+import org.cbioportal.model.Sample;
 import org.cbioportal.model.meta.GenericAssayMeta;
-import org.cbioportal.model.GenericAssayAdditionalProperty;
 import org.cbioportal.persistence.GenericAssayRepository;
 import org.cbioportal.persistence.MolecularDataRepository;
 import org.cbioportal.persistence.SampleListRepository;
 import org.cbioportal.service.GenericAssayService;
 import org.cbioportal.service.MolecularProfileService;
 import org.cbioportal.service.SampleService;
-import org.cbioportal.service.exception.GenericAssayNotFoundException;
 import org.cbioportal.service.exception.MolecularProfileNotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
-
 import org.springframework.stereotype.Service;
 
 
@@ -51,8 +49,7 @@ public class GenericAssayServiceImpl implements GenericAssayService {
     private SampleListRepository sampleListRepository;
 
     @Override
-    public List<GenericAssayMeta> getGenericAssayMetaByStableIdsAndMolecularIds(List<String> stableIds, List<String> molecularProfileIds, String projection)
-        throws GenericAssayNotFoundException {
+    public List<GenericAssayMeta> getGenericAssayMetaByStableIdsAndMolecularIds(List<String> stableIds, List<String> molecularProfileIds, String projection) {
         Set<String> allStableIds = new HashSet<String>();
         // extract genericAssayStableIds from the GENERIC_ASSAY profiles
         if (molecularProfileIds != null) {
@@ -63,10 +60,18 @@ public class GenericAssayServiceImpl implements GenericAssayService {
             }
         } 
         if (stableIds != null) {
-            allStableIds.addAll(stableIds);
+			Map<String, String> allStableIdMap = allStableIds
+					.stream()
+					.collect(Collectors.toMap(stableId -> stableId, stableId -> stableId));
+
+			allStableIds = stableIds
+					.stream()
+					.filter(stableId -> allStableIdMap.containsKey(stableId))
+					.collect(Collectors.toSet());
         }
         List<String> distinctStableIds = new ArrayList<String>(allStableIds);
         List<GenericAssayMeta> metaResults = new ArrayList<GenericAssayMeta>();
+        //TODO: move below logic to sql query
         if (distinctStableIds.size() > 0) {
             List<GenericAssayMeta> metaData = genericAssayRepository.getGenericAssayMeta(distinctStableIds);
             // just return stable_id if projection is ID

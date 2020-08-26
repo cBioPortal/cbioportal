@@ -243,16 +243,14 @@ public class StudyViewFilterApplier {
         if (studyViewFilter.getSampleTreatmentFilters() != null) {
             sampleIdentifiers = sampleTreatmentFilterApplier.filter(
                 studyViewFilter.getSampleTreatmentFilters(),
-                sampleIdentifiers,
-                studyIds
+                sampleIdentifiers
             );
         }
 
         if (studyViewFilter.getPatientTreatmentFilters() != null) {
             sampleIdentifiers = patientTreatmentFilterApplier.filter(
                 sampleIdentifiers,
-                studyViewFilter.getPatientTreatmentFilters(),
-                studyIds
+                studyViewFilter.getPatientTreatmentFilters()
             );
         }
 

@@ -168,6 +168,11 @@ public class ImportFusionData {
                 }
             }
         }
+        // run sanity check on `mutation_event` to determine whether duplicate
+        // events were introduced during current import
+        if (DaoMutation.hasDuplicateMutationEvents()) {
+            throw new DaoException("Duplicate mutation events were detected during the FUSIONS import. Aborting...");
+        }
         buf.close();
         if( MySQLbulkLoader.isBulkLoad()) {
             MySQLbulkLoader.flushAll();

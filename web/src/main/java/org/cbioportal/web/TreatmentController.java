@@ -56,11 +56,9 @@ public class TreatmentController {
         List<SampleIdentifier> sampleIdentifiers = studyViewFilterApplier.apply(interceptedStudyViewFilter);
         List<String> sampleIds = sampleIdentifiers.stream()
             .map(SampleIdentifier::getSampleId)
-            .distinct()
             .collect(Collectors.toList());
         List<String> studyIds = sampleIdentifiers.stream()
             .map(SampleIdentifier::getStudyId)
-            .distinct()
             .collect(Collectors.toList());
         List<PatientTreatmentRow> treatments = treatmentService.getAllPatientTreatmentRows(sampleIds, studyIds);
         return new ResponseEntity<>(treatments, HttpStatus.OK);
@@ -88,11 +86,9 @@ public class TreatmentController {
         List<SampleIdentifier> sampleIdentifiers = studyViewFilterApplier.apply(interceptedStudyViewFilter);
         List<String> sampleIds = sampleIdentifiers.stream()
             .map(SampleIdentifier::getSampleId)
-            .distinct()
             .collect(Collectors.toList());
         List<String> studyIds = sampleIdentifiers.stream()
             .map(SampleIdentifier::getStudyId)
-            .distinct()
             .collect(Collectors.toList());
         List<SampleTreatmentRow> treatments = treatmentService.getAllSampleTreatmentRows(sampleIds, studyIds);
         return new ResponseEntity<>(treatments, HttpStatus.OK);
@@ -119,11 +115,9 @@ public class TreatmentController {
         List<SampleIdentifier> sampleIdentifiers = studyViewFilterApplier.apply(interceptedStudyViewFilter);
         List<String> sampleIds = sampleIdentifiers.stream()
             .map(SampleIdentifier::getSampleId)
-            .distinct()
             .collect(Collectors.toList());
         List<String> studyIds = sampleIdentifiers.stream()
             .map(SampleIdentifier::getStudyId)
-            .distinct()
             .collect(Collectors.toList());
         Boolean containsTreatmentData = treatmentService.containsTreatmentData(sampleIds, studyIds);
         return new ResponseEntity<>(containsTreatmentData, HttpStatus.OK);

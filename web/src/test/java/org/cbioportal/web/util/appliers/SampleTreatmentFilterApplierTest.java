@@ -40,7 +40,6 @@ public class SampleTreatmentFilterApplierTest {
     @Test
     public void filterEmptyList() {
         List<SampleIdentifier> samples = new ArrayList<>();
-        List<String> studies = new ArrayList<>();
         AndedSampleTreatmentFilters andedFilters = createAndedFilters(
             Arrays.asList(new Pair<>("Fakeazil", Pre), new Pair<>("Madeupanib", Post)),
             Arrays.asList(new Pair<>("Fabricada", Pre), new Pair<>("Fakeamab", Post))
@@ -49,7 +48,7 @@ public class SampleTreatmentFilterApplierTest {
             .when(treatmentService.getAllSampleTreatmentRows(Mockito.anyList(), Mockito.anyList()))
             .thenReturn(new ArrayList<>());
 
-        List<SampleIdentifier> actual = subject.filter(andedFilters, samples, studies);
+        List<SampleIdentifier> actual = subject.filter(andedFilters, samples);
         List<SampleIdentifier> expected = new ArrayList<>();
 
         Assert.assertEquals(expected, actual);
@@ -63,10 +62,6 @@ public class SampleTreatmentFilterApplierTest {
             createSampleId("SA_2", "ST_1"),
             createSampleId("SA_3", "ST_1")
         );
-        List<String> studies = Arrays.asList(
-            "ST_0",
-            "ST_1"
-        );
         AndedSampleTreatmentFilters andedFilters = createAndedFilters(
             Arrays.asList(new Pair<>("Improvizox", Pre), new Pair<>("Madeupanib", Post)),
             Arrays.asList(new Pair<>("Fabricada", Pre), new Pair<>("Fakeamab", Post))
@@ -75,7 +70,7 @@ public class SampleTreatmentFilterApplierTest {
             .when(treatmentService.getAllSampleTreatmentRows(Mockito.anyList(), Mockito.anyList()))
             .thenReturn(new ArrayList<>());
 
-        List<SampleIdentifier> actual = subject.filter(andedFilters, samples, studies);
+        List<SampleIdentifier> actual = subject.filter(andedFilters, samples);
         List<SampleIdentifier> expected = new ArrayList<>();
 
         Assert.assertEquals(expected, actual);
@@ -88,10 +83,6 @@ public class SampleTreatmentFilterApplierTest {
             createSampleId("SA_1", "ST_0"),
             createSampleId("SA_2", "ST_1"),
             createSampleId("SA_3", "ST_1")
-        );
-        List<String> studies = Arrays.asList(
-            "ST_0",
-            "ST_1"
         );
         AndedSampleTreatmentFilters andedFilters = createAndedFilters(
             // so each sample needs to be...
@@ -109,7 +100,7 @@ public class SampleTreatmentFilterApplierTest {
                 new SampleTreatmentRow(Pre, "Fabricada", 2, toSet(createEvent("SA_2", "ST_1"), createEvent("SA_3", "ST_1")))
             ));
 
-        List<SampleIdentifier> actual = subject.filter(andedFilters, samples, studies);
+        List<SampleIdentifier> actual = subject.filter(andedFilters, samples);
         List<SampleIdentifier> expected = Arrays.asList(
             createSampleId("SA_0", "ST_0"),
             createSampleId("SA_1", "ST_0"),

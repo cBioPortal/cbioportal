@@ -19,11 +19,14 @@ public class PatientTreatmentFilterApplier {
     
     public List<SampleIdentifier> filter(
         List<SampleIdentifier> identifiers,
-        AndedPatientTreatmentFilters filters,
-        List<String> studyIds
+        AndedPatientTreatmentFilters filters
     ) {
         List<String> sampleIds = identifiers.stream()
             .map(SampleIdentifier::getSampleId)
+            .collect(Collectors.toList());
+
+        List<String> studyIds = identifiers.stream()
+            .map(SampleIdentifier::getStudyId)
             .collect(Collectors.toList());
 
         Map<String, Map<String, Boolean>> rows = treatmentService.getAllPatientTreatmentRows(sampleIds, studyIds)

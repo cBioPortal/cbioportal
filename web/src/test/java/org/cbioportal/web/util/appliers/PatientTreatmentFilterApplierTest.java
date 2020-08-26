@@ -40,7 +40,6 @@ public class PatientTreatmentFilterApplierTest {
     @Test
     public void filterEmptyList() {
         List<SampleIdentifier> samples = new ArrayList<>();
-        List<String> studies = new ArrayList<>();
         AndedPatientTreatmentFilters andedFilters = createAndedFilters(
             Arrays.asList("Fakeazil", "Madeupanib"),
             Arrays.asList("Fabricada", "Fakeamab")
@@ -49,7 +48,7 @@ public class PatientTreatmentFilterApplierTest {
             .when(treatmentService.getAllPatientTreatmentRows(Mockito.anyList(), Mockito.anyList()))
             .thenReturn(new ArrayList<>());
 
-        List<SampleIdentifier> actual = subject.filter(samples, andedFilters, studies);
+        List<SampleIdentifier> actual = subject.filter(samples, andedFilters);
         List<SampleIdentifier> expected = new ArrayList<>();
         
         Assert.assertEquals(expected, actual);
@@ -63,10 +62,6 @@ public class PatientTreatmentFilterApplierTest {
             createSampleId("SA_2", "ST_1"),
             createSampleId("SA_3", "ST_1")
         );
-        List<String> studies = Arrays.asList(
-            "ST_0",
-            "ST_1"
-        );
         AndedPatientTreatmentFilters andedFilters = createAndedFilters(
             Arrays.asList("Improvizox", "Madeupanib"),
             Arrays.asList("Fabricada", "Fakeamab")
@@ -75,7 +70,7 @@ public class PatientTreatmentFilterApplierTest {
             .when(treatmentService.getAllPatientTreatmentRows(Mockito.anyList(), Mockito.anyList()))
             .thenReturn(new ArrayList<>());
 
-        List<SampleIdentifier> actual = subject.filter(samples, andedFilters, studies);
+        List<SampleIdentifier> actual = subject.filter(samples, andedFilters);
         List<SampleIdentifier> expected = new ArrayList<>();
 
         Assert.assertEquals(expected, actual);
@@ -88,10 +83,6 @@ public class PatientTreatmentFilterApplierTest {
             createSampleId("SA_1", "ST_0"),
             createSampleId("SA_2", "ST_1"),
             createSampleId("SA_3", "ST_1")
-        );
-        List<String> studies = Arrays.asList(
-            "ST_0",
-            "ST_1"
         );
         AndedPatientTreatmentFilters andedFilters = createAndedFilters(
             // so each sample needs to be from a patient that has recieved...
@@ -107,7 +98,7 @@ public class PatientTreatmentFilterApplierTest {
                 new PatientTreatmentRow("Fabricada", 2, toSet(createEvent("SA_2", "ST_1"), createEvent("SA_3", "ST_1")))
             ));
 
-        List<SampleIdentifier> actual = subject.filter(samples, andedFilters, studies);
+        List<SampleIdentifier> actual = subject.filter(samples, andedFilters);
         List<SampleIdentifier> expected = Arrays.asList(
             createSampleId("SA_0", "ST_0"),
             createSampleId("SA_1", "ST_0"),

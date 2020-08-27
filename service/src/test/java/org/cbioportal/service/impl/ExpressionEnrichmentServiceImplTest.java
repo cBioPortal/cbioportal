@@ -17,6 +17,7 @@ import org.cbioportal.model.MolecularProfileSamples;
 import org.cbioportal.model.ReferenceGenome;
 import org.cbioportal.model.Gene;
 import org.cbioportal.model.Sample;
+import org.cbioportal.model.web.parameter.EnrichmentType;
 import org.cbioportal.persistence.MolecularDataRepository;
 import org.cbioportal.service.MolecularDataService;
 import org.cbioportal.service.MolecularProfileService;
@@ -149,7 +150,7 @@ public class ExpressionEnrichmentServiceImplTest extends BaseServiceImplTest {
         molecularProfileCaseSets.put("unaltered samples", unalteredSampleIdentifieres);
 
         List<ExpressionEnrichment> result = expressionEnrichmentService
-                .getExpressionEnrichments(MOLECULAR_PROFILE_ID, molecularProfileCaseSets, "SAMPLE");
+                .getExpressionEnrichments(MOLECULAR_PROFILE_ID, molecularProfileCaseSets, EnrichmentType.SAMPLE);
 
         Assert.assertEquals(2, result.size());
         ExpressionEnrichment expressionEnrichment = result.get(0);

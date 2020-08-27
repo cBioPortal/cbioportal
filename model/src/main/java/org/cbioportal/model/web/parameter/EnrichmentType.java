@@ -1,4 +1,4 @@
-package org.cbioportal.web.parameter;
+package org.cbioportal.model.web.parameter;
 
 public enum EnrichmentType {
 

@@ -23,17 +23,22 @@
 
 package org.cbioportal.service;
 
+import java.util.List;
+
 import org.cbioportal.model.StructuralVariant;
 import org.cbioportal.model.StructuralVariantCountByGene;
 
-import java.util.List;
-
 public interface StructuralVariantService {
 
-    List<StructuralVariant> fetchStructuralVariants(List<String> molecularProfileIds, 
-            List<Integer> entrezGeneIds, List<String> sampleIds);
+    List<StructuralVariant> fetchStructuralVariants(List<String> molecularProfileIds, List<Integer> entrezGeneIds,
+            List<String> sampleIds);
 
     List<StructuralVariantCountByGene> getSampleCountInMultipleMolecularProfiles(List<String> molecularProfileIds,
             List<String> sampleIds, List<Integer> entrezGeneIds, boolean includeFrequency,
             boolean includeMissingAlterationsFromGenePanel);
+
+    List<StructuralVariantCountByGene> getPatientCountInMultipleMolecularProfiles(List<String> molecularProfileIds,
+            List<String> patientIds, List<Integer> entrezGeneIds, boolean includeFrequency,
+            boolean includeMissingAlterationsFromGenePanel);
+
 }

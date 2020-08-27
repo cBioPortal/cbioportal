@@ -1,13 +1,16 @@
 package org.cbioportal.service.impl;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
 import org.cbioportal.model.AlterationEnrichment;
 import org.cbioportal.model.CopyNumberCountByGene;
+import org.cbioportal.model.MolecularProfile.MolecularAlterationType;
 import org.cbioportal.model.MolecularProfileCaseIdentifier;
+import org.cbioportal.model.web.parameter.EnrichmentType;
 import org.cbioportal.service.CopyNumberEnrichmentService;
 import org.cbioportal.service.DiscreteCopyNumberService;
 import org.cbioportal.service.exception.MolecularProfileNotFoundException;
@@ -27,7 +30,10 @@ public class CopyNumberEnrichmentServiceImpl implements CopyNumberEnrichmentServ
     public List<AlterationEnrichment> getCopyNumberEnrichments(
             Map<String, List<MolecularProfileCaseIdentifier>> molecularProfileCaseSets,
             List<Integer> alterationTypes,
-            String enrichmentType) throws MolecularProfileNotFoundException {
+            EnrichmentType enrichmentType) throws MolecularProfileNotFoundException {
+
+        alterationEnrichmentUtil.validateMolecularProfiles(molecularProfileCaseSets,
+                Arrays.asList(MolecularAlterationType.COPY_NUMBER_ALTERATION), "DISCRETE");
 
         Map<String, List<CopyNumberCountByGene>> copyNumberCountByGeneAndGroup =
                 molecularProfileCaseSets
@@ -45,7 +51,7 @@ public class CopyNumberEnrichmentServiceImpl implements CopyNumberEnrichmentServ
                                 sampleIds.add(molecularProfileCase.getCaseId());
                             });
                             
-                            if (enrichmentType.equals("SAMPLE")) {
+                            if (enrichmentType.equals(EnrichmentType.SAMPLE)) {
                                 return discreteCopyNumberService
                                         .getSampleCountInMultipleMolecularProfiles(molecularProfileIds,
                                                 sampleIds,
@@ -64,10 +70,7 @@ public class CopyNumberEnrichmentServiceImpl implements CopyNumberEnrichmentServ
                             }
                         }));
 
-        return alterationEnrichmentUtil
-                .createAlterationEnrichments(
-                        copyNumberCountByGeneAndGroup,
-                        molecularProfileCaseSets,
-                        enrichmentType);
+        return alterationEnrichmentUtil.createAlterationEnrichments(copyNumberCountByGeneAndGroup,
+                molecularProfileCaseSets);
     }
 }

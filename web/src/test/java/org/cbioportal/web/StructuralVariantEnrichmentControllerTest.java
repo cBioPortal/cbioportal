@@ -9,7 +9,7 @@ import org.cbioportal.model.AlterationEnrichment;
 import org.cbioportal.model.CountSummary;
 import org.cbioportal.model.MolecularProfileCaseIdentifier;
 import org.cbioportal.model.web.parameter.EnrichmentType;
-import org.cbioportal.service.MutationEnrichmentService;
+import org.cbioportal.service.StructuralVariantEnrichmentService;
 import org.cbioportal.web.parameter.MolecularProfileCasesGroupFilter;
 import org.hamcrest.Matchers;
 import org.junit.Before;
@@ -35,7 +35,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 @WebAppConfiguration
 @ContextConfiguration("/applicationContext-web-test.xml")
 @Configuration
-public class MutationEnrichmentControllerTest {
+public class StructuralVariantEnrichmentControllerTest {
 
     private static final int TEST_ENTREZ_GENE_ID_1 = 1;
     private static final String TEST_HUGO_GENE_SYMBOL_1 = "test_hugo_gene_symbol_1";
@@ -56,26 +56,26 @@ public class MutationEnrichmentControllerTest {
     private WebApplicationContext wac;
 
     @Autowired
-    private MutationEnrichmentService mutationEnrichmentService;
+    private StructuralVariantEnrichmentService structuralVariantEnrichmentService;
 
     private ObjectMapper objectMapper = new ObjectMapper();
 
     private MockMvc mockMvc;
 
     @Bean
-    public MutationEnrichmentService mutationEnrichmentService() {
-        return Mockito.mock(MutationEnrichmentService.class);
+    public StructuralVariantEnrichmentService structuralVariantEnrichmentService() {
+        return Mockito.mock(StructuralVariantEnrichmentService.class);
     }
 
     @Before
     public void setUp() throws Exception {
 
-        Mockito.reset(mutationEnrichmentService);
+        Mockito.reset(structuralVariantEnrichmentService);
         mockMvc = MockMvcBuilders.webAppContextSetup(wac).build();
     }
 
     @Test
-    public void fetchMutationEnrichments() throws Exception {
+    public void fetchStructuralVariantEnrichments() throws Exception {
 
         List<AlterationEnrichment> alterationEnrichments = new ArrayList<>();
         AlterationEnrichment alterationEnrichment1 = new AlterationEnrichment();
@@ -106,7 +106,7 @@ public class MutationEnrichmentControllerTest {
         alterationEnrichment2.setCounts(Arrays.asList(alterationEnrichment2Set1Count,alterationEnrichment2Set2Count));
         alterationEnrichments.add(alterationEnrichment2);
 
-        Mockito.when(mutationEnrichmentService.getMutationEnrichments(
+        Mockito.when(structuralVariantEnrichmentService.getStructuralVariantEnrichments(
                 Mockito.anyMap(),
                 Mockito.any(EnrichmentType.class)))
         .thenReturn(alterationEnrichments);
@@ -127,7 +127,7 @@ public class MutationEnrichmentControllerTest {
         casesGroup2.setMolecularProfileCaseIdentifiers(Arrays.asList(entity2));
 
         mockMvc.perform(MockMvcRequestBuilders.post(
-            "/mutation-enrichments/fetch")
+            "/structural-variant-enrichments/fetch")
             .accept(MediaType.APPLICATION_JSON)
             .contentType(MediaType.APPLICATION_JSON)
             .content(objectMapper.writeValueAsString(Arrays.asList(casesGroup1,casesGroup2))))

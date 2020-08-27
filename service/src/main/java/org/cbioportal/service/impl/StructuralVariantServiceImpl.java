@@ -23,11 +23,9 @@
 
 package org.cbioportal.service.impl;
 
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.function.Function;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -89,43 +87,49 @@ public class StructuralVariantServiceImpl implements StructuralVariantService {
             List<String> molecularProfileIds, List<String> sampleIds, List<Integer> entrezGeneIds,
             boolean includeFrequency, boolean includeMissingAlterationsFromGenePanel) {
 
-        List<StructuralVariantCountByGene> countsFromStructuralVariant = structuralVariantRepository
+        List<StructuralVariantCountByGene> countByGenes = structuralVariantRepository
                 .getSampleCountInMultipleMolecularProfiles(molecularProfileIds, sampleIds, entrezGeneIds);
 
         // TODO: Remove once fusions are removed from mutation table
-        List<StructuralVariantCountByGene> countsFromMutation = mutationMapperUtils
-                .mapFusionCountsToStructuralVariantCounts(
-                        mutationRepository.getSampleCountInMultipleMolecularProfilesForFusions(molecularProfileIds,
-                                sampleIds, entrezGeneIds));
-
-        List<StructuralVariantCountByGene> countByGenes = new ArrayList<StructuralVariantCountByGene>();
-        if (CollectionUtils.isEmpty(countsFromMutation)) {
-            countByGenes = countsFromStructuralVariant;
-        } else if (CollectionUtils.isEmpty(countsFromStructuralVariant)) {
-            countByGenes = countsFromMutation;
-        } else {
-            // if both the list contains the sample entrez gene id then merge them by add
-            // those counts
-            countByGenes = Stream
-                    .concat(countsFromStructuralVariant.stream(), countsFromMutation.stream())
-                    .collect(Collectors.toMap(StructuralVariantCountByGene::getEntrezGeneId, Function.identity(),
-                            (count1, count2) -> {
-                                count1.setTotalCount(count1.getTotalCount() + count2.getTotalCount());
-                                count1.setNumberOfProfiledCases(
-                                        count1.getNumberOfProfiledCases() + count2.getNumberOfProfiledCases());
-                                count1.setNumberOfAlteredCases(
-                                        count1.getNumberOfAlteredCases() + count2.getNumberOfAlteredCases());
-                                return count1;
-                            }))
-                    .values()
-                    .stream()
+        if (CollectionUtils.isEmpty(countByGenes)) {
+            molecularProfileIds = molecularProfileIds.stream()
+                    .map(molecularProfileId -> molecularProfileId.replace("_fusion", "_mutations"))
                     .collect(Collectors.toList());
 
+            countByGenes = mutationMapperUtils.mapFusionCountsToStructuralVariantCounts(
+                    mutationRepository.getSampleCountInMultipleMolecularProfilesForFusions(molecularProfileIds,
+                            sampleIds, entrezGeneIds));
         }
         // TODO: Remove once fusions are removed from mutation table
 
         if (includeFrequency) {
             alterationEnrichmentUtil.includeFrequencyForSamples(molecularProfileIds, sampleIds, countByGenes,
+                    includeMissingAlterationsFromGenePanel);
+        }
+        return countByGenes;
+    }
+
+    @Override
+    public List<StructuralVariantCountByGene> getPatientCountInMultipleMolecularProfiles(
+            List<String> molecularProfileIds, List<String> patientIds, List<Integer> entrezGeneIds,
+            boolean includeFrequency, boolean includeMissingAlterationsFromGenePanel) {
+
+        List<StructuralVariantCountByGene> countByGenes = structuralVariantRepository
+                .getPatientCountInMultipleMolecularProfiles(molecularProfileIds, patientIds, entrezGeneIds);
+
+        // TODO: Remove once fusions are removed from mutation table
+        if (CollectionUtils.isEmpty(countByGenes)) {
+            molecularProfileIds = molecularProfileIds.stream()
+                    .map(molecularProfileId -> molecularProfileId.replace("_fusion", "_mutations"))
+                    .collect(Collectors.toList());
+
+            countByGenes = mutationMapperUtils.mapFusionCountsToStructuralVariantCounts(mutationRepository
+                    .getPatientCountInMultipleMolecularProfiles(molecularProfileIds, patientIds, entrezGeneIds));
+        }
+        // TODO: Remove once fusions are removed from mutation table
+
+        if (includeFrequency) {
+            alterationEnrichmentUtil.includeFrequencyForPatients(molecularProfileIds, patientIds, countByGenes,
                     includeMissingAlterationsFromGenePanel);
         }
         return countByGenes;

@@ -1,13 +1,27 @@
 package org.cbioportal.service.util;
 
 import java.math.BigDecimal;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
 import org.apache.commons.math3.stat.inference.ChiSquareTest;
-import org.cbioportal.model.*;
-import org.cbioportal.service.*;
+import org.cbioportal.model.AlterationCountByGene;
+import org.cbioportal.model.AlterationEnrichment;
+import org.cbioportal.model.CountSummary;
+import org.cbioportal.model.Gene;
+import org.cbioportal.model.MolecularProfile;
+import org.cbioportal.model.MolecularProfile.MolecularAlterationType;
+import org.cbioportal.model.MolecularProfileCaseIdentifier;
+import org.cbioportal.model.Sample;
+import org.cbioportal.service.GeneService;
+import org.cbioportal.service.MolecularProfileService;
+import org.cbioportal.service.SampleService;
+import org.cbioportal.service.exception.MolecularProfileNotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
@@ -27,8 +41,7 @@ public class AlterationEnrichmentUtil<T extends AlterationCountByGene> {
 
     public List<AlterationEnrichment> createAlterationEnrichments(
             Map<String, List<T>> mutationCountsbyGroup,
-            Map<String, List<MolecularProfileCaseIdentifier>> molecularProfileCaseSets,
-            String enrichmentType) {
+            Map<String, List<MolecularProfileCaseIdentifier>> molecularProfileCaseSets) {
         
         Map<String, Map<Integer, AlterationCountByGene>> mutationCountsbyEntrezGeneIdAndGroup = mutationCountsbyGroup
                     .entrySet()
@@ -180,6 +193,51 @@ public class AlterationEnrichmentUtil<T extends AlterationCountByGene> {
                 .collect(Collectors.toList());
 
         profiledCasesCounter.calculate(molecularProfileIdsofSampleIds, sampleIds, alterationCountByGenes, true, includeMissingAlterationsFromGenePanel);
+    }
+
+    public void validateMolecularProfiles(Map<String, List<MolecularProfileCaseIdentifier>> molecularProfileCaseSets,
+            List<MolecularAlterationType> validMolecularAlterationTypes, String dataType)
+            throws MolecularProfileNotFoundException {
+
+        Set<String> molecularProfileIds = molecularProfileCaseSets.values().stream()
+                .flatMap(molecularProfileCaseIdentifiers -> molecularProfileCaseIdentifiers.stream()
+                        .map(MolecularProfileCaseIdentifier::getMolecularProfileId))
+                .collect(Collectors.toSet());
+
+        ArrayList<String> uniqueMolecularProfileIds = new ArrayList<>(molecularProfileIds);
+
+        List<MolecularProfile> molecularProfiles = molecularProfileService
+                .getMolecularProfiles(uniqueMolecularProfileIds, "SUMMARY");
+
+        if (uniqueMolecularProfileIds.size() != molecularProfiles.size()) {
+            Map<String, MolecularProfile> molecularProfileMap = molecularProfiles.stream()
+                    .collect(Collectors.toMap(MolecularProfile::getStableId, Function.identity()));
+            String invalidMolecularProfileIds = uniqueMolecularProfileIds.stream()
+                    .filter(molecularProfileId -> !molecularProfileMap.containsKey(molecularProfileId))
+                    .collect(Collectors.joining(","));
+            throw new MolecularProfileNotFoundException(invalidMolecularProfileIds);
+        }
+
+        Map<MolecularAlterationType, MolecularAlterationType> validMolecularAlterationTypeMap = validMolecularAlterationTypes
+                .stream().collect(Collectors.toMap(Function.identity(), Function.identity()));
+
+        List<MolecularProfile> invalidMolecularProfiles = molecularProfiles.stream().filter(molecularProfile -> {
+
+            if (validMolecularAlterationTypeMap.containsKey(molecularProfile.getMolecularAlterationType())) {
+                if (dataType != null) {
+                    return molecularProfile.getDatatype().equals(dataType);
+                }
+                // valid profile
+                return false;
+            }
+            // invalid profile
+            return true;
+        }).collect(Collectors.toList());
+
+        if (!invalidMolecularProfiles.isEmpty()) {
+            throw new MolecularProfileNotFoundException(invalidMolecularProfiles.stream()
+                    .map(MolecularProfile::getStableId).collect(Collectors.joining(",")));
+        }
     }
 
 }

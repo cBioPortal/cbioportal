@@ -25,6 +25,7 @@ import org.cbioportal.model.MolecularProfileCaseIdentifier;
 import org.cbioportal.model.MolecularProfileSamples;
 import org.cbioportal.model.Gene;
 import org.cbioportal.model.Sample;
+import org.cbioportal.model.web.parameter.EnrichmentType;
 import org.cbioportal.persistence.MolecularDataRepository;
 import org.cbioportal.service.ExpressionEnrichmentService;
 import org.cbioportal.service.MolecularDataService;
@@ -58,7 +59,7 @@ public class ExpressionEnrichmentServiceImpl implements ExpressionEnrichmentServ
     // molecularDataService in fetchCoExpressions
     @Transactional(readOnly = true)
     public List<ExpressionEnrichment> getExpressionEnrichments(String molecularProfileId,
-            Map<String, List<MolecularProfileCaseIdentifier>> molecularProfileCaseSets, String enrichmentType)
+            Map<String, List<MolecularProfileCaseIdentifier>> molecularProfileCaseSets, EnrichmentType enrichmentType)
             throws MolecularProfileNotFoundException {
 
         MolecularProfile molecularProfile = molecularProfileService
@@ -167,7 +168,7 @@ public class ExpressionEnrichmentServiceImpl implements ExpressionEnrichmentServ
      * @return
      */
     private Map<String, List<Integer>> getGroupIndicesMap(
-            Map<String, List<MolecularProfileCaseIdentifier>> molecularProfileCaseSets, String enrichmentType,
+            Map<String, List<MolecularProfileCaseIdentifier>> molecularProfileCaseSets, EnrichmentType enrichmentType,
             MolecularProfile molecularProfile) {
         
 
@@ -217,10 +218,10 @@ public class ExpressionEnrichmentServiceImpl implements ExpressionEnrichmentServ
     }
 
     private Map<String, List<Integer>> getCaseIdToInternalIdsMap(
-            Map<String, List<MolecularProfileCaseIdentifier>> molecularProfileCaseSets, String enrichmentType,
+            Map<String, List<MolecularProfileCaseIdentifier>> molecularProfileCaseSets, EnrichmentType enrichmentType,
             MolecularProfile molecularProfile) {
         
-        if (enrichmentType.equals("PATIENT")) {
+        if (enrichmentType.equals(EnrichmentType.PATIENT)) {
             List<String> patientIds = molecularProfileCaseSets
                     .values()
                     .stream()

@@ -8,6 +8,7 @@ import java.util.List;
 import org.cbioportal.model.AlterationEnrichment;
 import org.cbioportal.model.CountSummary;
 import org.cbioportal.model.MolecularProfileCaseIdentifier;
+import org.cbioportal.model.web.parameter.EnrichmentType;
 import org.cbioportal.service.CopyNumberEnrichmentService;
 import org.cbioportal.web.parameter.MolecularProfileCasesGroupFilter;
 import org.hamcrest.Matchers;
@@ -113,7 +114,7 @@ public class CopyNumberEnrichmentControllerTest {
         Mockito.when(copyNumberEnrichmentService.getCopyNumberEnrichments(
                 Mockito.anyMap(),
                 Mockito.anyList(),
-                Mockito.anyString()))
+                Mockito.any(EnrichmentType.class)))
         .thenReturn(alterationEnrichments);
 
         MolecularProfileCaseIdentifier entity1 = new MolecularProfileCaseIdentifier();

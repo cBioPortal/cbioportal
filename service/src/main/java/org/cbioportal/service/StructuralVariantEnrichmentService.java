@@ -8,9 +8,10 @@ import org.cbioportal.model.MolecularProfileCaseIdentifier;
 import org.cbioportal.model.web.parameter.EnrichmentType;
 import org.cbioportal.service.exception.MolecularProfileNotFoundException;
 
-public interface CopyNumberEnrichmentService {
+public interface StructuralVariantEnrichmentService {
 
-    List<AlterationEnrichment> getCopyNumberEnrichments(
-            Map<String, List<MolecularProfileCaseIdentifier>> molecularProfileCaseSets, List<Integer> alterationTypes,
-            EnrichmentType enrichmentType) throws MolecularProfileNotFoundException;
+    List<AlterationEnrichment> getStructuralVariantEnrichments(
+            Map<String, List<MolecularProfileCaseIdentifier>> molecularProfileCaseSets, EnrichmentType enrichmentType)
+            throws MolecularProfileNotFoundException;
+
 }

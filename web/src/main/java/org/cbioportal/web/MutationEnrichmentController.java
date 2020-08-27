@@ -6,10 +6,10 @@ import io.swagger.annotations.ApiParam;
 import java.util.Collection;
 import org.cbioportal.model.AlterationEnrichment;
 import org.cbioportal.model.MolecularProfileCaseIdentifier;
+import org.cbioportal.model.web.parameter.EnrichmentType;
 import org.cbioportal.service.MutationEnrichmentService;
 import org.cbioportal.service.exception.MolecularProfileNotFoundException;
 import org.cbioportal.web.config.annotation.InternalApi;
-import org.cbioportal.web.parameter.EnrichmentType;
 import org.cbioportal.web.parameter.MolecularProfileCasesGroupFilter;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -55,12 +55,12 @@ public class MutationEnrichmentController {
         @ApiParam(required = true, value = "List of groups containing sample identifiers")
         @Valid @RequestBody(required = false)List<MolecularProfileCasesGroupFilter> groups) throws MolecularProfileNotFoundException {
 
-        Map<String, List<MolecularProfileCaseIdentifier>> groupCaseIdentifierSet = interceptedMolecularProfileCasesGroupFilters.stream()
-                .collect(Collectors.toMap(MolecularProfileCasesGroupFilter::getName,
+        Map<String, List<MolecularProfileCaseIdentifier>> groupCaseIdentifierSet = interceptedMolecularProfileCasesGroupFilters
+                .stream().collect(Collectors.toMap(MolecularProfileCasesGroupFilter::getName,
                         MolecularProfileCasesGroupFilter::getMolecularProfileCaseIdentifiers));
 
         return new ResponseEntity<>(
-                mutationEnrichmentService.getMutationEnrichments(groupCaseIdentifierSet, enrichmentType.name()),
+                mutationEnrichmentService.getMutationEnrichments(groupCaseIdentifierSet, enrichmentType),
                 HttpStatus.OK);
     }
 }

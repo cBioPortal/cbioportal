@@ -32,7 +32,6 @@
 
 package org.cbioportal.web.util;
 
-import com.fasterxml.jackson.databind.exc.MismatchedInputException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import java.util.*;
 import java.util.stream.Collectors;
@@ -108,6 +107,7 @@ public class InvolvedCancerStudyExtractorInterceptor extends HandlerInterceptorA
     public static final String STRUCTURAL_VARIANT_FETCH_PATH = "/structuralvariant/fetch";
     public static final String GENERIC_ASSAY_DATA_MULTIPLE_STUDY_FETCH_PATH = "/generic_assay_data/fetch";
     public static final String GENERIC_ASSAY_META_FETCH_PATH = "/generic_assay_meta/fetch";
+    public static final String STRUCTURAL_VARIANT_ENRICHMENT_FETCH_PATH = "/structural-variant-enrichments/fetch";
 
     @Override public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object handler) throws Exception {
         if (!request.getMethod().equals("POST")) {
@@ -144,7 +144,10 @@ public class InvolvedCancerStudyExtractorInterceptor extends HandlerInterceptorA
             return extractAttributesFromStudyViewFilter(request);
         } else if (requestPathInfo.equals(CLINICAL_DATA_ENRICHMENT_FETCH_PATH)) {
             return extractAttributesFromGroupFilter(request);
-        } else if (requestPathInfo.equals(MUTATION_ENRICHMENT_FETCH_PATH) || requestPathInfo.equals(COPY_NUMBER_ENRICHMENT_FETCH_PATH) || requestPathInfo.equals(EXPRESSION_ENRICHMENT_FETCH_PATH)) {
+        } else if (requestPathInfo.equals(MUTATION_ENRICHMENT_FETCH_PATH)
+                || requestPathInfo.equals(COPY_NUMBER_ENRICHMENT_FETCH_PATH)
+                || requestPathInfo.equals(EXPRESSION_ENRICHMENT_FETCH_PATH)
+                || requestPathInfo.equals(STRUCTURAL_VARIANT_ENRICHMENT_FETCH_PATH)) {
             return extractAttributesFromMolecularProfileCasesGroups(request);
         } else if (requestPathInfo.equals(STRUCTURAL_VARIANT_FETCH_PATH)) {
             return extractAttributesFromStructuralVariantFilter(request);

@@ -15,12 +15,13 @@ env:
   - MAVEN_VERSION=3.5.4 TEST=core
   - MAVEN_VERSION=3.5.4 TEST=python-validator
   - MAVEN_VERSION=3.5.4 TEST=python-oncokb-importer
+  - MAVEN_VERSION=3.5.4 TEST=python-oncokb-update
   - MAVEN_VERSION=3.5.4 TEST=sanity-checks
   - MAVEN_VERSION=3.5.4 TEST=end-to-end
   - MAVEN_VERSION=3.5.4 TEST=integration-test-load-study
 install:
 - |
-  if [[ "${TEST}" == core || "${TEST}" == end-to-end  || "${TEST}" == integration-test-load-study ]]
+  if [[ "${TEST}" == core || "${TEST}" == end-to-end  || "${TEST}" == integration-test-load-study || "${TEST}" == python-oncokb-update  ]]
   then
       mkdir -p ~/maven
       test -d ~/maven/$MAVEN_VERSION/bin || { \
@@ -86,7 +87,7 @@ script:
           integration-test
   fi
 - |
-  if [[ "${TEST}" == end-to-end || "${TEST}" == integration-test-load-study ]]
+  if [[ "${TEST}" == end-to-end || "${TEST}" == integration-test-load-study || "${TEST}" == python-oncokb-update  ]]
   then
       ~/maven/$MAVEN_VERSION/bin/mvn \
           -q \
@@ -110,7 +111,7 @@ script:
       bash test/end-to-end/test_make_screenshots.sh test/end-to-end/screenshots.yml
   fi
 - |
-  if [[ "${TEST}" == integration-test-load-study ]]
+  if [[ "${TEST}" == integration-test-load-study  || "${TEST}" == python-oncokb-update ]]
   then
       # test for loading study_es_0 on a complete working instance
       # download compose and init
@@ -126,10 +127,22 @@ script:
           sleep 30s
       done
       [ -z "$healthy" ] && { echo "Error starting cBioPortal services."; exit 1; } || echo "Successful deploy."
+  fi
+- |
+  if [[ "${TEST}" == integration-test-load-study ]]
+  then
+    # load gene panels and study_es_0
+    bash ../test/integration/test_load_study.sh
 
-      # load gene panels and study_es_0
-      bash ../test/integration/test_load_study.sh
+    # back to main dir
+    cd -
+  fi
+- |
+  if [[ "${TEST}" == python-oncokb-update ]]
+  then
+    # update oncokb test
+    bash ../test/integration/test_update_oncokb.sh
 
-      # back to main dir
-      cd -
+    # back to main dir
+    cd -
   fi

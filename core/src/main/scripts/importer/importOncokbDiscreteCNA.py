@@ -108,7 +108,8 @@ def main_import(args):
     features = get_features(cna_file_path)
     id_to_annotation = fetch_oncokb_annotations(features)
     for feature in features:
-        feature['oncogenic'] = id_to_annotation[feature['id']]['oncogenic']
+        if feature['id'] in id_to_annotation:
+            feature['oncogenic'] = id_to_annotation[feature['id']]['oncogenic']
 
     print("Updating study files ...", end = '')
     write_annotations_to_file(features, pd_file_path)
@@ -200,7 +201,7 @@ def fetch_oncokb_annotations(features):
     """Submit CNA events to OncoKB.org and return OncoKB annotations."""
     id_to_annotation = {}
     payload_list = create_request_payload(features)
-    annotations = libImportOncokb.fetch_oncokb_annotations(payload_list, "https://demo.oncokb.org/api/v1/annotate/copyNumberAlterations")
+    annotations = libImportOncokb.fetch_oncokb_annotations(payload_list, "https://public.api.oncokb.org/api/v1/annotate/copyNumberAlterations")
     for annotation in annotations:
         id = annotation['query']['id']
         id_to_annotation[id] = annotation
@@ -240,10 +241,11 @@ def write_annotations_to_file(features, pd_file_name):
     new_file = open(pd_file_name, "w")
     new_file.write("SAMPLE_ID\tEntrez_Gene_Id\tcbp_driver\tcbp_driver_annotation\tcbp_driver_tiers\tcbp_driver_tiers_annotation\n")
     for feature in features:
-        line = "\t".join(
-            [feature['sample_id'], feature['Entrez_Gene_Id'], libImportOncokb.evaluate_driver_passenger(feature['oncogenic']),
-             feature['oncogenic'], '', '']) + "\n"
-        new_file.write(line)
+        if 'oncogenic' in feature:
+            line = "\t".join(
+                [feature['sample_id'], feature['Entrez_Gene_Id'], libImportOncokb.evaluate_driver_passenger(feature['oncogenic']),
+                feature['oncogenic'], '', '']) + "\n"
+            new_file.write(line)
     new_file.close()
 
 

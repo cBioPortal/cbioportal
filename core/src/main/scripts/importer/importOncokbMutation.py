@@ -179,11 +179,12 @@ def fetch_oncokb_annotations(row_number_to_feature):
     for row_number, feature in row_number_to_feature.items():
         id_to_rownumber[feature['id']] = row_number
     payload_list = create_request_payload(row_number_to_feature)
-    annotations = libImportOncokb.fetch_oncokb_annotations(payload_list, "https://demo.oncokb.org/api/v1/annotate/mutations/byProteinChange")
+    annotations = libImportOncokb.fetch_oncokb_annotations(payload_list, "https://public.api.oncokb.org/api/v1/annotate/mutations/byProteinChange")
     row_number_to_annotation = {}
     id_to_annotation = {annotation['query']['id']: annotation for annotation in annotations}
     for row_number, feature in row_number_to_feature.items():
-        row_number_to_annotation[row_number] = id_to_annotation[feature['id']]
+        if feature['id'] in id_to_annotation:
+            row_number_to_annotation[row_number] = id_to_annotation[feature['id']]
     return row_number_to_annotation
 
 

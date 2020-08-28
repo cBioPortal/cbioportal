@@ -109,8 +109,11 @@ def main_import(args):
     id_to_annotation = fetch_oncokb_annotations(features)
     for feature in features:
         feature['oncogenic'] = id_to_annotation[feature['id']]['oncogenic']
+
+    print("Updating study files ...", end = '')
     write_annotations_to_file(features, pd_file_path)
     update_cna_metafile(meta_cna_file_path, pd_file_name)
+    print(" DONE")
 
     logger.info('Import complete')
 
@@ -139,6 +142,7 @@ def get_features(cna_file_path):
 
     features = []
     cna_file = open_cna_file(cna_file_path)
+    print("Reading features from file ...", end = '')
     for line in cna_file:
         if line == '\n' or line.startswith('#') or line.startswith(header_elements[0]):
             continue  # skip comment and header line
@@ -188,30 +192,18 @@ def get_features(cna_file_path):
 
             features.append(feature)
     cna_file.close()
+    print(" DONE")
     return features
 
 
 def fetch_oncokb_annotations(features):
     """Submit CNA events to OncoKB.org and return OncoKB annotations."""
-    request_url = "https://demo.oncokb.org/api/v1/annotate/copyNumberAlterations"
-    request_headers = {'Content-Type': 'application/json', 'Accept': 'application/json'}
-    request_payload = create_request_payload(features)
-    request = requests.post(url=request_url, headers=request_headers, data=request_payload)
     id_to_annotation = {}
-    if request.ok:
-        # Parse transcripts and exons from JSON
-        result_json = request.json()
-        for annotation in result_json:
-            id = annotation['query']['id']
-            id_to_annotation[id] = annotation
-    else:
-        if request.status_code == 404:
-            print(
-                Color.RED + 'An error occurred when trying to connect to OncoKB for retrieving of mutation annotations' + Color.END,
-                file=sys.stderr)
-            sys.exit(1)
-        else:
-            request.raise_for_status()
+    payload_list = create_request_payload(features)
+    annotations = libImportOncokb.fetch_oncokb_annotations(payload_list, "https://demo.oncokb.org/api/v1/annotate/copyNumberAlterations")
+    for annotation in annotations:
+        id = annotation['query']['id']
+        id_to_annotation[id] = annotation
     return id_to_annotation
 
 
@@ -223,8 +215,7 @@ def create_request_payload(features):
             'id']] = '{ "copyNameAlterationType":"%s", "gene":{"entrezGeneId":%s}, "id":"%s", "tumorType":null} ' \
                      % (feature['copyNameAlterationType'], feature['Entrez_Gene_Id'], feature['id'])
     # normalize for alteration id since same alteration is represented in multiple samples
-    payload = '[' + ', '.join(elements.values()) + ']'
-    return payload
+    return list(elements.values())
 
 
 def update_cna_metafile(meta_cna_file_path, pd_file_name):

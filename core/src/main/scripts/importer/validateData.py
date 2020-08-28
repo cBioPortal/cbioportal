@@ -4765,7 +4765,7 @@ def validateStudyTags(tags_file_path, logger):
             extra={'filename_': tags_file_path})
         with open(tags_file_path, 'r') as stream:
             try:
-                parsedYaml = yaml.load(stream, Loader=yaml.FullLoader)
+                parsedYaml = yaml.load(stream)
                 logger.info('Validation of study tags file complete.',
                 extra={'filename_': tags_file_path})
             except yaml.YAMLError as exc:

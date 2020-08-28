@@ -211,7 +211,7 @@ if __name__ == '__main__':
             else:
                 print(Color.BOLD + "Warnings. Please fix your files or import with override warning option" + Color.END, file=sys.stderr)
                 print("#" * 71, file=sys.stderr)
-        elif exitcode == 0 and not args.no_db_import:
+        elif exitcode == 0 and not args.skip_db_import:
             print(Color.BOLD + "Everything looks good. Importing study now" + Color.END, file=sys.stderr)
             print("#" * 71 + "\n", file=sys.stderr)
             cbioportalImporter.main(args)

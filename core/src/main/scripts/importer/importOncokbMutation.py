@@ -126,6 +126,7 @@ def get_features(mutation_file_path):
     row_number_to_feature = {}
     row_counter = 0
     mutation_file = open_mutations_file(mutation_file_path)
+    print("Reading features from file ...", end = '')
     for line in mutation_file:
         row_counter += 1
         if line == '\n' or line.startswith('#') or line.startswith(header_elements[0]):
@@ -168,6 +169,7 @@ def get_features(mutation_file_path):
 
         row_number_to_feature[row_counter] = feature
     mutation_file.close()
+    print(" DONE")
     return row_number_to_feature
 
 
@@ -176,24 +178,12 @@ def fetch_oncokb_annotations(row_number_to_feature):
     id_to_rownumber = {}
     for row_number, feature in row_number_to_feature.items():
         id_to_rownumber[feature['id']] = row_number
-
-    request_url = "https://demo.oncokb.org/api/v1/annotate/mutations/byProteinChange"
-    request_headers = {'Content-Type': 'application/json', 'Accept': 'application/json'}
-    request_payload = create_request_payload(row_number_to_feature)
-    request = requests.post(url=request_url, headers=request_headers, data=request_payload)
+    payload_list = create_request_payload(row_number_to_feature)
+    annotations = libImportOncokb.fetch_oncokb_annotations(payload_list, "https://demo.oncokb.org/api/v1/annotate/mutations/byProteinChange")
     row_number_to_annotation = {}
-    if request.ok:
-        result_json = request.json()
-        id_to_annotation = {annotation['query']['id']: annotation for annotation in result_json}
-        for row_number, feature in row_number_to_feature.items():
-            row_number_to_annotation[row_number] = id_to_annotation[feature['id']]
-    else:
-        if request.status_code == 404:
-            raise ConnectionError(
-                "An error occurred when trying to connect to OncoKB for retrieving of mutation annotations.")
-        else:
-            request.raise_for_status()
-
+    id_to_annotation = {annotation['query']['id']: annotation for annotation in annotations}
+    for row_number, feature in row_number_to_feature.items():
+        row_number_to_annotation[row_number] = id_to_annotation[feature['id']]
     return row_number_to_annotation
 
 
@@ -220,8 +210,7 @@ def create_request_payload(row_number_to_feature):
                             feature['id'])
 
     # normalize for alteration id since same alteration is represented in multiple samples
-    payload = '[' + ', '.join(elements.values()) + ']'
-    return payload
+    return list(elements.values())
 
 
 def write_annotations_to_file(row_number_to_annotation, mutations_file_path):
@@ -230,6 +219,7 @@ def write_annotations_to_file(row_number_to_annotation, mutations_file_path):
     dir = os.path.dirname(mutations_file_path)
     backup_file_name = 'ONCOKB_IMPORT_BACKUP_' + meta_cna_file_name
     backup_file_path = os.path.join(dir, backup_file_name)
+    print("Updating study files ...", end = '')
     try:
         new_file = open(mutations_file_path + '_temp', "x")
         header_updated = False
@@ -258,6 +248,7 @@ def write_annotations_to_file(row_number_to_annotation, mutations_file_path):
         new_file.close()
     os.rename(mutations_file_path, backup_file_path)
     os.rename(mutations_file_path + '_temp', mutations_file_path)
+    print(" DONE")
     return
 
 

@@ -1,13 +1,14 @@
 #!/usr/bin/env bash
 
 # Test OncoKB import against local portal info dump (requires no Internet) and
-# live oncokb.org instance (required Internet and oncokb to be up and running)
+# live oncokb.org instance (requires Internet and OncoKB to be up-and-running)
 
+cd /cbioportal/core/src/main/scripts/importer
 python ./metaImport.py \
   --study_directory=/cbioportal/core/src/test/scripts/test_data/study_oncokb_import \
   --portal_info_dir=/cbioportal/core/src/test/scripts/test_data/api_json_system_tests \
   --import_oncokb \
-  --no_db_import &&
+  --skip_db_import &&
 cd /cbioportal/core/src/test/scripts/test_data/study_oncokb_import &&
 test -e data_cna_pd_annotations.txt &&
 test -e ONCOKB_IMPORT_BACKUP_data_mutations_extended.maf &&

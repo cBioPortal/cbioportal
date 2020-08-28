@@ -30,8 +30,12 @@ Run with the command line option --help for usage information.
 
 import re
 import os
+import requests
 
 from . import validateData
+
+
+BATCH_SIZE = 50
 
 
 def load_portal_genes(server_url):
@@ -162,3 +166,32 @@ def read_meta_file(metafile_path):
             match = re.findall(r'\s*(\S+)\s*:\s*(\S+)', line)[0]
             fields[match[0]] = match[1]
     return fields
+
+def fetch_oncokb_annotations(payload_list, request_url):
+    """Submit alterations to OncoKB.org and return OncoKB annotations."""
+    annotations = []
+    request_headers = {'Content-Type': 'application/json', 'Accept': 'application/json'}
+    payload_batches = partition_list(payload_list, BATCH_SIZE)
+    for payload_batch in payload_batches:
+        payload = '['+ ', '.join(payload_batch) + ']'
+        print("Fetching batch of " + str(len(payload_batch)) + " annotations ...", end = '')
+        request = requests.post(url=request_url, headers=request_headers, data=payload)
+        if request.ok:
+            print(" DONE")
+            # Parse transcripts and exons from JSON
+            result_json = request.json()
+            annotations = annotations + result_json
+        else:
+            if request.status_code == 404:
+                print(
+                    Color.RED + 'An error occurred when trying to connect to OncoKB for retrieving of mutation annotations' + Color.END,
+                    file=sys.stderr)
+                sys.exit(1)
+            else:
+                request.raise_for_status()
+    return annotations
+
+def partition_list(list, n):
+    """Yield successive n-sized chunks from list."""
+    for i in range(0, len(list), n):
+        yield list[i:i + n]

@@ -45,10 +45,10 @@
         structural_variant.LENGTH AS "${prefix}length",
         structural_variant.COMMENTS AS "${prefix}comments",
         structural_variant.EXTERNAL_ANNOTATION AS "${prefix}externalAnnotation",
-        structural_variant.DRIVER_FILTER AS "${prefix}driverFilter",
-        structural_variant.DRIVER_FILTER_ANNOTATION AS "${prefix}driverFilterAnn",
-        structural_variant.DRIVER_TIERS_FILTER AS "${prefix}driverTiersFilter",
-        structural_variant.DRIVER_TIERS_FILTER_ANNOTATION AS "${prefix}driverTiersFilterAnn"
+        alteration_driver_annotation.DRIVER_FILTER AS "${prefix}driverFilter",
+        alteration_driver_annotation.DRIVER_FILTER_ANNOTATION AS "${prefix}driverFilterAnn",
+        alteration_driver_annotation.DRIVER_TIERS_FILTER AS "${prefix}driverTiersFilter",
+        alteration_driver_annotation.DRIVER_TIERS_FILTER_ANNOTATION AS "${prefix}driverTiersFilterAnn"
     </sql>
 
     <select id="fetchStructuralVariants" resultType="org.cbioportal.model.StructuralVariant">
@@ -63,6 +63,10 @@
         JOIN sample ON structural_variant.SAMPLE_ID = sample.INTERNAL_ID
         JOIN patient ON sample.PATIENT_ID = patient.INTERNAL_ID
         JOIN cancer_study ON patient.CANCER_STUDY_ID = cancer_study.CANCER_STUDY_ID AND genetic_profile.CANCER_STUDY_ID = cancer_study.CANCER_STUDY_ID
+        LEFT JOIN alteration_driver_annotation ON
+                structural_variant.GENETIC_PROFILE_ID = alteration_driver_annotation.GENETIC_PROFILE_ID
+            and structural_variant.SAMPLE_ID = alteration_driver_annotation.SAMPLE_ID
+            and structural_variant.INTERNAL_ID = alteration_driver_annotation.ALTERATION_EVENT_ID
 
         <where>
             genetic_profile.STABLE_ID IN 

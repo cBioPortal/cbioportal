@@ -38,10 +38,10 @@
             mutation_event.ONCOTATOR_PROTEIN_POS_START AS oncotatorProteinPosStart,
             mutation_event.ONCOTATOR_PROTEIN_POS_END AS oncotatorProteinPosEnd,
             mutation_event.KEYWORD AS keyword,
-            mutation.DRIVER_FILTER as driverFilter,
-            mutation.DRIVER_FILTER_ANNOTATION as driverFilterAnnotation,
-            mutation.DRIVER_TIERS_FILTER as driverTiersFilter,
-            mutation.DRIVER_TIERS_FILTER_ANNOTATION as driverTiersFilterAnnotation
+            alteration_driver_annotation.DRIVER_FILTER as driverFilter,
+            alteration_driver_annotation.DRIVER_FILTER_ANNOTATION as driverFilterAnnotation,
+            alteration_driver_annotation.DRIVER_TIERS_FILTER as driverTiersFilter,
+            alteration_driver_annotation.DRIVER_TIERS_FILTER_ANNOTATION as driverTiersFilterAnnotation
         </if>
         <if test="projection == 'DETAILED'">
             ,
@@ -61,6 +61,10 @@
         INNER JOIN sample ON mutation.SAMPLE_ID = sample.INTERNAL_ID
         INNER JOIN patient ON sample.PATIENT_ID = patient.INTERNAL_ID
         INNER JOIN cancer_study ON patient.CANCER_STUDY_ID = cancer_study.CANCER_STUDY_ID
+        LEFT JOIN alteration_driver_annotation ON
+                mutation.GENETIC_PROFILE_ID = alteration_driver_annotation.GENETIC_PROFILE_ID
+            and mutation.SAMPLE_ID = alteration_driver_annotation.SAMPLE_ID
+            and mutation.MUTATION_EVENT_ID = alteration_driver_annotation.ALTERATION_EVENT_ID
     </sql>
 
     <sql id="where">

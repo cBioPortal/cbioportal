@@ -9,7 +9,6 @@ version 3, or (at your option) any later version.
 import unittest
 from unittest.mock import Mock
 import sys
-import copy
 import logging.handlers
 import textwrap
 from pathlib import Path
@@ -1501,22 +1500,14 @@ class MutationsSpecialCasesTestCase(PostClinicalDataFileTestCase):
                                     extra_meta_fields={
                                             'swissprot_identifier': 'name'})
         # we expect 5 ERRORs :
-        self.assertEqual(len(record_list), 5)
+        self.assertEqual(len(record_list), 3)
         
         # First 2 ERRORs should be something like: "Column X found without any X column"
-        self.assertIn("found without any", record_list[0].getMessage().lower())
+        self.assertIn("Column cbp_driver_annotation found without any cbp_driver column.", record_list[0].getMessage())
         self.assertEqual(record_list[0].levelno, logging.ERROR)
-        self.assertIn("found without any", record_list[1].getMessage().lower())
+        self.assertIn("Column cbp_driver_tiers_annotation found without any cbp_driver_tiers column.", record_list[1].getMessage())
         self.assertEqual(record_list[1].levelno, logging.ERROR)
-        
-        # Last 3 ERRORs should be something like: "This line has no value for X and a value for Y. Please, fill the Z column."
-        self.assertIn("please, fill the", record_list[2].getMessage().lower())
-        self.assertEqual(record_list[0].levelno, logging.ERROR)
-        self.assertIn("please, fill the", record_list[3].getMessage().lower())
-        self.assertEqual(record_list[0].levelno, logging.ERROR)
-        self.assertIn("please, fill the", record_list[4].getMessage().lower())
-        self.assertEqual(record_list[0].levelno, logging.ERROR)
-    
+
     def test_absence_custom_annotation_columns_when_custom_values_columns(self):
         """Test that the validator raises an error when the 
         cbp_driver and the cbp_driver_tiers columns are present 
@@ -1530,21 +1521,13 @@ class MutationsSpecialCasesTestCase(PostClinicalDataFileTestCase):
                                     extra_meta_fields={
                                             'swissprot_identifier': 'name'})
         # we expect 5 ERRORs :
-        self.assertEqual(len(record_list), 5)
+        self.assertEqual(len(record_list), 3)
         
         # First 2 ERRORs should be something like: "Column X found without any Y column"
-        self.assertIn("found without any", record_list[0].getMessage().lower())
+        self.assertIn('Column cbp_driver found without any cbp_driver_annotation column.', record_list[0].getMessage())
         self.assertEqual(record_list[0].levelno, logging.ERROR)
-        self.assertIn("found without any", record_list[1].getMessage().lower())
+        self.assertIn('Column cbp_driver_tiers found without any cbp_driver_tiers_annotation column.', record_list[1].getMessage())
         self.assertEqual(record_list[1].levelno, logging.ERROR)
-        
-        # Last 3 ERRORs should be something like: "This line has no value for X and a value for Y. Please, fill the annotation column."
-        self.assertIn("please, fill the annotation column", record_list[2].getMessage().lower())
-        self.assertEqual(record_list[0].levelno, logging.ERROR)
-        self.assertIn("please, fill the annotation column", record_list[3].getMessage().lower())
-        self.assertEqual(record_list[0].levelno, logging.ERROR)
-        self.assertIn("please, fill the annotation column", record_list[4].getMessage().lower())
-        self.assertEqual(record_list[0].levelno, logging.ERROR)
         
     def test_empty_custom_annotation_fields(self):
         """Test that the validator raises errors when one multiclass
@@ -1558,15 +1541,11 @@ class MutationsSpecialCasesTestCase(PostClinicalDataFileTestCase):
                                     validateData.MutationsExtendedValidator,
                                     extra_meta_fields={
                                             'swissprot_identifier': 'name'})
-        # we expect 2 ERRORs :
-        self.assertEqual(len(record_list), 2)
-        
-        # 2 ERRORs should be something like: "This line has no value for X and a value for Y. Please, fill the Z column."
-        self.assertIn("please, fill the", record_list[0].getMessage().lower())
-        self.assertEqual(record_list[0].levelno, logging.ERROR)
-        self.assertIn("please, fill the", record_list[1].getMessage().lower())
-        self.assertEqual(record_list[0].levelno, logging.ERROR)
-    
+        self.assertEqual(len(record_list), 1)
+        record = record_list[0]
+        self.assertEqual(record.levelno, logging.ERROR)
+        self.assertIn('This line has no value for cbp_driver_tiers and a value for cbp_driver_tiers_annotation. Please, fill the cbp_driver_tiers column.', record.getMessage())
+
     def test_warning_more_than_10_types_in_driver_class(self):
         """Test that the validator raises a warning when the column
         cbp_driver_tiers contains more than 10 types.
@@ -1579,7 +1558,7 @@ class MutationsSpecialCasesTestCase(PostClinicalDataFileTestCase):
                                             'swissprot_identifier': 'name'})
         # we expect 3 WARNINGs :
         self.assertEqual(len(record_list), 3)
-        
+
         # WARNINGs should be something like: "cbp_driver_tiers contains more than 10 different values"
         self.assertIn("cbp_driver_tiers contains more than 10 different tiers.", record_list[0].getMessage().lower())
         self.assertEqual(record_list[0].levelno, logging.WARNING)
@@ -2724,7 +2703,6 @@ class ResourceWiseTestCase(PostClinicalDataFileTestCase):
 # -------------------------- end resource definition wise test ----------------------------
 
 # --------------------------- generic assay test ------------------------------
-
 class GenericAssayWiseTestCase(PostClinicalDataFileTestCase):
     def test_generic_assay_missing_entity_id_column(self):
         self.logger.setLevel(logging.ERROR)
@@ -2813,8 +2791,59 @@ class GenericAssayBinaryTestCase(PostClinicalDataFileTestCase):
         record = record_list.pop()
         self.assertEqual(record.levelno, logging.ERROR)
         self.assertIn(record.cause, 'NOT_DEFINED')
-
 # -------------------------- end generic assay test ----------------------------
+
+class CNADiscretePDAAnnotationsValidatorTestCase(PostClinicalDataFileTestCase):
+
+    def test_required_gene_columns(self):
+
+        self.logger.setLevel(logging.ERROR)
+        record_list = self.validate('data_pd_annotation_missing_col_gene_ids.txt',
+                                    validateData.CNADiscretePDAAnnotationsValidator)
+
+        self.assertEqual(len(record_list), 2)
+        record = record_list[0]
+        self.assertEqual(record.levelno, logging.ERROR)
+        self.assertIn('Hugo_Symbol or Entrez_Gene_Id column needs to be present in the file.', record.getMessage())
+
+    def test_required_sample_columns(self):
+
+        self.logger.setLevel(logging.ERROR)
+        record_list = self.validate('data_pd_annotation_missing_col_sampleid.txt',
+                                    validateData.CNADiscretePDAAnnotationsValidator)
+
+        self.assertEqual(len(record_list), 2)
+        record = record_list[0]
+        self.assertEqual(record.levelno, logging.ERROR)
+        self.assertIn('Missing column: SAMPLE_ID', record.getMessage())
+
+    def test_required_driver_columns(self):
+
+        self.logger.setLevel(logging.ERROR)
+        record_list = self.validate('data_pd_annotation_missing_col_driver.txt',
+                                    validateData.CNADiscretePDAAnnotationsValidator)
+
+        self.assertEqual(len(record_list), 2)
+        record = record_list[0]
+        self.assertEqual(record.levelno, logging.ERROR)
+        self.assertIn('Column cbp_driver_annotation found without any cbp_driver column.', record.getMessage())
+
+    def test_required_field_permutations(self):
+
+        self.logger.setLevel(logging.ERROR)
+        record_list = self.validate('data_pd_annotation_missing_fields.txt',
+                                    validateData.CNADiscretePDAAnnotationsValidator)
+
+        self.assertEqual(len(record_list), 3)
+        record = record_list[0]
+        self.assertIn('Only "Putative_Passenger", "Putative_Driver", "NA", "Unknown" and "" (empty) are allowed.', record.getMessage())
+        self.assertEqual(record.levelno, logging.ERROR)
+        record = record_list[1]
+        self.assertEqual(record.levelno, logging.ERROR)
+        self.assertIn('No Entrez gene id or gene symbol provided for gene.', record.getMessage())
+        record = record_list[2]
+        self.assertEqual(record.levelno, logging.ERROR)
+        self.assertIn('This line has no value for cbp_driver_tiers and a value for cbp_driver_tiers_annotation. Please, fill the cbp_driver_tiers column.', record.getMessage())
 
 if __name__ == '__main__':
     unittest.main(buffer=True)

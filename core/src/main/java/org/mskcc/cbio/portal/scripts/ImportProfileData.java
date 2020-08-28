@@ -111,6 +111,10 @@ public class ImportProfileData extends ConsoleRunnable {
                 genericAssayProfileImporter.importData(numLines);
             } else {
                 ImportTabDelimData importer = new ImportTabDelimData(dataFile, geneticProfile.getTargetLine(), geneticProfile.getGeneticProfileId(), genePanel);
+                String pdAnnotationsFilename = geneticProfile.getOtherMetaDataField("pd_annotations_filename");
+                if (pdAnnotationsFilename != null && !"".equals(pdAnnotationsFilename)) {
+                    importer.setPdAnnotationsFile(new File(dataFile.getParent(), pdAnnotationsFilename));
+                }
                 importer.importData(numLines);
             }
        }

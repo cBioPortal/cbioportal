@@ -47,20 +47,15 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 public class TypeOfCancer implements Serializable {
 
     private String name;
-    @JsonProperty("id")
-    // to preserve json output in DumpPortalInfo.java after migrating from ApiService
+    @JsonProperty("cancerTypeId")
     private String typeOfCancerId;
     @JsonIgnore
-    // to preserve json output in DumpPortalInfo.java after migrating from ApiService
     private String clinicalTrialKeywords = ""; // Separated by commas
-    @JsonProperty("color")
-    // to preserve json output in DumpPortalInfo.java after migrating from ApiService
+    @JsonProperty("dedicatedColor")
     private String dedicatedColor = "white";
     @JsonIgnore
-    // to preserve json output in DumpPortalInfo.java after migrating from ApiService
     private String shortName = "";
     @JsonIgnore
-    // to preserve json output in DumpPortalInfo.java after migrating from ApiService
     private String parentTypeOfCancerId;
 
     public String getName() {

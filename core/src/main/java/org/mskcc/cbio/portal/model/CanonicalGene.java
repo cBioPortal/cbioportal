@@ -48,10 +48,10 @@ public class CanonicalGene extends Gene implements Serializable {
     public static final String MIRNA_TYPE = "miRNA";
     public static final String PHOSPHOPROTEIN_TYPE = "phosphoprotein";
     private int geneticEntityId;
-    @JsonProperty("entrez_gene_id")
+    @JsonProperty("entrezGeneId")
     // to preserve json output in DumpPortalInfo.java after migrating from ApiService
     private long entrezGeneId;
-    @JsonProperty("hugo_gene_symbol")
+    @JsonProperty("hugoGeneSymbol")
     // to preserve json output in DumpPortalInfo.java after migrating from ApiService
     private String hugoGeneSymbol;
     private Set<String> aliases;

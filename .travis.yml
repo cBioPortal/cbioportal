@@ -14,6 +14,7 @@ env:
   matrix:
   - MAVEN_VERSION=3.5.4 TEST=core
   - MAVEN_VERSION=3.5.4 TEST=python-validator
+  - MAVEN_VERSION=3.5.4 TEST=python-oncokb-importer
   - MAVEN_VERSION=3.5.4 TEST=sanity-checks
   - MAVEN_VERSION=3.5.4 TEST=end-to-end
   - MAVEN_VERSION=3.5.4 TEST=integration-test-load-study
@@ -49,6 +50,16 @@ script:
         python unit_tests_validate_data.py &&
         python system_tests_validate_data.py &&
         python system_tests_validate_studies.py'
+  fi
+- |
+  if [[ "${TEST}" == python-oncokb-importer ]]
+  then
+      docker run -v ${PWD}:/cbioportal python:3.4 /bin/sh -c '
+        cd /cbioportal &&
+        pip install -r requirements.txt &&
+        export PYTHONPATH=/cbioportal/core/src/main/scripts &&
+        /cbioportal/core/src/test/scripts &&
+        ./integration_test_oncokb_import.sh'
   fi
 - |
   if [[ "${TEST}" == sanity-checks ]]

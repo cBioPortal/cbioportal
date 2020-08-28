@@ -71,6 +71,7 @@ We also maintain an active [list of RFCs (Requests for Comments)](RFC-List.md) w
    * [Importing Gene Sets for Gene Set Scoring Data](Import-Gene-Sets.md)
    * [Importing Gene Panels](Import-Gene-Panels.md)
    * [Study View Customization with Priority Data](Study-View.md)
+   * [Importing of OncoKB annotations as custom driver annotations](Import-OncoKB-annotations-as-Custom-Driver-Annotations.md)
 
 ### 5.2 Datasets
 * [Downloads](Downloads.md)

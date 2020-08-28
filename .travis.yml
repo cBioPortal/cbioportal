@@ -40,7 +40,7 @@ script:
 - |
   if [[ "${TEST}" == python-validator ]]
   then
-      docker run -v ${PWD}:/cbioportal python:3.4 /bin/sh -c '
+      docker run -v ${PWD}:/cbioportal python:3.6 /bin/sh -c '
         cd /cbioportal &&
         pip install -r requirements.txt &&
         export PYTHONPATH=/cbioportal/core/src/main/scripts &&

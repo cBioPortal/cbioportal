@@ -804,7 +804,7 @@ class Validator(object):
         # try to use the portal maps to resolve to a single Entrez gene id
         identified_entrez_id = None
         if entrez_id is not None:
-            if entrez_id in self.portal.entrez_set:
+            if entrez_as_int in self.portal.entrez_set:
                 # set the value to be returned
                 identified_entrez_id = entrez_id
                 # some warnings if the gene symbol is specified too
@@ -818,7 +818,7 @@ class Validator(object):
                             'wrong mapping, new or deprecated gene symbol.',
                             extra={'line_number': self.line_number,
                                    'cause': gene_symbol})
-                    elif entrez_id not in itertools.chain(
+                    elif entrez_as_int not in itertools.chain(
                             self.portal.hugo_entrez_map.get(gene_symbol, []),
                             self.portal.alias_entrez_map.get(gene_symbol, [])):
                         self.logger.warning(
@@ -846,7 +846,7 @@ class Validator(object):
             if num_entrezs_for_hugo == 1:
                 # set the value to be returned
                 identified_entrez_id = \
-                    self.portal.hugo_entrez_map[gene_symbol][0]
+                    str(self.portal.hugo_entrez_map[gene_symbol][0])
                 # check if there are other *different* Entrez gene ids associated
                 # with this gene symbol
                 other_entrez_ids_in_aliases = [
@@ -875,7 +875,7 @@ class Validator(object):
             elif num_entrezs_for_alias == 1:
                 # set the value to be returned
                 identified_entrez_id = \
-                    self.portal.alias_entrez_map[gene_symbol][0]
+                    str(self.portal.alias_entrez_map[gene_symbol][0])
             # no canonical symbol, and multiple different aliases
             elif num_entrezs_for_alias > 1:
                 # Loader deals with this, so give warning
@@ -4765,7 +4765,7 @@ def validateStudyTags(tags_file_path, logger):
             extra={'filename_': tags_file_path})
         with open(tags_file_path, 'r') as stream:
             try:
-                parsedYaml = yaml.load(stream)
+                parsedYaml = yaml.load(stream, Loader=yaml.FullLoader)
                 logger.info('Validation of study tags file complete.',
                 extra={'filename_': tags_file_path})
             except yaml.YAMLError as exc:
@@ -4858,8 +4858,10 @@ def validate_data_relations(validators_by_meta_type, logger):
 def request_from_portal_api(server_url, api_name, logger):
     """Send a request to the portal API and return the decoded JSON object."""
 
+    print(api_name)
+
     if api_name in ['info', 'cancer-types', 'genes', 'genesets', 'gene-panels']:
-        service_url = server_url + '/api/' + api_name + "?pageSize=9999999"
+        service_url = server_url + '/api/' + api_name
     elif api_name in ['genesets_version']:
         service_url = server_url + '/api/genesets/version'
 
@@ -4881,7 +4883,7 @@ def request_from_portal_api(server_url, api_name, logger):
         for data_item in response.json():
             panel = {}
             gene_panel_id = data_item['genePanelId']
-            gene_panel_url = service_url.strip("?pageSize=9999999")+'/'+gene_panel_id+"?pageSize=9999999"
+            gene_panel_url = service_url+'/'+gene_panel_id
             response = requests.get(gene_panel_url).json()
             panel['description'] = response['description']
             panel['genes'] = response['genes']
@@ -4936,8 +4938,8 @@ def index_api_data(parsed_json, id_field):
 
 
 def transform_symbol_entrez_map(json_data,
-                                id_field='hugo_gene_symbol',
-                                values_field='entrez_gene_id'):
+                                id_field='hugoGeneSymbol',
+                                values_field='entrezGeneId'):
     """Transform a list of homogeneous dicts into a dict of lists.
 
     Using the values of the `id_field` entries as the keys, mapping to lists
@@ -4960,7 +4962,7 @@ def transform_symbol_entrez_map(json_data,
         if symbol not in result_dict:
             result_dict[symbol] = []
         result_dict[symbol].append(
-                data_item['entrezGeneId'])
+                data_item[values_field])
     return result_dict
 
 

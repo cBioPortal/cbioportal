@@ -22,12 +22,21 @@
  */
 package org.mskcc.cbio.portal.scripts;
 
-import java.io.*;
-import java.util.*;
-import org.mskcc.cbio.maf.*;
+import org.mskcc.cbio.maf.TabDelimitedFileUtil;
 import org.mskcc.cbio.portal.dao.*;
-import org.mskcc.cbio.portal.model.*;
+import org.mskcc.cbio.portal.model.CanonicalGene;
+import org.mskcc.cbio.portal.model.GeneticProfile;
+import org.mskcc.cbio.portal.model.Sample;
+import org.mskcc.cbio.portal.model.StructuralVariant;
 import org.mskcc.cbio.portal.util.*;
+
+import java.io.BufferedReader;
+import java.io.File;
+import java.io.FileReader;
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.Set;
 
 /**
  * Imports a structural variant file.
@@ -60,6 +69,7 @@ public class ImportStructuralVariantData {
         // Genetic profile is read in first
         GeneticProfile geneticProfile = DaoGeneticProfile.getGeneticProfileById(geneticProfileId);
         ArrayList <Integer> orderedSampleList = new ArrayList<Integer>();
+        long id = DaoStructuralVariant.getLargestInternalId();
         while ((line = buf.readLine()) != null) {
             ProgressMonitor.incrementCurValue();
             ConsoleUtil.showProgress();
@@ -67,6 +77,7 @@ public class ImportStructuralVariantData {
                 recordCount++;
                 String parts[] = line.split("\t", -1);
                 StructuralVariant structuralVariant = structuralVariantUtil.parseStructuralVariantRecord(parts);
+                structuralVariant.setInternalId(++id);
                 structuralVariant.setGeneticProfileId(geneticProfileId);
                 if (!structuralVariantUtil.hasRequiredStructuralVariantFields(structuralVariant)) {
                     ProgressMonitor.logWarning("Invalid Site 1 or 2 Ensembl transcript ID or exon found, ignoring structural variant for SV record #" +

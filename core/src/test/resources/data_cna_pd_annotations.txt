@@ -1,0 +1,3 @@
+SAMPLE_ID	Entrez_Gene_Id	cbp_driver	cbp_driver_annotation	cbp_driver_tiers	cbp_driver_tiers_annotation
+TCGA-02-0001-01	999999672	Putative_Passenger	Test passenger	Class 2	Class 2 annotation
+TCGA-02-0003-01	999999675	Putative_Driver	Test driver	Class 1	Class 1 annotation

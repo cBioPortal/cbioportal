@@ -11,6 +11,7 @@ import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 public class VirtualStudyData implements Serializable {
 
     private String name;
+    private String color;
     private String description;
     private Set<VirtualStudySamples> studies;
     private StudyViewFilter studyViewFilter;
@@ -63,6 +64,14 @@ public class VirtualStudyData implements Serializable {
 
     public void setName(String name) {
         this.name = name;
+    }
+
+    public String getColor() {
+        return color;
+    }
+
+    public void setColor(String color) {
+        this.color = color;
     }
 
     public String getDescription() {

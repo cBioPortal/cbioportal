@@ -16,6 +16,7 @@ import org.apache.commons.codec.binary.Base64;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.cbioportal.web.parameter.CustomDataSession;
 import org.cbioportal.web.parameter.PageSettings;
 import org.cbioportal.web.parameter.PageSettingsData;
 import org.cbioportal.web.parameter.PageSettingsIdentifier;
@@ -162,6 +163,17 @@ public class SessionServiceController {
                 studyPageSettings.setOwner(userName());
                 httpEntity = new HttpEntity<StudyPageSettings>(studyPageSettings, getHttpHeaders());
 
+            } else if(type.equals(SessionType.custom_data)) {
+                // JSON from file to Object
+                CustomAttributeWithData customData = mapper.readValue(body.toString(), CustomAttributeWithData.class);
+
+                if (isAuthorized()) {
+                    customData.setOwner(userName());
+                    customData.setUsers(Collections.singleton(userName()));
+                }
+
+                // use basic authentication for session service if set
+                httpEntity = new HttpEntity<CustomAttributeWithData>(customData, getHttpHeaders());
             } else {
                 httpEntity = new HttpEntity<JSONObject>(body, getHttpHeaders());
             }
@@ -202,6 +214,8 @@ public class SessionServiceController {
                 session = mapper.readValue(responseEntity.getBody(), VirtualStudy.class);
             } else if (type.equals(SessionType.settings)) {
                 session = mapper.readValue(responseEntity.getBody(), PageSettings.class);
+            } else if (type.equals(SessionType.custom_data)) {
+                session = mapper.readValue(responseEntity.getBody(), CustomDataSession.class);
             } else {
                 session = mapper.readValue(responseEntity.getBody(), Session.class);
             }
@@ -454,6 +468,43 @@ public class SessionServiceController {
             return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
         }
     }
+
+    @RequestMapping(value = "/custom_data/fetch", method = RequestMethod.POST)
+    public ResponseEntity<List<CustomDataSession>> fetchCustomProperties(
+            @Size(min = 1, max = PagingConstants.MAX_PAGE_SIZE) @RequestBody List<String> studyIds,
+            HttpServletResponse response) throws IOException {
+
+        if (isSessionServiceEnabled() && isAuthorized()) {
+
+            String username = userName();
+            Map<String, Object> map = new HashMap<>();
+            map.put("data.owner", username);
+            map.put("data.origin", studyIds);
+
+            ObjectMapper mapper = new ObjectMapper();
+
+            // ignore origin studies order
+            // add $size to make sure origin studies is not a subset
+            String query = "{ $and: [{ \"data.users\": \"" + username + "\" }, { \"data.origin\": { $all: "
+                    + mapper.writeValueAsString(studyIds) + " } }, { \"data.origin\": { $size: " + studyIds.size()
+                    + " } } ]}";
+
+            RestTemplate restTemplate = new RestTemplate();
+
+            HttpEntity<String> httpEntity = new HttpEntity<String>(query, getHttpHeaders());
+
+            ResponseEntity<List<CustomDataSession>> responseEntity = restTemplate.exchange(
+                    sessionServiceURL + SessionType.custom_data + "/query/fetch",
+                    HttpMethod.POST,
+                    httpEntity,
+                    new ParameterizedTypeReference<List<CustomDataSession>>() {});
+
+            return new ResponseEntity<>(responseEntity.getBody(), HttpStatus.OK);
+
+        }
+        return new ResponseEntity<>(HttpStatus.SERVICE_UNAVAILABLE);
+    }
+
 }
 
 enum Operation {

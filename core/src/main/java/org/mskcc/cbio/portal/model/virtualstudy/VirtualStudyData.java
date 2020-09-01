@@ -9,6 +9,8 @@ public class VirtualStudyData {
 
 	private String name;
 
+	private String color;
+
 	private String description;
 
 	private Set<VirtualStudySamples> studies;
@@ -31,6 +33,14 @@ public class VirtualStudyData {
 
 	public void setName(String name) {
 		this.name = name;
+	}
+
+	public String getColor() {
+		return color;
+	}
+
+	public void setColor(String color) {
+		this.color = color;
 	}
 
 	public String getDescription() {

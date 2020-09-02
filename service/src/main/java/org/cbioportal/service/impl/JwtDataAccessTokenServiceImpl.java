@@ -61,11 +61,6 @@ public class JwtDataAccessTokenServiceImpl implements DataAccessTokenService {
     }
 
     @Override
-    public DataAccessToken createDataAccessToken(String username, boolean allowRevocationOfOtherTokens) {
-        return jwtUtils.createToken(username);
-    }
-
-    @Override
     public List<DataAccessToken> getAllDataAccessTokens(String username) {
         throw new UnsupportedOperationException("this implementation of (pure) JWT Data Access Tokens does not allow retrieval of stored tokens");
     }

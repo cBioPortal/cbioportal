@@ -53,11 +53,6 @@ public class UnauthDataAccessTokenServiceImpl implements DataAccessTokenService 
     }
 
     @Override
-    public DataAccessToken createDataAccessToken(String username, boolean allowRevocationOfOtherTokens) {
-        throw new AccessDeniedException("Data Access Tokens are not supported for unauthenticated portals.");
-    }
-
-    @Override
     public List<DataAccessToken> getAllDataAccessTokens(String username) {
         throw new AccessDeniedException("Data Access Tokens are not supported for unauthenticated portals.");
     }

@@ -57,14 +57,9 @@ The following properties must be present in portal.properties in order to allow 
 - **Default Value**: none
 
 **Property**: dat.uuid.max_number_per_user (required only when dat.method = uuid)
-- **Description**: This property determines the number of data access tokens that can be allocated to a single user at any given time.  If a user requests a data access token that puts them over this limit, then based on the value of dat.uuid.revoke_other_tokens (see below), the cBioPortal will either refuse to present a new token to the user or it may invalidate the oldest one before presenting the new one to the user.  This property is used only when dat.method = uuid.
+- **Description**: This property determines the number of data access tokens that can be allocated to a single user at any given time.  If a user requests a data access token that puts them over this limit, the cBioPortal will present a new token to the user and it may invalidate the oldest one before presenting the new one to the user.  This property is used only when dat.method = uuid.
 - **Permissible Values**: An integer value greater than zero.
 - **Default Value**: 1
-
-**Property**: dat.uuid.revoke_other_tokens (required only when dat.method = uuid)
-- **Description**: If true, Indicates that the oldest token should be invalidated when a user requests a new data access token that puts them over the dat.uuid.max_number_per_user limit.  If false, new token requests which put a user over the data.uuid.max_number_per_user limit will not be satisfied until an existing token has expired.  This property is used only when dat.method = uuid.
-- **Permissible Values**: true or false
-- **Default Value**: true
 
 **Property**: dat.oauth2.clientId (required only when dat.method = oauth2)
 - **Description**: Identifier of the OAuth2 client of the authentication provider.

@@ -75,7 +75,6 @@ import org.cbioportal.service.impl.UuidDataAccessTokenServiceImpl;
 @TestPropertySource(
     properties = { "dat.jwt.secret_key = +NbopXzb/AIQNrVEGzxzP5CF42e5drvrXTQot3gfW/s=",
                     "dat.uuid.max_number_per_user = 5",
-                    "dat.uuid.revoke_other_tokens = true",
                     "dat.ttl_seconds = 2"
     },
     inheritLocations = false
@@ -101,7 +100,7 @@ public class UuidDataAccessTokenServiceImplTestFiveTokenLimit {
      */
     @Test(expected = MaxNumberTokensExceededException.class)
     public void testNonAutoExpireCreateTokenWhenLimitReached() {
-        DataAccessToken newDataAccessToken = uuidDataAccessTokenServiceImpl.createDataAccessToken(UuidDataAccessTokenServiceImplTestConfiguration.MOCK_USERNAME_WITH_FIVE_TOKENS, false);
+        DataAccessToken newDataAccessToken = uuidDataAccessTokenServiceImpl.createDataAccessToken(UuidDataAccessTokenServiceImplTestConfiguration.MOCK_USERNAME_WITH_FIVE_TOKENS);
     }
 
     /* Test for creating a token when autoexpire is on
@@ -113,7 +112,7 @@ public class UuidDataAccessTokenServiceImplTestFiveTokenLimit {
         uuidDataAccessTokenServiceImplTestConfiguration.resetAddedDataAccessToken();
         uuidDataAccessTokenServiceImplTestConfiguration.resetDeletedDataAccessToken();
         // Testing for service with limit 5 tokens
-        DataAccessToken newDataAccessToken = uuidDataAccessTokenServiceImpl.createDataAccessToken(UuidDataAccessTokenServiceImplTestConfiguration.MOCK_USERNAME_WITH_FIVE_TOKENS, true);
+        DataAccessToken newDataAccessToken = uuidDataAccessTokenServiceImpl.createDataAccessToken(UuidDataAccessTokenServiceImplTestConfiguration.MOCK_USERNAME_WITH_FIVE_TOKENS);
         Date expectedExpirationDate = getExpectedExpirationDate();
         String deletedDataAccessToken = uuidDataAccessTokenServiceImplTestConfiguration.getDeletedDataAccessToken();
         DataAccessToken createdDataAccessToken = uuidDataAccessTokenServiceImplTestConfiguration.getAddedDataAccessToken();

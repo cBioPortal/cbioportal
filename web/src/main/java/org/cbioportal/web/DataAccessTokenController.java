@@ -66,7 +66,7 @@ public class DataAccessTokenController {
     @RequestMapping(method = RequestMethod.POST, value = "/data-access-tokens", produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<DataAccessToken> createDataAccessToken(Authentication authentication) throws HttpClientErrorException {
         String userName = getAuthenticatedUser(authentication);
-        DataAccessToken token = createDataAccessToken(userName);
+        DataAccessToken token = tokenService.createDataAccessToken(userName);
         if (token == null) {
             return new ResponseEntity<>(token, HttpStatus.NOT_FOUND);
         }
@@ -106,7 +106,7 @@ public class DataAccessTokenController {
         // for other methods add header to trigger download of the token by the browser
         response.setHeader("Content-Disposition", "attachment; filename=" + fileName);
         String userName = getAuthenticatedUser(authentication);
-        DataAccessToken token = createDataAccessToken(userName);
+        DataAccessToken token = tokenService.createDataAccessToken(userName);
         if (token == null) {
             return new ResponseEntity<>(null, HttpStatus.NOT_FOUND);
         }
@@ -124,10 +124,4 @@ public class DataAccessTokenController {
         }
         return username;
     }
-
-    private DataAccessToken createDataAccessToken(String userName) {
-        DataAccessToken token = tokenService.createDataAccessToken(userName);
-        return token;
-    }
-
 }

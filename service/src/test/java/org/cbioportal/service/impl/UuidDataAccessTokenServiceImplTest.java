@@ -70,7 +70,6 @@ import org.cbioportal.persistence.DataAccessTokenRepository;
 import org.cbioportal.service.exception.InvalidDataAccessTokenException;
 import org.cbioportal.model.DataAccessToken;
 import org.cbioportal.service.impl.UuidDataAccessTokenServiceImpl;
-import org.cbioportal.service.exception.MaxNumberTokensExceededException;
 
 @TestPropertySource(
     properties = { "dat.jwt.secret_key = +NbopXzb/AIQNrVEGzxzP5CF42e5drvrXTQot3gfW/s=",
@@ -95,13 +94,6 @@ public class UuidDataAccessTokenServiceImplTest {
 
     @Value("${dat.ttl_seconds}")
     private int datTtlSeconds;
-
-    /* Test for checking exception thrown when token limit reached
-     */
-    @Test(expected = MaxNumberTokensExceededException.class)
-    public void testNonAutoExpireCreateTokenWhenLimitReached() {
-        DataAccessToken newDataAccessToken = uuidDataAccessTokenServiceImpl.createDataAccessToken(UuidDataAccessTokenServiceImplTestConfiguration.MOCK_USERNAME_WITH_ONE_TOKEN);
-    }
 
     /* Test for creating a token when autoexpire is on
      * tests that new token is created/MaxNumberTokensExcceededException is not thrown

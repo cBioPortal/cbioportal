@@ -69,7 +69,6 @@ import org.mockito.Mockito;
 import org.mockito.junit.MockitoJUnitRunner;
 import org.cbioportal.model.DataAccessToken;
 import org.cbioportal.persistence.DataAccessTokenRepository;
-import org.cbioportal.service.exception.MaxNumberTokensExceededException;
 import org.cbioportal.service.impl.UuidDataAccessTokenServiceImpl;
 
 @TestPropertySource(
@@ -96,13 +95,6 @@ public class UuidDataAccessTokenServiceImplTestFiveTokenLimit {
     @Value("${dat.ttl_seconds}") 
     private int datTtlSeconds;
     
-    /* Test for checking exception thrown when token limit reached
-     */
-    @Test(expected = MaxNumberTokensExceededException.class)
-    public void testNonAutoExpireCreateTokenWhenLimitReached() {
-        DataAccessToken newDataAccessToken = uuidDataAccessTokenServiceImpl.createDataAccessToken(UuidDataAccessTokenServiceImplTestConfiguration.MOCK_USERNAME_WITH_FIVE_TOKENS);
-    }
-
     /* Test for creating a token when autoexpire is on
      * tests that new token is created/MaxNumberTokensExcceededException is not thrown
      * deletedToken should be the oldest token

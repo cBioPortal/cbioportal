@@ -58,16 +58,22 @@ public class GenericAssayServiceImpl implements GenericAssayService {
                 List<String> stableIdsInMolecularProfiles = genericAssayRepository.getGenericAssayStableIdsByMolecularIds(distinctMolecularProfileIds);
                 allStableIds.addAll(stableIdsInMolecularProfiles);
             }
-        } 
-        if (stableIds != null) {
-			Map<String, String> allStableIdMap = allStableIds
-					.stream()
-					.collect(Collectors.toMap(stableId -> stableId, stableId -> stableId));
+            // if stableIds and molecularProfileIds both exist, find the common
+            if (stableIds != null) {
+                Map<String, String> allStableIdMap = allStableIds
+                        .stream()
+                        .collect(Collectors.toMap(stableId -> stableId, stableId -> stableId));
 
-			allStableIds = stableIds
-					.stream()
-					.filter(stableId -> allStableIdMap.containsKey(stableId))
-					.collect(Collectors.toSet());
+                allStableIds = stableIds
+                        .stream()
+                        .filter(stableId -> allStableIdMap.containsKey(stableId))
+                        .collect(Collectors.toSet());
+            }
+        } else {
+            // add all stableIds since molecularProfileIds is null
+            if (stableIds != null) {
+                allStableIds.addAll(stableIds);
+            }
         }
         List<String> distinctStableIds = new ArrayList<String>(allStableIds);
         List<GenericAssayMeta> metaResults = new ArrayList<GenericAssayMeta>();

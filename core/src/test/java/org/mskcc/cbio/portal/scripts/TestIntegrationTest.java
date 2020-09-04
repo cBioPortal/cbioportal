@@ -162,9 +162,10 @@ public class TestIntegrationTest {
 
             // ===== Check MUTATION data ========
             List<ExtendedMutation> mutations = DaoMutation.getAllMutations();
-            //there are 36 records in the mutation file and there are 5 extra records added from fusion
-            // so we expect 41 records in DB:
-            assertEquals(41, mutations.size());
+            // check number of mutation records in the database
+            // 3 in seed_mini.sql + 33 study_es_0/data_mutations_extended.maf (2 silent ignored) + 5 study_es_0/data_fusions.txt) 
+            // so we expect 39 records in DB:
+            assertEquals(39, mutations.size());
 
             // ===== Check FUSION data ========
             // Are there 3 fusion entries in mutation profile? true
@@ -295,7 +296,7 @@ public class TestIntegrationTest {
             // ===== check gistic data
             // servlet uses this query:
             ArrayList<Gistic> gistics = DaoGistic.getAllGisticByCancerStudyId(cancerStudy.getInternalId());
-            assertEquals(14, gistics.size());
+            assertEquals(12, gistics.size());
             Gistic gisticChr10 = null, gisticChr20 = null;
             for (Gistic gistic : gistics) {
                 if (gistic.getChromosome() == 20) {

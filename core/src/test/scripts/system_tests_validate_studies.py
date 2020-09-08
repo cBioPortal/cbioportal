@@ -79,6 +79,7 @@ class ValidateStudiesSystemTester(unittest.TestCase):
         exit_status = validateStudies.main(args)
         self.assertEqual(1, exit_status)
 
+    @unittest.skip("Study test_data/study_es_invalid is not implemented")
     def test_exit_status_invalid(self):
         """test to fail: study directory not existing, so cannot run validation, expected exit_status = 1."""
 

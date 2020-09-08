@@ -44,7 +44,7 @@ public class DumpPortalInfo extends ConsoleRunnable {
 
     // these names are defined in annotations to the methods of ApiController,
     // in org.mskcc.cbio.portal.web
-    private static final String API_CANCER_TYPES = "/cancertypes";
+    private static final String API_CANCER_TYPES = "/cancer-types";
     private static final String API_GENES = "/genes";
     private static final String API_GENE_ALIASES = "/genesaliases";
     private static final String API_GENESETS = "/genesets";
@@ -155,7 +155,7 @@ public class DumpPortalInfo extends ConsoleRunnable {
                     Arrays.asList(genesetService.getGenesetVersion()),
                     nameJsonFile(outputDir, API_GENESET_VERSION));
                 writeJsonFile(
-                    genePanelService.getAllGenePanels("SUMMARY", MAX_PAGE_SIZE, MIN_PAGE_NUMBER, null, "ASC"),
+                    genePanelService.getAllGenePanels("DETAILED", MAX_PAGE_SIZE, MIN_PAGE_NUMBER, null, "ASC"),
                     nameJsonFile(outputDir, API_GENE_PANELS));
             } catch (DaoException e) {
                 throw new RuntimeException(e);

@@ -53,6 +53,7 @@
             "mdacc.heatmap.study.url",
             "show.mdacc.heatmap",
             "oncoprint.custom_driver_annotation.tiers.menu_label",
+            "patient_view.use_legacy_timeline",
             "priority_studies",
             "show.hotspot",
             "show.oncokb",

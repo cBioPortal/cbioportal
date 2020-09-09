@@ -2,6 +2,8 @@ package org.cbioportal.web.util;
 
 import java.math.BigDecimal;
 import java.util.*;
+import java.util.stream.Collectors;
+
 import org.cbioportal.model.*;
 import org.cbioportal.model.MolecularProfile.MolecularAlterationType;
 import org.cbioportal.service.*;
@@ -79,14 +81,97 @@ public class StudyViewFilterApplierTest {
     @Spy
     @InjectMocks
     private DataBinHelper dataBinHelper;
+    @Mock
+    private StudyViewCNAFilterApplier cnaFilterApplier;
 
     @Before
     public void setup() {
         MockitoAnnotations.initMocks(this);
     }
 
+    private SampleIdentifier sampleIdentifier(String studyId, String sampleId){
+        SampleIdentifier sampleIdentifier = new SampleIdentifier();
+        sampleIdentifier.setSampleId(sampleId);
+        sampleIdentifier.setStudyId(studyId);
+        return sampleIdentifier;
+    }
+
+    private Sample toSample(SampleIdentifier sampleIdentifier) {
+        Sample sample = new Sample();
+        sample.setStableId(sampleIdentifier.getSampleId());
+        sample.setCancerStudyIdentifier(sampleIdentifier.getStudyId());
+        return sample;
+    }
+    
     @Test
-    public void apply() throws Exception {
+    public void testApplyCNAFiltersAllFalse() {
+        List<SampleIdentifier> sampleIdentifiers = Arrays.asList(
+            sampleIdentifier(STUDY_ID, SAMPLE_ID1),
+            sampleIdentifier(STUDY_ID, SAMPLE_ID2),
+            sampleIdentifier(STUDY_ID, SAMPLE_ID3)
+        );
+
+        List<String> sampleIds = sampleIdentifiers.stream()
+            .map(SampleIdentifier::getSampleId)
+            .collect(Collectors.toList());
+        List<String> studyIds = sampleIdentifiers.stream()
+            .map(SampleIdentifier::getStudyId)
+            .collect(Collectors.toList());
+        List<Sample> samples = sampleIdentifiers.stream()
+            .map(this::toSample)
+            .collect(Collectors.toList());
+        List<CNAFilter> cnaFilters = new ArrayList<>();
+
+        Mockito
+            .when(sampleService.fetchSamples(studyIds, sampleIds, Projection.ID.name()))
+            .thenReturn(new ArrayList<>());
+        Mockito.when(cnaFilterApplier.applyFilters(sampleIdentifiers, cnaFilters)).thenReturn(sampleIdentifiers);
+
+        StudyViewFilter studyViewFilter = new StudyViewFilter();
+        studyViewFilter.setSampleIdentifiers(sampleIdentifiers);
+        studyViewFilter.setCnaFilters(cnaFilters); // needs to be not null for filter to be applied
+        ArrayList<Object> expected = new ArrayList<>();
+        
+        List<SampleIdentifier> actual = studyViewFilterApplier.apply(studyViewFilter);
+
+        Assert.assertEquals(expected, actual);
+    }
+
+    @Test
+    public void testApplyCNAFiltersAllTrue() {
+        List<SampleIdentifier> sampleIdentifiers = Arrays.asList(
+            sampleIdentifier(STUDY_ID, SAMPLE_ID1),
+            sampleIdentifier(STUDY_ID, SAMPLE_ID2),
+            sampleIdentifier(STUDY_ID, SAMPLE_ID3)
+        );
+
+        List<String> sampleIds = sampleIdentifiers.stream()
+            .map(SampleIdentifier::getSampleId)
+            .collect(Collectors.toList());
+        List<String> studyIds = sampleIdentifiers.stream()
+            .map(SampleIdentifier::getStudyId)
+            .collect(Collectors.toList());
+        List<Sample> samples = sampleIdentifiers.stream()
+            .map(this::toSample)
+            .collect(Collectors.toList());
+        List<CNAFilter> cnaFilters = new ArrayList<>();
+
+
+        Mockito.when(sampleService.fetchSamples(studyIds, sampleIds, Projection.ID.name())).thenReturn(samples);
+        Mockito.when(cnaFilterApplier.applyFilters(sampleIdentifiers, cnaFilters)).thenReturn(sampleIdentifiers);
+
+        StudyViewFilter studyViewFilter = new StudyViewFilter();
+        studyViewFilter.setSampleIdentifiers(sampleIdentifiers);
+        studyViewFilter.setCnaFilters(cnaFilters); // needs to be not null for filter to be applied
+
+        List<SampleIdentifier> actual = studyViewFilterApplier.apply(studyViewFilter);
+        
+        // expectation: nothing is filtered
+        Assert.assertEquals(sampleIdentifiers, actual);
+    }
+
+    @Test
+    public void apply() {
 
         List<String> studyIds = new ArrayList<>();
         studyIds.add(STUDY_ID);

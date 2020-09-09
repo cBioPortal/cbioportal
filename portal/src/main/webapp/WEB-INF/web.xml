@@ -611,14 +611,6 @@
         <servlet-name>SciSignalReprintJSP</servlet-name>
         <url-pattern>/sci_signal_reprint.jsp</url-pattern>
     </servlet-mapping>
-    <servlet>
-        <servlet-name>TrackingIncludeJSP</servlet-name>
-        <jsp-file>/tracking_include.jsp</jsp-file>
-    </servlet>
-    <servlet-mapping>
-        <servlet-name>TrackingIncludeJSP</servlet-name>
-        <url-pattern>/tracking_include.jsp</url-pattern>
-    </servlet-mapping>
 
     <servlet>
         <servlet-name>SinglePageApplication</servlet-name>

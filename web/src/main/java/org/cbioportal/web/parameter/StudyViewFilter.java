@@ -28,6 +28,7 @@ public class StudyViewFilter implements Serializable {
     private List<GenomicDataFilter> genomicDataFilters;
     private List<GenericAssayDataFilter> genericAssayDataFilters;
     private List<List<String>> caseLists;
+    private List<CNAFilter> cnaFilters;
 
     @AssertTrue
     private boolean isEitherSampleIdentifiersOrStudyIdsPresent() {
@@ -151,6 +152,14 @@ public class StudyViewFilter implements Serializable {
 
     public void setCaseLists(List<List<String>> caseLists) {
         this.caseLists = caseLists;
+    }
+
+    public List<CNAFilter> getCnaFilters() {
+        return cnaFilters;
+    }
+
+    public void setCnaFilters(List<CNAFilter> cnaFilters) {
+        this.cnaFilters = cnaFilters;
     }
 
 	public List<GenericAssayDataFilter> getGenericAssayDataFilters() {

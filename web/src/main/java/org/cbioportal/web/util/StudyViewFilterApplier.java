@@ -49,12 +49,14 @@ public class StudyViewFilterApplier {
     private GenericAssayService genericAssayService;
     @Autowired
     private DataBinner dataBinner;
-    @Autowired
-    private PatientTreatmentFilterApplier patientTreatmentFilterApplier;
     
     @Autowired
+    private PatientTreatmentFilterApplier patientTreatmentFilterApplier;
+    @Autowired
     private SampleTreatmentFilterApplier sampleTreatmentFilterApplier;
-
+    @Autowired
+    private StudyViewCNAFilterApplier cnaFilterApplier;
+    
     Function<Sample, SampleIdentifier> sampleToSampleIdentifier = new Function<Sample, SampleIdentifier>() {
 
         public SampleIdentifier apply(Sample sample) {
@@ -252,6 +254,10 @@ public class StudyViewFilterApplier {
                 sampleIdentifiers,
                 studyViewFilter.getPatientTreatmentFilters()
             );
+        }
+
+        if (studyViewFilter.getCnaFilters() != null) {
+            sampleIdentifiers = cnaFilterApplier.applyFilters(sampleIdentifiers);
         }
 
         return sampleIdentifiers;

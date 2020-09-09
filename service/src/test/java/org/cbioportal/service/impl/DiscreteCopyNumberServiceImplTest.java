@@ -22,6 +22,7 @@ import org.mockito.junit.MockitoJUnitRunner;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @RunWith(MockitoJUnitRunner.class)
 public class DiscreteCopyNumberServiceImplTest extends BaseServiceImplTest {
@@ -35,6 +36,70 @@ public class DiscreteCopyNumberServiceImplTest extends BaseServiceImplTest {
     private MolecularDataService molecularDataService;
     @Mock
     private MolecularProfileService molecularProfileService;
+    
+    @Test
+    public void getDiscreteCopyNumbersInMultipleMolecularProfilesHomdelOrAmp() {
+        List<DiscreteCopyNumberData> returned = Arrays.asList(
+            discreteCopyNumberData("sample1", "study1", -2),
+            discreteCopyNumberData("sample2", "study2", 2)
+        );
+        List<String> profiles = Arrays.asList("profile1", "profile2");
+        List<String> samples = Arrays.asList("sample1", "sample2");
+        List<Integer> geneIds = Arrays.asList(0, 1);
+        List<Integer> alterationTypes = Arrays.asList(-2, 2);
+        Mockito.when(discreteCopyNumberRepository.getDiscreteCopyNumbersInMultipleMolecularProfiles(
+                profiles,
+                samples,
+                geneIds,
+                alterationTypes,
+                PROJECTION
+            ))
+            .thenReturn(
+                returned
+            );
+
+        List<DiscreteCopyNumberData> actual = discreteCopyNumberService.getDiscreteCopyNumbersInMultipleMolecularProfiles(
+            profiles, samples, geneIds, alterationTypes, PROJECTION
+        );
+        
+        Assert.assertEquals(toStrings(returned), toStrings(actual));
+    }
+
+    @Test
+    public void getDiscreteCopyNumbersInMultipleMolecularProfilesAllMutTypes() {
+        List<GeneMolecularData> returned = Arrays.asList(
+            geneMolecularData("sample1", "study1", "-2"),
+            geneMolecularData("sample2", "study1", "-1"),
+            geneMolecularData("sample3", "study1", "0"),
+            geneMolecularData("sample4", "study1", "1"),
+            geneMolecularData("sample5", "study2", "2")
+        );
+        
+        List<String> profiles = Arrays.asList("profile1", "profile2");
+        List<String> samples = Arrays.asList("sample1", "sample2");
+        List<Integer> geneIds = Arrays.asList(0, 1);
+        List<Integer> alterationTypes = Arrays.asList(-2, 1, 0, -1, 2);
+        Mockito.when(molecularDataService.getMolecularDataInMultipleMolecularProfiles(
+                profiles,
+                samples,
+                geneIds,
+                PROJECTION
+            ))
+            .thenReturn(returned);
+
+        List<DiscreteCopyNumberData> actual = discreteCopyNumberService.getDiscreteCopyNumbersInMultipleMolecularProfiles(
+            profiles, samples, geneIds, alterationTypes, PROJECTION
+        );
+        List<DiscreteCopyNumberData> expected = Arrays.asList(
+            discreteCopyNumberData("sample1", "study1", -2),
+            discreteCopyNumberData("sample2", "study1", -1),
+            discreteCopyNumberData("sample3", "study1", 0),
+            discreteCopyNumberData("sample4", "study1", 1),
+            discreteCopyNumberData("sample5", "study2", 2)
+        );
+        
+        Assert.assertEquals(toStrings(expected), toStrings(actual));
+    }
     
     @Test
     public void getDiscreteCopyNumbersInMolecularProfileBySampleListIdHomdelOrAmp() throws Exception {
@@ -300,5 +365,32 @@ public class DiscreteCopyNumberServiceImplTest extends BaseServiceImplTest {
         molecularProfile.setMolecularAlterationType(MolecularProfile.MolecularAlterationType.COPY_NUMBER_ALTERATION);
         molecularProfile.setDatatype("DISCRETE");
         Mockito.when(molecularProfileService.getMolecularProfile(MOLECULAR_PROFILE_ID)).thenReturn(molecularProfile);
+    }
+
+    private DiscreteCopyNumberData discreteCopyNumberData(String sample, String study, Integer alteration) {
+        DiscreteCopyNumberData data = new DiscreteCopyNumberData();
+        data.setStudyId(study);
+        data.setSampleId(sample);
+        data.setAlteration(alteration);
+
+        return data;
+    }
+    
+    private GeneMolecularData geneMolecularData(String sample, String study, String alteration) {
+        GeneMolecularData data = new GeneMolecularData();
+        data.setSampleId(sample);
+        data.setStudyId(study);
+        data.setValue(alteration);
+        
+        return data;
+    }
+
+    // I don't want to pollute DiscreteCopyNumberData with an equals that
+    // isn't necessarily accurate for anything outside this very narrow test
+    // so here's a quick string conversion method instead.
+    private List<String> toStrings(List<DiscreteCopyNumberData> data) {
+        return data.stream()
+            .map(d -> d.getAlteration() + " " + d.getStudyId() + " " + d.getSampleId())
+            .collect(Collectors.toList());
     }
 }

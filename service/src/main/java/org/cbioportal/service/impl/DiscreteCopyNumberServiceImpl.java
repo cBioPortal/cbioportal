@@ -92,8 +92,21 @@ public class DiscreteCopyNumberServiceImpl implements DiscreteCopyNumberService 
                                                                                           List<Integer> alterationTypes, 
                                                                                           String projection) {
         
-        return discreteCopyNumberRepository.getDiscreteCopyNumbersInMultipleMolecularProfiles(molecularProfileIds, 
-            sampleIds, entrezGeneIds, alterationTypes, projection);
+        if (isHomdelOrAmpOnly(alterationTypes)) {
+            return discreteCopyNumberRepository.getDiscreteCopyNumbersInMultipleMolecularProfiles(molecularProfileIds,
+                sampleIds, entrezGeneIds, alterationTypes, projection);
+        }
+        
+        return molecularDataService.getMolecularDataInMultipleMolecularProfiles(
+                molecularProfileIds,
+                sampleIds,
+                entrezGeneIds,
+                projection)
+            .stream()
+            .filter(g -> isValidAlteration(alterationTypes, g))
+            .map(this::convert)
+            .collect(Collectors.toList());
+        
 	}
 
     @Override
@@ -213,6 +226,7 @@ public class DiscreteCopyNumberServiceImpl implements DiscreteCopyNumberService 
 
         DiscreteCopyNumberData discreteCopyNumberData = new DiscreteCopyNumberData();
         discreteCopyNumberData.setMolecularProfileId(molecularData.getMolecularProfileId());
+        discreteCopyNumberData.setStudyId(molecularData.getStudyId());
         discreteCopyNumberData.setSampleId(molecularData.getSampleId());
         discreteCopyNumberData.setEntrezGeneId(molecularData.getEntrezGeneId());
         discreteCopyNumberData.setGene(molecularData.getGene());

@@ -362,7 +362,7 @@ public class StudyViewFilterApplier {
                     }
                 }
 
-                List<DiscreteCopyNumberData> resultList = DiscreteCopyNumberEventType.HOMDEL_AND_AMP
+                List<DiscreteCopyNumberData> resultList = DiscreteCopyNumberEventType.ALL
                         .getAlterationTypes().stream().flatMap(alterationType -> {
 
                             List<SingleGeneQuery> filteredGeneQueries = geneQueries.stream()

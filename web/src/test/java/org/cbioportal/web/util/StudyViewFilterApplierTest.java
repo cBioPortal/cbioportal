@@ -8,6 +8,7 @@ import org.cbioportal.model.*;
 import org.cbioportal.model.MolecularProfile.MolecularAlterationType;
 import org.cbioportal.service.*;
 import org.cbioportal.web.parameter.*;
+import org.cbioportal.web.util.appliers.CNAFilterApplier;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
@@ -82,7 +83,7 @@ public class StudyViewFilterApplierTest {
     @InjectMocks
     private DataBinHelper dataBinHelper;
     @Mock
-    private StudyViewCNAFilterApplier cnaFilterApplier;
+    private CNAFilterApplier cnaFilterApplier;
 
     @Before
     public void setup() {

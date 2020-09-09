@@ -15,6 +15,7 @@ import org.cbioportal.web.parameter.*;
 import org.cbioportal.web.parameter.GeneFilter.SingleGeneQuery;
 import org.cbioportal.web.util.appliers.PatientTreatmentFilterApplier;
 import org.cbioportal.web.util.appliers.SampleTreatmentFilterApplier;
+import org.cbioportal.web.util.appliers.CNAFilterApplier;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
@@ -55,7 +56,7 @@ public class StudyViewFilterApplier {
     @Autowired
     private SampleTreatmentFilterApplier sampleTreatmentFilterApplier;
     @Autowired
-    private StudyViewCNAFilterApplier cnaFilterApplier;
+    private CNAFilterApplier cnaFilterApplier;
     
     Function<Sample, SampleIdentifier> sampleToSampleIdentifier = new Function<Sample, SampleIdentifier>() {
 
@@ -257,7 +258,7 @@ public class StudyViewFilterApplier {
         }
 
         if (studyViewFilter.getCnaFilters() != null) {
-            sampleIdentifiers = cnaFilterApplier.applyFilters(sampleIdentifiers);
+            sampleIdentifiers = cnaFilterApplier.applyFilters(sampleIdentifiers, studyViewFilter.getCnaFilters());
         }
 
         return sampleIdentifiers;

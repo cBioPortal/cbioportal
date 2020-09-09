@@ -16,7 +16,7 @@ public class GeneFilter implements Serializable {
     private Set<String> molecularProfileIds;
     private List<List<String>> geneQueries;
 
-    private final String GENE_QUERY_PATTERN = "^(\\w+)[\\s]*?(?:\\:(?:[\\s]*(?:(AMP)|(HOMDEL))\\b)+)?$";
+    private final String GENE_QUERY_PATTERN = "^(\\w+)[\\s]*?(?:\\:(?:[\\s]*(?:(AMP)|(GAIN)|(DIPLOID)|(HETLOSS)|(HOMDEL))\\b)+)?$";
 
     public class SingleGeneQuery implements Serializable {
         private String hugoGeneSymbol;

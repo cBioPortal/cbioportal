@@ -2,19 +2,17 @@ package org.cbioportal.web.parameter;
 
 import org.cbioportal.model.CNA;
 
-import java.util.List;
-
 public class CNAFilter {
-    private List<Integer> genes;
+    private Integer entrezGeneId;
     private CNA alteration;
     
 
-    public List<Integer> getGenes() {
-        return genes;
+    public Integer getEntrezGeneId() {
+        return entrezGeneId;
     }
 
-    public void setGenes(List<Integer> genes) {
-        this.genes = genes;
+    public void setEntrezGeneId(Integer entrezGeneId) {
+        this.entrezGeneId = entrezGeneId;
     }
 
     public CNA getAlteration() {

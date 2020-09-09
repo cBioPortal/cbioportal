@@ -13,7 +13,10 @@ public class CNAFilterApplier {
     @Autowired
     DiscreteCopyNumberService copyNumberService;
     
-    public List<SampleIdentifier> applyFilters(List<SampleIdentifier> unfilitered, List<CNAFilter> filters) {
+    public List<SampleIdentifier> applyFilters(List<SampleIdentifier> unfiltered, List<CNAFilter> filters) {
+        
+        copyNumberService.fetchMetaDiscreteCopyNumbersInMolecularProfile("", unfilitered, )
+        
         return unfilitered;
     }
     

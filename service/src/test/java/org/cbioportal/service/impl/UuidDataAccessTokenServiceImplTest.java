@@ -70,12 +70,10 @@ import org.cbioportal.persistence.DataAccessTokenRepository;
 import org.cbioportal.service.exception.InvalidDataAccessTokenException;
 import org.cbioportal.model.DataAccessToken;
 import org.cbioportal.service.impl.UuidDataAccessTokenServiceImpl;
-import org.cbioportal.service.exception.MaxNumberTokensExceededException;
 
 @TestPropertySource(
     properties = { "dat.jwt.secret_key = +NbopXzb/AIQNrVEGzxzP5CF42e5drvrXTQot3gfW/s=",
                     "dat.uuid.max_number_per_user = 1",
-                    "dat.uuid.revoke_other_tokens = true",
                     "dat.ttl_seconds = 2"
     },
     inheritLocations = false
@@ -97,13 +95,6 @@ public class UuidDataAccessTokenServiceImplTest {
     @Value("${dat.ttl_seconds}")
     private int datTtlSeconds;
 
-    /* Test for checking exception thrown when token limit reached
-     */
-    @Test(expected = MaxNumberTokensExceededException.class)
-    public void testNonAutoExpireCreateTokenWhenLimitReached() {
-        DataAccessToken newDataAccessToken = uuidDataAccessTokenServiceImpl.createDataAccessToken(UuidDataAccessTokenServiceImplTestConfiguration.MOCK_USERNAME_WITH_ONE_TOKEN, false);
-    }
-
     /* Test for creating a token when autoexpire is on
      * tests that new token is created/MaxNumberTokensExcceededException is not thrown
      * deletedToken should be the oldest token
@@ -113,7 +104,7 @@ public class UuidDataAccessTokenServiceImplTest {
         // Testing for service with limit 1 token
         uuidDataAccessTokenServiceImplTestConfiguration.resetAddedDataAccessToken();
         uuidDataAccessTokenServiceImplTestConfiguration.resetDeletedDataAccessToken();
-        DataAccessToken newDataAccessToken = uuidDataAccessTokenServiceImpl.createDataAccessToken(UuidDataAccessTokenServiceImplTestConfiguration.MOCK_USERNAME_WITH_ONE_TOKEN, true);
+        DataAccessToken newDataAccessToken = uuidDataAccessTokenServiceImpl.createDataAccessToken(UuidDataAccessTokenServiceImplTestConfiguration.MOCK_USERNAME_WITH_ONE_TOKEN);
         Date expectedExpirationDate = getExpectedExpirationDate();
         String deletedDataAccessToken = uuidDataAccessTokenServiceImplTestConfiguration.getDeletedDataAccessToken();
         DataAccessToken createdDataAccessToken = uuidDataAccessTokenServiceImplTestConfiguration.getAddedDataAccessToken();

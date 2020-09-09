@@ -291,10 +291,6 @@ public class GlobalProperties {
     @Value("${show.mutation_mappert_tool.grch38:true}") // default is true
     public void setShowMutationMapperToolGrch38(String property) { showMutationMapperToolGrch38 = Boolean.parseBoolean(property); }
 
-    private static boolean datRevokeOtherTokens;
-    @Value("${dat.uuid.revoke_other_tokens:true}") // default is true
-    public void setDatRevokeOtherTokens(String property) { datRevokeOtherTokens = Boolean.parseBoolean(property);}
-
 	/*
      * Trim whitespace of url and append / if it does not exist. Return empty
      * string otherwise.
@@ -1184,10 +1180,6 @@ public class GlobalProperties {
         } else {
             return null;
         }
-    }
-
-    public static Boolean getRevokeOtherTokens() {
-        return datRevokeOtherTokens;
     }
 
     public static String getReferenceGenomeName() {

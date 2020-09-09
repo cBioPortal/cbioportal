@@ -141,7 +141,6 @@ dat.unauth_users=
 dat.method=none
 dat.ttl_seconds=2592000
 dat.uuid.max_number_per_user=1
-dat.uuid.revoke_other_tokens=true
 dat.jwt.secret_key=
 
 # OAuth2 token data access settings

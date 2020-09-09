@@ -119,8 +119,7 @@ public class OAuth2DataAccessTokenController {
     }
 
     @RequestMapping(method = RequestMethod.POST, value = "/data-access-tokens", produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<DataAccessToken> createDataAccessToken(Authentication authentication,
-    @RequestParam(required = false) Boolean myAllowRevocationOfOtherTokens) throws HttpClientErrorException {
+    public ResponseEntity<DataAccessToken> createDataAccessToken(Authentication authentication) throws HttpClientErrorException {
         throw new UnsupportedOperationException("this endpoint is does not apply to OAuth2 data access token method.");
     }
 

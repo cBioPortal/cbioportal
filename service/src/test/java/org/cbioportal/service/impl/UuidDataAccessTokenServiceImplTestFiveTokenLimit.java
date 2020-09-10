@@ -69,13 +69,11 @@ import org.mockito.Mockito;
 import org.mockito.junit.MockitoJUnitRunner;
 import org.cbioportal.model.DataAccessToken;
 import org.cbioportal.persistence.DataAccessTokenRepository;
-import org.cbioportal.service.exception.MaxNumberTokensExceededException;
 import org.cbioportal.service.impl.UuidDataAccessTokenServiceImpl;
 
 @TestPropertySource(
     properties = { "dat.jwt.secret_key = +NbopXzb/AIQNrVEGzxzP5CF42e5drvrXTQot3gfW/s=",
                     "dat.uuid.max_number_per_user = 5",
-                    "dat.uuid.revoke_other_tokens = true",
                     "dat.ttl_seconds = 2"
     },
     inheritLocations = false
@@ -97,13 +95,6 @@ public class UuidDataAccessTokenServiceImplTestFiveTokenLimit {
     @Value("${dat.ttl_seconds}") 
     private int datTtlSeconds;
     
-    /* Test for checking exception thrown when token limit reached
-     */
-    @Test(expected = MaxNumberTokensExceededException.class)
-    public void testNonAutoExpireCreateTokenWhenLimitReached() {
-        DataAccessToken newDataAccessToken = uuidDataAccessTokenServiceImpl.createDataAccessToken(UuidDataAccessTokenServiceImplTestConfiguration.MOCK_USERNAME_WITH_FIVE_TOKENS, false);
-    }
-
     /* Test for creating a token when autoexpire is on
      * tests that new token is created/MaxNumberTokensExcceededException is not thrown
      * deletedToken should be the oldest token
@@ -113,7 +104,7 @@ public class UuidDataAccessTokenServiceImplTestFiveTokenLimit {
         uuidDataAccessTokenServiceImplTestConfiguration.resetAddedDataAccessToken();
         uuidDataAccessTokenServiceImplTestConfiguration.resetDeletedDataAccessToken();
         // Testing for service with limit 5 tokens
-        DataAccessToken newDataAccessToken = uuidDataAccessTokenServiceImpl.createDataAccessToken(UuidDataAccessTokenServiceImplTestConfiguration.MOCK_USERNAME_WITH_FIVE_TOKENS, true);
+        DataAccessToken newDataAccessToken = uuidDataAccessTokenServiceImpl.createDataAccessToken(UuidDataAccessTokenServiceImplTestConfiguration.MOCK_USERNAME_WITH_FIVE_TOKENS);
         Date expectedExpirationDate = getExpectedExpirationDate();
         String deletedDataAccessToken = uuidDataAccessTokenServiceImplTestConfiguration.getDeletedDataAccessToken();
         DataAccessToken createdDataAccessToken = uuidDataAccessTokenServiceImplTestConfiguration.getAddedDataAccessToken();

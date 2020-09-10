@@ -37,7 +37,6 @@ import org.apache.commons.logging.LogFactory;
 import org.cbioportal.model.DataAccessToken;
 import org.cbioportal.persistence.DataAccessTokenRepository;
 import org.cbioportal.service.DataAccessTokenService;
-import org.cbioportal.service.exception.MaxNumberTokensExceededException;
 import org.cbioportal.service.exception.TokenNotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -61,31 +60,19 @@ public class UuidDataAccessTokenServiceImpl implements DataAccessTokenService {
     @Value("${dat.uuid.max_number_per_user:-1}")
     private int maxNumberOfAccessTokens;
 
-    @Value("${dat.uuid.revoke_other_tokens:true}")
-    private boolean revokeOtherTokens;
-
     private static final Log log = LogFactory.getLog(UuidDataAccessTokenServiceImpl.class);
-
-    @Override
-    public DataAccessToken createDataAccessToken(String username) {
-        return createDataAccessToken(username, revokeOtherTokens);
-    }
 
     // create a data access token (randomly generated UUID) and insert corresponding record into table with parts:
     // username
     // uuid
     // expiration date (current time + 1 month)
     @Override
-    public DataAccessToken createDataAccessToken(String username, boolean allowRevocationOfOtherTokens) {
+    public DataAccessToken createDataAccessToken(String username) {
         if (username == null || username.trim().length() == 0) {
             throw new IllegalArgumentException("username cannot be empty");
         }
         if (getNumberOfTokensForUsername(username) >= maxNumberOfAccessTokens) {
-            if (allowRevocationOfOtherTokens) {
-                revokeOldestDataAccessTokenForUsername(username);
-            } else {
-                throw new MaxNumberTokensExceededException("User has reached max number of tokens allowed (" + maxNumberOfAccessTokens + "). An existing token must expire or be revoked before another token can be assigned.");
-            }
+            revokeOldestDataAccessTokenForUsername(username);
         }
         String uuid = UUID.randomUUID().toString();
         Calendar calendar = Calendar.getInstance();

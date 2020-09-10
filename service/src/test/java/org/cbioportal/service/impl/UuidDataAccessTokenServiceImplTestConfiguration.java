@@ -70,7 +70,6 @@ import org.mockito.invocation.InvocationOnMock;
 import org.mockito.junit.MockitoJUnitRunner;
 import org.cbioportal.model.DataAccessToken;
 import org.cbioportal.persistence.DataAccessTokenRepository;
-import org.cbioportal.service.exception.MaxNumberTokensExceededException;
 import org.cbioportal.service.exception.TokenNotFoundException;
 import org.cbioportal.service.impl.UuidDataAccessTokenServiceImpl;
 

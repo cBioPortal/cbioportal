@@ -151,12 +151,6 @@ public class GlobalExceptionHandler {
         return new ResponseEntity<>(response, HttpStatus.UNAUTHORIZED);
     }
 
-    @ExceptionHandler(MaxNumberTokensExceededException.class)
-    public ResponseEntity<ErrorResponse> handleMaxNumberTokensExceededException() {
-        ErrorResponse response = new ErrorResponse("User has reached maximum number of tokens. Tokens must be expire or be revoked before requesting a new one");
-        return new ResponseEntity<>(response, HttpStatus.FORBIDDEN);
-    }
-
     @ExceptionHandler(DataAccessTokenProhibitedUserException.class)
     public ResponseEntity<ErrorResponse> handleDataAccessTokenProhibitedUserException() {
         ErrorResponse response = new ErrorResponse("You are prohibited from using Data Access Tokens");

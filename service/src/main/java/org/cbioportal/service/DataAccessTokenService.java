@@ -41,7 +41,6 @@ import org.springframework.security.core.Authentication;
 public interface DataAccessTokenService {
 
     public DataAccessToken createDataAccessToken(String username);
-    public DataAccessToken createDataAccessToken(String username, boolean allowRevocationOfOtherTokens);
     public List<DataAccessToken> getAllDataAccessTokens(String username);
     public DataAccessToken getDataAccessToken(String username);
     public DataAccessToken getDataAccessTokenInfo(String token);

@@ -5,6 +5,7 @@ import org.springframework.beans.TypeMismatchException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.http.converter.HttpMessageNotReadableException;
+import org.springframework.jdbc.BadSqlGrammarException;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.validation.FieldError;
 import org.springframework.web.bind.MethodArgumentNotValidException;
@@ -180,5 +181,14 @@ public class GlobalExceptionHandler {
     public ResponseEntity<ErrorResponse> handleResourceDefinitionNotFound(ResourceDefinitionNotFoundException ex) {
         return new ResponseEntity<>(new ErrorResponse("Resource not found: " + ex.getResourceId()),
                 HttpStatus.NOT_FOUND);
+    }
+    
+    @ExceptionHandler(BadSqlGrammarException.class)
+    public ResponseEntity<ErrorResponse> handleBadSqlGrammar(BadSqlGrammarException ex) {
+        ex.printStackTrace(); // we still want this to show up in the logs
+        return new ResponseEntity<>(
+            new ErrorResponse("SQL exception. If you are a maintainer of this instance, see logs for details."),
+            HttpStatus.INTERNAL_SERVER_ERROR
+        );
     }
 }

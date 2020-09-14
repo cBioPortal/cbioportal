@@ -1,15 +1,16 @@
 package org.cbioportal.web;
 
-import java.util.*;
+import java.util.Collection;
+import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 import javax.validation.Valid;
 
-import org.cbioportal.model.ExpressionEnrichment;
+import org.cbioportal.model.AlterationEnrichment;
 import org.cbioportal.model.MolecularProfileCaseIdentifier;
 import org.cbioportal.model.web.parameter.EnrichmentType;
-import org.cbioportal.service.ExpressionEnrichmentService;
-import org.cbioportal.service.exception.MolecularProfileNotFoundException;
+import org.cbioportal.service.StructuralVariantEnrichmentService;
 import org.cbioportal.web.config.annotation.InternalApi;
 import org.cbioportal.web.parameter.MolecularProfileCasesGroupFilter;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -33,43 +34,33 @@ import springfox.documentation.annotations.ApiIgnore;
 @InternalApi
 @RestController
 @Validated
-@Api(tags = "Expression Enrichments", description = " ")
-public class ExpressionEnrichmentController {
+@Api(tags = "Structural Variant Enrichments", description = " ")
+public class StructuralVariantEnrichmentController {
 
     @Autowired
-    private ExpressionEnrichmentService expressionEnrichmentService;
+    private StructuralVariantEnrichmentService structuralVariantEnrichmentService;
 
     @PreAuthorize("hasPermission(#involvedCancerStudies, 'Collection<CancerStudyId>', 'read')")
-    @RequestMapping(value = "/expression-enrichments/fetch",
+    @RequestMapping(value = "/structural-variant-enrichments/fetch",
         method = RequestMethod.POST, consumes = MediaType.APPLICATION_JSON_VALUE,
         produces = MediaType.APPLICATION_JSON_VALUE)
-    @ApiOperation("Fetch expression enrichments in a molecular profile")
-    public ResponseEntity<List<ExpressionEnrichment>> fetchExpressionEnrichments(
+    @ApiOperation("Fetch structural variant enrichments in a molecular profile")
+    public ResponseEntity<List<AlterationEnrichment>> fetchStructuralVariantEnrichments(
         @ApiIgnore // prevent reference to this attribute in the swagger-ui interface
         @RequestAttribute(required = false, value = "involvedCancerStudies") Collection<String> involvedCancerStudies,
+        @ApiIgnore // prevent reference to this attribute in the swagger-ui interface. this attribute is needed for the @PreAuthorize tag above.
+        @Valid @RequestAttribute(required = false, value = "interceptedMolecularProfileCasesGroupFilters") List<MolecularProfileCasesGroupFilter> interceptedMolecularProfileCasesGroupFilters,
         @ApiParam("Type of the enrichment e.g. SAMPLE or PATIENT")
         @RequestParam(defaultValue = "SAMPLE") EnrichmentType enrichmentType,
-        @ApiParam(required = true, value = "List of groups containing sample and molecular profile identifiers")
-        @Valid @RequestBody(required = false) List<MolecularProfileCasesGroupFilter> groups,
-        @ApiIgnore // prevent reference to this attribute in the swagger-ui interface. this attribute is needed for the @PreAuthorize tag above.
-        @Valid @RequestAttribute(required = false, value = "interceptedMolecularProfileCasesGroupFilters") List<MolecularProfileCasesGroupFilter> interceptedMolecularProfileCasesGroupFilters) throws MolecularProfileNotFoundException {
+        @ApiParam(required = true, value = "List of groups containing sample identifiers")
+        @Valid @RequestBody(required = false)List<MolecularProfileCasesGroupFilter> groups) {
 
         Map<String, List<MolecularProfileCaseIdentifier>> groupCaseIdentifierSet = interceptedMolecularProfileCasesGroupFilters.stream()
                 .collect(Collectors.toMap(MolecularProfileCasesGroupFilter::getName,
                         MolecularProfileCasesGroupFilter::getMolecularProfileCaseIdentifiers));
 
-        Set<String> molecularProfileIds = groupCaseIdentifierSet
-                .values()
-                .stream()
-                .flatMap(molecularProfileCaseSet -> molecularProfileCaseSet.stream()
-                        .map(MolecularProfileCaseIdentifier::getMolecularProfileId))
-                .collect(Collectors.toSet());
-
-        if(molecularProfileIds.size()> 1) {
-            throw new UnsupportedOperationException("Multi-study expression enrichments is not yet implemented");
-        }
-
-
-        return new ResponseEntity<>(expressionEnrichmentService.getExpressionEnrichments(molecularProfileIds.iterator().next(), groupCaseIdentifierSet, enrichmentType), HttpStatus.OK);
+        return new ResponseEntity<>(
+                structuralVariantEnrichmentService.getStructuralVariantEnrichments(groupCaseIdentifierSet, enrichmentType),
+                HttpStatus.OK);
     }
 }

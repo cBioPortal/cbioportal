@@ -9,11 +9,11 @@ import javax.validation.Valid;
 
 import org.cbioportal.model.AlterationEnrichment;
 import org.cbioportal.model.MolecularProfileCaseIdentifier;
+import org.cbioportal.model.web.parameter.EnrichmentType;
 import org.cbioportal.service.CopyNumberEnrichmentService;
 import org.cbioportal.service.exception.MolecularProfileNotFoundException;
 import org.cbioportal.web.config.annotation.InternalApi;
 import org.cbioportal.web.parameter.CopyNumberEnrichmentEventType;
-import org.cbioportal.web.parameter.EnrichmentType;
 import org.cbioportal.web.parameter.MolecularProfileCasesGroupFilter;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -64,6 +64,6 @@ public class CopyNumberEnrichmentController {
                         MolecularProfileCasesGroupFilter::getMolecularProfileCaseIdentifiers));
 
         return new ResponseEntity<>(copyNumberEnrichmentService.getCopyNumberEnrichments(groupCaseIdentifierSet,
-                copyNumberEventType.getAlterationTypes(), enrichmentType.name()), HttpStatus.OK);
+                copyNumberEventType.getAlterationTypes(), enrichmentType), HttpStatus.OK);
     }
 }

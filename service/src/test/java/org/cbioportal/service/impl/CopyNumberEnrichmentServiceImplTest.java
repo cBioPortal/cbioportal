@@ -8,6 +8,7 @@ import java.util.Map;
 import org.cbioportal.model.AlterationEnrichment;
 import org.cbioportal.model.CopyNumberCountByGene;
 import org.cbioportal.model.MolecularProfileCaseIdentifier;
+import org.cbioportal.model.web.parameter.EnrichmentType;
 import org.cbioportal.service.DiscreteCopyNumberService;
 import org.cbioportal.service.util.AlterationEnrichmentUtil;
 import org.junit.Assert;
@@ -27,7 +28,7 @@ public class CopyNumberEnrichmentServiceImplTest extends BaseServiceImplTest {
     @Mock
     private DiscreteCopyNumberService discreteCopyNumberService;
     @Mock
-    private AlterationEnrichmentUtil alterationEnrichmentUtil;
+    private AlterationEnrichmentUtil<CopyNumberCountByGene> alterationEnrichmentUtil;
 
     @Test
     public void getCopyNumberEnrichments() throws Exception {
@@ -86,10 +87,10 @@ public class CopyNumberEnrichmentServiceImplTest extends BaseServiceImplTest {
 
         List<AlterationEnrichment> expectedAlterationEnrichments = new ArrayList<>();
         Mockito.when(alterationEnrichmentUtil.createAlterationEnrichments(new HashMap<>(),
-                groupMolecularProfileCaseSets, "SAMPLE")).thenReturn(expectedAlterationEnrichments);
+                groupMolecularProfileCaseSets)).thenReturn(expectedAlterationEnrichments);
 
         List<AlterationEnrichment> result = copyNumberEnrichmentService
-                .getCopyNumberEnrichments(groupMolecularProfileCaseSets, alterationTypes, "SAMPLE");
+                .getCopyNumberEnrichments(groupMolecularProfileCaseSets, alterationTypes, EnrichmentType.SAMPLE);
         Assert.assertEquals(result, expectedAlterationEnrichments);
     }
 }

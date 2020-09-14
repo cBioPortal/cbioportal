@@ -2,6 +2,7 @@ package org.cbioportal.web;
 
 import org.cbioportal.model.ExpressionEnrichment;
 import org.cbioportal.model.GroupStatistics;
+import org.cbioportal.model.web.parameter.EnrichmentType;
 import org.cbioportal.service.ExpressionEnrichmentService;
 import org.hamcrest.Matchers;
 import org.junit.Before;
@@ -111,7 +112,7 @@ public class ExpressionEnrichmentControllerTest {
         expressionEnrichment2.setpValue(TEST_P_VALUE_2);
         expressionEnrichments.add(expressionEnrichment2);
 
-        Mockito.when(expressionEnrichmentService.getExpressionEnrichments( Mockito.anyString(), Mockito.anyMap(), Mockito.anyString()))
+        Mockito.when(expressionEnrichmentService.getExpressionEnrichments( Mockito.anyString(), Mockito.anyMap(), Mockito.any(EnrichmentType.class)))
             .thenReturn(expressionEnrichments);
 
         mockMvc.perform(MockMvcRequestBuilders.post(

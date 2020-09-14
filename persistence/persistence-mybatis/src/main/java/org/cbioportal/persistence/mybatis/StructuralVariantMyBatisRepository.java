@@ -51,4 +51,12 @@ public class StructuralVariantMyBatisRepository implements StructuralVariantRepo
         return structuralVariantMapper.getSampleCountInMultipleMolecularProfiles(molecularProfileIds, sampleIds,
                 entrezGeneIds);
     }
+
+    @Override
+    public List<StructuralVariantCountByGene> getPatientCountInMultipleMolecularProfiles(
+            List<String> molecularProfileIds, List<String> patientIds, List<Integer> entrezGeneIds) {
+
+        return structuralVariantMapper.getPatientCountInMultipleMolecularProfiles(molecularProfileIds, patientIds,
+                entrezGeneIds);
+    }
 }

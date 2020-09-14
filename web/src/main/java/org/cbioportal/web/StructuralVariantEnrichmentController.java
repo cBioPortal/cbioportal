@@ -11,6 +11,7 @@ import org.cbioportal.model.AlterationEnrichment;
 import org.cbioportal.model.MolecularProfileCaseIdentifier;
 import org.cbioportal.model.web.parameter.EnrichmentType;
 import org.cbioportal.service.StructuralVariantEnrichmentService;
+import org.cbioportal.service.exception.MolecularProfileNotFoundException;
 import org.cbioportal.web.config.annotation.InternalApi;
 import org.cbioportal.web.parameter.MolecularProfileCasesGroupFilter;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -53,7 +54,7 @@ public class StructuralVariantEnrichmentController {
         @ApiParam("Type of the enrichment e.g. SAMPLE or PATIENT")
         @RequestParam(defaultValue = "SAMPLE") EnrichmentType enrichmentType,
         @ApiParam(required = true, value = "List of groups containing sample identifiers")
-        @Valid @RequestBody(required = false)List<MolecularProfileCasesGroupFilter> groups) {
+        @Valid @RequestBody(required = false)List<MolecularProfileCasesGroupFilter> groups) throws MolecularProfileNotFoundException {
 
         Map<String, List<MolecularProfileCaseIdentifier>> groupCaseIdentifierSet = interceptedMolecularProfileCasesGroupFilters.stream()
                 .collect(Collectors.toMap(MolecularProfileCasesGroupFilter::getName,

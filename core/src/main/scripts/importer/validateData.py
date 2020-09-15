@@ -3358,7 +3358,6 @@ class CancerTypeValidator(Validator):
     COLS = (
         'type_of_cancer',
         'name',
-        'clinical_trial_keywords',
         'color',
         'parent_type_of_cancer'
     )
@@ -3383,9 +3382,9 @@ class CancerTypeValidator(Validator):
         self.logger.logger.addHandler(tracking_handler)
         try:
             super(CancerTypeValidator, self).checkLine(data)
-            if len(data) != 5:
+            if len(data) != 4:
                 self.logger.error('Lines in cancer type files must have these '
-                                  '5 columns, in order: [%s]',
+                                  '4 columns, in order: [%s]',
                                   ', '.join(self.cols),
                                   extra={'line_number': self.line_number,
                                          'cause': '<%d columns>' % len(data)})

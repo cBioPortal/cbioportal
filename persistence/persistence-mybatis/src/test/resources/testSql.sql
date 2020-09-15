@@ -1,5 +1,5 @@
-INSERT INTO type_of_cancer (TYPE_OF_CANCER_ID,NAME,CLINICAL_TRIAL_KEYWORDS,DEDICATED_COLOR,SHORT_NAME,PARENT) VALUES ('brca','Breast Invasive Carcinoma','breast,breast invasive','HotPink','Breast','tissue');
-INSERT INTO type_of_cancer (TYPE_OF_CANCER_ID,NAME,CLINICAL_TRIAL_KEYWORDS,DEDICATED_COLOR,SHORT_NAME,PARENT) VALUES ('acc','Adrenocortical Carcinoma','adrenocortical carcinoma','Purple','ACC','adrenal_gland');
+INSERT INTO type_of_cancer (TYPE_OF_CANCER_ID,NAME,DEDICATED_COLOR,SHORT_NAME,PARENT) VALUES ('brca','Breast Invasive Carcinoma','HotPink','Breast','tissue');
+INSERT INTO type_of_cancer (TYPE_OF_CANCER_ID,NAME,DEDICATED_COLOR,SHORT_NAME,PARENT) VALUES ('acc','Adrenocortical Carcinoma','Purple','ACC','adrenal_gland');
 
 INSERT INTO `reference_genome` VALUES (1, 'human', 'hg19', 'GRCh37', NULL, 'http://hgdownload.cse.ucsc.edu/goldenPath/hg19/bigZips', '2009-02-01 00:00:00');
 INSERT INTO `reference_genome` VALUES (2, 'human', 'hg38', 'GRCh38', NULL, 'http://hgdownload.cse.ucsc.edu/goldenPath/hg38/bigZips', '2013-12-01 00:00:00');

@@ -80,14 +80,13 @@ The file is comprised of the following columns in the order specified:
 
 1. **type_of_cancer**: The cancer type abbreviation, e.g., "brca".
 2. **name**: The name of the cancer type, e.g., "Breast Invasive Carcinoma".
-3. **clinical_trial_keywords**: A comma separated list of keywords used to identify this study, e.g., "breast,breast invasive".
-4. **dedicated_color**: CSS color name of the color associated with this cancer study, e.g., "HotPink". See [this list](https://www.w3.org/TR/css3-color/#svg-color) for supported names, and follow the [awareness ribbons](https://en.wikipedia.org/wiki/List_of_awareness_ribbons) color schema. This color is associated with the cancer study on various web pages within the cBioPortal.
-5. **parent_type_of_cancer**:  The `type_of_cancer` field of the cancer type of which this is a subtype, e.g., "Breast". :information_source: : you can set parent to `tissue`, which is the reserved word to place the given cancer type at "root" level in the "studies oncotree" that will be generated in the homepage (aka query page) of the portal. 
+3. **dedicated_color**: CSS color name of the color associated with this cancer study, e.g., "HotPink". See [this list](https://www.w3.org/TR/css3-color/#svg-color) for supported names, and follow the [awareness ribbons](https://en.wikipedia.org/wiki/List_of_awareness_ribbons) color schema. This color is associated with the cancer study on various web pages within the cBioPortal.
+4. **parent_type_of_cancer**:  The `type_of_cancer` field of the cancer type of which this is a subtype, e.g., "Breast". :information_source: : you can set parent to `tissue`, which is the reserved word to place the given cancer type at "root" level in the "studies oncotree" that will be generated in the homepage (aka query page) of the portal. 
 
 ### Example
 An example record would be:
 ```
-brca<TAB>Breast Invasive Carcinoma<TAB>breast,breast invasive<TAB>HotPink<TAB>Breast
+brca<TAB>Breast Invasive Carcinoma<TAB>HotPink<TAB>Breast
 ```
 
 ## Clinical Data

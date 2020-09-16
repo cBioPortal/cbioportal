@@ -579,7 +579,7 @@ For example, given `Reference_Allele` = "G", `Tumor_Seq_Allele` = "-", and `Tumo
 When curating MAF data, it is best practice to leave `Tumor_Seq_Allele1` empty if this information is not provided in your data source to avoid this ambiguity.
 
 ### Namespaces
-The `namespaces` field can be used to specify additional MAF columns for import. This field should contain a comma seperated list of namespaces. Namespaces can be identified as prefixes to an arbitrary set of additional MAF columns (seperated with a period e.g `ASCN.total_copy_number`, `ASCN.minor_copy_number`). All columns with a prefix matching a namespace specified in the metafile will be imported; columns with an unspecified namespace will be ignored. If no additional columns beyond the required set need to be imported, the field should be left blank. 
+The `namespaces` field can be used to specify additional MAF columns for import. This field should contain a comma separated list of namespaces. Namespaces can be identified as prefixes to an arbitrary set of additional MAF columns (separated with a period e.g `ASCN.total_copy_number`, `ASCN.minor_copy_number`). All columns with a prefix matching a namespace specified in the metafile will be imported; columns with an unspecified namespace will be ignored. If no additional columns beyond the required set need to be imported, the field should be left blank. 
 
 ### Example
 An example metadata file would be:

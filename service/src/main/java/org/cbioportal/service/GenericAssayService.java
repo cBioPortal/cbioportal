@@ -4,13 +4,11 @@ import java.util.List;
 
 import org.cbioportal.model.GenericAssayData;
 import org.cbioportal.model.meta.GenericAssayMeta;
-import org.cbioportal.service.exception.GenericAssayNotFoundException;
 import org.cbioportal.service.exception.MolecularProfileNotFoundException;
 
 public interface GenericAssayService {
     
-    List<GenericAssayMeta> getGenericAssayMetaByStableIdsAndMolecularIds(List<String> stableIds, List<String> molecularProfileIds, String projection)
-        throws GenericAssayNotFoundException;   
+    List<GenericAssayMeta> getGenericAssayMetaByStableIdsAndMolecularIds(List<String> stableIds, List<String> molecularProfileIds, String projection);   
 
     List<GenericAssayData> getGenericAssayData(String molecularProfileId, String sampleListId, 
                                             List<String> genericAssayStableIds, String projection) 

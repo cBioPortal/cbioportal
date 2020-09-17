@@ -8,7 +8,7 @@ In the documentation below, we also provide details on how to perform SAML authe
 
 ## What is SAML?
 
-SAML is an open standard that enables one to more easily add an authentication service on top of any existing web application.  For the full definition, see the [SAML Wikipedia entry](http://en.wikipedia.org/wiki/Security_Assertion_Markup_Language).
+SAML is an open standard that enables one to more easily add an authentication service on top of any existing web application.  For the full definition, see the [SAML Wikipedia entry](https://en.wikipedia.org/wiki/Security_Assertion_Markup_Language).
 
 In its simplest terms, SAML boils down to four terms:
 
@@ -75,7 +75,7 @@ To get started:
 
 * Go to the SSO Tab within OneLogin SAML Test (IdP), find the field labeled:  Issuer URL.  Copy this URL and download it's contents.  This is an XML file that describes the identity provider.
 
-![](http://f.cl.ly/items/1R0v0L3P1U2E23202V1d/Image%202015-05-24%20at%2010.07.56%20PM.png)
+![](https://s3.amazonaws.com/f.cl.ly/items/1R0v0L3P1U2E23202V1d/Image%202015-05-24%20at%2010.07.56%20PM.png)
 
 then, move this XML file to:
 
@@ -87,7 +87,7 @@ You should now be all set with OneLogin.com.  Next, you need to configure your i
 
 ## Creating a KeyStore
 
-In order to use SAML, you must create a [Java Keystore](http://docs.oracle.com/javase/7/docs/api/java/security/KeyStore.html).  
+In order to use SAML, you must create a [Java Keystore](https://docs.oracle.com/javase/7/docs/api/java/security/KeyStore.html).  
 
 This can be done via the Java `keytool` command, which is bundled with Java.
 
@@ -190,7 +190,7 @@ The login page is configurable via the `portal.properties` properties `skin.auth
 For example in `skin.authorization_message` you can be set to something like this:
 
 ```
-skin.authorization_message= Welcome to this portal. Access to this portal is available to authorized test users at YOUR ORG.  [<a href="http://thehyve.nl/">Request Access</a>].
+skin.authorization_message= Welcome to this portal. Access to this portal is available to authorized test users at YOUR ORG.  [<a href="https://thehyve.nl/">Request Access</a>].
 ```
 
 and `skin.login.saml.registration_htm` can be set to:

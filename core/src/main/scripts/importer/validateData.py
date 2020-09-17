@@ -804,7 +804,7 @@ class Validator(object):
         # try to use the portal maps to resolve to a single Entrez gene id
         identified_entrez_id = None
         if entrez_id is not None:
-            if entrez_id in self.portal.entrez_set:
+            if entrez_as_int in self.portal.entrez_set:
                 # set the value to be returned
                 identified_entrez_id = entrez_id
                 # some warnings if the gene symbol is specified too
@@ -818,7 +818,7 @@ class Validator(object):
                             'wrong mapping, new or deprecated gene symbol.',
                             extra={'line_number': self.line_number,
                                    'cause': gene_symbol})
-                    elif entrez_id not in itertools.chain(
+                    elif entrez_as_int not in itertools.chain(
                             self.portal.hugo_entrez_map.get(gene_symbol, []),
                             self.portal.alias_entrez_map.get(gene_symbol, [])):
                         self.logger.warning(
@@ -846,7 +846,7 @@ class Validator(object):
             if num_entrezs_for_hugo == 1:
                 # set the value to be returned
                 identified_entrez_id = \
-                    self.portal.hugo_entrez_map[gene_symbol][0]
+                    str(self.portal.hugo_entrez_map[gene_symbol][0])
                 # check if there are other *different* Entrez gene ids associated
                 # with this gene symbol
                 other_entrez_ids_in_aliases = [
@@ -875,7 +875,7 @@ class Validator(object):
             elif num_entrezs_for_alias == 1:
                 # set the value to be returned
                 identified_entrez_id = \
-                    self.portal.alias_entrez_map[gene_symbol][0]
+                    str(self.portal.alias_entrez_map[gene_symbol][0])
             # no canonical symbol, and multiple different aliases
             elif num_entrezs_for_alias > 1:
                 # Loader deals with this, so give warning
@@ -947,55 +947,28 @@ class Validator(object):
     @staticmethod
     def load_chromosome_lengths(genome_build, logger):
 
-        """Get the length of each chromosome from USCS and return a dict.
+        """Get the length of each chromosome and return a dict.
 
         The dict will not include unplaced contigs, alternative haplotypes or
         the mitochondrial chromosome.
         """
-
-        class InvalidAPIResponse(ValueError):
-            def __init__(self, chrom_size_url, line):
-                super().__init__('Unexpected response from {}: {}'.format(
-                    chrom_size_url, repr(line)))
-        chrom_size_dict = {}
-        chrom_size_url = (
-            'http://hgdownload.cse.ucsc.edu'
-            '/goldenPath/{build}/bigZips/{build}.chrom.sizes').format(
-                build=genome_build)
-        logger.debug("Retrieving chromosome lengths from '%s'",
-                     chrom_size_url)
-        r = requests.get(chrom_size_url)
+        chrom_size_file = os.path.join(os.path.dirname(os.path.realpath(__file__)), 'chromosome_sizes.json')
         try:
-            r.raise_for_status()
-        except requests.exceptions.HTTPError as e:
-            raise ConnectionError(
-                'Error retrieving chromosome lengths from UCSC'
-            ) from e
-        for line in r.text.splitlines():
-            # skip comment lines
-            if line.startswith('#'):
-                continue
-            cols = line.split('\t', 1)
-            if not (len(cols) == 2 and
-                    cols[0].startswith('chr')):
-                raise InvalidAPIResponse(chrom_size_url, line)
-            # skip unplaced sequences
-            if cols[0].endswith('_random') or cols[0].startswith('chrUn_'):
-                continue
-            # skip entries for alternative haplotypes
-            if re.search(r'_hap[0-9]+$', cols[0]):
-                continue
-            # skip the mitochondrial chromosome
-            if cols[0] == 'chrM':
-                continue
+            with open(chrom_size_file,'r') as f:
+                chrom_sizes = json.load(f)
+        except FileNotFoundError:
+            raise FileNotFoundError('Could not open chromosome_sizes.json. '
+                                    'If it does not exist you can download it using the script '
+                                    'downloadChromosomeSizes.py.')
 
-            # remove the 'chr' prefix
-            chrom_name = cols[0][3:]
-            try:
-                chrom_size = int(cols[1])
-            except ValueError as e:
-                raise InvalidAPIResponse(chrom_size_url, line) from e
-            chrom_size_dict[chrom_name] = chrom_size
+        logger.debug("Retrieving chromosome lengths from '%s'",
+                     chrom_size_file)
+
+        try:
+            chrom_size_dict = chrom_sizes[genome_build]
+        except KeyError:
+            raise KeyError('Could not load chromosome sizes for genome build %s.' % genome_build)
+
         return chrom_size_dict
 
     def parse_chromosome_num(self, value, column_number, chromosome_lengths):
@@ -4792,7 +4765,7 @@ def validateStudyTags(tags_file_path, logger):
             extra={'filename_': tags_file_path})
         with open(tags_file_path, 'r') as stream:
             try:
-                parsedYaml = yaml.load(stream)
+                parsedYaml = yaml.load(stream, Loader=yaml.FullLoader)
                 logger.info('Validation of study tags file complete.',
                 extra={'filename_': tags_file_path})
             except yaml.YAMLError as exc:
@@ -4885,11 +4858,10 @@ def validate_data_relations(validators_by_meta_type, logger):
 def request_from_portal_api(server_url, api_name, logger):
     """Send a request to the portal API and return the decoded JSON object."""
 
-    if api_name in ['info', 'cancer-types', 'genesets', 'gene-panels']:
-        service_url = server_url + '/api/' + api_name + "?pageSize=9999999"
-    # TODO: make subsequent calls to /genes/{geneId}/aliases
-    elif api_name in ['genes']:
-        service_url = server_url + '/api/' + api_name + '?pageSize=100000'
+    print(api_name)
+
+    if api_name in ['info', 'cancer-types', 'genes', 'genesets', 'gene-panels']:
+        service_url = server_url + '/api/' + api_name
     elif api_name in ['genesets_version']:
         service_url = server_url + '/api/genesets/version'
 
@@ -4911,7 +4883,7 @@ def request_from_portal_api(server_url, api_name, logger):
         for data_item in response.json():
             panel = {}
             gene_panel_id = data_item['genePanelId']
-            gene_panel_url = service_url.strip("?pageSize=9999999")+'/'+gene_panel_id+"?pageSize=9999999"
+            gene_panel_url = service_url+'/'+gene_panel_id
             response = requests.get(gene_panel_url).json()
             panel['description'] = response['description']
             panel['genes'] = response['genes']
@@ -4966,8 +4938,8 @@ def index_api_data(parsed_json, id_field):
 
 
 def transform_symbol_entrez_map(json_data,
-                                id_field='hugo_gene_symbol',
-                                values_field='entrez_gene_id'):
+                                id_field='hugoGeneSymbol',
+                                values_field='entrezGeneId'):
     """Transform a list of homogeneous dicts into a dict of lists.
 
     Using the values of the `id_field` entries as the keys, mapping to lists
@@ -4990,7 +4962,7 @@ def transform_symbol_entrez_map(json_data,
         if symbol not in result_dict:
             result_dict[symbol] = []
         result_dict[symbol].append(
-                data_item['entrezGeneId'])
+                data_item[values_field])
     return result_dict
 
 

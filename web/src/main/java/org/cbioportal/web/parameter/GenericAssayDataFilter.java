@@ -1,43 +1,25 @@
 package org.cbioportal.web.parameter;
 
-import javax.validation.constraints.AssertTrue;
-import javax.validation.constraints.Size;
-import java.util.List;
+import java.io.Serializable;
 
-public class GenericAssayDataFilter {
+public class GenericAssayDataFilter extends DataFilter implements Serializable {
+    private String stableId;
+    private String profileType;
 
-    @Size(min = 1, max = PagingConstants.MAX_PAGE_SIZE)
-    private List<String> sampleIds;
-    private String sampleListId;
-    @Size(min = 1, max = PagingConstants.MAX_PAGE_SIZE)
-    private List<String> genericAssayStableId;
-
-    @AssertTrue
-    private boolean isEitherSampleListIdOrSampleIdsPresent() {
-        return sampleListId != null ^ sampleIds != null;
+    public String getStableId() {
+        return stableId;
     }
 
-    public List<String> getSampleIds() {
-        return sampleIds;
+    public void setStableId(String stableId) {
+        this.stableId = stableId;
     }
 
-    public void setSampleIds(List<String> sampleIds) {
-        this.sampleIds = sampleIds;
+    public String getProfileType() {
+        return profileType;
     }
 
-    public String getSampleListId() {
-        return sampleListId;
+    public void setProfileType(String profileType) {
+        this.profileType = profileType;
     }
 
-    public void setSampleListId(String sampleListId) {
-        this.sampleListId = sampleListId;
-    }
-
-    public List<String> getGenericAssayStableIds() {
-        return genericAssayStableId;
-    }
-
-    public void setGenericAssayStableIds(List<String> genericAssayStableId) {
-        this.genericAssayStableId = genericAssayStableId;
-    }
 }

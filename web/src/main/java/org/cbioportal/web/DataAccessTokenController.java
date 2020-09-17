@@ -49,9 +49,6 @@ import java.util.Set;
 @Api(tags = "Data Access Tokens", description = " ")
 public class DataAccessTokenController {
 
-    @Value("${dat.uuid_revoke_other_tokens:false}")
-    private Boolean allowRevocationOfOtherTokens;
-
     @Value("${dat.unauth_users:anonymousUser}")
     private String[] USERS_WHO_CANNOT_USE_TOKENS;
 
@@ -67,10 +64,9 @@ public class DataAccessTokenController {
     private String fileName = "cbioportal_data_access_token.txt";
 
     @RequestMapping(method = RequestMethod.POST, value = "/data-access-tokens", produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<DataAccessToken> createDataAccessToken(Authentication authentication,
-    @RequestParam(required = false) Boolean myAllowRevocationOfOtherTokens) throws HttpClientErrorException {
+    public ResponseEntity<DataAccessToken> createDataAccessToken(Authentication authentication) throws HttpClientErrorException {
         String userName = getAuthenticatedUser(authentication);
-        DataAccessToken token = createDataAccessToken(userName, myAllowRevocationOfOtherTokens);
+        DataAccessToken token = tokenService.createDataAccessToken(userName);
         if (token == null) {
             return new ResponseEntity<>(token, HttpStatus.NOT_FOUND);
         }
@@ -110,7 +106,7 @@ public class DataAccessTokenController {
         // for other methods add header to trigger download of the token by the browser
         response.setHeader("Content-Disposition", "attachment; filename=" + fileName);
         String userName = getAuthenticatedUser(authentication);
-        DataAccessToken token = createDataAccessToken(userName, allowRevocationOfOtherTokens);
+        DataAccessToken token = tokenService.createDataAccessToken(userName);
         if (token == null) {
             return new ResponseEntity<>(null, HttpStatus.NOT_FOUND);
         }
@@ -128,15 +124,4 @@ public class DataAccessTokenController {
         }
         return username;
     }
-
-    private DataAccessToken createDataAccessToken(String userName, Boolean myAllowRevocationOfOtherTokens) {
-        DataAccessToken token;
-        if (myAllowRevocationOfOtherTokens != null) {
-            token = tokenService.createDataAccessToken(userName, myAllowRevocationOfOtherTokens);
-        }  else {
-            token = tokenService.createDataAccessToken(userName);
-        }
-        return token;
-    }
-
 }

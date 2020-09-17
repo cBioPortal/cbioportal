@@ -1,6 +1,6 @@
 # Introduction
 
-The cBioPortal provides access to data within its database through the [cBioPortal web service](http://www.cbioportal.org/api/swagger-ui.html).  While most users interact with this web service indirectly while visiting cBioPortal web pages, it is possible to access this web service directly.  Direct access to the web service is appealing for those users with an interest in mining or analyzing cBioPortal data beyond the confines of a web browser, such as from ‘R’ or Python clients.
+The cBioPortal provides access to data within its database through the [cBioPortal web service](https://www.cbioportal.org/api/swagger-ui.html).  While most users interact with this web service indirectly while visiting cBioPortal web pages, it is possible to access this web service directly.  Direct access to the web service is appealing for those users with an interest in mining or analyzing cBioPortal data beyond the confines of a web browser, such as from ‘R’ or Python clients.
 
 If your instance of the cBioPortal will not require [user authorization](https://docs.cbioportal.org/2.2-authorization-and-authentication/user-authorization) (login), direct access to the web service is available without any additional server configuration or client side prerequisites.  However, if your instance of the cBioPortal will require login, additional data access token server configuration is necessary before direct access to the web service is available to your users. Additionally, prior to web service access, clients will need to obtain a data access token and present this token with each web service request.
 
@@ -57,14 +57,9 @@ The following properties must be present in portal.properties in order to allow 
 - **Default Value**: none
 
 **Property**: dat.uuid.max_number_per_user (required only when dat.method = uuid)
-- **Description**: This property determines the number of data access tokens that can be allocated to a single user at any given time.  If a user requests a data access token that puts them over this limit, then based on the value of dat.uuid.revoke_other_tokens (see below), the cBioPortal will either refuse to present a new token to the user or it may invalidate the oldest one before presenting the new one to the user.  This property is used only when dat.method = uuid.
+- **Description**: This property determines the number of data access tokens that can be allocated to a single user at any given time.  If a user requests a data access token that puts them over this limit, the cBioPortal will present a new token to the user and it may invalidate the oldest one before presenting the new one to the user.  This property is used only when dat.method = uuid.
 - **Permissible Values**: An integer value greater than zero.
 - **Default Value**: 1
-
-**Property**: dat.uuid.revoke_other_tokens (required only when dat.method = uuid)
-- **Description**: If true, Indicates that the oldest token should be invalidated when a user requests a new data access token that puts them over the dat.uuid.max_number_per_user limit.  If false, new token requests which put a user over the data.uuid.max_number_per_user limit will not be satisfied until an existing token has expired.  This property is used only when dat.method = uuid.
-- **Permissible Values**: true or false
-- **Default Value**: true
 
 **Property**: dat.oauth2.clientId (required only when dat.method = oauth2)
 - **Description**: Identifier of the OAuth2 client of the authentication provider.
@@ -128,7 +123,7 @@ Authorization: Bearer 63efa81c-2490-4e15-9d1c-fb6e8e50e35d
 Here is an example curl command showing a request to GET /api/studies with the proper **Authorization** header set:
 
 ```
-curl -X GET "http://www.cbioportal.org/api/studies" -H "accept: application/json" -H "Authorization: Bearer 63efa81c-2490-4e15-9d1c-fb6e8e50e35d"
+curl -X GET "https://www.cbioportal.org/api/studies" -H "accept: application/json" -H "Authorization: Bearer 63efa81c-2490-4e15-9d1c-fb6e8e50e35d"
 ```
 
 If a web service request is made without an **Authorization** header or if the token within the header is not valid, the web service will not satisfy the request and will return with an HTTP Status 401.  Additionally, there are a handful of properties which determine the behavior of cBioPortal data access tokens (see [Configuring Data Access Tokens within cBioPortal](#configuring-data-access-tokens-within-cbioportal)).  For example, a data access token may have an expiration date of 30 days after its creation date or 300 days.  Similarly, there may be a limit to the number of data access tokens a user may have at any one time.  If this limit is reached a new data access token may or may not be downloadable.  Please check with the local cBioPortal system administrator for more information about how data access token behavior has been configured.

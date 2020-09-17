@@ -1,0 +1,5 @@
+cancer_study_identifier: brca_tcga_pub
+genetic_alteration_type: GISTIC_GENES_AMP
+datatype: Q-VALUE
+reference_genome_id: hg19
+data_filename: data_gistic_genes_amp.txt

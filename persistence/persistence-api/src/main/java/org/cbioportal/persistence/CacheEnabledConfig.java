@@ -3,19 +3,25 @@ package org.cbioportal.persistence;
 import org.springframework.beans.factory.annotation.Value;
 import java.util.ArrayList;
 import java.util.Arrays;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class CacheEnabledConfig {
 
+    private static final Logger LOG = LoggerFactory.getLogger(CacheEnabledConfig.class);
+
     private boolean enabled;
     
-    public static final String DISK = "disk";
-    public static final String HEAP = "heap";
-    public static final String HYBRID = "hybrid";
+    public static final String EHCACHE_DISK = "ehcache-disk";
+    public static final String EHCACHE_HEAP = "ehcache-heap";
+    public static final String EHCACHE_HYBRID = "ehcache-hybrid";
+    public static final String REDIS = "redis";
 
-    public static ArrayList<String> validCacheTypes = new ArrayList<String>(Arrays.asList(DISK, HEAP, HYBRID));
+    public static ArrayList<String> validCacheTypes = new ArrayList<String>(Arrays.asList(EHCACHE_DISK, EHCACHE_HEAP, EHCACHE_HYBRID, REDIS));
 
     public CacheEnabledConfig(String cacheType) {
         this.enabled = enableCache(cacheType);
+        LOG.info("Cache is enabled: " + this.enabled);
     }
 
     public static boolean enableCache(String cacheType) {

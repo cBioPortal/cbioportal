@@ -63,7 +63,7 @@ public class CustomRedisCachingProvider {
         Config config = new Config();
         config.useMasterSlaveServers()
                 .setMasterAddress("redis://100.96.35.44:6379")
-                .addSlaveAddress("redis://100.96.39.22:6379")
+                .addSlaveAddress("redis://100.96.36.35:6379")
                 .addSlaveAddress("redis://100.96.13.106:6379")
                 .setPassword("PASSWORD_GOES_HERE");
         RedissonClient redissonClient = Redisson.create(config);

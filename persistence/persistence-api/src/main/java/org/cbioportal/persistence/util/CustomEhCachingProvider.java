@@ -91,13 +91,13 @@ public class CustomEhCachingProvider extends EhcacheCachingProvider {
                 ResourcePoolsBuilder staticRepositoryCacheOneResourcePoolsBuilder = ResourcePoolsBuilder.newResourcePoolsBuilder();
 
                 // Set up heap resources as long as not disk-only
-                if (!cacheType.equalsIgnoreCase(CacheEnabledConfig.DISK)) {
+                if (!cacheType.equalsIgnoreCase(CacheEnabledConfig.EHCACHE_DISK)) {
                     generalRepositoryCacheResourcePoolsBuilder = generalRepositoryCacheResourcePoolsBuilder.heap(generalRepositoryCacheMaxMegaBytes, MemoryUnit.MB);
                     staticRepositoryCacheOneResourcePoolsBuilder = staticRepositoryCacheOneResourcePoolsBuilder.heap(staticRepositoryCacheOneMaxMegaBytes, MemoryUnit.MB);
                 }
                 // Set up disk resources as long as not heap-only
                 // will default to using /tmp -- let Ehcache throw exception if persistence path is invalid (locked or otherwise)
-                if (!cacheType.equalsIgnoreCase(CacheEnabledConfig.HEAP)) {
+                if (!cacheType.equalsIgnoreCase(CacheEnabledConfig.EHCACHE_HEAP)) {
                     generalRepositoryCacheResourcePoolsBuilder = generalRepositoryCacheResourcePoolsBuilder.disk(generalRepositoryCacheMaxMegaBytesLocalDisk, MemoryUnit.MB);
                     staticRepositoryCacheOneResourcePoolsBuilder = staticRepositoryCacheOneResourcePoolsBuilder.disk(staticRepositoryCacheOneMaxMegaBytesLocalDisk, MemoryUnit.MB);
                 }
@@ -119,7 +119,7 @@ public class CustomEhCachingProvider extends EhcacheCachingProvider {
                 caches.put("StaticRepositoryCacheOne", staticRepositoryCacheOneConfiguration);
 
                 Configuration configuration = null;
-                if (cacheType.equalsIgnoreCase(CacheEnabledConfig.HEAP)) {
+                if (cacheType.equalsIgnoreCase(CacheEnabledConfig.EHCACHE_HEAP)) {
                     configuration = new DefaultConfiguration(caches, this.getDefaultClassLoader());
                 } else { // add persistence configuration if cacheType is either disk-only or hybrid
                     File persistenceFile = new File(persistencePath);

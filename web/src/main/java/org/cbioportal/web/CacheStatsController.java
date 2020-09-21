@@ -27,6 +27,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 
 import org.springframework.security.access.prepost.PreAuthorize;
 
+import javax.inject.Qualifier;
 import javax.validation.constraints.Max;
 import javax.validation.constraints.Min;
 import javax.validation.constraints.Size;
@@ -43,7 +44,7 @@ import java.util.Map;
 @ApiIgnore
 public class CacheStatsController {
 
-    @Autowired(required=false)
+    @Autowired
     public CacheStatisticsService cacheStatisticsService;
 
     @RequestMapping(value = "/{cache}/keysInCache", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
@@ -51,10 +52,6 @@ public class CacheStatsController {
     public ResponseEntity<List<String>> getKeysInCache(
         @ApiParam(required = true, value = "Cache name")
         @PathVariable String cache) throws CacheNotFoundException {
-        // TODO remove this check once we have redis setup with javax.cache.Cache
-        if (cacheStatisticsService == null) {
-            throw new CacheNotFoundException("Support coming soon");
-        }
         List<String> strings = cacheStatisticsService.getKeysInCache(cache);
         return new ResponseEntity<>(strings, HttpStatus.OK);
     }
@@ -64,10 +61,6 @@ public class CacheStatsController {
     public ResponseEntity<List<String>> getKeyCountsPerClass(
         @ApiParam(required = true, value = "Cache name")
         @PathVariable String cache) throws CacheNotFoundException {
-        // TODO remove this check once we have redis setup with javax.cache.Cache
-        if (cacheStatisticsService == null) {
-            throw new CacheNotFoundException("Support coming soon");
-        }
         List<String> strings = cacheStatisticsService.getKeyCountsPerClass(cache);
         return new ResponseEntity<>(strings, HttpStatus.OK);
     }
@@ -75,10 +68,6 @@ public class CacheStatsController {
     @RequestMapping(value = "/cacheStatistics", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
     @ApiOperation("Get general cache statistics")
     public ResponseEntity<String> getCacheStatistics() throws CacheNotFoundException {
-        // TODO remove this check once we have redis setup with javax.cache.Cache
-        if (cacheStatisticsService == null) {
-            throw new CacheNotFoundException("Support coming soon");
-        }
         return new ResponseEntity<>(cacheStatisticsService.getCacheStatistics(), HttpStatus.OK);
     }
 }

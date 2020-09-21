@@ -36,12 +36,12 @@
             <property name="cacheManager" ref="cacheManager"/>
         </bean>
 
-        <bean id="generalRepositoryCacheResolver" class="org.cbioportal.persistence.util.ToDoRemoveNamedCacheResolver">
+        <bean id="generalRepositoryCacheResolver" class="org.springframework.cache.interceptor.NamedCacheResolver">
             <constructor-arg index="0" ref="redisCacheManager"/>
             <constructor-arg index="1" value="${app.name:cbioportal}GeneralRepositoryCache"/>
         </bean>
 
-        <bean id="staticRepositoryCacheOneResolver" class="org.cbioportal.persistence.util.ToDoRemoveNamedCacheResolver">
+        <bean id="staticRepositoryCacheOneResolver" class="org.springframework.cache.interceptor.NamedCacheResolver">
             <constructor-arg index="0" ref="redisCacheManager"/>
             <constructor-arg index="1" value="${app.name:cbioportal}StaticRepositoryCacheOne"/>
         </bean>

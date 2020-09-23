@@ -50,9 +50,9 @@ import org.springframework.beans.factory.annotation.Value;
 import org.ehcache.impl.config.persistence.DefaultPersistenceConfiguration;
 import org.cbioportal.persistence.CacheEnabledConfig;
 
-public class CustomEhCachingProvider extends EhcacheCachingProvider {
+public class CustomEhcachingProvider extends EhcacheCachingProvider {
 
-    private static final Logger LOG = LoggerFactory.getLogger(CustomEhCachingProvider.class);
+    private static final Logger LOG = LoggerFactory.getLogger(CustomEhcachingProvider.class);
 
     @Value("${ehcache.xml_configuration:/ehcache.xml}")
     private String xmlConfigurationFile;

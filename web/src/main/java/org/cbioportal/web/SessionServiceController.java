@@ -1,14 +1,14 @@
 package org.cbioportal.web;
 
-import java.io.IOException;
-import java.util.*;
-
-import javax.servlet.http.HttpServletResponse;
-import javax.validation.constraints.Size;
-
+import com.fasterxml.jackson.annotation.JsonInclude.Include;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.DeserializationFeature;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.cbioportal.session_service.domain.Session;
+import org.cbioportal.session_service.domain.SessionType;
 import org.cbioportal.web.parameter.CustomDataSession;
 import org.cbioportal.web.parameter.PageSettings;
 import org.cbioportal.web.parameter.PageSettingsData;
@@ -18,8 +18,6 @@ import org.cbioportal.web.parameter.StudyPageSettings;
 import org.cbioportal.web.parameter.VirtualStudy;
 import org.cbioportal.web.parameter.VirtualStudyData;
 import org.cbioportal.web.util.SessionServiceRequestHandler;
-import org.cbioportal.session_service.domain.Session;
-import org.cbioportal.session_service.domain.SessionType;
 import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
 import org.json.simple.parser.ParseException;
@@ -41,16 +39,24 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.client.RestTemplate;
 
-import com.fasterxml.jackson.annotation.JsonInclude.Include;
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.DeserializationFeature;
-import com.fasterxml.jackson.databind.ObjectMapper;
+import javax.servlet.http.HttpServletResponse;
+import javax.validation.constraints.Size;
+import java.io.IOException;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
+import java.util.Set;
 
 @Controller
 @RequestMapping("/session")
 public class SessionServiceController {
 
     private static final Log LOG = LogFactory.getLog(SessionServiceController.class);
+    private static final String ANONYMOUS_USER = "anonymous";
     
     @Autowired
     SessionServiceRequestHandler sessionServiceRequestHandler;
@@ -58,18 +64,27 @@ public class SessionServiceController {
     @Value("${session.service.url:}")
     private String sessionServiceURL;
 
+    @Value("${authenticate:}")
+    private String authenticate;
+
     private Boolean isSessionServiceEnabled() {
         return !StringUtils.isEmpty(sessionServiceURL);
     }
 
-    private boolean isAuthorized() {
+    private boolean isNoAuthSessionServiceActive() {
+        if (authenticate.equals("noauthsessionservice"))
+            return true;
+        return false;
+    }
 
+    private boolean isAuthorized() {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         return !(authentication == null || (authentication instanceof AnonymousAuthenticationToken));
     }
 
     private String userName() {
-
+        if (isNoAuthSessionServiceActive())
+            return ANONYMOUS_USER;
         return ((UserDetails) SecurityContextHolder.getContext().getAuthentication().getPrincipal()).getUsername();
     }
 
@@ -117,7 +132,7 @@ public class SessionServiceController {
                 // JSON from file to Object
                 VirtualStudyData virtualStudyData = mapper.readValue(body.toString(), VirtualStudyData.class);
 
-                if (isAuthorized()) {
+                if (isAuthorized() || isNoAuthSessionServiceActive()) {
                     virtualStudyData.setOwner(userName());
                     if ((operation.isPresent() && operation.get().equals(SessionOperation.save))
                             || type.equals(SessionType.group)) {
@@ -128,7 +143,7 @@ public class SessionServiceController {
                 // use basic authentication for session service if set
                 httpEntity = new HttpEntity<VirtualStudyData>(virtualStudyData, sessionServiceRequestHandler.getHttpHeaders());
             } else if (type.equals(SessionType.settings)) {
-                if (!(isAuthorized())) {
+                if (!isAuthorized() && !isNoAuthSessionServiceActive()) {
                     return new ResponseEntity<>(HttpStatus.SERVICE_UNAVAILABLE);
                 }
                 StudyPageSettings studyPageSettings = mapper.readValue(body.toString(), StudyPageSettings.class);
@@ -139,7 +154,7 @@ public class SessionServiceController {
                 // JSON from file to Object
                 CustomAttributeWithData customData = mapper.readValue(body.toString(), CustomAttributeWithData.class);
 
-                if (isAuthorized()) {
+                if (isAuthorized() || isNoAuthSessionServiceActive()) {
                     customData.setOwner(userName());
                     customData.setUsers(Collections.singleton(userName()));
                 }
@@ -182,7 +197,7 @@ public class SessionServiceController {
     @RequestMapping(value = "/virtual_study", method = RequestMethod.GET)
     public ResponseEntity<List<VirtualStudy>> getUserStudies() throws JsonProcessingException {
 
-        if (isSessionServiceEnabled() && isAuthorized()) {
+        if ((isSessionServiceEnabled() && isAuthorized()) || isNoAuthSessionServiceActive()) {
             try {
 
                 Map<String, String> map = new HashMap<>();
@@ -227,26 +242,25 @@ public class SessionServiceController {
     public void updateUsersInVirtualStudy(@PathVariable SessionType type, @PathVariable String id,
             @PathVariable Operation operation, HttpServletResponse response) throws IOException {
 
-        if (isSessionServiceEnabled() && isAuthorized()) {
+        if ((isSessionServiceEnabled() && isAuthorized()) || isNoAuthSessionServiceActive()) {
             ObjectMapper mapper = new ObjectMapper().configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES,
                     false);
             Set<String> users = new HashSet<>();
             HttpEntity httpEntity;
+            String virtualStudyStr = mapper.writeValueAsString(getSession(type, id, response).getBody());
             if (type.equals(SessionType.custom_data)) {
-                String virtualStudyStr = mapper.writeValueAsString(getSession(type, id, response).getBody());
                 CustomDataSession customDataSession = mapper.readValue(virtualStudyStr, CustomDataSession.class);
                 CustomAttributeWithData customAttributeWithData = customDataSession.getData();
                 users = customAttributeWithData.getUsers();
-                updateUserList(operation, users);
+                updateUserList(operation, users, userName());
                 customAttributeWithData.setUsers(users);
                 httpEntity = new HttpEntity<>(customAttributeWithData, sessionServiceRequestHandler.getHttpHeaders());
 
             } else {
-                String virtualStudyStr = mapper.writeValueAsString(getSession(type, id, response).getBody());
                 VirtualStudy virtualStudy = mapper.readValue(virtualStudyStr, VirtualStudy.class);
                 VirtualStudyData virtualStudyData = virtualStudy.getData();
                 users = virtualStudyData.getUsers();
-                updateUserList(operation, users);
+                updateUserList(operation, users, userName());
                 virtualStudyData.setUsers(users);
                 httpEntity = new HttpEntity<>(virtualStudyData, sessionServiceRequestHandler.getHttpHeaders());
             }
@@ -261,16 +275,16 @@ public class SessionServiceController {
 
     }
 
-    private void updateUserList(Operation operation, Set<String> users) {
+    private void updateUserList(Operation operation, Set<String> users, String userName) {
         switch (operation) {
-        case add: {
-            users.add(userName());
-            break;
-        }
-        case delete: {
-            users.remove(userName());
-            break;
-        }
+            case add: {
+                users.add(userName);
+                break;
+            }
+            case delete: {
+                users.remove(userName);
+                break;
+            }
         }
     }
 
@@ -278,19 +292,18 @@ public class SessionServiceController {
     public ResponseEntity<List<VirtualStudy>> fetchUserGroups(
             @Size(min = 1, max = PagingConstants.MAX_PAGE_SIZE) @RequestBody List<String> studyIds,
             HttpServletResponse response) throws IOException {
+        
+        if ((isSessionServiceEnabled() && isAuthorized()) || isNoAuthSessionServiceActive()) {
 
-        if (isSessionServiceEnabled() && isAuthorized()) {
-
-            String username = userName();
             Map<String, Object> map = new HashMap<>();
-            map.put("data.owner", username);
+            map.put("data.owner", userName());
             map.put("data.origin", studyIds);
 
             ObjectMapper mapper = new ObjectMapper();
 
             // ignore origin studies order
             // add $size to make sure origin studies is not a subset
-            String query = "{ $and: [{ \"data.users\": \"" + username + "\" }, { \"data.origin\": { $all: "
+            String query = "{ $and: [{ \"data.users\": \"" + userName() + "\" }, { \"data.origin\": { $all: "
                     + mapper.writeValueAsString(studyIds) + " } }, { \"data.origin\": { $size: " + studyIds.size()
                     + " } } ]}";
 
@@ -318,7 +331,9 @@ public class SessionServiceController {
             ObjectMapper objectMapper = new ObjectMapper()
                     .configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false)
                     .setSerializationInclusion(Include.NON_NULL);
-            if (isSessionServiceEnabled() && isAuthorized()) {
+            
+            if ((isSessionServiceEnabled() && isAuthorized()) || isNoAuthSessionServiceActive()) {
+
                 Map<String, Object> map = new HashMap<>();
                 map.put("data.owner", userName());
                 map.put("data.page", settingsData.getPage());
@@ -351,7 +366,7 @@ public class SessionServiceController {
     public void updateSession(@PathVariable SessionType type, @PathVariable String id, @RequestBody JSONObject body,
             HttpServletResponse response) throws IOException {
 
-        if (isAuthorized()) {
+        if ((isSessionServiceEnabled() && isAuthorized()) || isNoAuthSessionServiceActive()) {
 
             ObjectMapper mapper = new ObjectMapper().configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES,
                     false);
@@ -361,49 +376,55 @@ public class SessionServiceController {
             if (session.getType().equals(SessionType.group)) {
 
                 VirtualStudy virtualStudy = mapper.readValue(mapper.writeValueAsString(session), VirtualStudy.class);
-
                 VirtualStudyData virtualStudyData = virtualStudy.getData();
-                // only allow owner to update virtual study
-                if (userName().equals(virtualStudyData.getOwner()) && virtualStudy.getType().equals(type)) {
 
-                    VirtualStudyData updatedVirtualStudyData = mapper.readValue(body.toString(),
-                            VirtualStudyData.class);
-                    updatedVirtualStudyData.setCreated(virtualStudyData.getCreated());
+                // return UNAUTHORIZED when needed
+                if (!userOwnsSessionGroup(virtualStudy, type) && !isNoAuthSessionServiceActive()) {
+                    response.setStatus(HttpStatus.UNAUTHORIZED.value());
+                    return;
+                }
+
+                VirtualStudyData updatedVirtualStudyData = mapper.readValue(body.toString(), VirtualStudyData.class);
+                updatedVirtualStudyData.setCreated(virtualStudyData.getCreated());
+                if (isNoAuthSessionServiceActive()) {
+                    updatedVirtualStudyData.setOwner(ANONYMOUS_USER);
+                    updatedVirtualStudyData.setUsers(new HashSet<>(Arrays.asList(ANONYMOUS_USER)));
+                } else {
+                    // update group data when user is owner of the group
                     updatedVirtualStudyData.setOwner(virtualStudyData.getOwner());
                     updatedVirtualStudyData.setUsers(virtualStudyData.getUsers());
-
-                    virtualStudy.setData(mapper.writeValueAsString(updatedVirtualStudyData));
-                    RestTemplate restTemplate = new RestTemplate();
-                    HttpEntity<Object> httpEntity = new HttpEntity<Object>(updatedVirtualStudyData, sessionServiceRequestHandler.getHttpHeaders());
-
-                    restTemplate.put(sessionServiceURL + type + "/" + id, httpEntity);
-                    response.setStatus(HttpStatus.OK.value());
-                } else {
-
-                    response.setStatus(HttpStatus.UNAUTHORIZED.value());
                 }
+                virtualStudy.setData(mapper.writeValueAsString(updatedVirtualStudyData));
+                
+                RestTemplate restTemplate = new RestTemplate();
+                HttpEntity<Object> httpEntity = new HttpEntity<Object>(updatedVirtualStudyData, sessionServiceRequestHandler.getHttpHeaders());
+                restTemplate.put(sessionServiceURL + type + "/" + id, httpEntity);
+                
+                response.setStatus(HttpStatus.OK.value());
+                
             } else {
 
                 PageSettings pageSettings = mapper.readValue(mapper.writeValueAsString(session), PageSettings.class);
                 PageSettingsData pageSettingsData = pageSettings.getData();
                 StudyPageSettings updatedPageSettings = mapper.readValue(body.toString(), StudyPageSettings.class);
-                // only allow owner to update his session and see if the origin(studies) are
-                // same
-                if (userName().equals(pageSettingsData.getOwner()) && session.getType().equals(type)
-                        && sameOrigin(pageSettingsData.getOrigin(), updatedPageSettings.getOrigin())) {
 
-                    updatedPageSettings.setCreated(pageSettingsData.getCreated());
-                    updatedPageSettings.setOwner(pageSettingsData.getOwner());
-                    updatedPageSettings.setOrigin(pageSettingsData.getOrigin());
-
-                    RestTemplate restTemplate = new RestTemplate();
-                    HttpEntity<Object> httpEntity = new HttpEntity<Object>(updatedPageSettings, sessionServiceRequestHandler.getHttpHeaders());
-
-                    restTemplate.put(sessionServiceURL + type + "/" + id, httpEntity);
-                    response.setStatus(HttpStatus.OK.value());
-                } else {
+                // return UNAUTHORIZED when needed
+                if ((!userOwnsSessionSettings(pageSettings, session, type) && !isNoAuthSessionServiceActive())
+                        || !sameOrigin(pageSettingsData.getOrigin(), updatedPageSettings.getOrigin())) {
                     response.setStatus(HttpStatus.UNAUTHORIZED.value());
+                    return;
                 }
+                
+                updatedPageSettings.setCreated(pageSettingsData.getCreated());
+                updatedPageSettings.setOwner(pageSettingsData.getOwner());
+                updatedPageSettings.setOrigin(pageSettingsData.getOrigin());
+
+                RestTemplate restTemplate = new RestTemplate();
+                HttpEntity<Object> httpEntity = new HttpEntity<Object>(updatedPageSettings, sessionServiceRequestHandler.getHttpHeaders());
+
+                restTemplate.put(sessionServiceURL + type + "/" + id, httpEntity);
+                response.setStatus(HttpStatus.OK.value());
+
             }
         } else {
             response.setStatus(HttpStatus.SERVICE_UNAVAILABLE.value());
@@ -415,7 +436,7 @@ public class SessionServiceController {
             HttpServletResponse response) {
 
         try {
-            if (isSessionServiceEnabled() && isAuthorized()) {
+            if ((isSessionServiceEnabled() && isAuthorized()) || isNoAuthSessionServiceActive()) {
 
                 Map<String, Object> map = new HashMap<>();
                 map.put("data.owner", userName());
@@ -441,15 +462,13 @@ public class SessionServiceController {
             @Size(min = 1, max = PagingConstants.MAX_PAGE_SIZE) @RequestBody List<String> studyIds,
             HttpServletResponse response) throws IOException {
 
-        if (isSessionServiceEnabled() && isAuthorized()) {
-
-            String username = userName();
+        if ((isSessionServiceEnabled() && isAuthorized()) || isNoAuthSessionServiceActive()) {
 
             ObjectMapper mapper = new ObjectMapper();
 
             // ignore origin studies order
             // add $size to make sure origin studies is not a subset
-            String query = "{ $and: [{ \"data.users\": \"" + username + "\" }, { \"data.origin\": { $all: "
+            String query = "{ $and: [{ \"data.users\": \"" + userName() + "\" }, { \"data.origin\": { $all: "
                     + mapper.writeValueAsString(studyIds) + " } }, { \"data.origin\": { $size: " + studyIds.size()
                     + " } } ]}";
 
@@ -467,6 +486,14 @@ public class SessionServiceController {
 
         }
         return new ResponseEntity<>(HttpStatus.SERVICE_UNAVAILABLE);
+    }
+    
+    private boolean userOwnsSessionGroup(VirtualStudy virtualStudy, SessionType sessionType) {
+        return userName().equals(virtualStudy.getData().getOwner()) && virtualStudy.getType().equals(sessionType);
+    }
+    
+    private boolean userOwnsSessionSettings(PageSettings pageSettings, Session session, SessionType sessionType) {
+        return userName().equals(pageSettings.getData().getOwner()) && session.getType().equals(sessionType);
     }
 
 }

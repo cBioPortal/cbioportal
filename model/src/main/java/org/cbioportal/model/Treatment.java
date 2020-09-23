@@ -1,6 +1,8 @@
 package org.cbioportal.model;
 
-public class Treatment {
+import java.io.Serializable;
+
+public class Treatment implements Serializable {
     private String treatment;
     private String studyId;
     private String patientId;

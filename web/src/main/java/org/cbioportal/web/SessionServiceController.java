@@ -8,6 +8,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
+import java.util.HashSet;
 
 import javax.servlet.http.HttpServletResponse;
 import javax.validation.constraints.Size;
@@ -66,6 +67,9 @@ public class SessionServiceController {
     @Value("${session.service.password:}")
     private String sessionServicePassword;
 
+    @Value("${authenticate:}")
+    private String authenticate;
+
     private Boolean isBasicAuthEnabled() {
         return isSessionServiceEnabled() && sessionServicePassword != null && !sessionServicePassword.equals("");
     }
@@ -93,6 +97,12 @@ public class SessionServiceController {
 
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         return !(authentication == null || (authentication instanceof AnonymousAuthenticationToken));
+    }
+
+    private boolean isNoAuthSessionServiceActive() {
+        if (authenticate.equals("noauthsessionservice"))
+            return true;
+        return false;
     }
 
     private String userName() {
@@ -297,10 +307,13 @@ public class SessionServiceController {
     public ResponseEntity<List<VirtualStudy>> fetchUserGroups(
             @Size(min = 1, max = PagingConstants.MAX_PAGE_SIZE) @RequestBody List<String> studyIds,
             HttpServletResponse response) throws IOException {
-
-        if (isSessionServiceEnabled() && isAuthorized()) {
-
-            String username = userName();
+        if ((isSessionServiceEnabled() && isAuthorized()) || isNoAuthSessionServiceActive()) {
+            String username ="";
+	    if (!isNoAuthSessionServiceActive()) {
+                username = userName();
+	    }
+	    else
+                username = "anonymous";
             Map<String, Object> map = new HashMap<>();
             map.put("data.owner", username);
             map.put("data.origin", studyIds);
@@ -370,20 +383,37 @@ public class SessionServiceController {
     public void updateSession(@PathVariable SessionType type, @PathVariable String id, @RequestBody JSONObject body,
             HttpServletResponse response) throws IOException {
 
-        if (isAuthorized()) {
+        if (isNoAuthSessionServiceActive() || isAuthorized()) {
 
             ObjectMapper mapper = new ObjectMapper().configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES,
                     false);
 
             Session session = getSession(type, id, response).getBody();
-
             if (session.getType().equals(SessionType.group)) {
 
                 VirtualStudy virtualStudy = mapper.readValue(mapper.writeValueAsString(session), VirtualStudy.class);
 
                 VirtualStudyData virtualStudyData = virtualStudy.getData();
+
+                if (isNoAuthSessionServiceActive()) {
+                    // skip user information
+
+                    VirtualStudyData updatedVirtualStudyData = mapper.readValue(body.toString(),
+                        VirtualStudyData.class);
+                    updatedVirtualStudyData.setCreated(virtualStudyData.getCreated());
+                    updatedVirtualStudyData.setOwner("anonymous");
+		    Set<String> users = new HashSet<String>();
+                    users.add("anonymous");
+                    updatedVirtualStudyData.setUsers(users);
+                    virtualStudy.setData(mapper.writeValueAsString(updatedVirtualStudyData));
+                    RestTemplate restTemplate = new RestTemplate();
+                    HttpEntity<Object> httpEntity = new HttpEntity<Object>(updatedVirtualStudyData, getHttpHeaders());
+
+                    restTemplate.put(sessionServiceURL + type + "/" + id, httpEntity);
+                    response.setStatus(HttpStatus.OK.value());
+                }
                 // only allow owner to update virtual study
-                if (userName().equals(virtualStudyData.getOwner()) && virtualStudy.getType().equals(type)) {
+                else if (userName().equals(virtualStudyData.getOwner()) && virtualStudy.getType().equals(type)) {
 
                     VirtualStudyData updatedVirtualStudyData = mapper.readValue(body.toString(),
                             VirtualStudyData.class);
@@ -397,8 +427,8 @@ public class SessionServiceController {
 
                     restTemplate.put(sessionServiceURL + type + "/" + id, httpEntity);
                     response.setStatus(HttpStatus.OK.value());
-                } else {
-
+                }
+                else {
                     response.setStatus(HttpStatus.UNAUTHORIZED.value());
                 }
             } else {

@@ -59,42 +59,42 @@ public class CustomRedisCachingProvider {
     @Value("${app.name:cbioportal}")
     private String appName;
 
+    @Value("${redis.leader_address}")
+    private String leaderAddress;
+
+    @Value("${redis.first_follower_address}")
+    private String firstFollowerAddress;
+
+    @Value("${redis.second_follower_address}")
+    private String secondFollowerAddress;
+
+    @Value("${redis.password}")
+    private String password;
+
     public RedissonClient getRedissionClient() {
         Config config = new Config();
+        LOG.debug("leaderAddress: " + leaderAddress);
+        LOG.debug("firstFollowerAddress: " + firstFollowerAddress);
+        LOG.debug("secondFollowerAddress: " + secondFollowerAddress);
         config.useMasterSlaveServers()
-                .setMasterAddress("redis://100.96.35.44:6379")
-                .addSlaveAddress("redis://100.96.36.35:6379")
-                .addSlaveAddress("redis://100.96.13.106:6379")
-                .setPassword("PASSWORD_GOES_HERE");
+                .setMasterAddress(leaderAddress)
+                .addSlaveAddress(firstFollowerAddress)
+                .addSlaveAddress(secondFollowerAddress)
+                .setPassword(password);
         RedissonClient redissonClient = Redisson.create(config);
-        LOG.error("Created Redisson Client: " + redissonClient);
+        LOG.debug("Created Redisson Client: " + redissonClient);
         return redissonClient;
     }
 
     public CacheManager getCacheManager(RedissonClient redissonClient) {
-        LOG.error("in getCacheManager");
-
-        //RedissonSpringCacheManager toReturn = null;
-        //Map<String, CacheConfig> caches = new HashMap<String, CacheConfig>();
-        /*
-            create cache with ttl and maxIdleTime
-            ttl - - time to live for key\value entry in milliseconds. If 0 then time to live doesn't affect entry expiration.
-            maxIdleTime - - max idle time for key\value entry in milliseconds.
-            if maxIdleTime and ttl params are equal to 0 then entry stores infinitely.
-            we rely on the server having maxmemory set and maxmemory-policy set to allkeys-lru or allkeys-lfu
-            NOTE: for some reason having ttl and maxIdleTime set to 0 caused the portal to not start up even
-            with allkeys-lfu eviction policy, so added maxIdleTime back.
-        */
-        //caches.put(appName + "GeneralRepositoryCache", new CacheConfig(0, 12*60*60*1000));
-        //caches.put(appName + "StaticRepositoryCacheOne", new CacheConfig(0, 12*60*60*1000));
-        //return new RedissonSpringCacheManager(redissonClient, config);
+        LOG.debug("in getCacheManager");
 
         MutableConfiguration<String, String> jcacheConfig = new MutableConfiguration<>();
         Configuration<String, String> config = RedissonConfiguration.fromInstance(redissonClient, jcacheConfig);
         CachingProvider redisCachingProvider = null;
-        LOG.error("loop through caching providers");
+        LOG.debug("loop through caching providers");
         for (CachingProvider cachingProvider : Caching.getCachingProviders()) {
-            LOG.error("CachingProvider: " + cachingProvider);
+            LOG.debug("CachingProvider: " + cachingProvider);
             if (cachingProvider instanceof JCachingProvider) {
                 redisCachingProvider = cachingProvider;
                 break;
@@ -107,10 +107,8 @@ public class CustomRedisCachingProvider {
             return null;
         }
         CacheManager manager = redisCachingProvider.getCacheManager();
-        //CacheManager manager = Caching.getCachingProvider().getCacheManager();
         manager.createCache(appName + "GeneralRepositoryCache", config);
         manager.createCache(appName + "StaticRepositoryCacheOne", config);
         return manager;
     }
-
 }

@@ -39,11 +39,11 @@ public class CacheEventLogger implements CacheEventListener<Object, Object> {
 
     private static Log log = LogFactory.getLog(CacheEventLogger.class);
 
-    // this is to allow spring to inject EhCacheStatistics via MethodInvokingFactoryBean
-    private static EhCacheStatistics ehCacheStatistics;
-    public static void setCacheStatistics(EhCacheStatistics ecs)
+    // this is to allow spring to inject EhcacheStatistics via MethodInvokingFactoryBean
+    private static EhcacheStatistics ehcacheStatistics;
+    public static void setCacheStatistics(EhcacheStatistics ecs)
     {
-        ehCacheStatistics = ecs;
+        ehcacheStatistics = ecs;
     }
 
     @Override
@@ -54,7 +54,7 @@ public class CacheEventLogger implements CacheEventListener<Object, Object> {
                      "\tKEY: " + cacheEvent.getKey() + "\n" +
                      "\tVALUE: " + cacheEvent.getNewValue() + "\n" +
                      "CACHE_EVENT<>\n");
-            log.debug(ehCacheStatistics.getCacheStatistics());
+            log.debug(ehcacheStatistics.getCacheStatistics());
         }
     }
 }

@@ -51,7 +51,7 @@ The login page is configurable via the `portal.properties` properties `skin.auth
 For example in `skin.authorization_message` you can be set to something like this:
 
 ```
-skin.authorization_message= Welcome to this portal. Access to this portal is available to authorized test users at YOUR ORG.  [<a href="http://thehyve.nl/">Request Access</a>].
+skin.authorization_message= Welcome to this portal. Access to this portal is available to authorized test users at YOUR ORG.  [<a href="https://thehyve.nl/">Request Access</a>].
 ```
 
 You can also set a standard text in `skin.login.contact_html` that will appear in case of problems: 

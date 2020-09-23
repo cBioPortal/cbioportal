@@ -11,12 +11,9 @@ import java.util.stream.Collectors;
 
 @Component
 public class DiscreteDataBinner {
-    private DataBinHelper dataBinHelper;
-
+    
     @Autowired
-    public DiscreteDataBinner(DataBinHelper dataBinHelper) {
-        this.dataBinHelper = dataBinHelper;
-    }
+    private DataBinHelper dataBinHelper;
 
     public List<DataBin> calculateDataBins(List<BigDecimal> values,
                                            Set<BigDecimal> uniqueValues) {

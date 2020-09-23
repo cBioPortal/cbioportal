@@ -8,6 +8,9 @@ import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.mockito.InjectMocks;
+import org.mockito.MockitoAnnotations;
+import org.mockito.Spy;
 import org.mockito.junit.MockitoJUnitRunner;
 
 import java.math.BigDecimal;
@@ -17,24 +20,31 @@ import java.util.stream.Collectors;
 @RunWith(MockitoJUnitRunner.class)
 public class DataBinnerTest {
     private Map<String, String[]> mockData;
-
+    @InjectMocks
     private DataBinner dataBinner;
-    
+    @Spy
+    @InjectMocks
     private StudyViewFilterUtil studyViewFilterUtil;
+    @Spy
+    @InjectMocks
+    private DataBinHelper dataBinHelper;
+    @Spy
+    @InjectMocks
+    private DiscreteDataBinner discreteDataBinner;
+    @Spy
+    @InjectMocks
+    private LinearDataBinner linearDataBinner;
+    @Spy
+    @InjectMocks
+    private ScientificSmallDataBinner scientificSmallDataBinner;
+    @Spy
+    @InjectMocks
+    private LogScaleDataBinner logScaleDataBinner;
 
     @Before
     public void setup() {
-        studyViewFilterUtil = new StudyViewFilterUtil();
-        DataBinHelper dataBinHelper = new DataBinHelper(studyViewFilterUtil);
-        DiscreteDataBinner discreteDataBinner = new DiscreteDataBinner(dataBinHelper);
-        LinearDataBinner linearDataBinner = new LinearDataBinner(dataBinHelper);
-        ScientificSmallDataBinner scientificSmallDataBinner = new ScientificSmallDataBinner(dataBinHelper);
-        LogScaleDataBinner logScaleDataBinner = new LogScaleDataBinner(dataBinHelper);
-
-        dataBinner = new DataBinner(
-            dataBinHelper, discreteDataBinner, linearDataBinner, scientificSmallDataBinner, studyViewFilterUtil, logScaleDataBinner);
-
         mockData = initMockData();
+        MockitoAnnotations.initMocks(this);
     }
 
     public Map<String, String[]> initMockData() {

@@ -34,12 +34,8 @@ public class LinearDataBinner {
 
     public static final Integer DEFAULT_INTERVAL_COUNT = 20;
 
-    private DataBinHelper dataBinHelper;
-
     @Autowired
-    public LinearDataBinner(DataBinHelper dataBinHelper) {
-        this.dataBinHelper = dataBinHelper;
-    }
+    private DataBinHelper dataBinHelper;
 
     public List<DataBin> calculateDataBins(boolean areAllIntegers,
                                            Range<BigDecimal> boxRange,

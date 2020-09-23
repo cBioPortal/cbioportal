@@ -15,7 +15,7 @@ We gratefully acknowledge a large collection of open source languages, tools and
 
 We also gratefully acknowledge the following service providers:
 
-* [GitHub](http://github.com) for source control management and community engagement.
+* [GitHub](https://github.com) for source control management and community engagement.
 * [Slack](https://slack.cbioportal.org/)  for coordinating work across a geographically dispersed team.
 * [Travis CI](https://travis-ci.org/) and [Circle CI](https://circleci.com/) for continuous integration.
 * [Netlify](https://www.netlify.com/), [Heroku](https://www.heroku.com/) and [Amazon Web Services](https://aws.amazon.com/) for cloud hosting services.

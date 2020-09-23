@@ -81,7 +81,7 @@ The file is comprised of the following columns in the order specified:
 1. **type_of_cancer**: The cancer type abbreviation, e.g., "brca".
 2. **name**: The name of the cancer type, e.g., "Breast Invasive Carcinoma".
 3. **clinical_trial_keywords**: A comma separated list of keywords used to identify this study, e.g., "breast,breast invasive".
-4. **dedicated_color**: CSS color name of the color associated with this cancer study, e.g., "HotPink". See [this list](https://www.w3.org/TR/css3-color/#svg-color) for supported names, and follow the [awareness ribbons](http://en.wikipedia.org/wiki/List_of_awareness_ribbons) color schema. This color is associated with the cancer study on various web pages within the cBioPortal.
+4. **dedicated_color**: CSS color name of the color associated with this cancer study, e.g., "HotPink". See [this list](https://www.w3.org/TR/css3-color/#svg-color) for supported names, and follow the [awareness ribbons](https://en.wikipedia.org/wiki/List_of_awareness_ribbons) color schema. This color is associated with the cancer study on various web pages within the cBioPortal.
 5. **parent_type_of_cancer**:  The `type_of_cancer` field of the cancer type of which this is a subtype, e.g., "Breast". :information_source: : you can set parent to `tissue`, which is the reserved word to place the given cancer type at "root" level in the "studies oncotree" that will be generated in the homepage (aka query page) of the portal. 
 
 ### Example
@@ -264,13 +264,13 @@ These columns can be in either the patient or sample file.
 ### Custom columns in clinical data
 cBioPortal supports custom columns with clinical data in either the patient or sample file. They should follow the previously described 5-row header format. Be sure to provide the correct `Datatype`, for optimal search, sorting, filtering (in [clinical data tab](https://www.cbioportal.org/study?id=brca_tcga#clinical)) and visualization.
 
-The Clinical Data Dictionary from MSKCC is used to normalize clinical data, and should be followed to make the clinical data comparable between studies. This dictionary provides a definition whether an attribute should be defined on the patient or sample level, as well as provides a name, description and datatype. The data curator can choose to ignore these proposed definitions, but not following this dictionary might make comparing data between studies more difficult. It should however not break any cBioPortal functionality. See GET /api/ at [http://oncotree.mskcc.org/cdd/swagger-ui.html#/](http://oncotree.mskcc.org/cdd/swagger-ui.html#/) for the data dictionary of all known clinical attributes.
+The Clinical Data Dictionary from MSKCC is used to normalize clinical data, and should be followed to make the clinical data comparable between studies. This dictionary provides a definition whether an attribute should be defined on the patient or sample level, as well as provides a name, description and datatype. The data curator can choose to ignore these proposed definitions, but not following this dictionary might make comparing data between studies more difficult. It should however not break any cBioPortal functionality. See GET /api/ at [https://oncotree.mskcc.org/cdd/swagger-ui.html#/](https://oncotree.mskcc.org/cdd/swagger-ui.html#/) for the data dictionary of all known clinical attributes.
 
 ### Banned column names
 `MUTATION_COUNT` and `FRACTION_GENOME_ALTERED` are auto populated clinical attributes, and should therefore not be present in clinical data files.
 
 ## Discrete Copy Number Data
-The discrete copy number data file contain values that would be derived from copy-number analysis algorithms like [GISTIC 2.0](http://www.ncbi.nlm.nih.gov/sites/entrez?term=18077431) or [RAE](http://www.ncbi.nlm.nih.gov/sites/entrez?term=18784837). GISTIC 2.0 can be [installed](http://www.broadinstitute.org/cgi-bin/cancer/publications/pub_paper.cgi?mode=view&paper_id=216&p=t) or run online using the GISTIC 2.0 module on [GenePattern](https://cloud.genepattern.org). For some help on using GISTIC 2.0, check the [Data Loading: Tips and Best Practices](Data-Loading-Tips-and-Best-Practices.md) page. When loading case list data, the `_cna` case list is required. See the [case list section](#case-lists).
+The discrete copy number data file contain values that would be derived from copy-number analysis algorithms like [GISTIC 2.0](https://www.ncbi.nlm.nih.gov/sites/entrez?term=18077431) or [RAE](https://www.ncbi.nlm.nih.gov/sites/entrez?term=18784837). GISTIC 2.0 can be [installed](https://www.broadinstitute.org/cgi-bin/cancer/publications/pub_paper.cgi?mode=view&paper_id=216&p=t) or run online using the GISTIC 2.0 module on [GenePattern](https://cloud.genepattern.org). For some help on using GISTIC 2.0, check the [Data Loading: Tips and Best Practices](Data-Loading-Tips-and-Best-Practices.md) page. When loading case list data, the `_cna` case list is required. See the [case list section](#case-lists).
 
 ### Meta file 
 The meta file is comprised of the following fields:
@@ -303,8 +303,8 @@ data_filename: data_CNA.txt
 For each gene (row) in the data file, the following columns are required in the order specified:
 
 One or both of:
-- ***Hugo_Symbol***: A [HUGO](http://www.genenames.org/) gene symbol.
-- ***Entrez_Gene_Id***: A [Entrez Gene](http://www.ncbi.nlm.nih.gov/gene) identifier.
+- ***Hugo_Symbol***: A [HUGO](https://www.genenames.org/) gene symbol.
+- ***Entrez_Gene_Id***: A [Entrez Gene](https://www.ncbi.nlm.nih.gov/gene) identifier.
 
 And:
 - An additional column for each sample in the dataset using the sample id as the column header.
@@ -486,8 +486,8 @@ data_filename: data_expression_file.txt
 For each gene (row) in the data file, the following columns are required in the order specified:
 
 One or both of:
-- ***Hugo_Symbol***: A [HUGO](http://www.genenames.org/) gene symbol.
-- ***Entrez_Gene_Id***: A [Entrez Gene](http://www.ncbi.nlm.nih.gov/gene) identifier.
+- ***Hugo_Symbol***: A [HUGO](https://www.genenames.org/) gene symbol.
+- ***Entrez_Gene_Id***: A [Entrez Gene](https://www.ncbi.nlm.nih.gov/gene) identifier.
 
 And:
 - An additional column for each sample in the dataset using the sample id as the column header.
@@ -602,14 +602,14 @@ The mutation data file extends the [Mutation Annotation Format](https://docs.gdc
 
 ### Minimal MAF format
 A minimal mutation annotations file can contain just three of the MAF columns plus one annotation column. From this minimal MAF, it is possible to create an extended MAF by running maf2maf.
-1. **Hugo_Symbol (Required)**: (MAF column) A [HUGO](http://www.genenames.org/) gene symbol.
+1. **Hugo_Symbol (Required)**: (MAF column) A [HUGO](https://www.genenames.org/) gene symbol.
 2. **Tumor_Sample_Barcode (Required)**: (MAF column) This is the sample ID as listed in the clinical data file.
 3. **Variant_Classification (Required)**: (MAF column) Translational effect of variant allele. Allowed values (from [Mutation Annotation Format page](https://docs.gdc.cancer.gov/Data/File_Formats/MAF_Format/)): `Frame_Shift_Del, Frame_Shift_Ins, In_Frame_Del, In_Frame_Ins, Missense_Mutation, Nonsense_Mutation, Silent, Splice_Site, Translation_Start_Site, Nonstop_Mutation, 3'UTR, 3'Flank, 5'UTR, 5'Flank, IGR, Intron, RNA, Targeted_Region, De_novo_Start_InFrame, De_novo_Start_OutOfFrame`. cBioPortal skips the following types during the import: `Silent, Intron, 3'UTR, 3'Flank, 5'UTR, 5'Flank, IGR and RNA`. Two extra values are allowed by cBioPortal here as well: `Splice_Region, Unknown`. :warning: the values should be in the correct case. E.g. `missense_mutation` is not allowed, while `Missense_Mutation` is.
 4. **HGVSp_Short (Required)**: (annotation column) Amino Acid Change, e.g. p.V600E.
 
 Next to Hugo_Symbol, it is recommended to have the Entrez gene ID:
 
-5. **Entrez_Gene_Id (Optional, but recommended)** : An [Entrez Gene](http://www.ncbi.nlm.nih.gov/gene) identifier.
+5. **Entrez_Gene_Id (Optional, but recommended)** : An [Entrez Gene](https://www.ncbi.nlm.nih.gov/gene) identifier.
  
 The following extra annotation columns are important for making sure mutation specific UI functionality works well in the portal:
 
@@ -617,7 +617,7 @@ The following extra annotation columns are important for making sure mutation sp
 7. **SWISSPROT (Optional)**: (annotation column) UniProtKB/SWISS-PROT name (formerly called ID) or accession code depending on the value of the `swissprot_identifier` metadatum, e.g. O11H1_HUMAN or Q8NG94. Is not required, but not having it may result in inconsistent PDB structure matching in [mutations view](https://www.cbioportal.org/index.do?cancer_study_list=brca_tcga_pub&cancer_study_id=brca_tcga_pub&genetic_profile_ids_PROFILE_MUTATION_EXTENDED=brca_tcga_pub_mutations&genetic_profile_ids_PROFILE_COPY_NUMBER_ALTERATION=brca_tcga_pub_gistic&genetic_profile_ids_PROFILE_MRNA_EXPRESSION=brca_tcga_pub_mrna_median_Zscores&Z_SCORE_THRESHOLD=2.0&RPPA_SCORE_THRESHOLD=2.0&data_priority=0&case_set_id=brca_tcga_pub_complete&case_ids=&patient_case_select=sample&gene_set_choice=prostate-cancer%3A-ar-signaling-%2810-genes%29&gene_list=TP53&clinical_param_selection=null&tab_index=tab_visualize&Action=Submit#mutation_details).
 
 ### Creating an extended MAF file with vcf2maf or maf2maf
-If your mutation data is already in [VCF](http://www.1000genomes.org/wiki/Analysis/Variant%20Call%20Format/vcf-variant-call-format-version-41) format (which most variant callers produce by default) you can use the [vcf2maf](https://github.com/mskcc/vcf2maf) converter. This tool parses VCF and MAF files, runs Ensembl Variant Effect Predictor (VEP) and selects a single effect per variant. Protein identifiers should be mapped to UniProt canonical isoforms by adding the `--custom-enst` flag and [this mapping file](https://github.com/mskcc/vcf2maf/blob/master/data/isoform_overrides_uniprot). This will override the Ensembl canonical isoforms with UniProt canonical isoforms, which ensures the SWISSPROT column can be used correctly by cBioPortal.
+If your mutation data is already in [VCF](https://www.1000genomes.org/wiki/Analysis/Variant%20Call%20Format/vcf-variant-call-format-version-41) format (which most variant callers produce by default) you can use the [vcf2maf](https://github.com/mskcc/vcf2maf) converter. This tool parses VCF and MAF files, runs Ensembl Variant Effect Predictor (VEP) and selects a single effect per variant. Protein identifiers should be mapped to UniProt canonical isoforms by adding the `--custom-enst` flag and [this mapping file](https://github.com/mskcc/vcf2maf/blob/master/data/isoform_overrides_uniprot). This will override the Ensembl canonical isoforms with UniProt canonical isoforms, which ensures the SWISSPROT column can be used correctly by cBioPortal.
 
 ### Extended MAF format
 The extended MAF format recognized by the portal has:
@@ -625,8 +625,8 @@ The extended MAF format recognized by the portal has:
 * 1 column with the amino acid change.
 * 4 columns with information on reference and variant allele counts in tumor and normal samples. 
 
-1. **Hugo_Symbol (Required)**: A [HUGO](http://www.genenames.org/) gene symbol.
-2. **Entrez_Gene_Id (Optional, but recommended)**: A [Entrez Gene](http://www.ncbi.nlm.nih.gov/gene) identifier.
+1. **Hugo_Symbol (Required)**: A [HUGO](https://www.genenames.org/) gene symbol.
+2. **Entrez_Gene_Id (Optional, but recommended)**: A [Entrez Gene](https://www.ncbi.nlm.nih.gov/gene) identifier.
 3. **Center (Optional)**: The sequencing center.
 4. **NCBI_Build (Required)<sup>1</sup>**: The Genome Reference Consortium Build is used by a variant calling software. It must be "GRCh37" or "GRCh38" for a human, and "GRCm38" for a mouse.
 5. **Chromosome (Optional)**: A chromosome number, e.g., "7".
@@ -679,7 +679,7 @@ You can learn more about configuring these annotations in the [portal.properties
 ![schreenshot mutation color menu](images/screenshot-mutation-color-menu.png) 
 
 ### Adding your own mutation annotation columns
-Adding additional mutation annotation columns to the extended MAF rows can also be done. In this way, the portal will parse and store your own MAF fields in the database. For example, mutation data that you find on cBioPortal.org comes from MAF files that have been further enriched with information from [mutationassessor.org](http://mutationassessor.org/), which leads to a "Mutation Assessor" column in the [mutation table](https://www.cbioportal.org/index.do?cancer_study_list=acc_tcga&cancer_study_id=acc_tcga&genetic_profile_ids_PROFILE_MUTATION_EXTENDED=acc_tcga_mutations&Z_SCORE_THRESHOLD=2.0&RPPA_SCORE_THRESHOLD=2.0&data_priority=0&case_set_id=acc_tcga_sequenced&case_ids=&patient_case_select=sample&gene_set_choice=user-defined-list&gene_list=ZFPM1&clinical_param_selection=null&tab_index=tab_visualize&Action=Submit).
+Adding additional mutation annotation columns to the extended MAF rows can also be done. In this way, the portal will parse and store your own MAF fields in the database. For example, mutation data that you find on cBioPortal.org comes from MAF files that have been further enriched with information from [mutationassessor.org](https://mutationassessor.org/), which leads to a "Mutation Assessor" column in the [mutation table](https://www.cbioportal.org/index.do?cancer_study_list=acc_tcga&cancer_study_id=acc_tcga&genetic_profile_ids_PROFILE_MUTATION_EXTENDED=acc_tcga_mutations&Z_SCORE_THRESHOLD=2.0&RPPA_SCORE_THRESHOLD=2.0&data_priority=0&case_set_id=acc_tcga_sequenced&case_ids=&patient_case_select=sample&gene_set_choice=user-defined-list&gene_list=ZFPM1&clinical_param_selection=null&tab_index=tab_visualize&Action=Submit).
 
 ### Adding mutation annotation columns through namespaces
 Additional columns may also be added into the MAF and imported through the namespace mechanism. Any columns starting with a prefix specified in the `namespaces` field in the metafile will be imported into the database. Namespace columns should be formatted as the namespace and namespace attribute seperated with a period (e.g ASCN.total_copy_number where ASCN is the namespace and total_copy_number is the attribute). 
@@ -843,8 +843,8 @@ data_filename: data_fusions.txt
 ### Data file
 A fusion data file is a two dimensional matrix with one gene per row.  For each gene (row) in the data file, the following tab-delimited values are required in the order specified:
 
-1. **Hugo_Symbol**: A [HUGO](http://www.genenames.org/) gene symbol.
-2. **Entrez_Gene_Id**: A [Entrez Gene](http://www.ncbi.nlm.nih.gov/gene) identifier.
+1. **Hugo_Symbol**: A [HUGO](https://www.genenames.org/) gene symbol.
+2. **Entrez_Gene_Id**: A [Entrez Gene](https://www.ncbi.nlm.nih.gov/gene) identifier.
 3. **Center**: The sequencing center.
 4. **Tumor_Sample_Barcode**: This is the sample ID.
 5. **Fusion**: A description of the fusion, e.g., "TMPRSS2-ERG fusion".
@@ -1135,7 +1135,7 @@ The following fields from a MutSig file are used by the cBioPortal importer:
 * **gene**: this is the HUGO symbol
 * **N (or Nnon)**: bases covered
 * **n (or nnon)**: number of mutations
-* **p**: result of testing the hypothesis that all of the observed mutations in this gene are a consequence of random background mutation processes, taking into account the list of bases that are successfully interrogated by sequencing (i.e., “covered”) and the list of observed somatic mutations, as well as the length and composition of the gene in addition to the background mutation rates in different sequence contexts (http://www.ncbi.nlm.nih.gov/pmc/articles/PMC3059829/)
+* **p**: result of testing the hypothesis that all of the observed mutations in this gene are a consequence of random background mutation processes, taking into account the list of bases that are successfully interrogated by sequencing (i.e., “covered”) and the list of observed somatic mutations, as well as the length and composition of the gene in addition to the background mutation rates in different sequence contexts (https://www.ncbi.nlm.nih.gov/pmc/articles/PMC3059829/)
 * **q**: p value correct for multiple testing
 
 
@@ -1197,7 +1197,7 @@ If all samples in a genetic profile have the same gene panel associated with the
 ## Gene Set Data
 A description of importing gene sets (which are required before loading gene set study) can be found [here](Import-Gene-Sets.md). This page also contains a decription to import gene set hierarchy data, which is required to show a hierarchical tree on the query page to select gene sets.
 
-cBioPortal supports GSVA scores and GSVA-like scores, such as ssGSEA. The [Gene Set Variation Analysis](http://www.bioconductor.org/packages/release/bioc/html/GSVA.html) method in R (GSVA, [Hänzelmann, 2013](http://bmcbioinformatics.biomedcentral.com/articles/10.1186/1471-2105-14-7)) can calculate several types of scores (specified with the `methods=` argument) and outputs a score between -1 and 1. The GSVA method also calculates a p-value per score using a bootstrapping method.
+cBioPortal supports GSVA scores and GSVA-like scores, such as ssGSEA. The [Gene Set Variation Analysis](https://www.bioconductor.org/packages/release/bioc/html/GSVA.html) method in R (GSVA, [Hänzelmann, 2013](https://bmcbioinformatics.biomedcentral.com/articles/10.1186/1471-2105-14-7)) can calculate several types of scores (specified with the `methods=` argument) and outputs a score between -1 and 1. The GSVA method also calculates a p-value per score using a bootstrapping method.
 
 To import the GSVA(-like) data, a score and p-value data file are required. It is important that the dimensions of the score and p-value file are the same and that they contain the same gene sets and samples. Both data files require a meta file.
 
@@ -1424,8 +1424,8 @@ The sample resource file should follow this format, it has four **required** col
 ### Example *Sample Resource* data file
 <table>
 <thead><tr><th>PATIENT_ID</th><th>SAMPLE_ID</th><th>RESOURCE_ID</th><th>URL</th></tr></thead>
-<tr><td>TCGA-A2-A04P</td><td>TCGA-A2-A04P-01</td><td>PATHOLOGY_SLIDE</td><td>http://url-to-slide-sample1</td></tr>
-<tr><td>TCGA-A1-A0SK</td><td>TCGA-A1-A0SK-01</td><td>PATHOLOGY_SLIDE</td><td>http://url-to-slide-sample2</td></tr>
+<tr><td>TCGA-A2-A04P</td><td>TCGA-A2-A04P-01</td><td>PATHOLOGY_SLIDE</td><td>https://url-to-slide-sample1</td></tr>
+<tr><td>TCGA-A1-A0SK</td><td>TCGA-A1-A0SK-01</td><td>PATHOLOGY_SLIDE</td><td>https://url-to-slide-sample2</td></tr>
 </table>
 
 ### Patient Resource Data File
@@ -1437,8 +1437,8 @@ The patient resource file should follow this format, it has three **required** c
 ### Example *Patient Resource* data file
 <table>
 <thead><tr><th>PATIENT_ID</th><th>RESOURCE_ID</th><th>URL</th></tr></thead>
-<tr><td>TCGA-A2-A04P</td><td>PATIENT_NOTES</td><td>http://url-to-slide-patient1</td></tr>
-<tr><td>TCGA-A1-A0SK</td><td>PATIENT_NOTES</td><td>http://url-to-slide-patient2</td></tr>
+<tr><td>TCGA-A2-A04P</td><td>PATIENT_NOTES</td><td>https://url-to-slide-patient1</td></tr>
+<tr><td>TCGA-A1-A0SK</td><td>PATIENT_NOTES</td><td>https://url-to-slide-patient2</td></tr>
 </table>
 
 ### Study Resource Data File
@@ -1449,5 +1449,5 @@ The study resource file should follow this format, it has two **required** colum
 ### Example *Study Resource* data file
 <table>
 <thead><tr><th>RESOURCE_ID</th><th>URL</th></tr></thead>
-<tr><td>STUDY_SPONSORS</td><td>http://url-to-study-sponsors</td></tr>
+<tr><td>STUDY_SPONSORS</td><td>https://url-to-study-sponsors</td></tr>
 </table>

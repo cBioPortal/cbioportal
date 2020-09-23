@@ -11,12 +11,8 @@ import java.util.List;
 
 @Component
 public class LogScaleDataBinner {
-    private DataBinHelper dataBinHelper;
-
     @Autowired
-    public LogScaleDataBinner(DataBinHelper dataBinHelper) {
-        this.dataBinHelper = dataBinHelper;
-    }
+    private DataBinHelper dataBinHelper;
 
     public List<DataBin> calculateDataBins(Range<BigDecimal> boxRange,
                                            List<BigDecimal> values,

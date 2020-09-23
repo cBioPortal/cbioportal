@@ -1,6 +1,6 @@
 # Introduction
 
-The cBioPortal provides access to data within its database through the [cBioPortal web service](http://www.cbioportal.org/api/swagger-ui.html).  While most users interact with this web service indirectly while visiting cBioPortal web pages, it is possible to access this web service directly.  Direct access to the web service is appealing for those users with an interest in mining or analyzing cBioPortal data beyond the confines of a web browser, such as from ‘R’ or Python clients.
+The cBioPortal provides access to data within its database through the [cBioPortal web service](https://www.cbioportal.org/api/swagger-ui.html).  While most users interact with this web service indirectly while visiting cBioPortal web pages, it is possible to access this web service directly.  Direct access to the web service is appealing for those users with an interest in mining or analyzing cBioPortal data beyond the confines of a web browser, such as from ‘R’ or Python clients.
 
 If your instance of the cBioPortal will not require [user authorization](https://docs.cbioportal.org/2.2-authorization-and-authentication/user-authorization) (login), direct access to the web service is available without any additional server configuration or client side prerequisites.  However, if your instance of the cBioPortal will require login, additional data access token server configuration is necessary before direct access to the web service is available to your users. Additionally, prior to web service access, clients will need to obtain a data access token and present this token with each web service request.
 
@@ -128,7 +128,7 @@ Authorization: Bearer 63efa81c-2490-4e15-9d1c-fb6e8e50e35d
 Here is an example curl command showing a request to GET /api/studies with the proper **Authorization** header set:
 
 ```
-curl -X GET "http://www.cbioportal.org/api/studies" -H "accept: application/json" -H "Authorization: Bearer 63efa81c-2490-4e15-9d1c-fb6e8e50e35d"
+curl -X GET "https://www.cbioportal.org/api/studies" -H "accept: application/json" -H "Authorization: Bearer 63efa81c-2490-4e15-9d1c-fb6e8e50e35d"
 ```
 
 If a web service request is made without an **Authorization** header or if the token within the header is not valid, the web service will not satisfy the request and will return with an HTTP Status 401.  Additionally, there are a handful of properties which determine the behavior of cBioPortal data access tokens (see [Configuring Data Access Tokens within cBioPortal](#configuring-data-access-tokens-within-cbioportal)).  For example, a data access token may have an expiration date of 30 days after its creation date or 300 days.  Similarly, there may be a limit to the number of data access tokens a user may have at any one time.  If this limit is reached a new data access token may or may not be downloadable.  Please check with the local cBioPortal system administrator for more information about how data access token behavior has been configured.

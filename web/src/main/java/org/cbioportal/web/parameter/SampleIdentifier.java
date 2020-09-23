@@ -25,6 +25,11 @@ public class SampleIdentifier implements Serializable {
     }
 
     @Override
+    public String toString() {
+        return getSampleId() + getStudyId();
+    }
+
+    @Override
     public boolean equals(Object o) {
         if (o == this) return true;
         if (!(o instanceof SampleIdentifier)) {

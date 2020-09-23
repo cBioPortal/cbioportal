@@ -947,55 +947,28 @@ class Validator(object):
     @staticmethod
     def load_chromosome_lengths(genome_build, logger):
 
-        """Get the length of each chromosome from USCS and return a dict.
+        """Get the length of each chromosome and return a dict.
 
         The dict will not include unplaced contigs, alternative haplotypes or
         the mitochondrial chromosome.
         """
-
-        class InvalidAPIResponse(ValueError):
-            def __init__(self, chrom_size_url, line):
-                super().__init__('Unexpected response from {}: {}'.format(
-                    chrom_size_url, repr(line)))
-        chrom_size_dict = {}
-        chrom_size_url = (
-            'http://hgdownload.cse.ucsc.edu'
-            '/goldenPath/{build}/bigZips/{build}.chrom.sizes').format(
-                build=genome_build)
-        logger.debug("Retrieving chromosome lengths from '%s'",
-                     chrom_size_url)
-        r = requests.get(chrom_size_url)
+        chrom_size_file = os.path.join(os.path.dirname(os.path.realpath(__file__)), 'chromosome_sizes.json')
         try:
-            r.raise_for_status()
-        except requests.exceptions.HTTPError as e:
-            raise ConnectionError(
-                'Error retrieving chromosome lengths from UCSC'
-            ) from e
-        for line in r.text.splitlines():
-            # skip comment lines
-            if line.startswith('#'):
-                continue
-            cols = line.split('\t', 1)
-            if not (len(cols) == 2 and
-                    cols[0].startswith('chr')):
-                raise InvalidAPIResponse(chrom_size_url, line)
-            # skip unplaced sequences
-            if cols[0].endswith('_random') or cols[0].startswith('chrUn_'):
-                continue
-            # skip entries for alternative haplotypes
-            if re.search(r'_hap[0-9]+$', cols[0]):
-                continue
-            # skip the mitochondrial chromosome
-            if cols[0] == 'chrM':
-                continue
+            with open(chrom_size_file,'r') as f:
+                chrom_sizes = json.load(f)
+        except FileNotFoundError:
+            raise FileNotFoundError('Could not open chromosome_sizes.json. '
+                                    'If it does not exist you can download it using the script '
+                                    'downloadChromosomeSizes.py.')
 
-            # remove the 'chr' prefix
-            chrom_name = cols[0][3:]
-            try:
-                chrom_size = int(cols[1])
-            except ValueError as e:
-                raise InvalidAPIResponse(chrom_size_url, line) from e
-            chrom_size_dict[chrom_name] = chrom_size
+        logger.debug("Retrieving chromosome lengths from '%s'",
+                     chrom_size_file)
+
+        try:
+            chrom_size_dict = chrom_sizes[genome_build]
+        except KeyError:
+            raise KeyError('Could not load chromosome sizes for genome build %s.' % genome_build)
+
         return chrom_size_dict
 
     def parse_chromosome_num(self, value, column_number, chromosome_lengths):
@@ -4885,11 +4858,8 @@ def validate_data_relations(validators_by_meta_type, logger):
 def request_from_portal_api(server_url, api_name, logger):
     """Send a request to the portal API and return the decoded JSON object."""
 
-    if api_name in ['info', 'cancer-types', 'genesets', 'gene-panels']:
+    if api_name in ['info', 'cancer-types', 'genes', 'genesets', 'gene-panels']:
         service_url = server_url + '/api/' + api_name + "?pageSize=9999999"
-    # TODO: make subsequent calls to /genes/{geneId}/aliases
-    elif api_name in ['genes']:
-        service_url = server_url + '/api/' + api_name + '?pageSize=100000'
     elif api_name in ['genesets_version']:
         service_url = server_url + '/api/genesets/version'
 

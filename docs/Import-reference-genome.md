@@ -22,9 +22,9 @@ matching the version used to analyse the original data (before it was loaded int
 here is a sample reference genome file:
 ```
 #species	name	build_name	nonN_bases	URL	release_date
-human	hg19	GRCh37	2897310462	http://hgdownload.cse.ucsc.edu/goldenPath/hg19	2009-02-01
-human	hg38	GRCh38	3049315783	http://hgdownload.cse.ucsc.edu/goldenPath/hg38	2013-12-24
-mouse	mm10	GRCm38	2652783500	http://hgdownload.cse.ucsc.edu/goldenPath/mm10	2011-12-01
+human	hg19	GRCh37	2897310462	https://hgdownload.cse.ucsc.edu/goldenPath/hg19	2009-02-01
+human	hg38	GRCh38	3049315783	https://hgdownload.cse.ucsc.edu/goldenPath/hg38	2013-12-24
+mouse	mm10	GRCm38	2652783500	https://hgdownload.cse.ucsc.edu/goldenPath/mm10	2011-12-01
 ```
 ### 2. Using import script to load reference genome(s) data to the database:
 ```

@@ -111,5 +111,8 @@
                 (#{studyIds[${i}]}, #{sampleIds[${i}]})
             </foreach>
         </if>
+        <if test="@java.util.Arrays@stream(studyIds.toArray()).distinct().count() == 0">
+            FALSE
+        </if>
     </select>
 </mapper>

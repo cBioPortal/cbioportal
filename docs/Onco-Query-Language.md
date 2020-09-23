@@ -195,7 +195,7 @@ Modifiers can be used on their own or in combination with other OQL terms for mu
 
 <a name="driver"></a>
 ### Driver
-The `DRIVER` modifier applies to mutations, fusions and copy number alterations. The definition of what qualifies as a driver alteration comes from the "Mutation Color" menu in OncoPrint. By default, drivers are defined as mutations, fusions and copy number alterations in <a href="https://www.oncokb.org">OncoKB</a> or <a href="http://www.cancerhotspots.org">CancerHotspots</a>.
+The `DRIVER` modifier applies to mutations, fusions and copy number alterations. The definition of what qualifies as a driver alteration comes from the "Mutation Color" menu in OncoPrint. By default, drivers are defined as mutations, fusions and copy number alterations in <a href="https://www.oncokb.org">OncoKB</a> or <a href="https://www.cancerhotspots.org">CancerHotspots</a>.
 
 On its own, the `DRIVER` modifier includes driver mutations, fusions and copy number alterations:
 ```
@@ -337,6 +337,6 @@ This shows that alterations in these genes are almost entirely mutually-exclusiv
 
 <a name="questions-feedback"></a>
 ## Questions? Feedback?
-Please share any questions or feedback on OQL with us: <http://groups.google.com/group/cbioportal>
+Please share any questions or feedback on OQL with us: <https://groups.google.com/group/cbioportal>
 
 Also note that additional explanation and examples using OQL are available in the [OQL tutorial](https://www.cbioportal.org/tutorials#oql).

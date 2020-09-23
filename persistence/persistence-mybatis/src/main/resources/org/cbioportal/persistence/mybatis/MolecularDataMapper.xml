@@ -132,7 +132,38 @@
         </where>
     </select>
 
+    <!-- Any changes to this routine should be kept in sync with getGenericAssayMolecularAlterationsIter below -->
     <select id="getGenericAssayMolecularAlterations" resultType="org.cbioportal.model.GenericAssayMolecularAlteration">
+        SELECT
+        genetic_entity.STABLE_ID AS genericAssayStableId,
+        genetic_profile.STABLE_ID AS molecularProfileId,
+        <if test="projection == 'ID'">
+            NULL AS "values"
+        </if>
+        <if test="projection != 'ID'">
+            genetic_alteration.VALUES AS "values"
+        </if>
+        FROM genetic_alteration
+        INNER JOIN genetic_profile ON genetic_alteration.GENETIC_PROFILE_ID = genetic_profile.GENETIC_PROFILE_ID
+        INNER JOIN genetic_entity ON genetic_alteration.GENETIC_ENTITY_ID = genetic_entity.ID
+        <where>
+            genetic_profile.STABLE_ID = #{molecularProfileId}
+            <if test="stableIds != null and stableIds">
+                AND genetic_entity.STABLE_ID IN
+                <foreach item="item" collection="stableIds" open="(" separator="," close=")">
+                    #{item}
+                </foreach>
+            </if>
+        </where>
+    </select>
+
+    <!-- This routine is a copy of getGenericAssayMolecularAlterations above.  This copy is necessary because
+         it is backing a corresponding method in MolecularDataMapper.java which returns a Cursor as
+         opposed to a List. This method should be kept in sync with getGenericAssayMolecularAlterations above.
+         (Attempts where made to share getGenericAssayMolecularAlterations between methods in MolecularDataMapper.java
+         all of which have failed).
+    -->
+    <select id="getGenericAssayMolecularAlterationsIter" resultType="org.cbioportal.model.GenericAssayMolecularAlteration">
         SELECT
         genetic_entity.STABLE_ID AS genericAssayStableId,
         genetic_profile.STABLE_ID AS molecularProfileId,

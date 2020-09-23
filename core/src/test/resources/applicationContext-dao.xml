@@ -9,12 +9,12 @@
      http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd
      http://www.springframework.org/schema/tx http://www.springframework.org/schema/tx/spring-tx.xsd">
 
-    <!-- Mock beans for EhCache manager and statistics -->
+    <!-- Mock beans for Ehcache manager and statistics -->
      <bean id="cacheManager" class="org.mockito.Mockito" factory-method="mock">
          <constructor-arg value="javax.cache.CacheManager" />
      </bean>
-     <bean id="ehCacheStatistics" class="org.mockito.Mockito" factory-method="mock">
-        <constructor-arg value="org.cbioportal.persistence.util.EhCacheStatistics" />
+     <bean id="ehcacheStatistics" class="org.mockito.Mockito" factory-method="mock">
+        <constructor-arg value="org.cbioportal.persistence.util.EhcacheStatistics" />
     </bean>
 
     <bean id="propertyPlaceholderConfigurer" class="org.springframework.beans.factory.config.PropertyPlaceholderConfigurer">

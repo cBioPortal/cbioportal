@@ -71,7 +71,6 @@ public class CacheStatisticsServiceImpl implements CacheStatisticsService {
 
     @Override
     public String getCacheStatistics() {
-        checkIfCacheStatisticsEndpointEnabled();
-        return "This has not been implemented.";
+        throw new UnsupportedOperationException("Requested API is not implemented yet");
     }
 }

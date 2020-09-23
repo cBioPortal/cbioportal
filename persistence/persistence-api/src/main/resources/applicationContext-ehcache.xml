@@ -10,7 +10,7 @@
     http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-4.0.xsd">
 
     <!--
-        EhCacheStatistics is autowired, and requires a javax.cache.CacheManager
+        EhcacheStatistics is autowired, and requires a javax.cache.CacheManager
         so all (or most) of these beans need to be created even if ehcache is not running
     -->
     <beans profile="ehcache-disk,ehcache-heap,ehcache-hybrid">
@@ -21,10 +21,10 @@
             <constructor-arg value="${persistence.cache_type:no-cache}"/>
         </bean>
 
-        <bean id="customEhCacheProvider" class="org.cbioportal.persistence.util.CustomEhCachingProvider"/>
+        <bean id="customEhcacheProvider" class="org.cbioportal.persistence.util.CustomEhcachingProvider"/>
 
         <bean id="getEhcacheCacheManager" class="org.springframework.beans.factory.config.MethodInvokingFactoryBean">
-            <property name="targetObject" ref="customEhCacheProvider" />
+            <property name="targetObject" ref="customEhcacheProvider" />
             <property name="targetMethod" value="getCacheManager" />
         </bean>
 
@@ -34,7 +34,7 @@
 
         <bean id="customKeyGenerator" class="org.cbioportal.persistence.util.CustomKeyGenerator"/>
 
-        <bean id="ehcacheStatistics" class="org.cbioportal.persistence.util.EhCacheStatistics">
+        <bean id="ehcacheStatistics" class="org.cbioportal.persistence.util.EhcacheStatistics">
             <constructor-arg ref="getEhcacheCacheManager"/>
         </bean>
 

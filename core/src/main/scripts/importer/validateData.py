@@ -416,6 +416,12 @@ class Validator(object):
 
         self.logger.debug('Starting validation of file')
 
+        # Validate whether it's a normal file (skip for now)
+        if self.filename.endswith("_normals.txt"):
+            self.logger.info('Ignoring *_normals.txt files (TMP) '
+                        'Continuing with validation...')
+            return
+
         # Validate whether the file can be opened
         try:
             opened_file = open(self.filename, 'r', newline=None)

@@ -1,18 +1,11 @@
 package org.cbioportal.web;
 
 import java.io.IOException;
-import java.nio.charset.Charset;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
-import java.util.Set;
+import java.util.*;
 
 import javax.servlet.http.HttpServletResponse;
 import javax.validation.constraints.Size;
 
-import org.apache.commons.codec.binary.Base64;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -24,15 +17,16 @@ import org.cbioportal.web.parameter.PagingConstants;
 import org.cbioportal.web.parameter.StudyPageSettings;
 import org.cbioportal.web.parameter.VirtualStudy;
 import org.cbioportal.web.parameter.VirtualStudyData;
+import org.cbioportal.web.util.SessionServiceRequestHandler;
 import org.cbioportal.session_service.domain.Session;
 import org.cbioportal.session_service.domain.SessionType;
 import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
 import org.json.simple.parser.ParseException;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.http.HttpEntity;
-import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -57,37 +51,15 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 public class SessionServiceController {
 
     private static final Log LOG = LogFactory.getLog(SessionServiceController.class);
+    
+    @Autowired
+    SessionServiceRequestHandler sessionServiceRequestHandler;
 
     @Value("${session.service.url:}")
     private String sessionServiceURL;
 
-    @Value("${session.service.user:}")
-    private String sessionServiceUser;
-
-    @Value("${session.service.password:}")
-    private String sessionServicePassword;
-
-    private Boolean isBasicAuthEnabled() {
-        return isSessionServiceEnabled() && sessionServicePassword != null && !sessionServicePassword.equals("");
-    }
-
     private Boolean isSessionServiceEnabled() {
         return !StringUtils.isEmpty(sessionServiceURL);
-    }
-
-    private HttpHeaders getHttpHeaders() {
-
-        return new HttpHeaders() {
-            {
-                if (isBasicAuthEnabled()) {
-                    String auth = sessionServiceUser + ":" + sessionServicePassword;
-                    byte[] encodedAuth = Base64.encodeBase64(auth.getBytes(Charset.forName("US-ASCII")));
-                    String authHeader = "Basic " + new String(encodedAuth);
-                    set("Authorization", authHeader);
-                }
-                set("Content-Type", "application/json");
-            }
-        };
     }
 
     private boolean isAuthorized() {
@@ -116,7 +88,7 @@ public class SessionServiceController {
 
         RestTemplate restTemplate = new RestTemplate();
 
-        HttpEntity<String> httpEntity = new HttpEntity<String>(query, getHttpHeaders());
+        HttpEntity<String> httpEntity = new HttpEntity<String>(query, sessionServiceRequestHandler.getHttpHeaders());
 
         ResponseEntity<List<PageSettings>> responseEntity = restTemplate.exchange(
                 sessionServiceURL + SessionType.settings + "/query/fetch",
@@ -154,14 +126,14 @@ public class SessionServiceController {
                 }
 
                 // use basic authentication for session service if set
-                httpEntity = new HttpEntity<VirtualStudyData>(virtualStudyData, getHttpHeaders());
+                httpEntity = new HttpEntity<VirtualStudyData>(virtualStudyData, sessionServiceRequestHandler.getHttpHeaders());
             } else if (type.equals(SessionType.settings)) {
                 if (!(isAuthorized())) {
                     return new ResponseEntity<>(HttpStatus.SERVICE_UNAVAILABLE);
                 }
                 StudyPageSettings studyPageSettings = mapper.readValue(body.toString(), StudyPageSettings.class);
                 studyPageSettings.setOwner(userName());
-                httpEntity = new HttpEntity<StudyPageSettings>(studyPageSettings, getHttpHeaders());
+                httpEntity = new HttpEntity<StudyPageSettings>(studyPageSettings, sessionServiceRequestHandler.getHttpHeaders());
 
             } else if(type.equals(SessionType.custom_data)) {
                 // JSON from file to Object
@@ -173,9 +145,9 @@ public class SessionServiceController {
                 }
 
                 // use basic authentication for session service if set
-                httpEntity = new HttpEntity<CustomAttributeWithData>(customData, getHttpHeaders());
+                httpEntity = new HttpEntity<CustomAttributeWithData>(customData, sessionServiceRequestHandler.getHttpHeaders());
             } else {
-                httpEntity = new HttpEntity<JSONObject>(body, getHttpHeaders());
+                httpEntity = new HttpEntity<JSONObject>(body, sessionServiceRequestHandler.getHttpHeaders());
             }
             // returns {"id":"5799648eef86c0e807a2e965"}
             // using HashMap because converter is MappingJackson2HttpMessageConverter
@@ -198,28 +170,7 @@ public class SessionServiceController {
             HttpServletResponse response) {
 
         try {
-            RestTemplate restTemplate = new RestTemplate();
-
-            // add basic authentication in header
-            HttpEntity<String> headers = new HttpEntity<String>(getHttpHeaders());
-            ResponseEntity<String> responseEntity = restTemplate.exchange(sessionServiceURL + type + "/" + id,
-                    HttpMethod.GET, headers, String.class);
-
-            ObjectMapper mapper = new ObjectMapper().configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES,
-                    false);
-
-            Session session;
-
-            if (type.equals(SessionType.virtual_study) || type.equals(SessionType.group)) {
-                session = mapper.readValue(responseEntity.getBody(), VirtualStudy.class);
-            } else if (type.equals(SessionType.settings)) {
-                session = mapper.readValue(responseEntity.getBody(), PageSettings.class);
-            } else if (type.equals(SessionType.custom_data)) {
-                session = mapper.readValue(responseEntity.getBody(), CustomDataSession.class);
-            } else {
-                session = mapper.readValue(responseEntity.getBody(), Session.class);
-            }
-
+            Session session = sessionServiceRequestHandler.getSession(type, id);
             return new ResponseEntity<>(session, HttpStatus.OK);
 
         } catch (Exception exception) {
@@ -242,7 +193,7 @@ public class SessionServiceController {
 
                 RestTemplate restTemplate = new RestTemplate();
 
-                HttpEntity<Object> httpEntity = new HttpEntity<Object>(query, getHttpHeaders());
+                HttpEntity<Object> httpEntity = new HttpEntity<Object>(query, sessionServiceRequestHandler.getHttpHeaders());
 
                 ResponseEntity<List<VirtualStudy>> responseEntity = restTemplate.exchange(
                         sessionServiceURL + "virtual_study/query?field=data.users&value=" + userName(),
@@ -272,32 +223,35 @@ public class SessionServiceController {
         return addSession(SessionType.virtual_study, Optional.of(SessionOperation.save), body);
     }
 
-    @RequestMapping(value = "/{type:virtual_study|group}/{operation}/{id}", method = RequestMethod.GET)
+    @RequestMapping(value = "/{type:virtual_study|group|custom_data}/{operation}/{id}", method = RequestMethod.GET)
     public void updateUsersInVirtualStudy(@PathVariable SessionType type, @PathVariable String id,
             @PathVariable Operation operation, HttpServletResponse response) throws IOException {
 
         if (isSessionServiceEnabled() && isAuthorized()) {
             ObjectMapper mapper = new ObjectMapper().configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES,
                     false);
-            String virtualStudyStr = mapper.writeValueAsString(getSession(type, id, response).getBody());
-            VirtualStudy virtualStudy = mapper.readValue(virtualStudyStr, VirtualStudy.class);
-            VirtualStudyData virtualStudyData = virtualStudy.getData();
-            Set<String> users = virtualStudyData.getUsers();
+            Set<String> users = new HashSet<>();
+            HttpEntity httpEntity;
+            if (type.equals(SessionType.custom_data)) {
+                String virtualStudyStr = mapper.writeValueAsString(getSession(type, id, response).getBody());
+                CustomDataSession customDataSession = mapper.readValue(virtualStudyStr, CustomDataSession.class);
+                CustomAttributeWithData customAttributeWithData = customDataSession.getData();
+                users = customAttributeWithData.getUsers();
+                updateUserList(operation, users);
+                customAttributeWithData.setUsers(users);
+                httpEntity = new HttpEntity<>(customAttributeWithData, sessionServiceRequestHandler.getHttpHeaders());
 
-            switch (operation) {
-            case add: {
-                users.add(userName());
-                break;
+            } else {
+                String virtualStudyStr = mapper.writeValueAsString(getSession(type, id, response).getBody());
+                VirtualStudy virtualStudy = mapper.readValue(virtualStudyStr, VirtualStudy.class);
+                VirtualStudyData virtualStudyData = virtualStudy.getData();
+                users = virtualStudyData.getUsers();
+                updateUserList(operation, users);
+                virtualStudyData.setUsers(users);
+                httpEntity = new HttpEntity<>(virtualStudyData, sessionServiceRequestHandler.getHttpHeaders());
             }
-            case delete: {
-                users.remove(userName());
-                break;
-            }
-            }
-            virtualStudyData.setUsers(users);
+
             RestTemplate restTemplate = new RestTemplate();
-            HttpEntity<VirtualStudyData> httpEntity = new HttpEntity<>(virtualStudyData, getHttpHeaders());
-
             restTemplate.put(sessionServiceURL + type + "/" + id, httpEntity);
 
             response.sendError(HttpStatus.OK.value());
@@ -305,6 +259,19 @@ public class SessionServiceController {
             response.sendError(HttpStatus.SERVICE_UNAVAILABLE.value());
         }
 
+    }
+
+    private void updateUserList(Operation operation, Set<String> users) {
+        switch (operation) {
+        case add: {
+            users.add(userName());
+            break;
+        }
+        case delete: {
+            users.remove(userName());
+            break;
+        }
+        }
     }
 
     @RequestMapping(value = "/groups/fetch", method = RequestMethod.POST)
@@ -329,7 +296,7 @@ public class SessionServiceController {
 
             RestTemplate restTemplate = new RestTemplate();
 
-            HttpEntity<String> httpEntity = new HttpEntity<String>(query, getHttpHeaders());
+            HttpEntity<String> httpEntity = new HttpEntity<String>(query, sessionServiceRequestHandler.getHttpHeaders());
 
             ResponseEntity<List<VirtualStudy>> responseEntity = restTemplate.exchange(
                     sessionServiceURL + SessionType.group + "/query/fetch",
@@ -407,7 +374,7 @@ public class SessionServiceController {
 
                     virtualStudy.setData(mapper.writeValueAsString(updatedVirtualStudyData));
                     RestTemplate restTemplate = new RestTemplate();
-                    HttpEntity<Object> httpEntity = new HttpEntity<Object>(updatedVirtualStudyData, getHttpHeaders());
+                    HttpEntity<Object> httpEntity = new HttpEntity<Object>(updatedVirtualStudyData, sessionServiceRequestHandler.getHttpHeaders());
 
                     restTemplate.put(sessionServiceURL + type + "/" + id, httpEntity);
                     response.setStatus(HttpStatus.OK.value());
@@ -430,7 +397,7 @@ public class SessionServiceController {
                     updatedPageSettings.setOrigin(pageSettingsData.getOrigin());
 
                     RestTemplate restTemplate = new RestTemplate();
-                    HttpEntity<Object> httpEntity = new HttpEntity<Object>(updatedPageSettings, getHttpHeaders());
+                    HttpEntity<Object> httpEntity = new HttpEntity<Object>(updatedPageSettings, sessionServiceRequestHandler.getHttpHeaders());
 
                     restTemplate.put(sessionServiceURL + type + "/" + id, httpEntity);
                     response.setStatus(HttpStatus.OK.value());
@@ -477,9 +444,6 @@ public class SessionServiceController {
         if (isSessionServiceEnabled() && isAuthorized()) {
 
             String username = userName();
-            Map<String, Object> map = new HashMap<>();
-            map.put("data.owner", username);
-            map.put("data.origin", studyIds);
 
             ObjectMapper mapper = new ObjectMapper();
 
@@ -491,7 +455,7 @@ public class SessionServiceController {
 
             RestTemplate restTemplate = new RestTemplate();
 
-            HttpEntity<String> httpEntity = new HttpEntity<String>(query, getHttpHeaders());
+            HttpEntity<String> httpEntity = new HttpEntity<String>(query, sessionServiceRequestHandler.getHttpHeaders());
 
             ResponseEntity<List<CustomDataSession>> responseEntity = restTemplate.exchange(
                     sessionServiceURL + SessionType.custom_data + "/query/fetch",

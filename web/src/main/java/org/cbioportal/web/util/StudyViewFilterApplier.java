@@ -52,6 +52,8 @@ public class StudyViewFilterApplier {
     @Autowired
     private PatientTreatmentFilterApplier patientTreatmentFilterApplier;
     @Autowired
+    private CustomDataFilterApplier customDataFilterApplier;
+    @Autowired
     private SampleTreatmentFilterApplier sampleTreatmentFilterApplier;
 
     Function<Sample, SampleIdentifier> sampleToSampleIdentifier = new Function<Sample, SampleIdentifier>() {
@@ -120,9 +122,14 @@ public class StudyViewFilterApplier {
         if (!CollectionUtils.isEmpty(clinicalDataEqualityFilters)) {
             sampleIdentifiers = equalityFilterClinicalData(sampleIdentifiers, clinicalDataEqualityFilters, negateFilters);
         }
-        
+
         if (!CollectionUtils.isEmpty(clinicalDataIntervalFilters)) {
             sampleIdentifiers = intervalFilterClinicalData(sampleIdentifiers, clinicalDataIntervalFilters, negateFilters);
+        }
+
+        if (!CollectionUtils.isEmpty(studyViewFilter.getCustomDataFilters())) {
+            sampleIdentifiers = customDataFilterApplier.apply(sampleIdentifiers, studyViewFilter.getCustomDataFilters(),
+                    negateFilters);
         }
 
         List<MolecularProfile> molecularProfiles = null;
@@ -743,7 +750,6 @@ public class StudyViewFilterApplier {
             Boolean negateFilters) {
 
         if (!CollectionUtils.isEmpty(dataFilters) && !CollectionUtils.isEmpty(sampleIdentifiers)) {
-            System.out.println("not empty");
 
             Map<String, List<MolecularProfile>> molecularProfileMap = studyViewFilterUtil
                     .categorizeMolecularPorfiles(molecularProfiles);
@@ -816,40 +822,18 @@ public class StudyViewFilterApplier {
             MultiKeyMap clinicalDataMap = new MultiKeyMap();
 
             clinicalDatas.forEach(clinicalData -> {
-                if (clinicalDataMap.containsKey(clinicalData.getSampleId(), clinicalData.getStudyId())) {
-                    ((List<ClinicalData>) clinicalDataMap.get(clinicalData.getSampleId(), clinicalData.getStudyId()))
-                            .add(clinicalData);
-                } else {
-                    List<ClinicalData> clinicalDatasTemp = new ArrayList<>();
-                    clinicalDatasTemp.add(clinicalData);
-                    clinicalDataMap.put(clinicalData.getSampleId(), clinicalData.getStudyId(), clinicalDatasTemp);
-                }
+                clinicalDataMap.put(clinicalData.getStudyId(), clinicalData.getSampleId(), clinicalData.getAttrId(),
+                        clinicalData.getAttrValue());
             });
 
-            List<String> ids = new ArrayList<>();
-            List<String> studyIdsOfIds = new ArrayList<>();
-            int index = 0;
-            for (String entityId : sampleIds) {
-                String studyId = studyIds.get(index);
-
-                int count = clinicalDataIntervalFilterApplier.apply(attributes, clinicalDataMap, entityId, studyId,
-                        negateFilters);
+            List<SampleIdentifier> newSampleIdentifiers = new ArrayList<>();
+            for (SampleIdentifier sampleIdentifier : sampleIdentifiers) {
+                int count = clinicalDataIntervalFilterApplier.apply(attributes, clinicalDataMap,
+                        sampleIdentifier.getSampleId(), sampleIdentifier.getStudyId(), negateFilters);
 
                 if (count == attributes.size()) {
-                    ids.add(entityId);
-                    studyIdsOfIds.add(studyId);
+                    newSampleIdentifiers.add(sampleIdentifier);
                 }
-                index++;
-            }
-
-            Set<String> idsSet = new HashSet<>(ids);
-            idsSet.retainAll(new HashSet<>(sampleIds));
-            List<SampleIdentifier> newSampleIdentifiers = new ArrayList<>();
-            for (int i = 0; i < ids.size(); i++) {
-                SampleIdentifier sampleIdentifier = new SampleIdentifier();
-                sampleIdentifier.setSampleId(ids.get(i));
-                sampleIdentifier.setStudyId(studyIdsOfIds.get(i));
-                newSampleIdentifiers.add(sampleIdentifier);
             }
 
             return newSampleIdentifiers;

@@ -1,17 +1,17 @@
 package org.cbioportal.web.util;
 
+import java.util.ArrayList;
+import java.util.List;
+import java.util.stream.Collectors;
+
 import org.apache.commons.collections.map.MultiKeyMap;
 import org.cbioportal.model.ClinicalData;
 import org.cbioportal.model.Patient;
 import org.cbioportal.service.ClinicalDataService;
 import org.cbioportal.service.PatientService;
-import org.cbioportal.web.parameter.*;
-
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
-import java.util.stream.Collectors;
+import org.cbioportal.web.parameter.ClinicalDataFilter;
+import org.cbioportal.web.parameter.Projection;
+import org.cbioportal.web.parameter.SampleIdentifier;
 
 public abstract class ClinicalDataFilterApplier {
     private PatientService patientService;
@@ -59,41 +59,22 @@ public abstract class ClinicalDataFilterApplier {
                 }
             });
 
-            List<SampleIdentifier> newSampleIdentifiers = new ArrayList<>();
             MultiKeyMap clinicalDataMap = new MultiKeyMap();
             for (ClinicalData clinicalData : clinicalDataList) {
-                if (clinicalDataMap.containsKey(clinicalData.getSampleId(), clinicalData.getStudyId())) {
-                    ((List<ClinicalData>)clinicalDataMap.get(clinicalData.getSampleId(), clinicalData.getStudyId())).add(clinicalData);
-                } else {
-                    List<ClinicalData> clinicalDatas = new ArrayList<>();
-                    clinicalDatas.add(clinicalData);
-                    clinicalDataMap.put(clinicalData.getSampleId(), clinicalData.getStudyId(), clinicalDatas);
-                }
+                clinicalDataMap.put(clinicalData.getStudyId(), clinicalData.getSampleId(), clinicalData.getAttrId(),
+                        clinicalData.getAttrValue());
             }
 
-            List<String> ids = new ArrayList<>();
-            List<String> studyIdsOfIds = new ArrayList<>();
-            int index = 0;
-            for (String entityId : sampleIds) {
-                String studyId = studyIds.get(index);
-
-                int count = apply(clinicalDataFilters, clinicalDataMap, entityId, studyId, negateFilters);
+            List<SampleIdentifier> newSampleIdentifiers = new ArrayList<>();
+            sampleIdentifiers.forEach(sampleIdentifier -> {
+                int count = apply(clinicalDataFilters, clinicalDataMap, sampleIdentifier.getSampleId(),
+                        sampleIdentifier.getStudyId(), negateFilters);
 
                 if (count == clinicalDataFilters.size()) {
-                    ids.add(entityId);
-                    studyIdsOfIds.add(studyId);
+                    newSampleIdentifiers.add(sampleIdentifier);
                 }
-                index++;
-            }
+            });
 
-            Set<String> idsSet = new HashSet<>(ids);
-            idsSet.retainAll(new HashSet<>(sampleIds));
-            for (int i = 0; i < ids.size(); i++) {
-                SampleIdentifier sampleIdentifier = new SampleIdentifier();
-                sampleIdentifier.setSampleId(ids.get(i));
-                sampleIdentifier.setStudyId(studyIdsOfIds.get(i));
-                newSampleIdentifiers.add(sampleIdentifier);
-            }
             return newSampleIdentifiers;
         }
         return sampleIdentifiers;

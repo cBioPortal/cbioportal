@@ -15,12 +15,10 @@
         <dependency>
             <groupId>org.mskcc.cbio</groupId>
             <artifactId>persistence-api</artifactId>
-            <version>${project.version}</version>
         </dependency>
         <dependency>
             <groupId>org.mskcc.cbio</groupId>
             <artifactId>db-scripts</artifactId>
-            <version>${project.version}</version>
             <scope>test</scope>
         </dependency>
         <dependency>

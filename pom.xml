@@ -57,8 +57,8 @@
       <properties>
         <importer-main-class>org.mskcc.cbio.importer.Admin</importer-main-class>
       </properties>
-    <build>
-    <plugins>
+      <build>
+        <plugins>
           <plugin>
             <groupId>com.github.cbioportal.maven-external-version</groupId>
             <artifactId>maven-external-version-plugin</artifactId>
@@ -73,46 +73,46 @@
           <plugin>
             <groupId>org.jacoco</groupId>
             <artifactId>jacoco-maven-plugin</artifactId>
-             <version>${jacoco-maven-plugin.version}</version>
-             <executions>
-                <!--
+            <version>${jacoco-maven-plugin.version}</version>
+            <executions>
+              <!--
                     Prepares the property pointing to the JaCoCo runtime agent which
                     is passed as VM argument when Maven the Surefire plugin is executed.
                 -->
-                <execution>
-                    <id>pre-unit-test</id>
-                    <phase>process-test-classes</phase>
-                    <goals>
-                        <goal>prepare-agent</goal>
-                    </goals>
-                    <configuration>
-                        <!-- Sets the path to the file which contains the execution data. -->
-                        <destFile>${project.build.directory}/coverage-reports/jacoco-ut.exec</destFile>
-                        <!--
+              <execution>
+                <id>pre-unit-test</id>
+                <phase>process-test-classes</phase>
+                <goals>
+                  <goal>prepare-agent</goal>
+                </goals>
+                <configuration>
+                  <!-- Sets the path to the file which contains the execution data. -->
+                  <destFile>${project.build.directory}/coverage-reports/jacoco-ut.exec</destFile>
+                  <!--
                             Sets the name of the property containing the settings
                             for JaCoCo runtime agent.
                         -->
-                        <propertyName>argLine</propertyName>
-                    </configuration>
-                </execution>
-                <!--
+                  <propertyName>argLine</propertyName>
+                </configuration>
+              </execution>
+              <!--
                     Ensures that the code coverage report for unit tests is created after
                     unit tests have been run.
                 -->
-                <execution>
-                    <id>post-unit-test</id>
-                    <phase>test</phase>
-                    <goals>
-                        <goal>report</goal>
-                    </goals>
-                    <configuration>
-                        <!-- Sets the path to the file which contains the execution data. -->
-                        <dataFile>${project.build.directory}/coverage-reports/jacoco-ut.exec</dataFile>
-                        <!-- Sets the output directory for the code coverage report. -->
-                        <outputDirectory>${project.build.directory}/coverage-reports/jacoco-ut</outputDirectory>
-                    </configuration>
-                </execution>
-             </executions>
+              <execution>
+                <id>post-unit-test</id>
+                <phase>test</phase>
+                <goals>
+                  <goal>report</goal>
+                </goals>
+                <configuration>
+                  <!-- Sets the path to the file which contains the execution data. -->
+                  <dataFile>${project.build.directory}/coverage-reports/jacoco-ut.exec</dataFile>
+                  <!-- Sets the output directory for the code coverage report. -->
+                  <outputDirectory>${project.build.directory}/coverage-reports/jacoco-ut</outputDirectory>
+                </configuration>
+              </execution>
+            </executions>
           </plugin>
           <!-- copy portal.properties.EXAMPLE and log4j.properties.EXAMPLE if they don't exist -->
           <plugin>
@@ -155,10 +155,10 @@
                 <artifactId>ant-contrib</artifactId>
                 <version>1.0b3</version>
                 <exclusions>
-                    <exclusion>
-                        <groupId>ant</groupId>
-                        <artifactId>ant</artifactId>
-                    </exclusion>
+                  <exclusion>
+                    <groupId>ant</groupId>
+                    <artifactId>ant</artifactId>
+                  </exclusion>
                 </exclusions>
               </dependency>
               <dependency>
@@ -186,38 +186,38 @@
                 </configuration>
               </execution>
             </executions>
-        </plugin>
+          </plugin>
           <plugin>
             <groupId>pl.project13.maven</groupId>
             <artifactId>git-commit-id-plugin</artifactId>
             <version>2.2.4</version>
-                <executions>
-                    <execution>
-                        <id>get-the-git-infos</id>
-                        <goals>
-                            <goal>revision</goal>
-                        </goals>
-                        <!-- *NOTE*: The default phase of revision is initialize, but in case you want to change it, you can do so by adding the phase here -->
-                        <phase>initialize</phase>
-                    </execution>
-                    <execution>
-                        <id>validate-the-git-infos</id>
-                        <goals>
-                            <goal>validateRevision</goal>
-                        </goals>
-                        <!-- *NOTE*: The default phase of validateRevision is verify, but in case you want to change it, you can do so by adding the phase here -->
-                        <phase>package</phase>
-                    </execution>
-                </executions>
+            <executions>
+              <execution>
+                <id>get-the-git-infos</id>
+                <goals>
+                  <goal>revision</goal>
+                </goals>
+                <!-- *NOTE*: The default phase of revision is initialize, but in case you want to change it, you can do so by adding the phase here -->
+                <phase>initialize</phase>
+              </execution>
+              <execution>
+                <id>validate-the-git-infos</id>
+                <goals>
+                  <goal>validateRevision</goal>
+                </goals>
+                <!-- *NOTE*: The default phase of validateRevision is verify, but in case you want to change it, you can do so by adding the phase here -->
+                <phase>package</phase>
+              </execution>
+            </executions>
             <configuration>
-                <generateGitPropertiesFile>true</generateGitPropertiesFile>
-                <gitDescribe>
-                    <tags>true</tags>
-                </gitDescribe>
+              <generateGitPropertiesFile>true</generateGitPropertiesFile>
+              <gitDescribe>
+                <tags>true</tags>
+              </gitDescribe>
             </configuration>
           </plugin>
-    </plugins>
-    </build>
+        </plugins>
+      </build>
     </profile>
     <profile>
       <id>external</id>
@@ -264,21 +264,21 @@
               </execution>
             </executions>
           </plugin>
-		  <!-- don't generate git.properties on heroku (unf doesn't work, since
+          <!-- don't generate git.properties on heroku (unf doesn't work, since
 			   .git directory is not accessible during build) -->
           <plugin>
             <groupId>pl.project13.maven</groupId>
             <artifactId>git-commit-id-plugin</artifactId>
-                <executions>
-                    <execution>
-                        <id>get-the-git-infos</id>
-						<phase>none</phase>
-                    </execution>
-                    <execution>
-                        <id>validate-the-git-infos</id>
-						<phase>none</phase>
-                    </execution>
-                </executions>
+            <executions>
+              <execution>
+                <id>get-the-git-infos</id>
+                <phase>none</phase>
+              </execution>
+              <execution>
+                <id>validate-the-git-infos</id>
+                <phase>none</phase>
+              </execution>
+            </executions>
           </plugin>
         </plugins>
       </build>
@@ -305,7 +305,7 @@
     <jacoco-maven-plugin.version>0.8.5</jacoco-maven-plugin.version>
     <mockito.version>3.3.3</mockito.version>
     <jackson.version>2.11.0</jackson.version>
-      
+
     <sonar.projectKey>cBioPortal_cbioportal</sonar.projectKey>
     <sonar.moduleKey>${project.groupId}:${project.artifactId}</sonar.moduleKey>
     <sonar.organization>cbioportal</sonar.organization>
@@ -338,6 +338,78 @@
     <module>db-scripts</module>
     <module>security</module>
   </modules>
+
+  <dependencyManagement>
+    <dependencies>
+      <!-- modules -->
+
+      <dependency>
+        <groupId>org.mskcc.cbio</groupId>
+        <artifactId>portal</artifactId>
+        <version>${project.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>org.mskcc.cbio</groupId>
+        <artifactId>core</artifactId>
+        <version>${project.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>org.mskcc.cbio</groupId>
+        <artifactId>web</artifactId>
+        <version>${project.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>org.mskcc.cbio</groupId>
+        <artifactId>model</artifactId>
+        <version>${project.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>org.mskcc.cbio</groupId>
+        <artifactId>persistence</artifactId>
+        <version>${project.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>org.mskcc.cbio</groupId>
+        <artifactId>persistence-api</artifactId>
+        <version>${project.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>org.mskcc.cbio</groupId>
+        <artifactId>persistence-connections</artifactId>
+        <version>${project.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>org.mskcc.cbio</groupId>
+        <artifactId>persistence-mybatis</artifactId>
+        <version>${project.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>org.mskcc.cbio</groupId>
+        <artifactId>service</artifactId>
+        <version>${project.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>org.mskcc.cbio</groupId>
+        <artifactId>scripts</artifactId>
+        <version>${project.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>org.mskcc.cbio</groupId>
+        <artifactId>db-scripts</artifactId>
+        <version>${project.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>org.mskcc.cbio</groupId>
+        <artifactId>security</artifactId>
+        <version>${project.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>org.mskcc.cbio</groupId>
+        <artifactId>security-spring</artifactId>
+        <version>${project.version}</version>
+      </dependency>
+    </dependencies>
+  </dependencyManagement>
 
   <dependencies>
     <!-- Spring Security for core and service -->
@@ -399,7 +471,7 @@
       <groupId>junit</groupId>
       <artifactId>junit</artifactId>
       <version>4.12</version>
-        <scope>test</scope>
+      <scope>test</scope>
     </dependency>
     <!-- log4j -->
     <dependency>
@@ -513,9 +585,9 @@
     </dependency>
 
     <dependency>
-        <groupId>com.vlkan.hrrs</groupId>
-        <artifactId>hrrs-servlet-filter-base64</artifactId>
-        <version>0.5</version>
+      <groupId>com.vlkan.hrrs</groupId>
+      <artifactId>hrrs-servlet-filter-base64</artifactId>
+      <version>0.5</version>
     </dependency>
     <!-- guava -->
     <dependency>
@@ -524,36 +596,36 @@
       <version>23.6-jre</version>
     </dependency>
     <dependency>
-        <groupId>org.apache.commons</groupId>
-        <artifactId>commons-math3</artifactId>
-        <version>3.2</version>
+      <groupId>org.apache.commons</groupId>
+      <artifactId>commons-math3</artifactId>
+      <version>3.2</version>
     </dependency>
     <dependency>
       <groupId>org.mockito</groupId>
       <artifactId>mockito-core</artifactId>
       <version>${mockito.version}</version>
       <scope>test</scope>
-        <exclusions>
-            <exclusion>
-                <artifactId>hamcrest-core</artifactId>
-                <groupId>org.hamcrest</groupId>
-            </exclusion>
-        </exclusions>
+      <exclusions>
+        <exclusion>
+          <artifactId>hamcrest-core</artifactId>
+          <groupId>org.hamcrest</groupId>
+        </exclusion>
+      </exclusions>
     </dependency>
     <dependency>
-        <groupId>org.hibernate</groupId>
-        <artifactId>hibernate-validator</artifactId>
-        <version>5.3.4.Final</version>
+      <groupId>org.hibernate</groupId>
+      <artifactId>hibernate-validator</artifactId>
+      <version>5.3.4.Final</version>
     </dependency>
     <dependency>
-        <groupId>javax.el</groupId>
-        <artifactId>javax.el-api</artifactId>
-        <version>2.2.4</version>
+      <groupId>javax.el</groupId>
+      <artifactId>javax.el-api</artifactId>
+      <version>2.2.4</version>
     </dependency>
     <dependency>
-        <groupId>org.glassfish.web</groupId>
-        <artifactId>javax.el</artifactId>
-        <version>2.2.4</version>
+      <groupId>org.glassfish.web</groupId>
+      <artifactId>javax.el</artifactId>
+      <version>2.2.4</version>
     </dependency>
     <dependency>
       <groupId>javax.annotation</groupId>

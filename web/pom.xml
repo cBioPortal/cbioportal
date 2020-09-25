@@ -24,7 +24,6 @@
     <dependency>
       <groupId>org.mskcc.cbio</groupId>
       <artifactId>service</artifactId>
-      <version>${project.version}</version>
     </dependency>
     <dependency>
       <groupId>cglib</groupId>
@@ -149,9 +148,9 @@
     </dependency>
     <!-- required after disconnect from business module -->
     <dependency>
-        <groupId>com.fasterxml.jackson.core</groupId>
-        <artifactId>jackson-databind</artifactId>
-        <version>${jackson.version}</version>
+      <groupId>com.fasterxml.jackson.core</groupId>
+      <artifactId>jackson-databind</artifactId>
+      <version>${jackson.version}</version>
     </dependency>
   </dependencies>
 

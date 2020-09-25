@@ -40,6 +40,9 @@ import org.apache.commons.lang.StringUtils;
 import java.sql.*;
 import java.util.*;
 import java.util.regex.*;
+import org.apache.commons.collections.MapIterator;
+import org.apache.commons.collections.keyvalue.MultiKey;
+import org.apache.commons.collections.map.MultiKeyMap;
 
 /**
  * Data access object for Mutation table
@@ -186,27 +189,74 @@ public final class DaoMutation {
         }
     }
 
-    public static int calculateMutationCountByKeyword(int profileId) throws DaoException {
+    public static void calculateMutationCountByKeyword(int geneticProfileId) throws DaoException {
+        if (!MySQLbulkLoader.isBulkLoad()) {
+            throw new DaoException("You have to turn on MySQLbulkLoader in order to update mutation counts by keyword");
+        } else {
+            MultiKeyMap mutationEventKeywordCountMap = getMutationEventKeywordCountByGeneticProfileId(geneticProfileId); // mutation event keyword -> entrez id -> keyword count
+            Map<Long, Integer> geneCountMap = getGeneCountByGeneticProfileId(geneticProfileId); // entrez id -> gene count
+            MapIterator it = mutationEventKeywordCountMap.mapIterator();
+            while (it.hasNext()) {
+                it.next();
+                MultiKey mk = (MultiKey) it.getKey();
+                String mutationEventKeyword = String.valueOf(mk.getKey(0));
+                Long entrezGeneId = Long.valueOf(mk.getKey(1).toString());
+                String keywordCount = it.getValue().toString();
+                Integer geneCount = geneCountMap.get(entrezGeneId);
+                MySQLbulkLoader.getMySQLbulkLoader("mutation_count_by_keyword").insertRecord(
+                        Integer.toString(geneticProfileId),
+                        mutationEventKeyword,
+                        Long.toString(entrezGeneId),
+                        keywordCount,
+                        Integer.toString(geneCount)
+                );
+            }
+        }
+    }
+
+    public static MultiKeyMap getMutationEventKeywordCountByGeneticProfileId(int geneticProfileId) throws DaoException {
+        MultiKeyMap mutationEventKeywordCountByGeneticProfileId = new MultiKeyMap();
         Connection con = null;
         PreparedStatement pstmt = null;
         ResultSet rs = null;
         try {
             con = JdbcUtil.getDbConnection(DaoMutation.class);
             pstmt = con.prepareStatement(
-                "INSERT INTO mutation_count_by_keyword " +
-                    "SELECT g2.`GENETIC_PROFILE_ID`, mutation_event.`KEYWORD`, m2.`ENTREZ_GENE_ID`, " +
-                    "IF(mutation_event.`KEYWORD` IS NULL, 0, COUNT(DISTINCT(m2.SAMPLE_ID))) AS KEYWORD_COUNT, " +
-                    "(SELECT COUNT(DISTINCT(m1.SAMPLE_ID)) FROM `mutation` AS m1 , `genetic_profile` AS g1 " +
-                    "WHERE m1.`GENETIC_PROFILE_ID` = g1.`GENETIC_PROFILE_ID` " +
-                    "AND g1.`GENETIC_PROFILE_ID`= g2.`GENETIC_PROFILE_ID` AND m1.`ENTREZ_GENE_ID` = m2.`ENTREZ_GENE_ID` " +
-                    "GROUP BY g1.`GENETIC_PROFILE_ID` , m1.`ENTREZ_GENE_ID`) AS GENE_COUNT " +
-                    "FROM `mutation` AS m2 , `genetic_profile` AS g2 , `mutation_event` " +
-                    "WHERE m2.`GENETIC_PROFILE_ID` = g2.`GENETIC_PROFILE_ID` " +
-                    "AND m2.`MUTATION_EVENT_ID` = mutation_event.`MUTATION_EVENT_ID` " +
-                    "AND g2.`GENETIC_PROFILE_ID`=? " +
-                    "GROUP BY g2.`GENETIC_PROFILE_ID` , mutation_event.`KEYWORD` , m2.`ENTREZ_GENE_ID`;");
-            pstmt.setInt(1, profileId);
-            return pstmt.executeUpdate();
+                    "SELECT mutation_event.`KEYWORD`, mutation_event.`ENTREZ_GENE_ID`,  IF(mutation_event.`KEYWORD` IS NULL, 0, COUNT(DISTINCT(mutation.SAMPLE_ID))) AS KEYWORD_COUNT " +
+                            "FROM mutation_event JOIN mutation on mutation.`MUTATION_EVENT_ID` = mutation_event.`MUTATION_EVENT_ID` " +
+                            "WHERE mutation.`GENETIC_PROFILE_ID` = ? " +
+                            "GROUP BY mutation_event.`KEYWORD`, mutation_event.`ENTREZ_GENE_ID`;"
+            );
+            pstmt.setInt(1, geneticProfileId);
+            rs = pstmt.executeQuery();
+            while (rs.next()) {
+                mutationEventKeywordCountByGeneticProfileId.put(rs.getString(1), rs.getLong(2), rs.getInt(3));
+            }
+            return mutationEventKeywordCountByGeneticProfileId;
+        } catch (SQLException e) {
+            throw new DaoException(e);
+        } finally {
+            JdbcUtil.closeAll(DaoMutation.class, con, pstmt, rs);
+        }
+    }
+
+    public static Map<Long, Integer> getGeneCountByGeneticProfileId(int geneticProfileId) throws DaoException {
+        Map<Long, Integer> geneCountByGeneticProfileId = new HashMap<>();
+        Connection con = null;
+        PreparedStatement pstmt = null;
+        ResultSet rs = null;
+        try {
+            con = JdbcUtil.getDbConnection(DaoMutation.class);
+            pstmt = con.prepareStatement(
+                "SELECT ENTREZ_GENE_ID AS `ENTREZ_GENE_ID`, COUNT(DISTINCT(SAMPLE_ID)) AS `GENE_COUNT`" +
+                    " FROM mutation WHERE GENETIC_PROFILE_ID = ? " +
+                    "GROUP BY ENTREZ_GENE_ID;");
+            pstmt.setInt(1, geneticProfileId);
+            rs = pstmt.executeQuery();
+            while (rs.next()) {
+                geneCountByGeneticProfileId.put(rs.getLong("ENTREZ_GENE_ID"), rs.getInt("GENE_COUNT"));
+            }
+            return geneCountByGeneticProfileId;
         } catch (SQLException e) {
             throw new DaoException(e);
         } finally {

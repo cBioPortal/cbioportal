@@ -116,7 +116,7 @@ public class ImportExtendedMutationData{
 
         Map<ExtendedMutation,ExtendedMutation> mutations = new HashMap<ExtendedMutation,ExtendedMutation>();
         long mutationEventId = DaoMutation.getLargestMutationEventId();
-        
+
         List<AlleleSpecificCopyNumber> ascnRecords = new ArrayList<AlleleSpecificCopyNumber>();
 
         FileReader reader = new FileReader(mutationFile);
@@ -487,8 +487,8 @@ public class ImportExtendedMutationData{
                 throw ex;
             }
         }
- 
-        for (AlleleSpecificCopyNumber ascn : ascnRecords) { 
+
+        for (AlleleSpecificCopyNumber ascn : ascnRecords) {
             try {
                 DaoAlleleSpecificCopyNumber.addAlleleSpecificCopyNumber(ascn);
             } catch (DaoException ex) {
@@ -515,6 +515,7 @@ public class ImportExtendedMutationData{
         }
         // the mutation count by keyword is on a per genetic profile basis so
         // fine to calculate for any genetic profile
+        ProgressMonitor.setCurrentMessage("Calculating mutation counts by keyword...");
         DaoMutation.calculateMutationCountByKeyword(geneticProfileId);
 
         if( MySQLbulkLoader.isBulkLoad()) {

@@ -8,6 +8,7 @@ import org.cbioportal.service.exception.CacheNotFoundException;
 import org.cbioportal.web.config.annotation.PublicApi;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.context.annotation.Profile;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
@@ -25,8 +26,6 @@ import com.fasterxml.jackson.core.JsonParseException;
 import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
-import org.springframework.security.access.prepost.PreAuthorize;
-
 import javax.inject.Qualifier;
 import javax.validation.constraints.Max;
 import javax.validation.constraints.Min;
@@ -42,6 +41,7 @@ import java.util.Map;
 @Validated
 @Api(tags = "CacheStats", hidden = true, description = " ")
 @ApiIgnore
+@Profile({"ehcache-heap", "ehcache-disk", "ehcache-hybrid", "redis"})
 public class CacheStatsController {
 
     @Autowired

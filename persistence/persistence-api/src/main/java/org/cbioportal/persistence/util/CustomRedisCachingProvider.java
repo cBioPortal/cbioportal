@@ -59,21 +59,32 @@ public class CustomRedisCachingProvider {
     @Value("${app.name:cbioportal}")
     private String appName;
 
-    @Value("${redis.leader_address}")
+    @Value("${redis.address}")
+    private String address;
+
+    /*@Value("${redis.leader_address}")
     private String leaderAddress;
 
     @Value("${redis.first_follower_address}")
     private String firstFollowerAddress;
 
     @Value("${redis.second_follower_address}")
-    private String secondFollowerAddress;
+    private String secondFollowerAddress;*/
+
+    @Value("${redis.database}")
+    private Integer database;
 
     @Value("${redis.password}")
     private String password;
 
     public RedissonClient getRedissionClient() {
         Config config = new Config();
-        LOG.debug("leaderAddress: " + leaderAddress);
+        LOG.debug("address: " + address);
+        config.useSingleServer()
+            .setAddress(address)
+            .setDatabase(database);
+            //TODO add back .setPassword(password);
+        /*LOG.debug("leaderAddress: " + leaderAddress);
         LOG.debug("firstFollowerAddress: " + firstFollowerAddress);
         LOG.debug("secondFollowerAddress: " + secondFollowerAddress);
         config.useMasterSlaveServers()
@@ -81,19 +92,20 @@ public class CustomRedisCachingProvider {
                 .addSlaveAddress(firstFollowerAddress)
                 .addSlaveAddress(secondFollowerAddress)
                 .setPassword(password);
+        */
         RedissonClient redissonClient = Redisson.create(config);
         LOG.debug("Created Redisson Client: " + redissonClient);
         return redissonClient;
     }
 
     public CacheManager getCacheManager(RedissonClient redissonClient) {
-        LOG.debug("in getCacheManager");
+        LOG.debug("in getCacheManager with redissonClient: " + redissonClient);
 
-        MutableConfiguration<String, String> jcacheConfig = new MutableConfiguration<>();
-        Configuration<String, String> config = RedissonConfiguration.fromInstance(redissonClient, jcacheConfig);
+        //MutableConfiguration<String, String> jcacheConfig = new MutableConfiguration<>();
+        Configuration<String, String> config = RedissonConfiguration.fromInstance(redissonClient);//, jcacheConfig);
         CachingProvider redisCachingProvider = null;
         LOG.debug("loop through caching providers");
-        for (CachingProvider cachingProvider : Caching.getCachingProviders()) {
+        for (CachingProvider cachingProvider : Caching.getCachingProviders(Thread.currentThread().getContextClassLoader())) {
             LOG.debug("CachingProvider: " + cachingProvider);
             if (cachingProvider instanceof JCachingProvider) {
                 redisCachingProvider = cachingProvider;

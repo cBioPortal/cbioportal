@@ -127,6 +127,7 @@
           <warName>${final.war.name}</warName>
           <webappDirectory>${project.build.directory}/portal</webappDirectory>
           <filteringDeploymentDescriptors>true</filteringDeploymentDescriptors>
+          <!--packagingExcludes>WEB-INF/lib/redisson*.jar</packagingExcludes-->
           <webResources>
             <resource>
               <directory>${project.parent.basedir}/persistence/persistence-connections/src/main/resources</directory>

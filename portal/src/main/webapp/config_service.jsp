@@ -62,6 +62,8 @@
             "show.genomenexus.annotation_sources",
             "show.mutation_mappert_tool.grch38",
             "show.transcript_dropdown",
+            "survival.show_p_q_values_in_survival_type_table",
+            "survival.initial_x_axis_limit",
             "skin.documentation.about",
             "skin.documentation.baseurl",
             "skin.example_study_queries",

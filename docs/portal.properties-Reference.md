@@ -155,6 +155,21 @@ Different samples of a patient may have been analyzed with different gene panels
 ```
 skin.patientview.filter_genes_profiled_all_samples=
 ```
+
+## Hide p- and q-values in survival types table
+```
+# Show/hide p- and q-values in survival types table (default is true)
+survival.show_p_q_values_in_survival_type_table=
+```
+
+## Set the initial x-axis limit for the survival plot
+By default, the initial x-axis limit for a survival plot is the time of the latest event in the data. With this setting, you can make the initial x-axis limit be smaller than that.
+![Survival x-axis limit examples](images/previews/survival_x_axis_limit.png)
+```
+# Set initial x-axis limit for survival plot (by default, initial limit will be the latest event in the data)
+survival.initial_x_axis_limit=
+```
+
 # Ensembl transcript lookup URL
 The Mutations tab contains various links, redirecting the user to external information resources regarding the displayed transcript. The Ensembl template URL can be customized by modifying the property:
 ```

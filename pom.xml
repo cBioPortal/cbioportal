@@ -305,10 +305,9 @@
     <jacoco-maven-plugin.version>0.8.5</jacoco-maven-plugin.version>
     <mockito.version>3.3.3</mockito.version>
     <jackson.version>2.11.0</jackson.version>
-      
-    <sonar.projectKey>n1zea144_cbioportal</sonar.projectKey>
+    <sonar.projectKey>cBioPortal_cbioportal</sonar.projectKey>
     <sonar.moduleKey>${project.groupId}:${project.artifactId}</sonar.moduleKey>
-    <sonar.organization>n1zea144</sonar.organization>
+    <sonar.organization>cbioportal</sonar.organization>
     <sonar.host.url>https://sonarcloud.io</sonar.host.url>
 
     <final.war.name>cbioportal</final.war.name>

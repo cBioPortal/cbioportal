@@ -152,14 +152,14 @@ def get_current_mutation_data(study_id, cursor, cancer_genes):
     mutations = []
     try:
         cursor.execute('SELECT genetic_profile.GENETIC_PROFILE_ID, mutation_event.ENTREZ_GENE_ID, PROTEIN_CHANGE as ALTERATION, ' +
-        'MUTATION_TYPE as CONSEQUENCE FROM cbioportal.mutation_event ' +
+        'MUTATION_TYPE as CONSEQUENCE, mutation.MUTATION_EVENT_ID, mutation.SAMPLE_ID FROM cbioportal.mutation_event ' +
         'inner join mutation on mutation.MUTATION_EVENT_ID = mutation_event.MUTATION_EVENT_ID ' +
         'inner join genetic_profile on genetic_profile.GENETIC_PROFILE_ID = mutation.GENETIC_PROFILE_ID ' +
         'inner join cancer_study on cancer_study.CANCER_STUDY_ID = genetic_profile.CANCER_STUDY_ID ' +
         'WHERE cancer_study.CANCER_STUDY_IDENTIFIER = "'+study_id +'"')
         for row in cursor.fetchall():
             if row[1] in cancer_genes:
-                mutations += [{ "id": "_".join([str(row[1]), row[2], row[3]]), "geneticProfileId": row[0], "entrezGeneId": row[1],
+                mutations += [{ "id": "_".join([str(row[4]), str(row[0]), str(row[5])]), "geneticProfileId": row[0], "entrezGeneId": row[1],
                                 "alteration": row[2], "consequence": row[3]}]
     except MySQLdb.Error as msg:
         print(msg, file=ERROR_FILE)
@@ -173,7 +173,8 @@ def get_current_cna_data(study_id, cursor, cancer_genes):
     """
     cna = []
     try:
-        cursor.execute('SELECT genetic_profile.GENETIC_PROFILE_ID, '+ 'cna_event.ENTREZ_GENE_ID, ALTERATION from cbioportal.cna_event '+
+        cursor.execute('SELECT genetic_profile.GENETIC_PROFILE_ID, '+ 'cna_event.ENTREZ_GENE_ID, ALTERATION, '+
+        'sample_cna_event.CNA_EVENT_ID, sample_cna_event.SAMPLE_ID from cbioportal.cna_event ' +
         'inner join sample_cna_event on sample_cna_event.CNA_EVENT_ID = cna_event.CNA_EVENT_ID '+
         'inner join genetic_profile on genetic_profile.GENETIC_PROFILE_ID = sample_cna_event.GENETIC_PROFILE_ID '+
         'inner join cancer_study on cancer_study.CANCER_STUDY_ID = genetic_profile.CANCER_STUDY_ID '+
@@ -182,7 +183,7 @@ def get_current_cna_data(study_id, cursor, cancer_genes):
             if row[1] in cancer_genes:
                 alteration = list(cna_alteration_types.keys())[
                     list(cna_alteration_types.values()).index(row[2])]
-                cna += [{"id": "_".join([str(row[1]), alteration]), "geneticProfileId": row[0], "entrezGeneId": row[1],
+                cna += [{"id": "_".join([str(row[2]), str(row[0]), str(row[3])]), "geneticProfileId": row[0], "entrezGeneId": row[1],
                         "alteration": alteration}]
     except MySQLdb.Error as msg:
         print(msg, file=ERROR_FILE)
@@ -236,6 +237,7 @@ def fetch_oncokb_copy_number_annotations(copy_number_data, ref_genome):
     request_url = "https://demo.oncokb.org/api/v1/annotate/copyNumberAlterations"
     request_headers = {'Content-Type': 'application/json', 'Accept': 'application/json'}
     request_payload = create_copy_number_request_payload(copy_number_data, ref_genome)
+    print(request_payload)
     request = requests.post(url=request_url, headers=request_headers, data=request_payload)
 
     if request.ok:
@@ -280,17 +282,22 @@ def get_oncokb_cancer_genes_by_entrezId():
         entrez_ids += [gene["entrezGeneId"]]
     return entrez_ids
 
-def update_mutations(mutation_result):
-    for mutation in mutation_result:
-        parsed_id = mutation["query"]["id"].split("_")
-        entrez_id = parsed_id[0]
-        protein_change = parsed_id[1]
-        mutation_type = parsed_id[2]
-        print("ENTREZ:" + entrez_id)
-        print("PROT CH: "+ protein_change)
-        print("MUT TYPE: "+ mutation_type) #Not working because of mutation types like "In_Frame"
-        print("ONCOGENIC: "+libImportOncokb.evaluate_driver_passenger(mutation["oncogenic"]))
-
+def update_annotations(result, cursor):
+    for entry in result:
+        parsed_id = entry["query"]["id"].split("_")
+        event_id = parsed_id[0]
+        genetic_profile_id = parsed_id[1]
+        sample_id = parsed_id[2]
+        oncogenic = libImportOncokb.evaluate_driver_passenger(entry["oncogenic"])
+        try:
+            cursor.execute('UPDATE cbioportal.alteration_driver_annotation'+
+            ' SET DRIVER_FILTER = "'+ oncogenic + '"' +
+            ' WHERE alteration_driver_annotation.ALTERATION_EVENT_ID = '+ event_id +
+            ' and alteration_driver_annotation.GENETIC_PROFILE_ID = '+ genetic_profile_id +
+            ' and alteration_driver_annotation.SAMPLE_ID = '+ sample_id)
+        except MySQLdb.Error as msg:
+            print(msg, file=ERROR_FILE)
+        
 def main_import(study_id, properties_filename):    
     # 1. check mutation file present
     # 2. check no custom driver columns present
@@ -378,10 +385,9 @@ def main_import(study_id, properties_filename):
     
     # 4. Call oncokb to get annotations for the cna data retrieved
     # cna_result = fetch_oncokb_copy_number_annotations(cna_study_data, ref_genome)
-    # print(cna_result)
     
     # 5. Query DB to clean alteration_driver_annotation table data for the study requested // go one by one and modify record
-    update_mutations(mutation_result)
+    update_annotations(mutation_result, cursor)
 
     # 6. Query DB to add retrieved oncokb data in alteration_driver_annotation table
 

@@ -11,6 +11,7 @@ import org.mockito.invocation.InvocationOnMock;
 import org.mockito.Mockito;
 import org.mockito.stubbing.Answer;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.MediaType;
@@ -39,6 +40,7 @@ public class CacheStatsControllerTest {
     private MockMvc mockMvc;
 
     @Autowired
+    @Qualifier("mockCacheStatisticsService")
     public CacheStatisticsService cacheStatisticsService;
 
     @Before
@@ -47,6 +49,7 @@ public class CacheStatsControllerTest {
     }
 
     @Bean
+    @Qualifier("mockCacheStatisticsService")
     public static CacheStatisticsService cacheStatisticsService() throws CacheNotFoundException {
         CacheStatisticsService cacheStatisticsServiceMock = Mockito.mock(CacheStatisticsService.class);
         Mockito.when(cacheStatisticsServiceMock.getKeyCountsPerClass(Mockito.anyString())).thenAnswer(new Answer<List<String>>() {

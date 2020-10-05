@@ -237,7 +237,6 @@ def fetch_oncokb_copy_number_annotations(copy_number_data, ref_genome):
     request_url = "https://demo.oncokb.org/api/v1/annotate/copyNumberAlterations"
     request_headers = {'Content-Type': 'application/json', 'Accept': 'application/json'}
     request_payload = create_copy_number_request_payload(copy_number_data, ref_genome)
-    print(request_payload)
     request = requests.post(url=request_url, headers=request_headers, data=request_payload)
 
     if request.ok:
@@ -282,7 +281,7 @@ def get_oncokb_cancer_genes_by_entrezId():
         entrez_ids += [gene["entrezGeneId"]]
     return entrez_ids
 
-def update_annotations(result, cursor):
+def update_annotations(result, connection, cursor):
     for entry in result:
         parsed_id = entry["query"]["id"].split("_")
         event_id = parsed_id[0]
@@ -295,63 +294,12 @@ def update_annotations(result, cursor):
             ' WHERE alteration_driver_annotation.ALTERATION_EVENT_ID = '+ event_id +
             ' and alteration_driver_annotation.GENETIC_PROFILE_ID = '+ genetic_profile_id +
             ' and alteration_driver_annotation.SAMPLE_ID = '+ sample_id)
+            connection.commit()
         except MySQLdb.Error as msg:
             print(msg, file=ERROR_FILE)
         
 def main_import(study_id, properties_filename):    
-    # 1. check mutation file present
-    # 2. check no custom driver columns present
-    # 3. check entrez gene id column is present and values are not empty for any gene
-    # 4. check columns below are present
-    # 5. extract features (gene symbol, mutation id) from columns
-    #   entrez gene id --> Entrez_Gene_Id
-    #   alteration --> HGVSp_Short
-    #   consequence --> Variant_Classification
-    #   proteinStart --> extract from Protein_position (see getProteinStart() in ExtendedMutationUtil.java)
-    #   proteinEnd --> extract from Protein_position (see getProteinPosEnd() in ExtendedMutationUtil.java)
-    # create a map indexed by line number
-    # 6. retrieve oncokb annotations batch wise; keep value 'oncogenic'
-    # 7. loop over every line in the MAF file and add Driver_Filter and Driver_Filter_Annotation columns
-    # Driver_Filter becomes 'Putative_Driver' values are 'Likely Oncogenic', 'Oncogenic', and 'Predicted Oncogenic'
-    # Driver_Filter_Annotation becomes the value of the 'oncogenic' return value
-    # 8. Rename the original MAF file to <filename>_orig.maf, and use updated MAF file at study loading.
-
-    # # get a logger to emit messages
-    # logger = logging.getLogger(__name__)
-    # logger.setLevel(logging.INFO)
-    # exit_status_handler = validateData.MaxLevelTrackingHandler()
-    # logger.addHandler(exit_status_handler)
-
-    # # set default message handler
-    # text_handler = logging.StreamHandler(sys.stdout)
-    # text_handler.setFormatter(
-    #     cbioportal_common.LogfileStyleFormatter(study_dir))
-    # collapsing_text_handler = cbioportal_common.CollapsingLogMessageHandler(
-    #     capacity=5e5,
-    #     flushLevel=logging.CRITICAL,
-    #     target=text_handler)
-    # collapsing_text_handler.setLevel(logging.INFO)
-    # logger.addHandler(collapsing_text_handler)
-
-    # meta_file_mutation = libImportOncokb.find_meta_file_by_fields(study_dir, {'genetic_alteration_type': 'MUTATION_EXTENDED'})
-    # mutation_file_path = os.path.join(study_dir, libImportOncokb.find_data_file_from_meta_file(meta_file_mutation))
-    # check_required_columns(libImportOncokb.get_first_line(open_mutations_file(mutation_file_path)).rstrip('\n').split('\t'))
-    # check_disallowed_columns(libImportOncokb.get_first_line(open_mutations_file(mutation_file_path)).rstrip('\n').split('\t'))
-
-    # global portal_instance
-    # if hasattr(args, 'portal_info_dir') and args.portal_info_dir is not None:
-    #     portal_instance = validateData.load_portal_info(args.portal_info_dir, logger,
-    #                                        offline=True)
-    # else:
-    #     portal_instance = validateData.load_portal_info(server_url, logger)
-
-    # row_number_to_feature = get_mutation_features(mutation_file_path)
-    # row_number_to_annotation = fetch_oncokb_annotations(row_number_to_feature)
-    # write_annotations_to_file(row_number_to_annotation, mutation_file_path)
-
-    ############################
-    # Parse portal.properties
-    # check existence of properties file and sql file
+    # check existence of properties file
     if not os.path.exists(properties_filename):
         print('properties file %s cannot be found' % (properties_filename), file=ERROR_FILE)
         sys.exit(2)
@@ -369,148 +317,25 @@ def main_import(study_id, properties_filename):
         print('failure connecting to sql database', file=ERROR_FILE)
         sys.exit(1)
 
-    #0. Get OncoKB cancer genes
+    #Get OncoKB cancer genes
     cancer_genes = get_oncokb_cancer_genes_by_entrezId()
 
-    # 1. Query DB to get mutation data of the study
+    #Query DB to get mutation and cna data of the study
     mutation_study_data = get_current_mutation_data(study_id, cursor, cancer_genes)
-
-    # 2. Query DB to get cna data of the study
     cna_study_data = get_current_cna_data(study_id, cursor, cancer_genes)
 
-    # 3. Call oncokb to get annotations for the mutation data retrieved
+    #Call oncokb to get annotations for the mutation and cna data retrieved
     ref_genome = get_reference_genome(study_id, cursor)
     mutation_result = fetch_oncokb_mutation_annotations(mutation_study_data, ref_genome)
-    # print(mutation_result)
+    cna_result = fetch_oncokb_copy_number_annotations(cna_study_data, ref_genome)
     
-    # 4. Call oncokb to get annotations for the cna data retrieved
-    # cna_result = fetch_oncokb_copy_number_annotations(cna_study_data, ref_genome)
-    
-    # 5. Query DB to clean alteration_driver_annotation table data for the study requested // go one by one and modify record
-    update_annotations(mutation_result, cursor)
-
-    # 6. Query DB to add retrieved oncokb data in alteration_driver_annotation table
+    #Query DB to update alteration_driver_annotation table data, one record at a time
+    update_annotations(mutation_result, connection, cursor)
+    update_annotations(cna_result, connection, cursor)
 
     print('Update complete')
 
     return 0
-
-
-# def open_mutations_file(file_name):
-#     try:
-#         file = open(file_name)
-#     except FileNotFoundError:
-#         raise FilenotFoundError("Could not open MAF file at path '" + file_name + "'")
-#     return file
-
-
-# def check_required_columns(header_elements):
-#     missing_columns = []
-#     for required_column in required_mutation_columns:
-#         if not required_column in header_elements:
-#             missing_columns.append(required_column)
-#     if len(missing_columns) > 0:
-#         raise RuntimeError("One or more required columns for OncoKb import are missing from the MAF file. " \
-#                            "Missing column(s): [" + ", ".join(missing_columns) + "]")
-
-
-# def check_disallowed_columns(header_elements):
-#     disallowed_columns = []
-#     for disallowed_column in disallowed_mutation_columns:
-#         if disallowed_column in header_elements:
-#             disallowed_columns.append(disallowed_column)
-#     if len(disallowed_columns) > 0:
-#         raise RuntimeError("One or more disallowed columns for OncoKb import are present in the MAF file. " \
-#                            "Disallowed column(s): [" + ", ".join(disallowed_columns) + "]")
-
-
-# def get_mutation_features(mutation_file_path):
-#     header_elements = libImportOncokb.get_first_line(open_mutations_file(mutation_file_path)).rstrip().split('\t')
-#     header_indexes = {}
-#     for required_column in required_mutation_columns + ['Entrez_Gene_Id']:
-#         header_indexes[required_column] = header_elements.index(required_column)
-#     row_number_to_feature = {}
-#     row_counter = 0
-#     mutation_file = open_mutations_file(mutation_file_path)
-#     for line in mutation_file:
-#         row_counter += 1
-#         if line == '\n' or line.startswith('#') or line.startswith(header_elements[0]):
-#             continue  # skip comment and header line
-#         line_elements = line.rstrip().split('\t')
-#         feature = {}
-#         for column_name, index in header_indexes.items():
-#             value = line_elements[index]
-#             if value != '':
-#                 if column_name == 'HGVSp_Short':
-#                     value = value.replace('p.', '')
-#                 feature[column_name] = value
-#             elif column_name != 'Entrez_Gene_Id' and column_name != 'Protein_position':
-#                 raise RuntimeError("Empty value encounterd in column '" +
-#                                    column_name + "' in row " + str(row_counter) + "." \
-#                                                                                   "OncoKb annotations cannot be imported. Please fix and rerun.")
-
-#         # resolve gene symbols to Entrez Ids if needed
-#         if 'Entrez_Gene_Id' in feature and feature['Entrez_Gene_Id'] is not None and feature['Entrez_Gene_Id'] != '':
-#             entrez_gene_ids = [feature['Entrez_Gene_Id']]
-#         else:
-#             entrez_gene_ids = portal_instance.hugo_entrez_map[feature['Hugo_Symbol']]
-
-#         if len(entrez_gene_ids) > 1:
-#             logger.error("Multiple Entrez gene ids were found for a gene." \
-#                          "OncoKb annotations will not be imported for this gene." \
-#                          "Please fix and rerun.",
-#                          extra={'symbol': feature['Hugo_Symbol'], 'row': str(row_counter)})
-#             feature['Entrez_Gene_Id'] = None
-#         elif len(entrez_gene_ids) == 0:
-#             logger.error("Could not find the Entrez gene id for a gene." \
-#                          "OncoKb annotations will not be imported for this gene." \
-#                          "Please fix and rerun.",
-#                          extra={'symbol': feature['Hugo_Symbol'], 'row': str(row_counter)})
-#             feature['Entrez_Gene_Id'] = None
-#         else:
-#             feature['Entrez_Gene_Id'] = str(entrez_gene_ids[0])
-#             feature['id'] = "_".join(
-#                 [feature['Entrez_Gene_Id'], feature['HGVSp_Short'], feature['Variant_Classification']])
-
-#         row_number_to_feature[row_counter] = feature
-#     mutation_file.close()
-#     return row_number_to_feature
-
-
-# def write_annotations_to_file(row_number_to_annotation, mutations_file_path):
-#     meta_cna_file_name = os.path.basename(mutations_file_path)
-#     dir = os.path.dirname(mutations_file_path)
-#     backup_file_name = 'ONCOKB_IMPORT_BACKUP_' + meta_cna_file_name
-#     backup_file_path = os.path.join(dir, backup_file_name)
-#     try:
-#         new_file = open(mutations_file_path + '_temp', "x")
-#         header_updated = False
-#         row_counter = 0
-#         mutations_file = open_mutations_file(mutations_file_path)
-#         for line in mutations_file:
-#             row_counter += 1
-#             if not line.startswith('#'):
-#                 if not header_updated:
-#                     line = line.rstrip(
-#                         '\n') + '\tcbp_driver\tcbp_driver_annotation' + '\n'  # add custom driver columns to header
-#                     header_updated = True
-#                 else:
-#                     if row_counter in row_number_to_annotation:
-#                         oncokb_annotation = row_number_to_annotation[row_counter]
-#                         line = line.rstrip('\n') + '\t' + libImportOncokb.evaluate_driver_passenger(
-#                             oncokb_annotation['oncogenic']) + '\t' + oncokb_annotation['oncogenic'] + '\n'
-#                     else:
-#                         line = line.rstrip('\n') + '\t\t\n'
-#             new_file.write(line)
-#     except FileExistsError:
-#         raise FileExistsError("Backup MAF file that does not contain OncoKB annotations does already exist. " \
-#                               "Please remove file '" + backup_file_name + "' and try again.")
-#     finally:
-#         mutations_file.close()
-#         new_file.close()
-#     os.rename(mutations_file_path, backup_file_path)
-#     os.rename(mutations_file_path + '_temp', mutations_file_path)
-#     return
 
 
 def interface():

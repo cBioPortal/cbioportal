@@ -35,6 +35,7 @@ package org.cbioportal.persistence.util;
 import java.io.*;
 import java.util.*;
 import javax.cache.CacheManager;
+import javax.cache.Cache;
 import javax.cache.Caching;
 import javax.cache.configuration.Configuration;
 import javax.cache.configuration.MutableConfiguration;
@@ -121,6 +122,12 @@ public class CustomRedisCachingProvider {
         CacheManager manager = redisCachingProvider.getCacheManager();
         manager.createCache(appName + "GeneralRepositoryCache", config);
         manager.createCache(appName + "StaticRepositoryCacheOne", config);
+    
+        // Evict cache to ensure new data is pulled
+        // Specific to Redis Impl because Redis cache sits in external db and not in memory
+        manager.getCache(appName + "GeneralRepositoryCache").clear();
+        manager.getCache(appName + "StaticRepositoryCacheOne").clear();
+       
         return manager;
     }
 }

@@ -372,6 +372,7 @@ cBioPortal is supported on the backend with Ehcache or Redis. These caches are c
 
 The cache type is set using `persistence.cache_type`. Valid values are `no-cache`, `redis` (redis), `ehache-heap` (ehcache heap-only), `ehache-disk` (ehcache disk-only), and `ehache-hybrid` (ehcache disk + heap). By default, `persistence.cache_type` is set to `no-cache` which disables the cache. When the cache is disabled, no responses will be stored in the cache.
 
+:warning: the 'redis' caching option will likely cause a conflict when installing the portal in a tomcat installation which uses redisson for session management
 ```
 persistence.cache_type=[no-cache or ehache-heap or ehcache-disk or ehcache-hybrid or redis]
 ```

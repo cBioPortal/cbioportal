@@ -64,46 +64,82 @@ public class GenesetDataControllerTest {
     }
 
     @Test
-    public void fetchGeneticDataItems() throws Exception {
-
+    public void fetchGeneticDataItemsWithSampleIds() throws Exception {
         List<GenesetMolecularData> genesetDataItems = createGenesetDataItemsList();
-        Mockito.when(genesetDataService.fetchGenesetData(Mockito.any(), (List) Mockito.any(),
-            Mockito.any())).thenReturn(genesetDataItems);
+
+        String geneticProfileId = PROF_ID;
+        List<String> sampleIds = Arrays.asList(SAMPLE_STABLE_ID_1);
+        List<String> genesetIds = Arrays.asList(GENESET_ID_1, GENESET_ID_2);
+
+        Mockito.when(genesetDataService.fetchGenesetData(
+            geneticProfileId,
+            sampleIds,
+            genesetIds)
+        ).thenReturn(genesetDataItems);
 
         GenesetDataFilterCriteria genesetDataFilterCriteria = new GenesetDataFilterCriteria();
-        genesetDataFilterCriteria.setGenesetIds(Arrays.asList(GENESET_ID_1, GENESET_ID_2));
+        genesetDataFilterCriteria.setSampleIds(sampleIds);
+        genesetDataFilterCriteria.setGenesetIds(genesetIds);
 
-        mockMvc.perform(MockMvcRequestBuilders.post("/genetic-profiles/" + PROF_ID + "/geneset-genetic-data/fetch")
-                .accept(MediaType.APPLICATION_JSON)
-                .contentType(MediaType.APPLICATION_JSON)
-                .content(objectMapper.writeValueAsString(genesetDataFilterCriteria)))
-                .andExpect(MockMvcResultMatchers.status().isOk())
-                .andExpect(MockMvcResultMatchers.content().contentTypeCompatibleWith(MediaType.APPLICATION_JSON))
-                .andExpect(MockMvcResultMatchers.jsonPath("$", Matchers.hasSize(2)))
-                .andExpect(MockMvcResultMatchers.jsonPath("$[0].geneticProfileId").value(PROF_ID))
-                .andExpect(MockMvcResultMatchers.jsonPath("$[0].genesetId").value(GENESET_ID_1))
-                .andExpect(MockMvcResultMatchers.jsonPath("$[0].sampleId").value(SAMPLE_STABLE_ID_1))
-                .andExpect(MockMvcResultMatchers.jsonPath("$[0].value").value(VALUE_1))
-                .andExpect(MockMvcResultMatchers.jsonPath("$[1].geneticProfileId").value(PROF_ID))
-                .andExpect(MockMvcResultMatchers.jsonPath("$[1].genesetId").value(GENESET_ID_2))
-                .andExpect(MockMvcResultMatchers.jsonPath("$[1].sampleId").value(SAMPLE_STABLE_ID_1))
-                .andExpect(MockMvcResultMatchers.jsonPath("$[1].value").value(VALUE_2));
+        mockMvc.perform(MockMvcRequestBuilders.post("/genetic-profiles/" + geneticProfileId + "/geneset-genetic-data/fetch")
+            .accept(MediaType.APPLICATION_JSON)
+            .contentType(MediaType.APPLICATION_JSON)
+            .content(objectMapper.writeValueAsString(genesetDataFilterCriteria)))
+            .andExpect(MockMvcResultMatchers.status().isOk())
+            .andExpect(MockMvcResultMatchers.content().contentTypeCompatibleWith(MediaType.APPLICATION_JSON))
+            .andExpect(MockMvcResultMatchers.jsonPath("$", Matchers.hasSize(2)))
+            .andExpect(MockMvcResultMatchers.jsonPath("$[0].geneticProfileId").value(geneticProfileId))
+            .andExpect(MockMvcResultMatchers.jsonPath("$[0].genesetId").value(GENESET_ID_1))
+            .andExpect(MockMvcResultMatchers.jsonPath("$[0].sampleId").value(SAMPLE_STABLE_ID_1))
+            .andExpect(MockMvcResultMatchers.jsonPath("$[0].value").value(VALUE_1))
+            .andExpect(MockMvcResultMatchers.jsonPath("$[1].geneticProfileId").value(geneticProfileId))
+            .andExpect(MockMvcResultMatchers.jsonPath("$[1].genesetId").value(GENESET_ID_2))
+            .andExpect(MockMvcResultMatchers.jsonPath("$[1].sampleId").value(SAMPLE_STABLE_ID_1))
+            .andExpect(MockMvcResultMatchers.jsonPath("$[1].value").value(VALUE_2));
+    }
 
-        //testing the sampleListId route:
-        // List<GenesetMolecularData> genesetDataItems2 = createGenesetDataItemsList();
-        // genesetDataItems2.addAll(createGenesetDataItemsList());//duplicate, just to make it different from response above
-        // Mockito.when(genesetDataService.fetchGenesetData(Mockito.any(), (List) Mockito.any(),
-        //     Mockito.any())).thenReturn(genesetDataItems2);
-        // //set sampleListId to ensure the fetchGenesetData variant above is called:
-        // genesetDataFilterCriteria.setSampleListId(SAMPLE_LIST_ID);
+    @Test
+    public void fetchGeneticDataItemsWithSampleListId() throws Exception {
+        List<GenesetMolecularData> genesetDataItems = createGenesetDataItemsList();
+        genesetDataItems.addAll(createGenesetDataItemsList());
 
-        // mockMvc.perform(MockMvcRequestBuilders.post("/genetic-profiles/" + PROF_ID + "/geneset-genetic-data/fetch")
-        //         .accept(MediaType.APPLICATION_JSON)
-        //         .contentType(MediaType.APPLICATION_JSON)
-        //         .content(objectMapper.writeValueAsString(genesetDataFilterCriteria)))
-        //         .andExpect(MockMvcResultMatchers.status().isOk())
-        //         .andExpect(MockMvcResultMatchers.content().contentTypeCompatibleWith(MediaType.APPLICATION_JSON))
-        //         .andExpect(MockMvcResultMatchers.jsonPath("$", Matchers.hasSize(4)));
+        String geneticProfileId = PROF_ID;
+        String sampleListId = SAMPLE_LIST_ID;
+        List<String> genesetIds = Arrays.asList(GENESET_ID_1, GENESET_ID_2);
+
+        Mockito.when(genesetDataService.fetchGenesetData(
+            geneticProfileId,
+            sampleListId,
+            genesetIds)
+        ).thenReturn(genesetDataItems);
+
+        GenesetDataFilterCriteria genesetDataFilterCriteria = new GenesetDataFilterCriteria();
+        genesetDataFilterCriteria.setSampleListId(sampleListId);
+        genesetDataFilterCriteria.setGenesetIds(genesetIds);
+
+        mockMvc.perform(MockMvcRequestBuilders.post("/genetic-profiles/" + geneticProfileId + "/geneset-genetic-data/fetch")
+            .accept(MediaType.APPLICATION_JSON)
+            .contentType(MediaType.APPLICATION_JSON)
+            .content(objectMapper.writeValueAsString(genesetDataFilterCriteria)))
+            .andExpect(MockMvcResultMatchers.status().isOk())
+            .andExpect(MockMvcResultMatchers.content().contentTypeCompatibleWith(MediaType.APPLICATION_JSON))
+            .andExpect(MockMvcResultMatchers.jsonPath("$", Matchers.hasSize(4)))
+            .andExpect(MockMvcResultMatchers.jsonPath("$[0].geneticProfileId").value(geneticProfileId))
+            .andExpect(MockMvcResultMatchers.jsonPath("$[0].genesetId").value(GENESET_ID_1))
+            .andExpect(MockMvcResultMatchers.jsonPath("$[0].sampleId").value(SAMPLE_STABLE_ID_1))
+            .andExpect(MockMvcResultMatchers.jsonPath("$[0].value").value(VALUE_1))
+            .andExpect(MockMvcResultMatchers.jsonPath("$[1].geneticProfileId").value(geneticProfileId))
+            .andExpect(MockMvcResultMatchers.jsonPath("$[1].genesetId").value(GENESET_ID_2))
+            .andExpect(MockMvcResultMatchers.jsonPath("$[1].sampleId").value(SAMPLE_STABLE_ID_1))
+            .andExpect(MockMvcResultMatchers.jsonPath("$[1].value").value(VALUE_2))
+            .andExpect(MockMvcResultMatchers.jsonPath("$[2].geneticProfileId").value(geneticProfileId))
+            .andExpect(MockMvcResultMatchers.jsonPath("$[2].genesetId").value(GENESET_ID_1))
+            .andExpect(MockMvcResultMatchers.jsonPath("$[2].sampleId").value(SAMPLE_STABLE_ID_1))
+            .andExpect(MockMvcResultMatchers.jsonPath("$[2].value").value(VALUE_1))
+            .andExpect(MockMvcResultMatchers.jsonPath("$[3].geneticProfileId").value(geneticProfileId))
+            .andExpect(MockMvcResultMatchers.jsonPath("$[3].genesetId").value(GENESET_ID_2))
+            .andExpect(MockMvcResultMatchers.jsonPath("$[3].sampleId").value(SAMPLE_STABLE_ID_1))
+            .andExpect(MockMvcResultMatchers.jsonPath("$[3].value").value(VALUE_2));
     }
 
     private List<GenesetMolecularData> createGenesetDataItemsList() {

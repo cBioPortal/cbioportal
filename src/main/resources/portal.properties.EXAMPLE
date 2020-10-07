@@ -278,9 +278,9 @@ persistence.cache_type=no-cache
 #cache.statistics_endpoint_enabled=false
 
 # Redis properties
-#redis.leader_address=redis://0.0.0.0:6379
-#redis.first_follower_address=redis://0.0.0.0:6379
-#redis.second_follower_address=redis://0.0.0.0:6379
+#redis.leader_address=
+#redis.follower_address=
+#redis.database=
 #redis.password=
 
 # Ehcache properties

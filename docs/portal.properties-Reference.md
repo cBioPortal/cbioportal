@@ -408,9 +408,9 @@ To cache with Redis set `persistence.cache_type` to `redis`.
 To setup the Redis cache servers the following properties are required:
 
 ```
-redis.leader_address=redis://0.0.0.0:6379
-redis.first_follower_address=redis://0.0.0.0:6379
-redis.second_follower_address=redis://0.0.0.0:6379
+redis.leader_address=redis://{host/servicename}:6379
+redis.follower_address=redis://{host/servicename}:6379
+redis.database=0
 redis.password=password
 ```
 

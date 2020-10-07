@@ -31,6 +31,7 @@ Run with the command line option --help for usage information.
 import re
 import os
 import requests
+import json
 
 from . import validateData
 
@@ -167,14 +168,49 @@ def read_meta_file(metafile_path):
             fields[match[0]] = match[1]
     return fields
 
+def get_oncokb_cancer_genes():
+    """Do a call to OncoKB to retrieve the Cancer Gene List. """
+    request_url = "https://public.api.oncokb.org/api/v1/utils/allCuratedGenes"
+    request = requests.get(url=request_url)
+
+    if request.ok:
+        return request.json()
+    else:
+        if request.status_code == 404:
+            raise ConnectionError(
+                "An error occurred when trying to connect to OncoKB for retrieving of mutation annotations.")
+        else:
+            request.raise_for_status()
+
+def get_annotated_oncokb_cancer_genes_by_entrezId():
+    """ Get a list with the Entrez Gene IDs of the OncoKB Cancer Gene List, only the genes that have
+        annotations. """
+    cancer_genes = get_oncokb_cancer_genes()
+    entrez_ids = []
+    for gene in cancer_genes:
+        entrez_ids += [gene["entrezGeneId"]]
+    return entrez_ids
+
+def filter_payload(payload_list):
+    """ Remove the genes that are not an OncoKB Cancer Gene List from the payload. """
+    cancer_genes = get_annotated_oncokb_cancer_genes_by_entrezId()
+    filtered_payload = []
+    for element in payload_list:
+        parsed_element = json.loads(element)
+        if parsed_element["gene"]["entrezGeneId"] in cancer_genes:
+            filtered_payload += [element]
+    return filtered_payload
+
 def fetch_oncokb_annotations(payload_list, request_url):
     """Submit alterations to OncoKB.org and return OncoKB annotations."""
     annotations = []
     request_headers = {'Content-Type': 'application/json', 'Accept': 'application/json'}
-    payload_batches = partition_list(payload_list, BATCH_SIZE)
+    filtered_payload = filter_payload(payload_list)
+    payload_batches = partition_list(filtered_payload, BATCH_SIZE)
     for payload_batch in payload_batches:
         payload = '['+ ', '.join(payload_batch) + ']'
         print("Fetching batch of " + str(len(payload_batch)) + " annotations ...", end = '')
+        #print(payload)
         request = requests.post(url=request_url, headers=request_headers, data=payload)
         if request.ok:
             print(" DONE")

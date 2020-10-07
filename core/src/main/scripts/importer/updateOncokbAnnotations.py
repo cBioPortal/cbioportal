@@ -144,7 +144,7 @@ def get_db_cursor(portal_properties):
     if connection is not None:
         return connection, connection.cursor()
 
-def get_current_mutation_data(study_id, cursor, cancer_genes):
+def get_current_mutation_data(study_id, cursor):
     """ Get mutation data from the current study.
         Returns an array of dictionaries, with the following keys:
         id, geneticProfileId, entrezGeneId, alteration, and consequence
@@ -158,15 +158,14 @@ def get_current_mutation_data(study_id, cursor, cancer_genes):
         'inner join cancer_study on cancer_study.CANCER_STUDY_ID = genetic_profile.CANCER_STUDY_ID ' +
         'WHERE cancer_study.CANCER_STUDY_IDENTIFIER = "'+study_id +'"')
         for row in cursor.fetchall():
-            if row[1] in cancer_genes:
-                mutations += [{ "id": "_".join([str(row[4]), str(row[0]), str(row[5])]), "geneticProfileId": row[0], "entrezGeneId": row[1],
-                                "alteration": row[2], "consequence": row[3]}]
+            mutations += [{ "id": "_".join([str(row[4]), str(row[0]), str(row[5])]), "geneticProfileId": row[0], "entrezGeneId": row[1],
+                            "alteration": row[2], "consequence": row[3]}]
     except MySQLdb.Error as msg:
         print(msg, file=ERROR_FILE)
         return None
     return mutations
 
-def get_current_cna_data(study_id, cursor, cancer_genes):
+def get_current_cna_data(study_id, cursor):
     """ Get cna data from the current study.
         Returns an array of dictionaries, with the following keys:
         id, geneticProfileId, entrezGeneId, and alteration
@@ -180,11 +179,10 @@ def get_current_cna_data(study_id, cursor, cancer_genes):
         'inner join cancer_study on cancer_study.CANCER_STUDY_ID = genetic_profile.CANCER_STUDY_ID '+
         'WHERE cancer_study.CANCER_STUDY_IDENTIFIER = "'+study_id +'"')
         for row in cursor.fetchall():
-            if row[1] in cancer_genes:
-                alteration = list(cna_alteration_types.keys())[
-                    list(cna_alteration_types.values()).index(row[2])]
-                cna += [{"id": "_".join([str(row[2]), str(row[0]), str(row[3])]), "geneticProfileId": row[0], "entrezGeneId": row[1],
-                        "alteration": alteration}]
+            alteration = list(cna_alteration_types.keys())[
+                list(cna_alteration_types.values()).index(row[2])]
+            cna += [{"id": "_".join([str(row[2]), str(row[0]), str(row[3])]), "geneticProfileId": row[0], "entrezGeneId": row[1],
+                    "alteration": alteration}]
     except MySQLdb.Error as msg:
         print(msg, file=ERROR_FILE)
         return None
@@ -207,20 +205,10 @@ def get_reference_genome(study_id, cursor):
         print(msg, file=ERROR_FILE)
 
 def fetch_oncokb_mutation_annotations(mutation_data, ref_genome):
-    request_url = "https://demo.oncokb.org/api/v1/annotate/mutations/byProteinChange"
-    request_headers = {'Content-Type': 'application/json', 'Accept': 'application/json'}
+    request_url = "https://public.api.oncokb.org/api/v1/annotate/mutations/byProteinChange"
     request_payload = create_mutation_request_payload(mutation_data, ref_genome)
-    request = requests.post(url=request_url, headers=request_headers, data=request_payload)
-
-    row_number_to_annotation = {}
-    if request.ok:
-        return request.json()
-    else:
-        if request.status_code == 404:
-            raise ConnectionError(
-                "An error occurred when trying to connect to OncoKB for retrieving of mutation annotations.")
-        else:
-            request.raise_for_status()
+    result = libImportOncokb.fetch_oncokb_annotations(request_payload, request_url)
+    return result
 
 def create_mutation_request_payload(mutation_data, ref_genome):
     elements = {}
@@ -229,57 +217,21 @@ def create_mutation_request_payload(mutation_data, ref_genome):
                             '", "gene": {"entrezGeneId": '+ str(mutation["entrezGeneId"]) +'}, "id": "'+mutation["id"] + \
                             '", "referenceGenome": "'+ref_genome+'"}'
 
-    # normalize for alteration id since same alteration is represented in multiple samples
-    payload = '[' + ', '.join(elements.values()) + ']'
-    return payload
+    return list(elements.values())
 
 def fetch_oncokb_copy_number_annotations(copy_number_data, ref_genome):
-    request_url = "https://demo.oncokb.org/api/v1/annotate/copyNumberAlterations"
-    request_headers = {'Content-Type': 'application/json', 'Accept': 'application/json'}
+    request_url = "https://public.api.oncokb.org/api/v1/annotate/copyNumberAlterations"
     request_payload = create_copy_number_request_payload(copy_number_data, ref_genome)
-    request = requests.post(url=request_url, headers=request_headers, data=request_payload)
-
-    if request.ok:
-        # Parse transcripts and exons from JSON
-        return request.json()
-    else:
-        if request.status_code == 404:
-            raise ConnectionError(
-                "An error occurred when trying to connect to OncoKB for retrieving of mutation annotations.")
-            sys.exit(1)
-        else:
-            request.raise_for_status()
-
+    result = libImportOncokb.fetch_oncokb_annotations(request_payload, request_url)
+    return result
 
 def create_copy_number_request_payload(copy_number_data, ref_genome):
     elements = {}
     for copy_number in copy_number_data:
         elements[copy_number["id"]] = '{"copyNameAlterationType":"'+ copy_number["alteration"]+'", "gene":{"entrezGeneId":'+str(copy_number["entrezGeneId"])+ \
             '}, "id":"'+copy_number["id"]+'", "referenceGenome": "'+ref_genome+'"}'
-    
-    # normalize for alteration id since same alteration is represented in multiple samples
-    payload = '[' + ', '.join(elements.values()) + ']'
-    return payload
 
-def get_oncokb_cancer_genes():
-    request_url = "https://demo.oncokb.org/api/v1/utils/cancerGeneList"
-    request = requests.get(url=request_url)
-
-    if request.ok:
-        return request.json()
-    else:
-        if request.status_code == 404:
-            raise ConnectionError(
-                "An error occurred when trying to connect to OncoKB for retrieving of mutation annotations.")
-        else:
-            request.raise_for_status()
-
-def get_oncokb_cancer_genes_by_entrezId():
-    cancer_genes = get_oncokb_cancer_genes()
-    entrez_ids = []
-    for gene in cancer_genes:
-        entrez_ids += [gene["entrezGeneId"]]
-    return entrez_ids
+    return list(elements.values())
 
 def update_annotations(result, connection, cursor):
     for entry in result:
@@ -317,12 +269,9 @@ def main_import(study_id, properties_filename):
         print('failure connecting to sql database', file=ERROR_FILE)
         sys.exit(1)
 
-    #Get OncoKB cancer genes
-    cancer_genes = get_oncokb_cancer_genes_by_entrezId()
-
     #Query DB to get mutation and cna data of the study
-    mutation_study_data = get_current_mutation_data(study_id, cursor, cancer_genes)
-    cna_study_data = get_current_cna_data(study_id, cursor, cancer_genes)
+    mutation_study_data = get_current_mutation_data(study_id, cursor)
+    cna_study_data = get_current_cna_data(study_id, cursor)
 
     #Call oncokb to get annotations for the mutation and cna data retrieved
     ref_genome = get_reference_genome(study_id, cursor)

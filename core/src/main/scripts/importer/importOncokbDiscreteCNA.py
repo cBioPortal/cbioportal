@@ -200,7 +200,7 @@ def fetch_oncokb_annotations(features):
     """Submit CNA events to OncoKB.org and return OncoKB annotations."""
     id_to_annotation = {}
     payload_list = create_request_payload(features)
-    annotations = libImportOncokb.fetch_oncokb_annotations(payload_list, "https://demo.oncokb.org/api/v1/annotate/copyNumberAlterations")
+    annotations = libImportOncokb.fetch_oncokb_annotations(payload_list, "https://public.api.oncokb.org/api/v1/annotate/copyNumberAlterations")
     for annotation in annotations:
         id = annotation['query']['id']
         id_to_annotation[id] = annotation

@@ -60,17 +60,11 @@ public class CustomRedisCachingProvider {
     @Value("${app.name:cbioportal}")
     private String appName;
 
-    //@Value("${redis.address}")
-    //private String address;
-
     @Value("${redis.leader_address}")
     private String leaderAddress;
 
-    @Value("${redis.first_follower_address}")
-    private String firstFollowerAddress;
-
-    @Value("${redis.second_follower_address}")
-    private String secondFollowerAddress;
+    @Value("${redis.follower_address}")
+    private String followerAddress;
 
     @Value("${redis.database}")
     private Integer database;
@@ -80,18 +74,12 @@ public class CustomRedisCachingProvider {
 
     public RedissonClient getRedissionClient() {
         Config config = new Config();
-       /* LOG.debug("address: " + address);
-        config.useSingleServer()
-            .setAddress(address)
-            .setDatabase(database);
-            //TODO add back .setPassword(password);*/
         LOG.debug("leaderAddress: " + leaderAddress);
-        LOG.debug("firstFollowerAddress: " + firstFollowerAddress);
-        LOG.debug("secondFollowerAddress: " + secondFollowerAddress);
+        LOG.debug("followerAddress: " + followerAddress);
         config.useMasterSlaveServers()
                 .setMasterAddress(leaderAddress)
-                .addSlaveAddress(firstFollowerAddress)
-                .addSlaveAddress(secondFollowerAddress)
+                .addSlaveAddress(followerAddress)
+                .setDatabase(database);
                 .setPassword(password);
         
         RedissonClient redissonClient = Redisson.create(config);

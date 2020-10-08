@@ -32,11 +32,16 @@
         INNER JOIN cancer_study ON sample_list.CANCER_STUDY_ID = cancer_study.CANCER_STUDY_ID
         INNER JOIN reference_genome ON cancer_study.REFERENCE_GENOME_ID = reference_genome.REFERENCE_GENOME_ID
         <if test="studyIds != null">
-			WHERE cancer_study.CANCER_STUDY_IDENTIFIER IN
-			<foreach item="item" collection="studyIds" open="("
-				separator="," close=")">
-				#{item}
-			</foreach>
+            <if test="studyIds.isEmpty()">
+                WHERE FALSE
+            </if>
+            <if test="!studyIds.isEmpty()">
+                WHERE cancer_study.CANCER_STUDY_IDENTIFIER IN
+                <foreach item="item" collection="studyIds" open="("
+                         separator="," close=")">
+                    #{item}
+                </foreach>
+            </if>
 		</if>
         <if test="sortBy != null and projection != 'ID'">
             ORDER BY ${sortBy} ${direction}

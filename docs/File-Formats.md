@@ -578,7 +578,7 @@ For example, given `Reference_Allele` = "G", `Tumor_Seq_Allele` = "-", and `Tumo
 When curating MAF data, it is best practice to leave `Tumor_Seq_Allele1` empty if this information is not provided in your data source to avoid this ambiguity.
 
 ### Namespaces
-The `namespaces` field can be used to specify additional MAF columns for import. This field should contain a comma seperated list of namespaces. Namespaces can be identified as prefixes to an arbitrary set of additional MAF columns (seperated with a period e.g `ASCN.total_copy_number`, `ASCN.minor_copy_number`). All columns with a prefix matching a namespace specified in the metafile will be imported; columns with an unspecified namespace will be ignored. If no additional columns beyond the required set need to be imported, the field should be left blank. 
+The `namespaces` field can be used to specify additional MAF columns for import. This field should contain a comma separated list of namespaces. Namespaces can be identified as prefixes to an arbitrary set of additional MAF columns (separated with a period e.g `ASCN.total_copy_number`, `ASCN.minor_copy_number`). All columns with a prefix matching a namespace specified in the metafile will be imported; columns with an unspecified namespace will be ignored. If no additional columns beyond the required set need to be imported, the field should be left blank. 
 
 ### Example
 An example metadata file would be:
@@ -1050,13 +1050,15 @@ CACO2<TAB>100<TAB>LAB_TEST<TAB>PSA<TAB>10
 CACO2<TAB>250<TAB>LAB_TEST<TAB>PSA<TAB>100
 ...
 ```
-This will lead to a timeline track for Lab_test with an additional subtrack specifically for PSA. PSA's events will be sized based on the result.
+This will lead to a timeline track for Lab_test with an additional subtrack specifically for PSA. PSA's events will be sized based on the result.
 
 
 ## GISTIC 2.0 Data
 Running GISTIC 2.0 on e.g. [GenePattern](https://cloud.genepattern.org) not only provides the [Discrete Copy Number Data](#discrete-copy-number-data), but also provides an amp_genes and a del_genes file. These cannot be directly imported into cBioPortal, but first have to be converted to a different file format. An example can be found in the [ACC TCGA study](https://github.com/cBioPortal/datahub/blob/master/public/acc_tcga/data_gistic_genes_amp.txt) on cBioPortal Datahub.
 
-After uploading a gistic_amp and/or gistic_del file, a new button becomes available in the Enter Gene Set section, called "Select Genes from Recurrent CNAs (Gistic)". 
+After uploading a gistic_amp and/or gistic_del file, significantly recurrently copy-number altered genes will be labeled and available for query in the "CNA Genes" table on the study view, like in the [TCGA Legacy / Firehose data set for bladder cancer](https://www.cbioportal.org/study/summary?id=blca_tcga):
+
+![recurrently-altered-genes-table](images/recurrently-altered-genes-table.png)
 
 ### Meta file
 The Gistic metadata file should contain the following fields:
@@ -1106,7 +1108,9 @@ MutSig stands for "Mutation Significance".  MutSig analyzes lists of mutations d
 
 _**The MutSigCV 1.2 output is different from the MutSig2.0 header. TODO: test the 1.4 version. Requires > 10GB of memory**_
 
-After uploading a MutSig file, a new button becomes available in the Enter Gene Set section, called "Select From Recurrently Mutated Genes (MutSig)". 
+After uploading a MutSig file, significantly recurrently mutated genes will be labeled and available for query in the "Mutated Genes" table on the study view, like in the [TCGA Legacy / Firehose data set for bladder cancer](https://www.cbioportal.org/study/summary?id=blca_tcga):
+
+![recurrently-mutated-genes-table](images/recurrently-mutated-genes-table.png) 
 
 This type data is not yet being validated. It can, however, be uploaded.
 

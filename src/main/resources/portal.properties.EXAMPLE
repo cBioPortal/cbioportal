@@ -141,7 +141,6 @@ dat.unauth_users=
 dat.method=none
 dat.ttl_seconds=2592000
 dat.uuid.max_number_per_user=1
-dat.uuid.revoke_other_tokens=true
 dat.jwt.secret_key=
 
 # OAuth2 token data access settings
@@ -199,6 +198,12 @@ mycancergenome.show=true
 
 # Enable transcript switch dropdown (true, false)
 # show.transcript_dropdown=false
+
+# Show/hide p- and q-values in survival types table (default is true)
+# survival.show_p_q_values_in_survival_type_table=false
+
+# Set initial x-axis limit for survival plot (by default, initial limit will be the latest event in the data)
+# survival.initial_x_axis_limit=120
 
 # Set Genome Nexus annotation sources, please list all sources name with comma-separated.
 # Available sources: mutation_assessor

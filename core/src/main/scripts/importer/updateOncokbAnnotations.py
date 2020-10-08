@@ -188,6 +188,27 @@ def get_current_cna_data(study_id, cursor):
         return None
     return cna
 
+def get_current_sv_data(study_id, cursor):
+    """ Get structural variant data from the current study.
+        Returns an array of dictionaries, with the following keys:
+        id, geneticProfileId, entrezGeneIdA, entrezGeneIdB, and structuralVariantType
+    """
+    sv = []
+    try:
+        cursor.execute('SELECT genetic_profile.GENETIC_PROFILE_ID, '+ 'structural_variant.SITE1_ENTREZ_GENE_ID, '+
+        'structural_variant.SITE2_ENTREZ_GENE_ID, structural_variant.EVENT_INFO, ' +
+        'structural_variant.INTERNAL_ID, structural_variant.SAMPLE_ID from cbioportal.structural_variant ' +
+        'inner join genetic_profile on genetic_profile.GENETIC_PROFILE_ID = structural_variant.GENETIC_PROFILE_ID '+
+        'inner join cancer_study on cancer_study.CANCER_STUDY_ID = genetic_profile.CANCER_STUDY_ID '+
+        'WHERE cancer_study.CANCER_STUDY_IDENTIFIER = "'+study_id +'"')
+        for row in cursor.fetchall():
+            sv += [{"id": "_".join([str(row[4]), str(row[0]), str(row[5])]), "geneticProfileId": row[0], "entrezGeneIdA": row[1],
+                    "entrezGeneIdB": row[2], "structuralVariantType": row[3]}]
+    except MySQLdb.Error as msg:
+        print(msg, file=ERROR_FILE)
+        return None
+    return sv
+
 def get_reference_genome(study_id, cursor):
     """ Get reference genome from the study """
     ref_genome = []
@@ -233,6 +254,20 @@ def create_copy_number_request_payload(copy_number_data, ref_genome):
 
     return list(elements.values())
 
+def fetch_oncokb_sv_annotations(sv_data, ref_genome):
+    request_url = "https://public.api.oncokb.org/api/v1/annotate/structuralVariants"
+    request_payload = create_sv_request_payload(sv_data, ref_genome)
+    result = libImportOncokb.fetch_oncokb_annotations(request_payload, request_url, sv=True)
+    return result
+
+def create_sv_request_payload(sv_data, ref_genome):
+    elements = {}
+    for sv in sv_data:
+        elements[sv["id"]] = '{"structuralVariantType":"'+ sv["structuralVariantType"].upper()+'", "geneA":{"entrezGeneId":'+str(sv["entrezGeneIdA"])+ \
+            '}, "geneB":{"entrezGeneId":'+str(sv["entrezGeneIdB"])+'}, "id":"'+sv["id"]+'", "referenceGenome": "'+ref_genome+'"}'
+
+    return list(elements.values())
+
 def update_annotations(result, connection, cursor):
     for entry in result:
         parsed_id = entry["query"]["id"].split("_")
@@ -272,15 +307,18 @@ def main_import(study_id, properties_filename):
     #Query DB to get mutation and cna data of the study
     mutation_study_data = get_current_mutation_data(study_id, cursor)
     cna_study_data = get_current_cna_data(study_id, cursor)
+    sv_study_data = get_current_sv_data(study_id, cursor)
 
     #Call oncokb to get annotations for the mutation and cna data retrieved
     ref_genome = get_reference_genome(study_id, cursor)
     mutation_result = fetch_oncokb_mutation_annotations(mutation_study_data, ref_genome)
     cna_result = fetch_oncokb_copy_number_annotations(cna_study_data, ref_genome)
+    sv_result = fetch_oncokb_sv_annotations(sv_study_data, ref_genome)
     
     #Query DB to update alteration_driver_annotation table data, one record at a time
     update_annotations(mutation_result, connection, cursor)
     update_annotations(cna_result, connection, cursor)
+    update_annotations(sv_result, connection, cursor)
 
     print('Update complete')
 

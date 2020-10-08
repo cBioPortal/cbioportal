@@ -191,26 +191,29 @@ def get_annotated_oncokb_cancer_genes_by_entrezId():
         entrez_ids += [gene["entrezGeneId"]]
     return entrez_ids
 
-def filter_payload(payload_list):
+def filter_payload(payload_list, sv):
     """ Remove the genes that are not an OncoKB Cancer Gene List from the payload. """
     cancer_genes = get_annotated_oncokb_cancer_genes_by_entrezId()
     filtered_payload = []
     for element in payload_list:
         parsed_element = json.loads(element)
-        if parsed_element["gene"]["entrezGeneId"] in cancer_genes:
-            filtered_payload += [element]
+        if sv:
+            if parsed_element["geneA"]["entrezGeneId"] in cancer_genes and parsed_element["geneB"]["entrezGeneId"] in cancer_genes:
+                filtered_payload += [element]
+        else:
+            if parsed_element["gene"]["entrezGeneId"] in cancer_genes:
+                filtered_payload += [element]
     return filtered_payload
 
-def fetch_oncokb_annotations(payload_list, request_url):
+def fetch_oncokb_annotations(payload_list, request_url, sv=False):
     """Submit alterations to OncoKB.org and return OncoKB annotations."""
     annotations = []
     request_headers = {'Content-Type': 'application/json', 'Accept': 'application/json'}
-    filtered_payload = filter_payload(payload_list)
+    filtered_payload = filter_payload(payload_list, sv)
     payload_batches = partition_list(filtered_payload, BATCH_SIZE)
     for payload_batch in payload_batches:
         payload = '['+ ', '.join(payload_batch) + ']'
         print("Fetching batch of " + str(len(payload_batch)) + " annotations ...", end = '')
-        #print(payload)
         request = requests.post(url=request_url, headers=request_headers, data=payload)
         if request.ok:
             print(" DONE")

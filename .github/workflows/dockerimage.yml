@@ -6,6 +6,7 @@ on:
       - release-*
       - rc
       - demo-*
+      - fusion-sv-migration
     tags: '*'
 
 jobs:

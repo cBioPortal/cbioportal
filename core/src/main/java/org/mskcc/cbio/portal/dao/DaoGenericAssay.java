@@ -93,7 +93,7 @@ public class DaoGenericAssay {
 
         try {
             con = JdbcUtil.getDbConnection(DaoGeneticEntity.class);
-            pstmt = con.prepareStatement("SELECT DISTINCT CANCER_STUDY_ID FROM genetic_profile WHERE GENETIC_PROFILE_ID IN (SELECT GENETIC_PROFILE_ID FROM genetic_alteration WHERE GENETIC_ENTITY_ID IN (SELECT GENETIC_ENTITY_ID FROM genetic_alteration WHERE GENETIC_PROFILE_ID IN (SELECT GENETIC_PROFILE_ID FROM genetic_profile WHERE CANCER_STUDY_ID=?)))");
+            pstmt = con.prepareStatement("SELECT DISTINCT CANCER_STUDY_ID FROM genetic_profile WHERE GENETIC_PROFILE_ID IN (SELECT GENETIC_PROFILE_ID FROM genetic_alteration WHERE GENETIC_ENTITY_ID IN (SELECT GENETIC_ENTITY_ID FROM genetic_alteration WHERE GENETIC_PROFILE_ID IN (SELECT GENETIC_PROFILE_ID FROM genetic_profile WHERE CANCER_STUDY_ID=? AND GENETIC_ALTERATION_TYPE='GENERIC_ASSAY')))");
             pstmt.setInt(1, cancerStudyId);
             rs = pstmt.executeQuery();
 

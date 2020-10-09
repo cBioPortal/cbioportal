@@ -110,7 +110,6 @@ public class InvolvedCancerStudyExtractorInterceptor extends HandlerInterceptorA
     public static final String GENERIC_ASSAY_DATA_MULTIPLE_STUDY_FETCH_PATH = "/generic_assay_data/fetch";
     public static final String GENERIC_ASSAY_META_FETCH_PATH = "/generic_assay_meta/fetch";
     public static final String TREATMENTS_PATIENT_PATH = "/treatments/patient";
-    public static final String TREATMENTS_PATIENT_EXISTS_PATH = "/treatments/display";
     public static final String TREATMENTS_SAMPLE_PATH = "/treatments/sample";
     public static final String GENERIC_ASSAY_ENRICHMENT_FETCH_PATH = "/generic-assay-enrichments/fetch";
 
@@ -148,8 +147,7 @@ public class InvolvedCancerStudyExtractorInterceptor extends HandlerInterceptorA
         } else if (Arrays.asList(STUDY_VIEW_CLINICAL_DATA_DENSITY_PATH, STUDY_VIEW_CNA_GENES,
                 STUDY_VIEW_FILTERED_SAMPLES, STUDY_VIEW_MUTATED_GENES, STUDY_VIEW_FUSION_GENES,
                 STUDY_VIEW_SAMPLE_COUNTS, STUDY_VIEW_SAMPLE_LIST_COUNTS_PATH,
-                TREATMENTS_PATIENT_PATH, TREATMENTS_SAMPLE_PATH,
-                TREATMENTS_PATIENT_EXISTS_PATH
+                TREATMENTS_PATIENT_PATH, TREATMENTS_SAMPLE_PATH
         ).contains(requestPathInfo)) {
             return extractAttributesFromStudyViewFilter(request);
         } else if (requestPathInfo.equals(CLINICAL_DATA_ENRICHMENT_FETCH_PATH)) {

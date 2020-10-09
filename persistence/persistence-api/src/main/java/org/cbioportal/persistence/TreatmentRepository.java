@@ -19,5 +19,8 @@ public interface TreatmentRepository {
     public Set<String> getAllUniqueTreatments(List<String> sampleIds, List<String> studyIds);
 
     @Cacheable(cacheNames = "GeneralRepositoryCache", condition = "@cacheEnabledConfig.getEnabled()")
-    public Integer getTreatmentCount(List<String> samples, List<String> studies);
+    public Integer getTreatmentCount(List<String> studies);
+
+    @Cacheable(cacheNames = "GeneralRepositoryCache", condition = "@cacheEnabledConfig.getEnabled()")
+    public Integer getSampleCount(List<String> studies);
 }

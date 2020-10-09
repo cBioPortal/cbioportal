@@ -80,7 +80,7 @@ public class TreatmentServiceImpl implements TreatmentService {
      * treatments. Each call will move samples taken 
      */
     private static class TreatmentRowTriplet {
-        private final Set<ClinicalEventSample> pre, post, unknown;
+        private final Set<ClinicalEventSample> pre, post;
         private final String treatment;
 
         TreatmentRowTriplet(List<ClinicalEventSample> samples, String treatment) {
@@ -88,9 +88,6 @@ public class TreatmentServiceImpl implements TreatmentService {
             post = new HashSet<>();
             pre = samples.stream()
                 .filter(s -> s.getTimeTaken() != null)
-                .collect(Collectors.toSet());
-            unknown = samples.stream()
-                .filter(s -> s.getTimeTaken() == null)
                 .collect(Collectors.toSet());
         }
 
@@ -116,8 +113,10 @@ public class TreatmentServiceImpl implements TreatmentService {
         Stream<SampleTreatmentRow> toRows() {
             return Stream.of(
                     new SampleTreatmentRow(TemporalRelation.Pre, treatment, pre.size(), pre),
-                    new SampleTreatmentRow(TemporalRelation.Post, treatment, post.size(), post),
-                    new SampleTreatmentRow(TemporalRelation.Unknown, treatment, unknown.size(), unknown)
+                    new SampleTreatmentRow(TemporalRelation.Post, treatment, post.size(), post)
+                    // We made the decision to filter out unknown rows. I'm leaving this line of code
+                    // to document this decision.
+                    // new SampleTreatmentRow(TemporalRelation.Unknown, treatment, unknown.size(), unknown)
             );
         }
     }
@@ -132,7 +131,7 @@ public class TreatmentServiceImpl implements TreatmentService {
             .filter(e -> treatmentsByPatient.containsKey(e.getKey()))
             .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
         Set<String> treatments = treatmentRepository.getAllUniqueTreatments(sampleIds, studyIds);
-            
+
         return treatments.stream()
             .map(t -> createPatientTreatmentRowForTreatment(t, treatmentsByPatient, samplesByPatient))
             .collect(Collectors.toList());
@@ -167,7 +166,15 @@ public class TreatmentServiceImpl implements TreatmentService {
     }
 
     @Override
-    public Boolean containsTreatmentData(List<String> samples, List<String> studies) {
-        return treatmentRepository.getTreatmentCount(samples, studies) > 0;
+    public Boolean containsTreatmentData(List<String> studies) {
+        return treatmentRepository.getTreatmentCount(studies) > 0;
+    }
+
+    @Override
+    public Boolean containsSampleTreatmentData(List<String> studies) {
+        Integer sampleCount = treatmentRepository.getSampleCount(studies);
+        Integer treatmentCount = treatmentRepository.getTreatmentCount(studies);
+        
+        return sampleCount * treatmentCount > 0;
     }
 }

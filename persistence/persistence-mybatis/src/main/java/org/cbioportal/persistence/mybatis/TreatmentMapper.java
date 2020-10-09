@@ -14,4 +14,6 @@ public interface TreatmentMapper {
     Set<String> getAllUniqueTreatments(List<String> sampleIds, List<String> studyIds);
 
     Integer getTreatmentCount(List<String> sampleIds, List<String> studyIds);
+
+    Integer getSampleCount(List<String> sampleIds, List<String> studyIds);
 }

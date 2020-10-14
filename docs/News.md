@@ -11,7 +11,9 @@
 
 *    **Added new profile** “RNA-Seq V2 expression Z-scores relative to normal samples” for 16 TCGA PanCan Atlas Cohorts. 
 The normals samples RNA-Seq V2 expression data and Z-scores are curated from [GDC](https://gdc.cancer.gov/about-data/publications/pancanatlas) ,and can be downloaded from our [Datahub](https://github.com/cBioPortal/datahub) or [Data Set](https://www.cbioportal.org/datasets) page.
+
 <img width="1029" alt="Screen Shot 2020-10-14 at 8 34 13 AM" src="https://user-images.githubusercontent.com/5973438/95989197-f2694300-0df7-11eb-8150-64fa93db5572.png">
+
      * [Bladder Urothelial Carcinoma (TCGA, PanCancer Atlas)](https://www.cbioportal.org/study/summary?id=blca_tcga_pan_can_atlas_2018)
      * [Breast Invasive Carcinoma (TCGA, PanCancer Atlas)](https://www.cbioportal.org/study/summary?id=brca_tcga_pan_can_atlas_2018)
      * [Colorectal Adenocarcinoma (TCGA, PanCancer Atlas)](https://www.cbioportal.org/study/summary?id=coadread_tcga_pan_can_atlas_2018)

@@ -129,6 +129,7 @@ def get_db_cursor(portal_properties):
             user = portal_properties.database_user,
             passwd = portal_properties.database_pw,
             db = portal_properties.database_name)
+        connection.autocommit = False
     except MySQLdb.Error as exception:
         print(exception, file=ERROR_FILE)
         port_info = ''
@@ -172,7 +173,7 @@ def get_current_cna_data(study_id, cursor):
     """
     cna = []
     try:
-        cursor.execute('SELECT genetic_profile.GENETIC_PROFILE_ID, '+ 'cna_event.ENTREZ_GENE_ID, ALTERATION, '+
+        cursor.execute('SELECT genetic_profile.GENETIC_PROFILE_ID, '+ 'cna_event.ENTREZ_GENE_ID, cna_event.ALTERATION, '+
         'sample_cna_event.CNA_EVENT_ID, sample_cna_event.SAMPLE_ID from cbioportal.cna_event ' +
         'inner join sample_cna_event on sample_cna_event.CNA_EVENT_ID = cna_event.CNA_EVENT_ID '+
         'inner join genetic_profile on genetic_profile.GENETIC_PROFILE_ID = sample_cna_event.GENETIC_PROFILE_ID '+
@@ -181,7 +182,7 @@ def get_current_cna_data(study_id, cursor):
         for row in cursor.fetchall():
             alteration = list(cna_alteration_types.keys())[
                 list(cna_alteration_types.values()).index(row[2])]
-            cna += [{"id": "_".join([str(row[2]), str(row[0]), str(row[3])]), "geneticProfileId": row[0], "entrezGeneId": row[1],
+            cna += [{"id": "_".join([str(row[3]), str(row[0]), str(row[4])]), "geneticProfileId": row[0], "entrezGeneId": row[1],
                     "alteration": alteration}]
     except MySQLdb.Error as msg:
         print(msg, file=ERROR_FILE)
@@ -268,7 +269,16 @@ def create_sv_request_payload(sv_data, ref_genome):
 
     return list(elements.values())
 
-def update_annotations(result, connection, cursor):
+def update_annotations(result, connection, cursor, study_id):
+    #First, delete all records for the study_id
+    try:
+        cursor.execute('DELETE alteration_driver_annotation FROM cbioportal.alteration_driver_annotation' +
+            ' INNER JOIN cbioportal.genetic_profile ON (genetic_profile.GENETIC_PROFILE_ID = alteration_driver_annotation.GENETIC_PROFILE_ID)' +
+            ' INNER JOIN cbioportal.cancer_study ON (cancer_study.CANCER_STUDY_ID = genetic_profile.CANCER_STUDY_ID)' +
+            ' WHERE cancer_study.CANCER_STUDY_IDENTIFIER = "'+study_id+'"')
+    except MySQLdb.Error as msg:
+        print(msg, file=ERROR_FILE)
+    #Go over all the entries retrieved and add them to the database
     for entry in result:
         parsed_id = entry["query"]["id"].split("_")
         event_id = parsed_id[0]
@@ -276,12 +286,8 @@ def update_annotations(result, connection, cursor):
         sample_id = parsed_id[2]
         oncogenic = libImportOncokb.evaluate_driver_passenger(entry["oncogenic"])
         try:
-            cursor.execute('UPDATE cbioportal.alteration_driver_annotation'+
-            ' SET DRIVER_FILTER = "'+ oncogenic + '"' +
-            ' WHERE alteration_driver_annotation.ALTERATION_EVENT_ID = '+ event_id +
-            ' and alteration_driver_annotation.GENETIC_PROFILE_ID = '+ genetic_profile_id +
-            ' and alteration_driver_annotation.SAMPLE_ID = '+ sample_id)
-            connection.commit()
+            cursor.execute('INSERT INTO cbioportal.alteration_driver_annotation'+
+            ' VALUES (' + event_id + ', '+ genetic_profile_id + ', '+ sample_id + ', "'+ oncogenic + '", "", "", "")')
         except MySQLdb.Error as msg:
             print(msg, file=ERROR_FILE)
         
@@ -304,25 +310,30 @@ def main_import(study_id, properties_filename):
         print('failure connecting to sql database', file=ERROR_FILE)
         sys.exit(1)
 
-    #Query DB to get mutation and cna data of the study
+    #Query DB to get mutation, cna and structural variant data of the study
     mutation_study_data = get_current_mutation_data(study_id, cursor)
     cna_study_data = get_current_cna_data(study_id, cursor)
     sv_study_data = get_current_sv_data(study_id, cursor)
 
-    #Call oncokb to get annotations for the mutation and cna data retrieved
+    #Call oncokb to get annotations for the mutation, cna and structural variant data retrieved
     ref_genome = get_reference_genome(study_id, cursor)
     mutation_result = fetch_oncokb_mutation_annotations(mutation_study_data, ref_genome)
     cna_result = fetch_oncokb_copy_number_annotations(cna_study_data, ref_genome)
     sv_result = fetch_oncokb_sv_annotations(sv_study_data, ref_genome)
+    all_results = mutation_result + cna_result + sv_result
     
     #Query DB to update alteration_driver_annotation table data, one record at a time
-    update_annotations(mutation_result, connection, cursor)
-    update_annotations(cna_result, connection, cursor)
-    update_annotations(sv_result, connection, cursor)
+    update_annotations(all_results, connection, cursor, study_id)
 
-    print('Update complete')
-
-    return 0
+    #Commit changes to the database at once to ensure a unique transaction
+    try:
+        connection.commit()
+        print('Update complete')
+        return 0
+    except MySQLdb.Error as msg:
+        print(msg, file=ERROR_FILE)
+        connection.rollback()
+        return 1
 
 
 def interface():

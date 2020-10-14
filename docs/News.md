@@ -7,9 +7,11 @@
      * [Cancer Therapy and Clonal Hematopoiesis (MSK, 2020)](https://www.cbioportal.org/study/summary?id=msk_ch_2020) *24,146 samples*
      
 *    **Added MSI data** (MSIsensor from [Mariamidze et al. 2018](https://www.sciencedirect.com/science/article/pii/S0092867418303131#bib66) and MANTIS scores from [Roychowdhury et al. 2017](https://www.ncbi.nlm.nih.gov/pmc/articles/PMC5972025/)) for all 32 TCGA PanCan Atlas Cohorts.
+<img width="723" alt="Screen Shot 2020-10-14 at 7 38 15 AM" src="https://user-images.githubusercontent.com/5973438/95988728-52131e80-0df7-11eb-8e25-0617d4b9e8c4.png">
 
 *    **Added new profile** “RNA-Seq V2 expression Z-scores relative to normal samples” for 16 TCGA PanCan Atlas Cohorts. 
-The normals samples RNA-Seq V2 expression data and Z-scores are curated from [GDC](https://gdc.cancer.gov/about-data/publications/pancanatlas) ,and can be downloaded from our [Datahub](https://github.com/cBioPortal/datahub).
+The normals samples RNA-Seq V2 expression data and Z-scores are curated from [GDC](https://gdc.cancer.gov/about-data/publications/pancanatlas) ,and can be downloaded from our [Datahub](https://github.com/cBioPortal/datahub) or [Data Set](https://www.cbioportal.org/datasets) page.
+<img width="1029" alt="Screen Shot 2020-10-14 at 8 34 13 AM" src="https://user-images.githubusercontent.com/5973438/95989197-f2694300-0df7-11eb-8150-64fa93db5572.png">
      * [Bladder Urothelial Carcinoma (TCGA, PanCancer Atlas)](https://www.cbioportal.org/study/summary?id=blca_tcga_pan_can_atlas_2018)
      * [Breast Invasive Carcinoma (TCGA, PanCancer Atlas)](https://www.cbioportal.org/study/summary?id=brca_tcga_pan_can_atlas_2018)
      * [Colorectal Adenocarcinoma (TCGA, PanCancer Atlas)](https://www.cbioportal.org/study/summary?id=coadread_tcga_pan_can_atlas_2018)

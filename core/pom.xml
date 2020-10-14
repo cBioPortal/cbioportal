@@ -81,7 +81,6 @@
     <dependency>
       <groupId>org.apache.httpcomponents</groupId>
       <artifactId>httpcore</artifactId>
-      <version>4.1</version>
     </dependency>
     <dependency>
       <groupId>commons-cli</groupId>
@@ -93,17 +92,14 @@
     <dependency>
       <groupId>com.fasterxml.jackson.core</groupId>
       <artifactId>jackson-core</artifactId>
-      <version>${jackson.version}</version>
     </dependency>
     <dependency>
       <groupId>com.fasterxml.jackson.core</groupId>
       <artifactId>jackson-databind</artifactId>
-      <version>${jackson.version}</version>
     </dependency>
     <dependency>
       <groupId>com.fasterxml.jackson.dataformat</groupId>
       <artifactId>jackson-dataformat-yaml</artifactId>
-      <version>${jackson.version}</version>
     </dependency>
 
     <!-- javax servlet -->
@@ -256,13 +252,10 @@
     <dependency>
       <groupId>org.springframework</groupId>
       <artifactId>spring-tx</artifactId>
-      <version>${spring.version}</version>
     </dependency>
     <dependency>
       <groupId>org.springframework</groupId>
       <artifactId>spring-test</artifactId>
-      <version>${spring.version}</version>
-      <scope>test</scope>
     </dependency>
     <dependency>
       <groupId>org.easymock</groupId>
@@ -279,6 +272,18 @@
     <dependency>
       <groupId>org.mskcc.cbio</groupId>
       <artifactId>web</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>com.vlkan.hrrs</groupId>
+      <artifactId>hrrs-servlet-filter-base64</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>log4j</groupId>
+      <artifactId>apache-log4j-extras</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>junit</groupId>
+      <artifactId>junit</artifactId>
     </dependency>
   </dependencies>
 

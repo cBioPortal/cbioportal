@@ -31,14 +31,12 @@
     <dependency>
       <groupId>org.springframework</groupId>
       <artifactId>spring-test</artifactId>
-      <version>${spring.version}</version>
       <scope>test</scope>
     </dependency>
     <!-- Spring Security -->
     <dependency>
       <groupId>org.springframework.security</groupId>
       <artifactId>spring-security-acl</artifactId>
-      <version>${spring.security.version}</version>
     </dependency>
     <dependency>
       <groupId>org.springframework.security</groupId>
@@ -59,22 +57,18 @@
     <dependency>
       <groupId>org.springframework.security</groupId>
       <artifactId>spring-security-config</artifactId>
-      <version>${spring.security.version}</version>
     </dependency>
     <dependency>
       <groupId>org.springframework.security</groupId>
       <artifactId>spring-security-core</artifactId>
-      <version>${spring.security.version}</version>
     </dependency>
     <dependency>
       <groupId>org.springframework.security</groupId>
       <artifactId>spring-security-ldap</artifactId>
-      <version>${spring.security.version}</version>
     </dependency>
     <dependency>
       <groupId>org.springframework.security</groupId>
       <artifactId>spring-security-openid</artifactId>
-      <version>${spring.security.version}</version>
     </dependency>
     <dependency>
       <groupId>org.springframework.security.extensions</groupId>
@@ -84,12 +78,10 @@
     <dependency>
       <groupId>org.springframework.security</groupId>
       <artifactId>spring-security-taglibs</artifactId>
-      <version>${spring.security.version}</version>
     </dependency>
     <dependency>
       <groupId>org.springframework.security</groupId>
       <artifactId>spring-security-web</artifactId>
-      <version>${spring.security.version}</version>
     </dependency>
     <!-- Spring Social -->
     <dependency>
@@ -152,12 +144,14 @@
     <dependency>
       <groupId>com.fasterxml.jackson.core</groupId>
       <artifactId>jackson-databind</artifactId>
-      <version>2.9.10.5</version>
     </dependency>
     <dependency>
       <groupId>com.fasterxml.jackson.core</groupId>
       <artifactId>jackson-annotations</artifactId>
-      <version>${jackson.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>junit</groupId>
+      <artifactId>junit</artifactId>
     </dependency>
   </dependencies>
 </project>

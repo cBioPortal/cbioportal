@@ -36,7 +36,7 @@ import json
 from . import validateData
 
 
-BATCH_SIZE = 50
+BATCH_SIZE = 200
 
 
 def load_portal_genes(server_url):

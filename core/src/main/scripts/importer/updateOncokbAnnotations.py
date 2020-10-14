@@ -269,15 +269,22 @@ def create_sv_request_payload(sv_data, ref_genome):
 
     return list(elements.values())
 
-def update_annotations(result, connection, cursor, study_id):
-    #First, delete all records for the study_id
+def get_current_annotation_data(connection, cursor, study_id):
+    annotation_data = []
     try:
-        cursor.execute('DELETE alteration_driver_annotation FROM cbioportal.alteration_driver_annotation' +
+        cursor.execute('SELECT ALTERATION_EVENT_ID, alteration_driver_annotation.GENETIC_PROFILE_ID, SAMPLE_ID, DRIVER_FILTER_ANNOTATION,' +
+            ' DRIVER_TIERS_FILTER, DRIVER_TIERS_FILTER_ANNOTATION FROM cbioportal.alteration_driver_annotation' +
             ' INNER JOIN cbioportal.genetic_profile ON (genetic_profile.GENETIC_PROFILE_ID = alteration_driver_annotation.GENETIC_PROFILE_ID)' +
             ' INNER JOIN cbioportal.cancer_study ON (cancer_study.CANCER_STUDY_ID = genetic_profile.CANCER_STUDY_ID)' +
             ' WHERE cancer_study.CANCER_STUDY_IDENTIFIER = "'+study_id+'"')
+        for row in cursor.fetchall():
+            annotation_data += ["_".join([str(row[0]), str(row[1]), str(row[2])])]
     except MySQLdb.Error as msg:
         print(msg, file=ERROR_FILE)
+    return annotation_data
+
+def update_annotations(result, connection, cursor, study_id):
+    current_annotation_data = get_current_annotation_data(connection, cursor, study_id)
     #Go over all the entries retrieved and add them to the database
     for entry in result:
         parsed_id = entry["query"]["id"].split("_")
@@ -285,11 +292,20 @@ def update_annotations(result, connection, cursor, study_id):
         genetic_profile_id = parsed_id[1]
         sample_id = parsed_id[2]
         oncogenic = libImportOncokb.evaluate_driver_passenger(entry["oncogenic"])
-        try:
-            cursor.execute('INSERT INTO cbioportal.alteration_driver_annotation'+
-            ' VALUES (' + event_id + ', '+ genetic_profile_id + ', '+ sample_id + ', "'+ oncogenic + '", "", "", "")')
-        except MySQLdb.Error as msg:
-            print(msg, file=ERROR_FILE)
+        if entry["query"]["id"] in current_annotation_data:
+            try:
+                cursor.execute('UPDATE cbioportal.alteration_driver_annotation'+
+                ' SET DRIVER_FILTER = "' + oncogenic + '"' +
+                ' WHERE ALTERATION_EVENT_ID = ' + event_id + ' AND GENETIC_PROFILE_ID = '+ genetic_profile_id + 
+                ' AND SAMPLE_ID = '+ sample_id)
+            except MySQLdb.Error as msg:
+                print(msg, file=ERROR_FILE)
+        else:
+            try:
+                cursor.execute('INSERT INTO cbioportal.alteration_driver_annotation'+
+                ' VALUES (' + event_id + ', '+ genetic_profile_id + ', '+ sample_id + ', "'+ oncogenic + '", "", "", "")')
+            except MySQLdb.Error as msg:
+                print(msg, file=ERROR_FILE)
         
 def main_import(study_id, properties_filename):    
     # check existence of properties file

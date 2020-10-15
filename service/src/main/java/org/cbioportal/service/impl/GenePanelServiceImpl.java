@@ -127,13 +127,42 @@ public class GenePanelServiceImpl implements GenePanelService {
     }
 
     @Override
-	public List<GenePanelData> fetchGenePanelDataInMultipleMolecularProfiles(List<String> molecularProfileIds,
-			List<String> sampleIds) {
+    public List<GenePanelData> fetchGenePanelDataInMultipleMolecularProfiles(List<String> molecularProfileIds,
+            List<String> sampleIds) {
 
-            List<GenePanelData> genePanelData =
-                genePanelRepository.fetchGenePanelDataInMultipleMolecularProfiles(molecularProfileIds, sampleIds);
-            return createGenePanelData(createGenePanelDataMap(genePanelData), molecularProfileIds, sampleIds);
-	}
+        // TODO: remove this block once data is fixed
+        boolean hasFusionProfileIdsInQuery = false;
+        for (int i = 0; i < molecularProfileIds.size(); i++) {
+            if (molecularProfileIds.get(i).endsWith("_fusion")) {
+                hasFusionProfileIdsInQuery = true;
+                break;
+            }
+        }
+        List<String> updatedMolecularProfileIds = new ArrayList<>(molecularProfileIds);
+        List<String> updatedSampleIds = new ArrayList<>(sampleIds);
+
+        if (hasFusionProfileIdsInQuery) {
+            MultiKeyMap queriedIdsMap = new MultiKeyMap();
+            for (int i = 0; i < molecularProfileIds.size(); i++) {
+                queriedIdsMap.put(molecularProfileIds.get(i), sampleIds.get(i), true);
+            }
+
+            for (int i = 0; i < molecularProfileIds.size(); i++) {
+                if (molecularProfileIds.get(i).endsWith("_fusion")) {
+                    String mutationProfileId = molecularProfileIds.get(i).replace("_fusion", "_mutations");
+                    if (!queriedIdsMap.containsKey(mutationProfileId, sampleIds.get(i))) {
+                        updatedMolecularProfileIds.add(mutationProfileId);
+                        updatedSampleIds.add(sampleIds.get(i));
+                    }
+                }
+            }
+        }
+        // TODO: remove this block once data is fixed
+
+        List<GenePanelData> genePanelData = genePanelRepository
+                .fetchGenePanelDataInMultipleMolecularProfiles(updatedMolecularProfileIds, updatedSampleIds);
+        return createGenePanelData(createGenePanelDataMap(genePanelData), molecularProfileIds, sampleIds);
+    }
 
     private List<GenePanelData> createGenePanelData(MultiKeyMap genePanelDataMap, List<String> molecularProfileIds,
         List<String> sampleIds) {
@@ -177,8 +206,10 @@ public class GenePanelServiceImpl implements GenePanelService {
             MolecularProfile molecularProfile = molecularProfileMap.get(molecularProfileId);
             String studyId = molecularProfile.getCancerStudyIdentifier();
             resultGenePanelData.setStudyId(studyId);
-            Optional<GenePanelData> genePanelData =
-                Optional.ofNullable((GenePanelData)genePanelDataMap.get(molecularProfileId, sampleId));
+
+            //TODO: remove replacing fusion with mutations once data is fixed
+            Optional<GenePanelData> genePanelData = Optional.ofNullable((GenePanelData) genePanelDataMap
+                    .get(molecularProfileId.replace("_fusion", "_mutations"), sampleId));
             if (genePanelData.isPresent()) {
                 resultGenePanelData.setGenePanelId(genePanelData.get().getGenePanelId());
                 resultGenePanelData.setProfiled(true);

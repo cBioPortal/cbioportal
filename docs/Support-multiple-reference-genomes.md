@@ -20,4 +20,4 @@ if your study is profiled by a reference geome other than a default genome value
    ncbi.build=GRCh37
    ucsc.build=hg19
 ```
-* You can also overwrite default genome values for specific studies. For that, you have to specify the `reference_genome` field in the `meta_study.txt` file of your study. The allowed values are: `hg19`, `hg38` or `mm10`. Default is `hg19`.
+* You can also overwrite the default reference genome for a specific study. For that, you have to specify the `reference_genome` field in the `meta_study.txt` file of your study. The allowed values are: `hg19`, `hg38` or `mm10`. Default is `hg19`.

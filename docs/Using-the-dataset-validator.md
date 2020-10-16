@@ -38,12 +38,6 @@ optional arguments:
   -n, --no_portal_checks
                         Skip tests requiring information from the cBioPortal
                         installation
-  -species SPECIES, --species SPECIES
-                        species information (default: assumed human)
-  -ucsc UCSC_BUILD_NAME, --ucsc_build_name UCSC_BUILD_NAME
-                        UCSC reference genome assembly name (default: assumed hg19)
-  -ncbi NCBI_BUILD_NUMBER, --ncbi_build_number NCBI_BUILD_NUMBER
-                        NCBI reference genome build number (default: assumed GRCh37 for UCSC reference genome build hg19)
   -html HTML_TABLE, --html_table HTML_TABLE
                         path to html report output file
   -e ERROR_FILE, --error_file ERROR_FILE
@@ -66,7 +60,7 @@ optional arguments:
 ```
 
 For more information on the `--portal_info_dir` option, see [Offline validation](#offline-validation) below. If your cBioPortal is not using `hg19`, 
-you must use all three `--species` , `--reference_genome` , `--genome_build` options. 
+you have to specify the `reference_genome` field in your `meta_study.txt`.
 
 For more information, see [Validation of non-human data](#validation-of-non-human-data).
 
@@ -83,94 +77,209 @@ As an example, you can try the validator with one of the test studies found in  
 ```
 Results in:
 ```console
-DEBUG: -: Requesting cancertypes from portal at 'http://localhost:8080'
-DEBUG: -: Requesting clinicalattributes/patients from portal at 'http://localhost:8080'
-DEBUG: -: Requesting clinicalattributes/samples from portal at 'http://localhost:8080'
+DEBUG: -: Requesting info from portal at 'http://localhost:8080'
+DEBUG: -: Requesting cancer-types from portal at 'http://localhost:8080'
 DEBUG: -: Requesting genes from portal at 'http://localhost:8080'
-DEBUG: -: Requesting genesaliases from portal at 'http://localhost:8080'
+DEBUG: -: Requesting genesets from portal at 'http://localhost:8080'
+DEBUG: -: Requesting genesets_version from portal at 'http://localhost:8080'
+DEBUG: -: Requesting gene-panels from portal at 'http://localhost:8080'
 
-DEBUG: meta_CNA.txt: Starting validation of meta file
-INFO: meta_CNA.txt: Validation of meta file complete
+DEBUG: meta_cancer_type.txt: Starting validation of meta file
+INFO: meta_cancer_type.txt: Validation of meta file complete
 
-DEBUG: brca_tcga_meta_cna_hg19_seg.txt: Starting validation of meta file
-INFO: brca_tcga_meta_cna_hg19_seg.txt: Validation of meta file complete
+DEBUG: meta_clinical_patients.txt: Starting validation of meta file
+INFO: meta_clinical_patients.txt: Validation of meta file complete
 
-DEBUG: -: Retrieving chromosome lengths from 'https://hgdownload.cse.ucsc.edu/goldenPath/hg19/bigZips/hg19.chrom.sizes'
+DEBUG: meta_clinical_samples.txt: Starting validation of meta file
+INFO: meta_clinical_samples.txt: Validation of meta file complete
 
-DEBUG: meta_patients.txt: Starting validation of meta file
-INFO: meta_patients.txt: Validation of meta file complete
+DEBUG: meta_cna_discrete.txt: Starting validation of meta file
+INFO: meta_cna_discrete.txt: Validation of meta file complete
 
-DEBUG: meta_samples.txt: Starting validation of meta file
-INFO: meta_samples.txt: Validation of meta file complete
+DEBUG: meta_cna_hg19_seg.txt: Starting validation of meta file
+INFO: meta_cna_hg19_seg.txt: Validation of meta file complete
 
-DEBUG: meta_fusions.txt: Starting validation of meta file
-INFO: meta_fusions.txt: Validation of meta file complete
+DEBUG: -: Retrieving chromosome lengths from '/home/sander/git/cbioportal/core/src/main/scripts/importer/chromosome_sizes.json'
 
-DEBUG: meta_log2CNA.txt: Starting validation of meta file
-INFO: meta_log2CNA.txt: Validation of meta file complete
-
-DEBUG: meta_study.txt: Starting validation of meta file
-INFO: meta_study.txt: Validation of meta file complete
-
-DEBUG: meta_methylation_hm27.txt: Starting validation of meta file
-INFO: meta_methylation_hm27.txt: Validation of meta file complete
+DEBUG: meta_cna_log2.txt: Starting validation of meta file
+INFO: meta_cna_log2.txt: Validation of meta file complete
 
 DEBUG: meta_expression_median.txt: Starting validation of meta file
 INFO: meta_expression_median.txt: Validation of meta file complete
 
+DEBUG: meta_expression_median_Zscores.txt: Starting validation of meta file
+INFO: meta_expression_median_Zscores.txt: Validation of meta file complete
+
+DEBUG: meta_fusions.txt: Starting validation of meta file
+INFO: meta_fusions.txt: Validation of meta file complete
+
+DEBUG: meta_gene_panel_matrix.txt: Starting validation of meta file
+INFO: meta_gene_panel_matrix.txt: Validation of meta file complete
+
 DEBUG: meta_gistic_genes_amp.txt: Starting validation of meta file
 INFO: meta_gistic_genes_amp.txt: Validation of meta file complete
+
+DEBUG: -: Retrieving chromosome lengths from '/home/sander/git/cbioportal/core/src/main/scripts/importer/chromosome_sizes.json'
+
+DEBUG: meta_gsva_pvalues.txt: Starting validation of meta file
+INFO: meta_gsva_pvalues.txt: Validation of meta file complete
+
+DEBUG: meta_gsva_scores.txt: Starting validation of meta file
+INFO: meta_gsva_scores.txt: Validation of meta file complete
+
+DEBUG: meta_methylation_hm27.txt: Starting validation of meta file
+INFO: meta_methylation_hm27.txt: Validation of meta file complete
+
+DEBUG: meta_mutational_signature.txt: Starting validation of meta file
+INFO: meta_mutational_signature.txt: Validation of meta file complete
 
 DEBUG: meta_mutations_extended.txt: Starting validation of meta file
 INFO: meta_mutations_extended.txt: Validation of meta file complete
 
-DEBUG: data_samples.txt: Starting validation of file
-INFO: data_samples.txt: Validation of file complete
-INFO: data_samples.txt: Read 831 lines. Lines with warning: 0. Lines with error: 0
+DEBUG: meta_resource_definition.txt: Starting validation of meta file
+INFO: meta_resource_definition.txt: Validation of meta file complete
 
-DEBUG: brca_tcga_data_cna_hg19.seg: Starting validation of file
-INFO: brca_tcga_data_cna_hg19.seg: Validation of file complete
-INFO: brca_tcga_data_cna_hg19.seg: Read 10 lines. Lines with warning: 0. Lines with error: 0
+DEBUG: meta_resource_patient.txt: Starting validation of meta file
+INFO: meta_resource_patient.txt: Validation of meta file complete
 
-DEBUG: data_methylation_hm27.txt: Starting validation of file
-INFO: data_methylation_hm27.txt: Validation of file complete
-INFO: data_methylation_hm27.txt: Read 9 lines. Lines with warning: 0. Lines with error: 0
+DEBUG: meta_resource_sample.txt: Starting validation of meta file
+INFO: meta_resource_sample.txt: Validation of meta file complete
 
-DEBUG: data_fusions.txt: Starting validation of file
-INFO: data_fusions.txt: Validation of file complete
-INFO: data_fusions.txt: Read 4 lines. Lines with warning: 0. Lines with error: 0
+DEBUG: meta_resource_study.txt: Starting validation of meta file
+INFO: meta_resource_study.txt: Validation of meta file complete
+
+DEBUG: meta_structural_variants.txt: Starting validation of meta file
+INFO: meta_structural_variants.txt: Validation of meta file complete
+
+DEBUG: meta_study.txt: Starting validation of meta file
+INFO: meta_study.txt: Validation of meta file complete
+
+DEBUG: -: Study Tag file found. It will be validated.
+
+DEBUG: meta_treatment_ec50.txt: Starting validation of meta file
+INFO: meta_treatment_ec50.txt: Validation of meta file complete
+
+DEBUG: meta_treatment_ic50.txt: Starting validation of meta file
+INFO: meta_treatment_ic50.txt: Validation of meta file complete
+
+DEBUG: data_cancer_type.txt: Starting validation of file
+INFO: data_cancer_type.txt: line 1: New disease type will be added to the portal; value encountered: 'brca-es0'
+INFO: data_cancer_type.txt: Validation of file complete
+INFO: data_cancer_type.txt: Read 1 lines. Lines with warning: 0. Lines with error: 0
+
+DEBUG: data_clinical_samples.txt: Starting validation of file
+INFO: data_clinical_samples.txt: Validation of file complete
+INFO: data_clinical_samples.txt: Read 847 lines. Lines with warning: 0. Lines with error: 0
+
+DEBUG: data_resource_definition.txt: Starting validation of file
+INFO: data_resource_definition.txt: Validation of file complete
+INFO: data_resource_definition.txt: Read 4 lines. Lines with warning: 0. Lines with error: 0
+
+DEBUG: data_resource_sample.txt: Starting validation of file
+INFO: data_resource_sample.txt: Validation of file complete
+INFO: data_resource_sample.txt: Read 4 lines. Lines with warning: 0. Lines with error: 0
+
+DEBUG: study_tags.yml: Starting validation of study tags file
+INFO: study_tags.yml: Validation of study tags file complete.
+
+DEBUG: -: Validating case lists
+
+DEBUG: case_lists/cases_cnaseq.txt: Starting validation of meta file
+INFO: case_lists/cases_cnaseq.txt: Validation of meta file complete
+
+DEBUG: case_lists/cases_test.txt: Starting validation of meta file
+INFO: case_lists/cases_test.txt: Validation of meta file complete
+
+DEBUG: case_lists/cases_sequenced.txt: Starting validation of meta file
+INFO: case_lists/cases_sequenced.txt: Validation of meta file complete
+
+DEBUG: case_lists/cases_custom.txt: Starting validation of meta file
+INFO: case_lists/cases_custom.txt: Validation of meta file complete
+
+DEBUG: case_lists/cases_cna.txt: Starting validation of meta file
+INFO: case_lists/cases_cna.txt: Validation of meta file complete
+
+INFO: -: Validation of case list folder complete
+
+DEBUG: data_gene_panel_matrix.txt: Starting validation of file
+INFO: data_gene_panel_matrix.txt: line 1: This column can be replaced by a 'gene_panel' property in the respective meta file; value encountered: 'gistic'
+INFO: data_gene_panel_matrix.txt: Validation of file complete
+INFO: data_gene_panel_matrix.txt: Read 21 lines. Lines with warning: 0. Lines with error: 0
+
+DEBUG: data_cna_discrete.txt: Starting validation of file
+INFO: data_cna_discrete.txt: Validation of file complete
+INFO: data_cna_discrete.txt: Read 9 lines. Lines with warning: 0. Lines with error: 0
+
+DEBUG: data_clinical_patients.txt: Starting validation of file
+INFO: data_clinical_patients.txt: Validation of file complete
+INFO: data_clinical_patients.txt: Read 845 lines. Lines with warning: 0. Lines with error: 0
 
 DEBUG: data_expression_median.txt: Starting validation of file
 INFO: data_expression_median.txt: Validation of file complete
 INFO: data_expression_median.txt: Read 7 lines. Lines with warning: 0. Lines with error: 0
 
-DEBUG: brca_tcga_pub.maf: Starting validation of file
-INFO: brca_tcga_pub.maf: lines [7, 9, 14]: Validation of line skipped due to cBioPortal's filtering. Filtered types: [Silent, Intron, 3'UTR, 3'Flank, 5'UTR, 5'Flank, IGR, RNA]; value encountered: 'Silent'
-INFO: brca_tcga_pub.maf: Validation of file complete
-INFO: brca_tcga_pub.maf: Read 15 lines. Lines with warning: 0. Lines with error: 0
+DEBUG: data_expression_median_Zscores.txt: Starting validation of file
+INFO: data_expression_median_Zscores.txt: Validation of file complete
+INFO: data_expression_median_Zscores.txt: Read 6 lines. Lines with warning: 0. Lines with error: 0
 
-DEBUG: data_CNA.txt: Starting validation of file
-INFO: data_CNA.txt: Validation of file complete
-INFO: data_CNA.txt: Read 8 lines. Lines with warning: 0. Lines with error: 0
+DEBUG: data_fusions.txt: Starting validation of file
+INFO: data_fusions.txt: Validation of file complete
+INFO: data_fusions.txt: Read 6 lines. Lines with warning: 0. Lines with error: 0
 
-DEBUG: data_log2CNA.txt: Starting validation of file
-INFO: data_log2CNA.txt: Validation of file complete
-INFO: data_log2CNA.txt: Read 8 lines. Lines with warning: 0. Lines with error: 0
+DEBUG: data_mutational_signature.txt: Starting validation of file
+INFO: data_mutational_signature.txt: Validation of file complete
+INFO: data_mutational_signature.txt: Read 62 lines. Lines with warning: 0. Lines with error: 0
 
-DEBUG: data_patients.txt: Starting validation of file
-INFO: data_patients.txt: Validation of file complete
-INFO: data_patients.txt: Read 830 lines. Lines with warning: 0. Lines with error: 0
+DEBUG: data_treatment_ec50.txt: Starting validation of file
+INFO: data_treatment_ec50.txt: Validation of file complete
+INFO: data_treatment_ec50.txt: Read 11 lines. Lines with warning: 0. Lines with error: 0
+
+DEBUG: data_treatment_ic50.txt: Starting validation of file
+INFO: data_treatment_ic50.txt: Validation of file complete
+INFO: data_treatment_ic50.txt: Read 11 lines. Lines with warning: 0. Lines with error: 0
 
 DEBUG: data_gistic_genes_amp.txt: Starting validation of file
 INFO: data_gistic_genes_amp.txt: Validation of file complete
-INFO: data_gistic_genes_amp.txt: Read 28 lines. Lines with warning: 0. Lines with error: 0
+INFO: data_gistic_genes_amp.txt: Read 13 lines. Lines with warning: 0. Lines with error: 0
 
-DEBUG: -: Validating case lists
+DEBUG: data_gsva_pvalues.txt: Starting validation of file
+INFO: data_gsva_pvalues.txt: Validation of file complete
+INFO: data_gsva_pvalues.txt: Read 8 lines. Lines with warning: 0. Lines with error: 0
 
-DEBUG: case_lists/cases_custom.txt: Starting validation of meta file
-INFO: case_lists/cases_custom.txt: Validation of meta file complete
+DEBUG: data_gsva_scores.txt: Starting validation of file
+INFO: data_gsva_scores.txt: Validation of file complete
+INFO: data_gsva_scores.txt: Read 8 lines. Lines with warning: 0. Lines with error: 0
 
-INFO: -: Validation of case lists complete
+DEBUG: data_cna_log2.txt: Starting validation of file
+INFO: data_cna_log2.txt: Validation of file complete
+INFO: data_cna_log2.txt: Read 8 lines. Lines with warning: 0. Lines with error: 0
+
+DEBUG: data_methylation_hm27.txt: Starting validation of file
+INFO: data_methylation_hm27.txt: Validation of file complete
+INFO: data_methylation_hm27.txt: Read 9 lines. Lines with warning: 0. Lines with error: 0
+
+DEBUG: data_mutations_extended.maf: Starting validation of file
+INFO: data_mutations_extended.maf: lines [4, 5, 6, (3 more)]: column 164: Values contained in the column cbp_driver_tiers that will appear in the "Mutation Color" menu of the Oncoprint; values encountered: ['Class 2', 'Class 1', 'Class 4', '(1 more)']
+INFO: data_mutations_extended.maf: lines [7, 9]: Line will not be loaded due to the variant classification filter. Filtered types: [Silent, Intron, 3'UTR, 3'Flank, 5'UTR, 5'Flank, IGR, RNA]; value encountered: 'Silent'
+INFO: data_mutations_extended.maf: Validation of file complete
+INFO: data_mutations_extended.maf: Read 35 lines. Lines with warning: 0. Lines with error: 0
+
+DEBUG: data_resource_patient.txt: Starting validation of file
+INFO: data_resource_patient.txt: Validation of file complete
+INFO: data_resource_patient.txt: Read 4 lines. Lines with warning: 0. Lines with error: 0
+
+DEBUG: data_resource_study.txt: Starting validation of file
+INFO: data_resource_study.txt: Validation of file complete
+INFO: data_resource_study.txt: Read 2 lines. Lines with warning: 0. Lines with error: 0
+
+DEBUG: data_cna_hg19.seg: Starting validation of file
+INFO: data_cna_hg19.seg: Validation of file complete
+INFO: data_cna_hg19.seg: Read 10 lines. Lines with warning: 0. Lines with error: 0
+
+DEBUG: data_structural_variants.txt: Starting validation of file
+INFO: data_structural_variants.txt: Validation of file complete
+INFO: data_structural_variants.txt: Read 46 lines. Lines with warning: 0. Lines with error: 0
+
 INFO: -: Validation complete
 Validation of study succeeded.
 ```
@@ -185,35 +294,53 @@ More test studies for trying the validator (`study_es_1` and `study_es_3`) are a
 ```
 Results in:
 ```console
-DEBUG: -: Requesting cancertypes from portal at 'http://localhost:8080'
-DEBUG: -: Requesting clinicalattributes/patients from portal at 'http://localhost:8080'
-DEBUG: -: Requesting clinicalattributes/samples from portal at 'http://localhost:8080'
-DEBUG: -: Requesting genes from portal at 'http://localhost:8080'
-DEBUG: -: Requesting genesaliases from portal at 'http://localhost:8080'
+DEBUG: -: Requesting info from portal at 'http://localhost:8081'
+DEBUG: -: Requesting cancer-types from portal at 'http://localhost:8081'
+DEBUG: -: Requesting genes from portal at 'http://localhost:8081'
+DEBUG: -: Requesting genesets from portal at 'http://localhost:8081'
+DEBUG: -: Requesting genesets_version from portal at 'http://localhost:8081'
+DEBUG: -: Requesting gene-panels from portal at 'http://localhost:8081'
+
+DEBUG: meta_expression_median.txt: Starting validation of meta file
+ERROR: meta_expression_median.txt: Invalid stable id for genetic_alteration_type 'MRNA_EXPRESSION', data_type 'Z-SCORE'; expected one of [mrna_U133_Zscores, rna_seq_mrna_median_Zscores, mrna_median_Zscores, rna_seq_v2_mrna_median_Zscores, rna_seq_v2_mrna_median_normals_Zscores, mirna_median_Zscores, mrna_merged_median_Zscores, mrna_zbynorm, mrna_seq_tpm_Zscores, mrna_seq_cpm_Zscores, rna_seq_mrna_capture_Zscores, mrna_seq_fpkm_capture_Zscores, mrna_seq_fpkm_polya_Zscores, mrna_U133_all_sample_Zscores, mrna_all_sample_Zscores, rna_seq_mrna_median_all_sample_Zscores, mrna_median_all_sample_Zscores, rna_seq_v2_mrna_median_all_sample_Zscores, rna_seq_v2_mrna_median_all_sample_ref_normal_Zscores, mrna_seq_cpm_all_sample_Zscores, mrna_seq_tpm_all_sample_Zscores, rna_seq_mrna_capture_all_sample_Zscores, mrna_seq_fpkm_capture_all_sample_Zscores, mrna_seq_fpkm_polya_all_sample_Zscores]; value encountered: 'mrna'
 
 DEBUG: meta_samples.txt: Starting validation of meta file
-WARNING: meta_samples.txt: Unrecognized field in meta file; values encountered: ['show_profile_in_analysis_tab', 'profile_name', 'profile_description']
+WARNING: meta_samples.txt: Unrecognized field in meta file; values encountered: ['show_profile_in_analysis_tab', 'profile_description', 'profile_name']
 INFO: meta_samples.txt: Validation of meta file complete
 
 DEBUG: meta_study.txt: Starting validation of meta file
 INFO: meta_study.txt: Validation of meta file complete
+INFO: meta_study.txt: No reference genome specified -- using default (hg19)
 
-DEBUG: meta_expression_median.txt: Starting validation of meta file
-ERROR: meta_expression_median.txt: Invalid stable id for genetic_alteration_type 'MRNA_EXPRESSION', data_type 'Z-SCORE'; expected one of [mrna_U133_Zscores, rna_seq_mrna_median_Zscores, mrna_median_Zscores, rna_seq_v2_mrna_median_Zscores, mirna_median_Zscores, mrna_merged_median_Zscores, mrna_zbynorm, rna_seq_mrna_capture_Zscores]; value encountered: 'mrna'
+DEBUG: meta_treatment_ec50.txt: Starting validation of meta file
+INFO: meta_treatment_ec50.txt: Validation of meta file complete
+
+DEBUG: meta_treatment_ic50.txt: Starting validation of meta file
+INFO: meta_treatment_ic50.txt: Validation of meta file complete
 
 DEBUG: data_samples.txt: Starting validation of file
-WARNING: data_samples.txt: line 3: column 4: datatype definition for attribute 'DAYS_TO_COLLECTION' does not match the portal, and will be loaded as 'NUMBER'; value encountered: 'STRING'
-ERROR: data_samples.txt: line 8: column 4: According to portal, attribute should be loaded as NUMBER. Value of attribute to be loaded as NUMBER is not a real number; value encountered: 'spam'
 INFO: data_samples.txt: Validation of file complete
-INFO: data_samples.txt: Read 831 lines. Lines with warning: 1. Lines with error: 1
+INFO: data_samples.txt: Read 831 lines. Lines with warning: 0. Lines with error: 0
 
 DEBUG: -: Validating case lists
 
 DEBUG: case_lists/cases_all.txt: Starting validation of meta file
 INFO: case_lists/cases_all.txt: Validation of meta file complete
-ERROR: case_lists/cases_all.txt: Sample id not defined in clinical file; value encountered: 'INVALID-A2-A0T2-01'
+ERROR: case_lists/cases_all.txt: Sample ID not defined in clinical file; value encountered: 'INVALID-A2-A0T2-01'
 
-INFO: -: Validation of case lists complete
+INFO: -: Validation of case list folder complete
+
+DEBUG: data_treatment_ec50.txt: Starting validation of file
+ERROR: data_treatment_ec50.txt: line 2: column 1: Do not use space in the stable id; value encountered: '17 AAG'
+ERROR: data_treatment_ec50.txt: line 7: column 5: Blank cell found in column; value encountered: ''' (in column 'TCGA-A1-A0SB-01')'
+INFO: data_treatment_ec50.txt: Validation of file complete
+INFO: data_treatment_ec50.txt: Read 11 lines. Lines with warning: 0. Lines with error: 2
+
+DEBUG: data_treatment_ic50.txt: Starting validation of file
+ERROR: data_treatment_ic50.txt: line 7: column 5: Blank cell found in column; value encountered: ''' (in column 'TCGA-A1-A0SB-01')'
+INFO: data_treatment_ic50.txt: Validation of file complete
+INFO: data_treatment_ic50.txt: Read 10 lines. Lines with warning: 0. Lines with error: 1
+
 INFO: -: Validation complete
 Validation of study failed.
 ```
@@ -230,94 +357,207 @@ To run the validator with a folder of portal information files, add the `-p/--po
 ./validateData.py -s ../../../test/scripts/test_data/study_es_0/ -p ../../../test/scripts/test_data/api_json_system_tests/ -v
 ```
 ```console
-DEBUG: -: Reading portal information from ../../../test/scripts/test_data/api_json_system_tests/cancertypes.json
-DEBUG: -: Reading portal information from ../../../test/scripts/test_data/api_json_system_tests/clinicalattributes_patients.json
-DEBUG: -: Reading portal information from ../../../test/scripts/test_data/api_json_system_tests/clinicalattributes_samples.json
+DEBUG: -: Reading portal information from ../../../test/scripts/test_data/api_json_system_tests/cancer-types.json
 DEBUG: -: Reading portal information from ../../../test/scripts/test_data/api_json_system_tests/genes.json
-DEBUG: -: Reading portal information from ../../../test/scripts/test_data/api_json_system_tests/genesaliases.json
+DEBUG: -: Reading portal information from ../../../test/scripts/test_data/api_json_system_tests/genesets.json
+DEBUG: -: Reading portal information from ../../../test/scripts/test_data/api_json_system_tests/genesets_version.json
+DEBUG: -: Reading portal information from ../../../test/scripts/test_data/api_json_system_tests/gene-panels.json
 
-DEBUG: meta_CNA.txt: Starting validation of meta file
-INFO: meta_CNA.txt: Validation of meta file complete
+DEBUG: meta_cancer_type.txt: Starting validation of meta file
+INFO: meta_cancer_type.txt: Validation of meta file complete
 
-DEBUG: brca_tcga_meta_cna_hg19_seg.txt: Starting validation of meta file
-INFO: brca_tcga_meta_cna_hg19_seg.txt: Validation of meta file complete
+DEBUG: meta_clinical_patients.txt: Starting validation of meta file
+INFO: meta_clinical_patients.txt: Validation of meta file complete
 
-DEBUG: -: Retrieving chromosome lengths from 'https://hgdownload.cse.ucsc.edu/goldenPath/hg19/bigZips/hg19.chrom.sizes'
+DEBUG: meta_clinical_samples.txt: Starting validation of meta file
+INFO: meta_clinical_samples.txt: Validation of meta file complete
 
-DEBUG: meta_patients.txt: Starting validation of meta file
-INFO: meta_patients.txt: Validation of meta file complete
+DEBUG: meta_cna_discrete.txt: Starting validation of meta file
+INFO: meta_cna_discrete.txt: Validation of meta file complete
 
-DEBUG: meta_samples.txt: Starting validation of meta file
-INFO: meta_samples.txt: Validation of meta file complete
+DEBUG: meta_cna_hg19_seg.txt: Starting validation of meta file
+INFO: meta_cna_hg19_seg.txt: Validation of meta file complete
 
-DEBUG: meta_fusions.txt: Starting validation of meta file
-INFO: meta_fusions.txt: Validation of meta file complete
+DEBUG: -: Retrieving chromosome lengths from '/home/sander/git/cbioportal/core/src/main/scripts/importer/chromosome_sizes.json'
 
-DEBUG: meta_log2CNA.txt: Starting validation of meta file
-INFO: meta_log2CNA.txt: Validation of meta file complete
-
-DEBUG: meta_study.txt: Starting validation of meta file
-INFO: meta_study.txt: Validation of meta file complete
-
-DEBUG: meta_methylation_hm27.txt: Starting validation of meta file
-INFO: meta_methylation_hm27.txt: Validation of meta file complete
+DEBUG: meta_cna_log2.txt: Starting validation of meta file
+INFO: meta_cna_log2.txt: Validation of meta file complete
 
 DEBUG: meta_expression_median.txt: Starting validation of meta file
 INFO: meta_expression_median.txt: Validation of meta file complete
 
+DEBUG: meta_expression_median_Zscores.txt: Starting validation of meta file
+INFO: meta_expression_median_Zscores.txt: Validation of meta file complete
+
+DEBUG: meta_fusions.txt: Starting validation of meta file
+INFO: meta_fusions.txt: Validation of meta file complete
+
+DEBUG: meta_gene_panel_matrix.txt: Starting validation of meta file
+INFO: meta_gene_panel_matrix.txt: Validation of meta file complete
+
 DEBUG: meta_gistic_genes_amp.txt: Starting validation of meta file
 INFO: meta_gistic_genes_amp.txt: Validation of meta file complete
+
+DEBUG: -: Retrieving chromosome lengths from '/home/sander/git/cbioportal/core/src/main/scripts/importer/chromosome_sizes.json'
+
+DEBUG: meta_gsva_pvalues.txt: Starting validation of meta file
+INFO: meta_gsva_pvalues.txt: Validation of meta file complete
+
+DEBUG: meta_gsva_scores.txt: Starting validation of meta file
+INFO: meta_gsva_scores.txt: Validation of meta file complete
+
+DEBUG: meta_methylation_hm27.txt: Starting validation of meta file
+INFO: meta_methylation_hm27.txt: Validation of meta file complete
+
+DEBUG: meta_mutational_signature.txt: Starting validation of meta file
+INFO: meta_mutational_signature.txt: Validation of meta file complete
 
 DEBUG: meta_mutations_extended.txt: Starting validation of meta file
 INFO: meta_mutations_extended.txt: Validation of meta file complete
 
-DEBUG: data_samples.txt: Starting validation of file
-INFO: data_samples.txt: Validation of file complete
-INFO: data_samples.txt: Read 831 lines. Lines with warning: 0. Lines with error: 0
+DEBUG: meta_resource_definition.txt: Starting validation of meta file
+INFO: meta_resource_definition.txt: Validation of meta file complete
 
-DEBUG: brca_tcga_data_cna_hg19.seg: Starting validation of file
-INFO: brca_tcga_data_cna_hg19.seg: Validation of file complete
-INFO: brca_tcga_data_cna_hg19.seg: Read 10 lines. Lines with warning: 0. Lines with error: 0
+DEBUG: meta_resource_patient.txt: Starting validation of meta file
+INFO: meta_resource_patient.txt: Validation of meta file complete
 
-DEBUG: data_methylation_hm27.txt: Starting validation of file
-INFO: data_methylation_hm27.txt: Validation of file complete
-INFO: data_methylation_hm27.txt: Read 9 lines. Lines with warning: 0. Lines with error: 0
+DEBUG: meta_resource_sample.txt: Starting validation of meta file
+INFO: meta_resource_sample.txt: Validation of meta file complete
 
-DEBUG: data_fusions.txt: Starting validation of file
-INFO: data_fusions.txt: Validation of file complete
-INFO: data_fusions.txt: Read 4 lines. Lines with warning: 0. Lines with error: 0
+DEBUG: meta_resource_study.txt: Starting validation of meta file
+INFO: meta_resource_study.txt: Validation of meta file complete
+
+DEBUG: meta_structural_variants.txt: Starting validation of meta file
+INFO: meta_structural_variants.txt: Validation of meta file complete
+
+DEBUG: meta_study.txt: Starting validation of meta file
+INFO: meta_study.txt: Validation of meta file complete
+
+DEBUG: -: Study Tag file found. It will be validated.
+
+DEBUG: meta_treatment_ec50.txt: Starting validation of meta file
+INFO: meta_treatment_ec50.txt: Validation of meta file complete
+
+DEBUG: meta_treatment_ic50.txt: Starting validation of meta file
+INFO: meta_treatment_ic50.txt: Validation of meta file complete
+
+DEBUG: data_cancer_type.txt: Starting validation of file
+INFO: data_cancer_type.txt: Validation of file complete
+INFO: data_cancer_type.txt: Read 1 lines. Lines with warning: 0. Lines with error: 0
+
+DEBUG: data_clinical_samples.txt: Starting validation of file
+INFO: data_clinical_samples.txt: Validation of file complete
+INFO: data_clinical_samples.txt: Read 847 lines. Lines with warning: 0. Lines with error: 0
+
+DEBUG: data_resource_definition.txt: Starting validation of file
+INFO: data_resource_definition.txt: Validation of file complete
+INFO: data_resource_definition.txt: Read 4 lines. Lines with warning: 0. Lines with error: 0
+
+DEBUG: data_resource_sample.txt: Starting validation of file
+INFO: data_resource_sample.txt: Validation of file complete
+INFO: data_resource_sample.txt: Read 4 lines. Lines with warning: 0. Lines with error: 0
+
+DEBUG: study_tags.yml: Starting validation of study tags file
+INFO: study_tags.yml: Validation of study tags file complete.
+
+DEBUG: -: Validating case lists
+
+DEBUG: case_lists/cases_cnaseq.txt: Starting validation of meta file
+INFO: case_lists/cases_cnaseq.txt: Validation of meta file complete
+
+DEBUG: case_lists/cases_test.txt: Starting validation of meta file
+INFO: case_lists/cases_test.txt: Validation of meta file complete
+
+DEBUG: case_lists/cases_sequenced.txt: Starting validation of meta file
+INFO: case_lists/cases_sequenced.txt: Validation of meta file complete
+
+DEBUG: case_lists/cases_custom.txt: Starting validation of meta file
+INFO: case_lists/cases_custom.txt: Validation of meta file complete
+
+DEBUG: case_lists/cases_cna.txt: Starting validation of meta file
+INFO: case_lists/cases_cna.txt: Validation of meta file complete
+
+INFO: -: Validation of case list folder complete
+
+DEBUG: data_gene_panel_matrix.txt: Starting validation of file
+INFO: data_gene_panel_matrix.txt: line 1: This column can be replaced by a 'gene_panel' property in the respective meta file; value encountered: 'gistic'
+INFO: data_gene_panel_matrix.txt: Validation of file complete
+INFO: data_gene_panel_matrix.txt: Read 21 lines. Lines with warning: 0. Lines with error: 0
+
+DEBUG: data_cna_discrete.txt: Starting validation of file
+INFO: data_cna_discrete.txt: Validation of file complete
+INFO: data_cna_discrete.txt: Read 9 lines. Lines with warning: 0. Lines with error: 0
+
+DEBUG: data_clinical_patients.txt: Starting validation of file
+INFO: data_clinical_patients.txt: Validation of file complete
+INFO: data_clinical_patients.txt: Read 845 lines. Lines with warning: 0. Lines with error: 0
 
 DEBUG: data_expression_median.txt: Starting validation of file
 INFO: data_expression_median.txt: Validation of file complete
 INFO: data_expression_median.txt: Read 7 lines. Lines with warning: 0. Lines with error: 0
 
-DEBUG: brca_tcga_pub.maf: Starting validation of file
-INFO: brca_tcga_pub.maf: lines [7, 9, 14]: Validation of line skipped due to cBioPortal's filtering. Filtered types: [Silent, Intron, 3'UTR, 3'Flank, 5'UTR, 5'Flank, IGR, RNA]; value encountered: 'Silent'
-INFO: brca_tcga_pub.maf: Validation of file complete
-INFO: brca_tcga_pub.maf: Read 15 lines. Lines with warning: 0. Lines with error: 0
+DEBUG: data_expression_median_Zscores.txt: Starting validation of file
+INFO: data_expression_median_Zscores.txt: Validation of file complete
+INFO: data_expression_median_Zscores.txt: Read 6 lines. Lines with warning: 0. Lines with error: 0
 
-DEBUG: data_CNA.txt: Starting validation of file
-INFO: data_CNA.txt: Validation of file complete
-INFO: data_CNA.txt: Read 8 lines. Lines with warning: 0. Lines with error: 0
+DEBUG: data_fusions.txt: Starting validation of file
+INFO: data_fusions.txt: Validation of file complete
+INFO: data_fusions.txt: Read 6 lines. Lines with warning: 0. Lines with error: 0
 
-DEBUG: data_log2CNA.txt: Starting validation of file
-INFO: data_log2CNA.txt: Validation of file complete
-INFO: data_log2CNA.txt: Read 8 lines. Lines with warning: 0. Lines with error: 0
+DEBUG: data_mutational_signature.txt: Starting validation of file
+INFO: data_mutational_signature.txt: Validation of file complete
+INFO: data_mutational_signature.txt: Read 62 lines. Lines with warning: 0. Lines with error: 0
 
-DEBUG: data_patients.txt: Starting validation of file
-INFO: data_patients.txt: Validation of file complete
-INFO: data_patients.txt: Read 830 lines. Lines with warning: 0. Lines with error: 0
+DEBUG: data_treatment_ec50.txt: Starting validation of file
+INFO: data_treatment_ec50.txt: Validation of file complete
+INFO: data_treatment_ec50.txt: Read 11 lines. Lines with warning: 0. Lines with error: 0
+
+DEBUG: data_treatment_ic50.txt: Starting validation of file
+INFO: data_treatment_ic50.txt: Validation of file complete
+INFO: data_treatment_ic50.txt: Read 11 lines. Lines with warning: 0. Lines with error: 0
 
 DEBUG: data_gistic_genes_amp.txt: Starting validation of file
 INFO: data_gistic_genes_amp.txt: Validation of file complete
-INFO: data_gistic_genes_amp.txt: Read 28 lines. Lines with warning: 0. Lines with error: 0
+INFO: data_gistic_genes_amp.txt: Read 13 lines. Lines with warning: 0. Lines with error: 0
 
-DEBUG: -: Validating case lists
+DEBUG: data_gsva_pvalues.txt: Starting validation of file
+INFO: data_gsva_pvalues.txt: Validation of file complete
+INFO: data_gsva_pvalues.txt: Read 8 lines. Lines with warning: 0. Lines with error: 0
 
-DEBUG: case_lists/cases_custom.txt: Starting validation of meta file
-INFO: case_lists/cases_custom.txt: Validation of meta file complete
+DEBUG: data_gsva_scores.txt: Starting validation of file
+INFO: data_gsva_scores.txt: Validation of file complete
+INFO: data_gsva_scores.txt: Read 8 lines. Lines with warning: 0. Lines with error: 0
 
-INFO: -: Validation of case lists complete
+DEBUG: data_cna_log2.txt: Starting validation of file
+INFO: data_cna_log2.txt: Validation of file complete
+INFO: data_cna_log2.txt: Read 8 lines. Lines with warning: 0. Lines with error: 0
+
+DEBUG: data_methylation_hm27.txt: Starting validation of file
+INFO: data_methylation_hm27.txt: Validation of file complete
+INFO: data_methylation_hm27.txt: Read 9 lines. Lines with warning: 0. Lines with error: 0
+
+DEBUG: data_mutations_extended.maf: Starting validation of file
+INFO: data_mutations_extended.maf: lines [4, 5, 6, (3 more)]: column 164: Values contained in the column cbp_driver_tiers that will appear in the "Mutation Color" menu of the Oncoprint; values encountered: ['Class 2', 'Class 1', 'Class 4', '(1 more)']
+INFO: data_mutations_extended.maf: lines [7, 9]: Line will not be loaded due to the variant classification filter. Filtered types: [Silent, Intron, 3'UTR, 3'Flank, 5'UTR, 5'Flank, IGR, RNA]; value encountered: 'Silent'
+INFO: data_mutations_extended.maf: Validation of file complete
+INFO: data_mutations_extended.maf: Read 35 lines. Lines with warning: 0. Lines with error: 0
+
+DEBUG: data_resource_patient.txt: Starting validation of file
+INFO: data_resource_patient.txt: Validation of file complete
+INFO: data_resource_patient.txt: Read 4 lines. Lines with warning: 0. Lines with error: 0
+
+DEBUG: data_resource_study.txt: Starting validation of file
+INFO: data_resource_study.txt: Validation of file complete
+INFO: data_resource_study.txt: Read 2 lines. Lines with warning: 0. Lines with error: 0
+
+DEBUG: data_cna_hg19.seg: Starting validation of file
+INFO: data_cna_hg19.seg: Validation of file complete
+INFO: data_cna_hg19.seg: Read 10 lines. Lines with warning: 0. Lines with error: 0
+
+DEBUG: data_structural_variants.txt: Starting validation of file
+INFO: data_structural_variants.txt: Validation of file complete
+INFO: data_structural_variants.txt: Read 46 lines. Lines with warning: 0. Lines with error: 0
+
 INFO: -: Validation complete
 Validation of study succeeded.
 ```
@@ -338,115 +578,217 @@ Alternatively, you can run the validation script with the `-n/--no_portal_checks
 ```
 ```console
 WARNING: -: Skipping validations relating to cancer types defined in the portal
-WARNING: -: Skipping validations relating to clinical attributes defined in the portal
 WARNING: -: Skipping validations relating to gene identifiers and aliases defined in the portal
+WARNING: -: Skipping validations relating to gene set identifiers
+WARNING: -: Skipping validations relating to gene panel identifiers
 
-DEBUG: meta_CNA.txt: Starting validation of meta file
-INFO: meta_CNA.txt: Validation of meta file complete
+DEBUG: meta_cancer_type.txt: Starting validation of meta file
+INFO: meta_cancer_type.txt: Validation of meta file complete
 
-DEBUG: brca_tcga_meta_cna_hg19_seg.txt: Starting validation of meta file
-INFO: brca_tcga_meta_cna_hg19_seg.txt: Validation of meta file complete
+DEBUG: meta_clinical_patients.txt: Starting validation of meta file
+INFO: meta_clinical_patients.txt: Validation of meta file complete
 
-DEBUG: -: Retrieving chromosome lengths from 'https://hgdownload.cse.ucsc.edu/goldenPath/hg19/bigZips/hg19.chrom.sizes'
+DEBUG: meta_clinical_samples.txt: Starting validation of meta file
+INFO: meta_clinical_samples.txt: Validation of meta file complete
 
-DEBUG: meta_patients.txt: Starting validation of meta file
-INFO: meta_patients.txt: Validation of meta file complete
+DEBUG: meta_cna_discrete.txt: Starting validation of meta file
+INFO: meta_cna_discrete.txt: Validation of meta file complete
 
-DEBUG: meta_samples.txt: Starting validation of meta file
-INFO: meta_samples.txt: Validation of meta file complete
+DEBUG: meta_cna_hg19_seg.txt: Starting validation of meta file
+INFO: meta_cna_hg19_seg.txt: Validation of meta file complete
 
-DEBUG: meta_fusions.txt: Starting validation of meta file
-INFO: meta_fusions.txt: Validation of meta file complete
+DEBUG: -: Retrieving chromosome lengths from '/home/sander/git/cbioportal/core/src/main/scripts/importer/chromosome_sizes.json'
 
-DEBUG: meta_log2CNA.txt: Starting validation of meta file
-INFO: meta_log2CNA.txt: Validation of meta file complete
-
-DEBUG: meta_study.txt: Starting validation of meta file
-INFO: meta_study.txt: Validation of meta file complete
-
-DEBUG: meta_methylation_hm27.txt: Starting validation of meta file
-INFO: meta_methylation_hm27.txt: Validation of meta file complete
+DEBUG: meta_cna_log2.txt: Starting validation of meta file
+INFO: meta_cna_log2.txt: Validation of meta file complete
 
 DEBUG: meta_expression_median.txt: Starting validation of meta file
 INFO: meta_expression_median.txt: Validation of meta file complete
 
+DEBUG: meta_expression_median_Zscores.txt: Starting validation of meta file
+INFO: meta_expression_median_Zscores.txt: Validation of meta file complete
+
+DEBUG: meta_fusions.txt: Starting validation of meta file
+INFO: meta_fusions.txt: Validation of meta file complete
+
+DEBUG: meta_gene_panel_matrix.txt: Starting validation of meta file
+INFO: meta_gene_panel_matrix.txt: Validation of meta file complete
+
 DEBUG: meta_gistic_genes_amp.txt: Starting validation of meta file
 INFO: meta_gistic_genes_amp.txt: Validation of meta file complete
+
+DEBUG: -: Retrieving chromosome lengths from '/home/sander/git/cbioportal/core/src/main/scripts/importer/chromosome_sizes.json'
+
+DEBUG: meta_gsva_pvalues.txt: Starting validation of meta file
+INFO: meta_gsva_pvalues.txt: Validation of meta file complete
+
+DEBUG: meta_gsva_scores.txt: Starting validation of meta file
+INFO: meta_gsva_scores.txt: Validation of meta file complete
+
+DEBUG: meta_methylation_hm27.txt: Starting validation of meta file
+INFO: meta_methylation_hm27.txt: Validation of meta file complete
+
+DEBUG: meta_mutational_signature.txt: Starting validation of meta file
+INFO: meta_mutational_signature.txt: Validation of meta file complete
 
 DEBUG: meta_mutations_extended.txt: Starting validation of meta file
 INFO: meta_mutations_extended.txt: Validation of meta file complete
 
-DEBUG: data_samples.txt: Starting validation of file
-INFO: data_samples.txt: Validation of file complete
-INFO: data_samples.txt: Read 831 lines. Lines with warning: 0. Lines with error: 0
+DEBUG: meta_resource_definition.txt: Starting validation of meta file
+INFO: meta_resource_definition.txt: Validation of meta file complete
 
-DEBUG: brca_tcga_data_cna_hg19.seg: Starting validation of file
-INFO: brca_tcga_data_cna_hg19.seg: Validation of file complete
-INFO: brca_tcga_data_cna_hg19.seg: Read 10 lines. Lines with warning: 0. Lines with error: 0
+DEBUG: meta_resource_patient.txt: Starting validation of meta file
+INFO: meta_resource_patient.txt: Validation of meta file complete
 
-DEBUG: data_methylation_hm27.txt: Starting validation of file
-INFO: data_methylation_hm27.txt: Validation of file complete
-INFO: data_methylation_hm27.txt: Read 9 lines. Lines with warning: 0. Lines with error: 0
+DEBUG: meta_resource_sample.txt: Starting validation of meta file
+INFO: meta_resource_sample.txt: Validation of meta file complete
 
-DEBUG: data_fusions.txt: Starting validation of file
-INFO: data_fusions.txt: Validation of file complete
-INFO: data_fusions.txt: Read 4 lines. Lines with warning: 0. Lines with error: 0
+DEBUG: meta_resource_study.txt: Starting validation of meta file
+INFO: meta_resource_study.txt: Validation of meta file complete
+
+DEBUG: meta_structural_variants.txt: Starting validation of meta file
+INFO: meta_structural_variants.txt: Validation of meta file complete
+
+DEBUG: meta_study.txt: Starting validation of meta file
+INFO: meta_study.txt: Validation of meta file complete
+
+DEBUG: -: Study Tag file found. It will be validated.
+
+DEBUG: meta_treatment_ec50.txt: Starting validation of meta file
+INFO: meta_treatment_ec50.txt: Validation of meta file complete
+
+DEBUG: meta_treatment_ic50.txt: Starting validation of meta file
+INFO: meta_treatment_ic50.txt: Validation of meta file complete
+
+DEBUG: data_cancer_type.txt: Starting validation of file
+INFO: data_cancer_type.txt: Validation of file complete
+INFO: data_cancer_type.txt: Read 1 lines. Lines with warning: 0. Lines with error: 0
+
+DEBUG: data_clinical_samples.txt: Starting validation of file
+INFO: data_clinical_samples.txt: Validation of file complete
+INFO: data_clinical_samples.txt: Read 847 lines. Lines with warning: 0. Lines with error: 0
+
+DEBUG: data_resource_definition.txt: Starting validation of file
+INFO: data_resource_definition.txt: Validation of file complete
+INFO: data_resource_definition.txt: Read 4 lines. Lines with warning: 0. Lines with error: 0
+
+DEBUG: data_resource_sample.txt: Starting validation of file
+INFO: data_resource_sample.txt: Validation of file complete
+INFO: data_resource_sample.txt: Read 4 lines. Lines with warning: 0. Lines with error: 0
+
+DEBUG: study_tags.yml: Starting validation of study tags file
+INFO: study_tags.yml: Validation of study tags file complete.
+
+DEBUG: -: Validating case lists
+
+DEBUG: case_lists/cases_cnaseq.txt: Starting validation of meta file
+INFO: case_lists/cases_cnaseq.txt: Validation of meta file complete
+
+DEBUG: case_lists/cases_test.txt: Starting validation of meta file
+INFO: case_lists/cases_test.txt: Validation of meta file complete
+
+DEBUG: case_lists/cases_sequenced.txt: Starting validation of meta file
+INFO: case_lists/cases_sequenced.txt: Validation of meta file complete
+
+DEBUG: case_lists/cases_custom.txt: Starting validation of meta file
+INFO: case_lists/cases_custom.txt: Validation of meta file complete
+
+DEBUG: case_lists/cases_cna.txt: Starting validation of meta file
+INFO: case_lists/cases_cna.txt: Validation of meta file complete
+
+INFO: -: Validation of case list folder complete
+
+DEBUG: data_gene_panel_matrix.txt: Starting validation of file
+INFO: data_gene_panel_matrix.txt: line 1: This column can be replaced by a 'gene_panel' property in the respective meta file; value encountered: 'gistic'
+INFO: data_gene_panel_matrix.txt: Validation of file complete
+INFO: data_gene_panel_matrix.txt: Read 21 lines. Lines with warning: 0. Lines with error: 0
+
+DEBUG: data_cna_discrete.txt: Starting validation of file
+INFO: data_cna_discrete.txt: Validation of file complete
+INFO: data_cna_discrete.txt: Read 9 lines. Lines with warning: 0. Lines with error: 0
+
+DEBUG: data_clinical_patients.txt: Starting validation of file
+INFO: data_clinical_patients.txt: Validation of file complete
+INFO: data_clinical_patients.txt: Read 845 lines. Lines with warning: 0. Lines with error: 0
 
 DEBUG: data_expression_median.txt: Starting validation of file
 INFO: data_expression_median.txt: Validation of file complete
 INFO: data_expression_median.txt: Read 7 lines. Lines with warning: 0. Lines with error: 0
 
-DEBUG: brca_tcga_pub.maf: Starting validation of file
-INFO: brca_tcga_pub.maf: lines [7, 9, 14]: Validation of line skipped due to cBioPortal's filtering. Filtered types: [Silent, Intron, 3'UTR, 3'Flank, 5'UTR, 5'Flank, IGR, RNA]; value encountered: 'Silent'
-INFO: brca_tcga_pub.maf: Validation of file complete
-INFO: brca_tcga_pub.maf: Read 15 lines. Lines with warning: 0. Lines with error: 0
+DEBUG: data_expression_median_Zscores.txt: Starting validation of file
+INFO: data_expression_median_Zscores.txt: Validation of file complete
+INFO: data_expression_median_Zscores.txt: Read 6 lines. Lines with warning: 0. Lines with error: 0
 
-DEBUG: data_CNA.txt: Starting validation of file
-INFO: data_CNA.txt: Validation of file complete
-INFO: data_CNA.txt: Read 8 lines. Lines with warning: 0. Lines with error: 0
+DEBUG: data_fusions.txt: Starting validation of file
+INFO: data_fusions.txt: Validation of file complete
+INFO: data_fusions.txt: Read 6 lines. Lines with warning: 0. Lines with error: 0
 
-DEBUG: data_log2CNA.txt: Starting validation of file
-INFO: data_log2CNA.txt: Validation of file complete
-INFO: data_log2CNA.txt: Read 8 lines. Lines with warning: 0. Lines with error: 0
+DEBUG: data_mutational_signature.txt: Starting validation of file
+INFO: data_mutational_signature.txt: Validation of file complete
+INFO: data_mutational_signature.txt: Read 62 lines. Lines with warning: 0. Lines with error: 0
 
-DEBUG: data_patients.txt: Starting validation of file
-INFO: data_patients.txt: Validation of file complete
-INFO: data_patients.txt: Read 830 lines. Lines with warning: 0. Lines with error: 0
+DEBUG: data_treatment_ec50.txt: Starting validation of file
+INFO: data_treatment_ec50.txt: Validation of file complete
+INFO: data_treatment_ec50.txt: Read 11 lines. Lines with warning: 0. Lines with error: 0
+
+DEBUG: data_treatment_ic50.txt: Starting validation of file
+INFO: data_treatment_ic50.txt: Validation of file complete
+INFO: data_treatment_ic50.txt: Read 11 lines. Lines with warning: 0. Lines with error: 0
 
 DEBUG: data_gistic_genes_amp.txt: Starting validation of file
 INFO: data_gistic_genes_amp.txt: Validation of file complete
-INFO: data_gistic_genes_amp.txt: Read 28 lines. Lines with warning: 0. Lines with error: 0
+INFO: data_gistic_genes_amp.txt: Read 13 lines. Lines with warning: 0. Lines with error: 0
 
-DEBUG: -: Validating case lists
+DEBUG: data_gsva_pvalues.txt: Starting validation of file
+INFO: data_gsva_pvalues.txt: Validation of file complete
+INFO: data_gsva_pvalues.txt: Read 8 lines. Lines with warning: 0. Lines with error: 0
 
-DEBUG: case_lists/cases_custom.txt: Starting validation of meta file
-INFO: case_lists/cases_custom.txt: Validation of meta file complete
+DEBUG: data_gsva_scores.txt: Starting validation of file
+INFO: data_gsva_scores.txt: Validation of file complete
+INFO: data_gsva_scores.txt: Read 8 lines. Lines with warning: 0. Lines with error: 0
 
-INFO: -: Validation of case lists complete
+DEBUG: data_cna_log2.txt: Starting validation of file
+INFO: data_cna_log2.txt: Validation of file complete
+INFO: data_cna_log2.txt: Read 8 lines. Lines with warning: 0. Lines with error: 0
+
+DEBUG: data_methylation_hm27.txt: Starting validation of file
+INFO: data_methylation_hm27.txt: Validation of file complete
+INFO: data_methylation_hm27.txt: Read 9 lines. Lines with warning: 0. Lines with error: 0
+
+DEBUG: data_mutations_extended.maf: Starting validation of file
+INFO: data_mutations_extended.maf: lines [4, 5, 6, (3 more)]: column 164: Values contained in the column cbp_driver_tiers that will appear in the "Mutation Color" menu of the Oncoprint; values encountered: ['Class 2', 'Class 1', 'Class 4', '(1 more)']
+INFO: data_mutations_extended.maf: lines [7, 9]: Line will not be loaded due to the variant classification filter. Filtered types: [Silent, Intron, 3'UTR, 3'Flank, 5'UTR, 5'Flank, IGR, RNA]; value encountered: 'Silent'
+INFO: data_mutations_extended.maf: Validation of file complete
+INFO: data_mutations_extended.maf: Read 35 lines. Lines with warning: 0. Lines with error: 0
+
+DEBUG: data_resource_patient.txt: Starting validation of file
+INFO: data_resource_patient.txt: Validation of file complete
+INFO: data_resource_patient.txt: Read 4 lines. Lines with warning: 0. Lines with error: 0
+
+DEBUG: data_resource_study.txt: Starting validation of file
+INFO: data_resource_study.txt: Validation of file complete
+INFO: data_resource_study.txt: Read 2 lines. Lines with warning: 0. Lines with error: 0
+
+DEBUG: data_cna_hg19.seg: Starting validation of file
+INFO: data_cna_hg19.seg: Validation of file complete
+INFO: data_cna_hg19.seg: Read 10 lines. Lines with warning: 0. Lines with error: 0
+
+DEBUG: data_structural_variants.txt: Starting validation of file
+INFO: data_structural_variants.txt: Validation of file complete
+INFO: data_structural_variants.txt: Read 46 lines. Lines with warning: 0. Lines with error: 0
+
 INFO: -: Validation complete
 Validation of study succeeded with warnings.
 ```
 
 ## Validation of non-human data ##
-When importing a study, the validator assumes by default that the following three parameters 
-`--species` , `--ucsc_build_name` , `--ncbi_build_number` are set to the following:
-```
---species=human
---ncbi_build_number=GRCh37
---ucsc_build_name=hg19
-```
+When importing a study with a reference genome other than hg19/GRCh37, this should be specified in the `meta_study.txt` file, next to the `reference_genome` field. Supported values are **hg19**, **hg38** and **mm10**.
 
-cBioPortal is gradually introducing support for mouse. If you want to load mouse studies and you have [set up your database for mouse](Import-the-Seed-Database.md#download-the-cbioportal-database), you should set the previous parameters to:
-```
---species=mouse
---ncbi_build_number=GRCh38
---ucsc_build_name=mm10
-```
+cBioPortal is gradually introducing support for mouse. If you want to load mouse studies and you have to [set up your database for mouse](Import-the-Seed-Database.md#download-the-cbioportal-database).
 
 As an example, the command for the mouse example using the three parameters is given:
 ```
 ./validateData.py -s ../../../test/scripts/test_data/study_es_0/ -P ../../../../../src/main/resources/portal.properties -u http://localhost:8080 -v
-./validateData.py -s ../../../test/scripts/test_data/study_es_0/ --species mouse --reference_genome mm10 --genome_build 38 -u http://localhost:8080/cbioportal -v
 ```
 
 ## Running the validator for multiple studies
@@ -480,13 +822,7 @@ optional arguments:
                         used instead of contacting a server
   -n, --no_portal_checks
                         Skip tests requiring information from the cBioPortal
-                        installation
-  -species SPECIES, --species SPECIES
-                        species information (default: assumed human)
-  -ucsc UCSC_BUILD_NAME, --ucsc_build_name UCSC_BUILD_NAME
-                        UCSC reference genome assembly name (default: assumed hg19)
-  -ncbi NCBI_BUILD_NUMBER, --ncbi_build_number NCBI_BUILD_NUMBER
-                        NCBI reference genome build number (default: assumed GRCh37 for UCSC genome build hg19)
+                        installation 
   -m, --strict_maf_checks
                         Option to enable strict mode for validator when
                         validating mutation data

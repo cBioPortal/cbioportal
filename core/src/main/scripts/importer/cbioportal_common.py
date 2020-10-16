@@ -37,7 +37,7 @@ IMPORT_CASE_LIST_CLASS = "org.mskcc.cbio.portal.scripts.ImportSampleList"
 ADD_CASE_LIST_CLASS = "org.mskcc.cbio.portal.scripts.AddCaseList"
 VERSION_UTIL_CLASS = "org.mskcc.cbio.portal.util.VersionUtil"
 
-# provides a key for data types to metafile specification dict.  
+# provides a key for data types to metafile specification dict.
 class MetaFileTypes(object):
     """how we differentiate between data types."""
     STUDY = 'meta_study'
@@ -85,7 +85,8 @@ META_FIELD_MAP = {
         'pmid': False,
         'groups': False,
         'add_global_case_list': False,
-        'tags_file': False
+        'tags_file': False,
+        'reference_genome': False
     },
     MetaFileTypes.SAMPLE_ATTRIBUTES: {
         'cancer_study_identifier': True,
@@ -274,7 +275,7 @@ META_FIELD_MAP = {
         'cancer_study_identifier': True,
         'genetic_alteration_type': True,
         'datatype': True,
-        'stable_id': True,      
+        'stable_id': True,
         'show_profile_in_analysis_tab': True,
         'profile_name': True,
         'profile_description': True,
@@ -685,7 +686,6 @@ def validate_types_and_id(meta_dictionary, logger, filename):
 def parse_metadata_file(filename,
                         logger,
                         study_id=None,
-                        genome_name=None,
                         case_list=False,
                         gene_panel_list=None):
 
@@ -700,8 +700,6 @@ def parse_metadata_file(filename,
     :param study_id: (optional - set if you want study_id to be validated)
                     cancer study id found in previous files (or None). All subsequent
                     meta files should comply to this in the field 'cancer_study_identifier'
-    :param genome_name: (optional - set if you want this to be validated)
-                    supported reference genome name, for validation
     :param case_list: whether this meta file is a case list (special case)
     :param gene_panel_list: (optional - set if you want this to be validated)
                            list of gene panels in the database

@@ -1,6 +1,6 @@
 ## Oct 16, 2020
 *   **Added data** consisting of 25,078 samples from 5 studies:
-     * [Mel (TCGA, Cell 2015)](https://cbioportal.org/study/summary?id=skcm_tcga_pub_2015) *359 samples* 
+     * [Melanomas (TCGA, Cell 2015)](https://cbioportal.org/study/summary?id=skcm_tcga_pub_2015) *359 samples* 
      * [Retinoblastoma cfDNA (MSKCC 2020)](https://www.cbioportal.org/study/summary?id=rbl_cfdna_msk_2020) *14 samples* 
      * [The Angiosarcoma Project (Provisional, July 2020)](https://www.cbioportal.org/study/summary?id=angs_painter_2020) *83 samples* 
      * [Bladder Cancer (MSK/TCGA, 2020)](https://www.cbioportal.org/study/summary?id=blca_msk_tcga_2020) *476 samples* 

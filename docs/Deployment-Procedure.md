@@ -24,7 +24,7 @@ events that can require a new deployment:
 
 ## New frontend commit in master
 Currently we are auto-deploying the frontend master branch to netlify:
-https://cbioportal-frontend.netlify.com. So any change should be automatically
+https://frontend.cbioportal.org. So any change should be automatically
 built and deployed to the relevant portals if the frontend configuration has
 been set up properly. Do note that the current build time for the frontend
 project is ~15 minutes or so. To see what frontend commit is deployed, check
@@ -160,7 +160,7 @@ new frontend url file you supplied above.
 Then update the url like:
 
 ```
-./updatefrontendurl.sh "https://cbioportal-frontend.netlify.com"
+./updatefrontendurl.sh "https://frontend.cbioportal.org"
 ```
 
 Do the same thing on dashi2. 
@@ -168,7 +168,7 @@ Do the same thing on dashi2.
 The last step is to modify the frontend url file for the triage portal. Log in to the pipelines machine, log in as triage-tomcat user: `sudo su - triage-tomcat`, and update the frontend url file there:
 
 ```
-echo 'https://cbioportal-frontend.netlify.com' > /srv/www/triage-tomcat/frontend_url_version_2_1_0.txt
+echo 'https://frontend.cbioportal.org' > /srv/www/triage-tomcat/frontend_url_version_2_1_0.txt
 ```
 
 ## Upgrading Related Backend Components

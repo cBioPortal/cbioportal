@@ -77,7 +77,7 @@
           <plugin>
             <groupId>org.jacoco</groupId>
             <artifactId>jacoco-maven-plugin</artifactId>
-            <version>${jacoco-maven-plugin.version}</version>
+            <version>0.8.5</version>
             <executions>
               <!--
                     Prepares the property pointing to the JaCoCo runtime agent which
@@ -292,24 +292,21 @@
   <properties>
     <frontend.version>65b0771977092ac9fbc2a3aac5b1e995b5aeb677</frontend.version>
     <frontend.groupId>com.github.cbioportal</frontend.groupId>
-    <slf4j.version>1.7.30</slf4j.version>
     <spring.version>5.2.6.RELEASE</spring.version>
-    <spring.context.support.version>5.2.6.RELEASE</spring.context.support.version>
     <spring.integration.version>5.3.0.RELEASE</spring.integration.version>
     <spring.security.version>5.3.1.RELEASE</spring.security.version>
-    <spring.security.saml.version>1.0.3.RELEASE</spring.security.saml.version>
     <spring.social.version>1.1.6.RELEASE</spring.social.version>
-    <mybatis.spring.version>2.0.4</mybatis.spring.version>
-    <mybatis.version>3.5.4</mybatis.version>
+    <jackson.version>2.11.0</jackson.version>
+    <mysql-connector.version>5.1.48</mysql-connector.version>
+    <webapp-runner.version>8.5.61.0</webapp-runner.version>
+    <mockserver.version>5.8.0</mockserver.version>
+
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
     <bundle.symbolicName.prefix>org.mskcc</bundle.symbolicName.prefix>
     <bundle.namespace>org.mskcc.mondrian</bundle.namespace>
     <timestamp>${maven.build.timestamp}</timestamp>
     <maven.build.timestamp.format>yyyyMMdd-HHmm</maven.build.timestamp.format>
-    <jacoco-maven-plugin.version>0.8.5</jacoco-maven-plugin.version>
-    <mockito.version>3.3.3</mockito.version>
-    <jackson.version>2.11.0</jackson.version>
 
     <sonar.projectKey>cBioPortal_cbioportal</sonar.projectKey>
     <sonar.moduleKey>${project.groupId}:${project.artifactId}</sonar.moduleKey>
@@ -413,7 +410,6 @@
         <artifactId>security-spring</artifactId>
         <version>${project.version}</version>
       </dependency>
-
       <dependency>
         <groupId>com.github.cbioportal</groupId>
         <artifactId>session-service</artifactId>
@@ -455,7 +451,7 @@
       <dependency>
         <groupId>mysql</groupId>
         <artifactId>mysql-connector-java</artifactId>
-        <version>5.1.48</version>
+        <version>${mysql-connector.version}</version>
       </dependency>
       <!-- Apache commons -->
       <dependency>
@@ -546,7 +542,7 @@
       <dependency>
         <groupId>org.mockito</groupId>
         <artifactId>mockito-core</artifactId>
-        <version>${mockito.version}</version>
+        <version>3.3.3</version>
         <scope>test</scope>
         <exclusions>
           <exclusion>
@@ -571,18 +567,18 @@
       <dependency>
         <groupId>org.mybatis</groupId>
         <artifactId>mybatis-spring</artifactId>
-        <version>${mybatis.spring.version}</version>
+        <version>2.0.4</version>
       </dependency>
       <dependency>
         <groupId>org.mybatis</groupId>
         <artifactId>mybatis</artifactId>
-        <version>${mybatis.version}</version>
+        <version>3.5.4</version>
       </dependency>
       <!-- slf4j -->
       <dependency>
         <groupId>org.slf4j</groupId>
         <artifactId>slf4j-log4j12</artifactId>
-        <version>${slf4j.version}</version>
+        <version>1.7.30</version>
       </dependency>
       <!-- spring -->
       <dependency>
@@ -613,7 +609,7 @@
       <dependency>
         <groupId>org.springframework</groupId>
         <artifactId>spring-context-support</artifactId>
-        <version>${spring.context.support.version}</version>
+        <version>5.2.6.RELEASE</version>
       </dependency>
       <dependency>
         <groupId>org.springframework.integration</groupId>
@@ -740,7 +736,7 @@
       <dependency>
         <groupId>org.springframework.security.extensions</groupId>
         <artifactId>spring-security-saml2-core</artifactId>
-        <version>${spring.security.saml.version}</version>
+        <version>1.0.3.RELEASE</version>
       </dependency>
       <!-- Spring Social -->
       <dependency>
@@ -824,13 +820,13 @@
       <dependency>
         <groupId>org.mock-server</groupId>
         <artifactId>mockserver-netty</artifactId>
-        <version>5.8.0</version>
+        <version>${mockserver.version}</version>
         <scope>test</scope>
       </dependency>
       <dependency>
         <groupId>org.mock-server</groupId>
         <artifactId>mockserver-client-java</artifactId>
-        <version>5.8.0</version>
+        <version>${mockserver.version}</version>
         <scope>test</scope>
       </dependency>
       <!-- h2 database -->
@@ -1088,6 +1084,11 @@
           </exclusion>
         </exclusions>
       </dependency>
+      <dependency>
+        <groupId>com.auth0</groupId>
+        <artifactId>jwks-rsa</artifactId>
+        <version>0.9.0</version>
+      </dependency>
     </dependencies>
   </dependencyManagement>
 
@@ -1117,17 +1118,14 @@
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-resources-plugin</artifactId>
-        <version>2.6</version>
       </plugin>
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-site-plugin</artifactId>
-        <version>3.4</version>
       </plugin>
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-release-plugin</artifactId>
-        <version>2.5.3</version>
       </plugin>
     </plugins>
 
@@ -1145,6 +1143,118 @@
             </compilerArgs>
           </configuration>
         </plugin>
+        <plugin>
+          <groupId>org.apache.maven.plugins</groupId>
+          <artifactId>maven-resources-plugin</artifactId>
+          <version>2.6</version>
+        </plugin>
+        <plugin>
+          <groupId>org.apache.maven.plugins</groupId>
+          <artifactId>maven-site-plugin</artifactId>
+          <version>3.4</version>
+        </plugin>
+        <plugin>
+          <groupId>org.apache.maven.plugins</groupId>
+          <artifactId>maven-release-plugin</artifactId>
+          <version>2.5.3</version>
+        </plugin>
+        <plugin>
+          <groupId>org.apache.maven.plugins</groupId>
+          <artifactId>maven-surefire-plugin</artifactId>
+          <version>2.22.2</version>
+        </plugin>
+        <plugin>
+          <groupId>org.apache.maven.plugins</groupId>
+          <artifactId>maven-dependency-plugin</artifactId>
+          <version>3.0.0</version>
+        </plugin>
+        <plugin>
+          <groupId>org.apache.maven.plugins</groupId>
+          <artifactId>maven-war-plugin</artifactId>
+          <version>2.2</version>
+        </plugin>
+        <plugin>
+          <groupId>org.apache.maven.plugins</groupId>
+          <artifactId>maven-javadoc-plugin</artifactId>
+          <version>2.9</version>
+        </plugin>
+        <plugin>
+          <groupId>org.apache.maven.plugins</groupId>
+          <artifactId>maven-jxr-plugin</artifactId>
+          <version>2.5</version>
+        </plugin>
+        <plugin>
+          <groupId>org.apache.maven.plugins</groupId>
+          <artifactId>maven-project-info-reports-plugin</artifactId>
+          <version>2.7</version>
+        </plugin>
+        <plugin>
+          <groupId>org.apache.maven.plugins</groupId>
+          <artifactId>maven-shade-plugin</artifactId>
+          <version>3.2.4</version>
+        </plugin>
+        <plugin>
+          <artifactId>maven-failsafe-plugin</artifactId>
+          <version>3.0.0-M4</version>
+        </plugin>
+        <plugin>
+          <groupId>org.codehaus.mojo</groupId>
+          <artifactId>tomcat-maven-plugin</artifactId>
+          <version>1.1</version>
+        </plugin>
+        <plugin>
+          <groupId>org.codehaus.mojo</groupId>
+          <artifactId>sql-maven-plugin</artifactId>
+          <version>1.5</version>
+          <dependencies>
+            <dependency>
+              <groupId>mysql</groupId>
+              <artifactId>mysql-connector-java</artifactId>
+              <version>${mysql-connector.version}</version>
+            </dependency>
+          </dependencies>
+        </plugin>
+        <plugin>
+          <groupId>org.apache.maven.plugins</groupId>
+          <artifactId>maven-invoker-plugin</artifactId>
+          <version>3.2.1</version>
+        </plugin>
+        <plugin>
+          <artifactId>maven-remote-resources-plugin</artifactId>
+          <version>1.7.0</version>
+        </plugin>
+        <plugin>
+          <artifactId>maven-clean-plugin</artifactId>
+          <version>3.1.0</version>
+        </plugin>
+        <plugin>
+          <groupId>org.codehaus.cargo</groupId>
+          <artifactId>cargo-maven2-plugin</artifactId>
+        </plugin>
+        <!--This plugin's configuration is used to store Eclipse m2e settings only. It has no influence on the Maven build itself.-->
+        <plugin>
+          <groupId>org.eclipse.m2e</groupId>
+          <artifactId>lifecycle-mapping</artifactId>
+          <version>1.0.0</version>
+          <configuration>
+            <lifecycleMappingMetadata>
+              <pluginExecutions>
+                <pluginExecution>
+                  <pluginExecutionFilter>
+                    <groupId>org.codehaus.mojo</groupId>
+                    <artifactId>sql-maven-plugin</artifactId>
+                    <goals>
+                      <goal>execute</goal>
+                    </goals>
+                  </pluginExecutionFilter>
+                  <action>
+                    <ignore />
+                  </action>
+                </pluginExecution>
+              </pluginExecutions>
+            </lifecycleMappingMetadata>
+          </configuration>
+        </plugin>
       </plugins>
     </pluginManagement>
   </build>
@@ -1154,7 +1264,6 @@
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-javadoc-plugin</artifactId>
-        <version>2.9</version>
         <configuration>
           <doclet>org.umlgraph.doclet.UmlGraphDoc</doclet>
           <docletArtifact>
@@ -1169,12 +1278,10 @@
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-jxr-plugin</artifactId>
-        <version>2.5</version>
       </plugin>
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-project-info-reports-plugin</artifactId>
-        <version>2.7</version>
       </plugin>
     </plugins>
   </reporting>

@@ -532,6 +532,11 @@
         <artifactId>javax.annotation-api</artifactId>
         <version>1.3.2</version>
       </dependency>
+      <dependency>
+        <groupId>javax.el</groupId>
+        <artifactId>javax.el-api</artifactId>
+        <version>3.0.0</version>
+      </dependency>
       <!-- hibernate validator -->
       <dependency>
         <groupId>org.hibernate</groupId>

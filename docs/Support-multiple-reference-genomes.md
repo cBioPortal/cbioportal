@@ -20,20 +20,4 @@ if your study is profiled by a reference geome other than a default genome value
    ncbi.build=GRCh37
    ucsc.build=hg19
 ```
-* You can also overwrite default genome values by using the following options of the importer script. _**ucsc**_ and _**ncbi**_ are both required when importing a dataset profiled with a reference genome different from a default genome value listed in your portal properties file.
-```
-  -species SPECIES, --species SPECIES
-                        species information (default: assumed human)
-  -ucsc UCSC_BUILD_NAME, --ucsc_build_name UCSC_BUILD_NAME
-                        UCSC reference genome assembly name (default: assumed
-                        hg19)
-  -ncbi NCBI_BUILD_NUMBER, --ncbi_build_number NCBI_BUILD_NUMBER
-                        NCBI reference genome build number (default: assumed
-                        GRCh37 for UCSC reference genome build hg19)
-```
-For instance, to load a hg38 dataset:
-```
-core/src/main/scripts/importer/metaImport.py  -s /path/to/your/study -jar scripts.jar -ucsc hg38 -ncbi GRCh38 -n -o
-
-```
-
+* You can also overwrite the default reference genome for a specific study. For that, you have to specify the `reference_genome` field in the `meta_study.txt` file of your study. The allowed values are: `hg19`, `hg38` or `mm10`. Default is `hg19`.

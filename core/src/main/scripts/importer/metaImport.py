@@ -70,16 +70,7 @@ def interface():
     portal_mode_group.add_argument('-n', '--no_portal_checks', default=False,
                                        action='store_true',
                                        help='Skip tests requiring information '
-                                            'from the cBioPortal installation')
-    parser.add_argument('-species', '--species', type=str, default='human',
-                        help='species information (default: assumed human)',
-                        required=False)
-    parser.add_argument('-ucsc', '--ucsc_build_name', type=str, default='hg19',
-                        help='UCSC reference genome assembly name (default: assumed hg19)',
-                        required=False)   
-    parser.add_argument('-ncbi', '--ncbi_build_number', type=str, default='37',
-                         help='NCBI reference genome build number (default: assumed 37 for UCSC reference genome build hg19)',
-                         required=False)                                                                  
+                                            'from the cBioPortal installation')                                                               
     parser.add_argument('-jar', '--jar_path', type=str, required=False,
                         help=(
                             'Path to scripts JAR file (default: locate it '

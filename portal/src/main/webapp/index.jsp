@@ -68,7 +68,7 @@
             window.frontendConfig.frontendUrl = "//localhost:3000/"
             localStorage.setItem("e2etest", "true");
         } else if (window.netlify) {
-            window.frontendConfig.frontendUrl = ['//',localStorage.netlify,'.netlify.com','/'].join('');
+            window.frontendConfig.frontendUrl = ['//',localStorage.netlify,'.netlify.app','/'].join('');
             localStorage.setItem("e2etest", "true");
         } else if('<%=GlobalProperties.getFrontendUrl()%>'){
             window.frontendConfig.frontendUrl = '<%=GlobalProperties.getFrontendUrl()%>';

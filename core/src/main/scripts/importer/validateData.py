@@ -1857,9 +1857,15 @@ class MutationsExtendedValidator(Validator):
             # based on MutationDataUtils.getNcbiBuild
             if self.portal.species == "human":
                 if value not in [str(self.portal.ncbi_build), self.portal.genome_build, 'GRCh'+str(self.portal.ncbi_build)]:
+                    self.logger.error('The specified reference genome does not correspond with the reference genome found in the MAF.',
+                                      extra={'line_number': self.line_number,
+                                             'cause':value})
                     return False
             elif self.portal.species == "mouse":
                 if value not in [str(self.portal.ncbi_build), self.portal.genome_build, 'GRCm'+str(self.portal.ncbi_build)]:
+                    self.logger.error('The specified reference genome does not correspond with the reference genome found in the MAF.',
+                                      extra={'line_number': self.line_number,
+                                             'cause':value})
                     return False
         return True
 
@@ -4453,11 +4459,18 @@ def process_metadata_files(directory, portal_instance, logger, relaxed_mode, str
     global meta_dictionary
     tags_file_path = None
 
+    # implemented ref genomes
+    reference_genome_map = {
+        'hg19':('human','37','hg19'),
+        'hg38':('human','38','hg38'),
+        'mm10':('mouse','38','mm10')
+    }
+
     DISALLOWED_CHARACTERS = r'[^A-Za-z0-9_-]'
     for filename in filenames:
 
         meta_dictionary = cbioportal_common.parse_metadata_file(
-            filename, logger, study_id, portal_instance.genome_build, gene_panel_list=portal_instance.gene_panel_list)
+            filename, logger, study_id, gene_panel_list=portal_instance.gene_panel_list)
         meta_file_type = meta_dictionary['meta_file_type']
         if meta_file_type is None:
             continue
@@ -4517,6 +4530,21 @@ def process_metadata_files(directory, portal_instance, logger, relaxed_mode, str
                 if ('add_global_case_list' in meta_dictionary and
                         meta_dictionary['add_global_case_list'].lower() == 'true'):
                     case_list_suffix_fns['all'] = filename
+
+            if 'reference_genome' in meta_dictionary:
+                if meta_dictionary['reference_genome'] not in reference_genome_map:
+                    logger.error('Unknown reference genome defined. Should be one of %s' %
+                                 list(reference_genome_map.keys()),
+                                 extra={
+                                     'filename_':filename,
+                                     'cause':meta_dictionary['reference_genome'].strip()
+                                 })
+                else:
+                    portal_instance.species, portal_instance.ncbi_build, portal_instance.genome_build = \
+                        reference_genome_map[meta_dictionary['reference_genome']]
+            else:
+                logger.info('No reference genome specified -- using default (hg19)',
+                            extra={'filename_': filename})
 
             # Validate PMID field in meta_study
             if 'pmid' in meta_dictionary:
@@ -4864,8 +4892,6 @@ def validate_data_relations(validators_by_meta_type, logger):
 def request_from_portal_api(server_url, api_name, logger):
     """Send a request to the portal API and return the decoded JSON object."""
 
-    print(api_name)
-
     if api_name in ['info', 'cancer-types', 'genes', 'genesets', 'gene-panels']:
         service_url = server_url + '/api/' + api_name
     elif api_name in ['genesets_version']:
@@ -5060,15 +5086,6 @@ def interface(args=None):
                                    action='store_true',
                                    help='Skip tests requiring information '
                                         'from the cBioPortal installation')
-    parser.add_argument('-species', '--species', type=str, default='human',
-                        help='species information (default: assumed human)',
-                        required=False)
-    parser.add_argument('-ucsc', '--ucsc_build_name', type=str, default='hg19',
-                        help='UCSC reference genome assembly name(default: assumed hg19)',
-                        required=False)
-    parser.add_argument('-ncbi', '--ncbi_build_number', type=str, default='37',
-                         help='NCBI reference genome build number (default: assumed 37 for UCSC reference genome build hg19)',
-                         required=False)
     parser.add_argument('-html', '--html_table', type=str, required=False,
                         help='path to html report output file')
     parser.add_argument('-e', '--error_file', type=str, required=False,
@@ -5412,10 +5429,6 @@ def main_validate(args):
     # set portal version
     cbio_version = portal_instance.portal_version
 
-    # specify species and genomic information
-    portal_instance.species = args.species
-    portal_instance.genome_build = args.ucsc_build_name
-    portal_instance.ncbi_build = args.ncbi_build_number
     validate_study(study_dir, portal_instance, logger, relaxed_mode, strict_maf_checks)
 
     if html_handler is not None:

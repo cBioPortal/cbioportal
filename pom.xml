@@ -537,6 +537,11 @@
         <artifactId>javax.el-api</artifactId>
         <version>3.0.0</version>
       </dependency>
+      <dependency>
+        <groupId>org.glassfish.web</groupId>
+        <artifactId>javax.el</artifactId>
+        <version>2.2.6</version>
+      </dependency>
       <!-- hibernate validator -->
       <dependency>
         <groupId>org.hibernate</groupId>

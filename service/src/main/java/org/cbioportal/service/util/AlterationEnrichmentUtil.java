@@ -225,7 +225,7 @@ public class AlterationEnrichmentUtil<T extends AlterationCountByGene> {
 
             if (validMolecularAlterationTypeMap.containsKey(molecularProfile.getMolecularAlterationType())) {
                 if (dataType != null) {
-                    return molecularProfile.getDatatype().equals(dataType);
+                    return !molecularProfile.getDatatype().equals(dataType);
                 }
                 // valid profile
                 return false;

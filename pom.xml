@@ -667,24 +667,6 @@
         <artifactId>rxjava</artifactId>
         <version>2.2.19</version>
       </dependency>
-      <!-- spring boot -->
-      <dependency>
-        <groupId>org.springframework.boot</groupId>
-        <artifactId>spring-boot-starter-web</artifactId>
-        <version>2.2.0.RELEASE</version>
-        <exclusions>
-          <exclusion>
-            <groupId>org.slf4j</groupId>
-            <artifactId>jul-to-slf4j</artifactId>
-          </exclusion>
-        </exclusions>
-      </dependency>
-      <dependency>
-        <groupId>org.springframework.boot</groupId>
-        <artifactId>spring-boot-starter-tomcat</artifactId>
-        <scope>provided</scope>
-        <version>2.2.0.RELEASE</version>
-      </dependency>
       <!-- Spring Security -->
       <dependency>
         <groupId>org.springframework.security</groupId>
@@ -824,19 +806,6 @@
         <groupId>junit</groupId>
         <artifactId>junit</artifactId>
         <version>4.12</version>
-        <scope>test</scope>
-      </dependency>
-      <!-- mock server -->
-      <dependency>
-        <groupId>org.mock-server</groupId>
-        <artifactId>mockserver-netty</artifactId>
-        <version>${mockserver.version}</version>
-        <scope>test</scope>
-      </dependency>
-      <dependency>
-        <groupId>org.mock-server</groupId>
-        <artifactId>mockserver-client-java</artifactId>
-        <version>${mockserver.version}</version>
         <scope>test</scope>
       </dependency>
       <!-- h2 database -->
@@ -1236,11 +1205,6 @@
         <plugin>
           <artifactId>maven-clean-plugin</artifactId>
           <version>3.1.0</version>
-        </plugin>
-        <plugin>
-          <groupId>org.codehaus.cargo</groupId>
-          <artifactId>cargo-maven2-plugin</artifactId>
-          <version>1.7.8</version>
         </plugin>
         <!--This plugin's configuration is used to store Eclipse m2e settings only. It has no influence on the Maven build itself.-->
         <plugin>

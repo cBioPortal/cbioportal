@@ -3,7 +3,7 @@
 
 * [General Questions](#general-questions)
     * [What is the cBioPortal for Cancer Genomics?](#what-is-the-cbioportal-for-cancer-genomics)
-    * [How do I get started?](#how-do-i-get-started)
+    * [How to get started?](#how-do-i-get-started)
     * [What data types are in the portal?](#what-data-types-are-in-the-portal)
     * [What is the process of data curation?](#what-is-the-process-of-data-curation)
     * [How do I get updates on new portal developments and new data sets?](#how-do-i-get-updates-on-new-portal-developments-and-new-data-sets)

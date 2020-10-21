@@ -59,11 +59,12 @@ public class ExpressionEnrichmentUtil {
 
 				// get expression values to all the indices in the group
 				List<String> molecularDataValues = group.getValue().stream()
-						.map(sampleIndex -> ma.getSplitValues()[sampleIndex]).collect(Collectors.toList());
+						.map(sampleIndex -> ma.getSplitValues()[sampleIndex])
+						.filter(a -> NumberUtils.isNumber(a))
+						.collect(Collectors.toList());
 
-				// ignore group if there are less than 2 values or non numeric values
-				if (molecularDataValues.size() < 2
-						|| molecularDataValues.stream().filter(a -> !NumberUtils.isNumber(a)).count() > 0) {
+				// ignore group if there are less than 2 values
+				if (molecularDataValues.size() < 2) {
 					continue;
 				}
 

@@ -349,19 +349,19 @@ public class TestIntegrationTest {
             assertEquals("this is an optional custom case list", customSampleList.getName());
 
             // ===== check mutational signature
-            String testMutationalSignatureStableIds = "Nmut";
+            String testMutationalSignatureStableIds = "mean_1";
             String testMutationalSignatureMolecularProfileIds = "study_es_0_mutational_signature";
             assertNotNull(DaoGeneticEntity.getGeneticEntityByStableId(testMutationalSignatureStableIds));
             // ENTITY_STABLE_ID name description TCGA-A1-A0SB-01 TCGA-A1-A0SD-01
             // TCGA-A1-A0SE-01 TCGA-A1-A0SH-01 TCGA-A2-A04U-01 TCGA-B6-A0RS-01
             // TCGA-BH-A0HP-01 TCGA-BH-A18P-01
-            // Nmut ... ... ... 18	3	32	13	3	4	1	7
+            // mean_1 ... ... ... 0.370266873	0.010373016	0.005419294	0.022753384	0.037687823	0.016708976	0.100042446	0.104214723
             GenericAssayService genericAssayService = applicationContext.getBean(GenericAssayService.class);
             List<GenericAssayData> mutationalSignatureData = genericAssayService.fetchGenericAssayData(Arrays.asList(testMutationalSignatureMolecularProfileIds),
                     Arrays.asList("TCGA-A1-A0SB-01", "TCGA-A1-A0SH-01"), Arrays.asList(testMutationalSignatureStableIds), PersistenceConstants.SUMMARY_PROJECTION);
             assertEquals(2, mutationalSignatureData.size());
-            assertEquals("18", mutationalSignatureData.get(0).getValue());
-            assertEquals("13", mutationalSignatureData.get(1).getValue());
+            assertEquals("0.370266873", mutationalSignatureData.get(0).getValue());
+            assertEquals("0.022753384", mutationalSignatureData.get(1).getValue());
 
             // ===== check GSVA data
             // ...

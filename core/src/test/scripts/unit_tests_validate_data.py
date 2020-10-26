@@ -2723,5 +2723,98 @@ class ResourceWiseTestCase(PostClinicalDataFileTestCase):
         self.assertIn('Duplicated resources found', record.getMessage())
 # -------------------------- end resource definition wise test ----------------------------
 
+# --------------------------- generic assay test ------------------------------
+
+class GenericAssayWiseTestCase(PostClinicalDataFileTestCase):
+    def test_generic_assay_missing_entity_id_column(self):
+        self.logger.setLevel(logging.ERROR)
+        record_list = self.validate('data_generic_assay_without_entity_id_column.txt',
+                            validateData.GenericAssayWiseFileValidator,
+                            extra_meta_fields={
+                                'generic_entity_meta_properties': 'name,description,url'})
+
+        self.assertEqual(len(record_list), 2)
+        record_iterator = iter(record_list)
+        # Invalid column header
+        record = next(record_iterator)
+        self.assertEqual(record.levelno, logging.ERROR)
+        self.assertIn('Missing column: ENTITY_STABLE_ID', record.getMessage())
+        # Missing column: ENTITY_STABLE_ID
+        record = next(record_iterator)
+        self.assertEqual(record.levelno, logging.ERROR)
+        self.assertIn('Invalid column header', record.getMessage())
+
+class GenericAssayContinuousTestCase(PostClinicalDataFileTestCase):
+    def test_generic_assay_with_valid_continuous_data(self):
+        self.logger.setLevel(logging.ERROR)
+        record_list = self.validate('data_generic_assay_valid_continuous.txt',
+                            validateData.GenericAssayContinuousValidator,
+                            extra_meta_fields={
+                                'generic_entity_meta_properties': 'name,description,url'})
+
+        self.assertEqual(len(record_list), 0)
+
+    def test_generic_assay_with_non_numerical_data(self):
+        self.logger.setLevel(logging.ERROR)
+        record_list = self.validate('data_generic_assay_with_non_numerical_data.txt',
+                            validateData.GenericAssayContinuousValidator,
+                            extra_meta_fields={
+                                'generic_entity_meta_properties': 'name,description,url'})
+
+        self.assertEqual(len(record_list), 1)
+        record = record_list.pop()
+        self.assertEqual(record.levelno, logging.ERROR)
+        self.assertIn(record.cause, 'NON_NUMERIC')
+
+class GenericAssayCategoricalTestCase(PostClinicalDataFileTestCase):
+    def test_generic_assay_with_valid_categorical_data(self):
+        self.logger.setLevel(logging.ERROR)
+        record_list = self.validate('data_generic_assay_valid_categorical.txt',
+                            validateData.GenericAssayCategoricalValidator,
+                            extra_meta_fields={
+                                'generic_entity_meta_properties': 'name,description,url'})
+
+        self.assertEqual(len(record_list), 0)
+
+    def test_generic_assay_with_enpty_cell_data(self):
+        self.logger.setLevel(logging.ERROR)
+        record_list = self.validate('data_generic_assay_empty_cell.txt',
+                            validateData.GenericAssayCategoricalValidator,
+                            extra_meta_fields={
+                                'generic_entity_meta_properties': 'name,description,url'})
+
+        self.assertEqual(len(record_list), 2)
+        record_iterator = iter(record_list)
+        record = next(record_iterator)
+        self.assertEqual(record.levelno, logging.ERROR)
+        self.assertIn('Blank cell found in column', record.getMessage())
+        record = next(record_iterator)
+        self.assertEqual(record.levelno, logging.ERROR)
+        self.assertIn('Cell is empty. A categorical value is expected.', record.getMessage())
+
+class GenericAssayBinaryTestCase(PostClinicalDataFileTestCase):
+    def test_generic_assay_with_with_valid_binary_data(self):
+        self.logger.setLevel(logging.ERROR)
+        record_list = self.validate('data_generic_assay_valid_binary.txt',
+                            validateData.GenericAssayBinaryValidator,
+                            extra_meta_fields={
+                                'generic_entity_meta_properties': 'name,description,url'})
+
+        self.assertEqual(len(record_list), 0)
+
+    def test_generic_assay_with_not_defined_data(self):
+        self.logger.setLevel(logging.ERROR)
+        record_list = self.validate('data_generic_assay_with_not_defined_data.txt',
+                            validateData.GenericAssayBinaryValidator,
+                            extra_meta_fields={
+                                'generic_entity_meta_properties': 'name,description,url'})
+
+        self.assertEqual(len(record_list), 1)
+        record = record_list.pop()
+        self.assertEqual(record.levelno, logging.ERROR)
+        self.assertIn(record.cause, 'NOT_DEFINED')
+
+# -------------------------- end generic assay test ----------------------------
+
 if __name__ == '__main__':
     unittest.main(buffer=True)

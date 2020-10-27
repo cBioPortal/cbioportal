@@ -893,8 +893,11 @@ CREATE TABLE `allele_specific_copy_number` (
 );
 UPDATE `info` SET `DB_SCHEMA_VERSION`="2.12.6";
 
+##version: 2.12.7
+-- WARNING: this will drop column CLINICAL_TRIAL_KEYWORDS from table type_of_cancer
+ALTER TABLE `type_of_cancer` DROP COLUMN `CLINICAL_TRIAL_KEYWORDS`;
+UPDATE `info` SET `DB_SCHEMA_VERSION`="2.12.7";
+
 ##version: 2.12.8
--- 2.12.7 is already taken
 ALTER TABLE `sample` DROP COLUMN `TYPE_OF_CANCER_ID`;
 UPDATE `info` SET `DB_SCHEMA_VERSION`="2.12.8";
-

@@ -110,7 +110,6 @@ DROP TABLE IF EXISTS `reference_genome`;
 CREATE TABLE `type_of_cancer` (
   `TYPE_OF_CANCER_ID` varchar(63) NOT NULL,
   `NAME` varchar(255) NOT NULL,
-  `CLINICAL_TRIAL_KEYWORDS` varchar(1024) NOT NULL,
   `DEDICATED_COLOR` char(31) NOT NULL,
   `SHORT_NAME` varchar(127),
   `PARENT` varchar(63),

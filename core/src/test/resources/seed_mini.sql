@@ -83,17 +83,17 @@ DELETE FROM type_of_cancer;
 DELETE FROM genetic_entity;
 
 -- type_of_cancer
-INSERT INTO "type_of_cancer" ("TYPE_OF_CANCER_ID","NAME","CLINICAL_TRIAL_KEYWORDS","DEDICATED_COLOR","SHORT_NAME","PARENT") VALUES ('acc','Adrenocortical Carcinoma','adrenocortical','Purple','ACC','tissue');
-INSERT INTO "type_of_cancer" ("TYPE_OF_CANCER_ID","NAME","CLINICAL_TRIAL_KEYWORDS","DEDICATED_COLOR","SHORT_NAME","PARENT") VALUES ('acbc','Adenoid Cystic Breast Cancer','adenoid cystic breast cancer','HotPink','ACBC','tissue');
-INSERT INTO "type_of_cancer" ("TYPE_OF_CANCER_ID","NAME","CLINICAL_TRIAL_KEYWORDS","DEDICATED_COLOR","SHORT_NAME","PARENT") VALUES ('acyc','Adenoid Cystic Carcinoma','adenoid cyctic','DarkRed','ACyC','tissue');
-INSERT INTO "type_of_cancer" ("TYPE_OF_CANCER_ID","NAME","CLINICAL_TRIAL_KEYWORDS","DEDICATED_COLOR","SHORT_NAME","PARENT") VALUES ('aeca','Sweat Gland Carcinoma (Apocrine Eccrine Carcinoma)','sweat gland carcinoma, apocrine eccrine carcinoma','Black','AECA','tissue');
-INSERT INTO "type_of_cancer" ("TYPE_OF_CANCER_ID","NAME","CLINICAL_TRIAL_KEYWORDS","DEDICATED_COLOR","SHORT_NAME","PARENT") VALUES ('afx','Atypical Fibroxanthoma','atypical fibroxanthoma','Black','AFX','tissue');
-INSERT INTO "type_of_cancer" ("TYPE_OF_CANCER_ID","NAME","CLINICAL_TRIAL_KEYWORDS","DEDICATED_COLOR","SHORT_NAME","PARENT") VALUES ('all','Pediatric Acute Lymphoid Leukemia','pediatric,lymphoid leukemia','LightSalmon','ALL','tissue');
-INSERT INTO "type_of_cancer" ("TYPE_OF_CANCER_ID","NAME","CLINICAL_TRIAL_KEYWORDS","DEDICATED_COLOR","SHORT_NAME","PARENT") VALUES ('aml','Acute Monocytic Leukemia','monocytic leukemia','LightSalmon','AML-M5','tissue');
-INSERT INTO "type_of_cancer" ("TYPE_OF_CANCER_ID","NAME","CLINICAL_TRIAL_KEYWORDS","DEDICATED_COLOR","SHORT_NAME","PARENT") VALUES ('blad','Bladder Urothelial Adenocarcinoma','bladder adenocarcinoma','Yellow','Bladder','tissue');
-INSERT INTO "type_of_cancer" ("TYPE_OF_CANCER_ID","NAME","CLINICAL_TRIAL_KEYWORDS","DEDICATED_COLOR","SHORT_NAME","PARENT") VALUES ('blca','Bladder Urothelial Carcinoma','bladder urothelial','Yellow','Bladder','tissue');
-INSERT INTO "type_of_cancer" ("TYPE_OF_CANCER_ID","NAME","CLINICAL_TRIAL_KEYWORDS","DEDICATED_COLOR","SHORT_NAME","PARENT") VALUES ('bpdcn','Blastic Plasmacytoid Dendritic Cell Neoplasm','blastic plasmacytoid dendritic cell neoplasm','LightSalmon','BPDCN','tissue');
-INSERT INTO "type_of_cancer" ("TYPE_OF_CANCER_ID","NAME","CLINICAL_TRIAL_KEYWORDS","DEDICATED_COLOR","SHORT_NAME","PARENT") VALUES ('brca','Breast Invasive Carcinoma','breast,breast invasive','HotPink','Breast','tissue');
+INSERT INTO "type_of_cancer" ("TYPE_OF_CANCER_ID","NAME","DEDICATED_COLOR","SHORT_NAME","PARENT") VALUES ('acc','Adrenocortical Carcinoma','Purple','ACC','tissue');
+INSERT INTO "type_of_cancer" ("TYPE_OF_CANCER_ID","NAME","DEDICATED_COLOR","SHORT_NAME","PARENT") VALUES ('acbc','Adenoid Cystic Breast Cancer','HotPink','ACBC','tissue');
+INSERT INTO "type_of_cancer" ("TYPE_OF_CANCER_ID","NAME","DEDICATED_COLOR","SHORT_NAME","PARENT") VALUES ('acyc','Adenoid Cystic Carcinoma','DarkRed','ACyC','tissue');
+INSERT INTO "type_of_cancer" ("TYPE_OF_CANCER_ID","NAME","DEDICATED_COLOR","SHORT_NAME","PARENT") VALUES ('aeca','Sweat Gland Carcinoma (Apocrine Eccrine Carcinoma)','Black','AECA','tissue');
+INSERT INTO "type_of_cancer" ("TYPE_OF_CANCER_ID","NAME","DEDICATED_COLOR","SHORT_NAME","PARENT") VALUES ('afx','Atypical Fibroxanthoma','Black','AFX','tissue');
+INSERT INTO "type_of_cancer" ("TYPE_OF_CANCER_ID","NAME","DEDICATED_COLOR","SHORT_NAME","PARENT") VALUES ('all','Pediatric Acute Lymphoid Leukemia','LightSalmon','ALL','tissue');
+INSERT INTO "type_of_cancer" ("TYPE_OF_CANCER_ID","NAME","DEDICATED_COLOR","SHORT_NAME","PARENT") VALUES ('aml','Acute Monocytic Leukemia','LightSalmon','AML-M5','tissue');
+INSERT INTO "type_of_cancer" ("TYPE_OF_CANCER_ID","NAME","DEDICATED_COLOR","SHORT_NAME","PARENT") VALUES ('blad','Bladder Urothelial Adenocarcinoma','Yellow','Bladder','tissue');
+INSERT INTO "type_of_cancer" ("TYPE_OF_CANCER_ID","NAME","DEDICATED_COLOR","SHORT_NAME","PARENT") VALUES ('blca','Bladder Urothelial Carcinoma','Yellow','Bladder','tissue');
+INSERT INTO "type_of_cancer" ("TYPE_OF_CANCER_ID","NAME","DEDICATED_COLOR","SHORT_NAME","PARENT") VALUES ('bpdcn','Blastic Plasmacytoid Dendritic Cell Neoplasm','LightSalmon','BPDCN','tissue');
+INSERT INTO "type_of_cancer" ("TYPE_OF_CANCER_ID","NAME","DEDICATED_COLOR","SHORT_NAME","PARENT") VALUES ('brca','Breast Invasive Carcinoma','HotPink','Breast','tissue');
 
 -- reference_genome
 INSERT INTO `reference_genome` VALUES (1, 'human', 'hg19', 'GRCh37', 2897310462, 'http://hgdownload.cse.ucsc.edu/goldenPath/hg19/bigZips', '2009-02-01');

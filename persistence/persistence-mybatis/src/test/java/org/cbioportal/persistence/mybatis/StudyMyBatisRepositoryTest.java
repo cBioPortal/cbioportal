@@ -102,7 +102,6 @@ public class StudyMyBatisRepositoryTest {
         TypeOfCancer typeOfCancer = cancerStudy.getTypeOfCancer();
         Assert.assertEquals("brca", typeOfCancer.getTypeOfCancerId());
         Assert.assertEquals("Breast Invasive Carcinoma", typeOfCancer.getName());
-        Assert.assertEquals("breast,breast invasive", typeOfCancer.getClinicalTrialKeywords());
         Assert.assertEquals("HotPink", typeOfCancer.getDedicatedColor());
         Assert.assertEquals("Breast", typeOfCancer.getShortName());
         Assert.assertEquals("tissue", typeOfCancer.getParent());
@@ -178,7 +177,6 @@ public class StudyMyBatisRepositoryTest {
         TypeOfCancer typeOfCancer = result.getTypeOfCancer();
         Assert.assertEquals("brca", typeOfCancer.getTypeOfCancerId());
         Assert.assertEquals("Breast Invasive Carcinoma", typeOfCancer.getName());
-        Assert.assertEquals("breast,breast invasive", typeOfCancer.getClinicalTrialKeywords());
         Assert.assertEquals("HotPink", typeOfCancer.getDedicatedColor());
         Assert.assertEquals("Breast", typeOfCancer.getShortName());
         Assert.assertEquals("tissue", typeOfCancer.getParent());

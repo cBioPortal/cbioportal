@@ -8,7 +8,6 @@ public class TypeOfCancer implements Serializable {
     @NotNull
     private String typeOfCancerId;
     private String name;
-    private String clinicalTrialKeywords;
     private String dedicatedColor;
     private String shortName;
     private String parent;
@@ -27,14 +26,6 @@ public class TypeOfCancer implements Serializable {
 
     public void setName(String name) {
         this.name = name;
-    }
-
-    public String getClinicalTrialKeywords() {
-        return clinicalTrialKeywords;
-    }
-
-    public void setClinicalTrialKeywords(String clinicalTrialKeywords) {
-        this.clinicalTrialKeywords = clinicalTrialKeywords;
     }
 
     public String getDedicatedColor() {

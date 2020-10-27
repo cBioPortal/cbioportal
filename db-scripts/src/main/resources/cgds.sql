@@ -187,10 +187,8 @@ CREATE TABLE `sample` (
   `STABLE_ID` varchar(50) NOT NULL,
   `SAMPLE_TYPE` varchar(255) NOT NULL,
   `PATIENT_ID` int(11) NOT NULL,
-  `TYPE_OF_CANCER_ID` varchar(63) NOT NULL,
   PRIMARY KEY (`INTERNAL_ID`),
-  FOREIGN KEY (`PATIENT_ID`) REFERENCES `patient` (`INTERNAL_ID`) ON DELETE CASCADE,
-  FOREIGN KEY (`TYPE_OF_CANCER_ID`) REFERENCES `type_of_cancer` (`TYPE_OF_CANCER_ID`)
+  FOREIGN KEY (`PATIENT_ID`) REFERENCES `patient` (`INTERNAL_ID`) ON DELETE CASCADE
 );
 
 -- --------------------------------------------------------
@@ -910,4 +908,4 @@ CREATE TABLE `resource_study` (
 );
 
 -- THIS MUST BE KEPT IN SYNC WITH db.version PROPERTY IN pom.xml
-INSERT INTO info VALUES ('2.12.6', NULL);
+INSERT INTO info VALUES ('2.12.8', NULL);

@@ -1,3 +1,20 @@
+## Oct 16, 2020
+*   **Added data** consisting of 25,078 samples from 5 studies:
+     * [Melanomas (TCGA, Cell 2015)](https://cbioportal.org/study/summary?id=skcm_tcga_pub_2015) *359 samples* 
+     * [Retinoblastoma cfDNA (MSKCC 2020)](https://www.cbioportal.org/study/summary?id=rbl_cfdna_msk_2020) *14 samples* 
+     * [The Angiosarcoma Project (Provisional, July 2020)](https://www.cbioportal.org/study/summary?id=angs_painter_2020) *83 samples* 
+     * [Bladder Cancer (MSK/TCGA, 2020)](https://www.cbioportal.org/study/summary?id=blca_msk_tcga_2020) *476 samples* 
+     * [Cancer Therapy and Clonal Hematopoiesis (MSK, 2020)](https://www.cbioportal.org/study/summary?id=msk_ch_2020) *24,146 samples*
+     
+*    **Added MSI data** (MSIsensor from [Mariamidze et al. 2018](https://www.sciencedirect.com/science/article/pii/S0092867418303131#bib66) and MANTIS scores from [Roychowdhury et al. 2017](https://www.ncbi.nlm.nih.gov/pmc/articles/PMC5972025/)) for all 32 TCGA PanCan Atlas Cohorts.
+<img width="600" src="https://user-images.githubusercontent.com/5973438/95988728-52131e80-0df7-11eb-8e25-0617d4b9e8c4.png">
+
+*    **Added new profile** “RNA-Seq V2 expression Z-scores relative to normal samples” for 16 TCGA PanCan Atlas Cohorts. 
+The normals samples RNA-Seq V2 expression data were curated from [GDC](https://gdc.cancer.gov/about-data/publications/pancanatlas), and can be downloaded from our [Datahub](https://github.com/cBioPortal/datahub) or [Data Set](https://www.cbioportal.org/datasets) page. [Example: ERBB2 expression z-scores relative to normal expression](https://www.cbioportal.org/results/plots?Action=Submit&RPPA_SCORE_THRESHOLD=2.0&Z_SCORE_THRESHOLD=2.0&cancer_study_list=laml_tcga_pan_can_atlas_2018%2Cacc_tcga_pan_can_atlas_2018%2Cblca_tcga_pan_can_atlas_2018%2Clgg_tcga_pan_can_atlas_2018%2Cbrca_tcga_pan_can_atlas_2018%2Ccesc_tcga_pan_can_atlas_2018%2Cchol_tcga_pan_can_atlas_2018%2Ccoadread_tcga_pan_can_atlas_2018%2Cdlbc_tcga_pan_can_atlas_2018%2Cesca_tcga_pan_can_atlas_2018%2Cgbm_tcga_pan_can_atlas_2018%2Chnsc_tcga_pan_can_atlas_2018%2Ckich_tcga_pan_can_atlas_2018%2Ckirc_tcga_pan_can_atlas_2018%2Ckirp_tcga_pan_can_atlas_2018%2Clihc_tcga_pan_can_atlas_2018%2Cluad_tcga_pan_can_atlas_2018%2Clusc_tcga_pan_can_atlas_2018%2Cmeso_tcga_pan_can_atlas_2018%2Cov_tcga_pan_can_atlas_2018%2Cpaad_tcga_pan_can_atlas_2018%2Cpcpg_tcga_pan_can_atlas_2018%2Cprad_tcga_pan_can_atlas_2018%2Csarc_tcga_pan_can_atlas_2018%2Cskcm_tcga_pan_can_atlas_2018%2Cstad_tcga_pan_can_atlas_2018%2Ctgct_tcga_pan_can_atlas_2018%2Cthym_tcga_pan_can_atlas_2018%2Cthca_tcga_pan_can_atlas_2018%2Cucs_tcga_pan_can_atlas_2018%2Cucec_tcga_pan_can_atlas_2018%2Cuvm_tcga_pan_can_atlas_2018&case_set_id=all&data_priority=0&gene_list=ERBB2&geneset_list=%20&plots_coloring_selection=%7B%22colorByCopyNumber%22%3A%22true%22%7D&plots_horz_selection=%7B%22dataType%22%3A%22clinical_attribute%22%2C%22selectedDataSourceOption%22%3A%22CANCER_STUDY%22%7D&plots_vert_selection=%7B%22selectedGeneOption%22%3A2064%2C%22dataType%22%3A%22MRNA_EXPRESSION%22%2C%22selectedDataSourceOption%22%3A%22rna_seq_v2_mrna_median_all_sample_ref_normal_Zscores%22%2C%22logScale%22%3A%22true%22%7D&profileFilter=0&tab_index=tab_visualize)
+
+![image](https://user-images.githubusercontent.com/840895/96191246-b32f1500-0f11-11eb-8727-bcfdd2d724a3.png)
+
+
 ## September 22, 2020
 
 *   **Enhancement**: The timeline feature in _Patient View_ has been refactored with an improved UI. [Example](https://www.cbioportal.org/patient?studyId=lgg_ucsf_2014&caseId=P04)

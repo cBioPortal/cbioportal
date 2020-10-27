@@ -37,7 +37,7 @@ IMPORT_CASE_LIST_CLASS = "org.mskcc.cbio.portal.scripts.ImportSampleList"
 ADD_CASE_LIST_CLASS = "org.mskcc.cbio.portal.scripts.AddCaseList"
 VERSION_UTIL_CLASS = "org.mskcc.cbio.portal.util.VersionUtil"
 
-# provides a key for data types to metafile specification dict.  
+# provides a key for data types to metafile specification dict.
 class MetaFileTypes(object):
     """how we differentiate between data types."""
     STUDY = 'meta_study'
@@ -60,7 +60,9 @@ class MetaFileTypes(object):
     GENE_PANEL_MATRIX = 'meta_gene_panel_matrix'
     GSVA_SCORES = 'meta_gsva_scores'
     GSVA_PVALUES = 'meta_gsva_pvalues'
-    GENERIC_ASSAY = 'meta_generic_assay'
+    GENERIC_ASSAY_CONTINUOUS = 'meta_generic_assay_continuous'
+    GENERIC_ASSAY_BINARY = 'meta_generic_assay_binary'
+    GENERIC_ASSAY_CATEGORICAL = 'meta_generic_assay_categorical'
     STRUCTURAL_VARIANT = 'meta_structural_variants'
     SAMPLE_RESOURCES = 'meta_resource_sample'
     PATIENT_RESOURCES = 'meta_resource_patient'
@@ -85,7 +87,8 @@ META_FIELD_MAP = {
         'pmid': False,
         'groups': False,
         'add_global_case_list': False,
-        'tags_file': False
+        'tags_file': False,
+        'reference_genome': False
     },
     MetaFileTypes.SAMPLE_ATTRIBUTES: {
         'cancer_study_identifier': True,
@@ -256,7 +259,7 @@ META_FIELD_MAP = {
         'show_profile_in_analysis_tab': True,
         'geneset_def_version': True
     },
-    MetaFileTypes.GENERIC_ASSAY: {
+    MetaFileTypes.GENERIC_ASSAY_CONTINUOUS: {
         'cancer_study_identifier': True,
         'genetic_alteration_type': True,
         'generic_assay_type': True,
@@ -270,11 +273,35 @@ META_FIELD_MAP = {
         'pivot_threshold_value': False,
         'value_sort_order': False
     },
+    MetaFileTypes.GENERIC_ASSAY_BINARY: {
+        'cancer_study_identifier': True,
+        'genetic_alteration_type': True,
+        'generic_assay_type': True,
+        'datatype': True,
+        'stable_id': True,
+        'profile_name': True,
+        'profile_description': True,
+        'data_filename': True,
+        'show_profile_in_analysis_tab': True,
+        'generic_entity_meta_properties': False
+    },
+    MetaFileTypes.GENERIC_ASSAY_CATEGORICAL: {
+        'cancer_study_identifier': True,
+        'genetic_alteration_type': True,
+        'generic_assay_type': True,
+        'datatype': True,
+        'stable_id': True,
+        'profile_name': True,
+        'profile_description': True,
+        'data_filename': True,
+        'show_profile_in_analysis_tab': True,
+        'generic_entity_meta_properties': False
+    },
     MetaFileTypes.STRUCTURAL_VARIANT: {
         'cancer_study_identifier': True,
         'genetic_alteration_type': True,
         'datatype': True,
-        'stable_id': True,      
+        'stable_id': True,
         'show_profile_in_analysis_tab': True,
         'profile_name': True,
         'profile_description': True,
@@ -324,7 +351,9 @@ IMPORTER_CLASSNAME_BY_META_TYPE = {
     MetaFileTypes.GENE_PANEL_MATRIX: "org.mskcc.cbio.portal.scripts.ImportGenePanelProfileMap",
     MetaFileTypes.GSVA_SCORES: "org.mskcc.cbio.portal.scripts.ImportProfileData",
     MetaFileTypes.GSVA_PVALUES: "org.mskcc.cbio.portal.scripts.ImportProfileData",
-    MetaFileTypes.GENERIC_ASSAY: "org.mskcc.cbio.portal.scripts.ImportProfileData",
+    MetaFileTypes.GENERIC_ASSAY_CONTINUOUS: "org.mskcc.cbio.portal.scripts.ImportProfileData",
+    MetaFileTypes.GENERIC_ASSAY_BINARY: "org.mskcc.cbio.portal.scripts.ImportProfileData",
+    MetaFileTypes.GENERIC_ASSAY_CATEGORICAL: "org.mskcc.cbio.portal.scripts.ImportProfileData",
     MetaFileTypes.STRUCTURAL_VARIANT: "org.mskcc.cbio.portal.scripts.ImportProfileData",
     MetaFileTypes.SAMPLE_RESOURCES: "org.mskcc.cbio.portal.scripts.ImportResourceData",
     MetaFileTypes.PATIENT_RESOURCES: "org.mskcc.cbio.portal.scripts.ImportResourceData",
@@ -593,7 +622,9 @@ def get_meta_file_type(meta_dictionary, logger, filename):
         ("MUTSIG", "Q-VALUE"): MetaFileTypes.MUTATION_SIGNIFICANCE,
         ("GENESET_SCORE", "GSVA-SCORE"): MetaFileTypes.GSVA_SCORES,
         ("GENESET_SCORE", "P-VALUE"): MetaFileTypes.GSVA_PVALUES,
-        ("GENERIC_ASSAY", "LIMIT-VALUE"): MetaFileTypes.GENERIC_ASSAY
+        ("GENERIC_ASSAY", "LIMIT-VALUE"): MetaFileTypes.GENERIC_ASSAY_CONTINUOUS,
+        ("GENERIC_ASSAY", "BINARY"): MetaFileTypes.GENERIC_ASSAY_BINARY,
+        ("GENERIC_ASSAY", "CATEGORICAL"): MetaFileTypes.GENERIC_ASSAY_CATEGORICAL
     }
     result = None
     if 'genetic_alteration_type' in meta_dictionary and 'datatype' in meta_dictionary:
@@ -685,7 +716,6 @@ def validate_types_and_id(meta_dictionary, logger, filename):
 def parse_metadata_file(filename,
                         logger,
                         study_id=None,
-                        genome_name=None,
                         case_list=False,
                         gene_panel_list=None):
 
@@ -700,8 +730,6 @@ def parse_metadata_file(filename,
     :param study_id: (optional - set if you want study_id to be validated)
                     cancer study id found in previous files (or None). All subsequent
                     meta files should comply to this in the field 'cancer_study_identifier'
-    :param genome_name: (optional - set if you want this to be validated)
-                    supported reference genome name, for validation
     :param case_list: whether this meta file is a case list (special case)
     :param gene_panel_list: (optional - set if you want this to be validated)
                            list of gene panels in the database

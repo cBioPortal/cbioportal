@@ -298,7 +298,7 @@ public class ImportResourceData extends ConsoleRunnable {
             sampleId = StableIdUtil.getSampleId(sampleId);
             if (internalPatientId != -1) {
                 internalSampleId = DaoSample.addSample(
-                    new Sample(sampleId, internalPatientId, cancerStudy.getTypeOfCancerId(), sampleTypeStr));
+                    new Sample(sampleId, internalPatientId, sampleTypeStr));
             }
         }
 

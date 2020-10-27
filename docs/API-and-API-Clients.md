@@ -39,7 +39,8 @@ like this:
 
 ```python
 from bravado.client import SwaggerClient
-cbioportal = SwaggerClient.from_url('https://www.cbioportal.org/api/api-docs')
+cbioportal = SwaggerClient.from_url('https://www.cbioportal.org/api/api-docs',
+                                    config={"validate_requests":False,"validate_responses":False})
 ```
 This allows you to access all API endpoints:
 ```python

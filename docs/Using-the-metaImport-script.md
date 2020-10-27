@@ -13,8 +13,7 @@ This will tell you the parameters you can use:
 $./metaImport.py -h
 usage: metaImport.py [-h] -s STUDY_DIRECTORY
                      [-u URL_SERVER | -p PORTAL_INFO_DIR | -n]
-                     [-species SPECIES] [-genome REFERENCE_GENOME]
-                     [-build GENOME_BUILD] [-jar JAR_PATH] [-html HTML_TABLE]
+                     [-jar JAR_PATH] [-html HTML_TABLE]
                      [-v] [-o] [-r] [-m] [-a MAX_REPORTED_VALUES]
 
 cBioPortal meta Importer
@@ -32,12 +31,6 @@ optional arguments:
   -n, --no_portal_checks
                         Skip tests requiring information from the cBioPortal
                         installation
-  -species SPECIES, --species SPECIES
-                        species information (default: assumed human)
-  -ucsc UCSC_BUILD_NAME, --ucsc_build_name UCSC_BUILD_NAME
-                        UCSC reference genome assembly name (default: assumed hg19)
-  -ncbi NCBI_BUILD_NUMBER, --ncbi_build_number NCBI_BUILD_NUMBER
-                        NCBI reference genome build number (default: assumed 37 for UCSC genome build hg19)
   -jar JAR_PATH, --jar_path JAR_PATH
                         Path to scripts JAR file (default: locate it relative
                         to the import script)

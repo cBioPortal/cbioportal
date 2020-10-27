@@ -8,3 +8,4 @@ groups: PUBLIC;GDAC;SU2C-PI3K
 short_name: BRCA (TCGA)
 add_global_case_list: true
 tags_file: study_tags.yml
+reference_genome: hg19

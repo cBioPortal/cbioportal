@@ -516,7 +516,6 @@ public class ImportClinicalData extends ConsoleRunnable {
                 }
                 sampleId = StableIdUtil.getSampleId(sampleId);
                	internalSampleId = DaoSample.addSample(new Sample(sampleId, patient.getInternalId(),
-                                                       cancerStudy.getTypeOfCancerId(),
                                                        sampleTypeStr));
             }
         }

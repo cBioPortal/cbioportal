@@ -98,7 +98,7 @@ public class TestImportGenericAssayData {
         
         // import data and test all mutational signatures were added
         ImportGenericAssayEntity.importData(file, GeneticAlterationType.GENERIC_ASSAY, "name,description", false);
-        assertEquals(61, getNumRecordsForGenericAssay());
+        assertEquals(60, getNumRecordsForGenericAssay());
  
         // test wether a record can be retrieved via stable id 
         GenericAssayMeta genericAssayMeta1 = DaoGenericAssay.getGenericAssayMetaByStableId("mean_1");

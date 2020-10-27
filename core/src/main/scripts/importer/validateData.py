@@ -108,7 +108,9 @@ VALIDATOR_IDS = {
     cbioportal_common.MetaFileTypes.GENE_PANEL_MATRIX:'GenePanelMatrixValidator',
     cbioportal_common.MetaFileTypes.GSVA_SCORES:'GsvaScoreValidator',
     cbioportal_common.MetaFileTypes.GSVA_PVALUES:'GsvaPvalueValidator',
-    cbioportal_common.MetaFileTypes.GENERIC_ASSAY:'GenericAssayValidator',
+    cbioportal_common.MetaFileTypes.GENERIC_ASSAY_CONTINUOUS:'GenericAssayContinuousValidator',
+    cbioportal_common.MetaFileTypes.GENERIC_ASSAY_BINARY:'GenericAssayBinaryValidator',
+    cbioportal_common.MetaFileTypes.GENERIC_ASSAY_CATEGORICAL:'GenericAssayCategoricalValidator',
     cbioportal_common.MetaFileTypes.STRUCTURAL_VARIANT:'StructuralVariantValidator',
     cbioportal_common.MetaFileTypes.SAMPLE_RESOURCES:'SampleResourceValidator',
     cbioportal_common.MetaFileTypes.PATIENT_RESOURCES:'PatientResourceValidator',
@@ -4334,6 +4336,7 @@ class GenericAssayWiseFileValidator(FeaturewiseFileValidator):
     REQUIRED_HEADERS = ['ENTITY_STABLE_ID']
     OPTIONAL_HEADERS = []
     UNIQUE_COLUMNS = ['ENTITY_STABLE_ID']
+    NULL_VALUES = ["NA"]
 
     def parseFeatureColumns(self, nonsample_col_vals):
         """Check the IDs in the first column."""
@@ -4343,21 +4346,15 @@ class GenericAssayWiseFileValidator(FeaturewiseFileValidator):
                               extra={'line_number': self.line_number,
                                      'column_number': 1,
                                      'cause': nonsample_col_vals[0]})
-            return None
+        return value
 
-    def checkValue(self, value, col_index):
-        """Check a value in a sample column."""
-        stripped_value = value.strip()
-        if stripped_value not in self.NULL_VALUES and not self.checkFloat(stripped_value):
-            self.logger.error("Value is neither a real number nor " + ', '.join(self.NULL_VALUES),
-                              extra={'line_number': self.line_number,
-                                     'column_number': col_index + 1,
-                                     'cause': value})
+class GenericAssayContinuousValidator(GenericAssayWiseFileValidator):
 
-class GenericAssayValidator(GenericAssayWiseFileValidator):
-
-    """ Validator for files containing generic assay values.
+    """ Validator for files containing generic assay limit continuous values.
     """
+    def __init__(self, *args, **kwargs):
+        """Initialize the instance attributes of the data file validator."""
+        super(GenericAssayContinuousValidator, self).__init__(*args, **kwargs)
 
     # (1) Natural positive number (not 0)
     # (2) Number may be prefixed by ">" or "<"; f.i. ">n" means that the real value lies beyond value n.
@@ -4367,53 +4364,110 @@ class GenericAssayValidator(GenericAssayWiseFileValidator):
     # (1) Cell contains a value without decimals and is not prefixed by ">"; value appears to be truncated but lacks ">" truncation indicator
     def checkValue(self, value, col_index):
         """Check a value in a sample column."""
-
-        # value is not defined (empty cell)
         stripped_value = value.strip()
-        if stripped_value == "":
-            self.logger.error("Cell is empty. A response value value is expected. Use 'NA' to indicate missing values.",
-                extra={'line_number': self.line_number,
-                'column_number': col_index + 1,
-                'cause': value})
-            return
-
-        # 'NA' is an allowed value. No further validations apply.
-        if stripped_value == 'NA':
-            return
-
         # if the value is prefixed with '>' or '<' remove this prefix
         # prior to evaluation of the numeric value
         hasTruncSymbol = re.match("^[><]", stripped_value)
         stripped_value = re.sub(r"^[><]\s*","", stripped_value)
 
+        # do not check null values
+        # 'NA' is an allowed value. No further validations apply.
+        if stripped_value in self.NULL_VALUES:
+            return
+
+        # value is not defined (empty cell)
+        if len(stripped_value) == 0:
+            self.logger.error("Cell is empty. A value is expected. Use 'NA' to indicate missing values.",
+                extra={'line_number': self.line_number,
+                'column_number': col_index + 1,
+                'cause': value})
+            return
+
         try:
             numeric_value = float(stripped_value)
         except ValueError:
-            self.logger.error("Value cannot be interpreted as a floating point number and is not valid response value.",
+            self.logger.error("Value cannot be interpreted as a floating point number and is not valid value.",
                 extra={'line_number': self.line_number,
                 'column_number': col_index + 1,
                 'cause': value})
             return
 
         if math.isnan(numeric_value):
-            self.logger.error("Value is NaN, therefore, not a valid response value.",
+            self.logger.error("Value is NaN, therefore, not a valid value.",
                 extra={'line_number': self.line_number,
                 'column_number': col_index + 1,
                 'cause': value})
             return
 
         if math.isinf(numeric_value):
-            self.logger.error("Value is infinite and, therefore, not a valid response value.",
+            self.logger.error("Value is infinite and, therefore, not a valid value.",
                 extra={'line_number': self.line_number,
                 'column_number': col_index + 1,
                 'cause': value})
             return
 
         if numeric_value % 1 == 0 and not hasTruncSymbol:
-            self.logger.warning("Value has no decimals and may represent an invalid response value.",
+            self.logger.warning("Value has no decimals and may represent an invalid value.",
                 extra={'line_number': self.line_number,
                 'column_number': col_index + 1,
                 'cause': value})
+
+        return
+
+class GenericAssayCategoricalValidator(GenericAssayWiseFileValidator):
+
+    """ Validator for files containing generic assay categorical values.
+    """
+    def __init__(self, *args, **kwargs):
+        """Initialize the instance attributes of the data file validator."""
+        super(GenericAssayCategoricalValidator, self).__init__(*args, **kwargs)
+
+    # (1) non-empty string
+    # (2) NA cell value is allowed; means value was not tested on a sample
+
+    def checkValue(self, value, col_index):
+        """Check a value in a sample column."""
+        stripped_value = value.strip()
+        # do not check null values
+        # 'NA' is an allowed value. No further validations apply.
+        if stripped_value in self.NULL_VALUES:
+            return
+        # non-empty string
+        if len(stripped_value) == 0:
+            self.logger.error("Cell is empty. A categorical value is expected. Use 'NA' to indicate missing values.",
+                extra={'line_number': self.line_number,
+                'column_number': col_index + 1,
+                'cause': value})
+
+        return
+
+class GenericAssayBinaryValidator(GenericAssayWiseFileValidator):
+
+    """ Validator for files containing generic assay binary values.
+    """
+    def __init__(self, *args, **kwargs):
+        """Initialize the instance attributes of the data file validator."""
+        super(GenericAssayBinaryValidator, self).__init__(*args, **kwargs)
+
+    # (1) values defined in ALLOWED_VALUES
+    # (2) NA cell value is allowed; means value was not tested on a sample
+
+    ALLOWED_VALUES = ['yes', 'no', 'true', 'false'] + GenericAssayWiseFileValidator.NULL_VALUES
+
+    def checkValue(self, value, col_index):
+        """Check a value in a sample column."""
+        stripped_value = value.strip()
+        # do not check null values
+        # 'NA' is an allowed value. No further validations apply.
+        if stripped_value in self.NULL_VALUES:
+            return
+        if stripped_value not in self.ALLOWED_VALUES:
+            self.logger.error(
+                'Invalid generic assay binary value: possible values are [%s]',
+                ', '.join(self.ALLOWED_VALUES),
+                extra={'line_number': self.line_number,
+                        'column_number': col_index + 1,
+                        'cause': value})
 
         return
 

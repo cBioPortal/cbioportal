@@ -1298,7 +1298,7 @@ The cells contain the p-value for the GSVA score: A real number, between 0.0 and
 YAML or JSON file which contains extra information about the cancer study. No compulsory fields are required for this file (free-form). To enable this feature, you need to add a line in the cancer study meta file with `tags_file:` followed the YAML/JSON file name. The information on the YAML or JSON file will be displayed in a table when mousing over a tag logo in the studies on the query page.
 
 ## Generic Assay
-Generic Assay is a two dimensional matrix generalized to capture non-genetic measurements per sample. Instead of a gene per row and a sample per column, a Generic Assay file contains a generic entity per row and a sample per column. A generic entity is defined by the data curator and generally means something other than a gene. Some examples include, treatment response or mutational signatures. For each generic entity - sample pair, a real number represents a captured measurement.
+Generic Assay is a two dimensional matrix generalized to capture non-genetic measurements per sample. Instead of a gene per row and a sample per column, a Generic Assay file contains a generic entity per row and a sample per column. A generic entity is defined by the data curator and generally means something other than a gene. Some examples include, treatment response or mutational signatures. For each generic entity - sample pair, a (real number / text / binary value) represents a captured measurement.
 
 ### Generic Assay meta file
 The generic assay metadata file should contain the following fields:
@@ -1306,7 +1306,7 @@ The generic assay metadata file should contain the following fields:
 cancer_study_identifier: Same value as specified in meta file of the study
 genetic_alteration_type: GENERIC_ASSAY
 generic_assay_type: <GENERIC_ASSAY_TYPE>, e.g., "TREATMENT_RESPONSE" or "MUTATIONAL_SIGNATURE"
-datatype: LIMIT-VALUE
+datatype: LIMIT-VALUE, CATEGORICAL or BINARY
 stable_id: Any unique identifier using a combination of alphanumeric characters, _ and -
 profile_name: A name describing the analysis.
 profile_description: A description of the data processing done.
@@ -1346,8 +1346,13 @@ This concept is also used to separate good vs less good response values in the W
 ### Note on `generic_entity_meta_properties`
 All meta properties must be specified in the `generic_entity_meta_properties` field. Every meta property listed here must appear as a column header in the corresponding data file. It's highly recommend to add `NAME`, `DESCRIPTION` and an optional `URL` to get the best visualization on OncoPrint tab and Plots tab.
 
-### Note on `Generic Assay` genetic_alteration_type and `LIMIT-VALUE` datatype
-All generic assay data is registered to be of the type of `genetic_alteration_type` and data type `LIMIT-VALUE`. This alteration and data type is intended to be used for any numerical data set with similar structure (entities measured in samples). The `LIMIT-VALUE` is validated to contain any continuous number optionally prefixed with a '>' or '<' threshold symbol (e.g., '>8.00'). If the value for the generic entity in the respective sample could not (or was not) be measured (or detected), the value should be 'NA'.
+### Note on `Generic Assay` genetic_alteration_type and datatype
+All generic assay data is registered to be of the type of `genetic_alteration_type` and data type can choose from `LIMIT-VALUE`, `CATEGORICAL` and `BINARY`. 
+- ***LIMIT-VALUE***: This datatype is intended to be used for any numerical data set with similar structure (entities measured in samples). The `LIMIT-VALUE` is validated to contain any continuous number optionally prefixed with a '>' or '<' threshold symbol (e.g., '>8.00').
+- ***CATEGORICAL***: This datatype is intended to be used for any categorical data set with similar structure (entities measured in samples). Any text is allowed in `CATEGORICAL` except blank.
+- ***BINARY***: This datatype is intended to be used for any binary data set with similar structure (entities measured in samples). The `BINARY` is validated to contain only reserved text (`true`, `false`, `yes`, `no`).
+
+If the value for the generic entity in the respective sample could not (or was not) be measured (or detected), the value should be 'NA'.
 
 ### Generic Assay data file
 The data file will be a simple tab separated format, similar to the expression data file: each sample is a column, each generic entity is a row, each cell contains values for that generic entity x sample combination.

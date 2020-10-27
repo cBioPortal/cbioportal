@@ -5,7 +5,7 @@
     <select id="getAllTreatments" resultType="org.cbioportal.model.Treatment">
         SELECT
             clinical_event_data.VALUE as treatment,
-            clinical_event.PATIENT_ID as patientId,
+            patient.STABLE_ID as patientId,
             cancer_study.CANCER_STUDY_IDENTIFIER as studyId,
             clinical_event.START_DATE as start,
             clinical_event.STOP_DATE as stop
@@ -22,7 +22,7 @@
     <select id="getAllSamples" resultType="org.cbioportal.model.ClinicalEventSample">
         SELECT
             sample.STABLE_ID as sampleId,
-            clinical_event.PATIENT_ID as patientId,
+            patient.STABLE_ID as patientId,
             cancer_study.CANCER_STUDY_IDENTIFIER as studyId,
             clinical_event.START_DATE as timeTaken
         FROM
@@ -60,6 +60,20 @@
             INNER JOIN cancer_study ON patient.CANCER_STUDY_ID = cancer_study.CANCER_STUDY_ID
         <include refid="where"/>
             AND clinical_event_data.KEY = "AGENT"
+    </select>
+
+    <select id="getSampleCount" resultType="java.lang.Integer">
+        SELECT
+            COUNT(sample.STABLE_ID)
+        FROM
+            clinical_event
+            INNER JOIN clinical_event_data ON clinical_event.CLINICAL_EVENT_ID = clinical_event_data.CLINICAL_EVENT_ID
+            INNER JOIN patient ON clinical_event.PATIENT_ID = patient.INTERNAL_ID
+            INNER JOIN sample ON patient.INTERNAL_ID = sample.PATIENT_ID
+            INNER JOIN cancer_study ON patient.CANCER_STUDY_ID = cancer_study.CANCER_STUDY_ID
+        <include refid="where"/>
+            AND clinical_event_data.KEY = "SAMPLE_ID"
+            AND clinical_event.EVENT_TYPE != "SEQUENCING"
     </select>
     
 

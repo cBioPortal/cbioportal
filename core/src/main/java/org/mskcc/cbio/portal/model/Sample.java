@@ -78,26 +78,24 @@ public class Sample {
     private String stableId;
     private Type sampleType;
     private int internalPatientId;
-    private String cancerTypeId;
 
-    public Sample(String stableId, int internalPatientId, String cancerTypeId, String sampleType)
+    public Sample(String stableId, int internalPatientId, String sampleType)
     {
-        this(stableId, internalPatientId, cancerTypeId);
+        this(stableId, internalPatientId);
         this.sampleType = getType(stableId, sampleType);
     }
     
-    public Sample(int internalId, String stableId, int internalPatientId, String cancerTypeId)
+    public Sample(int internalId, String stableId, int internalPatientId)
     {
-        this(stableId, internalPatientId, cancerTypeId);
+        this(stableId, internalPatientId);
         this.internalId = internalId;
     }
 
-    public Sample(String stableId, int internalPatientId, String cancerTypeId)
+    public Sample(String stableId, int internalPatientId)
     {
         this.stableId = stableId;
         this.sampleType = getType(stableId, null);
         this.internalPatientId = internalPatientId;
-		this.cancerTypeId = cancerTypeId;
     }
 
     private Type getType(String stableId, String sampleType)
@@ -134,10 +132,6 @@ public class Sample {
         return internalPatientId;
     }
 
-    public String getCancerTypeId()
-    {
-        return cancerTypeId;
-    }
 
     @Override
     public boolean equals(Object obj) {

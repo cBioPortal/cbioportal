@@ -5,7 +5,7 @@ on:
 
 jobs:
   build_and_publish_web:
-      if: github.repository == 'averyniceday/cbioportal'
+      if: github.repository == 'cbioportal/cbioportal'
       #if: github.repository == 'mandawilson/cbioportal'
       runs-on: ubuntu-latest
       steps:

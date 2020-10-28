@@ -38,7 +38,12 @@ public class TreatmentMyBatisRepository implements TreatmentRepository {
     }
 
     @Override
-    public Integer getTreatmentCount(List<String> samples, List<String> studies) {
-        return treatmentMapper.getTreatmentCount(samples, studies);
+    public Integer getTreatmentCount(List<String> studies) {
+        return treatmentMapper.getTreatmentCount(null, studies);
+    }
+
+    @Override
+    public Integer getSampleCount(List<String> studies) {
+        return treatmentMapper.getSampleCount(null, studies);
     }
 }

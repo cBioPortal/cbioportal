@@ -22,7 +22,7 @@ jobs:
             username: "${{ secrets.DOCKER_USERNAME }}"
             password: "${{ secrets.DOCKER_PASSWORD }}"
             #image_name: cbioportal/cbioportal
-            image_name: mandaewilson/cbioportal
+            image_name: averyniceday/cbioportal
             image_tag: cbioportal-performance-test-${{ steps.extract_tags.outputs.branch}}
             context: .
             dockerfile: docker/web/Dockerfile

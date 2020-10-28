@@ -1,0 +1,32 @@
+name: cbioportal-performance-test
+on:
+  pull_request:
+    types: [opened, synchronize, reopened]
+
+jobs:
+  build_and_publish_web:
+      if: github.repository == 'averyniceday/cbioportal'
+      #if: github.repository == 'mandawilson/cbioportal'
+      runs-on: ubuntu-latest
+      steps:
+        - name: 'Checkout git repo'
+          uses: actions/checkout@v1
+        - name: Extract branch or tag name
+          # For the web docker image we don't publish it as latest
+          # just extract branch/tag name and strip v prefix
+          run: echo "##[set-output name=branch;]$(export set GITHUB_REF_TMP=${GITHUB_REF#refs/pull/};echo ${GITHUB_REF_TMP%/merge})"
+          id: extract_tags
+        - name: 'Docker build with cache'
+          uses: whoan/docker-build-with-cache-action@v4
+          with:
+            username: "${{ secrets.DOCKER_USERNAME }}"
+            password: "${{ secrets.DOCKER_PASSWORD }}"
+            #image_name: cbioportal/cbioportal
+            image_name: averyniceday/cbioportal
+            image_tag: cbioportal-performance-test-${{ steps.extract_tags.outputs.branch}}
+            context: .
+            dockerfile: docker/web/Dockerfile
+            pull_image_and_stages: false
+
+
+# Reference: https://github.com/marketplace/actions/build-docker-images-using-cache

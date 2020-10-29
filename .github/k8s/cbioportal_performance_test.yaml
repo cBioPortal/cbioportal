@@ -10,7 +10,7 @@ metadata:
   name: cbioportal-performance-test
   selfLink: /apis/extensions/v1beta1/namespaces/default/deployments/cbioportal-performance-test
 spec:
-  replicas: 2
+  replicas: 1
   selector:
     matchLabels:
       run: cbioportal-performance-test
@@ -33,7 +33,7 @@ spec:
         - configMapRef:
             name: cbioportal-public
         # image tag will be replaced by github action
-        image: mandaewilson/cbioportal:foo
+        image: cbioportalpipelines/cbioportal:thisisaplaceholder
         #volumeMounts:
         #- name: ehcache-volume
         #  mountPath: /ehcache

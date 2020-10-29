@@ -27,24 +27,22 @@ jobs:
       - name: Set context for kubectl cluster
         uses: azure/k8s-set-context@v1
         with:
-          method: service-account
-          k8s-url: ${{ secrets.K8S_URL }}
-          k8s-secret: ${{ secrets.K8S_SECRET }}
-        id: setcontext
-      - name: show dir
-        run: |
-          echo `pwd`
-      - name: show content
-        run: |
-          echo `ls -a`
+          method: kubeconfig
+          kubeconfig: ${{ secrets.KUBECONFIG }}
       - name: Deploy to kubernetes
         uses: Azure/k8s-deploy@v1.2
         with:
           manifests: |
-            k8s/cbioportal_performance_test.yaml
+            .github/k8s/cbioportal_performance_test.yaml
           images: 'cbioportalpipelines/cbioportal:${{ steps.extract_tags.outputs.image_tag }}'
           action: deploy
           kubectl-version: 'v1.14.0'
+       #- name: Delete running pod
+       #  run: |
+       #    echo "Sleeping for 4 minutes..."
+       #    sleep 4m
+       #    kubectl get pods | grep performance
+       #    #kubectl delete -f .github/k8s/cbioportal_performance_test.yaml  
 #      - name: DELETE request to dockerhub
 #        env:
 #          MAX_WAIT_TIME_IN_SECONDS: 300

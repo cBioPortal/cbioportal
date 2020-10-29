@@ -4,28 +4,63 @@ on:
     types: [opened, synchronize, reopened]
 
 jobs:
-  build_and_publish_web:
-      if: github.repository == 'cbioportal/cbioportal'
-      runs-on: ubuntu-latest
-      steps:
-        - name: 'Checkout git repo'
-          uses: actions/checkout@v1
-        - name: Extract branch or tag name
-          # For the web docker image we don't publish it as latest
-          # just extract branch/tag name and strip v prefix
-          run: echo "##[set-output name=branch;]$(export set GITHUB_REF_TMP=${GITHUB_REF#refs/pull/};echo ${GITHUB_REF_TMP%/merge})"
-          id: extract_tags
-        - name: 'Docker build with cache'
-          uses: whoan/docker-build-with-cache-action@v4
-          with:
-            username: "${{ secrets.DOCKER_USERNAME }}"
-            password: "${{ secrets.DOCKER_PASSWORD }}"
-            #image_name: cbioportal/cbioportal, keeping this commented out to not spam the actual dockerhub repo
-            image_name: averyniceday/cbioportal
-            image_tag: cbioportal-performance-test-${{ steps.extract_tags.outputs.branch}}
-            context: .
-            dockerfile: docker/web/Dockerfile
-            pull_image_and_stages: false
+  build_and_publish_docker_image: # TODO rename if this is one big job
+    if: github.repository == 'cbioportal/cbioportal'
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout git repo
+        uses: actions/checkout@v1
+      - name: Extract PR number
+        # create the docker image tag by extracting pr number from github
+        run: echo "##[set-output name=image_tag;]$(export set GITHUB_REF_TMP=${GITHUB_REF#refs/pull/};echo cbioportal-performance-test-${GITHUB_REF_TMP%/merge})"
+        id: extract_tags
+      - name: Docker build with cache
+        uses: whoan/docker-build-with-cache-action@v4
+        with:
+          username: "${{ secrets.DOCKER_USERNAME }}"
+          password: "${{ secrets.DOCKER_PASSWORD }}"
+          image_name: cbioportal/cbioportal, keeping this commented out to not spam the actual dockerhub repo
+          #image_name: mandaewilson/cbioportal
+          image_tag: cbioportal-performance-test-${{ steps.extract_tags.outputs.image_tag }}
+          context: .
+          dockerfile: docker/web/Dockerfile
+          pull_image_and_stages: false
+      #- name: Set context for kubectl cluster
+      #  uses: azure/k8s-set-context@v1
+      #  with:
+      #    method: service-account
+      #    k8s-url: ${{ secrets.K8S_URL }}
+      #    k8s-secret: ${{ secrets.K8S_SECRET }}
+      #  id: setcontext
+      #- name: Deploy to kubernetes
+      #  uses: jtalk/k8s-deploy@v2
+      #  with:
+      #  manifests: |
+      #    .github/k8s/cbioportal_performance_test.yaml
+      #  images: 'cbioportal/cbioportal:${{ steps.extract_tags.outputs.image_tag }}'
+      #  kubectl-version: '1.14.0'
+      - name: DELETE request to dockerhub
+        env:
+          MAX_WAIT_TIME_IN_SECONDS: 300
+          URL: "https://hub.docker.com/v2/repositories/cbioportal/cbioportal/tags/${{ steps.extract_tags.outputs.image_tag }}/"
+          #URL: "https://hub.docker.com/v2/repositories/mandaewilson/cbioportal/tags/${{ steps.extract_tags.outputs.image_tag }}/"
+          OK_RESPONSE_CODE: 204
 
+        # DELETE request to URL with a MAX_WAIT_TIME_IN_SECONDS second limit
+        #   if curl fails, automatically exit with curl's non-zero exit code
+        #   else if we did not get a OK_RESPONSE_CODE exit with a non-zero exit code
+        #   else we are OK!
+        run: |
+          JWT_TOKEN_SECRET=`curl -s -H "Content-Type: application/json" -X POST -d '{"username": "'${DOCKER_USERNAME}'", "password": "'${DOCKER_PASSWORD}'"}' https://hub.docker.com/v2/users/login/ | sed 's/.*token": "//' | sed 's/"}//'`
+
+          curl --max-time $MAX_WAIT_TIME_IN_SECONDS -s -o /dev/null -w "%{http_code}" -X DELETE -H "Authorization: JWT $JWT_TOKEN_SECRET" "$URL" > curl.out
+          RESPONSE_CODE=`cat curl.out`
+          if [ "$RESPONSE_CODE" != "$OK_RESPONSE_CODE" ]; then
+            echo "Request failed with response code '$RESPONSE_CODE', expected '$OK_RESPONSE_CODE'"
+            exit 1
+          else
+            echo "Request succeeded with expected response code '$OK_RESPONSE_CODE'"
+            exit 0
+          fi
 
 # Reference: https://github.com/marketplace/actions/build-docker-images-using-cache

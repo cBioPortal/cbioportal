@@ -1343,8 +1343,9 @@ _important_ observations. Whether smaller or larger values are considered to be 
 `value_sort_order` field (see [below](#note-on-value_sort_order)).
 
 In a heatmap for a generic assay profile _important_ values are shown in darker shades of blue, whereas _unimportant_
-values are shown in darker shades of red. The values represented by the `pivot_threshold_value` is shown in white. In the
-Waterfall plot in Plots tab of Results view `pivot_threshold_value` determines the boundary between up- and downward
+values are shown in darker shades of red. The values represented by the `pivot_threshold_value` is shown in white. When
+defined, the `pivot_threshold_value` will always be included in the legend, even when all datapoints are all more extreme.
+In the Waterfall plot in Plots tab of Results view `pivot_threshold_value` determines the boundary between up- and downward
 deflections in the plot.
 
 When no sensible idea exists for a boundary between _important_ and _unimportant_ observations the `pivot_threshold_value`

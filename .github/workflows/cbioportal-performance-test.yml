@@ -41,7 +41,7 @@ jobs:
          run: |
            echo "Sleeping for 4 minutes..."
            sleep 4m
-           kubectl get pods | grep performance
+       #    kubectl get pods | grep performance
        #    #kubectl delete -f .github/k8s/cbioportal_performance_test.yaml  
 #      - name: DELETE request to dockerhub
 #        env:

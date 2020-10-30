@@ -14,6 +14,9 @@ jobs:
         # create the docker image tag by extracting pr number from github
         run: echo "##[set-output name=image_tag;]$(export set GITHUB_REF_TMP=${GITHUB_REF#refs/pull/};echo cbioportal-performance-test-${GITHUB_REF_TMP%/merge})"
         id: extract_tags
+      -name: Rename deployment
+       run: |
+         sed "s/cbioportal-performance-test\b/${{ steps.extract_tags.outputs.image_tag }}/g" .github/k8s/cbioportal_performance_test.yaml > /tmp/cbioportal_performance_test.yaml
       #- name: Docker build with cache
       #  uses: whoan/docker-build-with-cache-action@v4
       #  with:
@@ -33,20 +36,14 @@ jobs:
         uses: Azure/k8s-deploy@v1.2
         with:
           manifests: |
-            .github/k8s/cbioportal_performance_test.yaml
+            /tmp/cbioportal_performance_test.yaml
           images: 'cbioportalpipelines/cbioportal:${{ steps.extract_tags.outputs.image_tag }}'
           action: deploy
           kubectl-version: 'v1.14.0'
-      - name: Clean up pod
+      - name: Delete pod
         run: |
-          echo "Sleeping..."
           sleep 120 
-          kubectl delete -f .github/k8s/cbioportal_performance_test.yaml
-       #- name: Delete running pod
-       #  run: echo "Sleeping for 4 minutes..."
-       #    sleep 4m
-       #    kubectl get pods | grep performance
-       #    #kubectl delete -f .github/k8s/cbioportal_performance_test.yaml  
+          kubectl delete -f /tmp/cbioportal_performance_test.yaml
 #      - name: DELETE request to dockerhub
 #        env:
 #          MAX_WAIT_TIME_IN_SECONDS: 300

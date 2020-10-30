@@ -40,6 +40,7 @@ jobs:
       - name: Clean up pod
         run: |
           echo "Testing testing testing"
+          which kubectl
        #- name: Delete running pod
        #  run: echo "Sleeping for 4 minutes..."
        #    sleep 4m

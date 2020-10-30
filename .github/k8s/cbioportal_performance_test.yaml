@@ -40,10 +40,8 @@ spec:
         command: [ "/usr/bin/java" ]
         args: [
             # from https://developers.redhat.com/blog/2017/04/04/openjdk-and-containers/
-            #"-Xms5g",
-            #"-Xmx14g",
-            "-Xms2g",
-            "-Xmx3g",
+            "-Xms100m",
+            "-Xmx10g",
             "-XX:+UnlockExperimentalVMOptions",
             "-XX:+UseShenandoahGC",
             "-XX:ShenandoahUncommitDelay=1000",
@@ -91,7 +89,7 @@ spec:
             "-Dapp.name=public-portal",
             # connecting over dbcp
             "-Ddbconnector=dbcp",
-            "-Dauthenticate=social_auth_microsoft,social_auth_google",
+            "-Dauthenticate=false",
             "-Dauthorization=false",
             "-Ddb.user=$(DB_USER)",
             "-Ddb.password=$(DB_PASSWORD)",
@@ -130,7 +128,7 @@ spec:
             "-Dmatchminer.url=http://ec2-54-158-52-176.compute-1.amazonaws.com:5555",
             "-Dmatchminer.token=$(MATCHMINER_TOKEN)",
             # misc frontend settings
-            "-Denable_persistent_cache=true",
+            "-Denable_persistent_cache=false",
             # ehcache settings
             "-Dehcache.cache_type=none",
             # "-Dehcache.xml_configuration=/ehcache.xml",

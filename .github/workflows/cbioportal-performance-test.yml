@@ -37,8 +37,9 @@ jobs:
           images: 'cbioportalpipelines/cbioportal:${{ steps.extract_tags.outputs.image_tag }}'
           action: deploy
           kubectl-version: 'v1.14.0'
-      - name: My test
-        run: echo "Testing testing testing"
+      - name: Clean up pod
+        run: |
+          echo "Testing testing testing"
        #- name: Delete running pod
        #  run: echo "Sleeping for 4 minutes..."
        #    sleep 4m

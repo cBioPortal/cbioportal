@@ -14,8 +14,8 @@ jobs:
         # create the docker image tag by extracting pr number from github
         run: echo "##[set-output name=image_tag;]$(export set GITHUB_REF_TMP=${GITHUB_REF#refs/pull/};echo cbioportal-performance-test-${GITHUB_REF_TMP%/merge})"
         id: extract_tags
-      -name: Rename deployment
-       run: |
+      - name: Rename deployment
+        run: |
          sed "s/cbioportal-performance-test\b/${{ steps.extract_tags.outputs.image_tag }}/g" .github/k8s/cbioportal_performance_test.yaml > /tmp/cbioportal_performance_test.yaml
       #- name: Docker build with cache
       #  uses: whoan/docker-build-with-cache-action@v4

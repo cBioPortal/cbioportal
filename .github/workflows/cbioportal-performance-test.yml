@@ -14,16 +14,16 @@ jobs:
         # create the docker image tag by extracting pr number from github
         run: echo "##[set-output name=image_tag;]$(export set GITHUB_REF_TMP=${GITHUB_REF#refs/pull/};echo cbioportal-performance-test-${GITHUB_REF_TMP%/merge})"
         id: extract_tags
-      - name: Docker build with cache
-        uses: whoan/docker-build-with-cache-action@v4
-        with:
-          username: "${{ secrets.DOCKER_USERNAME_PIPELINES }}"
-          password: "${{ secrets.DOCKER_PASSWORD_PIPELINES }}"
-          image_name: cbioportalpipelines/cbioportal
-          image_tag: ${{ steps.extract_tags.outputs.image_tag }}
-          context: .
-          dockerfile: docker/web/Dockerfile
-          pull_image_and_stages: false
+      #- name: Docker build with cache
+      #  uses: whoan/docker-build-with-cache-action@v4
+      #  with:
+      #    username: "${{ secrets.DOCKER_USERNAME_PIPELINES }}"
+      #    password: "${{ secrets.DOCKER_PASSWORD_PIPELINES }}"
+      #    image_name: cbioportalpipelines/cbioportal
+      #    image_tag: ${{ steps.extract_tags.outputs.image_tag }}
+      #    context: .
+      #    dockerfile: docker/web/Dockerfile
+      #    pull_image_and_stages: false
       - name: Set context for kubectl cluster
         uses: azure/k8s-set-context@v1
         with:
@@ -37,11 +37,11 @@ jobs:
           images: 'cbioportalpipelines/cbioportal:${{ steps.extract_tags.outputs.image_tag }}'
           action: deploy
           kubectl-version: 'v1.14.0'
-       #- name: Delete running pod
-       #  run: |
-       #    echo "Sleeping for 4 minutes..."
-       #    sleep 4m
-       #    kubectl get pods | grep performance
+       - name: Delete running pod
+         run: |
+           echo "Sleeping for 4 minutes..."
+           sleep 4m
+           kubectl get pods | grep performance
        #    #kubectl delete -f .github/k8s/cbioportal_performance_test.yaml  
 #      - name: DELETE request to dockerhub
 #        env:

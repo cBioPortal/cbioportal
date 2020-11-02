@@ -1336,12 +1336,39 @@ generic_entity_meta_properties: NAME,DESCRIPTION,URL
 ### Note on `stable_id`
 The `stable_id` for the generic assay datatype is a user defined field. The only requirement is that the `stable_id` is unique across all metafiles in the study.
 
+### Note on `pivot_threshold_value`
+The `pivot_threshold_value` is an arbitrary value that specifies a critical boundary that distinguish _important_ from
+_unimportant_ values in a generic assay profile. This boundary will be used in different visualizations to highlight
+_important_ observations. Whether smaller or larger values are considered to be _important_ can be controlled with the
+`value_sort_order` field (see [below](#note-on-value_sort_order)).
+
+In a heatmap for a generic assay profile _important_ values are shown in darker shades of blue, whereas _unimportant_
+values are shown in darker shades of red. The values represented by the `pivot_threshold_value` is shown in white. When
+defined, the `pivot_threshold_value` will always be included in the legend, even when all datapoints are all more extreme.
+In the Waterfall plot in Plots tab of Results view `pivot_threshold_value` determines the boundary between up- and downward
+deflections in the plot.
+
+When no sensible idea exists for a boundary between _important_ and _unimportant_ observations the `pivot_threshold_value`
+field should not be defined (excluded from meta file). In this case all values will be shown as shades of blue in the
+heatmap and the waterfall plot will show up- and downward deflections around 0.
+
 ### Note on `value_sort_order`
-When values are sorted based on the `value_sort_order`, data points at the start of the sequence are considered more significant than data points at the end. 
+The `value_sort_order` field can be used to indicate whether small or large value are considered to be more `important`.
+When `value_sort_order` is `ASC` smaller values are considered to be more _important_. When `value_sort_order` is `DESC`
+larger values are considered to be more _important_.
 
-This concept is used by the OncoPrint when aggregating generic assay data from multiple samples from a single patient. When `value_sort_order` is `ASC` the sample with the smallest response value will be shown for that patient. When `value_sort_order` is `DESC` the sample with the largest value will be shown for that patient.
+The default value for `value_sort_order` is `ASC`.
 
-This concept is also used to separate good vs less good response values in the Waterfall plot. When `value_sort_order` is `ASC` small values are represented as downward deflections from the `pivot_threshold_value` in the waterfall plot of Plots Tab.
+The `value_sort_order` is used by the Oncoprint when aggregating generic assay data in a tooltip that covers multiple samples
+from a single patient. When `value_sort_order` is `ASC` the sample with the smallest response value will be shown for that
+patient. When `value_sort_order` is `DESC` the sample with the largest value will be shown for that patient.
+
+In the heatmap for a generic assay profile in results view data points with smaller values will show as darker blue
+when the `value_sort_order` is `ASC`. When `value_sort_order` is `DESC` larger values are assigned a darker blue color.
+
+The `value_sort_order` is used by the Waterfall plot for orientation of the x-axis so that _important_ observations are
+shown at the left side of the plot. When `value_sort_order` is `ASC` the x-axis will be in ascending order with smaller
+values to the left.  When `value_sort_order` is `DESC` the x-axis will be in descending order with larger values to the left.
 
 ### Note on `generic_entity_meta_properties`
 All meta properties must be specified in the `generic_entity_meta_properties` field. Every meta property listed here must appear as a column header in the corresponding data file. It's highly recommend to add `NAME`, `DESCRIPTION` and an optional `URL` to get the best visualization on OncoPrint tab and Plots tab.

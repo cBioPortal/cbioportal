@@ -46,9 +46,27 @@ jobs:
       - name: Install curl
         run: |
             kubectl exec -it ${{ steps.extract_pod_name.outputs.pod_name }} -- bash -c "apt-get update; apt-get -y install curl"
-      - name: Test PR
+      - name: POST Request for /mutated-genes Endpoint
+        env:
+          MAX_WAIT_TIME_IN_SECONDS: 300
+          URL: "http://localhost:8888/api/mutated-genes/fetch"
+          OK_RESPONSE_CODE: 200
+        # POST request to URL with a MAX_WAIT_TIME_IN_SECONDS second limit
+        #   if curl fails, automatically exit with curl's non-zero exit code
+        #   else if we did not get a OK_RESPONSE_CODE exit with a non-zero exit code
+        #   else we are OK!
         run: |
-            kubectl exec -it ${{ steps.extract_pod_name.outputs.pod_name }} -- bash -c "curl -X GET 'http://localhost:8888/api/cancer-types/GBM' -H 'accept: application/json'"
+          kubectl exec -it ${{ steps.extract_pod_name.outputs.pod_name }} -- bash -c "curl --max-time $MAX_WAIT_TIME_IN_SECONDS -s -o /dev/null -w '%{http_code}' -X POST $URL -H 'accept:application/json' -H 'Content-Type:application/json' -d '{\"studyIds\":[\"msk_impact_2017\"]}'" > curl.out
+          RESPONSE_CODE=`cat curl.out`
+          if [ "$RESPONSE_CODE" != "$OKAY_RESPONSE_CODE" ]; then
+            cat curl.out
+            echo "Request failed with response code '$RESPONSE_CODE', expected '$OK_RESPONSE_CODE'"
+            exit 1
+          else
+            cat curl.out
+            echo "Request succeeded with expected response code '$OK_RESPONSE_CODE'"
+            exit 0
+          fi
       - name: Delete pod
         run: |
           sleep 120 

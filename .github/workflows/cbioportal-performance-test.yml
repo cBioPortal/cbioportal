@@ -43,9 +43,12 @@ jobs:
       - name: Extract pod name
         run: echo "##[set-output name=pod_name;]$(kubectl get pods --selector=run=${{ steps.extract_tags.outputs.image_tag }} | tail -1| cut -f1 -d' ')"
         id: extract_pod_name
+      - name: Install curl
+        run: |
+            kubectl exec -it ${{ steps.extract_pod_name.outputs.pod_name }} -- bash -c "apt-get update; apt-get -y install curl"
       - name: Test PR
         run: |
-            kubectl exec -it ${{ steps.extract_pod_name.outputs.pod_name }} -- bash -c "date && echo 1"
+            kubectl exec -it ${{ steps.extract_pod_name.outputs.pod_name }} -- bash -c "curl -X GET 'http://localhost:8888/api/cancer-types/GBM' -H 'accept: application/json'"
       - name: Delete pod
         run: |
           sleep 120 

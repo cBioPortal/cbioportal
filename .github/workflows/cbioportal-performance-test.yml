@@ -40,6 +40,12 @@ jobs:
           images: 'cbioportalpipelines/cbioportal:${{ steps.extract_tags.outputs.image_tag }}'
           action: deploy
           kubectl-version: 'v1.14.0'
+      - name: Extract pod name
+        run: echo "##[set-output name=pod_name;]$(kubectl get pods --selector=run=${{ steps.extract_tags.outputs.image_tag }} | tail -1| cut -f1 -d' ')"
+        id: extract_pod_name
+      - name: Test PR
+        run: |
+            kubectl exec -it ${{ steps.extract_pod_name.outputs.pod_name }} -- bash -c "date && echo 1"
       - name: Delete pod
         run: |
           sleep 120 

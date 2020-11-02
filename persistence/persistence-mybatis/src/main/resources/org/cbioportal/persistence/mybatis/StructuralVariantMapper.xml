@@ -89,95 +89,133 @@
     </select>
     
     <select id="getSampleCountInMultipleMolecularProfiles" resultType="org.cbioportal.model.StructuralVariantCountByGene">
-        SELECT
-        structural_variant.SITE1_ENTREZ_GENE_ID AS entrezGeneId,
-        gene.HUGO_GENE_SYMBOL AS hugoGeneSymbol,
-        COUNT(*) AS totalCount,
-        COUNT(DISTINCT(structural_variant.SAMPLE_ID)) AS numberOfAlteredCases
-        FROM structural_variant
-        INNER JOIN genetic_profile ON structural_variant.GENETIC_PROFILE_ID = genetic_profile.GENETIC_PROFILE_ID
-        INNER JOIN sample ON structural_variant.SAMPLE_ID = sample.INTERNAL_ID
-        INNER JOIN gene ON structural_variant.SITE1_ENTREZ_GENE_ID = gene.ENTREZ_GENE_ID
+        SELECT 
+            entrezGeneId,
+            hugoGeneSymbol,
+            COUNT(*) AS totalCount,
+            COUNT(DISTINCT (sampleID)) AS numberOfAlteredCases
+        FROM
+            (SELECT 
+                gene.ENTREZ_GENE_ID AS entrezGeneId,
+                gene.HUGO_GENE_SYMBOL AS hugoGeneSymbol,
+                sample.STABLE_ID AS sampleId,
+                genetic_profile.STABLE_ID as geneticProfileId
+            FROM
+                structural_variant
+            INNER JOIN genetic_profile ON structural_variant.GENETIC_PROFILE_ID = genetic_profile.GENETIC_PROFILE_ID
+            INNER JOIN sample ON structural_variant.SAMPLE_ID = sample.INTERNAL_ID
+            INNER JOIN gene ON structural_variant.SITE1_ENTREZ_GENE_ID = gene.ENTREZ_GENE_ID
+            UNION ALL
+            SELECT 
+                gene.ENTREZ_GENE_ID AS entrezGeneId,
+                gene.HUGO_GENE_SYMBOL AS hugoGeneSymbol,
+                sample.STABLE_ID AS sampleId,
+                genetic_profile.STABLE_ID as geneticProfileId
+            FROM
+                structural_variant
+            INNER JOIN genetic_profile ON structural_variant.GENETIC_PROFILE_ID = genetic_profile.GENETIC_PROFILE_ID
+            INNER JOIN sample ON structural_variant.SAMPLE_ID = sample.INTERNAL_ID
+            INNER JOIN gene ON structural_variant.SITE2_ENTREZ_GENE_ID = gene.ENTREZ_GENE_ID) combinedResults
         WHERE
         <if test="sampleIds != null and !sampleIds.isEmpty()">
             <if test="@java.util.Arrays@stream(molecularProfileIds.toArray()).distinct().count() == 1">
-                genetic_profile.STABLE_ID = #{molecularProfileIds[0]} AND
-                sample.STABLE_ID IN
+                geneticProfileId = #{molecularProfileIds[0]} AND
+                sampleId IN
                 <foreach item="item" collection="sampleIds" open="(" separator="," close=")">
                     #{item}
                 </foreach>
             </if>
             <if test="@java.util.Arrays@stream(molecularProfileIds.toArray()).distinct().count() > 1">
-                (sample.STABLE_ID, genetic_profile.STABLE_ID) IN
+                (sampleId, geneticProfileId) IN
                 <foreach index="i" collection="sampleIds" open="(" separator="," close=")">
                     (#{sampleIds[${i}]}, #{molecularProfileIds[${i}]})
                 </foreach>
-                AND genetic_profile.STABLE_ID IN
+                AND geneticProfileId IN
                 <foreach item="item" collection="molecularProfileIds" open="(" separator="," close=")">
                     #{item}
                 </foreach>
             </if>
         </if>
         <if test="sampleIds == null">
-            genetic_profile.STABLE_ID IN
+            geneticProfileId IN
             <foreach item="item" collection="molecularProfileIds" open="(" separator="," close=")">
                 #{item}
             </foreach>
         </if>
         <if test="entrezGeneIds != null and !entrezGeneIds.isEmpty()">
-            AND structural_variant.SITE1_ENTREZ_GENE_ID IN
+            AND entrezGeneId IN
             <foreach item="item" collection="entrezGeneIds" open="(" separator="," close=")">
                 #{item}
             </foreach>
         </if>
-        GROUP BY structural_variant.SITE1_ENTREZ_GENE_ID
+        GROUP BY entrezGeneId
+        HAVING numberOfAlteredCases > 0
     </select>
 
     <select id="getPatientCountInMultipleMolecularProfiles" resultType="org.cbioportal.model.StructuralVariantCountByGene">
-        SELECT
-        structural_variant.SITE1_ENTREZ_GENE_ID AS entrezGeneId,
-        gene.HUGO_GENE_SYMBOL AS hugoGeneSymbol,
-        COUNT(*) AS totalCount,
-        COUNT(DISTINCT(patient.INTERNAL_ID)) AS numberOfAlteredCases
-        FROM structural_variant
-        INNER JOIN genetic_profile ON genetic_profile.GENETIC_PROFILE_ID = structural_variant.GENETIC_PROFILE_ID
-        INNER JOIN sample ON structural_variant.SAMPLE_ID = sample.INTERNAL_ID
-        INNER JOIN patient ON sample.PATIENT_ID = patient.INTERNAL_ID
-        INNER JOIN gene ON structural_variant.SITE1_ENTREZ_GENE_ID = gene.ENTREZ_GENE_ID
+        SELECT 
+            entrezGeneId,
+            hugoGeneSymbol,
+            COUNT(*) AS totalCount,
+            COUNT(DISTINCT (sampleID)) AS numberOfAlteredCases
+        FROM
+            (SELECT 
+                gene.ENTREZ_GENE_ID AS entrezGeneId,
+                gene.HUGO_GENE_SYMBOL AS hugoGeneSymbol,
+                patient.STABLE_ID AS patientId,
+                genetic_profile.STABLE_ID as geneticProfileId
+            FROM
+                structural_variant
+            INNER JOIN genetic_profile ON structural_variant.GENETIC_PROFILE_ID = genetic_profile.GENETIC_PROFILE_ID
+            INNER JOIN sample ON structural_variant.SAMPLE_ID = sample.INTERNAL_ID
+            INNER JOIN patient ON sample.PATIENT_ID = patient.INTERNAL_ID
+            INNER JOIN gene ON structural_variant.SITE1_ENTREZ_GENE_ID = gene.ENTREZ_GENE_ID
+            UNION ALL
+            SELECT 
+                gene.ENTREZ_GENE_ID AS entrezGeneId,
+                gene.HUGO_GENE_SYMBOL AS hugoGeneSymbol,
+                patient.STABLE_ID AS patientId,
+                genetic_profile.STABLE_ID as geneticProfileId
+            FROM
+                structural_variant
+            INNER JOIN genetic_profile ON structural_variant.GENETIC_PROFILE_ID = genetic_profile.GENETIC_PROFILE_ID
+            INNER JOIN sample ON structural_variant.SAMPLE_ID = sample.INTERNAL_ID
+            INNER JOIN patient ON sample.PATIENT_ID = patient.INTERNAL_ID
+            INNER JOIN gene ON structural_variant.SITE2_ENTREZ_GENE_ID = gene.ENTREZ_GENE_ID) combinedResults
         WHERE
         <if test="patientIds != null and !patientIds.isEmpty()">
             <if test="@java.util.Arrays@stream(molecularProfileIds.toArray()).distinct().count() == 1">
-                genetic_profile.STABLE_ID = #{molecularProfileIds[0]} AND
-                patient.STABLE_ID IN
+                geneticProfileId = #{molecularProfileIds[0]} AND
+                patientId IN
                 <foreach item="item" collection="patientIds" open="(" separator="," close=")">
                     #{item}
                 </foreach>
             </if>
             <if test="@java.util.Arrays@stream(molecularProfileIds.toArray()).distinct().count() > 1">
-                (patient.STABLE_ID, genetic_profile.STABLE_ID) IN
+                (patientId, geneticProfileId) IN
                 <foreach index="i" collection="patientIds" open="(" separator="," close=")">
                     (#{patientIds[${i}]}, #{molecularProfileIds[${i}]})
                 </foreach>
-                AND genetic_profile.STABLE_ID IN
+                AND geneticProfileId IN
                 <foreach item="item" collection="molecularProfileIds" open="(" separator="," close=")">
                     #{item}
                 </foreach>
             </if>
         </if>
-		<if test="patientIds == null">
-		    genetic_profile.STABLE_ID IN
-			<foreach item="item" collection="molecularProfileIds" open="(" separator="," close=")">
-			    #{item}
-			</foreach>
-		</if>
+        <if test="patientIds == null">
+            geneticProfileId IN
+            <foreach item="item" collection="molecularProfileIds" open="(" separator="," close=")">
+                #{item}
+            </foreach>
+        </if>
         <if test="entrezGeneIds != null and !entrezGeneIds.isEmpty()">
-            AND structural_variant.SITE1_ENTREZ_GENE_ID IN
+            AND entrezGeneId IN
             <foreach item="item" collection="entrezGeneIds" open="(" separator="," close=")">
                 #{item}
             </foreach>
         </if>
-        GROUP BY structural_variant.SITE1_ENTREZ_GENE_ID
-        HAVING COUNT(*) > 1
+        GROUP BY entrezGeneId
+        HAVING numberOfAlteredCases > 0
     </select>
 
 </mapper>

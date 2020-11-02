@@ -157,12 +157,11 @@ public class StudyViewFilterApplier {
             if ((mutatedGeneFilters.size() + structuralVariantGeneFilters.size() + cnaGeneFilters.size()) == studyViewFilter
                     .getGeneFilters().size()) {
                 if (!mutatedGeneFilters.isEmpty()) {
-                    sampleIdentifiers = filterMutatedGenes(mutatedGeneFilters, molecularProfileMap,
-                            MolecularAlterationType.MUTATION_EXTENDED, sampleIdentifiers);
+                    sampleIdentifiers = filterMutatedGenes(mutatedGeneFilters, molecularProfileMap, sampleIdentifiers);
                 }
                 if (!structuralVariantGeneFilters.isEmpty()) {
                     sampleIdentifiers = filterStructuralVariantGenes(structuralVariantGeneFilters, molecularProfileMap,
-                            MolecularAlterationType.STRUCTURAL_VARIANT, sampleIdentifiers);
+                            sampleIdentifiers);
                 }
                 if (!cnaGeneFilters.isEmpty()) {
                     sampleIdentifiers = filterCNAGenes(cnaGeneFilters, molecularProfileMap, sampleIdentifiers);
@@ -272,8 +271,7 @@ public class StudyViewFilterApplier {
     }
 
     private List<SampleIdentifier> filterMutatedGenes(List<GeneFilter> mutatedGenefilters,
-            Map<String, MolecularProfile> molecularProfileMap, MolecularAlterationType molecularAlterationFilterType,
-            List<SampleIdentifier> sampleIdentifiers) {
+            Map<String, MolecularProfile> molecularProfileMap, List<SampleIdentifier> sampleIdentifiers) {
 
         for (GeneFilter genefilter : mutatedGenefilters) {
 
@@ -335,8 +333,7 @@ public class StudyViewFilterApplier {
     }
 
     private List<SampleIdentifier> filterStructuralVariantGenes(List<GeneFilter> svGenefilters,
-            Map<String, MolecularProfile> molecularProfileMap, MolecularAlterationType molecularAlterationFilterType,
-            List<SampleIdentifier> sampleIdentifiers) {
+            Map<String, MolecularProfile> molecularProfileMap, List<SampleIdentifier> sampleIdentifiers) {
 
         for (GeneFilter genefilter : svGenefilters) {
 

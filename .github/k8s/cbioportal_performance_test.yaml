@@ -40,7 +40,7 @@ spec:
         command: [ "/usr/bin/java" ]
         args: [
             # from https://developers.redhat.com/blog/2017/04/04/openjdk-and-containers/
-            "-Xms100m",
+            "-Xms2g",
             "-Xmx10g",
             "-XX:+UnlockExperimentalVMOptions",
             "-XX:+UseShenandoahGC",

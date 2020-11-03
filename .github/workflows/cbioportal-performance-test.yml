@@ -58,7 +58,7 @@ jobs:
         run: |
           kubectl exec -it ${{ steps.extract_pod_name.outputs.pod_name }} -- bash -c "curl --max-time $MAX_WAIT_TIME_IN_SECONDS -s -o /dev/null -w '%{http_code}' -X POST $URL -H 'accept:application/json' -H 'Content-Type:application/json' -d '{\"studyIds\":[\"msk_impact_2017\"]}'" > curl.out
           RESPONSE_CODE=`cat curl.out`
-          if [ "$RESPONSE_CODE" != "$OKAY_RESPONSE_CODE" ]; then
+          if [ "$RESPONSE_CODE" != "$OK_RESPONSE_CODE" ]; then
             cat curl.out
             echo "Request failed with response code '$RESPONSE_CODE', expected '$OK_RESPONSE_CODE'"
             exit 1

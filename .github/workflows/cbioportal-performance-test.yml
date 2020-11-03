@@ -57,6 +57,7 @@ jobs:
         #   else we are OK!
         run: |
           output_file=$(mktemp)
+          echo "Made file $output_file"
           kubectl exec -it ${{ steps.extract_pod_name.outputs.pod_name }} -- bash -c "curl --max-time $MAX_WAIT_TIME_IN_SECONDS -s -o $output_file -w '%{http_code}' -X POST $URL -H 'accept:application/json' -H 'Content-Type:application/json' -d '{\"studyIds\":[\"msk_impact_2017\"]}'" > curl.out
           RESPONSE_CODE=`cat curl.out`
           if [ "$RESPONSE_CODE" != "$OK_RESPONSE_CODE" ]; then
@@ -65,6 +66,7 @@ jobs:
           else
             echo "Request succeeded with expected response code '$OK_RESPONSE_CODE'"
             # check the output
+            echo "Displaying output of $output_file"
             cat $output_file
             exit 0
           fi

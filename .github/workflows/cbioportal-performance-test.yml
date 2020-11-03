@@ -58,7 +58,7 @@ jobs:
         run: |
           #kubectl exec -it ${{ steps.extract_pod_name.outputs.pod_name }} -- bash -c "curl --max-time $MAX_WAIT_TIME_IN_SECONDS -s -o $output_file -w '%{http_code}' -X POST $URL -H 'accept:application/json' -H 'Content-Type:application/json' -d '{\"studyIds\":[\"msk_impact_2017\"]}'" > curl.out
           #kubectl exec -it ${{ steps.extract_pod_name.outputs.pod_name }} -- bash -c "curl --max-time $MAX_WAIT_TIME_IN_SECONDS -s -o $output_file -w '%{http_code}' -X POST '$URL' -H 'accept: application/json' -H 'Content-Type: application/json' -d '{\"studyIds\": [ \"msk_impact_2017\" ]}'" > curl.out
-          kubectl exec -it ${{ steps.extract_pod_name.outputs.pod_name }} -- bash -c "curl --max-time $MAX_WAIT_TIME_IN_SECONDS -s -w '\n\n%{http_code}' -X POST '$URL' -H 'accept: application/json' -H 'Content-Type: applicatijson' -d '{\"studyIds\": [ \"msk_impact_2017\" ]}'" > curl.out
+          kubectl exec -it ${{ steps.extract_pod_name.outputs.pod_name }} -- bash -c "curl --max-time $MAX_WAIT_TIME_IN_SECONDS -s -w '\n\n%{http_code}' -X POST '$URL' -H 'accept: application/json' -H 'Content-Type: application/json' -d '{\"studyIds\": [ \"msk_impact_2017\" ]}'" > curl.out
           RESPONSE_CODE=`tail -1 curl.out`
           if [ "$RESPONSE_CODE" != "$OK_RESPONSE_CODE" ]; then
             echo "Request failed with response code '$RESPONSE_CODE', expected '$OK_RESPONSE_CODE'"

@@ -56,8 +56,6 @@ jobs:
         #   else if we did not get a OK_RESPONSE_CODE exit with a non-zero exit code
         #   else we are OK!
         run: |
-          output_file=$(mktemp)
-          echo "Made file $output_file"
           #kubectl exec -it ${{ steps.extract_pod_name.outputs.pod_name }} -- bash -c "curl --max-time $MAX_WAIT_TIME_IN_SECONDS -s -o $output_file -w '%{http_code}' -X POST $URL -H 'accept:application/json' -H 'Content-Type:application/json' -d '{\"studyIds\":[\"msk_impact_2017\"]}'" > curl.out
           #kubectl exec -it ${{ steps.extract_pod_name.outputs.pod_name }} -- bash -c "curl --max-time $MAX_WAIT_TIME_IN_SECONDS -s -o $output_file -w '%{http_code}' -X POST '$URL' -H 'accept: application/json' -H 'Content-Type: application/json' -d '{\"studyIds\": [ \"msk_impact_2017\" ]}'" > curl.out
           kubectl exec -it ${{ steps.extract_pod_name.outputs.pod_name }} -- bash -c "curl --max-time $MAX_WAIT_TIME_IN_SECONDS -s -w '\n\n%{http_code}' -X POST '$URL' -H 'accept: application/json' -H 'Content-Type: applicatijson' -d '{\"studyIds\": [ \"msk_impact_2017\" ]}'" > curl.out
@@ -68,8 +66,8 @@ jobs:
           else
             echo "Request succeeded with expected response code '$OK_RESPONSE_CODE'"
             # check the output
-            echo "Displaying output of $output_file"
-            cat $output_file
+            echo "Displaying output of curl.out"
+            cat curl.out
             exit 0
           fi
       - name: Delete pod

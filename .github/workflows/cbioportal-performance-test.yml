@@ -62,6 +62,7 @@ jobs:
           RESPONSE_CODE=`tail -1 curl.out`
           if [ "$RESPONSE_CODE" != "$OK_RESPONSE_CODE" ]; then
             echo "Request failed with response code '$RESPONSE_CODE', expected '$OK_RESPONSE_CODE'"
+            cat curl.out
             exit 1
           else
             echo "Request succeeded with expected response code '$OK_RESPONSE_CODE'"

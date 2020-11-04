@@ -5,7 +5,7 @@ on:
 
 jobs:
   build_and_publish_docker_image: # TODO rename if this is one big job
-    if: github.repository == 'cbioportal/cbioportal'
+    if: github.repository == 'cbioportal/cbioportal' && !contains(github.event.pull_request.labels.*.name, 'api-error')
     runs-on: ubuntu-latest
     steps:
       - name: Checkout git repo

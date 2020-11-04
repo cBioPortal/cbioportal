@@ -48,7 +48,7 @@ jobs:
             kubectl exec -it ${{ steps.extract_pod_name.outputs.pod_name }} -- bash -c "apt-get update; apt-get -y install curl"
       - name: POST Request for /mutated-genes Endpoint
         env:
-          MAX_WAIT_TIME_IN_SECONDS: 300
+          MAX_WAIT_TIME_IN_SECONDS: 25
           URL: "http://localhost:8888/api/mutated-genes/fetch"
           OK_RESPONSE_CODE: 200
           EMPTY_LIST_RESPONSE: "[]"

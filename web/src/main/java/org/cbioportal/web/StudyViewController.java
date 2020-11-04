@@ -13,6 +13,9 @@ import java.lang.*;
 
 import javax.validation.Valid;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+
 import org.cbioportal.model.*;
 import org.cbioportal.service.*;
 import org.cbioportal.service.exception.StudyNotFoundException;
@@ -39,6 +42,9 @@ import org.apache.commons.lang.math.NumberUtils;
 @Validated
 @Api(tags = "Study View", description = " ")
 public class StudyViewController {
+
+    private static final Log LOG = LogFactory.getLog(StudyViewController.class);
+
 
     @Autowired
     private StudyViewFilterApplier studyViewFilterApplier;
@@ -276,10 +282,14 @@ public class StudyViewController {
         @ApiIgnore // prevent reference to this attribute in the swagger-ui interface. this attribute is needed for the @PreAuthorize tag above.
         @Valid @RequestAttribute(required = false, value = "interceptedStudyViewFilter") StudyViewFilter interceptedStudyViewFilter) throws StudyNotFoundException {
 
+        LOG.error("fetchMutatedGenes()");
         try {
+            LOG.error("sleep...");
             Thread.sleep(60000);
         } catch (Exception e) {
+            LOG.error(e);
         }
+        LOG.error("done sleeping...");
         List<SampleIdentifier> filteredSampleIdentifiers = studyViewFilterApplier.apply(interceptedStudyViewFilter);
         List<MutationCountByGene> result = new ArrayList<>();
         if (!filteredSampleIdentifiers.isEmpty()) {

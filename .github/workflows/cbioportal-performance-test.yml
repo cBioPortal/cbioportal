@@ -57,7 +57,7 @@ jobs:
         #   else if we did not get a OK_RESPONSE_CODE exit with a non-zero exit code
         #   else we are OK!
         run: |
-          kubectl exec -it ${{ steps.extract_pod_name.outputs.pod_name }} -- bash -c "curl --max-time $MAX_WAIT_TIME_IN_SECONDS -s -w '\n\n%{http_code}' -X POST '$URL' -H 'accept: application/json' -H 'Content-Type: application/json' -d '{\"attributes\":[{\"attributeId\":\"MUTATION_COUNT\",\"disableLogScale\":false},{\"attributeId\":\"FRACTION_GENOME_ALTERED\",\"disableLogScale\":false},{\"attributeId\":\"AGE_AT_SEQ_REPORT\",\"disableLogScale\":false},{\"attributeId\":\"AGE_AT_SEQ_REPORT_DAYS\",\"disableLogScale\":false},{\"attributeId\":\"INT_CONTACT\",\"disableLogScale\":false},{\"attributeId\":\"INT_DOD\",\"disableLogScale\":false},{\"attributeId\":\"SEQ_YEAR\",\"disableLogScale\":false}],\"studyViewFilter\":{\"studyIds\":[\"genie_private\"],\"patientTreatmentFilters\":{\"filters\":[]},\"sampleTreatmentFilters\":{\"filters\":[]}}}'" > curl.out
+          kubectl exec -it ${{ steps.extract_pod_name.outputs.pod_name }} -- bash -c "curl --max-time $MAX_WAIT_TIME_IN_SECONDS -s -w '\n\n%{http_code}' -X POST '$URL' -H 'accept: application/json' -H 'Content-Type: application/json' -d '{\"attributes\":[{\"attributeId\":\"MUTATION_COUNT\",\"disableLogScale\":false},{\"attributeId\":\"FRACTION_GENOME_ALTERED\",\"disableLogScale\":false},{\"attributeId\":\"AGE_AT_SEQ_REPORT\",\"disableLogScale\":false},{\"attributeId\":\"AGE_AT_SEQ_REPORT_DAYS\",\"disableLogScale\":false},{\"attributeId\":\"INT_CONTACT\",\"disableLogScale\":false},{\"attributeId\":\"INT_DOD\",\"disableLogScale\":false},{\"attributeId\":\"SEQ_YEAR\",\"disableLogScale\":false}],\"studyViewFilter\":{\"studyIds\":[\"blah\"],\"patientTreatmentFilters\":{\"filters\":[]},\"sampleTreatmentFilters\":{\"filters\":[]}}}'" > curl.out
           RESPONSE_CODE=`tail -1 curl.out`
           RESPONSE_BODY=`head -1 curl.out`
           if [ "$RESPONSE_CODE" != "$OK_RESPONSE_CODE" ]; then
@@ -81,7 +81,7 @@ jobs:
         #   else if we did not get a OK_RESPONSE_CODE exit with a non-zero exit code
         #   else we are OK!
         run: |
-          kubectl exec -it ${{ steps.extract_pod_name.outputs.pod_name }} -- bash -c "curl --max-time $MAX_WAIT_TIME_IN_SECONDS -s -w '\n\n%{http_code}' -X POST '$URL' -H 'accept: application/json' -H 'Content-Type: application/json' -d '{\"studyIds\": [ \"msk_impact_2017\" ]}'" > curl.out
+          kubectl exec -it ${{ steps.extract_pod_name.outputs.pod_name }} -- bash -c "curl --max-time $MAX_WAIT_TIME_IN_SECONDS -s -w '\n\n%{http_code}' -X POST '$URL' -H 'accept: application/json' -H 'Content-Type: application/json' -d '{\"studyIds\": [ \"genie_private\" ]}'" > curl.out
           RESPONSE_CODE=`tail -1 curl.out`
           RESPONSE_BODY=`head -1 curl.out`
           if [ "$RESPONSE_CODE" != "$OK_RESPONSE_CODE" ]; then

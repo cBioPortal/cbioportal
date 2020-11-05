@@ -282,14 +282,14 @@ public class StudyViewController {
         @ApiIgnore // prevent reference to this attribute in the swagger-ui interface. this attribute is needed for the @PreAuthorize tag above.
         @Valid @RequestAttribute(required = false, value = "interceptedStudyViewFilter") StudyViewFilter interceptedStudyViewFilter) throws StudyNotFoundException {
 
-        LOG.error("fetchMutatedGenes()");
+        /*LOG.error("fetchMutatedGenes()");
         try {
             LOG.error("sleep...");
             Thread.sleep(60000);
         } catch (Exception e) {
             LOG.error(e);
         }
-        LOG.error("done sleeping...");
+        LOG.error("done sleeping...");*/
         List<SampleIdentifier> filteredSampleIdentifiers = studyViewFilterApplier.apply(interceptedStudyViewFilter);
         List<MutationCountByGene> result = new ArrayList<>();
         if (!filteredSampleIdentifiers.isEmpty()) {

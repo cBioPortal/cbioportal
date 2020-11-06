@@ -1,11 +1,13 @@
 package org.cbioportal.service.util;
 
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
+import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.EnumUtils;
 import org.cbioportal.model.Gene;
 import org.cbioportal.model.Mutation;
@@ -31,8 +33,17 @@ public class MutationMapperUtils {
         // gene symbols containing "-" is not considered in the pattern
         String pattern = "^([a-zA-Z0-9_.]+)(?:-|_|\\s)([a-zA-Z0-9_.]+)(?:\\s+(\\w+))?$";
         Pattern r = Pattern.compile(pattern);
-        
-        return fusions.stream().map(fusion -> {
+
+        Map<String, Mutation> uniqueFusionMap = new HashMap<String, Mutation>();
+
+        fusions.forEach(fusion -> {
+            String uniqueKey = fusion.getStudyId() + fusion.getSampleId() + fusion.getProteinChange();
+            if (!uniqueFusionMap.containsKey(uniqueKey)) {
+                uniqueFusionMap.put(uniqueKey, fusion);
+            }
+        });
+
+        return uniqueFusionMap.values().stream().map(fusion -> {
             StructuralVariant structuralVariant = new StructuralVariant();
 
             // Sample details
@@ -90,12 +101,16 @@ public class MutationMapperUtils {
                             } else {
                                 try {
                                     Gene site2Gene = geneService.getGene(site2GeneSymbol);
-                                    if (site2Gene != null) {
-                                        structuralVariant.setSite2EntrezGeneId(site2Gene.getGeneticEntityId());
-                                        structuralVariant.setSite2HugoSymbol(site2Gene.getHugoGeneSymbol());
-                                    }
+                                    structuralVariant.setSite2EntrezGeneId(site2Gene.getEntrezGeneId());
+                                    structuralVariant.setSite2HugoSymbol(site2Gene.getHugoGeneSymbol());
                                 } catch (Exception e) {
-                                    // Site2 gene is not set when gene symbol is not found in database
+                                    // Site2 gene is not set when gene symbol is not found in database. Check if it is an alias
+                                    List<Gene> aliasGenes = geneService.getAllGenes(null, site2GeneSymbol, "SUMMARY",
+                                            null, null, null, null);
+                                    if (CollectionUtils.isNotEmpty(aliasGenes)) {
+                                        structuralVariant.setSite2EntrezGeneId(aliasGenes.get(0).getEntrezGeneId());
+                                        structuralVariant.setSite2HugoSymbol(aliasGenes.get(0).getHugoGeneSymbol());
+                                    }
                                 }
                             }
                         }

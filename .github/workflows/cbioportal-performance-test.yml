@@ -51,7 +51,7 @@ jobs:
           MAX_WAIT_TIME_IN_SECONDS: 180
           URL: "http://localhost:8888/api/filtered-samples/fetch"
         run: |
-          kubectl exec -it ${{ steps.extract_pod_name.outputs.pod_name }} -- bash -c "curl --max-time $MAX_WAIT_TIME_IN_SECONDS -s -X POST '$URL' -H 'accept: application/json' -H 'Content-Type: application/json' -d '{\"studyIds\": [ \"msk_impact_2017\" ]}' | jq --join-output --compact-output '[.[]|{sampleId: .\"sampleId\", studyId: \"msk_impact_2017\"}]' > samples.json; jq --join-output --compact-output '{sampleIdentifiers: [.[]]}' > sampleIdentifiers.json"
+          kubectl exec -it ${{ steps.extract_pod_name.outputs.pod_name }} -- bash -c "curl --max-time $MAX_WAIT_TIME_IN_SECONDS -s -X POST '$URL' -H 'accept: application/json' -H 'Content-Type: application/json' -d '{\"studyIds\": [ \"msk_impact_2017\" ]}' | jq --join-output --compact-output '[.[]|{sampleId: .\"sampleId\", studyId: \"msk_impact_2017\"}]' > samples.json; jq --join-output --compact-output '{sampleIdentifiers: [.[]]}' samples.json > sampleIdentifiers.json"
       - name: POST Request for /cna-genes endpoint
         env:
           MAX_WAIT_TIME_IN_SECONDS: 180
@@ -84,7 +84,6 @@ jobs:
           URL: "http://localhost:8888/api/treatments/patient"
           OK_RESPONSE_CODE: 200
           EMPTY_LIST_RESPONSE: "[]"
-          SEARCH_STR: "treatmentXXX"
         run: |
           kubectl exec -it ${{ steps.extract_pod_name.outputs.pod_name }} -- bash -c "curl --max-time $MAX_WAIT_TIME_IN_SECONDS -s -w '\n\n%{http_code}' -X POST '$URL' -H 'accept: application/json' -H 'Content-Type: application/json' -d '@sampleIdentifiers.json'" > curl.out
           RESPONSE_CODE=`tail -1 curl.out`
@@ -93,12 +92,13 @@ jobs:
             echo "Request failed with response code '$RESPONSE_CODE', expected '$OK_RESPONSE_CODE'"
             exit 1
           else
-            if [ "$RESPONSE_BODY" == "$EMPTY_LIST_RESPONSE" ] || [ -z "$RESPONSE_BODY" ]; then 
+            if [ -z "$RESPONSE_BODY" ]; then 
                 echo "Request failed with empty response"
                 exit 1
             else
-                if [[ "$RESPONSE_BODY" != *"$SEARCH_STR"* ]]; then
-                    echo "Response did not contain search string '$SEARCH_STR'"
+                # TODO: change if treatment data is ever added
+                if [ "$RESPONSE_BODY" != "$EMPTY_LIST_RESPONSE" ]; then
+                    echo "Request returned a non-empty response when we expect an empty list."
                     exit 1
                 fi
             fi
@@ -110,7 +110,6 @@ jobs:
           URL: "http://localhost:8888/api/treatments/sample"
           OK_RESPONSE_CODE: 200
           EMPTY_LIST_RESPONSE: "[]"
-          SEARCH_STR: "treatmentXXX"
         run: |
           kubectl exec -it ${{ steps.extract_pod_name.outputs.pod_name }} -- bash -c "curl --max-time $MAX_WAIT_TIME_IN_SECONDS -s -w '\n\n%{http_code}' -X POST '$URL' -H 'accept: application/json' -H 'Content-Type: application/json' -d '@sampleIdentifiers.json'" > curl.out
           RESPONSE_CODE=`tail -1 curl.out`
@@ -119,12 +118,13 @@ jobs:
             echo "Request failed with response code '$RESPONSE_CODE', expected '$OK_RESPONSE_CODE'"
             exit 1
           else
-            if [ "$RESPONSE_BODY" == "$EMPTY_LIST_RESPONSE" ] || [ -z "$RESPONSE_BODY" ]; then 
+            if [ -z "$RESPONSE_BODY" ]; then 
                 echo "Request failed with empty response"
                 exit 1
             else
-                if [[ "$RESPONSE_BODY" != *"$SEARCH_STR"* ]]; then
-                    echo "Response did not contain search string '$SEARCH_STR'"
+                # TODO: change if treatment data is ever added
+                if [ "$RESPONSE_BODY" != "$EMPTY_LIST_RESPONSE" ]; then
+                    echo "Request returned a non-empty response when we expect an empty list."
                     exit 1
                 fi
             fi
@@ -136,7 +136,7 @@ jobs:
           URL: "http://localhost:8888/api/fusion-genes/fetch"
           OK_RESPONSE_CODE: 200
           EMPTY_LIST_RESPONSE: "[]"
-          SEARCH_STR: "entrezGeneIdXXX"
+          SEARCH_STR: "entrezGeneId"
         run: |
           kubectl exec -it ${{ steps.extract_pod_name.outputs.pod_name }} -- bash -c "curl --max-time $MAX_WAIT_TIME_IN_SECONDS -s -w '\n\n%{http_code}' -X POST '$URL' -H 'accept: application/json' -H 'Content-Type: application/json' -d '@sampleIdentifiers.json'" > curl.out
           RESPONSE_CODE=`tail -1 curl.out`
@@ -162,7 +162,7 @@ jobs:
           URL: "http://localhost:8888/api/copy-number-segments/fetch?projection=META"
           OK_RESPONSE_CODE: 200
           EMPTY_LIST_RESPONSE: "[]"
-          SEARCH_STR: "blah"
+          SEARCH_STR: "seg"
         run: |
           kubectl exec -it ${{ steps.extract_pod_name.outputs.pod_name }} -- bash -c "curl --max-time $MAX_WAIT_TIME_IN_SECONDS -s -w '\n\n%{http_code}' -X POST '$URL' -H 'accept: application/json' -H 'Content-Type: application/json' -d '@samples.json'" > curl.out
           RESPONSE_CODE=`tail -1 curl.out`
@@ -171,12 +171,14 @@ jobs:
             echo "Request failed with response code '$RESPONSE_CODE', expected '$OK_RESPONSE_CODE'"
             exit 1
           else
-            if [ "$RESPONSE_BODY" == "$EMPTY_LIST_RESPONSE" ] || [ -z "$RESPONSE_BODY" ]; then 
-                echo "Request failed with empty response"
+            if [ "$RESPONSE_BODY" == "$EMPTY_LIST_RESPONSE" ]; then
+                echo "Request failed with empty list when we expected it to be empty."
                 exit 1
             else
-                if [[ "$RESPONSE_BODY" != *"$SEARCH_STR"* ]]; then
-                    echo "Response did not contain search string '$SEARCH_STR'"
+                if [[ ! -z "$RESPONSE_BODY" ]]; then 
+                    # TODO: study view is querying with projection=META which does not return anything
+                    # update if we ever use a query that reutrns data (e.g SUMMARY)
+                    echo "Request returned a non-empty response when we expect an empty response."
                     exit 1
                 fi
             fi
@@ -240,7 +242,7 @@ jobs:
           URL: "http://localhost:8888/api/clinical-data-density-plot/fetch?xAxisAttributeId=FRACTION_GENOME_ALTERED&xAxisBinCount=50&xAxisEnd=1&xAxisStart=0&yAxisAttributeId=MUTATION_COUNT&yAxisBinCount=52&yAxisStart=0"
           OK_RESPONSE_CODE: 200
           EMPTY_LIST_RESPONSE: "[]"
-          SEARCH_STR: "SAMPLE_COUNT"
+          SEARCH_STR: "count"
         run: |
           kubectl exec -it ${{ steps.extract_pod_name.outputs.pod_name }} -- bash -c "curl --max-time $MAX_WAIT_TIME_IN_SECONDS -s -w '\n\n%{http_code}' -X POST '$URL' -H 'accept: application/json' -H 'Content-Type: application/json' -d '@sampleIdentifiers.json'" > curl.out
           RESPONSE_CODE=`tail -1 curl.out`
@@ -269,6 +271,32 @@ jobs:
           SEARCH_STR: "entrezGeneId"
         run: |
           kubectl exec -it ${{ steps.extract_pod_name.outputs.pod_name }} -- bash -c "curl --max-time $MAX_WAIT_TIME_IN_SECONDS -s -w '\n\n%{http_code}' -X POST '$URL' -H 'accept: application/json' -H 'Content-Type: application/json' -d '{\"studyIds\": [ \"msk_impact_2017\" ]}'" > curl.out
+          RESPONSE_CODE=`tail -1 curl.out`
+          RESPONSE_BODY=`head -1 curl.out`
+          if [ "$RESPONSE_CODE" != "$OK_RESPONSE_CODE" ]; then
+            echo "Request failed with response code '$RESPONSE_CODE', expected '$OK_RESPONSE_CODE'"
+            exit 1
+          else
+            if [ "$RESPONSE_BODY" == "$EMPTY_LIST_RESPONSE" ] || [ -z "$RESPONSE_BODY" ]; then 
+                echo "Request failed with empty response"
+                exit 1
+            else
+                if [[ "$RESPONSE_BODY" != *"$SEARCH_STR"* ]]; then
+                    echo "Response did not contain search string '$SEARCH_STR'"
+                    exit 1
+                fi
+            fi
+            exit 0
+          fi
+      - name: POST Request for /sample-list-counts endpoint
+        env:
+          MAX_WAIT_TIME_IN_SECONDS: 180 
+          URL: "http://localhost:8888/api/sample-lists-counts/fetch"
+          OK_RESPONSE_CODE: 200
+          EMPTY_LIST_RESPONSE: "[]"
+          SEARCH_STR: "count"
+        run: |
+          kubectl exec -it ${{ steps.extract_pod_name.outputs.pod_name }} -- bash -c "curl --max-time $MAX_WAIT_TIME_IN_SECONDS -s -w '\n\n%{http_code}' -X POST '$URL' -H 'accept: application/json' -H 'Content-Type: application/json' -d '{\"sampleTreatmentFilters\": {\"filters\": []}, \"patientTreatmentFilters\": {\"filters\": [], \"studyIds\": [ \"msk_impact_2017\" ]}'" > curl.out
           RESPONSE_CODE=`tail -1 curl.out`
           RESPONSE_BODY=`head -1 curl.out`
           if [ "$RESPONSE_CODE" != "$OK_RESPONSE_CODE" ]; then

@@ -54,7 +54,7 @@ jobs:
           EMPTY_LIST_RESPONSE: "[]"
           SEARCH_STR: "sampleId"
         run: |
-          kubectl exec -it ${{ steps.extract_pod_name.outputs.pod_name }} -- bash -c "curl --max-time $MAX_WAIT_TIME_IN_SECONDS -s -X POST '$URL' -H 'accept: application/json' -H 'Content-Type: application/json' -d '{\"studyIds\": [ \"msk_impact_2017\" ]}' | jq --join-output --compact-output '{sampleIdentifiers: [.[]|{sampleId: .\"sampleId\", studyId: \"msk_impact_2017\"}]} > samples.json"
+          kubectl exec -it ${{ steps.extract_pod_name.outputs.pod_name }} -- bash -c "curl --max-time $MAX_WAIT_TIME_IN_SECONDS -s -X POST '$URL' -H 'accept: application/json' -H 'Content-Type: application/json' -d '{\"studyIds\": [ \"msk_impact_2017\" ]}' | jq --join-output --compact-output '{sampleIdentifiers: [.[]|{sampleId: .\"sampleId\", studyId: \"msk_impact_2017\"}]}' > samples.json"
       - name: POST Request for cna-genes endpoint
         env:
           MAX_WAIT_TIME_IN_SECONDS: 500

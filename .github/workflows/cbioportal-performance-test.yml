@@ -58,7 +58,7 @@ jobs:
           URL: "http://localhost:8888/api/cna-genes/fetch"
           OK_RESPONSE_CODE: 200
           EMPTY_LIST_RESPONSE: "[]"
-          SEARCH_STR: "entrezGeneIdXXX"
+          SEARCH_STR: "entrezGeneId"
         run: |
           kubectl exec -it ${{ steps.extract_pod_name.outputs.pod_name }} -- bash -c "curl --max-time $MAX_WAIT_TIME_IN_SECONDS -s -w '\n\n%{http_code}' -X POST '$URL' -H 'accept: application/json' -H 'Content-Type: application/json' -d '@samples.json'" > curl.out
           RESPONSE_CODE=`tail -1 curl.out`

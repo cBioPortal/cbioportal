@@ -16,9 +16,10 @@ env:
   - MAVEN_VERSION=3.5.4 TEST=python-validator
   - MAVEN_VERSION=3.5.4 TEST=sanity-checks
   - MAVEN_VERSION=3.5.4 TEST=end-to-end
+  - MAVEN_VERSION=3.5.4 TEST=integration-test-load-study
 install:
 - |
-  if [[ "${TEST}" == core || "${TEST}" == end-to-end ]]
+  if [[ "${TEST}" == core || "${TEST}" == end-to-end  || "${TEST}" == integration-test-load-study ]]
   then
       mkdir -p ~/maven
       test -d ~/maven/$MAVEN_VERSION/bin || { \
@@ -74,7 +75,7 @@ script:
           integration-test
   fi
 - |
-  if [[ "${TEST}" == end-to-end ]]
+  if [[ "${TEST}" == end-to-end || "${TEST}" == integration-test-load-study ]]
   then
       ~/maven/$MAVEN_VERSION/bin/mvn \
           -q \
@@ -96,4 +97,28 @@ script:
       # spot visual regression by comparing screenshots in the repo with
       # screenshots of this portal loaded with the data from the amazon db
       bash test/end-to-end/test_make_screenshots.sh test/end-to-end/screenshots.yml
+  fi
+- |
+  if [[ "${TEST}" == integration-test-load-study ]]
+  then
+      # test for loading study_es_0 on a complete working instance
+      # download compose and init
+      git clone https://github.com/cBioPortal/cbioportal-docker-compose.git && \
+      cd cbioportal-docker-compose && bash init.sh
+
+      # creates cbioportal container with local maven build
+      docker-compose -f docker-compose.yml -f ../test/integration/docker-compose-localbuild.yml up -d
+
+      # wait for up to 15m until all services are up and running
+      for i in {1..30}; do
+          [[ $(curl -sf http://localhost:8080/api/health) ]] && { healthy=1; break; } || echo "Waiting for cBioPortal services..."
+          sleep 30s
+      done
+      [ -z "$healthy" ] && { echo "Error starting cBioPortal services."; exit 1; } || echo "Successful deploy."
+
+      # load gene panels and study_es_0
+      bash ../test/integration/test_load_study.sh
+
+      # back to main dir
+      cd -
   fi

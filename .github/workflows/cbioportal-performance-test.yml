@@ -51,7 +51,7 @@ jobs:
           MAX_WAIT_TIME_IN_SECONDS: 180
           URL: "http://localhost:8888/api/filtered-samples/fetch"
         run: |
-          kubectl exec -it ${{ steps.extract_pod_name.outputs.pod_name }} -- bash -c "curl --max-time $MAX_WAIT_TIME_IN_SECONDS -s -X POST '$URL' -H 'accept: application/json' -H 'Content-Type: application/json' -d '{\"studyIds\": [ \"msk_impact_2017\" ]}' | jq --join-output --compact-output '[.[]|{sampleId: .\"sampleId\", studyId: \"msk_impact_2017\"}]' > samples.json; jq --join-output --compact-output '{sampleIdentifiers: [.[]]}' samples.json > sampleIdentifiers.json"
+          kubectl exec -it ${{ steps.extract_pod_name.outputs.pod_name }} -- bash -c "curl --max-time $MAX_WAIT_TIME_IN_SECONDS -s -X POST '$URL' -H 'accept: application/json' -H 'Content-Type: application/json' -d '{\"studyIds\": [ \"genie_public\" ]}' | jq --join-output --compact-output '[.[]|{sampleId: .\"sampleId\", studyId: \"genie_public\"}]' > samples.json; jq --join-output --compact-output '{sampleIdentifiers: [.[]]}' samples.json > sampleIdentifiers.json"
       - name: POST Request for /cna-genes endpoint
         env:
           MAX_WAIT_TIME_IN_SECONDS: 180
@@ -192,7 +192,7 @@ jobs:
           EMPTY_LIST_RESPONSE: "[]"
           SEARCH_STR: "MUTATION_COUNT"
         run: |
-          kubectl exec -it ${{ steps.extract_pod_name.outputs.pod_name }} -- bash -c "curl --max-time $MAX_WAIT_TIME_IN_SECONDS -s -w '\n\n%{http_code}' -X POST '$URL' -H 'accept: application/json' -H 'Content-Type: application/json' -d '{\"attributes\":[{\"attributeId\":\"MUTATION_COUNT\",\"disableLogScale\":false},{\"attributeId\":\"FRACTION_GENOME_ALTERED\",\"disableLogScale\":false},{\"attributeId\":\"AGE_AT_SEQ_REPORT\",\"disableLogScale\":false},{\"attributeId\":\"AGE_AT_SEQ_REPORT_DAYS\",\"disableLogScale\":false},{\"attributeId\":\"INT_CONTACT\",\"disableLogScale\":false},{\"attributeId\":\"INT_DOD\",\"disableLogScale\":false},{\"attributeId\":\"SEQ_YEAR\",\"disableLogScale\":false}],\"studyViewFilter\":{\"studyIds\":[\"msk_impact_2017\"],\"patientTreatmentFilters\":{\"filters\":[]},\"sampleTreatmentFilters\":{\"filters\":[]}}}'" > curl.out
+          kubectl exec -it ${{ steps.extract_pod_name.outputs.pod_name }} -- bash -c "curl --max-time $MAX_WAIT_TIME_IN_SECONDS -s -w '\n\n%{http_code}' -X POST '$URL' -H 'accept: application/json' -H 'Content-Type: application/json' -d '{\"attributes\":[{\"attributeId\":\"MUTATION_COUNT\",\"disableLogScale\":false},{\"attributeId\":\"FRACTION_GENOME_ALTERED\",\"disableLogScale\":false},{\"attributeId\":\"AGE_AT_SEQ_REPORT\",\"disableLogScale\":false},{\"attributeId\":\"AGE_AT_SEQ_REPORT_DAYS\",\"disableLogScale\":false},{\"attributeId\":\"INT_CONTACT\",\"disableLogScale\":false},{\"attributeId\":\"INT_DOD\",\"disableLogScale\":false},{\"attributeId\":\"SEQ_YEAR\",\"disableLogScale\":false}],\"studyViewFilter\":{\"studyIds\":[\"genie_public\"],\"patientTreatmentFilters\":{\"filters\":[]},\"sampleTreatmentFilters\":{\"filters\":[]}}}'" > curl.out
           RESPONSE_CODE=`tail -1 curl.out`
           RESPONSE_BODY=`head -1 curl.out`
           if [ "$RESPONSE_CODE" != "$OK_RESPONSE_CODE" ]; then
@@ -218,7 +218,7 @@ jobs:
           EMPTY_LIST_RESPONSE: "[]"
           SEARCH_STR: "SAMPLE_COUNT"
         run: |
-          kubectl exec -it ${{ steps.extract_pod_name.outputs.pod_name }} -- bash -c "curl --max-time $MAX_WAIT_TIME_IN_SECONDS -s -w '\n\n%{http_code}' -X POST '$URL' -H 'accept: application/json' -H 'Content-Type: application/json' -d '{\"attributes\":[{\"attributeId\":\"CANCER_TYPE\"},{\"attributeId\":\"CANCER_TYPE_DETAILED\"},{\"attributeId\":\"SAMPLE_COUNT\"},{\"attributeId\":\"SEX\"},{\"attributeId\":\"ETHNICITY\"},{\"attributeId\":\"SAMPLE_TYPE\"},{\"attributeId\":\"CENTER\"},{\"attributeId\":\"ONCOTREE_CODE\"},{\"attributeId\":\"PRIMARY_RACE\"},{\"attributeId\":\"SAMPLE_TYPE_DETAILED\"},{\"attributeId\":\"SECONDARY_RACE\"},{\"attributeId\":\"SEQ_ASSAY_ID\"},{\"attributeId\":\"TERTIARY_RACE\"}],\"studyViewFilter\":{\"studyIds\":[\"msk_impact_2017\"],\"patientTreatmentFilters\":{\"filters\":[]},\"sampleTreatmentFilters\":{\"filters\":[]}}}'" > curl.out
+          kubectl exec -it ${{ steps.extract_pod_name.outputs.pod_name }} -- bash -c "curl --max-time $MAX_WAIT_TIME_IN_SECONDS -s -w '\n\n%{http_code}' -X POST '$URL' -H 'accept: application/json' -H 'Content-Type: application/json' -d '{\"attributes\":[{\"attributeId\":\"CANCER_TYPE\"},{\"attributeId\":\"CANCER_TYPE_DETAILED\"},{\"attributeId\":\"SAMPLE_COUNT\"},{\"attributeId\":\"SEX\"},{\"attributeId\":\"ETHNICITY\"},{\"attributeId\":\"SAMPLE_TYPE\"},{\"attributeId\":\"CENTER\"},{\"attributeId\":\"ONCOTREE_CODE\"},{\"attributeId\":\"PRIMARY_RACE\"},{\"attributeId\":\"SAMPLE_TYPE_DETAILED\"},{\"attributeId\":\"SECONDARY_RACE\"},{\"attributeId\":\"SEQ_ASSAY_ID\"},{\"attributeId\":\"TERTIARY_RACE\"}],\"studyViewFilter\":{\"studyIds\":[\"genie_public\"],\"patientTreatmentFilters\":{\"filters\":[]},\"sampleTreatmentFilters\":{\"filters\":[]}}}'" > curl.out
           RESPONSE_CODE=`tail -1 curl.out`
           RESPONSE_BODY=`head -1 curl.out`
           if [ "$RESPONSE_CODE" != "$OK_RESPONSE_CODE" ]; then
@@ -270,7 +270,7 @@ jobs:
           EMPTY_LIST_RESPONSE: "[]"
           SEARCH_STR: "entrezGeneId"
         run: |
-          kubectl exec -it ${{ steps.extract_pod_name.outputs.pod_name }} -- bash -c "curl --max-time $MAX_WAIT_TIME_IN_SECONDS -s -w '\n\n%{http_code}' -X POST '$URL' -H 'accept: application/json' -H 'Content-Type: application/json' -d '{\"studyIds\": [ \"msk_impact_2017\" ]}'" > curl.out
+          kubectl exec -it ${{ steps.extract_pod_name.outputs.pod_name }} -- bash -c "curl --max-time $MAX_WAIT_TIME_IN_SECONDS -s -w '\n\n%{http_code}' -X POST '$URL' -H 'accept: application/json' -H 'Content-Type: application/json' -d '{\"studyIds\": [ \"genie_public\" ]}'" > curl.out
           RESPONSE_CODE=`tail -1 curl.out`
           RESPONSE_BODY=`head -1 curl.out`
           if [ "$RESPONSE_CODE" != "$OK_RESPONSE_CODE" ]; then
@@ -296,7 +296,7 @@ jobs:
           EMPTY_LIST_RESPONSE: "[]"
           SEARCH_STR: "count"
         run: |
-          kubectl exec -it ${{ steps.extract_pod_name.outputs.pod_name }} -- bash -c "curl --max-time $MAX_WAIT_TIME_IN_SECONDS -s -w '\n\n%{http_code}' -X POST '$URL' -H 'accept: application/json' -H 'Content-Type: application/json' -d '{\"sampleTreatmentFilters\":{\"filters\":[]},\"patientTreatmentFilters\":{\"filters\":[]},\"studyIds\":[\"msk_impact_2017\"]}'" > curl.out
+          kubectl exec -it ${{ steps.extract_pod_name.outputs.pod_name }} -- bash -c "curl --max-time $MAX_WAIT_TIME_IN_SECONDS -s -w '\n\n%{http_code}' -X POST '$URL' -H 'accept: application/json' -H 'Content-Type: application/json' -d '{\"sampleTreatmentFilters\":{\"filters\":[]},\"patientTreatmentFilters\":{\"filters\":[]},\"studyIds\":[\"genie_public\"]}'" > curl.out
           RESPONSE_CODE=`tail -1 curl.out`
           RESPONSE_BODY=`head -1 curl.out`
           if [ "$RESPONSE_CODE" != "$OK_RESPONSE_CODE" ]; then

@@ -17,16 +17,16 @@ jobs:
       - name: Rename deployment
         run: |
          sed "s/cbioportal-performance-test\b/${{ steps.extract_tags.outputs.image_tag }}/g" .github/k8s/cbioportal_performance_test.yaml > /tmp/cbioportal_performance_test.yaml
-      - name: Docker build with cache
-        uses: whoan/docker-build-with-cache-action@v4
-        with:
-          username: "${{ secrets.DOCKER_USERNAME_PIPELINES }}"
-          password: "${{ secrets.DOCKER_PASSWORD_PIPELINES }}"
-          image_name: cbioportalpipelines/cbioportal
-          image_tag: ${{ steps.extract_tags.outputs.image_tag }}
-          context: .
-          dockerfile: docker/web/Dockerfile
-          pull_image_and_stages: false
+#      - name: Docker build with cache
+#        uses: whoan/docker-build-with-cache-action@v4
+#        with:
+#          username: "${{ secrets.DOCKER_USERNAME_PIPELINES }}"
+#          password: "${{ secrets.DOCKER_PASSWORD_PIPELINES }}"
+#          image_name: cbioportalpipelines/cbioportal
+#          image_tag: ${{ steps.extract_tags.outputs.image_tag }}
+#          context: .
+#          dockerfile: docker/web/Dockerfile
+#          pull_image_and_stages: false
       - name: Set context for kubectl cluster
         uses: azure/k8s-set-context@v1
         with:
@@ -266,28 +266,13 @@ jobs:
         env:
           MAX_WAIT_TIME_IN_SECONDS: 180 
           URL: "http://localhost:8888/api/mutated-genes/fetch"
-          OK_RESPONSE_CODE: 200
-          EMPTY_LIST_RESPONSE: "[]"
           SEARCH_STR: "entrezGeneId"
         run: |
-          kubectl exec -it ${{ steps.extract_pod_name.outputs.pod_name }} -- bash -c "curl --max-time $MAX_WAIT_TIME_IN_SECONDS -s -w '\n\n%{http_code}' -X POST '$URL' -H 'accept: application/json' -H 'Content-Type: application/json' -d '{\"studyIds\": [ \"genie_public\" ]}'" > curl.out
-          RESPONSE_CODE=`tail -1 curl.out`
-          RESPONSE_BODY=`head -1 curl.out`
-          if [ "$RESPONSE_CODE" != "$OK_RESPONSE_CODE" ]; then
-            echo "Request failed with response code '$RESPONSE_CODE', expected '$OK_RESPONSE_CODE'"
-            exit 1
-          else
-            if [ "$RESPONSE_BODY" == "$EMPTY_LIST_RESPONSE" ] || [ -z "$RESPONSE_BODY" ]; then 
-                echo "Request failed with empty response"
-                exit 1
-            else
-                if [[ "$RESPONSE_BODY" != *"$SEARCH_STR"* ]]; then
-                    echo "Response did not contain search string '$SEARCH_STR'"
-                    exit 1
-                fi
-            fi
-            exit 0
-          fi
+          . ./.github/k8s/curl.sh ${{ steps.extract_pod_name.outputs.pod_name }} $MAX_WAIT_TIME_IN_SECONDS  genie_publica $URL $SEARCH_STR
+      #    if [ $? -ne 0 ]; then
+      #      exit 1
+      #    fi
+      #    exit 0
       - name: POST Request for /sample-list-counts endpoint
         env:
           MAX_WAIT_TIME_IN_SECONDS: 180 
@@ -318,31 +303,31 @@ jobs:
         if: ${{ always() }}
         run: |
           kubectl delete -f /tmp/cbioportal_performance_test.yaml
-      - name: DELETE request to dockerhub
-        if: ${{ always() }}
-        env:
-          MAX_WAIT_TIME_IN_SECONDS: 180
-          URL: "https://hub.docker.com/v2/repositories/cbioportalpipelines/cbioportal/tags/${{ steps.extract_tags.outputs.image_tag }}/"
-          OK_RESPONSE_CODE: 204
-
-        # DELETE request to URL with a MAX_WAIT_TIME_IN_SECONDS second limit
-        #   if curl fails, automatically exit with curl's non-zero exit code
-        #   else if we did not get a OK_RESPONSE_CODE exit with a non-zero exit code
-        #   else we are OK!
-        run: |
-          JWT_TOKEN_SECRET="`curl -s -H "Content-Type: application/json" -X POST -d '{"username": "'${{ secrets.DOCKER_USERNAME_PIPELINES }}'", "password": "${{ secrets.DOCKER_PASSWORD_PIPELINES }}"}' https://hub.docker.com/v2/users/login/ | sed 's/.*token": "//' | sed 's/"}//'`"
-          echo ${JWT_TOKEN_SECRET}
-          
-          echo "curl --max-time $MAX_WAIT_TIME_IN_SECONDS -s -o /dev/null -w '%{http_code}' -X DELETE -H 'Authorization: JWT ${JWT_TOKEN_SECRET}' '$URL'"
-          
-          curl --max-time $MAX_WAIT_TIME_IN_SECONDS -s -o /dev/null -w "%{http_code}" -X DELETE -H "Authorization: JWT ${JWT_TOKEN_SECRET}" "$URL" > curl.out
-          RESPONSE_CODE=`cat curl.out`
-          if [ "$RESPONSE_CODE" != "$OK_RESPONSE_CODE" ]; then
-            echo "Request failed with response code '$RESPONSE_CODE', expected '$OK_RESPONSE_CODE'"
-            exit 1
-          else
-            echo "Request succeeded with expected response code '$OK_RESPONSE_CODE'"
-            exit 0
-          fi
+#      - name: DELETE request to dockerhub
+#        if: ${{ always() }}
+#        env:
+#          MAX_WAIT_TIME_IN_SECONDS: 180
+#          URL: "https://hub.docker.com/v2/repositories/cbioportalpipelines/cbioportal/tags/${{ steps.extract_tags.outputs.image_tag }}/"
+#          OK_RESPONSE_CODE: 204
+#
+#        # DELETE request to URL with a MAX_WAIT_TIME_IN_SECONDS second limit
+#        #   if curl fails, automatically exit with curl's non-zero exit code
+#        #   else if we did not get a OK_RESPONSE_CODE exit with a non-zero exit code
+#        #   else we are OK!
+#        run: |
+#          JWT_TOKEN_SECRET="`curl -s -H "Content-Type: application/json" -X POST -d '{"username": "'${{ secrets.DOCKER_USERNAME_PIPELINES }}'", "password": "${{ secrets.DOCKER_PASSWORD_PIPELINES }}"}' https://hub.docker.com/v2/users/login/ | sed 's/.*token": "//' | sed 's/"}//'`"
+#          echo ${JWT_TOKEN_SECRET}
+#          
+#          echo "curl --max-time $MAX_WAIT_TIME_IN_SECONDS -s -o /dev/null -w '%{http_code}' -X DELETE -H 'Authorization: JWT ${JWT_TOKEN_SECRET}' '$URL'"
+#          
+#          curl --max-time $MAX_WAIT_TIME_IN_SECONDS -s -o /dev/null -w "%{http_code}" -X DELETE -H "Authorization: JWT ${JWT_TOKEN_SECRET}" "$URL" > curl.out
+#          RESPONSE_CODE=`cat curl.out`
+#          if [ "$RESPONSE_CODE" != "$OK_RESPONSE_CODE" ]; then
+#            echo "Request failed with response code '$RESPONSE_CODE', expected '$OK_RESPONSE_CODE'"
+#            exit 1
+#          else
+#            echo "Request succeeded with expected response code '$OK_RESPONSE_CODE'"
+#            exit 0
+#          fi
 
 # Reference: https://github.com/marketplace/actions/build-docker-images-using-cache

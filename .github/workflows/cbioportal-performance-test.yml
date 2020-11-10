@@ -52,32 +52,22 @@ jobs:
           URL: "http://localhost:8888/api/filtered-samples/fetch"
         run: |
           kubectl exec -it ${{ steps.extract_pod_name.outputs.pod_name }} -- bash -c "curl --max-time $MAX_WAIT_TIME_IN_SECONDS -s -X POST '$URL' -H 'accept: application/json' -H 'Content-Type: application/json' -d '{\"studyIds\": [ \"genie_public\" ]}' | jq --join-output --compact-output '[.[]|{sampleId: .\"sampleId\", studyId: \"genie_public\"}]' > samples.json; jq --join-output --compact-output '{sampleIdentifiers: [.[]]}' samples.json > sampleIdentifiers.json"
+      - name: POST Request for /mutated-genes endpoint
+        env:
+          MAX_WAIT_TIME_IN_SECONDS: 180 
+          URL: "http://localhost:8888/api/mutated-genes/fetch"
+          SEARCH_STR: "entrezGeneId"
+          POST_BODY: "{\"studyIds\": [ \"genie_public\" ]}"
+        run: |
+          . ./.github/k8s/curl.sh ${{ steps.extract_pod_name.outputs.pod_name }} "$MAX_WAIT_TIME_IN_SECONDS"  "$URL" "$SEARCH_STR" "$POST_BODY"
       - name: POST Request for /cna-genes endpoint
         env:
           MAX_WAIT_TIME_IN_SECONDS: 180
           URL: "http://localhost:8888/api/cna-genes/fetch"
-          OK_RESPONSE_CODE: 200
-          EMPTY_LIST_RESPONSE: "[]"
           SEARCH_STR: "entrezGeneId"
+          POST_BODY: "@sampleIdentifiers.json"
         run: |
-          kubectl exec -it ${{ steps.extract_pod_name.outputs.pod_name }} -- bash -c "curl --max-time $MAX_WAIT_TIME_IN_SECONDS -s -w '\n\n%{http_code}' -X POST '$URL' -H 'accept: application/json' -H 'Content-Type: application/json' -d '@sampleIdentifiers.json'" > curl.out
-          RESPONSE_CODE=`tail -1 curl.out`
-          RESPONSE_BODY=`head -1 curl.out`
-          if [ "$RESPONSE_CODE" != "$OK_RESPONSE_CODE" ]; then
-            echo "Request failed with response code '$RESPONSE_CODE', expected '$OK_RESPONSE_CODE'"
-            exit 1
-          else
-            if [ "$RESPONSE_BODY" == "$EMPTY_LIST_RESPONSE" ] || [ -z "$RESPONSE_BODY" ]; then 
-                echo "Request failed with empty response"
-                exit 1
-            else
-                if [[ "$RESPONSE_BODY" != *"$SEARCH_STR"* ]]; then
-                    echo "Response did not contain search string '$SEARCH_STR'"
-                    exit 1
-                fi
-            fi
-            exit 0
-          fi
+          . ./.github/k8s/curl.sh ${{ steps.extract_pod_name.outputs.pod_name }} "$MAX_WAIT_TIME_IN_SECONDS"  "$URL" "$SEARCH_STR" "$POST_BODY"
       - name: POST Request for /treatments/patient endpoint
         env:
           MAX_WAIT_TIME_IN_SECONDS: 180
@@ -214,91 +204,26 @@ jobs:
         env:
           MAX_WAIT_TIME_IN_SECONDS: 180
           URL: "http://localhost:8888/api/clinical-data-counts/fetch"
-          OK_RESPONSE_CODE: 200
-          EMPTY_LIST_RESPONSE: "[]"
           SEARCH_STR: "SAMPLE_COUNT"
+          POST_BODY: "{\"attributes\":[{\"attributeId\":\"CANCER_TYPE\"},{\"attributeId\":\"CANCER_TYPE_DETAILED\"},{\"attributeId\":\"SAMPLE_COUNT\"},{\"attributeId\":\"SEX\"},{\"attributeId\":\"ETHNICITY\"},{\"attributeId\":\"SAMPLE_TYPE\"},{\"attributeId\":\"CENTER\"},{\"attributeId\":\"ONCOTREE_CODE\"},{\"attributeId\":\"PRIMARY_RACE\"},{\"attributeId\":\"SAMPLE_TYPE_DETAILED\"},{\"attributeId\":\"SECONDARY_RACE\"},{\"attributeId\":\"SEQ_ASSAY_ID\"},{\"attributeId\":\"TERTIARY_RACE\"}],\"studyViewFilter\":{\"studyIds\":[\"genie_public\"],\"patientTreatmentFilters\":{\"filters\":[]},\"sampleTreatmentFilters\":{\"filters\":[]}}}"
         run: |
-          kubectl exec -it ${{ steps.extract_pod_name.outputs.pod_name }} -- bash -c "curl --max-time $MAX_WAIT_TIME_IN_SECONDS -s -w '\n\n%{http_code}' -X POST '$URL' -H 'accept: application/json' -H 'Content-Type: application/json' -d '{\"attributes\":[{\"attributeId\":\"CANCER_TYPE\"},{\"attributeId\":\"CANCER_TYPE_DETAILED\"},{\"attributeId\":\"SAMPLE_COUNT\"},{\"attributeId\":\"SEX\"},{\"attributeId\":\"ETHNICITY\"},{\"attributeId\":\"SAMPLE_TYPE\"},{\"attributeId\":\"CENTER\"},{\"attributeId\":\"ONCOTREE_CODE\"},{\"attributeId\":\"PRIMARY_RACE\"},{\"attributeId\":\"SAMPLE_TYPE_DETAILED\"},{\"attributeId\":\"SECONDARY_RACE\"},{\"attributeId\":\"SEQ_ASSAY_ID\"},{\"attributeId\":\"TERTIARY_RACE\"}],\"studyViewFilter\":{\"studyIds\":[\"genie_public\"],\"patientTreatmentFilters\":{\"filters\":[]},\"sampleTreatmentFilters\":{\"filters\":[]}}}'" > curl.out
-          RESPONSE_CODE=`tail -1 curl.out`
-          RESPONSE_BODY=`head -1 curl.out`
-          if [ "$RESPONSE_CODE" != "$OK_RESPONSE_CODE" ]; then
-            echo "Request failed with response code '$RESPONSE_CODE', expected '$OK_RESPONSE_CODE'"
-            exit 1
-          else
-            if [ "$RESPONSE_BODY" == "$EMPTY_LIST_RESPONSE" ] || [ -z "$RESPONSE_BODY" ]; then 
-                echo "Request failed with empty response"
-                exit 1
-            else
-                if [[ "$RESPONSE_BODY" != *"$SEARCH_STR"* ]]; then
-                    echo "Response did not contain search string '$SEARCH_STR'"
-                    exit 1
-                fi
-            fi
-            exit 0
-          fi
+          . ./.github/k8s/curl.sh ${{ steps.extract_pod_name.outputs.pod_name }} "$MAX_WAIT_TIME_IN_SECONDS" "$URL" "$SEARCH_STR" "$POST_BODY"
       - name: POST Request for /clinical-data-density-plot endpoint
         env:
           MAX_WAIT_TIME_IN_SECONDS: 180
           URL: "http://localhost:8888/api/clinical-data-density-plot/fetch?xAxisAttributeId=FRACTION_GENOME_ALTERED&xAxisBinCount=50&xAxisEnd=1&xAxisStart=0&yAxisAttributeId=MUTATION_COUNT&yAxisBinCount=52&yAxisStart=0"
-          OK_RESPONSE_CODE: 200
-          EMPTY_LIST_RESPONSE: "[]"
           SEARCH_STR: "count"
+          POST_BODY: "@sampleIdentifiers.json"
         run: |
-          kubectl exec -it ${{ steps.extract_pod_name.outputs.pod_name }} -- bash -c "curl --max-time $MAX_WAIT_TIME_IN_SECONDS -s -w '\n\n%{http_code}' -X POST '$URL' -H 'accept: application/json' -H 'Content-Type: application/json' -d '@sampleIdentifiers.json'" > curl.out
-          RESPONSE_CODE=`tail -1 curl.out`
-          RESPONSE_BODY=`head -1 curl.out`
-          if [ "$RESPONSE_CODE" != "$OK_RESPONSE_CODE" ]; then
-            echo "Request failed with response code '$RESPONSE_CODE', expected '$OK_RESPONSE_CODE'"
-            exit 1
-          else
-            if [ "$RESPONSE_BODY" == "$EMPTY_LIST_RESPONSE" ] || [ -z "$RESPONSE_BODY" ]; then 
-                echo "Request failed with empty response"
-                exit 1
-            else
-                if [[ "$RESPONSE_BODY" != *"$SEARCH_STR"* ]]; then
-                    echo "Response did not contain search string '$SEARCH_STR'"
-                    exit 1
-                fi
-            fi
-            exit 0
-          fi
-      - name: POST Request for /mutated-genes endpoint
-        env:
-          MAX_WAIT_TIME_IN_SECONDS: 180 
-          URL: "http://localhost:8888/api/mutated-genes/fetch"
-          SEARCH_STR: "entrezGeneId"
-        run: |
-          . ./.github/k8s/curl.sh ${{ steps.extract_pod_name.outputs.pod_name }} $MAX_WAIT_TIME_IN_SECONDS  genie_publica $URL $SEARCH_STR
-      #    if [ $? -ne 0 ]; then
-      #      exit 1
-      #    fi
-      #    exit 0
+          . ./.github/k8s/curl.sh ${{ steps.extract_pod_name.outputs.pod_name }} "$MAX_WAIT_TIME_IN_SECONDS" "$URL" "$SEARCH_STR" "$POST_BODY"
       - name: POST Request for /sample-list-counts endpoint
         env:
           MAX_WAIT_TIME_IN_SECONDS: 180 
           URL: "http://localhost:8888/api/sample-lists-counts/fetch"
-          OK_RESPONSE_CODE: 200
-          EMPTY_LIST_RESPONSE: "[]"
           SEARCH_STR: "count"
+          POST_BODY: "{\"sampleTreatmentFilters\":{\"filters\":[]},\"patientTreatmentFilters\":{\"filters\":[]},\"studyIds\":[\"genie_public\"]}"
         run: |
-          kubectl exec -it ${{ steps.extract_pod_name.outputs.pod_name }} -- bash -c "curl --max-time $MAX_WAIT_TIME_IN_SECONDS -s -w '\n\n%{http_code}' -X POST '$URL' -H 'accept: application/json' -H 'Content-Type: application/json' -d '{\"sampleTreatmentFilters\":{\"filters\":[]},\"patientTreatmentFilters\":{\"filters\":[]},\"studyIds\":[\"genie_public\"]}'" > curl.out
-          RESPONSE_CODE=`tail -1 curl.out`
-          RESPONSE_BODY=`head -1 curl.out`
-          if [ "$RESPONSE_CODE" != "$OK_RESPONSE_CODE" ]; then
-            echo "Request failed with response code '$RESPONSE_CODE', expected '$OK_RESPONSE_CODE'"
-            exit 1
-          else
-            if [ "$RESPONSE_BODY" == "$EMPTY_LIST_RESPONSE" ] || [ -z "$RESPONSE_BODY" ]; then 
-                echo "Request failed with empty response"
-                exit 1
-            else
-                if [[ "$RESPONSE_BODY" != *"$SEARCH_STR"* ]]; then
-                    echo "Response did not contain search string '$SEARCH_STR'"
-                    exit 1
-                fi
-            fi
-            exit 0
-          fi
+          . ./.github/k8s/curl.sh ${{ steps.extract_pod_name.outputs.pod_name }} "$MAX_WAIT_TIME_IN_SECONDS" "$URL" "$SEARCH_STR" "$POST_BODY"
       - name: Delete pod
         if: ${{ always() }}
         run: |

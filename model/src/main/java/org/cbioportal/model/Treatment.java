@@ -34,7 +34,7 @@ public class Treatment implements Serializable {
         this.patientId = patientId;
     }
 
-    public int getStart() {
+    public Integer getStart() {
         return start;
     }
 
@@ -42,7 +42,7 @@ public class Treatment implements Serializable {
         this.start = start;
     }
 
-    public int getStop() {
+    public Integer getStop() {
         return stop;
     }
 

@@ -79,7 +79,7 @@ public class CustomRedisCachingProvider {
         config.useMasterSlaveServers()
                 .setMasterAddress(leaderAddress)
                 .addSlaveAddress(followerAddress)
-                .setDatabase(database);
+                .setDatabase(database)
                 .setPassword(password);
         
         RedissonClient redissonClient = Redisson.create(config);

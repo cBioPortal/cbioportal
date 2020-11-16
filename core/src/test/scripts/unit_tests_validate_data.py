@@ -1364,6 +1364,22 @@ class MutationsSpecialCasesTestCase(PostClinicalDataFileTestCase):
         self.assertIn('HGVSp_Short', record.getMessage())
         self.assertEqual(record.line_number, 8)
 
+    def throw_error_if_hgvsp_short_is_too_long(self):
+        """Test that an error is thrown if HGVSp_Short value is too long."""
+        # set level according to this test case:
+        self.logger.setLevel(logging.WARNING)
+        record_list = self.validate(
+                'mutations/data_mutations_too_long_hgvsp_short.maf',
+                validateData.MutationsExtendedValidator,
+                extra_meta_fields={'swissprot_identifier': 'accession'})
+        self.assertEqual(len(record_list), 1)
+        record_iterator = iter(record_list)
+        # expect an error for the second entry, first one should not throw any message
+        record = next(record_iterator)
+        self.assertEqual(record.levelno, logging.ERROR)
+        self.assertIn('HGVSp_Short', record.getMessage())
+        self.assertEqual(record.line_number, 2)
+
     def test_isValidVariantClassification(self):
         """Test if proper warnings/errors are given for wrong/blank Variant_Classification change vals."""
         # set level according to this test case:

@@ -1636,6 +1636,14 @@ class MutationsExtendedValidator(CustomDriverAnnotationValidator):
                     'mutation record will get a generic "MUTATED" flag',
                     extra={'line_number': self.line_number})
 
+        # Report non-supported 'HGVSp_Short' with more than 255 characters.
+        if 'HGVSp_Short' in self.cols:
+            if len(data[self.cols.index('HGVSp_Short')]) > 255:
+                self.logger.error(
+                    'cBioPortal does not support values longer than 255 '
+                    'characters in "HGVSp_Short"',
+                    extra={'line_number': self.line_number})
+
     # If strict mode is enforced, log message from mutation checks should be error,
     # otherwise warning
     def send_log_message(self, strict_maf_checks, log_message, extra_dict):

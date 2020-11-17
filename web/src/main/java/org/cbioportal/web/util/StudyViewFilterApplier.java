@@ -240,14 +240,20 @@ public class StudyViewFilterApplier {
             }
         }
         
-        if (studyViewFilter.getSampleTreatmentFilters() != null) {
+        if (
+            studyViewFilter.getSampleTreatmentFilters() != null && 
+            !studyViewFilter.getSampleTreatmentFilters().getFilters().isEmpty()
+        ) {
             sampleIdentifiers = sampleTreatmentFilterApplier.filter(
                 studyViewFilter.getSampleTreatmentFilters(),
                 sampleIdentifiers
             );
         }
 
-        if (studyViewFilter.getPatientTreatmentFilters() != null) {
+        if (
+            studyViewFilter.getPatientTreatmentFilters() != null && 
+            !studyViewFilter.getPatientTreatmentFilters().getFilters().isEmpty()
+        ) {
             sampleIdentifiers = patientTreatmentFilterApplier.filter(
                 sampleIdentifiers,
                 studyViewFilter.getPatientTreatmentFilters()

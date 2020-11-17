@@ -100,7 +100,7 @@
                 </if>
                 <if test="@java.util.Arrays@stream(studyIds.toArray()).distinct().count() > 1">
                     cancer_study.CANCER_STUDY_IDENTIFIER IN
-                    <foreach item="item" collection="@java.util.Arrays@stream(studyIds.toArray()).distinct().collect(@java.util.stream.Collectors.toList())" open="(" separator="," close=")">
+                        <foreach item="item" collection="@java.util.Arrays@stream(studyIds.toArray()).distinct().collect(@java.util.stream.Collectors@toList())" open="(" separator="," close=")">
                         #{item}
                     </foreach>
                     AND (cancer_study.CANCER_STUDY_IDENTIFIER, sample.STABLE_ID) IN

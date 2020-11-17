@@ -6,6 +6,7 @@ import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.EnumUtils;
@@ -27,23 +28,31 @@ public class MutationMapperUtils {
     private GeneService geneService;
 
     public List<StructuralVariant> mapFusionsToStructuralVariants(List<Mutation> fusions,
-            Map<String, String> molecularProfileIdReplaceMap) {
+            Map<String, String> molecularProfileIdReplaceMap, Boolean filterByProteinChange) {
 
         
         // gene symbols containing "-" is not considered in the pattern
         String pattern = "^([a-zA-Z0-9_.]+)(?:-|_|\\s)([a-zA-Z0-9_.]+)(?:\\s+(\\w+))?$";
         Pattern r = Pattern.compile(pattern);
 
-        Map<String, Mutation> uniqueFusionMap = new HashMap<String, Mutation>();
+        List<Mutation> filteredFusions = fusions;
 
-        fusions.forEach(fusion -> {
-            String uniqueKey = fusion.getStudyId() + fusion.getSampleId() + fusion.getProteinChange();
-            if (!uniqueFusionMap.containsKey(uniqueKey)) {
-                uniqueFusionMap.put(uniqueKey, fusion);
-            }
-        });
+        if (filterByProteinChange) {
+            Map<String, Mutation> uniqueFusionMap = new HashMap<String, Mutation>();
+            fusions.forEach(fusion -> {
+                String uniqueKey = fusion.getStudyId() + fusion.getSampleId() + fusion.getProteinChange();
+                // Only consider unique protein changes for the study-sample and
+                // also first preference for fusions where protein change starts
+                // with the gene as there are duplicate records for both the genes in protein changes.
+                if (!uniqueFusionMap.containsKey(uniqueKey)
+                        || fusion.getProteinChange().toUpperCase().startsWith(fusion.getGene().getHugoGeneSymbol())) {
+                    uniqueFusionMap.put(uniqueKey, fusion);
+                }
+            });
+            filteredFusions = uniqueFusionMap.values().stream().collect(Collectors.toList());
+        }
 
-        return uniqueFusionMap.values().stream().map(fusion -> {
+        return filteredFusions.stream().map(fusion -> {
             StructuralVariant structuralVariant = new StructuralVariant();
 
             // Sample details

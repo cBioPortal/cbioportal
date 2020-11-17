@@ -75,7 +75,7 @@ public class StructuralVariantServiceImpl implements StructuralVariantService {
 
         List<StructuralVariant> variantsFromMutationtable = mutationMapperUtils.mapFusionsToStructuralVariants(
                 mutationRepository.getFusionsInMultipleMolecularProfiles(mutationMolecularProfileIds, sampleIds, entrezGeneIds,
-                        "DETAILED", null, null, null, null), molecularProfileIdReplaceMap);
+                        "DETAILED", null, null, null, null), molecularProfileIdReplaceMap, CollectionUtils.isEmpty(entrezGeneIds));
         // TODO: Remove once fusions are removed from mutation table
 
         return Stream.concat(structuralVariants.stream(), variantsFromMutationtable.stream())

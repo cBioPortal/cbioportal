@@ -1,4 +1,15 @@
-## Oct 16, 2020
+## November 3, 2020
+*   **New Feature**: The [map](https://www.cbioportal.org/installations) of local installations of cBioPortal is available now. Please consider registering your instance [here](http://bit.ly/2XW3wNG ).
+![image](https://user-images.githubusercontent.com/840895/99544685-96f41d00-2982-11eb-9de2-457a4456c294.png)
+
+*   **Enhancement**: upgraded the _Genomic Evolution_ tab in _Patient View_ with timeline [Example](https://www.cbioportal.org/patient/genomicEvolution?caseId=P04&studyId=lgg_ucsf_2014)
+![image](https://user-images.githubusercontent.com/840895/99543852-a3c44100-2981-11eb-8f53-14a0b51b767c.png)
+
+## October 20, 2020
+*   **Enhancement**: _Expression_ tab has now been merged into the _Plots_ tab
+![image](https://user-images.githubusercontent.com/840895/99565969-4ee0f480-299a-11eb-8371-8cfd09c6e4ba.png)
+
+## October 16, 2020
 *   **Added data** consisting of 25,078 samples from 5 studies:
      * [Melanomas (TCGA, Cell 2015)](https://cbioportal.org/study/summary?id=skcm_tcga_pub_2015) *359 samples* 
      * [Retinoblastoma cfDNA (MSKCC 2020)](https://www.cbioportal.org/study/summary?id=rbl_cfdna_msk_2020) *14 samples* 
@@ -14,6 +25,16 @@ The normals samples RNA-Seq V2 expression data were curated from [GDC](https://g
 
 ![image](https://user-images.githubusercontent.com/840895/96191246-b32f1500-0f11-11eb-8727-bcfdd2d724a3.png)
 
+## October 13, 2020
+*   **Enhancement**: _Study View_ now allows comparing samples with mutations or copy number alterations in different genes
+![image](https://user-images.githubusercontent.com/840895/99558433-ba729400-2991-11eb-9054-1d8751b4d84f.png)
+
+*   **New Feature**: When treatment timeline is available (e.g. in [this study](https://www.cbioportal.org/study/summary?id=lgg_ucsf_2014)), _Study View_ now allows the selection and comparison of patients treated with specific drugs, or samples sequenced pre or post specific drug treatments
+![image](https://user-images.githubusercontent.com/840895/99556958-248a3980-2990-11eb-97e3-d833518f8aef.png)
+
+## September 30, 2020
+*   **New Feature**: Mutational signature data is available for comparison now. [Example: comparing colorectal subtypes for enriched microbiome signatures](https://www.cbioportal.org/comparison/generic_assay_microbiome_signature?sessionId=5dea8bbde4b05f1dfb8ace51)
+![image](https://user-images.githubusercontent.com/840895/99566847-666cad00-299b-11eb-91d3-21b21f267733.png)
 
 ## September 22, 2020
 

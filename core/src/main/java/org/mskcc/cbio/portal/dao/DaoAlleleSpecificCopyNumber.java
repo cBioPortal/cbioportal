@@ -44,6 +44,7 @@ public final class DaoAlleleSpecificCopyNumber {
             throw new DaoException("You have to turn on MySQLbulkLoader in order to insert allele specific copy numbers");
         } else {
             int result = 1;
+            /*
             MySQLbulkLoader.getMySQLbulkLoader("allele_specific_copy_number").insertRecord(
                 resolveValueToString(ascn.getMutationEventId()),
                 resolveValueToString(ascn.getGeneticProfileId()),
@@ -56,6 +57,8 @@ public final class DaoAlleleSpecificCopyNumber {
                 resolveValueToString(ascn.getMinorCopyNumber()),
                 resolveValueToString(ascn.getExpectedAltCopies()),
                 resolveValueToString(ascn.getTotalCopyNumber()));
+            */
+            System.out.println("Logging being done in an inappropriate way");
             return result;
         }
     }

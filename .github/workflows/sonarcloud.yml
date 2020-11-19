@@ -32,5 +32,5 @@ jobs:
       - name: Build and analyze
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}  # Needed to get PR information, if any
-          SONAR_TOKEN: 60ed98047d5a3c34799cfba7a33bbdbbd49207bf
+          SONAR_TOKEN:  60ed98047d5a3c34799cfba7a33bbdbbd49207bf
         run: mvn -DskipTests clean install verify org.sonarsource.scanner.maven:sonar-maven-plugin:sonar

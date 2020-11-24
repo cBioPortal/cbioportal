@@ -31,5 +31,5 @@ jobs:
           restore-keys: ${{ runner.os }}-m2
       - name: Build and analyze
         env:
-          SONAR_TOKEN:  de1b5cc660cd210dde840f492c371da6cc801763f
+          SONAR_TOKEN:  de1b5cc660cd210dde840f492c371da6cc801763
         run: mvn -DskipTests clean install verify org.sonarsource.scanner.maven:sonar-maven-plugin:sonar

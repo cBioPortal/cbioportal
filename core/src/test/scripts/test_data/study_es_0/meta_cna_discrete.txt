@@ -6,3 +6,4 @@ show_profile_in_analysis_tab: true
 profile_description: Putative copy-number from GISTIC 2.0. Values: -2 = homozygous deletion; -1 = hemizygous deletion; 0 = neutral / no change; 1 = gain; 2 = high level amplification.
 profile_name: Putative copy-number alterations from GISTIC
 data_filename: data_cna_discrete.txt
+pd_annotations_filename: data_cna_pd_annotations.txt

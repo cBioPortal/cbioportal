@@ -985,7 +985,7 @@ Suggested columns
  * **RESULT**: corresponding value of the test
  * Based on different cancer types you can add additional data here.
 
-Special: When using the TEST and RESULT columns, each test gets its own track and the dots are sized by the values of the RESULT if the TEST is PSA, ALK, TEST, HGB, PHOS or LDH. 
+Special: When using the TEST and RESULT columns, each test gets its own track. Any TEST that has only numerical RESULT values will be rendered as a line chart.
 
 _**EVENT_TYPE: IMAGING**_
 

@@ -86,7 +86,7 @@ The cBioPortal for Cancer Genomics is an open-access, open-source resource for i
 #### How do I get started?
 Check out our [tutorial slides](https://www.cbioportal.org/tutorials) to get started or go through our [tutorial paper](https://www.ncbi.nlm.nih.gov/pubmed/23550210).
 #### What data types are in the portal?
-The portal supports and stores non-synonymous mutations, DNA copy-number data (putative, discrete values per gene, e.g. "deeply deleted" or "amplified", as well as log2 or linear copy number data), mRNA and microRNA expression data, protein-level and phosphoprotein level data (RPPA or mass spectrometry based), DNA methylation data, and de-identified clinical data. For a complete breakdown of available data types per cancer study go to the [Data Sets Page](https://www.cbioportal.org/data_sets.jsp). Note that for many studies, only somatic mutation data and limited clinical data are available. For TCGA studies, the other data types are also available. Germline mutations are supported by cBioPortal, but are, with a few exceptions, not available in the public instance.
+The portal supports and stores non-synonymous mutations, DNA copy-number data (putative, discrete values per gene, e.g. "deeply deleted" or "amplified", as well as log2 or linear copy number data), mRNA and microRNA expression data, protein-level and phosphoprotein level data (RPPA or mass spectrometry based), DNA methylation data, and de-identified clinical data. For a complete breakdown of available data types per cancer study go to the [Data Sets Page](https://www.cbioportal.org/datasets). Note that for many studies, only somatic mutation data and limited clinical data are available. For TCGA studies, the other data types are also available. Germline mutations are supported by cBioPortal, but are, with a few exceptions, not available in the public instance.
 #### What is the process of data curation?
 The TCGA firehose legacy datasets are imported directly from the original TCGA Data Coordinating Center via the [Broad Firehose](https://gdac.broadinstitute.org/).
 
@@ -132,7 +132,7 @@ The Network tab was retired on November 1, 2019. We will soon release a new feat
 ## Data Questions
 ### General Data
 #### Does the portal contain cancer study X?
-Check out the [Data Sets Page](https://www.cbioportal.org/data_sets.jsp) for the complete set of cancer studies currently stored in the portal. If you do not see your specific cancer study of interest, please [contact us](mailto:cbioportal@googlegroups.com), and we will let you know if it's in the queue.
+Check out the [Data Sets Page](https://www.cbioportal.org/datasets) for the complete set of cancer studies currently stored in the portal. If you do not see your specific cancer study of interest, please [contact us](mailto:cbioportal@googlegroups.com), and we will let you know if it's in the queue.
 #### Which resources are integrated for variant annotation?
 cBioPortal supports the annotation of variants from several different databases. These databases provide information about the recurrence of, or prior knowledge about, specific amino acid changes. For each variant, the number of occurrences of mutations at the same amino acid position present in the COSMIC database are reported. Furthermore, variants are annotated as “hotspots” if the amino acid positions were found to be recurrent linear hotspots, as defined by the Cancer Hotspots method ([cancerhotspots.org](https://www.cancerhotspots.org/)), or three-dimensional hotspots, as defined by 3D Hotspots ([3dhotspots.org](https://www.3dhotspots.org/)). Prior knowledge about variants, including clinical actionability information, is provided from three different sources: OncoKB ([www.oncokb.org](https://www.oncokb.org/)), CIViC ([civicdb.org](https://civicdb.org/)), as well as My Cancer Genome ([mycancergenome.org](https://www.mycancergenome.org/)). For OncoKB, exact levels of clinical actionability are displayed in cBioPortal, as defined by [the OncoKB paper](https://ascopubs.org/doi/full/10.1200/PO.17.00011).
 #### What version of the human reference genome is being used in cBioPortal?
@@ -142,9 +142,9 @@ The cBioPortal generally assumes that samples or patients that have the same ID 
 #### Are there any normal tissue samples available through cBioPortal?
 No, we currently do not store any normal tissue data in our system.
 #### How can I find which studies have mRNA expression data (or any other specific data type)?
-Check out the [Data Sets Page](https://www.cbioportal.org/data_sets.jsp) where you can view the complete set of cancer studies and sort by the number of samples with data available for any data type.
+Check out the [Data Sets Page](https://www.cbioportal.org/datasets) where you can view the complete set of cancer studies and sort by the number of samples with data available for any data type.
 #### Can I download all data at once?
-You can download all data for individual studies on the [Data Sets Page](https://www.cbioportal.org/data_sets.jsp) or the study view page for the study of interest. You can also download all studies from our [Data Hub](https://github.com/cBioPortal/datahub).
+You can download all data for individual studies on the [Data Sets Page](https://www.cbioportal.org/datasets) or the study view page for the study of interest. You can also download all studies from our [Data Hub](https://github.com/cBioPortal/datahub).
 #### The data today is different than the last time I looked. What happened?
 We do occasionally update existing datasets to provide the most up-to-date, accurate and consistent data possible. The data you see today is likely an improved version of what you have seen previously. However, if you suspect that there is an error in the current version, please let us know at [cbioportal@googlegroups.com](mailto:cbioportal@googlegroups.com).
 
@@ -246,9 +246,9 @@ There is currently no way to definitively determine whether a mutation is hetero
 
 Specifically in the case of TCGA samples with two mutations in the same gene, you can also obtain access to the aligned sequencing reads from the [GDC](https://portal.gdc.cancer.gov/) and check if the mutations are in cis or in trans (if the mutations are close enough to each other).
 #### How can I query over/under expression of a gene?
-cBioPortal supports Onco Query Language (OQL) which can be used to query over/under expression of a gene. When writing a query, select an mRNA expression profile. By default, samples with expression z-scores >2 or <-2 in any queried genes are considered altered. Alternate cut-offs can be defined using OQL, for example: "EGFR: EXP>2" will query for samples with an EGFR expression z-score >2. Review for the OQL [specification page](https://www.cbioportal.org/onco_query_lang_desc.jsp) or [tutorial slides](https://www.cbioportal.org/tutorials#oql) for more specifics and examples.
+cBioPortal supports Onco Query Language (OQL) which can be used to query over/under expression of a gene. When writing a query, select an mRNA expression profile. By default, samples with expression z-scores >2 or <-2 in any queried genes are considered altered. Alternate cut-offs can be defined using OQL, for example: "EGFR: EXP>2" will query for samples with an EGFR expression z-score >2. Review for the OQL [specification page](https://www.cbioportal.org/oql) or [tutorial slides](https://www.cbioportal.org/tutorials#oql) for more specifics and examples.
 #### How can I compare outcomes in patients with high vs low expression of a gene?
-To compare outcomes in patients with high vs low expression of a gene (excluding those patients with intermediate levels of expression), we will follow a 2 step process that builds on the approach described above in [How can I query/explore a select subset of samples?](#how-can-i-queryexplore-a-select-subset-of-samples), utilizing [OQL](https://www.cbioportal.org/onco_query_lang_desc.jsp) to first identify and then stratify that cases of interest.
+To compare outcomes in patients with high vs low expression of a gene (excluding those patients with intermediate levels of expression), we will follow a 2 step process that builds on the approach described above in [How can I query/explore a select subset of samples?](#how-can-i-queryexplore-a-select-subset-of-samples), utilizing [OQL](https://www.cbioportal.org/oql) to first identify and then stratify that cases of interest.
 
 First, identify the sample set using OQL. For example, to stratify patients based on expression of EGFR, add an mRNA profile to the query, and write "EGFR: EXP>2 EXP<-2" in the gene set box. After running the query, go to the Download tab and copy/download the “Samples affected” list.
 
@@ -265,12 +265,12 @@ OncoPrints are compact means of visualizing distinct genomic alterations, includ
 #### Can I change the order of genes in the OncoPrint?
 By default, the order of genes in the OncoPrint will be the same as in your query. You can change the order by (a) clicking on the gene name and dragging it up/down or (b) clicking on the three vertical dots next to the gene name to move the gene up/down.
 #### Can I visualize my own data within an OncoPrint?
-Yes, check out the OncoPrinter tool on our [Visualize Your Data page](https://www.cbioportal.org/tools.jsp).
+Yes, check out the OncoPrinter tool on our [Visualize Your Data page](https://www.cbioportal.org/visualize).
 #### Why are some samples “Not profiled” for certain genes?
 Some studies include data from one or more targeted sequencing platforms which do not include all genes. For samples sequenced on these smaller panels, cBioPortal will indicate that a particular gene was not included on the sequencing panel used for that sample. Alteration frequency calculations for each gene also take this information into account. Hover over a sample in OncoPrint to see the gene panel name, and click on that gene panel name to view a list of the genes included on that panel.
 ### Other pages
 #### Does the Mutual Exclusivity tab calculate its statistics using all samples/alterations or only a specific subset?
-The calculations on the Mutual Exclusivity tab are performed using all samples included in the query. A sample is defined as altered or unaltered for each gene based on the [OQL](https://www.cbioportal.org/onco_query_lang_desc.jsp) utilized in the query - by default, this will be non-synonymous mutations, fusions, amplifications and deep deletions.
+The calculations on the Mutual Exclusivity tab are performed using all samples included in the query. A sample is defined as altered or unaltered for each gene based on the [OQL](https://www.cbioportal.org/oql) utilized in the query - by default, this will be non-synonymous mutations, fusions, amplifications and deep deletions.
 #### What are the values of the box and whiskers in a boxplot?
 In boxplots on cBioPortal, the box is drawn from the 25th percentile (Q1) to the 75th percentile (Q3), with the horizontal line in between representing the median. Whiskers are drawn independently above and below the box, and will extend to the maximum or minimum data values, unless there are outlier values, in which case the whisker will extend to 1.5 * IQR (interquartile range = Q3-Q1). Outliers are defined as values that extend beyond 1.5 * IQR.
 

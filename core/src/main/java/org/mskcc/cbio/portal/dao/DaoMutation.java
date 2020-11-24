@@ -60,6 +60,18 @@ public final class DaoMutation {
                 //add event first, as mutation has a Foreign key constraint to the event:
                 result = addMutationEvent(mutation.getEvent())+1;
             }
+            if (mutation.getDriverFilter() != null || mutation.getDriverTiersFilter() != null) {
+                MySQLbulkLoader.getMySQLbulkLoader("alteration_driver_annotation").insertRecord(
+                    Long.toString(mutation.getMutationEventId()),
+                    Integer.toString(mutation.getGeneticProfileId()),
+                    Integer.toString(mutation.getSampleId()),
+                    mutation.getDriverFilter(),
+                    mutation.getDriverFilterAnn(),
+                    mutation.getDriverTiersFilter(),
+                    mutation.getDriverTiersFilterAnn()
+                );
+            }
+
             MySQLbulkLoader.getMySQLbulkLoader("mutation").insertRecord(
                     Long.toString(mutation.getMutationEventId()),
                     Integer.toString(mutation.getGeneticProfileId()),
@@ -90,10 +102,6 @@ public final class DaoMutation {
                     (mutation.getNormalRefCount() == null) ? null : Integer.toString(mutation.getNormalRefCount()),
                     //AminoAcidChange column is not used
                     null,
-                    mutation.getDriverFilter(),
-                    mutation.getDriverFilterAnn(),
-                    mutation.getDriverTiersFilter(),
-                    mutation.getDriverTiersFilterAnn(),
                     mutation.getAnnotationJson());
             return result;
         }
@@ -1548,7 +1556,7 @@ public final class DaoMutation {
                 try {
                     con = JdbcUtil.getDbConnection(DaoMutation.class);
                     pstmt = con.prepareStatement(
-                            "SELECT DISTINCT DRIVER_TIERS_FILTER FROM mutation "
+                            "SELECT DISTINCT DRIVER_TIERS_FILTER FROM alteration_driver_annotation "
                             + "WHERE DRIVER_TIERS_FILTER is not NULL AND DRIVER_TIERS_FILTER <> '' AND GENETIC_PROFILE_ID=? "
                             + "ORDER BY DRIVER_TIERS_FILTER");
                     pstmt.setLong(1, geneticProfile.getGeneticProfileId());
@@ -1604,7 +1612,7 @@ public final class DaoMutation {
                 try {
                     con = JdbcUtil.getDbConnection(DaoMutation.class);
                     pstmt = con.prepareStatement(
-                            "SELECT DISTINCT DRIVER_FILTER FROM mutation "
+                            "SELECT DISTINCT DRIVER_FILTER FROM alteration_driver_annotation "
                             + "WHERE DRIVER_FILTER is not NULL AND DRIVER_FILTER <> '' AND GENETIC_PROFILE_ID=? ");
                     pstmt.setLong(1, geneticProfile.getGeneticProfileId());
                     rs = pstmt.executeQuery();

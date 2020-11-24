@@ -100,10 +100,10 @@ public class StructuralVariantMyBatisRepositoryTest {
         Assert.assertEquals(null, structuralVariantFirstResult.getLength());
         Assert.assertEquals("Gain-of-Function", structuralVariantFirstResult.getComments());
         Assert.assertEquals("COSMIC:COSF509", structuralVariantFirstResult.getExternalAnnotation());
-        Assert.assertEquals(null, structuralVariantFirstResult.getDriverFilter());
-        Assert.assertEquals(null, structuralVariantFirstResult.getDriverFilterAnn());
-        Assert.assertEquals(null, structuralVariantFirstResult.getDriverTiersFilter());
-        Assert.assertEquals(null, structuralVariantFirstResult.getDriverTiersFilterAnn());
+        Assert.assertEquals("Putative_Passenger", structuralVariantFirstResult.getDriverFilter());
+        Assert.assertEquals("Pathogenic", structuralVariantFirstResult.getDriverFilterAnn());
+        Assert.assertEquals("Tier 1", structuralVariantFirstResult.getDriverTiersFilter());
+        Assert.assertEquals("Potentially Actionable", structuralVariantFirstResult.getDriverTiersFilterAnn());
         StructuralVariant structuralVariantSecondResult = result.get(1);
         Assert.assertEquals("study_tcga_pub_sv", structuralVariantSecondResult.getMolecularProfileId());
         Assert.assertEquals(5, structuralVariantSecondResult.getStructuralVariantId());

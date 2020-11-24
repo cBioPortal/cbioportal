@@ -10,7 +10,11 @@
         patient.STABLE_ID AS patientId,
         cna_event.ENTREZ_GENE_ID as entrezGeneId,
         cna_event.ALTERATION AS alteration,
-        cancer_study.CANCER_STUDY_IDENTIFIER AS studyId
+        cancer_study.CANCER_STUDY_IDENTIFIER AS studyId,
+        alteration_driver_annotation.DRIVER_FILTER AS driverFilter,
+        alteration_driver_annotation.DRIVER_FILTER_ANNOTATION AS driverFilterAnnotation,
+        alteration_driver_annotation.DRIVER_TIERS_FILTER AS driverTiersFilter,
+        alteration_driver_annotation.DRIVER_TIERS_FILTER_ANNOTATION AS driverTiersFilterAnnotation
         <if test="projection == 'DETAILED'">
             ,
             <include refid="org.cbioportal.persistence.mybatis.GeneMapper.select">
@@ -26,6 +30,10 @@
         INNER JOIN sample ON sample_cna_event.SAMPLE_ID = sample.INTERNAL_ID
         INNER JOIN patient ON sample.PATIENT_ID = patient.INTERNAL_ID
         INNER JOIN cancer_study ON patient.CANCER_STUDY_ID = cancer_study.CANCER_STUDY_ID
+        LEFT JOIN alteration_driver_annotation ON
+            sample_cna_event.GENETIC_PROFILE_ID = alteration_driver_annotation.GENETIC_PROFILE_ID
+            and sample_cna_event.SAMPLE_ID = alteration_driver_annotation.SAMPLE_ID
+            and sample_cna_event.CNA_EVENT_ID = alteration_driver_annotation.ALTERATION_EVENT_ID
     </sql>
 
     <sql id="where">

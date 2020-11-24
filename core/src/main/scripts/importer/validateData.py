@@ -761,7 +761,7 @@ class Validator(object):
             gene_symbol = gene_symbol.upper()
             if self.portal.species == "human":
                 # Check in case gene symbol is not null if it starts with an integer
-                if gene_symbol is not '':
+                if gene_symbol != '':
                     # Check if the gene_symbol starts with a number
                     if gene_symbol[0] in ['0', '1', '2', '3', '4', '5', '6', '7', '8', '9']:
                         # In case portal properties are defined check if the gene symbol that starts
@@ -903,40 +903,6 @@ class Validator(object):
                            'cause': gene_symbol})
 
         return identified_entrez_id
-
-    def checkDriverAnnotationColumn(self, driver_value=None, driver_annotation=None):
-        """Ensures that cbp_driver_annotation is filled when the cbp_driver column
-        contains "Putative_Driver" or "Putative_Passenger".
-        """
-        if driver_annotation is None and (driver_value is "Putative_Driver" or driver_value is "Putative_Passenger"):
-            self.logger.error(
-                'This line does not contain a value '
-                'for cbp_driver_annotation, and cbp_driver '
-                'contains "Putative_Driver" or '
-                '"Putative_Passenger".',
-                extra={'line_number': self.line_number,
-                       'cause': driver_annotation})
-        return None
-
-    def checkDriverTiersColumnsValues(self, driver_tiers_value=None, driver_tiers_annotation=None):
-        """Ensures that there are no mutations with one multiclass column filled and
-        the other empty.
-        """
-        if driver_tiers_value is None and driver_tiers_annotation is not None:
-            self.logger.error(
-                'This line has no value for cbp_driver_tiers '
-                'and a value for cbp_driver_tiers_annotation. '
-                'Please, fill the cbp_driver_tiers column.',
-                extra={'line_number': self.line_number,
-                       'cause': driver_tiers_value})
-        if driver_tiers_annotation is None and driver_tiers_value is not None:
-            self.logger.error(
-                'This line has no value for cbp_driver_annotation '
-                'and a value for cbp_driver_tiers. Please, fill '
-                'the annotation column.',
-                extra={'line_number': self.line_number,
-                       'cause': driver_tiers_annotation})
-        return None
 
     def _checkRepeatedColumns(self):
         num_errors = 0
@@ -1237,12 +1203,224 @@ class CNADiscreteValidator(CNAValidator):
                            'column_number': col_index + 1,
                            'cause': value})
 
+    def validate(self):
+        super(CNADiscreteValidator, self).validate()
+        if 'pd_annotations_filename' in self.meta_dict:
+            study_dir = os.path.dirname(self.filename)
+            meta_dict = dict(self.meta_dict)
+            meta_dict['data_filename'] = self.meta_dict['pd_annotations_filename']
+            annotations_validator = CNADiscretePDAAnnotationsValidator(study_dir, meta_dict, self.portal,
+                self.logger.logger, self.relaxed_mode, self.strict_maf_checks)
+            annotations_validator.data_entrez_gene_ids = set(self._feature_id_lines.keys())
+            annotations_validator.validate()
+
+class CustomDriverAnnotationValidator(Validator):
+
+    NULL_DRIVER_VALUES = ('Putative_Passenger', 'Putative_Driver', 'NA', 'Unknown', '')
+    NULL_DRIVER_TIERS_VALUES = ('', 'NA')
+    CUSTOM_DRIVER_CHECK_FUNCTION_MAP = {
+        'cbp_driver': 'checkDriver',
+        'cbp_driver_tiers': 'checkDriverTiers',
+        'cbp_driver_annotation': 'checkFilterAnnotation',
+        'cbp_driver_tiers_annotation': 'checkFilterAnnotation',
+    }
+
+    def __init__(self, *args, **kwargs):
+        super(CustomDriverAnnotationValidator, self).__init__(*args, **kwargs)
+        self.extra_exists = False
+        self.extra = ''
+        self.tiers = set()
+
+    def checkHeader(self, cols):
+        # raise errors if the filter_annotations are found without the "filter" columns
+        num_errors = super(CustomDriverAnnotationValidator, self).checkHeader(cols)
+        if 'cbp_driver_annotation' in cols and 'cbp_driver' not in cols:
+            self.logger.error('Column cbp_driver_annotation '
+                              'found without any cbp_driver '
+                              'column.', extra={'column_number': cols.index('cbp_driver_annotation')})
+            num_errors += 1
+        if 'cbp_driver_tiers_annotation' in cols and 'cbp_driver_tiers' not in cols:
+            self.logger.error('Column cbp_driver_tiers_annotation '
+                              'found without any cbp_driver_tiers '
+                              'column.', extra={'column_number': cols.index('cbp_driver_tiers_annotation')})
+            num_errors += 1
+        # raise errors if the "filter" columns are found without the filter_annotations
+        if 'cbp_driver' in cols and 'cbp_driver_annotation' not in cols:
+            self.logger.error('Column cbp_driver '
+                              'found without any cbp_driver_annotation '
+                              'column.', extra={'column_number': cols.index('cbp_driver')})
+            num_errors += 1
+        if 'cbp_driver_tiers' in cols and 'cbp_driver_tiers_annotation' not in cols:
+            self.logger.error('Column cbp_driver_tiers '
+                              'found without any cbp_driver_tiers_annotation '
+                              'column.', extra={'column_number': cols.index('cbp_driver_tiers')})
+            num_errors += 1
+        return num_errors
+
+    def checkLine(self, data):
+        super(CustomDriverAnnotationValidator, self).checkLine(data)
+        has_custom_driver_cols = len(list(set(self.cols) & set(self.CUSTOM_DRIVER_CHECK_FUNCTION_MAP.keys()))) > 0
+        if not has_custom_driver_cols:
+            return
+        
+        driver_value, driver_annotation, driver_tiers_value, driver_tiers_annotation = self.parsePdAnnotations(data)
+        if driver_tiers_annotation is not None and driver_tiers_value is None:
+            self.logger.error(
+                'This line has no value for cbp_driver_tiers '
+                'and a value for cbp_driver_tiers_annotation. '
+                'Please, fill the cbp_driver_tiers column.',
+                extra={'line_number': self.line_number,
+                       'cause': driver_tiers_value})
+
+        for col_index, col_name in enumerate(self.cols):
+            # validate the column if there's a function defined for it
+            try:
+                check_function_name = self.CUSTOM_DRIVER_CHECK_FUNCTION_MAP[col_name]
+            except KeyError:
+                pass
+            else:
+                col_index = self.cols.index(col_name)
+                value = data[col_index]
+                # get the checking method for this column
+                checking_function = getattr(self, check_function_name)
+                if not checking_function(value):
+                    self.printDataInvalidStatement(value, col_index)
+
+    def parsePdAnnotations(self, data):
+        driver_value = None
+        driver_annotation = None
+        driver_tiers_value = None
+        driver_tiers_annotation = None
+        if 'cbp_driver' in self.cols:
+            driver_value = data[self.cols.index('cbp_driver')].strip()
+            # treat the empty string as a missing value
+            if driver_value in (''):
+                driver_value = None
+        if 'cbp_driver_annotation' in self.cols:
+            driver_annotation = data[self.cols.index('cbp_driver_annotation')].strip()
+            # treat the empty string as a missing value
+            if driver_annotation in (''):
+                driver_annotation = None
+        if 'cbp_driver_tiers' in self.cols:
+            driver_tiers_value = data[self.cols.index('cbp_driver_tiers')].strip()
+            # treat the empty string as a missing value
+            if driver_tiers_value in (''):
+                driver_tiers_value = None
+        if 'cbp_driver_tiers_annotation' in self.cols:
+            driver_tiers_annotation = data[self.cols.index('cbp_driver_tiers_annotation')].strip()
+            # treat the empty string as a missing value
+            if driver_tiers_annotation in (''):
+                driver_tiers_annotation = None
+        return driver_value, driver_annotation, driver_tiers_value, driver_tiers_annotation
+
+    def checkDriver(self, value):
+        """Validate the values in the cbp_driver column."""
+        if value not in self.NULL_DRIVER_VALUES:
+            self.extra = 'Only "Putative_Passenger", "Putative_Driver", "NA", "Unknown" and "" (empty) are allowed.'
+            self.extra_exists = True
+            return False
+        return True
+
+    def checkDriverTiers(self, value):
+        """Report the tiers in the cbp_driver_tiers column (skipping the empty values)."""
+        if value not in self.NULL_DRIVER_TIERS_VALUES:
+            self.logger.info('Values contained in the column cbp_driver_tiers that will appear in the "Mutation Color" '
+                             'menu of the Oncoprint',
+                             extra={'line_number': self.line_number, 'column_number': self.cols.index('cbp_driver_tiers'), 'cause': value})
+            self.tiers.add(value)
+        if len(self.tiers) > 10:
+            self.logger.warning('cbp_driver_tiers contains more than 10 different tiers.',
+                                extra={'line_number': self.line_number, 'column_number': self.cols.index('cbp_driver_tiers'),
+                                       'cause': value})
+        if len(value) > 50:
+            self.extra= 'cbp_driver_tiers column does not support values longer than 50 characters'
+            self.extra_exists = True
+            return False
+        return True
+
+    def checkFilterAnnotation(self, value):
+        """Check if the annotation values are smaller than 80 characters."""
+        if len(value) > 80:
+            self.extra = 'cbp_driver_annotation and cbp_driver_tiers_annotation columns do not support annotations longer than 80 characters'
+            self.extra_exists = True
+            return False
+        return True
+
+    def printDataInvalidStatement(self, value, col_index):
+        """Prints out statement for invalid values detected."""
+        message = ("Value in column '%s' is invalid" %
+                   self.cols[col_index])
+        if self.extra_exists:
+            message = self.extra
+            self.extra = ''
+            self.extra_exists = False
+        self.logger.error(
+            message,
+            extra={'line_number': self.line_number,
+                   'column_number': col_index + 1,
+                   'cause': value})
+
+class CNADiscretePDAAnnotationsValidator(CustomDriverAnnotationValidator):
+    REQUIRED_HEADERS = [
+        'SAMPLE_ID'
+    ]
+    OPTIONAL_HEADERS = [
+        'Hugo_Symbol',
+        'Entrez_Gene_Id',
+        'cbp_driver',
+        'cbp_driver_annotation',
+        'cbp_driver_tiers',
+        'cbp_driver_tiers_annotation'
+    ]
+    REQUIRE_COLUMN_ORDER = False
+    ALLOW_BLANKS = True
+
+    def __init__(self, *args, **kwargs):
+        super(CNADiscretePDAAnnotationsValidator, self).__init__(*args, **kwargs)
+        self.data_entrez_gene_ids = None
+        self.entrez_gene_ids = set()
+        self.extraCols = []
+
+    def checkHeader(self, cols):
+        num_errors = super(CNADiscretePDAAnnotationsValidator, self).checkHeader(cols)
+        if ('Hugo_Symbol' not in cols and
+                'Entrez_Gene_Id' not in cols):
+            self.logger.error('Hugo_Symbol or Entrez_Gene_Id column needs to be present in the file.',
+                              extra={'line_number': self.line_number})
+            num_errors += 1
+        return num_errors
+
+    def checkLine(self, data):
+        super(CNADiscretePDAAnnotationsValidator, self).checkLine(data)
+        sample_id_index = self.cols.index('SAMPLE_ID')
+        self.checkSampleId(data[sample_id_index], column_number = sample_id_index + 1)
+
+        entrez_gene_id = None
+        hugo_symbol = None
+        if 'Entrez_Gene_Id' in self.cols:
+            if data[self.cols.index('Entrez_Gene_Id')] != '':
+                entrez_gene_id = data[self.cols.index('Entrez_Gene_Id')]
+        if 'Hugo_Symbol' in self.cols:
+            if data[self.cols.index('Hugo_Symbol')] != '':
+                hugo_symbol = data[self.cols.index('Hugo_Symbol')]
+        entrez_gene_id = self.checkGeneIdentification(hugo_symbol, entrez_gene_id)
+        self.entrez_gene_ids.add(entrez_gene_id)
+
+    def onComplete(self):
+        """Perform final validations based on the data parsed."""
+        if self.data_entrez_gene_ids is not None:
+            extra_entrez_gene_ids = self.entrez_gene_ids.difference(self.data_entrez_gene_ids)
+            if (extra_entrez_gene_ids):
+                self.logger.error(
+                    'Following Entrez_Gene_Id are present in pd annotation file, but not in CNA data [%s]',
+                    ', '.join([ str(id) for id in extra_entrez_gene_ids ]))
+        super(CNADiscretePDAAnnotationsValidator, self).onComplete()
 
 class CNAContinuousValuesValidator(CNAValidator, ContinuousValuesValidator):
     """Logic to validate continuous CNA data."""
 
 
-class MutationsExtendedValidator(Validator):
+class MutationsExtendedValidator(CustomDriverAnnotationValidator):
     """Sub-class mutations_extended validator."""
 
     # TODO - maybe this should comply to https://wiki.nci.nih.gov/display/TCGA/Mutation+Annotation+Format+%28MAF%29+Specification ?
@@ -1267,8 +1445,6 @@ class MutationsExtendedValidator(Validator):
     ]
 
     NULL_AA_CHANGE_VALUES = ('', 'NULL', 'NA')
-    NULL_DRIVER_VALUES = ('Putative_Passenger', 'Putative_Driver', 'NA', 'Unknown', '')
-    NULL_DRIVER_TIERS_VALUES = ('', 'NA')
 
     # extra unofficial Variant classification values from https://github.com/mskcc/vcf2maf/issues/88:
     EXTRA_VARIANT_CLASSIFICATION_VALUES = ['Splice_Region', 'Fusion']
@@ -1317,36 +1493,18 @@ class MutationsExtendedValidator(Validator):
         'SWISSPROT': 'checkSwissProt',
         'Start_Position': 'checkStartPosition',
         'End_Position': 'checkEndPosition',
-        'cbp_driver': 'checkDriver',
-        'cbp_driver_tiers': 'checkDriverTiers',
-        'cbp_driver_annotation': 'checkFilterAnnotation',
-        'cbp_driver_tiers_annotation': 'checkFilterAnnotation',
         'Mutation_Status': 'checkMutationStatus'
     }
 
     def __init__(self, *args, **kwargs):
         super(MutationsExtendedValidator, self).__init__(*args, **kwargs)
-        # FIXME: consider making this attribute a local var in in checkLine(),
-        # it really only makes sense there
         self.extraCols = []
-        self.extra_exists = False
-        self.extra = ''
-        self.tiers = set()
 
     def checkHeader(self, cols):
         """Validate header, requiring at least one gene id column."""
         num_errors = super(MutationsExtendedValidator, self).checkHeader(cols)
-        if not ('Hugo_Symbol' in self.cols or 'Entrez_Gene_Id' in self.cols):
-            self.logger.error('At least one of the columns Hugo_Symbol or '
-                              'Entrez_Gene_Id needs to be present.',
-                              extra={'line_number': self.line_number})
-            num_errors += 1
-        elif ('Entrez_Gene_Id' not in self.cols):
-            self.logger.warning('The recommended column Entrez_Gene_Id was not found. '
-                                'Using Hugo_Symbol for all gene parsing',
-                                extra={'line_number': self.line_number})
 
-        if not 'SWISSPROT' in self.cols:
+        if not 'SWISSPROT' in cols:
             self.logger.warning(
                 'Including the SWISSPROT column is recommended to make sure '
                 'that the UniProt canonical isoform is used when drawing Pfam '
@@ -1357,34 +1515,14 @@ class MutationsExtendedValidator(Validator):
                 "A SWISSPROT column was found in datafile without specifying "
                 "associated 'swissprot_identifier' in metafile, assuming "
                 "'swissprot_identifier: name'.",
-                extra={'column_number': self.cols.index('SWISSPROT') + 1})
+                extra={'column_number': cols.index('SWISSPROT') + 1})
 
         # one of these columns should be present:
-        if not ('HGVSp_Short' in self.cols or 'Amino_Acid_Change' in self.cols):
+        if not ('HGVSp_Short' in cols or 'Amino_Acid_Change' in cols):
             self.logger.error('At least one of the columns HGVSp_Short or '
                               'Amino_Acid_Change needs to be present.',
                               extra={'line_number': self.line_number})
             num_errors += 1
-
-        # raise errors if the filter_annotations are found without the "filter" columns
-        if 'cbp_driver_annotation' in self.cols and 'cbp_driver' not in self.cols:
-            self.logger.error('Column cbp_driver_annotation '
-                              'found without any cbp_driver '
-                              'column.', extra={'column_number': self.cols.index('cbp_driver_annotation')})
-        if 'cbp_driver_tiers_annotation' in self.cols and 'cbp_driver_tiers' not in self.cols:
-            self.logger.error('Column cbp_driver_tiers_annotation '
-                              'found without any cbp_driver_tiers '
-                              'column.', extra={'column_number': self.cols.index('cbp_driver_tiers_annotation')})
-
-        # raise errors if the "filter" columns are found without the filter_annotations
-        if 'cbp_driver' in self.cols and 'cbp_driver_annotation' not in self.cols:
-            self.logger.error('Column cbp_driver '
-                              'found without any cbp_driver_annotation '
-                              'column.', extra={'column_number': self.cols.index('cbp_driver')})
-        if 'cbp_driver_tiers' in self.cols and 'cbp_driver_tiers_annotation' not in self.cols:
-            self.logger.error('Column cbp_driver_tiers '
-                              'found without any cbp_driver_tiers_annotation '
-                              'column.', extra={'column_number': self.cols.index('cbp_driver_tiers')})
 
         namespaces = []
         missing_ascn_columns = []
@@ -1397,7 +1535,7 @@ class MutationsExtendedValidator(Validator):
 
         if ascn_namespace_defined:
             for required_ascn_column in self.REQUIRED_ASCN_COLUMNS:
-                if required_ascn_column not in self.cols:
+                if required_ascn_column not in cols:
                     missing_ascn_columns.append(required_ascn_column)
             if len(missing_ascn_columns) > 0:
                 self.logger.error('ASCN namespace defined but MAF '
@@ -1408,7 +1546,7 @@ class MutationsExtendedValidator(Validator):
         for namespace in namespaces:
             defined_namespace = namespace.strip().lower()
             if defined_namespace != 'ascn':
-                defined_namespace_found = any([True for col in self.cols if col.lower().startswith(defined_namespace + '.')])
+                defined_namespace_found = any([True for col in cols if col.lower().startswith(defined_namespace + '.')])
                 if not defined_namespace_found:
                     self.logger.error('%s namespace defined but MAF '
                                       'does not have any matching columns' % (defined_namespace))
@@ -1426,7 +1564,6 @@ class MutationsExtendedValidator(Validator):
         self.extra_exists to True, self.extra will be used in this
         message.
         """
-
         super(MutationsExtendedValidator, self).checkLine(data)
         if self.skipValidation(data):
             return
@@ -1482,33 +1619,6 @@ class MutationsExtendedValidator(Validator):
             if panel_id in self.portal.gene_panel_list and panel_id != 'NA':
                 self.checkOffPanelVariant(data, normalized_gene, panel_id, hugo_symbol, entrez_id)
 
-        # parse custom driver annotation values to validate them together
-        driver_value = None
-        driver_annotation = None
-        driver_tiers_value = None
-        driver_tiers_annotation = None
-        if 'cbp_driver' in self.cols:
-            driver_value = data[self.cols.index('cbp_driver')].strip()
-            # treat the empty string as a missing value
-            if driver_value in (''):
-                driver_value = None
-        if 'cbp_driver_annotation' in self.cols:
-            driver_annotation = data[self.cols.index('cbp_driver_annotation')].strip()
-            # treat the empty string as a missing value
-            if driver_annotation in (''):
-                driver_annotation = None
-        if 'cbp_driver_tiers' in self.cols:
-            driver_tiers_value = data[self.cols.index('cbp_driver_tiers')].strip()
-            # treat the empty string as a missing value
-            if driver_tiers_value in (''):
-                driver_tiers_value = None
-        if 'cbp_driver_tiers_annotation' in self.cols:
-            driver_tiers_annotation = data[self.cols.index('cbp_driver_tiers_annotation')].strip()
-            # treat the empty string as a missing value
-            if driver_tiers_annotation in (''):
-                driver_tiers_annotation = None
-        self.checkDriverAnnotationColumn(driver_value, driver_annotation)
-        self.checkDriverTiersColumnsValues(driver_tiers_value, driver_tiers_annotation)
 
         # check if a non-blank amino acid change exists for non-splice sites
         if ('Variant_Classification' not in self.cols or
@@ -1518,13 +1628,13 @@ class MutationsExtendedValidator(Validator):
             for aa_col in ('HGVSp_Short', 'Amino_Acid_Change'):
                 if (aa_col in self.cols and
                         data[self.cols.index(aa_col)] not in
-                                self.NULL_AA_CHANGE_VALUES):
+                        self.NULL_AA_CHANGE_VALUES):
                     aachange_value_found = True
             if not aachange_value_found:
                 self.logger.warning(
-                        'No Amino_Acid_Change or HGVSp_Short value. This '
-                            'mutation record will get a generic "MUTATED" flag',
-                        extra={'line_number': self.line_number})
+                    'No Amino_Acid_Change or HGVSp_Short value. This '
+                    'mutation record will get a generic "MUTATED" flag',
+                    extra={'line_number': self.line_number})
 
     # If strict mode is enforced, log message from mutation checks should be error,
     # otherwise warning
@@ -1833,20 +1943,6 @@ class MutationsExtendedValidator(Validator):
                         extra={'line_number': self.line_number,
                         'cause': entrez_id})
 
-    def printDataInvalidStatement(self, value, col_index):
-        """Prints out statement for invalid values detected."""
-        message = ("Value in column '%s' is invalid" %
-                   self.cols[col_index])
-        if self.extra_exists:
-            message = self.extra
-            self.extra = ''
-            self.extra_exists = False
-        self.logger.error(
-            message,
-            extra={'line_number': self.line_number,
-                   'column_number': col_index + 1,
-                   'cause': value})
-
     # These functions check values of the MAF according to their name.
     # The mapping of which function checks which value is a global value
     # at the top of the script. If any other checks need to be added for
@@ -2108,39 +2204,6 @@ class MutationsExtendedValidator(Validator):
                        'column_number': self.cols.index('End_Position'),
                        'cause': value})
         # if no reasons to return with a message were found, return valid
-        return True
-
-    def checkDriver(self, value):
-        """Validate the values in the cbp_driver column."""
-        if value not in self.NULL_DRIVER_VALUES:
-            self.extra = 'Only "Putative_Passenger", "Putative_Driver", "NA", "Unknown" and "" (empty) are allowed.'
-            self.extra_exists = True
-            return False
-        return True
-
-    def checkDriverTiers(self, value):
-        """Report the tiers in the cbp_driver_tiers column (skipping the empty values)."""
-        if value not in self.NULL_DRIVER_TIERS_VALUES:
-            self.logger.info('Values contained in the column cbp_driver_tiers that will appear in the "Mutation Color" '
-                             'menu of the Oncoprint',
-                             extra={'line_number': self.line_number, 'column_number': self.cols.index('cbp_driver_tiers'), 'cause': value})
-            self.tiers.add(value)
-        if len(self.tiers) > 10:
-            self.logger.warning('cbp_driver_tiers contains more than 10 different tiers.',
-                                extra={'line_number': self.line_number, 'column_number': self.cols.index('cbp_driver_tiers'),
-                                       'cause': value})
-        if len(value) > 50:
-            self.extra= 'cbp_driver_tiers column does not support values longer than 50 characters'
-            self.extra_exists = True
-            return False
-        return True
-
-    def checkFilterAnnotation(self, value):
-        """Check if the annotation values are smaller than 80 characters."""
-        if len(value) > 80:
-            self.extra = 'cbp_driver_annotation and cbp_driver_tiers_annotation columns do not support annotations longer than 80 characters'
-            self.extra_exists = True
-            return False
         return True
 
     def checkMutationStatus(self, value):
@@ -4496,6 +4559,7 @@ def process_metadata_files(directory, portal_instance, logger, relaxed_mode, str
                  f in sorted(os.listdir(directory)) if
                  re.search(r'(\b|_)meta(\b|[_0-9])', f,
                            flags=re.IGNORECASE) and
+                 not f.startswith('ONCOKB_IMPORT_BACKUP') and
                  not f.startswith('.') and
                  not f.endswith('~')]
 
@@ -4738,7 +4802,7 @@ def processCaseListDirectory(caseListDir, cancerStudyId, logger,
 
             # Check for duplicate case list categories
             if meta_dictionary['case_list_category'] in previous_case_list_categories and \
-                    not meta_dictionary['case_list_category'] is 'other':
+                    not meta_dictionary['case_list_category'] == 'other':
                 logger.warning('Case list category already used in other case list. Both will be loaded',
                                extra={'filename_': case,
                                       'cause': meta_dictionary['case_list_category']})

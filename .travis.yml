@@ -14,7 +14,7 @@ env:
   matrix:
   - MAVEN_VERSION=3.5.4 TEST=core
   - MAVEN_VERSION=3.5.4 TEST=python-validator
-  - MAVEN_VERSION=3.5.4 TEST=python-oncokb-importer
+  - MAVEN_VERSION=3.5.4 TEST=python-oncokb-import
   - MAVEN_VERSION=3.5.4 TEST=python-oncokb-update
   - MAVEN_VERSION=3.5.4 TEST=sanity-checks
   - MAVEN_VERSION=3.5.4 TEST=end-to-end
@@ -53,7 +53,7 @@ script:
         python system_tests_validate_studies.py'
   fi
 - |
-  if [[ "${TEST}" == python-oncokb-importer ]]
+  if [[ "${TEST}" == python-oncokb-import ]]
   then
       docker run -v ${PWD}:/cbioportal python:3.6 /bin/sh -c '
         cd /cbioportal &&
@@ -133,16 +133,10 @@ script:
   then
     # load gene panels and study_es_0
     bash ../test/integration/test_load_study.sh
-
-    # back to main dir
-    cd -
   fi
 - |
   if [[ "${TEST}" == python-oncokb-update ]]
   then
     # update oncokb test
     bash ../test/integration/test_update_oncokb.sh
-
-    # back to main dir
-    cd -
   fi

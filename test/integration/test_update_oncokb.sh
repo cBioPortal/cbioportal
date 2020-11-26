@@ -19,5 +19,5 @@ run_in_service cbioportal 'metaImport.py -v -u http://cbioportal:8080 -o -s /cbi
 run_in_service cbioportal 'python3 /cbioportal/core/src/main/scripts/importer/updateOncokbAnnotations.py -s study_es_0 -p /cbioportal/portal.properties'
 
 # Check that mutation annotations have been updated
-# 4 annotations should be changed to "Putative_Driver"
-test `docker run -it --net cbioportal-docker-compose_cbio-net --rm mysql:5.7 sh -c 'mysql -h"localhost" -u"cbio_user" -p"somepassword" "cgds_test" -e "SELECT alteration_driver_annotation.DRIVER_FILTER from cbioportal.alteration_driver_annotation inner join genetic_profile on genetic_profile.GENETIC_PROFILE_ID = alteration_driver_annotation.GENETIC_PROFILE_ID inner join cancer_study on cancer_study.CANCER_STUDY_ID = genetic_profile.CANCER_STUDY_ID WHERE cancer_study.CANCER_STUDY_IDENTIFIER = \"study_es_0\";"' | cat | grep -c 'Putative_Driver'` -eq 4
+# 2 annotations should be changed to "Putative_Driver" (depends on OncoKB version)
+test `docker run -it --net cbioportal-docker-compose_cbio-net --rm mysql:5.7 sh -c 'mysql -h"localhost" -u"cbio_user" -p"somepassword" "cgds_test" -e "SELECT alteration_driver_annotation.DRIVER_FILTER from cbioportal.alteration_driver_annotation inner join genetic_profile on genetic_profile.GENETIC_PROFILE_ID = alteration_driver_annotation.GENETIC_PROFILE_ID inner join cancer_study on cancer_study.CANCER_STUDY_ID = genetic_profile.CANCER_STUDY_ID WHERE cancer_study.CANCER_STUDY_IDENTIFIER = \"study_es_0\";"' | cat | grep -c 'Putative_Driver'` -eq 2

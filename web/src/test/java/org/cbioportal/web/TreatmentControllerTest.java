@@ -139,18 +139,18 @@ public class TreatmentControllerTest {
 
     @Test
     public void getContainsTreatmentData() throws Exception {
+        List<String> studies = Arrays.asList("study_0", "study_1");
         Mockito
             .when(studyViewFilterApplier.apply(Mockito.any()))
             .thenReturn(sampleIdentifiers);
 
         Mockito
-            .when(treatmentService.containsTreatmentData(Mockito.anyList(), Mockito.anyList()))
+            .when(treatmentService.containsTreatmentData(Mockito.anyList()))
             .thenReturn(true);
 
-        mockMvc.perform(MockMvcRequestBuilders.post(
-            "/treatments/display")
+        mockMvc.perform(MockMvcRequestBuilders.post("/treatments/display-patient")
             .contentType(MediaType.APPLICATION_JSON)
-            .content(objectMapper.writeValueAsString(studyViewFilter)))
+            .content(objectMapper.writeValueAsString(studies)))
             .andExpect(MockMvcResultMatchers.status().isOk())
             .andExpect(MockMvcResultMatchers.jsonPath("$").value("true"));
     }

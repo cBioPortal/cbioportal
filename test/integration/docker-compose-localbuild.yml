@@ -1,0 +1,12 @@
+# this YAML file overrides settings in the cbioportal-docker-compose YAML
+# and maps a local maven build to appropriate locations in the container (which is retrieved by image).
+
+version: '3'
+
+services:
+  cbioportal:
+    command: /bin/sh -c "java -Xms2g -Xmx4g -Dauthenticate=noauthsessionservice -Dsession.service.url=http://cbioportal_session:5000/api/sessions/my_portal/ -jar webapp-runner.jar -AmaxHttpHeaderSize=16384 -AconnectionTimeout=20000 --enable-compression /app.war"
+    volumes:
+     - ./portalinfo/:/portalinfo/
+     - ../:/cbioportal
+     - ../portal/target/cbioportal.war:/app.war

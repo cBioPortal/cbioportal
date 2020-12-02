@@ -1,0 +1,2 @@
+A	B	SAMPLE_ID	cbp_driver	cbp_driver_annotation	cbp_driver_tiers	cbp_driver_tiers_annotation
+a	b	TCGA-A1-A0SB-01	Putative_Passenger	Test passenger	Class 2	Class annotation

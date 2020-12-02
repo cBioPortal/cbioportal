@@ -25,6 +25,7 @@ package org.mskcc.cbio.portal.model;
 
 public class StructuralVariant {
 
+    private long internalId;
     private int geneticProfileId;
     private long structuralVariantId;
     private int sampleIdInternal;
@@ -68,6 +69,13 @@ public class StructuralVariant {
     private String driverFilterAnn;
     private String driverTiersFilter;
     private String driverTiersFilterAnn;
+
+    public long getInternalId() {
+        return internalId;
+    }
+    public void setInternalId(long internalId) {
+        this.internalId = internalId;
+    }
 
     public int getGeneticProfileId() {
         return geneticProfileId;

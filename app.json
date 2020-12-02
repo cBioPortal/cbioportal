@@ -1,4 +1,5 @@
 {
+  "stack": "heroku-18",
   "name": "cBioPortal",
   "description":"The cBioPortal for Cancer Genomics provides visualization, analysis and download of large-scale cancer genomics data sets.",
   "repository":"https://github.com/cbioportal/cbioportal",

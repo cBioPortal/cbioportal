@@ -1,0 +1,174 @@
+apiVersion: extensions/v1beta1
+kind: Deployment
+metadata:
+  annotations:
+    deployment.kubernetes.io/revision: "4"
+  creationTimestamp: null
+  generation: 1
+  labels:
+    run: cbioportal-performance-test
+  name: cbioportal-performance-test
+  namespace: performance-test
+  selfLink: /apis/extensions/v1beta1/namespaces/performance-test/deployments/cbioportal-performance-test
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      run: cbioportal-performance-test
+  strategy:
+    rollingUpdate:
+      maxSurge: 1
+      maxUnavailable: 1
+    type: RollingUpdate
+  template:
+    metadata:
+      creationTimestamp: null
+      labels:
+        run: cbioportal-performance-test
+    spec:
+      #volumes:
+      #- name: ehcache-volume
+      #  emptyDir: {}
+      containers:
+      - envFrom:
+        - configMapRef:
+            name: cbioportal-genie-private
+        # image tag will be replaced by github action
+        image: cbioportalpipelines/cbioportal:thisisaplaceholder
+        #volumeMounts:
+        #- name: ehcache-volume
+        #  mountPath: /ehcache
+        command: [ "/usr/bin/java" ]
+        args: [
+            "-Xms2g",
+            "-Xmx10g",
+            "-XX:+UnlockExperimentalVMOptions",
+            "-XX:+UseShenandoahGC",
+            "-XX:ShenandoahUncommitDelay=1000",
+            "-XX:ShenandoahGuaranteedGCInterval=10000",
+            "-XX:+PrintFlagsFinal",
+            "-XshowSettings:vm",
+            "-Dcom.sun.management.jmxremote.rmi.port=8849",
+            "-Dcom.sun.management.jmxremote=false",
+            "-Dcom.sun.management.jmxremote.port=8849",
+            "-Dcom.sun.management.jmxremote.ssl=false",
+            "-Dcom.sun.management.jmxremote.authenticate=false",
+            "-Dcom.sun.management.jmxremote.local.only=false",
+            "-Djava.rmi.server.hostname=localhost",
+            "-Dfrontend.url=https://frontend.cbioportal.org",
+            "-Ddefault_cross_cancer_study_session_id=5c8a7d55e4b046111fee2296",
+            "-Dquick_search.enabled=true",
+            "-Dskin.footer=",
+            "-Dskin.right_nav.whats_new_blurb=",
+            "-Dskin.quick_select_buttons=TCGA PanCancer Atlas Studies#*pan_can_atlas*;Curated set of non-redundant studies|179 studies that are manually curated including TCGA and non-TCGA studies with no overlapping samples#acbc_mskcc_2015,acc_tcga_pan_can_atlas_2018,acyc_fmi_2014,acyc_mda_2015,acyc_mgh_2016,acyc_mskcc_2013,acyc_sanger_2013,all_phase2_target_2018_pub,all_stjude_2016,aml_target_2018_pub,ampca_bcm_2016,angs_project_painter_2018,bfn_duke_nus_2015,blca_bgi,blca_cornell_2016,blca_dfarber_mskcc_2014,blca_mskcc_solit_2012,blca_mskcc_solit_2014,blca_tcga_pan_can_atlas_2018,brca_bccrc,brca_broad,brca_igr_2015,brca_mbcproject_wagle_2017,brca_metabric,brca_sanger,brca_tcga_pan_can_atlas_2018,ccrcc_irc_2014,ccrcc_utokyo_2013,cesc_tcga_pan_can_atlas_2018,chol_jhu_2013,chol_nccs_2013,chol_nus_2012,chol_tcga_pan_can_atlas_2018,cll_iuopa_2015,cllsll_icgc_2011,coadread_dfci_2016,coadread_genentech,coadread_mskcc,coadread_tcga_pan_can_atlas_2018,cscc_dfarber_2015,cscc_hgsc_bcm_2014,ctcl_columbia_2015,desm_broad_2015,dlbc_tcga_pan_can_atlas_2018,dlbcl_dfci_2018,dlbcl_duke_2017,egc_tmucih_2015,es_dfarber_broad_2014,es_iocurie_2014,esca_broad,esca_tcga_pan_can_atlas_2018,escc_icgc,escc_ucla_2014,gbc_shanghai_2014,gbm_tcga_pan_can_atlas_2018,glioma_msk_2018,hcc_inserm_fr_2015,hcc_msk_venturaa_2018,hnsc_broad,hnsc_jhu,hnsc_mdanderson_2013,hnsc_tcga_pan_can_atlas_2018,kich_tcga_pan_can_atlas_2018,kirc_bgi,kirc_tcga_pan_can_atlas_2018,kirp_tcga_pan_can_atlas_2018,laml_tcga_pan_can_atlas_2018,lcll_broad_2013,lgg_tcga_pan_can_atlas_2018,lgg_ucsf_2014,liad_inserm_fr_2014,lihc_amc_prv,lihc_riken,lihc_tcga_pan_can_atlas_2018,luad_broad,luad_tcga_pan_can_atlas_2018,luad_tsp,lusc_tcga_pan_can_atlas_2018,mbl_broad_2012,mbl_pcgp,mbl_sickkids_2016,mcl_idibips_2013,mds_tokyo_2011,mel_tsam_liang_2017,meso_tcga_pan_can_atlas_2018,mixed_allen_2018,mixed_pipseq_2017,mm_broad,mpnst_mskcc,mrt_bcgsc_2016,msk_impact_2017,nbl_amc_2012,nbl_target_2018_pub,nbl_ucologne_2015,nccrcc_genentech_2014,nepc_wcm_2016,nhl_bcgsc_2011,nhl_bcgsc_2013,npc_nusingapore,nsclc_unito_2016,ov_tcga_pan_can_atlas_2018,paac_jhu_2014,paad_qcmg_uq_2016,paad_tcga_pan_can_atlas_2018,paad_utsw_2015,pact_jhu_2011,panet_arcnet_2017,panet_jhu_2011,panet_shanghai_2013,pcnsl_mayo_2015,pcpg_tcga_pan_can_atlas_2018,pediatric_dkfz_2017,plmeso_nyu_2015,prad_broad,prad_eururol_2017,prad_fhcrc,prad_mich,prad_mpcproject_2018,prad_mskcc,prad_mskcc_cheny1_organoids_2014,prad_tcga_pan_can_atlas_2018,rms_nih_2014,rt_target_2018_pub,sarc_mskcc,sarc_tcga_pan_can_atlas_2018,scco_mskcc,sclc_cancercell_gardner_2017,sclc_jhu,sclc_ucologne_2015,skcm_broad,skcm_broad_brafresist_2012,skcm_tcga_pan_can_atlas_2018,skcm_ucla_2016,skcm_vanderbilt_mskcc_2015,skcm_yale,stad_pfizer_uhongkong,stad_tcga_pan_can_atlas_2018,stad_utokyo,summit_2018,tet_nci_2014,tgct_tcga_pan_can_atlas_2018,thca_tcga_pan_can_atlas_2018,thym_tcga_pan_can_atlas_2018,uccc_nih_2017,ucec_tcga_pan_can_atlas_2018,ucs_jhu_2014,ucs_tcga_pan_can_atlas_2018,um_qimr_2016,urcc_mskcc_2016,utuc_mskcc_2015,uvm_tcga_pan_can_atlas_2018,vsc_cuk_2018,wt_target_2018_pub,acyc_jhu_2016,histiocytosis_cobi_msk_2019,utuc_cornell_baylor_mdacc_2019,prad_su2c_2019,cll_broad_2015,coad_cptac_2019,brca_mskcc_2019,acc_2019,pptc_2019,prad_msk_2019,ccrcc_dfci_2019,mpn_cimr_2013,nsclc_tracerx_2017,mnm_washu_2016,bcc_unige_2016,coad_caseccc_2015,metastatic_solid_tumors_mich_2017,aml_ohsu_2018,ihch_smmu_2014,nsclc_mskcc_2018,skcm_dfci_2015,skcm_mskcc_2014,mel_ucla_2016,utuc_msk_2019,gbm_columbia_2019,stad_oncosg_2018",
+            "-Dskin.example_study_queries=tcga pancancer atlas\ntcga -legacy -pancancer\ntcga or icgc\nmsk-impact\n-\"cell line\"\nbreast\nesophageal OR stomach\nprostate msk\nserous",
+            "-Dskin.patientview.filter_genes_profiled_all_samples=false",
+            "-Dapp.name=genie-private-mock-portal",
+            "-Ddbconnector=dbcp",
+            "-Dauthenticate=false",
+            "-Dauthorization=false",
+            "-Ddb.user=$(DB_USER)",
+            "-Ddb.password=$(DB_PASSWORD)",
+            "-Ddb.host=$(DB_HOST)",
+            "-Ddb.portal_db_name=$(DB_PORTAL_DB_NAME)",
+            "-Dtomcat.catalina.scope=runtime",
+            "-Ddb.connection_string=$(DB_CONNECTION_STRING)",
+            "-Dshow.transcript_dropdown=true",
+            "-Dshow.civic=$(SHOW_CIVIC)",
+            "-Dskin.show_tweet_button=$(SKIN_SHOW_TWEET_BUTTON)",
+            "-Dskin.email_contact=cbioportal@googlegroups.com",
+            "-Dskin.data_sets_footer=Data sets of published studies were curated from literature. Data sets of legacy TCGA studies were downloaded from the <a href=\"http://gdac.broadinstitute.org\">Broad Institute Firehose</a>, last updated 1/28/2016.",
+            "-Dskin.data_sets_header=The table below lists the number of available samples per cancer study and data type.",
+            "-Dskin.authorization_message=Welcome to cBioPortal - sign in with your Google or Microsoft account to store your <a href=\"https://www.cbioportal.org/tutorials#virtual-studies\" target=\"_blank\">virtual studies</a> and <a href=\"https://www.cbioportal.org/tutorials#group-comparison\" target=\"_blank\">groups</a>. This will allow you to access your studies and groups from any computer, and cBioPortal will also remember your study view charts preferences for each study (i.e. order of the charts, type of charts and visibility). Login is optional and not required to access any of the other features of cBioPortal.",
+            "-Dskin.blurb=",
+            "-Dshow.mdacc.heatmap=true",
+            "-Dpriority_studies=PanCancer Studies#msk_impact_2017,metastatic_solid_tumors_mich_2017,mixed_allen_2018,summit_2018,tmb_mskcc_2018,ntrk_msk_2019;Pediatric Cancer Studies#pptc_2019,all_phase2_target_2018_pub,rt_target_2018_pub,wt_target_2018_pub,aml_target_2018_pub,nbl_target_2018_pub,pediatric_dkfz_2017,mixed_pipseq_2017,all_stjude_2016,all_stjude_2015,es_dfarber_broad_2014,es_iocurie_2014,mbl_pcgp;Cell lines#ccle_broad_2019,cellline_ccle_broad,cellline_nci60",
+            "-Dsession.service.url=https://session-service.cbioportal.org/api/sessions/public_portal/",
+            "-Dsession.service.origin=*",
+            "-Dsession.service.user=$(SESSION_SERVICE_USER_NAME)",
+            "-Dsession.service.password=$(SESSION_SERVICE_USER_PASSWORD)",
+            "-Dgoogle_analytics_profile_id=UA-17134933-2",
+            "-Dgoogleplus.consumer.key=$(GOOGLE_PLUS_CONSUMER_KEY)",
+            "-Dgoogleplus.consumer.secret=$(GOOGLE_PLUS_CONSUMER_SECRET)",
+            "-Dmicrosoftlive.consumer.key=$(MICROSOFT_LIVE_CONSUMER_KEY)",
+            "-Dmicrosoftlive.consumer.secret=$(MICROSOFT_LIVE_CONSUMER_SECRET)",
+            "-Dbitly.url=$(BITLY_URL)",
+            "-Dbitly.access.token=$(BITLY_ACCESS_TOKEN)",
+            "-Dsentry.factory=org.cbioportal.logging.SentryClientFactory",
+            "-Ddb.suppress_schema_version_mismatch_errors=true",
+            "-Dsitemaps=false",
+            "-Doncokb.public_api.url=https://www.oncokb.org/api/v1",
+            "-Doncokb.token=$(ONCOKB_TOKEN)",
+            "-Dgenomenexus.url=https://v1.genomenexus.org",
+            "-Dmatchminer.url=http://ec2-54-158-52-176.compute-1.amazonaws.com:5555",
+            "-Dmatchminer.token=$(MATCHMINER_TOKEN)",
+            # misc frontend settings
+            "-Denable_persistent_cache=false",
+            # ehcache settings
+            "-Dehcache.cache_type=none",
+            "-jar",
+            "/webapp-runner.jar",
+            "--proxy-base-url",
+            "https://master.cbioportal.org",
+            "--max-threads",
+            "0",
+            "-AmaxHttpHeaderSize=16384",
+            "-AconnectionTimeout=20000",
+            "--enable-compression",
+            "--port",
+            "8888",
+            "/app.war"
+        ]
+        imagePullPolicy: Always
+        readinessProbe:
+          httpGet:
+            path: /api/health
+            port: 8888
+          initialDelaySeconds: 45
+          timeoutSeconds: 1
+          periodSeconds: 5
+          failureThreshold: 3
+        livenessProbe:
+          httpGet:
+            path: /
+            port: 8888
+          initialDelaySeconds: 180
+          timeoutSeconds: 1
+          periodSeconds: 12
+          failureThreshold: 5
+        name: cbioportal-performance-test
+        ports:
+        - containerPort: 8888
+          protocol: TCP
+        - containerPort: 8849
+          protocol: TCP
+        resources:
+          requests:
+              memory: 2Gi
+          limits:
+              memory: 14Gi
+        terminationMessagePath: /dev/termination-log
+        terminationMessagePolicy: File
+      dnsPolicy: ClusterFirst
+      restartPolicy: Always
+      schedulerName: default-scheduler
+      securityContext: {}
+      terminationGracePeriodSeconds: 30
+status: {}
+---
+apiVersion: v1
+kind: Service
+metadata:
+  labels:
+    run: cbioportal-performance-test
+  name: cbioportal-performance-test
+  namespace: performance-test
+  selfLink: /api/v1/namespaces/performance-test/services/cbioportal-performance-test
+spec:
+  ports:
+  - port: 80
+    name: http
+    targetPort: 8888
+  selector:
+    run: cbioportal-performance-test
+  type: ClusterIP

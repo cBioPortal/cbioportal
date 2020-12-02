@@ -1,4 +1,15 @@
-## Oct 16, 2020
+## November 3, 2020
+*   **New Feature**: The [map](https://www.cbioportal.org/installations) of local installations of cBioPortal is available now. Please consider registering your instance [here](http://bit.ly/2XW3wNG ).
+![image](https://user-images.githubusercontent.com/840895/99544685-96f41d00-2982-11eb-9de2-457a4456c294.png)
+
+*   **Enhancement**: upgraded the _Genomic Evolution_ tab in _Patient View_ with timeline [Example](https://www.cbioportal.org/patient/genomicEvolution?caseId=P04&studyId=lgg_ucsf_2014)
+![image](https://user-images.githubusercontent.com/840895/99543852-a3c44100-2981-11eb-8f53-14a0b51b767c.png)
+
+## October 20, 2020
+*   **Enhancement**: _Expression_ tab has now been merged into the _Plots_ tab
+![image](https://user-images.githubusercontent.com/840895/99565969-4ee0f480-299a-11eb-8371-8cfd09c6e4ba.png)
+
+## October 16, 2020
 *   **Added data** consisting of 25,078 samples from 5 studies:
      * [Melanomas (TCGA, Cell 2015)](https://cbioportal.org/study/summary?id=skcm_tcga_pub_2015) *359 samples* 
      * [Retinoblastoma cfDNA (MSKCC 2020)](https://www.cbioportal.org/study/summary?id=rbl_cfdna_msk_2020) *14 samples* 
@@ -10,28 +21,20 @@
 <img width="600" src="https://user-images.githubusercontent.com/5973438/95988728-52131e80-0df7-11eb-8e25-0617d4b9e8c4.png">
 
 *    **Added new profile** “RNA-Seq V2 expression Z-scores relative to normal samples” for 16 TCGA PanCan Atlas Cohorts. 
-The normals samples RNA-Seq V2 expression data and Z-scores are curated from [GDC](https://gdc.cancer.gov/about-data/publications/pancanatlas) ,and can be downloaded from our [Datahub](https://github.com/cBioPortal/datahub) or [Data Set](https://www.cbioportal.org/datasets) page.
-     * [Bladder Urothelial Carcinoma (TCGA, PanCancer Atlas)](https://www.cbioportal.org/study/summary?id=blca_tcga_pan_can_atlas_2018)
-     * [Breast Invasive Carcinoma (TCGA, PanCancer Atlas)](https://www.cbioportal.org/study/summary?id=brca_tcga_pan_can_atlas_2018)
-     * [Colorectal Adenocarcinoma (TCGA, PanCancer Atlas)](https://www.cbioportal.org/study/summary?id=coadread_tcga_pan_can_atlas_2018)
-     * [Cholangiocarcinoma (TCGA, PanCancer Atlas)](https://www.cbioportal.org/study/summary?id=chol_tcga_pan_can_atlas_2018)
-     * [Esophageal Adenocarcinoma (TCGA, PanCancer Atlas)](https://www.cbioportal.org/study/summary?id=esca_tcga_pan_can_atlas_2018)
-     * [Head and Neck Squamous Cell Carcinoma (TCGA, PanCancer Atlas)](https://www.cbioportal.org/study/summary?id=hnsc_tcga_pan_can_atlas_2018)
-     * [Kidney Renal Papillary Cell Carcinoma (TCGA, PanCancer Atlas)](https://www.cbioportal.org/study/summary?id=kirp_tcga_pan_can_atlas_2018)
-     * [Kidney Renal Clear Cell Carcinoma (TCGA, PanCancer Atlas)](https://www.cbioportal.org/study/summary?id=kirc_tcga_pan_can_atlas_2018)
-     * [Kidney Chromophobe (TCGA, PanCancer Atlas)](https://www.cbioportal.org/study/summary?id=kich_tcga_pan_can_atlas_2018)
-     * [Liver Hepatocellular Carcinoma (TCGA, PanCancer Atlas)](https://www.cbioportal.org/study/summary?id=lihc_tcga_pan_can_atlas_2018)
-     * [Lung Squamous Cell Carcinoma (TCGA, PanCancer Atlas)](https://www.cbioportal.org/study/summary?id=lusc_tcga_pan_can_atlas_2018)
-     * [Lung Adenocarcinoma (TCGA, PanCancer Atlas)](https://www.cbioportal.org/study/summary?id=luad_tcga_pan_can_atlas_2018)
-     * [Prostate Adenocarcinoma (TCGA, PanCancer Atlas)](https://www.cbioportal.org/study/summary?id=prad_tcga_pan_can_atlas_2018)
-     * [Stomach Adenocarcinoma (TCGA, PanCancer Atlas)](https://www.cbioportal.org/study/summary?id=stad_tcga_pan_can_atlas_2018)
-     * [Thyroid Carcinoma (TCGA, PanCancer Atlas)](https://www.cbioportal.org/study/summary?id=thca_tcga_pan_can_atlas_2018)
-     * [Uterine Corpus Endometrial Carcinoma (TCGA, PanCancer Atlas)](https://www.cbioportal.org/study/summary?id=ucec_tcga_pan_can_atlas_2018)
-
-Example: [ERBB2 expression z-scores relative to normal expression](https://www.cbioportal.org/results/plots?Action=Submit&RPPA_SCORE_THRESHOLD=2.0&Z_SCORE_THRESHOLD=2.0&cancer_study_list=laml_tcga_pan_can_atlas_2018%2Cacc_tcga_pan_can_atlas_2018%2Cblca_tcga_pan_can_atlas_2018%2Clgg_tcga_pan_can_atlas_2018%2Cbrca_tcga_pan_can_atlas_2018%2Ccesc_tcga_pan_can_atlas_2018%2Cchol_tcga_pan_can_atlas_2018%2Ccoadread_tcga_pan_can_atlas_2018%2Cdlbc_tcga_pan_can_atlas_2018%2Cesca_tcga_pan_can_atlas_2018%2Cgbm_tcga_pan_can_atlas_2018%2Chnsc_tcga_pan_can_atlas_2018%2Ckich_tcga_pan_can_atlas_2018%2Ckirc_tcga_pan_can_atlas_2018%2Ckirp_tcga_pan_can_atlas_2018%2Clihc_tcga_pan_can_atlas_2018%2Cluad_tcga_pan_can_atlas_2018%2Clusc_tcga_pan_can_atlas_2018%2Cmeso_tcga_pan_can_atlas_2018%2Cov_tcga_pan_can_atlas_2018%2Cpaad_tcga_pan_can_atlas_2018%2Cpcpg_tcga_pan_can_atlas_2018%2Cprad_tcga_pan_can_atlas_2018%2Csarc_tcga_pan_can_atlas_2018%2Cskcm_tcga_pan_can_atlas_2018%2Cstad_tcga_pan_can_atlas_2018%2Ctgct_tcga_pan_can_atlas_2018%2Cthym_tcga_pan_can_atlas_2018%2Cthca_tcga_pan_can_atlas_2018%2Cucs_tcga_pan_can_atlas_2018%2Cucec_tcga_pan_can_atlas_2018%2Cuvm_tcga_pan_can_atlas_2018&case_set_id=all&data_priority=0&gene_list=ERBB2&geneset_list=%20&plots_coloring_selection=%7B%22colorByCopyNumber%22%3A%22true%22%7D&plots_horz_selection=%7B%22dataType%22%3A%22clinical_attribute%22%2C%22selectedDataSourceOption%22%3A%22CANCER_STUDY%22%7D&plots_vert_selection=%7B%22selectedGeneOption%22%3A2064%2C%22dataType%22%3A%22MRNA_EXPRESSION%22%2C%22selectedDataSourceOption%22%3A%22rna_seq_v2_mrna_median_all_sample_ref_normal_Zscores%22%2C%22logScale%22%3A%22true%22%7D&profileFilter=0&tab_index=tab_visualize)
+The normals samples RNA-Seq V2 expression data were curated from [GDC](https://gdc.cancer.gov/about-data/publications/pancanatlas), and can be downloaded from our [Datahub](https://github.com/cBioPortal/datahub) or [Data Set](https://www.cbioportal.org/datasets) page. [Example: ERBB2 expression z-scores relative to normal expression](https://www.cbioportal.org/results/plots?Action=Submit&RPPA_SCORE_THRESHOLD=2.0&Z_SCORE_THRESHOLD=2.0&cancer_study_list=laml_tcga_pan_can_atlas_2018%2Cacc_tcga_pan_can_atlas_2018%2Cblca_tcga_pan_can_atlas_2018%2Clgg_tcga_pan_can_atlas_2018%2Cbrca_tcga_pan_can_atlas_2018%2Ccesc_tcga_pan_can_atlas_2018%2Cchol_tcga_pan_can_atlas_2018%2Ccoadread_tcga_pan_can_atlas_2018%2Cdlbc_tcga_pan_can_atlas_2018%2Cesca_tcga_pan_can_atlas_2018%2Cgbm_tcga_pan_can_atlas_2018%2Chnsc_tcga_pan_can_atlas_2018%2Ckich_tcga_pan_can_atlas_2018%2Ckirc_tcga_pan_can_atlas_2018%2Ckirp_tcga_pan_can_atlas_2018%2Clihc_tcga_pan_can_atlas_2018%2Cluad_tcga_pan_can_atlas_2018%2Clusc_tcga_pan_can_atlas_2018%2Cmeso_tcga_pan_can_atlas_2018%2Cov_tcga_pan_can_atlas_2018%2Cpaad_tcga_pan_can_atlas_2018%2Cpcpg_tcga_pan_can_atlas_2018%2Cprad_tcga_pan_can_atlas_2018%2Csarc_tcga_pan_can_atlas_2018%2Cskcm_tcga_pan_can_atlas_2018%2Cstad_tcga_pan_can_atlas_2018%2Ctgct_tcga_pan_can_atlas_2018%2Cthym_tcga_pan_can_atlas_2018%2Cthca_tcga_pan_can_atlas_2018%2Cucs_tcga_pan_can_atlas_2018%2Cucec_tcga_pan_can_atlas_2018%2Cuvm_tcga_pan_can_atlas_2018&case_set_id=all&data_priority=0&gene_list=ERBB2&geneset_list=%20&plots_coloring_selection=%7B%22colorByCopyNumber%22%3A%22true%22%7D&plots_horz_selection=%7B%22dataType%22%3A%22clinical_attribute%22%2C%22selectedDataSourceOption%22%3A%22CANCER_STUDY%22%7D&plots_vert_selection=%7B%22selectedGeneOption%22%3A2064%2C%22dataType%22%3A%22MRNA_EXPRESSION%22%2C%22selectedDataSourceOption%22%3A%22rna_seq_v2_mrna_median_all_sample_ref_normal_Zscores%22%2C%22logScale%22%3A%22true%22%7D&profileFilter=0&tab_index=tab_visualize)
 
 ![image](https://user-images.githubusercontent.com/840895/96191246-b32f1500-0f11-11eb-8727-bcfdd2d724a3.png)
 
+## October 13, 2020
+*   **Enhancement**: _Study View_ now allows comparing samples with mutations or copy number alterations in different genes
+![image](https://user-images.githubusercontent.com/840895/99558433-ba729400-2991-11eb-9054-1d8751b4d84f.png)
+
+*   **New Feature**: When treatment timeline is available (e.g. in [this study](https://www.cbioportal.org/study/summary?id=lgg_ucsf_2014)), _Study View_ now allows the selection and comparison of patients treated with specific drugs, or samples sequenced pre or post specific drug treatments
+![image](https://user-images.githubusercontent.com/840895/99556958-248a3980-2990-11eb-97e3-d833518f8aef.png)
+
+## September 30, 2020
+*   **New Feature**: Mutational signature data is available for comparison now. [Example: comparing colorectal subtypes for enriched microbiome signatures](https://www.cbioportal.org/comparison/generic_assay_microbiome_signature?sessionId=5dea8bbde4b05f1dfb8ace51)
+![image](https://user-images.githubusercontent.com/840895/99566847-666cad00-299b-11eb-91d3-21b21f267733.png)
 
 ## September 22, 2020
 

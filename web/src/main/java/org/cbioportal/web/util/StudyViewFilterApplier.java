@@ -241,14 +241,20 @@ public class StudyViewFilterApplier {
             }
         }
         
-        if (studyViewFilter.getSampleTreatmentFilters() != null) {
+        if (
+            studyViewFilter.getSampleTreatmentFilters() != null && 
+            !studyViewFilter.getSampleTreatmentFilters().getFilters().isEmpty()
+        ) {
             sampleIdentifiers = sampleTreatmentFilterApplier.filter(
                 studyViewFilter.getSampleTreatmentFilters(),
                 sampleIdentifiers
             );
         }
 
-        if (studyViewFilter.getPatientTreatmentFilters() != null) {
+        if (
+            studyViewFilter.getPatientTreatmentFilters() != null && 
+            !studyViewFilter.getPatientTreatmentFilters().getFilters().isEmpty()
+        ) {
             sampleIdentifiers = patientTreatmentFilterApplier.filter(
                 sampleIdentifiers,
                 studyViewFilter.getPatientTreatmentFilters()
@@ -422,7 +428,7 @@ public class StudyViewFilterApplier {
                     }
                 }
 
-                List<DiscreteCopyNumberData> resultList = DiscreteCopyNumberEventType.HOMDEL_AND_AMP
+                List<DiscreteCopyNumberData> resultList = DiscreteCopyNumberEventType.ALL
                         .getAlterationTypes().stream().flatMap(alterationType -> {
 
                             List<SingleGeneQuery> filteredGeneQueries = geneQueries.stream()

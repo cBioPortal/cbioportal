@@ -284,6 +284,7 @@ The meta file is comprised of the following fields:
 7. **profile_description**: A description of the copy number data, e.g., "Putative copy-number from GISTIC 2.0. Values: -2 = homozygous deletion; -1 = hemizygous deletion; 0 = neutral / no change; 1 = gain; 2 = high level amplification."
 8. **data_filename**: your datafile
 9. **gene_panel (Optional)**:  gene panel stable id
+10. **pd_annotations_filename (Optional)**: name of [custom driver annotations file](File-Formats.md#custom-driver-annotations-file)
 
 ### Example
 An example metadata file could be named meta_CNA.txt and its contents could be:
@@ -296,6 +297,7 @@ show_profile_in_analysis_tab: true
 profile_name: Putative copy-number alterations from GISTIC
 profile_description: Putative copy-number from GISTIC 2.0. Values: -2 = homozygous deletion; -1 = hemizygous deletion; 0 = neutral / no change; 1 = gain; 2 = high level amplification.
 data_filename: data_CNA.txt
+pd_annotations_filename: data_CNA_pd_annotations.txt
 ```
 
 ### Data file
@@ -324,7 +326,36 @@ ACAP3<TAB>116983<TAB>0<TAB>-1<TAB>...
 AGRN<TAB>375790<TAB>2<TAB>0<TAB>...
 ...
 ...
+`````
+
+### Custom driver annotations file
+
+Custom driver annotations can be defined for discrete copy number data. These annotations can be used to complement or replace default driver annotation resources OncoKB and HotSpots.
+Custom driver annotations can be placed in a separate file that is referenced by the `pd_annotations_file` field of the meta file. The annotation file can hold the following columns:
+
+1. **Hugo_Symbol (Optional)**: A [HUGO](https://www.genenames.org/) gene symbol. Required when column `Entrez_Gene_Id` is not present.
+2. **Entrez_Gene_Id (Optional)**: A [Entrez Gene](https://www.ncbi.nlm.nih.gov/gene) identifier. Required when column `Hugo_Symbol` is not present.
+3. **SAMPLE_ID**: A sample ID. This field can only contain numbers, letters, points, underscores and hyphens.
+4. **cbp_driver (Optional)**: "Putative_Driver", "Putative_Passenger", "Unknown", "NA" or "" (empty value). This field must be present if the cbp_driver_annotation is also present in the MAF file. 
+5. **cbp_driver_annotation (Optional)**: Description field for the cbp_driver value (limited to 80 characters). This field must be present if the cbp_driver is also present in the MAF file. This field is free text. Example values for this field are: "Pathogenic" or "VUS".
+6. **cbp_driver_tiers (Optional)**: Free label/category that marks the mutation as a putative driver such as "Driver", "Highly actionable", "Potential drug target". . This field must be present if the cbp_driver_tiers_annotation is also present in the MAF file. In the OncoPrint view's Mutation Color dropdown menu, these tiers are ordered alphabetically. This field is free text and limited to 20 characters. For mutations without a custom annotation, leave the field blank or type "NA".
+7. **cbp_driver_tiers_annotation (Optional)**: Description field for the cbp_driver_tiers value (limited to 80 characters). This field must be present if the cbp_driver_tiers is also present in the MAF file. This field can not be present when the cbp_driver_tiers field is not present. 
+
+All genes referenced in the custom driver annotation file must be present in the data file for discrete copy number alterations.
+
+The `cbp_driver` column flags the mutation as either driver or passenger. In cBioPortal, passenger mutations are also known as variants of unknown significance (VUS). The `cbp_driver_tiers` column assigns an annotation tier to the mutation, such as "Driver", "Highly actionable" or "Potential drug target". When a tier is selected, mutations with that annotation are highlighted as driver. Both types of custom annotations contain a second column with the suffix `_annotation`, to add a description. This is displayed in the tooltip that appears when hovering over the sample's custom annotation icon in the OncoPrint view.
+
+You can learn more about configuring these annotations in the [portal.properties documentation](portal.properties-Reference.md#custom-annotation). When properly configured, the customized annotations appear in the "Mutation Color" menu of the OncoPrint view: \
+![schreenshot mutation color menu](images/screenshot-mutation-color-menu.png) 
+
+### Example
+An example data file which includes the required column header would look like:
 ```
+SAMPLE_ID<TAB>Hugo_Symbol<TAB>Entrez_Gene_Id<TAB>cbp_driver<TAB>cbp_driver_annotation<TAB>cbp_driver_tiers<TAB>cbp_driver_tiers_annotation<TAB>...
+TCGA-BH-A0E6-01<TAB>GENEA<TAB>116983<TAB>Putative_Driver<TAB>see: PMID:12345678<TAB>Highly actionable<TAB>Per decision 01/01/2020<TAB>
+TCGA-BH-A0E6-01<TAB>GENEB<TAB>375790<TAB>Putative_Passenger<TAB>see: PMID:12345678<TAB><TAB><TAB>
+...
+`````
 
 ### GISTIC 2.0 Format
 GISTIC 2.0 outputs a tabular file similarly formatted to the cBioPortal format, called `<prefix>_all_thresholded.by_genes.txt`.
@@ -660,7 +691,7 @@ The extended MAF format recognized by the portal has:
 33. **HGVSp_Short (Required)**: Amino Acid Change, e.g. p.V600E.
 34. **t_alt_count (Optional)**: Variant allele count (tumor). 
 35. **t_ref_count (Optional)**: Reference allele count (tumor).
-36. **n_alt_count (Optional)**: Variant allele count (normal).
+36. **n_alt_count (Optional)**: Variant allele count (normal).~~~~
 37. **n_ref_count (Optional)**: Reference allele count (normal).
 
 <sup>**1**</sup> These columns are currently not shown in the Mutation tab and Patient view.
@@ -668,10 +699,10 @@ The extended MAF format recognized by the portal has:
 ### Custom driver annotations
 It is possible to manually add columns for defining custom driver annotations. These annotations can be used to complement or replace default driver annotation resources OncoKB and HotSpots.
 
-38. **cbp_driver (Optional)**: "Putative_Driver", "Putative_Passenger", "Unknown", "NA" or "" (empty value).
-39. **cbp_driver_annotation (Optional)**: Description field for the cbp_driver value (limited to 80 characters). This field can only be present if the cbp_driver is also present in the MAF file. This field is free text. Example values for this field are: "Pathogenic" or "VUS".
-40. **cbp_driver_tiers (Optional)**: Free label/category that marks the mutation as a putative driver such as "Driver", "Highly actionable", "Potential drug target". In the OncoPrint view's Mutation Color dropdown menu, these tiers are ordered alphabetically. This field is free text and limited to 20 characters. For mutations without a custom annotation, leave the field blank or type "NA".
-41. **cbp_driver_tiers_annotation (Optional)**: Description field for the cbp_driver_tiers value (limited to 80 characters). This field can only be present if the cbp_driver_tiers is also present in the MAF file.
+38. **cbp_driver (Optional)**: "Putative_Driver", "Putative_Passenger", "Unknown", "NA" or "" (empty value). This field must be present if the cbp_driver_annotation is also present in the MAF file. 
+39. **cbp_driver_annotation (Optional)**: Description field for the cbp_driver value (limited to 80 characters). This field must be present if the cbp_driver is also present in the MAF file. This field is free text. Example values for this field are: "Pathogenic" or "VUS".
+40. **cbp_driver_tiers (Optional)**: Free label/category that marks the mutation as a putative driver such as "Driver", "Highly actionable", "Potential drug target". . This field must be present if the cbp_driver_tiers_annotation is also present in the MAF file. In the OncoPrint view's Mutation Color dropdown menu, these tiers are ordered alphabetically. This field is free text and limited to 20 characters. For mutations without a custom annotation, leave the field blank or type "NA".
+41. **cbp_driver_tiers_annotation (Optional)**: Description field for the cbp_driver_tiers value (limited to 80 characters). This field must be present if the cbp_driver_tiers is also present in the MAF file. This field can not be present when the cbp_driver_tiers field is not present. 
 
 The `cbp_driver` column flags the mutation as either driver or passenger. In cBioPortal, passenger mutations are also known as variants of unknown significance (VUS). The `cbp_driver_tiers` column assigns an annotation tier to the mutation, such as "Driver", "Highly actionable" or "Potential drug target". When a tier is selected, mutations with that annotation are highlighted as driver. Both types of custom annotations contain a second column with the suffix `_annotation`, to add a description. This is displayed in the tooltip that appears when hovering over the sample's custom annotation icon in the OncoPrint view.
 
@@ -986,7 +1017,7 @@ Suggested columns
  * **RESULT**: corresponding value of the test
  * Based on different cancer types you can add additional data here.
 
-Special: When using the TEST and RESULT columns, each test gets its own track and the dots are sized by the values of the RESULT if the TEST is PSA, ALK, TEST, HGB, PHOS or LDH. 
+Special: When using the TEST and RESULT columns, each test gets its own track. Any TEST that has only numerical RESULT values will be rendered as a line chart.
 
 _**EVENT_TYPE: IMAGING**_
 
@@ -1298,7 +1329,7 @@ The cells contain the p-value for the GSVA score: A real number, between 0.0 and
 YAML or JSON file which contains extra information about the cancer study. No compulsory fields are required for this file (free-form). To enable this feature, you need to add a line in the cancer study meta file with `tags_file:` followed the YAML/JSON file name. The information on the YAML or JSON file will be displayed in a table when mousing over a tag logo in the studies on the query page.
 
 ## Generic Assay
-Generic Assay is a two dimensional matrix generalized to capture non-genetic measurements per sample. Instead of a gene per row and a sample per column, a Generic Assay file contains a generic entity per row and a sample per column. A generic entity is defined by the data curator and generally means something other than a gene. Some examples include, treatment response or mutational signatures. For each generic entity - sample pair, a real number represents a captured measurement.
+Generic Assay is a two dimensional matrix generalized to capture non-genetic measurements per sample. Instead of a gene per row and a sample per column, a Generic Assay file contains a generic entity per row and a sample per column. A generic entity is defined by the data curator and generally means something other than a gene. Some examples include, treatment response or mutational signatures. For each generic entity - sample pair, a (real number / text / binary value) represents a captured measurement.
 
 ### Generic Assay meta file
 The generic assay metadata file should contain the following fields:
@@ -1306,7 +1337,7 @@ The generic assay metadata file should contain the following fields:
 cancer_study_identifier: Same value as specified in meta file of the study
 genetic_alteration_type: GENERIC_ASSAY
 generic_assay_type: <GENERIC_ASSAY_TYPE>, e.g., "TREATMENT_RESPONSE" or "MUTATIONAL_SIGNATURE"
-datatype: LIMIT-VALUE
+datatype: LIMIT-VALUE, CATEGORICAL or BINARY
 stable_id: Any unique identifier using a combination of alphanumeric characters, _ and -
 profile_name: A name describing the analysis.
 profile_description: A description of the data processing done.
@@ -1336,18 +1367,50 @@ generic_entity_meta_properties: NAME,DESCRIPTION,URL
 ### Note on `stable_id`
 The `stable_id` for the generic assay datatype is a user defined field. The only requirement is that the `stable_id` is unique across all metafiles in the study.
 
+### Note on `pivot_threshold_value`
+The `pivot_threshold_value` is an arbitrary value that specifies a critical boundary that distinguish _important_ from
+_unimportant_ values in a generic assay profile. This boundary will be used in different visualizations to highlight
+_important_ observations. Whether smaller or larger values are considered to be _important_ can be controlled with the
+`value_sort_order` field (see [below](#note-on-value_sort_order)).
+
+In a heatmap for a generic assay profile _important_ values are shown in darker shades of blue, whereas _unimportant_
+values are shown in darker shades of red. The values represented by the `pivot_threshold_value` is shown in white. When
+defined, the `pivot_threshold_value` will always be included in the legend, even when all datapoints are all more extreme.
+In the Waterfall plot in Plots tab of Results view `pivot_threshold_value` determines the boundary between up- and downward
+deflections in the plot.
+
+When no sensible idea exists for a boundary between _important_ and _unimportant_ observations the `pivot_threshold_value`
+field should not be defined (excluded from meta file). In this case all values will be shown as shades of blue in the
+heatmap and the waterfall plot will show up- and downward deflections around 0.
+
 ### Note on `value_sort_order`
-When values are sorted based on the `value_sort_order`, data points at the start of the sequence are considered more significant than data points at the end. 
+The `value_sort_order` field can be used to indicate whether small or large value are considered to be more `important`.
+When `value_sort_order` is `ASC` smaller values are considered to be more _important_. When `value_sort_order` is `DESC`
+larger values are considered to be more _important_.
 
-This concept is used by the OncoPrint when aggregating generic assay data from multiple samples from a single patient. When `value_sort_order` is `ASC` the sample with the smallest response value will be shown for that patient. When `value_sort_order` is `DESC` the sample with the largest value will be shown for that patient.
+The default value for `value_sort_order` is `ASC`.
 
-This concept is also used to separate good vs less good response values in the Waterfall plot. When `value_sort_order` is `ASC` small values are represented as downward deflections from the `pivot_threshold_value` in the waterfall plot of Plots Tab.
+The `value_sort_order` is used by the Oncoprint when aggregating generic assay data in a tooltip that covers multiple samples
+from a single patient. When `value_sort_order` is `ASC` the sample with the smallest response value will be shown for that
+patient. When `value_sort_order` is `DESC` the sample with the largest value will be shown for that patient.
+
+In the heatmap for a generic assay profile in results view data points with smaller values will show as darker blue
+when the `value_sort_order` is `ASC`. When `value_sort_order` is `DESC` larger values are assigned a darker blue color.
+
+The `value_sort_order` is used by the Waterfall plot for orientation of the x-axis so that _important_ observations are
+shown at the left side of the plot. When `value_sort_order` is `ASC` the x-axis will be in ascending order with smaller
+values to the left.  When `value_sort_order` is `DESC` the x-axis will be in descending order with larger values to the left.
 
 ### Note on `generic_entity_meta_properties`
 All meta properties must be specified in the `generic_entity_meta_properties` field. Every meta property listed here must appear as a column header in the corresponding data file. It's highly recommend to add `NAME`, `DESCRIPTION` and an optional `URL` to get the best visualization on OncoPrint tab and Plots tab.
 
-### Note on `Generic Assay` genetic_alteration_type and `LIMIT-VALUE` datatype
-All generic assay data is registered to be of the type of `genetic_alteration_type` and data type `LIMIT-VALUE`. This alteration and data type is intended to be used for any numerical data set with similar structure (entities measured in samples). The `LIMIT-VALUE` is validated to contain any continuous number optionally prefixed with a '>' or '<' threshold symbol (e.g., '>8.00'). If the value for the generic entity in the respective sample could not (or was not) be measured (or detected), the value should be 'NA'.
+### Note on `Generic Assay` genetic_alteration_type and datatype
+All generic assay data is registered to be of the type of `genetic_alteration_type` and data type can choose from `LIMIT-VALUE`, `CATEGORICAL` and `BINARY`. 
+- ***LIMIT-VALUE***: This datatype is intended to be used for any numerical data set with similar structure (entities measured in samples). The `LIMIT-VALUE` is validated to contain any continuous number optionally prefixed with a '>' or '<' threshold symbol (e.g., '>8.00').
+- ***CATEGORICAL***: This datatype is intended to be used for any categorical data set with similar structure (entities measured in samples). Any text is allowed in `CATEGORICAL` except blank.
+- ***BINARY***: This datatype is intended to be used for any binary data set with similar structure (entities measured in samples). The `BINARY` is validated to contain only reserved text (`true`, `false`, `yes`, `no`).
+
+If the value for the generic entity in the respective sample could not (or was not) be measured (or detected), the value should be 'NA'.
 
 ### Generic Assay data file
 The data file will be a simple tab separated format, similar to the expression data file: each sample is a column, each generic entity is a row, each cell contains values for that generic entity x sample combination.

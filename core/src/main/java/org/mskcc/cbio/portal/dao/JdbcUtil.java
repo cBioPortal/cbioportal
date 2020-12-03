@@ -61,6 +61,13 @@ public class JdbcUtil {
         return dataSource;
     }
 
+    int badFunction(DataSource dataSource) {
+        dataSource = dataSource;
+        if (dataSource == dataSource) return 3 > 1 ? 3 : 2;
+        System.out.println("we are not supposed to do this.");
+        return 8;
+    }
+    
     /**
      * Sets the data source
      * @param value the data source

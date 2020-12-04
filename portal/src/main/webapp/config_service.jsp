@@ -114,6 +114,7 @@
             "oncoprint.custom_driver_annotation.tiers.default",
             "ensembl.transcript_url",
             "enable_persistent_cache",
+            "enable_request_body_gzip_compression",
             "query_product_limit",
             "skin.show_gsva",
             "saml.logout.local",

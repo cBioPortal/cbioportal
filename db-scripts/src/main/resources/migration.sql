@@ -929,3 +929,8 @@ drop column `DRIVER_FILTER_ANNOTATION`,
 drop column `DRIVER_TIERS_FILTER`,
 drop column `DRIVER_TIERS_FILTER_ANNOTATION`;
 UPDATE `info` SET `DB_SCHEMA_VERSION`="2.12.7";
+##version: 2.12.8
+CREATE INDEX idx_mutation_type ON mutation_event (`MUTATION_TYPE`);
+CREATE INDEX idx_cna_type ON cna_event (`ALTERATION`);
+CREATE INDEX idx_driver_filter ON alteration_driver_annotation (`DRIVER_FILTER`);
+UPDATE `info` SET `DB_SCHEMA_VERSION`="2.12.8";

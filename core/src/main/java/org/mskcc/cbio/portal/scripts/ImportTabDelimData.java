@@ -36,7 +36,6 @@ import java.io.*;
 import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 import java.util.stream.Stream;
 
@@ -72,6 +71,8 @@ public class ImportTabDelimData {
     private Set<String> arrayIdSet = new HashSet<String>();
     private String genePanel;
     private String genericEntityProperties;
+    private File pdAnnotationsFile;
+    private Map<Map.Entry<Integer, Long>, Map<String, String>> pdAnnotations;
 
     /**
      * Constructor.
@@ -181,11 +182,16 @@ public class ImportTabDelimData {
             System.arraycopy(parts, sampleStartIndex, sampleIds, 0, parts.length - sampleStartIndex);
 
             int nrUnknownSamplesAdded = 0;
-            ProgressMonitor.setCurrentMessage(" --> total number of samples: " + sampleIds.length);            
-    
+            ProgressMonitor.setCurrentMessage(" --> total number of samples: " + sampleIds.length);
+
+            Map<Map.Entry<String, Long>, Map<String, String>> pdAnnotationsForStableSampleIds = null;
+            if (this.pdAnnotationsFile != null) {
+                pdAnnotationsForStableSampleIds = readPdAnnotations(this.pdAnnotationsFile);
+            }
             // link Samples to the genetic profile
             ArrayList <Integer> orderedSampleList = new ArrayList<Integer>();
             ArrayList <Integer> filteredSampleIndices = new ArrayList<Integer>();
+            this.pdAnnotations = new HashMap<>();
             for (int i = 0; i < sampleIds.length; i++) {
                 Sample sample = DaoSample.getSampleByCancerStudyAndSampleId(geneticProfile.getCancerStudyId(),
                                                                            StableIdUtil.getSampleId(sampleIds[i]));
@@ -205,6 +211,20 @@ public class ImportTabDelimData {
                     DaoSampleProfile.addSampleProfile(sample.getInternalId(), geneticProfileId, genePanelID);
                 }
                 orderedSampleList.add(sample.getInternalId());
+                if (pdAnnotationsForStableSampleIds != null) {
+                    Set<Map.Entry<String, Long>> keys = new HashSet<>(pdAnnotationsForStableSampleIds.keySet());
+                    for (Map.Entry<String, Long> stableSampleIdToGeneKey: keys) {
+                        if (stableSampleIdToGeneKey.getKey().equals(sample.getStableId())) {
+                            Long entrezGeneId = stableSampleIdToGeneKey.getValue();
+                            Map<String, String> pdAnnotationsDetails = pdAnnotationsForStableSampleIds.get(stableSampleIdToGeneKey);
+                            this.pdAnnotations.put(new AbstractMap.SimpleEntry<>(sample.getInternalId(), entrezGeneId), pdAnnotationsDetails);
+                            pdAnnotationsForStableSampleIds.remove(stableSampleIdToGeneKey);
+                        }
+                    }
+                }
+            }
+            if (pdAnnotationsForStableSampleIds != null && !pdAnnotationsForStableSampleIds.keySet().isEmpty()) {
+                ProgressMonitor.logWarning("WARNING: Following pd annotation sample-entrezId pairs newer used in the data file:  " + pdAnnotationsForStableSampleIds.keySet());
             }
             if (nrUnknownSamplesAdded > 0) {
                 ProgressMonitor.logWarning("WARNING: Number of samples added on the fly because they were missing in clinical data:  " + nrUnknownSamplesAdded);
@@ -285,6 +305,65 @@ public class ImportTabDelimData {
         finally {
             buf.close();
         }                
+    }
+
+    private Map<Map.Entry<String, Long>, Map<String, String>> readPdAnnotations(File pdAnnotationsFile) {
+        Map<Map.Entry<String, Long>, Map<String, String>> pdAnnotations = new HashMap<>();
+        BufferedReader reader;
+        try {
+            reader = new BufferedReader(new FileReader(pdAnnotationsFile));
+            List<String> header = Arrays.asList(reader.readLine().toLowerCase().split("\t"));
+            int sampleIdIndx = header.indexOf("sample_id");
+            if (sampleIdIndx < 0) {
+                throw new RuntimeException("SAMPLE_ID column is not found in " + pdAnnotationsFile.getAbsolutePath());
+            }
+            int entrezGeneIdIndx = header.indexOf("entrez_gene_id");
+            if (entrezGeneIdIndx < 0) {
+                throw new RuntimeException("Entrez_Gene_Id column is not found in " + pdAnnotationsFile.getAbsolutePath());
+            }
+            int driverFilterIndx = header.indexOf("cbp_driver");
+            if (driverFilterIndx < 0) {
+                throw new RuntimeException("cbp_driver column is not found in " + pdAnnotationsFile.getAbsolutePath());
+            }
+            int driverFilterAnnotationIndx = header.indexOf("cbp_driver_annotation");
+            if (driverFilterAnnotationIndx < 0) {
+                throw new RuntimeException("cbp_driver_annotation column is not found in " + pdAnnotationsFile.getAbsolutePath());
+            }
+            int driverTiersFilterIndx = header.indexOf("cbp_driver_tiers");
+            if (driverTiersFilterIndx < 0) {
+                throw new RuntimeException("cbp_driver_tiers column is not found in " + pdAnnotationsFile.getAbsolutePath());
+            }
+            int driverTiersFilterAnnotationIndx = header.indexOf("cbp_driver_tiers_annotation");
+            if (driverTiersFilterAnnotationIndx < 0) {
+                throw new RuntimeException("cbp_driver_tiers_annotation column is not found in " + pdAnnotationsFile.getAbsolutePath());
+            }
+            String line = reader.readLine();
+
+            while (line != null) {
+                String[] row = line.split("\t", -1);
+                if (row.length < 6) {
+                    throw new RuntimeException("Mis-formatted row: " + String.join(", ", row));
+                }
+                String stableSampleId = row[sampleIdIndx];
+                Long entrezGeneId = Long.valueOf(row[entrezGeneIdIndx]);
+                Map.Entry<String, Long> sampleGeneKey = new AbstractMap.SimpleEntry<>(stableSampleId, entrezGeneId);
+                if (pdAnnotations.containsKey(sampleGeneKey)) {
+                    throw new RuntimeException("There is more then one row with SAMPLE_ID=" + stableSampleId + " and Entrez_Gene_Id=" + entrezGeneId);
+                }
+                Map<String, String> driverInfo = new HashMap<>();
+                driverInfo.put("DRIVER_FILTER", row[driverFilterIndx]);
+                driverInfo.put("DRIVER_FILTER_ANNOTATION", row[driverFilterAnnotationIndx]);
+                driverInfo.put("DRIVER_TIERS_FILTER", row[driverTiersFilterIndx]);
+                driverInfo.put("DRIVER_TIERS_FILTER_ANNOTATION", row[driverTiersFilterAnnotationIndx]);
+
+                pdAnnotations.put(sampleGeneKey, driverInfo);
+                line = reader.readLine();
+            }
+            reader.close();
+        } catch (IOException e) {
+           throw new RuntimeException("Can't read PD annotation file", e);
+        }
+        return pdAnnotations;
     }
 
     /**
@@ -566,8 +645,17 @@ public class ImportTabDelimData {
                                         // || values[i].equals(CNA_VALUE_ZERO)
                                         // || values[i].equals(CNA_VALUE_HEMIZYGOUS_DELETION)
                                             || values[i].equals(CNA_VALUE_HOMOZYGOUS_DELETION)) {
-                                        CnaEvent cnaEvent = new CnaEvent(orderedSampleList.get(i), geneticProfileId, entrezGeneId, Short.parseShort(values[i]));
+                                        Integer sampleId = orderedSampleList.get(i);
+                                        CnaEvent cnaEvent = new CnaEvent(sampleId, geneticProfileId, entrezGeneId, Short.parseShort(values[i]));
                                         //delayed add:
+                                        AbstractMap.SimpleEntry<Integer, Long> sampleGenePair = new AbstractMap.SimpleEntry<>(sampleId, entrezGeneId);
+                                        Map<String, String> pdAnnotationDetails = this.pdAnnotations.get(sampleGenePair);
+                                        if (pdAnnotationDetails != null) {
+                                            cnaEvent.setDriverFilter(pdAnnotationDetails.get("DRIVER_FILTER"));
+                                            cnaEvent.setDriverFilterAnnotation(pdAnnotationDetails.get("DRIVER_FILTER_ANNOTATION"));
+                                            cnaEvent.setDriverTiersFilter(pdAnnotationDetails.get("DRIVER_TIERS_FILTER"));
+                                            cnaEvent.setDriverTiersFilterAnnotation(pdAnnotationDetails.get("DRIVER_TIERS_FILTER_ANNOTATION"));
+                                        }
                                         cnaEventsToAdd.add(cnaEvent);
                                     }
                                 }
@@ -935,5 +1023,13 @@ public class ImportTabDelimData {
             }
         }
         return filteredValues.toArray(new String[filteredValues.size()]);
+    }
+
+    public File getPdAnnotationsFile() {
+        return pdAnnotationsFile;
+    }
+
+    public void setPdAnnotationsFile(File pdAnnotationsFile) {
+        this.pdAnnotationsFile = pdAnnotationsFile;
     }
 }

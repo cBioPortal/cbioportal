@@ -63,6 +63,18 @@ public final class DaoCnaEvent {
                     Integer.toString(cnaEvent.getSampleId()),
                     Integer.toString(cnaEvent.getCnaProfileId())
                     );
+
+            if (cnaEvent.getDriverFilter() != null || cnaEvent.getDriverTiersFilter() != null) {
+                MySQLbulkLoader.getMySQLbulkLoader("alteration_driver_annotation").insertRecord(
+                    Long.toString(eventId),
+                    Integer.toString(cnaEvent.getCnaProfileId()),
+                    Integer.toString(cnaEvent.getSampleId()),
+                    cnaEvent.getDriverFilter(),
+                    cnaEvent.getDriverFilterAnnotation(),
+                    cnaEvent.getDriverTiersFilter(),
+                    cnaEvent.getDriverTiersFilterAnnotation()
+                );
+            }
         }
     }
     
@@ -147,36 +159,51 @@ public final class DaoCnaEvent {
         try {
             con = JdbcUtil.getDbConnection(DaoCnaEvent.class);
             pstmt = con.prepareStatement
-		("SELECT sample_cna_event.CNA_EVENT_ID, SAMPLE_ID, GENETIC_PROFILE_ID,"
-                    + " ENTREZ_GENE_ID, ALTERATION FROM sample_cna_event, cna_event"
-                    + " WHERE `GENETIC_PROFILE_ID`=?"
+		("SELECT sample_cna_event.CNA_EVENT_ID,"
+                    + " sample_cna_event.SAMPLE_ID,"
+                    + " sample_cna_event.GENETIC_PROFILE_ID,"
+                    + " ENTREZ_GENE_ID,"
+                    + " ALTERATION,"
+                    + " alteration_driver_annotation.DRIVER_FILTER,"
+                    + " alteration_driver_annotation.DRIVER_FILTER_ANNOTATION,"
+                    + " alteration_driver_annotation.DRIVER_TIERS_FILTER,"
+                    + " alteration_driver_annotation.DRIVER_TIERS_FILTER_ANNOTATION"
+                    + " FROM sample_cna_event"
+                    + " LEFT JOIN alteration_driver_annotation ON"
+                    + "  sample_cna_event.GENETIC_PROFILE_ID = alteration_driver_annotation.GENETIC_PROFILE_ID"
+                    + "  and sample_cna_event.SAMPLE_ID = alteration_driver_annotation.SAMPLE_ID"
+                    + "  and sample_cna_event.CNA_EVENT_ID = alteration_driver_annotation.ALTERATION_EVENT_ID,"
+                    + " cna_event"
+                    + " WHERE sample_cna_event.GENETIC_PROFILE_ID=?"
                     + " AND sample_cna_event.CNA_EVENT_ID=cna_event.CNA_EVENT_ID"
                     + (entrezGeneIds==null?"":" AND ENTREZ_GENE_ID IN(" + StringUtils.join(entrezGeneIds,",") + ")")
                     + " AND ALTERATION IN (" + StringUtils.join(cnaLevels,",") + ")"
-                    + " AND SAMPLE_ID in ('"+StringUtils.join(sampleIds, "','")+"')");
+                    + " AND sample_cna_event.SAMPLE_ID in ('"+StringUtils.join(sampleIds, "','")+"')");
             pstmt.setInt(1, profileId);
             rs = pstmt.executeQuery();
             List<CnaEvent> events = new ArrayList<CnaEvent>();
             while (rs.next()) {
-                try {
-                    Sample sample = DaoSample.getSampleById(rs.getInt("SAMPLE_ID"));
-                    CnaEvent event = new CnaEvent(sample.getInternalId(),
-                            rs.getInt("GENETIC_PROFILE_ID"),
-                            rs.getLong("ENTREZ_GENE_ID"), rs.getShort("ALTERATION"));
-                    event.setEventId(rs.getLong("CNA_EVENT_ID"));
-                    events.add(event);
-                } catch (IllegalArgumentException e) {
-                    e.printStackTrace();
-                }
+                events.add(extractCnaEvent(rs));
             }
             return events;
-        } catch (NullPointerException e) {
-            throw new DaoException(e);
         } catch (SQLException e) {
             throw new DaoException(e);
         } finally {
             JdbcUtil.closeAll(DaoCnaEvent.class, con, pstmt, rs);
         }
+    }
+
+    private static CnaEvent extractCnaEvent(ResultSet rs) throws SQLException {
+        CnaEvent cnaEvent = new CnaEvent(rs.getInt("SAMPLE_ID"),
+            rs.getInt("GENETIC_PROFILE_ID"),
+            rs.getLong("ENTREZ_GENE_ID"),
+            rs.getShort("ALTERATION"));
+        cnaEvent.setEventId(rs.getLong("CNA_EVENT_ID"));
+        cnaEvent.setDriverFilter(rs.getString("DRIVER_FILTER"));
+        cnaEvent.setDriverFilterAnnotation(rs.getString("DRIVER_FILTER_ANNOTATION"));
+        cnaEvent.setDriverTiersFilter(rs.getString("DRIVER_TIERS_FILTER"));
+        cnaEvent.setDriverTiersFilterAnnotation(rs.getString("DRIVER_TIERS_FILTER_ANNOTATION"));
+        return cnaEvent;
     }
 
     public static List<CnaEvent.Event> getAllCnaEvents() throws DaoException {

@@ -30,7 +30,6 @@ import argparse
 import importlib
 import logging.handlers
 import os
-import requests
 import sys
 from pathlib import Path
 
@@ -79,8 +78,8 @@ def main_import(args):
 
     meta_file_mutation = libImportOncokb.find_meta_file_by_fields(study_dir, {'genetic_alteration_type': 'MUTATION_EXTENDED'})
     mutation_file_path = os.path.join(study_dir, libImportOncokb.find_data_file_from_meta_file(meta_file_mutation))
-    check_required_columns(libImportOncokb.get_first_line(open_mutations_file(mutation_file_path)).rstrip('\n').split('\t'))
-    check_disallowed_columns(libImportOncokb.get_first_line(open_mutations_file(mutation_file_path)).rstrip('\n').split('\t'))
+    libImportOncokb.check_required_columns(libImportOncokb.get_first_line(libImportOncokb.open_file(mutation_file_path)).rstrip('\n').split('\t'), required_mutation_columns)
+    check_disallowed_columns(libImportOncokb.get_first_line(libImportOncokb.open_file(mutation_file_path)).rstrip('\n').split('\t'))
 
     global portal_instance
     if hasattr(args, 'portal_info_dir') and args.portal_info_dir is not None:
@@ -97,35 +96,25 @@ def main_import(args):
 
     return exit_status_handler.get_exit_status()
 
-
-def open_mutations_file(file_name):
-    """Open MAF file and handle exception when not found."""
-    try:
-        file = open(file_name)
-    except FileNotFoundError:
-        raise FilenotFoundError("Could not open MAF file at path '" + file_name + "'")
-    return file
-
-
 def check_disallowed_columns(header_elements):
     disallowed_columns = []
     for disallowed_column in disallowed_mutation_columns:
         if disallowed_column in header_elements:
             disallowed_columns.append(disallowed_column)
     if len(disallowed_columns) > 0:
-        raise RuntimeError("One or more disallowed columns for OncoKb import are present in the MAF file. " \
+        raise RuntimeError("One or more disallowed columns for OncoKB import are present in the MAF file. " \
                            "Disallowed column(s): [" + ", ".join(disallowed_columns) + "]")
 
 
 def get_features(mutation_file_path):
     """Extract Mutation events from MAF data file."""
-    header_elements = libImportOncokb.get_first_line(open_mutations_file(mutation_file_path)).rstrip().split('\t')
+    header_elements = libImportOncokb.get_first_line(libImportOncokb.open_file(mutation_file_path)).rstrip().split('\t')
     header_indexes = {}
     for required_column in required_mutation_columns + ['Entrez_Gene_Id']:
         header_indexes[required_column] = header_elements.index(required_column)
     row_number_to_feature = {}
     row_counter = 0
-    mutation_file = open_mutations_file(mutation_file_path)
+    mutation_file = libImportOncokb.open_file(mutation_file_path)
     print("Reading features from file ...", end = '')
     for line in mutation_file:
         row_counter += 1
@@ -142,7 +131,7 @@ def get_features(mutation_file_path):
             elif column_name != 'Entrez_Gene_Id' and column_name != 'Protein_position':
                 raise RuntimeError("Empty value encounterd in column '" +
                                    column_name + "' in row " + str(row_counter) + "." \
-                                                                                  "OncoKb annotations cannot be imported. Please fix and rerun.")
+                                                                                  "OncoKB annotations cannot be imported. Please fix and rerun.")
 
         # resolve gene symbols to Entrez Ids if needed
         if 'Entrez_Gene_Id' in feature and feature['Entrez_Gene_Id'] is not None and feature['Entrez_Gene_Id'] != '':
@@ -152,13 +141,13 @@ def get_features(mutation_file_path):
 
         if len(entrez_gene_ids) > 1:
             logger.error("Multiple Entrez gene ids were found for a gene." \
-                         "OncoKb annotations will not be imported for this gene." \
+                         "OncoKB annotations will not be imported for this gene." \
                          "Please fix and rerun.",
                          extra={'symbol': feature['Hugo_Symbol'], 'row': str(row_counter)})
             feature['Entrez_Gene_Id'] = None
         elif len(entrez_gene_ids) == 0:
             logger.error("Could not find the Entrez gene id for a gene." \
-                         "OncoKb annotations will not be imported for this gene." \
+                         "OncoKB annotations will not be imported for this gene." \
                          "Please fix and rerun.",
                          extra={'symbol': feature['Hugo_Symbol'], 'row': str(row_counter)})
             feature['Entrez_Gene_Id'] = None
@@ -179,7 +168,7 @@ def fetch_oncokb_annotations(row_number_to_feature):
     for row_number, feature in row_number_to_feature.items():
         id_to_rownumber[feature['id']] = row_number
     payload_list = create_request_payload(row_number_to_feature)
-    annotations = libImportOncokb.fetch_oncokb_annotations(payload_list, "https://public.api.oncokb.org/api/v1/annotate/mutations/byProteinChange")
+    annotations = libImportOncokb.fetch_oncokb_annotations(payload_list, libImportOncokb.DEFAULT_ONCOKB_URL + "/annotate/mutations/byProteinChange")
     row_number_to_annotation = {}
     id_to_annotation = {annotation['query']['id']: annotation for annotation in annotations}
     for row_number, feature in row_number_to_feature.items():
@@ -225,7 +214,7 @@ def write_annotations_to_file(row_number_to_annotation, mutations_file_path):
         new_file = open(mutations_file_path + '_temp', "x")
         header_updated = False
         row_counter = 0
-        mutations_file = open_mutations_file(mutations_file_path)
+        mutations_file = libImportOncokb.open_file(mutations_file_path)
         for line in mutations_file:
             row_counter += 1
             if not line.startswith('#'):
@@ -251,18 +240,6 @@ def write_annotations_to_file(row_number_to_annotation, mutations_file_path):
     os.rename(mutations_file_path + '_temp', mutations_file_path)
     print(" DONE")
     return
-
-
-def check_required_columns(header_elements):
-    missing_columns = []
-    for required_column in required_mutation_columns:
-        if not required_column in header_elements:
-            missing_columns.append(required_column)
-    if len(missing_columns) > 0:
-        raise RuntimeError("One or more required columns for OncoKb import are missing from the MAF file. " \
-                           "Missing column(s): [" + ", ".join(missing_columns) + "]")
-
-
 
 def interface():
     parser = argparse.ArgumentParser(description='cBioPortal OncoKB annotation importer')

@@ -30,7 +30,6 @@ import argparse
 import importlib
 import logging.handlers
 import os
-import requests
 import sys
 from os import path
 from pathlib import Path
@@ -96,7 +95,7 @@ def main_import(args):
     if path.exists(pd_file_path):
         raise RuntimeError(
             "Custom driver annotations file '" + pd_file_path + "' for discrete CNA already exists . Please remove and rerun.")
-    check_required_columns(libImportOncokb.get_first_line(open_cna_file(cna_file_path)).rstrip('\n').split('\t'))
+    libImportOncokb.check_required_columns(libImportOncokb.get_first_line(libImportOncokb.open_file(cna_file_path)).rstrip('\n').split('\t'), required_cna_columns)
 
     global portal_instance
     if hasattr(args, 'portal_info_dir') and args.portal_info_dir is not None:
@@ -120,19 +119,9 @@ def main_import(args):
 
     return exit_status_handler.get_exit_status()
 
-
-def open_cna_file(file_name):
-    """Open CNA file and handle exception when not found."""
-    try:
-        file = open(file_name)
-    except FileNotFoundError:
-        raise FilenotFoundError("Could not open discrete CNA file at path '" + file_name + "'")
-    return file
-
-
 def get_features(cna_file_path):
     """Extract CNA events from CNA data file."""
-    header_elements = libImportOncokb.get_first_line(open_cna_file(cna_file_path)).rstrip('\n').split('\t')
+    header_elements = libImportOncokb.get_first_line(libImportOncokb.open_file(cna_file_path)).rstrip('\n').split('\t')
     header_indexes = {}
     for required_column in required_cna_columns + ['Entrez_Gene_Id']:
         header_indexes[required_column] = header_elements.index(required_column)
@@ -142,7 +131,7 @@ def get_features(cna_file_path):
         sample_indexes[sample_id] = header_elements.index(sample_id)
 
     features = []
-    cna_file = open_cna_file(cna_file_path)
+    cna_file = libImportOncokb.open_file(cna_file_path)
     print("Reading features from file ...", end = '')
     for line in cna_file:
         if line == '\n' or line.startswith('#') or line.startswith(header_elements[0]):
@@ -163,7 +152,7 @@ def get_features(cna_file_path):
                     feature[column_name] = value
                 elif column_name != 'Entrez_Gene_Id':
                     print(Color.RED + "Empty value encounterd in column '" + column_name + "' in row " + str(
-                        row_counter) + ". OncoKb annotations cannot be imported. Please fix and rerun." + Color.END,
+                        row_counter) + ". OncoKB annotations cannot be imported. Please fix and rerun." + Color.END,
                           file=sys.stderr)
                     print("!" * 71, file=sys.stderr)
                     sys.exit(1)
@@ -177,13 +166,13 @@ def get_features(cna_file_path):
 
             if len(entrez_gene_ids) > 1:
                 logger.error("Multiple Entrez gene ids were found for a gene." \
-                             "OncoKb annotations will not be imported for this gene." \
+                             "OncoKB annotations will not be imported for this gene." \
                              "Please fix and rerun.",
                              extra={'symbol': feature['Hugo_Symbol']})
                 feature['Entrez_Gene_Id'] = None
             elif len(entrez_gene_ids) == 0:
                 logger.error("Could not find the Entrez gene id for a gene." \
-                             "OncoKb annotations will not be imported for this gene." \
+                             "OncoKB annotations will not be imported for this gene." \
                              "Please fix and rerun.",
                              extra={'symbol': feature['Hugo_Symbol']})
                 feature['Entrez_Gene_Id'] = None
@@ -201,7 +190,7 @@ def fetch_oncokb_annotations(features):
     """Submit CNA events to OncoKB.org and return OncoKB annotations."""
     id_to_annotation = {}
     payload_list = create_request_payload(features)
-    annotations = libImportOncokb.fetch_oncokb_annotations(payload_list, "https://public.api.oncokb.org/api/v1/annotate/copyNumberAlterations")
+    annotations = libImportOncokb.fetch_oncokb_annotations(payload_list, libImportOncokb.DEFAULT_ONCOKB_URL + "/annotate/copyNumberAlterations")
     for annotation in annotations:
         id = annotation['query']['id']
         id_to_annotation[id] = annotation
@@ -247,17 +236,6 @@ def write_annotations_to_file(features, pd_file_name):
                 feature['oncogenic'], '', '']) + "\n"
             new_file.write(line)
     new_file.close()
-
-
-def check_required_columns(header_elements):
-    missing_columns = []
-    for required_column in required_cna_columns:
-        if not required_column in header_elements:
-            missing_columns.append(required_column)
-    if len(missing_columns) > 0:
-        raise RuntimeError("One or more required columns for OncoKb import are missing from the discrete CNA file. " \
-                           "Missing column(s): [" + ", ".join(missing_columns) + "]")
-
 
 def interface():
     parser = argparse.ArgumentParser(description='cBioPortal OncoKB annotation importer')

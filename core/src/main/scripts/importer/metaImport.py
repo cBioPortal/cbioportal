@@ -103,7 +103,7 @@ def interface():
     parser.add_argument('-update', '--update_generic_assay_entity', type=str, required=False, default="False",
                         help='Set as True to update the existing generic assay entities, set as False to keep the existing generic assay entities for generic assay')
     parser.add_argument('-oncokb', '--import_oncokb', action='store_true',
-                        help='Set as True to download OncoKb annotations for Mutations and CNA and load as custom driver annotations')
+                        help='Set as True to download OncoKB annotations for Mutations and CNA and load as custom driver annotations')
     parser.add_argument('-skipimport', '--skip_db_import', action='store_true',
                         help='Perform validation and OncoKB download but do not import study into database.')
     parser = parser.parse_args()

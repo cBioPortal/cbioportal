@@ -37,6 +37,7 @@ from . import validateData
 
 
 BATCH_SIZE = 200
+DEFAULT_ONCOKB_URL = "https://public.api.oncokb.org/api/v1"
 
 
 def load_portal_genes(server_url):
@@ -168,9 +169,9 @@ def read_meta_file(metafile_path):
             fields[match[0]] = match[1]
     return fields
 
-def get_oncokb_cancer_genes():
-    """Do a call to OncoKB to retrieve the Cancer Gene List. """
-    request_url = "https://public.api.oncokb.org/api/v1/utils/allCuratedGenes"
+def get_oncokb_curated_genes():
+    """Do a call to OncoKB to retrieve the Curated Gene List. """
+    request_url = DEFAULT_ONCOKB_URL + "/utils/allCuratedGenes"
     request = requests.get(url=request_url)
 
     if request.ok:
@@ -182,26 +183,26 @@ def get_oncokb_cancer_genes():
         else:
             request.raise_for_status()
 
-def get_annotated_oncokb_cancer_genes_by_entrezId():
-    """ Get a list with the Entrez Gene IDs of the OncoKB Cancer Gene List, only the genes that have
+def get_annotated_oncokb_curated_genes_by_entrezId():
+    """ Get a list with the Entrez Gene IDs of the OncoKB Curated Gene List, only the genes that have
         annotations. """
-    cancer_genes = get_oncokb_cancer_genes()
+    curated_genes = get_oncokb_curated_genes()
     entrez_ids = []
-    for gene in cancer_genes:
+    for gene in curated_genes:
         entrez_ids += [gene["entrezGeneId"]]
     return entrez_ids
 
 def filter_payload(payload_list, sv):
-    """ Remove the genes that are not an OncoKB Cancer Gene List from the payload. """
-    cancer_genes = get_annotated_oncokb_cancer_genes_by_entrezId()
+    """ Remove the genes that are not an OncoKB Curated Gene List from the payload. """
+    curated_genes = get_annotated_oncokb_curated_genes_by_entrezId()
     filtered_payload = []
     for element in payload_list:
         parsed_element = json.loads(element)
         if sv:
-            if parsed_element["geneA"]["entrezGeneId"] in cancer_genes and parsed_element["geneB"]["entrezGeneId"] in cancer_genes:
+            if parsed_element["geneA"]["entrezGeneId"] in curated_genes and parsed_element["geneB"]["entrezGeneId"] in curated_genes:
                 filtered_payload += [element]
         else:
-            if parsed_element["gene"]["entrezGeneId"] in cancer_genes:
+            if parsed_element["gene"]["entrezGeneId"] in curated_genes:
                 filtered_payload += [element]
     return filtered_payload
 
@@ -234,3 +235,21 @@ def partition_list(list, n):
     """Yield successive n-sized chunks from list."""
     for i in range(0, len(list), n):
         yield list[i:i + n]
+
+
+def check_required_columns(header_elements, required_columns):
+    missing_columns = []
+    for required_column in required_columns:
+        if not required_column in header_elements:
+            missing_columns.append(required_column)
+    if len(missing_columns) > 0:
+        raise RuntimeError("One or more required columns for OncoKB import are missing in the input file. " \
+                           "Missing column(s): [" + ", ".join(missing_columns) + "]")
+
+def open_file(file_name):
+    """Open file and handle exception when not found."""
+    try:
+        file = open(file_name)
+    except FileNotFoundError:
+        raise FilenotFoundError("Could not open file at path '" + file_name + "'")
+    return file

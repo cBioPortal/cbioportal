@@ -227,7 +227,7 @@ def get_reference_genome(study_id, cursor):
         print(msg, file=ERROR_FILE)
 
 def fetch_oncokb_mutation_annotations(mutation_data, ref_genome):
-    request_url = "https://public.api.oncokb.org/api/v1/annotate/mutations/byProteinChange"
+    request_url = libImportOncokb.DEFAULT_ONCOKB_URL + "/annotate/mutations/byProteinChange"
     request_payload = create_mutation_request_payload(mutation_data, ref_genome)
     result = libImportOncokb.fetch_oncokb_annotations(request_payload, request_url)
     return result
@@ -242,7 +242,7 @@ def create_mutation_request_payload(mutation_data, ref_genome):
     return list(elements.values())
 
 def fetch_oncokb_copy_number_annotations(copy_number_data, ref_genome):
-    request_url = "https://public.api.oncokb.org/api/v1/annotate/copyNumberAlterations"
+    request_url = libImportOncokb.DEFAULT_ONCOKB_URL + "/annotate/copyNumberAlterations"
     request_payload = create_copy_number_request_payload(copy_number_data, ref_genome)
     result = libImportOncokb.fetch_oncokb_annotations(request_payload, request_url)
     return result
@@ -256,7 +256,7 @@ def create_copy_number_request_payload(copy_number_data, ref_genome):
     return list(elements.values())
 
 def fetch_oncokb_sv_annotations(sv_data, ref_genome):
-    request_url = "https://public.api.oncokb.org/api/v1/annotate/structuralVariants"
+    request_url = libImportOncokb.DEFAULT_ONCOKB_URL + "/annotate/structuralVariants"
     request_payload = create_sv_request_payload(sv_data, ref_genome)
     result = libImportOncokb.fetch_oncokb_annotations(request_payload, request_url, sv=True)
     return result

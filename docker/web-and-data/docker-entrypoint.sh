@@ -37,11 +37,11 @@ check_db_connection() {
     eval "$(parse_db_params_from_config_and_command_line $@ | sed 's/^db\./db_/g')"
     POTENTIAL_DB_PARAMS=$@
 
-    while ! mysqladmin ping -s -h$(echo ${db_host} | cut -d: -f1) -u${db_user} -p${db_password};
+    while ! mysqladmin ping -s -h$(echo ${db_host} | cut -d: -f1) -P$(echo ${db_host} | cut -d: -f2) -u${db_user} -p${db_password};
     do
         sleep 5s;
         if [ -n "$SHOW_DEBUG_INFO" ] && [ "$SHOW_DEBUG_INFO" != "false" ]; then
-            echo mysqladmin ping -s -h$(echo ${db_host} | cut -d: -f1) -u${db_user} -p${db_password}
+            echo mysqladmin ping -s -h$(echo ${db_host} | cut -d: -f1) -P$(echo ${db_host} | cut -d: -f2) -u${db_user} -p${db_password}
         fi
         echo "Database not available yet (first time can take a few minutes to load seed database)... Attempting reconnect..."
     done

@@ -10,6 +10,8 @@ public interface TreatmentMapper {
     List<Treatment> getAllTreatments(List<String> sampleIds, List<String> studyIds);
 
     List<ClinicalEventSample> getAllSamples(List<String> sampleIds, List<String> studyIds);
+    
+    List<ClinicalEventSample> getAllShallowSamples(List<String> sampleIds, List<String> studyIds);
 
     Set<String> getAllUniqueTreatments(List<String> sampleIds, List<String> studyIds);
 

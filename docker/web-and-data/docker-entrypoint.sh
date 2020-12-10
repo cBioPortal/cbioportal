@@ -37,11 +37,21 @@ check_db_connection() {
     eval "$(parse_db_params_from_config_and_command_line $@ | sed 's/^db\./db_/g')"
     POTENTIAL_DB_PARAMS=$@
 
-    while ! mysqladmin ping -s -h$(echo ${db_host} | cut -d: -f1) -u${db_user} -p${db_password};
+    if [ -z ${db_port+x} ] # is $db_port unset?
+    then 
+        if [[ $db_host == *":"* ]]; then # does $db_host contain a ':'?
+            db_port=$(echo ${db_host} | cut -d: -f2) # grab what's after the ':'
+        else
+            db_port="3306" # use default port
+        fi
+    fi
+
+
+    while ! mysqladmin ping -s -h$(echo ${db_host} | cut -d: -f1) -P${db_port} -u${db_user} -p${db_password};
     do
         sleep 5s;
         if [ -n "$SHOW_DEBUG_INFO" ] && [ "$SHOW_DEBUG_INFO" != "false" ]; then
-            echo mysqladmin ping -s -h$(echo ${db_host} | cut -d: -f1) -u${db_user} -p${db_password}
+            echo mysqladmin ping -s -h$(echo ${db_host} | cut -d: -f1) -P${db_port} -u${db_user} -p${db_password}
         fi
         echo "Database not available yet (first time can take a few minutes to load seed database)... Attempting reconnect..."
     done

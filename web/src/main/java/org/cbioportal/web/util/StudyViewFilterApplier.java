@@ -51,7 +51,6 @@ public class StudyViewFilterApplier {
     private DataBinner dataBinner;
     @Autowired
     private PatientTreatmentFilterApplier patientTreatmentFilterApplier;
-    
     @Autowired
     private SampleTreatmentFilterApplier sampleTreatmentFilterApplier;
 

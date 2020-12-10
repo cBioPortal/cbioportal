@@ -257,6 +257,8 @@ public class TreatmentServiceImplTest {
             .collect(Collectors.groupingBy(ClinicalEventSample::getPatientId));
         Mockito.when(treatmentRepository.getSamplesByPatientId(Mockito.any(), Mockito.any()))
             .thenReturn(samplesByPatient);
+        Mockito.when(treatmentRepository.getShallowSamplesByPatientId(Mockito.any(), Mockito.any()))
+            .thenReturn(samplesByPatient);
     }
     
     private void mockAllTreatments(String... treatments) {

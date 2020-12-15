@@ -66,6 +66,27 @@ public class TreatmentMyBatisRepositoryTest {
     }
 
     @Test
+    public void getShallowSamplesByPatientId() {
+        ClinicalEventSample clinicalEventSample = new ClinicalEventSample();
+        clinicalEventSample.setPatientId("TCGA-A1-A0SD");
+        clinicalEventSample.setSampleId("TCGA-A1-A0SD-01");
+        clinicalEventSample.setStudyId("study_tcga_pub");
+        clinicalEventSample.setTimeTaken(213);
+
+        HashMap<String, List<ClinicalEventSample>> expected = new HashMap<>();
+        expected.put("TCGA-A1-A0SD", Collections.singletonList(clinicalEventSample));
+
+
+        Map<String, List<ClinicalEventSample>> actual = treatmentRepository.getShallowSamplesByPatientId(
+            Collections.singletonList("TCGA-A1-A0SD-01"),
+            Collections.singletonList("study_tcga_pub")
+        );
+
+
+        Assert.assertEquals(actual, expected);
+    }
+
+    @Test
     public void getAllUniqueTreatments() {
         HashSet<String> expected = new HashSet<>(Collections.singletonList("Madeupanib"));
         

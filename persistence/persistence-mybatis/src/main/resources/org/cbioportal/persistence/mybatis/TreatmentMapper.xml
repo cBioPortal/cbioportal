@@ -36,6 +36,18 @@
             AND clinical_event.EVENT_TYPE != 'SEQUENCING'
     </select>
 
+    <select id="getAllShallowSamples" resultType="org.cbioportal.model.ClinicalEventSample">
+        SELECT
+            sample.STABLE_ID as sampleId,
+            patient.STABLE_ID as patientId,
+            cancer_study.CANCER_STUDY_IDENTIFIER as studyId
+        FROM
+            sample
+            INNER JOIN patient ON sample.PATIENT_ID = patient.INTERNAL_ID
+            INNER JOIN cancer_study ON patient.CANCER_STUDY_ID = cancer_study.CANCER_STUDY_ID
+        <include refid="where"/>
+    </select>
+
     <select id="getAllUniqueTreatments" resultType="java.lang.String">
         SELECT 
             DISTINCT clinical_event_data.VALUE
@@ -99,7 +111,11 @@
                     </foreach>
                 </if>
                 <if test="@java.util.Arrays@stream(studyIds.toArray()).distinct().count() > 1">
-                    (cancer_study.CANCER_STUDY_IDENTIFIER, sample.STABLE_ID) IN
+                    cancer_study.CANCER_STUDY_IDENTIFIER IN
+                        <foreach item="item" collection="@java.util.Arrays@stream(studyIds.toArray()).distinct().collect(@java.util.stream.Collectors@toList())" open="(" separator="," close=")">
+                        #{item}
+                    </foreach>
+                    AND (cancer_study.CANCER_STUDY_IDENTIFIER, sample.STABLE_ID) IN
                     <foreach index="i" collection="sampleIds" open="(" separator="," close=")">
                         (#{studyIds[${i}]}, #{sampleIds[${i}]})
                     </foreach>

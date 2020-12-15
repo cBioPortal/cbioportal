@@ -13,9 +13,7 @@ import org.springframework.beans.factory.annotation.Configurable;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
+import java.util.*;
 
 @RunWith(SpringJUnit4ClassRunner.class)
 @ContextConfiguration("/testContextDatabase.xml")
@@ -68,17 +66,52 @@ public class DiscreteCopyNumberMyBatisRepositoryTest {
                 entrezGeneIds, alterations, "DETAILED");
 
         Assert.assertEquals(3, result.size());
-        DiscreteCopyNumberData discreteCopyNumberData = result.get(0);
-        Assert.assertEquals("study_tcga_pub_gistic", discreteCopyNumberData.getMolecularProfileId());
-        Assert.assertEquals("TCGA-A1-A0SB-01", discreteCopyNumberData.getSampleId());
-        Assert.assertEquals((Integer) 207, discreteCopyNumberData.getEntrezGeneId());
-        Assert.assertEquals((Integer) (-2), discreteCopyNumberData.getAlteration());
-        Gene gene = discreteCopyNumberData.getGene();
+        //We do not test order here
+        result.sort(new Comparator<DiscreteCopyNumberData>() {
+            @Override
+            public int compare(DiscreteCopyNumberData o1, DiscreteCopyNumberData o2) {
+                int sampleIdCompare = o1.getSampleId().compareTo(o2.getSampleId());
+                if (sampleIdCompare == 0) {
+                    return o1.getEntrezGeneId().compareTo(o2.getEntrezGeneId());
+                }
+                return sampleIdCompare;
+            }
+        });
+        DiscreteCopyNumberData discreteCopyNumberDataB207 = result.get(0);
+        Assert.assertEquals("study_tcga_pub_gistic", discreteCopyNumberDataB207.getMolecularProfileId());
+        Assert.assertEquals("TCGA-A1-A0SB-01", discreteCopyNumberDataB207.getSampleId());
+        Assert.assertEquals((Integer) 207, discreteCopyNumberDataB207.getEntrezGeneId());
+        Assert.assertEquals((Integer) (-2), discreteCopyNumberDataB207.getAlteration());
+        Assert.assertEquals("Putative_Driver", discreteCopyNumberDataB207.getDriverFilter());
+        Assert.assertEquals("Pathogenic", discreteCopyNumberDataB207.getDriverFilterAnnotation());
+        Assert.assertEquals("Tier 1", discreteCopyNumberDataB207.getDriverTiersFilter());
+        Assert.assertEquals("Highly Actionable", discreteCopyNumberDataB207.getDriverTiersFilterAnnotation());
+        Gene gene = discreteCopyNumberDataB207.getGene();
         Assert.assertEquals((Integer) 207, gene.getEntrezGeneId());
         Assert.assertEquals("AKT1", gene.getHugoGeneSymbol());
         ReferenceGenomeGene refGene = refGeneMyBatisRepository.getReferenceGenomeGene(gene.getEntrezGeneId(), "hg19");
         Assert.assertEquals("14q32.33", refGene.getCytoband());
         Assert.assertEquals((Integer) 10838, refGene.getLength());
+
+        DiscreteCopyNumberData discreteCopyNumberDataB208 = result.get(1);
+        Assert.assertEquals("study_tcga_pub_gistic", discreteCopyNumberDataB208.getMolecularProfileId());
+        Assert.assertEquals("TCGA-A1-A0SB-01", discreteCopyNumberDataB208.getSampleId());
+        Assert.assertEquals((Integer) 208, discreteCopyNumberDataB208.getEntrezGeneId());
+        Assert.assertEquals((Integer) (2), discreteCopyNumberDataB208.getAlteration());
+        Assert.assertNull(discreteCopyNumberDataB208.getDriverFilter());
+        Assert.assertNull(discreteCopyNumberDataB208.getDriverFilterAnnotation());
+        Assert.assertNull(discreteCopyNumberDataB208.getDriverTiersFilter());
+        Assert.assertNull(discreteCopyNumberDataB208.getDriverTiersFilterAnnotation());
+
+        DiscreteCopyNumberData discreteCopyNumberDataD207 = result.get(2);
+        Assert.assertEquals("study_tcga_pub_gistic", discreteCopyNumberDataD207.getMolecularProfileId());
+        Assert.assertEquals("TCGA-A1-A0SD-01", discreteCopyNumberDataD207.getSampleId());
+        Assert.assertEquals((Integer) 207, discreteCopyNumberDataD207.getEntrezGeneId());
+        Assert.assertEquals((Integer) (2), discreteCopyNumberDataD207.getAlteration());
+        Assert.assertEquals("Putative_Passenger", discreteCopyNumberDataD207.getDriverFilter());
+        Assert.assertEquals("Pathogenic", discreteCopyNumberDataD207.getDriverFilterAnnotation());
+        Assert.assertEquals("Tier 2", discreteCopyNumberDataD207.getDriverTiersFilter());
+        Assert.assertEquals("Potentially Actionable", discreteCopyNumberDataD207.getDriverTiersFilterAnnotation());
     }
 
     @Test

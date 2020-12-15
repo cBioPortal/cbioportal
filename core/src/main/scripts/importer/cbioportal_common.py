@@ -111,7 +111,8 @@ META_FIELD_MAP = {
         'profile_name': True,
         'profile_description': True,
         'data_filename': True,
-        'gene_panel': False
+        'gene_panel': False,
+        'pd_annotations_filename': False
     },
     MetaFileTypes.CNA_LOG2: {
         'cancer_study_identifier': True,

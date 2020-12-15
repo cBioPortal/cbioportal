@@ -15,6 +15,10 @@ public class Alteration extends UniqueKeyBase {
     private Gene gene;
     @NotNull
     private String studyId;
+    private String driverFilter;
+    private String driverFilterAnnotation;
+    private String driverTiersFilter;
+    private String driverTiersFilterAnnotation;
 
     public String getMolecularProfileId() {
         return molecularProfileId;
@@ -62,5 +66,37 @@ public class Alteration extends UniqueKeyBase {
 
     public void setStudyId(String studyId) {
         this.studyId = studyId;
+    }
+
+    public String getDriverFilter() {
+        return driverFilter;
+    }
+
+    public void setDriverFilter(String driverFilter) {
+        this.driverFilter = driverFilter;
+    }
+
+    public String getDriverFilterAnnotation() {
+        return driverFilterAnnotation;
+    }
+
+    public void setDriverFilterAnnotation(String driverFilterAnnotation) {
+        this.driverFilterAnnotation = driverFilterAnnotation;
+    }
+
+    public String getDriverTiersFilter() {
+        return driverTiersFilter;
+    }
+
+    public void setDriverTiersFilter(String driverTiersFilter) {
+        this.driverTiersFilter = driverTiersFilter;
+    }
+
+    public String getDriverTiersFilterAnnotation() {
+        return driverTiersFilterAnnotation;
+    }
+
+    public void setDriverTiersFilterAnnotation(String driverTiersFilterAnnotation) {
+        this.driverTiersFilterAnnotation = driverTiersFilterAnnotation;
     }
 }

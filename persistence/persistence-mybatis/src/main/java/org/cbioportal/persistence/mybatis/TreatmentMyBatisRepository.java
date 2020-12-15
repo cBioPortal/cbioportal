@@ -32,6 +32,13 @@ public class TreatmentMyBatisRepository implements TreatmentRepository {
             .collect(groupingBy(ClinicalEventSample::getPatientId));
     }
 
+    public Map<String, List<ClinicalEventSample>> getShallowSamplesByPatientId(List<String> sampleIds, List<String> studyIds) {
+        return treatmentMapper.getAllShallowSamples(sampleIds, studyIds)
+            .stream()
+            .distinct()
+            .collect(groupingBy(ClinicalEventSample::getPatientId));
+    }
+
     @Override
     public Set<String> getAllUniqueTreatments(List<String> sampleIds, List<String> studyIds) {
         return treatmentMapper.getAllUniqueTreatments(sampleIds, studyIds);

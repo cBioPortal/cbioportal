@@ -1,0 +1,170 @@
+name: cbioportal-performance-test
+on:
+  pull_request:
+    types: [opened, synchronize, reopened]
+
+jobs:
+  deploy_portal_and_test_study_view_endpoints:
+    if: github.repository == 'cbioportal/cbioportal' && contains(github.event.pull_request.labels.*.name, 'run-performance-tests')
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout git repo
+        uses: actions/checkout@v1
+      - name: Extract PR number
+        # create the docker image tag by extracting pr number from github
+        run: echo "##[set-output name=image_tag;]$(export set GITHUB_REF_TMP=${GITHUB_REF#refs/pull/};echo cbioportal-performance-test-${GITHUB_REF_TMP%/merge})"
+        id: extract_tags
+      - name: Rename deployment
+        run: |
+         sed "s/cbioportal-performance-test\b/${{ steps.extract_tags.outputs.image_tag }}/g" .github/k8s/cbioportal_performance_test.yaml > /tmp/cbioportal_performance_test.yaml
+      - name: Docker build with cache
+        uses: whoan/docker-build-with-cache-action@v4
+        with:
+          username: "${{ secrets.DOCKER_USERNAME_PIPELINES }}"
+          password: "${{ secrets.DOCKER_PASSWORD_PIPELINES }}"
+          image_name: cbioportalpipelines/cbioportal
+          image_tag: ${{ steps.extract_tags.outputs.image_tag }}
+          context: .
+          dockerfile: docker/web/Dockerfile
+          pull_image_and_stages: false
+      - name: Set context for kubectl cluster
+        uses: azure/k8s-set-context@v1
+        with:
+          method: service-account
+          k8s-url: ${{ secrets.K8S_URL }}
+          k8s-secret: ${{ secrets.K8S_SECRET }}
+      - name: Deploy to kubernetes
+        uses: Azure/k8s-deploy@v1.2
+        with:
+          namespace: performance-test
+          manifests: |
+            /tmp/cbioportal_performance_test.yaml
+          images: 'cbioportalpipelines/cbioportal:${{ steps.extract_tags.outputs.image_tag }}'
+          action: deploy
+          kubectl-version: 'v1.15.12'
+      - name: Extract pod name
+        run: echo "##[set-output name=pod_name;]$(kubectl get pods --namespace=performance-test --selector=run=${{ steps.extract_tags.outputs.image_tag }} | tail -1| cut -f1 -d' ')"
+        id: extract_pod_name
+      - name: Install curl
+        run: |
+            kubectl exec -it --namespace performance-test ${{ steps.extract_pod_name.outputs.pod_name }} -- bash -c "sleep_f () { sleep 0.3; }; sleep_f; apt-get update; sleep_f; apt-get -y install curl; sleep_f; apt-get -y install jq"
+      - name: POST Request for /filtered-samples endpoint
+        env:
+          MAX_WAIT_TIME_IN_SECONDS: 180
+          URL: "http://localhost:8888/api/filtered-samples/fetch"
+        run: |
+          kubectl exec -it --namespace=performance-test ${{ steps.extract_pod_name.outputs.pod_name }} -- bash -c "curl --max-time $MAX_WAIT_TIME_IN_SECONDS -s -X POST '$URL' -H 'accept: application/json' -H 'Content-Type: application/json' -d '{\"studyIds\": [ \"genie_public\" ]}' | jq --join-output --compact-output '[.[]|{sampleId: .\"sampleId\", studyId: \"genie_public\"}]' > samples.json; jq --join-output --compact-output '{sampleIdentifiers: [.[]]}' samples.json > sampleIdentifiers.json"
+      - name: POST Request for /mutated-genes endpoint
+        env:
+          MAX_WAIT_TIME_IN_SECONDS: 180
+          URL: "http://localhost:8888/api/mutated-genes/fetch"
+          SEARCH_STR: "entrezGeneId"
+          POST_BODY: "{\"studyIds\": [ \"genie_public\" ]}"
+        run: |
+          . ./.github/k8s/run_endpoint_test.sh ${{ steps.extract_pod_name.outputs.pod_name }} "$MAX_WAIT_TIME_IN_SECONDS" "$URL" "$SEARCH_STR" "$POST_BODY" 0 0
+      - name: POST Request for /cna-genes endpoint
+        env:
+          MAX_WAIT_TIME_IN_SECONDS: 180
+          URL: "http://localhost:8888/api/cna-genes/fetch"
+          SEARCH_STR: "entrezGeneId"
+          POST_BODY: "@sampleIdentifiers.json"
+        run: |
+          . ./.github/k8s/run_endpoint_test.sh ${{ steps.extract_pod_name.outputs.pod_name }} "$MAX_WAIT_TIME_IN_SECONDS" "$URL" "$SEARCH_STR" "$POST_BODY" 0 0
+      - name: POST Request for /treatments/patient endpoint
+        env:
+          MAX_WAIT_TIME_IN_SECONDS: 180
+          URL: "http://localhost:8888/api/treatments/patient"
+          POST_BODY: "@sampleIdentifiers.json"
+        run: |
+          # TODO: change if treatment data is ever added
+          . ./.github/k8s/run_endpoint_test.sh ${{ steps.extract_pod_name.outputs.pod_name }} "$MAX_WAIT_TIME_IN_SECONDS" "$URL" "NA" "$POST_BODY" 1 0
+      - name: POST Request for /treatments/sample endpoint
+        env:
+          MAX_WAIT_TIME_IN_SECONDS: 180
+          URL: "http://localhost:8888/api/treatments/sample"
+          POST_BODY: "@sampleIdentifiers.json"
+        run: |
+          # TODO: change if treatment data is ever added
+          . ./.github/k8s/run_endpoint_test.sh ${{ steps.extract_pod_name.outputs.pod_name }} "$MAX_WAIT_TIME_IN_SECONDS" "$URL" "NA" "$POST_BODY" 1 0
+      - name: POST Request for /fusion-genes/fetch endpoint
+        env:
+          MAX_WAIT_TIME_IN_SECONDS: 180
+          URL: "http://localhost:8888/api/fusion-genes/fetch"
+          SEARCH_STR: "entrezGeneId"
+          POST_BODY: "@sampleIdentifiers.json"
+        run: |
+          . ./.github/k8s/run_endpoint_test.sh ${{ steps.extract_pod_name.outputs.pod_name }} "$MAX_WAIT_TIME_IN_SECONDS" "$URL" "$SEARCH_STR" "$POST_BODY" 0 0
+      - name: POST Request for /copy-number-segments/fetch endpoint
+        env:
+          MAX_WAIT_TIME_IN_SECONDS: 180
+          URL: "http://localhost:8888/api/copy-number-segments/fetch?projection=META"
+          SEARCH_STR: "seg"
+          POST_BODY: "@samples.json"
+        run: |
+          # TODO: study view is querying with projection=META which does not return anything
+          # update if we ever use a query that reutrns data (e.g SUMMARY)
+          . ./.github/k8s/run_endpoint_test.sh ${{ steps.extract_pod_name.outputs.pod_name }} "$MAX_WAIT_TIME_IN_SECONDS" "$URL" "$SEARCH_STR" "$POST_BODY" 0 1
+      - name: POST Request for /clinical-data-bin-counts endpoint
+        env:
+          MAX_WAIT_TIME_IN_SECONDS: 180
+          URL: "http://localhost:8888/api/clinical-data-bin-counts/fetch?dataBinMethod=STATIC"
+          SEARCH_STR: "MUTATION_COUNT"
+          POST_BODY: "{\"attributes\":[{\"attributeId\":\"MUTATION_COUNT\",\"disableLogScale\":false},{\"attributeId\":\"FRACTION_GENOME_ALTERED\",\"disableLogScale\":false},{\"attributeId\":\"AGE_AT_SEQ_REPORT\",\"disableLogScale\":false},{\"attributeId\":\"AGE_AT_SEQ_REPORT_DAYS\",\"disableLogScale\":false},{\"attributeId\":\"INT_CONTACT\",\"disableLogScale\":false},{\"attributeId\":\"INT_DOD\",\"disableLogScale\":false},{\"attributeId\":\"SEQ_YEAR\",\"disableLogScale\":false}],\"studyViewFilter\":{\"studyIds\":[\"genie_public\"],\"patientTreatmentFilters\":{\"filters\":[]},\"sampleTreatmentFilters\":{\"filters\":[]}}}"
+        run: |
+          . ./.github/k8s/run_endpoint_test.sh ${{ steps.extract_pod_name.outputs.pod_name }} "$MAX_WAIT_TIME_IN_SECONDS" "$URL" "$SEARCH_STR" "$POST_BODY" 0 0
+      - name: POST Request for /clinical-data-counts endpoint
+        env:
+          MAX_WAIT_TIME_IN_SECONDS: 180
+          URL: "http://localhost:8888/api/clinical-data-counts/fetch"
+          SEARCH_STR: "SAMPLE_COUNT"
+          POST_BODY: "{\"attributes\":[{\"attributeId\":\"CANCER_TYPE\"},{\"attributeId\":\"CANCER_TYPE_DETAILED\"},{\"attributeId\":\"SAMPLE_COUNT\"},{\"attributeId\":\"SEX\"},{\"attributeId\":\"ETHNICITY\"},{\"attributeId\":\"SAMPLE_TYPE\"},{\"attributeId\":\"CENTER\"},{\"attributeId\":\"ONCOTREE_CODE\"},{\"attributeId\":\"PRIMARY_RACE\"},{\"attributeId\":\"SAMPLE_TYPE_DETAILED\"},{\"attributeId\":\"SECONDARY_RACE\"},{\"attributeId\":\"SEQ_ASSAY_ID\"},{\"attributeId\":\"TERTIARY_RACE\"}],\"studyViewFilter\":{\"studyIds\":[\"genie_public\"],\"patientTreatmentFilters\":{\"filters\":[]},\"sampleTreatmentFilters\":{\"filters\":[]}}}"
+        run: |
+          . ./.github/k8s/run_endpoint_test.sh ${{ steps.extract_pod_name.outputs.pod_name }} "$MAX_WAIT_TIME_IN_SECONDS" "$URL" "$SEARCH_STR" "$POST_BODY" 0 0
+      - name: POST Request for /clinical-data-density-plot endpoint
+        env:
+          MAX_WAIT_TIME_IN_SECONDS: 180
+          URL: "http://localhost:8888/api/clinical-data-density-plot/fetch?xAxisAttributeId=FRACTION_GENOME_ALTERED&xAxisBinCount=50&xAxisEnd=1&xAxisStart=0&yAxisAttributeId=MUTATION_COUNT&yAxisBinCount=52&yAxisStart=0"
+          SEARCH_STR: "count"
+          POST_BODY: "@sampleIdentifiers.json"
+        run: |
+          . ./.github/k8s/run_endpoint_test.sh ${{ steps.extract_pod_name.outputs.pod_name }} "$MAX_WAIT_TIME_IN_SECONDS" "$URL" "$SEARCH_STR" "$POST_BODY" 0 0
+      - name: POST Request for /sample-list-counts endpoint
+        env:
+          MAX_WAIT_TIME_IN_SECONDS: 180 
+          URL: "http://localhost:8888/api/sample-lists-counts/fetch"
+          SEARCH_STR: "count"
+          POST_BODY: "{\"sampleTreatmentFilters\":{\"filters\":[]},\"patientTreatmentFilters\":{\"filters\":[]},\"studyIds\":[\"genie_public\"]}"
+        run: |
+          . ./.github/k8s/run_endpoint_test.sh ${{ steps.extract_pod_name.outputs.pod_name }} "$MAX_WAIT_TIME_IN_SECONDS" "$URL" "$SEARCH_STR" "$POST_BODY" 0 0
+      - name: Delete pod
+        if: ${{ always() }}
+        run: |
+          kubectl delete -f /tmp/cbioportal_performance_test.yaml
+      - name: DELETE request to dockerhub
+        if: ${{ always() }}
+        env:
+          MAX_WAIT_TIME_IN_SECONDS: 180
+          URL: "https://hub.docker.com/v2/repositories/cbioportalpipelines/cbioportal/tags/${{ steps.extract_tags.outputs.image_tag }}/"
+          OK_RESPONSE_CODE: 204
+
+        # DELETE request to URL with a MAX_WAIT_TIME_IN_SECONDS second limit
+        #   if curl fails, automatically exit with curl's non-zero exit code
+        #   else if we did not get a OK_RESPONSE_CODE exit with a non-zero exit code
+        #   else we are OK!
+        run: |
+          JWT_TOKEN_SECRET="`curl -s -H "Content-Type: application/json" -X POST -d '{"username": "'${{ secrets.DOCKER_USERNAME_PIPELINES }}'", "password": "${{ secrets.DOCKER_PASSWORD_PIPELINES }}"}' https://hub.docker.com/v2/users/login/ | sed 's/.*token": "//' | sed 's/"}//'`"
+          echo ${JWT_TOKEN_SECRET}
+          
+          echo "curl --max-time $MAX_WAIT_TIME_IN_SECONDS -s -o /dev/null -w '%{http_code}' -X DELETE -H 'Authorization: JWT ${JWT_TOKEN_SECRET}' '$URL'"
+          
+          curl --max-time $MAX_WAIT_TIME_IN_SECONDS -s -o /dev/null -w "%{http_code}" -X DELETE -H "Authorization: JWT ${JWT_TOKEN_SECRET}" "$URL" > curl.out
+          RESPONSE_CODE=`cat curl.out`
+          if [ "$RESPONSE_CODE" != "$OK_RESPONSE_CODE" ]; then
+            echo "Request failed with response code '$RESPONSE_CODE', expected '$OK_RESPONSE_CODE'"
+            exit 1
+          else
+            echo "Request succeeded with expected response code '$OK_RESPONSE_CODE'"
+            exit 0
+          fi
+
+# Reference: https://github.com/marketplace/actions/build-docker-images-using-cache

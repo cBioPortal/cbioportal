@@ -18,6 +18,7 @@ This page describes the main properties within portal.properties.
 - [Gene sets used for gene querying](#gene-sets-used-for-gene-querying)
 - [Ehcache Settings](#ehcache-settings)
 - [Enable GSVA functionality](#enable-gsva-functionality)
+- [Request Body Compression](#request-body-compression)
 
 # Database Settings
 
@@ -424,3 +425,44 @@ For more information on how Ehcache is implemented in cBioPortal refer to the [C
 ```
 skin.show_gsva=true
 ```
+
+# Request Body Compression
+
+## Background
+Some REST endpoints that the cBioPortal frontend uses have request bodies that scale as your dataset increases. In
+portals where users commonly query more than 100,000 samples, we found that some of these request bodies could
+get as large as 20 Mb. These large request bodies pose a significant problem for users with poor upload speeds - some
+users experienced upload times of more than five minutes for these requests. Request body compression is our temporary 
+solution to this problem. When this feature is toggled on, we compress the request bodies of a few problematic endpoints.
+
+## Properties
+There are two `portal.property` values related to this feature:
+- `enable_request_body_gzip_compression`: when `true`, the feature will be enabled.
+- `request_gzip_body_size_bytes`: the maximum allowable unzipped request body in bytes. Defaults to 80000000 (80 Mb).
+
+## Behavior
+- This is a nonbreaking change. Any consumers of the cBioPortal API you have that send requests with uncompressed request
+bodies will continue to work, regardless of whether you turn this feature on or off.
+- If you turn this feature on, the cBioPortal API will now be able to handle any request with a gzipped request body,
+provided:
+  - It is a POST request.
+  - It has a `Content-Encoding: gzip` header.
+
+## Reasons to Enable This Feature
+- You have studies with tens of thousands of samples.
+- You have users with poor upload speeds (< 1mb up).
+
+## Reasons to Disable This Feature
+- It is harder to debug gzipped requests
+  - Chrome's `copy request as CURL` will not work.
+  - The compressed request body is not human-readable.
+- It is a potential vector for denial of memory attacks.
+  - Any request that has a body that takes significantly more space in memory than it does in the request body is
+    potentially dangerous. We try to mitigate this by limiting the size of the unzipped request body via the
+    `request_gzip_body_size_bytes` property, but at a fundamental level, this is still a concern.
+  - Along these lines, if you do enable this feature, setting `request_gzip_body_size_bytes` to an arbitrarily large
+    number would be unwise.
+- This is not a cure-all for performance issues
+  - Most requests the cBioPortal makes do not have large request bodies, so most requests will not be compressed, and
+    will see no performance improvement.
+  - Users with good upload speeds will see minimal performance improvements, as their upload speed is not a bottleneck.

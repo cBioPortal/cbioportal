@@ -51,7 +51,7 @@ A new backend commit usually also means a new frontend change is necessary. For
 this reason the following sections assume that's the case.
 
 ### Public Portal Backend Upgrade
-Once the backend repo has been tagged on github, a docker image gets build on Docker Hub automatically. It can take ~20m or so before the image is available. You can check here what the status of the builds is: https://hub.docker.com/r/cbioportal/cbioportal/builds.
+Once the backend repo has been tagged on github, a docker image gets build on Docker Hub automatically. It can take ~5 min before the image is available. You can check here what the status of the builds is: https://github.com/cBioPortal/cbioportal/actions?query=workflow%3A%22Docker+Image+CI%22.
 
 
 After that, if you have access to the kubernetes cluster you can change the image in the configuration of the kubernetes cluster:

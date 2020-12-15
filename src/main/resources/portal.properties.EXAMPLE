@@ -333,3 +333,7 @@ ehcache.cache_type=none
 # this value will be rejected. If unset, the default value will be 50000000, or 50 Mb.
 # enable_request_body_gzip_compression=true
 # request_gzip_body_size_bytes=80000000
+
+# Installation map URL for installation map iframes. 
+# If blank or commented out, no map will be shown and that page will be hidden.
+# installation_map_url=https://installationmap.netlify.app/

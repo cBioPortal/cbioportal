@@ -171,6 +171,14 @@ By default, the initial x-axis limit for a survival plot is the time of the late
 survival.initial_x_axis_limit=
 ```
 
+## Display installation map
+This setting specifies the URL for the iframes of a given portal's installation map on the homepage and standalone page. By default, the installation map configuration is commented out with the iframes and standalone page hidden. 
+The configuration below is used for https://www.cbioportal.org/.
+```
+installation_map_url=https://installationmap.netlify.app/
+```
+To set up an installation map instance, one may consult the source code for the installation map [here](https://github.com/cbioportal/installation-map).
+
 # Ensembl transcript lookup URL
 The Mutations tab contains various links, redirecting the user to external information resources regarding the displayed transcript. The Ensembl template URL can be customized by modifying the property:
 ```

@@ -109,6 +109,7 @@ jobs:
                 name: Build image and generate checksum of data that populates the test database
                 command: |         
                     $TEST_HOME/local/runtime-config/db_content_fingerprint.sh | tee /tmp/db_data_md5key
+                no_output_timeout: 1h
             - restore_cache:
                 keys:
                     - v4-e2e-database-files-{{ checksum "/tmp/db_data_md5key" }}

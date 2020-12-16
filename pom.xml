@@ -286,7 +286,7 @@
   </profiles>
 
   <properties>
-    <frontend.version>d6c279afca724074ffb8fdb032a562a0ebef0d2b</frontend.version>
+    <frontend.version>c4bf4427f0e684d9c25f01709b02723ab9815800</frontend.version>
     <frontend.groupId>com.github.cbioportal</frontend.groupId>
     <slf4j.version>1.7.30</slf4j.version>
     <spring.version>5.2.6.RELEASE</spring.version>

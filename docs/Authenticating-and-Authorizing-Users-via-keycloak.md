@@ -357,3 +357,32 @@ log4j.logger.org.springframework.security=DEBUG
 ```
 
 Then, rebuild the WAR, redeploy, and try to authenticate again.  Your log file will then include hundreds of SAML-specific messages, even the full XML of each SAML message, and this should help you debug the error.
+
+#### Determining jwtRolesPath for OAuth2 Token
+By default user-roles are extracted from path `resource_access::cbioportal::roles` in the JWT json. Changes to the configuration of roles at the realm and client level in Keycloak instance can alter this path and must be set acordingly with the `dat.oauth2.jwtRolesPath` property in the `portal.properties` file. 
+
+To check the the roles path, go into the `Client Scopes` tab inside KeyCloak. Enter the `Evaluate` section, select a test user, and click `Evaluate`. In the section below, select the `Generated Access Token` tab to examine the JWT structure. 
+
+![](images/previews/oauth2_client_7.png)
+
+A sample JWT might look like this:
+```
+{
+  "exp": 1234567891,
+  "iat": 1234567892,
+  "jti": "transient-id",
+  "iss": "issuer",
+  "sub": "subject",
+  "typ": "Bearer",
+  "session_state": "sessionstate",
+  "acr": "1",
+  "realm_access": {
+    "roles": [
+      "all"
+    ]
+  },
+  "scope": "openid"
+}
+```
+The `jwtRolesPath` in this case would be `realm_access::roles`. Double check this against the `jwtRolesPath` value set in `portal.properties`.
+

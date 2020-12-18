@@ -2,6 +2,7 @@ package org.cbioportal.persistence.mybatis;
 
 import static java.util.stream.Collectors.groupingBy;
 
+import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -28,7 +29,9 @@ public class TreatmentMyBatisRepository implements TreatmentRepository {
     public Map<String, List<ClinicalEventSample>> getSamplesByPatientId(List<String> sampleIds, List<String> studyIds) {
         return treatmentMapper.getAllSamples(sampleIds, studyIds)
             .stream()
-            .distinct()
+            .sorted(Comparator.comparing(ClinicalEventSample::getTimeTaken)) // put earliest events first
+            .distinct() // uniqueness determined by sample id, patient id, and study id
+            // combined, the sort and distinct produce the earliest clinical event row for each unique sample
             .collect(groupingBy(ClinicalEventSample::getPatientId));
     }
 

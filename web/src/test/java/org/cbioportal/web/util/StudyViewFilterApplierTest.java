@@ -145,7 +145,7 @@ public class StudyViewFilterApplierTest {
         List<GeneFilter> geneFilters = new ArrayList<>();
         GeneFilter mutationGeneFilter = new GeneFilter();
         mutationGeneFilter.setGeneQueries(Arrays.asList(Arrays.asList(HUGO_GENE_SYMBOL_1)));
-        mutationGeneFilter.setMolecularProfileIds(new HashSet<>(Arrays.asList(MOLECULAR_PROFILE_ID_1)));
+        mutationGeneFilter.setMolecularProfileIds(new HashSet<>(Arrays.asList(MOLECULAR_PROFILE_ID_1, "FILTERED_OUT_PROFILE_ID")));
         geneFilters.add(mutationGeneFilter);
 
         GeneFilter copyNumberGeneFilter = new GeneFilter();

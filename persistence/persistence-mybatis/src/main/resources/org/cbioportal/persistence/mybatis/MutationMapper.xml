@@ -138,7 +138,7 @@
                     </foreach>
                 </if>
                 AND sample.INTERNAL_ID = mutation.SAMPLE_ID
-                AND genetic_profile.GENETIC_PROFILE_ID = mutation.GENETIC_PROFILE_ID)
+                )
             </if>
             <if test="sampleIds == null">
                 genetic_profile.STABLE_ID IN

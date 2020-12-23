@@ -414,14 +414,24 @@ public class StudyViewFilterApplier {
         for (GeneFilter genefilter : genefilters) {
 
             List<MolecularProfile> filteredMolecularProfiles = genefilter.getMolecularProfileIds().stream()
-                    .map(molecularProfileId -> molecularProfileMap.get(molecularProfileId))
+                    // need this filter criteria since profile id might be present
+                    // in filter but the study might already been filtered out
+                    .filter(molecularProfileMap::containsKey)
+                    .map(molecularProfileMap::get)
                     .collect(Collectors.toList());
 
             Set<MolecularAlterationType> alterationTypes = filteredMolecularProfiles.stream()
-                    .map(MolecularProfile::getMolecularAlterationType).collect(Collectors.toSet());
+                    .map(MolecularProfile::getMolecularAlterationType)
+                    .collect(Collectors.toSet());
 
             Set<String> dataTypes = filteredMolecularProfiles.stream().map(MolecularProfile::getDatatype)
                     .collect(Collectors.toSet());
+            
+            Set<String> filteredMolecularProfileIds = filteredMolecularProfiles
+                    .stream()
+                    .map(MolecularProfile::getStableId)
+                    .collect(Collectors.toSet());
+            genefilter.setMolecularProfileIds(filteredMolecularProfileIds);
 
             if (alterationTypes.size() == 1 && dataTypes.size() == 1) {
                 MolecularAlterationType alterationType = alterationTypes.iterator().next();
@@ -431,14 +441,14 @@ public class StudyViewFilterApplier {
                 } else if (alterationType.equals(MolecularAlterationType.STRUCTURAL_VARIANT) && dataType.equals("FUSION")) {
                     // TODO: cleanup once fusion/structural data is fixed in database
                     // until then rename fusion with mutation profile
-                    Set<String> molecularProfileIds = filteredMolecularProfiles
+                    filteredMolecularProfileIds = filteredMolecularProfiles
                             .stream()
                             .map(molecularProfile -> molecularProfile.getCancerStudyIdentifier() + "_mutations")
                             .collect(Collectors.toSet());
 
                     GeneFilter filter = new GeneFilter();
                     filter.setGeneQueries(genefilter.getGeneQueries());
-                    filter.setMolecularProfileIds(molecularProfileIds);
+                    filter.setMolecularProfileIds(filteredMolecularProfileIds);
                     fusionGeneFilters.add(filter);
                 } else if (alterationType == MolecularAlterationType.COPY_NUMBER_ALTERATION
                         && dataType.equals("DISCRETE")) {

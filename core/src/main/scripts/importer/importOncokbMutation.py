@@ -128,11 +128,15 @@ def get_features(mutation_file_path):
                 if column_name == 'HGVSp_Short':
                     value = value.replace('p.', '')
                 feature[column_name] = value
-            elif column_name != 'Entrez_Gene_Id' and column_name != 'Protein_position':
-                raise RuntimeError("Empty value encounterd in column '" +
+            elif column_name != 'Entrez_Gene_Id' and column_name != 'Protein_position' and column_name != 'HGVSp_Short':
+                raise RuntimeError("Empty value encountered in column '" +
                                    column_name + "' in row " + str(row_counter) + "." \
                                                                                   "OncoKB annotations cannot be imported. Please fix and rerun.")
 
+        # skip lines that have empty protein change column
+        if 'HGVSp_Short' not in feature:
+            continue
+            
         # resolve gene symbols to Entrez Ids if needed
         if 'Entrez_Gene_Id' in feature and feature['Entrez_Gene_Id'] is not None and feature['Entrez_Gene_Id'] != '':
             entrez_gene_ids = [feature['Entrez_Gene_Id']]

@@ -89,7 +89,7 @@ def annotate_protein_change(protein_change):
         match = re.findall(r'[A-Z]?([0-9]+)(_[A-Z]?([0-9]+))?(delins|ins)([A-Z]+)', protein_change)
         if len(match) > 0:
             start = int(match[0][0])
-            if match[0][2] is not None:
+            if match[0][2] is not None and match[0][2] != '':
                 end = int(match[0][2])
             else:
                 end = start

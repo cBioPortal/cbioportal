@@ -90,7 +90,7 @@ def main_import(args):
     pd_file_path = os.path.join(study_dir, pd_file_name)
     meta_dict = libImportOncokb.read_meta_file(meta_cna_file_path)
     if 'pd_annotations_filename' in meta_dict:
-        raise RuntimeError(
+        raise RuntimeError( 
             "Custom driver annotations filename already specified in discrete CNA meta file. Please remove and rerun.")
     if path.exists(pd_file_path):
         raise RuntimeError(
@@ -182,8 +182,11 @@ def get_features(cna_file_path):
 
             features.append(feature)
     cna_file.close()
+    # FIXME this should not occur, right?
+    # Remove duplicate entrez_gene_id/sample_id occurrences.
+    non_redundant_features_dict = {x['Entrez_Gene_Id']+x['sample_id']:x for x in features}
     print(" DONE")
-    return features
+    return non_redundant_features_dict.values();
 
 
 def fetch_oncokb_annotations(features):

@@ -161,7 +161,7 @@ def get_features(cna_file_path):
             if 'Entrez_Gene_Id' in feature and feature['Entrez_Gene_Id'] is not None and feature[
                 'Entrez_Gene_Id'] != '':
                 entrez_gene_ids = [feature['Entrez_Gene_Id']]
-            else:
+            elif feature['Hugo_Symbol'] in portal_instance.hugo_entrez_map:
                 entrez_gene_ids = portal_instance.hugo_entrez_map[feature['Hugo_Symbol']]
 
             if len(entrez_gene_ids) > 1:

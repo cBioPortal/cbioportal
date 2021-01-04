@@ -50,7 +50,7 @@ public class TreatmentMyBatisRepositoryTest {
         clinicalEventSample.setPatientId("TCGA-A1-A0SD");
         clinicalEventSample.setSampleId("TCGA-A1-A0SD-01");
         clinicalEventSample.setStudyId("study_tcga_pub");
-        clinicalEventSample.setTimeTaken(213);
+        clinicalEventSample.setTimeTaken(211);
 
         HashMap<String, List<ClinicalEventSample>> expected = new HashMap<>();
         expected.put("TCGA-A1-A0SD", Collections.singletonList(clinicalEventSample));
@@ -108,7 +108,7 @@ public class TreatmentMyBatisRepositoryTest {
 
     @Test
     public void getSampleCount() {
-        Integer expected = 3;
+        Integer expected = 4;
         Integer actual = treatmentRepository.getSampleCount(Collections.singletonList("study_tcga_pub"));
         
         Assert.assertEquals(actual, expected);

@@ -876,7 +876,7 @@ class Validator(object):
                 self.logger.error(
                     'Gene symbol maps to multiple Entrez gene ids (%s), '
                     'please specify which one you mean.',
-                    '/'.join(self.portal.hugo_entrez_map[gene_symbol]),
+                    '/'.join(str(entrez) for entrez in self.portal.hugo_entrez_map[gene_symbol]),
                     extra={'line_number': self.line_number,
                           'cause': gene_symbol})
             # no canonical symbol, but a single unambiguous alias

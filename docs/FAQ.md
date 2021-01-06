@@ -94,7 +94,7 @@ We are also actively curating datasets from the literature. Studies from the lit
 #### How do I get updates on new portal developments and new data sets?
 Please subscribe to our low-volume [news mailing list](https://groups.google.com/group/cbioportal-news) or follow [@cbioportal on Twitter](https://twitter.com/cbioportal).
 #### Does the portal work on all browsers and operating systems?
-We support and test on the following web browsers: Safari, Google Chrome, Firefox 3.0 and above, as well as Internet Explorer 11.0 and above. If you notice any incompatibilities, please let us know.
+We support and test on the following web browsers: Safari, Google Chrome, Firefox and Edge. (As of release v3.5.4 we no longer support Internet Explorer 11). If you notice any incompatibilities, please let us know.
 #### How do I cite the cBioPortal?
 Please cite the following portal papers:
 * Cerami et al. The cBio Cancer Genomics Portal: An Open Platform for Exploring Multidimensional Cancer Genomics Data. Cancer Discovery. May 2012 2; 401. [PubMed](https://www.ncbi.nlm.nih.gov/pubmed/22588877).

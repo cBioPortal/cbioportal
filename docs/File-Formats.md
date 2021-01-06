@@ -176,7 +176,12 @@ data - see examples below
 The file containing the patient attributes has one **required** column:
 - **PATIENT_ID (required)**: a unique patient ID. This field allows only numbers, letters, points, underscores and hyphens.
 
-The following columns are used by the study view as well as the patient view. In the [study view](https://www.cbioportal.org/study?id=brca_tcga) they are used to create the survival plots. In the patient view they are used to add information to the [header](https://www.cbioportal.org/patient?studyId=lgg_ucsf_2014&caseId=P05). 
+The following columns are used by the study view as well as the patient view. In the [study view](https://www.cbioportal.org/study?id=brca_tcga) they are used to create the survival plots. In the patient view they are used to add information to the [header](https://www.cbioportal.org/patient?studyId=lgg_ucsf_2014&caseId=P05).
+
+**Note on survival plots**: to generate the survival plots successfully, the columns are required to be in pairs, which means the file should have a pair of columns that have the same prefix but ending with `_STATUS` and `_MONTHS` individually. For example, `PFS_STATUS` and `PFS_MONTHS` are a valid pair of columns that can generate the survival plots.
+
+**Note on survival status value**: the value of survival status must prefixed with `0:` or `1:`. Value with prefix `0:` means that no event (e.g. `LIVING`, `DiseaseFree`). Value with prefix `1:` means that an event occurred (e.g. `DECEASED`, `Recurred/Progressed`). 
+
 - **OS_STATUS**:  Overall patient survival status
     - Possible values: 1:DECEASED, 0:LIVING
     - In the patient view, 0:LIVING creates a green label, 1:DECEASED a red label.

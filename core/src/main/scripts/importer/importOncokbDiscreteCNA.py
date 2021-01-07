@@ -105,7 +105,7 @@ def main_import(args):
         portal_instance = validateData.load_portal_info(server_url, logger)
 
     features = get_features(cna_file_path)
-    id_to_annotation = fetch_oncokb_annotations(features)
+    id_to_annotation = fetch_and_map_oncokb_annotations(features)
     for feature in features:
         if feature['id'] in id_to_annotation:
             feature['oncogenic'] = id_to_annotation[feature['id']]['oncogenic']
@@ -189,7 +189,7 @@ def get_features(cna_file_path):
     return non_redundant_features_dict.values();
 
 
-def fetch_oncokb_annotations(features):
+def fetch_and_map_oncokb_annotations(features):
     """Submit CNA events to OncoKB.org and return OncoKB annotations."""
     id_to_annotation = {}
     payload_list = create_request_payload(features)

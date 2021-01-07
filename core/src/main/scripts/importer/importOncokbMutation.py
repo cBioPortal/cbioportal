@@ -89,7 +89,7 @@ def main_import(args):
         portal_instance = validateData.load_portal_info(server_url, logger)
 
     row_number_to_feature = get_features(mutation_file_path)
-    row_number_to_annotation = fetch_oncokb_annotations(row_number_to_feature)
+    row_number_to_annotation = fetch_and_map_oncokb_annotations(row_number_to_feature)
     write_annotations_to_file(row_number_to_annotation, mutation_file_path)
 
     logger.info('Import complete')
@@ -166,7 +166,7 @@ def get_features(mutation_file_path):
     return row_number_to_feature
 
 
-def fetch_oncokb_annotations(row_number_to_feature):
+def fetch_and_map_oncokb_annotations(row_number_to_feature):
     """Submit mutation events to OncoKB.org and return OncoKB annotations."""
     id_to_rownumber = {}
     for row_number, feature in row_number_to_feature.items():

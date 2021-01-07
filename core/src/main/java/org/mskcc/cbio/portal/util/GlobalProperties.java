@@ -291,6 +291,10 @@ public class GlobalProperties {
     @Value("${show.mutation_mappert_tool.grch38:true}") // default is true
     public void setShowMutationMapperToolGrch38(String property) { showMutationMapperToolGrch38 = Boolean.parseBoolean(property); }
 
+    private static boolean showSignal;
+    @Value("${show.signal:false}") // default is false
+    public void setShowSignal(String property) { showSignal = Boolean.parseBoolean(property); }
+
 	/*
      * Trim whitespace of url and append / if it does not exist. Return empty
      * string otherwise.
@@ -932,6 +936,10 @@ public class GlobalProperties {
 
     public static boolean showMutationMapperToolGrch38() {
         return showMutationMapperToolGrch38;
+    }
+
+    public static boolean showSignal() {
+        return showSignal;
     }
 
     public static String getFrontendUrl() {

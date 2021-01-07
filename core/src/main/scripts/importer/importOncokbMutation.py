@@ -33,16 +33,16 @@ import os
 import sys
 from pathlib import Path
 
-# configure relative imports if running as a script; see PEP 366
-# it might passed as empty string by certain tooling to mark a top level module
+""" Configure relative imports if running as a script; see PEP 366
+    It might passed as empty string by certain tooling to mark a top level module. """
 if __name__ == "__main__" and (__package__ is None or __package__ == ''):
-    # replace the script's location in the Python search path by the main
-    # scripts/ folder, above it, so that the importer package folder is in
-    # scope and *not* directly in sys.path; see PEP 395
+    """ Replace the script's location in the Python search path by the main
+        scripts/ folder, above it, so that the importer package folder is in
+        scope and *not* directly in sys.path; see PEP 395. """
     sys.path[0] = str(Path(sys.path[0]).resolve().parent)
     __package__ = 'importer'
-    # explicitly import the package, which is needed on CPython 3.4 because it
-    # doesn't include https://github.com/python/cpython/pull/2639
+    """ Explicitly import the package, which is needed on CPython 3.4 because it
+        doesn't include https://github.com/python/cpython/pull/2639. """
     importlib.import_module(__package__)
 
 from . import cbioportal_common
@@ -144,17 +144,17 @@ def get_features(mutation_file_path):
             entrez_gene_ids = portal_instance.hugo_entrez_map[feature['Hugo_Symbol']]
 
         if len(entrez_gene_ids) > 1:
-            logger.error("Multiple Entrez gene ids were found for a gene." \
-                         "OncoKB annotations will not be imported for this gene." \
-                         "Please fix and rerun.",
-                         extra={'symbol': feature['Hugo_Symbol'], 'row': str(row_counter)})
-            feature['Entrez_Gene_Id'] = None
+            logger.error(""" Multiple Entrez gene ids were found for a gene.
+                             OncoKB annotations will not be imported for this gene.
+                             Please fix and rerun. """,
+                         extra={'symbol': feature[FIELD_HUGO_SYMBOL], 'row': str(row_counter)})
+            feature[FIELD_ENTREZ_ID] = None
         elif len(entrez_gene_ids) == 0:
-            logger.error("Could not find the Entrez gene id for a gene." \
-                         "OncoKB annotations will not be imported for this gene." \
-                         "Please fix and rerun.",
-                         extra={'symbol': feature['Hugo_Symbol'], 'row': str(row_counter)})
-            feature['Entrez_Gene_Id'] = None
+            logger.error(""" Could not find the Entrez gene id for a gene.
+                             OncoKB annotations will not be imported for this gene.
+                             Please fix and rerun. """,
+                         extra={'symbol': feature[FIELD_HUGO_SYMBOL], 'row': str(row_counter)})
+            feature[FIELD_ENTREZ_ID] = None
         else:
             feature['Entrez_Gene_Id'] = str(entrez_gene_ids[0])
             feature['id'] = "_".join(
@@ -235,8 +235,8 @@ def write_annotations_to_file(row_number_to_annotation, mutations_file_path):
                         line = line.rstrip('\n') + '\t\t\n'
             new_file.write(line)
     except FileExistsError:
-        raise FileExistsError("Backup MAF file that does not contain OncoKB annotations does already exist. " \
-                              "Please remove file '" + backup_file_name + "' and try again.")
+        raise FileExistsError("""Backup MAF file that does not contain OncoKB annotations does already exist.
+                              Please remove file '""" + backup_file_name + "' and try again.")
     finally:
         mutations_file.close()
         new_file.close()

@@ -34,16 +34,16 @@ import sys
 from os import path
 from pathlib import Path
 
-# configure relative imports if running as a script; see PEP 366
-# it might passed as empty string by certain tooling to mark a top level module
+""" Configure relative imports if running as a script; see PEP 366
+    It might passed as empty string by certain tooling to mark a top level module. """
 if __name__ == "__main__" and (__package__ is None or __package__ == ''):
-    # replace the script's location in the Python search path by the main
-    # scripts/ folder, above it, so that the importer package folder is in
-    # scope and *not* directly in sys.path; see PEP 395
+    """ Replace the script's location in the Python search path by the main
+        scripts/ folder, above it, so that the importer package folder is in
+        scope and *not* directly in sys.path; see PEP 395. """
     sys.path[0] = str(Path(sys.path[0]).resolve().parent)
     __package__ = 'importer'
-    # explicitly import the package, which is needed on CPython 3.4 because it
-    # doesn't include https://github.com/python/cpython/pull/2639
+    """ Explicitly import the package, which is needed on CPython 3.4 because it
+        doesn't include https://github.com/python/cpython/pull/2639. """
     importlib.import_module(__package__)
 
 from . import cbioportal_common

@@ -133,8 +133,10 @@ def get_first_line(file_handle):
         first_line = file_handle.readline()
         if not first_line.startswith('#'):
             file_handle.close()
-            return first_line
-
+            return first_line.rstrip('\n')
+        
+def get_first_line_cells(file_handle, separator = '\t'):
+    return get_first_line(file_handle).split(separator);
 
 def find_meta_file_by_fields(study_dir, field_dict):
     """In the study directory find the meta file that holds specified field values."""

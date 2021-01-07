@@ -95,7 +95,7 @@ def main_import(args):
     if path.exists(pd_file_path):
         raise RuntimeError(
             "Custom driver annotations file '" + pd_file_path + "' for discrete CNA already exists . Please remove and rerun.")
-    libImportOncokb.check_required_columns(libImportOncokb.get_first_line(libImportOncokb.open_file(cna_file_path)).rstrip('\n').split('\t'), required_cna_columns)
+    libImportOncokb.check_required_columns(libImportOncokb.get_first_line_cells(libImportOncokb.open_file(cna_file_path), '\t'), required_cna_columns)
 
     global portal_instance
     if hasattr(args, 'portal_info_dir') and args.portal_info_dir is not None:
@@ -121,7 +121,7 @@ def main_import(args):
 
 def get_features(cna_file_path):
     """Extract CNA events from CNA data file."""
-    header_elements = libImportOncokb.get_first_line(libImportOncokb.open_file(cna_file_path)).rstrip('\n').split('\t')
+    header_elements = libImportOncokb.get_first_line_cells(libImportOncokb.open_file(cna_file_path), '\t')
     header_indexes = {}
     for required_column in required_cna_columns + ['Entrez_Gene_Id']:
         header_indexes[required_column] = header_elements.index(required_column)

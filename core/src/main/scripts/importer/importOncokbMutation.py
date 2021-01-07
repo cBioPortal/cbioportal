@@ -78,8 +78,8 @@ def main_import(args):
 
     meta_file_mutation = libImportOncokb.find_meta_file_by_fields(study_dir, {'genetic_alteration_type': 'MUTATION_EXTENDED'})
     mutation_file_path = os.path.join(study_dir, libImportOncokb.find_data_file_from_meta_file(meta_file_mutation))
-    libImportOncokb.check_required_columns(libImportOncokb.get_first_line(libImportOncokb.open_file(mutation_file_path)).rstrip('\n').split('\t'), required_mutation_columns)
-    check_disallowed_columns(libImportOncokb.get_first_line(libImportOncokb.open_file(mutation_file_path)).rstrip('\n').split('\t'))
+    libImportOncokb.check_required_columns(libImportOncokb.get_first_line_cells(libImportOncokb.open_file(mutation_file_path), '\t'), required_mutation_columns)
+    check_disallowed_columns(libImportOncokb.get_first_line_cells(libImportOncokb.open_file(mutation_file_path), '\t'))
 
     global portal_instance
     if hasattr(args, 'portal_info_dir') and args.portal_info_dir is not None:
@@ -108,7 +108,7 @@ def check_disallowed_columns(header_elements):
 
 def get_features(mutation_file_path):
     """Extract Mutation events from MAF data file."""
-    header_elements = libImportOncokb.get_first_line(libImportOncokb.open_file(mutation_file_path)).rstrip().split('\t')
+    header_elements = libImportOncokb.get_first_line_cells(libImportOncokb.open_file(mutation_file_path), '\t')
     header_indexes = {}
     for required_column in required_mutation_columns + ['Entrez_Gene_Id']:
         header_indexes[required_column] = header_elements.index(required_column)

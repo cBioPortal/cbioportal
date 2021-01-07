@@ -50,8 +50,15 @@ from . import cbioportal_common
 from . import libImportOncokb
 from . import validateData
 
-required_cna_columns = ['Hugo_Symbol']
+ENTREZ_ID = 'Entrez_Gene_Id'
+HUGO_SYMBOL = 'Hugo_Symbol'
+CNA_TYPE = 'copyNameAlterationType'
+ALTERATION = 'alteration'
+SAMPLE_ID = 'sample_id'
+INTERNAL_ID = 'id'
+ONCOGENIC = libImportOncokb.ONCOKB_JSON_ONCOGENIC_FIELD
 
+required_cna_columns = [HUGO_SYMBOL]
 
 # from: cbioportal-frontend file CopyNumberUtils.ts
 cna_alteration_types = {
@@ -107,8 +114,8 @@ def main_import(args):
     cna_events = get_cna_events(cna_file_path)
     id_to_annotation = fetch_and_map_oncokb_annotations(cna_events)
     for cna_event in cna_events:
-        if cna_event['id'] in id_to_annotation:
-            cna_event['oncogenic'] = id_to_annotation[cna_event['id']]['oncogenic']
+        if cna_event[INTERNAL_ID] in id_to_annotation:
+            cna_event[ONCOGENIC] = id_to_annotation[cna_event[INTERNAL_ID]][ONCOGENIC]
 
     print("Updating study files ...", end = '')
     write_annotations_to_file(cna_events, pd_file_path)
@@ -123,7 +130,7 @@ def get_cna_events(cna_file_path):
     """Extract CNA events from CNA data file."""
     header_elements = libImportOncokb.get_first_line_cells(libImportOncokb.open_file(cna_file_path), '\t')
     header_indexes = {}
-    for required_column in required_cna_columns + ['Entrez_Gene_Id']:
+    for required_column in required_cna_columns + [ENTREZ_ID]:
         header_indexes[required_column] = header_elements.index(required_column)
     sample_ids = [i for j, i in enumerate(header_elements) if j not in header_indexes.values()]
     sample_indexes = {}
@@ -139,18 +146,18 @@ def get_cna_events(cna_file_path):
         line_elements = line.rstrip('\n').split('\t')
         for sample_id in sample_ids:
             feature = {}
-            feature['sample_id'] = sample_id
-            feature['alteration'] = int(line_elements[sample_indexes[sample_id]])
-            # cna value 0 (no CNA) is skipped
-            if not feature[ALTERATION] in cna_alteration_types.values:
+            feature[SAMPLE_ID] = sample_id
+            feature[ALTERATION] = int(line_elements[sample_indexes[sample_id]])
+            # CNA value 0 (no CNA) is skipped
+            if not feature[ALTERATION] in cna_alteration_types.values():
                 continue
-            feature['copyNameAlterationType'] = list(cna_alteration_types.keys())[
-                list(cna_alteration_types.values()).index(feature['alteration'])]
+            feature[CNA_TYPE] = list(cna_alteration_types.keys())[
+                list(cna_alteration_types.values()).index(feature[ALTERATION])]
             for column_name, index in header_indexes.items():
                 value = line_elements[index]
                 if value != '':
                     feature[column_name] = value
-                elif column_name != 'Entrez_Gene_Id':
+                elif column_name != ENTREZ_ID:
                     print(Color.RED + "Empty value encounterd in column '" + column_name + "' in row " + str(
                         row_counter) + ". OncoKB annotations cannot be imported. Please fix and rerun." + Color.END,
                           file=sys.stderr)
@@ -158,33 +165,33 @@ def get_cna_events(cna_file_path):
                     sys.exit(1)
 
             # resolve gene symbols to Entrez Ids if needed
-            if 'Entrez_Gene_Id' in feature and feature['Entrez_Gene_Id'] is not None and feature[
-                'Entrez_Gene_Id'] != '':
-                entrez_gene_ids = [feature['Entrez_Gene_Id']]
-            elif feature['Hugo_Symbol'] in portal_instance.hugo_entrez_map:
-                entrez_gene_ids = portal_instance.hugo_entrez_map[feature['Hugo_Symbol']]
+            if ENTREZ_ID in feature and feature[ENTREZ_ID] is not None and feature[
+                ENTREZ_ID] != '':
+                entrez_gene_ids = [feature[ENTREZ_ID]]
+            elif feature[HUGO_SYMBOL] in portal_instance.hugo_entrez_map:
+                entrez_gene_ids = portal_instance.hugo_entrez_map[feature[HUGO_SYMBOL]]
 
             if len(entrez_gene_ids) > 1:
-                logger.error("Multiple Entrez gene ids were found for a gene." \
-                             "OncoKB annotations will not be imported for this gene." \
-                             "Please fix and rerun.",
-                             extra={'symbol': feature['Hugo_Symbol']})
-                feature['Entrez_Gene_Id'] = None
+                logger.error(""" Multiple Entrez gene ids were found for a gene.
+                                 OncoKB annotations will not be imported for this gene.
+                                 Please fix and rerun. """,
+                             extra={'symbol': feature[HUGO_SYMBOL]})
+                feature[ENTREZ_ID] = None
             elif len(entrez_gene_ids) == 0:
-                logger.error("Could not find the Entrez gene id for a gene." \
-                             "OncoKB annotations will not be imported for this gene." \
-                             "Please fix and rerun.",
-                             extra={'symbol': feature['Hugo_Symbol']})
-                feature['Entrez_Gene_Id'] = None
+                logger.error(""" Could not find the Entrez gene id for a gene.
+                                 OncoKB annotations will not be imported for this gene.
+                                 Please fix and rerun. """,
+                             extra={'symbol': feature[HUGO_SYMBOL]})
+                feature[ENTREZ_ID] = None
             else:
-                feature['Entrez_Gene_Id'] = str(entrez_gene_ids[0])
-                feature['id'] = "_".join([feature['Entrez_Gene_Id'], feature['copyNameAlterationType']])
+                feature[ENTREZ_ID] = str(entrez_gene_ids[0])
+                feature[INTERNAL_ID] = "_".join([feature[ENTREZ_ID], feature[CNA_TYPE]])
 
             features.append(feature)
     cna_file.close()
     # FIXME this should not occur, right?
     # Remove duplicate entrez_gene_id/sample_id occurrences.
-    non_redundant_features_dict = {x['Entrez_Gene_Id']+x['sample_id']:x for x in features}
+    non_redundant_features_dict = {x[ENTREZ_ID]+x[SAMPLE_ID]:x for x in features}
     print(" DONE")
     return non_redundant_features_dict.values();
 
@@ -195,7 +202,7 @@ def fetch_and_map_oncokb_annotations(features):
     payload_list = create_request_payload(features)
     annotations = libImportOncokb.fetch_oncokb_annotations(payload_list, libImportOncokb.DEFAULT_ONCOKB_URL + "/annotate/copyNumberAlterations")
     for annotation in annotations:
-        id = annotation['query']['id']
+        id = annotation[libImportOncokb.ONCOKB_JSON_QUERY_FIELD][libImportOncokb.ONCOKB_JSON_ID_FIELD]
         id_to_annotation[id] = annotation
     return id_to_annotation
 
@@ -204,9 +211,8 @@ def create_request_payload(features):
     """Translate CNA events into JSON for message body."""
     elements = {}
     for feature in features:
-        elements[feature[
-            'id']] = '{ "copyNameAlterationType":"%s", "gene":{"entrezGeneId":%s}, "id":"%s", "tumorType":null} ' \
-                     % (feature['copyNameAlterationType'], feature['Entrez_Gene_Id'], feature['id'])
+        elements[feature[INTERNAL_ID]] = '{ "copyNameAlterationType":"%s", "gene":{"entrezGeneId":%s}, "id":"%s", "tumorType":null} ' \
+                     % (feature[CNA_TYPE], feature[ENTREZ_ID], feature[INTERNAL_ID])
     # normalize for alteration id since same alteration is represented in multiple samples
     return list(elements.values())
 
@@ -233,10 +239,10 @@ def write_annotations_to_file(features, pd_file_name):
     new_file = open(pd_file_name, "w")
     new_file.write("SAMPLE_ID\tEntrez_Gene_Id\tcbp_driver\tcbp_driver_annotation\tcbp_driver_tiers\tcbp_driver_tiers_annotation\n")
     for feature in features:
-        if 'oncogenic' in feature:
+        if ONCOGENIC in feature:
             line = "\t".join(
-                [feature['sample_id'], feature['Entrez_Gene_Id'], libImportOncokb.evaluate_driver_passenger(feature['oncogenic']),
-                feature['oncogenic'], '', '']) + "\n"
+                [feature[SAMPLE_ID], feature[ENTREZ_ID], libImportOncokb.evaluate_driver_passenger(feature[ONCOGENIC]),
+                feature[ONCOGENIC], '', '']) + "\n"
             new_file.write(line)
     new_file.close()
 

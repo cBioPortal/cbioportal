@@ -52,7 +52,15 @@ from . import validateData
 required_mutation_columns = ['Hugo_Symbol', 'HGVSp_Short', 'Variant_Classification', 'Protein_position']
 disallowed_mutation_columns = ['cbp_driver', 'cbp_driver_annotation', 'cbp_driver_tiers', 'cbp_driver_tiers_annotation']
 portal_instance = None
-
+FIELD_ENTREZ_ID = 'Entrez_Gene_Id'
+FIELD_HUGO_SYMBOL = 'Hugo_Symbol'
+INTERNAL_ID = 'id'
+PROTEIN_CHANGE = 'HGVSp_Short'
+VARIANT_CLASS = 'Variant_Classification'
+PROTEIN_POSITION = 'Protein_position'
+ONCOGENIC = libImportOncokb.ONCOKB_JSON_ONCOGENIC_FIELD
+ONCOKB_ID = libImportOncokb.ONCOKB_JSON_ID_FIELD
+ONCOKB_QUERY = libImportOncokb.ONCOKB_JSON_QUERY_FIELD
 
 def main_import(args):
 
@@ -110,7 +118,7 @@ def get_features(mutation_file_path):
     """Extract Mutation events from MAF data file."""
     header_elements = libImportOncokb.get_first_line_cells(libImportOncokb.open_file(mutation_file_path), '\t')
     header_indexes = {}
-    for required_column in required_mutation_columns + ['Entrez_Gene_Id']:
+    for required_column in required_mutation_columns + [FIELD_ENTREZ_ID]:
         header_indexes[required_column] = header_elements.index(required_column)
     row_number_to_feature = {}
     row_counter = 0
@@ -125,23 +133,23 @@ def get_features(mutation_file_path):
         for column_name, index in header_indexes.items():
             value = line_elements[index]
             if value != '':
-                if column_name == 'HGVSp_Short':
+                if column_name == PROTEIN_CHANGE:
                     value = value.replace('p.', '')
                 feature[column_name] = value
-            elif column_name != 'Entrez_Gene_Id' and column_name != 'Protein_position' and column_name != 'HGVSp_Short':
+            elif column_name != FIELD_ENTREZ_ID and column_name != PROTEIN_POSITION and column_name != PROTEIN_CHANGE:
                 raise RuntimeError("Empty value encountered in column '" +
                                    column_name + "' in row " + str(row_counter) + "." \
                                                                                   "OncoKB annotations cannot be imported. Please fix and rerun.")
 
         # skip lines that have empty protein change column
-        if 'HGVSp_Short' not in feature:
+        if PROTEIN_CHANGE not in feature:
             continue
             
         # resolve gene symbols to Entrez Ids if needed
-        if 'Entrez_Gene_Id' in feature and feature['Entrez_Gene_Id'] is not None and feature['Entrez_Gene_Id'] != '':
-            entrez_gene_ids = [feature['Entrez_Gene_Id']]
+        if FIELD_ENTREZ_ID in feature and feature[FIELD_ENTREZ_ID] is not None and feature[FIELD_ENTREZ_ID] != '':
+            entrez_gene_ids = [feature[FIELD_ENTREZ_ID]]
         else:
-            entrez_gene_ids = portal_instance.hugo_entrez_map[feature['Hugo_Symbol']]
+            entrez_gene_ids = portal_instance.hugo_entrez_map[feature[FIELD_HUGO_SYMBOL]]
 
         if len(entrez_gene_ids) > 1:
             logger.error(""" Multiple Entrez gene ids were found for a gene.
@@ -156,9 +164,9 @@ def get_features(mutation_file_path):
                          extra={'symbol': feature[FIELD_HUGO_SYMBOL], 'row': str(row_counter)})
             feature[FIELD_ENTREZ_ID] = None
         else:
-            feature['Entrez_Gene_Id'] = str(entrez_gene_ids[0])
-            feature['id'] = "_".join(
-                [feature['Entrez_Gene_Id'], feature['HGVSp_Short'], feature['Variant_Classification']])
+            feature[FIELD_ENTREZ_ID] = str(entrez_gene_ids[0])
+            feature[INTERNAL_ID] = "_".join(
+                [feature[FIELD_ENTREZ_ID], feature[PROTEIN_CHANGE], feature[VARIANT_CLASS]])
 
         row_number_to_feature[row_counter] = feature
     mutation_file.close()
@@ -170,14 +178,14 @@ def fetch_and_map_oncokb_annotations(row_number_to_feature):
     """Submit mutation events to OncoKB.org and return OncoKB annotations."""
     id_to_rownumber = {}
     for row_number, feature in row_number_to_feature.items():
-        id_to_rownumber[feature['id']] = row_number
+        id_to_rownumber[feature[INTERNAL_ID]] = row_number
     payload_list = create_request_payload(row_number_to_feature)
     annotations = libImportOncokb.fetch_oncokb_annotations(payload_list, libImportOncokb.DEFAULT_ONCOKB_URL + "/annotate/mutations/byProteinChange")
     row_number_to_annotation = {}
-    id_to_annotation = {annotation['query']['id']: annotation for annotation in annotations}
+    id_to_annotation = {annotation[ONCOKB_QUERY][ONCOKB_ID]: annotation for annotation in annotations}
     for row_number, feature in row_number_to_feature.items():
-        if feature['id'] in id_to_annotation:
-            row_number_to_annotation[row_number] = id_to_annotation[feature['id']]
+        if feature[INTERNAL_ID] in id_to_annotation:
+            row_number_to_annotation[row_number] = id_to_annotation[feature[INTERNAL_ID]]
     return row_number_to_annotation
 
 
@@ -185,23 +193,23 @@ def create_request_payload(row_number_to_feature):
     """Translate mutation events into JSON for message body."""    
     elements = {}
     for row_number, feature in row_number_to_feature.items():
-        protein_position = feature['Protein_position'] if 'Protein_position' in feature and feature[
-            'Protein_position'] != 'NA' else None
-        protein_change = feature['HGVSp_Short'] if 'HGVSp_Short' in feature and feature['HGVSp_Short'] != 'NA' else None
+        protein_position = feature[PROTEIN_POSITION] if PROTEIN_POSITION in feature and feature[
+            PROTEIN_POSITION] != 'NA' else None
+        protein_change = feature[PROTEIN_CHANGE] if PROTEIN_CHANGE in feature and feature[PROTEIN_CHANGE] != 'NA' else None
         proteinStart = libImportOncokb.get_protein_pos_start(protein_position, protein_change)
         proteinEnd = libImportOncokb.get_protein_pos_end(protein_position, protein_change)
         if proteinEnd == -1:
             proteinEnd = proteinStart
         if proteinStart != -1:
             elements[feature[
-                'id']] = '{ "alteration":"%s", "consequence":"%s", "gene":{"entrezGeneId":%s}, "id":"%s", "proteinStart":%s, "proteinEnd":%s, "tumorType":null} ' \
-                         % (feature['HGVSp_Short'], feature['Variant_Classification'], feature['Entrez_Gene_Id'],
-                            feature['id'], proteinStart, proteinEnd)
+                INTERNAL_ID]] = '{ "alteration":"%s", "consequence":"%s", "gene":{"entrezGeneId":%s}, "id":"%s", "proteinStart":%s, "proteinEnd":%s, "tumorType":null} ' \
+                         % (feature[PROTEIN_CHANGE], feature[VARIANT_CLASS], feature[FIELD_ENTREZ_ID],
+                            feature[INTERNAL_ID], proteinStart, proteinEnd)
         else:
             elements[feature[
-                'id']] = '{ "alteration":"%s", "consequence":"%s", "gene":{"entrezGeneId":%s}, "id":"%s", "tumorType":null} ' \
-                         % (feature['HGVSp_Short'], feature['Variant_Classification'], feature['Entrez_Gene_Id'],
-                            feature['id'])
+                INTERNAL_ID]] = '{ "alteration":"%s", "consequence":"%s", "gene":{"entrezGeneId":%s}, "id":"%s", "tumorType":null} ' \
+                         % (feature[PROTEIN_CHANGE], feature[VARIANT_CLASS], feature[FIELD_ENTREZ_ID],
+                            feature[INTERNAL_ID])
 
     # normalize for alteration id since same alteration is represented in multiple samples
     return list(elements.values())
@@ -230,7 +238,7 @@ def write_annotations_to_file(row_number_to_annotation, mutations_file_path):
                     if row_counter in row_number_to_annotation:
                         oncokb_annotation = row_number_to_annotation[row_counter]
                         line = line.rstrip('\n') + '\t' + libImportOncokb.evaluate_driver_passenger(
-                            oncokb_annotation['oncogenic']) + '\t' + oncokb_annotation['oncogenic'] + '\n'
+                            oncokb_annotation[ONCOGENIC]) + '\t' + oncokb_annotation[ONCOGENIC] + '\n'
                     else:
                         line = line.rstrip('\n') + '\t\t\n'
             new_file.write(line)

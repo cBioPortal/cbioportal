@@ -38,7 +38,9 @@ from . import validateData
 
 BATCH_SIZE = 200
 DEFAULT_ONCOKB_URL = "https://public.api.oncokb.org/api/v1"
-
+ONCOKB_JSON_QUERY_FIELD = 'query'
+ONCOKB_JSON_ID_FIELD = 'id'
+ONCOKB_JSON_ONCOGENIC_FIELD = 'oncogenic'
 
 def load_portal_genes(server_url):
     parsed_json = request_from_portal_api(server_url, "genes", logging.getLogger(__name__))
@@ -60,15 +62,15 @@ def get_protein_pos_start(protein_position, protein_change):
 
 # after: getProteinPosEnd() in ExtendedMutationUtil.java
 def get_protein_pos_end(protein_position, protein_change):
-    stop = -1
+    end = -1
     if protein_position is not None:
         start_end = protein_position.split('/')[0].split('-')
         if len(start_end) > 1:
-            stop = start_end[1]
-    if stop == -1 and protein_change is not None:
+            end = start_end[1]
+    if end == -1 and protein_change is not None:
         start_stop = annotate_protein_change(protein_change)
-        stop = str(start_stop['stop'])
-    return stop
+        end = str(start_stop['stop'])
+    return end
 
 
 # after: annotateProteinChange() in ExtendedMutationUtil.java

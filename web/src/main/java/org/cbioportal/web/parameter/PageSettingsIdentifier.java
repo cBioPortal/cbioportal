@@ -1,7 +1,7 @@
 package org.cbioportal.web.parameter;
 
 import java.io.Serializable;
-import java.util.List;
+import java.util.Set;
 
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
@@ -11,7 +11,8 @@ public class PageSettingsIdentifier implements Serializable {
     @NotNull
     private SessionPage page;
     @Size(min = 1, max = PagingConstants.MAX_PAGE_SIZE)
-    List<String> origin;
+    // type of it should be similar to PageSettingsData -> origin
+    Set<String> origin;
 
     public SessionPage getPage() {
         return page;
@@ -21,11 +22,11 @@ public class PageSettingsIdentifier implements Serializable {
         this.page = page;
     }
 
-    public List<String> getOrigin() {
+    public Set<String> getOrigin() {
         return origin;
     }
 
-    public void setOrigin(List<String> origin) {
+    public void setOrigin(Set<String> origin) {
         this.origin = origin;
     }
 

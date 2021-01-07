@@ -142,7 +142,7 @@ def get_cna_events(cna_file_path):
             feature['sample_id'] = sample_id
             feature['alteration'] = int(line_elements[sample_indexes[sample_id]])
             # cna value 0 (no CNA) is skipped
-            if feature['alteration'] == 0:
+            if not feature[ALTERATION] in cna_alteration_types.values:
                 continue
             feature['copyNameAlterationType'] = list(cna_alteration_types.keys())[
                 list(cna_alteration_types.values()).index(feature['alteration'])]

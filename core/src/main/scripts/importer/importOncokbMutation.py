@@ -88,8 +88,8 @@ def main_import(args):
     else:
         portal_instance = validateData.load_portal_info(server_url, logger)
 
-    row_number_to_feature = get_features(mutation_file_path)
-    row_number_to_annotation = fetch_and_map_oncokb_annotations(row_number_to_feature)
+    row_number_to_mutation_event = get_features(mutation_file_path)
+    row_number_to_annotation = fetch_and_map_oncokb_annotations(row_number_to_mutation_event)
     write_annotations_to_file(row_number_to_annotation, mutation_file_path)
 
     logger.info('Import complete')

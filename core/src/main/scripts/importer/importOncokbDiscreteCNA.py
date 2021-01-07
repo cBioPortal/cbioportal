@@ -104,14 +104,14 @@ def main_import(args):
     else:
         portal_instance = validateData.load_portal_info(server_url, logger)
 
-    features = get_features(cna_file_path)
-    id_to_annotation = fetch_and_map_oncokb_annotations(features)
-    for feature in features:
-        if feature['id'] in id_to_annotation:
-            feature['oncogenic'] = id_to_annotation[feature['id']]['oncogenic']
+    cna_events = get_cna_events(cna_file_path)
+    id_to_annotation = fetch_and_map_oncokb_annotations(cna_events)
+    for cna_event in cna_events:
+        if cna_event['id'] in id_to_annotation:
+            cna_event['oncogenic'] = id_to_annotation[cna_event['id']]['oncogenic']
 
     print("Updating study files ...", end = '')
-    write_annotations_to_file(features, pd_file_path)
+    write_annotations_to_file(cna_events, pd_file_path)
     update_cna_metafile(meta_cna_file_path, pd_file_name)
     print(" DONE")
 
@@ -119,7 +119,7 @@ def main_import(args):
 
     return exit_status_handler.get_exit_status()
 
-def get_features(cna_file_path):
+def get_cna_events(cna_file_path):
     """Extract CNA events from CNA data file."""
     header_elements = libImportOncokb.get_first_line_cells(libImportOncokb.open_file(cna_file_path), '\t')
     header_indexes = {}

@@ -63,6 +63,15 @@ public class GenePanelUtil {
         Set<CanonicalGene> canonicalGenes = new HashSet<>();
         DaoGeneOptimized daoGeneOptimized = DaoGeneOptimized.getInstance();
 
+        //Check if genes are duplicated and report them
+        for (int i = 0; i < genes.length; i++) {
+            for (int j = i + 1 ; j < genes.length; j++) {
+                if (genes[i].equals(genes[j])) {
+                    ProgressMonitor.logWarning("The following gene is duplicated: "+genes[i]);
+                }
+            }
+        }
+
         for (String panelGene : genes) {
             try {
                 long geneId = Long.parseLong(panelGene);

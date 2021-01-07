@@ -113,7 +113,7 @@ public class ImportGenePanel extends ConsoleRunnable {
             if (canonicalGenes != null) {
                 DaoGenePanel.addGenePanel(stableId, description, canonicalGenes);
             } else {
-                ProgressMonitor.logWarning("Gene panel " + stableId + " cannot be imported because one or more genes in the panel are not found in the database.");
+                ProgressMonitor.logWarning("Gene panel " + stableId + " cannot be imported because one or more genes in the panel are not found in the database, or are duplicated.");
             }
         }
     }

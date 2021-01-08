@@ -1,9 +1,11 @@
 package org.cbioportal.web.util;
 
-import org.apache.commons.collections.map.MultiKeyMap;
+import java.math.BigDecimal;
+import java.util.List;
+import java.util.Objects;
+import java.util.stream.Collectors;
 
-import com.google.common.collect.Range;
-import org.cbioportal.model.ClinicalData;
+import org.apache.commons.collections.map.MultiKeyMap;
 import org.cbioportal.service.ClinicalDataService;
 import org.cbioportal.service.PatientService;
 import org.cbioportal.web.parameter.ClinicalDataFilter;
@@ -11,11 +13,7 @@ import org.cbioportal.web.parameter.DataFilterValue;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
-import java.math.BigDecimal;
-import java.util.List;
-import java.util.Objects;
-import java.util.Optional;
-import java.util.stream.Collectors;
+import com.google.common.collect.Range;
 
 @Component
 public class ClinicalDataIntervalFilterApplier extends ClinicalDataFilterApplier {
@@ -39,36 +37,28 @@ public class ClinicalDataIntervalFilterApplier extends ClinicalDataFilterApplier
         int count = 0;
 
         for (ClinicalDataFilter filter : attributes) {
-            List<ClinicalData> entityClinicalData = (List<ClinicalData>)clinicalDataMap.get(entityId, studyId);
-            if (entityClinicalData != null) {
-                Optional<ClinicalData> clinicalData = entityClinicalData.stream().filter(c -> c.getAttrId()
-                    .equals(filter.getAttributeId())).findFirst();
-                if (clinicalData.isPresent())
-                {
-                    String attrValue = clinicalData.get().getAttrValue();
-                    Range<BigDecimal> rangeValue = calculateRangeValueForAttr(attrValue);
+            if (clinicalDataMap.containsKey(studyId, entityId, filter.getAttributeId())) {
+                String attrValue = (String) clinicalDataMap.get(studyId, entityId, filter.getAttributeId());
+                Range<BigDecimal> rangeValue = calculateRangeValueForAttr(attrValue);
 
-                    // find range filters
-                    List<Range<BigDecimal>> ranges = filter.getValues().stream()
-                        .map(this::calculateRangeValueForFilter)
-                        .filter(Objects::nonNull)
-                        .collect(Collectors.toList());
+                // find range filters
+                List<Range<BigDecimal>> ranges = filter.getValues().stream()
+                    .map(this::calculateRangeValueForFilter)
+                    .filter(Objects::nonNull)
+                    .collect(Collectors.toList());
 
-                    // find special value filters
-                    List<String> specialValues = filter.getValues().stream()
-                        .filter(f -> f.getValue() != null)
-                        .map(f -> f.getValue().toUpperCase())
-                        .collect(Collectors.toList());
+                // find special value filters
+                List<String> specialValues = filter.getValues().stream()
+                    .filter(f -> f.getValue() != null)
+                    .map(f -> f.getValue().toUpperCase())
+                    .collect(Collectors.toList());
 
-                    if (rangeValue != null) {
-                        if (negateFilters ^ ranges.stream().anyMatch(r -> r.encloses(rangeValue))) {
-                            count++;
-                        }
-                    }
-                    else if (negateFilters ^ specialValues.contains(attrValue.toUpperCase())) {
+                if (rangeValue != null) {
+                    if (negateFilters ^ ranges.stream().anyMatch(r -> r.encloses(rangeValue))) {
                         count++;
                     }
-                } else if (negateFilters ^ containsNA(filter)) {
+                }
+                else if (negateFilters ^ specialValues.contains(attrValue.toUpperCase())) {
                     count++;
                 }
             } else if (negateFilters ^ containsNA(filter)) {

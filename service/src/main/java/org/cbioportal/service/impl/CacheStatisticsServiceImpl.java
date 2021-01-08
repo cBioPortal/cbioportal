@@ -1,6 +1,5 @@
 package org.cbioportal.service.impl;
 
-import org.cbioportal.persistence.util.EhCacheStatistics;
 import org.cbioportal.service.CacheStatisticsService;
 import org.cbioportal.service.exception.CacheNotFoundException;
 
@@ -9,22 +8,21 @@ import java.util.*;
 import javax.cache.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.context.annotation.Profile;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.stereotype.Service;
 
 @Service
+@Profile({"ehcache-heap", "ehcache-disk", "ehcache-hybrid", "redis"})
 public class CacheStatisticsServiceImpl implements CacheStatisticsService {
 
     @Autowired
     public CacheManager cacheManager;
 
-    @Autowired
-    public EhCacheStatistics ehCacheStatistics;
-
     @Value("${cache.statistics_endpoint_enabled:false}")
     public boolean cacheStatisticsEndpointEnabled;
 
-    private void checkIfCacheStatisticsEndpointEnabled() {
+    protected void checkIfCacheStatisticsEndpointEnabled() {
         if (!cacheStatisticsEndpointEnabled) {
             throw new AccessDeniedException("Cache statistics is not enabled for this instance of the portal.");
         }
@@ -74,7 +72,6 @@ public class CacheStatisticsServiceImpl implements CacheStatisticsService {
 
     @Override
     public String getCacheStatistics() {
-        checkIfCacheStatisticsEndpointEnabled();
-        return ehCacheStatistics.getCacheStatistics();
+        throw new UnsupportedOperationException("Requested API is not implemented yet");
     }
 }

@@ -9,34 +9,51 @@
     http://www.springframework.org/schema/cache http://www.springframework.org/schema/cache/spring-cache.xsd
     http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-4.0.xsd">
 
-    <cache:annotation-driven cache-manager="cacheManager" key-generator="customKeyGenerator"/>
+    <!--
+        EhcacheStatistics is autowired, and requires a javax.cache.CacheManager
+        so all (or most) of these beans need to be created even if ehcache is not running
+    -->
+    <beans profile="ehcache-disk,ehcache-heap,ehcache-hybrid">
 
-    <bean id="cacheEnabledConfig" class="org.cbioportal.persistence.CacheEnabledConfig">
-        <constructor-arg value="${ehcache.cache_type:none}"/>
-    </bean>
+        <cache:annotation-driven cache-manager="ehcacheCacheManager" key-generator="customKeyGenerator"/>
 
-    <bean id="customEhCacheProvider" class="org.cbioportal.persistence.util.CustomEhCachingProvider"/>
+        <bean id="cacheEnabledConfig" class="org.cbioportal.persistence.CacheEnabledConfig">
+            <constructor-arg value="${persistence.cache_type:no-cache}"/>
+        </bean>
 
-    <bean id="getCacheManager" class="org.springframework.beans.factory.config.MethodInvokingFactoryBean">
-        <property name="targetObject" ref="customEhCacheProvider" />
-        <property name="targetMethod" value="getCacheManager" />
-    </bean>
+        <bean id="customEhcacheProvider" class="org.cbioportal.persistence.util.CustomEhcachingProvider"/>
 
-    <bean id="cacheManager" class="org.springframework.cache.jcache.JCacheCacheManager">
-        <property name="cacheManager" ref="getCacheManager"/>
-    </bean>
+        <bean id="getEhcacheCacheManager" class="org.springframework.beans.factory.config.MethodInvokingFactoryBean">
+            <property name="targetObject" ref="customEhcacheProvider" />
+            <property name="targetMethod" value="getCacheManager" />
+        </bean>
 
-    <bean id="customKeyGenerator" class="org.cbioportal.persistence.util.CustomKeyGenerator"/>
+        <bean id="ehcacheCacheManager" class="org.springframework.cache.jcache.JCacheCacheManager">
+            <property name="cacheManager" ref="getEhcacheCacheManager"/>
+        </bean>
 
-    <bean id="ehCacheStatistics" class="org.cbioportal.persistence.util.EhCacheStatistics">
-        <constructor-arg ref="getCacheManager"/>
-    </bean>
+        <bean id="customKeyGenerator" class="org.cbioportal.persistence.util.CustomKeyGenerator"/>
 
-    <bean class="org.springframework.beans.factory.config.MethodInvokingFactoryBean">
-        <property name="staticMethod" value="org.cbioportal.persistence.util.CacheEventLogger.setCacheStatistics" />
-        <property name="arguments">
-            <list><ref bean="ehCacheStatistics"/></list>
-        </property>
-    </bean>
-    
+        <bean id="ehcacheStatistics" class="org.cbioportal.persistence.util.EhcacheStatistics">
+            <constructor-arg ref="getEhcacheCacheManager"/>
+        </bean>
+
+        <bean class="org.springframework.beans.factory.config.MethodInvokingFactoryBean">
+            <property name="staticMethod" value="org.cbioportal.persistence.util.CacheEventLogger.setCacheStatistics" />
+            <property name="arguments">
+                <list><ref bean="ehcacheStatistics"/></list>
+            </property>
+        </bean>
+
+        <bean id="generalRepositoryCacheResolver" class="org.springframework.cache.interceptor.NamedCacheResolver">
+            <constructor-arg index="0" ref="ehcacheCacheManager"/>
+            <constructor-arg index="1" value="GeneralRepositoryCache"/>
+        </bean>
+
+        <bean id="staticRepositoryCacheOneResolver" class="org.springframework.cache.interceptor.NamedCacheResolver">
+            <constructor-arg index="0" ref="ehcacheCacheManager"/>
+            <constructor-arg index="1" value="StaticRepositoryCacheOne"/>
+        </bean>
+
+    </beans>
 </beans>

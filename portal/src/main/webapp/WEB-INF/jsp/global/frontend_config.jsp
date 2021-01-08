@@ -18,6 +18,7 @@ window.legacySupportFrontendConfig = {
     showGenomeNexus : <%=GlobalProperties.showGenomeNexus()%>,
     showGenomeNexusAnnotationSources : <%=GlobalProperties.showGenomeNexusAnnotationSources()%>,
     showMutationMapperToolGrch38 : <%=GlobalProperties.showMutationMapperToolGrch38()%>,
+    showSignal : <%=GlobalProperties.showSignal()%>,
     querySetsOfGenes : JSON.parse('<%=GlobalProperties.getQuerySetsOfGenes()%>'),
     skinBlurb : '<%=GlobalProperties.getBlurb()%>',
     skinExampleStudyQueries : '<%=GlobalProperties.getExampleStudyQueries().replace("\n","\\n")%>'.split("\n"),

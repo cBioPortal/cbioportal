@@ -209,6 +209,9 @@ mycancergenome.show=true
 # Available sources: mutation_assessor
 # show.genomenexus.annotation_sources=mutation_assessor
 
+# Enable SIGNAL column in mutations table(true, false)
+# show.signal=false
+
 # igv bam linking
 igv.bam.linking=
 # colon delimited

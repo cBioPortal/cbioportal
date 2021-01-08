@@ -28,6 +28,7 @@ public class StudyViewFilter implements Serializable {
     private List<GenomicDataFilter> genomicDataFilters;
     private List<GenericAssayDataFilter> genericAssayDataFilters;
     private List<List<String>> caseLists;
+    private List<ClinicalDataFilter> customDataFilters;
 
     @AssertTrue
     private boolean isEitherSampleIdentifiersOrStudyIdsPresent() {
@@ -36,42 +37,29 @@ public class StudyViewFilter implements Serializable {
 
     @AssertTrue
     private boolean isEitherValueOrRangePresentInClinicalDataIntervalFilters() {
-        long invalidCount = 0;
-
-        if (clinicalDataFilters != null) {
-            invalidCount = clinicalDataFilters.stream()
-                    .flatMap(f -> f.getValues().stream())
-                    .filter(Objects::nonNull)
-                    .filter(v -> v.getValue() != null == (v.getStart() != null || v.getEnd() != null))
-                    .count();
-        }
-
-        return invalidCount == 0;
+        return validateDataFilters(clinicalDataFilters);
     }
 
     @AssertTrue
     private boolean isEitherValueOrRangePresentInGenomicDataIntervalFilters() {
-        long invalidCount = 0;
-
-        if (genomicDataFilters != null) {
-            invalidCount = genomicDataFilters
-                    .stream()
-                    .flatMap(f -> f.getValues().stream())
-                    .filter(Objects::nonNull)
-                    .filter(v -> v.getValue() != null == (v.getStart() != null || v.getEnd() != null))
-                    .count();
-        }
-
-        return invalidCount == 0;
+        return validateDataFilters(genomicDataFilters);
     }
 
     @AssertTrue
     private boolean isEitherValueOrRangePresentInGenericAssayDataIntervalFilters() {
+        return validateDataFilters(genericAssayDataFilters);
+    }
+
+    @AssertTrue
+    private boolean isEitherValueOrRangePresentInCustomDataFilters() {
+        return validateDataFilters(customDataFilters);
+    }
+
+    private <T extends DataFilter> boolean validateDataFilters(List<T> dataFilters) {
         long invalidCount = 0;
 
-        if (genericAssayDataFilters != null) {
-            invalidCount = genericAssayDataFilters
-                    .stream()
+        if (dataFilters != null) {
+            invalidCount = dataFilters.stream()
                     .flatMap(f -> f.getValues().stream())
                     .filter(Objects::nonNull)
                     .filter(v -> v.getValue() != null == (v.getStart() != null || v.getEnd() != null))
@@ -160,5 +148,13 @@ public class StudyViewFilter implements Serializable {
 	public void setGenericAssayDataFilters(List<GenericAssayDataFilter> genericAssayDataFilters) {
 		this.genericAssayDataFilters = genericAssayDataFilters;
 	}
+
+    public List<ClinicalDataFilter> getCustomDataFilters() {
+        return customDataFilters;
+    }
+
+    public void setCustomDataFilters(List<ClinicalDataFilter> customDataFilters) {
+        this.customDataFilters = customDataFilters;
+    }
 
 }

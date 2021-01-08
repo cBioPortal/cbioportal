@@ -16,7 +16,9 @@ This page describes the main properties within portal.properties.
 	- [Automatic selection of OncoKB annotations](#automatic-selection-of-oncokb-annotations)
 	- [Automatic hiding of putative passenger mutations](#automatic-hiding-of-putative-passenger-mutations)
 - [Gene sets used for gene querying](#gene-sets-used-for-gene-querying)
-- [Ehcache Settings](#ehcache-settings)
+- [Cache Settings](#cache-settings)
+    - [Redis](#redis)
+    - [Ehcache](#ehcache)
 - [Enable GSVA functionality](#enable-gsva-functionality)
 - [Request Body Compression](#request-body-compression)
 
@@ -221,7 +223,7 @@ google_analytics_profile_id
 
 The portal supports password authentication via Google+. Before you start you need to setup a google account that will own the authentication API. Follow https://developers.google.com/identity/sign-in/web/devconsole-project to get clientID and secret. Fill it in portal.properties:
 ```
-googleplus.consumer.key=195047654890-499gl89hj65j8d2eorqe0jvjnfaxcln0.apps.googleusercontent.com 
+googleplus.consumer.key=195047654890-499gl89hj65j8d2eorqe0jvjnfaxcln0.apps.googleusercontent.com
 googleplus.consumer.secret=2jCfg4SPWdGfXF44WC588dK
 ```
 (note: these are just examples, you need to get your own) You will also need to go to "Google+ API" and click Enable button. In case of problems make sure to enable DEBUG logging for org.springframework.social and org.springframework.security.web.authentication.
@@ -293,11 +295,11 @@ oncoprint.defaultview=sample
 ```
 
 # Custom annotation of driver and passenger mutations
-cBioPortal supports 2 formats to add custom annotations for driver and passenger mutations. 
+cBioPortal supports 2 formats to add custom annotations for driver and passenger mutations.
 1. **cbp_driver**: This will define whether a mutation is a driver or not.
-2. **cbp_driver_tiers**: This can be used to define multiple classes of driver mutations. 
+2. **cbp_driver_tiers**: This can be used to define multiple classes of driver mutations.
 
-These data formats are described in the [cBioPortal MAF specifications](File-Formats.md#extending-the-maf-format). 
+These data formats are described in the [cBioPortal MAF specifications](File-Formats.md#extending-the-maf-format).
 
 #### Enabling custom annotations in the OncoPrint
 To enable functionality for one or both types of custom annotations, enter values for the following properties. These labels will appear in the OncoPrint's "Mutation color" menu.
@@ -317,7 +319,7 @@ If you want to disable the automatic selection of OncoKB and hotspots as annotat
 ```
 oncoprint.oncokb.default=true|false
 oncoprint.hotspots.default=true|false
-``` 
+```
 
 #### Automatic hiding of variants of unknown significance (VUS)
 By default, the selection box to hide VUS mutations is unchecked. If you want to automatically hide VUS, set this property to `true`. Default is `false`.
@@ -365,31 +367,14 @@ This gene set will add the following in the query box:
 ```
 "BRCA genes" BRCA1: MUT=E1258D; BRCA2: HOMDEL MUT=NONSENSE MUT=NONSTART MUT=NONSTOP MUT=FRAMESHIFT MUT=SPLICE MUT=TRUNC;
 ```
-# Ehcache Settings
-cBioPortal is supported on the backend with Ehcache. The configuration, size, and location of these caches are configurable from within portal.properties through the following properties.
+# Cache Settings
+cBioPortal is supported on the backend with Ehcache or Redis. These caches are configurable from within portal.properties through the following properties.
 
-The cache type is set using `ehcache.cache_type`. Valid values are `none`, `heap` (heap-only), `disk` (disk-only), and `hybrid` (disk + heap). By default, `ehcache.cache_type` is set to `none` which disables the cache. When the cache is disabled, no responses will be stored in the cache. 
-```
-ehcache.cache_type=[none or heap or disk or hybrid]
-```
+The cache type is set using `persistence.cache_type`. Valid values are `no-cache`, `redis` (redis), `ehache-heap` (ehcache heap-only), `ehache-disk` (ehcache disk-only), and `ehache-hybrid` (ehcache disk + heap). By default, `persistence.cache_type` is set to `no-cache` which disables the cache. When the cache is disabled, no responses will be stored in the cache.
 
-Ehcache initializes caches using a template found in an Ehcache xml configuration file. When caching is enabled, set `ehcache.xml_configuration` to the name of the Ehcache xml configuration file. The default provided is `ehcache.xml`; to change the cache template, directly edit this file. Alternatively, you can create your own Ehcache xml configuration file, place it under `/persistence/persistence-api/src/main/resources/` and set `ehcache.xml_configuration` to `/[Ehcache xml configuration filename]`.  
+:warning: the 'redis' caching option will likely cause a conflict when installing the portal in a tomcat installation which uses redisson for session management
 ```
-ehcache.xml_configuration=
-```
-
-If the cache is configured to use disk resources, users must make a directory available and set it with the `ehcache.persistence_path` property. Ehcache will create separate directories under the provided path for each cache defined in the ehcache.xml_configuration file. 
-```
-ehcache.persistence_path=[location on the disk filesystem where Ehcache can write the cache to /tmp/]
-```
-
-Cache size must be set for heap and/or disk depending on which are in use; Ehcache requires disk size to be greater than heap size in a hybrid configuration. Zero is not a supported size and will cause an exception. Units are in megabytes. Default values are provided. The general repository cache is specified to use 1024MB of heap and 4096MB of disk. The static repository cache is specified to use 30MB of heap and 32MB of disk. For installations with increased traffic or data, cache sizes can be increased to further improve performance. 
-```
-ehcache.general_repository_cache.max_mega_bytes_heap=
-ehcache.general_repository_cache.max_mega_bytes_local_disk=
-
-ehcache.static_repository_cache_one.max_mega_bytes_heap=
-ehcache.static_repository_cache_one.max_mega_bytes_local_disk=
+persistence.cache_type=[no-cache or ehache-heap or ehcache-disk or ehcache-hybrid or redis]
 ```
 
 Logged metrics and additional information such as cache size and cached keys are available through an optional endpoint. The optional endpoint is turned off by default but can be turned on by setting `cache.statistics_endpoint_enabled` to true.
@@ -397,11 +382,6 @@ Logged metrics and additional information such as cache size and cached keys are
 cache.statistics_endpoint_enabled=false[true or false]
 ```
 The cache statistics endpoint is hidden on the api page; users must directly access the URL to view the response. The cache statistics endpoint can be accessed in the following ways.
-
-For general statistics about the cache such as memory usage:
-```
-/api/cacheStatistics
-```
 
 For a list of all keys in the cache:
 ```
@@ -413,15 +393,56 @@ For a list of counts of keys in cache per repository class:
 /api/[name of cache]/keyCountsPerClass
 ```
 
-**WARNING**: It must be noted that since cache statistics endpoint returns data on cache keys, the endpoint may expose otherwise hidden database query parameters such as sample identifiers, study names, etc. Generally, it is recommended that the endpoint only be turned on during cache-related development for testing. Deployers of a protected portal where users only have authorities to a subset of studies should carefully consider whether or not to turn on the cache statistics endpoint, as it does not filter the results. 
+For general statistics about the cache such as memory usage (not currently implemented for Redis):
+```
+/api/cacheStatistics
+```
+
+**WARNING**: It must be noted that since cache statistics endpoint returns data on cache keys, the endpoint may expose otherwise hidden database query parameters such as sample identifiers, study names, etc. Generally, it is recommended that the endpoint only be turned on during cache-related development for testing. Deployers of a protected portal where users only have authorities to a subset of studies should carefully consider whether or not to turn on the cache statistics endpoint, as it does not filter the results.
+
+For more information on how caching is implemented in cBioPortal refer to the [Caching](Caching.md) documentation.
+
+## Redis
+To cache with Redis set `persistence.cache_type` to `redis`.
+
+To setup the Redis cache servers the following properties are required:
+
+```
+redis.leader_address=redis://{host/servicename}:6379
+redis.follower_address=redis://{host/servicename}:6379
+redis.database=0
+redis.password=password
+```
+
+For more information on Redis, refer to the official documentation [here](https://redis.io/documentation)
+
+## Ehcache
+To cache with Ehcache set `persistence.cache_type` to `ehache-heap` (ehcache heap-only), `ehache-disk` (ehcache disk-only), or `ehache-hybrid` (ehcache disk + heap).
+
+Ehcache initializes caches using a template found in an Ehcache xml configuration file. When caching is enabled, set `ehcache.xml_configuration` to the name of the Ehcache xml configuration file. The default provided is `ehcache.xml`; to change the cache template, directly edit this file. Alternatively, you can create your own Ehcache xml configuration file, place it under `/persistence/persistence-api/src/main/resources/` and set `ehcache.xml_configuration` to `/[Ehcache xml configuration filename]`.
+```
+ehcache.xml_configuration=
+```
+
+If the cache is configured to use disk resources, users must make a directory available and set it with the `ehcache.persistence_path` property. Ehcache will create separate directories under the provided path for each cache defined in the ehcache.xml_configuration file.
+```
+ehcache.persistence_path=[location on the disk filesystem where Ehcache can write the cache to /tmp/]
+```
+
+Cache size must be set for heap and/or disk depending on which are in use; Ehcache requires disk size to be greater than heap size in a hybrid configuration. Zero is not a supported size and will cause an exception. Units are in megabytes. Default values are provided. The general repository cache is specified to use 1024MB of heap and 4096MB of disk. The static repository cache is specified to use 30MB of heap and 32MB of disk. For installations with increased traffic or data, cache sizes can be increased to further improve performance.
+```
+ehcache.general_repository_cache.max_mega_bytes_heap=
+ehcache.general_repository_cache.max_mega_bytes_local_disk=
+
+ehcache.static_repository_cache_one.max_mega_bytes_heap=
+ehcache.static_repository_cache_one.max_mega_bytes_local_disk=
+```
 
 For more information on Ehcache, refer to the official documentation [here](https://www.ehcache.org/documentation/3.7/index.html)
 
-For more information on how Ehcache is implemented in cBioPortal refer to the [Caching](Caching.md) documentation.
-
 # Enable GSVA functionality
 
-[GSVA functionality](https://github.com/cBioPortal/cbioportal/blob/master/docs/File-Formats.md#gene-set-data) can be enabled by uncommenting this line (and making sure it is set to `true`): 
+[GSVA functionality](https://github.com/cBioPortal/cbioportal/blob/master/docs/File-Formats.md#gene-set-data) can be enabled by uncommenting this line (and making sure it is set to `true`):
 ```
 skin.show_gsva=true
 ```

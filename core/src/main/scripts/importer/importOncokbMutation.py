@@ -26,12 +26,13 @@
 """OncoKB annotation import script for MAF files.
 """
 
-import argparse
 import importlib
 import logging.handlers
 import os
 import sys
 from pathlib import Path
+
+from src.main.scripts.importer.libImportOncokb import interface
 
 """ Configure relative imports if running as a script; see PEP 366
     It might passed as empty string by certain tooling to mark a top level module. """
@@ -253,23 +254,10 @@ def write_annotations_to_file(row_number_to_annotation, mutations_file_path):
     print(" DONE")
     return
 
-def interface():
-    parser = argparse.ArgumentParser(description='cBioPortal OncoKB annotation importer')
-    parser.add_argument('-u', '--url_server',
-                        type=str,
-                        default='http://localhost:8080',
-                        help='URL to cBioPortal server. You can '
-                             'set this if your URL is not '
-                             'http://localhost:8080')
-    parser.add_argument('-m', '--study_directory', type=str, required=True,
-                        help='path to study directory.')
-    parser = parser.parse_args()
-    return parser
-
 
 if __name__ == '__main__':
     try:
-        parsed_args = interface()
+        parsed_args = libImportOncokb.interface()
         exit_status = main_import(parsed_args)
     finally:
         logging.shutdown()

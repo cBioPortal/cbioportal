@@ -246,23 +246,10 @@ def write_annotations_to_file(features, pd_file_name):
             new_file.write(line)
     new_file.close()
 
-def interface():
-    parser = argparse.ArgumentParser(description='cBioPortal OncoKB annotation importer')
-    parser.add_argument('-u', '--url_server',
-                        type=str,
-                        default='http://localhost:8080',
-                        help='URL to cBioPortal server. You can '
-                             'set this if your URL is not '
-                             'http://localhost:8080')
-    parser.add_argument('-m', '--study_directory', type=str, required=True,
-                        help='path to study directory.')
-    parser = parser.parse_args()
-    return parser
-
 
 if __name__ == '__main__':
     try:
-        parsed_args = interface()
+        parsed_args = libImportOncokb.interface()
         exit_status = main_import(parsed_args)
     finally:
         logging.shutdown()

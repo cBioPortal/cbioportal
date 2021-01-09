@@ -32,6 +32,7 @@ import re
 import os
 import requests
 import json
+import argparse
 
 from . import validateData
 
@@ -257,3 +258,17 @@ def open_file(file_name):
     except FileNotFoundError:
         raise FilenotFoundError("Could not open file at path '" + file_name + "'")
     return file
+
+
+def interface():
+    parser = argparse.ArgumentParser(description='cBioPortal OncoKB annotation importer')
+    parser.add_argument('-u', '--url_server',
+                        type=str,
+                        default='http://localhost:8080',
+                        help='URL to cBioPortal server. You can '
+                             'set this if your URL is not '
+                             'http://localhost:8080')
+    parser.add_argument('-m', '--study_directory', type=str, required=True,
+                        help='path to study directory.')
+    parser = parser.parse_args()
+    return parser

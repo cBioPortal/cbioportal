@@ -4,10 +4,8 @@
      * [Mixed cfDNA (MSKCC, 2020)](https://www.cbioportal.org/study/summary?id=mixed_cfdna_msk_2020) *229 samples* 
      * [Metastatic Melanoma (DFCI, Nature Medicine 2019)](https://www.cbioportal.org/study/summary?id=mel_dfci_2019) *144 samples* 
      * [Lung Cancer (SMC, Cancer Research 2016)](https://www.cbioportal.org/study/summary?id=lung_smc_2016) *22 samples* 
-     * [Upper Tract Urothelial Carcinoma (IGBMC, Genome Biology 2021)
-](https://www.cbioportal.org/study/summary?id=utuc_igbmc_2021) *30 samples* 
+     * [Upper Tract Urothelial Carcinoma (IGBMC, Genome Biology 2021)](https://www.cbioportal.org/study/summary?id=utuc_igbmc_2021) *30 samples* 
 *    **Added survival data** to [Breast Cancer (METABRIC, Nature 2012 & Nat Commun 2016)](https://www.cbioportal.org/study/summary?id=brca_metabric)
-
 
 ## November 3, 2020
 *   **New Feature**: The [map](https://www.cbioportal.org/installations) of local installations of cBioPortal is available now. Please consider registering your instance [here](http://bit.ly/2XW3wNG ).

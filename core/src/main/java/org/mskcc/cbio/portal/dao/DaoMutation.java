@@ -60,7 +60,8 @@ public final class DaoMutation {
                 //add event first, as mutation has a Foreign key constraint to the event:
                 result = addMutationEvent(mutation.getEvent())+1;
             }
-            if (mutation.getDriverFilter() != null || mutation.getDriverTiersFilter() != null) {
+            if ((mutation.getDriverFilter() != null && !mutation.getDriverFilter().isEmpty())
+                || (mutation.getDriverTiersFilter() != null && !mutation.getDriverTiersFilter().isEmpty())) {
                 MySQLbulkLoader.getMySQLbulkLoader("alteration_driver_annotation").insertRecord(
                     Long.toString(mutation.getMutationEventId()),
                     Integer.toString(mutation.getGeneticProfileId()),

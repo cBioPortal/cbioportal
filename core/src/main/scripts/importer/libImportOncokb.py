@@ -34,9 +34,6 @@ import requests
 import json
 import argparse
 
-from . import validateData
-
-
 BATCH_SIZE = 200
 DEFAULT_ONCOKB_URL = "https://public.api.oncokb.org/api/v1"
 ONCOKB_JSON_QUERY_FIELD = 'query'
@@ -272,3 +269,13 @@ def interface():
                         help='path to study directory.')
     parser = parser.parse_args()
     return parser
+
+def get_annotation_cells(oncokb_annotation):
+    oncogenicity = evaluate_driver_passenger(oncokb_annotation)
+    driver_field_annotation = ''
+    tier_field_annotation = ''
+    if oncogenicity != '':
+        driver_field_annotation = 'Annotation imported from OncoKB.org'
+    if oncokb_annotation != '':
+        tier_field_annotation = 'Annotation imported from OncoKB.org'
+    return '\t%s\t%s\t%s\t%s\n' % (oncogenicity, driver_field_annotation, oncokb_annotation, tier_field_annotation)

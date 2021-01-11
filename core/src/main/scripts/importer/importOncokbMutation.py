@@ -32,8 +32,6 @@ import os
 import sys
 from pathlib import Path
 
-from src.main.scripts.importer.libImportOncokb import interface
-
 """ Configure relative imports if running as a script; see PEP 366
     It might passed as empty string by certain tooling to mark a top level module. """
 if __name__ == "__main__" and (__package__ is None or __package__ == ''):
@@ -233,15 +231,14 @@ def write_annotations_to_file(row_number_to_annotation, mutations_file_path):
             if not line.startswith('#'):
                 if not header_updated:
                     line = line.rstrip(
-                        '\n') + '\tcbp_driver\tcbp_driver_annotation' + '\n'  # add custom driver columns to header
+                        '\n') + '\tcbp_driver\tcbp_driver_annotation\tcbp_driver_tiers\tcbp_driver_tiers_annotation\n'  # add custom driver columns to header
                     header_updated = True
                 else:
                     if row_counter in row_number_to_annotation:
-                        oncokb_annotation = row_number_to_annotation[row_counter]
-                        line = line.rstrip('\n') + '\t' + libImportOncokb.evaluate_driver_passenger(
-                            oncokb_annotation[ONCOGENIC]) + '\t' + oncokb_annotation[ONCOGENIC] + '\n'
+                        oncokb_annotation = row_number_to_annotation[row_counter][ONCOGENIC]
+                        line = line.rstrip('\n') + libImportOncokb.get_annotation_cells(oncokb_annotation)
                     else:
-                        line = line.rstrip('\n') + '\t\t\n'
+                        line = line.rstrip('\n') + '\t\t\t\t\n'
             new_file.write(line)
     except FileExistsError:
         raise FileExistsError("""Backup MAF file that does not contain OncoKB annotations does already exist.

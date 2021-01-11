@@ -26,7 +26,6 @@
 """OncoKB annotation import script for discrete CNA files.
 """
 
-import argparse
 import importlib
 import logging.handlers
 import os
@@ -240,9 +239,8 @@ def write_annotations_to_file(features, pd_file_name):
     new_file.write("SAMPLE_ID\tEntrez_Gene_Id\tcbp_driver\tcbp_driver_annotation\tcbp_driver_tiers\tcbp_driver_tiers_annotation\n")
     for feature in features:
         if ONCOGENIC in feature:
-            line = "\t".join(
-                [feature[SAMPLE_ID], feature[ENTREZ_ID], libImportOncokb.evaluate_driver_passenger(feature[ONCOGENIC]),
-                feature[ONCOGENIC], '', '']) + "\n"
+            oncokb_annotation = feature[ONCOGENIC]
+            line = feature[SAMPLE_ID] + '\t' + feature[ENTREZ_ID] + libImportOncokb.get_annotation_cells(oncokb_annotation)
             new_file.write(line)
     new_file.close()
 

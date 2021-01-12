@@ -21,7 +21,7 @@
 
         <bean id="redissonClient" class="org.springframework.beans.factory.config.MethodInvokingFactoryBean">
             <property name="targetObject" ref="customRedisCacheProvider" />
-            <property name="targetMethod" value="getRedissionClient" />
+            <property name="targetMethod" value="getRedissonClient" />
         </bean>
 
         <bean id="cacheManager" class="org.springframework.beans.factory.config.MethodInvokingFactoryBean">

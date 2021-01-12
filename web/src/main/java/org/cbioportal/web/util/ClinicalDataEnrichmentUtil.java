@@ -7,7 +7,9 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.function.Supplier;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import org.apache.commons.lang3.math.NumberUtils;
 import org.cbioportal.model.ClinicalAttribute;
@@ -81,16 +83,17 @@ public class ClinicalDataEnrichmentUtil {
                 }
             }
 
-            Double totalCount = transposeDataCollection
+            Supplier<Stream<Double>> valuesStreamSupplier = () -> transposeDataCollection
                     .values()
                     .stream()
-                    .flatMap(collection -> collection.stream())
-                    .mapToDouble(x -> (Double) x)
-                    .sum();
+                    .flatMap(Collection::stream)
+                    .map(x -> (Double) x);
+
+            List<Double> distinctValues = valuesStreamSupplier.get().distinct().collect(Collectors.toList());
 
             // perform test only if there are more than one group and
-            // total count across all groups in greater than 0
-            if (transposeDataCollection.keySet().size() > 1 && totalCount > 0) {
+            // there are atleast two distinct values
+            if (transposeDataCollection.keySet().size() > 1 && distinctValues.size() > 1) {
                 double pValue = KruskalWallis.getPvalue(transposeDataCollection);
                 if (!Double.isNaN(pValue)) { // this happens when all the values are zero
                     ClinicalDataEnrichment clinicalEnrichment = new ClinicalDataEnrichment();

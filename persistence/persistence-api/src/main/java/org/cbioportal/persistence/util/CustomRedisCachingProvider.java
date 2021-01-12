@@ -72,7 +72,7 @@ public class CustomRedisCachingProvider {
     @Value("${redis.password}")
     private String password;
 
-    public RedissonClient getRedissionClient() {
+    public RedissonClient getRedissonClient() {
         Config config = new Config();
         LOG.debug("leaderAddress: " + leaderAddress);
         LOG.debug("followerAddress: " + followerAddress);

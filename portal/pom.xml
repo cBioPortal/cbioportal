@@ -124,6 +124,7 @@
         <artifactId>maven-war-plugin</artifactId>
         <version>2.2</version>
         <configuration>
+          <packagingExcludes>${exclude.redisson}</packagingExcludes>
           <warName>${final.war.name}</warName>
           <webappDirectory>${project.build.directory}/portal</webappDirectory>
           <filteringDeploymentDescriptors>true</filteringDeploymentDescriptors>
@@ -248,7 +249,7 @@
         <filter>../src/main/resources/portal.properties</filter>
         <filter>../src/main/resources/maven.properties</filter>
     </filters>
-    
+
     <!-- prevent some resources from getting into war -->
     <resources>
       <resource>
@@ -292,8 +293,8 @@
     <netbeans.hint.deploy.server>Tomcat</netbeans.hint.deploy.server>
   </properties>
 
-  <!-- remove portal temp build files when building heroku -->
   <profiles>
+    <!-- remove portal temp build files when building heroku -->
     <profile>
       <id>heroku</id>
       <build>
@@ -325,6 +326,21 @@
           </plugin>
         </plugins>
       </build>
+    </profile>
+    <profile>
+      <!-- if you are not using redis add '-Dexclude-redisson'
+           to your mvn install/package command
+           to exclude redisson*.jar from the war
+           because it could conflict with any redisson*.jar Tomcat has -->
+      <id>exclude-redisson</id>
+      <properties>
+        <exclude.redisson>WEB-INF/lib/redisson-*.jar</exclude.redisson>
+      </properties>
+      <activation>
+        <property>
+          <name>exclude-redisson</name>
+        </property>
+      </activation>
     </profile>
   </profiles>
 </project>

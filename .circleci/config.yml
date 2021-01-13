@@ -106,9 +106,15 @@ jobs:
                     cd $TEST_HOME/local/runtime-config && \
                     ./setup_environment.sh && ./setup_environment.sh >> $BASH_ENV
             - run:
-                name: Build image and generate checksum of data that populates the test database
+                name: Build or pull backend image
+                command: |
+                    cd $TEST_HOME/local/docker && \
+                    ./build_portal_image.sh
+                no_output_timeout: 1h
+            - run:
+                name: Generate checksum of data that populates the test database
                 command: |         
-                    $TEST_HOME/local/runtime-config/db_content_fingerprint.sh | tee /tmp/db_data_md5key
+                    bash -x $TEST_HOME/local/runtime-config/db_content_fingerprint.sh | tee /tmp/db_data_md5key
                 no_output_timeout: 1h
             - restore_cache:
                 keys:

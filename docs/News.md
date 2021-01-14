@@ -1,3 +1,15 @@
+## Jan 12, 2020
+*   **New Feature**: Add your own custom data for a sample or patient to use on the study or comparison view  [Example: Add custom data to three samples and do a comparison](https://www.cbioportal.org/study/summary?id=msk_impact_2017)
+
+    <img src="https://user-images.githubusercontent.com/1334004/104651553-ce7efd00-5685-11eb-8017-c43f24421e3f.png" width="700">
+    
+*   **New Feature**: Show the mutations of a patient inside a pathway schematic using PathwayMapper  [Example: Notch signaling pathway in a prostate cancer patient](https://www.cbioportal.org/patient/pathways?studyId=msk_impact_2017&caseId=P-0000377)
+
+    <img src="https://user-images.githubusercontent.com/1334004/104649378-9f1ac100-5682-11eb-91eb-4e0f024a4ded.png" width="700">
+
+*   **New Feature**: Display and compare generic assays, such as microbiome and treatment response, on the study view [Example: Prasinovirus microbiome signatures in TCGA](https://www.cbioportal.org/study?id=6000b6aae4b015b63e9d4d44)
+    <img src="https://user-images.githubusercontent.com/1334004/104651211-54e70f00-5685-11eb-94f1-f20930793c28.png" width="700">
+
 ## Dec 31, 2020
 *   **Added data** consisting of 430 samples from 5 studies:
      * [Juvenile Papillomatosis and Breast Cancer (MSK, 2020)](https://www.cbioportal.org/study/summary?id=brca_jup_msk_2020) *5 samples* 

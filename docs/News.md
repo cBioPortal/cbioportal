@@ -42,7 +42,7 @@ The normals samples RNA-Seq V2 expression data were curated from [GDC](https://g
 ![image](https://user-images.githubusercontent.com/840895/99556958-248a3980-2990-11eb-97e3-d833518f8aef.png)
 
 ## September 30, 2020
-*   **New Feature**: Mutational signature data is available for comparison now. [Example: comparing colorectal subtypes for enriched microbiome signatures](https://www.cbioportal.org/comparison/generic_assay_microbiome_signature?sessionId=5dea8bbde4b05f1dfb8ace51)
+*   **New Feature**: Microbiome signature data is available for comparison now. [Example: comparing colorectal subtypes for enriched microbiome signatures](https://www.cbioportal.org/comparison/generic_assay_microbiome_signature?sessionId=5dea8bbde4b05f1dfb8ace51)
 ![image](https://user-images.githubusercontent.com/840895/99566847-666cad00-299b-11eb-91d3-21b21f267733.png)
 
 ## September 22, 2020

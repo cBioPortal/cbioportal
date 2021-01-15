@@ -10,6 +10,10 @@
 *   **New Feature**: Display and compare generic assays, such as microbiome and treatment response, on the study view [Example: Prasinovirus microbiome signatures in TCGA](https://www.cbioportal.org/study?id=6000b6aae4b015b63e9d4d44)
     <img src="https://user-images.githubusercontent.com/1334004/104651211-54e70f00-5685-11eb-94f1-f20930793c28.png" width="700">
 
+*   **New Feature**: The Plots tab on _Results View_ now allows you to group alterations by Driver and VUS [Example: POLE driver mutations vs VUSs against mutation counts in TCGA Colorectal Adenocarcinoma](https://bit.ly/3ssY9Gu)
+    <img src="https://user-images.githubusercontent.com/1334004/104768867-56bfd980-573c-11eb-8e03-5ad86d01f25a.png" width="700">
+
+
 ## Dec 31, 2020
 *   **Added data** consisting of 430 samples from 5 studies:
      * [Juvenile Papillomatosis and Breast Cancer (MSK, 2020)](https://www.cbioportal.org/study/summary?id=brca_jup_msk_2020) *5 samples* 

@@ -24,10 +24,40 @@ function showFrontendPopup(url) {
     });
 }
 
+function GetIEVersion() {
+    var sAgent = window.navigator.userAgent;
+    var Idx = sAgent.indexOf("MSIE");
+
+    // If IE, return version number.
+    if (Idx > 0)
+        return parseInt(sAgent.substring(Idx+ 5, sAgent.indexOf(".", Idx)));
+
+    // If IE 11 then look for Updated user agent string.
+    else if (!!navigator.userAgent.match(/Trident\/7\./))
+        return 11;
+
+    else
+        return 0; //It is not IE
+}
+
+const unsupportedBrowser =
+    '<div class="errorScreen">' +
+    '<h4>Apologies, we no longer support your browser</h4>' +
+    '<p> <a href="https://docs.cbioportal.org/1.-general/faq#does-the-portal-work-on-all-browsers-and-operating-systems">Visit list of supported browsers</a></p>' +
+    '</div>';
+
 window.loadReactApp = function(config) {
     // Set frontend route to /patient
     window.defaultRoute = '/' + config.defaultRoute;
 
+    // if any version of Internet Explorer, show unsupported browser message
+    if (GetIEVersion() > 0) {
+        var div = document.createElement("div");
+        div.innerHTML = unsupportedBrowser;
+        document.body.appendChild(div);
+        return;
+    }
+    
     if (window.frontendConfig.frontendUrl === undefined) {
         // this should never happen
         if (console.error) {

@@ -1,6 +1,8 @@
 package org.cbioportal.model;
 
-public class GenericAssayAdditionalProperty {
+import java.io.Serializable;
+
+public class GenericAssayAdditionalProperty implements Serializable {
     private String name;
     private String value;
     private String stableId;

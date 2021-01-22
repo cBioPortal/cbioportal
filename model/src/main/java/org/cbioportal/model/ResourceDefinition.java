@@ -1,8 +1,9 @@
 package org.cbioportal.model;
 
+import java.io.Serializable;
 import javax.validation.constraints.NotNull;
 
-public class ResourceDefinition {
+public class ResourceDefinition implements Serializable {
 
     @NotNull
     private String resourceId;

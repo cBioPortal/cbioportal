@@ -73,7 +73,6 @@ public class CancerTypeController {
     public ResponseEntity<TypeOfCancer> getCancerType(
         @ApiParam(required = true, value = "Cancer Type ID e.g. acc")
         @PathVariable final String cancerTypeId) throws CancerTypeNotFoundException {
-
         return new ResponseEntity<>(cancerTypeService.getCancerType(cancerTypeId), HttpStatus.OK);
     }
 }

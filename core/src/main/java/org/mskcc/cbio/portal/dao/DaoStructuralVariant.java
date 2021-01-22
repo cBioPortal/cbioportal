@@ -123,7 +123,13 @@ public class DaoStructuralVariant {
            structuralVariant.getComments(),
            structuralVariant.getExternalAnnotation());
 
-        if (structuralVariant.getDriverFilter() != null || structuralVariant.getDriverTiersFilter() != null) {
+        if ((structuralVariant.getDriverFilter() != null
+            && !structuralVariant.getDriverFilter().isEmpty()
+            && !structuralVariant.getDriverFilter().toLowerCase().equals("na"))
+            ||
+            (structuralVariant.getDriverTiersFilter() != null
+            && !structuralVariant.getDriverTiersFilter().isEmpty()
+            && !structuralVariant.getDriverTiersFilter().toLowerCase().equals("na"))) {
             MySQLbulkLoader.getMySQLbulkLoader("alteration_driver_annotation").insertRecord(
                 Long.toString(structuralVariant.getInternalId()),
                 Integer.toString(structuralVariant.getGeneticProfileId()),

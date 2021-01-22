@@ -125,7 +125,7 @@ public class TreatmentServiceImpl implements TreatmentService {
     public List<PatientTreatmentRow> getAllPatientTreatmentRows(List<String> sampleIds, List<String> studyIds) {
         Map<String, List<Treatment>> treatmentsByPatient = treatmentRepository.getTreatmentsByPatientId(sampleIds, studyIds);
         Map<String, List<ClinicalEventSample>> samplesByPatient = treatmentRepository
-            .getSamplesByPatientId(sampleIds, studyIds)
+            .getShallowSamplesByPatientId(sampleIds, studyIds)
             .entrySet()
             .stream()
             .filter(e -> treatmentsByPatient.containsKey(e.getKey()))
@@ -142,7 +142,7 @@ public class TreatmentServiceImpl implements TreatmentService {
         Map<String, List<Treatment>> treatmentsByPatient,
         Map<String, List<ClinicalEventSample>> samplesByPatient
     ) {
-        // find all the patients that have received this treatments
+        // find all the patients that have received this treatment
         List<Map.Entry<String, List<Treatment>>> matchingPatients = matchingPatients(treatment, treatmentsByPatient);
 
         // from those patients, extract the unique samples

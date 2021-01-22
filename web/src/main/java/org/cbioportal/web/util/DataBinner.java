@@ -265,6 +265,8 @@ public class DataBinner {
         } else if (withoutOutliers.size() > 0) {
 
             if (customBins != null) {
+                // adjust custom bins w.r.t. outliers (if any)
+                customBins = this.adjustCustomBins(customBins, lowerOutlierBin, upperOutlierBin);
                 dataBins = linearDataBinner.calculateDataBins(customBins, numericalValues);
             } else if (boxRange.upperEndpoint().subtract(boxRange.lowerEndpoint()).intValue() > 1000 &&
                 (disableLogScale == null || !disableLogScale)) {
@@ -339,7 +341,7 @@ public class DataBinner {
                 upperOutlierBin.setStart(start);
             } else if (dataBins != null && dataBins.size() > 0) {
                 if (dataBins.get(dataBins.size() - 1).getEnd().compareTo(upperOutlierBin.getStart()) == -1) {
-                    upperOutlierBin.setStart(dataBins.get(dataBins.size() - 1).getStart());
+                    upperOutlierBin.setStart(dataBins.get(dataBins.size() - 1).getEnd());
                 } else {
                     dataBins.get(dataBins.size() - 1).setEnd(upperOutlierBin.getStart());
                 }
@@ -420,10 +422,45 @@ public class DataBinner {
     }
 
     /**
+     * We cannot do an exact calculation for values below/above the special outlier values.
+     * We need to adjust custom bins for those cases.
+     * 
+     *  example: assume we have special values <18 and >90 in our dataset
+     *           custom bins => [10, 15, 40, 70, 95, 100]
+     *           adjusted custom bins => [18, 40, 70, 90]
+     */
+    public List<BigDecimal> adjustCustomBins(
+        List<BigDecimal> customBins,
+        DataBin lowerOutlierBin,
+        DataBin upperOutlierBin
+    ) {
+        BigDecimal lowerBound = lowerOutlierBin.getEnd();
+        BigDecimal upperBound = upperOutlierBin.getStart();
+
+        // filter out values less than lower bound and greater than the upper bound
+        List<BigDecimal> binsWithinBounds = customBins
+            .stream()
+            .filter(bin -> lowerBound == null || bin.compareTo(lowerBound) != -1)
+            .filter(bin -> upperBound == null || bin.compareTo(upperBound) != 1)
+            .collect(Collectors.toList());
+
+        // we need to add back lower bound if we removed values below the lower bound from the original bin list
+        if (customBins.stream().anyMatch(bin -> lowerBound != null && bin.compareTo(lowerBound) == -1)) {
+            binsWithinBounds.add(0, lowerBound);
+        }
+
+        // we need to add back upper bound if we removed values above the upper bound from the original bin list
+        if (customBins.stream().anyMatch(bin -> upperBound != null && bin.compareTo(upperBound) == 1)) {
+            binsWithinBounds.add(upperBound);
+        }
+        
+        return binsWithinBounds;
+    }
+    
+    /**
      * NA count is: Number of clinical data marked actually as "NA" + Number of patients/samples without clinical data.
      * Assuming that clinical data is for a single attribute.
      *
-     * @param attributeId   clinical data attribute id
      * @param clinicalData  clinical data list for a single attribute
      * @param ids           sample/patient ids
      *

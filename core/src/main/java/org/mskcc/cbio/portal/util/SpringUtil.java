@@ -64,7 +64,7 @@ public class SpringUtil
     public static synchronized void initDataSource()
     {
         if (SpringUtil.context == null) {
-            context = new ClassPathXmlApplicationContext("classpath:applicationContext-persistenceConnections.xml", "classpath:applicationContext-ehcache.xml");
+            context = new ClassPathXmlApplicationContext("classpath:applicationContext-persistenceConnections.xml", "classpath:applicationContext-ehcache.xml", "classpath:applicationContext-rediscache.xml");
         }
     }
 

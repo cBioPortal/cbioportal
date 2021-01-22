@@ -209,6 +209,9 @@ mycancergenome.show=true
 # Available sources: mutation_assessor
 # show.genomenexus.annotation_sources=mutation_assessor
 
+# Enable SIGNAL column in mutations table(true, false)
+# show.signal=false
+
 # igv bam linking
 igv.bam.linking=
 # colon delimited
@@ -271,11 +274,20 @@ oncoprint.hotspots.default=true
 # Custom gene sets
 # querypage.setsofgenes.location=file:/<path>
 
-# valid cache types are (heap, disk, hybrid), or use 'none' to disable use of Ehcache
-ehcache.cache_type=none
-#ehcache.xml_configuration=/ehcache.xml
-# Enable cache statistics endpoint for Ehcache monitoring
+# valid cache types are (ehcache-heap, ehcache-disk, ehcache-hybrid, redis), or use 'no-cache' to disable caching
+# caution : the 'redis' caching option will likely cause a conflict when installing the portal in a tomcat installation which uses redisson for session management
+persistence.cache_type=no-cache
+# Enable cache statistics endpoint for cache monitoring
 #cache.statistics_endpoint_enabled=false
+
+# Redis properties
+#redis.leader_address=
+#redis.follower_address=
+#redis.database=
+#redis.password=
+
+# Ehcache properties
+#ehcache.xml_configuration=/ehcache.xml
 
 # Properties for specifying cache size constraints
 # - Zero is not an accepted value, will break deployment
@@ -327,3 +339,13 @@ ehcache.cache_type=none
 
 # Enable gsva to query
 # skin.show_gsva=true
+
+# Compress some particularly large request bodies. enable_request_body_gzip_compression enables the feature, and
+# request_gzip_body_size_bytes sets the maximum allowable uncompressed request body size in bytes. Requests larger than
+# this value will be rejected. If unset, the default value will be 50000000, or 50 Mb.
+# enable_request_body_gzip_compression=true
+# request_gzip_body_size_bytes=80000000
+
+# Installation map URL for installation map iframes. 
+# If blank or commented out, no map will be shown and that page will be hidden.
+# installation_map_url=https://installationmap.netlify.app/

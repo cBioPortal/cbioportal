@@ -18,19 +18,20 @@ COPY pom.xml                                     /cbioportal/
 COPY version.sh                                  /cbioportal/
 WORKDIR /cbioportal
 
-COPY core/pom.xml                             core/
-COPY db-scripts/pom.xml                       db-scripts/
-COPY model/pom.xml                            model/
-COPY persistence/pom.xml                      persistence/
-COPY persistence/persistence-api/pom.xml      persistence/persistence-api/
-COPY persistence/persistence-mybatis/pom.xml  persistence/persistence-mybatis/
-COPY scripts/pom.xml                          scripts/
-COPY security/pom.xml                         security/
-COPY security/security-spring/pom.xml         security/security-spring/
-COPY service/pom.xml                          service/
-COPY web/pom.xml                              web/
+COPY core/pom.xml                                   core/
+COPY db-scripts/pom.xml                             db-scripts/
+COPY model/pom.xml                                  model/
+COPY persistence/pom.xml                            persistence/
+COPY persistence/persistence-api/pom.xml            persistence/persistence-api/
+COPY persistence/persistence-connections/pom.xml    persistence/persistence-connections/
+COPY persistence/persistence-mybatis/pom.xml        persistence/persistence-mybatis/
+COPY scripts/pom.xml                                scripts/
+COPY security/pom.xml                               security/
+COPY security/security-spring/pom.xml               security/security-spring/
+COPY service/pom.xml                                service/
+COPY web/pom.xml                                    web/
 RUN for subproject in */.; do cp version.sh "$subproject"; cd "$subproject"; mvn dependency:go-offline --fail-never; cd ..; done
-COPY portal/pom.xml                           portal/
+COPY portal/pom.xml                                 portal/
 RUN mvn dependency:go-offline --fail-never
 
 COPY $PWD /cbioportal

@@ -95,11 +95,12 @@ The cBioPortal for Cancer Genomics was originally developed at [Memorial Sloan K
 ## Funding for the cBioPortal for Cancer Genomics is or has been provided by:
 
 ### Current:
-* ITCR, through a [U24 grant](https://itcr.nci.nih.gov/funded-project/cbioportal-cancer-genomics) (NCI-U24CA220457) 
+* NCI, through [ITCR grant NCI-U24CA220457](https://itcr.nci.nih.gov/funded-project/cbioportal-cancer-genomics) and [HTAN grant NCI-U24CA233243](https://humantumoratlas.org/)
 * Marie-José and Henry R. Kravis Center for Molecular Oncology at MSK
 * Dana Farber Cancer Institute
 * American Association for Cancer Research through AACR Project GENIE
-* POETIC Consortium
+* Prostate Cancer Foundation
+* The Cholangiocarcinoma Foundation
 * Robertson Foundation
 * Parker Institute for Cancer Immunotherapy
 
@@ -111,4 +112,4 @@ The cBioPortal for Cancer Genomics was originally developed at [Memorial Sloan K
 * Starr Cancer Consortium
 * Breast Cancer Research Foundation
 * Adenoid Cystic Carcinoma Research Foundation
-* Prostate Cancer Foundation
+* POETIC Consortium

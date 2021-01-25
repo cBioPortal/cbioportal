@@ -77,3 +77,6 @@ We also maintain an active [list of RFCs (Requests for Comments)](RFC-List.md) w
 
 ## 6. Web API and Clients
  * [API and API Clients](API-and-API-Clients.md)
+
+## 7. Troubleshooting
+ * [End-to-End Tests](End-to-End-Tests.md)

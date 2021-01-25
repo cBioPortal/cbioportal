@@ -74,3 +74,6 @@
 
 ## 6. Web API and Clients
  * [API and API Clients](API-and-API-Clients.md)
+
+## 7. Troubleshooting
+ * [End-to-End Tests](End-to-End-Tests.md)

@@ -14,8 +14,13 @@ import org.mockito.Spy;
 import org.mockito.junit.MockitoJUnitRunner;
 
 import java.math.BigDecimal;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 @RunWith(MockitoJUnitRunner.class)
 public class DataBinnerTest {
@@ -536,9 +541,112 @@ public class DataBinnerTest {
         });
 
         mockData.put("linear_integer_continue", new String[]{
-            "1.0", "2.0", "3.0", "4.0", "5.0", "6.0", "7.0", "8.0", "9.0", "10.0", "11.0", "12.0", "13.0", "14.0", "15.0", "16.0", "17.0", "18.0", "19.0", "20.0", "21.0", "22.0", "23.0", "24.0", "25.0", "26.0", "27.0", "28.0", "29.0", "30.0", "31.0", "32.0", "33.0", "34.0", "35.0", "36.0", "37.0", "38.0", "39.0", "40.0", "41.0", "42.0", "43.0", "44.0", "45.0", "46.0", "47.0", "48.0", "49.0", "50.0", "51.0", "52.0", "53.0", "54.0", "55.0", "56.0", "57.0", "58.0", "59.0", "60.0", "61.0", "62.0", "63.0", "64.0", "65.0", "66.0", "67.0", "68.0", "69.0", "70.0", "71.0", "72.0", "73.0", "74.0", "75.0", "76.0", "77.0", "78.0", "79.0", "80.0", "81.0", "82.0", "83.0", "84.0", "85.0", "86.0", "87.0", "88.0", "89.0", "90.0", "91.0", "92.0", "93.0", "94.0", "95.0", "96.0", "97.0", "98.0", "99.0", "100.0"
+            "1.0", "2.0", "3.0", "4.0", "5.0", "6.0", "7.0", "8.0", "9.0", "10.0", "11.0", "12.0", "13.0", "14.0", "15.0", "16.0", "17.0", "18.0", "19.0", "20.0",
+            "21.0", "22.0", "23.0", "24.0", "25.0", "26.0", "27.0", "28.0", "29.0", "30.0", "31.0", "32.0", "33.0", "34.0", "35.0", "36.0", "37.0", "38.0", "39.0",
+            "40.0", "41.0", "42.0", "43.0", "44.0", "45.0", "46.0", "47.0", "48.0", "49.0", "50.0", "51.0", "52.0", "53.0", "54.0", "55.0", "56.0", "57.0", "58.0",
+            "59.0", "60.0", "61.0", "62.0", "63.0", "64.0", "65.0", "66.0", "67.0", "68.0", "69.0", "70.0", "71.0", "72.0", "73.0", "74.0", "75.0", "76.0", "77.0",
+            "78.0", "79.0", "80.0", "81.0", "82.0", "83.0", "84.0", "85.0", "86.0", "87.0", "88.0", "89.0", "90.0", "91.0", "92.0", "93.0", "94.0", "95.0", "96.0",
+            "97.0", "98.0", "99.0", "100.0"
         });
 
+        mockData.put("genie_public_AGE_AT_WHICH_SEQUENCING_WAS_REPORTED" , new String[]{
+            "0", "0", "0", "0", "0", "0", "0", "0", "0", "0",
+            "1", "1", "1", "1", "1", "1", "1", "1", "1", "1", "1", "1",
+            "2", "2", "2", "2", "2", "2",
+            "3", "3", "3", "3",
+            "4", "4", "4", "4", "4", "4", "4", "4",
+            "5", "5", "5", "5", "5", "5", "5", "5", "5", "5", "5",
+            "6", "6", "6",
+            "7", "7", "7", "7",
+            "8", "8", "8", "8", "8", "8",
+            "9", "9", "9", "9", "9", "9", "9", "9",
+            "10", "10", "10", "10", "10", "10", "10", "10",
+            "11", "11", "11", "11",
+            "12", "12", "12", "12", "12",
+            "13", "13", "13", "13",
+            "14", "14", "14", "14", "14", "14",
+            "15", "15", "15", "15", "15", "15", "15", "15",
+            "16", "16", "16", "16", "16", "16", "16", "16", "16", "16",
+            "17", "17", "17", "17", "17", "17", "17", "17", "17", "17", "17",
+            "<18", "<18", "<18", "<18", "<18", "<18", "<18", "<18", "<18", "<18", "<18", "<18", "<18", "<18", "<18",
+            "18", "18", "18", "18", "18", "18", "18", "18", "18", "18", "18", "18", "18",
+            "19", "19", "19", "19", "19", "19",
+            "20", "20", "20", "20", "20", "20", "20", "20",
+            "21", "21", "21", "21", "21",
+            "22", "22", "22", "22", "22", "22", "22", "22",
+            "23", "23", "23", "23", "23", "23", "23", "23", "23", "23",
+            "24", "24", "24", "24",
+            "25", "25", "25", "25", "25", "25", "25", "25",
+            "26", "26", "26", "26", "26", "26",
+            "27", "27", "27", "27", "27", "27", "27", "27", "27",
+            "28", "28", "28", "28", "28", "28", "28",
+            "29", "29", "29", "29", "29", "29", "29",
+            "30", "30", "30", "30", "30", "30", "30", "30", "30",
+            "31", "31", "31", "31", "31",
+            "32", "32", "32", "32", "32", "32",
+            "33", "33", "33",
+            "34", "34", "34", "34", "34", "34", "34", "34", "34", "34", "34", "34",
+            "35", "35", "35", "35", "35", "35",
+            "36", "36", "36", "36", "36", "36", "36",
+            "37", "37", "37", "37",
+            "38", "38", "38", "38", "38", "38",
+            "39", "39", "39", "39", "39", "39", "39",
+            "40", "40", "40", "40", "40", "40",
+            "41", "41", "41", "41",
+            "42", "42", "42", "42", "42", "42",
+            "43", "43", "43", "43", "43", "43", "43", "43", "43",
+            "44", "44", "44", "44", "44",
+            "45", "45", "45", "45", "45", "45", "45", "45",
+            "46", "46", "46", "46",
+            "47", "47", "47", "47", "47", "47", "47", "47", "47",
+            "48", "48", "48", "48", "48", "48",
+            "49", "49", "49", "49", "49", "49", "49", "49",
+            "50", "50", "50", "50", "50", "50",
+            "51", "51", "51", "51", "51", "51", "51", "51", "51", "51",
+            "52", "52", "52", "52", "52", "52", "52",
+            "53", "53", "53", "53", "53", "53", "53", "53", "53", "53", "53", "53",
+            "54", "54", "54", "54", "54", "54", "54", "54",
+            "55", "55", "55", "55", "55", "55", "55", "55", "55", "55",
+            "56", "56", "56", "56", "56", "56", "56", "56", "56",
+            "57", "57", "57", "57", "57", "57",
+            "58", "58", "58", "58", "58", "58", "58", "58", "58", "58", "58",
+            "59", "59", "59", "59",
+            "60", "60", "60", "60", "60", "60", "60", "60",
+            "61", "61", "61", "61", "61", "61", "61", "61", "61", "61",
+            "62", "62", "62", "62", "62", "62",
+            "63", "63", "63", "63", "63", "63", "63", "63",
+            "64", "64", "64", "64", "64",
+            "65", "65", "65", "65", "65", "65",
+            "66", "66", "66", "66", "66", "66", "66", "66",
+            "Unknown", "Unknown", "Unknown", "Unknown", "Unknown", "Unknown", "Unknown", "Unknown", "Unknown", "Unknown",
+            "67", "67", "67",
+            "68", "68", "68", "68", "68", "68", "68", "68",
+            "69", "69", "69", "69",
+            "70", "70", "70", "70", "70", "70",
+            "71", "71", "71", "71", "71", "71", "71", "71", "71",
+            "72", "72", "72", "72", "72", "72", "72",
+            "73", "73", "73", "73", "73", "73", "73", "73", "73", "73", "73", "73", "73",
+            "74", "74", "74", "74", "74", "74", "74", "74", "74", "74", "74", "74", "74", "74", "74",
+            "75", "75", "75", "75", "75", "75", "75", "75", "75", "75", "75", "75", "75", "75", "75", "75", "75",
+            "76", "76", "76", "76", "76", "76", "76", "76", "76", "76", "76", "76", "76",
+            "77", "77", "77", "77", "77", "77", "77", "77", "77", "77",
+            "78", "78", "78", "78", "78", "78", "78", "78", "78", "78", "78", "78",
+            "79", "79", "79", "79", "79", "79", "79", "79",
+            "80", "80", "80", "80", "80", "80", "80", "80", "80", "80", "80", "80", "80",
+            "81", "81", "81", "81", "81", "81", "81", "81", "81",
+            "82", "82", "82", "82", "82", "82", "82", "82", "82", "82", "82", "82", "82", "82", "82", "82", "82", "82",
+            "83", "83", "83", "83", "83", "83", "83",
+            "84", "84", "84", "84", "84", "84", "84", "84", "84", "84", "84",
+            "85", "85", "85", "85", "85", "85", "85", "85", "85",
+            "86", "86", "86", "86", "86", "86", "86", "86", "86", "86", "86", "86", "86",
+            "87", "87", "87", "87", "87", "87", "87", "87", "87", "87", "87", "87", "87", "87", "87",
+            "88", "88", "88", "88",
+            "89", "89", "89",
+            ">89", ">89", ">89", ">89", ">89", ">89", ">89", ">89", ">89", ">89", ">89", ">89", ">89", ">89", ">89",
+            "90",
+            "93"
+        });
+        
         return mockData;
     }
 
@@ -719,7 +827,7 @@ public class DataBinnerTest {
     }
 
     @Test
-    public void testLinearDataBinnerWithRangeAndCustomrBins() {
+    public void testLinearDataBinnerWithRangeAndCustomBins() {
         String studyId = "random";
         String attributeId = "random";
         String[] values = mockData.get("linear_integer_continue");
@@ -843,6 +951,95 @@ public class DataBinnerTest {
         Assert.assertEquals(13, unfilteredDataBins.get(10).getCount().intValue());
     }
 
+    @Test
+    public void testLinearDataBinnerWithAgeAtWhichSequencingWasReported() {
+        String studyId = "genie_public";
+        String attributeId = "AGE_AT_WHICH_SEQUENCING_WAS_REPORTED";
+        String[] values = mockData.get("genie_public_AGE_AT_WHICH_SEQUENCING_WAS_REPORTED");
+
+        List<ClinicalData> clinicalData = mockClinicalData(attributeId, studyId, values);
+        List<String> patientIds = getCaseIds(clinicalData, true);
+        
+        ClinicalDataBinFilter clinicalDataBinFilter = new ClinicalDataBinFilter();
+        clinicalDataBinFilter.setAttributeId(attributeId);
+        clinicalDataBinFilter.setCustomBins(
+            Stream.of(45.0, 60.0, 70.0).map(BigDecimal::valueOf).collect(Collectors.toList())
+        );
+
+        List<DataBin> dataBins1 = dataBinner.calculateDataBins(
+            clinicalDataBinFilter, ClinicalDataType.PATIENT, clinicalData, patientIds);
+        Assert.assertEquals(5, dataBins1.size());
+
+        Assert.assertEquals("<=", dataBins1.get(0).getSpecialValue());
+        Assert.assertEquals(new BigDecimal("45.0"), dataBins1.get(0).getEnd());
+        Assert.assertEquals(337, dataBins1.get(0).getCount().intValue());
+
+        Assert.assertEquals(new BigDecimal("45.0"), dataBins1.get(1).getStart());
+        Assert.assertEquals(new BigDecimal("60.0"), dataBins1.get(1).getEnd());
+        Assert.assertEquals(118, dataBins1.get(1).getCount().intValue());
+
+        Assert.assertEquals(new BigDecimal("60.0"), dataBins1.get(2).getStart());
+        Assert.assertEquals(new BigDecimal("70.0"), dataBins1.get(2).getEnd());
+        Assert.assertEquals(64, dataBins1.get(2).getCount().intValue());
+
+        Assert.assertEquals(">", dataBins1.get(3).getSpecialValue());
+        Assert.assertEquals(new BigDecimal("70.0"), dataBins1.get(3).getStart());
+        Assert.assertEquals(223, dataBins1.get(3).getCount().intValue());
+
+        Assert.assertEquals("Unknown", dataBins1.get(4).getSpecialValue());
+        Assert.assertEquals(10, dataBins1.get(4).getCount().intValue());
+        
+
+        clinicalDataBinFilter.setCustomBins(
+            Stream.of(40.0, 55.0).map(BigDecimal::valueOf).collect(Collectors.toList())
+        );
+
+        List<DataBin> dataBins2 = dataBinner.calculateDataBins(
+            clinicalDataBinFilter, ClinicalDataType.PATIENT, clinicalData, patientIds);
+        Assert.assertEquals(4, dataBins2.size());
+
+        Assert.assertEquals("<=", dataBins2.get(0).getSpecialValue());
+        Assert.assertEquals(new BigDecimal("40.0"), dataBins2.get(0).getEnd());
+        Assert.assertEquals(305, dataBins2.get(0).getCount().intValue());
+
+        Assert.assertEquals(new BigDecimal("40.0"), dataBins2.get(1).getStart());
+        Assert.assertEquals(new BigDecimal("55.0"), dataBins2.get(1).getEnd());
+        Assert.assertEquals(112, dataBins2.get(1).getCount().intValue());
+
+        Assert.assertEquals(">", dataBins2.get(2).getSpecialValue());
+        Assert.assertEquals(new BigDecimal("55.0"), dataBins2.get(2).getStart());
+        Assert.assertEquals(325, dataBins2.get(2).getCount().intValue());
+
+        Assert.assertEquals("Unknown", dataBins2.get(3).getSpecialValue());
+        Assert.assertEquals(10, dataBins2.get(3).getCount().intValue());
+
+
+        clinicalDataBinFilter.setCustomBins(
+            Stream.of(5.0, 10.0, 90.0, 100.0).map(BigDecimal::valueOf).collect(Collectors.toList())
+        );
+
+        List<DataBin> dataBins3 = dataBinner.calculateDataBins(
+            clinicalDataBinFilter, ClinicalDataType.PATIENT, clinicalData, patientIds);
+        Assert.assertEquals(4, dataBins3.size());
+
+        // even if we have 5 and 10 they will not be used because we have special values like "<18"
+        Assert.assertEquals("<=", dataBins3.get(0).getSpecialValue());
+        Assert.assertEquals(new BigDecimal("18"), dataBins3.get(0).getEnd());
+        Assert.assertEquals(156, dataBins3.get(0).getCount().intValue());
+
+        Assert.assertEquals(new BigDecimal("18"), dataBins3.get(1).getStart());
+        Assert.assertEquals(new BigDecimal("89"), dataBins3.get(1).getEnd());
+        Assert.assertEquals(569, dataBins3.get(1).getCount().intValue());
+
+        // even if we have 90 and 100 they will not be used because we have special values like ">89" in our data
+        Assert.assertEquals(">", dataBins3.get(2).getSpecialValue());
+        Assert.assertEquals(new BigDecimal("89"), dataBins3.get(2).getStart());
+        Assert.assertEquals(17, dataBins3.get(2).getCount().intValue());
+
+        Assert.assertEquals("Unknown", dataBins3.get(3).getSpecialValue());
+        Assert.assertEquals(10, dataBins3.get(3).getCount().intValue());
+    }
+    
     @Test
     public void testLinearDataBinnerWithPediatricAge() {
         String studyId = "skcm_broad";

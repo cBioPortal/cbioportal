@@ -32,17 +32,34 @@
 
 package org.mskcc.cbio.portal.dao;
 
-import org.mskcc.cbio.portal.model.*;
-import org.mskcc.cbio.portal.util.MutationKeywordUtils;
-
-import org.apache.commons.lang.StringUtils;
-
-import java.sql.*;
-import java.util.*;
-import java.util.regex.*;
 import org.apache.commons.collections.MapIterator;
 import org.apache.commons.collections.keyvalue.MultiKey;
 import org.apache.commons.collections.map.MultiKeyMap;
+import org.apache.commons.lang.StringUtils;
+import org.mskcc.cbio.portal.model.CancerStudy;
+import org.mskcc.cbio.portal.model.CanonicalGene;
+import org.mskcc.cbio.portal.model.ClinicalAttribute;
+import org.mskcc.cbio.portal.model.ExtendedMutation;
+import org.mskcc.cbio.portal.model.GeneticAlterationType;
+import org.mskcc.cbio.portal.model.GeneticProfile;
+import org.mskcc.cbio.portal.model.Sample;
+import org.mskcc.cbio.portal.util.MutationKeywordUtils;
+
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 /**
  * Data access object for Mutation table
@@ -60,6 +77,25 @@ public final class DaoMutation {
                 //add event first, as mutation has a Foreign key constraint to the event:
                 result = addMutationEvent(mutation.getEvent())+1;
             }
+
+            if ((mutation.getDriverFilter() != null
+                && !mutation.getDriverFilter().isEmpty()
+                && !mutation.getDriverFilter().toLowerCase().equals("na"))
+                ||
+                (mutation.getDriverTiersFilter() != null
+                && !mutation.getDriverTiersFilter().isEmpty()
+                && !mutation.getDriverTiersFilter().toLowerCase().equals("na"))) {
+                MySQLbulkLoader.getMySQLbulkLoader("alteration_driver_annotation").insertRecord(
+                    Long.toString(mutation.getMutationEventId()),
+                    Integer.toString(mutation.getGeneticProfileId()),
+                    Integer.toString(mutation.getSampleId()),
+                    mutation.getDriverFilter(),
+                    mutation.getDriverFilterAnn(),
+                    mutation.getDriverTiersFilter(),
+                    mutation.getDriverTiersFilterAnn()
+                );
+            }
+
             MySQLbulkLoader.getMySQLbulkLoader("mutation").insertRecord(
                     Long.toString(mutation.getMutationEventId()),
                     Integer.toString(mutation.getGeneticProfileId()),
@@ -90,10 +126,6 @@ public final class DaoMutation {
                     (mutation.getNormalRefCount() == null) ? null : Integer.toString(mutation.getNormalRefCount()),
                     //AminoAcidChange column is not used
                     null,
-                    mutation.getDriverFilter(),
-                    mutation.getDriverFilterAnn(),
-                    mutation.getDriverTiersFilter(),
-                    mutation.getDriverTiersFilterAnn(),
                     mutation.getAnnotationJson());
             return result;
         }
@@ -1548,7 +1580,7 @@ public final class DaoMutation {
                 try {
                     con = JdbcUtil.getDbConnection(DaoMutation.class);
                     pstmt = con.prepareStatement(
-                            "SELECT DISTINCT DRIVER_TIERS_FILTER FROM mutation "
+                            "SELECT DISTINCT DRIVER_TIERS_FILTER FROM alteration_driver_annotation "
                             + "WHERE DRIVER_TIERS_FILTER is not NULL AND DRIVER_TIERS_FILTER <> '' AND GENETIC_PROFILE_ID=? "
                             + "ORDER BY DRIVER_TIERS_FILTER");
                     pstmt.setLong(1, geneticProfile.getGeneticProfileId());
@@ -1604,7 +1636,7 @@ public final class DaoMutation {
                 try {
                     con = JdbcUtil.getDbConnection(DaoMutation.class);
                     pstmt = con.prepareStatement(
-                            "SELECT DISTINCT DRIVER_FILTER FROM mutation "
+                            "SELECT DISTINCT DRIVER_FILTER FROM alteration_driver_annotation "
                             + "WHERE DRIVER_FILTER is not NULL AND DRIVER_FILTER <> '' AND GENETIC_PROFILE_ID=? ");
                     pstmt.setLong(1, geneticProfile.getGeneticProfileId());
                     rs = pstmt.executeQuery();

@@ -43,6 +43,10 @@ public class CnaEvent {
     private int sampleId;
     private int cnaProfileId;
     private Event event;
+    private String driverFilter;
+    private String driverFilterAnnotation;
+    private String driverTiersFilter;
+    private String driverTiersFilterAnnotation;
     
     public static class Event {
         private long eventId;
@@ -180,6 +184,38 @@ public class CnaEvent {
 
     public void setEvent(Event event) {
         this.event = event;
+    }
+
+    public String getDriverFilter() {
+        return driverFilter;
+    }
+
+    public void setDriverFilter(String driverFilter) {
+        this.driverFilter = driverFilter;
+    }
+
+    public String getDriverFilterAnnotation() {
+        return driverFilterAnnotation;
+    }
+
+    public void setDriverFilterAnnotation(String driverFilterAnnotation) {
+        this.driverFilterAnnotation = driverFilterAnnotation;
+    }
+
+    public String getDriverTiersFilter() {
+        return driverTiersFilter;
+    }
+
+    public void setDriverTiersFilter(String driverTiersFilter) {
+        this.driverTiersFilter = driverTiersFilter;
+    }
+
+    public String getDriverTiersFilterAnnotation() {
+        return driverTiersFilterAnnotation;
+    }
+
+    public void setDriverTiersFilterAnnotation(String driverTiersFilterAnnotation) {
+        this.driverTiersFilterAnnotation = driverTiersFilterAnnotation;
     }
 
     @Override

@@ -50,14 +50,14 @@ import org.springframework.beans.factory.annotation.Value;
 import org.ehcache.impl.config.persistence.DefaultPersistenceConfiguration;
 import org.cbioportal.persistence.CacheEnabledConfig;
 
-public class CustomEhCachingProvider extends EhcacheCachingProvider {
+public class CustomEhcachingProvider extends EhcacheCachingProvider {
 
-    private static final Logger LOG = LoggerFactory.getLogger(CustomEhCachingProvider.class);
+    private static final Logger LOG = LoggerFactory.getLogger(CustomEhcachingProvider.class);
 
     @Value("${ehcache.xml_configuration:/ehcache.xml}")
     private String xmlConfigurationFile;
 
-    @Value("${ehcache.cache_type:none}")
+    @Value("${persistence.cache_type:no-cache}")
     private String cacheType;
 
     @Value("${ehcache.general_repository_cache.max_mega_bytes_heap:1024}")
@@ -91,13 +91,13 @@ public class CustomEhCachingProvider extends EhcacheCachingProvider {
                 ResourcePoolsBuilder staticRepositoryCacheOneResourcePoolsBuilder = ResourcePoolsBuilder.newResourcePoolsBuilder();
 
                 // Set up heap resources as long as not disk-only
-                if (!cacheType.equalsIgnoreCase(CacheEnabledConfig.DISK)) {
+                if (!cacheType.equalsIgnoreCase(CacheEnabledConfig.EHCACHE_DISK)) {
                     generalRepositoryCacheResourcePoolsBuilder = generalRepositoryCacheResourcePoolsBuilder.heap(generalRepositoryCacheMaxMegaBytes, MemoryUnit.MB);
                     staticRepositoryCacheOneResourcePoolsBuilder = staticRepositoryCacheOneResourcePoolsBuilder.heap(staticRepositoryCacheOneMaxMegaBytes, MemoryUnit.MB);
                 }
                 // Set up disk resources as long as not heap-only
                 // will default to using /tmp -- let Ehcache throw exception if persistence path is invalid (locked or otherwise)
-                if (!cacheType.equalsIgnoreCase(CacheEnabledConfig.HEAP)) {
+                if (!cacheType.equalsIgnoreCase(CacheEnabledConfig.EHCACHE_HEAP)) {
                     generalRepositoryCacheResourcePoolsBuilder = generalRepositoryCacheResourcePoolsBuilder.disk(generalRepositoryCacheMaxMegaBytesLocalDisk, MemoryUnit.MB);
                     staticRepositoryCacheOneResourcePoolsBuilder = staticRepositoryCacheOneResourcePoolsBuilder.disk(staticRepositoryCacheOneMaxMegaBytesLocalDisk, MemoryUnit.MB);
                 }
@@ -119,7 +119,7 @@ public class CustomEhCachingProvider extends EhcacheCachingProvider {
                 caches.put("StaticRepositoryCacheOne", staticRepositoryCacheOneConfiguration);
 
                 Configuration configuration = null;
-                if (cacheType.equalsIgnoreCase(CacheEnabledConfig.HEAP)) {
+                if (cacheType.equalsIgnoreCase(CacheEnabledConfig.EHCACHE_HEAP)) {
                     configuration = new DefaultConfiguration(caches, this.getDefaultClassLoader());
                 } else { // add persistence configuration if cacheType is either disk-only or hybrid
                     File persistenceFile = new File(persistencePath);
@@ -163,20 +163,22 @@ public class CustomEhCachingProvider extends EhcacheCachingProvider {
         boolean usesHeap = false;
         boolean usesDisk = false;
         switch (this.cacheType.trim().toLowerCase()) {
-            case "none":
+            case "no-cache":
                 break;
-            case "heap":
+            case "ehcache-heap":
                 usesHeap = true;
                 break;
-            case "disk":
+            case "ehcache-disk":
                 usesDisk = true;
                 break;
-            case "hybrid":
+            case "ehcache-hybrid":
                 usesHeap = true;
                 usesDisk = true;
                 break;
+            case "redis":
+                break; // we should not be in here in this case
             default:
-                messages.append("\n  property ehcache.cache_type has value (")
+                messages.append("\n  property persistence.cache_type has value (")
                         .append(cacheType)
                         .append(") which is not a recognized value");
         }

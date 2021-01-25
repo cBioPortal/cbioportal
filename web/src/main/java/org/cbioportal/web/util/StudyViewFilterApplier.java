@@ -51,7 +51,8 @@ public class StudyViewFilterApplier {
     private DataBinner dataBinner;
     @Autowired
     private PatientTreatmentFilterApplier patientTreatmentFilterApplier;
-    
+    @Autowired
+    private CustomDataFilterApplier customDataFilterApplier;
     @Autowired
     private SampleTreatmentFilterApplier sampleTreatmentFilterApplier;
 
@@ -121,9 +122,14 @@ public class StudyViewFilterApplier {
         if (!CollectionUtils.isEmpty(clinicalDataEqualityFilters)) {
             sampleIdentifiers = equalityFilterClinicalData(sampleIdentifiers, clinicalDataEqualityFilters, negateFilters);
         }
-        
+
         if (!CollectionUtils.isEmpty(clinicalDataIntervalFilters)) {
             sampleIdentifiers = intervalFilterClinicalData(sampleIdentifiers, clinicalDataIntervalFilters, negateFilters);
+        }
+
+        if (!CollectionUtils.isEmpty(studyViewFilter.getCustomDataFilters())) {
+            sampleIdentifiers = customDataFilterApplier.apply(sampleIdentifiers, studyViewFilter.getCustomDataFilters(),
+                    negateFilters);
         }
 
         List<MolecularProfile> molecularProfiles = null;
@@ -415,14 +421,24 @@ public class StudyViewFilterApplier {
         for (GeneFilter genefilter : genefilters) {
 
             List<MolecularProfile> filteredMolecularProfiles = genefilter.getMolecularProfileIds().stream()
-                    .map(molecularProfileId -> molecularProfileMap.get(molecularProfileId))
+                    // need this filter criteria since profile id might be present
+                    // in filter but the study might already been filtered out
+                    .filter(molecularProfileMap::containsKey)
+                    .map(molecularProfileMap::get)
                     .collect(Collectors.toList());
 
             Set<MolecularAlterationType> alterationTypes = filteredMolecularProfiles.stream()
-                    .map(MolecularProfile::getMolecularAlterationType).collect(Collectors.toSet());
+                    .map(MolecularProfile::getMolecularAlterationType)
+                    .collect(Collectors.toSet());
 
             Set<String> dataTypes = filteredMolecularProfiles.stream().map(MolecularProfile::getDatatype)
                     .collect(Collectors.toSet());
+            
+            Set<String> filteredMolecularProfileIds = filteredMolecularProfiles
+                    .stream()
+                    .map(MolecularProfile::getStableId)
+                    .collect(Collectors.toSet());
+            genefilter.setMolecularProfileIds(filteredMolecularProfileIds);
 
             if (alterationTypes.size() == 1 && dataTypes.size() == 1) {
                 MolecularAlterationType alterationType = alterationTypes.iterator().next();
@@ -432,14 +448,14 @@ public class StudyViewFilterApplier {
                 } else if (alterationType.equals(MolecularAlterationType.STRUCTURAL_VARIANT) && dataType.equals("FUSION")) {
                     // TODO: cleanup once fusion/structural data is fixed in database
                     // until then rename fusion with mutation profile
-                    Set<String> molecularProfileIds = filteredMolecularProfiles
+                    filteredMolecularProfileIds = filteredMolecularProfiles
                             .stream()
                             .map(molecularProfile -> molecularProfile.getCancerStudyIdentifier() + "_mutations")
                             .collect(Collectors.toSet());
 
                     GeneFilter filter = new GeneFilter();
                     filter.setGeneQueries(genefilter.getGeneQueries());
-                    filter.setMolecularProfileIds(molecularProfileIds);
+                    filter.setMolecularProfileIds(filteredMolecularProfileIds);
                     fusionGeneFilters.add(filter);
                 } else if (alterationType == MolecularAlterationType.COPY_NUMBER_ALTERATION
                         && dataType.equals("DISCRETE")) {
@@ -734,7 +750,6 @@ public class StudyViewFilterApplier {
             Boolean negateFilters) {
 
         if (!CollectionUtils.isEmpty(dataFilters) && !CollectionUtils.isEmpty(sampleIdentifiers)) {
-            System.out.println("not empty");
 
             Map<String, List<MolecularProfile>> molecularProfileMap = studyViewFilterUtil
                     .categorizeMolecularPorfiles(molecularProfiles);
@@ -807,40 +822,18 @@ public class StudyViewFilterApplier {
             MultiKeyMap clinicalDataMap = new MultiKeyMap();
 
             clinicalDatas.forEach(clinicalData -> {
-                if (clinicalDataMap.containsKey(clinicalData.getSampleId(), clinicalData.getStudyId())) {
-                    ((List<ClinicalData>) clinicalDataMap.get(clinicalData.getSampleId(), clinicalData.getStudyId()))
-                            .add(clinicalData);
-                } else {
-                    List<ClinicalData> clinicalDatasTemp = new ArrayList<>();
-                    clinicalDatasTemp.add(clinicalData);
-                    clinicalDataMap.put(clinicalData.getSampleId(), clinicalData.getStudyId(), clinicalDatasTemp);
-                }
+                clinicalDataMap.put(clinicalData.getStudyId(), clinicalData.getSampleId(), clinicalData.getAttrId(),
+                        clinicalData.getAttrValue());
             });
 
-            List<String> ids = new ArrayList<>();
-            List<String> studyIdsOfIds = new ArrayList<>();
-            int index = 0;
-            for (String entityId : sampleIds) {
-                String studyId = studyIds.get(index);
-
-                int count = clinicalDataIntervalFilterApplier.apply(attributes, clinicalDataMap, entityId, studyId,
-                        negateFilters);
+            List<SampleIdentifier> newSampleIdentifiers = new ArrayList<>();
+            for (SampleIdentifier sampleIdentifier : sampleIdentifiers) {
+                int count = clinicalDataIntervalFilterApplier.apply(attributes, clinicalDataMap,
+                        sampleIdentifier.getSampleId(), sampleIdentifier.getStudyId(), negateFilters);
 
                 if (count == attributes.size()) {
-                    ids.add(entityId);
-                    studyIdsOfIds.add(studyId);
+                    newSampleIdentifiers.add(sampleIdentifier);
                 }
-                index++;
-            }
-
-            Set<String> idsSet = new HashSet<>(ids);
-            idsSet.retainAll(new HashSet<>(sampleIds));
-            List<SampleIdentifier> newSampleIdentifiers = new ArrayList<>();
-            for (int i = 0; i < ids.size(); i++) {
-                SampleIdentifier sampleIdentifier = new SampleIdentifier();
-                sampleIdentifier.setSampleId(ids.get(i));
-                sampleIdentifier.setStudyId(studyIdsOfIds.get(i));
-                newSampleIdentifiers.add(sampleIdentifier);
             }
 
             return newSampleIdentifiers;

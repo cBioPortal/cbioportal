@@ -24,16 +24,16 @@
     <!-- dbcp profile is defined here to prevent exceptions during war deployment -->
     <context-param>
         <param-name>spring.profiles.active</param-name>
-        <param-value>${dbconnector:dbcp},${authenticate},${google.analytics.tracking:ga-api-tracking-disabled}</param-value>
+        <param-value>${dbconnector:dbcp},${authenticate},${google.analytics.tracking:ga-api-tracking-disabled},${persistence.cache_type:no-cache}</param-value>
     </context-param>
     <context-param>
         <param-name>spring.liveBeansView.mbeanDomain</param-name>
         <param-value>${dbconnector:dbcp},${authenticate}</param-value>
     </context-param>
-
+    
     <context-param>
         <param-name>contextConfigLocation</param-name>
-        <param-value>classpath:applicationContext-persistenceConnections.xml classpath:applicationContext-security.xml classpath:applicationContext-logging.xml classpath:applicationContext-ehcache.xml</param-value>
+        <param-value>classpath:applicationContext-persistenceConnections.xml classpath:applicationContext-security.xml classpath:applicationContext-logging.xml classpath:applicationContext-ehcache.xml classpath:applicationContext-rediscache.xml</param-value>
     </context-param>
 
     <context-param>
@@ -64,6 +64,21 @@
     </listener>
 
     <!-- filters -->
+    
+    <!--
+        This filter is a bit misleading. This is actually an org.mskcc.cbio.portal.util.RequestBodyGZipFilter,
+        not an org.springframework.web.filter.DelegatingFilterProxy. We declare this as DelegatingFilterProxy
+        so that it has access to the application context, which it needs to see if this feature is enabled.
+    -->
+    <filter>
+        <filter-name>requestBodyGZipFilter</filter-name>
+        <filter-class>org.springframework.web.filter.DelegatingFilterProxy</filter-class>
+    </filter>
+    <filter-mapping>
+        <filter-name>requestBodyGZipFilter</filter-name>
+        <url-pattern>/*</url-pattern>
+    </filter-mapping>
+    
     <filter>
         <filter-name>CorsFilter</filter-name>
         <filter-class>org.apache.catalina.filters.CorsFilter</filter-class>
@@ -77,7 +92,7 @@
         </init-param>
         <init-param>
             <param-name>cors.allowed.headers</param-name>
-            <param-value>Origin,Accept,X-Requested-With,Content-Type,Access-Control-Request-Method,Access-Control-Request-Headers</param-value>
+            <param-value>Origin,Accept,X-Requested-With,Content-Type,Access-Control-Request-Method,Access-Control-Request-Headers,Content-Encoding</param-value>
         </init-param>
         <!-- expose cors headers defined in HeaderKeyConstants.java -->
         <init-param>

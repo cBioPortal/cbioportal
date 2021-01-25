@@ -293,32 +293,6 @@ public class MutationMyBatisRepositoryTest {
     }
 
     @Test
-    public void getSampleCountByEntrezGeneIds() throws Exception {
-
-        List<Integer> entrezGeneIds = new ArrayList<>();
-        entrezGeneIds.add(672);
-
-        List<MutationCountByGene> result = mutationMyBatisRepository.getSampleCountByEntrezGeneIdsAndSampleIds(
-            "study_tcga_pub_mutations", null, entrezGeneIds);
-
-        Assert.assertEquals(1, result.size());
-        Assert.assertEquals((Integer) 4, result.get(0).getNumberOfAlteredCases());
-    }
-
-    @Test
-    public void getPatientCountByEntrezGeneIds() throws Exception {
-
-        List<Integer> entrezGeneIds = new ArrayList<>();
-        entrezGeneIds.add(208);
-
-        List<MutationCountByGene> result = mutationMyBatisRepository.getPatientCountInMultipleMolecularProfiles(
-            Arrays.asList("acc_tcga_mutations"), null, entrezGeneIds);
-
-        Assert.assertEquals(1, result.size());
-        Assert.assertEquals((Integer) 1, result.get(0).getNumberOfAlteredCases());
-    }
-
-    @Test
     public void getMutationCountByPosition() throws Exception {
 
         MutationCountByPosition result = mutationMyBatisRepository.getMutationCountByPosition(672, 61, 936);

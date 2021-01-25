@@ -16,8 +16,11 @@ This page describes the main properties within portal.properties.
 	- [Automatic selection of OncoKB annotations](#automatic-selection-of-oncokb-annotations)
 	- [Automatic hiding of putative passenger mutations](#automatic-hiding-of-putative-passenger-mutations)
 - [Gene sets used for gene querying](#gene-sets-used-for-gene-querying)
-- [Ehcache Settings](#ehcache-settings)
+- [Cache Settings](#cache-settings)
+    - [Redis](#redis)
+    - [Ehcache](#ehcache)
 - [Enable GSVA functionality](#enable-gsva-functionality)
+- [Request Body Compression](#request-body-compression)
 
 # Database Settings
 
@@ -170,6 +173,14 @@ By default, the initial x-axis limit for a survival plot is the time of the late
 survival.initial_x_axis_limit=
 ```
 
+## Display installation map
+This setting specifies the URL for the iframes of a given portal's installation map on the homepage and standalone page. By default, the installation map configuration is commented out with the iframes and standalone page hidden. 
+The configuration below is used for https://www.cbioportal.org/.
+```
+installation_map_url=https://installationmap.netlify.app/
+```
+To set up an installation map instance, one may consult the source code for the installation map [here](https://github.com/cbioportal/installation-map).
+
 # Ensembl transcript lookup URL
 The Mutations tab contains various links, redirecting the user to external information resources regarding the displayed transcript. The Ensembl template URL can be customized by modifying the property:
 ```
@@ -212,7 +223,7 @@ google_analytics_profile_id
 
 The portal supports password authentication via Google+. Before you start you need to setup a google account that will own the authentication API. Follow https://developers.google.com/identity/sign-in/web/devconsole-project to get clientID and secret. Fill it in portal.properties:
 ```
-googleplus.consumer.key=195047654890-499gl89hj65j8d2eorqe0jvjnfaxcln0.apps.googleusercontent.com 
+googleplus.consumer.key=195047654890-499gl89hj65j8d2eorqe0jvjnfaxcln0.apps.googleusercontent.com
 googleplus.consumer.secret=2jCfg4SPWdGfXF44WC588dK
 ```
 (note: these are just examples, you need to get your own) You will also need to go to "Google+ API" and click Enable button. In case of problems make sure to enable DEBUG logging for org.springframework.social and org.springframework.security.web.authentication.
@@ -284,11 +295,11 @@ oncoprint.defaultview=sample
 ```
 
 # Custom annotation of driver and passenger mutations
-cBioPortal supports 2 formats to add custom annotations for driver and passenger mutations. 
+cBioPortal supports 2 formats to add custom annotations for driver and passenger mutations.
 1. **cbp_driver**: This will define whether a mutation is a driver or not.
-2. **cbp_driver_tiers**: This can be used to define multiple classes of driver mutations. 
+2. **cbp_driver_tiers**: This can be used to define multiple classes of driver mutations.
 
-These data formats are described in the [cBioPortal MAF specifications](File-Formats.md#extending-the-maf-format). 
+These data formats are described in the [cBioPortal MAF specifications](File-Formats.md#extending-the-maf-format).
 
 #### Enabling custom annotations in the OncoPrint
 To enable functionality for one or both types of custom annotations, enter values for the following properties. These labels will appear in the OncoPrint's "Mutation color" menu.
@@ -308,7 +319,7 @@ If you want to disable the automatic selection of OncoKB and hotspots as annotat
 ```
 oncoprint.oncokb.default=true|false
 oncoprint.hotspots.default=true|false
-``` 
+```
 
 #### Automatic hiding of variants of unknown significance (VUS)
 By default, the selection box to hide VUS mutations is unchecked. If you want to automatically hide VUS, set this property to `true`. Default is `false`.
@@ -356,31 +367,14 @@ This gene set will add the following in the query box:
 ```
 "BRCA genes" BRCA1: MUT=E1258D; BRCA2: HOMDEL MUT=NONSENSE MUT=NONSTART MUT=NONSTOP MUT=FRAMESHIFT MUT=SPLICE MUT=TRUNC;
 ```
-# Ehcache Settings
-cBioPortal is supported on the backend with Ehcache. The configuration, size, and location of these caches are configurable from within portal.properties through the following properties.
+# Cache Settings
+cBioPortal is supported on the backend with Ehcache or Redis. These caches are configurable from within portal.properties through the following properties.
 
-The cache type is set using `ehcache.cache_type`. Valid values are `none`, `heap` (heap-only), `disk` (disk-only), and `hybrid` (disk + heap). By default, `ehcache.cache_type` is set to `none` which disables the cache. When the cache is disabled, no responses will be stored in the cache. 
-```
-ehcache.cache_type=[none or heap or disk or hybrid]
-```
+The cache type is set using `persistence.cache_type`. Valid values are `no-cache`, `redis` (redis), `ehache-heap` (ehcache heap-only), `ehache-disk` (ehcache disk-only), and `ehache-hybrid` (ehcache disk + heap). By default, `persistence.cache_type` is set to `no-cache` which disables the cache. When the cache is disabled, no responses will be stored in the cache.
 
-Ehcache initializes caches using a template found in an Ehcache xml configuration file. When caching is enabled, set `ehcache.xml_configuration` to the name of the Ehcache xml configuration file. The default provided is `ehcache.xml`; to change the cache template, directly edit this file. Alternatively, you can create your own Ehcache xml configuration file, place it under `/persistence/persistence-api/src/main/resources/` and set `ehcache.xml_configuration` to `/[Ehcache xml configuration filename]`.  
+:warning: the 'redis' caching option will likely cause a conflict when installing the portal in a Tomcat installation which uses redisson for session management. If you plan to deploy cbioportal to such a system, avoid the 'redis' caching option for `persistence.cache_type` and be sure to build cbioportal.war with the maven option `-Dexclude-redisson` (see [Building with Maven](Build-from-Source.md#building-with-maven)).
 ```
-ehcache.xml_configuration=
-```
-
-If the cache is configured to use disk resources, users must make a directory available and set it with the `ehcache.persistence_path` property. Ehcache will create separate directories under the provided path for each cache defined in the ehcache.xml_configuration file. 
-```
-ehcache.persistence_path=[location on the disk filesystem where Ehcache can write the cache to /tmp/]
-```
-
-Cache size must be set for heap and/or disk depending on which are in use; Ehcache requires disk size to be greater than heap size in a hybrid configuration. Zero is not a supported size and will cause an exception. Units are in megabytes. Default values are provided. The general repository cache is specified to use 1024MB of heap and 4096MB of disk. The static repository cache is specified to use 30MB of heap and 32MB of disk. For installations with increased traffic or data, cache sizes can be increased to further improve performance. 
-```
-ehcache.general_repository_cache.max_mega_bytes_heap=
-ehcache.general_repository_cache.max_mega_bytes_local_disk=
-
-ehcache.static_repository_cache_one.max_mega_bytes_heap=
-ehcache.static_repository_cache_one.max_mega_bytes_local_disk=
+persistence.cache_type=[no-cache or ehache-heap or ehcache-disk or ehcache-hybrid or redis]
 ```
 
 Logged metrics and additional information such as cache size and cached keys are available through an optional endpoint. The optional endpoint is turned off by default but can be turned on by setting `cache.statistics_endpoint_enabled` to true.
@@ -388,11 +382,6 @@ Logged metrics and additional information such as cache size and cached keys are
 cache.statistics_endpoint_enabled=false[true or false]
 ```
 The cache statistics endpoint is hidden on the api page; users must directly access the URL to view the response. The cache statistics endpoint can be accessed in the following ways.
-
-For general statistics about the cache such as memory usage:
-```
-/api/cacheStatistics
-```
 
 For a list of all keys in the cache:
 ```
@@ -404,15 +393,97 @@ For a list of counts of keys in cache per repository class:
 /api/[name of cache]/keyCountsPerClass
 ```
 
-**WARNING**: It must be noted that since cache statistics endpoint returns data on cache keys, the endpoint may expose otherwise hidden database query parameters such as sample identifiers, study names, etc. Generally, it is recommended that the endpoint only be turned on during cache-related development for testing. Deployers of a protected portal where users only have authorities to a subset of studies should carefully consider whether or not to turn on the cache statistics endpoint, as it does not filter the results. 
+For general statistics about the cache such as memory usage (not currently implemented for Redis):
+```
+/api/cacheStatistics
+```
+
+**WARNING**: It must be noted that since cache statistics endpoint returns data on cache keys, the endpoint may expose otherwise hidden database query parameters such as sample identifiers, study names, etc. Generally, it is recommended that the endpoint only be turned on during cache-related development for testing. Deployers of a protected portal where users only have authorities to a subset of studies should carefully consider whether or not to turn on the cache statistics endpoint, as it does not filter the results.
+
+For more information on how caching is implemented in cBioPortal refer to the [Caching](Caching.md) documentation.
+
+## Redis
+To cache with Redis set `persistence.cache_type` to `redis`.
+
+To setup the Redis cache servers the following properties are required:
+
+```
+redis.leader_address=redis://{host/servicename}:6379
+redis.follower_address=redis://{host/servicename}:6379
+redis.database=0
+redis.password=password
+```
+
+For more information on Redis, refer to the official documentation [here](https://redis.io/documentation)
+
+## Ehcache
+To cache with Ehcache set `persistence.cache_type` to `ehache-heap` (ehcache heap-only), `ehache-disk` (ehcache disk-only), or `ehache-hybrid` (ehcache disk + heap).
+
+Ehcache initializes caches using a template found in an Ehcache xml configuration file. When caching is enabled, set `ehcache.xml_configuration` to the name of the Ehcache xml configuration file. The default provided is `ehcache.xml`; to change the cache template, directly edit this file. Alternatively, you can create your own Ehcache xml configuration file, place it under `/persistence/persistence-api/src/main/resources/` and set `ehcache.xml_configuration` to `/[Ehcache xml configuration filename]`.
+```
+ehcache.xml_configuration=
+```
+
+If the cache is configured to use disk resources, users must make a directory available and set it with the `ehcache.persistence_path` property. Ehcache will create separate directories under the provided path for each cache defined in the ehcache.xml_configuration file.
+```
+ehcache.persistence_path=[location on the disk filesystem where Ehcache can write the cache to /tmp/]
+```
+
+Cache size must be set for heap and/or disk depending on which are in use; Ehcache requires disk size to be greater than heap size in a hybrid configuration. Zero is not a supported size and will cause an exception. Units are in megabytes. Default values are provided. The general repository cache is specified to use 1024MB of heap and 4096MB of disk. The static repository cache is specified to use 30MB of heap and 32MB of disk. For installations with increased traffic or data, cache sizes can be increased to further improve performance.
+```
+ehcache.general_repository_cache.max_mega_bytes_heap=
+ehcache.general_repository_cache.max_mega_bytes_local_disk=
+
+ehcache.static_repository_cache_one.max_mega_bytes_heap=
+ehcache.static_repository_cache_one.max_mega_bytes_local_disk=
+```
 
 For more information on Ehcache, refer to the official documentation [here](https://www.ehcache.org/documentation/3.7/index.html)
 
-For more information on how Ehcache is implemented in cBioPortal refer to the [Caching](Caching.md) documentation.
-
 # Enable GSVA functionality
 
-[GSVA functionality](https://github.com/cBioPortal/cbioportal/blob/master/docs/File-Formats.md#gene-set-data) can be enabled by uncommenting this line (and making sure it is set to `true`): 
+[GSVA functionality](https://github.com/cBioPortal/cbioportal/blob/master/docs/File-Formats.md#gene-set-data) can be enabled by uncommenting this line (and making sure it is set to `true`):
 ```
 skin.show_gsva=true
 ```
+
+# Request Body Compression
+
+## Background
+Some REST endpoints that the cBioPortal frontend uses have request bodies that scale as your dataset increases. In
+portals where users commonly query more than 100,000 samples, we found that some of these request bodies could
+get as large as 20 Mb. These large request bodies pose a significant problem for users with poor upload speeds - some
+users experienced upload times of more than five minutes for these requests. Request body compression is our temporary 
+solution to this problem. When this feature is toggled on, we compress the request bodies of a few problematic endpoints.
+
+## Properties
+There are two `portal.property` values related to this feature:
+- `enable_request_body_gzip_compression`: when `true`, the feature will be enabled.
+- `request_gzip_body_size_bytes`: the maximum allowable unzipped request body in bytes. Defaults to 80000000 (80 Mb).
+
+## Behavior
+- This is a nonbreaking change. Any consumers of the cBioPortal API you have that send requests with uncompressed request
+bodies will continue to work, regardless of whether you turn this feature on or off.
+- If you turn this feature on, the cBioPortal API will now be able to handle any request with a gzipped request body,
+provided:
+  - It is a POST request.
+  - It has a `Content-Encoding: gzip` header.
+
+## Reasons to Enable This Feature
+- You have studies with tens of thousands of samples.
+- You have users with poor upload speeds (< 1mb up).
+
+## Reasons to Disable This Feature
+- It is harder to debug gzipped requests
+  - Chrome's `copy request as CURL` will not work.
+  - The compressed request body is not human-readable.
+- It is a potential vector for denial of memory attacks.
+  - Any request that has a body that takes significantly more space in memory than it does in the request body is
+    potentially dangerous. We try to mitigate this by limiting the size of the unzipped request body via the
+    `request_gzip_body_size_bytes` property, but at a fundamental level, this is still a concern.
+  - Along these lines, if you do enable this feature, setting `request_gzip_body_size_bytes` to an arbitrarily large
+    number would be unwise.
+- This is not a cure-all for performance issues
+  - Most requests the cBioPortal makes do not have large request bodies, so most requests will not be compressed, and
+    will see no performance improvement.
+  - Users with good upload speeds will see minimal performance improvements, as their upload speed is not a bottleneck.

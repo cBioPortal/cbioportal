@@ -343,11 +343,19 @@ public class TestImportProfileData {
         CnaEvent cnaEvent = DaoCnaEvent.getCnaEvents(sampleInternalIds, null, geneticProfileId, cnaLevels).get(0);
         assertEquals(-2, cnaEvent.getAlteration().getCode());
         assertEquals("TESTBRCA1", cnaEvent.getGeneSymbol());
+        assertEquals("Putative_Passenger", cnaEvent.getDriverFilter());
+        assertEquals("Test passenger", cnaEvent.getDriverFilterAnnotation());
+        assertEquals("Class 2", cnaEvent.getDriverTiersFilter());
+        assertEquals("Class 2 annotation", cnaEvent.getDriverTiersFilterAnnotation());
         sampleId = DaoSample.getSampleByCancerStudyAndSampleId(studyId, "TCGA-02-0003-01").getInternalId();
         sampleInternalIds = Arrays.asList((int)sampleId);
         cnaEvent = DaoCnaEvent.getCnaEvents(sampleInternalIds, null, geneticProfileId, cnaLevels).get(0);
         assertEquals(2, cnaEvent.getAlteration().getCode());
         assertEquals("TESTBRCA2", cnaEvent.getGeneSymbol());
+        assertEquals("Putative_Driver", cnaEvent.getDriverFilter());
+        assertEquals("Test driver", cnaEvent.getDriverFilterAnnotation());
+        assertEquals("Class 1", cnaEvent.getDriverTiersFilter());
+        assertEquals("Class 1 annotation", cnaEvent.getDriverTiersFilterAnnotation());
     }
 
     private void validateMutationAminoAcid (int geneticProfileId, Integer sampleId, long entrezGeneId, String expectedAminoAcidChange) throws DaoException {

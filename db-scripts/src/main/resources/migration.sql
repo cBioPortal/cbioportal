@@ -894,6 +894,48 @@ CREATE TABLE `allele_specific_copy_number` (
 UPDATE `info` SET `DB_SCHEMA_VERSION`="2.12.6";
 
 ##version: 2.12.7
+CREATE TABLE `alteration_driver_annotation` (
+  `ALTERATION_EVENT_ID` int(255) NOT NULL,
+  `GENETIC_PROFILE_ID` int(11) NOT NULL,
+  `SAMPLE_ID` int(11) NOT NULL,
+  `DRIVER_FILTER` VARCHAR(20),
+  `DRIVER_FILTER_ANNOTATION` VARCHAR(80),
+  `DRIVER_TIERS_FILTER` VARCHAR(50),
+  `DRIVER_TIERS_FILTER_ANNOTATION` VARCHAR(80),
+  PRIMARY KEY (`ALTERATION_EVENT_ID`, `GENETIC_PROFILE_ID`, `SAMPLE_ID`),
+  FOREIGN KEY (`GENETIC_PROFILE_ID`) REFERENCES `genetic_profile` (`GENETIC_PROFILE_ID`) ON DELETE CASCADE,
+  FOREIGN KEY (`SAMPLE_ID`) REFERENCES `sample` (`INTERNAL_ID`) ON DELETE CASCADE
+) COMMENT='Alteration driver annotation';
+insert into `alteration_driver_annotation`
+select `INTERNAL_ID`, `GENETIC_PROFILE_ID`, `SAMPLE_ID`, `DRIVER_FILTER`, `DRIVER_FILTER_ANNOTATION`, `DRIVER_TIERS_FILTER`, `DRIVER_TIERS_FILTER_ANNOTATION` from `structural_variant`
+where `DRIVER_FILTER` is not null and `DRIVER_FILTER` != 'NA' and `DRIVER_FILTER` != ''
+or `DRIVER_FILTER_ANNOTATION` is not null and `DRIVER_FILTER_ANNOTATION` != 'NA' and `DRIVER_FILTER_ANNOTATION` != ''
+or `DRIVER_TIERS_FILTER` is not null and `DRIVER_TIERS_FILTER` != 'NA' and `DRIVER_TIERS_FILTER` != ''
+or `DRIVER_TIERS_FILTER_ANNOTATION` is not null and `DRIVER_TIERS_FILTER_ANNOTATION` != 'NA' and `DRIVER_TIERS_FILTER_ANNOTATION` != '';
+alter table `structural_variant`
+drop column `DRIVER_FILTER`,
+drop column `DRIVER_FILTER_ANNOTATION`,
+drop column `DRIVER_TIERS_FILTER`,
+drop column `DRIVER_TIERS_FILTER_ANNOTATION`;
+insert into `alteration_driver_annotation`
+select `MUTATION_EVENT_ID`, `GENETIC_PROFILE_ID`, `SAMPLE_ID`, `DRIVER_FILTER`, `DRIVER_FILTER_ANNOTATION`, `DRIVER_TIERS_FILTER`, `DRIVER_TIERS_FILTER_ANNOTATION` from `mutation`
+where `DRIVER_FILTER` is not null and `DRIVER_FILTER` != 'NA' and `DRIVER_FILTER` != ''
+or `DRIVER_FILTER_ANNOTATION` is not null and `DRIVER_FILTER_ANNOTATION` != 'NA' and `DRIVER_FILTER_ANNOTATION` != ''
+or `DRIVER_TIERS_FILTER` is not null and `DRIVER_TIERS_FILTER` != 'NA' and `DRIVER_TIERS_FILTER` != ''
+or `DRIVER_TIERS_FILTER_ANNOTATION` is not null and `DRIVER_TIERS_FILTER_ANNOTATION` != 'NA' and `DRIVER_TIERS_FILTER_ANNOTATION` != '';
+alter table `mutation`
+drop column `DRIVER_FILTER`,
+drop column `DRIVER_FILTER_ANNOTATION`,
+drop column `DRIVER_TIERS_FILTER`,
+drop column `DRIVER_TIERS_FILTER_ANNOTATION`;
+UPDATE `info` SET `DB_SCHEMA_VERSION`="2.12.7";
+
+##version: 2.12.8
+CREATE INDEX idx_mutation_type ON mutation_event (`MUTATION_TYPE`);
+CREATE INDEX idx_cna_type ON cna_event (`ALTERATION`);                                                        
+CREATE INDEX idx_driver_filter ON alteration_driver_annotation (`DRIVER_FILTER`);
+CREATE INDEX idx_driver_tiers_filter ON alteration_driver_annotation (`DRIVER_TIERS_FILTER`);
+UPDATE `info` SET `DB_SCHEMA_VERSION`="2.12.8";
 -- WARNING: this will drop column CLINICAL_TRIAL_KEYWORDS from table type_of_cancer
 ALTER TABLE `type_of_cancer` DROP COLUMN `CLINICAL_TRIAL_KEYWORDS`;
 UPDATE `info` SET `DB_SCHEMA_VERSION`="2.12.7";

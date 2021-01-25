@@ -1,0 +1,8 @@
+Entrez_Gene_Id	Hugo_Symbol	SAMPLE_ID	cbp_driver	cbp_driver_annotation	cbp_driver_tiers	cbp_driver_tiers_annotation
+	ACAP3	TCGA-A1-A0SB-01	Putative_Passenger	Test passenger	Class 2	Class annotation
+375790		TCGA-A1-A0SB-01	Putative_Driver	Test driver	Class 1	Class annotation
+219293	ATAD3C	TCGA-A1-A0SB-01	Putative_Passenger	Test passenger	Class 2	Class annotation
+219293	ATAD3C	TCGA-A1-A0SB-01	wrong value	Test passenger	Class 2	Class annotation
+		TCGA-A1-A0SB-01	Putative_Driver	Test driver	Class 1	Class annotation
+55210	ATAD3A	TCGA-A1-A0SB-01		Test driver	Class 2	Class annotation
+83858	ATAC3B	TCGA-A1-A0SB-01	Putative_Driver	Test driver		Class annotation

@@ -36,13 +36,15 @@ import org.ehcache.core.statistics.*;
 import org.ehcache.config.ResourceType;
 import org.ehcache.impl.internal.statistics.DefaultStatisticsService;
 
+import org.springframework.context.annotation.Profile;
 import org.springframework.stereotype.Component;
 
 import java.util.Map;
 import javax.annotation.PostConstruct;
 
 @Component
-public class EhCacheStatistics {
+@Profile({"ehcache-heap", "ehcache-disk", "ehcache-hybrid"})
+public class EhcacheStatistics {
 
     private static String TIER_NOT_IN_USE = "Tier not in use";
 
@@ -52,7 +54,7 @@ public class EhCacheStatistics {
     private javax.cache.CacheManager cacheManager;
     private DefaultStatisticsService statisticsService;
 
-    public EhCacheStatistics(javax.cache.CacheManager cacheManager) {
+    public EhcacheStatistics(javax.cache.CacheManager cacheManager) {
         if (cacheManager == null) {
             throw new RuntimeException("A CacheManager needs to be set before calling this method.");
         }
@@ -65,8 +67,8 @@ public class EhCacheStatistics {
             statisticsService = new DefaultStatisticsService();
             for (String cacheName : cacheManager.getCacheNames()) {
                 javax.cache.Cache cache = cacheManager.getCache(cacheName);
-                org.ehcache.Cache ehCache = (org.ehcache.Cache)cache.unwrap(org.ehcache.Cache.class);
-                statisticsService.cacheAdded(cacheName, ehCache);
+                org.ehcache.Cache ehcache = (org.ehcache.Cache)cache.unwrap(org.ehcache.Cache.class);
+                statisticsService.cacheAdded(cacheName, ehcache);
             }
         }
         catch (Exception e) {
@@ -92,8 +94,8 @@ public class EhCacheStatistics {
     private String getAllocatedBytes(String cacheName, ResourceType.Core resourceType)
     {
         try {
-            org.ehcache.Cache ehCache = getEhCache(cacheName);
-            return (getAllocatedBytes(ehCache, resourceType) + getAllocatedUnit(ehCache, resourceType));
+            org.ehcache.Cache ehcache = getEhcache(cacheName);
+            return (getAllocatedBytes(ehcache, resourceType) + getAllocatedUnit(ehcache, resourceType));
         }
         catch (NullPointerException e) {
             return TIER_NOT_IN_USE;
@@ -113,26 +115,26 @@ public class EhCacheStatistics {
         }
     }
 
-    private org.ehcache.Cache getEhCache(String cacheName)
+    private org.ehcache.Cache getEhcache(String cacheName)
     {
         javax.cache.Cache cache = cacheManager.getCache(cacheName);
         return (org.ehcache.Cache)cache.unwrap(org.ehcache.Cache.class);
     }
 
-    private String getAllocatedBytes(org.ehcache.Cache ehCache, ResourceType.Core resourceType) throws NullPointerException
+    private String getAllocatedBytes(org.ehcache.Cache ehcache, ResourceType.Core resourceType) throws NullPointerException
     {
-        return String.valueOf(ehCache.getRuntimeConfiguration().getResourcePools().getPoolForResource(resourceType).getSize());
+        return String.valueOf(ehcache.getRuntimeConfiguration().getResourcePools().getPoolForResource(resourceType).getSize());
     }
 
-    private String getAllocatedUnit(org.ehcache.Cache ehCache, ResourceType.Core resourceType) throws NullPointerException
+    private String getAllocatedUnit(org.ehcache.Cache ehcache, ResourceType.Core resourceType) throws NullPointerException
     {
-        return ehCache.getRuntimeConfiguration().getResourcePools().getPoolForResource(resourceType).getUnit().toString();
+        return ehcache.getRuntimeConfiguration().getResourcePools().getPoolForResource(resourceType).getUnit().toString();
     }
 
     private String scaleOccupiedBytes(String cacheName, long occupiedBytes, ResourceType.Core resourceType) throws NullPointerException
     {
-        org.ehcache.Cache ehCache = getEhCache(cacheName);
-        String allocatedUnit = getAllocatedUnit(ehCache, resourceType);
+        org.ehcache.Cache ehcache = getEhcache(cacheName);
+        String allocatedUnit = getAllocatedUnit(ehcache, resourceType);
         if (allocatedUnit.equals("MB")) {
             return String.valueOf(String.format("%.01f", occupiedBytes / BYTES_IN_MB) + "MB (" + occupiedBytes + " bytes)");
         }

@@ -1,11 +1,13 @@
 package org.cbioportal.service.impl;
 
-import org.cbioportal.model.*;
+import org.cbioportal.model.Gene;
+import org.cbioportal.model.MolecularProfile;
+import org.cbioportal.model.Mutation;
+import org.cbioportal.model.MutationCountByPosition;
 import org.cbioportal.model.meta.MutationMeta;
 import org.cbioportal.persistence.MutationRepository;
 import org.cbioportal.service.MolecularProfileService;
 import org.cbioportal.service.exception.MolecularProfileNotFoundException;
-import org.cbioportal.service.util.ChromosomeCalculator;
 import org.junit.Assert;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -28,8 +30,6 @@ public class MutationServiceImplTest extends BaseServiceImplTest {
     private MutationRepository mutationRepository;
     @Mock
     private MolecularProfileService molecularProfileService;
-    @Mock
-    private ChromosomeCalculator chromosomeCalculator;
     
     @Test
     public void getMutationsInMolecularProfileBySampleListId() throws Exception {
@@ -182,55 +182,6 @@ public class MutationServiceImplTest extends BaseServiceImplTest {
             new MolecularProfileNotFoundException(MOLECULAR_PROFILE_ID));
         mutationService.fetchMetaMutationsInMolecularProfile(MOLECULAR_PROFILE_ID, Arrays.asList(SAMPLE_ID1),
             Arrays.asList(ENTREZ_GENE_ID_1));
-    }
-
-    @Test
-    public void getSampleCountByEntrezGeneIds() throws Exception {
-
-        MolecularProfile molecularProfile = new MolecularProfile();
-        molecularProfile.setMolecularAlterationType(MolecularProfile.MolecularAlterationType.MUTATION_EXTENDED);
-        Mockito.when(molecularProfileService.getMolecularProfile(MOLECULAR_PROFILE_ID)).thenReturn(molecularProfile);
-
-        List<MutationCountByGene> expectedMutationSampleCountByGeneList = new ArrayList<>();
-        MutationCountByGene mutationSampleCountByGene = new MutationCountByGene();
-        expectedMutationSampleCountByGeneList.add(mutationSampleCountByGene);
-        
-        Mockito.when(mutationRepository.getSampleCountByEntrezGeneIdsAndSampleIds(MOLECULAR_PROFILE_ID, null,
-            Arrays.asList(ENTREZ_GENE_ID_1))).thenReturn(expectedMutationSampleCountByGeneList);
-        
-        List<MutationCountByGene> result = mutationService.getSampleCountByEntrezGeneIdsAndSampleIds(
-            MOLECULAR_PROFILE_ID, null, Arrays.asList(ENTREZ_GENE_ID_1));
-        
-        Assert.assertEquals(expectedMutationSampleCountByGeneList, result);
-    }
-
-    @Test(expected = MolecularProfileNotFoundException.class)
-    public void getSampleCountByEntrezGeneIdsMolecularProfileNotFound() throws Exception {
-        
-        Mockito.when(molecularProfileService.getMolecularProfile(MOLECULAR_PROFILE_ID)).thenThrow(
-            new MolecularProfileNotFoundException(MOLECULAR_PROFILE_ID));
-        mutationService.getSampleCountByEntrezGeneIdsAndSampleIds(MOLECULAR_PROFILE_ID, null,
-            Arrays.asList(ENTREZ_GENE_ID_1));
-    }
-
-    @Test
-    public void getPatientCountInMultipleMolecularProfiles() throws Exception {
-
-        MolecularProfile molecularProfile = new MolecularProfile();
-        molecularProfile.setMolecularAlterationType(MolecularProfile.MolecularAlterationType.MUTATION_EXTENDED);
-        Mockito.when(molecularProfileService.getMolecularProfile(MOLECULAR_PROFILE_ID)).thenReturn(molecularProfile);
-
-        List<MutationCountByGene> expectedMutationPatientCountByGeneList = new ArrayList<>();
-        MutationCountByGene mutationPatientCountByGene = new MutationCountByGene();
-        expectedMutationPatientCountByGeneList.add(mutationPatientCountByGene);
-        
-        Mockito.when(mutationRepository.getPatientCountInMultipleMolecularProfiles(Arrays.asList(MOLECULAR_PROFILE_ID), null,
-            Arrays.asList(ENTREZ_GENE_ID_1))).thenReturn(expectedMutationPatientCountByGeneList);
-        
-        List<MutationCountByGene> result = mutationService.getPatientCountInMultipleMolecularProfiles(
-                Arrays.asList(MOLECULAR_PROFILE_ID), null, Arrays.asList(ENTREZ_GENE_ID_1), false, false);
-        
-        Assert.assertEquals(expectedMutationPatientCountByGeneList, result);
     }
 
     @Test

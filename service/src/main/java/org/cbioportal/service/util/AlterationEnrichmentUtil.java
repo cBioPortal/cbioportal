@@ -1,15 +1,27 @@
 package org.cbioportal.service.util;
 
-import java.math.BigDecimal;
-import java.util.*;
-import java.util.function.Function;
-import java.util.stream.Collectors;
-
 import org.apache.commons.math3.stat.inference.ChiSquareTest;
-import org.cbioportal.model.*;
-import org.cbioportal.service.*;
+import org.cbioportal.model.AlterationCountByGene;
+import org.cbioportal.model.AlterationEnrichment;
+import org.cbioportal.model.CountSummary;
+import org.cbioportal.model.Gene;
+import org.cbioportal.model.MolecularProfile;
+import org.cbioportal.model.MolecularProfileCaseIdentifier;
+import org.cbioportal.model.Sample;
+import org.cbioportal.service.GeneService;
+import org.cbioportal.service.MolecularProfileService;
+import org.cbioportal.service.SampleService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
+
+import java.math.BigDecimal;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.function.Function;
+import java.util.stream.Collectors;
 
 @Component
 public class AlterationEnrichmentUtil<T extends AlterationCountByGene> {
@@ -27,8 +39,7 @@ public class AlterationEnrichmentUtil<T extends AlterationCountByGene> {
 
     public List<AlterationEnrichment> createAlterationEnrichments(
             Map<String, List<T>> mutationCountsbyGroup,
-            Map<String, List<MolecularProfileCaseIdentifier>> molecularProfileCaseSets,
-            String enrichmentType) {
+            Map<String, List<MolecularProfileCaseIdentifier>> molecularProfileCaseSets) {
         
         Map<String, Map<Integer, AlterationCountByGene>> mutationCountsbyEntrezGeneIdAndGroup = mutationCountsbyGroup
                     .entrySet()
@@ -144,6 +155,24 @@ public class AlterationEnrichmentUtil<T extends AlterationCountByGene> {
         profiledCasesCounter.calculate(molecularProfileIds, sampleIds, alterationCountByGenes, false, includeMissingAlterationsFromGenePanel);
         
     }
+
+    public void includeFrequencyForSamples(
+        List<MolecularProfileCaseIdentifier> molecularProfileCaseIdentifiers,
+        List<T> alterationCountByGenes,
+        boolean includeMissingAlterationsFromGenePanel) {
+        
+        // Collect profile id and sample id arrays.
+        // These are arrays of equal length, where every index
+        // represents a sample id / profile id-combination
+        List<String> sampleIds = new ArrayList<>();
+        List<String> molecularProfileIds = new ArrayList<>();
+        molecularProfileCaseIdentifiers.forEach(pair -> {
+            sampleIds.add(pair.getCaseId());
+            molecularProfileIds.add(pair.getMolecularProfileId());
+        });
+
+        includeFrequencyForSamples(molecularProfileIds, sampleIds, alterationCountByGenes, includeMissingAlterationsFromGenePanel);
+    }
     
     public void includeFrequencyForPatients(List<String> molecularProfileIds,
             List<String> patientIds,
@@ -180,6 +209,24 @@ public class AlterationEnrichmentUtil<T extends AlterationCountByGene> {
                 .collect(Collectors.toList());
 
         profiledCasesCounter.calculate(molecularProfileIdsofSampleIds, sampleIds, alterationCountByGenes, true, includeMissingAlterationsFromGenePanel);
+    }
+
+    public void includeFrequencyForPatients(List<MolecularProfileCaseIdentifier> molecularProfileCaseIdentifiers,
+                                            List<T> alterationCountByGenes,
+                                            boolean includeMissingAlterationsFromGenePanel) {
+
+        // Collect profile id and patient id arrays.
+        // These are arrays of equal length, where every index
+        // represents a patient id / profile id-combination
+        List<String> patientIds = new ArrayList<>();
+        List<String> molecularProfileIds = new ArrayList<>();
+        molecularProfileCaseIdentifiers.forEach(pair -> {
+            patientIds.add(pair.getCaseId());
+            molecularProfileIds.add(pair.getMolecularProfileId());
+        });
+
+        includeFrequencyForPatients(molecularProfileIds, patientIds, alterationCountByGenes, includeMissingAlterationsFromGenePanel);
+
     }
 
 }

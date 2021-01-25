@@ -66,11 +66,13 @@ import org.cbioportal.model.Sample;
 import org.cbioportal.model.SampleList;
 import org.cbioportal.session_service.domain.Session;
 import org.cbioportal.model.TypeOfCancer;
+import org.cbioportal.web.parameter.CustomDataSession;
 import org.cbioportal.web.parameter.PageSettings;
 import org.cbioportal.web.parameter.PageSettingsData;
 import org.cbioportal.web.parameter.StudyPageSettings;
 import org.cbioportal.web.parameter.VirtualStudy;
 import org.cbioportal.web.parameter.VirtualStudyData;
+import org.cbioportal.web.CustomAttributeWithData;
 import org.cbioportal.web.mixin.CancerStudyMixin;
 import org.cbioportal.web.mixin.ClinicalAttributeCountMixin;
 import org.cbioportal.web.mixin.ClinicalAttributeMixin;
@@ -139,6 +141,8 @@ public class CustomObjectMapper extends ObjectMapper {
         mixinMap.put(ResourceDefinition.class, ResourceDefinitionMixin.class);
         mixinMap.put(VirtualStudy.class, SessionMixin.class);
         mixinMap.put(VirtualStudyData.class, SessionDataMixin.class);
+        mixinMap.put(CustomAttributeWithData.class, SessionDataMixin.class);
+        mixinMap.put(CustomDataSession.class, SessionMixin.class);
         super.setMixIns(mixinMap);
     }
 }

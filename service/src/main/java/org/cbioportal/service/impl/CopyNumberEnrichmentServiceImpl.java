@@ -14,6 +14,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -57,10 +58,7 @@ public class CopyNumberEnrichmentServiceImpl implements CopyNumberEnrichmentServ
                     List<String> molecularProfileIds = new ArrayList<>();
                     List<String> sampleIds = new ArrayList<>();
 
-                    entry.getValue().forEach(molecularProfileCase -> {
-                        molecularProfileIds.add(molecularProfileCase.getMolecularProfileId());
-                        sampleIds.add(molecularProfileCase.getCaseId());
-                    });
+                    Select<CNA> cnaTypes = Select.byValues(Arrays.asList(copyNumberEventType));
 
                     if (enrichmentType.name().equals("SAMPLE")) {
                         return alterationCountService.getSampleCnaCounts(
@@ -68,14 +66,14 @@ public class CopyNumberEnrichmentServiceImpl implements CopyNumberEnrichmentServ
                             Select.all(),
                             true,
                             true,
-                            Select.all());
+                            cnaTypes);
                     } else {
                         return alterationCountService.getPatientCnaCounts(
                             entry.getValue(),
                             Select.all(),
                             true,
                             true,
-                            Select.all());
+                            cnaTypes);
                     }
                 }));
     }

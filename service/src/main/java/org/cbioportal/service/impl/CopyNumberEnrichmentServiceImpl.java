@@ -58,11 +58,6 @@ public class CopyNumberEnrichmentServiceImpl implements CopyNumberEnrichmentServ
                     List<String> molecularProfileIds = new ArrayList<>();
                     List<String> sampleIds = new ArrayList<>();
 
-                    entry.getValue().forEach(molecularProfileCase -> {
-                        molecularProfileIds.add(molecularProfileCase.getMolecularProfileId());
-                        sampleIds.add(molecularProfileCase.getCaseId());
-                    });
-
                     Select<CNA> cnaTypes = Select.byValues(Arrays.asList(copyNumberEventType));
 
                     if (enrichmentType.name().equals("SAMPLE")) {

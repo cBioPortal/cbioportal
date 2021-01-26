@@ -32,7 +32,7 @@ docker-compose run cbioportal metaImport.py -u http://cbioportal:8080 -s /cbiopo
 ```
 
 :warning: after importing a study, remember to restart `cbioportal`
-to see the study on the home page. Run `docker restart cbioportal`.
+to see the study on the home page. Run `docker-compose restart cbioportal`.
 
 You have now imported the test study `study_es_0`. Note that this study is included inside the cbioportal container. The process for adding a study that is outside of the container is similar. Just make sure to add the data files in the `./study` folder. This folder is mounted as `/study/` inside of the container.
 
@@ -53,7 +53,7 @@ Please make sure the seed database was correctly imported.
 
 Remember to restart the `cbioportal` after data imported.
 ```shell
-docker restart cbioportal
+docker-compose restart cbioportal
 ```
 
 ### Import GRCh38 data

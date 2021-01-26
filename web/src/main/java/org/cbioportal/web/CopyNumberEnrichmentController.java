@@ -66,6 +66,7 @@ public class CopyNumberEnrichmentController {
             copyNumberEnrichmentService.getCopyNumberEnrichments(
                 groupCaseIdentifierSet,
                 copyNumberEventType,
+                enrichmentType,
                 true,
                 true,
                 true,

@@ -193,7 +193,7 @@ public class AlterationCountServiceImpl implements AlterationCountService {
             includeMissingAlterationsFromGenePanel,
             mutationEventTypes,
             Select.none(),
-            QueryElement.ACTIVE
+            QueryElement.ACTIVE,
             includeDriver,
             includeVUS,
             includeUnknownOncogenicity,
@@ -224,7 +224,7 @@ public class AlterationCountServiceImpl implements AlterationCountService {
             includeMissingAlterationsFromGenePanel,
             mutationEventTypes,
             Select.none(),
-            QueryElement.ACTIVE
+            QueryElement.ACTIVE,
             includeDriver,
             includeVUS,
             includeUnknownOncogenicity,

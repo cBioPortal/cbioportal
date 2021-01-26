@@ -409,80 +409,102 @@ public class AlterationMyBatisRepositoryTest {
     @Test(expected = IllegalArgumentException.class)
     public void disallowMutationTypesAndFusionSearchSamples() throws Exception {
         alterationMyBatisRepository.getSampleAlterationCounts(
-            sampleIdToProfileId, entrezGeneIds, mutationEventTypes, cnaEventTypes, QueryElement.ACTIVE);
+            sampleIdToProfileId, entrezGeneIds, mutationEventTypes, cnaEventTypes, QueryElement.ACTIVE,
+            true, true, true, Select.all(), true,
+            true, true, true);
     }
     
     @Test(expected = IllegalArgumentException.class)
     public void disallowMutationTypesAndMutationSearchSamples() throws Exception {
         alterationMyBatisRepository.getSampleAlterationCounts(
-            sampleIdToProfileId, entrezGeneIds, mutationEventTypes, cnaEventTypes, QueryElement.INACTIVE);
+            sampleIdToProfileId, entrezGeneIds, mutationEventTypes, cnaEventTypes, QueryElement.INACTIVE,
+            true, true, true, Select.all(), true,
+            true, true, true);
     }
 
     @Test(expected = IllegalArgumentException.class)
     public void disallowMutationTypesAndFusionSearchPatients() throws Exception {
         alterationMyBatisRepository.getPatientAlterationCounts(
-            sampleIdToProfileId, entrezGeneIds, mutationEventTypes, cnaEventTypes, QueryElement.ACTIVE);
+            sampleIdToProfileId, entrezGeneIds, mutationEventTypes, cnaEventTypes, QueryElement.ACTIVE,
+            true, true, true, Select.all(), true,
+            true, true, true);
     }
     
     @Test(expected = IllegalArgumentException.class)
     public void disallowMutationTypesAndMutationSearchPatients() throws Exception {
         alterationMyBatisRepository.getPatientAlterationCounts(
-            sampleIdToProfileId, entrezGeneIds, mutationEventTypes, cnaEventTypes, QueryElement.INACTIVE);
+            sampleIdToProfileId, entrezGeneIds, mutationEventTypes, cnaEventTypes, QueryElement.INACTIVE,
+            true, true, true, Select.all(), true,
+            true, true, true);
     }
 
     @Test
     public void getSampleCountNullIds() throws Exception {
         List<AlterationCountByGene> result = alterationMyBatisRepository.getSampleAlterationCounts(
-            null, entrezGeneIds, mutationEventTypes, cnaEventTypes, QueryElement.PASS);
+            null, entrezGeneIds, mutationEventTypes, cnaEventTypes, QueryElement.PASS,
+            true, true, true, Select.all(), true,
+            true, true, true);
         Assert.assertEquals(0, result.size());
     }
 
     @Test
     public void getSampleCountNullMutations() throws Exception {
         List<AlterationCountByGene> result = alterationMyBatisRepository.getSampleAlterationCounts(
-            sampleIdToProfileId, entrezGeneIds, null, cnaEventTypes, QueryElement.PASS);
+            sampleIdToProfileId, entrezGeneIds, null, cnaEventTypes, QueryElement.PASS,
+            true, true, true, Select.all(), true,
+            true, true, true);
         Assert.assertEquals(2, result.size());
     }
 
     @Test
     public void getSampleCountNullCnas() throws Exception {
         List<AlterationCountByGene> result = alterationMyBatisRepository.getSampleAlterationCounts(
-            sampleIdToProfileId, entrezGeneIds, mutationEventTypes, null, QueryElement.PASS);
+            sampleIdToProfileId, entrezGeneIds, mutationEventTypes, null, QueryElement.PASS,
+            true, true, true, Select.all(), true,
+            true, true, true);
         Assert.assertEquals(3, result.size());
     }
 
     @Test
     public void getPatientCountNullIds() throws Exception {
         List<AlterationCountByGene> result = alterationMyBatisRepository.getPatientAlterationCounts(
-            null, entrezGeneIds, mutationEventTypes, cnaEventTypes, QueryElement.PASS);
+            null, entrezGeneIds, mutationEventTypes, cnaEventTypes, QueryElement.PASS,
+            true, true, true, Select.all(), true,
+            true, true, true);
         Assert.assertEquals(0, result.size());
     }
 
     @Test
     public void getPatientCountNullMutations() throws Exception {
         List<AlterationCountByGene> result = alterationMyBatisRepository.getPatientAlterationCounts(
-            patientIdToProfileId, entrezGeneIds, null, cnaEventTypes, QueryElement.PASS);
+            patientIdToProfileId, entrezGeneIds, null, cnaEventTypes, QueryElement.PASS,
+            true, true, true, Select.all(), true,
+            true, true, true);
         Assert.assertEquals(2, result.size());
     }
 
     @Test
     public void getPatientCountNullCnas() throws Exception {
         List<AlterationCountByGene> result = alterationMyBatisRepository.getPatientAlterationCounts(
-            patientIdToProfileId, entrezGeneIds, mutationEventTypes, null, QueryElement.PASS);
+            patientIdToProfileId, entrezGeneIds, mutationEventTypes, null, QueryElement.PASS,
+            true, true, true, Select.all(), true,
+            true, true, true);
         Assert.assertEquals(3, result.size());
     }
 
     @Test
     public void getSampleCnaCountNullIds() throws Exception {
         List<CopyNumberCountByGene> result = alterationMyBatisRepository.getSampleCnaCounts(
-            null, entrezGeneIds, cnaEventTypes);
+            null, entrezGeneIds, cnaEventTypes,
+            true, true, true, Select.all(), true);
         Assert.assertEquals(0, result.size());
     }
 
     @Test
     public void getSampleCnaCountNullCnas() throws Exception {
         List<CopyNumberCountByGene> result = alterationMyBatisRepository.getSampleCnaCounts(
-            sampleIdToProfileId, entrezGeneIds, null);
+            sampleIdToProfileId, entrezGeneIds, null,
+            true, true, true, Select.all(), true);
         Assert.assertEquals(0, result.size());
     }
 
@@ -720,45 +742,6 @@ public class AlterationMyBatisRepositoryTest {
     }
 
     @Test
-    public void getPatientMutationCount() throws Exception {
-
-        boolean includeDriver = true;
-        boolean includeVUS = true;
-        boolean includeUnknownOncogenicity = true;
-        boolean includeGermline = true;
-        boolean includeSomatic = true;
-        boolean includeUnknownStatus = true;
-        Select<CopyNumberAlterationEventType> cnaEventTypes = Select.none();
-        List<AlterationCountByGene> result = alterationMyBatisRepository.getPatientAlterationCounts(
-            patientIdToProfileId,
-            entrezGeneIds,
-            mutationEventTypes,
-            cnaEventTypes,
-            QueryElement.PASS,
-            includeDriver,
-            includeVUS,
-            includeUnknownOncogenicity,
-            tiers,
-            includeUnknownTier,
-            includeGermline,
-            includeSomatic,
-            includeUnknownStatus);
-
-        // For testSql.sql there are no more samples per patient for the investigated genes.
-        // Therefore, patient level counts are the same as the sample level counts.
-        Assert.assertEquals(3, result.size());
-        AlterationCountByGene result672 = result.stream().filter(r -> r.getEntrezGeneId() == 672).findFirst().get();
-        AlterationCountByGene result207 = result.stream().filter(r -> r.getEntrezGeneId() == 207).findFirst().get();
-        AlterationCountByGene result208 = result.stream().filter(r -> r.getEntrezGeneId() == 208).findFirst().get();
-        Assert.assertEquals((Integer) 5, result672.getTotalCount());
-        Assert.assertEquals((Integer) 4, result672.getNumberOfAlteredCases());
-        Assert.assertEquals((Integer) 2, result207.getTotalCount());
-        Assert.assertEquals((Integer) 2, result207.getNumberOfAlteredCases());
-        Assert.assertEquals((Integer) 1, result208.getTotalCount());
-        Assert.assertEquals((Integer) 1, result208.getNumberOfAlteredCases());
-    }
-
-    @Test
     public void getPatientMutationAndCnaCount() throws Exception {
 
         boolean includeDriver = true;
@@ -799,7 +782,7 @@ public class AlterationMyBatisRepositoryTest {
     public void getPatientMutationCountIncludeOnlyGermline() throws Exception {
 
         boolean includeGermline = true;
-        Select<CopyNumberAlterationEventType> cnaEventTypes = Select.none();
+        cnaEventTypes = Select.none();
         List<AlterationCountByGene> result = alterationMyBatisRepository.getPatientAlterationCounts(
             patientIdToProfileId,
             entrezGeneIds,
@@ -831,7 +814,7 @@ public class AlterationMyBatisRepositoryTest {
     public void getPatientMutationCountIncludeOnlySomatic() throws Exception {
 
         boolean includeSomatic = true;
-        Select<CopyNumberAlterationEventType> cnaEventTypes = Select.none();
+        cnaEventTypes = Select.none();
         List<AlterationCountByGene> result = alterationMyBatisRepository.getPatientAlterationCounts(
             patientIdToProfileId,
             entrezGeneIds,
@@ -853,7 +836,7 @@ public class AlterationMyBatisRepositoryTest {
     public void getPatientMutationCountIncludeOnlyUnknownStatus() throws Exception {
 
         boolean includeUnknownStatus = true;
-        Select<CopyNumberAlterationEventType> cnaEventTypes = Select.none();
+        cnaEventTypes = Select.none();
         List<AlterationCountByGene> result = alterationMyBatisRepository.getPatientAlterationCounts(
             patientIdToProfileId,
             entrezGeneIds,
@@ -1189,98 +1172,116 @@ public class AlterationMyBatisRepositoryTest {
     @Test
     public void getPatientCnaCountNullIds() throws Exception {
         List<CopyNumberCountByGene> result = alterationMyBatisRepository.getPatientCnaCounts(
-            null, entrezGeneIds, cnaEventTypes);
+            null, entrezGeneIds, cnaEventTypes, true, true, true, Select.all(), true);
         Assert.assertEquals(0, result.size());
     }
 
     @Test
     public void getPatientCnaCountNullCnas() throws Exception {
         List<CopyNumberCountByGene> result = alterationMyBatisRepository.getPatientCnaCounts(
-            patientIdToProfileId, entrezGeneIds, null);
+            patientIdToProfileId, entrezGeneIds, null, true, true, true, Select.all(), true);
         Assert.assertEquals(0, result.size());
     }
     
     @Test
     public void getSampleCountNullEntrezGeneIds() throws Exception {
         List<AlterationCountByGene> result = alterationMyBatisRepository.getSampleAlterationCounts(
-            sampleIdToProfileId, null, mutationEventTypes, cnaEventTypes, QueryElement.PASS);
+            sampleIdToProfileId, null, mutationEventTypes, cnaEventTypes, QueryElement.PASS,
+            true, true, true, Select.all(), true,
+        true, true, true);
         Assert.assertEquals(0, result.size());
     }
     
     @Test
     public void getSampleCountEmptyEntrezGeneIds() throws Exception {
         List<AlterationCountByGene> result = alterationMyBatisRepository.getSampleAlterationCounts(
-            sampleIdToProfileId, Select.none(), mutationEventTypes, cnaEventTypes, QueryElement.PASS);
+            sampleIdToProfileId, Select.none(), mutationEventTypes, cnaEventTypes, QueryElement.PASS,
+            true, true, true, Select.all(), true,
+            true, true, true);
         Assert.assertEquals(0, result.size());
     }
     
     @Test
     public void getSampleCountAllEntrezGeneIds() throws Exception {
         List<AlterationCountByGene> result = alterationMyBatisRepository.getSampleAlterationCounts(
-            sampleIdToProfileId, Select.all(), mutationEventTypes, cnaEventTypes, QueryElement.PASS);
+            sampleIdToProfileId, Select.all(), mutationEventTypes, cnaEventTypes, QueryElement.PASS,
+            true, true, true, Select.all(), true,
+            true, true, true);
         Assert.assertEquals(3, result.size());
     }
 
     @Test
     public void getPatientCountNullEntrezGeneIds() throws Exception {
         List<AlterationCountByGene> result = alterationMyBatisRepository.getPatientAlterationCounts(
-            patientIdToProfileId, null, mutationEventTypes, cnaEventTypes, QueryElement.PASS);
+            patientIdToProfileId, null, mutationEventTypes, cnaEventTypes, QueryElement.PASS,
+            true, true, true, Select.all(), true,
+            true, true, true);
         Assert.assertEquals(0, result.size());
     }
 
     @Test
     public void getPatientCountEmptyEntrezGeneIds() throws Exception {
         List<AlterationCountByGene> result = alterationMyBatisRepository.getPatientAlterationCounts(
-            patientIdToProfileId, Select.none(), mutationEventTypes, cnaEventTypes, QueryElement.PASS);
+            patientIdToProfileId, Select.none(), mutationEventTypes, cnaEventTypes, QueryElement.PASS, 
+            true, true, true, Select.all(), true,
+            true, true, true);
         Assert.assertEquals(0, result.size());
     }
 
     @Test
     public void getPatientCountAllEntrezGeneIds() throws Exception {
         List<AlterationCountByGene> result = alterationMyBatisRepository.getPatientAlterationCounts(
-            patientIdToProfileId, Select.all(), mutationEventTypes, cnaEventTypes, QueryElement.PASS);
+            patientIdToProfileId, Select.all(), mutationEventTypes, cnaEventTypes, QueryElement.PASS, 
+            true, true, true, Select.all(), true,
+            true, true, true);
         Assert.assertEquals(3, result.size());
     }
 
     @Test
     public void getSampleCnaCountNullEntrezGeneIds() throws Exception {
         List<CopyNumberCountByGene> result = alterationMyBatisRepository.getSampleCnaCounts(
-            sampleIdToProfileId, null, cnaEventTypes);
+            sampleIdToProfileId, null, cnaEventTypes, true, true,
+            true, Select.all(), true);
         Assert.assertEquals(0, result.size());
     }
 
     @Test
     public void getSampleCnaCountEmptyEntrezGeneIds() throws Exception {
         List<CopyNumberCountByGene> result = alterationMyBatisRepository.getSampleCnaCounts(
-            sampleIdToProfileId, Select.none(), cnaEventTypes);
+            sampleIdToProfileId, Select.none(), cnaEventTypes, true, true,
+            true, Select.all(), true);
         Assert.assertEquals(0, result.size());
     }
 
     @Test
     public void getSampleCnaCountAllEntrezGeneIds() throws Exception {
         List<CopyNumberCountByGene> result = alterationMyBatisRepository.getSampleCnaCounts(
-            sampleIdToProfileId, Select.all(), cnaEventTypes);
+            sampleIdToProfileId, Select.all(), cnaEventTypes, true, true,
+            true, Select.all(), true);
         Assert.assertEquals(3, result.size());
     }
 
     @Test
     public void getPatientCnaCountNullEntrezGeneIds() throws Exception {
         List<CopyNumberCountByGene> result = alterationMyBatisRepository.getPatientCnaCounts(
-            patientIdToProfileId, null, cnaEventTypes);
+            patientIdToProfileId, null, cnaEventTypes, true, true,
+            true, Select.all(), true);
         Assert.assertEquals(0, result.size());
     }
 
     @Test
     public void getPatientCnaCountEmptyEntrezGeneIds() throws Exception {
         List<CopyNumberCountByGene> result = alterationMyBatisRepository.getPatientCnaCounts(
-            patientIdToProfileId, Select.none(), cnaEventTypes);
+            patientIdToProfileId, Select.none(), cnaEventTypes, true, true,
+            true, Select.all(), true);
         Assert.assertEquals(0, result.size());
     }
 
     @Test
     public void getPatientCnaCountAllEntrezGeneIds() throws Exception {
         List<CopyNumberCountByGene> result = alterationMyBatisRepository.getPatientCnaCounts(
-            patientIdToProfileId, Select.all(), cnaEventTypes);
+            patientIdToProfileId, Select.all(), cnaEventTypes, true, true,
+            true, Select.all(), true);
         Assert.assertEquals(3, result.size());
     }
     

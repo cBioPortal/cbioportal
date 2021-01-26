@@ -27,6 +27,16 @@ public interface MutationRepository {
                                                            Integer pageSize, Integer pageNumber,
                                                            String sortBy, String direction);
 
+    @Cacheable(cacheNames = "GeneralRepositoryCache", condition = "@cacheEnabledConfig.getEnabled()")
+    List<Mutation> getMutationsInMultipleMolecularProfilesByGeneQueries(List<String> molecularProfileIds,
+                                                                      List<String> sampleIds,
+                                                                      List<GeneFilterQuery> geneQueries,
+                                                                      String projection,
+                                                                      Integer pageSize,
+                                                                      Integer pageNumber,
+                                                                      String sortBy,
+                                                                      String direction);
+
     @Cacheable(cacheResolver = "generalRepositoryCacheResolver", condition = "@cacheEnabledConfig.getEnabled()")
     MutationMeta getMetaMutationsInMultipleMolecularProfiles(List<String> molecularProfileIds, List<String> sampleIds,
                                                              List<Integer> entrezGeneIds);

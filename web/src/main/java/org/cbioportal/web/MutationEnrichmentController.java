@@ -5,7 +5,7 @@ import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
 import org.cbioportal.model.AlterationEnrichment;
 import org.cbioportal.model.MolecularProfileCaseIdentifier;
-import org.cbioportal.model.Select;
+import org.cbioportal.model.util.Select;
 import org.cbioportal.service.MutationEnrichmentService;
 import org.cbioportal.service.exception.MolecularProfileNotFoundException;
 import org.cbioportal.web.config.annotation.InternalApi;

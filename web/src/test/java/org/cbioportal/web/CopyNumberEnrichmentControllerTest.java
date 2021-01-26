@@ -4,7 +4,6 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import org.cbioportal.model.AlterationEnrichment;
 import org.cbioportal.model.CountSummary;
 import org.cbioportal.model.MolecularProfileCaseIdentifier;
-import org.cbioportal.model.Select;
 import org.cbioportal.model.util.Select;
 import org.cbioportal.service.CopyNumberEnrichmentService;
 import org.cbioportal.web.parameter.MolecularProfileCasesGroupFilter;

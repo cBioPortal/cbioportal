@@ -2,8 +2,8 @@ package org.cbioportal.persistence;
 
 import org.cbioportal.model.CopyNumberCountByGene;
 import org.cbioportal.model.DiscreteCopyNumberData;
+import org.cbioportal.model.GeneFilterQuery;
 import org.cbioportal.model.meta.BaseMeta;
-
 import org.springframework.cache.annotation.Cacheable;
 
 import java.util.List;

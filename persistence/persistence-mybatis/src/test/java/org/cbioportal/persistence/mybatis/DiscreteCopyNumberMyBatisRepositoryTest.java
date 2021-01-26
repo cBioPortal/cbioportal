@@ -7,7 +7,7 @@ import org.cbioportal.model.Gene;
 import org.cbioportal.model.GeneFilterQuery;
 import org.cbioportal.model.ReferenceGenomeGene;
 import org.cbioportal.model.meta.BaseMeta;
-import org.cbioportal.model.Select;
+import org.cbioportal.model.util.Select;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;

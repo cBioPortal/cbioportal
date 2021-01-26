@@ -49,14 +49,16 @@ public interface AlterationRepository {
                                                    boolean includeVUS,
                                                    boolean includeUnknownOncogenicity,
                                                    Select<String> selectedTiers,
+                                                   boolean includeUnknownTier);
 
     @Cacheable(cacheResolver = "generalRepositoryCacheResolver", condition = "@cacheEnabledConfig.getEnabled()")
     List<CopyNumberCountByGene> getPatientCnaCounts(List<MolecularProfileCaseIdentifier> molecularProfileCaseIdentifiers,
                                                     Select<Integer> entrezGeneIds,
                                                     final Select<CNA> cnaEventTypes,
-                                                   boolean includeDriver,
-                                                   boolean includeVUS,
-                                                   boolean includeUnknownOncogenicity,
-                                                   Select<String> selectedTiers,
+                                                    boolean includeDriver,
+                                                    boolean includeVUS,
+                                                    boolean includeUnknownOncogenicity,
+                                                    Select<String> selectedTiers,
+                                                    boolean includeUnknownTier);
     
 }

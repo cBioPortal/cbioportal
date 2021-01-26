@@ -42,7 +42,6 @@ public class AlterationCountServiceImplTest extends BaseServiceImplTest {
     boolean includeGermline = true;
     boolean includeSomatic = true;
     boolean includeUnknownStatus = true;
-    List<Integer> entrezGeneIds = null;
     boolean includeFrequency = false;
     boolean includeMissingAlterationsFromGenePanel = false;
     List<AlterationCountByGene> expectedCountByGeneList = Arrays.asList(new AlterationCountByGene());

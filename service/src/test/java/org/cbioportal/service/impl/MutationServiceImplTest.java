@@ -1,6 +1,7 @@
 package org.cbioportal.service.impl;
 
 import org.cbioportal.model.Gene;
+import org.cbioportal.model.GeneFilterQuery;
 import org.cbioportal.model.MolecularProfile;
 import org.cbioportal.model.Mutation;
 import org.cbioportal.model.MutationCountByPosition;
@@ -20,7 +21,8 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
-import static org.mockito.ArgumentMatchers.*;
+import static org.mockito.ArgumentMatchers.anyList;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.mock;
 
 @RunWith(MockitoJUnitRunner.Silent.class)

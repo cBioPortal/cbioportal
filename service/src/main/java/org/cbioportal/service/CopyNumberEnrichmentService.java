@@ -2,6 +2,7 @@ package org.cbioportal.service;
 
 import org.cbioportal.model.AlterationEnrichment;
 import org.cbioportal.model.CNA;
+import org.cbioportal.model.EnrichmentType;
 import org.cbioportal.model.MolecularProfileCaseIdentifier;
 import org.cbioportal.model.util.Select;
 import org.cbioportal.service.exception.MolecularProfileNotFoundException;
@@ -13,6 +14,7 @@ public interface CopyNumberEnrichmentService {
 
     List<AlterationEnrichment> getCopyNumberEnrichments(Map<String, List<MolecularProfileCaseIdentifier>> molecularProfileCaseSets,
                                                         CNA copyNumberEventType,
+                                                        EnrichmentType enrichmentType,
                                                         boolean includeDriver,
                                                         boolean includeVUS,
                                                         boolean includeUnknownOncogenicity,

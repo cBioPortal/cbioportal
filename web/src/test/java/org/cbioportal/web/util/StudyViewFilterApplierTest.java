@@ -12,7 +12,7 @@ import org.cbioportal.model.MolecularProfile.MolecularAlterationType;
 import org.cbioportal.model.Mutation;
 import org.cbioportal.model.Patient;
 import org.cbioportal.model.Sample;
-import org.cbioportal.model.Select;
+import org.cbioportal.model.util.Select;
 import org.cbioportal.service.ClinicalAttributeService;
 import org.cbioportal.service.ClinicalDataService;
 import org.cbioportal.service.DiscreteCopyNumberService;
@@ -48,6 +48,8 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
+
+import static org.mockito.ArgumentMatchers.*;
 
 @RunWith(MockitoJUnitRunner.Silent.class)
 public class StudyViewFilterApplierTest {
@@ -190,9 +192,6 @@ public class StudyViewFilterApplierTest {
         List<GeneFilter> geneFilters = new ArrayList<>();
         
         GeneFilter mutationGeneFilter = new GeneFilter();
-        mutationGeneFilter.setGeneQueries(Arrays.asList(Arrays.asList(HUGO_GENE_SYMBOL_1)));
-        mutationGeneFilter.setMolecularProfileIds(new HashSet<>(Arrays.asList(MOLECULAR_PROFILE_ID_1, "FILTERED_OUT_PROFILE_ID")));
-        geneFilters.add(mutationGeneFilter);
         mutationGeneFilter.setMolecularProfileIds(new HashSet<>(Arrays.asList(MOLECULAR_PROFILE_ID_1)));
 
         GeneFilterQuery geneFilterQuery1 = new GeneFilterQuery("HUGO_GENE_SYMBOL_1", null,

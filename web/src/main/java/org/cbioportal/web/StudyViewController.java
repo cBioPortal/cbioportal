@@ -322,6 +322,14 @@ public class StudyViewController {
         @ApiIgnore // prevent reference to this attribute in the swagger-ui interface. this attribute is needed for the @PreAuthorize tag above.
         @Valid @RequestAttribute(required = false, value = "interceptedStudyViewFilter") StudyViewFilter interceptedStudyViewFilter) throws StudyNotFoundException {
 
+        Select<String> selectedTiers = Select.byValues(
+            interceptedStudyViewFilter.getSelectedTiers().entrySet().stream()
+                .filter(e -> e.getValue())
+                .map(e -> e.getKey()));
+        if (interceptedStudyViewFilter.getSelectedTiers().keySet().size() > 0
+            && interceptedStudyViewFilter.getSelectedTiers().entrySet().stream().allMatch(e -> e.getValue()))
+            selectedTiers.hasAll(true);
+
         List<SampleIdentifier> filteredSampleIdentifiers = studyViewFilterApplier.apply(interceptedStudyViewFilter);
         List<AlterationCountByGene> result = new ArrayList<>();
         if (!filteredSampleIdentifiers.isEmpty()) {
@@ -375,6 +383,15 @@ public class StudyViewController {
         @RequestAttribute(required = false, value = "involvedCancerStudies") Collection<String> involvedCancerStudies,
         @ApiIgnore // prevent reference to this attribute in the swagger-ui interface.
         @Valid @RequestAttribute(required = false, value = "interceptedStudyViewFilter") StudyViewFilter interceptedStudyViewFilter) throws StudyNotFoundException {
+
+        Select<String> selectedTiers = Select.byValues(
+            interceptedStudyViewFilter.getSelectedTiers().entrySet().stream()
+                .filter(e -> e.getValue())
+                .map(e -> e.getKey()));
+        if (interceptedStudyViewFilter.getSelectedTiers().keySet().size() > 0
+            && interceptedStudyViewFilter.getSelectedTiers().entrySet().stream().allMatch(e -> e.getValue()))
+            selectedTiers.hasAll(true);
+        
         List<SampleIdentifier> filteredSampleIdentifiers = studyViewFilterApplier.apply(interceptedStudyViewFilter);
         List<AlterationCountByGene> result = new ArrayList<>();
         if (!filteredSampleIdentifiers.isEmpty()) {

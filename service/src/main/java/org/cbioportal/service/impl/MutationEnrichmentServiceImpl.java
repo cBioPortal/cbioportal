@@ -24,7 +24,7 @@ public class MutationEnrichmentServiceImpl implements MutationEnrichmentService 
     @Override
     public List<AlterationEnrichment> getMutationEnrichments(
         Map<String, List<MolecularProfileCaseIdentifier>> molecularProfileCaseSets,
-        EnrichmentType enrichmentTypee,
+        EnrichmentType enrichmentType,
         boolean includeDriver,
         boolean includeVUS,
         boolean includeUnknownOncogenicity,

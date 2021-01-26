@@ -64,6 +64,9 @@
                 mutation.GENETIC_PROFILE_ID = alteration_driver_annotation.GENETIC_PROFILE_ID
             and mutation.SAMPLE_ID = alteration_driver_annotation.SAMPLE_ID
             and mutation.MUTATION_EVENT_ID = alteration_driver_annotation.ALTERATION_EVENT_ID
+        <if test="_parameter.containsKey('projection') and (projection == 'SUMMARY' or projection == 'DETAILED')">
+            INNER JOIN mutation_event ON mutation.MUTATION_EVENT_ID = mutation_event.MUTATION_EVENT_ID
+        </if>
     </sql>
 
     <sql id="where">
@@ -235,9 +238,6 @@
         SELECT
         <include refid="select"/>
         <include refid="from"/>
-        <if test="projection == 'SUMMARY' || projection == 'DETAILED'">
-            INNER JOIN mutation_event ON mutation.MUTATION_EVENT_ID = mutation_event.MUTATION_EVENT_ID
-        </if>
         <if test="projection == 'DETAILED'">
             INNER JOIN gene ON mutation.ENTREZ_GENE_ID = gene.ENTREZ_GENE_ID
             <include refid="includeAlleleSpecificCopyNumber"/>
@@ -266,9 +266,6 @@
         SELECT
         <include refid="select"/>
         <include refid="from"/>
-        <if test="projection == 'SUMMARY' || projection == 'DETAILED'">
-            INNER JOIN mutation_event ON mutation.MUTATION_EVENT_ID = mutation_event.MUTATION_EVENT_ID
-        </if>
         <if test="projection == 'DETAILED'">
             INNER JOIN gene ON mutation.ENTREZ_GENE_ID = gene.ENTREZ_GENE_ID
             <include refid="includeAlleleSpecificCopyNumber"/>
@@ -325,9 +322,6 @@
         SELECT
         <include refid="select"/>
         <include refid="from"/>
-        <if test="projection == 'SUMMARY' || projection == 'DETAILED'">
-            INNER JOIN mutation_event ON mutation.MUTATION_EVENT_ID = mutation_event.MUTATION_EVENT_ID
-        </if>
         <if test="projection == 'DETAILED'">
             INNER JOIN gene ON mutation.ENTREZ_GENE_ID = gene.ENTREZ_GENE_ID
             <include refid="includeAlleleSpecificCopyNumber"/>

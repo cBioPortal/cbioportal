@@ -1032,7 +1032,6 @@ public class AlterationMyBatisRepositoryTest {
     public void getSampleCnaCountLegacyOnlyDriver() throws Exception {
 
         includeDriver = true;
-        entrezGeneIds = null; // only way it works; otherwise it tries to pair up geneids with alteration types with
         List<CopyNumberCountByGene> result = alterationMyBatisRepository.getSampleCnaCounts(
             sampleIdToProfileId, entrezGeneIds, cnaEventTypes, includeDriver, includeVUS, includeUnknownOncogenicity, tiers, includeUnknownTier);
 
@@ -1046,7 +1045,6 @@ public class AlterationMyBatisRepositoryTest {
     public void getSampleCnaCountLegacyOnlyVUS() throws Exception {
 
         includeVUS = true;
-        entrezGeneIds = null; // only way it works; otherwise it tries to pair up geneids with alteration types with
         List<CopyNumberCountByGene> result = alterationMyBatisRepository.getSampleCnaCounts(
             sampleIdToProfileId, entrezGeneIds, cnaEventTypes, includeDriver, includeVUS, includeUnknownOncogenicity, tiers, includeUnknownTier);
 
@@ -1060,7 +1058,6 @@ public class AlterationMyBatisRepositoryTest {
     public void getSampleCnaCountLegacyOnlyUnknownOncogenicity() throws Exception {
 
         includeUnknownOncogenicity = true;
-        entrezGeneIds = null; // only way it works; otherwise it tries to pair up geneids with alteration types with
         List<CopyNumberCountByGene> result = alterationMyBatisRepository.getSampleCnaCounts(
             sampleIdToProfileId, entrezGeneIds, cnaEventTypes, includeDriver, includeVUS, includeUnknownOncogenicity, tiers, includeUnknownTier);
 
@@ -1074,7 +1071,6 @@ public class AlterationMyBatisRepositoryTest {
     public void getSampleCnaCountLegacyOnlyUnknownTier() throws Exception {
 
         includeUnknownTier = true;
-        entrezGeneIds = null; // only way it works; otherwise it tries to pair up geneids with alteration types with
         List<CopyNumberCountByGene> result = alterationMyBatisRepository.getSampleCnaCounts(
             sampleIdToProfileId, entrezGeneIds, cnaEventTypes, includeDriver, includeVUS, includeUnknownOncogenicity, tiers, includeUnknownTier);
 
@@ -1088,7 +1084,6 @@ public class AlterationMyBatisRepositoryTest {
     public void getSampleCnaCountLegacyOnlyTier2() throws Exception {
 
         tiers = Select.byValues(Arrays.asList("Tier 2"));
-        entrezGeneIds = null; // only way it works; otherwise it tries to pair up geneids with alteration types with
         List<CopyNumberCountByGene> result = alterationMyBatisRepository.getSampleCnaCounts(
             sampleIdToProfileId, entrezGeneIds, cnaEventTypes, includeDriver, includeVUS, includeUnknownOncogenicity, tiers, includeUnknownTier);
 
@@ -1102,7 +1097,6 @@ public class AlterationMyBatisRepositoryTest {
     public void getPatientCnaCountLegacyOnlyDriver() throws Exception {
 
         includeDriver = true;
-        entrezGeneIds = null; // only way it works; otherwise it tries to pair up geneids with alteration types with
         List<CopyNumberCountByGene> result = alterationMyBatisRepository.getPatientCnaCounts(
             patientIdToProfileId, entrezGeneIds, cnaEventTypes, includeDriver, includeVUS, includeUnknownOncogenicity, tiers, includeUnknownTier);
 
@@ -1116,7 +1110,6 @@ public class AlterationMyBatisRepositoryTest {
     public void getPatientCnaCountLegacyOnlyVUS() throws Exception {
 
         includeVUS = true;
-        entrezGeneIds = null; // only way it works; otherwise it tries to pair up geneids with alteration types with
         List<CopyNumberCountByGene> result = alterationMyBatisRepository.getPatientCnaCounts(
             patientIdToProfileId, entrezGeneIds, cnaEventTypes, includeDriver, includeVUS, includeUnknownOncogenicity, tiers, includeUnknownTier);
 
@@ -1130,7 +1123,6 @@ public class AlterationMyBatisRepositoryTest {
     public void getPatientCnaCountLegacyOnlyUnknownOncogenicity() throws Exception {
 
         includeUnknownOncogenicity = true;
-        entrezGeneIds = null; // only way it works; otherwise it tries to pair up geneids with alteration types with
         List<CopyNumberCountByGene> result = alterationMyBatisRepository.getPatientCnaCounts(
             patientIdToProfileId, entrezGeneIds, cnaEventTypes, includeDriver, includeVUS, includeUnknownOncogenicity, tiers, includeUnknownTier);
 
@@ -1144,7 +1136,6 @@ public class AlterationMyBatisRepositoryTest {
     public void getPatientCnaCountLegacyOnlyUnknownTier() throws Exception {
 
         includeUnknownTier = true;
-        entrezGeneIds = null; // only way it works; otherwise it tries to pair up geneids with alteration types with
         List<CopyNumberCountByGene> result = alterationMyBatisRepository.getPatientCnaCounts(
             patientIdToProfileId, entrezGeneIds, cnaEventTypes, includeDriver, includeVUS, includeUnknownOncogenicity, tiers, includeUnknownTier);
 
@@ -1158,7 +1149,6 @@ public class AlterationMyBatisRepositoryTest {
     public void getPatientCnaCountLegacyOnlyTier2() throws Exception {
 
         tiers = Select.byValues(Arrays.asList("Tier 2"));
-        entrezGeneIds = null; // only way it works; otherwise it tries to pair up geneids with alteration types with
         List<CopyNumberCountByGene> result = alterationMyBatisRepository.getPatientCnaCounts(
             patientIdToProfileId, entrezGeneIds, cnaEventTypes, includeDriver, includeVUS, includeUnknownOncogenicity, tiers, includeUnknownTier);
 

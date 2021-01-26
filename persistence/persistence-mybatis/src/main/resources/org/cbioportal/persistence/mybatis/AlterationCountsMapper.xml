@@ -203,9 +203,6 @@
             gene.HUGO_GENE_SYMBOL AS hugoGeneSymbol,
             reference_genome_gene.CYTOBAND as cytoband,
             cna_event.ALTERATION AS alteration,
-            COUNT(DISTINCT(sample_cna_event.SAMPLE_ID)) AS numberOfAlteredCases
-        FROM cna_event
-        INNER JOIN sample_cna_event ON cna_event.CNA_EVENT_ID = sample_cna_event.CNA_EVENT_ID
             COUNT(*) AS totalCount,
             COUNT(DISTINCT(sample_cna_event.SAMPLE_ID)) AS numberOfAlteredCases
         FROM cna_event
@@ -217,6 +214,7 @@
         INNER JOIN reference_genome_gene ON reference_genome_gene.ENTREZ_GENE_ID = cna_event.ENTREZ_GENE_ID
         AND reference_genome_gene.reference_genome_id = cancer_study.reference_genome_id
         <where>
+            <include refid="whereCustomAnnotations"/>
             <include refid="whereInternalSampleIdsCna"/>
             <include refid="whereGeneCna"/>
         </where>

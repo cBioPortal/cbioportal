@@ -1,4 +1,4 @@
-## Jan 12, 2020
+## Jan 12, 2021
 *   **New Feature**: Add your own custom data for a sample or patient to use on the study or comparison view  [Example: Add custom data to three samples and do a comparison](https://www.cbioportal.org/study/summary?id=msk_impact_2017)
 
     <img src="https://user-images.githubusercontent.com/1334004/104651553-ce7efd00-5685-11eb-8017-c43f24421e3f.png" width="700">

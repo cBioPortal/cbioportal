@@ -7,6 +7,9 @@ services:
   cbioportal:
     command: /bin/sh -c "java -Xms2g -Xmx4g -Dauthenticate=noauthsessionservice -Dsession.service.url=http://cbioportal_session:5000/api/sessions/my_portal/ -jar webapp-runner.jar -AmaxHttpHeaderSize=16384 -AconnectionTimeout=20000 --enable-compression /app.war"
     volumes:
-     - ./portalinfo/:/portalinfo/
-     - ../:/cbioportal
-     - ../portal/target/cbioportal.war:/app.war
+     - $PORTAL_INFO_DIR:/portalinfo/
+     # make docker compose run the cbioportal version-under-test
+     # by volume mounting the local portal source folder into the container
+     # and running 
+     - $PORTAL_SOURCE_DIR:/cbioportal/
+     - $PORTAL_SOURCE_DIR/portal/target/cbioportal.war:/app.war

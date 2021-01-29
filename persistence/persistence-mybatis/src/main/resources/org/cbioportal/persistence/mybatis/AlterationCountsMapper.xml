@@ -202,6 +202,16 @@
         INNER JOIN reference_genome_gene ON reference_genome_gene.ENTREZ_GENE_ID = cna_event.ENTREZ_GENE_ID
         AND reference_genome_gene.reference_genome_id = cancer_study.reference_genome_id
         <where>
+            <choose>
+                <when test="cnaTypes.hasNone()">NULL</when>
+                <when test="!cnaTypes.hasAll()">
+                    cna_event.ALTERATION IN
+                    <foreach item="type" collection="cnaTypes" open="("
+                        separator="," close=")">
+                        #{type}
+                    </foreach>
+                </when>
+            </choose>
             <include refid="whereInternalSampleIdsCna"/>
             <include refid="whereGeneCna"/>
         </where>
@@ -221,6 +231,16 @@
         INNER JOIN patient ON sample.PATIENT_ID = patient.INTERNAL_ID
         INNER JOIN gene ON cna_event.ENTREZ_GENE_ID = gene.ENTREZ_GENE_ID
         <where>
+            <choose>
+                <when test="cnaTypes.hasNone()">NULL</when>
+                <when test="!cnaTypes.hasAll()">
+                    cna_event.ALTERATION IN
+                    <foreach item="type" collection="cnaTypes" open="("
+                        separator="," close=")">
+                        #{type}
+                    </foreach>
+                </when>
+            </choose>
             <include refid="whereInternalPatientIds"/>
             <include refid="whereGeneCna"/>
         </where>

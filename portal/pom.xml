@@ -222,7 +222,10 @@
           <cloneProjectsTo>${project.build.directory}/integration-tests</cloneProjectsTo>
           <skipInstallation>${skipTests}</skipInstallation>
           <skipInvocation>${skipTests}</skipInvocation>
-          <goals>clean verify</goals>
+          <goals>
+            <goal>clean</goal>
+            <goal>verify</goal>
+          </goals>
           <environmentVariables>
               <CBIO_WAR_LOCATION>${project.build.directory}/cbioportal.war</CBIO_WAR_LOCATION>
               <!-- We neither create nor populate the database here. Instead we rely on DB created for the integration tests in the core module. -->

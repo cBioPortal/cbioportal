@@ -936,3 +936,10 @@ CREATE INDEX idx_cna_type ON cna_event (`ALTERATION`);
 CREATE INDEX idx_driver_filter ON alteration_driver_annotation (`DRIVER_FILTER`);
 CREATE INDEX idx_driver_tiers_filter ON alteration_driver_annotation (`DRIVER_TIERS_FILTER`);
 UPDATE `info` SET `DB_SCHEMA_VERSION`="2.12.8";
+-- WARNING: this will drop column CLINICAL_TRIAL_KEYWORDS from table type_of_cancer
+ALTER TABLE `type_of_cancer` DROP COLUMN `CLINICAL_TRIAL_KEYWORDS`;
+UPDATE `info` SET `DB_SCHEMA_VERSION`="2.12.7";
+
+##version: 2.12.8
+ALTER TABLE `sample` DROP COLUMN `TYPE_OF_CANCER_ID`;
+UPDATE `info` SET `DB_SCHEMA_VERSION`="2.12.8";

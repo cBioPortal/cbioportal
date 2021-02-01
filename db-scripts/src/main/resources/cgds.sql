@@ -137,7 +137,6 @@ CREATE TABLE `cancer_study` (
   `CANCER_STUDY_IDENTIFIER` varchar(255),
   `TYPE_OF_CANCER_ID` varchar(63) NOT NULL,
   `NAME` varchar(255) NOT NULL,
-  `SHORT_NAME` varchar(64) NOT NULL,
   `DESCRIPTION` varchar(1024) NOT NULL,
   `PUBLIC` BOOLEAN NOT NULL,
   `PMID` varchar(1024) DEFAULT NULL,

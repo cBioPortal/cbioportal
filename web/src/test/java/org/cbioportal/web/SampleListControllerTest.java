@@ -330,7 +330,6 @@ public class SampleListControllerTest {
         cancerStudy.setCancerStudyIdentifier(TEST_CANCER_STUDY_IDENTIFIER_1);
         cancerStudy.setTypeOfCancerId(TEST_TYPE_OF_CANCER_ID_1);
         cancerStudy.setName(TEST_STUDY_NAME_1);
-        cancerStudy.setShortName(TEST_SHORT_NAME_1);
         cancerStudy.setDescription(TEST_STUDY_DESCRIPTION_1);
         sampleList.setCancerStudy(cancerStudy);
         return sampleList;

@@ -11,7 +11,6 @@ public class CancerStudy implements Serializable {
     private String cancerStudyIdentifier;
     private String typeOfCancerId;
     private String name;
-    private String shortName;
     private String description;
     private Boolean publicStudy;
     private String pmid;
@@ -62,14 +61,6 @@ public class CancerStudy implements Serializable {
 
     public void setName(String name) {
         this.name = name;
-    }
-
-    public String getShortName() {
-        return shortName;
-    }
-
-    public void setShortName(String shortName) {
-        this.shortName = shortName;
     }
 
     public String getDescription() {

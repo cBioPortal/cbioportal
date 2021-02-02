@@ -19,18 +19,11 @@ public interface AlterationCountsMapper {
      * @param searchFusions  'ACTIVE': counts are limited to fusion type. 'INACTIVE': counts are limited to non-fusion alterations.'PASS': no filtering on mutation vs fusions (mutation types and cnaTypes are used) 
      * @return  Gene-level counts of (1) the total number of alterations and (2) the number of altered samples.
      */
-    List<AlterationCountByGene> getSampleAlterationCounts(List<Integer> internalSampleIds,
+    List<AlterationCountByGene> getSampleAlterationCounts(List<MolecularProfileCaseIdentifier> molecularProfileCaseIdentifiers,
                                                           Select<Integer> entrezGeneIds,
                                                           Select<String> mutationTypes,
                                                           Select<Short> cnaTypes,
                                                           QueryElement searchFusions);
-
-    /**
-     * Gets internal sample ids for samples that match (molecularProfileId, sampleId) pair
-     * @param molecularProfileCaseIdentifiers  List of molecularProfileId, sampleId pairs
-     * @return Gene-level counts of (1) the total number of alterations and (2) the number of altered samples.
-     */
-    List<Integer> getSampleInternalIds(List<MolecularProfileCaseIdentifier> molecularProfileCaseIdentifiers);
 
     /**
      * Calculate patient-level counts of mutation and discrete CNA alteration events.
@@ -41,26 +34,19 @@ public interface AlterationCountsMapper {
      * @param searchFusions  'ACTIVE': counts are limited to fusion type. 'INACTIVE': counts are limited to non-fusion alterations.'PASS': no filtering on mutation vs fusions (mutation types and cnaTypes are used) 
      * @return  Gene-level counts of (1) the total number of alterations and (2) the number of altered patients.
      */
-    List<AlterationCountByGene> getPatientAlterationCounts(List<Integer> internalPatientIds,
+    List<AlterationCountByGene> getPatientAlterationCounts(List<MolecularProfileCaseIdentifier> molecularProfileCaseIdentifiers,
                                                            Select<Integer> entrezGeneIds,
                                                            Select<String> mutationTypes,
                                                            Select<Short> cnaTypes,
                                                            QueryElement searchFusions);
 
-    /**
-     * Gets internal patient ids for patients that match (molecularProfileId, patientId) pair
-     * @param molecularProfileCaseIdentifiers  List of molecularProfileId, patientId pairs
-     * @return  Gene-level counts of (1) the total number of alterations and (2) the number of altered samples.
-     */
-    List<Integer> getPatientInternalIds(List<MolecularProfileCaseIdentifier> molecularProfileCaseIdentifiers);
-
     // legacy method that returns CopyNumberCountByGene
-    List<CopyNumberCountByGene> getSampleCnaCounts(List<Integer> internalSampleIds,
+    List<CopyNumberCountByGene> getSampleCnaCounts(List<MolecularProfileCaseIdentifier> molecularProfileCaseIdentifiers,
                                                    Select<Integer> entrezGeneIds,
                                                    Select<Short> cnaTypes);
 
     // legacy method that returns CopyNumberCountByGene
-    List<CopyNumberCountByGene> getPatientCnaCounts(List<Integer> internalPatientIds,
+    List<CopyNumberCountByGene> getPatientCnaCounts(List<MolecularProfileCaseIdentifier> molecularProfileCaseIdentifiers,
                                                     Select<Integer> entrezGeneIds,
                                                     Select<Short> cnaTypes);
 }

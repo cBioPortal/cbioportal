@@ -6,7 +6,7 @@ set -e
 run_in_service() {
     service=$1
     shift
-    docker-compose -f docker-compose.yml -f ../test/integration/docker-compose-localbuild.yml \
+    docker-compose -f docker-compose.yml -f $PORTAL_SOURCE_DIR/test/integration/docker-compose-localbuild.yml \
         run --rm \
         "$service" bash -c "$@"
 }
@@ -28,6 +28,6 @@ run_in_service cbioportal 'validateData.py -v -p /portalinfo -s /cbioportal/core
 
 # load study_es_0 using API validation
 echo "Testing loading of study with API validation..."
-run_in_service cbioportal 'metaImport.py -v -u http://cbioportal:8080 -o -s /cbioportal/core/src/test/scripts/test_data/study_es_0/'
+run_in_service cbioportal 'metaImport.py -v -u http://cbioportal-container:8080 -o -s /cbioportal/core/src/test/scripts/test_data/study_es_0/'
 
 exit 0

@@ -1,7 +1,6 @@
 package org.cbioportal.persistence.mybatis;
 
 import org.cbioportal.model.*;
-import org.cbioportal.model.QueryElement;
 import org.cbioportal.model.util.Select;
 import org.junit.Assert;
 import org.junit.Before;
@@ -128,6 +127,18 @@ public class AlterationMyBatisRepositoryTest {
         Assert.assertEquals((Integer) 2, result207.getNumberOfAlteredCases());
         Assert.assertEquals((Integer) 2, result208.getTotalCount());
         Assert.assertEquals((Integer) 2, result208.getNumberOfAlteredCases());
+    }
+
+    @Test
+    public void whenSampleNotProfiledForCNA() throws Exception {
+
+        List<MolecularProfileCaseIdentifier> sampleIdToProfileId = new ArrayList<>();
+        // Sample is not profiled for mutations and not cna
+        sampleIdToProfileId.add(new MolecularProfileCaseIdentifier("TCGA-A1-A0SE-01", "study_tcga_pub_gistic"));
+
+        List<AlterationCountByGene> result = alterationMyBatisRepository.getSampleAlterationCounts(sampleIdToProfileId, entrezGeneIds,
+                mutationEventTypes, cnaEventTypes, QueryElement.PASS);
+        Assert.assertEquals(0, result.size());
     }
 
     @Test

@@ -37,10 +37,8 @@ public class AlterationMyBatisRepository implements AlterationRepository {
             return Collections.emptyList();
         }
 
-        List<Integer> internalSampleIds = alterationCountsMapper.getSampleInternalIds(molecularProfileCaseIdentifiers);
-
         return alterationCountsMapper.getSampleAlterationCounts(
-            internalSampleIds,
+            molecularProfileCaseIdentifiers,
             entrezGeneIds,
             createMutationTypeList(mutationEventTypes),
             createCnaTypeList(cnaEventTypes),
@@ -63,10 +61,8 @@ public class AlterationMyBatisRepository implements AlterationRepository {
             return Collections.emptyList();
         }
 
-        List<Integer> internalPatientIds = alterationCountsMapper.getPatientInternalIds(molecularProfileCaseIdentifiers);
-
         return alterationCountsMapper.getPatientAlterationCounts(
-            internalPatientIds,
+            molecularProfileCaseIdentifiers,
             entrezGeneIds,
             createMutationTypeList(mutationEventTypes),
             createCnaTypeList(cnaEventTypes),
@@ -82,11 +78,9 @@ public class AlterationMyBatisRepository implements AlterationRepository {
             || cnaEventTypes == null || cnaEventTypes.hasNone()) {
             return Collections.emptyList();
         }
-
-        List<Integer> internalSampleIds = alterationCountsMapper.getSampleInternalIds(molecularProfileCaseIdentifiers);
         
         return alterationCountsMapper.getSampleCnaCounts(
-            internalSampleIds,
+            molecularProfileCaseIdentifiers,
             entrezGeneIds,
             createCnaTypeList(cnaEventTypes));
     }
@@ -100,11 +94,9 @@ public class AlterationMyBatisRepository implements AlterationRepository {
             || cnaEventTypes == null || cnaEventTypes.hasNone()) {
             return Collections.emptyList();
         }
-
-        List<Integer> internalPatientIds = alterationCountsMapper.getPatientInternalIds(molecularProfileCaseIdentifiers);
         
         return alterationCountsMapper.getPatientCnaCounts(
-            internalPatientIds,
+            molecularProfileCaseIdentifiers,
             entrezGeneIds,
             createCnaTypeList(cnaEventTypes));
     }

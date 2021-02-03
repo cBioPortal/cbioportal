@@ -274,6 +274,10 @@ public class GlobalProperties {
     @Value("${sitemaps:false}") // default is false
     public void setSitemaps(String property) { sitemaps = Boolean.parseBoolean(property); }
 
+    private static String contentSecurityPolicy;
+    @Value("${content_security_policy:'self'}") // default is false
+    public void setContentSecurityPolicy(String property) { contentSecurityPolicy = property; }
+    
     private static boolean showTranscriptDropdown;
     @Value("${show.transcript_dropdown:false}") // default is false
     public void setShowTranscriptDropdown(String property) { showTranscriptDropdown = Boolean.parseBoolean(property); }
@@ -917,6 +921,8 @@ public class GlobalProperties {
     public static boolean showSitemaps() {
        return sitemaps;
     }
+    
+    public static String getContentSecurityPolicy() { return contentSecurityPolicy; }
 
     public static boolean showCivic() {
         return showCivic;

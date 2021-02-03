@@ -27,6 +27,8 @@
 %>
 
 
+<% response.addHeader("Content-Security-Policy", GlobalProperties.getContentSecurityPolicy()); %>
+
 <!DOCTYPE html>
 <html class="cbioportal-frontend">
 <head>

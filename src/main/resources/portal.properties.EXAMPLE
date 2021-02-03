@@ -349,3 +349,7 @@ persistence.cache_type=no-cache
 # Installation map URL for installation map iframes. 
 # If blank or commented out, no map will be shown and that page will be hidden.
 # installation_map_url=https://installationmap.netlify.app/
+
+# Set content security policy http header here
+# For example to allow specified domains to load your portal in an iframe
+# content_security_policy='frame-ancestors http://www.example.org'

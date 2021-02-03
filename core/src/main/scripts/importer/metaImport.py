@@ -8,6 +8,7 @@ __author__ = 'priti'
 
 
 import sys
+import os
 import importlib
 import argparse
 import logging
@@ -27,6 +28,9 @@ if __name__ == "__main__" and (__package__ is None or __package__ == ''):
 
 from . import validateData
 from . import cbioportalImporter
+from . import importOncokbMutation
+from . import importOncokbDiscreteCNA
+from . import libImportOncokb
 
 
 # ----------------------------------------------------------------------------
@@ -98,6 +102,10 @@ def interface():
                              'of reporting "(GeneA, GeneB, GeneC, 213 more)".')
     parser.add_argument('-update', '--update_generic_assay_entity', type=str, required=False, default="False",
                         help='Set as True to update the existing generic assay entities, set as False to keep the existing generic assay entities for generic assay')
+    parser.add_argument('-oncokb', '--import_oncokb', action='store_true',
+                        help='Set as True to download OncoKB annotations for Mutations and CNA and load as custom driver annotations')
+    parser.add_argument('-skipimport', '--skip_db_import', action='store_true',
+                        help='Perform validation and OncoKB download but do not import study into database.')
     parser = parser.parse_args()
     return parser
 
@@ -133,6 +141,60 @@ if __name__ == '__main__':
             log_handler.close()
         validator_logger.handlers = []
 
+    # Import OncoKB annotations when asked, and there are no validation warnings or warnings are overruled
+    study_is_valid = exitcode == 0 or (exitcode == 3 and args.override_warning)
+    if study_is_valid and args.import_oncokb:
+        mutation_meta_file_path = libImportOncokb.find_meta_file_by_fields(study_dir, {'genetic_alteration_type': 'MUTATION_EXTENDED'})
+        mutation_data_file_name = libImportOncokb.find_data_file_from_meta_file(mutation_meta_file_path)
+        mutation_data_file_path = os.path.join(study_dir, mutation_data_file_name)
+        study_is_modified = False
+        print("\n")
+        if os.path.exists(mutation_data_file_path):
+            print("Starting import of OncoKB annotations for mutations file ...\n", file=sys.stderr)
+            try:
+                exitcode = importOncokbMutation.main_import(args)
+                study_is_modified = True
+            except KeyboardInterrupt:
+                print(Color.BOLD + "\nProcess interrupted. " + Color.END, file=sys.stderr)
+                print("#" * 71 + "\n", file=sys.stderr)
+                raise
+            except:
+                print("!" * 71, file=sys.stderr)
+                print(Color.RED + "Error occurred during import of OncoKB for mutations file:" + Color.END, file=sys.stderr)
+                raise
+            finally:
+                # make sure all log messages are flushed
+                validator_logger = logging.getLogger(importOncokbMutation.__name__)
+                for log_handler in validator_logger.handlers:
+                    log_handler.close()
+                validator_logger.handlers = []
+        cna_meta_file_path = libImportOncokb.find_meta_file_by_fields(study_dir, {'genetic_alteration_type': 'COPY_NUMBER_ALTERATION', 'datatype': 'DISCRETE'})
+        cna_data_file_name = libImportOncokb.find_data_file_from_meta_file(cna_meta_file_path)
+        cna_data_file_path = os.path.join(study_dir, cna_data_file_name)
+        if os.path.exists(cna_data_file_path):
+            print("Starting import of OncoKB annotations for discrete CNA file ...\n", file=sys.stderr)
+            try:
+                exitcode = importOncokbDiscreteCNA.main_import(args)
+                study_is_modified = True
+            except KeyboardInterrupt:
+                print(Color.BOLD + "\nProcess interrupted. " + Color.END, file=sys.stderr)
+                print("#" * 71 + "\n", file=sys.stderr)
+                raise
+            except:
+                print("!" * 71, file=sys.stderr)
+                print(Color.RED + "Error occurred during import of OncoKB for discrete CNA file:" + Color.END, file=sys.stderr)
+                raise
+            finally:
+                # make sure all log messages are flushed
+                validator_logger = logging.getLogger(importOncokbDiscreteCNA.__name__)
+                for log_handler in validator_logger.handlers:
+                    log_handler.close()
+                validator_logger.handlers = []
+        # Revalidate when custom annotations were added
+        if study_is_modified:
+            print("Starting re-validation of study with OncoKB annotations ...\n", file=sys.stderr)
+            exitcode = validateData.main_validate(args)
+
     # Depending on validation results, load the study or notify the user
     try:
         print("\n")
@@ -141,7 +203,7 @@ if __name__ == '__main__':
             print(Color.RED + "One or more errors reported above. Please fix your files accordingly" + Color.END, file=sys.stderr)
             print("!" * 71, file=sys.stderr)
         elif exitcode == 3:
-            if args.override_warning:
+            if args.override_warning and not args.skip_db_import:
                 print(Color.BOLD + "Overriding Warnings. Importing study now" + Color.END, file=sys.stderr)
                 print("#" * 71 + "\n", file=sys.stderr)
                 cbioportalImporter.main(args)
@@ -149,7 +211,7 @@ if __name__ == '__main__':
             else:
                 print(Color.BOLD + "Warnings. Please fix your files or import with override warning option" + Color.END, file=sys.stderr)
                 print("#" * 71, file=sys.stderr)
-        elif exitcode == 0:
+        elif exitcode == 0 and not args.skip_db_import:
             print(Color.BOLD + "Everything looks good. Importing study now" + Color.END, file=sys.stderr)
             print("#" * 71 + "\n", file=sys.stderr)
             cbioportalImporter.main(args)

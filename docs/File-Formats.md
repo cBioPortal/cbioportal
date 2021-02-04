@@ -418,7 +418,7 @@ the seed database.
 
 ## Segmented Data
 
-A SEG file (segmented data; .seg or .cbs) is a tab-delimited text file that lists loci and associated numeric values. The segmented data file format is the output of the Circular Binary Segmentation algorithm (Olshen et al., 2004).  **Segment data for import into the cBioPortal should be based on build 37 (hg19)**. This Segment data enables the 'CNA' lane in the Genomic overview of the Patient view (as [can be seen in this example](https://www.cbioportal.org/patient?sampleId=TCGA-BH-A0E6-01&studyId=brca_tcga)). 
+A SEG file (segmented data; .seg or .cbs) is a tab-delimited text file that lists loci and associated numeric values. The segmented data file format is the output of the Circular Binary Segmentation algorithm (Olshen et al., 2004). This Segment data enables the 'CNA' lane in the Genomic overview of the Patient view (as [can be seen in this example](https://www.cbioportal.org/patient?sampleId=TCGA-BH-A0E6-01&studyId=brca_tcga)). 
 
 ### Meta file
 The segmented metadata file should contain the following fields:

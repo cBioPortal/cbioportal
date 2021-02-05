@@ -36,7 +36,7 @@
 <%@ page import="java.util.HashMap" %>
 <%@ page import="java.util.Set" %>
 <%@ page import="java.util.HashSet" %>
-<%@ page import="org.apache.commons.lang.math.DoubleRange" %>
+<%@ page import="org.apache.commons.lang3.math.DoubleRange" %>
 <%@ page import="java.io.PrintWriter" %>
 <%@ page import="java.io.IOException" %>
     

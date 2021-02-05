@@ -35,7 +35,7 @@ package org.mskcc.cbio.portal.servlet;
 import java.io.*;
 import javax.servlet.ServletException;
 import javax.servlet.http.*;
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.log4j.Logger;
 import org.json.simple.JSONValue;
 import org.mskcc.cbio.portal.dao.*;

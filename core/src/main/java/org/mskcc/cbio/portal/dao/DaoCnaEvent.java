@@ -32,7 +32,7 @@
 
 package org.mskcc.cbio.portal.dao;
 
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.mskcc.cbio.portal.model.CnaEvent;
 import org.mskcc.cbio.portal.model.Sample;
 

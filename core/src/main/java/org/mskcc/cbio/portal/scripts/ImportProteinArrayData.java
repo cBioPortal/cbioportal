@@ -35,7 +35,7 @@ package org.mskcc.cbio.portal.scripts;
 import java.io.*;
 import java.util.*;
 import java.util.regex.*;
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.math3.stat.descriptive.DescriptiveStatistics;
 import org.mskcc.cbio.portal.dao.*;
 import org.mskcc.cbio.portal.model.*;

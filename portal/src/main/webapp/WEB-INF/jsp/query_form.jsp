@@ -35,7 +35,7 @@
 <%@ page import="java.util.HashSet" %>
 <%@ page import="java.io.IOException" %>
 <%@ page import="java.net.URLEncoder" %>
-<%@ page import="org.apache.commons.lang.*" %>
+<%@ page import="org.apache.commons.lang3.*" %>
 <%@ page import="org.mskcc.cbio.portal.util.GlobalProperties" %>
 <%@ page import="java.util.ArrayList" %>
 <%@ page import="java.util.Map" %>
@@ -106,11 +106,11 @@
 //
 //    // put gene string into a form that javascript can swallow
 //    String genes = (String) request.getAttribute(QueryBuilder.RAW_GENE_STR);
-//    genes = StringEscapeUtils.escapeJavaScript(genes);
+//    genes = StringEscapeUtils.escapeEcmaScript(genes);
 //
 //    // get cases
 //    String cases = (String) request.getAttribute(QueryBuilder.SET_OF_CASE_IDS);
-//    cases = StringEscapeUtils.escapeJavaScript(cases);
+//    cases = StringEscapeUtils.escapeEcmaScript(cases);
 //
 //    String caseSetId = (String) request.getAttribute(QueryBuilder.CASE_SET_ID);
 //    String caseIdsKey = (String) request.getAttribute(QueryBuilder.CASE_IDS_KEY);

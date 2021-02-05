@@ -6,8 +6,7 @@ import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.apache.commons.lang.ArrayUtils;
-import org.apache.commons.lang.exception.NestableRuntimeException;
+import org.apache.commons.lang3.ArrayUtils;
 
 public class TransactionalScripts implements Runnable {
 	
@@ -45,7 +44,7 @@ public class TransactionalScripts implements Runnable {
 			try {
 				scriptClass = getClass().getClassLoader().loadClass(className);
 			} catch (ClassNotFoundException e) {
-				throw new NestableRuntimeException("Failed to load script class: " + className, e);
+				throw new RuntimeException("Failed to load script class: " + className, e);
 			}
 			
 			try {
@@ -61,19 +60,19 @@ public class TransactionalScripts implements Runnable {
 				newInstance.run();				
 			} catch (InstantiationException e) {
 				e.printStackTrace(System.err);
-				throw new NestableRuntimeException("Can't find instantiate runner for: " + className, e);
+				throw new RuntimeException("Can't find instantiate runner for: " + className, e);
 			} catch (SecurityException e) {
 				e.printStackTrace(System.err);
-				throw new NestableRuntimeException("Can't access run() method in: " + className, e);
+				throw new RuntimeException("Can't access run() method in: " + className, e);
 			} catch (IllegalAccessException e) {
 				e.printStackTrace(System.err);
-				throw new NestableRuntimeException("Invalid access to run() method in: " + className, e);
+				throw new RuntimeException("Invalid access to run() method in: " + className, e);
 			} catch (IllegalArgumentException e) {
 				e.printStackTrace(System.err);
-				throw new NestableRuntimeException("Invalid arguments for run() method in: " + className, e);
+				throw new RuntimeException("Invalid arguments for run() method in: " + className, e);
 			} catch (InvocationTargetException e) {
 				e.printStackTrace(System.err);
-				throw new NestableRuntimeException("Can't call run() method in: " + className, e);
+				throw new RuntimeException("Can't call run() method in: " + className, e);
 			}
 		}
 	}

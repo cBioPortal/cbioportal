@@ -42,7 +42,7 @@ import org.apache.commons.httpclient.HttpException;
 import org.apache.commons.httpclient.HttpStatus;
 import org.apache.commons.httpclient.MultiThreadedHttpConnectionManager;
 import org.apache.commons.httpclient.methods.GetMethod;
-import org.apache.commons.lang.StringEscapeUtils;
+import org.apache.commons.text.StringEscapeUtils;
 import org.mskcc.cbio.portal.dao.*;
 import org.mskcc.cbio.portal.model.CanonicalGene;
 import org.mskcc.cbio.portal.model.Drug;
@@ -582,7 +582,7 @@ public final class NetworkIO {
             to.append("   <data key=\"");
             to.append(attr);
             to.append("\">");
-            to.append(StringEscapeUtils.escapeXml(value.toString()));
+            to.append(StringEscapeUtils.escapeXml11(value.toString()));
             to.append("</data>\n");
 
             String type = getAttrType(value);

@@ -50,7 +50,7 @@
                 <%-- loop over the configured query suggestions --%>
                 <ul class="dropdown-menu dropdown-menu-right" role="menu" title="Select from dropdown"><c:forEach var="query" items="${exampleStudyQueries}">
                     <%-- escape \ to \\ and " to \" inside the JS string --%>
-                    <c:set var="escapedJsString"><s:escapeBody javaScriptEscape="true"><c:out value="${query}" escapeXml="false" /></s:escapeBody></c:set>
+                    <c:set var="escapedJsString"><s:escapeBody javaScriptEscape="true"><c:out value="${query}" escapeXml11="false" /></s:escapeBody></c:set>
                     <li role="presentation"><a role="menuitem" tabindex="-1" href='javascript:void(0)' onclick='$("#jstree_search_input").val("${escapedJsString}");$("#jstree_search_input").trigger("input");'><c:out value="${query}" /></a></li></c:forEach>
                 </ul>
             </div>

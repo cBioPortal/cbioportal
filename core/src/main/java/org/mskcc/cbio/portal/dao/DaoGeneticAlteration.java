@@ -43,7 +43,7 @@ import java.util.Map.Entry;
 
 import com.fasterxml.jackson.databind.node.ObjectNode;
 
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 
 /**
  * Data Access Object for the Genetic Alteration Table.

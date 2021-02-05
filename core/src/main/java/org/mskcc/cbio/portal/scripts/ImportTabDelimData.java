@@ -39,7 +39,7 @@ import java.util.regex.Pattern;
 import java.util.stream.IntStream;
 import java.util.stream.Stream;
 
-import org.apache.commons.lang.ArrayUtils;
+import org.apache.commons.lang3.ArrayUtils;
 import org.cbioportal.model.EntityType;
 import org.cbioportal.model.GeneticEntity;
 import org.cbioportal.model.meta.GenericAssayMeta;

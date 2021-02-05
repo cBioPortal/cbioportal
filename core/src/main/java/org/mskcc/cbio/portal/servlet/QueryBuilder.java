@@ -36,7 +36,7 @@ import org.mskcc.cbio.portal.dao.*;
 import org.mskcc.cbio.portal.util.*;
 import org.mskcc.cbio.portal.model.*;
 import org.mskcc.cbio.portal.web_api.*;
-import org.apache.commons.lang.*;
+import org.apache.commons.lang3.*;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.mskcc.cbio.portal.model.virtualstudy.VirtualStudy;

@@ -72,7 +72,7 @@ name='<%= QueryBuilder.GENE_LIST %>' title='Enter Gene Symbols or Gene Aliases'>
 	    String geneListWithSemis =
 			    org.mskcc.cbio.portal.oncoPrintSpecLanguage.Utilities.appendSemis(localGeneList);
 	    // this is for xss security
-	    geneListWithSemis = StringEscapeUtils.escapeJavaScript(geneListWithSemis);
+	    geneListWithSemis = StringEscapeUtils.escapeEcmaScript(geneListWithSemis);
 	    // ...but we want to keep newlines, and slashes so unescape them
 	    geneListWithSemis = geneListWithSemis.replaceAll("\\\\n", "\n").replaceAll("\\\\/", "/");
         out.print(geneListWithSemis);

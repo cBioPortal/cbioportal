@@ -32,10 +32,10 @@
 
 package org.mskcc.cbio.portal.dao;
 
-import org.apache.commons.collections.MapIterator;
-import org.apache.commons.collections.keyvalue.MultiKey;
-import org.apache.commons.collections.map.MultiKeyMap;
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.collections4.MapIterator;
+import org.apache.commons.collections4.keyvalue.MultiKey;
+import org.apache.commons.collections4.map.MultiKeyMap;
+import org.apache.commons.lang3.StringUtils;
 import org.mskcc.cbio.portal.model.CancerStudy;
 import org.mskcc.cbio.portal.model.CanonicalGene;
 import org.mskcc.cbio.portal.model.ClinicalAttribute;
@@ -311,7 +311,7 @@ public final class DaoMutation {
             pstmt = con.prepareStatement(
                     "SELECT * FROM mutation " +
                     "INNER JOIN mutation_event ON mutation.MUTATION_EVENT_ID=mutation_event.MUTATION_EVENT_ID " +
-                    "WHERE SAMPLE_ID IN ('" + org.apache.commons.lang.StringUtils.join(targetSampleList, "','") +
+                    "WHERE SAMPLE_ID IN ('" + org.apache.commons.lang3.StringUtils.join(targetSampleList, "','") +
                     "') AND GENETIC_PROFILE_ID = ? AND mutation.ENTREZ_GENE_ID = ?");
             pstmt.setInt(1, geneticProfileId);
             pstmt.setLong(2, entrezGeneId);
@@ -344,9 +344,9 @@ public final class DaoMutation {
                     "SELECT SAMPLE_ID, ENTREZ_GENE_ID FROM mutation " +
                     //"INNER JOIN mutation_event ON mutation.MUTATION_EVENT_ID=mutation_event.MUTATION_EVENT_ID " +
                     "WHERE SAMPLE_ID IN ('" +
-                    org.apache.commons.lang.StringUtils.join(targetSampleList, "','") +
+                    org.apache.commons.lang3.StringUtils.join(targetSampleList, "','") +
                     "') AND GENETIC_PROFILE_ID = ? AND mutation.ENTREZ_GENE_ID IN ('" +
-                    org.apache.commons.lang.StringUtils.join(entrezGeneIds, "','") + "')");
+                    org.apache.commons.lang3.StringUtils.join(entrezGeneIds, "','") + "')");
             pstmt.setInt(1, geneticProfileId);
             rs = pstmt.executeQuery();
             while (rs.next()) {

@@ -33,7 +33,7 @@
 package org.mskcc.cbio.portal.dao;
 
 import org.mskcc.cbio.portal.model.*;
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 
 import java.sql.*;
 import java.util.*;

@@ -10,7 +10,7 @@ import java.util.*;
 import java.util.regex.*;
 import java.util.stream.Collectors;
 
-import org.apache.commons.collections.map.MultiKeyMap;
+import org.apache.commons.collections4.map.MultiKeyMap;
 import org.cbioportal.model.ResourceType;
 
 public class ImportResourceData extends ConsoleRunnable {

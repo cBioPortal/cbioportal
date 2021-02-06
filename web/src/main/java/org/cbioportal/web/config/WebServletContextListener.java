@@ -1,6 +1,6 @@
 package org.cbioportal.web.config;
 
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.InitializingBean;
 
 import javax.servlet.ServletContextEvent;

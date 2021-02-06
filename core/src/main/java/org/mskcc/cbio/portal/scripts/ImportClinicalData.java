@@ -41,7 +41,7 @@ import java.io.*;
 import joptsimple.*;
 import java.util.*;
 import java.util.regex.*;
-import org.apache.commons.collections.map.MultiKeyMap;
+import org.apache.commons.collections4.map.MultiKeyMap;
 
 public class ImportClinicalData extends ConsoleRunnable {
 

@@ -32,7 +32,7 @@
 
 package org.mskcc.cbio.portal.servlet;
 
-import org.apache.commons.lang.StringEscapeUtils;
+import org.apache.commons.text.StringEscapeUtils;
 import org.owasp.validator.html.Policy;
 import org.owasp.validator.html.AntiSamy;
 import org.owasp.validator.html.PolicyException;
@@ -165,7 +165,7 @@ public class ServletXssUtil {
 
 		if (dirty != null)
 		{
-			clean = StringEscapeUtils.escapeJavaScript(dirty).replaceAll("(?i)javascript", "");
+			clean = StringEscapeUtils.escapeEcmaScript(dirty).replaceAll("(?i)javascript", "");
 		}
 
 		return clean;

@@ -30,7 +30,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
-import org.apache.commons.lang.math.NumberUtils;
+import org.apache.commons.lang3.math.NumberUtils;
 import org.apache.commons.math3.stat.correlation.SpearmansCorrelation;
 import org.cbioportal.model.CancerStudy;
 import org.cbioportal.model.Gene;

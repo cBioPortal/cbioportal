@@ -35,7 +35,7 @@ package org.mskcc.cbio.portal.model;
 import java.io.Serializable;
 import java.util.Properties;
 
-import org.apache.commons.lang.builder.ToStringBuilder;
+import org.apache.commons.lang3.builder.ToStringBuilder;
 
 /**
  * Class for genetic profile

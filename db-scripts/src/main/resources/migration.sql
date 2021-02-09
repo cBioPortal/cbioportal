@@ -939,6 +939,9 @@ UPDATE `info` SET `DB_SCHEMA_VERSION`="2.12.8";
 
 ##version: 2.12.9
 -- 2.12.9 for all changes
+ALTER TABLE `sample`
+DROP FOREIGN KEY `sample_ibfk_2` ;
+
 ALTER TABLE `sample` DROP COLUMN `TYPE_OF_CANCER_ID`;
 UPDATE `info` SET `DB_SCHEMA_VERSION`="2.12.9";
 

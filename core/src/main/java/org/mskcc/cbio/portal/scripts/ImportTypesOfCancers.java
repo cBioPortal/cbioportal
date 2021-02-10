@@ -90,9 +90,9 @@ public class ImportTypesOfCancers extends ConsoleRunnable {
             else {
 	            aTypeOfCancer.setTypeOfCancerId(typeOfCancerId.toLowerCase());
 	            aTypeOfCancer.setName(tokens[1].trim());
-	            aTypeOfCancer.setDedicatedColor(tokens[3].trim());
+	            aTypeOfCancer.setDedicatedColor(tokens[2].trim());
 	            aTypeOfCancer.setShortName(typeOfCancerId);
-	            aTypeOfCancer.setParentTypeOfCancerId(tokens[4].trim().toLowerCase());
+	            aTypeOfCancer.setParentTypeOfCancerId(tokens[3].trim().toLowerCase());
 	            DaoTypeOfCancer.addTypeOfCancer(aTypeOfCancer);
 	            numNewCancerTypes++;
             }

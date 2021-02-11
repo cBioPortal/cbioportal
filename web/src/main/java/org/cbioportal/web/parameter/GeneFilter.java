@@ -7,7 +7,7 @@ import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 import javax.validation.constraints.AssertTrue;
 
-import org.apache.commons.collections.CollectionUtils;
+import org.apache.commons.collections4.CollectionUtils;
 import org.cbioportal.model.CNA;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 

@@ -18,58 +18,35 @@
     <dependency>
       <groupId>org.springframework.security</groupId>
       <artifactId>spring-security-taglibs</artifactId>
-      <version>${spring.security.version}</version>
-      <scope>runtime</scope>
     </dependency>
     <dependency>
       <groupId>org.springframework.security.extensions</groupId>
       <artifactId>spring-security-saml2-core</artifactId>
-      <version>${spring.security.saml.version}</version>
-      <scope>runtime</scope>
     </dependency>
     <!-- jstl -->
     <dependency>
       <groupId>jstl</groupId>
       <artifactId>jstl</artifactId>
-      <version>1.2</version>
-      <scope>runtime</scope>
     </dependency>
     <!-- core portal module -->
     <dependency>
       <groupId>org.mskcc.cbio</groupId>
       <artifactId>core</artifactId>
-      <version>${project.version}</version>
-      <scope>runtime</scope>
     </dependency>
     <!-- web portal module -->
     <dependency>
       <groupId>org.mskcc.cbio</groupId>
       <artifactId>web</artifactId>
-      <version>${project.version}</version>
-      <scope>runtime</scope>
     </dependency>
     <dependency>
       <groupId>org.apache.tomcat</groupId>
       <artifactId>tomcat-catalina</artifactId>
-      <version>7.0.68</version>
-      <scope>
-          <!--tomcat.catalina.scope is defined in master module-->
-          ${tomcat.catalina.scope}
-      </scope>
     </dependency>
     <dependency>
-    <groupId>com.fasterxml.jackson.datatype</groupId>
-    <artifactId>jackson-datatype-jdk8</artifactId>
-    <version>${jackson.version}</version>
-</dependency>
+      <groupId>com.fasterxml.jackson.datatype</groupId>
+      <artifactId>jackson-datatype-jdk8</artifactId>
+    </dependency>
   </dependencies>
-
-  <repositories>
-    <repository>
-      <id>jitpack.io</id>
-      <url>https://jitpack.io</url>
-    </repository>
-  </repositories>
 
   <build>
     <!-- final name of the app -->
@@ -77,7 +54,6 @@
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-dependency-plugin</artifactId>
-        <version>2.3</version>
         <executions>
           <execution>
             <phase>package</phase>
@@ -89,7 +65,7 @@
                 <artifactItem>
                   <groupId>com.heroku</groupId>
                   <artifactId>webapp-runner</artifactId>
-                  <version>8.5.61.0</version>
+                  <version>${webapp-runner.version}</version>
                   <destFileName>webapp-runner.jar</destFileName>
                 </artifactItem>
               </artifactItems>
@@ -122,7 +98,6 @@
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-war-plugin</artifactId>
-        <version>2.2</version>
         <configuration>
           <packagingExcludes>${exclude.redisson}</packagingExcludes>
           <warName>${final.war.name}</warName>
@@ -159,9 +134,9 @@
               <targetPath>reactapp</targetPath>
             </resource>
             <resource>
-                <directory>${project.parent.basedir}/db-scripts/src/main/resources</directory>
-                <targetPath>db-scripts</targetPath>
-                <filtering>true</filtering>
+              <directory>${project.parent.basedir}/db-scripts/src/main/resources</directory>
+              <targetPath>db-scripts</targetPath>
+              <filtering>true</filtering>
             </resource>
           </webResources>
         </configuration>
@@ -170,7 +145,6 @@
       <plugin>
         <groupId>org.codehaus.mojo</groupId>
         <artifactId>tomcat-maven-plugin</artifactId>
-        <version>1.1</version>
         <configuration>
           <server>localhost</server>
           <url>http://localhost:8080/manager/text</url>
@@ -212,7 +186,6 @@
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-invoker-plugin</artifactId>
-        <version>3.2.1</version>
         <configuration>
           <streamLogs>true</streamLogs>
           <projectsDirectory>src/integration-tests</projectsDirectory>
@@ -227,13 +200,13 @@
             <goal>verify</goal>
           </goals>
           <environmentVariables>
-              <CBIO_WAR_LOCATION>${project.build.directory}/cbioportal.war</CBIO_WAR_LOCATION>
-              <!-- We neither create nor populate the database here. Instead we rely on DB created for the integration tests in the core module. -->
-              <CBIO_TEST_DB_USR>${db.test.username}</CBIO_TEST_DB_USR>
-              <CBIO_TEST_DB_PSW>${db.test.password}</CBIO_TEST_DB_PSW>
-              <CBIO_TEST_DB_HOST>127.0.0.1:3306</CBIO_TEST_DB_HOST>
-              <CBIO_TEST_DB_NAME>cgds_test</CBIO_TEST_DB_NAME>
-              <CBIO_TEST_DB_CONNECTION_STRING>${db.test.url}</CBIO_TEST_DB_CONNECTION_STRING>
+            <CBIO_WAR_LOCATION>${project.build.directory}/cbioportal.war</CBIO_WAR_LOCATION>
+            <!-- We neither create nor populate the database here. Instead we rely on DB created for the integration tests in the core module. -->
+            <CBIO_TEST_DB_USR>${db.test.username}</CBIO_TEST_DB_USR>
+            <CBIO_TEST_DB_PSW>${db.test.password}</CBIO_TEST_DB_PSW>
+            <CBIO_TEST_DB_HOST>127.0.0.1:3306</CBIO_TEST_DB_HOST>
+            <CBIO_TEST_DB_NAME>cgds_test</CBIO_TEST_DB_NAME>
+            <CBIO_TEST_DB_CONNECTION_STRING>${db.test.url}</CBIO_TEST_DB_CONNECTION_STRING>
           </environmentVariables>
         </configuration>
         <executions>
@@ -249,8 +222,8 @@
     </plugins>
 
     <filters>
-        <filter>../src/main/resources/portal.properties</filter>
-        <filter>../src/main/resources/maven.properties</filter>
+      <filter>../src/main/resources/portal.properties</filter>
+      <filter>../src/main/resources/maven.properties</filter>
     </filters>
 
     <!-- prevent some resources from getting into war -->
@@ -277,14 +250,14 @@
         <directory>src/main/webapp/WEB-INF</directory>
         <filtering>true</filtering>
         <includes>
-            <include>**/web.xml</include>
+          <include>**/web.xml</include>
         </includes>
       </resource>
       <resource>
         <directory>src/main/webapp/WEB-INF</directory>
         <filtering>false</filtering>
         <excludes>
-            <exclude>**/web.xml</exclude>
+          <exclude>**/web.xml</exclude>
         </excludes>
       </resource>
     </resources>
@@ -304,7 +277,6 @@
         <plugins>
           <plugin>
             <artifactId>maven-clean-plugin</artifactId>
-            <version>3.1.0</version>
             <executions>
               <execution>
                 <id>clean-jar-artifacts</id>

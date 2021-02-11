@@ -153,7 +153,7 @@ window.loadReactApp({ defaultRoute: 'results' });
 
                         // this is required to prevent XSS attacks
                         currentValue = xssUtil.getCleanInput(currentValue);
-                        //currentValue = StringEscapeUtils.escapeJavaScript(currentValue);
+                        //currentValue = StringEscapeUtils.escapeEcmaScript(currentValue);
                         //currentValue = StringEscapeUtils.escapeHtml(currentValue);
                         currentValue = URLEncoder.encode(currentValue);
 

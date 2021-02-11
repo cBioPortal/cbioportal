@@ -2,7 +2,7 @@
 <%@ page import="org.mskcc.cbio.portal.util.XssRequestWrapper" %>
 <%@ page import="java.util.HashSet" %>
 <%@ page import="org.mskcc.cbio.portal.servlet.QueryBuilder" %>
-<%@ page import="org.apache.commons.lang.StringUtils" %>
+<%@ page import="org.apache.commons.lang3.StringUtils" %>
 <%
     //Security Instance
     ServletXssUtil xssUtil = ServletXssUtil.getInstance();

@@ -1,4 +1,4 @@
-<%@ page import="org.apache.commons.lang.StringUtils" %>
+<%@ page import="org.apache.commons.lang3.StringUtils" %>
 <%@ page import="org.mskcc.cbio.portal.servlet.CheckDarwinAccessServlet" %>
 <%@ page import="org.mskcc.cbio.portal.util.GlobalProperties" %>
 <%@ page import="org.json.simple.JSONArray" %>

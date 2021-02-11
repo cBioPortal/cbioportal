@@ -3,9 +3,9 @@ package org.cbioportal.web;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
-import org.apache.commons.collections.CollectionUtils;
-import org.apache.commons.collections.map.MultiKeyMap;
-import org.apache.commons.lang.math.NumberUtils;
+import org.apache.commons.collections4.CollectionUtils;
+import org.apache.commons.collections4.map.MultiKeyMap;
+import org.apache.commons.lang3.math.NumberUtils;
 import org.cbioportal.model.AlterationCountByGene;
 import org.cbioportal.model.CNA;
 import org.cbioportal.model.CaseListDataCount;
@@ -373,7 +373,7 @@ public class StudyViewController {
             List<String> studyIds = new ArrayList<>();
             List<String> sampleIds = new ArrayList<>();
             studyViewFilterUtil.extractStudyAndSampleIds(filteredSampleIdentifiers, studyIds, sampleIds);
-            List<String> profileIdPerSample = molecularProfileService.getFirstDiscreteCNAProfileIds(studyIds, sampleIds);
+            List<String> profileIdPerSample = molecularProfileService.getFirstMutationProfileIds(studyIds, sampleIds);
             List<MolecularProfileCaseIdentifier> caseIdentifiers = new ArrayList<>();
             for (int i = 0; i < profileIdPerSample.size(); i++) {
                 caseIdentifiers.add(new MolecularProfileCaseIdentifier(sampleIds.get(i), profileIdPerSample.get(i)));

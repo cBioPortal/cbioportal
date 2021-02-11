@@ -37,7 +37,7 @@
 <%@ page import="java.util.zip.GZIPInputStream" %>
 <%@ page import="org.mskcc.cbio.portal.util.GlobalProperties" %>
 <%@ page import="org.mskcc.cbio.portal.util.FileUploadRequestWrapper" %>
-<%@ page import="org.apache.commons.lang.StringEscapeUtils" %>
+<%@ page import="org.apache.commons.text.StringEscapeUtils" %>
 <%@ page import="org.apache.commons.fileupload.FileItem" %>
 <%@ page import="org.apache.commons.codec.binary.Base64" %>
 <%@ page import="org.mskcc.cbio.portal.util.XssRequestWrapper" %>
@@ -168,12 +168,12 @@ if (format!=null) {
 }
 
 if (graphml!=null&&!graphml.isEmpty()) {
-    graphml = StringEscapeUtils.escapeJavaScript(graphml);
+    graphml = StringEscapeUtils.escapeEcmaScript(graphml);
     boolean showProfileData = "true".equalsIgnoreCase(request.getParameter("show_profile_data"));
 
     String msgs = request.getParameter("msg");
 //    if (msgs!=null) {
-//        msgs = StringEscapeUtils.escapeJavaScript(msgs);
+//        msgs = StringEscapeUtils.escapeEcmaScript(msgs);
 //    }
 %>
 

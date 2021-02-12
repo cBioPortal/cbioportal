@@ -936,3 +936,7 @@ CREATE INDEX idx_cna_type ON cna_event (`ALTERATION`);
 CREATE INDEX idx_driver_filter ON alteration_driver_annotation (`DRIVER_FILTER`);
 CREATE INDEX idx_driver_tiers_filter ON alteration_driver_annotation (`DRIVER_TIERS_FILTER`);
 UPDATE `info` SET `DB_SCHEMA_VERSION`="2.12.8";
+
+-- WARNING: this will drop column SHORT_NAME from table CANCER_STUDY
+ ALTER TABLE `CANCER_STUDY` DROP COLUMN `SHORT_NAME`;
+

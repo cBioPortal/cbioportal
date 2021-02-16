@@ -45,6 +45,7 @@
       <url>https://jitpack.io</url>
     </repository>
   </repositories>
+
   <pluginRepositories>
     <pluginRepository>
       <id>jitpack.io</id>
@@ -232,7 +233,6 @@
     </profile>
     <profile>
       <id>heroku</id>
-
       <build>
         <plugins>
           <!-- copy files in heroku/ to root-->
@@ -299,31 +299,26 @@
     <jackson.version>2.12.1</jackson.version>
     <mysql-connector.version>5.1.48</mysql-connector.version>
     <webapp-runner.version>8.5.61.0</webapp-runner.version>
-
+    <slf4j.version>1.7.30</slf4j.version>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
     <bundle.symbolicName.prefix>org.mskcc</bundle.symbolicName.prefix>
     <bundle.namespace>org.mskcc.mondrian</bundle.namespace>
     <timestamp>${maven.build.timestamp}</timestamp>
     <maven.build.timestamp.format>yyyyMMdd-HHmm</maven.build.timestamp.format>
-
     <sonar.projectKey>cBioPortal_cbioportal</sonar.projectKey>
     <sonar.moduleKey>${project.groupId}:${project.artifactId}</sonar.moduleKey>
     <sonar.organization>cbioportal</sonar.organization>
     <sonar.host.url>https://sonarcloud.io</sonar.host.url>
-
     <final.war.name>cbioportal</final.war.name>
-
     <db.test.driver>com.mysql.jdbc.Driver</db.test.driver>
     <!-- For MySQL < 5.5 change 'default_storage_engine' to 'storage_engine' -->
     <db.test.url>jdbc:mysql://127.0.0.1:3306/cgds_test?sessionVariables=default_storage_engine=InnoDB</db.test.url>
     <db.test.username>cbio_user</db.test.username>
     <db.test.password>somepassword</db.test.password>
-
     <!--For tomcat instances, the scope to tomcat catalina lib should be provided. this prop is used in portal module.-->
     <tomcat.catalina.scope>provided</tomcat.catalina.scope>
     <tomcat.session.timeout>720</tomcat.session.timeout>
-
     <!-- THIS SHOULD BE KEPT IN SYNC TO VERSION IN CGDS.SQL -->
     <db.version>2.12.8</db.version>
   </properties>
@@ -343,7 +338,6 @@
   <dependencyManagement>
     <dependencies>
       <!-- modules -->
-
       <dependency>
         <groupId>org.mskcc.cbio</groupId>
         <artifactId>portal</artifactId>
@@ -412,7 +406,7 @@
       <dependency>
         <groupId>com.github.cbioportal</groupId>
         <artifactId>session-service</artifactId>
-        <version>9dd8da2dd69dc3d78938275dd35f95d96c5d2d9c</version>
+        <version>15a6a0005f</version>
         <exclusions>
           <exclusion>
             <groupId>org.springframework.boot</groupId>
@@ -444,7 +438,32 @@
           </exclusion>
         </exclusions>
       </dependency>
-
+      <!-- slf4j -->
+      <dependency>
+        <groupId>org.slf4j</groupId>
+        <artifactId>slf4j-log4j12</artifactId>
+        <version>${slf4j.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>org.slf4j</groupId>
+        <artifactId>slf4j-api</artifactId>
+        <version>${slf4j.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>org.apache.logging.log4j</groupId>
+        <artifactId>log4j-api</artifactId>
+        <version>2.5</version>
+      </dependency>
+      <dependency>
+        <groupId>org.apache.logging.log4j</groupId>
+        <artifactId>log4j-core</artifactId>
+        <version>2.5</version>
+      </dependency>
+      <dependency>
+        <groupId>log4j</groupId>
+        <artifactId>apache-log4j-extras</artifactId>
+        <version>1.2.17</version>
+      </dependency>
       <!-- external dependencies -->
       <!-- mysql -->
       <dependency>
@@ -862,15 +881,12 @@
         <version>1.2</version>
         <scope>runtime</scope>
       </dependency>
-
       <!-- other deps -->
       <dependency>
         <groupId>org.apache.tomcat</groupId>
         <artifactId>tomcat-catalina</artifactId>
         <version>7.0.68</version>
-        <scope>
-          ${tomcat.catalina.scope}
-        </scope>
+        <scope>${tomcat.catalina.scope}</scope>
       </dependency>
       <dependency>
         <groupId>org.osgi</groupId>
@@ -1111,7 +1127,7 @@
         <plugin>
           <groupId>org.apache.maven.plugins</groupId>
           <artifactId>maven-compiler-plugin</artifactId>
-          <version>3.5.1</version>
+          <version>3.6.1</version>
           <configuration>
             <source>1.8</source>
             <target>1.8</target>

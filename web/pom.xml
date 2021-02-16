@@ -19,6 +19,11 @@
       <artifactId>service</artifactId>
     </dependency>
     <dependency>
+      <groupId>org.mskcc.cbio</groupId>
+      <artifactId>model</artifactId>
+    </dependency>
+
+    <dependency>
       <groupId>cglib</groupId>
       <artifactId>cglib</artifactId>
     </dependency>
@@ -84,20 +89,12 @@
       <artifactId>datumbox-framework-lib</artifactId>
     </dependency>
     <dependency>
-      <groupId>com.github.cbioportal</groupId>
-      <artifactId>session-service</artifactId>
-    </dependency>
-    <dependency>
       <groupId>com.fasterxml.jackson.core</groupId>
       <artifactId>jackson-databind</artifactId>
     </dependency>
     <dependency>
       <groupId>org.mockito</groupId>
       <artifactId>mockito-core</artifactId>
-    </dependency>
-    <dependency>
-      <groupId>org.slf4j</groupId>
-      <artifactId>slf4j-log4j12</artifactId>
     </dependency>
     <dependency>
       <groupId>org.springframework.security</groupId>

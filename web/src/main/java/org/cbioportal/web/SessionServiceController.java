@@ -1,14 +1,18 @@
 package org.cbioportal.web;
 
+import com.fasterxml.jackson.annotation.JsonInclude.Include;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.DeserializationFeature;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import java.io.IOException;
 import java.util.*;
-
 import javax.servlet.http.HttpServletResponse;
 import javax.validation.constraints.Size;
-
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.cbioportal.session_service.domain.Session;
+import org.cbioportal.session_service.domain.SessionType;
 import org.cbioportal.web.parameter.CustomDataSession;
 import org.cbioportal.web.parameter.PageSettings;
 import org.cbioportal.web.parameter.PageSettingsData;
@@ -18,8 +22,6 @@ import org.cbioportal.web.parameter.StudyPageSettings;
 import org.cbioportal.web.parameter.VirtualStudy;
 import org.cbioportal.web.parameter.VirtualStudyData;
 import org.cbioportal.web.util.SessionServiceRequestHandler;
-import org.cbioportal.session_service.domain.Session;
-import org.cbioportal.session_service.domain.SessionType;
 import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
 import org.json.simple.parser.ParseException;
@@ -40,11 +42,6 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.client.RestTemplate;
-
-import com.fasterxml.jackson.annotation.JsonInclude.Include;
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.DeserializationFeature;
-import com.fasterxml.jackson.databind.ObjectMapper;
 
 @Controller
 @RequestMapping("/session")

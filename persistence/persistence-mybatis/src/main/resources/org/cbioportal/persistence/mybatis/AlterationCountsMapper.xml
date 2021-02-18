@@ -8,63 +8,16 @@
             ENTREZ_GENE_ID AS entrezGeneId,
             HUGO_GENE_SYMBOL AS hugoGeneSymbol,
             COUNT(*) AS totalCount,
-            COUNT(DISTINCT(SAMPLE_ID)) AS numberOfAlteredCases
+            COUNT(DISTINCT(CASE_ID)) AS numberOfAlteredCases
         FROM
         (
-            SELECT
-                mutation.SAMPLE_ID,
-                mutation.ENTREZ_GENE_ID,
-                gene.HUGO_GENE_SYMBOL,
-                mutation.GENETIC_PROFILE_ID,
-                mutation_event.MUTATION_TYPE
-            FROM mutation_event
-            INNER JOIN mutation ON mutation_event.MUTATION_EVENT_ID = mutation.MUTATION_EVENT_ID
-            INNER JOIN gene ON mutation_event.ENTREZ_GENE_ID = gene.ENTREZ_GENE_ID
-            <where>
-                <choose>
-                    <when test="mutationTypes.hasNone()">NULL</when>
-                    <when test="!mutationTypes.hasAll()">
-                        LOWER(mutation_event.MUTATION_TYPE) IN
-                        <foreach item="type" collection="mutationTypes" open="(" separator="," close=")">
-                            LOWER(#{type})
-                        </foreach>
-                    </when>
-                    <!--
-                    BEWARE: at the moment fusions are in the mutations table with MUTATION_TYPE 'Fusion'
-                    this results in undesired interaction of fusion vs mutation queries and the ability to 
-                    pass a list of mutation types (that can include fusion events).
-                    Now, fusions can be only filtered out when there is no limit on the mutation types
-                    ('mutationTypes.hasAll()'). This code should be changed when fusions move
-                    to the strucural variants table.
-                    -->
-                    <when test="mutationTypes.hasAll()">
-                        <include refid="whereSearchFusions"/>
-                    </when>
-                </choose>
-                <include refid="whereInternalSampleIdsMutation"/>
-            </where>
+            <include refid="mutationCounts">
+                <property name="case_type" value="SAMPLE_ID"/>
+            </include>
             UNION ALL
-            SELECT
-                sample_cna_event.SAMPLE_ID,
-                cna_event.ENTREZ_GENE_ID,
-                gene.HUGO_GENE_SYMBOL,
-                sample_cna_event.GENETIC_PROFILE_ID,
-                CAST(cna_event.ALTERATION AS CHAR(3))
-            FROM cna_event
-            INNER JOIN sample_cna_event ON cna_event.CNA_EVENT_ID = sample_cna_event.CNA_EVENT_ID
-            INNER JOIN gene ON cna_event.ENTREZ_GENE_ID = gene.ENTREZ_GENE_ID
-            <where>
-                <choose>
-                    <when test="cnaTypes.hasNone()">NULL</when>
-                    <when test="!cnaTypes.hasAll()">
-                        cna_event.ALTERATION IN
-                        <foreach item="type" collection="cnaTypes" open="(" separator="," close=")">
-                            #{type}
-                        </foreach>
-                    </when>
-                </choose>
-                <include refid="whereInternalSampleIdsCna"/>
-            </where>
+            <include refid="cnaCounts">
+                <property name="case_type" value="SAMPLE_ID"/>
+            </include>
         ) as JoinedTable
         <where>
             <include refid="whereGene"/>
@@ -77,114 +30,21 @@
             ENTREZ_GENE_ID AS entrezGeneId,
             HUGO_GENE_SYMBOL AS hugoGeneSymbol,
             COUNT(*) AS totalCount,
-            COUNT(DISTINCT(PATIENT_ID)) AS numberOfAlteredCases
+            COUNT(DISTINCT(CASE_ID)) AS numberOfAlteredCases
         FROM
         (
-            SELECT
-                patient.STABLE_ID as PATIENT_ID,
-                mutation.ENTREZ_GENE_ID,
-                gene.HUGO_GENE_SYMBOL,
-                mutation_event.MUTATION_TYPE as alteration,
-                genetic_profile.STABLE_ID as GENETIC_PROFILE_STABLE_ID
-            FROM mutation_event
-            INNER JOIN mutation ON mutation_event.MUTATION_EVENT_ID = mutation.MUTATION_EVENT_ID
-            INNER JOIN gene ON mutation_event.ENTREZ_GENE_ID = gene.ENTREZ_GENE_ID
-            INNER JOIN sample_profile ON sample_profile.SAMPLE_ID = mutation.SAMPLE_ID
-            AND sample_profile.GENETIC_PROFILE_ID = mutation.GENETIC_PROFILE_ID
-            INNER JOIN genetic_profile on sample_profile.GENETIC_PROFILE_ID = genetic_profile.GENETIC_PROFILE_ID
-            INNER JOIN sample ON sample_profile.SAMPLE_ID = sample.INTERNAL_ID
-            INNER JOIN patient ON sample.PATIENT_ID = patient.INTERNAL_ID
-            <where>
-                <choose>
-                    <when test="mutationTypes.hasNone()">NULL</when>
-                    <when test="!mutationTypes.hasAll()">
-                        LOWER(mutation_event.MUTATION_TYPE) IN
-                        <foreach item="type" collection="mutationTypes" open="(" separator="," close=")">
-                            LOWER(#{type})
-                        </foreach>
-                    </when>
-                    <!--
-                    BEWARE: at the moment fusions are in the mutations table with MUTATION_TYPE 'Fusion'
-                    this results in undesired interaction of fusion vs mutation queries and the ability to 
-                    pass a list of mutation types (that can include fusion events).
-                    Now, fusions can be only filtered out when there is no limit on the mutation types
-                    ('mutationTypes.hasAll()'). This code should be changed when fusions move
-                    to the strucural variants table.
-                    -->
-                    <when test="mutationTypes.hasAll()">
-                        <include refid="whereSearchFusions"/>
-                    </when>
-                </choose>
-                <include refid="whereInternalPatientIds"/>
-            </where>
+            <include refid="mutationCounts">
+                <property name="case_type" value="PATIENT_ID"/>
+            </include>
             UNION ALL
-            SELECT
-                patient.STABLE_ID as PATIENT_ID,
-                cna_event.ENTREZ_GENE_ID , gene.HUGO_GENE_SYMBOL,
-                CAST(cna_event.ALTERATION AS CHAR(3)),
-                genetic_profile.STABLE_ID as GENETIC_PROFILE_STABLE_ID
-            FROM cna_event
-            INNER JOIN sample_cna_event ON cna_event.CNA_EVENT_ID = sample_cna_event.CNA_EVENT_ID
-            INNER JOIN gene ON cna_event.ENTREZ_GENE_ID = gene.ENTREZ_GENE_ID
-            INNER JOIN genetic_profile on sample_cna_event.GENETIC_PROFILE_ID = genetic_profile.GENETIC_PROFILE_ID
-            INNER JOIN sample ON sample_cna_event.SAMPLE_ID = sample.INTERNAL_ID
-            INNER JOIN patient ON sample.PATIENT_ID = patient.INTERNAL_ID
-            <where>
-                <choose>
-                    <when test="cnaTypes.hasNone()">NULL</when>
-                    <when test="!cnaTypes.hasAll()">
-                        cna_event.ALTERATION IN
-                        <foreach item="type" collection="cnaTypes" open="(" separator="," close=")">
-                            #{type}
-                        </foreach>
-                    </when>
-                </choose>
-                <include refid="whereInternalPatientIds"/>
-            </where>
+            <include refid="cnaCounts">
+                <property name="case_type" value="PATIENT_ID"/>
+            </include>
         ) as JoinedTable
         <where>
             <include refid="whereGene"/>
         </where>
         GROUP BY ENTREZ_GENE_ID, HUGO_GENE_SYMBOL;
-    </select>
-
-    <select id="getSampleInternalIds" resultType="Integer">
-        SELECT sample.INTERNAL_ID
-        from sample
-        INNER JOIN patient ON sample.PATIENT_ID = patient.INTERNAL_ID
-        INNER JOIN genetic_profile ON patient.CANCER_STUDY_ID = genetic_profile.CANCER_STUDY_ID
-        <where>
-            <choose>
-                <when test="list == null or list.isEmpty()">
-                    NULL
-                </when>
-                <otherwise>
-                    (sample.STABLE_ID, genetic_profile.STABLE_ID) IN
-                    <foreach item="id" collection="list" open="(" separator="," close=")">
-                        ('${id.getCaseId()}', '${id.getMolecularProfileId()}')
-                    </foreach>
-                </otherwise>
-            </choose>
-        </where>
-    </select>
-
-    <select id="getPatientInternalIds" resultType="Integer">
-        SELECT patient.INTERNAL_ID
-        from patient
-        INNER JOIN genetic_profile ON patient.CANCER_STUDY_ID = genetic_profile.CANCER_STUDY_ID
-        <where>
-            <choose>
-                <when test="list == null or list.isEmpty()">
-                    NULL
-                </when>
-                <otherwise>
-                    (patient.STABLE_ID, genetic_profile.STABLE_ID) IN
-                    <foreach item="id" collection="list" open="(" separator="," close=")">
-                        ('${id.getCaseId()}', '${id.getMolecularProfileId()}')
-                    </foreach>
-                </otherwise>
-            </choose>
-        </where>
     </select>
 
     <select id="getSampleCnaCounts" resultType="org.cbioportal.model.CopyNumberCountByGene">
@@ -200,6 +60,7 @@
         INNER JOIN gene ON cna_event.ENTREZ_GENE_ID = gene.ENTREZ_GENE_ID
         INNER JOIN cancer_study ON cancer_study.CANCER_STUDY_ID = genetic_profile.CANCER_STUDY_ID
         INNER JOIN reference_genome_gene ON reference_genome_gene.ENTREZ_GENE_ID = cna_event.ENTREZ_GENE_ID
+        INNER JOIN sample ON sample_cna_event.SAMPLE_ID = sample.INTERNAL_ID
         AND reference_genome_gene.reference_genome_id = cancer_study.reference_genome_id
         <where>
             <choose>
@@ -212,7 +73,9 @@
                     </foreach>
                 </when>
             </choose>
-            <include refid="whereInternalSampleIdsCna"/>
+            <include refid="caseFilter">
+                <property name="case_type" value="SAMPLE_ID"/>
+            </include>
             <include refid="whereGeneCna"/>
         </where>
         GROUP BY cna_event.ENTREZ_GENE_ID, cna_event.ALTERATION, reference_genome_gene.CYTOBAND, gene.HUGO_GENE_SYMBOL
@@ -241,7 +104,9 @@
                     </foreach>
                 </when>
             </choose>
-            <include refid="whereInternalPatientIds"/>
+            <include refid="caseFilter">
+                <property name="case_type" value="PATIENT_ID"/>
+            </include>
             <include refid="whereGeneCna"/>
         </where>
         GROUP BY cna_event.ENTREZ_GENE_ID, cna_event.ALTERATION, gene.HUGO_GENE_SYMBOL
@@ -285,45 +150,114 @@
             </when>
         </choose>
     </sql>
-    
-    <sql id="whereInternalSampleIdsMutation">
+
+    <sql id="mutationCounts">
+        SELECT
+            <include refid="caseUniqueIdentifier" /> as CASE_ID,
+	        mutation.ENTREZ_GENE_ID,
+	        gene.HUGO_GENE_SYMBOL,
+	        mutation.GENETIC_PROFILE_ID,
+	        mutation_event.MUTATION_TYPE
+        FROM mutation_event
+        INNER JOIN mutation ON mutation_event.MUTATION_EVENT_ID = mutation.MUTATION_EVENT_ID
+        INNER JOIN gene ON mutation_event.ENTREZ_GENE_ID = gene.ENTREZ_GENE_ID
+        INNER JOIN genetic_profile ON mutation.GENETIC_PROFILE_ID = genetic_profile.GENETIC_PROFILE_ID
+        INNER JOIN patient ON patient.CANCER_STUDY_ID = genetic_profile.CANCER_STUDY_ID
+        INNER JOIN sample ON sample.PATIENT_ID = patient.INTERNAL_ID AND sample.INTERNAL_ID = mutation.SAMPLE_ID
+        <where>
+            <choose>
+                <when test="mutationTypes.hasNone()">NULL</when>
+                <when test="!mutationTypes.hasAll()">
+                    LOWER(mutation_event.MUTATION_TYPE) IN
+                    <foreach item="type" collection="mutationTypes" open="(" separator="," close=")">
+                        LOWER(#{type})
+                    </foreach>
+                </when>
+                <!-- BEWARE: at the moment fusions are in the mutations table with MUTATION_TYPE 
+                    'Fusion' this results in undesired interaction of fusion vs mutation queries 
+                    and the ability to pass a list of mutation types (that can include fusion 
+                    events). Now, fusions can be only filtered out when there is no limit on 
+                    the mutation types ('mutationTypes.hasAll()'). This code should be changed 
+                    when fusions move to the strucural variants table. -->
+                <when test="mutationTypes.hasAll()">
+                    <include refid="whereSearchFusions" />
+                </when>
+            </choose>
+            <include refid="caseFilter" />
+        </where>
+    </sql>
+
+    <sql id="cnaCounts">
+        SELECT
+            <include refid="caseUniqueIdentifier" /> as CASE_ID,
+	        cna_event.ENTREZ_GENE_ID,
+	        gene.HUGO_GENE_SYMBOL,
+	        sample_cna_event.GENETIC_PROFILE_ID,
+	        CAST(cna_event.ALTERATION AS CHAR(3))
+        FROM cna_event
+        INNER JOIN sample_cna_event ON cna_event.CNA_EVENT_ID = sample_cna_event.CNA_EVENT_ID
+        INNER JOIN gene ON cna_event.ENTREZ_GENE_ID = gene.ENTREZ_GENE_ID
+        INNER JOIN genetic_profile ON sample_cna_event.GENETIC_PROFILE_ID = genetic_profile.GENETIC_PROFILE_ID
+        INNER JOIN patient ON patient.CANCER_STUDY_ID = genetic_profile.CANCER_STUDY_ID
+        INNER JOIN sample ON sample.PATIENT_ID = patient.INTERNAL_ID AND sample.INTERNAL_ID = sample_cna_event.SAMPLE_ID
+        <where>
+            <choose>
+                <when test="cnaTypes.hasNone()">NULL</when>
+                <when test="!cnaTypes.hasAll()">
+                    cna_event.ALTERATION IN
+                    <foreach item="type" collection="cnaTypes" open="(" separator="," close=")">
+                        #{type}
+                    </foreach>
+                </when>
+            </choose>
+            <include refid="caseFilter" />
+
+        </where>
+    </sql>
+
+    <sql id="caseFilter">
         <choose>
-            <when test="internalSampleIds == null or internalSampleIds.isEmpty()">
+            <when test="molecularProfileCaseIdentifiers == null or molecularProfileCaseIdentifiers.isEmpty()">
                 NULL
             </when>
             <otherwise>
-                AND mutation.SAMPLE_ID IN
-                <foreach item="internalSampleId" collection="internalSampleIds" open="(" separator="," close=")">
-                    #{internalSampleId}
-                </foreach>
+                <choose>
+                    <when test="@java.util.Arrays@stream(molecularProfileCaseIdentifiers.{molecularProfileId}).distinct().count() == 1">
+                        AND genetic_profile.STABLE_ID = #{molecularProfileCaseIdentifiers[0].molecularProfileId} AND
+                        <include refid="caseStableIdentifier" /> IN
+                        <foreach item="id" collection="molecularProfileCaseIdentifiers" open="(" separator="," close=")">
+                            #{id.caseId}
+                        </foreach>
+                    </when>
+                    <otherwise>
+                        AND (<include refid="caseStableIdentifier" />, genetic_profile.STABLE_ID) IN
+                        <foreach item="id" collection="molecularProfileCaseIdentifiers" open="(" separator="," close=")">
+                            (#{id.caseId}, #{id.molecularProfileId})
+                        </foreach>
+                    </otherwise>
+                </choose>
             </otherwise>
         </choose>
     </sql>
-    
-    <sql id="whereInternalSampleIdsCna">
+
+    <sql id="caseStableIdentifier">
         <choose>
-            <when test="internalSampleIds == null or internalSampleIds.isEmpty()">
-                NULL
+            <when test="'${case_type}' == 'SAMPLE_ID'">
+                sample.STABLE_ID
             </when>
             <otherwise>
-                AND sample_cna_event.SAMPLE_ID IN
-                <foreach item="internalSampleId" collection="internalSampleIds" open="(" separator="," close=")">
-                    #{internalSampleId}
-                </foreach>
+                patient.STABLE_ID
             </otherwise>
         </choose>
     </sql>
-    
-    <sql id="whereInternalPatientIds">
+
+    <sql id="caseUniqueIdentifier">
         <choose>
-            <when test="internalPatientIds == null or internalPatientIds.isEmpty()">
-                NULL
+            <when test="'${case_type}' == 'SAMPLE_ID'">
+                sample.INTERNAL_ID
             </when>
             <otherwise>
-                AND patient.INTERNAL_ID IN
-                <foreach item="internalPatientId" collection="internalPatientIds" open="(" separator="," close=")">
-                    #{internalPatientId}
-                </foreach>
+                patient.INTERNAL_ID
             </otherwise>
         </choose>
     </sql>

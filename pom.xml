@@ -412,7 +412,7 @@
       <dependency>
         <groupId>com.github.cbioportal</groupId>
         <artifactId>session-service</artifactId>
-        <version>9dd8da2dd69dc3d78938275dd35f95d96c5d2d9c</version>
+        <version>0.3.0</version>
         <exclusions>
           <exclusion>
             <groupId>org.springframework.boot</groupId>

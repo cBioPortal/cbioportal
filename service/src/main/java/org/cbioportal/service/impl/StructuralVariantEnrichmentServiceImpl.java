@@ -6,13 +6,14 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
+import org.cbioportal.model.AlterationCountByGene;
 import org.cbioportal.model.AlterationEnrichment;
+import org.cbioportal.model.EnrichmentType;
 import org.cbioportal.model.MolecularProfileCaseIdentifier;
-import org.cbioportal.model.StructuralVariantCountByGene;
 import org.cbioportal.model.MolecularProfile.MolecularAlterationType;
-import org.cbioportal.model.web.parameter.EnrichmentType;
+import org.cbioportal.model.util.Select;
+import org.cbioportal.service.AlterationCountService;
 import org.cbioportal.service.StructuralVariantEnrichmentService;
-import org.cbioportal.service.StructuralVariantService;
 import org.cbioportal.service.exception.MolecularProfileNotFoundException;
 import org.cbioportal.service.util.AlterationEnrichmentUtil;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -21,9 +22,9 @@ import org.springframework.stereotype.Service;
 @Service
 public class StructuralVariantEnrichmentServiceImpl implements StructuralVariantEnrichmentService {
     @Autowired
-    private StructuralVariantService structuralVariantService;
+    private AlterationEnrichmentUtil<AlterationCountByGene> alterationEnrichmentUtil;
     @Autowired
-    private AlterationEnrichmentUtil<StructuralVariantCountByGene> alterationEnrichmentUtil;
+    private AlterationCountService alterationCountService;
 
     @Override
     public List<AlterationEnrichment> getStructuralVariantEnrichments(
@@ -33,7 +34,7 @@ public class StructuralVariantEnrichmentServiceImpl implements StructuralVariant
         alterationEnrichmentUtil.validateMolecularProfiles(molecularProfileCaseSets,
                 Arrays.asList(MolecularAlterationType.STRUCTURAL_VARIANT), null);
 
-        Map<String, List<StructuralVariantCountByGene>> mutationCountsbyEntrezGeneIdAndGroup = molecularProfileCaseSets
+        Map<String, List<AlterationCountByGene>> mutationCountsbyEntrezGeneIdAndGroup = molecularProfileCaseSets
                 .entrySet().stream().collect(Collectors.toMap(Map.Entry::getKey, entry -> {
                     // set value of each group to list of MutationCountByGene
                     List<String> molecularProfileIds = new ArrayList<>();
@@ -45,11 +46,14 @@ public class StructuralVariantEnrichmentServiceImpl implements StructuralVariant
                     });
 
                     if (enrichmentType.equals(EnrichmentType.SAMPLE)) {
-                        return structuralVariantService.getSampleCountInMultipleMolecularProfiles(molecularProfileIds,
-                                caseIds, null, true, true);
+                        return alterationCountService.getSampleStructuralVariantCounts(
+                                entry.getValue(),
+                                Select.all(), true, true, Select.all());
                     } else {
-                        return structuralVariantService.getPatientCountInMultipleMolecularProfiles(molecularProfileIds,
-                                caseIds, null, true, true);
+
+                        return alterationCountService.getPatientStructuralVariantCounts(
+                                entry.getValue(),
+                                Select.all(), true, true, Select.all());
                     }
                 }));
 

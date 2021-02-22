@@ -26,8 +26,8 @@ package org.cbioportal.service.impl;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.cbioportal.model.AlterationCountByGene;
 import org.cbioportal.model.StructuralVariant;
-import org.cbioportal.model.StructuralVariantCountByGene;
 import org.cbioportal.persistence.MutationRepository;
 import org.cbioportal.persistence.StructuralVariantRepository;
 import org.cbioportal.service.util.AlterationEnrichmentUtil;
@@ -54,7 +54,7 @@ public class StructuralVariantServiceImplTest extends BaseServiceImplTest {
     @Spy
     private MutationMapperUtils mutationMapperUtils = new MutationMapperUtils();
     @Spy
-    private AlterationEnrichmentUtil<StructuralVariantCountByGene> alterationEnrichmentUtil = new AlterationEnrichmentUtil<>();
+    private AlterationEnrichmentUtil<AlterationCountByGene> alterationEnrichmentUtil = new AlterationEnrichmentUtil<>();
 
     @Test
     public void getStructuralVariants() throws Exception {

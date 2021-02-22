@@ -5,11 +5,12 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import org.cbioportal.model.AlterationCountByGene;
 import org.cbioportal.model.AlterationEnrichment;
+import org.cbioportal.model.EnrichmentType;
 import org.cbioportal.model.MolecularProfileCaseIdentifier;
-import org.cbioportal.model.StructuralVariantCountByGene;
-import org.cbioportal.model.web.parameter.EnrichmentType;
-import org.cbioportal.service.StructuralVariantService;
+import org.cbioportal.model.util.Select;
+import org.cbioportal.service.AlterationCountService;
 import org.cbioportal.service.util.AlterationEnrichmentUtil;
 import org.junit.Assert;
 import org.junit.Test;
@@ -26,9 +27,9 @@ public class StructuralVariantEnrichmentServiceImplTest extends BaseServiceImplT
     private StructuralVariantEnrichmentServiceImpl structuralVariantEnrichmentService;
 
     @Mock
-    private StructuralVariantService structuralVariantService;
+    private AlterationCountService alterationCountService;
     @Mock
-    private AlterationEnrichmentUtil<StructuralVariantCountByGene> alterationEnrichmentUtil;
+    private AlterationEnrichmentUtil<AlterationCountByGene> alterationEnrichmentUtil;
 
     @Test
     public void getStructuralVariantEnrichments() throws Exception {
@@ -57,19 +58,19 @@ public class StructuralVariantEnrichmentServiceImplTest extends BaseServiceImplT
         groupMolecularProfileCaseSets.put("altered group", molecularProfileCaseSet1);
         groupMolecularProfileCaseSets.put("unaltered group", molecularProfileCaseSet2);
 
-        for (String molecularProfileId : groupMolecularProfileCaseSets.keySet()) {
+        for (String group : groupMolecularProfileCaseSets.keySet()) {
 
             List<String> molecularProfileIds = new ArrayList<>();
             List<String> sampleIds = new ArrayList<>();
 
-            groupMolecularProfileCaseSets.get(molecularProfileId)
+            groupMolecularProfileCaseSets.get(group)
                     .forEach(molecularProfileCase -> {
                         molecularProfileIds.add(molecularProfileCase.getMolecularProfileId());
                         sampleIds.add(molecularProfileCase.getCaseId());
                     });
 
-            Mockito.when(structuralVariantService.getSampleCountInMultipleMolecularProfiles(new ArrayList<>(molecularProfileIds),
-                    new ArrayList<>(sampleIds), null, false, true)).thenReturn(new ArrayList<>());
+            Mockito.when(alterationCountService.getSampleStructuralVariantCounts(groupMolecularProfileCaseSets.get(group), Select.all(),true, true, Select.all()))
+            .thenReturn(new ArrayList<>());
         }
 
         Mockito.when(alterationEnrichmentUtil.createAlterationEnrichments(new HashMap<>(),

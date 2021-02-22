@@ -1,15 +1,18 @@
 package org.cbioportal.service.impl;
 
-import org.cbioportal.model.*;
+import org.cbioportal.model.MolecularProfile;
+import org.cbioportal.model.Mutation;
+import org.cbioportal.model.MutationCountByPosition;
 import org.cbioportal.model.meta.MutationMeta;
 import org.cbioportal.persistence.MutationRepository;
-import org.cbioportal.service.*;
+import org.cbioportal.service.MolecularProfileService;
+import org.cbioportal.service.MutationService;
 import org.cbioportal.service.exception.MolecularProfileNotFoundException;
-import org.cbioportal.service.util.AlterationEnrichmentUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.List;
 
 @Service
 public class MutationServiceImpl implements MutationService {
@@ -18,8 +21,6 @@ public class MutationServiceImpl implements MutationService {
     private MutationRepository mutationRepository;
     @Autowired
     private MolecularProfileService molecularProfileService;
-    @Autowired
-    private AlterationEnrichmentUtil<MutationCountByGene> alterationEnrichmentUtil;
 
     @Override
     public List<Mutation> getMutationsInMolecularProfileBySampleListId(String molecularProfileId, String sampleListId,
@@ -92,78 +93,6 @@ public class MutationServiceImpl implements MutationService {
         validateMolecularProfile(molecularProfileId);
 
         return mutationRepository.fetchMetaMutationsInMolecularProfile(molecularProfileId, sampleIds, entrezGeneIds);
-    }
-
-    @Override
-    public List<MutationCountByGene> getSampleCountByEntrezGeneIdsAndSampleIds(String molecularProfileId,
-                                                                               List<String> sampleIds,
-                                                                               List<Integer> entrezGeneIds)
-        throws MolecularProfileNotFoundException {
-
-        validateMolecularProfile(molecularProfileId);
-
-        return mutationRepository.getSampleCountByEntrezGeneIdsAndSampleIds(
-            molecularProfileId, sampleIds, entrezGeneIds);
-
-    }
-
-    @Override
-	public List<MutationCountByGene> getSampleCountInMultipleMolecularProfiles(List<String> molecularProfileIds,
-			List<String> sampleIds, List<Integer> entrezGeneIds, boolean includeFrequency,
-            boolean includeMissingAlterationsFromGenePanel) {
-        
-        List<MutationCountByGene> alterationCountByGenes;
-        if (molecularProfileIds.isEmpty()) {
-            alterationCountByGenes = Collections.emptyList();
-        } else {
-            alterationCountByGenes = mutationRepository.getSampleCountInMultipleMolecularProfiles(
-                molecularProfileIds, sampleIds, entrezGeneIds);
-            if (includeFrequency) {
-                alterationEnrichmentUtil.includeFrequencyForSamples(molecularProfileIds, sampleIds, alterationCountByGenes, includeMissingAlterationsFromGenePanel);
-            }
-        }
-
-        return alterationCountByGenes;
-	}
-
-    @Override
-    public List<MutationCountByGene> getSampleCountInMultipleMolecularProfilesForFusions(List<String> molecularProfileIds,
-                                                                                        List<String> sampleIds,
-                                                                                        List<Integer> entrezGeneIds,
-                                                                                        boolean includeFrequency,
-                                                                                        boolean includeMissingAlterationsFromGenePanel) {
-        List<MutationCountByGene> result;
-        if (molecularProfileIds.isEmpty()) {
-            result = Collections.emptyList();
-        } else {
-            result = mutationRepository.getSampleCountInMultipleMolecularProfilesForFusions(
-                molecularProfileIds, sampleIds, entrezGeneIds);
-            if (includeFrequency) {
-                alterationEnrichmentUtil.includeFrequencyForSamples(molecularProfileIds, sampleIds, result, includeMissingAlterationsFromGenePanel);
-            }
-        }
-        return result;
-    }
-    
-    @Override
-    public List<MutationCountByGene> getPatientCountInMultipleMolecularProfiles(List<String> molecularProfileIds,
-                                                                                List<String> patientIds,
-                                                                                List<Integer> entrezGeneIds,
-                                                                                boolean includeFrequency,
-                                                                                boolean includeMissingAlterationsFromGenePanel) {
-        
-        List<MutationCountByGene> alterationCountByGenes;
-        if (molecularProfileIds.isEmpty()) {
-            alterationCountByGenes = Collections.emptyList();
-        } else {
-            alterationCountByGenes = mutationRepository.getPatientCountInMultipleMolecularProfiles(molecularProfileIds, patientIds,
-                    entrezGeneIds);
-            if (includeFrequency) {
-                alterationEnrichmentUtil.includeFrequencyForPatients(molecularProfileIds, patientIds, alterationCountByGenes, includeMissingAlterationsFromGenePanel);
-            }
-        }
-
-        return alterationCountByGenes;
     }
 
     @Override

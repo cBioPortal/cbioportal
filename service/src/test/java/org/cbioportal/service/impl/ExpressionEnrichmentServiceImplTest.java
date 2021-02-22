@@ -4,7 +4,6 @@ import java.math.BigDecimal;
 import java.util.*;
 import org.cbioportal.model.*;
 import org.cbioportal.model.meta.GenericAssayMeta;
-import org.cbioportal.model.web.parameter.EnrichmentType;
 import org.cbioportal.persistence.MolecularDataRepository;
 import org.cbioportal.service.GeneService;
 import org.cbioportal.service.GenericAssayService;

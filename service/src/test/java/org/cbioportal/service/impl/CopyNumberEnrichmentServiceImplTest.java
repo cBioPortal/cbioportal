@@ -1,96 +1,88 @@
 package org.cbioportal.service.impl;
 
+import org.cbioportal.model.CNA;
+import org.cbioportal.model.CopyNumberCountByGene;
+import org.cbioportal.model.EnrichmentType;
+import org.cbioportal.model.MolecularProfileCaseIdentifier;
+import org.cbioportal.model.util.Select;
+import org.cbioportal.service.AlterationCountService;
+import org.cbioportal.service.exception.MolecularProfileNotFoundException;
+import org.junit.Assert;
+import org.junit.Before;
+import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.mockito.ArgumentMatcher;
+import org.mockito.InjectMocks;
+import org.mockito.Mock;
+import org.mockito.junit.MockitoJUnitRunner;
+
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import org.cbioportal.model.AlterationEnrichment;
-import org.cbioportal.model.CopyNumberCountByGene;
-import org.cbioportal.model.MolecularProfileCaseIdentifier;
-import org.cbioportal.model.web.parameter.EnrichmentType;
-import org.cbioportal.service.DiscreteCopyNumberService;
-import org.cbioportal.service.util.AlterationEnrichmentUtil;
-import org.junit.Assert;
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.mockito.InjectMocks;
-import org.mockito.Mock;
-import org.mockito.Mockito;
-import org.mockito.junit.MockitoJUnitRunner;
+import static org.mockito.ArgumentMatchers.argThat;
+import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.when;
 
-@RunWith(MockitoJUnitRunner.Silent.class)
-public class CopyNumberEnrichmentServiceImplTest extends BaseServiceImplTest {
+@RunWith(MockitoJUnitRunner.class)
+public class CopyNumberEnrichmentServiceImplTest {
 
     @InjectMocks
-    private CopyNumberEnrichmentServiceImpl copyNumberEnrichmentService;
-
+    private CopyNumberEnrichmentServiceImpl cnaCountService;
     @Mock
-    private DiscreteCopyNumberService discreteCopyNumberService;
-    @Mock
-    private AlterationEnrichmentUtil<CopyNumberCountByGene> alterationEnrichmentUtil;
+    private AlterationCountService alterationCountService;
+    
+    // FIXME use SelectMockitoArgumentMatcher in util module when implemented
+    // see issue https://github.com/cBioPortal/cbioportal/issues/8297
+    private static class SelectMockitoArgumentMatcher implements ArgumentMatcher<Select> {
+        private String checkWhat;
 
-    @Test
-    public void getCopyNumberEnrichments() throws Exception {
-
-        // create molecularProfileCaseSet1, molecularProfileCaseSet2 list of entities
-        MolecularProfileCaseIdentifier molecularProfileCase1 = new MolecularProfileCaseIdentifier();
-        molecularProfileCase1.setCaseId("sample_id_1");
-        molecularProfileCase1.setMolecularProfileId("test1_cna");
-        MolecularProfileCaseIdentifier molecularProfileCase2 = new MolecularProfileCaseIdentifier();
-        molecularProfileCase2.setCaseId("sample_id_2");
-        molecularProfileCase2.setMolecularProfileId("test2_cna");
-        List<MolecularProfileCaseIdentifier> molecularProfileCaseSet1 = new ArrayList<>();
-        molecularProfileCaseSet1.add(molecularProfileCase1);
-        molecularProfileCaseSet1.add(molecularProfileCase2);
-
-        MolecularProfileCaseIdentifier molecularProfileCase3 = new MolecularProfileCaseIdentifier();
-        molecularProfileCase3.setCaseId("sample_id_3");
-        molecularProfileCase3.setMolecularProfileId("test3_cna");
-        MolecularProfileCaseIdentifier molecularProfileCase4 = new MolecularProfileCaseIdentifier();
-        molecularProfileCase4.setCaseId("sample_id_4");
-        molecularProfileCase4.setMolecularProfileId("test4_cna");
-        List<MolecularProfileCaseIdentifier> molecularProfileCaseSet2 = new ArrayList<>();
-        molecularProfileCaseSet2.add(molecularProfileCase3);
-        molecularProfileCaseSet2.add(molecularProfileCase4);
-
-        Map<String, List<MolecularProfileCaseIdentifier>> groupMolecularProfileCaseSets = new HashMap<String, List<MolecularProfileCaseIdentifier>>();
-        groupMolecularProfileCaseSets.put("altered group", molecularProfileCaseSet1);
-        groupMolecularProfileCaseSets.put("unaltered group", molecularProfileCaseSet2);
-
-        List<String> alteredSampleIds = new ArrayList<>();
-        alteredSampleIds.add("sample_id_1");
-        alteredSampleIds.add("sample_id_2");
-        List<String> unalteredSampleIds = new ArrayList<>();
-        unalteredSampleIds.add("sample_id_3");
-        unalteredSampleIds.add("sample_id_4");
-        List<String> allSampleIds = new ArrayList<>(alteredSampleIds);
-        allSampleIds.addAll(unalteredSampleIds);
-
-        List<Integer> alterationTypes = new ArrayList<>();
-        alterationTypes.add(-2);
-
-        for (String molecularProfileId : groupMolecularProfileCaseSets.keySet()) {
-
-            List<String> molecularProfileIds = new ArrayList<>();
-            List<String> sampleIds = new ArrayList<>();
-
-            groupMolecularProfileCaseSets.getOrDefault(molecularProfileId, new ArrayList<>())
-                    .forEach(molecularProfileCase -> {
-                        molecularProfileIds.add(molecularProfileCase.getMolecularProfileId());
-                        sampleIds.add(molecularProfileCase.getCaseId());
-                    });
-
-            Mockito.when(discreteCopyNumberService.getSampleCountInMultipleMolecularProfiles(molecularProfileIds,
-                    sampleIds, null, null, false, true)).thenReturn(new ArrayList<CopyNumberCountByGene>());
+        public SelectMockitoArgumentMatcher(String checkWhat) {
+            this.checkWhat = checkWhat;
         }
 
-        List<AlterationEnrichment> expectedAlterationEnrichments = new ArrayList<>();
-        Mockito.when(alterationEnrichmentUtil.createAlterationEnrichments(new HashMap<>(),
-                groupMolecularProfileCaseSets)).thenReturn(expectedAlterationEnrichments);
+        @Override
+        public boolean matches(Select select) {
+            switch (checkWhat) {
+                case "ALL":
+                    return select.hasAll();
+                case "EMPTY":
+                    return select.hasNone();
+                case "SOME":
+                    return select.hasValues();
+                default:
+                    return false;
+            }
+        }
+    }
 
-        List<AlterationEnrichment> result = copyNumberEnrichmentService
-                .getCopyNumberEnrichments(groupMolecularProfileCaseSets, alterationTypes, EnrichmentType.SAMPLE);
-        Assert.assertEquals(result, expectedAlterationEnrichments);
+    @Before
+    public void setUp() throws Exception {
+
+        List<MolecularProfileCaseIdentifier> molecularProfileCaseSet = new ArrayList<>();
+        molecularProfileCaseSet.add(new MolecularProfileCaseIdentifier("caseA", "profileB"));
+        
+        groupMolecularProfileCaseSets = new HashMap<>();
+        groupMolecularProfileCaseSets.put("altered group", molecularProfileCaseSet);
+        groupMolecularProfileCaseSets.put("unaltered group", molecularProfileCaseSet);
+
+        List<CopyNumberCountByGene> counts = new ArrayList<>();
+        
+        when(alterationCountService.getSampleCnaCounts(
+            eq(molecularProfileCaseSet),
+            argThat(new SelectMockitoArgumentMatcher("ALL")),
+            eq(true),
+            eq(true),
+            argThat(new SelectMockitoArgumentMatcher("SOME")))
+        ).thenReturn(counts);
+    }
+
+    Map<String, List<MolecularProfileCaseIdentifier>> groupMolecularProfileCaseSets;
+
+    @Test
+    public void testGetCopyNumberCountByGeneAndGroup() throws MolecularProfileNotFoundException {
+        Map<String, List<CopyNumberCountByGene>> copyNumberCountByGeneAndGroup = cnaCountService.getCopyNumberCountByGeneAndGroup(groupMolecularProfileCaseSets, CNA.AMP, EnrichmentType.SAMPLE);
+        Assert.assertEquals(2, copyNumberCountByGeneAndGroup.keySet().size());
     }
 }

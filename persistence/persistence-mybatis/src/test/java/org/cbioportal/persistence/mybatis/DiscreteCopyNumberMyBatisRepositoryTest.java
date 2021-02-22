@@ -199,21 +199,4 @@ public class DiscreteCopyNumberMyBatisRepositoryTest {
         Assert.assertEquals((Integer) 1, copyNumberSampleCountByGene2.getNumberOfAlteredCases());
     }
 
-    @Test
-    public void getPatientCountInMultipleMolecularProfiles() throws Exception {
-
-        List<CopyNumberCountByGene> result  = discreteCopyNumberMyBatisRepository
-            .getPatientCountInMultipleMolecularProfiles(Arrays.asList("study_tcga_pub_gistic"), null, 
-                Arrays.asList(207, 208), Arrays.asList(-2, 2));
-        
-        Assert.assertEquals(2, result.size());
-        CopyNumberCountByGene copyNumberSampleCountByGene1 = result.get(0);
-        Assert.assertEquals((Integer) 207, copyNumberSampleCountByGene1.getEntrezGeneId());
-        Assert.assertEquals((Integer) (-2), copyNumberSampleCountByGene1.getAlteration());
-        Assert.assertEquals((Integer) 1, copyNumberSampleCountByGene1.getNumberOfAlteredCases());
-        CopyNumberCountByGene copyNumberSampleCountByGene2 = result.get(1);
-        Assert.assertEquals((Integer) 208, copyNumberSampleCountByGene2.getEntrezGeneId());
-        Assert.assertEquals((Integer) (2), copyNumberSampleCountByGene2.getAlteration());
-        Assert.assertEquals((Integer) 1, copyNumberSampleCountByGene2.getNumberOfAlteredCases());
-    }
 }

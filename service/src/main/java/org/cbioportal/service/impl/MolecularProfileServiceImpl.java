@@ -159,7 +159,7 @@ public class MolecularProfileServiceImpl implements MolecularProfileService {
     @Override
     public List<String> getFirstStructuralVariantProfileIds(List<String> studyIds, List<String> sampleIds) {
         List<String> molecularProfileIds = new ArrayList<>();
-        Map<String, MolecularProfile> mapByStudyId = new HashMap<>();
+        Map<String, String> studyIdtoMolecularProfileIdMap = new HashMap<>();
 
         //TODO: remove mutation profile once fusions are migrated to structural variant in the database
         getMolecularProfilesInStudies(studyIds, "SUMMARY").stream().forEach(molecularProfile -> {
@@ -167,14 +167,23 @@ public class MolecularProfileServiceImpl implements MolecularProfileService {
                     || molecularProfile.getMolecularAlterationType()
                             .equals(MolecularProfile.MolecularAlterationType.STRUCTURAL_VARIANT)) {
 
-                if (!mapByStudyId.containsKey(molecularProfile.getCancerStudyIdentifier())) {
+                String molecularProfileId = molecularProfile.getStableId();
 
-                    mapByStudyId.put(molecularProfile.getCancerStudyIdentifier(), molecularProfile);
+                if (molecularProfile.getMolecularAlterationType()
+                        .equals(MolecularProfile.MolecularAlterationType.FUSION)) {
+
+                    molecularProfileId = molecularProfileId.replace("_fusion", "_mutations");
+                }
+
+                if (!studyIdtoMolecularProfileIdMap.containsKey(molecularProfile.getCancerStudyIdentifier())) {
+
+                    studyIdtoMolecularProfileIdMap.put(molecularProfile.getCancerStudyIdentifier(), molecularProfileId);
                 } else if (!(molecularProfile.getMolecularAlterationType()
                         .equals(MolecularProfile.MolecularAlterationType.STRUCTURAL_VARIANT)
                         && molecularProfile.getDatatype().equals("SV"))) {
-
-                    mapByStudyId.put(molecularProfile.getCancerStudyIdentifier(), molecularProfile);
+                    // replace structural variant profile with
+                    // mutation profile having fusion data
+                    studyIdtoMolecularProfileIdMap.put(molecularProfile.getCancerStudyIdentifier(), molecularProfileId);
                 }
             }
         });
@@ -182,8 +191,8 @@ public class MolecularProfileServiceImpl implements MolecularProfileService {
         int removedSampleCount = 0;
         for (int i = 0; i < studyIds.size(); i++) {
             String studyId = studyIds.get(i);
-            if (mapByStudyId.containsKey(studyId)) {
-                molecularProfileIds.add(mapByStudyId.get(studyId).getStableId());
+            if (studyIdtoMolecularProfileIdMap.containsKey(studyId)) {
+                molecularProfileIds.add(studyIdtoMolecularProfileIdMap.get(studyId));
             } else {
                 sampleIds.remove(i - removedSampleCount);
                 removedSampleCount++;

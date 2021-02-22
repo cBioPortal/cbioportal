@@ -8,8 +8,8 @@ import java.util.stream.Collectors;
 import javax.validation.Valid;
 
 import org.cbioportal.model.AlterationEnrichment;
+import org.cbioportal.model.EnrichmentType;
 import org.cbioportal.model.MolecularProfileCaseIdentifier;
-import org.cbioportal.model.web.parameter.EnrichmentType;
 import org.cbioportal.service.StructuralVariantEnrichmentService;
 import org.cbioportal.service.exception.MolecularProfileNotFoundException;
 import org.cbioportal.web.config.annotation.InternalApi;

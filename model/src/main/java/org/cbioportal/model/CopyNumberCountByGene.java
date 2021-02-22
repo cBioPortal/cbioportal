@@ -6,7 +6,7 @@ public class CopyNumberCountByGene extends AlterationCountByGene implements Seri
     
     private Integer alteration;
     private String cytoband;
-    
+
     public Integer getAlteration() {
         return alteration;
     }

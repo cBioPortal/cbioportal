@@ -24,7 +24,6 @@
 package org.cbioportal.persistence.mybatis;
 
 import org.cbioportal.model.StructuralVariant;
-import org.cbioportal.model.StructuralVariantCountByGene;
 import org.cbioportal.persistence.StructuralVariantRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
@@ -42,21 +41,5 @@ public class StructuralVariantMyBatisRepository implements StructuralVariantRepo
             List<Integer> entrezGeneIds, List<String> sampleIds) {
 
         return structuralVariantMapper.fetchStructuralVariants(molecularProfileIds, entrezGeneIds, sampleIds);
-    }
-
-    @Override
-    public List<StructuralVariantCountByGene> getSampleCountInMultipleMolecularProfiles(
-            List<String> molecularProfileIds, List<String> sampleIds, List<Integer> entrezGeneIds) {
-
-        return structuralVariantMapper.getSampleCountInMultipleMolecularProfiles(molecularProfileIds, sampleIds,
-                entrezGeneIds);
-    }
-
-    @Override
-    public List<StructuralVariantCountByGene> getPatientCountInMultipleMolecularProfiles(
-            List<String> molecularProfileIds, List<String> patientIds, List<Integer> entrezGeneIds) {
-
-        return structuralVariantMapper.getPatientCountInMultipleMolecularProfiles(molecularProfileIds, patientIds,
-                entrezGeneIds);
     }
 }

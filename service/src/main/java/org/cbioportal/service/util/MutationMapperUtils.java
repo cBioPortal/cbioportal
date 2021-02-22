@@ -6,15 +6,12 @@ import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.EnumUtils;
 import org.cbioportal.model.Gene;
 import org.cbioportal.model.Mutation;
-import org.cbioportal.model.MutationCountByGene;
 import org.cbioportal.model.StructuralVariant;
-import org.cbioportal.model.StructuralVariantCountByGene;
 import org.cbioportal.service.GeneService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
@@ -131,21 +128,6 @@ public class MutationMapperUtils {
                 }
             }
             return structuralVariant;
-        }).collect(Collectors.toList());
-    }
-
-    public List<StructuralVariantCountByGene> mapFusionCountsToStructuralVariantCounts(
-            List<MutationCountByGene> mutationCountByGenes) {
-
-        return mutationCountByGenes.stream().map(fusion -> {
-            StructuralVariantCountByGene structuralVariantCountByGene = new StructuralVariantCountByGene();
-            structuralVariantCountByGene.setEntrezGeneId(fusion.getEntrezGeneId());
-            structuralVariantCountByGene.setHugoGeneSymbol(fusion.getHugoGeneSymbol());
-            structuralVariantCountByGene.setNumberOfAlteredCases(fusion.getNumberOfAlteredCases());
-            structuralVariantCountByGene.setNumberOfProfiledCases(fusion.getNumberOfProfiledCases());
-            structuralVariantCountByGene.setTotalCount(fusion.getTotalCount());
-            structuralVariantCountByGene.setMatchingGenePanelIds(fusion.getMatchingGenePanelIds());
-            return structuralVariantCountByGene;
         }).collect(Collectors.toList());
     }
 

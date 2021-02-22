@@ -1,0 +1,334 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="org.cbioportal.persistence.mybatis.AlterationCountsMapper">
+
+    <select id="getSampleAlterationCounts" resultType="org.cbioportal.model.AlterationCountByGene">
+        SELECT 
+            ENTREZ_GENE_ID AS entrezGeneId,
+            HUGO_GENE_SYMBOL AS hugoGeneSymbol,
+            COUNT(*) AS totalCount,
+            COUNT(DISTINCT(CASE_ID)) AS numberOfAlteredCases
+        FROM
+        (
+            <include refid="mutationCounts">
+                <property name="case_type" value="SAMPLE_ID"/>
+            </include>
+            UNION ALL
+            <include refid="cnaCounts">
+                <property name="case_type" value="SAMPLE_ID"/>
+            </include>
+            UNION ALL
+            <include refid="structuralVariantCounts">
+                <property name="case_type" value="SAMPLE_ID"/>
+            </include>
+        ) as JoinedTable
+        <where>
+            <include refid="whereGene"/>
+        </where>
+        GROUP BY ENTREZ_GENE_ID, HUGO_GENE_SYMBOL;
+    </select>
+
+    <select id="getPatientAlterationCounts" resultType="org.cbioportal.model.AlterationCountByGene">
+        SELECT
+            ENTREZ_GENE_ID AS entrezGeneId,
+            HUGO_GENE_SYMBOL AS hugoGeneSymbol,
+            COUNT(*) AS totalCount,
+            COUNT(DISTINCT(CASE_ID)) AS numberOfAlteredCases
+        FROM
+        (
+            <include refid="mutationCounts">
+                <property name="case_type" value="PATIENT_ID"/>
+            </include>
+            UNION ALL
+            <include refid="cnaCounts">
+                <property name="case_type" value="PATIENT_ID"/>
+            </include>
+            UNION ALL
+            <include refid="structuralVariantCounts">
+                <property name="case_type" value="SAMPLE_ID"/>
+            </include>
+        ) as JoinedTable
+        <where>
+            <include refid="whereGene"/>
+        </where>
+        GROUP BY ENTREZ_GENE_ID, HUGO_GENE_SYMBOL;
+    </select>
+
+    <select id="getSampleCnaCounts" resultType="org.cbioportal.model.CopyNumberCountByGene">
+        SELECT
+            cna_event.ENTREZ_GENE_ID AS entrezGeneId,
+            gene.HUGO_GENE_SYMBOL AS hugoGeneSymbol,
+            reference_genome_gene.CYTOBAND as cytoband,
+            cna_event.ALTERATION AS alteration,
+            COUNT(DISTINCT(sample_cna_event.SAMPLE_ID)) AS numberOfAlteredCases
+        FROM cna_event
+        INNER JOIN sample_cna_event ON cna_event.CNA_EVENT_ID = sample_cna_event.CNA_EVENT_ID
+        INNER JOIN genetic_profile ON sample_cna_event.GENETIC_PROFILE_ID = genetic_profile.GENETIC_PROFILE_ID
+        INNER JOIN gene ON cna_event.ENTREZ_GENE_ID = gene.ENTREZ_GENE_ID
+        INNER JOIN cancer_study ON cancer_study.CANCER_STUDY_ID = genetic_profile.CANCER_STUDY_ID
+        INNER JOIN reference_genome_gene ON reference_genome_gene.ENTREZ_GENE_ID = cna_event.ENTREZ_GENE_ID
+        INNER JOIN sample ON sample_cna_event.SAMPLE_ID = sample.INTERNAL_ID
+        AND reference_genome_gene.reference_genome_id = cancer_study.reference_genome_id
+        <where>
+            <choose>
+                <when test="cnaTypes.hasNone()">NULL</when>
+                <when test="!cnaTypes.hasAll()">
+                    cna_event.ALTERATION IN
+                    <foreach item="type" collection="cnaTypes" open="("
+                        separator="," close=")">
+                        #{type}
+                    </foreach>
+                </when>
+            </choose>
+            <include refid="caseFilter">
+                <property name="case_type" value="SAMPLE_ID"/>
+            </include>
+            <include refid="whereGeneCna"/>
+        </where>
+        GROUP BY cna_event.ENTREZ_GENE_ID, cna_event.ALTERATION, reference_genome_gene.CYTOBAND, gene.HUGO_GENE_SYMBOL
+    </select>
+
+    <select id="getPatientCnaCounts" resultType="org.cbioportal.model.CopyNumberCountByGene">
+        SELECT
+            cna_event.ENTREZ_GENE_ID AS entrezGeneId,
+            gene.HUGO_GENE_SYMBOL AS hugoGeneSymbol,
+            cna_event.ALTERATION AS alteration,
+            COUNT(DISTINCT(patient.INTERNAL_ID)) AS numberOfAlteredCases
+        FROM cna_event
+        INNER JOIN sample_cna_event ON cna_event.CNA_EVENT_ID = sample_cna_event.CNA_EVENT_ID
+        INNER JOIN genetic_profile ON sample_cna_event.GENETIC_PROFILE_ID = genetic_profile.GENETIC_PROFILE_ID
+        INNER JOIN sample ON sample_cna_event.SAMPLE_ID = sample.INTERNAL_ID
+        INNER JOIN patient ON sample.PATIENT_ID = patient.INTERNAL_ID
+        INNER JOIN gene ON cna_event.ENTREZ_GENE_ID = gene.ENTREZ_GENE_ID
+        <where>
+            <choose>
+                <when test="cnaTypes.hasNone()">NULL</when>
+                <when test="!cnaTypes.hasAll()">
+                    cna_event.ALTERATION IN
+                    <foreach item="type" collection="cnaTypes" open="("
+                        separator="," close=")">
+                        #{type}
+                    </foreach>
+                </when>
+            </choose>
+            <include refid="caseFilter">
+                <property name="case_type" value="PATIENT_ID"/>
+            </include>
+            <include refid="whereGeneCna"/>
+        </where>
+        GROUP BY cna_event.ENTREZ_GENE_ID, cna_event.ALTERATION, gene.HUGO_GENE_SYMBOL
+    </select>
+
+    <sql id="whereSearchFusions">
+        <if test="searchFusions.name() == 'ACTIVE'">
+            AND
+            LOWER(mutation_event.MUTATION_TYPE) = 'fusion'
+        </if>
+        <if test="searchFusions.name() == 'INACTIVE'">
+            AND
+            LOWER(mutation_event.MUTATION_TYPE) != 'fusion'
+        </if>
+    </sql>
+
+    <sql id="whereGene">
+        <choose>
+        <when test="entrezGeneIds == null or entrezGeneIds.hasNone()">
+            AND NULL
+        </when>
+        <when test="entrezGeneIds.hasValues()">
+            AND JoinedTable.ENTREZ_GENE_ID IN
+            <foreach item="entrezGeneId" collection="entrezGeneIds" open="(" separator="," close=")">
+                #{entrezGeneId}
+            </foreach>
+        </when>
+        </choose>
+    </sql>
+    
+    <sql id="whereGeneCna">
+        <choose>
+            <when test="entrezGeneIds == null or entrezGeneIds.hasNone()">
+                AND NULL
+            </when>
+            <when test="entrezGeneIds.hasValues()">
+                AND cna_event.ENTREZ_GENE_ID IN
+                <foreach item="entrezGeneId" collection="entrezGeneIds" open="(" separator="," close=")">
+                    #{entrezGeneId}
+                </foreach>
+            </when>
+        </choose>
+    </sql>
+
+    <sql id="mutationCounts">
+        SELECT
+            <include refid="caseUniqueIdentifier" /> as CASE_ID,
+	        mutation.ENTREZ_GENE_ID,
+	        gene.HUGO_GENE_SYMBOL,
+	        mutation_event.MUTATION_TYPE
+        FROM mutation_event
+        INNER JOIN mutation ON mutation_event.MUTATION_EVENT_ID = mutation.MUTATION_EVENT_ID
+        INNER JOIN gene ON mutation_event.ENTREZ_GENE_ID = gene.ENTREZ_GENE_ID
+        INNER JOIN genetic_profile ON mutation.GENETIC_PROFILE_ID = genetic_profile.GENETIC_PROFILE_ID
+        INNER JOIN patient ON patient.CANCER_STUDY_ID = genetic_profile.CANCER_STUDY_ID
+        INNER JOIN sample ON sample.PATIENT_ID = patient.INTERNAL_ID AND sample.INTERNAL_ID = mutation.SAMPLE_ID
+        <where>
+            <choose>
+                <when test="mutationTypes.hasNone()">NULL</when>
+                <when test="!mutationTypes.hasAll()">
+                    LOWER(mutation_event.MUTATION_TYPE) IN
+                    <foreach item="type" collection="mutationTypes" open="(" separator="," close=")">
+                        LOWER(#{type})
+                    </foreach>
+                </when>
+                <!-- BEWARE: at the moment fusions are in the mutations table with MUTATION_TYPE 
+                    'Fusion' this results in undesired interaction of fusion vs mutation queries 
+                    and the ability to pass a list of mutation types (that can include fusion 
+                    events). Now, fusions can be only filtered out when there is no limit on 
+                    the mutation types ('mutationTypes.hasAll()'). This code should be changed 
+                    when fusions move to the strucural variants table. -->
+                <when test="mutationTypes.hasAll()">
+                    <include refid="whereSearchFusions" />
+                </when>
+            </choose>
+            <include refid="caseFilter" />
+        </where>
+    </sql>
+
+    <sql id="cnaCounts">
+        SELECT
+            <include refid="caseUniqueIdentifier" /> as CASE_ID,
+	        cna_event.ENTREZ_GENE_ID,
+	        gene.HUGO_GENE_SYMBOL,
+	        CAST(cna_event.ALTERATION AS CHAR(3))
+        FROM cna_event
+        INNER JOIN sample_cna_event ON cna_event.CNA_EVENT_ID = sample_cna_event.CNA_EVENT_ID
+        INNER JOIN gene ON cna_event.ENTREZ_GENE_ID = gene.ENTREZ_GENE_ID
+        INNER JOIN genetic_profile ON sample_cna_event.GENETIC_PROFILE_ID = genetic_profile.GENETIC_PROFILE_ID
+        INNER JOIN patient ON patient.CANCER_STUDY_ID = genetic_profile.CANCER_STUDY_ID
+        INNER JOIN sample ON sample.PATIENT_ID = patient.INTERNAL_ID AND sample.INTERNAL_ID = sample_cna_event.SAMPLE_ID
+        <where>
+            <choose>
+                <when test="cnaTypes.hasNone()">NULL</when>
+                <when test="!cnaTypes.hasAll()">
+                    cna_event.ALTERATION IN
+                    <foreach item="type" collection="cnaTypes" open="(" separator="," close=")">
+                        #{type}
+                    </foreach>
+                </when>
+            </choose>
+            <include refid="caseFilter" />
+
+        </where>
+    </sql>
+    
+    <sql id="structuralVariantCounts">
+        SELECT 
+            caseUniqueId as CASE_ID,
+            entrezGeneId as ENTREZ_GENE_ID,
+            hugoGeneSymbol as HUGO_GENE_SYMBOL,
+	        NULL as DUMMY_COLUMN
+        FROM
+            (SELECT 
+                gene.ENTREZ_GENE_ID AS entrezGeneId,
+                gene.HUGO_GENE_SYMBOL AS hugoGeneSymbol,
+                <include refid="caseUniqueIdentifier" /> as caseUniqueId,
+                <include refid="caseStableIdentifier" /> as caseStableId,
+                genetic_profile.STABLE_ID as geneticProfileId
+                
+            FROM
+                structural_variant
+            INNER JOIN genetic_profile ON structural_variant.GENETIC_PROFILE_ID = genetic_profile.GENETIC_PROFILE_ID
+            INNER JOIN sample ON structural_variant.SAMPLE_ID = sample.INTERNAL_ID
+            INNER JOIN patient ON sample.PATIENT_ID = patient.INTERNAL_ID
+            INNER JOIN gene ON structural_variant.SITE1_ENTREZ_GENE_ID = gene.ENTREZ_GENE_ID
+            UNION ALL
+            SELECT 
+                gene.ENTREZ_GENE_ID AS entrezGeneId,
+                gene.HUGO_GENE_SYMBOL AS hugoGeneSymbol,
+                <include refid="caseUniqueIdentifier" /> as caseUniqueId,
+                <include refid="caseStableIdentifier" /> as caseStableId,
+                genetic_profile.STABLE_ID as geneticProfileId
+            FROM
+                structural_variant
+            INNER JOIN genetic_profile ON structural_variant.GENETIC_PROFILE_ID = genetic_profile.GENETIC_PROFILE_ID
+            INNER JOIN sample ON structural_variant.SAMPLE_ID = sample.INTERNAL_ID
+            INNER JOIN patient ON sample.PATIENT_ID = patient.INTERNAL_ID
+            INNER JOIN gene ON structural_variant.SITE2_ENTREZ_GENE_ID = gene.ENTREZ_GENE_ID) as combinedResults
+        <where>
+            <include refid="structuralVariantCaseFilter" />
+        </where>
+    </sql>
+
+    <sql id="caseFilter">
+        <choose>
+            <when test="molecularProfileCaseIdentifiers == null or molecularProfileCaseIdentifiers.isEmpty()">
+                NULL
+            </when>
+            <otherwise>
+                <choose>
+                    <when test="@java.util.Arrays@stream(molecularProfileCaseIdentifiers.{molecularProfileId}).distinct().count() == 1">
+                        AND genetic_profile.STABLE_ID = #{molecularProfileCaseIdentifiers[0].molecularProfileId} AND
+                        <include refid="caseStableIdentifier" /> IN
+                        <foreach item="id" collection="molecularProfileCaseIdentifiers" open="(" separator="," close=")">
+                            #{id.caseId}
+                        </foreach>
+                    </when>
+                    <otherwise>
+                        AND (<include refid="caseStableIdentifier" />, genetic_profile.STABLE_ID) IN
+                        <foreach item="id" collection="molecularProfileCaseIdentifiers" open="(" separator="," close=")">
+                            (#{id.caseId}, #{id.molecularProfileId})
+                        </foreach>
+                    </otherwise>
+                </choose>
+            </otherwise>
+        </choose>
+    </sql>
+
+    <sql id="structuralVariantCaseFilter">
+        <choose>
+            <when test="molecularProfileCaseIdentifiers == null or molecularProfileCaseIdentifiers.isEmpty()">
+                NULL
+            </when>
+            <otherwise>
+                <choose>
+                    <when test="@java.util.Arrays@stream(molecularProfileCaseIdentifiers.{molecularProfileId}).distinct().count() == 1">
+                        AND geneticProfileId = #{molecularProfileCaseIdentifiers[0].molecularProfileId}
+                        AND caseStableId IN
+                        <foreach item="id" collection="molecularProfileCaseIdentifiers" open="(" separator="," close=")">
+                            #{id.caseId}
+                        </foreach>
+                    </when>
+                    <otherwise>
+                        AND (caseStableId, geneticProfileId) IN
+                        <foreach item="id" collection="molecularProfileCaseIdentifiers" open="(" separator="," close=")">
+                            (#{id.caseId}, #{id.molecularProfileId})
+                        </foreach>
+                    </otherwise>
+                </choose>
+            </otherwise>
+        </choose>
+    </sql>
+
+    <sql id="caseStableIdentifier">
+        <choose>
+            <when test="'${case_type}' == 'SAMPLE_ID'">
+                sample.STABLE_ID
+            </when>
+            <otherwise>
+                patient.STABLE_ID
+            </otherwise>
+        </choose>
+    </sql>
+
+    <sql id="caseUniqueIdentifier">
+        <choose>
+            <when test="'${case_type}' == 'SAMPLE_ID'">
+                sample.INTERNAL_ID
+            </when>
+            <otherwise>
+                patient.INTERNAL_ID
+            </otherwise>
+        </choose>
+    </sql>
+
+</mapper>

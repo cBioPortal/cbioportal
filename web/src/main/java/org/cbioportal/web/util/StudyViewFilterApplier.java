@@ -500,28 +500,15 @@ public class StudyViewFilterApplier {
                     .collect(Collectors.toSet());
             genefilter.setMolecularProfileIds(filteredMolecularProfileIds);
 
-            if (alterationTypes.size() == 1 && dataTypes.size() == 1) {
+            if (alterationTypes.size() == 1) {
                 MolecularAlterationType alterationType = alterationTypes.iterator().next();
-                String dataType = dataTypes.iterator().next();
                 if (alterationType == MolecularAlterationType.MUTATION_EXTENDED) {
                     mutatedGeneFilters.add(genefilter);
-                } else if (alterationType.equals(MolecularAlterationType.STRUCTURAL_VARIANT)) {
-                    // TODO: Remove once fusions are removed from mutation table
-                    // until then rename fusion with mutation profile
-                    if (dataType.equals("FUSION")) {
-                        filteredMolecularProfileIds = filteredMolecularProfiles
-                                .stream()
-                                .map(molecularProfile -> molecularProfile.getCancerStudyIdentifier() + "_mutations")
-                                .collect(Collectors.toSet());
-                        GeneFilter filter = new GeneFilter();
-                        filter.setGeneQueries(genefilter.getGeneQueries());
-                        filter.setMolecularProfileIds(filteredMolecularProfileIds);
-                        structuralVariantGeneFilters.add(filter);
-                    } else {
-                        structuralVariantGeneFilters.add(genefilter);
-                    }
+                } else if (alterationType.equals(MolecularAlterationType.STRUCTURAL_VARIANT) ||
+                        alterationType.equals(MolecularProfile.MolecularAlterationType.FUSION)) {
+                    structuralVariantGeneFilters.add(genefilter);
                 } else if (alterationType == MolecularAlterationType.COPY_NUMBER_ALTERATION
-                        && dataType.equals("DISCRETE")) {
+                        && dataTypes.size() == 1 && dataTypes.iterator().next().equals("DISCRETE")) {
                     cnaGeneFilters.add(genefilter);
                 }
             }

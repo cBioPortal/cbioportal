@@ -1,7 +1,6 @@
-package org.cbioportal.model.web.parameter;
+package org.cbioportal.model;
 
 public enum EnrichmentType {
-
     SAMPLE,
     PATIENT
 }

@@ -32,7 +32,7 @@
 
 package org.mskcc.cbio.portal.util;
 
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.mskcc.cbio.portal.model.ClinicalData;
 
 import java.io.BufferedReader;

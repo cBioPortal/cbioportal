@@ -6,6 +6,7 @@ import java.util.Map;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
+import org.cbioportal.model.EnrichmentType;
 import org.cbioportal.model.Gene;
 import org.cbioportal.model.GeneMolecularAlteration;
 import org.cbioportal.model.GenericAssayEnrichment;
@@ -14,7 +15,6 @@ import org.cbioportal.model.GenomicEnrichment;
 import org.cbioportal.model.MolecularProfile;
 import org.cbioportal.model.MolecularProfile.MolecularAlterationType;
 import org.cbioportal.model.MolecularProfileCaseIdentifier;
-import org.cbioportal.model.web.parameter.EnrichmentType;
 import org.cbioportal.model.meta.GenericAssayMeta;
 import org.cbioportal.persistence.MolecularDataRepository;
 import org.cbioportal.service.ExpressionEnrichmentService;

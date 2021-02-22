@@ -3,7 +3,7 @@ package org.cbioportal.web;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
-import org.apache.commons.lang.math.NumberUtils;
+import org.apache.commons.lang3.math.NumberUtils;
 import org.cbioportal.model.GeneMolecularData;
 import org.cbioportal.model.NumericGeneMolecularData;
 import org.cbioportal.service.exception.MolecularProfileNotFoundException;

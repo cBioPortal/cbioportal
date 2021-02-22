@@ -4,10 +4,10 @@ import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.cbioportal.model.EnrichmentType;
 import org.cbioportal.model.GenericAssayEnrichment;
 import org.cbioportal.model.GenomicEnrichment;
 import org.cbioportal.model.GroupStatistics;
-import org.cbioportal.model.web.parameter.EnrichmentType;
 import org.cbioportal.service.ExpressionEnrichmentService;
 import org.hamcrest.Matchers;
 import org.junit.Before;

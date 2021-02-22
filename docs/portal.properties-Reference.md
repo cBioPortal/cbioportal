@@ -214,7 +214,11 @@ Then, go to:  https://bitly.com/a/your_api_key
 
 # Google Analytics
 
-If you so desire, the following property is used to track your site's usage via google analytics.
+When the following property is defined, Google Analytics will track site usage.
+
+:warning: In contrast to what this property's name suggests, this should be the **GA Universal Analytics ID** (UA-XXXXX-YY), not to be confused with the new [GA-4 ID, introduced in 2020](https://support.google.com/analytics/answer/10089681). A Universal Analytics GA property can be created at [Google Analytics](https://analytics.google.com/analytics/web/provision/), create a new GA property, and make sure to click **Show advanced options** and switch on **Create a Universal Analytics property**. After creating a Universal Analytics property, the tracking ID can be found at **Admin**, column **property**, under **Property Settings**
+
+:warning: Adblockers may block site tracking by GA
 ```
 google_analytics_profile_id
 ```

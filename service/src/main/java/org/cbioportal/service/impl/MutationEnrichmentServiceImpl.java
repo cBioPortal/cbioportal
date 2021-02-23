@@ -30,7 +30,8 @@ public class MutationEnrichmentServiceImpl implements MutationEnrichmentService 
             molecularProfileCaseSets, enrichmentType);
 
         return alterationEnrichmentUtil.createAlterationEnrichments(mutationCountsbyEntrezGeneIdAndGroup,
-            molecularProfileCaseSets);
+            molecularProfileCaseSets,
+            enrichmentType);
     }
 
     public Map<String, List<AlterationCountByGene>> getMutationCountsbyEntrezGeneIdAndGroup(

@@ -4,6 +4,7 @@ import org.apache.commons.math3.stat.inference.ChiSquareTest;
 import org.cbioportal.model.AlterationCountByGene;
 import org.cbioportal.model.AlterationEnrichment;
 import org.cbioportal.model.CountSummary;
+import org.cbioportal.model.EnrichmentType;
 import org.cbioportal.model.Gene;
 import org.cbioportal.model.MolecularProfile;
 import org.cbioportal.model.MolecularProfileCaseIdentifier;
@@ -39,7 +40,8 @@ public class AlterationEnrichmentUtil<T extends AlterationCountByGene> {
 
     public List<AlterationEnrichment> createAlterationEnrichments(
             Map<String, List<T>> mutationCountsbyGroup,
-            Map<String, List<MolecularProfileCaseIdentifier>> molecularProfileCaseSets) {
+            Map<String, List<MolecularProfileCaseIdentifier>> molecularProfileCaseSets,
+            EnrichmentType enrichmentType) {
         
         Map<String, Map<Integer, AlterationCountByGene>> mutationCountsbyEntrezGeneIdAndGroup = mutationCountsbyGroup
                     .entrySet()
@@ -51,6 +53,9 @@ public class AlterationEnrichmentUtil<T extends AlterationCountByGene> {
                                 return entry.getValue().stream()
                                         .collect(Collectors.toMap(AlterationCountByGene::getEntrezGeneId, c -> c));
                             }));
+
+        Map<String, Integer> profiledCaseCountsByGroup = profiledCasesCounter.getProfiledCaseCountsByGroup(molecularProfileCaseSets,
+                enrichmentType);
 
         Set<Integer> allGeneIds = mutationCountsbyEntrezGeneIdAndGroup
                 .values()
@@ -90,7 +95,7 @@ public class AlterationEnrichmentUtil<T extends AlterationCountByGene> {
                                 .get(gene.getEntrezGeneId());
 
                         Integer alteredCount = mutationCountByGene != null ? mutationCountByGene.getNumberOfAlteredCases() : 0;
-                        Integer profiledCount = mutationCountByGene != null ? mutationCountByGene.getNumberOfProfiledCases() : molecularProfileCaseSets.get(group).size();
+                        Integer profiledCount = mutationCountByGene != null ? mutationCountByGene.getNumberOfProfiledCases() : profiledCaseCountsByGroup.get(group);
                         groupCasesCount.setName(group);
                         groupCasesCount.setAlteredCount(alteredCount);
                         groupCasesCount.setProfiledCount(profiledCount);

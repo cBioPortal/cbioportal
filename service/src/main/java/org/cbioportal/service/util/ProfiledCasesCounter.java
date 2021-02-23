@@ -130,4 +130,29 @@ public class ProfiledCasesCounter<T extends AlterationCountByGene> {
             return genePanelDataRecord.getStudyId() + genePanelDataRecord.getSampleId();
         }
     }
+
+    public Map<String, Integer> getProfiledCaseCountsByGroup(
+            Map<String, List<MolecularProfileCaseIdentifier>> molecularProfileCaseSets, EnrichmentType enrichmentType) {
+        Map<String, Integer> profiledCaseCountsByGroup = new HashMap<>();
+
+        molecularProfileCaseSets.entrySet().stream().forEach(entry -> {
+            List<String> sampleIds = new ArrayList<>();
+            List<String> molecularProfileIds = new ArrayList<>();
+            entry.getValue().forEach(pair -> {
+                sampleIds.add(pair.getCaseId());
+                molecularProfileIds.add(pair.getMolecularProfileId());
+            });
+            List<GenePanelData> genePanelDataList = genePanelService
+                    .fetchGenePanelDataInMultipleMolecularProfiles(molecularProfileIds, sampleIds);
+
+            Long profiledCaseCount = genePanelDataList
+                    .stream()
+                    .map(genePanelData -> computeUniqueCaseId(genePanelData,EnrichmentType.PATIENT.equals(enrichmentType)))
+                    .distinct()
+                    .count();
+
+            profiledCaseCountsByGroup.put(entry.getKey(), profiledCaseCount.intValue());
+        });
+        return profiledCaseCountsByGroup;
+    }
 }

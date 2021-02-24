@@ -54,7 +54,7 @@ public class AlterationEnrichmentUtil<T extends AlterationCountByGene> {
                                         .collect(Collectors.toMap(AlterationCountByGene::getEntrezGeneId, c -> c));
                             }));
 
-        Map<String, Integer> profiledCaseCountsByGroup = profiledCasesCounter.getProfiledCaseCountsByGroup(molecularProfileCaseSets,
+        Map<String, Long> profiledCaseCountsByGroup = profiledCasesCounter.getProfiledCaseCountsByGroup(molecularProfileCaseSets,
                 enrichmentType);
 
         Set<Integer> allGeneIds = mutationCountsbyEntrezGeneIdAndGroup
@@ -95,7 +95,7 @@ public class AlterationEnrichmentUtil<T extends AlterationCountByGene> {
                                 .get(gene.getEntrezGeneId());
 
                         Integer alteredCount = mutationCountByGene != null ? mutationCountByGene.getNumberOfAlteredCases() : 0;
-                        Integer profiledCount = mutationCountByGene != null ? mutationCountByGene.getNumberOfProfiledCases() : profiledCaseCountsByGroup.get(group);
+                        Integer profiledCount = mutationCountByGene != null ? mutationCountByGene.getNumberOfProfiledCases() : profiledCaseCountsByGroup.get(group).intValue();
                         groupCasesCount.setName(group);
                         groupCasesCount.setAlteredCount(alteredCount);
                         groupCasesCount.setProfiledCount(profiledCount);
@@ -183,37 +183,42 @@ public class AlterationEnrichmentUtil<T extends AlterationCountByGene> {
             List<String> patientIds,
             List<T> alterationCountByGenes,
             boolean includeMissingAlterationsFromGenePanel) {
-        
-        List<MolecularProfile> molecularProfiles = molecularProfileService
-                .getMolecularProfiles(molecularProfileIds, "SUMMARY");
-        
-        Map<String, MolecularProfile> molecularProfileMap = molecularProfiles.stream()
+
+        Map<String, MolecularProfile> molecularProfileById = molecularProfileService
+                .getMolecularProfiles(molecularProfileIds, "SUMMARY")
+                .stream()
                 .collect(Collectors.toMap(MolecularProfile::getStableId, Function.identity()));
 
-        List<String> studyIds = new ArrayList<String>();
+        List<String> studyIds = molecularProfileIds
+                .stream()
+                .map(molecularProfileById::get)
+                .map(MolecularProfile::getCancerStudyIdentifier)
+                .collect(Collectors.toList());
+        
+        
 
-        Map<String, String> patientIdMolecularProfileIdMap = new HashMap<String, String>();
+        Map<String, List<Sample>> samplesByPatient = sampleService
+                .getSamplesOfPatientsInMultipleStudies(studyIds, patientIds, "SUMMARY")
+                .stream()
+                .collect(Collectors.groupingBy(sample -> profiledCasesCounter.getUniquePatientId(sample)));
+
+        List<String> sampleIdsToQuery = new ArrayList<>();
+        List<String> molecularProfileIdsToQuery = new ArrayList<>();
 
         for (int index = 0; index < patientIds.size(); index++) {
-            String studyId = molecularProfileMap.get(molecularProfileIds.get(index)).getCancerStudyIdentifier();
-            studyIds.add(studyId);
-            patientIdMolecularProfileIdMap.put(patientIds.get(index), molecularProfileIds.get(index));
+            String patientId = patientIds.get(index);
+            String molecularProfileId = molecularProfileIds.get(index);
+            String studyId = molecularProfileById.get(molecularProfileIds.get(index)).getCancerStudyIdentifier();
+
+            samplesByPatient
+                    .getOrDefault(profiledCasesCounter.computeUniqueCaseId(studyId, patientId), new ArrayList<>())
+                    .forEach(sample -> {
+                        sampleIdsToQuery.add(sample.getStableId());
+                        molecularProfileIdsToQuery.add(molecularProfileId);
+                    });
         }
 
-        List<Sample> samples = sampleService.getSamplesOfPatientsInMultipleStudies(studyIds, patientIds,
-                "SUMMARY");
-
-        List<String> molecularProfileIdsofSampleIds = samples
-                .stream()
-                .map(sample -> patientIdMolecularProfileIdMap.get(sample.getPatientStableId()))
-                .collect(Collectors.toList());
-
-        List<String> sampleIds = samples
-                .stream()
-                .map(Sample::getStableId)
-                .collect(Collectors.toList());
-
-        profiledCasesCounter.calculate(molecularProfileIdsofSampleIds, sampleIds, alterationCountByGenes, true, includeMissingAlterationsFromGenePanel);
+        profiledCasesCounter.calculate(molecularProfileIdsToQuery, sampleIdsToQuery, alterationCountByGenes, true, includeMissingAlterationsFromGenePanel);
     }
 
     public void includeFrequencyForPatients(List<MolecularProfileCaseIdentifier> molecularProfileCaseIdentifiers,

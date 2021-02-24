@@ -1,10 +1,14 @@
 package org.cbioportal.service.util;
 
 import java.util.*;
+import java.util.Map.Entry;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 
 import org.cbioportal.model.*;
 import org.cbioportal.service.GenePanelService;
+import org.cbioportal.service.MolecularProfileService;
+import org.cbioportal.service.SampleService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
@@ -13,6 +17,10 @@ public class ProfiledCasesCounter<T extends AlterationCountByGene> {
 
     @Autowired
     private GenePanelService genePanelService;
+    @Autowired
+    private MolecularProfileService molecularProfileService;
+    @Autowired
+    private SampleService sampleService;
 
     public void calculate(List<String> molecularProfileIds, List<String> sampleIds,
             List<T> alterationCounts, boolean countByPatients, boolean includeMissingAlterationsFromGenePanel) {
@@ -131,28 +139,70 @@ public class ProfiledCasesCounter<T extends AlterationCountByGene> {
         }
     }
 
-    public Map<String, Integer> getProfiledCaseCountsByGroup(
+    public String computeUniqueCaseId(String studyId, String caseId) {
+        return studyId + caseId;
+    }
+
+    public String getUniquePatientId(Sample sample) {
+        return computeUniqueCaseId(sample.getCancerStudyIdentifier(), sample.getPatientStableId());
+    }
+
+    public Map<String, Long> getProfiledCaseCountsByGroup(
             Map<String, List<MolecularProfileCaseIdentifier>> molecularProfileCaseSets, EnrichmentType enrichmentType) {
-        Map<String, Integer> profiledCaseCountsByGroup = new HashMap<>();
 
-        molecularProfileCaseSets.entrySet().stream().forEach(entry -> {
-            List<String> sampleIds = new ArrayList<>();
-            List<String> molecularProfileIds = new ArrayList<>();
+        return molecularProfileCaseSets.entrySet().stream().collect(Collectors.toMap(Entry::getKey, entry -> {
+            List<String> queriedCaseIds = new ArrayList<>();
+            List<String> queriedMolecularProfileIds = new ArrayList<>();
             entry.getValue().forEach(pair -> {
-                sampleIds.add(pair.getCaseId());
-                molecularProfileIds.add(pair.getMolecularProfileId());
+                queriedCaseIds.add(pair.getCaseId());
+                queriedMolecularProfileIds.add(pair.getMolecularProfileId());
             });
-            List<GenePanelData> genePanelDataList = genePanelService
-                    .fetchGenePanelDataInMultipleMolecularProfiles(molecularProfileIds, sampleIds);
 
-            Long profiledCaseCount = genePanelDataList
+            List<String> sampleIdsToQuery = new ArrayList<>();
+            List<String> molecularProfileIdsToQuery = new ArrayList<>();
+
+            if (EnrichmentType.PATIENT.equals(enrichmentType)) {
+
+                Map<String, MolecularProfile> molecularProfileById = molecularProfileService
+                        .getMolecularProfiles(new ArrayList<>(new HashSet<>(queriedMolecularProfileIds)), "SUMMARY")
+                        .stream()
+                        .collect(Collectors.toMap(MolecularProfile::getStableId, Function.identity()));
+
+                List<String> studyIds = queriedMolecularProfileIds
+                        .stream()
+                        .map(molecularProfileById::get)
+                        .map(MolecularProfile::getCancerStudyIdentifier)
+                        .collect(Collectors.toList());
+
+                Map<String, List<Sample>> samplesByPatient = sampleService
+                        .getSamplesOfPatientsInMultipleStudies(studyIds, queriedCaseIds, "SUMMARY")
+                        .stream()
+                        .collect(Collectors.groupingBy(sample -> getUniquePatientId(sample)));
+
+                entry.getValue().forEach(pair -> {
+                    String patientId = pair.getCaseId();
+                    String molecularProfileId = pair.getMolecularProfileId();
+                    String studyId = molecularProfileById.get(molecularProfileId).getCancerStudyIdentifier();
+
+                    samplesByPatient
+                            .getOrDefault(computeUniqueCaseId(studyId, patientId), new ArrayList<>())
+                            .forEach(sample -> {
+                                sampleIdsToQuery.add(sample.getStableId());
+                                molecularProfileIdsToQuery.add(molecularProfileId);
+                            });
+                });
+            } else {
+                sampleIdsToQuery.addAll(queriedCaseIds);
+                molecularProfileIdsToQuery.addAll(queriedMolecularProfileIds);
+            }
+
+            return genePanelService
+                    .fetchGenePanelDataInMultipleMolecularProfiles(molecularProfileIdsToQuery, sampleIdsToQuery)
                     .stream()
-                    .map(genePanelData -> computeUniqueCaseId(genePanelData,EnrichmentType.PATIENT.equals(enrichmentType)))
+                    .map(genePanelData -> computeUniqueCaseId(genePanelData,
+                            EnrichmentType.PATIENT.equals(enrichmentType)))
                     .distinct()
                     .count();
-
-            profiledCaseCountsByGroup.put(entry.getKey(), profiledCaseCount.intValue());
-        });
-        return profiledCaseCountsByGroup;
+        }));
     }
 }

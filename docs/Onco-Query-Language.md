@@ -41,7 +41,7 @@ Data Type | Keywords and Syntax | Default*
 --------- | ------------------- | --------
 Mutations | `MUT` All non-synonymous mutations <br> `MUT = <protein change>` Specific amino acid changes (e.g. `V600E` or `V600`) <br> `MUT = <mutation type>` Acceptable values are: `MISSENSE, NONSENSE, NONSTART, NONSTOP, FRAMESHIFT, INFRAME, SPLICE, TRUNC` | `MUT`
 Fusions | `FUSION` All fusions (note that many studies lack fusion data) | `FUSION`
-Copy Number Alterations | `AMP` Amplifications <br> `HOMDEL` Deep Deletions <br> `GAIN` Gains <br> `HETLOSS` Shallow Deletions <br> Comparison operators can also be used with `CNA` (e.g. `CNA >= GAIN` is the same as `AMP GAIN`) | `AMP` <br> `HOMDEL`
+Copy Number Alterations | `AMP` Amplifications <br> `DeepDel` Deep Deletions <br> `GAIN` Gains <br> `ShallowDel` Shallow Deletions <br> Comparison operators can also be used with `CNA` (e.g. `CNA >= GAIN` is the same as `AMP GAIN`) | `AMP` <br> `DeepDel`
 mRNA Expression | `EXP < -x` mRNA expression is less than `x` standard deviations (SD) below the mean <br> `EXP > x` mRNA expression is greater than `x` SD above the mean <br> The comparison operators `<=` and `>=` also work | `EXP >= 2` <br> `EXP <= -2`
 Protein/phosphoprotein level | `PROT < -x` Protein expression is less than `x` standard deviations (SD) below the mean <br> `PROT > x` Protein expression is greater than `x` SD above the mean <br> The comparison operators `<=` and `>=` also work | `PROT >= 2` <br> `PROT <= -2`
 
@@ -63,7 +63,7 @@ Keyword | Applicable Data Type | Explanation
 <a name="basic-usage"></a>
 ## Basic Usage
 When querying a gene without providing any OQL specifications, cBioPortal will default to these OQL terms for a query with Mutation and Copy Number selected in the Genomic Profiles section:
-`MUT FUSION AMP HOMDEL`
+`MUT FUSION AMP DeepDel`
 
 ![image of basic query](https://raw.githubusercontent.com/cBioPortal/cbioportal/master/docs/images/OQL/basic_query.png)
 
@@ -217,7 +217,7 @@ When combining `DRIVER` with another OQL term, the order doesn't matter: `MUT_DR
 * `MUT = <mutation type>` or `MUT = <protein change>`
 * `FUSION`
 * `CNA`
-* `AMP` or `GAIN` or `HETLOSS` or `HOMDEL`
+* `AMP` or `GAIN` or `ShallowDel` or `DeepDel`
 * `GERMLINE` or `SOMATIC` (see below)
 
 
@@ -258,14 +258,14 @@ BRCA1: NONSENSE_GERMLINE_DRIVER
 ## The DATATYPES Command
 To save copying and pasting, the `DATATYPES` command sets the genetic annotation for all subsequent genes. Thus,
 ```
-DATATYPES: AMP GAIN HOMDEL EXP > 1.5 EXP < -1.5; CDKN2A MDM2 TP53
+DATATYPES: AMP GAIN DeepDel EXP > 1.5 EXP < -1.5; CDKN2A MDM2 TP53
 ```
 
 is equivalent to:
 ```
-CDKN2A: AMP GAIN HOMDEL EXP > 1.5 EXP < -1.5
-MDM2: AMP GAIN HOMDEL EXP > 1.5 EXP < -1.5
-TP53: AMP GAIN HOMDEL EXP > 1.5 EXP < -1.5
+CDKN2A: AMP GAIN DeepDel EXP > 1.5 EXP < -1.5
+MDM2: AMP GAIN DeepDel EXP > 1.5 EXP < -1.5
+TP53: AMP GAIN DeepDel EXP > 1.5 EXP < -1.5
 ```
 
 <br>
@@ -321,8 +321,8 @@ Submit this query and note how many samples have alterations in multiple of thes
 Given what is known about the RB pathway, the events that are most likely selected for in the tumors are CCNE1 amplification, RB1 deletions or mutations, and loss of expression of CDKN2A. To investigate this hypothesis, we can use OQL to display only these events. Modify the query to reflect this:
 ```
 CCNE1: AMP MUT
-RB1: HOMDEL MUT
-CDKN2A: HOMDEL EXP < -1
+RB1: DeepDel MUT
+CDKN2A: DeepDel EXP < -1
 ```
 
 Examine the updated OncoPrint:

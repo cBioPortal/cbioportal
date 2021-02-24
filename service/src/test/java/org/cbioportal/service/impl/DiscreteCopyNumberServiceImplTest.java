@@ -38,7 +38,7 @@ public class DiscreteCopyNumberServiceImplTest extends BaseServiceImplTest {
     private MolecularProfileService molecularProfileService;
     
     @Test
-    public void getDiscreteCopyNumbersInMultipleMolecularProfilesHomdelOrAmp() {
+    public void getDiscreteCopyNumbersInMultipleMolecularProfilesDeepdelOrAmp() {
         List<DiscreteCopyNumberData> returned = Arrays.asList(
             discreteCopyNumberData("sample1", "study1", -2),
             discreteCopyNumberData("sample2", "study2", 2)
@@ -102,7 +102,7 @@ public class DiscreteCopyNumberServiceImplTest extends BaseServiceImplTest {
     }
     
     @Test
-    public void getDiscreteCopyNumbersInMolecularProfileBySampleListIdHomdelOrAmp() throws Exception {
+    public void getDiscreteCopyNumbersInMolecularProfileBySampleListIdDeepdelOrAmp() throws Exception {
 
         createMolecularProfile();
 
@@ -125,7 +125,7 @@ public class DiscreteCopyNumberServiceImplTest extends BaseServiceImplTest {
     }
 
     @Test
-    public void getDiscreteCopyNumbersInMolecularProfileBySampleListIdNonHomdelOrAmp() throws Exception {
+    public void getDiscreteCopyNumbersInMolecularProfileBySampleListIdNonDeepdelOrAmp() throws Exception {
 
         createMolecularProfile();
         
@@ -159,7 +159,7 @@ public class DiscreteCopyNumberServiceImplTest extends BaseServiceImplTest {
     }
 
     @Test
-    public void getMetaDiscreteCopyNumbersInMolecularProfileBySampleListIdHomdelOrAmp() throws Exception {
+    public void getMetaDiscreteCopyNumbersInMolecularProfileBySampleListIdDeepdelOrAmp() throws Exception {
 
         createMolecularProfile();
 
@@ -178,7 +178,7 @@ public class DiscreteCopyNumberServiceImplTest extends BaseServiceImplTest {
     }
 
     @Test
-    public void getMetaDiscreteCopyNumbersInMolecularProfileBySampleListIdNonHomdelOrAmp() throws Exception {
+    public void getMetaDiscreteCopyNumbersInMolecularProfileBySampleListIdNonDeepdelOrAmp() throws Exception {
 
         createMolecularProfile();
 
@@ -200,7 +200,7 @@ public class DiscreteCopyNumberServiceImplTest extends BaseServiceImplTest {
     }
 
     @Test
-    public void fetchDiscreteCopyNumbersInMolecularProfileHomdelOrAmp() throws Exception {
+    public void fetchDiscreteCopyNumbersInMolecularProfileDeepdelOrAmp() throws Exception {
 
         createMolecularProfile();
 
@@ -222,7 +222,7 @@ public class DiscreteCopyNumberServiceImplTest extends BaseServiceImplTest {
     }
 
     @Test
-    public void fetchDiscreteCopyNumbersInMolecularProfileNonHomdelOrAmp() throws Exception {
+    public void fetchDiscreteCopyNumbersInMolecularProfileNonDeepdelOrAmp() throws Exception {
 
         createMolecularProfile();
 
@@ -255,7 +255,7 @@ public class DiscreteCopyNumberServiceImplTest extends BaseServiceImplTest {
     }
 
     @Test
-    public void fetchMetaDiscreteCopyNumbersInMolecularProfileHomdelOrAmp() throws Exception {
+    public void fetchMetaDiscreteCopyNumbersInMolecularProfileDeepdelOrAmp() throws Exception {
 
         createMolecularProfile();
 
@@ -273,7 +273,7 @@ public class DiscreteCopyNumberServiceImplTest extends BaseServiceImplTest {
     }
 
     @Test
-    public void fetchMetaDiscreteCopyNumbersInMolecularProfileNonHomdelOrAmp() throws Exception {
+    public void fetchMetaDiscreteCopyNumbersInMolecularProfileNonDeepdelOrAmp() throws Exception {
 
         createMolecularProfile();
 

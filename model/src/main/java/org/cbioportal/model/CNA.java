@@ -7,8 +7,8 @@ public enum CNA {
     AMP ((short)2, "Amplified"),
     GAIN ((short)1, "Gained"),
     DIPLOID ((short)0, "Diploid"),
-    HETLOSS ((short)-1, "Heterozygously deleted"),
-    HOMDEL ((short)-2, "Homozygously deleted");
+    SHALLOWDEL((short)-1, "Heterozygously deleted"),
+    DEEPDEL((short)-2, "Homozygously deleted");
     
     private short code;
     private String desc;

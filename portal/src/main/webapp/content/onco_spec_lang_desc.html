@@ -14,11 +14,11 @@ on the cBioPortal for Cancer Genomics, including the OncoPrint, heat map, and da
         <td>Copy Number Alterations</td>
         <td><TT>CNA</TT></td>
         <td><TT>AMP </TT> Amplified<BR>
-            <TT>HOMDEL </TT> Deep Deletion<BR>
+            <TT>DEEPDEL </TT> Deep Deletion<BR>
             <TT>GAIN </TT> Gained<BR>
-            <TT>HETLOSS </TT> Shallow Deletion
+            <TT>SHALLOWDEL </TT> Shallow Deletion
         </td>
-        <td><TT>AMP</TT> and <TT>HOMDEL</TT></td>
+        <td><TT>AMP</TT> and <TT>DEEPDEL</TT></td>
     </tr>
     <tr>
         <td>Mutations</td>
@@ -121,8 +121,8 @@ in the tumors are CCNE1 amplification, RB1 deletions or mutations, and loss of e
 of CDKN2A.  To investigate this hypothesis, we use OQL to display only
 these events:</p>
 <pre><code>CCNE1: AMP MUT
-RB1: HOMDEL MUT
-CDKN2A: HOMDEL EXP &lt; -1
+RB1: DEEPDEL MUT
+CDKN2A: DEEPDEL EXP &lt; -1
 </code></pre>
 <p><img alt="Example 1" src="images/example_oncoPrint_for_instructions_2.png" /></p>
 <p>This shows that alterations in these genes are almost entirely mutually-exclusive --
@@ -130,12 +130,12 @@ no cases are altered in all three genes, and only 8 are altered in two genes.
 This supports the theory that the tumor has selected for these events. </p>
 <h2 id="the-datatypes-command">The DATATYPES Command</h2>
 <p>To save copying and pasting, the DATATYPES command sets the genetic annotation for all subsequent genes. Thus,</p>
-<pre><code>DATATYPES: AMP GAIN HOMDEL EXP &gt; 1.5 EXP&lt;=-1.5; CDKN2A MDM2 TP53
+<pre><code>DATATYPES: AMP GAIN DEEPDEL EXP &gt; 1.5 EXP&lt;=-1.5; CDKN2A MDM2 TP53
 </code></pre>
 <p>is equivalent to</p>
-<pre><code>CDKN2A : AMP GAIN HOMDEL EXP&lt;=-1.5 EXP&gt;1.5;
-MDM2   : AMP GAIN HOMDEL EXP&lt;=-1.5 EXP&gt;1.5;
-TP53   : AMP GAIN HOMDEL EXP&lt;=-1.5 EXP&gt;1.5;
+<pre><code>CDKN2A : AMP GAIN DEEPDEL EXP&lt;=-1.5 EXP&gt;1.5;
+MDM2   : AMP GAIN DEEPDEL EXP&lt;=-1.5 EXP&gt;1.5;
+TP53   : AMP GAIN DEEPDEL EXP&lt;=-1.5 EXP&gt;1.5;
 </code></pre>
 <p>Note that the order of datatype specifications is immaterial,
 and that a ': sequence of data specifications ' command can be terminated by an end-of-line, a semicolon or both.</p>

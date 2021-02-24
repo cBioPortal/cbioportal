@@ -3,19 +3,15 @@ package org.cbioportal.web.parameter;
 import java.util.Arrays;
 import java.util.List;
 
-public enum DiscreteCopyNumberEventType {
+public enum CopyNumberEnrichmentEventType {
 
-    DEEPDEL_AND_AMP(-2, 2),
     DEEPDEL(-2),
-    AMP(2),
-    GAIN(1),
-    SHALLOWDEL(-1),
-    DIPLOID(0),
-    ALL(-2, -1, 0, 1, 2);
+    AMP(2);
 
     private List<Integer> alterationTypes;
 
-    DiscreteCopyNumberEventType(Integer... alterationTypes) {
+    CopyNumberEnrichmentEventType(Integer... alterationTypes) {
+
         this.alterationTypes = Arrays.asList(alterationTypes);
     }
 

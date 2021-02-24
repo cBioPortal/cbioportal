@@ -55,7 +55,7 @@ public class DiscreteCopyNumberController {
         @ApiParam(required = true, value = "Sample List ID e.g. acc_tcga_all")
         @RequestParam String sampleListId,
         @ApiParam("Type of the copy number event")
-        @RequestParam(defaultValue = "HOMDEL_AND_AMP") DiscreteCopyNumberEventType discreteCopyNumberEventType,
+        @RequestParam(defaultValue = "DEEPDEL_AND_AMP") DiscreteCopyNumberEventType discreteCopyNumberEventType,
         @ApiParam("Level of detail of the response")
         @RequestParam(defaultValue = "SUMMARY") Projection projection) throws MolecularProfileNotFoundException {
 
@@ -82,7 +82,7 @@ public class DiscreteCopyNumberController {
         @ApiParam(required = true, value = "Molecular Profile ID e.g. acc_tcga_gistic")
         @PathVariable String molecularProfileId,
         @ApiParam("Type of the copy number event")
-        @RequestParam(defaultValue = "HOMDEL_AND_AMP") DiscreteCopyNumberEventType discreteCopyNumberEventType,
+        @RequestParam(defaultValue = "DEEPDEL_AND_AMP") DiscreteCopyNumberEventType discreteCopyNumberEventType,
         @ApiParam(required = true, value = "List of Sample IDs/Sample List ID and Entrez Gene IDs")
         @Valid @RequestBody DiscreteCopyNumberFilter discreteCopyNumberFilter,
         @ApiParam("Level of detail of the response")

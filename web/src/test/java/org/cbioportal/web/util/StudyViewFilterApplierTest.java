@@ -182,7 +182,7 @@ public class StudyViewFilterApplierTest {
         geneFilters.add(mutationGeneFilter);
 
         GeneFilter copyNumberGeneFilter = new GeneFilter();
-        copyNumberGeneFilter.setGeneQueries(Arrays.asList(Arrays.asList(HUGO_GENE_SYMBOL_2 + ":HOMDEL")));
+        copyNumberGeneFilter.setGeneQueries(Arrays.asList(Arrays.asList(HUGO_GENE_SYMBOL_2 + ":DEEPDEL")));
         copyNumberGeneFilter.setMolecularProfileIds(new HashSet<>(Arrays.asList(MOLECULAR_PROFILE_ID_2)));
         geneFilters.add(copyNumberGeneFilter);
         studyViewFilter.setGeneFilters(geneFilters);

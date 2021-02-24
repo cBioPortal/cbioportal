@@ -354,7 +354,7 @@ In this example, only one gene set will appear in the query page, under the name
 ```
 [{
 	"id": "Genes with alterations",
-	"genes": ["TP53: MUT=R273C;", "KRAS: HOMDEL MUT=NONSENSE MUT=NONSTART MUT=NONSTOP MUT=FRAMESHIFT MUT=SPLICE MUT=TRUNC;"]
+	"genes": ["TP53: MUT=R273C;", "KRAS: DEEPDEL MUT=NONSENSE MUT=NONSTART MUT=NONSTOP MUT=FRAMESHIFT MUT=SPLICE MUT=TRUNC;"]
 }]
 ```
 
@@ -363,13 +363,13 @@ In this example, only one gene set will appear in the query page, under the name
 ```
 [{
 	"id": "BRCA genes test",
-	"genes": ["[\\\"BRCA genes\\\" BRCA1: MUT=E1258D;", "BRCA2: HOMDEL MUT=NONSENSE MUT=NONSTART MUT=NONSTOP MUT=FRAMESHIFT MUT=SPLICE MUT=TRUNC;]"]
+	"genes": ["[\\\"BRCA genes\\\" BRCA1: MUT=E1258D;", "BRCA2: DEEPDEL MUT=NONSENSE MUT=NONSTART MUT=NONSTOP MUT=FRAMESHIFT MUT=SPLICE MUT=TRUNC;]"]
 }]
 ```
 
 This gene set will add the following in the query box:
 ```
-"BRCA genes" BRCA1: MUT=E1258D; BRCA2: HOMDEL MUT=NONSENSE MUT=NONSTART MUT=NONSTOP MUT=FRAMESHIFT MUT=SPLICE MUT=TRUNC;
+"BRCA genes" BRCA1: MUT=E1258D; BRCA2: DEEPDEL MUT=NONSENSE MUT=NONSTART MUT=NONSTOP MUT=FRAMESHIFT MUT=SPLICE MUT=TRUNC;
 ```
 # Cache Settings
 cBioPortal is supported on the backend with Ehcache or Redis. These caches are configurable from within portal.properties through the following properties.

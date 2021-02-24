@@ -35,7 +35,7 @@ public class DiscreteCopyNumberServiceImpl implements DiscreteCopyNumberService 
         throws MolecularProfileNotFoundException {
 
         validateMolecularProfile(molecularProfileId);
-        if (isHomdelOrAmpOnly(alterationTypes)) {
+        if (isDeepdelOrAmpOnly(alterationTypes)) {
 
             return discreteCopyNumberRepository.getDiscreteCopyNumbersInMolecularProfileBySampleListId(molecularProfileId,
                 sampleListId, entrezGeneIds, alterationTypes, projection);
@@ -53,7 +53,7 @@ public class DiscreteCopyNumberServiceImpl implements DiscreteCopyNumberService 
         throws MolecularProfileNotFoundException {
 
         validateMolecularProfile(molecularProfileId);
-        if (isHomdelOrAmpOnly(alterationTypes)) {
+        if (isDeepdelOrAmpOnly(alterationTypes)) {
             return discreteCopyNumberRepository.getMetaDiscreteCopyNumbersInMolecularProfileBySampleListId(
                 molecularProfileId, sampleListId, entrezGeneIds, alterationTypes);
         }
@@ -76,7 +76,7 @@ public class DiscreteCopyNumberServiceImpl implements DiscreteCopyNumberService 
         throws MolecularProfileNotFoundException {
 
         validateMolecularProfile(molecularProfileId);
-        if (isHomdelOrAmpOnly(alterationTypes)) {
+        if (isDeepdelOrAmpOnly(alterationTypes)) {
             return discreteCopyNumberRepository.fetchDiscreteCopyNumbersInMolecularProfile(molecularProfileId, 
                 sampleIds, entrezGeneIds, alterationTypes, projection);
         }
@@ -93,7 +93,7 @@ public class DiscreteCopyNumberServiceImpl implements DiscreteCopyNumberService 
                                                                                           List<Integer> alterationTypes, 
                                                                                           String projection) {
         
-        if (isHomdelOrAmpOnly(alterationTypes)) {
+        if (isDeepdelOrAmpOnly(alterationTypes)) {
             return discreteCopyNumberRepository.getDiscreteCopyNumbersInMultipleMolecularProfiles(molecularProfileIds,
                 sampleIds, entrezGeneIds, alterationTypes, projection);
         }
@@ -118,7 +118,7 @@ public class DiscreteCopyNumberServiceImpl implements DiscreteCopyNumberService 
         throws MolecularProfileNotFoundException {
 
         validateMolecularProfile(molecularProfileId);
-        if (isHomdelOrAmpOnly(alterationTypes)) {
+        if (isDeepdelOrAmpOnly(alterationTypes)) {
             return discreteCopyNumberRepository.fetchMetaDiscreteCopyNumbersInMolecularProfile(molecularProfileId,
                 sampleIds, entrezGeneIds, alterationTypes);
         }
@@ -193,7 +193,7 @@ public class DiscreteCopyNumberServiceImpl implements DiscreteCopyNumberService 
         return discreteCopyNumberData;
     }
 
-    private boolean isHomdelOrAmpOnly(List<Integer> alterationTypes) {
+    private boolean isDeepdelOrAmpOnly(List<Integer> alterationTypes) {
 
         return !alterationTypes.contains(-1) && !alterationTypes.contains(0) && !alterationTypes.contains(1);
     }

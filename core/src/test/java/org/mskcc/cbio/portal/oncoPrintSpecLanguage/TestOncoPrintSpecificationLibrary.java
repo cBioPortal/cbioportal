@@ -101,7 +101,7 @@ public class TestOncoPrintSpecificationLibrary{
         Assert.assertEquals(GeneticTypeLevel.HomozygouslyDeleted,
                 GeneticTypeLevel.findDataTypeLevel("HomozygouslyDeleted") );
         Assert.assertEquals(GeneticTypeLevel.HomozygouslyDeleted,
-                GeneticTypeLevel.findDataTypeLevel("Homdel") );
+                GeneticTypeLevel.findDataTypeLevel("DeepDel") );
         Assert.assertEquals(GeneticTypeLevel.HomozygouslyDeleted,
                 GeneticTypeLevel.findDataTypeLevel("Hom") );
         Assert.assertEquals(GeneticTypeLevel.HemizygouslyDeleted,
@@ -109,9 +109,9 @@ public class TestOncoPrintSpecificationLibrary{
         Assert.assertEquals(GeneticTypeLevel.HemizygouslyDeleted,
                 GeneticTypeLevel.findDataTypeLevel("Hemi") );
         Assert.assertEquals(GeneticTypeLevel.HemizygouslyDeleted,
-                GeneticTypeLevel.findDataTypeLevel("Hetloss") );
+                GeneticTypeLevel.findDataTypeLevel("ShallowDel") );
         Assert.assertEquals(GeneticTypeLevel.HemizygouslyDeleted,
-                GeneticTypeLevel.findDataTypeLevel("HET") );
+                GeneticTypeLevel.findDataTypeLevel("SHALLOW") );
         Assert.assertEquals(GeneticTypeLevel.Diploid,
                 GeneticTypeLevel.findDataTypeLevel("Diploid") );
         Assert.assertEquals(GeneticTypeLevel.Diploid,

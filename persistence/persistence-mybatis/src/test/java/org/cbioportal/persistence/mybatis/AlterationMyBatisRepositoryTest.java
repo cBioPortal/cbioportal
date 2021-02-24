@@ -44,7 +44,7 @@ public class AlterationMyBatisRepositoryTest {
     ));
     Select<CNA> cnaEventTypes = Select.byValues(Arrays.asList(
         CNA.AMP,
-        CNA.HOMDEL
+        CNA.DEEPDEL
     ));
     List<MolecularProfileCaseIdentifier> sampleIdToProfileId = new ArrayList<>();
     List<MolecularProfileCaseIdentifier> patientIdToProfileId = new ArrayList<>();

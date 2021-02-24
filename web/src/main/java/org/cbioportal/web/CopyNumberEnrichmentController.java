@@ -46,7 +46,7 @@ public class CopyNumberEnrichmentController {
         @ApiIgnore // prevent reference to this attribute in the swagger-ui interface. this attribute is needed for the @PreAuthorize tag above.
         @Valid @RequestAttribute(required = false, value = "interceptedMolecularProfileCasesGroupFilters") List<MolecularProfileCasesGroupFilter> interceptedMolecularProfileCasesGroupFilters,
         @ApiParam("Type of the copy number event")
-        @RequestParam(defaultValue = "HOMDEL") CNA copyNumberEventType,
+        @RequestParam(defaultValue = "DEEPDEL") CNA copyNumberEventType,
         @ApiParam("Type of the enrichment e.g. SAMPLE or PATIENT")
         @RequestParam(defaultValue = "SAMPLE") EnrichmentType enrichmentType,
         @ApiParam(required = true, value = "List of groups containing sample identifiers")

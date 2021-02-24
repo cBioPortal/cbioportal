@@ -18,11 +18,11 @@ Users can define genetic alterations for three data types:
         <td>Copy Number Alterations</td>
         <td><TT>CNA</TT></td>
         <td><TT>AMP </TT> Amplified<BR>
-            <TT>HOMDEL </TT> Deep Deletion<BR>
+            <TT>DEEPDEL </TT> Deep Deletion<BR>
             <TT>GAIN </TT> Gained<BR>
-            <TT>HETLOSS </TT> Shallow Deletion
+            <TT>SHALLOWDEL </TT> Shallow Deletion
         </td>
-        <td><TT>AMP</TT> and <TT>HOMDEL</TT></td>
+        <td><TT>AMP</TT> and <TT>DEEPDEL</TT></td>
     </tr>
     <tr>
         <td>Mutations</td>
@@ -140,8 +140,8 @@ of CDKN2A.  To investigate this hypothesis, we use OQL to display only
 these events:
 
 	CCNE1: AMP MUTATED
-	RB1: HOMDEL MUTATED
-	CDKN2A: HOMDEL EXP < -1
+	RB1: DEEPDEL MUTATED
+	CDKN2A: DEEPDEL EXP < -1
 
 ![Example 1](images/example_oncoPrint_for_instructions_2.png)
 
@@ -153,13 +153,13 @@ This supports the theory that the tumor has selected for these events.
 
 To save copying and pasting, the DATATYPES command sets the genetic annotation for all subsequent genes. Thus,
 
-	DATATYPES: AMP GAIN HOMDEL EXP > 1.5 EXP<=-1.5;	CDKN2A MDM2 TP53
+	DATATYPES: AMP GAIN DEEPDEL EXP > 1.5 EXP<=-1.5;	CDKN2A MDM2 TP53
 
 is equivalent to
 
-	CDKN2A : AMP GAIN HOMDEL EXP<=-1.5 EXP>1.5;
-	MDM2   : AMP GAIN HOMDEL EXP<=-1.5 EXP>1.5;
-	TP53   : AMP GAIN HOMDEL EXP<=-1.5 EXP>1.5;
+	CDKN2A : AMP GAIN DEEPDEL EXP<=-1.5 EXP>1.5;
+	MDM2   : AMP GAIN DEEPDEL EXP<=-1.5 EXP>1.5;
+	TP53   : AMP GAIN DEEPDEL EXP<=-1.5 EXP>1.5;
 
 Note that the order of datatype specifications is immaterial,
 and that a ': sequence of data specifications ' command can be terminated by an end-of-line, a semicolon or both.

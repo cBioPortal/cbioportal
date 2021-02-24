@@ -130,9 +130,9 @@ public class TestOncoPrintSpecificationInParser {
         
         // nicknames
         tryADiscreteDataType(GeneticDataTypes.CopyNumberAlteration,
-                ComparisonOp.Greater, GeneticTypeLevel.HemizygouslyDeleted, "CNA > Hetloss");
+                ComparisonOp.Greater, GeneticTypeLevel.HemizygouslyDeleted, "CNA > ShallowDel");
         tryADiscreteDataType(GeneticDataTypes.CopyNumberAlteration,
-                ComparisonOp.Less, GeneticTypeLevel.HomozygouslyDeleted, "CNA < Homdel");
+                ComparisonOp.Less, GeneticTypeLevel.HomozygouslyDeleted, "CNA < DeepDel");
         tryADiscreteDataType(GeneticDataTypes.CopyNumberAlteration,
                 ComparisonOp.Less, GeneticTypeLevel.HomozygouslyDeleted, "CNA < hom");
         
@@ -204,11 +204,11 @@ public class TestOncoPrintSpecificationInParser {
             
             // nicknames
             tryADataTypeSpec(GeneticDataTypes.CopyNumberAlteration,
-                    ComparisonOp.Greater, GeneticTypeLevel.HemizygouslyDeleted, "CNA > Hetloss");
-            tryADataTypeSpec(GeneticDataTypes.CopyNumberAlteration,
-                    ComparisonOp.Less, GeneticTypeLevel.HomozygouslyDeleted, "CNA < Homdel");
+                ComparisonOp.Greater, GeneticTypeLevel.HemizygouslyDeleted, "CNA > ShallowDel");
             tryADataTypeSpec(GeneticDataTypes.CopyNumberAlteration,
                     ComparisonOp.Less, GeneticTypeLevel.HomozygouslyDeleted, "CNA < hom");
+            tryADataTypeSpec(GeneticDataTypes.CopyNumberAlteration,
+                ComparisonOp.Less, GeneticTypeLevel.HomozygouslyDeleted, "CNA < DeepDel");
             
             // aDiscreteDataTypeSetSpecs
             tryADataTypeSpec(GeneticDataTypes.CopyNumberAlteration,
@@ -304,8 +304,8 @@ public class TestOncoPrintSpecificationInParser {
     public void testFullDataTypeSpecInParser() {        
         try {
            OncoPrintGeneDisplaySpec theResultFullDataTypeSpec = (OncoPrintGeneDisplaySpec)parseMethod
-                   ( "fullDataTypeSpec", ": Mutation Mut Meth  HetLoss Exp<-1   " +
-                    "HetLoss Exp>=1.5  Exp <= -1.5   C -2 Expression<-2; " ); 
+                   ( "fullDataTypeSpec", ": Mutation Mut Meth  ShallowDel Exp<-1   " +
+                    "ShallowDel Exp>=1.5  Exp <= -1.5   C -2 Expression<-2; " ); 
             Assert.assertTrue( theResultFullDataTypeSpec.satisfy(GeneticDataTypes.Mutation, null ));
 
             Assert.assertTrue( theResultFullDataTypeSpec.satisfy(GeneticDataTypes.Methylation, 2f ));
@@ -352,7 +352,7 @@ public class TestOncoPrintSpecificationInParser {
         try {
             GeneSet theGeneSet = (GeneSet) parseMethod( "userGeneList", 
                     " DATATYPES : CNA Mutation C -2 Expression<-2; amazin " + 
-                    "g5 : CNA Hetloss Homdel Expression <-1;" +
+                    "g5 : CNA ShallowDel DeepDel Expression <-1;" +
                     " DATATYPES : Meth C<Dip; foo " );
             ArrayList<GeneWithSpec> theGenes = theGeneSet.getGenes();
             checkAgeneWithSpec( theGenes.get(0) );
@@ -469,7 +469,7 @@ public class TestOncoPrintSpecificationInParser {
            GeneSet h = new GeneSet( );
            h.addGeneWithSpec(g);
            GeneWithSpec aGeneWithSpec = (GeneWithSpec) parseMethod( "individualGene",
-                   "gene3 : Hetloss Homdel Expression <-1;");
+                   "gene3 : ShallowDel DeepDel Expression <-1;");
            h.addGeneWithSpec(aGeneWithSpec);
            expectedGeneSets.add( h );
 
@@ -494,7 +494,7 @@ public class TestOncoPrintSpecificationInParser {
            OncoPrintGeneDisplaySpec theOncoPrintGeneDisplaySpec = new OncoPrintGeneDisplaySpec();
            theOncoPrintGeneDisplaySpec.setDefault( 1.0, 1.0 );
            ParserOutput theParserOutput = CallOncoPrintSpecParser.callOncoPrintSpecParser
-                   ("gene2 gene3 : Hetloss Homdel Expression <-1; " +
+                   ("gene2 gene3 : ShallowDel DeepDel Expression <-1; " +
                     "{ JAG1 JAG2 } " +
                     "DATATYPES: G Amp Mutated Expression <=-2; FOO" +
                     "\"P53 pathway\" { CCND1 DATATYPES: Di G Am Mut E<=-2; CDKN2B CDKN2A  }",

@@ -4,7 +4,6 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import org.cbioportal.model.CopyNumberCount;
 import org.cbioportal.model.DiscreteCopyNumberData;
 import org.cbioportal.model.Gene;
-import org.cbioportal.model.ReferenceGenomeGene;
 import org.cbioportal.model.meta.BaseMeta;
 import org.cbioportal.service.DiscreteCopyNumberService;
 import org.cbioportal.web.parameter.CopyNumberCountIdentifier;
@@ -93,7 +92,7 @@ public class DiscreteCopyNumberControllerTest {
 
         mockMvc.perform(MockMvcRequestBuilders.get("/molecular-profiles/test_molecular_profile_id/discrete-copy-number")
             .param("sampleListId", TEST_SAMPLE_LIST_ID)
-            .param("discreteCopyNumberEventType", DiscreteCopyNumberEventType.HOMDEL_AND_AMP.name())
+            .param("discreteCopyNumberEventType", DiscreteCopyNumberEventType.DEEPDEL_AND_AMP.name())
             .accept(MediaType.APPLICATION_JSON))
             .andExpect(MockMvcResultMatchers.status().isOk())
             .andExpect(MockMvcResultMatchers.content().contentTypeCompatibleWith(MediaType.APPLICATION_JSON))
@@ -123,7 +122,7 @@ public class DiscreteCopyNumberControllerTest {
 
         mockMvc.perform(MockMvcRequestBuilders.get("/molecular-profiles/test_molecular_profile_id/discrete-copy-number")
             .param("sampleListId", TEST_SAMPLE_LIST_ID)
-            .param("discreteCopyNumberEventType", DiscreteCopyNumberEventType.HOMDEL_AND_AMP.name())
+            .param("discreteCopyNumberEventType", DiscreteCopyNumberEventType.DEEPDEL_AND_AMP.name())
             .param("projection", "DETAILED")
             .accept(MediaType.APPLICATION_JSON))
             .andExpect(MockMvcResultMatchers.status().isOk())
@@ -159,7 +158,7 @@ public class DiscreteCopyNumberControllerTest {
 
         mockMvc.perform(MockMvcRequestBuilders.get("/molecular-profiles/test_molecular_profile_id/discrete-copy-number")
             .param("sampleListId", TEST_SAMPLE_LIST_ID)
-            .param("discreteCopyNumberEventType", DiscreteCopyNumberEventType.HOMDEL_AND_AMP.name())
+            .param("discreteCopyNumberEventType", DiscreteCopyNumberEventType.DEEPDEL_AND_AMP.name())
             .param("projection", "META"))
             .andExpect(MockMvcResultMatchers.status().isOk())
             .andExpect(MockMvcResultMatchers.header().string(HeaderKeyConstants.TOTAL_COUNT, "2"));
@@ -178,7 +177,7 @@ public class DiscreteCopyNumberControllerTest {
 
         mockMvc.perform(MockMvcRequestBuilders
             .post("/molecular-profiles/test_molecular_profile_id/discrete-copy-number/fetch")
-            .param("discreteCopyNumberEventType", DiscreteCopyNumberEventType.HOMDEL_AND_AMP.name())
+            .param("discreteCopyNumberEventType", DiscreteCopyNumberEventType.DEEPDEL_AND_AMP.name())
             .accept(MediaType.APPLICATION_JSON)
             .contentType(MediaType.APPLICATION_JSON)
             .content(objectMapper.writeValueAsString(discreteCopyNumberFilter)))
@@ -211,7 +210,7 @@ public class DiscreteCopyNumberControllerTest {
 
         mockMvc.perform(MockMvcRequestBuilders
             .post("/molecular-profiles/test_molecular_profile_id/discrete-copy-number/fetch")
-            .param("discreteCopyNumberEventType", DiscreteCopyNumberEventType.HOMDEL_AND_AMP.name())
+            .param("discreteCopyNumberEventType", DiscreteCopyNumberEventType.DEEPDEL_AND_AMP.name())
             .param("projection", "DETAILED")
             .accept(MediaType.APPLICATION_JSON)
             .contentType(MediaType.APPLICATION_JSON)
@@ -253,7 +252,7 @@ public class DiscreteCopyNumberControllerTest {
             post("/molecular-profiles/test_molecular_profile_id/discrete-copy-number/fetch")
             .contentType(MediaType.APPLICATION_JSON)
             .content(objectMapper.writeValueAsString(discreteCopyNumberFilter))
-            .param("discreteCopyNumberEventType", DiscreteCopyNumberEventType.HOMDEL_AND_AMP.name())
+            .param("discreteCopyNumberEventType", DiscreteCopyNumberEventType.DEEPDEL_AND_AMP.name())
             .param("projection", "META"))
             .andExpect(MockMvcResultMatchers.status().isOk())
             .andExpect(MockMvcResultMatchers.header().string(HeaderKeyConstants.TOTAL_COUNT, "2"));

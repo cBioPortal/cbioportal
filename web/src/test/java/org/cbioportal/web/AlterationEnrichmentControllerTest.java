@@ -151,7 +151,7 @@ public class AlterationEnrichmentControllerTest {
         mutationEventTypeMap.put(MutationEventType.feature_truncation, true);
         Map<CNA, Boolean> cnaEventTypeMap = new HashMap();
         cnaEventTypeMap.put(CNA.AMP, true);
-        cnaEventTypeMap.put(CNA.HOMDEL, true);
+        cnaEventTypeMap.put(CNA.DEEPDEL, true);
         eventTypes.setMutationEventTypes(mutationEventTypeMap);
         eventTypes.setCopyNumberAlterationEventTypes(cnaEventTypeMap);
         filter.setAlterationEventTypes(eventTypes);
@@ -209,7 +209,7 @@ public class AlterationEnrichmentControllerTest {
         filter.getAlterationEventTypes().getMutationEventTypes().put(MutationEventType.missense_mutation, false);
         filter.getAlterationEventTypes().getMutationEventTypes().put(MutationEventType.feature_truncation, false);
         filter.getAlterationEventTypes().getCopyNumberAlterationEventTypes().put(CNA.AMP, false);
-        filter.getAlterationEventTypes().getCopyNumberAlterationEventTypes().put(CNA.HOMDEL, false);
+        filter.getAlterationEventTypes().getCopyNumberAlterationEventTypes().put(CNA.DEEPDEL, false);
 
         mockMvc.perform(MockMvcRequestBuilders.post(
             "/alteration-enrichments/fetch")
@@ -255,7 +255,7 @@ public class AlterationEnrichmentControllerTest {
             .thenReturn(alterationEnrichments);
 
         filter.getAlterationEventTypes().getCopyNumberAlterationEventTypes().put(CNA.AMP, false);
-        filter.getAlterationEventTypes().getCopyNumberAlterationEventTypes().put(CNA.HOMDEL, false);
+        filter.getAlterationEventTypes().getCopyNumberAlterationEventTypes().put(CNA.DEEPDEL, false);
 
         mockMvc.perform(MockMvcRequestBuilders.post(
             "/alteration-enrichments/fetch")
@@ -278,7 +278,7 @@ public class AlterationEnrichmentControllerTest {
             .thenReturn(alterationEnrichments);
 
         filter.getAlterationEventTypes().getMutationEventTypes().put(MutationEventType.missense_mutation, false);
-        filter.getAlterationEventTypes().getCopyNumberAlterationEventTypes().put(CNA.HOMDEL, false);
+        filter.getAlterationEventTypes().getCopyNumberAlterationEventTypes().put(CNA.DEEPDEL, false);
 
         mockMvc.perform(MockMvcRequestBuilders.post(
             "/alteration-enrichments/fetch")

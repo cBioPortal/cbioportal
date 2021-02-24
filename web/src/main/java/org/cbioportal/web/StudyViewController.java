@@ -115,7 +115,7 @@ public class StudyViewController {
     @Autowired
     private SampleListService sampleListService;
 
-    private static final List CNA_TYPES_AMP_AND_HOMDEL = Collections.unmodifiableList(Arrays.asList(CNA.AMP, CNA.HOMDEL));
+    private static final List CNA_TYPES_AMP_AND_DEEPDEL = Collections.unmodifiableList(Arrays.asList(CNA.AMP, CNA.DEEPDEL));
 
     @PreAuthorize("hasPermission(#involvedCancerStudies, 'Collection<CancerStudyId>', 'read')")
     @RequestMapping(value = "/clinical-data-counts/fetch", method = RequestMethod.POST,
@@ -426,7 +426,7 @@ public class StudyViewController {
             for (int i = 0; i < profileIdPerSample.size(); i++) {
                 caseIdentifiers.add(new MolecularProfileCaseIdentifier(sampleIds.get(i), profileIdPerSample.get(i)));
             }
-            Select<CNA> cnaTypes = Select.byValues(CNA_TYPES_AMP_AND_HOMDEL);
+            Select<CNA> cnaTypes = Select.byValues(CNA_TYPES_AMP_AND_DEEPDEL);
             result = alterationCountService.getSampleCnaCounts(
                 caseIdentifiers, 
                 Select.all(),

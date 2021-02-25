@@ -230,9 +230,9 @@
                         </foreach>
                     </when>
                     <otherwise>
-                        AND (<include refid="caseStableIdentifier" />, genetic_profile.STABLE_ID) IN
+                        AND (genetic_profile.STABLE_ID, <include refid="caseStableIdentifier" />) IN
                         <foreach item="id" collection="molecularProfileCaseIdentifiers" open="(" separator="," close=")">
-                            (#{id.caseId}, #{id.molecularProfileId})
+                            (#{id.molecularProfileId}, #{id.caseId})
                         </foreach>
                     </otherwise>
                 </choose>

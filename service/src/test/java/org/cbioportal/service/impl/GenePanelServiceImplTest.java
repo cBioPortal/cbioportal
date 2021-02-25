@@ -167,7 +167,7 @@ public class GenePanelServiceImplTest extends BaseServiceImplTest {
         sample2.setCancerStudyIdentifier(STUDY_ID);
         samples.add(sample2);
         
-        Mockito.when(molecularProfileService.getMolecularProfile(MOLECULAR_PROFILE_ID)).thenReturn(molecularProfile);
+        Mockito.when(molecularProfileService.getMolecularProfiles(Arrays.asList(MOLECULAR_PROFILE_ID), "SUMMARY")).thenReturn(Arrays.asList(molecularProfile));
 
         Mockito.when(sampleListRepository.getAllSampleIdsInSampleList(SAMPLE_LIST_ID))
             .thenReturn(Arrays.asList(SAMPLE_ID1, SAMPLE_ID2));
@@ -252,8 +252,8 @@ public class GenePanelServiceImplTest extends BaseServiceImplTest {
         sample1.setPatientStableId(PATIENT_ID_1);
         sample1.setCancerStudyIdentifier(STUDY_ID);
         samples.add(sample1);
-        
-        Mockito.when(molecularProfileService.getMolecularProfile(MOLECULAR_PROFILE_ID)).thenReturn(molecularProfile);
+
+        Mockito.when(molecularProfileService.getMolecularProfiles(Arrays.asList(MOLECULAR_PROFILE_ID), "SUMMARY")).thenReturn(Arrays.asList(molecularProfile));
 
         Mockito.when(sampleListService.fetchSampleLists(Arrays.asList(STUDY_ID + SEQUENCED_LIST_SUFFIX), 
             "DETAILED")).thenReturn(sampleLists);
@@ -324,7 +324,7 @@ public class GenePanelServiceImplTest extends BaseServiceImplTest {
             "DETAILED")).thenReturn(sampleLists);
 
         Mockito.when(molecularProfileService.getMolecularProfiles(
-            Arrays.asList(MOLECULAR_PROFILE_ID, MOLECULAR_PROFILE_ID, "invalid_profile"), "SUMMARY")).thenReturn(molecularProfiles);
+            Arrays.asList(MOLECULAR_PROFILE_ID, "invalid_profile"), "SUMMARY")).thenReturn(molecularProfiles);
 
         Mockito.when(sampleService.fetchSamples(Arrays.asList(STUDY_ID, STUDY_ID), 
             Arrays.asList(SAMPLE_ID1, SAMPLE_ID2), "ID")).thenReturn(samples);

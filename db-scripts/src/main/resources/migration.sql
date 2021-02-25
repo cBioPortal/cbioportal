@@ -938,5 +938,5 @@ CREATE INDEX idx_driver_tiers_filter ON alteration_driver_annotation (`DRIVER_TI
 UPDATE `info` SET `DB_SCHEMA_VERSION`="2.12.8";
 
 -- WARNING: this will drop column SHORT_NAME from table CANCER_STUDY
- ALTER TABLE `CANCER_STUDY` DROP COLUMN `SHORT_NAME`;
+ALTER TABLE `cancer_study` DROP COLUMN `SHORT_NAME`;
 

@@ -7,6 +7,7 @@ public class PublicApiTags {
     public static final String SAMPLES = "Samples";
     public static final String SAMPLE_LISTS = "Sample Lists";
     public static final String CLINICAL_ATTRIBUTES = "Clinical Attributes";
+    public static final String CLINICAL_ATTRIBUTES_COUNT = "Clinical Attributes Count";
     public static final String CLINICAL_DATA = "Clinical Data";
     public static final String CLINICAL_EVENTS = "Clinical Events";
     public static final String MOLECULAR_DATA = "Molecular Data";

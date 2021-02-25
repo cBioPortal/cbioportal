@@ -8,7 +8,7 @@ import org.cbioportal.service.ClinicalEventService;
 import org.cbioportal.service.exception.PatientNotFoundException;
 import org.cbioportal.service.exception.StudyNotFoundException;
 import org.cbioportal.web.config.PublicApiTags;
-import org.cbioportal.web.config.annotation.PublicApi;
+import org.cbioportal.web.config.annotation.InternalApi;
 import org.cbioportal.web.parameter.Direction;
 import org.cbioportal.web.parameter.HeaderKeyConstants;
 import org.cbioportal.web.parameter.PagingConstants;
@@ -31,7 +31,7 @@ import javax.validation.constraints.Max;
 import javax.validation.constraints.Min;
 import java.util.List;
 
-@PublicApi
+@InternalApi
 @RestController
 @Validated
 @Api(tags = PublicApiTags.CLINICAL_EVENTS, description = " ")

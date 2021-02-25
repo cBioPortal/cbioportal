@@ -941,6 +941,9 @@ UPDATE `info` SET `DB_SCHEMA_VERSION`="2.12.8";
 -- 2.12.9 for changes for 3 issues 7820 6375 and 3088
 -- WARNING: this will drop column SHORT_NAME from table CANCER_STUDY
 ALTER TABLE `cancer_study` DROP COLUMN `SHORT_NAME`;
+-- 2.12.9 for all changes
+ALTER TABLE `sample`
+DROP FOREIGN KEY `sample_ibfk_2` ;
 
 ALTER TABLE `sample` DROP COLUMN `TYPE_OF_CANCER_ID`;
 UPDATE `info` SET `DB_SCHEMA_VERSION`="2.12.9";

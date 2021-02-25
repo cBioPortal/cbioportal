@@ -76,7 +76,7 @@ public class ImportTypesOfCancers extends ConsoleRunnable {
         
         while(scanner.hasNextLine()) {
             String[] tokens = scanner.nextLine().split("\t", -1);
-            if (tokens.length != 5) {
+            if (tokens.length != 4) {
                 throw new IOException(
                     "Cancer type file '" + file.getPath() +
                     "' is not a five-column tab-delimited file");

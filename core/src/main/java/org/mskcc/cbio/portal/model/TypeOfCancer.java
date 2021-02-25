@@ -49,8 +49,8 @@ public class TypeOfCancer implements Serializable {
     private String name;
     @JsonProperty("cancerTypeId")
     private String typeOfCancerId;
-    @JsonProperty("color")
     // to preserve json output in DumpPortalInfo.java after migrating from ApiService
+    @JsonProperty("dedicatedColor")
     private String dedicatedColor = "white";
     @JsonIgnore
     private String shortName = "";

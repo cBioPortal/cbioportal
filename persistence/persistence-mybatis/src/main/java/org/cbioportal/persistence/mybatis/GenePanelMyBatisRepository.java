@@ -66,6 +66,13 @@ public class GenePanelMyBatisRepository implements GenePanelRepository {
 	}
 
     @Override
+    public List<GenePanelData> fetchGenePanelDataInMultipleMolecularProfilesByPatientIds(List<String> molecularProfileIds, 
+        List<String> patientIds) {
+        
+        return genePanelMapper.fetchGenePanelDataInMultipleMolecularProfiles(molecularProfileIds, patientIds);
+    }
+
+    @Override
     public List<GenePanelToGene> getGenesOfPanels(List<String> genePanelIds) {
         
         return genePanelMapper.getGenesOfPanels(genePanelIds);

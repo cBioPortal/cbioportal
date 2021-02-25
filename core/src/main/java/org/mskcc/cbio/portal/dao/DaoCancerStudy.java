@@ -298,7 +298,7 @@ public final class DaoCancerStudy {
             pstmt = con.prepareStatement("INSERT INTO cancer_study " +
                     "( `CANCER_STUDY_IDENTIFIER`, `NAME`, "
                     + "`DESCRIPTION`, `PUBLIC`, `TYPE_OF_CANCER_ID`, "
-                    + "`PMID`, `CITATION`, `GROUPS`, `SHORT_NAME`, `STATUS`, `IMPORT_DATE`,`REFERENCE_GENOME_ID` ) VALUES (?,?,?,?,?,?,?,?,?,?,?,?)",
+                    + "`PMID`, `CITATION`, `GROUPS`, `STATUS`, `IMPORT_DATE`,`REFERENCE_GENOME_ID` ) VALUES (?,?,?,?,?,?,?,?,?,?,?,?)",
                     Statement.RETURN_GENERATED_KEYS);
             pstmt.setString(1, stableId);
             pstmt.setString(2, cancerStudy.getName());
@@ -313,15 +313,14 @@ public final class DaoCancerStudy {
             } else {
                 pstmt.setString(8, StringUtils.join(groups, ";"));
             }
-            pstmt.setString(9, cancerStudy.getShortName());
             //status is UNAVAILABLE until other data is loaded for this study. Once all is loaded, the
             //data loading process can set this to AVAILABLE:
             //TODO - use this field in parts of the system that build up the list of studies to display in home page:
-            pstmt.setInt(10, Status.UNAVAILABLE.ordinal());
-            pstmt.setDate(11, java.sql.Date.valueOf(LocalDate.now()));
+            pstmt.setInt(9, Status.UNAVAILABLE.ordinal());
+            pstmt.setDate(10, java.sql.Date.valueOf(LocalDate.now()));
             try {
                 ReferenceGenome referenceGenome = DaoReferenceGenome.getReferenceGenomeByGenomeName(cancerStudy.getReferenceGenome());
-                pstmt.setInt(12, referenceGenome.getReferenceGenomeId());
+                pstmt.setInt(11, referenceGenome.getReferenceGenomeId());
             }
             catch (NullPointerException e) {
                 throw new DaoException("Unsupported reference genome");
@@ -667,7 +666,6 @@ public final class DaoCancerStudy {
             cancerStudy.setPmid(rs.getString("PMID"));
             cancerStudy.setCitation(rs.getString("CITATION"));
             cancerStudy.setGroupsInUpperCase(rs.getString("GROUPS"));
-            cancerStudy.setShortName(rs.getString("SHORT_NAME"));
             cancerStudy.setInternalId(rs.getInt("CANCER_STUDY_ID"));
             cancerStudy.setImportDate(rs.getDate("IMPORT_DATE"));
             cancerStudy.setReferenceGenome(DaoReferenceGenome.getReferenceGenomeByInternalId(

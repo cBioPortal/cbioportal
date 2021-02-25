@@ -5,7 +5,6 @@ public enum StudySortBy {
     studyId("cancerStudyIdentifier"),
     cancerTypeId("typeOfCancerId"),
     name("name"),
-    shortName("shortName"),
     description("description"),
     publicStudy("public"),
     pmid("pmid"),

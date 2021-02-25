@@ -82,7 +82,6 @@ META_FIELD_MAP = {
         'type_of_cancer': True,
         'name': True,
         'description': True,
-        'short_name': True,
         'citation': False,
         'pmid': False,
         'groups': False,

@@ -168,7 +168,15 @@
             <choose>
                 <when test="mutationTypes.hasNone()">NULL</when>
                 <when test="!mutationTypes.hasAll()">
-                    LOWER(mutation_event.MUTATION_TYPE) IN
+                    LOWER(mutation_event.MUTATION_TYPE) 
+                    <choose>
+			            <when test="mutationTypes.exclude()">
+			                NOT IN
+			            </when>
+			            <otherwise>
+			            	IN
+			            </otherwise>
+			        </choose>
                     <foreach item="type" collection="mutationTypes" open="(" separator="," close=")">
                         LOWER(#{type})
                     </foreach>

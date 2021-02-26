@@ -106,7 +106,13 @@ public class AlterationMyBatisRepository implements AlterationRepository {
     }
 
     private Select<String> createMutationTypeList(final Select<MutationEventType> mutationEventTypes) {
-        return mutationEventTypes != null ? mutationEventTypes.map(MutationEventType::getMutationType) : Select.none();
+        if (mutationEventTypes == null) {
+            return Select.none();
+        }
+        Select<String> mappedMutationTypes = mutationEventTypes.map(MutationEventType::getMutationType);
+        mappedMutationTypes.exclude(mutationEventTypes.exclude());
+
+        return mappedMutationTypes;
     }
 
 }

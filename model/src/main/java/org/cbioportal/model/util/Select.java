@@ -70,7 +70,7 @@ public class Select<T> implements Iterable<T> {
         this.inverse = inverse;
     }
 
-    public boolean exclude() {
+    public boolean inverse() {
         return this.inverse;
     }
 

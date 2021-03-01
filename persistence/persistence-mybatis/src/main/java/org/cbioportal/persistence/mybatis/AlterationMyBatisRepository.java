@@ -110,7 +110,7 @@ public class AlterationMyBatisRepository implements AlterationRepository {
             return Select.none();
         }
         Select<String> mappedMutationTypes = mutationEventTypes.map(MutationEventType::getMutationType);
-        mappedMutationTypes.inverse(mutationEventTypes.exclude());
+        mappedMutationTypes.inverse(mutationEventTypes.inverse());
 
         return mappedMutationTypes;
     }

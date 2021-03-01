@@ -208,6 +208,9 @@
         INNER JOIN genetic_profile ON sample_cna_event.GENETIC_PROFILE_ID = genetic_profile.GENETIC_PROFILE_ID
         INNER JOIN patient ON patient.CANCER_STUDY_ID = genetic_profile.CANCER_STUDY_ID
         INNER JOIN sample ON sample.PATIENT_ID = patient.INTERNAL_ID AND sample.INTERNAL_ID = sample_cna_event.SAMPLE_ID
+        INNER JOIN cancer_study ON cancer_study.CANCER_STUDY_ID = genetic_profile.CANCER_STUDY_ID
+        INNER JOIN reference_genome_gene ON reference_genome_gene.ENTREZ_GENE_ID = cna_event.ENTREZ_GENE_ID
+        AND reference_genome_gene.reference_genome_id = cancer_study.reference_genome_id
         <where>
             <choose>
                 <when test="cnaTypes.hasNone()">NULL</when>

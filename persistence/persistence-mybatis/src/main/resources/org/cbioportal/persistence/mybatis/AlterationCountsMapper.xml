@@ -170,7 +170,7 @@
                 <when test="!mutationTypes.hasAll()">
                     LOWER(mutation_event.MUTATION_TYPE) 
                     <choose>
-			            <when test="mutationTypes.exclude()">
+			            <when test="mutationTypes.inverse()">
 			                NOT IN
 			            </when>
 			            <otherwise>

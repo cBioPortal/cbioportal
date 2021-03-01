@@ -30,7 +30,7 @@ public class MolecularProfileCasesGroupFilter {
             List<MolecularProfileCaseIdentifier> molecularProfileCaseIdentifiers) {
         
         MolecularProfileCaseIdentifiers = new ArrayList<>(
-                new HashSet<>(molecularProfileCaseIdentifiers));;
+                new HashSet<>(molecularProfileCaseIdentifiers));
     }
 
 }

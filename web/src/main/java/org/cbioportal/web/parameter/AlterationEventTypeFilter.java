@@ -41,7 +41,7 @@ public class AlterationEventTypeFilter {
             Select<MutationEventType> select = Select
                     .byValues(mutationEventTypes.entrySet().stream().filter(e -> !e.getValue()).map(e -> e.getKey()));
             // setting this would execute NOT IN clause in sql query
-            select.exclude(true);
+            select.inverse(true);
             return select;
         } else {
             Select<MutationEventType> select = Select

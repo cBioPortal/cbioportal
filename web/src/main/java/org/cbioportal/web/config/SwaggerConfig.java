@@ -29,7 +29,7 @@ public class SwaggerConfig {
             .apis(RequestHandlerSelectors.withClassAnnotation(PublicApi.class))
             .build()
             .useDefaultResponseMessages(false)
-            .apiInfo(apiInfo());
+            .apiInfo(publicApiInfo());
 
         d.tags(
             new Tag(PublicApiTags.CANCER_TYPES, "", 0),
@@ -64,7 +64,7 @@ public class SwaggerConfig {
             .apis(RequestHandlerSelectors.withClassAnnotation(InternalApi.class))
             .build()
             .useDefaultResponseMessages(false)
-            .apiInfo(apiInfo());
+            .apiInfo(internalApiInfo());
     }
 
     @Bean
@@ -75,12 +75,25 @@ public class SwaggerConfig {
             .build();
     }
 
-    private ApiInfo apiInfo() {
+    private ApiInfo publicApiInfo() {
         ApiInfo apiInfo = new ApiInfo(
-            "cBioPortal web API [Beta]",
+            "cBioPortal web Public API [Beta]",
             "A web service for supplying JSON formatted data to cBioPortal clients. " +
                 "Please note that this API is currently in beta and subject to change.",
-            "1.0 (beta)",
+            "1.0 (beta). Backwards compatibility will be maintained (after 1.0 release)",
+            null,
+            new Contact("cBioPortal", "https://www.cbioportal.org", "cbioportal@googlegroups.com"),
+            "License",
+            "https://github.com/cBioPortal/cbioportal/blob/master/LICENSE", Collections.emptyList());
+        return apiInfo;
+    }
+
+    private ApiInfo internalApiInfo() {
+        ApiInfo apiInfo = new ApiInfo(
+            "cBioPortal web Internal API [Beta]",
+            "A web service for supplying JSON formatted data to cBioPortal clients. " +
+                "Please note that interal API is currently in beta and subject to change.",
+            "1.0 (beta). Backwards compatibility will be maintained (after 1.0 release)",
             null,
             new Contact("cBioPortal", "https://www.cbioportal.org", "cbioportal@googlegroups.com"),
             "License",

@@ -25,7 +25,7 @@ public interface GenePanelRepository {
     List<GenePanel> fetchGenePanels(List<String> genePanelIds, String projection);
 
     @Cacheable(cacheResolver = "generalRepositoryCacheResolver", condition = "@cacheEnabledConfig.getEnabled()")
-    List<GenePanelData> getGenePanelData(String molecularProfileId, String sampleListId);
+    List<GenePanelData> getGenePanelDataBySampleListId(String molecularProfileId, String sampleListId);
 
     @Cacheable(cacheResolver = "generalRepositoryCacheResolver", condition = "@cacheEnabledConfig.getEnabled()")
     List<GenePanelData> fetchGenePanelData(String molecularProfileId, List<String> sampleIds);

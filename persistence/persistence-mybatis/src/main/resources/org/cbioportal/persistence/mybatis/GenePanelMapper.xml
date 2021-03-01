@@ -14,20 +14,26 @@
     </sql>
 
     <sql id="selectGenePanelData">
-        gene_panel.STABLE_ID AS genePanelId,
-        sample.STABLE_ID AS sampleId,
-        patient.STABLE_ID AS patientId,
-        cancer_study.CANCER_STUDY_IDENTIFIER AS studyId,
-        genetic_profile.STABLE_ID AS molecularProfileId
+	    gene_panel.STABLE_ID AS genePanelId,
+	    sample.STABLE_ID AS sampleId,
+	    patient.STABLE_ID AS patientId,
+	    cancer_study.CANCER_STUDY_IDENTIFIER AS studyId,
+	    genetic_profile.STABLE_ID AS molecularProfileId,
+	    CASE
+	        WHEN sample_profile.GENETIC_PROFILE_ID IS NOT NULL OR (genetic_profile.GENETIC_ALTERATION_TYPE = "MUTATION_EXTENDED" AND sample_list_list.LIST_ID IS NOT NULL) THEN TRUE
+	        ELSE FALSE
+	    END AS profiled
     </sql>
 
     <sql id="fromGenePanelData">
-        FROM sample_profile
-        LEFT JOIN gene_panel ON sample_profile.PANEL_ID = gene_panel.INTERNAL_ID
-        INNER JOIN genetic_profile ON sample_profile.GENETIC_PROFILE_ID = genetic_profile.GENETIC_PROFILE_ID
-        INNER JOIN sample ON sample_profile.SAMPLE_ID = sample.INTERNAL_ID
-        INNER JOIN patient ON sample.PATIENT_ID = patient.INTERNAL_ID
-        INNER JOIN cancer_study ON patient.CANCER_STUDY_ID = cancer_study.CANCER_STUDY_ID
+	    FROM sample
+	    INNER JOIN patient ON sample.PATIENT_ID = patient.INTERNAL_ID
+	    INNER JOIN cancer_study ON patient.CANCER_STUDY_ID = cancer_study.CANCER_STUDY_ID
+	    CROSS JOIN genetic_profile ON cancer_study.CANCER_STUDY_ID = genetic_profile.CANCER_STUDY_ID
+	    CROSS JOIN sample_list ON sample_list.CANCER_STUDY_ID = cancer_study.CANCER_STUDY_ID AND sample_list.CATEGORY = 'all_cases_with_mutation_data'
+	    LEFT JOIN sample_list_list ON sample_list_list.SAMPLE_ID = sample.INTERNAL_ID AND sample_list_list.LIST_ID = sample_list.LIST_ID 
+	    LEFT JOIN sample_profile ON sample_profile.GENETIC_PROFILE_ID = genetic_profile.GENETIC_PROFILE_ID AND sample.INTERNAL_ID = sample_profile.SAMPLE_ID
+	    LEFT JOIN gene_panel ON sample_profile.PANEL_ID = gene_panel.INTERNAL_ID
     </sql>
     
     <select id="getAllGenePanels" resultType="org.cbioportal.model.GenePanel">
@@ -95,15 +101,11 @@
         SELECT
         <include refid="selectGenePanelData"/>
         <include refid="fromGenePanelData"/>
+    	INNER JOIN sample_list as sample_list_query ON sample_list1.CANCER_STUDY_ID = cancer_study.CANCER_STUDY_ID
+    	INNER JOIN sample_list_list as sample_list_list_query ON sample_list_list_query.LIST_ID = sample_list_query.LIST_ID 
         WHERE
         genetic_profile.STABLE_ID = #{molecularProfileId}
-        AND sample_profile.SAMPLE_ID IN
-        (
-            SELECT sample_list_list.SAMPLE_ID FROM sample_list_list
-            INNER JOIN sample_list ON sample_list_list.LIST_ID = sample_list.LIST_ID
-            WHERE sample_list.STABLE_ID = #{sampleListId}
-            AND sample_list_list.SAMPLE_ID = sample_profile.SAMPLE_ID
-        )
+        AND sample_list_query.STABLE_ID = #{sampleListId}
     </select>
 
     <select id="getGenePanelDataBySampleIds" resultType="org.cbioportal.model.GenePanelData">

@@ -93,7 +93,7 @@ public class SwaggerConfig {
             "cBioPortal web Internal API [Beta]",
             "A web service for supplying JSON formatted data to cBioPortal clients. " +
                 "Please note that interal API is currently in beta and subject to change.",
-            "1.0 (beta). Backwards compatibility will be maintained (after 1.0 release)",
+            "1.0 (beta). Internal API are prone to change.",
             null,
             new Contact("cBioPortal", "https://www.cbioportal.org", "cbioportal@googlegroups.com"),
             "License",

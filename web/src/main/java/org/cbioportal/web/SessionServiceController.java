@@ -2,6 +2,7 @@ package org.cbioportal.web;
 
 import java.io.IOException;
 import java.util.*;
+import java.util.regex.Pattern;
 
 import javax.servlet.http.HttpServletResponse;
 import javax.validation.constraints.Size;
@@ -45,6 +46,8 @@ import com.fasterxml.jackson.annotation.JsonInclude.Include;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.mongodb.BasicDBObject;
+import com.mongodb.QueryOperators;
 
 @Controller
 @RequestMapping("/session")
@@ -185,19 +188,16 @@ public class SessionServiceController {
         if (isSessionServiceEnabled() && isAuthorized()) {
             try {
 
-                Map<String, String> map = new HashMap<>();
-                map.put("data.users", userName());
-
-                ObjectMapper mapper = new ObjectMapper();
-                String query = mapper.writeValueAsString(map);
+                BasicDBObject basicDBObject = new BasicDBObject();
+                basicDBObject.put("data.users", Pattern.compile(userName(), Pattern.CASE_INSENSITIVE));
 
                 RestTemplate restTemplate = new RestTemplate();
 
-                HttpEntity<Object> httpEntity = new HttpEntity<Object>(query, sessionServiceRequestHandler.getHttpHeaders());
-
+                HttpEntity<Object> httpEntity = new HttpEntity<Object>(basicDBObject.toString(), sessionServiceRequestHandler.getHttpHeaders());
+                
                 ResponseEntity<List<VirtualStudy>> responseEntity = restTemplate.exchange(
-                        sessionServiceURL + "virtual_study/query?field=data.users&value=" + userName(),
-                        HttpMethod.GET,
+                        sessionServiceURL + SessionType.virtual_study + "/query/fetch",
+                        HttpMethod.POST,
                         httpEntity,
                         new ParameterizedTypeReference<List<VirtualStudy>>() {});
 
@@ -290,13 +290,19 @@ public class SessionServiceController {
 
             // ignore origin studies order
             // add $size to make sure origin studies is not a subset
-            String query = "{ $and: [{ \"data.users\": \"" + username + "\" }, { \"data.origin\": { $all: "
-                    + mapper.writeValueAsString(studyIds) + " } }, { \"data.origin\": { $size: " + studyIds.size()
-                    + " } } ]}";
+            List<BasicDBObject> basicDBObjects = new ArrayList<>();
+            basicDBObjects
+                .add(new BasicDBObject("data.users", Pattern.compile(userName(), Pattern.CASE_INSENSITIVE)));
+            basicDBObjects.add(new BasicDBObject("data.origin",
+                new BasicDBObject(QueryOperators.ALL, studyIds)));
+            basicDBObjects.add(new BasicDBObject("data.origin",
+                new BasicDBObject(QueryOperators.SIZE, studyIds.size())));
+
+            BasicDBObject queryDBObject = new BasicDBObject(QueryOperators.AND, basicDBObjects);
 
             RestTemplate restTemplate = new RestTemplate();
 
-            HttpEntity<String> httpEntity = new HttpEntity<String>(query, sessionServiceRequestHandler.getHttpHeaders());
+            HttpEntity<String> httpEntity = new HttpEntity<String>(queryDBObject.toString(), sessionServiceRequestHandler.getHttpHeaders());
 
             ResponseEntity<List<VirtualStudy>> responseEntity = restTemplate.exchange(
                     sessionServiceURL + SessionType.group + "/query/fetch",
@@ -319,14 +325,19 @@ public class SessionServiceController {
                     .configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false)
                     .setSerializationInclusion(Include.NON_NULL);
             if (isSessionServiceEnabled() && isAuthorized()) {
-                Map<String, Object> map = new HashMap<>();
-                map.put("data.owner", userName());
-                map.put("data.page", settingsData.getPage());
-                map.put("data.origin", settingsData.getOrigin());
 
-                String query = objectMapper.writeValueAsString(map);
+                List<BasicDBObject> basicDBObjects = new ArrayList<>();
+                basicDBObjects
+                        .add(new BasicDBObject("data.owner", Pattern.compile(userName(), Pattern.CASE_INSENSITIVE)));
+                basicDBObjects.add(new BasicDBObject("data.origin",
+                        new BasicDBObject(QueryOperators.ALL, settingsData.getOrigin())));
+                basicDBObjects.add(new BasicDBObject("data.origin",
+                        new BasicDBObject(QueryOperators.SIZE, settingsData.getOrigin().size())));
+                basicDBObjects.add(new BasicDBObject("data.page", settingsData.getPage().name()));
 
-                PageSettings pageSettings = getRecentlyUpdatePageSettings(query);
+                BasicDBObject queryDBObject = new BasicDBObject(QueryOperators.AND, basicDBObjects);
+
+                PageSettings pageSettings = getRecentlyUpdatePageSettings(queryDBObject.toString());
 
                 JSONParser parser = new JSONParser();
                 JSONObject jsonObject = (JSONObject) parser.parse(objectMapper.writeValueAsString(settingsData));
@@ -417,20 +428,23 @@ public class SessionServiceController {
         try {
             if (isSessionServiceEnabled() && isAuthorized()) {
 
-                Map<String, Object> map = new HashMap<>();
-                map.put("data.owner", userName());
-                map.put("data.page", pageSettingsIdentifier.getPage());
-                map.put("data.origin", pageSettingsIdentifier.getOrigin());
+                List<BasicDBObject> basicDBObjects = new ArrayList<>();
+                basicDBObjects
+                        .add(new BasicDBObject("data.owner", Pattern.compile(userName(), Pattern.CASE_INSENSITIVE)));
+                basicDBObjects.add(new BasicDBObject("data.origin",
+                        new BasicDBObject(QueryOperators.ALL, pageSettingsIdentifier.getOrigin())));
+                basicDBObjects.add(new BasicDBObject("data.origin",
+                        new BasicDBObject(QueryOperators.SIZE, pageSettingsIdentifier.getOrigin().size())));
+                basicDBObjects.add(new BasicDBObject("data.page", pageSettingsIdentifier.getPage().name()));
 
-                ObjectMapper mapper = new ObjectMapper();
-                String query = mapper.writeValueAsString(map);
+                BasicDBObject queryDBObject = new BasicDBObject(QueryOperators.AND, basicDBObjects);
 
-                PageSettings pageSettings = getRecentlyUpdatePageSettings(query);
+                PageSettings pageSettings = getRecentlyUpdatePageSettings(queryDBObject.toString());
 
                 return new ResponseEntity<>(pageSettings == null ? null : pageSettings.getData(), HttpStatus.OK);
             }
             return new ResponseEntity<>(HttpStatus.SERVICE_UNAVAILABLE);
-        } catch (IOException e) {
+        } catch (Exception e) {
             LOG.error(e);
             return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
         }
@@ -443,19 +457,17 @@ public class SessionServiceController {
 
         if (isSessionServiceEnabled() && isAuthorized()) {
 
-            String username = userName();
+            List<BasicDBObject> basicDBObjects = new ArrayList<>();
+            basicDBObjects.add(new BasicDBObject("data.users", Pattern.compile(userName(), Pattern.CASE_INSENSITIVE)));
+            basicDBObjects.add(new BasicDBObject("data.origin", new BasicDBObject(QueryOperators.ALL, studyIds)));
+            basicDBObjects.add(new BasicDBObject("data.origin", new BasicDBObject(QueryOperators.SIZE, studyIds.size())));
 
-            ObjectMapper mapper = new ObjectMapper();
-
-            // ignore origin studies order
-            // add $size to make sure origin studies is not a subset
-            String query = "{ $and: [{ \"data.users\": \"" + username + "\" }, { \"data.origin\": { $all: "
-                    + mapper.writeValueAsString(studyIds) + " } }, { \"data.origin\": { $size: " + studyIds.size()
-                    + " } } ]}";
+            BasicDBObject queryDBObject = new BasicDBObject(QueryOperators.AND, basicDBObjects);
 
             RestTemplate restTemplate = new RestTemplate();
 
-            HttpEntity<String> httpEntity = new HttpEntity<String>(query, sessionServiceRequestHandler.getHttpHeaders());
+            HttpEntity<String> httpEntity = new HttpEntity<String>(queryDBObject.toString(),
+                    sessionServiceRequestHandler.getHttpHeaders());
 
             ResponseEntity<List<CustomDataSession>> responseEntity = restTemplate.exchange(
                     sessionServiceURL + SessionType.custom_data + "/query/fetch",

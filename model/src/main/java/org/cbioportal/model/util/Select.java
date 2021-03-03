@@ -15,6 +15,7 @@ public class Select<T> implements Iterable<T> {
 
     private final Iterable<T> iterable;
     private boolean hasAllExternal = false;
+    private boolean inverse = false;
 
     private static final Select<?> ALL = new Select<>(null);
     @SuppressWarnings("unchecked")
@@ -63,6 +64,14 @@ public class Select<T> implements Iterable<T> {
 
     public void hasAll(boolean value) {
         this.hasAllExternal = value;
+    }
+
+    public void inverse(boolean inverse) {
+        this.inverse = inverse;
+    }
+
+    public boolean inverse() {
+        return this.inverse;
     }
 
     @Override

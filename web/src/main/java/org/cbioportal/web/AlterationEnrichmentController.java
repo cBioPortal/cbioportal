@@ -4,7 +4,6 @@ import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
 import org.cbioportal.model.*;
-import org.cbioportal.model.util.Select;
 import org.cbioportal.service.AlterationEnrichmentService;
 import org.cbioportal.service.exception.MolecularProfileNotFoundException;
 import org.cbioportal.web.config.annotation.InternalApi;
@@ -21,7 +20,6 @@ import springfox.documentation.annotations.ApiIgnore;
 import javax.validation.Valid;
 import java.util.*;
 import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 @InternalApi
 @RestController
@@ -54,29 +52,13 @@ public class AlterationEnrichmentController {
             .collect(Collectors.toMap(MolecularProfileCasesGroupFilter::getName,
                 MolecularProfileCasesGroupFilter::getMolecularProfileCaseIdentifiers));
 
-        Stream<MutationEventType> selectedMutations = alterationEventTypes.getMutationEventTypes().entrySet().stream()
-            .filter(e -> e.getValue())
-            .map(e -> e.getKey());
-        Select<MutationEventType> mutationEventTypes = allOptionsSelected(alterationEventTypes.getMutationEventTypes()) ?
-            Select.all() : Select.byValues(selectedMutations);
-
-        Stream<CNA> selectedCnas = alterationEventTypes.getCopyNumberAlterationEventTypes().entrySet().stream()
-            .filter(e -> e.getValue())
-            .map(e -> e.getKey());
-        Select<CNA> cnaEventTypes = allOptionsSelected(alterationEventTypes.getCopyNumberAlterationEventTypes()) ?
-            Select.all() : Select.byValues(selectedCnas);
-
         List<AlterationEnrichment> alterationEnrichments = alterationEnrichmentService.getAlterationEnrichments(
             groupCaseIdentifierSet,
-            mutationEventTypes,
-            cnaEventTypes,
+            alterationEventTypes.getMutationTypeSelect(),
+            alterationEventTypes.getCNAEventTypeSelect(),
             enrichmentType);
 
         return new ResponseEntity<>(alterationEnrichments, HttpStatus.OK);
-    }
-    
-    private boolean allOptionsSelected(Map<?, Boolean> options) {
-        return options.entrySet().stream().allMatch(e -> e.getValue());
     }
 }
 

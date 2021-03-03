@@ -26,5 +26,8 @@ public interface GenePanelService {
     List<GenePanelData> fetchGenePanelDataInMultipleMolecularProfiles(List<String> molecularProfileIds, 
         List<String> sampleIds);
 
+    List<GenePanelData> fetchGenePanelDataInMultipleMolecularProfilesByPatientIds(List<String> molecularProfileIds, 
+        List<String> patientIds);
+
 	List<GenePanel> fetchGenePanels(List<String> genePanelIds, String projection);
 }

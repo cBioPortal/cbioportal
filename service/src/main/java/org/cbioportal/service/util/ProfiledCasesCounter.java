@@ -152,6 +152,7 @@ public class ProfiledCasesCounter<T extends AlterationCountByGene> {
 
             return genePanelDatas
                     .stream()
+                    .filter(GenePanelData::getProfiled)
                     .map(EnrichmentType.PATIENT.equals(enrichmentType) ? patientUniqueIdentifier : sampleUniqueIdentifier)
                     .distinct()
                     .count();

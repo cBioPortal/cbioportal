@@ -77,6 +77,12 @@
     String login_error = request.getParameter("login_error");
     String logout_success = request.getParameter("logout_success");
 %>
+<style>
+a {text-decoration: none;}
+#cbioportal-logo img {
+    height: 40px;
+}
+</style>
 </head>
 <body>
   <center>

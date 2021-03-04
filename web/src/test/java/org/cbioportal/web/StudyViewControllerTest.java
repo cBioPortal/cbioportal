@@ -1,6 +1,7 @@
 package org.cbioportal.web;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import org.apache.commons.math3.util.Pair;
 import org.cbioportal.model.AlterationCountByGene;
 import org.cbioportal.model.ClinicalAttribute;
 import org.cbioportal.model.ClinicalData;
@@ -301,12 +302,14 @@ public class StudyViewControllerTest {
         mutationCount2.setTotalCount(2);
         mutationCounts.add(mutationCount2);
 
+        Pair<List<AlterationCountByGene>, Long> mutationCountsMockedData = new Pair<>(mutationCounts, 0L);
+
         Mockito.when(alterationCountService.getSampleMutationCounts(
             anyList(),
             argThat(new SelectMockitoArgumentMatcher("ALL")),
             anyBoolean(),
             anyBoolean(),
-            any(Select.class))).thenReturn(mutationCounts);
+            any(Select.class))).thenReturn(mutationCountsMockedData);
 
         StudyViewFilter studyViewFilter = new StudyViewFilter();
         studyViewFilter.setStudyIds(Arrays.asList(TEST_STUDY_ID));
@@ -355,12 +358,14 @@ public class StudyViewControllerTest {
         fusionCount2.setTotalCount(2);
         fusionCounts.add(fusionCount2);
 
+        Pair<List<AlterationCountByGene>, Long> fusionCountsMockedData = new Pair<>(fusionCounts, 0L);
+
         Mockito.when(alterationCountService.getSampleFusionCounts(
             anyList(),
             argThat(new SelectMockitoArgumentMatcher("ALL")),
             anyBoolean(),
             anyBoolean(),
-            any(Select.class))).thenReturn(fusionCounts);
+            any(Select.class))).thenReturn(fusionCountsMockedData);
 
         StudyViewFilter studyViewFilter = new StudyViewFilter();
         studyViewFilter.setStudyIds(Arrays.asList(TEST_STUDY_ID));
@@ -411,13 +416,15 @@ public class StudyViewControllerTest {
         cnaCount2.setAlteration(2);
         cnaCounts.add(cnaCount2);
 
+        Pair<List<CopyNumberCountByGene>, Long> cnaCountsMockedData = new Pair<>(cnaCounts, 0L);
+
 
         Mockito.when(alterationCountService.getSampleCnaCounts(
             anyList(),
             argThat(new SelectMockitoArgumentMatcher("ALL")),
             anyBoolean(),
             anyBoolean(),
-            any(Select.class))).thenReturn(cnaCounts);
+            any(Select.class))).thenReturn(cnaCountsMockedData);
 
         StudyViewFilter studyViewFilter = new StudyViewFilter();
         studyViewFilter.setStudyIds(Arrays.asList(TEST_STUDY_ID));

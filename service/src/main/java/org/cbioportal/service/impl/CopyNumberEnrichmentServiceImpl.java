@@ -1,10 +1,7 @@
 package org.cbioportal.service.impl;
 
-import org.cbioportal.model.AlterationEnrichment;
-import org.cbioportal.model.CNA;
-import org.cbioportal.model.CopyNumberCountByGene;
-import org.cbioportal.model.EnrichmentType;
-import org.cbioportal.model.MolecularProfileCaseIdentifier;
+import org.apache.commons.math3.util.Pair;
+import org.cbioportal.model.*;
 import org.cbioportal.model.util.Select;
 import org.cbioportal.service.AlterationCountService;
 import org.cbioportal.service.CopyNumberEnrichmentService;
@@ -33,7 +30,7 @@ public class CopyNumberEnrichmentServiceImpl implements CopyNumberEnrichmentServ
         CNA copyNumberEventType,
         EnrichmentType enrichmentType) throws MolecularProfileNotFoundException {
 
-        Map<String, List<CopyNumberCountByGene>> copyNumberCountByGeneAndGroup = getCopyNumberCountByGeneAndGroup(
+        Map<String, Pair<List<CopyNumberCountByGene>, Long>> copyNumberCountByGeneAndGroup = getCopyNumberCountByGeneAndGroup(
             molecularProfileCaseSets,
             copyNumberEventType,
             enrichmentType);
@@ -45,7 +42,7 @@ public class CopyNumberEnrichmentServiceImpl implements CopyNumberEnrichmentServ
                 enrichmentType);
     }
 
-    public Map<String, List<CopyNumberCountByGene>> getCopyNumberCountByGeneAndGroup(
+    public Map<String, Pair<List<CopyNumberCountByGene>, Long>> getCopyNumberCountByGeneAndGroup(
         Map<String, List<MolecularProfileCaseIdentifier>> molecularProfileCaseSets,
         CNA copyNumberEventType,
         EnrichmentType enrichmentType) {

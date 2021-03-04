@@ -5,6 +5,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import org.apache.commons.math3.util.Pair;
 import org.cbioportal.model.*;
 import org.cbioportal.model.QueryElement;
 import org.cbioportal.model.util.Select;
@@ -55,7 +56,7 @@ public class AlterationEnrichmentServiceImplTest extends BaseServiceImplTest {
         groupMolecularProfileCaseSets.put("altered group", molecularProfileCaseSet1);
         groupMolecularProfileCaseSets.put("unaltered group", molecularProfileCaseSet2);
 
-        List<AlterationCountByGene> alterationSampleCountByGeneList = new ArrayList<>();
+        Pair<List<AlterationCountByGene>, Long> alterationSampleCountByGeneList = new Pair<>(new ArrayList<>(), 0L);
         Select<MutationEventType> mutationTypes = Select.none();
         Select<CNA> cnaTypes = Select.none();
 

@@ -17,6 +17,7 @@ import java.util.stream.Collectors;
 
 @Component
 public class DataBinner {
+    private static final Integer DEFAULT_DISTINCT_VALUE_THRESHOLD = 10;
 
     @Autowired
     private DataBinHelper dataBinHelper;
@@ -88,11 +89,28 @@ public class DataBinner {
         return dataBins;
     }
 
-    public <T extends DataBinFilter> List<DataBin> calculateDataBins(T dataBinFilter,
-                                                   ClinicalDataType clinicalDataType,
-                                                   List<ClinicalData> clinicalData,
-                                                   List<String> ids) {
-
+    public <T extends DataBinFilter> List<DataBin> calculateDataBins(
+        T dataBinFilter,
+        ClinicalDataType clinicalDataType,
+        List<ClinicalData> clinicalData,
+        List<String> ids
+    ) {
+        return calculateDataBins(
+            dataBinFilter,
+            clinicalDataType,
+            clinicalData,
+            ids,
+            DEFAULT_DISTINCT_VALUE_THRESHOLD
+        );
+    }
+    
+    public <T extends DataBinFilter> List<DataBin> calculateDataBins(
+        T dataBinFilter,
+        ClinicalDataType clinicalDataType,
+        List<ClinicalData> clinicalData,
+        List<String> ids,
+        Integer distinctValueThreshold
+    ) {
         boolean numericalOnly = false;
 
         Range<BigDecimal> range = dataBinFilter.getStart() == null && dataBinFilter.getEnd() == null ?
@@ -111,8 +129,14 @@ public class DataBinner {
         DataBin upperOutlierBin = calcUpperOutlierBin(clinicalData);
         DataBin lowerOutlierBin = calcLowerOutlierBin(clinicalData);
         Collection<DataBin> numericalBins = calcNumericalClinicalDataBins(
-                dataBinFilter, clinicalData, dataBinFilter.getCustomBins(), lowerOutlierBin, upperOutlierBin,
-            dataBinFilter.getDisableLogScale());
+            dataBinFilter,
+            clinicalData,
+            dataBinFilter.getCustomBins(),
+            lowerOutlierBin,
+            upperOutlierBin,
+            dataBinFilter.getDisableLogScale(),
+            distinctValueThreshold
+        );
 
         List<DataBin> dataBins = new ArrayList<>();
 
@@ -129,6 +153,12 @@ public class DataBinner {
         // remove leading and trailing empty bins before adding non numerical ones
         dataBins = dataBinHelper.trim(dataBins);
 
+        // in some cases every numerical bin actually contains only a single discrete value
+        // convert interval bins to distinct (single value) bins in these cases
+        dataBins = dataBinHelper.convertToDistinctBins(
+            dataBins, filterNumericalValues(clinicalData), filterSpecialRanges(clinicalData)
+        );
+        
         if(!numericalOnly) {
             // add non numerical and NA data bins
 
@@ -185,18 +215,24 @@ public class DataBinner {
         return map.values();
     }
 
-    public <T extends DataBinFilter> Collection<DataBin> calcNumericalClinicalDataBins(DataBinFilter dataBinFilter,
-                                                             List<ClinicalData> clinicalData,
-                                                             List<BigDecimal> customBins,
-                                                             DataBin lowerOutlierBin,
-                                                             DataBin upperOutlierBin,
-                                                             Boolean disableLogScale) {
-        return calcNumericalDataBins(dataBinFilter,
+    public <T extends DataBinFilter> Collection<DataBin> calcNumericalClinicalDataBins(
+        DataBinFilter dataBinFilter,
+        List<ClinicalData> clinicalData,
+        List<BigDecimal> customBins,
+        DataBin lowerOutlierBin,
+        DataBin upperOutlierBin,
+        Boolean disableLogScale,
+        Integer distinctValueThreshold
+    ) {
+        return calcNumericalDataBins(
+            dataBinFilter,
             filterNumericalValues(clinicalData),
             customBins,
             lowerOutlierBin,
             upperOutlierBin,
-            disableLogScale);
+            disableLogScale,
+            distinctValueThreshold
+        );
     }
 
     public List<BigDecimal> filterNumericalValues(List<ClinicalData> clinicalData) {
@@ -207,12 +243,15 @@ public class DataBinner {
             .collect(Collectors.toList());
     }
 
-    public <T extends DataBinFilter> Collection<DataBin> calcNumericalDataBins(DataBinFilter dataBinFilter,
-                                                     List<BigDecimal> numericalValues,
-                                                     List<BigDecimal> customBins,
-                                                     DataBin lowerOutlierBin,
-                                                     DataBin upperOutlierBin,
-                                                     Boolean disableLogScale) {
+    public <T extends DataBinFilter> Collection<DataBin> calcNumericalDataBins(
+        DataBinFilter dataBinFilter,
+        List<BigDecimal> numericalValues,
+        List<BigDecimal> customBins,
+        DataBin lowerOutlierBin,
+        DataBin upperOutlierBin,
+        Boolean disableLogScale,
+        Integer distinctValueThreshold
+    ) {
         Predicate<BigDecimal> isLowerOutlier = new Predicate<BigDecimal>() {
             @Override
             public boolean test(BigDecimal d) {
@@ -258,8 +297,8 @@ public class DataBinner {
 
         Set<BigDecimal> uniqueValues = new LinkedHashSet<>(withoutOutliers);
 
-        if (0 < uniqueValues.size() && uniqueValues.size() <= 5) {
-            // No data intervals when the number of distinct values less than or equal to 5.
+        if (0 < uniqueValues.size() && uniqueValues.size() <= distinctValueThreshold) {
+            // No data intervals when the number of distinct values less than or equal to the threshold.
             // In this case, number of bins = number of distinct data values
             dataBins = discreteDataBinner.calculateDataBins(withoutOutliers, uniqueValues);
         } else if (withoutOutliers.size() > 0) {
@@ -287,11 +326,7 @@ public class DataBinner {
                     boxRange = Range.closed(dataBins.get(0).getStart(), dataBins.get(dataBins.size() - 1).getEnd());
                 }
             } else {
-                Boolean areAllIntegers = uniqueValues
-                        .stream()
-                        .map(value -> value.stripTrailingZeros().scale() <= 0)
-                        .reduce((a, b) -> a && b)
-                        .orElse(false);
+                Boolean areAllIntegers = this.dataBinHelper.areAllIntegers(uniqueValues);
 
                 if (areAllIntegers) {
                     boxRange = Range.closed(new BigDecimal(boxRange.lowerEndpoint().intValue()),

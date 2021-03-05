@@ -75,6 +75,7 @@
             </choose>
             <include refid="caseFilter">
                 <property name="case_type" value="SAMPLE_ID"/>
+                <property name="identifiers" value="cnaMolecularProfileCaseIdentifiers"/>
             </include>
             <include refid="whereGeneCna"/>
         </where>
@@ -106,6 +107,7 @@
             </choose>
             <include refid="caseFilter">
                 <property name="case_type" value="PATIENT_ID"/>
+                <property name="identifiers" value="cnaMolecularProfileCaseIdentifiers"/>
             </include>
             <include refid="whereGeneCna"/>
         </where>
@@ -191,7 +193,9 @@
                     <include refid="whereSearchFusions" />
                 </when>
             </choose>
-            <include refid="caseFilter" />
+            <include refid="caseFilter">
+                <property name="identifiers" value="mutationMolecularProfileCaseIdentifiers"/>
+            </include>
         </where>
     </sql>
 
@@ -221,28 +225,30 @@
                     </foreach>
                 </when>
             </choose>
-            <include refid="caseFilter" />
+            <include refid="caseFilter">
+                <property name="identifiers" value="cnaMolecularProfileCaseIdentifiers" />
+            </include>
 
         </where>
     </sql>
 
     <sql id="caseFilter">
         <choose>
-            <when test="molecularProfileCaseIdentifiers == null or molecularProfileCaseIdentifiers.isEmpty()">
-                NULL
+            <when test="${identifiers} == null or ${identifiers}.isEmpty()">
+                AND NULL
             </when>
             <otherwise>
                 <choose>
-                    <when test="@java.util.Arrays@stream(molecularProfileCaseIdentifiers.{molecularProfileId}).distinct().count() == 1">
-                        AND genetic_profile.STABLE_ID = #{molecularProfileCaseIdentifiers[0].molecularProfileId} AND
+                    <when test="@java.util.Arrays@stream(${identifiers}.{molecularProfileId}).distinct().count() == 1">
+                        AND genetic_profile.STABLE_ID = #{${identifiers}[0].molecularProfileId} AND
                         <include refid="caseStableIdentifier" /> IN
-                        <foreach item="id" collection="molecularProfileCaseIdentifiers" open="(" separator="," close=")">
+                        <foreach item="id" collection="${identifiers}" open="(" separator="," close=")">
                             #{id.caseId}
                         </foreach>
                     </when>
                     <otherwise>
                         AND (genetic_profile.STABLE_ID, <include refid="caseStableIdentifier" />) IN
-                        <foreach item="id" collection="molecularProfileCaseIdentifiers" open="(" separator="," close=")">
+                        <foreach item="id" collection="${identifiers}" open="(" separator="," close=")">
                             (#{id.molecularProfileId}, #{id.caseId})
                         </foreach>
                     </otherwise>

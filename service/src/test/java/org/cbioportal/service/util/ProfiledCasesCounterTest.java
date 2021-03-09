@@ -64,10 +64,6 @@ public class ProfiledCasesCounterTest {
         genePanelData3.setPatientId(PATIENT_ID_2);
         genePanelDataList.add(genePanelData3);
 
-        Mockito.when(genePanelService.fetchGenePanelDataInMultipleMolecularProfiles(
-                Arrays.asList(MOLECULAR_PROFILE_ID, MOLECULAR_PROFILE_ID, MOLECULAR_PROFILE_ID),
-                Arrays.asList(SAMPLE_ID_1, SAMPLE_ID_2, SAMPLE_ID_3))).thenReturn(genePanelDataList);
-
         List<GenePanel> genePanels = new ArrayList<>();
         GenePanel genePanel1 = new GenePanel();
         genePanel1.setStableId(GENE_PANEL_ID_1);
@@ -106,26 +102,20 @@ public class ProfiledCasesCounterTest {
         alterationCount3.setEntrezGeneId(ENTREZ_GENE_ID_3);
         alterationCounts.add(alterationCount3);
 
-        profiledSamplesCounter.calculate(
-                Arrays.asList(MOLECULAR_PROFILE_ID, MOLECULAR_PROFILE_ID, MOLECULAR_PROFILE_ID),
-                Arrays.asList(SAMPLE_ID_1, SAMPLE_ID_2, SAMPLE_ID_3), alterationCounts, false, false);
+        profiledSamplesCounter.calculate(alterationCounts, genePanelDataList, false, profiledSamplesCounter.sampleUniqueIdentifier);
 
         Assert.assertEquals(Integer.valueOf(3), alterationCounts.get(0).getNumberOfProfiledCases());
         Assert.assertEquals(Integer.valueOf(2), alterationCounts.get(1).getNumberOfProfiledCases());
         Assert.assertEquals(Integer.valueOf(3), alterationCounts.get(2).getNumberOfProfiledCases());
         
         
-        profiledSamplesCounter.calculate(
-                Arrays.asList(MOLECULAR_PROFILE_ID, MOLECULAR_PROFILE_ID, MOLECULAR_PROFILE_ID),
-                Arrays.asList(SAMPLE_ID_1, SAMPLE_ID_2, SAMPLE_ID_3), alterationCounts, true, false);
-
+        profiledSamplesCounter.calculate(alterationCounts, genePanelDataList, false, profiledSamplesCounter.patientUniqueIdentifier);
+        
         Assert.assertEquals(Integer.valueOf(2), alterationCounts.get(0).getNumberOfProfiledCases());
         Assert.assertEquals(Integer.valueOf(2), alterationCounts.get(1).getNumberOfProfiledCases());
         Assert.assertEquals(Integer.valueOf(2), alterationCounts.get(2).getNumberOfProfiledCases());
 
-        profiledSamplesCounter.calculate(
-                Arrays.asList(MOLECULAR_PROFILE_ID, MOLECULAR_PROFILE_ID, MOLECULAR_PROFILE_ID),
-                Arrays.asList(SAMPLE_ID_1, SAMPLE_ID_2, SAMPLE_ID_3), alterationCounts, true, true);
+        profiledSamplesCounter.calculate(alterationCounts, genePanelDataList, true, profiledSamplesCounter.patientUniqueIdentifier);
 
         Assert.assertEquals(4, alterationCounts.size());
         Assert.assertEquals(Integer.valueOf(2), alterationCounts.get(0).getNumberOfProfiledCases());

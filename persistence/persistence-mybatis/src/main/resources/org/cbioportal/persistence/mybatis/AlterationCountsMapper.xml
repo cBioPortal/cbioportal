@@ -83,6 +83,7 @@
             </choose>
             <include refid="caseFilter">
                 <property name="case_type" value="SAMPLE_ID"/>
+                <property name="identifiers" value="cnaMolecularProfileCaseIdentifiers"/>
             </include>
             <include refid="whereGeneCna"/>
         </where>
@@ -114,6 +115,7 @@
             </choose>
             <include refid="caseFilter">
                 <property name="case_type" value="PATIENT_ID"/>
+                <property name="identifiers" value="cnaMolecularProfileCaseIdentifiers"/>
             </include>
             <include refid="whereGeneCna"/>
         </where>
@@ -175,7 +177,15 @@
             <choose>
                 <when test="mutationTypes.hasNone()">NULL</when>
                 <when test="!mutationTypes.hasAll()">
-                    LOWER(mutation_event.MUTATION_TYPE) IN
+                    LOWER(mutation_event.MUTATION_TYPE) 
+                    <choose>
+			            <when test="mutationTypes.inverse()">
+			                NOT IN
+			            </when>
+			            <otherwise>
+			            	IN
+			            </otherwise>
+			        </choose>
                     <foreach item="type" collection="mutationTypes" open="(" separator="," close=")">
                         LOWER(#{type})
                     </foreach>
@@ -190,7 +200,9 @@
                     <include refid="whereSearchFusions" />
                 </when>
             </choose>
-            <include refid="caseFilter" />
+            <include refid="caseFilter">
+                <property name="identifiers" value="mutationMolecularProfileCaseIdentifiers"/>
+            </include>
         </where>
     </sql>
 
@@ -206,6 +218,9 @@
         INNER JOIN genetic_profile ON sample_cna_event.GENETIC_PROFILE_ID = genetic_profile.GENETIC_PROFILE_ID
         INNER JOIN patient ON patient.CANCER_STUDY_ID = genetic_profile.CANCER_STUDY_ID
         INNER JOIN sample ON sample.PATIENT_ID = patient.INTERNAL_ID AND sample.INTERNAL_ID = sample_cna_event.SAMPLE_ID
+        INNER JOIN cancer_study ON cancer_study.CANCER_STUDY_ID = genetic_profile.CANCER_STUDY_ID
+        INNER JOIN reference_genome_gene ON reference_genome_gene.ENTREZ_GENE_ID = cna_event.ENTREZ_GENE_ID
+        AND reference_genome_gene.reference_genome_id = cancer_study.reference_genome_id
         <where>
             <choose>
                 <when test="cnaTypes.hasNone()">NULL</when>
@@ -216,7 +231,9 @@
                     </foreach>
                 </when>
             </choose>
-            <include refid="caseFilter" />
+            <include refid="caseFilter">
+                <property name="identifiers" value="cnaMolecularProfileCaseIdentifiers" />
+            </include>
 
         </where>
     </sql>
@@ -261,22 +278,22 @@
 
     <sql id="caseFilter">
         <choose>
-            <when test="molecularProfileCaseIdentifiers == null or molecularProfileCaseIdentifiers.isEmpty()">
-                NULL
+            <when test="${identifiers} == null or ${identifiers}.isEmpty()">
+                AND NULL
             </when>
             <otherwise>
                 <choose>
-                    <when test="@java.util.Arrays@stream(molecularProfileCaseIdentifiers.{molecularProfileId}).distinct().count() == 1">
-                        AND genetic_profile.STABLE_ID = #{molecularProfileCaseIdentifiers[0].molecularProfileId} AND
+                    <when test="@java.util.Arrays@stream(${identifiers}.{molecularProfileId}).distinct().count() == 1">
+                        AND genetic_profile.STABLE_ID = #{${identifiers}[0].molecularProfileId} AND
                         <include refid="caseStableIdentifier" /> IN
-                        <foreach item="id" collection="molecularProfileCaseIdentifiers" open="(" separator="," close=")">
+                        <foreach item="id" collection="${identifiers}" open="(" separator="," close=")">
                             #{id.caseId}
                         </foreach>
                     </when>
                     <otherwise>
-                        AND (<include refid="caseStableIdentifier" />, genetic_profile.STABLE_ID) IN
-                        <foreach item="id" collection="molecularProfileCaseIdentifiers" open="(" separator="," close=")">
-                            (#{id.caseId}, #{id.molecularProfileId})
+                        AND (genetic_profile.STABLE_ID, <include refid="caseStableIdentifier" />) IN
+                        <foreach item="id" collection="${identifiers}" open="(" separator="," close=")">
+                            (#{id.molecularProfileId}, #{id.caseId})
                         </foreach>
                     </otherwise>
                 </choose>

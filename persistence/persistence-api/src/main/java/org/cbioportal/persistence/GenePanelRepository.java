@@ -35,5 +35,9 @@ public interface GenePanelRepository {
         List<String> sampleIds);
 
     @Cacheable(cacheResolver = "generalRepositoryCacheResolver", condition = "@cacheEnabledConfig.getEnabled()")
+    List<GenePanelData> fetchGenePanelDataInMultipleMolecularProfilesByPatientIds(List<String> molecularProfileIds, 
+        List<String> patientIds);
+
+    @Cacheable(cacheResolver = "generalRepositoryCacheResolver", condition = "@cacheEnabledConfig.getEnabled()")
     List<GenePanelToGene> getGenesOfPanels(List<String> genePanelIds);
 }

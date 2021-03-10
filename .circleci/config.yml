@@ -188,12 +188,12 @@ jobs:
             - store_artifacts:
                 path: /tmp/repos/cbioportal-frontend/end-to-end-test/shared/imageCompare.html
                 destination: /imageCompare.html
-          environment:
-              PORTAL_SOURCE_DIR: /tmp/repos/cbioportal-frontend/
-              TEST_HOME: /tmp/repos/cbioportal-frontend/end-to-end-test/local
-              E2E_WORKSPACE: /tmp/repos/cbioportal-frontend/e2e-localdb-workspace
-              CBIO_DB_DATA_DIR: /tmp/repos/cbioportal-frontend/2e-localdb-workspace/cbio_db_data
-              KC_DB_DATA_DIR: /tmp/repos/cbioportal-frontend/e2e-localdb-workspace/kc_db_data
+        environment:
+            PORTAL_SOURCE_DIR: /tmp/repos/cbioportal-frontend/
+            TEST_HOME: /tmp/repos/cbioportal-frontend/end-to-end-test/local
+            E2E_WORKSPACE: /tmp/repos/cbioportal-frontend/e2e-localdb-workspace
+            CBIO_DB_DATA_DIR: /tmp/repos/cbioportal-frontend/2e-localdb-workspace/cbio_db_data
+            KC_DB_DATA_DIR: /tmp/repos/cbioportal-frontend/e2e-localdb-workspace/kc_db_data
 
 
 workflows:

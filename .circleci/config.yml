@@ -114,8 +114,17 @@ jobs:
                     ./setup_environment.sh && ./setup_environment.sh >> $BASH_ENV
             - run:
                 name: Build custom backend
+                # Copied from
+                #     $TEST_HOME/docker_compose/build.sh
+                # with variation for checking out a commit
                 command: |
-                    $TEST_HOME/docker_compose/build.sh
+                    mkdir -p $E2E_WORKSPACE && \ 
+                    cd $E2E_WORKSPACE && \
+                    git fetch --depth 1 origin $BACKEND_BRANCH && \
+                    git checkout $BACKEND_BRANCH && \
+                    cd cbioportal && \
+                    mvn -DskipTests clean install && \
+                    unzip portal/target/cbioportal*.war -d portal/target/war-exploded
                 no_output_timeout: 25m
             - run:
                 name: Setup docker compose assets

@@ -119,12 +119,9 @@ jobs:
                 # with variation for checking out a commit
                 command: |
                     mkdir -p $E2E_WORKSPACE && \ 
-                    cd $E2E_WORKSPACE && \
-                    git fetch --depth 1 origin $BACKEND_BRANCH && \
-                    git checkout $BACKEND_BRANCH && \
-                    cd cbioportal && \
+                    cd /tmp/repos/cbioportal && \
                     mvn -DskipTests clean install && \
-                    unzip portal/target/cbioportal*.war -d portal/target/war-exploded
+                    unzip portal/target/cbioportal*.war -d $E2E_WORKSPACE/cbioportal/portal/target/war-exploded
                 no_output_timeout: 25m
             - run:
                 name: Setup docker compose assets

@@ -4,9 +4,36 @@ defaults: &defaults
 
 version: 2
 jobs:
+    build_backend:
+        docker:
+            - image: maven:3-openjdk-11
+        working_directory: /tmp/repos/cbioportal
+        steps:
+            - checkout
+            - run:
+                name: Concatenate poms to use as cache key for mvn deps
+                command: cat $(git ls-files '*pom.xml*') > poms_combined
+            - restore_cache:
+                keys:
+                    - v1-mvn-dependencies-{{ checksum "poms_combined" }}
+                    - v1-mvn-dependencies-
+            - run:
+                name: Build and unzip war
+                command: |
+                    mvn -DskipTests clean install && \
+                    unzip portal/target/cbioportal*.war -d portal/target/war-exploded
+            - save_cache:
+                paths:
+                  - ~/.m2
+                key: v1-mvn-dependencies-{{ checksum "poms_combined" }}
+            - persist_to_workspace:
+                root: /tmp/repos
+                paths:
+                    - cbioportal
+
     pull_frontend_codebase:
         <<: *defaults
-        working_directory: /tmp/repos/cbioportal
+        working_directory: /tmp/repos
         steps:
             - checkout
             - run:
@@ -14,7 +41,6 @@ jobs:
                 command: |
                     export FRONTEND_VERSION=$(grep 'frontend\.version' pom.xml | sed 's/<frontend\.version>//g' | sed 's|</frontend\.version>||' | tr -d '[:blank:]') && \
                     export FRONTEND_ORG=$(grep 'frontend\.groupId' pom.xml | sed 's/<frontend\.groupId>//g' | sed 's|</frontend\.groupId>||' | tr -d '[:blank:]' | cut -d. -f3) && \
-                    cd .. && \
                     git clone https://github.com/$FRONTEND_ORG/cbioportal-frontend.git && \
                     cd cbioportal-frontend && \
                     git fetch --tags && \
@@ -63,6 +89,8 @@ jobs:
                 environment:
                     DISABLE_SOURCEMAP: true
                     NO_PARALLEL: true
+                no_output_timeout: 25m
+            - run: cd /tmp/repos/cbioportal-frontend/end-to-end-test && (ls node_modules || yarn install --frozen-lockfile)
             - save_cache:
                 paths:
                     - node_modules
@@ -91,6 +119,11 @@ jobs:
                 command: |
                     pip3 install requests pyyaml
             - run:
+                name: Install dependencies
+                command: |
+                    sudo apt-get update && \
+                    sudo apt-get install jq
+            - run:
                 name: Determine what backend image to run
                 command: |
                     if [[ -n "${CIRCLE_PR_USERNAME}" ]]; then \
@@ -102,54 +135,70 @@ jobs:
             - run:
                 name: Setup e2e-environment
                 command: |
-                    source $PORTAL_SOURCE_DIR/env/custom.sh && \
-                    cd $TEST_HOME/local/runtime-config && \
+                    source $PORTAL_SOURCE_DIR/env/custom.sh || true && \
+                    cd $TEST_HOME/runtime-config && \
                     ./setup_environment.sh && ./setup_environment.sh >> $BASH_ENV
             - run:
-                name: Build or pull backend image
+                name: Build custom backend
                 command: |
-                    cd $TEST_HOME/local/docker && \
-                    ./build_portal_image.sh
-                no_output_timeout: 1h
+                    mkdir -p $E2E_WORKSPACE; \
+                    mv /tmp/repos/cbioportal $E2E_WORKSPACE
+            - run:
+                name: Setup docker compose assets
+                command: |
+                    $TEST_HOME/docker_compose/setup.sh
+                no_output_timeout: 25m
             - run:
                 name: Generate checksum of data that populates the test database
-                command: |         
-                    bash -x $TEST_HOME/local/runtime-config/db_content_fingerprint.sh | tee /tmp/db_data_md5key
-                no_output_timeout: 1h
+                command: |
+                    bash -x $TEST_HOME/runtime-config/db_content_fingerprint.sh | tee /tmp/db_data_md5key
+                no_output_timeout: 25m
+            - run:
+                name: Create MySQL data directory
+                command: |
+                  docker volume rm --force cbioportal-docker-compose_cbioportal_mysql_data && mkdir -p $CBIO_DB_DATA_DIR && rm -rf $CBIO_DB_DATA_DIR/*
             - restore_cache:
                 keys:
-                    - v4-e2e-database-files-{{ checksum "/tmp/db_data_md5key" }}
+                - v3-cbio-database-files-{{ checksum "/tmp/db_data_md5key" }}
+            - restore_cache:
+                keys:
+                - v3-keycloak-database-files-{{ checksum "e2e-localdb-workspace/keycloak/keycloak-config-generated.json" }}
             - run:
-                name: Create MySQL data directory when no cache found
-                command: |         
-                    mkdir -p $DB_DATA_DIR
-            - run:
-                name: Setup docker images and containers
+                name: Init database
                 command: |
-                    docker network create $DOCKER_NETWORK_NAME && \
-                    cd $TEST_HOME/local/docker && \
-                    if (ls $DB_DATA_DIR/* 2> /dev/null > /dev/null); then \
-                    ./setup_docker_containers.sh -p -e; \
-                    else \
-                    ./setup_docker_containers.sh -p -e -d; \
-                    fi
+                  cd $TEST_HOME/docker_compose && echo $CBIO_DB_DATA_DIR && ls -la $CBIO_DB_DATA_DIR && \
+                  [ "$(ls -A $CBIO_DB_DATA_DIR)" ] && echo "DB initialization is not needed." || ./initdb.sh
             - run:
                 name: Change owner of MySQL database files (needed by cache)
-                command: |         
-                    sudo chmod -R 777 $DB_DATA_DIR && \
-                    sudo chown -R circleci:circleci $DB_DATA_DIR
+                command: |
+                    sudo chmod -R 777 $CBIO_DB_DATA_DIR && \
+                    sudo chown -R circleci:circleci $CBIO_DB_DATA_DIR
             - save_cache:
                 paths:
-                    - /tmp/mysql
-                key: v4-e2e-database-files-{{ checksum "/tmp/db_data_md5key" }}
+                  - /tmp/repo/e2e-localdb-workspace/cbio_db_data
+                key: v3-cbio-database-files-{{ checksum "/tmp/db_data_md5key" }}
+            - run:
+                name: Start cbioportal and other services
+                command: |
+                    $TEST_HOME/docker_compose/start.sh
+            - run:
+                name: Change owner of MySQL database files (needed by cache)
+                command: |
+                  sudo chmod -R 777 $KC_DB_DATA_DIR && \
+                  sudo chown -R circleci:circleci $KC_DB_DATA_DIR
+            - save_cache:
+                paths:
+                  - /tmp/repo/e2e-localdb-workspace/kc_db_data
+                key: v3-keycloak-database-files-{{ checksum "e2e-localdb-workspace/keycloak/keycloak-config-generated.json" }}
             - run:
                 name: Run end-2-end tests with studies in local database
-                command: | 
-                    cd $PORTAL_SOURCE_DIR && $TEST_HOME/local/runtime-config/run_container_screenshot_test.sh
+                command: |
+                    cd $PORTAL_SOURCE_DIR && \
+                    $TEST_HOME/docker_compose/test.sh
             - run:
                 name: "Make sure all screenshots are tracked (otherwise the test will always be successful)"
-                command: 'for f in $TEST_HOME/local/screenshots/reference/*.png; do git ls-files --error-unmatch $f > /dev/null 2> /dev/null || (echo -e "\033[0;31m $f not tracked \033[0m" && touch screenshots_not_tracked); done; ls screenshots_not_tracked > /dev/null 2> /dev/null && exit 1 || exit 0'
-            - store_artifacts:
+                command: 'for f in $TEST_HOME/screenshots/reference/*.png; do git ls-files --error-unmatch $f > /dev/null 2> /dev/null || (echo -e "\033[0;31m $f not tracked \033[0m" && touch screenshots_not_tracked); done; ls screenshots_not_tracked > /dev/null 2> /dev/null && exit 1 || exit 0'
+            -  store_artifacts:
                 path: /tmp/repos/cbioportal-frontend/end-to-end-test/local/screenshots
                 destination: /screenshots
             -  store_artifacts:
@@ -166,21 +215,24 @@ jobs:
                 path: /tmp/repos/cbioportal-frontend/end-to-end-test/shared/imageCompare.html
                 destination: /imageCompare.html
         environment:
-            PORTAL_SOURCE_DIR: /tmp/repos/cbioportal-frontend
-            TEST_HOME: /tmp/repos/cbioportal-frontend/end-to-end-test
-            FRONTEND_TEST_USE_LOCAL_DIST: true
-            NO_PARALLEL: true
+            PORTAL_SOURCE_DIR: /tmp/repos/cbioportal-frontend/
+            TEST_HOME: /tmp/repos/cbioportal-frontend/end-to-end-test/local
+            E2E_WORKSPACE: /tmp/repos/cbioportal-frontend/e2e-localdb-workspace
+            CBIO_DB_DATA_DIR: /tmp/repos/cbioportal-frontend/2e-localdb-workspace/cbio_db_data
+            KC_DB_DATA_DIR: /tmp/repos/cbioportal-frontend/e2e-localdb-workspace/kc_db_data
 
 
 workflows:
     version: 2
     end_to_end_tests:
         jobs:
+            - build_backend
             - pull_frontend_codebase
             - install_yarn:
                 requires:
                     - pull_frontend_codebase
             - end_to_end_tests_localdb:
                 requires:
+                    - build_backend
                     - pull_frontend_codebase
                     - install_yarn

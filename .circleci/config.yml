@@ -11,8 +11,8 @@ jobs:
         steps:
             - checkout
             - run:
-			    name: Concatenate poms to use as cache key for mvn deps
-				command: cat $(git ls-files '*pom.xml*') > poms_combined
+                name: Concatenate poms to use as cache key for mvn deps
+                command: cat $(git ls-files '*pom.xml*') > poms_combined
             - restore_cache:
                 keys:
                     - v1-mvn-dependencies-{{ checksum "poms_combined" }}

@@ -22,7 +22,7 @@ jobs:
                 command: |
                     mvn -DskipTests clean install && \
                     unzip portal/target/cbioportal*.war -d portal/target/war-exploded
-            - store_cache:
+            - save_cache:
                 keys:
                     - v1-mvn-dependencies-{{ checksum "poms_combined" }}
                     - v1-mvn-dependencies-

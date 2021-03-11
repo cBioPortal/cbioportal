@@ -10,11 +10,20 @@ jobs:
         working_directory: /tmp/repos/cbioportal
         steps:
             - checkout
+            - cat $(git ls-files '*pom.xml*') > poms_combined
+            - restore_cache:
+                keys:
+                    - v1-mvn-dependencies-{{ checksum "poms_combined" }}
+                    - v1-mvn-dependencies-
             - run:
                 name: Build and unzip war
                 command: |
                     mvn -DskipTests clean install && \
                     unzip portal/target/cbioportal*.war -d portal/target/war-exploded
+            - store_cache:
+                keys:
+                    - v1-mvn-dependencies-{{ checksum "poms_combined" }}
+                    - v1-mvn-dependencies-
             - persist_to_workspace:
                 root: /tmp/repos
                 paths:
@@ -130,7 +139,7 @@ jobs:
             - run:
                 name: Build custom backend
                 command: |
-                    mkdir -p $E2E_WORKSPACE && \ 
+                    mkdir -p $E2E_WORKSPACE; \
                     mv /tmp/repos/cbioportal $E2E_WORKSPACE
             - run:
                 name: Setup docker compose assets

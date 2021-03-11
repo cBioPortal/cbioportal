@@ -4,9 +4,26 @@ defaults: &defaults
 
 version: 2
 jobs:
+    build_backend:
+        docker:
+            - image: maven:3-openjdk-11
+        working_directory: /tmp/repos
+        steps:
+            - checkout
+            - run:
+                name: Build and unzip war
+                command: |
+                    cd cbioportal && \
+                    mvn -DskipTests clean install && \
+                    unzip portal/target/cbioportal*.war -d portal/target/war-exploded
+            - persist_to_workspace:
+                root: /tmp/repos
+                paths:
+                    - cbioportal
+
     pull_frontend_codebase:
         <<: *defaults
-        working_directory: /tmp/repos/cbioportal
+        working_directory: /tmp/repos
         steps:
             - checkout
             - run:
@@ -14,7 +31,6 @@ jobs:
                 command: |
                     export FRONTEND_VERSION=$(grep 'frontend\.version' pom.xml | sed 's/<frontend\.version>//g' | sed 's|</frontend\.version>||' | tr -d '[:blank:]') && \
                     export FRONTEND_ORG=$(grep 'frontend\.groupId' pom.xml | sed 's/<frontend\.groupId>//g' | sed 's|</frontend\.groupId>||' | tr -d '[:blank:]' | cut -d. -f3) && \
-                    cd .. && \
                     git clone https://github.com/$FRONTEND_ORG/cbioportal-frontend.git && \
                     cd cbioportal-frontend && \
                     git fetch --tags && \
@@ -96,7 +112,7 @@ jobs:
                 name: Install dependencies
                 command: |
                     sudo apt-get update && \
-                    sudo apt-get install jq unzip
+                    sudo apt-get install jq
             - run:
                 name: Determine what backend image to run
                 command: |
@@ -114,15 +130,9 @@ jobs:
                     ./setup_environment.sh && ./setup_environment.sh >> $BASH_ENV
             - run:
                 name: Build custom backend
-                # Copied from
-                #     $TEST_HOME/docker_compose/build.sh
-                # with variation for checking out a commit
                 command: |
                     mkdir -p $E2E_WORKSPACE && \ 
-                    cd /tmp/repos/cbioportal && \
-                    mvn -DskipTests clean install && \
-                    unzip portal/target/cbioportal*.war -d $E2E_WORKSPACE/cbioportal/portal/target/war-exploded
-                no_output_timeout: 25m
+                    mv /tmp/repos/cbioportal $E2E_WORKSPACE
             - run:
                 name: Setup docker compose assets
                 command: |
@@ -206,11 +216,13 @@ workflows:
     version: 2
     end_to_end_tests:
         jobs:
+            - build_backend
             - pull_frontend_codebase
             - install_yarn:
                 requires:
                     - pull_frontend_codebase
             - end_to_end_tests_localdb:
                 requires:
+                    - build_backend
                     - pull_frontend_codebase
                     - install_yarn

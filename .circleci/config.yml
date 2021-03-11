@@ -7,13 +7,12 @@ jobs:
     build_backend:
         docker:
             - image: maven:3-openjdk-11
-        working_directory: /tmp/repos
+        working_directory: /tmp/repos/cbioportal
         steps:
             - checkout
             - run:
                 name: Build and unzip war
                 command: |
-                    cd cbioportal && \
                     mvn -DskipTests clean install && \
                     unzip portal/target/cbioportal*.war -d portal/target/war-exploded
             - persist_to_workspace:

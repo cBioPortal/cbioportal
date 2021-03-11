@@ -23,9 +23,9 @@ jobs:
                     mvn -DskipTests clean install && \
                     unzip portal/target/cbioportal*.war -d portal/target/war-exploded
             - save_cache:
-                keys:
-                    - v1-mvn-dependencies-{{ checksum "poms_combined" }}
-                    - v1-mvn-dependencies-
+                paths:
+                  - ~/.m2
+                key: v1-mvn-dependencies-{{ checksum "poms_combined" }}
             - persist_to_workspace:
                 root: /tmp/repos
                 paths:

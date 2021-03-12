@@ -39,19 +39,18 @@ public class SwaggerConfig {
             new Tag(PublicApiTags.SAMPLE_LISTS, "", 4),
             new Tag(PublicApiTags.CLINICAL_ATTRIBUTES, "", 5),
             new Tag(PublicApiTags.CLINICAL_DATA, "", 6),
-            new Tag(PublicApiTags.CLINICAL_EVENTS, "", 7),
-            new Tag(PublicApiTags.MOLECULAR_DATA, "", 8),
-            new Tag(PublicApiTags.MOLECULAR_PROFILES, "", 9),
-            new Tag(PublicApiTags.MUTATIONS, "", 10),
-            new Tag(PublicApiTags.DISCRETE_COPY_NUMBER_ALTERATIONS, "", 11),
-            new Tag(PublicApiTags.COPY_NUMBER_SEGMENTS, "", 12),
-            new Tag(PublicApiTags.GENES, "", 13),
-            new Tag(PublicApiTags.GENE_PANELS, "", 14),
-            new Tag(PublicApiTags.GENERIC_ASSAYS, "", 15),
-            new Tag(PublicApiTags.STRUCTURAL_VARIANTS, "", 16),
-            new Tag(PublicApiTags.REFERENCE_GENOME_GENES, "", 17),
-            new Tag(PublicApiTags.RESOURCE_DEFINITIONS, "", 18),
-            new Tag(PublicApiTags.RESOURCE_DATA, "", 19)
+            new Tag(PublicApiTags.MOLECULAR_DATA, "", 7),
+            new Tag(PublicApiTags.MOLECULAR_PROFILES, "", 8),
+            new Tag(PublicApiTags.MUTATIONS, "", 9),
+            new Tag(PublicApiTags.DISCRETE_COPY_NUMBER_ALTERATIONS, "", 10),
+            new Tag(PublicApiTags.COPY_NUMBER_SEGMENTS, "", 11),
+            new Tag(PublicApiTags.GENES, "", 12),
+            new Tag(PublicApiTags.GENE_PANELS, "", 13),
+            new Tag(PublicApiTags.GENERIC_ASSAYS, "", 14),
+            new Tag(PublicApiTags.STRUCTURAL_VARIANTS, "", 15),
+            new Tag(PublicApiTags.REFERENCE_GENOME_GENES, "", 16),
+            new Tag(PublicApiTags.RESOURCE_DEFINITIONS, "", 17),
+            new Tag(PublicApiTags.RESOURCE_DATA, "", 18)
         );
 
         return d;

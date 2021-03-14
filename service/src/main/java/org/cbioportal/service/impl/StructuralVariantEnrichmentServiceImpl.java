@@ -58,7 +58,8 @@ public class StructuralVariantEnrichmentServiceImpl implements StructuralVariant
                 }));
 
         return alterationEnrichmentUtil.createAlterationEnrichments(mutationCountsbyEntrezGeneIdAndGroup,
-                molecularProfileCaseSets);
+            molecularProfileCaseSets,
+            enrichmentType);
     }
 
 }

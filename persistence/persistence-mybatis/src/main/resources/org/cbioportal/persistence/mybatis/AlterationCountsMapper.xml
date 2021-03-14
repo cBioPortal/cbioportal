@@ -271,9 +271,9 @@
             INNER JOIN sample ON structural_variant.SAMPLE_ID = sample.INTERNAL_ID
             INNER JOIN patient ON sample.PATIENT_ID = patient.INTERNAL_ID
             INNER JOIN gene ON structural_variant.SITE2_ENTREZ_GENE_ID = gene.ENTREZ_GENE_ID) as combinedResults
-        <where>
-            <include refid="structuralVariantCaseFilter" />
-        </where>
+        <include refid="caseFilter">
+            <property name="identifiers" value="structuralVariantMolecularProfileCaseIdentifiers" />
+        </include>
     </sql>
 
     <sql id="caseFilter">
@@ -294,31 +294,6 @@
                         AND (genetic_profile.STABLE_ID, <include refid="caseStableIdentifier" />) IN
                         <foreach item="id" collection="${identifiers}" open="(" separator="," close=")">
                             (#{id.molecularProfileId}, #{id.caseId})
-                        </foreach>
-                    </otherwise>
-                </choose>
-            </otherwise>
-        </choose>
-    </sql>
-
-    <sql id="structuralVariantCaseFilter">
-        <choose>
-            <when test="molecularProfileCaseIdentifiers == null or molecularProfileCaseIdentifiers.isEmpty()">
-                NULL
-            </when>
-            <otherwise>
-                <choose>
-                    <when test="@java.util.Arrays@stream(molecularProfileCaseIdentifiers.{molecularProfileId}).distinct().count() == 1">
-                        AND geneticProfileId = #{molecularProfileCaseIdentifiers[0].molecularProfileId}
-                        AND caseStableId IN
-                        <foreach item="id" collection="molecularProfileCaseIdentifiers" open="(" separator="," close=")">
-                            #{id.caseId}
-                        </foreach>
-                    </when>
-                    <otherwise>
-                        AND (caseStableId, geneticProfileId) IN
-                        <foreach item="id" collection="molecularProfileCaseIdentifiers" open="(" separator="," close=")">
-                            (#{id.caseId}, #{id.molecularProfileId})
                         </foreach>
                     </otherwise>
                 </choose>

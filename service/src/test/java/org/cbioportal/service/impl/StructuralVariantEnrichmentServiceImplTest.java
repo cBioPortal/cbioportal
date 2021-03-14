@@ -74,7 +74,7 @@ public class StructuralVariantEnrichmentServiceImplTest extends BaseServiceImplT
         }
 
         Mockito.when(alterationEnrichmentUtil.createAlterationEnrichments(new HashMap<>(),
-                groupMolecularProfileCaseSets)).thenReturn(new ArrayList<>());
+                groupMolecularProfileCaseSets, EnrichmentType.SAMPLE)).thenReturn(new ArrayList<>());
 
         List<AlterationEnrichment> result = structuralVariantEnrichmentService
                 .getStructuralVariantEnrichments(groupMolecularProfileCaseSets, EnrichmentType.SAMPLE);

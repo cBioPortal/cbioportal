@@ -58,6 +58,7 @@ public class AlterationMyBatisRepository implements AlterationRepository {
         return alterationCountsMapper.getSampleAlterationCounts(
             groupedIdentifiersByProfileType.get(MolecularAlterationType.MUTATION_EXTENDED),
             groupedIdentifiersByProfileType.get(MolecularAlterationType.COPY_NUMBER_ALTERATION),
+            groupedIdentifiersByProfileType.get(MolecularAlterationType.STRUCTURAL_VARIANT),
             entrezGeneIds,
             createMutationTypeList(mutationEventTypes),
             createCnaTypeList(cnaEventTypes),
@@ -95,6 +96,7 @@ public class AlterationMyBatisRepository implements AlterationRepository {
         return alterationCountsMapper.getPatientAlterationCounts(
             groupedIdentifiersByProfileType.get(MolecularAlterationType.MUTATION_EXTENDED),
             groupedIdentifiersByProfileType.get(MolecularAlterationType.COPY_NUMBER_ALTERATION),
+            groupedIdentifiersByProfileType.get(MolecularAlterationType.STRUCTURAL_VARIANT),
             entrezGeneIds,
             createMutationTypeList(mutationEventTypes),
             createCnaTypeList(cnaEventTypes),

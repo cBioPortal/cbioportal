@@ -83,7 +83,7 @@
             </choose>
             <include refid="caseFilter">
                 <property name="case_type" value="SAMPLE_ID"/>
-                <property name="molecularProfileCaseIdentifiers" value="cnaMolecularProfileCaseIdentifiers"/>
+                <property name="identifiers" value="cnaMolecularProfileCaseIdentifiers"/>
                 <property name="geneticProfileIdentifier" value="genetic_profile.STABLE_ID" />
                 <property name="caseStableIdentifier" value="caseStableIdentifier" />
             </include>
@@ -117,7 +117,7 @@
             </choose>
             <include refid="caseFilter">
                 <property name="case_type" value="PATIENT_ID"/>
-                <property name="molecularProfileCaseIdentifiers" value="cnaMolecularProfileCaseIdentifiers"/>
+                <property name="identifiers" value="cnaMolecularProfileCaseIdentifiers"/>
                 <property name="geneticProfileIdentifier" value="genetic_profile.STABLE_ID" />
                 <property name="caseStableIdentifier" value="caseStableIdentifier" />
             </include>
@@ -205,7 +205,7 @@
                 </when>
             </choose>
             <include refid="caseFilter">
-                <property name="molecularProfileCaseIdentifiers" value="mutationMolecularProfileCaseIdentifiers"/>
+                <property name="identifiers" value="mutationMolecularProfileCaseIdentifiers"/>
                 <property name="geneticProfileIdentifier" value="genetic_profile.STABLE_ID" />
                 <property name="caseStableIdentifier" value="caseStableIdentifier" />
             </include>
@@ -238,7 +238,7 @@
                 </when>
             </choose>
             <include refid="caseFilter">
-                <property name="molecularProfileCaseIdentifiersmolecularProfileCaseIdentifiers" value="cnaMolecularProfileCaseIdentifiers" />
+                <property name="identifiers" value="cnaMolecularProfileCaseIdentifiers" />
                 <property name="geneticProfileIdentifier" value="genetic_profile.STABLE_ID" />
                 <property name="caseStableIdentifier" value="caseStableIdentifier" />
             </include>
@@ -281,7 +281,7 @@
             INNER JOIN gene ON structural_variant.SITE2_ENTREZ_GENE_ID = gene.ENTREZ_GENE_ID) as combinedResults
         <where>
             <include refid="caseFilter">
-                <property name="molecularProfileCaseIdentifiers" value="structuralVariantMolecularProfileCaseIdentifiers" />
+                <property name="identifiers" value="structuralVariantMolecularProfileCaseIdentifiers" />
                 <property name="geneticProfileIdentifier" value="geneticProfileId" />
                 <property name="caseStableIdentifier" value="caseStableId" />
             </include>
@@ -290,21 +290,21 @@
 
     <sql id="caseFilter">
         <choose>
-            <when test="${molecularProfileCaseIdentifiers} == null or ${molecularProfileCaseIdentifiers}.isEmpty()">
+            <when test="${identifiers} == null or ${identifiers}.isEmpty()">
                 AND NULL
             </when>
             <otherwise>
                 <choose>
-                    <when test="@java.util.Arrays@stream(${molecularProfileCaseIdentifiers}.{molecularProfileId}).distinct().count() == 1">
-                        AND ${geneticProfileIdentifier} = #{${molecularProfileCaseIdentifiers}[0].molecularProfileId} AND
+                    <when test="@java.util.Arrays@stream(${identifiers}.{molecularProfileId}).distinct().count() == 1">
+                        AND ${geneticProfileIdentifier} = #{${identifiers}[0].molecularProfileId} AND
                         <include refid="${caseStableIdentifier}" /> IN
-                        <foreach item="id" collection="${molecularProfileCaseIdentifiers}" open="(" separator="," close=")">
+                        <foreach item="id" collection="${identifiers}" open="(" separator="," close=")">
                             #{id.caseId}
                         </foreach>
                     </when>
                     <otherwise>
                         AND (${geneticProfileIdentifier}, <include refid="${caseStableIdentifier}" />) IN
-                        <foreach item="id" collection="${molecularProfileCaseIdentifiers}" open="(" separator="," close=")">
+                        <foreach item="id" collection="${identifiers}" open="(" separator="," close=")">
                             (#{id.molecularProfileId}, #{id.caseId})
                         </foreach>
                     </otherwise>

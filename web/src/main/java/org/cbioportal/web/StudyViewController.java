@@ -7,6 +7,7 @@ import io.swagger.annotations.ApiParam;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.collections.map.MultiKeyMap;
 import org.apache.commons.lang3.math.NumberUtils;
+import org.apache.commons.math3.util.Pair;
 import org.cbioportal.model.AlterationCountByGene;
 import org.cbioportal.model.CNA;
 import org.cbioportal.model.CaseListDataCount;
@@ -324,7 +325,7 @@ public class StudyViewController {
         @Valid @RequestAttribute(required = false, value = "interceptedStudyViewFilter") StudyViewFilter interceptedStudyViewFilter) throws StudyNotFoundException {
 
         List<SampleIdentifier> filteredSampleIdentifiers = studyViewFilterApplier.apply(interceptedStudyViewFilter);
-        List<AlterationCountByGene> result = new ArrayList<>();
+        Pair<List<AlterationCountByGene>, Long> result = new Pair<>(new ArrayList<>(), 0L);
         if (!filteredSampleIdentifiers.isEmpty()) {
             List<String> studyIds = new ArrayList<>();
             List<String> sampleIds = new ArrayList<>();
@@ -340,13 +341,13 @@ public class StudyViewController {
                 true, 
                 false,
                 Select.all());
-            result.sort((a, b) -> b.getNumberOfAlteredCases() - a.getNumberOfAlteredCases());
+            result.getFirst().sort((a, b) -> b.getNumberOfAlteredCases() - a.getNumberOfAlteredCases());
             List<String> distinctStudyIds = studyIds.stream().distinct().collect(Collectors.toList());
-            if (distinctStudyIds.size() == 1 && !result.isEmpty()) {
+            if (distinctStudyIds.size() == 1 && !result.getFirst().isEmpty()) {
                 Map<Integer, MutSig> mutSigMap = significantlyMutatedGeneService.getSignificantlyMutatedGenes(
                     distinctStudyIds.get(0), Projection.SUMMARY.name(), null, null, null, null).stream().collect(
                         Collectors.toMap(MutSig::getEntrezGeneId, Function.identity()));
-                result.forEach(r -> {
+                result.getFirst().forEach(r -> {
                     if (mutSigMap.containsKey(r.getEntrezGeneId())) {
                         r.setqValue(mutSigMap.get(r.getEntrezGeneId()).getqValue());
                     }
@@ -354,7 +355,7 @@ public class StudyViewController {
             }
         }
 
-        return new ResponseEntity<>(result, HttpStatus.OK);
+        return new ResponseEntity<>(result.getFirst(), HttpStatus.OK);
     }
 
     @PreAuthorize("hasPermission(#involvedCancerStudies, 'Collection<CancerStudyId>', 'read')")
@@ -369,7 +370,7 @@ public class StudyViewController {
         @ApiIgnore // prevent reference to this attribute in the swagger-ui interface.
         @Valid @RequestAttribute(required = false, value = "interceptedStudyViewFilter") StudyViewFilter interceptedStudyViewFilter) throws StudyNotFoundException {
         List<SampleIdentifier> filteredSampleIdentifiers = studyViewFilterApplier.apply(interceptedStudyViewFilter);
-        List<AlterationCountByGene> result = new ArrayList<>();
+        Pair<List<AlterationCountByGene>, Long> result = new Pair<>(new ArrayList<>(), 0L);
         if (!filteredSampleIdentifiers.isEmpty()) {
             List<String> studyIds = new ArrayList<>();
             List<String> sampleIds = new ArrayList<>();
@@ -386,13 +387,13 @@ public class StudyViewController {
                 true,
                 false,
                 Select.all());
-            result.sort((a, b) -> b.getNumberOfAlteredCases() - a.getNumberOfAlteredCases());
+            result.getFirst().sort((a, b) -> b.getNumberOfAlteredCases() - a.getNumberOfAlteredCases());
             List<String> distinctStudyIds = studyIds.stream().distinct().collect(Collectors.toList());
-            if (distinctStudyIds.size() == 1 && !result.isEmpty()) {
+            if (distinctStudyIds.size() == 1 && !result.getFirst().isEmpty()) {
                 Map<Integer, MutSig> mutSigMap = significantlyMutatedGeneService.getSignificantlyMutatedGenes(
                     distinctStudyIds.get(0), Projection.SUMMARY.name(), null, null, null, null).stream().collect(
                     Collectors.toMap(MutSig::getEntrezGeneId, Function.identity()));
-                result.forEach(r -> {
+                result.getFirst().forEach(r -> {
                     if (mutSigMap.containsKey(r.getEntrezGeneId())) {
                         r.setqValue(mutSigMap.get(r.getEntrezGeneId()).getqValue());
                     }
@@ -400,7 +401,7 @@ public class StudyViewController {
             }
         }
 
-        return new ResponseEntity<>(result, HttpStatus.OK);
+        return new ResponseEntity<>(result.getFirst(), HttpStatus.OK);
     }
 
     
@@ -418,7 +419,7 @@ public class StudyViewController {
 
         // TODO refactor resolution of sampleids to List<MolecularProfileCaseIdentifier> and share between methods
         List<SampleIdentifier> filteredSampleIdentifiers = studyViewFilterApplier.apply(interceptedStudyViewFilter);
-        List<CopyNumberCountByGene> result = new ArrayList<>();
+        Pair<List<CopyNumberCountByGene>, Long> result = new Pair<>(new ArrayList<>(), 0L);
         if (!filteredSampleIdentifiers.isEmpty()) {
             List<String> studyIds = new ArrayList<>();
             List<String> sampleIds = new ArrayList<>();
@@ -435,9 +436,9 @@ public class StudyViewController {
                 true,
                 false,
                 cnaTypes);
-            result.sort((a, b) -> b.getNumberOfAlteredCases() - a.getNumberOfAlteredCases());
+            result.getFirst().sort((a, b) -> b.getNumberOfAlteredCases() - a.getNumberOfAlteredCases());
             List<String> distinctStudyIds = studyIds.stream().distinct().collect(Collectors.toList());
-            if (distinctStudyIds.size() == 1 && !result.isEmpty()) {
+            if (distinctStudyIds.size() == 1 && !result.getFirst().isEmpty()) {
                 List<Gistic> gisticList = significantCopyNumberRegionService.getSignificantCopyNumberRegions(
                     distinctStudyIds.get(0), Projection.SUMMARY.name(), null, null, null, null);
                 MultiKeyMap gisticMap = new MultiKeyMap();
@@ -447,7 +448,7 @@ public class StudyViewController {
                         gisticMap.put(gene.getEntrezGeneId(), g.getAmp(), g);
                     }
                 }));
-                result.forEach(r -> {
+                result.getFirst().forEach(r -> {
                     if (gisticMap.containsKey(r.getEntrezGeneId(), r.getAlteration().equals(2))) {
                         r.setqValue(((Gistic) gisticMap.get(r.getEntrezGeneId(), r.getAlteration().equals(2))).getqValue());
                     }
@@ -455,7 +456,7 @@ public class StudyViewController {
             }
         }
 
-        return new ResponseEntity<>(result, HttpStatus.OK);
+        return new ResponseEntity<>(result.getFirst(), HttpStatus.OK);
     }
 
     @PreAuthorize("hasPermission(#involvedCancerStudies, 'Collection<CancerStudyId>', 'read')")

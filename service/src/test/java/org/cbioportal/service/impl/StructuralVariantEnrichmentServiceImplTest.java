@@ -5,10 +5,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import org.cbioportal.model.AlterationCountByGene;
-import org.cbioportal.model.AlterationEnrichment;
-import org.cbioportal.model.EnrichmentType;
-import org.cbioportal.model.MolecularProfileCaseIdentifier;
+import org.apache.commons.math3.util.Pair;
+import org.cbioportal.model.*;
 import org.cbioportal.model.util.Select;
 import org.cbioportal.service.AlterationCountService;
 import org.cbioportal.service.util.AlterationEnrichmentUtil;
@@ -70,7 +68,7 @@ public class StructuralVariantEnrichmentServiceImplTest extends BaseServiceImplT
                     });
 
             Mockito.when(alterationCountService.getSampleStructuralVariantCounts(groupMolecularProfileCaseSets.get(group), Select.all(),true, true, Select.all()))
-            .thenReturn(new ArrayList<>());
+            .thenReturn(new Pair<>(new ArrayList<AlterationCountByGene>(), 0L));
         }
 
         Mockito.when(alterationEnrichmentUtil.createAlterationEnrichments(new HashMap<>(),

@@ -1,5 +1,6 @@
 package org.cbioportal.service.impl;
 
+import org.apache.commons.math3.util.Pair;
 import org.cbioportal.model.CNA;
 import org.cbioportal.model.CopyNumberCountByGene;
 import org.cbioportal.model.EnrichmentType;
@@ -68,6 +69,8 @@ public class CopyNumberEnrichmentServiceImplTest {
         groupMolecularProfileCaseSets.put("unaltered group", molecularProfileCaseSet);
 
         List<CopyNumberCountByGene> counts = new ArrayList<>();
+
+        Pair<List<CopyNumberCountByGene>, Long> mockedData = new Pair<>(counts, 0L);
         
         when(alterationCountService.getSampleCnaCounts(
             eq(molecularProfileCaseSet),
@@ -75,14 +78,14 @@ public class CopyNumberEnrichmentServiceImplTest {
             eq(true),
             eq(true),
             argThat(new SelectMockitoArgumentMatcher("SOME")))
-        ).thenReturn(counts);
+        ).thenReturn(mockedData);
     }
 
     Map<String, List<MolecularProfileCaseIdentifier>> groupMolecularProfileCaseSets;
 
     @Test
     public void testGetCopyNumberCountByGeneAndGroup() throws MolecularProfileNotFoundException {
-        Map<String, List<CopyNumberCountByGene>> copyNumberCountByGeneAndGroup = cnaCountService.getCopyNumberCountByGeneAndGroup(groupMolecularProfileCaseSets, CNA.AMP, EnrichmentType.SAMPLE);
+        Map<String, Pair<List<CopyNumberCountByGene>, Long>> copyNumberCountByGeneAndGroup = cnaCountService.getCopyNumberCountByGeneAndGroup(groupMolecularProfileCaseSets, CNA.AMP, EnrichmentType.SAMPLE);
         Assert.assertEquals(2, copyNumberCountByGeneAndGroup.keySet().size());
     }
 }

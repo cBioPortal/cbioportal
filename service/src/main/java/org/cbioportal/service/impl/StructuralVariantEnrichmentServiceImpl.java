@@ -6,6 +6,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
+import org.apache.commons.math3.util.Pair;
 import org.cbioportal.model.AlterationCountByGene;
 import org.cbioportal.model.AlterationEnrichment;
 import org.cbioportal.model.EnrichmentType;
@@ -34,23 +35,13 @@ public class StructuralVariantEnrichmentServiceImpl implements StructuralVariant
         alterationEnrichmentUtil.validateMolecularProfiles(molecularProfileCaseSets,
                 Arrays.asList(MolecularAlterationType.STRUCTURAL_VARIANT), null);
 
-        Map<String, List<AlterationCountByGene>> mutationCountsbyEntrezGeneIdAndGroup = molecularProfileCaseSets
+        Map<String, Pair<List<AlterationCountByGene>, Long>> mutationCountsbyEntrezGeneIdAndGroup = molecularProfileCaseSets
                 .entrySet().stream().collect(Collectors.toMap(Map.Entry::getKey, entry -> {
-                    // set value of each group to list of MutationCountByGene
-                    List<String> molecularProfileIds = new ArrayList<>();
-                    List<String> caseIds = new ArrayList<>();
-
-                    entry.getValue().forEach(molecularProfileCase -> {
-                        molecularProfileIds.add(molecularProfileCase.getMolecularProfileId());
-                        caseIds.add(molecularProfileCase.getCaseId());
-                    });
-
                     if (enrichmentType.equals(EnrichmentType.SAMPLE)) {
                         return alterationCountService.getSampleStructuralVariantCounts(
                                 entry.getValue(),
                                 Select.all(), true, true, Select.all());
                     } else {
-
                         return alterationCountService.getPatientStructuralVariantCounts(
                                 entry.getValue(),
                                 Select.all(), true, true, Select.all());

@@ -3,6 +3,7 @@ package org.cbioportal.service.util;
 import java.math.BigDecimal;
 import java.util.*;
 
+import org.apache.commons.math3.util.Pair;
 import org.cbioportal.model.*;
 import org.cbioportal.service.GeneService;
 import org.junit.Assert;
@@ -94,9 +95,9 @@ public class AlterationEnrichmentUtilTest {
 
         Mockito.when(geneService.fetchGenes(Arrays.asList("2", "3"), "ENTREZ_GENE_ID", "SUMMARY")).thenReturn(genes);
 
-        Map<String, List<? extends AlterationCountByGene>> mutationCountsbyEntrezGeneIdAndGroup = new HashMap<>();
-        mutationCountsbyEntrezGeneIdAndGroup.put("group1", Arrays.asList(alterationSampleCountByGene1, alterationSampleCount1ByGene1));
-        mutationCountsbyEntrezGeneIdAndGroup.put("group2", Arrays.asList(alterationSampleCountByGene2, alterationSampleCount1ByGene2));
+        Map<String, Pair<List<AlterationCountByGene>, Long>> mutationCountsbyEntrezGeneIdAndGroup = new HashMap<>();
+        mutationCountsbyEntrezGeneIdAndGroup.put("group1", new Pair<List<AlterationCountByGene>, Long>(Arrays.asList(alterationSampleCountByGene1, alterationSampleCount1ByGene1), 0L));
+        mutationCountsbyEntrezGeneIdAndGroup.put("group2", new Pair<List<AlterationCountByGene>, Long>(Arrays.asList(alterationSampleCountByGene2, alterationSampleCount1ByGene2), 0L));
 
         // START: for 2 groups
 
@@ -140,8 +141,7 @@ public class AlterationEnrichmentUtilTest {
         // START: for 3 groups
 
         groupMolecularProfileCaseSets.put("group3", molecularProfileCaseSet3);
-        mutationCountsbyEntrezGeneIdAndGroup.put("group3",
-                Arrays.asList(alterationSampleCountByGene1, alterationSampleCountByGene2));
+        mutationCountsbyEntrezGeneIdAndGroup.put("group3", new Pair<List<AlterationCountByGene>, Long>(Arrays.asList(alterationSampleCountByGene1, alterationSampleCountByGene2), 0L));
 
         result = alterationEnrichmentUtil.createAlterationEnrichments(mutationCountsbyEntrezGeneIdAndGroup,
                 groupMolecularProfileCaseSets, EnrichmentType.SAMPLE);

@@ -169,8 +169,7 @@ public class MolecularProfileServiceImpl implements MolecularProfileService {
 
                 String molecularProfileId = molecularProfile.getStableId();
 
-                if (molecularProfile.getMolecularAlterationType()
-                        .equals(MolecularProfile.MolecularAlterationType.FUSION)) {
+                if (molecularProfile.getDatatype().equals(MolecularProfile.MolecularAlterationType.FUSION.name())) {
 
                     molecularProfileId = molecularProfileId.replace("_fusion", "_mutations");
                 }

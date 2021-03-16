@@ -359,7 +359,7 @@ public class StudyViewController {
     }
 
     @PreAuthorize("hasPermission(#involvedCancerStudies, 'Collection<CancerStudyId>', 'read')")
-    @RequestMapping(value = "/structural-variant-genes/fetch", method = RequestMethod.POST,
+    @RequestMapping(value = "/structuralvariant-genes/fetch", method = RequestMethod.POST,
         consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
     @ApiOperation("Fetch structural variant genes by study view filter")
     public ResponseEntity<List<AlterationCountByGene>> fetchStructuralVariantGenes(
@@ -385,8 +385,7 @@ public class StudyViewController {
                 caseIdentifiers,
                 Select.all(),
                 true,
-                false,
-                Select.all());
+                false);
             result.getFirst().sort((a, b) -> b.getNumberOfAlteredCases() - a.getNumberOfAlteredCases());
             List<String> distinctStudyIds = studyIds.stream().distinct().collect(Collectors.toList());
             if (distinctStudyIds.size() == 1 && !result.getFirst().isEmpty()) {

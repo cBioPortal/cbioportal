@@ -42,10 +42,7 @@ public class AlterationEnrichmentUtil<T extends AlterationCountByGene> {
     @Autowired
     private MolecularProfileService molecularProfileService;
 
-    public List<AlterationEnrichment> createAlterationEnrichments(
-            Map<String, Pair<List<T>, Long>> mutationCountsbyGroup,
-            Map<String, List<MolecularProfileCaseIdentifier>> molecularProfileCaseSets,
-            EnrichmentType enrichmentType) {
+    public List<AlterationEnrichment> createAlterationEnrichments(Map<String, Pair<List<T>, Long>> mutationCountsbyGroup) {
         
         Map<String, Map<Integer, AlterationCountByGene>> mutationCountsbyEntrezGeneIdAndGroup = mutationCountsbyGroup
                     .entrySet()
@@ -58,7 +55,7 @@ public class AlterationEnrichmentUtil<T extends AlterationCountByGene> {
                                         .collect(Collectors.toMap(AlterationCountByGene::getEntrezGeneId, c -> c));
                             }));
 
-        Map<String, Long> profiledCaseCountsByGroup =  mutationCountsbyGroup
+        Map<String, Long> profiledCaseCountsByGroup = mutationCountsbyGroup
             .entrySet()
             .stream()
             .collect(Collectors.toMap(
@@ -227,15 +224,13 @@ public class AlterationEnrichmentUtil<T extends AlterationCountByGene> {
                 .map(MolecularProfileCaseIdentifier::getMolecularProfileId))
             .collect(Collectors.toSet());
 
-        ArrayList<String> uniqueMolecularProfileIds = new ArrayList<>(molecularProfileIds);
-
         List<MolecularProfile> molecularProfiles = molecularProfileService
-            .getMolecularProfiles(uniqueMolecularProfileIds, "SUMMARY");
+            .getMolecularProfiles(new ArrayList<>(molecularProfileIds), "SUMMARY");
 
-        if (uniqueMolecularProfileIds.size() != molecularProfiles.size()) {
+        if (molecularProfileIds.size() != molecularProfiles.size()) {
             Map<String, MolecularProfile> molecularProfileMap = molecularProfiles.stream()
                 .collect(Collectors.toMap(MolecularProfile::getStableId, Function.identity()));
-            String invalidMolecularProfileIds = uniqueMolecularProfileIds.stream()
+            String invalidMolecularProfileIds = molecularProfileIds.stream()
                 .filter(molecularProfileId -> !molecularProfileMap.containsKey(molecularProfileId))
                 .collect(Collectors.joining(","));
             throw new MolecularProfileNotFoundException(invalidMolecularProfileIds);

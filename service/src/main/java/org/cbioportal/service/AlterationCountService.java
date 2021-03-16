@@ -40,14 +40,12 @@ public interface AlterationCountService {
     Pair<List<AlterationCountByGene>, Long> getSampleStructuralVariantCounts(List<MolecularProfileCaseIdentifier> molecularProfileCaseIdentifiers,
                                                       Select<Integer> entrezGeneIds,
                                                       boolean includeFrequency,
-                                                      boolean includeMissingAlterationsFromGenePanel,
-                                                      Select<MutationEventType> mutationEventTypes);
+                                                      boolean includeMissingAlterationsFromGenePanel);
 
     Pair<List<AlterationCountByGene>, Long> getPatientStructuralVariantCounts(List<MolecularProfileCaseIdentifier> molecularProfileCaseIdentifiers,
                                                        Select<Integer> entrezGeneIds,
                                                        boolean includeFrequency,
-                                                       boolean includeMissingAlterationsFromGenePanel,
-                                                       Select<MutationEventType> mutationEventTypes);
+                                                       boolean includeMissingAlterationsFromGenePanel);
 
 // Should be restored when old CNA count endpoint is retired
 //    List<AlterationCountByGene> getSampleCnaCounts(List<MolecularProfileCaseIdentifier> molecularProfileCaseIdentifiers,

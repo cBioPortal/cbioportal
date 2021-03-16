@@ -79,7 +79,7 @@ public class InvolvedCancerStudyExtractorInterceptor extends HandlerInterceptorA
     public static final String STUDY_VIEW_CNA_GENES = "/cna-genes/fetch";
     public static final String STUDY_VIEW_FILTERED_SAMPLES = "/filtered-samples/fetch";
     public static final String STUDY_VIEW_MUTATED_GENES = "/mutated-genes/fetch";
-    public static final String STUDY_VIEW_STRUCTURAL_VARIANT_GENES = "/structural-variant-genes/fetch";
+    public static final String STUDY_VIEW_STRUCTURAL_VARIANT_GENES = "/structuralvariant-genes/fetch";
     public static final String STUDY_VIEW_SAMPLE_COUNTS = "/sample-counts/fetch";
     public static final String STUDY_VIEW_SAMPLE_LIST_COUNTS_PATH = "/sample-lists-counts/fetch";
     public static final String CLINICAL_DATA_ENRICHMENT_FETCH_PATH = "/clinical-data-enrichments/fetch";
@@ -94,7 +94,6 @@ public class InvolvedCancerStudyExtractorInterceptor extends HandlerInterceptorA
     public static final String TREATMENTS_PATIENT_PATH = "/treatments/patient";
     public static final String TREATMENTS_SAMPLE_PATH = "/treatments/sample";
     public static final String GENERIC_ASSAY_ENRICHMENT_FETCH_PATH = "/generic-assay-enrichments/fetch";
-    public static final String STRUCTURAL_VARIANT_ENRICHMENT_FETCH_PATH = "/structural-variant-enrichments/fetch";
 
     @Override public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object handler) throws Exception {
         if (!request.getMethod().equals("POST")) {
@@ -139,8 +138,7 @@ public class InvolvedCancerStudyExtractorInterceptor extends HandlerInterceptorA
         } else if (requestPathInfo.equals(MUTATION_ENRICHMENT_FETCH_PATH) ||
         		requestPathInfo.equals(COPY_NUMBER_ENRICHMENT_FETCH_PATH) ||
         		requestPathInfo.equals(EXPRESSION_ENRICHMENT_FETCH_PATH) ||
-        		requestPathInfo.equals(GENERIC_ASSAY_ENRICHMENT_FETCH_PATH) ||
-        		requestPathInfo.equals(STRUCTURAL_VARIANT_ENRICHMENT_FETCH_PATH)) {
+        		requestPathInfo.equals(GENERIC_ASSAY_ENRICHMENT_FETCH_PATH)) {
             return extractAttributesFromMolecularProfileCasesGroups(request);
         } else if (requestPathInfo.equals(ALTERATION_ENRICHMENT_FETCH_PATH)) {
             return extractAttributesFromMolecularProfileCasesGroupsAndAlterationTypes(request);

@@ -161,18 +161,12 @@ public class MolecularProfileServiceImpl implements MolecularProfileService {
         List<String> molecularProfileIds = new ArrayList<>();
         Map<String, String> studyIdtoMolecularProfileIdMap = new HashMap<>();
 
-        //TODO: remove mutation profile once fusions are migrated to structural variant in the database
         getMolecularProfilesInStudies(studyIds, "SUMMARY").stream().forEach(molecularProfile -> {
             if (molecularProfile.getMolecularAlterationType().equals(MolecularProfile.MolecularAlterationType.FUSION)
                     || molecularProfile.getMolecularAlterationType()
                             .equals(MolecularProfile.MolecularAlterationType.STRUCTURAL_VARIANT)) {
 
                 String molecularProfileId = molecularProfile.getStableId();
-
-                if (molecularProfile.getDatatype().equals(MolecularProfile.MolecularAlterationType.FUSION.name())) {
-
-                    molecularProfileId = molecularProfileId.replace("_fusion", "_mutations");
-                }
 
                 if (!studyIdtoMolecularProfileIdMap.containsKey(molecularProfile.getCancerStudyIdentifier())) {
 

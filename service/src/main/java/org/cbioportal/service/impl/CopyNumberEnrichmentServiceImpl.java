@@ -34,11 +34,7 @@ public class CopyNumberEnrichmentServiceImpl implements CopyNumberEnrichmentServ
             copyNumberEventType,
             enrichmentType);
 
-        return alterationEnrichmentUtil
-            .createAlterationEnrichments(
-                copyNumberCountByGeneAndGroup,
-                molecularProfileCaseSets,
-                enrichmentType);
+        return alterationEnrichmentUtil.createAlterationEnrichments(copyNumberCountByGeneAndGroup);
     }
 
     public Map<String, Pair<List<CopyNumberCountByGene>, Long>> getCopyNumberCountByGeneAndGroup(

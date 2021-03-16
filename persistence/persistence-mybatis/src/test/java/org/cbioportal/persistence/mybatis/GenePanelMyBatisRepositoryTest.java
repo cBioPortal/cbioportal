@@ -75,10 +75,10 @@ public class GenePanelMyBatisRepositoryTest {
     @Test
     public void getGenePanelData() throws Exception {
         
-        List<GenePanelData> result = genePanelMyBatisRepository.getGenePanelData("study_tcga_pub_mrna", 
+        List<GenePanelData> result = genePanelMyBatisRepository.getGenePanelDataBySampleListId("study_tcga_pub_mrna", 
             "study_tcga_pub_all");
         
-        Assert.assertEquals(9, result.size());
+        Assert.assertEquals(14, result.size());
         GenePanelData genePanelData = result.get(0);
         Assert.assertEquals("study_tcga_pub_mrna", genePanelData.getMolecularProfileId());
         Assert.assertEquals("TESTPANEL1", genePanelData.getGenePanelId());

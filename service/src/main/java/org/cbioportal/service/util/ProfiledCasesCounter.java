@@ -1,7 +1,6 @@
 package org.cbioportal.service.util;
 
 import java.util.*;
-import java.util.Map.Entry;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
@@ -127,35 +126,5 @@ public class ProfiledCasesCounter<T extends AlterationCountByGene> {
             }
         }
         return casesWithDataInGenePanel;
-    }
-
-    public Map<String, Long> getProfiledCaseCountsByGroup(
-            Map<String, List<MolecularProfileCaseIdentifier>> molecularProfileCaseSets,
-            EnrichmentType enrichmentType) {
-
-        return molecularProfileCaseSets.entrySet().stream().collect(Collectors.toMap(Entry::getKey, entry -> {
-            List<String> queriedCaseIds = new ArrayList<>();
-            List<String> queriedMolecularProfileIds = new ArrayList<>();
-            entry.getValue().forEach(pair -> {
-                queriedCaseIds.add(pair.getCaseId());
-                queriedMolecularProfileIds.add(pair.getMolecularProfileId());
-            });
-
-            List<GenePanelData> genePanelDatas = new ArrayList<>();
-            if (EnrichmentType.PATIENT.equals(enrichmentType)) {
-                genePanelDatas = genePanelService.fetchGenePanelDataInMultipleMolecularProfilesByPatientIds(
-                        queriedMolecularProfileIds, queriedCaseIds);
-            } else {
-                genePanelDatas = genePanelService
-                        .fetchGenePanelDataInMultipleMolecularProfiles(queriedMolecularProfileIds, queriedCaseIds);
-            }
-
-            return genePanelDatas
-                    .stream()
-                    .filter(GenePanelData::getProfiled)
-                    .map(EnrichmentType.PATIENT.equals(enrichmentType) ? patientUniqueIdentifier : sampleUniqueIdentifier)
-                    .distinct()
-                    .count();
-        }));
     }
 }

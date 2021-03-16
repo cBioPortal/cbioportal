@@ -1,5 +1,6 @@
 package org.cbioportal.service.impl;
 
+import org.apache.commons.math3.util.Pair;
 import org.cbioportal.model.*;
 import org.cbioportal.model.util.Select;
 import org.cbioportal.service.AlterationCountService;
@@ -26,7 +27,7 @@ public class MutationEnrichmentServiceImpl implements MutationEnrichmentService 
         Map<String, List<MolecularProfileCaseIdentifier>> molecularProfileCaseSets,
         EnrichmentType enrichmentType) {
 
-        Map<String, List<AlterationCountByGene>> mutationCountsbyEntrezGeneIdAndGroup = getMutationCountsbyEntrezGeneIdAndGroup(
+        Map<String, Pair<List<AlterationCountByGene>, Long>> mutationCountsbyEntrezGeneIdAndGroup = getMutationCountsbyEntrezGeneIdAndGroup(
             molecularProfileCaseSets, enrichmentType);
 
         return alterationEnrichmentUtil.createAlterationEnrichments(mutationCountsbyEntrezGeneIdAndGroup,
@@ -34,7 +35,7 @@ public class MutationEnrichmentServiceImpl implements MutationEnrichmentService 
             enrichmentType);
     }
 
-    public Map<String, List<AlterationCountByGene>> getMutationCountsbyEntrezGeneIdAndGroup(
+    public Map<String, Pair<List<AlterationCountByGene>, Long>> getMutationCountsbyEntrezGeneIdAndGroup(
         Map<String, List<MolecularProfileCaseIdentifier>> molecularProfileCaseSets,
         EnrichmentType enrichmentType) {
         return molecularProfileCaseSets

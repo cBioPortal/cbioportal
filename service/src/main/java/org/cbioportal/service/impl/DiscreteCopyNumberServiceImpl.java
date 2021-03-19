@@ -185,6 +185,7 @@ public class DiscreteCopyNumberServiceImpl implements DiscreteCopyNumberService 
         DiscreteCopyNumberData discreteCopyNumberData = new DiscreteCopyNumberData();
         discreteCopyNumberData.setMolecularProfileId(molecularData.getMolecularProfileId());
         discreteCopyNumberData.setStudyId(molecularData.getStudyId());
+        discreteCopyNumberData.setPatientId(molecularData.getPatientId());
         discreteCopyNumberData.setSampleId(molecularData.getSampleId());
         discreteCopyNumberData.setEntrezGeneId(molecularData.getEntrezGeneId());
         discreteCopyNumberData.setGene(molecularData.getGene());

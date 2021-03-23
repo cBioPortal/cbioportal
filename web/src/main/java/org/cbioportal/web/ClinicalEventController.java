@@ -7,6 +7,7 @@ import org.cbioportal.model.ClinicalEvent;
 import org.cbioportal.service.ClinicalEventService;
 import org.cbioportal.service.exception.PatientNotFoundException;
 import org.cbioportal.service.exception.StudyNotFoundException;
+import org.cbioportal.web.config.InternalApiTags;
 import org.cbioportal.web.config.annotation.InternalApi;
 import org.cbioportal.web.parameter.Direction;
 import org.cbioportal.web.parameter.HeaderKeyConstants;
@@ -33,7 +34,7 @@ import java.util.List;
 @InternalApi
 @RestController
 @Validated
-@Api(tags = "Clinical Events", description = " ")
+@Api(tags = InternalApiTags.CLINICAL_EVENTS, description = " ")
 public class ClinicalEventController {
 
     @Autowired

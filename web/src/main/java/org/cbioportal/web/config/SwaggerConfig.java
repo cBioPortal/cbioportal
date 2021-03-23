@@ -47,10 +47,7 @@ public class SwaggerConfig {
             new Tag(PublicApiTags.GENES, "", 12),
             new Tag(PublicApiTags.GENE_PANELS, "", 13),
             new Tag(PublicApiTags.GENERIC_ASSAYS, "", 14),
-            new Tag(PublicApiTags.STRUCTURAL_VARIANTS, "", 15),
-            new Tag(PublicApiTags.REFERENCE_GENOME_GENES, "", 16),
-            new Tag(PublicApiTags.RESOURCE_DEFINITIONS, "", 17),
-            new Tag(PublicApiTags.RESOURCE_DATA, "", 18)
+            new Tag(PublicApiTags.STRUCTURAL_VARIANTS, "", 15)
         );
 
         return d;

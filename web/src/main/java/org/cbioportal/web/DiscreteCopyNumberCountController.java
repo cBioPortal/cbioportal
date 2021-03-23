@@ -8,7 +8,7 @@ import org.cbioportal.model.DiscreteCopyNumberData;
 import org.cbioportal.model.meta.BaseMeta;
 import org.cbioportal.service.DiscreteCopyNumberService;
 import org.cbioportal.service.exception.MolecularProfileNotFoundException;
-import org.cbioportal.web.config.PublicApiTags;
+import org.cbioportal.web.config.InternalApiTags;
 import org.cbioportal.web.config.annotation.InternalApi;
 import org.cbioportal.web.parameter.CopyNumberCountIdentifier;
 import org.cbioportal.web.parameter.DiscreteCopyNumberEventType;
@@ -37,7 +37,7 @@ import java.util.List;
 @InternalApi
 @RestController
 @Validated
-@Api(tags = "Discrete Copy Number Alteration Counts", description = " ")
+@Api(tags = InternalApiTags.DISCRETE_COPY_NUMBER_ALTERATION_COUNTS, description = " ")
 public class DiscreteCopyNumberCountController {
     
     private static final int COPY_NUMBER_COUNT_MAX_PAGE_SIZE = 50000;

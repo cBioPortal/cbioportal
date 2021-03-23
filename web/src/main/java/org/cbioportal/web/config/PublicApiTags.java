@@ -17,7 +17,4 @@ public class PublicApiTags {
     public static final String GENE_PANELS = "Gene Panels";
     public static final String GENERIC_ASSAYS = "Generic Assays";
     public static final String STRUCTURAL_VARIANTS = "Structural Variants";
-    public static final String REFERENCE_GENOME_GENES = "Reference Genome Genes";
-    public static final String RESOURCE_DEFINITIONS = "Resource Definitions";
-    public static final String RESOURCE_DATA = "Resource Data";
 }

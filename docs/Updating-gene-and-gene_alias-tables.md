@@ -6,8 +6,8 @@ When loading studies into cBioPortal it is possible for warnings to occur that a
 The cBioPortal scripts package provides a method to update the `gene` and `gene_alias` tables. This requires the latest version of the NCBI Gene Info.
 
 ### Human genes
-Homo_sapien.gene_info.gz\
-ftp://ftp.ncbi.nih.gov/gene/DATA/GENE_INFO/Mammalia/Homo_sapiens.gene_info.gz
+[gene_info.txt](https://github.com/cBioPortal/datahub-study-curation-tools/blob/master/gene-table-update/build-input-for-importer/gene_info.txt)
+Generated based on latest HGNC release using script [HERE](https://github.com/cBioPortal/datahub-study-curation-tools/tree/master/gene-table-update/build-input-for-importer) 
 
 ### Mouse genes
 Mus_musculus.gene_info.gz\
@@ -40,6 +40,13 @@ ALTER TABLE `geneset` AUTO_INCREMENT = 1;
 4- Restart cBioPortal (restart webserver) to clean-up any cached gene lists.
 
 5- To import gene data type the following commands when in the folder `<cbioportal_source_folder>/core/src/main/scripts`:
+### Human genes
+```
+export PORTAL_HOME=<cbioportal_configuration_folder>
+export JAVA_HOME=<jre_installation_folder>
+./importGenes.pl --hgnc HGNC_FILENAME --genome-build <GRCh37>
+```
+### Mouse genes
 ```
 export PORTAL_HOME=<cbioportal_configuration_folder>
 export JAVA_HOME=<jre_installation_folder>

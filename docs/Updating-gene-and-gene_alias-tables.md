@@ -58,6 +58,11 @@ export JAVA_HOME=<jre_installation_folder>
 3. Use the **gene** table if you query information such as hugo symbols, types of the gene 
 4. Use **reference_genome_gene** table if you query information such as chromosome, cytoband, exonic length, or the start or end of the gene
 5. Load genes only to the **reference_genome_gene** table without updating the **gene** table, please use the following command:
+### Human genes
+```
+./importGenes.pl --gtf <gencode.v27.annotation.gtf> --genome-build <GRCh38>
+```
+### Mouse genes
 ```
 ./importGenes.pl --gtf <gencode.v27.annotation.gtf> --genome-build <GRCh38>
 ```

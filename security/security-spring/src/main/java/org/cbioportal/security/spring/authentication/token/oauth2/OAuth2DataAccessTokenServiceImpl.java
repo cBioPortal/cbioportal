@@ -197,8 +197,7 @@ public class OAuth2DataAccessTokenServiceImpl implements DataAccessTokenService 
     @Override
     public Authentication createAuthenticationRequest(String offlineToken) {
         // validity of the offline token is checked by the OAuth2 authentication server
-        String principal = getUsername(offlineToken);
-        return new OAuth2BearerAuthenticationToken(principal, offlineToken);
+        return new OAuth2BearerAuthenticationToken(offlineToken);
     }
 
 }

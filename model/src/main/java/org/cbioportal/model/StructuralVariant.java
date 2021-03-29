@@ -25,7 +25,9 @@ package org.cbioportal.model;
 
 import org.cbioportal.model.UniqueKeyBase;
 
-public class StructuralVariant extends UniqueKeyBase {
+import java.io.Serializable;
+
+public class StructuralVariant extends UniqueKeyBase implements Serializable {
 
     private String molecularProfileId;
     private String sampleId;

@@ -8,6 +8,7 @@ import org.cbioportal.model.MutationEventType;
 import org.junit.Assert;
 import org.junit.Test;
 
+import java.util.HashMap;
 import java.util.Map;
 
 public class AlterationFiltersTest {
@@ -87,6 +88,15 @@ public class AlterationFiltersTest {
     }
 
     @Test
+    public void setSelectAllWhenCnaTypesEmpty() {
+        AlterationFilter f = new AlterationFilter();
+        f.setCnaBooleanMap(new HashMap<>());
+        Assert.assertFalse(f.getSelectedCnaTypes().hasValues());
+        Assert.assertFalse(f.getSelectedCnaTypes().hasAll());
+        Assert.assertTrue(f.getSelectedCnaTypes().hasNone());
+    }
+
+    @Test
     public void setSelectAllWhenAllMutationTypesTrue() {
         AlterationFilter f = new AlterationFilter();
         Map<MutationEventType, Boolean> types = new HashedMap();
@@ -132,6 +142,15 @@ public class AlterationFiltersTest {
     }
 
     @Test
+    public void setSelectAllWhenMutationTypesEmpty() {
+        AlterationFilter f = new AlterationFilter();
+        f.setMutationBooleanMap(new HashMap<>());
+        Assert.assertFalse(f.getSelectedMutationTypes().hasValues());
+        Assert.assertFalse(f.getSelectedMutationTypes().hasAll());
+        Assert.assertTrue(f.getSelectedMutationTypes().hasNone());
+    }
+
+    @Test
     public void setSelectAllWhenAllTiersTrue() {
         BaseAlterationFilter f = new BaseAlterationFilter();
         Map<String, Boolean> types = new HashedMap();
@@ -162,6 +181,15 @@ public class AlterationFiltersTest {
         types.put("Class 1", false);
         types.put("Class 2", false);
         f.setTiersBooleanMap(types);
+        Assert.assertFalse(f.getSelectedTiers().hasValues());
+        Assert.assertFalse(f.getSelectedTiers().hasAll());
+        Assert.assertTrue(f.getSelectedTiers().hasNone());
+    }
+
+    @Test
+    public void setSelectAllWhenTiersEmpty() {
+        BaseAlterationFilter f = new BaseAlterationFilter();
+        f.setTiersBooleanMap(new HashedMap());
         Assert.assertFalse(f.getSelectedTiers().hasValues());
         Assert.assertFalse(f.getSelectedTiers().hasAll());
         Assert.assertTrue(f.getSelectedTiers().hasNone());

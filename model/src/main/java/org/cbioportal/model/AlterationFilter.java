@@ -48,7 +48,7 @@ public class AlterationFilter extends BaseAlterationFilter implements Serializab
                 selectedTypes.entrySet().stream()
                     .filter(e -> e.getValue())
                     .map(e -> e.getKey()));
-            if (selectedTypes.entrySet().stream().allMatch(e -> e.getValue()))
+            if (selectedTypes.size() > 0 && selectedTypes.entrySet().stream().allMatch(e -> e.getValue()))
                 this.mutationTypeSelect.hasAll(true);
         }
     }
@@ -78,7 +78,7 @@ public class AlterationFilter extends BaseAlterationFilter implements Serializab
                 selectedTypes.entrySet().stream()
                     .filter(e -> e.getValue())
                     .map(e -> e.getKey()));
-            if (selectedTypes.entrySet().stream().allMatch(e -> e.getValue()))
+            if (selectedTypes.size() > 0 && selectedTypes.entrySet().stream().allMatch(e -> e.getValue()))
                 this.cnaTypeSelect.hasAll(true);
         }
     }

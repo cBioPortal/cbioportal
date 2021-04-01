@@ -145,7 +145,7 @@
                     #{item}
                 </foreach>
             </if>
-            <if test="entrezGeneIds != null and !entrezGeneIds.isEmpty()">
+            <if test="_parameter.containsKey('entrezGeneIds') and entrezGeneIds != null and !entrezGeneIds.isEmpty()">
                 AND mutation.ENTREZ_GENE_ID IN
                 <foreach item="item" collection="entrezGeneIds" open="(" separator="," close=")">
                     #{item}
@@ -222,8 +222,7 @@
             </foreach>
         </if>
     </sql>
-
-
+    
     <sql id="getAlleleSpecificCopyNumber">
         allele_specific_copy_number.ASCN_INTEGER_COPY_NUMBER AS "${prefix}ascnIntegerCopyNumber",
         allele_specific_copy_number.ASCN_METHOD AS "${prefix}ascnMethod",

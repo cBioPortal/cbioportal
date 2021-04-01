@@ -91,10 +91,14 @@ public class MutationMapperUtils {
                         } else {
                             // this is in format of <gene1>-<gene2>-<optional variant-type>. ex.
                             // ZSWIM4-SLC1A6 or ZNF595-TERT fusion
-                            site1GeneSymbol = matcher.group(1);
-                            site2GeneSymbol = matcher.group(2);
-							if (matcher.group(3) != null
-									&& EnumUtils.isValidEnum(VariantType.class, matcher.group(3).toUpperCase())) {
+                            if(fusion.getGene().getHugoGeneSymbol().equalsIgnoreCase(matcher.group(1))) {
+                                site1GeneSymbol = matcher.group(1);
+                                site2GeneSymbol = matcher.group(2);
+                            } else if(fusion.getGene().getHugoGeneSymbol().equalsIgnoreCase(matcher.group(2))) {
+                                site1GeneSymbol = matcher.group(2);
+                                site2GeneSymbol = matcher.group(1);
+                            }
+							if (matcher.group(3) != null) {
 								variantType = EnumUtils.getEnum(VariantType.class, matcher.group(3).toUpperCase());
 							}
                         }
@@ -122,7 +126,7 @@ public class MutationMapperUtils {
                         }
 
                         if (variantType != null) {
-                            structuralVariant.setVariantClass(variantType.name());
+                            structuralVariant.setVariantClass(variantType.getVariantType());
                         }
                     }
                 }

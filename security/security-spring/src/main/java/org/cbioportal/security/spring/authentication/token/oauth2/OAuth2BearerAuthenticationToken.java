@@ -47,6 +47,12 @@ public class OAuth2BearerAuthenticationToken extends AbstractAuthenticationToken
     private final String accessToken;
     private final Object principal;
 
+    public OAuth2BearerAuthenticationToken(String accessToken) {
+        super(new HashSet<>());
+        this.principal = null;
+        this.accessToken = accessToken;
+    }
+
     public OAuth2BearerAuthenticationToken(Object principal, String accessToken) {
         super(new HashSet<>());
         this.accessToken = accessToken;

@@ -786,11 +786,11 @@ public class ImportTabDelimData {
             GenericAssayMeta genericAssayMeta = DaoGenericAssay.getGenericAssayMetaByStableId(parts[genericAssayIdIndex]);
             
             if (genericAssayMeta ==  null) {
-                ProgressMonitor.logWarning("Mutational Signature " + parts[genericAssayIdIndex] + " not found in DB. Record will be skipped.");
+                ProgressMonitor.logWarning("Generic Assay entity " + parts[genericAssayIdIndex] + " not found in DB. Record will be skipped.");
             } else {
                 GeneticEntity geneticEntity = DaoGeneticEntity.getGeneticEntityByStableId(genericAssayMeta.getStableId());
                 if (geneticEntity == null) {
-                    ProgressMonitor.logWarning("Mutational Signature " + parts[genericAssayIdIndex] + " not found in DB. Record will be skipped.");
+                    ProgressMonitor.logWarning("Generic Assay entity " + parts[genericAssayIdIndex] + " not found in DB. Record will be skipped.");
                 }
                 recordIsStored = storeGeneticEntityGeneticAlterations(values, daoGeneticAlteration, geneticEntity.getId(), 
                                     EntityType.GENERIC_ASSAY, genericAssayMeta.getStableId());

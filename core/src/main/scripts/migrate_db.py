@@ -15,9 +15,10 @@ DATABASE_HOST = 'db.host'
 DATABASE_NAME = 'db.portal_db_name'
 DATABASE_USER = 'db.user'
 DATABASE_PW = 'db.password'
+DATABASE_USE_SSL = 'db.use_ssl'
 VERSION_TABLE = 'info'
 VERSION_FIELD = 'DB_SCHEMA_VERSION'
-REQUIRED_PROPERTIES = [DATABASE_HOST, DATABASE_NAME, DATABASE_USER, DATABASE_PW]
+REQUIRED_PROPERTIES = [DATABASE_HOST, DATABASE_NAME, DATABASE_USER, DATABASE_PW, DATABASE_USE_SSL]
 ALLOWABLE_GENOME_REFERENCES = ['37', 'hg19', 'GRCh37', '38', 'hg38', 'GRCh38', 'mm10', 'GRCm38']
 DEFAULT_GENOME_REFERENCE = 'hg19'
 MULTI_REFERENCE_GENOME_SUPPORT_MIGRATION_STEP = (2,11,0)
@@ -25,7 +26,7 @@ MULTI_REFERENCE_GENOME_SUPPORT_MIGRATION_STEP = (2,11,0)
 class PortalProperties(object):
     """ Properties object class, just has fields for db conn """
 
-    def __init__(self, database_host, database_name, database_user, database_pw):
+    def __init__(self, database_host, database_name, database_user, database_pw, database_use_ssl):
         # default port:
         self.database_port = 3306
         # if there is a port added to the host name, split and use this one:
@@ -43,15 +44,21 @@ class PortalProperties(object):
         self.database_name = database_name
         self.database_user = database_user
         self.database_pw = database_pw
+        self.database_use_ssl = database_use_ssl
 
 def get_db_cursor(portal_properties):
     """ Establishes a MySQL connection """
     try:
-        connection = MySQLdb.connect(host=portal_properties.database_host,
-            port = portal_properties.database_port,
-            user = portal_properties.database_user,
-            passwd = portal_properties.database_pw,
-            db = portal_properties.database_name)
+        connection_kwargs = {}
+        connection_kwargs['host'] = portal_properties.database_host
+        connection_kwargs['port'] = portal_properties.database_port
+        connection_kwargs['user'] = portal_properties.database_user
+        connection_kwargs['passwd'] = portal_properties.database_pw
+        connection_kwargs['db'] = portal_properties.database_name
+        if portal_properties.database_use_ssl == 'true':
+            connection_kwargs['ssl'] = {"ssl_mode": True}
+        
+        connection = MySQLdb.connect(**connection_kwargs)
     except MySQLdb.Error as exception:
         print(exception, file=ERROR_FILE)
         port_info = ''
@@ -97,7 +104,8 @@ def get_portal_properties(properties_filename):
     return PortalProperties(properties[DATABASE_HOST],
                             properties[DATABASE_NAME],
                             properties[DATABASE_USER],
-                            properties[DATABASE_PW])
+                            properties[DATABASE_PW],
+                            properties[DATABASE_USE_SSL])
 
 def get_db_version(cursor):
     """ gets the version number of the database """

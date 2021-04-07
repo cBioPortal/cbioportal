@@ -6,6 +6,7 @@ import org.cbioportal.model.MutationCountByGene;
 import org.cbioportal.model.meta.MutationMeta;
 
 import java.util.List;
+import java.util.Set;
 
 public interface MutationMapper {
 
@@ -24,7 +25,7 @@ public interface MutationMapper {
     MutationMeta getMetaMutationsInMultipleMolecularProfiles(List<String> molecularProfileIds, List<String> sampleIds,
                                                              List<Integer> entrezGeneIds, Boolean snpOnly);
 
-    List<Mutation> getMutationsBySampleIds(String molecularProfileId, List<String> sampleIds, 
+    List<Mutation> getMutationsBySampleIds(String molecularProfileId, Set<String> sampleIds, 
                                            List<Integer> entrezGeneIds, Boolean snpOnly, String projection, 
                                            Integer limit, Integer offset, String sortBy, String direction);
 

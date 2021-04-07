@@ -360,6 +360,6 @@ public class ClinicalDataEnrichmentUtilTest {
         Assert.assertEquals(2, actualClinicalDataEnrichments.size());
         Assert.assertEquals("0.7670968826920188", actualClinicalDataEnrichments.get(0).getpValue().toString());
         Assert.assertEquals("0.08771942638231253", actualClinicalDataEnrichments.get(0).getScore().toString());
-        Assert.assertEquals("Kruskal Wallis Test", actualClinicalDataEnrichments.get(0).getMethod());
+        Assert.assertEquals("Wilcoxon Test", actualClinicalDataEnrichments.get(0).getMethod());
     }
 }

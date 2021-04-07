@@ -6,7 +6,6 @@ import io.swagger.annotations.ApiParam;
 import org.cbioportal.model.meta.MutationMeta;
 import org.cbioportal.model.Mutation;
 import org.cbioportal.model.MutationCountByPosition;
-import org.cbioportal.service.exception.MolecularProfileNotFoundException;
 import org.cbioportal.service.MolecularProfileService;
 import org.cbioportal.service.MutationService;
 import org.cbioportal.web.config.InternalApiTags;

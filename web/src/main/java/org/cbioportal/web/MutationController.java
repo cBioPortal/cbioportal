@@ -215,28 +215,6 @@ public class MutationController {
         }
     }
 
-    @RequestMapping(value = "/mutation-counts-by-position/fetch", method = RequestMethod.POST,
-        consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
-    @ApiOperation("Fetch mutation counts in all studies by gene and position")
-    public ResponseEntity<List<MutationCountByPosition>> fetchMutationCountsByPosition(
-        @ApiParam(required = true, value = "List of gene and positions")
-        @Size(min = 1, max = MUTATION_MAX_PAGE_SIZE)
-        @RequestBody List<MutationPositionIdentifier> mutationPositionIdentifiers) {
-
-        List<Integer> entrezGeneIds = new ArrayList<>();
-        List<Integer> proteinPosStarts = new ArrayList<>();
-        List<Integer> proteinPosEnds = new ArrayList<>();
-        for (MutationPositionIdentifier mutationPositionIdentifier : mutationPositionIdentifiers) {
-
-            entrezGeneIds.add(mutationPositionIdentifier.getEntrezGeneId());
-            proteinPosStarts.add(mutationPositionIdentifier.getProteinPosStart());
-            proteinPosEnds.add(mutationPositionIdentifier.getProteinPosEnd());
-        }
-
-        return new ResponseEntity<>(mutationService.fetchMutationCountsByPosition(entrezGeneIds, proteinPosStarts,
-            proteinPosEnds), HttpStatus.OK);
-    }
-
     private void extractMolecularProfileAndSampleIds(MutationMultipleStudyFilter mutationMultipleStudyFilter,
                                                      List<String> molecularProfileIds, List<String> sampleIds) {
 

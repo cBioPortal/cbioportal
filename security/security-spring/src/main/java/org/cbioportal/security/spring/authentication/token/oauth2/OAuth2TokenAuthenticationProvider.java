@@ -45,6 +45,7 @@ import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.jwt.Jwt;
 import org.springframework.security.jwt.JwtHelper;
 
+import java.io.IOException;
 import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.StreamSupport;
@@ -74,8 +75,9 @@ public class OAuth2TokenAuthenticationProvider implements AuthenticationProvider
         final String accessToken = tokenRefreshRestTemplate.getAccessToken(offlineToken);
 
         Set<GrantedAuthority> authorities = extractAuthorities(accessToken);
+        String username = getUsername(accessToken);
 
-        return new OAuth2BearerAuthenticationToken(authentication.getPrincipal(), authorities);
+        return new OAuth2BearerAuthenticationToken(username, authorities);
     }
 
     // Read roles/authorities from JWT token.
@@ -104,6 +106,25 @@ public class OAuth2TokenAuthenticationProvider implements AuthenticationProvider
         } catch (Exception e) {
             throw new BadCredentialsException("Authorities could not be extracted from access token.");
         }
+    }
+
+    private String getUsername(final String token) {
+
+        final Jwt tokenDecoded = JwtHelper.decode(token);
+
+        final String claims = tokenDecoded.getClaims();
+        JsonNode claimsMap;
+        try {
+            claimsMap = new ObjectMapper().readTree(claims);
+        } catch (IOException e) {
+            throw new BadCredentialsException("User name could not be found in access token.");
+        }
+
+        if (! claimsMap.has("sub")) {
+            throw new BadCredentialsException("User name could not be found in access token.");
+        }
+
+        return claimsMap.get("sub").asText();
     }
 
 }

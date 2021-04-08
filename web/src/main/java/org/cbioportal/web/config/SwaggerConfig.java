@@ -29,7 +29,7 @@ public class SwaggerConfig {
             .apis(RequestHandlerSelectors.withClassAnnotation(PublicApi.class))
             .build()
             .useDefaultResponseMessages(false)
-            .apiInfo(apiInfo());
+            .apiInfo(publicApiInfo());
 
         d.tags(
             new Tag(PublicApiTags.CANCER_TYPES, "", 0),
@@ -39,19 +39,15 @@ public class SwaggerConfig {
             new Tag(PublicApiTags.SAMPLE_LISTS, "", 4),
             new Tag(PublicApiTags.CLINICAL_ATTRIBUTES, "", 5),
             new Tag(PublicApiTags.CLINICAL_DATA, "", 6),
-            new Tag(PublicApiTags.CLINICAL_EVENTS, "", 7),
-            new Tag(PublicApiTags.MOLECULAR_DATA, "", 8),
-            new Tag(PublicApiTags.MOLECULAR_PROFILES, "", 9),
-            new Tag(PublicApiTags.MUTATIONS, "", 10),
-            new Tag(PublicApiTags.DISCRETE_COPY_NUMBER_ALTERATIONS, "", 11),
-            new Tag(PublicApiTags.COPY_NUMBER_SEGMENTS, "", 12),
-            new Tag(PublicApiTags.GENES, "", 13),
-            new Tag(PublicApiTags.GENE_PANELS, "", 14),
-            new Tag(PublicApiTags.GENERIC_ASSAYS, "", 15),
-            new Tag(PublicApiTags.STRUCTURAL_VARIANTS, "", 16),
-            new Tag(PublicApiTags.REFERENCE_GENOME_GENES, "", 17),
-            new Tag(PublicApiTags.RESOURCE_DEFINITIONS, "", 18),
-            new Tag(PublicApiTags.RESOURCE_DATA, "", 19)
+            new Tag(PublicApiTags.MOLECULAR_DATA, "", 7),
+            new Tag(PublicApiTags.MOLECULAR_PROFILES, "", 8),
+            new Tag(PublicApiTags.MUTATIONS, "", 9),
+            new Tag(PublicApiTags.DISCRETE_COPY_NUMBER_ALTERATIONS, "", 10),
+            new Tag(PublicApiTags.COPY_NUMBER_SEGMENTS, "", 11),
+            new Tag(PublicApiTags.GENES, "", 12),
+            new Tag(PublicApiTags.GENE_PANELS, "", 13),
+            new Tag(PublicApiTags.GENERIC_ASSAYS, "", 14),
+            new Tag(PublicApiTags.STRUCTURAL_VARIANTS, "", 15)
         );
 
         return d;
@@ -64,7 +60,7 @@ public class SwaggerConfig {
             .apis(RequestHandlerSelectors.withClassAnnotation(InternalApi.class))
             .build()
             .useDefaultResponseMessages(false)
-            .apiInfo(apiInfo());
+            .apiInfo(internalApiInfo());
     }
 
     @Bean
@@ -75,12 +71,25 @@ public class SwaggerConfig {
             .build();
     }
 
-    private ApiInfo apiInfo() {
+    private ApiInfo publicApiInfo() {
         ApiInfo apiInfo = new ApiInfo(
-            "cBioPortal web API [Beta]",
+            "cBioPortal web Public API [Beta]",
             "A web service for supplying JSON formatted data to cBioPortal clients. " +
                 "Please note that this API is currently in beta and subject to change.",
-            "1.0 (beta)",
+            "1.0 (beta). Backwards compatibility will be maintained (after 1.0 release)",
+            null,
+            new Contact("cBioPortal", "https://www.cbioportal.org", "cbioportal@googlegroups.com"),
+            "License",
+            "https://github.com/cBioPortal/cbioportal/blob/master/LICENSE", Collections.emptyList());
+        return apiInfo;
+    }
+
+    private ApiInfo internalApiInfo() {
+        ApiInfo apiInfo = new ApiInfo(
+            "cBioPortal web Internal API [Beta]",
+            "A web service for supplying JSON formatted data to cBioPortal clients. " +
+                "Please note that interal API is currently in beta and subject to change.",
+            "1.0 (beta). Internal API are prone to change.",
             null,
             new Contact("cBioPortal", "https://www.cbioportal.org", "cbioportal@googlegroups.com"),
             "License",

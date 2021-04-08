@@ -60,6 +60,7 @@ public class ClinicalDataEnrichmentUtil {
                 sampleAttributeIds,
                 patientAttributeIds,
                 conflictingPatientAttributeIds);
+        String testName = groupedSamples.size() == 2 ? "Wilcoxon Test" : "Kruskal Wallis Test";
 
         // list of values for all NUMBER datatype attributes and for all sample groups
         List<Map<String, List<Double>>> dataByGroupAndByAttribute = groupedSamples.stream()
@@ -101,7 +102,7 @@ public class ClinicalDataEnrichmentUtil {
                     clinicalEnrichment.setpValue(BigDecimal.valueOf(pValue));
                     clinicalEnrichment.setScore(BigDecimal.valueOf(ContinuousDistributions.chisquareInverseCdf(pValue,
                             transposeDataCollection.keySet().size() - 1)));
-                    clinicalEnrichment.setMethod("Kruskal Wallis Test");
+                    clinicalEnrichment.setMethod(testName);
                     clinicalEnrichments.add(clinicalEnrichment);
                 }
             }

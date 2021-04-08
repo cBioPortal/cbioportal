@@ -332,4 +332,71 @@ public class DataBinHelper {
             }
         }
     }
+
+    public Set<BigDecimal> findDistinctValues(DataBin numericalBin, List<BigDecimal> numericalValues) {
+        Range<BigDecimal> range = calcRange(numericalBin);
+        
+        return numericalValues.stream().filter(range::contains).collect(Collectors.toSet());
+    }
+
+    public Set<Range<BigDecimal>> findDistinctSpecialRanges(DataBin numericalBin, List<Range<BigDecimal>> rangeValues) {
+        Range<BigDecimal> range = calcRange(numericalBin);
+        
+        return rangeValues.stream().filter(range::encloses).collect(Collectors.toSet());
+    }
+    
+    public List<DataBin> convertToDistinctBins(
+        List<DataBin> dataBins,
+        List<BigDecimal> numericalValues,
+        List<Range<BigDecimal>> rangeValues
+    ) {
+        List<DataBin> distinctBins = new ArrayList<>();
+        
+        for (DataBin bin: dataBins) {
+            Set<BigDecimal> distinctValues = this.findDistinctValues(bin, numericalValues);
+            Set<Range<BigDecimal>> distinctRanges = this.findDistinctSpecialRanges(bin, rangeValues);
+            
+            // if the bin contains only one distinct value and no range value then create a distinct bin
+            if (distinctRanges.size() == 0 && distinctValues.size() == 1 && this.areAllIntegers(distinctValues)) {
+                BigDecimal distinctValue = distinctValues.iterator().next();
+                
+                DataBin distinctBin = new DataBin();
+                distinctBin.setCount(bin.getCount());
+                distinctBin.setStart(distinctValue);
+                distinctBin.setEnd(distinctValue);
+                
+                distinctBins.add(distinctBin);
+            }
+            // else keep the bin as is
+            else {
+                distinctBins.add(bin);
+            }
+        }
+        
+        // all bins except the outlier bins has to be distinct,
+        // otherwise return the original input bins (no conversion)
+        if (areAllDistinctExceptOutliers(distinctBins)) {
+            return distinctBins;
+        }
+        else {
+            return dataBins;
+        }
+    }
+    
+    public Boolean areAllDistinctExceptOutliers(List<DataBin> dataBins) {
+        return dataBins
+            .stream()
+            .filter(b -> b.getStart() != null && b.getEnd() != null)
+            .map(b -> b.getStart().equals(b.getEnd()))
+            .reduce((a, b) -> a && b)
+            .orElse(false);
+    }
+    
+    public Boolean areAllIntegers(Set<BigDecimal> uniqueValues) {
+        return uniqueValues
+            .stream()
+            .map(value -> value.stripTrailingZeros().scale() <= 0)
+            .reduce((a, b) -> a && b)
+            .orElse(false);
+    }
 }

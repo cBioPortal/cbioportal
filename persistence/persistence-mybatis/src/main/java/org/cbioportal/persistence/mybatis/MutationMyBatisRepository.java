@@ -9,7 +9,8 @@ import org.cbioportal.persistence.mybatis.util.OffsetCalculator;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
 
-import java.util.List;
+import java.util.*;
+import java.util.stream.Collectors;
 
 @Repository
 public class MutationMyBatisRepository implements MutationRepository {
@@ -43,8 +44,36 @@ public class MutationMyBatisRepository implements MutationRepository {
                                                                   String projection, Integer pageSize, 
                                                                   Integer pageNumber, String sortBy, String direction) {
 
-        return mutationMapper.getMutationsInMultipleMolecularProfiles(molecularProfileIds, sampleIds, entrezGeneIds, 
-            null, projection, pageSize, offsetCalculator.calculate(pageSize, pageNumber), sortBy, direction);
+        return getGroupedCasesByMolecularProfileId(molecularProfileIds, sampleIds)
+            .entrySet()
+            .stream()
+            .flatMap(entry -> mutationMapper.getMutationsBySampleIds(entry.getKey(),
+                entry.getValue(),
+                entrezGeneIds,
+                null,
+                projection,
+                pageSize,
+                offsetCalculator.calculate(pageSize, pageNumber),
+                sortBy,
+                direction).stream())
+            .collect(Collectors.toList());
+    }
+
+    private Map<String,Set<String>> getGroupedCasesByMolecularProfileId(List<String> molecularProfileIds, List<String> caseIds) {
+        Map<String,Set<String>> groupMolecularProfileSamples = new HashMap<>();
+
+        for(int i = 0; i< molecularProfileIds.size(); i++) {
+            String molecularProfileId = molecularProfileIds.get(i);
+            String caseId = caseIds.get(i);
+            if(!groupMolecularProfileSamples.containsKey(molecularProfileId)) {
+                Set<String> filteredCaseIds = new HashSet<>();
+                filteredCaseIds.add(caseId);
+                groupMolecularProfileSamples.put(molecularProfileId,filteredCaseIds);
+            } else {
+                groupMolecularProfileSamples.get(molecularProfileId).add(caseId);
+            }
+        }
+        return groupMolecularProfileSamples;
     }
 
     @Override
@@ -62,7 +91,7 @@ public class MutationMyBatisRepository implements MutationRepository {
                                                            String projection, Integer pageSize, Integer pageNumber,
                                                            String sortBy, String direction) {
 
-        return mutationMapper.getMutationsBySampleIds(molecularProfileId, sampleIds, entrezGeneIds, snpOnly, projection,
+        return mutationMapper.getMutationsBySampleIds(molecularProfileId, new HashSet<>(sampleIds), entrezGeneIds, snpOnly, projection,
             pageSize, offsetCalculator.calculate(pageSize, pageNumber), sortBy, direction);
     }
 
@@ -86,8 +115,19 @@ public class MutationMyBatisRepository implements MutationRepository {
             List<String> sampleIds, List<Integer> entrezGeneIds, String projection, Integer pageSize,
             Integer pageNumber, String sortBy, String direction) {
 
-        return mutationMapper.getFusionsInMultipleMolecularProfiles(molecularProfileIds, sampleIds, entrezGeneIds,
-                null, projection, pageSize, offsetCalculator.calculate(pageSize, pageNumber), sortBy, direction);
+        return getGroupedCasesByMolecularProfileId(molecularProfileIds, sampleIds)
+            .entrySet()
+            .stream()
+            .flatMap(entry -> mutationMapper.getFusionsInMultipleMolecularProfiles(Arrays.asList(entry.getKey()),
+                new ArrayList<>(entry.getValue()),
+                entrezGeneIds,
+                null,
+                projection,
+                pageSize,
+                offsetCalculator.calculate(pageSize, pageNumber),
+                sortBy,
+                direction).stream())
+            .collect(Collectors.toList());
     }
     // TODO: cleanup once fusion/structural data is fixed in database
 

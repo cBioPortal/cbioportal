@@ -288,7 +288,8 @@ META_FIELD_MAP = {
         'show_profile_in_analysis_tab': True,
         'generic_entity_meta_properties': False,
         'pivot_threshold_value': False,
-        'value_sort_order': False
+        'value_sort_order': False,
+        'patient_level': False
     },
     MetaFileTypes.GENERIC_ASSAY_BINARY: {
         'cancer_study_identifier': True,
@@ -300,7 +301,8 @@ META_FIELD_MAP = {
         'profile_description': True,
         'data_filename': True,
         'show_profile_in_analysis_tab': True,
-        'generic_entity_meta_properties': False
+        'generic_entity_meta_properties': False,
+        'patient_level': False
     },
     MetaFileTypes.GENERIC_ASSAY_CATEGORICAL: {
         'cancer_study_identifier': True,
@@ -312,7 +314,8 @@ META_FIELD_MAP = {
         'profile_description': True,
         'data_filename': True,
         'show_profile_in_analysis_tab': True,
-        'generic_entity_meta_properties': False
+        'generic_entity_meta_properties': False,
+        'patient_level': False
     },
     MetaFileTypes.STRUCTURAL_VARIANT: {
         'cancer_study_identifier': True,

@@ -4404,6 +4404,7 @@ class GenericAssayWiseFileValidator(FeaturewiseFileValidator):
         # reset REQUIRED_HEADERS for each generic assay meta file, and then add headers defined in generic_entity_meta_properties
         self.REQUIRED_HEADERS = ['ENTITY_STABLE_ID']
         self.REQUIRED_HEADERS.extend([x.strip() for x in self.meta_dict['generic_entity_meta_properties'].split(',')])
+        self.is_patient_level = self.meta_dict['patient_level'].strip().lower() == 'true' if self.meta_dict['patient_level'] is not None else False
 
     REQUIRED_HEADERS = ['ENTITY_STABLE_ID']
     OPTIONAL_HEADERS = []
@@ -4420,6 +4421,30 @@ class GenericAssayWiseFileValidator(FeaturewiseFileValidator):
                                      'column_number': 1,
                                      'cause': nonsample_col_vals[0]})
         return value
+
+    def checkSampleIdsAndPatientIds(self, sampleIds):
+        """Check if IDs are imported"""
+        # sampleIds represent patientIds
+        if self.is_patient_level:
+            patientIds = sampleIds
+            for id in patientIds:
+                if id not in PATIENTS_WITH_SAMPLES:
+                    self.logger.warning(
+                        'patient id not found'
+                        'please provide patient data in clinical data',
+                        extra={'line_number': 1,
+                                'column_number': col_index + 1,
+                                'cause': id})
+        # sampleIds
+        else:
+            for id in sampleIds:
+                if id not in DEFINED_SAMPLE_IDS:
+                    self.logger.warning(
+                        'sample id not found'
+                        'please provide sample data in clinical data',
+                        extra={'line_number': 1,
+                                'column_number': col_index + 1,
+                                'cause': id})
 
 class GenericAssayContinuousValidator(GenericAssayWiseFileValidator):
 

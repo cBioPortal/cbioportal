@@ -936,3 +936,9 @@ CREATE INDEX idx_cna_type ON cna_event (`ALTERATION`);
 CREATE INDEX idx_driver_filter ON alteration_driver_annotation (`DRIVER_FILTER`);
 CREATE INDEX idx_driver_tiers_filter ON alteration_driver_annotation (`DRIVER_TIERS_FILTER`);
 UPDATE `info` SET `DB_SCHEMA_VERSION`="2.12.8";
+
+##version: 2.12.9
+-- all previous genetic_profile will be considered as sample level data
+-- so set 0 (false) as default value for PATIENT_LEVEL field
+ALTER TABLE `genetic_profile` ADD COLUMN `PATIENT_LEVEL` boolean DEFAULT 0;
+UPDATE `info` SET `DB_SCHEMA_VERSION`="2.12.9";

@@ -10,8 +10,8 @@ import org.cbioportal.service.ResourceDataService;
 import org.cbioportal.service.exception.PatientNotFoundException;
 import org.cbioportal.service.exception.SampleNotFoundException;
 import org.cbioportal.service.exception.StudyNotFoundException;
-import org.cbioportal.web.config.PublicApiTags;
-import org.cbioportal.web.config.annotation.PublicApi;
+import org.cbioportal.web.config.InternalApiTags;
+import org.cbioportal.web.config.annotation.InternalApi;
 import org.cbioportal.web.parameter.Direction;
 import org.cbioportal.web.parameter.PagingConstants;
 import org.cbioportal.web.parameter.Projection;
@@ -26,10 +26,10 @@ import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
 
-@PublicApi
+@InternalApi
 @RestController
 @Validated
-@Api(tags = PublicApiTags.RESOURCE_DATA, description = " ")
+@Api(tags = InternalApiTags.RESOURCE_DATA, description = " ")
 public class ResourceDataController {
 
     public static final int RESOURCE_DATA_MAX_PAGE_SIZE = 10000000;

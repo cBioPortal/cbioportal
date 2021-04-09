@@ -8,7 +8,6 @@ public class PublicApiTags {
     public static final String SAMPLE_LISTS = "Sample Lists";
     public static final String CLINICAL_ATTRIBUTES = "Clinical Attributes";
     public static final String CLINICAL_DATA = "Clinical Data";
-    public static final String CLINICAL_EVENTS = "Clinical Events";
     public static final String MOLECULAR_DATA = "Molecular Data";
     public static final String MOLECULAR_PROFILES = "Molecular Profiles";
     public static final String MUTATIONS = "Mutations";
@@ -18,7 +17,4 @@ public class PublicApiTags {
     public static final String GENE_PANELS = "Gene Panels";
     public static final String GENERIC_ASSAYS = "Generic Assays";
     public static final String STRUCTURAL_VARIANTS = "Structural Variants";
-    public static final String REFERENCE_GENOME_GENES = "Reference Genome Genes";
-    public static final String RESOURCE_DEFINITIONS = "Resource Definitions";
-    public static final String RESOURCE_DATA = "Resource Data";
 }

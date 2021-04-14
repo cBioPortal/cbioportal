@@ -110,28 +110,29 @@ public class ExpressionEnrichmentServiceImpl implements ExpressionEnrichmentServ
                 .getGenericAssayMolecularAlterationsIterable(molecularProfile.getStableId(), null, "SUMMARY");
 
         Map<String, List<MolecularProfileCaseIdentifier>> filteredMolecularProfileCaseSets;
-        if (molecularProfile.getPatientLevel() == true) {
+        if (molecularProfile.getPatientLevel() != null && molecularProfile.getPatientLevel() == true) {
             // Build sampleIdToPatientIdMap to quick find if a sample has shared patientId with other samples
             List<String> sampleIds = molecularProfileCaseSets.values().stream().flatMap(x -> x.stream()).map(MolecularProfileCaseIdentifier::getCaseId).collect(Collectors.toList());
             List<String> studyIds = new ArrayList<>();
             studyIds.add(molecularProfile.getCancerStudyIdentifier());
             List<Sample> samples = sampleService.fetchSamples(studyIds, sampleIds, "ID");
-            Map<Integer, Integer> sampleIdToPatientIdMap = new HashMap<>();
+            Map<String, Integer> sampleIdToPatientIdMap = new HashMap<>();
             for (int i = 0; i < samples.size(); i++) {
-                sampleIdToPatientIdMap.put(samples.get(i).getInternalId(), samples.get(i).getPatientId());
+                sampleIdToPatientIdMap.put(samples.get(i).getStableId(), samples.get(i).getPatientId());
             }
             // Build filteredMolecularProfileCaseSets
             filteredMolecularProfileCaseSets = new HashMap<>();
             for (Map.Entry<String, List<MolecularProfileCaseIdentifier>> pair : molecularProfileCaseSets.entrySet()) {
-            Set<Integer> patientSet = new HashSet<Integer>();
-            List<MolecularProfileCaseIdentifier> identifierListUniqueByPatientId = new ArrayList<>();
-            for (MolecularProfileCaseIdentifier caseIdentifier : pair.getValue()) {
-                if (patientSet.contains(sampleIdToPatientIdMap.get(caseIdentifier.getCaseId()))) {
-                    continue;
-                } else {
-                    identifierListUniqueByPatientId.add(caseIdentifier);
+                Set<Integer> patientSet = new HashSet<Integer>();
+                List<MolecularProfileCaseIdentifier> identifierListUniqueByPatientId = new ArrayList<>();
+                for (MolecularProfileCaseIdentifier caseIdentifier : pair.getValue()) {
+                    if (patientSet.contains(sampleIdToPatientIdMap.get(caseIdentifier.getCaseId()))) {
+                        continue;
+                    } else {
+                        identifierListUniqueByPatientId.add(caseIdentifier);
+                        patientSet.add(sampleIdToPatientIdMap.get(caseIdentifier.getCaseId()));
+                    }
                 }
-            }
                 filteredMolecularProfileCaseSets.put(pair.getKey(), identifierListUniqueByPatientId);
             }
         } else {
@@ -139,23 +140,19 @@ public class ExpressionEnrichmentServiceImpl implements ExpressionEnrichmentServ
         }
         List<GenericAssayEnrichment> genericAssayEnrichments = expressionEnrichmentUtil.getEnrichments(molecularProfile,
                 filteredMolecularProfileCaseSets, enrichmentType, maItr);
-
         List<String> getGenericAssayStableIds = genericAssayEnrichments.stream()
                 .map(GenericAssayEnrichment::getStableId).collect(Collectors.toList());
-
         Map<String, GenericAssayMeta> genericAssayMetaByStableId = genericAssayService
                 .getGenericAssayMetaByStableIdsAndMolecularIds(getGenericAssayStableIds,
                         getGenericAssayStableIds.stream().map(stableId -> molecularProfileId)
                                 .collect(Collectors.toList()),
                         "SUMMARY")
                 .stream().collect(Collectors.toMap(GenericAssayMeta::getStableId, Function.identity()));
-
         return genericAssayEnrichments.stream().map(enrichmentDatum -> {
             enrichmentDatum.setGenericEntityMetaProperties(
                     genericAssayMetaByStableId.get(enrichmentDatum.getStableId()).getGenericEntityMetaProperties());
             return enrichmentDatum;
         }).collect(Collectors.toList());
-
     }
 
 

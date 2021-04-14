@@ -730,6 +730,20 @@ class Validator(object):
                        'cause': sample_id})
             return False
         return True
+    
+    def checkPatientId(self, patient_id, column_number):
+        """Check whether a patient id is defined, logging an error if not.
+
+        Return True if the patient id was valid, False otherwise.
+        """
+        if patient_id not in PATIENTS_WITH_SAMPLES:
+            self.logger.error(
+                'Patient ID not defined in clinical file',
+                extra={'line_number': self.line_number,
+                       'column_number': column_number,
+                       'cause': patient_id})
+            return False
+        return True
 
     # TODO: let this function know the column numbers for logging messages
     def checkGeneIdentification(self, gene_symbol=None, entrez_id=None):
@@ -1088,18 +1102,13 @@ class FeaturewiseFileValidator(Validator):
         # set self.sampleIds to the list of sample column names
         self.sampleIds = self.cols[self.num_nonsample_cols:]
         # validate each sample id
-        for index, sample_id in enumerate(self.sampleIds):
-            if not self.checkSampleId(
-                    sample_id,
-                    column_number=self.num_nonsample_cols + index + 1):
-                num_errors += 1
-            if ' ' in sample_id:
-                self.logger.error(
-                    'White space in SAMPLE_ID is not supported',
-                    extra={'line_number': self.line_number,
-                           'cause': sample_id})
-                num_errors += 1
+        num_errors += self.checkId()
         return num_errors
+
+    def checkId(self):
+        # check either sample Id or patient Id
+        # override this to check Id
+        return 0
 
 
 class GenewiseFileValidator(FeaturewiseFileValidator):
@@ -1154,6 +1163,22 @@ class GenewiseFileValidator(FeaturewiseFileValidator):
             if entrez_id == '':
                 entrez_id = None
         return self.checkGeneIdentification(hugo_symbol, entrez_id)
+
+    def checkId(self):
+        # check sample Id
+        num_errors = 0
+        for index, sample_id in enumerate(self.sampleIds):
+            if not self.checkSampleId(
+                    sample_id,
+                    column_number=self.num_nonsample_cols + index + 1):
+                num_errors += 1
+            if ' ' in sample_id:
+                self.logger.error(
+                    'White space in SAMPLE_ID is not supported',
+                    extra={'line_number': self.line_number,
+                           'cause': sample_id})
+                num_errors += 1
+        return num_errors
 
 
 class ContinuousValuesValidator(GenewiseFileValidator):
@@ -3404,6 +3429,22 @@ class ProteinLevelValidator(FeaturewiseFileValidator):
                                      'column_number': col_index + 1,
                                      'cause': value})
 
+    def checkId(self):
+        # check sample Id
+        num_errors = 0
+        for index, sample_id in enumerate(self.sampleIds):
+            if not self.checkSampleId(
+                    sample_id,
+                    column_number=self.num_nonsample_cols + index + 1):
+                num_errors += 1
+            if ' ' in sample_id:
+                self.logger.error(
+                    'White space in SAMPLE_ID is not supported',
+                    extra={'line_number': self.line_number,
+                           'cause': sample_id})
+                num_errors += 1
+        return num_errors
+
 
 class TimelineValidator(Validator):
 
@@ -4316,6 +4357,22 @@ class MultipleDataFileValidator(FeaturewiseFileValidator, metaclass=ABCMeta):
 
         super(MultipleDataFileValidator, self).onComplete()
 
+    def checkId(self):
+        # check sample Id
+        num_errors = 0
+        for index, sample_id in enumerate(self.sampleIds):
+            if not self.checkSampleId(
+                    sample_id,
+                    column_number=self.num_nonsample_cols + index + 1):
+                num_errors += 1
+            if ' ' in sample_id:
+                self.logger.error(
+                    'White space in SAMPLE_ID is not supported',
+                    extra={'line_number': self.line_number,
+                           'cause': sample_id})
+                num_errors += 1
+        return num_errors
+
 class GsvaWiseFileValidator(MultipleDataFileValidator, metaclass=ABCMeta):
     """Groups multiple gene set data files from a study to ensure consistency.
 
@@ -4404,7 +4461,6 @@ class GenericAssayWiseFileValidator(FeaturewiseFileValidator):
         # reset REQUIRED_HEADERS for each generic assay meta file, and then add headers defined in generic_entity_meta_properties
         self.REQUIRED_HEADERS = ['ENTITY_STABLE_ID']
         self.REQUIRED_HEADERS.extend([x.strip() for x in self.meta_dict['generic_entity_meta_properties'].split(',')])
-        self.is_patient_level = self.meta_dict['patient_level'].strip().lower() == 'true' if self.meta_dict['patient_level'] is not None else False
 
     REQUIRED_HEADERS = ['ENTITY_STABLE_ID']
     OPTIONAL_HEADERS = []
@@ -4421,30 +4477,34 @@ class GenericAssayWiseFileValidator(FeaturewiseFileValidator):
                                      'column_number': 1,
                                      'cause': nonsample_col_vals[0]})
         return value
-
-    def checkSampleIdsAndPatientIds(self, sampleIds):
-        """Check if IDs are imported"""
-        # sampleIds represent patientIds
-        if self.is_patient_level:
-            patientIds = sampleIds
-            for id in patientIds:
-                if id not in PATIENTS_WITH_SAMPLES:
-                    self.logger.warning(
-                        'patient id not found'
-                        'please provide patient data in clinical data',
-                        extra={'line_number': 1,
-                                'column_number': col_index + 1,
-                                'cause': id})
-        # sampleIds
-        else:
-            for id in sampleIds:
-                if id not in DEFINED_SAMPLE_IDS:
-                    self.logger.warning(
-                        'sample id not found'
-                        'please provide sample data in clinical data',
-                        extra={'line_number': 1,
-                                'column_number': col_index + 1,
-                                'cause': id})
+    
+    def checkId(self):
+        """Check if patient/sample IDs are imported"""
+        num_errors = 0
+        is_patient_level = True if 'patient_level' in self.meta_dict and self.meta_dict['patient_level'].strip().lower() == 'true' else False
+        # self.sampleIds can save either patient ids or sample ids
+        ids = self.sampleIds
+        for index, id in enumerate(ids):
+            if ' ' in id:
+                self.logger.error(
+                    'White space in id is not supported',
+                    extra={'line_number': self.line_number,
+                           'column_number': self.num_nonsample_cols + index + 1,
+                           'cause': id})
+                num_errors += 1
+            elif is_patient_level:
+                # check patient id for patient level data
+                if not self.checkPatientId(
+                        id,
+                        column_number=self.num_nonsample_cols + index + 1):
+                    num_errors += 1
+            else:           
+                # check sample id for non patient level data
+                if not self.checkSampleId(
+                        id,
+                        column_number=self.num_nonsample_cols + index + 1):
+                    num_errors += 1
+        return num_errors
 
 class GenericAssayContinuousValidator(GenericAssayWiseFileValidator):
 

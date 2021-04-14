@@ -91,8 +91,6 @@ public class ImportGenericAssayPatientLevelData {
         String headerLine = buf.readLine();
         String parts[] = headerLine.split("\t");
         
-        boolean isGenericAssayProfile = true;
-        
         int numRecordsToAdd = 0;
         int patientsSkipped = 0;
         try {
@@ -180,10 +178,10 @@ public class ImportGenericAssayPatientLevelData {
 
     /**
      * Parses line for generic assay profile record and stores record in 'genetic_alteration' table.
-     * @param line  row from the separated-text that contains one or more values on a single sample
+     * @param line  row from the separated-text that contains one or more values on a single patient
      * @param nrColumns
      * @param patientStartIndex  index of the first patient column
-     * @param genericAssayIdIndex  index of the column that uniquely identifies a sample
+     * @param genericAssayIdIndex  index of the column that uniquely identifies a patient
      * @param daoGeneticAlteration
      * @return
      * @throws DaoException 
@@ -216,7 +214,6 @@ public class ImportGenericAssayPatientLevelData {
                     }
                 }
             }
-            // String values[] = (String[]) ArrayUtils.subarray(parts, patientStartIndex, parts.length>nrColumns?nrColumns:parts.length);
 
             // trim whitespace from values
             values = Stream.of(values).map(String::trim).toArray(String[]::new);
@@ -244,7 +241,7 @@ public class ImportGenericAssayPatientLevelData {
      * @param values
      * @param daoGeneticAlteration
      * @param geneticEntityId - internal id for genetic entity
-     * @param geneticEntityName - hugo symbol for "GENE", external id for "GENESET", phospho gene name for "PHOSPHOPROTEIN"
+     * @param geneticEntityName - entity name for Generic Assay
      * @return boolean indicating if record was stored successfully or not
      */
     private boolean storeGeneticEntityGeneticAlterations(String[] values, DaoGeneticAlteration daoGeneticAlteration,
@@ -288,7 +285,7 @@ public class ImportGenericAssayPatientLevelData {
         List<String> featureColNames = new ArrayList<String>();
         featureColNames.add("ENTITY_STABLE_ID");
 
-        // add genericEntityProperties as the feature colum
+        // add genericEntityProperties as feature colums
         if (genericEntityProperties != null && genericEntityProperties.trim().length() != 0) {
             String[] propertyNames = genericEntityProperties.trim().split(",");
             featureColNames.addAll(Arrays.asList(propertyNames));
@@ -298,7 +295,7 @@ public class ImportGenericAssayPatientLevelData {
         
         for (int i=0; i<headers.length; i++) {
             String h = headers[i];
-            //if the column is not one of the gene symbol/gene id columns or other pre-sample columns:
+            //if the column is not one of the pre-sample columns:
             // and the column is found after all non value columns that are passed in
             if ( featureColNames.stream().noneMatch(e -> e.equalsIgnoreCase(h))
                 && i > startFeatureCol) {

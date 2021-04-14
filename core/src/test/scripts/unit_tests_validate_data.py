@@ -2729,11 +2729,50 @@ class GenericAssayWiseTestCase(PostClinicalDataFileTestCase):
 
         self.assertEqual(len(record_list), 2)
         record_iterator = iter(record_list)
-        # Invalid column header
+        # Missing column: ENTITY_STABLE_ID
         record = next(record_iterator)
         self.assertEqual(record.levelno, logging.ERROR)
         self.assertIn('Missing column: ENTITY_STABLE_ID', record.getMessage())
-        # Missing column: ENTITY_STABLE_ID
+        # Invalid column header
+        record = next(record_iterator)
+        self.assertEqual(record.levelno, logging.ERROR)
+        self.assertIn('Invalid column header', record.getMessage())
+
+    def test_sample_generic_assay_sample_not_defined(self):
+        self.logger.setLevel(logging.WARNING)
+        record_list = self.validate('data_generic_assay_sample_not_defined.txt',
+                            validateData.GenericAssayWiseFileValidator,
+                            extra_meta_fields={
+                                'generic_entity_meta_properties': 'name,description,url',
+                                'patient_level': 'false'})
+
+        self.assertEqual(len(record_list), 2)
+        record_iterator = iter(record_list)
+        # Sample not defined
+        record = next(record_iterator)
+        self.assertEqual(record.levelno, logging.ERROR)
+        self.assertIn('Sample ID not defined in clinical file', record.getMessage())
+        # Invalid column header
+        record = next(record_iterator)
+        self.assertEqual(record.levelno, logging.ERROR)
+        self.assertIn('Invalid column header', record.getMessage())
+
+    def test_patiet_generic_assay_patient_not_defined(self):
+        self.logger.setLevel(logging.ERROR)
+        validateData.PATIENTS_WITH_SAMPLES = set(["TCGA-A1-A0SB", "TCGA-A1-A0SD", "TCGA-A1-A0SE", "TCGA-A2-A04U", "TCGA-B6-A0RS", "TCGA-BH-A0HP", "TCGA-BH-A18P"])
+        record_list = self.validate('data_generic_assay_patient_not_defined.txt',
+                            validateData.GenericAssayWiseFileValidator,
+                            extra_meta_fields={
+                                'generic_entity_meta_properties': 'name,description,url',
+                                'patient_level': 'true'})
+
+        self.assertEqual(len(record_list), 2)
+        record_iterator = iter(record_list)
+        # Patient not defined
+        record = next(record_iterator)
+        self.assertEqual(record.levelno, logging.ERROR)
+        self.assertIn('Patient ID not defined in clinical file', record.getMessage())
+        # Invalid column header
         record = next(record_iterator)
         self.assertEqual(record.levelno, logging.ERROR)
         self.assertIn('Invalid column header', record.getMessage())

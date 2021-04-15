@@ -7,6 +7,8 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.EnumUtils;
 import org.cbioportal.model.Gene;
@@ -91,13 +93,8 @@ public class MutationMapperUtils {
                         } else {
                             // this is in format of <gene1>-<gene2>-<optional variant-type>. ex.
                             // ZSWIM4-SLC1A6 or ZNF595-TERT fusion
-                            if(fusion.getGene().getHugoGeneSymbol().equalsIgnoreCase(matcher.group(1))) {
-                                site1GeneSymbol = matcher.group(1);
-                                site2GeneSymbol = matcher.group(2);
-                            } else if(fusion.getGene().getHugoGeneSymbol().equalsIgnoreCase(matcher.group(2))) {
-                                site1GeneSymbol = matcher.group(2);
-                                site2GeneSymbol = matcher.group(1);
-                            }
+                            site1GeneSymbol = matcher.group(1);
+                            site2GeneSymbol = matcher.group(2);
 							if (matcher.group(3) != null) {
 								variantType = EnumUtils.getEnum(VariantType.class, matcher.group(3).toUpperCase());
 							}
@@ -105,21 +102,29 @@ public class MutationMapperUtils {
 
                         // only set site2Gene if its not null
                         if (site2GeneSymbol != null) {
-                            if (site1GeneSymbol != null && site1GeneSymbol.equalsIgnoreCase(site2GeneSymbol)) {
-                                structuralVariant.setSite2EntrezGeneId(fusion.getEntrezGeneId());
-                                structuralVariant.setSite2HugoSymbol(fusion.getGene().getHugoGeneSymbol());
-                            } else {
-                                try {
-                                    Gene site2Gene = geneService.getGene(site2GeneSymbol);
-                                    structuralVariant.setSite2EntrezGeneId(site2Gene.getEntrezGeneId());
-                                    structuralVariant.setSite2HugoSymbol(site2Gene.getHugoGeneSymbol());
-                                } catch (Exception e) {
-                                    // Site2 gene is not set when gene symbol is not found in database. Check if it is an alias
-                                    List<Gene> aliasGenes = geneService.getAllGenes(null, site2GeneSymbol, "SUMMARY",
-                                            null, null, null, null);
-                                    if (CollectionUtils.isNotEmpty(aliasGenes)) {
-                                        structuralVariant.setSite2EntrezGeneId(aliasGenes.get(0).getEntrezGeneId());
-                                        structuralVariant.setSite2HugoSymbol(aliasGenes.get(0).getHugoGeneSymbol());
+                            if (fusion.getGene().getHugoGeneSymbol().equalsIgnoreCase(site1GeneSymbol) ||
+                                fusion.getGene().getHugoGeneSymbol().equalsIgnoreCase(site2GeneSymbol)) {
+                                if (site1GeneSymbol.equalsIgnoreCase(site2GeneSymbol)) {
+                                    structuralVariant.setSite2EntrezGeneId(fusion.getEntrezGeneId());
+                                    structuralVariant.setSite2HugoSymbol(fusion.getGene().getHugoGeneSymbol());
+                                } else {
+                                    Gene site2Gene = getGene(site2GeneSymbol);
+                                    if (site2Gene != null) {
+                                        structuralVariant.setSite2EntrezGeneId(site2Gene.getEntrezGeneId());
+                                        structuralVariant.setSite2HugoSymbol(site2Gene.getHugoGeneSymbol());
+                                    }
+                                }
+                            } else { // if the queried gene is as alias gene in protein change
+                                Gene site1Gene = getGene(site1GeneSymbol);
+                                Gene site2Gene = getGene(site2GeneSymbol);
+                                if (site1Gene != null && site2Gene != null) { // set site2Gene when both genes are valid
+                                    // and one of the site genes should match fusion gene
+                                    if (fusion.getGene().getHugoGeneSymbol().equalsIgnoreCase(site1Gene.getHugoGeneSymbol())) {
+                                        structuralVariant.setSite2EntrezGeneId(site2Gene.getEntrezGeneId());
+                                        structuralVariant.setSite2HugoSymbol(site2Gene.getHugoGeneSymbol());
+                                    } else if (fusion.getGene().getHugoGeneSymbol().equalsIgnoreCase(site2Gene.getHugoGeneSymbol())) {
+                                        structuralVariant.setSite2EntrezGeneId(site1Gene.getEntrezGeneId());
+                                        structuralVariant.setSite2HugoSymbol(site1Gene.getHugoGeneSymbol());
                                     }
                                 }
                             }
@@ -133,6 +138,22 @@ public class MutationMapperUtils {
             }
             return structuralVariant;
         }).collect(Collectors.toList());
+    }
+
+    private Gene getGene(String geneSymbol) {
+        Gene gene = null;
+        try {
+            gene = geneService.getGene(geneSymbol);
+        } catch (Exception e) {
+            // Site2 gene is not set when gene symbol is not found in database. Check if it is an alias
+            List<Gene> aliasGenes = geneService.getAllGenes(null, geneSymbol, "SUMMARY",
+                null, null, null, null);
+
+            if (CollectionUtils.isNotEmpty(aliasGenes)) {
+                gene = aliasGenes.get(0);
+            }
+        }
+        return gene;
     }
 
 }

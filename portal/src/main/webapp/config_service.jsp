@@ -122,7 +122,8 @@
             "query_product_limit",
             "skin.show_gsva",
             "saml.logout.local",
-            "skin.citation_rule_text"
+            "skin.citation_rule_text",
+            "skin.hide_download_controls"
         };
 
 

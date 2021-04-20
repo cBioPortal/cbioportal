@@ -23,6 +23,9 @@
 
 package org.cbioportal.service.impl;
 
+import java.util.Collections;
+import java.util.List;
+
 import org.cbioportal.model.StructuralVariant;
 import org.cbioportal.persistence.StructuralVariantRepository;
 import org.junit.Assert;
@@ -33,36 +36,28 @@ import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.junit.MockitoJUnitRunner;
 
-import java.util.ArrayList;
-import java.util.List;
-
 @RunWith(MockitoJUnitRunner.class)
 public class StructuralVariantServiceImplTest extends BaseServiceImplTest {
 
     @InjectMocks
     private StructuralVariantServiceImpl structuralVariantService;
-    
+
     @Mock
     private StructuralVariantRepository structuralVariantRepository;
-    
+
     @Test
     public void getStructuralVariants() throws Exception {
 
-        List<StructuralVariant> expectedStructuralVariantList = new ArrayList<>();
-        StructuralVariant sampleStructuralVariant = new StructuralVariant();
-        expectedStructuralVariantList.add(sampleStructuralVariant);
-        
-        List<String> molecularProfileIds = new ArrayList<>();
-        List<Integer> entrezGeneIds = new ArrayList<>();
-        molecularProfileIds.add("genetic_profile_id");
-        entrezGeneIds.add(ENTREZ_GENE_ID_1);
+        List<StructuralVariant> expectedStructuralVariantList = Collections.singletonList(new StructuralVariant());
+        List<String> molecularProfileIds = Collections.singletonList("study_structural_variants");
+        List<Integer> entrezGeneIds = Collections.singletonList(ENTREZ_GENE_ID_1);
+        List<String> sampleIds = Collections.singletonList(SAMPLE_ID1);
 
-        Mockito.when(structuralVariantRepository.fetchStructuralVariants(molecularProfileIds, 
-                entrezGeneIds, null))
-            .thenReturn(expectedStructuralVariantList);
+        Mockito.when(structuralVariantRepository.fetchStructuralVariants(molecularProfileIds, entrezGeneIds, sampleIds))
+                .thenReturn(expectedStructuralVariantList);
 
-        List<StructuralVariant> result = structuralVariantService.fetchStructuralVariants(molecularProfileIds, 
-                entrezGeneIds, null);
+        List<StructuralVariant> result = structuralVariantService.fetchStructuralVariants(molecularProfileIds,
+                entrezGeneIds, sampleIds);
 
         Assert.assertEquals(expectedStructuralVariantList, result);
     }

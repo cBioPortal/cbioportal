@@ -37,17 +37,15 @@ public interface AlterationCountService {
                                                                      boolean includeMissingAlterationsFromGenePanel,
                                                                      Select<MutationEventType> mutationEventTypes);
 
-    Pair<List<AlterationCountByGene>, Long> getSampleFusionCounts(List<MolecularProfileCaseIdentifier> molecularProfileCaseIdentifiers,
-                                                                  Select<Integer> entrezGeneIds,
-                                                                  boolean includeFrequency,
-                                                                  boolean includeMissingAlterationsFromGenePanel,
-                                                                  Select<MutationEventType> mutationEventTypes);
+    Pair<List<AlterationCountByGene>, Long> getSampleStructuralVariantCounts(List<MolecularProfileCaseIdentifier> molecularProfileCaseIdentifiers,
+                                                      Select<Integer> entrezGeneIds,
+                                                      boolean includeFrequency,
+                                                      boolean includeMissingAlterationsFromGenePanel);
 
-    Pair<List<AlterationCountByGene>, Long> getPatientFusionCounts(List<MolecularProfileCaseIdentifier> molecularProfileCaseIdentifiers,
-                                                                   Select<Integer> entrezGeneIds,
-                                                                   boolean includeFrequency,
-                                                                   boolean includeMissingAlterationsFromGenePanel,
-                                                                   Select<MutationEventType> mutationEventTypes);
+    Pair<List<AlterationCountByGene>, Long> getPatientStructuralVariantCounts(List<MolecularProfileCaseIdentifier> molecularProfileCaseIdentifiers,
+                                                       Select<Integer> entrezGeneIds,
+                                                       boolean includeFrequency,
+                                                       boolean includeMissingAlterationsFromGenePanel);
 
 // Should be restored when old CNA count endpoint is retired
 //    List<AlterationCountByGene> getSampleCnaCounts(List<MolecularProfileCaseIdentifier> molecularProfileCaseIdentifiers,

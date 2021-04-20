@@ -236,7 +236,7 @@ public class MolecularDataServiceImpl implements MolecularDataService {
 
         if (molecularProfile.getMolecularAlterationType().equals(MolecularAlterationType.MUTATION_EXTENDED) || 
             molecularProfile.getMolecularAlterationType().equals(MolecularAlterationType.MUTATION_UNCALLED) ||
-            molecularProfile.getMolecularAlterationType().equals(MolecularAlterationType.FUSION)) {
+            molecularProfile.getMolecularAlterationType().equals(MolecularAlterationType.STRUCTURAL_VARIANT)) {
 
             throw new MolecularProfileNotFoundException(molecularProfileId);
         }

@@ -137,7 +137,8 @@
             "skin.geneset_hierarchy.default_gsva_score",
             "skin.geneset_hierarchy.collapse_by_default",
             "skin.mutation_table.namespace_column.show_by_default",
-            "comparison.categorical_na_values"
+            "comparison.categorical_na_values",
+            "skin.hide_download_controls"
         };
 
 

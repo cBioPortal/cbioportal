@@ -1,7 +1,6 @@
 package org.cbioportal.persistence;
 
-import org.cbioportal.model.CancerStudy;
-import org.cbioportal.model.CancerStudyTags;
+import org.cbioportal.model.*;
 import org.cbioportal.model.meta.BaseMeta;
 
 import org.springframework.cache.annotation.Cacheable;
@@ -31,4 +30,7 @@ public interface StudyRepository {
 
     @Cacheable(cacheResolver = "generalRepositoryCacheResolver", condition = "@cacheEnabledConfig.getEnabled()")
     List<CancerStudyTags> getTagsForMultipleStudies(List<String> studyIds);
+    
+    @Cacheable(cacheResolver = "generalRepositoryCacheResolver", condition = "@cacheEnabledConfig.getEnabled()")
+    List<MultiStudySample> getSamplesBelongingToMultipleStudies(List<Integer> permittedStudies);
 }

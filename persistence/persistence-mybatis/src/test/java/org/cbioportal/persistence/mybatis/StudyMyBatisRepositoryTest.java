@@ -2,6 +2,7 @@ package org.cbioportal.persistence.mybatis;
 
 import org.cbioportal.model.CancerStudy;
 import org.cbioportal.model.CancerStudyTags;
+import org.cbioportal.model.MultiStudySample;
 import org.cbioportal.model.TypeOfCancer;
 import org.cbioportal.model.meta.BaseMeta;
 import org.junit.Assert;
@@ -13,9 +14,7 @@ import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
 import java.text.SimpleDateFormat;
-import java.util.Arrays;
-import java.util.List;
-import java.util.TimeZone;
+import java.util.*;
 
 @RunWith(SpringJUnit4ClassRunner.class)
 @ContextConfiguration("/testContextDatabase.xml")
@@ -227,7 +226,20 @@ public class StudyMyBatisRepositoryTest {
  
         Assert.assertEquals("{\"Analyst\": {\"Name\": \"Jack\", \"Email\": \"jack@something.com\"}, \"Load id\": 35}", result.getTags());
     }
-    
+
+    @Test
+    public void getStudiesAndSampleIds() throws Exception {
+        MultiStudySample sample = new MultiStudySample();
+        sample.setSampleId("TCGA-A1-A0SB-01");
+        sample.setStudyIdentifiers(new HashSet<>(Arrays.asList(1, 2)));
+        List<MultiStudySample> expected = Collections.singletonList(sample);
+        
+        List<MultiStudySample> actual = studyMyBatisRepository.getSamplesBelongingToMultipleStudies(Arrays.asList(1, 2));
+
+        Assert.assertEquals(actual, expected);
+    }
+
+    @Test
     public void getMultipleTags() throws Exception {
 
         List<CancerStudyTags> result = studyMyBatisRepository.getTagsForMultipleStudies(Arrays.asList("study_tcga_pub", "acc_tcga"));

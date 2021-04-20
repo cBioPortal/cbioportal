@@ -2,10 +2,12 @@ package org.cbioportal.service;
 
 import org.cbioportal.model.CancerStudy;
 import org.cbioportal.model.CancerStudyTags;
+import org.cbioportal.model.StudyOverlap;
 import org.cbioportal.model.meta.BaseMeta;
 import org.cbioportal.service.exception.StudyNotFoundException;
 
 import java.util.List;
+import java.util.Map;
 
 public interface StudyService {
 
@@ -23,4 +25,7 @@ public interface StudyService {
     CancerStudyTags getTags(String studyId);
     
     List<CancerStudyTags> getTagsForMultipleStudies(List<String> studyIds);
+
+    List<StudyOverlap> getStudiesWithOverlappingSamples(List<CancerStudy> permittedStudies);
+
 }

@@ -27,7 +27,7 @@ public class AlterationEnrichmentServiceImplTest extends BaseServiceImplTest {
     @Mock
     private AlterationCountService alterationCountService;
     @Mock
-    private AlterationEnrichmentUtil alterationEnrichmentUtil;
+    private AlterationEnrichmentUtil<MutationCountByGene> alterationEnrichmentUtil;
 
     @Test
     public void getAlterationEnrichments() throws Exception {
@@ -70,8 +70,8 @@ public class AlterationEnrichmentServiceImplTest extends BaseServiceImplTest {
         }
 
         List<AlterationEnrichment> expectedAlterationEnrichments = new ArrayList<>();
-        Mockito.when(alterationEnrichmentUtil.createAlterationEnrichments(new HashMap<>(),
-                groupMolecularProfileCaseSets, EnrichmentType.SAMPLE)).thenReturn(expectedAlterationEnrichments);
+        Mockito.when(alterationEnrichmentUtil.createAlterationEnrichments(new HashMap<>()))
+            .thenReturn(expectedAlterationEnrichments);
 
         List<AlterationEnrichment> result = alterationEnrichmentService
             .getAlterationEnrichments(

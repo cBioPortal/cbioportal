@@ -57,8 +57,6 @@ import org.springframework.web.context.WebApplicationContext;
 public class StructuralVariantControllerTest {
 
     private static final String TEST_GENETIC_PROFILE_STABLE_ID_1 = "test_genetic_profile_stable_id_1";
-    private static final long TEST_STRUCTURAL_VARIANT_ID_1 = 1L;
-    private static final int TEST_SAMPLE_ID_INTERNAL_1 = 1;
     private static final String TEST_SAMPLE_ID_1 = "test_sample_id_1";
     private static final String TEST_PATIENT_ID_1 = "test_patient_id_1";
     private static final String TEST_STUDY_ID_1 = "test_study_id_1";
@@ -138,7 +136,7 @@ public class StructuralVariantControllerTest {
 
         StructuralVariantFilter structuralVariantFilter = createStructuralVariantFilterMolecularProfileId();
 
-        mockMvc.perform(MockMvcRequestBuilders.post("/structuralvariant/fetch")
+        mockMvc.perform(MockMvcRequestBuilders.post("/structural-variant/fetch")
                 .accept(MediaType.parseMediaType("application/json;charset=UTF-8"))
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(objectMapper.writeValueAsString(structuralVariantFilter)))
@@ -146,8 +144,6 @@ public class StructuralVariantControllerTest {
                 .andExpect(MockMvcResultMatchers.content().contentType(MediaType.parseMediaType("application/json;charset=UTF-8")))
                 .andExpect(MockMvcResultMatchers.jsonPath("$", Matchers.hasSize(1)))
                 .andExpect(MockMvcResultMatchers.jsonPath("$[0].molecularProfileId").value(TEST_GENETIC_PROFILE_STABLE_ID_1))
-                .andExpect(MockMvcResultMatchers.jsonPath("$[0].structuralVariantId").value((int) TEST_STRUCTURAL_VARIANT_ID_1))
-                .andExpect(MockMvcResultMatchers.jsonPath("$[0].sampleIdInternal").value(TEST_SAMPLE_ID_INTERNAL_1))
                 .andExpect(MockMvcResultMatchers.jsonPath("$[0].sampleId").value(TEST_SAMPLE_ID_1))
                 .andExpect(MockMvcResultMatchers.jsonPath("$[0].patientId").value(TEST_PATIENT_ID_1))
                 .andExpect(MockMvcResultMatchers.jsonPath("$[0].studyId").value(TEST_STUDY_ID_1))
@@ -204,7 +200,7 @@ public class StructuralVariantControllerTest {
 
         StructuralVariantFilter structuralVariantFilter = createStructuralVariantFilterSampleMolecularIdentifier();
 
-        mockMvc.perform(MockMvcRequestBuilders.post("/structuralvariant/fetch")
+        mockMvc.perform(MockMvcRequestBuilders.post("/structural-variant/fetch")
                 .accept(MediaType.parseMediaType("application/json;charset=UTF-8"))
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(objectMapper.writeValueAsString(structuralVariantFilter)))
@@ -212,8 +208,6 @@ public class StructuralVariantControllerTest {
                 .andExpect(MockMvcResultMatchers.content().contentType(MediaType.parseMediaType("application/json;charset=UTF-8")))
                 .andExpect(MockMvcResultMatchers.jsonPath("$", Matchers.hasSize(1)))
                 .andExpect(MockMvcResultMatchers.jsonPath("$[0].molecularProfileId").value(TEST_GENETIC_PROFILE_STABLE_ID_1))
-                .andExpect(MockMvcResultMatchers.jsonPath("$[0].structuralVariantId").value((int) TEST_STRUCTURAL_VARIANT_ID_1))
-                .andExpect(MockMvcResultMatchers.jsonPath("$[0].sampleIdInternal").value(TEST_SAMPLE_ID_INTERNAL_1))
                 .andExpect(MockMvcResultMatchers.jsonPath("$[0].sampleId").value(TEST_SAMPLE_ID_1))
                 .andExpect(MockMvcResultMatchers.jsonPath("$[0].patientId").value(TEST_PATIENT_ID_1))
                 .andExpect(MockMvcResultMatchers.jsonPath("$[0].studyId").value(TEST_STUDY_ID_1))
@@ -270,7 +264,7 @@ public class StructuralVariantControllerTest {
 
         StructuralVariantFilter structuralVariantFilter = createStructuralVariantFilterMolecularProfileIdAndSampleMolecularIdentifier();
 
-        mockMvc.perform(MockMvcRequestBuilders.post("/structuralvariant/fetch")
+        mockMvc.perform(MockMvcRequestBuilders.post("/structural-variant/fetch")
                 .accept(MediaType.APPLICATION_JSON)
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(objectMapper.writeValueAsString(structuralVariantFilter)))
@@ -284,8 +278,6 @@ public class StructuralVariantControllerTest {
         List<StructuralVariant> structuralVariantList = new ArrayList<>();
         StructuralVariant structuralVariant1 = new StructuralVariant();
         structuralVariant1.setMolecularProfileId(TEST_GENETIC_PROFILE_STABLE_ID_1);
-        structuralVariant1.setStructuralVariantId(TEST_STRUCTURAL_VARIANT_ID_1);
-        structuralVariant1.setSampleIdInternal(TEST_SAMPLE_ID_INTERNAL_1);
         structuralVariant1.setSampleId(TEST_SAMPLE_ID_1);
         structuralVariant1.setPatientId(TEST_PATIENT_ID_1);
         structuralVariant1.setStudyId(TEST_STUDY_ID_1);

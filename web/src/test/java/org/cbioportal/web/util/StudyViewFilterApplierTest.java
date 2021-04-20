@@ -21,6 +21,7 @@ import org.cbioportal.service.MutationService;
 import org.cbioportal.service.PatientService;
 import org.cbioportal.service.SampleListService;
 import org.cbioportal.service.SampleService;
+import org.cbioportal.service.StructuralVariantService;
 import org.cbioportal.web.parameter.ClinicalDataFilter;
 import org.cbioportal.web.parameter.DataFilterValue;
 import org.cbioportal.web.parameter.GeneFilter;
@@ -112,6 +113,8 @@ public class StudyViewFilterApplierTest {
     @Spy
     @InjectMocks
     private DataBinHelper dataBinHelper;
+    @Mock
+    private StructuralVariantService structuralVariantService;
 
     @Before
     public void setup() {

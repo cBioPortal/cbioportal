@@ -6,6 +6,7 @@ import java.util.Map;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
+import org.cbioportal.model.EnrichmentType;
 import org.cbioportal.model.Gene;
 import org.cbioportal.model.GeneMolecularAlteration;
 import org.cbioportal.model.GenericAssayEnrichment;
@@ -45,7 +46,7 @@ public class ExpressionEnrichmentServiceImpl implements ExpressionEnrichmentServ
     // molecularDataService in fetchCoExpressions
     @Transactional(readOnly = true)
     public List<GenomicEnrichment> getGenomicEnrichments(String molecularProfileId,
-            Map<String, List<MolecularProfileCaseIdentifier>> molecularProfileCaseSets, String enrichmentType)
+            Map<String, List<MolecularProfileCaseIdentifier>> molecularProfileCaseSets, EnrichmentType enrichmentType)
             throws MolecularProfileNotFoundException {
 
         MolecularProfile molecularProfile = molecularProfileService.getMolecularProfile(molecularProfileId);
@@ -91,7 +92,7 @@ public class ExpressionEnrichmentServiceImpl implements ExpressionEnrichmentServ
     // molecularDataRepository in getGenericAssayMolecularAlterationsIterable
     @Transactional(readOnly = true)
     public List<GenericAssayEnrichment> getGenericAssayEnrichments(String molecularProfileId,
-            Map<String, List<MolecularProfileCaseIdentifier>> molecularProfileCaseSets, String enrichmentType)
+            Map<String, List<MolecularProfileCaseIdentifier>> molecularProfileCaseSets, EnrichmentType enrichmentType)
             throws MolecularProfileNotFoundException {
 
         MolecularProfile molecularProfile = molecularProfileService.getMolecularProfile(molecularProfileId);
@@ -121,6 +122,7 @@ public class ExpressionEnrichmentServiceImpl implements ExpressionEnrichmentServ
         }).collect(Collectors.toList());
 
     }
+
 
     private void validateMolecularProfile(MolecularProfile molecularProfile,
             List<MolecularAlterationType> validMolecularAlterationTypes) throws MolecularProfileNotFoundException {

@@ -12,7 +12,6 @@ public interface AlterationCountsMapper {
 
     /**
      * Calculate sample-level counts of mutation and discrete CNA alteration events.
-     * @param internalSampleIds List of internal id's of samples to include in alteration counts.
      * @param entrezGeneIds  Gene ids to get counts for.
      * @param mutationTypes  Types of mutations to include in alteration counts. 
      * @param cnaTypes  Types of discrete copy number alteration types to include in alteration counts.
@@ -21,6 +20,7 @@ public interface AlterationCountsMapper {
      */
     List<AlterationCountByGene> getSampleAlterationCounts(List<MolecularProfileCaseIdentifier> mutationMolecularProfileCaseIdentifiers,
                                                           List<MolecularProfileCaseIdentifier> cnaMolecularProfileCaseIdentifiers,
+                                                          List<MolecularProfileCaseIdentifier> structuralVariantMolecularProfileCaseIdentifiers,
                                                           Select<Integer> entrezGeneIds,
                                                           Select<String> mutationTypes,
                                                           Select<Short> cnaTypes,
@@ -28,7 +28,6 @@ public interface AlterationCountsMapper {
 
     /**
      * Calculate patient-level counts of mutation and discrete CNA alteration events.
-     * @param internalPatientIds List of internal id's of patients to include in alteration counts.
      * @param entrezGeneIds  Gene ids to get counts for.
      * @param mutationTypes  Types of mutations to include in alteration counts.
      * @param cnaTypes  Types of discrete copy number alteration types to include in alteration counts.
@@ -37,6 +36,7 @@ public interface AlterationCountsMapper {
      */
     List<AlterationCountByGene> getPatientAlterationCounts(List<MolecularProfileCaseIdentifier> mutationMolecularProfileCaseIdentifiers,
                                                            List<MolecularProfileCaseIdentifier> cnaMolecularProfileCaseIdentifiers,
+                                                           List<MolecularProfileCaseIdentifier> structuralVariantMolecularProfileCaseIdentifiers,
                                                            Select<Integer> entrezGeneIds,
                                                            Select<String> mutationTypes,
                                                            Select<Short> cnaTypes,

@@ -15,6 +15,7 @@ import org.apache.commons.math3.stat.StatUtils;
 import org.apache.commons.math3.stat.descriptive.DescriptiveStatistics;
 import org.apache.commons.math3.stat.inference.OneWayAnova;
 import org.apache.commons.math3.stat.inference.TestUtils;
+import org.cbioportal.model.EnrichmentType;
 import org.cbioportal.model.ExpressionEnrichment;
 import org.cbioportal.model.GenericAssayEnrichment;
 import org.cbioportal.model.GenericAssayMolecularAlteration;
@@ -43,7 +44,7 @@ public class ExpressionEnrichmentUtil {
 
 	public <T extends MolecularAlteration, S extends ExpressionEnrichment> List<S> getEnrichments(
 			MolecularProfile molecularProfile,
-			Map<String, List<MolecularProfileCaseIdentifier>> molecularProfileCaseSets, String enrichmentType,
+			Map<String, List<MolecularProfileCaseIdentifier>> molecularProfileCaseSets, EnrichmentType enrichmentType,
 			Iterable<T> maItr) {
 		List<S> expressionEnrichments = new ArrayList<>();
 
@@ -157,7 +158,7 @@ public class ExpressionEnrichmentUtil {
 	 * @return
 	 */
 	private Map<String, List<Integer>> getGroupIndicesMap(
-			Map<String, List<MolecularProfileCaseIdentifier>> molecularProfileCaseSets, String enrichmentType,
+			Map<String, List<MolecularProfileCaseIdentifier>> molecularProfileCaseSets, EnrichmentType enrichmentType,
 			MolecularProfile molecularProfile) {
 
 		MolecularProfileSamples commaSeparatedSampleIdsOfMolecularProfile = molecularDataRepository
@@ -198,10 +199,10 @@ public class ExpressionEnrichmentUtil {
 	}
 
 	private Map<String, List<Integer>> getCaseIdToInternalIdsMap(
-			Map<String, List<MolecularProfileCaseIdentifier>> molecularProfileCaseSets, String enrichmentType,
+			Map<String, List<MolecularProfileCaseIdentifier>> molecularProfileCaseSets, EnrichmentType enrichmentType,
 			MolecularProfile molecularProfile) {
 
-		if (enrichmentType.equals("PATIENT")) {
+		if (enrichmentType.equals(EnrichmentType.PATIENT)) {
 			List<String> patientIds = molecularProfileCaseSets.values().stream()
 					.flatMap(molecularProfileCaseSet -> molecularProfileCaseSet.stream()
 							.map(MolecularProfileCaseIdentifier::getCaseId))

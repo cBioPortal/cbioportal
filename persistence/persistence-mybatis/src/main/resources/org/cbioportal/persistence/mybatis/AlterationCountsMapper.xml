@@ -18,6 +18,10 @@
             <include refid="cnaCounts">
                 <property name="case_type" value="SAMPLE_ID"/>
             </include>
+            UNION ALL
+            <include refid="structuralVariantCounts">
+                <property name="case_type" value="SAMPLE_ID"/>
+            </include>
         ) as JoinedTable
         <where>
             <include refid="whereGene"/>
@@ -39,6 +43,10 @@
             UNION ALL
             <include refid="cnaCounts">
                 <property name="case_type" value="PATIENT_ID"/>
+            </include>
+            UNION ALL
+            <include refid="structuralVariantCounts">
+                <property name="case_type" value="SAMPLE_ID"/>
             </include>
         ) as JoinedTable
         <where>
@@ -76,6 +84,8 @@
             <include refid="caseFilter">
                 <property name="case_type" value="SAMPLE_ID"/>
                 <property name="identifiers" value="cnaMolecularProfileCaseIdentifiers"/>
+                <property name="geneticProfileIdentifier" value="genetic_profile.STABLE_ID" />
+                <property name="caseStableIdentifier" value="caseStableIdentifier" />
             </include>
             <include refid="whereGeneCna"/>
         </where>
@@ -108,6 +118,8 @@
             <include refid="caseFilter">
                 <property name="case_type" value="PATIENT_ID"/>
                 <property name="identifiers" value="cnaMolecularProfileCaseIdentifiers"/>
+                <property name="geneticProfileIdentifier" value="genetic_profile.STABLE_ID" />
+                <property name="caseStableIdentifier" value="caseStableIdentifier" />
             </include>
             <include refid="whereGeneCna"/>
         </where>
@@ -158,7 +170,6 @@
             <include refid="caseUniqueIdentifier" /> as CASE_ID,
 	        mutation.ENTREZ_GENE_ID,
 	        gene.HUGO_GENE_SYMBOL,
-	        mutation.GENETIC_PROFILE_ID,
 	        mutation_event.MUTATION_TYPE
         FROM mutation_event
         INNER JOIN mutation ON mutation_event.MUTATION_EVENT_ID = mutation.MUTATION_EVENT_ID
@@ -195,6 +206,8 @@
             </choose>
             <include refid="caseFilter">
                 <property name="identifiers" value="mutationMolecularProfileCaseIdentifiers"/>
+                <property name="geneticProfileIdentifier" value="genetic_profile.STABLE_ID" />
+                <property name="caseStableIdentifier" value="caseStableIdentifier" />
             </include>
         </where>
     </sql>
@@ -204,7 +217,6 @@
             <include refid="caseUniqueIdentifier" /> as CASE_ID,
 	        cna_event.ENTREZ_GENE_ID,
 	        gene.HUGO_GENE_SYMBOL,
-	        sample_cna_event.GENETIC_PROFILE_ID,
 	        CAST(cna_event.ALTERATION AS CHAR(3))
         FROM cna_event
         INNER JOIN sample_cna_event ON cna_event.CNA_EVENT_ID = sample_cna_event.CNA_EVENT_ID
@@ -227,8 +239,52 @@
             </choose>
             <include refid="caseFilter">
                 <property name="identifiers" value="cnaMolecularProfileCaseIdentifiers" />
+                <property name="geneticProfileIdentifier" value="genetic_profile.STABLE_ID" />
+                <property name="caseStableIdentifier" value="caseStableIdentifier" />
             </include>
 
+        </where>
+    </sql>
+    
+    <sql id="structuralVariantCounts">
+        SELECT 
+            caseUniqueId as CASE_ID,
+            entrezGeneId as ENTREZ_GENE_ID,
+            hugoGeneSymbol as HUGO_GENE_SYMBOL,
+	        NULL as DUMMY_COLUMN
+        FROM
+            (SELECT 
+                gene.ENTREZ_GENE_ID AS entrezGeneId,
+                gene.HUGO_GENE_SYMBOL AS hugoGeneSymbol,
+                <include refid="caseUniqueIdentifier" /> as caseUniqueId,
+                <include refid="caseStableIdentifier" /> as caseStableId,
+                genetic_profile.STABLE_ID as geneticProfileId
+                
+            FROM
+                structural_variant
+            INNER JOIN genetic_profile ON structural_variant.GENETIC_PROFILE_ID = genetic_profile.GENETIC_PROFILE_ID
+            INNER JOIN sample ON structural_variant.SAMPLE_ID = sample.INTERNAL_ID
+            INNER JOIN patient ON sample.PATIENT_ID = patient.INTERNAL_ID
+            INNER JOIN gene ON structural_variant.SITE1_ENTREZ_GENE_ID = gene.ENTREZ_GENE_ID
+            UNION ALL
+            SELECT 
+                gene.ENTREZ_GENE_ID AS entrezGeneId,
+                gene.HUGO_GENE_SYMBOL AS hugoGeneSymbol,
+                <include refid="caseUniqueIdentifier" /> as caseUniqueId,
+                <include refid="caseStableIdentifier" /> as caseStableId,
+                genetic_profile.STABLE_ID as geneticProfileId
+            FROM
+                structural_variant
+            INNER JOIN genetic_profile ON structural_variant.GENETIC_PROFILE_ID = genetic_profile.GENETIC_PROFILE_ID
+            INNER JOIN sample ON structural_variant.SAMPLE_ID = sample.INTERNAL_ID
+            INNER JOIN patient ON sample.PATIENT_ID = patient.INTERNAL_ID
+            INNER JOIN gene ON structural_variant.SITE2_ENTREZ_GENE_ID = gene.ENTREZ_GENE_ID) as combinedResults
+        <where>
+            <include refid="caseFilter">
+                <property name="identifiers" value="structuralVariantMolecularProfileCaseIdentifiers" />
+                <property name="geneticProfileIdentifier" value="geneticProfileId" />
+                <property name="caseStableIdentifier" value="caseStableId" />
+            </include>
         </where>
     </sql>
 
@@ -240,14 +296,14 @@
             <otherwise>
                 <choose>
                     <when test="@java.util.Arrays@stream(${identifiers}.{molecularProfileId}).distinct().count() == 1">
-                        AND genetic_profile.STABLE_ID = #{${identifiers}[0].molecularProfileId} AND
-                        <include refid="caseStableIdentifier" /> IN
+                        AND ${geneticProfileIdentifier} = #{${identifiers}[0].molecularProfileId} AND
+                        <include refid="${caseStableIdentifier}" /> IN
                         <foreach item="id" collection="${identifiers}" open="(" separator="," close=")">
                             #{id.caseId}
                         </foreach>
                     </when>
                     <otherwise>
-                        AND (genetic_profile.STABLE_ID, <include refid="caseStableIdentifier" />) IN
+                        AND (${geneticProfileIdentifier}, <include refid="${caseStableIdentifier}" />) IN
                         <foreach item="id" collection="${identifiers}" open="(" separator="," close=")">
                             (#{id.molecularProfileId}, #{id.caseId})
                         </foreach>
@@ -277,6 +333,10 @@
                 patient.INTERNAL_ID
             </otherwise>
         </choose>
+    </sql>
+
+    <sql id="caseStableId">
+        caseStableId
     </sql>
 
 </mapper>

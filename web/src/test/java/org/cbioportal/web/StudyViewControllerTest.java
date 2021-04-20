@@ -357,20 +357,19 @@ public class StudyViewControllerTest {
         fusionCount2.setNumberOfAlteredCases(2);
         fusionCount2.setTotalCount(2);
         fusionCounts.add(fusionCount2);
-
+        
         Pair<List<AlterationCountByGene>, Long> fusionCountsMockedData = new Pair<>(fusionCounts, 0L);
 
-        Mockito.when(alterationCountService.getSampleFusionCounts(
+        Mockito.when(alterationCountService.getSampleStructuralVariantCounts(
             anyList(),
             argThat(new SelectMockitoArgumentMatcher("ALL")),
             anyBoolean(),
-            anyBoolean(),
-            any(Select.class))).thenReturn(fusionCountsMockedData);
+            anyBoolean())).thenReturn(fusionCountsMockedData);
 
         StudyViewFilter studyViewFilter = new StudyViewFilter();
         studyViewFilter.setStudyIds(Arrays.asList(TEST_STUDY_ID));
 
-        mockMvc.perform(MockMvcRequestBuilders.post("/fusion-genes/fetch")
+        mockMvc.perform(MockMvcRequestBuilders.post("/structuralvariant-genes/fetch")
             .accept(MediaType.APPLICATION_JSON)
             .contentType(MediaType.APPLICATION_JSON)
             .content(objectMapper.writeValueAsString(studyViewFilter)))

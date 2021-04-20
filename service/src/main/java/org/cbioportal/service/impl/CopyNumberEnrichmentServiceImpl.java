@@ -10,7 +10,6 @@ import org.cbioportal.service.util.AlterationEnrichmentUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
@@ -35,11 +34,7 @@ public class CopyNumberEnrichmentServiceImpl implements CopyNumberEnrichmentServ
             copyNumberEventType,
             enrichmentType);
 
-        return alterationEnrichmentUtil
-            .createAlterationEnrichments(
-                copyNumberCountByGeneAndGroup,
-                molecularProfileCaseSets,
-                enrichmentType);
+        return alterationEnrichmentUtil.createAlterationEnrichments(copyNumberCountByGeneAndGroup);
     }
 
     public Map<String, Pair<List<CopyNumberCountByGene>, Long>> getCopyNumberCountByGeneAndGroup(
@@ -53,12 +48,9 @@ public class CopyNumberEnrichmentServiceImpl implements CopyNumberEnrichmentServ
                 entry -> entry.getKey(),
                 entry -> { //set value of each group to list of CopyNumberCountByGene
 
-                    List<String> molecularProfileIds = new ArrayList<>();
-                    List<String> sampleIds = new ArrayList<>();
-
                     Select<CNA> cnaTypes = Select.byValues(Arrays.asList(copyNumberEventType));
 
-                    if (enrichmentType.name().equals("SAMPLE")) {
+                    if (enrichmentType.equals(EnrichmentType.SAMPLE)) {
                         return alterationCountService.getSampleCnaCounts(
                             entry.getValue(),
                             Select.all(),

@@ -2,14 +2,17 @@ package org.cbioportal.service.impl;
 
 import org.apache.commons.math3.util.Pair;
 import org.cbioportal.model.*;
+import org.cbioportal.model.MolecularProfile.MolecularAlterationType;
 import org.cbioportal.model.util.Select;
 import org.cbioportal.service.AlterationCountService;
 import org.cbioportal.service.MutationEnrichmentService;
+import org.cbioportal.service.exception.MolecularProfileNotFoundException;
 import org.cbioportal.service.util.AlterationEnrichmentUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -25,14 +28,16 @@ public class MutationEnrichmentServiceImpl implements MutationEnrichmentService 
     @Override
     public List<AlterationEnrichment> getMutationEnrichments(
         Map<String, List<MolecularProfileCaseIdentifier>> molecularProfileCaseSets,
-        EnrichmentType enrichmentType) {
+        EnrichmentType enrichmentType) throws MolecularProfileNotFoundException {
+
+        alterationEnrichmentUtil.validateMolecularProfiles(molecularProfileCaseSets,
+                Arrays.asList(MolecularAlterationType.MUTATION_EXTENDED, MolecularAlterationType.MUTATION_UNCALLED),
+                null);
 
         Map<String, Pair<List<AlterationCountByGene>, Long>> mutationCountsbyEntrezGeneIdAndGroup = getMutationCountsbyEntrezGeneIdAndGroup(
             molecularProfileCaseSets, enrichmentType);
 
-        return alterationEnrichmentUtil.createAlterationEnrichments(mutationCountsbyEntrezGeneIdAndGroup,
-            molecularProfileCaseSets,
-            enrichmentType);
+        return alterationEnrichmentUtil.createAlterationEnrichments(mutationCountsbyEntrezGeneIdAndGroup);
     }
 
     public Map<String, Pair<List<AlterationCountByGene>, Long>> getMutationCountsbyEntrezGeneIdAndGroup(

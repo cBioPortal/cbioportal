@@ -13,6 +13,8 @@ import org.springframework.stereotype.Service;
 
 import java.util.Collections;
 import java.util.List;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 @Service
 public class AlterationCountServiceImpl implements AlterationCountService {
@@ -32,25 +34,33 @@ public class AlterationCountServiceImpl implements AlterationCountService {
                                                                              Select<MutationEventType> mutationEventTypes,
                                                                              Select<CNA> cnaEventTypes,
                                                                              QueryElement searchFusions) {
-        
+
         List<AlterationCountByGene> alterationCountByGenes;
         Long profiledCasesCount = 0L;
         if (molecularProfileCaseIdentifiers.isEmpty()) {
             alterationCountByGenes = Collections.emptyList();
         } else {
+            List<MolecularProfileCaseIdentifier> updatedProfileCaseIdentifiers = molecularProfileCaseIdentifiers
+                .stream()
+                .map(molecularProfileCaseIdentifier -> {
+                    molecularProfileCaseIdentifier.setMolecularProfileId(molecularProfileCaseIdentifier.getMolecularProfileId().replace("_fusion", "_mutations"));
+                    return molecularProfileCaseIdentifier;
+                })
+                .distinct()
+                .collect(Collectors.toList());
             alterationCountByGenes = alterationRepository.getSampleAlterationCounts(
-                molecularProfileCaseIdentifiers,
+                updatedProfileCaseIdentifiers,
                 entrezGeneIds,
                 mutationEventTypes,
                 cnaEventTypes,
                 searchFusions);
             if (includeFrequency) {
-                profiledCasesCount = alterationEnrichmentUtil.includeFrequencyForSamples(molecularProfileCaseIdentifiers,
+                profiledCasesCount = alterationEnrichmentUtil.includeFrequencyForSamples(updatedProfileCaseIdentifiers,
                     alterationCountByGenes,
                     includeMissingAlterationsFromGenePanel);
             }
         }
-        return new Pair<List<AlterationCountByGene>, Long>(alterationCountByGenes, profiledCasesCount);
+        return new Pair<>(alterationCountByGenes, profiledCasesCount);
     }
     
     @Override
@@ -61,23 +71,31 @@ public class AlterationCountServiceImpl implements AlterationCountService {
                                                                               Select<MutationEventType> mutationEventTypes,
                                                                               Select<CNA> cnaEventTypes,
                                                                               QueryElement searchFusions) {
-        
+
         List<AlterationCountByGene> alterationCountByGenes;
         Long profiledCasesCount = 0L;
         if (molecularProfileCaseIdentifiers.isEmpty()) {
             alterationCountByGenes = Collections.emptyList();
         } else {
+            List<MolecularProfileCaseIdentifier> updatedProfileCaseIdentifiers = molecularProfileCaseIdentifiers
+                .stream()
+                .map(molecularProfileCaseIdentifier -> {
+                    molecularProfileCaseIdentifier.setMolecularProfileId(molecularProfileCaseIdentifier.getMolecularProfileId().replace("_fusion", "_mutations"));
+                    return molecularProfileCaseIdentifier;
+                })
+                .distinct()
+                .collect(Collectors.toList());
             alterationCountByGenes = alterationRepository.getPatientAlterationCounts(
-                molecularProfileCaseIdentifiers,
+                updatedProfileCaseIdentifiers,
                 entrezGeneIds,
                 mutationEventTypes,
                 cnaEventTypes,
                 searchFusions);
             if (includeFrequency) {
-                profiledCasesCount = alterationEnrichmentUtil.includeFrequencyForPatients(molecularProfileCaseIdentifiers, alterationCountByGenes, includeMissingAlterationsFromGenePanel);
+                profiledCasesCount = alterationEnrichmentUtil.includeFrequencyForPatients(updatedProfileCaseIdentifiers, alterationCountByGenes, includeMissingAlterationsFromGenePanel);
             }
         }
-        return new Pair<List<AlterationCountByGene>, Long>(alterationCountByGenes, profiledCasesCount);
+        return new Pair<>(alterationCountByGenes, profiledCasesCount);
     }
 
     @Override
@@ -113,32 +131,30 @@ public class AlterationCountServiceImpl implements AlterationCountService {
     }
 
     @Override
-    public Pair<List<AlterationCountByGene>, Long> getSampleFusionCounts(List<MolecularProfileCaseIdentifier> molecularProfileCaseIdentifiers,
-                                                                         Select<Integer> entrezGeneIds,
-                                                                         boolean includeFrequency,
-                                                                         boolean includeMissingAlterationsFromGenePanel,
-                                                                         Select<MutationEventType> mutationEventTypes) {
+    public Pair<List<AlterationCountByGene>, Long>  getSampleStructuralVariantCounts(List<MolecularProfileCaseIdentifier> molecularProfileCaseIdentifiers,
+                                                             Select<Integer> entrezGeneIds,
+                                                             boolean includeFrequency,
+                                                             boolean includeMissingAlterationsFromGenePanel) {
         return getSampleAlterationCounts(molecularProfileCaseIdentifiers,
             entrezGeneIds,
             includeFrequency,
             includeMissingAlterationsFromGenePanel,
-            mutationEventTypes,
+            Select.all(),
             Select.none(),
             QueryElement.ACTIVE
         );
     }
 
     @Override
-    public Pair<List<AlterationCountByGene>, Long> getPatientFusionCounts(List<MolecularProfileCaseIdentifier> molecularProfileCaseIdentifiers,
-                                                                          Select<Integer> entrezGeneIds,
-                                                                          boolean includeFrequency,
-                                                                          boolean includeMissingAlterationsFromGenePanel,
-                                                                          Select<MutationEventType> mutationEventTypes) {
+    public Pair<List<AlterationCountByGene>, Long>  getPatientStructuralVariantCounts(List<MolecularProfileCaseIdentifier> molecularProfileCaseIdentifiers,
+                                                              Select<Integer> entrezGeneIds,
+                                                              boolean includeFrequency,
+                                                              boolean includeMissingAlterationsFromGenePanel) {
         return getPatientAlterationCounts(molecularProfileCaseIdentifiers,
             entrezGeneIds,
             includeFrequency,
             includeMissingAlterationsFromGenePanel,
-            mutationEventTypes,
+            Select.all(),
             Select.none(),
             QueryElement.ACTIVE
             );    
@@ -195,7 +211,7 @@ public class AlterationCountServiceImpl implements AlterationCountService {
             }
         }
 
-        return new Pair<List<CopyNumberCountByGene>, Long>(alterationCountByGenes, profiledCasesCount);
+        return new Pair<>(alterationCountByGenes, profiledCasesCount);
     }
 
     @Override
@@ -218,7 +234,7 @@ public class AlterationCountServiceImpl implements AlterationCountService {
             }
         }
 
-        return new Pair<List<CopyNumberCountByGene>, Long>(alterationCountByGenes, profiledCasesCount);
+        return new Pair<>(alterationCountByGenes, profiledCasesCount);
     }
 
 }

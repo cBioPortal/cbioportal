@@ -4,6 +4,7 @@ import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.cbioportal.model.EnrichmentType;
 import org.cbioportal.model.GenericAssayEnrichment;
 import org.cbioportal.model.GenomicEnrichment;
 import org.cbioportal.model.GroupStatistics;
@@ -112,7 +113,7 @@ public class ExpressionEnrichmentControllerTest {
         expressionEnrichments.add(expressionEnrichment2);
 
         Mockito.when(expressionEnrichmentService.getGenomicEnrichments(Mockito.anyString(), Mockito.anyMap(),
-                Mockito.anyString())).thenReturn(expressionEnrichments);
+                Mockito.any(EnrichmentType.class))).thenReturn(expressionEnrichments);
 
         mockMvc.perform(MockMvcRequestBuilders.post("/expression-enrichments/fetch").accept(MediaType.APPLICATION_JSON)
                 .contentType(MediaType.APPLICATION_JSON).content(
@@ -186,7 +187,7 @@ public class ExpressionEnrichmentControllerTest {
         genericAssayEnrichments.add(genericAssayEnrichment2);
 
         Mockito.when(expressionEnrichmentService.getGenericAssayEnrichments(Mockito.anyString(), Mockito.anyMap(),
-                Mockito.anyString())).thenReturn(genericAssayEnrichments);
+                Mockito.any(EnrichmentType.class))).thenReturn(genericAssayEnrichments);
 
         mockMvc.perform(MockMvcRequestBuilders.post("/generic-assay-enrichments/fetch")
                 .accept(MediaType.APPLICATION_JSON).contentType(MediaType.APPLICATION_JSON).content(

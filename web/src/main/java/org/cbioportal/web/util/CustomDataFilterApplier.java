@@ -8,7 +8,7 @@ import java.util.concurrent.CompletableFuture;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
-import org.apache.commons.collections4.map.MultiKeyMap;
+import org.apache.commons.collections.map.MultiKeyMap;
 import org.cbioportal.service.ClinicalDataService;
 import org.cbioportal.service.PatientService;
 import org.cbioportal.session_service.domain.SessionType;

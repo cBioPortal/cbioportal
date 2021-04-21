@@ -42,7 +42,6 @@ import org.cbioportal.model.MolecularProfileCaseIdentifier;
 import org.cbioportal.model.MolecularProfile;
 import org.cbioportal.model.SampleList;
 import org.cbioportal.persistence.mybatis.util.CacheMapUtil;
-import org.cbioportal.model.MutationEventType;
 import org.cbioportal.web.parameter.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -80,7 +79,7 @@ public class InvolvedCancerStudyExtractorInterceptor extends HandlerInterceptorA
     public static final String STUDY_VIEW_CNA_GENES = "/cna-genes/fetch";
     public static final String STUDY_VIEW_FILTERED_SAMPLES = "/filtered-samples/fetch";
     public static final String STUDY_VIEW_MUTATED_GENES = "/mutated-genes/fetch";
-    public static final String STUDY_VIEW_FUSION_GENES = "/fusion-genes/fetch";
+    public static final String STUDY_VIEW_STRUCTURAL_VARIANT_GENES = "/structuralvariant-genes/fetch";
     public static final String STUDY_VIEW_SAMPLE_COUNTS = "/sample-counts/fetch";
     public static final String STUDY_VIEW_SAMPLE_LIST_COUNTS_PATH = "/sample-lists-counts/fetch";
     public static final String CLINICAL_DATA_ENRICHMENT_FETCH_PATH = "/clinical-data-enrichments/fetch";
@@ -89,7 +88,7 @@ public class InvolvedCancerStudyExtractorInterceptor extends HandlerInterceptorA
     public static final String EXPRESSION_ENRICHMENT_FETCH_PATH = "/expression-enrichments/fetch";
     public static final String ALTERATION_ENRICHMENT_FETCH_PATH = "/alteration-enrichments/fetch";
     public static final String TREATMENT_FETCH_PATH = "/treatments/fetch";
-    public static final String STRUCTURAL_VARIANT_FETCH_PATH = "/structuralvariant/fetch";
+    public static final String STRUCTURAL_VARIANT_FETCH_PATH = "/structural-variant/fetch";
     public static final String GENERIC_ASSAY_DATA_MULTIPLE_STUDY_FETCH_PATH = "/generic_assay_data/fetch";
     public static final String GENERIC_ASSAY_META_FETCH_PATH = "/generic_assay_meta/fetch";
     public static final String TREATMENTS_PATIENT_PATH = "/treatments/patient";
@@ -129,7 +128,7 @@ public class InvolvedCancerStudyExtractorInterceptor extends HandlerInterceptorA
                 .contains(requestPathInfo)) {
             return extractAttributesFromClinicalDataCountFilter(request);
         } else if (Arrays.asList(STUDY_VIEW_CLINICAL_DATA_DENSITY_PATH, STUDY_VIEW_CNA_GENES,
-                STUDY_VIEW_FILTERED_SAMPLES, STUDY_VIEW_MUTATED_GENES, STUDY_VIEW_FUSION_GENES,
+                STUDY_VIEW_FILTERED_SAMPLES, STUDY_VIEW_MUTATED_GENES, STUDY_VIEW_STRUCTURAL_VARIANT_GENES,
                 STUDY_VIEW_SAMPLE_COUNTS, STUDY_VIEW_SAMPLE_LIST_COUNTS_PATH,
                 TREATMENTS_PATIENT_PATH, TREATMENTS_SAMPLE_PATH
         ).contains(requestPathInfo)) {
@@ -139,7 +138,7 @@ public class InvolvedCancerStudyExtractorInterceptor extends HandlerInterceptorA
         } else if (requestPathInfo.equals(MUTATION_ENRICHMENT_FETCH_PATH) ||
         		requestPathInfo.equals(COPY_NUMBER_ENRICHMENT_FETCH_PATH) ||
         		requestPathInfo.equals(EXPRESSION_ENRICHMENT_FETCH_PATH) ||
-        		requestPathInfo.equals(GENERIC_ASSAY_ENRICHMENT_FETCH_PATH))  {
+        		requestPathInfo.equals(GENERIC_ASSAY_ENRICHMENT_FETCH_PATH)) {
             return extractAttributesFromMolecularProfileCasesGroups(request);
         } else if (requestPathInfo.equals(ALTERATION_ENRICHMENT_FETCH_PATH)) {
             return extractAttributesFromMolecularProfileCasesGroupsAndAlterationTypes(request);

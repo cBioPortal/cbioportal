@@ -3,8 +3,9 @@ package org.cbioportal.web;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
-import org.apache.commons.collections4.CollectionUtils;
-import org.apache.commons.collections4.map.MultiKeyMap;
+
+import org.apache.commons.collections.CollectionUtils;
+import org.apache.commons.collections.map.MultiKeyMap;
 import org.apache.commons.lang3.math.NumberUtils;
 import org.apache.commons.math3.util.Pair;
 import org.cbioportal.model.AlterationCountByGene;
@@ -116,7 +117,7 @@ public class StudyViewController {
     @Autowired
     private SampleListService sampleListService;
 
-    private static final List CNA_TYPES_AMP_AND_HOMDEL = Collections.unmodifiableList(Arrays.asList(CNA.AMP, CNA.HOMDEL));
+    private static final List<CNA> CNA_TYPES_AMP_AND_HOMDEL = Collections.unmodifiableList(Arrays.asList(CNA.AMP, CNA.HOMDEL));
 
     @PreAuthorize("hasPermission(#involvedCancerStudies, 'Collection<CancerStudyId>', 'read')")
     @RequestMapping(value = "/clinical-data-counts/fetch", method = RequestMethod.POST,
@@ -358,10 +359,10 @@ public class StudyViewController {
     }
 
     @PreAuthorize("hasPermission(#involvedCancerStudies, 'Collection<CancerStudyId>', 'read')")
-    @RequestMapping(value = "/fusion-genes/fetch", method = RequestMethod.POST,
+    @RequestMapping(value = "/structuralvariant-genes/fetch", method = RequestMethod.POST,
         consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
-    @ApiOperation("Fetch fusion genes by study view filter")
-    public ResponseEntity<List<AlterationCountByGene>> fetchFusionGenes(
+    @ApiOperation("Fetch structural variant genes by study view filter")
+    public ResponseEntity<List<AlterationCountByGene>> fetchStructuralVariantGenes(
         @ApiParam(required = true, value = "Study view filter")
         @Valid @RequestBody(required = false) StudyViewFilter studyViewFilter,
         @ApiIgnore // prevent reference to this attribute in the swagger-ui interface. This attribute is needed for the @PreAuthorize tag above.
@@ -374,17 +375,17 @@ public class StudyViewController {
             List<String> studyIds = new ArrayList<>();
             List<String> sampleIds = new ArrayList<>();
             studyViewFilterUtil.extractStudyAndSampleIds(filteredSampleIdentifiers, studyIds, sampleIds);
-            List<String> profileIdPerSample = molecularProfileService.getFirstMutationProfileIds(studyIds, sampleIds);
+
+            List<String> profileIdPerSample = molecularProfileService.getFirstStructuralVariantProfileIds(studyIds, sampleIds);
             List<MolecularProfileCaseIdentifier> caseIdentifiers = new ArrayList<>();
             for (int i = 0; i < profileIdPerSample.size(); i++) {
                 caseIdentifiers.add(new MolecularProfileCaseIdentifier(sampleIds.get(i), profileIdPerSample.get(i)));
             }
-            result = alterationCountService.getSampleFusionCounts(
+            result = alterationCountService.getSampleStructuralVariantCounts(
                 caseIdentifiers,
                 Select.all(),
                 true,
-                false,
-                Select.all());
+                false);
             result.getFirst().sort((a, b) -> b.getNumberOfAlteredCases() - a.getNumberOfAlteredCases());
             List<String> distinctStudyIds = studyIds.stream().distinct().collect(Collectors.toList());
             if (distinctStudyIds.size() == 1 && !result.getFirst().isEmpty()) {

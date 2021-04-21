@@ -30,9 +30,7 @@ public class AlterationEnrichmentServiceImpl implements AlterationEnrichmentServ
         Map<String, Pair<List<AlterationCountByGene>, Long>> alterationCountsbyEntrezGeneIdAndGroup = getAlterationCountsbyEntrezGeneIdAndGroup(
             molecularProfileCaseSets, mutationEventTypes, cnaEventTypes, enrichmentType);
 
-        return alterationEnrichmentUtil.createAlterationEnrichments(alterationCountsbyEntrezGeneIdAndGroup,
-                molecularProfileCaseSets,
-                enrichmentType);
+        return alterationEnrichmentUtil.createAlterationEnrichments(alterationCountsbyEntrezGeneIdAndGroup);
     }
 
     public Map<String, Pair<List<AlterationCountByGene>, Long>> getAlterationCountsbyEntrezGeneIdAndGroup(

@@ -140,15 +140,14 @@ public class AlterationCountServiceImplTest extends BaseServiceImplTest {
         when(alterationRepository.getSampleAlterationCounts(
             caseIdentifiers,
             entrezGeneIds,
-            mutationEventTypes,
+            Select.all(),
             Select.none(), QueryElement.ACTIVE)).thenReturn(expectedCountByGeneList);
-
-        Pair<List<AlterationCountByGene>, Long> result = alterationCountService.getSampleFusionCounts(
+        
+        Pair<List<AlterationCountByGene>, Long> result = alterationCountService.getSampleStructuralVariantCounts(
             caseIdentifiers,
             entrezGeneIds,
             includeFrequency,
-            includeMissingAlterationsFromGenePanel,
-            mutationEventTypes);
+            includeMissingAlterationsFromGenePanel);
 
         Assert.assertEquals(expectedCountByGeneList, result.getFirst());
     }
@@ -162,16 +161,15 @@ public class AlterationCountServiceImplTest extends BaseServiceImplTest {
         when(alterationRepository.getPatientAlterationCounts(
             caseIdentifiers,
             entrezGeneIds,
-            mutationEventTypes,
+            Select.all(),
             Select.none(),
             QueryElement.ACTIVE)).thenReturn(expectedCountByGeneList);
-
-        Pair<List<AlterationCountByGene>, Long> result = alterationCountService.getPatientFusionCounts(
+        
+        Pair<List<AlterationCountByGene>, Long> result = alterationCountService.getPatientStructuralVariantCounts(
             caseIdentifiers,
             entrezGeneIds,
             includeFrequency,
-            includeMissingAlterationsFromGenePanel,
-            mutationEventTypes);
+            includeMissingAlterationsFromGenePanel);
 
         Assert.assertEquals(expectedCountByGeneList, result.getFirst());
     }

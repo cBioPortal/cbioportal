@@ -1,3 +1,15 @@
+## April 21, 2021
+*   **Added data** consisting of 4074 samples from 9 studies: 
+    * [Metaplastic Breast Cancer (MSK, 2021)](https://www.cbioportal.org/study/summary?id=mbc_msk_2021) *19 samples* 
+ 	* [Lung Adenocarcinoma (MSKCC, 2020)](https://www.cbioportal.org/study/summary?id=luad_mskcc_2020) *604 samples*
+ 	* [Cutaneous Squamous Cell Carcinoma (UCSF, 2021)](https://www.cbioportal.org/study/summary?id=cscc_ucsf_2021) *105 samples*
+    * [MSK-IMPACT and MSK-ACCESS Mixed Cohort (MSK, 2021)](https://www.cbioportal.org/study/summary?id=msk_access_2021) *1446 samples*
+    * [Melanoma (MSKCC, 2018)](https://www.cbioportal.org/study/summary?id=mel_mskimpact_2020) *720 samples*
+    * [Cholangiocarcinoma (ICGC, Cancer Discov 2017)](https://www.cbioportal.org/study/summary?id=chol_icgc_2017) *489 samples*
+    * [Esophageal/Stomach Cancer (MSK, 2020)](https://www.cbioportal.org/study/summary?id=egc_mskcc_2020) *487 samples*
+    * [Retinoblastoma (MSK, Cancers 2021)](https://www.cbioportal.org/study/summary?id=rbl_mskcc_2020) *83 samples*
+    * [Combined Hepatocellular and Intrahepatic Cholangiocarcinoma (Peking University, Cancer Cell 2019)](https://www.cbioportal.org/study/summary?id=hccihch_pku_2019) *121 samples*
+
 ## Jan 12, 2021
 *   **New Feature**: Add your own custom data for a sample or patient to use on the study or comparison view  [Example: Add custom data to three samples and do a comparison](https://www.cbioportal.org/study/summary?id=msk_impact_2017)
 

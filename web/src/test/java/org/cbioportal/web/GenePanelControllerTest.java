@@ -251,8 +251,7 @@ public class GenePanelControllerTest {
 
         List<GenePanelData> genePanelDataList = createExampleGenePanelData();
 
-        Mockito.when(genePanelService.fetchGenePanelDataInMultipleMolecularProfiles(Mockito.anyList(),
-            Mockito.anyList())).thenReturn(genePanelDataList);
+        Mockito.when(genePanelService.fetchGenePanelDataInMultipleMolecularProfiles(Mockito.anyList())).thenReturn(genePanelDataList);
 
         List<SampleMolecularIdentifier> sampleMolecularIdentifiers = new ArrayList<>();
         SampleMolecularIdentifier sampleMolecularIdentifier1 = new SampleMolecularIdentifier();

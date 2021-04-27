@@ -2,6 +2,7 @@ package org.cbioportal.service;
 
 import org.cbioportal.model.GenePanel;
 import org.cbioportal.model.GenePanelData;
+import org.cbioportal.model.MolecularProfileCaseIdentifier;
 import org.cbioportal.model.meta.BaseMeta;
 import org.cbioportal.service.exception.GenePanelNotFoundException;
 import org.cbioportal.service.exception.MolecularProfileNotFoundException;
@@ -23,11 +24,9 @@ public interface GenePanelService {
     List<GenePanelData> fetchGenePanelData(String molecularProfileId, List<String> sampleIds) 
         throws MolecularProfileNotFoundException;
 
-    List<GenePanelData> fetchGenePanelDataInMultipleMolecularProfiles(List<String> molecularProfileIds, 
-        List<String> sampleIds);
+    List<GenePanelData> fetchGenePanelDataInMultipleMolecularProfiles(List<MolecularProfileCaseIdentifier> molecularProfileSampleIdentifiers);
 
-    List<GenePanelData> fetchGenePanelDataInMultipleMolecularProfilesByPatientIds(List<String> molecularProfileIds, 
-        List<String> patientIds);
+    List<GenePanelData> fetchGenePanelDataInMultipleMolecularProfilesByPatientIds(List<MolecularProfileCaseIdentifier> molecularProfileSampleIdentifiers);
 
 	List<GenePanel> fetchGenePanels(List<String> genePanelIds, String projection);
 }

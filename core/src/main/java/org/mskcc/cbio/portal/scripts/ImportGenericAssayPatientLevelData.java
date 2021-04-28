@@ -56,6 +56,8 @@ public class ImportGenericAssayPatientLevelData {
     private String genePanel;
     private String genericEntityProperties;
 
+    private static final String ENTITY_STABLE_ID_COLUMN_NAME = "ENTITY_STABLE_ID";
+
     /**
      * Constructor.
      *
@@ -94,10 +96,10 @@ public class ImportGenericAssayPatientLevelData {
         int numRecordsToAdd = 0;
         int patientsSkipped = 0;
         try {
-            int patientStartIndex = getNonFeatureColumnStartIndex(parts);
+            int patientStartIndex = getPatientIdStartColumnIndex(parts);
             int genericAssayIdIndex = getGenericAssayIdIndex(parts);
             if (genericAssayIdIndex == -1) {
-                throw new RuntimeException("Error: the following column should be present for this type of data: ENTITY_STABLE_ID");
+                throw new RuntimeException("Error: the following column should be present for this type of data: " + ENTITY_STABLE_ID_COLUMN_NAME);
             }
             
             String patientIds[];
@@ -138,15 +140,13 @@ public class ImportGenericAssayPatientLevelData {
             //Object to insert records in the generic 'genetic_alteration' table: 
             DaoGeneticAlteration daoGeneticAlteration = DaoGeneticAlteration.getInstance();              
             
-            int lenParts = parts.length;
-            
             String line = buf.readLine();
             while (line != null) {
                 ProgressMonitor.incrementCurValue();
                 ConsoleUtil.showProgress();
                 boolean recordAdded = false;
                 
-                recordAdded = parseGenericAssayLine(line, lenParts, patientStartIndex, genericAssayIdIndex, numSamplesInPatient, sampleCount, daoGeneticAlteration);
+                recordAdded = parseGenericAssayLine(line, parts.length, patientStartIndex, genericAssayIdIndex, numSamplesInPatient, sampleCount, daoGeneticAlteration);
                 
                 // increment number of records added or entries skipped
                 if (recordAdded) {
@@ -263,7 +263,7 @@ public class ImportGenericAssayPatientLevelData {
     }
 
     private int getGenericAssayIdIndex(String[] headers) {
-        return getColIndexByName(headers, "ENTITY_STABLE_ID");
+        return getColIndexByName(headers, ENTITY_STABLE_ID_COLUMN_NAME);
     }
     
     // helper function for finding the index of a column by name
@@ -276,14 +276,14 @@ public class ImportGenericAssayPatientLevelData {
         return -1;
     }
 
-    private int getNonFeatureColumnStartIndex(String[] headers) {
+    private int getPatientIdStartColumnIndex(String[] headers) {
 
         // one stable feature column ENTITY_STABLE_ID defined
         Integer startFeatureCol = 1;
         
         // list the names of feature columns here
         List<String> featureColNames = new ArrayList<String>();
-        featureColNames.add("ENTITY_STABLE_ID");
+        featureColNames.add(ENTITY_STABLE_ID_COLUMN_NAME);
 
         // add genericEntityProperties as feature colums
         if (genericEntityProperties != null && genericEntityProperties.trim().length() != 0) {

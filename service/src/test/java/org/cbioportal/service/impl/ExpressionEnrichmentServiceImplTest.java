@@ -301,7 +301,7 @@ public class ExpressionEnrichmentServiceImplTest extends BaseServiceImplTest {
 
         Mockito.when(sampleService.fetchSamples(Arrays.asList(STUDY_ID), Arrays.asList(SAMPLE_ID3, SAMPLE_ID4, SAMPLE_ID5, SAMPLE_ID1, SAMPLE_ID2), "ID")).thenReturn(samples);
 
-        List<GenericAssayEnrichment> result = enrichmentServiceImpl.getGenericAssayEnrichments(MOLECULAR_PROFILE_ID, molecularProfilePatientLevelCaseSets, "SAMPLE");
+        List<GenericAssayEnrichment> result = enrichmentServiceImpl.getGenericAssayEnrichments(MOLECULAR_PROFILE_ID, molecularProfilePatientLevelCaseSets, EnrichmentType.SAMPLE);
 
         Assert.assertEquals(2, result.size());
         GenericAssayEnrichment genericAssayEnrichment = result.get(0);

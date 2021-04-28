@@ -1432,7 +1432,7 @@ values to the left.  When `value_sort_order` is `DESC` the x-axis will be in des
 All meta properties must be specified in the `generic_entity_meta_properties` field. Every meta property listed here must appear as a column header in the corresponding data file. It's highly recommend to add `NAME`, `DESCRIPTION` and an optional `URL` to get the best visualization on OncoPrint tab and Plots tab.
 
 ### Note on `patient_level`
-Data will be considered as sample level data if `patient_level` is not specified or is `false`. And patients or samples need to be included in clinical data file. Please check the [Clinical Data](#clinical-data) section for more information.
+Generic Assay data will be considered `sample_level` data if the `patient_level` property is missing or set to `false`. In addition, the patient or sample identifiers need to be included in the [Clinical Data](#clinical-data) file.
 
 ### Note on `Generic Assay` genetic_alteration_type and datatype
 All generic assay data is registered to be of the type of `genetic_alteration_type` and data type can choose from `LIMIT-VALUE`, `CATEGORICAL` and `BINARY`. 

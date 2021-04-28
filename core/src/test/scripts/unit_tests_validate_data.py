@@ -2757,7 +2757,7 @@ class GenericAssayWiseTestCase(PostClinicalDataFileTestCase):
         self.assertEqual(record.levelno, logging.ERROR)
         self.assertIn('Invalid column header', record.getMessage())
 
-    def test_patiet_generic_assay_patient_not_defined(self):
+    def test_patient_generic_assay_patient_not_defined(self):
         self.logger.setLevel(logging.ERROR)
         validateData.PATIENTS_WITH_SAMPLES = set(["TCGA-A1-A0SB", "TCGA-A1-A0SD", "TCGA-A1-A0SE", "TCGA-A2-A04U", "TCGA-B6-A0RS", "TCGA-BH-A0HP", "TCGA-BH-A18P"])
         record_list = self.validate('data_generic_assay_patient_not_defined.txt',

@@ -4,6 +4,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import org.apache.commons.collections.map.MultiKeyMap;
 import org.cbioportal.model.ClinicalDataBin;
 import org.cbioportal.model.ClinicalDataCount;
@@ -152,5 +153,19 @@ public class StudyViewFilterUtil {
             clinicalDataCountItem.setCounts(clinicalDataCounts);
             return clinicalDataCountItem;
         }).collect(Collectors.toList());
+    }
+    
+    public boolean isSingleStudyUnfiltered(StudyViewFilter filter) {
+            return filter.getStudyIds() != null &&
+                filter.getStudyIds().size() == 1 &&
+                (filter.getClinicalDataFilters() == null || filter.getClinicalDataFilters().isEmpty()) &&
+                (filter.getGeneFilters() == null || filter.getGeneFilters().isEmpty()) &&
+                (filter.getSampleTreatmentFilters() == null || filter.getSampleTreatmentFilters().getFilters().isEmpty()) &&
+                (filter.getPatientTreatmentFilters() == null || filter.getPatientTreatmentFilters().getFilters().isEmpty()) &&
+                (filter.getGenomicProfiles() == null || filter.getGenomicProfiles().isEmpty()) &&
+                (filter.getGenomicDataFilters() == null || filter.getGenomicDataFilters().isEmpty()) &&
+                (filter.getGenericAssayDataFilters() == null || filter.getGenericAssayDataFilters().isEmpty()) &&
+                (filter.getCaseLists() == null || filter.getCaseLists().isEmpty()) &&
+                (filter.getCustomDataFilters() == null || filter.getCustomDataFilters().isEmpty());
     }
 }

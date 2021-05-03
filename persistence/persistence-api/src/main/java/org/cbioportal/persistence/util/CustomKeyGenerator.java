@@ -33,17 +33,27 @@
 package org.cbioportal.persistence.util;
 
 import java.lang.reflect.Method;
+import java.util.Arrays;
+import java.util.stream.Collectors;
+
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import org.cbioportal.model.util.Select;
 import org.cbioportal.persistence.CacheEnabledConfig;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cache.interceptor.KeyGenerator;
-import org.springframework.util.StringUtils;
+import org.springframework.util.DigestUtils;
+
 
 public class CustomKeyGenerator implements KeyGenerator {
+    public static final String DELIMITER = "_";
 
     @Autowired
     private CacheEnabledConfig cacheEnabledConfig;
+    
+    private static final ObjectMapper mapper = new ObjectMapper();
 
     private static final Logger LOG = LoggerFactory.getLogger(CustomKeyGenerator.class);
 
@@ -51,10 +61,33 @@ public class CustomKeyGenerator implements KeyGenerator {
         if (!cacheEnabledConfig.isEnabled()) {
             return "";
         }
-        String key = target.getClass().getSimpleName() + "_"
-            + method.getName() + "_"
-            + StringUtils.arrayToDelimitedString(params, "_");
+        String key = target.getClass().getSimpleName() + DELIMITER
+            + method.getName() + DELIMITER
+            + Arrays.stream(params)
+                .map(this::exceptionlessWrite)
+                .collect(Collectors.joining(DELIMITER));
         LOG.debug("Created key: " + key);
         return key;
+    }
+    
+    private String exceptionlessWrite(Object toSerialize) {
+        if (toSerialize instanceof Select && ((Select) toSerialize).hasAll()) {
+            // Select implements Iterable, but Select.All throws an exception
+            // when you call iterator(), which breaks Jackson, so we need some custom logic
+            return "Select.ALL";
+        }
+        try {
+            String json = mapper.writeValueAsString(toSerialize);
+            if (json.length() > 1024) {
+                // hash long keys
+                return DigestUtils.md5DigestAsHex(json.getBytes());
+            } else {
+                // leave short keys intact, but remove semicolons to make things look cleaner in redis
+                return json.replaceAll(":", DELIMITER);
+            }
+        } catch (JsonProcessingException e) {
+            LOG.error("Could not serialize param to string: ", e);
+            return "";
+        }
     }
 }

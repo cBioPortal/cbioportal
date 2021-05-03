@@ -4951,12 +4951,19 @@ def validate_data_relations(validators_by_meta_type, logger):
 
     # validation specific for Z-SCORE expression data
     for expression_zscores_source_stable_id in expression_zscores_source_stable_ids:
-
         # check if 'source_stable_id' of EXPRESSION Z-SCORE is an EXPRESSION 'stable_id'
-        if not expression_zscores_source_stable_id in expression_stable_ids:
+        if not expression_zscores_source_stable_id in expression_stable_ids.keys():
             logger.error(
-                "Invalid source_stable_id. Expected one of ['" + "', '".join(expression_stable_ids) +
+                "Invalid source_stable_id. Expected one of ['" + "', '".join(expression_stable_ids.keys()) +
                 "'], which are stable ids of expression files in this study",
+                extra={'filename_': expression_zscores_source_stable_ids[expression_zscores_source_stable_id],
+                       'cause': expression_zscores_source_stable_id})
+        # check that source_stable_id is not the same as source_id
+        for expression_stable_id in expression_stable_ids.keys():
+            if expression_zscores_source_stable_ids[expression_zscores_source_stable_id] == expression_stable_ids[expression_stable_id]:
+                if expression_zscores_source_stable_id == expression_stable_id:
+                    logger.error(
+                "Both source_stable_id and stable_id refers to the same profile",
                 extra={'filename_': expression_zscores_source_stable_ids[expression_zscores_source_stable_id],
                        'cause': expression_zscores_source_stable_id})
 
@@ -4981,9 +4988,9 @@ def validate_data_relations(validators_by_meta_type, logger):
         if not missing_gsva_file:
 
             # check if 'source_stable_id' of GSVA_SCORES is an EXPRESSION 'stable_id'
-            if not gsva_scores_source_stable_id in expression_stable_ids:
+            if not gsva_scores_source_stable_id in expression_stable_ids.keys():
                 logger.error(
-                    "Invalid source_stable_id. Expected one of ['" + "', '".join(expression_stable_ids) +
+                    "Invalid source_stable_id. Expected one of ['" + "', '".join(expression_stable_ids.keys()) +
                     "'], which are stable ids of expression files in this study",
                     extra={'filename_': gsva_scores_filename,
                            'cause': gsva_scores_source_stable_id})

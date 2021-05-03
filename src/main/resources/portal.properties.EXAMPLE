@@ -270,6 +270,8 @@ persistence.cache_type=no-cache
 #redis.follower_address=
 #redis.database=
 #redis.password=
+# 6 hours
+#redis.expiry=21600000
 
 # Ehcache properties
 #ehcache.xml_configuration=/ehcache.xml

@@ -32,23 +32,25 @@
 
 package org.cbioportal.persistence.util;
 
-import java.io.*;
-import java.util.*;
-import javax.cache.CacheManager;
-import javax.cache.Cache;
-import javax.cache.Caching;
-import javax.cache.configuration.Configuration;
-import javax.cache.configuration.MutableConfiguration;
-import javax.cache.spi.CachingProvider;
 import org.redisson.Redisson;
 import org.redisson.api.RedissonClient;
 import org.redisson.config.Config;
-import org.redisson.jcache.configuration.RedissonConfiguration;
 import org.redisson.jcache.JCachingProvider;
-import org.redisson.spring.cache.CacheConfig;
+import org.redisson.jcache.configuration.RedissonConfiguration;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
+
+import javax.cache.CacheManager;
+import javax.cache.Caching;
+import javax.cache.configuration.Configuration;
+import javax.cache.configuration.Factory;
+import javax.cache.configuration.MutableConfiguration;
+import javax.cache.expiry.CreatedExpiryPolicy;
+import javax.cache.expiry.Duration;
+import javax.cache.expiry.ExpiryPolicy;
+import javax.cache.spi.CachingProvider;
+import java.util.concurrent.TimeUnit;
 
 public class CustomRedisCachingProvider {
 
@@ -71,6 +73,9 @@ public class CustomRedisCachingProvider {
 
     @Value("${redis.password}")
     private String password;
+    
+    @Value("${redis.expiry:21600000}")
+    private Long expiryMs;
 
     public RedissonClient getRedissonClient() {
         Config config = new Config();
@@ -92,6 +97,12 @@ public class CustomRedisCachingProvider {
 
         MutableConfiguration<String, String> jcacheConfig = new MutableConfiguration<>();
         Configuration<String, String> config = RedissonConfiguration.fromInstance(redissonClient, jcacheConfig);
+
+        Factory<ExpiryPolicy> expiryPolicyFactory = 
+            CreatedExpiryPolicy.factoryOf(new Duration(TimeUnit.MILLISECONDS, expiryMs));
+        jcacheConfig.setExpiryPolicyFactory(expiryPolicyFactory);
+        Configuration<String, String> configWithExpiry = RedissonConfiguration.fromInstance(redissonClient, jcacheConfig);
+        
         CachingProvider redisCachingProvider = null;
         LOG.debug("loop through caching providers");
         for (CachingProvider cachingProvider : Caching.getCachingProviders()) {
@@ -108,8 +119,8 @@ public class CustomRedisCachingProvider {
             return null;
         }
         CacheManager manager = redisCachingProvider.getCacheManager();
-        manager.createCache(appName + "GeneralRepositoryCache", config);
         manager.createCache(appName + "StaticRepositoryCacheOne", config);
+        manager.createCache(appName + "GeneralRepositoryCache", configWithExpiry);
     
         // Evict cache to ensure new data is pulled
         // Specific to Redis Impl because Redis cache sits in external db and not in memory

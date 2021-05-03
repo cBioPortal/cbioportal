@@ -259,9 +259,9 @@ public class DataBinHelper {
     }
 
     public boolean isNA(String value) {
-        return value.toUpperCase().equals("NA") ||
-            value.toUpperCase().equals("NAN") ||
-            value.toUpperCase().equals("N/A");
+        return value.equalsIgnoreCase("NA") ||
+            value.equalsIgnoreCase("NAN") ||
+            value.equalsIgnoreCase("N/A");
     }
 
     public boolean isSmallData(List<BigDecimal> sortedValues) {

@@ -1,11 +1,11 @@
 package org.cbioportal.web.util;
 
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.stream.Collectors;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
+import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.collections.map.MultiKeyMap;
+import org.cbioportal.model.ClinicalData;
 import org.cbioportal.model.ClinicalDataBin;
 import org.cbioportal.model.ClinicalDataCount;
 import org.cbioportal.model.ClinicalDataCountItem;
@@ -125,8 +125,8 @@ public class StudyViewFilterUtil {
                         dataCount.setCount(Math.toIntExact(count));
                         return dataCount;
                     })
-                    .filter(c -> !c.getValue().toUpperCase().equals("NA") && !c.getValue().toUpperCase().equals("NAN")
-                            && !c.getValue().toUpperCase().equals("N/A"))
+                    .filter(c -> !c.getValue().equalsIgnoreCase("NA") && !c.getValue().equalsIgnoreCase("NAN")
+                            && !c.getValue().equalsIgnoreCase("N/A"))
                     .collect(Collectors.toList());
 
             int totalCount = clinicalDataCounts.stream().mapToInt(ClinicalDataCount::getCount).sum();
@@ -161,5 +161,142 @@ public class StudyViewFilterUtil {
                 (filter.getGenericAssayDataFilters() == null || filter.getGenericAssayDataFilters().isEmpty()) &&
                 (filter.getCaseLists() == null || filter.getCaseLists().isEmpty()) &&
                 (filter.getCustomDataFilters() == null || filter.getCustomDataFilters().isEmpty());
+    }
+    
+    public boolean shouldSkipFilterForClinicalDataBins(StudyViewFilter filter) {
+        // if everything other than study ids and sample identifiers is null,
+        // we can skip the filter for data bin calculation
+        return (
+            filter != null &&
+            filter.getClinicalDataFilters() == null &&
+            filter.getGeneFilters() == null &&
+            filter.getSampleTreatmentFilters() == null &&
+            filter.getPatientTreatmentFilters() == null &&
+            filter.getGenomicProfiles() == null &&
+            filter.getGenomicDataFilters() == null &&
+            filter.getGenericAssayDataFilters() == null &&
+            filter.getCaseLists() == null &&
+            filter.getCustomDataFilters() == null
+        );
+    }
+    
+    public List<ClinicalData> filterClinicalData(
+        List<ClinicalData> unfilteredClinicalDataForSamples,
+        List<ClinicalData> unfilteredClinicalDataForPatients,
+        List<ClinicalData> unfilteredClinicalDataForConflictingPatientAttributes,
+        List<String> studyIds,
+        List<String> sampleIds,
+        List<String> studyIdsOfPatients,
+        List<String> patientIds,
+        List<String> sampleAttributeIds,
+        List<String> patientAttributeIds,
+        List<String> conflictingPatientAttributes
+    ) {
+        List<ClinicalData> combinedResult = new ArrayList<>();
+        
+        Map<String, String> patientIdToStudyId = null;
+            
+        if (CollectionUtils.isNotEmpty(sampleAttributeIds)) {
+            // create lookups for faster filtering
+            Map<String, String> sampleIdToStudyId = mapCaseToStudy(sampleIds, studyIds);
+            Map<String, Boolean> sampleAttributeIdLookup = listToMap(sampleAttributeIds);
+
+            combinedResult.addAll(
+                filterClinicalDataByStudyAndSampleAndAttribute(
+                    unfilteredClinicalDataForSamples,
+                    sampleIdToStudyId,
+                    sampleAttributeIdLookup
+                )
+            );
+        }
+
+        if (CollectionUtils.isNotEmpty(patientAttributeIds)) {
+            // create lookups for faster filtering
+            Map<String, Boolean> patientAttributeIdLookup = listToMap(patientAttributeIds);
+            patientIdToStudyId = mapCaseToStudy(patientIds, studyIdsOfPatients);
+            
+            combinedResult.addAll(
+                filterClinicalDataByStudyAndPatientAndAttribute(
+                    unfilteredClinicalDataForPatients,
+                    patientIdToStudyId,
+                    patientAttributeIdLookup
+                )
+            );
+        }
+
+        if (CollectionUtils.isNotEmpty(conflictingPatientAttributes)) {
+            // create lookups for faster filtering
+            Map<String, Boolean> conflictingPatientAttributeIdLookup = listToMap(conflictingPatientAttributes);
+            if (patientIdToStudyId == null) {
+                patientIdToStudyId = mapCaseToStudy(patientIds, studyIdsOfPatients);
+            }
+            
+            combinedResult.addAll(
+                filterClinicalDataByStudyAndPatientAndAttribute(
+                    unfilteredClinicalDataForConflictingPatientAttributes,
+                    patientIdToStudyId,
+                    conflictingPatientAttributeIdLookup
+                )
+            );
+        }
+
+        return combinedResult;
+    }
+    
+    private List<ClinicalData> filterClinicalDataByStudyAndSampleAndAttribute(
+        List<ClinicalData> clinicalData,
+        Map<String, String> sampleToStudyId,
+        Map<String, Boolean> attributeIdLookup
+    ) {
+        return clinicalData
+            .stream()
+            .filter(d ->
+                sampleToStudyId.getOrDefault(generateSampleToStudyKey(d), "").equals(d.getStudyId()) &&
+                attributeIdLookup.getOrDefault(d.getAttrId(), false)
+            )
+            .collect(Collectors.toList());
+    }
+
+    private List<ClinicalData> filterClinicalDataByStudyAndPatientAndAttribute(
+        List<ClinicalData> clinicalData,
+        Map<String, String> patientToStudyId,
+        Map<String, Boolean> attributeIdLookup
+    ) {
+        return clinicalData
+            .stream()
+            .filter(d ->
+                patientToStudyId.getOrDefault(generatePatientToStudyKey(d), "").equals(d.getStudyId()) &&
+                attributeIdLookup.getOrDefault(d.getAttrId(), false)
+            )
+            .collect(Collectors.toList());
+    }
+    
+    private <T> Map<T, Boolean> listToMap(List<T> list) {
+        return list.stream().collect(Collectors.toMap(s -> s, s -> true, (s1, s2) -> s1));
+    }
+
+    private  Map<String, String> mapCaseToStudy(List<String> caseIds, List<String> studyIds) {
+        Map<String, String> caseToStudy = new HashMap<>();
+        
+        for (int i =0; i < caseIds.size(); i++) {
+            String studyId = studyIds.get(i);
+            String caseId = caseIds.get(i);
+            String key = generateCaseToStudyKey(studyId, caseId);
+            caseToStudy.put(key, studyId);
+        }
+        
+        return caseToStudy;
+    }
+
+    private String generateSampleToStudyKey(ClinicalData clinicalData) {
+        return generateCaseToStudyKey(clinicalData.getStudyId(), clinicalData.getSampleId());
+    }
+    
+    private String generatePatientToStudyKey(ClinicalData clinicalData) {
+        return generateCaseToStudyKey(clinicalData.getStudyId(), clinicalData.getPatientId());
+    }
+    
+    private String generateCaseToStudyKey(String studyId, String caseId) {
+        return studyId + ":" + caseId;
     }
 }

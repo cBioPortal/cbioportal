@@ -20,7 +20,7 @@ ERROR_FILE = sys.stderr
 OUTPUT_FILE = sys.stdout
 
 # global variables to check `source_stable_id` for `genomic_profile_link`
-expression_stable_ids = []
+expression_stable_ids = {}
 gsva_scores_stable_id = ""
 expression_zscores_source_stable_ids = {}
 gsva_scores_source_stable_id = ""
@@ -906,10 +906,10 @@ def parse_metadata_file(filename,
     global gsva_scores_filename
     global gsva_pvalues_filename
 
-    # save all expression `stable_id` in list
+    # save all expression `stable_id` in a dictionary with their filenames
     if meta_file_type is MetaFileTypes.EXPRESSION:
         if 'stable_id' in meta_dictionary:
-            expression_stable_ids.append(meta_dictionary['stable_id'])
+            expression_stable_ids[meta_dictionary['stable_id']] = filename
 
             # Save all zscore expression `source_stable_id` in dictionary with their filenames.
             # Multiple zscore expression files are possible, and we want to validate all their

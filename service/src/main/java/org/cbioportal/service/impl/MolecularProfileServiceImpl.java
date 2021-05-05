@@ -120,7 +120,7 @@ public class MolecularProfileServiceImpl implements MolecularProfileService {
 	public List<String> getFirstMutationProfileIds(List<String> studyIds, List<String> sampleIds) {
         
         List<String> molecularProfileIds = new ArrayList<>();
-        Map<String, List<MolecularProfile>> mapByStudyId = getMolecularProfilesInStudies(studyIds, "SUMMARY")
+        Map<String, List<MolecularProfile>> mapByStudyId = getMolecularProfilesInStudies(studyIds.stream().distinct().collect(Collectors.toList()), "SUMMARY")
             .stream().filter(m -> m.getMolecularAlterationType().equals(MolecularProfile.MolecularAlterationType.MUTATION_EXTENDED))
             .collect(Collectors.groupingBy(MolecularProfile::getCancerStudyIdentifier));
         int removedSampleCount = 0;

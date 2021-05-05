@@ -51,4 +51,6 @@ public interface AlterationCountsMapper {
     List<CopyNumberCountByGene> getPatientCnaCounts(List<MolecularProfileCaseIdentifier> cnaMolecularProfileCaseIdentifiers,
                                                     Select<Integer> entrezGeneIds,
                                                     Select<Short> cnaTypes);
+
+    List<MolecularProfileCaseIdentifier> getMolecularProfileCaseInternalIdentifier(List<MolecularProfileCaseIdentifier> molecularProfileSampleIdentifiers, String caseType);
 }

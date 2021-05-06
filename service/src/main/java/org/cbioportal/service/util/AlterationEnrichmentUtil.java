@@ -173,7 +173,7 @@ public class AlterationEnrichmentUtil<T extends AlterationCountByGene> {
         });
 
         List<GenePanelData> genePanelDataList = genePanelService
-            .fetchGenePanelDataInMultipleMolecularProfiles(molecularProfileIds, sampleIds);
+            .fetchGenePanelDataInMultipleMolecularProfiles(molecularProfileCaseIdentifiers);
 
         profiledCasesCounter.calculate(alterationCountByGenes, genePanelDataList,
                 includeMissingAlterationsFromGenePanel, profiledCasesCounter.sampleUniqueIdentifier);
@@ -202,7 +202,7 @@ public class AlterationEnrichmentUtil<T extends AlterationCountByGene> {
         });
 
         List<GenePanelData> genePanelDataList = genePanelService
-            .fetchGenePanelDataInMultipleMolecularProfilesByPatientIds(molecularProfileIds, patientIds);
+            .fetchGenePanelDataInMultipleMolecularProfilesByPatientIds(molecularProfileCaseIdentifiers);
 
         profiledCasesCounter.calculate(alterationCountByGenes, genePanelDataList,
             includeMissingAlterationsFromGenePanel, profiledCasesCounter.patientUniqueIdentifier);

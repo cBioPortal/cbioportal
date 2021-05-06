@@ -3,6 +3,7 @@ package org.cbioportal.persistence.mybatis;
 import org.cbioportal.model.GenePanel;
 import org.cbioportal.model.GenePanelData;
 import org.cbioportal.model.GenePanelToGene;
+import org.cbioportal.model.MolecularProfileCaseIdentifier;
 import org.cbioportal.model.meta.BaseMeta;
 import org.junit.Assert;
 import org.junit.Test;
@@ -12,6 +13,7 @@ import org.springframework.beans.factory.annotation.Configurable;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
@@ -78,7 +80,7 @@ public class GenePanelMyBatisRepositoryTest {
         List<GenePanelData> result = genePanelMyBatisRepository.getGenePanelDataBySampleListId("study_tcga_pub_mrna", 
             "study_tcga_pub_all");
         
-        Assert.assertEquals(14, result.size());
+        Assert.assertEquals(9, result.size());
         GenePanelData genePanelData = result.get(0);
         Assert.assertEquals("study_tcga_pub_mrna", genePanelData.getMolecularProfileId());
         Assert.assertEquals("TESTPANEL1", genePanelData.getGenePanelId());
@@ -101,8 +103,18 @@ public class GenePanelMyBatisRepositoryTest {
     @Test
     public void fetchGenePanelDataInMultipleMolecularProfiles() throws Exception {
 
-        List<GenePanelData> result = genePanelMyBatisRepository.fetchGenePanelDataInMultipleMolecularProfiles(Arrays.asList(
-            "study_tcga_pub_mrna", "study_tcga_pub_log2CNA"), Arrays.asList("TCGA-A1-A0SB-01", "TCGA-A1-A0SD-01"));
+        List<MolecularProfileCaseIdentifier> molecularProfileSampleIdentifiers = new ArrayList<>();
+        MolecularProfileCaseIdentifier profileCaseIdentifier = new MolecularProfileCaseIdentifier();
+        profileCaseIdentifier.setMolecularProfileId("study_tcga_pub_mrna");
+        profileCaseIdentifier.setCaseId("TCGA-A1-A0SB-01");
+        molecularProfileSampleIdentifiers.add(profileCaseIdentifier);
+
+        MolecularProfileCaseIdentifier profileCaseIdentifier2 = new MolecularProfileCaseIdentifier();
+        profileCaseIdentifier2.setMolecularProfileId("study_tcga_pub_log2CNA");
+        profileCaseIdentifier2.setCaseId("TCGA-A1-A0SD-01");
+        molecularProfileSampleIdentifiers.add(profileCaseIdentifier2);
+
+        List<GenePanelData> result = genePanelMyBatisRepository.fetchGenePanelDataInMultipleMolecularProfiles(molecularProfileSampleIdentifiers);
 
         Assert.assertEquals(2, result.size());
         GenePanelData genePanelData = result.get(0);

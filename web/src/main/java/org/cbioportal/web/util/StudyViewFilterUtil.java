@@ -1,10 +1,13 @@
 package org.cbioportal.web.util;
 
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
+import com.sun.org.apache.xpath.internal.operations.Bool;
+import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.collections.map.MultiKeyMap;
+import org.cbioportal.model.ClinicalData;
 import org.cbioportal.model.ClinicalDataBin;
 import org.cbioportal.model.ClinicalDataCount;
 import org.cbioportal.model.ClinicalDataCountItem;
@@ -130,8 +133,8 @@ public class StudyViewFilterUtil {
                         dataCount.setCount(Math.toIntExact(count));
                         return dataCount;
                     })
-                    .filter(c -> !c.getValue().toUpperCase().equals("NA") && !c.getValue().toUpperCase().equals("NAN")
-                            && !c.getValue().toUpperCase().equals("N/A"))
+                    .filter(c -> !c.getValue().equalsIgnoreCase("NA") && !c.getValue().equalsIgnoreCase("NAN")
+                            && !c.getValue().equalsIgnoreCase("N/A"))
                     .collect(Collectors.toList());
 
             int totalCount = clinicalDataCounts.stream().mapToInt(ClinicalDataCount::getCount).sum();
@@ -152,5 +155,118 @@ public class StudyViewFilterUtil {
             clinicalDataCountItem.setCounts(clinicalDataCounts);
             return clinicalDataCountItem;
         }).collect(Collectors.toList());
+    }
+    
+    public boolean shouldSkipFilterForClinicalDataBins(StudyViewFilter filter) {
+        // if everything other than study ids and sample identifiers is null,
+        // we can skip the filter for data bin calculation
+        return (
+            filter != null &&
+            filter.getClinicalDataFilters() == null &&
+            filter.getGeneFilters() == null &&
+            filter.getSampleTreatmentFilters() == null &&
+            filter.getPatientTreatmentFilters() == null &&
+            filter.getGenomicProfiles() == null &&
+            filter.getGenomicDataFilters() == null &&
+            filter.getGenericAssayDataFilters() == null &&
+            filter.getCaseLists() == null &&
+            filter.getCustomDataFilters() == null
+        );
+    }
+    
+    public List<ClinicalData> filterClinicalData(
+        List<ClinicalData> unfilteredClinicalDataForSamples,
+        List<ClinicalData> unfilteredClinicalDataForPatients,
+        List<ClinicalData> unfilteredClinicalDataForConflictingPatientAttributes,
+        List<String> studyIds,
+        List<String> sampleIds,
+        List<String> studyIdsOfPatients,
+        List<String> patientIds,
+        List<String> sampleAttributeIds,
+        List<String> patientAttributeIds,
+        List<String> conflictingPatientAttributes
+    ) {
+        List<ClinicalData> combinedResult = new ArrayList<>();
+        
+        // create look up for faster filtering
+        Map<String, String> sampleIdToStudyId = mapCaseToStudy(sampleIds, studyIds);
+        Map<String, String> patientIdToStudyId = mapCaseToStudy(patientIds, studyIdsOfPatients);
+        Map<String, Boolean> sampleAttributeIdLookup = listToMap(sampleAttributeIds);
+        Map<String, Boolean> patientAttributeIdLookup = listToMap(patientAttributeIds);
+        Map<String, Boolean> conflictingPatientAttributeIdLookup = listToMap(conflictingPatientAttributes);
+            
+        if (CollectionUtils.isNotEmpty(sampleAttributeIds)) {
+            combinedResult.addAll(
+                filterClinicalDataByStudyAndSampleAndAttribute(
+                    unfilteredClinicalDataForSamples,
+                    sampleIdToStudyId,
+                    sampleAttributeIdLookup
+                )
+            );
+        }
+
+        if (CollectionUtils.isNotEmpty(patientAttributeIds)) {
+            combinedResult.addAll(
+                filterClinicalDataByStudyAndPatientAndAttribute(
+                    unfilteredClinicalDataForPatients,
+                    patientIdToStudyId,
+                    patientAttributeIdLookup
+                )
+            );
+        }
+
+        if (CollectionUtils.isNotEmpty(conflictingPatientAttributes)) {
+            combinedResult.addAll(
+                filterClinicalDataByStudyAndPatientAndAttribute(
+                    unfilteredClinicalDataForConflictingPatientAttributes,
+                    patientIdToStudyId,
+                    conflictingPatientAttributeIdLookup
+                )
+            );
+        }
+
+        return combinedResult;
+    }
+    
+    private List<ClinicalData> filterClinicalDataByStudyAndSampleAndAttribute(
+        List<ClinicalData> clinicalData,
+        Map<String, String> sampleToStudyId,
+        Map<String, Boolean> attributeIdLookup
+    ) {
+        return clinicalData
+            .stream()
+            .filter(d ->
+                sampleToStudyId.getOrDefault(d.getSampleId(), "").equals(d.getStudyId()) &&
+                attributeIdLookup.getOrDefault(d.getAttrId(), false)
+            )
+            .collect(Collectors.toList());
+    }
+
+    private List<ClinicalData> filterClinicalDataByStudyAndPatientAndAttribute(
+        List<ClinicalData> clinicalData,
+        Map<String, String> patientToStudyId,
+        Map<String, Boolean> attributeIdLookup
+    ) {
+        return clinicalData
+            .stream()
+            .filter(d ->
+                patientToStudyId.getOrDefault(d.getPatientId(), "").equals(d.getStudyId()) &&
+                attributeIdLookup.getOrDefault(d.getAttrId(), false)
+            )
+            .collect(Collectors.toList());
+    }
+    
+    private <T> Map<T, Boolean> listToMap(List<T> list) {
+        return list.stream().collect(Collectors.toMap(s -> s, s -> true, (s1, s2) -> s1));
+    }
+
+    private  Map<String, String> mapCaseToStudy(List<String> caseIds, List<String> studyIds) {
+        Map<String, String> caseToStudy = new HashMap<>();
+        
+        for (int i =0; i < caseIds.size(); i++) {
+            caseToStudy.put(caseIds.get(i), studyIds.get(i));
+        }
+        
+        return caseToStudy;
     }
 }

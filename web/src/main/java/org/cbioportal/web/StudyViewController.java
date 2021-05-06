@@ -527,21 +527,23 @@ public class StudyViewController {
         Map<String, List<MolecularProfile>> studyMolecularProfilesSet = molecularProfiles.stream()
                 .collect(Collectors.groupingBy(MolecularProfile::getCancerStudyIdentifier));
 
-        List<String> queryMolecularProfileIds = new ArrayList<>();
-        List<String> querySampleIds = new ArrayList<>();
+        List<MolecularProfileCaseIdentifier> molecularProfileSampleIdentifiers = new ArrayList<>();
+
         for (int i = 0; i < studyIds.size(); i++) {
             String studyId = studyIds.get(i);
             String sampleId = sampleIds.get(i);
             if (studyMolecularProfilesSet.containsKey(studyId)) {
                 studyMolecularProfilesSet.get(studyId).stream().forEach(molecularProfile -> {
-                    queryMolecularProfileIds.add(molecularProfile.getStableId());
-                    querySampleIds.add(sampleId);
+                    MolecularProfileCaseIdentifier profileCaseIdentifier = new MolecularProfileCaseIdentifier();
+                    profileCaseIdentifier.setMolecularProfileId(molecularProfile.getStableId());
+                    profileCaseIdentifier.setCaseId(sampleId);
+                    molecularProfileSampleIdentifiers.add(profileCaseIdentifier);
                 });
             }
         }
 
         List<GenePanelData> genePanelData = genePanelService
-                .fetchGenePanelDataInMultipleMolecularProfiles(queryMolecularProfileIds, querySampleIds);
+                .fetchGenePanelDataInMultipleMolecularProfiles(molecularProfileSampleIdentifiers);
         HashMap<String, Integer> molecularPorfileSampleCountSet = new HashMap<String, Integer>();
 
         for (GenePanelData datum : genePanelData) {

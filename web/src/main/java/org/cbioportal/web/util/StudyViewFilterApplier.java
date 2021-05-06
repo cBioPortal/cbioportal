@@ -184,17 +184,18 @@ public class StudyViewFilterApplier {
 
             Map<String, List<MolecularProfile>> molecularProfileSet = studyViewFilterUtil
                     .categorizeMolecularPorfiles(molecularProfiles);
-
-            List<String> queryMolecularProfileIds = new ArrayList<>();
-            List<String> querySampleIds = new ArrayList<>();
+            
+            List<MolecularProfileCaseIdentifier> molecularProfileSampleIdentifiers = new ArrayList<>();
 
             studyViewFilter.getGenomicProfiles().stream().forEach(profileValues -> {
                 profileValues.stream().forEach(profileValue -> {
                     molecularProfileSet.getOrDefault(profileValue, new ArrayList<>()).stream().forEach(profile -> {
                         groupStudySampleIdentifiers.getOrDefault(profile.getCancerStudyIdentifier(), new ArrayList<>())
                                 .stream().forEach(sampleIdentifier -> {
-                                    queryMolecularProfileIds.add(profile.getStableId());
-                                    querySampleIds.add(sampleIdentifier.getSampleId());
+                                    MolecularProfileCaseIdentifier profileCaseIdentifier = new MolecularProfileCaseIdentifier();
+                                    profileCaseIdentifier.setMolecularProfileId(profile.getStableId());
+                                    profileCaseIdentifier.setCaseId(sampleIdentifier.getSampleId());
+                                    molecularProfileSampleIdentifiers.add(profileCaseIdentifier);
                                 });
                     });
 
@@ -202,7 +203,7 @@ public class StudyViewFilterApplier {
             });
 
             List<GenePanelData> genePanelData = genePanelService
-                    .fetchGenePanelDataInMultipleMolecularProfiles(queryMolecularProfileIds, querySampleIds);
+                    .fetchGenePanelDataInMultipleMolecularProfiles(molecularProfileSampleIdentifiers);
 
             studyViewFilter.getGenomicProfiles().stream().flatMap(profileValues -> profileValues.stream());
 

@@ -52,9 +52,9 @@ import org.springframework.context.ApplicationContext;
 
 import org.springframework.cache.CacheManager;
 import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Configuration;
 
 import javax.cache.Caching;
-import javax.cache.configuration.Configuration;
 import javax.cache.configuration.Factory;
 import javax.cache.configuration.MutableConfiguration;
 import javax.cache.expiry.CreatedExpiryPolicy;
@@ -65,6 +65,7 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
 
+@Configuration
 public class CustomRedisCachingProvider {
 
     private static final Logger LOG = LoggerFactory.getLogger(CustomRedisCachingProvider.class);
@@ -90,6 +91,7 @@ public class CustomRedisCachingProvider {
     @Value("${redis.expiry:21600000}")
     private Long expiryMs;
 
+    @Bean("redissonClient")
     public RedissonClient getRedissonClient() {
         Config config = new Config();
         LOG.debug("leaderAddress: " + leaderAddress);

@@ -16,10 +16,22 @@ import org.cbioportal.web.parameter.GeneFilter.SingleGeneQuery;
 import org.cbioportal.web.util.appliers.PatientTreatmentFilterApplier;
 import org.cbioportal.web.util.appliers.SampleTreatmentFilterApplier;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.cache.annotation.Cacheable;
+import org.springframework.context.ApplicationContext;
 import org.springframework.stereotype.Component;
+
+import javax.annotation.PostConstruct;
 
 @Component
 public class StudyViewFilterApplier {
+    @Autowired
+    private ApplicationContext applicationContext;
+    StudyViewFilterApplier instance;
+    @PostConstruct
+    private void init() {
+        instance = applicationContext.getBean(StudyViewFilterApplier.class);
+    }
+
 
     @Autowired
     private SampleService sampleService;
@@ -69,6 +81,15 @@ public class StudyViewFilterApplier {
     };
 
     public List<SampleIdentifier> apply(StudyViewFilter studyViewFilter) {
+        return instance.cachedApply(studyViewFilter);
+        
+    }
+    
+    @Cacheable(
+        cacheResolver = "generalRepositoryCacheResolver",
+        condition = "@cacheEnabledConfig.getEnabled()"
+    )
+    public List<SampleIdentifier> cachedApply(StudyViewFilter studyViewFilter) {
         return this.apply(studyViewFilter, false);
     }
 

@@ -17,7 +17,7 @@ import org.springframework.stereotype.Service;
 public class CacheStatisticsServiceImpl implements CacheStatisticsService {
 
     @Autowired
-    public CacheManager cacheManager;
+    public org.springframework.cache.CacheManager cacheManager;
 
     @Value("${cache.statistics_endpoint_enabled:false}")
     public boolean cacheStatisticsEndpointEnabled;
@@ -30,44 +30,12 @@ public class CacheStatisticsServiceImpl implements CacheStatisticsService {
 
     @Override
     public List<String> getKeyCountsPerClass(String cacheName) throws CacheNotFoundException {
-        checkIfCacheStatisticsEndpointEnabled();
-        Cache<String, Object> cache = cacheManager.getCache(cacheName);
-        if (cache == null) {
-            throw new CacheNotFoundException(cacheName);
-        }
-        Map<String, Integer> classToKeyCount = new HashMap<String, Integer>();
-        Iterator<Cache.Entry<String, Object>> iterator = cache.iterator();
-        while (iterator.hasNext()) {
-            Cache.Entry<String, Object> entry = iterator.next();
-            String cacheKey = entry.getKey();
-            String className = cacheKey.split("_")[0];
-            int keyCount = classToKeyCount.containsKey(className) ? classToKeyCount.get(className) : 0;
-            classToKeyCount.put(className, keyCount + 1);
-        }
-        List<String> keyCountsPerClass = new ArrayList<String>();
-        for (Map.Entry<String, Integer> entry : classToKeyCount.entrySet()) {
-            keyCountsPerClass.add(entry.getKey().toString() + ": " + entry.getValue().toString() + " keys");
-        }
-        return keyCountsPerClass;
+        return new ArrayList<>();
     }
 
     @Override
     public List<String> getKeysInCache(String cacheName) throws CacheNotFoundException {
-        checkIfCacheStatisticsEndpointEnabled();
-        Cache<String, Object> cache = cacheManager.getCache(cacheName);
-        if (cache == null) {
-            throw new CacheNotFoundException(cacheName);
-        }
-        Integer numberOfKeys = 0;
-        List<String> keysInCache = new ArrayList<String>();
-        Iterator<Cache.Entry<String, Object>> iterator = cache.iterator();
-        while (iterator.hasNext()) {
-            Cache.Entry<String, Object> entry = iterator.next();
-            keysInCache.add(entry.getKey());
-            numberOfKeys += 1;
-        }
-        keysInCache.add("Total Number of Keys: " + numberOfKeys.toString());
-        return keysInCache;
+        return new ArrayList<>();
     }
 
     @Override

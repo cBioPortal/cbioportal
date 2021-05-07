@@ -174,7 +174,9 @@ public class StudyViewController {
         @ApiIgnore // prevent reference to this attribute in the swagger-ui interface
         @RequestAttribute(required = false, value = "involvedCancerStudies") Collection<String> involvedCancerStudies,
         @ApiIgnore // prevent reference to this attribute in the swagger-ui interface. this attribute is needed for the @PreAuthorize tag above.
-        @Valid @RequestAttribute(required = false, value = "interceptedClinicalDataBinCountFilter") ClinicalDataBinCountFilter interceptedClinicalDataBinCountFilter) {
+        @Valid @RequestAttribute(required = false, value = "interceptedClinicalDataBinCountFilter") ClinicalDataBinCountFilter interceptedClinicalDataBinCountFilter,
+        @RequestParam(defaultValue = "false") boolean alwaysCache
+    ) {
 
         List<ClinicalDataBinFilter> attributes = interceptedClinicalDataBinCountFilter.getAttributes();
         StudyViewFilter studyViewFilter = interceptedClinicalDataBinCountFilter.getStudyViewFilter();
@@ -183,11 +185,27 @@ public class StudyViewController {
             studyViewFilterUtil.removeSelfFromFilter(attributes.get(0).getAttributeId(), studyViewFilter);
         }
 
+        List<ClinicalDataBin> clinicalDataBins = 
+            instance.cachableFetchClinicalDataBinCounts(dataBinMethod, attributes, studyViewFilter, alwaysCache);
+
+        return new ResponseEntity<>(clinicalDataBins, HttpStatus.OK);
+    }
+
+    @Cacheable(
+        cacheResolver = "staticRepositoryCacheOneResolver",
+        condition = "@cacheEnabledConfig.getEnabled() && #alwaysCache"
+    )
+    public List<ClinicalDataBin> cachableFetchClinicalDataBinCounts(
+        DataBinMethod dataBinMethod,
+        List<ClinicalDataBinFilter> attributes,
+        StudyViewFilter studyViewFilter,
+        boolean alwaysCache
+    ) {
         List<String> attributeIds = attributes.stream().map(ClinicalDataBinFilter::getAttributeId).collect(Collectors.toList());
-        
+
         // filter only by study id and sample identifiers, ignore rest
         List<SampleIdentifier> unfilteredSampleIdentifiers = filterByStudyAndSample(studyViewFilter);
-        
+
         List<String> unfilteredStudyIds = new ArrayList<>();
         List<String> unfilteredSampleIds = new ArrayList<>();
         List<String> unfilteredPatientIds = new ArrayList<>();
@@ -198,7 +216,7 @@ public class StudyViewController {
         List<String> unfilteredPatientAttributeIds = new ArrayList<>();
         // patient attributes which are also sample attributes in other studies
         List<String> unfilteredConflictingPatientAttributeIds = new ArrayList<>();
-        
+
         populateIdLists(
             // input
             unfilteredSampleIdentifiers,
@@ -227,13 +245,13 @@ public class StudyViewController {
             unfilteredSampleIds,
             new ArrayList<>(unfilteredSampleAttributeIds)
         );
-        
+
         List<ClinicalData> unfilteredClinicalDataForPatients = fetchClinicalDataForPatients(
             studyIdsOfUnfilteredPatients,
             unfilteredPatientIds,
             new ArrayList<>(unfilteredPatientAttributeIds)
         );
-        
+
         List<ClinicalData> unfilteredClinicalDataForConflictingPatientAttributes = fetchClinicalDataForConflictingPatientAttributes(
             studyIdsOfUnfilteredPatients,
             unfilteredPatientIds,
@@ -245,7 +263,7 @@ public class StudyViewController {
                 unfilteredClinicalDataForPatients,
                 unfilteredClinicalDataForConflictingPatientAttributes
             ).flatMap(Collection::stream).collect(Collectors.toList());
-        
+
         // if filters are practically the same no need to re-apply them
         List<SampleIdentifier> filteredSampleIdentifiers = 
             studyViewFilterUtil.shouldSkipFilterForClinicalDataBins(studyViewFilter) ? 
@@ -254,7 +272,7 @@ public class StudyViewController {
         List<String> filteredUniqueSampleKeys;
         List<String> filteredUniquePatientKeys;
         List<ClinicalData> filteredClinicalData;
-        
+
         // if filtered and unfiltered samples are exactly the same, no need to fetch clinical data again
         if (filteredSampleIdentifiers.equals(unfilteredSampleIdentifiers)) {
             filteredUniqueSampleKeys = unfilteredUniqueSampleKeys;
@@ -303,15 +321,15 @@ public class StudyViewController {
                 filteredConflictingPatientAttributeIds
             );
         }
-        
+
         Map<String, List<ClinicalData>> unfilteredClinicalDataByAttributeId = 
             unfilteredClinicalData.stream().collect(Collectors.groupingBy(ClinicalData::getAttrId));
 
         Map<String, List<ClinicalData>> filteredClinicalDataByAttributeId =
             filteredClinicalData.stream().collect(Collectors.groupingBy(ClinicalData::getAttrId));
-        
+
         List<ClinicalDataBin> clinicalDataBins = Collections.emptyList();
-        
+
         if (dataBinMethod == DataBinMethod.STATIC) {
             if (!unfilteredSampleIdentifiers.isEmpty() && !unfilteredClinicalData.isEmpty()) {
                 clinicalDataBins = calculateStaticDataBins(
@@ -337,8 +355,7 @@ public class StudyViewController {
                 );
             }
         }
-
-        return new ResponseEntity<>(clinicalDataBins, HttpStatus.OK);
+        return clinicalDataBins;
     }
 
     @PreAuthorize("hasPermission(#involvedCancerStudies, 'Collection<CancerStudyId>', 'read')")
@@ -361,9 +378,8 @@ public class StudyViewController {
     }
 
     @Cacheable(
-        cacheResolver = "generalRepositoryCacheResolver",
-        condition = "@cacheEnabledConfig.getEnabled()",
-        unless = "#result.size() < 1000 && !#alwaysCache"
+        cacheResolver = "staticRepositoryCacheOneResolver",
+        condition = "@cacheEnabledConfig.getEnabled() && #alwaysCache"
     )
     public List<AlterationCountByGene> fetchMutatedGenesInner(List<SampleIdentifier> filteredSampleIdentifiers, boolean alwaysCache) throws StudyNotFoundException {
         Pair<List<AlterationCountByGene>, Long> resultPair = new Pair<>(new ArrayList<>(), 0L);

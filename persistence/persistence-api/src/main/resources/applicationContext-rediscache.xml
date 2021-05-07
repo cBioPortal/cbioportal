@@ -24,16 +24,12 @@
             <property name="targetMethod" value="getRedissonClient" />
         </bean>
 
-        <bean id="cacheManager" class="org.springframework.beans.factory.config.MethodInvokingFactoryBean">
+        <bean id="redisCacheManager" class="org.springframework.beans.factory.config.MethodInvokingFactoryBean">
             <property name="targetObject" ref="customRedisCacheProvider" />
             <property name="targetMethod" value="getCacheManager" />
             <property name="arguments">
                 <list><ref bean="redissonClient"/></list>
             </property>
-        </bean>
-
-        <bean id="redisCacheManager" class="org.springframework.cache.jcache.JCacheCacheManager">
-            <property name="cacheManager" ref="cacheManager"/>
         </bean>
 
         <bean id="generalRepositoryCacheResolver" class="org.springframework.cache.interceptor.NamedCacheResolver">

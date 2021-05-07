@@ -140,7 +140,7 @@ public class MolecularProfileServiceImpl implements MolecularProfileService {
 	public List<String> getFirstDiscreteCNAProfileIds(List<String> studyIds, List<String> sampleIds) {
 
         List<String> molecularProfileIds = new ArrayList<>();
-        Map<String, List<MolecularProfile>> mapByStudyId = getMolecularProfilesInStudies(studyIds, "SUMMARY")
+        Map<String, List<MolecularProfile>> mapByStudyId = getMolecularProfilesInStudies(studyIds.stream().distinct().collect(Collectors.toList()), "SUMMARY")
             .stream().filter(m -> m.getMolecularAlterationType().equals(MolecularProfile.MolecularAlterationType.COPY_NUMBER_ALTERATION) && 
             m.getDatatype().equals("DISCRETE")).collect(Collectors.groupingBy(MolecularProfile::getCancerStudyIdentifier));
         int removedSampleCount = 0;
@@ -161,7 +161,7 @@ public class MolecularProfileServiceImpl implements MolecularProfileService {
         List<String> molecularProfileIds = new ArrayList<>();
         Map<String, String> studyIdtoMolecularProfileIdMap = new HashMap<>();
 
-        getMolecularProfilesInStudies(studyIds, "SUMMARY").stream().forEach(molecularProfile -> {
+        getMolecularProfilesInStudies(studyIds.stream().distinct().collect(Collectors.toList()), "SUMMARY").stream().forEach(molecularProfile -> {
             if (molecularProfile.getMolecularAlterationType().equals(MolecularProfile.MolecularAlterationType.FUSION)
                     || molecularProfile.getMolecularAlterationType()
                             .equals(MolecularProfile.MolecularAlterationType.STRUCTURAL_VARIANT)) {

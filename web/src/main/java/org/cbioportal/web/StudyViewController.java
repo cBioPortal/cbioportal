@@ -8,26 +8,7 @@ import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.collections.map.MultiKeyMap;
 import org.apache.commons.lang3.math.NumberUtils;
 import org.apache.commons.math3.util.Pair;
-import org.cbioportal.model.AlterationCountByGene;
-import org.cbioportal.model.CNA;
-import org.cbioportal.model.CaseListDataCount;
-import org.cbioportal.model.ClinicalAttribute;
-import org.cbioportal.model.ClinicalData;
-import org.cbioportal.model.ClinicalDataBin;
-import org.cbioportal.model.ClinicalDataCountItem;
-import org.cbioportal.model.CopyNumberCountByGene;
-import org.cbioportal.model.DensityPlotBin;
-import org.cbioportal.model.GenePanelData;
-import org.cbioportal.model.GenericAssayDataBin;
-import org.cbioportal.model.GenomicDataBin;
-import org.cbioportal.model.GenomicDataCount;
-import org.cbioportal.model.Gistic;
-import org.cbioportal.model.MolecularProfile;
-import org.cbioportal.model.MolecularProfileCaseIdentifier;
-import org.cbioportal.model.MutSig;
-import org.cbioportal.model.Patient;
-import org.cbioportal.model.Sample;
-import org.cbioportal.model.SampleList;
+import org.cbioportal.model.*;
 import org.cbioportal.model.util.Select;
 import org.cbioportal.service.AlterationCountService;
 import org.cbioportal.service.ClinicalAttributeService;
@@ -75,13 +56,7 @@ import springfox.documentation.annotations.ApiIgnore;
 import javax.annotation.PostConstruct;
 import javax.validation.Valid;
 import java.math.BigDecimal;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
@@ -540,12 +515,41 @@ public class StudyViewController {
         List<String> sampleIds = new ArrayList<>();
         studyViewFilterUtil.extractStudyAndSampleIds(studyViewFilterApplier.apply(interceptedStudyViewFilter), studyIds,
                 sampleIds);
-        
-        List<MolecularProfile> molecularProfiles = molecularProfileService.getMolecularProfilesInStudies(studyIds,
+        List<MolecularProfile> molecularProfiles = molecularProfileService.getMolecularProfilesInStudies(new ArrayList<>(new HashSet<>(studyIds)),
                 "SUMMARY");
 
-        Map<String, List<MolecularProfile>> studyMolecularProfilesSet = molecularProfiles.stream()
-                .collect(Collectors.groupingBy(MolecularProfile::getCancerStudyIdentifier));
+        Map<String, List<MolecularProfile>> studyMolecularProfilesSet = molecularProfiles
+            .stream()
+            .collect(Collectors.groupingBy(MolecularProfile::getCancerStudyIdentifier))
+            .entrySet().stream().collect(Collectors.toMap(
+                entry -> entry.getKey(),
+                entry -> {
+                    List<MolecularProfile> profilesToReturn = new ArrayList<>();
+                    MolecularProfile structuralVariantProfile = null;
+                    for (MolecularProfile molecularProfile : entry.getValue()) {
+                        if (molecularProfile.getMolecularAlterationType().equals(MolecularProfile.MolecularAlterationType.FUSION)
+                            || molecularProfile.getMolecularAlterationType()
+                            .equals(MolecularProfile.MolecularAlterationType.STRUCTURAL_VARIANT)) {
+                            if (structuralVariantProfile == null) {
+                                structuralVariantProfile = molecularProfile;
+                            } else if (!(molecularProfile.getMolecularAlterationType()
+                                .equals(MolecularProfile.MolecularAlterationType.STRUCTURAL_VARIANT)
+                                && molecularProfile.getDatatype().equals("SV"))) {
+                                // replace structural variant profile with
+                                // mutation profile having fusion data
+                                structuralVariantProfile= molecularProfile;
+                            }
+                        } else {
+                            profilesToReturn.add(molecularProfile);
+                        }
+                    }
+
+                    if (structuralVariantProfile != null) {
+                        profilesToReturn.add(structuralVariantProfile);
+                    }
+
+                    return profilesToReturn;
+            }));
 
         List<MolecularProfileCaseIdentifier> molecularProfileSampleIdentifiers = new ArrayList<>();
 
@@ -564,12 +568,12 @@ public class StudyViewController {
 
         List<GenePanelData> genePanelData = genePanelService
                 .fetchGenePanelDataInMultipleMolecularProfiles(molecularProfileSampleIdentifiers);
-        HashMap<String, Integer> molecularPorfileSampleCountSet = new HashMap<String, Integer>();
+        HashMap<String, Integer> molecularProfileSampleCountSet = new HashMap<>();
 
         for (GenePanelData datum : genePanelData) {
             if (datum.getProfiled()) {
-                Integer count = molecularPorfileSampleCountSet.getOrDefault(datum.getMolecularProfileId(), 0);
-                molecularPorfileSampleCountSet.put(datum.getMolecularProfileId(), count + 1);
+                Integer count = molecularProfileSampleCountSet.getOrDefault(datum.getMolecularProfileId(), 0);
+                molecularProfileSampleCountSet.put(datum.getMolecularProfileId(), count + 1);
             }
         }
 
@@ -583,9 +587,11 @@ public class StudyViewController {
                     GenomicDataCount dataCount = new GenomicDataCount();
                     dataCount.setValue(entry.getKey());
 
-                    Integer count = entry.getValue().stream().mapToInt(molecularProfile -> {
-                        return molecularPorfileSampleCountSet.getOrDefault(molecularProfile.getStableId(), 0);
-                    }).sum();
+                    Integer count = entry
+                        .getValue()
+                        .stream()
+                        .mapToInt(molecularProfile -> molecularProfileSampleCountSet.getOrDefault(molecularProfile.getStableId(), 0))
+                        .sum();
         
                     dataCount.setCount(count);
                     dataCount.setLabel(entry.getValue().get(0).getName());

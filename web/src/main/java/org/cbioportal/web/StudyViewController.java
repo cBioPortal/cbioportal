@@ -57,6 +57,8 @@ import org.cbioportal.web.util.DataBinner;
 import org.cbioportal.web.util.StudyViewFilterApplier;
 import org.cbioportal.web.util.StudyViewFilterUtil;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.cache.annotation.Cacheable;
+import org.springframework.context.ApplicationContext;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -70,6 +72,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import springfox.documentation.annotations.ApiIgnore;
 
+import javax.annotation.PostConstruct;
 import javax.validation.Valid;
 import java.math.BigDecimal;
 import java.util.ArrayList;
@@ -88,6 +91,13 @@ import java.util.stream.Stream;
 @Validated
 @Api(tags = "Study View", description = " ")
 public class StudyViewController {
+    @Autowired
+    private ApplicationContext applicationContext;
+    StudyViewController instance;
+    @PostConstruct
+    private void init() {
+        instance = applicationContext.getBean(StudyViewController.class);
+    }
 
     @Autowired
     private StudyViewFilterApplier studyViewFilterApplier;
@@ -164,7 +174,9 @@ public class StudyViewController {
         @ApiIgnore // prevent reference to this attribute in the swagger-ui interface
         @RequestAttribute(required = false, value = "involvedCancerStudies") Collection<String> involvedCancerStudies,
         @ApiIgnore // prevent reference to this attribute in the swagger-ui interface. this attribute is needed for the @PreAuthorize tag above.
-        @Valid @RequestAttribute(required = false, value = "interceptedClinicalDataBinCountFilter") ClinicalDataBinCountFilter interceptedClinicalDataBinCountFilter) {
+        @Valid @RequestAttribute(required = false, value = "interceptedClinicalDataBinCountFilter") ClinicalDataBinCountFilter interceptedClinicalDataBinCountFilter,
+        @RequestParam(defaultValue = "false") boolean alwaysCache
+    ) {
 
         List<ClinicalDataBinFilter> attributes = interceptedClinicalDataBinCountFilter.getAttributes();
         StudyViewFilter studyViewFilter = interceptedClinicalDataBinCountFilter.getStudyViewFilter();
@@ -173,11 +185,27 @@ public class StudyViewController {
             studyViewFilterUtil.removeSelfFromFilter(attributes.get(0).getAttributeId(), studyViewFilter);
         }
 
+        List<ClinicalDataBin> clinicalDataBins = 
+            instance.cachableFetchClinicalDataBinCounts(dataBinMethod, attributes, studyViewFilter, alwaysCache);
+
+        return new ResponseEntity<>(clinicalDataBins, HttpStatus.OK);
+    }
+
+    @Cacheable(
+        cacheResolver = "staticRepositoryCacheOneResolver",
+        condition = "@cacheEnabledConfig.getEnabled() && #alwaysCache"
+    )
+    public List<ClinicalDataBin> cachableFetchClinicalDataBinCounts(
+        DataBinMethod dataBinMethod,
+        List<ClinicalDataBinFilter> attributes,
+        StudyViewFilter studyViewFilter,
+        boolean alwaysCache
+    ) {
         List<String> attributeIds = attributes.stream().map(ClinicalDataBinFilter::getAttributeId).collect(Collectors.toList());
-        
+
         // filter only by study id and sample identifiers, ignore rest
         List<SampleIdentifier> unfilteredSampleIdentifiers = filterByStudyAndSample(studyViewFilter);
-        
+
         List<String> unfilteredStudyIds = new ArrayList<>();
         List<String> unfilteredSampleIds = new ArrayList<>();
         List<String> unfilteredPatientIds = new ArrayList<>();
@@ -188,7 +216,7 @@ public class StudyViewController {
         List<String> unfilteredPatientAttributeIds = new ArrayList<>();
         // patient attributes which are also sample attributes in other studies
         List<String> unfilteredConflictingPatientAttributeIds = new ArrayList<>();
-        
+
         populateIdLists(
             // input
             unfilteredSampleIdentifiers,
@@ -217,13 +245,13 @@ public class StudyViewController {
             unfilteredSampleIds,
             new ArrayList<>(unfilteredSampleAttributeIds)
         );
-        
+
         List<ClinicalData> unfilteredClinicalDataForPatients = fetchClinicalDataForPatients(
             studyIdsOfUnfilteredPatients,
             unfilteredPatientIds,
             new ArrayList<>(unfilteredPatientAttributeIds)
         );
-        
+
         List<ClinicalData> unfilteredClinicalDataForConflictingPatientAttributes = fetchClinicalDataForConflictingPatientAttributes(
             studyIdsOfUnfilteredPatients,
             unfilteredPatientIds,
@@ -235,7 +263,7 @@ public class StudyViewController {
                 unfilteredClinicalDataForPatients,
                 unfilteredClinicalDataForConflictingPatientAttributes
             ).flatMap(Collection::stream).collect(Collectors.toList());
-        
+
         // if filters are practically the same no need to re-apply them
         List<SampleIdentifier> filteredSampleIdentifiers = 
             studyViewFilterUtil.shouldSkipFilterForClinicalDataBins(studyViewFilter) ? 
@@ -244,7 +272,7 @@ public class StudyViewController {
         List<String> filteredUniqueSampleKeys;
         List<String> filteredUniquePatientKeys;
         List<ClinicalData> filteredClinicalData;
-        
+
         // if filtered and unfiltered samples are exactly the same, no need to fetch clinical data again
         if (filteredSampleIdentifiers.equals(unfilteredSampleIdentifiers)) {
             filteredUniqueSampleKeys = unfilteredUniqueSampleKeys;
@@ -293,15 +321,15 @@ public class StudyViewController {
                 filteredConflictingPatientAttributeIds
             );
         }
-        
+
         Map<String, List<ClinicalData>> unfilteredClinicalDataByAttributeId = 
             unfilteredClinicalData.stream().collect(Collectors.groupingBy(ClinicalData::getAttrId));
 
         Map<String, List<ClinicalData>> filteredClinicalDataByAttributeId =
             filteredClinicalData.stream().collect(Collectors.groupingBy(ClinicalData::getAttrId));
-        
+
         List<ClinicalDataBin> clinicalDataBins = Collections.emptyList();
-        
+
         if (dataBinMethod == DataBinMethod.STATIC) {
             if (!unfilteredSampleIdentifiers.isEmpty() && !unfilteredClinicalData.isEmpty()) {
                 clinicalDataBins = calculateStaticDataBins(
@@ -327,8 +355,7 @@ public class StudyViewController {
                 );
             }
         }
-
-        return new ResponseEntity<>(clinicalDataBins, HttpStatus.OK);
+        return clinicalDataBins;
     }
 
     @PreAuthorize("hasPermission(#involvedCancerStudies, 'Collection<CancerStudyId>', 'read')")
@@ -336,15 +363,26 @@ public class StudyViewController {
         consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
     @ApiOperation("Fetch mutated genes by study view filter")
     public ResponseEntity<List<AlterationCountByGene>> fetchMutatedGenes(
+        @RequestParam(defaultValue = "false")
+        boolean alwaysCache,
         @ApiParam(required = true, value = "Study view filter")
         @Valid @RequestBody(required = false) StudyViewFilter studyViewFilter,
         @ApiIgnore // prevent reference to this attribute in the swagger-ui interface
         @RequestAttribute(required = false, value = "involvedCancerStudies") Collection<String> involvedCancerStudies,
         @ApiIgnore // prevent reference to this attribute in the swagger-ui interface. this attribute is needed for the @PreAuthorize tag above.
-        @Valid @RequestAttribute(required = false, value = "interceptedStudyViewFilter") StudyViewFilter interceptedStudyViewFilter) throws StudyNotFoundException {
-
+        @Valid @RequestAttribute(required = false, value = "interceptedStudyViewFilter") StudyViewFilter interceptedStudyViewFilter
+    ) throws StudyNotFoundException {
         List<SampleIdentifier> filteredSampleIdentifiers = studyViewFilterApplier.apply(interceptedStudyViewFilter);
-        Pair<List<AlterationCountByGene>, Long> result = new Pair<>(new ArrayList<>(), 0L);
+        List<AlterationCountByGene> result = instance.fetchMutatedGenesInner(filteredSampleIdentifiers, alwaysCache);
+        return new ResponseEntity<>(result, HttpStatus.OK);
+    }
+
+    @Cacheable(
+        cacheResolver = "staticRepositoryCacheOneResolver",
+        condition = "@cacheEnabledConfig.getEnabled() && #alwaysCache"
+    )
+    public List<AlterationCountByGene> fetchMutatedGenesInner(List<SampleIdentifier> filteredSampleIdentifiers, boolean alwaysCache) throws StudyNotFoundException {
+        Pair<List<AlterationCountByGene>, Long> resultPair = new Pair<>(new ArrayList<>(), 0L);
         if (!filteredSampleIdentifiers.isEmpty()) {
             List<String> studyIds = new ArrayList<>();
             List<String> sampleIds = new ArrayList<>();
@@ -354,27 +392,26 @@ public class StudyViewController {
             for (int i = 0; i < profileIdPerSample.size(); i++) {
                 caseIdentifiers.add(new MolecularProfileCaseIdentifier(sampleIds.get(i), profileIdPerSample.get(i)));
             }
-            result = alterationCountService.getSampleMutationCounts(
+            resultPair = alterationCountService.getSampleMutationCounts(
                 caseIdentifiers,
                 Select.all(),
                 true, 
                 false,
                 Select.all());
-            result.getFirst().sort((a, b) -> b.getNumberOfAlteredCases() - a.getNumberOfAlteredCases());
+            resultPair.getFirst().sort((a, b) -> b.getNumberOfAlteredCases() - a.getNumberOfAlteredCases());
             List<String> distinctStudyIds = studyIds.stream().distinct().collect(Collectors.toList());
-            if (distinctStudyIds.size() == 1 && !result.getFirst().isEmpty()) {
+            if (distinctStudyIds.size() == 1 && !resultPair.getFirst().isEmpty()) {
                 Map<Integer, MutSig> mutSigMap = significantlyMutatedGeneService.getSignificantlyMutatedGenes(
                     distinctStudyIds.get(0), Projection.SUMMARY.name(), null, null, null, null).stream().collect(
                         Collectors.toMap(MutSig::getEntrezGeneId, Function.identity()));
-                result.getFirst().forEach(r -> {
+                resultPair.getFirst().forEach(r -> {
                     if (mutSigMap.containsKey(r.getEntrezGeneId())) {
                         r.setqValue(mutSigMap.get(r.getEntrezGeneId()).getqValue());
                     }
                 });
             }
         }
-
-        return new ResponseEntity<>(result.getFirst(), HttpStatus.OK);
+        return resultPair.getFirst();
     }
 
     @PreAuthorize("hasPermission(#involvedCancerStudies, 'Collection<CancerStudyId>', 'read')")

@@ -32,23 +32,38 @@
 
 package org.cbioportal.persistence.util;
 
-import java.io.*;
-import java.util.*;
-import javax.cache.CacheManager;
-import javax.cache.Cache;
-import javax.cache.Caching;
-import javax.cache.configuration.Configuration;
-import javax.cache.configuration.MutableConfiguration;
-import javax.cache.spi.CachingProvider;
 import org.redisson.Redisson;
-import org.redisson.api.RedissonClient;
+import org.redisson.api.*;
+import org.redisson.api.redisnode.BaseRedisNodes;
+import org.redisson.api.redisnode.RedisNodes;
+import org.redisson.client.codec.Codec;
 import org.redisson.config.Config;
-import org.redisson.jcache.configuration.RedissonConfiguration;
 import org.redisson.jcache.JCachingProvider;
+import org.redisson.jcache.configuration.RedissonConfiguration;
 import org.redisson.spring.cache.CacheConfig;
+import org.redisson.spring.cache.RedissonSpringCacheManager;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.cache.interceptor.CacheInterceptor;
+import org.springframework.cache.interceptor.NamedCacheResolver;
+import org.springframework.context.ApplicationContext;
+
+import org.springframework.cache.CacheManager;
+import org.springframework.context.annotation.Bean;
+
+import javax.cache.Caching;
+import javax.cache.configuration.Configuration;
+import javax.cache.configuration.Factory;
+import javax.cache.configuration.MutableConfiguration;
+import javax.cache.expiry.CreatedExpiryPolicy;
+import javax.cache.expiry.Duration;
+import javax.cache.expiry.ExpiryPolicy;
+import javax.cache.spi.CachingProvider;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.concurrent.TimeUnit;
 
 public class CustomRedisCachingProvider {
 
@@ -71,6 +86,9 @@ public class CustomRedisCachingProvider {
 
     @Value("${redis.password}")
     private String password;
+    
+    @Value("${redis.expiry:21600000}")
+    private Long expiryMs;
 
     public RedissonClient getRedissonClient() {
         Config config = new Config();
@@ -88,34 +106,11 @@ public class CustomRedisCachingProvider {
     }
 
     public CacheManager getCacheManager(RedissonClient redissonClient) {
-        LOG.debug("in getCacheManager");
-
-        MutableConfiguration<String, String> jcacheConfig = new MutableConfiguration<>();
-        Configuration<String, String> config = RedissonConfiguration.fromInstance(redissonClient, jcacheConfig);
-        CachingProvider redisCachingProvider = null;
-        LOG.debug("loop through caching providers");
-        for (CachingProvider cachingProvider : Caching.getCachingProviders()) {
-            LOG.debug("CachingProvider: " + cachingProvider);
-            if (cachingProvider instanceof JCachingProvider) {
-                redisCachingProvider = cachingProvider;
-                break;
-            }
-        }
-        if (redisCachingProvider == null) {
-            // this should never happen, no one should try to create this bean (calling this method)
-            // unless we have loaded the Redis libraries
-            LOG.error("Failed to find a Redis caching provider");
-            return null;
-        }
-        CacheManager manager = redisCachingProvider.getCacheManager();
-        manager.createCache(appName + "GeneralRepositoryCache", config);
-        manager.createCache(appName + "StaticRepositoryCacheOne", config);
-    
-        // Evict cache to ensure new data is pulled
-        // Specific to Redis Impl because Redis cache sits in external db and not in memory
-        manager.getCache(appName + "GeneralRepositoryCache").clear();
-        manager.getCache(appName + "StaticRepositoryCacheOne").clear();
-       
+        CustomRedisCacheManager manager = new CustomRedisCacheManager(redissonClient, 60);
+        
+        manager.getCache("StaticRepositoryCacheOne", false).clear();
+        manager.getCache("GeneralRepositoryCache", true).clear();
+        
         return manager;
     }
 }

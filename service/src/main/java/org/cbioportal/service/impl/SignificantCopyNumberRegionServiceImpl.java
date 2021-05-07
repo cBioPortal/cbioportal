@@ -31,7 +31,7 @@ public class SignificantCopyNumberRegionServiceImpl implements SignificantCopyNu
         List<Gistic> gisticList = significantCopyNumberRegionRepository.getSignificantCopyNumberRegions(studyId, 
             projection, pageSize, pageNumber, sortBy, direction);
         
-        if (!projection.equals("ID")) {
+        if (!projection.equals("ID") && !gisticList.isEmpty()) {
             
             List<GisticToGene> gisticToGeneList = significantCopyNumberRegionRepository.getGenesOfRegions(gisticList
                 .stream().map(Gistic::getGisticRoiId).collect(Collectors.toList()));

@@ -513,11 +513,13 @@ public class StudyViewControllerTest {
         MolecularProfile molecularProfile1 = new MolecularProfile();
         molecularProfile1.setCancerStudyIdentifier(TEST_STUDY_ID);
         molecularProfile1.setStableId(TEST_MOLEULAR_PROFILE_ID_1);
+        molecularProfile1.setMolecularAlterationType(MolecularProfile.MolecularAlterationType.MUTATION_EXTENDED);
         molecularProfile1.setName("Profile 1");
 
         MolecularProfile molecularProfile2 = new MolecularProfile();
         molecularProfile2.setCancerStudyIdentifier(TEST_STUDY_ID);
         molecularProfile2.setStableId(TEST_MOLEULAR_PROFILE_ID_2);
+        molecularProfile2.setMolecularAlterationType(MolecularProfile.MolecularAlterationType.MUTATION_EXTENDED);
         molecularProfile2.setName("Profile 2");
 
         Mockito.when(molecularProfileService.getMolecularProfilesInStudies(anyList(),

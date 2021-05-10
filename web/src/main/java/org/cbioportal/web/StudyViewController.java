@@ -149,8 +149,7 @@ public class StudyViewController {
         @ApiIgnore // prevent reference to this attribute in the swagger-ui interface
         @RequestAttribute(required = false, value = "involvedCancerStudies") Collection<String> involvedCancerStudies,
         @ApiIgnore // prevent reference to this attribute in the swagger-ui interface. this attribute is needed for the @PreAuthorize tag above.
-        @Valid @RequestAttribute(required = false, value = "interceptedClinicalDataBinCountFilter") ClinicalDataBinCountFilter interceptedClinicalDataBinCountFilter,
-        @RequestParam(defaultValue = "false") boolean alwaysCache
+        @Valid @RequestAttribute(required = false, value = "interceptedClinicalDataBinCountFilter") ClinicalDataBinCountFilter interceptedClinicalDataBinCountFilter
     ) {
 
         List<ClinicalDataBinFilter> attributes = interceptedClinicalDataBinCountFilter.getAttributes();
@@ -161,20 +160,19 @@ public class StudyViewController {
         }
 
         List<ClinicalDataBin> clinicalDataBins = 
-            instance.cachableFetchClinicalDataBinCounts(dataBinMethod, attributes, studyViewFilter, alwaysCache);
+            instance.cachableFetchClinicalDataBinCounts(dataBinMethod, attributes, studyViewFilter);
 
         return new ResponseEntity<>(clinicalDataBins, HttpStatus.OK);
     }
 
     @Cacheable(
         cacheResolver = "staticRepositoryCacheOneResolver",
-        condition = "@cacheEnabledConfig.getEnabled() && #alwaysCache"
+        condition = "@cacheEnabledConfig.getEnabled() && #studyViewFilter.isSingleStudyUnfiltered()"
     )
     public List<ClinicalDataBin> cachableFetchClinicalDataBinCounts(
         DataBinMethod dataBinMethod,
         List<ClinicalDataBinFilter> attributes,
-        StudyViewFilter studyViewFilter,
-        boolean alwaysCache
+        StudyViewFilter studyViewFilter
     ) {
         List<String> attributeIds = attributes.stream().map(ClinicalDataBinFilter::getAttributeId).collect(Collectors.toList());
 
@@ -338,8 +336,6 @@ public class StudyViewController {
         consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
     @ApiOperation("Fetch mutated genes by study view filter")
     public ResponseEntity<List<AlterationCountByGene>> fetchMutatedGenes(
-        @RequestParam(defaultValue = "false")
-        boolean alwaysCache,
         @ApiParam(required = true, value = "Study view filter")
         @Valid @RequestBody(required = false) StudyViewFilter studyViewFilter,
         @ApiIgnore // prevent reference to this attribute in the swagger-ui interface
@@ -347,16 +343,16 @@ public class StudyViewController {
         @ApiIgnore // prevent reference to this attribute in the swagger-ui interface. this attribute is needed for the @PreAuthorize tag above.
         @Valid @RequestAttribute(required = false, value = "interceptedStudyViewFilter") StudyViewFilter interceptedStudyViewFilter
     ) throws StudyNotFoundException {
-        List<SampleIdentifier> filteredSampleIdentifiers = studyViewFilterApplier.apply(interceptedStudyViewFilter);
-        List<AlterationCountByGene> result = instance.fetchMutatedGenesInner(filteredSampleIdentifiers, alwaysCache);
+        List<AlterationCountByGene> result = instance.fetchMutatedGenesInner(interceptedStudyViewFilter);
         return new ResponseEntity<>(result, HttpStatus.OK);
     }
 
     @Cacheable(
         cacheResolver = "staticRepositoryCacheOneResolver",
-        condition = "@cacheEnabledConfig.getEnabled() && #alwaysCache"
+        condition = "@cacheEnabledConfig.getEnabled() && #interceptedStudyViewFilter.isSingleStudyUnfiltered()"
     )
-    public List<AlterationCountByGene> fetchMutatedGenesInner(List<SampleIdentifier> filteredSampleIdentifiers, boolean alwaysCache) throws StudyNotFoundException {
+    public List<AlterationCountByGene> fetchMutatedGenesInner(StudyViewFilter interceptedStudyViewFilter) throws StudyNotFoundException {
+        List<SampleIdentifier> filteredSampleIdentifiers = studyViewFilterApplier.apply(interceptedStudyViewFilter);
         Pair<List<AlterationCountByGene>, Long> resultPair = new Pair<>(new ArrayList<>(), 0L);
         if (!filteredSampleIdentifiers.isEmpty()) {
             List<String> studyIds = new ArrayList<>();

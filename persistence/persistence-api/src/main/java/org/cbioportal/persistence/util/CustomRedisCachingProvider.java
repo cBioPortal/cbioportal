@@ -33,39 +33,13 @@
 package org.cbioportal.persistence.util;
 
 import org.redisson.Redisson;
-import org.redisson.api.*;
-import org.redisson.api.redisnode.BaseRedisNodes;
-import org.redisson.api.redisnode.RedisNodes;
-import org.redisson.client.codec.Codec;
+import org.redisson.api.RedissonClient;
 import org.redisson.config.Config;
-import org.redisson.jcache.JCachingProvider;
-import org.redisson.jcache.configuration.RedissonConfiguration;
-import org.redisson.spring.cache.CacheConfig;
-import org.redisson.spring.cache.RedissonSpringCacheManager;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.cache.interceptor.CacheInterceptor;
-import org.springframework.cache.interceptor.NamedCacheResolver;
-import org.springframework.context.ApplicationContext;
-
 import org.springframework.cache.CacheManager;
-import org.springframework.context.annotation.Bean;
-import org.springframework.context.annotation.Configuration;
 
-import javax.cache.Caching;
-import javax.cache.configuration.Factory;
-import javax.cache.configuration.MutableConfiguration;
-import javax.cache.expiry.CreatedExpiryPolicy;
-import javax.cache.expiry.Duration;
-import javax.cache.expiry.ExpiryPolicy;
-import javax.cache.spi.CachingProvider;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.concurrent.TimeUnit;
-
-@Configuration
 public class CustomRedisCachingProvider {
 
     private static final Logger LOG = LoggerFactory.getLogger(CustomRedisCachingProvider.class);
@@ -88,11 +62,14 @@ public class CustomRedisCachingProvider {
     @Value("${redis.password}")
     private String password;
     
-    @Value("${redis.expiry:21600000}")
-    private Long expiryMs;
-
-    @Bean("redissonClient")
+    @Value("${redis.ttl_mins:720}")
+    private Long expiryMins;
+    
     public RedissonClient getRedissonClient() {
+        if (leaderAddress == null || "".equals(leaderAddress)) {
+            return null;
+        }
+        
         Config config = new Config();
         LOG.debug("leaderAddress: " + leaderAddress);
         LOG.debug("followerAddress: " + followerAddress);
@@ -108,11 +85,6 @@ public class CustomRedisCachingProvider {
     }
 
     public CacheManager getCacheManager(RedissonClient redissonClient) {
-        CustomRedisCacheManager manager = new CustomRedisCacheManager(redissonClient, 60);
-        
-        manager.getCache("StaticRepositoryCacheOne", false).clear();
-        manager.getCache("GeneralRepositoryCache", true).clear();
-        
-        return manager;
+        return new CustomRedisCacheManager(redissonClient, expiryMins);
     }
 }

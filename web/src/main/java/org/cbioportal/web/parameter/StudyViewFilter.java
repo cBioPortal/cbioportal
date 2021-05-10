@@ -7,6 +7,7 @@ import java.util.Objects;
 import javax.validation.constraints.AssertTrue;
 import javax.validation.constraints.Size;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonInclude.Include;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
@@ -155,6 +156,23 @@ public class StudyViewFilter implements Serializable {
 
     public void setCustomDataFilters(List<ClinicalDataFilter> customDataFilters) {
         this.customDataFilters = customDataFilters;
+    }
+    
+    @JsonIgnore
+    public boolean isSingleStudyUnfiltered() {
+        return getStudyIds() != null &&
+            getStudyIds().size() == 1 &&
+            (
+                (getClinicalDataFilters() == null || getClinicalDataFilters().isEmpty()) &&
+                (getGeneFilters() == null || getGeneFilters().isEmpty()) &&
+                (getSampleTreatmentFilters() == null || getSampleTreatmentFilters().getFilters().isEmpty()) &&
+                (getPatientTreatmentFilters() == null || getPatientTreatmentFilters().getFilters().isEmpty()) &&
+                (getGenomicProfiles() == null || getGenomicProfiles().isEmpty()) &&
+                (getGenomicDataFilters() == null || getGenomicDataFilters().isEmpty()) &&
+                (getGenericAssayDataFilters() == null || getGenericAssayDataFilters().isEmpty()) &&
+                (getCaseLists() == null || getCaseLists().isEmpty()) &&
+                (getCustomDataFilters() == null || getCustomDataFilters().isEmpty())
+            );
     }
 
 }

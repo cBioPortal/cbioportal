@@ -11,7 +11,7 @@
 
     <beans profile="redis">
 
-        <cache:annotation-driven cache-manager="redisCacheManager" key-generator="customKeyGenerator"/>
+        <cache:annotation-driven cache-manager="cacheManager" key-generator="customKeyGenerator"/>
 
         <bean id="cacheEnabledConfig" class="org.cbioportal.persistence.CacheEnabledConfig">
             <constructor-arg value="${persistence.cache_type:no-cache}"/>
@@ -19,7 +19,12 @@
 
         <bean id="customRedisCacheProvider" class="org.cbioportal.persistence.util.CustomRedisCachingProvider"/>
 
-        <bean id="redisCacheManager" class="org.springframework.beans.factory.config.MethodInvokingFactoryBean">
+        <bean id="redissonClient" class="org.springframework.beans.factory.config.MethodInvokingFactoryBean">
+            <property name="targetObject" ref="customRedisCacheProvider" />
+            <property name="targetMethod" value="getRedissonClient" />
+        </bean>
+
+        <bean id="cacheManager" class="org.springframework.beans.factory.config.MethodInvokingFactoryBean">
             <property name="targetObject" ref="customRedisCacheProvider" />
             <property name="targetMethod" value="getCacheManager" />
             <property name="arguments">
@@ -28,12 +33,12 @@
         </bean>
 
         <bean id="generalRepositoryCacheResolver" class="org.springframework.cache.interceptor.NamedCacheResolver">
-            <constructor-arg index="0" ref="redisCacheManager"/>
+            <constructor-arg index="0" ref="cacheManager"/>
             <constructor-arg index="1" value="${app.name:cbioportal}GeneralRepositoryCache"/>
         </bean>
 
         <bean id="staticRepositoryCacheOneResolver" class="org.springframework.cache.interceptor.NamedCacheResolver">
-            <constructor-arg index="0" ref="redisCacheManager"/>
+            <constructor-arg index="0" ref="cacheManager"/>
             <constructor-arg index="1" value="${app.name:cbioportal}StaticRepositoryCacheOne"/>
         </bean>
 

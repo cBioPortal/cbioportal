@@ -4,7 +4,6 @@ import org.redisson.api.RedissonClient;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.cache.support.AbstractValueAdaptingCache;
-import org.springframework.core.serializer.support.SerializationDelegate;
 import org.springframework.lang.Nullable;
 
 import java.io.*;
@@ -15,7 +14,8 @@ import java.util.zip.GZIPOutputStream;
 
 public class CustomRedisCache extends AbstractValueAdaptingCache {
     private static final Logger LOG = LoggerFactory.getLogger(CustomRedisCache.class);
-    
+    public static final String DELIMITER = ":";
+
     private final String name;
     private long ttlMinutes;
     private final RedissonClient store;
@@ -44,13 +44,13 @@ public class CustomRedisCache extends AbstractValueAdaptingCache {
     @Override
     @Nullable
     protected Object lookup(Object key) {
-        return this.store.getBucket(name + "::" + key).get();
+        return this.store.getBucket(name + DELIMITER + key).get();
     }
 
     @Override
     @Nullable
     public <T> T get(Object key, Callable<T> valueLoader) {
-        T value = (T) this.store.getBucket(name + "::" + key).get();
+        T value = (T) this.store.getBucket(name + DELIMITER + key).get();
         try {
             return value == null ? valueLoader.call() : value;
         } catch (Exception ex) {
@@ -61,16 +61,16 @@ public class CustomRedisCache extends AbstractValueAdaptingCache {
     @Override
     public void put(Object key, @Nullable Object value) {
         if (ttlMinutes == -1) {
-            this.store.getBucket(name + "::" + key).setAsync(toStoreValue(value));
+            this.store.getBucket(name + DELIMITER + key).setAsync(toStoreValue(value));
         } else {
-            this.store.getBucket(name + "::" + key).setAsync(toStoreValue(value), ttlMinutes, TimeUnit.MINUTES);
+            this.store.getBucket(name + DELIMITER + key).setAsync(toStoreValue(value), ttlMinutes, TimeUnit.MINUTES);
         }
     }
 
     @Override
     @Nullable
     public ValueWrapper putIfAbsent(Object key, @Nullable Object value) {
-        Object cached = this.store.getBucket(name + "::" + key).get();
+        Object cached = this.store.getBucket(name + DELIMITER + key).get();
         if (cached != null) {
             return toValueWrapper(cached);
         }
@@ -80,17 +80,17 @@ public class CustomRedisCache extends AbstractValueAdaptingCache {
 
     @Override
     public void evict(Object key) {
-        this.store.getBucket(name + "::" + key).deleteAsync();
+        this.store.getBucket(name + DELIMITER + key).deleteAsync();
     }
 
     @Override
     public boolean evictIfPresent(Object key) {
-        return this.store.getBucket(name + "::" + key).delete();
+        return this.store.getBucket(name + DELIMITER + key).delete();
     }
 
     @Override
     public void clear() {
-        this.store.getKeys().deleteByPattern(name + "::" + "*");
+        this.store.getKeys().deleteByPattern(name + DELIMITER + "*");
     }
 
     @Override

@@ -43,7 +43,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cache.interceptor.KeyGenerator;
-import org.springframework.util.StringUtils;
+import org.springframework.util.DigestUtils;
+
 
 public class CustomKeyGenerator implements KeyGenerator {
 
@@ -62,15 +63,21 @@ public class CustomKeyGenerator implements KeyGenerator {
             + method.getName() + "_"
             + Arrays.stream(params)
                 .map(this::exceptionlessWrite)
-                .collect(Collectors.joining("_"))
-                .hashCode();
+                .collect(Collectors.joining("_"));
         LOG.debug("Created key: " + key);
         return key;
     }
     
     private String exceptionlessWrite(Object toSerialize) {
         try {
-            return mapper.writeValueAsString(toSerialize);
+            String json = mapper.writeValueAsString(toSerialize);
+            if (json.length() > 1024) {
+                // hash long keys
+                return DigestUtils.md5DigestAsHex(json.getBytes());
+            } else {
+                // leave short keys intact, but remove semicolons to make things look cleaner in redis
+                return json.replaceAll(":", "_");
+            }
         } catch (JsonProcessingException e) {
             LOG.error("Could not serialize param to string: ", e);
             return "";

@@ -2,27 +2,10 @@ package org.cbioportal.web;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.apache.commons.math3.util.Pair;
-import org.cbioportal.model.AlterationCountByGene;
-import org.cbioportal.model.ClinicalAttribute;
-import org.cbioportal.model.ClinicalData;
-import org.cbioportal.model.ClinicalDataCount;
-import org.cbioportal.model.ClinicalDataCountItem;
-import org.cbioportal.model.CopyNumberCountByGene;
-import org.cbioportal.model.GenePanelData;
-import org.cbioportal.model.MolecularProfile;
-import org.cbioportal.model.Sample;
+import org.cbioportal.model.*;
 import org.cbioportal.model.util.Select;
 import org.cbioportal.persistence.AlterationRepository;
-import org.cbioportal.service.AlterationCountService;
-import org.cbioportal.service.ClinicalAttributeService;
-import org.cbioportal.service.ClinicalDataService;
-import org.cbioportal.service.DiscreteCopyNumberService;
-import org.cbioportal.service.GenePanelService;
-import org.cbioportal.service.MolecularProfileService;
-import org.cbioportal.service.MutationService;
-import org.cbioportal.service.PatientService;
-import org.cbioportal.service.SampleService;
-import org.cbioportal.service.TreatmentService;
+import org.cbioportal.service.*;
 import org.cbioportal.web.parameter.ClinicalDataBinCountFilter;
 import org.cbioportal.web.parameter.ClinicalDataBinFilter;
 import org.cbioportal.web.parameter.ClinicalDataCountFilter;
@@ -68,8 +51,6 @@ public class StudyViewControllerTest {
     private static final String TEST_PATIENT_ID_1 = "test_patient_id_1";
     private static final String TEST_PATIENT_ID_2 = "test_patient_id_2";
     private static final String TEST_ATTRIBUTE_ID = "test_attribute_id";
-    private static final String TEST_MOLEULAR_PROFILE_ID_1 = "test_study_id_profile_type_1";
-    private static final String TEST_MOLEULAR_PROFILE_ID_2 = "test_study_id_profile_type_2";
     private static final String TEST_CLINICAL_DATA_VALUE_1 = "value1";
     private static final String TEST_CLINICAL_DATA_VALUE_2 = "value2";
     private static final String TEST_CLINICAL_DATA_VALUE_3 = "3";
@@ -98,6 +79,8 @@ public class StudyViewControllerTest {
     @Autowired
     private SampleService sampleService;
     @Autowired
+    private StudyViewService studyViewService;
+    @Autowired
     private GenePanelService genePanelService;
     @Autowired
     private ClinicalAttributeService clinicalAttributeService;
@@ -122,6 +105,11 @@ public class StudyViewControllerTest {
     public AlterationCountService alterationCountService() {
         return Mockito.mock(AlterationCountService.class);
     }
+
+    @Bean
+    public StudyViewService studyViewService() {
+        return Mockito.mock(StudyViewService.class);
+    }
     
     @Bean
     public AlterationRepository alterationRepository() {
@@ -139,6 +127,7 @@ public class StudyViewControllerTest {
         Mockito.reset(discreteCopyNumberService);
         Mockito.reset(sampleService);
         Mockito.reset(genePanelService);
+        Mockito.reset(sampleService);
         Mockito.reset(clinicalAttributeService);
         Mockito.reset(patientService);
         mockMvc = MockMvcBuilders.webAppContextSetup(wac).build();
@@ -510,40 +499,24 @@ public class StudyViewControllerTest {
         filteredSampleIdentifiers.add(sampleIdentifier3);
         Mockito.when(studyViewFilterApplier.apply(any())).thenReturn(filteredSampleIdentifiers);
 
-        MolecularProfile molecularProfile1 = new MolecularProfile();
-        molecularProfile1.setCancerStudyIdentifier(TEST_STUDY_ID);
-        molecularProfile1.setStableId(TEST_MOLEULAR_PROFILE_ID_1);
-        molecularProfile1.setMolecularAlterationType(MolecularProfile.MolecularAlterationType.MUTATION_EXTENDED);
-        molecularProfile1.setName("Profile 1");
-
-        MolecularProfile molecularProfile2 = new MolecularProfile();
-        molecularProfile2.setCancerStudyIdentifier(TEST_STUDY_ID);
-        molecularProfile2.setStableId(TEST_MOLEULAR_PROFILE_ID_2);
-        molecularProfile2.setMolecularAlterationType(MolecularProfile.MolecularAlterationType.MUTATION_EXTENDED);
-        molecularProfile2.setName("Profile 2");
-
-        Mockito.when(molecularProfileService.getMolecularProfilesInStudies(anyList(),
-                Mockito.anyString())).thenReturn(Arrays.asList(molecularProfile1, molecularProfile2));
-
-        List<GenePanelData> genePanelDataList = new ArrayList<>();
-        GenePanelData genePanelData1 = new GenePanelData();
-        genePanelData1.setMolecularProfileId(TEST_MOLEULAR_PROFILE_ID_1);
-        genePanelData1.setProfiled(true);
-        genePanelDataList.add(genePanelData1);
-        GenePanelData genePanelData2 = new GenePanelData();
-        genePanelData2.setMolecularProfileId(TEST_MOLEULAR_PROFILE_ID_1);
-        genePanelData2.setProfiled(true);
-        genePanelDataList.add(genePanelData2);
-        GenePanelData genePanelData3 = new GenePanelData();
-        genePanelData3.setMolecularProfileId(TEST_MOLEULAR_PROFILE_ID_2);
-        genePanelData3.setProfiled(true);
-        genePanelDataList.add(genePanelData3);
-
-        Mockito.when(genePanelService.fetchGenePanelDataInMultipleMolecularProfiles(anyList()
-        )).thenReturn(genePanelDataList);
-
         StudyViewFilter studyViewFilter = new StudyViewFilter();
         studyViewFilter.setStudyIds(Arrays.asList(TEST_STUDY_ID));
+
+        List<GenomicDataCount> genomicDataCounts = new ArrayList<>();
+        GenomicDataCount genomicDataCount1 = new GenomicDataCount();
+        genomicDataCount1.setLabel("Profile 2");
+        genomicDataCount1.setValue("profile_type_2");
+        genomicDataCount1.setCount(1);
+        genomicDataCounts.add(genomicDataCount1);
+        GenomicDataCount genomicDataCount2 = new GenomicDataCount();
+        genomicDataCount2.setLabel("Profile 1");
+        genomicDataCount2.setValue("profile_type_1");
+        genomicDataCount2.setCount(2);
+        genomicDataCounts.add(genomicDataCount2);
+        Mockito.when(studyViewService.getGenomicDataCounts(
+            Arrays.asList(TEST_STUDY_ID, TEST_STUDY_ID, TEST_STUDY_ID),
+            Arrays.asList(TEST_SAMPLE_ID_1, TEST_SAMPLE_ID_2, TEST_SAMPLE_ID_3)))
+            .thenReturn(genomicDataCounts);
 
         mockMvc.perform(MockMvcRequestBuilders.post("/molecular-profile-sample-counts/fetch")
             .accept(MediaType.APPLICATION_JSON)

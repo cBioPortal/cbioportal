@@ -7,6 +7,7 @@ import org.cbioportal.model.MolecularProfileCaseIdentifier;
 import org.cbioportal.model.meta.BaseMeta;
 
 import java.util.List;
+import java.util.Set;
 
 public interface GenePanelMapper {
 
@@ -23,7 +24,7 @@ public interface GenePanelMapper {
 
     List<GenePanelData> getGenePanelDataBySampleIds(String molecularProfileId, List<String> sampleIds);
     
-    List<GenePanelData> fetchGenePanelDataByMolecularProfileIds(List<String> molecularProfileIds);
+    List<GenePanelData> fetchGenePanelDataByMolecularProfileIds(Set<String> molecularProfileIds);
 
     List<GenePanelData> fetchGenePanelDataInMultipleMolecularProfiles(List<MolecularProfileCaseIdentifier> molecularProfileSampleIdentifiers);
 

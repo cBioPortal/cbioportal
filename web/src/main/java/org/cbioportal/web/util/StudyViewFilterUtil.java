@@ -68,12 +68,6 @@ public class StudyViewFilterUtil {
         return clinicalDataBin;
     }
 
-    public Map<String, List<MolecularProfile>> categorizeMolecularPorfiles(List<MolecularProfile> molecularProfiles) {
-        return molecularProfiles.stream().collect(Collectors.groupingBy(molecularProfile -> {
-            return molecularProfile.getStableId().replace(molecularProfile.getCancerStudyIdentifier() + "_", "");
-        }));
-    }
-
     public Map<String, List<SampleList>> categorizeSampleLists(List<SampleList> sampleLists) {
         return sampleLists.stream().collect(Collectors.groupingBy(sampleList -> {
             return sampleList.getStableId().replace(sampleList.getCancerStudyIdentifier() + "_", "");

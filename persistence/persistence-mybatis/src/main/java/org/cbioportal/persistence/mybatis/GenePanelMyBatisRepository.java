@@ -11,7 +11,9 @@ import org.cbioportal.persistence.mybatis.util.OffsetCalculator;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
 
+import java.util.Collections;
 import java.util.List;
+import java.util.Set;
 
 @Repository
 public class GenePanelMyBatisRepository implements GenePanelRepository {
@@ -24,45 +26,43 @@ public class GenePanelMyBatisRepository implements GenePanelRepository {
     @Override
     public List<GenePanel> getAllGenePanels(String projection, Integer pageSize, Integer pageNumber, String sortBy, 
                                             String direction) {
-        
         return genePanelMapper.getAllGenePanels(projection, pageSize, offsetCalculator.calculate(pageSize, pageNumber),
             sortBy, direction);
     }
 
     @Override
     public BaseMeta getMetaGenePanels() {
-        
         return genePanelMapper.getMetaGenePanels();
     }
 
     @Override
     public GenePanel getGenePanel(String genePanelId) {
-        
         return genePanelMapper.getGenePanel(genePanelId, PersistenceConstants.DETAILED_PROJECTION);
     }
 
     @Override
 	public List<GenePanel> fetchGenePanels(List<String> genePanelIds, String projection) {
-        
         return genePanelMapper.fetchGenePanels(genePanelIds, projection);
 	}
 
     @Override
     public List<GenePanelData> getGenePanelDataBySampleListId(String molecularProfileId, String sampleListId) {
-        
         return genePanelMapper.getGenePanelDataBySampleListId(molecularProfileId, sampleListId);
     }
 
     @Override
     public List<GenePanelData> fetchGenePanelData(String molecularProfileId, List<String> sampleIds) {
-        
         return genePanelMapper.getGenePanelDataBySampleIds(molecularProfileId, sampleIds);
     }
 
     @Override
-    public List<GenePanelData> fetchGenePanelDataByMolecularProfileIds(List<String> molecularProfileIds) {
-
+    public List<GenePanelData> fetchGenePanelDataByMolecularProfileIds(Set<String> molecularProfileIds) {
         return genePanelMapper.fetchGenePanelDataByMolecularProfileIds(molecularProfileIds);
+    }
+
+    @Override
+    public List<GenePanelData> fetchGenePanelDataByMolecularProfileId(String molecularProfileId) {
+        return genePanelMapper.fetchGenePanelDataByMolecularProfileIds(Collections.singleton(molecularProfileId));
     }
 
     @Override
@@ -77,7 +77,6 @@ public class GenePanelMyBatisRepository implements GenePanelRepository {
 
     @Override
     public List<GenePanelToGene> getGenesOfPanels(List<String> genePanelIds) {
-        
         return genePanelMapper.getGenesOfPanels(genePanelIds);
     }
 }

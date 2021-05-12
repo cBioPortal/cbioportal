@@ -10,16 +10,7 @@ import org.apache.commons.lang3.math.NumberUtils;
 import org.apache.commons.math3.util.Pair;
 import org.cbioportal.model.*;
 import org.cbioportal.model.util.Select;
-import org.cbioportal.service.AlterationCountService;
-import org.cbioportal.service.ClinicalAttributeService;
-import org.cbioportal.service.ClinicalDataService;
-import org.cbioportal.service.GenePanelService;
-import org.cbioportal.service.MolecularProfileService;
-import org.cbioportal.service.PatientService;
-import org.cbioportal.service.SampleListService;
-import org.cbioportal.service.SampleService;
-import org.cbioportal.service.SignificantCopyNumberRegionService;
-import org.cbioportal.service.SignificantlyMutatedGeneService;
+import org.cbioportal.service.*;
 import org.cbioportal.service.exception.StudyNotFoundException;
 import org.cbioportal.service.util.ClinicalAttributeUtil;
 import org.cbioportal.web.config.annotation.InternalApi;
@@ -86,8 +77,6 @@ public class StudyViewController {
     @Autowired
     private PatientService patientService;
     @Autowired
-    private GenePanelService genePanelService;
-    @Autowired
     private SignificantlyMutatedGeneService significantlyMutatedGeneService;
     @Autowired
     private SignificantCopyNumberRegionService significantCopyNumberRegionService;
@@ -101,6 +90,8 @@ public class StudyViewController {
     private ClinicalAttributeUtil clinicalAttributeUtil;
     @Autowired
     private SampleListService sampleListService;
+    @Autowired
+    private StudyViewService studyViewService;
 
     private static final List<CNA> CNA_TYPES_AMP_AND_HOMDEL = Collections.unmodifiableList(Arrays.asList(CNA.AMP, CNA.HOMDEL));
 
@@ -345,11 +336,8 @@ public class StudyViewController {
             List<String> studyIds = new ArrayList<>();
             List<String> sampleIds = new ArrayList<>();
             studyViewFilterUtil.extractStudyAndSampleIds(filteredSampleIdentifiers, studyIds, sampleIds);
-            List<String> profileIdPerSample = molecularProfileService.getFirstMutationProfileIds(studyIds, sampleIds);
-            List<MolecularProfileCaseIdentifier> caseIdentifiers = new ArrayList<>();
-            for (int i = 0; i < profileIdPerSample.size(); i++) {
-                caseIdentifiers.add(new MolecularProfileCaseIdentifier(sampleIds.get(i), profileIdPerSample.get(i)));
-            }
+
+            List<MolecularProfileCaseIdentifier> caseIdentifiers = molecularProfileService.getFirstMutationProfileCaseIdentifiers(studyIds, sampleIds);
             resultPair = alterationCountService.getSampleMutationCounts(
                 caseIdentifiers,
                 Select.all(),
@@ -390,11 +378,7 @@ public class StudyViewController {
             List<String> sampleIds = new ArrayList<>();
             studyViewFilterUtil.extractStudyAndSampleIds(filteredSampleIdentifiers, studyIds, sampleIds);
 
-            List<String> profileIdPerSample = molecularProfileService.getFirstStructuralVariantProfileIds(studyIds, sampleIds);
-            List<MolecularProfileCaseIdentifier> caseIdentifiers = new ArrayList<>();
-            for (int i = 0; i < profileIdPerSample.size(); i++) {
-                caseIdentifiers.add(new MolecularProfileCaseIdentifier(sampleIds.get(i), profileIdPerSample.get(i)));
-            }
+            List<MolecularProfileCaseIdentifier> caseIdentifiers = molecularProfileService.getFirstStructuralVariantProfileCaseIdentifiers(studyIds, sampleIds);
             result = alterationCountService.getSampleStructuralVariantCounts(
                 caseIdentifiers,
                 Select.all(),
@@ -437,11 +421,7 @@ public class StudyViewController {
             List<String> studyIds = new ArrayList<>();
             List<String> sampleIds = new ArrayList<>();
             studyViewFilterUtil.extractStudyAndSampleIds(filteredSampleIdentifiers, studyIds, sampleIds);
-            List<String> profileIdPerSample = molecularProfileService.getFirstDiscreteCNAProfileIds(studyIds, sampleIds);
-            List<MolecularProfileCaseIdentifier> caseIdentifiers = new ArrayList<>();
-            for (int i = 0; i < profileIdPerSample.size(); i++) {
-                caseIdentifiers.add(new MolecularProfileCaseIdentifier(sampleIds.get(i), profileIdPerSample.get(i)));
-            }
+            List<MolecularProfileCaseIdentifier> caseIdentifiers = molecularProfileService.getFirstDiscreteCNAProfileCaseIdentifiers(studyIds, sampleIds);
             Select<CNA> cnaTypes = Select.byValues(CNA_TYPES_AMP_AND_HOMDEL);
             result = alterationCountService.getSampleCnaCounts(
                 caseIdentifiers, 
@@ -515,91 +495,7 @@ public class StudyViewController {
         List<String> sampleIds = new ArrayList<>();
         studyViewFilterUtil.extractStudyAndSampleIds(studyViewFilterApplier.apply(interceptedStudyViewFilter), studyIds,
                 sampleIds);
-        List<MolecularProfile> molecularProfiles = molecularProfileService.getMolecularProfilesInStudies(new ArrayList<>(new HashSet<>(studyIds)),
-                "SUMMARY");
-
-        Map<String, List<MolecularProfile>> studyMolecularProfilesSet = molecularProfiles
-            .stream()
-            .collect(Collectors.groupingBy(MolecularProfile::getCancerStudyIdentifier))
-            .entrySet().stream().collect(Collectors.toMap(
-                entry -> entry.getKey(),
-                entry -> {
-                    List<MolecularProfile> profilesToReturn = new ArrayList<>();
-                    MolecularProfile structuralVariantProfile = null;
-                    for (MolecularProfile molecularProfile : entry.getValue()) {
-                        if (molecularProfile.getMolecularAlterationType().equals(MolecularProfile.MolecularAlterationType.FUSION)
-                            || molecularProfile.getMolecularAlterationType()
-                            .equals(MolecularProfile.MolecularAlterationType.STRUCTURAL_VARIANT)) {
-                            if (structuralVariantProfile == null) {
-                                structuralVariantProfile = molecularProfile;
-                            } else if (!(molecularProfile.getMolecularAlterationType()
-                                .equals(MolecularProfile.MolecularAlterationType.STRUCTURAL_VARIANT)
-                                && molecularProfile.getDatatype().equals("SV"))) {
-                                // replace structural variant profile with
-                                // mutation profile having fusion data
-                                structuralVariantProfile= molecularProfile;
-                            }
-                        } else {
-                            profilesToReturn.add(molecularProfile);
-                        }
-                    }
-
-                    if (structuralVariantProfile != null) {
-                        profilesToReturn.add(structuralVariantProfile);
-                    }
-
-                    return profilesToReturn;
-            }));
-
-        List<MolecularProfileCaseIdentifier> molecularProfileSampleIdentifiers = new ArrayList<>();
-
-        for (int i = 0; i < studyIds.size(); i++) {
-            String studyId = studyIds.get(i);
-            String sampleId = sampleIds.get(i);
-            if (studyMolecularProfilesSet.containsKey(studyId)) {
-                studyMolecularProfilesSet.get(studyId).stream().forEach(molecularProfile -> {
-                    MolecularProfileCaseIdentifier profileCaseIdentifier = new MolecularProfileCaseIdentifier();
-                    profileCaseIdentifier.setMolecularProfileId(molecularProfile.getStableId());
-                    profileCaseIdentifier.setCaseId(sampleId);
-                    molecularProfileSampleIdentifiers.add(profileCaseIdentifier);
-                });
-            }
-        }
-
-        List<GenePanelData> genePanelData = genePanelService
-                .fetchGenePanelDataInMultipleMolecularProfiles(molecularProfileSampleIdentifiers);
-        HashMap<String, Integer> molecularProfileSampleCountSet = new HashMap<>();
-
-        for (GenePanelData datum : genePanelData) {
-            if (datum.getProfiled()) {
-                Integer count = molecularProfileSampleCountSet.getOrDefault(datum.getMolecularProfileId(), 0);
-                molecularProfileSampleCountSet.put(datum.getMolecularProfileId(), count + 1);
-            }
-        }
-
-        Map<String, List<MolecularProfile>> molecularProfileSet = studyViewFilterUtil
-                .categorizeMolecularPorfiles(molecularProfiles);
-
-        return molecularProfileSet
-                .entrySet()
-                .stream()
-                .map(entry -> {
-                    GenomicDataCount dataCount = new GenomicDataCount();
-                    dataCount.setValue(entry.getKey());
-
-                    Integer count = entry
-                        .getValue()
-                        .stream()
-                        .mapToInt(molecularProfile -> molecularProfileSampleCountSet.getOrDefault(molecularProfile.getStableId(), 0))
-                        .sum();
-        
-                    dataCount.setCount(count);
-                    dataCount.setLabel(entry.getValue().get(0).getName());
-        
-                    return dataCount;
-                })
-                .filter(dataCount -> dataCount.getCount() > 0)
-                .collect(Collectors.toList());
+        return studyViewService.getGenomicDataCounts(studyIds, sampleIds);
 
     }
 

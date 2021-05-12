@@ -14,9 +14,7 @@ import org.cbioportal.persistence.MolecularProfileRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
 
-import java.util.Collections;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @Repository
@@ -122,7 +120,8 @@ public class AlterationMyBatisRepository implements AlterationRepository {
             || cnaEventTypes == null || cnaEventTypes.hasNone()) {
             return Collections.emptyList();
         }
-        List<MolecularProfileCaseIdentifier> molecularProfileCaseInternalIdentifiers = alterationCountsMapper.getMolecularProfileCaseInternalIdentifier(molecularProfileCaseIdentifiers, "SAMPLE_ID");
+        List<MolecularProfileCaseIdentifier> molecularProfileCaseInternalIdentifiers =
+            alterationCountsMapper.getMolecularProfileCaseInternalIdentifier(molecularProfileCaseIdentifiers, "SAMPLE_ID");
 
         return alterationCountsMapper.getSampleCnaCounts(
             molecularProfileCaseInternalIdentifiers,
@@ -139,7 +138,8 @@ public class AlterationMyBatisRepository implements AlterationRepository {
             || cnaEventTypes == null || cnaEventTypes.hasNone()) {
             return Collections.emptyList();
         }
-        List<MolecularProfileCaseIdentifier> molecularProfileCaseInternalIdentifiers = alterationCountsMapper.getMolecularProfileCaseInternalIdentifier(molecularProfileCaseIdentifiers, "PATIENT_ID");
+        List<MolecularProfileCaseIdentifier> molecularProfileCaseInternalIdentifiers =
+            alterationCountsMapper.getMolecularProfileCaseInternalIdentifier(molecularProfileCaseIdentifiers, "PATIENT_ID");
 
         return alterationCountsMapper.getPatientCnaCounts(
             molecularProfileCaseInternalIdentifiers,

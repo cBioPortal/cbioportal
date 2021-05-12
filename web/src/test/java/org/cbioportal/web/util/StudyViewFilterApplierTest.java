@@ -1,14 +1,7 @@
 package org.cbioportal.web.util;
 
-import org.cbioportal.model.ClinicalAttribute;
-import org.cbioportal.model.ClinicalData;
-import org.cbioportal.model.DiscreteCopyNumberData;
-import org.cbioportal.model.Gene;
-import org.cbioportal.model.MolecularProfile;
+import org.cbioportal.model.*;
 import org.cbioportal.model.MolecularProfile.MolecularAlterationType;
-import org.cbioportal.model.Mutation;
-import org.cbioportal.model.Patient;
-import org.cbioportal.model.Sample;
 import org.cbioportal.service.ClinicalAttributeService;
 import org.cbioportal.service.ClinicalDataService;
 import org.cbioportal.service.DiscreteCopyNumberService;
@@ -390,9 +383,23 @@ public class StudyViewFilterApplierTest {
         updatedSampleIds.add(SAMPLE_ID2);
         updatedSampleIds.add(SAMPLE_ID4);
 
-        Mockito.when(molecularProfileService.getFirstDiscreteCNAProfileIds(Arrays.asList(STUDY_ID, STUDY_ID, STUDY_ID),
+        List<MolecularProfileCaseIdentifier> molecularProfileCaseIdentifiers = new ArrayList<>();
+        MolecularProfileCaseIdentifier profileCaseIdentifier1 = new MolecularProfileCaseIdentifier();
+        profileCaseIdentifier1.setCaseId(SAMPLE_ID1);
+        profileCaseIdentifier1.setMolecularProfileId(MOLECULAR_PROFILE_ID_2);
+        molecularProfileCaseIdentifiers.add(profileCaseIdentifier1);
+        MolecularProfileCaseIdentifier profileCaseIdentifier2 = new MolecularProfileCaseIdentifier();
+        profileCaseIdentifier2.setCaseId(SAMPLE_ID2);
+        profileCaseIdentifier2.setMolecularProfileId(MOLECULAR_PROFILE_ID_2);
+        molecularProfileCaseIdentifiers.add(profileCaseIdentifier2);
+        MolecularProfileCaseIdentifier profileCaseIdentifier3 = new MolecularProfileCaseIdentifier();
+        profileCaseIdentifier3.setCaseId(SAMPLE_ID4);
+        profileCaseIdentifier3.setMolecularProfileId(MOLECULAR_PROFILE_ID_2);
+        molecularProfileCaseIdentifiers.add(profileCaseIdentifier3);
+
+        Mockito.when(molecularProfileService.getFirstDiscreteCNAProfileCaseIdentifiers(Arrays.asList(STUDY_ID, STUDY_ID, STUDY_ID),
                 updatedSampleIds))
-                .thenReturn(Arrays.asList(MOLECULAR_PROFILE_ID_2, MOLECULAR_PROFILE_ID_2, MOLECULAR_PROFILE_ID_2));
+                .thenReturn(molecularProfileCaseIdentifiers);
 
         List<DiscreteCopyNumberData> discreteCopyNumberDataList = new ArrayList<>();
         DiscreteCopyNumberData discreteCopyNumberData1 = new DiscreteCopyNumberData();

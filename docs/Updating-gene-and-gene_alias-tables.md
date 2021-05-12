@@ -5,12 +5,14 @@ When loading studies into cBioPortal it is possible for warnings to occur that a
 
 The cBioPortal scripts package provides a method to update the `gene` and `gene_alias` tables.
 
+## Prepare
+
 ### Human genes
-[gene_info.txt](https://github.com/cBioPortal/datahub-study-curation-tools/blob/master/gene-table-update/build-input-for-importer/gene_info.txt)
+Download [gene_info.txt](https://github.com/cBioPortal/datahub-study-curation-tools/blob/master/gene-table-update/build-input-for-importer/gene_info.txt)  
 Generated based on latest HGNC release using script [HERE](https://github.com/cBioPortal/datahub-study-curation-tools/tree/master/gene-table-update/build-input-for-importer) 
 
 ### Mouse genes
-Mus_musculus.gene_info.gz\
+Download `Mus_musculus.gene_info.gz` from   
 ftp://ftp.ncbi.nih.gov/gene/DATA/GENE_INFO/Mammalia/Mus_musculus.gene_info.gz
 
 ## MySQL steps
@@ -44,13 +46,13 @@ ALTER TABLE `geneset` AUTO_INCREMENT = 1;
 ```
 export PORTAL_HOME=<cbioportal_configuration_folder>
 export JAVA_HOME=<jre_installation_folder>
-./importGenes.pl --hgnc HGNC_FILENAME --genome-build <GRCh37>
+./importGenes.pl --hgnc <gene_info.txt> --genome-build <GRCh37>
 ```
 ### Mouse genes
 ```
 export PORTAL_HOME=<cbioportal_configuration_folder>
 export JAVA_HOME=<jre_installation_folder>
-./importGenes.pl --genes <ncbi_species.gene_info> --gtf <gencode.v25.annotation.gtf> --genome-build <GRCh37>
+./importGenes.pl --genes <Mus_musculus.gene_info.gz> --gtf <gencode.v25.annotation.gtf> --genome-build <GRCh37>
 ```
 **IMPORTANT NOTE**: 
 1. The **reference_genome** table needs to be populated before updating the **gene** table. Further details can be found in [this document](import-reference-genome.md). 

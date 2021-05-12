@@ -31,8 +31,11 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.cache.annotation.Cacheable;
+import org.springframework.context.ApplicationContext;
 import springfox.documentation.annotations.ApiIgnore;
 
+import javax.annotation.PostConstruct;
 import javax.validation.constraints.Max;
 import javax.validation.constraints.Min;
 import javax.validation.Valid;
@@ -48,6 +51,15 @@ public class SampleController {
     public static final int SAMPLE_MAX_PAGE_SIZE = 10000000;
     private static final String SAMPLE_DEFAULT_PAGE_SIZE = "10000000";
 
+
+    @Autowired
+    private ApplicationContext applicationContext;
+    SampleController instance;
+    @PostConstruct
+    private void init() {
+        instance = applicationContext.getBean(SampleController.class);
+    }
+    
     @Autowired
     private SampleService sampleService;
     
@@ -244,7 +256,7 @@ public class SampleController {
             List<Sample> samples;
 
             if (interceptedSampleFilter.getSampleListIds() != null) {
-                samples = sampleService.fetchSamples(interceptedSampleFilter.getSampleListIds(), projection.name());
+                samples = instance.fetchSamplesInner(interceptedSampleFilter.getSampleListIds(), projection.name());
             } else {
                 if (interceptedSampleFilter.getSampleIdentifiers() != null) {
                     extractStudyAndSampleIds(interceptedSampleFilter, studyIds, sampleIds);
@@ -257,6 +269,20 @@ public class SampleController {
             return new ResponseEntity<>(samples, HttpStatus.OK);
         }
     }
+
+    @Cacheable(
+        cacheResolver = "staticRepositoryCacheOneResolver",
+        condition = "@cacheEnabledConfig.getEnabled()"
+    )
+    public List<Sample> fetchSamplesInner(
+        List<String> sampleListIds, String projection
+    ) {
+        List<Sample> samples;
+        samples = sampleService.fetchSamples(sampleListIds, projection);
+        return samples;
+    }
+
+
 
     private void extractStudyAndSampleIds(SampleFilter sampleFilter, List<String> studyIds, List<String> sampleIds) {
 

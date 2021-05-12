@@ -3,7 +3,7 @@ This manual is intended for users that have knowledge about the structure of the
 
 When loading studies into cBioPortal it is possible for warnings to occur that are caused by an outdated seed database. Gene symbols can be deprecated or be assigned to a different Entrez Gene in a new release. Also Entrez Gene IDs can be added. This markdown explains how to update the seed database, in order to use the most recent Entrez Gene IDs.
 
-The cBioPortal scripts package provides a method to update the `gene` and `gene_alias` tables. This requires the latest version of the NCBI Gene Info.
+The cBioPortal scripts package provides a method to update the `gene` and `gene_alias` tables.
 
 ### Human genes
 [gene_info.txt](https://github.com/cBioPortal/datahub-study-curation-tools/blob/master/gene-table-update/build-input-for-importer/gene_info.txt)

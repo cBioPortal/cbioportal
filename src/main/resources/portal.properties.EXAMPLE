@@ -270,7 +270,8 @@ oncoprint.hotspots.default=true
 #redis.follower_address=
 #redis.database=
 #redis.password=
-#redis.ttl_mins=720
+#redis.ttl_mins=10000
+#redis.clear_on_startup=true
 
 # Ehcache properties
 #ehcache.xml_configuration=/ehcache.xml

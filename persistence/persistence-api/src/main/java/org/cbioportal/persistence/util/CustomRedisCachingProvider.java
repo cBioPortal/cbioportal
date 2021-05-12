@@ -62,8 +62,11 @@ public class CustomRedisCachingProvider {
     @Value("${redis.password}")
     private String password;
     
-    @Value("${redis.ttl_mins:720}")
+    @Value("${redis.ttl_mins:10000}")
     private Long expiryMins;
+
+    @Value("${redis.clear_on_startup:true}")
+    private boolean clearOnStartup;
     
     public RedissonClient getRedissonClient() {
         if (leaderAddress == null || "".equals(leaderAddress)) {
@@ -85,6 +88,12 @@ public class CustomRedisCachingProvider {
     }
 
     public CacheManager getCacheManager(RedissonClient redissonClient) {
-        return new CustomRedisCacheManager(redissonClient, expiryMins);
+        CustomRedisCacheManager manager = new CustomRedisCacheManager(redissonClient, expiryMins);
+        
+        if (clearOnStartup) {
+            manager.getCache(appName + "GeneralRepositoryCache").clear();
+            manager.getCache(appName + "StaticRepositoryCacheOne").clear();
+        }
+        return manager;
     }
 }

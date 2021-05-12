@@ -5,9 +5,10 @@ import org.springframework.cache.Cache;
 import org.springframework.cache.CacheManager;
 
 import java.util.Collection;
-import java.util.Locale;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
+
+import javax.validation.constraints.NotNull;
 
 public class CustomRedisCacheManager implements CacheManager {
     private final ConcurrentMap<String, CustomRedisCache> caches = new ConcurrentHashMap<>();
@@ -38,6 +39,7 @@ public class CustomRedisCacheManager implements CacheManager {
         return getCache(name, !name.toLowerCase().contains("static"));
     }
     
+    @NotNull
     public Cache getCache(String name, boolean expires) {
         long clientTTLInMinutes = expires ? ttlInMins : -1;
         return caches.computeIfAbsent(name, k -> new CustomRedisCache(name, client, clientTTLInMinutes));

@@ -3,7 +3,9 @@ package org.cbioportal.persistence.util;
 import org.redisson.api.RedissonClient;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.cache.Cache;
 import org.springframework.cache.support.AbstractValueAdaptingCache;
+import org.springframework.cache.support.SimpleValueWrapper;
 import org.springframework.lang.Nullable;
 
 import java.io.*;
@@ -14,10 +16,11 @@ import java.util.zip.GZIPOutputStream;
 
 public class CustomRedisCache extends AbstractValueAdaptingCache {
     private static final Logger LOG = LoggerFactory.getLogger(CustomRedisCache.class);
-    public static final String DELIMITER = ":";
+    private static final String DELIMITER = ":";
+    private static final int INFINITE_TTL = -1;
 
     private final String name;
-    private long ttlMinutes;
+    private final long ttlMinutes;
     private final RedissonClient store;
 
     /**
@@ -44,13 +47,29 @@ public class CustomRedisCache extends AbstractValueAdaptingCache {
     @Override
     @Nullable
     protected Object lookup(Object key) {
-        return this.store.getBucket(name + DELIMITER + key).get();
+        Object value = this.store.getBucket(name + DELIMITER + key).get();
+        if (value != null){
+            value = fromStoreValue(value);
+            asyncRefresh(key);
+        }
+        return value;
+    }
+    
+    private void asyncRefresh(Object key) {
+        if (ttlMinutes != INFINITE_TTL) {
+            this.store.getBucket(name + DELIMITER + key).expireAsync(ttlMinutes, TimeUnit.MINUTES);
+        }
     }
 
     @Override
     @Nullable
     public <T> T get(Object key, Callable<T> valueLoader) {
-        T value = (T) this.store.getBucket(name + DELIMITER + key).get();
+        Object zippedValue = this.store.getBucket(name + DELIMITER + key).get();
+        T value = null;
+        if (zippedValue != null) {
+            value = (T) fromStoreValue(zippedValue);
+            asyncRefresh(key);
+        }
         try {
             return value == null ? valueLoader.call() : value;
         } catch (Exception ex) {
@@ -60,7 +79,7 @@ public class CustomRedisCache extends AbstractValueAdaptingCache {
 
     @Override
     public void put(Object key, @Nullable Object value) {
-        if (ttlMinutes == -1) {
+        if (ttlMinutes == INFINITE_TTL) {
             this.store.getBucket(name + DELIMITER + key).setAsync(toStoreValue(value));
         } else {
             this.store.getBucket(name + DELIMITER + key).setAsync(toStoreValue(value), ttlMinutes, TimeUnit.MINUTES);
@@ -70,22 +89,24 @@ public class CustomRedisCache extends AbstractValueAdaptingCache {
     @Override
     @Nullable
     public ValueWrapper putIfAbsent(Object key, @Nullable Object value) {
-        Object cached = this.store.getBucket(name + DELIMITER + key).get();
+        Object cached = lookup(key);
         if (cached != null) {
             return toValueWrapper(cached);
+        } else {
+            put(key, value);
         }
-        put(key, value);
         return toValueWrapper(value);
     }
 
     @Override
     public void evict(Object key) {
-        this.store.getBucket(name + DELIMITER + key).deleteAsync();
+        // no op: Redis handles evictions
     }
 
     @Override
     public boolean evictIfPresent(Object key) {
-        return this.store.getBucket(name + DELIMITER + key).delete();
+        // no op: Redis handles evictions
+        return false;
     }
 
     @Override
@@ -95,9 +116,7 @@ public class CustomRedisCache extends AbstractValueAdaptingCache {
 
     @Override
     public boolean invalidate() {
-        boolean notEmpty = this.store.getKeys().count() > 0;
-        clear();
-        return notEmpty;
+        return this.store.getKeys().deleteByPattern(name + DELIMITER + "*") > 0;
     }
 
     @Override
@@ -108,7 +127,7 @@ public class CustomRedisCache extends AbstractValueAdaptingCache {
         }
         
         ByteArrayOutputStream byteOut = new ByteArrayOutputStream();
-        ObjectOutputStream objectOut = null;
+        ObjectOutputStream objectOut;
         try {
             // serialize to byte array
             objectOut = new ObjectOutputStream(byteOut);
@@ -137,7 +156,7 @@ public class CustomRedisCache extends AbstractValueAdaptingCache {
         byte[] bytes = (byte[]) storeValue;
         ByteArrayInputStream byteIn = new ByteArrayInputStream(bytes);
         ByteArrayOutputStream byteOut = new ByteArrayOutputStream();
-        GZIPInputStream gzipIn = null;
+        GZIPInputStream gzipIn;
         try {
             // inflate to byte array
             gzipIn = new GZIPInputStream(byteIn);
@@ -156,5 +175,11 @@ public class CustomRedisCache extends AbstractValueAdaptingCache {
             LOG.warn("Error inflating object from cache: ", e);
             return null;
         }
+    }
+
+    @Nullable
+    @Override
+    protected Cache.ValueWrapper toValueWrapper(@Nullable Object storeValue) {
+        return (storeValue != null ? new SimpleValueWrapper(storeValue) : null);
     }
 }

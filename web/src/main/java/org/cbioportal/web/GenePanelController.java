@@ -32,8 +32,11 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.cache.annotation.Cacheable;
+import org.springframework.context.ApplicationContext;
 import springfox.documentation.annotations.ApiIgnore;
 
+import javax.annotation.PostConstruct;
 import javax.validation.constraints.Max;
 import javax.validation.constraints.Min;
 import javax.validation.constraints.Size;
@@ -47,6 +50,14 @@ import java.util.stream.Collectors;
 @Api(tags = PublicApiTags.GENE_PANELS, description = " ")
 public class GenePanelController {
 
+    @Autowired
+    private ApplicationContext applicationContext;
+    GenePanelController instance;
+    @PostConstruct
+    private void init() {
+        instance = applicationContext.getBean(GenePanelController.class);
+    }
+    
     @Autowired
     private GenePanelService genePanelService;
 
@@ -139,6 +150,20 @@ public class GenePanelController {
         @Size(min = 1, max = PagingConstants.MAX_PAGE_SIZE)
         @RequestBody(required = false) List<SampleMolecularIdentifier> sampleMolecularIdentifiers) {
 
+        List<GenePanelData> genePanelDataList = instance.fetchGenePanelDataInMultipleMolecularProfilesInner(
+            interceptedGenePanelSampleMolecularIdentifiers
+        );
+        
+        return new ResponseEntity<>(genePanelDataList, HttpStatus.OK);
+    }
+
+    @Cacheable(
+        cacheResolver = "generalRepositoryCacheResolver",
+        condition = "@cacheEnabledConfig.getEnabled()"
+    )
+    public List<GenePanelData> fetchGenePanelDataInMultipleMolecularProfilesInner(
+        List<SampleMolecularIdentifier>interceptedGenePanelSampleMolecularIdentifiers
+    ) {
         List<MolecularProfileCaseIdentifier> molecularProfileSampleIdentifiers = interceptedGenePanelSampleMolecularIdentifiers
             .stream()
             .map(sampleMolecularIdentifier -> {
@@ -151,6 +176,8 @@ public class GenePanelController {
 
         List<GenePanelData> genePanelDataList = genePanelService.fetchGenePanelDataInMultipleMolecularProfiles(molecularProfileSampleIdentifiers);
 
-        return new ResponseEntity<>(genePanelDataList, HttpStatus.OK);
+        return genePanelDataList;
     }
+    
+    
 }

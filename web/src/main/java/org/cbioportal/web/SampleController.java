@@ -277,9 +277,7 @@ public class SampleController {
     public List<Sample> fetchSamplesInner(
         List<String> sampleListIds, String projection
     ) {
-        List<Sample> samples;
-        samples = sampleService.fetchSamples(sampleListIds, projection);
-        return samples;
+        return sampleService.fetchSamples(sampleListIds, projection);
     }
 
 

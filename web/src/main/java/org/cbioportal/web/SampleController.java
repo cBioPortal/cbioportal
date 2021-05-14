@@ -254,9 +254,12 @@ public class SampleController {
             return new ResponseEntity<>(responseHeaders, HttpStatus.OK);
         } else {
             List<Sample> samples;
-
             if (interceptedSampleFilter.getSampleListIds() != null) {
-                samples = instance.fetchSamplesInner(interceptedSampleFilter.getSampleListIds(), projection.name());
+                samples = new ArrayList<>();
+                List<String> sampleListIds = interceptedSampleFilter.getSampleListIds();
+                for (String sampleListId : sampleListIds) {
+                    samples.addAll(instance.fetchSamplesInner(Arrays.asList(sampleListId), projection.name()));
+                }
             } else {
                 if (interceptedSampleFilter.getSampleIdentifiers() != null) {
                     extractStudyAndSampleIds(interceptedSampleFilter, studyIds, sampleIds);

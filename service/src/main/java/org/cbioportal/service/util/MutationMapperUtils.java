@@ -113,10 +113,20 @@ public class MutationMapperUtils {
                                     structuralVariant.setSite2EntrezGeneId(fusion.getEntrezGeneId());
                                     structuralVariant.setSite2HugoSymbol(fusion.getGene().getHugoGeneSymbol());
                                 } else {
-                                    Gene site2Gene = getGene(site2GeneSymbol);
-                                    if (site2Gene != null) {
-                                        structuralVariant.setSite2EntrezGeneId(site2Gene.getEntrezGeneId());
-                                        structuralVariant.setSite2HugoSymbol(site2Gene.getHugoGeneSymbol());
+                                    Gene site1Gene = getGene(site1GeneSymbol);
+                                    // we need to pick the right gene since the fusion gene has been assigned to structural variant site1
+                                    Gene pickedGene = null;
+                                    if (site1Gene != null && !site1Gene.getEntrezGeneId().equals(fusion.getEntrezGeneId())) {
+                                        pickedGene = site1Gene;
+                                    } else {
+                                        Gene site2Gene = getGene(site2GeneSymbol);
+                                        if (site2Gene != null && !site2Gene.getEntrezGeneId().equals(fusion.getEntrezGeneId())) {
+                                            pickedGene = site2Gene;
+                                        }
+                                    }
+                                    if (pickedGene != null) {
+                                        structuralVariant.setSite2EntrezGeneId(pickedGene.getEntrezGeneId());
+                                        structuralVariant.setSite2HugoSymbol(pickedGene.getHugoGeneSymbol());
                                     }
                                 }
                             } else { // if the queried gene is as alias gene in protein change

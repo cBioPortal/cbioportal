@@ -272,19 +272,13 @@ public class SampleController {
             return new ResponseEntity<>(samples, HttpStatus.OK);
         }
     }
-
-    @Cacheable(
-        cacheResolver = "staticRepositoryCacheOneResolver",
-        condition = "@cacheEnabledConfig.getEnabled()"
-    )
+    
     public List<Sample> fetchSamplesInner(
         List<String> sampleListIds, String projection
     ) {
         return sampleService.fetchSamples(sampleListIds, projection);
     }
-
-
-
+    
     private void extractStudyAndSampleIds(SampleFilter sampleFilter, List<String> studyIds, List<String> sampleIds) {
 
         for (SampleIdentifier sampleIdentifier : sampleFilter.getSampleIdentifiers()) {

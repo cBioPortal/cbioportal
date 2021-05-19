@@ -1,3 +1,4 @@
+
 This page describes the main properties within portal.properties.
 
 - [Database Settings](#database-settings)
@@ -417,6 +418,16 @@ redis.follower_address=redis://{host/servicename}:6379
 redis.database=0
 redis.password=password
 ```
+
+There are also some optional parameters:
+
+
+`redis.clear_on_startup`: If `true`, the caches will clear on startup. This is important
+to do to avoid reading old study data from the cache. You may want to turn it off and clear
+redis yourself if you are running in a clustered environments, as you'll have frequent 
+restarts that do not require you to clear the redis cache.  
+`redis.ttl_mins`: The time to live of items in the general cache, in minutes. The default value is 10000,
+or just under 7 days. 
 
 For more information on Redis, refer to the official documentation [here](https://redis.io/documentation)
 

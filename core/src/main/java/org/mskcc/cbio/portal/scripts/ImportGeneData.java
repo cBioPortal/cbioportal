@@ -616,12 +616,11 @@ public class ImportGeneData extends ConsoleRunnable {
                     lengthUpdated = true;
                 }
                 else {
-                    ProgressMonitor.logWarning("Cytoband does not match, gene not saved (likely another version of gene in gtf has correct chr and is saved)");
+                    ProgressMonitor.logWarning("Cytoband from reference gene is not on the same chromosome - unable to update the length of this gene (likely another version of gene in gtf has correct chr and is saved)");
                 }
             }
             else {
-                // TODO is this the right thing to do?  we used to update the gene and mark it as length updated even though length wasn't updated
-                ProgressMonitor.logWarning("Cytoband does not match, gene not saved (likely another version of gene in gtf has correct chr and is saved)");
+                ProgressMonitor.logWarning("Cytoband is not available - unable to update the length of this gene (likely another version of gene in gtf has correct chr and is saved)");
             }
         }
         return lengthUpdated;

@@ -2,12 +2,12 @@ package org.cbioportal.service.util;
 
 public enum VariantType {
     FUSION("Fusion"),
-    TRUNCATION("Truncation"),
+    TRUNCATION("Deletion"),//TRUNCATION is of type deletion in oncokb
     TRANSLOCATION("Translocation"),
     INVERSION("Inversion"),
     DELETION("Deletion"),
     DUPLICATION("Duplication"),
-    INTRAGENIC("Intragenic");
+    INTRAGENIC("Deletion");//INTRAGENIC is of type deletion in oncokb
 
     private String variantType;
 

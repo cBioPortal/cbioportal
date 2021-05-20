@@ -90,11 +90,6 @@ public class MutationMapperUtils {
                             // this is in format of <gene>-<variant-type>. ex: TUFT1-intragenic
                             site1GeneSymbol = matcher.group(1);
                             variantType = EnumUtils.getEnum(VariantType.class, matcher.group(2).toUpperCase());
-                            if(variantType != null && variantType.equals(VariantType.INTRAGENIC)) {
-                                //convert it to oncokb deletion type
-                                variantType = VariantType.DELETION;
-                                site2GeneSymbol = site1GeneSymbol;
-                            }
                         } else {
                             // this is in format of <gene1>-<gene2>-<optional variant-type>. ex.
                             // ZSWIM4-SLC1A6 or ZNF595-TERT fusion

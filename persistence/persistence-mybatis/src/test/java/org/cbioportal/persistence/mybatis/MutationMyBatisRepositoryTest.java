@@ -1,10 +1,15 @@
 package org.cbioportal.persistence.mybatis;
 
-import org.cbioportal.model.*;
+import org.cbioportal.model.AlleleSpecificCopyNumber;
+import org.cbioportal.model.Gene;
 import org.cbioportal.model.GeneFilterQuery;
+import org.cbioportal.model.Mutation;
+import org.cbioportal.model.MutationCountByPosition;
 import org.cbioportal.model.meta.MutationMeta;
 import org.cbioportal.model.util.Select;
-import org.junit.*;
+import org.junit.Assert;
+import org.junit.Before;
+import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Configurable;
@@ -13,6 +18,7 @@ import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
 import java.math.BigDecimal;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 @RunWith(SpringJUnit4ClassRunner.class)

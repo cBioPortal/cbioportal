@@ -34,7 +34,6 @@ import org.cbioportal.web.parameter.DataBinFilter;
 import org.cbioportal.web.parameter.DataBinMethod;
 import org.cbioportal.web.parameter.DataFilter;
 import org.cbioportal.web.parameter.DiscreteCopyNumberEventType;
-import org.cbioportal.web.parameter.GeneFilter.SingleGeneQuery;
 import org.cbioportal.web.parameter.GeneIdType;
 import org.cbioportal.web.parameter.GenericAssayDataBinCountFilter;
 import org.cbioportal.web.parameter.GenericAssayDataBinFilter;
@@ -60,6 +59,8 @@ import java.util.Set;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
+
+import static org.cbioportal.model.MolecularProfile.*;
 
 @Component
 public class StudyViewFilterApplier {
@@ -409,7 +410,7 @@ public class StudyViewFilterApplier {
                     .stream()
                     .collect(Collectors.groupingBy(MolecularProfile::getCancerStudyIdentifier));
 
-            for (List<SingleGeneQuery> geneQueries : genefilter.getGeneQueries()) {
+            for (List<GeneFilterQuery> geneQueries : genefilter.getGeneQueries()) {
                 List<String> studyIds = new ArrayList<>();
                 List<String> sampleIds = new ArrayList<>();
 
@@ -447,7 +448,7 @@ public class StudyViewFilterApplier {
                 }
 
                 sampleIdentifiers = structuralVariantService
-                        .fetchStructuralVariants(molecularProfileIds, geneQueries, sampleIds)
+                        .fetchStructuralVariantsByGeneQueries(molecularProfileIds, geneQueries, sampleIds)
                         .stream()
                         .map(m -> {
                             SampleIdentifier sampleIdentifier = new SampleIdentifier();
@@ -572,7 +573,7 @@ public class StudyViewFilterApplier {
                 if (alterationType == MolecularAlterationType.MUTATION_EXTENDED) {
                     mutatedGeneFilters.add(genefilter);
                 } else if (alterationType.equals(MolecularAlterationType.STRUCTURAL_VARIANT) ||
-                        alterationType.equals(MolecularProfile.MolecularAlterationType.FUSION)) {
+                        alterationType.equals(MolecularAlterationType.FUSION)) {
                     structuralVariantGeneFilters.add(genefilter);
                 } else if (alterationType == MolecularAlterationType.COPY_NUMBER_ALTERATION
                         && dataTypes.size() == 1 && dataTypes.iterator().next().equals("DISCRETE")) {

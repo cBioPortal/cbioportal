@@ -44,13 +44,16 @@ public class MutationMyBatisRepository implements MutationRepository {
                                                                   String projection, Integer pageSize,
                                                                   Integer pageNumber, String sortBy, String direction) {
 
+        boolean searchFusions = false;
         return getGroupedCasesByMolecularProfileId(molecularProfileIds, sampleIds)
             .entrySet()
             .stream()
-            .flatMap(entry -> mutationMapper.getMutationsBySampleIds(entry.getKey(),
-                entry.getValue(),
+            .flatMap(entry -> mutationMapper.getMutationsInMultipleMolecularProfiles(
+                Arrays.asList(entry.getKey()),
+                new ArrayList<>(entry.getValue()),
                 entrezGeneIds,
                 null,
+                searchFusions,
                 projection,
                 pageSize,
                 offsetCalculator.calculate(pageSize, pageNumber),
@@ -88,13 +91,15 @@ public class MutationMyBatisRepository implements MutationRepository {
         if (geneQueries.isEmpty())
             return Collections.emptyList();
 
+        boolean searchFusions = false;
         return getGroupedCasesByMolecularProfileId(molecularProfileIds, sampleIds)
             .entrySet()
             .stream()
-            .flatMap(entry -> mutationMapper.getMutationsBySampleIdsAndGeneQueries(entry.getKey(),
-                entry.getValue(),
-                entrezGeneIds,
+            .flatMap(entry -> mutationMapper.getMutationsInMultipleMolecularProfilesByGeneQueries(
+                Arrays.asList(entry.getKey()),
+                new ArrayList<>(entry.getValue()),
                 null,
+                searchFusions,
                 projection,
                 pageSize,
                 offsetCalculator.calculate(pageSize, pageNumber),
@@ -119,8 +124,18 @@ public class MutationMyBatisRepository implements MutationRepository {
                                                            String projection, Integer pageSize, Integer pageNumber,
                                                            String sortBy, String direction) {
 
-        return mutationMapper.getMutationsBySampleIds(molecularProfileId, new HashSet<>(sampleIds), entrezGeneIds, snpOnly, projection,
-            pageSize, offsetCalculator.calculate(pageSize, pageNumber), sortBy, direction);
+        boolean searchFusions = false;
+        return mutationMapper.getMutationsInMultipleMolecularProfiles(
+            Arrays.asList(molecularProfileId),
+            new ArrayList<>(sampleIds),
+            entrezGeneIds,
+            snpOnly,
+            searchFusions,
+            projection,
+            pageSize,
+            offsetCalculator.calculate(pageSize, pageNumber),
+            sortBy,
+            direction);
     }
 
     @Override
@@ -147,7 +162,8 @@ public class MutationMyBatisRepository implements MutationRepository {
         return getGroupedCasesByMolecularProfileId(molecularProfileIds, sampleIds)
             .entrySet()
             .stream()
-            .flatMap(entry -> mutationMapper.getFusionsInMultipleMolecularProfiles(Arrays.asList(entry.getKey()),
+            .flatMap(entry -> mutationMapper.getMutationsInMultipleMolecularProfiles(
+                Arrays.asList(entry.getKey()),
                 new ArrayList<>(entry.getValue()),
                 entrezGeneIds,
                 null,
@@ -177,9 +193,9 @@ public class MutationMyBatisRepository implements MutationRepository {
         return getGroupedCasesByMolecularProfileId(molecularProfileIds, sampleIds)
             .entrySet()
             .stream()
-            .flatMap(entry -> mutationMapper.getMutationsInMultipleMolecularProfilesByGeneQueries(Arrays.asList(entry.getKey()),
+            .flatMap(entry -> mutationMapper.getMutationsInMultipleMolecularProfilesByGeneQueries(
+                Arrays.asList(entry.getKey()),
                 new ArrayList<>(entry.getValue()),
-                entrezGeneIds,
                 null,
                 searchFusions,
                 projection,

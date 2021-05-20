@@ -6,7 +6,6 @@ import org.cbioportal.model.MutationCountByPosition;
 import org.cbioportal.model.meta.MutationMeta;
 
 import java.util.List;
-import java.util.Set;
 
 public interface MutationMapper {
 
@@ -16,6 +15,13 @@ public interface MutationMapper {
 
     MutationMeta getMetaMutationsBySampleListId(String molecularProfileId, String sampleListId, 
                                                 List<Integer> entrezGeneIds, Boolean snpOnly);
+
+    
+    // TODO: cleanup searchFusions param once fusion/structural data is fixed in database
+    List<Mutation> getMutationsInMultipleMolecularProfiles(List<String> molecularProfileIds, List<String> sampleIds,
+                                                                        List<Integer> entrezGeneIds, Boolean snpOnly,
+                                                                        boolean searchFusions, String projection, Integer limit,
+                                                                        Integer offset, String sortBy, String direction);
 
     // TODO: cleanup searchFusions param once fusion/structural data is fixed in database
     List<Mutation> getMutationsInMultipleMolecularProfilesByGeneQueries(List<String> molecularProfileIds,
@@ -28,19 +34,9 @@ public interface MutationMapper {
                                                                         String sortBy,
                                                                         String direction,
                                                                         List<GeneFilterQuery> geneQueries);
-    
-    // TODO: cleanup searchFusions param once fusion/structural data is fixed in database
-    List<Mutation> getMutationsInMultipleMolecularProfiles(List<String> molecularProfileIds, List<String> sampleIds,
-                                                                        List<Integer> entrezGeneIds, Boolean snpOnly,
-                                                                        boolean searchFusions, String projection, Integer limit,
-                                                                        Integer offset, String sortBy, String direction);
 
     MutationMeta getMetaMutationsInMultipleMolecularProfiles(List<String> molecularProfileIds, List<String> sampleIds,
                                                              List<Integer> entrezGeneIds, Boolean snpOnly);
-
-    List<Mutation> getMutationsBySampleIds(String molecularProfileId, Set<String> sampleIds, 
-                                           List<Integer> entrezGeneIds, Boolean snpOnly, String projection, 
-                                           Integer limit, Integer offset, String sortBy, String direction);
 
     MutationMeta getMetaMutationsBySampleIds(String molecularProfileId, List<String> sampleIds, 
                                              List<Integer> entrezGeneIds, Boolean snpOnly);

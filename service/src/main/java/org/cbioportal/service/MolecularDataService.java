@@ -35,7 +35,8 @@ public interface MolecularDataService {
                                                                         String projection);
 
     List<GeneMolecularData> getMolecularDataInMultipleMolecularProfilesByGeneQueries(List<String> molecularProfileIds,
-                                                                                     List<String> sampleIds, List<GeneFilterQuery> geneQueries,
+                                                                                     List<String> sampleIds,
+                                                                                     List<GeneFilterQuery> geneQueries,
                                                                                      String projection);
 
 	BaseMeta getMetaMolecularDataInMultipleMolecularProfiles(List<String> molecularProfileIds, List<String> sampleIds,

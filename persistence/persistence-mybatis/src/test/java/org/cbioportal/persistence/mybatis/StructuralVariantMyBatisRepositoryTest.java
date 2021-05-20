@@ -202,4 +202,6 @@ public class StructuralVariantMyBatisRepositoryTest {
         Assert.assertEquals((String) "TCGA-A1-A0SB", structuralVariantSecondResult.getPatientId());
         Assert.assertEquals((String) "study_tcga_pub", structuralVariantSecondResult.getStudyId());
     }
+    
+    // TODO add tests for 'ByGeneQueries'
 }

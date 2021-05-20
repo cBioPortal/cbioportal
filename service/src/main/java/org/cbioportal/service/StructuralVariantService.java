@@ -23,13 +23,17 @@
 
 package org.cbioportal.service;
 
-import java.util.List;
-
+import org.cbioportal.model.GeneFilterQuery;
 import org.cbioportal.model.StructuralVariant;
+
+import java.util.List;
 
 public interface StructuralVariantService {
 
     List<StructuralVariant> fetchStructuralVariants(List<String> molecularProfileIds, List<Integer> entrezGeneIds,
+            List<String> sampleIds);
+    
+    List<StructuralVariant> fetchStructuralVariantsByGeneQueries(List<String> molecularProfileIds, List<GeneFilterQuery> geneQueries,
             List<String> sampleIds);
 
 }

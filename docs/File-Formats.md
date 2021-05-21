@@ -696,7 +696,7 @@ The extended MAF format recognized by the portal has:
 33. **HGVSp_Short (Required)**: Amino Acid Change, e.g. p.V600E.
 34. **t_alt_count (Optional)**: Variant allele count (tumor). 
 35. **t_ref_count (Optional)**: Reference allele count (tumor).
-36. **n_alt_count (Optional)**: Variant allele count (normal).~~~~
+36. **n_alt_count (Optional)**: Variant allele count (normal).
 37. **n_ref_count (Optional)**: Reference allele count (normal).
 
 <sup>**1**</sup> These columns are currently not shown in the Mutation tab and Patient view.
@@ -724,7 +724,7 @@ An example MAF with the following **additional** columns:
 ```
 ASCN.total_copy_number    ASCN.clonal     MUTATION.name    MUTATION.type
 ```
-imported with the following `namepsaces` field in the metafile:
+imported with the following `namespaces` field in the metafile:
 ```
 namespaces: ascn
 ```

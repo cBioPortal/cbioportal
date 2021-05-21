@@ -31,11 +31,8 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
-import org.springframework.cache.annotation.Cacheable;
-import org.springframework.context.ApplicationContext;
 import springfox.documentation.annotations.ApiIgnore;
 
-import javax.annotation.PostConstruct;
 import javax.validation.constraints.Max;
 import javax.validation.constraints.Min;
 import javax.validation.Valid;
@@ -51,15 +48,6 @@ public class SampleController {
     public static final int SAMPLE_MAX_PAGE_SIZE = 10000000;
     private static final String SAMPLE_DEFAULT_PAGE_SIZE = "10000000";
 
-
-    @Autowired
-    private ApplicationContext applicationContext;
-    SampleController instance;
-    @PostConstruct
-    private void init() {
-        instance = applicationContext.getBean(SampleController.class);
-    }
-    
     @Autowired
     private SampleService sampleService;
     
@@ -254,12 +242,9 @@ public class SampleController {
             return new ResponseEntity<>(responseHeaders, HttpStatus.OK);
         } else {
             List<Sample> samples;
+
             if (interceptedSampleFilter.getSampleListIds() != null) {
-                samples = new ArrayList<>();
-                List<String> sampleListIds = interceptedSampleFilter.getSampleListIds();
-                for (String sampleListId : sampleListIds) {
-                    samples.addAll(instance.fetchSamplesInner(Arrays.asList(sampleListId), projection.name()));
-                }
+                samples = sampleService.fetchSamples(interceptedSampleFilter.getSampleListIds(), projection.name());
             } else {
                 if (interceptedSampleFilter.getSampleIdentifiers() != null) {
                     extractStudyAndSampleIds(interceptedSampleFilter, studyIds, sampleIds);
@@ -272,13 +257,7 @@ public class SampleController {
             return new ResponseEntity<>(samples, HttpStatus.OK);
         }
     }
-    
-    public List<Sample> fetchSamplesInner(
-        List<String> sampleListIds, String projection
-    ) {
-        return sampleService.fetchSamples(sampleListIds, projection);
-    }
-    
+
     private void extractStudyAndSampleIds(SampleFilter sampleFilter, List<String> studyIds, List<String> sampleIds) {
 
         for (SampleIdentifier sampleIdentifier : sampleFilter.getSampleIdentifiers()) {

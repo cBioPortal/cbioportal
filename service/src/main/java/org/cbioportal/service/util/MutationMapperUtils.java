@@ -1,15 +1,5 @@
 package org.cbioportal.service.util;
 
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
-import java.util.stream.Collectors;
-
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.EnumUtils;
 import org.cbioportal.model.Gene;
 import org.cbioportal.model.Mutation;
@@ -18,21 +8,24 @@ import org.cbioportal.service.GeneService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
+import java.util.*;
+import java.util.function.Function;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+import java.util.stream.Collectors;
 
 @Component
 public class MutationMapperUtils {
-    
 
     @Autowired
     private GeneService geneService;
 
+    // gene symbols containing "-" is not considered in the pattern
+    private String PROTEIN_CHANGE_REGEX = "^([a-zA-Z0-9_.]+)(?:-|_|\\s)([a-zA-Z0-9_.]+)(?:\\s+(\\w+))?$";
+    private final Pattern PROTEIN_CHANGE_PATTERN = Pattern.compile(PROTEIN_CHANGE_REGEX);
+
     public List<StructuralVariant> mapFusionsToStructuralVariants(List<Mutation> fusions,
             Map<String, String> molecularProfileIdReplaceMap, Boolean filterByProteinChange) {
-
-        
-        // gene symbols containing "-" is not considered in the pattern
-        String pattern = "^([a-zA-Z0-9_.]+)(?:-|_|\\s)([a-zA-Z0-9_.]+)(?:\\s+(\\w+))?$";
-        Pattern r = Pattern.compile(pattern);
 
         List<Mutation> filteredFusions = fusions;
 
@@ -50,6 +43,31 @@ public class MutationMapperUtils {
             });
             filteredFusions = uniqueFusionMap.values().stream().collect(Collectors.toList());
         }
+
+        Set<String> geneSymbolsFromProteinChange = filteredFusions
+            .stream()
+            .filter(fusion -> fusion.getProteinChange() != null && 
+                !fusion.getProteinChange().equalsIgnoreCase("Fusion") && 
+                !fusion.getProteinChange().equalsIgnoreCase("SV"))
+            .flatMap(fusion -> getGenesFromProteinChange(fusion.getProteinChange()).stream())
+            .collect(Collectors.toSet());
+
+        Map<String, Gene> geneByHugoGeneSymbol = geneService
+            .fetchGenes(new ArrayList<>(geneSymbolsFromProteinChange), "HUGO_GENE_SYMBOL", null)
+            .stream()
+            .collect(Collectors.toMap(gene -> gene.getHugoGeneSymbol().toUpperCase(), Function.identity()));
+
+        geneSymbolsFromProteinChange
+            .stream()
+            .filter(geneSymbol -> !geneByHugoGeneSymbol.containsKey(geneSymbol))
+            .forEach(geneSymbol -> {
+                // check if geneSymbol is an alias
+                List<Gene> aliasGenes = geneService.getAllGenes(null, geneSymbol, "null",
+                    null, null, null, null);
+                if (!aliasGenes.isEmpty()) {
+                    geneByHugoGeneSymbol.put(geneSymbol, aliasGenes.get(0));
+                }
+            });
 
         return filteredFusions.stream().map(fusion -> {
             StructuralVariant structuralVariant = new StructuralVariant();
@@ -76,7 +94,7 @@ public class MutationMapperUtils {
                 // only parse proteinChange when its not Fusion or SV
                 if (!(proteinChange.equalsIgnoreCase("Fusion") || proteinChange.equalsIgnoreCase("SV"))) {
 
-                    Matcher matcher = r.matcher(proteinChange);
+                    Matcher matcher = PROTEIN_CHANGE_PATTERN.matcher(proteinChange);
                     String site1GeneSymbol = null;
                     String site2GeneSymbol = null;
                     VariantType variantType = null;
@@ -88,13 +106,13 @@ public class MutationMapperUtils {
 
                         } else if (EnumUtils.isValidEnum(VariantType.class, matcher.group(2).toUpperCase())) {
                             // this is in format of <gene>-<variant-type>. ex: TUFT1-intragenic
-                            site1GeneSymbol = matcher.group(1);
+                            site1GeneSymbol = matcher.group(1).toUpperCase();
                             variantType = EnumUtils.getEnum(VariantType.class, matcher.group(2).toUpperCase());
                         } else {
                             // this is in format of <gene1>-<gene2>-<optional variant-type>. ex.
                             // ZSWIM4-SLC1A6 or ZNF595-TERT fusion
-                            site1GeneSymbol = matcher.group(1);
-                            site2GeneSymbol = matcher.group(2);
+                            site1GeneSymbol = matcher.group(1).toUpperCase();
+                            site2GeneSymbol = matcher.group(2).toUpperCase();
 							if (matcher.group(3) != null) {
 								variantType = EnumUtils.getEnum(VariantType.class, matcher.group(3).toUpperCase());
 							}
@@ -108,13 +126,13 @@ public class MutationMapperUtils {
                                     structuralVariant.setSite2EntrezGeneId(fusion.getEntrezGeneId());
                                     structuralVariant.setSite2HugoSymbol(fusion.getGene().getHugoGeneSymbol());
                                 } else {
-                                    Gene site1Gene = getGene(site1GeneSymbol);
+                                    Gene site1Gene = geneByHugoGeneSymbol.get(site1GeneSymbol);
                                     // we need to pick the right gene since the fusion gene has been assigned to structural variant site1
                                     Gene pickedGene = null;
                                     if (site1Gene != null && !site1Gene.getEntrezGeneId().equals(fusion.getEntrezGeneId())) {
                                         pickedGene = site1Gene;
                                     } else {
-                                        Gene site2Gene = getGene(site2GeneSymbol);
+                                        Gene site2Gene = geneByHugoGeneSymbol.get(site2GeneSymbol) ;
                                         if (site2Gene != null && !site2Gene.getEntrezGeneId().equals(fusion.getEntrezGeneId())) {
                                             pickedGene = site2Gene;
                                         }
@@ -125,8 +143,8 @@ public class MutationMapperUtils {
                                     }
                                 }
                             } else { // if the queried gene is as alias gene in protein change
-                                Gene site1Gene = getGene(site1GeneSymbol);
-                                Gene site2Gene = getGene(site2GeneSymbol);
+                                Gene site1Gene = geneByHugoGeneSymbol.get(site1GeneSymbol);
+                                Gene site2Gene = geneByHugoGeneSymbol.get(site2GeneSymbol);
                                 if (site1Gene != null && site2Gene != null) { // set site2Gene when both genes are valid
                                     // and one of the site genes should match fusion gene
                                     if (fusion.getGene().getHugoGeneSymbol().equalsIgnoreCase(site1Gene.getHugoGeneSymbol())) {
@@ -150,20 +168,22 @@ public class MutationMapperUtils {
         }).collect(Collectors.toList());
     }
 
-    private Gene getGene(String geneSymbol) {
-        Gene gene = null;
-        try {
-            gene = geneService.getGene(geneSymbol);
-        } catch (Exception e) {
-            // Site2 gene is not set when gene symbol is not found in database. Check if it is an alias
-            List<Gene> aliasGenes = geneService.getAllGenes(null, geneSymbol, "SUMMARY",
-                null, null, null, null);
-
-            if (CollectionUtils.isNotEmpty(aliasGenes)) {
-                gene = aliasGenes.get(0);
+    private List<String> getGenesFromProteinChange(String proteinChange) {
+        Matcher matcher = PROTEIN_CHANGE_PATTERN.matcher(proteinChange);
+        List<String> symbols = new ArrayList<>();
+        if(matcher.matches()) {
+            if(matcher.group(3) != null) {
+                symbols.add(matcher.group(1).toUpperCase());
+                symbols.add(matcher.group(2).toUpperCase());
+            } else if(matcher.group(2) != null) {
+                symbols.add(matcher.group(1).toUpperCase());
+                if (!EnumUtils.isValidEnum(VariantType.class, matcher.group(2).toUpperCase())) {
+                    symbols.add(matcher.group(2).toUpperCase());
+                }
+                symbols.add(matcher.group(1).toUpperCase());
             }
         }
-        return gene;
+        return symbols;
     }
 
 }

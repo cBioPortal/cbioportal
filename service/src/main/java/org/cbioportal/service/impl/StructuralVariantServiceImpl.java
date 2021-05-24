@@ -61,8 +61,6 @@ public class StructuralVariantServiceImpl implements StructuralVariantService {
         List<String> fusionVariantMolecularProfileIds = new ArrayList<>();
         List<String> fusionVariantSampleIds = new ArrayList<>();
         Map<String, String> molecularProfileIdReplaceMap = new HashMap<>();
-        
-        
 
         // TODO: Remove once fusions are removed from mutation table
         for (int i = 0; i < molecularProfileIds.size(); i++) {

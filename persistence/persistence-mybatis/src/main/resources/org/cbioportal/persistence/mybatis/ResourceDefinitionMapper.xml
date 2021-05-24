@@ -25,9 +25,17 @@
         FROM resource_definition
         INNER JOIN cancer_study ON resource_definition.CANCER_STUDY_ID = cancer_study.CANCER_STUDY_ID
         <where>
-            <if test="studyId != null">
-                cancer_study.CANCER_STUDY_IDENTIFIER = #{studyId}
-            </if>
+            <choose>
+                <when test="studyIds == null or studyIds.isEmpty()">
+                    NULL
+                </when>
+                <otherwise>
+                    cancer_study.CANCER_STUDY_IDENTIFIER IN
+                    <foreach item="id" collection="studyIds" open="(" separator="," close=")">
+                        #{id}
+                    </foreach>
+                </otherwise>
+            </choose>
         </where>
         <if test="sortBy != null and projection != 'ID'">
             ORDER BY ${sortBy} ${direction}

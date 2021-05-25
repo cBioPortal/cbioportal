@@ -14,7 +14,6 @@ import javax.servlet.http.HttpServletResponse;
 import javax.ws.rs.HttpMethod;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
-import java.io.UncheckedIOException;
 import java.util.stream.Collectors;
 
 public class TestRequestBodyGZipFilter {
@@ -116,7 +115,7 @@ public class TestRequestBodyGZipFilter {
      * IOException as it is read. This exception gets turned into
      * an UncheckedIOException by something, so we'll check for that instead.
      */
-    @Test(expected = UncheckedIOException.class)
+    @Test(expected = IOException.class)
     public void testDoFilterEnabledGZippedButTooLong() throws Exception {
         RequestBodyGZipFilter subject = createRequestBodyGZipFilter(true, 1);
 

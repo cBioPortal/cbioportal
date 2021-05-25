@@ -8,7 +8,7 @@ public interface ResourceDefinitionMapper {
 
     ResourceDefinition getResourceDefinition(String studyId, String resourceId, String projection);
 
-    List<ResourceDefinition> getResourceDefinitions(String studyId, String projection, Integer limit, Integer offset,
+    List<ResourceDefinition> getResourceDefinitions(List<String> studyIds, String projection, Integer limit, Integer offset,
             String sortBy, String direction);
 
 }

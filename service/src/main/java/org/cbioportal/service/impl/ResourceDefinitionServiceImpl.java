@@ -1,5 +1,6 @@
 package org.cbioportal.service.impl;
 
+import java.util.Collections;
 import java.util.List;
 
 import org.cbioportal.model.ResourceDefinition;
@@ -40,8 +41,13 @@ public class ResourceDefinitionServiceImpl implements ResourceDefinitionService 
 
         studyService.getStudy(studyId);
 
-        return resourceDefinitionRepository.getAllResourceDefinitionsInStudy(studyId, projection, pageSize, pageNumber,
+        return resourceDefinitionRepository.fetchResourceDefinitions(Collections.singletonList(studyId), projection, pageSize, pageNumber,
                 sortBy, direction);
+    }
+
+    @Override
+    public List<ResourceDefinition> fetchResourceDefinitions(List<String> studyIds, String projection) throws StudyNotFoundException {
+        return resourceDefinitionRepository.fetchResourceDefinitions(studyIds, projection, null, null, null, null);
     }
 
 }

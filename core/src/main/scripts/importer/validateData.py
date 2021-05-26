@@ -96,6 +96,7 @@ VALIDATOR_IDS = {
     cbioportal_common.MetaFileTypes.EXPRESSION:'ContinuousValuesValidator',
     cbioportal_common.MetaFileTypes.METHYLATION:'ContinuousValuesValidator',
     cbioportal_common.MetaFileTypes.MUTATION:'MutationsExtendedValidator',
+    cbioportal_common.MetaFileTypes.MUTATION_UNCALLED:'MutationsExtendedValidator',
     cbioportal_common.MetaFileTypes.CANCER_TYPE:'CancerTypeValidator',
     cbioportal_common.MetaFileTypes.SAMPLE_ATTRIBUTES:'SampleClinicalValidator',
     cbioportal_common.MetaFileTypes.PATIENT_ATTRIBUTES:'PatientClinicalValidator',

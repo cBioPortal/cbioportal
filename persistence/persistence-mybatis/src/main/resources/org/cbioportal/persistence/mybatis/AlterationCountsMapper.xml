@@ -14,19 +14,19 @@
             <trim  prefixOverrides="UNION ALL">
                 <if test="mutationMolecularProfileCaseIdentifiers != null and !mutationMolecularProfileCaseIdentifiers.isEmpty()">
                     <include refid="mutationCounts">
-                        <property name="case_type" value ="SAMPLE_ID"/>
+                        <property name="case_type" value ="'SAMPLE_ID'"/>
                     </include>
                 </if>
                 <if test="cnaMolecularProfileCaseIdentifiers != null and !cnaMolecularProfileCaseIdentifiers.isEmpty()">
                     UNION ALL
                     <include refid="cnaCounts">
-                        <property name="case_type" value ="SAMPLE_ID"/>
+                        <property name="case_type" value ="'SAMPLE_ID'"/>
                     </include>
                 </if>
                 <if test="structuralVariantMolecularProfileCaseIdentifiers != null and !structuralVariantMolecularProfileCaseIdentifiers.isEmpty()">
                     UNION ALL
                     <include refid="structuralVariantCounts">
-                        <property name="case_type" value ="SAMPLE_ID"/>
+                        <property name="case_type" value ="'SAMPLE_ID'"/>
                     </include>
                 </if>
             </trim>
@@ -45,17 +45,25 @@
             COUNT(DISTINCT(CASE_ID)) AS numberOfAlteredCases
         FROM
         (
-            <include refid="mutationCounts">
-                <property name="case_type" value="PATIENT_ID"/>
-            </include>
-            UNION ALL
-            <include refid="cnaCounts">
-                <property name="case_type" value="PATIENT_ID"/>
-            </include>
-            UNION ALL
-            <include refid="structuralVariantCounts">
-                <property name="case_type" value="SAMPLE_ID"/>
-            </include>
+            <trim  prefixOverrides="UNION ALL">
+                <if test="mutationMolecularProfileCaseIdentifiers != null and !mutationMolecularProfileCaseIdentifiers.isEmpty()">
+                    <include refid="mutationCounts">
+                        <property name="case_type" value ="'PATIENT_ID'"/>
+                    </include>
+                </if>
+                <if test="cnaMolecularProfileCaseIdentifiers != null and !cnaMolecularProfileCaseIdentifiers.isEmpty()">
+                    UNION ALL
+                    <include refid="cnaCounts">
+                        <property name="case_type" value ="'PATIENT_ID'"/>
+                    </include>
+                </if>
+                <if test="structuralVariantMolecularProfileCaseIdentifiers != null and !structuralVariantMolecularProfileCaseIdentifiers.isEmpty()">
+                    UNION ALL
+                    <include refid="structuralVariantCounts">
+                        <property name="case_type" value ="'PATIENT_ID'"/>
+                    </include>
+                </if>
+            </trim>
         ) as JoinedTable
         <where>
             <include refid="whereGene"/>
@@ -90,7 +98,7 @@
                 </when>
             </choose>
             <include refid="caseFilter">
-                <property name="case_type" value="SAMPLE_ID"/>
+                <property name="case_type" value="'SAMPLE_ID'"/>
                 <property name="identifiers" value="cnaMolecularProfileCaseIdentifiers"/>
                 <property name="geneticProfileIdentifier" value="genetic_profile.GENETIC_PROFILE_ID" />
                 <property name="caseStableIdentifier" value="caseUniqueIdentifier" />
@@ -124,7 +132,7 @@
                 </when>
             </choose>
             <include refid="caseFilter">
-                <property name="case_type" value="PATIENT_ID"/>
+                <property name="case_type" value="'PATIENT_ID'"/>
                 <property name="identifiers" value="cnaMolecularProfileCaseIdentifiers"/>
                 <property name="geneticProfileIdentifier" value="genetic_profile.GENETIC_PROFILE_ID" />
                 <property name="caseStableIdentifier" value="caseUniqueIdentifier" />
@@ -321,7 +329,7 @@
 
     <sql id="caseStableIdentifier">
         <choose>
-            <when test="'${case_type}' == 'SAMPLE_ID' || ${case_type} == 'SAMPLE_ID'">
+            <when test="${case_type} == 'SAMPLE_ID'">
                 sample.STABLE_ID
             </when>
             <otherwise>
@@ -332,7 +340,7 @@
 
     <sql id="caseUniqueIdentifier">
         <choose>
-            <when test="'${case_type}' == 'SAMPLE_ID'">
+            <when test="${case_type} == 'SAMPLE_ID'">
                 sample.INTERNAL_ID
             </when>
             <otherwise>
@@ -348,7 +356,9 @@
     <select id="getMolecularProfileCaseInternalIdentifier" resultType="org.cbioportal.model.MolecularProfileCaseIdentifier">
         SELECT
             genetic_profile.GENETIC_PROFILE_ID AS molecularProfileId,
-            sample.INTERNAL_ID as caseId
+            <include refid="caseUniqueIdentifier">
+                <property name="case_type" value ="caseType" />
+            </include> as caseId
         FROM genetic_profile
         INNER JOIN cancer_study ON cancer_study.CANCER_STUDY_ID = genetic_profile.CANCER_STUDY_ID
         INNER JOIN patient ON patient.CANCER_STUDY_ID = genetic_profile.CANCER_STUDY_ID

@@ -6,6 +6,7 @@ import org.cbioportal.model.*;
 import org.cbioportal.model.util.Select;
 import org.cbioportal.persistence.AlterationRepository;
 import org.cbioportal.service.*;
+import org.cbioportal.service.util.MolecularProfileUtil;
 import org.cbioportal.web.parameter.ClinicalDataBinCountFilter;
 import org.cbioportal.web.parameter.ClinicalDataBinFilter;
 import org.cbioportal.web.parameter.ClinicalDataCountFilter;
@@ -90,6 +91,11 @@ public class StudyViewControllerTest {
     private ObjectMapper objectMapper = new ObjectMapper();
 
     private MockMvc mockMvc;
+
+    @Bean
+    public MolecularProfileUtil molecularProfileUtil() {
+        return new MolecularProfileUtil();
+    }
 
     @Bean
     public StudyViewFilterApplier studyViewFilterApplier() {

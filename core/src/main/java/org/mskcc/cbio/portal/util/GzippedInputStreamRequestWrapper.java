@@ -1,60 +1,70 @@
 package org.mskcc.cbio.portal.util;
 
-import com.google.common.io.CountingInputStream;
-
 import javax.servlet.ServletInputStream;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletRequestWrapper;
-import java.io.BufferedReader;
-import java.io.IOException;
-import java.io.InputStreamReader;
+import java.io.*;
 import java.util.zip.GZIPInputStream;
 
 public class GzippedInputStreamRequestWrapper extends HttpServletRequestWrapper {
-    private final int maxInflatedRequestBodySize;
-    private final CountingInputStream inputStream;
+    public static final int BUFFER_SIZE = 1024;
+    private final ByteArrayInputStream inputStream;
 
     GzippedInputStreamRequestWrapper(final HttpServletRequest request, int maxInflatedRequestBodySize) throws IOException {
         super(request);
-        this.maxInflatedRequestBodySize = maxInflatedRequestBodySize;
-        inputStream = new CountingInputStream(new GZIPInputStream(request.getInputStream()));
+        inputStream = inflate(request.getInputStream(), maxInflatedRequestBodySize);
+    }
+
+    /**
+     * Inflates the compressed input stream all at once. Previously, we wrapped the compressed ServletInputStream
+     * stream with a GZIPInputStream, and read from that gradually. For some reason, that approach resulted in
+     * very long inflation times. By reading out everything from the GZIPInputStream here in the constructor, we
+     * managed to get down to the sub second performance you would expect with gzipping.
+     */
+    private ByteArrayInputStream inflate(ServletInputStream requestStream, int maxInflatedRequestBodySize) throws IOException {
+        GZIPInputStream gzipInputStream = new GZIPInputStream(requestStream, BUFFER_SIZE);
+        ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
+        byte[] buffer = new byte[BUFFER_SIZE];
+        int len;
+        long byteCount = 0;
+
+        while((len = gzipInputStream.read(buffer)) > 0) {
+            outputStream.write(buffer, 0, len);
+            byteCount += BUFFER_SIZE;
+            
+            if (byteCount > maxInflatedRequestBodySize) {
+                throw new IOException(
+                    "Inflated request body too large (> "
+                        + maxInflatedRequestBodySize
+                        + " bytes)"
+                );
+            }
+        }
+
+        return new ByteArrayInputStream(outputStream.toByteArray());
     }
 
     @Override
     public ServletInputStream getInputStream() throws IOException {
         return new ServletInputStream() {
             @Override
-            public int read() throws IOException {
-                checkByteCount();
+            public int read() {
                 return inputStream.read();
             }
 
             @Override
             public int readLine(byte[] b, int off, int len) throws IOException {
-                checkByteCount();
                 return super.readLine(b, off, len);
             }
 
             @Override
             public int read(byte[] bytes) throws IOException {
-                checkByteCount();
                 return super.read(bytes);
             }
 
             @Override
             public int read(byte[] bytes, int i, int i1) throws IOException {
-                checkByteCount();
                 return super.read(bytes, i, i1);
-            }
-            
-            private void checkByteCount() throws IOException {
-                if (inputStream.getCount() > maxInflatedRequestBodySize) {
-                    throw new IOException(
-                        "Inflated request body too large (> "
-                            + maxInflatedRequestBodySize
-                            + " bytes)"
-                    );
-                }
             }
 
             @Override

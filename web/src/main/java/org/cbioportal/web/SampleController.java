@@ -31,11 +31,8 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
-import org.springframework.cache.annotation.Cacheable;
-import org.springframework.context.ApplicationContext;
 import springfox.documentation.annotations.ApiIgnore;
 
-import javax.annotation.PostConstruct;
 import javax.validation.constraints.Max;
 import javax.validation.constraints.Min;
 import javax.validation.Valid;
@@ -51,14 +48,6 @@ public class SampleController {
     public static final int SAMPLE_MAX_PAGE_SIZE = 10000000;
     private static final String SAMPLE_DEFAULT_PAGE_SIZE = "10000000";
 
-
-    @Autowired
-    private ApplicationContext applicationContext;
-    SampleController instance;
-    @PostConstruct
-    private void init() {
-        instance = applicationContext.getBean(SampleController.class);
-    }
     
     @Autowired
     private SampleService sampleService;
@@ -258,7 +247,7 @@ public class SampleController {
                 samples = new ArrayList<>();
                 List<String> sampleListIds = interceptedSampleFilter.getSampleListIds();
                 for (String sampleListId : sampleListIds) {
-                    samples.addAll(instance.fetchSamplesInner(Arrays.asList(sampleListId), projection.name()));
+                    samples.addAll(fetchSamplesInner(Arrays.asList(sampleListId), projection.name()));
                 }
             } else {
                 if (interceptedSampleFilter.getSampleIdentifiers() != null) {

@@ -192,7 +192,7 @@ public class TestIntegrationTest {
             geneticProfileStableIds = Collections.nCopies(sampleIds.size(), "study_es_0_structural_variants");
 
             StructuralVariantService structuralVariantService = applicationContext.getBean(StructuralVariantService.class);
-            List<StructuralVariant> structuralVariants = structuralVariantService.fetchStructuralVariants(geneticProfileStableIds, entrezGeneIds, sampleIds);
+            List<StructuralVariant> structuralVariants = structuralVariantService.fetchStructuralVariants(geneticProfileStableIds, sampleIds, entrezGeneIds);
 
             // Check if all 45 structural variants are imported
             assertEquals(45, structuralVariants.size());

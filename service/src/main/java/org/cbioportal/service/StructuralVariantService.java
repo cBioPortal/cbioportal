@@ -29,7 +29,8 @@ import org.cbioportal.model.StructuralVariant;
 
 public interface StructuralVariantService {
 
-    List<StructuralVariant> fetchStructuralVariants(List<String> molecularProfileIds, List<Integer> entrezGeneIds,
-            List<String> sampleIds);
+    List<StructuralVariant> fetchStructuralVariants(List<String> molecularProfileIds,
+                                                    List<String> sampleIds,
+                                                    List<Integer> entrezGeneIds);
 
 }

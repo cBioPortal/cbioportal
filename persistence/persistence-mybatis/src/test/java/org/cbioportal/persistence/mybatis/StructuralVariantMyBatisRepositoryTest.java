@@ -54,8 +54,8 @@ public class StructuralVariantMyBatisRepositoryTest {
         entrezGeneIds.add(57670);
 
         List<StructuralVariant> result = 
-                structuralVariantMyBatisRepository.fetchStructuralVariants(molecularProfileIds, 
-                        entrezGeneIds, sampleIds);
+                structuralVariantMyBatisRepository.fetchStructuralVariants(molecularProfileIds,
+                    sampleIds, entrezGeneIds);
 
         Assert.assertEquals(2,  result.size());
         StructuralVariant structuralVariantFirstResult = result.get(0);
@@ -161,8 +161,8 @@ public class StructuralVariantMyBatisRepositoryTest {
         sampleIds.add("TCGA-A1-A0SB-01");
 
         List<StructuralVariant> result = 
-                structuralVariantMyBatisRepository.fetchStructuralVariants(molecularProfileIds, 
-                        entrezGeneIds, sampleIds);
+                structuralVariantMyBatisRepository.fetchStructuralVariants(molecularProfileIds,
+                    sampleIds, entrezGeneIds);
 
         Assert.assertEquals(1,  result.size());
         StructuralVariant structuralVariantResult = result.get(0);
@@ -187,8 +187,8 @@ public class StructuralVariantMyBatisRepositoryTest {
         sampleIds.add("TCGA-A1-B0SO-01");
         
         List<StructuralVariant> result = 
-                structuralVariantMyBatisRepository.fetchStructuralVariants(molecularProfileIds, 
-                        entrezGeneIds, sampleIds);
+                structuralVariantMyBatisRepository.fetchStructuralVariants(molecularProfileIds,
+                    sampleIds, entrezGeneIds);
 
         Assert.assertEquals(2,  result.size());
         StructuralVariant structuralVariantFirstResult = result.get(0);

@@ -389,7 +389,7 @@ public class StudyViewFilterApplier {
                 }
 
                 sampleIdentifiers = structuralVariantService
-                        .fetchStructuralVariants(molecularProfileIds, entrezGeneIds, sampleIds)
+                        .fetchStructuralVariants(molecularProfileIds, sampleIds, entrezGeneIds)
                         .stream()
                         .map(m -> {
                             SampleIdentifier sampleIdentifier = new SampleIdentifier();

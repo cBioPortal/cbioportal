@@ -53,11 +53,11 @@ public class StructuralVariantServiceImplTest extends BaseServiceImplTest {
         List<Integer> entrezGeneIds = Collections.singletonList(ENTREZ_GENE_ID_1);
         List<String> sampleIds = Collections.singletonList(SAMPLE_ID1);
 
-        Mockito.when(structuralVariantRepository.fetchStructuralVariants(molecularProfileIds, entrezGeneIds, sampleIds))
+        Mockito.when(structuralVariantRepository.fetchStructuralVariants(molecularProfileIds, sampleIds, entrezGeneIds))
                 .thenReturn(expectedStructuralVariantList);
 
         List<StructuralVariant> result = structuralVariantService.fetchStructuralVariants(molecularProfileIds,
-                entrezGeneIds, sampleIds);
+            sampleIds, entrezGeneIds);
 
         Assert.assertEquals(expectedStructuralVariantList, result);
     }

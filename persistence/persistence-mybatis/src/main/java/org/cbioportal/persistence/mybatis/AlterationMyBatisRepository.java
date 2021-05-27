@@ -16,6 +16,7 @@ import org.springframework.stereotype.Repository;
 
 import java.util.Collections;
 import java.util.List;
+import java.util.Set;
 import java.util.Map;
 import java.util.stream.Collectors;
 
@@ -44,8 +45,9 @@ public class AlterationMyBatisRepository implements AlterationRepository {
             return Collections.emptyList();
         }
 
-        List<String> molecularProfileIds = molecularProfileCaseIdentifiers.stream()
-                .map(MolecularProfileCaseIdentifier::getMolecularProfileId).distinct().collect(Collectors.toList());
+        Set<String> molecularProfileIds = molecularProfileCaseIdentifiers.stream()
+                .map(MolecularProfileCaseIdentifier::getMolecularProfileId)
+                .collect(Collectors.toSet());
 
         Map<String, MolecularAlterationType> profileTypeByProfileId = molecularProfileRepository
                 .getMolecularProfiles(molecularProfileIds, "SUMMARY").stream()
@@ -81,8 +83,9 @@ public class AlterationMyBatisRepository implements AlterationRepository {
             return Collections.emptyList();
         }
 
-        List<String> molecularProfileIds = molecularProfileCaseIdentifiers.stream()
-                .map(MolecularProfileCaseIdentifier::getMolecularProfileId).distinct().collect(Collectors.toList());
+        Set<String> molecularProfileIds = molecularProfileCaseIdentifiers.stream()
+                .map(MolecularProfileCaseIdentifier::getMolecularProfileId)
+                .collect(Collectors.toSet());
 
         Map<String, MolecularAlterationType> profileTypeByProfileId = molecularProfileRepository
                 .getMolecularProfiles(molecularProfileIds, "SUMMARY").stream()

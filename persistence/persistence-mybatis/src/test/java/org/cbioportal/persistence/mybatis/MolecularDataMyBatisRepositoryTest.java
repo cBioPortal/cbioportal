@@ -12,10 +12,9 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 @RunWith(SpringJUnit4ClassRunner.class)
 @ContextConfiguration("/testContextDatabase.xml")
@@ -38,7 +37,8 @@ public class MolecularDataMyBatisRepositoryTest {
     public void getCommaSeparatedSampleIdsOfMolecularProfiles() throws Exception {
 
         Map<String, MolecularProfileSamples> result = molecularDataMyBatisRepository
-            .commaSeparatedSampleIdsOfMolecularProfilesMap(Arrays.asList("study_tcga_pub_mrna", "study_tcga_pub_m_na"));
+            .commaSeparatedSampleIdsOfMolecularProfilesMap(Stream.of("study_tcga_pub_mrna", "study_tcga_pub_m_na")
+                                                            .collect(Collectors.toSet()));
 
         Assert.assertEquals(2, result.size());
         Assert.assertEquals("1,2,3,4,5,6,7,8,9,10,11,", result.get("study_tcga_pub_m_na").getCommaSeparatedSampleIds());
@@ -99,7 +99,7 @@ public class MolecularDataMyBatisRepositoryTest {
         entrezGeneIds.add(208);
 
         List<GeneMolecularAlteration> result = molecularDataMyBatisRepository
-            .getGeneMolecularAlterationsInMultipleMolecularProfiles(Arrays.asList("study_tcga_pub_gistic", "study_tcga_pub_mrna"),
+            .getGeneMolecularAlterationsInMultipleMolecularProfiles(Stream.of("study_tcga_pub_gistic", "study_tcga_pub_mrna").collect(Collectors.toSet()),
             entrezGeneIds, "SUMMARY");
 
         Assert.assertEquals(3, result.size());

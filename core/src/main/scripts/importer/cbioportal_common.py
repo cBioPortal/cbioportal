@@ -50,6 +50,7 @@ class MetaFileTypes(object):
     SEG = 'meta_segment'
     EXPRESSION = 'meta_expression'
     MUTATION = 'meta_mutations_extended'
+    MUTATION_UNCALLED = 'meta_mutations_uncalled'
     METHYLATION = 'meta_methylation'
     FUSION = 'meta_fusions'
     PROTEIN = 'meta_protein'
@@ -150,6 +151,21 @@ META_FIELD_MAP = {
         'datatype': True,
         'stable_id': True,
         'show_profile_in_analysis_tab': True,
+        'profile_name': True,
+        'profile_description': True,
+        'data_filename': True,
+        'normal_samples_list': False,
+        'swissprot_identifier': False,
+        'gene_panel': False,
+        'variant_classification_filter': False,
+        'namespaces': False
+    },
+    MetaFileTypes.MUTATION_UNCALLED: {
+        'cancer_study_identifier': True,
+        'genetic_alteration_type': True,
+        'datatype': True,
+        'stable_id': True,
+        'show_profile_in_analysis_tab': False,
         'profile_name': True,
         'profile_description': True,
         'data_filename': True,
@@ -342,6 +358,7 @@ IMPORTER_CLASSNAME_BY_META_TYPE = {
     MetaFileTypes.SEG: "org.mskcc.cbio.portal.scripts.ImportCopyNumberSegmentData",
     MetaFileTypes.EXPRESSION: "org.mskcc.cbio.portal.scripts.ImportProfileData",
     MetaFileTypes.MUTATION: "org.mskcc.cbio.portal.scripts.ImportProfileData",
+    MetaFileTypes.MUTATION_UNCALLED: "org.mskcc.cbio.portal.scripts.ImportProfileData",
     MetaFileTypes.METHYLATION: "org.mskcc.cbio.portal.scripts.ImportProfileData",
     MetaFileTypes.FUSION: "org.mskcc.cbio.portal.scripts.ImportProfileData",
     MetaFileTypes.PROTEIN: "org.mskcc.cbio.portal.scripts.ImportProfileData",
@@ -612,6 +629,7 @@ def get_meta_file_type(meta_dictionary, logger, filename):
         ("MRNA_EXPRESSION", "DISCRETE"): MetaFileTypes.EXPRESSION,
         # mutations
         ("MUTATION_EXTENDED", "MAF"): MetaFileTypes.MUTATION,
+        ("MUTATION_UNCALLED", "MAF"): MetaFileTypes.MUTATION_UNCALLED,
         # others
         ("METHYLATION", "CONTINUOUS"): MetaFileTypes.METHYLATION,
         ("FUSION", "FUSION"): MetaFileTypes.FUSION,
@@ -869,7 +887,7 @@ def parse_metadata_file(filename,
                        'cause': meta_dictionary['reference_genome_id']})
             meta_dictionary['meta_file_type'] = None
 
-    if meta_file_type == MetaFileTypes.MUTATION:
+    if meta_file_type in [MetaFileTypes.MUTATION, MetaFileTypes.MUTATION_UNCALLED]:
         if ('swissprot_identifier' in meta_dictionary and
                 meta_dictionary['swissprot_identifier'] not in ('name',
                                                                'accession')):

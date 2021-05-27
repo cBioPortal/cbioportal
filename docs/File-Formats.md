@@ -634,7 +634,7 @@ namespaces: ASCN
 ### Data file
 The mutation data file extends the [Mutation Annotation Format](https://docs.gdc.cancer.gov/Data/File_Formats/MAF_Format/) (MAF) created as part of The Cancer Genome Atlas (TCGA) project, by adding *extra annotations* to each mutation record. This section describes two types of MAF files:
 1. A minimal MAF file with only the columns required for cBioPortal.
-2. An extended MAF file created with [vcf2maf or maf2maf](https://github.com/mskcc/vcf2maf).
+2. An extended MAF file created with [vcf2maf, maf2maf](https://github.com/mskcc/vcf2maf) or the [Genome Nexus Annotation Pipeline](https://github.com/genome-nexus/genome-nexus-annotation-pipeline).
 
 ### Minimal MAF format
 A minimal mutation annotations file can contain just three of the MAF columns plus one annotation column. From this minimal MAF, it is possible to create an extended MAF by running maf2maf.

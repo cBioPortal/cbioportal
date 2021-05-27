@@ -23,13 +23,6 @@
 
 package org.cbioportal.service.impl;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
-
 import org.apache.commons.collections.CollectionUtils;
 import org.cbioportal.model.StructuralVariant;
 import org.cbioportal.persistence.MutationRepository;
@@ -39,6 +32,10 @@ import org.cbioportal.service.util.MolecularProfileUtil;
 import org.cbioportal.service.util.MutationMapperUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+
+import java.util.*;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 @Service
 public class StructuralVariantServiceImpl implements StructuralVariantService {
@@ -54,26 +51,33 @@ public class StructuralVariantServiceImpl implements StructuralVariantService {
 
     @Override
     public List<StructuralVariant> fetchStructuralVariants(List<String> molecularProfileIds,
-            List<Integer> entrezGeneIds, List<String> sampleIds) {
+                                                           List<String> sampleIds,
+                                                           List<Integer> entrezGeneIds) {
 
-        List<String> structuralVariantMolecularProfileIds = new ArrayList<String>();
-        List<String> structuralVariantSampleIds = new ArrayList<String>();
+        List<String> structuralVariantMolecularProfileIds = new ArrayList<>();
+        List<String> structuralVariantSampleIds = new ArrayList<>();
 
-        List<String> fusionVariantMolecularProfileIds = new ArrayList<String>();
-        List<String> fusionVariantSampleIds = new ArrayList<String>();
+        List<String> fusionVariantMolecularProfileIds = new ArrayList<>();
+        List<String> fusionVariantSampleIds = new ArrayList<>();
         Map<String, String> molecularProfileIdReplaceMap = new HashMap<>();
+        
+        
 
         // TODO: Remove once fusions are removed from mutation table
         for (int i = 0; i < molecularProfileIds.size(); i++) {
             String molecularProfileId = molecularProfileIds.get(i);
             if (molecularProfileId.endsWith(molecularProfileUtil.STRUCTURAL_VARIANT_PROFILE_SUFFIX)) {
                 structuralVariantMolecularProfileIds.add(molecularProfileId);
-                structuralVariantSampleIds.add(sampleIds.get(i));
+                if(CollectionUtils.isNotEmpty(sampleIds))  {
+                    structuralVariantSampleIds.add(sampleIds.get(i));
+                }
             } else if (molecularProfileId.endsWith(molecularProfileUtil.FUSION_PROFILE_SUFFIX)) {
                 String mutationMolecularProfileId = molecularProfileUtil.replaceFusionProfileWithMutationProfile(molecularProfileId);
                 molecularProfileIdReplaceMap.put(mutationMolecularProfileId, molecularProfileId);
-                fusionVariantMolecularProfileIds.add(molecularProfileId);
-                fusionVariantSampleIds.add(sampleIds.get(i));
+                fusionVariantMolecularProfileIds.add(mutationMolecularProfileId);
+                if(CollectionUtils.isNotEmpty(sampleIds))  {
+                    fusionVariantSampleIds.add(sampleIds.get(i));
+                }
             }
         }
 
@@ -82,7 +86,7 @@ public class StructuralVariantServiceImpl implements StructuralVariantService {
 
         if (CollectionUtils.isNotEmpty(structuralVariantMolecularProfileIds)) {
             structuralVariants = structuralVariantRepository.fetchStructuralVariants(
-                    structuralVariantMolecularProfileIds, entrezGeneIds, structuralVariantSampleIds);
+                    structuralVariantMolecularProfileIds, structuralVariantSampleIds, entrezGeneIds);
         }
 
         if (CollectionUtils.isNotEmpty(fusionVariantMolecularProfileIds)) {

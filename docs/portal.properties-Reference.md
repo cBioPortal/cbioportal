@@ -125,6 +125,9 @@ skin.right_nav.show_testimonials=
 
 #What's New section
 skin.right_nav.show_whats_new=
+
+#Twitter feed in What's New section
+skin.right_nav.show_twitter=
 ```
 
 ## Control the content of specific sections
@@ -141,6 +144,11 @@ skin.citation_rule_text=
 Setting controlling the footer: you can add any HTML code here that you want to visualize. If the field is left empty, the default footer (from www.cbioportal.org) will be shown.
 ```
 skin.footer=
+```
+
+Setting controlling listing the development channels in the site's footer section
+```
+skin.footer_show_dev=
 ```
 
 Settings controlling the "What's New" blurb in the right navigation bar: you can add any HTML code here that you want to visualize. If the field is left empty, the Twitter timeline will be shown (as long as `skin.right_nav.show_whats_new` is `true`, otherwise this section will not be displayed).
@@ -423,14 +431,16 @@ To cache with Redis set `persistence.cache_type` to `redis`.
 To setup the Redis cache servers the following properties are required:
 
 ```
+redis.name=unique_cbioportal_instance_name
 redis.leader_address=redis://{host/servicename}:6379
 redis.follower_address=redis://{host/servicename}:6379
 redis.database=0
 redis.password=password
 ```
 
-There are also some optional parameters:
+If you are running one redis instance for multiple instances of cBioPortal, one can use the properties `redis.name` and `redis.database` to avoid clashes. If you are running only one instance of cBioPortal any value for name/database will do.
 
+There are also some optional parameters:
 
 `redis.clear_on_startup`: If `true`, the caches will clear on startup. This is important
 to do to avoid reading old study data from the cache. You may want to turn it off and clear

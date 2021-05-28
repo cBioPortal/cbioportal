@@ -19,15 +19,18 @@
 	    patient.STABLE_ID AS patientId,
 	    cancer_study.CANCER_STUDY_IDENTIFIER AS studyId,
 	    genetic_profile.STABLE_ID AS molecularProfileId,
-        true as profiled
+        CASE
+            WHEN sample_profile.GENETIC_PROFILE_ID IS NOT NULL THEN TRUE
+            ELSE FALSE
+        END AS profiled
     </sql>
 
     <sql id="fromGenePanelData">
-        FROM sample_profile
-        INNER JOIN genetic_profile ON sample_profile.GENETIC_PROFILE_ID = genetic_profile.GENETIC_PROFILE_ID
-        INNER JOIN sample ON sample_profile.SAMPLE_ID = sample.INTERNAL_ID
+        FROM sample
         INNER JOIN patient ON sample.PATIENT_ID = patient.INTERNAL_ID
         INNER JOIN cancer_study ON patient.CANCER_STUDY_ID = cancer_study.CANCER_STUDY_ID
+        LEFT JOIN genetic_profile ON cancer_study.CANCER_STUDY_ID = genetic_profile.CANCER_STUDY_ID
+        LEFT JOIN sample_profile ON sample_profile.GENETIC_PROFILE_ID = genetic_profile.GENETIC_PROFILE_ID AND sample.INTERNAL_ID = sample_profile.SAMPLE_ID
         LEFT JOIN gene_panel ON sample_profile.PANEL_ID = gene_panel.INTERNAL_ID
     </sql>
     

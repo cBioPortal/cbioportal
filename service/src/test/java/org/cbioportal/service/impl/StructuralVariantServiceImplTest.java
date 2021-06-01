@@ -28,12 +28,14 @@ import java.util.List;
 
 import org.cbioportal.model.StructuralVariant;
 import org.cbioportal.persistence.StructuralVariantRepository;
+import org.cbioportal.service.util.MolecularProfileUtil;
 import org.junit.Assert;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.Mockito;
+import org.mockito.Spy;
 import org.mockito.junit.MockitoJUnitRunner;
 
 @RunWith(MockitoJUnitRunner.class)
@@ -44,6 +46,9 @@ public class StructuralVariantServiceImplTest extends BaseServiceImplTest {
 
     @Mock
     private StructuralVariantRepository structuralVariantRepository;
+    @Spy
+    @InjectMocks
+    private MolecularProfileUtil molecularProfileUtil;
 
     @Test
     public void getStructuralVariants() throws Exception {

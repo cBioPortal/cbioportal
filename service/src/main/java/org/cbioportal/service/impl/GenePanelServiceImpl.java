@@ -3,36 +3,36 @@ package org.cbioportal.service.impl;
 import org.cbioportal.model.*;
 import org.cbioportal.model.meta.BaseMeta;
 import org.cbioportal.persistence.GenePanelRepository;
-import org.cbioportal.persistence.MolecularProfileRepository;
 import org.cbioportal.service.GenePanelService;
+import org.cbioportal.service.MolecularProfileService;
 import org.cbioportal.service.SampleListService;
 import org.cbioportal.service.exception.GenePanelNotFoundException;
 import org.cbioportal.service.exception.MolecularProfileNotFoundException;
 import org.cbioportal.service.exception.SampleListNotFoundException;
+import org.cbioportal.service.util.MolecularProfileUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.*;
 import java.util.function.Function;
 import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
-import static java.util.stream.Collectors.toList;
-import static java.util.stream.Collectors.toSet;
+import static java.util.stream.Collectors.*;
 
 @Service
 public class GenePanelServiceImpl implements GenePanelService {
     @Autowired
     private GenePanelRepository genePanelRepository;
     @Autowired
-    private MolecularProfileRepository molecularProfileRepository;
+    private MolecularProfileService molecularProfileService;
     @Autowired
     private SampleListService sampleListService;
+    @Autowired
+    private MolecularProfileUtil molecularProfileUtil;
 
-    private static final String SEQUENCED_LIST_SUFFIX = "_sequenced";
-
-    Function<GenePanelData, String> sampleUniqueIdentifier = sample -> sample.getMolecularProfileId() + sample.getSampleId();
-    Function<GenePanelData, String> patientUniqueIdentifier = sample -> sample.getMolecularProfileId() + sample.getPatientId();
+    private final String SEQUENCED_LIST_SUFFIX = "_sequenced";
+    private final Function<GenePanelData, String> SAMPLE_IDENTIFIER_GENERATOR = d -> d.getMolecularProfileId() + d.getSampleId();
+    private final Function<GenePanelData, String> PATIENT_IDENTIFIER_GENERATOR = d -> d.getMolecularProfileId() + d.getPatientId();
 
     @Override
     public List<GenePanel> getAllGenePanels(String projection, Integer pageSize, Integer pageNumber, String sortBy, 
@@ -92,19 +92,26 @@ public class GenePanelServiceImpl implements GenePanelService {
     public List<GenePanelData> getGenePanelData(String molecularProfileId, String sampleListId)
         throws MolecularProfileNotFoundException {
 
-        Stream<GenePanelData> genePanelDataStream = genePanelRepository
-            .getGenePanelDataBySampleListId(molecularProfileId.replace("_fusion", "_mutations"), sampleListId)
-            .stream();
+        // replace fusion profile id with mutation, as all the fusions are in mutation table
+        // and are imported with mutation profile id
+        // TODO: remove replacing logic once the fusions are migrated to structural variant in database
+        MolecularProfile molecularProfile = molecularProfileService
+            .getMolecularProfile(molecularProfileUtil.replaceFusionProfileWithMutationProfile(molecularProfileId));
+
+        List<GenePanelData> genePanelData = genePanelRepository
+            .getGenePanelDataBySampleListId(molecularProfile.getStableId(), sampleListId);
+
+        genePanelData = annotateDataFromSequencedSampleLists(genePanelData, molecularProfile);
 
         // TODO: remove this block after fusion are migrated to structural variant in database
-        if (molecularProfileId.endsWith("_fusion")) {
-            genePanelDataStream = genePanelDataStream
-                .map(datum -> transformMutationToFusionPanelData(molecularProfileId, datum));
+        if (molecularProfileId.endsWith(molecularProfileUtil.FUSION_PROFILE_SUFFIX)) {
+            genePanelData = genePanelData
+                .stream()
+                .map(datum -> transformMutationToFusionPanelData(molecularProfileId, datum))
+                .collect(toList());
         }
 
-        return annotateDataFromSequencedSampleLists(
-            genePanelDataStream,
-            Collections.singleton(molecularProfileId));
+        return genePanelData;
     }
 
     @Override
@@ -122,25 +129,37 @@ public class GenePanelServiceImpl implements GenePanelService {
     @Override
     public List<GenePanelData> fetchGenePanelDataByMolecularProfileIds(Set<String> molecularProfileIds) {
 
-        Map<String, List<GenePanelData>> molecularProfileIdToGenePanelDataMap = molecularProfileIds
+        // replace fusion profile id with mutation, as all the fusions are in mutation table
+        // and are imported with mutation profile id
+        // TODO: remove replacing logic once the fusions are migrated to structural variant in database
+        List<String> uniqueMolecularProfileIds = molecularProfileIds
             .stream()
-            .map(profileId -> profileId.replace("_fusion", "_mutations"))
+            .map(profileId -> molecularProfileUtil.replaceFusionProfileWithMutationProfile(profileId))
             .distinct()
+            .collect(toList());
+
+        Map<String, List<GenePanelData>> molecularProfileIdToGenePanelDataMap = molecularProfileService
+            .getMolecularProfiles(uniqueMolecularProfileIds, "SUMMARY")
+            .stream()
             //query database with each profile id so data cached in a modular way for each profile 
-            .collect(Collectors.toMap(Function.identity(), profileId -> genePanelRepository
-                .fetchGenePanelDataByMolecularProfileId(profileId)));
+            .collect(Collectors.toMap(MolecularProfile::getStableId, molecularProfile -> {
+                List<GenePanelData> data = genePanelRepository
+                    .fetchGenePanelDataByMolecularProfileId(molecularProfile.getStableId());
+                return annotateDataFromSequencedSampleLists(data, molecularProfile);
+            }));
 
         return molecularProfileIds
             .stream()
             .flatMap(profileId -> {
-                if (profileId.endsWith("_fusion")) {
+                // TODO: remove replacing logic once the fusions are migrated to structural variant in database
+                if (profileId.endsWith(molecularProfileUtil.FUSION_PROFILE_SUFFIX)) {
                     return molecularProfileIdToGenePanelDataMap
-                        .getOrDefault(profileId.replace("_fusion", "_mutations"), new ArrayList<>())
+                        .getOrDefault(molecularProfileUtil.replaceFusionProfileWithMutationProfile(profileId), new ArrayList<>())
                         .stream()
                         .map(datum -> transformMutationToFusionPanelData(profileId, datum));
                 } else {
                     return molecularProfileIdToGenePanelDataMap
-                        .getOrDefault(profileId.replace("_fusion", "_mutations"), new ArrayList<>())
+                        .getOrDefault(profileId, new ArrayList<>())
                         .stream();
                 }
             })
@@ -149,12 +168,12 @@ public class GenePanelServiceImpl implements GenePanelService {
 
     @Override
     public List<GenePanelData> fetchGenePanelDataInMultipleMolecularProfiles(List<MolecularProfileCaseIdentifier> molecularProfileSampleIdentifiers) {
-        return getGenePanelData(molecularProfileSampleIdentifiers, sampleUniqueIdentifier);
+        return getGenePanelData(molecularProfileSampleIdentifiers, SAMPLE_IDENTIFIER_GENERATOR);
     }
 
     @Override
     public List<GenePanelData> fetchGenePanelDataInMultipleMolecularProfilesByPatientIds(List<MolecularProfileCaseIdentifier> molecularProfilePatientIdentifiers) {
-        return getGenePanelData(molecularProfilePatientIdentifiers, patientUniqueIdentifier);
+        return getGenePanelData(molecularProfilePatientIdentifiers, PATIENT_IDENTIFIER_GENERATOR);
     }
 
     private List<GenePanelData> getGenePanelData(List<MolecularProfileCaseIdentifier> molecularProfileCaseIdentifiers,
@@ -172,56 +191,45 @@ public class GenePanelServiceImpl implements GenePanelService {
                         datum -> datum.getMolecularProfileId() + datum.getCaseId(),
                         datum -> true));
 
-        Stream<GenePanelData> genePanelDataStream = fetchGenePanelDataByMolecularProfileIds(molecularProfileIds)
+        return fetchGenePanelDataByMolecularProfileIds(molecularProfileIds)
             .stream()
-            .filter(datum -> queriedMolecularProfileCaseIdentifierMap.containsKey(keyGenerator.apply(datum)));
+            .filter(datum -> queriedMolecularProfileCaseIdentifierMap.containsKey(keyGenerator.apply(datum)))
+            .collect(toList());
 
-        return annotateDataFromSequencedSampleLists(genePanelDataStream, molecularProfileIds);
     }
 
-    private List<GenePanelData> annotateDataFromSequencedSampleLists(Stream<GenePanelData> genePanelData,
-                                                                     Set<String> molecularProfileIds) {
+    /**
+     * For mutation and fusion profile use sequenced case/sample list to check if the sample are profiled or not 
+     * @param genePanelData list of gene panel data objects
+     * @param molecularProfile MolecularProfile
+     * @return List of GenePanelData
+     */
+    private List<GenePanelData> annotateDataFromSequencedSampleLists(List<GenePanelData> genePanelData,
+                                                                     MolecularProfile molecularProfile) {
 
-        Map<String, MolecularProfile> sequencedMolecularProfileMap = molecularProfileRepository
-            .getMolecularProfiles(new ArrayList<>(molecularProfileIds), "SUMMARY")
-            .stream()
-            .filter(profile ->
-                profile.getMolecularAlterationType().equals(MolecularProfile.MolecularAlterationType.MUTATION_EXTENDED) ||
-                    profile.getMolecularAlterationType().equals(MolecularProfile.MolecularAlterationType.FUSION) ||
-                    (profile.getMolecularAlterationType().equals(MolecularProfile.MolecularAlterationType.STRUCTURAL_VARIANT) &&
-                        profile.getDatatype().equalsIgnoreCase("FUSION")))
-            .collect(Collectors.toMap(MolecularProfile::getStableId, Function.identity()));
+        if (MolecularProfile.MolecularAlterationType.MUTATION_EXTENDED.equals(molecularProfile.getMolecularAlterationType()) ||
+            MolecularProfile.MolecularAlterationType.FUSION.equals(molecularProfile.getMolecularAlterationType()) ||
+            (MolecularProfile.MolecularAlterationType.STRUCTURAL_VARIANT.equals(molecularProfile.getMolecularAlterationType()) &&
+                molecularProfile.getDatatype().equalsIgnoreCase("FUSION"))) {
+            try {
+                SampleList sampleList = sampleListService.getSampleList(molecularProfile.getCancerStudyIdentifier() + SEQUENCED_LIST_SUFFIX);
+                Map<String, Boolean> sampleSequencedBySampleList = sampleList
+                    .getSampleIds()
+                    .stream()
+                    .collect(toMap(Function.identity(), d -> true));
+                return genePanelData
+                    .stream()
+                    .peek(datum -> {
+                        if(!datum.getProfiled()) {
+                            datum.setProfiled(sampleSequencedBySampleList.getOrDefault(datum.getStudyId() + datum.getSampleId(), false));
+                        }
+                    })
+                    .collect(toList());
 
-        Map<String, Boolean> sampleSequencedBySampleList = new HashMap<>();
-
-        sequencedMolecularProfileMap
-            .values()
-            .stream()
-            .map(profile -> profile.getCancerStudyIdentifier() + SEQUENCED_LIST_SUFFIX)
-            .distinct()
-            .forEach(sampleListId -> {
-                try {
-                    SampleList sampleList = sampleListService.getSampleList(sampleListId);
-                    sampleList
-                        .getSampleIds()
-                        .forEach(sampleId ->
-                            sampleSequencedBySampleList.put(sampleList.getCancerStudyIdentifier() + sampleId, true));
-                } catch (SampleListNotFoundException ignored) {
-                }
-            });
-
-        if (!sampleSequencedBySampleList.isEmpty()) {
-            return genePanelData
-                .map(datum -> {
-                    if (!datum.getProfiled() && sequencedMolecularProfileMap.containsKey(datum.getMolecularProfileId())) {
-                        datum.setProfiled(sampleSequencedBySampleList.getOrDefault(datum.getStudyId() + datum.getSampleId(), false));
-                    }
-                    return datum;
-                })
-                .collect(toList());
+            } catch (SampleListNotFoundException ignored) {
+            }
         }
-
-        return genePanelData.collect(toList());
+        return genePanelData;
     }
 
     private GenePanelData transformMutationToFusionPanelData(String molecularProfileId, GenePanelData mutationPanelData) {

@@ -6,15 +6,16 @@ import java.util.stream.Collectors;
 import org.cbioportal.model.*;
 import org.cbioportal.model.meta.BaseMeta;
 import org.cbioportal.persistence.GenePanelRepository;
-import org.cbioportal.persistence.MolecularProfileRepository;
-import org.cbioportal.persistence.StudyRepository;
+import org.cbioportal.service.MolecularProfileService;
 import org.cbioportal.service.exception.GenePanelNotFoundException;
+import org.cbioportal.service.util.MolecularProfileUtil;
 import org.junit.Assert;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.Mockito;
+import org.mockito.Spy;
 import org.mockito.junit.MockitoJUnitRunner;
 
 @RunWith(MockitoJUnitRunner.Silent.class)
@@ -26,9 +27,10 @@ public class GenePanelServiceImplTest extends BaseServiceImplTest {
     @Mock
     private GenePanelRepository genePanelRepository;
     @Mock
-    private MolecularProfileRepository molecularProfileRepository;
-    @Mock
-    private StudyRepository studyRepository;
+    private MolecularProfileService molecularProfileService;
+    @Spy
+    @InjectMocks
+    private MolecularProfileUtil molecularProfileUtil;
     
     @Test
     public void getAllGenePanelsSummaryProjection() throws Exception {
@@ -132,6 +134,15 @@ public class GenePanelServiceImplTest extends BaseServiceImplTest {
         genePanelData2.setProfiled(false);
         genePanelDataList.add(genePanelData2);
 
+        MolecularProfile molecularProfile = new MolecularProfile();
+        molecularProfile.setStableId(MOLECULAR_PROFILE_ID);
+        molecularProfile.setCancerStudyIdentifier(STUDY_ID);
+        molecularProfile.setMolecularAlterationType(MolecularProfile.MolecularAlterationType.COPY_NUMBER_ALTERATION);
+
+        Mockito.when(molecularProfileService
+            .getMolecularProfile(MOLECULAR_PROFILE_ID))
+            .thenReturn(molecularProfile);
+
         Mockito.when(genePanelRepository.getGenePanelDataBySampleListId(MOLECULAR_PROFILE_ID, SAMPLE_LIST_ID))
             .thenReturn(genePanelDataList);
         
@@ -156,6 +167,15 @@ public class GenePanelServiceImplTest extends BaseServiceImplTest {
 
     @Test
     public void getGenePanelDataInvalidSampleListId() throws Exception {
+
+        MolecularProfile molecularProfile = new MolecularProfile();
+        molecularProfile.setStableId(MOLECULAR_PROFILE_ID);
+        molecularProfile.setCancerStudyIdentifier(STUDY_ID);
+        molecularProfile.setMolecularAlterationType(MolecularProfile.MolecularAlterationType.COPY_NUMBER_ALTERATION);
+
+        Mockito.when(molecularProfileService
+            .getMolecularProfile(MOLECULAR_PROFILE_ID))
+            .thenReturn(molecularProfile);
         
         List<GenePanelData> result = genePanelService.getGenePanelData(MOLECULAR_PROFILE_ID, SAMPLE_LIST_ID);
         
@@ -174,6 +194,15 @@ public class GenePanelServiceImplTest extends BaseServiceImplTest {
         genePanelData.setStudyId(STUDY_ID);
         genePanelData.setProfiled(true);
         genePanelDataList.add(genePanelData);
+
+        MolecularProfile molecularProfile = new MolecularProfile();
+        molecularProfile.setStableId(MOLECULAR_PROFILE_ID);
+        molecularProfile.setCancerStudyIdentifier(STUDY_ID);
+        molecularProfile.setMolecularAlterationType(MolecularProfile.MolecularAlterationType.COPY_NUMBER_ALTERATION);
+
+        Mockito.when(molecularProfileService
+            .getMolecularProfiles(Arrays.asList(MOLECULAR_PROFILE_ID), "SUMMARY"))
+            .thenReturn(Arrays.asList(molecularProfile));
 
         Mockito.when(genePanelRepository
             .fetchGenePanelDataByMolecularProfileId(MOLECULAR_PROFILE_ID))
@@ -236,17 +265,12 @@ public class GenePanelServiceImplTest extends BaseServiceImplTest {
         Set<String> molecularProfileIds = molecularProfileSampleIdentifiers.stream().map(MolecularProfileCaseIdentifier::getMolecularProfileId).collect(Collectors.toSet());
 
         MolecularProfile molecularProfile = new MolecularProfile();
+        molecularProfile.setStableId(MOLECULAR_PROFILE_ID);
         molecularProfile.setCancerStudyIdentifier(STUDY_ID);
         molecularProfile.setMolecularAlterationType(MolecularProfile.MolecularAlterationType.COPY_NUMBER_ALTERATION);
         
-        Mockito.when(molecularProfileRepository.getMolecularProfiles(new ArrayList<>(molecularProfileIds), "SUMMARY"))
+        Mockito.when(molecularProfileService.getMolecularProfiles(new ArrayList<>(molecularProfileIds), "SUMMARY"))
             .thenReturn(Arrays.asList(molecularProfile));
-        
-        CancerStudy cancerStudy = new CancerStudy();
-        cancerStudy.setAllSampleCount(10);
-        
-        Mockito.when(studyRepository.fetchStudies(Arrays.asList(STUDY_ID), "SUMMARY"))
-            .thenReturn(Arrays.asList(cancerStudy));
 
         List<GenePanelData> result = genePanelService.fetchGenePanelDataInMultipleMolecularProfiles(new ArrayList<>(molecularProfileSampleIdentifiers));
 

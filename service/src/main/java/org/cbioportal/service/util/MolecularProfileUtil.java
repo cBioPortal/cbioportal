@@ -15,6 +15,10 @@ import java.util.stream.Stream;
 @Component
 public class MolecularProfileUtil {
 
+    public final String MUTATION_PROFILE_SUFFIX = "_mutations";
+    public final String FUSION_PROFILE_SUFFIX = "_fusion";
+    public final String STRUCTURAL_VARIANT_PROFILE_SUFFIX = "_structural_variants";
+
     public Predicate<MolecularProfile> isStructuralVariantMolecularProfile =
         m -> m.getMolecularAlterationType().equals(MolecularProfile.MolecularAlterationType.FUSION) ||
             m.getMolecularAlterationType().equals(MolecularProfile.MolecularAlterationType.STRUCTURAL_VARIANT);
@@ -98,6 +102,10 @@ public class MolecularProfileUtil {
                     return profilesToReturn;
                 }));
         return studyMolecularProfilesSet;
+    }
+
+    public String replaceFusionProfileWithMutationProfile(String profileId) {
+        return profileId.replace(FUSION_PROFILE_SUFFIX, MUTATION_PROFILE_SUFFIX);
     }
 
 }

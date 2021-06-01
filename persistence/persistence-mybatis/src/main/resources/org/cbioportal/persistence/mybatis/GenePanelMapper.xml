@@ -14,15 +14,12 @@
     </sql>
 
     <sql id="selectGenePanelData">
-	    gene_panel.STABLE_ID AS genePanelId,
-	    sample.STABLE_ID AS sampleId,
-	    patient.STABLE_ID AS patientId,
-	    cancer_study.CANCER_STUDY_IDENTIFIER AS studyId,
-	    genetic_profile.STABLE_ID AS molecularProfileId,
-        CASE
-            WHEN sample_profile.GENETIC_PROFILE_ID IS NOT NULL THEN TRUE
-            ELSE FALSE
-        END AS profiled
+        gene_panel.STABLE_ID AS genePanelId,
+        sample.STABLE_ID AS sampleId,
+        patient.STABLE_ID AS patientId,
+        cancer_study.CANCER_STUDY_IDENTIFIER AS studyId,
+        genetic_profile.STABLE_ID AS molecularProfileId,
+        sample_profile.GENETIC_PROFILE_ID IS NOT NULL AS profiled
     </sql>
 
     <sql id="fromGenePanelData">

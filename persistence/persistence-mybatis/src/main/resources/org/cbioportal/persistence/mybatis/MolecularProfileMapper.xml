@@ -145,5 +145,4 @@
                          genetic_profile.STABLE_ID = #{referredMolecularProfileId}
                        )
     </select>
-    
 </mapper>

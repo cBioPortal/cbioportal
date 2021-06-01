@@ -1,12 +1,14 @@
 package org.cbioportal.service.impl;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-
 import org.apache.commons.math3.util.Pair;
-import org.cbioportal.model.*;
+import org.cbioportal.model.AlterationCountByGene;
+import org.cbioportal.model.AlterationEnrichment;
+import org.cbioportal.model.AlterationFilter;
+import org.cbioportal.model.CNA;
+import org.cbioportal.model.EnrichmentType;
+import org.cbioportal.model.MolecularProfileCaseIdentifier;
+import org.cbioportal.model.MutationCountByGene;
+import org.cbioportal.model.MutationEventType;
 import org.cbioportal.model.QueryElement;
 import org.cbioportal.model.util.Select;
 import org.cbioportal.service.AlterationCountService;
@@ -18,6 +20,11 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.junit.MockitoJUnitRunner;
+
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 @RunWith(MockitoJUnitRunner.Silent.class)
 public class AlterationEnrichmentServiceImplTest extends BaseServiceImplTest {
@@ -59,13 +66,14 @@ public class AlterationEnrichmentServiceImplTest extends BaseServiceImplTest {
         Pair<List<AlterationCountByGene>, Long> alterationSampleCountByGeneList = new Pair<>(new ArrayList<>(), 0L);
         Select<MutationEventType> mutationTypes = Select.none();
         Select<CNA> cnaTypes = Select.none();
+        
+        AlterationFilter alterationFilter = new AlterationFilter();
 
         //  return counts for each of the two groups 
         for (String molecularProfileId : groupMolecularProfileCaseSets.keySet()) {
             Mockito.when(alterationCountService.getSampleAlterationCounts(
                 groupMolecularProfileCaseSets.get(molecularProfileId),
-                Select.all(), true, true,
-                mutationTypes, cnaTypes, QueryElement.PASS)
+                Select.all(), true, true, QueryElement.PASS, alterationFilter)
             ).thenReturn(alterationSampleCountByGeneList);
         }
 
@@ -76,9 +84,8 @@ public class AlterationEnrichmentServiceImplTest extends BaseServiceImplTest {
         List<AlterationEnrichment> result = alterationEnrichmentService
             .getAlterationEnrichments(
                 groupMolecularProfileCaseSets,
-                mutationTypes,
-                cnaTypes,
-                EnrichmentType.SAMPLE);
+                EnrichmentType.SAMPLE,
+                alterationFilter);
         Assert.assertEquals(result, expectedAlterationEnrichments);
     }
 }

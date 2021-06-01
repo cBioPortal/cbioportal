@@ -1,11 +1,6 @@
 package org.cbioportal.service.impl;
 
-import org.cbioportal.model.CopyNumberCount;
-import org.cbioportal.model.CopyNumberCountByGene;
-import org.cbioportal.model.DiscreteCopyNumberData;
-import org.cbioportal.model.Gene;
-import org.cbioportal.model.GeneMolecularData;
-import org.cbioportal.model.MolecularProfile;
+import org.cbioportal.model.*;
 import org.cbioportal.model.meta.BaseMeta;
 import org.cbioportal.persistence.DiscreteCopyNumberRepository;
 import org.cbioportal.service.MolecularDataService;
@@ -21,8 +16,12 @@ import org.mockito.junit.MockitoJUnitRunner;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
+
+import static org.mockito.ArgumentMatchers.anyList;
+import static org.mockito.ArgumentMatchers.anyString;
 
 @RunWith(MockitoJUnitRunner.class)
 public class DiscreteCopyNumberServiceImplTest extends BaseServiceImplTest {
@@ -66,7 +65,7 @@ public class DiscreteCopyNumberServiceImplTest extends BaseServiceImplTest {
     }
 
     @Test
-    public void getDiscreteCopyNumbersInMultipleMolecularProfilesAllMutTypes() {
+    public void getDiscreteCopyNumbersInMultipleMolecularProfilesAllAlterationTypes() {
         List<GeneMolecularData> returned = Arrays.asList(
             geneMolecularData("sample1", "study1", "-2"),
             geneMolecularData("sample2", "study1", "-1"),
@@ -77,18 +76,20 @@ public class DiscreteCopyNumberServiceImplTest extends BaseServiceImplTest {
         
         List<String> profiles = Arrays.asList("profile1", "profile2");
         List<String> samples = Arrays.asList("sample1", "sample2");
-        List<Integer> geneIds = Arrays.asList(0, 1);
-        List<Integer> alterationTypes = Arrays.asList(-2, 1, 0, -1, 2);
-        Mockito.when(molecularDataService.getMolecularDataInMultipleMolecularProfiles(
-                profiles,
-                samples,
-                geneIds,
-                PROJECTION
+        List<CNA> alterationTypes = Arrays.asList(CNA.AMP, CNA.HOMDEL, CNA.DIPLOID, CNA.GAIN, CNA.HETLOSS);
+        GeneFilterQuery query = new GeneFilterQuery();
+        query.setAlterations(alterationTypes);
+        List<GeneFilterQuery> geneQueries = Arrays.asList(query);
+        Mockito.when(molecularDataService.getMolecularDataInMultipleMolecularProfilesByGeneQueries(
+                anyList(),
+                anyList(),
+                anyList(),
+                anyString()
             ))
             .thenReturn(returned);
 
-        List<DiscreteCopyNumberData> actual = discreteCopyNumberService.getDiscreteCopyNumbersInMultipleMolecularProfiles(
-            profiles, samples, geneIds, alterationTypes, PROJECTION
+        List<DiscreteCopyNumberData> actual = discreteCopyNumberService.getDiscreteCopyNumbersInMultipleMolecularProfilesByGeneQueries(
+            profiles, samples, geneQueries, PROJECTION
         );
         List<DiscreteCopyNumberData> expected = Arrays.asList(
             discreteCopyNumberData("sample1", "study1", -2),
@@ -99,6 +100,29 @@ public class DiscreteCopyNumberServiceImplTest extends BaseServiceImplTest {
         );
         
         Assert.assertEquals(toStrings(expected), toStrings(actual));
+    }
+
+    @Test
+    public void getDiscreteCopyNumbersInMultipleMolecularProfilesEmptyAlterationTypes() {
+        List<GeneMolecularData> returned = Arrays.asList(
+            geneMolecularData("sample1", "study1", "-2"),
+            geneMolecularData("sample2", "study1", "-1"),
+            geneMolecularData("sample3", "study1", "0"),
+            geneMolecularData("sample4", "study1", "1"),
+            geneMolecularData("sample5", "study2", "2")
+        );
+        
+        List<String> profiles = Arrays.asList("profile1", "profile2");
+        List<String> samples = Arrays.asList("sample1", "sample2");
+        List<CNA> alterationTypes = Collections.emptyList();
+        GeneFilterQuery query = new GeneFilterQuery();
+        query.setAlterations(alterationTypes);
+        List<GeneFilterQuery> geneQueries = Arrays.asList(query);
+
+        List<DiscreteCopyNumberData> actual = discreteCopyNumberService.getDiscreteCopyNumbersInMultipleMolecularProfilesByGeneQueries(
+            profiles, samples, geneQueries, PROJECTION
+        );
+        Assert.assertEquals(Collections.emptyList(), toStrings(actual));
     }
     
     @Test

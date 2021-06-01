@@ -1,7 +1,9 @@
 package org.cbioportal.service;
 
-import org.cbioportal.model.*;
-import org.cbioportal.model.util.Select;
+import org.cbioportal.model.AlterationEnrichment;
+import org.cbioportal.model.AlterationFilter;
+import org.cbioportal.model.EnrichmentType;
+import org.cbioportal.model.MolecularProfileCaseIdentifier;
 import org.cbioportal.service.exception.MolecularProfileNotFoundException;
 
 import java.util.List;
@@ -11,8 +13,7 @@ public interface AlterationEnrichmentService {
 
     List<AlterationEnrichment> getAlterationEnrichments(
         Map<String, List<MolecularProfileCaseIdentifier>> molecularProfileCaseSets,
-        final Select<MutationEventType> mutationEventTypes,
-        final Select<CNA> cnaEventTypes,
-        EnrichmentType enrichmentType)
+        EnrichmentType enrichmentType,
+        AlterationFilter alterationFilter)
         throws MolecularProfileNotFoundException;
 }

@@ -31,6 +31,7 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import org.apache.commons.collections.CollectionUtils;
+import org.cbioportal.model.GeneFilterQuery;
 import org.cbioportal.model.StructuralVariant;
 import org.cbioportal.persistence.MutationRepository;
 import org.cbioportal.persistence.StructuralVariantRepository;
@@ -87,6 +88,52 @@ public class StructuralVariantServiceImpl implements StructuralVariantService {
                     mutationRepository.getFusionsInMultipleMolecularProfiles(fusionVariantMolecularProfileIds,
                             fusionVariantSampleIds, entrezGeneIds, "DETAILED", null, null, null, null),
                     molecularProfileIdReplaceMap, CollectionUtils.isEmpty(entrezGeneIds));
+        }
+
+        // TODO: Remove once fusions are removed from mutation table
+
+        return Stream.concat(structuralVariants.stream(), variantsFromMutationtable.stream())
+                .collect(Collectors.toList());
+    }
+
+    @Override
+    public List<StructuralVariant> fetchStructuralVariantsByGeneQueries(List<String> molecularProfileIds,
+                                                                        List<GeneFilterQuery> geneQueries, List<String> sampleIds) {
+
+        List<String> structuralVariantMolecularProfileIds = new ArrayList<String>();
+        List<String> structuralVariantSampleIds = new ArrayList<String>();
+
+        List<String> fusionVariantMolecularProfileIds = new ArrayList<String>();
+        List<String> fusionVariantSampleIds = new ArrayList<String>();
+        Map<String, String> molecularProfileIdReplaceMap = new HashMap<>();
+
+        // TODO: Remove once fusions are removed from mutation table
+        for (int i = 0; i < molecularProfileIds.size(); i++) {
+            String molecularProfileId = molecularProfileIds.get(i);
+            if (molecularProfileId.endsWith("_structural_variants")) {
+                structuralVariantMolecularProfileIds.add(molecularProfileId);
+                structuralVariantSampleIds.add(sampleIds.get(i));
+            } else if (molecularProfileId.endsWith("_fusion")) {
+                String mutationMolecularProfileId = molecularProfileId.replace("_fusion", "_mutations");
+                molecularProfileIdReplaceMap.put(mutationMolecularProfileId, molecularProfileId);
+                fusionVariantMolecularProfileIds.add(molecularProfileId);
+                fusionVariantSampleIds.add(sampleIds.get(i));
+            }
+        }
+
+        List<StructuralVariant> structuralVariants = new ArrayList<>();
+        List<StructuralVariant> variantsFromMutationtable = new ArrayList<>();
+
+        if (CollectionUtils.isNotEmpty(structuralVariantMolecularProfileIds)) {
+            structuralVariants = structuralVariantRepository.fetchStructuralVariantsByGeneQueries(
+                    structuralVariantMolecularProfileIds, geneQueries, structuralVariantSampleIds);
+        }
+
+        if (CollectionUtils.isNotEmpty(fusionVariantMolecularProfileIds)) {
+            variantsFromMutationtable = mutationMapperUtils.mapFusionsToStructuralVariants(
+                    mutationRepository.getFusionsInMultipleMolecularProfilesByGeneQueries(fusionVariantMolecularProfileIds,
+                            fusionVariantSampleIds, geneQueries, "DETAILED", null, null, null, null),
+                    molecularProfileIdReplaceMap, CollectionUtils.isEmpty(geneQueries));
         }
 
         // TODO: Remove once fusions are removed from mutation table

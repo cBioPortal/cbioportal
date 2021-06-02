@@ -35,6 +35,7 @@ import org.cbioportal.model.StructuralVariant;
 import org.cbioportal.persistence.MutationRepository;
 import org.cbioportal.persistence.StructuralVariantRepository;
 import org.cbioportal.service.StructuralVariantService;
+import org.cbioportal.service.util.MolecularProfileUtil;
 import org.cbioportal.service.util.MutationMapperUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -48,6 +49,8 @@ public class StructuralVariantServiceImpl implements StructuralVariantService {
     private MutationRepository mutationRepository;
     @Autowired
     private MutationMapperUtils mutationMapperUtils;
+    @Autowired
+    private MolecularProfileUtil molecularProfileUtil;
 
     @Override
     public List<StructuralVariant> fetchStructuralVariants(List<String> molecularProfileIds,
@@ -63,11 +66,11 @@ public class StructuralVariantServiceImpl implements StructuralVariantService {
         // TODO: Remove once fusions are removed from mutation table
         for (int i = 0; i < molecularProfileIds.size(); i++) {
             String molecularProfileId = molecularProfileIds.get(i);
-            if (molecularProfileId.endsWith("_structural_variants")) {
+            if (molecularProfileId.endsWith(molecularProfileUtil.STRUCTURAL_VARIANT_PROFILE_SUFFIX)) {
                 structuralVariantMolecularProfileIds.add(molecularProfileId);
                 structuralVariantSampleIds.add(sampleIds.get(i));
-            } else if (molecularProfileId.endsWith("_fusion")) {
-                String mutationMolecularProfileId = molecularProfileId.replace("_fusion", "_mutations");
+            } else if (molecularProfileId.endsWith(molecularProfileUtil.FUSION_PROFILE_SUFFIX)) {
+                String mutationMolecularProfileId = molecularProfileUtil.replaceFusionProfileWithMutationProfile(molecularProfileId);
                 molecularProfileIdReplaceMap.put(mutationMolecularProfileId, molecularProfileId);
                 fusionVariantMolecularProfileIds.add(molecularProfileId);
                 fusionVariantSampleIds.add(sampleIds.get(i));

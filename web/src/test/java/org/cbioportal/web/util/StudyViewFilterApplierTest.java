@@ -19,6 +19,7 @@ import org.cbioportal.web.parameter.ClinicalDataFilter;
 import org.cbioportal.web.parameter.DataFilterValue;
 import org.cbioportal.web.parameter.GeneFilter;
 import org.cbioportal.web.parameter.GeneIdType;
+import org.cbioportal.web.parameter.GenericAssayDataFilter;
 import org.cbioportal.web.parameter.Projection;
 import org.cbioportal.web.parameter.SampleIdentifier;
 import org.cbioportal.web.parameter.StudyViewFilter;
@@ -33,6 +34,7 @@ import org.mockito.MockitoAnnotations;
 import org.mockito.Spy;
 import org.mockito.junit.MockitoJUnitRunner;
 
+import javax.validation.constraints.NotNull;
 import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -620,5 +622,159 @@ public class StudyViewFilterApplierTest {
 
         List<SampleIdentifier> result5 = studyViewFilterApplier.apply(studyViewFilter);
         Assert.assertEquals(2, result5.size());
+    }
+
+    @Test
+    public void applyPatientLevelGenericAssayFilter() throws Exception {
+
+        List<String> studyIds = Collections.nCopies(5, STUDY_ID);
+
+        StudyViewFilter studyViewFilter = new StudyViewFilter();
+        List<String> sampleIds = new ArrayList<>();
+        sampleIds.add(SAMPLE_ID1);
+        sampleIds.add(SAMPLE_ID2);
+        sampleIds.add(SAMPLE_ID3);
+        sampleIds.add(SAMPLE_ID4);
+        sampleIds.add(SAMPLE_ID5);
+
+        List<SampleIdentifier> sampleIdentifiers = new ArrayList<>();
+        SampleIdentifier sampleIdentifier1 = new SampleIdentifier();
+        sampleIdentifier1.setSampleId(SAMPLE_ID1);
+        sampleIdentifier1.setStudyId(STUDY_ID);
+        sampleIdentifiers.add(sampleIdentifier1);
+        SampleIdentifier sampleIdentifier2 = new SampleIdentifier();
+        sampleIdentifier2.setSampleId(SAMPLE_ID2);
+        sampleIdentifier2.setStudyId(STUDY_ID);
+        sampleIdentifiers.add(sampleIdentifier2);
+        SampleIdentifier sampleIdentifier3 = new SampleIdentifier();
+        sampleIdentifier3.setSampleId(SAMPLE_ID3);
+        sampleIdentifier3.setStudyId(STUDY_ID);
+        sampleIdentifiers.add(sampleIdentifier3);
+        SampleIdentifier sampleIdentifier4 = new SampleIdentifier();
+        sampleIdentifier4.setSampleId(SAMPLE_ID4);
+        sampleIdentifier4.setStudyId(STUDY_ID);
+        sampleIdentifiers.add(sampleIdentifier4);
+        SampleIdentifier sampleIdentifier5 = new SampleIdentifier();
+        sampleIdentifier5.setSampleId(SAMPLE_ID5);
+        sampleIdentifier5.setStudyId(STUDY_ID);
+        sampleIdentifiers.add(sampleIdentifier5);
+        studyViewFilter.setSampleIdentifiers(sampleIdentifiers);
+
+        List<Sample> samples = new ArrayList<>();
+        Sample sample1 = new Sample();
+        sample1.setStableId(SAMPLE_ID1);
+        sample1.setCancerStudyIdentifier(STUDY_ID);
+        samples.add(sample1);
+        Sample sample2 = new Sample();
+        sample2.setStableId(SAMPLE_ID2);
+        sample2.setCancerStudyIdentifier(STUDY_ID);
+        samples.add(sample2);
+        Sample sample3 = new Sample();
+        sample3.setStableId(SAMPLE_ID3);
+        sample3.setCancerStudyIdentifier(STUDY_ID);
+        samples.add(sample3);
+        Sample sample4 = new Sample();
+        sample4.setStableId(SAMPLE_ID4);
+        sample4.setCancerStudyIdentifier(STUDY_ID);
+        samples.add(sample4);
+        Sample sample5 = new Sample();
+        sample5.setStableId(SAMPLE_ID5);
+        sample5.setCancerStudyIdentifier(STUDY_ID);
+        samples.add(sample5);
+
+        List<Patient> patients = new ArrayList<>();
+        Patient patient1 = new Patient();
+        patient1.setStableId(PATIENT_ID1);
+        patient1.setCancerStudyIdentifier(STUDY_ID);
+        patients.add(patient1);
+        Patient patient2 = new Patient();
+        patient2.setStableId(PATIENT_ID2);
+        patient2.setCancerStudyIdentifier(STUDY_ID);
+        patients.add(patient2);
+        Patient patient3 = new Patient();
+        patient3.setStableId(PATIENT_ID3);
+        patient3.setCancerStudyIdentifier(STUDY_ID);
+        patients.add(patient3);
+        Patient patient4 = new Patient();
+        patient4.setStableId(PATIENT_ID4);
+        patient4.setCancerStudyIdentifier(STUDY_ID);
+        patients.add(patient4);
+
+        Mockito.when(sampleService.fetchSamples(studyIds, sampleIds, "ID")).thenReturn(samples);
+        Mockito.when(patientService.getPatientsOfSamples(studyIds, sampleIds)).thenReturn(patients);
+        
+        List<MolecularProfile> molecularProfiles = new ArrayList<>();
+        MolecularProfile molecularProfile1 = new MolecularProfile();
+        molecularProfile1.setStableId(MOLECULAR_PROFILE_ID_1);
+        molecularProfile1.setCancerStudyIdentifier(STUDY_ID);
+        molecularProfile1.setPatientLevel(true);
+        molecularProfiles.add(molecularProfile1);
+        
+        Mockito.when(molecularProfileService.getMolecularProfilesInStudies(Arrays.asList(STUDY_ID), "SUMMARY")).thenReturn(molecularProfiles);
+
+        List<GenericAssayData> genericAssayDataList = new ArrayList<>();
+        
+        GenericAssayData genericAssayData1 = new GenericAssayData();
+        genericAssayData1.setGenericAssayStableId(CLINICAL_ATTRIBUTE_ID_3);
+        genericAssayData1.setMolecularProfileId(MOLECULAR_PROFILE_ID_1);
+        genericAssayData1.setSampleId(SAMPLE_ID1);
+        genericAssayData1.setPatientId(PATIENT_ID1);
+        genericAssayData1.setStudyId(STUDY_ID);
+        genericAssayData1.setValue("100");
+        genericAssayDataList.add(genericAssayData1);
+
+        GenericAssayData genericAssayData2 = new GenericAssayData();
+        genericAssayData2.setGenericAssayStableId(CLINICAL_ATTRIBUTE_ID_3);
+        genericAssayData2.setMolecularProfileId(MOLECULAR_PROFILE_ID_1);
+        genericAssayData2.setSampleId(SAMPLE_ID2);
+        genericAssayData2.setPatientId(PATIENT_ID1);
+        genericAssayData2.setStudyId(STUDY_ID);
+        genericAssayData2.setValue("100");
+        genericAssayDataList.add(genericAssayData2);
+
+        GenericAssayData genericAssayData3 = new GenericAssayData();
+        genericAssayData3.setGenericAssayStableId(CLINICAL_ATTRIBUTE_ID_3);
+        genericAssayData3.setMolecularProfileId(MOLECULAR_PROFILE_ID_1);
+        genericAssayData3.setSampleId(SAMPLE_ID3);
+        genericAssayData3.setPatientId(PATIENT_ID2);
+        genericAssayData3.setStudyId(STUDY_ID);
+        genericAssayData3.setValue("100");
+        genericAssayDataList.add(genericAssayData3);
+
+        GenericAssayData genericAssayData4 = new GenericAssayData();
+        genericAssayData4.setGenericAssayStableId(CLINICAL_ATTRIBUTE_ID_3);
+        genericAssayData4.setMolecularProfileId(MOLECULAR_PROFILE_ID_1);
+        genericAssayData4.setSampleId(SAMPLE_ID4);
+        genericAssayData4.setPatientId(PATIENT_ID3);
+        genericAssayData4.setStudyId(STUDY_ID);
+        genericAssayData4.setValue("100");
+        genericAssayDataList.add(genericAssayData4);
+
+        GenericAssayData genericAssayData5 = new GenericAssayData();
+        genericAssayData5.setGenericAssayStableId(CLINICAL_ATTRIBUTE_ID_3);
+        genericAssayData5.setMolecularProfileId(MOLECULAR_PROFILE_ID_1);
+        genericAssayData5.setSampleId(SAMPLE_ID5);
+        genericAssayData5.setPatientId(PATIENT_ID4);
+        genericAssayData5.setStudyId(STUDY_ID);
+        genericAssayData5.setValue("100");
+        genericAssayDataList.add(genericAssayData5);
+
+        Mockito.when(genericAssayService
+            .fetchGenericAssayData(Arrays.asList(MOLECULAR_PROFILE_ID_1, MOLECULAR_PROFILE_ID_1, MOLECULAR_PROFILE_ID_1, MOLECULAR_PROFILE_ID_1, MOLECULAR_PROFILE_ID_1), sampleIds, Arrays.asList(CLINICAL_ATTRIBUTE_ID_3), "SUMMARY")).thenReturn(genericAssayDataList);
+        
+        GenericAssayDataFilter genericAssayDataFilter = new GenericAssayDataFilter();
+        genericAssayDataFilter.setStableId(CLINICAL_ATTRIBUTE_ID_3);
+        genericAssayDataFilter.setProfileType(MOLECULAR_PROFILE_ID_1);
+
+        DataFilterValue filterValue1 = new DataFilterValue();
+        filterValue1.setStart(new BigDecimal("50"));
+        filterValue1.setEnd(new BigDecimal("150"));
+        genericAssayDataFilter.setValues(Arrays.asList(filterValue1));
+        studyViewFilter.setGenericAssayDataFilters(Arrays.asList(genericAssayDataFilter));
+
+        List<SampleIdentifier> result = studyViewFilterApplier.apply(studyViewFilter);
+        // Return 4 samples since this is a patient level profile
+        // And sample1 sample2 belong to patient1
+        Assert.assertEquals(4, result.size());
     }
 }

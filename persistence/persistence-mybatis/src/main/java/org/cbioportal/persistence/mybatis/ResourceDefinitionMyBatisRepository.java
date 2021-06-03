@@ -24,9 +24,8 @@ public class ResourceDefinitionMyBatisRepository implements ResourceDefinitionRe
     }
 
     @Override
-    public List<ResourceDefinition> getAllResourceDefinitionsInStudy(String studyId, String projection,
-            Integer pageSize, Integer pageNumber, String sortBy, String direction) {
-        return resourceDefinitionMapper.getResourceDefinitions(studyId, projection, pageSize,
-                offsetCalculator.calculate(pageSize, pageNumber), sortBy, direction);
+    public List<ResourceDefinition> fetchResourceDefinitions(List<String> studyIds, String projection, Integer pageSize, Integer pageNumber, String sortBy, String direction) {
+        return resourceDefinitionMapper.getResourceDefinitions(studyIds, projection, pageSize,
+            offsetCalculator.calculate(pageSize, pageNumber), sortBy, direction);
     }
 }

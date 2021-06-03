@@ -43,12 +43,11 @@ The cBioPortal for Cancer Genomics was originally developed at [Memorial Sloan K
 * Adam Resnick
 
 ## The Hyve
-* Fedde Schaeffer
 * Oleguer Plantalech
 * Pim van Nierop
-* Riza Nugraha
 * Sander Rodenburg
 * Diana Baiceanu
+* Paul van Dijk
 * Sjoerd van Hagen
 * Kees van Bochove
 
@@ -78,7 +77,6 @@ The cBioPortal for Cancer Genomics was originally developed at [Memorial Sloan K
 * Anders Jacobsen
 * Erik Larsson
 * Dong Li
-* Pieter Lukasse
 * Tamba Monrose
 * Peter Kok
 * Irina Pulyakhina
@@ -92,6 +90,9 @@ The cBioPortal for Cancer Genomics was originally developed at [Memorial Sloan K
 * James Xu
 * Dionne Zaal
 * Kelsey Zhu
+* Fedde Schaeffer
+* Riza Nugraha
+* Ngoc Nguyen
 
 ## Funding for the cBioPortal for Cancer Genomics is or has been provided by:
 

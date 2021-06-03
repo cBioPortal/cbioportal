@@ -143,7 +143,7 @@ public class MolecularDataServiceImpl implements MolecularDataService {
             List<String> sampleIds, List<Integer> entrezGeneIds, String projection) {
 
         List<GeneMolecularData> molecularDataList = new ArrayList<>();
-        List<String> distinctMolecularProfileIds = molecularProfileIds.stream().distinct().sorted().collect(Collectors.toList());
+        SortedSet<String> distinctMolecularProfileIds = new TreeSet<>(molecularProfileIds);
 
         Map<String, MolecularProfileSamples> commaSeparatedSampleIdsOfMolecularProfilesMap =  molecularDataRepository
                 .commaSeparatedSampleIdsOfMolecularProfilesMap(distinctMolecularProfileIds);
@@ -151,8 +151,7 @@ public class MolecularDataServiceImpl implements MolecularDataService {
         Map<String, Map<Integer, Integer>> internalSampleIdsMap = new HashMap<>();
         List<Integer> allInternalSampleIds = new ArrayList<>();
 
-        for (int i = 0; i < distinctMolecularProfileIds.size(); i++) {
-            String molecularProfileId = distinctMolecularProfileIds.get(i);
+        for (String molecularProfileId : distinctMolecularProfileIds) {
             List<Integer> internalSampleIds = Arrays
                     .stream(commaSeparatedSampleIdsOfMolecularProfilesMap.get(molecularProfileId).getSplitSampleIds())
                     .mapToInt(Integer::parseInt).boxed().collect(Collectors.toList());

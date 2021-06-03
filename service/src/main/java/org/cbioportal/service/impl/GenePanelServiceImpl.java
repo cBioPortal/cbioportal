@@ -132,11 +132,10 @@ public class GenePanelServiceImpl implements GenePanelService {
         // replace fusion profile id with mutation, as all the fusions are in mutation table
         // and are imported with mutation profile id
         // TODO: remove replacing logic once the fusions are migrated to structural variant in database
-        List<String> uniqueMolecularProfileIds = molecularProfileIds
+        Set<String> uniqueMolecularProfileIds = molecularProfileIds
             .stream()
             .map(profileId -> molecularProfileUtil.replaceFusionProfileWithMutationProfile(profileId))
-            .distinct()
-            .collect(toList());
+            .collect(toSet());
 
         Map<String, List<GenePanelData>> molecularProfileIdToGenePanelDataMap = molecularProfileService
             .getMolecularProfiles(uniqueMolecularProfileIds, "SUMMARY")

@@ -4,6 +4,7 @@ import org.cbioportal.model.MolecularProfile;
 import org.cbioportal.model.meta.BaseMeta;
 
 import java.util.List;
+import java.util.Set;
 
 public interface MolecularProfileMapper {
 
@@ -14,9 +15,9 @@ public interface MolecularProfileMapper {
 
     MolecularProfile getMolecularProfile(String molecularProfileId, String projection);
 
-    List<MolecularProfile> getMolecularProfiles(List<String> molecularProfileIds, String projection);
+    List<MolecularProfile> getMolecularProfiles(Set<String> molecularProfileIds, String projection);
 
-    BaseMeta getMetaMolecularProfiles(List<String> molecularProfileIds);
+    BaseMeta getMetaMolecularProfiles(Set<String> molecularProfileIds);
 
 	List<MolecularProfile> getMolecularProfilesReferredBy(String referringMolecularProfileId, String projection);
 

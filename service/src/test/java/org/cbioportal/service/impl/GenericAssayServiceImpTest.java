@@ -1,11 +1,9 @@
 
 package org.cbioportal.service.impl;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import org.cbioportal.model.GenericAssayAdditionalProperty;
 import org.cbioportal.model.GenericAssayData;
@@ -93,10 +91,10 @@ public class GenericAssayServiceImpTest extends BaseServiceImplTest {
 
         // stub for samples
         Mockito.when(geneticDataRepository
-                .commaSeparatedSampleIdsOfMolecularProfilesMap(Arrays.asList(MOLECULAR_PROFILE_ID_1)))
+                .commaSeparatedSampleIdsOfMolecularProfilesMap(Collections.singleton(MOLECULAR_PROFILE_ID_1)))
                 .thenReturn(commaSeparatedSampleIdsOfMolecularProfilesMap1);
         Mockito.when(geneticDataRepository.commaSeparatedSampleIdsOfMolecularProfilesMap(
-                Arrays.asList(MOLECULAR_PROFILE_ID_1, MOLECULAR_PROFILE_ID_2)))
+                Stream.of(MOLECULAR_PROFILE_ID_1, MOLECULAR_PROFILE_ID_2).collect(Collectors.toSet())))
                 .thenReturn(commaSeparatedSampleIdsOfMolecularProfilesMap2);
 
         List<Sample> sampleList1 = new ArrayList<>();
@@ -132,8 +130,10 @@ public class GenericAssayServiceImpTest extends BaseServiceImplTest {
         geneticProfiles.add(geneticProfile2);
 
         Mockito.when(geneticProfileService.getMolecularProfile(MOLECULAR_PROFILE_ID_1)).thenReturn(geneticProfile1);
-        Mockito.when(geneticProfileService.getMolecularProfiles(Arrays.asList(MOLECULAR_PROFILE_ID_1), "SUMMARY")).thenReturn(Arrays.asList(geneticProfile1));
-        Mockito.when(geneticProfileService.getMolecularProfiles(Arrays.asList(MOLECULAR_PROFILE_ID_1, MOLECULAR_PROFILE_ID_2), "SUMMARY")).thenReturn(geneticProfiles);
+        Mockito.when(geneticProfileService.getMolecularProfiles(Collections.singleton(MOLECULAR_PROFILE_ID_1), "SUMMARY"))
+            .thenReturn(Arrays.asList(geneticProfile1));
+        Mockito.when(geneticProfileService.getMolecularProfiles(Stream.of(MOLECULAR_PROFILE_ID_1, MOLECULAR_PROFILE_ID_2)
+            .collect(Collectors.toSet()), "SUMMARY")).thenReturn(geneticProfiles);
 
         //stub for repository data
         List<GenericAssayMolecularAlteration> genericAssayMolecularAlterationList1 = new ArrayList<>();

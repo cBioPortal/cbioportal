@@ -1,13 +1,6 @@
 package org.cbioportal.service.impl;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
@@ -110,7 +103,7 @@ public class GenericAssayServiceImpl implements GenericAssayService {
     List<String> sampleIds, List<String> genericAssayStableIds, String projection) throws MolecularProfileNotFoundException {
         List<GenericAssayData> result = new ArrayList<>();
 
-        List<String> distinctMolecularProfileIds = molecularProfileIds.stream().distinct().sorted().collect(Collectors.toList());
+        SortedSet<String> distinctMolecularProfileIds = new TreeSet<>(molecularProfileIds);
 
         Map<String, MolecularProfileSamples> commaSeparatedSampleIdsOfMolecularProfilesMap = molecularDataRepository
                 .commaSeparatedSampleIdsOfMolecularProfilesMap(distinctMolecularProfileIds);
@@ -118,8 +111,7 @@ public class GenericAssayServiceImpl implements GenericAssayService {
         Map<String, Map<Integer, Integer>> internalSampleIdsMap = new HashMap<>();
         List<Integer> allInternalSampleIds = new ArrayList<>();
 
-        for (int i = 0; i < distinctMolecularProfileIds.size(); i++) {
-            String molecularProfileId = distinctMolecularProfileIds.get(i);
+        for (String molecularProfileId : distinctMolecularProfileIds) {
             List<Integer> internalSampleIds = Arrays
                     .stream(commaSeparatedSampleIdsOfMolecularProfilesMap.get(molecularProfileId).getSplitSampleIds())
                     .mapToInt(Integer::parseInt).boxed().collect(Collectors.toList());

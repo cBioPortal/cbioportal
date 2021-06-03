@@ -14,9 +14,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.access.prepost.PostFilter;
 import org.springframework.stereotype.Service;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
@@ -60,13 +58,13 @@ public class MolecularProfileServiceImpl implements MolecularProfileService {
     }
 
     @Override
-	public List<MolecularProfile> getMolecularProfiles(List<String> molecularProfileIds, String projection) {
+	public List<MolecularProfile> getMolecularProfiles(Set<String> molecularProfileIds, String projection) {
         
         return molecularProfileRepository.getMolecularProfiles(molecularProfileIds, projection);
     }
     
     @Override
-	public BaseMeta getMetaMolecularProfiles(List<String> molecularProfileIds) {
+	public BaseMeta getMetaMolecularProfiles(Set<String> molecularProfileIds) {
         
         return molecularProfileRepository.getMetaMolecularProfiles(molecularProfileIds);
 	}

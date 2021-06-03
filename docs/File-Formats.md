@@ -634,7 +634,7 @@ namespaces: ASCN
 ### Data file
 The mutation data file extends the [Mutation Annotation Format](https://docs.gdc.cancer.gov/Data/File_Formats/MAF_Format/) (MAF) created as part of The Cancer Genome Atlas (TCGA) project, by adding *extra annotations* to each mutation record. This section describes two types of MAF files:
 1. A minimal MAF file with only the columns required for cBioPortal.
-2. An extended MAF file created with [vcf2maf or maf2maf](https://github.com/mskcc/vcf2maf).
+2. An extended MAF file created with [vcf2maf, maf2maf](https://github.com/mskcc/vcf2maf) or the [Genome Nexus Annotation Pipeline](https://github.com/genome-nexus/genome-nexus-annotation-pipeline).
 
 ### Minimal MAF format
 A minimal mutation annotations file can contain just three of the MAF columns plus one annotation column. From this minimal MAF, it is possible to create an extended MAF by running maf2maf.
@@ -696,7 +696,7 @@ The extended MAF format recognized by the portal has:
 33. **HGVSp_Short (Required)**: Amino Acid Change, e.g. p.V600E.
 34. **t_alt_count (Optional)**: Variant allele count (tumor). 
 35. **t_ref_count (Optional)**: Reference allele count (tumor).
-36. **n_alt_count (Optional)**: Variant allele count (normal).~~~~
+36. **n_alt_count (Optional)**: Variant allele count (normal).
 37. **n_ref_count (Optional)**: Reference allele count (normal).
 
 <sup>**1**</sup> These columns are currently not shown in the Mutation tab and Patient view.
@@ -724,7 +724,7 @@ An example MAF with the following **additional** columns:
 ```
 ASCN.total_copy_number    ASCN.clonal     MUTATION.name    MUTATION.type
 ```
-imported with the following `namepsaces` field in the metafile:
+imported with the following `namespaces` field in the metafile:
 ```
 namespaces: ascn
 ```

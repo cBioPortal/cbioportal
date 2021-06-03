@@ -42,11 +42,9 @@ public class AlterationMyBatisRepository implements AlterationRepository {
             return Collections.emptyList();
         }
 
-        List<String> molecularProfileIds = molecularProfileCaseIdentifiers
-            .stream()
-            .map(MolecularProfileCaseIdentifier::getMolecularProfileId)
-            .distinct()
-            .collect(Collectors.toList());
+        Set<String> molecularProfileIds = molecularProfileCaseIdentifiers.stream()
+                .map(MolecularProfileCaseIdentifier::getMolecularProfileId)
+                .collect(Collectors.toSet());
 
         Map<String, MolecularAlterationType> profileTypeByProfileId = molecularProfileRepository
             .getMolecularProfiles(molecularProfileIds, "SUMMARY")
@@ -84,11 +82,9 @@ public class AlterationMyBatisRepository implements AlterationRepository {
             return Collections.emptyList();
         }
 
-        List<String> molecularProfileIds = molecularProfileCaseIdentifiers
-            .stream()
-            .map(MolecularProfileCaseIdentifier::getMolecularProfileId)
-            .distinct()
-            .collect(Collectors.toList());
+        Set<String> molecularProfileIds = molecularProfileCaseIdentifiers.stream()
+                .map(MolecularProfileCaseIdentifier::getMolecularProfileId)
+                .collect(Collectors.toSet());
 
         Map<String, MolecularAlterationType> profileTypeByProfileId = molecularProfileRepository
             .getMolecularProfiles(molecularProfileIds, "SUMMARY")

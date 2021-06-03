@@ -13,4 +13,6 @@ public interface ResourceDefinitionService {
 
     List<ResourceDefinition> getAllResourceDefinitionsInStudy(String studyId, String projection, Integer pageSize,
             Integer pageNumber, String sortBy, String direction) throws StudyNotFoundException;
+
+    List<ResourceDefinition> fetchResourceDefinitions(List<String> studyIds, String projection) throws StudyNotFoundException;
 }

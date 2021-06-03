@@ -7,6 +7,7 @@ import org.cbioportal.service.exception.MolecularProfileNotFoundException;
 import org.cbioportal.service.exception.StudyNotFoundException;
 
 import java.util.List;
+import java.util.Set;
 
 public interface MolecularProfileService {
 
@@ -17,9 +18,9 @@ public interface MolecularProfileService {
 
     MolecularProfile getMolecularProfile(String molecularProfileId) throws MolecularProfileNotFoundException;
 
-    List<MolecularProfile> getMolecularProfiles(List<String> molecularProfileIds, String projection);
+    List<MolecularProfile> getMolecularProfiles(Set<String> molecularProfileIds, String projection);
 
-    BaseMeta getMetaMolecularProfiles(List<String> molecularProfileIds);
+    BaseMeta getMetaMolecularProfiles(Set<String> molecularProfileIds);
 
     List<MolecularProfile> getAllMolecularProfilesInStudy(String studyId, String projection, Integer pageSize,
                                                           Integer pageNumber, String sortBy, String direction) 

@@ -201,7 +201,7 @@ public class GenePanelServiceImplTest extends BaseServiceImplTest {
         molecularProfile.setMolecularAlterationType(MolecularProfile.MolecularAlterationType.COPY_NUMBER_ALTERATION);
 
         Mockito.when(molecularProfileService
-            .getMolecularProfiles(Arrays.asList(MOLECULAR_PROFILE_ID), "SUMMARY"))
+            .getMolecularProfiles(Collections.singleton(MOLECULAR_PROFILE_ID), "SUMMARY"))
             .thenReturn(Arrays.asList(molecularProfile));
 
         Mockito.when(genePanelRepository
@@ -269,7 +269,7 @@ public class GenePanelServiceImplTest extends BaseServiceImplTest {
         molecularProfile.setCancerStudyIdentifier(STUDY_ID);
         molecularProfile.setMolecularAlterationType(MolecularProfile.MolecularAlterationType.COPY_NUMBER_ALTERATION);
         
-        Mockito.when(molecularProfileService.getMolecularProfiles(new ArrayList<>(molecularProfileIds), "SUMMARY"))
+        Mockito.when(molecularProfileService.getMolecularProfiles(new HashSet<>(molecularProfileIds), "SUMMARY"))
             .thenReturn(Arrays.asList(molecularProfile));
 
         List<GenePanelData> result = genePanelService.fetchGenePanelDataInMultipleMolecularProfiles(new ArrayList<>(molecularProfileSampleIdentifiers));

@@ -4,13 +4,14 @@ import javax.validation.constraints.AssertTrue;
 import javax.validation.constraints.Size;
 import java.util.List;
 import java.io.Serializable;
+import java.util.Set;
 
 public class MolecularProfileFilter implements Serializable {
 
     @Size(min = 1, max = PagingConstants.MAX_PAGE_SIZE)
     private List<String> studyIds;
     @Size(min = 1, max = PagingConstants.MAX_PAGE_SIZE)
-    private List<String> molecularProfileIds;
+    private Set<String> molecularProfileIds;
 
     @AssertTrue
     private boolean isEitherStudyIdsOrMolecularProfileIdsPresent() {
@@ -25,11 +26,11 @@ public class MolecularProfileFilter implements Serializable {
         this.studyIds = studyIds;
     }
 
-    public List<String> getMolecularProfileIds() {
+    public Set<String> getMolecularProfileIds() {
         return molecularProfileIds;
     }
 
-    public void setMolecularProfileIds(List<String> molecularProfileIds) {
+    public void setMolecularProfileIds(Set<String> molecularProfileIds) {
         this.molecularProfileIds = molecularProfileIds;
     }
 }

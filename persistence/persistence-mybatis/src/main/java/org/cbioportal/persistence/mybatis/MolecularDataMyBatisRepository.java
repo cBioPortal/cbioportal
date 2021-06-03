@@ -22,14 +22,14 @@ public class MolecularDataMyBatisRepository implements MolecularDataRepository {
     public MolecularProfileSamples getCommaSeparatedSampleIdsOfMolecularProfile(String molecularProfileId) {
         try {
             return molecularDataMapper.getCommaSeparatedSampleIdsOfMolecularProfiles(
-                Arrays.asList(molecularProfileId)).get(0);
+                Collections.singleton(molecularProfileId)).get(0);
         } catch (IndexOutOfBoundsException e) {
             return null;
         }
     }
 
     @Override
-    public Map<String, MolecularProfileSamples> commaSeparatedSampleIdsOfMolecularProfilesMap(List<String> molecularProfileIds) {
+    public Map<String, MolecularProfileSamples> commaSeparatedSampleIdsOfMolecularProfilesMap(Set<String> molecularProfileIds) {
 
         return molecularDataMapper.getCommaSeparatedSampleIdsOfMolecularProfiles(molecularProfileIds)
                 .stream()
@@ -54,7 +54,7 @@ public class MolecularDataMyBatisRepository implements MolecularDataRepository {
     }
 
     @Override
-    public List<GeneMolecularAlteration> getGeneMolecularAlterationsInMultipleMolecularProfiles(List<String> molecularProfileIds, 
+    public List<GeneMolecularAlteration> getGeneMolecularAlterationsInMultipleMolecularProfiles(Set<String> molecularProfileIds, 
                                                                                                 List<Integer> entrezGeneIds, 
                                                                                                 String projection) {
 

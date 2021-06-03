@@ -139,7 +139,7 @@
                 AND sample.INTERNAL_ID = mutation.SAMPLE_ID
                 )
             </if>
-            <if test="sampleIds == null">
+            <if test="sampleIds == null || sampleIds.isEmpty()">
                 genetic_profile.STABLE_ID IN
                 <foreach item="item" collection="molecularProfileIds" open="(" separator="," close=")">
                     #{item}

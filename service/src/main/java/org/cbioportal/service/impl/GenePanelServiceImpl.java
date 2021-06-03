@@ -221,7 +221,7 @@ public class GenePanelServiceImpl implements GenePanelService {
                     .stream()
                     .peek(datum -> {
                         if(!datum.getProfiled()) {
-                            datum.setProfiled(sampleSequencedBySampleList.getOrDefault(datum.getStudyId() + datum.getSampleId(), false));
+                            datum.setProfiled(sampleSequencedBySampleList.getOrDefault(datum.getSampleId(), false));
                         }
                     })
                     .collect(toList());

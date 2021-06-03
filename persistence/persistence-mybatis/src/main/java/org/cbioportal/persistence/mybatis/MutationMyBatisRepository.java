@@ -5,6 +5,7 @@ import org.cbioportal.model.MutationCountByPosition;
 import org.cbioportal.model.MutationCountByGene;
 import org.cbioportal.model.meta.MutationMeta;
 import org.cbioportal.persistence.MutationRepository;
+import org.cbioportal.persistence.mybatis.util.MolecularProfileCaseIdentifierUtil;
 import org.cbioportal.persistence.mybatis.util.OffsetCalculator;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
@@ -19,6 +20,8 @@ public class MutationMyBatisRepository implements MutationRepository {
     private MutationMapper mutationMapper;
     @Autowired
     private OffsetCalculator offsetCalculator;
+    @Autowired
+    private MolecularProfileCaseIdentifierUtil molecularProfileCaseIdentifierUtil;
 
     @Override
     public List<Mutation> getMutationsInMolecularProfileBySampleListId(String molecularProfileId, String sampleListId,
@@ -44,7 +47,7 @@ public class MutationMyBatisRepository implements MutationRepository {
                                                                   String projection, Integer pageSize, 
                                                                   Integer pageNumber, String sortBy, String direction) {
 
-        return getGroupedCasesByMolecularProfileId(molecularProfileIds, sampleIds)
+        return molecularProfileCaseIdentifierUtil.getGroupedCasesByMolecularProfileId(molecularProfileIds, sampleIds)
             .entrySet()
             .stream()
             .flatMap(entry -> mutationMapper.getMutationsBySampleIds(entry.getKey(),
@@ -57,23 +60,6 @@ public class MutationMyBatisRepository implements MutationRepository {
                 sortBy,
                 direction).stream())
             .collect(Collectors.toList());
-    }
-
-    private Map<String,Set<String>> getGroupedCasesByMolecularProfileId(List<String> molecularProfileIds, List<String> caseIds) {
-        Map<String,Set<String>> groupMolecularProfileSamples = new HashMap<>();
-
-        for(int i = 0; i< molecularProfileIds.size(); i++) {
-            String molecularProfileId = molecularProfileIds.get(i);
-            String caseId = caseIds.get(i);
-            if(!groupMolecularProfileSamples.containsKey(molecularProfileId)) {
-                Set<String> filteredCaseIds = new HashSet<>();
-                filteredCaseIds.add(caseId);
-                groupMolecularProfileSamples.put(molecularProfileId,filteredCaseIds);
-            } else {
-                groupMolecularProfileSamples.get(molecularProfileId).add(caseId);
-            }
-        }
-        return groupMolecularProfileSamples;
     }
 
     @Override
@@ -115,10 +101,12 @@ public class MutationMyBatisRepository implements MutationRepository {
             List<String> sampleIds, List<Integer> entrezGeneIds, String projection, Integer pageSize,
             Integer pageNumber, String sortBy, String direction) {
 
-        return getGroupedCasesByMolecularProfileId(molecularProfileIds, sampleIds)
+        return molecularProfileCaseIdentifierUtil
+            .getGroupedCasesByMolecularProfileId(molecularProfileIds, sampleIds)
             .entrySet()
             .stream()
-            .flatMap(entry -> mutationMapper.getFusionsInMultipleMolecularProfiles(Arrays.asList(entry.getKey()),
+            .flatMap(entry -> mutationMapper.getFusionsInMultipleMolecularProfiles(
+                Arrays.asList(entry.getKey()),
                 new ArrayList<>(entry.getValue()),
                 entrezGeneIds,
                 null,

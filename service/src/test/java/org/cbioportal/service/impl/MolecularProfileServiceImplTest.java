@@ -16,9 +16,7 @@ import org.mockito.Mockito;
 import org.mockito.junit.MockitoJUnitRunner;
 import org.springframework.test.util.ReflectionTestUtils;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
+import java.util.*;
 
 @RunWith(MockitoJUnitRunner.class)
 public class MolecularProfileServiceImplTest extends BaseServiceImplTest {
@@ -90,10 +88,10 @@ public class MolecularProfileServiceImplTest extends BaseServiceImplTest {
 
         List<MolecularProfile> expectedMolecularProfiles = new ArrayList<>();
 
-        Mockito.when(molecularProfileRepository.getMolecularProfiles(Arrays.asList(MOLECULAR_PROFILE_ID), PROJECTION))
+        Mockito.when(molecularProfileRepository.getMolecularProfiles(Collections.singleton(MOLECULAR_PROFILE_ID), PROJECTION))
             .thenReturn(expectedMolecularProfiles);
 
-        List<MolecularProfile> result = molecularProfileService.getMolecularProfiles(Arrays.asList(MOLECULAR_PROFILE_ID), PROJECTION);
+        List<MolecularProfile> result = molecularProfileService.getMolecularProfiles(Collections.singleton(MOLECULAR_PROFILE_ID), PROJECTION);
 
         Assert.assertEquals(expectedMolecularProfiles, result);
     }
@@ -103,10 +101,10 @@ public class MolecularProfileServiceImplTest extends BaseServiceImplTest {
 
         BaseMeta expectedBaseMeta = new BaseMeta();
 
-        Mockito.when(molecularProfileRepository.getMetaMolecularProfiles(Arrays.asList(MOLECULAR_PROFILE_ID)))
+        Mockito.when(molecularProfileRepository.getMetaMolecularProfiles(Collections.singleton(MOLECULAR_PROFILE_ID)))
             .thenReturn(expectedBaseMeta);
 
-        BaseMeta result = molecularProfileService.getMetaMolecularProfiles(Arrays.asList(MOLECULAR_PROFILE_ID));
+        BaseMeta result = molecularProfileService.getMetaMolecularProfiles(Collections.singleton(MOLECULAR_PROFILE_ID));
 
         Assert.assertEquals(expectedBaseMeta, result);
     }

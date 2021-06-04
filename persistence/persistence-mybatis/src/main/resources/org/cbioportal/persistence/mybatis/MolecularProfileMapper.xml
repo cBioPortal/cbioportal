@@ -101,9 +101,9 @@
         COUNT(*) AS totalCount
         FROM genetic_profile
         <where>
-            <if test="list != null and !list.isEmpty()">
+            <if test="molecularProfileIds != null and !molecularProfileIds.isEmpty()">
                 genetic_profile.STABLE_ID IN
-                <foreach item="item" collection="list" open="(" separator="," close=")">
+                <foreach item="item" collection="molecularProfileIds" open="(" separator="," close=")">
                     #{item}
                 </foreach>
             </if>

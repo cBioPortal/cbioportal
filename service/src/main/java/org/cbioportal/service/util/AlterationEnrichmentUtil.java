@@ -225,7 +225,7 @@ public class AlterationEnrichmentUtil<T extends AlterationCountByGene> {
             .collect(Collectors.toSet());
 
         List<MolecularProfile> molecularProfiles = molecularProfileService
-            .getMolecularProfiles(new ArrayList<>(molecularProfileIds), "SUMMARY");
+            .getMolecularProfiles(molecularProfileIds, "SUMMARY");
 
         if (molecularProfileIds.size() != molecularProfiles.size()) {
             Map<String, MolecularProfile> molecularProfileMap = molecularProfiles.stream()

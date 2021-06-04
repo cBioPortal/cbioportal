@@ -1,6 +1,6 @@
-package org.cbioportal.web.config.annotation;
+package org.cbioportal.utils.config.annotation;
 
-import org.cbioportal.web.config.DatMethodCondition;
+import org.cbioportal.utils.config.PropertyCondition;
 import org.springframework.context.annotation.Conditional;
 
 import java.lang.annotation.ElementType;
@@ -10,8 +10,10 @@ import java.lang.annotation.Target;
 
 @Target({ElementType.TYPE, ElementType.METHOD})
 @Retention(RetentionPolicy.RUNTIME)
-@Conditional(value = DatMethodCondition.class)
-public @interface ConditionalOnDatMethod {
-    String value();
+@Conditional(value = PropertyCondition.class)
+public @interface ConditionalOnProperty {
+    String name() default "";
+    String[] havingValue() default {};
     boolean isNot() default false;
+    boolean matchIfMissing() default false;
 }

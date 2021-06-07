@@ -1,34 +1,38 @@
 package org.cbioportal.service.impl;
 
-import org.cbioportal.model.GenePanelData;
-import org.cbioportal.model.GenomicDataCount;
-import org.cbioportal.model.MolecularProfile;
-import org.cbioportal.model.MolecularProfileCaseIdentifier;
-import org.cbioportal.service.GenePanelService;
-import org.cbioportal.service.MolecularProfileService;
-import org.cbioportal.service.StudyViewService;
+import org.apache.commons.collections.map.MultiKeyMap;
+import org.cbioportal.model.*;
+import org.cbioportal.model.util.Select;
+import org.cbioportal.service.*;
+import org.cbioportal.service.exception.StudyNotFoundException;
 import org.cbioportal.service.util.MolecularProfileUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 
 @Service
 public class StudyViewServiceImpl implements StudyViewService {
+    private static final List<CNA> CNA_TYPES_AMP_AND_HOMDEL = Collections.unmodifiableList(Arrays.asList(CNA.AMP, CNA.HOMDEL));
     @Autowired
     private MolecularProfileService molecularProfileService;
     @Autowired
     private GenePanelService genePanelService;
     @Autowired
     private MolecularProfileUtil molecularProfileUtil;
+    @Autowired
+    private AlterationCountService alterationCountService;
+    @Autowired
+    private SignificantlyMutatedGeneService significantlyMutatedGeneService;
+    @Autowired
+    private SignificantCopyNumberRegionService significantCopyNumberRegionService;
 
     @Override
     public List<GenomicDataCount> getGenomicDataCounts(List<String> studyIds, List<String> sampleIds) {
-        List<MolecularProfileCaseIdentifier> molecularProfileSampleIdentifiers = molecularProfileService.getMolecularProfileCaseIdentifiers(studyIds, sampleIds);
+        List<MolecularProfileCaseIdentifier> molecularProfileSampleIdentifiers =
+            molecularProfileService.getMolecularProfileCaseIdentifiers(studyIds, sampleIds);
 
         Map<String, Integer> molecularProfileSampleCountSet = genePanelService
             .fetchGenePanelDataInMultipleMolecularProfiles(molecularProfileSampleIdentifiers)
@@ -36,8 +40,9 @@ public class StudyViewServiceImpl implements StudyViewService {
             .filter(GenePanelData::getProfiled)
             .collect(Collectors.groupingBy(GenePanelData::getMolecularProfileId, Collectors.summingInt(s -> 1)));
 
-        List<MolecularProfile> molecularProfiles = molecularProfileService.getMolecularProfilesInStudies(new ArrayList<>(new HashSet<>(studyIds)),
-            "SUMMARY");
+        List<MolecularProfile> molecularProfiles =
+            molecularProfileService.getMolecularProfilesInStudies(new ArrayList<>(new HashSet<>(studyIds)),
+                "SUMMARY");
 
         return molecularProfileUtil
             .categorizeMolecularProfilesByStableIdSuffixes(molecularProfiles)
@@ -50,7 +55,8 @@ public class StudyViewServiceImpl implements StudyViewService {
                 Integer count = entry
                     .getValue()
                     .stream()
-                    .mapToInt(molecularProfile -> molecularProfileSampleCountSet.getOrDefault(molecularProfile.getStableId(), 0))
+                    .mapToInt(molecularProfile ->
+                        molecularProfileSampleCountSet.getOrDefault(molecularProfile.getStableId(), 0))
                     .sum();
 
                 dataCount.setCount(count);
@@ -59,6 +65,94 @@ public class StudyViewServiceImpl implements StudyViewService {
             })
             .filter(dataCount -> dataCount.getCount() > 0)
             .collect(Collectors.toList());
+    }
+
+    @Override
+    public List<AlterationCountByGene> getMutationAlterationCountByGenes(List<String> studyIds, List<String> sampleIds)
+        throws StudyNotFoundException {
+        List<MolecularProfileCaseIdentifier> caseIdentifiers =
+            molecularProfileService.getFirstMutationProfileCaseIdentifiers(studyIds, sampleIds);
+        List<AlterationCountByGene> alterationCountByGenes = alterationCountService.getSampleMutationCounts(
+            caseIdentifiers,
+            Select.all(),
+            true,
+            false,
+            Select.all()).getFirst();
+        annotateDataWithQValue(studyIds, alterationCountByGenes);
+        return alterationCountByGenes;
+    }
+
+    @Override
+    public List<AlterationCountByGene> getStructuralVariantAlterationCountByGenes(List<String> studyIds, List<String> sampleIds)
+        throws StudyNotFoundException {
+        List<MolecularProfileCaseIdentifier> caseIdentifiers =
+            molecularProfileService.getFirstStructuralVariantProfileCaseIdentifiers(studyIds, sampleIds);
+        List<AlterationCountByGene> alterationCountByGenes = alterationCountService.getSampleStructuralVariantCounts(
+            caseIdentifiers,
+            Select.all(),
+            true,
+            false).getFirst();
+        annotateDataWithQValue(studyIds, alterationCountByGenes);
+        return alterationCountByGenes;
+    }
+
+    private void annotateDataWithQValue(List<String> studyIds, List<AlterationCountByGene> alterationCountByGenes)
+        throws StudyNotFoundException {
+        Set<String> distinctStudyIds = new HashSet<>(studyIds);
+        if (!alterationCountByGenes.isEmpty() && distinctStudyIds.size() == 1) {
+            Map<Integer, MutSig> mutSigMap =
+                significantlyMutatedGeneService.getSignificantlyMutatedGenes(
+                    studyIds.get(0),
+                    "SUMMARY",
+                    null,
+                    null,
+                    null,
+                    null)
+                    .stream()
+                    .collect(Collectors.toMap(MutSig::getEntrezGeneId, Function.identity()));
+            alterationCountByGenes.forEach(r -> {
+                if (mutSigMap.containsKey(r.getEntrezGeneId())) {
+                    r.setqValue(mutSigMap.get(r.getEntrezGeneId()).getqValue());
+                }
+            });
+        }
+    }
+
+    @Override
+    public List<CopyNumberCountByGene> getCNAAlterationCountByGenes(List<String> studyIds, List<String> sampleIds)
+        throws StudyNotFoundException {
+        List<MolecularProfileCaseIdentifier> caseIdentifiers =
+            molecularProfileService.getFirstDiscreteCNAProfileCaseIdentifiers(studyIds, sampleIds);
+        Select<CNA> cnaTypes = Select.byValues(CNA_TYPES_AMP_AND_HOMDEL);
+        List<CopyNumberCountByGene> copyNumberCountByGenes = alterationCountService.getSampleCnaCounts(
+            caseIdentifiers,
+            Select.all(),
+            true,
+            false,
+            cnaTypes).getFirst();
+        Set<String> distinctStudyIds = new HashSet<>(studyIds);
+        if (distinctStudyIds.size() == 1 && !copyNumberCountByGenes.isEmpty()) {
+            List<Gistic> gisticList = significantCopyNumberRegionService.getSignificantCopyNumberRegions(
+                studyIds.get(0),
+                "SUMMARY",
+                null,
+                null,
+                null,
+                null);
+            MultiKeyMap gisticMap = new MultiKeyMap();
+            gisticList.forEach(g -> g.getGenes().forEach(gene -> {
+                Gistic gistic = (Gistic) gisticMap.get(gene.getEntrezGeneId(), g.getAmp());
+                if (gistic == null || g.getqValue().compareTo(gistic.getqValue()) < 0) {
+                    gisticMap.put(gene.getEntrezGeneId(), g.getAmp(), g);
+                }
+            }));
+            copyNumberCountByGenes.forEach(r -> {
+                if (gisticMap.containsKey(r.getEntrezGeneId(), r.getAlteration().equals(2))) {
+                    r.setqValue(((Gistic) gisticMap.get(r.getEntrezGeneId(), r.getAlteration().equals(2))).getqValue());
+                }
+            });
+        }
+        return copyNumberCountByGenes;
     }
 
 }

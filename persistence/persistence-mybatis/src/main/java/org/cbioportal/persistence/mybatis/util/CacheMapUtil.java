@@ -67,10 +67,10 @@ public class CacheMapUtil {
     private static final int REPOSITORY_RESULT_OFFSET = 0; // retrieve all entries (do not skip any)
 
     // maps used to cache required relationships - in all maps stable ids are key
-    private Map<String, MolecularProfile> molecularProfileCache;
-    private Map<String, SampleList> sampleListCache;
-    private Map<String, CancerStudy> cancerStudyCache;
-    private Map<String, String> genericAssayStableIdToMolecularProfileIdCache;
+    private static Map<String, MolecularProfile> molecularProfileCache;
+    private static Map<String, SampleList> sampleListCache;
+    private static Map<String, CancerStudy> cancerStudyCache;
+    private static Map<String, String> genericAssayStableIdToMolecularProfileIdCache;
 
     public Map<String, MolecularProfile> getMolecularProfileMap() {
         return molecularProfileCache;
@@ -89,11 +89,17 @@ public class CacheMapUtil {
     }
 
     @PostConstruct
-    private void initializeCacheMemory() {
+    private void init() {
+        initializeCacheMemory();
+    }
+
+    public void initializeCacheMemory() {
+        
         // CHANGES TO THIS LIST MUST BE PROPAGATED TO 'GlobalProperties'
         this.cacheEnabled = (!authenticate.isEmpty() 
                 && !authenticate.equals("false") 
                 && !authenticate.contains("social_auth"));
+        
         if (cacheEnabled) {
             LOG.debug("creating cache maps for authorization");
             populateMolecularProfileMap();

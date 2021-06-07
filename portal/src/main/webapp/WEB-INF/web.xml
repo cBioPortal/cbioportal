@@ -262,6 +262,7 @@
         <servlet-name>api</servlet-name>
         <url-pattern>/api/*</url-pattern>
         <url-pattern>/health</url-pattern>
+        <url-pattern>/cache</url-pattern>
     </servlet-mapping>
 
     <servlet>

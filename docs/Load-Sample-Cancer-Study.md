@@ -31,7 +31,9 @@ cd <your_cbioportal_dir>/core/src/main/scripts
 ./importGenePanel.pl --data ../../test/scripts/test_data/study_es_0/data_gene_panel_testpanel2.txt
 ```
 
-After loading gene panels into the database, please restart Tomcat so that the validator can retrieve gene panel information from the cBioPortal API.
+After loading gene panels into the database, please restart Tomcat or call the `/api/cache` endpoint with a `DELETE` http-request
+(see [here](portal.properties-Reference.md#flush-caches-with-the-_apicache_-endpoint) for more information)
+so that the validator can retrieve gene panel information from the cBioPortal API.
 
 More details to load your own gene panel and gene set data can be found here: [Import Gene Panels](Import-Gene-Panels.md).
 
@@ -78,6 +80,7 @@ Done.
 Total time:  7742 ms
 ```
 
-After loading the study data, please restart the app.
+After loading the study data, please restart the app  or call the `/api/cache` endpoint with a `DELETE` http-request
+(see [here](portal.properties-Reference.md#flush-caches-with-the-_apicache_-endpoint) for more information).
 
 [Steps Complete: Return Home](README.md)

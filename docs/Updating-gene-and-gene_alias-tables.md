@@ -37,7 +37,9 @@ ALTER TABLE `geneset_hierarchy_node` AUTO_INCREMENT = 1;
 ALTER TABLE `geneset` AUTO_INCREMENT = 1;
 ```
 
-4- Restart cBioPortal (restart webserver) to clean-up any cached gene lists.
+4- Restart cBioPortal (restart webserver)  or call the `/api/cache` endpoint with a `DELETE` http-request
+(see [here](portal.properties-Reference.md#flush-caches-with-the-_apicache_-endpoint) for more information)
+to clean-up any cached gene lists.
 
 5- To import gene data type the following commands when in the folder `<cbioportal_source_folder>/core/src/main/scripts`:
 ```

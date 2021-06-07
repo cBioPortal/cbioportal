@@ -8,6 +8,6 @@ import org.springframework.cache.annotation.Cacheable;
 public interface StructuralVariantRepository {
 
     @Cacheable(cacheNames = "GeneralRepositoryCache", condition = "@cacheEnabledConfig.getEnabled()")
-    List<StructuralVariant> fetchStructuralVariants(List<String> molecularProfileIds, List<Integer> entrezGeneIds,
-            List<String> sampleIds);
+    List<StructuralVariant> fetchStructuralVariants(List<String> molecularProfileIds,
+                                                    List<String> sampleIds, List<Integer> entrezGeneIds);
 }

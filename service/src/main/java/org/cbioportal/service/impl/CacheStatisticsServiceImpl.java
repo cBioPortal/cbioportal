@@ -13,7 +13,7 @@ import org.springframework.security.access.AccessDeniedException;
 import org.springframework.stereotype.Service;
 
 @Service
-@Profile({"ehcache-heap", "ehcache-disk", "ehcache-hybrid", "redis"})
+@Profile({"ehcache-heap", "ehcache-disk", "ehcache-hybrid"})
 public class CacheStatisticsServiceImpl implements CacheStatisticsService {
 
     @Autowired

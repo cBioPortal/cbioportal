@@ -1,6 +1,7 @@
 package org.cbioportal.service;
 
 import org.cbioportal.model.MolecularProfile;
+import org.cbioportal.model.MolecularProfileCaseIdentifier;
 import org.cbioportal.model.meta.BaseMeta;
 import org.cbioportal.service.exception.MolecularProfileNotFoundException;
 import org.cbioportal.service.exception.StudyNotFoundException;
@@ -37,8 +38,8 @@ public interface MolecularProfileService {
     List<MolecularProfile> getMolecularProfilesReferringTo(String referredMolecularProfileId) 
         throws MolecularProfileNotFoundException;
 
-    List<String> getFirstMutationProfileIds(List<String> studyIds, List<String> sampleIds);
-    List<String> getFirstDiscreteCNAProfileIds(List<String> studyIds, List<String> sampleIds);
-    
-    List<String> getFirstStructuralVariantProfileIds(List<String> studyIds, List<String> sampleIds);
+    List<MolecularProfileCaseIdentifier> getMolecularProfileCaseIdentifiers(List<String> studyIds, List<String> sampleIds);
+    List<MolecularProfileCaseIdentifier> getFirstMutationProfileCaseIdentifiers(List<String> studyIds, List<String> sampleIds);
+    List<MolecularProfileCaseIdentifier> getFirstDiscreteCNAProfileCaseIdentifiers(List<String> studyIds, List<String> sampleIds);
+    List<MolecularProfileCaseIdentifier> getFirstStructuralVariantProfileCaseIdentifiers(List<String> studyIds, List<String> sampleIds);
 }

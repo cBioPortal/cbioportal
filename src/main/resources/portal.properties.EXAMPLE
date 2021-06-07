@@ -260,7 +260,8 @@ oncoprint.hotspots.default=true
 # querypage.setsofgenes.location=file:/<path>
 
 # valid cache types are (ehcache-heap, ehcache-disk, ehcache-hybrid, redis), or use 'no-cache' to disable caching
-# caution : the 'redis' caching option will likely cause a conflict when installing the portal in a tomcat installation which uses redisson for session management
+# caution 1: the 'redis' caching option will likely cause a conflict when installing the portal in a tomcat installation which uses redisson for session management
+# caution 2: this configuration needs to be set both at compile time and run time. See also https://github.com/cBioPortal/cbioportal/issues/8629
 persistence.cache_type=no-cache
 # Enable cache statistics endpoint for cache monitoring
 #cache.statistics_endpoint_enabled=false
@@ -270,6 +271,8 @@ persistence.cache_type=no-cache
 #redis.follower_address=
 #redis.database=
 #redis.password=
+#redis.ttl_mins=10000
+#redis.clear_on_startup=true
 
 # Ehcache properties
 #ehcache.xml_configuration=/ehcache.xml

@@ -8,6 +8,7 @@ import org.cbioportal.model.util.Select;
 import org.cbioportal.persistence.AlterationRepository;
 import org.cbioportal.service.AlterationCountService;
 import org.cbioportal.service.util.AlterationEnrichmentUtil;
+import org.cbioportal.service.util.MolecularProfileUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -25,6 +26,8 @@ public class AlterationCountServiceImpl implements AlterationCountService {
     private AlterationEnrichmentUtil<AlterationCountByGene> alterationEnrichmentUtil;
     @Autowired
     private AlterationEnrichmentUtil<CopyNumberCountByGene> alterationEnrichmentUtilCna;
+    @Autowired
+    private MolecularProfileUtil molecularProfileUtil;
 
     @Override
     public Pair<List<AlterationCountByGene>, Long> getSampleAlterationCounts(List<MolecularProfileCaseIdentifier> molecularProfileCaseIdentifiers,
@@ -43,7 +46,7 @@ public class AlterationCountServiceImpl implements AlterationCountService {
             List<MolecularProfileCaseIdentifier> updatedProfileCaseIdentifiers = molecularProfileCaseIdentifiers
                 .stream()
                 .map(molecularProfileCaseIdentifier -> {
-                    molecularProfileCaseIdentifier.setMolecularProfileId(molecularProfileCaseIdentifier.getMolecularProfileId().replace("_fusion", "_mutations"));
+                    molecularProfileCaseIdentifier.setMolecularProfileId(molecularProfileUtil.replaceFusionProfileWithMutationProfile(molecularProfileCaseIdentifier.getMolecularProfileId()));
                     return molecularProfileCaseIdentifier;
                 })
                 .distinct()
@@ -80,7 +83,7 @@ public class AlterationCountServiceImpl implements AlterationCountService {
             List<MolecularProfileCaseIdentifier> updatedProfileCaseIdentifiers = molecularProfileCaseIdentifiers
                 .stream()
                 .map(molecularProfileCaseIdentifier -> {
-                    molecularProfileCaseIdentifier.setMolecularProfileId(molecularProfileCaseIdentifier.getMolecularProfileId().replace("_fusion", "_mutations"));
+                    molecularProfileCaseIdentifier.setMolecularProfileId(molecularProfileUtil.replaceFusionProfileWithMutationProfile(molecularProfileCaseIdentifier.getMolecularProfileId()));
                     return molecularProfileCaseIdentifier;
                 })
                 .distinct()

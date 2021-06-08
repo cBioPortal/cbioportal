@@ -529,10 +529,10 @@ public class DataBinner {
 
         if (clinicalData != null) {
             uniqueClinicalDataIds = clinicalData
-                    .stream()
-                    .map(datum -> computeUniqueCaseId(datum, clinicalDataType))
-                    .filter(Objects::nonNull)
-                    .collect(Collectors.toSet());
+                .stream()
+                .filter(Objects::nonNull)
+                .map(datum -> computeUniqueCaseId(datum, clinicalDataType))
+                .collect(Collectors.toSet());
         } else {
             uniqueClinicalDataIds = Collections.emptySet();
         }

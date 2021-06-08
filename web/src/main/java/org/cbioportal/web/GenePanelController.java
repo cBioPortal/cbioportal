@@ -5,17 +5,13 @@ import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
 import org.cbioportal.model.GenePanel;
 import org.cbioportal.model.GenePanelData;
+import org.cbioportal.model.MolecularProfileCaseIdentifier;
 import org.cbioportal.service.exception.GenePanelNotFoundException;
 import org.cbioportal.service.exception.MolecularProfileNotFoundException;
 import org.cbioportal.service.GenePanelService;
 import org.cbioportal.web.config.PublicApiTags;
 import org.cbioportal.web.config.annotation.PublicApi;
-import org.cbioportal.web.parameter.Direction;
-import org.cbioportal.web.parameter.GenePanelDataFilter;
-import org.cbioportal.web.parameter.HeaderKeyConstants;
-import org.cbioportal.web.parameter.PagingConstants;
-import org.cbioportal.web.parameter.Projection;
-import org.cbioportal.web.parameter.SampleMolecularIdentifier;
+import org.cbioportal.web.parameter.*;
 import org.cbioportal.web.parameter.sort.GenePanelSortBy;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpHeaders;
@@ -23,6 +19,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.util.CollectionUtils;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestAttribute;
@@ -38,6 +35,7 @@ import javax.validation.constraints.Min;
 import javax.validation.constraints.Size;
 import javax.validation.Valid;
 import java.util.*;
+import java.util.stream.Collectors;
 
 @PublicApi
 @RestController
@@ -123,7 +121,6 @@ public class GenePanelController {
         return new ResponseEntity<>(genePanelDataList, HttpStatus.OK);
     }
 
-
     @PreAuthorize("hasPermission(#involvedCancerStudies, 'Collection<CancerStudyId>', 'read')")
     @RequestMapping(value = "/gene-panel-data/fetch", method = RequestMethod.POST,
         consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
@@ -132,23 +129,27 @@ public class GenePanelController {
         @ApiIgnore // prevent reference to this attribute in the swagger-ui interface
         @RequestAttribute(required = false, value = "involvedCancerStudies") Collection<String> involvedCancerStudies,
         @ApiIgnore // prevent reference to this attribute in the swagger-ui interface. this attribute is needed for the @PreAuthorize tag above.
-        @Valid @RequestAttribute(required = false, value = "interceptedGenePanelSampleMolecularIdentifiers") List<SampleMolecularIdentifier> interceptedGenePanelSampleMolecularIdentifiers,
-        @ApiParam(required = true, value = "List of Molecular Profile ID and Sample ID pairs")
-        @Size(min = 1, max = PagingConstants.MAX_PAGE_SIZE)
-        @RequestBody(required = false) List<SampleMolecularIdentifier> sampleMolecularIdentifiers) {
+        @Valid @RequestAttribute(required = false, value = "interceptedGenePanelDataMultipleStudyFilter") GenePanelDataMultipleStudyFilter interceptedGenePanelDataMultipleStudyFilter,
+        @ApiParam(required = true, value = "Gene panel data filter object")
+        @RequestBody(required = false) GenePanelDataMultipleStudyFilter genePanelDataMultipleStudyFilter) {
 
-        List<String> molecularProfileIds = new ArrayList<>();
-        List<String> sampleIds = new ArrayList<>();
+        List<GenePanelData> genePanelDataList;
+        if(CollectionUtils.isEmpty(interceptedGenePanelDataMultipleStudyFilter.getMolecularProfileIds())) {
+            List<MolecularProfileCaseIdentifier> molecularProfileSampleIdentifiers = interceptedGenePanelDataMultipleStudyFilter.getSampleMolecularIdentifiers()
+                .stream()
+                .map(sampleMolecularIdentifier -> {
+                    MolecularProfileCaseIdentifier profileCaseIdentifier = new MolecularProfileCaseIdentifier();
+                    profileCaseIdentifier.setMolecularProfileId(sampleMolecularIdentifier.getMolecularProfileId());
+                    profileCaseIdentifier.setCaseId(sampleMolecularIdentifier.getSampleId());
+                    return profileCaseIdentifier;
+                })
+                .collect(Collectors.toList());
 
-        for (SampleMolecularIdentifier sampleMolecularIdentifier :
-            interceptedGenePanelSampleMolecularIdentifiers) {
-
-            molecularProfileIds.add(sampleMolecularIdentifier.getMolecularProfileId());
-            sampleIds.add(sampleMolecularIdentifier.getSampleId());
+            genePanelDataList = genePanelService.fetchGenePanelDataInMultipleMolecularProfiles(molecularProfileSampleIdentifiers);
+        } else {
+            genePanelDataList = genePanelService.fetchGenePanelDataByMolecularProfileIds(new HashSet<>(interceptedGenePanelDataMultipleStudyFilter.getMolecularProfileIds()));
         }
-        List<GenePanelData> genePanelDataList = genePanelService.fetchGenePanelDataInMultipleMolecularProfiles(
-            molecularProfileIds, sampleIds);
-
+        
         return new ResponseEntity<>(genePanelDataList, HttpStatus.OK);
     }
 }

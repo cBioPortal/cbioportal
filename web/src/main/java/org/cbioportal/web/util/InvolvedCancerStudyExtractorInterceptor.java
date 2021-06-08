@@ -82,6 +82,7 @@ public class InvolvedCancerStudyExtractorInterceptor extends HandlerInterceptorA
     public static final String STUDY_VIEW_STRUCTURAL_VARIANT_GENES = "/structuralvariant-genes/fetch";
     public static final String STUDY_VIEW_SAMPLE_COUNTS = "/sample-counts/fetch";
     public static final String STUDY_VIEW_SAMPLE_LIST_COUNTS_PATH = "/sample-lists-counts/fetch";
+    public static final String STUDY_VIEW_PROFILE_SAMPLE_COUNTS_PATH = "/molecular-profile-sample-counts/fetch";
     public static final String CLINICAL_DATA_ENRICHMENT_FETCH_PATH = "/clinical-data-enrichments/fetch";
     public static final String MUTATION_ENRICHMENT_FETCH_PATH = "/mutation-enrichments/fetch";
     public static final String COPY_NUMBER_ENRICHMENT_FETCH_PATH = "/copy-number-enrichments/fetch";
@@ -111,7 +112,7 @@ public class InvolvedCancerStudyExtractorInterceptor extends HandlerInterceptorA
         } else if (requestPathInfo.equals(CLINICAL_DATA_FETCH_PATH)) {
             return extractAttributesFromClinicalDataMultiStudyFilter(request);
         } else if (requestPathInfo.equals(GENE_PANEL_DATA_FETCH_PATH)) {
-            return extractAttributesFromGenePanelSampleMolecularIdentifiers(request);
+            return extractAttributesFromGenePanelDataMultipleStudyFilter(request);
         } else if (requestPathInfo.equals(MOLECULAR_DATA_MULTIPLE_STUDY_FETCH_PATH)) {
             return extractAttributesFromMolecularDataMultipleStudyFilter(request);
         } else if (requestPathInfo.equals(MUTATION_MULTIPLE_STUDY_FETCH_PATH)) {
@@ -130,7 +131,7 @@ public class InvolvedCancerStudyExtractorInterceptor extends HandlerInterceptorA
         } else if (Arrays.asList(STUDY_VIEW_CLINICAL_DATA_DENSITY_PATH, STUDY_VIEW_CNA_GENES,
                 STUDY_VIEW_FILTERED_SAMPLES, STUDY_VIEW_MUTATED_GENES, STUDY_VIEW_STRUCTURAL_VARIANT_GENES,
                 STUDY_VIEW_SAMPLE_COUNTS, STUDY_VIEW_SAMPLE_LIST_COUNTS_PATH,
-                TREATMENTS_PATIENT_PATH, TREATMENTS_SAMPLE_PATH
+                TREATMENTS_PATIENT_PATH, TREATMENTS_SAMPLE_PATH, STUDY_VIEW_PROFILE_SAMPLE_COUNTS_PATH
         ).contains(requestPathInfo)) {
             return extractAttributesFromStudyViewFilter(request);
         } else if (requestPathInfo.equals(CLINICAL_DATA_ENRICHMENT_FETCH_PATH)) {
@@ -299,14 +300,14 @@ public class InvolvedCancerStudyExtractorInterceptor extends HandlerInterceptorA
         return studyIdSet;
     }
 
-    private boolean extractAttributesFromGenePanelSampleMolecularIdentifiers(HttpServletRequest request) {
+    private boolean extractAttributesFromGenePanelDataMultipleStudyFilter(HttpServletRequest request) {
         try {
-            List<SampleMolecularIdentifier> sampleMolecularIdentifiers = Arrays.asList(objectMapper.readValue(request.getInputStream(), SampleMolecularIdentifier[].class));
-            LOG.debug("extracted sampleMolecularIdentifiers: " + sampleMolecularIdentifiers.toString());
-            LOG.debug("setting interceptedGenePanelSampleMolecularIdentifers to " + sampleMolecularIdentifiers);
-            request.setAttribute("interceptedGenePanelSampleMolecularIdentifiers", sampleMolecularIdentifiers);
+            GenePanelDataMultipleStudyFilter genePanelDataMultipleStudyFilter = objectMapper.readValue(request.getInputStream(), GenePanelDataMultipleStudyFilter.class);
+            LOG.debug("extracted genePanelDataMultipleStudyFilter: " + genePanelDataMultipleStudyFilter.toString());
+            LOG.debug("setting interceptedGenePanelDataMultipleStudyFilter to " + genePanelDataMultipleStudyFilter);
+            request.setAttribute("interceptedGenePanelDataMultipleStudyFilter", genePanelDataMultipleStudyFilter);
             if (cacheMapUtil.hasCacheEnabled()) {
-                Collection<String> cancerStudyIdCollection = extractCancerStudyIdsFromGenePanelSampleMolecularIdentifiers(sampleMolecularIdentifiers);
+                Collection<String> cancerStudyIdCollection = extractCancerStudyIdsFromGenePanelDataMultipleStudyFilter(genePanelDataMultipleStudyFilter);
                 LOG.debug("setting involvedCancerStudies to " + cancerStudyIdCollection);
                 request.setAttribute("involvedCancerStudies", cancerStudyIdCollection);
             }
@@ -317,9 +318,13 @@ public class InvolvedCancerStudyExtractorInterceptor extends HandlerInterceptorA
         return true;
     }
 
-    private Collection<String> extractCancerStudyIdsFromGenePanelSampleMolecularIdentifiers(List<SampleMolecularIdentifier> sampleMolecularIdentifiers) {
+    private Collection<String> extractCancerStudyIdsFromGenePanelDataMultipleStudyFilter(GenePanelDataMultipleStudyFilter genePanelDataMultipleStudyFilter) {
         Set<String> studyIdSet = new HashSet<String>();
-        extractCancerStudyIdsFromSampleMolecularIdentifiers(sampleMolecularIdentifiers, studyIdSet);
+        if (genePanelDataMultipleStudyFilter.getMolecularProfileIds() != null) {
+            extractCancerStudyIdsFromMolecularProfileIds(genePanelDataMultipleStudyFilter.getMolecularProfileIds(), studyIdSet);
+        } else {
+            extractCancerStudyIdsFromSampleMolecularIdentifiers(genePanelDataMultipleStudyFilter.getSampleMolecularIdentifiers(), studyIdSet);
+        }
         return studyIdSet;
     }
 

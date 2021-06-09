@@ -14,6 +14,7 @@ Generated based on latest HGNC release using script [HERE](https://github.com/cB
 ### Mouse genes
 Download `Mus_musculus.gene_info.gz` from   
 ftp://ftp.ncbi.nih.gov/gene/DATA/GENE_INFO/Mammalia/Mus_musculus.gene_info.gz
+Unzip the downloaded file with the command `gunzip Mus_musculus.gene_info.gz`
 
 ## MySQL steps
 Execute these steps in case you want to reset your database to the most recent genes list from NCBI.

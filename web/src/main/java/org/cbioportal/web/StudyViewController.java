@@ -5,11 +5,8 @@ import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
 
 import org.apache.commons.collections.CollectionUtils;
-import org.apache.commons.collections.map.MultiKeyMap;
 import org.apache.commons.lang3.math.NumberUtils;
-import org.apache.commons.math3.util.Pair;
 import org.cbioportal.model.*;
-import org.cbioportal.model.util.Select;
 import org.cbioportal.service.*;
 import org.cbioportal.service.exception.StudyNotFoundException;
 import org.cbioportal.service.util.ClinicalAttributeUtil;
@@ -67,17 +64,9 @@ public class StudyViewController {
     @Autowired
     private ClinicalDataFetcher clinicalDataFetcher;
     @Autowired
-    private MolecularProfileService molecularProfileService;
-    @Autowired
-    private AlterationCountService alterationCountService;
-    @Autowired
     private SampleService sampleService;
     @Autowired
     private PatientService patientService;
-    @Autowired
-    private SignificantlyMutatedGeneService significantlyMutatedGeneService;
-    @Autowired
-    private SignificantCopyNumberRegionService significantCopyNumberRegionService;
     @Autowired
     private StudyViewFilterUtil studyViewFilterUtil;
     @Autowired
@@ -90,8 +79,6 @@ public class StudyViewController {
     private StudyViewService studyViewService;
     @Autowired
     private ClinicalDataBinUtil clinicalDataBinUtil;
-
-    private static final List<CNA> CNA_TYPES_AMP_AND_HOMDEL = Collections.unmodifiableList(Arrays.asList(CNA.AMP, CNA.HOMDEL));
 
     @PreAuthorize("hasPermission(#involvedCancerStudies, 'Collection<CancerStudyId>', 'read')")
     @RequestMapping(value = "/clinical-data-counts/fetch", method = RequestMethod.POST,
@@ -176,47 +163,15 @@ public class StudyViewController {
         @ApiIgnore // prevent reference to this attribute in the swagger-ui interface. this attribute is needed for the @PreAuthorize tag above.
         @Valid @RequestAttribute(required = false, value = "interceptedStudyViewFilter") StudyViewFilter interceptedStudyViewFilter
     ) throws StudyNotFoundException {
-        boolean singleStudyUnfiltered = studyViewFilterUtil.isSingleStudyUnfiltered(interceptedStudyViewFilter);
-        List<AlterationCountByGene> result = instance.fetchMutatedGenesInner(interceptedStudyViewFilter, singleStudyUnfiltered);
-        return new ResponseEntity<>(result, HttpStatus.OK);
-    }
-
-    @Cacheable(
-        cacheResolver = "staticRepositoryCacheOneResolver",
-        condition = "@cacheEnabledConfig.getEnabled() && #singleStudyUnfiltered"
-    )
-    public List<AlterationCountByGene> fetchMutatedGenesInner(
-        StudyViewFilter interceptedStudyViewFilter,
-        boolean singleStudyUnfiltered
-    ) throws StudyNotFoundException {
-        List<SampleIdentifier> filteredSampleIdentifiers = studyViewFilterApplier.apply(interceptedStudyViewFilter);
-        Pair<List<AlterationCountByGene>, Long> resultPair = new Pair<>(new ArrayList<>(), 0L);
-        if (!filteredSampleIdentifiers.isEmpty()) {
+        List<SampleIdentifier> sampleIdentifiers = studyViewFilterApplier.apply(interceptedStudyViewFilter);
+        List<AlterationCountByGene> alterationCountByGenes = new ArrayList<>();
+        if(CollectionUtils.isNotEmpty(sampleIdentifiers)) {
             List<String> studyIds = new ArrayList<>();
             List<String> sampleIds = new ArrayList<>();
-            studyViewFilterUtil.extractStudyAndSampleIds(filteredSampleIdentifiers, studyIds, sampleIds);
-
-            List<MolecularProfileCaseIdentifier> caseIdentifiers = molecularProfileService.getFirstMutationProfileCaseIdentifiers(studyIds, sampleIds);
-            resultPair = alterationCountService.getSampleMutationCounts(
-                caseIdentifiers,
-                Select.all(),
-                true, 
-                false,
-                Select.all());
-            resultPair.getFirst().sort((a, b) -> b.getNumberOfAlteredCases() - a.getNumberOfAlteredCases());
-            List<String> distinctStudyIds = studyIds.stream().distinct().collect(Collectors.toList());
-            if (distinctStudyIds.size() == 1 && !resultPair.getFirst().isEmpty()) {
-                Map<Integer, MutSig> mutSigMap = significantlyMutatedGeneService.getSignificantlyMutatedGenes(
-                    distinctStudyIds.get(0), Projection.SUMMARY.name(), null, null, null, null).stream().collect(
-                        Collectors.toMap(MutSig::getEntrezGeneId, Function.identity()));
-                resultPair.getFirst().forEach(r -> {
-                    if (mutSigMap.containsKey(r.getEntrezGeneId())) {
-                        r.setqValue(mutSigMap.get(r.getEntrezGeneId()).getqValue());
-                    }
-                });
-            }
+            studyViewFilterUtil.extractStudyAndSampleIds(sampleIdentifiers, studyIds, sampleIds);
+            alterationCountByGenes = studyViewService.getMutationAlterationCountByGenes(studyIds, sampleIds);
         }
-        return resultPair.getFirst();
+        return new ResponseEntity<>(alterationCountByGenes, HttpStatus.OK);
     }
 
     @PreAuthorize("hasPermission(#involvedCancerStudies, 'Collection<CancerStudyId>', 'read')")
@@ -229,35 +184,17 @@ public class StudyViewController {
         @ApiIgnore // prevent reference to this attribute in the swagger-ui interface. This attribute is needed for the @PreAuthorize tag above.
         @RequestAttribute(required = false, value = "involvedCancerStudies") Collection<String> involvedCancerStudies,
         @ApiIgnore // prevent reference to this attribute in the swagger-ui interface.
-        @Valid @RequestAttribute(required = false, value = "interceptedStudyViewFilter") StudyViewFilter interceptedStudyViewFilter) throws StudyNotFoundException {
-        List<SampleIdentifier> filteredSampleIdentifiers = studyViewFilterApplier.apply(interceptedStudyViewFilter);
-        Pair<List<AlterationCountByGene>, Long> result = new Pair<>(new ArrayList<>(), 0L);
-        if (!filteredSampleIdentifiers.isEmpty()) {
+        @Valid @RequestAttribute(required = false, value = "interceptedStudyViewFilter") StudyViewFilter interceptedStudyViewFilter
+    ) throws StudyNotFoundException {
+        List<SampleIdentifier> sampleIdentifiers = studyViewFilterApplier.apply(interceptedStudyViewFilter);
+        List<AlterationCountByGene> alterationCountByGenes = new ArrayList<>();
+        if(CollectionUtils.isNotEmpty(sampleIdentifiers)) {
             List<String> studyIds = new ArrayList<>();
             List<String> sampleIds = new ArrayList<>();
-            studyViewFilterUtil.extractStudyAndSampleIds(filteredSampleIdentifiers, studyIds, sampleIds);
-
-            List<MolecularProfileCaseIdentifier> caseIdentifiers = molecularProfileService.getFirstStructuralVariantProfileCaseIdentifiers(studyIds, sampleIds);
-            result = alterationCountService.getSampleStructuralVariantCounts(
-                caseIdentifiers,
-                Select.all(),
-                true,
-                false);
-            result.getFirst().sort((a, b) -> b.getNumberOfAlteredCases() - a.getNumberOfAlteredCases());
-            List<String> distinctStudyIds = studyIds.stream().distinct().collect(Collectors.toList());
-            if (distinctStudyIds.size() == 1 && !result.getFirst().isEmpty()) {
-                Map<Integer, MutSig> mutSigMap = significantlyMutatedGeneService.getSignificantlyMutatedGenes(
-                    distinctStudyIds.get(0), Projection.SUMMARY.name(), null, null, null, null).stream().collect(
-                    Collectors.toMap(MutSig::getEntrezGeneId, Function.identity()));
-                result.getFirst().forEach(r -> {
-                    if (mutSigMap.containsKey(r.getEntrezGeneId())) {
-                        r.setqValue(mutSigMap.get(r.getEntrezGeneId()).getqValue());
-                    }
-                });
-            }
+            studyViewFilterUtil.extractStudyAndSampleIds(sampleIdentifiers, studyIds, sampleIds);
+            alterationCountByGenes = studyViewService.getStructuralVariantAlterationCountByGenes(studyIds, sampleIds);
         }
-
-        return new ResponseEntity<>(result.getFirst(), HttpStatus.OK);
+        return new ResponseEntity<>(alterationCountByGenes, HttpStatus.OK);
     }
 
     
@@ -271,44 +208,17 @@ public class StudyViewController {
         @ApiIgnore // prevent reference to this attribute in the swagger-ui interface
         @RequestAttribute(required = false, value = "involvedCancerStudies") Collection<String> involvedCancerStudies,
         @ApiIgnore // prevent reference to this attribute in the swagger-ui interface. this attribute is needed for the @PreAuthorize tag above.
-        @Valid @RequestAttribute(required = false, value = "interceptedStudyViewFilter") StudyViewFilter interceptedStudyViewFilter) throws StudyNotFoundException {
-
-        // TODO refactor resolution of sampleids to List<MolecularProfileCaseIdentifier> and share between methods
-        List<SampleIdentifier> filteredSampleIdentifiers = studyViewFilterApplier.apply(interceptedStudyViewFilter);
-        Pair<List<CopyNumberCountByGene>, Long> result = new Pair<>(new ArrayList<>(), 0L);
-        if (!filteredSampleIdentifiers.isEmpty()) {
+        @Valid @RequestAttribute(required = false, value = "interceptedStudyViewFilter") StudyViewFilter interceptedStudyViewFilter
+    ) throws StudyNotFoundException {
+        List<SampleIdentifier> sampleIdentifiers = studyViewFilterApplier.apply(interceptedStudyViewFilter);
+        List<CopyNumberCountByGene> copyNumberCountByGenes = new ArrayList<>();
+        if(CollectionUtils.isNotEmpty(sampleIdentifiers)) {
             List<String> studyIds = new ArrayList<>();
             List<String> sampleIds = new ArrayList<>();
-            studyViewFilterUtil.extractStudyAndSampleIds(filteredSampleIdentifiers, studyIds, sampleIds);
-            List<MolecularProfileCaseIdentifier> caseIdentifiers = molecularProfileService.getFirstDiscreteCNAProfileCaseIdentifiers(studyIds, sampleIds);
-            Select<CNA> cnaTypes = Select.byValues(CNA_TYPES_AMP_AND_HOMDEL);
-            result = alterationCountService.getSampleCnaCounts(
-                caseIdentifiers, 
-                Select.all(),
-                true,
-                false,
-                cnaTypes);
-            result.getFirst().sort((a, b) -> b.getNumberOfAlteredCases() - a.getNumberOfAlteredCases());
-            List<String> distinctStudyIds = studyIds.stream().distinct().collect(Collectors.toList());
-            if (distinctStudyIds.size() == 1 && !result.getFirst().isEmpty()) {
-                List<Gistic> gisticList = significantCopyNumberRegionService.getSignificantCopyNumberRegions(
-                    distinctStudyIds.get(0), Projection.SUMMARY.name(), null, null, null, null);
-                MultiKeyMap gisticMap = new MultiKeyMap();
-                gisticList.forEach(g -> g.getGenes().forEach(gene -> {
-                    Gistic gistic = (Gistic) gisticMap.get(gene.getEntrezGeneId(), g.getAmp());
-                    if (gistic == null || g.getqValue().compareTo(gistic.getqValue()) < 0) {
-                        gisticMap.put(gene.getEntrezGeneId(), g.getAmp(), g);
-                    }
-                }));
-                result.getFirst().forEach(r -> {
-                    if (gisticMap.containsKey(r.getEntrezGeneId(), r.getAlteration().equals(2))) {
-                        r.setqValue(((Gistic) gisticMap.get(r.getEntrezGeneId(), r.getAlteration().equals(2))).getqValue());
-                    }
-                });
-            }
+            studyViewFilterUtil.extractStudyAndSampleIds(sampleIdentifiers, studyIds, sampleIds);
+            copyNumberCountByGenes = studyViewService.getCNAAlterationCountByGenes(studyIds, sampleIds);
         }
-
-        return new ResponseEntity<>(result.getFirst(), HttpStatus.OK);
+        return new ResponseEntity<>(copyNumberCountByGenes, HttpStatus.OK);
     }
 
     @PreAuthorize("hasPermission(#involvedCancerStudies, 'Collection<CancerStudyId>', 'read')")
@@ -349,13 +259,15 @@ public class StudyViewController {
         @RequestAttribute(required = false, value = "involvedCancerStudies") Collection<String> involvedCancerStudies,
         @ApiIgnore // prevent reference to this attribute in the swagger-ui interface. this attribute is needed for the @PreAuthorize tag above.
         @Valid @RequestAttribute(required = false, value = "interceptedStudyViewFilter") StudyViewFilter interceptedStudyViewFilter) {
-
-        List<String> studyIds = new ArrayList<>();
-        List<String> sampleIds = new ArrayList<>();
-        studyViewFilterUtil.extractStudyAndSampleIds(studyViewFilterApplier.apply(interceptedStudyViewFilter), studyIds,
-                sampleIds);
-        return studyViewService.getGenomicDataCounts(studyIds, sampleIds);
-
+        List<SampleIdentifier> sampleIdentifiers = studyViewFilterApplier.apply(interceptedStudyViewFilter);
+        List<GenomicDataCount> genomicDataCounts = new ArrayList<>();
+        if(CollectionUtils.isNotEmpty(sampleIdentifiers)) {
+            List<String> studyIds = new ArrayList<>();
+            List<String> sampleIds = new ArrayList<>();
+            studyViewFilterUtil.extractStudyAndSampleIds(sampleIdentifiers, studyIds, sampleIds);
+            genomicDataCounts = studyViewService.getGenomicDataCounts(studyIds, sampleIds);
+        }
+        return genomicDataCounts;
     }
 
     @PreAuthorize("hasPermission(#involvedCancerStudies, 'Collection<CancerStudyId>', 'read')")

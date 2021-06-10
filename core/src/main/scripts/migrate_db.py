@@ -207,7 +207,7 @@ def strip_trailing_comment_from_line(line):
     line_parts = re.split("--\s",line)
     return line_parts[0]
 
-def run_migration(db_version, sql_filename, connection, cursor):
+def run_migration(db_version, sql_filename, connection, cursor, no_transaction):
     """
         Goes through the sql and runs lines based on the version numbers. SQL version should be stated as follows:
 
@@ -248,13 +248,16 @@ def run_migration(db_version, sql_filename, connection, cursor):
                     statements[sql_version].append(statement)
                 statement = ''
     if len(statements) > 0:
-        run_statements(statements, connection, cursor)
+        run_statements(statements, connection, cursor, no_transaction)
     else:
         print('Everything up to date, nothing to migrate.', file=OUTPUT_FILE)
 
-def run_statements(statements, connection, cursor):
+def run_statements(statements, connection, cursor, no_transaction):
     try:
-        cursor.execute('SET autocommit=0;')
+        if no_transaction:
+            cursor.execute('SET autocommit=1;')
+        else:
+            cursor.execute('SET autocommit=0;')
     except MySQLdb.Error as msg:
         print(msg, file=ERROR_FILE)
         sys.exit(1)
@@ -299,6 +302,9 @@ def main():
     parser.add_argument('-s', '--sql', type=str, required=True,
                         help='Path to official migration.sql script.')
     parser.add_argument('-f', '--force', default=False, action='store_true', help='Force to run database migration')
+    parser.add_argument('--no-transaction', default=False, action='store_true', help="""
+        Do not run migration in a single transaction. Only use this when you known what you are doing!!!
+    """)
     parser = parser.parse_args()
 
     properties_filename = parser.properties_file
@@ -336,7 +342,7 @@ def main():
         if is_version_larger(MULTI_REFERENCE_GENOME_SUPPORT_MIGRATION_STEP, db_version):
             #retrieve reference genomes from database
             check_reference_genome(portal_properties, cursor, parser.force)
-        run_migration(db_version, sql_filename, connection, cursor)
+        run_migration(db_version, sql_filename, connection, cursor, parser.no_transaction)
     print('Finished.', file=OUTPUT_FILE)
 
 # do main

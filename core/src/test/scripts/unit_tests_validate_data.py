@@ -2777,14 +2777,7 @@ class GenericAssayCategoricalTestCase(PostClinicalDataFileTestCase):
                             extra_meta_fields={
                                 'generic_entity_meta_properties': 'name,description,url'})
 
-        self.assertEqual(len(record_list), 2)
-        record_iterator = iter(record_list)
-        record = next(record_iterator)
-        self.assertEqual(record.levelno, logging.ERROR)
-        self.assertIn('Blank cell found in column', record.getMessage())
-        record = next(record_iterator)
-        self.assertEqual(record.levelno, logging.ERROR)
-        self.assertIn('Cell is empty. A categorical value is expected.', record.getMessage())
+        self.assertEqual(len(record_list), 0)
 
 class GenericAssayBinaryTestCase(PostClinicalDataFileTestCase):
     def test_generic_assay_with_with_valid_binary_data(self):

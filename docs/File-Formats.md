@@ -743,6 +743,7 @@ record for this mutation (only relevant fields are shown):
     "namespaceColumns": {
         "zygosity": {
             "status": "Homozygous"
+        }
     },
 }
 ``` 

@@ -730,6 +730,25 @@ namespaces: ascn
 ```
 will import the `ASCN.total_copy_number` and `ASCN.clonal` column into the database. `MUTATION.name` and `MUTATION.type` will be ignored because `mutation` is not specified in the `namespaces` field. 
 
+## Representation of namespace columns by mutation API endpoints
+
+Columns added through namespaces will be returned by mutation API endpoints. Namespace data will be available in the `namespaceColumn`
+of respective JSON representations of mutation records. The `namespaceColumns` property will be a JSON object where
+namespace data is keyed by name of the namespace in lowercase. For instance, when namespace `ZYGOSITY` is defined in the 
+meta file and the data file has column `ZYGOSITY.status` with value `Homozygous` for a mutation row, the API will return the following JSON
+record for this mutation (only relevant fields are shown):
+
+```shell script
+{
+    "namespaceColumns": {
+        "zygosity": {
+            "status": "Homozygous"
+    },
+}
+``` 
+
+Note: ASCN namespace data is not exported via the `namespaceColumns` field.
+
 ### Allele specific copy number (ASCN) annotations
 Allele specific copy number (ASCN) annotation is also supported and may be added using namespaces, described [here](#adding-mutation-annotation-columns-through-namespaces). If ASCN data is present in the MAF, the deployed cBioPortal instance will display additional columns in the mutation table showing ASCN data.
 

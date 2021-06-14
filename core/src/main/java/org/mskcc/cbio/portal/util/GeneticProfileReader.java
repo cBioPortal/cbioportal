@@ -290,11 +290,8 @@ public class GeneticProfileReader {
         if (showProfileInAnalysisTabStr != null && showProfileInAnalysisTabStr.equalsIgnoreCase("FALSE")) {
             showProfileInAnalysisTab = false;
         }
-        boolean patientLevel = false;
         String patientLevelStr = properties.getProperty("patient_level");
-        if (patientLevelStr != null && patientLevelStr.equalsIgnoreCase("TRUE")) {
-            patientLevel = true;
-        }
+        boolean patientLevel = patientLevelStr != null && patientLevelStr.equalsIgnoreCase("TRUE");
 
         profileDescription = profileDescription.replaceAll("\t", " ");
         GeneticAlterationType alterationType = GeneticAlterationType.valueOf(geneticAlterationTypeString);

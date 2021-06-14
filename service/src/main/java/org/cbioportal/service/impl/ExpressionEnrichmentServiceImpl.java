@@ -1,14 +1,9 @@
 package org.cbioportal.service.impl;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
+import org.apache.commons.lang3.BooleanUtils;
 import org.cbioportal.model.EnrichmentType;
 import org.cbioportal.model.Gene;
 import org.cbioportal.model.GeneMolecularAlteration;
@@ -110,25 +105,19 @@ public class ExpressionEnrichmentServiceImpl implements ExpressionEnrichmentServ
                 .getGenericAssayMolecularAlterationsIterable(molecularProfile.getStableId(), null, "SUMMARY");
 
         Map<String, List<MolecularProfileCaseIdentifier>> filteredMolecularProfileCaseSets;
-        if (molecularProfile.getPatientLevel() != null && molecularProfile.getPatientLevel() == true) {
+        if (BooleanUtils.isTrue(molecularProfile.getPatientLevel())) {
             // Build sampleIdToPatientIdMap to quick find if a sample has shared patientId with other samples
-            List<String> sampleIds = molecularProfileCaseSets.values().stream().flatMap(x -> x.stream()).map(MolecularProfileCaseIdentifier::getCaseId).collect(Collectors.toList());
-            List<String> studyIds = new ArrayList<>();
-            studyIds.add(molecularProfile.getCancerStudyIdentifier());
+            List<String> sampleIds = molecularProfileCaseSets.values().stream().flatMap(Collection::stream).map(MolecularProfileCaseIdentifier::getCaseId).collect(Collectors.toList());
+            List<String> studyIds = Collections.nCopies(sampleIds.size(), molecularProfile.getCancerStudyIdentifier());
             List<Sample> samples = sampleService.fetchSamples(studyIds, sampleIds, "ID");
-            Map<String, Integer> sampleIdToPatientIdMap = new HashMap<>();
-            for (int i = 0; i < samples.size(); i++) {
-                sampleIdToPatientIdMap.put(samples.get(i).getStableId(), samples.get(i).getPatientId());
-            }
+            Map<String, Integer> sampleIdToPatientIdMap = samples.stream().collect(Collectors.toMap(Sample::getStableId, Sample::getPatientId));
             // Build filteredMolecularProfileCaseSets
             filteredMolecularProfileCaseSets = new HashMap<>();
             for (Map.Entry<String, List<MolecularProfileCaseIdentifier>> pair : molecularProfileCaseSets.entrySet()) {
                 Set<Integer> patientSet = new HashSet<Integer>();
                 List<MolecularProfileCaseIdentifier> identifierListUniqueByPatientId = new ArrayList<>();
                 for (MolecularProfileCaseIdentifier caseIdentifier : pair.getValue()) {
-                    if (patientSet.contains(sampleIdToPatientIdMap.get(caseIdentifier.getCaseId()))) {
-                        continue;
-                    } else {
+                    if (!patientSet.contains(sampleIdToPatientIdMap.get(caseIdentifier.getCaseId()))) {
                         identifierListUniqueByPatientId.add(caseIdentifier);
                         patientSet.add(sampleIdToPatientIdMap.get(caseIdentifier.getCaseId()));
                     }

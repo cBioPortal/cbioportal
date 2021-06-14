@@ -15,6 +15,7 @@ import org.cbioportal.service.PatientService;
 import org.cbioportal.service.SampleListService;
 import org.cbioportal.service.SampleService;
 import org.cbioportal.service.StructuralVariantService;
+import org.cbioportal.service.util.MolecularProfileUtil;
 import org.cbioportal.web.parameter.ClinicalDataFilter;
 import org.cbioportal.web.parameter.DataFilterValue;
 import org.cbioportal.web.parameter.GeneFilter;
@@ -34,7 +35,6 @@ import org.mockito.MockitoAnnotations;
 import org.mockito.Spy;
 import org.mockito.junit.MockitoJUnitRunner;
 
-import javax.validation.constraints.NotNull;
 import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -92,6 +92,8 @@ public class StudyViewFilterApplierTest {
     private SampleListService sampleListService;
     @Mock
     private GenericAssayService genericAssayService;
+    @Mock
+    private StructuralVariantService structuralVariantService;
     // Do not mock utility classes, we also want to test their functionality
     @Spy
     @InjectMocks
@@ -108,8 +110,9 @@ public class StudyViewFilterApplierTest {
     @Spy
     @InjectMocks
     private DataBinHelper dataBinHelper;
-    @Mock
-    private StructuralVariantService structuralVariantService;
+    @Spy
+    @InjectMocks
+    private MolecularProfileUtil molecularProfileUtil;
 
     @Before
     public void setup() {

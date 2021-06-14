@@ -738,7 +738,7 @@ namespace data is keyed by name of the namespace in lowercase. For instance, whe
 meta file and the data file has column `ZYGOSITY.status` with value `Homozygous` for a mutation row, the API will return the following JSON
 record for this mutation (only relevant fields are shown):
 
-```shell script
+```
 {
     "namespaceColumns": {
         "zygosity": {

@@ -40,4 +40,5 @@ public interface MolecularDataRepository {
 
 	Iterable<GenericAssayMolecularAlteration> getGenericAssayMolecularAlterationsIterable(String molecularProfileId,
 			List<String> stableIds, String projection);
+
 }

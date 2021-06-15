@@ -37,6 +37,7 @@
             mutation_event.ONCOTATOR_PROTEIN_POS_START AS oncotatorProteinPosStart,
             mutation_event.ONCOTATOR_PROTEIN_POS_END AS oncotatorProteinPosEnd,
             mutation_event.KEYWORD AS keyword,
+            mutation.ANNOTATION_JSON as annotationJSON,
             alteration_driver_annotation.DRIVER_FILTER as driverFilter,
             alteration_driver_annotation.DRIVER_FILTER_ANNOTATION as driverFilterAnnotation,
             alteration_driver_annotation.DRIVER_TIERS_FILTER as driverTiersFilter,

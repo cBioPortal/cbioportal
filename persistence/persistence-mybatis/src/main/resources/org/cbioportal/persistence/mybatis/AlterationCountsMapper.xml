@@ -77,9 +77,11 @@
             gene.HUGO_GENE_SYMBOL AS hugoGeneSymbol,
             reference_genome_gene.CYTOBAND as cytoband,
             cna_event.ALTERATION AS alteration,
+            COUNT(*) AS totalCount,
             COUNT(DISTINCT(sample_cna_event.SAMPLE_ID)) AS numberOfAlteredCases
         FROM cna_event
         INNER JOIN sample_cna_event ON cna_event.CNA_EVENT_ID = sample_cna_event.CNA_EVENT_ID
+        <include refid="fromIncludeCustomAnnotationsCna"/>
         INNER JOIN genetic_profile ON sample_cna_event.GENETIC_PROFILE_ID = genetic_profile.GENETIC_PROFILE_ID
         INNER JOIN gene ON cna_event.ENTREZ_GENE_ID = gene.ENTREZ_GENE_ID
         INNER JOIN cancer_study ON cancer_study.CANCER_STUDY_ID = genetic_profile.CANCER_STUDY_ID
@@ -97,6 +99,7 @@
                     </foreach>
                 </when>
             </choose>
+            <include refid="whereCustomAnnotations"/>
             <include refid="caseFilter">
                 <property name="case_type" value="'SAMPLE_ID'"/>
                 <property name="identifiers" value="cnaMolecularProfileCaseIdentifiers"/>
@@ -113,9 +116,11 @@
             cna_event.ENTREZ_GENE_ID AS entrezGeneId,
             gene.HUGO_GENE_SYMBOL AS hugoGeneSymbol,
             cna_event.ALTERATION AS alteration,
+            COUNT(*) AS totalCount,
             COUNT(DISTINCT(patient.INTERNAL_ID)) AS numberOfAlteredCases
         FROM cna_event
         INNER JOIN sample_cna_event ON cna_event.CNA_EVENT_ID = sample_cna_event.CNA_EVENT_ID
+        <include refid="fromIncludeCustomAnnotationsCna"/>
         INNER JOIN genetic_profile ON sample_cna_event.GENETIC_PROFILE_ID = genetic_profile.GENETIC_PROFILE_ID
         INNER JOIN sample ON sample_cna_event.SAMPLE_ID = sample.INTERNAL_ID
         INNER JOIN patient ON sample.PATIENT_ID = patient.INTERNAL_ID
@@ -131,6 +136,7 @@
                     </foreach>
                 </when>
             </choose>
+            <include refid="whereCustomAnnotations"/>
             <include refid="caseFilter">
                 <property name="case_type" value="'PATIENT_ID'"/>
                 <property name="identifiers" value="cnaMolecularProfileCaseIdentifiers"/>
@@ -141,6 +147,111 @@
         </where>
         GROUP BY cna_event.ENTREZ_GENE_ID, cna_event.ALTERATION, gene.HUGO_GENE_SYMBOL
     </select>
+
+    <sql id="fromIncludeCustomAnnotationsMutation">
+        <if test="includeDriver or includeVUS or includeUnknownOncogenicity or (selectedTiers != null and selectedTiers.hasValues()) or includeUnknownTier">
+            LEFT JOIN alteration_driver_annotation ON
+            mutation.MUTATION_EVENT_ID = alteration_driver_annotation.ALTERATION_EVENT_ID
+            AND mutation.GENETIC_PROFILE_ID = alteration_driver_annotation.GENETIC_PROFILE_ID
+            AND mutation.SAMPLE_ID = alteration_driver_annotation.SAMPLE_ID
+        </if>
+    </sql>
+
+    <sql id="fromIncludeCustomAnnotationsCna">
+        <if test="includeDriver or includeVUS or includeUnknownOncogenicity or (selectedTiers != null and selectedTiers.hasValues()) or includeUnknownTier">
+            LEFT JOIN alteration_driver_annotation ON
+            sample_cna_event.CNA_EVENT_ID = alteration_driver_annotation.ALTERATION_EVENT_ID
+            AND sample_cna_event.GENETIC_PROFILE_ID = alteration_driver_annotation.GENETIC_PROFILE_ID
+            AND sample_cna_event.SAMPLE_ID = alteration_driver_annotation.SAMPLE_ID
+        </if>
+    </sql>
+    
+    <sql id="whereCustomAnnotations">
+        <if test="not includeDriver or not includeVUS or not includeUnknownOncogenicity">
+            <trim prefix="" prefixOverrides="AND ( )">
+                <trim prefix="AND (" prefixOverrides="OR">
+                    <include refid="whereIncludeDriver"/>
+                    <include refid="whereIncludeVUS"/>
+                    <include refid="whereIncludeUnknownOncogenicity"/>
+                    )
+                </trim>
+            </trim>
+        </if>
+        <include refid="whereIncludeTiers"/>
+    </sql>
+    
+    <sql id="whereMutationStatus">
+        <if test="not includeGermline or not includeSomatic or not includeUnknownStatus">
+            <trim prefix="" prefixOverrides="AND ( )">
+                <trim prefix="AND (" prefixOverrides="OR">
+                    <include refid="whereIncludeGermlineAlterations"/>
+                    <include refid="whereIncludeSomaticAlterations"/>
+                    <include refid="whereIncludeUnknownStatusAlterations"/>
+                    )
+                </trim>
+            </trim>
+        </if>
+    </sql>
+
+    <sql id="whereIncludeDriver">
+        <if test="includeDriver">
+            OR LOWER(alteration_driver_annotation.DRIVER_FILTER) = 'putative_driver'
+        </if>
+    </sql>
+
+    <sql id="whereIncludeVUS">
+        <if test="includeVUS">
+            OR LOWER(alteration_driver_annotation.DRIVER_FILTER) = 'putative_passenger'
+        </if>
+    </sql>
+
+    <sql id="whereIncludeUnknownOncogenicity">
+        <if test="includeUnknownOncogenicity">
+            OR alteration_driver_annotation.DRIVER_FILTER IS NULL
+            OR LOWER(alteration_driver_annotation.DRIVER_FILTER) IN ('unknown', 'na', '')
+        </if>
+    </sql>
+        
+    <sql id="whereIncludeTiers">
+        <bind name="allTierOptionsSelected" value="(selectedTiers == null or selectedTiers.hasAll()) and includeUnknownTier" />
+        <bind name="noTierOptionsSelected" value="(selectedTiers != null and selectedTiers.hasNone()) and not includeUnknownTier" />
+        <if test="not allTierOptionsSelected and not noTierOptionsSelected">
+            <trim prefix="AND (" prefixOverrides="OR">    
+                <if test="selectedTiers != null and selectedTiers.hasValues()">
+                    OR alteration_driver_annotation.DRIVER_TIERS_FILTER IN
+                    <foreach item="item" collection="selectedTiers" open="(" separator="," close=")">
+                        #{item}
+                    </foreach>
+                </if>
+                <if test="includeUnknownTier">
+                    OR alteration_driver_annotation.DRIVER_TIERS_FILTER IS NULL
+                    OR LOWER(alteration_driver_annotation.DRIVER_TIERS_FILTER) IN ('', 'na', 'unknown')
+                </if>
+            </trim>
+            )
+        </if>
+    </sql>
+
+    <sql id="whereIncludeGermlineAlterations">
+        <if test="includeGermline">
+            OR
+            LOWER(mutation.MUTATION_STATUS) = 'germline'
+        </if>
+    </sql>
+    
+    <sql id="whereIncludeSomaticAlterations">
+        <if test="includeSomatic">
+            OR
+            LOWER(mutation.MUTATION_STATUS) = 'somatic'
+        </if>
+    </sql>
+    
+    <sql id="whereIncludeUnknownStatusAlterations">
+        <if test="includeUnknownStatus">
+            OR
+            LOWER(mutation.MUTATION_STATUS) IN ('unknown', '')
+        </if>
+    </sql>
 
     <sql id="whereSearchFusions">
         <if test="searchFusions.name() == 'ACTIVE'">
@@ -193,6 +304,7 @@
         INNER JOIN genetic_profile ON mutation.genetic_profile_id = genetic_profile.genetic_profile_id
         INNER JOIN sample ON sample.internal_id = mutation.sample_id
         INNER JOIN patient ON sample.patient_id = patient.internal_id
+        <include refid="fromIncludeCustomAnnotationsMutation"/>
         <where>
             <choose>
                 <when test="mutationTypes.hasNone()">NULL</when>
@@ -220,6 +332,8 @@
                     <include refid="whereSearchFusions" />
                 </when>
             </choose>
+            <include refid="whereCustomAnnotations"/>
+            <include refid="whereMutationStatus"/>
             <include refid="caseFilter">
                 <property name="identifiers" value="mutationMolecularProfileCaseIdentifiers"/>
                 <property name="geneticProfileIdentifier" value="genetic_profile.GENETIC_PROFILE_ID" />
@@ -241,6 +355,7 @@
         INNER JOIN patient ON patient.CANCER_STUDY_ID = genetic_profile.CANCER_STUDY_ID
         INNER JOIN sample ON sample.PATIENT_ID = patient.INTERNAL_ID AND sample.INTERNAL_ID = sample_cna_event.SAMPLE_ID
         INNER JOIN cancer_study ON cancer_study.CANCER_STUDY_ID = genetic_profile.CANCER_STUDY_ID
+        <include refid="fromIncludeCustomAnnotationsCna"/>
         <where>
             <choose>
                 <when test="cnaTypes.hasNone()">NULL</when>
@@ -251,12 +366,12 @@
                     </foreach>
                 </when>
             </choose>
+            <include refid="whereCustomAnnotations"/>
             <include refid="caseFilter">
                 <property name="identifiers" value="cnaMolecularProfileCaseIdentifiers" />
                 <property name="geneticProfileIdentifier" value="genetic_profile.GENETIC_PROFILE_ID" />
                 <property name="caseStableIdentifier" value="caseUniqueIdentifier" />
             </include>
-
         </where>
     </sql>
     

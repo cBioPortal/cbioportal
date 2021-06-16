@@ -1,5 +1,6 @@
 package org.cbioportal.service.impl;
 
+import org.cbioportal.model.GeneFilterQuery;
 import org.cbioportal.model.MolecularProfile;
 import org.cbioportal.model.Mutation;
 import org.cbioportal.model.MutationCountByPosition;
@@ -47,6 +48,17 @@ public class MutationServiceImpl implements MutationService {
 
         return mutationRepository.getMetaMutationsInMolecularProfileBySampleListId(molecularProfileId, sampleListId,
             entrezGeneIds);
+    }
+
+    public List<Mutation> getMutationsInMultipleMolecularProfilesByGeneQueries(List<String> molecularProfileIds, List<String> sampleIds,
+                                                                               List<GeneFilterQuery> geneQueries, String projection,
+                                                                               Integer pageSize, Integer pageNumber,
+                                                                               String sortBy, String direction) {
+
+        List<Mutation> mutationList = mutationRepository.getMutationsInMultipleMolecularProfilesByGeneQueries(
+            molecularProfileIds, sampleIds, geneQueries, projection, pageSize, pageNumber, sortBy, direction);
+
+        return mutationList;
     }
 
     @Override
@@ -124,4 +136,29 @@ public class MutationServiceImpl implements MutationService {
 
         return molecularProfile;
     }
+
+    // TODO: cleanup once fusion/structural data is fixed in database
+    @Override
+    public List<Mutation> getFusionsInMultipleMolecularProfiles(List<String> molecularProfileIds,
+            List<String> sampleIds, List<Integer> entrezGeneIds, String projection, Integer pageSize,
+            Integer pageNumber, String sortBy, String direction) {
+
+        List<Mutation> mutationList = mutationRepository.getFusionsInMultipleMolecularProfiles(molecularProfileIds,
+                sampleIds, entrezGeneIds, projection, pageSize, pageNumber, sortBy, direction);
+
+        return mutationList;
+    }
+
+    @Override
+    public List<Mutation> getFusionsInMultipleMolecularProfilesByGeneQueries(List<String> molecularProfileIds, List<String> sampleIds,
+                                                                             List<GeneFilterQuery> geneQueries, String projection, 
+                                                                             Integer pageSize, Integer pageNumber,
+                                                                             String sortBy, String direction) {
+
+        List<Mutation> mutationList = mutationRepository.getFusionsInMultipleMolecularProfilesByGeneQueries(molecularProfileIds, sampleIds,
+            geneQueries, projection, pageSize, pageNumber, sortBy, direction);
+
+        return mutationList;
+    }
+    // TODO: cleanup once fusion/structural data is fixed in database
 }

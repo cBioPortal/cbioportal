@@ -101,6 +101,7 @@
             "skin.show_tweet_button",
             "skin.patientview.filter_genes_profiled_all_samples",
             "skin.patientview.show_mskcc_slide_viewer",
+            "skin.show_settings_menu",
             "quick_search.enabled",
             "default_cross_cancer_study_session_id",
             "default_cross_cancer_study_list",

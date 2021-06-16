@@ -38,8 +38,10 @@ import java.util.stream.Collectors;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import org.cbioportal.model.MolecularProfileCaseIdentifier;
+
+import org.cbioportal.model.AlterationFilter;
 import org.cbioportal.model.MolecularProfile;
+import org.cbioportal.model.MolecularProfileCaseIdentifier;
 import org.cbioportal.model.SampleList;
 import org.cbioportal.persistence.mybatis.util.CacheMapUtil;
 import org.cbioportal.web.parameter.*;
@@ -563,6 +565,11 @@ public class InvolvedCancerStudyExtractorInterceptor extends HandlerInterceptorA
     private boolean extractAttributesFromStudyViewFilter(HttpServletRequest request) {
         try {
             StudyViewFilter studyViewFilter = objectMapper.readValue(request.getInputStream(), StudyViewFilter.class);
+            if (studyViewFilter.getAlterationFilter() == null) {
+                // For backwards compatibility an inactive filter is set
+                // when the AlterationFilter is not part of the request.
+                studyViewFilter.setAlterationFilter(new AlterationFilter());
+            }
             LOG.debug("extracted studyViewFilter: " + studyViewFilter.toString());
             LOG.debug("setting interceptedStudyViewFilter to " + studyViewFilter);
             request.setAttribute("interceptedStudyViewFilter", studyViewFilter);
@@ -605,12 +612,13 @@ public class InvolvedCancerStudyExtractorInterceptor extends HandlerInterceptorA
             LOG.debug("extracted molecularProfileCasesGroupFilters: " + molecularProfileCasesGroupFilters.toString());
             LOG.debug("setting interceptedMolecularProfileCasesGroupFilters to " + molecularProfileCasesGroupFilters);
             request.setAttribute("interceptedMolecularProfileCasesGroupFilters", molecularProfileCasesGroupFilters);
-            if (molecularProfileCasesAndAlterationTypesGroupFilters.getAlterationEventTypes() != null) {
-                AlterationEventTypeFilter alterationEnrichmentEventTypes = molecularProfileCasesAndAlterationTypesGroupFilters.getAlterationEventTypes();
-                LOG.debug("extracted alterationEventTypes: " + alterationEnrichmentEventTypes.toString());
-                LOG.debug("setting alterationEventTypes to " + alterationEnrichmentEventTypes);
-                request.setAttribute("alterationEventTypes", alterationEnrichmentEventTypes);
+            AlterationFilter alterationFilter = molecularProfileCasesAndAlterationTypesGroupFilters.getAlterationFilter();
+            if (molecularProfileCasesAndAlterationTypesGroupFilters.getAlterationFilter() == null) {
+                // For backwards compatibility an inactive filter is set
+                // when the AlterationFilter is not part of the request.
+                alterationFilter = new AlterationFilter();
             }
+            request.setAttribute("alterationFilter", alterationFilter);
             if (cacheMapUtil.hasCacheEnabled()) {
                 Collection<String> cancerStudyIdCollection = extractCancerStudyIdsFromMolecularProfileCasesGroups(
                         molecularProfileCasesGroupFilters);

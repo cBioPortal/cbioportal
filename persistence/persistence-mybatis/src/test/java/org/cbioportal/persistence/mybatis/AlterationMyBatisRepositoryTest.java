@@ -603,7 +603,7 @@ public class AlterationMyBatisRepositoryTest {
         AlterationCountByGene result672 = result.stream().filter(r -> r.getEntrezGeneId() == 672).findFirst().get();
         AlterationCountByGene result207 = result.stream().filter(r -> r.getEntrezGeneId() == 207).findFirst().get();
         AlterationCountByGene result208 = result.stream().filter(r -> r.getEntrezGeneId() == 208).findFirst().get();
-        Assert.assertEquals((Integer) 5, result672.getTotalCount());
+        Assert.assertEquals((Integer) 4, result672.getTotalCount());
         Assert.assertEquals((Integer) 4, result672.getNumberOfAlteredCases());
         Assert.assertEquals((Integer) 2, result207.getTotalCount());
         Assert.assertEquals((Integer) 2, result207.getNumberOfAlteredCases());
@@ -636,7 +636,7 @@ public class AlterationMyBatisRepositoryTest {
             QueryElement.PASS,
             alterationFilter);
         // all mutations in testSql.sql are Germline mutations
-        Assert.assertEquals(0, result.size());
+        Assert.assertEquals(1, result.size());
     }
 
     @Test

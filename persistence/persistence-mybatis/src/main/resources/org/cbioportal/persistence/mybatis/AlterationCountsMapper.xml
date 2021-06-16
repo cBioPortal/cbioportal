@@ -249,7 +249,7 @@
     <sql id="whereIncludeUnknownStatusAlterations">
         <if test="includeUnknownStatus">
             OR
-            LOWER(mutation.MUTATION_STATUS) IN ('unknown', '')
+            LOWER(mutation.MUTATION_STATUS) NOT IN ('somatic', 'germline')
         </if>
     </sql>
 

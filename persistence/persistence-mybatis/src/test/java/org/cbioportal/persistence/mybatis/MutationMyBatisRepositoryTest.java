@@ -343,7 +343,7 @@ public class MutationMyBatisRepositoryTest {
         List<Mutation> result = mutationMyBatisRepository.getMutationsInMultipleMolecularProfilesByGeneQueries(molecularProfileIds,
             sampleIds, geneQueries, "SUMMARY", null, null, null, null);
         
-        Assert.assertEquals(8, result.size());
+        Assert.assertEquals(7, result.size());
     }
     
     @Test
@@ -381,7 +381,7 @@ public class MutationMyBatisRepositoryTest {
         List<Mutation> result = mutationMyBatisRepository.getMutationsInMultipleMolecularProfilesByGeneQueries(molecularProfileIds,
             sampleIds, geneQueries, "SUMMARY", null, null, null, null);
         
-        Assert.assertEquals(0, result.size());
+        Assert.assertEquals(1, result.size());
     }
 
     @Test

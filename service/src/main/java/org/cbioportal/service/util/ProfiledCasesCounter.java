@@ -4,6 +4,7 @@ import java.util.*;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
+import org.apache.commons.math3.util.Pair;
 import org.cbioportal.model.*;
 import org.cbioportal.service.GenePanelService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -28,16 +29,16 @@ public class ProfiledCasesCounter<T extends AlterationCountByGene> {
             genePanels = genePanelService.fetchGenePanels(new ArrayList<>(casesWithDataInGenePanel.keySet()), "DETAILED");
         }
 
-        Map<Integer, List<GenePanel>> geneGenePanelMap = new HashMap<>();
+        Map<Pair<Integer, String>, List<GenePanel>> geneGenePanelMap = new HashMap<>();
         for (GenePanel genePanel : genePanels) {
             for (GenePanelToGene genePanelToGene : genePanel.getGenes()) {
-                Integer entrezGeneId = genePanelToGene.getEntrezGeneId();
-                if (geneGenePanelMap.containsKey(entrezGeneId)) {
-                    geneGenePanelMap.get(entrezGeneId).add(genePanel);
+                Pair<Integer, String> key = new Pair(genePanelToGene.getEntrezGeneId(), genePanelToGene.getHugoGeneSymbol());
+                if (geneGenePanelMap.containsKey(key)) {
+                    geneGenePanelMap.get(key).add(genePanel);
                 } else {
                     List<GenePanel> geneGenePanelList = new ArrayList<>();
                     geneGenePanelList.add(genePanel);
-                    geneGenePanelMap.put(entrezGeneId, geneGenePanelList);
+                    geneGenePanelMap.put(key, geneGenePanelList);
                 }
             }
         }
@@ -65,11 +66,12 @@ public class ProfiledCasesCounter<T extends AlterationCountByGene> {
             Integer entrezGeneId = alterationCountByGene.getEntrezGeneId();
             Set<String> totalProfiledCases = new HashSet<String>();
             Set<String> allMatchingGenePanelIds = new HashSet<String>();
+            Pair<Integer, String> key = new Pair<>(entrezGeneId,alterationCountByGene.getHugoGeneSymbol());
             // different calculations depending on if gene is linked to gene panels
-            if (geneGenePanelMap.containsKey(entrezGeneId)) {
+            if (geneGenePanelMap.containsKey(key)) {
                 // for every gene panel associated containing the gene, use the sum of unique cases
                 // as well as cases without panel data
-                for (GenePanel genePanel : geneGenePanelMap.get(entrezGeneId)) {
+                for (GenePanel genePanel : geneGenePanelMap.get(key)) {
                     allMatchingGenePanelIds.add(genePanel.getStableId());
                     totalProfiledCases.addAll(casesWithDataInGenePanel.get(genePanel.getStableId()));
                 }
@@ -86,7 +88,9 @@ public class ProfiledCasesCounter<T extends AlterationCountByGene> {
                     .collect(Collectors.toMap(AlterationCountByGene::getEntrezGeneId, x -> true));
 
             geneGenePanelMap.entrySet().forEach(entry -> {
-                Integer entrezGeneId = entry.getKey();
+                Pair<Integer, String> key = entry.getKey();
+                Integer entrezGeneId = key.getFirst();
+                String hugoGeneSymbol = key.getSecond();
                 // add alterationCount object where there are no alterations but have genePanel
                 // object
                 if (!genesWithAlteration.containsKey(entrezGeneId)) {
@@ -94,7 +98,7 @@ public class ProfiledCasesCounter<T extends AlterationCountByGene> {
 
                     Set<String> totalProfiledCases = new HashSet<String>();
                     Set<String> allMatchingGenePanelIds = new HashSet<String>();
-                    for (GenePanel genePanel : geneGenePanelMap.get(entrezGeneId)) {
+                    for (GenePanel genePanel : geneGenePanelMap.get(key)) {
                         allMatchingGenePanelIds.add(genePanel.getStableId());
                         totalProfiledCases.addAll(casesWithDataInGenePanel.get(genePanel.getStableId()));
                     }
@@ -104,6 +108,8 @@ public class ProfiledCasesCounter<T extends AlterationCountByGene> {
                     alterationCountByGene.setMatchingGenePanelIds(allMatchingGenePanelIds);
                     alterationCountByGene.setNumberOfProfiledCases(totalProfiledCases.size());
                     alterationCountByGene.setNumberOfAlteredCases(0);
+                    alterationCountByGene.setTotalCount(0);
+                    alterationCountByGene.setHugoGeneSymbol(hugoGeneSymbol);
 
                     alterationCounts.add((T) alterationCountByGene);
                 }

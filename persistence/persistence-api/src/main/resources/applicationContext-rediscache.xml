@@ -34,12 +34,12 @@
 
         <bean id="generalRepositoryCacheResolver" class="org.springframework.cache.interceptor.NamedCacheResolver">
             <constructor-arg index="0" ref="cacheManager"/>
-            <constructor-arg index="1" value="${app.name:cbioportal}GeneralRepositoryCache"/>
+            <constructor-arg index="1" value="${redis.name:cbioportal}GeneralRepositoryCache"/>
         </bean>
 
         <bean id="staticRepositoryCacheOneResolver" class="org.springframework.cache.interceptor.NamedCacheResolver">
             <constructor-arg index="0" ref="cacheManager"/>
-            <constructor-arg index="1" value="${app.name:cbioportal}StaticRepositoryCacheOne"/>
+            <constructor-arg index="1" value="${redis.name:cbioportal}StaticRepositoryCacheOne"/>
         </bean>
 
         <bean id="customKeyGenerator" class="org.cbioportal.persistence.util.CustomKeyGenerator"/>

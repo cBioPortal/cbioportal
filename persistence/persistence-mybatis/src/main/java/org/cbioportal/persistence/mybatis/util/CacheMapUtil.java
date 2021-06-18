@@ -33,6 +33,7 @@
 package org.cbioportal.persistence.mybatis.util;
 
 import java.util.*;
+import java.util.concurrent.ConcurrentHashMap;
 import javax.annotation.PostConstruct;
 import org.cbioportal.model.*;
 import org.cbioportal.persistence.*;
@@ -67,6 +68,9 @@ public class CacheMapUtil {
     private static final int REPOSITORY_RESULT_OFFSET = 0; // retrieve all entries (do not skip any)
 
     // maps used to cache required relationships - in all maps stable ids are key
+    // Fields are static because the proxying mechanism of the CancerStudyPermissionEvaluator
+    // appears to perturb the Singleton scope of the CacheMapUtils bean. When debugging
+    // two version appeared to exist in context. A mechanism with bean injection did not work here.
     private static Map<String, MolecularProfile> molecularProfileCache;
     private static Map<String, SampleList> sampleListCache;
     private static Map<String, CancerStudy> cancerStudyCache;

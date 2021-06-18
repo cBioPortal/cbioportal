@@ -47,8 +47,8 @@ public class CustomRedisCachingProvider {
     @Value("${persistence.cache_type:no-cache}")
     private String cacheType;
 
-    @Value("${app.name:cbioportal}")
-    private String appName;
+    @Value("${redis.name:cbioportal}")
+    private String redisName;
 
     @Value("${redis.leader_address}")
     private String leaderAddress;
@@ -91,8 +91,8 @@ public class CustomRedisCachingProvider {
         CustomRedisCacheManager manager = new CustomRedisCacheManager(redissonClient, expiryMins);
         
         if (clearOnStartup) {
-            manager.getCache(appName + "GeneralRepositoryCache").clear();
-            manager.getCache(appName + "StaticRepositoryCacheOne").clear();
+            manager.getCache(redisName + "GeneralRepositoryCache").clear();
+            manager.getCache(redisName + "StaticRepositoryCacheOne").clear();
         }
         return manager;
     }

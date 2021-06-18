@@ -7,7 +7,6 @@ import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.context.support.PropertySourcesPlaceholderConfigurer;
 import org.springframework.http.MediaType;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.TestPropertySource;
@@ -62,7 +61,7 @@ public class CacheControllerTest {
     public void clearAllCachesNoKeyProvided() throws Exception {
         mockMvc.perform(MockMvcRequestBuilders.delete("/cache"))
             .andExpect(MockMvcResultMatchers.status().isBadRequest());
-        verify(cacheService, never()).evictAllCaches();
+        verify(cacheService, never()).clearCaches(true);
     }
 
     @Test
@@ -71,7 +70,7 @@ public class CacheControllerTest {
             .header("X-API-KEY", "incorrect-key"))
             .andExpect(MockMvcResultMatchers.status().isUnauthorized())
             .andExpect(MockMvcResultMatchers.content().contentTypeCompatibleWith(MediaType.TEXT_PLAIN_VALUE));
-        verify(cacheService, never()).evictAllCaches();
+        verify(cacheService, never()).clearCaches(true);
     }
 
     @Test
@@ -80,7 +79,7 @@ public class CacheControllerTest {
             .header("X-API-KEY", "correct-key"))
             .andExpect(MockMvcResultMatchers.status().isOk())
             .andExpect(MockMvcResultMatchers.content().contentTypeCompatibleWith(MediaType.TEXT_PLAIN_VALUE));
-        verify(cacheService, times(1)).evictAllCaches();
+        verify(cacheService, times(1)).clearCaches(true);
     }
 
     @Test
@@ -90,8 +89,17 @@ public class CacheControllerTest {
             .header("X-API-KEY", "correct-key"))
             .andExpect(MockMvcResultMatchers.status().isNotFound())
             .andExpect(MockMvcResultMatchers.content().contentTypeCompatibleWith(MediaType.TEXT_PLAIN_VALUE));
-        verify(cacheService, never()).evictAllCaches();
+        verify(cacheService, never()).clearCaches(true);
         ReflectionTestUtils.setField(cacheController, "cacheEndpointEnabled", true);
+    }
+
+    @Test
+    public void clearAllCachesSkipSpringManaged() throws Exception {
+        mockMvc.perform(MockMvcRequestBuilders.delete("/cache").param("springManagedCache", "false")
+            .header("X-API-KEY", "correct-key"))
+            .andExpect(MockMvcResultMatchers.status().isOk())
+            .andExpect(MockMvcResultMatchers.content().contentTypeCompatibleWith(MediaType.TEXT_PLAIN_VALUE));
+        verify(cacheService, times(1)).clearCaches(false);
     }
 
 }

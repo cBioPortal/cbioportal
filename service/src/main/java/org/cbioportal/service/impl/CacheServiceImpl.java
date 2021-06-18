@@ -16,10 +16,10 @@ public class CacheServiceImpl implements CacheService {
     private CacheMapUtil cacheMapUtil;
 
     @Override
-    public void evictAllCaches() {
+    public void clearCaches(boolean clearSpringManagedCache) {
         
         // Flush Spring-managed caches (only when cache strategy has been defined).
-        if (cacheManager != null)
+        if (cacheManager != null && clearSpringManagedCache)
             cacheManager.getCacheNames().stream()
                 .forEach(cacheName -> cacheManager.getCache(cacheName).clear());
         

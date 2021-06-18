@@ -1,5 +1,5 @@
 package org.cbioportal.service;
 
 public interface CacheService {
-    public void evictAllCaches();
+    public void clearCaches(boolean springManagedCache);
 }

@@ -201,7 +201,9 @@
         AND
         <foreach item="geneFilterQuery" collection="geneQueries" open="(" separator=" OR " close=")">
             ( mutation.ENTREZ_GENE_ID = '${geneFilterQuery.getEntrezGeneId()}'
-            <if test="geneFilterQuery.getIncludeDriver() or geneFilterQuery.getIncludeVUS() or geneFilterQuery.getIncludeUnknownOncogenicity()">
+            <bind name="allAnnotationsSelected" value="geneFilterQuery.getIncludeDriver() and geneFilterQuery.getIncludeVUS() and geneFilterQuery.getIncludeUnknownOncogenicity()" />
+            <bind name="noAnnotationsSelected" value="not geneFilterQuery.getIncludeDriver() and not geneFilterQuery.getIncludeVUS() and not geneFilterQuery.getIncludeUnknownOncogenicity()" />
+            <if test="not allAnnotationsSelected and not noAnnotationsSelected">
                 <trim prefix="AND (" prefixOverrides="OR">
                     <if test="geneFilterQuery.getIncludeDriver()">
                         OR LOWER(alteration_driver_annotation.DRIVER_FILTER) = 'putative_driver'
@@ -216,16 +218,18 @@
                 </trim>
                 )
             </if>
-            <if test="geneFilterQuery.getIncludeGermline() or geneFilterQuery.getIncludeSomatic() or geneFilterQuery.getIncludeUnknownStatus()">
+            <bind name="allMutationStatusSelected" value="geneFilterQuery.getIncludeGermline() and geneFilterQuery.getIncludeSomatic() and geneFilterQuery.getIncludeUnknownStatus()" />
+            <bind name="noMutationStatusSelected" value="not geneFilterQuery.getIncludeGermline() and not geneFilterQuery.getIncludeSomatic() and not geneFilterQuery.getIncludeUnknownStatus()" />
+            <if test="not allMutationStatusSelected and not noMutationStatusSelected">
                 <trim prefix="AND (" prefixOverrides="OR">
                     <if test="geneFilterQuery.getIncludeGermline()">
                         OR LOWER(mutation.MUTATION_STATUS) = 'germline'
                     </if>
                     <if test="geneFilterQuery.getIncludeSomatic()">
-                        OR LOWER(mutation.MUTATION_STATUS) = 'somatic'
+                        OR LOWER(mutation.MUTATION_STATUS) = 'somatic' 
                     </if>
                     <if test="geneFilterQuery.getIncludeUnknownStatus()">
-                        OR LOWER(mutation.MUTATION_STATUS) IN ('unknown', '')
+                        OR LOWER(mutation.MUTATION_STATUS) NOT IN ('somatic', 'germline')
                     </if>
                 </trim>
                 )

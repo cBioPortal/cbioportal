@@ -37,7 +37,7 @@ public class CacheServiceImplTest {
 
     @Test
     public void evictAllCachesSuccess() {
-        cachingService.evictAllCaches();
+        cachingService.clearCaches(true);
         verify(mockCache, times(2)).clear();
         verify(cacheMapUtil, times(1)).initializeCacheMemory();
     }
@@ -45,9 +45,17 @@ public class CacheServiceImplTest {
     @Test
     public void evictAllCachesNullManager() {
         ReflectionTestUtils.setField(cachingService, "cacheManager", null);
-        cachingService.evictAllCaches();
+        cachingService.clearCaches(true);
         verify(mockCache, never()).clear();
         verify(cacheMapUtil, times(1)).initializeCacheMemory();
         ReflectionTestUtils.setField(cachingService, "cacheManager", cacheManager);
     }
+    
+    @Test
+    public void evictAllCachesSkipSpringManagedCache() {
+        cachingService.clearCaches(false);
+        verify(mockCache, never()).clear();
+        verify(cacheMapUtil, times(1)).initializeCacheMemory();
+    }
+    
 }

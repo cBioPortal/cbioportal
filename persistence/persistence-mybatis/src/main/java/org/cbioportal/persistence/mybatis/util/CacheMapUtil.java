@@ -97,7 +97,7 @@ public class CacheMapUtil {
         initializeCacheMemory();
     }
 
-    public void initializeCacheMemory() {
+    public synchronized void initializeCacheMemory() {
         
         // CHANGES TO THIS LIST MUST BE PROPAGATED TO 'GlobalProperties'
         this.cacheEnabled = (!authenticate.isEmpty() 
@@ -114,9 +114,7 @@ public class CacheMapUtil {
     }
 
     private void populateMolecularProfileMap() {
-        if (molecularProfileCache == null) {
-            molecularProfileCache = new HashMap<String, MolecularProfile>();
-        }
+        molecularProfileCache = new HashMap<String, MolecularProfile>();
         for (MolecularProfile mp : molecularProfileRepository.getAllMolecularProfiles(
                 "SUMMARY",
                 REPOSITORY_RESULT_LIMIT,
@@ -129,9 +127,7 @@ public class CacheMapUtil {
     }
 
     private void populateSampleListMap() {
-        if (sampleListCache == null) {
-            sampleListCache = new HashMap<String, SampleList>();
-        }
+        sampleListCache = new HashMap<String, SampleList>();
         for (SampleList sl : sampleListRepository.getAllSampleLists(
                 "SUMMARY",
                 REPOSITORY_RESULT_LIMIT,
@@ -144,9 +140,7 @@ public class CacheMapUtil {
     }
 
     private void populateCancerStudyMap() {
-        if (cancerStudyCache == null) {
-            cancerStudyCache = new HashMap<String, CancerStudy>();
-        }
+        cancerStudyCache = new HashMap<String, CancerStudy>();
         for (CancerStudy cs : studyRepository.getAllStudies(
                 null,
                 "SUMMARY",
@@ -160,9 +154,7 @@ public class CacheMapUtil {
     }
 
     private void populateGenericAssayStableIdToMolecularProfileIdMap() {
-        if (genericAssayStableIdToMolecularProfileIdCache == null) {
-            genericAssayStableIdToMolecularProfileIdCache = new HashMap<String, String>();
-        }
+        genericAssayStableIdToMolecularProfileIdCache = new HashMap<String, String>();
         for (MolecularProfile mp : molecularProfileRepository.getAllMolecularProfiles(
             "SUMMARY",
             REPOSITORY_RESULT_LIMIT,

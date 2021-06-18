@@ -39,10 +39,12 @@ public class CacheController {
         @RequestHeader(value = "X-API-KEY") String providedApiKey,
         @ApiParam("Clear Spring-managed caches")
         @RequestParam(defaultValue = "true", required = false) final boolean springManagedCache) {
-        if (!cacheEndpointEnabled)
+        if (!cacheEndpointEnabled) {
             return new ResponseEntity<>("Cache endpoint is disabled for this instance.", HttpStatus.NOT_FOUND);
-        if ("not set".equals(requiredApiKey) || ! requiredApiKey.equals(providedApiKey))
+        }
+        if ("not set".equals(requiredApiKey) || ! requiredApiKey.equals(providedApiKey)) {
             return new ResponseEntity<>("", HttpStatus.UNAUTHORIZED);
+        }
         cacheService.clearCaches(springManagedCache);
         return new ResponseEntity<>("Flushed all caches!!!", HttpStatus.OK);
     }

@@ -162,7 +162,7 @@ public class CacheMapUtil {
             null,
             "ASC")) {
             // Only select GENERIC_ASSAY profiles
-            if (mp.getMolecularAlterationType().toString() == EntityType.GENERIC_ASSAY.toString()) {
+            if (EntityType.GENERIC_ASSAY.toString().equals(mp.getMolecularAlterationType().toString())) {
                 List<String> molecularId = new ArrayList<String>();
                 molecularId.add(mp.getStableId());
                 List<String> stableIds = genericAssayRepository.getGenericAssayStableIdsByMolecularIds(molecularId);

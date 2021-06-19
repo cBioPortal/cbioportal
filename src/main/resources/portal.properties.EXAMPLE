@@ -62,6 +62,8 @@ skin.blurb=The cBioPortal for Cancer Genomics provides <b>visualization</b>, <b>
 
 # setting controlling the footer
 skin.footer= | <a href="http://www.mskcc.org/mskcc/html/44.cfm">MSKCC</a> | <a href="http://cancergenome.nih.gov/">TCGA</a>
+# setting controlling listing the development channels in the site's footer section
+#skin.footer_show_dev=false
 
 # setting controlling html for the contact
 skin.login.contact_html=If you think you have received this message in error, please contact us at <a style="color:#FF0000" href="mailto:cbioportal-access@cbio.mskcc.org">cbioportal-access@cbio.mskcc.org</a>
@@ -74,6 +76,7 @@ skin.right_nav.show_data_sets=true
 skin.right_nav.show_examples=true
 skin.right_nav.show_testimonials=true
 skin.right_nav.show_whats_new=true
+#skin.right_nav.show_twitter=false
 
 # settings controlling what to show in the right navigation bar
 skin.study_view.link_text=To build your own case set, try out our enhanced Study View.
@@ -270,6 +273,8 @@ persistence.cache_type=no-cache
 #cache.statistics_endpoint_enabled=false
 
 # Redis properties
+# Unique name for each portal instance, used for distinguishing caches
+#redis.name=
 #redis.leader_address=
 #redis.follower_address=
 #redis.database=

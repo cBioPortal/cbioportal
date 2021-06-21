@@ -40,7 +40,7 @@
     <img src="https://user-images.githubusercontent.com/15748980/107722872-f32eba80-6cad-11eb-89d0-b6c5f300ab41.png" width="700" />
 
 ## February 16, 2021
-*   **Enhancement**: Show only relevant TCGA PanCancer Atlas Pathways in results and patient view to avoid redundancy [Example: Clinvar APC and CTNNB1 alterations in WNT pathway](https://www.cbioportal.org/results/pathways?genetic_profile_ids_PROFILE_MUTATION_EXTENDED=msk_impact_2017_mutations&genetic_profile_ids_PROFILE_COPY_NUMBER_ALTERATION=msk_impact_2017_cna&cancer_study_list=msk_impact_2017&Z_SCORE_THRESHOLD=2.0&RPPA_SCORE_THRESHOLD=2.0&data_priority=0&profileFilter=mutations%2Cfusion%2Ccna&case_set_id=msk_impact_2017_cnaseq&gene_list=APC%2520CTNNB1&geneset_list=%20&tab_index=tab_visualize&Action=Submit)
+*   **Enhancement**: Show only TCGA PanCancer Atlas Pathways in _Results_ and _Patient View_ to avoid showing many similar pathways [Example: Clinvar APC and CTNNB1 alterations in WNT pathway](https://www.cbioportal.org/results/pathways?genetic_profile_ids_PROFILE_MUTATION_EXTENDED=msk_impact_2017_mutations&genetic_profile_ids_PROFILE_COPY_NUMBER_ALTERATION=msk_impact_2017_cna&cancer_study_list=msk_impact_2017&Z_SCORE_THRESHOLD=2.0&RPPA_SCORE_THRESHOLD=2.0&data_priority=0&profileFilter=mutations%2Cfusion%2Ccna&case_set_id=msk_impact_2017_cnaseq&gene_list=APC%2520CTNNB1&geneset_list=%20&tab_index=tab_visualize&Action=Submit)
 
     <img src="https://user-images.githubusercontent.com/1334004/122806359-3a4e3d00-d298-11eb-89fc-9e107a4651b4.png" width="700" />
 

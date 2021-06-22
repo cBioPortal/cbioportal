@@ -17,9 +17,9 @@ public class AlterationFilter extends BaseAlterationFilter implements Serializab
     private Map<CNA, Boolean> cnaBooleanMap;
     
     @JsonIgnore
-    private Select<MutationEventType> mutationTypeSelect;
+    private Select<MutationEventType> mutationTypeSelect = Select.all();
     @JsonIgnore
-    private Select<CNA> cnaTypeSelect;
+    private Select<CNA> cnaTypeSelect = Select.all();
 
     // When default constructor is called, the filter is inactive (excludes nothing)
     public AlterationFilter() {}
@@ -42,7 +42,7 @@ public class AlterationFilter extends BaseAlterationFilter implements Serializab
     public void setMutationBooleanMap(Map<MutationEventType, Boolean> selectedTypes) {
         this.mutationBooleanMap = selectedTypes;
         if (selectedTypes == null) {
-            this.mutationTypeSelect = Select.all();
+            this.mutationTypeSelect = Select.none();
         } else {
             this.mutationTypeSelect = Select.byValues(
                 selectedTypes.entrySet().stream()
@@ -60,7 +60,7 @@ public class AlterationFilter extends BaseAlterationFilter implements Serializab
     @JsonIgnore
     public Select<MutationEventType> getSelectedMutationTypes() {
         if (this.mutationTypeSelect == null)
-            return Select.all();
+            return Select.none();
         return this.mutationTypeSelect;
     }
 
@@ -72,7 +72,7 @@ public class AlterationFilter extends BaseAlterationFilter implements Serializab
     public void setCnaBooleanMap(Map<CNA, Boolean> selectedTypes) {
         this.cnaBooleanMap = selectedTypes;
         if (selectedTypes == null) {
-            this.cnaTypeSelect = Select.all();
+            this.cnaTypeSelect = Select.none();
         } else {
             this.cnaTypeSelect = Select.byValues(
                 selectedTypes.entrySet().stream()
@@ -90,7 +90,7 @@ public class AlterationFilter extends BaseAlterationFilter implements Serializab
     @JsonIgnore
     public Select<CNA> getSelectedCnaTypes() {
         if (this.cnaTypeSelect == null)
-            return Select.all();
+            return Select.none();
         return this.cnaTypeSelect;
     }
 

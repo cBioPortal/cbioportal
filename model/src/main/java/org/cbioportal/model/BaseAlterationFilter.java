@@ -24,7 +24,7 @@ public class BaseAlterationFilter implements Serializable {
     private boolean includeUnknownTier = true;
 
     @JsonIgnore
-    private Select<String> tiersSelect;
+    private Select<String> tiersSelect = Select.all();
 
     // When default constructor is called, the filter is inactive (excludes nothing)
     public BaseAlterationFilter() {
@@ -107,7 +107,7 @@ public class BaseAlterationFilter implements Serializable {
 
     public void setTiersBooleanMap(Map<String, Boolean> tiersBooleanMap) {
         if (tiersBooleanMap == null) {
-            this.tiersSelect = Select.all();
+            this.tiersSelect = Select.none();
         } else {
             this.tiersSelect = Select.byValues(
                 tiersBooleanMap.entrySet().stream()
@@ -125,7 +125,7 @@ public class BaseAlterationFilter implements Serializable {
     @JsonIgnore
     public Select<String> getSelectedTiers() {
         if (tiersSelect == null)
-            return Select.all();
+            return Select.none();
         return tiersSelect;
     }
 

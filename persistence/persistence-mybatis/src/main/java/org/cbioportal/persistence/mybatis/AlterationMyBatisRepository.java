@@ -38,7 +38,9 @@ public class AlterationMyBatisRepository implements AlterationRepository {
 
         if ((alterationFilter.getSelectedMutationTypes().hasNone() && alterationFilter.getSelectedCnaTypes().hasNone())
             || (molecularProfileCaseIdentifiers == null || molecularProfileCaseIdentifiers.isEmpty())
-            || (allAlterationsExcludedDriverAnnotation(alterationFilter) && allAlterationsExcludedMutationStatus(alterationFilter))) {
+            || allAlterationsExcludedDriverAnnotation(alterationFilter)
+            || allAlterationsExcludedMutationStatus(alterationFilter)
+            || allAlterationsExcludedDriverTierAnnotation(alterationFilter)) {
             return Collections.emptyList();
         }
 
@@ -86,7 +88,9 @@ public class AlterationMyBatisRepository implements AlterationRepository {
 
         if ((alterationFilter.getSelectedMutationTypes().hasNone() && alterationFilter.getSelectedCnaTypes().hasNone())
             || (molecularProfileCaseIdentifiers == null || molecularProfileCaseIdentifiers.isEmpty())
-            || (allAlterationsExcludedDriverAnnotation(alterationFilter) && allAlterationsExcludedMutationStatus(alterationFilter))) {
+            || allAlterationsExcludedDriverAnnotation(alterationFilter)
+            || allAlterationsExcludedMutationStatus(alterationFilter)
+            || allAlterationsExcludedDriverTierAnnotation(alterationFilter)) {
             return Collections.emptyList();
         }
 
@@ -129,7 +133,8 @@ public class AlterationMyBatisRepository implements AlterationRepository {
                                                           AlterationFilter alterationFilter) {
 
         if (alterationFilter.getSelectedCnaTypes().hasNone() || molecularProfileCaseIdentifiers == null
-            || molecularProfileCaseIdentifiers.isEmpty() || allAlterationsExcludedDriverAnnotation(alterationFilter)) {
+            || allAlterationsExcludedDriverAnnotation(alterationFilter)
+            || allAlterationsExcludedDriverTierAnnotation(alterationFilter)) {
             return Collections.emptyList();
         }
         
@@ -153,7 +158,8 @@ public class AlterationMyBatisRepository implements AlterationRepository {
                                                            AlterationFilter alterationFilter) {
 
         if (alterationFilter.getSelectedCnaTypes().hasNone() || molecularProfileCaseIdentifiers == null
-            || molecularProfileCaseIdentifiers.isEmpty() || allAlterationsExcludedDriverAnnotation(alterationFilter)) {
+            || allAlterationsExcludedDriverAnnotation(alterationFilter)
+            || allAlterationsExcludedDriverTierAnnotation(alterationFilter)) {
             return Collections.emptyList();
         }
         List<MolecularProfileCaseIdentifier> molecularProfileCaseInternalIdentifiers =
@@ -195,7 +201,11 @@ public class AlterationMyBatisRepository implements AlterationRepository {
     
     private boolean allAlterationsExcludedDriverAnnotation(AlterationFilter alterationFilter) {
         return !alterationFilter.getIncludeDriver() && !alterationFilter.getIncludeVUS()
-            && !alterationFilter.getIncludeUnknownOncogenicity() && alterationFilter.getSelectedTiers().hasNone()
+            && !alterationFilter.getIncludeUnknownOncogenicity();
+    }
+    
+    private boolean allAlterationsExcludedDriverTierAnnotation(AlterationFilter alterationFilter) {
+        return alterationFilter.getSelectedTiers().hasNone()
             && !alterationFilter.getIncludeUnknownTier();
     }
 

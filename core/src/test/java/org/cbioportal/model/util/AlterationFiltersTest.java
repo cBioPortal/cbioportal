@@ -83,8 +83,8 @@ public class AlterationFiltersTest {
         AlterationFilter f = new AlterationFilter();
         f.setCnaBooleanMap(null);
         Assert.assertFalse(f.getSelectedCnaTypes().hasValues());
-        Assert.assertTrue(f.getSelectedCnaTypes().hasAll());
-        Assert.assertFalse(f.getSelectedCnaTypes().hasNone());
+        Assert.assertFalse(f.getSelectedCnaTypes().hasAll());
+        Assert.assertTrue(f.getSelectedCnaTypes().hasNone());
     }
 
     @Test
@@ -137,8 +137,8 @@ public class AlterationFiltersTest {
         AlterationFilter f = new AlterationFilter();
         f.setMutationBooleanMap(null);
         Assert.assertFalse(f.getSelectedMutationTypes().hasValues());
-        Assert.assertTrue(f.getSelectedMutationTypes().hasAll());
-        Assert.assertFalse(f.getSelectedMutationTypes().hasNone());
+        Assert.assertFalse(f.getSelectedMutationTypes().hasAll());
+        Assert.assertTrue(f.getSelectedMutationTypes().hasNone());
     }
 
     @Test
@@ -196,12 +196,12 @@ public class AlterationFiltersTest {
     }
 
     @Test
-    public void setSelectAllWhenNullTiers() {
+    public void setSelectNoneWhenNullTiers() {
         BaseAlterationFilter f = new BaseAlterationFilter();
         f.setTiersBooleanMap(null);
         Assert.assertFalse(f.getSelectedTiers().hasValues());
-        Assert.assertTrue(f.getSelectedTiers().hasAll());
-        Assert.assertFalse(f.getSelectedTiers().hasNone());
+        Assert.assertFalse(f.getSelectedTiers().hasAll());
+        Assert.assertTrue(f.getSelectedTiers().hasNone());
     }
     
 }

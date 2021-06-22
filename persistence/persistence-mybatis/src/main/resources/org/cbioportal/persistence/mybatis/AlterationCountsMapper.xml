@@ -149,7 +149,12 @@
     </select>
 
     <sql id="fromIncludeCustomAnnotationsMutation">
-        <if test="includeDriver or includeVUS or includeUnknownOncogenicity or (selectedTiers != null and selectedTiers.hasValues()) or includeUnknownTier">
+        <!--For better performance, only join in the alteration_driver_annotation table when we need to filter on it.-->
+        <bind name="allDriverAnnotationsSelected" value="includeDriver and includeVUS and includeUnknownOncogenicity" />
+        <bind name="noDriverAnnotationsSelected" value="not includeDriver and not includeVUS and not includeUnknownOncogenicity" />
+        <bind name="allTierOptionsSelected" value="(selectedTiers != null and selectedTiers.hasAll()) and includeUnknownTier" />
+        <bind name="noTierOptionsSelected" value="(selectedTiers == null or selectedTiers.hasNone()) and not includeUnknownTier" />
+        <if test="(not allDriverAnnotationsSelected and not noDriverAnnotationsSelected) or (not allTierOptionsSelected and not noTierOptionsSelected)">
             LEFT JOIN alteration_driver_annotation ON
             mutation.MUTATION_EVENT_ID = alteration_driver_annotation.ALTERATION_EVENT_ID
             AND mutation.GENETIC_PROFILE_ID = alteration_driver_annotation.GENETIC_PROFILE_ID
@@ -158,7 +163,12 @@
     </sql>
 
     <sql id="fromIncludeCustomAnnotationsCna">
-        <if test="includeDriver or includeVUS or includeUnknownOncogenicity or (selectedTiers != null and selectedTiers.hasValues()) or includeUnknownTier">
+        <!--For better performance, only join in the alteration_driver_annotation table when we need to filter on it.-->
+        <bind name="allDriverAnnotationsSelected" value="includeDriver and includeVUS and includeUnknownOncogenicity" />
+        <bind name="noDriverAnnotationsSelected" value="not includeDriver and not includeVUS and not includeUnknownOncogenicity" />
+        <bind name="allTierOptionsSelected" value="(selectedTiers != null and selectedTiers.hasAll()) and includeUnknownTier" />
+        <bind name="noTierOptionsSelected" value="(selectedTiers == null or selectedTiers.hasNone()) and not includeUnknownTier" />
+        <if test="(not allDriverAnnotationsSelected and not noDriverAnnotationsSelected) or (not allTierOptionsSelected and not noTierOptionsSelected)">
             LEFT JOIN alteration_driver_annotation ON
             sample_cna_event.CNA_EVENT_ID = alteration_driver_annotation.ALTERATION_EVENT_ID
             AND sample_cna_event.GENETIC_PROFILE_ID = alteration_driver_annotation.GENETIC_PROFILE_ID
@@ -167,90 +177,94 @@
     </sql>
     
     <sql id="whereCustomAnnotations">
-        <if test="not includeDriver or not includeVUS or not includeUnknownOncogenicity">
-            <trim prefix="" prefixOverrides="AND ( )">
-                <trim prefix="AND (" prefixOverrides="OR">
-                    <include refid="whereIncludeDriver"/>
-                    <include refid="whereIncludeVUS"/>
-                    <include refid="whereIncludeUnknownOncogenicity"/>
-                    )
+        <bind name="allDriverAnnotationsSelected" value="includeDriver and includeVUS and includeUnknownOncogenicity" />
+        <bind name="noDriverAnnotationsSelected" value="not includeDriver and not includeVUS and not includeUnknownOncogenicity" />
+        <choose>
+            <when test="not allDriverAnnotationsSelected and not noDriverAnnotationsSelected">
+                <trim prefix="" prefixOverrides="AND ( )">
+                    <trim prefix="AND (" prefixOverrides="OR">
+                        <if test="includeDriver">
+                            OR LOWER(alteration_driver_annotation.DRIVER_FILTER) = 'putative_driver'
+                        </if>
+                        <if test="includeVUS">
+                            OR LOWER(alteration_driver_annotation.DRIVER_FILTER) = 'putative_passenger'
+                        </if>
+                        <if test="includeUnknownOncogenicity">
+                            OR alteration_driver_annotation.DRIVER_FILTER IS NULL
+                            OR LOWER(alteration_driver_annotation.DRIVER_FILTER) IN ('unknown', 'na', '')
+                        </if>
+                        )
+                    </trim>
                 </trim>
-            </trim>
-        </if>
+            </when>
+            <when test="noDriverAnnotationsSelected">
+                AND NULL
+            </when>
+            <otherwise>
+                <!--when allDriverAnnotationsSelected do not filter-->
+            </otherwise>
+        </choose>
         <include refid="whereIncludeTiers"/>
-    </sql>
-    
-    <sql id="whereMutationStatus">
-        <if test="not includeGermline or not includeSomatic or not includeUnknownStatus">
-            <trim prefix="" prefixOverrides="AND ( )">
-                <trim prefix="AND (" prefixOverrides="OR">
-                    <include refid="whereIncludeGermlineAlterations"/>
-                    <include refid="whereIncludeSomaticAlterations"/>
-                    <include refid="whereIncludeUnknownStatusAlterations"/>
-                    )
-                </trim>
-            </trim>
-        </if>
-    </sql>
-
-    <sql id="whereIncludeDriver">
-        <if test="includeDriver">
-            OR LOWER(alteration_driver_annotation.DRIVER_FILTER) = 'putative_driver'
-        </if>
-    </sql>
-
-    <sql id="whereIncludeVUS">
-        <if test="includeVUS">
-            OR LOWER(alteration_driver_annotation.DRIVER_FILTER) = 'putative_passenger'
-        </if>
-    </sql>
-
-    <sql id="whereIncludeUnknownOncogenicity">
-        <if test="includeUnknownOncogenicity">
-            OR alteration_driver_annotation.DRIVER_FILTER IS NULL
-            OR LOWER(alteration_driver_annotation.DRIVER_FILTER) IN ('unknown', 'na', '')
-        </if>
     </sql>
         
     <sql id="whereIncludeTiers">
-        <bind name="allTierOptionsSelected" value="(selectedTiers == null or selectedTiers.hasAll()) and includeUnknownTier" />
-        <bind name="noTierOptionsSelected" value="(selectedTiers != null and selectedTiers.hasNone()) and not includeUnknownTier" />
-        <if test="not allTierOptionsSelected and not noTierOptionsSelected">
-            <trim prefix="AND (" prefixOverrides="OR">    
-                <if test="selectedTiers != null and selectedTiers.hasValues()">
-                    OR alteration_driver_annotation.DRIVER_TIERS_FILTER IN
-                    <foreach item="item" collection="selectedTiers" open="(" separator="," close=")">
-                        #{item}
-                    </foreach>
-                </if>
-                <if test="includeUnknownTier">
-                    OR alteration_driver_annotation.DRIVER_TIERS_FILTER IS NULL
-                    OR LOWER(alteration_driver_annotation.DRIVER_TIERS_FILTER) IN ('', 'na', 'unknown')
-                </if>
-            </trim>
-            )
-        </if>
-    </sql>
-
-    <sql id="whereIncludeGermlineAlterations">
-        <if test="includeGermline">
-            OR
-            LOWER(mutation.MUTATION_STATUS) = 'germline'
-        </if>
-    </sql>
-    
-    <sql id="whereIncludeSomaticAlterations">
-        <if test="includeSomatic">
-            OR
-            LOWER(mutation.MUTATION_STATUS) = 'somatic'
-        </if>
+        <bind name="allTierOptionsSelected" value="(selectedTiers != null and selectedTiers.hasAll()) and includeUnknownTier" />
+        <bind name="noTierOptionsSelected" value="(selectedTiers == null or selectedTiers.hasNone()) and not includeUnknownTier" />
+        <choose>
+            <when test="not allTierOptionsSelected and not noTierOptionsSelected">
+                <trim prefix="AND (" prefixOverrides="OR">    
+                    <if test="selectedTiers != null and selectedTiers.hasValues()">
+                        OR alteration_driver_annotation.DRIVER_TIERS_FILTER IN
+                        <foreach item="item" collection="selectedTiers" open="(" separator="," close=")">
+                            #{item}
+                        </foreach>
+                    </if>
+                    <if test="includeUnknownTier">
+                        OR alteration_driver_annotation.DRIVER_TIERS_FILTER IS NULL
+                        OR LOWER(alteration_driver_annotation.DRIVER_TIERS_FILTER) IN ('', 'na', 'unknown')
+                    </if>
+                </trim>
+                )
+            </when>
+            <when test="noTierOptionsSelected">
+                AND NULL
+            </when>
+            <otherwise>
+                <!--when allTierOptionsSelected do not filter-->
+            </otherwise>
+        </choose>
     </sql>
     
-    <sql id="whereIncludeUnknownStatusAlterations">
-        <if test="includeUnknownStatus">
-            OR
-            LOWER(mutation.MUTATION_STATUS) NOT IN ('somatic', 'germline')
-        </if>
+    <sql id="whereMutationStatus">
+        <bind name="allMutationStatusSelected" value="includeGermline and includeSomatic and includeUnknownStatus" />
+        <bind name="noMutationStatusSelected" value="not includeGermline and not includeSomatic and not includeUnknownStatus" />
+        <choose>
+            <when test="not allMutationStatusSelected and not noMutationStatusSelected">
+                <trim prefix="" prefixOverrides="AND ( )">
+                    <trim prefix="AND (" prefixOverrides="OR">
+                        <if test="includeGermline">
+                            OR
+                            LOWER(mutation.MUTATION_STATUS) = 'germline'
+                        </if>
+                        <if test="includeSomatic">
+                            OR
+                            LOWER(mutation.MUTATION_STATUS) = 'somatic'
+                        </if>
+                        <if test="includeUnknownStatus">
+                            OR
+                            LOWER(mutation.MUTATION_STATUS) IN ('unknown', 'na', '')
+                        </if>
+                        )
+                    </trim>
+                </trim>
+            </when>
+            <when test="noMutationStatusSelected">
+                AND NULL
+            </when>
+            <otherwise>
+                <!--when allMutationStatusSelected do not filter-->
+            </otherwise>
+        </choose>
     </sql>
 
     <sql id="whereSearchFusions">

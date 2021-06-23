@@ -33,6 +33,7 @@
 package org.cbioportal.web;
 
 import io.swagger.annotations.Api;
+import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
 import org.cbioportal.model.DataAccessToken;
 import org.cbioportal.service.DataAccessTokenService;
@@ -48,6 +49,7 @@ import org.springframework.security.core.Authentication;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.client.HttpClientErrorException;
+import springfox.documentation.annotations.ApiIgnore;
 
 import javax.annotation.PostConstruct;
 import javax.servlet.http.HttpServletRequest;
@@ -89,8 +91,10 @@ public class OAuth2DataAccessTokenController {
         authorizationUrl = String.format("%s?response_type=%s&scope=%s&client_id=%s&redirect_uri=%s", userAuthorizationUri, "code", scopeEncoded, clientIdEncoded, redirUriEncode);
     }
 
-    // this is the entrypoint for the cBioPortal frontend to download a single user token
-    @RequestMapping("/data-access-token")
+    // This is the entrypoint for the cBioPortal frontend to download a single user token.
+    // Redirect the browser to the authorizationUrl.
+    @RequestMapping(method = RequestMethod.GET, value = "/data-access-token")
+    @ApiOperation("Create a new data access token")
     public ResponseEntity<String> downloadDataAccessToken(Authentication authentication,
         HttpServletRequest request, HttpServletResponse response) throws IOException {
 
@@ -102,7 +106,8 @@ public class OAuth2DataAccessTokenController {
     }
 
     // retrieve and trigger download OAuth2 offline token
-    @RequestMapping("/data-access-token/oauth2")
+    @RequestMapping(method = RequestMethod.GET, value = "/data-access-token/oauth2")
+    @ApiIgnore
     public ResponseEntity<String> downloadOAuth2DataAccessToken(HttpServletRequest request, HttpServletResponse response) throws IOException {
 
         String accessCode = request.getParameter("code");
@@ -119,17 +124,20 @@ public class OAuth2DataAccessTokenController {
     }
 
     @RequestMapping(method = RequestMethod.POST, value = "/data-access-tokens", produces = MediaType.APPLICATION_JSON_VALUE)
+    @ApiOperation("Get all data access tokens")
     public ResponseEntity<DataAccessToken> createDataAccessToken(Authentication authentication) throws HttpClientErrorException {
         throw new UnsupportedOperationException("this endpoint is does not apply to OAuth2 data access token method.");
     }
 
     @RequestMapping(method = RequestMethod.GET, value = "/data-access-tokens")
+    @ApiOperation("Retrieve all data access tokens")
     public ResponseEntity<List<DataAccessToken>> getAllDataAccessTokens(HttpServletRequest request,
     Authentication authentication) {
         throw new UnsupportedOperationException("this endpoint is does not apply to OAuth2 data access token method.");
     }
 
     @RequestMapping(method = RequestMethod.GET, value = "/data-access-tokens/{token}")
+    @ApiOperation("Retrieve an existing data access token")
     public ResponseEntity<DataAccessToken> getDataAccessToken(
         @ApiParam(required = true, value = "token") @PathVariable String token) {
         throw new UnsupportedOperationException("this endpoint is does not apply to OAuth2 data access token method.");
@@ -137,11 +145,13 @@ public class OAuth2DataAccessTokenController {
     }
 
     @RequestMapping(method = RequestMethod.DELETE, value = "/data-access-tokens")
+    @ApiOperation("Delete all data access tokens")
     public void revokeAllDataAccessTokens(Authentication authentication) {
         throw new UnsupportedOperationException("this endpoint is does not apply to OAuth2 data access token method.");
     }
 
     @RequestMapping(method = RequestMethod.DELETE, value = "/data-access-tokens/{token}")
+    @ApiOperation("Delete a data access token")
     public void revokeDataAccessToken(@ApiParam(required = true, value = "token") @PathVariable String token) {
         throw new UnsupportedOperationException("this endpoint is does not apply to OAuth2 data access token method.");
     }

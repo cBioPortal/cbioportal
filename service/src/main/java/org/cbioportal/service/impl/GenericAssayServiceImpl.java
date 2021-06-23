@@ -80,15 +80,15 @@ public class GenericAssayServiceImpl implements GenericAssayService {
                 }
             } else {
                 List<GenericAssayAdditionalProperty> additionalProperties = genericAssayRepository.getGenericAssayAdditionalproperties(distinctStableIds);
+                Map<String, List<GenericAssayAdditionalProperty>> additionalPropertiesGroupedByStableId =
+                    additionalProperties.stream().collect(Collectors.groupingBy(GenericAssayAdditionalProperty::getStableId));
                 for (GenericAssayMeta meta : metaData) {
                     String stableId = meta.getStableId();
                     HashMap<String, String> map = new HashMap<>();
-                    List<GenericAssayAdditionalProperty> filteredAdditionalProperties = additionalProperties
-                            .stream()
-                            .filter(additionalProperty -> additionalProperty.getStableId().equals(stableId))
-                            .collect(Collectors.toList());
-                    for (GenericAssayAdditionalProperty additionalProperty : filteredAdditionalProperties) {
-                        map.put(additionalProperty.getName(), additionalProperty.getValue());
+                    if (additionalPropertiesGroupedByStableId.containsKey(stableId)) {
+                       for (GenericAssayAdditionalProperty additionalProperty : additionalPropertiesGroupedByStableId.get(stableId)) {
+                           map.put(additionalProperty.getName(), additionalProperty.getValue());
+                       }
                     }
                     meta.setGenericEntityMetaProperties(map);
                     metaResults.add(meta);

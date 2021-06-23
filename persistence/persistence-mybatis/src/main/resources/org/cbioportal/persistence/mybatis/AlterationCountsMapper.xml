@@ -252,7 +252,7 @@
                         </if>
                         <if test="includeUnknownStatus">
                             OR
-                            LOWER(mutation.MUTATION_STATUS) IN ('unknown', 'na', '')
+                            LOWER(mutation.MUTATION_STATUS) NOT IN ('germline', 'somatic')
                         </if>
                         )
                     </trim>

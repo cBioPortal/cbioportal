@@ -106,7 +106,7 @@
             <!--                        OR LOWER(mutation.MUTATION_STATUS) = 'somatic'-->
             <!--                    </if>-->
             <!--                    <if test="geneFilterQuery.getIncludeUnknownStatus()">-->
-            <!--                        OR LOWER(mutation.MUTATION_STATUS) IN ('unknown', '') OR mutation.MUTATION_STATUS IS NULL-->
+            <!--                        OR LOWER(mutation.MUTATION_STATUS) IN ('germline', 'somatic')-->
             <!--                    </if>-->
             <!--                </trim>-->
             <!--                )-->

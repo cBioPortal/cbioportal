@@ -119,7 +119,7 @@ public class AlterationMyBatisRepositoryTest {
     }
 
     @Test
-    public void getSampleMutationCountAllDriverTiersExcludedNullSelect() throws Exception {
+    public void getSampleMutationCountAllDriverTiersExcludedWithNullSelect() throws Exception {
         alterationFilter.setSelectedTiers(null);
         alterationFilter.setIncludeUnknownTier(false);
         alterationFilter.setCnaTypeSelect(Select.none());

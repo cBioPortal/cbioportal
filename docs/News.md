@@ -1,3 +1,13 @@
+## May 10, 2021
+*   **New Feature**: Pick color for User Defined Groups [Example: Color Bladder Cancer Group in MSK-IMPACT (2017) cohort](https://www.cbioportal.org/study/summary?id=msk_impact_2017)
+
+    <img src="https://user-images.githubusercontent.com/1334004/122818654-7b018280-d2a7-11eb-94c1-834b780618b9.png" width="700" />
+
+## May 4, 2021
+*   **New Feature**: Add more categories of mutations to the Mutations Tab on the _Results View_, including Driver/VUS, Splice and Structural Variants [Example: TP53 alterations in the MSK-IMPACT (2017) cohort](https://www.cbioportal.org/results/mutations?cancer_study_list=msk_impact_2017&Z_SCORE_THRESHOLD=2.0&RPPA_SCORE_THRESHOLD=2.0&profileFilter=mutations%2Cfusion%2Ccna&case_set_id=msk_impact_2017_cnaseq&gene_list=TP53&geneset_list=%20&tab_index=tab_visualize&Action=Submit)
+
+    <img src="https://user-images.githubusercontent.com/1334004/122817171-99ff1500-d2a5-11eb-8a58-374c9ea32013.png" width="700" />
+
 ## April 21, 2021
 *   **Added data** consisting of 4074 samples from 9 studies: 
     * [Metaplastic Breast Cancer (MSK, 2021)](https://www.cbioportal.org/study/summary?id=mbc_msk_2021) *19 samples* 
@@ -10,7 +20,37 @@
     * [Retinoblastoma (MSK, Cancers 2021)](https://www.cbioportal.org/study/summary?id=rbl_mskcc_2020) *83 samples*
     * [Combined Hepatocellular and Intrahepatic Cholangiocarcinoma (Peking University, Cancer Cell 2019)](https://www.cbioportal.org/study/summary?id=hccihch_pku_2019) *121 samples*
 
-## Jan 12, 2021
+## April 20, 2021
+*   **New Feature**: Add driver annotations to download tab on _Results View_ [Example: RAS/RAF alterations in colorectal cancer](https://www.cbioportal.org/results/download?cancer_study_list=coadread_tcga_pub&cancer_study_id=coadread_tcga_pub&genetic_profile_ids_PROFILE_MUTATION_EXTENDED=coadread_tcga_pub_mutations&genetic_profile_ids_PROFILE_COPY_NUMBER_ALTERATION=coadread_tcga_pub_gistic&Z_SCORE_THRESHOLD=2.0&case_set_id=coadread_tcga_pub_nonhypermut&gene_list=KRAS%20NRAS%20BRAF&gene_set_choice=user-defined-list)
+
+    <img src="https://user-images.githubusercontent.com/1334004/122816424-b2bafb00-d2a4-11eb-8a0f-5e878bb70ccd.png" width="700" />
+
+## March 30, 2021
+*   **Enhancement**: Add 95% Confidence Interval for Survival Plots [Example: Altered vs Unaltered EGFR in Lung Cancer](https://www.cbioportal.org/results/comparison?plots_horz_selection=%7B%7D&plots_vert_selection=%7B%7D&plots_coloring_selection=%7B%7D&tab_index=tab_visualize&Action=Submit&session_id=60d0d9fce4b015b63e9f1116&comparison_subtab=survival)
+
+    <img src="https://user-images.githubusercontent.com/1334004/122810147-0295c400-d29d-11eb-9be7-fa14787d72b7.png" width="700" />
+    
+## March 11, 2021
+*   **New Feature**: Combine different types of alterations in _Comparison View_ [Example: Deletions and Truncating events in primary vs metastases](https://www.cbioportal.org/comparison/alterations?comparisonId=5f73ac54e4b0242bd5d22ab0&selectedEnrichmentEventTypes=%5B%22truncating%22%2C%22feature_truncation%22%2C%22nonsense_mutation%22%2C%22nonsense%22%2C%22stopgain_snv%22%2C%22stop_gained%22%2C%22frameshift%22%2C%22frameshift_variant%22%2C%22frame_shift_del%22%2C%22frameshift_deletion%22%2C%22frame_shift_ins%22%2C%22frameshift_insertion%22%2C%22translation_start_site%22%2C%22initiator_codon_variant%22%2C%22start_codon_snp%22%2C%22start_codon_del%22%2C%22de_novo_start_outofframe%22%2C%22nonstop_mutation%22%2C%22stop_lost%22%2C%22splice_site%22%2C%22splice%22%2C%22splicing%22%2C%22splice_site_snp%22%2C%22splice_site_del%22%2C%22splice_site_indel%22%2C%22splice_region_variant%22%2C%22splice_region%22%2C%22HOMDEL%22%5D&groupOrder=%5B%22Primary%22%2C%22Metastasis%22%5D)
+
+    <img src="https://user-images.githubusercontent.com/1334004/122808698-35d75380-d29b-11eb-8928-0fca5f6e3b34.png" width="700" />
+
+*   **Enhancement**: Improve UI for OncoPrint, aggregating various data modalities in a single add track dropdown button [Example: Add clinical, heatmap and treatment response data into the OncoPrint](https://www.cbioportal.org/results/oncoprint?genetic_profile_ids_PROFILE_MUTATION_EXTENDED=ccle_broad_2019_mutations&genetic_profile_ids_PROFILE_COPY_NUMBER_ALTERATION=ccle_broad_2019_cna&cancer_study_list=ccle_broad_2019&Z_SCORE_THRESHOLD=2.0&RPPA_SCORE_THRESHOLD=2.0&data_priority=0&profileFilter=0&case_set_id=ccle_broad_2019_cnaseq&gene_list=TP53&geneset_list=%20&tab_index=tab_visualize&Action=Submit)
+
+    <img src="https://user-images.githubusercontent.com/15748980/107722872-f32eba80-6cad-11eb-89d0-b6c5f300ab41.png" width="700" />
+
+## February 16, 2021
+*   **Enhancement**: Show only TCGA PanCancer Atlas Pathways in _Results_ and _Patient View_ to avoid showing many similar pathways [Example: Clinvar APC and CTNNB1 alterations in WNT pathway](https://www.cbioportal.org/results/pathways?genetic_profile_ids_PROFILE_MUTATION_EXTENDED=msk_impact_2017_mutations&genetic_profile_ids_PROFILE_COPY_NUMBER_ALTERATION=msk_impact_2017_cna&cancer_study_list=msk_impact_2017&Z_SCORE_THRESHOLD=2.0&RPPA_SCORE_THRESHOLD=2.0&data_priority=0&profileFilter=mutations%2Cfusion%2Ccna&case_set_id=msk_impact_2017_cnaseq&gene_list=APC%2520CTNNB1&geneset_list=%20&tab_index=tab_visualize&Action=Submit)
+
+    <img src="https://user-images.githubusercontent.com/1334004/122806359-3a4e3d00-d298-11eb-89fc-9e107a4651b4.png" width="700" />
+
+## January 28, 2021
+*   **New Feature**: Show ClinVar Interpretation in Mutation tables [Example: Clinvar Interpretations in BRCA2](https://www.cbioportal.org/results/mutations?genetic_profile_ids_PROFILE_MUTATION_EXTENDED=msk_impact_2017_mutations&genetic_profile_ids_PROFILE_COPY_NUMBER_ALTERATION=msk_impact_2017_cna&cancer_study_list=msk_impact_2017&Z_SCORE_THRESHOLD=2.0&RPPA_SCORE_THRESHOLD=2.0&data_priority=0&profileFilter=0&case_set_id=msk_impact_2017_cnaseq&gene_list=BRCA2&geneset_list=%20&tab_index=tab_visualize&Action=Submit)
+
+    <img src="https://user-images.githubusercontent.com/1334004/122805797-8a78cf80-d297-11eb-9454-fed37ed1ddb5.png" width="700" />
+
+
+## January 12, 2021
 *   **New Feature**: Add your own custom data for a sample or patient to use on the study or comparison view  [Example: Add custom data to three samples and do a comparison](https://www.cbioportal.org/study/summary?id=msk_impact_2017)
 
     <img src="https://user-images.githubusercontent.com/1334004/104651553-ce7efd00-5685-11eb-8017-c43f24421e3f.png" width="700">
@@ -26,7 +66,7 @@
     <img src="https://user-images.githubusercontent.com/1334004/104768867-56bfd980-573c-11eb-8e03-5ad86d01f25a.png" width="700">
 
 
-## Dec 31, 2020
+## December 31, 2020
 *   **Added data** consisting of 430 samples from 5 studies:
      * [Juvenile Papillomatosis and Breast Cancer (MSK, 2020)](https://www.cbioportal.org/study/summary?id=brca_jup_msk_2020) *5 samples* 
      * [Mixed cfDNA (MSKCC, 2020)](https://www.cbioportal.org/study/summary?id=mixed_cfdna_msk_2020) *229 samples* 

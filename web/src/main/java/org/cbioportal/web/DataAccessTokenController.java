@@ -18,7 +18,9 @@
 package org.cbioportal.web;
 
 import io.swagger.annotations.Api;
+import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
+import io.swagger.models.HttpMethod;
 import org.cbioportal.model.DataAccessToken;
 import org.cbioportal.service.DataAccessTokenService;
 import org.cbioportal.service.exception.DataAccessTokenNoUserIdentityException;
@@ -46,7 +48,7 @@ import java.util.Set;
 @RequestMapping // replaces @RestController; controller is created conditionally in DataAccessTokenConfig of security-spring module
 @ResponseBody   // needed when not using @RestController annotation
 @Validated
-@Api(tags = "Data Access Tokens", description = " ")
+@Api(tags = "Data Access Tokens", description = " ")    
 public class DataAccessTokenController {
 
     @Value("${dat.unauth_users:anonymousUser}")
@@ -63,7 +65,8 @@ public class DataAccessTokenController {
 
     private String fileName = "cbioportal_data_access_token.txt";
 
-    @RequestMapping(method = RequestMethod.POST, value = "/data-access-tokens", produces = MediaType.APPLICATION_JSON_VALUE)
+    @PostMapping(value = "/data-access-tokens", produces = MediaType.APPLICATION_JSON_VALUE)
+    @ApiOperation("Get all data access tokens")
     public ResponseEntity<DataAccessToken> createDataAccessToken(Authentication authentication) throws HttpClientErrorException {
         String userName = getAuthenticatedUser(authentication);
         DataAccessToken token = tokenService.createDataAccessToken(userName);
@@ -73,15 +76,17 @@ public class DataAccessTokenController {
         return new ResponseEntity<>(token, HttpStatus.CREATED);
     }
 
-        @RequestMapping(method = RequestMethod.GET, value = "/data-access-tokens")
-        public ResponseEntity<List<DataAccessToken>> getAllDataAccessTokens(HttpServletRequest request,
-        Authentication authentication) {
-            String userName = getAuthenticatedUser(authentication);
-            List<DataAccessToken> allDataAccessTokens = tokenService.getAllDataAccessTokens(userName);
-            return new ResponseEntity<>(allDataAccessTokens, HttpStatus.OK);
-        }
+    @RequestMapping(method = RequestMethod.GET, value = "/data-access-tokens")
+    @ApiOperation("Retrieve all data access tokens")
+    public ResponseEntity<List<DataAccessToken>> getAllDataAccessTokens(HttpServletRequest request,
+    Authentication authentication) {
+        String userName = getAuthenticatedUser(authentication);
+        List<DataAccessToken> allDataAccessTokens = tokenService.getAllDataAccessTokens(userName);
+        return new ResponseEntity<>(allDataAccessTokens, HttpStatus.OK);
+    }
 
     @RequestMapping(method = RequestMethod.GET, value = "/data-access-tokens/{token}")
+    @ApiOperation("Retrieve an existing data access token")
     public ResponseEntity<DataAccessToken> getDataAccessToken(
     @ApiParam(required = true, value = "token") @PathVariable String token) {
         DataAccessToken dataAccessToken = tokenService.getDataAccessTokenInfo(token);
@@ -89,17 +94,20 @@ public class DataAccessTokenController {
     }
 
     @RequestMapping(method = RequestMethod.DELETE, value = "/data-access-tokens")
+    @ApiOperation("Delete all data access tokens")
     public void revokeAllDataAccessTokens(Authentication authentication) {
         tokenService.revokeAllDataAccessTokens(getAuthenticatedUser(authentication));
     }
 
     @RequestMapping(method = RequestMethod.DELETE, value = "/data-access-tokens/{token}")
+    @ApiOperation("Delete a data access token")
     public void revokeDataAccessToken(@ApiParam(required = true, value = "token") @PathVariable String token) {
         tokenService.revokeDataAccessToken(token);
     }
 
     // this is the entrypoint for the cBioPortal frontend to download a single user token
-    @RequestMapping("/data-access-token")
+    @RequestMapping(method = RequestMethod.GET, value = "/data-access-token")
+    @ApiOperation("Create a new data access token")
     public ResponseEntity<String> downloadDataAccessToken(Authentication authentication,
         HttpServletRequest request, HttpServletResponse response) throws IOException {
 

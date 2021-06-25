@@ -5,6 +5,7 @@ import org.cbioportal.model.GenericAssayAdditionalProperty;
 import org.cbioportal.persistence.GenericAssayRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
+import org.springframework.cache.annotation.Cacheable;
 import java.util.ArrayList;
 import java.util.List;
 import org.slf4j.Logger;
@@ -19,17 +20,20 @@ public class GenericAssayMyBatisRepository implements GenericAssayRepository {
     private static final Logger LOG = LoggerFactory.getLogger(GenericAssayMyBatisRepository.class);
 
     @Override
+    @Cacheable(cacheResolver = "staticRepositoryCacheOneResolver", condition = "@cacheEnabledConfig.getEnabled()")
     public List<GenericAssayMeta> getGenericAssayMeta(List<String> stableIds) {
 
         return genericAssayMapper.getGenericAssayMeta(stableIds);
     }
 
     @Override
+    @Cacheable(cacheResolver = "staticRepositoryCacheOneResolver", condition = "@cacheEnabledConfig.getEnabled()")
     public List<GenericAssayAdditionalProperty> getGenericAssayAdditionalproperties(List<String> stableIds) {
         return genericAssayMapper.getGenericAssayAdditionalproperties(stableIds);
     }
 
     @Override
+    @Cacheable(cacheResolver = "staticRepositoryCacheOneResolver", condition = "@cacheEnabledConfig.getEnabled()")
     public List<String> getGenericAssayStableIdsByMolecularIds(List<String> molecularProfileIds) {
         
         List<Integer> molecularProfileInternalIds = genericAssayMapper.getMolecularProfileInternalIdsByMolecularProfileIds(molecularProfileIds);

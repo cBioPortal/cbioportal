@@ -23,11 +23,6 @@ public interface MutationService {
                                                            Integer pageSize, Integer pageNumber,
                                                            String sortBy, String direction);
 
-    List<Mutation> getMutationsInMultipleMolecularProfilesByGeneQueries(List<String> molecularProfileIds, List<String> sampleIds,
-                                                                      List<GeneFilterQuery> geneQueries,
-                                                                      String projection, Integer pageSize, Integer pageNumber,
-                                                                      String sortBy, String direction);
-
     MutationMeta getMetaMutationsInMultipleMolecularProfiles(List<String> molecularProfileIds, List<String> sampleIds,
                                                              List<Integer> entrezGeneIds);
 
@@ -44,16 +39,4 @@ public interface MutationService {
     List<MutationCountByPosition> fetchMutationCountsByPosition(List<Integer> entrezGeneIds,
                                                                 List<Integer> proteinPosStarts,
                                                                 List<Integer> proteinPosEnds);
-
-    // TODO: cleanup once fusion/structural data is fixed in database
-    List<Mutation> getFusionsInMultipleMolecularProfiles(List<String> molecularProfileIds, List<String> sampleIds,
-                                                         List<Integer> entrezGeneIds, String projection, Integer pageSize, Integer pageNumber, String sortBy,
-                                                         String direction);
-
-    List<Mutation> getFusionsInMultipleMolecularProfilesByGeneQueries(List<String> molecularProfileIds, List<String> sampleIds,
-                                                                      List<GeneFilterQuery> geneQueries,
-                                                                      String projection, Integer pageSize, Integer pageNumber,
-                                                                      String sortBy, String direction);
-
-    // TODO: cleanup once fusion/structural data is fixed in database
 }

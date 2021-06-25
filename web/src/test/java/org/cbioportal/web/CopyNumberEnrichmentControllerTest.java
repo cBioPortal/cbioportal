@@ -2,7 +2,6 @@ package org.cbioportal.web;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.cbioportal.model.AlterationEnrichment;
-import org.cbioportal.model.AlterationFilter;
 import org.cbioportal.model.CountSummary;
 import org.cbioportal.model.MolecularProfileCaseIdentifier;
 import org.cbioportal.service.CopyNumberEnrichmentService;
@@ -114,7 +113,9 @@ public class CopyNumberEnrichmentControllerTest {
         alterationEnrichments.add(alterationEnrichment2);
 
         Mockito.when(copyNumberEnrichmentService.getCopyNumberEnrichments(
-            anyMap(), any(), any(AlterationFilter.class)))
+            anyMap(),
+            any(),
+            any()))
         .thenReturn(alterationEnrichments);
 
         MolecularProfileCaseIdentifier entity1 = new MolecularProfileCaseIdentifier();

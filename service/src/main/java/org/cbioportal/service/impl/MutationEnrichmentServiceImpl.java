@@ -28,23 +28,21 @@ public class MutationEnrichmentServiceImpl implements MutationEnrichmentService 
     @Override
     public List<AlterationEnrichment> getMutationEnrichments(
         Map<String, List<MolecularProfileCaseIdentifier>> molecularProfileCaseSets,
-        EnrichmentType enrichmentType,
-        AlterationFilter alterationFilter) throws MolecularProfileNotFoundException {
+        EnrichmentType enrichmentType) throws MolecularProfileNotFoundException {
 
         alterationEnrichmentUtil.validateMolecularProfiles(molecularProfileCaseSets,
                 Arrays.asList(MolecularAlterationType.MUTATION_EXTENDED, MolecularAlterationType.MUTATION_UNCALLED),
                 null);
 
         Map<String, Pair<List<AlterationCountByGene>, Long>> mutationCountsbyEntrezGeneIdAndGroup = getMutationCountsbyEntrezGeneIdAndGroup(
-            molecularProfileCaseSets, enrichmentType, alterationFilter);
+            molecularProfileCaseSets, enrichmentType);
 
         return alterationEnrichmentUtil.createAlterationEnrichments(mutationCountsbyEntrezGeneIdAndGroup);
     }
 
     public Map<String, Pair<List<AlterationCountByGene>, Long>> getMutationCountsbyEntrezGeneIdAndGroup(
         Map<String, List<MolecularProfileCaseIdentifier>> molecularProfileCaseSets,
-        EnrichmentType enrichmentType,
-        AlterationFilter alterationFilter) {
+        EnrichmentType enrichmentType) {
         return molecularProfileCaseSets
             .entrySet()
             .stream()
@@ -65,7 +63,7 @@ public class MutationEnrichmentServiceImpl implements MutationEnrichmentService 
                             Select.all(),
                             true,
                             true,
-                            alterationFilter);
+                            Select.all());
                     } else {
                         return alterationCountService
                             .getPatientMutationCounts(
@@ -73,7 +71,7 @@ public class MutationEnrichmentServiceImpl implements MutationEnrichmentService 
                                 Select.all(),
                                 true,
                                 true,
-                                alterationFilter);
+                                Select.all());
                     }
                 }));
     }

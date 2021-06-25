@@ -4,11 +4,9 @@ import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
 import org.cbioportal.model.AlterationEnrichment;
-import org.cbioportal.model.AlterationFilter;
 import org.cbioportal.model.CNA;
 import org.cbioportal.model.EnrichmentType;
 import org.cbioportal.model.MolecularProfileCaseIdentifier;
-import org.cbioportal.model.util.Select;
 import org.cbioportal.service.CopyNumberEnrichmentService;
 import org.cbioportal.service.exception.MolecularProfileNotFoundException;
 import org.cbioportal.web.config.annotation.InternalApi;
@@ -19,16 +17,10 @@ import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.validation.annotation.Validated;
-import org.springframework.web.bind.annotation.RequestAttribute;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 import springfox.documentation.annotations.ApiIgnore;
 
 import javax.validation.Valid;
-import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
@@ -64,12 +56,10 @@ public class CopyNumberEnrichmentController {
                 .collect(Collectors.toMap(MolecularProfileCasesGroupFilter::getName,
                         MolecularProfileCasesGroupFilter::getMolecularProfileCaseIdentifiers));
 
-        AlterationFilter alterationFilter = new AlterationFilter();
-        alterationFilter.setSelectedMutationTypes(Select.none());
-        alterationFilter.setCnaTypeSelect(Select.byValues(Arrays.asList(copyNumberEventType)));
-        
         return new ResponseEntity<>(
             copyNumberEnrichmentService.getCopyNumberEnrichments(
-                groupCaseIdentifierSet, enrichmentType, alterationFilter), HttpStatus.OK);
+                groupCaseIdentifierSet,
+                copyNumberEventType,
+                enrichmentType), HttpStatus.OK);
     }
 }

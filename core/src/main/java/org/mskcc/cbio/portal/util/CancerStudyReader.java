@@ -74,7 +74,7 @@ public class CancerStudyReader {
     }
 
     private static Boolean checkSpecies(String studyId, String genomeName) {
-        if (genomeName == null || genomeName == "") {
+        if (genomeName == null || genomeName.equals("")) {
             return true;
         }
         try {

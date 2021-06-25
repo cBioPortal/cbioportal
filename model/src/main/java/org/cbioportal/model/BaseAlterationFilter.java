@@ -113,7 +113,8 @@ public class BaseAlterationFilter implements Serializable {
                 tiersBooleanMap.entrySet().stream()
                     .filter(e -> e.getValue())
                     .map(e -> e.getKey()));
-            if (tiersBooleanMap.size() > 0 && tiersBooleanMap.entrySet().stream().allMatch(e -> e.getValue()))
+            // Empty map '{}' is interpreted as hasAll().
+            if (tiersBooleanMap.entrySet().stream().allMatch(e -> e.getValue()))
                 this.tiersSelect.hasAll(true);
         }
     }

@@ -198,62 +198,96 @@
     </sql>
 
     <sql id="whereWithGeneQueries">
-        AND
-        <foreach item="geneFilterQuery" collection="geneQueries" open="(" separator=" OR " close=")">
-            ( mutation.ENTREZ_GENE_ID = '${geneFilterQuery.getEntrezGeneId()}'
-            <bind name="allAnnotationsSelected" value="geneFilterQuery.getIncludeDriver() and geneFilterQuery.getIncludeVUS() and geneFilterQuery.getIncludeUnknownOncogenicity()" />
-            <bind name="noAnnotationsSelected" value="not geneFilterQuery.getIncludeDriver() and not geneFilterQuery.getIncludeVUS() and not geneFilterQuery.getIncludeUnknownOncogenicity()" />
-            <if test="not allAnnotationsSelected and not noAnnotationsSelected">
-                <trim prefix="AND (" prefixOverrides="OR">
-                    <if test="geneFilterQuery.getIncludeDriver()">
-                        OR LOWER(alteration_driver_annotation.DRIVER_FILTER) = 'putative_driver'
-                    </if>
-                    <if test="geneFilterQuery.getIncludeVUS()">
-                        OR LOWER(alteration_driver_annotation.DRIVER_FILTER) = 'putative_passenger'
-                    </if>
-                    <if test="geneFilterQuery.getIncludeUnknownOncogenicity()">
-                        OR alteration_driver_annotation.DRIVER_FILTER IS NULL
-                        OR LOWER(alteration_driver_annotation.DRIVER_FILTER) IN ('unknown', 'na', '')
-                    </if>
-                </trim>
+        <if test="(_parameter.containsKey('geneQueries') and geneQueries != null and !geneQueries.isEmpty())">
+            AND
+            <foreach item="geneFilterQuery" collection="geneQueries" open="(" separator=" OR " close=")">
+                ( mutation.ENTREZ_GENE_ID = '${geneFilterQuery.getEntrezGeneId()}'
+                <bind name="allMutationStatusSelected" value="geneFilterQuery.getIncludeGermline() and geneFilterQuery.getIncludeSomatic() and geneFilterQuery.getIncludeUnknownStatus()" />
+                <bind name="noMutationStatusSelected" value="not geneFilterQuery.getIncludeGermline() and not geneFilterQuery.getIncludeSomatic() and not geneFilterQuery.getIncludeUnknownStatus()" />
+                <choose>
+                    <when test="not allMutationStatusSelected and not noMutationStatusSelected">
+                        <trim prefix="AND (" prefixOverrides="OR">
+                            <if test="geneFilterQuery.getIncludeGermline()">
+                                OR LOWER(mutation.MUTATION_STATUS) = 'germline'
+                            </if>
+                            <if test="geneFilterQuery.getIncludeSomatic()">
+                                OR LOWER(mutation.MUTATION_STATUS) = 'somatic'
+                            </if>
+                            <if test="geneFilterQuery.getIncludeUnknownStatus()">
+                                OR LOWER(mutation.MUTATION_STATUS) NOT IN ('somatic', 'germline')
+                            </if>
+                        </trim>
+                        )
+                    </when>
+                    <when test="noMutationStatusSelected">
+                        AND NULL
+                    </when>
+                    <otherwise>
+                        <!--when allMutationStatusSelected do not filter-->
+                    </otherwise>
+                </choose>                
+                <bind name="allDriverAnnotationsSelected" value="geneFilterQuery.getIncludeDriver() and geneFilterQuery.getIncludeVUS() and geneFilterQuery.getIncludeUnknownOncogenicity()" />
+                <bind name="noDriverAnnotationsSelected" value="not geneFilterQuery.getIncludeDriver() and not geneFilterQuery.getIncludeVUS() and not geneFilterQuery.getIncludeUnknownOncogenicity()" />
+                <choose>
+                    <when test="not allDriverAnnotationsSelected and not noDriverAnnotationsSelected">
+                        <trim prefix="" prefixOverrides="AND ( )">
+                            <trim prefix="AND (" prefixOverrides="OR">
+                                <if test="geneFilterQuery.getIncludeDriver()">
+                                    OR LOWER(alteration_driver_annotation.DRIVER_FILTER) = 'putative_driver'
+                                </if>
+                                <if test="geneFilterQuery.getIncludeVUS()">
+                                    OR LOWER(alteration_driver_annotation.DRIVER_FILTER) = 'putative_passenger'
+                                </if>
+                                <if test="geneFilterQuery.getIncludeUnknownOncogenicity()">
+                                    OR alteration_driver_annotation.DRIVER_FILTER IS NULL
+                                    OR LOWER(alteration_driver_annotation.DRIVER_FILTER) IN ('unknown', 'na', '')
+                                </if>
+                                )
+                            </trim>
+                        </trim>
+                    </when>
+                    <when test="noDriverAnnotationsSelected">
+                        AND NULL
+                    </when>
+                    <otherwise>
+                        <!--when allDriverAnnotationsSelected do not filter-->
+                    </otherwise>
+                </choose>
+                <bind name="allTierOptionsSelected" value="(geneFilterQuery.getSelectedTiers() != null and geneFilterQuery.getSelectedTiers().hasAll()) and geneFilterQuery.getIncludeUnknownTier()" />
+                <bind name="noTierOptionsSelected" value="(geneFilterQuery.getSelectedTiers() == null or geneFilterQuery.getSelectedTiers().hasNone()) and not geneFilterQuery.getIncludeUnknownTier()" />
+                <bind name="allExceptUnknownTierOptionsSelected" value="(geneFilterQuery.getSelectedTiers() != null and geneFilterQuery.getSelectedTiers().hasAll()) and not geneFilterQuery.getIncludeUnknownTier()" />
+                <choose>
+                    <when test="allExceptUnknownTierOptionsSelected">
+                        AND NOT alteration_driver_annotation.DRIVER_TIERS_FILTER IS NULL
+                        AND NOT LOWER(alteration_driver_annotation.DRIVER_TIERS_FILTER) IN ('', 'na', 'unknown')
+                    </when>
+                    <when test="not allTierOptionsSelected and not noTierOptionsSelected">
+                        <trim prefix="AND (" prefixOverrides="OR">
+                            <if test="geneFilterQuery.getSelectedTiers() != null and geneFilterQuery.getSelectedTiers().hasValues()">
+                                OR alteration_driver_annotation.DRIVER_TIERS_FILTER IN
+                                <foreach item="item" collection="geneFilterQuery.getSelectedTiers()" open="(" separator="," close=")">
+                                    #{item}
+                                </foreach>
+                            </if>
+                            <if test="geneFilterQuery.getIncludeUnknownTier()">
+                                OR alteration_driver_annotation.DRIVER_TIERS_FILTER IS NULL
+                                OR LOWER(alteration_driver_annotation.DRIVER_TIERS_FILTER) IN ('', 'na', 'unknown')
+                            </if>
+                        </trim>
+                        )
+                    </when>
+                    <when test="noTierOptionsSelected">
+                        AND NULL
+                    </when>
+                    <otherwise>
+                        <!--when allTierOptionsSelected do not filter-->
+                    </otherwise>
+                </choose>
                 )
-            </if>
-            <bind name="allMutationStatusSelected" value="geneFilterQuery.getIncludeGermline() and geneFilterQuery.getIncludeSomatic() and geneFilterQuery.getIncludeUnknownStatus()" />
-            <bind name="noMutationStatusSelected" value="not geneFilterQuery.getIncludeGermline() and not geneFilterQuery.getIncludeSomatic() and not geneFilterQuery.getIncludeUnknownStatus()" />
-            <if test="not allMutationStatusSelected and not noMutationStatusSelected">
-                <trim prefix="AND (" prefixOverrides="OR">
-                    <if test="geneFilterQuery.getIncludeGermline()">
-                        OR LOWER(mutation.MUTATION_STATUS) = 'germline'
-                    </if>
-                    <if test="geneFilterQuery.getIncludeSomatic()">
-                        OR LOWER(mutation.MUTATION_STATUS) = 'somatic' 
-                    </if>
-                    <if test="geneFilterQuery.getIncludeUnknownStatus()">
-                        OR LOWER(mutation.MUTATION_STATUS) NOT IN ('somatic', 'germline')
-                    </if>
-                </trim>
-                )
-            </if>
-            <bind name="allTierOptionsSelected" value="geneFilterQuery.getSelectedTiers() == null or geneFilterQuery.getSelectedTiers().hasAll() and geneFilterQuery.getIncludeUnknownTier()" />
-            <bind name="noTierOptionsSelected" value="(geneFilterQuery.getSelectedTiers() != null and geneFilterQuery.getSelectedTiers().hasNone()) and not geneFilterQuery.getIncludeUnknownTier()" />
-            <if test="not allTierOptionsSelected and not noTierOptionsSelected">
-                <trim prefix="AND (" prefixOverrides="OR">
-                    <if test="geneFilterQuery.getSelectedTiers() != null and geneFilterQuery.getSelectedTiers().hasValues()">
-                        <foreach item="tier" collection="geneFilterQuery.getSelectedTiers()" open="" separator="" close="">
-                            OR alteration_driver_annotation.DRIVER_TIERS_FILTER = #{tier}
-                        </foreach>
-                    </if>
-                    <if test="geneFilterQuery.getIncludeUnknownTier()">
-                        OR alteration_driver_annotation.DRIVER_TIERS_FILTER IS NULL
-                        OR LOWER(alteration_driver_annotation.DRIVER_TIERS_FILTER) IN ('', 'na', 'unknown')
-                    </if>
-                </trim>
-                )
-            </if>
-            )
-        </foreach>
+            </foreach>
+        </if>
     </sql>
-    
+
     <sql id="getAlleleSpecificCopyNumber">
         allele_specific_copy_number.ASCN_INTEGER_COPY_NUMBER AS "${prefix}ascnIntegerCopyNumber",
         allele_specific_copy_number.ASCN_METHOD AS "${prefix}ascnMethod",

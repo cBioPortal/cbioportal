@@ -55,25 +55,22 @@ public class DiscreteCopyNumberMyBatisRepositoryTest {
         sampleIds = new ArrayList<>();
         sampleIds.add("TCGA-A1-A0SB-01");
         sampleIds.add("TCGA-A1-A0SD-01");
-        tiers = Select.none();
-        includeUnknownTier = false;
-        includeDriver = false;
-        includeVUS = false;
-        includeUnknownOncogenicity = false;
-        includeGermline = false;
-        includeSomatic = false;
-        
+        tiers = Select.all();
+        includeUnknownTier = true;
+        includeDriver = true;
+        includeVUS = true;
+        includeUnknownOncogenicity = true;
+        cnas = Arrays.asList(CNA.AMP, CNA.HOMDEL);
     }
 
     List<String> molecularProfileIds = new ArrayList<>();
     List<String> sampleIds = new ArrayList<>();
-    Select<String> tiers = Select.none();
-    boolean includeUnknownTier = false;
-    boolean includeDriver = false;
-    boolean includeVUS = false;
-    boolean includeUnknownOncogenicity = false;
-    boolean includeGermline = false;
-    boolean includeSomatic = false;
+    Select<String> tiers;
+    boolean includeUnknownTier;
+    boolean includeDriver;
+    boolean includeVUS;
+    boolean includeUnknownOncogenicity;
+    List<CNA> cnas;
     
     @Test
     public void getDiscreteCopyNumbersInMolecularProfileBySampleListIdSummaryProjection() throws Exception {
@@ -278,11 +275,6 @@ public class DiscreteCopyNumberMyBatisRepositoryTest {
     @Test
     public void getDiscreteCopyNumbersInMultipleMolecularProfilesByGeneQueries() throws Exception {
 
-        boolean includeDriver = true;
-        boolean includeVUS = true;
-        boolean includeUnknownOncogenicity = true;
-        List<CNA> cnas = Arrays.asList(CNA.AMP, CNA.HETLOSS);
-
         GeneFilterQuery geneFilterQuery1 = new GeneFilterQuery("AKT1", 207, cnas, includeDriver, includeVUS, includeUnknownOncogenicity, tiers, includeUnknownTier, false, false, false);
         GeneFilterQuery geneFilterQuery2 = new GeneFilterQuery("AKT2", 208, cnas, includeDriver, includeVUS, includeUnknownOncogenicity, tiers, includeUnknownTier, false, false, false);
         List<GeneFilterQuery> geneQueries =  Arrays.asList(geneFilterQuery1, geneFilterQuery2);
@@ -299,9 +291,9 @@ public class DiscreteCopyNumberMyBatisRepositoryTest {
     @Test
     public void getDiscreteCopyNumbersInMultipleMolecularProfilesByGeneQueriesInlcudeOnlyDriver() throws Exception {
 
-        boolean includeDriver = true;
-        List<CNA> cnas = Arrays.asList(CNA.AMP, CNA.HETLOSS);
-
+        includeVUS = false;
+        includeUnknownOncogenicity = false;
+        
         GeneFilterQuery geneFilterQuery1 = new GeneFilterQuery("AKT1", 207, cnas, includeDriver, includeVUS, includeUnknownOncogenicity, tiers, includeUnknownTier, false, false, false);
         GeneFilterQuery geneFilterQuery2 = new GeneFilterQuery("AKT2", 208, cnas, includeDriver, includeVUS, includeUnknownOncogenicity, tiers, includeUnknownTier, false, false, false);
         List<GeneFilterQuery> geneQueries =  Arrays.asList(geneFilterQuery1, geneFilterQuery2);
@@ -318,8 +310,8 @@ public class DiscreteCopyNumberMyBatisRepositoryTest {
     @Test
     public void getDiscreteCopyNumbersInMultipleMolecularProfilesByGeneQueriesInlcudeOnlyVus() throws Exception {
 
-        boolean includeVUS = true;
-        List<CNA> cnas = Arrays.asList(CNA.AMP, CNA.HETLOSS);
+        includeDriver = false;
+        includeUnknownOncogenicity = false;
 
         GeneFilterQuery geneFilterQuery1 = new GeneFilterQuery("AKT1", 207, cnas, includeDriver, includeVUS, includeUnknownOncogenicity, tiers, includeUnknownTier, false, false, false);
         GeneFilterQuery geneFilterQuery2 = new GeneFilterQuery("AKT2", 208, cnas, includeDriver, includeVUS, includeUnknownOncogenicity, tiers, includeUnknownTier, false, false, false);
@@ -337,8 +329,8 @@ public class DiscreteCopyNumberMyBatisRepositoryTest {
     @Test
     public void getDiscreteCopyNumbersInMultipleMolecularProfilesByGeneQueriesInlcudeOnlyUnknownOncogenicity() throws Exception {
 
-        boolean includeUnknownOncogenicity = true;
-        List<CNA> cnas = Arrays.asList(CNA.AMP, CNA.HETLOSS);
+        includeDriver = false;
+        includeVUS = false;
 
         GeneFilterQuery geneFilterQuery1 = new GeneFilterQuery("AKT1", 207, cnas, includeDriver, includeVUS, includeUnknownOncogenicity, tiers, includeUnknownTier, false, false, false);
         GeneFilterQuery geneFilterQuery2 = new GeneFilterQuery("AKT2", 208, cnas, includeDriver, includeVUS, includeUnknownOncogenicity, tiers, includeUnknownTier, false, false, false);
@@ -354,30 +346,10 @@ public class DiscreteCopyNumberMyBatisRepositoryTest {
     }
 
     @Test
-    public void getDiscreteCopyNumbersInMultipleMolecularProfilesByGeneQueriesIncludeAnyAnnotation() throws Exception {
-
-        boolean includeDriver = true;
-        boolean includeVUS = true;
-        boolean includeUnknownOncogenicity = true;
-        GeneFilterQuery geneFilterQuery1 = new GeneFilterQuery("BRCA1", 672, null,
-            includeDriver, includeVUS, includeUnknownOncogenicity, tiers, includeUnknownTier, false, false, false);
-        GeneFilterQuery geneFilterQuery2 = new GeneFilterQuery("AKT1", 207, null,
-            includeDriver, includeVUS, includeUnknownOncogenicity, tiers, includeUnknownTier, false, false, false);
-        GeneFilterQuery geneFilterQuery3 = new GeneFilterQuery("AKT2", 208, null,
-            includeDriver, includeVUS, includeUnknownOncogenicity, tiers, includeUnknownTier, false, false, false);
-        List<GeneFilterQuery> geneQueries =  Arrays.asList(geneFilterQuery1, geneFilterQuery2, geneFilterQuery3);
-
-        List<DiscreteCopyNumberData> result = discreteCopyNumberMyBatisRepository.getDiscreteCopyNumbersInMultipleMolecularProfilesByGeneQueries(molecularProfileIds,
-            sampleIds, geneQueries, "SUMMARY");
-
-        Assert.assertEquals(3, result.size());
-    }
-
-    @Test
     public void getDiscreteCopyNumbersInMultipleMolecularProfilesByGeneQueriesFilterTiers() throws Exception {
         
         Select<String> tiers = Select.byValues(Arrays.asList("Tier 2"));
-        List<CNA> cnas = Arrays.asList(CNA.AMP, CNA.HETLOSS);
+        includeUnknownTier = false;
 
         GeneFilterQuery geneFilterQuery1 = new GeneFilterQuery("AKT1", 207, cnas, includeDriver, includeVUS, includeUnknownOncogenicity, tiers, includeUnknownTier, false, false, false);
         GeneFilterQuery geneFilterQuery2 = new GeneFilterQuery("AKT2", 208, cnas, includeDriver, includeVUS, includeUnknownOncogenicity, tiers, includeUnknownTier, false, false, false);
@@ -395,13 +367,13 @@ public class DiscreteCopyNumberMyBatisRepositoryTest {
     @Test
     public void getDiscreteCopyNumbersInMultipleMolecularProfilesByGeneQueriesFilterUnknownTier() throws Exception {
 
-        includeUnknownTier = true;
+        tiers = Select.none();
 
-        GeneFilterQuery geneFilterQuery1 = new GeneFilterQuery("BRCA1", 672, null,
+        GeneFilterQuery geneFilterQuery1 = new GeneFilterQuery("BRCA1", 672, cnas,
             includeDriver, includeVUS, includeUnknownOncogenicity, tiers, includeUnknownTier, false, false, false);
-        GeneFilterQuery geneFilterQuery2 = new GeneFilterQuery("AKT1", 207, null,
+        GeneFilterQuery geneFilterQuery2 = new GeneFilterQuery("AKT1", 207, cnas,
             includeDriver, includeVUS, includeUnknownOncogenicity, tiers, includeUnknownTier, false, false, false);
-        GeneFilterQuery geneFilterQuery3 = new GeneFilterQuery("AKT2", 208, null,
+        GeneFilterQuery geneFilterQuery3 = new GeneFilterQuery("AKT2", 208, cnas,
             includeDriver, includeVUS, includeUnknownOncogenicity, tiers, includeUnknownTier, false, false, false);
         List<GeneFilterQuery> geneQueries =  Arrays.asList(geneFilterQuery1, geneFilterQuery2, geneFilterQuery3);
 
@@ -415,12 +387,11 @@ public class DiscreteCopyNumberMyBatisRepositoryTest {
 
     @Test
     public void getDiscreteCopyNumbersInMultipleMolecularProfilesByGeneQueriesMixed() throws Exception {
-
-        List<CNA> cnas = Arrays.asList(CNA.AMP, CNA.HETLOSS);
+  
         Select<String> tiers = Select.byValues(Arrays.asList("Tier 2"));
 
-        GeneFilterQuery geneFilterQuery1 = new GeneFilterQuery("AKT1", 207, cnas, false, false, false, tiers, false, false, false, false);
-        GeneFilterQuery geneFilterQuery2 = new GeneFilterQuery("AKT2", 208, cnas, false, false, true, Select.none(), false, false, false, false);
+        GeneFilterQuery geneFilterQuery1 = new GeneFilterQuery("AKT1", 207, cnas, true, true, true, tiers, false, false, false, false);
+        GeneFilterQuery geneFilterQuery2 = new GeneFilterQuery("AKT2", 208, cnas, false, false, true, Select.all(), true, false, false, false);
         List<GeneFilterQuery> geneQueries =  Arrays.asList(geneFilterQuery1, geneFilterQuery2);
 
         List<DiscreteCopyNumberData> result = discreteCopyNumberMyBatisRepository.getDiscreteCopyNumbersInMultipleMolecularProfilesByGeneQueries(
@@ -432,4 +403,41 @@ public class DiscreteCopyNumberMyBatisRepositoryTest {
         assert(result.stream().allMatch(r -> expectedSampleIds.contains(r.getSampleId())));
     }
 
+    @Test
+    public void getDiscreteCopyNumbersInMultipleMolecularProfilesByGeneQueriesAmpOnly() throws Exception {
+
+        List<CNA> cnas = Arrays.asList(CNA.AMP);
+
+        GeneFilterQuery geneFilterQuery1 = new GeneFilterQuery("AKT1", 207, cnas, includeDriver, includeVUS, includeUnknownOncogenicity, tiers, includeUnknownTier, false, false, false);
+        GeneFilterQuery geneFilterQuery2 = new GeneFilterQuery("AKT2", 208, cnas, includeDriver, includeVUS, includeUnknownOncogenicity, tiers, includeUnknownTier, false, false, false);
+        List<GeneFilterQuery> geneQueries =  Arrays.asList(geneFilterQuery1, geneFilterQuery2);
+
+        List<DiscreteCopyNumberData> result = discreteCopyNumberMyBatisRepository.getDiscreteCopyNumbersInMultipleMolecularProfilesByGeneQueries(
+            molecularProfileIds, sampleIds, geneQueries,"SUMMARY");
+
+        Assert.assertEquals(2, result.size());
+        assert(result.stream().allMatch(r -> r.getMolecularProfileId().equals("study_tcga_pub_gistic")));
+        List<String> expectedSampleIds = Arrays.asList("TCGA-A1-A0SB-01", "TCGA-A1-A0SD-01");
+        assert(result.stream().allMatch(r -> expectedSampleIds.contains(r.getSampleId())));
+    }
+    
+
+    @Test
+    public void getDiscreteCopyNumbersInMultipleMolecularProfilesByGeneQueriesDeepDelOnly() throws Exception {
+
+        List<CNA> cnas = Arrays.asList(CNA.HOMDEL);
+
+        GeneFilterQuery geneFilterQuery1 = new GeneFilterQuery("AKT1", 207, cnas, includeDriver, includeVUS, includeUnknownOncogenicity, tiers, includeUnknownTier, false, false, false);
+        GeneFilterQuery geneFilterQuery2 = new GeneFilterQuery("AKT2", 208, cnas, includeDriver, includeVUS, includeUnknownOncogenicity, tiers, includeUnknownTier, false, false, false);
+        List<GeneFilterQuery> geneQueries =  Arrays.asList(geneFilterQuery1, geneFilterQuery2);
+
+        List<DiscreteCopyNumberData> result = discreteCopyNumberMyBatisRepository.getDiscreteCopyNumbersInMultipleMolecularProfilesByGeneQueries(
+            molecularProfileIds, sampleIds, geneQueries,"SUMMARY");
+
+        Assert.assertEquals(1, result.size());
+        assert(result.stream().allMatch(r -> r.getMolecularProfileId().equals("study_tcga_pub_gistic")));
+        List<String> expectedSampleIds = Arrays.asList("TCGA-A1-A0SB-01");
+        assert(result.stream().allMatch(r -> expectedSampleIds.contains(r.getSampleId())));
+    }
+    
 }

@@ -1,6 +1,5 @@
 package org.cbioportal.model.util;
 
-import org.apache.commons.collections4.map.HashedMap;
 import org.cbioportal.model.AlterationFilter;
 import org.cbioportal.model.BaseAlterationFilter;
 import org.cbioportal.model.CNA;
@@ -45,7 +44,7 @@ public class AlterationFiltersTest {
     @Test
     public void setSelectAllWhenAllCnaTypesTrue() {
         AlterationFilter f = new AlterationFilter();
-        Map<CNA, Boolean> types = new HashedMap();
+        Map<CNA, Boolean> types = new HashMap();
         types.put(CNA.HOMDEL, true);
         types.put(CNA.DIPLOID, true);
         f.setCnaBooleanMap(types);
@@ -57,7 +56,7 @@ public class AlterationFiltersTest {
     @Test
     public void setSelectAllWhenSomeCnaTypesTrue() {
         AlterationFilter f = new AlterationFilter();
-        Map<CNA, Boolean> types = new HashedMap();
+        Map<CNA, Boolean> types = new HashMap();
         types.put(CNA.HOMDEL, false);
         types.put(CNA.DIPLOID, true);
         f.setCnaBooleanMap(types);
@@ -69,7 +68,7 @@ public class AlterationFiltersTest {
     @Test
     public void setSelectAllWhenAllCnaTypesFalse() {
         AlterationFilter f = new AlterationFilter();
-        Map<CNA, Boolean> types = new HashedMap();
+        Map<CNA, Boolean> types = new HashMap();
         types.put(CNA.HOMDEL, false);
         types.put(CNA.DIPLOID, false);
         f.setCnaBooleanMap(types);
@@ -99,7 +98,7 @@ public class AlterationFiltersTest {
     @Test
     public void setSelectAllWhenAllMutationTypesTrue() {
         AlterationFilter f = new AlterationFilter();
-        Map<MutationEventType, Boolean> types = new HashedMap();
+        Map<MutationEventType, Boolean> types = new HashMap();
         types.put(MutationEventType.feature_truncation, true);
         types.put(MutationEventType.missense_mutation, true);
         f.setMutationBooleanMap(types);
@@ -111,7 +110,7 @@ public class AlterationFiltersTest {
     @Test
     public void setSelectAllWhenSomeMutationTypesTrue() {
         AlterationFilter f = new AlterationFilter();
-        Map<MutationEventType, Boolean> types = new HashedMap();
+        Map<MutationEventType, Boolean> types = new HashMap();
         types.put(MutationEventType.feature_truncation, false);
         types.put(MutationEventType.missense_mutation, true);
         f.setMutationBooleanMap(types);
@@ -123,7 +122,7 @@ public class AlterationFiltersTest {
     @Test
     public void setSelectAllWhenAllMutationTypesFalse() {
         AlterationFilter f = new AlterationFilter();
-        Map<MutationEventType, Boolean> types = new HashedMap();
+        Map<MutationEventType, Boolean> types = new HashMap();
         types.put(MutationEventType.feature_truncation, false);
         types.put(MutationEventType.missense_mutation, false);
         f.setMutationBooleanMap(types);
@@ -153,7 +152,7 @@ public class AlterationFiltersTest {
     @Test
     public void setSelectAllWhenAllTiersTrue() {
         BaseAlterationFilter f = new BaseAlterationFilter();
-        Map<String, Boolean> types = new HashedMap();
+        Map<String, Boolean> types = new HashMap();
         types.put("Class 1", true);
         types.put("Class 2", true);
         f.setTiersBooleanMap(types);
@@ -165,7 +164,7 @@ public class AlterationFiltersTest {
     @Test
     public void setSelectAllWhenSomeTiersTrue() {
         BaseAlterationFilter f = new BaseAlterationFilter();
-        Map<String, Boolean> types = new HashedMap();
+        Map<String, Boolean> types = new HashMap();
         types.put("Class 1", false);
         types.put("Class 2", true);
         f.setTiersBooleanMap(types);
@@ -177,7 +176,7 @@ public class AlterationFiltersTest {
     @Test
     public void setSelectAllWhenAllTiersFalse() {
         BaseAlterationFilter f = new BaseAlterationFilter();
-        Map<String, Boolean> types = new HashedMap();
+        Map<String, Boolean> types = new HashMap();
         types.put("Class 1", false);
         types.put("Class 2", false);
         f.setTiersBooleanMap(types);
@@ -189,10 +188,10 @@ public class AlterationFiltersTest {
     @Test
     public void setSelectAllWhenTiersEmpty() {
         BaseAlterationFilter f = new BaseAlterationFilter();
-        f.setTiersBooleanMap(new HashedMap());
+        f.setTiersBooleanMap(new HashMap());
         Assert.assertFalse(f.getSelectedTiers().hasValues());
-        Assert.assertFalse(f.getSelectedTiers().hasAll());
-        Assert.assertTrue(f.getSelectedTiers().hasNone());
+        Assert.assertTrue(f.getSelectedTiers().hasAll());
+        Assert.assertFalse(f.getSelectedTiers().hasNone());
     }
 
     @Test

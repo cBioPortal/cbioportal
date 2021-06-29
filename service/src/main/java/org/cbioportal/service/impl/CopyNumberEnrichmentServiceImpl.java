@@ -10,6 +10,7 @@ import org.cbioportal.service.util.AlterationEnrichmentUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -25,21 +26,21 @@ public class CopyNumberEnrichmentServiceImpl implements CopyNumberEnrichmentServ
     @Override
     public List<AlterationEnrichment> getCopyNumberEnrichments(
         Map<String, List<MolecularProfileCaseIdentifier>> molecularProfileCaseSets,
-        EnrichmentType enrichmentType,
-        AlterationFilter alterationFilter) throws MolecularProfileNotFoundException {
+        CNA copyNumberEventType,
+        EnrichmentType enrichmentType) throws MolecularProfileNotFoundException {
 
         Map<String, Pair<List<CopyNumberCountByGene>, Long>> copyNumberCountByGeneAndGroup = getCopyNumberCountByGeneAndGroup(
             molecularProfileCaseSets,
-            enrichmentType,
-            alterationFilter);
+            copyNumberEventType,
+            enrichmentType);
 
         return alterationEnrichmentUtil.createAlterationEnrichments(copyNumberCountByGeneAndGroup);
     }
 
     public Map<String, Pair<List<CopyNumberCountByGene>, Long>> getCopyNumberCountByGeneAndGroup(
         Map<String, List<MolecularProfileCaseIdentifier>> molecularProfileCaseSets,
-        EnrichmentType enrichmentType,
-        AlterationFilter alterationFilter) {
+        CNA copyNumberEventType,
+        EnrichmentType enrichmentType) {
         return molecularProfileCaseSets
             .entrySet()
             .stream()
@@ -47,20 +48,22 @@ public class CopyNumberEnrichmentServiceImpl implements CopyNumberEnrichmentServ
                 entry -> entry.getKey(),
                 entry -> { //set value of each group to list of CopyNumberCountByGene
 
-                    if (enrichmentType.name().equals("SAMPLE")) {
+                    Select<CNA> cnaTypes = Select.byValues(Arrays.asList(copyNumberEventType));
+
+                    if (enrichmentType.equals(EnrichmentType.SAMPLE)) {
                         return alterationCountService.getSampleCnaCounts(
                             entry.getValue(),
                             Select.all(),
                             true,
                             true,
-                            alterationFilter);
+                            cnaTypes);
                     } else {
                         return alterationCountService.getPatientCnaCounts(
                             entry.getValue(),
                             Select.all(),
                             true,
                             true,
-                            alterationFilter);
+                            cnaTypes);
                     }
                 }));
     }

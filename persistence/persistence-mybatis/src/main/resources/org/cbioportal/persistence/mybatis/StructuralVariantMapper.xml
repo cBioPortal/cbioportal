@@ -49,107 +49,51 @@
         alteration_driver_annotation.DRIVER_TIERS_FILTER_ANNOTATION AS "${prefix}driverTiersFilterAnn"
     </sql>
 
+
     <sql id="whereInMultipleMolecularProfiles">
-        AND            
-        <choose>
-            <when test="sampleIds == null || sampleIds.isEmpty()">
-                genetic_profile.STABLE_ID IN
-                <foreach item="item" collection="molecularProfileIds" open="(" separator="," close=")">
-                    #{item}
-                </foreach>
-            </when>
-            <otherwise>
-                <if test="@java.util.Arrays@stream(molecularProfileIds.toArray()).distinct().count() == 1">
-                    genetic_profile.STABLE_ID = #{molecularProfileIds[0]} AND
-                    sample.STABLE_ID IN
-                    <foreach item="item" collection="sampleIds" open="(" separator="," close=")">
+        <where>
+            <choose>
+                <when test="sampleIds == null || sampleIds.isEmpty()">
+                    genetic_profile.STABLE_ID IN
+                    <foreach item="item" collection="molecularProfileIds" open="(" separator="," close=")">
                         #{item}
                     </foreach>
-                </if>
-                <if test="@java.util.Arrays@stream(molecularProfileIds.toArray()).distinct().count() > 1">
-                    (sample.STABLE_ID, genetic_profile.STABLE_ID) IN
-                    <foreach index="i" collection="sampleIds" open="(" separator="," close=")">
-                        (#{sampleIds[${i}]}, #{molecularProfileIds[${i}]})
-                    </foreach>
-                </if>
-            </otherwise>
-        </choose>
-    </sql>
-
-    <sql id="whereWithGeneQueries">
-        AND
-        <foreach item="geneFilterQuery" collection="geneQueries" open="(" separator=" OR " close=")">
-            (( structural_variant.SITE1_ENTREZ_GENE_ID = '${geneFilterQuery.getEntrezGeneId()}'
-            OR structural_variant.SITE2_ENTREZ_GENE_ID = '${geneFilterQuery.getEntrezGeneId()}')
-            <if test="geneFilterQuery.getIncludeDriver() or geneFilterQuery.getIncludeVUS() or geneFilterQuery.getIncludeUnknownOncogenicity()">
-                <trim prefix="AND (" prefixOverrides="OR">
-                    <if test="geneFilterQuery.getIncludeDriver()">
-                        OR LOWER(alteration_driver_annotation.DRIVER_FILTER) = 'putative_driver'
-                    </if>
-                    <if test="geneFilterQuery.getIncludeVUS()">
-                        OR LOWER(alteration_driver_annotation.DRIVER_FILTER) = 'putative_passenger'
-                    </if>
-                    <if test="geneFilterQuery.getIncludeUnknownOncogenicity()">
-                        OR alteration_driver_annotation.DRIVER_FILTER IS NULL
-                        OR LOWER(alteration_driver_annotation.DRIVER_FILTER) IN ('unknown', 'na', '')
-                    </if>
-                </trim>
-                )
-            </if>
-            <!--             TODO what to with struct vars and mutation status? Ignore parameter?  -->
-            <!--            <if test="geneFilterQuery.getIncludeGermline() or geneFilterQuery.getIncludeSomatic() or geneFilterQuery.getIncludeUnknownStatus()">-->
-            <!--                <trim prefix="AND (" prefixOverrides="OR">-->
-            <!--                    <if test="geneFilterQuery.getIncludeGermline()">-->
-            <!--                        OR LOWER(mutation.MUTATION_STATUS) = 'germline'-->
-            <!--                    </if>-->
-            <!--                    <if test="geneFilterQuery.getIncludeSomatic()">-->
-            <!--                        OR LOWER(mutation.MUTATION_STATUS) = 'somatic'-->
-            <!--                    </if>-->
-            <!--                    <if test="geneFilterQuery.getIncludeUnknownStatus()">-->
-            <!--                        OR LOWER(mutation.MUTATION_STATUS) IN ('unknown', '') OR mutation.MUTATION_STATUS IS NULL-->
-            <!--                    </if>-->
-            <!--                </trim>-->
-            <!--                )-->
-            <!--            </if>-->
-            <bind name="allTierOptionsSelected" value="geneFilterQuery.getSelectedTiers() == null or geneFilterQuery.getSelectedTiers().hasAll() and geneFilterQuery.getIncludeUnknownTier()" />
-            <bind name="noTierOptionsSelected" value="(geneFilterQuery.getSelectedTiers() != null and geneFilterQuery.getSelectedTiers().hasNone()) and not geneFilterQuery.getIncludeUnknownTier()" />
-            <if test="not allTierOptionsSelected and not noTierOptionsSelected">
-                <trim prefix="AND (" prefixOverrides="OR">
-                    <if test="geneFilterQuery.getSelectedTiers() != null and geneFilterQuery.getSelectedTiers().hasValues()">
-                        <foreach item="tier" collection="geneFilterQuery.getSelectedTiers()" open="" separator="" close="">
-                            OR alteration_driver_annotation.DRIVER_TIERS_FILTER = #{tier}
+                </when>
+                <otherwise>
+                    <if test="@java.util.Arrays@stream(molecularProfileIds.toArray()).distinct().count() == 1">
+                        genetic_profile.STABLE_ID = #{molecularProfileIds[0]} AND
+                        sample.STABLE_ID IN
+                        <foreach item="item" collection="sampleIds" open="(" separator="," close=")">
+                            #{item}
                         </foreach>
                     </if>
-                    <if test="geneFilterQuery.getIncludeUnknownTier()">
-                        OR alteration_driver_annotation.DRIVER_TIERS_FILTER IS NULL
-                        OR LOWER(alteration_driver_annotation.DRIVER_TIERS_FILTER) IN ('', 'na', 'unknown')
+                    <if test="@java.util.Arrays@stream(molecularProfileIds.toArray()).distinct().count() > 1">
+                        (sample.STABLE_ID, genetic_profile.STABLE_ID) IN
+                        <foreach index="i" collection="sampleIds" open="(" separator="," close=")">
+                            (#{sampleIds[${i}]}, #{molecularProfileIds[${i}]})
+                        </foreach>
                     </if>
-                </trim>
+                </otherwise>
+            </choose>
+            <if test="entrezGeneIds != null and !entrezGeneIds.isEmpty()">
+                AND (structural_variant.SITE1_ENTREZ_GENE_ID in
+                <foreach item="item" collection="entrezGeneIds" open="(" separator="," close=")">
+                    #{item}
+                </foreach>
+                OR structural_variant.SITE2_ENTREZ_GENE_ID IN
+                <foreach item="item" collection="entrezGeneIds" open="(" separator="," close=")">
+                    #{item}
+                </foreach>
                 )
             </if>
-            )
-        </foreach>
+        </where>
     </sql>
     
-    <sql id="whereWithEntrezGeneIds">
-        <if test="entrezGeneIds != null and !entrezGeneIds.isEmpty()">
-            AND (structural_variant.SITE1_ENTREZ_GENE_ID in
-            <foreach item="item" collection="entrezGeneIds" open="(" separator="," close=")">
-                #{item}
-            </foreach>
-            OR structural_variant.SITE2_ENTREZ_GENE_ID IN
-            <foreach item="item" collection="entrezGeneIds" open="(" separator="," close=")">
-                #{item}
-            </foreach>
-            )
-        </if>
-    </sql>
-
     <select id="fetchStructuralVariants" resultType="org.cbioportal.model.StructuralVariant">
-        SELECT
+        SELECT 
         <include refid="select">
             <property name="prefix" value=""/>
-        </include>
+        </include> 
         FROM structural_variant
         JOIN genetic_profile ON structural_variant.GENETIC_PROFILE_ID = genetic_profile.GENETIC_PROFILE_ID
         JOIN gene gene1 ON structural_variant.SITE1_ENTREZ_GENE_ID = gene1.ENTREZ_GENE_ID
@@ -158,36 +102,11 @@
         JOIN patient ON sample.PATIENT_ID = patient.INTERNAL_ID
         JOIN cancer_study ON patient.CANCER_STUDY_ID = cancer_study.CANCER_STUDY_ID AND genetic_profile.CANCER_STUDY_ID = cancer_study.CANCER_STUDY_ID
         LEFT JOIN alteration_driver_annotation ON
-        structural_variant.GENETIC_PROFILE_ID = alteration_driver_annotation.GENETIC_PROFILE_ID
-        and structural_variant.SAMPLE_ID = alteration_driver_annotation.SAMPLE_ID
-        and structural_variant.INTERNAL_ID = alteration_driver_annotation.ALTERATION_EVENT_ID
-        <where>
-            <include refid="whereInMultipleMolecularProfiles"/>
-            <include refid="whereWithEntrezGeneIds"/>
-        </where>
-        ORDER BY gene1.HUGO_GENE_SYMBOL, gene2.HUGO_GENE_SYMBOL
-    </select>
+                structural_variant.GENETIC_PROFILE_ID = alteration_driver_annotation.GENETIC_PROFILE_ID
+            and structural_variant.SAMPLE_ID = alteration_driver_annotation.SAMPLE_ID
+            and structural_variant.INTERNAL_ID = alteration_driver_annotation.ALTERATION_EVENT_ID
 
-    <select id="fetchStructuralVariantsByGeneQueries" resultType="org.cbioportal.model.StructuralVariant">
-        SELECT
-        <include refid="select">
-            <property name="prefix" value=""/>
-        </include>
-        FROM structural_variant
-        JOIN genetic_profile ON structural_variant.GENETIC_PROFILE_ID = genetic_profile.GENETIC_PROFILE_ID
-        JOIN gene gene1 ON structural_variant.SITE1_ENTREZ_GENE_ID = gene1.ENTREZ_GENE_ID
-        JOIN gene gene2 ON structural_variant.SITE2_ENTREZ_GENE_ID = gene2.ENTREZ_GENE_ID
-        JOIN sample ON structural_variant.SAMPLE_ID = sample.INTERNAL_ID
-        JOIN patient ON sample.PATIENT_ID = patient.INTERNAL_ID
-        JOIN cancer_study ON patient.CANCER_STUDY_ID = cancer_study.CANCER_STUDY_ID AND genetic_profile.CANCER_STUDY_ID = cancer_study.CANCER_STUDY_ID
-        LEFT JOIN alteration_driver_annotation ON
-        structural_variant.GENETIC_PROFILE_ID = alteration_driver_annotation.GENETIC_PROFILE_ID
-        and structural_variant.SAMPLE_ID = alteration_driver_annotation.SAMPLE_ID
-        and structural_variant.INTERNAL_ID = alteration_driver_annotation.ALTERATION_EVENT_ID
-        <where>
-            <include refid="whereInMultipleMolecularProfiles" />
-            <include refid="whereWithGeneQueries" />
-        </where>
+        <include refid="whereInMultipleMolecularProfiles"/>
         ORDER BY gene1.HUGO_GENE_SYMBOL, gene2.HUGO_GENE_SYMBOL
     </select>
 

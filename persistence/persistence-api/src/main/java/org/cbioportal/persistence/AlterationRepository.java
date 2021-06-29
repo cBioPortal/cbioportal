@@ -10,25 +10,29 @@ import java.util.List;
 public interface AlterationRepository {
 
     @Cacheable(cacheResolver = "generalRepositoryCacheResolver", condition = "@cacheEnabledConfig.getEnabled()")
+    // TODO write javadoc
     List<AlterationCountByGene> getSampleAlterationCounts(List<MolecularProfileCaseIdentifier> molecularProfileCaseIdentifiers,
                                                           Select<Integer> entrezGeneIds,
-                                                          QueryElement searchFusions,
-                                                          AlterationFilter alterationFilter);
+                                                          final Select<MutationEventType> mutationEventTypes,
+                                                          final Select<CNA> cnaEventTypes,
+                                                          QueryElement searchFusions);
 
     @Cacheable(cacheResolver = "generalRepositoryCacheResolver", condition = "@cacheEnabledConfig.getEnabled()")
+    // TODO write javadoc
     List<AlterationCountByGene> getPatientAlterationCounts(List<MolecularProfileCaseIdentifier> molecularProfileCaseIdentifiers,
                                                            Select<Integer> entrezGeneIds,
-                                                           QueryElement searchFusions,
-                                                           AlterationFilter alterationFilter);
+                                                           final Select<MutationEventType> mutationEventTypes,
+                                                           final Select<CNA> cnaEventTypes,
+                                                           QueryElement searchFusions);
 
     @Cacheable(cacheResolver = "generalRepositoryCacheResolver", condition = "@cacheEnabledConfig.getEnabled()")
     List<CopyNumberCountByGene> getSampleCnaCounts(List<MolecularProfileCaseIdentifier> molecularProfileCaseIdentifiers,
                                                    Select<Integer> entrezGeneIds,
-                                                   AlterationFilter alterationFilter);
+                                                   final Select<CNA> cnaEventTypes);
 
     @Cacheable(cacheResolver = "generalRepositoryCacheResolver", condition = "@cacheEnabledConfig.getEnabled()")
     List<CopyNumberCountByGene> getPatientCnaCounts(List<MolecularProfileCaseIdentifier> molecularProfileCaseIdentifiers,
                                                     Select<Integer> entrezGeneIds,
-                                                    AlterationFilter alterationFilter);
+                                                    final Select<CNA> cnaEventTypes);
     
 }

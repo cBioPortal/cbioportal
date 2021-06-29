@@ -23,11 +23,8 @@
 
 package org.cbioportal.persistence.mybatis;
 
-import org.cbioportal.model.GeneFilterQuery;
 import org.cbioportal.model.StructuralVariant;
-import org.cbioportal.model.util.Select;
 import org.junit.Assert;
-import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -35,10 +32,8 @@ import org.springframework.beans.factory.annotation.Configurable;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
-import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
-import java.util.stream.Collectors;
+import java.util.ArrayList;
 
 @RunWith(SpringJUnit4ClassRunner.class)
 @ContextConfiguration("/testContextDatabase.xml")
@@ -47,46 +42,7 @@ public class StructuralVariantMyBatisRepositoryTest {
 
     @Autowired
     StructuralVariantMyBatisRepository structuralVariantMyBatisRepository;
-
-    @Before
-    public void init() {
-        molecularProfileIds = new ArrayList<>();
-        molecularProfileIds.add("study_tcga_pub_sv");
-        molecularProfileIds.add("acc_tcga_mutations");
-        sampleIds = new ArrayList<>();
-        sampleIds.add("TCGA-A1-A0SB-01");
-        sampleIds.add("TCGA-A1-B0SO-01");
-        tiers = Select.none();
-        includeUnknownTier = false;
-        includeDriver = false;
-        includeVUS = false;
-        includeUnknownOncogenicity = false;
-        includeGermline = false;
-        includeSomatic = false;
-        includeUnknownOncogenicity = false;
-
-        GeneFilterQuery geneFilterQuery1 = new GeneFilterQuery("KIAA1549", 57670, null,
-            includeDriver, includeVUS, includeUnknownOncogenicity, tiers, includeUnknownTier, includeGermline, includeSomatic, includeUnknownStatus);
-        GeneFilterQuery geneFilterQuery2 = new GeneFilterQuery("RET", 5979, null,
-            includeDriver, includeVUS, includeUnknownOncogenicity, tiers, includeUnknownTier, includeGermline, includeSomatic, includeUnknownStatus);
-        GeneFilterQuery geneFilterQuery3 = new GeneFilterQuery("TMPRSS2", 7113, null,
-            includeDriver, includeVUS, includeUnknownOncogenicity, tiers, includeUnknownTier, includeGermline, includeSomatic, includeUnknownStatus);
-        geneQueries =  Arrays.asList(geneFilterQuery1, geneFilterQuery2, geneFilterQuery3);
-        
-    }
-
-    List<String> molecularProfileIds = new ArrayList<>();
-    List<String> sampleIds = new ArrayList<>();
-    Select<String> tiers = Select.none();
-    boolean includeUnknownTier = false;
-    boolean includeDriver = false;
-    boolean includeVUS = false;
-    boolean includeUnknownOncogenicity = false;
-    boolean includeGermline = false;
-    boolean includeSomatic = false;
-    boolean includeUnknownStatus = false;
-    private List<GeneFilterQuery> geneQueries;
-
+    
     @Test
     public void fetchStructuralVariantsNoSampleIdentifiers() throws Exception {
 
@@ -246,185 +202,4 @@ public class StructuralVariantMyBatisRepositoryTest {
         Assert.assertEquals((String) "TCGA-A1-A0SB", structuralVariantSecondResult.getPatientId());
         Assert.assertEquals((String) "study_tcga_pub", structuralVariantSecondResult.getStudyId());
     }
-
-    @Test
-    public void fetchStructuralVariantsMultiStudyByGeneQueriesWithSampleIdentifiers() throws Exception {
-
-        geneQueries.stream().forEach(
-            q -> {
-                q.setIncludeDriver(true);
-                q.setIncludeVUS(true);
-                q.setIncludeUnknownOncogenicity(true);
-            }
-        );
-
-        List<StructuralVariant> result =
-            structuralVariantMyBatisRepository.fetchStructuralVariantsByGeneQueries(molecularProfileIds,
-                sampleIds, geneQueries);
-
-        Assert.assertEquals(5,  result.size());
-
-        List<String> resultTcgaPubVariants = result.stream()
-            .filter(s -> "study_tcga_pub_sv".equals(s.getMolecularProfileId()))
-            .map(StructuralVariant::getAnnotation)
-            .collect(Collectors.toList());
-        List<String> resultTcgaVariants = result.stream()
-            .filter(s -> "acc_tcga_mutations".equals(s.getMolecularProfileId()))
-            .map(StructuralVariant::getAnnotation)
-            .collect(Collectors.toList());
-        
-        Assert.assertArrayEquals(new String[] {"KIAA1549-BRAF.K16B10.COSF509", "NCOA4-RET.N7R1", "TMPRSS2-ERG.T1E2.COSF23.1"}, resultTcgaPubVariants.toArray());
-        Assert.assertArrayEquals(new String[] {"KIAA1549-BRAF.K16B10.COSF509", "NCOA4-RET.N7R1"}, resultTcgaVariants.toArray());
-    }
-
-    @Test
-    public void fetchStructuralVariantsMultiStudyByGeneQueriesWithSampleIdentifiersExcludePassenger() throws Exception {
-        
-        // There is one passenger event in 'study_tcga_pub_sv', the rest is unannotated
-        geneQueries.stream().forEach(
-            q -> {
-                q.setIncludeDriver(true);
-                q.setIncludeVUS(false);
-                q.setIncludeUnknownOncogenicity(true);
-            }
-        );
-
-        List<StructuralVariant> result =
-            structuralVariantMyBatisRepository.fetchStructuralVariantsByGeneQueries(molecularProfileIds,
-                sampleIds, geneQueries);
-
-        Assert.assertEquals(4,  result.size());
-
-        List<String> resultTcgaPubVariants = result.stream()
-            .filter(s -> "study_tcga_pub_sv".equals(s.getMolecularProfileId()))
-            .map(StructuralVariant::getAnnotation)
-            .collect(Collectors.toList());
-        List<String> resultTcgaVariants = result.stream()
-            .filter(s -> "acc_tcga_mutations".equals(s.getMolecularProfileId()))
-            .map(StructuralVariant::getAnnotation)
-            .collect(Collectors.toList());
-
-        Assert.assertArrayEquals(new String[] {"NCOA4-RET.N7R1", "TMPRSS2-ERG.T1E2.COSF23.1"}, resultTcgaPubVariants.toArray());
-        Assert.assertArrayEquals(new String[] {"KIAA1549-BRAF.K16B10.COSF509", "NCOA4-RET.N7R1"}, resultTcgaVariants.toArray());
-    }
-
-    @Test
-    public void fetchStructuralVariantsMultiStudyByGeneQueriesWithSampleIdentifiersExcludePassengerDriver() throws Exception {
-
-        // There is one passenger event in 'study_tcga_pub_sv', the rest is unannotated
-        geneQueries.stream().forEach(
-            q -> {
-                q.setIncludeDriver(false);
-                q.setIncludeVUS(false);
-                q.setIncludeUnknownOncogenicity(true);
-            }
-        );
-
-        List<StructuralVariant> result =
-            structuralVariantMyBatisRepository.fetchStructuralVariantsByGeneQueries(molecularProfileIds,
-                sampleIds, geneQueries);
-
-        Assert.assertEquals(4,  result.size());
-
-        List<String> resultTcgaPubVariants = result.stream()
-            .filter(s -> "study_tcga_pub_sv".equals(s.getMolecularProfileId()))
-            .map(StructuralVariant::getAnnotation)
-            .collect(Collectors.toList());
-        List<String> resultTcgaVariants = result.stream()
-            .filter(s -> "acc_tcga_mutations".equals(s.getMolecularProfileId()))
-            .map(StructuralVariant::getAnnotation)
-            .collect(Collectors.toList());
-
-        Assert.assertArrayEquals(new String[] {"NCOA4-RET.N7R1", "TMPRSS2-ERG.T1E2.COSF23.1"}, resultTcgaPubVariants.toArray());
-        Assert.assertArrayEquals(new String[] {"KIAA1549-BRAF.K16B10.COSF509", "NCOA4-RET.N7R1"}, resultTcgaVariants.toArray());
-    }
-
-    @Test
-    public void fetchStructuralVariantsMultiStudyByGeneQueriesWithSampleIdentifiersExcludeUnknownOncogenicity() throws Exception {
-
-        // There is one passenger event in 'study_tcga_pub_sv', the rest is unannotated
-
-        geneQueries.stream().forEach(
-            q -> {
-                q.setIncludeDriver(false);
-                q.setIncludeVUS(true);
-                q.setIncludeUnknownOncogenicity(false);
-            }
-        );
-
-        List<StructuralVariant> result =
-            structuralVariantMyBatisRepository.fetchStructuralVariantsByGeneQueries(molecularProfileIds,
-                sampleIds, geneQueries);
-
-        Assert.assertEquals(1,  result.size());
-
-        List<String> resultTcgaPubVariants = result.stream()
-            .filter(s -> "study_tcga_pub_sv".equals(s.getMolecularProfileId()))
-            .map(StructuralVariant::getAnnotation)
-            .collect(Collectors.toList());
-
-        Assert.assertArrayEquals(new String[] {"KIAA1549-BRAF.K16B10.COSF509"}, resultTcgaPubVariants.toArray());
-    }
-
-    @Test
-    public void fetchStructuralVariantsMultiStudyByGeneQueriesWithSampleIdentifiersIncludeTier() throws Exception {
-
-        // There is one passenger event that is 'Tier 1 annotated' in 'study_tcga_pub_sv', the rest is unannotated
-        geneQueries.stream().forEach(
-            q -> {
-                q.setIncludeDriver(false);
-                q.setIncludeVUS(false);
-                q.setIncludeUnknownOncogenicity(false);
-                q.setSelectedTiers(Select.byValues(Arrays.asList("Tier 1")));
-            }
-        );
-
-        List<StructuralVariant> result =
-            structuralVariantMyBatisRepository.fetchStructuralVariantsByGeneQueries(molecularProfileIds,
-                sampleIds, geneQueries);
-
-        Assert.assertEquals(1,  result.size());
-
-        List<String> resultTcgaPubVariants = result.stream()
-            .filter(s -> "study_tcga_pub_sv".equals(s.getMolecularProfileId()))
-            .map(StructuralVariant::getAnnotation)
-            .collect(Collectors.toList());
-
-        Assert.assertArrayEquals(new String[] {"KIAA1549-BRAF.K16B10.COSF509"}, resultTcgaPubVariants.toArray());
-    }
-
-    @Test
-    public void fetchStructuralVariantsMultiStudyByGeneQueriesWithSampleIdentifiersAllTiers() throws Exception {
-
-        // There is one passenger event that is 'Tier 1 annotated' in 'study_tcga_pub_sv', the rest is unannotated
-
-        geneQueries.stream().forEach(
-            q -> {
-                q.setIncludeDriver(false);
-                q.setIncludeVUS(false);
-                q.setIncludeUnknownOncogenicity(false);
-                q.setSelectedTiers(Select.all());
-                q.setIncludeUnknownTier(true);
-            }
-        );
-        
-        List<StructuralVariant> result =
-            structuralVariantMyBatisRepository.fetchStructuralVariantsByGeneQueries(molecularProfileIds,
-                sampleIds, geneQueries);
-
-        Assert.assertEquals(5,  result.size());
-
-        List<String> resultTcgaPubVariants = result.stream()
-            .filter(s -> "study_tcga_pub_sv".equals(s.getMolecularProfileId()))
-            .map(StructuralVariant::getAnnotation)
-            .collect(Collectors.toList());
-        List<String> resultTcgaVariants = result.stream()
-            .filter(s -> "acc_tcga_mutations".equals(s.getMolecularProfileId()))
-            .map(StructuralVariant::getAnnotation)
-            .collect(Collectors.toList());
-
-        Assert.assertArrayEquals(new String[] {"KIAA1549-BRAF.K16B10.COSF509", "NCOA4-RET.N7R1", "TMPRSS2-ERG.T1E2.COSF23.1"}, resultTcgaPubVariants.toArray());
-        Assert.assertArrayEquals(new String[] {"KIAA1549-BRAF.K16B10.COSF509", "NCOA4-RET.N7R1"}, resultTcgaVariants.toArray());
-    }
-    
 }

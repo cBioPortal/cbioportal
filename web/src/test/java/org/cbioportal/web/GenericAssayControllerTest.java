@@ -42,9 +42,13 @@ public class GenericAssayControllerTest {
     private static final String ENTITY_TYPE = "test_type";
     public static final String GENERIC_ASSAY_STABLE_ID_1 = "genericAssayStableId1";
     public static final String GENERIC_ASSAY_STABLE_ID_2 = "genericAssayStableId2";
+    public static final String GENERIC_ASSAY_STABLE_ID_3 = "genericAssayStableId3";
+    public static final String GENERIC_ASSAY_STABLE_ID_4 = "genericAssayStableId4";
     private static final String SAMPLE_ID = "test_sample_stable_id_1";
     private static final String VALUE_1 = "0.25";
     private static final String VALUE_2 = "-0.75";
+    private static final String VALUE_3 = "";
+    private static final String VALUE_4 = "NA";
     private static final String TEST_NAME = "name";
     private static final String TEST_NAME_VALUE = "test_name";
     private static final String TEST_DESCRIPTION = "description";
@@ -83,7 +87,7 @@ public class GenericAssayControllerTest {
 
         GenericAssayFilter genericAssayDataFilter = new GenericAssayFilter();	
         genericAssayDataFilter.setSampleIds(Arrays.asList(SAMPLE_ID));	
-        genericAssayDataFilter.setGenericAssayStableIds(Arrays.asList(GENERIC_ASSAY_STABLE_ID_1, GENERIC_ASSAY_STABLE_ID_2));	
+        genericAssayDataFilter.setGenericAssayStableIds(Arrays.asList(GENERIC_ASSAY_STABLE_ID_1, GENERIC_ASSAY_STABLE_ID_2, GENERIC_ASSAY_STABLE_ID_3, GENERIC_ASSAY_STABLE_ID_4));	
 
         mockMvc.perform(MockMvcRequestBuilders.post("/generic_assay_data/" + PROF_ID + "/fetch")	
                 .accept(MediaType.APPLICATION_JSON)	
@@ -185,6 +189,22 @@ public class GenericAssayControllerTest {
         item2.setValue(VALUE_2);
         genericAssayDataItems.add(item2);
 
+        // This item should be filtered out in api result
+        GenericAssayData item3 = new GenericAssayData();
+        item3.setGenericAssayStableId(GENERIC_ASSAY_STABLE_ID_3);
+        item3.setMolecularProfileId(PROF_ID);
+        item3.setSampleId(SAMPLE_ID);
+        item3.setValue(VALUE_3);
+        genericAssayDataItems.add(item3);
+
+        // This item should be filtered out in api result
+        GenericAssayData item4 = new GenericAssayData();
+        item4.setGenericAssayStableId(GENERIC_ASSAY_STABLE_ID_4);
+        item4.setMolecularProfileId(PROF_ID);
+        item4.setSampleId(SAMPLE_ID);
+        item4.setValue(VALUE_4);
+        genericAssayDataItems.add(item4);
+
         return genericAssayDataItems;
     }
 
@@ -198,9 +218,19 @@ public class GenericAssayControllerTest {
         sampleMolecularIdentifiers.add(identifier1);
 
         SampleMolecularIdentifier identifier2 = new SampleMolecularIdentifier();
-        identifier1.setSampleId(SAMPLE_ID);
-        identifier1.setMolecularProfileId(GENERIC_ASSAY_STABLE_ID_2);
+        identifier2.setSampleId(SAMPLE_ID);
+        identifier2.setMolecularProfileId(GENERIC_ASSAY_STABLE_ID_2);
         sampleMolecularIdentifiers.add(identifier2);
+
+        SampleMolecularIdentifier identifier3 = new SampleMolecularIdentifier();
+        identifier3.setSampleId(SAMPLE_ID);
+        identifier3.setMolecularProfileId(GENERIC_ASSAY_STABLE_ID_3);
+        sampleMolecularIdentifiers.add(identifier3);
+
+        SampleMolecularIdentifier identifier4 = new SampleMolecularIdentifier();
+        identifier4.setSampleId(SAMPLE_ID);
+        identifier4.setMolecularProfileId(GENERIC_ASSAY_STABLE_ID_4);
+        sampleMolecularIdentifiers.add(identifier4);
 
         return sampleMolecularIdentifiers;
     }

@@ -14,17 +14,17 @@ import java.util.Map;
 @JsonInclude(Include.NON_NULL)
 public class BaseAlterationFilter implements Serializable {
 
-    private boolean includeGermline = true;
-    private boolean includeSomatic = true;
-    private boolean includeUnknownStatus = true;
-    private boolean includeDriver = true;
-    private boolean includeVUS = true;
-    private boolean includeUnknownOncogenicity = true;
-    private Map<String, Boolean> tiersBooleanMap = new HashMap<>();
-    private boolean includeUnknownTier = true;
+    protected boolean includeGermline = true;
+    protected boolean includeSomatic = true;
+    protected boolean includeUnknownStatus = true;
+    protected boolean includeDriver = true;
+    protected boolean includeVUS = true;
+    protected boolean includeUnknownOncogenicity = true;
+    protected Map<String, Boolean> tiersBooleanMap = new HashMap<>();
+    protected boolean includeUnknownTier = true;
 
     @JsonIgnore
-    private Select<String> tiersSelect = Select.all();
+    protected Select<String> tiersSelect = Select.all();
 
     // When default constructor is called, the filter is inactive (excludes nothing)
     public BaseAlterationFilter() {

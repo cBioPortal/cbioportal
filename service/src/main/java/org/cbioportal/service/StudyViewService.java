@@ -1,6 +1,5 @@
 package org.cbioportal.service;
 
-import org.cbioportal.model.Alteration;
 import org.cbioportal.model.AlterationCountByGene;
 import org.cbioportal.model.AlterationFilter;
 import org.cbioportal.model.CopyNumberCountByGene;

@@ -32,11 +32,11 @@ public class AlterationMyBatisRepository implements AlterationRepository {
                                                                  QueryElement searchFusions,
                                                                  AlterationFilter alterationFilter) {
 
-        if (!alterationFilter.getSelectedMutationTypes().hasAll() && searchFusions != QueryElement.PASS)
+        if (!alterationFilter.getMutationTypeSelect().hasAll() && searchFusions != QueryElement.PASS)
             throw new IllegalArgumentException("Filtering for mutations vs. fusions and specifying mutation types" +
                 "simultaneously is not permitted.");
 
-        if ((alterationFilter.getSelectedMutationTypes().hasNone() && alterationFilter.getSelectedCnaTypes().hasNone())
+        if ((alterationFilter.getMutationTypeSelect().hasNone() && alterationFilter.getCNAEventTypeSelect().hasNone())
             || (molecularProfileCaseIdentifiers == null || molecularProfileCaseIdentifiers.isEmpty())
             || allAlterationsExcludedDriverAnnotation(alterationFilter)
             || allAlterationsExcludedMutationStatus(alterationFilter)
@@ -82,11 +82,11 @@ public class AlterationMyBatisRepository implements AlterationRepository {
                                                                   QueryElement searchFusions,
                                                                   AlterationFilter alterationFilter) {
 
-        if (!alterationFilter.getSelectedMutationTypes().hasAll() && searchFusions != QueryElement.PASS)
+        if (!alterationFilter.getMutationTypeSelect().hasAll() && searchFusions != QueryElement.PASS)
             throw new IllegalArgumentException("Filtering for mutations vs. fusions and specifying mutation types" +
                 "simultaneously is not permitted.");
 
-        if ((alterationFilter.getSelectedMutationTypes().hasNone() && alterationFilter.getSelectedCnaTypes().hasNone())
+        if ((alterationFilter.getMutationTypeSelect().hasNone() && alterationFilter.getCNAEventTypeSelect().hasNone())
             || (molecularProfileCaseIdentifiers == null || molecularProfileCaseIdentifiers.isEmpty())
             || allAlterationsExcludedDriverAnnotation(alterationFilter)
             || allAlterationsExcludedMutationStatus(alterationFilter)
@@ -132,7 +132,7 @@ public class AlterationMyBatisRepository implements AlterationRepository {
                                                           Select<Integer> entrezGeneIds,
                                                           AlterationFilter alterationFilter) {
 
-        if (alterationFilter.getSelectedCnaTypes().hasNone() || molecularProfileCaseIdentifiers == null
+        if (alterationFilter.getCNAEventTypeSelect().hasNone() || molecularProfileCaseIdentifiers == null
             || allAlterationsExcludedDriverAnnotation(alterationFilter)
             || allAlterationsExcludedDriverTierAnnotation(alterationFilter)) {
             return Collections.emptyList();
@@ -157,7 +157,7 @@ public class AlterationMyBatisRepository implements AlterationRepository {
                                                            Select<Integer> entrezGeneIds,
                                                            AlterationFilter alterationFilter) {
 
-        if (alterationFilter.getSelectedCnaTypes().hasNone() || molecularProfileCaseIdentifiers == null
+        if (alterationFilter.getCNAEventTypeSelect().hasNone() || molecularProfileCaseIdentifiers == null
             || allAlterationsExcludedDriverAnnotation(alterationFilter)
             || allAlterationsExcludedDriverTierAnnotation(alterationFilter)) {
             return Collections.emptyList();
@@ -177,20 +177,20 @@ public class AlterationMyBatisRepository implements AlterationRepository {
     }
     
     private Select<Short> createCnaTypeList(final AlterationFilter alterationFilter) {
-        if (alterationFilter.getSelectedCnaTypes().hasNone())
+        if (alterationFilter.getCNAEventTypeSelect().hasNone())
             return Select.none();
-        if (alterationFilter.getSelectedCnaTypes().hasAll())
+        if (alterationFilter.getCNAEventTypeSelect().hasAll())
             return Select.all();
-        return alterationFilter.getSelectedCnaTypes().map(CNA::getCode);
+        return alterationFilter.getCNAEventTypeSelect().map(CNA::getCode);
     }
 
     private Select<String> createMutationTypeList(final AlterationFilter alterationFilter) {
-        if (alterationFilter.getSelectedMutationTypes().hasNone())
+        if (alterationFilter.getMutationTypeSelect().hasNone())
             return Select.none();
-        if (alterationFilter.getSelectedMutationTypes().hasAll())
+        if (alterationFilter.getMutationTypeSelect().hasAll())
             return Select.all();
-        Select<String> mappedMutationTypes = alterationFilter.getSelectedMutationTypes().map(MutationEventType::getMutationType);
-        mappedMutationTypes.inverse(alterationFilter.getSelectedMutationTypes().inverse());
+        Select<String> mappedMutationTypes = alterationFilter.getMutationTypeSelect().map(MutationEventType::getMutationType);
+        mappedMutationTypes.inverse(alterationFilter.getMutationTypeSelect().inverse());
 
         return mappedMutationTypes;
     }

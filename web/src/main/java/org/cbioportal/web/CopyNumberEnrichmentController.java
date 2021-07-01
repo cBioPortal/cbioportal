@@ -65,7 +65,7 @@ public class CopyNumberEnrichmentController {
                         MolecularProfileCasesGroupFilter::getMolecularProfileCaseIdentifiers));
 
         AlterationFilter alterationFilter = new AlterationFilter();
-        alterationFilter.setSelectedMutationTypes(Select.none());
+        alterationFilter.setMutationTypeSelect(Select.none());
         alterationFilter.setCnaTypeSelect(Select.byValues(Arrays.asList(copyNumberEventType)));
         
         return new ResponseEntity<>(

@@ -1,27 +1,37 @@
 package org.cbioportal.model;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
+import java.io.Serializable;
+import java.util.Arrays;
+import java.util.List;
+import java.util.Map;
+import java.util.Map.Entry;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
+
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonInclude;
-import com.fasterxml.jackson.annotation.JsonInclude.Include;
+import org.cbioportal.model.BaseAlterationFilter;
+import org.cbioportal.model.CNA;
+import org.cbioportal.model.MutationEventType;
 import org.cbioportal.model.util.Select;
 
-import java.io.Serializable;
-import java.util.Map;
+import com.fasterxml.jackson.annotation.JsonIgnore;
+
+import static com.fasterxml.jackson.annotation.JsonInclude.Include.*;
 
 @JsonIgnoreProperties(ignoreUnknown = true)
-@JsonInclude(Include.NON_NULL)
+@JsonInclude(NON_NULL)
 public class AlterationFilter extends BaseAlterationFilter implements Serializable {
-    
-    private Map<MutationEventType, Boolean> mutationBooleanMap;
-    private Map<CNA, Boolean> cnaBooleanMap;
-    
+
+    private Map<MutationEventType, Boolean> mutationEventTypes;
+    private Map<CNA, Boolean> copyNumberAlterationEventTypes;
+    private Boolean structuralVariants;
+
     @JsonIgnore
     private Select<MutationEventType> mutationTypeSelect = Select.all();
     @JsonIgnore
     private Select<CNA> cnaTypeSelect = Select.all();
 
-    // When default constructor is called, the filter is inactive (excludes nothing)
     public AlterationFilter() {}
 
     public AlterationFilter(Select<MutationEventType> mutationTypesMap,
@@ -34,68 +44,111 @@ public class AlterationFilter extends BaseAlterationFilter implements Serializab
                             boolean includeUnknownStatus,
                             Select<String> tiersSelect,
                             boolean includeUnknownTier) {
-        super(includeDriver, includeVUS, includeUnknownOncogenicity, includeGermline, includeSomatic, includeUnknownStatus, tiersSelect, includeUnknownTier);
         this.mutationTypeSelect = mutationTypesMap;
         this.cnaTypeSelect = cnaEventTypes;
+        this.includeDriver = includeDriver;
+        this.includeVUS = includeVUS;
+        this.includeUnknownOncogenicity = includeUnknownOncogenicity;
+        this.includeGermline = includeGermline;
+        this.includeSomatic = includeSomatic;
+        this.includeUnknownStatus = includeUnknownStatus;
+        this.tiersSelect = tiersSelect;
+        this.includeUnknownTier = includeUnknownTier;
     }
 
-    public void setMutationBooleanMap(Map<MutationEventType, Boolean> selectedTypes) {
-        this.mutationBooleanMap = selectedTypes;
-        if (selectedTypes == null) {
-            this.mutationTypeSelect = Select.none();
-        } else {
-            this.mutationTypeSelect = Select.byValues(
-                selectedTypes.entrySet().stream()
-                    .filter(e -> e.getValue())
-                    .map(e -> e.getKey()));
-            if (selectedTypes.size() > 0 && selectedTypes.entrySet().stream().allMatch(e -> e.getValue()))
-                this.mutationTypeSelect.hasAll(true);
+    public void setMutationEventTypes(Map<MutationEventType, Boolean> mutationEventTypes) {
+        /*
+         * Appropriately add fusion mutation type depending on structural variant since fusions are still in mutation table
+         * TODO: do necessary changes once fusion data is cleaned up from mutation table
+         * */
+
+        if (mutationEventTypes == null || mutationEventTypes.getOrDefault(MutationEventType.any, false)
+            || allOptionsSelected(mutationEventTypes, Arrays.asList(MutationEventType.any.toString()))) {
+            if(this.structuralVariants == null || this.structuralVariants == true) {
+                mutationTypeSelect = Select.all();
+            }
         }
-    }
-
-    public Map<MutationEventType, Boolean> getMutationBooleanMap() {
-        return mutationBooleanMap;
-    }
-
-    @JsonIgnore
-    public Select<MutationEventType> getSelectedMutationTypes() {
-        if (this.mutationTypeSelect == null)
-            return Select.none();
-        return this.mutationTypeSelect;
-    }
-
-    @JsonIgnore
-    public void setSelectedMutationTypes(Select<MutationEventType> typeSelect) {
-        this.mutationTypeSelect = typeSelect;
-    }
-    
-    public void setCnaBooleanMap(Map<CNA, Boolean> selectedTypes) {
-        this.cnaBooleanMap = selectedTypes;
-        if (selectedTypes == null) {
-            this.cnaTypeSelect = Select.none();
+        // if MutationEventType.other is true and not allOptionsSelected
+        else if (mutationEventTypes.getOrDefault(MutationEventType.other, false)) {
+            List<MutationEventType> unSelected = mutationEventTypes
+                .entrySet()
+                .stream()
+                .filter(e -> !e.getValue())
+                .map(Entry::getKey)
+                .collect(Collectors.toList());
+            if(this.structuralVariants == null || this.structuralVariants == false) {
+                unSelected.add(MutationEventType.fusion);
+            }
+            Select<MutationEventType> select = Select.byValues(unSelected);
+            // setting this would execute NOT IN clause in sql query
+            select.inverse(true);
+            mutationTypeSelect = select;
         } else {
-            this.cnaTypeSelect = Select.byValues(
-                selectedTypes.entrySet().stream()
-                    .filter(e -> e.getValue())
-                    .map(e -> e.getKey()));
-            if (selectedTypes.size() > 0 && selectedTypes.entrySet().stream().allMatch(e -> e.getValue()))
-                this.cnaTypeSelect.hasAll(true);
+            List<MutationEventType> selected = mutationEventTypes
+                .entrySet()
+                .stream()
+                .filter(Entry::getValue)
+                .map(Entry::getKey)
+                .collect(Collectors.toList());
+            if(this.structuralVariants != null && this.structuralVariants == true) {
+                selected.add(MutationEventType.fusion);
+            }
+            mutationTypeSelect = Select.byValues(selected);
         }
+        this.mutationEventTypes = mutationEventTypes;
     }
 
-    public Map<CNA, Boolean> getCnaBooleanMap() {
-        return cnaBooleanMap;
+    public Map<MutationEventType, Boolean> getMutationEventTypes() {
+        return mutationEventTypes;
+    }
+
+    public void setCopyNumberAlterationEventTypes(Map<CNA, Boolean> copyNumberAlterationEventTypes) {
+        if (allOptionsSelected(copyNumberAlterationEventTypes, null)) {
+            cnaTypeSelect = Select.all();
+        } else {
+            cnaTypeSelect = Select.byValues(
+                copyNumberAlterationEventTypes.entrySet().stream().filter(Entry::getValue).map(Entry::getKey));
+        }
+        this.copyNumberAlterationEventTypes = copyNumberAlterationEventTypes;
+    }
+
+    public Map<CNA, Boolean> getCopyNumberAlterationEventTypes() {
+        return copyNumberAlterationEventTypes;
+    }
+
+    public Boolean getStructuralVariants() {
+        return structuralVariants;
+    }
+
+    public void setStructuralVariants(Boolean structuralVariants) {
+        this.structuralVariants = structuralVariants;
     }
 
     @JsonIgnore
-    public Select<CNA> getSelectedCnaTypes() {
-        if (this.cnaTypeSelect == null)
-            return Select.none();
-        return this.cnaTypeSelect;
+    public Select<MutationEventType> getMutationTypeSelect() {
+        return mutationTypeSelect;
     }
 
     @JsonIgnore
-    public void setCnaTypeSelect(Select<CNA> typeSelect) {
-        this.cnaTypeSelect = typeSelect;
+    public void setMutationTypeSelect(Select<MutationEventType> mutationTypeSelect) {
+        this.mutationTypeSelect = mutationTypeSelect;
     }
+
+    @JsonIgnore
+    public Select<CNA> getCNAEventTypeSelect() {
+        return cnaTypeSelect;
+    }
+
+    @JsonIgnore
+    public void setCnaTypeSelect(Select<CNA> cnaTypeSelect) {
+        this.cnaTypeSelect = cnaTypeSelect;
+    }
+
+    @JsonIgnore
+    private boolean allOptionsSelected(Map<?, Boolean> options, List<String> excludeKeys) {
+        return options.entrySet().stream().allMatch(e -> {
+            return excludeKeys == null || !excludeKeys.contains(e.getKey().toString()) ? e.getValue() : true;
+        });
+    }
+
 }

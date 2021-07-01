@@ -168,7 +168,7 @@ public class AlterationMyBatisRepositoryTest {
 
     @Test
     public void getSampleCnaCount() throws Exception {
-        alterationFilter.setSelectedMutationTypes(Select.none());
+        alterationFilter.setMutationTypeSelect(Select.none());
         List<AlterationCountByGene> result = alterationMyBatisRepository.getSampleAlterationCounts(
             sampleIdToProfileId,
             entrezGeneIds,
@@ -222,7 +222,7 @@ public class AlterationMyBatisRepositoryTest {
     @Test
     public void getSampleMutationCountFilterFusions() throws Exception {
         alterationFilter.setCnaTypeSelect(Select.none());
-        alterationFilter.setSelectedMutationTypes(Select.all());
+        alterationFilter.setMutationTypeSelect(Select.all());
         List<AlterationCountByGene> result = alterationMyBatisRepository.getSampleAlterationCounts(
             sampleIdToProfileId,
             entrezGeneIds,
@@ -237,7 +237,7 @@ public class AlterationMyBatisRepositoryTest {
         alterationFilter.setIncludeDriver(false);
         alterationFilter.setIncludeVUS(false);
         alterationFilter.setIncludeUnknownOncogenicity(false);
-        alterationFilter.setSelectedMutationTypes(Select.none());
+        alterationFilter.setMutationTypeSelect(Select.none());
         List<AlterationCountByGene> result = alterationMyBatisRepository.getPatientAlterationCounts(
             patientIdToProfileId,
             entrezGeneIds,
@@ -250,7 +250,7 @@ public class AlterationMyBatisRepositoryTest {
     public void getPatientCnaCountAllDriverTiersExcluded() throws Exception {
         alterationFilter.setSelectedTiers(Select.none());
         alterationFilter.setIncludeUnknownTier(false);
-        alterationFilter.setSelectedMutationTypes(Select.none());
+        alterationFilter.setMutationTypeSelect(Select.none());
         List<AlterationCountByGene> result = alterationMyBatisRepository.getPatientAlterationCounts(
             patientIdToProfileId,
             entrezGeneIds,
@@ -263,7 +263,7 @@ public class AlterationMyBatisRepositoryTest {
     public void getPatientCnaCountAllDriverTiersExcludedNullSelect() throws Exception {
         alterationFilter.setSelectedTiers(null);
         alterationFilter.setIncludeUnknownTier(false);
-        alterationFilter.setSelectedMutationTypes(Select.none());
+        alterationFilter.setMutationTypeSelect(Select.none());
         List<AlterationCountByGene> result = alterationMyBatisRepository.getPatientAlterationCounts(
             patientIdToProfileId,
             entrezGeneIds,
@@ -274,7 +274,7 @@ public class AlterationMyBatisRepositoryTest {
     
     @Test
     public void getPatientCnaCount() throws Exception {
-        alterationFilter.setSelectedMutationTypes(Select.none());
+        alterationFilter.setMutationTypeSelect(Select.none());
         List<AlterationCountByGene> result = alterationMyBatisRepository.getPatientAlterationCounts(
             patientIdToProfileId,
             entrezGeneIds,    
@@ -339,7 +339,7 @@ public class AlterationMyBatisRepositoryTest {
     @Test
     public void getSampleAlterationCountsReturnsZeroForMutationsAndCnaSelectorsInNone() {
         alterationFilter.setCnaTypeSelect(Select.none());
-        alterationFilter.setSelectedMutationTypes(Select.none());
+        alterationFilter.setMutationTypeSelect(Select.none());
         List<AlterationCountByGene> result = alterationMyBatisRepository.getSampleAlterationCounts(
             sampleIdToProfileId,
             entrezGeneIds,
@@ -352,7 +352,7 @@ public class AlterationMyBatisRepositoryTest {
     @Test
     public void getSampleAlterationCountsReturnsAllForMutationsAndCnaSelectorsInAll() {
         alterationFilter.setCnaTypeSelect(Select.all());
-        alterationFilter.setSelectedMutationTypes(Select.all());
+        alterationFilter.setMutationTypeSelect(Select.all());
         List<AlterationCountByGene> result = alterationMyBatisRepository.getSampleAlterationCounts(
             sampleIdToProfileId,
             entrezGeneIds,
@@ -576,7 +576,7 @@ public class AlterationMyBatisRepositoryTest {
     @Test
     public void getPatientMutationCountFilterFusions() throws Exception {
         alterationFilter.setCnaTypeSelect(Select.none());
-        alterationFilter.setSelectedMutationTypes(Select.all());
+        alterationFilter.setMutationTypeSelect(Select.all());
         List<AlterationCountByGene> result = alterationMyBatisRepository.getPatientAlterationCounts(
             patientIdToProfileId,
             entrezGeneIds,

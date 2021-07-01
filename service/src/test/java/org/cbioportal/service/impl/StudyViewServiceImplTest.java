@@ -6,7 +6,6 @@ import org.cbioportal.model.util.Select;
 import org.cbioportal.service.*;
 import org.cbioportal.service.util.MolecularProfileUtil;
 import org.junit.Assert;
-import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.InjectMocks;

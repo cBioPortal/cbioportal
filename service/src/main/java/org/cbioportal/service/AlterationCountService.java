@@ -52,13 +52,13 @@ public interface AlterationCountService {
 //                                                   Select<Integer> entrezGeneIds,
 //                                                   boolean includeFrequency,
 //                                                   boolean includeMissingAlterationsFromGenePanel,
-//                                                   AlterationFilter alterationFilter);
+//                                                   AlterationEventTypeFilter alterationFilter);
 //
 //    Pair<List<AlterationCountByGene>, Long> getPatientCnaCounts(List<MolecularProfileCaseIdentifier> molecularProfileCaseIdentifiers,
 //                                                    Select<Integer> entrezGeneIds,
 //                                                    boolean includeFrequency,
 //                                                    boolean includeMissingAlterationsFromGenePanel,
-//                                                   AlterationFilter alterationFilter);
+//                                                   AlterationEventTypeFilter alterationFilter);
 
     // Should be removed when old CNA count endpoint is retired
     Pair<List<CopyNumberCountByGene>, Long> getSampleCnaCounts(List<MolecularProfileCaseIdentifier> molecularProfileCaseIdentifiers,

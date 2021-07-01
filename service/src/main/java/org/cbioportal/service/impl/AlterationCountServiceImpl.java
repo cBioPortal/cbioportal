@@ -163,7 +163,7 @@ public class AlterationCountServiceImpl implements AlterationCountService {
 //                                                          Select<Integer> entrezGeneIds,
 //                                                          boolean includeFrequency,
 //                                                          boolean includeMissingAlterationsFromGenePanel,
-//                                                          AlterationFilter alterationFilter) {
+//                                                          AlterationEventTypeFilter alterationFilter) {
 //        return getSampleAlterationCounts(molecularProfileCaseIdentifiers,
 //            entrezGeneIds,
 //            includeFrequency,
@@ -177,7 +177,7 @@ public class AlterationCountServiceImpl implements AlterationCountService {
 //                                                           List<Integer> entrezGeneIds,
 //                                                           boolean includeFrequency,
 //                                                           boolean includeMissingAlterationsFromGenePanel,
-//                                                           AlterationFilter alterationFilter) {
+//                                                           AlterationEventTypeFilter alterationFilter) {
 //        return getPatientAlterationCounts(molecularProfileCaseIdentifiers,
 //            entrezGeneIds,
 //            includeFrequency,

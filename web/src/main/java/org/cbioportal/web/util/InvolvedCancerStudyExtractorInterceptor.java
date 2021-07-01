@@ -612,13 +612,12 @@ public class InvolvedCancerStudyExtractorInterceptor extends HandlerInterceptorA
             LOG.debug("extracted molecularProfileCasesGroupFilters: " + molecularProfileCasesGroupFilters.toString());
             LOG.debug("setting interceptedMolecularProfileCasesGroupFilters to " + molecularProfileCasesGroupFilters);
             request.setAttribute("interceptedMolecularProfileCasesGroupFilters", molecularProfileCasesGroupFilters);
-            AlterationFilter alterationFilter = molecularProfileCasesAndAlterationTypesGroupFilters.getAlterationFilter();
-            if (molecularProfileCasesAndAlterationTypesGroupFilters.getAlterationFilter() == null) {
-                // For backwards compatibility an inactive filter is set
-                // when the AlterationFilter is not part of the request.
-                alterationFilter = new AlterationFilter();
+            if (molecularProfileCasesAndAlterationTypesGroupFilters.getAlterationEventTypes() != null) {
+                AlterationFilter alterationEnrichmentEventTypes = molecularProfileCasesAndAlterationTypesGroupFilters.getAlterationEventTypes();
+                LOG.debug("extracted alterationEventTypes: " + alterationEnrichmentEventTypes.toString());
+                LOG.debug("setting alterationEventTypes to " + alterationEnrichmentEventTypes);
+                request.setAttribute("alterationEventTypes", alterationEnrichmentEventTypes);
             }
-            request.setAttribute("alterationFilter", alterationFilter);
             if (cacheMapUtil.hasCacheEnabled()) {
                 Collection<String> cancerStudyIdCollection = extractCancerStudyIdsFromMolecularProfileCasesGroups(
                         molecularProfileCasesGroupFilters);

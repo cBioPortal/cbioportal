@@ -72,7 +72,6 @@ public class AlterationEnrichmentControllerTest {
 
     private MockMvc mockMvc;
     private ArrayList<AlterationEnrichment> alterationEnrichments;
-    private AlterationFilter alterationFilter;
     Map<MutationEventType, Boolean> mutationTypes;
     Map<CNA, Boolean> cnaTypes;
 
@@ -147,16 +146,7 @@ public class AlterationEnrichmentControllerTest {
         filter = new MolecularProfileCasesGroupAndAlterationTypeFilter();
         filter.setMolecularProfileCasesGroupFilter(Arrays.asList(casesGroup1,casesGroup2));
 
-        alterationFilter = new AlterationFilter();
-        filter.setAlterationFilter(alterationFilter);
-        alterationFilter.setIncludeDriver(true);
-        alterationFilter.setIncludeVUS(true);
-        alterationFilter.setIncludeUnknownOncogenicity(true);
-        alterationFilter.setIncludeSomatic(true);
-        alterationFilter.setIncludeGermline(true);
-        alterationFilter.setIncludeUnknownStatus(true);
-        alterationFilter.setIncludeUnknownTier(true);
-        alterationFilter.setTiersBooleanMap(new HashMap<String, Boolean>());
+        filter.setAlterationEventTypes(new AlterationFilter());
         
         mockMvc = MockMvcBuilders.webAppContextSetup(wac).build();
         
@@ -178,8 +168,8 @@ public class AlterationEnrichmentControllerTest {
         cnaTypes.put(CNA.AMP, true);
         cnaTypes.put(CNA.HOMDEL, true);
 
-        filter.getAlterationFilter().setMutationBooleanMap(mutationTypes);
-        filter.getAlterationFilter().setCnaBooleanMap(cnaTypes);
+        filter.getAlterationEventTypes().setMutationEventTypes(mutationTypes);
+        filter.getAlterationEventTypes().setCopyNumberAlterationEventTypes(cnaTypes);
         
         mockMvc.perform(MockMvcRequestBuilders.post(
             "/alteration-enrichments/fetch")
@@ -220,8 +210,8 @@ public class AlterationEnrichmentControllerTest {
         cnaTypes.put(CNA.AMP, false);
         cnaTypes.put(CNA.HOMDEL, false);
         
-        filter.getAlterationFilter().setMutationBooleanMap(mutationTypes);
-        filter.getAlterationFilter().setCnaBooleanMap(cnaTypes);
+        filter.getAlterationEventTypes().setMutationEventTypes(mutationTypes);
+        filter.getAlterationEventTypes().setCopyNumberAlterationEventTypes(cnaTypes);
 
         mockMvc.perform(MockMvcRequestBuilders.post(
             "/alteration-enrichments/fetch")
@@ -262,9 +252,9 @@ public class AlterationEnrichmentControllerTest {
         mutationTypes.put(MutationEventType.feature_truncation, false);
         cnaTypes.put(CNA.AMP, true);
         cnaTypes.put(CNA.HOMDEL, true);
-        
-        filter.getAlterationFilter().setMutationBooleanMap(mutationTypes);
-        filter.getAlterationFilter().setCnaBooleanMap(cnaTypes);
+
+        filter.getAlterationEventTypes().setMutationEventTypes(mutationTypes);
+        filter.getAlterationEventTypes().setCopyNumberAlterationEventTypes(cnaTypes);
 
         mockMvc.perform(MockMvcRequestBuilders.post(
             "/alteration-enrichments/fetch")
@@ -306,8 +296,8 @@ public class AlterationEnrichmentControllerTest {
         cnaTypes.put(CNA.AMP, false);
         cnaTypes.put(CNA.HOMDEL, false);
 
-        filter.getAlterationFilter().setMutationBooleanMap(mutationTypes);
-        filter.getAlterationFilter().setCnaBooleanMap(cnaTypes);
+        filter.getAlterationEventTypes().setMutationEventTypes(mutationTypes);
+        filter.getAlterationEventTypes().setCopyNumberAlterationEventTypes(cnaTypes);
         
         mockMvc.perform(MockMvcRequestBuilders.post(
             "/alteration-enrichments/fetch")
@@ -332,8 +322,8 @@ public class AlterationEnrichmentControllerTest {
         cnaTypes.put(CNA.AMP, false);
         cnaTypes.put(CNA.HOMDEL, true);
 
-        filter.getAlterationFilter().setMutationBooleanMap(mutationTypes);
-        filter.getAlterationFilter().setCnaBooleanMap(cnaTypes);
+        filter.getAlterationEventTypes().setMutationEventTypes(mutationTypes);
+        filter.getAlterationEventTypes().setCopyNumberAlterationEventTypes(cnaTypes);
 
         mockMvc.perform(MockMvcRequestBuilders.post(
             "/alteration-enrichments/fetch")

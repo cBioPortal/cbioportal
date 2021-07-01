@@ -18,26 +18,26 @@ public class AlterationFilterMockitoArgumentMatcher implements ArgumentMatcher<A
         boolean correctCna;
         switch (checkWhatMutation) {
             case "ALL":
-                correctMutation = filter.getSelectedMutationTypes().hasAll();
+                correctMutation = filter.getMutationTypeSelect().hasAll();
                 break;
             case "EMPTY":
-                correctMutation = filter.getSelectedMutationTypes().hasNone();
+                correctMutation = filter.getMutationTypeSelect().hasNone();
                 break;
             case "SOME":
-                correctMutation = filter.getSelectedMutationTypes().hasValues();
+                correctMutation = filter.getMutationTypeSelect().hasValues();
                 break;
             default:
                 correctMutation = false;
         }
         switch (checkWhatCna) {
             case "ALL":
-                correctCna = filter.getSelectedCnaTypes().hasAll();
+                correctCna = filter.getCNAEventTypeSelect().hasAll();
                 break;
             case "EMPTY":
-                correctCna = filter.getSelectedCnaTypes().hasNone();
+                correctCna = filter.getCNAEventTypeSelect().hasNone();
                 break;
             case "SOME":
-                correctCna = filter.getSelectedCnaTypes().hasValues();
+                correctCna = filter.getCNAEventTypeSelect().hasValues();
                 break;
             default:
                 correctCna = false;

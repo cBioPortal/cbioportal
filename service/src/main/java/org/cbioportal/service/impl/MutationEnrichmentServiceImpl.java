@@ -27,9 +27,9 @@ public class MutationEnrichmentServiceImpl implements MutationEnrichmentService 
 
     @Override
     public List<AlterationEnrichment> getMutationEnrichments(
-        Map<String, List<MolecularProfileCaseIdentifier>> molecularProfileCaseSets,
-        EnrichmentType enrichmentType,
-        AlterationFilter alterationFilter) throws MolecularProfileNotFoundException {
+            Map<String, List<MolecularProfileCaseIdentifier>> molecularProfileCaseSets,
+            EnrichmentType enrichmentType,
+            AlterationFilter alterationFilter) throws MolecularProfileNotFoundException {
 
         alterationEnrichmentUtil.validateMolecularProfiles(molecularProfileCaseSets,
                 Arrays.asList(MolecularAlterationType.MUTATION_EXTENDED, MolecularAlterationType.MUTATION_UNCALLED),

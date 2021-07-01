@@ -24,9 +24,9 @@ public class AlterationEnrichmentServiceImpl implements AlterationEnrichmentServ
 
     @Override
     public List<AlterationEnrichment> getAlterationEnrichments(
-        Map<String, List<MolecularProfileCaseIdentifier>> molecularProfileCaseSets,
-        EnrichmentType enrichmentType,
-        AlterationFilter alterationFilter) {
+            Map<String, List<MolecularProfileCaseIdentifier>> molecularProfileCaseSets,
+            EnrichmentType enrichmentType,
+            AlterationFilter alterationFilter) {
 
         Map<String, Pair<List<AlterationCountByGene>, Long>> alterationCountsbyEntrezGeneIdAndGroup = getAlterationCountsbyEntrezGeneIdAndGroup(
             molecularProfileCaseSets, enrichmentType, alterationFilter);

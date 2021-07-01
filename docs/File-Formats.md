@@ -1434,7 +1434,7 @@ All generic assay data is registered to be of the type of `genetic_alteration_ty
 - ***CATEGORICAL (under development)***: This datatype is intended to be used for any categorical data set with similar structure (entities measured in samples). Any text is allowed in `CATEGORICAL` except blank.
 - ***BINARY (under development)***: This datatype is intended to be used for any binary data set with similar structure (entities measured in samples). The `BINARY` is validated to contain only reserved text (`true`, `false`, `yes`, `no`).
 
-If the value for the generic entity in the respective sample could not (or was not) be measured (or detected), the value should be 'NA'.
+If the value for the generic entity in the respective sample could not (or was not) be measured (or detected), the value should be 'NA' or leave that cell blank.
 
 ### Generic Assay data file
 The data file will be a simple tab separated format, similar to the expression data file: each sample is a column, each generic entity is a row, each cell contains values for that generic entity x sample combination.

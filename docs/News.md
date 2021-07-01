@@ -1,3 +1,14 @@
+## June 23, 2021
+*   **Added data** consisting of 1084 samples from 5 studies: 
+    * [Intrahepatic Cholangiocarcinoma (MSK, Hepatology 2021)](https://www.cbioportal.org/study/summary?id=ihch_msk_2021) *412 samples* 
+ 	* [Intrahepatic Cholangiocarcinoma (Mount Sinai 2015)](https://www.cbioportal.org/study/summary?id=ihch_ismms_2015) *8 samples*
+ 	* [RAD51B Associated Mixed Cancers (Mandelker 2021](https://www.cbioportal.org/study/summary?id=mixed_msk_tcga_2021) *19 samples*
+    * [Intrahepatic Cholangiocarcinoma (MSK, 2020)](https://www.cbioportal.org/study/summary?id=ihch_mskcc_2020) *219 samples*
+    * [Lung Adenocarcinoma (NPJ Precision Oncology, MSK 2021)](https://www.cbioportal.org/study/summary?id=luad_msk_npjpo_2021) *426 samples*
+*   **Added mass-spec proteome data** from CPTAC to [Breast Invasive Carcinoma (TCGA, PanCancer Atlas)](https://www.cbioportal.org/study/summary?id=brca_tcga_pan_can_atlas_2018), [Ovarian Serous Cystadenocarcinoma (TCGA, PanCancer Atlas)](https://www.cbioportal.org/study/summary?id=ov_tcga_pan_can_atlas_2018) and [Colorectal Adenocarcinoma (TCGA, PanCancer Atlas)](https://www.cbioportal.org/study/summary?id=coadread_tcga_pan_can_atlas_2018).
+*   **Added mass-spec phosphoproteome site level expression** from CPTAC to [Breast Invasive Carcinoma (TCGA, PanCancer Atlas)](https://www.cbioportal.org/study/summary?id=brca_tcga_pan_can_atlas_2018) and [Ovarian Serous Cystadenocarcinoma (TCGA, PanCancer Atlas)](https://www.cbioportal.org/study/summary?id=ov_tcga_pan_can_atlas_2018).
+*   **Updated gene tables** Updated tables of genes (main and alias), based on [HGNC](https://www.genenames.org/). See details [HERE](https://github.com/cBioPortal/datahub/tree/master/seedDB#seed-database-schema-2128) in section `Contents of seed database`. Sripts/resources/process used to construct new tables are described [HERE](https://github.com/cBioPortal/datahub-study-curation-tools/tree/master/gene-table-update/build-input-for-importer).
+
 ## May 10, 2021
 *   **New Feature**: Pick color for User Defined Groups [Example: Color Bladder Cancer Group in MSK-IMPACT (2017) cohort](https://www.cbioportal.org/study/summary?id=msk_impact_2017)
 

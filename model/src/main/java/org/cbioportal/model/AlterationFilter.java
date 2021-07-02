@@ -2,6 +2,7 @@ package org.cbioportal.model;
 
 import java.io.Serializable;
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -10,9 +11,6 @@ import java.util.stream.Stream;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonInclude;
-import org.cbioportal.model.BaseAlterationFilter;
-import org.cbioportal.model.CNA;
-import org.cbioportal.model.MutationEventType;
 import org.cbioportal.model.util.Select;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
@@ -23,14 +21,14 @@ import static com.fasterxml.jackson.annotation.JsonInclude.Include.*;
 @JsonInclude(NON_NULL)
 public class AlterationFilter extends BaseAlterationFilter implements Serializable {
 
-    private Map<MutationEventType, Boolean> mutationEventTypes;
-    private Map<CNA, Boolean> copyNumberAlterationEventTypes;
+    private Map<MutationEventType, Boolean> mutationEventTypes = new HashMap<>();
+    private Map<CNA, Boolean> copyNumberAlterationEventTypes = new HashMap<>();
     private Boolean structuralVariants;
 
     @JsonIgnore
-    private Select<MutationEventType> mutationTypeSelect = Select.all();
+    private Select<MutationEventType> mutationTypeSelect;
     @JsonIgnore
-    private Select<CNA> cnaTypeSelect = Select.all();
+    private Select<CNA> cnaTypeSelect;
 
     public AlterationFilter() {}
 
@@ -56,64 +54,26 @@ public class AlterationFilter extends BaseAlterationFilter implements Serializab
         this.includeUnknownTier = includeUnknownTier;
     }
 
-    public void setMutationEventTypes(Map<MutationEventType, Boolean> mutationEventTypes) {
-        /*
-         * Appropriately add fusion mutation type depending on structural variant since fusions are still in mutation table
-         * TODO: do necessary changes once fusion data is cleaned up from mutation table
-         * */
-
-        if (mutationEventTypes == null || mutationEventTypes.getOrDefault(MutationEventType.any, false)
-            || allOptionsSelected(mutationEventTypes, Arrays.asList(MutationEventType.any.toString()))) {
-            if(this.structuralVariants == null || this.structuralVariants == true) {
-                mutationTypeSelect = Select.all();
-            }
-        }
-        // if MutationEventType.other is true and not allOptionsSelected
-        else if (mutationEventTypes.getOrDefault(MutationEventType.other, false)) {
-            List<MutationEventType> unSelected = mutationEventTypes
-                .entrySet()
-                .stream()
-                .filter(e -> !e.getValue())
-                .map(Entry::getKey)
-                .collect(Collectors.toList());
-            if(this.structuralVariants == null || this.structuralVariants == false) {
-                unSelected.add(MutationEventType.fusion);
-            }
-            Select<MutationEventType> select = Select.byValues(unSelected);
-            // setting this would execute NOT IN clause in sql query
-            select.inverse(true);
-            mutationTypeSelect = select;
-        } else {
-            List<MutationEventType> selected = mutationEventTypes
-                .entrySet()
-                .stream()
-                .filter(Entry::getValue)
-                .map(Entry::getKey)
-                .collect(Collectors.toList());
-            if(this.structuralVariants != null && this.structuralVariants == true) {
-                selected.add(MutationEventType.fusion);
-            }
-            mutationTypeSelect = Select.byValues(selected);
-        }
-        this.mutationEventTypes = mutationEventTypes;
-    }
-
     public Map<MutationEventType, Boolean> getMutationEventTypes() {
         return mutationEventTypes;
     }
 
-    public void setCopyNumberAlterationEventTypes(Map<CNA, Boolean> copyNumberAlterationEventTypes) {
-        if (allOptionsSelected(copyNumberAlterationEventTypes, null)) {
-            cnaTypeSelect = Select.all();
-        } else {
-            cnaTypeSelect = Select.byValues(
-                copyNumberAlterationEventTypes.entrySet().stream().filter(Entry::getValue).map(Entry::getKey));
+    public void setMutationEventTypes(Map<MutationEventType, Boolean> mutationEventTypes) {
+        if (mutationEventTypes == null) {
+            throw new IllegalArgumentException("null value is not allowed for mutationEventTypes");
         }
-        this.copyNumberAlterationEventTypes = copyNumberAlterationEventTypes;
+        this.mutationEventTypes = mutationEventTypes;
     }
 
     public Map<CNA, Boolean> getCopyNumberAlterationEventTypes() {
         return copyNumberAlterationEventTypes;
+    }
+
+    public void setCopyNumberAlterationEventTypes(Map<CNA, Boolean> copyNumberAlterationEventTypes) {
+        if (copyNumberAlterationEventTypes == null) {
+            throw new IllegalArgumentException("null value is not allowed for copyNumberAlterationEventTypes");
+        }
+        this.copyNumberAlterationEventTypes = copyNumberAlterationEventTypes;
     }
 
     public Boolean getStructuralVariants() {
@@ -126,17 +86,64 @@ public class AlterationFilter extends BaseAlterationFilter implements Serializab
 
     @JsonIgnore
     public Select<MutationEventType> getMutationTypeSelect() {
-        return mutationTypeSelect;
+        /*
+         * Appropriately add fusion mutation type depending on structural variant since fusions are still in mutation table
+         * TODO: do necessary changes once fusion data is cleaned up from mutation table
+         * */
+        
+        if (mutationTypeSelect != null)
+            return mutationTypeSelect;
+
+        if (mutationEventTypes == null || mutationEventTypes.getOrDefault(MutationEventType.any, false)
+            || allOptionsSelected(mutationEventTypes, Arrays.asList(MutationEventType.any.toString()))) {
+            if(this.structuralVariants == null || this.structuralVariants == true) {
+                return Select.all();
+            }
+        }
+
+        // if MutationEventType.other is true and not allOptionsSelected
+        if (mutationEventTypes.getOrDefault(MutationEventType.other, false)) {
+            List<MutationEventType> unSelected = mutationEventTypes
+                .entrySet()
+                .stream()
+                .filter(e -> !e.getValue())
+                .map(Entry::getKey)
+                .collect(Collectors.toList());
+            if(this.structuralVariants == null || this.structuralVariants == false) {
+                unSelected.add(MutationEventType.fusion);
+            }
+            Select<MutationEventType> select = Select.byValues(unSelected);
+            // setting this would execute NOT IN clause in sql query
+            select.inverse(true);
+            return select;
+        } else {
+            List<MutationEventType> selected = mutationEventTypes
+                .entrySet()
+                .stream()
+                .filter(Entry::getValue)
+                .map(Entry::getKey)
+                .collect(Collectors.toList());
+            if(this.structuralVariants != null && this.structuralVariants == true) {
+                selected.add(MutationEventType.fusion);
+            }
+            return Select.byValues(selected);
+        }
+    }
+
+    @JsonIgnore
+    public Select<CNA> getCNAEventTypeSelect() {
+        if (cnaTypeSelect != null)
+            return cnaTypeSelect;
+        if (allOptionsSelected(copyNumberAlterationEventTypes, null)) {
+            return Select.all();
+        }
+        return Select.byValues(
+            copyNumberAlterationEventTypes.entrySet().stream().filter(Entry::getValue).map(Entry::getKey));
     }
 
     @JsonIgnore
     public void setMutationTypeSelect(Select<MutationEventType> mutationTypeSelect) {
         this.mutationTypeSelect = mutationTypeSelect;
-    }
-
-    @JsonIgnore
-    public Select<CNA> getCNAEventTypeSelect() {
-        return cnaTypeSelect;
     }
 
     @JsonIgnore

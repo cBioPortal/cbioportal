@@ -22,18 +22,19 @@ import java.util.List;
 public class AlterationMyBatisRepositoryTest {
     
     //    mutation and cna events in testSql.sql
-    //        SAMPLE_ID, ENTREZ_GENE_ID, HUGO_GENE_SYMBOL, GENETIC_PROFILE_ID, TYPE, MUTATION_TYPE, DRIVER_FILTER, DRIVER_TIERS_FILTER, PATIENT_ID, MUTATION_TYPE
-    //        1	    207	AKT1	2	CNA         -2	                Putative_Driver	    Tier 1  TCGA-A1-A0SB    germline
-    //        2	    207	AKT1	2	CNA         2	                Putative_Passenger	Tier 2  TCGA-A1-A0SD    germline
-    //        1	    207	AKT1	6	MUTATION    Nonsense_Mutation	Putative_Driver	    Tier 1  TCGA-A1-A0SB    germline
-    //        2	    207	AKT1	6	MUTATION    Missense_Mutation	Putative_Passenger	Tier 2  TCGA-A1-A0SD    germline
-    //        1	    208	AKT2	2	CNA         2		            <null>              <null>  TCGA-A1-A0SB    germline
-    //        3	    208	AKT2	6	MUTATION    Splice_Site	        Putative_Passenger	Tier 1  TCGA-A1-A0SE    germline
-    //        6	    672	BRCA1	6	MUTATION    Missense_Mutation	Putative_Passenger	Tier 2  TCGA-A1-A0SH    germline
-    //        6	    672	BRCA1	6	MUTATION    Nonsense_Mutation	Putative_Driver	    Tier 1  TCGA-A1-A0SH    NA
-    //        7	    672	BRCA1	6	MUTATION    Nonsense_Mutation	Putative_Driver	    Tier 2  TCGA-A1-A0SI    germline
-    //        12	672	BRCA1	6	MUTATION    Splice_Site	        Putative_Passenger	Tier 1  TCGA-A1-A0SO    germline
-    //        13	672	BRCA1	6	MUTATION    Splice_Site	        Putative_Driver	    Tier 1  TCGA-A1-A0SP    germline
+    //        SAMPLE_ID,    ENTREZ_GENE_ID, HUGO_GENE_SYMBOL, GENETIC_PROFILE_ID, TYPE, MUTATION_TYPE, DRIVER_FILTER, DRIVER_TIERS_FILTER, PATIENT_ID, MUTATION_TYPE
+    //        1	    207	    AKT1	2	CNA         -2	                Putative_Driver	    Tier 1  TCGA-A1-A0SB    germline
+    //        2	    207	    AKT1	2	CNA         2	                Putative_Passenger	Tier 2  TCGA-A1-A0SD    germline
+    //        1	    207	    AKT1	6	MUTATION    Nonsense_Mutation	Putative_Driver	    Tier 1  TCGA-A1-A0SB    germline
+    //        2	    207	    AKT1	6	MUTATION    Missense_Mutation	Putative_Passenger	Tier 2  TCGA-A1-A0SD    germline
+    //        1	    208	    AKT2	2	CNA         2		            <null>              <null>  TCGA-A1-A0SB    germline
+    //        3	    208	    AKT2	6	MUTATION    Splice_Site	        Putative_Passenger	Tier 1  TCGA-A1-A0SE    germline
+    //        6	    672	    BRCA1	6	MUTATION    Missense_Mutation	Putative_Passenger	Tier 2  TCGA-A1-A0SH    germline
+    //        6	    672	    BRCA1	6	MUTATION    Nonsense_Mutation	Putative_Driver	    Tier 1  TCGA-A1-A0SH    NA
+    //        7	    672	    BRCA1	6	MUTATION    Nonsense_Mutation	Putative_Driver	    Tier 2  TCGA-A1-A0SI    germline
+    //        12	672	    BRCA1	6	MUTATION    Splice_Site	        Putative_Passenger	Tier 1  TCGA-A1-A0SO    germline
+    //        13	672	    BRCA1	6	MUTATION    Splice_Site	        Putative_Driver	    Tier 1  TCGA-A1-A0SP    germline
+    //        7 	2064	ERBB2	6	FUSION              	        <null>	            <null>  TCGA-A1-A0SI    NA
 
     @Autowired
     private AlterationMyBatisRepository alterationMyBatisRepository;
@@ -76,7 +77,7 @@ public class AlterationMyBatisRepositoryTest {
         patientIdToProfileId.add(new MolecularProfileCaseIdentifier("TCGA-A1-A0SB", "study_tcga_pub_gistic"));
         patientIdToProfileId.add(new MolecularProfileCaseIdentifier("TCGA-A1-A0SD", "study_tcga_pub_gistic"));
 
-        entrezGeneIds = Select.byValues(Arrays.asList(207, 208, 672));
+        entrezGeneIds = Select.byValues(Arrays.asList(207, 208, 672, 2064));
         alterationFilter = new AlterationFilter(
             mutationEventTypes,
             cnaEventTypes,
@@ -228,8 +229,19 @@ public class AlterationMyBatisRepositoryTest {
             entrezGeneIds,
             QueryElement.ACTIVE,
             alterationFilter);
-        // there are no fusion mutations in the test db
-        Assert.assertEquals(0, result.size());
+        Assert.assertEquals(1, result.size());
+    }
+
+    @Test
+    public void getSampleMutationCountFilterFusionsViaType() throws Exception {
+        alterationFilter.setCnaTypeSelect(Select.none());
+        alterationFilter.setMutationTypeSelect(Select.byValues(Arrays.asList(MutationEventType.fusion)));
+        List<AlterationCountByGene> result = alterationMyBatisRepository.getSampleAlterationCounts(
+            sampleIdToProfileId,
+            entrezGeneIds,
+            QueryElement.PASS,
+            alterationFilter);
+        Assert.assertEquals(1, result.size());
     }
 
     @Test
@@ -359,7 +371,7 @@ public class AlterationMyBatisRepositoryTest {
             QueryElement.PASS,
             alterationFilter);
 
-        Assert.assertEquals(3, result.size());
+        Assert.assertEquals(4, result.size());
     }
 
     @Test(expected = IllegalArgumentException.class)
@@ -582,8 +594,19 @@ public class AlterationMyBatisRepositoryTest {
             entrezGeneIds,
             QueryElement.ACTIVE,
             alterationFilter);
-        // there are no fusion mutations in the test db
-        Assert.assertEquals(0, result.size());
+        Assert.assertEquals(1, result.size());
+    }
+
+    @Test
+    public void getPatientMutationCountFilterFusionsViaType() throws Exception {
+        alterationFilter.setCnaTypeSelect(Select.none());
+        alterationFilter.setMutationTypeSelect(Select.byValues(Arrays.asList(MutationEventType.fusion)));
+        List<AlterationCountByGene> result = alterationMyBatisRepository.getPatientAlterationCounts(
+            patientIdToProfileId,
+            entrezGeneIds,
+            QueryElement.PASS,
+            alterationFilter);
+        Assert.assertEquals(1, result.size());
     }
 
     @Test
@@ -833,7 +856,7 @@ public class AlterationMyBatisRepositoryTest {
     public void getSampleCountAllEntrezGeneIds() throws Exception {
         List<AlterationCountByGene> result = alterationMyBatisRepository.getSampleAlterationCounts(
             sampleIdToProfileId, Select.all(), QueryElement.PASS, new AlterationFilter());
-        Assert.assertEquals(3, result.size());
+        Assert.assertEquals(4, result.size());
     }
 
     @Test
@@ -854,7 +877,7 @@ public class AlterationMyBatisRepositoryTest {
     public void getPatientCountAllEntrezGeneIds() throws Exception {
         List<AlterationCountByGene> result = alterationMyBatisRepository.getPatientAlterationCounts(
             patientIdToProfileId, Select.all(), QueryElement.PASS, new AlterationFilter());
-        Assert.assertEquals(3, result.size());
+        Assert.assertEquals(4, result.size());
     }
 
     @Test

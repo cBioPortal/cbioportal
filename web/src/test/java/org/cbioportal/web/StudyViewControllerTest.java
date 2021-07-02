@@ -1,9 +1,7 @@
 package org.cbioportal.web;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import org.apache.commons.math3.util.Pair;
 import org.cbioportal.model.*;
-import org.cbioportal.model.util.Select;
 import org.cbioportal.persistence.AlterationRepository;
 import org.cbioportal.service.*;
 import org.cbioportal.service.util.MolecularProfileUtil;
@@ -13,7 +11,6 @@ import org.cbioportal.web.parameter.ClinicalDataCountFilter;
 import org.cbioportal.web.parameter.ClinicalDataFilter;
 import org.cbioportal.web.parameter.SampleIdentifier;
 import org.cbioportal.web.parameter.StudyViewFilter;
-import org.cbioportal.web.util.SelectMockitoArgumentMatcher;
 import org.cbioportal.web.util.StudyViewFilterApplier;
 import org.junit.Before;
 import org.junit.Test;
@@ -27,7 +24,6 @@ import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import org.springframework.test.context.web.WebAppConfiguration;
 import org.springframework.test.web.servlet.MockMvc;
-import org.springframework.test.web.servlet.MvcResult;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
@@ -86,6 +82,8 @@ public class StudyViewControllerTest {
     private ObjectMapper objectMapper = new ObjectMapper();
 
     private MockMvc mockMvc;
+
+    private AlterationFilter alterationFilter = new AlterationFilter();
 
     @Bean
     public MolecularProfileUtil molecularProfileUtil() {
@@ -289,8 +287,9 @@ public class StudyViewControllerTest {
         studyViewFilter.setStudyIds(Arrays.asList(TEST_STUDY_ID));
 
         Mockito.when(studyViewService.getMutationAlterationCountByGenes(
-            Arrays.asList(TEST_STUDY_ID),
-            Arrays.asList(TEST_SAMPLE_ID_1)))
+            eq(Arrays.asList(TEST_STUDY_ID)),
+            eq(Arrays.asList(TEST_SAMPLE_ID_1)),
+            any(AlterationFilter.class)))
             .thenReturn(mutationCounts);
 
         mockMvc.perform(MockMvcRequestBuilders.post("/mutated-genes/fetch")
@@ -334,8 +333,9 @@ public class StudyViewControllerTest {
         fusionCounts.add(fusionCount2);
 
         Mockito.when(studyViewService.getStructuralVariantAlterationCountByGenes(
-            Arrays.asList(TEST_STUDY_ID),
-            Arrays.asList(TEST_SAMPLE_ID_1)))
+            eq(Arrays.asList(TEST_STUDY_ID)),
+            eq(Arrays.asList(TEST_SAMPLE_ID_1)),
+            any(AlterationFilter.class)))
             .thenReturn(fusionCounts);
 
         StudyViewFilter studyViewFilter = new StudyViewFilter();
@@ -384,8 +384,9 @@ public class StudyViewControllerTest {
         cnaCounts.add(cnaCount2);
 
         Mockito.when(studyViewService.getCNAAlterationCountByGenes(
-            Arrays.asList(TEST_STUDY_ID),
-            Arrays.asList(TEST_SAMPLE_ID_1)))
+            eq(Arrays.asList(TEST_STUDY_ID)),
+            eq(Arrays.asList(TEST_SAMPLE_ID_1)),
+            any(AlterationFilter.class)))
             .thenReturn(cnaCounts);
 
         StudyViewFilter studyViewFilter = new StudyViewFilter();

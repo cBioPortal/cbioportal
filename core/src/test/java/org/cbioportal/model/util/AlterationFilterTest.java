@@ -1,7 +1,6 @@
 package org.cbioportal.model.util;
 
 import org.cbioportal.model.AlterationFilter;
-import org.cbioportal.model.BaseAlterationFilter;
 import org.cbioportal.model.CNA;
 import org.cbioportal.model.MutationEventType;
 import org.junit.Assert;

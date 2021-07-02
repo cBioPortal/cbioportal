@@ -16,6 +16,11 @@ import static java.util.stream.Collectors.toList;
 public class TreatmentServiceImpl implements TreatmentService {
     @Autowired
     TreatmentRepository treatmentRepository;
+
+    @Override
+    public List<String> getEventTimeline(String firstEventValue, List<String> eventValues, List<String> studyIds) {
+        return treatmentRepository.getEventTimeline(firstEventValue, eventValues, studyIds);
+    }
     
     @Override
     public List<SampleTreatmentRow> getAllSampleTreatmentRows(List<String> sampleIds, List<String> studyIds) {

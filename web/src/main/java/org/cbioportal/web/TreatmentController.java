@@ -39,6 +39,18 @@ public class TreatmentController {
     @Autowired
     private StudyViewFilterApplier studyViewFilterApplier;
 
+    @RequestMapping(value = "/treatments/sequence", method = RequestMethod.POST, produces = MediaType.APPLICATION_JSON_VALUE)
+    @ApiOperation("Get all patdsfsfasdf")
+    public List<String> howtfdidIgetthistowork(
+        @ApiParam(required = true, value = "Study view filter")
+        @Valid
+        @RequestBody(required = false)
+        SequenceQuery q
+        
+    ) {
+       return treatmentService.getEventTimeline(q.getFirstEventValue(), q.getSubsequentEventValues(), q.getStudyIds());
+    }
+
     @PreAuthorize("hasPermission(#involvedCancerStudies, 'Collection<CancerStudyId>', 'read')")
     @RequestMapping(value = "/treatments/patient", method = RequestMethod.POST, produces = MediaType.APPLICATION_JSON_VALUE)
     @ApiOperation("Get all patient level treatments")

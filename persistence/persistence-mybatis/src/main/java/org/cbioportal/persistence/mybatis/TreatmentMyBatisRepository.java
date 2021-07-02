@@ -17,7 +17,13 @@ import org.springframework.stereotype.Repository;
 public class TreatmentMyBatisRepository implements TreatmentRepository {
     @Autowired
     private TreatmentMapper treatmentMapper;
-    
+
+    @Override
+    public List<String> getEventTimeline(String firstEventValue, List<String> eventValues, List<String> studyIds) {
+        return treatmentMapper.getEventTimeline(firstEventValue, eventValues, studyIds);
+    }
+
+
     @Override
     public Map<String, List<Treatment>> getTreatmentsByPatientId(List<String> sampleIds, List<String> studyIds) {
         return treatmentMapper.getAllTreatments(sampleIds, studyIds)

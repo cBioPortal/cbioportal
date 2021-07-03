@@ -33,6 +33,11 @@ public interface DiscreteCopyNumberService {
                                                                                    List<Integer> alterationTypes, 
                                                                                    String projection);
 
+    List<DiscreteCopyNumberData> getDiscreteCopyNumbersInMultipleMolecularProfilesByGeneQueries(List<String> molecularProfileIds,
+                                                                                                List<String> sampleIds,
+                                                                                                List<GeneFilterQuery> geneQueries,
+                                                                                                String projection);
+
     BaseMeta fetchMetaDiscreteCopyNumbersInMolecularProfile(String molecularProfileId, List<String> sampleIds,
                                                             List<Integer> entrezGeneIds, List<Integer> alterationTypes)
         throws MolecularProfileNotFoundException;

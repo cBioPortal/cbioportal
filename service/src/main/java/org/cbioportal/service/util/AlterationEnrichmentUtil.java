@@ -5,7 +5,6 @@ import org.apache.commons.math3.util.Pair;
 import org.cbioportal.model.AlterationCountByGene;
 import org.cbioportal.model.AlterationEnrichment;
 import org.cbioportal.model.CountSummary;
-import org.cbioportal.model.EnrichmentType;
 import org.cbioportal.model.Gene;
 import org.cbioportal.model.MolecularProfile;
 import org.cbioportal.model.MolecularProfile.MolecularAlterationType;

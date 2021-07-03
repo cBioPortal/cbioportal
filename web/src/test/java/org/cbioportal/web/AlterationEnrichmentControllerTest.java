@@ -2,15 +2,15 @@ package org.cbioportal.web;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.cbioportal.model.AlterationEnrichment;
+import org.cbioportal.model.AlterationFilter;
 import org.cbioportal.model.CNA;
 import org.cbioportal.model.CountSummary;
 import org.cbioportal.model.MolecularProfileCaseIdentifier;
 import org.cbioportal.model.MutationEventType;
 import org.cbioportal.service.AlterationEnrichmentService;
-import org.cbioportal.web.parameter.AlterationEventTypeFilter;
 import org.cbioportal.web.parameter.MolecularProfileCasesGroupAndAlterationTypeFilter;
 import org.cbioportal.web.parameter.MolecularProfileCasesGroupFilter;
-import org.cbioportal.web.util.SelectMockitoArgumentMatcher;
+import org.cbioportal.web.util.AlterationFilterMockitoArgumentMatcher;
 import org.hamcrest.Matchers;
 import org.junit.Before;
 import org.junit.Test;
@@ -72,7 +72,8 @@ public class AlterationEnrichmentControllerTest {
 
     private MockMvc mockMvc;
     private ArrayList<AlterationEnrichment> alterationEnrichments;
-    private AlterationEventTypeFilter eventTypes;
+    Map<MutationEventType, Boolean> mutationTypes;
+    Map<CNA, Boolean> cnaTypes;
 
     @Bean
     public AlterationEnrichmentService alterationEnrichmentService() {
@@ -145,18 +146,12 @@ public class AlterationEnrichmentControllerTest {
         filter = new MolecularProfileCasesGroupAndAlterationTypeFilter();
         filter.setMolecularProfileCasesGroupFilter(Arrays.asList(casesGroup1,casesGroup2));
 
-        eventTypes = new AlterationEventTypeFilter();
-        Map<MutationEventType, Boolean> mutationEventTypeMap = new HashMap();
-        mutationEventTypeMap.put(MutationEventType.missense_mutation, true);
-        mutationEventTypeMap.put(MutationEventType.feature_truncation, true);
-        Map<CNA, Boolean> cnaEventTypeMap = new HashMap();
-        cnaEventTypeMap.put(CNA.AMP, true);
-        cnaEventTypeMap.put(CNA.HOMDEL, true);
-        eventTypes.setMutationEventTypes(mutationEventTypeMap);
-        eventTypes.setCopyNumberAlterationEventTypes(cnaEventTypeMap);
-        filter.setAlterationEventTypes(eventTypes);
+        filter.setAlterationEventTypes(new AlterationFilter());
         
         mockMvc = MockMvcBuilders.webAppContextSetup(wac).build();
+        
+        mutationTypes = new HashMap<>();
+        cnaTypes = new HashMap<>();
         
     }
 
@@ -165,10 +160,16 @@ public class AlterationEnrichmentControllerTest {
 
         when(alterationEnrichmentService.getAlterationEnrichments(
             argThat(new caseIdMatcher()),
-            argThat(new SelectMockitoArgumentMatcher("ALL")),
-            argThat(new SelectMockitoArgumentMatcher("ALL")),
-            any()))
-            .thenReturn(alterationEnrichments);
+            any(),
+            argThat(new AlterationFilterMockitoArgumentMatcher("ALL", "ALL")))).thenReturn(alterationEnrichments);
+
+        mutationTypes.put(MutationEventType.missense_mutation, true);
+        mutationTypes.put(MutationEventType.feature_truncation, true);
+        cnaTypes.put(CNA.AMP, true);
+        cnaTypes.put(CNA.HOMDEL, true);
+
+        filter.getAlterationEventTypes().setMutationEventTypes(mutationTypes);
+        filter.getAlterationEventTypes().setCopyNumberAlterationEventTypes(cnaTypes);
         
         mockMvc.perform(MockMvcRequestBuilders.post(
             "/alteration-enrichments/fetch")
@@ -201,15 +202,16 @@ public class AlterationEnrichmentControllerTest {
 
         when(alterationEnrichmentService.getAlterationEnrichments(
             argThat(new caseIdMatcher()),
-            argThat(new SelectMockitoArgumentMatcher("EMPTY")),
-            argThat(new SelectMockitoArgumentMatcher("EMPTY")),
-            any()))
-            .thenReturn(alterationEnrichments);
+            any(),
+            argThat(new AlterationFilterMockitoArgumentMatcher("EMPTY", "EMPTY")))).thenReturn(alterationEnrichments);
         
-        filter.getAlterationEventTypes().getMutationEventTypes().put(MutationEventType.missense_mutation, false);
-        filter.getAlterationEventTypes().getMutationEventTypes().put(MutationEventType.feature_truncation, false);
-        filter.getAlterationEventTypes().getCopyNumberAlterationEventTypes().put(CNA.AMP, false);
-        filter.getAlterationEventTypes().getCopyNumberAlterationEventTypes().put(CNA.HOMDEL, false);
+        mutationTypes.put(MutationEventType.missense_mutation, false);
+        mutationTypes.put(MutationEventType.feature_truncation, false);
+        cnaTypes.put(CNA.AMP, false);
+        cnaTypes.put(CNA.HOMDEL, false);
+        
+        filter.getAlterationEventTypes().setMutationEventTypes(mutationTypes);
+        filter.getAlterationEventTypes().setCopyNumberAlterationEventTypes(cnaTypes);
 
         mockMvc.perform(MockMvcRequestBuilders.post(
             "/alteration-enrichments/fetch")
@@ -218,21 +220,41 @@ public class AlterationEnrichmentControllerTest {
             .content(objectMapper.writeValueAsString(filter)))
             .andExpect(MockMvcResultMatchers.status().isOk())
             .andExpect(MockMvcResultMatchers.content().contentTypeCompatibleWith(MediaType.APPLICATION_JSON))
-            .andExpect(MockMvcResultMatchers.jsonPath("$", Matchers.hasSize(2)));
+            .andExpect(MockMvcResultMatchers.jsonPath("$", Matchers.hasSize(2)))
+            .andExpect(MockMvcResultMatchers.jsonPath("$[0].entrezGeneId").value(TEST_ENTREZ_GENE_ID_1))
+            .andExpect(MockMvcResultMatchers.jsonPath("$[0].hugoGeneSymbol").value(TEST_HUGO_GENE_SYMBOL_1))
+            .andExpect(MockMvcResultMatchers.jsonPath("$[0].cytoband").value(TEST_CYTOBAND_1))
+            .andExpect(MockMvcResultMatchers.jsonPath("$[0].counts[0].alteredCount").value(TEST_NUMBER_OF_SAMPLES_ALTERED_IN_SET_1))
+            .andExpect(MockMvcResultMatchers.jsonPath("$[0].counts[1].alteredCount").value(TEST_NUMBER_OF_SAMPLES_UNALTERED_IN_SET_1))
+            .andExpect(MockMvcResultMatchers.jsonPath("$[0].pValue").value(TEST_P_VALUE_1))
+            .andExpect(MockMvcResultMatchers.jsonPath("$[0].counts[0].profiledCount").value(TEST_NUMBER_OF_SAMPLES_PROFILED_IN_SET_1))
+            .andExpect(MockMvcResultMatchers.jsonPath("$[0].counts[1].profiledCount").value(TEST_NUMBER_OF_SAMPLES_PROFILED_IN_SET_2))
+            .andExpect(MockMvcResultMatchers.jsonPath("$[1].entrezGeneId").value(TEST_ENTREZ_GENE_ID_2))
+            .andExpect(MockMvcResultMatchers.jsonPath("$[1].hugoGeneSymbol").value(TEST_HUGO_GENE_SYMBOL_2))
+            .andExpect(MockMvcResultMatchers.jsonPath("$[1].cytoband").value(TEST_CYTOBAND_2))
+            .andExpect(MockMvcResultMatchers.jsonPath("$[1].counts[0].alteredCount").value(TEST_NUMBER_OF_SAMPLES_ALTERED_IN_SET_2))
+            .andExpect(MockMvcResultMatchers.jsonPath("$[1].counts[1].alteredCount").value(TEST_NUMBER_OF_SAMPLES_UNALTERED_IN_SET_2))
+            .andExpect(MockMvcResultMatchers.jsonPath("$[1].pValue").value(TEST_P_VALUE_2))
+            .andExpect(MockMvcResultMatchers.jsonPath("$[1].counts[0].profiledCount").value(TEST_NUMBER_OF_SAMPLES_PROFILED_IN_SET_1))
+            .andExpect(MockMvcResultMatchers.jsonPath("$[1].counts[1].profiledCount").value(TEST_NUMBER_OF_SAMPLES_PROFILED_IN_SET_2));
     }
 
     @Test
-    public void fetchAlterationEnrichmentsNullMutationTypes() throws Exception {
+    public void fetchAlterationEnrichmentsAllMutationTypesDeselected() throws Exception {
 
         when(alterationEnrichmentService.getAlterationEnrichments(
             argThat(new caseIdMatcher()),
-            argThat(new SelectMockitoArgumentMatcher("EMPTY")),
-            argThat(new SelectMockitoArgumentMatcher("ALL")),
-            any()))
-            .thenReturn(alterationEnrichments);
+            any(),
+            argThat(new AlterationFilterMockitoArgumentMatcher("EMPTY", "ALL"))
+        )).thenReturn(alterationEnrichments);
 
-        filter.getAlterationEventTypes().getMutationEventTypes().put(MutationEventType.missense_mutation, false);
-        filter.getAlterationEventTypes().getMutationEventTypes().put(MutationEventType.feature_truncation, false);
+        mutationTypes.put(MutationEventType.missense_mutation, false);
+        mutationTypes.put(MutationEventType.feature_truncation, false);
+        cnaTypes.put(CNA.AMP, true);
+        cnaTypes.put(CNA.HOMDEL, true);
+
+        filter.getAlterationEventTypes().setMutationEventTypes(mutationTypes);
+        filter.getAlterationEventTypes().setCopyNumberAlterationEventTypes(cnaTypes);
 
         mockMvc.perform(MockMvcRequestBuilders.post(
             "/alteration-enrichments/fetch")
@@ -241,22 +263,42 @@ public class AlterationEnrichmentControllerTest {
             .content(objectMapper.writeValueAsString(filter)))
             .andExpect(MockMvcResultMatchers.status().isOk())
             .andExpect(MockMvcResultMatchers.content().contentTypeCompatibleWith(MediaType.APPLICATION_JSON))
-            .andExpect(MockMvcResultMatchers.jsonPath("$", Matchers.hasSize(2)));
+            .andExpect(MockMvcResultMatchers.jsonPath("$", Matchers.hasSize(2)))
+            .andExpect(MockMvcResultMatchers.jsonPath("$[0].entrezGeneId").value(TEST_ENTREZ_GENE_ID_1))
+            .andExpect(MockMvcResultMatchers.jsonPath("$[0].hugoGeneSymbol").value(TEST_HUGO_GENE_SYMBOL_1))
+            .andExpect(MockMvcResultMatchers.jsonPath("$[0].cytoband").value(TEST_CYTOBAND_1))
+            .andExpect(MockMvcResultMatchers.jsonPath("$[0].counts[0].alteredCount").value(TEST_NUMBER_OF_SAMPLES_ALTERED_IN_SET_1))
+            .andExpect(MockMvcResultMatchers.jsonPath("$[0].counts[1].alteredCount").value(TEST_NUMBER_OF_SAMPLES_UNALTERED_IN_SET_1))
+            .andExpect(MockMvcResultMatchers.jsonPath("$[0].pValue").value(TEST_P_VALUE_1))
+            .andExpect(MockMvcResultMatchers.jsonPath("$[0].counts[0].profiledCount").value(TEST_NUMBER_OF_SAMPLES_PROFILED_IN_SET_1))
+            .andExpect(MockMvcResultMatchers.jsonPath("$[0].counts[1].profiledCount").value(TEST_NUMBER_OF_SAMPLES_PROFILED_IN_SET_2))
+            .andExpect(MockMvcResultMatchers.jsonPath("$[1].entrezGeneId").value(TEST_ENTREZ_GENE_ID_2))
+            .andExpect(MockMvcResultMatchers.jsonPath("$[1].hugoGeneSymbol").value(TEST_HUGO_GENE_SYMBOL_2))
+            .andExpect(MockMvcResultMatchers.jsonPath("$[1].cytoband").value(TEST_CYTOBAND_2))
+            .andExpect(MockMvcResultMatchers.jsonPath("$[1].counts[0].alteredCount").value(TEST_NUMBER_OF_SAMPLES_ALTERED_IN_SET_2))
+            .andExpect(MockMvcResultMatchers.jsonPath("$[1].counts[1].alteredCount").value(TEST_NUMBER_OF_SAMPLES_UNALTERED_IN_SET_2))
+            .andExpect(MockMvcResultMatchers.jsonPath("$[1].pValue").value(TEST_P_VALUE_2))
+            .andExpect(MockMvcResultMatchers.jsonPath("$[1].counts[0].profiledCount").value(TEST_NUMBER_OF_SAMPLES_PROFILED_IN_SET_1))
+            .andExpect(MockMvcResultMatchers.jsonPath("$[1].counts[1].profiledCount").value(TEST_NUMBER_OF_SAMPLES_PROFILED_IN_SET_2));
     }
 
     @Test
-    public void fetchAlterationEnrichmentsNullCnaTypes() throws Exception {
+    public void fetchAlterationEnrichmentsAllCnaTypesDeselected() throws Exception {
 
         when(alterationEnrichmentService.getAlterationEnrichments(
             argThat(new caseIdMatcher()),
-            argThat(new SelectMockitoArgumentMatcher("ALL")),
-            argThat(new SelectMockitoArgumentMatcher("EMPTY")),
-            any()))
-            .thenReturn(alterationEnrichments);
+            any(),
+            argThat(new AlterationFilterMockitoArgumentMatcher("ALL", "EMPTY"))
+        )).thenReturn(alterationEnrichments);
 
-        filter.getAlterationEventTypes().getCopyNumberAlterationEventTypes().put(CNA.AMP, false);
-        filter.getAlterationEventTypes().getCopyNumberAlterationEventTypes().put(CNA.HOMDEL, false);
+        mutationTypes.put(MutationEventType.missense_mutation, true);
+        mutationTypes.put(MutationEventType.feature_truncation, true);
+        cnaTypes.put(CNA.AMP, false);
+        cnaTypes.put(CNA.HOMDEL, false);
 
+        filter.getAlterationEventTypes().setMutationEventTypes(mutationTypes);
+        filter.getAlterationEventTypes().setCopyNumberAlterationEventTypes(cnaTypes);
+        
         mockMvc.perform(MockMvcRequestBuilders.post(
             "/alteration-enrichments/fetch")
             .accept(MediaType.APPLICATION_JSON)
@@ -272,13 +314,16 @@ public class AlterationEnrichmentControllerTest {
 
         when(alterationEnrichmentService.getAlterationEnrichments(
             argThat(new caseIdMatcher()),
-            argThat(new SelectMockitoArgumentMatcher("SOME")),
-            argThat(new SelectMockitoArgumentMatcher("SOME")),
-            any()))
-            .thenReturn(alterationEnrichments);
+            any(),
+            argThat(new AlterationFilterMockitoArgumentMatcher("SOME", "SOME")))).thenReturn(alterationEnrichments);
 
-        filter.getAlterationEventTypes().getMutationEventTypes().put(MutationEventType.missense_mutation, false);
-        filter.getAlterationEventTypes().getCopyNumberAlterationEventTypes().put(CNA.HOMDEL, false);
+        mutationTypes.put(MutationEventType.missense_mutation, false);
+        mutationTypes.put(MutationEventType.feature_truncation, true);
+        cnaTypes.put(CNA.AMP, false);
+        cnaTypes.put(CNA.HOMDEL, true);
+
+        filter.getAlterationEventTypes().setMutationEventTypes(mutationTypes);
+        filter.getAlterationEventTypes().setCopyNumberAlterationEventTypes(cnaTypes);
 
         mockMvc.perform(MockMvcRequestBuilders.post(
             "/alteration-enrichments/fetch")
@@ -287,6 +332,22 @@ public class AlterationEnrichmentControllerTest {
             .content(objectMapper.writeValueAsString(filter)))
             .andExpect(MockMvcResultMatchers.status().isOk())
             .andExpect(MockMvcResultMatchers.content().contentTypeCompatibleWith(MediaType.APPLICATION_JSON))
-            .andExpect(MockMvcResultMatchers.jsonPath("$", Matchers.hasSize(2)));
+            .andExpect(MockMvcResultMatchers.jsonPath("$", Matchers.hasSize(2)))
+            .andExpect(MockMvcResultMatchers.jsonPath("$[0].entrezGeneId").value(TEST_ENTREZ_GENE_ID_1))
+            .andExpect(MockMvcResultMatchers.jsonPath("$[0].hugoGeneSymbol").value(TEST_HUGO_GENE_SYMBOL_1))
+            .andExpect(MockMvcResultMatchers.jsonPath("$[0].cytoband").value(TEST_CYTOBAND_1))
+            .andExpect(MockMvcResultMatchers.jsonPath("$[0].counts[0].alteredCount").value(TEST_NUMBER_OF_SAMPLES_ALTERED_IN_SET_1))
+            .andExpect(MockMvcResultMatchers.jsonPath("$[0].counts[1].alteredCount").value(TEST_NUMBER_OF_SAMPLES_UNALTERED_IN_SET_1))
+            .andExpect(MockMvcResultMatchers.jsonPath("$[0].pValue").value(TEST_P_VALUE_1))
+            .andExpect(MockMvcResultMatchers.jsonPath("$[0].counts[0].profiledCount").value(TEST_NUMBER_OF_SAMPLES_PROFILED_IN_SET_1))
+            .andExpect(MockMvcResultMatchers.jsonPath("$[0].counts[1].profiledCount").value(TEST_NUMBER_OF_SAMPLES_PROFILED_IN_SET_2))
+            .andExpect(MockMvcResultMatchers.jsonPath("$[1].entrezGeneId").value(TEST_ENTREZ_GENE_ID_2))
+            .andExpect(MockMvcResultMatchers.jsonPath("$[1].hugoGeneSymbol").value(TEST_HUGO_GENE_SYMBOL_2))
+            .andExpect(MockMvcResultMatchers.jsonPath("$[1].cytoband").value(TEST_CYTOBAND_2))
+            .andExpect(MockMvcResultMatchers.jsonPath("$[1].counts[0].alteredCount").value(TEST_NUMBER_OF_SAMPLES_ALTERED_IN_SET_2))
+            .andExpect(MockMvcResultMatchers.jsonPath("$[1].counts[1].alteredCount").value(TEST_NUMBER_OF_SAMPLES_UNALTERED_IN_SET_2))
+            .andExpect(MockMvcResultMatchers.jsonPath("$[1].pValue").value(TEST_P_VALUE_2))
+            .andExpect(MockMvcResultMatchers.jsonPath("$[1].counts[0].profiledCount").value(TEST_NUMBER_OF_SAMPLES_PROFILED_IN_SET_1))
+            .andExpect(MockMvcResultMatchers.jsonPath("$[1].counts[1].profiledCount").value(TEST_NUMBER_OF_SAMPLES_PROFILED_IN_SET_2));
     }
 }

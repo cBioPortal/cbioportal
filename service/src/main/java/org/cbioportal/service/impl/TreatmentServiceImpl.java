@@ -10,6 +10,7 @@ import java.util.*;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
+import static java.util.stream.Collectors.groupingBy;
 import static java.util.stream.Collectors.toList;
 
 @Service
@@ -18,8 +19,31 @@ public class TreatmentServiceImpl implements TreatmentService {
     TreatmentRepository treatmentRepository;
 
     @Override
-    public List<String> getEventTimeline(String firstEventValue, List<String> eventValues, List<String> studyIds) {
-        return treatmentRepository.getEventTimeline(firstEventValue, eventValues, studyIds);
+    public List<String> getEventTimeline(List<String> eventValues, List<String> studyIds) {
+        return treatmentRepository.getEventTimeline(eventValues, studyIds).stream()
+            .collect(groupingBy(GroupedClinicalEvent::getPatientId)).entrySet().stream()
+            .filter(e -> e.getValue().size() >= eventValues.size())
+            .filter(events -> this.eventsInOrder(eventValues, events.getValue()))
+            .map(Map.Entry::getKey)
+            .distinct()
+            .collect(Collectors.toList());
+    }
+    
+    private boolean eventsInOrder(List<String> desiredOrder, Collection<GroupedClinicalEvent> events) {
+        int stop = Integer.MIN_VALUE;
+        for (String eventName : desiredOrder) {
+            int finalStop = stop;
+            GroupedClinicalEvent nextEvent = events.stream()
+                .filter(event -> event.getEvent().equals(eventName))
+                .filter(event -> event.getStart() > finalStop)
+                .min(Comparator.comparingInt(GroupedClinicalEvent::getStop))
+                .orElse(null);
+            if (nextEvent == null) {
+                return false;
+            }
+            stop = nextEvent.getStop();
+        }
+        return true;
     }
     
     @Override

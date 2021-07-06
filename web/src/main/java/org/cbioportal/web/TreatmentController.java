@@ -48,7 +48,7 @@ public class TreatmentController {
         SequenceQuery q
         
     ) {
-       return treatmentService.getEventTimeline(q.getFirstEventValue(), q.getSubsequentEventValues(), q.getStudyIds());
+       return treatmentService.getEventTimeline(q.getEventValues(), q.getStudyIds());
     }
 
     @PreAuthorize("hasPermission(#involvedCancerStudies, 'Collection<CancerStudyId>', 'read')")

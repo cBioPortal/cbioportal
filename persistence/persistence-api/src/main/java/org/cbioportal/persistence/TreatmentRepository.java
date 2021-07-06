@@ -5,11 +5,12 @@ import java.util.Map;
 import java.util.Set;
 
 import org.cbioportal.model.ClinicalEventSample;
+import org.cbioportal.model.GroupedClinicalEvent;
 import org.cbioportal.model.Treatment;
 import org.springframework.cache.annotation.Cacheable;
 
 public interface TreatmentRepository {
-    public List<String> getEventTimeline(String firstEventValue, List<String> eventValues, List<String> studyIds);
+    public List<GroupedClinicalEvent> getEventTimeline(List<String> eventValues, List<String> studyIds);
 
     @Cacheable(cacheResolver = "generalRepositoryCacheResolver", condition = "@cacheEnabledConfig.getEnabled()")
     public Map<String, List<Treatment>> getTreatmentsByPatientId(List<String> sampleIds, List<String> studyIds);

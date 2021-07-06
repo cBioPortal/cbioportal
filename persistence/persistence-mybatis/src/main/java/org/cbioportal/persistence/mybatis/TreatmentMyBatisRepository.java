@@ -8,6 +8,7 @@ import java.util.Map;
 import java.util.Set;
 
 import org.cbioportal.model.ClinicalEventSample;
+import org.cbioportal.model.GroupedClinicalEvent;
 import org.cbioportal.model.Treatment;
 import org.cbioportal.persistence.TreatmentRepository;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -19,8 +20,8 @@ public class TreatmentMyBatisRepository implements TreatmentRepository {
     private TreatmentMapper treatmentMapper;
 
     @Override
-    public List<String> getEventTimeline(String firstEventValue, List<String> eventValues, List<String> studyIds) {
-        return treatmentMapper.getEventTimeline(firstEventValue, eventValues, studyIds);
+    public List<GroupedClinicalEvent> getEventTimeline(List<String> eventValues, List<String> studyIds) {
+        return treatmentMapper.getEventTimeline(eventValues, studyIds);
     }
 
 

@@ -2,50 +2,35 @@
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 
 <mapper namespace="org.cbioportal.persistence.mybatis.TreatmentMapper">
-    <sql id="eventSelect">
-        (SELECT
-            cancer_study.CANCER_STUDY_IDENTIFIER as study${sequenceIndex},
-            clinical_event_data.KEY as key${sequenceIndex},
-            clinical_event_data.VALUE as event${sequenceIndex},
-            patient.STABLE_ID as patientId${sequenceIndex},
-            clinical_event.START_DATE as start${sequenceIndex},
-            ifnull(clinical_event.STOP_DATE, clinical_event.START_DATE) as stop${sequenceIndex}
+    <select id="getEventTimeline" resultType="org.cbioportal.model.GroupedClinicalEvent">
+        SELECT
+            patient.STABLE_ID as patientId,
+            clinical_event_data.VALUE as event,
+            clinical_event.START_DATE as start,
+            ifnull(clinical_event.STOP_DATE, clinical_event.START_DATE) as stop
         FROM
             clinical_event
             INNER JOIN clinical_event_data ON clinical_event.CLINICAL_EVENT_ID = clinical_event_data.CLINICAL_EVENT_ID
             INNER JOIN patient ON clinical_event.PATIENT_ID = patient.INTERNAL_ID
-            INNER JOIN sample ON patient.INTERNAL_ID = sample.PATIENT_ID
             INNER JOIN cancer_study ON patient.CANCER_STUDY_ID = cancer_study.CANCER_STUDY_ID
+            <!--This can be switched to an INNER JOIN once this is using decent data (pre merge)-->
+            LEFT JOIN (
+                select GROUP_CONCAT(distinct sample.STABLE_ID) as sampleIds, patient.INTERNAL_ID
+                from patient inner join sample on patient.INTERNAL_ID = sample.PATIENT_ID
+                group by patient.INTERNAL_ID
+            ) as p_samples ON p_samples.INTERNAL_ID = patient.INTERNAL_ID
+
         WHERE
             cancer_study.CANCER_STUDY_IDENTIFIER IN
             <foreach item="studyId" collection="studyIds" open="(" separator="," close=")">
                 #{studyId}
-            </foreach> AND
+            </foreach>
+            AND
             clinical_event_data.KEY='AGENT' AND
-            clinical_event_data.VALUE = ${eventValue}) as event${sequenceIndex}
-    </sql>
-    <select id="getEventTimeline" resultType="java.lang.String">
-        SELECT
-            distinct(patientId999)
-        FROM
-            <include refid="eventSelect">
-                <property name="sequenceIndex" value="999"/>
-                <property name="eventValue" value="#{firstEventValue}"/>
-            </include>
-            <foreach item="item" index="index" collection="eventValues" open="" separator=" " close="">
-                JOIN
-                <include refid="eventSelect">
-                    <property name="sequenceIndex" value="#{index}"/>
-                    <property name="eventValue" value="#{item}"/>
-                </include>
-                ON (event999.patientId999 = event#{index}.patientId#{index})
+            clinical_event_data.VALUE IN
+            <foreach item="eventValue" collection="eventValues" open="(" separator="," close=")">
+                #{eventValue}
             </foreach>
-        WHERE
-            event999.stop999
-            <foreach item="item" index="index" collection="eventValues" open="" separator=" " close="">
-                &lt; event#{index}.start#{index} AND event#{index}.stop#{index}
-            </foreach>
-            &lt; 99999999999
     </select>
     
     <select id="getAllTreatments" resultType="org.cbioportal.model.Treatment">

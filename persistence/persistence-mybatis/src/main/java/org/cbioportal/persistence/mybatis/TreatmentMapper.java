@@ -1,13 +1,14 @@
 package org.cbioportal.persistence.mybatis;
 
 import org.cbioportal.model.ClinicalEventSample;
+import org.cbioportal.model.GroupedClinicalEvent;
 import org.cbioportal.model.Treatment;
 
 import java.util.List;
 import java.util.Set;
 
 public interface TreatmentMapper {
-    List<String> getEventTimeline(String firstEventValue, List<String> eventValues, List<String> studyIds);
+    List<GroupedClinicalEvent> getEventTimeline(List<String> eventValues, List<String> studyIds);
     
     List<Treatment> getAllTreatments(List<String> sampleIds, List<String> studyIds);
 

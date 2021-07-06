@@ -3,23 +3,14 @@ package org.cbioportal.web.parameter;
 import java.util.List;
 
 public class SequenceQuery {
-    private String firstEventValue;
-    private List<String> subsequentEventValues, studyIds;
+    private List<String> events, studyIds;
 
-    public String getFirstEventValue() {
-        return firstEventValue;
+    public List<String> getEventValues() {
+        return events;
     }
 
-    public void setFirstEventValue(String firstEventValue) {
-        this.firstEventValue = firstEventValue;
-    }
-
-    public List<String> getSubsequentEventValues() {
-        return subsequentEventValues;
-    }
-
-    public void setSubsequentEventValues(List<String> subsequentEventValues) {
-        this.subsequentEventValues = subsequentEventValues;
+    public void setEvents(List<String> events) {
+        this.events = events;
     }
 
     public List<String> getStudyIds() {

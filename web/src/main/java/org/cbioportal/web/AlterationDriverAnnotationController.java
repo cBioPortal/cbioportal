@@ -27,7 +27,7 @@ public class AlterationDriverAnnotationController {
     @Autowired
     private AlterationDriverAnnotationService alterationDriverAnnotationService;
 
-    @PreAuthorize("hasPermission(#molecularProfileIds, 'Collection<MolecularProfileId>', 'read')")
+    @PreAuthorize("hasPermission(#molecularProfileIds, 'Collection<MolecularProfileId>', T(org.cbioportal.utils.security.AccessLevel).READ)")
     @PostMapping(value = "/custom-driver-annotation-report/fetch",
         consumes = MediaType.APPLICATION_JSON_VALUE,
         produces = MediaType.APPLICATION_JSON_VALUE)

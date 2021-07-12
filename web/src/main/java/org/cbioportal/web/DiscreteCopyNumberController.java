@@ -43,7 +43,7 @@ public class DiscreteCopyNumberController {
     @Autowired
     private DiscreteCopyNumberService discreteCopyNumberService;
 
-    @PreAuthorize("hasPermission(#molecularProfileId, 'MolecularProfileId', 'read')")
+    @PreAuthorize("hasPermission(#molecularProfileId, 'MolecularProfileId', T(org.cbioportal.utils.security.AccessLevel).READ)")
     @RequestMapping(value = "/molecular-profiles/{molecularProfileId}/discrete-copy-number", method = RequestMethod.GET,
         produces = MediaType.APPLICATION_JSON_VALUE)
     @ApiOperation("Get discrete copy number alterations in a molecular profile")
@@ -71,7 +71,7 @@ public class DiscreteCopyNumberController {
         }
     }
 
-    @PreAuthorize("hasPermission(#molecularProfileId, 'MolecularProfileId', 'read')")
+    @PreAuthorize("hasPermission(#molecularProfileId, 'MolecularProfileId', T(org.cbioportal.utils.security.AccessLevel).READ)")
     @RequestMapping(value = "/molecular-profiles/{molecularProfileId}/discrete-copy-number/fetch",
         method = RequestMethod.POST, consumes = MediaType.APPLICATION_JSON_VALUE,
         produces = MediaType.APPLICATION_JSON_VALUE)

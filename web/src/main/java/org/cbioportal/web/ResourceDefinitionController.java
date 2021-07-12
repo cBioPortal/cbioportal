@@ -33,7 +33,7 @@ public class ResourceDefinitionController {
     @Autowired
     private ResourceDefinitionService resourceDefinitionService;
 
-    @PreAuthorize("hasPermission(#studyId, 'CancerStudyId', 'read')")
+    @PreAuthorize("hasPermission(#studyId, 'CancerStudyId', T(org.cbioportal.utils.security.AccessLevel).READ)")
     @RequestMapping(value = "/studies/{studyId}/resource-definitions", method = RequestMethod.GET,
             produces = MediaType.APPLICATION_JSON_VALUE)
     @ApiOperation("Get all resource definitions in the specified study")
@@ -64,7 +64,7 @@ public class ResourceDefinitionController {
         }
     }
 
-    @PreAuthorize("hasPermission(#studyId, 'CancerStudyId', 'read')")
+    @PreAuthorize("hasPermission(#studyId, 'CancerStudyId', T(org.cbioportal.utils.security.AccessLevel).READ)")
     @RequestMapping(value = "/studies/{studyId}/resource-definitions/{resourceId}", method = RequestMethod.GET,
             produces = MediaType.APPLICATION_JSON_VALUE)
     @ApiOperation("Get specified resource definition")
@@ -79,7 +79,7 @@ public class ResourceDefinitionController {
                 HttpStatus.OK);
     }
 
-    @PreAuthorize("hasPermission(#studyIds, 'Collection<CancerStudyId>', 'read')")
+    @PreAuthorize("hasPermission(#studyIds, 'Collection<CancerStudyId>', T(org.cbioportal.utils.security.AccessLevel).READ)")
     @RequestMapping(value = "/resource-definitions/fetch", method = RequestMethod.POST, consumes = MediaType.APPLICATION_JSON_VALUE,
         produces = MediaType.APPLICATION_JSON_VALUE)
     @ApiOperation("Get all resource definitions for specified studies")

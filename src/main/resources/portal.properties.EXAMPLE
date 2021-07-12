@@ -90,6 +90,10 @@ skin.study_view.link_text=To build your own case set, try out our enhanced Study
 # controls the appearance the logout button on a portal with user authentication
 # skin.hide_logout_button=false
 
+# setting controlling the home page
+## enable this to show studies for which the user does not have permission (will appear greyed out and cannot be analyzed in study view or results view). 
+# skin.home_page.show_unauthorized_studies=false
+
 ## enable and set this property to specify a study group to be used to identify public studies for which no specific authorization entries are needed in the `authorities` table
 # always_show_study_group=
 

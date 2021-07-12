@@ -61,7 +61,7 @@ public interface AccessControl {
      * @throws DaoException         Database Error.
      * @throws ProtocolException    Protocol Error.
      */
-    @PostFilter("hasPermission(filterObject.getCancerStudyStableId(), 'CancerStudyId', 'read')")
+    @PostFilter("hasPermission(filterObject.getCancerStudyStableId(), 'CancerStudyId', T(org.cbioportal.utils.security.AccessLevel).READ)")
     List<CancerStudy> getCancerStudies() throws DaoException, ProtocolException;
 
     /**
@@ -71,7 +71,7 @@ public interface AccessControl {
      * @return ListCancerStudy
      * @throws DaoException
      */
-    @PostFilter("hasPermission(#stableStudyId, 'CancerStudyId', 'read')")
+    @PostFilter("hasPermission(#stableStudyId, 'CancerStudyId', T(org.cbioportal.utils.security.AccessLevel).READ)")
     List<CancerStudy> isAccessibleCancerStudy(String stableStudyId) throws DaoException;
 
     UserDetails getUserDetails();

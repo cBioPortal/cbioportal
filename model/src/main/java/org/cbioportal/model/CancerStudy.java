@@ -4,7 +4,7 @@ import java.io.Serializable;
 import java.util.Date;
 import javax.validation.constraints.NotNull;
 
-public class CancerStudy implements Serializable {
+public class CancerStudy implements ReadPermission, Serializable {
 
     private Integer cancerStudyId;
     @NotNull
@@ -31,7 +31,8 @@ public class CancerStudy implements Serializable {
     private Integer massSpectrometrySampleCount;
     private Integer completeSampleCount;
     private String referenceGenome;
-
+    private Boolean readPermission = true;
+    
     public Integer getCancerStudyId() {
         return cancerStudyId;
     }
@@ -219,4 +220,14 @@ public class CancerStudy implements Serializable {
     public String getReferenceGenome() { return  referenceGenome; }
     
     public void setReferenceGenome(String referenceGenome) { this.referenceGenome = referenceGenome; }
+
+    @Override
+    public void setReadPermission(Boolean permission) {
+        this.readPermission = permission;
+    }
+
+    @Override
+    public Boolean getReadPermission() {
+        return readPermission;
+    }
 }

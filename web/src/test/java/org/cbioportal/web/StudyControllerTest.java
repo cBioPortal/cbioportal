@@ -6,6 +6,7 @@ import org.cbioportal.model.TypeOfCancer;
 import org.cbioportal.model.meta.BaseMeta;
 import org.cbioportal.service.StudyService;
 import org.cbioportal.service.exception.StudyNotFoundException;
+import org.cbioportal.utils.security.AccessLevel;
 import org.cbioportal.web.parameter.HeaderKeyConstants;
 import org.hamcrest.Matchers;
 import org.junit.Before;
@@ -19,6 +20,7 @@ import org.springframework.http.MediaType;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import org.springframework.test.context.web.WebAppConfiguration;
+import org.springframework.test.util.ReflectionTestUtils;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
@@ -31,6 +33,8 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.TimeZone;
+
+import static org.mockito.ArgumentMatchers.eq;
 
 @RunWith(SpringJUnit4ClassRunner.class)
 @WebAppConfiguration
@@ -73,6 +77,9 @@ public class StudyControllerTest {
 
     @Autowired
     private StudyService studyService;
+    
+    @Autowired
+    private StudyController studyController;
 
     private ObjectMapper objectMapper = new ObjectMapper();
 
@@ -96,7 +103,7 @@ public class StudyControllerTest {
         List<CancerStudy> cancerStudyList = createExampleStudies();
 
         Mockito.when(studyService.getAllStudies(Mockito.any(), Mockito.any(), Mockito.any(), Mockito.any(),
-                Mockito.any(), Mockito.any())).thenReturn(cancerStudyList);
+                Mockito.any(), Mockito.any(), Mockito.any(), Mockito.any())).thenReturn(cancerStudyList);
 
         mockMvc.perform(MockMvcRequestBuilders.get("/studies")
                 .accept(MediaType.APPLICATION_JSON))
@@ -128,6 +135,35 @@ public class StudyControllerTest {
                 .andExpect(MockMvcResultMatchers.jsonPath("$[1].status").value(TEST_STATUS_2))
                 .andExpect(MockMvcResultMatchers.jsonPath("$[1].cancerTypeId").value(TEST_TYPE_OF_CANCER_ID_2));
 
+    }
+
+    @Test
+    public void getAllStudiesSetAccessLevelReadIsDefault() throws Exception {
+
+        AccessLevel expectedAccessLevel = AccessLevel.READ;
+        Mockito.when(studyService.getAllStudies(Mockito.any(), Mockito.any(), Mockito.any(), Mockito.any(),
+                Mockito.any(), Mockito.any(), Mockito.any(), eq(expectedAccessLevel))).thenReturn(new ArrayList<>());
+
+        mockMvc.perform(MockMvcRequestBuilders.get("/studies")
+                .accept(MediaType.APPLICATION_JSON))
+                .andExpect(MockMvcResultMatchers.status().isOk());
+
+    }
+
+    @Test
+    public void getAllStudiesSetAccessLevelListConditionally() throws Exception {
+
+        ReflectionTestUtils.setField(studyController, "showUnauthorizedStudiesOnHomePage", true);
+        
+        AccessLevel expectedAccessLevel = AccessLevel.LIST;
+        Mockito.when(studyService.getAllStudies(Mockito.any(), Mockito.any(), Mockito.any(), Mockito.any(),
+                Mockito.any(), Mockito.any(), Mockito.any(), eq(expectedAccessLevel))).thenReturn(new ArrayList<>());
+
+        mockMvc.perform(MockMvcRequestBuilders.get("/studies")
+                .accept(MediaType.APPLICATION_JSON))
+                .andExpect(MockMvcResultMatchers.status().isOk());
+
+        ReflectionTestUtils.setField(studyController, "showUnauthorizedStudiesOnHomePage", false);
     }
 
     @Test

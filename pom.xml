@@ -411,6 +411,11 @@
         <version>${project.version}</version>
       </dependency>
       <dependency>
+        <groupId>org.mskcc.cbio</groupId>
+        <artifactId>permission-evaluator</artifactId>
+        <version>${project.version}</version>
+      </dependency>
+      <dependency>
         <groupId>org.mongodb</groupId>
         <artifactId>mongo-java-driver</artifactId>
         <version>3.12.9</version>

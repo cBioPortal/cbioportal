@@ -475,6 +475,24 @@ ehcache.static_repository_cache_one.max_mega_bytes_local_disk=
 
 For more information on Ehcache, refer to the official documentation [here](https://www.ehcache.org/documentation/3.7/index.html)
 
+# Flush caches with the _/api/cache_ endpoint
+
+`DELETE` http requests to the `/api/cache` endpoint will flush the cBioPortal caches, and serves as an alternative to restarting
+the cBioPortal application.
+
+By default the endpoint is enabled. The endpoint can be disabled by setting:
+
+```
+cache.endpoint.enable=false
+```
+
+Access to the endpoint is not regulated by the configured user authorization mechanism. Instead, an API key should be passed
+with the `X-API-KEY` header. The accepted value for the API key can be configured by setting (for example):
+
+```
+cache.endpoint.api-key=7d70fecb-cda8-490f-9ea2-ef874b6512f4
+```
+
 # Enable GSVA functionality
 
 [GSVA functionality](https://github.com/cBioPortal/cbioportal/blob/master/docs/File-Formats.md#gene-set-data) can be enabled by uncommenting this line (and making sure it is set to `true`):

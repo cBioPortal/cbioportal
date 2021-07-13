@@ -10,7 +10,7 @@
 *   **Updated gene tables** Updated tables of genes (main and alias), based on [HGNC](https://www.genenames.org/). See details [HERE](https://github.com/cBioPortal/datahub/tree/master/seedDB#seed-database-schema-2128) in section `Contents of seed database`. Sripts/resources/process used to construct new tables are described [HERE](https://github.com/cBioPortal/datahub-study-curation-tools/tree/master/gene-table-update/build-input-for-importer).
 
 ## May 10, 2021
-*   **New Feature**: Pick color for User Defined Groups [Example: Color Bladder Cancer Group in MSK-IMPACT (2017) cohort](https://www.cbioportal.org/study/summary?id=msk_impact_2017)
+*   **New Feature**: Pick color for User Defined Groups [Example: Color Bladder Cancer Group in MSK-IMPACT (2017) cohort](https://www.cbioportal.org/study/summary?id=msk_impact_2017), implemented by [The Hyve](https://www.thehyve.nl/services/cbioportal).
 
     <img src="https://user-images.githubusercontent.com/1334004/122818654-7b018280-d2a7-11eb-94c1-834b780618b9.png" width="700" />
 
@@ -42,7 +42,7 @@
     <img src="https://user-images.githubusercontent.com/1334004/122810147-0295c400-d29d-11eb-9be7-fa14787d72b7.png" width="700" />
     
 ## March 11, 2021
-*   **New Feature**: Combine different types of alterations in _Comparison View_ [Example: Deletions and Truncating events in primary vs metastases](https://www.cbioportal.org/comparison/alterations?comparisonId=5f73ac54e4b0242bd5d22ab0&selectedEnrichmentEventTypes=%5B%22truncating%22%2C%22feature_truncation%22%2C%22nonsense_mutation%22%2C%22nonsense%22%2C%22stopgain_snv%22%2C%22stop_gained%22%2C%22frameshift%22%2C%22frameshift_variant%22%2C%22frame_shift_del%22%2C%22frameshift_deletion%22%2C%22frame_shift_ins%22%2C%22frameshift_insertion%22%2C%22translation_start_site%22%2C%22initiator_codon_variant%22%2C%22start_codon_snp%22%2C%22start_codon_del%22%2C%22de_novo_start_outofframe%22%2C%22nonstop_mutation%22%2C%22stop_lost%22%2C%22splice_site%22%2C%22splice%22%2C%22splicing%22%2C%22splice_site_snp%22%2C%22splice_site_del%22%2C%22splice_site_indel%22%2C%22splice_region_variant%22%2C%22splice_region%22%2C%22HOMDEL%22%5D&groupOrder=%5B%22Primary%22%2C%22Metastasis%22%5D)
+*   **New Feature**: Combine different types of alterations in _Comparison View_ [Example: Deletions and Truncating events in primary vs metastases](https://www.cbioportal.org/comparison/alterations?comparisonId=5f73ac54e4b0242bd5d22ab0&selectedEnrichmentEventTypes=%5B%22truncating%22%2C%22feature_truncation%22%2C%22nonsense_mutation%22%2C%22nonsense%22%2C%22stopgain_snv%22%2C%22stop_gained%22%2C%22frameshift%22%2C%22frameshift_variant%22%2C%22frame_shift_del%22%2C%22frameshift_deletion%22%2C%22frame_shift_ins%22%2C%22frameshift_insertion%22%2C%22translation_start_site%22%2C%22initiator_codon_variant%22%2C%22start_codon_snp%22%2C%22start_codon_del%22%2C%22de_novo_start_outofframe%22%2C%22nonstop_mutation%22%2C%22stop_lost%22%2C%22splice_site%22%2C%22splice%22%2C%22splicing%22%2C%22splice_site_snp%22%2C%22splice_site_del%22%2C%22splice_site_indel%22%2C%22splice_region_variant%22%2C%22splice_region%22%2C%22HOMDEL%22%5D&groupOrder=%5B%22Primary%22%2C%22Metastasis%22%5D) or read more on [The Hyve's blog](https://www.thehyve.nl/articles/find-differentially-altered-genes-by-combining-alteration-types)
 
     <img src="https://user-images.githubusercontent.com/1334004/122808698-35d75380-d29b-11eb-8928-0fca5f6e3b34.png" width="700" />
 

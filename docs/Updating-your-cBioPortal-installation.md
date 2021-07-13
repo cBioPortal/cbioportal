@@ -69,4 +69,5 @@ Running statments for version: 1.1.0
 etc
 ```
 
-**Final step:** Restart your webserver. 
+**Final step:** Restart your webserver or call the `/api/cache` endpoint with a `DELETE` http-request
+(see [here](portal.properties-Reference.md#flush-caches-with-the-_apicache_-endpoint) for more information).

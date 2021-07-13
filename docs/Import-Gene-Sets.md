@@ -43,7 +43,9 @@ Note: This removes existing gene set, gene set hierarchy and gene set genetic pr
 	--data ../../test/resources/genesets/study_es_0_tree.yaml
 ```
 
-4. Restart Tomcat if you have it running.
+4. Restart Tomcat if you have it running or call the `/api/cache` endpoint with a `DELETE` http-request
+   (see [here](portal.properties-Reference.md#flush-caches-with-the-_apicache_-endpoint) for more information).
+
 
 5. Import study (replace argument after `-u` with local cBioPortal and `-html` with preferred location for html report):
 

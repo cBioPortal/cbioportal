@@ -2,6 +2,37 @@
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 
 <mapper namespace="org.cbioportal.persistence.mybatis.TreatmentMapper">
+    <select id="getEventTimeline" resultType="org.cbioportal.model.GroupedClinicalEvent">
+        SELECT
+            patient.STABLE_ID as patientId,
+            clinical_event_data.VALUE as event,
+            clinical_event.START_DATE as start,
+            ifnull(clinical_event.STOP_DATE, clinical_event.START_DATE) as stop
+        FROM
+            clinical_event
+            INNER JOIN clinical_event_data ON clinical_event.CLINICAL_EVENT_ID = clinical_event_data.CLINICAL_EVENT_ID
+            INNER JOIN patient ON clinical_event.PATIENT_ID = patient.INTERNAL_ID
+            INNER JOIN cancer_study ON patient.CANCER_STUDY_ID = cancer_study.CANCER_STUDY_ID
+            <!--This can be switched to an INNER JOIN once this is using decent data (pre merge)-->
+            LEFT JOIN (
+                select GROUP_CONCAT(distinct sample.STABLE_ID) as sampleIds, patient.INTERNAL_ID
+                from patient inner join sample on patient.INTERNAL_ID = sample.PATIENT_ID
+                group by patient.INTERNAL_ID
+            ) as p_samples ON p_samples.INTERNAL_ID = patient.INTERNAL_ID
+
+        WHERE
+            cancer_study.CANCER_STUDY_IDENTIFIER IN
+            <foreach item="studyId" collection="studyIds" open="(" separator="," close=")">
+                #{studyId}
+            </foreach>
+            AND
+            clinical_event_data.KEY='AGENT' AND
+            clinical_event_data.VALUE IN
+            <foreach item="eventValue" collection="eventValues" open="(" separator="," close=")">
+                #{eventValue}
+            </foreach>
+    </select>
+    
     <select id="getAllTreatments" resultType="org.cbioportal.model.Treatment">
         SELECT
             clinical_event_data.VALUE as treatment,

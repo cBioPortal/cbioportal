@@ -420,7 +420,7 @@ class Validator(object):
         self.logger.debug('Starting validation of file')
 
         # Validate whether it's a normal file (skip for now)
-        if self.filename.endswith("_normals.txt"):
+        if self.filename.endswith("_normals.txt") or 'mrna_seq_v2_rsem_normal_samples' in self.filename:
             self.logger.info('Ignoring *_normals.txt files (TMP) '
                         'Continuing with validation...')
             return

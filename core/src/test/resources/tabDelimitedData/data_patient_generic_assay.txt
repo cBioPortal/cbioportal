@@ -1,0 +1,3 @@
+ENTITY_STABLE_ID	name	description	TCGA-A1-A0SB	TCGA-A1-A0SD
+test_patient_generic_assay_1	test_patient_generic_assay_1	test_patient_generic_assay_1	0.370266873	0.010373016
+test_patient_generic_assay_2	test_patient_generic_assay_2	test_patient_generic_assay_2	0.002709404	0.009212318

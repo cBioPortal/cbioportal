@@ -290,6 +290,8 @@ public class GeneticProfileReader {
         if (showProfileInAnalysisTabStr != null && showProfileInAnalysisTabStr.equalsIgnoreCase("FALSE")) {
             showProfileInAnalysisTab = false;
         }
+        String patientLevelStr = properties.getProperty("patient_level");
+        boolean patientLevel = patientLevelStr != null && patientLevelStr.equalsIgnoreCase("TRUE");
 
         profileDescription = profileDescription.replaceAll("\t", " ");
         GeneticAlterationType alterationType = GeneticAlterationType.valueOf(geneticAlterationTypeString);
@@ -303,6 +305,7 @@ public class GeneticProfileReader {
         geneticProfile.setShowProfileInAnalysisTab(showProfileInAnalysisTab);
         geneticProfile.setTargetLine(properties.getProperty("target_line"));
         geneticProfile.setOtherMetadataFields(properties);
+        geneticProfile.setPatientLevel(patientLevel);
         return geneticProfile;
     }
 

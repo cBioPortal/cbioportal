@@ -1,11 +1,9 @@
 package org.cbioportal.service.impl;
-
-import java.util.Arrays;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
+import org.apache.commons.lang3.BooleanUtils;
 import org.cbioportal.model.EnrichmentType;
 import org.cbioportal.model.Gene;
 import org.cbioportal.model.GeneMolecularAlteration;
@@ -15,12 +13,14 @@ import org.cbioportal.model.GenomicEnrichment;
 import org.cbioportal.model.MolecularProfile;
 import org.cbioportal.model.MolecularProfile.MolecularAlterationType;
 import org.cbioportal.model.MolecularProfileCaseIdentifier;
+import org.cbioportal.model.Sample;
 import org.cbioportal.model.meta.GenericAssayMeta;
 import org.cbioportal.persistence.MolecularDataRepository;
 import org.cbioportal.service.ExpressionEnrichmentService;
 import org.cbioportal.service.GeneService;
 import org.cbioportal.service.GenericAssayService;
 import org.cbioportal.service.MolecularProfileService;
+import org.cbioportal.service.SampleService;
 import org.cbioportal.service.exception.MolecularProfileNotFoundException;
 import org.cbioportal.service.util.ExpressionEnrichmentUtil;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -40,6 +40,8 @@ public class ExpressionEnrichmentServiceImpl implements ExpressionEnrichmentServ
     private ExpressionEnrichmentUtil expressionEnrichmentUtil;
     @Autowired
     private GenericAssayService genericAssayService;
+    @Autowired
+    private SampleService sampleService;
 
     @Override
     // transaction needs to be setup here in order to return Iterable from
@@ -102,25 +104,44 @@ public class ExpressionEnrichmentServiceImpl implements ExpressionEnrichmentServ
         Iterable<GenericAssayMolecularAlteration> maItr = molecularDataRepository
                 .getGenericAssayMolecularAlterationsIterable(molecularProfile.getStableId(), null, "SUMMARY");
 
+        Map<String, List<MolecularProfileCaseIdentifier>> filteredMolecularProfileCaseSets;
+        if (BooleanUtils.isTrue(molecularProfile.getPatientLevel())) {
+            // Build sampleIdToPatientIdMap to quick find if a sample has shared patientId with other samples
+            List<String> sampleIds = molecularProfileCaseSets.values().stream().flatMap(Collection::stream).map(MolecularProfileCaseIdentifier::getCaseId).collect(Collectors.toList());
+            List<String> studyIds = Collections.nCopies(sampleIds.size(), molecularProfile.getCancerStudyIdentifier());
+            List<Sample> samples = sampleService.fetchSamples(studyIds, sampleIds, "ID");
+            Map<String, Integer> sampleIdToPatientIdMap = samples.stream().collect(Collectors.toMap(Sample::getStableId, Sample::getPatientId));
+            // Build filteredMolecularProfileCaseSets
+            filteredMolecularProfileCaseSets = new HashMap<>();
+            for (Map.Entry<String, List<MolecularProfileCaseIdentifier>> pair : molecularProfileCaseSets.entrySet()) {
+                Set<Integer> patientSet = new HashSet<Integer>();
+                List<MolecularProfileCaseIdentifier> identifierListUniqueByPatientId = new ArrayList<>();
+                for (MolecularProfileCaseIdentifier caseIdentifier : pair.getValue()) {
+                    if (!patientSet.contains(sampleIdToPatientIdMap.get(caseIdentifier.getCaseId()))) {
+                        identifierListUniqueByPatientId.add(caseIdentifier);
+                        patientSet.add(sampleIdToPatientIdMap.get(caseIdentifier.getCaseId()));
+                    }
+                }
+                filteredMolecularProfileCaseSets.put(pair.getKey(), identifierListUniqueByPatientId);
+            }
+        } else {
+                filteredMolecularProfileCaseSets = molecularProfileCaseSets;
+        }
         List<GenericAssayEnrichment> genericAssayEnrichments = expressionEnrichmentUtil.getEnrichments(molecularProfile,
-                molecularProfileCaseSets, enrichmentType, maItr);
-
+                filteredMolecularProfileCaseSets, enrichmentType, maItr);
         List<String> getGenericAssayStableIds = genericAssayEnrichments.stream()
                 .map(GenericAssayEnrichment::getStableId).collect(Collectors.toList());
-
         Map<String, GenericAssayMeta> genericAssayMetaByStableId = genericAssayService
                 .getGenericAssayMetaByStableIdsAndMolecularIds(getGenericAssayStableIds,
                         getGenericAssayStableIds.stream().map(stableId -> molecularProfileId)
                                 .collect(Collectors.toList()),
                         "SUMMARY")
                 .stream().collect(Collectors.toMap(GenericAssayMeta::getStableId, Function.identity()));
-
         return genericAssayEnrichments.stream().map(enrichmentDatum -> {
             enrichmentDatum.setGenericEntityMetaProperties(
                     genericAssayMetaByStableId.get(enrichmentDatum.getStableId()).getGenericEntityMetaProperties());
             return enrichmentDatum;
         }).collect(Collectors.toList());
-
     }
 
 

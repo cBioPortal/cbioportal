@@ -1,0 +1,11 @@
+cancer_study_identifier: study_es_0
+genetic_alteration_type: GENERIC_ASSAY
+generic_assay_type: GENERIC_ASSAY_PATIENT_TEST
+datatype: LIMIT-VALUE
+stable_id: generic_assay_patient_test
+profile_name: generic assay patient test profile
+profile_description: test patient profile for generic assay
+data_filename: data_generic_assay_patient_test.txt
+show_profile_in_analysis_tab: true
+patient_level: true
+generic_entity_meta_properties: name,description

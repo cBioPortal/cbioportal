@@ -52,11 +52,11 @@ public class DataBinnerTest {
         MockitoAnnotations.initMocks(this);
     }
 
-    private List<String> getCaseIds(List<ClinicalData> unfilteredClinicalData, boolean getPatietIds) {
+    private List<String> getCaseIds(List<ClinicalData> unfilteredClinicalData, boolean getPatientIds) {
         return unfilteredClinicalData
                 .stream()
                 .map(datum -> studyViewFilterUtil.getCaseUniqueKey(datum.getStudyId(),
-                getPatietIds ? datum.getPatientId() : datum.getSampleId()))
+                getPatientIds ? datum.getPatientId() : datum.getSampleId()))
                 .collect(Collectors.toList());
     }
 

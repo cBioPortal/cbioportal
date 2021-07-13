@@ -1,18 +1,17 @@
 package org.cbioportal.web;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
 import org.cbioportal.model.CancerStudy;
 import org.cbioportal.model.CancerStudyTags;
+import org.cbioportal.model.StudyOverlap;
 import org.cbioportal.service.StudyService;
 import org.cbioportal.service.exception.StudyNotFoundException;
 import org.cbioportal.web.config.PublicApiTags;
 import org.cbioportal.web.config.annotation.PublicApi;
-import org.cbioportal.web.parameter.Direction;
-import org.cbioportal.web.parameter.HeaderKeyConstants;
-import org.cbioportal.web.parameter.PagingConstants;
-import org.cbioportal.web.parameter.Projection;
+import org.cbioportal.web.parameter.*;
 import org.cbioportal.web.parameter.sort.StudySortBy;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -40,9 +39,8 @@ import javax.validation.constraints.Min;
 import javax.validation.constraints.Size;
 
 import java.io.IOException;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
+import java.util.stream.Collectors;
 
 @PublicApi
 @RestController
@@ -189,5 +187,20 @@ public class StudyController {
         List<CancerStudyTags> cancerStudyTags = studyService.getTagsForMultipleStudies(studyIds);
 
         return new ResponseEntity<>(cancerStudyTags, HttpStatus.OK);
+    }
+
+    @RequestMapping(
+        value = "/studies/overlapping_studies",
+        method = RequestMethod.GET,
+        produces = MediaType.APPLICATION_JSON_VALUE
+    )
+    @ApiOperation("Get the study tags by IDs")
+    public ResponseEntity<List<StudyOverlap>> getStudiesWithOverlappingSamples() throws JsonProcessingException {
+        List<StudyOverlap> studies = studyService.getStudiesWithOverlappingSamples(getAllPermittedStudies());
+        return new ResponseEntity<>(studies, HttpStatus.OK);
+    }
+    
+    private List<CancerStudy> getAllPermittedStudies() {
+        return studyService.getAllStudies(null, Projection.SUMMARY.name(), 10000000, 0, null, Direction.ASC.name());
     }
 }

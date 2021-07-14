@@ -345,3 +345,8 @@ persistence.cache_type=no-cache
 # Installation map URL for installation map iframes. 
 # If blank or commented out, no map will be shown and that page will be hidden.
 # installation_map_url=https://installationmap.netlify.app/
+
+# Turn cache management endpoint on or off (default)
+# cache.endpoint.enabled=true
+# API key for access to cache management endpoint
+# cache.endpoint.api-key=fd15f1ae-66f2-4b8a-8d54-fb899b03557e

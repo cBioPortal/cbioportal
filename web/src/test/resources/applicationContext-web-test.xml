@@ -14,6 +14,16 @@
     <!-- load beans from shared test configuration -->
     <bean class="org.cbioportal.web.config.CacheMapUtilConfig"/>
 
+    <bean
+        class="org.springframework.beans.factory.config.PropertyPlaceholderConfigurer">
+        <property name="locations">
+            <list>
+                <value>classpath:test.properties</value>
+            </list>
+        </property>
+        <property name="ignoreUnresolvablePlaceholders" value="true" />
+    </bean>
+    
     <!-- load the beans from the prodution configuration xml file -->
     <import resource="classpath:applicationContext-web.xml" />
 </beans>

@@ -41,7 +41,7 @@ public class AlterationCountServiceImpl implements AlterationCountService {
                                                                              AlterationFilter alterationFilter) {
 
         Function<List<MolecularProfileCaseIdentifier>, List<AlterationCountByGene>> dataFetcher = profileCaseIdentifiers ->
-            alterationRepository.getSampleAlterationCounts(profileCaseIdentifiers, entrezGeneIds, searchFusions, alterationFilter);
+            alterationRepository.getSampleAlterationCounts(new TreeSet<>(profileCaseIdentifiers), entrezGeneIds, searchFusions, alterationFilter);
 
         BiFunction<List<MolecularProfileCaseIdentifier>, List<AlterationCountByGene>, Long> includeFrequencyFunction =
             (a, b) -> alterationEnrichmentUtil.includeFrequencyForSamples(a, b, includeMissingAlterationsFromGenePanel);
@@ -176,7 +176,7 @@ public class AlterationCountServiceImpl implements AlterationCountService {
                                                                       AlterationFilter alterationFilter) {
 
         Function<List<MolecularProfileCaseIdentifier>, List<CopyNumberCountByGene>> dataFetcher = profileCaseIdentifiers ->
-            alterationRepository.getSampleCnaCounts(profileCaseIdentifiers, entrezGeneIds, alterationFilter);
+            alterationRepository.getSampleCnaCounts(new TreeSet<>(profileCaseIdentifiers), entrezGeneIds, alterationFilter);
 
         BiFunction<List<MolecularProfileCaseIdentifier>, List<CopyNumberCountByGene>, Long> includeFrequencyFunction =
             (a, b) -> alterationEnrichmentUtilCna.includeFrequencyForSamples(a, b, includeMissingAlterationsFromGenePanel);

@@ -18,10 +18,7 @@ import org.mockito.Mock;
 import org.mockito.Spy;
 import org.mockito.junit.MockitoJUnitRunner;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.List;
+import java.util.*;
 
 import static org.mockito.Mockito.*;
 
@@ -89,7 +86,7 @@ public class AlterationCountServiceImplTest extends BaseServiceImplTest {
 
         // this mock tests correct argument types
         when(alterationRepository.getSampleAlterationCounts(
-            caseIdentifiers,
+            new HashSet<>(caseIdentifiers),
             entrezGeneIds,
             QueryElement.PASS,
             alterationFilter)).thenReturn(expectedCountByGeneList);
@@ -132,7 +129,7 @@ public class AlterationCountServiceImplTest extends BaseServiceImplTest {
     public void getSampleMutationCounts() {
         // this mock tests correct argument types
         when(alterationRepository.getSampleAlterationCounts(
-            caseIdentifiers,
+            new HashSet<>(caseIdentifiers),
             entrezGeneIds,
             QueryElement.INACTIVE,
             alterationFilter)).thenReturn(expectedCountByGeneList);
@@ -176,7 +173,7 @@ public class AlterationCountServiceImplTest extends BaseServiceImplTest {
 
         // this mock tests correct argument types
         when(alterationRepository.getSampleAlterationCounts(
-            caseIdentifiers,
+            new HashSet<>(caseIdentifiers),
             entrezGeneIds,
             searchFusions,
             alterationFilter
@@ -219,7 +216,7 @@ public class AlterationCountServiceImplTest extends BaseServiceImplTest {
 
         // this mock tests correct argument types
         when(alterationRepository.getSampleCnaCounts(
-            caseIdentifiers,
+            new TreeSet<>(caseIdentifiers),
             entrezGeneIds,
             alterationFilter)).thenReturn(expectedCnaCountByGeneList);
 

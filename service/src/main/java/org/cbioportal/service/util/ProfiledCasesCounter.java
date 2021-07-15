@@ -32,7 +32,7 @@ public class ProfiledCasesCounter<T extends AlterationCountByGene> {
         Map<Pair<Integer, String>, List<GenePanel>> geneGenePanelMap = new HashMap<>();
         for (GenePanel genePanel : genePanels) {
             for (GenePanelToGene genePanelToGene : genePanel.getGenes()) {
-                Pair<Integer, String> key = new Pair(genePanelToGene.getEntrezGeneId(), genePanelToGene.getHugoGeneSymbol());
+                Pair<Integer, String> key = new Pair<>(genePanelToGene.getEntrezGeneId(), genePanelToGene.getHugoGeneSymbol());
                 if (geneGenePanelMap.containsKey(key)) {
                     geneGenePanelMap.get(key).add(genePanel);
                 } else {

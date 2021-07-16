@@ -3,7 +3,7 @@ package org.cbioportal.model;
 import javax.validation.constraints.NotNull;
 import java.io.Serializable;
 
-public class MolecularProfileCaseIdentifier implements Serializable {
+public class MolecularProfileCaseIdentifier implements Serializable, Comparable<MolecularProfileCaseIdentifier> {
 
     @NotNull
     private String molecularProfileId;
@@ -62,5 +62,14 @@ public class MolecularProfileCaseIdentifier implements Serializable {
         } else if (!molecularProfileId.equals(other.molecularProfileId))
             return false;
         return true;
+    }
+
+    @Override
+    public int compareTo(MolecularProfileCaseIdentifier o) {
+        if (molecularProfileId.compareTo(o.molecularProfileId) == 0) {
+            return caseId.compareTo(o.caseId);
+        } else {
+            return molecularProfileId.compareTo(o.molecularProfileId);
+        }
     }
 }

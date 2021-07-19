@@ -18,6 +18,51 @@ public class TreatmentServiceImpl implements TreatmentService {
     TreatmentRepository treatmentRepository;
     
     @Override
+    public TreatmentSankeyGraph getSequences(List<String> sampleIds, List<String> studyIds) {
+        Map<String, PriorityQueue<Treatment>> treatments = new HashMap<>();
+        
+        for (Treatment treatment : treatmentRepository.getTreatments(sampleIds, studyIds)) {
+            if (!treatments.containsKey(treatment.getPatientId())) {
+                treatments.put(
+                    treatment.getPatientId(),
+                    new PriorityQueue<>(10, Comparator.comparingInt(Treatment::getStart))
+                );
+            }
+            treatments.get(treatment.getPatientId()).add(treatment);
+        }
+
+
+        Set<TreatmentSequenceNode> nodes = new HashSet<>();
+        Map<TreatmentSequenceEdge, Integer> edges = new HashMap<>();
+        treatments.entrySet().forEach(entry -> this.addTreatmentsToGraph(entry, nodes, edges));
+        edges.forEach(TreatmentSequenceEdge::setCount);
+        
+        return new TreatmentSankeyGraph(nodes, edges.keySet());
+    }
+    
+
+    private void addTreatmentsToGraph(
+        Map.Entry<String, PriorityQueue<Treatment>> treatmentEvents,
+        Set<TreatmentSequenceNode> nodes,
+        Map<TreatmentSequenceEdge, Integer> edges
+    ) {
+        int index = 0;
+        TreatmentSequenceNode previous = null;
+        for (Treatment treatment : treatmentEvents.getValue()) {
+            TreatmentSequenceNode current = new TreatmentSequenceNode(treatment.getTreatment(), index);
+            nodes.add(current);
+            if (previous != null) {
+                TreatmentSequenceEdge edge = new TreatmentSequenceEdge(previous, current);
+                Integer count = edges.getOrDefault(edge, 0) + 1;
+                edges.put(edge, count);
+            }
+            index++;
+            previous = current;
+        }
+    }
+
+
+    @Override
     public List<SampleTreatmentRow> getAllSampleTreatmentRows(List<String> sampleIds, List<String> studyIds) {
         Map<String, List<ClinicalEventSample>> samplesByPatient = treatmentRepository.getSamplesByPatientId(sampleIds, studyIds);
         Map<String, List<Treatment>> treatmentsByPatient = treatmentRepository.getTreatmentsByPatientId(sampleIds, studyIds);

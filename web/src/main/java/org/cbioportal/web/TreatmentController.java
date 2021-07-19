@@ -5,6 +5,7 @@ import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
 import org.cbioportal.model.PatientTreatmentRow;
 import org.cbioportal.model.SampleTreatmentRow;
+import org.cbioportal.model.TreatmentSankeyGraph;
 import org.cbioportal.service.TreatmentService;
 import org.cbioportal.web.config.annotation.PublicApi;
 import org.cbioportal.web.parameter.*;
@@ -38,6 +39,33 @@ public class TreatmentController {
     
     @Autowired
     private StudyViewFilterApplier studyViewFilterApplier;
+
+    @PreAuthorize("hasPermission(#involvedCancerStudies, 'Collection<CancerStudyId>', 'read')")
+    @RequestMapping(value = "/treatments/sankey", method = RequestMethod.POST, produces = MediaType.APPLICATION_JSON_VALUE)
+    @ApiOperation("Get all patient level treatments")
+    public ResponseEntity<TreatmentSankeyGraph> getTreatmentSequences(
+        @ApiParam(required = true, value = "Study view filter")
+        @Valid
+        @RequestBody(required = false)
+            StudyViewFilter studyViewFilter,
+
+        @ApiIgnore // prevent reference to this attribute in the swagger-ui interface
+        @RequestAttribute(required = false, value = "involvedCancerStudies")
+            Collection<String> involvedCancerStudies,
+
+        @ApiIgnore // prevent reference to this attribute in the swagger-ui interface. this attribute is needed for the @PreAuthorize tag above.
+        @Valid
+        @RequestAttribute(required = false, value = "interceptedStudyViewFilter")
+            StudyViewFilter interceptedStudyViewFilter
+    ) {
+        List<SampleIdentifier> sampleIdentifiers = studyViewFilterApplier.apply(interceptedStudyViewFilter);
+        List<String> sampleIds = new ArrayList<>();
+        List<String> studyIds = new ArrayList<>();
+        filterUtil.extractStudyAndSampleIds(sampleIdentifiers, studyIds, sampleIds);
+
+        TreatmentSankeyGraph treatments = treatmentService.getSequences(sampleIds, studyIds);
+        return new ResponseEntity<>(treatments, HttpStatus.OK);
+    }
 
     @PreAuthorize("hasPermission(#involvedCancerStudies, 'Collection<CancerStudyId>', 'read')")
     @RequestMapping(value = "/treatments/patient", method = RequestMethod.POST, produces = MediaType.APPLICATION_JSON_VALUE)

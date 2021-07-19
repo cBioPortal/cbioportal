@@ -17,7 +17,12 @@ import org.springframework.stereotype.Repository;
 public class TreatmentMyBatisRepository implements TreatmentRepository {
     @Autowired
     private TreatmentMapper treatmentMapper;
-    
+
+    @Override
+    public List<Treatment> getTreatments(List<String> sampleIds, List<String> studyIds) {
+        return treatmentMapper.getAllTreatments(sampleIds, studyIds);
+    }
+
     @Override
     public Map<String, List<Treatment>> getTreatmentsByPatientId(List<String> sampleIds, List<String> studyIds) {
         return treatmentMapper.getAllTreatments(sampleIds, studyIds)

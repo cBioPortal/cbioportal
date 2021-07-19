@@ -9,6 +9,10 @@ import org.cbioportal.model.Treatment;
 import org.springframework.cache.annotation.Cacheable;
 
 public interface TreatmentRepository {
+
+    @Cacheable(cacheResolver = "generalRepositoryCacheResolver", condition = "@cacheEnabledConfig.getEnabled()")
+    public List<Treatment> getTreatments(List<String> sampleIds, List<String> studyIds);
+    
     @Cacheable(cacheResolver = "generalRepositoryCacheResolver", condition = "@cacheEnabledConfig.getEnabled()")
     public Map<String, List<Treatment>> getTreatmentsByPatientId(List<String> sampleIds, List<String> studyIds);
 

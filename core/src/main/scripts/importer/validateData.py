@@ -303,7 +303,7 @@ class PortalInstance(object):
             if entrez_map is not None:
                 for entrez_list in list(entrez_map.values()):
                     for entrez_id in entrez_list:
-                        self.entrez_set.add(entrez_id)
+                        self.entrez_set.add(int(entrez_id))
 
         #Set defaults for genome version and species
         self.__species = 'human'
@@ -402,6 +402,7 @@ class Validator(object):
         self.strict_maf_checks = strict_maf_checks
         self.fill_in_attr_defs = False
         self.unique_col_data = {}
+        self.stable_id = ''
 
     def validate(self):
         """Validate the data file."""
@@ -420,7 +421,7 @@ class Validator(object):
         self.logger.debug('Starting validation of file')
 
         # Validate whether it's a normal file (skip for now)
-        if self.filename.endswith("_normals.txt") or 'mrna_seq_v2_rsem_normal_samples' in self.filename:
+        if self.filename.endswith("_normals.txt"):
             self.logger.info('Ignoring *_normals.txt files (TMP) '
                         'Continuing with validation...')
             return
@@ -905,6 +906,35 @@ class Validator(object):
 
         return identified_entrez_id
 
+    def checkOffPanelGenes(self, sample_id, normalized_gene=None, gene_symbol=None, entrez_id=None):
+        """
+        If the stable_id is in gene matrix file, validate the profile for off panel genes.
+        """
+        if 'stable_id' in self.meta_dict:
+            self.stable_id = self.meta_dict['stable_id']
+            
+        if self.stable_id in sample_ids_panel_dict:
+            # If the output of checkGeneIdentification fn is valid, check if the gene exists in the panel
+            # report an error otherwise
+            if normalized_gene and self.portal.gene_panel_list and sample_id in sample_ids_panel_dict[self.stable_id]:
+                panel_id = sample_ids_panel_dict[self.stable_id][sample_id]
+                if panel_id in self.portal.gene_panel_list and panel_id != 'NA':
+                    try:
+                        normalized_gene = int(normalized_gene)
+                    except:
+                        pass
+                    if normalized_gene not in self.portal.gene_panel_list[panel_id]:
+                        if gene_symbol:
+                            self.logger.error(
+                                    'Off panel variant. Gene symbol not known to the targeted panel',
+                                    extra={'line_number': self.line_number,
+                                    'cause': '(%s, %s)' % (gene_symbol, panel_id)})
+                        else:
+                            self.logger.error(
+                                    'Off panel variant. Gene symbol is not provided and Entrez gene id not known to the targeted panel',
+                                    extra={'line_number': self.line_number,
+                                    'cause': '(%s, %s)' % (entrez_id, panel_id)})
+
     def _checkRepeatedColumns(self):
         num_errors = 0
         seen = set()
@@ -1135,6 +1165,7 @@ class GenewiseFileValidator(FeaturewiseFileValidator):
             self.logger.warning('The recommended column Entrez_Gene_Id was not found. '
                                 'Using Hugo_Symbol for all gene parsing.',
                                 extra={'line_number': self.line_number})
+
         return num_errors
 
     def parseFeatureColumns(self, nonsample_col_vals):
@@ -1153,8 +1184,14 @@ class GenewiseFileValidator(FeaturewiseFileValidator):
             # treat the empty string as a missing value
             if entrez_id == '':
                 entrez_id = None
-        return self.checkGeneIdentification(hugo_symbol, entrez_id)
-
+        
+        self.normalized_gene = self.checkGeneIdentification(hugo_symbol, entrez_id)
+        
+        # For targeted sequenced profiles, validate the gene identifier to make sure it exists in the panel
+        for sample_id in self.sampleIds:
+            self.checkOffPanelGenes(sample_id, self.normalized_gene, hugo_symbol, entrez_id)
+                    
+        return self.normalized_gene
 
 class ContinuousValuesValidator(GenewiseFileValidator):
     """Validator for matrix files mapping floats to gene/sample combinations.
@@ -1552,6 +1589,7 @@ class MutationsExtendedValidator(CustomDriverAnnotationValidator):
                     self.logger.error('%s namespace defined but MAF '
                                       'does not have any matching columns' % (defined_namespace))
                     num_errors += 1
+        
         return num_errors
 
     def checkLine(self, data):
@@ -1614,12 +1652,8 @@ class MutationsExtendedValidator(CustomDriverAnnotationValidator):
         # validate hugo and entrez together:
         normalized_gene = self.checkGeneIdentification(hugo_symbol, entrez_id)
 
-        # validate the gene to make sure its from the targeted panel
-        if normalized_gene and self.portal.gene_panel_list and data[sample_id_column_index] in sample_ids_panel_dict:
-            panel_id = sample_ids_panel_dict[data[sample_id_column_index]]
-            if panel_id in self.portal.gene_panel_list and panel_id != 'NA':
-                self.checkOffPanelVariant(data, normalized_gene, panel_id, hugo_symbol, entrez_id)
-
+        # For targeted sequenced profiles, validate the gene identifier to make sure it exists in the panel
+        self.checkOffPanelGenes(sample_id, normalized_gene, hugo_symbol, entrez_id)
 
         # check if a non-blank amino acid change exists for non-splice sites
         if ('Variant_Classification' not in self.cols or
@@ -1934,23 +1968,6 @@ class MutationsExtendedValidator(CustomDriverAnnotationValidator):
             # If for LOH (9C) not implemented, because mutation will not be loaded in cBioPortal
 
         return True
-
-    def checkOffPanelVariant(self, data, normalized_gene, panel_id, hugo_symbol, entrez_id):
-        try:
-            normalized_gene = int(normalized_gene)
-        except:
-            pass
-        if normalized_gene not in self.portal.gene_panel_list[panel_id]:
-            if hugo_symbol:
-                self.logger.warning(
-                        'Off panel variant. Gene symbol not known to the targeted panel.',
-                        extra={'line_number': self.line_number,
-                            'cause': hugo_symbol})
-            else:
-                self.logger.warning(
-                        'Off panel variant. Gene symbol is not provided and Entrez gene id not known to the targeted panel.',
-                        extra={'line_number': self.line_number,
-                        'cause': entrez_id})
 
     # These functions check values of the MAF according to their name.
     # The mapping of which function checks which value is a global value
@@ -3276,6 +3293,7 @@ class GenePanelMatrixValidator(Validator):
         self.mutation_profile_column = None
         self.gene_panel_sample_ids = {}
         self.mutation_stable_id_index = None
+        self.stable_id_index_map = {}
 
     def checkHeader(self, data):
         num_errors = super(GenePanelMatrixValidator, self).checkHeader(data)
@@ -3291,7 +3309,7 @@ class GenePanelMatrixValidator(Validator):
                     study_meta_dictionary[genetic_profile]['stable_id'] in data:
                 mutation_stable_id = study_meta_dictionary[genetic_profile]['stable_id']
                 self.mutation_stable_id_index = data.index(mutation_stable_id)
-
+            
             # Extract the stable IDs for genetic profiles that use the gene_panel property
             if 'gene_panel' in study_meta_dictionary[genetic_profile]:
                 property_in_meta_file_list.append(study_meta_dictionary[genetic_profile]['stable_id'])
@@ -3303,7 +3321,10 @@ class GenePanelMatrixValidator(Validator):
                     self.logger.error('Stable ID not found in study meta files',
                                       extra={'cause': stable_id})
                     num_errors += 1
-
+                else:
+                    sample_ids_panel_dict[stable_id] = {}
+                    self.stable_id_index_map[stable_id] = data.index(stable_id)
+                
                 if stable_id != mutation_stable_id:
                     if stable_id in property_in_meta_file_list:
                         self.logger.error("The meta file for this genetic profile contains a property for gene panel. "
@@ -3339,14 +3360,16 @@ class GenePanelMatrixValidator(Validator):
 
             # If stable id is mutation and value not NA, check whether sample ID is in sequenced case list
             if self.mutation_stable_id_index is not None:
-                sample_ids_panel_dict[sample_id] = data[self.mutation_stable_id_index - 1]
                 # Sample ID has been removed from list, so subtract 1 position.
                 if data[self.mutation_stable_id_index - 1] != 'NA':
                     if sample_id not in mutation_sample_ids:
                         self.logger.error('Sample ID has mutation gene panel, but is not in the sequenced case list',
                                           extra={'line_number': self.line_number,
                                                  'cause': sample_id})
-
+            
+            for stable_id in self.stable_id_index_map:
+                sample_ids_panel_dict[stable_id][sample_id] = data[self.stable_id_index_map[stable_id]-1]
+  
         # Check whether gene panel stable ids are in the database
         if self.portal.gene_panel_list is not None:
             for gene_panel_id in data:
@@ -3355,7 +3378,6 @@ class GenePanelMatrixValidator(Validator):
                                     'study data.',
                                     extra={'line_number': self.line_number,
                                             'cause': gene_panel_id})
-
 
 class ProteinLevelValidator(FeaturewiseFileValidator):
 

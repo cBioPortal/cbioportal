@@ -2,7 +2,6 @@ package org.cbioportal.service.impl;
 
 import java.math.BigDecimal;
 import java.util.*;
-
 import org.cbioportal.model.*;
 import org.cbioportal.model.meta.GenericAssayMeta;
 import org.cbioportal.persistence.MolecularDataRepository;
@@ -148,7 +147,7 @@ public class ExpressionEnrichmentServiceImplTest extends BaseServiceImplTest {
                 .thenReturn(expectedGeneList);
 
         List<GenomicEnrichment> result = enrichmentServiceImpl.getGenomicEnrichments(MOLECULAR_PROFILE_ID,
-                molecularProfileCaseSets, "SAMPLE");
+                molecularProfileCaseSets, EnrichmentType.SAMPLE);
 
         Assert.assertEquals(2, result.size());
         GenomicEnrichment expressionEnrichment = result.get(0);
@@ -213,7 +212,7 @@ public class ExpressionEnrichmentServiceImplTest extends BaseServiceImplTest {
                         new GenericAssayMeta(HUGO_GENE_SYMBOL_2)));
 
         List<GenericAssayEnrichment> result = enrichmentServiceImpl.getGenericAssayEnrichments(MOLECULAR_PROFILE_ID,
-                molecularProfileCaseSets, "SAMPLE");
+                molecularProfileCaseSets, EnrichmentType.SAMPLE);
 
         Assert.assertEquals(2, result.size());
         GenericAssayEnrichment genericAssayEnrichment = result.get(0);

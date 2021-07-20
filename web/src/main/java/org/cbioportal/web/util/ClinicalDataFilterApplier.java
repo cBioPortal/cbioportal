@@ -4,7 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
-import org.apache.commons.collections4.map.MultiKeyMap;
+import org.apache.commons.collections.map.MultiKeyMap;
 import org.cbioportal.model.ClinicalData;
 import org.cbioportal.model.Patient;
 import org.cbioportal.service.ClinicalDataService;

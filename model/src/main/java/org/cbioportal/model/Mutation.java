@@ -1,5 +1,8 @@
 package org.cbioportal.model;
 
+import com.fasterxml.jackson.annotation.JsonRawValue;
+import io.swagger.annotations.ApiModelProperty;
+
 import java.io.Serializable;
 import java.math.BigDecimal;
 
@@ -32,6 +35,9 @@ public class Mutation extends Alteration implements Serializable {
     private Integer oncotatorProteinPosEnd;
     private String keyword;
     private AlleleSpecificCopyNumber alleleSpecificCopyNumber;
+    @JsonRawValue
+    @ApiModelProperty(dataType = "java.util.Map")
+    private String annotationJSON;
     
     public String getCenter() {
         return center;
@@ -244,4 +250,13 @@ public class Mutation extends Alteration implements Serializable {
     public void setAlleleSpecificCopyNumber(AlleleSpecificCopyNumber alleleSpecificCopyNumber) {
         this.alleleSpecificCopyNumber = alleleSpecificCopyNumber;
     }
+
+    public String getAnnotationJSON() {
+        return annotationJSON;
+    }
+
+    public void setAnnotationJSON(String annotationJSON) {
+        this.annotationJSON = annotationJSON;
+    }
+
 }

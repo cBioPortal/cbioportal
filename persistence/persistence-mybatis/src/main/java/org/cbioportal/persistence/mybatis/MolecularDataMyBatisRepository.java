@@ -1,9 +1,6 @@
 package org.cbioportal.persistence.mybatis;
 
-import org.cbioportal.model.GeneMolecularAlteration;
-import org.cbioportal.model.GenericAssayMolecularAlteration;
-import org.cbioportal.model.GenesetMolecularAlteration;
-import org.cbioportal.model.MolecularProfileSamples;
+import org.cbioportal.model.*;
 import org.cbioportal.persistence.MolecularDataRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
@@ -22,14 +19,14 @@ public class MolecularDataMyBatisRepository implements MolecularDataRepository {
     public MolecularProfileSamples getCommaSeparatedSampleIdsOfMolecularProfile(String molecularProfileId) {
         try {
             return molecularDataMapper.getCommaSeparatedSampleIdsOfMolecularProfiles(
-                Arrays.asList(molecularProfileId)).get(0);
+                Collections.singleton(molecularProfileId)).get(0);
         } catch (IndexOutOfBoundsException e) {
             return null;
         }
     }
 
     @Override
-    public Map<String, MolecularProfileSamples> commaSeparatedSampleIdsOfMolecularProfilesMap(List<String> molecularProfileIds) {
+    public Map<String, MolecularProfileSamples> commaSeparatedSampleIdsOfMolecularProfilesMap(Set<String> molecularProfileIds) {
 
         return molecularDataMapper.getCommaSeparatedSampleIdsOfMolecularProfiles(molecularProfileIds)
                 .stream()
@@ -54,7 +51,7 @@ public class MolecularDataMyBatisRepository implements MolecularDataRepository {
     }
 
     @Override
-    public List<GeneMolecularAlteration> getGeneMolecularAlterationsInMultipleMolecularProfiles(List<String> molecularProfileIds, 
+    public List<GeneMolecularAlteration> getGeneMolecularAlterationsInMultipleMolecularProfiles(Set<String> molecularProfileIds, 
                                                                                                 List<Integer> entrezGeneIds, 
                                                                                                 String projection) {
 
@@ -62,7 +59,7 @@ public class MolecularDataMyBatisRepository implements MolecularDataRepository {
                 projection);
 	}
 
-	@Override
+    @Override
 	public List<GenesetMolecularAlteration> getGenesetMolecularAlterations(String molecularProfileId, 
                                                                            List<String> genesetIds, String projection) {
 

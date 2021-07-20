@@ -1,13 +1,6 @@
 package org.cbioportal.service.impl;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
@@ -55,8 +48,10 @@ public class GenericAssayServiceImpl implements GenericAssayService {
         if (molecularProfileIds != null) {
             List<String> distinctMolecularProfileIds = molecularProfileIds.stream().distinct().sorted().collect(Collectors.toList());
             if (distinctMolecularProfileIds.size() > 0) {
-                List<String> stableIdsInMolecularProfiles = genericAssayRepository.getGenericAssayStableIdsByMolecularIds(distinctMolecularProfileIds);
-                allStableIds.addAll(stableIdsInMolecularProfiles);
+                // fetch one profile at a time to improve cache performace for multiple profiles query
+                for (String distinctMolecularProfileId : distinctMolecularProfileIds) {
+                    allStableIds.addAll(genericAssayRepository.getGenericAssayStableIdsByMolecularIds(Arrays.asList(distinctMolecularProfileId)));
+                }
             }
             // if stableIds and molecularProfileIds both exist, find the common
             if (stableIds != null) {
@@ -81,21 +76,21 @@ public class GenericAssayServiceImpl implements GenericAssayService {
         if (distinctStableIds.size() > 0) {
             List<GenericAssayMeta> metaData = genericAssayRepository.getGenericAssayMeta(distinctStableIds);
             // just return stable_id if projection is ID
-            if (projection == "ID") {
+            if (projection.equals("ID")) {
                 for (GenericAssayMeta meta : metaData) {
                     metaResults.add(new GenericAssayMeta(meta.getStableId()));
                 }
             } else {
-                List<GenericAssayAdditionalProperty> additionalProperties = genericAssayRepository.getGenericAssayAdditionalproperties(distinctStableIds);
+                Map<String, List<GenericAssayAdditionalProperty>> additionalPropertiesGroupedByStableId =
+                    genericAssayRepository.getGenericAssayAdditionalproperties(distinctStableIds).stream()
+                        .collect(Collectors.groupingBy(GenericAssayAdditionalProperty::getStableId));
                 for (GenericAssayMeta meta : metaData) {
                     String stableId = meta.getStableId();
                     HashMap<String, String> map = new HashMap<>();
-                    List<GenericAssayAdditionalProperty> filteredAdditionalProperties = additionalProperties
-                            .stream()
-                            .filter(additionalProperty -> additionalProperty.getStableId().equals(stableId))
-                            .collect(Collectors.toList());
-                    for (GenericAssayAdditionalProperty additionalProperty : filteredAdditionalProperties) {
-                        map.put(additionalProperty.getName(), additionalProperty.getValue());
+                    if (additionalPropertiesGroupedByStableId.containsKey(stableId)) {
+                       for (GenericAssayAdditionalProperty additionalProperty : additionalPropertiesGroupedByStableId.get(stableId)) {
+                           map.put(additionalProperty.getName(), additionalProperty.getValue());
+                       }
                     }
                     meta.setGenericEntityMetaProperties(map);
                     metaResults.add(meta);
@@ -110,7 +105,7 @@ public class GenericAssayServiceImpl implements GenericAssayService {
     List<String> sampleIds, List<String> genericAssayStableIds, String projection) throws MolecularProfileNotFoundException {
         List<GenericAssayData> result = new ArrayList<>();
 
-        List<String> distinctMolecularProfileIds = molecularProfileIds.stream().distinct().sorted().collect(Collectors.toList());
+        SortedSet<String> distinctMolecularProfileIds = new TreeSet<>(molecularProfileIds);
 
         Map<String, MolecularProfileSamples> commaSeparatedSampleIdsOfMolecularProfilesMap = molecularDataRepository
                 .commaSeparatedSampleIdsOfMolecularProfilesMap(distinctMolecularProfileIds);
@@ -118,8 +113,7 @@ public class GenericAssayServiceImpl implements GenericAssayService {
         Map<String, Map<Integer, Integer>> internalSampleIdsMap = new HashMap<>();
         List<Integer> allInternalSampleIds = new ArrayList<>();
 
-        for (int i = 0; i < distinctMolecularProfileIds.size(); i++) {
-            String molecularProfileId = distinctMolecularProfileIds.get(i);
+        for (String molecularProfileId : distinctMolecularProfileIds) {
             List<Integer> internalSampleIds = Arrays
                     .stream(commaSeparatedSampleIdsOfMolecularProfilesMap.get(molecularProfileId).getSplitSampleIds())
                     .mapToInt(Integer::parseInt).boxed().collect(Collectors.toList());

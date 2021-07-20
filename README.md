@@ -23,7 +23,7 @@ Note: internally we have a dev database available with the public data set that 
 
 ### 🕵️‍♀️ Debugging
 
-If you want to attach a debugger you can change the `docker-compose.yml` file to include the paramaters: `-Xdebug -Xrunjdwp:transport=dt_socket,server=y,suspend=n,address=5005`. <ake sure to expose that port by adding `5005:5005` in the ports section of the cbioportal container.
+If you want to attach a debugger you can change the `docker-compose.yml` file to include the paramaters: `-Xdebug -Xrunjdwp:transport=dt_socket,server=y,suspend=n,address=5005`. Make sure to expose that port by adding `5005:5005` in the ports section of the cbioportal container.
 
 You can then use a JAVA IDE to connect to that port. E.g. in [VSCode](https://code.visualstudio.com/), one would add the following configuration to `launch.json` to connect:
 
@@ -52,7 +52,7 @@ You can then use a JAVA IDE to connect to that port. E.g. in [VSCode](https://co
 | Live instance version | https://www.cbioportal.org/api/info / https://master.cbioportal.org/api/info | -- | https://rc.cbioportal.org/api/info |
 | Docker Image | cbioportal/cbioportal:master | --| cbioportal/cbioportal:rc |
 | Kubernetes Config | [production](https://github.com/knowledgesystems/knowledgesystems-k8s-deployment/blob/master/cbioportal/cbioportal_spring_boot.yaml) / [master](https://github.com/knowledgesystems/knowledgesystems-k8s-deployment/blob/master/cbioportal/cbioportal_backend_master.yaml) | -- | [rc](https://github.com/knowledgesystems/knowledgesystems-k8s-deployment/blob/master/cbioportal/cbioportal_backend_rc.yaml) |
-| Status | [![master build status](https://travis-ci.org/cBioPortal/cbioportal.svg?branch=master)](https://travis-ci.org/cBioPortal/cbioportal/branches) | -- | [![Build Status](https://travis-ci.org/cBioPortal/cbioportal.svg?branch=rc)](https://travis-ci.org/cBioPortal/cbioportal/branches) |
+| Status | [![master build status](https://travis.com/cBioPortal/cbioportal.svg?branch=master)](https://travis-ci.com/cBioPortal/cbioportal/branches) | -- | [![Build Status](https://travis-ci.com/cBioPortal/cbioportal.svg?branch=rc)](https://travis-ci.com/cBioPortal/cbioportal/branches) |
 
 
 ## 🚀 Releases

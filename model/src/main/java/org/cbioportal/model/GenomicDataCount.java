@@ -1,6 +1,9 @@
 package org.cbioportal.model;
 
-public class GenomicDataCount {
+import java.io.Serializable;
+import java.util.Objects;
+
+public class GenomicDataCount implements Serializable {
 
     private String label;
     private String value;
@@ -30,4 +33,16 @@ public class GenomicDataCount {
         this.count = count;
     }
 
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        GenomicDataCount that = (GenomicDataCount) o;
+        return label.equals(that.label) && value.equals(that.value) && count.equals(that.count);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(label, value, count);
+    }
 }

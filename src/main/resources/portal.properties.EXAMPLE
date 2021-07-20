@@ -62,6 +62,8 @@ skin.blurb=The cBioPortal for Cancer Genomics provides <b>visualization</b>, <b>
 
 # setting controlling the footer
 skin.footer= | <a href="http://www.mskcc.org/mskcc/html/44.cfm">MSKCC</a> | <a href="http://cancergenome.nih.gov/">TCGA</a>
+# setting controlling listing the development channels in the site's footer section
+#skin.footer_show_dev=false
 
 # setting controlling html for the contact
 skin.login.contact_html=If you think you have received this message in error, please contact us at <a style="color:#FF0000" href="mailto:cbioportal-access@cbio.mskcc.org">cbioportal-access@cbio.mskcc.org</a>
@@ -74,6 +76,7 @@ skin.right_nav.show_data_sets=true
 skin.right_nav.show_examples=true
 skin.right_nav.show_testimonials=true
 skin.right_nav.show_whats_new=true
+#skin.right_nav.show_twitter=false
 
 # settings controlling what to show in the right navigation bar
 skin.study_view.link_text=To build your own case set, try out our enhanced Study View.
@@ -81,11 +84,14 @@ skin.study_view.link_text=To build your own case set, try out our enhanced Study
 # setting controlling the default setting for filtering genes in patient view
 # skin.patientview.filter_genes_profiled_all_samples=false
 
+# settings controlling the appearance of the annotation filter menu in study view and group comparison
+# skin.show_settings_menu=false
+
 ## enable and set this property to specify a study group to be used to identify public studies for which no specific authorization entries are needed in the `authorities` table
 # always_show_study_group=
 
 ## change the `-Dauthenticate=` JVM argument to configure
-## which method of authentication to use (false, googleplus, social_auth_google, social_auth_microsoft, saml, openid, ad, ldap, noauthsessionservice)
+## which method of authentication to use (false, googleplus, social_auth_google, social_auth_microsoft, saml, openid, noauthsessionservice)
 
 ## Should the permissions for groups and users be filtered by this instance's app.name?
 ## (true means the system only handles "CBIOPORTAL:someGroupPermission" groups, false means "someGroupPermission" works)
@@ -120,21 +126,6 @@ saml.idp.comm.binding.type=
 saml.custom.userservice.class=org.cbioportal.security.spring.authentication.saml.SAMLUserDetailsServiceImpl
 # Change this to configure to configure a custom logout URL: (default: /login.jsp?logout_success=true)
 saml.logout.url=/login.jsp?logout_success=true
-
-## settings to connect to an Active Directory domain controller
-ad.domain=
-ad.url=
-## configuration for the LDAP access
-ldap.user_search_base=DC=example,DC=com
-ldap.url=ldap://ldap.example.com
-ldap.manager.dn=CN=manager-user,DC=example,DC=com
-ldap.manager.password=PASSWORD
-## The following attributes for are good for ActiveDirectory, for OpenLDAP use "uid" for username
-ldap.attributes.username=sAMAccountName
-#ldap.attributes.username=uid
-ldap.attributes.last_name=sn
-ldap.attributes.given_name=givenName
-ldap.attributes.email=mail
 
 # data access token settings
 dat.unauth_users=
@@ -275,16 +266,21 @@ oncoprint.hotspots.default=true
 # querypage.setsofgenes.location=file:/<path>
 
 # valid cache types are (ehcache-heap, ehcache-disk, ehcache-hybrid, redis), or use 'no-cache' to disable caching
-# caution : the 'redis' caching option will likely cause a conflict when installing the portal in a tomcat installation which uses redisson for session management
+# caution 1: the 'redis' caching option will likely cause a conflict when installing the portal in a tomcat installation which uses redisson for session management
+# caution 2: this configuration needs to be set both at compile time and run time. See also https://github.com/cBioPortal/cbioportal/issues/8629
 persistence.cache_type=no-cache
 # Enable cache statistics endpoint for cache monitoring
 #cache.statistics_endpoint_enabled=false
 
 # Redis properties
+# Unique name for each portal instance, used for distinguishing caches
+#redis.name=
 #redis.leader_address=
 #redis.follower_address=
 #redis.database=
 #redis.password=
+#redis.ttl_mins=10000
+#redis.clear_on_startup=true
 
 # Ehcache properties
 #ehcache.xml_configuration=/ehcache.xml
@@ -349,3 +345,8 @@ persistence.cache_type=no-cache
 # Installation map URL for installation map iframes. 
 # If blank or commented out, no map will be shown and that page will be hidden.
 # installation_map_url=https://installationmap.netlify.app/
+
+# Turn cache management endpoint on or off (default)
+# cache.endpoint.enabled=true
+# API key for access to cache management endpoint
+# cache.endpoint.api-key=fd15f1ae-66f2-4b8a-8d54-fb899b03557e

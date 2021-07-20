@@ -1,21 +1,22 @@
 package org.cbioportal.service.impl;
 
 import org.cbioportal.model.MolecularProfile;
+import org.cbioportal.model.MolecularProfileCaseIdentifier;
 import org.cbioportal.model.meta.BaseMeta;
 import org.cbioportal.persistence.MolecularProfileRepository;
 import org.cbioportal.service.MolecularProfileService;
 import org.cbioportal.service.StudyService;
 import org.cbioportal.service.exception.MolecularProfileNotFoundException;
 import org.cbioportal.service.exception.StudyNotFoundException;
+import org.cbioportal.service.util.MolecularProfileUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.access.prepost.PostFilter;
 import org.springframework.stereotype.Service;
 
-import java.util.List;
-import java.util.Map;
+import java.util.*;
+import java.util.function.Predicate;
 import java.util.stream.Collectors;
-import java.util.ArrayList;
 
 @Service
 public class MolecularProfileServiceImpl implements MolecularProfileService {
@@ -24,6 +25,8 @@ public class MolecularProfileServiceImpl implements MolecularProfileService {
     private MolecularProfileRepository molecularProfileRepository;
     @Autowired
     private StudyService studyService;
+    @Autowired
+    private MolecularProfileUtil molecularProfileUtil;
     @Value("${authenticate:false}")
     private String AUTHENTICATE;
 
@@ -55,13 +58,13 @@ public class MolecularProfileServiceImpl implements MolecularProfileService {
     }
 
     @Override
-	public List<MolecularProfile> getMolecularProfiles(List<String> molecularProfileIds, String projection) {
+	public List<MolecularProfile> getMolecularProfiles(Set<String> molecularProfileIds, String projection) {
         
         return molecularProfileRepository.getMolecularProfiles(molecularProfileIds, projection);
     }
     
     @Override
-	public BaseMeta getMetaMolecularProfiles(List<String> molecularProfileIds) {
+	public BaseMeta getMetaMolecularProfiles(Set<String> molecularProfileIds) {
         
         return molecularProfileRepository.getMetaMolecularProfiles(molecularProfileIds);
 	}
@@ -115,43 +118,29 @@ public class MolecularProfileServiceImpl implements MolecularProfileService {
         return molecularProfileRepository.getMolecularProfilesReferringTo(referredMolecularProfileId);
 	}
 
-	@Override
-	public List<String> getFirstMutationProfileIds(List<String> studyIds, List<String> sampleIds) {
-        
-        List<String> molecularProfileIds = new ArrayList<>();
-        Map<String, List<MolecularProfile>> mapByStudyId = getMolecularProfilesInStudies(studyIds, "SUMMARY")
-            .stream().filter(m -> m.getMolecularAlterationType().equals(MolecularProfile.MolecularAlterationType.MUTATION_EXTENDED))
-            .collect(Collectors.groupingBy(MolecularProfile::getCancerStudyIdentifier));
-        int removedSampleCount = 0;
-        for (int i = 0; i < studyIds.size(); i++) {
-            String studyId = studyIds.get(i);
-            if (mapByStudyId.containsKey(studyId)) {
-                molecularProfileIds.add(mapByStudyId.get(studyId).get(0).getStableId());
-            } else {
-                sampleIds.remove(i - removedSampleCount);
-                removedSampleCount++;
-            }
-        }
-        return molecularProfileIds;
+    @Override
+    public List<MolecularProfileCaseIdentifier> getMolecularProfileCaseIdentifiers(List<String> studyIds, List<String> sampleIds) {
+        return getFilteredMolecularProfileCaseIdentifiers(studyIds, sampleIds, Optional.empty());
+    }
+
+    @Override
+	public List<MolecularProfileCaseIdentifier> getFirstMutationProfileCaseIdentifiers(List<String> studyIds, List<String> sampleIds) {
+        return getFilteredMolecularProfileCaseIdentifiers(studyIds, sampleIds, Optional.of(molecularProfileUtil.isMutationProfile));
 	}
 
 	@Override
-	public List<String> getFirstDiscreteCNAProfileIds(List<String> studyIds, List<String> sampleIds) {
-
-        List<String> molecularProfileIds = new ArrayList<>();
-        Map<String, List<MolecularProfile>> mapByStudyId = getMolecularProfilesInStudies(studyIds, "SUMMARY")
-            .stream().filter(m -> m.getMolecularAlterationType().equals(MolecularProfile.MolecularAlterationType.COPY_NUMBER_ALTERATION) && 
-            m.getDatatype().equals("DISCRETE")).collect(Collectors.groupingBy(MolecularProfile::getCancerStudyIdentifier));
-        int removedSampleCount = 0;
-        for (int i = 0; i < studyIds.size(); i++) {
-            String studyId = studyIds.get(i);
-            if (mapByStudyId.containsKey(studyId)) {
-                molecularProfileIds.add(mapByStudyId.get(studyId).get(0).getStableId());
-            } else {
-                sampleIds.remove(i - removedSampleCount);
-                removedSampleCount++;
-            }
-        }
-        return molecularProfileIds;
+	public List<MolecularProfileCaseIdentifier> getFirstDiscreteCNAProfileCaseIdentifiers(List<String> studyIds, List<String> sampleIds) {
+        return getFilteredMolecularProfileCaseIdentifiers(studyIds, sampleIds, Optional.of(molecularProfileUtil.isDiscreteCNAMolecularProfile));
 	}
+
+    @Override
+    public List<MolecularProfileCaseIdentifier> getFirstStructuralVariantProfileCaseIdentifiers(List<String> studyIds, List<String> sampleIds) {
+        return getFilteredMolecularProfileCaseIdentifiers(studyIds, sampleIds, Optional.of(molecularProfileUtil.isStructuralVariantMolecularProfile));
+    }
+
+    private List<MolecularProfileCaseIdentifier> getFilteredMolecularProfileCaseIdentifiers(List<String> studyIds, List<String> sampleIds, Optional<Predicate<MolecularProfile>> profileFilter) {
+        List<MolecularProfile> molecularProfiles =
+            getMolecularProfilesInStudies(studyIds.stream().distinct().collect(Collectors.toList()), "SUMMARY");
+        return molecularProfileUtil.getFilteredMolecularProfileCaseIdentifiers(molecularProfiles, studyIds, sampleIds, profileFilter);
+    }
 }

@@ -3,15 +3,18 @@ This manual is intended for users that have knowledge about the structure of the
 
 When loading studies into cBioPortal it is possible for warnings to occur that are caused by an outdated seed database. Gene symbols can be deprecated or be assigned to a different Entrez Gene in a new release. Also Entrez Gene IDs can be added. This markdown explains how to update the seed database, in order to use the most recent Entrez Gene IDs.
 
-The cBioPortal scripts package provides a method to update the `gene` and `gene_alias` tables. This requires the latest version of the NCBI Gene Info.
+The cBioPortal scripts package provides a method to update the `gene` and `gene_alias` tables.
+
+## Prepare
 
 ### Human genes
-Homo_sapien.gene_info.gz\
-ftp://ftp.ncbi.nih.gov/gene/DATA/GENE_INFO/Mammalia/Homo_sapiens.gene_info.gz
+Download [gene_info.txt](https://github.com/cBioPortal/datahub-study-curation-tools/blob/master/gene-table-update/build-input-for-importer/gene_info.txt)  
+Generated based on latest HGNC release using script [HERE](https://github.com/cBioPortal/datahub-study-curation-tools/tree/master/gene-table-update/build-input-for-importer) 
 
 ### Mouse genes
-Mus_musculus.gene_info.gz\
+Download `Mus_musculus.gene_info.gz` from   
 ftp://ftp.ncbi.nih.gov/gene/DATA/GENE_INFO/Mammalia/Mus_musculus.gene_info.gz
+Unzip the downloaded file with the command `gunzip Mus_musculus.gene_info.gz`
 
 ## MySQL steps
 Execute these steps in case you want to reset your database to the most recent genes list from NCBI.
@@ -37,13 +40,22 @@ ALTER TABLE `geneset_hierarchy_node` AUTO_INCREMENT = 1;
 ALTER TABLE `geneset` AUTO_INCREMENT = 1;
 ```
 
-4- Restart cBioPortal (restart webserver) to clean-up any cached gene lists.
+4- Restart cBioPortal (restart webserver)  or call the `/api/cache` endpoint with a `DELETE` http-request
+(see [here](portal.properties-Reference.md#flush-caches-with-the-_apicache_-endpoint) for more information)
+to clean-up any cached gene lists.
 
 5- To import gene data type the following commands when in the folder `<cbioportal_source_folder>/core/src/main/scripts`:
+### Human genes
 ```
 export PORTAL_HOME=<cbioportal_configuration_folder>
 export JAVA_HOME=<jre_installation_folder>
-./importGenes.pl --genes <ncbi_species.gene_info> --gtf <gencode.v25.annotation.gtf> --genome-build <GRCh37>
+./importGenes.pl --hgnc <gene_info.txt> --genome-build <GRCh37>
+```
+### Mouse genes
+```
+export PORTAL_HOME=<cbioportal_configuration_folder>
+export JAVA_HOME=<jre_installation_folder>
+./importGenes.pl --genes <Mus_musculus.gene_info.gz> --gtf <gencode.v25.annotation.gtf> --genome-build <GRCh37>
 ```
 **IMPORTANT NOTE**: 
 1. The **reference_genome** table needs to be populated before updating the **gene** table. Further details can be found in [this document](import-reference-genome.md). 
@@ -51,6 +63,11 @@ export JAVA_HOME=<jre_installation_folder>
 3. Use the **gene** table if you query information such as hugo symbols, types of the gene 
 4. Use **reference_genome_gene** table if you query information such as chromosome, cytoband, exonic length, or the start or end of the gene
 5. Load genes only to the **reference_genome_gene** table without updating the **gene** table, please use the following command:
+### Human genes
+```
+./importGenes.pl --gtf <gencode.v27.annotation.gtf> --genome-build <GRCh38>
+```
+### Mouse genes
 ```
 ./importGenes.pl --gtf <gencode.v27.annotation.gtf> --genome-build <GRCh38>
 ```

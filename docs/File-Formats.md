@@ -631,7 +631,7 @@ namespaces: ASCN
 ### Data file
 The mutation data file extends the [Mutation Annotation Format](https://docs.gdc.cancer.gov/Data/File_Formats/MAF_Format/) (MAF) created as part of The Cancer Genome Atlas (TCGA) project, by adding *extra annotations* to each mutation record. This section describes two types of MAF files:
 1. A minimal MAF file with only the columns required for cBioPortal.
-2. An extended MAF file created with [vcf2maf or maf2maf](https://github.com/mskcc/vcf2maf).
+2. An extended MAF file created with [vcf2maf, maf2maf](https://github.com/mskcc/vcf2maf) or the [Genome Nexus Annotation Pipeline](https://github.com/genome-nexus/genome-nexus-annotation-pipeline).
 
 ### Minimal MAF format
 A minimal mutation annotations file can contain just three of the MAF columns plus one annotation column. From this minimal MAF, it is possible to create an extended MAF by running maf2maf.
@@ -693,7 +693,7 @@ The extended MAF format recognized by the portal has:
 33. **HGVSp_Short (Required)**: Amino Acid Change, e.g. p.V600E.
 34. **t_alt_count (Optional)**: Variant allele count (tumor). 
 35. **t_ref_count (Optional)**: Reference allele count (tumor).
-36. **n_alt_count (Optional)**: Variant allele count (normal).~~~~
+36. **n_alt_count (Optional)**: Variant allele count (normal).
 37. **n_ref_count (Optional)**: Reference allele count (normal).
 
 <sup>**1**</sup> These columns are currently not shown in the Mutation tab and Patient view.
@@ -721,11 +721,31 @@ An example MAF with the following **additional** columns:
 ```
 ASCN.total_copy_number    ASCN.clonal     MUTATION.name    MUTATION.type
 ```
-imported with the following `namepsaces` field in the metafile:
+imported with the following `namespaces` field in the metafile:
 ```
 namespaces: ascn
 ```
 will import the `ASCN.total_copy_number` and `ASCN.clonal` column into the database. `MUTATION.name` and `MUTATION.type` will be ignored because `mutation` is not specified in the `namespaces` field. 
+
+## Representation of namespace columns by mutation API endpoints
+
+Columns added through namespaces will be returned by mutation API endpoints. Namespace data will be available in the `namespaceColumn`
+of respective JSON representations of mutation records. The `namespaceColumns` property will be a JSON object where
+namespace data is keyed by name of the namespace in lowercase. For instance, when namespace `ZYGOSITY` is defined in the 
+meta file and the data file has column `ZYGOSITY.status` with value `Homozygous` for a mutation row, the API will return the following JSON
+record for this mutation (only relevant fields are shown):
+
+```
+{
+    "namespaceColumns": {
+        "zygosity": {
+            "status": "Homozygous"
+        }
+    },
+}
+``` 
+
+Note: ASCN namespace data is not exported via the `namespaceColumns` field.
 
 ### Allele specific copy number (ASCN) annotations
 Allele specific copy number (ASCN) annotation is also supported and may be added using namespaces, described [here](#adding-mutation-annotation-columns-through-namespaces). If ASCN data is present in the MAF, the deployed cBioPortal instance will display additional columns in the mutation table showing ASCN data.
@@ -1412,7 +1432,7 @@ All generic assay data is registered to be of the type of `genetic_alteration_ty
 - ***CATEGORICAL (under development)***: This datatype is intended to be used for any categorical data set with similar structure (entities measured in samples). Any text is allowed in `CATEGORICAL` except blank.
 - ***BINARY (under development)***: This datatype is intended to be used for any binary data set with similar structure (entities measured in samples). The `BINARY` is validated to contain only reserved text (`true`, `false`, `yes`, `no`).
 
-If the value for the generic entity in the respective sample could not (or was not) be measured (or detected), the value should be 'NA'.
+If the value for the generic entity in the respective sample could not (or was not) be measured (or detected), the value should be 'NA' or leave that cell blank.
 
 ### Generic Assay data file
 The data file will be a simple tab separated format, similar to the expression data file: each sample is a column, each generic entity is a row, each cell contains values for that generic entity x sample combination.

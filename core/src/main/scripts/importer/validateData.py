@@ -96,6 +96,7 @@ VALIDATOR_IDS = {
     cbioportal_common.MetaFileTypes.EXPRESSION:'ContinuousValuesValidator',
     cbioportal_common.MetaFileTypes.METHYLATION:'ContinuousValuesValidator',
     cbioportal_common.MetaFileTypes.MUTATION:'MutationsExtendedValidator',
+    cbioportal_common.MetaFileTypes.MUTATION_UNCALLED:'MutationsExtendedValidator',
     cbioportal_common.MetaFileTypes.CANCER_TYPE:'CancerTypeValidator',
     cbioportal_common.MetaFileTypes.SAMPLE_ATTRIBUTES:'SampleClinicalValidator',
     cbioportal_common.MetaFileTypes.PATIENT_ATTRIBUTES:'PatientClinicalValidator',
@@ -419,7 +420,7 @@ class Validator(object):
         self.logger.debug('Starting validation of file')
 
         # Validate whether it's a normal file (skip for now)
-        if self.filename.endswith("_normals.txt"):
+        if self.filename.endswith("_normals.txt") or 'mrna_seq_v2_rsem_normal_samples' in self.filename:
             self.logger.info('Ignoring *_normals.txt files (TMP) '
                         'Continuing with validation...')
             return
@@ -4406,6 +4407,7 @@ class GenericAssayWiseFileValidator(FeaturewiseFileValidator):
     REQUIRED_HEADERS = ['ENTITY_STABLE_ID']
     OPTIONAL_HEADERS = []
     UNIQUE_COLUMNS = ['ENTITY_STABLE_ID']
+    ALLOW_BLANKS = True
     NULL_VALUES = ["NA"]
 
     def parseFeatureColumns(self, nonsample_col_vals):
@@ -4429,6 +4431,7 @@ class GenericAssayContinuousValidator(GenericAssayWiseFileValidator):
     # (1) Natural positive number (not 0)
     # (2) Number may be prefixed by ">" or "<"; f.i. ">n" means that the real value lies beyond value n.
     # (3) NA cell value is allowed; means value was not tested on a sample
+    # (4) empty cell is allowed; means value was not tested on a sample
     #
     # Warnings for values:
     # (1) Cell contains a value without decimals and is not prefixed by ">"; value appears to be truncated but lacks ">" truncation indicator
@@ -4447,10 +4450,7 @@ class GenericAssayContinuousValidator(GenericAssayWiseFileValidator):
 
         # value is not defined (empty cell)
         if len(stripped_value) == 0:
-            self.logger.error("Cell is empty. A value is expected. Use 'NA' to indicate missing values.",
-                extra={'line_number': self.line_number,
-                'column_number': col_index + 1,
-                'cause': value})
+            # empty cell is allowed
             return
 
         try:
@@ -4492,23 +4492,8 @@ class GenericAssayCategoricalValidator(GenericAssayWiseFileValidator):
         """Initialize the instance attributes of the data file validator."""
         super(GenericAssayCategoricalValidator, self).__init__(*args, **kwargs)
 
-    # (1) non-empty string
-    # (2) NA cell value is allowed; means value was not tested on a sample
-
+    # Categorical data do not need further validation
     def checkValue(self, value, col_index):
-        """Check a value in a sample column."""
-        stripped_value = value.strip()
-        # do not check null values
-        # 'NA' is an allowed value. No further validations apply.
-        if stripped_value in self.NULL_VALUES:
-            return
-        # non-empty string
-        if len(stripped_value) == 0:
-            self.logger.error("Cell is empty. A categorical value is expected. Use 'NA' to indicate missing values.",
-                extra={'line_number': self.line_number,
-                'column_number': col_index + 1,
-                'cause': value})
-
         return
 
 class GenericAssayBinaryValidator(GenericAssayWiseFileValidator):
@@ -4521,6 +4506,7 @@ class GenericAssayBinaryValidator(GenericAssayWiseFileValidator):
 
     # (1) values defined in ALLOWED_VALUES
     # (2) NA cell value is allowed; means value was not tested on a sample
+    # (3) empty cell is allowed; means value was not tested on a sample
 
     ALLOWED_VALUES = ['yes', 'no', 'true', 'false'] + GenericAssayWiseFileValidator.NULL_VALUES
 
@@ -4530,6 +4516,10 @@ class GenericAssayBinaryValidator(GenericAssayWiseFileValidator):
         # do not check null values
         # 'NA' is an allowed value. No further validations apply.
         if stripped_value in self.NULL_VALUES:
+            return
+        # value is not defined (empty cell)
+        if len(stripped_value) == 0:
+            # empty cell is allowed
             return
         if stripped_value not in self.ALLOWED_VALUES:
             self.logger.error(
@@ -4950,12 +4940,19 @@ def validate_data_relations(validators_by_meta_type, logger):
 
     # validation specific for Z-SCORE expression data
     for expression_zscores_source_stable_id in expression_zscores_source_stable_ids:
-
         # check if 'source_stable_id' of EXPRESSION Z-SCORE is an EXPRESSION 'stable_id'
-        if not expression_zscores_source_stable_id in expression_stable_ids:
+        if not expression_zscores_source_stable_id in expression_stable_ids.keys():
             logger.error(
-                "Invalid source_stable_id. Expected one of ['" + "', '".join(expression_stable_ids) +
+                "Invalid source_stable_id. Expected one of ['" + "', '".join(expression_stable_ids.keys()) +
                 "'], which are stable ids of expression files in this study",
+                extra={'filename_': expression_zscores_source_stable_ids[expression_zscores_source_stable_id],
+                       'cause': expression_zscores_source_stable_id})
+        # check that source_stable_id is not the same as source_id
+        for expression_stable_id in expression_stable_ids.keys():
+            if expression_zscores_source_stable_ids[expression_zscores_source_stable_id] == expression_stable_ids[expression_stable_id]:
+                if expression_zscores_source_stable_id == expression_stable_id:
+                    logger.error(
+                "Both source_stable_id and stable_id refers to the same profile",
                 extra={'filename_': expression_zscores_source_stable_ids[expression_zscores_source_stable_id],
                        'cause': expression_zscores_source_stable_id})
 
@@ -4980,9 +4977,9 @@ def validate_data_relations(validators_by_meta_type, logger):
         if not missing_gsva_file:
 
             # check if 'source_stable_id' of GSVA_SCORES is an EXPRESSION 'stable_id'
-            if not gsva_scores_source_stable_id in expression_stable_ids:
+            if not gsva_scores_source_stable_id in expression_stable_ids.keys():
                 logger.error(
-                    "Invalid source_stable_id. Expected one of ['" + "', '".join(expression_stable_ids) +
+                    "Invalid source_stable_id. Expected one of ['" + "', '".join(expression_stable_ids.keys()) +
                     "'], which are stable ids of expression files in this study",
                     extra={'filename_': gsva_scores_filename,
                            'cause': gsva_scores_source_stable_id})

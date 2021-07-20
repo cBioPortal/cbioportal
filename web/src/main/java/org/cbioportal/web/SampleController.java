@@ -48,6 +48,7 @@ public class SampleController {
     public static final int SAMPLE_MAX_PAGE_SIZE = 10000000;
     private static final String SAMPLE_DEFAULT_PAGE_SIZE = "10000000";
 
+    
     @Autowired
     private SampleService sampleService;
     
@@ -242,9 +243,12 @@ public class SampleController {
             return new ResponseEntity<>(responseHeaders, HttpStatus.OK);
         } else {
             List<Sample> samples;
-
             if (interceptedSampleFilter.getSampleListIds() != null) {
-                samples = sampleService.fetchSamples(interceptedSampleFilter.getSampleListIds(), projection.name());
+                samples = new ArrayList<>();
+                List<String> sampleListIds = interceptedSampleFilter.getSampleListIds();
+                for (String sampleListId : sampleListIds) {
+                    samples.addAll(fetchSamplesInner(Arrays.asList(sampleListId), projection.name()));
+                }
             } else {
                 if (interceptedSampleFilter.getSampleIdentifiers() != null) {
                     extractStudyAndSampleIds(interceptedSampleFilter, studyIds, sampleIds);
@@ -257,7 +261,13 @@ public class SampleController {
             return new ResponseEntity<>(samples, HttpStatus.OK);
         }
     }
-
+    
+    public List<Sample> fetchSamplesInner(
+        List<String> sampleListIds, String projection
+    ) {
+        return sampleService.fetchSamples(sampleListIds, projection);
+    }
+    
     private void extractStudyAndSampleIds(SampleFilter sampleFilter, List<String> studyIds, List<String> sampleIds) {
 
         for (SampleIdentifier sampleIdentifier : sampleFilter.getSampleIdentifiers()) {

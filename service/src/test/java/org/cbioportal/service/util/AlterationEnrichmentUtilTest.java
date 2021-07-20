@@ -3,6 +3,7 @@ package org.cbioportal.service.util;
 import java.math.BigDecimal;
 import java.util.*;
 
+import org.apache.commons.math3.util.Pair;
 import org.cbioportal.model.*;
 import org.cbioportal.service.GeneService;
 import org.junit.Assert;
@@ -21,6 +22,8 @@ public class AlterationEnrichmentUtilTest {
     private FisherExactTestCalculator fisherExactTestCalculator;
     @Mock
     private GeneService geneService;
+    @Mock
+    private ProfiledCasesCounter profiledCasesCounter;
 
     @Test
     public void createAlterationEnrichments() throws Exception {
@@ -92,9 +95,9 @@ public class AlterationEnrichmentUtilTest {
 
         Mockito.when(geneService.fetchGenes(Arrays.asList("2", "3"), "ENTREZ_GENE_ID", "SUMMARY")).thenReturn(genes);
 
-        Map<String, List<? extends AlterationCountByGene>> mutationCountsbyEntrezGeneIdAndGroup = new HashMap<>();
-        mutationCountsbyEntrezGeneIdAndGroup.put("group1", Arrays.asList(alterationSampleCountByGene1, alterationSampleCount1ByGene1));
-        mutationCountsbyEntrezGeneIdAndGroup.put("group2", Arrays.asList(alterationSampleCountByGene2, alterationSampleCount1ByGene2));
+        Map<String, Pair<List<AlterationCountByGene>, Long>> mutationCountsbyEntrezGeneIdAndGroup = new HashMap<>();
+        mutationCountsbyEntrezGeneIdAndGroup.put("group1", new Pair<List<AlterationCountByGene>, Long>(Arrays.asList(alterationSampleCountByGene1, alterationSampleCount1ByGene1), 0L));
+        mutationCountsbyEntrezGeneIdAndGroup.put("group2", new Pair<List<AlterationCountByGene>, Long>(Arrays.asList(alterationSampleCountByGene2, alterationSampleCount1ByGene2), 0L));
 
         // START: for 2 groups
 
@@ -102,7 +105,7 @@ public class AlterationEnrichmentUtilTest {
         Mockito.when(fisherExactTestCalculator.getCumulativePValue(2, 0, 0, 2)).thenReturn(0.3);
 
         List<AlterationEnrichment> result = alterationEnrichmentUtil.createAlterationEnrichments(
-                mutationCountsbyEntrezGeneIdAndGroup, groupMolecularProfileCaseSets);
+                mutationCountsbyEntrezGeneIdAndGroup);
 
         Assert.assertEquals(2, result.size());
         AlterationEnrichment alterationEnrichment1 = result.get(0);
@@ -138,11 +141,9 @@ public class AlterationEnrichmentUtilTest {
         // START: for 3 groups
 
         groupMolecularProfileCaseSets.put("group3", molecularProfileCaseSet3);
-        mutationCountsbyEntrezGeneIdAndGroup.put("group3",
-                Arrays.asList(alterationSampleCountByGene1, alterationSampleCountByGene2));
+        mutationCountsbyEntrezGeneIdAndGroup.put("group3", new Pair<List<AlterationCountByGene>, Long>(Arrays.asList(alterationSampleCountByGene1, alterationSampleCountByGene2), 0L));
 
-        result = alterationEnrichmentUtil.createAlterationEnrichments(mutationCountsbyEntrezGeneIdAndGroup,
-                groupMolecularProfileCaseSets);
+        result = alterationEnrichmentUtil.createAlterationEnrichments(mutationCountsbyEntrezGeneIdAndGroup);
 
         Assert.assertEquals(2, result.size());
         alterationEnrichment1 = result.get(0);

@@ -64,6 +64,7 @@ public class OAuth2TokenAuthenticationProviderTestConfiguration {
                         .append("]")
                     .append("}")
                 .append("}")
+                .append(",\"sub\": \"username\"")
             .append("}")
             .toString();
 

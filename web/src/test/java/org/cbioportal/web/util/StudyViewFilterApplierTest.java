@@ -1,14 +1,8 @@
 package org.cbioportal.web.util;
 
-import org.cbioportal.model.ClinicalAttribute;
-import org.cbioportal.model.ClinicalData;
-import org.cbioportal.model.DiscreteCopyNumberData;
-import org.cbioportal.model.Gene;
-import org.cbioportal.model.MolecularProfile;
+import org.cbioportal.model.*;
 import org.cbioportal.model.MolecularProfile.MolecularAlterationType;
-import org.cbioportal.model.Mutation;
-import org.cbioportal.model.Patient;
-import org.cbioportal.model.Sample;
+import org.cbioportal.model.util.Select;
 import org.cbioportal.service.ClinicalAttributeService;
 import org.cbioportal.service.ClinicalDataService;
 import org.cbioportal.service.DiscreteCopyNumberService;
@@ -21,9 +15,9 @@ import org.cbioportal.service.MutationService;
 import org.cbioportal.service.PatientService;
 import org.cbioportal.service.SampleListService;
 import org.cbioportal.service.SampleService;
+import org.cbioportal.service.StructuralVariantService;
 import org.cbioportal.web.parameter.ClinicalDataFilter;
 import org.cbioportal.web.parameter.DataFilterValue;
-import org.cbioportal.web.parameter.GeneFilter;
 import org.cbioportal.web.parameter.GeneIdType;
 import org.cbioportal.web.parameter.Projection;
 import org.cbioportal.web.parameter.SampleIdentifier;
@@ -45,6 +39,8 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
+
+import static org.mockito.ArgumentMatchers.*;
 
 @RunWith(MockitoJUnitRunner.Silent.class)
 public class StudyViewFilterApplierTest {
@@ -112,6 +108,8 @@ public class StudyViewFilterApplierTest {
     @Spy
     @InjectMocks
     private DataBinHelper dataBinHelper;
+    @Mock
+    private StructuralVariantService structuralVariantService;
 
     @Before
     public void setup() {
@@ -175,15 +173,40 @@ public class StudyViewFilterApplierTest {
         clinicalDataEqualityFilter2.setValues(Arrays.asList(filterValue1, filterValue2));
         clinicalDataEqualityFilters.add(clinicalDataEqualityFilter2);
         studyViewFilter.setClinicalDataFilters(clinicalDataEqualityFilters);
+
+        boolean includeDriver = true;
+        boolean includeVUS = true;
+        boolean includeUnknownOncogenicity = true;
+        boolean includeGermline = true;
+        boolean includeSomatic = true;
+        boolean includeUnknownStatus = true;
+        Select<String> selectedTiers = Select.none();
+        boolean includeUnknownTier = true;
         List<GeneFilter> geneFilters = new ArrayList<>();
         GeneFilter mutationGeneFilter = new GeneFilter();
-        mutationGeneFilter.setGeneQueries(Arrays.asList(Arrays.asList(HUGO_GENE_SYMBOL_1)));
-        mutationGeneFilter.setMolecularProfileIds(new HashSet<>(Arrays.asList(MOLECULAR_PROFILE_ID_1, "FILTERED_OUT_PROFILE_ID")));
-        geneFilters.add(mutationGeneFilter);
+        mutationGeneFilter.setMolecularProfileIds(new HashSet<>(Arrays.asList(MOLECULAR_PROFILE_ID_1)));
+
+        GeneFilterQuery geneFilterQuery1 = new GeneFilterQuery("HUGO_GENE_SYMBOL_1", null,
+            null, includeDriver, includeVUS, includeUnknownOncogenicity,  selectedTiers, includeUnknownTier,
+            includeGermline, includeSomatic, includeUnknownStatus);
+        List<List<GeneFilterQuery>> q1 = new ArrayList<>();
+        List<GeneFilterQuery> q2 = new ArrayList<>();
+        q2.add(geneFilterQuery1);
+        q1.add(q2);
+        mutationGeneFilter.setGeneQueries(q1);
 
         GeneFilter copyNumberGeneFilter = new GeneFilter();
-        copyNumberGeneFilter.setGeneQueries(Arrays.asList(Arrays.asList(HUGO_GENE_SYMBOL_2 + ":HOMDEL")));
         copyNumberGeneFilter.setMolecularProfileIds(new HashSet<>(Arrays.asList(MOLECULAR_PROFILE_ID_2)));
+        GeneFilterQuery geneFilterQuery2 = new GeneFilterQuery("HUGO_GENE_SYMBOL_2", null,
+            Arrays.asList(CNA.HOMDEL), includeDriver, includeVUS, includeUnknownOncogenicity,  selectedTiers,
+            includeUnknownTier,includeGermline, includeSomatic, includeUnknownStatus);
+        List<List<GeneFilterQuery>> q3 = new ArrayList<>();
+        List<GeneFilterQuery> q4 = new ArrayList<>();
+        q4.add(geneFilterQuery2);
+        q3.add(q4);
+        copyNumberGeneFilter.setGeneQueries(q3);
+
+        geneFilters.add(mutationGeneFilter);
         geneFilters.add(copyNumberGeneFilter);
         studyViewFilter.setGeneFilters(geneFilters);
 
@@ -374,22 +397,34 @@ public class StudyViewFilterApplierTest {
 
         Gene gene1 = new Gene();
         gene1.setEntrezGeneId(ENTREZ_GENE_ID_1);
+        gene1.setHugoGeneSymbol(HUGO_GENE_SYMBOL_1);
         Mockito.when(geneService.fetchGenes(Arrays.asList(HUGO_GENE_SYMBOL_1), GeneIdType.HUGO_GENE_SYMBOL.name(),
                 Projection.SUMMARY.name())).thenReturn(Arrays.asList(gene1));
-
-        Mockito.when(mutationService.getMutationsInMultipleMolecularProfiles(
-                Arrays.asList(MOLECULAR_PROFILE_ID_1, MOLECULAR_PROFILE_ID_1, MOLECULAR_PROFILE_ID_1,
-                        MOLECULAR_PROFILE_ID_1),
-                updatedSampleIds, Arrays.asList(ENTREZ_GENE_ID_1), "ID", null, null, null, null)).thenReturn(mutations);
+        Mockito.when(mutationService.getMutationsInMultipleMolecularProfilesByGeneQueries(
+            anyList(), anyList(), anyList(), anyString(), isNull(), isNull(), isNull(), isNull())).thenReturn(mutations);
 
         updatedSampleIds = new ArrayList<>();
         updatedSampleIds.add(SAMPLE_ID1);
         updatedSampleIds.add(SAMPLE_ID2);
         updatedSampleIds.add(SAMPLE_ID4);
 
-        Mockito.when(molecularProfileService.getFirstDiscreteCNAProfileIds(Arrays.asList(STUDY_ID, STUDY_ID, STUDY_ID),
+        List<MolecularProfileCaseIdentifier> molecularProfileCaseIdentifiers = new ArrayList<>();
+        MolecularProfileCaseIdentifier profileCaseIdentifier1 = new MolecularProfileCaseIdentifier();
+        profileCaseIdentifier1.setCaseId(SAMPLE_ID1);
+        profileCaseIdentifier1.setMolecularProfileId(MOLECULAR_PROFILE_ID_2);
+        molecularProfileCaseIdentifiers.add(profileCaseIdentifier1);
+        MolecularProfileCaseIdentifier profileCaseIdentifier2 = new MolecularProfileCaseIdentifier();
+        profileCaseIdentifier2.setCaseId(SAMPLE_ID2);
+        profileCaseIdentifier2.setMolecularProfileId(MOLECULAR_PROFILE_ID_2);
+        molecularProfileCaseIdentifiers.add(profileCaseIdentifier2);
+        MolecularProfileCaseIdentifier profileCaseIdentifier3 = new MolecularProfileCaseIdentifier();
+        profileCaseIdentifier3.setCaseId(SAMPLE_ID4);
+        profileCaseIdentifier3.setMolecularProfileId(MOLECULAR_PROFILE_ID_2);
+        molecularProfileCaseIdentifiers.add(profileCaseIdentifier3);
+
+        Mockito.when(molecularProfileService.getFirstDiscreteCNAProfileCaseIdentifiers(Arrays.asList(STUDY_ID, STUDY_ID, STUDY_ID),
                 updatedSampleIds))
-                .thenReturn(Arrays.asList(MOLECULAR_PROFILE_ID_2, MOLECULAR_PROFILE_ID_2, MOLECULAR_PROFILE_ID_2));
+                .thenReturn(molecularProfileCaseIdentifiers);
 
         List<DiscreteCopyNumberData> discreteCopyNumberDataList = new ArrayList<>();
         DiscreteCopyNumberData discreteCopyNumberData1 = new DiscreteCopyNumberData();
@@ -407,12 +442,12 @@ public class StudyViewFilterApplierTest {
 
         Gene gene2 = new Gene();
         gene2.setEntrezGeneId(ENTREZ_GENE_ID_2);
+        gene2.setHugoGeneSymbol(HUGO_GENE_SYMBOL_2);
         Mockito.when(geneService.fetchGenes(Arrays.asList(HUGO_GENE_SYMBOL_2), GeneIdType.HUGO_GENE_SYMBOL.name(),
-                Projection.SUMMARY.name())).thenReturn(Arrays.asList(gene2));
+            Projection.SUMMARY.name())).thenReturn(Arrays.asList(gene2));
 
-        Mockito.when(discreteCopyNumberService.getDiscreteCopyNumbersInMultipleMolecularProfiles(
-                Arrays.asList(MOLECULAR_PROFILE_ID_2, MOLECULAR_PROFILE_ID_2, MOLECULAR_PROFILE_ID_2), updatedSampleIds,
-                Arrays.asList(ENTREZ_GENE_ID_2), Arrays.asList(-2), "ID")).thenReturn(discreteCopyNumberDataList);
+        Mockito.when(discreteCopyNumberService.getDiscreteCopyNumbersInMultipleMolecularProfilesByGeneQueries(
+            anyList(), anyList(), anyList(), anyString())).thenReturn(discreteCopyNumberDataList);
 
         List<ClinicalAttribute> clinicalAttributeList = new ArrayList<>();
         ClinicalAttribute clinicalAttribute1 = new ClinicalAttribute();

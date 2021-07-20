@@ -10,6 +10,8 @@ import javax.validation.constraints.Size;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonInclude.Include;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import org.cbioportal.model.AlterationFilter;
+import org.cbioportal.model.GeneFilter;
 import org.cbioportal.web.parameter.filter.*;
 
 @JsonIgnoreProperties(ignoreUnknown = true)
@@ -29,7 +31,8 @@ public class StudyViewFilter implements Serializable {
     private List<GenericAssayDataFilter> genericAssayDataFilters;
     private List<List<String>> caseLists;
     private List<ClinicalDataFilter> customDataFilters;
-
+    private AlterationFilter alterationFilter;
+    
     @AssertTrue
     private boolean isEitherSampleIdentifiersOrStudyIdsPresent() {
         return sampleIdentifiers != null ^ studyIds != null;
@@ -157,4 +160,11 @@ public class StudyViewFilter implements Serializable {
         this.customDataFilters = customDataFilters;
     }
 
+    public AlterationFilter getAlterationFilter() {
+        return alterationFilter;
+    }
+
+    public void setAlterationFilter(AlterationFilter alterationFilter) {
+        this.alterationFilter = alterationFilter;
+    }
 }

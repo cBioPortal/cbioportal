@@ -1,3 +1,4 @@
+
 This page describes the main properties within portal.properties.
 
 - [Database Settings](#database-settings)
@@ -124,6 +125,9 @@ skin.right_nav.show_testimonials=
 
 #What's New section
 skin.right_nav.show_whats_new=
+
+#Twitter feed in What's New section
+skin.right_nav.show_twitter=
 ```
 
 ## Control the content of specific sections
@@ -142,6 +146,11 @@ Setting controlling the footer: you can add any HTML code here that you want to 
 skin.footer=
 ```
 
+Setting controlling listing the development channels in the site's footer section
+```
+skin.footer_show_dev=
+```
+
 Settings controlling the "What's New" blurb in the right navigation bar: you can add any HTML code here that you want to visualize. If the field is left empty, the Twitter timeline will be shown (as long as `skin.right_nav.show_whats_new` is `true`, otherwise this section will not be displayed).
 
 ```
@@ -158,6 +167,16 @@ Different samples of a patient may have been analyzed with different gene panels
 ```
 skin.patientview.filter_genes_profiled_all_samples=
 ```
+
+## Control the appearance of the settings menu in study view and group comparison that controls custom annotation-based filtering
+A settings menu that allows the user to filter alterations in study view and group comparison may be used
+when [custom driver annotations](File-Formats.md#custom-driver-annotations) were loaded for the study or studies displayed
+in these sections. This menu will only appear, when setting the property _skin.show_settings_menu_ to _true_.
+
+```
+skin.show_settings_menu=
+```
+
 
 ## Hide p- and q-values in survival types table
 ```
@@ -412,11 +431,23 @@ To cache with Redis set `persistence.cache_type` to `redis`.
 To setup the Redis cache servers the following properties are required:
 
 ```
+redis.name=unique_cbioportal_instance_name
 redis.leader_address=redis://{host/servicename}:6379
 redis.follower_address=redis://{host/servicename}:6379
 redis.database=0
 redis.password=password
 ```
+
+If you are running one redis instance for multiple instances of cBioPortal, one can use the properties `redis.name` and `redis.database` to avoid clashes. If you are running only one instance of cBioPortal any value for name/database will do.
+
+There are also some optional parameters:
+
+`redis.clear_on_startup`: If `true`, the caches will clear on startup. This is important
+to do to avoid reading old study data from the cache. You may want to turn it off and clear
+redis yourself if you are running in a clustered environments, as you'll have frequent 
+restarts that do not require you to clear the redis cache.  
+`redis.ttl_mins`: The time to live of items in the general cache, in minutes. The default value is 10000,
+or just under 7 days. 
 
 For more information on Redis, refer to the official documentation [here](https://redis.io/documentation)
 
@@ -443,6 +474,24 @@ ehcache.static_repository_cache_one.max_mega_bytes_local_disk=
 ```
 
 For more information on Ehcache, refer to the official documentation [here](https://www.ehcache.org/documentation/3.7/index.html)
+
+# Flush caches with the _/api/cache_ endpoint
+
+`DELETE` http requests to the `/api/cache` endpoint will flush the cBioPortal caches, and serves as an alternative to restarting
+the cBioPortal application.
+
+By default the endpoint is enabled. The endpoint can be disabled by setting:
+
+```
+cache.endpoint.enable=false
+```
+
+Access to the endpoint is not regulated by the configured user authorization mechanism. Instead, an API key should be passed
+with the `X-API-KEY` header. The accepted value for the API key can be configured by setting (for example):
+
+```
+cache.endpoint.api-key=7d70fecb-cda8-490f-9ea2-ef874b6512f4
+```
 
 # Enable GSVA functionality
 

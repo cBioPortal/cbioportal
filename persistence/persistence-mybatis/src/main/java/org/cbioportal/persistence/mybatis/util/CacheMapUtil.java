@@ -33,6 +33,7 @@
 package org.cbioportal.persistence.mybatis.util;
 
 import java.util.*;
+import java.util.concurrent.ConcurrentHashMap;
 import javax.annotation.PostConstruct;
 import org.cbioportal.model.*;
 import org.cbioportal.persistence.*;
@@ -67,10 +68,13 @@ public class CacheMapUtil {
     private static final int REPOSITORY_RESULT_OFFSET = 0; // retrieve all entries (do not skip any)
 
     // maps used to cache required relationships - in all maps stable ids are key
-    private Map<String, MolecularProfile> molecularProfileCache;
-    private Map<String, SampleList> sampleListCache;
-    private Map<String, CancerStudy> cancerStudyCache;
-    private Map<String, String> genericAssayStableIdToMolecularProfileIdCache;
+    // Fields are static because the proxying mechanism of the CancerStudyPermissionEvaluator
+    // appears to perturb the Singleton scope of the CacheMapUtils bean. When debugging
+    // two version appeared to exist in context. A mechanism with bean injection did not work here.
+    private static Map<String, MolecularProfile> molecularProfileCache;
+    private static Map<String, SampleList> sampleListCache;
+    private static Map<String, CancerStudy> cancerStudyCache;
+    private static Map<String, String> genericAssayStableIdToMolecularProfileIdCache;
 
     public Map<String, MolecularProfile> getMolecularProfileMap() {
         return molecularProfileCache;
@@ -89,11 +93,17 @@ public class CacheMapUtil {
     }
 
     @PostConstruct
-    private void initializeCacheMemory() {
+    private void init() {
+        initializeCacheMemory();
+    }
+
+    public synchronized void initializeCacheMemory() {
+        
         // CHANGES TO THIS LIST MUST BE PROPAGATED TO 'GlobalProperties'
         this.cacheEnabled = (!authenticate.isEmpty() 
                 && !authenticate.equals("false") 
                 && !authenticate.contains("social_auth"));
+        
         if (cacheEnabled) {
             LOG.debug("creating cache maps for authorization");
             populateMolecularProfileMap();
@@ -104,9 +114,7 @@ public class CacheMapUtil {
     }
 
     private void populateMolecularProfileMap() {
-        if (molecularProfileCache == null) {
-            molecularProfileCache = new HashMap<String, MolecularProfile>();
-        }
+        molecularProfileCache = new HashMap<String, MolecularProfile>();
         for (MolecularProfile mp : molecularProfileRepository.getAllMolecularProfiles(
                 "SUMMARY",
                 REPOSITORY_RESULT_LIMIT,
@@ -119,9 +127,7 @@ public class CacheMapUtil {
     }
 
     private void populateSampleListMap() {
-        if (sampleListCache == null) {
-            sampleListCache = new HashMap<String, SampleList>();
-        }
+        sampleListCache = new HashMap<String, SampleList>();
         for (SampleList sl : sampleListRepository.getAllSampleLists(
                 "SUMMARY",
                 REPOSITORY_RESULT_LIMIT,
@@ -134,9 +140,7 @@ public class CacheMapUtil {
     }
 
     private void populateCancerStudyMap() {
-        if (cancerStudyCache == null) {
-            cancerStudyCache = new HashMap<String, CancerStudy>();
-        }
+        cancerStudyCache = new HashMap<String, CancerStudy>();
         for (CancerStudy cs : studyRepository.getAllStudies(
                 null,
                 "SUMMARY",
@@ -150,9 +154,7 @@ public class CacheMapUtil {
     }
 
     private void populateGenericAssayStableIdToMolecularProfileIdMap() {
-        if (genericAssayStableIdToMolecularProfileIdCache == null) {
-            genericAssayStableIdToMolecularProfileIdCache = new HashMap<String, String>();
-        }
+        genericAssayStableIdToMolecularProfileIdCache = new HashMap<String, String>();
         for (MolecularProfile mp : molecularProfileRepository.getAllMolecularProfiles(
             "SUMMARY",
             REPOSITORY_RESULT_LIMIT,
@@ -160,7 +162,7 @@ public class CacheMapUtil {
             null,
             "ASC")) {
             // Only select GENERIC_ASSAY profiles
-            if (mp.getMolecularAlterationType().toString() == EntityType.GENERIC_ASSAY.toString()) {
+            if (EntityType.GENERIC_ASSAY.toString().equals(mp.getMolecularAlterationType().toString())) {
                 List<String> molecularId = new ArrayList<String>();
                 molecularId.add(mp.getStableId());
                 List<String> stableIds = genericAssayRepository.getGenericAssayStableIdsByMolecularIds(molecularId);

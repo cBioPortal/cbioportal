@@ -6,6 +6,7 @@ import org.cbioportal.model.meta.BaseMeta;
 import org.springframework.cache.annotation.Cacheable;
 
 import java.util.List;
+import java.util.Set;
 
 public interface MolecularProfileRepository {
 
@@ -20,10 +21,10 @@ public interface MolecularProfileRepository {
     MolecularProfile getMolecularProfile(String molecularProfileId);
 
     @Cacheable(cacheResolver = "generalRepositoryCacheResolver", condition = "@cacheEnabledConfig.getEnabled()")
-    List<MolecularProfile> getMolecularProfiles(List<String> molecularProfileIds, String projection);
+    List<MolecularProfile> getMolecularProfiles(Set<String> molecularProfileIds, String projection);
 
     @Cacheable(cacheResolver = "generalRepositoryCacheResolver", condition = "@cacheEnabledConfig.getEnabled()")
-    BaseMeta getMetaMolecularProfiles(List<String> molecularProfileIds);
+    BaseMeta getMetaMolecularProfiles(Set<String> molecularProfileIds);
 
     @Cacheable(cacheResolver = "generalRepositoryCacheResolver", condition = "@cacheEnabledConfig.getEnabled()")
     List<MolecularProfile> getAllMolecularProfilesInStudy(String studyId, String projection, Integer pageSize,

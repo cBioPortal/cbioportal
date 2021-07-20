@@ -2,6 +2,7 @@ package org.cbioportal.persistence;
 
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import org.cbioportal.model.GeneMolecularAlteration;
 import org.cbioportal.model.GenericAssayMolecularAlteration;
@@ -15,7 +16,7 @@ public interface MolecularDataRepository {
     MolecularProfileSamples getCommaSeparatedSampleIdsOfMolecularProfile(String molecularProfileId);
 
     @Cacheable(cacheResolver = "generalRepositoryCacheResolver", condition = "@cacheEnabledConfig.getEnabled()")
-    Map<String, MolecularProfileSamples> commaSeparatedSampleIdsOfMolecularProfilesMap(List<String> molecularProfileIds);
+    Map<String, MolecularProfileSamples> commaSeparatedSampleIdsOfMolecularProfilesMap(Set<String> molecularProfileIds);
 
     @Cacheable(cacheResolver = "generalRepositoryCacheResolver", condition = "@cacheEnabledConfig.getEnabled()")
     List<GeneMolecularAlteration> getGeneMolecularAlterations(String molecularProfileId, List<Integer> entrezGeneIds,
@@ -25,7 +26,7 @@ public interface MolecularDataRepository {
                                                                           String projection);
 
     @Cacheable(cacheResolver = "generalRepositoryCacheResolver", condition = "@cacheEnabledConfig.getEnabled()")
-    List<GeneMolecularAlteration> getGeneMolecularAlterationsInMultipleMolecularProfiles(List<String> molecularProfileIds,
+    List<GeneMolecularAlteration> getGeneMolecularAlterationsInMultipleMolecularProfiles(Set<String> molecularProfileIds,
                                                                                          List<Integer> entrezGeneIds,
                                                                                          String projection);
 
@@ -39,4 +40,5 @@ public interface MolecularDataRepository {
 
 	Iterable<GenericAssayMolecularAlteration> getGenericAssayMolecularAlterationsIterable(String molecularProfileId,
 			List<String> stableIds, String projection);
+
 }

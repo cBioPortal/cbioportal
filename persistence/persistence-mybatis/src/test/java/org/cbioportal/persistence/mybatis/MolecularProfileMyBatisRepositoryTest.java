@@ -13,6 +13,9 @@ import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
 import java.util.Arrays;
 import java.util.List;
+import java.util.Set;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 @RunWith(SpringJUnit4ClassRunner.class)
 @ContextConfiguration("/testContextDatabase.xml")
@@ -173,8 +176,8 @@ public class MolecularProfileMyBatisRepositoryTest {
     @Test
     public void getMolecularProfiles() throws Exception {
 
-        List<MolecularProfile> result = molecularProfileMyBatisRepository.getMolecularProfiles(Arrays.asList(
-            "study_tcga_pub_gistic", "study_tcga_pub_mrna"), "SUMMARY");
+        List<MolecularProfile> result = molecularProfileMyBatisRepository.getMolecularProfiles(Stream.of(
+            "study_tcga_pub_gistic", "study_tcga_pub_mrna").collect(Collectors.toSet()), "SUMMARY");
 
         Assert.assertEquals(2, result.size());
         Assert.assertEquals("study_tcga_pub_gistic", result.get(0).getStableId());
@@ -184,8 +187,8 @@ public class MolecularProfileMyBatisRepositoryTest {
     @Test
     public void getMetaMolecularProfilesById() throws Exception {
 
-        BaseMeta result = molecularProfileMyBatisRepository.getMetaMolecularProfiles(Arrays.asList(
-            "study_tcga_pub_gistic", "study_tcga_pub_mrna"));
+        BaseMeta result = molecularProfileMyBatisRepository.getMetaMolecularProfiles(Stream.of(
+            "study_tcga_pub_gistic", "study_tcga_pub_mrna").collect(Collectors.toSet()));
 
         Assert.assertEquals((Integer) 2, result.getTotalCount());
     }

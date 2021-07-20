@@ -2,7 +2,6 @@
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 
 <mapper namespace="org.cbioportal.persistence.mybatis.MolecularDataMapper">
-    
 
     <sql id="whereInMultipleMolecularProfiles">
         <where>
@@ -28,9 +27,9 @@
         FROM genetic_profile_samples
         INNER JOIN genetic_profile ON genetic_profile_samples.GENETIC_PROFILE_ID = genetic_profile.GENETIC_PROFILE_ID
         <where>
-            <if test="list != null and !list.isEmpty()">
+            <if test="molecularProfileIds != null and !molecularProfileIds.isEmpty()">
                 genetic_profile.STABLE_ID IN
-                <foreach item="item" collection="list" open="(" separator="," close=")">
+                <foreach item="item" collection="molecularProfileIds" open="(" separator="," close=")">
                     #{item}
                 </foreach>
             </if>

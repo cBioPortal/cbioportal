@@ -1,31 +1,22 @@
 package org.cbioportal.service.impl;
 
-import org.cbioportal.model.GenePanel;
-import org.cbioportal.model.GenePanelData;
-import org.cbioportal.model.GenePanelToGene;
-import org.cbioportal.model.MolecularProfile;
-import org.cbioportal.model.Sample;
-import org.cbioportal.model.SampleList;
-import org.cbioportal.model.MolecularProfile.MolecularAlterationType;
+import java.util.*;
+import java.util.stream.Collectors;
+
+import org.cbioportal.model.*;
 import org.cbioportal.model.meta.BaseMeta;
 import org.cbioportal.persistence.GenePanelRepository;
-import org.cbioportal.persistence.SampleListRepository;
 import org.cbioportal.service.MolecularProfileService;
-import org.cbioportal.service.SampleListService;
-import org.cbioportal.service.SampleService;
 import org.cbioportal.service.exception.GenePanelNotFoundException;
+import org.cbioportal.service.util.MolecularProfileUtil;
 import org.junit.Assert;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.Mockito;
+import org.mockito.Spy;
 import org.mockito.junit.MockitoJUnitRunner;
-
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.List;
 
 @RunWith(MockitoJUnitRunner.Silent.class)
 public class GenePanelServiceImplTest extends BaseServiceImplTest {
@@ -37,12 +28,9 @@ public class GenePanelServiceImplTest extends BaseServiceImplTest {
     private GenePanelRepository genePanelRepository;
     @Mock
     private MolecularProfileService molecularProfileService;
-    @Mock
-    private SampleListRepository sampleListRepository;
-    @Mock
-    private SampleService sampleService;
-    @Mock
-    private SampleListService sampleListService;
+    @Spy
+    @InjectMocks
+    private MolecularProfileUtil molecularProfileUtil;
     
     @Test
     public void getAllGenePanelsSummaryProjection() throws Exception {
@@ -134,58 +122,29 @@ public class GenePanelServiceImplTest extends BaseServiceImplTest {
         genePanelData.setGenePanelId(GENE_PANEL_ID);
         genePanelData.setMolecularProfileId(MOLECULAR_PROFILE_ID);
         genePanelData.setSampleId(SAMPLE_ID1);
+        genePanelData.setPatientId(PATIENT_ID_1);
+        genePanelData.setStudyId(STUDY_ID);
+        genePanelData.setProfiled(true);
         genePanelDataList.add(genePanelData);
+        GenePanelData genePanelData2 = new GenePanelData();
+        genePanelData2.setMolecularProfileId(MOLECULAR_PROFILE_ID);
+        genePanelData2.setSampleId(SAMPLE_ID2);
+        genePanelData2.setPatientId(PATIENT_ID_2);
+        genePanelData2.setStudyId(STUDY_ID);
+        genePanelData2.setProfiled(false);
+        genePanelDataList.add(genePanelData2);
 
-        List<GenePanelToGene> genePanelToGeneList = new ArrayList<>();
-        GenePanelToGene genePanelToGene = new GenePanelToGene();
-        genePanelToGene.setGenePanelId(GENE_PANEL_ID);
-        genePanelToGene.setEntrezGeneId(ENTREZ_GENE_ID_1);
-        genePanelToGeneList.add(genePanelToGene);
-
-        List<SampleList> sampleLists = new ArrayList<>();
-        SampleList sampleList = new SampleList();
-        sampleList.setSampleIds(Arrays.asList(SAMPLE_ID1));
-        sampleList.setCancerStudyIdentifier(STUDY_ID);
-        sampleLists.add(sampleList);
-
-        List<MolecularProfile> molecularProfiles = new ArrayList<>();
         MolecularProfile molecularProfile = new MolecularProfile();
         molecularProfile.setStableId(MOLECULAR_PROFILE_ID);
-        molecularProfile.setMolecularAlterationType(MolecularAlterationType.MUTATION_EXTENDED);
         molecularProfile.setCancerStudyIdentifier(STUDY_ID);
-        molecularProfiles.add(molecularProfile);
+        molecularProfile.setMolecularAlterationType(MolecularProfile.MolecularAlterationType.COPY_NUMBER_ALTERATION);
 
-        List<Sample> samples = new ArrayList<>();
-        Sample sample1 = new Sample();
-        sample1.setStableId(SAMPLE_ID1);
-        sample1.setPatientStableId(PATIENT_ID_1);
-        sample1.setCancerStudyIdentifier(STUDY_ID);
-        samples.add(sample1);
-        Sample sample2 = new Sample();
-        sample2.setStableId(SAMPLE_ID2);
-        sample2.setPatientStableId(PATIENT_ID_2);
-        sample2.setCancerStudyIdentifier(STUDY_ID);
-        samples.add(sample2);
-        
-        Mockito.when(molecularProfileService.getMolecularProfile(MOLECULAR_PROFILE_ID)).thenReturn(molecularProfile);
+        Mockito.when(molecularProfileService
+            .getMolecularProfile(MOLECULAR_PROFILE_ID))
+            .thenReturn(molecularProfile);
 
-        Mockito.when(sampleListRepository.getAllSampleIdsInSampleList(SAMPLE_LIST_ID))
-            .thenReturn(Arrays.asList(SAMPLE_ID1, SAMPLE_ID2));
-
-        Mockito.when(sampleListService.fetchSampleLists(Arrays.asList(STUDY_ID + SEQUENCED_LIST_SUFFIX), 
-            "DETAILED")).thenReturn(sampleLists);
-
-        Mockito.when(molecularProfileService.getMolecularProfiles(
-            Arrays.asList(MOLECULAR_PROFILE_ID, MOLECULAR_PROFILE_ID), "SUMMARY")).thenReturn(molecularProfiles);
-
-        Mockito.when(sampleService.fetchSamples(Arrays.asList(STUDY_ID, STUDY_ID), 
-            Arrays.asList(SAMPLE_ID1, SAMPLE_ID2), "ID")).thenReturn(samples);
-        
-        Mockito.when(genePanelRepository.getGenePanelData(MOLECULAR_PROFILE_ID, SAMPLE_LIST_ID))
+        Mockito.when(genePanelRepository.getGenePanelDataBySampleListId(MOLECULAR_PROFILE_ID, SAMPLE_LIST_ID))
             .thenReturn(genePanelDataList);
-
-        Mockito.when(genePanelRepository.getGenesOfPanels(Arrays.asList(GENE_PANEL_ID)))
-            .thenReturn(genePanelToGeneList);
         
         List<GenePanelData> result = genePanelService.getGenePanelData(MOLECULAR_PROFILE_ID, SAMPLE_LIST_ID);
         
@@ -209,8 +168,14 @@ public class GenePanelServiceImplTest extends BaseServiceImplTest {
     @Test
     public void getGenePanelDataInvalidSampleListId() throws Exception {
 
-        Mockito.when(sampleListRepository.getAllSampleIdsInSampleList(SAMPLE_LIST_ID))
-            .thenReturn(Collections.<String>emptyList() );
+        MolecularProfile molecularProfile = new MolecularProfile();
+        molecularProfile.setStableId(MOLECULAR_PROFILE_ID);
+        molecularProfile.setCancerStudyIdentifier(STUDY_ID);
+        molecularProfile.setMolecularAlterationType(MolecularProfile.MolecularAlterationType.COPY_NUMBER_ALTERATION);
+
+        Mockito.when(molecularProfileService
+            .getMolecularProfile(MOLECULAR_PROFILE_ID))
+            .thenReturn(molecularProfile);
         
         List<GenePanelData> result = genePanelService.getGenePanelData(MOLECULAR_PROFILE_ID, SAMPLE_LIST_ID);
         
@@ -225,54 +190,27 @@ public class GenePanelServiceImplTest extends BaseServiceImplTest {
         genePanelData.setGenePanelId(GENE_PANEL_ID);
         genePanelData.setMolecularProfileId(MOLECULAR_PROFILE_ID);
         genePanelData.setSampleId(SAMPLE_ID1);
+        genePanelData.setPatientId(PATIENT_ID_1);
+        genePanelData.setStudyId(STUDY_ID);
+        genePanelData.setProfiled(true);
         genePanelDataList.add(genePanelData);
 
-        List<GenePanelToGene> genePanelToGeneList = new ArrayList<>();
-        GenePanelToGene genePanelToGene = new GenePanelToGene();
-        genePanelToGene.setGenePanelId(GENE_PANEL_ID);
-        genePanelToGene.setEntrezGeneId(ENTREZ_GENE_ID_1);
-        genePanelToGeneList.add(genePanelToGene);
-
-        List<SampleList> sampleLists = new ArrayList<>();
-        SampleList sampleList = new SampleList();
-        sampleList.setSampleIds(Arrays.asList(SAMPLE_ID1));
-        sampleList.setCancerStudyIdentifier(STUDY_ID);
-        sampleLists.add(sampleList);
-
-        List<MolecularProfile> molecularProfiles = new ArrayList<>();
         MolecularProfile molecularProfile = new MolecularProfile();
         molecularProfile.setStableId(MOLECULAR_PROFILE_ID);
         molecularProfile.setCancerStudyIdentifier(STUDY_ID);
-        molecularProfile.setMolecularAlterationType(MolecularAlterationType.MUTATION_EXTENDED);
-        molecularProfiles.add(molecularProfile);
+        molecularProfile.setMolecularAlterationType(MolecularProfile.MolecularAlterationType.COPY_NUMBER_ALTERATION);
 
-        List<Sample> samples = new ArrayList<>();
-        Sample sample1 = new Sample();
-        sample1.setStableId(SAMPLE_ID1);
-        sample1.setPatientStableId(PATIENT_ID_1);
-        sample1.setCancerStudyIdentifier(STUDY_ID);
-        samples.add(sample1);
-        
-        Mockito.when(molecularProfileService.getMolecularProfile(MOLECULAR_PROFILE_ID)).thenReturn(molecularProfile);
+        Mockito.when(molecularProfileService
+            .getMolecularProfiles(Collections.singleton(MOLECULAR_PROFILE_ID), "SUMMARY"))
+            .thenReturn(Arrays.asList(molecularProfile));
 
-        Mockito.when(sampleListService.fetchSampleLists(Arrays.asList(STUDY_ID + SEQUENCED_LIST_SUFFIX), 
-            "DETAILED")).thenReturn(sampleLists);
-
-        Mockito.when(molecularProfileService.getMolecularProfiles(
-            Arrays.asList(MOLECULAR_PROFILE_ID, MOLECULAR_PROFILE_ID), "SUMMARY")).thenReturn(molecularProfiles);
-
-        Mockito.when(sampleService.fetchSamples(Arrays.asList(STUDY_ID, STUDY_ID), 
-            Arrays.asList(SAMPLE_ID1, SAMPLE_ID2), "ID")).thenReturn(samples);
-        
-        Mockito.when(genePanelRepository.fetchGenePanelData(MOLECULAR_PROFILE_ID, Arrays.asList(SAMPLE_ID1, SAMPLE_ID2)))
+        Mockito.when(genePanelRepository
+            .fetchGenePanelDataByMolecularProfileId(MOLECULAR_PROFILE_ID))
             .thenReturn(genePanelDataList);
 
-        Mockito.when(genePanelRepository.getGenesOfPanels(Arrays.asList(GENE_PANEL_ID)))
-            .thenReturn(genePanelToGeneList);
-        
         List<GenePanelData> result = genePanelService.fetchGenePanelData(MOLECULAR_PROFILE_ID, 
             Arrays.asList(SAMPLE_ID1, SAMPLE_ID2));
-        
+
         Assert.assertEquals(1, result.size());
         GenePanelData resultGenePanelData1 = result.get(0);
         Assert.assertEquals(SAMPLE_ID1, resultGenePanelData1.getSampleId());
@@ -291,55 +229,51 @@ public class GenePanelServiceImplTest extends BaseServiceImplTest {
         genePanelData.setGenePanelId(GENE_PANEL_ID);
         genePanelData.setMolecularProfileId(MOLECULAR_PROFILE_ID);
         genePanelData.setSampleId(SAMPLE_ID1);
+        genePanelData.setPatientId(PATIENT_ID_1);
+        genePanelData.setStudyId(STUDY_ID);
+        genePanelData.setProfiled(true);
         genePanelDataList.add(genePanelData);
 
-        List<GenePanelToGene> genePanelToGeneList = new ArrayList<>();
-        GenePanelToGene genePanelToGene = new GenePanelToGene();
-        genePanelToGene.setGenePanelId(GENE_PANEL_ID);
-        genePanelToGene.setEntrezGeneId(ENTREZ_GENE_ID_1);
-        genePanelToGeneList.add(genePanelToGene);
+        GenePanelData genePanelData2 = new GenePanelData();
+        genePanelData2.setMolecularProfileId(MOLECULAR_PROFILE_ID);
+        genePanelData2.setSampleId(SAMPLE_ID2);
+        genePanelData2.setPatientId(PATIENT_ID_2);
+        genePanelData2.setStudyId(STUDY_ID);
+        genePanelData2.setProfiled(true);
+        genePanelDataList.add(genePanelData2);
 
-        List<SampleList> sampleLists = new ArrayList<>();
+        Set<MolecularProfileCaseIdentifier> molecularProfileSampleIdentifiers = new HashSet<>();
+        MolecularProfileCaseIdentifier profileCaseIdentifier = new MolecularProfileCaseIdentifier();
+        profileCaseIdentifier.setMolecularProfileId(MOLECULAR_PROFILE_ID);
+        profileCaseIdentifier.setCaseId(SAMPLE_ID1);
+        molecularProfileSampleIdentifiers.add(profileCaseIdentifier);
 
-        List<MolecularProfile> molecularProfiles = new ArrayList<>();
+        MolecularProfileCaseIdentifier profileCaseIdentifier2 = new MolecularProfileCaseIdentifier();
+        profileCaseIdentifier2.setMolecularProfileId(MOLECULAR_PROFILE_ID);
+        profileCaseIdentifier2.setCaseId(SAMPLE_ID2);
+        molecularProfileSampleIdentifiers.add(profileCaseIdentifier2);
+
+
+        MolecularProfileCaseIdentifier profileCaseIdentifier3 = new MolecularProfileCaseIdentifier();
+        profileCaseIdentifier3.setMolecularProfileId("invalid_profile");
+        profileCaseIdentifier3.setCaseId(SAMPLE_ID3);
+        molecularProfileSampleIdentifiers.add(profileCaseIdentifier3);
+
+        Mockito.when(genePanelRepository
+            .fetchGenePanelDataByMolecularProfileId(MOLECULAR_PROFILE_ID))
+            .thenReturn(genePanelDataList);
+        Set<String> molecularProfileIds = molecularProfileSampleIdentifiers.stream().map(MolecularProfileCaseIdentifier::getMolecularProfileId).collect(Collectors.toSet());
+
         MolecularProfile molecularProfile = new MolecularProfile();
         molecularProfile.setStableId(MOLECULAR_PROFILE_ID);
         molecularProfile.setCancerStudyIdentifier(STUDY_ID);
-        molecularProfile.setMolecularAlterationType(MolecularAlterationType.MUTATION_EXTENDED);
-        molecularProfiles.add(molecularProfile);
-
-        List<Sample> samples = new ArrayList<>();
-        Sample sample1 = new Sample();
-        sample1.setStableId(SAMPLE_ID1);
-        sample1.setPatientStableId(PATIENT_ID_1);
-        sample1.setCancerStudyIdentifier(STUDY_ID);
-        samples.add(sample1);
-        Sample sample2 = new Sample();
-        sample2.setStableId(SAMPLE_ID2);
-        sample2.setPatientStableId(PATIENT_ID_2);
-        sample2.setCancerStudyIdentifier(STUDY_ID);
-        samples.add(sample2);
-
-        Mockito.when(sampleListService.fetchSampleLists(Arrays.asList(STUDY_ID + SEQUENCED_LIST_SUFFIX), 
-            "DETAILED")).thenReturn(sampleLists);
-
-        Mockito.when(molecularProfileService.getMolecularProfiles(
-            Arrays.asList(MOLECULAR_PROFILE_ID, MOLECULAR_PROFILE_ID, "invalid_profile"), "SUMMARY")).thenReturn(molecularProfiles);
-
-        Mockito.when(sampleService.fetchSamples(Arrays.asList(STUDY_ID, STUDY_ID), 
-            Arrays.asList(SAMPLE_ID1, SAMPLE_ID2), "ID")).thenReturn(samples);
+        molecularProfile.setMolecularAlterationType(MolecularProfile.MolecularAlterationType.COPY_NUMBER_ALTERATION);
         
-        Mockito.when(genePanelRepository.fetchGenePanelDataInMultipleMolecularProfiles(
-            Arrays.asList(MOLECULAR_PROFILE_ID, MOLECULAR_PROFILE_ID, "invalid_profile"), Arrays.asList(SAMPLE_ID1, SAMPLE_ID2, SAMPLE_ID3)))
-            .thenReturn(genePanelDataList);
+        Mockito.when(molecularProfileService.getMolecularProfiles(new HashSet<>(molecularProfileIds), "SUMMARY"))
+            .thenReturn(Arrays.asList(molecularProfile));
 
-        Mockito.when(genePanelRepository.getGenesOfPanels(Arrays.asList(GENE_PANEL_ID)))
-            .thenReturn(genePanelToGeneList);
-        
-        List<GenePanelData> result = genePanelService.fetchGenePanelDataInMultipleMolecularProfiles(
-            new ArrayList<>(Arrays.asList(MOLECULAR_PROFILE_ID, MOLECULAR_PROFILE_ID, "invalid_profile")), 
-            new ArrayList<>(Arrays.asList(SAMPLE_ID1, SAMPLE_ID2, SAMPLE_ID3)));
-        
+        List<GenePanelData> result = genePanelService.fetchGenePanelDataInMultipleMolecularProfiles(new ArrayList<>(molecularProfileSampleIdentifiers));
+
         Assert.assertEquals(2, result.size());
         GenePanelData resultGenePanelData1 = result.get(0);
         Assert.assertEquals(SAMPLE_ID1, resultGenePanelData1.getSampleId());

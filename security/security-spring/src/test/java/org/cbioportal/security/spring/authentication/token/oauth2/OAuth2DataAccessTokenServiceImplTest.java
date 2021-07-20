@@ -99,14 +99,7 @@ public class OAuth2DataAccessTokenServiceImplTest {
     public void testCreateAuthenticationRequestSuccess() {
         String token = createJwt("{\"sub\":\"me\"}");
         Authentication auth = service.createAuthenticationRequest(token);
-        assertEquals(auth.getPrincipal(), "me");
         assertEquals(auth.getCredentials(), token);
-    }
-
-    @Test(expected = BadCredentialsException.class)
-    public void testCreateAuthenticationRequestFailure() {
-        String token = createJwt("{}");
-        service.createAuthenticationRequest(token);
     }
 
     @Test

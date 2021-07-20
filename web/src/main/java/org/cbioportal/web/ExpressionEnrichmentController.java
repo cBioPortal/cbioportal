@@ -96,10 +96,11 @@ public class ExpressionEnrichmentController {
 
         if (isRequestForGenericAssayEnrichments) {
             return (List<S>) expressionEnrichmentService.getGenericAssayEnrichments(
-                    molecularProfileIds.iterator().next(), groupCaseIdentifierSet, enrichmentType.name());
+                    molecularProfileIds.iterator().next(), groupCaseIdentifierSet, enrichmentType);
         }
-
+        
         return (List<S>) expressionEnrichmentService.getGenomicEnrichments(molecularProfileIds.iterator().next(),
-                groupCaseIdentifierSet, enrichmentType.name());
+                groupCaseIdentifierSet, enrichmentType);
+
     }
 }

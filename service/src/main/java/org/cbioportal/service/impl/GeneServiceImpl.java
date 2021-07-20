@@ -19,6 +19,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.function.Function;
 import java.util.stream.Collectors;
+import static java.util.stream.Collectors.*;
 
 @Service
 public class GeneServiceImpl implements GeneService {
@@ -167,21 +168,13 @@ public class GeneServiceImpl implements GeneService {
     }
     
     private List<Gene> filterGenesWithMultipleEntrezIds(List<Gene> geneList) {
-
-        Map<String, Long> geneFrequencyMap = geneList
-                .stream()
-                .map(Gene::getHugoGeneSymbol)
-                .collect(Collectors.groupingBy(Function.identity(), Collectors.counting()));
-
-        Map<String, Long> genesToRemoveMap = geneFrequencyMap
-                .entrySet()
-                .stream()
-                .filter(record -> record.getValue() > 1)
-                .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
-
         return geneList
-                .stream()
-                .filter(gene -> !genesToRemoveMap.containsKey(gene.getHugoGeneSymbol()))
-                .collect(Collectors.toList());
+            .stream()
+            .collect(groupingBy(Gene::getHugoGeneSymbol))
+            .values()
+            .stream()
+            .filter(groupedGenes -> groupedGenes.size() == 1) // filter out genes having duplicate hugoGeneSymbol
+            .map(groupedGenes -> groupedGenes.get(0))
+            .collect(toList());
     }
 }

@@ -122,11 +122,10 @@ public class SampleListServiceImpl implements SampleListService {
 
     private void addSampleIds(List<SampleList> sampleLists) {
 
-        List<SampleListToSampleId> sampleListToSampleIds = sampleListRepository.getSampleListSampleIds(sampleLists
-        .stream().map(SampleList::getListId).collect(Collectors.toList()));
-
-        sampleLists.forEach(s -> s.setSampleIds(sampleListToSampleIds.stream().filter(p -> p.getSampleListId()
-        .equals(s.getListId())).map(SampleListToSampleId::getSampleId).collect(Collectors.toList())));
+        for(SampleList sampleList : sampleLists) {
+            sampleList.setSampleIds(sampleListRepository.getSampleListSampleIds(Arrays.asList(sampleList.getListId()))
+                .stream().map(SampleListToSampleId::getSampleId).collect(Collectors.toList()));
+        }
     }
 
     @Override

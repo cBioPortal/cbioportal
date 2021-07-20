@@ -67,7 +67,7 @@ public class TestDaoCancerStudy {
 	@Test
     public void testDaoCancerStudy() throws DaoException, IOException {
 
-		assertEquals("breast,breast invasive", DaoTypeOfCancer.getTypeOfCancerById("BRCA").getClinicalTrialKeywords());
+        assertEquals("Breast Invasive Carcinoma", DaoTypeOfCancer.getTypeOfCancerById("BRCA").getName());
 
         CancerStudy cancerStudy = new CancerStudy("GBM", "GBM Description", "gbm", "brca", false);
         cancerStudy.setReferenceGenome("hg19");

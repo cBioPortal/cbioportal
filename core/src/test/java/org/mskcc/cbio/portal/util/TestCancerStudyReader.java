@@ -72,21 +72,4 @@ public class TestCancerStudyReader {
       }
    }
 
-	@Test
-	   public void testCancerStudyReaderShortName() throws Exception {
-
-	      File file = new File("src/test/resources/cancer_study.txt");
-	      CancerStudy cancerStudy = CancerStudyReader.loadCancerStudy( file );
-	      
-	      CancerStudy expectedCancerStudy = DaoCancerStudy.getCancerStudyByStableId( "test_brca" );
-	      assertEquals(expectedCancerStudy, cancerStudy);
-	      // TBD: change this to use getResourceAsStream()
-	      file = new File("src/test/resources/cancer_study_bad_short_name.txt");
-	      try {
-	         cancerStudy = CancerStudyReader.loadCancerStudy( file );
-	         fail( "Should have thrown DaoException." );
-	      } catch (Exception e) {
-	    	 assertEquals("short_name is not specified.", e.getMessage());
-	      }
-	   }
 }

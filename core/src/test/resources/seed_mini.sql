@@ -83,25 +83,25 @@ DELETE FROM type_of_cancer;
 DELETE FROM genetic_entity;
 
 -- type_of_cancer
-INSERT INTO "type_of_cancer" ("TYPE_OF_CANCER_ID","NAME","CLINICAL_TRIAL_KEYWORDS","DEDICATED_COLOR","SHORT_NAME","PARENT") VALUES ('acc','Adrenocortical Carcinoma','adrenocortical','Purple','ACC','tissue');
-INSERT INTO "type_of_cancer" ("TYPE_OF_CANCER_ID","NAME","CLINICAL_TRIAL_KEYWORDS","DEDICATED_COLOR","SHORT_NAME","PARENT") VALUES ('acbc','Adenoid Cystic Breast Cancer','adenoid cystic breast cancer','HotPink','ACBC','tissue');
-INSERT INTO "type_of_cancer" ("TYPE_OF_CANCER_ID","NAME","CLINICAL_TRIAL_KEYWORDS","DEDICATED_COLOR","SHORT_NAME","PARENT") VALUES ('acyc','Adenoid Cystic Carcinoma','adenoid cyctic','DarkRed','ACyC','tissue');
-INSERT INTO "type_of_cancer" ("TYPE_OF_CANCER_ID","NAME","CLINICAL_TRIAL_KEYWORDS","DEDICATED_COLOR","SHORT_NAME","PARENT") VALUES ('aeca','Sweat Gland Carcinoma (Apocrine Eccrine Carcinoma)','sweat gland carcinoma,apocrine eccrine carcinoma','Black','AECA','tissue');
-INSERT INTO "type_of_cancer" ("TYPE_OF_CANCER_ID","NAME","CLINICAL_TRIAL_KEYWORDS","DEDICATED_COLOR","SHORT_NAME","PARENT") VALUES ('afx','Atypical Fibroxanthoma','atypical fibroxanthoma','Black','AFX','tissue');
-INSERT INTO "type_of_cancer" ("TYPE_OF_CANCER_ID","NAME","CLINICAL_TRIAL_KEYWORDS","DEDICATED_COLOR","SHORT_NAME","PARENT") VALUES ('all','Pediatric Acute Lymphoid Leukemia','pediatric,lymphoid leukemia','LightSalmon','ALL','tissue');
-INSERT INTO "type_of_cancer" ("TYPE_OF_CANCER_ID","NAME","CLINICAL_TRIAL_KEYWORDS","DEDICATED_COLOR","SHORT_NAME","PARENT") VALUES ('aml','Acute Monocytic Leukemia','monocytic leukemia','LightSalmon','AML-M5','tissue');
-INSERT INTO "type_of_cancer" ("TYPE_OF_CANCER_ID","NAME","CLINICAL_TRIAL_KEYWORDS","DEDICATED_COLOR","SHORT_NAME","PARENT") VALUES ('blad','Bladder Urothelial Adenocarcinoma','bladder adenocarcinoma','Yellow','Bladder','tissue');
-INSERT INTO "type_of_cancer" ("TYPE_OF_CANCER_ID","NAME","CLINICAL_TRIAL_KEYWORDS","DEDICATED_COLOR","SHORT_NAME","PARENT") VALUES ('blca','Bladder Urothelial Carcinoma','bladder urothelial','Yellow','Bladder','tissue');
-INSERT INTO "type_of_cancer" ("TYPE_OF_CANCER_ID","NAME","CLINICAL_TRIAL_KEYWORDS","DEDICATED_COLOR","SHORT_NAME","PARENT") VALUES ('bpdcn','Blastic Plasmacytoid Dendritic Cell Neoplasm','blastic plasmacytoid dendritic cell neoplasm','LightSalmon','BPDCN','tissue');
-INSERT INTO "type_of_cancer" ("TYPE_OF_CANCER_ID","NAME","CLINICAL_TRIAL_KEYWORDS","DEDICATED_COLOR","SHORT_NAME","PARENT") VALUES ('brca','Breast Invasive Carcinoma','breast,breast invasive','HotPink','Breast','tissue');
+INSERT INTO "type_of_cancer" ("TYPE_OF_CANCER_ID","NAME","DEDICATED_COLOR","SHORT_NAME","PARENT") VALUES ('acc','Adrenocortical Carcinoma','Purple','ACC','tissue');
+INSERT INTO "type_of_cancer" ("TYPE_OF_CANCER_ID","NAME","DEDICATED_COLOR","SHORT_NAME","PARENT") VALUES ('acbc','Adenoid Cystic Breast Cancer','HotPink','ACBC','tissue');
+INSERT INTO "type_of_cancer" ("TYPE_OF_CANCER_ID","NAME","DEDICATED_COLOR","SHORT_NAME","PARENT") VALUES ('acyc','Adenoid Cystic Carcinoma','DarkRed','ACyC','tissue');
+INSERT INTO "type_of_cancer" ("TYPE_OF_CANCER_ID","NAME","DEDICATED_COLOR","SHORT_NAME","PARENT") VALUES ('aeca','Sweat Gland Carcinoma (Apocrine Eccrine Carcinoma)','Black','AECA','tissue');
+INSERT INTO "type_of_cancer" ("TYPE_OF_CANCER_ID","NAME","DEDICATED_COLOR","SHORT_NAME","PARENT") VALUES ('afx','Atypical Fibroxanthoma','Black','AFX','tissue');
+INSERT INTO "type_of_cancer" ("TYPE_OF_CANCER_ID","NAME","DEDICATED_COLOR","SHORT_NAME","PARENT") VALUES ('all','Pediatric Acute Lymphoid Leukemia','LightSalmon','ALL','tissue');
+INSERT INTO "type_of_cancer" ("TYPE_OF_CANCER_ID","NAME","DEDICATED_COLOR","SHORT_NAME","PARENT") VALUES ('aml','Acute Monocytic Leukemia','LightSalmon','AML-M5','tissue');
+INSERT INTO "type_of_cancer" ("TYPE_OF_CANCER_ID","NAME","DEDICATED_COLOR","SHORT_NAME","PARENT") VALUES ('blad','Bladder Urothelial Adenocarcinoma','Yellow','Bladder','tissue');
+INSERT INTO "type_of_cancer" ("TYPE_OF_CANCER_ID","NAME","DEDICATED_COLOR","SHORT_NAME","PARENT") VALUES ('blca','Bladder Urothelial Carcinoma','Yellow','Bladder','tissue');
+INSERT INTO "type_of_cancer" ("TYPE_OF_CANCER_ID","NAME","DEDICATED_COLOR","SHORT_NAME","PARENT") VALUES ('bpdcn','Blastic Plasmacytoid Dendritic Cell Neoplasm','LightSalmon','BPDCN','tissue');
+INSERT INTO "type_of_cancer" ("TYPE_OF_CANCER_ID","NAME","DEDICATED_COLOR","SHORT_NAME","PARENT") VALUES ('brca','Breast Invasive Carcinoma','HotPink','Breast','tissue');
 
 -- reference_genome
 INSERT INTO `reference_genome` VALUES (1,'human','hg19','GRCh37',2897310462,'http://hgdownload.cse.ucsc.edu/goldenPath/hg19/bigZips','2009-02-01');
 INSERT INTO `reference_genome` VALUES (2,'human','hg38','GRCh38',3049315783,'http://hgdownload.cse.ucsc.edu/goldenPath/hg38/bigZips','2013-12-01');
 
 -- cancer_study
-INSERT INTO "cancer_study" ("CANCER_STUDY_ID","CANCER_STUDY_IDENTIFIER","TYPE_OF_CANCER_ID","NAME","SHORT_NAME","DESCRIPTION","PUBLIC","PMID","CITATION","GROUPS","REFERENCE_GENOME_ID") 
-VALUES (1,'study_tcga_pub','brca','Breast Invasive Carcinoma (TCGA,Nature 2012)','BRCA (TCGA)','<a href=\"http://cancergenome.nih.gov/\">The Cancer Genome Atlas (TCGA)</a> Breast Invasive Carcinoma project. 825 cases.<br><i>Nature 2012.</i> <a href=\"http://tcga-data.nci.nih.gov/tcga/\">Raw data via the TCGA Data Portal</a>.',1,'23000897,26451490','TCGA,Nature 2012,...','SU2C-PI3K;PUBLIC;GDAC',1);
+INSERT INTO "cancer_study" ("CANCER_STUDY_ID","CANCER_STUDY_IDENTIFIER","TYPE_OF_CANCER_ID","NAME","DESCRIPTION","PUBLIC","PMID","CITATION","GROUPS","REFERENCE_GENOME_ID") 
+VALUES (1,'study_tcga_pub','brca','Breast Invasive Carcinoma (TCGA,Nature 2012)','<a href=\"http://cancergenome.nih.gov/\">The Cancer Genome Atlas (TCGA)</a> Breast Invasive Carcinoma project. 825 cases.<br><i>Nature 2012.</i> <a href=\"http://tcga-data.nci.nih.gov/tcga/\">Raw data via the TCGA Data Portal</a>.',1,'23000897,26451490','TCGA,Nature 2012,...','SU2C-PI3K;PUBLIC;GDAC',1);
 
 -- gene as genetic_entity
 INSERT INTO "genetic_entity" ("ENTITY_TYPE") VALUES ('GENE');
@@ -403,25 +403,25 @@ INSERT INTO "patient" ("INTERNAL_ID","STABLE_ID","CANCER_STUDY_ID") VALUES (17,'
 INSERT INTO "patient" ("INTERNAL_ID","STABLE_ID","CANCER_STUDY_ID") VALUES (18,'TCGA-AA-3665',1);
 
 -- sample
-INSERT INTO "sample" ("INTERNAL_ID","STABLE_ID","SAMPLE_TYPE","PATIENT_ID","TYPE_OF_CANCER_ID") VALUES (1,'TCGA-A1-A0SB-01','Primary Solid Tumor',1,'brca');
-INSERT INTO "sample" ("INTERNAL_ID","STABLE_ID","SAMPLE_TYPE","PATIENT_ID","TYPE_OF_CANCER_ID") VALUES (2,'TCGA-A1-A0SD-01','Primary Solid Tumor',2,'brca');
-INSERT INTO "sample" ("INTERNAL_ID","STABLE_ID","SAMPLE_TYPE","PATIENT_ID","TYPE_OF_CANCER_ID") VALUES (3,'TCGA-A1-A0SE-01','Primary Solid Tumor',3,'brca');
-INSERT INTO "sample" ("INTERNAL_ID","STABLE_ID","SAMPLE_TYPE","PATIENT_ID","TYPE_OF_CANCER_ID") VALUES (4,'TCGA-A1-A0SF-01','Primary Solid Tumor',4,'brca');
-INSERT INTO "sample" ("INTERNAL_ID","STABLE_ID","SAMPLE_TYPE","PATIENT_ID","TYPE_OF_CANCER_ID") VALUES (5,'TCGA-A1-A0SG-01','Primary Solid Tumor',5,'brca');
-INSERT INTO "sample" ("INTERNAL_ID","STABLE_ID","SAMPLE_TYPE","PATIENT_ID","TYPE_OF_CANCER_ID") VALUES (6,'TCGA-A1-A0SH-01','Primary Solid Tumor',6,'brca');
-INSERT INTO "sample" ("INTERNAL_ID","STABLE_ID","SAMPLE_TYPE","PATIENT_ID","TYPE_OF_CANCER_ID") VALUES (7,'TCGA-A1-A0SI-01','Primary Solid Tumor',7,'brca');
-INSERT INTO "sample" ("INTERNAL_ID","STABLE_ID","SAMPLE_TYPE","PATIENT_ID","TYPE_OF_CANCER_ID") VALUES (8,'TCGA-A1-A0SJ-01','Primary Solid Tumor',8,'brca');
-INSERT INTO "sample" ("INTERNAL_ID","STABLE_ID","SAMPLE_TYPE","PATIENT_ID","TYPE_OF_CANCER_ID") VALUES (9,'TCGA-A1-A0SK-01','Primary Solid Tumor',9,'brca');
-INSERT INTO "sample" ("INTERNAL_ID","STABLE_ID","SAMPLE_TYPE","PATIENT_ID","TYPE_OF_CANCER_ID") VALUES (10,'TCGA-A1-A0SM-01','Primary Solid Tumor',10,'brca');
-INSERT INTO "sample" ("INTERNAL_ID","STABLE_ID","SAMPLE_TYPE","PATIENT_ID","TYPE_OF_CANCER_ID") VALUES (11,'TCGA-A1-A0SN-01','Primary Solid Tumor',11,'brca');
-INSERT INTO "sample" ("INTERNAL_ID","STABLE_ID","SAMPLE_TYPE","PATIENT_ID","TYPE_OF_CANCER_ID") VALUES (12,'TCGA-A1-A0SO-01','Primary Solid Tumor',12,'brca');
-INSERT INTO "sample" ("INTERNAL_ID","STABLE_ID","SAMPLE_TYPE","PATIENT_ID","TYPE_OF_CANCER_ID") VALUES (13,'TCGA-A1-A0SP-01','Primary Solid Tumor',13,'brca');
-INSERT INTO "sample" ("INTERNAL_ID","STABLE_ID","SAMPLE_TYPE","PATIENT_ID","TYPE_OF_CANCER_ID") VALUES (14,'TCGA-A1-A0SQ-01','Primary Solid Tumor',14,'brca');
-INSERT INTO "sample" ("INTERNAL_ID","STABLE_ID","SAMPLE_TYPE","PATIENT_ID","TYPE_OF_CANCER_ID") VALUES (15,'TCGA-XX-0800-01','Primary Solid Tumor',15,'brca');
-INSERT INTO "sample" ("INTERNAL_ID","STABLE_ID","SAMPLE_TYPE","PATIENT_ID","TYPE_OF_CANCER_ID") VALUES (16,'TCGA-XX-0900-01','Primary Solid Tumor',16,'brca');
-INSERT INTO "sample" ("INTERNAL_ID","STABLE_ID","SAMPLE_TYPE","PATIENT_ID","TYPE_OF_CANCER_ID") VALUES (17,'TCGA-AA-3664-01','Primary Solid Tumor',17,'brca');
-INSERT INTO "sample" ("INTERNAL_ID","STABLE_ID","SAMPLE_TYPE","PATIENT_ID","TYPE_OF_CANCER_ID") VALUES (18,'TCGA-AA-3665-01','Primary Solid Tumor',18,'brca');
-INSERT INTO "sample" ("INTERNAL_ID","STABLE_ID","SAMPLE_TYPE","PATIENT_ID","TYPE_OF_CANCER_ID") VALUES (19,'TCGA-A1-A0SB-02','Primary Solid Tumor',1,'brca');
+INSERT INTO "sample" ("INTERNAL_ID","STABLE_ID","SAMPLE_TYPE","PATIENT_ID") VALUES (1,'TCGA-A1-A0SB-01','Primary Solid Tumor',1);
+INSERT INTO "sample" ("INTERNAL_ID","STABLE_ID","SAMPLE_TYPE","PATIENT_ID") VALUES (2,'TCGA-A1-A0SD-01','Primary Solid Tumor',2);
+INSERT INTO "sample" ("INTERNAL_ID","STABLE_ID","SAMPLE_TYPE","PATIENT_ID") VALUES (3,'TCGA-A1-A0SE-01','Primary Solid Tumor',3);
+INSERT INTO "sample" ("INTERNAL_ID","STABLE_ID","SAMPLE_TYPE","PATIENT_ID") VALUES (4,'TCGA-A1-A0SF-01','Primary Solid Tumor',4);
+INSERT INTO "sample" ("INTERNAL_ID","STABLE_ID","SAMPLE_TYPE","PATIENT_ID") VALUES (5,'TCGA-A1-A0SG-01','Primary Solid Tumor',5);
+INSERT INTO "sample" ("INTERNAL_ID","STABLE_ID","SAMPLE_TYPE","PATIENT_ID") VALUES (6,'TCGA-A1-A0SH-01','Primary Solid Tumor',6);
+INSERT INTO "sample" ("INTERNAL_ID","STABLE_ID","SAMPLE_TYPE","PATIENT_ID") VALUES (7,'TCGA-A1-A0SI-01','Primary Solid Tumor',7);
+INSERT INTO "sample" ("INTERNAL_ID","STABLE_ID","SAMPLE_TYPE","PATIENT_ID") VALUES (8,'TCGA-A1-A0SJ-01','Primary Solid Tumor',8);
+INSERT INTO "sample" ("INTERNAL_ID","STABLE_ID","SAMPLE_TYPE","PATIENT_ID") VALUES (9,'TCGA-A1-A0SK-01','Primary Solid Tumor',9);
+INSERT INTO "sample" ("INTERNAL_ID","STABLE_ID","SAMPLE_TYPE","PATIENT_ID") VALUES (10,'TCGA-A1-A0SM-01','Primary Solid Tumor',10);
+INSERT INTO "sample" ("INTERNAL_ID","STABLE_ID","SAMPLE_TYPE","PATIENT_ID") VALUES (11,'TCGA-A1-A0SN-01','Primary Solid Tumor',11);
+INSERT INTO "sample" ("INTERNAL_ID","STABLE_ID","SAMPLE_TYPE","PATIENT_ID") VALUES (12,'TCGA-A1-A0SO-01','Primary Solid Tumor',12);
+INSERT INTO "sample" ("INTERNAL_ID","STABLE_ID","SAMPLE_TYPE","PATIENT_ID") VALUES (13,'TCGA-A1-A0SP-01','Primary Solid Tumor',13);
+INSERT INTO "sample" ("INTERNAL_ID","STABLE_ID","SAMPLE_TYPE","PATIENT_ID") VALUES (14,'TCGA-A1-A0SQ-01','Primary Solid Tumor',14);
+INSERT INTO "sample" ("INTERNAL_ID","STABLE_ID","SAMPLE_TYPE","PATIENT_ID") VALUES (15,'TCGA-XX-0800-01','Primary Solid Tumor',15);
+INSERT INTO "sample" ("INTERNAL_ID","STABLE_ID","SAMPLE_TYPE","PATIENT_ID") VALUES (16,'TCGA-XX-0900-01','Primary Solid Tumor',16);
+INSERT INTO "sample" ("INTERNAL_ID","STABLE_ID","SAMPLE_TYPE","PATIENT_ID") VALUES (17,'TCGA-AA-3664-01','Primary Solid Tumor',17);
+INSERT INTO "sample" ("INTERNAL_ID","STABLE_ID","SAMPLE_TYPE","PATIENT_ID") VALUES (18,'TCGA-AA-3665-01','Primary Solid Tumor',18);
+INSERT INTO "sample" ("INTERNAL_ID","STABLE_ID","SAMPLE_TYPE","PATIENT_ID") VALUES (19,'TCGA-A1-A0SB-02','Primary Solid Tumor',1);
 
 -- mutation_event
 INSERT INTO "mutation_event" ("MUTATION_EVENT_ID","ENTREZ_GENE_ID","CHR","START_POSITION","END_POSITION","REFERENCE_ALLELE","TUMOR_SEQ_ALLELE","PROTEIN_CHANGE","MUTATION_TYPE","FUNCTIONAL_IMPACT_SCORE","FIS_VALUE","LINK_XVAR","LINK_PDB","LINK_MSA","NCBI_BUILD","STRAND","VARIANT_TYPE","DB_SNP_RS","DB_SNP_VAL_STATUS","ONCOTATOR_DBSNP_RS","ONCOTATOR_REFSEQ_MRNA_ID","ONCOTATOR_CODON_CHANGE","ONCOTATOR_UNIPROT_ENTRY_NAME","ONCOTATOR_UNIPROT_ACCESSION","ONCOTATOR_PROTEIN_POS_START","ONCOTATOR_PROTEIN_POS_END","CANONICAL_TRANSCRIPT","KEYWORD") VALUES (2038,672,'17',41244748,41244748,'G','A','Q934*','Nonsense_Mutation','NA',0,'getma.org/?cm=var&var=hg19,17,41244748,G,A&fts=all','NA','NA','37','+','SNP','rs80357223','unknown','rs80357223','NM_007294','c.(2800-2802)CAG>TAG','BRCA1_HUMAN','P38398',934,934,1,'BRCA1 truncating');

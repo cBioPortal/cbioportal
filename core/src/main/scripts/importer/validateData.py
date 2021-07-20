@@ -420,7 +420,7 @@ class Validator(object):
         self.logger.debug('Starting validation of file')
 
         # Validate whether it's a normal file (skip for now)
-        if self.filename.endswith("_normals.txt"):
+        if self.filename.endswith("_normals.txt") or 'mrna_seq_v2_rsem_normal_samples' in self.filename:
             self.logger.info('Ignoring *_normals.txt files (TMP) '
                         'Continuing with validation...')
             return
@@ -3475,7 +3475,6 @@ class CancerTypeValidator(Validator):
     COLS = (
         'type_of_cancer',
         'name',
-        'clinical_trial_keywords',
         'color',
         'parent_type_of_cancer'
     )
@@ -3500,9 +3499,9 @@ class CancerTypeValidator(Validator):
         self.logger.logger.addHandler(tracking_handler)
         try:
             super(CancerTypeValidator, self).checkLine(data)
-            if len(data) != 5:
+            if len(data) != 4:
                 self.logger.error('Lines in cancer type files must have these '
-                                  '5 columns, in order: [%s]',
+                                  '4 columns, in order: [%s]',
                                   ', '.join(self.cols),
                                   extra={'line_number': self.line_number,
                                          'cause': '<%d columns>' % len(data)})

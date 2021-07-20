@@ -27,22 +27,24 @@ public class MutationEnrichmentServiceImpl implements MutationEnrichmentService 
 
     @Override
     public List<AlterationEnrichment> getMutationEnrichments(
-        Map<String, List<MolecularProfileCaseIdentifier>> molecularProfileCaseSets,
-        EnrichmentType enrichmentType) throws MolecularProfileNotFoundException {
+            Map<String, List<MolecularProfileCaseIdentifier>> molecularProfileCaseSets,
+            EnrichmentType enrichmentType,
+            AlterationFilter alterationFilter) throws MolecularProfileNotFoundException {
 
         alterationEnrichmentUtil.validateMolecularProfiles(molecularProfileCaseSets,
                 Arrays.asList(MolecularAlterationType.MUTATION_EXTENDED, MolecularAlterationType.MUTATION_UNCALLED),
                 null);
 
         Map<String, Pair<List<AlterationCountByGene>, Long>> mutationCountsbyEntrezGeneIdAndGroup = getMutationCountsbyEntrezGeneIdAndGroup(
-            molecularProfileCaseSets, enrichmentType);
+            molecularProfileCaseSets, enrichmentType, alterationFilter);
 
         return alterationEnrichmentUtil.createAlterationEnrichments(mutationCountsbyEntrezGeneIdAndGroup);
     }
 
     public Map<String, Pair<List<AlterationCountByGene>, Long>> getMutationCountsbyEntrezGeneIdAndGroup(
         Map<String, List<MolecularProfileCaseIdentifier>> molecularProfileCaseSets,
-        EnrichmentType enrichmentType) {
+        EnrichmentType enrichmentType,
+        AlterationFilter alterationFilter) {
         return molecularProfileCaseSets
             .entrySet()
             .stream()
@@ -63,7 +65,7 @@ public class MutationEnrichmentServiceImpl implements MutationEnrichmentService 
                             Select.all(),
                             true,
                             true,
-                            Select.all());
+                            alterationFilter);
                     } else {
                         return alterationCountService
                             .getPatientMutationCounts(
@@ -71,7 +73,7 @@ public class MutationEnrichmentServiceImpl implements MutationEnrichmentService 
                                 Select.all(),
                                 true,
                                 true,
-                                Select.all());
+                                alterationFilter);
                     }
                 }));
     }

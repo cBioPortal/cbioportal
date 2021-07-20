@@ -106,7 +106,6 @@ public class TestPanCancerStudySummaryImport {
         TypeOfCancer aTypeOfCancer = new TypeOfCancer();
         aTypeOfCancer.setTypeOfCancerId(cancerID);
         aTypeOfCancer.setName(name);
-        aTypeOfCancer.setClinicalTrialKeywords(keyword);
         aTypeOfCancer.setDedicatedColor(color);
         aTypeOfCancer.setShortName(shortName);
         aTypeOfCancer.setParentTypeOfCancerId(parentID);

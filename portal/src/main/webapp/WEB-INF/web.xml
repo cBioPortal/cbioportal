@@ -339,15 +339,6 @@
     </servlet-mapping>
 
     <servlet>
-        <servlet-name>ProteinArraySignificanceTestJSON</servlet-name>
-        <servlet-class>org.mskcc.cbio.portal.servlet.ProteinArraySignificanceTestJSON</servlet-class>
-    </servlet>
-    <servlet-mapping>
-        <servlet-name>ProteinArraySignificanceTestJSON</servlet-name>
-        <url-pattern>/ProteinArraySignificanceTest.json</url-pattern>
-    </servlet-mapping>
-
-    <servlet>
     	<servlet-name>CheckGeneSymbolJSON</servlet-name>
         <servlet-class>org.mskcc.cbio.portal.servlet.CheckGeneSymbolJSON</servlet-class>
     </servlet>

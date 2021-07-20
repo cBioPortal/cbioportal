@@ -76,7 +76,7 @@ public class ImportTypesOfCancers extends ConsoleRunnable {
         
         while(scanner.hasNextLine()) {
             String[] tokens = scanner.nextLine().split("\t", -1);
-            if (tokens.length != 5) {
+            if (tokens.length != 4) {
                 throw new IOException(
                     "Cancer type file '" + file.getPath() +
                     "' is not a five-column tab-delimited file");
@@ -90,10 +90,9 @@ public class ImportTypesOfCancers extends ConsoleRunnable {
             else {
 	            aTypeOfCancer.setTypeOfCancerId(typeOfCancerId.toLowerCase());
 	            aTypeOfCancer.setName(tokens[1].trim());
-	            aTypeOfCancer.setClinicalTrialKeywords(tokens[2].trim().toLowerCase());
-	            aTypeOfCancer.setDedicatedColor(tokens[3].trim());
+	            aTypeOfCancer.setDedicatedColor(tokens[2].trim());
 	            aTypeOfCancer.setShortName(typeOfCancerId);
-	            aTypeOfCancer.setParentTypeOfCancerId(tokens[4].trim().toLowerCase());
+	            aTypeOfCancer.setParentTypeOfCancerId(tokens[3].trim().toLowerCase());
 	            DaoTypeOfCancer.addTypeOfCancer(aTypeOfCancer);
 	            numNewCancerTypes++;
             }

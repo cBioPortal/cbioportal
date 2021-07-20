@@ -2147,7 +2147,6 @@ class StudyCompositionTestCase(LogBufferTestCase):
                 type_of_cancer: brca
                 name: Spam (spam)
                 description: Baked beans
-                short_name: Spam
                 add_global_case_list: true
                 tags_file: study_tags.yml
                 '''),
@@ -2191,7 +2190,6 @@ class StudyCompositionTestCase(LogBufferTestCase):
                 type_of_cancer: brca
                 name: Spam (spam)
                 description: Baked beans
-                short_name: Spam
                 add_global_case_list: true
                 tags_file: study_tags.yml
                 '''),
@@ -2233,7 +2231,6 @@ class StudyCompositionTestCase(LogBufferTestCase):
                 type_of_cancer: brca
                 name: Spam (spam)
                 description: Baked beans
-                short_name: Spam
                 add_global_case_list: true
                 tags_file: study_tags.yml
                 '''),
@@ -2363,7 +2360,6 @@ class CaseListDirTestCase(PostClinicalDataFileTestCase):
                 type_of_cancer: brca
                 name: Spam (spam)
                 description: Baked beans
-                short_name: Spam
                 '''),
             'meta_samples.txt': textwrap.dedent('''\
                 cancer_study_identifier: spam

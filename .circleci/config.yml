@@ -1,6 +1,6 @@
 defaults: &defaults
     docker:
-        - image: circleci/node:8.12.0-browsers
+        - image: circleci/node:15.2.1-browsers
 
 version: 2
 jobs:
@@ -56,10 +56,10 @@ jobs:
         steps:
             - attach_workspace:
                 at: /tmp/repos
-            - run:
-                name: "Install yarn at specific version"
-                command:
-                    sudo npm install --global yarn@1.22.4
+            #- run:
+            #    name: "Install yarn at specific version"
+            #    command:
+            #        sudo npm install --global yarn@1.22.4
             - run:
                 name: "Show yarn and node versions"
                 command: |

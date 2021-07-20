@@ -844,7 +844,7 @@ data_filename: data_rppa.txt
 cancer_study_identifier: brca_tcga
 genetic_alteration_type: PROTEIN_LEVEL
 datatype: Z-SCORE
-data_filename: data_rppa.txt
+data_filename: data_rppa_zscores.txt
 stable_id: rppa_Zscores
 show_profile_in_analysis_tab: true
 profile_description: Protein expression Z-scores (RPPA)

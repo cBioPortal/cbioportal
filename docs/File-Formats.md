@@ -1367,6 +1367,7 @@ data_filename: <name of generic assay data file>
 show_profile_in_analysis_tab: true (or false if you don't want to show this profile in any analysis tab)
 pivot_threshold_value: A threshold value beyond which a generic assay data is considered effective
 value_sort_order: A flag that determines whether samples with small generic assay data values are displayed first or last; can be 'ASC' for small first, 'DESC' for small last. 
+patient_level: false (or true if your data is patient level data)
 generic_entity_meta_properties: A comma separate list of generic entity properties, e.g., "NAME,DESCRIPTION,URL"
 ```
 
@@ -1383,6 +1384,7 @@ data_filename: data_treatment_ic50.txt
 show_profile_in_analysis_tab: true
 pivot_threshold_value: 0.1
 value_sort_order: ASC
+patient_level: false
 generic_entity_meta_properties: NAME,DESCRIPTION,URL
 ```
 
@@ -1425,6 +1427,9 @@ values to the left.  When `value_sort_order` is `DESC` the x-axis will be in des
 
 ### Note on `generic_entity_meta_properties`
 All meta properties must be specified in the `generic_entity_meta_properties` field. Every meta property listed here must appear as a column header in the corresponding data file. It's highly recommend to add `NAME`, `DESCRIPTION` and an optional `URL` to get the best visualization on OncoPrint tab and Plots tab.
+
+### Note on `patient_level`
+Generic Assay data will be considered `sample_level` data if the `patient_level` property is missing or set to `false`. In addition, the patient or sample identifiers need to be included in the [Clinical Data](#clinical-data) file.
 
 ### Note on `Generic Assay` genetic_alteration_type and datatype
 All generic assay data is registered to be of the type of `genetic_alteration_type` and data type can choose from `LIMIT-VALUE`, `CATEGORICAL` and `BINARY`. 

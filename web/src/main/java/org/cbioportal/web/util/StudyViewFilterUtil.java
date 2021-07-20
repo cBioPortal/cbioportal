@@ -52,6 +52,10 @@ public class StudyViewFilterUtil {
         return hugoGeneSymbol + profileType;
     }
 
+    public String getGenericAssayDataFilterUniqueKey(String stableId, String profileType) {
+        return stableId + profileType;
+    }
+
     public ClinicalDataBin dataBinToClinicalDataBin(ClinicalDataBinFilter attribute, DataBin dataBin) {
         ClinicalDataBin clinicalDataBin = new ClinicalDataBin();
         clinicalDataBin.setAttributeId(attribute.getAttributeId());

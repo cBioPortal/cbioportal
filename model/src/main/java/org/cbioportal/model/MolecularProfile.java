@@ -44,6 +44,7 @@ public class MolecularProfile implements Serializable {
     private CancerStudy cancerStudy;
     private Float pivotThreshold;
     private String sortOrder;
+    private Boolean patientLevel;
 
     public Integer getMolecularProfileId() {
         return molecularProfileId;
@@ -158,4 +159,11 @@ public class MolecularProfile implements Serializable {
         this.genericAssayType = genericAssayType;
     }
     
+    public Boolean getPatientLevel() {
+        return patientLevel;
+    }
+
+    public void setPatientLevel(Boolean patientLevel) {
+        this.patientLevel = patientLevel;
+    }
 }

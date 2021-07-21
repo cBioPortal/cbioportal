@@ -18,6 +18,8 @@ import java.util.*;
 import java.util.Map.Entry;
 import java.util.function.Function;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
+import java.util.concurrent.CompletableFuture;
 
 @Service
 public class CoExpressionServiceImpl implements CoExpressionService {
@@ -176,7 +178,7 @@ public class CoExpressionServiceImpl implements CoExpressionService {
         // If the MolecularAlteration is for the query gene/geneset, skip it.  Otherwise,
         // filter out genetic_alteration values from genetic_alteration.VALUES
         // by considering oly the indices of the samples in the user query.
-        List<CoExpression> toReturn = new ArrayList<>();
+        List<CompletableFuture<CoExpression>> returnFutures = new ArrayList<>();
         for (MolecularAlteration ma : maItr) {
             String entityId = ma.getStableId();
             if (entityId.equals(queryGeneticEntityId)) {
@@ -184,12 +186,20 @@ public class CoExpressionServiceImpl implements CoExpressionService {
             }
             List<String> internalValues = new ArrayList<>(Arrays.asList(ma.getSplitValues()));
             List<String> values = includedIndexes.stream().map(index -> internalValues.get(index)).collect(Collectors.toList());
-            CoExpression ce = computeCoExpressions(entityId, values, includedQueryValues, isMolecularProfileBOfGenesetType, threshold, molecularProfileId);
-            if (ce != null) {
-                toReturn.add(ce);
-            }
+
+            CompletableFuture<CoExpression> future = new CompletableFuture<>();
+            CompletableFuture.runAsync(() -> {
+                try {
+                    CoExpression ce =
+                        computeCoExpressions(entityId, values, includedQueryValues, isMolecularProfileBOfGenesetType, threshold, molecularProfileId);
+                    future.complete(ce);
+                } catch (Exception e) {
+                    future.completeExceptionally(e);
+                }
+            });
+            returnFutures.add(future);
         }
-        return toReturn;
+        return returnFutures.stream().map(CompletableFuture::join).filter(ce -> ce != null).collect(Collectors.toList());
     }
 
     @Override
@@ -250,7 +260,7 @@ public class CoExpressionServiceImpl implements CoExpressionService {
             }
         }
 
-        List<CoExpression> coExpressionList = new ArrayList<>();
+        List<CompletableFuture<CoExpression>> returnFutures = new ArrayList<>();
 
         Map<String, ? extends MolecularData> dataMapA = finalMolecularDataListA.stream()
                 .collect(Collectors.toMap(MolecularData::getSampleId, Function.identity()));
@@ -266,14 +276,20 @@ public class CoExpressionServiceImpl implements CoExpressionService {
                 }
             });
 
-            CoExpression co = computeCoExpressions(entry.getKey(), valuesA, valuesB, isMolecularProfileBOfGenesetType, threshold, molecularProfileId);
-            if (co != null) {
-                coExpressionList.add(co);
-            }
+            CompletableFuture<CoExpression> future = new CompletableFuture<>();
+            CompletableFuture.runAsync(() -> {
+                try {
+                    CoExpression ce =
+                        computeCoExpressions(entry.getKey(), valuesA, valuesB, isMolecularProfileBOfGenesetType, threshold, molecularProfileId);
+                    future.complete(ce);
+                } catch (Exception e) {
+                    future.completeExceptionally(e);
+                }
+            });
+            returnFutures.add(future);
         }
 
-        return coExpressionList;
-
+        return returnFutures.stream().map(CompletableFuture::join).filter(ce -> ce != null).collect(Collectors.toList());
     }
 
     private CoExpression computeCoExpressions(String entityId, List<String> valuesA, List<String> valuesB, 
@@ -282,17 +298,14 @@ public class CoExpressionServiceImpl implements CoExpressionService {
         List<String> valuesACopy = new ArrayList<>(valuesA);
         List<String> valuesBCopy = new ArrayList<>(valuesB);
 
-        List<Integer> valuesToRemove = new ArrayList<>();
-        for (int i = 0; i < valuesBCopy.size(); i++) {
+        int removedCount = 0;
+        for (int i = 0; i < valuesB.size(); i++) {
             if (!NumberUtils.isNumber(valuesBCopy.get(i)) || !NumberUtils.isNumber(valuesACopy.get(i))) {
-                valuesToRemove.add(i);
+                int index = i - removedCount;
+                valuesBCopy.remove(index);
+                valuesACopy.remove(index);
+                removedCount += 1;
             }
-        }
-
-        for (int i = 0; i < valuesToRemove.size(); i++) {
-            int valueToRemove = valuesToRemove.get(i) - i;
-            valuesBCopy.remove(valueToRemove);
-            valuesACopy.remove(valueToRemove);
         }
 
         CoExpression coExpression = new CoExpression();

@@ -4,6 +4,7 @@ import org.cbioportal.model.*;
 import org.cbioportal.persistence.MolecularDataRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
+import org.springframework.cache.annotation.Cacheable;
 
 import java.util.*;
 import java.util.function.Function;
@@ -44,6 +45,7 @@ public class MolecularDataMyBatisRepository implements MolecularDataRepository {
     // In order to return a cursor/iterator to the service layer, we need a transaction setup in the service
     // layer. Currently, the bottom stackframe is CoExpressionService:getCoExpressions.  It is there where
     // you will find the transaction created.
+    @Cacheable(cacheResolver = "staticRepositoryCacheOneResolver", condition = "@cacheEnabledConfig.getEnabled()")
     public Iterable<GeneMolecularAlteration> getGeneMolecularAlterationsIterable(String molecularProfileId, 
                                                                                  List<Integer> entrezGeneIds, String projection) {
 

@@ -1,9 +1,11 @@
 package org.cbioportal.service.impl;
 
 import org.apache.commons.collections.map.MultiKeyMap;
+import org.apache.commons.lang3.StringUtils;
 import org.cbioportal.model.*;
 import org.cbioportal.model.util.Select;
 import org.cbioportal.service.*;
+import org.cbioportal.service.exception.MolecularProfileNotFoundException;
 import org.cbioportal.service.exception.StudyNotFoundException;
 import org.cbioportal.service.util.MolecularProfileUtil;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -28,6 +30,8 @@ public class StudyViewServiceImpl implements StudyViewService {
     private SignificantlyMutatedGeneService significantlyMutatedGeneService;
     @Autowired
     private SignificantCopyNumberRegionService significantCopyNumberRegionService;
+    @Autowired
+    private GenericAssayService genericAssayService;
 
     @Override
     public List<GenomicDataCount> getGenomicDataCounts(List<String> studyIds, List<String> sampleIds) {
@@ -166,4 +170,47 @@ public class StudyViewServiceImpl implements StudyViewService {
         return copyNumberCountByGenes;
     }
 
+    @Override
+    public List<GenericAssayDataCountItem> fetchGenericAssayDataCounts(List<String> molecularProfileIds, List<String> sampleIds,
+                                                               List<String> stableIds) throws MolecularProfileNotFoundException {
+        if (stableIds.isEmpty()) {
+            return new ArrayList<>();
+        }
+        
+        return genericAssayService.fetchGenericAssayData(molecularProfileIds, sampleIds, stableIds, "SUMMARY")
+            .stream()
+            .filter(g -> StringUtils.isNotEmpty(g.getValue()) && !g.getValue().equals("NA"))
+            .collect(Collectors.groupingBy(GenericAssayData::getGenericAssayStableId))
+            .entrySet()
+            .stream()
+            .map(entry -> {
+                int totalCount = entry.getValue().size();
+                int naCount = sampleIds.size() - totalCount;
+                List<GenericAssayDataCount> counts = entry.getValue()
+                    .stream()
+                    .collect(Collectors.groupingBy(GenericAssayData::getValue))
+                    .entrySet()
+                    .stream()
+                    .map(datum -> {
+                        GenericAssayDataCount dataCount = new GenericAssayDataCount();
+                        dataCount.setValue(datum.getKey());
+                        dataCount.setCount(datum.getValue().size());
+                        return dataCount; 
+                    })
+                    .collect(Collectors.toList());
+                
+                if (naCount > 0) {
+                    GenericAssayDataCount dataCount = new GenericAssayDataCount();
+                    dataCount.setValue("NA");
+                    dataCount.setCount(naCount);
+                    counts.add(dataCount);
+                }
+
+                GenericAssayDataCountItem genericAssayDataCountItem = new GenericAssayDataCountItem();
+                genericAssayDataCountItem.setStableId(entry.getKey());
+                genericAssayDataCountItem.setCounts(counts);
+                return genericAssayDataCountItem;
+            })
+            .collect(Collectors.toList());
+    }
 }

@@ -1,14 +1,22 @@
 package org.cbioportal.persistence;
 
-import org.springframework.beans.factory.annotation.Value;
-import java.util.ArrayList;
-import java.util.Arrays;
+import org.cbioportal.utils.config.annotation.ConditionalOnProperty;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.stereotype.Component;
 
+import javax.annotation.PostConstruct;
+import java.util.ArrayList;
+import java.util.Arrays;
+
+@Component
 public class CacheEnabledConfig {
 
     private static final Logger LOG = LoggerFactory.getLogger(CacheEnabledConfig.class);
+
+    @Value("${persistence.cache_type:no-cache}")
+    private String cacheType;
 
     private boolean enabled;
     
@@ -19,7 +27,8 @@ public class CacheEnabledConfig {
 
     public static ArrayList<String> validCacheTypes = new ArrayList<String>(Arrays.asList(EHCACHE_DISK, EHCACHE_HEAP, EHCACHE_HYBRID, REDIS));
 
-    public CacheEnabledConfig(String cacheType) {
+    @PostConstruct
+    public void init() {
         this.enabled = enableCache(cacheType);
         LOG.info("Cache is enabled: " + this.enabled);
     }

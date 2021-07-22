@@ -13,17 +13,16 @@ import org.cbioportal.model.DataBin;
 import org.cbioportal.model.MolecularProfile;
 import org.cbioportal.model.Patient;
 import org.cbioportal.model.SampleList;
-import org.cbioportal.web.parameter.ClinicalDataBinFilter;
-import org.cbioportal.web.parameter.ClinicalDataFilter;
-import org.cbioportal.web.parameter.CustomDataSession;
-import org.cbioportal.web.parameter.CustomDataValue;
-import org.cbioportal.web.parameter.DataFilterValue;
-import org.cbioportal.web.parameter.SampleIdentifier;
-import org.cbioportal.web.parameter.StudyViewFilter;
+import org.cbioportal.service.util.MolecularProfileUtil;
+import org.cbioportal.web.parameter.*;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 @Component
 public class StudyViewFilterUtil {
+    @Autowired
+    private MolecularProfileUtil molecularProfileUtil;
+    
     public void extractStudyAndSampleIds(List<SampleIdentifier> sampleIdentifiers, List<String> studyIds, List<String> sampleIds) {
         for (SampleIdentifier sampleIdentifier : sampleIdentifiers) {
             studyIds.add(sampleIdentifier.getStudyId());
@@ -245,6 +244,16 @@ public class StudyViewFilterUtil {
         }
 
         return combinedResult;
+    }
+
+    public void extractMolecularProfileIdsFromFilters(List<GenericAssayDataFilter> gaFilters, List<MolecularProfile> molecularProfiles, List<String> molecularProfileIds) {
+        Map<String, List<MolecularProfile>> molecularProfileMap = molecularProfileUtil.categorizeMolecularProfilesByStableIdSuffixes(molecularProfiles);
+        molecularProfileIds.addAll(gaFilters
+            .stream()
+            .map(f ->  molecularProfileMap.getOrDefault(f.getProfileType(), Collections.emptyList()))
+            .flatMap(porfiles -> porfiles.stream().map(MolecularProfile::getStableId))
+            .collect(Collectors.toList())
+        );
     }
     
     private List<ClinicalData> filterClinicalDataByStudyAndSampleAndAttribute(

@@ -54,4 +54,10 @@ public class BaseServiceImplTest {
     public static final String HUGO_GENE_SYMBOL_1 = "HUGO1";
     public static final String HUGO_GENE_SYMBOL_2 = "HUGO2";
     public static final String HUGO_GENE_SYMBOL_3 = "HUGO3";
+    public static final String STABLE_ID_1 = "stable_id1";
+    public static final String STABLE_ID_2 = "stable_id2";
+    public static final String CATEGORY_VALUE_1 = "category_value1";
+    public static final String CATEGORY_VALUE_2 = "category_value2";
+    public static final String EMPTY_VALUE_1 = "";
+    public static final String EMPTY_VALUE_2 = "NA";    
 }

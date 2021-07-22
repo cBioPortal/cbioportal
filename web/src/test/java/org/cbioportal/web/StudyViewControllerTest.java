@@ -5,12 +5,7 @@ import org.cbioportal.model.*;
 import org.cbioportal.persistence.AlterationRepository;
 import org.cbioportal.service.*;
 import org.cbioportal.service.util.MolecularProfileUtil;
-import org.cbioportal.web.parameter.ClinicalDataBinCountFilter;
-import org.cbioportal.web.parameter.ClinicalDataBinFilter;
-import org.cbioportal.web.parameter.ClinicalDataCountFilter;
-import org.cbioportal.web.parameter.ClinicalDataFilter;
-import org.cbioportal.web.parameter.SampleIdentifier;
-import org.cbioportal.web.parameter.StudyViewFilter;
+import org.cbioportal.web.parameter.*;
 import org.cbioportal.web.util.StudyViewFilterApplier;
 import org.junit.Before;
 import org.junit.Test;
@@ -58,6 +53,9 @@ public class StudyViewControllerTest {
     private static final String TEST_HUGO_GENE_SYMBOL_2 = "test_hugo_gene_symbol_2";
     private static final String TEST_CYTOBAND_1 = "test_cytoband_1";
     private static final String TEST_CYTOBAND_2 = "test_cytoband_2";
+    private static final String TEST_STABLE_ID = "test_stable_id";
+    private static final String TEST_GENERIC_ASSAY_DATA_VALUE_1 = "value1";
+    private static final String TEST_GENERIC_ASSAY_DATA_VALUE_2 = "value2";
 
     @Autowired
     private WebApplicationContext wac;
@@ -648,5 +646,54 @@ public class StudyViewControllerTest {
             .andExpect(MockMvcResultMatchers.jsonPath("$[8].minY").value(400.0))
             .andExpect(MockMvcResultMatchers.jsonPath("$[8].maxY").value(400.0))
             .andExpect(MockMvcResultMatchers.jsonPath("$[8].count").value(1));
+    }
+
+    @Test
+    public void fetchGenericAssayDataCounts() throws Exception {
+
+        List<SampleIdentifier> filteredSampleIdentifiers = new ArrayList<>();
+        SampleIdentifier sampleIdentifier = new SampleIdentifier();
+        sampleIdentifier.setSampleId(TEST_SAMPLE_ID_1);
+        sampleIdentifier.setStudyId(TEST_STUDY_ID);
+        filteredSampleIdentifiers.add(sampleIdentifier);
+        Mockito.when(studyViewFilterApplier.apply(any())).thenReturn(filteredSampleIdentifiers);
+
+        List<GenericAssayDataCountItem> genericAssayDataCountItems = new ArrayList<>();
+        GenericAssayDataCountItem genericAssayDataCountItem = new GenericAssayDataCountItem();
+        genericAssayDataCountItem.setStableId(TEST_STABLE_ID);
+        List<GenericAssayDataCount> genericAssayDataCounts = new ArrayList<>();
+        GenericAssayDataCount genericAssayDataCount1 = new GenericAssayDataCount();
+        genericAssayDataCount1.setValue(TEST_GENERIC_ASSAY_DATA_VALUE_1);
+        genericAssayDataCount1.setCount(3);
+        genericAssayDataCounts.add(genericAssayDataCount1);
+        GenericAssayDataCount genericAssayDataCount2 = new GenericAssayDataCount();
+        genericAssayDataCount2.setValue(TEST_GENERIC_ASSAY_DATA_VALUE_2);
+        genericAssayDataCount2.setCount(1);
+        genericAssayDataCounts.add(genericAssayDataCount2);
+        genericAssayDataCountItem.setCounts(genericAssayDataCounts);
+        genericAssayDataCountItems.add(genericAssayDataCountItem);
+
+        Mockito.when(studyViewService.fetchGenericAssayDataCounts(anyList(), anyList(),
+            anyList())).thenReturn(genericAssayDataCountItems);
+
+        GenericAssayDataCountFilter genericAssayDataCountFilter = new GenericAssayDataCountFilter();
+        GenericAssayDataFilter genericAssayDataFilter = new GenericAssayDataFilter();
+        genericAssayDataFilter.setStableId(TEST_STABLE_ID);
+        genericAssayDataCountFilter.setGenericAssayDataFilters(Arrays.asList(genericAssayDataFilter));
+        StudyViewFilter studyViewFilter = new StudyViewFilter();
+        studyViewFilter.setStudyIds(Arrays.asList(TEST_STUDY_ID));
+        genericAssayDataCountFilter.setStudyViewFilter(studyViewFilter);
+
+        mockMvc.perform(MockMvcRequestBuilders.post("/generic-assay-data-counts/fetch")
+            .accept(MediaType.APPLICATION_JSON)
+            .contentType(MediaType.APPLICATION_JSON)
+            .content(objectMapper.writeValueAsString(genericAssayDataCountFilter)))
+            .andExpect(MockMvcResultMatchers.status().isOk())
+            .andExpect(MockMvcResultMatchers.content().contentTypeCompatibleWith(MediaType.APPLICATION_JSON))
+            .andExpect(MockMvcResultMatchers.jsonPath("$[0].stableId").value(TEST_STABLE_ID))
+            .andExpect(MockMvcResultMatchers.jsonPath("$[0].counts[0].value").value(TEST_GENERIC_ASSAY_DATA_VALUE_1))
+            .andExpect(MockMvcResultMatchers.jsonPath("$[0].counts[0].count").value(3))
+            .andExpect(MockMvcResultMatchers.jsonPath("$[0].counts[1].value").value(TEST_GENERIC_ASSAY_DATA_VALUE_2))
+            .andExpect(MockMvcResultMatchers.jsonPath("$[0].counts[1].count").value(1));
     }
 }

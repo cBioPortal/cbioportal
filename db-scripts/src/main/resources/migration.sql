@@ -939,4 +939,4 @@ UPDATE `info` SET `DB_SCHEMA_VERSION`="2.12.8";
 
 DROP TABLE IF EXISTS pdb_uniprot_residue_mapping;
 DROP TABLE IF EXISTS pdb_uniprot_alignment;
-UPDATE `info` SET `DB_SCHEMA_VERSION`="2.12.9";
+UPDATE `info` SET `DB_SCHEMA_VERSION`="2.12.8";

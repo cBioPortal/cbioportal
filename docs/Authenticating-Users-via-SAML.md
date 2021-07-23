@@ -146,7 +146,9 @@ Then, modify the section labeled `authentication`. See SAML parameters shown in 
 
 Please note that you will have to modify all the above to match your own settings. `saml.idp.comm.binding.type` can be left empty if `saml.idp.comm.binding.settings=defaultBinding`. The `saml.logout.*` settings above reflect the settings of an IDP that supports Single Logout (hopefully the default in most cases - more details in section below).
 
-In the case that you are running cBioPortal behind a reverse proxy that handles the SSL crtificates (such as nginx or traefik), you will have to also specify `saml.sp.metadata.entitybaseurl`. This should point to `https://host.example.come:443`. This setting is required such that cBioPortal uses the Spring SAML library appropriately for creating redirects back into cBioPortal.
+In the case that you are running cBioPortal behind a reverse proxy that handles the SSL certificates (such as nginx or traefik), you will have to also specify `saml.sp.metadata.entitybaseurl`. This should point to `https://host.example.come:443`. This setting is required such that cBioPortal uses the Spring SAML library appropriately for creating redirects back into cBioPortal.
+
+In addition there is a known bug where redirect from the cBioPortal instance always goes over http instead of https (https://github.com/cBioPortal/cbioportal/issues/6342). To get around this issue you can pass the full URL including https to the `webapp-runnner.jar` command with e.g. `--proxy-base-url https://mycbioportalinstance.org`.
 
 ### Custom scenarios
 

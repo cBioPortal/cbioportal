@@ -3,7 +3,6 @@ package org.cbioportal.service.util;
 import org.cbioportal.model.MolecularProfile;
 import org.cbioportal.model.MolecularProfileCaseIdentifier;
 import org.springframework.stereotype.Component;
-
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -18,10 +17,14 @@ public class MolecularProfileUtil {
     public final String MUTATION_PROFILE_SUFFIX = "_mutations";
     public final String FUSION_PROFILE_SUFFIX = "_fusion";
     public final String STRUCTURAL_VARIANT_PROFILE_SUFFIX = "_structural_variants";
+    public final String FUSIONS_AS_MUTATIONS_DATATYPE = "FUSION";
 
+    // TODO: Remove once fusions are removed from mutation table
     public Predicate<MolecularProfile> isStructuralVariantMolecularProfile =
         m -> m.getMolecularAlterationType().equals(MolecularProfile.MolecularAlterationType.FUSION) ||
-            m.getMolecularAlterationType().equals(MolecularProfile.MolecularAlterationType.STRUCTURAL_VARIANT);
+            m.getMolecularAlterationType().equals(MolecularProfile.MolecularAlterationType.STRUCTURAL_VARIANT) || 
+                (m.getMolecularAlterationType().equals(MolecularProfile.MolecularAlterationType.MUTATION_EXTENDED) 
+                        && m.getDatatype().equals(FUSIONS_AS_MUTATIONS_DATATYPE));
 
     public Predicate<MolecularProfile> isDiscreteCNAMolecularProfile =
         m -> m.getMolecularAlterationType().equals(MolecularProfile.MolecularAlterationType.COPY_NUMBER_ALTERATION) && 

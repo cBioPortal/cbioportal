@@ -912,13 +912,17 @@ A structural variant data file is a tab-delimited file with one structural varia
 | Site1_Chromosome             | 21 |      |
 | Site1_Position               | 39842043 |                |
 | Site1_Description           | |               |
-| Site2_Hugo Symbol  | TMPRSS2 | A [HUGO](https://www.genenames.org/) gene symbol.  |
+| Site2_Hugo_Symbol  | TMPRSS2 | A [HUGO](https://www.genenames.org/) gene symbol.  |
 | Site2_Entrez_Gene_Id  | Entrez gene id of TMPRSS2 |  |
 | Site2_Ensembl_Transcript_Id  | ENST00000288319 | An [Ensembl Transcript](https://useast.ensembl.org/Help/View?id=151#:~:text=Each%20transcript%20ID%20includes%20a,ENSMUST%20defines%20a%20mouse%20transcript).) identifier.  |
 | Site2_Exon                   | 2 | |
 | Site2_Chromosome             | 21 |      |
 | Site2_Position               | 3032067 |                |
 | Site2_Description           | |               |
+| Site2_Effect_On_Frame | IN_FRAME, FRAMESHIFT | Whether the fusion breaks the reading frame of the 2nd gene. |
+| NCBI_Build                   | GRCh37,GRCh38 | Necessary for validation (check if chromosomal locations are on 37 or 38). |
+| DNA_Support                  | Yes/No  | Fusion detected from DNA sequence data, "yes" or "no". |
+| RNA_Support                  | Yes/No    | Fusion detected from RNA sequence data, "yes" or "no". |
 | Normal_Read_Count            | 100      | Counts in normal sample |
 | Tumor_Read_Count             | 30     | Counts in tumor sample |
 | Normal_Variant_count         | 0      | Amount of times variant occurs in reads from normal   |
@@ -934,6 +938,7 @@ A structural variant data file is a tab-delimited file with one structural varia
 | Class                        | DELETION, DUPLICATION, INSERTION, INVERSION, TRANSLOCATION  |    |
 | Length                       | 24085      | Length of SV (in bp)   |
 | Comments                     |     | Any comments/free text. |
+| External_Annotation | COSMIC:COSF1197 | Other annotation sources. Examples of contents could be AB462411 (NCBI)  and COSF1197 (Cosmic). This column supports both types of annotations. |
 
 For an example see [datahub](https://github.com/cBioPortal/datahub/blob/master/public/msk_impact_2017/data_fusions.txt). At a minimum `Sample_ID`, `Site1_Hugo_Symbol` and `Site2_Hugo_Symbol` are required. The other columns are shown at several other pages on the website and the `Class`, `Annotation` and `Event_Info` feature most prominently on several locations. The more info one can provide here the better.
 

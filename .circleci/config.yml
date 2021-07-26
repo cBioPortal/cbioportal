@@ -182,10 +182,12 @@ jobs:
                 command: |
                     $TEST_HOME/docker_compose/start.sh
             - run:
-                name: Change owner of MySQL database files (needed by cache)
+                name: Change owner of keycloak MySQL database files (needed by cache)
                 command: |
-                  sudo chmod -R 777 $KC_DB_DATA_DIR && \
-                  sudo chown -R circleci:circleci $KC_DB_DATA_DIR
+                  if (ls "$KC_DB_DATA_DIR"/* 2> /dev/null > /dev/null); then \
+                      sudo chmod -R 777 $KC_DB_DATA_DIR && \
+                      sudo chown -R circleci:circleci $KC_DB_DATA_DIR; \
+                  fi
             - save_cache:
                 paths:
                   - /tmp/repos/cbioportal-frontend/e2e-localdb-workspace/kc_db_data

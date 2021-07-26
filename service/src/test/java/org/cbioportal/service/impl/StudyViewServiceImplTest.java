@@ -51,6 +51,7 @@ public class StudyViewServiceImplTest extends BaseServiceImplTest {
         mutationMolecularProfile.setName("Mutations");
         mutationMolecularProfile.setMolecularAlterationType(MolecularProfile.MolecularAlterationType.MUTATION_EXTENDED);
         mutationMolecularProfile.setDatatype("MAF");
+        mutationMolecularProfile.setPatientLevel(false);
         molecularProfiles.add(mutationMolecularProfile);
 
         MolecularProfile discreteCNAMolecularProfile = new MolecularProfile();
@@ -59,7 +60,17 @@ public class StudyViewServiceImplTest extends BaseServiceImplTest {
         discreteCNAMolecularProfile.setName("Discrete CNA");
         discreteCNAMolecularProfile.setMolecularAlterationType(MolecularProfile.MolecularAlterationType.COPY_NUMBER_ALTERATION);
         discreteCNAMolecularProfile.setDatatype("DISCRETE");
+        discreteCNAMolecularProfile.setPatientLevel(false);
         molecularProfiles.add(discreteCNAMolecularProfile);
+
+        MolecularProfile patientLevelMolecularProfile = new MolecularProfile();
+        patientLevelMolecularProfile.setCancerStudyIdentifier(BaseServiceImplTest.STUDY_ID);
+        patientLevelMolecularProfile.setStableId(BaseServiceImplTest.STUDY_ID + "_patient");
+        patientLevelMolecularProfile.setName("Patient Profile");
+        patientLevelMolecularProfile.setMolecularAlterationType(MolecularProfile.MolecularAlterationType.GENERIC_ASSAY);
+        patientLevelMolecularProfile.setDatatype("LIMIT-VALUE");
+        patientLevelMolecularProfile.setPatientLevel(true);
+        molecularProfiles.add(patientLevelMolecularProfile);        
 
         List<String> studyIds = Arrays.asList(BaseServiceImplTest.STUDY_ID, BaseServiceImplTest.STUDY_ID);
         List<String> sampleIds = Arrays.asList(BaseServiceImplTest.SAMPLE_ID1, BaseServiceImplTest.SAMPLE_ID2);
@@ -69,6 +80,8 @@ public class StudyViewServiceImplTest extends BaseServiceImplTest {
         molecularProfileSampleIdentifiers.add(new MolecularProfileCaseIdentifier(BaseServiceImplTest.SAMPLE_ID2, BaseServiceImplTest.STUDY_ID + "_mutations"));
         molecularProfileSampleIdentifiers.add(new MolecularProfileCaseIdentifier(BaseServiceImplTest.SAMPLE_ID1, BaseServiceImplTest.STUDY_ID + "_gistic"));
         molecularProfileSampleIdentifiers.add(new MolecularProfileCaseIdentifier(BaseServiceImplTest.SAMPLE_ID2, BaseServiceImplTest.STUDY_ID + "_gistic"));
+        molecularProfileSampleIdentifiers.add(new MolecularProfileCaseIdentifier(BaseServiceImplTest.SAMPLE_ID1, BaseServiceImplTest.STUDY_ID + "_patient"));
+        molecularProfileSampleIdentifiers.add(new MolecularProfileCaseIdentifier(BaseServiceImplTest.SAMPLE_ID2, BaseServiceImplTest.STUDY_ID + "_patient"));
 
         List<GenePanelData> genePanelDataList = new ArrayList<>();
         GenePanelData panelData1 = new GenePanelData();
@@ -91,6 +104,18 @@ public class StudyViewServiceImplTest extends BaseServiceImplTest {
         panelData4.setSampleId(BaseServiceImplTest.SAMPLE_ID2);
         panelData4.setProfiled(true);
         genePanelDataList.add(panelData4);
+        GenePanelData panelData5 = new GenePanelData();
+        panelData5.setMolecularProfileId(BaseServiceImplTest.STUDY_ID + "_patient");
+        panelData5.setSampleId(BaseServiceImplTest.SAMPLE_ID1);
+        panelData5.setPatientId(BaseServiceImplTest.PATIENT_ID_1);
+        panelData5.setProfiled(true);
+        genePanelDataList.add(panelData5);
+        GenePanelData panelData6 = new GenePanelData();
+        panelData6.setMolecularProfileId(BaseServiceImplTest.STUDY_ID + "_patient");
+        panelData6.setSampleId(BaseServiceImplTest.SAMPLE_ID2);
+        panelData6.setPatientId(BaseServiceImplTest.PATIENT_ID_1);
+        panelData6.setProfiled(true);
+        genePanelDataList.add(panelData6);
 
         Mockito.when(molecularProfileService.getMolecularProfilesInStudies(anyList(), anyString()))
             .thenReturn(molecularProfiles);
@@ -106,11 +131,16 @@ public class StudyViewServiceImplTest extends BaseServiceImplTest {
         expectedGenomicDataCount1.setValue("mutations");
         expectedGenomicDataCount1.setLabel("Mutations");
         expectedGenomicDataCounts.add(expectedGenomicDataCount1);
-        GenomicDataCount expectedGenomicDataCoun2 = new GenomicDataCount();
-        expectedGenomicDataCoun2.setCount(2);
-        expectedGenomicDataCoun2.setValue("gistic");
-        expectedGenomicDataCoun2.setLabel("Discrete CNA");
-        expectedGenomicDataCounts.add(expectedGenomicDataCoun2);
+        GenomicDataCount expectedGenomicDataCount2 = new GenomicDataCount();
+        expectedGenomicDataCount2.setCount(1);
+        expectedGenomicDataCount2.setValue("patient");
+        expectedGenomicDataCount2.setLabel("Patient Profile");
+        expectedGenomicDataCounts.add(expectedGenomicDataCount2);
+        GenomicDataCount expectedGenomicDataCount3 = new GenomicDataCount();
+        expectedGenomicDataCount3.setCount(2);
+        expectedGenomicDataCount3.setValue("gistic");
+        expectedGenomicDataCount3.setLabel("Discrete CNA");
+        expectedGenomicDataCounts.add(expectedGenomicDataCount3);
 
         List<GenomicDataCount> result = studyViewService.getGenomicDataCounts(studyIds, sampleIds);
 

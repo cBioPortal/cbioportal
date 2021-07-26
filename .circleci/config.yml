@@ -159,10 +159,10 @@ jobs:
                   docker volume rm --force cbioportal-docker-compose_cbioportal_mysql_data && mkdir -p $CBIO_DB_DATA_DIR && rm -rf $CBIO_DB_DATA_DIR/*
             - restore_cache:
                 keys:
-                - v4-cbio-database-files-{{ checksum "/tmp/db_data_md5key" }}
+                - v5-cbio-database-files-{{ checksum "/tmp/db_data_md5key" }}
             - restore_cache:
                 keys:
-                - v4-keycloak-database-files-{{ checksum "e2e-localdb-workspace/keycloak/keycloak-config-generated.json" }}
+                - v5-keycloak-database-files-{{ checksum "e2e-localdb-workspace/keycloak/keycloak-config-generated.json" }}
             - run:
                 name: Init database
                 command: |
@@ -176,7 +176,7 @@ jobs:
             - save_cache:
                 paths:
                   - /tmp/repo/e2e-localdb-workspace/cbio_db_data
-                key: v4-cbio-database-files-{{ checksum "/tmp/db_data_md5key" }}
+                key: v5-cbio-database-files-{{ checksum "/tmp/db_data_md5key" }}
             - run:
                 name: Start cbioportal and other services
                 command: |
@@ -189,7 +189,7 @@ jobs:
             - save_cache:
                 paths:
                   - /tmp/repo/e2e-localdb-workspace/kc_db_data
-                key: v4-keycloak-database-files-{{ checksum "e2e-localdb-workspace/keycloak/keycloak-config-generated.json" }}
+                key: v5-keycloak-database-files-{{ checksum "e2e-localdb-workspace/keycloak/keycloak-config-generated.json" }}
             - run:
                 name: Run end-2-end tests with studies in local database
                 command: |

@@ -905,13 +905,15 @@ A structural variant data file is a tab-delimited file with one structural varia
 | Field                        | Allowed/Example values         | Comments |
 | -- | -- | -- |
 | Sample_ID                    | Sample_1     | This is the sample ID  |
-| Site1_Hugo Symbol  | ERG | A [HUGO](https://www.genenames.org/) gene symbol.  |
+| Site1_Hugo_Symbol  | ERG | A [HUGO](https://www.genenames.org/) gene symbol.  |
+| Site1_Entrez_Gene_Id  | Entrez gene id of ERG |  |
 | Site1_Ensembl_Transcript_Id  | ENST00000288319 | An [Ensembl Transcript](https://useast.ensembl.org/Help/View?id=151#:~:text=Each%20transcript%20ID%20includes%20a,ENSMUST%20defines%20a%20mouse%20transcript).) identifier.  |
 | Site1_Exon                   | 4 | |
 | Site1_Chromosome             | 21 |      |
 | Site1_Position               | 39842043 |                |
 | Site1_Description           | |               |
 | Site2_Hugo Symbol  | TMPRSS2 | A [HUGO](https://www.genenames.org/) gene symbol.  |
+| Site2_Entrez_Gene_Id  | Entrez gene id of TMPRSS2 |  |
 | Site2_Ensembl_Transcript_Id  | ENST00000288319 | An [Ensembl Transcript](https://useast.ensembl.org/Help/View?id=151#:~:text=Each%20transcript%20ID%20includes%20a,ENSMUST%20defines%20a%20mouse%20transcript).) identifier.  |
 | Site2_Exon                   | 2 | |
 | Site2_Chromosome             | 21 |      |
@@ -933,7 +935,7 @@ A structural variant data file is a tab-delimited file with one structural varia
 | Length                       | 24085      | Length of SV (in bp)   |
 | Comments                     |     | Any comments/free text. |
 
-For an example see [datahub](https://github.com/cBioPortal/datahub/blob/master/public/msk_impact_2017/data_fusions.txt)
+For an example see [datahub](https://github.com/cBioPortal/datahub/blob/master/public/msk_impact_2017/data_fusions.txt). At a minimum `Sample_ID`, `Site1_Hugo_Symbol` and `Site2_Hugo_Symbol` are required. The other columns are shown at several other pages on the website and the `Class`, `Annotation` and `Event_Info` feature most prominently on several locations. The more info one can provide here the better.
 
 ## Fusion Data
 **⚠️ DEPRECATED Use the: [SV format](#structural-variant-data) instead**

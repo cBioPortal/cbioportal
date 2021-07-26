@@ -34,16 +34,21 @@ public class StudyViewServiceImpl implements StudyViewService {
         List<MolecularProfileCaseIdentifier> molecularProfileSampleIdentifiers =
             molecularProfileService.getMolecularProfileCaseIdentifiers(studyIds, sampleIds);
 
-        Map<String, Integer> molecularProfileSampleCountSet = genePanelService
+        List<MolecularProfile> molecularProfiles = molecularProfileService
+            .getMolecularProfilesInStudies(new ArrayList<>(new HashSet<>(studyIds)),"SUMMARY");
+        Map<String, MolecularProfile> molecularProfileMap = molecularProfiles
+            .stream()
+            .collect(Collectors.toMap(MolecularProfile::getStableId, Function.identity()));
+
+        Map<String, Integer> molecularProfileCaseCountSet = genePanelService
             .fetchGenePanelDataInMultipleMolecularProfiles(molecularProfileSampleIdentifiers)
             .stream()
             .filter(GenePanelData::getProfiled)
-            .collect(Collectors.groupingBy(GenePanelData::getMolecularProfileId, Collectors.summingInt(s -> 1)));
-
-        List<MolecularProfile> molecularProfiles =
-            molecularProfileService.getMolecularProfilesInStudies(new ArrayList<>(new HashSet<>(studyIds)),
-                "SUMMARY");
-
+            .collect(Collectors.groupingBy(GenePanelData::getMolecularProfileId))
+            .entrySet()
+            .stream()
+            .collect(Collectors.toMap(entry -> entry.getKey(), entry -> (int)entry.getValue().stream().map(d -> molecularProfileMap.get(entry.getKey()).getPatientLevel() ? d.getPatientId() : d.getSampleId()).distinct().count()));
+        
         return molecularProfileUtil
             .categorizeMolecularProfilesByStableIdSuffixes(molecularProfiles)
             .entrySet()
@@ -55,8 +60,7 @@ public class StudyViewServiceImpl implements StudyViewService {
                 Integer count = entry
                     .getValue()
                     .stream()
-                    .mapToInt(molecularProfile ->
-                        molecularProfileSampleCountSet.getOrDefault(molecularProfile.getStableId(), 0))
+                    .mapToInt(molecularProfile -> molecularProfileCaseCountSet.getOrDefault(molecularProfile.getStableId(), 0))
                     .sum();
 
                 dataCount.setCount(count);

@@ -4,7 +4,6 @@ import java.util.*;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
-
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.collections.map.MultiKeyMap;
 import org.cbioportal.model.*;
@@ -32,7 +31,6 @@ public class StudyViewFilterApplier {
     private void init() {
         instance = applicationContext.getBean(StudyViewFilterApplier.class);
     }
-
 
     @Autowired
     private SampleService sampleService;
@@ -86,7 +84,7 @@ public class StudyViewFilterApplier {
     public List<SampleIdentifier> apply(StudyViewFilter studyViewFilter) {
         return (instance == null ? this : instance).cachedApply(studyViewFilter);
     }
-    
+
     @Cacheable(
         cacheResolver = "generalRepositoryCacheResolver",
         condition = "@cacheEnabledConfig.getEnabled()"
@@ -207,7 +205,7 @@ public class StudyViewFilterApplier {
 
             Map<String, List<MolecularProfile>> molecularProfileSet = molecularProfileUtil
                     .categorizeMolecularProfilesByStableIdSuffixes(molecularProfiles);
-            
+
             List<MolecularProfileCaseIdentifier> molecularProfileSampleIdentifiers = new ArrayList<>();
 
             studyViewFilter.getGenomicProfiles().stream().forEach(profileValues -> {
@@ -268,9 +266,9 @@ public class StudyViewFilterApplier {
                 sampleIdentifiers.retainAll(filteredSampleIdentifiers);
             }
         }
-        
+
         if (
-            studyViewFilter.getSampleTreatmentFilters() != null && 
+            studyViewFilter.getSampleTreatmentFilters() != null &&
             !studyViewFilter.getSampleTreatmentFilters().getFilters().isEmpty()
         ) {
             sampleIdentifiers = sampleTreatmentFilterApplier.filter(
@@ -280,7 +278,7 @@ public class StudyViewFilterApplier {
         }
 
         if (
-            studyViewFilter.getPatientTreatmentFilters() != null && 
+            studyViewFilter.getPatientTreatmentFilters() != null &&
             !studyViewFilter.getPatientTreatmentFilters().getFilters().isEmpty()
         ) {
             sampleIdentifiers = patientTreatmentFilterApplier.filter(
@@ -410,7 +408,7 @@ public class StudyViewFilterApplier {
                 geneQueries.stream().forEach(
                     q -> q.setEntrezGeneId(symbolToEntrezGeneId.get(q.getHugoGeneSymbol()))
                 );
-                
+
                 studyViewFilterUtil.extractStudyAndSampleIds(sampleIdentifiers, studyIds, sampleIds);
 
                 List<String> molecularProfileIds = new ArrayList<>();
@@ -533,13 +531,23 @@ public class StudyViewFilterApplier {
                     .map(molecularProfileMap::get)
                     .collect(Collectors.toList());
 
+            // TODO: Remove once fusions are removed from mutation table
+            // determine whether a fusions profile was imported as mutations
+            Boolean fusionsImportedAsMutations = Boolean.FALSE;
+            for (MolecularProfile mp : filteredMolecularProfiles) {
+                if (mp.getStableId().endsWith("mutations") && mp.getDatatype().equals("FUSION")) {
+                    fusionsImportedAsMutations = Boolean.TRUE;
+                    break;
+                }
+            }
+
             Set<MolecularAlterationType> alterationTypes = filteredMolecularProfiles.stream()
                     .map(MolecularProfile::getMolecularAlterationType)
                     .collect(Collectors.toSet());
 
             Set<String> dataTypes = filteredMolecularProfiles.stream().map(MolecularProfile::getDatatype)
                     .collect(Collectors.toSet());
-            
+
             Set<String> filteredMolecularProfileIds = filteredMolecularProfiles
                     .stream()
                     .map(MolecularProfile::getStableId)
@@ -548,11 +556,13 @@ public class StudyViewFilterApplier {
 
             if (alterationTypes.size() == 1) {
                 MolecularAlterationType alterationType = alterationTypes.iterator().next();
-                if (alterationType == MolecularAlterationType.MUTATION_EXTENDED) {
-                    mutatedGeneFilters.add(genefilter);
-                } else if (alterationType.equals(MolecularAlterationType.STRUCTURAL_VARIANT) ||
-                        alterationType.equals(MolecularProfile.MolecularAlterationType.FUSION)) {
+
+                if (alterationType.equals(MolecularAlterationType.STRUCTURAL_VARIANT) ||
+                        alterationType.equals(MolecularProfile.MolecularAlterationType.FUSION) ||
+                        fusionsImportedAsMutations) {
                     structuralVariantGeneFilters.add(genefilter);
+                } else if (alterationType == MolecularAlterationType.MUTATION_EXTENDED) {
+                    mutatedGeneFilters.add(genefilter);
                 } else if (alterationType == MolecularAlterationType.COPY_NUMBER_ALTERATION
                         && dataTypes.size() == 1 && dataTypes.iterator().next().equals("DISCRETE")) {
                     cnaGeneFilters.add(genefilter);

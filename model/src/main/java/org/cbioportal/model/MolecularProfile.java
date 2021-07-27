@@ -44,6 +44,7 @@ public class MolecularProfile implements Serializable {
     private CancerStudy cancerStudy;
     private Float pivotThreshold;
     private String sortOrder;
+    @NotNull
     private Boolean patientLevel;
 
     public Integer getMolecularProfileId() {

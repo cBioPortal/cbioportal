@@ -5,10 +5,12 @@ import org.cbioportal.model.*;
 import org.cbioportal.model.QueryElement;
 import org.cbioportal.model.util.Select;
 import org.cbioportal.persistence.AlterationRepository;
+import org.cbioportal.persistence.MolecularProfileRepository;
 import org.cbioportal.service.exception.MolecularProfileNotFoundException;
 import org.cbioportal.service.util.AlterationEnrichmentUtil;
 import org.cbioportal.service.util.MolecularProfileUtil;
 import org.junit.Assert;
+import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.InjectMocks;
@@ -16,8 +18,7 @@ import org.mockito.Mock;
 import org.mockito.Spy;
 import org.mockito.junit.MockitoJUnitRunner;
 
-import java.util.Arrays;
-import java.util.List;
+import java.util.*;
 
 import static org.mockito.Mockito.*;
 
@@ -35,36 +36,68 @@ public class AlterationCountServiceImplTest extends BaseServiceImplTest {
     @Spy
     @InjectMocks
     private MolecularProfileUtil molecularProfileUtil;
+    @Mock
+    private MolecularProfileRepository molecularProfileRepository;
 
     List<MolecularProfileCaseIdentifier> caseIdentifiers = Arrays.asList(new MolecularProfileCaseIdentifier("A", MOLECULAR_PROFILE_ID));
     Select<MutationEventType> mutationEventTypes = Select.byValues(Arrays.asList(MutationEventType.missense_mutation));
     Select<CNA> cnaEventTypes = Select.byValues(Arrays.asList(CNA.AMP));
     Select<Integer> entrezGeneIds = Select.all();
-    boolean includeFrequency = false;
+    boolean includeFrequency = true;
     boolean includeMissingAlterationsFromGenePanel = false;
-    List<AlterationCountByGene> expectedCountByGeneList = Arrays.asList(new AlterationCountByGene());
-    List<CopyNumberCountByGene> expectedCnaCountByGeneList = Arrays.asList(new CopyNumberCountByGene());
+    List<AlterationCountByGene> expectedCountByGeneList;
+    List<CopyNumberCountByGene> expectedCnaCountByGeneList;
+    AlterationFilter alterationFilter = new AlterationFilter(
+        mutationEventTypes,
+        cnaEventTypes,
+            false,
+            false,
+            false,
+            false,
+            false,
+            false,
+        Select.none(),
+            false
+    );
+
+    @Before
+    public void setup() {
+        MolecularProfile molecularProfile = new MolecularProfile();
+        molecularProfile.setStableId(MOLECULAR_PROFILE_ID);
+        molecularProfile.setCancerStudyIdentifier(STUDY_ID);
+
+        when(molecularProfileRepository.getMolecularProfiles(
+            Collections.singleton(MOLECULAR_PROFILE_ID),
+            "SUMMARY"
+        )).thenReturn(Arrays.asList(molecularProfile));
+
+        AlterationCountByGene alterationCountByGene = new AlterationCountByGene();
+        alterationCountByGene.setEntrezGeneId(ENTREZ_GENE_ID_1);
+        expectedCountByGeneList = Arrays.asList(alterationCountByGene);
+
+        CopyNumberCountByGene copyNumberCountByGene = new CopyNumberCountByGene();
+        copyNumberCountByGene.setEntrezGeneId(ENTREZ_GENE_ID_1);
+        copyNumberCountByGene.setAlteration(2);
+        expectedCnaCountByGeneList = Arrays.asList(copyNumberCountByGene);
+    }
     
     @Test
     public void getSampleAlterationCounts() {
 
-        boolean includeFrequency = true;
-
         // this mock tests correct argument types
         when(alterationRepository.getSampleAlterationCounts(
-            caseIdentifiers,
+            new HashSet<>(caseIdentifiers),
             entrezGeneIds,
-            mutationEventTypes,
-            cnaEventTypes, QueryElement.PASS)).thenReturn(expectedCountByGeneList);
+            QueryElement.PASS,
+            alterationFilter)).thenReturn(expectedCountByGeneList);
 
         Pair<List<AlterationCountByGene>, Long> result = alterationCountService.getSampleAlterationCounts(
             caseIdentifiers,
             entrezGeneIds,
             includeFrequency,
             includeMissingAlterationsFromGenePanel,
-            mutationEventTypes,
-            cnaEventTypes, QueryElement.PASS
-        );
+            QueryElement.PASS,
+            alterationFilter);
         
         verify(alterationEnrichmentUtil, times(1)).includeFrequencyForSamples(anyList(), anyList(), anyBoolean());
 
@@ -73,23 +106,20 @@ public class AlterationCountServiceImplTest extends BaseServiceImplTest {
     @Test
     public void getPatientAlterationCounts() {
 
-        boolean includeFrequency = true;
-
         // this mock tests correct argument types
         when(alterationRepository.getPatientAlterationCounts(
             caseIdentifiers,
             entrezGeneIds,
-            mutationEventTypes,
-            cnaEventTypes, QueryElement.PASS)).thenReturn(expectedCountByGeneList);
+            QueryElement.PASS,
+            alterationFilter)).thenReturn(expectedCountByGeneList);
 
         Pair<List<AlterationCountByGene>, Long> result = alterationCountService.getPatientAlterationCounts(
             caseIdentifiers,
             entrezGeneIds,
             includeFrequency,
             includeMissingAlterationsFromGenePanel,
-            mutationEventTypes,
-            cnaEventTypes, QueryElement.PASS
-        );
+            QueryElement.PASS,
+            alterationFilter);
 
         verify(alterationEnrichmentUtil, times(1)).includeFrequencyForPatients(anyList(), anyList(), anyBoolean());
     }
@@ -99,17 +129,17 @@ public class AlterationCountServiceImplTest extends BaseServiceImplTest {
     public void getSampleMutationCounts() {
         // this mock tests correct argument types
         when(alterationRepository.getSampleAlterationCounts(
-            caseIdentifiers,
+            new HashSet<>(caseIdentifiers),
             entrezGeneIds,
-            mutationEventTypes,
-            Select.none(), QueryElement.INACTIVE)).thenReturn(expectedCountByGeneList);
+            QueryElement.INACTIVE,
+            alterationFilter)).thenReturn(expectedCountByGeneList);
 
         Pair<List<AlterationCountByGene>, Long> result = alterationCountService.getSampleMutationCounts(
             caseIdentifiers,
             entrezGeneIds,
             includeFrequency,
             includeMissingAlterationsFromGenePanel,
-            mutationEventTypes);
+            alterationFilter);
 
         Assert.assertEquals(expectedCountByGeneList, result.getFirst());
 
@@ -122,15 +152,15 @@ public class AlterationCountServiceImplTest extends BaseServiceImplTest {
         when(alterationRepository.getPatientAlterationCounts(
             caseIdentifiers,
             entrezGeneIds,
-            mutationEventTypes,
-            Select.none(), QueryElement.INACTIVE)).thenReturn(expectedCountByGeneList);
+            QueryElement.INACTIVE,
+            alterationFilter)).thenReturn(expectedCountByGeneList);
 
         Pair<List<AlterationCountByGene>, Long> result = alterationCountService.getPatientMutationCounts(
             caseIdentifiers,
             entrezGeneIds,
             includeFrequency,
             includeMissingAlterationsFromGenePanel,
-            mutationEventTypes);
+            alterationFilter);
 
         Assert.assertEquals(expectedCountByGeneList, result.getFirst());
 
@@ -138,43 +168,45 @@ public class AlterationCountServiceImplTest extends BaseServiceImplTest {
 
     @Test
     public void getSampleFusionCounts() {
-        
-        boolean searchFusions = true;
+
+        QueryElement searchFusions = QueryElement.ACTIVE;
 
         // this mock tests correct argument types
         when(alterationRepository.getSampleAlterationCounts(
-            caseIdentifiers,
+            new HashSet<>(caseIdentifiers),
             entrezGeneIds,
-            Select.all(),
-            Select.none(), QueryElement.ACTIVE)).thenReturn(expectedCountByGeneList);
+            searchFusions,
+            alterationFilter
+        )).thenReturn(expectedCountByGeneList);
         
         Pair<List<AlterationCountByGene>, Long> result = alterationCountService.getSampleStructuralVariantCounts(
             caseIdentifiers,
             entrezGeneIds,
             includeFrequency,
-            includeMissingAlterationsFromGenePanel);
+            includeMissingAlterationsFromGenePanel,
+            alterationFilter);
 
         Assert.assertEquals(expectedCountByGeneList, result.getFirst());
     }
 
     @Test
     public void getPatientFusionCounts() {
-        
-        boolean searchFusions = true;
+
+        QueryElement searchFusions = QueryElement.ACTIVE;
 
         // this mock tests correct argument types
         when(alterationRepository.getPatientAlterationCounts(
             caseIdentifiers,
             entrezGeneIds,
-            Select.all(),
-            Select.none(),
-            QueryElement.ACTIVE)).thenReturn(expectedCountByGeneList);
-        
+            searchFusions,
+            alterationFilter)).thenReturn(expectedCountByGeneList);
+
         Pair<List<AlterationCountByGene>, Long> result = alterationCountService.getPatientStructuralVariantCounts(
             caseIdentifiers,
             entrezGeneIds,
             includeFrequency,
-            includeMissingAlterationsFromGenePanel);
+            includeMissingAlterationsFromGenePanel,
+            alterationFilter);
 
         Assert.assertEquals(expectedCountByGeneList, result.getFirst());
     }
@@ -182,20 +214,18 @@ public class AlterationCountServiceImplTest extends BaseServiceImplTest {
     @Test
     public void getSampleCnaCounts() {
 
-        boolean includeFrequency = true;
-
         // this mock tests correct argument types
         when(alterationRepository.getSampleCnaCounts(
-            caseIdentifiers,
+            new TreeSet<>(caseIdentifiers),
             entrezGeneIds,
-            cnaEventTypes)).thenReturn(expectedCnaCountByGeneList);
+            alterationFilter)).thenReturn(expectedCnaCountByGeneList);
 
         Pair<List<CopyNumberCountByGene>, Long> result = alterationCountService.getSampleCnaCounts(
             caseIdentifiers,
             entrezGeneIds,
             includeFrequency,
             includeMissingAlterationsFromGenePanel,
-            cnaEventTypes);
+            alterationFilter);
 
         verify(alterationEnrichmentUtilCna, times(1)).includeFrequencyForSamples(anyList(), anyList(), anyBoolean());
         Assert.assertEquals(expectedCnaCountByGeneList, result.getFirst());
@@ -205,13 +235,11 @@ public class AlterationCountServiceImplTest extends BaseServiceImplTest {
     @Test
     public void getPatientCnaCounts() {
 
-        boolean includeFrequency = true;
-
         // this mock tests correct argument types
         when(alterationRepository.getPatientCnaCounts(
             caseIdentifiers,
             entrezGeneIds,
-            cnaEventTypes)).thenReturn(expectedCnaCountByGeneList);
+            alterationFilter)).thenReturn(expectedCnaCountByGeneList);
 
 
         Pair<List<CopyNumberCountByGene>, Long> result = alterationCountService.getPatientCnaCounts(
@@ -219,7 +247,7 @@ public class AlterationCountServiceImplTest extends BaseServiceImplTest {
             entrezGeneIds,
             includeFrequency,
             includeMissingAlterationsFromGenePanel,
-            cnaEventTypes);
+            alterationFilter);
 
         verify(alterationEnrichmentUtilCna, times(1)).includeFrequencyForPatients(anyList(), anyList(), anyBoolean());
         Assert.assertEquals(expectedCnaCountByGeneList, result.getFirst());

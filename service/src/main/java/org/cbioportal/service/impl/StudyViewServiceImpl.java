@@ -68,7 +68,9 @@ public class StudyViewServiceImpl implements StudyViewService {
     }
 
     @Override
-    public List<AlterationCountByGene> getMutationAlterationCountByGenes(List<String> studyIds, List<String> sampleIds)
+    public List<AlterationCountByGene> getMutationAlterationCountByGenes(List<String> studyIds,
+                                                                         List<String> sampleIds,
+                                                                         AlterationFilter alterationFilter)
         throws StudyNotFoundException {
         List<MolecularProfileCaseIdentifier> caseIdentifiers =
             molecularProfileService.getFirstMutationProfileCaseIdentifiers(studyIds, sampleIds);
@@ -77,13 +79,15 @@ public class StudyViewServiceImpl implements StudyViewService {
             Select.all(),
             true,
             false,
-            Select.all()).getFirst();
+            alterationFilter).getFirst();
         annotateDataWithQValue(studyIds, alterationCountByGenes);
         return alterationCountByGenes;
     }
 
     @Override
-    public List<AlterationCountByGene> getStructuralVariantAlterationCountByGenes(List<String> studyIds, List<String> sampleIds)
+    public List<AlterationCountByGene> getStructuralVariantAlterationCountByGenes(List<String> studyIds,
+                                                                                  List<String> sampleIds,
+                                                                                  AlterationFilter alterationFilter)
         throws StudyNotFoundException {
         List<MolecularProfileCaseIdentifier> caseIdentifiers =
             molecularProfileService.getFirstStructuralVariantProfileCaseIdentifiers(studyIds, sampleIds);
@@ -91,7 +95,8 @@ public class StudyViewServiceImpl implements StudyViewService {
             caseIdentifiers,
             Select.all(),
             true,
-            false).getFirst();
+            false,
+            alterationFilter).getFirst();
         annotateDataWithQValue(studyIds, alterationCountByGenes);
         return alterationCountByGenes;
     }
@@ -119,7 +124,9 @@ public class StudyViewServiceImpl implements StudyViewService {
     }
 
     @Override
-    public List<CopyNumberCountByGene> getCNAAlterationCountByGenes(List<String> studyIds, List<String> sampleIds)
+    public List<CopyNumberCountByGene> getCNAAlterationCountByGenes(List<String> studyIds,
+                                                                    List<String> sampleIds,
+                                                                    AlterationFilter alterationFilter)
         throws StudyNotFoundException {
         List<MolecularProfileCaseIdentifier> caseIdentifiers =
             molecularProfileService.getFirstDiscreteCNAProfileCaseIdentifiers(studyIds, sampleIds);
@@ -129,7 +136,7 @@ public class StudyViewServiceImpl implements StudyViewService {
             Select.all(),
             true,
             false,
-            cnaTypes).getFirst();
+            alterationFilter).getFirst();
         Set<String> distinctStudyIds = new HashSet<>(studyIds);
         if (distinctStudyIds.size() == 1 && !copyNumberCountByGenes.isEmpty()) {
             List<Gistic> gisticList = significantCopyNumberRegionService.getSignificantCopyNumberRegions(

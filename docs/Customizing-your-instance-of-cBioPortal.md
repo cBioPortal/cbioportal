@@ -217,6 +217,12 @@ Below you can find the complete list of all the available skin properties.
             <td>false</td>
             <td>true / false</td>
         </tr>
+        <tr>
+            <td>skin.show_settings_menu</td>
+            <td>controls the appearance of the settings menu in study view and group comparison that controls annotation-based filtering.</td>
+            <td>false</td>
+            <td>true / false</td>
+        </tr>
       <tr>
             <td>google_analytics_profile_id</td>
             <td>enables google analaytics tracking on your site</td>

@@ -4,16 +4,15 @@ import java.util.*;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
-
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.collections.map.MultiKeyMap;
 import org.cbioportal.model.*;
+import org.cbioportal.model.GeneFilter;
 import org.cbioportal.model.MolecularProfile.MolecularAlterationType;
 import org.cbioportal.service.*;
 import org.cbioportal.service.exception.MolecularProfileNotFoundException;
 import org.cbioportal.service.util.MolecularProfileUtil;
 import org.cbioportal.web.parameter.*;
-import org.cbioportal.web.parameter.GeneFilter.SingleGeneQuery;
 import org.cbioportal.web.util.appliers.PatientTreatmentFilterApplier;
 import org.cbioportal.web.util.appliers.SampleTreatmentFilterApplier;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -32,7 +31,6 @@ public class StudyViewFilterApplier {
     private void init() {
         instance = applicationContext.getBean(StudyViewFilterApplier.class);
     }
-
 
     @Autowired
     private SampleService sampleService;
@@ -86,7 +84,7 @@ public class StudyViewFilterApplier {
     public List<SampleIdentifier> apply(StudyViewFilter studyViewFilter) {
         return (instance == null ? this : instance).cachedApply(studyViewFilter);
     }
-    
+
     @Cacheable(
         cacheResolver = "generalRepositoryCacheResolver",
         condition = "@cacheEnabledConfig.getEnabled()"
@@ -207,7 +205,7 @@ public class StudyViewFilterApplier {
 
             Map<String, List<MolecularProfile>> molecularProfileSet = molecularProfileUtil
                     .categorizeMolecularProfilesByStableIdSuffixes(molecularProfiles);
-            
+
             List<MolecularProfileCaseIdentifier> molecularProfileSampleIdentifiers = new ArrayList<>();
 
             studyViewFilter.getGenomicProfiles().stream().forEach(profileValues -> {
@@ -268,9 +266,9 @@ public class StudyViewFilterApplier {
                 sampleIdentifiers.retainAll(filteredSampleIdentifiers);
             }
         }
-        
+
         if (
-            studyViewFilter.getSampleTreatmentFilters() != null && 
+            studyViewFilter.getSampleTreatmentFilters() != null &&
             !studyViewFilter.getSampleTreatmentFilters().getFilters().isEmpty()
         ) {
             sampleIdentifiers = sampleTreatmentFilterApplier.filter(
@@ -280,7 +278,7 @@ public class StudyViewFilterApplier {
         }
 
         if (
-            studyViewFilter.getPatientTreatmentFilters() != null && 
+            studyViewFilter.getPatientTreatmentFilters() != null &&
             !studyViewFilter.getPatientTreatmentFilters().getFilters().isEmpty()
         ) {
             sampleIdentifiers = patientTreatmentFilterApplier.filter(
@@ -319,21 +317,28 @@ public class StudyViewFilterApplier {
                     .stream()
                     .collect(Collectors.groupingBy(MolecularProfile::getCancerStudyIdentifier));
 
-            for (List<SingleGeneQuery> geneQueries : genefilter.getSingleGeneQueries()) {
+            for (List<GeneFilterQuery> geneQueries : genefilter.getGeneQueries()) {
                 List<String> studyIds = new ArrayList<>();
                 List<String> sampleIds = new ArrayList<>();
 
                 List<String> hugoGeneSymbols = geneQueries
                         .stream()
-                        .map(SingleGeneQuery::getHugoGeneSymbol)
+                        .map(GeneFilterQuery::getHugoGeneSymbol)
                         .collect(Collectors.toList());
 
-                List<Integer> entrezGeneIds = geneService
-                        .fetchGenes(hugoGeneSymbols, GeneIdType.HUGO_GENE_SYMBOL.name(), Projection.SUMMARY.name())
-                        .stream()
-                        .map(gene -> gene.getEntrezGeneId())
-                        .collect(Collectors.toList());
+                Map<String, Integer> symbolToEntrezGeneId = geneService
+                    .fetchGenes(new ArrayList<>(hugoGeneSymbols),
+                        GeneIdType.HUGO_GENE_SYMBOL.name(), Projection.SUMMARY.name())
+                    .stream()
+                    .collect(Collectors.toMap(Gene::getHugoGeneSymbol, Gene::getEntrezGeneId));
 
+                geneQueries.removeIf(
+                    q -> !symbolToEntrezGeneId.containsKey(q.getHugoGeneSymbol())
+                );
+
+                geneQueries.stream().forEach(
+                    q -> q.setEntrezGeneId(symbolToEntrezGeneId.get(q.getHugoGeneSymbol()))
+                );
                 studyViewFilterUtil.extractStudyAndSampleIds(sampleIdentifiers, studyIds, sampleIds);
 
                 List<String> molecularProfileIds = new ArrayList<>();
@@ -349,7 +354,7 @@ public class StudyViewFilterApplier {
                 }
 
                 sampleIdentifiers = mutationService
-                        .getMutationsInMultipleMolecularProfiles(molecularProfileIds, sampleIds, entrezGeneIds,
+                        .getMutationsInMultipleMolecularProfilesByGeneQueries(molecularProfileIds, sampleIds, geneQueries,
                                 Projection.ID.name(), null, null, null, null)
                         .stream()
                         .map(m -> {
@@ -381,20 +386,28 @@ public class StudyViewFilterApplier {
                     .stream()
                     .collect(Collectors.groupingBy(MolecularProfile::getCancerStudyIdentifier));
 
-            for (List<SingleGeneQuery> geneQueries : genefilter.getSingleGeneQueries()) {
+            for (List<GeneFilterQuery> geneQueries : genefilter.getGeneQueries()) {
                 List<String> studyIds = new ArrayList<>();
                 List<String> sampleIds = new ArrayList<>();
 
                 List<String> hugoGeneSymbols = geneQueries
-                        .stream()
-                        .map(SingleGeneQuery::getHugoGeneSymbol)
-                        .collect(Collectors.toList());
+                    .stream()
+                    .map(GeneFilterQuery::getHugoGeneSymbol)
+                    .collect(Collectors.toList());
 
-                List<Integer> entrezGeneIds = geneService
-                        .fetchGenes(hugoGeneSymbols, GeneIdType.HUGO_GENE_SYMBOL.name(), Projection.SUMMARY.name())
-                        .stream()
-                        .map(gene -> gene.getEntrezGeneId())
-                        .collect(Collectors.toList());
+                Map<String, Integer> symbolToEntrezGeneId = geneService
+                    .fetchGenes(new ArrayList<>(hugoGeneSymbols),
+                        GeneIdType.HUGO_GENE_SYMBOL.name(), Projection.SUMMARY.name())
+                    .stream()
+                    .collect(Collectors.toMap(Gene::getHugoGeneSymbol, Gene::getEntrezGeneId));
+
+                geneQueries.removeIf(
+                    q -> !symbolToEntrezGeneId.containsKey(q.getHugoGeneSymbol())
+                );
+
+                geneQueries.stream().forEach(
+                    q -> q.setEntrezGeneId(symbolToEntrezGeneId.get(q.getHugoGeneSymbol()))
+                );
 
                 studyViewFilterUtil.extractStudyAndSampleIds(sampleIdentifiers, studyIds, sampleIds);
 
@@ -411,7 +424,7 @@ public class StudyViewFilterApplier {
                 }
 
                 sampleIdentifiers = structuralVariantService
-                        .fetchStructuralVariants(molecularProfileIds, sampleIds, entrezGeneIds)
+                        .fetchStructuralVariantsByGeneQueries(molecularProfileIds, sampleIds, geneQueries)
                         .stream()
                         .map(m -> {
                             SampleIdentifier sampleIdentifier = new SampleIdentifier();
@@ -436,7 +449,7 @@ public class StudyViewFilterApplier {
                     .map(molecularProfileId -> molecularProfileMap.get(molecularProfileId))
                     .collect(Collectors.toList());
 
-            for (List<SingleGeneQuery> geneQueries : geneFilter.getSingleGeneQueries()) {
+            for (List<GeneFilterQuery> geneQueries : geneFilter.getGeneQueries()) {
 
                 List<String> studyIds = new ArrayList<>();
                 List<String> sampleIds = new ArrayList<>();
@@ -459,27 +472,36 @@ public class StudyViewFilterApplier {
                 List<DiscreteCopyNumberData> resultList = DiscreteCopyNumberEventType.ALL
                         .getAlterationTypes().stream().flatMap(alterationType -> {
 
-                            List<SingleGeneQuery> filteredGeneQueries = geneQueries.stream()
-                                    .filter(geneQuery -> geneQuery.getAlterations().stream()
-                                            .filter(alteration -> alteration.getCode() == alterationType)
-                                            .count() > 0)
-                                    .collect(Collectors.toList());
+                            List<GeneFilterQuery> filteredGeneQueries = geneQueries.stream()
+                                .filter(geneQuery -> geneQuery.getAlterations().stream()
+                                    .filter(alteration -> alteration.getCode() == alterationType)
+                                    .count() > 0)
+                                .collect(Collectors.toList());
 
                             List<String> hugoGeneSymbols = filteredGeneQueries.stream()
-                                    .map(SingleGeneQuery::getHugoGeneSymbol).collect(Collectors.toList());
+                                    .map(GeneFilterQuery::getHugoGeneSymbol).collect(Collectors.toList());
 
-                            List<Integer> entrezGeneIds = geneService
-                                    .fetchGenes(new ArrayList<>(hugoGeneSymbols),
-                                            GeneIdType.HUGO_GENE_SYMBOL.name(), Projection.SUMMARY.name())
-                                    .stream().map(gene -> gene.getEntrezGeneId()).collect(Collectors.toList());
+                            Map<String, Integer> symbolToEntrezGeneId = geneService
+                                .fetchGenes(new ArrayList<>(hugoGeneSymbols),
+                                    GeneIdType.HUGO_GENE_SYMBOL.name(), Projection.SUMMARY.name())
+                                .stream().collect(Collectors.toMap(x -> x.getHugoGeneSymbol(), x -> x.getEntrezGeneId()));
+
+                            filteredGeneQueries.removeIf(
+                                q -> !symbolToEntrezGeneId.containsKey(q.getHugoGeneSymbol())
+                            );
+
+                            filteredGeneQueries.stream().forEach(
+                                q -> q.setEntrezGeneId(symbolToEntrezGeneId.get(q.getHugoGeneSymbol()))
+                            );
 
                             List<DiscreteCopyNumberData> copyNumberDatas = new ArrayList<>();
-                            if (!entrezGeneIds.isEmpty()) {
+                            if (!filteredGeneQueries.isEmpty()) {
                                 copyNumberDatas = discreteCopyNumberService
-                                        .getDiscreteCopyNumbersInMultipleMolecularProfiles(molecularProfileIds,
-                                                sampleIds, entrezGeneIds, Arrays.asList(alterationType),
-                                                Projection.ID.name());
-
+                                    .getDiscreteCopyNumbersInMultipleMolecularProfilesByGeneQueries(
+                                        molecularProfileIds,
+                                        sampleIds,
+                                        filteredGeneQueries,
+                                        Projection.ID.name());
                             }
                             return copyNumberDatas.stream();
                         }).collect(Collectors.toList());
@@ -509,13 +531,23 @@ public class StudyViewFilterApplier {
                     .map(molecularProfileMap::get)
                     .collect(Collectors.toList());
 
+            // TODO: Remove once fusions are removed from mutation table
+            // determine whether a fusions profile was imported as mutations
+            Boolean fusionsImportedAsMutations = Boolean.FALSE;
+            for (MolecularProfile mp : filteredMolecularProfiles) {
+                if (mp.getStableId().endsWith("mutations") && mp.getDatatype().equals("FUSION")) {
+                    fusionsImportedAsMutations = Boolean.TRUE;
+                    break;
+                }
+            }
+
             Set<MolecularAlterationType> alterationTypes = filteredMolecularProfiles.stream()
                     .map(MolecularProfile::getMolecularAlterationType)
                     .collect(Collectors.toSet());
 
             Set<String> dataTypes = filteredMolecularProfiles.stream().map(MolecularProfile::getDatatype)
                     .collect(Collectors.toSet());
-            
+
             Set<String> filteredMolecularProfileIds = filteredMolecularProfiles
                     .stream()
                     .map(MolecularProfile::getStableId)
@@ -524,11 +556,13 @@ public class StudyViewFilterApplier {
 
             if (alterationTypes.size() == 1) {
                 MolecularAlterationType alterationType = alterationTypes.iterator().next();
-                if (alterationType == MolecularAlterationType.MUTATION_EXTENDED) {
-                    mutatedGeneFilters.add(genefilter);
-                } else if (alterationType.equals(MolecularAlterationType.STRUCTURAL_VARIANT) ||
-                        alterationType.equals(MolecularProfile.MolecularAlterationType.FUSION)) {
+
+                if (alterationType.equals(MolecularAlterationType.STRUCTURAL_VARIANT) ||
+                        alterationType.equals(MolecularProfile.MolecularAlterationType.FUSION) ||
+                        fusionsImportedAsMutations) {
                     structuralVariantGeneFilters.add(genefilter);
+                } else if (alterationType == MolecularAlterationType.MUTATION_EXTENDED) {
+                    mutatedGeneFilters.add(genefilter);
                 } else if (alterationType == MolecularAlterationType.COPY_NUMBER_ALTERATION
                         && dataTypes.size() == 1 && dataTypes.iterator().next().equals("DISCRETE")) {
                     cnaGeneFilters.add(genefilter);

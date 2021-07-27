@@ -168,6 +168,16 @@ Different samples of a patient may have been analyzed with different gene panels
 skin.patientview.filter_genes_profiled_all_samples=
 ```
 
+## Control the appearance of the settings menu in study view and group comparison that controls custom annotation-based filtering
+A settings menu that allows the user to filter alterations in study view and group comparison may be used
+when [custom driver annotations](File-Formats.md#custom-driver-annotations) were loaded for the study or studies displayed
+in these sections. This menu will only appear, when setting the property _skin.show_settings_menu_ to _true_.
+
+```
+skin.show_settings_menu=
+```
+
+
 ## Hide p- and q-values in survival types table
 ```
 # Show/hide p- and q-values in survival types table (default is true)
@@ -464,6 +474,24 @@ ehcache.static_repository_cache_one.max_mega_bytes_local_disk=
 ```
 
 For more information on Ehcache, refer to the official documentation [here](https://www.ehcache.org/documentation/3.7/index.html)
+
+# Flush caches with the _/api/cache_ endpoint
+
+`DELETE` http requests to the `/api/cache` endpoint will flush the cBioPortal caches, and serves as an alternative to restarting
+the cBioPortal application.
+
+By default the endpoint is enabled. The endpoint can be disabled by setting:
+
+```
+cache.endpoint.enable=false
+```
+
+Access to the endpoint is not regulated by the configured user authorization mechanism. Instead, an API key should be passed
+with the `X-API-KEY` header. The accepted value for the API key can be configured by setting (for example):
+
+```
+cache.endpoint.api-key=7d70fecb-cda8-490f-9ea2-ef874b6512f4
+```
 
 # Enable GSVA functionality
 

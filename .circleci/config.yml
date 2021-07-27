@@ -1,6 +1,6 @@
 defaults: &defaults
     docker:
-        - image: circleci/node:8.12.0-browsers
+        - image: circleci/node:15.2.1-browsers
 
 version: 2
 jobs:
@@ -56,10 +56,10 @@ jobs:
         steps:
             - attach_workspace:
                 at: /tmp/repos
-            - run:
-                name: "Install yarn at specific version"
-                command:
-                    sudo npm install --global yarn@1.22.4
+            #- run:
+            #    name: "Install yarn at specific version"
+            #    command:
+            #        sudo npm install --global yarn@1.22.4
             - run:
                 name: "Show yarn and node versions"
                 command: |
@@ -159,10 +159,10 @@ jobs:
                   docker volume rm --force cbioportal-docker-compose_cbioportal_mysql_data && mkdir -p $CBIO_DB_DATA_DIR && rm -rf $CBIO_DB_DATA_DIR/*
             - restore_cache:
                 keys:
-                - v4-cbio-database-files-{{ checksum "/tmp/db_data_md5key" }}
+                - v6-cbio-database-files-{{ checksum "/tmp/db_data_md5key" }}
             - restore_cache:
                 keys:
-                - v4-keycloak-database-files-{{ checksum "e2e-localdb-workspace/keycloak/keycloak-config-generated.json" }}
+                - v6-keycloak-database-files-{{ checksum "e2e-localdb-workspace/keycloak/keycloak-config-generated.json" }}
             - run:
                 name: Init database
                 command: |
@@ -175,21 +175,23 @@ jobs:
                     sudo chown -R circleci:circleci $CBIO_DB_DATA_DIR
             - save_cache:
                 paths:
-                  - /tmp/repo/e2e-localdb-workspace/cbio_db_data
-                key: v4-cbio-database-files-{{ checksum "/tmp/db_data_md5key" }}
+                  - /tmp/repos/cbioportal-frontend/e2e-localdb-workspace/cbio_db_data
+                key: v6-cbio-database-files-{{ checksum "/tmp/db_data_md5key" }}
             - run:
                 name: Start cbioportal and other services
                 command: |
                     $TEST_HOME/docker_compose/start.sh
             - run:
-                name: Change owner of MySQL database files (needed by cache)
+                name: Change owner of keycloak MySQL database files (needed by cache)
                 command: |
-                  sudo chmod -R 777 $KC_DB_DATA_DIR && \
-                  sudo chown -R circleci:circleci $KC_DB_DATA_DIR
+                  if (ls "$KC_DB_DATA_DIR"/* 2> /dev/null > /dev/null); then \
+                      sudo chmod -R 777 $KC_DB_DATA_DIR && \
+                      sudo chown -R circleci:circleci $KC_DB_DATA_DIR; \
+                  fi
             - save_cache:
                 paths:
-                  - /tmp/repo/e2e-localdb-workspace/kc_db_data
-                key: v4-keycloak-database-files-{{ checksum "e2e-localdb-workspace/keycloak/keycloak-config-generated.json" }}
+                  - /tmp/repos/cbioportal-frontend/e2e-localdb-workspace/kc_db_data
+                key: v6-keycloak-database-files-{{ checksum "e2e-localdb-workspace/keycloak/keycloak-config-generated.json" }}
             - run:
                 name: Run end-2-end tests with studies in local database
                 command: |
@@ -218,7 +220,7 @@ jobs:
             PORTAL_SOURCE_DIR: /tmp/repos/cbioportal-frontend/
             TEST_HOME: /tmp/repos/cbioportal-frontend/end-to-end-test/local
             E2E_WORKSPACE: /tmp/repos/cbioportal-frontend/e2e-localdb-workspace
-            CBIO_DB_DATA_DIR: /tmp/repos/cbioportal-frontend/2e-localdb-workspace/cbio_db_data
+            CBIO_DB_DATA_DIR: /tmp/repos/cbioportal-frontend/e2e-localdb-workspace/cbio_db_data
             KC_DB_DATA_DIR: /tmp/repos/cbioportal-frontend/e2e-localdb-workspace/kc_db_data
 
 

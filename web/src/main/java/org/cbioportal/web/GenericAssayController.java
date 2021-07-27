@@ -3,11 +3,13 @@ package org.cbioportal.web;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
+import org.apache.commons.lang3.StringUtils;
 import springfox.documentation.annotations.ApiIgnore;
 
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
+import java.util.stream.Collectors;
 
 import javax.validation.Valid;
 
@@ -88,11 +90,11 @@ public class GenericAssayController {
 
         List<GenericAssayData> result;
         if (genericAssayDataFilter.getSampleListId() != null) {
-            result = genericAssayService.getGenericAssayData(molecularProfileId,
-                genericAssayDataFilter.getSampleListId(), genericAssayDataFilter.getGenericAssayStableIds(), projection.name());
+            result = filterEmptyGenericAssayData(genericAssayService.getGenericAssayData(molecularProfileId,
+                genericAssayDataFilter.getSampleListId(), genericAssayDataFilter.getGenericAssayStableIds(), projection.name()));
         } else {
-            result = genericAssayService.fetchGenericAssayData(molecularProfileId,
-                genericAssayDataFilter.getSampleIds(), genericAssayDataFilter.getGenericAssayStableIds(), projection.name());
+            result = filterEmptyGenericAssayData(genericAssayService.fetchGenericAssayData(molecularProfileId,
+                genericAssayDataFilter.getSampleIds(), genericAssayDataFilter.getGenericAssayStableIds(), projection.name()));
         }
 
         if (projection == Projection.META) {
@@ -121,16 +123,16 @@ public class GenericAssayController {
 
         List<GenericAssayData> result;
         if (interceptedGenericAssayDataMultipleStudyFilter.getMolecularProfileIds() != null) {
-            result = genericAssayService.fetchGenericAssayData(
+            result = filterEmptyGenericAssayData(genericAssayService.fetchGenericAssayData(
                 interceptedGenericAssayDataMultipleStudyFilter.getMolecularProfileIds(), null,
-                interceptedGenericAssayDataMultipleStudyFilter.getGenericAssayStableIds(), projection.name());
+                interceptedGenericAssayDataMultipleStudyFilter.getGenericAssayStableIds(), projection.name()));
         } else {
 
             List<String> molecularProfileIds = new ArrayList<>();
             List<String> sampleIds = new ArrayList<>();
             extractMolecularProfileAndSampleIds(interceptedGenericAssayDataMultipleStudyFilter, molecularProfileIds, sampleIds);
-            result = genericAssayService.fetchGenericAssayData(molecularProfileIds,
-                sampleIds, interceptedGenericAssayDataMultipleStudyFilter.getGenericAssayStableIds(), projection.name());
+            result = filterEmptyGenericAssayData(genericAssayService.fetchGenericAssayData(molecularProfileIds,
+                sampleIds, interceptedGenericAssayDataMultipleStudyFilter.getGenericAssayStableIds(), projection.name()));
         }
 
         if (projection == Projection.META) {
@@ -147,5 +149,11 @@ public class GenericAssayController {
             molecularProfileIds.add(sampleMolecularIdentifier.getMolecularProfileId());
             sampleIds.add(sampleMolecularIdentifier.getSampleId());
         }
+    }
+
+    private List<GenericAssayData> filterEmptyGenericAssayData(List<GenericAssayData> genericAssayDataList) {
+        return genericAssayDataList.stream()
+            .filter(g -> StringUtils.isNotEmpty(g.getValue()) && !g.getValue().equals("NA"))
+            .collect(Collectors.toList());
     }
 }

@@ -262,6 +262,7 @@
         <servlet-name>api</servlet-name>
         <url-pattern>/api/*</url-pattern>
         <url-pattern>/health</url-pattern>
+        <url-pattern>/cache</url-pattern>
     </servlet-mapping>
 
     <servlet>
@@ -335,15 +336,6 @@
     <servlet-mapping>
         <servlet-name>bioGeneQuery</servlet-name>
         <url-pattern>/bioGeneQuery.do</url-pattern>
-    </servlet-mapping>
-
-    <servlet>
-        <servlet-name>ProteinArraySignificanceTestJSON</servlet-name>
-        <servlet-class>org.mskcc.cbio.portal.servlet.ProteinArraySignificanceTestJSON</servlet-class>
-    </servlet>
-    <servlet-mapping>
-        <servlet-name>ProteinArraySignificanceTestJSON</servlet-name>
-        <url-pattern>/ProteinArraySignificanceTest.json</url-pattern>
     </servlet-mapping>
 
     <servlet>

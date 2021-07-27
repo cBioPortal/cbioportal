@@ -39,6 +39,7 @@ public class StudyViewServiceImplTest extends BaseServiceImplTest {
     private SignificantlyMutatedGeneService significantlyMutatedGeneService;
     @Mock
     private SignificantCopyNumberRegionService significantCopyNumberRegionService;
+    private AlterationFilter alterationFilter = new AlterationFilter();
 
     @Test
     public void getGenomicDataCounts() throws Exception {
@@ -145,9 +146,9 @@ public class StudyViewServiceImplTest extends BaseServiceImplTest {
             Select.all(),
             true,
             false,
-            Select.all()))
+            alterationFilter))
             .thenReturn(new Pair<>(alterationCountByGenes, 2L));
-        List<AlterationCountByGene> result = studyViewService.getMutationAlterationCountByGenes(studyIds, sampleIds);
+        List<AlterationCountByGene> result = studyViewService.getMutationAlterationCountByGenes(studyIds, sampleIds, alterationFilter);
         Assert.assertEquals(1, result.size());
     }
 
@@ -179,9 +180,10 @@ public class StudyViewServiceImplTest extends BaseServiceImplTest {
             molecularProfileCaseIdentifiers,
             Select.all(),
             true,
-            false))
+            false,
+            alterationFilter))
             .thenReturn(new Pair<>(alterationCountByGenes, 2L));
-        List<AlterationCountByGene> result = studyViewService.getStructuralVariantAlterationCountByGenes(studyIds, sampleIds);
+        List<AlterationCountByGene> result = studyViewService.getStructuralVariantAlterationCountByGenes(studyIds, sampleIds, alterationFilter);
         Assert.assertEquals(1, result.size());
     }
 
@@ -216,8 +218,8 @@ public class StudyViewServiceImplTest extends BaseServiceImplTest {
             any(Select.class),
             anyBoolean(),
             anyBoolean(),
-            any(Select.class))).thenReturn(new Pair<>(alterationCountByGenes, 2L));
-        List<CopyNumberCountByGene> result = studyViewService.getCNAAlterationCountByGenes(studyIds, sampleIds);
+            any(AlterationFilter.class))).thenReturn(new Pair<>(alterationCountByGenes, 2L));
+        List<CopyNumberCountByGene> result = studyViewService.getCNAAlterationCountByGenes(studyIds, sampleIds, alterationFilter);
         Assert.assertEquals(1, result.size());
     }
 }

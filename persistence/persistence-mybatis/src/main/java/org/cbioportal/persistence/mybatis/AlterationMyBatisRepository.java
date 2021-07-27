@@ -27,7 +27,7 @@ public class AlterationMyBatisRepository implements AlterationRepository {
     private MolecularProfileRepository molecularProfileRepository;
 
     @Override
-    public List<AlterationCountByGene> getSampleAlterationCounts(List<MolecularProfileCaseIdentifier> molecularProfileCaseIdentifiers,
+    public List<AlterationCountByGene> getSampleAlterationCounts(Set<MolecularProfileCaseIdentifier> molecularProfileCaseIdentifiers,
                                                                  Select<Integer> entrezGeneIds,
                                                                  QueryElement searchFusions,
                                                                  AlterationFilter alterationFilter) {
@@ -54,9 +54,21 @@ public class AlterationMyBatisRepository implements AlterationRepository {
             .collect(Collectors.toMap(datum -> datum.getMolecularProfileId().toString(), MolecularProfile::getMolecularAlterationType));
 
         Map<MolecularAlterationType, List<MolecularProfileCaseIdentifier>> groupedIdentifiersByProfileType =
-            alterationCountsMapper.getMolecularProfileCaseInternalIdentifier(molecularProfileCaseIdentifiers, "SAMPLE_ID")
+            alterationCountsMapper.getMolecularProfileCaseInternalIdentifier(new ArrayList<>(molecularProfileCaseIdentifiers), "SAMPLE_ID")
             .stream()
             .collect(Collectors.groupingBy(e -> profileTypeByProfileId.getOrDefault(e.getMolecularProfileId(), null)));
+
+        // TODO: Remove once fusions are removed from mutation table
+        // if fusions were imported as a "mutations" profile then replace STRUCTURAL_VARIANT in
+        // groupedIdentifiersByProfileType map with MUTATION_EXTENDED
+        for (MolecularProfile profile : molecularProfileRepository.getMolecularProfiles(molecularProfileIds, "SUMMARY")) {
+            if (profile.getStableId().endsWith("mutations") && profile.getDatatype().equals("FUSION")) {
+                groupedIdentifiersByProfileType.put(MolecularAlterationType.MUTATION_EXTENDED,
+                        groupedIdentifiersByProfileType.get(MolecularAlterationType.STRUCTURAL_VARIANT));
+                groupedIdentifiersByProfileType.remove(MolecularAlterationType.STRUCTURAL_VARIANT);
+                break;
+            }
+        }
 
         return alterationCountsMapper.getSampleAlterationCounts(
             groupedIdentifiersByProfileType.get(MolecularAlterationType.MUTATION_EXTENDED),
@@ -128,7 +140,7 @@ public class AlterationMyBatisRepository implements AlterationRepository {
     }
 
     @Override
-    public List<CopyNumberCountByGene> getSampleCnaCounts(List<MolecularProfileCaseIdentifier> molecularProfileCaseIdentifiers,
+    public List<CopyNumberCountByGene> getSampleCnaCounts(Set<MolecularProfileCaseIdentifier> molecularProfileCaseIdentifiers,
                                                           Select<Integer> entrezGeneIds,
                                                           AlterationFilter alterationFilter) {
 
@@ -137,9 +149,9 @@ public class AlterationMyBatisRepository implements AlterationRepository {
             || allAlterationsExcludedDriverTierAnnotation(alterationFilter)) {
             return Collections.emptyList();
         }
-        
+
         List<MolecularProfileCaseIdentifier> molecularProfileCaseInternalIdentifiers =
-            alterationCountsMapper.getMolecularProfileCaseInternalIdentifier(molecularProfileCaseIdentifiers, "SAMPLE_ID");
+            alterationCountsMapper.getMolecularProfileCaseInternalIdentifier(new ArrayList<>(molecularProfileCaseIdentifiers), "SAMPLE_ID");
 
         return alterationCountsMapper.getSampleCnaCounts(
             molecularProfileCaseInternalIdentifiers,
@@ -175,7 +187,7 @@ public class AlterationMyBatisRepository implements AlterationRepository {
             alterationFilter.getSelectedTiers(),
             alterationFilter.getIncludeUnknownTier());
     }
-    
+
     private Select<Short> createCnaTypeList(final AlterationFilter alterationFilter) {
         if (alterationFilter.getCNAEventTypeSelect().hasNone())
             return Select.none();
@@ -198,12 +210,12 @@ public class AlterationMyBatisRepository implements AlterationRepository {
     private boolean allAlterationsExcludedMutationStatus(AlterationFilter alterationFilter) {
         return !alterationFilter.getIncludeGermline() && !alterationFilter.getIncludeSomatic() && !alterationFilter.getIncludeUnknownStatus();
     }
-    
+
     private boolean allAlterationsExcludedDriverAnnotation(AlterationFilter alterationFilter) {
         return !alterationFilter.getIncludeDriver() && !alterationFilter.getIncludeVUS()
             && !alterationFilter.getIncludeUnknownOncogenicity();
     }
-    
+
     private boolean allAlterationsExcludedDriverTierAnnotation(AlterationFilter alterationFilter) {
         return alterationFilter.getSelectedTiers().hasNone()
             && !alterationFilter.getIncludeUnknownTier();

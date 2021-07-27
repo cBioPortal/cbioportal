@@ -8,7 +8,8 @@
     * [Segmented Data](#segmented-data)
     * [Expression Data](#expression-data)
     * [Mutation Data](#mutation-data)
-    * [Fusion Data](#fusion-data)
+    * [Structural Variant Data](#structural-variant-data)
+    * [Fusion Data](#fusion-data) (DEPRECATED)
     * [Methylation Data](#methylation-data)
     * [Protein level Data](#protein-level-data)
     * [Case Lists](#case-lists)
@@ -841,7 +842,7 @@ data_filename: data_rppa.txt
 cancer_study_identifier: brca_tcga
 genetic_alteration_type: PROTEIN_LEVEL
 datatype: Z-SCORE
-data_filename: data_rppa.txt
+data_filename: data_rppa_zscores.txt
 stable_id: rppa_Zscores
 show_profile_in_analysis_tab: true
 profile_description: Protein expression Z-scores (RPPA)
@@ -865,7 +866,81 @@ AKT1 AKT2 10000|AKT<TAB>0.17071492725<TAB>0.264067254391
 ```
 
 
-## Fusion Data  
+## Structural Variant Data
+
+The cBioPortal can load all kinds of structural variant data but at the moment only a subset of them, fusions, are displayed.
+
+### Meta file
+The structural variant metadata file should contain the following fields:
+
+1. **cancer_study_identifier**: same value as specified in [study meta file](#cancer-study)
+2. **genetic_alteration_type**: STRUCTURAL_VARIANT
+3. **datatype**: SV
+4. **stable_id**: structural_variants
+5. **show_profile_in_analysis_tab**: true.
+6. **profile_name**: A name for the fusion data, e.g., "Structural Variants".
+7. **profile_description**: A description of the structural variant data.
+8. **data_filename**: your datafile (e.g. data_SV.txt)
+9. **gene_panel (Optional)**:  gene panel stable id
+
+An example metadata file would be:
+
+```
+cancer_study_identifier: msk_impact_2017
+genetic_alteration_type: STRUCTURAL_VARIANT
+datatype: SV
+stable_id: structural_variants
+show_profile_in_analysis_tab: true
+profile_name: mskimpact2017 SV Data
+profile_description: Structural Variant Data for mskimpact2017
+data_filename: data_SV.txt
+```
+
+### Data file
+A structural variant data file is a tab-delimited file with one structural variant per row.  For each structural variant (row) in the data file, the following tab-delimited values are required:
+
+| Field                        | Allowed/Example values         | Comments |
+| -- | -- | -- |
+| Sample_ID                    | Sample_1     | This is the sample ID  |
+| Site1_Hugo_Symbol  | ERG | A [HUGO](https://www.genenames.org/) gene symbol.  |
+| Site1_Entrez_Gene_Id  | Entrez gene id of ERG |  |
+| Site1_Ensembl_Transcript_Id  | ENST00000288319 | An [Ensembl Transcript](https://useast.ensembl.org/Help/View?id=151#:~:text=Each%20transcript%20ID%20includes%20a,ENSMUST%20defines%20a%20mouse%20transcript).) identifier.  |
+| Site1_Exon                   | 4 | |
+| Site1_Chromosome             | 21 |      |
+| Site1_Position               | 39842043 |                |
+| Site1_Description           | |               |
+| Site2_Hugo_Symbol  | TMPRSS2 | A [HUGO](https://www.genenames.org/) gene symbol.  |
+| Site2_Entrez_Gene_Id  | Entrez gene id of TMPRSS2 |  |
+| Site2_Ensembl_Transcript_Id  | ENST00000288319 | An [Ensembl Transcript](https://useast.ensembl.org/Help/View?id=151#:~:text=Each%20transcript%20ID%20includes%20a,ENSMUST%20defines%20a%20mouse%20transcript).) identifier.  |
+| Site2_Exon                   | 2 | |
+| Site2_Chromosome             | 21 |      |
+| Site2_Position               | 3032067 |                |
+| Site2_Description           | |               |
+| Site2_Effect_On_Frame | IN_FRAME, FRAMESHIFT | Whether the fusion breaks the reading frame of the 2nd gene. |
+| NCBI_Build                   | GRCh37,GRCh38 | Necessary for validation (check if chromosomal locations are on 37 or 38). |
+| DNA_Support                  | Yes/No  | Fusion detected from DNA sequence data, "yes" or "no". |
+| RNA_Support                  | Yes/No    | Fusion detected from RNA sequence data, "yes" or "no". |
+| Normal_Read_Count            | 100      | Counts in normal sample |
+| Tumor_Read_Count             | 30     | Counts in tumor sample |
+| Normal_Variant_count         | 0      | Amount of times variant occurs in reads from normal   |
+| Tumor_Variant_Count          | 125      | Amount of times variant occurs in reads from tumor    |
+| Normal_Paired_End_Read_Count | 12     | How many paired-end reads support the call in normal |
+| Tumor_Paired_End_Read_Count  | 55     | How many paired-end reads support the call in tumor  |
+| Normal_Split_Read_Count      | 0     | How many split reads support the call in normal   |
+| Tumor_Split_Read_Count       | 4     | How many split reads support the call in tumor  |
+| Annotation                   | TMPRSS2 (NM_001135099) - ERG (NM_182918) fusion: c.56-3994:TMPRSS2_c.19-24499:ERGdel  |  Gene Name (Gene Transcript) rearrangement: `cDNA(start)_cDNA(end)(type)` |
+| Breakpoint_Type              | PRECISE/IMPRECISE  | precise - Breakpoint resolution is known down to the exact base pair |
+| Connection_Type              | 3to5  | Which direction the connection is made (3' to 5', 5' to 5', etc)  |
+| Event_Info                   | Protein fusion: out of frame (TMPRSS2-ERG) |                |
+| Class                        | DELETION, DUPLICATION, INSERTION, INVERSION, TRANSLOCATION  |    |
+| Length                       | 24085      | Length of SV (in bp)   |
+| Comments                     |     | Any comments/free text. |
+| External_Annotation | COSMIC:COSF1197 | Other annotation sources. Examples of contents could be AB462411 (NCBI)  and COSF1197 (Cosmic). This column supports both types of annotations. |
+
+For an example see [datahub](https://github.com/cBioPortal/datahub/blob/master/public/msk_impact_2017/data_fusions.txt). At a minimum `Sample_ID`, `Site1_Hugo_Symbol` and `Site2_Hugo_Symbol` are required. For the fusion tab visualization (still in development) one needs to provide those field as well as `Site1_Ensembl_Transcript_Id`, `Site2_Ensembl_Transcript_Id`. `Site1_Exon` and `Site2_Exon`. Some of the other columns are shown at several other pages on the website. The `Class`, `Annotation` and `Event_Info` columns are shown prominently on several locations.
+
+## Fusion Data
+**⚠️ DEPRECATED Use the: [SV format](#structural-variant-data) instead**
 
 ### Meta file
 The fusion metadata file should contain the following fields:

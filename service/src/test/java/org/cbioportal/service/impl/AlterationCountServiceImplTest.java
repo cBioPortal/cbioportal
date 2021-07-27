@@ -5,10 +5,12 @@ import org.cbioportal.model.*;
 import org.cbioportal.model.QueryElement;
 import org.cbioportal.model.util.Select;
 import org.cbioportal.persistence.AlterationRepository;
+import org.cbioportal.persistence.MolecularProfileRepository;
 import org.cbioportal.service.exception.MolecularProfileNotFoundException;
 import org.cbioportal.service.util.AlterationEnrichmentUtil;
 import org.cbioportal.service.util.MolecularProfileUtil;
 import org.junit.Assert;
+import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.InjectMocks;
@@ -16,8 +18,7 @@ import org.mockito.Mock;
 import org.mockito.Spy;
 import org.mockito.junit.MockitoJUnitRunner;
 
-import java.util.Arrays;
-import java.util.List;
+import java.util.*;
 
 import static org.mockito.Mockito.*;
 
@@ -35,6 +36,8 @@ public class AlterationCountServiceImplTest extends BaseServiceImplTest {
     @Spy
     @InjectMocks
     private MolecularProfileUtil molecularProfileUtil;
+    @Mock
+    private MolecularProfileRepository molecularProfileRepository;
 
     List<MolecularProfileCaseIdentifier> caseIdentifiers = Arrays.asList(new MolecularProfileCaseIdentifier("A", MOLECULAR_PROFILE_ID));
     Select<MutationEventType> mutationEventTypes = Select.byValues(Arrays.asList(MutationEventType.missense_mutation));
@@ -42,8 +45,8 @@ public class AlterationCountServiceImplTest extends BaseServiceImplTest {
     Select<Integer> entrezGeneIds = Select.all();
     boolean includeFrequency = true;
     boolean includeMissingAlterationsFromGenePanel = false;
-    List<AlterationCountByGene> expectedCountByGeneList = Arrays.asList(new AlterationCountByGene());
-    List<CopyNumberCountByGene> expectedCnaCountByGeneList = Arrays.asList(new CopyNumberCountByGene());
+    List<AlterationCountByGene> expectedCountByGeneList;
+    List<CopyNumberCountByGene> expectedCnaCountByGeneList;
     AlterationFilter alterationFilter = new AlterationFilter(
         mutationEventTypes,
         cnaEventTypes,
@@ -56,13 +59,34 @@ public class AlterationCountServiceImplTest extends BaseServiceImplTest {
         Select.none(),
             false
     );
+
+    @Before
+    public void setup() {
+        MolecularProfile molecularProfile = new MolecularProfile();
+        molecularProfile.setStableId(MOLECULAR_PROFILE_ID);
+        molecularProfile.setCancerStudyIdentifier(STUDY_ID);
+
+        when(molecularProfileRepository.getMolecularProfiles(
+            Collections.singleton(MOLECULAR_PROFILE_ID),
+            "SUMMARY"
+        )).thenReturn(Arrays.asList(molecularProfile));
+
+        AlterationCountByGene alterationCountByGene = new AlterationCountByGene();
+        alterationCountByGene.setEntrezGeneId(ENTREZ_GENE_ID_1);
+        expectedCountByGeneList = Arrays.asList(alterationCountByGene);
+
+        CopyNumberCountByGene copyNumberCountByGene = new CopyNumberCountByGene();
+        copyNumberCountByGene.setEntrezGeneId(ENTREZ_GENE_ID_1);
+        copyNumberCountByGene.setAlteration(2);
+        expectedCnaCountByGeneList = Arrays.asList(copyNumberCountByGene);
+    }
     
     @Test
     public void getSampleAlterationCounts() {
 
         // this mock tests correct argument types
         when(alterationRepository.getSampleAlterationCounts(
-            caseIdentifiers,
+            new HashSet<>(caseIdentifiers),
             entrezGeneIds,
             QueryElement.PASS,
             alterationFilter)).thenReturn(expectedCountByGeneList);
@@ -105,7 +129,7 @@ public class AlterationCountServiceImplTest extends BaseServiceImplTest {
     public void getSampleMutationCounts() {
         // this mock tests correct argument types
         when(alterationRepository.getSampleAlterationCounts(
-            caseIdentifiers,
+            new HashSet<>(caseIdentifiers),
             entrezGeneIds,
             QueryElement.INACTIVE,
             alterationFilter)).thenReturn(expectedCountByGeneList);
@@ -149,7 +173,7 @@ public class AlterationCountServiceImplTest extends BaseServiceImplTest {
 
         // this mock tests correct argument types
         when(alterationRepository.getSampleAlterationCounts(
-            caseIdentifiers,
+            new HashSet<>(caseIdentifiers),
             entrezGeneIds,
             searchFusions,
             alterationFilter
@@ -192,7 +216,7 @@ public class AlterationCountServiceImplTest extends BaseServiceImplTest {
 
         // this mock tests correct argument types
         when(alterationRepository.getSampleCnaCounts(
-            caseIdentifiers,
+            new TreeSet<>(caseIdentifiers),
             entrezGeneIds,
             alterationFilter)).thenReturn(expectedCnaCountByGeneList);
 

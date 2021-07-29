@@ -181,7 +181,6 @@ public class MolecularProfileControllerTest {
         cancerStudy.setCancerStudyIdentifier(TEST_CANCER_STUDY_IDENTIFIER_1);
         cancerStudy.setTypeOfCancerId(TEST_TYPE_OF_CANCER_ID_1);
         cancerStudy.setName(TEST_STUDY_NAME_1);
-        cancerStudy.setShortName(TEST_SHORT_NAME_1);
         cancerStudy.setDescription(TEST_STUDY_DESCRIPTION_1);
         molecularProfile.setCancerStudy(cancerStudy);
 
@@ -209,7 +208,6 @@ public class MolecularProfileControllerTest {
                         .value(TEST_CANCER_STUDY_IDENTIFIER_1))
                 .andExpect(MockMvcResultMatchers.jsonPath("$.study.description").value(TEST_STUDY_DESCRIPTION_1))
                 .andExpect(MockMvcResultMatchers.jsonPath("$.study.name").value(TEST_STUDY_NAME_1))
-                .andExpect(MockMvcResultMatchers.jsonPath("$.study.shortName").value(TEST_SHORT_NAME_1))
                 .andExpect(MockMvcResultMatchers.jsonPath("$.study.cancerTypeId")
                         .value(TEST_TYPE_OF_CANCER_ID_1));
     }

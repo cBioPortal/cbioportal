@@ -94,8 +94,7 @@ public class LargeTestSetGenerator {
 			"description: <a >" + studyId+ "</a>.\n"+
 			"citation: The Hyve, Pieter Lukasse, ...\n"+
 			"pmid: 23000897,26451490\n"+
-			"groups: PUBLIC;GDAC;SU2C-PI3K\n"+
-			"short_name: " + studyId+ " (TEST)");
+			"groups: PUBLIC;GDAC;SU2C-PI3K\n");
 		resultFile.close();
 	}
 

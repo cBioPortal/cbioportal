@@ -290,7 +290,7 @@
   </profiles>
 
   <properties>
-    <frontend.version>caf086fbbd3c0d12acb7ee70f118084c70fb369d</frontend.version>
+    <frontend.version>d07187c2dd791124afb7194886c28c05a3340261</frontend.version>
     <frontend.groupId>com.github.cbioportal</frontend.groupId>
     <spring.version>5.2.6.RELEASE</spring.version>
     <spring.integration.version>5.3.0.RELEASE</spring.integration.version>
@@ -325,7 +325,7 @@
     <tomcat.session.timeout>720</tomcat.session.timeout>
 
     <!-- THIS SHOULD BE KEPT IN SYNC TO VERSION IN CGDS.SQL -->
-    <db.version>2.12.8</db.version>
+    <db.version>2.12.10</db.version>
   </properties>
 
   <modules>

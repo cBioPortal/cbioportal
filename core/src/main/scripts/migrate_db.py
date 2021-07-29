@@ -22,6 +22,7 @@ REQUIRED_PROPERTIES = [DATABASE_HOST, DATABASE_NAME, DATABASE_USER, DATABASE_PW,
 ALLOWABLE_GENOME_REFERENCES = ['37', 'hg19', 'GRCh37', '38', 'hg38', 'GRCh38', 'mm10', 'GRCm38']
 DEFAULT_GENOME_REFERENCE = 'hg19'
 MULTI_REFERENCE_GENOME_SUPPORT_MIGRATION_STEP = (2,11,0)
+GENERIC_ASSAY_MIGRATION_STEP = (2,12,1)
 
 class PortalProperties(object):
     """ Properties object class, just has fields for db conn """
@@ -203,6 +204,40 @@ def check_reference_genome(portal_properties, cursor, force_migration):
         if not force_migration:
             sys.exit(1)
 
+# TODO: remove this after we update mysql version
+def check_and_remove_invalid_foreign_keys(cursor):
+    try:
+        # if genetic_alteration_ibfk_2 exists
+        cursor.execute(
+            """
+                SELECT *
+                FROM INFORMATION_SCHEMA.TABLE_CONSTRAINTS
+                    WHERE CONSTRAINT_TYPE = 'FOREIGN KEY'
+                    AND TABLE_SCHEMA = DATABASE()
+                    AND CONSTRAINT_NAME = 'genetic_alteration_ibfk_2'
+            """)
+        rows = cursor.fetchall()
+        if (len(rows) >= 1):
+            # if genetic_alteration_fk_2 also exists, delete it
+            cursor.execute(
+                """
+                    SELECT *
+                    FROM INFORMATION_SCHEMA.TABLE_CONSTRAINTS
+                        WHERE CONSTRAINT_TYPE = 'FOREIGN KEY'
+                        AND TABLE_SCHEMA = DATABASE()
+                        AND CONSTRAINT_NAME = 'genetic_alteration_fk_2'
+                """)
+            rows = cursor.fetchall()
+            if (len(rows) >= 1):
+                print('Invalid foreign key found.', file=OUTPUT_FILE)
+                cursor.execute(
+                    """
+                        ALTER TABLE `genetic_alteration` DROP FOREIGN KEY genetic_alteration_fk_2;
+                    """)
+                print('Invalid foreign key has been deleted.', file=OUTPUT_FILE)
+    except MySQLdb.Error as msg:
+        print(msg, file=ERROR_FILE)
+
 def strip_trailing_comment_from_line(line):
     line_parts = re.split("--\s",line)
     return line_parts[0]
@@ -343,6 +378,10 @@ def main():
             #retrieve reference genomes from database
             check_reference_genome(portal_properties, cursor, parser.force)
         run_migration(db_version, sql_filename, connection, cursor, parser.no_transaction)
+        # TODO: remove this after we update mysql version
+        # check invalid foreign key only when current db version larger or qeuals to GENERIC_ASSAY_MIGRATION_STEP
+        if not is_version_larger(GENERIC_ASSAY_MIGRATION_STEP, db_version):
+            check_and_remove_invalid_foreign_keys(cursor)
     print('Finished.', file=OUTPUT_FILE)
 
 # do main

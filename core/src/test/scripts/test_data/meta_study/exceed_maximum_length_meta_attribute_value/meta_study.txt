@@ -5,5 +5,4 @@ description: Test study es_0
 citation: The Hyve
 pmid: 23000897
 groups: PUBLIC;GDAC;SU2C-PI3K
-short_name: BRCA (TCGA). This is a very long name of a short name, which will exceed the limit defined in the database.
 add_global_case_list: true

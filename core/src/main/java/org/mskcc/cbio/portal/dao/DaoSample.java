@@ -134,18 +134,17 @@ public class DaoSample {
         try {
             con = JdbcUtil.getDbConnection(DaoSample.class);
             pstmt = con.prepareStatement("INSERT INTO sample " +
-                                         "( `STABLE_ID`, `SAMPLE_TYPE`, `PATIENT_ID`, `TYPE_OF_CANCER_ID` ) " +
-                                         "VALUES (?,?,?,?)",
+                                         "( `STABLE_ID`, `SAMPLE_TYPE`, `PATIENT_ID` ) " +
+                                         "VALUES (?,?,?)",
                                          Statement.RETURN_GENERATED_KEYS);
             pstmt.setString(1, sample.getStableId());
             pstmt.setString(2, sample.getType().toString());
             pstmt.setInt(3, sample.getInternalPatientId());
-            pstmt.setString(4, sample.getCancerTypeId());
             pstmt.executeUpdate();
             rs = pstmt.getGeneratedKeys();
             if (rs.next()) {
                 cacheSample(new Sample(rs.getInt(1), sample.getStableId(),
-                                       sample.getInternalPatientId(), sample.getCancerTypeId()));
+                                       sample.getInternalPatientId()));
                 return rs.getInt(1);
             }
             return -1;
@@ -269,7 +268,6 @@ public class DaoSample {
     {
         return new Sample(rs.getInt("INTERNAL_ID"),
                           rs.getString("STABLE_ID"),
-                          rs.getInt("PATIENT_ID"),
-                          rs.getString("TYPE_OF_CANCER_ID"));
+                          rs.getInt("PATIENT_ID"));
     }
 }

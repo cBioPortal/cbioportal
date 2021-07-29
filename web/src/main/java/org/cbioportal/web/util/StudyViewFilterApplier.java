@@ -910,16 +910,25 @@ public class StudyViewFilterApplier {
                     genericAssayDataBinFilter.setStableId(genericAssayDataFilter.getStableId());
                     genericAssayDataBinFilter.setProfileType(genericAssayDataFilter.getProfileType());
 
-                    return invokeDataFunc(sampleIds, studyIds, Arrays.asList(genericAssayDataBinFilter.getStableId()),
-                            studyIdToMolecularProfileIdMap, genericAssayDataBinFilter, fetchGenericAssayData);
+                    // get original data stream from invokeDataFunc
+                    Stream<ClinicalData> dataStream = invokeDataFunc(sampleIds, studyIds, Arrays.asList(genericAssayDataBinFilter.getStableId()),
+                        studyIdToMolecularProfileIdMap, genericAssayDataBinFilter, fetchGenericAssayData);
+                    // For patient level generic assay profile, only keep the one sample per patient
+                    List<MolecularProfile> profiles = molecularProfileMap.getOrDefault(genericAssayDataFilter.getProfileType(), new ArrayList<MolecularProfile>());
+                    if (profiles.size() > 0 && profiles.get(0).getPatientLevel() == true) {
+                        dataStream = dataStream.collect(Collectors.groupingBy(d -> d.getPatientId())).values().stream()
+                            .flatMap(d -> d.stream().limit(1));
+                    }
+                    // don't change anything for non patient level data
+                    return dataStream;
                 }).collect(Collectors.toList());
 
-                attributes = genericAssayDataFilters.stream().map(genomicDataIntervalFilter -> {
-                    String attributeId = studyViewFilterUtil.getGenomicDataFilterUniqueKey(
-                            genomicDataIntervalFilter.getStableId(), genomicDataIntervalFilter.getProfileType());
+                attributes = genericAssayDataFilters.stream().map(genericAssayDataFilter -> {
+                    String attributeId = studyViewFilterUtil.getGenericAssayDataFilterUniqueKey(
+                            genericAssayDataFilter.getStableId(), genericAssayDataFilter.getProfileType());
                     ClinicalDataFilter clinicalDataIntervalFilter = new ClinicalDataFilter();
                     clinicalDataIntervalFilter.setAttributeId(attributeId);
-                    clinicalDataIntervalFilter.setValues(genomicDataIntervalFilter.getValues());
+                    clinicalDataIntervalFilter.setValues(genericAssayDataFilter.getValues());
                     return clinicalDataIntervalFilter;
                 }).collect(Collectors.toList());
 

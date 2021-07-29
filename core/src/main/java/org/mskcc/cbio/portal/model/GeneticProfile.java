@@ -54,6 +54,7 @@ public class GeneticProfile implements Serializable {
     private Properties otherMetadataFields;
     private Float pivotThreshold;
     private String sortOrder;
+    private boolean patientLevel;
 
     public GeneticProfile() {
         super();
@@ -98,6 +99,7 @@ public class GeneticProfile implements Serializable {
         this.setOtherMetadataFields(template.getAllOtherMetadataFields());
         this.setPivotThreshold(template.getPivotThreshold());
         this.setSortOrder(template.getSortOrder());
+        this.setPatientLevel(template.getPatientLevel());
     }
     
     public int getGeneticProfileId() {
@@ -195,7 +197,14 @@ public class GeneticProfile implements Serializable {
     public void setGenericAssayType(String genericAssayType) {
         this.genericAssayType = genericAssayType;
     }
-    
+
+    public boolean getPatientLevel() {
+        return patientLevel;
+    }
+
+    public void setPatientLevel(boolean patientLevel) {
+        this.patientLevel = patientLevel;
+    }
     
     /**
     * Stores metadata fields only recognized in particular data file types.

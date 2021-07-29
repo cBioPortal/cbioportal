@@ -102,8 +102,8 @@ public final class DaoGeneticProfile {
             pstmt = con.prepareStatement
                     ("INSERT INTO genetic_profile (`STABLE_ID`, `CANCER_STUDY_ID`, "+
                             "`GENETIC_ALTERATION_TYPE`, `DATATYPE`, `NAME`, `DESCRIPTION`, "+
-                            "`SHOW_PROFILE_IN_ANALYSIS_TAB`, `PIVOT_THRESHOLD`, `SORT_ORDER`, `GENERIC_ASSAY_TYPE`) " +
-                            "VALUES (?,?,?,?,?,?,?,?,?,?)");
+                            "`SHOW_PROFILE_IN_ANALYSIS_TAB`, `PIVOT_THRESHOLD`, `SORT_ORDER`, `GENERIC_ASSAY_TYPE`, `PATIENT_LEVEL`) " +
+                            "VALUES (?,?,?,?,?,?,?,?,?,?,?)");
             pstmt.setString(1, profile.getStableId());
             pstmt.setInt(2, profile.getCancerStudyId());
             pstmt.setString(3, profile.getGeneticAlterationType().name());
@@ -128,6 +128,9 @@ public final class DaoGeneticProfile {
             } else {
                 pstmt.setString(10, profile.getGenericAssayType());
             }
+
+            // default value is false
+            pstmt.setBoolean(11, profile.getPatientLevel());
             
             rows = pstmt.executeUpdate();
 
@@ -246,6 +249,7 @@ public final class DaoGeneticProfile {
         if (rs.getString("GENERIC_ASSAY_TYPE") != null && ! rs.getString("GENERIC_ASSAY_TYPE").equals("") ) {
             profileType.setGenericAssayType(rs.getString("GENERIC_ASSAY_TYPE"));
         }
+        profileType.setPatientLevel(rs.getBoolean("PATIENT_LEVEL"));
         return profileType;
     }
 

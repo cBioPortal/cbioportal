@@ -6,6 +6,7 @@ import java.util.Map;
 import java.util.stream.Collectors;
 
 import org.cbioportal.model.SampleTreatmentRow;
+import org.cbioportal.model.TreatmentClassificationTier;
 import org.cbioportal.service.TreatmentService;
 import org.cbioportal.web.parameter.SampleIdentifier;
 import org.cbioportal.web.parameter.filter.AndedSampleTreatmentFilters;
@@ -28,7 +29,7 @@ public class SampleTreatmentFilterApplier {
             .map(SampleIdentifier::getStudyId)
             .collect(Collectors.toList());
 
-        Map<String, Map<String, Boolean>> rows = treatmentService.getAllSampleTreatmentRows(sampleIds, studyIds)
+        Map<String, Map<String, Boolean>> rows = treatmentService.getAllSampleTreatmentRows(sampleIds, studyIds, TreatmentClassificationTier.Treatment)
             .stream()
             .collect(Collectors.toMap(SampleTreatmentRow::key, this::extractSamples));
 

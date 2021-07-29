@@ -5,6 +5,7 @@ import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
 import org.cbioportal.model.PatientTreatmentRow;
 import org.cbioportal.model.SampleTreatmentRow;
+import org.cbioportal.model.TreatmentClassificationTier;
 import org.cbioportal.service.TreatmentService;
 import org.cbioportal.web.config.annotation.PublicApi;
 import org.cbioportal.web.parameter.*;
@@ -43,6 +44,10 @@ public class TreatmentController {
     @RequestMapping(value = "/treatments/patient", method = RequestMethod.POST, produces = MediaType.APPLICATION_JSON_VALUE)
     @ApiOperation("Get all patient level treatments")
     public ResponseEntity<List<PatientTreatmentRow>> getAllPatientTreatments(
+        @ApiParam(required = false, defaultValue = "Treatment")
+        @RequestParam(name = "tier", required = false, defaultValue = "Treatment")
+        TreatmentClassificationTier tier,
+        
         @ApiParam(required = true, value = "Study view filter")
         @Valid
         @RequestBody(required = false) 
@@ -62,7 +67,7 @@ public class TreatmentController {
         List<String> studyIds = new ArrayList<>();
         filterUtil.extractStudyAndSampleIds(sampleIdentifiers, studyIds, sampleIds);
         
-        List<PatientTreatmentRow> treatments = treatmentService.getAllPatientTreatmentRows(sampleIds, studyIds);
+        List<PatientTreatmentRow> treatments = treatmentService.getAllPatientTreatmentRows(sampleIds, studyIds, tier);
         return new ResponseEntity<>(treatments, HttpStatus.OK);
     }
 
@@ -71,6 +76,10 @@ public class TreatmentController {
     @RequestMapping(value = "/treatments/sample", method = RequestMethod.POST, produces = MediaType.APPLICATION_JSON_VALUE)
     @ApiOperation("Get all sample level treatments")
     public ResponseEntity<List<SampleTreatmentRow>> getAllSampleTreatments(
+        @ApiParam(required = false, defaultValue = "Treatment")
+        @RequestParam(name = "tier", required = false, defaultValue = "Treatment")
+        TreatmentClassificationTier tier,
+
         @ApiParam(required = true, value = "Study view filter")
         @Valid
         @RequestBody(required = false) 
@@ -90,7 +99,7 @@ public class TreatmentController {
         List<String> studyIds = new ArrayList<>();
         filterUtil.extractStudyAndSampleIds(sampleIdentifiers, studyIds, sampleIds);
         
-        List<SampleTreatmentRow> treatments = treatmentService.getAllSampleTreatmentRows(sampleIds, studyIds);
+        List<SampleTreatmentRow> treatments = treatmentService.getAllSampleTreatmentRows(sampleIds, studyIds, tier);
         return new ResponseEntity<>(treatments, HttpStatus.OK);
     }
 

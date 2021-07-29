@@ -18,9 +18,9 @@ public class TreatmentServiceImpl implements TreatmentService {
     TreatmentRepository treatmentRepository;
     
     @Override
-    public List<SampleTreatmentRow> getAllSampleTreatmentRows(List<String> sampleIds, List<String> studyIds) {
+    public List<SampleTreatmentRow> getAllSampleTreatmentRows(List<String> sampleIds, List<String> studyIds, TreatmentClassificationTier tier) {
         Map<String, List<ClinicalEventSample>> samplesByPatient = treatmentRepository.getSamplesByPatientId(sampleIds, studyIds);
-        Map<String, List<Treatment>> treatmentsByPatient = treatmentRepository.getTreatmentsByPatientId(sampleIds, studyIds);
+        Map<String, List<Treatment>> treatmentsByPatient = treatmentRepository.getTreatmentsByPatientId(sampleIds, studyIds, tier);
 
         Stream<SampleTreatmentRow> rows = samplesByPatient.keySet().stream()
             .flatMap(patientId -> getSampleTreatmentRowsForPatient(patientId, samplesByPatient, treatmentsByPatient))
@@ -122,15 +122,17 @@ public class TreatmentServiceImpl implements TreatmentService {
     }
 
     @Override
-    public List<PatientTreatmentRow> getAllPatientTreatmentRows(List<String> sampleIds, List<String> studyIds) {
-        Map<String, List<Treatment>> treatmentsByPatient = treatmentRepository.getTreatmentsByPatientId(sampleIds, studyIds);
+    public List<PatientTreatmentRow> getAllPatientTreatmentRows(
+        List<String> sampleIds, List<String> studyIds, TreatmentClassificationTier tier
+    ) {
+        Map<String, List<Treatment>> treatmentsByPatient = treatmentRepository.getTreatmentsByPatientId(sampleIds, studyIds, tier);
         Map<String, List<ClinicalEventSample>> samplesByPatient = treatmentRepository
             .getShallowSamplesByPatientId(sampleIds, studyIds)
             .entrySet()
             .stream()
             .filter(e -> treatmentsByPatient.containsKey(e.getKey()))
             .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
-        Set<String> treatments = treatmentRepository.getAllUniqueTreatments(sampleIds, studyIds);
+        Set<String> treatments = treatmentRepository.getAllUniqueTreatments(sampleIds, studyIds, tier);
 
         return treatments.stream()
             .map(t -> createPatientTreatmentRowForTreatment(t, treatmentsByPatient, samplesByPatient))

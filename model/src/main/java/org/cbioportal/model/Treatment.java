@@ -9,6 +9,7 @@ public class Treatment implements Serializable {
     private String patientId;
     private Integer start;
     private Integer stop;
+    private TreatmentClassificationTier tier;
 
     public String getTreatment() {
         return treatment;

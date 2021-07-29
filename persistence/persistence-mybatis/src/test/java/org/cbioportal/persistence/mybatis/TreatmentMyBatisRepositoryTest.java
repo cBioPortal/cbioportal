@@ -2,6 +2,7 @@ package org.cbioportal.persistence.mybatis;
 
 import org.cbioportal.model.ClinicalEventSample;
 import org.cbioportal.model.Treatment;
+import org.cbioportal.model.TreatmentClassificationTier;
 import org.cbioportal.persistence.TreatmentRepository;
 import org.junit.Assert;
 import org.junit.Test;
@@ -12,8 +13,6 @@ import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
 import java.util.*;
-
-import static org.junit.Assert.*;
 
 @RunWith(SpringJUnit4ClassRunner.class)
 @ContextConfiguration("/testContextDatabase.xml")
@@ -37,8 +36,8 @@ public class TreatmentMyBatisRepositoryTest {
 
         Map<String, List<Treatment>> actual = treatmentRepository.getTreatmentsByPatientId(
             Collections.singletonList("TCGA-A1-A0SD-01"),
-            Collections.singletonList("study_tcga_pub")
-        );
+            Collections.singletonList("study_tcga_pub"),
+            TreatmentClassificationTier.Treatment);
 
 
         Assert.assertEquals(actual, expected);
@@ -92,8 +91,8 @@ public class TreatmentMyBatisRepositoryTest {
         
         Set<String> actual = treatmentRepository.getAllUniqueTreatments(
             Collections.singletonList("TCGA-A1-A0SD-01"),
-            Collections.singletonList("study_tcga_pub")
-        );
+            Collections.singletonList("study_tcga_pub"),
+            TreatmentClassificationTier.Treatment);
         
         Assert.assertEquals(actual, expected);
     }

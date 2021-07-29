@@ -49,7 +49,7 @@ public class SampleTreatmentFilterApplierTest {
             Arrays.asList(new Pair<>("Fabricada", Pre), new Pair<>("Fakeamab", Post))
         );
         Mockito
-            .when(treatmentService.getAllSampleTreatmentRows(Mockito.anyList(), Mockito.anyList()))
+            .when(treatmentService.getAllSampleTreatmentRows(Mockito.anyList(), Mockito.anyList(), Mockito.any()))
             .thenReturn(new ArrayList<>());
 
         List<SampleIdentifier> actual = subject.filter(andedFilters, samples);
@@ -71,7 +71,7 @@ public class SampleTreatmentFilterApplierTest {
             Arrays.asList(new Pair<>("Fabricada", Pre), new Pair<>("Fakeamab", Post))
         );
         Mockito
-            .when(treatmentService.getAllSampleTreatmentRows(Mockito.anyList(), Mockito.anyList()))
+            .when(treatmentService.getAllSampleTreatmentRows(Mockito.anyList(), Mockito.anyList(), Mockito.any()))
             .thenReturn(new ArrayList<>());
 
         List<SampleIdentifier> actual = subject.filter(andedFilters, samples);
@@ -96,7 +96,7 @@ public class SampleTreatmentFilterApplierTest {
             Arrays.asList(new Pair<>("Fabricada", Pre), new Pair<>("Fakeamab", Post))
         );
         Mockito
-            .when(treatmentService.getAllSampleTreatmentRows(Mockito.anyList(), Mockito.anyList()))
+            .when(treatmentService.getAllSampleTreatmentRows(Mockito.anyList(), Mockito.anyList(), Mockito.any()))
             .thenReturn(Arrays.asList(
                 new SampleTreatmentRow(Pre, "Improvizox", 2, toSet(createEvent("SA_0", "ST_0"), createEvent("SA_1", "ST_0"))),
                 new SampleTreatmentRow(Post, "Fakeamab", 2,  toSet(createEvent("SA_0", "ST_0"), createEvent("SA_1", "ST_0"))),

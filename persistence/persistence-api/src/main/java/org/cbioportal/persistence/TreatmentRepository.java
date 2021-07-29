@@ -6,11 +6,12 @@ import java.util.Set;
 
 import org.cbioportal.model.ClinicalEventSample;
 import org.cbioportal.model.Treatment;
+import org.cbioportal.model.TreatmentClassificationTier;
 import org.springframework.cache.annotation.Cacheable;
 
 public interface TreatmentRepository {
     @Cacheable(cacheResolver = "generalRepositoryCacheResolver", condition = "@cacheEnabledConfig.getEnabled()")
-    public Map<String, List<Treatment>> getTreatmentsByPatientId(List<String> sampleIds, List<String> studyIds);
+    public Map<String, List<Treatment>> getTreatmentsByPatientId(List<String> sampleIds, List<String> studyIds, TreatmentClassificationTier tier);
 
     @Cacheable(cacheResolver = "generalRepositoryCacheResolver", condition = "@cacheEnabledConfig.getEnabled()")
     public Map<String, List<ClinicalEventSample>> getSamplesByPatientId(List<String> sampleIds, List<String> studyIds);
@@ -19,7 +20,7 @@ public interface TreatmentRepository {
     public Map<String, List<ClinicalEventSample>> getShallowSamplesByPatientId(List<String> sampleIds, List<String> studyIds);
 
     @Cacheable(cacheResolver = "generalRepositoryCacheResolver", condition = "@cacheEnabledConfig.getEnabled()")
-    public Set<String> getAllUniqueTreatments(List<String> sampleIds, List<String> studyIds);
+    public Set<String> getAllUniqueTreatments(List<String> sampleIds, List<String> studyIds, TreatmentClassificationTier tier);
 
     @Cacheable(cacheResolver = "generalRepositoryCacheResolver", condition = "@cacheEnabledConfig.getEnabled()")
     public Integer getTreatmentCount(List<String> studies);

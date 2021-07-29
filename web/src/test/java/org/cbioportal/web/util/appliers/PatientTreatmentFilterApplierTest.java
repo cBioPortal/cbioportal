@@ -45,7 +45,7 @@ public class PatientTreatmentFilterApplierTest {
             Arrays.asList("Fabricada", "Fakeamab")
         );
         Mockito
-            .when(treatmentService.getAllPatientTreatmentRows(Mockito.anyList(), Mockito.anyList()))
+            .when(treatmentService.getAllPatientTreatmentRows(Mockito.anyList(), Mockito.anyList(), Mockito.any()))
             .thenReturn(new ArrayList<>());
 
         List<SampleIdentifier> actual = subject.filter(samples, andedFilters);
@@ -67,7 +67,7 @@ public class PatientTreatmentFilterApplierTest {
             Arrays.asList("Fabricada", "Fakeamab")
         );
         Mockito
-            .when(treatmentService.getAllPatientTreatmentRows(Mockito.anyList(), Mockito.anyList()))
+            .when(treatmentService.getAllPatientTreatmentRows(Mockito.anyList(), Mockito.anyList(), Mockito.any()))
             .thenReturn(new ArrayList<>());
 
         List<SampleIdentifier> actual = subject.filter(samples, andedFilters);
@@ -90,7 +90,7 @@ public class PatientTreatmentFilterApplierTest {
             Arrays.asList("Fabricada", "Fakeamab") // AND one of these treatments
         );
         Mockito
-            .when(treatmentService.getAllPatientTreatmentRows(Mockito.anyList(), Mockito.anyList()))
+            .when(treatmentService.getAllPatientTreatmentRows(Mockito.anyList(), Mockito.anyList(), Mockito.any()))
             .thenReturn(Arrays.asList(
                 new PatientTreatmentRow("Improvizox", 2, toSet(createEvent("SA_0", "ST_0"), createEvent("SA_1", "ST_0"))),
                 new PatientTreatmentRow("Fakeamab", 2, toSet(createEvent("SA_0", "ST_0"), createEvent("SA_1", "ST_0"))),

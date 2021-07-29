@@ -9,6 +9,7 @@ import java.util.Set;
 
 import org.cbioportal.model.ClinicalEventSample;
 import org.cbioportal.model.Treatment;
+import org.cbioportal.model.TreatmentClassificationTier;
 import org.cbioportal.persistence.TreatmentRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
@@ -19,8 +20,8 @@ public class TreatmentMyBatisRepository implements TreatmentRepository {
     private TreatmentMapper treatmentMapper;
     
     @Override
-    public Map<String, List<Treatment>> getTreatmentsByPatientId(List<String> sampleIds, List<String> studyIds) {
-        return treatmentMapper.getAllTreatments(sampleIds, studyIds)
+    public Map<String, List<Treatment>> getTreatmentsByPatientId(List<String> sampleIds, List<String> studyIds, TreatmentClassificationTier tier) {
+        return treatmentMapper.getAllTreatments(sampleIds, studyIds, tier)
             .stream()
             .collect(groupingBy(Treatment::getPatientId));
     }
@@ -43,8 +44,8 @@ public class TreatmentMyBatisRepository implements TreatmentRepository {
     }
 
     @Override
-    public Set<String> getAllUniqueTreatments(List<String> sampleIds, List<String> studyIds) {
-        return treatmentMapper.getAllUniqueTreatments(sampleIds, studyIds);
+    public Set<String> getAllUniqueTreatments(List<String> sampleIds, List<String> studyIds, TreatmentClassificationTier tier) {
+        return treatmentMapper.getAllUniqueTreatments(sampleIds, studyIds, tier);
     }
 
     @Override

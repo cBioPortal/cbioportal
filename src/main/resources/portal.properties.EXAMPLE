@@ -147,6 +147,9 @@ dat.jwt.secret_key=
 #dat.oauth2.redirectUri=<cbioportal-url>/.../api/data-access-token/oauth2
 #dat.oauth2.jwtRolesPath=resource_access::cbioportal::roles
 
+# multithreading configuration
+multithread.core_pool_size=16
+
 # study view settings
 # always show studies with this group
 always_show_study_group=

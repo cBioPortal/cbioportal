@@ -13,6 +13,7 @@ import org.cbioportal.service.GenesetService;
 import org.cbioportal.service.MolecularDataService;
 import org.cbioportal.service.GenesetDataService;
 import org.cbioportal.service.MolecularProfileService;
+import org.cbioportal.service.util.CoExpressionAsyncMethods;
 import org.junit.Assert;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -25,6 +26,7 @@ import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.concurrent.CompletableFuture;
 
 @RunWith(MockitoJUnitRunner.Silent.class)
 public class CoExpressionServiceImplTest extends BaseServiceImplTest {
@@ -34,6 +36,8 @@ public class CoExpressionServiceImplTest extends BaseServiceImplTest {
     @InjectMocks
     private CoExpressionServiceImpl coExpressionService;
     
+    @Mock
+    private CoExpressionAsyncMethods asyncMethods;
     @Mock
     private MolecularDataService molecularDataService;
     @Mock 
@@ -73,7 +77,18 @@ public class CoExpressionServiceImplTest extends BaseServiceImplTest {
             .thenReturn(geneMolecularProfile);
         Mockito.when(molecularProfileService.getMolecularProfile(MOLECULAR_PROFILE_ID_B))
             .thenReturn(geneMolecularProfile);
-        
+
+        List<List<String>> allValuesA = createAllValuesA();
+        List<String> valuesB = createValuesB();
+        List<CompletableFuture<CoExpression>> coExpressions = createCoExpressions();
+
+        Mockito.when(asyncMethods.computeCoExpression("2", allValuesA.get(0), valuesB, THRESHOLD))
+            .thenReturn(coExpressions.get(0));
+        Mockito.when(asyncMethods.computeCoExpression("3", allValuesA.get(1), valuesB, THRESHOLD))
+            .thenReturn(coExpressions.get(1));
+        Mockito.when(asyncMethods.computeCoExpression("4", allValuesA.get(2), valuesB, THRESHOLD))
+            .thenReturn(CompletableFuture.supplyAsync(() -> null));
+
         List<CoExpression> result = coExpressionService.getCoExpressions("1", EntityType.GENE, 
         SAMPLE_LIST_ID, MOLECULAR_PROFILE_ID_A, MOLECULAR_PROFILE_ID_B, THRESHOLD);
 
@@ -115,6 +130,17 @@ public class CoExpressionServiceImplTest extends BaseServiceImplTest {
         Mockito.when(molecularProfileService.getMolecularProfile(MOLECULAR_PROFILE_ID_B))
             .thenReturn(geneMolecularProfile);
 
+        List<List<String>> allValuesA = createAllValuesA();
+        List<String> valuesB = createValuesB();
+        List<CompletableFuture<CoExpression>> coExpressions = createCoExpressions();
+
+        Mockito.when(asyncMethods.computeCoExpression("2", allValuesA.get(0), valuesB, THRESHOLD))
+            .thenReturn(coExpressions.get(0));
+        Mockito.when(asyncMethods.computeCoExpression("3", allValuesA.get(1), valuesB, THRESHOLD))
+            .thenReturn(coExpressions.get(1));
+        Mockito.when(asyncMethods.computeCoExpression("4", allValuesA.get(2), valuesB, THRESHOLD))
+            .thenReturn(CompletableFuture.supplyAsync(() -> null));
+
         List<CoExpression> result = coExpressionService.fetchCoExpressions("1", EntityType.GENE,
             Arrays.asList(SAMPLE_ID1, SAMPLE_ID2), MOLECULAR_PROFILE_ID_A, MOLECULAR_PROFILE_ID_B, THRESHOLD);
 
@@ -155,6 +181,17 @@ public class CoExpressionServiceImplTest extends BaseServiceImplTest {
             .thenReturn(genesetMolecularProfile);
         Mockito.when(molecularProfileService.getMolecularProfile("profile_id_gsva_scores_b"))
             .thenReturn(genesetMolecularProfile);
+
+        List<List<String>> allValuesA = createAllValuesA();
+        List<String> valuesB = createValuesB();
+        List<CompletableFuture<CoExpression>> coExpressions = createCoExpressions();
+
+        Mockito.when(asyncMethods.computeCoExpression("BIOCARTA_ASBCELL_PATHWAY", allValuesA.get(0), valuesB, THRESHOLD))
+            .thenReturn(coExpressions.get(2));
+        Mockito.when(asyncMethods.computeCoExpression("KEGG_DNA_REPLICATION", allValuesA.get(1), valuesB, THRESHOLD))
+            .thenReturn(coExpressions.get(3));
+        Mockito.when(asyncMethods.computeCoExpression("REACTOME_DIGESTION_OF_DIETARY_CARBOHYDRATE", allValuesA.get(2), valuesB, THRESHOLD))
+            .thenReturn(CompletableFuture.supplyAsync(() -> null));
 
         List<CoExpression> result = coExpressionService.getCoExpressions("GENESET_ID_TEST", EntityType.GENESET, 
         SAMPLE_LIST_ID, "profile_id_gsva_scores_a", "profile_id_gsva_scores_b", THRESHOLD);
@@ -199,6 +236,17 @@ public class CoExpressionServiceImplTest extends BaseServiceImplTest {
             .thenReturn(genesetMolecularProfile);
         Mockito.when(genesetDataService.fetchGenesetData("profile_id_gsva_scores_b", Arrays.asList(SAMPLE_ID1, SAMPLE_ID2), 
             null)).thenReturn(molecularDataList);
+
+        List<List<String>> allValuesA = createAllValuesA();
+        List<String> valuesB = createValuesB();
+        List<CompletableFuture<CoExpression>> coExpressions = createCoExpressions();
+
+        Mockito.when(asyncMethods.computeCoExpression("BIOCARTA_ASBCELL_PATHWAY", allValuesA.get(0), valuesB, THRESHOLD))
+            .thenReturn(coExpressions.get(2));
+        Mockito.when(asyncMethods.computeCoExpression("KEGG_DNA_REPLICATION", allValuesA.get(1), valuesB, THRESHOLD))
+            .thenReturn(coExpressions.get(3));
+        Mockito.when(asyncMethods.computeCoExpression("REACTOME_DIGESTION_OF_DIETARY_CARBOHYDRATE", allValuesA.get(2), valuesB, THRESHOLD))
+            .thenReturn(CompletableFuture.supplyAsync(() -> null));
 
         List<CoExpression> result = coExpressionService.fetchCoExpressions("GENESET_ID_TEST", EntityType.GENESET,
             Arrays.asList(SAMPLE_ID1, SAMPLE_ID2), "profile_id_gsva_scores_a", "profile_id_gsva_scores_b", THRESHOLD);
@@ -379,6 +427,49 @@ public class CoExpressionServiceImplTest extends BaseServiceImplTest {
         geneset3.setName("REACTOME_DIGESTION_OF_DIETARY_CARBOHYDRATE");
         genesets.add(geneset3);
         return genesets;
+    }
+
+    private List<List<String>> createAllValuesA() {
+        List<List<String>> allValuesA = new ArrayList<>();
+        List<String> valuesA1 = new ArrayList<>();
+        valuesA1.add("2"); valuesA1.add("3"); valuesA1.add("2");
+        allValuesA.add(valuesA1);
+        List<String> valuesA2 = new ArrayList<>();
+        valuesA2.add("1.1"); valuesA2.add("5"); valuesA2.add("3");
+        allValuesA.add(valuesA2);
+        List<String> valuesA3 = new ArrayList<>();
+        valuesA3.add("1"); valuesA3.add("4"); valuesA3.add("0");
+        allValuesA.add(valuesA3);
+        return allValuesA;
+    }
+
+    private List<String> createValuesB() {
+        return new ArrayList<>(Arrays.asList("2.1", "3", "3"));
+    }
+
+    private List<CompletableFuture<CoExpression>> createCoExpressions() {
+        List<CompletableFuture<CoExpression>> coExpressions = new ArrayList<>();
+        CoExpression coExpression1 = new CoExpression();
+        coExpression1.setGeneticEntityId("2");
+        coExpression1.setSpearmansCorrelation(new BigDecimal("0.5"));
+        coExpression1.setpValue(new BigDecimal("0.6666666666666667"));
+        coExpressions.add(CompletableFuture.supplyAsync(() -> coExpression1));
+        CoExpression coExpression2 = new CoExpression();
+        coExpression2.setGeneticEntityId("3");
+        coExpression2.setSpearmansCorrelation(new BigDecimal("0.8660254037844386"));
+        coExpression2.setpValue(new BigDecimal("0.3333333333333333"));
+        coExpressions.add(CompletableFuture.supplyAsync(() -> coExpression2));
+        CoExpression coExpression3 = new CoExpression();
+        coExpression3.setGeneticEntityId("BIOCARTA_ASBCELL_PATHWAY");
+        coExpression3.setSpearmansCorrelation(new BigDecimal("0.5"));
+        coExpression3.setpValue(new BigDecimal("0.6666666666666667"));
+        coExpressions.add(CompletableFuture.supplyAsync(() -> coExpression3));
+        CoExpression coExpression4 = new CoExpression();
+        coExpression4.setGeneticEntityId("KEGG_DNA_REPLICATION");
+        coExpression4.setSpearmansCorrelation(new BigDecimal("0.8660254037844386"));
+        coExpression4.setpValue(new BigDecimal("0.3333333333333333"));
+        coExpressions.add(CompletableFuture.supplyAsync(() -> coExpression4));
+        return coExpressions;
     }
 
     private MolecularProfile createGeneMolecularProfile() {

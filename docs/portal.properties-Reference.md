@@ -177,6 +177,15 @@ in these sections. This menu will only appear, when setting the property _skin.s
 skin.show_settings_menu=
 ```
 
+## Hide logout button
+When the user is logged-in, a button with logout and data access token options is shown at the right side of the header section.
+This button can be hidden by setting the property _skin.hide_logout_button to _true_ (default is _false_). Hiding the logout button will remove
+the ability to perform a manual logout and download data access tokens by the user.
+
+```
+skin.hide_logout_button=
+```
+
 
 ## Hide p- and q-values in survival types table
 ```

@@ -24,11 +24,11 @@
     <!-- dbcp profile is defined here to prevent exceptions during war deployment -->
     <context-param>
         <param-name>spring.profiles.active</param-name>
-        <param-value>${dbconnector:dbcp},${authenticate},${google.analytics.tracking:ga-api-tracking-disabled}</param-value>
+        <param-value>\${dbconnector:dbcp},\${authenticate},\${google.analytics.tracking:ga-api-tracking-disabled}</param-value>
     </context-param>
     <context-param>
         <param-name>spring.liveBeansView.mbeanDomain</param-name>
-        <param-value>${dbconnector:dbcp},${authenticate}</param-value>
+        <param-value>\${dbconnector:dbcp},\${authenticate}</param-value>
     </context-param>
     
     <context-param>
@@ -38,7 +38,7 @@
 
     <context-param>
         <param-name>webAppRootKey</param-name>
-        <param-value>${app.name}.${timestamp}</param-value>
+        <param-value>\${app.name}.${timestamp}</param-value>
     </context-param>
 
     <context-param>

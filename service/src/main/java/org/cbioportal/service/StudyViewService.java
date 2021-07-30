@@ -1,9 +1,7 @@
 package org.cbioportal.service;
 
-import org.cbioportal.model.AlterationCountByGene;
-import org.cbioportal.model.AlterationFilter;
-import org.cbioportal.model.CopyNumberCountByGene;
-import org.cbioportal.model.GenomicDataCount;
+import org.cbioportal.model.*;
+import org.cbioportal.service.exception.MolecularProfileNotFoundException;
 import org.cbioportal.service.exception.StudyNotFoundException;
 import org.springframework.cache.annotation.Cacheable;
 
@@ -20,4 +18,6 @@ public interface StudyViewService {
 
     List<CopyNumberCountByGene> getCNAAlterationCountByGenes(List<String> studyIds, List<String> sampleIds, AlterationFilter annotationFilter)
         throws StudyNotFoundException;
+
+    List<GenericAssayDataCountItem> fetchGenericAssayDataCounts(List<String> molecularProfileIds, List<String> sampleIds, List<String> stableIds) throws MolecularProfileNotFoundException;
 }

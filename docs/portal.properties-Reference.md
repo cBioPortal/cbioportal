@@ -509,6 +509,12 @@ cache.endpoint.api-key=7d70fecb-cda8-490f-9ea2-ef874b6512f4
 skin.show_gsva=true
 ```
 
+# Set default thresholds for geneset hierarchy
+```
+skin.geneset_hierarchy.default_gsva_score=0.3
+skin.geneset_hierarchy.default_p_value=0.02
+```
+
 # Request Body Compression
 
 ## Background

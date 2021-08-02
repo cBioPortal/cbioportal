@@ -206,6 +206,24 @@ Below you can find the complete list of all the available skin properties.
 			<td>text</td>
 		</tr>
 		<tr>
+			<td>skin.show_gsva</td>
+			<td>enables gsva to query</td>
+			<td>false</td>
+			<td>true / false</td>
+		</tr>
+		<tr>
+			<td>skin.geneset_hierarchy.default_p_value</td>
+			<td>modifies default value for p_value threshold</td>
+			<td>0.05</td>
+			<td>0.05</td>
+		</tr>
+		<tr>
+			<td>skin.geneset_hierarchy.default_gsva_score</td>
+			<td>modifies default value for gsva_score threshold</td>
+			<td>0.5</td>
+			<td>0.5</td>
+		</tr>
+		<tr>
             <td>skin.query.max_tree_depth</td>
             <td>sets the maximum number of subcategories shown in the query component hierarchy before each study. E.g. when set to 0, the hierarchy is flat, meaning only the study elements show in the component, without any tissue or cancer type sorting.</td>
             <td>3</td>

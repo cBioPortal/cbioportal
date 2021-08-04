@@ -93,13 +93,6 @@ def interface():
                         action='store_true', default=False,
                         help='Option to enable strict mode for validator when '
                              'validating mutation data')
-    parser.add_argument('-a', '--max_reported_values', required=False,
-                        type=int, default=3,
-                        help='Cutoff in report for the maximum number of line numbers '
-                             'and values encountered to report for each message in the HTML '
-                             'report. For example, set this to a high number to '
-                             'report all genes that could not be loaded, instead '
-                             'of reporting "(GeneA, GeneB, GeneC, 213 more)".')
     parser.add_argument('-update', '--update_generic_assay_entity', type=str, required=False, default="False",
                         help='Set as True to update the existing generic assay entities, set as False to keep the existing generic assay entities for generic assay')
     parser.add_argument('-oncokb', '--import_oncokb', action='store_true',

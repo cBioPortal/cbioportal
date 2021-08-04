@@ -554,8 +554,16 @@ class CollapsingLogMessageHandler(logging.handlers.MemoryHandler):
                                  record.getMessage())
             if identifying_tuple not in grouping_dict:
                 grouping_dict[identifying_tuple] = []
-            grouping_dict[identifying_tuple].append(record)
 
+            # add a tuple that keeps the relation between the line number,
+            # the column number and the cause for the HTML report
+            record.__dict__['value'] = (
+                getattr(record, 'line_number', None),
+                getattr(record, 'column_number', None),
+                getattr(record, 'cause', None))
+
+            grouping_dict[identifying_tuple].append(record)
+        
         aggregated_buffer = []
         # for each list of same-message records
         for record_list in list(grouping_dict.values()):

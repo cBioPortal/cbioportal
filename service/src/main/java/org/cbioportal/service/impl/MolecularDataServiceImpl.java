@@ -189,8 +189,13 @@ public class MolecularDataServiceImpl implements MolecularDataService {
             samples = sampleService.fetchSamples(studyIds, sampleIds, "ID");
         }
 
-        List<GeneMolecularAlteration> molecularAlterations = molecularDataRepository
-            .getGeneMolecularAlterationsInMultipleMolecularProfiles(distinctMolecularProfileIds, entrezGeneIds, projection);
+        // query each entrezGeneId separately so they can be cached
+        List<GeneMolecularAlteration> molecularAlterations = entrezGeneIds.stream()
+            .flatMap(gene -> molecularDataRepository.getGeneMolecularAlterationsInMultipleMolecularProfiles(
+                    distinctMolecularProfileIds, Collections.singletonList(gene), projection
+                ).stream()
+            )
+        .collect(Collectors.toList());
         Map<String, List<GeneMolecularAlteration>> molecularAlterationsMap = molecularAlterations.stream().collect(
             groupingBy(GeneMolecularAlteration::getMolecularProfileId));
         

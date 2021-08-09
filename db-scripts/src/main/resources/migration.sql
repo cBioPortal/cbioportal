@@ -944,9 +944,7 @@ ALTER TABLE `cancer_study` DROP COLUMN `SHORT_NAME`;
 -- 2.12.9 for all changes
 
 -- WARNING: this will drop column TYPE_OF_CANCER_ID from table sample
--- the foreign key can exist as sample_ibfk_1 or sample_ibfk_2
--- so removing the fk in check_and_remove_foreign_keys_sample_ibfk
--- once the fk is removed, column can be dropped
+-- the foreign key on TYPE_OF_CANCER_ID in the sample table is removed with the migrate_db.py script. This is because the name can be either sample_ibfk_1  or sample_ibfk_2
 ALTER TABLE `sample` DROP COLUMN `TYPE_OF_CANCER_ID`;
 
 -- WARNING: this will drop column CLINICAL_TRIAL_KEYWORDS from table type_of_cancer

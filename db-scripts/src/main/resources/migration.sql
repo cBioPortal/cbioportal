@@ -944,8 +944,9 @@ ALTER TABLE `cancer_study` DROP COLUMN `SHORT_NAME`;
 -- 2.12.9 for all changes
 
 -- WARNING: this will drop column TYPE_OF_CANCER_ID from table sample
-ALTER TABLE `sample`
-DROP FOREIGN KEY `sample_ibfk_2` ;
+-- the foreign key can exist as sample_ibfk_1 or sample_ibfk_2
+-- so removing the fk in check_and_remove_foreign_keys_sample_ibfk
+-- once the fk is removed, column can be dropped
 ALTER TABLE `sample` DROP COLUMN `TYPE_OF_CANCER_ID`;
 
 -- WARNING: this will drop column CLINICAL_TRIAL_KEYWORDS from table type_of_cancer

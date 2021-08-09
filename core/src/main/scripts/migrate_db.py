@@ -23,6 +23,7 @@ ALLOWABLE_GENOME_REFERENCES = ['37', 'hg19', 'GRCh37', '38', 'hg38', 'GRCh38', '
 DEFAULT_GENOME_REFERENCE = 'hg19'
 MULTI_REFERENCE_GENOME_SUPPORT_MIGRATION_STEP = (2,11,0)
 GENERIC_ASSAY_MIGRATION_STEP = (2,12,1)
+SAMPLE_FK_MIGRATION_STEP = (2,12,8)
 
 class PortalProperties(object):
     """ Properties object class, just has fields for db conn """
@@ -237,6 +238,48 @@ def check_and_remove_invalid_foreign_keys(cursor):
                 print('Invalid foreign key has been deleted.', file=OUTPUT_FILE)
     except MySQLdb.Error as msg:
         print(msg, file=ERROR_FILE)
+#since the foreign key can exist as sample_ibfk_1 or sample_ibfk_2
+#using the script to check for either name with reference to table and remove the one that exists
+def check_and_remove_foreign_keys_sample_ibfk(cursor):
+     try:
+         # if sample_ibfk_1 exists
+         cursor.execute(
+             """
+                 SELECT *
+                 FROM INFORMATION_SCHEMA.REFERENTIAL_CONSTRAINTS
+                     WHERE TABLE_SCHEMA = DATABASE()
+                     AND TABLE_NAME = 'sample'
+                     AND REFERENCED_TABLE_NAME = 'type_of_cancer'
+                     AND CONSTRAINT_NAME = 'sample_ibfk_1'
+             """)
+         rows = cursor.fetchall()
+         if (len(rows) >= 1):
+             print('sample_ibfk_1 is the foreign key in table sample for type_of_cancer_id column in table type_of_cancer.', file=OUTPUT_FILE)
+             cursor.execute(
+                 """
+                      ALTER TABLE `sample` DROP FOREIGN KEY sample_ibfk_1;
+                 """)
+             print('sample_ibfk_1 foreign key has been deleted.', file=OUTPUT_FILE)
+         # if sample_ibfk_2 exists
+         cursor.execute(
+             """
+                 SELECT *
+                 FROM INFORMATION_SCHEMA.REFERENTIAL_CONSTRAINTS
+                     WHERE TABLE_SCHEMA = DATABASE()
+                     AND TABLE_NAME = 'sample'
+                     AND REFERENCED_TABLE_NAME = 'type_of_cancer'
+                     AND CONSTRAINT_NAME = 'sample_ibfk_2'
+             """)
+         rows = cursor.fetchall()
+         if (len(rows) >= 1):
+             print('sample_ibfk_1 is the foreign key in table sample for type_of_cancer_id column in table type_of_cancer.', file=OUTPUT_FILE)
+             cursor.execute(
+                 """
+                     ALTER TABLE `sample` DROP FOREIGN KEY sample_ibfk_2;
+                 """)
+                 print('sample_ibfk_2 foreign key has been deleted.', file=OUTPUT_FILE)                  
+     except MySQLdb.Error as msg:
+         print(msg, file=ERROR_FILE)
 
 def strip_trailing_comment_from_line(line):
     line_parts = re.split("--\s",line)
@@ -377,6 +420,8 @@ def main():
         if is_version_larger(MULTI_REFERENCE_GENOME_SUPPORT_MIGRATION_STEP, db_version):
             #retrieve reference genomes from database
             check_reference_genome(portal_properties, cursor, parser.force)
+        if not is_version_larger(SAMPLE_FK_MIGRATION_STEP, db_version):
+            check_and_remove_foreign_keys_sample_ibfk(cursor)
         run_migration(db_version, sql_filename, connection, cursor, parser.no_transaction)
         # TODO: remove this after we update mysql version
         # check invalid foreign key only when current db version larger or qeuals to GENERIC_ASSAY_MIGRATION_STEP

@@ -238,9 +238,8 @@ def check_and_remove_invalid_foreign_keys(cursor):
                 print('Invalid foreign key has been deleted.', file=OUTPUT_FILE)
     except MySQLdb.Error as msg:
         print(msg, file=ERROR_FILE)
-#since the foreign key can exist as sample_ibfk_1 or sample_ibfk_2
-#using the script to check for either name with reference to table and remove the one that exists
-def check_and_remove_foreign_keys_sample_ibfk(cursor):
+def check_and_remove_type_of_cancer_id_foreign_key(cursor):
+"""The TYPE_OF_CANCER_ID foreign key in the sample table can be either sample_ibfk_1 or sample_ibfk_2. Figure out which one it is and remove it"""
      try:
          # if sample_ibfk_1 exists
          cursor.execute(

@@ -241,45 +241,45 @@ def check_and_remove_invalid_foreign_keys(cursor):
 
 def check_and_remove_type_of_cancer_id_foreign_key(cursor):
     """The TYPE_OF_CANCER_ID foreign key in the sample table can be either sample_ibfk_1 or sample_ibfk_2. Figure out which one it is and remove it"""
-     try:
-         # if sample_ibfk_1 exists
-         cursor.execute(
-             """
-                 SELECT *
-                 FROM INFORMATION_SCHEMA.REFERENTIAL_CONSTRAINTS
-                     WHERE TABLE_SCHEMA = DATABASE()
-                     AND TABLE_NAME = 'sample'
-                     AND REFERENCED_TABLE_NAME = 'type_of_cancer'
-                     AND CONSTRAINT_NAME = 'sample_ibfk_1'
-             """)
-         rows = cursor.fetchall()
-         if (len(rows) >= 1):
-             print('sample_ibfk_1 is the foreign key in table sample for type_of_cancer_id column in table type_of_cancer.', file=OUTPUT_FILE)
-             cursor.execute(
-                 """
-                      ALTER TABLE `sample` DROP FOREIGN KEY sample_ibfk_1;
-                 """)
-             print('sample_ibfk_1 foreign key has been deleted.', file=OUTPUT_FILE)
-         # if sample_ibfk_2 exists
-         cursor.execute(
-             """
-                 SELECT *
-                 FROM INFORMATION_SCHEMA.REFERENTIAL_CONSTRAINTS
-                     WHERE TABLE_SCHEMA = DATABASE()
-                     AND TABLE_NAME = 'sample'
-                     AND REFERENCED_TABLE_NAME = 'type_of_cancer'
-                     AND CONSTRAINT_NAME = 'sample_ibfk_2'
-             """)
-         rows = cursor.fetchall()
-         if (len(rows) >= 1):
-             print('sample_ibfk_1 is the foreign key in table sample for type_of_cancer_id column in table type_of_cancer.', file=OUTPUT_FILE)
-             cursor.execute(
-                 """
-                     ALTER TABLE `sample` DROP FOREIGN KEY sample_ibfk_2;
-                 """)
-                 print('sample_ibfk_2 foreign key has been deleted.', file=OUTPUT_FILE)                  
-     except MySQLdb.Error as msg:
-         print(msg, file=ERROR_FILE)
+    try:
+        # if sample_ibfk_1 exists
+        cursor.execute(
+            """
+                SELECT *
+                FROM INFORMATION_SCHEMA.REFERENTIAL_CONSTRAINTS
+                    WHERE TABLE_SCHEMA = DATABASE()
+                    AND TABLE_NAME = 'sample'
+                    AND REFERENCED_TABLE_NAME = 'type_of_cancer'
+                    AND CONSTRAINT_NAME = 'sample_ibfk_1'
+            """)
+        rows = cursor.fetchall()
+        if (len(rows) >= 1):
+            print('sample_ibfk_1 is the foreign key in table sample for type_of_cancer_id column in table type_of_cancer.', file=OUTPUT_FILE)
+            cursor.execute(
+                """
+                    ALTER TABLE `sample` DROP FOREIGN KEY sample_ibfk_1;
+                """)
+            print('sample_ibfk_1 foreign key has been deleted.', file=OUTPUT_FILE)
+        # if sample_ibfk_2 exists
+        cursor.execute(
+            """
+                SELECT *
+                FROM INFORMATION_SCHEMA.REFERENTIAL_CONSTRAINTS
+                    WHERE TABLE_SCHEMA = DATABASE()
+                    AND TABLE_NAME = 'sample'
+                    AND REFERENCED_TABLE_NAME = 'type_of_cancer'
+                    AND CONSTRAINT_NAME = 'sample_ibfk_2'
+            """)
+        rows = cursor.fetchall()
+        if (len(rows) >= 1):
+            print('sample_ibfk_1 is the foreign key in table sample for type_of_cancer_id column in table type_of_cancer.', file=OUTPUT_FILE)
+            cursor.execute(
+                """
+                    ALTER TABLE `sample` DROP FOREIGN KEY sample_ibfk_2;
+                """)
+            print('sample_ibfk_2 foreign key has been deleted.', file=OUTPUT_FILE)                  
+    except MySQLdb.Error as msg:
+        print(msg, file=ERROR_FILE)
 
 def strip_trailing_comment_from_line(line):
     line_parts = re.split("--\s",line)

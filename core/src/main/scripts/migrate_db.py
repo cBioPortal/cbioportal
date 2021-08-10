@@ -272,7 +272,7 @@ def check_and_remove_type_of_cancer_id_foreign_key(cursor):
             """)
         rows = cursor.fetchall()
         if (len(rows) >= 1):
-            print('sample_ibfk_1 is the foreign key in table sample for type_of_cancer_id column in table type_of_cancer.', file=OUTPUT_FILE)
+            print('sample_ibfk_2 is the foreign key in table sample for type_of_cancer_id column in table type_of_cancer.', file=OUTPUT_FILE)
             cursor.execute(
                 """
                     ALTER TABLE `sample` DROP FOREIGN KEY sample_ibfk_2;

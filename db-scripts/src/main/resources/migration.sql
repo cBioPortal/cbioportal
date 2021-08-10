@@ -943,9 +943,9 @@ UPDATE `info` SET `DB_SCHEMA_VERSION`="2.12.8";
 -- WARNING: this will drop column TYPE_OF_CANCER_ID from table sample
 -- the foreign key constraint on TYPE_OF_CANCER_ID in the sample table is removed with the migrate_db.py script. This is because the name can be either sample_ibfk_1  or sample_ibfk_2
 -- WARNING: this will drop column CLINICAL_TRIAL_KEYWORDS from table type_of_cancer
-ALTER TABLE `cancer_study` DROP COLUMN `SHORT_NAME`;
 ALTER TABLE `sample` DROP COLUMN `TYPE_OF_CANCER_ID`;
 ALTER TABLE `type_of_cancer` DROP COLUMN `CLINICAL_TRIAL_KEYWORDS`;
+ALTER TABLE `cancer_study` DROP COLUMN `SHORT_NAME`;
 UPDATE `info` SET `DB_SCHEMA_VERSION`="2.12.9";
 
 ##version: 2.12.10

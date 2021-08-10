@@ -29,7 +29,7 @@ From the [GitHub Help Page of Using Pull Requests](https://help.github.com/artic
  * Make sure you have a [GitHub account](https://github.com/signup/free).
  * Create an issue in our issues tracker, assuming one does not already exist.
  * Fork the cbioportal project on GitHub.  For general instructions on forking a GitHub project, see [Forking a Repo](https://help.github.com/articles/fork-a-repo/) and [Syncing a fork](https://help.github.com/articles/syncing-a-fork/).
- * Familiarize yourself with the [project documentation](https://docs.cbioportal.org), including the [Architecture docs](https://docs.cbioportal.org/2.1-deployment/architecture-overview), the [backend code organization](docs/Backend-Code-Organization.md) and [backend development guidelines](docs/Backend-Development-Guidelines.md).
+ * Familiarize yourself with the [project documentation](https://docs.cbioportal.org), including the [Feature Development Guide](https://docs.cbioportal.org/4.-development/feature-development-guide), the [Architecture docs](https://docs.cbioportal.org/2.1-deployment/architecture-overview), the [backend code organization](docs/Backend-Code-Organization.md) and [backend development guidelines](docs/Backend-Development-Guidelines.md).
 
 ## Contributing Code Changes via a Pull Request
 

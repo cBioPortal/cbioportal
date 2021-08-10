@@ -247,7 +247,7 @@ def check_and_remove_type_of_cancer_id_foreign_key(cursor):
             """
                 SELECT *
                 FROM INFORMATION_SCHEMA.REFERENTIAL_CONSTRAINTS
-                    WHERE TABLE_SCHEMA = DATABASE()
+                    WHERE CONSTRAINT_SCHEMA = DATABASE()
                     AND TABLE_NAME = 'sample'
                     AND REFERENCED_TABLE_NAME = 'type_of_cancer'
                     AND CONSTRAINT_NAME = 'sample_ibfk_1'
@@ -265,7 +265,7 @@ def check_and_remove_type_of_cancer_id_foreign_key(cursor):
             """
                 SELECT *
                 FROM INFORMATION_SCHEMA.REFERENTIAL_CONSTRAINTS
-                    WHERE TABLE_SCHEMA = DATABASE()
+                    WHERE CONSTRAINT_SCHEMA = DATABASE()
                     AND TABLE_NAME = 'sample'
                     AND REFERENCED_TABLE_NAME = 'type_of_cancer'
                     AND CONSTRAINT_NAME = 'sample_ibfk_2'

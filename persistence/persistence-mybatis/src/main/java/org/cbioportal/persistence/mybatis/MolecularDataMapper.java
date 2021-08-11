@@ -21,6 +21,10 @@ public interface MolecularDataMapper {
     Cursor<GeneMolecularAlteration> getGeneMolecularAlterationsIter(String molecularProfileId, List<Integer> entrezGeneIds,
                                                                     String projection);
 
+    // Same as getGeneMolecularAlterationsIter above, except assumes that
+    // entrezGeneIds is null or empty AND projection is "SUMMARY"
+    Cursor<GeneMolecularAlteration> getGeneMolecularAlterationsIterFast(String molecularProfileId);
+
     List<GeneMolecularAlteration> getGeneMolecularAlterationsInMultipleMolecularProfiles(Set<String> molecularProfileIds, 
                                                                                          List<Integer> entrezGeneIds, String projection);
 

@@ -126,6 +126,9 @@ public class MolecularDataServiceImpl implements MolecularDataService {
         throws MolecularProfileNotFoundException {
 
         validateMolecularProfile(molecularProfileId);
+        if ((entrezGeneIds == null || entrezGeneIds.isEmpty()) && projection == "SUMMARY") {
+            return molecularDataRepository.getGeneMolecularAlterationsIterableFast(molecularProfileId);
+        }
         return molecularDataRepository.getGeneMolecularAlterationsIterable(molecularProfileId, entrezGeneIds, projection);
     }
 

@@ -18,12 +18,18 @@ public interface MolecularDataRepository {
     @Cacheable(cacheResolver = "generalRepositoryCacheResolver", condition = "@cacheEnabledConfig.getEnabled()")
     Map<String, MolecularProfileSamples> commaSeparatedSampleIdsOfMolecularProfilesMap(Set<String> molecularProfileIds);
 
-    @Cacheable(cacheResolver = "generalRepositoryCacheResolver", condition = "@cacheEnabledConfig.getEnabled()")
+    // Not caching when entrezGeneIds is null or empty because the large response size sometimes crashes the cache
+    @Cacheable(cacheResolver = "generalRepositoryCacheResolver",
+               condition = "@cacheEnabledConfig.getEnabled() && #entrezGeneIds != null && #entrezGeneIds.size() != 0")
     List<GeneMolecularAlteration> getGeneMolecularAlterations(String molecularProfileId, List<Integer> entrezGeneIds,
                                                               String projection);
 
     Iterable<GeneMolecularAlteration> getGeneMolecularAlterationsIterable(String molecularProfileId, List<Integer> entrezGeneIds,
                                                                           String projection);
+
+    // Same as getGeneMolecularAlterationsIterable above, except assumes that
+    // entrezGeneIds is null or empty AND projection is "SUMMARY"
+    Iterable<GeneMolecularAlteration> getGeneMolecularAlterationsIterableFast(String molecularProfileId);
 
     @Cacheable(cacheResolver = "generalRepositoryCacheResolver", condition = "@cacheEnabledConfig.getEnabled()")
     List<GeneMolecularAlteration> getGeneMolecularAlterationsInMultipleMolecularProfiles(Set<String> molecularProfileIds,

@@ -148,7 +148,7 @@ public class ExpressionEnrichmentServiceImplTest extends BaseServiceImplTest {
         geneMolecularAlteration2.setEntrezGeneId(ENTREZ_GENE_ID_3);
         geneMolecularAlteration2.setValues("1.1,5,2.3,3");
         molecularDataList.add(geneMolecularAlteration2);
-        Mockito.when(molecularDataRepository.getGeneMolecularAlterationsIterable(MOLECULAR_PROFILE_ID, null, "SUMMARY"))
+        Mockito.when(molecularDataRepository.getGeneMolecularAlterationsIterableFast(MOLECULAR_PROFILE_ID))
                 .thenReturn(molecularDataList);
 
         List<Gene> expectedGeneList = new ArrayList<>();

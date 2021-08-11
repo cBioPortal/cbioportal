@@ -51,6 +51,12 @@ public class MolecularDataMyBatisRepository implements MolecularDataRepository {
     }
 
     @Override
+    public Iterable<GeneMolecularAlteration> getGeneMolecularAlterationsIterableFast(String molecularProfileId) {
+
+        return molecularDataMapper.getGeneMolecularAlterationsIterFast(molecularProfileId);
+    }
+
+    @Override
     public List<GeneMolecularAlteration> getGeneMolecularAlterationsInMultipleMolecularProfiles(Set<String> molecularProfileIds, 
                                                                                                 List<Integer> entrezGeneIds, 
                                                                                                 String projection) {

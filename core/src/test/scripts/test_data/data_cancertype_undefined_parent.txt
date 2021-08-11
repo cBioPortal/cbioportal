@@ -1,2 +1,2 @@
-luad	Lung Adenocarcinoma	lung,pulmonary,adenocarcinoma of the lung	Gainsboro	Long
-new	new type	to test tissue special case	PaleGreen	tissue
+luad	Lung Adenocarcinoma	Gainsboro	Long
+new	new type	PaleGreen	tissue

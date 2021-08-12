@@ -59,6 +59,7 @@ public class CancerStudyStats {
 	private Integer methylation;
 	private Integer rppa;
 	private Integer complete;
+	private Integer massSpectrometry;
 
 	/**
 	 * Constructor.
@@ -66,7 +67,7 @@ public class CancerStudyStats {
 	 */
 	public CancerStudyStats(String stableID, String studyName, String reference, Integer all, Integer sequenced,
 							Integer cna, Integer rnaSEQ, Integer tumorMRNA, Integer normal,
-							Integer tumorMIRNA, Integer methylation, Integer rppa, Integer complete) {
+							Integer tumorMIRNA, Integer methylation, Integer rppa, Integer complete, Integer massSpectrometry) {
 
 		this.stableID = stableID;
 		this.studyName = studyName;
@@ -81,6 +82,7 @@ public class CancerStudyStats {
 		this.methylation = methylation;
 		this.rppa = rppa;
 		this.complete = complete;
+		this.massSpectrometry = massSpectrometry;
 	}
 
 	// accessors
@@ -97,4 +99,5 @@ public class CancerStudyStats {
 	public Integer getMethylation() { return this.methylation; }
 	public Integer getRPPA() { return this.rppa; }
 	public Integer getComplete() { return this.complete; }
+        public Integer getMassSpectrometry() { return this.massSpectrometry; }
 }

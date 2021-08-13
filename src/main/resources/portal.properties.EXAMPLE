@@ -359,3 +359,6 @@ persistence.cache_type=no-cache
 # cache.endpoint.enabled=true
 # API key for access to cache management endpoint
 # cache.endpoint.api-key=fd15f1ae-66f2-4b8a-8d54-fb899b03557e
+
+# Feature flag for treatment groups
+enable_treatment_groups=false

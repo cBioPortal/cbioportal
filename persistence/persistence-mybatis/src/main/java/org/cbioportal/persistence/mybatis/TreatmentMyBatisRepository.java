@@ -19,8 +19,8 @@ public class TreatmentMyBatisRepository implements TreatmentRepository {
     private TreatmentMapper treatmentMapper;
     
     @Override
-    public Map<String, List<Treatment>> getTreatmentsByPatientId(List<String> sampleIds, List<String> studyIds) {
-        return treatmentMapper.getAllTreatments(sampleIds, studyIds)
+    public Map<String, List<Treatment>> getTreatmentsByPatientId(List<String> sampleIds, List<String> studyIds, String key) {
+        return treatmentMapper.getAllTreatments(sampleIds, studyIds, key)
             .stream()
             .collect(groupingBy(Treatment::getPatientId));
     }
@@ -43,13 +43,13 @@ public class TreatmentMyBatisRepository implements TreatmentRepository {
     }
 
     @Override
-    public Set<String> getAllUniqueTreatments(List<String> sampleIds, List<String> studyIds) {
-        return treatmentMapper.getAllUniqueTreatments(sampleIds, studyIds);
+    public Set<String> getAllUniqueTreatments(List<String> sampleIds, List<String> studyIds, String key) {
+        return treatmentMapper.getAllUniqueTreatments(sampleIds, studyIds, key);
     }
 
     @Override
-    public Integer getTreatmentCount(List<String> studies) {
-        return treatmentMapper.getTreatmentCount(null, studies);
+    public Integer getTreatmentCount(List<String> studies, String key) {
+        return treatmentMapper.getTreatmentCount(null, studies, key);
     }
 
     @Override

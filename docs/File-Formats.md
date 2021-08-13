@@ -1103,6 +1103,7 @@ Suggested columns
  * **TREATMENT_TYPE**: This can be either Medical Therapy or Radiation Therapy.
  * **SUBTYPE**: Depending upon the TREATMENT_TYPE, this can either be Chemotherapy, Hormone Therapy, Targeted Therapy  etc. (for Medical Therapies) or WPRT, IVRT etc. (for Radiation Therapies).
  * **AGENT**: for medical therapies, the agent is defined with number of cycles if applicable and for radiation therapy, the agent is defined as standard dose given to the patient during the course.
+ * **AGENT_CLASS**: This allows you to classify your agents into useful groups.
  * Based on different cancer types you can add additional data here.
 
 Special: When using the AGENT and SUBTYPE columns, each agent and subtype will be split into its own track.

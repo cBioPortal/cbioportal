@@ -120,6 +120,7 @@
             "ensembl.transcript_url",
             "enable_persistent_cache",
             "enable_request_body_gzip_compression",
+            "enable_treatment_groups",
             "query_product_limit",
             "skin.show_gsva",
             "saml.logout.local",

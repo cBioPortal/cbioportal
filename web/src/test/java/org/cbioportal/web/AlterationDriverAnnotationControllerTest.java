@@ -60,11 +60,9 @@ public class AlterationDriverAnnotationControllerTest {
             anyList()))
             .thenReturn(report);
 
-        Map<String, Object> body = new HashMap<>();
-        body.put("molecularProfileIds", Arrays.asList("molecularProfileId1"));
+        List<String> body = new ArrayList<>(Collections.singletonList("molecularProfileId1"));
         mockMvc.perform(MockMvcRequestBuilders.post(
             "/custom-driver-annotation-report/fetch")
-            .param("molecularProfileIds", "molecularProfileId1")
             .accept(MediaType.APPLICATION_JSON)
             .contentType(MediaType.APPLICATION_JSON)
             .content(objectMapper.writeValueAsString(body)))

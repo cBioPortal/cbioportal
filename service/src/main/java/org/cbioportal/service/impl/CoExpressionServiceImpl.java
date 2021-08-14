@@ -14,7 +14,6 @@ import java.util.*;
 import java.util.Map.Entry;
 import java.util.function.Function;
 import java.util.stream.Collectors;
-import java.util.stream.StreamSupport;
 import java.util.concurrent.CompletableFuture;
 
 @Service
@@ -170,17 +169,19 @@ public class CoExpressionServiceImpl implements CoExpressionService {
         // If the MolecularAlteration is for the query gene/geneset, skip it.  Otherwise,
         // filter out genetic_alteration values from genetic_alteration.VALUES
         // by considering oly the indices of the samples in the user query.
-        return StreamSupport.stream(maItr.spliterator(), false)
-            .filter(ma -> !queryGeneticEntityId.equals(ma.getStableId()))
-            .map(ma -> {
-                String entityId = ma.getStableId();
-                List<String> internalValues = new ArrayList<>(Arrays.asList(ma.getSplitValues()));
-                List<String> values = includedIndexes.stream().map(index -> internalValues.get(index)).collect(Collectors.toList());
-                return asyncMethods.computeCoExpression(entityId, values, includedQueryValues, threshold);
-            })
-            .map(CompletableFuture::join)
-            .filter(Objects::nonNull)
-            .collect(Collectors.toList());
+        List<CompletableFuture<CoExpression>> returnFutures = new ArrayList<>();
+        for (MolecularAlteration ma : maItr) {
+            String entityId = ma.getStableId();
+            if (entityId.equals(queryGeneticEntityId)) {
+                continue;
+            }
+            List<String> internalValues = new ArrayList<>(Arrays.asList(ma.getSplitValues()));
+            List<String> values = includedIndexes.stream().map(index -> internalValues.get(index)).collect(Collectors.toList());
+
+            CompletableFuture<CoExpression> future = asyncMethods.computeCoExpression(entityId, values, includedQueryValues, threshold);
+            returnFutures.add(future);
+        }
+        return returnFutures.stream().map(CompletableFuture::join).filter(Objects::nonNull).collect(Collectors.toList());
     }
 
     @Override

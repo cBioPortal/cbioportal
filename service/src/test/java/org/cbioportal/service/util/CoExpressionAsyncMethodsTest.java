@@ -25,7 +25,7 @@ public class CoExpressionAsyncMethodsTest {
     private CoExpressionAsyncMethods asyncMethods;
 
     @Test
-    public void TEST_NAME_1() throws Exception {
+    public void computeGeneCoExpressions() throws Exception {
 
         List<CompletableFuture<CoExpression>> futures = new ArrayList<>();
         List<List<String>> allValuesA = createAllValuesA();
@@ -54,7 +54,7 @@ public class CoExpressionAsyncMethodsTest {
     }
 
     @Test
-    public void TEST_NAME_2() throws Exception {
+    public void computeGenesetCoExpressions() throws Exception {
 
         List<CompletableFuture<CoExpression>> futures = new ArrayList<>();
         List<List<String>> allValuesA = createAllValuesA();

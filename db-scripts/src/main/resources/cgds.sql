@@ -592,44 +592,6 @@ CREATE TABLE `mut_sig` (
 );
 
 -- --------------------------------------------------------
-CREATE TABLE `protein_array_info` (
-  `PROTEIN_ARRAY_ID` varchar(50) NOT NULL,
-  `TYPE` varchar(50) NOT NULL,
-  `GENE_SYMBOL` varchar(50) NOT NULL,
-  `TARGET_RESIDUE` varchar(20) default NULL,
-  PRIMARY KEY (`PROTEIN_ARRAY_ID`)
-);
-
--- --------------------------------------------------------
-CREATE TABLE `protein_array_target` (
-  `PROTEIN_ARRAY_ID` varchar(50) NOT NULL,
-  `ENTREZ_GENE_ID` int(11) NOT NULL,
-  PRIMARY KEY (`PROTEIN_ARRAY_ID`,`ENTREZ_GENE_ID`),
-  FOREIGN KEY (`ENTREZ_GENE_ID`) REFERENCES `gene` (`ENTREZ_GENE_ID`),
-  FOREIGN KEY (`PROTEIN_ARRAY_ID`) REFERENCES `protein_array_info` (`PROTEIN_ARRAY_ID`)
-);
-
--- --------------------------------------------------------
-CREATE TABLE `protein_array_data` (
-  `PROTEIN_ARRAY_ID` varchar(50) NOT NULL,
-  `CANCER_STUDY_ID` int(11) NOT NULL,
-  `SAMPLE_ID` int(11) NOT NULL,
-  `ABUNDANCE` double NOT NULL,
-  PRIMARY KEY (`PROTEIN_ARRAY_ID`,`CANCER_STUDY_ID`,`SAMPLE_ID`),
-  FOREIGN KEY (`PROTEIN_ARRAY_ID`) REFERENCES `protein_array_info` (`PROTEIN_ARRAY_ID`),
-  FOREIGN KEY (`CANCER_STUDY_ID`) REFERENCES `cancer_study` (`CANCER_STUDY_ID`) ON DELETE CASCADE,
-  FOREIGN KEY (`SAMPLE_ID`) REFERENCES `sample` (`INTERNAL_ID`) ON DELETE CASCADE
-);
-
--- --------------------------------------------------------
-CREATE TABLE `protein_array_cancer_study` (
-  `PROTEIN_ARRAY_ID` varchar(50) NOT NULL,
-  `CANCER_STUDY_ID` int(11) NOT NULL,
-  PRIMARY KEY (`PROTEIN_ARRAY_ID`,`CANCER_STUDY_ID`),
-  FOREIGN KEY (`CANCER_STUDY_ID`) REFERENCES `cancer_study` (`CANCER_STUDY_ID`) ON DELETE CASCADE
-);
-
--- --------------------------------------------------------
 CREATE TABLE `sanger_cancer_census` (
   `ENTREZ_GENE_ID` int(11) NOT NULL,
   `CANCER_SOMATIC_MUT` tinyint(1) NOT NULL,

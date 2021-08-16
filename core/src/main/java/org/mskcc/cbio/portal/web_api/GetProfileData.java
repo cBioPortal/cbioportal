@@ -246,19 +246,6 @@ public class GetProfileData {
                             internalSampleIds, gp1);
                     outputGeneRow(dataRow1, gene, buf);
                 }
-                
-                // get data of protein array
-                geneList = WebApiUtil.getGeneList(targetGeneList,
-                        gp2.getGeneticAlterationType(), buf, warningList);
-                
-/*                if (geneList.size() > 0) {
-                    Gene gene = geneList.get(0);
-                    buf.append(gp2.getStableId()).append(WebApiUtil.TAB).append(gp2.getGeneticAlterationType().name())
-                            .append (WebApiUtil.TAB);   
-                    List<String> dataRow = GeneticAlterationUtil.getBestCorrelatedProteinArrayDataRow(
-                            gp2.getCancerStudyId(),(CanonicalGene)gene, internalSampleIds, dataRow1);
-                    outputGeneRow(dataRow, gene, buf);
-                }*/
             } else {            
                 //  Iterate through all genetic profiles
                 for (GeneticProfile geneticProfile : profiles) {

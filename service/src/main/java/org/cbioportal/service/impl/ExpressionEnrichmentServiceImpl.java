@@ -64,7 +64,7 @@ public class ExpressionEnrichmentServiceImpl implements ExpressionEnrichmentServ
         validateMolecularProfile(molecularProfile, validGenomicMolecularAlterationTypes);
 
         Iterable<GeneMolecularAlteration> maItr = molecularDataRepository
-                .getGeneMolecularAlterationsIterable(molecularProfile.getStableId(), null, "SUMMARY");
+                .getGeneMolecularAlterationsIterableFast(molecularProfile.getStableId());
 
         List<GenomicEnrichment> expressionEnrichments = expressionEnrichmentUtil.getEnrichments(molecularProfile,
                 molecularProfileCaseSets, enrichmentType, maItr);

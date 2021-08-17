@@ -147,6 +147,9 @@ dat.jwt.secret_key=
 #dat.oauth2.redirectUri=<cbioportal-url>/.../api/data-access-token/oauth2
 #dat.oauth2.jwtRolesPath=resource_access::cbioportal::roles
 
+# multithreading configuration
+multithread.core_pool_size=16
+
 # study view settings
 # always show studies with this group
 always_show_study_group=
@@ -338,6 +341,9 @@ persistence.cache_type=no-cache
 
 # Enable gsva to query
 # skin.show_gsva=true
+# Set default thresholds for geneset hierarchy
+# skin.geneset_hierarchy.default_gsva_score=0.5
+# skin.geneset_hierarchy.default_p_value=0.05
 
 # Compress some particularly large request bodies. enable_request_body_gzip_compression enables the feature, and
 # request_gzip_body_size_bytes sets the maximum allowable uncompressed request body size in bytes. Requests larger than

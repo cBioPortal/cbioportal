@@ -19,7 +19,7 @@ WORKDIR /cbioportal
 ARG MAVEN_OPTS=-DskipTests
 RUN mvn ${MAVEN_OPTS} clean install
 
-FROM shipilev/openjdk-shenandoah:11
+FROM shipilev/openjdk:11
 
 ENV PORTAL_WEB_HOME=/cbioportal-webapp
 

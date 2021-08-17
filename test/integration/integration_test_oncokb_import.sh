@@ -6,7 +6,7 @@
 cd "$PORTAL_SOURCE_DIR"/core/src/main/scripts/importer
 python3 ./metaImport.py \
   --study_directory="$PORTAL_SOURCE_DIR"/core/src/test/scripts/test_data/study_oncokb_import \
-  --portal_info_dir="$PORTAL_SOURCE_DIR"/core/src/test/scripts/test_data/api_json_system_tests \
+  --url_server="https://www.cbioportal.org" \
   --import_oncokb \
   --skip_db_import &&
 cd "$PORTAL_SOURCE_DIR"/core/src/test/scripts/test_data/study_oncokb_import &&

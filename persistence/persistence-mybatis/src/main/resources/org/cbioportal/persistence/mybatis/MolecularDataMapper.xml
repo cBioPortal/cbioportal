@@ -91,6 +91,19 @@
         </where>
     </select>
 
+    <!-- This routine is an abbreviated copy of getGeneMolecularAlterationsIter above. The two should be kept in sync. -->
+    <select id="getGeneMolecularAlterationsIterFast" resultType="org.cbioportal.model.GeneMolecularAlteration">
+        SELECT
+        gene.ENTREZ_GENE_ID AS entrezGeneId,
+        genetic_alteration.VALUES AS "values"
+        FROM genetic_alteration
+        INNER JOIN genetic_profile ON genetic_alteration.GENETIC_PROFILE_ID = genetic_profile.GENETIC_PROFILE_ID
+        INNER JOIN gene ON genetic_alteration.GENETIC_ENTITY_ID = gene.GENETIC_ENTITY_ID
+        <where>
+            genetic_profile.STABLE_ID = #{molecularProfileId}
+        </where>
+    </select>
+
     <select id="getGeneMolecularAlterationsInMultipleMolecularProfiles" resultType="org.cbioportal.model.GeneMolecularAlteration">
         SELECT
         gene.ENTREZ_GENE_ID AS entrezGeneId,

@@ -938,18 +938,14 @@ CREATE INDEX idx_driver_tiers_filter ON alteration_driver_annotation (`DRIVER_TI
 UPDATE `info` SET `DB_SCHEMA_VERSION`="2.12.8";
 
 ##version: 2.12.9
--- 2.12.9 for changes for 3 issues 7820 6375 and 3088
+-- changes for 3 issues 7820 6375 and 3088
 -- WARNING: this will drop column SHORT_NAME from table CANCER_STUDY
-ALTER TABLE `cancer_study` DROP COLUMN `SHORT_NAME`;
--- 2.12.9 for all changes
-
 -- WARNING: this will drop column TYPE_OF_CANCER_ID from table sample
-ALTER TABLE `sample`
-DROP FOREIGN KEY `sample_ibfk_2` ;
-ALTER TABLE `sample` DROP COLUMN `TYPE_OF_CANCER_ID`;
-
+-- the foreign key constraint on TYPE_OF_CANCER_ID in the sample table is removed with the migrate_db.py script. This is because the name can be either sample_ibfk_1  or sample_ibfk_2
 -- WARNING: this will drop column CLINICAL_TRIAL_KEYWORDS from table type_of_cancer
+ALTER TABLE `sample` DROP COLUMN `TYPE_OF_CANCER_ID`;
 ALTER TABLE `type_of_cancer` DROP COLUMN `CLINICAL_TRIAL_KEYWORDS`;
+ALTER TABLE `cancer_study` DROP COLUMN `SHORT_NAME`;
 UPDATE `info` SET `DB_SCHEMA_VERSION`="2.12.9";
 
 ##version: 2.12.10

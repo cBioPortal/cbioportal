@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2015 Memorial Sloan-Kettering Cancer Center.
+ * Copyright (c) 2015 - 2021 Memorial Sloan-Kettering Cancer Center.
  *
  * This library is distributed in the hope that it will be useful, but WITHOUT
  * ANY WARRANTY, WITHOUT EVEN THE IMPLIED WARRANTY OF MERCHANTABILITY OR FITNESS
@@ -32,12 +32,15 @@
 
 package org.mskcc.cbio.portal.scripts;
 
-import org.mskcc.cbio.portal.dao.*;
-import org.mskcc.cbio.portal.util.*;
-import org.mskcc.cbio.portal.model.TypeOfCancer;
-
 import java.io.*;
 import java.util.*;
+import org.mskcc.cbio.portal.dao.DaoException;
+import org.mskcc.cbio.portal.dao.DaoTypeOfCancer;
+import org.mskcc.cbio.portal.model.TypeOfCancer;
+import org.mskcc.cbio.portal.scripts.ConsoleRunnable;
+import org.mskcc.cbio.portal.util.ConsoleUtil;
+import org.mskcc.cbio.portal.util.ProgressMonitor;
+import org.mskcc.cbio.portal.util.SpringUtil;
 
 /**
  * Load all the types of cancer and their names from a file.
@@ -45,61 +48,91 @@ import java.util.*;
  * @author Arthur Goldberg goldberg@cbio.mskcc.org
  */
 public class ImportTypesOfCancers extends ConsoleRunnable {
+
+    public static final int EXPECTED_DATAFILE_COLUMN_COUNT = 4;
+
+    /**
+     * Executed by perl script importTypesOfCancer.pl - parses command line arguments and calls load()
+     */
     public void run() {
+        if (args.length < 1) {
+            throw new UsageException( "importTypesOfCancer.pl", null, "<types_of_cancer.txt> <clobber>");
+        }
+        String filePath = args[0];
+        boolean clobber = true;
+        if (args.length > 1) {
+            String clobberArgString = args[1]; // positional argument
+            if (clobberArgString.equalsIgnoreCase("f") || clobberArgString.equalsIgnoreCase("false")) {
+                clobber = false;
+            }
+        }
         try {
-	    	if (args.length < 1) {
-	            // an extra --noprogress option can be given to avoid the messages regarding memory usage and % complete
-	            throw new UsageException(
-	                    "importTypesOfCancer.pl",
-	                    null,
-	                    "<types_of_cancer.txt> <clobber>");
-	        }
-	
-	        ProgressMonitor.setCurrentMessage("Loading cancer types...");
-	        File file = new File(args[0]);
-	        // default to clobber = true (existing behavior)
-	        boolean clobber = (args.length > 1 && (args[1].equalsIgnoreCase("f") || args[1].equalsIgnoreCase("false"))) ? false : true;	
-	        load(file, clobber);
-        } catch (RuntimeException e) {
-            throw e;
+            load(new File(filePath), clobber);
         } catch (IOException|DaoException e) {
             throw new RuntimeException(e);
         }
     }
 
     public static void load(File file, boolean clobber) throws IOException, DaoException {
-		SpringUtil.initDataSource();
-        if (clobber) DaoTypeOfCancer.deleteAllRecords(); //TODO - this option should not exist...in a relational DB it basically means the whole DB is cleaned-up...there should be more efficient ways to do this...and here it is probably an unwanted side effect. REMOVE??
-        TypeOfCancer aTypeOfCancer = new TypeOfCancer();
-        Scanner scanner = new Scanner(file);
-        int numNewCancerTypes = 0;
-        
-        while(scanner.hasNextLine()) {
-            String[] tokens = scanner.nextLine().split("\t", -1);
-            if (tokens.length != 4) {
-                throw new IOException(
-                    "Cancer type file '" + file.getPath() +
-                    "' is not a five-column tab-delimited file");
-            }
-            
-            String typeOfCancerId = tokens[0].trim();
-            //if not clobber, then existing cancer types should be skipped:
-            if (!clobber && DaoTypeOfCancer.getTypeOfCancerById(typeOfCancerId.toLowerCase()) != null ) {
-            	ProgressMonitor.logWarning("Cancer type with id '" + typeOfCancerId + "' already exists. Skipping.");
-            }
-            else {
-	            aTypeOfCancer.setTypeOfCancerId(typeOfCancerId.toLowerCase());
-	            aTypeOfCancer.setName(tokens[1].trim());
-	            aTypeOfCancer.setDedicatedColor(tokens[2].trim());
-	            aTypeOfCancer.setShortName(typeOfCancerId);
-	            aTypeOfCancer.setParentTypeOfCancerId(tokens[3].trim().toLowerCase());
-	            DaoTypeOfCancer.addTypeOfCancer(aTypeOfCancer);
-	            numNewCancerTypes++;
-            }
+        ProgressMonitor.setCurrentMessage("Loading cancer types...");
+        List<TypeOfCancer> typeOfCancerList = parseCancerTypesFromFile(file);
+        SpringUtil.initDataSource();
+        if (clobber) {
+            ProgressMonitor.setCurrentMessage("Deleting all previous cancer types...");
+            DaoTypeOfCancer.deleteAllRecords(); //TODO - remove this option - foreign key constraints may mean large cascade effects (possibly the deletion of all studies) - instead, change the option to 'deleteTypeOfCancerIfNotPresent' and add a loop through existing typeOfCancer records, removing those which are not in the parsed typeOfCancerList
         }
-        ProgressMonitor.setCurrentMessage(" --> Loaded " + numNewCancerTypes + " new cancer types.");
+        writeRecordsToDatabase(typeOfCancerList, clobber);
         ProgressMonitor.setCurrentMessage("Done.");
         ConsoleUtil.showMessages();
+    }
+
+    private static List<TypeOfCancer> parseCancerTypesFromFile(File file) throws IOException {
+        ProgressMonitor.setCurrentMessage(String.format("Reading cancer types from file '%s'...", file.getPath()));
+        List<TypeOfCancer> typeOfCancerList = new ArrayList<TypeOfCancer>();
+        Scanner scanner = new Scanner(file);
+        while (scanner.hasNextLine()) {
+            String nextLine = scanner.nextLine();
+            String[] fields = nextLine.split("\t", -1);
+            throwExceptionIfColumnCountIsWrong(file, nextLine, fields, EXPECTED_DATAFILE_COLUMN_COUNT);
+            TypeOfCancer typeOfCancer = new TypeOfCancer();
+            String typeOfCancerId = fields[0].trim();
+            typeOfCancer.setTypeOfCancerId(typeOfCancerId.toLowerCase());
+            typeOfCancer.setName(fields[1].trim());
+            typeOfCancer.setDedicatedColor(fields[2].trim());
+            typeOfCancer.setShortName(typeOfCancerId);
+            typeOfCancer.setParentTypeOfCancerId(fields[3].trim().toLowerCase());
+            typeOfCancerList.add(typeOfCancer);
+        }
+        return typeOfCancerList;
+    }
+
+    private static void throwExceptionIfColumnCountIsWrong(File file, String nextLine, String[] fields, int expectedDatafileColumnCount) throws IOException {
+        if (fields.length != expectedDatafileColumnCount) {
+            String msg = String.format("Cancer type file '%s' contains a line which is not %d-column tab-delimited." +
+                    " Expected fields can be seen here: https://docs.cbioportal.org/5.1-data-loading/data-loading/file-formats#cancer-type" +
+                    " The invalid line has %d columns:\n%s", file.getPath(), expectedDatafileColumnCount, fields.length, nextLine);
+            for (int i = 0; i < fields.length ; i++) {
+                msg = msg + String.format("  field#%d(len%d):'%s'\n", i, fields[i].length(), fields[i]);
+            }
+        throw new IOException(msg);
+        }
+    }
+
+    private static void writeRecordsToDatabase(List<TypeOfCancer> typeOfCancerList, boolean clobber) throws IOException, DaoException {
+        int numNewCancerTypes = 0;
+        for (TypeOfCancer typeOfCancer : typeOfCancerList) {
+            if (!clobber && typeOfCancerExistsInDatabase(typeOfCancer)) {
+                ProgressMonitor.logWarning(String.format("Cancer type with id '%s' already exists. Skipping.", typeOfCancer.getTypeOfCancerId()));
+            } else {
+                DaoTypeOfCancer.addTypeOfCancer(typeOfCancer);
+                numNewCancerTypes++;
+            }
+        }
+        ProgressMonitor.setCurrentMessage(String.format(" --> Loaded %d new cancer types.", numNewCancerTypes));
+    }
+
+    private static boolean typeOfCancerExistsInDatabase(TypeOfCancer typeOfCancer) throws DaoException {
+        return DaoTypeOfCancer.getTypeOfCancerById(typeOfCancer.getTypeOfCancerId()) != null;
     }
 
     /**

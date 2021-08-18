@@ -222,6 +222,7 @@ jobs:
             E2E_WORKSPACE: /tmp/repos/cbioportal-frontend/e2e-localdb-workspace
             CBIO_DB_DATA_DIR: /tmp/repos/cbioportal-frontend/e2e-localdb-workspace/cbio_db_data
             KC_DB_DATA_DIR: /tmp/repos/cbioportal-frontend/e2e-localdb-workspace/kc_db_data
+            DOCKER_IMAGE_SESSION_SERVICE: cbioportal/session-service:0.4.0
 
 
 workflows:

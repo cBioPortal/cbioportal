@@ -954,6 +954,7 @@ UPDATE `info` SET `DB_SCHEMA_VERSION`="2.12.9";
 ALTER TABLE `genetic_profile` ADD COLUMN `PATIENT_LEVEL` boolean DEFAULT 0;
 UPDATE `info` SET `DB_SCHEMA_VERSION`="2.12.10";
 
+##version: to be set when PR is merged to main
 DROP TABLE IF EXISTS `protein_array_info`;
 DROP TABLE IF EXISTS `protein_array_target`;
 DROP TABLE IF EXISTS `protein_array_data`;

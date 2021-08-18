@@ -345,6 +345,12 @@ persistence.cache_type=no-cache
 # skin.geneset_hierarchy.default_gsva_score=0.5
 # skin.geneset_hierarchy.default_p_value=0.05
 
+# Show unauthorized studies in the studies list
+# skin.show_unauthorized_studies=false
+
+# Show a global message when user hovers over the lock icon of an unauthorized study
+# skin.global_message_for_unauthorized_studies=The study is unauthorized. You need to request access.
+
 # Compress some particularly large request bodies. enable_request_body_gzip_compression enables the feature, and
 # request_gzip_body_size_bytes sets the maximum allowable uncompressed request body size in bytes. Requests larger than
 # this value will be rejected. If unset, the default value will be 50000000, or 50 Mb.

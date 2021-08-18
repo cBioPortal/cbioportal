@@ -224,6 +224,18 @@ Below you can find the complete list of all the available skin properties.
 			<td>0.5</td>
 		</tr>
 		<tr>
+			<td>skin.show_unauthorized_studies</td>
+			<td>show unauthorized studies in the studies list</td>
+			<td>false</td>
+			<td>true / false</td>
+		</tr>
+		<tr>
+			<td>skin.global_message_for_unauthorized_studies</td>
+			<td>show a global message when user hovers over the lock icon of an unauthorized study</td>
+			<td>The study is unauthorized. You need to request access.</td>
+			<td>text</td>
+		</tr>
+		<tr>
             <td>skin.query.max_tree_depth</td>
             <td>sets the maximum number of subcategories shown in the query component hierarchy before each study. E.g. when set to 0, the hierarchy is flat, meaning only the study elements show in the component, without any tissue or cancer type sorting.</td>
             <td>3</td>

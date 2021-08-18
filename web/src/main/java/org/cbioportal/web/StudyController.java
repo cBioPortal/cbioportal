@@ -54,7 +54,10 @@ public class StudyController {
 
     @Value("${app.name:unknown}")
     private String appName;
-    
+
+    @Value("${skin.show_unauthorized_studies:false}")
+    private String showUnauthorizedStudies;
+
     private boolean usingAuth() {
         return !authenticate.isEmpty()
             && !authenticate.equals("false")
@@ -119,9 +122,14 @@ public class StudyController {
                 .toString());
             return new ResponseEntity<>(responseHeaders, HttpStatus.OK);
         } else {
-            return new ResponseEntity<>(
-                studyService.getAllStudies(keyword, projection.name(), pageSize, pageNumber,
-                    sortBy == null ? null : sortBy.getOriginalValue(), direction.name()), HttpStatus.OK);
+            return (
+                showUnauthorizedStudies.equals("false") ?
+                    ( new ResponseEntity<>(
+                    studyService.getAllStudies(keyword, projection.name(), pageSize, pageNumber,
+                    sortBy == null ? null : sortBy.getOriginalValue(), direction.name()), HttpStatus.OK)) :
+                    ( new ResponseEntity<>(
+                    studyService.getAllStudiesWithAuthorizationInfo(keyword, projection.name(), pageSize, pageNumber,
+                    sortBy == null ? null : sortBy.getOriginalValue(), direction.name()), HttpStatus.OK)));
         }
     }
 

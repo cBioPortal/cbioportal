@@ -11,13 +11,13 @@ import org.cbioportal.service.exception.StudyNotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.access.prepost.PostFilter;
+import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
 
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.stream.Collectors;
-import java.util.ArrayList;
-import java.util.LinkedHashMap;
 
 @Service
 public class StudyServiceImpl implements StudyService {
@@ -29,18 +29,19 @@ public class StudyServiceImpl implements StudyService {
     @Value("${authenticate:false}")
     private String AUTHENTICATE;
 
-    @Override
-    @PostFilter("hasPermission(filterObject, 'read')")
-    public List<CancerStudy> getAllStudies(String keyword, String projection, Integer pageSize, Integer pageNumber,
-                                           String sortBy, String direction) {
-
-        List<CancerStudy> allStudies = studyRepository.getAllStudies(keyword, projection, pageSize, pageNumber, sortBy, direction);
+    private List<CancerStudy> getSortedListOfStudies(String keyword, Integer pageSize, List<CancerStudy> allStudies, List<String> authorities) {
         Map<String,CancerStudy> sortedAllStudiesByCancerStudyIdentifier = allStudies.stream().collect(Collectors.toMap(c -> c.getCancerStudyIdentifier(), c -> c, (e1, e2) -> e2, LinkedHashMap::new));
 
         if (keyword != null && (pageSize == null || allStudies.size() < pageSize)) {
             List<CancerStudy> primarySiteMatchingStudies = findPrimarySiteMatchingStudies(keyword);
             for (CancerStudy cancerStudy : primarySiteMatchingStudies) {
                 if (!sortedAllStudiesByCancerStudyIdentifier.containsKey(cancerStudy.getCancerStudyIdentifier())) {
+                    if (!authorities.isEmpty() && authorities.contains(cancerStudy.getCancerStudyIdentifier())) {
+                        cancerStudy.setIsAuthorized(true);
+                    }
+                    else {
+                        cancerStudy.setIsAuthorized(false);
+                    }
                     sortedAllStudiesByCancerStudyIdentifier.put(cancerStudy.getCancerStudyIdentifier(), cancerStudy);
                 }
                 if (pageSize != null && sortedAllStudiesByCancerStudyIdentifier.size() == pageSize) {
@@ -53,6 +54,31 @@ public class StudyServiceImpl implements StudyService {
         // second-level cache. When making changes to this make sure to copy the
         // allStudies list at least for the AUTHENTICATE.equals("true") case
         return sortedAllStudiesByCancerStudyIdentifier.values().stream().collect(Collectors.toList());
+    }
+
+    @Override
+    @PostFilter("hasPermission(filterObject, 'read')")
+    public List<CancerStudy> getAllStudies(String keyword, String projection, Integer pageSize, Integer pageNumber,
+                                           String sortBy, String direction) {
+        List<CancerStudy> allStudies = studyRepository.getAllStudies(keyword, projection, pageSize, pageNumber, sortBy, direction);
+        return getSortedListOfStudies(keyword, pageSize, allStudies, new ArrayList<String>());
+    }
+
+    public List<CancerStudy> getAllStudiesWithAuthorizationInfo(String keyword, String projection, Integer pageSize, Integer pageNumber,
+                                                       String sortBy, String direction) {
+        // Get the list of user authorities
+        List<String> authorities = ((UserDetails) SecurityContextHolder.getContext().getAuthentication().getPrincipal()).getAuthorities().stream().map(GrantedAuthority::getAuthority).collect(Collectors.toList());
+        // Get the studies list and set authority for each study
+        List<CancerStudy> allStudies = studyRepository.getAllStudies(keyword, projection, pageSize, pageNumber, sortBy, direction);
+        for (CancerStudy cancerStudy : allStudies) {
+            if (authorities.contains(cancerStudy.getCancerStudyIdentifier())) {
+                cancerStudy.setIsAuthorized(true);
+            }
+            else {
+                cancerStudy.setIsAuthorized(false);
+            }
+        }
+        return getSortedListOfStudies(keyword, pageSize, allStudies, authorities);
     }
 
     @Override

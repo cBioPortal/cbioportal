@@ -126,6 +126,8 @@
             "skin.citation_rule_text",
             "skin.geneset_hierarchy.default_p_value",
             "skin.geneset_hierarchy.default_gsva_score",
+            "skin.show_unauthorized_studies",
+            "skin.global_message_for_unauthorized_studies",
         };
 
 

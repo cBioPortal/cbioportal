@@ -13,6 +13,7 @@ public class CancerStudy implements Serializable {
     private String name;
     private String description;
     private Boolean publicStudy;
+    private Boolean isAuthorized;
     private String pmid;
     private String citation;
     private String groups;
@@ -219,4 +220,12 @@ public class CancerStudy implements Serializable {
     public String getReferenceGenome() { return  referenceGenome; }
     
     public void setReferenceGenome(String referenceGenome) { this.referenceGenome = referenceGenome; }
+
+    public Boolean getIsAuthorized() {
+        return isAuthorized;
+    }
+
+    public void setIsAuthorized(Boolean isAuthorized) {
+        this.isAuthorized = isAuthorized;
+    }
 }

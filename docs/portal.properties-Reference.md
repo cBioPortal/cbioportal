@@ -511,8 +511,18 @@ skin.show_gsva=true
 
 # Set default thresholds for geneset hierarchy
 ```
-skin.geneset_hierarchy.default_gsva_score=0.3
-skin.geneset_hierarchy.default_p_value=0.02
+skin.geneset_hierarchy.default_gsva_score=0.5
+skin.geneset_hierarchy.default_p_value=0.05
+```
+
+# Show the unauthorized studies in the studies list
+```
+skin.show_unauthorized_studies=false
+```
+
+# Show a global message when user hovers over the lock icon of an unauthorized study
+```
+skin.global_message_for_unauthorized_studies=The study is unauthorized. You need to request access.
 ```
 
 # Request Body Compression

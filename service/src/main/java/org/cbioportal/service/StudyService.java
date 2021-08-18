@@ -12,6 +12,9 @@ public interface StudyService {
     List<CancerStudy> getAllStudies(String keyword, String projection, Integer pageSize, Integer pageNumber, 
                                     String sortBy, String direction);
 
+    List<CancerStudy> getAllStudiesWithAuthorizationInfo(String keyword, String projection, Integer pageSize, Integer pageNumber,
+                                    String sortBy, String direction);
+
     BaseMeta getMetaStudies(String keyword);
 
     CancerStudy getStudy(String studyId) throws StudyNotFoundException;

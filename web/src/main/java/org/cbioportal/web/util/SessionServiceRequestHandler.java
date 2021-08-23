@@ -37,7 +37,7 @@ public class SessionServiceRequestHandler {
         return isSessionServiceEnabled() && sessionServicePassword != null && !sessionServicePassword.equals("");
     }
 
-    private Boolean isSessionServiceEnabled() {
+    public Boolean isSessionServiceEnabled() {
         return !StringUtils.isEmpty(sessionServiceURL);
     }
 

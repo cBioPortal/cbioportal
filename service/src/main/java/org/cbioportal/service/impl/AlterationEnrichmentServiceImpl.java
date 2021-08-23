@@ -52,7 +52,6 @@ public class AlterationEnrichmentServiceImpl implements AlterationEnrichmentServ
                                 Select.all(),
                                 true,
                                 true,
-                                QueryElement.PASS,
                                 alterationFilter);
                     } else {
                         return alterationCountService
@@ -61,7 +60,6 @@ public class AlterationEnrichmentServiceImpl implements AlterationEnrichmentServ
                                 Select.all(),
                                 true,
                                 true,
-                                QueryElement.PASS,
                                 alterationFilter);
                     }
                 }));

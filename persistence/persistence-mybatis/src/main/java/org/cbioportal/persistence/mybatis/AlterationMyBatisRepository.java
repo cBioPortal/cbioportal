@@ -29,12 +29,7 @@ public class AlterationMyBatisRepository implements AlterationRepository {
     @Override
     public List<AlterationCountByGene> getSampleAlterationCounts(Set<MolecularProfileCaseIdentifier> molecularProfileCaseIdentifiers,
                                                                  Select<Integer> entrezGeneIds,
-                                                                 QueryElement searchFusions,
                                                                  AlterationFilter alterationFilter) {
-
-        if (!alterationFilter.getMutationTypeSelect().hasAll() && searchFusions != QueryElement.PASS)
-            throw new IllegalArgumentException("Filtering for mutations vs. fusions and specifying mutation types" +
-                "simultaneously is not permitted.");
 
         if ((alterationFilter.getMutationTypeSelect().hasNone() && alterationFilter.getCNAEventTypeSelect().hasNone())
             || (molecularProfileCaseIdentifiers == null || molecularProfileCaseIdentifiers.isEmpty())
@@ -58,18 +53,6 @@ public class AlterationMyBatisRepository implements AlterationRepository {
             .stream()
             .collect(Collectors.groupingBy(e -> profileTypeByProfileId.getOrDefault(e.getMolecularProfileId(), null)));
 
-        // TODO: Remove once fusions are removed from mutation table
-        // if fusions were imported as a "mutations" profile then replace STRUCTURAL_VARIANT in
-        // groupedIdentifiersByProfileType map with MUTATION_EXTENDED
-        for (MolecularProfile profile : molecularProfileRepository.getMolecularProfiles(molecularProfileIds, "SUMMARY")) {
-            if (profile.getStableId().endsWith("mutations") && profile.getDatatype().equals("FUSION")) {
-                groupedIdentifiersByProfileType.put(MolecularAlterationType.MUTATION_EXTENDED,
-                        groupedIdentifiersByProfileType.get(MolecularAlterationType.STRUCTURAL_VARIANT));
-                groupedIdentifiersByProfileType.remove(MolecularAlterationType.STRUCTURAL_VARIANT);
-                break;
-            }
-        }
-
         return alterationCountsMapper.getSampleAlterationCounts(
             groupedIdentifiersByProfileType.get(MolecularAlterationType.MUTATION_EXTENDED),
             groupedIdentifiersByProfileType.get(MolecularAlterationType.COPY_NUMBER_ALTERATION),
@@ -77,7 +60,6 @@ public class AlterationMyBatisRepository implements AlterationRepository {
             entrezGeneIds,
             createMutationTypeList(alterationFilter),
             createCnaTypeList(alterationFilter),
-            searchFusions,
             alterationFilter.getIncludeDriver(),
             alterationFilter.getIncludeVUS(),
             alterationFilter.getIncludeUnknownOncogenicity(),
@@ -91,12 +73,7 @@ public class AlterationMyBatisRepository implements AlterationRepository {
     @Override
     public List<AlterationCountByGene> getPatientAlterationCounts(List<MolecularProfileCaseIdentifier> molecularProfileCaseIdentifiers,
                                                                   Select<Integer> entrezGeneIds,
-                                                                  QueryElement searchFusions,
                                                                   AlterationFilter alterationFilter) {
-
-        if (!alterationFilter.getMutationTypeSelect().hasAll() && searchFusions != QueryElement.PASS)
-            throw new IllegalArgumentException("Filtering for mutations vs. fusions and specifying mutation types" +
-                "simultaneously is not permitted.");
 
         if ((alterationFilter.getMutationTypeSelect().hasNone() && alterationFilter.getCNAEventTypeSelect().hasNone())
             || (molecularProfileCaseIdentifiers == null || molecularProfileCaseIdentifiers.isEmpty())
@@ -128,7 +105,6 @@ public class AlterationMyBatisRepository implements AlterationRepository {
             entrezGeneIds,
             createMutationTypeList(alterationFilter),
             createCnaTypeList(alterationFilter),
-            searchFusions,
             alterationFilter.getIncludeDriver(),
             alterationFilter.getIncludeVUS(),
             alterationFilter.getIncludeUnknownOncogenicity(),

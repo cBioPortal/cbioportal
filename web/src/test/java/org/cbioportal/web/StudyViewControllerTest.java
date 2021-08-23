@@ -307,7 +307,7 @@ public class StudyViewControllerTest {
     }
 
     @Test
-    public void fetchFusionGenes() throws Exception {
+    public void fetchStructuralVariantGenes() throws Exception {
 
         List<SampleIdentifier> filteredSampleIdentifiers = new ArrayList<>();
         SampleIdentifier sampleIdentifier = new SampleIdentifier();
@@ -316,25 +316,25 @@ public class StudyViewControllerTest {
         filteredSampleIdentifiers.add(sampleIdentifier);
         Mockito.when(studyViewFilterApplier.apply(any())).thenReturn(filteredSampleIdentifiers);
 
-        List<AlterationCountByGene> fusionCounts = new ArrayList<>();
-        AlterationCountByGene fusionCount1 = new AlterationCountByGene();
-        fusionCount1.setEntrezGeneId(TEST_ENTREZ_GENE_ID_1);
-        fusionCount1.setHugoGeneSymbol(TEST_HUGO_GENE_SYMBOL_1);
-        fusionCount1.setNumberOfAlteredCases(1);
-        fusionCount1.setTotalCount(1);
-        fusionCounts.add(fusionCount1);
-        AlterationCountByGene fusionCount2 = new AlterationCountByGene();
-        fusionCount2.setEntrezGeneId(TEST_ENTREZ_GENE_ID_2);
-        fusionCount2.setHugoGeneSymbol(TEST_HUGO_GENE_SYMBOL_2);
-        fusionCount2.setNumberOfAlteredCases(2);
-        fusionCount2.setTotalCount(2);
-        fusionCounts.add(fusionCount2);
+        List<AlterationCountByGene> structuralVariantCounts = new ArrayList<>();
+        AlterationCountByGene structuralVariantCount1 = new AlterationCountByGene();
+        structuralVariantCount1.setEntrezGeneId(TEST_ENTREZ_GENE_ID_1);
+        structuralVariantCount1.setHugoGeneSymbol(TEST_HUGO_GENE_SYMBOL_1);
+        structuralVariantCount1.setNumberOfAlteredCases(1);
+        structuralVariantCount1.setTotalCount(1);
+        structuralVariantCounts.add(structuralVariantCount1);
+        AlterationCountByGene structuralVariantCount2 = new AlterationCountByGene();
+        structuralVariantCount2.setEntrezGeneId(TEST_ENTREZ_GENE_ID_2);
+        structuralVariantCount2.setHugoGeneSymbol(TEST_HUGO_GENE_SYMBOL_2);
+        structuralVariantCount2.setNumberOfAlteredCases(2);
+        structuralVariantCount2.setTotalCount(2);
+        structuralVariantCounts.add(structuralVariantCount2);
 
         Mockito.when(studyViewService.getStructuralVariantAlterationCountByGenes(
             eq(Arrays.asList(TEST_STUDY_ID)),
             eq(Arrays.asList(TEST_SAMPLE_ID_1)),
             any(AlterationFilter.class)))
-            .thenReturn(fusionCounts);
+            .thenReturn(structuralVariantCounts);
 
         StudyViewFilter studyViewFilter = new StudyViewFilter();
         studyViewFilter.setStudyIds(Arrays.asList(TEST_STUDY_ID));

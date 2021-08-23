@@ -46,7 +46,6 @@ public enum MutationEventType {
     inframe("inframe"),
     truncating("truncating"),
     feature_truncation("feature_truncation"),
-    fusion("fusion"),
     silent("silent"),
     synonymous_variant("synonymous_variant"),
     any("any"),

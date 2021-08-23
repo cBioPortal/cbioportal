@@ -54,22 +54,4 @@ public interface MutationRepository {
     @Cacheable(cacheResolver = "generalRepositoryCacheResolver", condition = "@cacheEnabledConfig.getEnabled()")
     MutationCountByPosition getMutationCountByPosition(Integer entrezGeneId, Integer proteinPosStart,
                                                        Integer proteinPosEnd);
-
-    // TODO: cleanup once fusion/structural data is fixed in database
-    @Cacheable(cacheResolver = "generalRepositoryCacheResolver", condition = "@cacheEnabledConfig.getEnabled()")
-    List<Mutation> getFusionsInMultipleMolecularProfiles(List<String> molecularProfileIds, List<String> sampleIds,
-                                                         List<Integer> entrezGeneIds, String projection, Integer pageSize, Integer pageNumber, String sortBy,
-                                                         String direction);
-
-    @Cacheable(cacheNames = "GeneralRepositoryCache", condition = "@cacheEnabledConfig.getEnabled()")
-    List<Mutation> getFusionsInMultipleMolecularProfilesByGeneQueries(List<String> molecularProfileIds,
-                                                                      List<String> sampleIds,
-                                                                      List<GeneFilterQuery> geneQueries,
-                                                                      String projection,
-                                                                      Integer pageSize,
-                                                                      Integer pageNumber,
-                                                                      String sortBy,
-                                                                      String direction);
-
-    // TODO: cleanup once fusion/structural data is fixed in database
 }

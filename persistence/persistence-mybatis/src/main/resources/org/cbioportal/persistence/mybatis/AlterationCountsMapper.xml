@@ -267,17 +267,6 @@
         </choose>
     </sql>
 
-    <sql id="whereSearchFusions">
-        <if test="searchFusions.name() == 'ACTIVE'">
-            AND
-            LOWER(mutation_event.MUTATION_TYPE) = 'fusion'
-        </if>
-        <if test="searchFusions.name() == 'INACTIVE'">
-            AND
-            LOWER(mutation_event.MUTATION_TYPE) != 'fusion'
-        </if>
-    </sql>
-
     <sql id="whereGene">
         <choose>
             <when test="entrezGeneIds == null or entrezGeneIds.hasNone()">
@@ -335,15 +324,6 @@
                     <foreach item="type" collection="mutationTypes" open="(" separator="," close=")">
                         LOWER(#{type})
                     </foreach>
-                </when>
-                <!-- BEWARE: at the moment fusions are in the mutations table with MUTATION_TYPE 
-                    'Fusion' this results in undesired interaction of fusion vs mutation queries 
-                    and the ability to pass a list of mutation types (that can include fusion 
-                    events). Now, fusions can be only filtered out when there is no limit on 
-                    the mutation types ('mutationTypes.hasAll()'). This code should be changed 
-                    when fusions move to the strucural variants table. -->
-                <when test="mutationTypes.hasAll()">
-                    <include refid="whereSearchFusions" />
                 </when>
             </choose>
             <include refid="whereCustomAnnotations"/>

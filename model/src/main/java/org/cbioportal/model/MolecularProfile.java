@@ -80,13 +80,7 @@ public class MolecularProfile implements Serializable {
     }
 
     public MolecularAlterationType getMolecularAlterationType() {
-        // Alteration type is always set to STRUCTURAL_VARIANT when importing fusion profile
-        // https://github.com/cBioPortal/cbioportal/blob/8704058562c386afeac3082e50f39c1097d47983/core/src/main/java/org/mskcc/cbio/portal/util/GeneticProfileReader.java#L93
-        // But somehow there was no migration for existing data. To resolve it replace FUSION alteration type by STRUCTURAL_VARIANT.
-        // TODO: remove this logic once all the fusions are migrated to structural variants
-        return molecularAlterationType.equals(MolecularAlterationType.FUSION)
-                ? MolecularAlterationType.STRUCTURAL_VARIANT
-                : molecularAlterationType;
+        return molecularAlterationType;
     }
 
     public void setMolecularAlterationType(MolecularAlterationType molecularAlterationType) {
@@ -118,10 +112,7 @@ public class MolecularProfile implements Serializable {
     }
 
     public Boolean getShowProfileInAnalysisTab() {
-        // TODO: remove this logic once the data is fixed (when all the fusions are migrated to structural variants)
-        return showProfileInAnalysisTab
-                || (getMolecularAlterationType().equals(MolecularAlterationType.STRUCTURAL_VARIANT)
-                        && datatype.equals("FUSION"));
+        return showProfileInAnalysisTab;
     }
 
     public void setShowProfileInAnalysisTab(Boolean showProfileInAnalysisTab) {

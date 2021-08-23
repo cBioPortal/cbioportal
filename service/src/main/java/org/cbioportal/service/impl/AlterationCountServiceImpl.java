@@ -37,11 +37,10 @@ public class AlterationCountServiceImpl implements AlterationCountService {
                                                                              Select<Integer> entrezGeneIds,
                                                                              boolean includeFrequency,
                                                                              boolean includeMissingAlterationsFromGenePanel,
-                                                                             QueryElement searchFusions,
                                                                              AlterationFilter alterationFilter) {
 
         Function<List<MolecularProfileCaseIdentifier>, List<AlterationCountByGene>> dataFetcher = profileCaseIdentifiers ->
-            alterationRepository.getSampleAlterationCounts(new TreeSet<>(profileCaseIdentifiers), entrezGeneIds, searchFusions, alterationFilter);
+            alterationRepository.getSampleAlterationCounts(new TreeSet<>(profileCaseIdentifiers), entrezGeneIds, alterationFilter);
 
         BiFunction<List<MolecularProfileCaseIdentifier>, List<AlterationCountByGene>, Long> includeFrequencyFunction =
             (a, b) -> alterationEnrichmentUtil.includeFrequencyForSamples(a, b, includeMissingAlterationsFromGenePanel);
@@ -61,11 +60,10 @@ public class AlterationCountServiceImpl implements AlterationCountService {
                                                                               Select<Integer> entrezGeneIds,
                                                                               boolean includeFrequency,
                                                                               boolean includeMissingAlterationsFromGenePanel,
-                                                                              QueryElement searchFusions,
                                                                               AlterationFilter alterationFilter) {
 
         Function<List<MolecularProfileCaseIdentifier>, List<AlterationCountByGene>> dataFetcher = profileCaseIdentifiers ->
-            alterationRepository.getPatientAlterationCounts(profileCaseIdentifiers, entrezGeneIds, searchFusions, alterationFilter);
+            alterationRepository.getPatientAlterationCounts(profileCaseIdentifiers, entrezGeneIds, alterationFilter);
 
         BiFunction<List<MolecularProfileCaseIdentifier>, List<AlterationCountByGene>, Long> includeFrequencyFunction =
             (a, b) -> alterationEnrichmentUtil.includeFrequencyForPatients(a, b, includeMissingAlterationsFromGenePanel);
@@ -90,7 +88,6 @@ public class AlterationCountServiceImpl implements AlterationCountService {
             entrezGeneIds,
             includeFrequency,
             includeMissingAlterationsFromGenePanel,
-            QueryElement.INACTIVE,
             alterationFilter
         );
     }
@@ -105,7 +102,6 @@ public class AlterationCountServiceImpl implements AlterationCountService {
             entrezGeneIds,
             includeFrequency,
             includeMissingAlterationsFromGenePanel,
-            QueryElement.INACTIVE,
             alterationFilter);
     }
 
@@ -119,7 +115,6 @@ public class AlterationCountServiceImpl implements AlterationCountService {
             entrezGeneIds,
             includeFrequency,
             includeMissingAlterationsFromGenePanel,
-            QueryElement.ACTIVE,
             alterationFilter
         );
     }
@@ -134,7 +129,6 @@ public class AlterationCountServiceImpl implements AlterationCountService {
             entrezGeneIds,
             includeFrequency,
             includeMissingAlterationsFromGenePanel,
-            QueryElement.ACTIVE,
             alterationFilter
         );
     }
@@ -226,12 +220,7 @@ public class AlterationCountServiceImpl implements AlterationCountService {
         if (molecularProfileCaseIdentifiers.isEmpty()) {
             alterationCountByGenes = Collections.emptyList();
         } else {
-            Set<MolecularProfileCaseIdentifier> updatedProfileCaseIdentifiers = molecularProfileCaseIdentifiers
-                .stream()
-                .peek(molecularProfileCaseIdentifier -> molecularProfileCaseIdentifier.setMolecularProfileId(molecularProfileUtil.replaceFusionProfileWithMutationProfile(molecularProfileCaseIdentifier.getMolecularProfileId())))
-                .collect(Collectors.toSet());
-
-            Set<String> molecularProfileIds = updatedProfileCaseIdentifiers
+            Set<String> molecularProfileIds = molecularProfileCaseIdentifiers
                 .stream()
                 .map(MolecularProfileCaseIdentifier::getMolecularProfileId)
                 .collect(Collectors.toSet());
@@ -242,7 +231,7 @@ public class AlterationCountServiceImpl implements AlterationCountService {
 
             Map<String, S> totalResult = new HashMap<>();
 
-            updatedProfileCaseIdentifiers
+            molecularProfileCaseIdentifiers
                 .stream()
                 .collect(Collectors
                     .groupingBy(identifier -> molecularProfileIdStudyIdMap.get(identifier.getMolecularProfileId())))

@@ -40,8 +40,6 @@ public class DiscreteCopyNumberMyBatisRepositoryTest {
     //        7	    672	BRCA1	6	MUTATION    Nonsense_Mutation	Putative_Driver	    Tier 2  TCGA-A1-A0SI    germline
     //        12	672	BRCA1	6	MUTATION    Splice_Site	        Putative_Passenger	Tier 1  TCGA-A1-A0SO    germline
     //        13	672	BRCA1	6	MUTATION    Splice_Site	        Putative_Driver	    Tier 1  TCGA-A1-A0SP    germline
-    //        7 	2064	ERBB2	6	FUSION              	        <null>	            <null>  TCGA-A1-A0SI    NA
-
 
     @Autowired
     private DiscreteCopyNumberMyBatisRepository discreteCopyNumberMyBatisRepository;

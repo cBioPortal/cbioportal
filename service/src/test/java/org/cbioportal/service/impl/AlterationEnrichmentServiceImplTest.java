@@ -73,7 +73,7 @@ public class AlterationEnrichmentServiceImplTest extends BaseServiceImplTest {
         for (String molecularProfileId : groupMolecularProfileCaseSets.keySet()) {
             Mockito.when(alterationCountService.getSampleAlterationCounts(
                 groupMolecularProfileCaseSets.get(molecularProfileId),
-                Select.all(), true, true, QueryElement.PASS, alterationFilter)
+                Select.all(), true, true, alterationFilter)
             ).thenReturn(alterationSampleCountByGeneList);
         }
 

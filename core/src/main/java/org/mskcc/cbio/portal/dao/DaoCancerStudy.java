@@ -34,7 +34,6 @@ package org.mskcc.cbio.portal.dao;
 
 import java.sql.*;
 import java.text.*;
-import java.time.LocalDate;
 import java.util.*;
 import org.apache.commons.lang3.StringUtils;
 import org.mskcc.cbio.portal.model.*;
@@ -298,7 +297,7 @@ public final class DaoCancerStudy {
             pstmt = con.prepareStatement("INSERT INTO cancer_study " +
                     "( `CANCER_STUDY_IDENTIFIER`, `NAME`, "
                     + "`DESCRIPTION`, `PUBLIC`, `TYPE_OF_CANCER_ID`, "
-                    + "`PMID`, `CITATION`, `GROUPS`, `STATUS`, `IMPORT_DATE`,`REFERENCE_GENOME_ID` ) VALUES (?,?,?,?,?,?,?,?,?,?,?)",
+                    + "`PMID`, `CITATION`, `GROUPS`, `STATUS`,`REFERENCE_GENOME_ID`, `IMPORT_DATE` ) VALUES (?,?,?,?,?,?,?,?,?,?,NOW())",
                     Statement.RETURN_GENERATED_KEYS);
             pstmt.setString(1, stableId);
             pstmt.setString(2, cancerStudy.getName());
@@ -317,10 +316,9 @@ public final class DaoCancerStudy {
             //data loading process can set this to AVAILABLE:
             //TODO - use this field in parts of the system that build up the list of studies to display in home page:
             pstmt.setInt(9, Status.UNAVAILABLE.ordinal());
-            pstmt.setDate(10, java.sql.Date.valueOf(LocalDate.now()));
             try {
                 ReferenceGenome referenceGenome = DaoReferenceGenome.getReferenceGenomeByGenomeName(cancerStudy.getReferenceGenome());
-                pstmt.setInt(11, referenceGenome.getReferenceGenomeId());
+                pstmt.setInt(10, referenceGenome.getReferenceGenomeId());
             }
             catch (NullPointerException e) {
                 throw new DaoException("Unsupported reference genome");

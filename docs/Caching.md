@@ -16,12 +16,12 @@ Within the `CustomRedisCachingProvider`, create your new cache using the `CacheM
 manager.createCache(appName + "ClinicalDataCache", config);
 ```
 
-You also need to create a new cache resolver in [applicationContext-rediscache.xml](../persistence/persistence-api/src/main/resources/applicationContext-rediscache.xml):
+You also need to create a new cache resolver in [RedisConfig.java](../persistence/persistence-api/src/main/java/org/cbioportal/persistence/config/RedisConfig.java):
 ```
-<bean id="clinicalDataCacheResolver" class="org.springframework.cache.interceptor.NamedCacheResolver">
-    <constructor-arg index="0" ref="redisCacheManager"/>
-    <constructor-arg index="1" value="${app.name:cbioportal}ClinicalDataCache"/>
-</bean>
+@Bean
+public CacheResolver generalRepositoryCacheResolver() {
+    return new NamedCacheResolver(cacheManager(), ${redis.name:cbioportal} + "GeneralRepositoryCache");
+}
 ```
 
 The `@Cacheable` annotation must also be added (or adjusted) to function declarations to indicate which functions are to be cached. Those might look like this example:
@@ -53,12 +53,12 @@ Finally, add the new `CacheConfiguration` to the map of managed caches with a na
 caches.put("ClinicalDataCache", ClinicalDataCacheConfiguration);
 ```
 
-You also need to create a new cache resolver in [applicationContext-ehcache.xml](../persistence/persistence-api/src/main/resources/applicationContext-ehcache.xml):
+You also need to create a new cache resolver in [EhCacheConfig.java](../persistence/persistence-api/src/main/java/org/cbioportal/persistence/config/EhCacheConfig.java):
 ```
-<bean id="clinicalDataCacheResolver" class="org.springframework.cache.interceptor.NamedCacheResolver">
-    <constructor-arg index="0" ref="ehcacheCacheManager"/>
-    <constructor-arg index="1" value="ClinicalDataCache"/>
-</bean>
+@Bean
+public NamedCacheResolver generalRepositoryCacheResolver() {
+    return new NamedCacheResolver(cacheManager(), "GeneralRepositoryCache");
+}
 ```
 
 The `@Cacheable` annotation must also be added (or adjusted) to function declarations to indicate which functions are to be cached. Those might look like this example:

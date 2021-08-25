@@ -290,7 +290,7 @@
   </profiles>
 
   <properties>
-    <frontend.version>8170f583b966a47d1205cb237801acd992697816</frontend.version>
+    <frontend.version>7e8d755d2538e124147ad983f4caa38ef0992f6b</frontend.version>
     <frontend.groupId>com.github.cbioportal</frontend.groupId>
     <spring.version>5.2.6.RELEASE</spring.version>
     <spring.integration.version>5.3.0.RELEASE</spring.integration.version>
@@ -338,6 +338,7 @@
     <module>scripts</module>
     <module>db-scripts</module>
     <module>security</module>
+    <module>utils</module>
   </modules>
 
   <dependencyManagement>
@@ -413,6 +414,11 @@
         <groupId>org.mongodb</groupId>
         <artifactId>mongo-java-driver</artifactId>
         <version>3.12.10</version>
+      </dependency>
+      <dependency>
+        <groupId>org.mskcc.cbio</groupId>
+        <artifactId>utils</artifactId>
+        <version>${project.version}</version>
       </dependency>
       <dependency>
         <groupId>com.github.cbioportal</groupId>

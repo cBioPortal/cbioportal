@@ -4,6 +4,7 @@ import org.cbioportal.persistence.util.CustomKeyGenerator;
 import org.cbioportal.persistence.util.CustomRedisCache;
 import org.cbioportal.service.CacheStatisticsService;
 import org.cbioportal.service.exception.CacheNotFoundException;
+import org.cbioportal.utils.config.annotation.ConditionalOnProperty;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.cache.Cache;
@@ -19,7 +20,7 @@ import java.util.function.Function;
 import java.util.stream.Collectors;
 
 @Service
-@Profile({"redis"})
+@ConditionalOnProperty(name = "persistence.cache_type", havingValue = {"redis"})
 public class RedisCacheStatisticsServiceImpl implements CacheStatisticsService {
 
     @Autowired

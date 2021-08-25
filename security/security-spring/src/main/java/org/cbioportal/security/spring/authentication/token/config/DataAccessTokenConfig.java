@@ -7,6 +7,7 @@ import org.cbioportal.security.spring.authentication.token.oauth2.OAuth2TokenAut
 import org.cbioportal.service.impl.JwtDataAccessTokenServiceImpl;
 import org.cbioportal.service.impl.UnauthDataAccessTokenServiceImpl;
 import org.cbioportal.service.impl.UuidDataAccessTokenServiceImpl;
+import org.cbioportal.utils.config.annotation.ConditionalOnProperty;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.PropertySource;
@@ -21,19 +22,19 @@ public class DataAccessTokenConfig {
 
     // provider
     @Bean("tokenAuthenticationProvider")
-    @ConditionalOnDatMethod(value = "oauth2")
+    @ConditionalOnProperty(name = "dat.method", havingValue = "oauth2")
     public OAuth2TokenAuthenticationProvider oauth2TokenAuthenticationProvider() {
         return new OAuth2TokenAuthenticationProvider();
     }
 
     @Bean("tokenAuthenticationProvider")
-    @ConditionalOnDatMethod(value = "oauth2", isNot = true)
+    @ConditionalOnProperty(name = "dat.method", havingValue = "oauth2", isNot = true)
     public TokenUserDetailsAuthenticationProvider userDetailsTokenAuthenticationProvider() {
         return new TokenUserDetailsAuthenticationProvider(tokenUserDetailsService());
     }
 
     @Bean
-    @ConditionalOnDatMethod(value = "oauth2", isNot = true)
+    @ConditionalOnProperty(name = "dat.method", havingValue = "oauth2", isNot = true)
     public PortalUserDetailsService tokenUserDetailsService() {
         return new PortalUserDetailsService();
     }
@@ -41,25 +42,25 @@ public class DataAccessTokenConfig {
 
     // service
     @Bean("dataAccessTokenService")
-    @ConditionalOnDatMethod(value = "oauth2")
+    @ConditionalOnProperty(name = "dat.method", havingValue = "oauth2")
     public OAuth2DataAccessTokenServiceImpl oauth2DataAccessTokenService() {
         return new OAuth2DataAccessTokenServiceImpl();
     }
 
     @Bean("dataAccessTokenService")
-    @ConditionalOnDatMethod(value = "none")
+    @ConditionalOnProperty(name = "dat.method", havingValue = "none")
     public UnauthDataAccessTokenServiceImpl unauthDataAccessTokenService() {
         return new UnauthDataAccessTokenServiceImpl();
     }
 
     @Bean("dataAccessTokenService")
-    @ConditionalOnDatMethod(value = "uuid")
+    @ConditionalOnProperty(name = "dat.method", havingValue = "uuid")
     public UuidDataAccessTokenServiceImpl uuidDataAccessTokenService() {
         return new UuidDataAccessTokenServiceImpl();
     }
 
     @Bean("dataAccessTokenService")
-    @ConditionalOnDatMethod(value = "jwt")
+    @ConditionalOnProperty(name = "dat.method", havingValue = "jwt")
     public JwtDataAccessTokenServiceImpl jwtDataAccessTokenService() {
         return new JwtDataAccessTokenServiceImpl();
     }

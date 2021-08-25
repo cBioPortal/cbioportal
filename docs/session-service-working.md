@@ -8,7 +8,7 @@
 ###  2. cBioPortal Backend
 1. Update session-service dependency version in [pom.xml](https://github.com/cBioPortal/cbioportal/blob/master/pom.xml).
 2. Add/Update api's in [SessionServiceController.java](https://github.com/cBioPortal/cbioportal/blob/master/web/src/main/java/org/cbioportal/web/SessionServiceController.java)  to support new session type.
-3. Sometime we might need to defined model for session. Check how session class is extended in VirtualStudy and how it is consumed in [SessionServiceController.java](https://github.com/cBioPortal/cbioportal/blob/master/web/src/main/java/org/cbioportal/web/SessionServiceController.java).
+3. Sometime we might need to defined model for session. Check how session class is extended in [VirtualStudy](https://github.com/cBioPortal/cbioportal/blob/master/web/src/main/java/org/cbioportal/web/parameter/VirtualStudy.java) and how it is consumed in [SessionServiceController.java](https://github.com/cBioPortal/cbioportal/blob/master/web/src/main/java/org/cbioportal/web/SessionServiceController.java).
 
 ###  3. cBioPortal Frontend
 

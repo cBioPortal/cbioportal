@@ -338,6 +338,7 @@
     <module>scripts</module>
     <module>db-scripts</module>
     <module>security</module>
+    <module>utils</module>
   </modules>
 
   <dependencyManagement>
@@ -407,6 +408,11 @@
       <dependency>
         <groupId>org.mskcc.cbio</groupId>
         <artifactId>security-spring</artifactId>
+        <version>${project.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>org.mskcc.cbio</groupId>
+        <artifactId>utils</artifactId>
         <version>${project.version}</version>
       </dependency>
       <dependency>

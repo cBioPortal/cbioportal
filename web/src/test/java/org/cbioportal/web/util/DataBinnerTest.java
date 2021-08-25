@@ -675,6 +675,38 @@ public class DataBinnerTest {
     }
 
     @Test
+    public void testLinearDataBinnerWithBigNumbers() {
+        String studyId = "random_";
+        String attributeId = "BIG_NUMBER";
+        String[] values = mockData.get("random_BIG_NUMBER");
+        ClinicalDataBinFilter clinicalDataBinFilter = new ClinicalDataBinFilter();
+        clinicalDataBinFilter.setAttributeId(attributeId);
+
+        List<ClinicalData> clinicalData = mockClinicalData(attributeId, studyId, values);
+        List<String> patientIds = getCaseIds(clinicalData, true);
+
+        List<DataBin> dataBins = dataBinner.calculateDataBins(clinicalDataBinFilter, ClinicalDataType.PATIENT, clinicalData, patientIds);
+
+        Assert.assertEquals(4, dataBins.size());
+
+        Assert.assertEquals(new BigDecimal("1.0E+8"), dataBins.get(0).getStart());
+        Assert.assertEquals(new BigDecimal("316227766"), dataBins.get(0).getEnd());
+        Assert.assertEquals(2, dataBins.get(0).getCount().intValue());
+        
+        Assert.assertEquals(new BigDecimal("316227766"), dataBins.get(1).getStart());
+        Assert.assertEquals(new BigDecimal("1.0E+9"), dataBins.get(1).getEnd());
+        Assert.assertEquals(9, dataBins.get(1).getCount().intValue());
+
+        Assert.assertEquals(new BigDecimal("1.0E+9"), dataBins.get(2).getStart());
+        Assert.assertEquals(new BigDecimal("3.16227766E+9"), dataBins.get(2).getEnd());
+        Assert.assertEquals(25, dataBins.get(2).getCount().intValue());
+
+        Assert.assertEquals(new BigDecimal("3.16227766E+9"), dataBins.get(3).getStart());
+        Assert.assertEquals(new BigDecimal("1.0E+10"), dataBins.get(3).getEnd());
+        Assert.assertEquals(9, dataBins.get(3).getCount().intValue());
+    }
+
+    @Test
     public void testLinearDataBinnerWithPredefinedAttribute() {
         String studyId = "crc_msk_2018";
         String attributeId = "MSI_SCORE";

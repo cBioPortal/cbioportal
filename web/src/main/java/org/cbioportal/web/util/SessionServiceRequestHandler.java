@@ -7,6 +7,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.cbioportal.session_service.domain.Session;
 import org.cbioportal.session_service.domain.SessionType;
 import org.cbioportal.web.parameter.CustomDataSession;
+import org.cbioportal.web.parameter.CustomGeneList;
 import org.cbioportal.web.parameter.PageSettings;
 import org.cbioportal.web.parameter.VirtualStudy;
 import org.springframework.beans.factory.annotation.Value;
@@ -74,6 +75,8 @@ public class SessionServiceRequestHandler {
             session = mapper.readValue(responseEntity.getBody(), PageSettings.class);
         } else if (type.equals(SessionType.custom_data)) {
             session = mapper.readValue(responseEntity.getBody(), CustomDataSession.class);
+        } else if (type.equals(SessionType.custom_gene_list)) {
+            session = mapper.readValue(responseEntity.getBody(), CustomGeneList.class);
         } else {
             session = mapper.readValue(responseEntity.getBody(), Session.class);
         }

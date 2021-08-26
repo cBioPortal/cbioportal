@@ -10,14 +10,7 @@ import javax.validation.constraints.Size;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.cbioportal.web.parameter.CustomDataSession;
-import org.cbioportal.web.parameter.PageSettings;
-import org.cbioportal.web.parameter.PageSettingsData;
-import org.cbioportal.web.parameter.PageSettingsIdentifier;
-import org.cbioportal.web.parameter.PagingConstants;
-import org.cbioportal.web.parameter.StudyPageSettings;
-import org.cbioportal.web.parameter.VirtualStudy;
-import org.cbioportal.web.parameter.VirtualStudyData;
+import org.cbioportal.web.parameter.*;
 import org.cbioportal.web.util.SessionServiceRequestHandler;
 import org.cbioportal.session_service.domain.Session;
 import org.cbioportal.session_service.domain.SessionType;
@@ -27,10 +20,7 @@ import org.json.simple.parser.ParseException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.ParameterizedTypeReference;
-import org.springframework.http.HttpEntity;
-import org.springframework.http.HttpMethod;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
+import org.springframework.http.*;
 import org.springframework.security.authentication.AnonymousAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -149,6 +139,13 @@ public class SessionServiceController {
 
                 // use basic authentication for session service if set
                 httpEntity = new HttpEntity<CustomAttributeWithData>(customData, sessionServiceRequestHandler.getHttpHeaders());
+            } else if (type.equals(SessionType.custom_gene_list)) {
+                if (!(isAuthorized())) {
+                     return new ResponseEntity<>(HttpStatus.SERVICE_UNAVAILABLE);
+                }
+                CustomGeneListData customGeneListData = mapper.readValue(body.toString(), CustomGeneListData.class);
+                customGeneListData.setUsers(Collections.singleton(userName()));
+                httpEntity = new HttpEntity<>(customGeneListData, sessionServiceRequestHandler.getHttpHeaders());
             } else {
                 httpEntity = new HttpEntity<JSONObject>(body, sessionServiceRequestHandler.getHttpHeaders());
             }
@@ -223,7 +220,7 @@ public class SessionServiceController {
         return addSession(SessionType.virtual_study, Optional.of(SessionOperation.save), body);
     }
 
-    @RequestMapping(value = "/{type:virtual_study|group|custom_data}/{operation}/{id}", method = RequestMethod.GET)
+    @RequestMapping(value = "/{type:virtual_study|group|custom_data|custom_gene_list}/{operation}/{id}", method = RequestMethod.GET)
     public void updateUsersInVirtualStudy(@PathVariable SessionType type, @PathVariable String id,
             @PathVariable Operation operation, HttpServletResponse response) throws IOException {
 
@@ -240,8 +237,15 @@ public class SessionServiceController {
                 updateUserList(operation, users);
                 customAttributeWithData.setUsers(users);
                 httpEntity = new HttpEntity<>(customAttributeWithData, sessionServiceRequestHandler.getHttpHeaders());
-
-            } else {
+             } else if (type.equals(SessionType.custom_gene_list)) {
+                String customGeneListStr = mapper.writeValueAsString(getSession(type, id, response).getBody());
+                CustomGeneList customGeneList = mapper.readValue(customGeneListStr, CustomGeneList.class);
+                CustomGeneListData customGeneListData = customGeneList.getData();
+                users = customGeneListData.getUsers();
+                updateUserList(operation, users);
+                customGeneListData.setUsers(users);
+                httpEntity = new HttpEntity<>(customGeneListData, sessionServiceRequestHandler.getHttpHeaders());                
+             } else {
                 String virtualStudyStr = mapper.writeValueAsString(getSession(type, id, response).getBody());
                 VirtualStudy virtualStudy = mapper.readValue(virtualStudyStr, VirtualStudy.class);
                 VirtualStudyData virtualStudyData = virtualStudy.getData();
@@ -474,6 +478,35 @@ public class SessionServiceController {
                     HttpMethod.POST,
                     httpEntity,
                     new ParameterizedTypeReference<List<CustomDataSession>>() {});
+
+            return new ResponseEntity<>(responseEntity.getBody(), HttpStatus.OK);
+
+        }
+        return new ResponseEntity<>(HttpStatus.SERVICE_UNAVAILABLE);
+    }
+
+    @RequestMapping(value = "/custom_gene_list/save", method = RequestMethod.POST)
+    public ResponseEntity<Session> addUserSavedCustomGeneList(@RequestBody JSONObject body) throws IOException {
+        return addSession(SessionType.custom_gene_list, Optional.of(SessionOperation.save), body);
+    }
+    
+    @RequestMapping(value = "/custom_gene_list", method = RequestMethod.GET)
+    public ResponseEntity<List<CustomGeneList>> fetchCustomGeneList() throws IOException {
+
+        if (isSessionServiceEnabled() && isAuthorized()) {
+
+            BasicDBObject basicDBObject = new BasicDBObject();
+            basicDBObject.put("data.users", Pattern.compile(userName(), Pattern.CASE_INSENSITIVE));
+
+            RestTemplate restTemplate = new RestTemplate();
+
+            HttpEntity<Object> httpEntity = new HttpEntity<>(basicDBObject.toString(), sessionServiceRequestHandler.getHttpHeaders());
+            
+            ResponseEntity<List<CustomGeneList>> responseEntity = restTemplate.exchange(
+                    sessionServiceURL + SessionType.custom_gene_list + "/query/fetch",
+                    HttpMethod.POST,
+                    httpEntity,
+                    new ParameterizedTypeReference<List<CustomGeneList>>() {});
 
             return new ResponseEntity<>(responseEntity.getBody(), HttpStatus.OK);
 

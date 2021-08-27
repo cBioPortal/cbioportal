@@ -96,7 +96,7 @@ public class SessionServiceController {
     private ResponseEntity<Session> addSession(SessionType type, Optional<SessionOperation> operation,
             JSONObject body) {
         try {
-            HttpEntity httpEntity;
+            HttpEntity<?> httpEntity;
             ObjectMapper mapper = new ObjectMapper().configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES,
                     false);
             if (type.equals(SessionType.virtual_study) || type.equals(SessionType.group)) {
@@ -182,7 +182,7 @@ public class SessionServiceController {
 
                 RestTemplate restTemplate = new RestTemplate();
 
-                HttpEntity<Object> httpEntity = new HttpEntity<>(basicDBObject.toString(), sessionServiceRequestHandler.getHttpHeaders());
+                HttpEntity<String> httpEntity = new HttpEntity<>(basicDBObject.toString(), sessionServiceRequestHandler.getHttpHeaders());
                 
                 ResponseEntity<List<VirtualStudy>> responseEntity = restTemplate.exchange(
                         sessionServiceURL + SessionType.virtual_study + "/query/fetch",
@@ -219,7 +219,7 @@ public class SessionServiceController {
         if (sessionServiceRequestHandler.isSessionServiceEnabled() && isAuthorized()) {
             ObjectMapper mapper = new ObjectMapper().configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES,
                     false);
-            HttpEntity httpEntity;
+            HttpEntity<?> httpEntity;
             if (type.equals(SessionType.custom_data)) {
                 String virtualStudyStr = mapper.writeValueAsString(getSession(type, id).getBody());
                 CustomDataSession customDataSession = mapper.readValue(virtualStudyStr, CustomDataSession.class);
@@ -271,18 +271,9 @@ public class SessionServiceController {
 
     @RequestMapping(value = "/groups/fetch", method = RequestMethod.POST)
     public ResponseEntity<List<VirtualStudy>> fetchUserGroups(
-            @Size(min = 1, max = PagingConstants.MAX_PAGE_SIZE) @RequestBody List<String> studyIds,
-            HttpServletResponse response) throws IOException {
+            @Size(min = 1, max = PagingConstants.MAX_PAGE_SIZE) @RequestBody List<String> studyIds) throws IOException {
 
         if (sessionServiceRequestHandler.isSessionServiceEnabled() && isAuthorized()) {
-
-            String username = userName();
-            Map<String, Object> map = new HashMap<>();
-            map.put("data.owner", username);
-            map.put("data.origin", studyIds);
-
-            ObjectMapper mapper = new ObjectMapper();
-
             // ignore origin studies order
             // add $size to make sure origin studies is not a subset
             List<BasicDBObject> basicDBObjects = new ArrayList<>();
@@ -457,7 +448,7 @@ public class SessionServiceController {
 
             RestTemplate restTemplate = new RestTemplate();
 
-            HttpEntity<Object> httpEntity = new HttpEntity<>(basicDBObject.toString(), sessionServiceRequestHandler.getHttpHeaders());
+            HttpEntity<String> httpEntity = new HttpEntity<>(basicDBObject.toString(), sessionServiceRequestHandler.getHttpHeaders());
             
             ResponseEntity<List<CustomGeneList>> responseEntity = restTemplate.exchange(
                     sessionServiceURL + SessionType.custom_gene_list + "/query/fetch",

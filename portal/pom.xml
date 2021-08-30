@@ -103,6 +103,7 @@
           <warName>${final.war.name}</warName>
           <webappDirectory>${project.build.directory}/portal</webappDirectory>
           <filteringDeploymentDescriptors>true</filteringDeploymentDescriptors>
+          <escapeString>\</escapeString>
           <webResources>
             <resource>
               <directory>${project.parent.basedir}/persistence/persistence-connections/src/main/resources</directory>

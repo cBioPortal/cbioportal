@@ -855,6 +855,18 @@ public class DataBinnerMocker {
             "12"
         };
     }
+    
+    public static String[] mockBigNumbers() {
+        return new String[] {
+            "841848343", "3342183122", "3864712797", "1842342032", "379899823", "2460445587", "2892643481",
+            "2355489888", "4088049033", "1152251985", "3046306673", "1442221907", "740892994", "335986934",
+            "341426326", "4240429369", "2701394498", "1498406977", "2185930387", "3026106568", "1316061727",
+            "126968438", "960679803", "2908515889", "3287820443", "2066082271", "2972157357", "2797157960",
+            "3265466219", "664038053", "1417718651", "3111057409", "302561019", "1143079905", "2207746117",
+            "4206054268", "1530213988", "1775115934", "1933635401", "820330890", "2005112863", "2752104477",
+            "696476372", "3532676582", "3851721681"
+        };
+    }
 
     public static Map<String, String[]> mockData() {
         Map<String, String[]> mockData = new LinkedHashMap<>();
@@ -875,6 +887,7 @@ public class DataBinnerMocker {
         mockData.put("genie_public_AGE_AT_WHICH_SEQUENCING_WAS_REPORTED", mockGeniePublicAgeAtWhichSequencingWasReported());
         mockData.put("genie_N_SCANS_PET_CT_PT", mockGenieNScansPetCtPt());
         mockData.put("genie_N_SCANS_BONE_PT", mockGenieNScansBonePt());
+        mockData.put("random_BIG_NUMBER", mockBigNumbers());
 
         return mockData;
     }

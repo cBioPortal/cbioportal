@@ -307,7 +307,7 @@ public class DataBinner {
                 // adjust custom bins w.r.t. outliers (if any)
                 customBins = this.adjustCustomBins(customBins, lowerOutlierBin, upperOutlierBin);
                 dataBins = linearDataBinner.calculateDataBins(customBins, numericalValues);
-            } else if (boxRange.upperEndpoint().subtract(boxRange.lowerEndpoint()).intValue() > 1000 &&
+            } else if (boxRange.upperEndpoint().subtract(boxRange.lowerEndpoint()).compareTo(new BigDecimal(1000)) == 1  &&
                 (disableLogScale == null || !disableLogScale)) {
                 dataBins = logScaleDataBinner.calculateDataBins(
                     boxRange,
@@ -329,8 +329,10 @@ public class DataBinner {
                 Boolean areAllIntegers = this.dataBinHelper.areAllIntegers(uniqueValues);
 
                 if (areAllIntegers) {
-                    boxRange = Range.closed(new BigDecimal(boxRange.lowerEndpoint().intValue()),
-                            new BigDecimal(boxRange.upperEndpoint().intValue()));
+                    boxRange = Range.closed(
+                        new BigDecimal(boxRange.lowerEndpoint().longValue()),
+                        new BigDecimal(boxRange.upperEndpoint().longValue())
+                    );
                 }
 
                 BigDecimal lowerOutlier = lowerOutlierBin.getEnd() == null ? boxRange.lowerEndpoint()

@@ -502,6 +502,17 @@ with the `X-API-KEY` header. The accepted value for the API key can be configure
 cache.endpoint.api-key=7d70fecb-cda8-490f-9ea2-ef874b6512f4
 ```
 
+# Delegate user-authorization cache to Spring-managed cache 
+
+For evaluation fo user permissions cBioPortal uses a user-authorization cache that is populated at startup. By setting the
+`cache.cache-map-utils.spring-managed` property to _true_ this cache will be managed by the Spring caching solution such 
+as EHCache or Redis. For more extended information, see [here](Caching.md#user-authorization-cache)
+
+```
+cache.cache-map-utils.spring-managed=false
+```
+
+
 # Enable GSVA functionality
 
 [GSVA functionality](https://github.com/cBioPortal/cbioportal/blob/master/docs/File-Formats.md#gene-set-data) can be enabled by uncommenting this line (and making sure it is set to `true`):

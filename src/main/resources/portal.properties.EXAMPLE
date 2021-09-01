@@ -277,6 +277,16 @@ oncoprint.hotspots.default=true
 persistence.cache_type=no-cache
 # Enable cache statistics endpoint for cache monitoring
 #cache.statistics_endpoint_enabled=false
+# Turn cache management endpoint on or off (default)
+# cache.endpoint.enabled=true
+# API key for access to cache management endpoint
+# cache.endpoint.api-key=fd15f1ae-66f2-4b8a-8d54-fb899b03557e
+# Externalize the study data used for user authorization evaluation to Spring-managed caches such as EHCache or Redis.
+# Enabling this might simplify cache-invalidation strategies (via /api/cache endpoint) because it allows for invalidation
+# a central caching solution shared among cBioPortal containers in a single instance. It comes at the cost of extra calls
+# to the caching provider. Default is 'false' meaning that cBioPortal will use a faster local HashMap-based cache for fast
+# lookup of sample/patient/profile to cancer study relationships.
+#cache.cache-map-utils.spring-managed=false
 
 # Redis properties
 # Unique name for each portal instance, used for distinguishing caches
@@ -355,7 +365,3 @@ persistence.cache_type=no-cache
 # If blank or commented out, no map will be shown and that page will be hidden.
 # installation_map_url=https://installationmap.netlify.app/
 
-# Turn cache management endpoint on or off (default)
-# cache.endpoint.enabled=true
-# API key for access to cache management endpoint
-# cache.endpoint.api-key=fd15f1ae-66f2-4b8a-8d54-fb899b03557e

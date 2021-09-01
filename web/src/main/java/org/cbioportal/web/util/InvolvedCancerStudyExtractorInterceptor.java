@@ -790,4 +790,5 @@ public class InvolvedCancerStudyExtractorInterceptor extends HandlerInterceptorA
         extractCancerStudyIdsFromMolecularProfileIds(molecularProfileIds, studyIdSet);
         return studyIdSet;
     }
+
 }

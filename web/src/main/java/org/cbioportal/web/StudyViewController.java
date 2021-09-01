@@ -508,6 +508,12 @@ public class StudyViewController {
 
         List<GenericAssayDataFilter> gaFilters = interceptedGenericAssayDataCountFilter.getGenericAssayDataFilters();
         StudyViewFilter studyViewFilter = interceptedGenericAssayDataCountFilter.getStudyViewFilter();
+        // when there is only one filter, it means study view is doing a single chart filter operation
+        // remove filter from studyViewFilter to return all data counts
+        // the reason we do this is to make sure after chart get filtered, user can still see unselected portion of the chart
+        if (gaFilters.size() == 1) {
+            studyViewFilterUtil.removeSelfFromGenericAssayFilter(gaFilters.get(0).getStableId(), studyViewFilter);
+        }
         List<SampleIdentifier> filteredSampleIdentifiers = studyViewFilterApplier.apply(studyViewFilter);
 
         if (filteredSampleIdentifiers.isEmpty()) {

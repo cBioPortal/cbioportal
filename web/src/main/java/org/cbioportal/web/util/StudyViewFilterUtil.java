@@ -36,6 +36,11 @@ public class StudyViewFilterUtil {
         }
     }
 
+    public void removeSelfFromGenericAssayFilter(String stableId, StudyViewFilter studyViewFilter) {
+        if (studyViewFilter!= null && studyViewFilter.getGenericAssayDataFilters() != null) {
+            studyViewFilter.getGenericAssayDataFilters().removeIf(f -> f.getStableId().equals(stableId));
+        }
+    }
 
     public void removeSelfCustomDataFromFilter(String attributeId, StudyViewFilter studyViewFilter) {
         if (studyViewFilter!= null && studyViewFilter.getCustomDataFilters() != null) {

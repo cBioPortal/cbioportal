@@ -13,10 +13,6 @@
 # Load up Sanger Cancer Gene Census
 ./importSangerCensus.pl $PORTAL_DATA_HOME/reference-data/sanger_gene_census.txt
 
-# Load UniProt Mapping Data
-# You must run:  ./prepareUniProtData.sh first.
-./importUniProtIdMapping.pl $PORTAL_DATA_HOME/reference-data/uniprot-id-mapping.txt
-
 # Network
 ./loadNetwork.sh
 

@@ -295,17 +295,6 @@ CREATE TABLE `generic_entity_properties` (
 );
 
 -- --------------------------------------------------------
-CREATE TABLE `uniprot_id_mapping` (
-  `UNIPROT_ACC` varchar(255) NOT NULL,
-  `UNIPROT_ID` varchar(255) NOT NULL,
-  `ENTREZ_GENE_ID` int(11),
-  PRIMARY KEY (`ENTREZ_GENE_ID`, `UNIPROT_ID`),
-  KEY (`UNIPROT_ID`),
-  Key (`UNIPROT_ACC`),
-  FOREIGN KEY (`ENTREZ_GENE_ID`) REFERENCES `gene` (`ENTREZ_GENE_ID`)
-);
-
--- --------------------------------------------------------
 CREATE TABLE `genetic_profile` (
   `GENETIC_PROFILE_ID` int(11) NOT NULL AUTO_INCREMENT,
   `STABLE_ID` varchar(255) NOT NULL,

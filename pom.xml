@@ -119,9 +119,9 @@
             </dependency>
 <!--            TODO remove dependency on Junit 4 (Spring boot uses Junit 5 by default)-->
             <dependency>
-                <groupId>junit</groupId>
-                <artifactId>junit</artifactId>
-                <version>${junit.version}</version>
+                <groupId>org.junit.vintage</groupId>
+                <artifactId>junit-vintage-engine</artifactId>
+                <version>5.7.2</version>
                 <scope>test</scope>
             </dependency>
             <dependency>

@@ -1,6 +1,6 @@
 package org.cbioportal.web.util;
 
-import org.apache.commons.collections.CollectionUtils;
+import org.apache.commons.collections4.CollectionUtils;
 import org.cbioportal.model.ClinicalData;
 import org.cbioportal.service.ClinicalDataService;
 import org.cbioportal.web.parameter.ClinicalDataType;

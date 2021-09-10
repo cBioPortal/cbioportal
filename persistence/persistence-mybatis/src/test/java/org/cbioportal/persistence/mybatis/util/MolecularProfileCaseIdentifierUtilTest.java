@@ -1,15 +1,14 @@
 package org.cbioportal.persistence.mybatis.util;
 
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Map;
+import java.util.Set;
 import org.junit.Assert;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.InjectMocks;
 import org.mockito.junit.MockitoJUnitRunner;
-
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Map;
-import java.util.Set;
 
 @RunWith(MockitoJUnitRunner.class)
 public class MolecularProfileCaseIdentifierUtilTest {

@@ -25,7 +25,7 @@ public class ExternalPageController {
     // available via GET method
     // sourceURL is required
     @Transactional
-    @RequestMapping(value = "/getexternalpage.json", method = {RequestMethod.GET})
+    @RequestMapping(value = "/api/getexternalpage.json", method = {RequestMethod.GET})
     public @ResponseBody Map<String, String> getExternalPage(@RequestParam(required = true) String sourceURL) throws IOException {
         String decodedString, pageText = "";
 

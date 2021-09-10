@@ -32,8 +32,9 @@
 
 package org.cbioportal.security.spring.authentication.token.oauth2;
 
-import org.codehaus.jackson.JsonNode;
-import org.codehaus.jackson.map.ObjectMapper;
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import org.cbioportal.security.spring.authentication.token.oauth2.OAuth2TokenRefreshRestTemplate;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.authentication.AuthenticationProvider;
@@ -96,7 +97,7 @@ public class OAuth2TokenAuthenticationProvider implements AuthenticationProvider
                 }
             }
             final JsonNode rolesArrayPointer = rolesArrayCursor;
-            final Iterable<JsonNode> roles = () -> rolesArrayPointer.getElements();
+            final Iterable<JsonNode> roles = () -> rolesArrayPointer.elements();
 
             return StreamSupport.stream(roles.spliterator(), false)
                 .map(role -> role.toString().replaceAll("\"", ""))

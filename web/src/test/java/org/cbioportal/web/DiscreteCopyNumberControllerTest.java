@@ -1,41 +1,39 @@
 package org.cbioportal.web;
 
+import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
+
+
 import com.fasterxml.jackson.databind.ObjectMapper;
+import java.util.ArrayList;
+import java.util.List;
 import org.cbioportal.model.CopyNumberCount;
 import org.cbioportal.model.DiscreteCopyNumberData;
 import org.cbioportal.model.Gene;
-import org.cbioportal.model.ReferenceGenomeGene;
 import org.cbioportal.model.meta.BaseMeta;
 import org.cbioportal.service.DiscreteCopyNumberService;
+import org.cbioportal.web.config.TestConfig;
 import org.cbioportal.web.parameter.CopyNumberCountIdentifier;
 import org.cbioportal.web.parameter.DiscreteCopyNumberEventType;
 import org.cbioportal.web.parameter.DiscreteCopyNumberFilter;
 import org.cbioportal.web.parameter.HeaderKeyConstants;
 import org.hamcrest.Matchers;
-import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.context.annotation.Bean;
-import org.springframework.context.annotation.Configuration;
+import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
+import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.MediaType;
+import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
-import org.springframework.test.context.web.WebAppConfiguration;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
-import org.springframework.test.web.servlet.setup.MockMvcBuilders;
-import org.springframework.web.context.WebApplicationContext;
-
-import java.util.ArrayList;
-import java.util.List;
 
 @RunWith(SpringJUnit4ClassRunner.class)
-@WebAppConfiguration
-@ContextConfiguration("/applicationContext-web-test.xml")
-@Configuration
+@WebMvcTest
+@ContextConfiguration(classes = {DiscreteCopyNumberController.class, TestConfig.class})
 public class DiscreteCopyNumberControllerTest {
 
     private static final String TEST_MOLECULAR_PROFILE_STABLE_ID_1 = "test_molecular_profile_stable_id_1";
@@ -60,29 +58,16 @@ public class DiscreteCopyNumberControllerTest {
     private static final int TEST_NUMBER_OF_SAMPLES_2 = 10;
     private static final int TEST_NUMBER_OF_SAMPLES_WITH_ALTERATION_IN_GENE_2 = 8;
 
-    @Autowired
-    private WebApplicationContext wac;
-
-    @Autowired
+    @MockBean
     private DiscreteCopyNumberService discreteCopyNumberService;
 
     private ObjectMapper objectMapper = new ObjectMapper();
 
+    @Autowired
     private MockMvc mockMvc;
 
-    @Bean
-    public DiscreteCopyNumberService discreteCopyNumberService() {
-        return Mockito.mock(DiscreteCopyNumberService.class);
-    }
-
-    @Before
-    public void setUp() throws Exception {
-
-        Mockito.reset(discreteCopyNumberService);
-        mockMvc = MockMvcBuilders.webAppContextSetup(wac).build();
-    }
-
     @Test
+    @WithMockUser
     public void getDiscreteCopyNumbersInMolecularProfileBySampleListIdDefaultProjection() throws Exception {
 
         List<DiscreteCopyNumberData> discreteCopyNumberDataList = createExampleDiscreteCopyNumberData();
@@ -91,7 +76,7 @@ public class DiscreteCopyNumberControllerTest {
             Mockito.any(), Mockito.any(), Mockito.any(),
             Mockito.any(), Mockito.any())).thenReturn(discreteCopyNumberDataList);
 
-        mockMvc.perform(MockMvcRequestBuilders.get("/molecular-profiles/test_molecular_profile_id/discrete-copy-number")
+        mockMvc.perform(MockMvcRequestBuilders.get("/api/molecular-profiles/test_molecular_profile_id/discrete-copy-number")
             .param("sampleListId", TEST_SAMPLE_LIST_ID)
             .param("discreteCopyNumberEventType", DiscreteCopyNumberEventType.HOMDEL_AND_AMP.name())
             .accept(MediaType.APPLICATION_JSON))
@@ -113,6 +98,7 @@ public class DiscreteCopyNumberControllerTest {
     }
 
     @Test
+    @WithMockUser
     public void getDiscreteCopyNumbersInMolecularProfileBySampleListIdDetailedProjection() throws Exception {
 
         List<DiscreteCopyNumberData> discreteCopyNumberDataList = createExampleDiscreteCopyNumberDataWithGenes();
@@ -121,7 +107,7 @@ public class DiscreteCopyNumberControllerTest {
             Mockito.any(), Mockito.any(), Mockito.any(),
             Mockito.any(), Mockito.any())).thenReturn(discreteCopyNumberDataList);
 
-        mockMvc.perform(MockMvcRequestBuilders.get("/molecular-profiles/test_molecular_profile_id/discrete-copy-number")
+        mockMvc.perform(MockMvcRequestBuilders.get("/api/molecular-profiles/test_molecular_profile_id/discrete-copy-number")
             .param("sampleListId", TEST_SAMPLE_LIST_ID)
             .param("discreteCopyNumberEventType", DiscreteCopyNumberEventType.HOMDEL_AND_AMP.name())
             .param("projection", "DETAILED")
@@ -148,6 +134,7 @@ public class DiscreteCopyNumberControllerTest {
     }
 
     @Test
+    @WithMockUser
     public void getDiscreteCopyNumbersInMolecularProfileBySampleListIdMetaProjection() throws Exception {
 
         BaseMeta baseMeta = new BaseMeta();
@@ -157,7 +144,7 @@ public class DiscreteCopyNumberControllerTest {
             Mockito.any(), Mockito.any(), Mockito.any(),
             Mockito.any())).thenReturn(baseMeta);
 
-        mockMvc.perform(MockMvcRequestBuilders.get("/molecular-profiles/test_molecular_profile_id/discrete-copy-number")
+        mockMvc.perform(MockMvcRequestBuilders.get("/api/molecular-profiles/test_molecular_profile_id/discrete-copy-number")
             .param("sampleListId", TEST_SAMPLE_LIST_ID)
             .param("discreteCopyNumberEventType", DiscreteCopyNumberEventType.HOMDEL_AND_AMP.name())
             .param("projection", "META"))
@@ -166,6 +153,7 @@ public class DiscreteCopyNumberControllerTest {
     }
 
     @Test
+    @WithMockUser
     public void fetchDiscreteCopyNumbersInMolecularProfileDefaultProjection() throws Exception {
 
         List<DiscreteCopyNumberData> discreteCopyNumberDataList = createExampleDiscreteCopyNumberData();
@@ -177,7 +165,7 @@ public class DiscreteCopyNumberControllerTest {
         DiscreteCopyNumberFilter discreteCopyNumberFilter = createDiscreteCopyNumberFilter();
 
         mockMvc.perform(MockMvcRequestBuilders
-            .post("/molecular-profiles/test_molecular_profile_id/discrete-copy-number/fetch")
+            .post("/api/molecular-profiles/test_molecular_profile_id/discrete-copy-number/fetch").with(csrf())
             .param("discreteCopyNumberEventType", DiscreteCopyNumberEventType.HOMDEL_AND_AMP.name())
             .accept(MediaType.APPLICATION_JSON)
             .contentType(MediaType.APPLICATION_JSON)
@@ -198,6 +186,7 @@ public class DiscreteCopyNumberControllerTest {
     }
 
     @Test
+    @WithMockUser
     public void fetchDiscreteCopyNumbersInMolecularProfileDetailedProjection() throws Exception {
 
         List<DiscreteCopyNumberData> discreteCopyNumberDataList = createExampleDiscreteCopyNumberDataWithGenes();
@@ -210,7 +199,7 @@ public class DiscreteCopyNumberControllerTest {
         DiscreteCopyNumberFilter discreteCopyNumberFilter = createDiscreteCopyNumberFilter();
 
         mockMvc.perform(MockMvcRequestBuilders
-            .post("/molecular-profiles/test_molecular_profile_id/discrete-copy-number/fetch")
+            .post("/api/molecular-profiles/test_molecular_profile_id/discrete-copy-number/fetch").with(csrf())
             .param("discreteCopyNumberEventType", DiscreteCopyNumberEventType.HOMDEL_AND_AMP.name())
             .param("projection", "DETAILED")
             .accept(MediaType.APPLICATION_JSON)
@@ -238,6 +227,7 @@ public class DiscreteCopyNumberControllerTest {
     }
 
     @Test
+    @WithMockUser
     public void fetchDiscreteCopyNumbersInMolecularProfileMetaProjection() throws Exception {
 
         BaseMeta baseMeta = new BaseMeta();
@@ -249,70 +239,13 @@ public class DiscreteCopyNumberControllerTest {
 
         DiscreteCopyNumberFilter discreteCopyNumberFilter = createDiscreteCopyNumberFilter();
 
-        mockMvc.perform(MockMvcRequestBuilders.
-            post("/molecular-profiles/test_molecular_profile_id/discrete-copy-number/fetch")
+        mockMvc.perform(MockMvcRequestBuilders.post("/api/molecular-profiles/test_molecular_profile_id/discrete-copy-number/fetch").with(csrf())
             .contentType(MediaType.APPLICATION_JSON)
             .content(objectMapper.writeValueAsString(discreteCopyNumberFilter))
             .param("discreteCopyNumberEventType", DiscreteCopyNumberEventType.HOMDEL_AND_AMP.name())
             .param("projection", "META"))
             .andExpect(MockMvcResultMatchers.status().isOk())
             .andExpect(MockMvcResultMatchers.header().string(HeaderKeyConstants.TOTAL_COUNT, "2"));
-    }
-
-    @Test
-    public void fetchCopyNumberCounts() throws Exception {
-
-        List<CopyNumberCount> copyNumberCountList = new ArrayList<>();
-        CopyNumberCount copyNumberCount1 = new CopyNumberCount();
-        copyNumberCount1.setMolecularProfileId(TEST_MOLECULAR_PROFILE_STABLE_ID_1);
-        copyNumberCount1.setEntrezGeneId(TEST_ENTREZ_GENE_ID_1);
-        copyNumberCount1.setAlteration(TEST_ALTERATION_1);
-        copyNumberCount1.setNumberOfSamples(TEST_NUMBER_OF_SAMPLES_1);
-        copyNumberCount1.setNumberOfSamplesWithAlterationInGene(TEST_NUMBER_OF_SAMPLES_WITH_ALTERATION_IN_GENE_1);
-        copyNumberCountList.add(copyNumberCount1);
-        CopyNumberCount copyNumberCount2 = new CopyNumberCount();
-        copyNumberCount2.setMolecularProfileId(TEST_MOLECULAR_PROFILE_STABLE_ID_1);
-        copyNumberCount2.setEntrezGeneId(TEST_ENTREZ_GENE_ID_2);
-        copyNumberCount2.setAlteration(TEST_ALTERATION_2);
-        copyNumberCount2.setNumberOfSamples(TEST_NUMBER_OF_SAMPLES_2);
-        copyNumberCount2.setNumberOfSamplesWithAlterationInGene(TEST_NUMBER_OF_SAMPLES_WITH_ALTERATION_IN_GENE_2);
-        copyNumberCountList.add(copyNumberCount2);
-
-        Mockito.when(discreteCopyNumberService.fetchCopyNumberCounts(Mockito.anyString(),
-            Mockito.anyList(), Mockito.anyList())).thenReturn(copyNumberCountList);
-
-        List<CopyNumberCountIdentifier> copyNumberCountIdentifiers = new ArrayList<>();
-        CopyNumberCountIdentifier copyNumberCountIdentifier1 = new CopyNumberCountIdentifier();
-        copyNumberCountIdentifier1.setEntrezGeneId(TEST_ENTREZ_GENE_ID_1);
-        copyNumberCountIdentifier1.setAlteration(TEST_ALTERATION_1);
-        copyNumberCountIdentifiers.add(copyNumberCountIdentifier1);
-        CopyNumberCountIdentifier copyNumberCountIdentifier2 = new CopyNumberCountIdentifier();
-        copyNumberCountIdentifier2.setEntrezGeneId(TEST_ENTREZ_GENE_ID_2);
-        copyNumberCountIdentifier2.setAlteration(TEST_ALTERATION_2);
-        copyNumberCountIdentifiers.add(copyNumberCountIdentifier2);
-
-        mockMvc.perform(MockMvcRequestBuilders
-            .post("/molecular-profiles/test_molecular_profile_id/discrete-copy-number-counts/fetch")
-            .accept(MediaType.APPLICATION_JSON)
-            .contentType(MediaType.APPLICATION_JSON)
-            .content(objectMapper.writeValueAsString(copyNumberCountIdentifiers)))
-            .andExpect(MockMvcResultMatchers.status().isOk())
-            .andExpect(MockMvcResultMatchers.content().contentTypeCompatibleWith(MediaType.APPLICATION_JSON))
-            .andExpect(MockMvcResultMatchers.jsonPath("$", Matchers.hasSize(2)))
-            .andExpect(MockMvcResultMatchers.jsonPath("$[0].entrezGeneId").value(TEST_ENTREZ_GENE_ID_1))
-            .andExpect(MockMvcResultMatchers.jsonPath("$[0].molecularProfileId")
-                .value(TEST_MOLECULAR_PROFILE_STABLE_ID_1))
-            .andExpect(MockMvcResultMatchers.jsonPath("$[0].alteration").value(TEST_ALTERATION_1))
-            .andExpect(MockMvcResultMatchers.jsonPath("$[0].numberOfSamples").value(TEST_NUMBER_OF_SAMPLES_1))
-            .andExpect(MockMvcResultMatchers.jsonPath("$[0].numberOfSamplesWithAlterationInGene")
-                .value(TEST_NUMBER_OF_SAMPLES_WITH_ALTERATION_IN_GENE_1))
-            .andExpect(MockMvcResultMatchers.jsonPath("$[1].entrezGeneId").value(TEST_ENTREZ_GENE_ID_2))
-            .andExpect(MockMvcResultMatchers.jsonPath("$[1].molecularProfileId")
-                .value(TEST_MOLECULAR_PROFILE_STABLE_ID_1))
-            .andExpect(MockMvcResultMatchers.jsonPath("$[1].alteration").value(TEST_ALTERATION_2))
-            .andExpect(MockMvcResultMatchers.jsonPath("$[1].numberOfSamples").value(TEST_NUMBER_OF_SAMPLES_2))
-            .andExpect(MockMvcResultMatchers.jsonPath("$[1].numberOfSamplesWithAlterationInGene")
-                .value(TEST_NUMBER_OF_SAMPLES_WITH_ALTERATION_IN_GENE_2));
     }
 
     private DiscreteCopyNumberFilter createDiscreteCopyNumberFilter() {

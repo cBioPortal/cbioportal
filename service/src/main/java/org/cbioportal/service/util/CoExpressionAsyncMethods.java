@@ -3,8 +3,6 @@ package org.cbioportal.service.util;
 import org.springframework.stereotype.Component;
 import org.springframework.scheduling.annotation.Async;
 import org.cbioportal.model.CoExpression;
-import org.cbioportal.service.exception.GeneNotFoundException;
-import org.cbioportal.service.exception.GenesetNotFoundException;
 import org.apache.commons.lang3.math.NumberUtils;
 import org.apache.commons.math3.linear.Array2DRowRealMatrix;
 import org.apache.commons.math3.linear.RealMatrix;

@@ -1,18 +1,20 @@
 package org.cbioportal.logging;
 
-import org.apache.log4j.LogManager;
-import org.apache.log4j.Logger;
 import org.aspectj.lang.JoinPoint;
 import org.aspectj.lang.annotation.After;
 import org.aspectj.lang.annotation.Aspect;
 import org.aspectj.lang.annotation.Before;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
 
-@Aspect
-@Component
+
+// TODO is this logging aspect still usefull?
+//@Aspect
+//@Component
 public class LoggingAspect {
 
-    private static final Logger logger = LogManager.getLogger("LoggingAspect");
+    private static final Logger logger = LoggerFactory.getLogger("LoggingAspect");
 
     @Before("execution(* org.cbioportal.web..*(..)) || execution(* org.cbioportal.service.impl..*(..)) || " +
     "execution(* org.cbioportal.persistence.mybatis..*(..))")

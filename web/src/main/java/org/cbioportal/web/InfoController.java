@@ -28,7 +28,7 @@ public class InfoController {
     @Value("${git.branch}")
     private String gitBranch;
 
-    @Value("${git.commit.id}")
+    @Value("${git.commit.id.full}")
     private String gitCommitId;
 
     @Value("${git.commit.id.abbrev}")
@@ -55,7 +55,7 @@ public class InfoController {
     @Value("${git.dirty}")
     private String gitDirty;
 
-    @RequestMapping(value = "/info", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
+    @RequestMapping(value = "/api/info", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
     @ApiOperation("Get information about the running instance")
     public ResponseEntity<Info> getInfo() {
 

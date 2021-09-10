@@ -51,7 +51,7 @@ public class GenericAssayController {
     private GenericAssayService genericAssayService;
 
     @PreAuthorize("hasPermission(#involvedCancerStudies, 'Collection<CancerStudyId>', 'read')")
-    @RequestMapping(value = "/generic_assay_meta/fetch", method = RequestMethod.POST, consumes = MediaType.APPLICATION_JSON_VALUE,
+    @RequestMapping(value = "/api/generic_assay_meta/fetch", method = RequestMethod.POST, consumes = MediaType.APPLICATION_JSON_VALUE,
         produces = MediaType.APPLICATION_JSON_VALUE)
     @ApiOperation("Fetch meta data for generic-assay by ID")
     public ResponseEntity<List<GenericAssayMeta>> fetchGenericAssayMetaData(
@@ -76,7 +76,7 @@ public class GenericAssayController {
     }
 
     @PreAuthorize("hasPermission(#molecularProfileId, 'MolecularProfileId', 'read')")
-    @RequestMapping(value = "/generic_assay_data/{molecularProfileId}/fetch",
+    @RequestMapping(value = "/api/generic_assay_data/{molecularProfileId}/fetch",
         method = RequestMethod.POST, consumes = MediaType.APPLICATION_JSON_VALUE,
         produces = MediaType.APPLICATION_JSON_VALUE)
     @ApiOperation("fetch generic_assay_data in a molecular profile")
@@ -107,7 +107,7 @@ public class GenericAssayController {
     }
 
     @PreAuthorize("hasPermission(#involvedCancerStudies, 'Collection<CancerStudyId>', 'read')")
-    @RequestMapping(value = "/generic_assay_data/fetch", method = RequestMethod.POST,
+    @RequestMapping(value = "/api/generic_assay_data/fetch", method = RequestMethod.POST,
     consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
     @ApiOperation("Fetch generic_assay_data")
     public ResponseEntity<List<GenericAssayData>> fetchGenericAssayDataInMultipleMolecularProfiles(

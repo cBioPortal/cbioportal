@@ -1,6 +1,6 @@
 package org.cbioportal.security.spring.authentication.token.config;
 
-import org.cbioportal.security.spring.authentication.social.PortalUserDetailsService;
+import org.cbioportal.security.spring.authentication.PortalUserDetailsService;
 import org.cbioportal.security.spring.authentication.token.TokenUserDetailsAuthenticationProvider;
 import org.cbioportal.security.spring.authentication.token.oauth2.OAuth2DataAccessTokenServiceImpl;
 import org.cbioportal.security.spring.authentication.token.oauth2.OAuth2TokenAuthenticationProvider;
@@ -10,14 +10,9 @@ import org.cbioportal.service.impl.UuidDataAccessTokenServiceImpl;
 import org.cbioportal.utils.config.annotation.ConditionalOnProperty;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.context.annotation.PropertySource;
-import org.springframework.context.annotation.PropertySources;
 
 @Configuration
-@PropertySources({
-        @PropertySource(value="classpath:portal.properties", ignoreResourceNotFound=true),
-        @PropertySource(value="file:///${PORTAL_HOME}/portal.properties", ignoreResourceNotFound=true)
-})
+@ConditionalOnProperty(name = "dat.method", havingValue = {"", "none"}, isNot = true)
 public class DataAccessTokenConfig {
 
     // provider
@@ -38,7 +33,6 @@ public class DataAccessTokenConfig {
     public PortalUserDetailsService tokenUserDetailsService() {
         return new PortalUserDetailsService();
     }
-
 
     // service
     @Bean("dataAccessTokenService")

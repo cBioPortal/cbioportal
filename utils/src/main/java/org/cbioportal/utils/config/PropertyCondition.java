@@ -42,7 +42,7 @@ import java.util.Map;
 import java.util.stream.Stream;
 
 @PropertySources({
-        @PropertySource(value="classpath:portal.properties", ignoreResourceNotFound=true),
+        @PropertySource(value="classpath:application.properties", ignoreResourceNotFound=true),
         @PropertySource(value="file:///${PORTAL_HOME}/portal.properties", ignoreResourceNotFound=true)
 })
 public class PropertyCondition implements Condition {

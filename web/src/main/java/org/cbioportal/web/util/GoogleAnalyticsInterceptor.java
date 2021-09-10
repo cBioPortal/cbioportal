@@ -1,48 +1,51 @@
 package org.cbioportal.web.util;
 
-import org.slf4j.*;
-
-import java.util.*;
-import javax.servlet.http.*;
-import javax.annotation.PostConstruct;
+import java.util.Arrays;
 import java.util.concurrent.CompletableFuture;
-
-import org.springframework.http.*;
-import org.springframework.web.client.*;
-import org.springframework.web.servlet.handler.HandlerInterceptorAdapter;
-import org.springframework.stereotype.Component;
+import javax.annotation.PostConstruct;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnExpression;
+import org.springframework.http.HttpEntity;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpMethod;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
+import org.springframework.stereotype.Component;
 import org.springframework.util.LinkedMultiValueMap;
+import org.springframework.web.client.RestClientException;
+import org.springframework.web.client.RestTemplate;
+import org.springframework.web.servlet.handler.HandlerInterceptorAdapter;
 
 @Component
+@ConditionalOnExpression("!'${google.analytics.tracking.code.api:}'.isEmpty() || !'${google.analytics.application.client.id:}'.isEmpty()")
 public class GoogleAnalyticsInterceptor extends HandlerInterceptorAdapter {
 
-    @Value("${google.analytics.tracking.code.api}")
+    private static final Logger LOG = LoggerFactory.getLogger(GoogleAnalyticsInterceptor.class);
+    
+    @Value("${google.analytics.tracking.code.api:}")
     private String trackingId;
 
-    @Value("${google.analytics.application.client.id}")
+    @Value("${google.analytics.application.client.id:}")
     private String clientId;
 
     private static HttpHeaders defaultHeaders;
     private static LinkedMultiValueMap<String, String> globalURIVariables;
-    private static final Logger LOG = LoggerFactory.getLogger(GoogleAnalyticsInterceptor.class);
-    private static boolean missingGoogleAnalyticsCredentials;
+    private boolean missingGoogleAnalyticsCredentials;
 
     @PostConstruct
     private void initializeDefaultParams() {
 
-        if (trackingId == null || trackingId.isEmpty()) {
-            missingGoogleAnalyticsCredentials = true;
-        }
-        if (clientId == null || clientId.isEmpty()) {
-            missingGoogleAnalyticsCredentials = true;
-        }
-
+        missingGoogleAnalyticsCredentials = trackingId.isEmpty() || clientId.isEmpty();
         if (missingGoogleAnalyticsCredentials) {
             if (LOG.isInfoEnabled()) {
                 LOG.info("@PostContruct:");
-                LOG.info("Google Analytics tracking id: " + ((trackingId == null) ? "null" : trackingId));
-                LOG.info("Google Analytics client id: " + ((clientId == null) ? "null" : clientId));
+                LOG.info("Google Analytics tracking id: {}", trackingId);
+                LOG.info("Google Analytics client id: {}", clientId);
             }
             return;
         }
@@ -52,7 +55,7 @@ public class GoogleAnalyticsInterceptor extends HandlerInterceptorAdapter {
         defaultHeaders.setContentType(MediaType.APPLICATION_FORM_URLENCODED);
         defaultHeaders.set(HttpHeaders.USER_AGENT, "cBioPortal API Reporting/1.0 via org.cbioportal.web.util.GoogleAnalyticsInterceptor");
 
-        globalURIVariables = new LinkedMultiValueMap<String, String>();
+        globalURIVariables = new LinkedMultiValueMap<>();
         globalURIVariables.add("v", "1");
         globalURIVariables.add("dt", "request logged by GoogleAnalyticsInterceptor");
         globalURIVariables.add("t", "pageview");
@@ -62,8 +65,7 @@ public class GoogleAnalyticsInterceptor extends HandlerInterceptorAdapter {
     }
 
     @Override
-    public void afterCompletion(HttpServletRequest request, HttpServletResponse response, Object handler, Exception ex)
-            throws Exception {
+    public void afterCompletion(HttpServletRequest request, HttpServletResponse response, Object handler, Exception ex) {
 
         if (invalidAfterCompletionArgs(response)) {
             return;
@@ -74,7 +76,7 @@ public class GoogleAnalyticsInterceptor extends HandlerInterceptorAdapter {
                 thisTasksURIVariables.putAll(globalURIVariables);
                 thisTasksURIVariables.add("dp", request.getRequestURI());
                 HttpEntity<LinkedMultiValueMap<String, String>> requestEntity =
-                    new HttpEntity<LinkedMultiValueMap<String, String>>(thisTasksURIVariables, defaultHeaders);
+                    new HttpEntity<>(thisTasksURIVariables, defaultHeaders);
                 try {
                     RestTemplate restTemplate = new RestTemplate();
                     ResponseEntity<String> responseEntity =
@@ -99,6 +101,7 @@ public class GoogleAnalyticsInterceptor extends HandlerInterceptorAdapter {
         });
     }
 
+    // TODO I think this bean should not be created when no Google analytics are configured.    
     private boolean invalidAfterCompletionArgs(HttpServletResponse response) {
         if (missingGoogleAnalyticsCredentials || response.getHeader("referer") != null) {
             if (LOG.isInfoEnabled()) {

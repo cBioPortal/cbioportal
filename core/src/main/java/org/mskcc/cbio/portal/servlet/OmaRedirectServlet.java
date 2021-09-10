@@ -39,9 +39,10 @@ import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import org.apache.log4j.Logger;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.mskcc.cbio.portal.util.OmaLinkUtil;
 
 /**
@@ -51,7 +52,7 @@ import org.mskcc.cbio.portal.util.OmaLinkUtil;
  */
 public class OmaRedirectServlet extends HttpServlet {
 
-    private static Logger logger = Logger.getLogger(OmaRedirectServlet.class);
+    private static Logger logger = LoggerFactory.getLogger(OmaRedirectServlet.class);
 
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {

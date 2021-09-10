@@ -42,18 +42,18 @@ import java.net.MalformedURLException;
 import java.net.URL;
 import java.nio.charset.Charset;
 import java.util.Map;
+import javax.servlet.ServletRequest;
 import org.apache.commons.codec.binary.Base64;
 import org.apache.commons.httpclient.HttpException;
 import org.apache.commons.io.IOUtils;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.mskcc.cbio.portal.model.virtualstudy.VirtualStudy;
-import org.springframework.beans.factory.annotation.Autowired;
+import org.mskcc.cbio.portal.servlet.ClinicalJSON;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.ResponseEntity;
-import org.springframework.stereotype.Component;
 import org.springframework.web.client.HttpStatusCodeException;
 import org.springframework.web.client.RestTemplate;
 
@@ -64,7 +64,7 @@ import org.springframework.web.client.RestTemplate;
 
 public class SessionServiceUtil {
 
-    private static Log LOG = LogFactory.getLog(SessionServiceUtil.class);
+    private static Logger LOG = LoggerFactory.getLogger(SessionServiceUtil.class);
 
     /**
      * Returns an ServletRequest parameter map for a given sessionId. 

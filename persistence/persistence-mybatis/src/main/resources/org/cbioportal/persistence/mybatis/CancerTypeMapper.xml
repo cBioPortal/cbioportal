@@ -2,7 +2,6 @@
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 
 <mapper namespace="org.cbioportal.persistence.mybatis.CancerTypeMapper">
-    
 
     <sql id="select">
         type_of_cancer.TYPE_OF_CANCER_ID AS "${prefix}typeOfCancerId"
@@ -14,7 +13,7 @@
             type_of_cancer.PARENT AS "${prefix}parent"
         </if>
     </sql>
-
+    
     <select id="getAllCancerTypes" resultType="org.cbioportal.model.TypeOfCancer">
         SELECT
         <include refid="select">
@@ -22,7 +21,7 @@
         </include>
         FROM type_of_cancer
         <if test="sortBy != null and projection != 'ID'">
-            ORDER BY ${sortBy} ${direction}
+            ORDER BY "${sortBy}" ${direction}
         </if>
         <if test="projection == 'ID'">
             ORDER BY type_of_cancer.TYPE_OF_CANCER_ID ASC
@@ -34,7 +33,7 @@
 
     <select id="getMetaCancerTypes" resultType="org.cbioportal.model.meta.BaseMeta">
         SELECT
-        COUNT(*) AS totalCount
+        COUNT(*) AS "totalCount"
         FROM type_of_cancer
     </select>
 

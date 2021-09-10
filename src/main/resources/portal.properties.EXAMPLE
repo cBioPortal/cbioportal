@@ -2,12 +2,18 @@
 app.name=cbioportal
 
 # database
-db.user=cbio_user
-db.password=somepassword
-db.host=localhost:3306
-db.portal_db_name=cbioportal
-db.driver=com.mysql.jdbc.Driver
-db.connection_string=jdbc:mysql://localhost:3306/
+spring.datasource.url=jdbc:mysql://localhost:3306/cbioportal?useSSL=false
+spring.datasource.username=cbio
+spring.datasource.password=P@ssword1
+spring.datasource.driver-class-name=com.mysql.cj.jdbc.Driver
+spring.jpa.database-platform=org.hibernate.dialect.MySQL5InnoDBDialect
+
+# this should normally be set to false. In some cases you could set this to true (e.g. for testing a feature of a newer release that is not related to the schema change in expected db version above):
+db.suppress_schema_version_mismatch_errors=false
+
+# authentication
+authenticate=saml
+
 # set tomcat_resource_name when using dbconnector=jndi instead of the default
 # dbconnector=dbcp. Note that dbconnector needs to be set in CATLINA_OPTS when
 # using Tomcat (CATALINA_OPTS="-Ddbconnector=jndi"). It does not get picked up
@@ -16,9 +22,6 @@ db.connection_string=jdbc:mysql://localhost:3306/
 #
 # db.tomcat_resource_name=jdbc/cbioportal
 
-# this should normally be set to false. In some cases you could set this to true (e.g. for testing a feature of a newer release that is not related to the schema change in expected db version above):
-db.suppress_schema_version_mismatch_errors=false
-db.use_ssl=false
 # web page cosmetics
 skin.title=cBioPortal for Cancer Genomics
 skin.email_contact=cbioportal at googlegroups dot com
@@ -108,27 +111,56 @@ microsoftlive.consumer.key=
 microsoftlive.consumer.secret=
 
 ## SAML settings
-saml.sp.metadata.entityid=
-# change this url if behind reverse proxy that handles SSL, see docs/Authenticating-Users-via-SAML.md
-saml.sp.metadata.entityBaseURL=#{null}
-saml.idp.metadata.location=
-saml.idp.metadata.entityid=
-# saml keystore settings:
-saml.keystore.location=
-saml.keystore.password=
-saml.keystore.private-key.key=
-saml.keystore.private-key.password=
-saml.keystore.default-key=
-# How to send SAML request messages to the IDP.
-# Set to "specificBinding" to configure specific binding:
-saml.idp.comm.binding.settings=defaultBinding
-# Configure the specific binding if above is specificBinding. Leave empty if defaultBinding.
-# Options: bindings:HTTP-POST, bindings:HTTP-Redirect, bindings:PAOS, profiles:holder-of-key:SSO:browser
-saml.idp.comm.binding.type=
-# Change this to configure your custom UserDetails parser (default: org.cbioportal.security.spring.authentication.saml.SAMLUserDetailsServiceImpl)
-saml.custom.userservice.class=org.cbioportal.security.spring.authentication.saml.SAMLUserDetailsServiceImpl
-# Change this to configure to configure a custom logout URL: (default: /login.jsp?logout_success=true)
-saml.logout.url=/login.jsp?logout_success=true
+# TODO add options for auto- and manual config to docs
+# TODO add to docs: metadata-uri can be both URL or metadata xml file
+# Providing the SAML2 IDP metadata is sufficient to autoconfigure the provider. The 'metadata-uri' property can point to
+# and HTTP endpoint or a metadata xml file on the file system.
+#spring.security.saml2.relyingparty.registration.cbio-idp.identityprovider.metadata-uri=classpath:/client-tailored-saml-idp-metadata.xml
+spring.security.saml2.relyingparty.registration.cbio-idp.identityprovider.metadata-uri=http://localhost:8082/auth/realms/cbio/protocol/saml/descriptor
+spring.security.saml2.relyingparty.registration.cbio-idp.identityprovider.entity-id=http://localhost:8082/auth/realms/cbio
+spring.security.saml2.relyingparty.registration.cbio-idp.entity-id=cbioportal
+spring.security.saml2.relyingparty.registration.cbio-idp.signing.credentials[0].certificate-location=classpath:/cert.pem
+spring.security.saml2.relyingparty.registration.cbio-idp.signing.credentials[0].private-key-location=classpath:/key.pem
+
+saml.idp.metadata.attribute.email=
+saml.idp.metadata.attribute.role=
+# TODO document: 'When true, study roles will be retrieved from the cBioPortal database and added to the roles provided by the IDP (default 'false').'
+saml.roles-from-database=
+
+# Change this to configure to configure a custom logout URL: (default: /saml/logout)
+saml.logout.url=/saml/logout
+
+# OAuth2 settings
+# Provider information
+# A number of wel known IDP are supported as preconfigured CommonOAuth2Providers.
+# See: https://docs.spring.io/spring-security/site/docs/5.5.x/reference/html5/#oauth2login-common-oauth2-provider
+# For custom IDPs see: https://docs.spring.io/spring-security/site/docs/5.5.x/reference/html5/#oauth2login-custom-provider-properties
+
+# For OAuth2 Client/Login
+# TODO add options for auto- and manual config to docs
+# For OIDC clients the issuer-uri is sufficient to autoconfigure the provider (via .well-known endpoint)
+spring.security.oauth2.client.provider.cbio-idp.issuer-uri=
+spring.security.oauth2.client.provider.cbio-idp.user-name-attribute=
+# Configuring the individual settings below is not recommended. 
+   # spring.security.oauth2.client.provider.cbio-idp.authorization-uri=
+   # spring.security.oauth2.client.provider.cbio-idp.token-uri=
+   # TODO update docs, the user info endpoint must expose the roles !!
+   # spring.security.oauth2.client.provider.cbio-idp.user-info-uri=
+   # spring.security.oauth2.client.provider.cbio-idp.jwk-set-uri=
+   # spring.security.oauth2.client.provider.cbio-idp.logout-uri= # NOTE: this is not an official property.
+spring.security.oauth2.client.registration.cbio-idp.client-id=
+spring.security.oauth2.client.registration.cbio-idp.client-secret=
+# TODO Can be authorization_code, ...
+spring.security.oauth2.client.registration.cbio-idp.authorization-grant-type=
+# TODO Can be client_secret_post, ...
+spring.security.oauth2.client.registration.cbio-idp.client-authentication-method=
+spring.security.oauth2.client.registration.cbio-idp.redirect-uri=<server-url>/login/oauth2/authorization/<client-registration-id (cbio-idp in this case)>
+# Scope must include 'oidc' for SSO logout to work.
+spring.security.oauth2.client.registration.cbio-idp.scope=oidc,email,roles
+# TODO add to docs (in minutes; default 1)
+spring.security.oauth2.allowed-clock-skew=
+# TODO add to docs
+spring.security.oauth2.logout-url=
 
 # data access token settings
 dat.unauth_users=
@@ -277,6 +309,16 @@ oncoprint.hotspots.default=true
 persistence.cache_type=no-cache
 # Enable cache statistics endpoint for cache monitoring
 #cache.statistics_endpoint_enabled=false
+# Turn cache management endpoint on or off (default)
+# cache.endpoint.enabled=true
+# API key for access to cache management endpoint
+# cache.endpoint.api-key=fd15f1ae-66f2-4b8a-8d54-fb899b03557e
+# Externalize the study data used for user authorization evaluation to Spring-managed caches such as EHCache or Redis.
+# Enabling this might simplify cache-invalidation strategies (via /api/cache endpoint) because it allows for invalidation
+# a central caching solution shared among cBioPortal containers in a single instance. It comes at the cost of extra calls
+# to the caching provider. Default is 'false' meaning that cBioPortal will use a faster local HashMap-based cache for fast
+# lookup of sample/patient/profile to cancer study relationships.
+#cache.cache-map-utils.spring-managed=false
 
 # Redis properties
 # Unique name for each portal instance, used for distinguishing caches
@@ -355,7 +397,3 @@ persistence.cache_type=no-cache
 # If blank or commented out, no map will be shown and that page will be hidden.
 # installation_map_url=https://installationmap.netlify.app/
 
-# Turn cache management endpoint on or off (default)
-# cache.endpoint.enabled=true
-# API key for access to cache management endpoint
-# cache.endpoint.api-key=fd15f1ae-66f2-4b8a-8d54-fb899b03557e

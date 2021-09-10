@@ -2,7 +2,22 @@
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 
 <mapper namespace="org.cbioportal.persistence.mybatis.ClinicalDataMapper">
-    
+
+    <!--    TODO duplicate of select in ClinicalAttributeMapper - remove-->
+    <!--    somehow the namespace mechanism does not work for this mapper xml-->
+    <sql id="selectClinicalAttribute">
+        clinical_attribute_meta.ATTR_ID AS "${prefix}attrId",
+        cancer_study.CANCER_STUDY_IDENTIFIER AS "${prefix}cancerStudyIdentifier",
+        clinical_attribute_meta.CANCER_STUDY_ID AS "${prefix}cancerStudyId",
+        clinical_attribute_meta.PATIENT_ATTRIBUTE AS "${prefix}patientAttribute",
+        clinical_attribute_meta.DISPLAY_NAME AS "${prefix}displayName"
+        <if test="projection == 'SUMMARY' || projection == 'DETAILED'">
+            ,
+            clinical_attribute_meta.DESCRIPTION AS "${prefix}description",
+            clinical_attribute_meta.DATATYPE AS "${prefix}datatype",
+            clinical_attribute_meta.PRIORITY AS "${prefix}priority"
+        </if>
+    </sql>
 
     <sql id="selectSample">
         clinical_sample.INTERNAL_ID AS "${prefix}internalId",
@@ -15,7 +30,7 @@
         </if>
         <if test="projection == 'DETAILED'">
             ,
-            <include refid="org.cbioportal.persistence.mybatis.ClinicalAttributeMapper.select">
+            <include refid="selectClinicalAttribute">
                 <property name="prefix" value="${prefix}clinicalAttribute."/>
             </include>
         </if>
@@ -31,7 +46,7 @@
         </if>
         <if test="projection == 'DETAILED'">
             ,
-            <include refid="org.cbioportal.persistence.mybatis.ClinicalAttributeMapper.select">
+            <include refid="selectClinicalAttribute">
                 <property name="prefix" value="${prefix}clinicalAttribute."/>
             </include>
         </if>
@@ -121,7 +136,7 @@
         </if>
         <include refid="whereSample"/>
         <if test="sortBy != null and projection != 'ID'">
-            ORDER BY ${sortBy} ${direction}
+            ORDER BY "${sortBy}" ${direction}
         </if>
         <if test="projection == 'ID'">
             ORDER BY clinical_sample.ATTR_ID ASC
@@ -133,7 +148,7 @@
 
     <select id="getMetaSampleClinicalData" resultType="org.cbioportal.model.meta.BaseMeta">
         SELECT
-        COUNT(*) AS totalCount
+        COUNT(*) AS "totalCount"
         <include refid="fromSample"/>
         <include refid="whereSample"/>
     </select>
@@ -151,7 +166,7 @@
         </if>
         <include refid="wherePatient"/>
         <if test="sortBy != null and projection != 'ID'">
-            ORDER BY ${sortBy} ${direction}
+            ORDER BY "${sortBy}" ${direction}
         </if>
         <if test="projection == 'ID'">
             ORDER BY clinical_patient.ATTR_ID ASC
@@ -176,7 +191,7 @@
         </if>
         <include refid="wherePatient"/>
         <if test="sortBy != null and projection != 'ID'">
-            ORDER BY ${sortBy} ${direction}
+            ORDER BY "${sortBy}" ${direction}
         </if>
         <if test="projection == 'ID'">
             ORDER BY clinical_patient.ATTR_ID ASC
@@ -188,7 +203,7 @@
 
     <select id="getMetaPatientClinicalData" resultType="org.cbioportal.model.meta.BaseMeta">
         SELECT
-        COUNT(*) AS totalCount
+        COUNT(*) AS "totalCount"
         <include refid="fromPatient"/>
         <include refid="wherePatient"/>
     </select>

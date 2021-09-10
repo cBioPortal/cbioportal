@@ -7,12 +7,12 @@ import java.util.regex.Pattern;
 import javax.servlet.http.HttpServletResponse;
 import javax.validation.constraints.Size;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.cbioportal.web.parameter.*;
 import org.cbioportal.web.util.SessionServiceRequestHandler;
-import org.cbioportal.session_service.domain.Session;
-import org.cbioportal.session_service.domain.SessionType;
+import org.cbioportal.utils.removeme.Session;
+import org.cbioportal.utils.removeme.Session.SessionType;
 import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
 import org.json.simple.parser.ParseException;
@@ -39,10 +39,10 @@ import com.mongodb.BasicDBObject;
 import com.mongodb.QueryOperators;
 
 @Controller
-@RequestMapping("/session")
+@RequestMapping("/api/session")
 public class SessionServiceController {
 
-    private static final Log LOG = LogFactory.getLog(SessionServiceController.class);
+    private static final Logger LOG = LoggerFactory.getLogger(SessionServiceController.class);
     
     @Autowired
     SessionServiceRequestHandler sessionServiceRequestHandler;
@@ -51,18 +51,15 @@ public class SessionServiceController {
     private String sessionServiceURL;
 
     private boolean isAuthorized() {
-
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         return !(authentication == null || (authentication instanceof AnonymousAuthenticationToken));
     }
 
     private String userName() {
-
         return ((UserDetails) SecurityContextHolder.getContext().getAuthentication().getPrincipal()).getUsername();
     }
 
     private boolean sameOrigin(Set<String> set1, Set<String> set2) {
-
         if (set1 == null || set2 == null) {
             return false;
         }
@@ -153,7 +150,7 @@ public class SessionServiceController {
             return new ResponseEntity<>(resp.getBody(), resp.getStatusCode());
 
         } catch (IOException e) {
-            LOG.error(e);
+            LOG.error("Error occurred", e);
             return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
         }
     }
@@ -166,7 +163,7 @@ public class SessionServiceController {
             return new ResponseEntity<>(session, HttpStatus.OK);
 
         } catch (Exception exception) {
-            LOG.error(exception);
+            LOG.error("Error occurred", exception);
             return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
@@ -192,7 +189,7 @@ public class SessionServiceController {
 
                 return new ResponseEntity<>(responseEntity.getBody(), HttpStatus.OK);
             } catch (Exception exception) {
-                LOG.error(exception);
+                LOG.error("Error occurred", exception);
                 return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
             }
         }
@@ -338,7 +335,7 @@ public class SessionServiceController {
                 response.setStatus(HttpStatus.SERVICE_UNAVAILABLE.value());
             }
         } catch (IOException | ParseException e) {
-            LOG.error(e);
+            LOG.error("Error occurred", e);
             response.setStatus(HttpStatus.BAD_REQUEST.value());
         }
     }
@@ -398,7 +395,7 @@ public class SessionServiceController {
             }
             return new ResponseEntity<>(HttpStatus.SERVICE_UNAVAILABLE);
         } catch (Exception e) {
-            LOG.error(e);
+            LOG.error("Error occurred", e);
             return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
         }
     }

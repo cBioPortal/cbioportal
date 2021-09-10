@@ -1,6 +1,18 @@
 package org.cbioportal.web;
 
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.argThat;
+import static org.mockito.Mockito.when;
+import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
+
+
 import com.fasterxml.jackson.databind.ObjectMapper;
+import java.math.BigDecimal;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 import org.cbioportal.model.AlterationEnrichment;
 import org.cbioportal.model.AlterationFilter;
 import org.cbioportal.model.CNA;
@@ -8,6 +20,7 @@ import org.cbioportal.model.CountSummary;
 import org.cbioportal.model.MolecularProfileCaseIdentifier;
 import org.cbioportal.model.MutationEventType;
 import org.cbioportal.service.AlterationEnrichmentService;
+import org.cbioportal.web.config.TestConfig;
 import org.cbioportal.web.parameter.MolecularProfileCasesGroupAndAlterationTypeFilter;
 import org.cbioportal.web.parameter.MolecularProfileCasesGroupFilter;
 import org.cbioportal.web.util.AlterationFilterMockitoArgumentMatcher;
@@ -18,33 +31,19 @@ import org.junit.runner.RunWith;
 import org.mockito.ArgumentMatcher;
 import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.context.annotation.Bean;
-import org.springframework.context.annotation.Configuration;
+import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
+import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.MediaType;
+import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
-import org.springframework.test.context.web.WebAppConfiguration;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
-import org.springframework.test.web.servlet.setup.MockMvcBuilders;
-import org.springframework.web.context.WebApplicationContext;
-
-import java.math.BigDecimal;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.argThat;
-import static org.mockito.Mockito.when;
 
 @RunWith(SpringJUnit4ClassRunner.class)
-@WebAppConfiguration
-@ContextConfiguration("/applicationContext-web-test.xml")
-@Configuration
+@WebMvcTest(AlterationEnrichmentControllerTest.class)
+@ContextConfiguration(classes={AlterationEnrichmentController.class, TestConfig.class})
 public class AlterationEnrichmentControllerTest {
 
     private static final int TEST_ENTREZ_GENE_ID_1 = 1;
@@ -62,23 +61,16 @@ public class AlterationEnrichmentControllerTest {
     private static final int TEST_NUMBER_OF_SAMPLES_PROFILED_IN_SET_1 = 1;
     private static final int TEST_NUMBER_OF_SAMPLES_PROFILED_IN_SET_2 = 1;
 
-    @Autowired
-    private WebApplicationContext wac;
-
-    @Autowired
+    @MockBean
     private AlterationEnrichmentService alterationEnrichmentService;
 
-    private ObjectMapper objectMapper = new ObjectMapper();
-
+    @Autowired
     private MockMvc mockMvc;
+
+    private ObjectMapper objectMapper = new ObjectMapper();
     private ArrayList<AlterationEnrichment> alterationEnrichments;
     Map<MutationEventType, Boolean> mutationTypes;
     Map<CNA, Boolean> cnaTypes;
-
-    @Bean
-    public AlterationEnrichmentService alterationEnrichmentService() {
-        return Mockito.mock(AlterationEnrichmentService.class);
-    }
 
     private MolecularProfileCasesGroupAndAlterationTypeFilter filter;
 
@@ -148,14 +140,12 @@ public class AlterationEnrichmentControllerTest {
 
         filter.setAlterationEventTypes(new AlterationFilter());
         
-        mockMvc = MockMvcBuilders.webAppContextSetup(wac).build();
-        
         mutationTypes = new HashMap<>();
         cnaTypes = new HashMap<>();
-        
     }
 
     @Test
+    @WithMockUser
     public void fetchAlterationEnrichmentsAllTypes() throws Exception {
 
         when(alterationEnrichmentService.getAlterationEnrichments(
@@ -172,7 +162,7 @@ public class AlterationEnrichmentControllerTest {
         filter.getAlterationEventTypes().setCopyNumberAlterationEventTypes(cnaTypes);
         
         mockMvc.perform(MockMvcRequestBuilders.post(
-            "/alteration-enrichments/fetch")
+            "/api/alteration-enrichments/fetch").with(csrf())
             .accept(MediaType.APPLICATION_JSON)
             .contentType(MediaType.APPLICATION_JSON)
             .content(objectMapper.writeValueAsString(filter)))
@@ -198,6 +188,7 @@ public class AlterationEnrichmentControllerTest {
     }
 
     @Test
+    @WithMockUser
     public void fetchAlterationEnrichmentsNoTypes() throws Exception {
 
         when(alterationEnrichmentService.getAlterationEnrichments(
@@ -214,7 +205,7 @@ public class AlterationEnrichmentControllerTest {
         filter.getAlterationEventTypes().setCopyNumberAlterationEventTypes(cnaTypes);
 
         mockMvc.perform(MockMvcRequestBuilders.post(
-            "/alteration-enrichments/fetch")
+            "/api/alteration-enrichments/fetch").with(csrf())
             .accept(MediaType.APPLICATION_JSON)
             .contentType(MediaType.APPLICATION_JSON)
             .content(objectMapper.writeValueAsString(filter)))
@@ -240,6 +231,7 @@ public class AlterationEnrichmentControllerTest {
     }
 
     @Test
+    @WithMockUser
     public void fetchAlterationEnrichmentsAllMutationTypesDeselected() throws Exception {
 
         when(alterationEnrichmentService.getAlterationEnrichments(
@@ -257,7 +249,7 @@ public class AlterationEnrichmentControllerTest {
         filter.getAlterationEventTypes().setCopyNumberAlterationEventTypes(cnaTypes);
 
         mockMvc.perform(MockMvcRequestBuilders.post(
-            "/alteration-enrichments/fetch")
+            "/api/alteration-enrichments/fetch").with(csrf())
             .accept(MediaType.APPLICATION_JSON)
             .contentType(MediaType.APPLICATION_JSON)
             .content(objectMapper.writeValueAsString(filter)))
@@ -283,6 +275,7 @@ public class AlterationEnrichmentControllerTest {
     }
 
     @Test
+    @WithMockUser
     public void fetchAlterationEnrichmentsAllCnaTypesDeselected() throws Exception {
 
         when(alterationEnrichmentService.getAlterationEnrichments(
@@ -300,7 +293,7 @@ public class AlterationEnrichmentControllerTest {
         filter.getAlterationEventTypes().setCopyNumberAlterationEventTypes(cnaTypes);
         
         mockMvc.perform(MockMvcRequestBuilders.post(
-            "/alteration-enrichments/fetch")
+            "/api/alteration-enrichments/fetch").with(csrf())
             .accept(MediaType.APPLICATION_JSON)
             .contentType(MediaType.APPLICATION_JSON)
             .content(objectMapper.writeValueAsString(filter)))
@@ -310,6 +303,7 @@ public class AlterationEnrichmentControllerTest {
     }
 
     @Test
+    @WithMockUser
     public void fetchAlterationEnrichmentsSubsetTypes() throws Exception {
 
         when(alterationEnrichmentService.getAlterationEnrichments(
@@ -326,7 +320,7 @@ public class AlterationEnrichmentControllerTest {
         filter.getAlterationEventTypes().setCopyNumberAlterationEventTypes(cnaTypes);
 
         mockMvc.perform(MockMvcRequestBuilders.post(
-            "/alteration-enrichments/fetch")
+            "/api/alteration-enrichments/fetch").with(csrf())
             .accept(MediaType.APPLICATION_JSON)
             .contentType(MediaType.APPLICATION_JSON)
             .content(objectMapper.writeValueAsString(filter)))

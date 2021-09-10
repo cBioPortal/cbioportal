@@ -34,7 +34,7 @@ public class ResourceDefinitionController {
     private ResourceDefinitionService resourceDefinitionService;
 
     @PreAuthorize("hasPermission(#studyId, 'CancerStudyId', 'read')")
-    @RequestMapping(value = "/studies/{studyId}/resource-definitions", method = RequestMethod.GET,
+    @RequestMapping(value = "/api/studies/{studyId}/resource-definitions", method = RequestMethod.GET,
             produces = MediaType.APPLICATION_JSON_VALUE)
     @ApiOperation("Get all resource definitions in the specified study")
     public ResponseEntity<List<ResourceDefinition>> getAllResourceDefinitionsInStudy(
@@ -65,7 +65,7 @@ public class ResourceDefinitionController {
     }
 
     @PreAuthorize("hasPermission(#studyId, 'CancerStudyId', 'read')")
-    @RequestMapping(value = "/studies/{studyId}/resource-definitions/{resourceId}", method = RequestMethod.GET,
+    @RequestMapping(value = "/api/studies/{studyId}/resource-definitions/{resourceId}", method = RequestMethod.GET,
             produces = MediaType.APPLICATION_JSON_VALUE)
     @ApiOperation("Get specified resource definition")
     public ResponseEntity<ResourceDefinition> getResourceDefinitionInStudy(
@@ -80,7 +80,7 @@ public class ResourceDefinitionController {
     }
 
     @PreAuthorize("hasPermission(#studyIds, 'Collection<CancerStudyId>', 'read')")
-    @RequestMapping(value = "/resource-definitions/fetch", method = RequestMethod.POST, consumes = MediaType.APPLICATION_JSON_VALUE,
+    @RequestMapping(value = "/api/resource-definitions/fetch", method = RequestMethod.POST, consumes = MediaType.APPLICATION_JSON_VALUE,
         produces = MediaType.APPLICATION_JSON_VALUE)
     @ApiOperation("Get all resource definitions for specified studies")
     public ResponseEntity<List<ResourceDefinition>> fetchResourceDefinitions(

@@ -47,7 +47,8 @@ import java.io.*;
 import java.util.*;
 import javax.servlet.*;
 import org.apache.commons.lang3.StringUtils;
-import org.apache.commons.logging.*;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.cbioportal.model.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -92,7 +93,7 @@ public class DebugHrrsFilter extends HrrsFilter {
 
     private static RotationConfig createRotationConfig() {
         // default to tmpdir if logging is enabled but no logging path is provided
-        String hrrsLoggingFilePath = (!StringUtils.isEmpty(GlobalProperties.getProperty("hrrs.logging.filepath")) ? GlobalProperties.getProperty("hrrs.logging.filepath") : System.getProperty("java.io.tmpdir") + DEFAULT_HRRS_LOGGING_NAME);
+        String hrrsLoggingFilePath = (!ObjectUtils.isEmpty(GlobalProperties.getProperty("hrrs.logging.filepath")) ? GlobalProperties.getProperty("hrrs.logging.filepath") : System.getProperty("java.io.tmpdir") + DEFAULT_HRRS_LOGGING_NAME);
         String file = new File(hrrsLoggingFilePath).getAbsolutePath();
         String filePattern = new File(hrrsLoggingFilePath + "-%d{yyyyMMdd-HHmmss-SSS}.csv").getAbsolutePath();
         RotationConfig rotationConfig = RotationConfig

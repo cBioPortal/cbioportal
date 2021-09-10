@@ -38,7 +38,8 @@ import org.mskcc.cbio.portal.util.*;
 import org.mskcc.cbio.portal.model.CancerStudy;
 import org.mskcc.cbio.portal.web_api.ProtocolException;
 
-import org.apache.commons.logging.*;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.Authentication;
@@ -58,7 +59,7 @@ import java.util.*;
 public class AccessControlImpl implements AccessControl {
 
     // ref to log
-    private static Log log = LogFactory.getLog(AccessControlImpl.class);
+    private static Logger log = LoggerFactory.getLogger(AccessControlImpl.class);
 
     /**
      * Gets Cancer Studies. Used by QueryBuilder.

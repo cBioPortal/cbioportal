@@ -4,6 +4,7 @@ import java.util.Collections;
 
 import org.cbioportal.web.config.annotation.InternalApi;
 import org.cbioportal.web.config.annotation.PublicApi;
+import springfox.bean.validators.configuration.BeanValidatorPluginsConfiguration;
 import springfox.documentation.builders.RequestHandlerSelectors;
 import springfox.documentation.service.ApiInfo;
 import springfox.documentation.service.Contact;
@@ -22,6 +23,12 @@ import springfox.documentation.swagger.web.UiConfigurationBuilder;
 @EnableSwagger2
 @PropertySource("classpath:springfox.properties")
 public class SwaggerConfig {
+
+    @Bean
+    public BeanValidatorPluginsConfiguration beanValidatorPluginsConfiguration() {
+        return new BeanValidatorPluginsConfiguration();
+    }
+
     @Bean
     public Docket publicApi() {
         Docket d = new Docket(DocumentationType.SWAGGER_2)

@@ -35,7 +35,7 @@ public class GenesetDataController {
     private GenesetDataService genesetDataService;
 
     @PreAuthorize("hasPermission(#geneticProfileId, 'GeneticProfileId', 'read')")
-    @RequestMapping(value = "/genetic-profiles/{geneticProfileId}/geneset-genetic-data/fetch", method = RequestMethod.POST, consumes = MediaType.APPLICATION_JSON_VALUE,
+    @RequestMapping(value = "/api/genetic-profiles/{geneticProfileId}/geneset-genetic-data/fetch", method = RequestMethod.POST, consumes = MediaType.APPLICATION_JSON_VALUE,
             produces = MediaType.APPLICATION_JSON_VALUE)
     @ApiOperation("Fetch gene set \"genetic data\" items (gene set scores) by profile Id, gene set ids and sample ids")
     public ResponseEntity<List<GenesetMolecularData>> fetchGeneticDataItems(

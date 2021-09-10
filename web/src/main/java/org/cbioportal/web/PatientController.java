@@ -45,7 +45,7 @@ public class PatientController {
     @Autowired
     private UniqueKeyExtractor uniqueKeyExtractor;
 
-    @RequestMapping(value = "/patients", method = RequestMethod.GET,
+    @RequestMapping(value = "/api/patients", method = RequestMethod.GET,
         produces = MediaType.APPLICATION_JSON_VALUE)
     @ApiOperation("Get all patients")
     public ResponseEntity<List<Patient>> getAllPatients(
@@ -78,7 +78,7 @@ public class PatientController {
     }
 
     @PreAuthorize("hasPermission(#studyId, 'CancerStudyId', 'read')")
-    @RequestMapping(value = "/studies/{studyId}/patients", method = RequestMethod.GET,
+    @RequestMapping(value = "/api/studies/{studyId}/patients", method = RequestMethod.GET,
         produces = MediaType.APPLICATION_JSON_VALUE)
     @ApiOperation("Get all patients in a study")
     public ResponseEntity<List<Patient>> getAllPatientsInStudy(
@@ -111,7 +111,7 @@ public class PatientController {
     }
 
     @PreAuthorize("hasPermission(#studyId, 'CancerStudyId', 'read')")
-    @RequestMapping(value = "/studies/{studyId}/patients/{patientId}", method = RequestMethod.GET,
+    @RequestMapping(value = "/api/studies/{studyId}/patients/{patientId}", method = RequestMethod.GET,
         produces = MediaType.APPLICATION_JSON_VALUE)
     @ApiOperation("Get a patient in a study")
     public ResponseEntity<Patient> getPatientInStudy(
@@ -124,7 +124,7 @@ public class PatientController {
     }
 
     @PreAuthorize("hasPermission(#involvedCancerStudies, 'Collection<CancerStudyId>', 'read')")
-    @RequestMapping(value = "/patients/fetch", method = RequestMethod.POST, consumes = MediaType.APPLICATION_JSON_VALUE,
+    @RequestMapping(value = "/api/patients/fetch", method = RequestMethod.POST, consumes = MediaType.APPLICATION_JSON_VALUE,
         produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<List<Patient>> fetchPatients(
         @ApiIgnore // prevent reference to this attribute in the swagger-ui interface

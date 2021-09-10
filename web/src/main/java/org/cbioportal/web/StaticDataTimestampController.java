@@ -24,7 +24,7 @@ public class StaticDataTimestampController {
     @Autowired
     private StaticDataTimestampService service;
     
-    @RequestMapping(value = "/timestamps", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
+    @RequestMapping(value = "/api/timestamps", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
     @ApiOperation("Get the last time each static resource was updated")
     public ResponseEntity<Map<String, String>> getAllTimestamps() {
         return new ResponseEntity<>(service.getTimestamps(TIMESTAMP_TABLES), HttpStatus.OK);

@@ -4,32 +4,29 @@ import org.cbioportal.model.ClinicalEvent;
 import org.cbioportal.model.ClinicalEventData;
 import org.cbioportal.model.meta.BaseMeta;
 import org.cbioportal.service.ClinicalEventService;
+import org.cbioportal.web.config.TestConfig;
 import org.cbioportal.web.parameter.HeaderKeyConstants;
 import org.hamcrest.Matchers;
-import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.context.annotation.Bean;
-import org.springframework.context.annotation.Configuration;
+import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
+import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.MediaType;
+import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
-import org.springframework.test.context.web.WebAppConfiguration;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
-import org.springframework.test.web.servlet.setup.MockMvcBuilders;
-import org.springframework.web.context.WebApplicationContext;
 
 import java.util.ArrayList;
 import java.util.List;
 
 @RunWith(SpringJUnit4ClassRunner.class)
-@WebAppConfiguration
-@ContextConfiguration("/applicationContext-web-test.xml")
-@Configuration
+@WebMvcTest
+@ContextConfiguration(classes = {ClinicalEventController.class, TestConfig.class})
 public class ClinicalEventControllerTest {
 
     private static final int TEST_CLINICAL_EVENT_ID_1 = 1;
@@ -52,27 +49,14 @@ public class ClinicalEventControllerTest {
     private static final String TEST_KEY_4 = "test_key_4";
     private static final String TEST_VALUE_4 = "test_value_4";
 
-    @Autowired
-    private WebApplicationContext wac;
-
-    @Autowired
+    @MockBean
     private ClinicalEventService clinicalEventService;
 
+    @Autowired
     private MockMvc mockMvc;
 
-    @Bean
-    public ClinicalEventService clinicalEventService() {
-        return Mockito.mock(ClinicalEventService.class);
-    }
-
-    @Before
-    public void setUp() throws Exception {
-
-        Mockito.reset(clinicalEventService);
-        mockMvc = MockMvcBuilders.webAppContextSetup(wac).build();
-    }
-
     @Test
+    @WithMockUser
     public void getAllClinicalEventsOfPatientInStudy() throws Exception {
 
         List<ClinicalEvent> clinicalEventList = createExampleClinicalEventList();
@@ -81,7 +65,7 @@ public class ClinicalEventControllerTest {
             Mockito.any(), Mockito.any(), Mockito.any(), Mockito.any(), Mockito.any()))
             .thenReturn(clinicalEventList);
 
-        mockMvc.perform(MockMvcRequestBuilders.get("/studies/test_study_id/patients/test_patient_id/clinical-events")
+        mockMvc.perform(MockMvcRequestBuilders.get("/api/studies/test_study_id/patients/test_patient_id/clinical-events")
             .accept(MediaType.APPLICATION_JSON))
             .andExpect(MockMvcResultMatchers.status().isOk())
             .andExpect(MockMvcResultMatchers.content().contentTypeCompatibleWith(MediaType.APPLICATION_JSON))
@@ -109,6 +93,7 @@ public class ClinicalEventControllerTest {
     }
 
     @Test
+    @WithMockUser
     public void getAllClinicalEventsOfPatientInStudyMetaProjection() throws Exception {
 
         BaseMeta baseMeta = new BaseMeta();
@@ -117,13 +102,14 @@ public class ClinicalEventControllerTest {
         Mockito.when(clinicalEventService.getMetaPatientClinicalEvents(Mockito.anyString(), Mockito.anyString()))
             .thenReturn(baseMeta);
 
-        mockMvc.perform(MockMvcRequestBuilders.get("/studies/test_study_id/patients/test_patient_id/clinical-events")
+        mockMvc.perform(MockMvcRequestBuilders.get("/api/studies/test_study_id/patients/test_patient_id/clinical-events")
             .param("projection", "META"))
             .andExpect(MockMvcResultMatchers.status().isOk())
             .andExpect(MockMvcResultMatchers.header().string(HeaderKeyConstants.TOTAL_COUNT, "2"));
     }
 
     @Test
+    @WithMockUser
     public void getAllClinicalEventsInStudy() throws Exception {
 
         List<ClinicalEvent> clinicalEventList = createExampleClinicalEventList();
@@ -132,7 +118,7 @@ public class ClinicalEventControllerTest {
             Mockito.any(), Mockito.any(), Mockito.any(), Mockito.any(), Mockito.any()))
             .thenReturn(clinicalEventList);
 
-        mockMvc.perform(MockMvcRequestBuilders.get("/studies/test_study_id/clinical-events")
+        mockMvc.perform(MockMvcRequestBuilders.get("/api/studies/test_study_id/clinical-events")
             .accept(MediaType.APPLICATION_JSON))
             .andExpect(MockMvcResultMatchers.status().isOk())
             .andExpect(MockMvcResultMatchers.content().contentTypeCompatibleWith(MediaType.APPLICATION_JSON))
@@ -160,6 +146,7 @@ public class ClinicalEventControllerTest {
     }
 
     @Test
+    @WithMockUser
     public void getAllClinicalEventsInStudyMetaProjection() throws Exception {
 
         BaseMeta baseMeta = new BaseMeta();
@@ -168,7 +155,7 @@ public class ClinicalEventControllerTest {
         Mockito.when(clinicalEventService.getMetaClinicalEvents(Mockito.anyString()))
             .thenReturn(baseMeta);
 
-        mockMvc.perform(MockMvcRequestBuilders.get("/studies/test_study_id/clinical-events")
+        mockMvc.perform(MockMvcRequestBuilders.get("/api/studies/test_study_id/clinical-events")
             .param("projection", "META"))
             .andExpect(MockMvcResultMatchers.status().isOk())
             .andExpect(MockMvcResultMatchers.header().string(HeaderKeyConstants.TOTAL_COUNT, "2"));

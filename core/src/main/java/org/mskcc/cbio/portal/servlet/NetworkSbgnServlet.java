@@ -33,8 +33,8 @@
 package org.mskcc.cbio.portal.servlet;
 /*
 import cpath.client.CPath2Client;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.biopax.paxtools.controller.EditorMap;
 import org.biopax.paxtools.controller.PropertyEditor;
 import org.biopax.paxtools.controller.SimpleEditorMap;
@@ -61,7 +61,7 @@ import java.util.*;
  */
 public class NetworkSbgnServlet extends HttpServlet
 {
-/*    private final static Log log = LogFactory.getLog(NetworkSbgnServlet.class);
+/*    private final static Log log = LoggerFactory.getLogger(NetworkSbgnServlet.class);
 
 	public final static String HGNC_GENE_PREFIX = "urn:biopax:RelationshipXref:HGNC_HGNC%3A";
 	public final static String CPATH_SERVICE = "http://awabi.cbio.mskcc.org/cpath2/";

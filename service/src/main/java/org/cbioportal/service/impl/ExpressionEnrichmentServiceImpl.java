@@ -109,7 +109,7 @@ public class ExpressionEnrichmentServiceImpl implements ExpressionEnrichmentServ
             // Build sampleIdToPatientIdMap to quick find if a sample has shared patientId with other samples
             List<String> sampleIds = molecularProfileCaseSets.values().stream().flatMap(Collection::stream).map(MolecularProfileCaseIdentifier::getCaseId).collect(Collectors.toList());
             List<String> studyIds = Collections.nCopies(sampleIds.size(), molecularProfile.getCancerStudyIdentifier());
-            List<Sample> samples = sampleService.fetchSamples(studyIds, sampleIds, "ID");
+            List<Sample> samples = sampleService.fetchSamples(studyIds, sampleIds, "SUMMARY");
             Map<String, Integer> sampleIdToPatientIdMap = samples.stream().collect(Collectors.toMap(Sample::getStableId, Sample::getPatientId));
             // Build filteredMolecularProfileCaseSets
             filteredMolecularProfileCaseSets = new HashMap<>();

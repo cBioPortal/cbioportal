@@ -1,0 +1,19 @@
+# Change INFO to DEBUG, if you want to see debugging info on underlying libraries we use.
+log4j.rootLogger=INFO, a
+
+# Change INFO to DEBUG, if you want see debugging info on our packages only.
+log4j.category.org.mskcc=INFO
+#log4j.category.org.springframework=ALL
+
+## IMPORTANT - THRESHOLD SHOULD NOT BE DEBUG FOR PRODUCTION, CREDENTIALS CAN BE DISPLAYED!
+#log4j.logger.org.springframework.security=DEBUG
+#log4j.logger.org.springframework.integration=DEBUG
+
+log4j.appender.a = org.apache.log4j.ConsoleAppender
+log4j.appender.a.target=System.out
+log4j.appender.a.immediateFlush=true
+log4j.appender.a.encoding=UTF-8
+log4j.appender.a.threshold=Error
+
+log4j.appender.a.layout = org.apache.log4j.PatternLayout
+log4j.appender.a.layout.ConversionPattern = %d{yyyy-MM-dd HH:mm:ss} [%t] %-5p %c - %m%n

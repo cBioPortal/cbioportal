@@ -33,7 +33,7 @@ public class MutationSpectrumController {
     private MutationSpectrumService mutationSpectrumService;
 
     @PreAuthorize("hasPermission(#molecularProfileId, 'MolecularProfileId', 'read')")
-    @RequestMapping(value = "/molecular-profiles/{molecularProfileId}/mutation-spectrums/fetch",
+    @RequestMapping(value = "/api/molecular-profiles/{molecularProfileId}/mutation-spectrums/fetch",
         method = RequestMethod.POST, consumes = MediaType.APPLICATION_JSON_VALUE,
         produces = MediaType.APPLICATION_JSON_VALUE)
     @ApiOperation("Fetch mutation spectrums in a molecular profile")

@@ -45,7 +45,7 @@ import org.springframework.test.context.junit4.SpringRunner;
 @RunWith(SpringRunner.class)
 public class OAuth2TokenRefreshTemplateTest {
 
-	public static String ACCESS_TOKEN = "dummy_access_token";
+    public static String ACCESS_TOKEN = "dummy_access_token";
     public static String OFFLINE_TOKEN_VALID = "dummy_valid_offline_token";
     public static String OFFLINE_TOKEN_INVALID = "dummy_invalid_offline_token";
 

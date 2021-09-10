@@ -1,24 +1,23 @@
 package org.cbioportal.persistence.mybatis;
 
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+import java.util.Optional;
 import org.cbioportal.model.ClinicalData;
 import org.cbioportal.model.ClinicalDataCount;
 import org.cbioportal.model.meta.BaseMeta;
 import org.cbioportal.persistence.PersistenceConstants;
+import org.cbioportal.persistence.mybatis.config.TestConfig;
 import org.junit.Assert;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Configurable;
-import org.springframework.test.context.ContextConfiguration;
+import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-
 @RunWith(SpringJUnit4ClassRunner.class)
-@ContextConfiguration("/testContextDatabase.xml")
-@Configurable
+@SpringBootTest(classes = {ClinicalDataMyBatisRepository.class, PatientMyBatisRepository.class, TestConfig.class})
 public class ClinicalDataMyBatisRepositoryTest {
 
     @Autowired
@@ -41,11 +40,16 @@ public class ClinicalDataMyBatisRepositoryTest {
                 "TCGA-A1-A0SB-01", null, "SUMMARY", null, null, null, null);
 
         Assert.assertEquals(3, result.size());
-        ClinicalData data = result.get(0);
-        Assert.assertEquals("DAYS_TO_COLLECTION", data.getAttrId());
-        Assert.assertEquals("276", data.getAttrValue());
-        Assert.assertEquals((Integer) 1, data.getInternalId());
-        Assert.assertNull(data.getClinicalAttribute());
+
+        Optional<ClinicalData> clinicalDataOptional =
+            result.stream().filter(r -> r.getAttrId().equals("DAYS_TO_COLLECTION")).findAny();
+        Assert.assertTrue(clinicalDataOptional.isPresent());
+        ClinicalData clinicalAttribute = clinicalDataOptional.get();
+
+        Assert.assertEquals("DAYS_TO_COLLECTION", clinicalAttribute.getAttrId());
+        Assert.assertEquals("276", clinicalAttribute.getAttrValue());
+        Assert.assertEquals((Integer) 1, clinicalAttribute.getInternalId());
+        Assert.assertNull(clinicalAttribute.getClinicalAttribute());
     }
 
     @Test
@@ -129,11 +133,15 @@ public class ClinicalDataMyBatisRepositoryTest {
                 "TCGA-A1-A0SB", null, "SUMMARY", null, null, null, null);
 
         Assert.assertEquals(3, result.size());
-        ClinicalData data = result.get(0);
-        Assert.assertEquals("FORM_COMPLETION_DATE", data.getAttrId());
-        Assert.assertEquals("2013-12-5", data.getAttrValue());
-        Assert.assertEquals((Integer) 1, data.getInternalId());
-        Assert.assertNull(data.getClinicalAttribute());
+
+        Optional<ClinicalData> clinicalDataOptional =
+            result.stream().filter(r -> r.getAttrId().equals("FORM_COMPLETION_DATE")).findAny();
+        Assert.assertTrue(clinicalDataOptional.isPresent());
+        ClinicalData clinicalAttribute = clinicalDataOptional.get();
+
+        Assert.assertEquals("2013-12-5", clinicalAttribute.getAttrValue());
+        Assert.assertEquals((Integer) 1, clinicalAttribute.getInternalId());
+        Assert.assertNull(clinicalAttribute.getClinicalAttribute());
     }
 
     @Test
@@ -215,13 +223,17 @@ public class ClinicalDataMyBatisRepositoryTest {
                 null, PersistenceConstants.SAMPLE_CLINICAL_DATA_TYPE, "SUMMARY", null, null, null, null);
 
         Assert.assertEquals(6, result.size());
-        ClinicalData data = result.get(0);
-        Assert.assertEquals("DAYS_TO_COLLECTION", data.getAttrId());
-        Assert.assertEquals("276", data.getAttrValue());
-        Assert.assertEquals((Integer) 1, data.getInternalId());
-        Assert.assertNull(data.getClinicalAttribute());
-    }
 
+        Optional<ClinicalData> clinicalDataOptional =
+            result.stream().filter(r -> r.getAttrId().equals("DAYS_TO_COLLECTION")).findAny();
+
+        Assert.assertTrue(clinicalDataOptional.isPresent());
+        ClinicalData clinicalAttribute = clinicalDataOptional.get();
+
+        Assert.assertEquals("276", clinicalAttribute.getAttrValue());
+        Assert.assertEquals((Integer) 1, clinicalAttribute.getInternalId());
+        Assert.assertNull(clinicalAttribute.getClinicalAttribute());
+}
     @Test
     public void getAllClinicalDataInStudyWithAttributeSummaryProjection() throws Exception {
 
@@ -298,11 +310,16 @@ public class ClinicalDataMyBatisRepositoryTest {
                 PersistenceConstants.SAMPLE_CLINICAL_DATA_TYPE, "SUMMARY");
 
         Assert.assertEquals(6, result.size());
-        ClinicalData data = result.get(0);
-        Assert.assertEquals("DAYS_TO_COLLECTION", data.getAttrId());
-        Assert.assertEquals("276", data.getAttrValue());
-        Assert.assertEquals((Integer) 1, data.getInternalId());
-        Assert.assertNull(data.getClinicalAttribute());
+
+
+        Optional<ClinicalData> clinicalDataOptional =
+            result.stream().filter(r -> r.getAttrId().equals("DAYS_TO_COLLECTION")).findAny();
+        Assert.assertTrue(clinicalDataOptional.isPresent());
+        ClinicalData clinicalAttribute = clinicalDataOptional.get();
+
+        Assert.assertEquals("276", clinicalAttribute.getAttrValue());
+        Assert.assertEquals((Integer) 1, clinicalAttribute.getInternalId());
+        Assert.assertNull(clinicalAttribute.getClinicalAttribute());
     }
 
     @Test
@@ -330,11 +347,15 @@ public class ClinicalDataMyBatisRepositoryTest {
                 PersistenceConstants.SAMPLE_CLINICAL_DATA_TYPE, "SUMMARY");
 
         Assert.assertEquals(6, result.size());
-        ClinicalData data = result.get(0);
-        Assert.assertEquals("DAYS_TO_COLLECTION", data.getAttrId());
-        Assert.assertEquals("276", data.getAttrValue());
-        Assert.assertEquals((Integer) 1, data.getInternalId());
-        Assert.assertNull(data.getClinicalAttribute());
+
+        Optional<ClinicalData> clinicalDataOptional =
+            result.stream().filter(r -> r.getAttrId().equals("DAYS_TO_COLLECTION")).findAny();
+        Assert.assertTrue(clinicalDataOptional.isPresent());
+        ClinicalData clinicalAttribute = clinicalDataOptional.get();
+
+        Assert.assertEquals("276", clinicalAttribute.getAttrValue());
+        Assert.assertEquals((Integer) 1, clinicalAttribute.getInternalId());
+        Assert.assertNull(clinicalAttribute.getClinicalAttribute());
     }
 
     @Test

@@ -1,8 +1,8 @@
 package org.cbioportal.web;
 
 import org.apache.commons.codec.binary.Base64;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
 import org.json.simple.parser.ParseException;
@@ -21,10 +21,10 @@ import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 
 @RestController
-@RequestMapping("/matchminer")
+@RequestMapping("/api/matchminer")
 public class MatchMinerController {
 
-    private static final Log LOG = LogFactory.getLog( MatchMinerController.class);
+    private static final Logger LOG = LoggerFactory.getLogger( MatchMinerController.class);
 
     @Value("${matchminer.url:}")
     private String url;
@@ -32,10 +32,13 @@ public class MatchMinerController {
     @Value("${matchminer.token:}")
     private String token;
 
-    @RequestMapping(value = "/**", produces = "application/json")
+    @RequestMapping(value = "/api/**", produces = "application/json")
     public ResponseEntity<Object> proxy(@RequestBody(required = false) JSONObject body, HttpMethod method, HttpServletRequest request) {
         try {
-            String path = request.getPathInfo().replace("/matchminer", "");
+            // TODO when reimplemeting different dispatcherservlets with different context roots
+            // reset this to  'String requestPathInfo = request.getPathInfo();'
+            String requestPathInfo = request.getPathInfo() == null? request.getServletPath() : request.getPathInfo();
+            String path = requestPathInfo.replace("/matchminer", "");
             URI uri = new URI(this.url + path);
 
             HttpHeaders httpHeaders = new HttpHeaders();
@@ -57,10 +60,10 @@ public class MatchMinerController {
             Object response = new JSONParser().parse(responseEntity.getBody());
             return new ResponseEntity<>(response, responseEntity.getStatusCode());
         } catch (URISyntaxException e) {
-            LOG.error(e);
+            LOG.error("Error occurred", e);
             return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
         } catch (ParseException e) {
-            LOG.error(e);
+            LOG.error("Error occurred", e);
             return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }

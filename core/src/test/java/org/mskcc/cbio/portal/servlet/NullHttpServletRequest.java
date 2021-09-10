@@ -51,6 +51,7 @@ import javax.servlet.ServletInputStream;
 import javax.servlet.DispatcherType;
 import javax.servlet.AsyncContext;
 import javax.servlet.http.Cookie;
+import javax.servlet.http.HttpUpgradeHandler;
 import javax.servlet.http.Part;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -60,7 +61,7 @@ import javax.servlet.http.HttpSession;
  * Useful for unit testing code that uses HttpServletRequest.
  * From http://www.jguru.com/faq/view.jsp?EID=110660
  */
-public class NullHttpServletRequest implements HttpServletRequest{
+public class NullHttpServletRequest implements HttpServletRequest {
    private Hashtable parameters = new Hashtable();
       
    public void setParameter(String key, String value) {
@@ -176,7 +177,14 @@ public class NullHttpServletRequest implements HttpServletRequest{
       return null;
    }
 
-   public Collection<Part> getParts() {
+    @Override
+    public <T extends HttpUpgradeHandler> T upgrade(
+        Class<T> httpUpgradeHandlerClass) throws IOException, ServletException {
+      // TODO Auto-generated method stub
+        return null;
+    }
+
+    public Collection<Part> getParts() {
       return null;
    }
 

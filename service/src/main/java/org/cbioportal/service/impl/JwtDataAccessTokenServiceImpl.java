@@ -32,12 +32,13 @@
 
 package org.cbioportal.service.impl;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.cbioportal.model.DataAccessToken;
 import org.cbioportal.service.DataAccessTokenService;
 import org.cbioportal.service.exception.InvalidDataAccessTokenException;
 import org.cbioportal.service.util.JwtUtils;
+import org.cbioportal.utils.config.annotation.ConditionalOnProperty;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -45,13 +46,16 @@ import org.springframework.security.core.Authentication;
 
 import java.util.Date;
 import java.util.List;
+import org.springframework.stereotype.Component;
 
+@Component
+@ConditionalOnProperty(name = "dat.method", havingValue = "jwt")
 public class JwtDataAccessTokenServiceImpl implements DataAccessTokenService {
 
     @Autowired
     private JwtUtils jwtUtils;
 
-    private static final Log LOG = LogFactory.getLog(JwtDataAccessTokenServiceImpl.class);
+    private static final Logger LOG = LoggerFactory.getLogger(JwtDataAccessTokenServiceImpl.class);
 
     //TODO : we could add a persistence layer to store pairs of <username, revokeDate> ... then a user can revoke all thier tokens before a particular date and we would only need to store the most recent revoke date for that user.  But it would have to be persisted, or else a restart of the server would lose the memory of revocation
 

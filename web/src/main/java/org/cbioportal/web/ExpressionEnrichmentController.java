@@ -37,7 +37,7 @@ public class ExpressionEnrichmentController {
     private ExpressionEnrichmentService expressionEnrichmentService;
     
     @PreAuthorize("hasPermission(#involvedCancerStudies, 'Collection<CancerStudyId>', 'read')")
-    @RequestMapping(value = "/expression-enrichments/fetch",
+    @RequestMapping(value = "/api/expression-enrichments/fetch",
         method = RequestMethod.POST, consumes = MediaType.APPLICATION_JSON_VALUE,
         produces = MediaType.APPLICATION_JSON_VALUE)
     @ApiOperation("Fetch genomic enrichments in a molecular profile")
@@ -57,7 +57,7 @@ public class ExpressionEnrichmentController {
     }
 
     @PreAuthorize("hasPermission(#involvedCancerStudies, 'Collection<CancerStudyId>', 'read')")
-    @RequestMapping(value = "/generic-assay-enrichments/fetch",
+    @RequestMapping(value = "/api/generic-assay-enrichments/fetch",
         method = RequestMethod.POST, consumes = MediaType.APPLICATION_JSON_VALUE,
         produces = MediaType.APPLICATION_JSON_VALUE)
     @ApiOperation("Fetch generic assay enrichments in a molecular profile")

@@ -22,7 +22,7 @@
 
     <select id="getCommaSeparatedSampleIdsOfMolecularProfiles" resultType="org.cbioportal.model.MolecularProfileSamples">
         SELECT 
-        genetic_profile.STABLE_ID AS molecularProfileId,
+        genetic_profile.STABLE_ID AS "molecularProfileId",
         genetic_profile_samples.ORDERED_SAMPLE_LIST AS "commaSeparatedSampleIds"
         FROM genetic_profile_samples
         INNER JOIN genetic_profile ON genetic_profile_samples.GENETIC_PROFILE_ID = genetic_profile.GENETIC_PROFILE_ID
@@ -39,8 +39,8 @@
     <!-- Any changes to this routine should be kept in sync with getGeneMolecularAlterationsIter below -->
     <select id="getGeneMolecularAlterations" resultType="org.cbioportal.model.GeneMolecularAlteration">
         SELECT
-        gene.ENTREZ_GENE_ID AS entrezGeneId,
-        genetic_alteration.VALUES AS "values"
+        gene.ENTREZ_GENE_ID AS "entrezGeneId",
+        genetic_alteration.`VALUES` AS "values"
         <if test="projection == 'DETAILED'">
             ,
             <include refid="org.cbioportal.persistence.mybatis.GeneMapper.select">
@@ -69,8 +69,8 @@
     -->
     <select id="getGeneMolecularAlterationsIter" resultType="org.cbioportal.model.GeneMolecularAlteration">
         SELECT
-        gene.ENTREZ_GENE_ID AS entrezGeneId,
-        genetic_alteration.VALUES AS "values"
+        gene.ENTREZ_GENE_ID AS "entrezGeneId",
+        genetic_alteration.`VALUES` AS "values"
         <if test="projection == 'DETAILED'">
             ,
             <include refid="org.cbioportal.persistence.mybatis.GeneMapper.select">
@@ -94,8 +94,8 @@
     <!-- This routine is an abbreviated copy of getGeneMolecularAlterationsIter above. The two should be kept in sync. -->
     <select id="getGeneMolecularAlterationsIterFast" resultType="org.cbioportal.model.GeneMolecularAlteration">
         SELECT
-        gene.ENTREZ_GENE_ID AS entrezGeneId,
-        genetic_alteration.VALUES AS "values"
+        gene.ENTREZ_GENE_ID AS "entrezGeneId",
+        genetic_alteration.`VALUES` AS "values"
         FROM genetic_alteration
         INNER JOIN genetic_profile ON genetic_alteration.GENETIC_PROFILE_ID = genetic_profile.GENETIC_PROFILE_ID
         INNER JOIN gene ON genetic_alteration.GENETIC_ENTITY_ID = gene.GENETIC_ENTITY_ID
@@ -106,9 +106,9 @@
 
     <select id="getGeneMolecularAlterationsInMultipleMolecularProfiles" resultType="org.cbioportal.model.GeneMolecularAlteration">
         SELECT
-        gene.ENTREZ_GENE_ID AS entrezGeneId,
-        genetic_alteration.VALUES AS "values",
-        genetic_profile.STABLE_ID AS molecularProfileId
+        gene.ENTREZ_GENE_ID AS "entrezGeneId",
+        genetic_alteration.`VALUES` AS "values",
+        genetic_profile.STABLE_ID AS "molecularProfileId"
         <if test="projection == 'DETAILED'">
             ,
             <include refid="org.cbioportal.persistence.mybatis.GeneMapper.select">
@@ -128,7 +128,7 @@
         NULL AS "values"
         </if>
         <if test="projection != 'ID'">
-        genetic_alteration.VALUES AS "values"
+        genetic_alteration.`VALUES` AS "values"
         </if>
         FROM genetic_alteration
         INNER JOIN genetic_profile ON genetic_alteration.GENETIC_PROFILE_ID = genetic_profile.GENETIC_PROFILE_ID
@@ -153,7 +153,7 @@
             NULL AS "values"
         </if>
         <if test="projection != 'ID'">
-            genetic_alteration.VALUES AS "values"
+            genetic_alteration.`VALUES` AS "values"
         </if>
         FROM genetic_alteration
         INNER JOIN genetic_profile ON genetic_alteration.GENETIC_PROFILE_ID = genetic_profile.GENETIC_PROFILE_ID
@@ -183,7 +183,7 @@
             NULL AS "values"
         </if>
         <if test="projection != 'ID'">
-            genetic_alteration.VALUES AS "values"
+            genetic_alteration.`VALUES` AS "values"
         </if>
         FROM genetic_alteration
         INNER JOIN genetic_profile ON genetic_alteration.GENETIC_PROFILE_ID = genetic_profile.GENETIC_PROFILE_ID

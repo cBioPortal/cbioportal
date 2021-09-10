@@ -48,7 +48,7 @@ public class ClinicalAttributeCountController {
     private ClinicalAttributeService clinicalAttributeService;
  
     @PreAuthorize("hasPermission(#involvedCancerStudies, 'Collection<CancerStudyId>', 'read')")
-    @RequestMapping(value = "/clinical-attributes/counts/fetch", method = RequestMethod.POST, consumes = MediaType.APPLICATION_JSON_VALUE,
+    @RequestMapping(value = "/api/clinical-attributes/counts/fetch", method = RequestMethod.POST, consumes = MediaType.APPLICATION_JSON_VALUE,
                     produces = MediaType.APPLICATION_JSON_VALUE)
     @ApiOperation("Get counts for clinical attributes according to their data availability for selected samples/patients")
     public ResponseEntity<List<ClinicalAttributeCount>> getClinicalAttributeCounts(

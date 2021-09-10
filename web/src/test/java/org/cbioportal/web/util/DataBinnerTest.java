@@ -1,56 +1,50 @@
 package org.cbioportal.web.util;
 
+import java.math.BigDecimal;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 import org.cbioportal.model.ClinicalData;
 import org.cbioportal.model.DataBin;
+import org.cbioportal.service.util.MolecularProfileUtil;
 import org.cbioportal.web.parameter.ClinicalDataBinFilter;
 import org.cbioportal.web.parameter.ClinicalDataType;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.mockito.InjectMocks;
-import org.mockito.MockitoAnnotations;
-import org.mockito.Spy;
-import org.mockito.junit.MockitoJUnitRunner;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.test.context.ContextConfiguration;
+import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
-import java.math.BigDecimal;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.LinkedHashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
-
-@RunWith(MockitoJUnitRunner.class)
+@RunWith(SpringJUnit4ClassRunner.class)
+@SpringBootTest
+@ContextConfiguration(classes = {
+    DataBinner.class,
+    DataBinHelper.class,
+    DiscreteDataBinner.class,
+    LogScaleDataBinner.class,
+    LinearDataBinner.class,
+    ScientificSmallDataBinner.class,
+    StudyViewFilterUtil.class
+ })
 public class DataBinnerTest {
-    private Map<String, String[]> mockData;
-    @InjectMocks
-    private DataBinner dataBinner;
-    @Spy
-    @InjectMocks
-    private StudyViewFilterUtil studyViewFilterUtil;
-    @Spy
-    @InjectMocks
-    private DataBinHelper dataBinHelper;
-    @Spy
-    @InjectMocks
-    private DiscreteDataBinner discreteDataBinner;
-    @Spy
-    @InjectMocks
-    private LinearDataBinner linearDataBinner;
-    @Spy
-    @InjectMocks
-    private ScientificSmallDataBinner scientificSmallDataBinner;
-    @Spy
-    @InjectMocks
-    private LogScaleDataBinner logScaleDataBinner;
 
-    @Before
-    public void setup() {
-        mockData = DataBinnerMocker.mockData();
-        MockitoAnnotations.initMocks(this);
-    }
+    private Map<String, String[]> mockData;
+
+    @Autowired
+    private DataBinner dataBinner;
+
+    @Autowired
+    private StudyViewFilterUtil studyViewFilterUtil;
+
+    @MockBean
+    private MolecularProfileUtil molecularProfileUtil;
 
     private List<String> getCaseIds(List<ClinicalData> unfilteredClinicalData, boolean getPatientIds) {
         return unfilteredClinicalData
@@ -58,6 +52,11 @@ public class DataBinnerTest {
                 .map(datum -> studyViewFilterUtil.getCaseUniqueKey(datum.getStudyId(),
                 getPatientIds ? datum.getPatientId() : datum.getSampleId()))
                 .collect(Collectors.toList());
+    }
+
+    @Before
+    public void setup() {
+        mockData = DataBinnerMocker.mockData();
     }
 
     @Test
@@ -70,7 +69,7 @@ public class DataBinnerTest {
 
         List<ClinicalData> clinicalData = mockClinicalData(attributeId, studyId, values);
         List<String> patientIds = getCaseIds(clinicalData, true);
-        
+
         List<DataBin> dataBins = dataBinner.calculateDataBins(clinicalDataBinFilter, ClinicalDataType.PATIENT, clinicalData, patientIds);
 
         Assert.assertEquals(11, dataBins.size());
@@ -277,7 +276,7 @@ public class DataBinnerTest {
             getCaseIds(unfilteredClinicalData, true);
         List<DataBin> unfilteredDataBins = dataBinner.calculateDataBins(
             clinicalDataBinFilter, ClinicalDataType.PATIENT, unfilteredClinicalData, unfilteredPatientIds);
-        
+
         List<ClinicalData> filteredClinicalData = unfilteredClinicalData.subList(0, 108); // (0, 60] interval
         List<String> filteredPatientIds =
             getCaseIds(filteredClinicalData, true);
@@ -369,7 +368,7 @@ public class DataBinnerTest {
             clinicalDataBinFilter, ClinicalDataType.PATIENT, clinicalData, patientIds);
 
         Assert.assertEquals(4, dataBins.size());
-        
+
         Assert.assertEquals("<=", dataBins.get(0).getSpecialValue());
         Assert.assertEquals(1, dataBins.get(0).getEnd().intValue());
 
@@ -382,7 +381,7 @@ public class DataBinnerTest {
         Assert.assertEquals(">", dataBins.get(3).getSpecialValue());
         Assert.assertEquals(3, dataBins.get(3).getStart().intValue());
     }
-    
+
     @Test
     public void testLinearDataBinnerWithNumberOfBoneScans() {
         String studyId = "genie";
@@ -412,7 +411,7 @@ public class DataBinnerTest {
             clinicalDataBinFilter, ClinicalDataType.PATIENT, clinicalData, patientIds, 5);
 
         Assert.assertEquals(2, dataBinsWithThreshold5.size());
-        
+
         Assert.assertEquals(0, dataBinsWithThreshold5.get(0).getStart().intValue());
         Assert.assertEquals(0, dataBinsWithThreshold5.get(0).getEnd().intValue());
 
@@ -420,7 +419,7 @@ public class DataBinnerTest {
         Assert.assertEquals(0, dataBinsWithThreshold5.get(1).getStart().intValue());
         Assert.assertNull(dataBinsWithThreshold5.get(1).getEnd());
     }
-    
+
     @Test
     public void testLinearDataBinnerWithAgeAtWhichSequencingWasReported() {
         String studyId = "genie_public";
@@ -429,7 +428,7 @@ public class DataBinnerTest {
 
         List<ClinicalData> clinicalData = mockClinicalData(attributeId, studyId, values);
         List<String> patientIds = getCaseIds(clinicalData, true);
-        
+
         ClinicalDataBinFilter clinicalDataBinFilter = new ClinicalDataBinFilter();
         clinicalDataBinFilter.setAttributeId(attributeId);
         clinicalDataBinFilter.setCustomBins(
@@ -458,7 +457,7 @@ public class DataBinnerTest {
 
         Assert.assertEquals("Unknown", dataBins1.get(4).getSpecialValue());
         Assert.assertEquals(10, dataBins1.get(4).getCount().intValue());
-        
+
 
         clinicalDataBinFilter.setCustomBins(
             Stream.of(40.0, 55.0).map(BigDecimal::valueOf).collect(Collectors.toList())
@@ -509,7 +508,7 @@ public class DataBinnerTest {
         Assert.assertEquals("Unknown", dataBins3.get(3).getSpecialValue());
         Assert.assertEquals(10, dataBins3.get(3).getCount().intValue());
     }
-    
+
     @Test
     public void testLinearDataBinnerWithPediatricAge() {
         String studyId = "skcm_broad";
@@ -692,7 +691,7 @@ public class DataBinnerTest {
         Assert.assertEquals(new BigDecimal("1.0E+8"), dataBins.get(0).getStart());
         Assert.assertEquals(new BigDecimal("316227766"), dataBins.get(0).getEnd());
         Assert.assertEquals(2, dataBins.get(0).getCount().intValue());
-        
+
         Assert.assertEquals(new BigDecimal("316227766"), dataBins.get(1).getStart());
         Assert.assertEquals(new BigDecimal("1.0E+9"), dataBins.get(1).getEnd());
         Assert.assertEquals(9, dataBins.get(1).getCount().intValue());
@@ -994,7 +993,7 @@ public class DataBinnerTest {
         Assert.assertEquals(new BigDecimal("100000.0"), dataBins.get(7).getStart());
         Assert.assertEquals(2, dataBins.get(7).getCount().intValue());
     }
-    
+
     @Test
     public void testLogScaleDataBinner() {
         String studyId = "ampca_bcm_2016";

@@ -38,7 +38,7 @@ public class CancerTypeController {
     @Autowired
     private CancerTypeService cancerTypeService;
 
-    @RequestMapping(value = "/cancer-types", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
+    @RequestMapping(value = "/api/cancer-types", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
     @ApiOperation("Get all cancer types")
     public ResponseEntity<List<TypeOfCancer>> getAllCancerTypes(
         @ApiParam("Level of detail of the response")
@@ -67,7 +67,7 @@ public class CancerTypeController {
         }
     }
 
-    @RequestMapping(value = "/cancer-types/{cancerTypeId}", method = RequestMethod.GET,
+    @RequestMapping(value = "/api/cancer-types/{cancerTypeId}", method = RequestMethod.GET,
         produces = MediaType.APPLICATION_JSON_VALUE)
     @ApiOperation("Get a cancer type")
     public ResponseEntity<TypeOfCancer> getCancerType(

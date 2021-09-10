@@ -28,7 +28,7 @@ public class AlterationDriverAnnotationController {
     private AlterationDriverAnnotationService alterationDriverAnnotationService;
 
     @PreAuthorize("hasPermission(#molecularProfileIds, 'Collection<MolecularProfileId>', 'read')")
-    @PostMapping(value = "/custom-driver-annotation-report/fetch",
+    @PostMapping(value = "/api/custom-driver-annotation-report/fetch",
         consumes = MediaType.APPLICATION_JSON_VALUE,
         produces = MediaType.APPLICATION_JSON_VALUE)
     @ApiOperation("Return availability of custom driver annotations for molecular profiles")

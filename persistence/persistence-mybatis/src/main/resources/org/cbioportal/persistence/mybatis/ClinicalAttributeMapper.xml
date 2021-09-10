@@ -2,7 +2,6 @@
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 
 <mapper namespace="org.cbioportal.persistence.mybatis.ClinicalAttributeMapper">
-    
 
     <sql id="select">
         clinical_attribute_meta.ATTR_ID AS "${prefix}attrId",
@@ -81,7 +80,7 @@
             </if>
         </where>
         <if test="sortBy != null and projection != 'ID'">
-            ORDER BY ${sortBy} ${direction}
+            ORDER BY "${sortBy}" ${direction}
         </if>
         <if test="projection == 'ID'">
             ORDER BY clinical_attribute_meta.ATTR_ID ASC
@@ -93,7 +92,7 @@
 
     <select id="getMetaClinicalAttributes" resultType="org.cbioportal.model.meta.BaseMeta">
         SELECT
-        COUNT(*) AS totalCount
+        COUNT(*) AS "totalCount"
         FROM clinical_attribute_meta
         INNER JOIN cancer_study ON clinical_attribute_meta.CANCER_STUDY_ID = cancer_study.CANCER_STUDY_ID
         <where>
@@ -118,8 +117,8 @@
     </select>
 
     <select id="getClinicalAttributeCountsBySampleIds" resultType="org.cbioportal.model.ClinicalAttributeCount">
-        SELECT count(*) as count,
-        clinical_sample.ATTR_ID as attrId
+        SELECT count(*) as "count",
+        clinical_sample.ATTR_ID as "attrId"
         FROM clinical_sample
         <include refid="joinSample"/>
         <include refid="whereSample"/>
@@ -127,8 +126,8 @@
 
         UNION
 
-        SELECT count(*) as count,
-        clinical_patient.ATTR_ID as attrId
+        SELECT count(*) as "count",
+        clinical_patient.ATTR_ID as "attrId"
         FROM clinical_patient
         <include refid="joinPatient"/>
         <include refid="whereSample"/>
@@ -136,8 +135,8 @@
     </select>
 
     <select id="getClinicalAttributeCountsBySampleListId" resultType="org.cbioportal.model.ClinicalAttributeCount">
-        SELECT count(*) as count,
-        clinical_sample.ATTR_ID as attrId
+        SELECT count(*) as "count",
+        clinical_sample.ATTR_ID as "attrId"
         FROM clinical_sample
         <include refid="joinSample"/>
         <include refid="whereBySampleListId"/>
@@ -145,8 +144,8 @@
 
         UNION
 
-        SELECT count(*) as count,
-        clinical_patient.ATTR_ID as attrId
+        SELECT count(*) as "count",
+        clinical_patient.ATTR_ID as "attrId"
         FROM clinical_patient
         <include refid="joinPatient"/>
         <include refid="whereBySampleListId"/>

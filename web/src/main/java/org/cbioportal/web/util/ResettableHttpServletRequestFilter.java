@@ -6,6 +6,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import org.slf4j.LoggerFactory;
 import org.slf4j.Logger;
+import org.springframework.stereotype.Component;
 import org.springframework.web.util.ContentCachingRequestWrapper;
 import org.springframework.web.util.ContentCachingResponseWrapper;
 
@@ -13,7 +14,9 @@ import org.springframework.web.util.ContentCachingResponseWrapper;
 /**
  *
  * @author ochoaa
+ * 
  */
+@Component
 public class ResettableHttpServletRequestFilter implements Filter {
     private Logger LOG = LoggerFactory.getLogger(ResettableHttpServletRequestFilter.class);
 
@@ -23,10 +26,10 @@ public class ResettableHttpServletRequestFilter implements Filter {
     }
 
     @Override
-    public void doFilter(ServletRequest aRequest, ServletResponse aResponse, FilterChain aChain) throws IOException, ServletException {
-        ContentCachingRequestWrapper wrappedRequest = new ContentCachingRequestWrapper((HttpServletRequest) aRequest);
-        ContentCachingResponseWrapper wrappedResponse = new ContentCachingResponseWrapper((HttpServletResponse) aResponse);
-        aChain.doFilter(wrappedRequest, wrappedResponse);
+    public void doFilter(ServletRequest request, ServletResponse response, FilterChain filterChain) throws IOException, ServletException {
+        ContentCachingRequestWrapper wrappedRequest = new ContentCachingRequestWrapper((HttpServletRequest) request);
+        ContentCachingResponseWrapper wrappedResponse = new ContentCachingResponseWrapper((HttpServletResponse) response);
+        filterChain.doFilter(wrappedRequest, wrappedResponse);
         wrappedResponse.copyBodyToResponse();
     }
 

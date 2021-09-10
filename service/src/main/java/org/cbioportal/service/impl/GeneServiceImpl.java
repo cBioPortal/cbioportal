@@ -7,7 +7,6 @@ import org.cbioportal.persistence.GeneRepository;
 import org.cbioportal.service.GeneService;
 import org.cbioportal.service.exception.GeneNotFoundException;
 import org.cbioportal.service.exception.GeneWithMultipleEntrezIdsException;
-import org.mybatis.spring.MyBatisSystemException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -17,7 +16,6 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.function.Function;
 import java.util.stream.Collectors;
 import static java.util.stream.Collectors.*;
 
@@ -90,19 +88,16 @@ public class GeneServiceImpl implements GeneService {
 
         Gene gene;
 
-        try {
-            if (isInteger(geneId)) {
-                gene = geneRepository.getGeneByEntrezGeneId(Integer.valueOf(geneId));
-            } else {
-                gene = geneRepository.getGeneByHugoGeneSymbol(geneId);
-            }
-            if (gene == null) {
-                throw new GeneNotFoundException(geneId);
-            }
-            return gene;
-        } catch (MyBatisSystemException e) {
-            throw new GeneWithMultipleEntrezIdsException(geneId);
+        if (isInteger(geneId)) {
+            gene = geneRepository.getGeneByEntrezGeneId(Integer.valueOf(geneId));
+        } else {
+            gene = geneRepository.getGeneByHugoGeneSymbol(geneId);
         }
+        if (gene == null) {
+            throw new GeneNotFoundException(geneId);
+        }
+        return gene;
+
     }
 
     @Override

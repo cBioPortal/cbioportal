@@ -52,7 +52,7 @@ public class MutationCountController {
     @Autowired
     private MutationService mutationService;
 
-    @RequestMapping(value = "/mutation-counts-by-position/fetch", method = RequestMethod.POST,
+    @RequestMapping(value = "/api/mutation-counts-by-position/fetch", method = RequestMethod.POST,
         consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
     @ApiOperation("Fetch mutation counts in all studies by gene and position")
     public ResponseEntity<List<MutationCountByPosition>> fetchMutationCountsByPosition(

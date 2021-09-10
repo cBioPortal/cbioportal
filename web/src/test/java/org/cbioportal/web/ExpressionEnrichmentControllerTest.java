@@ -1,36 +1,35 @@
 package org.cbioportal.web;
 
+import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
+
+
 import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
-
 import org.cbioportal.model.EnrichmentType;
 import org.cbioportal.model.GenericAssayEnrichment;
 import org.cbioportal.model.GenomicEnrichment;
 import org.cbioportal.model.GroupStatistics;
 import org.cbioportal.service.ExpressionEnrichmentService;
+import org.cbioportal.web.config.TestConfig;
 import org.hamcrest.Matchers;
-import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.context.annotation.Bean;
-import org.springframework.context.annotation.Configuration;
+import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
+import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.MediaType;
+import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
-import org.springframework.test.context.web.WebAppConfiguration;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
-import org.springframework.test.web.servlet.setup.MockMvcBuilders;
-import org.springframework.web.context.WebApplicationContext;
 
 @RunWith(SpringJUnit4ClassRunner.class)
-@WebAppConfiguration
-@ContextConfiguration("/applicationContext-web-test.xml")
-@Configuration
+@WebMvcTest
+@ContextConfiguration(classes = {ExpressionEnrichmentController.class, TestConfig.class})
 public class ExpressionEnrichmentControllerTest {
 
     private static final int TEST_ENTREZ_GENE_ID_1 = 1;
@@ -50,27 +49,14 @@ public class ExpressionEnrichmentControllerTest {
     private static final BigDecimal TEST_STANDARD_DEVIATION_IN_UNALTERED_GROUP_2 = new BigDecimal(3.1);
     private static final BigDecimal TEST_P_VALUE_2 = new BigDecimal(2.1);
 
-    @Autowired
-    private WebApplicationContext wac;
-
-    @Autowired
+    @MockBean
     private ExpressionEnrichmentService expressionEnrichmentService;
 
+    @Autowired
     private MockMvc mockMvc;
 
-    @Bean
-    public ExpressionEnrichmentService expressionEnrichmentService() {
-        return Mockito.mock(ExpressionEnrichmentService.class);
-    }
-
-    @Before
-    public void setUp() throws Exception {
-
-        Mockito.reset(expressionEnrichmentService);
-        mockMvc = MockMvcBuilders.webAppContextSetup(wac).build();
-    }
-
     @Test
+    @WithMockUser
     public void fetchGenomicEnrichments() throws Exception {
 
         List<GenomicEnrichment> expressionEnrichments = new ArrayList<>();
@@ -115,7 +101,7 @@ public class ExpressionEnrichmentControllerTest {
         Mockito.when(expressionEnrichmentService.getGenomicEnrichments(Mockito.anyString(), Mockito.anyMap(),
                 Mockito.any(EnrichmentType.class))).thenReturn(expressionEnrichments);
 
-        mockMvc.perform(MockMvcRequestBuilders.post("/expression-enrichments/fetch").accept(MediaType.APPLICATION_JSON)
+        mockMvc.perform(MockMvcRequestBuilders.post("/api/expression-enrichments/fetch").accept(MediaType.APPLICATION_JSON).with(csrf())
                 .contentType(MediaType.APPLICATION_JSON).content(
                         "[{\"molecularProfileCaseIdentifiers\":[{\"caseId\":\"TCGA-OR-A5JH-01\",\"molecularProfileId\":\"acc_tcga_pan_can_atlas_2018_rna_seq_v2_mrna\"},{\"caseId\":\"TCGA-OR-A5K2-01\",\"molecularProfileId\":\"acc_tcga_pan_can_atlas_2018_rna_seq_v2_mrna\"}],\"name\":\"altered\"},"
                                 + "{\"molecularProfileCaseIdentifiers\":[{\"caseId\":\"TCGA-OR-A5LN-01\",\"molecularProfileId\":\"acc_tcga_pan_can_atlas_2018_rna_seq_v2_mrna\"},{\"caseId\":\"TCGA-OR-A5LS-01\",\"molecularProfileId\":\"acc_tcga_pan_can_atlas_2018_rna_seq_v2_mrna\"}],\"name\":\"unaltered\"}]"))
@@ -149,6 +135,7 @@ public class ExpressionEnrichmentControllerTest {
     }
 
     @Test
+    @WithMockUser
     public void fetchGenericAssayEnrichments() throws Exception {
 
         List<GenericAssayEnrichment> genericAssayEnrichments = new ArrayList<>();
@@ -189,7 +176,7 @@ public class ExpressionEnrichmentControllerTest {
         Mockito.when(expressionEnrichmentService.getGenericAssayEnrichments(Mockito.anyString(), Mockito.anyMap(),
                 Mockito.any(EnrichmentType.class))).thenReturn(genericAssayEnrichments);
 
-        mockMvc.perform(MockMvcRequestBuilders.post("/generic-assay-enrichments/fetch")
+        mockMvc.perform(MockMvcRequestBuilders.post("/api/generic-assay-enrichments/fetch").with(csrf())
                 .accept(MediaType.APPLICATION_JSON).contentType(MediaType.APPLICATION_JSON).content(
                         "[{\"molecularProfileCaseIdentifiers\":[{\"caseId\":\"TCGA-OR-A5JH-01\",\"molecularProfileId\":\"acc_tcga_pan_can_atlas_2018_rna_seq_v2_mrna\"},{\"caseId\":\"TCGA-OR-A5K2-01\",\"molecularProfileId\":\"acc_tcga_pan_can_atlas_2018_rna_seq_v2_mrna\"}],\"name\":\"altered\"},"
                                 + "{\"molecularProfileCaseIdentifiers\":[{\"caseId\":\"TCGA-OR-A5LN-01\",\"molecularProfileId\":\"acc_tcga_pan_can_atlas_2018_rna_seq_v2_mrna\"},{\"caseId\":\"TCGA-OR-A5LS-01\",\"molecularProfileId\":\"acc_tcga_pan_can_atlas_2018_rna_seq_v2_mrna\"}],\"name\":\"unaltered\"}]"))

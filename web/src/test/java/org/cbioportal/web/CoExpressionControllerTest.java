@@ -1,37 +1,36 @@
 package org.cbioportal.web;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
-import org.cbioportal.model.CoExpression;
-import org.cbioportal.model.EntityType;
-import org.cbioportal.service.CoExpressionService;
-import org.cbioportal.web.parameter.CoExpressionFilter;
-import org.hamcrest.Matchers;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.mockito.Mockito;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.context.annotation.Bean;
-import org.springframework.context.annotation.Configuration;
-import org.springframework.http.MediaType;
-import org.springframework.test.context.ContextConfiguration;
-import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
-import org.springframework.test.context.web.WebAppConfiguration;
-import org.springframework.test.web.servlet.MockMvc;
-import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
-import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
-import org.springframework.test.web.servlet.setup.MockMvcBuilders;
-import org.springframework.web.context.WebApplicationContext;
+import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
 
+
+import com.fasterxml.jackson.databind.ObjectMapper;
 import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import org.cbioportal.model.CoExpression;
+import org.cbioportal.model.EntityType;
+import org.cbioportal.service.CoExpressionService;
+import org.cbioportal.web.config.TestConfig;
+import org.cbioportal.web.parameter.CoExpressionFilter;
+import org.hamcrest.Matchers;
+import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.mockito.Mockito;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
+import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.http.MediaType;
+import org.springframework.security.test.context.support.WithMockUser;
+import org.springframework.test.context.ContextConfiguration;
+import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
+import org.springframework.test.web.servlet.MockMvc;
+import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
+import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
 
 @RunWith(SpringJUnit4ClassRunner.class)
-@WebAppConfiguration
-@ContextConfiguration("/applicationContext-web-test.xml")
-@Configuration
+@WebMvcTest
+@ContextConfiguration(classes = {CoExpressionController.class, TestConfig.class})
 public class CoExpressionControllerTest {
 
     private static final String TEST_ENTREZ_GENE_ID_1 = "1";
@@ -41,29 +40,16 @@ public class CoExpressionControllerTest {
     private static final BigDecimal TEST_SPEARMANS_CORRELATION_2 = new BigDecimal(4.1);
     private static final BigDecimal TEST_P_VALUE_2 = new BigDecimal(0.66);
 
-    @Autowired
-    private WebApplicationContext wac;
-
-    @Autowired
+    @MockBean
     private CoExpressionService coExpressionService;
 
     private ObjectMapper objectMapper = new ObjectMapper();
 
+    @Autowired
     private MockMvc mockMvc;
 
-    @Bean
-    public CoExpressionService coExpressionService() {
-        return Mockito.mock(CoExpressionService.class);
-    }
-
-    @Before
-    public void setUp() throws Exception {
-
-        Mockito.reset(coExpressionService);
-        mockMvc = MockMvcBuilders.webAppContextSetup(wac).build();
-    }
-
     @Test
+    @WithMockUser
     public void fetchMolecularProfileCoExpressions() throws Exception {
 
         List<CoExpression> coExpressionList = new ArrayList<>();
@@ -89,7 +75,7 @@ public class CoExpressionControllerTest {
         coExpressionFilter.setEntrezGeneId(1);
 
         mockMvc.perform(MockMvcRequestBuilders.post(
-            "/molecular-profiles/co-expressions/fetch")
+            "/api/molecular-profiles/co-expressions/fetch").with(csrf())
             .param("molecularProfileIdA", "test_molecular_profile_id")
             .param("molecularProfileIdB", "test_molecular_profile_id")
             .accept(MediaType.APPLICATION_JSON)

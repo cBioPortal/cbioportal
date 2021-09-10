@@ -49,7 +49,7 @@ public class CopyNumberSegmentController {
     private CopyNumberSegmentService copyNumberSegmentService;
 
     @PreAuthorize("hasPermission(#studyId, 'CancerStudyId', 'read')")
-    @RequestMapping(value = "/studies/{studyId}/samples/{sampleId}/copy-number-segments", method = RequestMethod.GET,
+    @RequestMapping(value = "/api/studies/{studyId}/samples/{sampleId}/copy-number-segments", method = RequestMethod.GET,
         produces = MediaType.APPLICATION_JSON_VALUE)
     @ApiOperation("Get copy number segments in a sample in a study")
     public ResponseEntity<List<CopyNumberSeg>> getCopyNumberSegmentsInSampleInStudy(
@@ -88,7 +88,7 @@ public class CopyNumberSegmentController {
     }
 
     @PreAuthorize("hasPermission(#involvedCancerStudies, 'Collection<CancerStudyId>', 'read')")
-    @RequestMapping(value = "/copy-number-segments/fetch", method = RequestMethod.POST,
+    @RequestMapping(value = "/api/copy-number-segments/fetch", method = RequestMethod.POST,
         consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
     @ApiOperation("Fetch copy number segments by sample ID")
     public ResponseEntity<List<CopyNumberSeg>> fetchCopyNumberSegments(

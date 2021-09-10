@@ -40,7 +40,7 @@ public class TreatmentController {
     private StudyViewFilterApplier studyViewFilterApplier;
 
     @PreAuthorize("hasPermission(#involvedCancerStudies, 'Collection<CancerStudyId>', 'read')")
-    @RequestMapping(value = "/treatments/patient", method = RequestMethod.POST, produces = MediaType.APPLICATION_JSON_VALUE)
+    @RequestMapping(value = "/api/treatments/patient", method = RequestMethod.POST, produces = MediaType.APPLICATION_JSON_VALUE)
     @ApiOperation("Get all patient level treatments")
     public ResponseEntity<List<PatientTreatmentRow>> getAllPatientTreatments(
         @ApiParam(required = true, value = "Study view filter")
@@ -68,7 +68,7 @@ public class TreatmentController {
 
 
     @PreAuthorize("hasPermission(#involvedCancerStudies, 'Collection<CancerStudyId>', 'read')")
-    @RequestMapping(value = "/treatments/sample", method = RequestMethod.POST, produces = MediaType.APPLICATION_JSON_VALUE)
+    @RequestMapping(value = "/api/treatments/sample", method = RequestMethod.POST, produces = MediaType.APPLICATION_JSON_VALUE)
     @ApiOperation("Get all sample level treatments")
     public ResponseEntity<List<SampleTreatmentRow>> getAllSampleTreatments(
         @ApiParam(required = true, value = "Study view filter")
@@ -95,7 +95,7 @@ public class TreatmentController {
     }
 
     @PreAuthorize("hasPermission(#studyIds, 'Collection<CancerStudyId>', 'read')")
-    @RequestMapping(value = "/treatments/display-patient", method = RequestMethod.POST, produces = MediaType.APPLICATION_JSON_VALUE)
+    @RequestMapping(value = "/api/treatments/display-patient", method = RequestMethod.POST, produces = MediaType.APPLICATION_JSON_VALUE)
     @ApiOperation("Should patient level treatments be displayed")
     public ResponseEntity<Boolean> getContainsTreatmentData(
         @ApiParam(required = true, value = "List of Study IDs")
@@ -108,7 +108,7 @@ public class TreatmentController {
     }
 
     @PreAuthorize("hasPermission(#studyIds, 'Collection<CancerStudyId>', 'read')")
-    @RequestMapping(value = "/treatments/display-sample", method = RequestMethod.POST, produces = MediaType.APPLICATION_JSON_VALUE)
+    @RequestMapping(value = "/api/treatments/display-sample", method = RequestMethod.POST, produces = MediaType.APPLICATION_JSON_VALUE)
     @ApiOperation("Should sample level treatments be displayed")
     public ResponseEntity<Boolean> getContainsSampleTreatmentData(
         @ApiParam(required = true, value = "List of Study IDs")

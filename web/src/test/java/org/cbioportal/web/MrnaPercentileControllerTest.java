@@ -1,34 +1,33 @@
 package org.cbioportal.web;
 
+import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
+
+
 import com.fasterxml.jackson.databind.ObjectMapper;
+import java.math.BigDecimal;
+import java.util.ArrayList;
+import java.util.List;
 import org.cbioportal.model.MrnaPercentile;
 import org.cbioportal.service.MrnaPercentileService;
+import org.cbioportal.web.config.TestConfig;
 import org.hamcrest.Matchers;
-import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.context.annotation.Bean;
-import org.springframework.context.annotation.Configuration;
+import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
+import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.MediaType;
+import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
-import org.springframework.test.context.web.WebAppConfiguration;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
-import org.springframework.test.web.servlet.setup.MockMvcBuilders;
-import org.springframework.web.context.WebApplicationContext;
-
-import java.math.BigDecimal;
-import java.util.ArrayList;
-import java.util.List;
 
 @RunWith(SpringJUnit4ClassRunner.class)
-@WebAppConfiguration
-@ContextConfiguration("/applicationContext-web-test.xml")
-@Configuration
+@WebMvcTest
+@ContextConfiguration(classes = {MrnaPercentileController.class, TestConfig.class})
 public class MrnaPercentileControllerTest {
 
     private static final String TEST_MOLECULAR_PROFILE_STABLE_ID = "test_molecular_profile_stable_id_1";
@@ -40,29 +39,16 @@ public class MrnaPercentileControllerTest {
     private static final BigDecimal TEST_Z_SCORE_2 = new BigDecimal(0.2);
     private static final BigDecimal TEST_PERCENTILE_2 = new BigDecimal(80.01);
 
-    @Autowired
-    private WebApplicationContext wac;
-
-    @Autowired
+    @MockBean
     private MrnaPercentileService mrnaPercentileService;
 
     private ObjectMapper objectMapper = new ObjectMapper();
 
+    @Autowired
     private MockMvc mockMvc;
 
-    @Bean
-    public MrnaPercentileService mrnaPercentileService() {
-        return Mockito.mock(MrnaPercentileService.class);
-    }
-
-    @Before
-    public void setUp() throws Exception {
-
-        Mockito.reset(mrnaPercentileService);
-        mockMvc = MockMvcBuilders.webAppContextSetup(wac).build();
-    }
-
     @Test
+    @WithMockUser
     public void fetchMrnaPercentile() throws Exception {
 
         List<MrnaPercentile> mrnaPercentileList = new ArrayList<>();
@@ -89,7 +75,7 @@ public class MrnaPercentileControllerTest {
         entrezGeneIds.add(TEST_ENTREZ_GENE_ID_2);
 
         mockMvc.perform(MockMvcRequestBuilders
-            .post("/molecular-profiles/test_molecular_profile_id/mrna-percentile/fetch")
+            .post("/api/molecular-profiles/test_molecular_profile_id/mrna-percentile/fetch").with(csrf())
             .param("sampleId", TEST_SAMPLE_STABLE_ID)
             .accept(MediaType.APPLICATION_JSON)
             .contentType(MediaType.APPLICATION_JSON)

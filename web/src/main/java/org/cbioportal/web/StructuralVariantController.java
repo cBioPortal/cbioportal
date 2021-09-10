@@ -58,7 +58,7 @@ public class StructuralVariantController {
     private StructuralVariantService structuralVariantService;
 
     @PreAuthorize("hasPermission(#involvedCancerStudies, 'Collection<CancerStudyId>', 'read')")
-    @RequestMapping(value = "/structural-variant/fetch", method = RequestMethod.POST,
+    @RequestMapping(value = "/api/structural-variant/fetch", method = RequestMethod.POST,
             consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
     @ApiOperation("Fetch structural variants for entrezGeneIds and molecularProfileIds or sampleMolecularIdentifiers")
     public ResponseEntity<List<StructuralVariant>> fetchStructuralVariants(

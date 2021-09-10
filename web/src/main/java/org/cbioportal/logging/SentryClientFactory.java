@@ -1,11 +1,14 @@
 package org.cbioportal.logging;
 
-import io.sentry.*;
+import io.sentry.DefaultSentryClientFactory;
+import io.sentry.SentryClient;
 import io.sentry.dsn.Dsn;
 import io.sentry.event.helper.ContextBuilderHelper;
 import io.sentry.event.helper.ForwardedAddressResolver;
 import io.sentry.event.helper.HttpEventBuilderHelper;
+import org.springframework.stereotype.Component;
 
+@Component
 public class SentryClientFactory extends DefaultSentryClientFactory {
     @Override
     public SentryClient createSentryClient(Dsn dsn) {

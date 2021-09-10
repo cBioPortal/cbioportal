@@ -117,7 +117,7 @@
         </if>
         <include refid="whereSample"/>
         <if test="sortBy != null and projection != 'ID'">
-            ORDER BY ${sortBy} ${direction}
+            ORDER BY "${sortBy}" ${direction}
         </if>
         <if test="projection == 'ID'">
             ORDER BY resource_sample.RESOURCE_ID ASC
@@ -139,7 +139,7 @@
         </if>
         <include refid="wherePatient"/>
         <if test="sortBy != null and projection != 'ID'">
-            ORDER BY ${sortBy} ${direction}
+            ORDER BY "${sortBy}" ${direction}
         </if>
         <if test="projection == 'ID'">
             ORDER BY resource_patient.RESOURCE_ID ASC
@@ -161,7 +161,7 @@
         </if>
         <include refid="whereStudy"/>
         <if test="sortBy != null and projection != 'ID'">
-            ORDER BY ${sortBy} ${direction}
+            ORDER BY "${sortBy}" ${direction}
         </if>
         <if test="projection == 'ID'">
             ORDER BY resource_patient.RESOURCE_ID ASC

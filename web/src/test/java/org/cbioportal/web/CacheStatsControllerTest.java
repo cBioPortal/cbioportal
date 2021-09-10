@@ -2,6 +2,7 @@ package org.cbioportal.web;
 
 import org.cbioportal.service.CacheStatisticsService;
 import org.cbioportal.service.exception.CacheNotFoundException;
+import org.cbioportal.web.config.TestConfig;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -9,55 +10,40 @@ import org.mockito.Mockito;
 import org.mockito.invocation.InvocationOnMock;
 import org.mockito.stubbing.Answer;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Qualifier;
-import org.springframework.context.annotation.Bean;
-import org.springframework.context.annotation.Configuration;
+import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
+import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.MediaType;
+import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.TestPropertySource;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
-import org.springframework.test.context.web.WebAppConfiguration;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
-import org.springframework.test.web.servlet.setup.MockMvcBuilders;
-import org.springframework.web.context.WebApplicationContext;
 
 import java.util.ArrayList;
 import java.util.List;
 
 @RunWith(SpringJUnit4ClassRunner.class)
-@WebAppConfiguration
-@ContextConfiguration("/applicationContext-web-test.xml")
+@WebMvcTest
+@ContextConfiguration(classes = {CacheStatsController.class, TestConfig.class})
 @TestPropertySource(
     properties = "persistence.cache_type=redis"
 )
-@Configuration
 public class CacheStatsControllerTest {
 
     public static final String VALID_CACHE_ALIAS = "GeneralRepositoryCache";
-
     public static final String INVALID_CACHE_ALIAS = "InvalidCacheForTesting";
 
     @Autowired
-    private WebApplicationContext wac;
-
     private MockMvc mockMvc;
 
-    @Autowired
-    @Qualifier("mockCacheStatisticsService")
+    @MockBean
     public CacheStatisticsService cacheStatisticsService;
 
     @Before
     public void setUp() throws Exception {
-        mockMvc = MockMvcBuilders.webAppContextSetup(wac).build();
-    }
-
-    @Bean
-    @Qualifier("mockCacheStatisticsService")
-    public static CacheStatisticsService cacheStatisticsService() throws CacheNotFoundException {
-        CacheStatisticsService cacheStatisticsServiceMock = Mockito.mock(CacheStatisticsService.class);
-        Mockito.when(cacheStatisticsServiceMock.getKeyCountsPerClass(Mockito.anyString())).thenAnswer(new Answer<List<String>>() {
+        Mockito.when(cacheStatisticsService.getKeyCountsPerClass(Mockito.anyString())).thenAnswer(new Answer<List<String>>() {
             public List<String> answer(InvocationOnMock invocation) throws CacheNotFoundException {
                 Object[] args = invocation.getArguments();
                 String cacheAlias = (String)args[0];
@@ -67,7 +53,7 @@ public class CacheStatsControllerTest {
                 throw new CacheNotFoundException(cacheAlias);
             }
         });
-        Mockito.when(cacheStatisticsServiceMock.getKeysInCache(Mockito.anyString())).thenAnswer(new Answer<List<String>>() {
+        Mockito.when(cacheStatisticsService.getKeysInCache(Mockito.anyString())).thenAnswer(new Answer<List<String>>() {
             public List<String> answer(InvocationOnMock invocation) throws CacheNotFoundException {
                 Object[] args = invocation.getArguments();
                 String cacheAlias = (String)args[0];
@@ -77,35 +63,38 @@ public class CacheStatsControllerTest {
                 throw new CacheNotFoundException(cacheAlias);
             }
         });
-        return cacheStatisticsServiceMock;
     }
 
     @Test
+    @WithMockUser
     public void testGetKeysInCache() throws Exception {
-        mockMvc.perform(MockMvcRequestBuilders.get("/" + VALID_CACHE_ALIAS + "/keysInCache")
+        mockMvc.perform(MockMvcRequestBuilders.get("/api/" + VALID_CACHE_ALIAS + "/keysInCache")
             .accept(MediaType.APPLICATION_JSON))
             .andExpect(MockMvcResultMatchers.status().isOk())
             .andExpect(MockMvcResultMatchers.content().contentTypeCompatibleWith(MediaType.APPLICATION_JSON));
     }
 
     @Test
+    @WithMockUser
     public void testGetKeysInInvalidCache() throws Exception {
-        mockMvc.perform(MockMvcRequestBuilders.get("/" + INVALID_CACHE_ALIAS + "/keysInCache")
+        mockMvc.perform(MockMvcRequestBuilders.get("/api/" + INVALID_CACHE_ALIAS + "/keysInCache")
             .accept(MediaType.APPLICATION_JSON))
             .andExpect(MockMvcResultMatchers.status().isNotFound());
     }
 
     @Test
+    @WithMockUser
     public void testGetKeyCountsPerClass() throws Exception {
-        mockMvc.perform(MockMvcRequestBuilders.get("/" + VALID_CACHE_ALIAS + "/keyCountsPerClass")
+        mockMvc.perform(MockMvcRequestBuilders.get("/api/" + VALID_CACHE_ALIAS + "/keyCountsPerClass")
             .accept(MediaType.APPLICATION_JSON))
             .andExpect(MockMvcResultMatchers.status().isOk())
             .andExpect(MockMvcResultMatchers.content().contentTypeCompatibleWith(MediaType.APPLICATION_JSON));
     }
 
     @Test
+    @WithMockUser
     public void testGetKeyCountsPerClassInvalidCache() throws Exception {
-        mockMvc.perform(MockMvcRequestBuilders.get("/" + INVALID_CACHE_ALIAS + "/keyCountsPerClass")
+        mockMvc.perform(MockMvcRequestBuilders.get("/api/" + INVALID_CACHE_ALIAS + "/keyCountsPerClass")
             .accept(MediaType.APPLICATION_JSON))
             .andExpect(MockMvcResultMatchers.status().isNotFound());
     }

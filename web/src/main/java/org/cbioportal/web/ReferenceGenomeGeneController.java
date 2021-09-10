@@ -49,7 +49,7 @@ public class ReferenceGenomeGeneController {
      * size, leading to poor performance and crashes. The caching seems to improve
      * processor load, heap size and response time.
      */
-    @RequestMapping(value = "/reference-genome-genes/{genomeName}", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
+    @RequestMapping(value = "/api/reference-genome-genes/{genomeName}", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
     @ApiOperation("Get all reference genes")
     public ResponseEntity<List<ReferenceGenomeGene>> getAllReferenceGenomeGenes(
         @ApiParam(required = true, value = "Name of Reference Genome hg19")
@@ -63,7 +63,7 @@ public class ReferenceGenomeGeneController {
         return new ResponseEntity<>(genes, HttpStatus.OK);
     }
 
-    @RequestMapping(value = "/reference-genome-genes/{genomeName}/{geneId}", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
+    @RequestMapping(value = "/api/reference-genome-genes/{genomeName}/{geneId}", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
     @ApiOperation("Get a gene of a reference genome of interest")
     public ResponseEntity<ReferenceGenomeGene> getReferenceGenomeGene(
         @ApiParam(required = true, value = "Name of Reference Genome hg19")
@@ -74,7 +74,7 @@ public class ReferenceGenomeGeneController {
         return new ResponseEntity<>(referenceGenomeGeneService.getReferenceGenomeGene(geneId, genomeName), HttpStatus.OK);
     }
 
-    @RequestMapping(value = "/reference-genome-genes/{genomeName}/fetch", method = RequestMethod.POST, consumes = MediaType.APPLICATION_JSON_VALUE,
+    @RequestMapping(value = "/api/reference-genome-genes/{genomeName}/fetch", method = RequestMethod.POST, consumes = MediaType.APPLICATION_JSON_VALUE,
         produces = MediaType.APPLICATION_JSON_VALUE)
     @ApiOperation("Fetch genes of reference genome of interest")
     public ResponseEntity<List<ReferenceGenomeGene>> fetchReferenceGenomeGenes(

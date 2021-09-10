@@ -2,7 +2,6 @@
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 
 <mapper namespace="org.cbioportal.persistence.mybatis.GenesetHierarchyMapper">
-    
 
     <sql id="select">
         a.NODE_ID AS nodeId,
@@ -43,8 +42,7 @@
 	         </if>
 	        )
         ORDER BY b.NODE_NAME, a.NODE_NAME
-    </select>    
-    
+    </select>
     
     <select id="getGenesetHierarchyGenesets" resultType="org.cbioportal.model.Geneset">
         SELECT

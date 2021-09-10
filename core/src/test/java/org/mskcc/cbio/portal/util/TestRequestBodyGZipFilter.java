@@ -1,6 +1,7 @@
 package org.mskcc.cbio.portal.util;
 
 import com.google.common.net.HttpHeaders;
+import javax.servlet.ReadListener;
 import org.junit.Assert;
 import org.junit.Test;
 import org.mockito.ArgumentCaptor;
@@ -163,6 +164,23 @@ public class TestRequestBodyGZipFilter {
 
         GzippedJsonFileInputStream() {
             this.byteInputStream = new ByteArrayInputStream(GZIPPED_JSON_FILE_BYTES);
+        }
+
+        @Override
+        public boolean isFinished() {
+            // Auto-generated method stub
+            return false;
+        }
+
+        @Override
+        public boolean isReady() {
+            // Auto-generated method stub
+            return false;
+        }
+
+        @Override
+        public void setReadListener(ReadListener listener) {
+            // Auto-generated method stub
         }
 
         @Override

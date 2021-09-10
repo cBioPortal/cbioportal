@@ -2,7 +2,6 @@
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 
 <mapper namespace="org.cbioportal.persistence.mybatis.GeneMapper">
-    
 
     <sql id="select">
         gene.ENTREZ_GENE_ID AS "${prefix}entrezGeneId",
@@ -41,7 +40,7 @@
         <include refid="from"/>
         <include refid="where"/>
         <if test="sortBy != null and projection != 'ID' and keyword == null">
-            ORDER BY ${sortBy} ${direction}
+            ORDER BY "${sortBy}" ${direction}
         </if>
         <if test="projection == 'ID' and keyword == null">
             ORDER BY gene.ENTREZ_GENE_ID ASC
@@ -56,7 +55,7 @@
 
     <select id="getMetaGenes" resultType="org.cbioportal.model.meta.BaseMeta">
         SELECT
-        COUNT(*) AS totalCount
+        COUNT(*) AS "totalCount"
         <include refid="from"/>
         <include refid="where"/>
     </select>
@@ -103,8 +102,8 @@
 
     <select id="getAllAliases" resultType="org.cbioportal.model.GeneAlias">
         SELECT 
-        gene_alias.ENTREZ_GENE_ID AS entrezGeneId,
-        LOWER(gene_alias.GENE_ALIAS) AS geneAlias
+        gene_alias.ENTREZ_GENE_ID AS "entrezGeneId",
+        LOWER(gene_alias.GENE_ALIAS) AS "geneAlias"
         FROM gene_alias
     </select>
 
@@ -129,7 +128,7 @@
 
     <select id="getMetaGenesByEntrezGeneIds" resultType="org.cbioportal.model.meta.BaseMeta">
         SELECT
-        COUNT(*) AS totalCount
+        COUNT(*) AS "totalCount"
         FROM gene
         <where>
             <if test="list != null and !list.isEmpty()">

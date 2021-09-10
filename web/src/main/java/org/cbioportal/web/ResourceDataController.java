@@ -39,7 +39,7 @@ public class ResourceDataController {
     private ResourceDataService resourceDataService;
 
     @PreAuthorize("hasPermission(#studyId, 'CancerStudyId', 'read')")
-    @RequestMapping(value = "/studies/{studyId}/samples/{sampleId}/resource-data", method = RequestMethod.GET,
+    @RequestMapping(value = "/api/studies/{studyId}/samples/{sampleId}/resource-data", method = RequestMethod.GET,
         produces = MediaType.APPLICATION_JSON_VALUE)
     @ApiOperation("Get all resource data of a sample in a study")
     public ResponseEntity<List<ResourceData>> getAllResourceDataOfSampleInStudy(
@@ -75,7 +75,7 @@ public class ResourceDataController {
     }
 
     @PreAuthorize("hasPermission(#studyId, 'CancerStudyId', 'read')")
-    @RequestMapping(value = "/studies/{studyId}/patients/{patientId}/resource-data", method = RequestMethod.GET,
+    @RequestMapping(value = "/api/studies/{studyId}/patients/{patientId}/resource-data", method = RequestMethod.GET,
         produces = MediaType.APPLICATION_JSON_VALUE)
     @ApiOperation("Get all resource data of a patient in a study")
     public ResponseEntity<List<ResourceData>> getAllResourceDataOfPatientInStudy(
@@ -111,7 +111,7 @@ public class ResourceDataController {
     }
 
     @PreAuthorize("hasPermission(#studyId, 'CancerStudyId', 'read')")
-    @RequestMapping(value = "/studies/{studyId}/resource-data", method = RequestMethod.GET,
+    @RequestMapping(value = "/api/studies/{studyId}/resource-data", method = RequestMethod.GET,
         produces = MediaType.APPLICATION_JSON_VALUE)
     @ApiOperation("Get all resource data for a study")
     public ResponseEntity<List<ResourceData>> getAllStudyResourceDataInStudy(

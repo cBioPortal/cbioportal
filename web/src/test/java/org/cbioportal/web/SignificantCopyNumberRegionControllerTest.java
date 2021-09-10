@@ -1,36 +1,32 @@
 package org.cbioportal.web;
 
+import java.math.BigDecimal;
+import java.util.ArrayList;
+import java.util.List;
 import org.cbioportal.model.Gistic;
 import org.cbioportal.model.GisticToGene;
 import org.cbioportal.model.meta.BaseMeta;
 import org.cbioportal.service.SignificantCopyNumberRegionService;
+import org.cbioportal.web.config.TestConfig;
 import org.cbioportal.web.parameter.HeaderKeyConstants;
 import org.hamcrest.Matchers;
-import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.context.annotation.Bean;
-import org.springframework.context.annotation.Configuration;
+import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
+import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.MediaType;
+import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
-import org.springframework.test.context.web.WebAppConfiguration;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
-import org.springframework.test.web.servlet.setup.MockMvcBuilders;
-import org.springframework.web.context.WebApplicationContext;
-
-import java.math.BigDecimal;
-import java.util.ArrayList;
-import java.util.List;
 
 @RunWith(SpringJUnit4ClassRunner.class)
-@WebAppConfiguration
-@ContextConfiguration("/applicationContext-web-test.xml")
-@Configuration
+@WebMvcTest
+@ContextConfiguration(classes = {SignificantCopyNumberRegionController.class, TestConfig.class})
 public class SignificantCopyNumberRegionControllerTest {
 
     private static final Long TEST_GISTIC_ROI_ID_1 = 1L;
@@ -57,27 +53,14 @@ public class SignificantCopyNumberRegionControllerTest {
     private static final int TEST_ENTREZ_GENE_ID_4 = 4;
     private static final String TEST_HUGO_GENE_SYMBOL_4 = "test_hugo_gene_symbol_4";
 
-    @Autowired
-    private WebApplicationContext wac;
-
-    @Autowired
+    @MockBean
     private SignificantCopyNumberRegionService significantCopyNumberRegionService;
 
+    @Autowired
     private MockMvc mockMvc;
 
-    @Bean
-    public SignificantCopyNumberRegionService significantCopyNumberRegionService() {
-        return Mockito.mock(SignificantCopyNumberRegionService.class);
-    }
-
-    @Before
-    public void setUp() throws Exception {
-
-        Mockito.reset(significantCopyNumberRegionService);
-        mockMvc = MockMvcBuilders.webAppContextSetup(wac).build();
-    }
-
     @Test
+    @WithMockUser
     public void getSignificantCopyNumberRegions() throws Exception {
 
         List<Gistic> gisticList = new ArrayList<>();
@@ -130,7 +113,7 @@ public class SignificantCopyNumberRegionControllerTest {
             Mockito.any(), Mockito.any(), Mockito.any(), Mockito.any(), Mockito.any()))
             .thenReturn(gisticList);
 
-        mockMvc.perform(MockMvcRequestBuilders.get("/studies/test_study_id/significant-copy-number-regions")
+        mockMvc.perform(MockMvcRequestBuilders.get("/api/studies/test_study_id/significant-copy-number-regions")
             .accept(MediaType.APPLICATION_JSON))
             .andExpect(MockMvcResultMatchers.status().isOk())
             .andExpect(MockMvcResultMatchers.content().contentTypeCompatibleWith(MediaType.APPLICATION_JSON))
@@ -162,6 +145,7 @@ public class SignificantCopyNumberRegionControllerTest {
     }
 
     @Test
+    @WithMockUser
     public void getSignificantCopyNumberRegionsMetaProjection() throws Exception {
 
         BaseMeta baseMeta = new BaseMeta();
@@ -170,7 +154,7 @@ public class SignificantCopyNumberRegionControllerTest {
         Mockito.when(significantCopyNumberRegionService.getMetaSignificantCopyNumberRegions(Mockito.anyString()))
             .thenReturn(baseMeta);
 
-        mockMvc.perform(MockMvcRequestBuilders.get("/studies/test_study_id/significant-copy-number-regions")
+        mockMvc.perform(MockMvcRequestBuilders.get("/api/studies/test_study_id/significant-copy-number-regions")
             .param("projection", "META"))
             .andExpect(MockMvcResultMatchers.status().isOk())
             .andExpect(MockMvcResultMatchers.header().string(HeaderKeyConstants.TOTAL_COUNT, "2"));

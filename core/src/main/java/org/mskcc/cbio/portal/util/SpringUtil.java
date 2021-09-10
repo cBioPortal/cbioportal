@@ -32,8 +32,8 @@
 
 package org.mskcc.cbio.portal.util;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationContext;
@@ -44,7 +44,7 @@ import org.springframework.stereotype.Component;
 @Component
 public class SpringUtil
 {
-    private static final Log log = LogFactory.getLog(SpringUtil.class);
+    private static final Logger log = LoggerFactory.getLogger(SpringUtil.class);
 
     private static AccessControl accessControl;
     private static ApplicationContext context;

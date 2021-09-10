@@ -1,22 +1,22 @@
 package org.cbioportal.persistence.mybatis;
 
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Optional;
 import org.cbioportal.model.ClinicalEvent;
 import org.cbioportal.model.ClinicalEventData;
 import org.cbioportal.model.meta.BaseMeta;
+import org.cbioportal.persistence.mybatis.config.TestConfig;
+import org.cbioportal.persistence.mybatis.util.MolecularProfileCaseIdentifierUtil;
 import org.junit.Assert;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Configurable;
-import org.springframework.test.context.ContextConfiguration;
+import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
-import java.util.ArrayList;
-import java.util.List;
-
 @RunWith(SpringJUnit4ClassRunner.class)
-@ContextConfiguration("/testContextDatabase.xml")
-@Configurable
+@SpringBootTest(classes = {ClinicalEventMyBatisRepository.class, MolecularProfileCaseIdentifierUtil.class, TestConfig.class})
 public class ClinicalEventMyBatisRepositoryTest {
     
     @Autowired
@@ -29,8 +29,12 @@ public class ClinicalEventMyBatisRepositoryTest {
             "study_tcga_pub", "TCGA-A1-A0SB", "ID", null, null, null, null);
 
         Assert.assertEquals(2, result.size());
-        ClinicalEvent clinicalEvent = result.get(0);
-        Assert.assertEquals((Integer) 2, clinicalEvent.getClinicalEventId());
+
+        Optional<ClinicalEvent> clinicalEventOptional =
+            result.stream().filter(r -> r.getClinicalEventId() == 2).findAny();
+        Assert.assertTrue(clinicalEventOptional.isPresent());
+        ClinicalEvent clinicalEvent = clinicalEventOptional.get();
+
         Assert.assertEquals("study_tcga_pub", clinicalEvent.getStudyId());
         Assert.assertEquals("TCGA-A1-A0SB", clinicalEvent.getPatientId());
         Assert.assertEquals("SPECIMEN", clinicalEvent.getEventType());
@@ -43,8 +47,12 @@ public class ClinicalEventMyBatisRepositoryTest {
             "study_tcga_pub", "TCGA-A1-A0SB", "SUMMARY", null, null, null, null);
 
         Assert.assertEquals(2, result.size());
-        ClinicalEvent clinicalEvent = result.get(0);
-        Assert.assertEquals((Integer) 2, clinicalEvent.getClinicalEventId());
+
+        Optional<ClinicalEvent> clinicalEventOptional =
+            result.stream().filter(r -> r.getClinicalEventId() == 2).findAny();
+        Assert.assertTrue(clinicalEventOptional.isPresent());
+        ClinicalEvent clinicalEvent = clinicalEventOptional.get();
+
         Assert.assertEquals("study_tcga_pub", clinicalEvent.getStudyId());
         Assert.assertEquals("TCGA-A1-A0SB", clinicalEvent.getPatientId());
         Assert.assertEquals("SPECIMEN", clinicalEvent.getEventType());
@@ -59,8 +67,12 @@ public class ClinicalEventMyBatisRepositoryTest {
             "study_tcga_pub", "TCGA-A1-A0SB", "DETAILED", null, null, null, null);
 
         Assert.assertEquals(2, result.size());
-        ClinicalEvent clinicalEvent = result.get(0);
-        Assert.assertEquals((Integer) 2, clinicalEvent.getClinicalEventId());
+
+        Optional<ClinicalEvent> clinicalEventOptional =
+            result.stream().filter(r -> r.getClinicalEventId() == 2).findAny();
+        Assert.assertTrue(clinicalEventOptional.isPresent());
+        ClinicalEvent clinicalEvent = clinicalEventOptional.get();
+
         Assert.assertEquals("study_tcga_pub", clinicalEvent.getStudyId());
         Assert.assertEquals("TCGA-A1-A0SB", clinicalEvent.getPatientId());
         Assert.assertEquals("SPECIMEN", clinicalEvent.getEventType());
@@ -122,7 +134,12 @@ public class ClinicalEventMyBatisRepositoryTest {
             "study_tcga_pub", "ID", null, null, null, null);
 
         Assert.assertEquals(4, result.size());
-        ClinicalEvent clinicalEvent = result.get(0);
+
+        Optional<ClinicalEvent> clinicalEventOptional =
+            result.stream().filter(r -> r.getClinicalEventId() == 2).findAny();
+        Assert.assertTrue(clinicalEventOptional.isPresent());
+        ClinicalEvent clinicalEvent = clinicalEventOptional.get();
+
         Assert.assertEquals((Integer) 2, clinicalEvent.getClinicalEventId());
         Assert.assertEquals("study_tcga_pub", clinicalEvent.getStudyId());
         Assert.assertEquals("SPECIMEN", clinicalEvent.getEventType());
@@ -135,8 +152,12 @@ public class ClinicalEventMyBatisRepositoryTest {
             "study_tcga_pub", "SUMMARY", null, null, null, null);
 
         Assert.assertEquals(4, result.size());
-        ClinicalEvent clinicalEvent = result.get(0);
-        Assert.assertEquals((Integer) 2, clinicalEvent.getClinicalEventId());
+
+        Optional<ClinicalEvent> clinicalEventOptional =
+            result.stream().filter(r -> r.getClinicalEventId() == 2).findAny();
+        Assert.assertTrue(clinicalEventOptional.isPresent());
+        ClinicalEvent clinicalEvent = clinicalEventOptional.get();
+
         Assert.assertEquals("study_tcga_pub", clinicalEvent.getStudyId());
         Assert.assertEquals("SPECIMEN", clinicalEvent.getEventType());
         Assert.assertEquals((Integer) 233, clinicalEvent.getStartDate());
@@ -150,8 +171,12 @@ public class ClinicalEventMyBatisRepositoryTest {
             "study_tcga_pub", "DETAILED", null, null, null, null);
 
         Assert.assertEquals(4, result.size());
-        ClinicalEvent clinicalEvent = result.get(0);
-        Assert.assertEquals((Integer) 2, clinicalEvent.getClinicalEventId());
+
+        Optional<ClinicalEvent> clinicalEventOptional =
+            result.stream().filter(r -> r.getClinicalEventId() == 2).findAny();
+        Assert.assertTrue(clinicalEventOptional.isPresent());
+        ClinicalEvent clinicalEvent = clinicalEventOptional.get();
+
         Assert.assertEquals("study_tcga_pub", clinicalEvent.getStudyId());
         Assert.assertEquals("SPECIMEN", clinicalEvent.getEventType());
         Assert.assertEquals((Integer) 233, clinicalEvent.getStartDate());

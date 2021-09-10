@@ -44,8 +44,8 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * A gistic includes a ROI and GISTIC information concerning that region.
@@ -61,7 +61,7 @@ public class DaoGistic {
      * @throws DaoException
      */
 
-    private static final Log log = LogFactory.getLog(DaoGistic.class);
+    private static final Logger log = LoggerFactory.getLogger(DaoGistic.class);
 
     public static void addGistic(Gistic gistic) throws DaoException, validationException {
         if (gistic == null) {

@@ -32,9 +32,9 @@
 
 package org.cbioportal.security.spring.authentication.token;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
-import org.cbioportal.security.spring.authentication.social.PortalUserDetailsService;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.cbioportal.security.spring.authentication.PortalUserDetailsService;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.authentication.dao.AbstractUserDetailsAuthenticationProvider;
 import org.springframework.security.core.AuthenticationException;
@@ -46,7 +46,7 @@ import org.springframework.security.core.userdetails.UserDetails;
  */
 public class TokenUserDetailsAuthenticationProvider extends AbstractUserDetailsAuthenticationProvider {
 
-    private static final Log LOG = LogFactory.getLog(TokenUserDetailsAuthenticationProvider.class);
+    private static final Logger LOG = LoggerFactory.getLogger(TokenUserDetailsAuthenticationProvider.class);
 
     private PortalUserDetailsService userDetailsService;
 

@@ -2,17 +2,16 @@
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 
 <mapper namespace="org.cbioportal.persistence.mybatis.ClinicalEventMapper">
-    
 
     <sql id="select">
-        clinical_event.CLINICAL_EVENT_ID AS clinicalEventId,
-        clinical_event.EVENT_TYPE AS eventType,
-        patient.STABLE_ID AS patientId,
-        cancer_study.CANCER_STUDY_IDENTIFIER AS studyId
+        clinical_event.CLINICAL_EVENT_ID AS "clinicalEventId",
+        clinical_event.EVENT_TYPE AS "eventType",
+        patient.STABLE_ID AS "patientId",
+        cancer_study.CANCER_STUDY_IDENTIFIER AS "studyId"
         <if test="projection == 'SUMMARY' || projection == 'DETAILED'">
             ,
-            clinical_event.START_DATE AS startDate,
-            clinical_event.STOP_DATE AS stopDate
+            clinical_event.START_DATE AS "startDate",
+            clinical_event.STOP_DATE AS "stopDate"
         </if>
     </sql>
 
@@ -41,7 +40,7 @@
         <include refid="from"/>
         <include refid="where"/>
         <if test="sortBy != null and projection != 'ID'">
-            ORDER BY ${sortBy} ${direction}
+            ORDER BY "${sortBy}" ${direction}
         </if>
         <if test="projection == 'ID'">
             ORDER BY clinical_event.PATIENT_ID ASC
@@ -80,7 +79,7 @@
         <include refid="from"/>
         <include refid="whereStudy"/>
         <if test="sortBy != null and projection != 'ID'">
-            ORDER BY ${sortBy} ${direction}
+            ORDER BY "${sortBy}" ${direction}
         </if>
         <if test="projection == 'ID'">
             ORDER BY clinical_event.PATIENT_ID ASC

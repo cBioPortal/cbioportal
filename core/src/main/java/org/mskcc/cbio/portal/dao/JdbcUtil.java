@@ -36,7 +36,8 @@ import java.sql.*;
 import java.util.*;
 import javax.sql.DataSource;
 import org.apache.commons.dbcp2.BasicDataSource;
-import org.apache.commons.logging.*;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.mskcc.cbio.portal.util.*;
 
 /**
@@ -48,7 +49,7 @@ import org.mskcc.cbio.portal.util.*;
 public class JdbcUtil {
     private static DataSource dataSource;
     private static Map<String,Integer> activeConnectionCount = new HashMap<String,Integer>(); // keep track of the number of active connection per class/requester
-    private static final Log LOG = LogFactory.getLog(JdbcUtil.class);
+    private static final Logger LOG = LoggerFactory.getLogger(JdbcUtil.class);
 
     /**
      * Gets the data source

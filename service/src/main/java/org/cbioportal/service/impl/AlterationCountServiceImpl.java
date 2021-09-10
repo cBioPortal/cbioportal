@@ -1,6 +1,5 @@
 package org.cbioportal.service.impl;
 
-import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.math3.util.Pair;
 import org.cbioportal.model.*;
 import org.cbioportal.model.util.Select;
@@ -261,10 +260,10 @@ public class AlterationCountServiceImpl implements AlterationCountService {
                             alterationCountByGene.setNumberOfAlteredCases(alterationCountByGene.getNumberOfAlteredCases() + datum.getNumberOfAlteredCases());
                             alterationCountByGene.setNumberOfProfiledCases(alterationCountByGene.getNumberOfProfiledCases() + datum.getNumberOfProfiledCases());
                             Set<String> matchingGenePanelIds = new HashSet<>();
-                            if (CollectionUtils.isNotEmpty(alterationCountByGene.getMatchingGenePanelIds())) {
+                            if (!alterationCountByGene.getMatchingGenePanelIds().isEmpty()) {
                                 matchingGenePanelIds.addAll(alterationCountByGene.getMatchingGenePanelIds());
                             }
-                            if (CollectionUtils.isNotEmpty(datum.getMatchingGenePanelIds())) {
+                            if (!datum.getMatchingGenePanelIds().isEmpty()) {
                                 matchingGenePanelIds.addAll(datum.getMatchingGenePanelIds());
                             }
                             alterationCountByGene.setMatchingGenePanelIds(matchingGenePanelIds);

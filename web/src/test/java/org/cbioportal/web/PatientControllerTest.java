@@ -1,39 +1,38 @@
 package org.cbioportal.web;
 
+import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
+
+
 import com.fasterxml.jackson.databind.ObjectMapper;
+import java.util.ArrayList;
+import java.util.List;
 import org.cbioportal.model.CancerStudy;
 import org.cbioportal.model.Patient;
 import org.cbioportal.model.meta.BaseMeta;
 import org.cbioportal.service.PatientService;
 import org.cbioportal.service.exception.PatientNotFoundException;
+import org.cbioportal.web.config.TestConfig;
 import org.cbioportal.web.parameter.HeaderKeyConstants;
 import org.cbioportal.web.parameter.PatientFilter;
 import org.cbioportal.web.parameter.PatientIdentifier;
 import org.hamcrest.Matchers;
-import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.context.annotation.Bean;
-import org.springframework.context.annotation.Configuration;
+import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
+import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.MediaType;
+import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
-import org.springframework.test.context.web.WebAppConfiguration;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
-import org.springframework.test.web.servlet.setup.MockMvcBuilders;
-import org.springframework.web.context.WebApplicationContext;
-
-import java.util.ArrayList;
-import java.util.List;
 
 @RunWith(SpringJUnit4ClassRunner.class)
-@WebAppConfiguration
-@ContextConfiguration("/applicationContext-web-test.xml")
-@Configuration
+@WebMvcTest
+@ContextConfiguration(classes = {PatientController.class, TestConfig.class})
 public class PatientControllerTest {
 
     private static final int TEST_INTERNAL_ID_1 = 1;
@@ -49,29 +48,16 @@ public class PatientControllerTest {
     private static final String TEST_SHORT_NAME_1 = "test_short_name_1";
     private static final String TEST_DESCRIPTION_1 = "test_description_1";
 
-    @Autowired
-    private WebApplicationContext wac;
-
-    @Autowired
+    @MockBean
     private PatientService patientService;
 
     private ObjectMapper objectMapper = new ObjectMapper();
 
+    @Autowired
     private MockMvc mockMvc;
 
-    @Bean
-    public PatientService patientService() {
-        return Mockito.mock(PatientService.class);
-    }
-
-    @Before
-    public void setUp() throws Exception {
-
-        Mockito.reset(patientService);
-        mockMvc = MockMvcBuilders.webAppContextSetup(wac).build();
-    }
-
     @Test
+    @WithMockUser
     public void getAllPatientsDefaultProjection() throws Exception {
 
         List<Patient> patientList = createExamplePatients();
@@ -79,7 +65,7 @@ public class PatientControllerTest {
         Mockito.when(patientService.getAllPatients(Mockito.any(), Mockito.any(), Mockito.any(),
             Mockito.any(), Mockito.any(), Mockito.any())).thenReturn(patientList);
 
-        mockMvc.perform(MockMvcRequestBuilders.get("/patients")
+        mockMvc.perform(MockMvcRequestBuilders.get("/api/patients")
             .accept(MediaType.APPLICATION_JSON))
             .andExpect(MockMvcResultMatchers.status().isOk())
             .andExpect(MockMvcResultMatchers.content().contentTypeCompatibleWith(MediaType.APPLICATION_JSON))
@@ -97,6 +83,7 @@ public class PatientControllerTest {
     }
 
     @Test
+    @WithMockUser
     public void getAllPatientsMetaProjection() throws Exception {
 
         BaseMeta baseMeta = new BaseMeta();
@@ -104,13 +91,14 @@ public class PatientControllerTest {
 
         Mockito.when(patientService.getMetaPatients(Mockito.any())).thenReturn(baseMeta);
 
-        mockMvc.perform(MockMvcRequestBuilders.get("/patients")
+        mockMvc.perform(MockMvcRequestBuilders.get("/api/patients")
             .param("projection", "META"))
             .andExpect(MockMvcResultMatchers.status().isOk())
             .andExpect(MockMvcResultMatchers.header().string(HeaderKeyConstants.TOTAL_COUNT, "2"));
     }
 
     @Test
+    @WithMockUser
     public void getAllPatientsInStudyDefaultProjection() throws Exception {
 
         List<Patient> patientList = createExamplePatients();
@@ -118,7 +106,7 @@ public class PatientControllerTest {
         Mockito.when(patientService.getAllPatientsInStudy(Mockito.any(), Mockito.any(), Mockito.any(),
             Mockito.any(), Mockito.any(), Mockito.any())).thenReturn(patientList);
 
-        mockMvc.perform(MockMvcRequestBuilders.get("/studies/test_study_id/patients")
+        mockMvc.perform(MockMvcRequestBuilders.get("/api/studies/test_study_id/patients")
             .accept(MediaType.APPLICATION_JSON))
             .andExpect(MockMvcResultMatchers.status().isOk())
             .andExpect(MockMvcResultMatchers.content().contentTypeCompatibleWith(MediaType.APPLICATION_JSON))
@@ -136,6 +124,7 @@ public class PatientControllerTest {
     }
 
     @Test
+    @WithMockUser
     public void getAllPatientsInStudyMetaProjection() throws Exception {
 
         BaseMeta baseMeta = new BaseMeta();
@@ -143,19 +132,20 @@ public class PatientControllerTest {
 
         Mockito.when(patientService.getMetaPatientsInStudy(Mockito.anyString())).thenReturn(baseMeta);
 
-        mockMvc.perform(MockMvcRequestBuilders.get("/studies/test_study_id/patients")
+        mockMvc.perform(MockMvcRequestBuilders.get("/api/studies/test_study_id/patients")
             .param("projection", "META"))
             .andExpect(MockMvcResultMatchers.status().isOk())
             .andExpect(MockMvcResultMatchers.header().string(HeaderKeyConstants.TOTAL_COUNT, "2"));
     }
 
     @Test
+    @WithMockUser
     public void getPatientInStudyNotFound() throws Exception {
 
         Mockito.when(patientService.getPatientInStudy(Mockito.anyString(), Mockito.anyString())).thenThrow(
             new PatientNotFoundException("test_study_id", "test_patient_id"));
 
-        mockMvc.perform(MockMvcRequestBuilders.get("/studies/test_study_id/patients/test_patient_id")
+        mockMvc.perform(MockMvcRequestBuilders.get("/api/studies/test_study_id/patients/test_patient_id")
             .accept(MediaType.APPLICATION_JSON))
             .andExpect(MockMvcResultMatchers.status().isNotFound())
             .andExpect(MockMvcResultMatchers.jsonPath("$.message")
@@ -163,6 +153,7 @@ public class PatientControllerTest {
     }
 
     @Test
+    @WithMockUser
     public void getPatientInStudy() throws Exception {
 
         Patient patient = new Patient();
@@ -180,7 +171,7 @@ public class PatientControllerTest {
 
         Mockito.when(patientService.getPatientInStudy(Mockito.anyString(), Mockito.anyString())).thenReturn(patient);
 
-        mockMvc.perform(MockMvcRequestBuilders.get("/studies/test_study_id/patients/test_patient_id")
+        mockMvc.perform(MockMvcRequestBuilders.get("/api/studies/test_study_id/patients/test_patient_id")
             .accept(MediaType.APPLICATION_JSON))
             .andExpect(MockMvcResultMatchers.status().isOk())
             .andExpect(MockMvcResultMatchers.content().contentTypeCompatibleWith(MediaType.APPLICATION_JSON))
@@ -191,6 +182,7 @@ public class PatientControllerTest {
     }
 
     @Test
+    @WithMockUser
     public void fetchPatientsDefaultProjection() throws Exception {
 
         List<Patient> patientList = createExamplePatients();
@@ -210,7 +202,7 @@ public class PatientControllerTest {
         patientIdentifiers.add(patientIdentifier2);
         patientFilter.setPatientIdentifiers(patientIdentifiers);
 
-        mockMvc.perform(MockMvcRequestBuilders.post("/patients/fetch")
+        mockMvc.perform(MockMvcRequestBuilders.post("/api/patients/fetch").with(csrf())
             .accept(MediaType.APPLICATION_JSON)
             .contentType(MediaType.APPLICATION_JSON)
             .content(objectMapper.writeValueAsString(patientFilter)))
@@ -230,6 +222,7 @@ public class PatientControllerTest {
     }
 
     @Test
+    @WithMockUser
     public void fetchPatientsByUniquePatientKeysDefaultProjection() throws Exception {
 
         List<Patient> patientList = createExamplePatients();
@@ -243,7 +236,7 @@ public class PatientControllerTest {
         uniquePatientKeys.add("dGVzdF9zdGFibGVfaWRfMjp0ZXN0X3N0dWR5XzI");
         patientFilter.setUniquePatientKeys(uniquePatientKeys);
 
-        mockMvc.perform(MockMvcRequestBuilders.post("/patients/fetch")
+        mockMvc.perform(MockMvcRequestBuilders.post("/api/patients/fetch").with(csrf())
             .accept(MediaType.APPLICATION_JSON)
             .contentType(MediaType.APPLICATION_JSON)
             .content(objectMapper.writeValueAsString(patientFilter)))
@@ -263,6 +256,7 @@ public class PatientControllerTest {
     }
 
     @Test
+    @WithMockUser
     public void fetchPatientsMetaProjection() throws Exception {
 
         BaseMeta baseMeta = new BaseMeta();
@@ -283,7 +277,7 @@ public class PatientControllerTest {
         patientIdentifiers.add(patientIdentifier2);
         patientFilter.setPatientIdentifiers(patientIdentifiers);
 
-        mockMvc.perform(MockMvcRequestBuilders.post("/patients/fetch")
+        mockMvc.perform(MockMvcRequestBuilders.post("/api/patients/fetch").with(csrf())
             .param("projection", "META")
             .contentType(MediaType.APPLICATION_JSON)
             .content(objectMapper.writeValueAsString(patientFilter)))

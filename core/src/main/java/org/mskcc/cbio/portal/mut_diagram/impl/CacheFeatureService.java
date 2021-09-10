@@ -37,7 +37,8 @@ import static com.google.common.base.Preconditions.checkNotNull;
 import java.util.Collections;
 import java.util.List;
 
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.mskcc.cbio.portal.mut_diagram.FeatureService;
 import org.mskcc.cbio.portal.mut_diagram.Sequence;
 
@@ -50,7 +51,7 @@ import com.google.common.cache.CacheLoader;
  */
 public final class CacheFeatureService implements FeatureService {
     private static final List<Sequence> EMPTY = Collections.emptyList();
-    private static final Logger logger = Logger.getLogger(CacheFeatureService.class);
+    private static final Logger logger = LoggerFactory.getLogger(CacheFeatureService.class);
     private final Cache<String, List<Sequence>> cache;
 
     /**

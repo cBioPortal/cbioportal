@@ -53,7 +53,7 @@ public class ClinicalDataEnrichmentController {
     private SampleService sampleService;
 
     @PreAuthorize("hasPermission(#involvedCancerStudies, 'Collection<CancerStudyId>', 'read')")
-    @RequestMapping(value = "/clinical-data-enrichments/fetch", method = RequestMethod.POST, consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
+    @RequestMapping(value = "/api/clinical-data-enrichments/fetch", method = RequestMethod.POST, consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
     @ApiOperation("Fetch clinical data enrichments for the sample groups")
     public ResponseEntity<List<ClinicalDataEnrichment>> fetchClinicalEnrichments(
             @ApiParam(required = true, value = "List of altered and unaltered Sample/Patient IDs")

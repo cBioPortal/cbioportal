@@ -52,8 +52,8 @@ import java.io.IOException;
 import java.io.PrintWriter;
 import java.util.*;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  *
@@ -63,7 +63,7 @@ import org.apache.commons.logging.LogFactory;
  */
 public class GisticJSON extends HttpServlet {
     public static final String SELECTED_CANCER_STUDY = "selected_cancer_type";
-    private static Log log = LogFactory.getLog(GisticJSON.class);
+    private static Logger log = LoggerFactory.getLogger(GisticJSON.class);
     
     // class which process access control to cancer studies
     private AccessControl accessControl;

@@ -32,7 +32,7 @@ public class CacheController {
     @Value("${cache.endpoint.enabled:false}")
     private boolean cacheEndpointEnabled;
 
-    @RequestMapping(value = "/cache", method = RequestMethod.DELETE, produces = MediaType.TEXT_PLAIN_VALUE)
+    @RequestMapping(value = "/api/cache", method = RequestMethod.DELETE, produces = MediaType.TEXT_PLAIN_VALUE)
     @ApiOperation("Clear and reinitialize caches")
     public ResponseEntity<String> clearAllCaches(
         @ApiParam("Secret API key passed in HTTP header. The key is configured in portal.properties of the portal instance.")

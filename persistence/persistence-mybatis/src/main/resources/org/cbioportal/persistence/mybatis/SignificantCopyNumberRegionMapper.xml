@@ -3,16 +3,15 @@
 
 <mapper namespace="org.cbioportal.persistence.mybatis.SignificantCopyNumberRegionMapper">
     
-
     <sql id="select">
-        gistic.GISTIC_ROI_ID AS gisticRoiId,
-        cancer_study.CANCER_STUDY_IDENTIFIER AS cancerStudyId,
-        gistic.CHROMOSOME AS chromosome,
-        gistic.CYTOBAND AS cytoband,
-        gistic.WIDE_PEAK_START AS widePeakStart,
-        gistic.WIDE_PEAK_END AS widePeakEnd,
-        gistic.Q_VALUE AS qValue,
-        gistic.AMP AS amp
+        gistic.GISTIC_ROI_ID AS "gisticRoiId",
+        cancer_study.CANCER_STUDY_IDENTIFIER AS "cancerStudyId",
+        gistic.CHROMOSOME AS "chromosome",
+        gistic.CYTOBAND AS "cytoband",
+        gistic.WIDE_PEAK_START AS "widePeakStart",
+        gistic.WIDE_PEAK_END AS "widePeakEnd",
+        gistic.Q_VALUE AS "qValue",
+        gistic.AMP AS "amp"
     </sql>
 
     <sql id="from">
@@ -32,7 +31,7 @@
         <include refid="from"/>
         <include refid="where"/>
         <if test="sortBy != null and projection != 'ID'">
-            ORDER BY ${sortBy} ${direction}
+            ORDER BY "${sortBy}" ${direction}
         </if>
         <if test="projection == 'ID'">
             ORDER BY gistic.CANCER_STUDY_ID ASC

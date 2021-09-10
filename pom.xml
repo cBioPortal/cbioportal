@@ -18,9 +18,11 @@
     <modules>
         <module>persistence</module>
         <module>model</module>
+        <module>utils</module>
     </modules>
 
     <properties>
+        <project.version>3.7.4</project.version>
         <java.version>11</java.version>
 <!--        <frontend.version>7e8d755d2538e124147ad983f4caa38ef0992f6b</frontend.version>-->
 <!--        <frontend.groupId>com.github.cbioportal</frontend.groupId>-->
@@ -28,9 +30,12 @@
 <!--        <spring.integration.version>5.3.0.RELEASE</spring.integration.version>-->
 <!--        <spring.security.version>5.3.1.RELEASE</spring.security.version>-->
 <!--        <spring.social.version>1.1.6.RELEASE</spring.social.version>-->
+        <junit.version>4.13.2</junit.version>
         <jackson.version>2.12.1</jackson.version>
         <springfox.version>2.9.2</springfox.version>
         <hibernate.validator.version>5.3.4.Final</hibernate.validator.version>
+        <ehcache.version>3.7.1</ehcache.version>
+        <redisson.version>3.13.2</redisson.version>
 <!--        <mysql-connector.version>5.1.48</mysql-connector.version>-->
 <!--        <webapp-runner.version>8.5.61.0</webapp-runner.version>-->
 
@@ -101,6 +106,33 @@
                 <groupId>org.hibernate</groupId>
                 <artifactId>hibernate-validator</artifactId>
                 <version>${hibernate.validator.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.cbioportal</groupId>
+                <artifactId>model</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.cbioportal</groupId>
+                <artifactId>utils</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+<!--            TODO remove dependency on Junit 4 (Spring boot uses Junit 5 by default)-->
+            <dependency>
+                <groupId>junit</groupId>
+                <artifactId>junit</artifactId>
+                <version>${junit.version}</version>
+                <scope>test</scope>
+            </dependency>
+            <dependency>
+                <groupId>org.ehcache</groupId>
+                <artifactId>ehcache</artifactId>
+                <version>${ehcache.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.redisson</groupId>
+                <artifactId>redisson</artifactId>
+                <version>${redisson.version}</version>
             </dependency>
         </dependencies>
     </dependencyManagement>

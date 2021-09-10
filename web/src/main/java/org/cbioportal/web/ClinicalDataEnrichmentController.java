@@ -9,7 +9,7 @@ import java.util.stream.Collectors;
 
 import javax.validation.Valid;
 
-import org.apache.commons.collections.map.MultiKeyMap;
+import org.apache.commons.collections4.map.MultiKeyMap;
 import org.cbioportal.model.ClinicalAttribute;
 import org.cbioportal.model.ClinicalDataEnrichment;
 import org.cbioportal.model.Sample;

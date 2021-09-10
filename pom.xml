@@ -1,13 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
-    <modelVersion>4.0.0</modelVersion>
-    <packaging>pom</packaging>
-    <modules>
-        <module>persistence</module>
-        <module>persistence</module>
-        <module>model</module>
-    </modules>
     <parent>
         <groupId>org.springframework.boot</groupId>
         <artifactId>spring-boot-starter-parent</artifactId>
@@ -19,8 +12,54 @@
     <version>0.0.1-SNAPSHOT</version>
     <name>cbioportal</name>
     <description>Demo project for Spring Boot</description>
+    <modelVersion>4.0.0</modelVersion>
+    <packaging>pom</packaging>
+
+    <modules>
+        <module>persistence</module>
+        <module>model</module>
+    </modules>
+
     <properties>
         <java.version>11</java.version>
+<!--        <frontend.version>7e8d755d2538e124147ad983f4caa38ef0992f6b</frontend.version>-->
+<!--        <frontend.groupId>com.github.cbioportal</frontend.groupId>-->
+<!--        <spring.version>5.2.6.RELEASE</spring.version>-->
+<!--        <spring.integration.version>5.3.0.RELEASE</spring.integration.version>-->
+<!--        <spring.security.version>5.3.1.RELEASE</spring.security.version>-->
+<!--        <spring.social.version>1.1.6.RELEASE</spring.social.version>-->
+        <jackson.version>2.12.1</jackson.version>
+        <springfox.version>2.9.2</springfox.version>
+        <hibernate.validator.version>5.3.4.Final</hibernate.validator.version>
+<!--        <mysql-connector.version>5.1.48</mysql-connector.version>-->
+<!--        <webapp-runner.version>8.5.61.0</webapp-runner.version>-->
+
+<!--        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>-->
+<!--        <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>-->
+<!--        <bundle.symbolicName.prefix>org.mskcc</bundle.symbolicName.prefix>-->
+<!--        <bundle.namespace>org.mskcc.mondrian</bundle.namespace>-->
+<!--        <timestamp>${maven.build.timestamp}</timestamp>-->
+<!--        <maven.build.timestamp.format>yyyyMMdd-HHmm</maven.build.timestamp.format>-->
+
+<!--        <sonar.projectKey>cBioPortal_cbioportal</sonar.projectKey>-->
+<!--        <sonar.moduleKey>${project.groupId}:${project.artifactId}</sonar.moduleKey>-->
+<!--        <sonar.organization>cbioportal</sonar.organization>-->
+<!--        <sonar.host.url>https://sonarcloud.io</sonar.host.url>-->
+
+<!--        <final.war.name>cbioportal</final.war.name>-->
+
+<!--        <db.test.driver>com.mysql.jdbc.Driver</db.test.driver>-->
+<!--        &lt;!&ndash; For MySQL < 5.5 change 'default_storage_engine' to 'storage_engine' &ndash;&gt;-->
+<!--        <db.test.url>jdbc:mysql://127.0.0.1:3306/cgds_test?sessionVariables=default_storage_engine=InnoDB</db.test.url>-->
+<!--        <db.test.username>cbio_user</db.test.username>-->
+<!--        <db.test.password>somepassword</db.test.password>-->
+
+<!--        &lt;!&ndash;For tomcat instances, the scope to tomcat catalina lib should be provided. this prop is used in portal module.&ndash;&gt;-->
+<!--        <tomcat.catalina.scope>provided</tomcat.catalina.scope>-->
+<!--        <tomcat.session.timeout>720</tomcat.session.timeout>-->
+
+<!--        &lt;!&ndash; THIS SHOULD BE KEPT IN SYNC TO VERSION IN CGDS.SQL &ndash;&gt;-->
+<!--        <db.version>2.12.10</db.version>-->
     </properties>
     <dependencies>
         <dependency>
@@ -45,5 +84,25 @@
             </plugins>
         </pluginManagement>
     </build>
+
+    <dependencyManagement>
+        <dependencies>
+            <dependency>
+                <groupId>com.fasterxml.jackson.core</groupId>
+                <artifactId>jackson-databind</artifactId>
+                <version>${jackson.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>io.springfox</groupId>
+                <artifactId>springfox-swagger2</artifactId>
+                <version>${springfox.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.hibernate</groupId>
+                <artifactId>hibernate-validator</artifactId>
+                <version>${hibernate.validator.version}</version>
+            </dependency>
+        </dependencies>
+    </dependencyManagement>
 
 </project>

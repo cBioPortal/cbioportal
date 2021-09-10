@@ -19,6 +19,10 @@
         <module>persistence</module>
         <module>model</module>
         <module>utils</module>
+        <module>core</module>
+        <module>web</module>
+        <module>service</module>
+        <module>db-scripts</module>
     </modules>
 
     <properties>
@@ -36,6 +40,7 @@
         <hibernate.validator.version>5.3.4.Final</hibernate.validator.version>
         <ehcache.version>3.7.1</ehcache.version>
         <redisson.version>3.13.2</redisson.version>
+        <mybatis.starter.version>2.2.0</mybatis.starter.version>
 <!--        <mysql-connector.version>5.1.48</mysql-connector.version>-->
 <!--        <webapp-runner.version>8.5.61.0</webapp-runner.version>-->
 
@@ -71,7 +76,6 @@
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter</artifactId>
         </dependency>
-
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-test</artifactId>
@@ -80,14 +84,15 @@
     </dependencies>
 
     <build>
-        <pluginManagement>
-            <plugins>
-                <plugin>
-                    <groupId>org.springframework.boot</groupId>
-                    <artifactId>spring-boot-maven-plugin</artifactId>
-                </plugin>
-            </plugins>
-        </pluginManagement>
+        <plugins>
+            <plugin>
+                <groupId>org.springframework.boot</groupId>
+                <artifactId>spring-boot-maven-plugin</artifactId>
+                <configuration>
+                    <skip>true</skip>
+                </configuration>
+            </plugin>
+        </plugins>
     </build>
 
     <dependencyManagement>
@@ -103,9 +108,34 @@
                 <version>${springfox.version}</version>
             </dependency>
             <dependency>
+                <groupId>io.springfox</groupId>
+                <artifactId>springfox-swagger-ui</artifactId>
+                <version>${springfox.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>io.springfox</groupId>
+                <artifactId>springfox-bean-validators</artifactId>
+                <version>${springfox.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>io.swagger</groupId>
+                <artifactId>swagger-annotations</artifactId>
+                <version>1.5.20</version>
+            </dependency>
+            <dependency>
                 <groupId>org.hibernate</groupId>
                 <artifactId>hibernate-validator</artifactId>
                 <version>${hibernate.validator.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.cbioportal</groupId>
+                <artifactId>web</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.cbioportal</groupId>
+                <artifactId>db-scripts</artifactId>
+                <version>${project.version}</version>
             </dependency>
             <dependency>
                 <groupId>org.cbioportal</groupId>
@@ -115,6 +145,11 @@
             <dependency>
                 <groupId>org.cbioportal</groupId>
                 <artifactId>utils</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.cbioportal</groupId>
+                <artifactId>persistence-api</artifactId>
                 <version>${project.version}</version>
             </dependency>
 <!--            TODO remove dependency on Junit 4 (Spring boot uses Junit 5 by default)-->
@@ -133,6 +168,27 @@
                 <groupId>org.redisson</groupId>
                 <artifactId>redisson</artifactId>
                 <version>${redisson.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.mybatis.spring.boot</groupId>
+                <artifactId>mybatis-spring-boot-starter</artifactId>
+                <version>${mybatis.starter.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>commons-validator</groupId>
+                <artifactId>commons-validator</artifactId>
+                <version>1.6</version>
+            </dependency>
+            <dependency>
+                <groupId>org.apache.commons</groupId>
+                <artifactId>commons-math3</artifactId>
+                <version>3.6.1</version>
+            </dependency>
+            <dependency>
+                <groupId>org.mybatis.spring.boot</groupId>
+                <artifactId>mybatis-spring-boot-starter-test</artifactId>
+                <version>${mybatis.starter.version}</version>
+                <scope>test</scope>
             </dependency>
         </dependencies>
     </dependencyManagement>

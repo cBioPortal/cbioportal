@@ -7,7 +7,6 @@ import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 import javax.validation.constraints.AssertTrue;
 
-import org.apache.commons.collections.CollectionUtils;
 import org.cbioportal.model.CNA;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 
@@ -41,7 +40,7 @@ public class GeneFilter implements Serializable {
 
     @AssertTrue
     private boolean isValid() {
-        if (!CollectionUtils.isEmpty(geneQueries) && !CollectionUtils.isEmpty(molecularProfileIds)) {
+        if (!geneQueries.isEmpty() && !molecularProfileIds.isEmpty()) {
             return geneQueries.stream().flatMap(geneQuery -> geneQuery.stream().map(query -> {
                 Pattern pattern = Pattern.compile(GENE_QUERY_PATTERN);
                 Matcher matcher = pattern.matcher(query.trim());

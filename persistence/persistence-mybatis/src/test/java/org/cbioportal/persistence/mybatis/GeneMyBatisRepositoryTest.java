@@ -32,22 +32,42 @@
 
 package org.cbioportal.persistence.mybatis;
 
+import javax.sql.DataSource;
+import org.apache.ibatis.session.SqlSessionFactory;
 import org.cbioportal.model.Gene;
 import org.cbioportal.model.meta.BaseMeta;
+import org.cbioportal.persistence.mybatis.config.TestConfig;
+import org.cbioportal.persistence.mybatis.util.OffsetCalculator;
 import org.junit.Assert;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.mybatis.spring.SqlSessionFactoryBean;
+import org.mybatis.spring.annotation.MapperScan;
+import org.mybatis.spring.boot.test.autoconfigure.AutoConfigureMybatis;
+import org.mybatis.spring.boot.test.autoconfigure.MybatisTest;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Configurable;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.boot.jdbc.EmbeddedDatabaseConnection;
+import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase;
+import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.ComponentScan;
+import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.Import;
+import org.springframework.jdbc.datasource.embedded.EmbeddedDatabaseBuilder;
+import org.springframework.jdbc.datasource.embedded.EmbeddedDatabaseType;
 import org.springframework.test.context.ContextConfiguration;
+import org.springframework.test.context.TestPropertySource;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
 import java.util.ArrayList;
 import java.util.List;
 
 @RunWith(SpringJUnit4ClassRunner.class)
-@ContextConfiguration("/testContextDatabase.xml")
-@Configurable
+@SpringBootTest(classes = {TestConfig.class, GeneMyBatisRepository.class, OffsetCalculator.class})
+@MapperScan
 public class GeneMyBatisRepositoryTest {
 
     @Autowired

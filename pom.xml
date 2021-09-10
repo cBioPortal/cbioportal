@@ -5,6 +5,8 @@
     <packaging>pom</packaging>
     <modules>
         <module>persistence</module>
+        <module>persistence</module>
+        <module>model</module>
     </modules>
     <parent>
         <groupId>org.springframework.boot</groupId>

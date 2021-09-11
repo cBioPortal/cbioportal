@@ -66,8 +66,8 @@ import java.util.ArrayList;
 import java.util.List;
 
 @RunWith(SpringJUnit4ClassRunner.class)
-@SpringBootTest(classes = {TestConfig.class, GeneMyBatisRepository.class, OffsetCalculator.class})
 @MapperScan
+@SpringBootTest(classes = {TestConfig.class, GeneMyBatisRepository.class, OffsetCalculator.class})
 public class GeneMyBatisRepositoryTest {
 
     @Autowired

@@ -94,6 +94,19 @@
         </pluginManagement>
     </build>
 
+    <repositories>
+        <repository>
+            <id>jitpack.io</id>
+            <url>https://jitpack.io</url>
+        </repository>
+    </repositories>
+    <pluginRepositories>
+        <pluginRepository>
+            <id>jitpack.io</id>
+            <url>https://jitpack.io</url>
+        </pluginRepository>
+    </pluginRepositories>
+
     <dependencyManagement>
         <dependencies>
             <dependency>
@@ -219,7 +232,6 @@
                 <artifactId>commons-lang3</artifactId>
                 <version>3.11</version>
             </dependency>
-            <!-- jsonwebtoken -->
             <dependency>
                 <groupId>io.jsonwebtoken</groupId>
                 <artifactId>jjwt-api</artifactId>
@@ -236,9 +248,30 @@
                 <version>0.11.2</version>
             </dependency>
             <dependency>
-                <groupId>org.apache.commons</groupId>
-                <artifactId>commons-collections4</artifactId>
-                <version>4.4</version>
+                <groupId>com.github.romain-warnan</groupId>
+                <artifactId>simple-java-bitly</artifactId>
+                <version>1.1</version>
+            </dependency>
+            <dependency>
+                <groupId>com.github.cbioportal</groupId>
+                <artifactId>session-service</artifactId>
+                <classifier>model</classifier>
+                <version>v0.5.0</version>
+            </dependency>
+            <dependency>
+                <groupId>com.googlecode.json-simple</groupId>
+                <artifactId>json-simple</artifactId>
+                <version>1.1</version>
+            </dependency>
+            <dependency>
+                <groupId>org.mongodb</groupId>
+                <artifactId>mongo-java-driver</artifactId>
+                <version>3.12.10</version>
+            </dependency>
+            <dependency>
+                <groupId>com.datumbox</groupId>
+                <artifactId>datumbox-framework-lib</artifactId>
+                <version>0.8.1</version>
             </dependency>
         </dependencies>
     </dependencyManagement>

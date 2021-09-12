@@ -1,6 +1,7 @@
 package org.cbioportal.web;
 
 import static org.mockito.ArgumentMatchers.eq;
+import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
 
 
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -10,6 +11,7 @@ import org.cbioportal.model.Gene;
 import org.cbioportal.model.meta.BaseMeta;
 import org.cbioportal.service.GeneService;
 import org.cbioportal.service.exception.GeneNotFoundException;
+import org.cbioportal.web.config.SecurityTestConfig;
 import org.cbioportal.web.parameter.HeaderKeyConstants;
 import org.hamcrest.Matchers;
 import org.junit.Ignore;
@@ -20,17 +22,16 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.MediaType;
+import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
-import org.springframework.test.context.web.WebAppConfiguration;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
 
 @RunWith(SpringJUnit4ClassRunner.class)
-@WebAppConfiguration
-@WebMvcTest(GeneController.class)
-@ContextConfiguration(classes={GeneService.class, GeneController.class})
+@WebMvcTest
+@ContextConfiguration(classes={GeneService.class, GeneController.class, SecurityTestConfig.class})
 public class GeneControllerTest {
 
     public static final int ENTREZ_GENE_ID_1 = 1;
@@ -55,6 +56,7 @@ public class GeneControllerTest {
     private MockMvc mockMvc;
 
     @Test
+    @WithMockUser
     public void getAllGenesDefaultProjection() throws Exception {
 
         List<Gene> geneList = createGeneList();
@@ -77,6 +79,7 @@ public class GeneControllerTest {
     }
 
     @Test
+    @WithMockUser
     public void getAllGenesMetaProjection() throws Exception {
 
         BaseMeta baseMeta = new BaseMeta();
@@ -91,6 +94,8 @@ public class GeneControllerTest {
     }
 
     @Test
+    @WithMockUser
+    // TODO investigate
     @Ignore
     public void getGeneNotFound() throws Exception {
 
@@ -103,6 +108,7 @@ public class GeneControllerTest {
     }
 
     @Test
+    @WithMockUser
     public void getGene() throws Exception {
 
         List<Gene> geneList = new ArrayList<>();
@@ -124,6 +130,7 @@ public class GeneControllerTest {
     }
 
     @Test
+    @WithMockUser
     public void getAliasesOfGene() throws Exception {
 
         List<String> aliasList = new ArrayList<>();
@@ -142,6 +149,7 @@ public class GeneControllerTest {
     }
 
     @Test
+    @WithMockUser
     public void fetchGenesDefaultProjection() throws Exception {
 
         List<Gene> geneList = createGeneList();
@@ -153,7 +161,7 @@ public class GeneControllerTest {
         geneIds.add(Integer.toString(ENTREZ_GENE_ID_1));
         geneIds.add(HUGO_GENE_SYMBOL_2);
 
-        mockMvc.perform(MockMvcRequestBuilders.post("/genes/fetch")
+        mockMvc.perform(MockMvcRequestBuilders.post("/genes/fetch").with(csrf())
                 .accept(MediaType.APPLICATION_JSON)
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(objectMapper.writeValueAsString(geneIds)))
@@ -169,6 +177,7 @@ public class GeneControllerTest {
     }
 
     @Test
+    @WithMockUser
     public void fetchGenesMetaProjection() throws Exception {
 
         BaseMeta baseMeta = new BaseMeta();
@@ -181,7 +190,7 @@ public class GeneControllerTest {
         geneIds.add(Integer.toString(ENTREZ_GENE_ID_1));
         geneIds.add(HUGO_GENE_SYMBOL_2);
 
-        mockMvc.perform(MockMvcRequestBuilders.post("/genes/fetch")
+        mockMvc.perform(MockMvcRequestBuilders.post("/genes/fetch").with(csrf())
                 .param("projection", "META")
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(objectMapper.writeValueAsString(geneIds)))

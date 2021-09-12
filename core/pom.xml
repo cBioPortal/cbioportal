@@ -6,14 +6,24 @@
         <artifactId>cbioportal</artifactId>
         <groupId>org.cbioportal</groupId>
         <version>0.0.1-SNAPSHOT</version>
+        <relativePath/> <!-- lookup parent from repository -->
     </parent>
     <modelVersion>4.0.0</modelVersion>
+    <packaging>jar</packaging>
 
     <artifactId>core</artifactId>
     <dependencies>
         <dependency>
             <groupId>org.cbioportal</groupId>
             <artifactId>web</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.cbioportal</groupId>
+            <artifactId>persistence-mybatis</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>mysql</groupId>
+            <artifactId>mysql-connector-java</artifactId>
         </dependency>
     </dependencies>
 
@@ -24,21 +34,9 @@
 
     <build>
         <plugins>
-            <!--  see: https://stackoverflow.com/questions/41092200/run-mvn-spring-bootrun-from-parent-module -->
             <plugin>
                 <groupId>org.springframework.boot</groupId>
                 <artifactId>spring-boot-maven-plugin</artifactId>
-                <configuration>
-                    <fork>true</fork>
-                    <skip>false</skip>
-                </configuration>
-                <executions>
-                    <execution>
-                        <goals>
-                            <goal>repackage</goal>
-                        </goals>
-                    </execution>
-                </executions>
             </plugin>
         </plugins>
     </build>

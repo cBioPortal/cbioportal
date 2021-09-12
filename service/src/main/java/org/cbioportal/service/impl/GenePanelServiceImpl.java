@@ -1,6 +1,5 @@
 package org.cbioportal.service.impl;
 
-import org.apache.commons.collections.CollectionUtils;
 import org.cbioportal.model.*;
 import org.cbioportal.model.meta.BaseMeta;
 import org.cbioportal.persistence.GenePanelRepository;
@@ -169,7 +168,7 @@ public class GenePanelServiceImpl implements GenePanelService {
                     genePanelData =  molecularProfileIdToGenePanelDataMap
                         .getOrDefault(profileId, new ArrayList<>());
                 }
-                if(CollectionUtils.isNotEmpty(genePanelData)) {
+                if(!genePanelData.isEmpty()) {
                     genePanelData = annotateDataFromSequencedSampleLists(genePanelData, molecularProfileIdMap.get(profileId));
                 }
                 return genePanelData.stream();

@@ -17,6 +17,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 import static java.util.stream.Collectors.*;
 
@@ -99,8 +100,6 @@ public class GeneServiceImpl implements GeneService {
                 throw new GeneNotFoundException(geneId);
             }
             return gene;
-            // TODO this is implementation detail that service layer should not know
-            // replace by some PersistenceException
         } catch (MyBatisSystemException e) {
             throw new GeneWithMultipleEntrezIdsException(geneId);
         }

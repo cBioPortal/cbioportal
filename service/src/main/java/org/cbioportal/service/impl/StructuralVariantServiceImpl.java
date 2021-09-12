@@ -23,7 +23,6 @@
 
 package org.cbioportal.service.impl;
 
-import org.apache.commons.collections.CollectionUtils;
 import org.cbioportal.model.GeneFilterQuery;
 import org.cbioportal.model.StructuralVariant;
 import org.cbioportal.persistence.MutationRepository;
@@ -38,6 +37,7 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import org.cbioportal.model.MolecularProfile;
 import org.cbioportal.persistence.MolecularProfileRepository;
+import org.springframework.util.CollectionUtils;
 
 @Service
 public class StructuralVariantServiceImpl implements StructuralVariantService {
@@ -73,14 +73,14 @@ public class StructuralVariantServiceImpl implements StructuralVariantService {
             String molecularProfileId = molecularProfileIds.get(i);
             if (molecularProfileId.endsWith(molecularProfileUtil.STRUCTURAL_VARIANT_PROFILE_SUFFIX)) {
                 structuralVariantMolecularProfileIds.add(molecularProfileId);
-                if (CollectionUtils.isNotEmpty(sampleIds))  {
+                if (!sampleIds.isEmpty())  {
                     structuralVariantSampleIds.add(sampleIds.get(i));
                 }
             } else if (molecularProfileId.endsWith(molecularProfileUtil.FUSION_PROFILE_SUFFIX)) {
                 String mutationMolecularProfileId = molecularProfileUtil.replaceFusionProfileWithMutationProfile(molecularProfileId);
                 molecularProfileIdReplaceMap.put(mutationMolecularProfileId, molecularProfileId);
                 fusionVariantMolecularProfileIds.add(mutationMolecularProfileId);
-                if (CollectionUtils.isNotEmpty(sampleIds))  {
+                if (!sampleIds.isEmpty())  {
                     fusionVariantSampleIds.add(sampleIds.get(i));
                 }
             } else if (molecularProfileId.endsWith(molecularProfileUtil.MUTATION_PROFILE_SUFFIX)) {
@@ -93,7 +93,7 @@ public class StructuralVariantServiceImpl implements StructuralVariantService {
                     String mutationMolecularProfileId = molecularProfileUtil.replaceFusionProfileWithMutationProfile(molecularProfileId);
                     molecularProfileIdReplaceMap.put(mutationMolecularProfileId, molecularProfileId);
                     fusionVariantMolecularProfileIds.add(mutationMolecularProfileId);
-                    if (CollectionUtils.isNotEmpty(sampleIds))  {
+                    if (!sampleIds.isEmpty())  {
                         fusionVariantSampleIds.add(sampleIds.get(i));
                     }
                 }
@@ -103,12 +103,12 @@ public class StructuralVariantServiceImpl implements StructuralVariantService {
         List<StructuralVariant> structuralVariants = new ArrayList<>();
         List<StructuralVariant> variantsFromMutationtable = new ArrayList<>();
 
-        if (CollectionUtils.isNotEmpty(structuralVariantMolecularProfileIds)) {
+        if (!structuralVariantMolecularProfileIds.isEmpty()) {
             structuralVariants = structuralVariantRepository.fetchStructuralVariants(
                     structuralVariantMolecularProfileIds, structuralVariantSampleIds, entrezGeneIds);
         }
 
-        if (CollectionUtils.isNotEmpty(fusionVariantMolecularProfileIds)) {
+        if (!fusionVariantMolecularProfileIds.isEmpty()) {
             variantsFromMutationtable = mutationMapperUtils.mapFusionsToStructuralVariants(
                     mutationRepository.getFusionsInMultipleMolecularProfiles(fusionVariantMolecularProfileIds,
                             fusionVariantSampleIds, entrezGeneIds, "DETAILED", null, null, null, null),
@@ -165,12 +165,12 @@ public class StructuralVariantServiceImpl implements StructuralVariantService {
         List<StructuralVariant> structuralVariants = new ArrayList<>();
         List<StructuralVariant> variantsFromMutationtable = new ArrayList<>();
 
-        if (CollectionUtils.isNotEmpty(structuralVariantMolecularProfileIds)) {
+        if (structuralVariantMolecularProfileIds.isEmpty()) {
             structuralVariants = structuralVariantRepository.fetchStructuralVariantsByGeneQueries(
                 structuralVariantMolecularProfileIds, structuralVariantSampleIds, geneQueries);
         }
 
-        if (CollectionUtils.isNotEmpty(fusionVariantMolecularProfileIds)) {
+        if (!fusionVariantMolecularProfileIds.isEmpty()) {
             variantsFromMutationtable = mutationMapperUtils.mapFusionsToStructuralVariants(
                 mutationRepository.getFusionsInMultipleMolecularProfilesByGeneQueries(fusionVariantMolecularProfileIds,
                     fusionVariantSampleIds, geneQueries, "DETAILED", null, null, null, null),

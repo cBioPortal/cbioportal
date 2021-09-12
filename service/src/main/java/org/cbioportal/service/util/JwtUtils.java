@@ -48,7 +48,6 @@
 
 package org.cbioportal.service.util;
 
-import com.mysql.jdbc.StringUtils;
 import org.cbioportal.model.DataAccessToken;
 import org.cbioportal.service.exception.InvalidDataAccessTokenException;
 
@@ -72,7 +71,7 @@ public class JwtUtils {
     private byte[] decodedSecretKey;
     @Value("${dat.jwt.secret_key:none}") // default value is none
     private void setDecodedSecretKey(String secretKey) {
-        if (!StringUtils.isNullOrEmpty(secretKey) && !secretKey.equalsIgnoreCase("none")) {
+        if (!secretKey.isEmpty() && !secretKey.equalsIgnoreCase("none")) {
             this.decodedSecretKey = Decoders.BASE64.decode(secretKey);
         }
     }

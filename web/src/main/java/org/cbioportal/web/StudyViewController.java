@@ -319,33 +319,68 @@ public class StudyViewController {
                         Arrays.asList(xAxisAttributeId, yAxisAttributeId));
 
         clinicalAttributeUtil.extractCategorizedClinicalAttributes(clinicalAttributes, sampleAttributeIds, patientAttributeIds, patientAttributeIds);
-
-        List<Patient> patients = new ArrayList<>();
+        
         List<String> patientIds = new ArrayList<>();
         List<String> studyIdsOfPatients = new ArrayList<>();
+        Map<String, Map<String, List<Sample>>> patientToSamples = null;
+        
 
         if (CollectionUtils.isNotEmpty(patientAttributeIds)) {
-            patients = patientService.getPatientsOfSamples(studyIds, sampleIds).stream().collect(Collectors.toList());
+            List<Sample> samples = sampleService.fetchSamples(studyIds, sampleIds, Projection.DETAILED.name());
+            List<Patient> patients = patientService.getPatientsOfSamples(studyIds, sampleIds);
             patientIds = patients.stream().map(Patient::getStableId).collect(Collectors.toList());
             studyIdsOfPatients = patients.stream().map(Patient::getCancerStudyIdentifier).collect(Collectors.toList());
+            patientToSamples = samples.stream().collect(
+                Collectors.groupingBy(Sample::getPatientStableId, Collectors.groupingBy(Sample::getCancerStudyIdentifier))
+            );
         }
 
         List<ClinicalData> clinicalDataList = clinicalDataFetcher.fetchClinicalData(
             studyIds, sampleIds, patientIds, studyIdsOfPatients, sampleAttributeIds, patientAttributeIds, null
         );
-
-        Map<String, Map<String, List<ClinicalData>>> clinicalDataMap;
-        if (!sampleAttributeIds.isEmpty()) {
-            clinicalDataMap = clinicalDataList.stream().collect(Collectors.groupingBy(ClinicalData::getSampleId, 
-                Collectors.groupingBy(ClinicalData::getStudyId)));
+        
+        List<ClinicalData> sampleClinicalDataList;
+        // put all clinical data into sample form
+        if (CollectionUtils.isNotEmpty(patientAttributeIds)) {
+            sampleClinicalDataList = new ArrayList<>();
+            for (ClinicalData d: clinicalDataList) {
+                if (d.getSampleId() == null) {
+                    // null sample id means its a patient data, 
+                    //  we need to distribute the value to samples
+                    List<Sample> samplesForPatient = patientToSamples.get(
+                        d.getPatientId()
+                    ).get(d.getStudyId());
+                    if (samplesForPatient != null) {
+                        for (Sample s: samplesForPatient) {
+                            ClinicalData newData = new ClinicalData();
+                            newData.setAttrId(d.getAttrId());
+                            newData.setPatientId(d.getPatientId());
+                            newData.setStudyId(d.getStudyId());
+                            newData.setAttrValue(d.getAttrValue());
+                            newData.setSampleId(s.getStableId());
+                            sampleClinicalDataList.add(newData);
+                        }
+                    }
+                } else {
+                    // if its a sample data, just add it to the list
+                    sampleClinicalDataList.add(d);
+                }
+            }
         } else {
-            clinicalDataMap = clinicalDataList.stream().collect(Collectors.groupingBy(ClinicalData::getPatientId,
-                Collectors.groupingBy(ClinicalData::getStudyId)));
+            sampleClinicalDataList = clinicalDataList;
         }
+
+        // clinicalDataMap is a map sampleId->studyId->data
+        Map<String, Map<String, List<ClinicalData>>> clinicalDataMap = sampleClinicalDataList.stream().collect(Collectors.groupingBy(ClinicalData::getSampleId, 
+                Collectors.groupingBy(ClinicalData::getStudyId)));
         
         List<ClinicalData> filteredClinicalDataList = new ArrayList<>();
         clinicalDataMap.forEach((k, v) -> v.forEach((m, n) -> {
-            if (n.size() == 2 && NumberUtils.isNumber(n.get(0).getAttrValue()) && NumberUtils.isNumber(n.get(1).getAttrValue())) {
+            if (
+                // n.size() == 2 means we have clinical data for the sample for both of the queried attributes
+                n.size() == 2 && 
+                    // check if both of the sample data are numerical
+                    NumberUtils.isCreatable(n.get(0).getAttrValue()) && NumberUtils.isCreatable(n.get(1).getAttrValue())) {
                 filteredClinicalDataList.addAll(n);
             }
         }));

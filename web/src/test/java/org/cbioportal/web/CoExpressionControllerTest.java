@@ -8,7 +8,7 @@ import java.util.List;
 import org.cbioportal.model.CoExpression;
 import org.cbioportal.model.EntityType;
 import org.cbioportal.service.CoExpressionService;
-import org.cbioportal.web.config.SecurityTestConfig;
+import org.cbioportal.web.config.TestConfig;
 import org.cbioportal.web.parameter.CoExpressionFilter;
 import org.hamcrest.Matchers;
 import org.junit.Test;
@@ -27,7 +27,7 @@ import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
 
 @RunWith(SpringJUnit4ClassRunner.class)
 @WebMvcTest
-@ContextConfiguration(classes = {CoExpressionController.class, SecurityTestConfig.class})
+@ContextConfiguration(classes = {CoExpressionController.class, TestConfig.class})
 public class CoExpressionControllerTest {
 
     private static final String TEST_ENTREZ_GENE_ID_1 = "1";

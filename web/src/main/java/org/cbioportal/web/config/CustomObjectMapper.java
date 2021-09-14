@@ -32,13 +32,11 @@
 
 package org.cbioportal.web.config;
 
-import java.util.HashMap;
-import java.util.Map;
-
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
-
+import java.util.HashMap;
+import java.util.Map;
 import org.cbioportal.model.CancerStudy;
 import org.cbioportal.model.ClinicalAttribute;
 import org.cbioportal.model.ClinicalAttributeCount;
@@ -46,8 +44,8 @@ import org.cbioportal.model.ClinicalData;
 import org.cbioportal.model.ClinicalDataCount;
 import org.cbioportal.model.ClinicalEvent;
 import org.cbioportal.model.ClinicalEventData;
-import org.cbioportal.model.DataAccessToken;
 import org.cbioportal.model.CopyNumberSeg;
+import org.cbioportal.model.DataAccessToken;
 import org.cbioportal.model.Gene;
 import org.cbioportal.model.GenePanel;
 import org.cbioportal.model.GenePanelToGene;
@@ -64,14 +62,8 @@ import org.cbioportal.model.Patient;
 import org.cbioportal.model.ResourceDefinition;
 import org.cbioportal.model.Sample;
 import org.cbioportal.model.SampleList;
-import org.cbioportal.session_service.domain.Session;
 import org.cbioportal.model.TypeOfCancer;
-import org.cbioportal.web.parameter.CustomDataSession;
-import org.cbioportal.web.parameter.PageSettings;
-import org.cbioportal.web.parameter.PageSettingsData;
-import org.cbioportal.web.parameter.StudyPageSettings;
-import org.cbioportal.web.parameter.VirtualStudy;
-import org.cbioportal.web.parameter.VirtualStudyData;
+import org.cbioportal.session_service.domain.Session;
 import org.cbioportal.web.CustomAttributeWithData;
 import org.cbioportal.web.mixin.CancerStudyMixin;
 import org.cbioportal.web.mixin.ClinicalAttributeCountMixin;
@@ -98,14 +90,23 @@ import org.cbioportal.web.mixin.PatientMixin;
 import org.cbioportal.web.mixin.ResourceDefinitionMixin;
 import org.cbioportal.web.mixin.SampleListMixin;
 import org.cbioportal.web.mixin.SampleMixin;
-import org.cbioportal.web.mixin.SessionMixin;
 import org.cbioportal.web.mixin.SessionDataMixin;
+import org.cbioportal.web.mixin.SessionMixin;
 import org.cbioportal.web.mixin.TypeOfCancerMixin;
+import org.cbioportal.web.parameter.CustomDataSession;
+import org.cbioportal.web.parameter.PageSettings;
+import org.cbioportal.web.parameter.PageSettingsData;
+import org.cbioportal.web.parameter.StudyPageSettings;
+import org.cbioportal.web.parameter.VirtualStudy;
+import org.cbioportal.web.parameter.VirtualStudyData;
+import org.springframework.context.annotation.Primary;
+import org.springframework.stereotype.Component;
 
+@Primary
+@Component
 public class CustomObjectMapper extends ObjectMapper {
 
     public CustomObjectMapper() {
-
         super.setSerializationInclusion(JsonInclude.Include.NON_NULL);
         super.enable(SerializationFeature.WRITE_ENUMS_USING_TO_STRING);
         Map<Class<?>, Class<?>> mixinMap = new HashMap<>();

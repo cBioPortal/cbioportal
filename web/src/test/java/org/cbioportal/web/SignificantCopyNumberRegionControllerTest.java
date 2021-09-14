@@ -7,7 +7,7 @@ import org.cbioportal.model.Gistic;
 import org.cbioportal.model.GisticToGene;
 import org.cbioportal.model.meta.BaseMeta;
 import org.cbioportal.service.SignificantCopyNumberRegionService;
-import org.cbioportal.web.config.SecurityTestConfig;
+import org.cbioportal.web.config.TestConfig;
 import org.cbioportal.web.parameter.HeaderKeyConstants;
 import org.hamcrest.Matchers;
 import org.junit.Test;
@@ -26,7 +26,7 @@ import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
 
 @RunWith(SpringJUnit4ClassRunner.class)
 @WebMvcTest
-@ContextConfiguration(classes = {SignificantCopyNumberRegionController.class, SecurityTestConfig.class})
+@ContextConfiguration(classes = {SignificantCopyNumberRegionController.class, TestConfig.class})
 public class SignificantCopyNumberRegionControllerTest {
 
     private static final Long TEST_GISTIC_ROI_ID_1 = 1L;

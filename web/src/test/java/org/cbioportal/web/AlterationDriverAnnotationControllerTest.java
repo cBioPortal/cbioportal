@@ -13,7 +13,7 @@ import java.util.HashSet;
 import java.util.List;
 import org.cbioportal.model.CustomDriverAnnotationReport;
 import org.cbioportal.service.AlterationDriverAnnotationService;
-import org.cbioportal.web.config.SecurityTestConfig;
+import org.cbioportal.web.config.TestConfig;
 import org.hamcrest.Matchers;
 import org.junit.Before;
 import org.junit.Test;
@@ -32,7 +32,7 @@ import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
 
 @RunWith(SpringJUnit4ClassRunner.class)
 @WebMvcTest(AlterationDriverAnnotationController.class)
-@ContextConfiguration(classes={AlterationDriverAnnotationController.class, SecurityTestConfig.class})
+@ContextConfiguration(classes={AlterationDriverAnnotationController.class, TestConfig.class})
 public class AlterationDriverAnnotationControllerTest {
 
     private ObjectMapper objectMapper = new ObjectMapper();

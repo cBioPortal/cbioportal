@@ -4,35 +4,29 @@ import org.cbioportal.model.ClinicalEvent;
 import org.cbioportal.model.ClinicalEventData;
 import org.cbioportal.model.meta.BaseMeta;
 import org.cbioportal.service.ClinicalEventService;
-import org.cbioportal.web.config.SecurityTestConfig;
+import org.cbioportal.web.config.TestConfig;
 import org.cbioportal.web.parameter.HeaderKeyConstants;
 import org.hamcrest.Matchers;
-import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
-import org.springframework.context.annotation.Bean;
-import org.springframework.context.annotation.Configuration;
 import org.springframework.http.MediaType;
 import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
-import org.springframework.test.context.web.WebAppConfiguration;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
-import org.springframework.test.web.servlet.setup.MockMvcBuilders;
-import org.springframework.web.context.WebApplicationContext;
 
 import java.util.ArrayList;
 import java.util.List;
 
 @RunWith(SpringJUnit4ClassRunner.class)
 @WebMvcTest
-@ContextConfiguration(classes = {ClinicalEventController.class, SecurityTestConfig.class})
+@ContextConfiguration(classes = {ClinicalEventController.class, TestConfig.class})
 public class ClinicalEventControllerTest {
 
     private static final int TEST_CLINICAL_EVENT_ID_1 = 1;

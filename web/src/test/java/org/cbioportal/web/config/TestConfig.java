@@ -1,6 +1,7 @@
 package org.cbioportal.web.config;
 
 import org.cbioportal.persistence.mybatis.util.CacheMapUtil;
+import org.cbioportal.web.error.GlobalExceptionHandler;
 import org.cbioportal.web.util.InvolvedCancerStudyExtractorInterceptor;
 import org.cbioportal.web.util.UniqueKeyExtractor;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -13,18 +14,19 @@ import org.springframework.web.servlet.config.annotation.InterceptorRegistry;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 
 @TestConfiguration
-public class SecurityTestConfig {
+public class TestConfig {
 
-    @Bean
-    public InvolvedCancerStudyExtractorInterceptor involvedCancerStudyExtractorInterceptor() {
-        return new InvolvedCancerStudyExtractorInterceptor();
-    }
-
+    // -- configure preauthorize security
     @MockBean
     private CacheMapUtil cacheMapUtil;
 
     @MockBean
     private UniqueKeyExtractor uniqueKeyExtractor;
+
+    @Bean
+    public InvolvedCancerStudyExtractorInterceptor involvedCancerStudyExtractorInterceptor() {
+        return new InvolvedCancerStudyExtractorInterceptor();
+    }
 
     @Component
     public class InterceptorAppConfig implements WebMvcConfigurer {
@@ -36,5 +38,17 @@ public class SecurityTestConfig {
         public void addInterceptors(InterceptorRegistry registry) {
             registry.addInterceptor(involvedCancerStudyExtractorInterceptor);
         }
+    }
+
+    // -- register mixins
+    @Bean
+    public CustomObjectMapper customObjectMapper() {
+        return new CustomObjectMapper();
+    }
+
+    // -- handle exceptions
+    @Bean
+    public GlobalExceptionHandler globalExceptionHandler() {
+        return new GlobalExceptionHandler();
     }
 }

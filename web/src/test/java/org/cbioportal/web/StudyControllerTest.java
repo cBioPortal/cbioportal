@@ -16,7 +16,7 @@ import org.cbioportal.model.TypeOfCancer;
 import org.cbioportal.model.meta.BaseMeta;
 import org.cbioportal.service.StudyService;
 import org.cbioportal.service.exception.StudyNotFoundException;
-import org.cbioportal.web.config.SecurityTestConfig;
+import org.cbioportal.web.config.TestConfig;
 import org.cbioportal.web.parameter.HeaderKeyConstants;
 import org.hamcrest.Matchers;
 import org.junit.Test;
@@ -35,7 +35,7 @@ import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
 
 @RunWith(SpringJUnit4ClassRunner.class)
 @WebMvcTest
-@ContextConfiguration(classes = {StudyController.class, SecurityTestConfig.class})
+@ContextConfiguration(classes = {StudyController.class, TestConfig.class})
 public class StudyControllerTest {
 
     private static final int TEST_CANCER_STUDY_ID_1 = 1;

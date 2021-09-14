@@ -9,7 +9,7 @@ import java.util.List;
 import org.cbioportal.model.ClinicalData;
 import org.cbioportal.model.meta.BaseMeta;
 import org.cbioportal.service.ClinicalDataService;
-import org.cbioportal.web.config.SecurityTestConfig;
+import org.cbioportal.web.config.TestConfig;
 import org.cbioportal.web.parameter.ClinicalDataIdentifier;
 import org.cbioportal.web.parameter.ClinicalDataMultiStudyFilter;
 import org.cbioportal.web.parameter.ClinicalDataSingleStudyFilter;
@@ -31,7 +31,7 @@ import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
 
 @RunWith(SpringJUnit4ClassRunner.class)
 @WebMvcTest
-@ContextConfiguration(classes = {ClinicalDataController.class, SecurityTestConfig.class})
+@ContextConfiguration(classes = {ClinicalDataController.class, TestConfig.class})
 public class ClinicalDataControllerTest {
 
     private static final String TEST_ATTR_ID_1 = "test_attr_id_1";

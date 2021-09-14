@@ -1,6 +1,6 @@
 package org.cbioportal.web;
 
-import org.cbioportal.web.config.SecurityTestConfig;
+import org.cbioportal.web.config.TestConfig;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -15,7 +15,7 @@ import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
 
 @RunWith(SpringJUnit4ClassRunner.class)
 @WebMvcTest
-@ContextConfiguration(classes = {InfoController.class, SecurityTestConfig.class})
+@ContextConfiguration(classes = {InfoController.class, TestConfig.class})
 public class InfoControllerTest {
 
     @Autowired

@@ -11,7 +11,7 @@ import java.util.List;
 import org.cbioportal.model.GenericAssayData;
 import org.cbioportal.model.meta.GenericAssayMeta;
 import org.cbioportal.service.GenericAssayService;
-import org.cbioportal.web.config.SecurityTestConfig;
+import org.cbioportal.web.config.TestConfig;
 import org.cbioportal.web.parameter.GenericAssayDataMultipleStudyFilter;
 import org.cbioportal.web.parameter.GenericAssayFilter;
 import org.cbioportal.web.parameter.GenericAssayMetaFilter;
@@ -33,7 +33,7 @@ import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
 
 @RunWith(SpringJUnit4ClassRunner.class)
 @WebMvcTest
-@ContextConfiguration(classes = {GenericAssayController.class, SecurityTestConfig.class})
+@ContextConfiguration(classes = {GenericAssayController.class, TestConfig.class})
 public class GenericAssayControllerTest {
 
     private static final String PROF_ID = "test_prof_id";

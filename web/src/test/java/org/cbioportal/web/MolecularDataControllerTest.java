@@ -9,7 +9,7 @@ import java.util.Arrays;
 import java.util.List;
 import org.cbioportal.model.GeneMolecularData;
 import org.cbioportal.service.MolecularDataService;
-import org.cbioportal.web.config.SecurityTestConfig;
+import org.cbioportal.web.config.TestConfig;
 import org.cbioportal.web.parameter.HeaderKeyConstants;
 import org.cbioportal.web.parameter.MolecularDataFilter;
 import org.cbioportal.web.parameter.MolecularDataMultipleStudyFilter;
@@ -30,7 +30,7 @@ import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
 
 @RunWith(SpringJUnit4ClassRunner.class)
 @WebMvcTest
-@ContextConfiguration(classes = {MolecularDataController.class, SecurityTestConfig.class})
+@ContextConfiguration(classes = {MolecularDataController.class, TestConfig.class})
 public class MolecularDataControllerTest {
 
     private static final String TEST_MOLECULAR_PROFILE_STABLE_ID_1 = "test_molecular_profile_stable_id_1";

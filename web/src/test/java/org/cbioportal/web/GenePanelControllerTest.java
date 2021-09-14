@@ -9,7 +9,7 @@ import org.cbioportal.model.GenePanelToGene;
 import org.cbioportal.model.meta.BaseMeta;
 import org.cbioportal.service.GenePanelService;
 import org.cbioportal.service.exception.GenePanelNotFoundException;
-import org.cbioportal.web.config.SecurityTestConfig;
+import org.cbioportal.web.config.TestConfig;
 import org.cbioportal.web.parameter.GenePanelDataFilter;
 import org.cbioportal.web.parameter.GenePanelDataMultipleStudyFilter;
 import org.cbioportal.web.parameter.HeaderKeyConstants;
@@ -31,7 +31,7 @@ import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
 
 @RunWith(SpringJUnit4ClassRunner.class)
 @WebMvcTest
-@ContextConfiguration(classes = {GenePanelController.class, SecurityTestConfig.class})
+@ContextConfiguration(classes = {GenePanelController.class, TestConfig.class})
 public class GenePanelControllerTest {
 
     private static final String TEST_GENE_PANEL_ID_1 = "test_gene_panel_id_1";

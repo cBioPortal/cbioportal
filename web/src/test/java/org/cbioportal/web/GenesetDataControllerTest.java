@@ -9,7 +9,7 @@ import java.util.Arrays;
 import java.util.List;
 import org.cbioportal.model.GenesetMolecularData;
 import org.cbioportal.service.GenesetDataService;
-import org.cbioportal.web.config.SecurityTestConfig;
+import org.cbioportal.web.config.TestConfig;
 import org.cbioportal.web.parameter.GenesetDataFilterCriteria;
 import org.hamcrest.Matchers;
 import org.junit.Test;
@@ -28,7 +28,7 @@ import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
 
 @RunWith(SpringJUnit4ClassRunner.class)
 @WebMvcTest
-@ContextConfiguration(classes = {GenesetDataController.class, SecurityTestConfig.class})
+@ContextConfiguration(classes = {GenesetDataController.class, TestConfig.class})
 public class GenesetDataControllerTest {
 
     private static final String PROF_ID = "test_prof_id";

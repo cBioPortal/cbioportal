@@ -6,7 +6,7 @@ import java.util.List;
 import org.cbioportal.model.MutSig;
 import org.cbioportal.model.meta.BaseMeta;
 import org.cbioportal.service.SignificantlyMutatedGeneService;
-import org.cbioportal.web.config.SecurityTestConfig;
+import org.cbioportal.web.config.TestConfig;
 import org.cbioportal.web.parameter.HeaderKeyConstants;
 import org.hamcrest.Matchers;
 import org.junit.Test;
@@ -25,7 +25,7 @@ import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
 
 @RunWith(SpringJUnit4ClassRunner.class)
 @WebMvcTest
-@ContextConfiguration(classes = {SignificantlyMutatedGenesController.class, SecurityTestConfig.class})
+@ContextConfiguration(classes = {SignificantlyMutatedGenesController.class, TestConfig.class})
 public class SignificantlyMutatedGenesControllerTest {
 
     private static final int TEST_CANCER_STUDY_ID_1 = 1;

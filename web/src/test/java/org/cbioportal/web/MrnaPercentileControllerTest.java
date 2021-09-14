@@ -9,7 +9,7 @@ import java.util.ArrayList;
 import java.util.List;
 import org.cbioportal.model.MrnaPercentile;
 import org.cbioportal.service.MrnaPercentileService;
-import org.cbioportal.web.config.SecurityTestConfig;
+import org.cbioportal.web.config.TestConfig;
 import org.hamcrest.Matchers;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -27,7 +27,7 @@ import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
 
 @RunWith(SpringJUnit4ClassRunner.class)
 @WebMvcTest
-@ContextConfiguration(classes = {MrnaPercentileController.class, SecurityTestConfig.class})
+@ContextConfiguration(classes = {MrnaPercentileController.class, TestConfig.class})
 public class MrnaPercentileControllerTest {
 
     private static final String TEST_MOLECULAR_PROFILE_STABLE_ID = "test_molecular_profile_stable_id_1";

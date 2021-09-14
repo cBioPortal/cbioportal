@@ -2,7 +2,7 @@ package org.cbioportal.web;
 
 import java.util.HashMap;
 import org.cbioportal.service.StaticDataTimestampService;
-import org.cbioportal.web.config.SecurityTestConfig;
+import org.cbioportal.web.config.TestConfig;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mockito;
@@ -19,7 +19,7 @@ import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
 
 @RunWith(SpringJUnit4ClassRunner.class)
 @WebMvcTest
-@ContextConfiguration(classes = {StaticDataTimestampController.class, SecurityTestConfig.class})
+@ContextConfiguration(classes = {StaticDataTimestampController.class, TestConfig.class})
 public class StaticDataTimestampControllerTest {
 
     @MockBean

@@ -10,7 +10,7 @@ import org.cbioportal.model.Sample;
 import org.cbioportal.model.meta.BaseMeta;
 import org.cbioportal.service.SampleService;
 import org.cbioportal.service.exception.SampleNotFoundException;
-import org.cbioportal.web.config.SecurityTestConfig;
+import org.cbioportal.web.config.TestConfig;
 import org.cbioportal.web.parameter.HeaderKeyConstants;
 import org.cbioportal.web.parameter.SampleFilter;
 import org.cbioportal.web.parameter.SampleIdentifier;
@@ -31,7 +31,7 @@ import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
 
 @RunWith(SpringJUnit4ClassRunner.class)
 @WebMvcTest
-@ContextConfiguration(classes = {SampleController.class, SecurityTestConfig.class})
+@ContextConfiguration(classes = {SampleController.class, TestConfig.class})
 public class SampleControllerTest {
 
     private static final int TEST_INTERNAL_ID_1 = 1;

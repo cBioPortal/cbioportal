@@ -18,7 +18,11 @@ import javax.validation.ConstraintViolationException;
 import javax.validation.ElementKind;
 import javax.validation.Path;
 import java.util.Iterator;
+import org.springframework.web.servlet.mvc.method.annotation.ResponseEntityExceptionHandler;
 
+// TODO
+// - consider extending extends ResponseEntityExceptionHandler
+// - check controllers for not catching exceptions themselves
 @ControllerAdvice("org.cbioportal.web")
 public class GlobalExceptionHandler {
 

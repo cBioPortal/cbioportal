@@ -10,7 +10,7 @@ import java.util.List;
 import org.cbioportal.model.CopyNumberSeg;
 import org.cbioportal.model.meta.BaseMeta;
 import org.cbioportal.service.CopyNumberSegmentService;
-import org.cbioportal.web.config.SecurityTestConfig;
+import org.cbioportal.web.config.TestConfig;
 import org.cbioportal.web.parameter.HeaderKeyConstants;
 import org.cbioportal.web.parameter.SampleIdentifier;
 import org.hamcrest.Matchers;
@@ -31,7 +31,7 @@ import org.springframework.web.context.WebApplicationContext;
 
 @RunWith(SpringJUnit4ClassRunner.class)
 @WebMvcTest
-@ContextConfiguration(classes = {CopyNumberSegmentController.class, SecurityTestConfig.class})
+@ContextConfiguration(classes = {CopyNumberSegmentController.class, TestConfig.class})
 public class CopyNumberSegmentControllerTest {
 
     private static final int TEST_SAMPLE_ID_1 = 1;

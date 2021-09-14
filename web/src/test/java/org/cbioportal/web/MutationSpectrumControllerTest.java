@@ -6,7 +6,7 @@ import java.util.Arrays;
 import java.util.List;
 import org.cbioportal.model.MutationSpectrum;
 import org.cbioportal.service.MutationSpectrumService;
-import org.cbioportal.web.config.SecurityTestConfig;
+import org.cbioportal.web.config.TestConfig;
 import org.cbioportal.web.parameter.MutationSpectrumFilter;
 import org.hamcrest.Matchers;
 import org.junit.Test;
@@ -25,7 +25,7 @@ import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
 
 @RunWith(SpringJUnit4ClassRunner.class)
 @WebMvcTest
-@ContextConfiguration(classes = {MutationSpectrumController.class, SecurityTestConfig.class})
+@ContextConfiguration(classes = {MutationSpectrumController.class, TestConfig.class})
 public class MutationSpectrumControllerTest {
 
     private static final String TEST_MOLECULAR_PROFILE_ID = "test_molecular_profile_id";

@@ -10,7 +10,7 @@ import org.cbioportal.model.PatientTreatmentRow;
 import org.cbioportal.model.SampleTreatmentRow;
 import org.cbioportal.model.TemporalRelation;
 import org.cbioportal.service.TreatmentService;
-import org.cbioportal.web.config.SecurityTestConfig;
+import org.cbioportal.web.config.TestConfig;
 import org.cbioportal.web.parameter.SampleIdentifier;
 import org.cbioportal.web.parameter.StudyViewFilter;
 import org.cbioportal.web.util.StudyViewFilterApplier;
@@ -30,7 +30,7 @@ import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
 
 @RunWith(SpringJUnit4ClassRunner.class)
 @WebMvcTest
-@ContextConfiguration(classes = {TreatmentController.class, SecurityTestConfig.class})
+@ContextConfiguration(classes = {TreatmentController.class, TestConfig.class})
 public class TreatmentControllerTest {
 
     private final List<SampleIdentifier> sampleIdentifiers;

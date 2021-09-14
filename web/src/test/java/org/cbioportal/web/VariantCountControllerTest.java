@@ -8,7 +8,7 @@ import java.util.ArrayList;
 import java.util.List;
 import org.cbioportal.model.VariantCount;
 import org.cbioportal.service.VariantCountService;
-import org.cbioportal.web.config.SecurityTestConfig;
+import org.cbioportal.web.config.TestConfig;
 import org.cbioportal.web.parameter.VariantCountIdentifier;
 import org.hamcrest.Matchers;
 import org.junit.Test;
@@ -27,7 +27,7 @@ import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
 
 @RunWith(SpringJUnit4ClassRunner.class)
 @WebMvcTest
-@ContextConfiguration(classes = {VariantCountController.class, SecurityTestConfig.class})
+@ContextConfiguration(classes = {VariantCountController.class, TestConfig.class})
 public class VariantCountControllerTest {
 
     private static final String TEST_MOLECULAR_PROFILE_STABLE_ID = "test_molecular_profile_stable_id";

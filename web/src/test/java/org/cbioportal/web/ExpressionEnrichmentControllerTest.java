@@ -11,7 +11,7 @@ import org.cbioportal.model.GenericAssayEnrichment;
 import org.cbioportal.model.GenomicEnrichment;
 import org.cbioportal.model.GroupStatistics;
 import org.cbioportal.service.ExpressionEnrichmentService;
-import org.cbioportal.web.config.SecurityTestConfig;
+import org.cbioportal.web.config.TestConfig;
 import org.hamcrest.Matchers;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -29,7 +29,7 @@ import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
 
 @RunWith(SpringJUnit4ClassRunner.class)
 @WebMvcTest
-@ContextConfiguration(classes = {ExpressionEnrichmentController.class, SecurityTestConfig.class})
+@ContextConfiguration(classes = {ExpressionEnrichmentController.class, TestConfig.class})
 public class ExpressionEnrichmentControllerTest {
 
     private static final int TEST_ENTREZ_GENE_ID_1 = 1;

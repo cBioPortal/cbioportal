@@ -31,7 +31,7 @@ import java.util.ArrayList;
 import java.util.List;
 import org.cbioportal.model.StructuralVariant;
 import org.cbioportal.service.StructuralVariantService;
-import org.cbioportal.web.config.SecurityTestConfig;
+import org.cbioportal.web.config.TestConfig;
 import org.cbioportal.web.parameter.SampleMolecularIdentifier;
 import org.cbioportal.web.parameter.StructuralVariantFilter;
 import org.hamcrest.Matchers;
@@ -51,7 +51,7 @@ import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
 
 @RunWith(SpringJUnit4ClassRunner.class)
 @WebMvcTest
-@ContextConfiguration(classes = {StructuralVariantController.class, SecurityTestConfig.class})
+@ContextConfiguration(classes = {StructuralVariantController.class, TestConfig.class})
 public class StructuralVariantControllerTest {
 
     private static final String TEST_GENETIC_PROFILE_STABLE_ID_1 = "test_genetic_profile_stable_id_1";

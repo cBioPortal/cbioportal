@@ -36,11 +36,9 @@ import org.cbioportal.service.SampleListService;
 import org.cbioportal.service.SampleService;
 import org.cbioportal.service.StudyViewService;
 import org.cbioportal.service.TreatmentService;
-import org.cbioportal.service.impl.ClinicalAttributeServiceImpl;
-import org.cbioportal.service.impl.ClinicalDataServiceImpl;
 import org.cbioportal.service.util.ClinicalAttributeUtil;
 import org.cbioportal.service.util.MolecularProfileUtil;
-import org.cbioportal.web.config.SecurityTestConfig;
+import org.cbioportal.web.config.TestConfig;
 import org.cbioportal.web.parameter.ClinicalDataBinCountFilter;
 import org.cbioportal.web.parameter.ClinicalDataBinFilter;
 import org.cbioportal.web.parameter.ClinicalDataCountFilter;
@@ -62,11 +60,9 @@ import org.cbioportal.web.util.StudyViewFilterUtil;
 import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
-import org.springframework.context.annotation.Bean;
 import org.springframework.http.MediaType;
 import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.context.ContextConfiguration;
@@ -80,7 +76,7 @@ import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
 // TODO clean up dependencies for this test (use Mocks better)
 @ContextConfiguration(classes = {StudyViewController.class, StudyViewFilterUtil.class, MolecularProfileUtil.class, ClinicalDataBinUtil.class, DataBinner.class,
     DiscreteDataBinner.class, LinearDataBinner.class, ScientificSmallDataBinner.class, LogScaleDataBinner.class, ClinicalDataBinUtil.class,
-    DataBinHelper.class, SecurityTestConfig.class})
+    DataBinHelper.class, TestConfig.class})
 @Ignore
 public class StudyViewControllerTest {
 

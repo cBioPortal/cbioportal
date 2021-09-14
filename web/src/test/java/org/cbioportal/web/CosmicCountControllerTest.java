@@ -8,7 +8,7 @@ import java.util.ArrayList;
 import java.util.List;
 import org.cbioportal.model.CosmicMutation;
 import org.cbioportal.service.CosmicCountService;
-import org.cbioportal.web.config.SecurityTestConfig;
+import org.cbioportal.web.config.TestConfig;
 import org.hamcrest.Matchers;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -26,7 +26,7 @@ import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
 
 @RunWith(SpringJUnit4ClassRunner.class)
 @WebMvcTest
-@ContextConfiguration(classes = {CosmicCountController.class, SecurityTestConfig.class})
+@ContextConfiguration(classes = {CosmicCountController.class, TestConfig.class})
 public class CosmicCountControllerTest {
 
     private static final String TEST_COSMIC_MUTATION_ID_1 = "test_cosmic_mutation_id_1";

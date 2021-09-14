@@ -11,7 +11,7 @@ import org.cbioportal.model.Gene;
 import org.cbioportal.model.meta.BaseMeta;
 import org.cbioportal.service.GeneService;
 import org.cbioportal.service.exception.GeneNotFoundException;
-import org.cbioportal.web.config.SecurityTestConfig;
+import org.cbioportal.web.config.TestConfig;
 import org.cbioportal.web.parameter.HeaderKeyConstants;
 import org.hamcrest.Matchers;
 import org.junit.Ignore;
@@ -31,7 +31,7 @@ import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
 
 @RunWith(SpringJUnit4ClassRunner.class)
 @WebMvcTest
-@ContextConfiguration(classes={GeneService.class, GeneController.class, SecurityTestConfig.class})
+@ContextConfiguration(classes={GeneService.class, GeneController.class, TestConfig.class})
 public class GeneControllerTest {
 
     public static final int ENTREZ_GENE_ID_1 = 1;

@@ -20,7 +20,7 @@ import org.cbioportal.model.CountSummary;
 import org.cbioportal.model.MolecularProfileCaseIdentifier;
 import org.cbioportal.model.MutationEventType;
 import org.cbioportal.service.AlterationEnrichmentService;
-import org.cbioportal.web.config.SecurityTestConfig;
+import org.cbioportal.web.config.TestConfig;
 import org.cbioportal.web.parameter.MolecularProfileCasesGroupAndAlterationTypeFilter;
 import org.cbioportal.web.parameter.MolecularProfileCasesGroupFilter;
 import org.cbioportal.web.util.AlterationFilterMockitoArgumentMatcher;
@@ -43,7 +43,7 @@ import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
 
 @RunWith(SpringJUnit4ClassRunner.class)
 @WebMvcTest(AlterationEnrichmentControllerTest.class)
-@ContextConfiguration(classes={AlterationEnrichmentController.class, SecurityTestConfig.class})
+@ContextConfiguration(classes={AlterationEnrichmentController.class, TestConfig.class})
 public class AlterationEnrichmentControllerTest {
 
     private static final int TEST_ENTREZ_GENE_ID_1 = 1;

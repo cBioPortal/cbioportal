@@ -13,7 +13,7 @@ import org.cbioportal.model.Mutation;
 import org.cbioportal.model.MutationCountByPosition;
 import org.cbioportal.model.meta.MutationMeta;
 import org.cbioportal.service.MutationService;
-import org.cbioportal.web.config.SecurityTestConfig;
+import org.cbioportal.web.config.TestConfig;
 import org.cbioportal.web.parameter.HeaderKeyConstants;
 import org.cbioportal.web.parameter.MutationFilter;
 import org.cbioportal.web.parameter.MutationMultipleStudyFilter;
@@ -36,7 +36,7 @@ import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
 
 @RunWith(SpringJUnit4ClassRunner.class)
 @WebMvcTest
-@ContextConfiguration(classes = {MutationController.class, SecurityTestConfig.class})
+@ContextConfiguration(classes = {MutationController.class, TestConfig.class})
 public class MutationControllerTest {
 
     private static final String TEST_MOLECULAR_PROFILE_STABLE_ID_1 = "test_molecular_profile_stable_id_1";

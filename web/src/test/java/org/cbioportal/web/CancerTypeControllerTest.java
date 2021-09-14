@@ -6,7 +6,9 @@ import org.cbioportal.model.TypeOfCancer;
 import org.cbioportal.model.meta.BaseMeta;
 import org.cbioportal.service.CancerTypeService;
 import org.cbioportal.service.exception.CancerTypeNotFoundException;
-import org.cbioportal.web.config.SecurityTestConfig;
+import org.cbioportal.web.config.CustomObjectMapper;
+import org.cbioportal.web.config.TestConfig;
+import org.cbioportal.web.error.GlobalExceptionHandler;
 import org.cbioportal.web.parameter.HeaderKeyConstants;
 import org.hamcrest.Matchers;
 import org.junit.Test;
@@ -25,7 +27,7 @@ import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
 
 @RunWith(SpringJUnit4ClassRunner.class)
 @WebMvcTest
-@ContextConfiguration(classes = {CancerTypeController.class, SecurityTestConfig.class})
+@ContextConfiguration(classes = {CancerTypeController.class, TestConfig.class})
 public class CancerTypeControllerTest {
 
     private static final String TEST_TYPE_OF_CANCER_ID_1 = "test_type_of_cancer_id_1";

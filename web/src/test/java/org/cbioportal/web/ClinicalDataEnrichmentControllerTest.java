@@ -13,38 +13,31 @@ import org.cbioportal.model.ClinicalDataEnrichment;
 import org.cbioportal.model.Sample;
 import org.cbioportal.service.ClinicalAttributeService;
 import org.cbioportal.service.SampleService;
-import org.cbioportal.service.util.ClinicalAttributeUtil;
-import org.cbioportal.web.config.SecurityTestConfig;
+import org.cbioportal.web.config.TestConfig;
 import org.cbioportal.web.parameter.Group;
 import org.cbioportal.web.parameter.GroupFilter;
 import org.cbioportal.web.parameter.SampleIdentifier;
 import org.cbioportal.web.util.ClinicalDataEnrichmentUtil;
 import org.hamcrest.Matchers;
-import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
-import org.springframework.context.annotation.Bean;
-import org.springframework.context.annotation.Configuration;
 import org.springframework.http.MediaType;
 import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
-import org.springframework.test.context.web.WebAppConfiguration;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
-import org.springframework.test.web.servlet.setup.MockMvcBuilders;
-import org.springframework.web.context.WebApplicationContext;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 @RunWith(SpringJUnit4ClassRunner.class)
 @WebMvcTest
-@ContextConfiguration(classes = {ClinicalDataEnrichmentController.class, SecurityTestConfig.class})
+@ContextConfiguration(classes = {ClinicalDataEnrichmentController.class, TestConfig.class})
 public class ClinicalDataEnrichmentControllerTest {
 
     public static final String STUDY_ID1 = "study_id1";

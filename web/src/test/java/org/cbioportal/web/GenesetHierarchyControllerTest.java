@@ -9,7 +9,7 @@ import java.util.List;
 import org.cbioportal.model.Geneset;
 import org.cbioportal.model.GenesetHierarchyInfo;
 import org.cbioportal.service.GenesetHierarchyService;
-import org.cbioportal.web.config.SecurityTestConfig;
+import org.cbioportal.web.config.TestConfig;
 import org.hamcrest.Matchers;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -27,7 +27,7 @@ import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
 
 @RunWith(SpringJUnit4ClassRunner.class)
 @WebMvcTest
-@ContextConfiguration(classes = {GenesetHierarchyController.class, SecurityTestConfig.class})
+@ContextConfiguration(classes = {GenesetHierarchyController.class, TestConfig.class})
 public class GenesetHierarchyControllerTest {
 
     private static final String PROF_ID = "test_prof_id";

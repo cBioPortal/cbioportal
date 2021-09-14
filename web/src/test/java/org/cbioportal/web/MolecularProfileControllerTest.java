@@ -12,7 +12,7 @@ import org.cbioportal.model.MolecularProfile;
 import org.cbioportal.model.meta.BaseMeta;
 import org.cbioportal.service.MolecularProfileService;
 import org.cbioportal.service.exception.MolecularProfileNotFoundException;
-import org.cbioportal.web.config.SecurityTestConfig;
+import org.cbioportal.web.config.TestConfig;
 import org.cbioportal.web.parameter.HeaderKeyConstants;
 import org.cbioportal.web.parameter.MolecularProfileFilter;
 import org.hamcrest.Matchers;
@@ -32,7 +32,7 @@ import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
 
 @RunWith(SpringJUnit4ClassRunner.class)
 @WebMvcTest
-@ContextConfiguration(classes = {MolecularDataController.class, SecurityTestConfig.class})
+@ContextConfiguration(classes = {MolecularDataController.class, TestConfig.class})
 public class MolecularProfileControllerTest {
 
     private static final int TEST_MOLECULAR_PROFILE_ID_1 = 1;

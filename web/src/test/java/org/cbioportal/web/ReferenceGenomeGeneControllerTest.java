@@ -11,7 +11,7 @@ import java.util.List;
 import org.cbioportal.model.ReferenceGenomeGene;
 import org.cbioportal.service.GeneMemoizerService;
 import org.cbioportal.service.ReferenceGenomeGeneService;
-import org.cbioportal.web.config.SecurityTestConfig;
+import org.cbioportal.web.config.TestConfig;
 import org.hamcrest.Matchers;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -29,7 +29,7 @@ import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
 
 @RunWith(SpringJUnit4ClassRunner.class)
 @WebMvcTest
-@ContextConfiguration(classes = {ReferenceGenomeGeneController.class, SecurityTestConfig.class})
+@ContextConfiguration(classes = {ReferenceGenomeGeneController.class, TestConfig.class})
 public class ReferenceGenomeGeneControllerTest {
 
     public static final String CYTOBAND_1 = "cytoband_1";

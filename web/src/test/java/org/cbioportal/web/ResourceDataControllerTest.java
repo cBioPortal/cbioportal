@@ -5,7 +5,7 @@ import java.util.Arrays;
 import java.util.List;
 import org.cbioportal.model.ResourceData;
 import org.cbioportal.service.ResourceDataService;
-import org.cbioportal.web.config.SecurityTestConfig;
+import org.cbioportal.web.config.TestConfig;
 import org.hamcrest.Matchers;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -23,7 +23,7 @@ import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
 
 @RunWith(SpringJUnit4ClassRunner.class)
 @WebMvcTest
-@ContextConfiguration(classes = {ResourceDataController.class, SecurityTestConfig.class})
+@ContextConfiguration(classes = {ResourceDataController.class, TestConfig.class})
 public class ResourceDataControllerTest {
 
     @MockBean

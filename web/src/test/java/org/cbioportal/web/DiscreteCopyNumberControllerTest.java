@@ -11,7 +11,7 @@ import org.cbioportal.model.DiscreteCopyNumberData;
 import org.cbioportal.model.Gene;
 import org.cbioportal.model.meta.BaseMeta;
 import org.cbioportal.service.DiscreteCopyNumberService;
-import org.cbioportal.web.config.SecurityTestConfig;
+import org.cbioportal.web.config.TestConfig;
 import org.cbioportal.web.parameter.CopyNumberCountIdentifier;
 import org.cbioportal.web.parameter.DiscreteCopyNumberEventType;
 import org.cbioportal.web.parameter.DiscreteCopyNumberFilter;
@@ -33,7 +33,7 @@ import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
 
 @RunWith(SpringJUnit4ClassRunner.class)
 @WebMvcTest
-@ContextConfiguration(classes = {SecurityTestConfig.class})
+@ContextConfiguration(classes = {TestConfig.class})
 public class DiscreteCopyNumberControllerTest {
 
     private static final String TEST_MOLECULAR_PROFILE_STABLE_ID_1 = "test_molecular_profile_stable_id_1";

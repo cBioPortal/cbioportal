@@ -11,7 +11,7 @@ import org.cbioportal.model.Patient;
 import org.cbioportal.model.meta.BaseMeta;
 import org.cbioportal.service.PatientService;
 import org.cbioportal.service.exception.PatientNotFoundException;
-import org.cbioportal.web.config.SecurityTestConfig;
+import org.cbioportal.web.config.TestConfig;
 import org.cbioportal.web.parameter.HeaderKeyConstants;
 import org.cbioportal.web.parameter.PatientFilter;
 import org.cbioportal.web.parameter.PatientIdentifier;
@@ -32,7 +32,7 @@ import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
 
 @RunWith(SpringJUnit4ClassRunner.class)
 @WebMvcTest
-@ContextConfiguration(classes = {PatientController.class, SecurityTestConfig.class})
+@ContextConfiguration(classes = {PatientController.class, TestConfig.class})
 public class PatientControllerTest {
 
     private static final int TEST_INTERNAL_ID_1 = 1;

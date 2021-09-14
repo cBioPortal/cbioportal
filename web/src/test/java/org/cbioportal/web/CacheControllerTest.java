@@ -7,7 +7,7 @@ import static org.springframework.security.test.web.servlet.request.SecurityMock
 
 
 import org.cbioportal.service.CacheService;
-import org.cbioportal.web.config.SecurityTestConfig;
+import org.cbioportal.web.config.TestConfig;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -25,7 +25,7 @@ import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
 
 @RunWith(SpringJUnit4ClassRunner.class)
 @WebMvcTest(CacheController.class)
-@ContextConfiguration(classes = {CacheController.class, SecurityTestConfig.class})
+@ContextConfiguration(classes = {CacheController.class, TestConfig.class})
 @TestPropertySource(
     properties = {
         "cache.endpoint.enabled=true",

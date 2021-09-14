@@ -21,36 +21,34 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.mock.mockito.SpyBean;
 
 @RunWith(MockitoJUnitRunner.class)
 public class DataBinnerTest {
+
     private Map<String, String[]> mockData;
-    @InjectMocks
+
+    @Autowired
     private DataBinner dataBinner;
-    @Spy
-    @InjectMocks
+
+    @SpyBean
     private StudyViewFilterUtil studyViewFilterUtil;
-    @Spy
-    @InjectMocks
+
+    @SpyBean
     private DataBinHelper dataBinHelper;
-    @Spy
-    @InjectMocks
+
+    @SpyBean
     private DiscreteDataBinner discreteDataBinner;
-    @Spy
-    @InjectMocks
+
+    @SpyBean
     private LinearDataBinner linearDataBinner;
-    @Spy
-    @InjectMocks
+
+    @SpyBean
     private ScientificSmallDataBinner scientificSmallDataBinner;
-    @Spy
+
     @InjectMocks
     private LogScaleDataBinner logScaleDataBinner;
-
-    @Before
-    public void setup() {
-        mockData = DataBinnerMocker.mockData();
-        MockitoAnnotations.initMocks(this);
-    }
 
     private List<String> getCaseIds(List<ClinicalData> unfilteredClinicalData, boolean getPatientIds) {
         return unfilteredClinicalData

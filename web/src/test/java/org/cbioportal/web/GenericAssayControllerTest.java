@@ -1,41 +1,39 @@
 package org.cbioportal.web;
 
+import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
+
+
+import com.fasterxml.jackson.databind.ObjectMapper;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
-
-import com.fasterxml.jackson.databind.ObjectMapper;
-
 import org.cbioportal.model.GenericAssayData;
 import org.cbioportal.model.meta.GenericAssayMeta;
 import org.cbioportal.service.GenericAssayService;
-import org.cbioportal.web.parameter.GenericAssayFilter;
+import org.cbioportal.web.config.SecurityTestConfig;
 import org.cbioportal.web.parameter.GenericAssayDataMultipleStudyFilter;
+import org.cbioportal.web.parameter.GenericAssayFilter;
 import org.cbioportal.web.parameter.GenericAssayMetaFilter;
 import org.cbioportal.web.parameter.SampleMolecularIdentifier;
 import org.hamcrest.Matchers;
-import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.context.annotation.Bean;
-import org.springframework.context.annotation.Configuration;
+import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
+import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.MediaType;
+import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
-import org.springframework.test.context.web.WebAppConfiguration;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
-import org.springframework.test.web.servlet.setup.MockMvcBuilders;
-import org.springframework.web.context.WebApplicationContext;
 
 @RunWith(SpringJUnit4ClassRunner.class)
-@WebAppConfiguration
-@ContextConfiguration("/applicationContext-web.xml")
-@Configuration
+@WebMvcTest
+@ContextConfiguration(classes = {GenericAssayController.class, SecurityTestConfig.class})
 public class GenericAssayControllerTest {
 
     private static final String PROF_ID = "test_prof_id";
@@ -58,28 +56,15 @@ public class GenericAssayControllerTest {
         put(TEST_DESCRIPTION,TEST_DESCRIPTION_VALUE);
     }};
 
-    @Autowired
-    private WebApplicationContext wac;
+    @MockBean
+    private GenericAssayService genericAssayService;
 
     @Autowired
-    private GenericAssayService genericAssayService;
     private MockMvc mockMvc;
 
     private ObjectMapper objectMapper = new ObjectMapper();
 
-    @Bean
-    public GenericAssayService genericAssayService() {
-        return Mockito.mock(GenericAssayService.class);
-    }
-    
-    @Before
-    public void setUp() throws Exception {
-
-        Mockito.reset(genericAssayService);
-        mockMvc = MockMvcBuilders.webAppContextSetup(wac).build();
-    }
-
-    @Test	
+    @Test
     public void testGenericAssayDataFetch() throws Exception {	
         List<GenericAssayData> genericAssayDataItems = createGenericAssayDataItemsList();	
         Mockito.when(genericAssayService.fetchGenericAssayData(Mockito.anyString(), Mockito.anyList(),	
@@ -89,7 +74,7 @@ public class GenericAssayControllerTest {
         genericAssayDataFilter.setSampleIds(Arrays.asList(SAMPLE_ID));	
         genericAssayDataFilter.setGenericAssayStableIds(Arrays.asList(GENERIC_ASSAY_STABLE_ID_1, GENERIC_ASSAY_STABLE_ID_2, GENERIC_ASSAY_STABLE_ID_3, GENERIC_ASSAY_STABLE_ID_4));	
 
-        mockMvc.perform(MockMvcRequestBuilders.post("/generic_assay_data/" + PROF_ID + "/fetch")	
+        mockMvc.perform(MockMvcRequestBuilders.post("/generic_assay_data/" + PROF_ID + "/fetch").with(csrf())
                 .accept(MediaType.APPLICATION_JSON)	
                 .contentType(MediaType.APPLICATION_JSON)	
                 .content(objectMapper.writeValueAsString(genericAssayDataFilter)))	
@@ -107,6 +92,7 @@ public class GenericAssayControllerTest {
     }
 
     @Test
+    @WithMockUser
     public void testGenericAssayDataFetchInMultipleMolecularProfiles() throws Exception {
         List<GenericAssayData> genericAssayDataItems = createGenericAssayDataItemsList();
         GenericAssayDataMultipleStudyFilter genericAssayDataMultipleStudyFilter = new GenericAssayDataMultipleStudyFilter();
@@ -115,7 +101,7 @@ public class GenericAssayControllerTest {
         Mockito.when(genericAssayService.fetchGenericAssayData(Mockito.anyList(), Mockito.any(),
             Mockito.any(), Mockito.any())).thenReturn(genericAssayDataItems);
 
-        mockMvc.perform(MockMvcRequestBuilders.post("/generic_assay_data/fetch")
+        mockMvc.perform(MockMvcRequestBuilders.post("/generic_assay_data/fetch").with(csrf())
                 .accept(MediaType.APPLICATION_JSON)
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(objectMapper.writeValueAsString(genericAssayDataMultipleStudyFilter)))
@@ -133,6 +119,7 @@ public class GenericAssayControllerTest {
     }
 
     @Test
+    @WithMockUser
     public void testGenericAssayMetaDataFetch() throws Exception {
         List<GenericAssayMeta> genericAssayMetaItems = createGenericAssayMetaItemsList();
         List<String> genericAssayStableIds = Arrays.asList(GENERIC_ASSAY_STABLE_ID_1, GENERIC_ASSAY_STABLE_ID_2);
@@ -141,7 +128,7 @@ public class GenericAssayControllerTest {
         
         Mockito.when(genericAssayService.getGenericAssayMetaByStableIdsAndMolecularIds(Mockito.any(), Mockito.any(), Mockito.any())).thenReturn(genericAssayMetaItems);
 
-        mockMvc.perform(MockMvcRequestBuilders.post("/generic_assay_meta/fetch")
+        mockMvc.perform(MockMvcRequestBuilders.post("/generic_assay_meta/fetch").with(csrf())
                 .accept(MediaType.APPLICATION_JSON)
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(objectMapper.writeValueAsString(genericAssayMetaFilter)))

@@ -1,35 +1,31 @@
 package org.cbioportal.web;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
 import org.cbioportal.model.MutationSpectrum;
 import org.cbioportal.service.MutationSpectrumService;
+import org.cbioportal.web.config.SecurityTestConfig;
 import org.cbioportal.web.parameter.MutationSpectrumFilter;
 import org.hamcrest.Matchers;
-import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.context.annotation.Bean;
-import org.springframework.context.annotation.Configuration;
+import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
+import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.MediaType;
+import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
-import org.springframework.test.context.web.WebAppConfiguration;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
-import org.springframework.test.web.servlet.setup.MockMvcBuilders;
-import org.springframework.web.context.WebApplicationContext;
-
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
 
 @RunWith(SpringJUnit4ClassRunner.class)
-@WebAppConfiguration
-@ContextConfiguration("/applicationContext-web-test.xml")
-@Configuration
+@WebMvcTest
+@ContextConfiguration(classes = {MutationSpectrumController.class, SecurityTestConfig.class})
 public class MutationSpectrumControllerTest {
 
     private static final String TEST_MOLECULAR_PROFILE_ID = "test_molecular_profile_id";
@@ -48,29 +44,16 @@ public class MutationSpectrumControllerTest {
     private static final int TEST_T_TO_C_2 = 1;
     private static final int TEST_T_TO_G_2 = 2;
 
-    @Autowired
-    private WebApplicationContext wac;
-
-    @Autowired
+    @MockBean
     private MutationSpectrumService mutationSpectrumService;
 
     private ObjectMapper objectMapper = new ObjectMapper();
 
+    @Autowired
     private MockMvc mockMvc;
 
-    @Bean
-    public MutationSpectrumService mutationSpectrumService() {
-        return Mockito.mock(MutationSpectrumService.class);
-    }
-
-    @Before
-    public void setUp() throws Exception {
-
-        Mockito.reset(mutationSpectrumService);
-        mockMvc = MockMvcBuilders.webAppContextSetup(wac).build();
-    }
-
     @Test
+    @WithMockUser
     public void fetchMutationSpectrums() throws Exception {
 
         List<MutationSpectrum> mutationSpectrumList = new ArrayList<>();

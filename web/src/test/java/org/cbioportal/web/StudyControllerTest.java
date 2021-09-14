@@ -1,29 +1,8 @@
 package org.cbioportal.web;
 
-import org.cbioportal.model.CancerStudy;
-import org.cbioportal.model.CancerStudyTags;
-import org.cbioportal.model.TypeOfCancer;
-import org.cbioportal.model.meta.BaseMeta;
-import org.cbioportal.service.StudyService;
-import org.cbioportal.service.exception.StudyNotFoundException;
-import org.cbioportal.web.parameter.HeaderKeyConstants;
-import org.hamcrest.Matchers;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.mockito.Mockito;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.context.annotation.Bean;
-import org.springframework.context.annotation.Configuration;
-import org.springframework.http.MediaType;
-import org.springframework.test.context.ContextConfiguration;
-import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
-import org.springframework.test.context.web.WebAppConfiguration;
-import org.springframework.test.web.servlet.MockMvc;
-import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
-import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
-import org.springframework.test.web.servlet.setup.MockMvcBuilders;
-import org.springframework.web.context.WebApplicationContext;
+import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
+
+
 import com.fasterxml.jackson.databind.ObjectMapper;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
@@ -31,11 +10,32 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.TimeZone;
+import org.cbioportal.model.CancerStudy;
+import org.cbioportal.model.CancerStudyTags;
+import org.cbioportal.model.TypeOfCancer;
+import org.cbioportal.model.meta.BaseMeta;
+import org.cbioportal.service.StudyService;
+import org.cbioportal.service.exception.StudyNotFoundException;
+import org.cbioportal.web.config.SecurityTestConfig;
+import org.cbioportal.web.parameter.HeaderKeyConstants;
+import org.hamcrest.Matchers;
+import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.mockito.Mockito;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
+import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.http.MediaType;
+import org.springframework.security.test.context.support.WithMockUser;
+import org.springframework.test.context.ContextConfiguration;
+import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
+import org.springframework.test.web.servlet.MockMvc;
+import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
+import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
 
 @RunWith(SpringJUnit4ClassRunner.class)
-@WebAppConfiguration
-@ContextConfiguration("/applicationContext-web-test.xml")
-@Configuration
+@WebMvcTest
+@ContextConfiguration(classes = {StudyController.class, SecurityTestConfig.class})
 public class StudyControllerTest {
 
     private static final int TEST_CANCER_STUDY_ID_1 = 1;
@@ -68,29 +68,16 @@ public class StudyControllerTest {
     private static final String TEST_PARENT = "test_parent";
     private static final String TEST_TAGS_3 = "{\"Analyst\":{\"Name\":\"Frank\",\"Email\":\"frank@something.com\"},\"Load id\":43}";
 
-    @Autowired
-    private WebApplicationContext wac;
-
-    @Autowired
+    @MockBean
     private StudyService studyService;
 
     private ObjectMapper objectMapper = new ObjectMapper();
 
+    @Autowired
     private MockMvc mockMvc;
 
-    @Bean
-    public StudyService studyService() {
-        return Mockito.mock(StudyService.class);
-    }
-
-    @Before
-    public void setUp() throws Exception {
-
-        Mockito.reset(studyService);
-        mockMvc = MockMvcBuilders.webAppContextSetup(wac).build();
-    }
-
     @Test
+    @WithMockUser
     public void getAllStudiesDefaultProjection() throws Exception {
 
         List<CancerStudy> cancerStudyList = createExampleStudies();
@@ -131,6 +118,7 @@ public class StudyControllerTest {
     }
 
     @Test
+    @WithMockUser
     public void getAllStudiesMetaProjection() throws Exception {
 
         BaseMeta baseMeta = new BaseMeta();
@@ -145,6 +133,7 @@ public class StudyControllerTest {
     }
 
     @Test
+    @WithMockUser
     public void getStudyNotFound() throws Exception {
 
         Mockito.when(studyService.getStudy(Mockito.anyString())).thenThrow(new StudyNotFoundException("test_study_id"));
@@ -156,6 +145,7 @@ public class StudyControllerTest {
     }
 
     @Test
+    @WithMockUser
     public void getStudy() throws Exception {
 
         SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
@@ -208,6 +198,7 @@ public class StudyControllerTest {
     }
 
     @Test
+    @WithMockUser
     public void fetchStudies() throws Exception {
 
         List<CancerStudy> cancerStudyList = createExampleStudies();
@@ -215,7 +206,7 @@ public class StudyControllerTest {
         Mockito.when(studyService.fetchStudies(Mockito.anyList(), Mockito.anyString()))
             .thenReturn(cancerStudyList);
 
-        mockMvc.perform(MockMvcRequestBuilders.post("/studies/fetch")
+        mockMvc.perform(MockMvcRequestBuilders.post("/studies/fetch").with(csrf())
             .accept(MediaType.APPLICATION_JSON)
             .contentType(MediaType.APPLICATION_JSON)
             .content(objectMapper.writeValueAsString(Arrays.asList(TEST_CANCER_STUDY_IDENTIFIER_1,
@@ -250,6 +241,7 @@ public class StudyControllerTest {
     }
 
     @Test
+    @WithMockUser
     public void getTags() throws Exception {
 
         CancerStudyTags cancerStudyTags = new CancerStudyTags();
@@ -265,6 +257,7 @@ public class StudyControllerTest {
     }
 
     @Test
+    @WithMockUser
     public void getEmptyTags() throws Exception {
 
         Mockito.when(studyService.getTags(Mockito.anyString())).thenReturn(null);
@@ -277,6 +270,7 @@ public class StudyControllerTest {
     }
 
     @Test
+    @WithMockUser
     public void getAllTags() throws Exception {
 
         List<CancerStudyTags> cancerStudyTagsList = new ArrayList<>();
@@ -292,7 +286,7 @@ public class StudyControllerTest {
 
         Mockito.when(studyService.getTagsForMultipleStudies(Mockito.anyList())).thenReturn(cancerStudyTagsList);
 
-        mockMvc.perform(MockMvcRequestBuilders.post("/studies/tags/fetch")
+        mockMvc.perform(MockMvcRequestBuilders.post("/studies/tags/fetch").with(csrf())
             .accept(MediaType.APPLICATION_JSON)
             .contentType(MediaType.APPLICATION_JSON)
             .content(objectMapper.writeValueAsString(Arrays.asList(TEST_CANCER_STUDY_IDENTIFIER_1,

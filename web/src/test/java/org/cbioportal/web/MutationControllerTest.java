@@ -1,43 +1,42 @@
 package org.cbioportal.web;
 
+import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
+
+
 import com.fasterxml.jackson.databind.ObjectMapper;
+import java.math.BigDecimal;
+import java.util.ArrayList;
+import java.util.List;
 import org.cbioportal.model.AlleleSpecificCopyNumber;
 import org.cbioportal.model.Gene;
 import org.cbioportal.model.Mutation;
 import org.cbioportal.model.MutationCountByPosition;
 import org.cbioportal.model.meta.MutationMeta;
 import org.cbioportal.service.MutationService;
+import org.cbioportal.web.config.SecurityTestConfig;
 import org.cbioportal.web.parameter.HeaderKeyConstants;
 import org.cbioportal.web.parameter.MutationFilter;
 import org.cbioportal.web.parameter.MutationMultipleStudyFilter;
 import org.cbioportal.web.parameter.MutationPositionIdentifier;
 import org.cbioportal.web.parameter.SampleMolecularIdentifier;
 import org.hamcrest.Matchers;
-import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.context.annotation.Bean;
-import org.springframework.context.annotation.Configuration;
+import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
+import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.MediaType;
+import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
-import org.springframework.test.context.web.WebAppConfiguration;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
-import org.springframework.test.web.servlet.setup.MockMvcBuilders;
-import org.springframework.web.context.WebApplicationContext;
-
-import java.math.BigDecimal;
-import java.util.ArrayList;
-import java.util.List;
 
 @RunWith(SpringJUnit4ClassRunner.class)
-@WebAppConfiguration
-@ContextConfiguration("/applicationContext-web-test.xml")
-@Configuration
+@WebMvcTest
+@ContextConfiguration(classes = {MutationController.class, SecurityTestConfig.class})
 public class MutationControllerTest {
 
     private static final String TEST_MOLECULAR_PROFILE_STABLE_ID_1 = "test_molecular_profile_stable_id_1";
@@ -136,29 +135,16 @@ public class MutationControllerTest {
     private static final int TEST_TOTAL_COPY_NUMBER_2 = 2;
     private static final String NAME_SPACE_COLUMNS = "{\"columnName\":{\"fieldName\":\"fieldValue\"}}";
 
-    @Autowired
-    private WebApplicationContext wac;
-
-    @Autowired
+    @MockBean
     private MutationService mutationService;
 
     private ObjectMapper objectMapper = new ObjectMapper();
 
+    @Autowired
     private MockMvc mockMvc;
 
-    @Bean
-    public MutationService mutationService() {
-        return Mockito.mock(MutationService.class);
-    }
-
-    @Before
-    public void setUp() throws Exception {
-
-        Mockito.reset(mutationService);
-        mockMvc = MockMvcBuilders.webAppContextSetup(wac).build();
-    }
-
     @Test
+    @WithMockUser
     public void getMutationsInMolecularProfileBySampleListIdDefaultProjection() throws Exception {
 
         List<Mutation> mutationList = createExampleMutations();
@@ -248,6 +234,7 @@ public class MutationControllerTest {
     }
 
     @Test
+    @WithMockUser
     public void getMutationsInMolecularProfileBySampleListIdDetailedProjection() throws Exception {
 
         List<Mutation> mutationList = createExampleMutationsWithGeneAndAlleleSpecificCopyNumber();
@@ -355,6 +342,7 @@ public class MutationControllerTest {
     }
 
     @Test
+    @WithMockUser
     public void getMutationsInMolecularProfileBySampleListIdMetaProjection() throws Exception {
 
         MutationMeta mutationMeta = new MutationMeta();
@@ -373,6 +361,7 @@ public class MutationControllerTest {
     }
 
     @Test
+    @WithMockUser
     public void fetchMutationsInMultipleMolecularProfiles() throws Exception {
 
         List<Mutation> mutationList = createExampleMutations();
@@ -393,7 +382,7 @@ public class MutationControllerTest {
         MutationMultipleStudyFilter mutationMultipleStudyFilter = new MutationMultipleStudyFilter();
         mutationMultipleStudyFilter.setSampleMolecularIdentifiers(sampleMolecularIdentifiers);
 
-        mockMvc.perform(MockMvcRequestBuilders.post("/mutations/fetch")
+        mockMvc.perform(MockMvcRequestBuilders.post("/mutations/fetch").with(csrf())
             .accept(MediaType.APPLICATION_JSON)
             .contentType(MediaType.APPLICATION_JSON)
             .content(objectMapper.writeValueAsString(mutationMultipleStudyFilter)))
@@ -473,6 +462,7 @@ public class MutationControllerTest {
     }
 
     @Test
+    @WithMockUser
     public void fetchMutationsInMolecularProfileDefaultProjection() throws Exception {
 
         List<Mutation> mutationList = createExampleMutations();
@@ -488,7 +478,7 @@ public class MutationControllerTest {
         MutationFilter mutationFilter = new MutationFilter();
         mutationFilter.setSampleIds(sampleIds);
 
-        mockMvc.perform(MockMvcRequestBuilders.post("/molecular-profiles/test_molecular_profile_id/mutations/fetch")
+        mockMvc.perform(MockMvcRequestBuilders.post("/molecular-profiles/test_molecular_profile_id/mutations/fetch").with(csrf())
             .accept(MediaType.APPLICATION_JSON)
             .contentType(MediaType.APPLICATION_JSON)
             .content(objectMapper.writeValueAsString(mutationFilter)))
@@ -568,6 +558,7 @@ public class MutationControllerTest {
     }
 
     @Test
+    @WithMockUser
     public void fetchMutationsInMolecularProfileDetailedProjection() throws Exception {
 
         List<Mutation> mutationList = createExampleMutationsWithGeneAndAlleleSpecificCopyNumber();
@@ -583,7 +574,7 @@ public class MutationControllerTest {
         MutationFilter mutationFilter = new MutationFilter();
         mutationFilter.setSampleIds(sampleIds);
 
-        mockMvc.perform(MockMvcRequestBuilders.post("/molecular-profiles/test_molecular_profile_id/mutations/fetch")
+        mockMvc.perform(MockMvcRequestBuilders.post("/molecular-profiles/test_molecular_profile_id/mutations/fetch").with(csrf())
             .param("projection", "DETAILED")
             .accept(MediaType.APPLICATION_JSON)
             .contentType(MediaType.APPLICATION_JSON)
@@ -684,6 +675,7 @@ public class MutationControllerTest {
     }
 
     @Test
+    @WithMockUser
     public void fetchMutationsInMolecularProfileMetaProjection() throws Exception {
 
         MutationMeta mutationMeta = new MutationMeta();
@@ -699,7 +691,7 @@ public class MutationControllerTest {
         MutationFilter mutationFilter = new MutationFilter();
         mutationFilter.setSampleIds(sampleIds);
 
-        mockMvc.perform(MockMvcRequestBuilders.post("/molecular-profiles/test_molecular_profile_id/mutations/fetch")
+        mockMvc.perform(MockMvcRequestBuilders.post("/molecular-profiles/test_molecular_profile_id/mutations/fetch").with(csrf())
             .param("projection", "META")
             .contentType(MediaType.APPLICATION_JSON)
             .content(objectMapper.writeValueAsString(mutationFilter)))
@@ -709,6 +701,7 @@ public class MutationControllerTest {
     }
 
     @Test
+    @WithMockUser
     public void fetchMutationCountsByPosition() throws Exception {
 
         List<MutationCountByPosition> mutationCountByPositionList = new ArrayList<>();
@@ -741,7 +734,7 @@ public class MutationControllerTest {
         mutationPositionIdentifier2.setProteinPosEnd(TEST_ONCOTATOR_PROTEIN_POS_END_2);
         mutationPositionIdentifiers.add(mutationPositionIdentifier2);
 
-        mockMvc.perform(MockMvcRequestBuilders.post("/mutation-counts-by-position/fetch")
+        mockMvc.perform(MockMvcRequestBuilders.post("/mutation-counts-by-position/fetch").with(csrf())
             .accept(MediaType.APPLICATION_JSON)
             .contentType(MediaType.APPLICATION_JSON)
             .content(objectMapper.writeValueAsString(mutationPositionIdentifiers)))

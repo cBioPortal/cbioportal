@@ -1,32 +1,31 @@
 package org.cbioportal.web;
 
+import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
+
+
 import java.util.ArrayList;
 import java.util.List;
-
 import org.cbioportal.model.GenesetCorrelation;
 import org.cbioportal.service.GenesetCorrelationService;
+import org.cbioportal.web.config.SecurityTestConfig;
 import org.hamcrest.Matchers;
-import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.context.annotation.Bean;
-import org.springframework.context.annotation.Configuration;
+import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
+import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.MediaType;
+import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
-import org.springframework.test.context.web.WebAppConfiguration;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
-import org.springframework.test.web.servlet.setup.MockMvcBuilders;
-import org.springframework.web.context.WebApplicationContext;
 
 @RunWith(SpringJUnit4ClassRunner.class)
-@WebAppConfiguration
-@ContextConfiguration("/applicationContext-web-test.xml")
-@Configuration
+@WebMvcTest
+@ContextConfiguration(classes = {GenesetController.class, SecurityTestConfig.class})
 public class GenesetCorrelationControllerTest {
 
     private static final String PROF_ID = "test_prof_id";
@@ -41,33 +40,20 @@ public class GenesetCorrelationControllerTest {
     private static final String ZSCORE_PROF_ID = "zscore_prof_id1";
 
     @Autowired
-    private WebApplicationContext wac;
-
-    @Autowired
-    private GenesetCorrelationService genesetCorrelationService;
-
     private MockMvc mockMvc;
 
-    @Bean
-    public GenesetCorrelationService genesetCorrelationService() {
-        return Mockito.mock(GenesetCorrelationService.class);
-    }
-
-    @Before
-    public void setUp() throws Exception {
-
-        Mockito.reset(genesetCorrelationService);
-        mockMvc = MockMvcBuilders.webAppContextSetup(wac).build();
-    }
+    @MockBean
+    public GenesetCorrelationService genesetCorrelationService;
 
     @Test
+    @WithMockUser
     public void fetchCorrelatedGenes() throws Exception {
 
         List<GenesetCorrelation> correlationsForGeneset = createGenesetCorrelationList();
         Mockito.when(genesetCorrelationService.fetchCorrelatedGenes(Mockito.anyString(), Mockito.anyString(),
             Mockito.anyDouble())).thenReturn(correlationsForGeneset);
 
-        mockMvc.perform(MockMvcRequestBuilders.post("/genesets/" + QUERY_GENESET_ID + "/expression-correlation/fetch")
+        mockMvc.perform(MockMvcRequestBuilders.post("/genesets/" + QUERY_GENESET_ID + "/expression-correlation/fetch").with(csrf())
                 .param("geneticProfileId", PROF_ID)
                 .accept(MediaType.APPLICATION_JSON)
                 .contentType(MediaType.APPLICATION_JSON))

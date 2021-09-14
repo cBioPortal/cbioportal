@@ -1,38 +1,37 @@
 package org.cbioportal.web;
 
+import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
+
+
 import com.fasterxml.jackson.databind.ObjectMapper;
+import java.util.ArrayList;
+import java.util.List;
 import org.cbioportal.model.ClinicalData;
 import org.cbioportal.model.meta.BaseMeta;
 import org.cbioportal.service.ClinicalDataService;
+import org.cbioportal.web.config.SecurityTestConfig;
 import org.cbioportal.web.parameter.ClinicalDataIdentifier;
 import org.cbioportal.web.parameter.ClinicalDataMultiStudyFilter;
 import org.cbioportal.web.parameter.ClinicalDataSingleStudyFilter;
 import org.cbioportal.web.parameter.HeaderKeyConstants;
 import org.hamcrest.Matchers;
-import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.context.annotation.Bean;
-import org.springframework.context.annotation.Configuration;
+import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
+import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.MediaType;
+import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
-import org.springframework.test.context.web.WebAppConfiguration;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
-import org.springframework.test.web.servlet.setup.MockMvcBuilders;
-import org.springframework.web.context.WebApplicationContext;
-
-import java.util.ArrayList;
-import java.util.List;
 
 @RunWith(SpringJUnit4ClassRunner.class)
-@WebAppConfiguration
-@ContextConfiguration("/applicationContext-web-test.xml")
-@Configuration
+@WebMvcTest
+@ContextConfiguration(classes = {ClinicalDataController.class, SecurityTestConfig.class})
 public class ClinicalDataControllerTest {
 
     private static final String TEST_ATTR_ID_1 = "test_attr_id_1";
@@ -42,29 +41,16 @@ public class ClinicalDataControllerTest {
     private static final String TEST_ATTR_VALUE_2 = "test_attr_value_2";
     private static final int TEST_INTERNAL_ID_2 = 2;
 
-    @Autowired
-    private WebApplicationContext wac;
-
-    @Autowired
+    @MockBean
     private ClinicalDataService clinicalDataService;
 
     private ObjectMapper objectMapper = new ObjectMapper();
 
+    @Autowired
     private MockMvc mockMvc;
 
-    @Bean
-    public ClinicalDataService clinicalDataService() {
-        return Mockito.mock(ClinicalDataService.class);
-    }
-
-    @Before
-    public void setUp() throws Exception {
-
-        Mockito.reset(clinicalDataService);
-        mockMvc = MockMvcBuilders.webAppContextSetup(wac).build();
-    }
-
     @Test
+    @WithMockUser
     public void getAllClinicalDataOfSampleInStudyDefaultProjection() throws Exception {
 
         List<ClinicalData> sampleClinicalDataList = new ArrayList<>();
@@ -100,6 +86,7 @@ public class ClinicalDataControllerTest {
     }
 
     @Test
+    @WithMockUser
     public void getAllClinicalDataOfSampleInStudyMetaProjection() throws Exception {
 
         BaseMeta baseMeta = new BaseMeta();
@@ -115,6 +102,7 @@ public class ClinicalDataControllerTest {
     }
 
     @Test
+    @WithMockUser
     public void getAllClinicalDataOfPatientInStudyDefaultProjection() throws Exception {
 
         List<ClinicalData> patientClinicalDataList = new ArrayList<>();
@@ -150,6 +138,7 @@ public class ClinicalDataControllerTest {
     }
 
     @Test
+    @WithMockUser
     public void getAllClinicalDataOfPatientInStudyMetaProjection() throws Exception {
 
         BaseMeta baseMeta = new BaseMeta();
@@ -165,6 +154,7 @@ public class ClinicalDataControllerTest {
     }
 
     @Test
+    @WithMockUser
     public void getAllClinicalDataInStudyDefaultProjection() throws Exception {
 
         List<ClinicalData> patientClinicalDataList = new ArrayList<>();
@@ -201,6 +191,7 @@ public class ClinicalDataControllerTest {
     }
 
     @Test
+    @WithMockUser
     public void getAllClinicalDataInStudyMetaProjection() throws Exception {
 
         BaseMeta baseMeta = new BaseMeta();
@@ -218,6 +209,7 @@ public class ClinicalDataControllerTest {
 
 
     @Test
+    @WithMockUser
     public void fetchClinicalDataInStudyDefaultProjection() throws Exception {
 
         List<ClinicalData> patientClinicalDataList = new ArrayList<>();
@@ -241,7 +233,7 @@ public class ClinicalDataControllerTest {
         ClinicalDataSingleStudyFilter clinicalDataSingleStudyFilter = new ClinicalDataSingleStudyFilter();
         clinicalDataSingleStudyFilter.setIds(ids);
 
-        mockMvc.perform(MockMvcRequestBuilders.post("/studies/test_study_id/clinical-data/fetch")
+        mockMvc.perform(MockMvcRequestBuilders.post("/studies/test_study_id/clinical-data/fetch").with(csrf())
             .param("clinicalDataType", "SAMPLE")
             .accept(MediaType.APPLICATION_JSON)
             .contentType(MediaType.APPLICATION_JSON)
@@ -262,6 +254,7 @@ public class ClinicalDataControllerTest {
     }
 
     @Test
+    @WithMockUser
     public void fetchClinicalDataInStudyMetaProjection() throws Exception {
 
         BaseMeta baseMeta = new BaseMeta();
@@ -277,7 +270,7 @@ public class ClinicalDataControllerTest {
         ClinicalDataSingleStudyFilter clinicalDataSingleStudyFilter = new ClinicalDataSingleStudyFilter();
         clinicalDataSingleStudyFilter.setIds(ids);
 
-        mockMvc.perform(MockMvcRequestBuilders.post("/studies/test_study_id/clinical-data/fetch")
+        mockMvc.perform(MockMvcRequestBuilders.post("/studies/test_study_id/clinical-data/fetch").with(csrf())
             .param("projection", "META")
             .param("clinicalDataType", "SAMPLE")
             .contentType(MediaType.APPLICATION_JSON)
@@ -287,6 +280,7 @@ public class ClinicalDataControllerTest {
     }
 
     @Test
+    @WithMockUser
     public void fetchClinicalDataDefaultProjection() throws Exception {
 
         List<ClinicalData> patientClinicalDataList = new ArrayList<>();
@@ -316,7 +310,7 @@ public class ClinicalDataControllerTest {
         ClinicalDataMultiStudyFilter clinicalDataMultiStudyFilter = new ClinicalDataMultiStudyFilter();
         clinicalDataMultiStudyFilter.setIdentifiers(clinicalDataIdentifiers);
 
-        mockMvc.perform(MockMvcRequestBuilders.post("/clinical-data/fetch")
+        mockMvc.perform(MockMvcRequestBuilders.post("/clinical-data/fetch").with(csrf())
                 .param("clinicalDataType", "PATIENT")
                 .accept(MediaType.APPLICATION_JSON)
                 .contentType(MediaType.APPLICATION_JSON)
@@ -337,6 +331,7 @@ public class ClinicalDataControllerTest {
     }
 
     @Test
+    @WithMockUser
     public void fetchClinicalDataMetaProjection() throws Exception {
 
         BaseMeta baseMeta = new BaseMeta();
@@ -357,7 +352,7 @@ public class ClinicalDataControllerTest {
         ClinicalDataMultiStudyFilter clinicalDataMultiStudyFilter = new ClinicalDataMultiStudyFilter();
         clinicalDataMultiStudyFilter.setIdentifiers(clinicalDataIdentifiers);
 
-        mockMvc.perform(MockMvcRequestBuilders.post("/clinical-data/fetch")
+        mockMvc.perform(MockMvcRequestBuilders.post("/clinical-data/fetch").with(csrf())
                 .param("projection", "META")
                 .param("clinicalDataType", "PATIENT")
                 .contentType(MediaType.APPLICATION_JSON)

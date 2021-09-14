@@ -1,37 +1,37 @@
 package org.cbioportal.web;
 
+import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
+
+
 import com.fasterxml.jackson.databind.ObjectMapper;
+import java.util.ArrayList;
+import java.util.List;
 import org.cbioportal.model.Sample;
 import org.cbioportal.model.meta.BaseMeta;
 import org.cbioportal.service.SampleService;
 import org.cbioportal.service.exception.SampleNotFoundException;
+import org.cbioportal.web.config.SecurityTestConfig;
 import org.cbioportal.web.parameter.HeaderKeyConstants;
 import org.cbioportal.web.parameter.SampleFilter;
 import org.cbioportal.web.parameter.SampleIdentifier;
 import org.hamcrest.Matchers;
-import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.context.annotation.Configuration;
+import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
+import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.MediaType;
+import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
-import org.springframework.test.context.web.WebAppConfiguration;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
-import org.springframework.test.web.servlet.setup.MockMvcBuilders;
-import org.springframework.web.context.WebApplicationContext;
-
-import java.util.ArrayList;
-import java.util.List;
 
 @RunWith(SpringJUnit4ClassRunner.class)
-@WebAppConfiguration
-@ContextConfiguration("/applicationContext-web-test.xml")
-@Configuration
+@WebMvcTest
+@ContextConfiguration(classes = {SampleController.class, SecurityTestConfig.class})
 public class SampleControllerTest {
 
     private static final int TEST_INTERNAL_ID_1 = 1;
@@ -44,24 +44,16 @@ public class SampleControllerTest {
     private static final int TEST_PATIENT_ID_2 = 2;
     private static final String TEST_PATIENT_STABLE_ID_2 = "test_patient_stable_id_2";
 
-    @Autowired
-    private WebApplicationContext wac;
-
-    @Autowired
+    @MockBean
     private SampleService sampleService;
 
     private ObjectMapper objectMapper = new ObjectMapper();
 
+    @Autowired
     private MockMvc mockMvc;
 
-    @Before
-    public void setUp() throws Exception {
-
-        Mockito.reset(sampleService);
-        mockMvc = MockMvcBuilders.webAppContextSetup(wac).build();
-    }
-
     @Test
+    @WithMockUser
     public void getAllSamplesInStudyDefaultProjection() throws Exception {
 
         List<Sample> sampleList = createExampleSamples();
@@ -93,6 +85,7 @@ public class SampleControllerTest {
     }
 
     @Test
+    @WithMockUser
     public void getAllSamplesInStudyMetaProjection() throws Exception {
 
         BaseMeta baseMeta = new BaseMeta();
@@ -107,6 +100,7 @@ public class SampleControllerTest {
     }
 
     @Test
+    @WithMockUser
     public void getSampleInStudyNotFound() throws Exception {
 
         Mockito.when(sampleService.getSampleInStudy(Mockito.anyString(), Mockito.anyString())).thenThrow(
@@ -120,6 +114,7 @@ public class SampleControllerTest {
     }
 
     @Test
+    @WithMockUser
     public void getAllSamples() throws Exception {
         List<Sample> samples = createExampleSamples();
         
@@ -153,6 +148,7 @@ public class SampleControllerTest {
     }
 
     @Test
+    @WithMockUser
     public void getSampleInStudy() throws Exception {
 
         Sample sample = new Sample();
@@ -180,6 +176,7 @@ public class SampleControllerTest {
     }
 
     @Test
+    @WithMockUser
     public void getAllSamplesOfPatientInStudyDefaultProjection() throws Exception {
 
         List<Sample> sampleList = createExampleSamples();
@@ -212,6 +209,7 @@ public class SampleControllerTest {
     }
 
     @Test
+    @WithMockUser
     public void getAllSamplesOfPatientInStudyMetaProjection() throws Exception {
 
         BaseMeta baseMeta = new BaseMeta();
@@ -227,6 +225,7 @@ public class SampleControllerTest {
     }
 
     @Test
+    @WithMockUser
     public void fetchSamplesDefaultProjection() throws Exception {
 
         List<Sample> sampleList = createExampleSamples();
@@ -246,7 +245,7 @@ public class SampleControllerTest {
         sampleIdentifiers.add(sampleIdentifier2);
         sampleFilter.setSampleIdentifiers(sampleIdentifiers);
 
-        mockMvc.perform(MockMvcRequestBuilders.post("/samples/fetch")
+        mockMvc.perform(MockMvcRequestBuilders.post("/samples/fetch").with(csrf())
             .accept(MediaType.APPLICATION_JSON)
             .contentType(MediaType.APPLICATION_JSON)
             .content(objectMapper.writeValueAsString(sampleFilter)))
@@ -272,6 +271,7 @@ public class SampleControllerTest {
     }
 
     @Test
+    @WithMockUser
     public void fetchSamplesByUniqueSampleKeysDefaultProjection() throws Exception {
 
         List<Sample> sampleList = createExampleSamples();
@@ -285,7 +285,7 @@ public class SampleControllerTest {
         uniqueSampleKeys.add("dGVzdF9zdGFibGVfaWRfMjp0ZXN0X3N0dWR5XzE");
         sampleFilter.setUniqueSampleKeys(uniqueSampleKeys);
 
-        mockMvc.perform(MockMvcRequestBuilders.post("/samples/fetch")
+        mockMvc.perform(MockMvcRequestBuilders.post("/samples/fetch").with(csrf())
             .accept(MediaType.APPLICATION_JSON)
             .contentType(MediaType.APPLICATION_JSON)
             .content(objectMapper.writeValueAsString(sampleFilter)))
@@ -311,6 +311,7 @@ public class SampleControllerTest {
     }
 
     @Test
+    @WithMockUser
     public void fetchSamplesMetaProjection() throws Exception {
 
         BaseMeta baseMeta = new BaseMeta();
@@ -331,7 +332,7 @@ public class SampleControllerTest {
         sampleIdentifiers.add(sampleIdentifier2);
         sampleFilter.setSampleIdentifiers(sampleIdentifiers);
 
-        mockMvc.perform(MockMvcRequestBuilders.post("/samples/fetch")
+        mockMvc.perform(MockMvcRequestBuilders.post("/samples/fetch").with(csrf())
             .param("projection", "META")
             .contentType(MediaType.APPLICATION_JSON)
             .content(objectMapper.writeValueAsString(sampleFilter)))

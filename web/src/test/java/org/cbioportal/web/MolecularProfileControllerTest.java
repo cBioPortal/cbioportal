@@ -1,38 +1,38 @@
 package org.cbioportal.web;
 
+import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
+
+
+import com.fasterxml.jackson.databind.ObjectMapper;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
 import org.cbioportal.model.CancerStudy;
 import org.cbioportal.model.MolecularProfile;
 import org.cbioportal.model.meta.BaseMeta;
 import org.cbioportal.service.MolecularProfileService;
 import org.cbioportal.service.exception.MolecularProfileNotFoundException;
+import org.cbioportal.web.config.SecurityTestConfig;
 import org.cbioportal.web.parameter.HeaderKeyConstants;
 import org.cbioportal.web.parameter.MolecularProfileFilter;
 import org.hamcrest.Matchers;
-import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.context.annotation.Bean;
-import org.springframework.context.annotation.Configuration;
+import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
+import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.MediaType;
+import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
-import org.springframework.test.context.web.WebAppConfiguration;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
-import org.springframework.test.web.servlet.setup.MockMvcBuilders;
-import org.springframework.web.context.WebApplicationContext;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
 
 @RunWith(SpringJUnit4ClassRunner.class)
-@WebAppConfiguration
-@ContextConfiguration("/applicationContext-web-test.xml")
-@Configuration
+@WebMvcTest
+@ContextConfiguration(classes = {MolecularDataController.class, SecurityTestConfig.class})
 public class MolecularProfileControllerTest {
 
     private static final int TEST_MOLECULAR_PROFILE_ID_1 = 1;
@@ -68,29 +68,16 @@ public class MolecularProfileControllerTest {
     private static final String TEST_STUDY_SORTORDER_2 = "DESC";
     private static final String TEST_GENERIC_ASSAY_TYPE_2 = "test_generic_assay_type_2";
 
-    @Autowired
-    private WebApplicationContext wac;
-
-    @Autowired
+    @MockBean
     private MolecularProfileService molecularProfileService;
 
     private ObjectMapper objectMapper = new ObjectMapper();
 
+    @Autowired
     private MockMvc mockMvc;
 
-    @Bean
-    public MolecularProfileService molecularProfileService() {
-        return Mockito.mock(MolecularProfileService.class);
-    }
-
-    @Before
-    public void setUp() throws Exception {
-
-        Mockito.reset(molecularProfileService);
-        mockMvc = MockMvcBuilders.webAppContextSetup(wac).build();
-    }
-
     @Test
+    @WithMockUser
     public void getAllMolecularProfilesDefaultProjection() throws Exception {
 
         List<MolecularProfile> molecularProfileList = createExampleMolecularProfiles();
@@ -134,6 +121,7 @@ public class MolecularProfileControllerTest {
     }
 
     @Test
+    @WithMockUser
     public void getAllMolecularProfilesMetaProjection() throws Exception {
 
         BaseMeta baseMeta = new BaseMeta();
@@ -148,6 +136,7 @@ public class MolecularProfileControllerTest {
     }
 
     @Test
+    @WithMockUser
     public void getMolecularProfileNotFound() throws Exception {
 
         Mockito.when(molecularProfileService.getMolecularProfile(Mockito.anyString())).thenThrow(
@@ -161,6 +150,7 @@ public class MolecularProfileControllerTest {
     }
 
     @Test
+    @WithMockUser
     public void getMolecularProfile() throws Exception {
 
         MolecularProfile molecularProfile = new MolecularProfile();
@@ -213,6 +203,7 @@ public class MolecularProfileControllerTest {
     }
 
     @Test
+    @WithMockUser
     public void getAllMolecularProfilesInStudyDefaultProjection() throws Exception {
 
         List<MolecularProfile> molecularProfileList = createExampleMolecularProfiles();
@@ -255,6 +246,7 @@ public class MolecularProfileControllerTest {
     }
 
     @Test
+    @WithMockUser
     public void getAllMolecularProfilesInStudyMetaProjection() throws Exception {
 
         BaseMeta baseMeta = new BaseMeta();
@@ -269,6 +261,7 @@ public class MolecularProfileControllerTest {
     }
 
     @Test
+    @WithMockUser
     public void fetchMolecularProfiles() throws Exception {
 
         List<MolecularProfile> molecularProfileList = createExampleMolecularProfiles();
@@ -280,7 +273,7 @@ public class MolecularProfileControllerTest {
         molecularProfileFilter.setStudyIds(Arrays.asList(TEST_STUDY_IDENTIFIER_1, TEST_STUDY_IDENTIFIER_2));
 
         mockMvc.perform(MockMvcRequestBuilders
-                .post("/molecular-profiles/fetch")
+                .post("/molecular-profiles/fetch").with(csrf())
                 .accept(MediaType.APPLICATION_JSON)
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(objectMapper.writeValueAsString(molecularProfileFilter)))

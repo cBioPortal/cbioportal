@@ -17,10 +17,14 @@
 
 package org.cbioportal.web;
 
+import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
+
+
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.cbioportal.model.DataAccessToken;
 import org.cbioportal.service.DataAccessTokenService;
 import org.cbioportal.service.exception.TokenNotFoundException;
+import org.cbioportal.web.config.SecurityTestConfig;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
@@ -30,9 +34,12 @@ import org.mockito.Mockito;
 import org.mockito.invocation.InvocationOnMock;
 import org.mockito.stubbing.Answer;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
+import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.context.annotation.Bean;
 import org.springframework.http.MediaType;
 import org.springframework.mock.web.MockHttpSession;
+import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.security.web.FilterChainProxy;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
@@ -47,8 +54,8 @@ import org.springframework.web.context.WebApplicationContext;
 import javax.servlet.http.HttpSession;
 
 @RunWith(SpringJUnit4ClassRunner.class)
-@ContextConfiguration(locations={"/applicationContext-web.xml", "/applicationContext-security-test.xml"})
-@WebAppConfiguration
+@WebMvcTest
+@ContextConfiguration(classes = {DataAccessTokenController.class, SecurityTestConfig.class})
 public class DataAccessTokenControllerTest {
 
     public static final String MOCK_USER = "MOCK_USER";
@@ -58,37 +65,21 @@ public class DataAccessTokenControllerTest {
     public static final String NOT_FOUND_ERROR_MESSAGE = "Specified token cannot be found";
     public static final DataAccessToken MOCK_TOKEN_INFO = new DataAccessToken(VALID_TOKEN_STRING);
 
-    public String receivedArgument = null;
-
-    @Bean
-    public DataAccessTokenService tokenService() {
-        DataAccessTokenService tokenService = Mockito.mock(DataAccessTokenService.class);
-        return tokenService;
-    }
-
-    private MockMvc mockMvc;
     private ObjectMapper objectMapper = new ObjectMapper();
 
-    @Autowired
-    private WebApplicationContext wac;
-
-    @Autowired
+    @MockBean
     private DataAccessTokenService tokenService;
 
     @Autowired
-    private FilterChainProxy filterChainProxy;
+    private MockMvc mockMvc;
 
-    @Before
-    public void setUp() throws Exception {
-        mockMvc = MockMvcBuilders.webAppContextSetup(wac).addFilter(filterChainProxy).build();
-    }
-
+    public String receivedArgument = null;
     public void resetReceivedArgument() {
         this.receivedArgument = null;
     }
 
     private HttpSession getSession(String user, String password) throws Exception {
-        return mockMvc.perform(MockMvcRequestBuilders.post("/j_spring_security_check")
+        return mockMvc.perform(MockMvcRequestBuilders.post("/j_spring_security_check").with(csrf())
             .param("j_username", user)
             .param("j_password", password))
         .andExpect(MockMvcResultMatchers.status().isOk())
@@ -100,6 +91,7 @@ public class DataAccessTokenControllerTest {
      * Test for valid token - checks returned response type is 200 success
      */
     @Test
+    @WithMockUser
     public void getTokenInfoForValidTokenTest() throws Exception {
         Mockito.when(tokenService.getDataAccessTokenInfo(VALID_TOKEN_STRING)).thenReturn(MOCK_TOKEN_INFO);
         HttpSession session = getSession(MOCK_USER, MOCK_PASSWORD);
@@ -116,6 +108,7 @@ public class DataAccessTokenControllerTest {
      * Checks response for correct error message
      */
     @Test
+    @WithMockUser
     public void getTokenInfoForNonexistentTokenTest() throws Exception {
         Mockito.doThrow(new TokenNotFoundException()).when(tokenService).getDataAccessTokenInfo(NONEXISTENT_TOKEN_STRING);
         HttpSession session = getSession(MOCK_USER, MOCK_PASSWORD);
@@ -134,6 +127,7 @@ public class DataAccessTokenControllerTest {
      * Test that proper service method was called
      */
     @Test
+    @WithMockUser
     public void revokeValidTokenTest() throws Exception {
         resetReceivedArgument();
         Answer<Void> tokenServiceRevokeTokenAnswer = new Answer<Void>() {
@@ -160,6 +154,7 @@ public class DataAccessTokenControllerTest {
      * Checks response for correct error message
      */
     @Test
+    @WithMockUser
     public void revokeNonexistentTokenTest() throws Exception {
         resetReceivedArgument();
         Mockito.doThrow(new TokenNotFoundException()).when(tokenService).revokeDataAccessToken(NONEXISTENT_TOKEN_STRING);;
@@ -179,10 +174,11 @@ public class DataAccessTokenControllerTest {
      * Tests for 201 (CREATED) response code
      */
     @Test
+    @WithMockUser
     public void createTokenValidUserTest() throws Exception {
         Mockito.when(tokenService.createDataAccessToken(ArgumentMatchers.anyString())).thenReturn(MOCK_TOKEN_INFO);
         HttpSession session = getSession(MOCK_USER, MOCK_PASSWORD);
-        MvcResult result = mockMvc.perform(MockMvcRequestBuilders.post("/data-access-tokens")
+        MvcResult result = mockMvc.perform(MockMvcRequestBuilders.post("/data-access-tokens").with(csrf())
             .session((MockHttpSession) session)
             .accept(MediaType.APPLICATION_JSON)
             .contentType(MediaType.APPLICATION_JSON))
@@ -195,6 +191,7 @@ public class DataAccessTokenControllerTest {
      * Checks that correct username argument is passed to service class
      */
     @Test
+    @WithMockUser
     public void revokeAllTokensForUserTest() throws Exception {
         resetReceivedArgument();
         Answer<Void> tokenServiceRevokeAllTokensAnswer = new Answer<Void>() {
@@ -221,6 +218,7 @@ public class DataAccessTokenControllerTest {
      * Checks that correct username argument is passed to service class
      */
     @Test
+    @WithMockUser
     public void getAllTokensForUserTest() throws Exception {
         resetReceivedArgument();
         Answer<Void> tokenServiceGetAllTokensAnswer = new Answer<Void>() {

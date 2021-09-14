@@ -5,15 +5,19 @@ import java.util.List;
 
 import org.cbioportal.model.Geneset;
 import org.cbioportal.service.GenesetService;
+import org.cbioportal.web.config.SecurityTestConfig;
 import org.hamcrest.Matchers;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
+import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.MediaType;
+import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import org.springframework.test.context.web.WebAppConfiguration;
@@ -24,9 +28,8 @@ import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import org.springframework.web.context.WebApplicationContext;
 
 @RunWith(SpringJUnit4ClassRunner.class)
-@WebAppConfiguration
-@ContextConfiguration("/applicationContext-web-test.xml")
-@Configuration
+@WebMvcTest
+@ContextConfiguration(classes = {GenesetController.class, SecurityTestConfig.class})
 public class GenesetControllerTest {
 
     public static final String GENESET_ID_1 = "geneset_id_1";
@@ -38,27 +41,14 @@ public class GenesetControllerTest {
     private static final String DESCRIPTION_2 = "description 2";
     private static final String REF_LINK_2 = "http://link2";
 
-    @Autowired
-    private WebApplicationContext wac;
-
-    @Autowired
+    @MockBean
     private GenesetService genesetService;
 
+    @Autowired
     private MockMvc mockMvc;
 
-    @Bean
-    public GenesetService genesetService() {
-        return Mockito.mock(GenesetService.class);
-    }
-
-    @Before
-    public void setUp() throws Exception {
-
-        Mockito.reset(genesetService);
-        mockMvc = MockMvcBuilders.webAppContextSetup(wac).build();
-    }
-
     @Test
+    @WithMockUser
     public void getAllGenesets() throws Exception {
 
         List<Geneset> genesetList = createGenesetList();
@@ -85,6 +75,7 @@ public class GenesetControllerTest {
     }
 
     @Test
+    @WithMockUser
     public void getGeneset() throws Exception {
 
         Geneset geneset = createGenesetList().get(0);

@@ -4,6 +4,7 @@ import org.cbioportal.model.ClinicalEvent;
 import org.cbioportal.model.ClinicalEventData;
 import org.cbioportal.model.meta.BaseMeta;
 import org.cbioportal.service.ClinicalEventService;
+import org.cbioportal.web.config.SecurityTestConfig;
 import org.cbioportal.web.parameter.HeaderKeyConstants;
 import org.hamcrest.Matchers;
 import org.junit.Before;
@@ -11,9 +12,12 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
+import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.MediaType;
+import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import org.springframework.test.context.web.WebAppConfiguration;
@@ -27,9 +31,8 @@ import java.util.ArrayList;
 import java.util.List;
 
 @RunWith(SpringJUnit4ClassRunner.class)
-@WebAppConfiguration
-@ContextConfiguration("/applicationContext-web-test.xml")
-@Configuration
+@WebMvcTest
+@ContextConfiguration(classes = {ClinicalEventController.class, SecurityTestConfig.class})
 public class ClinicalEventControllerTest {
 
     private static final int TEST_CLINICAL_EVENT_ID_1 = 1;
@@ -52,27 +55,14 @@ public class ClinicalEventControllerTest {
     private static final String TEST_KEY_4 = "test_key_4";
     private static final String TEST_VALUE_4 = "test_value_4";
 
-    @Autowired
-    private WebApplicationContext wac;
-
-    @Autowired
+    @MockBean
     private ClinicalEventService clinicalEventService;
 
+    @Autowired
     private MockMvc mockMvc;
 
-    @Bean
-    public ClinicalEventService clinicalEventService() {
-        return Mockito.mock(ClinicalEventService.class);
-    }
-
-    @Before
-    public void setUp() throws Exception {
-
-        Mockito.reset(clinicalEventService);
-        mockMvc = MockMvcBuilders.webAppContextSetup(wac).build();
-    }
-
     @Test
+    @WithMockUser
     public void getAllClinicalEventsOfPatientInStudy() throws Exception {
 
         List<ClinicalEvent> clinicalEventList = createExampleClinicalEventList();
@@ -109,6 +99,7 @@ public class ClinicalEventControllerTest {
     }
 
     @Test
+    @WithMockUser
     public void getAllClinicalEventsOfPatientInStudyMetaProjection() throws Exception {
 
         BaseMeta baseMeta = new BaseMeta();
@@ -124,6 +115,7 @@ public class ClinicalEventControllerTest {
     }
 
     @Test
+    @WithMockUser
     public void getAllClinicalEventsInStudy() throws Exception {
 
         List<ClinicalEvent> clinicalEventList = createExampleClinicalEventList();
@@ -160,6 +152,7 @@ public class ClinicalEventControllerTest {
     }
 
     @Test
+    @WithMockUser
     public void getAllClinicalEventsInStudyMetaProjection() throws Exception {
 
         BaseMeta baseMeta = new BaseMeta();

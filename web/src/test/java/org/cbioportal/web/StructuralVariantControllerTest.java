@@ -23,37 +23,35 @@
 
 package org.cbioportal.web;
 
-import java.util.ArrayList;
-import java.util.List;
+import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
 
-import org.cbioportal.model.StructuralVariant;
-import org.cbioportal.service.StructuralVariantService;
-import org.cbioportal.web.parameter.SampleMolecularIdentifier;
-import org.cbioportal.web.parameter.StructuralVariantFilter;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import java.util.ArrayList;
+import java.util.List;
+import org.cbioportal.model.StructuralVariant;
+import org.cbioportal.service.StructuralVariantService;
+import org.cbioportal.web.config.SecurityTestConfig;
+import org.cbioportal.web.parameter.SampleMolecularIdentifier;
+import org.cbioportal.web.parameter.StructuralVariantFilter;
 import org.hamcrest.Matchers;
-import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.context.annotation.Bean;
-import org.springframework.context.annotation.Configuration;
+import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
+import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.MediaType;
+import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
-import org.springframework.test.context.web.WebAppConfiguration;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
-import org.springframework.test.web.servlet.setup.MockMvcBuilders;
-import org.springframework.web.context.WebApplicationContext;
 
 @RunWith(SpringJUnit4ClassRunner.class)
-@WebAppConfiguration
-@ContextConfiguration("/applicationContext-web.xml")
-@Configuration
+@WebMvcTest
+@ContextConfiguration(classes = {StructuralVariantController.class, SecurityTestConfig.class})
 public class StructuralVariantControllerTest {
 
     private static final String TEST_GENETIC_PROFILE_STABLE_ID_1 = "test_genetic_profile_stable_id_1";
@@ -105,28 +103,16 @@ public class StructuralVariantControllerTest {
     private static final String TEST_DRIVER_TIERS_FILTER_1 = "test_driver_tiers_filter_1";
     private static final String TEST_DRIVER_TIERS_FILTER_ANN_1 = "test_driver_tiers_filter_ann_1";
 
-    @Autowired
-    private WebApplicationContext wac;
+    @MockBean
+    private StructuralVariantService structuralVariantService;
 
     @Autowired
-    private StructuralVariantService structuralVariantService;
     private MockMvc mockMvc;
 
     private ObjectMapper objectMapper = new ObjectMapper();
 
-    @Bean
-    public StructuralVariantService structuralVariantService() {
-        return Mockito.mock(StructuralVariantService.class);
-    }
-
-    @Before
-    public void setUp() throws Exception {
-
-        Mockito.reset(structuralVariantService);
-        mockMvc = MockMvcBuilders.webAppContextSetup(wac).build();
-    }
-
     @Test
+    @WithMockUser
     public void fetchStructuralVariantsMolecularProfileId() throws Exception {
 
         List<StructuralVariant> structuralVariant = createExampleStructuralVariant();
@@ -136,7 +122,7 @@ public class StructuralVariantControllerTest {
 
         StructuralVariantFilter structuralVariantFilter = createStructuralVariantFilterMolecularProfileId();
 
-        mockMvc.perform(MockMvcRequestBuilders.post("/structural-variant/fetch")
+        mockMvc.perform(MockMvcRequestBuilders.post("/structural-variant/fetch").with(csrf())
                 .accept(MediaType.parseMediaType("application/json;charset=UTF-8"))
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(objectMapper.writeValueAsString(structuralVariantFilter)))
@@ -191,6 +177,7 @@ public class StructuralVariantControllerTest {
     }
 
     @Test
+    @WithMockUser
     public void fetchStructuralVariantsSampleMolecularIdentifier() throws Exception {
 
         List<StructuralVariant> structuralVariant = createExampleStructuralVariant();
@@ -200,7 +187,7 @@ public class StructuralVariantControllerTest {
 
         StructuralVariantFilter structuralVariantFilter = createStructuralVariantFilterSampleMolecularIdentifier();
 
-        mockMvc.perform(MockMvcRequestBuilders.post("/structural-variant/fetch")
+        mockMvc.perform(MockMvcRequestBuilders.post("/structural-variant/fetch").with(csrf())
                 .accept(MediaType.parseMediaType("application/json;charset=UTF-8"))
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(objectMapper.writeValueAsString(structuralVariantFilter)))
@@ -255,6 +242,7 @@ public class StructuralVariantControllerTest {
     }
 
     @Test
+    @WithMockUser
     public void fetchStructuralVariantsBothMolecularProfileIdAndSampleMolecularIdentifier() throws Exception {
 
         List<StructuralVariant> structuralVariant = createExampleStructuralVariant();
@@ -264,7 +252,7 @@ public class StructuralVariantControllerTest {
 
         StructuralVariantFilter structuralVariantFilter = createStructuralVariantFilterMolecularProfileIdAndSampleMolecularIdentifier();
 
-        mockMvc.perform(MockMvcRequestBuilders.post("/structural-variant/fetch")
+        mockMvc.perform(MockMvcRequestBuilders.post("/structural-variant/fetch").with(csrf())
                 .accept(MediaType.APPLICATION_JSON)
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(objectMapper.writeValueAsString(structuralVariantFilter)))

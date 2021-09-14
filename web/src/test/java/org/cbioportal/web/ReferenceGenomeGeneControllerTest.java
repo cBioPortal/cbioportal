@@ -1,37 +1,35 @@
 package org.cbioportal.web;
 
+import static org.mockito.Mockito.times;
+import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
+
+
 import com.fasterxml.jackson.databind.ObjectMapper;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
 import org.cbioportal.model.ReferenceGenomeGene;
 import org.cbioportal.service.GeneMemoizerService;
 import org.cbioportal.service.ReferenceGenomeGeneService;
+import org.cbioportal.web.config.SecurityTestConfig;
 import org.hamcrest.Matchers;
-import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.context.annotation.Bean;
-import org.springframework.context.annotation.Configuration;
+import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
+import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.MediaType;
+import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
-import org.springframework.test.context.web.WebAppConfiguration;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
-import org.springframework.test.web.servlet.setup.MockMvcBuilders;
-import org.springframework.web.context.WebApplicationContext;
-
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-
-import static org.mockito.Mockito.times;
 
 @RunWith(SpringJUnit4ClassRunner.class)
-@WebAppConfiguration
-@ContextConfiguration("/applicationContext-web-test.xml")
-@Configuration
+@WebMvcTest
+@ContextConfiguration(classes = {ReferenceGenomeGeneController.class, SecurityTestConfig.class})
 public class ReferenceGenomeGeneControllerTest {
 
     public static final String CYTOBAND_1 = "cytoband_1";
@@ -53,37 +51,19 @@ public class ReferenceGenomeGeneControllerTest {
         gene.setLength(LENGTH_1);
     }
 
-    @Autowired
-    private WebApplicationContext wac;
-
-    @Autowired
+    @MockBean
     private ReferenceGenomeGeneService referenceGenomeGeneService;
 
-    @Autowired
+    @MockBean
     private GeneMemoizerService geneMemoizerService;
-    
+
     private ObjectMapper objectMapper = new ObjectMapper();
 
+    @Autowired
     private MockMvc mockMvc;
-
-    @Bean
-    public ReferenceGenomeGeneService referenceGenomeGeneService() {
-        return Mockito.mock(ReferenceGenomeGeneService.class);
-    }
-
-    @Bean
-    public GeneMemoizerService geneMemoizerService() {
-        return Mockito.mock(GeneMemoizerService.class);
-    }
-
-    @Before
-    public void setUp() throws Exception {
-
-        Mockito.reset(referenceGenomeGeneService);
-        mockMvc = MockMvcBuilders.webAppContextSetup(wac).build();
-    }
     
     @Test
+    @WithMockUser
     public void getAllReferenceGenesFromCache() throws Exception {
         Mockito.when(geneMemoizerService.fetchGenes(Mockito.anyString())).thenReturn(Collections.singletonList(gene));
         Mockito.when(referenceGenomeGeneService.fetchAllReferenceGenomeGenes(Mockito.anyString()))
@@ -107,6 +87,7 @@ public class ReferenceGenomeGeneControllerTest {
     }
 
     @Test
+    @WithMockUser
     public void getAllReferenceGenesNoCache() throws Exception {
         Mockito.when(geneMemoizerService.fetchGenes(Mockito.anyString())).thenReturn(null);
         Mockito.when(referenceGenomeGeneService.fetchAllReferenceGenomeGenes(Mockito.anyString()))
@@ -129,6 +110,7 @@ public class ReferenceGenomeGeneControllerTest {
     }
 
     @Test
+    @WithMockUser
     public void getGene() throws Exception {
         Mockito.when(referenceGenomeGeneService.getReferenceGenomeGene(Mockito.anyInt(), Mockito.anyString())).thenReturn(gene);
 
@@ -145,6 +127,7 @@ public class ReferenceGenomeGeneControllerTest {
 
 
     @Test
+    @WithMockUser
     public void fetchGenesDefaultProjection() throws Exception {
 
         List<ReferenceGenomeGene> geneList = createGeneList();
@@ -156,7 +139,7 @@ public class ReferenceGenomeGeneControllerTest {
         geneIds.add(Integer.toString(ENTREZ_GENE_ID_1));
         geneIds.add(Integer.toString(ENTREZ_GENE_ID_2));
 
-        mockMvc.perform(MockMvcRequestBuilders.post("/reference-genome-genes/hg19/fetch")
+        mockMvc.perform(MockMvcRequestBuilders.post("/reference-genome-genes/hg19/fetch").with(csrf())
             .accept(MediaType.APPLICATION_JSON)
             .contentType(MediaType.APPLICATION_JSON)
             .content(objectMapper.writeValueAsString(geneIds)))

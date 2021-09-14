@@ -1,61 +1,52 @@
 package org.cbioportal.web;
 
+import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
+
+
+import com.fasterxml.jackson.databind.ObjectMapper;
 import java.util.Arrays;
 import java.util.List;
-
 import org.cbioportal.model.PatientTreatmentRow;
 import org.cbioportal.model.SampleTreatmentRow;
 import org.cbioportal.model.TemporalRelation;
 import org.cbioportal.service.TreatmentService;
+import org.cbioportal.web.config.SecurityTestConfig;
 import org.cbioportal.web.parameter.SampleIdentifier;
 import org.cbioportal.web.parameter.StudyViewFilter;
 import org.cbioportal.web.util.StudyViewFilterApplier;
-import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.context.annotation.Configuration;
+import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
+import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.MediaType;
+import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
-import org.springframework.test.context.web.WebAppConfiguration;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
-import org.springframework.test.web.servlet.setup.MockMvcBuilders;
-import org.springframework.web.context.WebApplicationContext;
-
-import com.fasterxml.jackson.databind.ObjectMapper;
 
 @RunWith(SpringJUnit4ClassRunner.class)
-@WebAppConfiguration
-@ContextConfiguration("/applicationContext-web-test.xml")
-@Configuration
+@WebMvcTest
+@ContextConfiguration(classes = {TreatmentController.class, SecurityTestConfig.class})
 public class TreatmentControllerTest {
+
     private final List<SampleIdentifier> sampleIdentifiers;
     private final List<String> studies;
     private final StudyViewFilter studyViewFilter;
 
     private ObjectMapper objectMapper = new ObjectMapper();
 
-    @Autowired
-    private WebApplicationContext wac;
-
-    @Autowired
+    @MockBean
     private StudyViewFilterApplier studyViewFilterApplier;
     
-    @Autowired
+    @MockBean
     private TreatmentService treatmentService;
     
+    @Autowired
     private MockMvc mockMvc;
-
-    @Before
-    public void setUp() throws Exception {
-        Mockito.reset(treatmentService);
-        Mockito.reset(studyViewFilterApplier);
-        mockMvc = MockMvcBuilders.webAppContextSetup(wac).build();
-    }
 
     public TreatmentControllerTest() {
         SampleIdentifier sampleIdentifier = new SampleIdentifier();
@@ -78,6 +69,7 @@ public class TreatmentControllerTest {
     }
     
     @Test
+    @WithMockUser
     public void getAllPatientTreatments() throws Exception {
         Mockito
             .when(studyViewFilterApplier.apply(Mockito.any()))
@@ -103,6 +95,7 @@ public class TreatmentControllerTest {
     }
 
     @Test
+    @WithMockUser
     public void getAllSampleTreatments() throws Exception {
         Mockito
             .when(studyViewFilterApplier.apply(Mockito.any()))
@@ -138,6 +131,7 @@ public class TreatmentControllerTest {
     }
 
     @Test
+    @WithMockUser
     public void getContainsTreatmentData() throws Exception {
         List<String> studies = Arrays.asList("study_0", "study_1");
         Mockito
@@ -148,7 +142,7 @@ public class TreatmentControllerTest {
             .when(treatmentService.containsTreatmentData(Mockito.anyList()))
             .thenReturn(true);
 
-        mockMvc.perform(MockMvcRequestBuilders.post("/treatments/display-patient")
+        mockMvc.perform(MockMvcRequestBuilders.post("/treatments/display-patient").with(csrf())
             .contentType(MediaType.APPLICATION_JSON)
             .content(objectMapper.writeValueAsString(studies)))
             .andExpect(MockMvcResultMatchers.status().isOk())

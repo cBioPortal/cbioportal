@@ -1,42 +1,37 @@
 package org.cbioportal.web;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import java.util.ArrayList;
+import java.util.List;
 import org.cbioportal.model.GenePanel;
 import org.cbioportal.model.GenePanelData;
 import org.cbioportal.model.GenePanelToGene;
 import org.cbioportal.model.meta.BaseMeta;
 import org.cbioportal.service.GenePanelService;
 import org.cbioportal.service.exception.GenePanelNotFoundException;
+import org.cbioportal.web.config.SecurityTestConfig;
 import org.cbioportal.web.parameter.GenePanelDataFilter;
 import org.cbioportal.web.parameter.GenePanelDataMultipleStudyFilter;
 import org.cbioportal.web.parameter.HeaderKeyConstants;
 import org.cbioportal.web.parameter.SampleMolecularIdentifier;
 import org.hamcrest.Matchers;
-import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.context.annotation.Bean;
-import org.springframework.context.annotation.Configuration;
+import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
+import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.MediaType;
+import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
-import org.springframework.test.context.web.WebAppConfiguration;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
-import org.springframework.test.web.servlet.setup.MockMvcBuilders;
-import org.springframework.web.context.WebApplicationContext;
-
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
 
 @RunWith(SpringJUnit4ClassRunner.class)
-@WebAppConfiguration
-@ContextConfiguration("/applicationContext-web-test.xml")
-@Configuration
+@WebMvcTest
+@ContextConfiguration(classes = {GenePanelController.class, SecurityTestConfig.class})
 public class GenePanelControllerTest {
 
     private static final String TEST_GENE_PANEL_ID_1 = "test_gene_panel_id_1";
@@ -63,29 +58,16 @@ public class GenePanelControllerTest {
     private static final String TEST_HUGO_GENE_SYMBOL_4 = "test_hugo_gene_symbol_4";
     private static final String TEST_SAMPLE_LIST_ID = "test_sample_list_id";
 
-    @Autowired
-    private WebApplicationContext wac;
-
-    @Autowired
+    @MockBean
     private GenePanelService genePanelService;
 
     private ObjectMapper objectMapper = new ObjectMapper();
 
+    @Autowired
     private MockMvc mockMvc;
 
-    @Bean
-    public GenePanelService genePanelService() {
-        return Mockito.mock(GenePanelService.class);
-    }
-
-    @Before
-    public void setUp() throws Exception {
-
-        Mockito.reset(genePanelService);
-        mockMvc = MockMvcBuilders.webAppContextSetup(wac).build();
-    }
-
     @Test
+    @WithMockUser
     public void getAllGenePanelsDetailedProjection() throws Exception {
 
         List<GenePanel> genePanelList = new ArrayList<>();
@@ -152,6 +134,7 @@ public class GenePanelControllerTest {
     }
 
     @Test
+    @WithMockUser
     public void getAllGenePanelsMetaProjection() throws Exception {
 
         BaseMeta baseMeta = new BaseMeta();
@@ -167,6 +150,7 @@ public class GenePanelControllerTest {
 
 
     @Test
+    @WithMockUser
     public void getGenePanelNotFound() throws Exception {
 
         Mockito.when(genePanelService.getGenePanel(Mockito.anyString())).thenThrow(
@@ -180,6 +164,7 @@ public class GenePanelControllerTest {
     }
 
     @Test
+    @WithMockUser
     public void getGenePanel() throws Exception {
 
         GenePanel genePanel = new GenePanel();
@@ -216,6 +201,7 @@ public class GenePanelControllerTest {
     }
 
     @Test
+    @WithMockUser
     public void getGenePanelData() throws Exception {
 
         List<GenePanelData> genePanelDataList = createExampleGenePanelData();
@@ -248,6 +234,7 @@ public class GenePanelControllerTest {
     }
 
     @Test
+    @WithMockUser
     public void fetchGenePanelData() throws Exception {
 
         List<GenePanelData> genePanelDataList = createExampleGenePanelData();

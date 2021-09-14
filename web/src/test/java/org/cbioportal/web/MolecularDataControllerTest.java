@@ -1,41 +1,36 @@
 package org.cbioportal.web;
 
+import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
+
+
 import com.fasterxml.jackson.databind.ObjectMapper;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
 import org.cbioportal.model.GeneMolecularData;
-import org.cbioportal.model.MolecularProfile;
-import org.cbioportal.model.meta.BaseMeta;
-import org.cbioportal.persistence.mybatis.util.CacheMapUtil;
 import org.cbioportal.service.MolecularDataService;
+import org.cbioportal.web.config.SecurityTestConfig;
+import org.cbioportal.web.parameter.HeaderKeyConstants;
 import org.cbioportal.web.parameter.MolecularDataFilter;
 import org.cbioportal.web.parameter.MolecularDataMultipleStudyFilter;
-import org.cbioportal.web.parameter.HeaderKeyConstants;
 import org.hamcrest.Matchers;
-import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.context.annotation.Bean;
-import org.springframework.context.annotation.Configuration;
+import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
+import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.MediaType;
+import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
-import org.springframework.test.context.web.WebAppConfiguration;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
-import org.springframework.test.web.servlet.setup.MockMvcBuilders;
-import org.springframework.web.context.WebApplicationContext;
-
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-import java.util.HashMap;
 
 @RunWith(SpringJUnit4ClassRunner.class)
-@WebAppConfiguration
-@ContextConfiguration("/applicationContext-web-test.xml")
-@Configuration
+@WebMvcTest
+@ContextConfiguration(classes = {MolecularDataController.class, SecurityTestConfig.class})
 public class MolecularDataControllerTest {
 
     private static final String TEST_MOLECULAR_PROFILE_STABLE_ID_1 = "test_molecular_profile_stable_id_1";
@@ -48,29 +43,16 @@ public class MolecularDataControllerTest {
     private static final String TEST_VALUE_2 = "2.4";
     private static final String TEST_SAMPLE_LIST_ID = "test_sample_list_id";
 
-    @Autowired
-    private WebApplicationContext wac;
-
-    @Autowired
+    @MockBean
     private MolecularDataService molecularDataService;
 
     private ObjectMapper objectMapper = new ObjectMapper();
 
+    @Autowired
     private MockMvc mockMvc;
 
-    @Bean
-    public MolecularDataService molecularDataService() {
-        return Mockito.mock(MolecularDataService.class);
-    }
-
-    @Before
-    public void setUp() throws Exception {
-
-        Mockito.reset(molecularDataService);
-        mockMvc = MockMvcBuilders.webAppContextSetup(wac).build();
-    }
-
     @Test
+    @WithMockUser
     public void getAllMolecularDataInMolecularProfileSummaryProjection() throws Exception {
 
         List<GeneMolecularData> geneMolecularDataList = createExampleMolecularData();
@@ -101,6 +83,7 @@ public class MolecularDataControllerTest {
     }
 
     @Test
+    @WithMockUser
     public void getAllMolecularDataInMolecularProfileMetaProjection() throws Exception {
 
         List<GeneMolecularData> geneMolecularDataList = createExampleMolecularData();
@@ -121,6 +104,7 @@ public class MolecularDataControllerTest {
     }
 
     @Test
+    @WithMockUser
     public void fetchAllMolecularDataInMolecularProfileSummaryProjection() throws Exception {
 
         List<GeneMolecularData> geneMolecularDataList = createExampleMolecularData();
@@ -132,7 +116,7 @@ public class MolecularDataControllerTest {
         MolecularDataFilter molecularDataFilter = createMolecularDataFilter();
 
         mockMvc.perform(MockMvcRequestBuilders
-            .post("/molecular-profiles/test_molecular_profile_id/molecular-data/fetch")
+            .post("/molecular-profiles/test_molecular_profile_id/molecular-data/fetch").with(csrf())
             .accept(MediaType.APPLICATION_JSON)
             .contentType(MediaType.APPLICATION_JSON)
             .content(objectMapper.writeValueAsString(molecularDataFilter)))
@@ -154,6 +138,7 @@ public class MolecularDataControllerTest {
     }
 
     @Test
+    @WithMockUser
     public void fetchAllMolecularDataInMolecularProfileMetaProjection() throws Exception {
 
         List<GeneMolecularData> geneMolecularDataList = createExampleMolecularData();
@@ -168,7 +153,7 @@ public class MolecularDataControllerTest {
         MolecularDataFilter molecularDataFilter = createMolecularDataFilter();
 
         mockMvc.perform(MockMvcRequestBuilders
-            .post("/molecular-profiles/test_molecular_profile_id/molecular-data/fetch")
+            .post("/molecular-profiles/test_molecular_profile_id/molecular-data/fetch").with(csrf())
             .contentType(MediaType.APPLICATION_JSON)
             .content(objectMapper.writeValueAsString(molecularDataFilter))
             .param("projection", "META"))
@@ -177,6 +162,7 @@ public class MolecularDataControllerTest {
     }
 
     @Test
+    @WithMockUser
     public void fetchMolecularDataInMultipleMolecularProfiles() throws Exception {
 
         List<GeneMolecularData> geneMolecularDataList = createExampleMolecularData();
@@ -191,7 +177,7 @@ public class MolecularDataControllerTest {
         molecularDataMultipleStudyFilter.setEntrezGeneIds(Arrays.asList(TEST_ENTREZ_GENE_ID_1, TEST_ENTREZ_GENE_ID_2));
 
         mockMvc.perform(MockMvcRequestBuilders
-            .post("/molecular-data/fetch")
+            .post("/molecular-data/fetch").with(csrf())
             .accept(MediaType.APPLICATION_JSON)
             .contentType(MediaType.APPLICATION_JSON)
             .content(objectMapper.writeValueAsString(molecularDataMultipleStudyFilter)))

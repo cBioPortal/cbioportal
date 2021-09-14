@@ -1,10 +1,14 @@
 package org.cbioportal.web;
 
+import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
+
+
 import org.cbioportal.model.CancerStudy;
 import org.cbioportal.model.SampleList;
 import org.cbioportal.model.meta.BaseMeta;
 import org.cbioportal.service.SampleListService;
 import org.cbioportal.service.exception.SampleListNotFoundException;
+import org.cbioportal.web.config.SecurityTestConfig;
 import org.cbioportal.web.parameter.HeaderKeyConstants;
 import org.hamcrest.Matchers;
 import org.junit.Before;
@@ -12,9 +16,12 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
+import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.MediaType;
+import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import org.springframework.test.context.web.WebAppConfiguration;
@@ -29,9 +36,8 @@ import java.util.Arrays;
 import java.util.List;
 
 @RunWith(SpringJUnit4ClassRunner.class)
-@WebAppConfiguration
-@ContextConfiguration("/applicationContext-web-test.xml")
-@Configuration
+@WebMvcTest
+@ContextConfiguration(classes = {SampleListController.class, SecurityTestConfig.class})
 public class SampleListControllerTest {
 
     private static final int TEST_LIST_ID_1 = 1;
@@ -57,29 +63,16 @@ public class SampleListControllerTest {
     private static final String TEST_SAMPLE_ID_1 = "test_sample_id_1";
     private static final String TEST_SAMPLE_ID_2 = "test_sample_id_2";
 
-    @Autowired
-    private WebApplicationContext wac;
-
-    @Autowired
+    @MockBean
     private SampleListService sampleListService;
 
     private ObjectMapper objectMapper = new ObjectMapper();
 
+    @Autowired
     private MockMvc mockMvc;
 
-    @Bean
-    public SampleListService sampleListService() {
-        return Mockito.mock(SampleListService.class);
-    }
-
-    @Before
-    public void setUp() throws Exception {
-
-        Mockito.reset(sampleListService);
-        mockMvc = MockMvcBuilders.webAppContextSetup(wac).build();
-    }
-
     @Test
+    @WithMockUser
     public void getAllSampleListsDefaultProjection() throws Exception {
 
         List<SampleList> sampleLists = createExampleSampleLists();
@@ -107,6 +100,7 @@ public class SampleListControllerTest {
     }
 
     @Test
+    @WithMockUser
     public void getAllSampleListsDetailedProjection() throws Exception {
 
         List<SampleList> sampleLists = new ArrayList<>();
@@ -131,6 +125,7 @@ public class SampleListControllerTest {
     }
 
     @Test
+    @WithMockUser
     public void getAllSampleListsMetaProjection() throws Exception {
 
         BaseMeta baseMeta = new BaseMeta();
@@ -145,6 +140,7 @@ public class SampleListControllerTest {
     }
 
     @Test
+    @WithMockUser
     public void getSampleListNotFound() throws Exception {
 
         Mockito.when(sampleListService.getSampleList(Mockito.anyString())).thenThrow(
@@ -158,6 +154,7 @@ public class SampleListControllerTest {
     }
 
     @Test
+    @WithMockUser
     public void getSampleList() throws Exception {
 
         SampleList sampleList = createExampleSampleListWithStudy();
@@ -178,6 +175,7 @@ public class SampleListControllerTest {
     }
 
     @Test
+    @WithMockUser
     public void getAllSampleListsInStudyDefaultProjection() throws Exception {
 
         List<SampleList> sampleLists = createExampleSampleLists();
@@ -206,6 +204,7 @@ public class SampleListControllerTest {
     }
 
     @Test
+    @WithMockUser
     public void getAllSampleListsInStudyDetailedProjection() throws Exception {
 
         List<SampleList> sampleLists = new ArrayList<>();
@@ -230,6 +229,7 @@ public class SampleListControllerTest {
     }
 
     @Test
+    @WithMockUser
     public void getAllSampleListsInStudyMetaProjection() throws Exception {
 
         BaseMeta baseMeta = new BaseMeta();
@@ -244,6 +244,7 @@ public class SampleListControllerTest {
     }
 
     @Test
+    @WithMockUser
     public void getAllSampleIdsInSampleList() throws Exception {
 
         List<String> sampleIds = new ArrayList<>();
@@ -262,6 +263,7 @@ public class SampleListControllerTest {
     }
 
     @Test
+    @WithMockUser
     public void fetchSampleLists() throws Exception {
 
         List<SampleList> sampleLists = createExampleSampleLists();
@@ -269,7 +271,7 @@ public class SampleListControllerTest {
         Mockito.when(sampleListService.fetchSampleLists(Mockito.anyList(), Mockito.anyString()))
             .thenReturn(sampleLists);
 
-        mockMvc.perform(MockMvcRequestBuilders.post("/sample-lists/fetch")
+        mockMvc.perform(MockMvcRequestBuilders.post("/sample-lists/fetch").with(csrf())
             .accept(MediaType.APPLICATION_JSON)
             .contentType(MediaType.APPLICATION_JSON)
             .content(objectMapper.writeValueAsString(Arrays.asList(TEST_STABLE_ID_1, TEST_STABLE_ID_2))))

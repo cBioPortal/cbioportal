@@ -1,5 +1,8 @@
 package org.cbioportal.web;
 
+import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
+
+
 import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -11,6 +14,7 @@ import org.cbioportal.model.Sample;
 import org.cbioportal.service.ClinicalAttributeService;
 import org.cbioportal.service.SampleService;
 import org.cbioportal.service.util.ClinicalAttributeUtil;
+import org.cbioportal.web.config.SecurityTestConfig;
 import org.cbioportal.web.parameter.Group;
 import org.cbioportal.web.parameter.GroupFilter;
 import org.cbioportal.web.parameter.SampleIdentifier;
@@ -21,9 +25,12 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
+import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.MediaType;
+import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import org.springframework.test.context.web.WebAppConfiguration;
@@ -36,9 +43,8 @@ import org.springframework.web.context.WebApplicationContext;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 @RunWith(SpringJUnit4ClassRunner.class)
-@WebAppConfiguration
-@ContextConfiguration("/applicationContext-web.xml")
-@Configuration
+@WebMvcTest
+@ContextConfiguration(classes = {ClinicalDataEnrichmentController.class, SecurityTestConfig.class})
 public class ClinicalDataEnrichmentControllerTest {
 
     public static final String STUDY_ID1 = "study_id1";
@@ -59,46 +65,22 @@ public class ClinicalDataEnrichmentControllerTest {
     public static final String CLINICAL_ATTRIBUTE_ID_3 = "attribute_id3";
     public static final String CLINICAL_ATTRIBUTE_ID_4 = "attribute_id4";
 
-    @Bean
-    public ClinicalAttributeUtil clinicalAttributeUtil() {
-        return new ClinicalAttributeUtil();
-    }
-
-    @Autowired
-    private WebApplicationContext wac;
-
-    @Autowired
+    @MockBean
     private ClinicalDataEnrichmentUtil clinicalDataEnrichmentUtil;
 
-    @Autowired
+    @MockBean
     private ClinicalAttributeService clinicalAttributeService;
 
-    @Autowired
+    @MockBean
     private SampleService sampleService;
+
+    @Autowired
     private MockMvc mockMvc;
 
     private ObjectMapper objectMapper = new ObjectMapper();
 
-    @Bean
-    public SampleService sampleService() {
-        return Mockito.mock(SampleService.class);
-    }
-
-    @Bean
-    public ClinicalDataEnrichmentUtil clinicalDataEnrichmentUtil() {
-        return Mockito.mock(ClinicalDataEnrichmentUtil.class);
-    }
-
-    @Before
-    public void setUp() throws Exception {
-
-        Mockito.reset(sampleService);
-        Mockito.reset(clinicalAttributeService);
-        Mockito.reset(clinicalDataEnrichmentUtil);
-        mockMvc = MockMvcBuilders.webAppContextSetup(wac).build();
-    }
-
     @Test
+    @WithMockUser
     public void fetchClinicalDataCounts() throws Exception {
 
         SampleIdentifier sampleIdentifier1 = new SampleIdentifier();
@@ -167,7 +149,7 @@ public class ClinicalDataEnrichmentControllerTest {
         groupFilter.setGroups(groups);
 
         mockMvc.perform(
-                MockMvcRequestBuilders.post("/clinical-data-enrichments/fetch").accept(MediaType.APPLICATION_JSON)
+                MockMvcRequestBuilders.post("/clinical-data-enrichments/fetch").accept(MediaType.APPLICATION_JSON).with(csrf())
                         .contentType(MediaType.APPLICATION_JSON).content(objectMapper.writeValueAsString(groupFilter)))
                 .andExpect(MockMvcResultMatchers.status().isBadRequest()).andExpect(MockMvcResultMatchers
                         .jsonPath("$.message").value("interceptedGroupFilter size must be between 2 and 2147483647"));
@@ -180,13 +162,13 @@ public class ClinicalDataEnrichmentControllerTest {
 
         // "groups[0].sampleIdentifiers size must be between 1 and 10000000"
         mockMvc.perform(
-                MockMvcRequestBuilders.post("/clinical-data-enrichments/fetch").accept(MediaType.APPLICATION_JSON)
+                MockMvcRequestBuilders.post("/clinical-data-enrichments/fetch").accept(MediaType.APPLICATION_JSON).with(csrf())
                         .contentType(MediaType.APPLICATION_JSON).content(objectMapper.writeValueAsString(groupFilter)))
                 .andExpect(MockMvcResultMatchers.status().isBadRequest());
 
         // "groups size must be between 2 and 2147483647"
         mockMvc.perform(
-                MockMvcRequestBuilders.post("/clinical-data-enrichments/fetch").accept(MediaType.APPLICATION_JSON)
+                MockMvcRequestBuilders.post("/clinical-data-enrichments/fetch").accept(MediaType.APPLICATION_JSON).with(csrf())
                         .contentType(MediaType.APPLICATION_JSON).content(objectMapper.writeValueAsString(groupFilter)))
                 .andExpect(MockMvcResultMatchers.status().isBadRequest());
 
@@ -199,7 +181,7 @@ public class ClinicalDataEnrichmentControllerTest {
         group1.setSampleIdentifiers(Arrays.asList(sampleIdentifier1, sampleIdentifier2));
 
         mockMvc.perform(
-                MockMvcRequestBuilders.post("/clinical-data-enrichments/fetch").accept(MediaType.APPLICATION_JSON)
+                MockMvcRequestBuilders.post("/clinical-data-enrichments/fetch").accept(MediaType.APPLICATION_JSON).with(csrf())
                         .contentType(MediaType.APPLICATION_JSON).content(objectMapper.writeValueAsString(groupFilter)))
                 .andExpect(MockMvcResultMatchers.status().isBadRequest())
                 .andExpect(MockMvcResultMatchers.jsonPath("$.message")
@@ -210,7 +192,7 @@ public class ClinicalDataEnrichmentControllerTest {
 
         // when all are invalid samples
         mockMvc.perform(
-                MockMvcRequestBuilders.post("/clinical-data-enrichments/fetch").accept(MediaType.APPLICATION_JSON)
+                MockMvcRequestBuilders.post("/clinical-data-enrichments/fetch").accept(MediaType.APPLICATION_JSON).with(csrf())
                         .contentType(MediaType.APPLICATION_JSON).content(objectMapper.writeValueAsString(groupFilter)))
                 .andExpect(MockMvcResultMatchers.status().isOk())
                 .andExpect(MockMvcResultMatchers.jsonPath("$", Matchers.hasSize(0)));
@@ -254,7 +236,7 @@ public class ClinicalDataEnrichmentControllerTest {
                 .thenReturn(Arrays.asList(clinicalDataEnrichment));
 
         mockMvc.perform(
-                MockMvcRequestBuilders.post("/clinical-data-enrichments/fetch").accept(MediaType.APPLICATION_JSON)
+                MockMvcRequestBuilders.post("/clinical-data-enrichments/fetch").accept(MediaType.APPLICATION_JSON).with(csrf())
                         .contentType(MediaType.APPLICATION_JSON).content(objectMapper.writeValueAsString(groupFilter)))
                 .andExpect(MockMvcResultMatchers.status().isOk())
                 .andExpect(MockMvcResultMatchers.jsonPath("$", Matchers.hasSize(2)))

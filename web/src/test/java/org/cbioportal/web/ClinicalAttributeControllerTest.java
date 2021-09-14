@@ -1,11 +1,15 @@
 package org.cbioportal.web;
 
+import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
+
+
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.cbioportal.model.ClinicalAttribute;
 import org.cbioportal.model.ClinicalAttributeCount;
 import org.cbioportal.model.meta.BaseMeta;
 import org.cbioportal.service.ClinicalAttributeService;
 import org.cbioportal.service.exception.ClinicalAttributeNotFoundException;
+import org.cbioportal.web.config.SecurityTestConfig;
 import org.cbioportal.web.parameter.HeaderKeyConstants;
 import org.cbioportal.web.parameter.ClinicalAttributeCountFilter;
 import org.cbioportal.web.parameter.SampleIdentifier;
@@ -15,9 +19,12 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
+import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.MediaType;
+import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import org.springframework.test.context.web.WebAppConfiguration;
@@ -30,9 +37,8 @@ import java.util.ArrayList;
 import java.util.List;
 
 @RunWith(SpringJUnit4ClassRunner.class)
-@WebAppConfiguration
-@ContextConfiguration("/applicationContext-web-test.xml")
-@Configuration
+@WebMvcTest
+@ContextConfiguration(classes = {ClinicalAttributeController.class, SecurityTestConfig.class})
 public class ClinicalAttributeControllerTest {
 
     private static final String TEST_ATTR_ID_1 = "test_attr_id_1";
@@ -56,29 +62,16 @@ public class ClinicalAttributeControllerTest {
     private static final String TEST_PRIORITY_2 = "test_priority_2";
     private static final Integer TEST_ATTRIBUTE_COUNT_2 = 1;
 
-    @Autowired
-    private WebApplicationContext wac;
-
-    @Autowired
+    @MockBean
     private ClinicalAttributeService clinicalAttributeService;
 
     private ObjectMapper objectMapper = new ObjectMapper();
 
+    @Autowired
     private MockMvc mockMvc;
 
-    @Bean
-    public ClinicalAttributeService clinicalAttributeService() {
-        return Mockito.mock(ClinicalAttributeService.class);
-    }
-
-    @Before
-    public void setUp() throws Exception {
-
-        Mockito.reset(clinicalAttributeService);
-        mockMvc = MockMvcBuilders.webAppContextSetup(wac).build();
-    }
-
     @Test
+    @WithMockUser
     public void getAllClinicalAttributesDefaultProjection() throws Exception {
 
         List<ClinicalAttribute> clinicalAttributes = createExampleClinicalAttributes();
@@ -110,6 +103,7 @@ public class ClinicalAttributeControllerTest {
     }
 
     @Test
+    @WithMockUser
     public void getAllClinicalAttributesMetaProjection() throws Exception {
 
         BaseMeta baseMeta = new BaseMeta();
@@ -124,6 +118,7 @@ public class ClinicalAttributeControllerTest {
     }
 
     @Test
+    @WithMockUser
     public void getAllClinicalAttributesInStudyDefaultProjection() throws Exception {
 
         List<ClinicalAttribute> clinicalAttributes = createExampleClinicalAttributes();
@@ -156,6 +151,7 @@ public class ClinicalAttributeControllerTest {
     }
 
     @Test
+    @WithMockUser
     public void getAllClinicalAttributesInStudyMetaProjection() throws Exception {
 
         BaseMeta baseMeta = new BaseMeta();
@@ -171,6 +167,7 @@ public class ClinicalAttributeControllerTest {
     }
 
     @Test
+    @WithMockUser
     public void getClinicalAttributeInStudyNotFound() throws Exception {
 
         Mockito.when(clinicalAttributeService.getClinicalAttribute(Mockito.anyString(), Mockito.anyString())).thenThrow(
@@ -185,6 +182,7 @@ public class ClinicalAttributeControllerTest {
     }
 
     @Test
+    @WithMockUser
     public void getClinicalAttributeInStudy() throws Exception {
 
         ClinicalAttribute clinicalAttribute = new ClinicalAttribute();
@@ -216,6 +214,7 @@ public class ClinicalAttributeControllerTest {
     }
 
     @Test
+    @WithMockUser
     public void fetchClinicalAttributes() throws Exception {
 
         List<ClinicalAttribute> clinicalAttributes = createExampleClinicalAttributes();
@@ -227,7 +226,7 @@ public class ClinicalAttributeControllerTest {
         studyIds.add("study_id_1");
         studyIds.add("study_id_2");
 
-        mockMvc.perform(MockMvcRequestBuilders.post("/clinical-attributes/fetch")
+        mockMvc.perform(MockMvcRequestBuilders.post("/clinical-attributes/fetch").with(csrf())
             .accept(MediaType.APPLICATION_JSON)
             .contentType(MediaType.APPLICATION_JSON)
             .content(objectMapper.writeValueAsString(studyIds)))
@@ -254,6 +253,7 @@ public class ClinicalAttributeControllerTest {
 
 
     @Test
+    @WithMockUser
     public void getClinicalAttributeCountsBySampleIds() throws Exception {
 
         List<ClinicalAttributeCount> clinicalAttributes = new ArrayList<>();
@@ -281,7 +281,7 @@ public class ClinicalAttributeControllerTest {
         sampleIdentifierList.add(sampleIdentifier2);
         clinicalAttributeCountFilter.setSampleIdentifiers(sampleIdentifierList);
 
-        mockMvc.perform(MockMvcRequestBuilders.post("/clinical-attributes/counts/fetch")
+        mockMvc.perform(MockMvcRequestBuilders.post("/clinical-attributes/counts/fetch").with(csrf())
             .accept(MediaType.APPLICATION_JSON)
             .contentType(MediaType.APPLICATION_JSON)
             .content(objectMapper.writeValueAsString(clinicalAttributeCountFilter)))
@@ -295,6 +295,7 @@ public class ClinicalAttributeControllerTest {
     }
 
     @Test
+    @WithMockUser
     public void getClinicalAttributeCountsBySampleListId() throws Exception {
 
         List<ClinicalAttributeCount> clinicalAttributes = new ArrayList<>();
@@ -312,7 +313,7 @@ public class ClinicalAttributeControllerTest {
         ClinicalAttributeCountFilter clinicalAttributeCountFilter = new ClinicalAttributeCountFilter();
         clinicalAttributeCountFilter.setSampleListId("test_sample_list_id");
 
-        mockMvc.perform(MockMvcRequestBuilders.post("/clinical-attributes/counts/fetch")
+        mockMvc.perform(MockMvcRequestBuilders.post("/clinical-attributes/counts/fetch").with(csrf())
             .accept(MediaType.APPLICATION_JSON)
             .contentType(MediaType.APPLICATION_JSON)
             .content(objectMapper.writeValueAsString(clinicalAttributeCountFilter))

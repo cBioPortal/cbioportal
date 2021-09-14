@@ -1,36 +1,34 @@
 package org.cbioportal.web;
 
+import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
+
+
+import com.fasterxml.jackson.databind.ObjectMapper;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
-
 import org.cbioportal.model.GenesetMolecularData;
 import org.cbioportal.service.GenesetDataService;
+import org.cbioportal.web.config.SecurityTestConfig;
 import org.cbioportal.web.parameter.GenesetDataFilterCriteria;
 import org.hamcrest.Matchers;
-import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.context.annotation.Bean;
-import org.springframework.context.annotation.Configuration;
+import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
+import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.MediaType;
+import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
-import org.springframework.test.context.web.WebAppConfiguration;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
-import org.springframework.test.web.servlet.setup.MockMvcBuilders;
-import org.springframework.web.context.WebApplicationContext;
-
-import com.fasterxml.jackson.databind.ObjectMapper;
 
 @RunWith(SpringJUnit4ClassRunner.class)
-@WebAppConfiguration
-@ContextConfiguration("/applicationContext-web-test.xml")
-@Configuration
+@WebMvcTest
+@ContextConfiguration(classes = {GenesetDataController.class, SecurityTestConfig.class})
 public class GenesetDataControllerTest {
 
     private static final String PROF_ID = "test_prof_id";
@@ -41,29 +39,17 @@ public class GenesetDataControllerTest {
     public static final String GENESET_ID_2 = "geneset_id_2";
     private static final String VALUE_2 = "-0.457";
 
-    @Autowired
-    private WebApplicationContext wac;
-
-    @Autowired
+    @MockBean
     private GenesetDataService genesetDataService;
 
     private ObjectMapper objectMapper = new ObjectMapper();
 
+    @Autowired
     private MockMvc mockMvc;
 
-    @Bean
-    public GenesetDataService genesetDataService() {
-        return Mockito.mock(GenesetDataService.class);
-    }
-
-    @Before
-    public void setUp() throws Exception {
-
-        Mockito.reset(genesetDataService);
-        mockMvc = MockMvcBuilders.webAppContextSetup(wac).build();
-    }
 
     @Test
+    @WithMockUser
     public void fetchGeneticDataItemsWithSampleIds() throws Exception {
         List<GenesetMolecularData> genesetDataItems = createGenesetDataItemsList();
 
@@ -81,7 +67,7 @@ public class GenesetDataControllerTest {
         genesetDataFilterCriteria.setSampleIds(sampleIds);
         genesetDataFilterCriteria.setGenesetIds(genesetIds);
 
-        mockMvc.perform(MockMvcRequestBuilders.post("/genetic-profiles/" + geneticProfileId + "/geneset-genetic-data/fetch")
+        mockMvc.perform(MockMvcRequestBuilders.post("/genetic-profiles/" + geneticProfileId + "/geneset-genetic-data/fetch").with(csrf())
             .accept(MediaType.APPLICATION_JSON)
             .contentType(MediaType.APPLICATION_JSON)
             .content(objectMapper.writeValueAsString(genesetDataFilterCriteria)))
@@ -99,6 +85,7 @@ public class GenesetDataControllerTest {
     }
 
     @Test
+    @WithMockUser
     public void fetchGeneticDataItemsWithSampleListId() throws Exception {
         List<GenesetMolecularData> genesetDataItems = createGenesetDataItemsList();
         genesetDataItems.addAll(createGenesetDataItemsList());
@@ -117,7 +104,7 @@ public class GenesetDataControllerTest {
         genesetDataFilterCriteria.setSampleListId(sampleListId);
         genesetDataFilterCriteria.setGenesetIds(genesetIds);
 
-        mockMvc.perform(MockMvcRequestBuilders.post("/genetic-profiles/" + geneticProfileId + "/geneset-genetic-data/fetch")
+        mockMvc.perform(MockMvcRequestBuilders.post("/genetic-profiles/" + geneticProfileId + "/geneset-genetic-data/fetch").with(csrf())
             .accept(MediaType.APPLICATION_JSON)
             .contentType(MediaType.APPLICATION_JSON)
             .content(objectMapper.writeValueAsString(genesetDataFilterCriteria)))

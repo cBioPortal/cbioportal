@@ -1,35 +1,31 @@
 package org.cbioportal.web;
 
+import java.util.ArrayList;
+import java.util.List;
 import org.cbioportal.model.TypeOfCancer;
 import org.cbioportal.model.meta.BaseMeta;
 import org.cbioportal.service.CancerTypeService;
 import org.cbioportal.service.exception.CancerTypeNotFoundException;
+import org.cbioportal.web.config.SecurityTestConfig;
 import org.cbioportal.web.parameter.HeaderKeyConstants;
 import org.hamcrest.Matchers;
-import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.context.annotation.Bean;
-import org.springframework.context.annotation.Configuration;
+import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
+import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.MediaType;
+import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
-import org.springframework.test.context.web.WebAppConfiguration;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
-import org.springframework.test.web.servlet.setup.MockMvcBuilders;
-import org.springframework.web.context.WebApplicationContext;
-
-import java.util.ArrayList;
-import java.util.List;
 
 @RunWith(SpringJUnit4ClassRunner.class)
-@WebAppConfiguration
-@ContextConfiguration("/applicationContext-web-test.xml")
-@Configuration
+@WebMvcTest
+@ContextConfiguration(classes = {CancerTypeController.class, SecurityTestConfig.class})
 public class CancerTypeControllerTest {
 
     private static final String TEST_TYPE_OF_CANCER_ID_1 = "test_type_of_cancer_id_1";
@@ -44,26 +40,13 @@ public class CancerTypeControllerTest {
     private static final String TEST_PARENT_2 = "test_parent_2";
 
     @Autowired
-    private WebApplicationContext wac;
-
-    @Autowired
-    private CancerTypeService cancerTypeService;
-
     private MockMvc mockMvc;
 
-    @Bean
-    public CancerTypeService cancerTypeService() {
-        return Mockito.mock(CancerTypeService.class);
-    }
-
-    @Before
-    public void setUp() throws Exception {
-
-        Mockito.reset(cancerTypeService);
-        mockMvc = MockMvcBuilders.webAppContextSetup(wac).build();
-    }
+    @MockBean
+    public CancerTypeService cancerTypeService;
 
     @Test
+    @WithMockUser
     public void getAllCancerTypesDefaultProjection() throws Exception {
 
         List<TypeOfCancer> typeOfCancerList = new ArrayList<>();
@@ -103,6 +86,7 @@ public class CancerTypeControllerTest {
     }
 
     @Test
+    @WithMockUser
     public void getAllCancerTypesMetaProjection() throws Exception {
 
         BaseMeta baseMeta = new BaseMeta();
@@ -117,6 +101,7 @@ public class CancerTypeControllerTest {
     }
 
     @Test
+    @WithMockUser
     public void getCancerTypeNotFound() throws Exception {
 
         Mockito.when(cancerTypeService.getCancerType(Mockito.anyString()))
@@ -129,6 +114,7 @@ public class CancerTypeControllerTest {
     }
 
     @Test
+    @WithMockUser
     public void getCancerType() throws Exception {
 
         TypeOfCancer typeOfCancer = new TypeOfCancer();

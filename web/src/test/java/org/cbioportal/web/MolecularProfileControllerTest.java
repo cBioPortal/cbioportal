@@ -32,7 +32,7 @@ import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
 
 @RunWith(SpringJUnit4ClassRunner.class)
 @WebMvcTest
-@ContextConfiguration(classes = {MolecularDataController.class, TestConfig.class})
+@ContextConfiguration(classes = {MolecularProfileController.class, TestConfig.class})
 public class MolecularProfileControllerTest {
 
     private static final int TEST_MOLECULAR_PROFILE_ID_1 = 1;

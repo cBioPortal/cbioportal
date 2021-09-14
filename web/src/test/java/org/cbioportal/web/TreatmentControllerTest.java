@@ -14,6 +14,7 @@ import org.cbioportal.web.config.TestConfig;
 import org.cbioportal.web.parameter.SampleIdentifier;
 import org.cbioportal.web.parameter.StudyViewFilter;
 import org.cbioportal.web.util.StudyViewFilterApplier;
+import org.cbioportal.web.util.StudyViewFilterUtil;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mockito;
@@ -41,6 +42,9 @@ public class TreatmentControllerTest {
 
     @MockBean
     private StudyViewFilterApplier studyViewFilterApplier;
+
+    @MockBean
+    private StudyViewFilterUtil studyViewFilterUtil;
     
     @MockBean
     private TreatmentService treatmentService;
@@ -84,7 +88,7 @@ public class TreatmentControllerTest {
             .thenReturn(treatmentRows);
         
         mockMvc.perform(MockMvcRequestBuilders.post(
-            "/treatments/patient")
+            "/treatments/patient").with(csrf())
             .contentType(MediaType.APPLICATION_JSON)
             .content(objectMapper.writeValueAsString(studyViewFilter)))
             .andExpect(MockMvcResultMatchers.status().isOk())
@@ -112,7 +116,7 @@ public class TreatmentControllerTest {
             .thenReturn(sampleTreatmentRows);
 
         mockMvc.perform(MockMvcRequestBuilders.post(
-            "/treatments/sample")
+            "/treatments/sample").with(csrf())
             .contentType(MediaType.APPLICATION_JSON)
             .content(objectMapper.writeValueAsString(studyViewFilter)))
             .andExpect(MockMvcResultMatchers.status().isOk())

@@ -1,5 +1,8 @@
 package org.cbioportal.web;
 
+import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
+
+
 import com.fasterxml.jackson.databind.ObjectMapper;
 import java.util.ArrayList;
 import java.util.List;
@@ -212,7 +215,7 @@ public class GenePanelControllerTest {
         genePanelDataFilter.setSampleListId(TEST_SAMPLE_LIST_ID);
 
         mockMvc.perform(MockMvcRequestBuilders.post(
-            "/molecular-profiles/test_molecular_profile_id/gene-panel-data/fetch")
+            "/molecular-profiles/test_molecular_profile_id/gene-panel-data/fetch").with(csrf())
             .accept(MediaType.APPLICATION_JSON)
             .contentType(MediaType.APPLICATION_JSON)
             .content(objectMapper.writeValueAsString(genePanelDataFilter)))
@@ -254,7 +257,7 @@ public class GenePanelControllerTest {
         genePanelDataMultipleStudyFilter.setSampleMolecularIdentifiers(sampleMolecularIdentifiers);
 
         mockMvc.perform(MockMvcRequestBuilders.post(
-            "/gene-panel-data/fetch")
+            "/gene-panel-data/fetch").with(csrf())
             .accept(MediaType.APPLICATION_JSON)
             .contentType(MediaType.APPLICATION_JSON)
             .content(objectMapper.writeValueAsString(genePanelDataMultipleStudyFilter)))

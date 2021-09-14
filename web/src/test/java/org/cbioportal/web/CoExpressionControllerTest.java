@@ -1,5 +1,8 @@
 package org.cbioportal.web;
 
+import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
+
+
 import com.fasterxml.jackson.databind.ObjectMapper;
 import java.math.BigDecimal;
 import java.util.ArrayList;
@@ -72,7 +75,7 @@ public class CoExpressionControllerTest {
         coExpressionFilter.setEntrezGeneId(1);
 
         mockMvc.perform(MockMvcRequestBuilders.post(
-            "/molecular-profiles/co-expressions/fetch")
+            "/molecular-profiles/co-expressions/fetch").with(csrf())
             .param("molecularProfileIdA", "test_molecular_profile_id")
             .param("molecularProfileIdB", "test_molecular_profile_id")
             .accept(MediaType.APPLICATION_JSON)

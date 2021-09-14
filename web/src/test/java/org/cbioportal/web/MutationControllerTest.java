@@ -700,57 +700,6 @@ public class MutationControllerTest {
             .andExpect(MockMvcResultMatchers.header().string(HeaderKeyConstants.SAMPLE_COUNT, "3"));
     }
 
-    @Test
-    @WithMockUser
-    public void fetchMutationCountsByPosition() throws Exception {
-
-        List<MutationCountByPosition> mutationCountByPositionList = new ArrayList<>();
-        MutationCountByPosition mutationCountByPosition1 = new MutationCountByPosition();
-        mutationCountByPosition1.setEntrezGeneId(TEST_ENTREZ_GENE_ID_1);
-        mutationCountByPosition1.setProteinPosStart(TEST_ONCOTATOR_PROTEIN_POS_START_1);
-        mutationCountByPosition1.setProteinPosEnd(TEST_ONCOTATOR_PROTEIN_POS_END_1);
-        mutationCountByPosition1.setCount(TEST_MUTATION_COUNT_1);
-        mutationCountByPositionList.add(mutationCountByPosition1);
-        MutationCountByPosition mutationCountByPosition2 = new MutationCountByPosition();
-        mutationCountByPosition2.setEntrezGeneId(TEST_ENTREZ_GENE_ID_2);
-        mutationCountByPosition2.setProteinPosStart(TEST_ONCOTATOR_PROTEIN_POS_START_2);
-        mutationCountByPosition2.setProteinPosEnd(TEST_ONCOTATOR_PROTEIN_POS_END_2);
-        mutationCountByPosition2.setCount(TEST_MUTATION_COUNT_2);
-        mutationCountByPositionList.add(mutationCountByPosition2);
-
-        Mockito.when(mutationService.fetchMutationCountsByPosition(Mockito.anyList(),
-            Mockito.anyList(), Mockito.anyList()))
-            .thenReturn(mutationCountByPositionList);
-
-        List<MutationPositionIdentifier> mutationPositionIdentifiers = new ArrayList<>();
-        MutationPositionIdentifier mutationPositionIdentifier1 = new MutationPositionIdentifier();
-        mutationPositionIdentifier1.setEntrezGeneId(TEST_ENTREZ_GENE_ID_1);
-        mutationPositionIdentifier1.setProteinPosStart(TEST_ONCOTATOR_PROTEIN_POS_START_1);
-        mutationPositionIdentifier1.setProteinPosEnd(TEST_ONCOTATOR_PROTEIN_POS_END_1);
-        mutationPositionIdentifiers.add(mutationPositionIdentifier1);
-        MutationPositionIdentifier mutationPositionIdentifier2 = new MutationPositionIdentifier();
-        mutationPositionIdentifier2.setEntrezGeneId(TEST_ENTREZ_GENE_ID_2);
-        mutationPositionIdentifier2.setProteinPosStart(TEST_ONCOTATOR_PROTEIN_POS_START_2);
-        mutationPositionIdentifier2.setProteinPosEnd(TEST_ONCOTATOR_PROTEIN_POS_END_2);
-        mutationPositionIdentifiers.add(mutationPositionIdentifier2);
-
-        mockMvc.perform(MockMvcRequestBuilders.post("/mutation-counts-by-position/fetch").with(csrf())
-            .accept(MediaType.APPLICATION_JSON)
-            .contentType(MediaType.APPLICATION_JSON)
-            .content(objectMapper.writeValueAsString(mutationPositionIdentifiers)))
-            .andExpect(MockMvcResultMatchers.status().isOk())
-            .andExpect(MockMvcResultMatchers.content().contentTypeCompatibleWith(MediaType.APPLICATION_JSON))
-            .andExpect(MockMvcResultMatchers.jsonPath("$", Matchers.hasSize(2)))
-            .andExpect(MockMvcResultMatchers.jsonPath("$[0].entrezGeneId").value(TEST_ENTREZ_GENE_ID_1))
-            .andExpect(MockMvcResultMatchers.jsonPath("$[0].proteinPosStart").value(TEST_ONCOTATOR_PROTEIN_POS_START_1))
-            .andExpect(MockMvcResultMatchers.jsonPath("$[0].proteinPosEnd").value(TEST_ONCOTATOR_PROTEIN_POS_END_1))
-            .andExpect(MockMvcResultMatchers.jsonPath("$[0].count").value(TEST_MUTATION_COUNT_1))
-            .andExpect(MockMvcResultMatchers.jsonPath("$[1].entrezGeneId").value(TEST_ENTREZ_GENE_ID_2))
-            .andExpect(MockMvcResultMatchers.jsonPath("$[1].proteinPosStart").value(TEST_ONCOTATOR_PROTEIN_POS_START_2))
-            .andExpect(MockMvcResultMatchers.jsonPath("$[1].proteinPosEnd").value(TEST_ONCOTATOR_PROTEIN_POS_END_2))
-            .andExpect(MockMvcResultMatchers.jsonPath("$[1].count").value(TEST_MUTATION_COUNT_2));
-    }
-
     private List<Mutation> createExampleMutations() {
 
         List<Mutation> mutationList = new ArrayList<>();

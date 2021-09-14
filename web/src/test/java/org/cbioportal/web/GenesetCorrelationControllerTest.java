@@ -25,7 +25,7 @@ import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
 
 @RunWith(SpringJUnit4ClassRunner.class)
 @WebMvcTest
-@ContextConfiguration(classes = {GenesetController.class, TestConfig.class})
+@ContextConfiguration(classes = {GenesetCorrelationController.class, TestConfig.class})
 public class GenesetCorrelationControllerTest {
 
     private static final String PROF_ID = "test_prof_id";

@@ -9,6 +9,7 @@ import java.util.List;
 import org.cbioportal.model.Sample;
 import org.cbioportal.model.meta.BaseMeta;
 import org.cbioportal.service.SampleService;
+import org.cbioportal.service.StudyService;
 import org.cbioportal.service.exception.SampleNotFoundException;
 import org.cbioportal.web.config.TestConfig;
 import org.cbioportal.web.parameter.HeaderKeyConstants;
@@ -46,6 +47,9 @@ public class SampleControllerTest {
 
     @MockBean
     private SampleService sampleService;
+
+    @MockBean
+    private StudyService studyService;
 
     private ObjectMapper objectMapper = new ObjectMapper();
 

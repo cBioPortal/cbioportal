@@ -27,7 +27,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 
 @RunWith(SpringJUnit4ClassRunner.class)
 @WebMvcTest
-@ContextConfiguration(classes = {ResourceDefinition.class, TestConfig.class})
+@ContextConfiguration(classes = {ResourceDefinitionController.class, TestConfig.class})
 public class ResourceDefinitionControllerTest {
 
     @MockBean

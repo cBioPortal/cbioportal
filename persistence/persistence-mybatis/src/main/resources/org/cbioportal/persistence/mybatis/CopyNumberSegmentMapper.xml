@@ -3,7 +3,6 @@
 
 <mapper namespace="org.cbioportal.persistence.mybatis.CopyNumberSegmentMapper">
     
-    
     <sql id="select">
         copy_number_seg.SEG_ID AS segId,
         copy_number_seg.CANCER_STUDY_ID AS cancerStudyId,

@@ -3,7 +3,6 @@
 
 <mapper namespace="org.cbioportal.persistence.mybatis.GenePanelMapper">
     
-    
     <sql id="select">
         gene_panel.INTERNAL_ID AS internalId,
         gene_panel.STABLE_ID AS stableId

@@ -47,7 +47,7 @@
             LIMIT #{limit} OFFSET #{offset}
         </if>
     </select>
-    
+
     <select id="getResourceDefinition" resultType="org.cbioportal.model.ResourceDefinition">
         SELECT
         <include refid="select">

@@ -3,7 +3,6 @@
 
 <mapper namespace="org.cbioportal.persistence.mybatis.SignificantCopyNumberRegionMapper">
     
-
     <sql id="select">
         gistic.GISTIC_ROI_ID AS gisticRoiId,
         cancer_study.CANCER_STUDY_IDENTIFIER AS cancerStudyId,

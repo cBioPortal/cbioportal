@@ -38,6 +38,7 @@ import org.cbioportal.model.DataAccessToken;
 import org.cbioportal.persistence.DataAccessTokenRepository;
 import org.cbioportal.service.DataAccessTokenService;
 import org.cbioportal.service.exception.TokenNotFoundException;
+import org.cbioportal.utils.config.annotation.ConditionalOnProperty;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.authentication.BadCredentialsException;
@@ -48,7 +49,10 @@ import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
 import java.util.UUID;
+import org.springframework.stereotype.Component;
 
+@Component
+@ConditionalOnProperty(name = "dat.method", havingValue = "uuid")
 public class UuidDataAccessTokenServiceImpl implements DataAccessTokenService {
 
     @Autowired

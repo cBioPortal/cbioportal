@@ -3,7 +3,6 @@
 
 <mapper namespace="org.cbioportal.persistence.mybatis.CosmicCountMapper">
     
-
     <select id="getCosmicCountsByKeywords" resultType="org.cbioportal.model.CosmicMutation">
         SELECT
         cosmic_mutation.COSMIC_MUTATION_ID AS cosmicMutationId,

@@ -1,35 +1,24 @@
-spring.datasource.url=jdbc:mysql://localhost:3306/cbioportal
-spring.datasource.username=cbio
-spring.datasource.password=P@ssword1
-spring.datasource.driver-class-name=com.mysql.jdbc.Driver
-spring.jpa.database-platform=org.hibernate.dialect.MySQL5InnoDBDialect
-
-server.servlet.context-path=/api
-
-# - END OF NEW PARAMS
-
 # app name
 app.name=cbioportal
 
-# - OBSOLETE
-            # database
-#            db.user=cbio_user
-#            db.password=somepassword
-#            db.host=localhost:3306
-#            db.portal_db_name=cbioportal
-#            db.driver=com.mysql.jdbc.Driver
-#            db.connection_string=jdbc:mysql://localhost:3306/
-            # set tomcat_resource_name when using dbconnector=jndi instead of the default
-            # dbconnector=dbcp. Note that dbconnector needs to be set in CATLINA_OPTS when
-            # using Tomcat (CATALINA_OPTS="-Ddbconnector=jndi"). It does not get picked up
-            # from the properties file
-            # (https://github.com/cBioPortal/cbioportal/issues/6148).
-            #
-            # db.tomcat_resource_name=jdbc/cbioportal
-            # this should normally be set to false. In some cases you could set this to true (e.g. for testing a feature of a newer release that is not related to the schema change in expected db version above):
-#            db.suppress_schema_version_mismatch_errors=false
-#            db.use_ssl=false
+# database
+db.user=cbio_user
+db.password=somepassword
+db.host=localhost:3306
+db.portal_db_name=cbioportal
+db.driver=com.mysql.jdbc.Driver
+db.connection_string=jdbc:mysql://localhost:3306/
+# set tomcat_resource_name when using dbconnector=jndi instead of the default
+# dbconnector=dbcp. Note that dbconnector needs to be set in CATLINA_OPTS when
+# using Tomcat (CATALINA_OPTS="-Ddbconnector=jndi"). It does not get picked up
+# from the properties file
+# (https://github.com/cBioPortal/cbioportal/issues/6148).
+#
+# db.tomcat_resource_name=jdbc/cbioportal
 
+# this should normally be set to false. In some cases you could set this to true (e.g. for testing a feature of a newer release that is not related to the schema change in expected db version above):
+db.suppress_schema_version_mismatch_errors=false
+db.use_ssl=false
 # web page cosmetics
 skin.title=cBioPortal for Cancer Genomics
 skin.email_contact=cbioportal at googlegroups dot com
@@ -362,7 +351,7 @@ persistence.cache_type=no-cache
 # enable_request_body_gzip_compression=true
 # request_gzip_body_size_bytes=80000000
 
-# Installation map URL for installation map iframes.
+# Installation map URL for installation map iframes. 
 # If blank or commented out, no map will be shown and that page will be hidden.
 # installation_map_url=https://installationmap.netlify.app/
 

@@ -51,7 +51,6 @@ DELETE FROM pfam_graphics;
 DELETE FROM text_cache;
 DELETE FROM gistic_to_gene;
 DELETE FROM gistic;
-DELETE FROM sanger_cancer_census;
 DELETE FROM protein_array_cancer_study;
 DELETE FROM protein_array_data;
 DELETE FROM protein_array_target;

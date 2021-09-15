@@ -7,8 +7,10 @@ import org.mybatis.spring.SqlSessionFactoryBean;
 import org.mybatis.spring.annotation.MapperScan;
 import org.springframework.boot.test.context.TestConfiguration;
 import org.springframework.context.annotation.Bean;
+import org.springframework.jdbc.datasource.DataSourceTransactionManager;
 import org.springframework.jdbc.datasource.embedded.EmbeddedDatabaseBuilder;
 import org.springframework.jdbc.datasource.embedded.EmbeddedDatabaseType;
+import org.springframework.transaction.PlatformTransactionManager;
 
 @MapperScan("org.cbioportal.persistence.mybatis")
 @TestConfiguration
@@ -34,6 +36,11 @@ public class TestConfig {
     @Bean
     public OffsetCalculator offsetCalculator() {
         return new OffsetCalculator();
+    }
+
+    @Bean
+    public PlatformTransactionManager platformTransactionManager() {
+        return new DataSourceTransactionManager(dataSource());
     }
 
 }

@@ -1,5 +1,6 @@
 package org.cbioportal.persistence.mybatis;
 
+import java.util.Optional;
 import org.cbioportal.model.ClinicalAttribute;
 import org.cbioportal.model.ClinicalAttributeCount;
 import org.cbioportal.model.meta.BaseMeta;
@@ -61,8 +62,10 @@ public class ClinicalAttributeMyBatisRepositoryTest {
                 null, null, null);
 
         Assert.assertEquals(28, result.size());
-        ClinicalAttribute clinicalAttribute = result.get(0);
-        Assert.assertEquals("RETROSPECTIVE_COLLECTION", clinicalAttribute.getAttrId());
+        Optional<ClinicalAttribute> clinicalAttributeOptional =
+            result.stream().filter(r -> r.getAttrId().equals("RETROSPECTIVE_COLLECTION")).findAny();
+        Assert.assertTrue(clinicalAttributeOptional.isPresent());
+        ClinicalAttribute clinicalAttribute = clinicalAttributeOptional.get();
         Assert.assertEquals("study_tcga_pub", clinicalAttribute.getCancerStudyIdentifier());
         Assert.assertEquals((Integer) 1, clinicalAttribute.getCancerStudyId());
         Assert.assertEquals("STRING", clinicalAttribute.getDatatype());
@@ -138,8 +141,10 @@ public class ClinicalAttributeMyBatisRepositoryTest {
             "study_tcga_pub", "SUMMARY", null, null, null, null);
 
         Assert.assertEquals(14, result.size());
-        ClinicalAttribute clinicalAttribute = result.get(0);
-        Assert.assertEquals("RETROSPECTIVE_COLLECTION", clinicalAttribute.getAttrId());
+        Optional<ClinicalAttribute> clinicalAttributeOptional =
+            result.stream().filter(r -> r.getAttrId().equals("RETROSPECTIVE_COLLECTION")).findAny();
+        Assert.assertTrue(clinicalAttributeOptional.isPresent());
+        ClinicalAttribute clinicalAttribute = clinicalAttributeOptional.get();
         Assert.assertEquals("study_tcga_pub", clinicalAttribute.getCancerStudyIdentifier());
         Assert.assertEquals((Integer) 1, clinicalAttribute.getCancerStudyId());
         Assert.assertEquals("STRING", clinicalAttribute.getDatatype());
@@ -199,9 +204,10 @@ public class ClinicalAttributeMyBatisRepositoryTest {
                 .getClinicalAttributeCountsBySampleIds(studyId, sampleIds);
 
         Assert.assertEquals(10, result.size());
-        ClinicalAttributeCount clinicalAttributeCount= result.get(0);
-        Assert.assertEquals("RETROSPECTIVE_COLLECTION", clinicalAttributeCount.getAttrId());
-        Assert.assertEquals((Integer) 1, clinicalAttributeCount.getCount());
+        Optional<ClinicalAttributeCount> clinicalAttributeCountOptional =
+            result.stream().filter(r -> r.getAttrId().equals("RETROSPECTIVE_COLLECTION")).findAny();
+        Assert.assertTrue(clinicalAttributeCountOptional.isPresent());
+        Assert.assertEquals((Integer) 1, clinicalAttributeCountOptional.get().getCount());
     }
 
     @Test
@@ -218,7 +224,9 @@ public class ClinicalAttributeMyBatisRepositoryTest {
 
         Assert.assertEquals(10, result.size());
         ClinicalAttributeCount clinicalAttributeCount = result.get(1);
-        Assert.assertEquals("OTHER_SAMPLE_ID", clinicalAttributeCount.getAttrId());
-        Assert.assertEquals((Integer) 1, clinicalAttributeCount.getCount());
+        Optional<ClinicalAttributeCount> clinicalAttributeCountOptional =
+            result.stream().filter(r -> r.getAttrId().equals("OTHER_SAMPLE_ID")).findAny();
+        Assert.assertTrue(clinicalAttributeCountOptional.isPresent());
+        Assert.assertEquals((Integer) 1, clinicalAttributeCountOptional.get().getCount());
     }
 }

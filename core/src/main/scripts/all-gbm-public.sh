@@ -30,9 +30,6 @@
 # Import Methylation Data
 ./importProfileData.pl --data $GDAC_CGDS_STAGING_HOME/gbm_tcga/data_methylation.txt --meta $GDAC_CGDS_STAGING_HOME/gbm_tcga/meta_methylation.txt --dbmsAction clobber
 
-# RPPA
-#./importProteinArrayData.pl $GDAC_CGDS_STAGING_HOME/gbm_tcga/data_rppa.txt gbm_tcga
-
 # MutSig
 ./importMutSig.pl $GDAC_CGDS_STAGING_HOME/gbm_tcga/data_mutsig.txt $GDAC_CGDS_STAGING_HOME/gbm_tcga/meta_mutsig.txt
 

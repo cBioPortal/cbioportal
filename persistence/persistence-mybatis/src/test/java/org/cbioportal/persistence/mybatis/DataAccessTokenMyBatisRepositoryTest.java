@@ -4,9 +4,11 @@ import org.cbioportal.model.DataAccessToken;
 import org.cbioportal.model.ClinicalDataCount;
 import org.cbioportal.model.meta.BaseMeta;
 import org.cbioportal.persistence.PersistenceConstants;
+import org.cbioportal.persistence.mybatis.config.TestConfig;
 import org.junit.Assert;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Configurable;
@@ -16,8 +18,7 @@ import java.util.concurrent.TimeUnit;
 import java.util.*;
 
 @RunWith(SpringJUnit4ClassRunner.class)
-@ContextConfiguration("/testContextDatabase.xml")
-@Configurable
+@SpringBootTest(classes = {DataAccessTokenMyBatisRepository.class, TestConfig.class})
 public class DataAccessTokenMyBatisRepositoryTest {
 
     @Autowired

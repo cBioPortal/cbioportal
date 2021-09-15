@@ -3,11 +3,13 @@ package org.cbioportal.persistence.mybatis;
 import org.cbioportal.model.GeneMolecularAlteration;
 import org.cbioportal.model.GenesetMolecularAlteration;
 import org.cbioportal.model.MolecularProfileSamples;
+import org.cbioportal.persistence.mybatis.config.TestConfig;
 import org.junit.Assert;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Configurable;
+import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
@@ -17,8 +19,7 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 @RunWith(SpringJUnit4ClassRunner.class)
-@ContextConfiguration("/testContextDatabase.xml")
-@Configurable
+@SpringBootTest(classes = {MolecularDataMyBatisRepository.class, TestConfig.class})
 public class MolecularDataMyBatisRepositoryTest {
 
     @Autowired

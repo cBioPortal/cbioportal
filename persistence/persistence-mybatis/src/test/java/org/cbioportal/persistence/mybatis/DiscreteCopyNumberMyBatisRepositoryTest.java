@@ -8,12 +8,14 @@ import org.cbioportal.model.GeneFilterQuery;
 import org.cbioportal.model.ReferenceGenomeGene;
 import org.cbioportal.model.meta.BaseMeta;
 import org.cbioportal.model.util.Select;
+import org.cbioportal.persistence.mybatis.config.TestConfig;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Configurable;
+import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
@@ -23,8 +25,7 @@ import java.util.Comparator;
 import java.util.List;
 
 @RunWith(SpringJUnit4ClassRunner.class)
-@ContextConfiguration("/testContextDatabase.xml")
-@Configurable
+@SpringBootTest(classes = {DiscreteCopyNumberMyBatisRepository.class, ReferenceGenomeGeneMyBatisRepository.class, TestConfig.class})
 public class DiscreteCopyNumberMyBatisRepositoryTest {
 
     //    mutation and cna events in testSql.sql

@@ -12,7 +12,17 @@
     <packaging>jar</packaging>
 
     <artifactId>core</artifactId>
+
     <dependencies>
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-test</artifactId>
+            <scope>test</scope>
+        </dependency>
         <dependency>
             <groupId>org.cbioportal</groupId>
             <artifactId>web</artifactId>
@@ -20,6 +30,11 @@
         <dependency>
             <groupId>org.cbioportal</groupId>
             <artifactId>persistence-mybatis</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.cbioportal</groupId>
+            <artifactId>security</artifactId>
+            <version>0.0.1-SNAPSHOT</version>
         </dependency>
         <dependency>
             <groupId>mysql</groupId>

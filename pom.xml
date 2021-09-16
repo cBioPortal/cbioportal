@@ -23,6 +23,7 @@
         <module>web</module>
         <module>service</module>
         <module>db-scripts</module>
+        <module>security</module>
     </modules>
 
     <properties>
@@ -147,6 +148,11 @@
             <dependency>
                 <groupId>org.cbioportal</groupId>
                 <artifactId>db-scripts</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.cbioportal</groupId>
+                <artifactId>security</artifactId>
                 <version>${project.version}</version>
             </dependency>
             <dependency>

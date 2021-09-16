@@ -214,7 +214,9 @@ public class PatientMyBatisRepositoryTest {
             Arrays.asList("TCGA-A1-A0SB-01", "TCGA-A1-A0SD-01", "TCGA-A1-A0SB-02"));
         
         Assert.assertEquals(2, result.size());
-        Assert.assertEquals("TCGA-A1-A0SD", result.get(0).getStableId());
-        Assert.assertEquals("TCGA-A1-A0SB", result.get(1).getStableId());
+        List<String> stableIds =
+            result.stream().map(r -> r.getStableId()).collect(Collectors.toList());
+        Assert.assertTrue(stableIds.contains("TCGA-A1-A0SD"));
+        Assert.assertTrue(stableIds.contains("TCGA-A1-A0SB"));
     }
 }

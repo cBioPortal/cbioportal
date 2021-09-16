@@ -28,7 +28,7 @@ public class TestConfig {
     public DataSource dataSource() {
         return new EmbeddedDatabaseBuilder()
             .setType(EmbeddedDatabaseType.H2)
-            .setName("testdb;DATABASE_TO_UPPER=false;MODE=MYSQL")
+            .setName("testdb;DATABASE_TO_UPPER=true;MODE=MYSQL")
             .addScript("cgds.sql")
             .addScript("data.sql")
             .build();

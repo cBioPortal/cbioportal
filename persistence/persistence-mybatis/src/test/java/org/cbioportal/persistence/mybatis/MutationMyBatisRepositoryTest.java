@@ -1,6 +1,8 @@
 package org.cbioportal.persistence.mybatis;
 
+import java.util.Optional;
 import org.cbioportal.model.AlleleSpecificCopyNumber;
+import org.cbioportal.model.ClinicalData;
 import org.cbioportal.model.Gene;
 import org.cbioportal.model.GeneFilterQuery;
 import org.cbioportal.model.Mutation;
@@ -108,9 +110,13 @@ public class MutationMyBatisRepositoryTest {
             "study_tcga_pub_mutations", "study_tcga_pub_all", null, null, "SUMMARY", null, null, null, null);
 
         Assert.assertEquals(8, result.size());
-        Mutation mutation = result.get(0);
+
+        Optional<Mutation> mutationOptional =
+            result.stream().filter(r -> r.getSampleId().equals("TCGA-A1-A0SB-01")).findAny();
+        Assert.assertTrue(mutationOptional.isPresent());
+        Mutation mutation = mutationOptional.get();
+
         Assert.assertEquals("study_tcga_pub_mutations", mutation.getMolecularProfileId());
-        Assert.assertEquals("TCGA-A1-A0SB-01", mutation.getSampleId());
         Assert.assertEquals((Integer) 207, mutation.getEntrezGeneId());
         Assert.assertEquals("cyclases/Protein", mutation.getAminoAcidChange());
         Assert.assertEquals("genome.wustl.edu", mutation.getCenter());

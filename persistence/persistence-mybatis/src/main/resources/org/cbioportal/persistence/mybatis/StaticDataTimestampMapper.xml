@@ -6,8 +6,8 @@
     <select id="getTimestamps" resultType="org.cbioportal.model.TableTimestampPair">
         <if test="dbName != null">
             SELECT
-                TABLE_NAME AS tableName,
-                COALESCE(UPDATE_TIME, CREATE_TIME) AS updateTime
+                TABLE_NAME AS "tableName",
+                COALESCE(UPDATE_TIME, CREATE_TIME) AS "updateTime"
             FROM information_schema.tables
             WHERE
                 TABLE_SCHEMA=#{dbName}

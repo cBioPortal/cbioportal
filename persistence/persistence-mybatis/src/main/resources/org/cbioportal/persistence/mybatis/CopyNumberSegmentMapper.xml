@@ -4,17 +4,17 @@
 <mapper namespace="org.cbioportal.persistence.mybatis.CopyNumberSegmentMapper">
     
     <sql id="select">
-        copy_number_seg.SEG_ID AS segId,
-        copy_number_seg.CANCER_STUDY_ID AS cancerStudyId,
-        cancer_study.CANCER_STUDY_IDENTIFIER AS cancerStudyIdentifier,
-        copy_number_seg.SAMPLE_ID AS sampleId,
-        patient.STABLE_ID AS patientId,
-        sample.STABLE_ID AS sampleStableId,
-        copy_number_seg.CHR AS chr,
-        copy_number_seg.START AS start,
-        copy_number_seg.END AS end,
-        copy_number_seg.NUM_PROBES AS numProbes,
-        copy_number_seg.SEGMENT_MEAN AS segmentMean
+        copy_number_seg.SEG_ID AS "segId",
+        copy_number_seg.CANCER_STUDY_ID AS "cancerStudyId",
+        cancer_study.CANCER_STUDY_IDENTIFIER AS "cancerStudyIdentifier",
+        copy_number_seg.SAMPLE_ID AS "sampleId",
+        patient.STABLE_ID AS "patientId",
+        sample.STABLE_ID AS "sampleStableId",
+        copy_number_seg.CHR AS "chr",
+        copy_number_seg.START AS "start",
+        copy_number_seg.END AS "end",
+        copy_number_seg.NUM_PROBES AS "numProbes",
+        copy_number_seg.SEGMENT_MEAN AS "segmentMean"
     </sql>
 
     <sql id="from">
@@ -59,7 +59,7 @@
             AND copy_number_seg.CHR=#{chromosome}
         </if>
         <if test="sortBy != null and projection != 'ID'">
-            ORDER BY ${sortBy} ${direction}
+            ORDER BY "${sortBy}" ${direction}
         </if>
         <if test="projection == 'ID'">
             ORDER BY copy_number_seg.CHR ASC

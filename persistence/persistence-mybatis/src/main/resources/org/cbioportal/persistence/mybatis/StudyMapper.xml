@@ -83,7 +83,7 @@
         <include refid="where"/>
         GROUP BY cancer_study.CANCER_STUDY_ID
         <if test="sortBy != null and projection != 'ID' and keyword == null">
-            ORDER BY ${sortBy} ${direction}
+            ORDER BY "${sortBy}" ${direction}
         </if>
         <if test="projection == 'ID' and keyword == null">
             ORDER BY cancer_study.CANCER_STUDY_IDENTIFIER ASC

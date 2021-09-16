@@ -56,7 +56,7 @@
         </if>
         <include refid="where"/>
         <if test="sortBy != null and projection != 'ID' and keyword == null">
-            ORDER BY ${sortBy} ${direction}
+            ORDER BY "${sortBy}" ${direction}
         </if>
         <if test="projection == 'ID' and keyword == null">
             ORDER BY patient.STABLE_ID ASC

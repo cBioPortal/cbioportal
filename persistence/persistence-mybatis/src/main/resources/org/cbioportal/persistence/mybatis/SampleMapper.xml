@@ -76,7 +76,7 @@
         <include refid="from"/>
         <include refid="where"/>
         <if test="sortBy != null and projection != 'ID'">
-            ORDER BY ${sortBy} ${direction}
+            ORDER BY "${sortBy}" ${direction}
         </if>
         <if test="projection == 'ID' and keyword == null">
             ORDER BY sample.STABLE_ID ASC
@@ -109,14 +109,14 @@
 
     <select id="getMetaSamples" resultType="org.cbioportal.model.meta.BaseMeta">
         SELECT
-        COUNT(*) AS totalCount
+        COUNT(*) AS "totalCount"
         <include refid="from"/>
         <include refid="where"/>
     </select>
 
     <select id="getMetaSamplesBySampleListIds" resultType="org.cbioportal.model.meta.BaseMeta">
         SELECT
-        COUNT(*) AS totalCount
+        COUNT(*) AS "totalCount"
         <include refid="from"/>
         WHERE sample.INTERNAL_ID IN
         (

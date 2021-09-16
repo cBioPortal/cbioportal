@@ -63,7 +63,7 @@
             </foreach>
         </if>
         <if test="sortBy != null and projection != 'ID'">
-            ORDER BY ${sortBy} ${direction}
+            ORDER BY "${sortBy}" ${direction}
         </if>
         <if test="projection == 'ID'">
             ORDER BY genetic_profile.STABLE_ID ASC

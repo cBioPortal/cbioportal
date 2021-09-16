@@ -4,21 +4,21 @@
 <mapper namespace="org.cbioportal.persistence.mybatis.GenePanelMapper">
     
     <sql id="select">
-        gene_panel.INTERNAL_ID AS internalId,
-        gene_panel.STABLE_ID AS stableId
+        gene_panel.INTERNAL_ID AS "internalId",
+        gene_panel.STABLE_ID AS "stableId"
         <if test="projection == 'SUMMARY' || projection == 'DETAILED'">
             ,
-            gene_panel.DESCRIPTION AS description
+            gene_panel.DESCRIPTION AS "description"
         </if>
     </sql>
 
     <sql id="selectGenePanelData">
-        gene_panel.STABLE_ID AS genePanelId,
-        sample.STABLE_ID AS sampleId,
-        patient.STABLE_ID AS patientId,
-        cancer_study.CANCER_STUDY_IDENTIFIER AS studyId,
-        genetic_profile.STABLE_ID AS molecularProfileId,
-        sample_profile.GENETIC_PROFILE_ID IS NOT NULL AS profiled
+        gene_panel.STABLE_ID AS "genePanelId",
+        sample.STABLE_ID AS "sampleId",
+        patient.STABLE_ID AS "patientId",
+        cancer_study.CANCER_STUDY_IDENTIFIER AS "studyId",
+        genetic_profile.STABLE_ID AS "molecularProfileId",
+        sample_profile.GENETIC_PROFILE_ID IS NOT NULL AS "profiled"
     </sql>
 
     <sql id="fromGenePanelData">
@@ -35,7 +35,7 @@
         <include refid="select"/>
         FROM gene_panel
         <if test="sortBy != null and projection != 'ID'">
-            ORDER BY ${sortBy} ${direction}
+            ORDER BY "${sortBy}" ${direction}
         </if>
         <if test="projection == 'ID'">
             ORDER BY gene_panel.STABLE_ID ASC

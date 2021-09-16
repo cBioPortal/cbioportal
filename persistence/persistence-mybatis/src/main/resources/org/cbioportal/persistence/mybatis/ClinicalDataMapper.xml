@@ -120,7 +120,7 @@
         </if>
         <include refid="whereSample"/>
         <if test="sortBy != null and projection != 'ID'">
-            ORDER BY ${sortBy} ${direction}
+            ORDER BY "${sortBy}" ${direction}
         </if>
         <if test="projection == 'ID'">
             ORDER BY clinical_sample.ATTR_ID ASC
@@ -132,7 +132,7 @@
 
     <select id="getMetaSampleClinicalData" resultType="org.cbioportal.model.meta.BaseMeta">
         SELECT
-        COUNT(*) AS totalCount
+        COUNT(*) AS "totalCount"
         <include refid="fromSample"/>
         <include refid="whereSample"/>
     </select>
@@ -150,7 +150,7 @@
         </if>
         <include refid="wherePatient"/>
         <if test="sortBy != null and projection != 'ID'">
-            ORDER BY ${sortBy} ${direction}
+            ORDER BY "${sortBy}" ${direction}
         </if>
         <if test="projection == 'ID'">
             ORDER BY clinical_patient.ATTR_ID ASC
@@ -175,7 +175,7 @@
         </if>
         <include refid="wherePatient"/>
         <if test="sortBy != null and projection != 'ID'">
-            ORDER BY ${sortBy} ${direction}
+            ORDER BY "${sortBy}" ${direction}
         </if>
         <if test="projection == 'ID'">
             ORDER BY clinical_patient.ATTR_ID ASC
@@ -187,7 +187,7 @@
 
     <select id="getMetaPatientClinicalData" resultType="org.cbioportal.model.meta.BaseMeta">
         SELECT
-        COUNT(*) AS totalCount
+        COUNT(*) AS "totalCount"
         <include refid="fromPatient"/>
         <include refid="wherePatient"/>
     </select>

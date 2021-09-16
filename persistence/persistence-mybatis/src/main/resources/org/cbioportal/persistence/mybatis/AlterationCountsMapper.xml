@@ -5,10 +5,10 @@
 
     <select id="getSampleAlterationCounts" resultType="org.cbioportal.model.AlterationCountByGene">
         SELECT 
-            ENTREZ_GENE_ID AS entrezGeneId,
-            HUGO_GENE_SYMBOL AS hugoGeneSymbol,
-            COUNT(*) AS totalCount,
-            COUNT(DISTINCT(CASE_ID)) AS numberOfAlteredCases
+            ENTREZ_GENE_ID AS "entrezGeneId",
+            HUGO_GENE_SYMBOL AS "hugoGeneSymbol",
+            COUNT(*) AS "totalCount",
+            COUNT(DISTINCT(CASE_ID)) AS "numberOfAlteredCases"
         FROM
         (
             <trim  prefixOverrides="UNION ALL">
@@ -391,17 +391,17 @@
     
     <sql id="structuralVariantCounts">
         SELECT 
-            caseUniqueId as CASE_ID,
-            entrezGeneId as ENTREZ_GENE_ID,
-            hugoGeneSymbol as HUGO_GENE_SYMBOL,
-	        NULL as DUMMY_COLUMN
+            caseUniqueId as "CASE_ID",
+            entrezGeneId as "ENTREZ_GENE_ID",
+            hugoGeneSymbol as "HUGO_GENE_SYMBOL",
+	        NULL as "DUMMY_COLUMN"
         FROM
             (SELECT 
-                gene.ENTREZ_GENE_ID AS entrezGeneId,
-                gene.HUGO_GENE_SYMBOL AS hugoGeneSymbol,
-                <include refid="caseUniqueIdentifier" /> as caseUniqueId,
-                <include refid="caseStableIdentifier" /> as caseStableId,
-                genetic_profile.GENETIC_PROFILE_ID as geneticProfileId
+                gene.ENTREZ_GENE_ID AS "entrezGeneId",
+                gene.HUGO_GENE_SYMBOL AS "hugoGeneSymbol",
+                <include refid="caseUniqueIdentifier" /> as "caseUniqueId",
+                <include refid="caseStableIdentifier" /> as "caseStableId",
+                genetic_profile.GENETIC_PROFILE_ID as "geneticProfileId"
                 
             FROM
                 structural_variant

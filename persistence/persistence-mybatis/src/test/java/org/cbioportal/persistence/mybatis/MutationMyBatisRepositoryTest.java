@@ -1,8 +1,12 @@
 package org.cbioportal.persistence.mybatis;
 
+import java.math.BigDecimal;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 import org.cbioportal.model.AlleleSpecificCopyNumber;
-import org.cbioportal.model.ClinicalData;
 import org.cbioportal.model.Gene;
 import org.cbioportal.model.GeneFilterQuery;
 import org.cbioportal.model.Mutation;
@@ -16,15 +20,8 @@ import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Configurable;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
-
-import java.math.BigDecimal;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
 
 @RunWith(SpringJUnit4ClassRunner.class)
 @SpringBootTest(classes = {MutationMyBatisRepository.class, MolecularProfileCaseIdentifierUtil.class, TestConfig.class})
@@ -155,7 +152,11 @@ public class MutationMyBatisRepositoryTest {
             "study_tcga_pub_mutations", "study_tcga_pub_all", entrezGeneIds, null, "SUMMARY", null, null, null, null);
 
         Assert.assertEquals(3, result.size());
-        Mutation mutation = result.get(0);
+        Optional<Mutation> mutationOptional =
+            result.stream().filter(r -> r.getSampleId().equals("TCGA-A1-A0SB-01")).findAny();
+        Assert.assertTrue(mutationOptional.isPresent());
+        Mutation mutation = mutationOptional.get();
+
         Assert.assertEquals("study_tcga_pub_mutations", mutation.getMolecularProfileId());
         Assert.assertEquals("TCGA-A1-A0SB-01", mutation.getSampleId());
         Assert.assertEquals((Integer) 207, mutation.getEntrezGeneId());
@@ -192,7 +193,12 @@ public class MutationMyBatisRepositoryTest {
             "study_tcga_pub_mutations", "study_tcga_pub_all", null, null, "DETAILED", null, null, null, null);
 
         Assert.assertEquals(8, result.size());
-        Mutation mutation = result.get(0);
+
+        Optional<Mutation> mutationOptional =
+            result.stream().filter(r -> r.getSampleId().equals("TCGA-A1-A0SB-01")).findAny();
+        Assert.assertTrue(mutationOptional.isPresent());
+        Mutation mutation = mutationOptional.get();
+
         Assert.assertEquals("study_tcga_pub_mutations", mutation.getMolecularProfileId());
         Assert.assertEquals("TCGA-A1-A0SB-01", mutation.getSampleId());
         Assert.assertEquals((Integer) 207, mutation.getEntrezGeneId());
@@ -302,15 +308,16 @@ public class MutationMyBatisRepositoryTest {
 
         Assert.assertEquals(3, result.size());
 
-        Mutation mutation1 = result.get(2);
-        Assert.assertEquals("study_tcga_pub_mutations", mutation1.getMolecularProfileId());
-        Assert.assertEquals("TCGA-A1-A0SH-01", mutation1.getSampleId());
-        Mutation mutation2 = result.get(1);
-        Assert.assertEquals("study_tcga_pub_mutations", mutation2.getMolecularProfileId());
-        Assert.assertEquals("TCGA-A1-A0SH-01", mutation2.getSampleId());
-        Mutation mutation3 = result.get(0);
-        Assert.assertEquals("acc_tcga_mutations", mutation3.getMolecularProfileId());
-        Assert.assertEquals("TCGA-A1-B0SO-01", mutation3.getSampleId());
+        Optional<Mutation> sampleOmutationOptional =
+            result.stream().filter(r -> r.getSampleId().equals("TCGA-A1-B0SO-01") && r.getMolecularProfileId().equals("acc_tcga_mutations")).findAny();
+
+        List<Mutation> sampleHmutations = result.stream().filter(
+            r -> r.getSampleId().equals("TCGA-A1-A0SH-01") &&
+                r.getMolecularProfileId().equals("study_tcga_pub_mutations")).collect(
+            Collectors.toList());
+
+        Assert.assertEquals(2, sampleHmutations.size());
+        Assert.assertTrue(sampleOmutationOptional.isPresent());
     }
     
     @Test
@@ -409,7 +416,7 @@ public class MutationMyBatisRepositoryTest {
 
         Assert.assertEquals(4, result.size());
         List<String> expectedSampleIds = Arrays.asList("TCGA-A1-A0SB-01", "TCGA-A1-A0SH-01", "TCGA-A1-A0SI-01", "TCGA-A1-A0SP-01");
-        assert(result.stream().allMatch(r -> expectedSampleIds.contains(r.getSampleId())));
+        Assert.assertTrue(result.stream().allMatch(r -> expectedSampleIds.contains(r.getSampleId())));
     }
 
     @Test
@@ -431,7 +438,7 @@ public class MutationMyBatisRepositoryTest {
 
         Assert.assertEquals(4, result.size());
         List<String> expectedSampleIds = Arrays.asList("TCGA-A1-A0SD-01", "TCGA-A1-A0SE-01", "TCGA-A1-A0SH-01", "TCGA-A1-A0SO-01");
-        assert(result.stream().allMatch(r -> expectedSampleIds.contains(r.getSampleId())));
+        Assert.assertTrue(result.stream().allMatch(r -> expectedSampleIds.contains(r.getSampleId())));
     }
     
     @Test
@@ -473,7 +480,7 @@ public class MutationMyBatisRepositoryTest {
 
         Assert.assertEquals(3, result.size());
         List<String> expectedSampleIds = Arrays.asList("TCGA-A1-A0SD-01", "TCGA-A1-A0SH-01", "TCGA-A1-A0SI-01");
-        assert(result.stream().allMatch(r -> expectedSampleIds.contains(r.getSampleId())));
+        Assert.assertTrue(result.stream().allMatch(r -> expectedSampleIds.contains(r.getSampleId())));
     }
 
     @Test
@@ -495,7 +502,7 @@ public class MutationMyBatisRepositoryTest {
 
         Assert.assertEquals(3, result.size());
         List<String> expectedSampleIds = Arrays.asList("TCGA-A1-A0SB-01", "TCGA-A1-A0SH-01", "TCGA-A1-A0SO-01");
-        assert(result.stream().allMatch(r -> expectedSampleIds.contains(r.getSampleId())));
+        Assert.assertTrue(result.stream().allMatch(r -> expectedSampleIds.contains(r.getSampleId())));
     }
 
     @Test

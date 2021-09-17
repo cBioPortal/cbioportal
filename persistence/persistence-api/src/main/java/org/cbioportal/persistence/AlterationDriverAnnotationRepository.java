@@ -7,7 +7,7 @@ import java.util.List;
 
 public interface AlterationDriverAnnotationRepository {
 
-    @Cacheable(cacheNames = "GeneralRepositoryCache", condition = "@cacheEnabledConfig.getEnabled()")
+    @Cacheable(cacheResolver = "generalRepositoryCacheResolver", condition = "@cacheEnabledConfig.getEnabled()")
     List<AlterationDriverAnnotation> getAlterationDriverAnnotations(List<String> molecularProfileCaseIdentifiers);
 
 }

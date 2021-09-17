@@ -2,14 +2,14 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
   <!-- meta data -->
   <parent>
-    <artifactId>master</artifactId>
-    <groupId>org.mskcc.cbio</groupId>
+    <artifactId>cbioportal</artifactId>
+    <groupId>org.cbioportal</groupId>
     <!-- project version is generated through git or can be passed as
          PROJECT_VERSION env variable (see version.sh) -->
-    <version>0-unknown-version-SNAPSHOT</version>
+    <version>0.0.1-SNAPSHOT</version>
   </parent>
   <modelVersion>4.0.0</modelVersion>
-  <artifactId>cbioportal</artifactId>
+  <artifactId>webapp</artifactId>
   <packaging>war</packaging>
   <name>cBioPortal</name>
   <url>http://maven.apache.org</url>

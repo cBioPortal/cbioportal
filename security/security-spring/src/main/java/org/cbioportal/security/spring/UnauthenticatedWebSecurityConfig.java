@@ -1,4 +1,4 @@
-package org.cbioportal.security;
+package org.cbioportal.security.spring;
 
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.context.annotation.Configuration;

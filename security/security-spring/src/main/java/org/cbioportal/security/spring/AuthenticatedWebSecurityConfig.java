@@ -1,9 +1,8 @@
-package org.cbioportal.security;
+package org.cbioportal.security.spring;
 
-import org.cbioportal.security.authentication.token.TokenAuthenticationFilter;
+import org.cbioportal.security.spring.authentication.token.TokenAuthenticationFilter;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnExpression;
-import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;

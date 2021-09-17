@@ -7,7 +7,7 @@ import org.springframework.security.config.annotation.web.configuration.WebSecur
 
 @Configuration
 @ConditionalOnProperty(value = "authenticate", havingValue = "none")
-public class UnauthenticatedSecurityConfig extends WebSecurityConfigurerAdapter {
+public class UnauthenticatedWebSecurityConfig extends WebSecurityConfigurerAdapter {
 
     @Override
     protected void configure(HttpSecurity http) throws Exception {

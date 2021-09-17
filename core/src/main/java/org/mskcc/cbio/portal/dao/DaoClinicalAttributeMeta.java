@@ -34,7 +34,6 @@ package org.mskcc.cbio.portal.dao;
 
 import org.mskcc.cbio.portal.model.*;
 
-import com.google.inject.internal.Join;
 import org.apache.commons.lang3.StringUtils;
 
 import java.sql.*;

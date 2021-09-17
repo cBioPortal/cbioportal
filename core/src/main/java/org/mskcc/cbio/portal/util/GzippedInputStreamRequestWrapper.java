@@ -1,5 +1,6 @@
 package org.mskcc.cbio.portal.util;
 
+import javax.servlet.ReadListener;
 import javax.servlet.ServletInputStream;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletRequestWrapper;
@@ -55,6 +56,21 @@ public class GzippedInputStreamRequestWrapper extends HttpServletRequestWrapper 
             @Override
             public int readLine(byte[] b, int off, int len) throws IOException {
                 return super.readLine(b, off, len);
+            }
+
+            @Override
+            public boolean isFinished() {
+                return false;
+            }
+
+            @Override
+            public boolean isReady() {
+                return false;
+            }
+
+            @Override
+            public void setReadListener(ReadListener listener) {
+
             }
 
             @Override

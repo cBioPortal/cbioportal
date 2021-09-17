@@ -45,7 +45,8 @@ import java.util.*;
 import java.util.regex.Pattern;
 import javax.servlet.http.*;
 import javax.servlet.ServletException;
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * Core Web Service.
@@ -54,7 +55,7 @@ import org.apache.log4j.Logger;
  * @author Arthur Goldberg goldberg@cbio.mskcc.org
  */
 public class WebService extends HttpServlet {
-    private static Logger logger = Logger.getLogger(WebService.class);
+    private static Logger logger = LoggerFactory.getLogger(WebService.class);
     public static final String CANCER_STUDY_ID = "cancer_study_id";
     public static final String CANCER_TYPE_ID = "cancer_type_id";
     public static final String GENETIC_PROFILE_ID = "genetic_profile_id";

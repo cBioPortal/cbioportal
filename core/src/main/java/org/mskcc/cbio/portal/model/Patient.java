@@ -34,7 +34,8 @@ package org.mskcc.cbio.portal.model;
 
 import java.util.Map;
 import java.util.HashMap;
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * Encapsulates Patient Data.
@@ -48,7 +49,7 @@ public class Patient {
     private CancerStudy cancerStudy;
 
 	private Map<String, ClinicalData> clinicalDataMap;
-    private static final Logger logger = Logger.getLogger(Patient.class);
+    private static final Logger logger = LoggerFactory.getLogger(Patient.class);
 
     public Patient(CancerStudy cancerStudy, String stableId)
     {

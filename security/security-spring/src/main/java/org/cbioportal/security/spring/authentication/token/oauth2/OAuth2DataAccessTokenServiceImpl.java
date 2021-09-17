@@ -32,10 +32,10 @@
 
 package org.cbioportal.security.spring.authentication.token.oauth2;
 
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import org.cbioportal.model.DataAccessToken;
 import org.cbioportal.service.DataAccessTokenService;
-import org.codehaus.jackson.JsonNode;
-import org.codehaus.jackson.map.ObjectMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpEntity;
@@ -54,7 +54,6 @@ import java.util.Date;
 import java.util.List;
 
 public class OAuth2DataAccessTokenServiceImpl implements DataAccessTokenService {
-
     @Value("${dat.oauth2.issuer}")
     private String issuer;
 

@@ -27,7 +27,7 @@ public interface MutationRepository {
                                                            Integer pageSize, Integer pageNumber,
                                                            String sortBy, String direction);
 
-    @Cacheable(cacheNames = "GeneralRepositoryCache", condition = "@cacheEnabledConfig.getEnabled()")
+    @Cacheable(cacheResolver = "generalRepositoryCacheResolver", condition = "@cacheEnabledConfig.getEnabled()")
     List<Mutation> getMutationsInMultipleMolecularProfilesByGeneQueries(List<String> molecularProfileIds,
                                                                       List<String> sampleIds,
                                                                       List<GeneFilterQuery> geneQueries,
@@ -61,7 +61,7 @@ public interface MutationRepository {
                                                          List<Integer> entrezGeneIds, String projection, Integer pageSize, Integer pageNumber, String sortBy,
                                                          String direction);
 
-    @Cacheable(cacheNames = "GeneralRepositoryCache", condition = "@cacheEnabledConfig.getEnabled()")
+    @Cacheable(cacheResolver = "generalRepositoryCacheResolver", condition = "@cacheEnabledConfig.getEnabled()")
     List<Mutation> getFusionsInMultipleMolecularProfilesByGeneQueries(List<String> molecularProfileIds,
                                                                       List<String> sampleIds,
                                                                       List<GeneFilterQuery> geneQueries,

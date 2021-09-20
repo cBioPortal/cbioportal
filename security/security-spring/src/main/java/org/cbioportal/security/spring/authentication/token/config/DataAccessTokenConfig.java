@@ -14,10 +14,6 @@ import org.springframework.context.annotation.PropertySource;
 import org.springframework.context.annotation.PropertySources;
 
 @Configuration
-@PropertySources({
-        @PropertySource(value="classpath:portal.properties", ignoreResourceNotFound=true),
-        @PropertySource(value="file:///${PORTAL_HOME}/portal.properties", ignoreResourceNotFound=true)
-})
 public class DataAccessTokenConfig {
 
     // provider

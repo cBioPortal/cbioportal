@@ -7,68 +7,30 @@ import org.springframework.core.annotation.Order;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
 
-public class UnprotectedResourcesWebSecurityConfig {
+@Configuration
+@ConditionalOnExpression("'${authenticate}' ne 'none'")
+@Order(Ordered.HIGHEST_PRECEDENCE)
+public class UnprotectedResourcesWebSecurityConfig extends WebSecurityConfigurerAdapter {
 
     // Add security filter chains (note the plural) that handle paths to unprotected resources.
     // see: "Creating and Customizing Filter Chains" @ https://spring.io/guides/topicals/spring-security-architecture
     
-    @Configuration
-    @ConditionalOnExpression("'${authenticate}' ne 'none'")
-    @Order(Ordered.HIGHEST_PRECEDENCE)
-    // handles "/css/**" and "/saml/css/**" paths
-    public class CssUnprotectedResourcesConfig extends WebSecurityConfigurerAdapter {
-        @Override
-        protected void configure(HttpSecurity http) throws Exception {
-            http.antMatcher("/{saml\\/|\\/}css/**").authorizeRequests().antMatchers("/**").permitAll();
-        }
+    @Override
+    protected void configure(HttpSecurity http) throws Exception {
+        http
+            // handles "/css/**" and "/saml/css/**" paths
+            .antMatcher("/{saml\\/|\\/}css/**").authorizeRequests().antMatchers("/**").permitAll()
+            .and()
+            // handles "/images/**" and "/saml/images/**" paths
+            .antMatcher("/{saml\\/|\\/}images/**").authorizeRequests().antMatchers("/**").permitAll()
+            .and()
+            // handles "/js/**" and "/saml/js/**" paths
+            .antMatcher("/{saml\\/|\\/}js/**").authorizeRequests().antMatchers("/**").permitAll()
+            .and()
+            // handles "/gfx/**" and "/saml/gfx/**" paths
+            .antMatcher("/{saml\\/|\\/}gfx/**").authorizeRequests().antMatchers("/**").permitAll()
+            .and()
+            .antMatcher("/reactapp/**").authorizeRequests().antMatchers("/**").permitAll();
     }
-    
-    @Configuration
-    @ConditionalOnExpression("'${authenticate}' ne 'none'")
-    @Order(Ordered.HIGHEST_PRECEDENCE)
-    // handles "/images/**" and "/saml/images/**" paths
-    public class ImagesUnprotectedResourcesConfig extends WebSecurityConfigurerAdapter {
-        @Override
-        protected void configure(HttpSecurity http) throws Exception {
-            // add a new security filter chain (see: "Creating and Customizing Filter Chains" @ https://spring.io/guides/topicals/spring-security-architecture
-            http.antMatcher("/{saml\\/|\\/}images/**").authorizeRequests().antMatchers("/**").permitAll();
-        }
-    }
-    
-    @Configuration
-    @ConditionalOnExpression("'${authenticate}' ne 'none'")
-    @Order(Ordered.HIGHEST_PRECEDENCE)
-    // handles "/js/**" and "/saml/js/**" paths
-    public class JavascriptUnprotectedResourcesConfig extends WebSecurityConfigurerAdapter {
-        @Override
-        protected void configure(HttpSecurity http) throws Exception {
-            // add a new security filter chain (see: "Creating and Customizing Filter Chains" @ https://spring.io/guides/topicals/spring-security-architecture
-            http.antMatcher("/{saml\\/|\\/}js/**").authorizeRequests().antMatchers("/**").permitAll();
-        }
-    }
-    
-    @Configuration
-    @ConditionalOnExpression("'${authenticate}' ne 'none'")
-    @Order(Ordered.HIGHEST_PRECEDENCE)
-    // handles "/gfx/**" and "/saml/gfx/**" paths
-    public class GraphicsUnprotectedResourcesConfig extends WebSecurityConfigurerAdapter {
-        @Override
-        protected void configure(HttpSecurity http) throws Exception {
-            // add a new security filter chain (see: "Creating and Customizing Filter Chains" @ https://spring.io/guides/topicals/spring-security-architecture
-            http.antMatcher("/{saml\\/|\\/}gfx/**").authorizeRequests().antMatchers("/**").permitAll();
-        }
-    }
-    
-    @Configuration
-    @ConditionalOnExpression("'${authenticate}' ne 'none'")
-    @Order(Ordered.HIGHEST_PRECEDENCE)
-    // handles "/gfx/**" and "/saml/gfx/**" paths
-    public class ReactappUnprotectedResourcesConfig extends WebSecurityConfigurerAdapter {
-        @Override
-        protected void configure(HttpSecurity http) throws Exception {
-            // add a new security filter chain (see: "Creating and Customizing Filter Chains" @ https://spring.io/guides/topicals/spring-security-architecture
-            http.antMatcher("/reactapp/**").authorizeRequests().antMatchers("/**").permitAll();
-        }
-    }
-    
+
 }

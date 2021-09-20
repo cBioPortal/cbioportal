@@ -54,6 +54,8 @@ public class ApiSecurityConfig extends WebSecurityConfigurerAdapter {
     protected void configure(HttpSecurity http) throws Exception {
         http
             .csrf().disable()
+            .sessionManagement().sessionFixation().none()
+            .and()
             .exceptionHandling().authenticationEntryPoint(restAuthenticationEntryPoint)
             .and()
             .antMatcher("/api/**")

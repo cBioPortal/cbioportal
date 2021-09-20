@@ -46,7 +46,7 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-package org.cbioportal.security.spring;
+package org.cbioportal.security.spring.authentication;
 
 import java.io.IOException;
 import java.net.URI;

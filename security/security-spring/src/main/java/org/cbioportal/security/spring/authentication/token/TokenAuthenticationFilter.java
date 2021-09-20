@@ -45,6 +45,7 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.cbioportal.service.DataAccessTokenService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.web.authentication.AbstractAuthenticationProcessingFilter;
@@ -55,7 +56,7 @@ import org.springframework.util.StringUtils;
  *
  * @author Manda Wilson
  */
-@Component
+//@Component
 public class TokenAuthenticationFilter extends AbstractAuthenticationProcessingFilter {
 
     @Autowired
@@ -68,6 +69,10 @@ public class TokenAuthenticationFilter extends AbstractAuthenticationProcessingF
     public TokenAuthenticationFilter() {
         // allow any request to contain an authorization header
         super("/**");
+    }
+
+    public TokenAuthenticationFilter(String s, AuthenticationManager authenticationManagerBean) {
+        super(s, authenticationManagerBean);
     }
 
     @Override

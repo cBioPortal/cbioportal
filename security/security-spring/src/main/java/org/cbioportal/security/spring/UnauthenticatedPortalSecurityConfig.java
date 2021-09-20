@@ -10,7 +10,7 @@ import org.springframework.security.config.annotation.web.configuration.WebSecur
 @Configuration
 @Order(Ordered.HIGHEST_PRECEDENCE)
 @ConditionalOnProperty(value = "authenticate", havingValue = "none")
-public class UnauthenticatedWebSecurityConfig extends WebSecurityConfigurerAdapter {
+public class UnauthenticatedPortalSecurityConfig extends WebSecurityConfigurerAdapter {
 
     @Override
     protected void configure(HttpSecurity http) throws Exception {

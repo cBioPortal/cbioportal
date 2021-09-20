@@ -64,6 +64,7 @@ import org.springframework.security.web.authentication.SimpleUrlAuthenticationSu
 import org.springframework.security.web.savedrequest.SavedRequest;
 import org.springframework.security.web.savedrequest.RequestCache;
 import org.springframework.security.web.savedrequest.HttpSessionRequestCache;
+import org.springframework.stereotype.Component;
 import org.springframework.util.StringUtils;
 import org.springframework.util.Assert;
 
@@ -74,6 +75,7 @@ import org.springframework.util.Assert;
  * @author Manda Wilson
  * @see <a href="https://github.com/spring-projects/spring-security/blob/master/web/src/main/java/org/springframework/security/web/authentication/SavedRequestAwareAuthenticationSuccessHandler.java">SavedRequestAwareAuthenticationSuccessHandler</a>
  */
+@Component
 class PortalSavedRequestAwareAuthenticationSuccessHandler extends SimpleUrlAuthenticationSuccessHandler {
 
     protected final Log logger = LogFactory.getLog(this.getClass());

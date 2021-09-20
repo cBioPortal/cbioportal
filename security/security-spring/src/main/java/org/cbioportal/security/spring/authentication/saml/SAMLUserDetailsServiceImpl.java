@@ -37,6 +37,7 @@ import org.opensaml.saml2.core.Attribute;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.AuthorityUtils;
@@ -52,6 +53,7 @@ import org.springframework.stereotype.Service;
  * @author Pieter Lukasse
  */
 @Service
+@ConditionalOnProperty(value = "saml.custom.userservice.class", havingValue = "org.cbioportal.security.spring.authentication.saml.SAMLUserDetailsServiceImpl")
 public class SAMLUserDetailsServiceImpl implements SAMLUserDetailsService
 {
     private static final Log log = LogFactory.getLog(SAMLUserDetailsServiceImpl.class);

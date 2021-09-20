@@ -31,6 +31,7 @@ import org.opensaml.xml.XMLObject;
 import org.opensaml.xml.schema.XSString;
 import org.opensaml.xml.schema.impl.XSAnyImpl;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.security.core.authority.AuthorityUtils;
 import org.springframework.security.saml.SAMLCredential;
 import org.springframework.security.saml.userdetails.SAMLUserDetailsService;
@@ -46,6 +47,7 @@ import org.springframework.stereotype.Service;
  */
 
 @Service
+@ConditionalOnProperty(value = "saml.custom.userservice.class", havingValue = "org.cbioportal.security.spring.authentication.keycloak.SAMLUserDetailsServiceImpl")
 public class SAMLUserDetailsServiceImpl implements SAMLUserDetailsService
 {
     private static final Log log = LogFactory.getLog(SAMLUserDetailsServiceImpl.class);

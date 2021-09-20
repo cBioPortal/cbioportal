@@ -5,6 +5,7 @@ import org.cbioportal.security.spring.authentication.token.TokenAuthenticationFi
 import org.cbioportal.security.spring.authentication.token.TokenAuthenticationSuccessHandler;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnExpression;
+import org.springframework.boot.autoconfigure.security.SecurityProperties;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.core.Ordered;
@@ -16,7 +17,7 @@ import org.springframework.security.config.annotation.web.configuration.WebSecur
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 
 @Configuration
-@Order(Ordered.HIGHEST_PRECEDENCE)
+@Order(SecurityProperties.BASIC_AUTH_ORDER - 2)
 @ConditionalOnExpression("'${authenticate}' ne 'none'")
 public class ApiSecurityConfig extends WebSecurityConfigurerAdapter {
 
@@ -54,12 +55,12 @@ public class ApiSecurityConfig extends WebSecurityConfigurerAdapter {
     protected void configure(HttpSecurity http) throws Exception {
         http
             .csrf().disable()
+            .addFilterBefore(tokenAuthenticationFilter(), UsernamePasswordAuthenticationFilter.class)
             .sessionManagement().sessionFixation().none()
             .and()
             .exceptionHandling().authenticationEntryPoint(restAuthenticationEntryPoint)
             .and()
             .antMatcher("/api/**")
-                .addFilterBefore(tokenAuthenticationFilter(), UsernamePasswordAuthenticationFilter.class)
                 .authorizeRequests()
                     .antMatchers("/api/swagger-resources/**",
                          "/api/swagger-ui.html",
@@ -67,15 +68,10 @@ public class ApiSecurityConfig extends WebSecurityConfigurerAdapter {
                          "/api/cache").permitAll()
                     .antMatchers("/api/**").authenticated()
             .and()
+            // TODO should this not be "/webservice.do*"?
             .antMatcher("/webservice.do")
-                .addFilterBefore(tokenAuthenticationFilter(), UsernamePasswordAuthenticationFilter.class)
                 .authorizeRequests()
-                    .antMatchers("/**").authenticated()
-            .and()
-            .logout()
-                .logoutUrl("/j_spring_security_logout")
-                .logoutSuccessUrl("/login.jsp?logout_success=true")
-                .deleteCookies("JSESSIONID");
+                    .antMatchers("/**").authenticated();
     }
  
 }

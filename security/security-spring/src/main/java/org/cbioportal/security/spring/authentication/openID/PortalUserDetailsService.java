@@ -40,6 +40,7 @@ import org.cbioportal.security.spring.authentication.PortalUserDetails;
 
 import org.springframework.beans.factory.annotation.Autowired;
 
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.security.openid.*;
 
 import org.springframework.security.core.userdetails.*;
@@ -59,6 +60,7 @@ import java.util.List;
  * @author Benjamin Gross
  */
 @Service
+@ConditionalOnProperty(value = "authenticate", havingValue = "openid")
 public class PortalUserDetailsService
     implements UserDetailsService, AuthenticationUserDetailsService<OpenIDAuthenticationToken> {
 

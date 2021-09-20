@@ -121,7 +121,7 @@ public class TokenAuthenticationFilter extends AbstractAuthenticationProcessingF
      */
     protected String extractHeaderToken(HttpServletRequest request) {
         String authorizationHeader = request.getHeader(AUTHORIZATION);
-        if (!StringUtils.isEmpty(authorizationHeader)) {
+        if (!authorizationHeader.isEmpty()) {
             if ((authorizationHeader.toLowerCase().startsWith(BEARER.toLowerCase()))) {
                 return authorizationHeader.substring(BEARER.length()).trim();
             }

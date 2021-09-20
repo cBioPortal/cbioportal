@@ -44,10 +44,12 @@ import com.google.common.base.*;
 
 import org.springframework.beans.factory.annotation.Autowired;
 
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.security.core.userdetails.*;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.AuthorityUtils;
 
+import org.springframework.stereotype.Component;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -61,6 +63,7 @@ import java.util.List;
  *
  * @author criscuof
  */
+@ConditionalOnProperty(value = "authenticate", havingValue = "googleplus")
 public class PortalUserDetailsService implements UserDetailsService {
 
     private static final Log log = LogFactory.getLog(PortalUserDetailsService.class);

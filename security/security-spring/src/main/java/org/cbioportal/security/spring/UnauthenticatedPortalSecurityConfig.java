@@ -15,9 +15,10 @@ public class UnauthenticatedPortalSecurityConfig extends WebSecurityConfigurerAd
     @Override
     protected void configure(HttpSecurity http) throws Exception {
         http
-            .authorizeRequests()
-            .anyRequest()
-            .permitAll();
+            .antMatcher("/**")
+                .authorizeRequests()
+                    .anyRequest()
+                    .permitAll();
     }
 
 }

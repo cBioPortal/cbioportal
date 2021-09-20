@@ -11,7 +11,7 @@ import org.springframework.security.config.annotation.method.configuration.Globa
 
 @Configuration
 @EnableGlobalMethodSecurity(prePostEnabled = true)
-@ConditionalOnExpression("'${authenticate}' ne 'none'")
+@ConditionalOnExpression("'${authenticate}' ne 'none' && '${authenticate}' ne 'noauthsessionservice'")
 public class MethodSecurityConfig extends GlobalMethodSecurityConfiguration {
 
     @Bean

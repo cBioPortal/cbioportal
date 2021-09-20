@@ -76,7 +76,7 @@ import org.springframework.util.Assert;
  * @see <a href="https://github.com/spring-projects/spring-security/blob/master/web/src/main/java/org/springframework/security/web/authentication/SavedRequestAwareAuthenticationSuccessHandler.java">SavedRequestAwareAuthenticationSuccessHandler</a>
  */
 @Component
-class PortalSavedRequestAwareAuthenticationSuccessHandler extends SimpleUrlAuthenticationSuccessHandler {
+public class PortalSavedRequestAwareAuthenticationSuccessHandler extends SimpleUrlAuthenticationSuccessHandler {
 
     protected final Log logger = LogFactory.getLog(this.getClass());
 

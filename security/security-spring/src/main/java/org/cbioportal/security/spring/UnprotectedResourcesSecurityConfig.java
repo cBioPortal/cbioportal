@@ -34,7 +34,24 @@ public class UnprotectedResourcesSecurityConfig extends WebSecurityConfigurerAda
             .and()
             .antMatcher("/saml/gfx/**").authorizeRequests().antMatchers("/**").permitAll()
             .and()
-            .antMatcher("/reactapp/**").authorizeRequests().antMatchers("/**").permitAll();
+            .antMatcher("/reactapp/**").authorizeRequests().antMatchers("/**").permitAll()
+            
+            // added from the google, saml and oidc filter chains of the original xml config
+            // TODO I think these are better placed here; better confirm this
+            .and()
+            .antMatcher("/auth/*").authorizeRequests().antMatchers("/**").permitAll()
+            .and()
+            .antMatcher("/favicon.ico").authorizeRequests().antMatchers("/**").permitAll()
+            .and()
+            .antMatcher("/case.do*").authorizeRequests().antMatchers("/**").permitAll()
+            .and()
+            .antMatcher("/patient/**").authorizeRequests().antMatchers("/**").permitAll()
+            .and()
+            .antMatcher("/study/**").authorizeRequests().antMatchers("/**").permitAll()
+            .and()
+            .antMatcher("/results/**").authorizeRequests().antMatchers("/**").permitAll()
+            .and()
+            .antMatcher("/network.do*").authorizeRequests().antMatchers("/**").permitAll();
     }
 
 }

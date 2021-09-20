@@ -30,7 +30,7 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package org.cbioportal.security.spring;
+package org.cbioportal.security.spring.authorization;
 
 import java.io.Serializable;
 import java.util.*;

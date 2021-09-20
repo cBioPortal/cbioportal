@@ -41,6 +41,7 @@ import org.springframework.beans.factory.annotation.*;
 import org.springframework.security.access.PermissionEvaluator;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.authority.AuthorityUtils;
+import org.springframework.stereotype.Component;
 
 /**
  * A custom PermissionEvaluator implementation that checks whether a
@@ -50,7 +51,7 @@ import org.springframework.security.core.authority.AuthorityUtils;
  *
  * @author Benjamin Gross
  */
-class CancerStudyPermissionEvaluator implements PermissionEvaluator {
+public class CancerStudyPermissionEvaluator implements PermissionEvaluator {
 
     @Autowired
     private CacheMapUtil cacheMapUtil;

@@ -70,7 +70,12 @@ public class ApiSecurityConfig extends WebSecurityConfigurerAdapter {
             .antMatcher("/webservice.do")
                 .addFilterBefore(tokenAuthenticationFilter(), UsernamePasswordAuthenticationFilter.class)
                 .authorizeRequests()
-                    .antMatchers("/**").authenticated();
+                    .antMatchers("/**").authenticated()
+            .and()
+            .logout()
+                .logoutUrl("/j_spring_security_logout")
+                .logoutSuccessUrl("/login.jsp?logout_success=true")
+                .deleteCookies("JSESSIONID");
     }
  
 }

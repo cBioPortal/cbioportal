@@ -19,7 +19,7 @@
  *
  * You should have received a copy of the GNU Affero General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
-*/
+ */
 
 package org.cbioportal.security.spring.authentication.saml;
 
@@ -54,13 +54,16 @@ import org.springframework.stereotype.Service;
  */
 @Service
 @ConditionalOnProperty(value = "saml.custom.userservice.class", havingValue = "org.cbioportal.security.spring.authentication.saml.SAMLUserDetailsServiceImpl")
-public class SAMLUserDetailsServiceImpl implements SAMLUserDetailsService
-{
+public class SAMLUserDetailsServiceImpl implements SAMLUserDetailsService {
+
     private static final Log log = LogFactory.getLog(SAMLUserDetailsServiceImpl.class);
 
     private static String samlIdpMetadataEmailAttributeName;
+
     @Value("${saml.idp.metadata.attribute.email:mail}")
-    public void setSamlIdpMetadataEmailAttributeName(String property) { this.samlIdpMetadataEmailAttributeName = property; }
+    public void setSamlIdpMetadataEmailAttributeName(String property) {
+        this.samlIdpMetadataEmailAttributeName = property;
+    }
 
     @Autowired
     private SecurityRepository securityRepository;
@@ -69,88 +72,92 @@ public class SAMLUserDetailsServiceImpl implements SAMLUserDetailsService
      * Constructor.
      */
     public SAMLUserDetailsServiceImpl() {
-    }          
+    }
 
     /**
-     * Implementation of {@code SAMLUserDetailsService}. Parses user details from given 
+     * Implementation of {@code SAMLUserDetailsService}. Parses user details from given
      * SAML credential object.
      */
     @Override
-    public Object loadUserBySAML(SAMLCredential credential)
-    {
-		PortalUserDetails toReturn = null;
+    public Object loadUserBySAML(SAMLCredential credential) {
+        PortalUserDetails toReturn = null;
 
-		String userId = null;
-		// get userid and name: iterate over attributes searching for "mail" and "displayName":
+        String userId = null;
+        // get userid and name: iterate over attributes searching for "mail" and "displayName":
         for (Attribute cAttribute : credential.getAttributes()) {
-        	log.debug("loadUserBySAML(), parsing attribute - " + cAttribute.toString());
-        	log.debug("loadUserBySAML(), parsing attribute - " + cAttribute.getName());
-        	log.debug("loadUserBySAML(), parsing attribute - " + credential.getAttributeAsString(cAttribute.getName()));
-        	if (userId == null && cAttribute.getName().equals(samlIdpMetadataEmailAttributeName))
-        	{
-        		userId = credential.getAttributeAsString(cAttribute.getName());
-        		//userid = credential.getNameID().getValue(); needed to support OneLogin...?? Although with OneLogin we haven't gotten this far yet...
-        	}
+            log.debug("loadUserBySAML(), parsing attribute - " + cAttribute.toString());
+            log.debug("loadUserBySAML(), parsing attribute - " + cAttribute.getName());
+            log.debug("loadUserBySAML(), parsing attribute - " +
+                credential.getAttributeAsString(cAttribute.getName()));
+            if (userId == null && cAttribute.getName().equals(samlIdpMetadataEmailAttributeName)) {
+                userId = credential.getAttributeAsString(cAttribute.getName());
+                //userid = credential.getNameID().getValue(); needed to support OneLogin...?? Although with OneLogin we haven't gotten this far yet...
+            }
         }
 
-		//check if this user exists in our DB
-		try {
-			//validate parsing:
-	        if (userId == null) {
-	        	String errorMessage = "loadUserBySAML(), Could not parse the user details from credential message. Expected 'mail' attribute, but attribute was not found. "
-	        			+ " Previous debug messages show which attributes were found and parsed.";
-	        	log.error(errorMessage);
-	        	throw new Exception(errorMessage);
-	        }
-			
+        //check if this user exists in our DB
+        try {
+            //validate parsing:
+            if (userId == null) {
+                String errorMessage =
+                    "loadUserBySAML(), Could not parse the user details from credential message. Expected 'mail' attribute, but attribute was not found. "
+                        + " Previous debug messages show which attributes were found and parsed.";
+                log.error(errorMessage);
+                throw new Exception(errorMessage);
+            }
+
             log.debug("loadUserBySAML(), IDP successfully authenticated user, userid: " + userId);
-            log.debug("loadUserBySAML(), now attempting to fetch portal user authorities for userid: " + userId);
-            
+            log.debug(
+                "loadUserBySAML(), now attempting to fetch portal user authorities for userid: " +
+                    userId);
+
             //try to find user in DB
             User user = securityRepository.getPortalUser(userId);
-        	if (user != null && user.isEnabled()) {
-                log.debug("loadUserBySAML(), user is enabled; attempting to fetch portal user authorities, userid: " + userId);
+            if (user != null && user.isEnabled()) {
+                log.debug(
+                    "loadUserBySAML(), user is enabled; attempting to fetch portal user authorities, userid: " +
+                        userId);
 
                 UserAuthorities authorities = securityRepository.getPortalUserAuthorities(userId);
                 if (authorities != null) {
                     List<GrantedAuthority> grantedAuthorities =
-                        AuthorityUtils.createAuthorityList(authorities.getAuthorities().toArray(new String[authorities.getAuthorities().size()]));
+                        AuthorityUtils.createAuthorityList(authorities.getAuthorities()
+                            .toArray(new String[authorities.getAuthorities().size()]));
                     //add granted authorities:
                     toReturn = new PortalUserDetails(userId, grantedAuthorities);
                     toReturn.setEmail(userId);
                     toReturn.setName(userId);
-                } 
-          } else if (user == null) { // new user
-              log.debug("loadUserBySAML(), user authorities is null, userid: " + userId + ". Depending on property always_show_study_group, "
-                  + "he could still have default access (to PUBLIC studies)");
-              toReturn = new PortalUserDetails(userId, getInitialEmptyAuthoritiesList());
-              toReturn.setEmail(userId);
-              toReturn.setName(userId);
-        	} else {
-        		//user WAS found in DB but has been actively disabled:
-        		throw new UsernameNotFoundException("Error: Your user access to cBioPortal has been disabled");
-        	}
-    		return toReturn;
-		}
-		catch (UsernameNotFoundException unnf) {
-			//throw this exception, so that the user gets redirected to the error HTML page: 
-			throw unnf;
-		}
-		catch (Exception e) {
-			//other (unexpected) errors: just throw (will result in http 500 page with error message):
-			log.error(e.getMessage());
+                }
+            } else if (user == null) { // new user
+                log.debug("loadUserBySAML(), user authorities is null, userid: " + userId +
+                    ". Depending on property always_show_study_group, "
+                    + "he could still have default access (to PUBLIC studies)");
+                toReturn = new PortalUserDetails(userId, getInitialEmptyAuthoritiesList());
+                toReturn.setEmail(userId);
+                toReturn.setName(userId);
+            } else {
+                //user WAS found in DB but has been actively disabled:
+                throw new UsernameNotFoundException(
+                    "Error: Your user access to cBioPortal has been disabled");
+            }
+            return toReturn;
+        } catch (UsernameNotFoundException unnf) {
+            //throw this exception, so that the user gets redirected to the error HTML page: 
+            throw unnf;
+        } catch (Exception e) {
+            //other (unexpected) errors: just throw (will result in http 500 page with error message):
+            log.error(e.getMessage());
             e.printStackTrace();
             throw new RuntimeException("Error during authentication parsing: " + e.getMessage());
-		}
+        }
     }
 
     /**
      * Returns an initial empty authorities list.
-     * 
+     *
      * @return
      */
-    private List<GrantedAuthority> getInitialEmptyAuthoritiesList()
-    {
+    private List<GrantedAuthority> getInitialEmptyAuthoritiesList() {
         return AuthorityUtils.createAuthorityList(new String[0]);
     }
 }

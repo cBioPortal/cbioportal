@@ -52,8 +52,6 @@ import org.springframework.stereotype.Service;
  *
  * @author Pieter Lukasse
  */
-@Service
-@ConditionalOnProperty(value = "saml.custom.userservice.class", havingValue = "org.cbioportal.security.spring.authentication.saml.SAMLUserDetailsServiceImpl")
 public class SAMLUserDetailsServiceImpl implements SAMLUserDetailsService {
 
     private static final Log log = LogFactory.getLog(SAMLUserDetailsServiceImpl.class);

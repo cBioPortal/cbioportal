@@ -20,6 +20,8 @@ public class UnprotectedResourcesSecurityConfig extends WebSecurityConfigurerAda
         http
             .antMatcher("/css/**").authorizeRequests().antMatchers("/**").permitAll()
             .and()
+            // TODO this overwrites the previous .antMatcher call - refactor in to new WebSecurityConfigurerAdapter block
+            // see: https://docs.spring.io/spring-security/site/docs/4.2.x/apidocs/org/springframework/security/config/annotation/web/builders/HttpSecurity.html#antMatcher-java.lang.String-
             .antMatcher("/saml/css/**").authorizeRequests().antMatchers("/**").permitAll()
             .and()
             .antMatcher("/images/**").authorizeRequests().antMatchers("/**").permitAll()

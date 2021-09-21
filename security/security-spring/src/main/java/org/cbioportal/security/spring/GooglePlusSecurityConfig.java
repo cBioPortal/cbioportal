@@ -46,12 +46,12 @@ public class GooglePlusSecurityConfig extends WebSecurityConfigurerAdapter {
     @Override
     protected void configure(HttpSecurity http) throws Exception {
         http
+            .antMatcher("/**")
             .csrf().disable()
             // this was before preauthentication filter in original xml config; I do not see a good reason for this
             .addFilterBefore(socialAuthenticationFilter(), UsernamePasswordAuthenticationFilter.class)
             .sessionManagement().sessionFixation().none()
             .and()
-            .antMatcher("/**")
                 .authorizeRequests()
                     // TODO should this one not be handled by the APISecurityConfig?
                     .antMatchers("/webservice.do*")

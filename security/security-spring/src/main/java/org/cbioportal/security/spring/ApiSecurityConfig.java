@@ -69,6 +69,7 @@ public class ApiSecurityConfig extends WebSecurityConfigurerAdapter {
                     .antMatchers("/api/**").authenticated()
             .and()
             // TODO should this not be "/webservice.do*"?
+            // TODO this overwrites the previous .antMatcher call - refactor in to new WebSecurityConfigurerAdapter block
             .antMatcher("/webservice.do")
                 .authorizeRequests()
                     .antMatchers("/**").authenticated();

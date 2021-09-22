@@ -26,6 +26,7 @@
     </modules>
 
     <properties>
+        <spring-boot.repackage.skip>true</spring-boot.repackage.skip>
         <project.version>3.7.4</project.version>
         <java.version>11</java.version>
 <!--        <frontend.version>7e8d755d2538e124147ad983f4caa38ef0992f6b</frontend.version>-->
@@ -88,9 +89,6 @@
             <plugin>
                 <groupId>org.springframework.boot</groupId>
                 <artifactId>spring-boot-maven-plugin</artifactId>
-                <configuration>
-                    <skip>true</skip>
-                </configuration>
             </plugin>
         </plugins>
     </build>

@@ -171,13 +171,45 @@ public class StudyViewServiceImpl implements StudyViewService {
     }
 
     @Override
-    public List<GenericAssayDataCountItem> fetchGenericAssayDataCounts(List<String> molecularProfileIds, List<String> sampleIds,
-                                                               List<String> stableIds) throws MolecularProfileNotFoundException {
+    public List<GenericAssayDataCountItem> fetchGenericAssayDataCounts(List<String> sampleIds, List<String> studyIds,
+                                                               List<String> stableIds, List<String> profileTypes) {
         if (stableIds.isEmpty()) {
             return new ArrayList<>();
         }
+
+        // Get data from fetchGenericAssayData service
+        List<MolecularProfile> molecularProfiles = molecularProfileService.getMolecularProfilesInStudies(studyIds,
+            "SUMMARY");
+
+        Map<String, List<MolecularProfile>> molecularProfileMap = molecularProfileUtil
+            .categorizeMolecularProfilesByStableIdSuffixes(molecularProfiles);
+
+        List<GenericAssayData> data = profileTypes.stream().flatMap(profileType -> {
+            // We need to create a map for mapping from studyId to profileId
+            Map<String, String> studyIdToMolecularProfileIdMap = molecularProfileMap
+                .getOrDefault(profileType, new ArrayList<>())
+                .stream().collect(Collectors.toMap(MolecularProfile::getCancerStudyIdentifier,
+                    MolecularProfile::getStableId));
+
+            List<String> mappedSampleIds = new ArrayList<>();
+            List<String> mappedProfileIds = new ArrayList<>();
+
+            for (int i = 0; i < sampleIds.size(); i++) {
+                String studyId = studyIds.get(i);
+                if (studyIdToMolecularProfileIdMap.containsKey(studyId)) {
+                    mappedSampleIds.add(sampleIds.get(i));
+                    mappedProfileIds.add(studyIdToMolecularProfileIdMap.get(studyId));
+                }
+            }
+
+            try {
+                return genericAssayService.fetchGenericAssayData(mappedProfileIds, mappedSampleIds, stableIds, "SUMMARY").stream();
+            } catch (MolecularProfileNotFoundException e) {
+                return new ArrayList<GenericAssayData>().stream();
+            }
+        }).collect(Collectors.toList());
         
-        return genericAssayService.fetchGenericAssayData(molecularProfileIds, sampleIds, stableIds, "SUMMARY")
+        return data
             .stream()
             .filter(g -> StringUtils.isNotEmpty(g.getValue()) && !g.getValue().equals("NA"))
             .collect(Collectors.groupingBy(GenericAssayData::getGenericAssayStableId))

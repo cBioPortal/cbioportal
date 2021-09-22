@@ -19,5 +19,5 @@ public interface StudyViewService {
     List<CopyNumberCountByGene> getCNAAlterationCountByGenes(List<String> studyIds, List<String> sampleIds, AlterationFilter annotationFilter)
         throws StudyNotFoundException;
 
-    List<GenericAssayDataCountItem> fetchGenericAssayDataCounts(List<String> molecularProfileIds, List<String> sampleIds, List<String> stableIds) throws MolecularProfileNotFoundException;
+    List<GenericAssayDataCountItem> fetchGenericAssayDataCounts(List<String> sampleIds, List<String> studyIds, List<String> stableIds, List<String> profileTypes);
 }

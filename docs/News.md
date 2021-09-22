@@ -1,5 +1,15 @@
+## Sep 22, 2021
+*   **Added data** consisting of 14,844 samples from 7 studies: 
+    * [Colorectal Cancer (MSK, Gastroenterology 2020)](https://www.cbioportal.org/study/summary?id=crc_apc_impact_2020) *471 samples*
+    * [Metastatic Breast Cancer (MSK, Cancer Discovery 2021)](https://www.cbioportal.org/study/summary?id=breast_ink4_msk_2021) *1,365 samples*
+    * [Lung Adenocarcinoma (MSKCC, 2021)](https://www.cbioportal.org/study/summary?id=luad_mskimpact_2021) *186 samples*
+    * [Race Differences in Prostate Cancer (MSK, 2021) ](https://www.cbioportal.org/study/summary?id=prad_msk_stopsack_2021) *2,069 samples*
+    * [Medulloblastoma (DKFZ, Nature 2017)](https://www.cbioportal.org/study/summary?id=mbl_dkfz_2017) *491 samples*
+    * [Thoracic Cancer (MSK, 2021)](https://www.cbioportal.org/study/summary?id=lung_pdx_msk_2021) *68 samples*
+    * [China Pan-cancer (OrigiMed, 2020)](https://www.cbioportal.org/study/summary?id=pan_origimed_2020) *10,194 samples*
+    
 ## June 23, 2021
-*   **Added data** consisting of 1084 samples from 5 studies: 
+*   **Added data** consisting of 1,084 samples from 5 studies: 
     * [Intrahepatic Cholangiocarcinoma (MSK, Hepatology 2021)](https://www.cbioportal.org/study/summary?id=ihch_msk_2021) *412 samples* 
  	* [Intrahepatic Cholangiocarcinoma (Mount Sinai 2015)](https://www.cbioportal.org/study/summary?id=ihch_ismms_2015) *8 samples*
  	* [RAD51B Associated Mixed Cancers (Mandelker 2021](https://www.cbioportal.org/study/summary?id=mixed_msk_tcga_2021) *19 samples*

@@ -59,7 +59,6 @@ The cBioPortal for Cancer Genomics was originally developed at [Memorial Sloan K
 * Olivier Elemento
 
 ## Alumni
-* Karthik Kalletla
 * B. Arman Aksoy
 * Istemi Bahceci
 * Caitlin Byrne
@@ -75,6 +74,7 @@ The cBioPortal for Cancer Genomics was originally developed at [Memorial Sloan K
 * Zachary Heins
 * Michael Heuer
 * Anders Jacobsen
+* Karthik Kalletla
 * Erik Larsson
 * Dong Li
 * Tamba Monrose

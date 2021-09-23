@@ -539,7 +539,7 @@ public class StudyViewController {
         @RequestAttribute(required = false, value = "involvedCancerStudies") Collection<String> involvedCancerStudies,
         @ApiIgnore // prevent reference to this attribute in the swagger-ui interface. this
         // attribute is needed for the @PreAuthorize tag above.
-        @Valid @RequestAttribute(required = false, value = "interceptedGenericAssayDataCountFilter") GenericAssayDataCountFilter interceptedGenericAssayDataCountFilter) throws MolecularProfileNotFoundException {
+        @Valid @RequestAttribute(required = false, value = "interceptedGenericAssayDataCountFilter") GenericAssayDataCountFilter interceptedGenericAssayDataCountFilter) {
 
         List<GenericAssayDataFilter> gaFilters = interceptedGenericAssayDataCountFilter.getGenericAssayDataFilters();
         StudyViewFilter studyViewFilter = interceptedGenericAssayDataCountFilter.getStudyViewFilter();
@@ -557,16 +557,13 @@ public class StudyViewController {
         
         List<String> studyIds = new ArrayList<>();
         List<String> sampleIds = new ArrayList<>();
-        List<String> molecularProfileIds = new ArrayList<>();
         studyViewFilterUtil.extractStudyAndSampleIds(filteredSampleIdentifiers, studyIds, sampleIds);
-        List<MolecularProfile> molecularProfiles = molecularProfileService.getMolecularProfilesInStudies(studyIds,
-            "SUMMARY");
-        studyViewFilterUtil.extractMolecularProfileIdsFromFilters(gaFilters, molecularProfiles, molecularProfileIds);
         
         List<GenericAssayDataCountItem> result = studyViewService.fetchGenericAssayDataCounts(
-            molecularProfileIds, 
-            sampleIds, 
-            gaFilters.stream().map(GenericAssayDataFilter::getStableId).collect(Collectors.toList()));
+            sampleIds,
+            studyIds,
+            gaFilters.stream().map(GenericAssayDataFilter::getStableId).collect(Collectors.toList()),
+            gaFilters.stream().map(GenericAssayDataFilter::getProfileType).collect(Collectors.toList()));
 
         return new ResponseEntity<>(result, HttpStatus.OK);
     }

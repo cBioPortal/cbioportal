@@ -250,16 +250,6 @@ public class StudyViewFilterUtil {
 
         return combinedResult;
     }
-
-    public void extractMolecularProfileIdsFromFilters(List<GenericAssayDataFilter> gaFilters, List<MolecularProfile> molecularProfiles, List<String> molecularProfileIds) {
-        Map<String, List<MolecularProfile>> molecularProfileMap = molecularProfileUtil.categorizeMolecularProfilesByStableIdSuffixes(molecularProfiles);
-        molecularProfileIds.addAll(gaFilters
-            .stream()
-            .map(f ->  molecularProfileMap.getOrDefault(f.getProfileType(), Collections.emptyList()))
-            .flatMap(porfiles -> porfiles.stream().map(MolecularProfile::getStableId))
-            .collect(Collectors.toList())
-        );
-    }
     
     private List<ClinicalData> filterClinicalDataByStudyAndSampleAndAttribute(
         List<ClinicalData> clinicalData,

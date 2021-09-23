@@ -259,8 +259,10 @@ public class StudyViewServiceImplTest extends BaseServiceImplTest {
     public void fetchGenericAssayDataCounts() throws Exception {
 
         List<String> stableIds = Arrays.asList(BaseServiceImplTest.STABLE_ID_1, BaseServiceImplTest.STABLE_ID_2);
-        List<String> molecularProfileIds = Arrays.asList(BaseServiceImplTest.MOLECULAR_PROFILE_ID);
+        List<String> molecularProfileIds = Collections.nCopies(3, BaseServiceImplTest.STUDY_ID + "_" + BaseServiceImplTest.MOLECULAR_PROFILE_ID_A);
         List<String> sampleIds = Arrays.asList(BaseServiceImplTest.SAMPLE_ID1, BaseServiceImplTest.SAMPLE_ID2, BaseServiceImplTest.SAMPLE_ID3);
+        List<String> studyIds = Collections.nCopies(3, BaseServiceImplTest.STUDY_ID);
+        List<String> profileTypes = Arrays.asList(BaseServiceImplTest.MOLECULAR_PROFILE_ID_A);
 
         List<GenericAssayData> gaDataList = new ArrayList<>();
         GenericAssayData gaData1 = new GenericAssayData();
@@ -302,6 +304,15 @@ public class StudyViewServiceImplTest extends BaseServiceImplTest {
         Mockito.when(genericAssayService.fetchGenericAssayData(molecularProfileIds, sampleIds, stableIds, "SUMMARY"))
             .thenReturn(gaDataList);
 
+        List<MolecularProfile> molecularProfiles = new ArrayList<>();
+        MolecularProfile molecularProfile = new MolecularProfile();
+        molecularProfile.setCancerStudyIdentifier(BaseServiceImplTest.STUDY_ID);
+        molecularProfile.setStableId(BaseServiceImplTest.STUDY_ID + "_" + BaseServiceImplTest.MOLECULAR_PROFILE_ID_A);
+        molecularProfiles.add(molecularProfile);
+        
+        Mockito.when(molecularProfileService.getMolecularProfilesInStudies(studyIds, "SUMMARY"))
+            .thenReturn(molecularProfiles);
+
         List<GenericAssayDataCountItem> expectedCountItems = new ArrayList<>();
         GenericAssayDataCountItem countItem1 = new GenericAssayDataCountItem();
         countItem1.setStableId(BaseServiceImplTest.STABLE_ID_1);
@@ -325,7 +336,7 @@ public class StudyViewServiceImplTest extends BaseServiceImplTest {
         countItem2.setCounts(Arrays.asList(count3, count4));
         expectedCountItems.add(countItem2);
         
-        List<GenericAssayDataCountItem> result = studyViewService.fetchGenericAssayDataCounts(molecularProfileIds, sampleIds, stableIds);
+        List<GenericAssayDataCountItem> result = studyViewService.fetchGenericAssayDataCounts(sampleIds, studyIds, stableIds, profileTypes);
 
         Assert.assertEquals(2, result.size());
 

@@ -673,7 +673,7 @@ public class StudyViewControllerTest {
         genericAssayDataCountItem.setCounts(genericAssayDataCounts);
         genericAssayDataCountItems.add(genericAssayDataCountItem);
 
-        Mockito.when(studyViewService.fetchGenericAssayDataCounts(anyList(), anyList(),
+        Mockito.when(studyViewService.fetchGenericAssayDataCounts(anyList(), anyList(), anyList(),
             anyList())).thenReturn(genericAssayDataCountItems);
 
         GenericAssayDataCountFilter genericAssayDataCountFilter = new GenericAssayDataCountFilter();

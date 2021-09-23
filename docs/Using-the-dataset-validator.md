@@ -21,7 +21,7 @@ This will tell you the parameters you can use:
 usage: validateData.py [-h] -s STUDY_DIRECTORY
                        [-u URL_SERVER | -p PORTAL_INFO_DIR | -n]
                        [-P PORTAL_PROPERTIES] [-html HTML_TABLE]
-                       [-e ERROR_FILE] [-v] [-r] [-m] [-a MAX_REPORTED_VALUES]
+                       [-e ERROR_FILE] [-v] [-r] [-m]
 
 cBioPortal study validator
 
@@ -51,12 +51,6 @@ optional arguments:
   -m, --strict_maf_checks
                         Option to enable strict mode for validator when validating
                         mutation data
-  -a MAX_REPORTED_VALUES, --max_reported_values MAX_REPORTED_VALUES
-                        Cutoff in HTML report for the maximum number of line
-                        numbers and values encountered to report for each
-                        message. For example, set this to a high number to
-                        report all genes that could not be loaded, instead of
-                        reporting "GeneA, GeneB, GeneC, 213 more"
 ```
 
 For more information on the `--portal_info_dir` option, see [Offline validation](#offline-validation) below. If your cBioPortal is not using `hg19`, 
@@ -801,7 +795,7 @@ The following parameters can be used:
 usage: validateStudies.py [-h] [-d ROOT_DIRECTORY] [-l LIST_OF_STUDIES]
                           [-html HTML_FOLDER]
                           [-u URL_SERVER | -p PORTAL_INFO_DIR | -n]
-                          [-P PORTAL_PROPERTIES] [-m] [-a MAX_REPORTED_VALUES]
+                          [-P PORTAL_PROPERTIES] [-m]
 
 Wrapper where cBioPortal study validator is run for multiple studies
 
@@ -826,12 +820,6 @@ optional arguments:
   -m, --strict_maf_checks
                         Option to enable strict mode for validator when
                         validating mutation data
-  -a MAX_REPORTED_VALUES, --max_reported_values MAX_REPORTED_VALUES
-                        Cutoff in HTML report for the maximum number of line
-                        numbers and values encountered to report for each
-                        message. For example, set this to a high number to
-                        report all genes that could not be loaded, instead of
-                        reporting "GeneA, GeneB, GeneC, 213 more"
 ```
 
 Parameters `--url_server`, `--portal_info_dir`, `--no_portal_checks` and `--portal_properties` are equal to the parameters with the same name in `validateData.py`. The script will save a log file with validation output (`log-validate-studies.txt`) and output the validation status from the input studies:

@@ -128,6 +128,7 @@
                 <th>Column Number</th>
                 <th>Message</th>
                 <th>Value Encountered</th>
+                <th></th>
               </tr>
             </thead>
             <tbody>
@@ -144,11 +145,8 @@
               <tr class="{{ record_class }}">
                 {% macro format_aggregated(record, attr_name) %}
                     {% if record[attr_name + '_list'] is defined -%}
-                      {% if (record['show_all_values'] is not defined or record['show_all_values'] == False) and (record[attr_name + '_list']|length) > max_reported_values -%}
-                              {{ (record[attr_name + '_list'][:max_reported_values]|join(', ') +
-                                  ', (' +
-                                  record[attr_name + '_list'][max_reported_values:]|length|string +
-                                  ' more)')|e }}
+                      {% if (record['show_all_values'] is not defined or record['show_all_values'] == False) and (record[attr_name + '_list']|length) > 3 -%}
+                              {{ record[attr_name + '_list'][:3]|join(', ')|e }}{{ '&hellip;' }}
                           {%- else -%}
                                   {{ (record[attr_name + '_list']|join(', '))|e }}
                           {%- endif %}	          
@@ -167,6 +165,48 @@
                 {% endif %}
                 <td>{{ record.getMessage()|e }}</td>
                 <td>{{ format_aggregated(record, 'cause') }}</td>
+                {% macro create_modal(filename, record, attr_name, num_record) %}
+                    {% if record[attr_name + '_list'] is defined -%}
+                      {% if (record['show_all_values'] is not defined or record['show_all_values'] == False) and (record[attr_name + '_list']|length) > 3 -%}
+                        <!-- Trigger/Open The Modal -->
+                        {% set num_values = record[attr_name + '_list']|length|string %}
+                        {% set modal_name = "modal" + filename.rsplit('.', 1)[0] + num_record + attr_name %}
+                        <a href="#showValues" data-toggle="modal" data-backdrop="false" data-target=".{{ modal_name }}">See all {{ num_values }} values </a>
+
+                        <div class="modal fade {{ modal_name }}" tabindex="-1" role="dialog" aria-labelledby="myLargeModalLabel">
+                          <div class="modal-dialog modal-lg" role="document">
+                            <div class="modal-content">
+                              <div class="modal-header">
+                                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                                <h4 class="modal-title" id="gridSystemModalLabel">Listing all values for the message: {{ record.getMessage()|e }}</h4>
+                              </div>
+                              <div class="modal-body">
+                                <table class="table">
+                                  <thead>
+                                    <tr>
+                                      <th>Line Number</th>
+                                      <th>Column Number</th>
+                                      <th>Value Encountered</th>
+                                    </tr>
+                                  </thead>
+                                  <tbody>
+                                    {% for value in record[attr_name + '_list'] %}
+                                      <tr>
+                                        <td>{{ value[0]|e if  value[0] is not none else '&ndash;' }}</td>
+                                        <td>{{ value[1]|e if  value[1] is not none else '&ndash;' }}</td>
+                                        <td>{{ value[2]|e if  value[2] is not none else '&ndash;' }}</td>
+                                      </tr>
+                                    {% endfor %}
+                                  </tbody>
+                                </table>
+                              </div>
+                            </div>
+                          </div>
+                        </div>
+                      {%- endif %}
+                    {%- endif %}
+                {% endmacro %}
+                <td>{{ create_modal(filename, record, 'value', loop.index|string) }}</td>
               </tr>
               {% endfor %}
             </tbody>

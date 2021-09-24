@@ -30,15 +30,13 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package org.cbioportal.persistence.mybatis.util;
+package org.cbioportal.persistence.cachemaputil;
 
 import java.util.Map;
 import org.cbioportal.model.CancerStudy;
 import org.cbioportal.model.MolecularProfile;
 import org.cbioportal.model.SampleList;
 import org.cbioportal.utils.config.annotation.ConditionalOnExpression;
-import org.cbioportal.utils.security.PortalSecurityConfig;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
 @Component

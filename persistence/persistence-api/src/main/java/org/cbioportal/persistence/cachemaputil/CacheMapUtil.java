@@ -1,4 +1,4 @@
-package org.cbioportal.persistence.mybatis.util;
+package org.cbioportal.persistence.cachemaputil;
 
 import org.cbioportal.model.CancerStudy;
 import org.cbioportal.model.MolecularProfile;

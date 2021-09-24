@@ -1,6 +1,6 @@
 package org.cbioportal.service.impl;
 
-import org.cbioportal.persistence.mybatis.util.StaticRefCacheMapUtil;
+import org.cbioportal.persistence.cachemaputil.StaticRefCacheMapUtil;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;

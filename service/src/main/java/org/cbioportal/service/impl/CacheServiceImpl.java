@@ -1,7 +1,7 @@
 package org.cbioportal.service.impl;
 
-import org.cbioportal.persistence.mybatis.util.CacheMapUtil;
-import org.cbioportal.persistence.mybatis.util.StaticRefCacheMapUtil;
+import org.cbioportal.persistence.cachemaputil.CacheMapUtil;
+import org.cbioportal.persistence.cachemaputil.StaticRefCacheMapUtil;
 import org.cbioportal.service.CacheService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cache.CacheManager;

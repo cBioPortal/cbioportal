@@ -30,13 +30,12 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package org.cbioportal.persistence.mybatis.util;
+package org.cbioportal.persistence.cachemaputil;
 
 import org.cbioportal.model.CancerStudy;
 import org.cbioportal.model.MolecularProfile;
 import org.cbioportal.model.SampleList;
 import org.cbioportal.utils.config.annotation.ConditionalOnExpression;
-import org.cbioportal.utils.security.PortalSecurityConfig;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;

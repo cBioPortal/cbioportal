@@ -1,4 +1,4 @@
-package org.cbioportal.persistence.mybatis.util;
+package org.cbioportal.persistence.cachemaputil;
 
 import java.util.function.Function;
 import java.util.stream.Collectors;

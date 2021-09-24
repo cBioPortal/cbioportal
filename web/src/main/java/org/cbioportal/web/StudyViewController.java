@@ -6,6 +6,8 @@ import io.swagger.annotations.ApiParam;
 
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.math.NumberUtils;
+import org.apache.commons.math3.stat.correlation.PearsonsCorrelation;
+import org.apache.commons.math3.stat.correlation.SpearmansCorrelation;
 import org.cbioportal.model.*;
 import org.cbioportal.service.*;
 import org.cbioportal.service.exception.MolecularProfileNotFoundException;
@@ -274,12 +276,28 @@ public class StudyViewController {
         }
         return genomicDataCounts;
     }
+    
+    private static boolean isLogScalePossibleForAttribute(String clinicalAttributeId) {
+        return clinicalAttributeId.equals("MUTATION_COUNT");
+    }
+
+    private static double logScale(double val) {
+        return Math.log(1+val);
+    }
+    
+    private static double parseValueLog(ClinicalData c) {
+        return StudyViewController.logScale(Double.parseDouble(c.getAttrValue()));
+    }
+    
+    private static double parseValueLinear(ClinicalData c) {
+        return Double.parseDouble(c.getAttrValue());
+    }
 
     @PreAuthorize("hasPermission(#involvedCancerStudies, 'Collection<CancerStudyId>', 'read')")
     @RequestMapping(value = "/clinical-data-density-plot/fetch", method = RequestMethod.POST,
         consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
     @ApiOperation("Fetch clinical data density plot bins by study view filter")
-    public ResponseEntity<List<DensityPlotBin>> fetchClinicalDataDensityPlot(
+    public ResponseEntity<DensityPlotData> fetchClinicalDataDensityPlot(
         @ApiParam(required = true, value = "Clinical Attribute ID of the X axis")
         @RequestParam String xAxisAttributeId,
         @ApiParam("Number of the bins in X axis")
@@ -296,6 +314,10 @@ public class StudyViewController {
         @RequestParam(required = false) BigDecimal yAxisStart,
         @ApiParam("Starting point of the Y axis, if different than largest value")
         @RequestParam(required = false) BigDecimal yAxisEnd,
+        @ApiParam(value="Use log scale for X axis")
+        @RequestParam(required = false, defaultValue = "false") Boolean xAxisLogScale,
+        @ApiParam(value="Use log scale for Y axis", defaultValue = "false")
+        @RequestParam(required = false, defaultValue = "false") Boolean yAxisLogScale,
         @ApiIgnore // prevent reference to this attribute in the swagger-ui interface
         @RequestAttribute(required = false, value = "involvedCancerStudies") Collection<String> involvedCancerStudies,
         @ApiIgnore // prevent reference to this attribute in the swagger-ui interface. this attribute is needed for the @PreAuthorize tag above.
@@ -306,7 +328,8 @@ public class StudyViewController {
         List<String> studyIds = new ArrayList<>();
         List<String> sampleIds = new ArrayList<>();
         studyViewFilterUtil.extractStudyAndSampleIds(studyViewFilterApplier.apply(interceptedStudyViewFilter), studyIds, sampleIds);
-        List<DensityPlotBin> result = new ArrayList<>();
+        DensityPlotData result = new DensityPlotData();
+        result.setBins(new ArrayList<>());
         if (sampleIds.isEmpty()) {
             return new ResponseEntity<>(result, HttpStatus.OK);
         }
@@ -390,26 +413,39 @@ public class StudyViewController {
         
         Map<Boolean, List<ClinicalData>> partition = filteredClinicalDataList.stream().collect(
             Collectors.partitioningBy(c -> c.getAttrId().equals(xAxisAttributeId)));
-        double[] xValues = partition.get(true).stream().mapToDouble(c -> Double.parseDouble(c.getAttrValue())).toArray();
-        double[] yValues = partition.get(false).stream().mapToDouble(c -> Double.parseDouble(c.getAttrValue())).toArray();
+
+        boolean useXLogScale = xAxisLogScale && StudyViewController.isLogScalePossibleForAttribute(xAxisAttributeId);
+        boolean useYLogScale = yAxisLogScale && StudyViewController.isLogScalePossibleForAttribute(yAxisAttributeId);
+        
+        double[] xValues = partition.get(true).stream().mapToDouble(
+            useXLogScale ? StudyViewController::parseValueLog : StudyViewController::parseValueLinear
+        ).toArray();
+        double[] yValues = partition.get(false).stream().mapToDouble(
+            useYLogScale ? StudyViewController::parseValueLog : StudyViewController::parseValueLinear
+        ).toArray();
         double[] xValuesCopy = Arrays.copyOf(xValues, xValues.length);
         double[] yValuesCopy = Arrays.copyOf(yValues, yValues.length);
         Arrays.sort(xValuesCopy);
         Arrays.sort(yValuesCopy);
 
-        double xAxisStartValue = xAxisStart == null ? xValuesCopy[0] : xAxisStart.doubleValue();
-        double xAxisEndValue = xAxisEnd == null ? xValuesCopy[xValuesCopy.length - 1] : xAxisEnd.doubleValue();
-        double yAxisStartValue = yAxisStart == null ? yValuesCopy[0] : yAxisStart.doubleValue();
-        double yAxisEndValue = yAxisEnd == null ? yValuesCopy[yValuesCopy.length - 1] : yAxisEnd.doubleValue();
+        double xAxisStartValue = xAxisStart == null ? xValuesCopy[0] :
+            (useXLogScale ? StudyViewController.logScale(xAxisStart.doubleValue()) : xAxisStart.doubleValue());
+        double xAxisEndValue = xAxisEnd == null ? xValuesCopy[xValuesCopy.length - 1] :
+            (useXLogScale ? StudyViewController.logScale(xAxisEnd.doubleValue()) : xAxisEnd.doubleValue());
+        double yAxisStartValue = yAxisStart == null ? yValuesCopy[0] :
+            (useYLogScale ? StudyViewController.logScale(yAxisStart.doubleValue()) : yAxisStart.doubleValue());
+        double yAxisEndValue = yAxisEnd == null ? yValuesCopy[yValuesCopy.length - 1] :
+            (useYLogScale ? StudyViewController.logScale(yAxisEnd.doubleValue()) : yAxisEnd.doubleValue());
         double xAxisBinInterval = (xAxisEndValue - xAxisStartValue) / xAxisBinCount;
         double yAxisBinInterval = (yAxisEndValue - yAxisStartValue) / yAxisBinCount;
+        List<DensityPlotBin> bins = result.getBins();
         for (int i = 0; i < xAxisBinCount; i++) {
             for (int j = 0; j < yAxisBinCount; j++) {
                 DensityPlotBin densityPlotBin = new DensityPlotBin();
                 densityPlotBin.setBinX(new BigDecimal(xAxisStartValue + (i * xAxisBinInterval)));
                 densityPlotBin.setBinY(new BigDecimal(yAxisStartValue + (j * yAxisBinInterval)));
                 densityPlotBin.setCount(0);
-                result.add(densityPlotBin);
+                bins.add(densityPlotBin);
             }
         }
 
@@ -420,7 +456,7 @@ public class StudyViewController {
             int yBinIndex = (int) ((yValue - yAxisStartValue) / yAxisBinInterval);
             int index = (int) (((xBinIndex - (xBinIndex == xAxisBinCount ? 1 : 0)) * yAxisBinCount) +
                 (yBinIndex - (yBinIndex == yAxisBinCount ? 1 : 0)));
-            DensityPlotBin densityPlotBin = result.get(index);
+            DensityPlotBin densityPlotBin = bins.get(index);
             densityPlotBin.setCount(densityPlotBin.getCount() + 1);
             BigDecimal xValueBigDecimal = new BigDecimal(xValue);
             BigDecimal yValueBigDecimal = new BigDecimal(yValue);
@@ -453,6 +489,9 @@ public class StudyViewController {
                 densityPlotBin.setMaxY(yValueBigDecimal);
             }
         }
+        
+        result.setPearsonCorr(new PearsonsCorrelation().correlation(xValues, yValues)); 
+        result.setSpearmanCorr(new SpearmansCorrelation().correlation(xValues, yValues));
 
         return new ResponseEntity<>(result, HttpStatus.OK);
     }

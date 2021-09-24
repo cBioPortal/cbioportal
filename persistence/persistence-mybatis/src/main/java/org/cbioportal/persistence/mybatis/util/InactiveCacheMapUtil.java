@@ -48,9 +48,6 @@ public class InactiveCacheMapUtil implements CacheMapUtil {
 
     // Since user-permission evaluation is not needed when this bean is present, throw an error when it is accessed.
     
-    @Value("${authenticate}")
-    private String authenticate;
-    
     @Override
     public Map<String, MolecularProfile> getMolecularProfileMap() {
         throw new RuntimeException("A CacheMapUtils method was called on a portal where studies are accessible to all users.");
@@ -71,9 +68,10 @@ public class InactiveCacheMapUtil implements CacheMapUtil {
         throw new RuntimeException("A CacheMapUtils method was called on a portal where studies are accessible to all users.");
     }
 
+    //  bean is only instantiated when there is no user authorization
     @Override
     public boolean hasCacheEnabled() {
-        return PortalSecurityConfig.userAuthorizationEnabled(authenticate);
+        return false;
     }
 
 }

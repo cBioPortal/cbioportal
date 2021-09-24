@@ -60,9 +60,6 @@ public class SpringManagedCacheMapUtil implements CacheMapUtil {
     @Value("${cache.cache-map-utils.spring-managed}")
     private boolean springManagedCacheMapUtils;
 
-    @Value("${authenticate}")
-    private String authenticate;
-    
     @Autowired
     private CacheMapBuilder cacheMapBuilder;
     
@@ -107,9 +104,10 @@ public class SpringManagedCacheMapUtil implements CacheMapUtil {
         return cacheMapBuilder.buildGenericAssayStableIdToMolecularProfileIdMap();
     }
 
+    //  bean is only instantiated when there is user authorization
     @Override
     public boolean hasCacheEnabled() {
-        return PortalSecurityConfig.userAuthorizationEnabled(authenticate);
+        return true;
     }
 
 }

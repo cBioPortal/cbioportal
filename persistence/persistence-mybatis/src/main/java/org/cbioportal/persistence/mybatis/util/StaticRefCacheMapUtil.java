@@ -53,9 +53,6 @@ public class StaticRefCacheMapUtil implements CacheMapUtil {
 
     private static final Logger LOG = LoggerFactory.getLogger(StaticRefCacheMapUtil.class);
 
-    @Value("${authenticate}")
-    private String authenticate;
-
     @Autowired
     private CacheMapBuilder cacheMapBuilder;
 
@@ -104,9 +101,10 @@ public class StaticRefCacheMapUtil implements CacheMapUtil {
         return genericAssayStableIdToMolecularProfileIdCache;
     }
 
+    //  bean is only instantiated when there is user authorization
     @Override
     public boolean hasCacheEnabled() {
-        return PortalSecurityConfig.userAuthorizationEnabled(authenticate);
+        return true;
     }
 
 }

@@ -484,15 +484,15 @@ ehcache.static_repository_cache_one.max_mega_bytes_local_disk=
 
 For more information on Ehcache, refer to the official documentation [here](https://www.ehcache.org/documentation/3.7/index.html)
 
-# Flush caches with the _/api/cache_ endpoint
+# Evict caches with the _/api/cache_ endpoint
 
 `DELETE` http requests to the `/api/cache` endpoint will flush the cBioPortal caches, and serves as an alternative to restarting
 the cBioPortal application.
 
-By default the endpoint is enabled. The endpoint can be disabled by setting:
+By default the endpoint is disabled. The endpoint can be enabled by setting:
 
 ```
-cache.endpoint.enable=false
+cache.endpoint.enable=true
 ```
 
 Access to the endpoint is not regulated by the configured user authorization mechanism. Instead, an API key should be passed

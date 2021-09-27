@@ -3,8 +3,8 @@ package org.cbioportal.web.util;
 import java.util.*;
 import java.util.stream.Collectors;
 
-import org.apache.commons.collections.CollectionUtils;
-import org.apache.commons.collections.map.MultiKeyMap;
+import org.apache.commons.collections4.CollectionUtils;
+import org.apache.commons.collections4.map.MultiKeyMap;
 import org.cbioportal.model.ClinicalData;
 import org.cbioportal.model.ClinicalDataBin;
 import org.cbioportal.model.ClinicalDataCount;

@@ -1,6 +1,6 @@
 package org.cbioportal.service.impl;
 
-import org.apache.commons.collections.map.MultiKeyMap;
+import org.apache.commons.collections4.map.MultiKeyMap;
 import org.apache.commons.lang3.StringUtils;
 import org.cbioportal.model.*;
 import org.cbioportal.model.util.Select;

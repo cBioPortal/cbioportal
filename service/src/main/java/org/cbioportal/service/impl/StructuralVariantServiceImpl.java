@@ -23,7 +23,7 @@
 
 package org.cbioportal.service.impl;
 
-import org.apache.commons.collections.CollectionUtils;
+import org.apache.commons.collections4.CollectionUtils;
 import org.cbioportal.model.GeneFilterQuery;
 import org.cbioportal.model.StructuralVariant;
 import org.cbioportal.persistence.MutationRepository;

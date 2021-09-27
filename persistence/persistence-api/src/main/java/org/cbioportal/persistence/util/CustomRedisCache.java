@@ -21,7 +21,7 @@ public class CustomRedisCache extends AbstractValueAdaptingCache {
 
     private final String name;
     private final long ttlMinutes;
-    private final RedissonClient store;
+    private final RedissonClient redissonClient;
 
     /**
      * Create a new ConcurrentMapCache with the specified name.
@@ -30,7 +30,7 @@ public class CustomRedisCache extends AbstractValueAdaptingCache {
     public CustomRedisCache(String name, RedissonClient client, long ttlMinutes) {
         super(true);
         this.name = name;
-        this.store = client;
+        this.redissonClient = client;
         this.ttlMinutes = ttlMinutes;
     }
 
@@ -39,15 +39,14 @@ public class CustomRedisCache extends AbstractValueAdaptingCache {
         return name;
     }
 
-    @Override
     public final RedissonClient getNativeCache() {
-        return this.store;
+        return this.redissonClient;
     }
 
     @Override
     @Nullable
     protected Object lookup(Object key) {
-        Object value = this.store.getBucket(name + DELIMITER + key).get();
+        Object value = this.redissonClient.getBucket(name + DELIMITER + key).get();
         if (value != null){
             value = fromStoreValue(value);
             asyncRefresh(key);
@@ -57,14 +56,14 @@ public class CustomRedisCache extends AbstractValueAdaptingCache {
     
     private void asyncRefresh(Object key) {
         if (ttlMinutes != INFINITE_TTL) {
-            this.store.getBucket(name + DELIMITER + key).expireAsync(ttlMinutes, TimeUnit.MINUTES);
+            this.redissonClient.getBucket(name + DELIMITER + key).expireAsync(ttlMinutes, TimeUnit.MINUTES);
         }
     }
 
     @Override
     @Nullable
     public <T> T get(Object key, Callable<T> valueLoader) {
-        Object zippedValue = this.store.getBucket(name + DELIMITER + key).get();
+        Object zippedValue = this.redissonClient.getBucket(name + DELIMITER + key).get();
         T value = null;
         if (zippedValue != null) {
             value = (T) fromStoreValue(zippedValue);
@@ -80,9 +79,9 @@ public class CustomRedisCache extends AbstractValueAdaptingCache {
     @Override
     public void put(Object key, @Nullable Object value) {
         if (ttlMinutes == INFINITE_TTL) {
-            this.store.getBucket(name + DELIMITER + key).setAsync(toStoreValue(value));
+            this.redissonClient.getBucket(name + DELIMITER + key).setAsync(toStoreValue(value));
         } else {
-            this.store.getBucket(name + DELIMITER + key).setAsync(toStoreValue(value), ttlMinutes, TimeUnit.MINUTES);
+            this.redissonClient.getBucket(name + DELIMITER + key).setAsync(toStoreValue(value), ttlMinutes, TimeUnit.MINUTES);
         }
     }
 
@@ -99,24 +98,33 @@ public class CustomRedisCache extends AbstractValueAdaptingCache {
     }
 
     @Override
-    public void evict(Object key) {
-        // no op: Redis handles evictions
+    public void evict(Object pattern) {
+        evictIfPresent(pattern);
     }
 
     @Override
-    public boolean evictIfPresent(Object key) {
-        // no op: Redis handles evictions
+    public boolean evictIfPresent(Object pattern) {
+        // Pattern is expected to be a regular expression
+        if (pattern instanceof String) {
+            String[] keys = redissonClient.getKeys().getKeysStream()
+                .filter(key -> key.startsWith(name))
+                .filter(key -> key.matches((String) pattern))
+                .toArray(String[]::new);
+            return redissonClient.getKeys().delete(keys) > 0;
+        } else {
+            LOG.warn("Pattern passed for cache key eviction is not of String type. Cache eviction could not be performed.");
+        }
         return false;
     }
 
     @Override
     public void clear() {
-        this.store.getKeys().deleteByPattern(name + DELIMITER + "*");
+        this.redissonClient.getKeys().deleteByPattern(name + DELIMITER + "*");
     }
 
     @Override
     public boolean invalidate() {
-        return this.store.getKeys().deleteByPattern(name + DELIMITER + "*") > 0;
+        return this.redissonClient.getKeys().deleteByPattern(name + DELIMITER + "*") > 0;
     }
 
     @Override

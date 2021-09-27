@@ -32,26 +32,32 @@
 
 package org.cbioportal.persistence.util;
 
-import java.lang.reflect.Method;
-import java.util.Arrays;
-import java.util.stream.Collectors;
-
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import org.cbioportal.model.CancerStudy;
 import org.cbioportal.model.util.Select;
 import org.cbioportal.persistence.CacheEnabledConfig;
+import org.cbioportal.persistence.StudyRepository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cache.interceptor.KeyGenerator;
 import org.springframework.util.DigestUtils;
 
+import java.lang.reflect.Method;
+import java.util.Arrays;
+import java.util.stream.Collectors;
+
 
 public class CustomKeyGenerator implements KeyGenerator {
-    public static final String DELIMITER = "_";
+    public static final String CACHE_KEY_PARAM_DELIMITER = "_";
+    public static final int PARAM_LENGTH_HASH_LIMIT = 1024;
 
     @Autowired
     private CacheEnabledConfig cacheEnabledConfig;
+
+    @Autowired
+    private StudyRepository studyRepository;
     
     private static final ObjectMapper mapper = new ObjectMapper();
 
@@ -61,11 +67,11 @@ public class CustomKeyGenerator implements KeyGenerator {
         if (!cacheEnabledConfig.isEnabled()) {
             return "";
         }
-        String key = target.getClass().getSimpleName() + DELIMITER
-            + method.getName() + DELIMITER
+        String key = target.getClass().getSimpleName() + CACHE_KEY_PARAM_DELIMITER
+            + method.getName() + CACHE_KEY_PARAM_DELIMITER
             + Arrays.stream(params)
                 .map(this::exceptionlessWrite)
-                .collect(Collectors.joining(DELIMITER));
+                .collect(Collectors.joining(CACHE_KEY_PARAM_DELIMITER));
         LOG.debug("Created key: " + key);
         return key;
     }
@@ -78,12 +84,19 @@ public class CustomKeyGenerator implements KeyGenerator {
         }
         try {
             String json = mapper.writeValueAsString(toSerialize);
-            if (json.length() > 1024) {
-                // hash long keys
-                return DigestUtils.md5DigestAsHex(json.getBytes());
+            if (json.length() > PARAM_LENGTH_HASH_LIMIT) {
+                // To allow study-specific cache eviction, extract relevant
+                // study identifiers and add these to the cache keys.
+                String matchedStudyIds = studyRepository.getAllStudies(null, "SUMMARY", null, null, null, null)
+                    .stream()
+                    .map(CancerStudy::getCancerStudyIdentifier)
+                    .distinct()
+                    .filter(json::contains)
+                    .collect(Collectors.joining(CACHE_KEY_PARAM_DELIMITER));
+                return matchedStudyIds + CACHE_KEY_PARAM_DELIMITER + DigestUtils.md5DigestAsHex(json.getBytes());
             } else {
                 // leave short keys intact, but remove semicolons to make things look cleaner in redis
-                return json.replaceAll(":", DELIMITER);
+                return json.replaceAll(":", CACHE_KEY_PARAM_DELIMITER);
             }
         } catch (JsonProcessingException e) {
             LOG.error("Could not serialize param to string: ", e);

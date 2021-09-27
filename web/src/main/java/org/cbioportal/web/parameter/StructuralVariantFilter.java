@@ -26,7 +26,7 @@ package org.cbioportal.web.parameter;
 import javax.validation.constraints.AssertTrue;
 import javax.validation.constraints.Size;
 
-import org.apache.commons.collections.CollectionUtils;
+import org.apache.commons.collections4.CollectionUtils;
 
 import java.io.Serializable;
 import java.util.List;

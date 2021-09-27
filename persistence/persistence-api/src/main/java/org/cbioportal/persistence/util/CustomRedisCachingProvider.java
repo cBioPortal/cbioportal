@@ -44,9 +44,6 @@ public class CustomRedisCachingProvider {
 
     private static final Logger LOG = LoggerFactory.getLogger(CustomRedisCachingProvider.class);
 
-    @Value("${persistence.cache_type:no-cache}")
-    private String cacheType;
-
     @Value("${redis.name:cbioportal}")
     private String redisName;
 

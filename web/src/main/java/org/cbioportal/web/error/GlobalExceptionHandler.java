@@ -169,6 +169,12 @@ public class GlobalExceptionHandler {
         return new ResponseEntity<>(new ErrorResponse("No cache found with name " + ex.getCacheName()),
             HttpStatus.NOT_FOUND);
     }
+    
+    @ExceptionHandler(CacheOperationException.class)
+    public ResponseEntity<ErrorResponse> handleCacheOperationException(CacheNotFoundException ex) {
+        ErrorResponse response = new ErrorResponse("Error evicting caches. Please try again or validate correct operation of your configured caching implementation.");
+        return new ResponseEntity<>(response, HttpStatus.INTERNAL_SERVER_ERROR);
+    }
 
     @ExceptionHandler(GenericAssayNotFoundException.class)
     public ResponseEntity<ErrorResponse> handleGenericAssayNotFound(GenericAssayNotFoundException ex) {

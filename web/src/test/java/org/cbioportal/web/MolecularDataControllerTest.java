@@ -2,9 +2,6 @@ package org.cbioportal.web;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.cbioportal.model.GeneMolecularData;
-import org.cbioportal.model.MolecularProfile;
-import org.cbioportal.model.meta.BaseMeta;
-import org.cbioportal.persistence.mybatis.util.CacheMapUtil;
 import org.cbioportal.service.MolecularDataService;
 import org.cbioportal.web.parameter.MolecularDataFilter;
 import org.cbioportal.web.parameter.MolecularDataMultipleStudyFilter;
@@ -30,7 +27,6 @@ import org.springframework.web.context.WebApplicationContext;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
-import java.util.HashMap;
 
 @RunWith(SpringJUnit4ClassRunner.class)
 @WebAppConfiguration

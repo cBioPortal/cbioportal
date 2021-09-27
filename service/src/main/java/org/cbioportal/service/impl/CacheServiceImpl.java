@@ -1,6 +1,7 @@
 package org.cbioportal.service.impl;
 
-import org.cbioportal.persistence.mybatis.util.CacheMapUtil;
+import org.cbioportal.persistence.cachemaputil.CacheMapUtil;
+import org.cbioportal.persistence.cachemaputil.StaticRefCacheMapUtil;
 import org.cbioportal.service.CacheService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cache.CacheManager;
@@ -24,7 +25,10 @@ public class CacheServiceImpl implements CacheService {
                 .forEach(cacheName -> cacheManager.getCache(cacheName).clear());
         
         // Flush cache used for user permission evaluation.
-        cacheMapUtil.initializeCacheMemory();
+        // Only needed when using cache not managed by the Spring caches.
+        if (cacheMapUtil instanceof StaticRefCacheMapUtil) {
+            ((StaticRefCacheMapUtil) cacheMapUtil).initializeCacheMemory();
+        }
         
         // Note: DAO classes in package org.mskcc.cbio.portal.dao do have their own
         // caching strategy. Since these classes are only used by the deprecated old

@@ -1,6 +1,6 @@
 package org.cbioportal.service.impl;
 
-import org.cbioportal.persistence.mybatis.util.CacheMapUtil;
+import org.cbioportal.persistence.cachemaputil.StaticRefCacheMapUtil;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -25,13 +25,13 @@ public class CacheServiceImplTest {
     private CacheManager cacheManager;
 
     @Mock
-    private CacheMapUtil cacheMapUtil;
+    private StaticRefCacheMapUtil cacheMapUtil;
     private Cache mockCache;
 
     @Before
     public void init() {
         mockCache = mock(Cache.class);
-        when(cacheManager.getCacheNames()).thenReturn(Arrays.asList(new String[]{"name_1", "name_2"}));
+        when(cacheManager.getCacheNames()).thenReturn(Arrays.asList("name_1", "name_2"));
         when(cacheManager.getCache(anyString())).thenReturn(mockCache);
     }
 

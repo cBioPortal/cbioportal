@@ -36,7 +36,7 @@ import java.io.Serializable;
 import java.util.*;
 import org.apache.commons.logging.*;
 import org.cbioportal.model.*;
-import org.cbioportal.persistence.mybatis.util.CacheMapUtil;
+import org.cbioportal.persistence.cachemaputil.CacheMapUtil;
 import org.springframework.beans.factory.annotation.*;
 import org.springframework.security.access.PermissionEvaluator;
 import org.springframework.security.core.Authentication;
@@ -220,7 +220,7 @@ class CancerStudyPermissionEvaluator implements PermissionEvaluator {
      * Helper function to determine if given user has access to given cancer study.
      *
      * @param cancerStudy cancer study to check for
-     * @param user Spring Authentication of the logged-in user.
+     * @param authentication Spring Authentication of the logged-in user.
      * @return boolean
      */
     private boolean hasAccessToCancerStudy(Authentication authentication, CancerStudy cancerStudy) {

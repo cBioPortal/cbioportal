@@ -11,6 +11,7 @@ import org.cbioportal.service.exception.PatientNotFoundException;
 import org.cbioportal.service.exception.SampleNotFoundException;
 import org.cbioportal.service.exception.StudyNotFoundException;
 import org.cbioportal.service.SampleService;
+import org.cbioportal.utils.security.PortalSecurityConfig;
 import org.cbioportal.web.config.PublicApiTags;
 import org.cbioportal.web.config.annotation.PublicApi;
 import org.cbioportal.web.parameter.*;
@@ -48,6 +49,8 @@ public class SampleController {
     public static final int SAMPLE_MAX_PAGE_SIZE = 10000000;
     private static final String SAMPLE_DEFAULT_PAGE_SIZE = "10000000";
 
+    @Value("${authenticate}")
+    private String authenticate;
     
     @Autowired
     private SampleService sampleService;
@@ -57,15 +60,6 @@ public class SampleController {
 
     @Autowired
     private UniqueKeyExtractor uniqueKeyExtractor;
-
-    @Value("${authenticate:false}")
-    private String authenticate;
-    
-    private boolean usingAuth() {
-        return !authenticate.isEmpty()
-                && !authenticate.equals("false")
-                && !authenticate.contains("social_auth");
-    }
     
     @RequestMapping(value = "/samples", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
     @ApiOperation("Get all samples matching keyword")
@@ -93,7 +87,7 @@ public class SampleController {
     ) {
         String sort = sortBy == null ? null : sortBy.getOriginalValue();
         List<String> studyIds = null;
-        if (usingAuth()) {
+        if (PortalSecurityConfig.userAuthorizationEnabled(authenticate)) {
             /*
              If using auth, filter the list of samples returned using the list of study ids the
              user has access to. If the user has access to no studies, the endpoint should not 403,

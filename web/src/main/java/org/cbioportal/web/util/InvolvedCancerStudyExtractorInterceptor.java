@@ -43,7 +43,7 @@ import org.cbioportal.model.AlterationFilter;
 import org.cbioportal.model.MolecularProfile;
 import org.cbioportal.model.MolecularProfileCaseIdentifier;
 import org.cbioportal.model.SampleList;
-import org.cbioportal.persistence.mybatis.util.CacheMapUtil;
+import org.cbioportal.persistence.cachemaputil.CacheMapUtil;
 import org.cbioportal.web.parameter.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -790,4 +790,5 @@ public class InvolvedCancerStudyExtractorInterceptor extends HandlerInterceptorA
         extractCancerStudyIdsFromMolecularProfileIds(molecularProfileIds, studyIdSet);
         return studyIdSet;
     }
+
 }

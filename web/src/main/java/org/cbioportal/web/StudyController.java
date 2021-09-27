@@ -7,6 +7,7 @@ import org.cbioportal.model.CancerStudy;
 import org.cbioportal.model.CancerStudyTags;
 import org.cbioportal.service.StudyService;
 import org.cbioportal.service.exception.StudyNotFoundException;
+import org.cbioportal.utils.security.PortalSecurityConfig;
 import org.cbioportal.web.config.PublicApiTags;
 import org.cbioportal.web.config.annotation.PublicApi;
 import org.cbioportal.web.parameter.Direction;
@@ -49,17 +50,15 @@ import java.util.Map;
 @Validated
 @Api(tags = PublicApiTags.STUDIES, description = " ")
 public class StudyController {
-    @Value("${authenticate:false}")
-    private String authenticate;
 
     @Value("${app.name:unknown}")
     private String appName;
-    
-    private boolean usingAuth() {
-        return !authenticate.isEmpty()
-            && !authenticate.equals("false")
-            && !authenticate.contains("social_auth");
-    }
+
+    @Value("${authenticate}")
+    private String authenticate;
+
+    @Autowired
+    private StudyService studyService;
     
     // This is a stop-gap solution because this endpoint needs caching
     // Right now this method has spontaneous performance problems
@@ -69,16 +68,13 @@ public class StudyController {
     
     @PostConstruct
     private void warmDefaultResponseCache() {
-        if (!usingAuth()) {
+        if (!PortalSecurityConfig.userAuthorizationEnabled(authenticate)) {
             defaultResponse = studyService.getAllStudies(
                 null, Projection.SUMMARY.name(),
                 10000000, 0,
                 null, Direction.ASC.name());
         }
     }
-
-    @Autowired
-    private StudyService studyService;
 
     @RequestMapping(value = "/studies", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
     @ApiOperation("Get all studies")
@@ -102,7 +98,7 @@ public class StudyController {
         // Only use this feature on the public portal and make sure it is never used
         // on portals using auth, as in auth setting, different users will have different
         // results.
-        if (!usingAuth()
+        if (!PortalSecurityConfig.userAuthorizationEnabled(authenticate)
                 && appName.equals("public-portal")
                 && keyword == null
                 && projection == Projection.SUMMARY

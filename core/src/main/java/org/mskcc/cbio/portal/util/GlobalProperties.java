@@ -484,11 +484,12 @@ public class GlobalProperties {
 		return (studies.length > 0) ? Arrays.asList(studies) : Collections.<String>emptyList();
 	}
 
-    // CHANGES TO THIS LIST MUST BE PROPAGATED TO 'CacheMapUtil'
+    // This method is the equivalent of @portalSecurityConfig.userAuthorizationEnabled()
+    // method in the org.cbioportal.utils package. Update both when changes are needed.
     public static boolean usersMustAuthenticate()
     {
         // authentication for social_auth/social_auth_google/social_auth_microsoft is optional
-        return (!authenticate.isEmpty() && !authenticate.equals("false") && !authenticate.contains("social_auth"));
+        return (!authenticate.isEmpty() && !authenticate.equals("noauthsessionservice") && !authenticate.equals("false") && !authenticate.contains("social_auth"));
     }
 
     public static String authenticationMethod()

@@ -79,7 +79,7 @@ public class GenericAssayControllerTest {
         mockMvc = MockMvcBuilders.webAppContextSetup(wac).build();
     }
 
-    @Test	
+    @Test
     public void testGenericAssayDataFetch() throws Exception {	
         List<GenericAssayData> genericAssayDataItems = createGenericAssayDataItemsList();	
         Mockito.when(genericAssayService.fetchGenericAssayData(Mockito.anyString(), Mockito.anyList(),	

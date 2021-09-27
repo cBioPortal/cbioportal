@@ -72,3 +72,20 @@ Additionally, new properties for setting cache sizes should be added to `portal.
 For more information on cache templates and the Ehcache xml configuration file, refer to the documentation [here](https://www.ehcache.org/documentation/3.7/xml.html). 
 
 For more information on linking caches to functions, refer to the documentation [here](https://spring.io/guides/gs/caching/).
+
+## User-authorization cache
+
+In addition to the above-mentioned Spring-managed caches, cBioPortal maintains a separate cache that holds references to
+sample lists, molecular profiles and cancer studies. This user-authorization cache is used to establish
+whether a user has access to the data of a particular sample list or molecular profile based on study-level permissions.
+
+By default, the user-authorization cache is implemented as a HashMap that is populated when cBioPortal is started. This
+implementation allows for very fast response times of user-permission evaluation.
+
+The user-authorization cache can be delegated to the Spring-managed caching solution by setting the [cache.cache-map-utils.spring-managed](portal.properties-Reference.md#externalize-study-data-for-user-authorization-evaluation)
+to _true_. Depending on the implementation, this may add a delay to any data request that is caused by the additional consultation
+of the external cache. This configuration should only be used where a central caching solution is required or no
+instance/container-specific local caches are allowed. For example, cache eviction via the `api/cache` endpoint in a Kubernetes
+deployment of cBioPortal where multiple pods/containers that represent a single cBioPortal instance is possible with a
+Spring-managed user-authorization cache because a call to this endpoint in a single pod/container invalidates Redis caches
+for the entire deployment thereby preventing inconsistent state of user-authorization caches between pods.

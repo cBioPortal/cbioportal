@@ -28,7 +28,6 @@
     </modules>
 
     <properties>
-        <spring-boot.repackage.skip>true</spring-boot.repackage.skip>
         <maven.compiler.source>11</maven.compiler.source>
         <maven.compiler.target>11</maven.compiler.target>
         <frontend.version>7e8d755d2538e124147ad983f4caa38ef0992f6b</frontend.version>

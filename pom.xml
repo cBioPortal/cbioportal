@@ -6,31 +6,33 @@
         <artifactId>spring-boot-starter-parent</artifactId>
         <version>2.5.4</version>
     </parent>
-    <groupId>org.cbioportal</groupId>
-    <artifactId>cbioportal</artifactId>
-    <version>0.0.1-SNAPSHOT</version>
-    <name>cbioportal</name>
-    <description>Demo project for Spring Boot</description>
     <modelVersion>4.0.0</modelVersion>
+    <version>0.0.1-SNAPSHOT</version>
     <packaging>pom</packaging>
+    
+    <artifactId>master</artifactId>
+    <groupId>org.cbioportal</groupId>
+    
+    <description>Demo project for Spring Boot</description>
 
     <modules>
         <module>persistence</module>
         <module>model</module>
         <module>utils</module>
         <module>security</module>
-        <module>core</module>
         <module>web</module>
         <module>service</module>
         <module>db-scripts</module>
+        <module>portal</module>
+        <module>core</module>
     </modules>
 
     <properties>
         <spring-boot.repackage.skip>true</spring-boot.repackage.skip>
-        <project.version>3.7.4</project.version>
-        <java.version>11</java.version>
-<!--        <frontend.version>7e8d755d2538e124147ad983f4caa38ef0992f6b</frontend.version>-->
-<!--        <frontend.groupId>com.github.cbioportal</frontend.groupId>-->
+        <maven.compiler.source>11</maven.compiler.source>
+        <maven.compiler.target>11</maven.compiler.target>
+        <frontend.version>7e8d755d2538e124147ad983f4caa38ef0992f6b</frontend.version>
+        <frontend.groupId>com.github.cbioportal</frontend.groupId>
 <!--        <spring.version>5.2.6.RELEASE</spring.version>-->
 <!--        <spring.integration.version>5.3.0.RELEASE</spring.integration.version>-->
 <!--        <spring.security.version>5.3.1.RELEASE</spring.security.version>-->
@@ -70,7 +72,7 @@
 <!--        <tomcat.session.timeout>720</tomcat.session.timeout>-->
 
 <!--        &lt;!&ndash; THIS SHOULD BE KEPT IN SYNC TO VERSION IN CGDS.SQL &ndash;&gt;-->
-<!--        <db.version>2.12.10</db.version>-->
+        <db.version>2.12.10</db.version>
     </properties>
     <dependencies>
         <dependency>
@@ -85,10 +87,62 @@
     </dependencies>
 
     <build>
+    
+        <resources>
+            <resource>
+                <directory>src/main/resources</directory>
+                <filtering>true</filtering>
+                <includes>
+                    <include>**/*.properties</include>
+                    <include>**/*.xml</include>
+                </includes>
+            </resource>
+        </resources>
+
         <plugins>
             <plugin>
                 <groupId>org.springframework.boot</groupId>
                 <artifactId>spring-boot-maven-plugin</artifactId>
+            </plugin>
+            <!-- write git version properties file (git.properties) -->
+            <plugin>
+                <groupId>io.github.git-commit-id</groupId>
+                <artifactId>git-commit-id-maven-plugin</artifactId>
+                <version>5.0.0</version>
+                <executions>
+                    <execution>
+                        <id>get-the-git-infos</id>
+                        <phase>initialize</phase>
+                        <goals>
+                            <goal>revision</goal>
+                        </goals>
+                    </execution>
+                    <execution>
+                        <id>validate-the-git-infos</id>
+                        <phase>package</phase>
+                        <goals>
+                            <goal>validateRevision</goal>
+                        </goals>
+                    </execution>
+                </executions>
+                <configuration>
+                    <dotGitDirectory>${project.basedir}/.git</dotGitDirectory>
+                    <generateGitPropertiesFile>true</generateGitPropertiesFile>
+                    <generateGitPropertiesFilename>${project.build.outputDirectory}/git.properties</generateGitPropertiesFilename>
+                    <commitIdGenerationMode>full</commitIdGenerationMode>
+                </configuration>
+            </plugin>
+            <!-- add git version information to the POM so that jars can have the correct version suffix-->
+            <plugin>
+                <groupId>com.github.cbioportal.maven-external-version</groupId>
+                <artifactId>maven-external-version-plugin</artifactId>
+                <version>f09c2b9608744881111f24e55d55a91e54e6cb5f</version>
+                <extensions>true</extensions>
+                <configuration>
+                    <strategy hint="script">
+                        <script>./version.sh</script>
+                    </strategy>
+                </configuration>
             </plugin>
         </plugins>
     </build>
@@ -193,6 +247,11 @@
             <dependency>
                 <groupId>org.cbioportal</groupId>
                 <artifactId>service</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.cbioportal</groupId>
+                <artifactId>core</artifactId>
                 <version>${project.version}</version>
             </dependency>
 <!--            TODO remove dependency on Junit 4 (Spring boot uses Junit 5 by default)-->
@@ -504,6 +563,12 @@
                 <groupId>com.google.guava</groupId>
                 <artifactId>guava</artifactId>
                 <version>29.0-jre</version>
+            </dependency>
+            <dependency>
+                <groupId>jstl</groupId>
+                <artifactId>jstl</artifactId>
+                <version>1.2</version>
+                <scope>runtime</scope>
             </dependency>
         </dependencies>
     </dependencyManagement>

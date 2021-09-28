@@ -77,6 +77,49 @@
     </dependencies>
 
     <build>
+        <resources>
+            <resource>
+                <directory>src/main/resources</directory>
+                <filtering>true</filtering>
+                <excludes>
+                    <exclude>**/*.jks</exclude>
+                    <exclude>artwork/**</exclude>
+                    <exclude>content/**</exclude>
+                    <exclude>tutorials/**</exclude>
+                </excludes>
+            </resource>
+            <resource>
+                <directory>src/main/resources</directory>
+                <filtering>false</filtering>
+                <includes>
+                    <include>**/*.jks</include>
+                    <include>**/applicationContext-security.xml</include>
+                </includes>
+            </resource>
+            <resource>
+                <directory>src/main/webapp/jsp</directory>
+                <filtering>true</filtering>
+                <includes>
+                    <include>**/footer.jsp</include>
+                </includes>
+            </resource>
+            <resource>
+                <directory>src/main/webapp</directory>
+                <filtering>false</filtering>
+                <includes>
+                    <include>**/*</include>
+                </includes>
+                <excludes>
+                    <exclude>**/footer.jsp</exclude>
+                </excludes>
+            </resource>
+            <resource>
+                <directory>${project.parent.basedir}/db-scripts/src/main/resources</directory>
+                <targetPath>db-scripts</targetPath>
+                <filtering>true</filtering>
+            </resource>
+        </resources>
+    
         <plugins>
             <plugin>
                 <groupId>org.springframework.boot</groupId>
@@ -92,27 +135,11 @@
                     </execution>
                 </executions>
             </plugin>
-<!--            <plugin>-->
-<!--                <groupId>org.apache.maven.plugins</groupId>-->
-<!--                <artifactId>maven-dependency-plugin</artifactId>-->
-<!--                <executions>-->
-<!--                    <execution>-->
-<!--                        <phase>package</phase>-->
-<!--                        <goals>-->
-<!--                            <goal>copy</goal>-->
-<!--                        </goals>-->
-<!--                        <configuration>-->
-<!--                            <artifactItems>-->
-<!--                                <artifactItem>-->
-<!--                                    <groupId>com.heroku</groupId>-->
-<!--                                    <artifactId>webapp-runner</artifactId>-->
-<!--                                    <version>${webapp-runner.version}</version>-->
-<!--                                    <destFileName>webapp-runner.jar</destFileName>-->
-<!--                                </artifactItem>-->
-<!--                            </artifactItems>-->
-<!--                        </configuration>-->
-<!--                    </execution>-->
-<!--                    &lt;!&ndash; unpack cbioportal-frontend &ndash;&gt;-->
+            <!-- unpack cbioportal-frontend -->
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-dependency-plugin</artifactId>
+                <executions>
 <!--                    <execution>-->
 <!--                        <id>unpack</id>-->
 <!--                        <phase>prepare-package</phase>-->
@@ -126,15 +153,15 @@
 <!--                                    <artifactId>cbioportal-frontend</artifactId>-->
 <!--                                    <version>${frontend.version}</version>-->
 <!--                                    <type>jar</type>-->
-<!--                                    <outputDirectory>.</outputDirectory>-->
+<!--                                    <outputDirectory>${project.build.directory}/classes</outputDirectory>-->
 <!--                                    <excludes>*index*</excludes>-->
 <!--                                    <overWrite>true</overWrite>-->
 <!--                                </artifactItem>-->
 <!--                            </artifactItems>-->
 <!--                        </configuration>-->
 <!--                    </execution>-->
-<!--                </executions>-->
-<!--            </plugin>-->
+                </executions>
+            </plugin>
 <!--            &lt;!&ndash; war plugin config &ndash;&gt;-->
 <!--            <plugin>-->
 <!--                <groupId>org.apache.maven.plugins</groupId>-->

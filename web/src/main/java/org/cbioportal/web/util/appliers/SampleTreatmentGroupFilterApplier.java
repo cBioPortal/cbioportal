@@ -1,12 +1,7 @@
 package org.cbioportal.web.util.appliers;
 
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-import java.util.stream.Collectors;
-
-import org.cbioportal.model.SampleTreatmentRow;
 import org.cbioportal.model.ClinicalEventKeyCode;
+import org.cbioportal.model.SampleTreatmentRow;
 import org.cbioportal.service.TreatmentService;
 import org.cbioportal.web.parameter.SampleIdentifier;
 import org.cbioportal.web.parameter.StudyViewFilter;
@@ -14,20 +9,24 @@ import org.cbioportal.web.parameter.filter.AndedSampleTreatmentFilters;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.stream.Collectors;
+
 @Component
-public class SampleTreatmentFilterApplier extends StudyViewSubFilterApplier {
+public class SampleTreatmentGroupFilterApplier extends StudyViewSubFilterApplier {
     @Autowired
     TreatmentService treatmentService;
 
     @Autowired
     TreatmentRowExtractor treatmentRowExtractor;
 
-    @Override
     public List<SampleIdentifier> filter (
         List<SampleIdentifier> identifiers,
         StudyViewFilter filter
     ) {
-        AndedSampleTreatmentFilters filters = filter.getSampleTreatmentFilters();
+        AndedSampleTreatmentFilters filters = filter.getSampleTreatmentGroupFilters();
         
         List<String> sampleIds = identifiers.stream()
             .map(SampleIdentifier::getSampleId)
@@ -37,7 +36,7 @@ public class SampleTreatmentFilterApplier extends StudyViewSubFilterApplier {
             .collect(Collectors.toList());
 
         Map<String, Set<String>> rows = 
-            treatmentService.getAllSampleTreatmentRows(sampleIds, studyIds, ClinicalEventKeyCode.Agent)
+            treatmentService.getAllSampleTreatmentRows(sampleIds, studyIds, ClinicalEventKeyCode.AgentClass)
             .stream()
             .collect(Collectors.toMap(SampleTreatmentRow::key, treatmentRowExtractor::extractSamples));
 
@@ -49,8 +48,8 @@ public class SampleTreatmentFilterApplier extends StudyViewSubFilterApplier {
     @Override
     public boolean shouldApplyFilter(StudyViewFilter studyViewFilter) {
         return (
-            studyViewFilter.getSampleTreatmentFilters() != null &&
-            !studyViewFilter.getSampleTreatmentFilters().getFilters().isEmpty()
+            studyViewFilter.getSampleTreatmentGroupFilters() != null &&
+            !studyViewFilter.getSampleTreatmentGroupFilters().getFilters().isEmpty()
         );
     }
 }

@@ -11,7 +11,7 @@ import java.util.Set;
 public class AndedPatientTreatmentFilters {
     private List<OredPatientTreatmentFilters> filters;
 
-    public boolean filter(SampleIdentifier sampleId, Map<String, Map<String, Boolean>> treatments) {
+    public boolean filter(SampleIdentifier sampleId, Map<String, Set<String>> treatments) {
         if (filters == null || filters.isEmpty()) {
             return true;
         }

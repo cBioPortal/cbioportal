@@ -5,6 +5,7 @@ import org.cbioportal.model.SampleTreatmentRow;
 import org.cbioportal.model.TemporalRelation;
 import org.cbioportal.service.TreatmentService;
 import org.cbioportal.web.parameter.SampleIdentifier;
+import org.cbioportal.web.parameter.StudyViewFilter;
 import org.cbioportal.web.parameter.filter.AndedSampleTreatmentFilters;
 import org.cbioportal.web.parameter.filter.OredSampleTreatmentFilters;
 import org.cbioportal.web.parameter.filter.SampleTreatmentFilter;
@@ -12,10 +13,7 @@ import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.mockito.InjectMocks;
-import org.mockito.Mock;
-import org.mockito.Mockito;
-import org.mockito.MockitoAnnotations;
+import org.mockito.*;
 import org.mockito.junit.MockitoJUnitRunner;
 
 import java.util.ArrayList;
@@ -33,6 +31,9 @@ public class SampleTreatmentFilterApplierTest {
     @Mock
     TreatmentService treatmentService;
 
+    @Spy
+    TreatmentRowExtractor treatmentRowExtractor;
+
     @InjectMocks
     SampleTreatmentFilterApplier subject;
 
@@ -44,15 +45,15 @@ public class SampleTreatmentFilterApplierTest {
     @Test
     public void filterEmptyList() {
         List<SampleIdentifier> samples = new ArrayList<>();
-        AndedSampleTreatmentFilters andedFilters = createAndedFilters(
+        StudyViewFilter andedFilters = createAndedFilters(
             Arrays.asList(new Pair<>("Fakeazil", Pre), new Pair<>("Madeupanib", Post)),
             Arrays.asList(new Pair<>("Fabricada", Pre), new Pair<>("Fakeamab", Post))
         );
         Mockito
-            .when(treatmentService.getAllSampleTreatmentRows(Mockito.anyList(), Mockito.anyList()))
+            .when(treatmentService.getAllSampleTreatmentRows(Mockito.anyList(), Mockito.anyList(), Mockito.any()))
             .thenReturn(new ArrayList<>());
 
-        List<SampleIdentifier> actual = subject.filter(andedFilters, samples);
+        List<SampleIdentifier> actual = subject.filter(samples, andedFilters);
         List<SampleIdentifier> expected = new ArrayList<>();
 
         Assert.assertEquals(expected, actual);
@@ -66,15 +67,15 @@ public class SampleTreatmentFilterApplierTest {
             createSampleId("SA_2", "ST_1"),
             createSampleId("SA_3", "ST_1")
         );
-        AndedSampleTreatmentFilters andedFilters = createAndedFilters(
+        StudyViewFilter andedFilters = createAndedFilters(
             Arrays.asList(new Pair<>("Improvizox", Pre), new Pair<>("Madeupanib", Post)),
             Arrays.asList(new Pair<>("Fabricada", Pre), new Pair<>("Fakeamab", Post))
         );
         Mockito
-            .when(treatmentService.getAllSampleTreatmentRows(Mockito.anyList(), Mockito.anyList()))
+            .when(treatmentService.getAllSampleTreatmentRows(Mockito.anyList(), Mockito.anyList(), Mockito.any()))
             .thenReturn(new ArrayList<>());
 
-        List<SampleIdentifier> actual = subject.filter(andedFilters, samples);
+        List<SampleIdentifier> actual = subject.filter(samples, andedFilters);
         List<SampleIdentifier> expected = new ArrayList<>();
 
         Assert.assertEquals(expected, actual);
@@ -88,7 +89,7 @@ public class SampleTreatmentFilterApplierTest {
             createSampleId("SA_2", "ST_1"),
             createSampleId("SA_3", "ST_1")
         );
-        AndedSampleTreatmentFilters andedFilters = createAndedFilters(
+        StudyViewFilter andedFilters = createAndedFilters(
             // so each sample needs to be...
             // before Improvizox or after Madeupanib
             Arrays.asList(new Pair<>("Improvizox", Pre), new Pair<>("Madeupanib", Post)),
@@ -96,7 +97,7 @@ public class SampleTreatmentFilterApplierTest {
             Arrays.asList(new Pair<>("Fabricada", Pre), new Pair<>("Fakeamab", Post))
         );
         Mockito
-            .when(treatmentService.getAllSampleTreatmentRows(Mockito.anyList(), Mockito.anyList()))
+            .when(treatmentService.getAllSampleTreatmentRows(Mockito.anyList(), Mockito.anyList(), Mockito.any()))
             .thenReturn(Arrays.asList(
                 new SampleTreatmentRow(Pre, "Improvizox", 2, toSet(createEvent("SA_0", "ST_0"), createEvent("SA_1", "ST_0"))),
                 new SampleTreatmentRow(Post, "Fakeamab", 2,  toSet(createEvent("SA_0", "ST_0"), createEvent("SA_1", "ST_0"))),
@@ -104,7 +105,7 @@ public class SampleTreatmentFilterApplierTest {
                 new SampleTreatmentRow(Pre, "Fabricada", 2, toSet(createEvent("SA_2", "ST_1"), createEvent("SA_3", "ST_1")))
             ));
 
-        List<SampleIdentifier> actual = subject.filter(andedFilters, samples);
+        List<SampleIdentifier> actual = subject.filter(samples, andedFilters);
         List<SampleIdentifier> expected = Arrays.asList(
             createSampleId("SA_0", "ST_0"),
             createSampleId("SA_1", "ST_0"),
@@ -130,14 +131,17 @@ public class SampleTreatmentFilterApplierTest {
     }
 
     @SafeVarargs
-    private final AndedSampleTreatmentFilters createAndedFilters(List<Pair<String, TemporalRelation>>... treatments) {
+    private final StudyViewFilter createAndedFilters(List<Pair<String, TemporalRelation>>... treatments) {
         AndedSampleTreatmentFilters andedFilters = new AndedSampleTreatmentFilters();
         List<OredSampleTreatmentFilters> oredFilters = Arrays.stream(treatments)
             .map(this::createOredFilters)
             .collect(Collectors.toList());
         andedFilters.setFilters(oredFilters);
 
-        return andedFilters;
+        StudyViewFilter filter = new StudyViewFilter();
+        filter.setSampleTreatmentFilters(andedFilters);
+
+        return filter;
     }
 
     private OredSampleTreatmentFilters createOredFilters(List<Pair<String, TemporalRelation>> treatments) {

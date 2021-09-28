@@ -13,8 +13,7 @@ import org.cbioportal.service.*;
 import org.cbioportal.service.exception.MolecularProfileNotFoundException;
 import org.cbioportal.service.util.MolecularProfileUtil;
 import org.cbioportal.web.parameter.*;
-import org.cbioportal.web.util.appliers.PatientTreatmentFilterApplier;
-import org.cbioportal.web.util.appliers.SampleTreatmentFilterApplier;
+import org.cbioportal.web.util.appliers.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.context.ApplicationContext;
@@ -27,9 +26,16 @@ public class StudyViewFilterApplier {
     @Autowired
     private ApplicationContext applicationContext;
     StudyViewFilterApplier instance;
+    private List<? extends StudyViewSubFilterApplier> subFilterAppliers = new ArrayList<>();
     @PostConstruct
     private void init() {
         instance = applicationContext.getBean(StudyViewFilterApplier.class);
+        subFilterAppliers = Arrays.asList(
+            sampleTreatmentFilterApplier,
+            sampleTreatmentGroupFilterApplier,
+            patientTreatmentFilterApplier,
+            patientTreatmentGroupFilterApplier
+        );
     }
 
     @Autowired
@@ -63,11 +69,15 @@ public class StudyViewFilterApplier {
     @Autowired
     private PatientTreatmentFilterApplier patientTreatmentFilterApplier;
     @Autowired
+    private PatientTreatmentGroupFilterApplier patientTreatmentGroupFilterApplier;
+    @Autowired
     private StructuralVariantService structuralVariantService;
     @Autowired
     private CustomDataFilterApplier customDataFilterApplier;
     @Autowired
     private SampleTreatmentFilterApplier sampleTreatmentFilterApplier;
+    @Autowired
+    private SampleTreatmentGroupFilterApplier sampleTreatmentGroupFilterApplier;
     @Autowired
     private MolecularProfileUtil molecularProfileUtil;
 
@@ -267,26 +277,16 @@ public class StudyViewFilterApplier {
             }
         }
 
-        if (
-            studyViewFilter.getSampleTreatmentFilters() != null &&
-            !studyViewFilter.getSampleTreatmentFilters().getFilters().isEmpty()
-        ) {
-            sampleIdentifiers = sampleTreatmentFilterApplier.filter(
-                studyViewFilter.getSampleTreatmentFilters(),
-                sampleIdentifiers
-            );
+        return chainSubFilters(studyViewFilter, sampleIdentifiers);
+    }
+    
+    private List<SampleIdentifier> chainSubFilters(StudyViewFilter studyViewFilter, List<SampleIdentifier> sampleIdentifiers) {
+        for (StudyViewSubFilterApplier subFilterApplier : subFilterAppliers) {
+            if (subFilterApplier.shouldApplyFilter(studyViewFilter)) {
+                sampleIdentifiers = subFilterApplier.filter(sampleIdentifiers, studyViewFilter);
+            }
         }
-
-        if (
-            studyViewFilter.getPatientTreatmentFilters() != null &&
-            !studyViewFilter.getPatientTreatmentFilters().getFilters().isEmpty()
-        ) {
-            sampleIdentifiers = patientTreatmentFilterApplier.filter(
-                sampleIdentifiers,
-                studyViewFilter.getPatientTreatmentFilters()
-            );
-        }
-
+        
         return sampleIdentifiers;
     }
 

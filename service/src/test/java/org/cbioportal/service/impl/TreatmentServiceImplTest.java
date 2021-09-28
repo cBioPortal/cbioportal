@@ -24,7 +24,7 @@ public class TreatmentServiceImplTest {
 
     @Mock
     private TreatmentRepository treatmentRepository;
-
+    
     @Test
     public void getAllSampleTreatmentsSingleRow() {
         mockTreatmentsByPatient(
@@ -37,8 +37,8 @@ public class TreatmentServiceImplTest {
 
         PatientTreatmentRow rowA = makePatientRow("madeupanib", 1, Collections.singletonList("S0"), Collections.singletonList("P0"));
         List<PatientTreatmentRow> expected = Collections.singletonList(rowA);
-        List<PatientTreatmentRow> actual = treatmentService.getAllPatientTreatmentRows(null, null);
-        
+        List<PatientTreatmentRow> actual = treatmentService.getAllPatientTreatmentRows(null, null, ClinicalEventKeyCode.Agent);
+
         Assert.assertEquals(new HashSet<>(expected), new HashSet<>(actual));
     }
 
@@ -57,7 +57,7 @@ public class TreatmentServiceImplTest {
         PatientTreatmentRow rowA = makePatientRow("fakedrugazol", 1, Collections.singletonList("S0"), Collections.singletonList("P0"));
         PatientTreatmentRow rowB = makePatientRow("madeupanib", 1, Collections.singletonList("S0"), Collections.singletonList("P0"));
         List<PatientTreatmentRow> expected = Arrays.asList(rowA, rowB);
-        List<PatientTreatmentRow> actual = treatmentService.getAllPatientTreatmentRows(null, null);
+        List<PatientTreatmentRow> actual = treatmentService.getAllPatientTreatmentRows(null, null, ClinicalEventKeyCode.Agent);
 
         Assert.assertEquals(new HashSet<>(expected), new HashSet<>(actual));
     }
@@ -77,7 +77,7 @@ public class TreatmentServiceImplTest {
         // because this is from the patient level, and both samples are for the same patient
         PatientTreatmentRow rowA = makePatientRow("fakedrugazol", 1, Arrays.asList("S0", "S1"), Arrays.asList("P0", "P0"));
         List<PatientTreatmentRow> expected = Collections.singletonList(rowA);
-        List<PatientTreatmentRow> actual = treatmentService.getAllPatientTreatmentRows(null, null);
+        List<PatientTreatmentRow> actual = treatmentService.getAllPatientTreatmentRows(null, null, ClinicalEventKeyCode.Agent);
 
         Assert.assertEquals(new HashSet<>(expected), new HashSet<>(actual));
     }
@@ -97,7 +97,7 @@ public class TreatmentServiceImplTest {
         // now there are two patients, so you expect a count of two
         PatientTreatmentRow rowA = makePatientRow("fakedrugazol", 2, Arrays.asList("S0", "S1"), Arrays.asList("P0", "P1"));
         List<PatientTreatmentRow> expected = Collections.singletonList(rowA);
-        List<PatientTreatmentRow> actual = treatmentService.getAllPatientTreatmentRows(null, null);
+        List<PatientTreatmentRow> actual = treatmentService.getAllPatientTreatmentRows(null, null, ClinicalEventKeyCode.Agent);
 
         Assert.assertEquals(new HashSet<>(expected), new HashSet<>(actual));
     }
@@ -117,7 +117,7 @@ public class TreatmentServiceImplTest {
         PatientTreatmentRow rowA = makePatientRow("fakedrugazol", 1, Collections.singletonList("S0"), Collections.singletonList("P0"));
         PatientTreatmentRow rowB = makePatientRow("madeupanib", 1, Collections.singletonList("S1"), Collections.singletonList("P1"));
         List<PatientTreatmentRow> expected = Arrays.asList(rowA, rowB);
-        List<PatientTreatmentRow> actual = treatmentService.getAllPatientTreatmentRows(null, null);
+        List<PatientTreatmentRow> actual = treatmentService.getAllPatientTreatmentRows(null, null, ClinicalEventKeyCode.Agent);
 
         Assert.assertEquals(new HashSet<>(expected), new HashSet<>(actual));
     }
@@ -133,8 +133,8 @@ public class TreatmentServiceImplTest {
 
         SampleTreatmentRow rowA = makeSampleRow(TemporalRelation.Pre, "fabricatin", 1, Collections.singletonList("S0"), Collections.singletonList("P0"));
         List<SampleTreatmentRow> expected = Collections.singletonList(rowA);
-        List<SampleTreatmentRow> actual = treatmentService.getAllSampleTreatmentRows(null, null);
-        
+        List<SampleTreatmentRow> actual = treatmentService.getAllSampleTreatmentRows(null, null, ClinicalEventKeyCode.Agent);
+
         Assert.assertEquals(new HashSet<>(expected), new HashSet<>(actual));
     }
 
@@ -149,7 +149,7 @@ public class TreatmentServiceImplTest {
 
         SampleTreatmentRow rowA = makeSampleRow(TemporalRelation.Post, "fabricatin", 1, Collections.singletonList("S0"), Collections.singletonList("P0"));
         List<SampleTreatmentRow> expected = Collections.singletonList(rowA);
-        List<SampleTreatmentRow> actual = treatmentService.getAllSampleTreatmentRows(null, null);
+        List<SampleTreatmentRow> actual = treatmentService.getAllSampleTreatmentRows(null, null, ClinicalEventKeyCode.Agent);
 
         Assert.assertEquals(new HashSet<>(expected), new HashSet<>(actual));
     }
@@ -167,7 +167,7 @@ public class TreatmentServiceImplTest {
         SampleTreatmentRow rowA = makeSampleRow(TemporalRelation.Post, "fabricatin", 1, Collections.singletonList("S1"), Collections.singletonList("P0"));
         SampleTreatmentRow rowB = makeSampleRow(TemporalRelation.Pre, "fabricatin", 1, Collections.singletonList("S0"), Collections.singletonList("P0"));
         List<SampleTreatmentRow> expected = Arrays.asList(rowA, rowB);
-        List<SampleTreatmentRow> actual = treatmentService.getAllSampleTreatmentRows(null, null);
+        List<SampleTreatmentRow> actual = treatmentService.getAllSampleTreatmentRows(null, null, ClinicalEventKeyCode.Agent);
 
         Assert.assertEquals(new HashSet<>(expected), new HashSet<>(actual));
     }
@@ -187,7 +187,7 @@ public class TreatmentServiceImplTest {
         SampleTreatmentRow rowA = makeSampleRow(TemporalRelation.Post, "fabricatin", 2, Arrays.asList("S1", "S2"), Arrays.asList("P0", "P0"));
         SampleTreatmentRow rowB = makeSampleRow(TemporalRelation.Pre, "fabricatin", 1, Collections.singletonList("S0"), Collections.singletonList("P0"));
         List<SampleTreatmentRow> expected = Arrays.asList(rowA, rowB);
-        List<SampleTreatmentRow> actual = treatmentService.getAllSampleTreatmentRows(null, null);
+        List<SampleTreatmentRow> actual = treatmentService.getAllSampleTreatmentRows(null, null, ClinicalEventKeyCode.Agent);
 
         Assert.assertEquals(new HashSet<>(expected), new HashSet<>(actual));
     }
@@ -211,7 +211,7 @@ public class TreatmentServiceImplTest {
         SampleTreatmentRow rowC = makeSampleRow(TemporalRelation.Pre, "fauxan", 2, Arrays.asList("S0", "S1"), Arrays.asList("P0", "P0"));
         SampleTreatmentRow rowD = makeSampleRow(TemporalRelation.Post, "fauxan", 1, Collections.singletonList("S2"), Collections.singletonList("P0"));
         List<SampleTreatmentRow> expected = Arrays.asList(rowA, rowB, rowC, rowD);
-        List<SampleTreatmentRow> actual = treatmentService.getAllSampleTreatmentRows(null, null);
+        List<SampleTreatmentRow> actual = treatmentService.getAllSampleTreatmentRows(null, null, ClinicalEventKeyCode.Agent);
 
         Assert.assertEquals(new HashSet<>(expected), new HashSet<>(actual));
     }
@@ -240,7 +240,7 @@ public class TreatmentServiceImplTest {
         SampleTreatmentRow rowC = makeSampleRow(TemporalRelation.Pre, "fauxan", 4, Arrays.asList("S0", "S1", "S3", "S4"), Arrays.asList("P0", "P0", "P1", "P1"));
         SampleTreatmentRow rowD = makeSampleRow(TemporalRelation.Post, "fauxan", 2, Arrays.asList("S2", "S5"), Arrays.asList("P0", "P1"));
         List<SampleTreatmentRow> expected = Arrays.asList(rowA, rowB, rowC, rowD);
-        List<SampleTreatmentRow> actual = treatmentService.getAllSampleTreatmentRows(null, null);
+        List<SampleTreatmentRow> actual = treatmentService.getAllSampleTreatmentRows(null, null, ClinicalEventKeyCode.Agent);
 
         Assert.assertEquals(new HashSet<>(expected), new HashSet<>(actual));
     }
@@ -248,10 +248,10 @@ public class TreatmentServiceImplTest {
     private void mockTreatmentsByPatient(Treatment... treatments) {
         Map<String, List<Treatment>> treatmentsByPatient = Arrays.stream(treatments)
             .collect(Collectors.groupingBy(Treatment::getPatientId));
-        Mockito.when(treatmentRepository.getTreatmentsByPatientId(Mockito.any(), Mockito.any()))
+        Mockito.when(treatmentRepository.getTreatmentsByPatientId(Mockito.any(), Mockito.any(), Mockito.any()))
             .thenReturn(treatmentsByPatient);
     }
-    
+
     private void mockSamplesByPatient(ClinicalEventSample... samples) {
         Map<String, List<ClinicalEventSample>> samplesByPatient = Arrays.stream(samples)
             .collect(Collectors.groupingBy(ClinicalEventSample::getPatientId));
@@ -260,10 +260,10 @@ public class TreatmentServiceImplTest {
         Mockito.when(treatmentRepository.getShallowSamplesByPatientId(Mockito.any(), Mockito.any()))
             .thenReturn(samplesByPatient);
     }
-    
+
     private void mockAllTreatments(String... treatments) {
         Set<String> allTreatments = new HashSet<>(Arrays.asList(treatments));
-        Mockito.when(treatmentRepository.getAllUniqueTreatments(Mockito.any(), Mockito.any()))
+        Mockito.when(treatmentRepository.getAllUniqueTreatments(Mockito.any(), Mockito.any(), Mockito.any()))
             .thenReturn(allTreatments);
     }
 
@@ -276,7 +276,7 @@ public class TreatmentServiceImplTest {
         t.setStop(stop);
         return t;
     }
-    
+
     private ClinicalEventSample makeSample(String sampleId, String patientId, Integer timeTaken) {
         ClinicalEventSample s = new ClinicalEventSample();
         s.setSampleId(sampleId);
@@ -285,7 +285,7 @@ public class TreatmentServiceImplTest {
         s.setTimeTaken(timeTaken);
         return s;
     }
-    
+
     private SampleTreatmentRow makeSampleRow(
         TemporalRelation time,
         String treatment,
@@ -306,7 +306,7 @@ public class TreatmentServiceImplTest {
         }
         return new SampleTreatmentRow(time, treatment, count, new HashSet<>(clinicalSamples));
     }
-    
+
     private PatientTreatmentRow makePatientRow(
         String treatment,
         int count,

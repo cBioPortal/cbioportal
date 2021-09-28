@@ -25,7 +25,9 @@ public class StudyViewFilter implements Serializable {
     private List<ClinicalDataFilter> clinicalDataFilters;
     private List<GeneFilter> geneFilters;
     private AndedSampleTreatmentFilters sampleTreatmentFilters;
+    private AndedSampleTreatmentFilters sampleTreatmentGroupFilters;
     private AndedPatientTreatmentFilters patientTreatmentFilters;
+    private AndedPatientTreatmentFilters patientTreatmentGroupFilters;
 	private List<List<String>> genomicProfiles;
     private List<GenomicDataFilter> genomicDataFilters;
     private List<GenericAssayDataFilter> genericAssayDataFilters;
@@ -166,5 +168,21 @@ public class StudyViewFilter implements Serializable {
 
     public void setAlterationFilter(AlterationFilter alterationFilter) {
         this.alterationFilter = alterationFilter;
+    }
+
+    public AndedSampleTreatmentFilters getSampleTreatmentGroupFilters() {
+        return sampleTreatmentGroupFilters;
+    }
+
+    public void setSampleTreatmentGroupFilters(AndedSampleTreatmentFilters sampleTreatmentGroupFilters) {
+        this.sampleTreatmentGroupFilters = sampleTreatmentGroupFilters;
+    }
+
+    public AndedPatientTreatmentFilters getPatientTreatmentGroupFilters() {
+        return patientTreatmentGroupFilters;
+    }
+
+    public void setPatientTreatmentGroupFilters(AndedPatientTreatmentFilters patientTreatmentGroupFilters) {
+        this.patientTreatmentGroupFilters = patientTreatmentGroupFilters;
     }
 }

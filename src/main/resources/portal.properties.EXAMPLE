@@ -369,3 +369,5 @@ persistence.cache_type=no-cache
 # If blank or commented out, no map will be shown and that page will be hidden.
 # installation_map_url=https://installationmap.netlify.app/
 
+# Feature flag for treatment groups
+# enable_treatment_groups=false

@@ -3,7 +3,7 @@ package org.cbioportal.model;
 import java.util.Objects;
 import java.util.Set;
 
-public class PatientTreatmentRow {
+public class PatientTreatmentRow implements TreatmentRow {
     private String treatment;
     private int count;
     private Set<ClinicalEventSample> samples;
@@ -32,6 +32,7 @@ public class PatientTreatmentRow {
         this.count = count;
     }
 
+    @Override
     public Set<ClinicalEventSample> getSamples() {
         return samples;
     }

@@ -29,7 +29,7 @@ public class SampleListServiceImpl implements SampleListService {
     private String AUTHENTICATE;
 
     @Override
-    @PostFilter("hasPermission(filterObject, 'read')")
+    @PostFilter("hasPermission(filterObject, T(org.cbioportal.utils.security.AccessLevel).READ)")
     public List<SampleList> getAllSampleLists(String projection, Integer pageSize, Integer pageNumber, String sortBy,
                                               String direction) {
         

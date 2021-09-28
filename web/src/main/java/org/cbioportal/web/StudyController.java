@@ -7,6 +7,8 @@ import org.cbioportal.model.CancerStudy;
 import org.cbioportal.model.CancerStudyTags;
 import org.cbioportal.service.StudyService;
 import org.cbioportal.service.exception.StudyNotFoundException;
+import org.cbioportal.utils.security.AccessLevel;
+import org.cbioportal.utils.security.PortalSecurityConfig;
 import org.cbioportal.web.config.PublicApiTags;
 import org.cbioportal.web.config.annotation.PublicApi;
 import org.cbioportal.web.parameter.Direction;
@@ -20,6 +22,7 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.Authentication;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -49,17 +52,18 @@ import java.util.Map;
 @Validated
 @Api(tags = PublicApiTags.STUDIES, description = " ")
 public class StudyController {
-    @Value("${authenticate:false}")
-    private String authenticate;
 
     @Value("${app.name:unknown}")
     private String appName;
-    
-    private boolean usingAuth() {
-        return !authenticate.isEmpty()
-            && !authenticate.equals("false")
-            && !authenticate.contains("social_auth");
-    }
+
+    @Value("${authenticate}")
+    private String authenticate;
+
+    @Value("${skin.home_page.show_unauthorized_studies:false}")
+    private boolean showUnauthorizedStudiesOnHomePage;
+
+    @Autowired
+    private StudyService studyService;
     
     // This is a stop-gap solution because this endpoint needs caching
     // Right now this method has spontaneous performance problems
@@ -69,16 +73,13 @@ public class StudyController {
     
     @PostConstruct
     private void warmDefaultResponseCache() {
-        if (!usingAuth()) {
+        if (!PortalSecurityConfig.userAuthorizationEnabled(authenticate)) {
             defaultResponse = studyService.getAllStudies(
                 null, Projection.SUMMARY.name(),
                 10000000, 0,
-                null, Direction.ASC.name());
+                null, Direction.ASC.name(), null,AccessLevel.READ);
         }
     }
-
-    @Autowired
-    private StudyService studyService;
 
     @RequestMapping(value = "/studies", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
     @ApiOperation("Get all studies")
@@ -97,12 +98,13 @@ public class StudyController {
         @ApiParam("Name of the property that the result list is sorted by")
         @RequestParam(required = false) StudySortBy sortBy,
         @ApiParam("Direction of the sort")
-        @RequestParam(defaultValue = "ASC") Direction direction) {
+        @RequestParam(defaultValue = "ASC") Direction direction,
+        Authentication authentication) {
         
         // Only use this feature on the public portal and make sure it is never used
         // on portals using auth, as in auth setting, different users will have different
         // results.
-        if (!usingAuth()
+        if (!PortalSecurityConfig.userAuthorizationEnabled(authenticate)
                 && appName.equals("public-portal")
                 && keyword == null
                 && projection == Projection.SUMMARY
@@ -121,11 +123,11 @@ public class StudyController {
         } else {
             return new ResponseEntity<>(
                 studyService.getAllStudies(keyword, projection.name(), pageSize, pageNumber,
-                    sortBy == null ? null : sortBy.getOriginalValue(), direction.name()), HttpStatus.OK);
+                    sortBy == null ? null : sortBy.getOriginalValue(), direction.name(), authentication, getAccessLevel()), HttpStatus.OK);
         }
     }
 
-    @PreAuthorize("hasPermission(#studyId, 'CancerStudyId', 'read')")
+    @PreAuthorize("hasPermission(#studyId, 'CancerStudyId', T(org.cbioportal.utils.security.AccessLevel).READ)")
     @RequestMapping(value = "/studies/{studyId}", method = RequestMethod.GET,
         produces = MediaType.APPLICATION_JSON_VALUE)
     @ApiOperation("Get a study")
@@ -136,7 +138,7 @@ public class StudyController {
         return new ResponseEntity<>(studyService.getStudy(studyId), HttpStatus.OK);
     }
 
-    @PreAuthorize("hasPermission(#studyIds, 'Collection<CancerStudyId>', 'read')")
+    @PreAuthorize("hasPermission(#studyIds, 'Collection<CancerStudyId>', T(org.cbioportal.utils.security.AccessLevel).READ)")
     @RequestMapping(value = "/studies/fetch", method = RequestMethod.POST, consumes = MediaType.APPLICATION_JSON_VALUE,
     produces = MediaType.APPLICATION_JSON_VALUE)
     @ApiOperation("Fetch studies by IDs")
@@ -159,7 +161,7 @@ public class StudyController {
 
     }
 
-    @PreAuthorize("hasPermission(#studyId, 'CancerStudyId', 'read')")
+    @PreAuthorize("hasPermission(#studyId, 'CancerStudyId', T(org.cbioportal.utils.security.AccessLevel).READ)")
     @RequestMapping(value = "/studies/{studyId}/tags", method = RequestMethod.GET,
         produces = MediaType.APPLICATION_JSON_VALUE)
     @ApiOperation("Get the tags of a study")
@@ -178,7 +180,7 @@ public class StudyController {
         return new ResponseEntity<>(map, HttpStatus.OK);
     }
 
-    @PreAuthorize("hasPermission(#studyIds, 'Collection<CancerStudyId>', 'read')")
+    @PreAuthorize("hasPermission(#studyIds, 'Collection<CancerStudyId>', T(org.cbioportal.utils.security.AccessLevel).READ)")
     @RequestMapping(value = "/studies/tags/fetch", method = RequestMethod.POST,
         produces = MediaType.APPLICATION_JSON_VALUE)
     @ApiOperation("Get the study tags by IDs")
@@ -189,5 +191,10 @@ public class StudyController {
         List<CancerStudyTags> cancerStudyTags = studyService.getTagsForMultipleStudies(studyIds);
 
         return new ResponseEntity<>(cancerStudyTags, HttpStatus.OK);
+    }
+    
+    private AccessLevel getAccessLevel() {
+        return PortalSecurityConfig.userAuthorizationEnabled(authenticate)
+            && showUnauthorizedStudiesOnHomePage ? AccessLevel.LIST : AccessLevel.READ;
     }
 }

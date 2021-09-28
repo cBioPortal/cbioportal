@@ -38,7 +38,7 @@ public class SignificantCopyNumberRegionController {
     @Autowired
     private SignificantCopyNumberRegionService significantCopyNumberRegionService;
 
-    @PreAuthorize("hasPermission(#studyId, 'CancerStudyId', 'read')")
+    @PreAuthorize("hasPermission(#studyId, 'CancerStudyId', T(org.cbioportal.utils.security.AccessLevel).READ)")
     @RequestMapping(value = "/studies/{studyId}/significant-copy-number-regions", method = RequestMethod.GET,
         produces = MediaType.APPLICATION_JSON_VALUE)
     @ApiOperation("Get significant copy number alteration regions in a study")

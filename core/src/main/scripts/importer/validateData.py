@@ -182,11 +182,10 @@ class Jinja2HtmlHandler(logging.handlers.BufferingHandler):
 
     """Logging handler that formats aggregated HTML reports using Jinja2."""
 
-    def __init__(self, study_dir, output_filename, max_reported_values, *args, **kwargs):
+    def __init__(self, study_dir, output_filename, *args, **kwargs):
         """Set study directory name, output filename and buffer size."""
         self.study_dir = study_dir
         self.output_filename = output_filename
-        self.max_reported_values = max_reported_values
         self.max_level = logging.NOTSET
         self.closed = False
         # get the directory name of the currently running script,
@@ -231,7 +230,6 @@ class Jinja2HtmlHandler(logging.handlers.BufferingHandler):
         template = j_env.get_template('validation_report_template.html.jinja')
         doc = template.render(
             study_dir=self.study_dir,
-            max_reported_values=self.max_reported_values,
             record_list=self.buffer,
             max_level=logging.getLevelName(self.max_level),
             **kwargs)
@@ -5286,14 +5284,6 @@ def interface(args=None):
                         action='store_true', default=False,
                         help='Option to enable strict mode for validator when '
                              'validating mutation data')
-    parser.add_argument('-a', '--max_reported_values', required=False,
-                        type=int, default=3,
-                        help='Cutoff in HTML report for the maximum number of line numbers '
-                             'and values encountered to report for each message. '
-                             'For example, set this to a high number to '
-                             'report all genes that could not be loaded, instead '
-                             'of reporting "GeneA, GeneB, GeneC, 213 more"')
-
     parser = parser.parse_args(args)
     return parser
 
@@ -5538,7 +5528,6 @@ def main_validate(args):
     html_output_filename = args.html_table
     relaxed_mode = args.relaxed_clinical_definitions
     strict_maf_checks = args.strict_maf_checks
-    max_reported_values = args.max_reported_values
 
     # determine the log level for terminal and html output
     output_loglevel = logging.INFO
@@ -5571,7 +5560,6 @@ def main_validate(args):
         html_handler = Jinja2HtmlHandler(
             study_dir,
             html_output_filename,
-            max_reported_values=max_reported_values,
             capacity=1e5)
         # TODO extend CollapsingLogMessageHandler to flush to multiple targets,
         # and get rid of the duplicated buffering of messages here

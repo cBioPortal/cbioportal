@@ -290,7 +290,7 @@
   </profiles>
 
   <properties>
-    <frontend.version>3784d650dfec831b5fd4b57a206801d9e2513cd5</frontend.version>
+    <frontend.version>05f841d48bb6c1bdbb6016ef89a668e278c75a03</frontend.version>
     <frontend.groupId>com.github.cbioportal</frontend.groupId>
     <spring.version>5.2.6.RELEASE</spring.version>
     <spring.integration.version>5.3.0.RELEASE</spring.integration.version>
@@ -411,9 +411,14 @@
         <version>${project.version}</version>
       </dependency>
       <dependency>
+        <groupId>org.mskcc.cbio</groupId>
+        <artifactId>permission-evaluator</artifactId>
+        <version>${project.version}</version>
+      </dependency>
+      <dependency>
         <groupId>org.mongodb</groupId>
         <artifactId>mongo-java-driver</artifactId>
-        <version>3.12.10</version>
+        <version>3.12.9</version>
       </dependency>
       <dependency>
         <groupId>org.mskcc.cbio</groupId>

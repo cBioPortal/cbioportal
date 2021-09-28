@@ -3,8 +3,8 @@ package org.cbioportal.web.util;
 import java.util.*;
 import java.util.stream.Collectors;
 
-import org.apache.commons.collections.CollectionUtils;
-import org.apache.commons.collections.map.MultiKeyMap;
+import org.apache.commons.collections4.CollectionUtils;
+import org.apache.commons.collections4.map.MultiKeyMap;
 import org.cbioportal.model.ClinicalData;
 import org.cbioportal.model.ClinicalDataBin;
 import org.cbioportal.model.ClinicalDataCount;
@@ -249,16 +249,6 @@ public class StudyViewFilterUtil {
         }
 
         return combinedResult;
-    }
-
-    public void extractMolecularProfileIdsFromFilters(List<GenericAssayDataFilter> gaFilters, List<MolecularProfile> molecularProfiles, List<String> molecularProfileIds) {
-        Map<String, List<MolecularProfile>> molecularProfileMap = molecularProfileUtil.categorizeMolecularProfilesByStableIdSuffixes(molecularProfiles);
-        molecularProfileIds.addAll(gaFilters
-            .stream()
-            .map(f ->  molecularProfileMap.getOrDefault(f.getProfileType(), Collections.emptyList()))
-            .flatMap(porfiles -> porfiles.stream().map(MolecularProfile::getStableId))
-            .collect(Collectors.toList())
-        );
     }
     
     private List<ClinicalData> filterClinicalDataByStudyAndSampleAndAttribute(

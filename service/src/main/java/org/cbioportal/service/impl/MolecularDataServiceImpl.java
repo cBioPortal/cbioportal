@@ -258,7 +258,7 @@ public class MolecularDataServiceImpl implements MolecularDataService {
     }
 
     @Override
-    @PreAuthorize("hasPermission(#molecularProfileIds, 'Collection<MolecularProfileId>', 'read')")
+    @PreAuthorize("hasPermission(#molecularProfileIds, 'Collection<MolecularProfileId>', T(org.cbioportal.utils.security.AccessLevel).READ)")
     public BaseMeta getMetaMolecularDataInMultipleMolecularProfiles(List<String> molecularProfileIds,
             List<String> sampleIds, List<Integer> entrezGeneIds) {
 

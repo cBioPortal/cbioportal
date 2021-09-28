@@ -39,7 +39,7 @@ public interface DiscreteCopyNumberRepository {
                                                                                    String projection);
 
 
-    @Cacheable(cacheNames = "GeneralRepositoryCache", condition = "@cacheEnabledConfig.getEnabled()")
+    @Cacheable(cacheResolver = "generalRepositoryCacheResolver", condition = "@cacheEnabledConfig.getEnabled()")
     List<DiscreteCopyNumberData> getDiscreteCopyNumbersInMultipleMolecularProfilesByGeneQueries(List<String> molecularProfileIds,
                                                                                                 List<String> sampleIds,
                                                                                                 List<GeneFilterQuery> geneFilterQuery,

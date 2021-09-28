@@ -30,14 +30,15 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package org.cbioportal.security.spring;
+package org.cbioportal.security;
 
 import java.io.Serializable;
 import java.util.*;
 import org.apache.commons.logging.*;
 import org.cbioportal.model.*;
-import org.cbioportal.persistence.mybatis.util.CacheMapUtil;
+import org.cbioportal.persistence.cachemaputil.CacheMapUtil;
 import org.springframework.beans.factory.annotation.*;
+import org.cbioportal.utils.security.AccessLevel;
 import org.springframework.security.access.PermissionEvaluator;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.authority.AuthorityUtils;
@@ -50,7 +51,7 @@ import org.springframework.security.core.authority.AuthorityUtils;
  *
  * @author Benjamin Gross
  */
-class CancerStudyPermissionEvaluator implements PermissionEvaluator {
+public class CancerStudyPermissionEvaluator implements PermissionEvaluator {
 
     @Autowired
     private CacheMapUtil cacheMapUtil;
@@ -125,7 +126,7 @@ class CancerStudyPermissionEvaluator implements PermissionEvaluator {
         // authentication will always have authorities.
         Object user = authentication.getPrincipal();
         if (user != null) {
-            return hasAccessToCancerStudy(authentication, cancerStudy);
+            return hasAccessToCancerStudy(authentication, cancerStudy, (AccessLevel) permission);
         } else {
             return false;
         }
@@ -219,11 +220,21 @@ class CancerStudyPermissionEvaluator implements PermissionEvaluator {
     /**
      * Helper function to determine if given user has access to given cancer study.
      *
+     * @param authentication Spring Authentication object of the logged-in user.
      * @param cancerStudy cancer study to check for
-     * @param user Spring Authentication of the logged-in user.
+     * @param permission requested permission level (can be org.cbioportal.utils.security.AccessLevel.READ or org.cbioportal.utils.security.AccessLevel.LIST)
      * @return boolean
      */
-    private boolean hasAccessToCancerStudy(Authentication authentication, CancerStudy cancerStudy) {
+    private boolean hasAccessToCancerStudy(Authentication authentication, CancerStudy cancerStudy, AccessLevel permission) {
+        
+        // The 'list' permission is only requested by the /api/studies endpoint of StudyController. This permission is
+        // requested by the Study Overview page when the portal instance is configured to show all studies (with non-
+        // authorized study options greyed out), instead of only showing authorized studies.
+        // When the 'list' permission is requested, CancerPermissionEvaluator returns true always.
+        if (AccessLevel.LIST == permission) {
+            return true;
+        }
+        
         Set<String> grantedAuthorities = getGrantedAuthorities(authentication);
         String stableStudyID = cancerStudy.getCancerStudyIdentifier();
         if (log.isDebugEnabled()) {

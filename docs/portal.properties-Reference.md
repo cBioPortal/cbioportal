@@ -168,6 +168,15 @@ Different samples of a patient may have been analyzed with different gene panels
 skin.patientview.filter_genes_profiled_all_samples=
 ```
 
+## Control unauthorized studies to be displayed on the home page
+By default, on an authenticated portal the home page will only show studies for which the current user is authorized.
+By setting the _skin.home_page.show_unauthorized_studies_ property to _true_ the home page will also show unauthorized
+studies. The unauthorized studies will appear greyed out and cannot be selected for downstream analysis in Results View or
+Study View.
+```
+skin.home_page.show_unauthorized_studies=
+```
+
 ## Control the appearance of the settings menu in study view and group comparison that controls custom annotation-based filtering
 A settings menu that allows the user to filter alterations in study view and group comparison may be used
 when [custom driver annotations](File-Formats.md#custom-driver-annotations) were loaded for the study or studies displayed
@@ -484,15 +493,15 @@ ehcache.static_repository_cache_one.max_mega_bytes_local_disk=
 
 For more information on Ehcache, refer to the official documentation [here](https://www.ehcache.org/documentation/3.7/index.html)
 
-# Flush caches with the _/api/cache_ endpoint
+# Evict caches with the _/api/cache_ endpoint
 
 `DELETE` http requests to the `/api/cache` endpoint will flush the cBioPortal caches, and serves as an alternative to restarting
 the cBioPortal application.
 
-By default the endpoint is enabled. The endpoint can be disabled by setting:
+By default the endpoint is disabled. The endpoint can be enabled by setting:
 
 ```
-cache.endpoint.enable=false
+cache.endpoint.enable=true
 ```
 
 Access to the endpoint is not regulated by the configured user authorization mechanism. Instead, an API key should be passed
@@ -501,6 +510,17 @@ with the `X-API-KEY` header. The accepted value for the API key can be configure
 ```
 cache.endpoint.api-key=7d70fecb-cda8-490f-9ea2-ef874b6512f4
 ```
+
+# Delegate user-authorization cache to Spring-managed cache 
+
+For evaluation fo user permissions cBioPortal uses a user-authorization cache that is populated at startup. By setting the
+`cache.cache-map-utils.spring-managed` property to _true_ this cache will be managed by the Spring caching solution such 
+as EHCache or Redis. For more extended information, see [here](Caching.md#user-authorization-cache)
+
+```
+cache.cache-map-utils.spring-managed=false
+```
+
 
 # Enable GSVA functionality
 

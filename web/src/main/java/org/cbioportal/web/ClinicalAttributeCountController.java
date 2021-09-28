@@ -47,7 +47,7 @@ public class ClinicalAttributeCountController {
     @Autowired
     private ClinicalAttributeService clinicalAttributeService;
  
-    @PreAuthorize("hasPermission(#involvedCancerStudies, 'Collection<CancerStudyId>', 'read')")
+    @PreAuthorize("hasPermission(#involvedCancerStudies, 'Collection<CancerStudyId>', T(org.cbioportal.utils.security.AccessLevel).READ)")
     @RequestMapping(value = "/clinical-attributes/counts/fetch", method = RequestMethod.POST, consumes = MediaType.APPLICATION_JSON_VALUE,
                     produces = MediaType.APPLICATION_JSON_VALUE)
     @ApiOperation("Get counts for clinical attributes according to their data availability for selected samples/patients")

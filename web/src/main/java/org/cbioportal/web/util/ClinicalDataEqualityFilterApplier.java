@@ -2,7 +2,7 @@ package org.cbioportal.web.util;
 
 import java.util.List;
 
-import org.apache.commons.collections.map.MultiKeyMap;
+import org.apache.commons.collections4.map.MultiKeyMap;
 import org.cbioportal.service.ClinicalDataService;
 import org.cbioportal.service.PatientService;
 import org.cbioportal.web.parameter.ClinicalDataFilter;

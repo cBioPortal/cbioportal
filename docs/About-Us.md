@@ -36,7 +36,6 @@ The cBioPortal for Cancer Genomics was originally developed at [Memorial Sloan K
 * Trevor Pugh
 
 ## Children's Hospital of Philadelphia
-* Karthik Kalletla
 * David Higgins
 * Allison Heath
 * John Maris
@@ -75,6 +74,7 @@ The cBioPortal for Cancer Genomics was originally developed at [Memorial Sloan K
 * Zachary Heins
 * Michael Heuer
 * Anders Jacobsen
+* Karthik Kalletla
 * Erik Larsson
 * Dong Li
 * Tamba Monrose

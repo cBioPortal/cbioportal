@@ -228,11 +228,6 @@
             </dependency>
             <dependency>
                 <groupId>org.cbioportal</groupId>
-                <artifactId>persistence-connections</artifactId>
-                <version>${project.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>org.cbioportal</groupId>
                 <artifactId>service</artifactId>
                 <version>${project.version}</version>
             </dependency>

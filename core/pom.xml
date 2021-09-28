@@ -40,10 +40,6 @@
         </dependency>
         <dependency>
             <groupId>org.cbioportal</groupId>
-            <artifactId>persistence-connections</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>org.cbioportal</groupId>
             <artifactId>db-scripts</artifactId>
             <scope>test</scope>
         </dependency>

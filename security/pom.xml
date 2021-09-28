@@ -6,36 +6,19 @@
         <artifactId>master</artifactId>
         <groupId>org.cbioportal</groupId>
         <version>0.0.1-SNAPSHOT</version>
-</parent>
+    </parent>
     <modelVersion>4.0.0</modelVersion>
 
     <artifactId>security</artifactId>
     <packaging>pom</packaging>
 
-    <properties>
-        <spring-boot.repackage.skip>true</spring-boot.repackage.skip>
-        <maven.compiler.source>11</maven.compiler.source>
-        <maven.compiler.target>11</maven.compiler.target>
-    </properties>
-
     <modules>
         <module>security-spring</module>
     </modules>
 
-    <build>
-        <plugins>
-            <plugin>
-                <groupId>org.springframework.boot</groupId>
-                <artifactId>spring-boot-maven-plugin</artifactId>
-            </plugin>
-        </plugins>
-    </build>
-
-    <dependencies>
-        <dependency>
-            <groupId>com.google.guava</groupId>
-            <artifactId>guava</artifactId>
-        </dependency>
-    </dependencies>
+    <properties>
+        <maven.compiler.source>11</maven.compiler.source>
+        <maven.compiler.target>11</maven.compiler.target>
+    </properties>
 
 </project>

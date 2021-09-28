@@ -38,7 +38,7 @@ public class SignificantlyMutatedGenesController {
     @Autowired
     private SignificantlyMutatedGeneService significantlyMutatedGeneService;
 
-    @PreAuthorize("hasPermission(#studyId, 'CancerStudyId', 'read')")
+    @PreAuthorize("hasPermission(#studyId, 'CancerStudyId', T(org.cbioportal.utils.security.AccessLevel).READ)")
     @RequestMapping(value = "/studies/{studyId}/significantly-mutated-genes", method = RequestMethod.GET,
         produces = MediaType.APPLICATION_JSON_VALUE)
     @ApiOperation("Get significantly mutated genes in a study")

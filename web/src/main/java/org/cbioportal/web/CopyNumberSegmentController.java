@@ -48,7 +48,7 @@ public class CopyNumberSegmentController {
     @Autowired
     private CopyNumberSegmentService copyNumberSegmentService;
 
-    @PreAuthorize("hasPermission(#studyId, 'CancerStudyId', 'read')")
+    @PreAuthorize("hasPermission(#studyId, 'CancerStudyId', T(org.cbioportal.utils.security.AccessLevel).READ)")
     @RequestMapping(value = "/studies/{studyId}/samples/{sampleId}/copy-number-segments", method = RequestMethod.GET,
         produces = MediaType.APPLICATION_JSON_VALUE)
     @ApiOperation("Get copy number segments in a sample in a study")
@@ -87,7 +87,7 @@ public class CopyNumberSegmentController {
         }
     }
 
-    @PreAuthorize("hasPermission(#involvedCancerStudies, 'Collection<CancerStudyId>', 'read')")
+    @PreAuthorize("hasPermission(#involvedCancerStudies, 'Collection<CancerStudyId>', T(org.cbioportal.utils.security.AccessLevel).READ)")
     @RequestMapping(value = "/copy-number-segments/fetch", method = RequestMethod.POST,
         consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
     @ApiOperation("Fetch copy number segments by sample ID")

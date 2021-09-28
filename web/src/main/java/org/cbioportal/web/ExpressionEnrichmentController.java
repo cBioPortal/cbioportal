@@ -36,7 +36,7 @@ public class ExpressionEnrichmentController {
     @Autowired
     private ExpressionEnrichmentService expressionEnrichmentService;
     
-    @PreAuthorize("hasPermission(#involvedCancerStudies, 'Collection<CancerStudyId>', 'read')")
+    @PreAuthorize("hasPermission(#involvedCancerStudies, 'Collection<CancerStudyId>', T(org.cbioportal.utils.security.AccessLevel).READ)")
     @RequestMapping(value = "/expression-enrichments/fetch",
         method = RequestMethod.POST, consumes = MediaType.APPLICATION_JSON_VALUE,
         produces = MediaType.APPLICATION_JSON_VALUE)
@@ -56,7 +56,7 @@ public class ExpressionEnrichmentController {
                 HttpStatus.OK);
     }
 
-    @PreAuthorize("hasPermission(#involvedCancerStudies, 'Collection<CancerStudyId>', 'read')")
+    @PreAuthorize("hasPermission(#involvedCancerStudies, 'Collection<CancerStudyId>', T(org.cbioportal.utils.security.AccessLevel).READ)")
     @RequestMapping(value = "/generic-assay-enrichments/fetch",
         method = RequestMethod.POST, consumes = MediaType.APPLICATION_JSON_VALUE,
         produces = MediaType.APPLICATION_JSON_VALUE)

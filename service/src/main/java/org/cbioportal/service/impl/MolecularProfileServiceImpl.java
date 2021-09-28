@@ -31,7 +31,7 @@ public class MolecularProfileServiceImpl implements MolecularProfileService {
     private String AUTHENTICATE;
 
     @Override
-    @PostFilter("hasPermission(filterObject, 'read')")
+    @PostFilter("hasPermission(filterObject, T(org.cbioportal.utils.security.AccessLevel).READ)")
     public List<MolecularProfile> getAllMolecularProfiles(String projection, Integer pageSize, Integer pageNumber,
                                                           String sortBy, String direction) {
 

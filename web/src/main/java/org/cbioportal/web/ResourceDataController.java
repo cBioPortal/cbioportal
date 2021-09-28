@@ -38,7 +38,7 @@ public class ResourceDataController {
     @Autowired
     private ResourceDataService resourceDataService;
 
-    @PreAuthorize("hasPermission(#studyId, 'CancerStudyId', 'read')")
+    @PreAuthorize("hasPermission(#studyId, 'CancerStudyId', T(org.cbioportal.utils.security.AccessLevel).READ)")
     @RequestMapping(value = "/studies/{studyId}/samples/{sampleId}/resource-data", method = RequestMethod.GET,
         produces = MediaType.APPLICATION_JSON_VALUE)
     @ApiOperation("Get all resource data of a sample in a study")
@@ -74,7 +74,7 @@ public class ResourceDataController {
         }
     }
 
-    @PreAuthorize("hasPermission(#studyId, 'CancerStudyId', 'read')")
+    @PreAuthorize("hasPermission(#studyId, 'CancerStudyId', T(org.cbioportal.utils.security.AccessLevel).READ)")
     @RequestMapping(value = "/studies/{studyId}/patients/{patientId}/resource-data", method = RequestMethod.GET,
         produces = MediaType.APPLICATION_JSON_VALUE)
     @ApiOperation("Get all resource data of a patient in a study")
@@ -110,7 +110,7 @@ public class ResourceDataController {
         }
     }
 
-    @PreAuthorize("hasPermission(#studyId, 'CancerStudyId', 'read')")
+    @PreAuthorize("hasPermission(#studyId, 'CancerStudyId', T(org.cbioportal.utils.security.AccessLevel).READ)")
     @RequestMapping(value = "/studies/{studyId}/resource-data", method = RequestMethod.GET,
         produces = MediaType.APPLICATION_JSON_VALUE)
     @ApiOperation("Get all resource data for a study")

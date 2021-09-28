@@ -57,7 +57,7 @@ public class StructuralVariantController {
     @Autowired
     private StructuralVariantService structuralVariantService;
 
-    @PreAuthorize("hasPermission(#involvedCancerStudies, 'Collection<CancerStudyId>', 'read')")
+    @PreAuthorize("hasPermission(#involvedCancerStudies, 'Collection<CancerStudyId>', T(org.cbioportal.utils.security.AccessLevel).READ)")
     @RequestMapping(value = "/structural-variant/fetch", method = RequestMethod.POST,
             consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
     @ApiOperation("Fetch structural variants for entrezGeneIds and molecularProfileIds or sampleMolecularIdentifiers")

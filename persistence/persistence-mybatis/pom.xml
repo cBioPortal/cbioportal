@@ -72,23 +72,29 @@
                 <artifactId>spring-boot-maven-plugin</artifactId>
             </plugin>
             <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-remote-resources-plugin</artifactId>
-                <version>1.7.0</version>
+                <artifactId>maven-resources-plugin</artifactId>
                 <executions>
                     <execution>
-                        <id>process-remote-resources</id>
-                        <phase>compile</phase>
+                        <id>copy-resources</id>
+                        <phase>test-compile</phase>
                         <goals>
-                            <goal>process</goal>
+                            <goal>copy-resources</goal>
                         </goals>
+                        <!-- copy cgds.sql from db-scripts module before running tests -->
+                        <configuration>
+                            <outputDirectory>${project.build.directory}/test-classes</outputDirectory>
+                            <resources>
+                                <resource>
+                                    <directory>${session.executionRootDirectory}/db-scripts/src/main/resources</directory>
+                                    <includes>
+                                        <include>cgds.sql</include>
+                                    </includes>
+                                    <filtering>false</filtering>
+                                </resource>
+                            </resources>
+                        </configuration>
                     </execution>
                 </executions>
-                <configuration>
-                    <resourceBundles>
-                        <resourceBundle>org.cbioportal:db-scripts:${project.version}</resourceBundle>
-                    </resourceBundles>
-                </configuration>
             </plugin>
             <plugin>
                 <groupId>com.google.code.maven-replacer-plugin</groupId>
@@ -103,7 +109,7 @@
                     </execution>
                 </executions>
                 <configuration>
-                    <file>${project.basedir}/target/test-classes/cgds.sql</file>
+                    <file>${project.build.directory}/test-classes/cgds.sql</file>
                     <replacements>
                         <replacement>
                             <token>.*KEY `KEY_MUTATION_EVENT_DETAILS</token>

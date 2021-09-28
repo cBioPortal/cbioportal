@@ -22,7 +22,7 @@
         </dependency>
         <dependency>
             <groupId>org.mskcc.cbio</groupId>
-            <artifactId>utils</artifactId>
+            <artifactId>permission-evaluator</artifactId>
         </dependency>
         <dependency>
             <groupId>org.springframework</groupId>
@@ -41,7 +41,6 @@
             <groupId>io.jsonwebtoken</groupId>
             <artifactId>jjwt-jackson</artifactId>
         </dependency>
-
         <dependency>
             <groupId>mysql</groupId>
             <artifactId>mysql-connector-java</artifactId>

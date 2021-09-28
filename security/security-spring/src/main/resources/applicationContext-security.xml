@@ -72,7 +72,7 @@
     <b:bean id="expressionHandler" class="org.springframework.security.access.expression.method.DefaultMethodSecurityExpressionHandler">
         <b:property name="permissionEvaluator" ref="customPermissionEvaluator"/>
     </b:bean>
-    <b:bean id="customPermissionEvaluator" class="org.cbioportal.security.spring.CancerStudyPermissionEvaluator"/>
+    <b:bean id="customPermissionEvaluator" class="org.cbioportal.security.CancerStudyPermissionEvaluator"/>
 
     <!-- fstatic resources not processed by spring security filters -->
     <http pattern="/css/**" security="none"/>

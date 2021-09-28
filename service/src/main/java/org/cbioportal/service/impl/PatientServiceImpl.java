@@ -26,7 +26,7 @@ public class PatientServiceImpl implements PatientService {
     private String AUTHENTICATE;
 
     @Override
-    @PostFilter("hasPermission(filterObject, 'read')")
+    @PostFilter("hasPermission(filterObject, T(org.cbioportal.utils.security.AccessLevel).READ)")
     public List<Patient> getAllPatients(String keyword, String projection, Integer pageSize, Integer pageNumber,
             String sortBy, String direction) {
         

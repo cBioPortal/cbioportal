@@ -107,7 +107,7 @@ function openSoicalAuthWindow() {
 
 <header>
         <div id="leftHeaderContent">
-        <a id="cbioportal-logo" href="./"><img src="<c:url value="/images/cbioportal_logo.png"/>" alt="cBioPortal Logo" /></a>    
+        <a id="cbioportal-logo" href="../../../../.."><img src="<c:url value="/images/cbioportal_logo.png"/>" alt="cBioPortal Logo" /></a>    
     
         <nav id="main-nav">
             <ul>

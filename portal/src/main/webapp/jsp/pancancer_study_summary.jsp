@@ -40,7 +40,7 @@
 
 <!-- The pancer_study_summary files: -->
 <link href="css/pancancer_study_summary/pancancer_study_summary.css?<%=GlobalProperties.getAppVersion()%>" type="text/css" rel="stylesheet" />
-<%@ include file="pancancer_study_summary/pancancer_study_summary_templates.html" %>
+<%@ include file="src/main/webapp/jsp/pancancer_study_summary/pancancer_study_summary_templates.html" %>
 <!-- js files: -->
 <script type="text/javascript" src="js/src/pancancer_study_summary/pancancer_study_summary.js?<%=GlobalProperties.getAppVersion()%>"></script>
 <script type="text/javascript" src="js/src/pancancer_study_summary/pancancer_study_summary_histogram.js?<%=GlobalProperties.getAppVersion()%>"></script>

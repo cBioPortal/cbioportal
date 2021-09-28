@@ -30,4 +30,25 @@
  - along with this program.  If not, see <http://www.gnu.org/licenses/>.
 --%>
 
-<%@ include file="mutation/mutationMapperTemplates.html" %>
+<div class="section" id="network">
+    <div id="netmsg" style="margin-bottom: 12px; text-align: left"></div>
+	<table id="network_wrapper">
+		<tr><td>
+			<div>
+				<jsp:include page="src/main/webapp/jsp/network_menu.jsp"/>
+			</div>
+		</td></tr>
+		<tr>
+			<td id="vis_content">
+				<div id="cytoscapeweb">
+					<img src="images/ajax-loader.gif" alt='loading'/>
+				</div>
+			</td>
+			<td>
+				<div>
+					<jsp:include page="src/main/webapp/jsp/network_tabs.jsp"/>
+				</div>
+			</td>
+		</tr>
+	</table>
+</div>

@@ -45,7 +45,7 @@
 <html>
 <body>
 
-    <jsp:include page="WEB-INF/jsp/global/css_include.jsp" flush="true" />
+    <jsp:include page="src/main/webapp/jsp/global/css_include.jsp" flush="true" />
 
 <link href="css/network/network_ui.css?<%=GlobalProperties.getAppVersion()%>" type="text/css" rel="stylesheet"/>
 
@@ -67,7 +67,7 @@
 <script type="text/javascript" src="js/src/network/network-viz2.js?<%=GlobalProperties.getAppVersion()%>"></script>
 <script type="text/javascript" src="js/src/network/cytoscape.renderer.canvas.portal-renderer.js?<%=GlobalProperties.getAppVersion()%>"></script>
 
-<jsp:include page="WEB-INF/jsp/network_views.jsp"/>
+<jsp:include page="src/main/webapp/jsp/network_views.jsp"/>
 
 <table width="100%" cellspacing="0px" cellpadding="2px" border="0px">
 	<tr valign="middle">
@@ -203,7 +203,7 @@ if (graphml!=null&&!graphml.isEmpty()) {
     });
 </script>
 
-<jsp:include page="WEB-INF/jsp/network_div.jsp"/>
+<jsp:include page="src/main/webapp/jsp/network_div.jsp"/>
 <%
 } else {
 %>

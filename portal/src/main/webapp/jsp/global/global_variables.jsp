@@ -32,7 +32,7 @@
 
 <!-- Collection of all global variables for the result pages of single cancer study query-->
 
-<%@ include file="selected_study_variables.jsp" %>
+<%@ include file="src/main/webapp/jsp/global/selected_study_variables.jsp" %>
 
 <%@ page import="org.mskcc.cbio.portal.servlet.QueryBuilder" %>
 <%@ page import="java.util.ArrayList" %>
@@ -63,7 +63,7 @@
 <%@ page import="org.mskcc.cbio.portal.util.*" %>
 <%@ page import="org.mskcc.cbio.portal.dao.DaoMutation" %>
 
-<%@include file="server_vars.jsp"%>
+<%@include file="src/main/webapp/jsp/global/server_vars.jsp"%>
 <%
     Boolean showIGVtab = (Boolean) request.getAttribute("showIGVtab");
     Boolean has_mrna = (Boolean) request.getAttribute("hasMrna");

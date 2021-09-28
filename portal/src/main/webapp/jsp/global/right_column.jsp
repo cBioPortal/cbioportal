@@ -87,7 +87,7 @@
     <div class="sidebar-box">
         <div id="rotating_testimonials">
             <h3>What People are Saying</h3>
-            <jsp:include page="../testimonials.jsp" flush="true" />
+            <jsp:include page="src/main/webapp/jsp/testimonials.jsp" flush="true" />
         </div>
     </div>
 <% } %>

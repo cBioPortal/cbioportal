@@ -45,7 +45,7 @@
     }
 %>
 
-<jsp:include page="WEB-INF/jsp/global/header.jsp" flush="true" />
+<jsp:include page="src/main/webapp/jsp/global/header.jsp" flush="true" />
             <div class="ui-state-highlight ui-corner-all" style="padding: 0 .7em;width:95%;margin-top:10px;margin-bottom:20px">
             <p><strong>Connecting to the MSK cBioPortal...</strong></p>
              </div>
@@ -54,13 +54,13 @@
   </tr>
   <tr>
     <td colspan="3">
-	<jsp:include page="WEB-INF/jsp/global/footer.jsp" flush="true" />
+	<jsp:include page="src/main/webapp/jsp/global/footer.jsp" flush="true" />
     </td>
   </tr>
 </table>
 </center>
 </div>
 </form>
-<jsp:include page="WEB-INF/jsp/global/xdebug.jsp" flush="true" />
+<jsp:include page="src/main/webapp/jsp/global/xdebug.jsp" flush="true" />
 </body>
 </html>

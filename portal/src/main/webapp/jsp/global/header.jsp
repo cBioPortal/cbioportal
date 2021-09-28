@@ -37,14 +37,14 @@
 <%@ page import="org.mskcc.cbio.portal.util.GlobalProperties" %>
 
 <%if(request.getAttribute("standard-js-css")!=null){%>
-<jsp:include page="css_include_standard.jsp" flush="true" />
-<jsp:include page="js_include_standard.jsp" flush="true" />
+<jsp:include page="src/main/webapp/jsp/global/css_include_standard.jsp" flush="true" />
+<jsp:include page="src/main/webapp/jsp/global/js_include_standard.jsp" flush="true" />
 <%} else {%>
-<jsp:include page="css_include.jsp" flush="true" />
-<jsp:include page="js_include.jsp" flush="true" />
+<jsp:include page="src/main/webapp/jsp/global/css_include.jsp" flush="true" />
+<jsp:include page="src/main/webapp/jsp/global/js_include.jsp" flush="true" />
 <%}%>
-<jsp:include page="js_include_analytics_and_email.jsp" flush="true" />
-<jsp:include page="frontend_config.jsp" flush="true" />
+<jsp:include page="src/main/webapp/jsp/global/js_include_analytics_and_email.jsp" flush="true" />
+<jsp:include page="src/main/webapp/jsp/global/frontend_config.jsp" flush="true" />
 
     <script type="text/javascript">
         window.appVersion = '<%=GlobalProperties.getAppVersion()%>';
@@ -62,7 +62,7 @@
 </head>
 <body class="fixedWidth">
 <div class="pageTopContainer">      
-    <div class="contentWidth"><jsp:include page="header_bar.jsp" flush="true" /></div>
+    <div class="contentWidth"><jsp:include page="src/main/webapp/jsp/global/header_bar.jsp" flush="true" /></div>
 </div>
 
 <center style="padding-top:15px">

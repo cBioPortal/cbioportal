@@ -125,7 +125,7 @@
 </style>
 
 <%if(showTimeline){%>
-<jsp:include page="clinical_timeline.jsp" flush="true" />
+<jsp:include page="src/main/webapp/jsp/patient_view/clinical_timeline.jsp" flush="true" />
 <br/>
 <%}%>
 
@@ -268,7 +268,7 @@
     <tr>
         <td>
             <table cellpadding="0" cellspacing="0" border="0" class="display" id="mutation_summary_table">
-                <%@ include file="mutations_table_template.jsp"%>
+                <%@ include file="src/main/webapp/jsp/patient_view/mutations_table_template.jsp"%>
             </table>
         </td>
     </tr>
@@ -284,7 +284,7 @@
     <tr>
         <td>
             <table cellpadding="0" cellspacing="0" border="0" class="display" id="cna_summary_table">
-                <%@ include file="cna_table_template.jsp"%>
+                <%@ include file="src/main/webapp/jsp/patient_view/cna_table_template.jsp"%>
             </table>
         </td>
     </tr>

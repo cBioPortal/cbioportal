@@ -32,10 +32,10 @@
 --%>
 
 
-<jsp:include page="global/legacy_head.jsp" flush="true" />
+<jsp:include page="src/main/webapp/jsp/global/legacy_head.jsp" flush="true" />
 
-<%@ include file="global/global_variables.jsp" %>
-<jsp:include page="global/header.jsp" flush="true" />
+<%@ include file="src/main/webapp/jsp/global/global_variables.jsp" %>
+<jsp:include page="src/main/webapp/jsp/global/header.jsp" flush="true" />
 
 <script>
 window.loadReactApp({ defaultRoute: 'results' });
@@ -238,30 +238,30 @@ window.loadReactApp({ defaultRoute: 'results' });
 
         <div class="section" id="summary">
             <% //contents of fingerprint.jsp now come from attribute on request object %>
-            <%@ include file="oncoprint/main.jsp" %>
+            <%@ include file="src/main/webapp/jsp/oncoprint/main.jsp" %>
         </div>
         
         <!-- if showCancerTypes is true, include cancer_types_summary.jsp -->
             <% if(showCancerTypesSummary) { %>
-        <%@ include file="pancancer_study_summary.jsp"%>
+        <%@ include file="src/main/webapp/jsp/pancancer_study_summary.jsp"%>
             <%}%>
 
             <% if(showPlotsTab) { %>
-        <%@ include file="plots_tab.jsp" %>
+        <%@ include file="src/main/webapp/jsp/plots_tab.jsp" %>
             <% } else { %>
-        <%@ include file="cross_cancer_plots_tab.jsp" %>
+        <%@ include file="src/main/webapp/jsp/cross_cancer_plots_tab.jsp" %>
             <% }%>
 
             <% if (showIGVtab) { %>
-        <%@ include file="igv.jsp" %>
+        <%@ include file="src/main/webapp/jsp/igv.jsp" %>
             <% } %>
 
             <% if (has_survival) { %>
-        <%@ include file="survival_tab.jsp" %>
+        <%@ include file="src/main/webapp/jsp/survival_tab.jsp" %>
             <% } %>
 
             <% if (computeLogOddsRatio) { %>
-        <%@ include file="mutex_tab.jsp" %>
+        <%@ include file="src/main/webapp/jsp/mutex_tab.jsp" %>
             <% } %>
 
             <% if (mutationDetailLimitReached != null) {
@@ -270,22 +270,22 @@ window.loadReactApp({ defaultRoute: 'results' });
             + QueryBuilder.MUTATION_DETAIL_LIMIT + " or fewer genes.<BR>");
             out.println("</div>");
         } else if (showMutTab) { %>
-            <%@ include file="mutation_details.jsp" %>
+            <%@ include file="src/main/webapp/jsp/mutation_details.jsp" %>
         <% } %>
 
             <% if (includeNetworks) { %>
-        <%@ include file="networks.jsp" %>
+        <%@ include file="src/main/webapp/jsp/networks.jsp" %>
             <% } %>
 
             <% if (showCoexpTab) { %>
-        <%@ include file="co_expression.jsp" %>
+        <%@ include file="src/main/webapp/jsp/co_expression.jsp" %>
             <% } %>
 
             <% if ((has_mrna || has_copy_no || showMutTab) && !isVirtualStudy) { %>
-        <%@ include file="enrichments_tab.jsp" %>
+        <%@ include file="src/main/webapp/jsp/enrichments_tab.jsp" %>
             <% } %>
             <% if(showDownloadTab) { %>
-        <%@ include file="data_download.jsp" %>
+        <%@ include file="src/main/webapp/jsp/data_download.jsp" %>
             <% } %>
 
 </div> <!-- end tabs div -->
@@ -296,13 +296,13 @@ window.loadReactApp({ defaultRoute: 'results' });
 </tr>
 <tr>
     <td colspan="3">
-        <jsp:include page="global/footer.jsp" flush="true" />
+        <jsp:include page="src/main/webapp/jsp/global/footer.jsp" flush="true" />
     </td>
 </tr>
 </table>
 </center>
 </div>
-<jsp:include page="global/xdebug.jsp" flush="true" />
+<jsp:include page="src/main/webapp/jsp/global/xdebug.jsp" flush="true" />
 </form>
 
 <script type="text/javascript">

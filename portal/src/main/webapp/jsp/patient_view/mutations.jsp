@@ -1314,7 +1314,7 @@
     <tr>
         <td>
             <table cellpadding="0" cellspacing="0" border="0" class="display" id="mutation_table">
-                <%@ include file="mutations_table_template.jsp"%>
+                <%@ include file="src/main/webapp/jsp/patient_view/mutations_table_template.jsp"%>
             </table>
         </td>
     </tr>

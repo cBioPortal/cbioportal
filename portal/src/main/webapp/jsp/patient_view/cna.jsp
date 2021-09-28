@@ -589,7 +589,7 @@
     <tr>
         <td>
             <table cellpadding="0" cellspacing="0" border="0" class="display" id="cna_table">
-                <%@ include file="cna_table_template.jsp"%>
+                <%@ include file="src/main/webapp/jsp/patient_view/cna_table_template.jsp"%>
             </table>
         </td>
     </tr>

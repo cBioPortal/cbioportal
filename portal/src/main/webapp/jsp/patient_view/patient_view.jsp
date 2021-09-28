@@ -31,35 +31,39 @@
 --%>
 
 <%@ page import="org.mskcc.cbio.portal.servlet.QueryBuilder" %>
+<%@ page import="org.mskcc.cbio.portal.servlet.PatientView" %>
+<%@ page import="org.mskcc.cbio.portal.servlet.DrugsJSON" %>
+<%@ page import="org.mskcc.cbio.portal.servlet.ServletXssUtil" %>
+<%@ page import="org.mskcc.cbio.portal.servlet.CheckDarwinAccessServlet" %>
+<%@ page import="org.mskcc.cbio.portal.model.CancerStudy" %>
+<%@ page import="org.mskcc.cbio.portal.model.GeneticProfile" %>
 <%@ page import="org.mskcc.cbio.portal.util.GlobalProperties" %>
-<%
-    request.setAttribute(QueryBuilder.HTML_TITLE, "cBio Cancer Genomics Pathway Portal::Error");
-    String userMessage = (String) request.getAttribute(QueryBuilder.USER_ERROR_MESSAGE);
-    String emailContact = (userMessage != null && userMessage.contains("not authorized")) ?
-      "cbioportal-access at cbio dot mskcc dot org" : GlobalProperties.getEmailContact();
-%>
+<%@ page import="java.util.HashMap" %>
+<%@ page import="java.util.Map" %>
+<%@ page import="java.util.Set" %>
+<%@ page import= "java.net.URL" %>
+<%@ page import="org.apache.commons.lang3.StringUtils" %>
+<%@ page import="com.fasterxml.jackson.databind.ObjectMapper" %>
+<%@ page import="org.mskcc.cbio.portal.util.GlobalProperties" %>
+<%@ page import="org.mskcc.cbio.portal.util.IGVLinking" %>
+<%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core"%>
+<%@ taglib prefix="sec" uri="http://www.springframework.org/security/tags" %>
 
-<jsp:include page="global/header.jsp" flush="true" />
-            <div class="ui-state-highlight ui-corner-all" style="padding: 0 .7em;width:95%;margin-top:10px;margin-bottom:20px">
-            <p><span class="ui-icon ui-icon-info" style="float: left; margin-right: .3em;"></span>
-            <% if (userMessage != null) { %>
-            <strong>Oops!  <%= userMessage %></strong></p>
-            <% } else {%>
-                Oops!  An Error Has occurred while processing your request.
-              <% } %>
-            &nbsp;Please try again or send email to <%= emailContact %> if this is any error in this portal.
-            </div>
-  </td>
-  </tr>
-  <tr>
-    <td colspan="3">
-	<jsp:include page="global/footer.jsp" flush="true" />
-    </td>
-  </tr>
-</table>
-</center>
-</div>
-</form>
-<jsp:include page="global/xdebug.jsp" flush="true" />
-</body>
-</html>
+<jsp:include page="src/main/webapp/jsp/global/xdebug.jsp" flush="true" />
+
+    <%@taglib prefix="t" tagdir="/WEB-INF/tags" %>
+
+    <t:template title="Patient" defaultRightColumn="false" noMargin="true" cssClass="patientView">
+        
+        <jsp:attribute name="head_area">
+            <script>
+                window.frontendConfig.historyType = "hash";
+                window.loadReactApp({ defaultRoute: 'patient' });
+            </script>
+        </jsp:attribute>
+
+        <jsp:attribute name="body_area">
+            <div id="reactRoot"></div>
+        </jsp:attribute>
+
+    </t:template>

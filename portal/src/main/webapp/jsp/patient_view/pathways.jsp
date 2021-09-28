@@ -73,4 +73,4 @@ request.setAttribute("include_network_legend", Boolean.FALSE);
     );
 </script>
 
-<jsp:include page="../network_div.jsp"/>
+<jsp:include page="src/main/webapp/jsp/network_div.jsp"/>

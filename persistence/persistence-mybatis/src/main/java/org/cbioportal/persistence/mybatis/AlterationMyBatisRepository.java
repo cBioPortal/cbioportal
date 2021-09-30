@@ -70,6 +70,14 @@ public class AlterationMyBatisRepository implements AlterationRepository {
             }
         }
 
+        int target = -5;
+        int num = 3;
+
+        target =- num;  // Noncompliant; target = -3. Is that really what's meant?
+        System.out.println(target);
+        target =+ num; // Noncompliant; target = 3
+        System.out.println(target);
+
         return alterationCountsMapper.getSampleAlterationCounts(
             groupedIdentifiersByProfileType.get(MolecularAlterationType.MUTATION_EXTENDED),
             groupedIdentifiersByProfileType.get(MolecularAlterationType.COPY_NUMBER_ALTERATION),

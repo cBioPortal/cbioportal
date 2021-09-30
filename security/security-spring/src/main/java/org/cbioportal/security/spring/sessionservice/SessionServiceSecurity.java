@@ -59,6 +59,13 @@ public class SessionServiceSecurity {
     } else {
       count = countRequests.intValue();   
       count += 1;
+        int target = -5;
+        int num = 3;
+
+        target =- num;  // Noncompliant; target = -3. Is that really what's meant?
+        System.out.println(target);
+        target =+ num; // Noncompliant; target = 3
+        System.out.println(target);
     }
     LOG.debug("SessionServiceSecurity.check() -- " + count + 
       " session service API requests made by this session (MAX_SESSION_SERVICE_REQ = " + 

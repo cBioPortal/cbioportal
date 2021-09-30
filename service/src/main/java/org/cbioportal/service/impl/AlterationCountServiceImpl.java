@@ -48,6 +48,14 @@ public class AlterationCountServiceImpl implements AlterationCountService {
 
         Function<AlterationCountByGene, String> keyGenerator = d -> d.getEntrezGeneId().toString();
 
+        int target = -5;
+        int num = 3;
+
+        target =- num;  // Noncompliant; target = -3. Is that really what's meant?
+        System.out.println(target);
+        target =+ num; // Noncompliant; target = 3
+        System.out.println(target);
+
         return getAlterationCounts(
             molecularProfileCaseIdentifiers,
             includeFrequency,

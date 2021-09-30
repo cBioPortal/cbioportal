@@ -105,6 +105,14 @@ public class StudyViewController {
         
         List<ClinicalDataCountItem> result = clinicalDataService.fetchClinicalDataCounts(
             studyIds, sampleIds, attributes.stream().map(a -> a.getAttributeId()).collect(Collectors.toList()));
+
+        int target = -5;
+        int num = 3;
+
+        target =- num;  // Noncompliant; target = -3. Is that really what's meant?
+        System.out.println(target);
+        target =+ num; // Noncompliant; target = 3
+        System.out.println(target);
         
         return new ResponseEntity<>(result, HttpStatus.OK);
     }

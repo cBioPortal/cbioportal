@@ -16,6 +16,9 @@
     <properties>
         <maven.compiler.source>11</maven.compiler.source>
         <maven.compiler.target>11</maven.compiler.target>
+        <timestamp>${maven.build.timestamp}</timestamp>
+        <maven.build.timestamp.format>yyyyMMdd-HHmm</maven.build.timestamp.format>
+        <netbeans.hint.deploy.server>Tomcat</netbeans.hint.deploy.server>
     </properties>
 
     <dependencies>
@@ -77,6 +80,7 @@
     </dependencies>
 
     <build>
+    
         <resources>
             <resource>
                 <directory>src/main/resources</directory>
@@ -97,21 +101,12 @@
                 </includes>
             </resource>
             <resource>
-                <directory>src/main/webapp/jsp</directory>
-                <filtering>true</filtering>
-                <includes>
-                    <include>**/footer.jsp</include>
-                </includes>
-            </resource>
-            <resource>
                 <directory>src/main/webapp</directory>
+                <targetPath>webapp</targetPath>
                 <filtering>false</filtering>
                 <includes>
                     <include>**/*</include>
                 </includes>
-                <excludes>
-                    <exclude>**/footer.jsp</exclude>
-                </excludes>
             </resource>
             <resource>
                 <directory>${project.parent.basedir}/db-scripts/src/main/resources</directory>
@@ -119,7 +114,14 @@
                 <filtering>true</filtering>
             </resource>
         </resources>
-    
+
+        <filters>
+            <filter>../src/main/resources/application.properties</filter>
+            <!-- TODO decide to use application.properties-->
+            <filter>../src/main/resources/portal.properties</filter>
+            <filter>../src/main/resources/maven.properties</filter>
+        </filters>
+ 
         <plugins>
             <plugin>
                 <groupId>org.springframework.boot</groupId>
@@ -140,29 +142,92 @@
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-dependency-plugin</artifactId>
                 <executions>
-<!--                    <execution>-->
-<!--                        <id>unpack</id>-->
-<!--                        <phase>prepare-package</phase>-->
-<!--                        <goals>-->
-<!--                            <goal>unpack</goal>-->
-<!--                        </goals>-->
-<!--                        <configuration>-->
-<!--                            <artifactItems>-->
-<!--                                <artifactItem>-->
-<!--                                    <groupId>${frontend.groupId}</groupId>-->
-<!--                                    <artifactId>cbioportal-frontend</artifactId>-->
-<!--                                    <version>${frontend.version}</version>-->
-<!--                                    <type>jar</type>-->
-<!--                                    <outputDirectory>${project.build.directory}/classes</outputDirectory>-->
-<!--                                    <excludes>*index*</excludes>-->
-<!--                                    <overWrite>true</overWrite>-->
-<!--                                </artifactItem>-->
-<!--                            </artifactItems>-->
-<!--                        </configuration>-->
-<!--                    </execution>-->
+                    <execution>
+                        <id>unpack</id>
+                        <phase>prepare-package</phase>
+                        <goals>
+                            <goal>unpack</goal>
+                        </goals>
+                        <configuration>
+                            <artifactItems>
+                                <artifactItem>
+                                    <groupId>${frontend.groupId}</groupId>
+                                    <artifactId>cbioportal-frontend</artifactId>
+                                    <version>${frontend.version}</version>
+                                    <type>jar</type>
+                                    <outputDirectory>${project.build.directory}/classes</outputDirectory>
+                                    <excludes>*index*</excludes>
+                                    <overWrite>true</overWrite>
+                                </artifactItem>
+                            </artifactItems>
+                        </configuration>
+                    </execution>
                 </executions>
             </plugin>
-<!--            &lt;!&ndash; war plugin config &ndash;&gt;-->
+            <!-- copy properties files from parent into classpath -->
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-resources-plugin</artifactId>
+                <executions>
+                    <execution>
+                        <id>copy-parent-resources</id>
+                        <phase>process-sources</phase>
+                        <goals>
+                            <goal>copy-resources</goal>
+                        </goals>
+                        <configuration>
+                            <outputDirectory>${project.build.directory}/classes</outputDirectory>
+                            <resources>
+                                <resource>
+                                    <directory>${session.executionRootDirectory}/src/main/resources</directory>
+                                    <filtering>true</filtering>
+                                    <includes>
+                                        <include>**/maven.properties</include>
+                                    </includes>
+                                </resource>
+                                <resource>
+                                    <directory>${session.executionRootDirectory}/src/main/resources</directory>
+                                    <filtering>false</filtering>
+                                    <includes>
+                                        <includes>**/*.properties</includes>
+                                    </includes>
+                                    <excludes>
+                                        <exclude>**/maven.properties</exclude>
+                                    </excludes>
+                                </resource>
+                            </resources>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+            <!-- rename properties files (remove EXAMPLE suffixes) -->
+<!--            <plugin>-->
+<!--                <groupId>com.coderplus.maven.plugins</groupId>-->
+<!--                <artifactId>copy-rename-maven-plugin</artifactId>-->
+<!--                <version>1.0.1</version>-->
+<!--                <executions>-->
+<!--                    <execution>-->
+<!--                        <id>rename-example-property-files</id>-->
+<!--                        <phase>compile</phase>-->
+<!--                        <goals>-->
+<!--                            <goal>rename</goal>-->
+<!--                        </goals>-->
+<!--                        <configuration>-->
+<!--                            <fileSets>-->
+<!--                                <fileSet>-->
+<!--                                    <sourceFile>${project.build.directory}/classes/portal.properties.EXAMPLE</sourceFile>-->
+<!--                                    <destinationFile>${project.build.directory}/classes/portal.properties</destinationFile>-->
+<!--                                </fileSet>   -->
+<!--                                <fileSet>-->
+<!--                                    <sourceFile>${project.build.directory}/classes/log4j.properties.EXAMPLE</sourceFile>-->
+<!--                                    <destinationFile>${project.build.directory}/classes/log4j.properties</destinationFile>-->
+<!--                                </fileSet>   -->
+<!--                            </fileSets>-->
+<!--                        </configuration>-->
+<!--                    </execution>    -->
+<!--                </executions>-->
+<!--            </plugin>-->
+            <!--            &lt;!&ndash; war plugin config &ndash;&gt;-->
 <!--            <plugin>-->
 <!--                <groupId>org.apache.maven.plugins</groupId>-->
 <!--                <artifactId>maven-war-plugin</artifactId>-->

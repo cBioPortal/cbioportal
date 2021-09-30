@@ -199,12 +199,46 @@
     </properties>
 
     <build>
+
         <plugins>
             <plugin>
                 <groupId>org.springframework.boot</groupId>
                 <artifactId>spring-boot-maven-plugin</artifactId>
             </plugin>
+<!--            &lt;!&ndash; copy properties files from parent for integration tests &ndash;&gt;-->
+<!--            <plugin>-->
+<!--                <groupId>org.apache.maven.plugins</groupId>-->
+<!--                <artifactId>maven-resources-plugin</artifactId>-->
+<!--                <executions>-->
+<!--                    <execution>-->
+<!--                        <id>copy-parent-resources</id>-->
+<!--                        <phase>process-sources</phase>-->
+<!--                        <goals>-->
+<!--                            <goal>copy-resources</goal>-->
+<!--                        </goals>-->
+<!--                        <configuration>-->
+<!--                            <outputDirectory>${project.build.directory}/classes</outputDirectory>-->
+<!--                            <resources>-->
+<!--                                <resource>-->
+<!--                                    <directory>${project.parent.basedir}/src/main/resources</directory>-->
+<!--                                    <includes>-->
+<!--                                        <include>**/*.properties</include>-->
+<!--                                    </includes>-->
+<!--                                    <excludes>-->
+<!--                                        <exclude>**/portal.properties.*</exclude>-->
+<!--                                        <exclude>**/log4j.properties.*</exclude>-->
+<!--                                        <exclude>**/maven.properties.*</exclude>-->
+<!--                                        <exclude>**/git.properties.*</exclude>-->
+<!--                                        <exclude>**/*.EXAMPLE</exclude>-->
+<!--                                    </excludes>-->
+<!--                                </resource>-->
+<!--                            </resources>-->
+<!--                        </configuration>-->
+<!--                    </execution>-->
+<!--                </executions>-->
+<!--            </plugin>-->
         </plugins>
+        
     </build>
 
 </project>

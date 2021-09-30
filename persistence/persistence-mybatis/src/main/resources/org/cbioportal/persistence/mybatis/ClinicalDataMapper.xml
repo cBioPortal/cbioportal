@@ -3,6 +3,22 @@
 
 <mapper namespace="org.cbioportal.persistence.mybatis.ClinicalDataMapper">
 
+    <!--    TODO duplicate of select in ClinicalAttributeMapper - remove-->
+    <!--    somehow the namespace mechanism does not work for this mapper xml-->
+    <sql id="selectClinicalAttribute">
+        clinical_attribute_meta.ATTR_ID AS "${prefix}attrId",
+        cancer_study.CANCER_STUDY_IDENTIFIER AS "${prefix}cancerStudyIdentifier",
+        clinical_attribute_meta.CANCER_STUDY_ID AS "${prefix}cancerStudyId",
+        clinical_attribute_meta.PATIENT_ATTRIBUTE AS "${prefix}patientAttribute",
+        clinical_attribute_meta.DISPLAY_NAME AS "${prefix}displayName"
+        <if test="projection == 'SUMMARY' || projection == 'DETAILED'">
+            ,
+            clinical_attribute_meta.DESCRIPTION AS "${prefix}description",
+            clinical_attribute_meta.DATATYPE AS "${prefix}datatype",
+            clinical_attribute_meta.PRIORITY AS "${prefix}priority"
+        </if>
+    </sql>
+
     <sql id="selectSample">
         clinical_sample.INTERNAL_ID AS "${prefix}internalId",
         sample.STABLE_ID AS "${prefix}sampleId",
@@ -14,7 +30,7 @@
         </if>
         <if test="projection == 'DETAILED'">
             ,
-            <include refid="org.cbioportal.persistence.mybatis.ClinicalAttributeMapper.select">
+            <include refid="selectClinicalAttribute">
                 <property name="prefix" value="${prefix}clinicalAttribute."/>
             </include>
         </if>
@@ -30,7 +46,7 @@
         </if>
         <if test="projection == 'DETAILED'">
             ,
-            <include refid="org.cbioportal.persistence.mybatis.ClinicalAttributeMapper.select">
+            <include refid="selectClinicalAttribute">
                 <property name="prefix" value="${prefix}clinicalAttribute."/>
             </include>
         </if>

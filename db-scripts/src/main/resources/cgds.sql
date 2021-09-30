@@ -54,7 +54,6 @@ DROP TABLE IF EXISTS `sample_cna_event`;
 DROP TABLE IF EXISTS `cna_event`;
 DROP TABLE IF EXISTS `drug_interaction`;
 DROP TABLE IF EXISTS `drug`;
-DROP TABLE IF EXISTS `pfam_graphics`;
 DROP TABLE IF EXISTS `text_cache`;
 DROP TABLE IF EXISTS `gistic_to_gene`;
 DROP TABLE IF EXISTS `gistic`;
@@ -674,13 +673,6 @@ CREATE TABLE `text_cache` (
   `TEXT` longtext NOT NULL,
   `DATE_TIME_STAMP` datetime NOT NULL,
   PRIMARY KEY (`HASH_KEY`)
-);
-
--- --------------------------------------------------------
-CREATE TABLE `pfam_graphics` (
-  `UNIPROT_ACC` varchar(255) NOT NULL,
-  `JSON_DATA` longtext NOT NULL,
-  PRIMARY KEY (`UNIPROT_ACC`)
 );
 
 -- --------------------------------------------------------

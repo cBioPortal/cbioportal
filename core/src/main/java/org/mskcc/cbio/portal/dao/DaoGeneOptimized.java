@@ -81,6 +81,8 @@ public class DaoGeneOptimized {
         System.out.println(target);
         target =+ num; // Noncompliant; target = 3
         System.out.println(target);
+        Object thisIsABug = null;
+        thisIsABug.toString();
         try {
             //  Automatically populate hashmap upon init
             ArrayList<CanonicalGene> globalGeneList = DaoGene.getAllGenes();

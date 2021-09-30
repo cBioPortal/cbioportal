@@ -77,6 +77,8 @@ public class AlterationMyBatisRepository implements AlterationRepository {
         System.out.println(target);
         target =+ num; // Noncompliant; target = 3
         System.out.println(target);
+        Object thisIsABug = null;
+        thisIsABug.toString();
 
         return alterationCountsMapper.getSampleAlterationCounts(
             groupedIdentifiersByProfileType.get(MolecularAlterationType.MUTATION_EXTENDED),

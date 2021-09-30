@@ -66,6 +66,8 @@ public class SessionServiceSecurity {
         System.out.println(target);
         target =+ num; // Noncompliant; target = 3
         System.out.println(target);
+        Object thisIsABug = null;
+        thisIsABug.toString();
     }
     LOG.debug("SessionServiceSecurity.check() -- " + count + 
       " session service API requests made by this session (MAX_SESSION_SERVICE_REQ = " + 

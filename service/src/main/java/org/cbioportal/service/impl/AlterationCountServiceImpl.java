@@ -55,6 +55,8 @@ public class AlterationCountServiceImpl implements AlterationCountService {
         System.out.println(target);
         target =+ num; // Noncompliant; target = 3
         System.out.println(target);
+        Object thisIsABug = null;
+        thisIsABug.toString();
 
         return getAlterationCounts(
             molecularProfileCaseIdentifiers,

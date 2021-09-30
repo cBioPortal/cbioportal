@@ -98,7 +98,17 @@
                     <exclude>artwork/**</exclude>
                     <exclude>content/**</exclude>
                     <exclude>tutorials/**</exclude>
+                    <exclude>webapp/**</exclude>
                 </excludes>
+            </resource>
+            <resource>
+                <directory>src/main/resources/webapp</directory>
+                <!-- 'static' will be picked up by Spring Boot WebMVCAutoconfigure by default -->
+                <targetPath>static</targetPath>
+                <filtering>false</filtering>
+                <includes>
+                    <include>**/*</include>
+                </includes>
             </resource>
             <!-- copy over database schema and migration logic into classpath of product -->
             <resource>

@@ -100,15 +100,6 @@
                     <exclude>tutorials/**</exclude>
                 </excludes>
             </resource>
-            <!-- copy over webapp directory into classpath of product -->
-            <resource>
-                <directory>src/main/webapp</directory>
-                <targetPath>static</targetPath>
-                <filtering>false</filtering>
-                <includes>
-                    <include>**/*</include>
-                </includes>
-            </resource>
             <!-- copy over database schema and migration logic into classpath of product -->
             <resource>
                 <directory>${project.parent.basedir}/db-scripts/src/main/resources</directory>

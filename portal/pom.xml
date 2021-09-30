@@ -80,53 +80,53 @@
     </dependencies>
 
     <build>
-    
-        <resources>
-            <resource>
-                <directory>src/main/resources</directory>
-                <filtering>true</filtering>
-                <excludes>
-                    <exclude>**/*.jks</exclude>
-                    <exclude>artwork/**</exclude>
-                    <exclude>content/**</exclude>
-                    <exclude>tutorials/**</exclude>
-                </excludes>
-            </resource>
-            <resource>
-                <directory>src/main/resources</directory>
-                <filtering>false</filtering>
-                <includes>
-                    <include>**/*.jks</include>
-                    <include>**/applicationContext-security.xml</include>
-                </includes>
-            </resource>
-            <resource>
-                <directory>src/main/webapp</directory>
-                <targetPath>webapp</targetPath>
-                <filtering>false</filtering>
-                <includes>
-                    <include>**/*</include>
-                </includes>
-            </resource>
-            <resource>
-                <directory>${project.parent.basedir}/db-scripts/src/main/resources</directory>
-                <targetPath>db-scripts</targetPath>
-                <filtering>true</filtering>
-            </resource>
-        </resources>
 
+        <!-- resolve property placeholders from these files -->
         <filters>
             <filter>../src/main/resources/application.properties</filter>
             <!-- TODO decide to use application.properties-->
             <filter>../src/main/resources/portal.properties</filter>
             <filter>../src/main/resources/maven.properties</filter>
         </filters>
+    
+        <resources>
+            <!-- copy over resources directory into classpath of product -->
+            <resource>
+                <directory>src/main/resources</directory>
+                <filtering>true</filtering>
+                <excludes>
+                    <exclude>artwork/**</exclude>
+                    <exclude>content/**</exclude>
+                    <exclude>tutorials/**</exclude>
+                </excludes>
+            </resource>
+            <!-- copy over webapp directory into classpath of product -->
+            <resource>
+                <directory>src/main/webapp</directory>
+                <targetPath>static</targetPath>
+                <filtering>false</filtering>
+                <includes>
+                    <include>**/*</include>
+                </includes>
+            </resource>
+            <!-- copy over database schema and migration logic into classpath of product -->
+            <resource>
+                <directory>${project.parent.basedir}/db-scripts/src/main/resources</directory>
+                <targetPath>db-scripts</targetPath>
+                <filtering>false</filtering>
+                <includes>
+                    <include>cgds.sql</include>
+                    <include>migration.sql</include>
+                </includes>
+            </resource>
+        </resources>
  
         <plugins>
             <plugin>
                 <groupId>org.springframework.boot</groupId>
                 <artifactId>spring-boot-maven-plugin</artifactId>
                 <configuration>
+                    <skip>false</skip>
                     <mainClass>org.cbioportal.PortalApplication</mainClass>
                 </configuration>
                 <executions>

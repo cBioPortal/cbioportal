@@ -62,6 +62,7 @@ public class ImportGenePanelProfileMap extends ConsoleRunnable {
             OptionSpec<String> meta = parser.accepts( "meta",
                    "gene panel file" ).withRequiredArg().describedAs( "meta_file.txt" ).ofType( String.class );
             parser.accepts("noprogress", "this option can be given to avoid the messages regarding memory usage and % complete");
+            parser.accepts("notaserver", "asserts that this is not a sever, adds more cli output");
 
             OptionSet options;
             try {

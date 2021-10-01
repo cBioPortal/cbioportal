@@ -409,6 +409,7 @@ public class ImportResourceData extends ConsoleRunnable {
                     .describedAs("[directLoad|bulkLoad (default)]").ofType(String.class);
             parser.accepts("noprogress",
                     "this option can be given to avoid the messages regarding memory usage and % complete");
+            parser.accepts("notaserver", "asserts that this is not a sever, adds more cli output");
 
             OptionSet options = null;
             try {

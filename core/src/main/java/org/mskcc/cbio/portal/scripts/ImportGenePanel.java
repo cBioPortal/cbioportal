@@ -61,6 +61,7 @@ public class ImportGenePanel extends ConsoleRunnable {
             OptionSpec<String> data = parser.accepts("data",
                 "gene panel file").withRequiredArg().describedAs("data_file.txt").ofType(String.class);
             parser.accepts("noprogress", "this option can be given to avoid the messages regarding memory usage and % complete");
+            parser.accepts("notaserver", "asserts that this is not a sever, adds more cli output");
 
             OptionSet options = null;
             try {
@@ -95,6 +96,7 @@ public class ImportGenePanel extends ConsoleRunnable {
 
         String stableId = extractPropertyValue("stable_id", properties, true);
         String description = extractPropertyValue("description", properties, false);
+        ProgressMonitor.setCurrentMessage("Extracting genes");
         Set<CanonicalGene> canonicalGenes = extractGenes(properties, false);
 
         GenePanel genePanel = DaoGenePanel.getGenePanelByStableId(stableId);

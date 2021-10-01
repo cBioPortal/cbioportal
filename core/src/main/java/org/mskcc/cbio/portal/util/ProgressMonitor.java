@@ -53,6 +53,7 @@ public class ProgressMonitor {
     private static org.apache.log4j.Logger logger = org.apache.log4j.Logger.getLogger(ProgressMonitor.class);
     private boolean consoleMode;
     private boolean showProgress;
+    private boolean noAServer = false;
     private TreeSet<String> warnings = new TreeSet<>();
     private HashMap<String, Integer> warningCounts = new HashMap<>();
     private List<String> debugMessages = new ArrayList<>();
@@ -67,6 +68,9 @@ public class ProgressMonitor {
     }
     
     private static boolean isRunningOnServer() {
+        if (isNotAServer()) {
+            return false;
+        }
         return ServerDetector.getServerId() != null;
     } 
     /**
@@ -83,18 +87,23 @@ public class ProgressMonitor {
      * Sets consoleMode to true and tries to infer showProgress mode from args. If an argument 
      * with name "--noprogress" is found, then showProgress is set to false
      * 
-     * @param args
+     * @param argsAdd cli arg to force outputAdd CLI arg to scrpits to override server detection
      */
     public static void setConsoleModeAndParseShowProgress(String[] args) {
     	//default
 		setConsoleMode(true);
-    	if (Arrays.asList(args).contains("--noprogress")) {
-    		setShowProgress(false);
-    	} else {
-    		//default:
-    		setShowProgress(true);
-    	}
+        //default:
+        setShowProgress(!Arrays.asList(args).contains("--noprogress"));
+        setNotAServer(Arrays.asList(args).contains("--notaserver"));
     		
+    }
+
+    public static boolean isNotAServer() {
+        return progressMonitor.noAServer;
+    }
+
+    public static void setNotAServer(boolean forceOutput) {
+        progressMonitor.noAServer = forceOutput;
     }
 
     /**

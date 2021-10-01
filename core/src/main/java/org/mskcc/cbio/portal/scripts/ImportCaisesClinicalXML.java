@@ -74,6 +74,7 @@ public class ImportCaisesClinicalXML extends ConsoleRunnable {
 
            OptionParser parser = new OptionParser();
            parser.accepts("noprogress");
+           parser.accepts("notaserver", "asserts that this is not a sever, adds more cli output");
            OptionSpec<String> data = parser.accepts( "data",
                    "caises data file" ).withRequiredArg().describedAs( "data_clinical_caises.xml" ).ofType( String.class );  
            OptionSpec<String> study = parser.accepts("study",

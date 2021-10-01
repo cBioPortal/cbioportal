@@ -71,6 +71,7 @@ public class ExportDataForDownload {
 
       parser = new OptionParser();
       parser.accepts("noprogress");
+      parser.accepts("notaserver", "asserts that this is not a sever, adds more cli output");
       OptionSpec<String> htmlIndexFile = parser.accepts( "htmlIndexFile", "output file to store html " +
               "index of files produced" ).
          withRequiredArg().describedAs( "htmlIndexFile" ).ofType( String.class );

@@ -131,6 +131,7 @@ public class ConsoleUtil {
 		// using a real options parser, helps avoid bugs
 		OptionParser parser = new OptionParser();
 		parser.accepts("noprogress", "this option can be given to avoid the messages regarding memory usage and % complete");
+        parser.accepts("notaserver", "asserts that this is not a sever, adds more cli output");
 		OptionSpec<Void> help = parser.accepts( "help", "print this help info" );
 		parser.accepts( "data", "profile data file" ).withRequiredArg().describedAs( "data_file.txt" ).ofType( String.class );
 		parser.accepts( "meta", "meta (description) file" ).withRequiredArg().describedAs( "meta_file.txt" ).ofType( String.class );
@@ -197,6 +198,7 @@ public class ConsoleUtil {
 		// using a real options parser, helps avoid bugs
 		OptionParser parser = new OptionParser();
 		parser.accepts("noprogress", "this option can be given to avoid the messages regarding memory usage and % complete");
+        parser.accepts("notaserver", "asserts that this is not a sever, adds more cli output");
 		OptionSpec<Void> help = parser.accepts( "help", "print this help info" );
 		parser.accepts( "data", "profile data file" ).withRequiredArg().describedAs( "data_file.txt" ).ofType( String.class );
 		parser.accepts( "study", "cancer study identifier" ).withRequiredArg().describedAs( "e.g. brca_tcga" ).ofType( String.class );
@@ -243,6 +245,7 @@ public class ConsoleUtil {
 		// using a real options parser, helps avoid bugs
 		OptionParser parser = new OptionParser();
 		parser.accepts("noprogress", "this option can be given to avoid the messages regarding memory usage and % complete");
+        parser.accepts("notaserver", "asserts that this is not a sever, adds more cli output");
 		OptionSpec<Void> help = parser.accepts( "help", "print this help info" );
         parser.accepts( "data", "profile data file" ).withRequiredArg().describedAs( "data_file.txt" ).ofType( String.class );
         parser.accepts( "update-info", "Update information for existing entities in the database").withOptionalArg().ofType(String.class);

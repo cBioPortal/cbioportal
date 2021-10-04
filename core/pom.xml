@@ -17,10 +17,22 @@
     <dependency>
       <groupId>org.mskcc.cbio</groupId>
       <artifactId>persistence-connections</artifactId>
+        <exclusions>
+          <exclusion>
+            <artifactId>catalina</artifactId>
+            <groupId>org.apache.catalina</groupId>
+          </exclusion>
+        </exclusions>
     </dependency>
     <dependency>
       <groupId>org.mskcc.cbio</groupId>
       <artifactId>security-spring</artifactId>
+        <exclusions>
+          <exclusion>
+            <artifactId>catalina</artifactId>
+            <groupId>org.apache.catalina</groupId>
+          </exclusion>
+        </exclusions>
     </dependency>
 
     <dependency>

@@ -61,7 +61,7 @@ public class MolecularDataControllerTest {
             Mockito.anyString(), Mockito.anyList(), Mockito.anyString()))
             .thenReturn(geneMolecularDataList);
 
-        mockMvc.perform(MockMvcRequestBuilders.get("/molecular-profiles/test_molecular_profile_id/molecular-data")
+        mockMvc.perform(MockMvcRequestBuilders.get("/api/molecular-profiles/test_molecular_profile_id/molecular-data")
             .param("sampleListId", TEST_SAMPLE_LIST_ID)
             .param("entrezGeneId", "1")
             .accept(MediaType.APPLICATION_JSON))
@@ -95,7 +95,7 @@ public class MolecularDataControllerTest {
         Mockito.when(molecularDataService.getMolecularData(Mockito.anyString(), Mockito.anyString(),
             Mockito.anyList(), Mockito.anyString())).thenReturn(geneMolecularDataList);
 
-        mockMvc.perform(MockMvcRequestBuilders.get("/molecular-profiles/test_molecular_profile_id/molecular-data")
+        mockMvc.perform(MockMvcRequestBuilders.get("/api/molecular-profiles/test_molecular_profile_id/molecular-data")
             .param("sampleListId", TEST_SAMPLE_LIST_ID)
             .param("entrezGeneId", "1")
             .param("projection", "META"))
@@ -116,7 +116,7 @@ public class MolecularDataControllerTest {
         MolecularDataFilter molecularDataFilter = createMolecularDataFilter();
 
         mockMvc.perform(MockMvcRequestBuilders
-            .post("/molecular-profiles/test_molecular_profile_id/molecular-data/fetch").with(csrf())
+            .post("/api/molecular-profiles/test_molecular_profile_id/molecular-data/fetch").with(csrf())
             .accept(MediaType.APPLICATION_JSON)
             .contentType(MediaType.APPLICATION_JSON)
             .content(objectMapper.writeValueAsString(molecularDataFilter)))
@@ -153,7 +153,7 @@ public class MolecularDataControllerTest {
         MolecularDataFilter molecularDataFilter = createMolecularDataFilter();
 
         mockMvc.perform(MockMvcRequestBuilders
-            .post("/molecular-profiles/test_molecular_profile_id/molecular-data/fetch").with(csrf())
+            .post("/api/molecular-profiles/test_molecular_profile_id/molecular-data/fetch").with(csrf())
             .contentType(MediaType.APPLICATION_JSON)
             .content(objectMapper.writeValueAsString(molecularDataFilter))
             .param("projection", "META"))
@@ -177,7 +177,7 @@ public class MolecularDataControllerTest {
         molecularDataMultipleStudyFilter.setEntrezGeneIds(Arrays.asList(TEST_ENTREZ_GENE_ID_1, TEST_ENTREZ_GENE_ID_2));
 
         mockMvc.perform(MockMvcRequestBuilders
-            .post("/molecular-data/fetch").with(csrf())
+            .post("/api/molecular-data/fetch").with(csrf())
             .accept(MediaType.APPLICATION_JSON)
             .contentType(MediaType.APPLICATION_JSON)
             .content(objectMapper.writeValueAsString(molecularDataMultipleStudyFilter)))

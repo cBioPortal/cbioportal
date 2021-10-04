@@ -75,7 +75,7 @@ public class CopyNumberSegmentControllerTest {
             Mockito.any(), Mockito.any(), Mockito.any(), Mockito.any(), Mockito.any(),
             Mockito.any(), Mockito.any())).thenReturn(copyNumberSegList);
 
-        mockMvc.perform(MockMvcRequestBuilders.get("/studies/test_study_id/samples/test_sample_id/copy-number-segments")
+        mockMvc.perform(MockMvcRequestBuilders.get("/api/studies/test_study_id/samples/test_sample_id/copy-number-segments")
             .accept(MediaType.APPLICATION_JSON))
             .andExpect(MockMvcResultMatchers.status().isOk())
             .andExpect(MockMvcResultMatchers.content().contentTypeCompatibleWith(MediaType.APPLICATION_JSON))
@@ -108,7 +108,7 @@ public class CopyNumberSegmentControllerTest {
         Mockito.when(copyNumberSegmentService.getMetaCopyNumberSegmentsInSampleInStudy(Mockito.any(),
             Mockito.any(), Mockito.any())).thenReturn(baseMeta);
 
-        mockMvc.perform(MockMvcRequestBuilders.get("/studies/test_study_id/samples/test_sample_id/copy-number-segments")
+        mockMvc.perform(MockMvcRequestBuilders.get("/api/studies/test_study_id/samples/test_sample_id/copy-number-segments")
             .param("projection", "META"))
             .andExpect(MockMvcResultMatchers.status().isOk())
             .andExpect(MockMvcResultMatchers.header().string(HeaderKeyConstants.TOTAL_COUNT, "2"));
@@ -133,7 +133,7 @@ public class CopyNumberSegmentControllerTest {
         sampleIdentifier2.setSampleId(TEST_SAMPLE_STABLE_ID_2);
         sampleIdentifiers.add(sampleIdentifier2);
 
-        mockMvc.perform(MockMvcRequestBuilders.post("/copy-number-segments/fetch").with(csrf())
+        mockMvc.perform(MockMvcRequestBuilders.post("/api/copy-number-segments/fetch").with(csrf())
             .accept(MediaType.APPLICATION_JSON)
             .contentType(MediaType.APPLICATION_JSON)
             .content(objectMapper.writeValueAsString(sampleIdentifiers)))
@@ -178,7 +178,7 @@ public class CopyNumberSegmentControllerTest {
         sampleIdentifier2.setSampleId(TEST_SAMPLE_STABLE_ID_2);
         sampleIdentifiers.add(sampleIdentifier2);
 
-        mockMvc.perform(MockMvcRequestBuilders.post("/copy-number-segments/fetch").with(csrf())
+        mockMvc.perform(MockMvcRequestBuilders.post("/api/copy-number-segments/fetch").with(csrf())
             .param("projection", "META")
             .contentType(MediaType.APPLICATION_JSON)
             .content(objectMapper.writeValueAsString(sampleIdentifiers)))

@@ -88,7 +88,7 @@ public class TreatmentControllerTest {
             .thenReturn(treatmentRows);
         
         mockMvc.perform(MockMvcRequestBuilders.post(
-            "/treatments/patient").with(csrf())
+            "/api/treatments/patient").with(csrf())
             .contentType(MediaType.APPLICATION_JSON)
             .content(objectMapper.writeValueAsString(studyViewFilter)))
             .andExpect(MockMvcResultMatchers.status().isOk())
@@ -116,7 +116,7 @@ public class TreatmentControllerTest {
             .thenReturn(sampleTreatmentRows);
 
         mockMvc.perform(MockMvcRequestBuilders.post(
-            "/treatments/sample").with(csrf())
+            "/api/treatments/sample").with(csrf())
             .contentType(MediaType.APPLICATION_JSON)
             .content(objectMapper.writeValueAsString(studyViewFilter)))
             .andExpect(MockMvcResultMatchers.status().isOk())
@@ -146,7 +146,7 @@ public class TreatmentControllerTest {
             .when(treatmentService.containsTreatmentData(Mockito.anyList()))
             .thenReturn(true);
 
-        mockMvc.perform(MockMvcRequestBuilders.post("/treatments/display-patient").with(csrf())
+        mockMvc.perform(MockMvcRequestBuilders.post("/api/treatments/display-patient").with(csrf())
             .contentType(MediaType.APPLICATION_JSON)
             .content(objectMapper.writeValueAsString(studies)))
             .andExpect(MockMvcResultMatchers.status().isOk())

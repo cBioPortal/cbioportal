@@ -85,7 +85,7 @@ public class MolecularProfileControllerTest {
         Mockito.when(molecularProfileService.getAllMolecularProfiles(Mockito.any(), Mockito.any(),
                 Mockito.any(), Mockito.any(), Mockito.any())).thenReturn(molecularProfileList);
 
-        mockMvc.perform(MockMvcRequestBuilders.get("/molecular-profiles")
+        mockMvc.perform(MockMvcRequestBuilders.get("/api/molecular-profiles")
                 .accept(MediaType.APPLICATION_JSON))
                 .andExpect(MockMvcResultMatchers.status().isOk())
                 .andExpect(MockMvcResultMatchers.content().contentTypeCompatibleWith(MediaType.APPLICATION_JSON))
@@ -129,7 +129,7 @@ public class MolecularProfileControllerTest {
 
         Mockito.when(molecularProfileService.getMetaMolecularProfiles()).thenReturn(baseMeta);
 
-        mockMvc.perform(MockMvcRequestBuilders.get("/molecular-profiles")
+        mockMvc.perform(MockMvcRequestBuilders.get("/api/molecular-profiles")
                 .param("projection", "META"))
                 .andExpect(MockMvcResultMatchers.status().isOk())
                 .andExpect(MockMvcResultMatchers.header().string(HeaderKeyConstants.TOTAL_COUNT, "2"));
@@ -142,7 +142,7 @@ public class MolecularProfileControllerTest {
         Mockito.when(molecularProfileService.getMolecularProfile(Mockito.anyString())).thenThrow(
                 new MolecularProfileNotFoundException("test_molecular_profile_id"));
 
-        mockMvc.perform(MockMvcRequestBuilders.get("/molecular-profiles/test_molecular_profile_id")
+        mockMvc.perform(MockMvcRequestBuilders.get("/api/molecular-profiles/test_molecular_profile_id")
                 .accept(MediaType.APPLICATION_JSON))
                 .andExpect(MockMvcResultMatchers.status().isNotFound())
                 .andExpect(MockMvcResultMatchers.jsonPath("$.message")
@@ -176,7 +176,7 @@ public class MolecularProfileControllerTest {
 
         Mockito.when(molecularProfileService.getMolecularProfile(Mockito.anyString())).thenReturn(molecularProfile);
 
-        mockMvc.perform(MockMvcRequestBuilders.get("/molecular-profiles/test_molecular_profile_id")
+        mockMvc.perform(MockMvcRequestBuilders.get("/api/molecular-profiles/test_molecular_profile_id")
                 .accept(MediaType.APPLICATION_JSON))
                 .andExpect(MockMvcResultMatchers.status().isOk())
                 .andExpect(MockMvcResultMatchers.content().contentTypeCompatibleWith(MediaType.APPLICATION_JSON))
@@ -212,7 +212,7 @@ public class MolecularProfileControllerTest {
                 Mockito.any(), Mockito.any(), Mockito.any(), Mockito.any()))
                 .thenReturn(molecularProfileList);
 
-        mockMvc.perform(MockMvcRequestBuilders.get("/studies/test_study_id/molecular-profiles")
+        mockMvc.perform(MockMvcRequestBuilders.get("/api/studies/test_study_id/molecular-profiles")
                 .accept(MediaType.APPLICATION_JSON))
                 .andExpect(MockMvcResultMatchers.status().isOk())
                 .andExpect(MockMvcResultMatchers.content().contentTypeCompatibleWith(MediaType.APPLICATION_JSON))
@@ -254,7 +254,7 @@ public class MolecularProfileControllerTest {
 
         Mockito.when(molecularProfileService.getMetaMolecularProfilesInStudy(Mockito.anyString())).thenReturn(baseMeta);
 
-        mockMvc.perform(MockMvcRequestBuilders.get("/studies/test_study_id/molecular-profiles")
+        mockMvc.perform(MockMvcRequestBuilders.get("/api/studies/test_study_id/molecular-profiles")
                 .param("projection", "META"))
                 .andExpect(MockMvcResultMatchers.status().isOk())
                 .andExpect(MockMvcResultMatchers.header().string(HeaderKeyConstants.TOTAL_COUNT, "2"));
@@ -273,7 +273,7 @@ public class MolecularProfileControllerTest {
         molecularProfileFilter.setStudyIds(Arrays.asList(TEST_STUDY_IDENTIFIER_1, TEST_STUDY_IDENTIFIER_2));
 
         mockMvc.perform(MockMvcRequestBuilders
-                .post("/molecular-profiles/fetch").with(csrf())
+                .post("/api/molecular-profiles/fetch").with(csrf())
                 .accept(MediaType.APPLICATION_JSON)
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(objectMapper.writeValueAsString(molecularProfileFilter)))

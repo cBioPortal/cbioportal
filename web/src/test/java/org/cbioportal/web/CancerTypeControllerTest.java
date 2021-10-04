@@ -70,7 +70,7 @@ public class CancerTypeControllerTest {
         Mockito.when(cancerTypeService.getAllCancerTypes(Mockito.any(), Mockito.any(), Mockito.any(),
                 Mockito.any(), Mockito.any())).thenReturn(typeOfCancerList);
 
-        mockMvc.perform(MockMvcRequestBuilders.get("/cancer-types")
+        mockMvc.perform(MockMvcRequestBuilders.get("/api/cancer-types")
                 .accept(MediaType.APPLICATION_JSON))
                 .andExpect(MockMvcResultMatchers.status().isOk())
                 .andExpect(MockMvcResultMatchers.content().contentTypeCompatibleWith(MediaType.APPLICATION_JSON))
@@ -96,7 +96,7 @@ public class CancerTypeControllerTest {
 
         Mockito.when(cancerTypeService.getMetaCancerTypes()).thenReturn(baseMeta);
 
-        mockMvc.perform(MockMvcRequestBuilders.get("/cancer-types")
+        mockMvc.perform(MockMvcRequestBuilders.get("/api/cancer-types")
                 .param("projection", "META"))
                 .andExpect(MockMvcResultMatchers.status().isOk())
                 .andExpect(MockMvcResultMatchers.header().string(HeaderKeyConstants.TOTAL_COUNT, "2"));
@@ -109,7 +109,7 @@ public class CancerTypeControllerTest {
         Mockito.when(cancerTypeService.getCancerType(Mockito.anyString()))
                 .thenThrow(new CancerTypeNotFoundException("cancer_type_id"));
 
-        mockMvc.perform(MockMvcRequestBuilders.get("/cancer-types/cancer_type_id")
+        mockMvc.perform(MockMvcRequestBuilders.get("/api/cancer-types/cancer_type_id")
                 .accept(MediaType.APPLICATION_JSON))
                 .andExpect(MockMvcResultMatchers.status().isNotFound())
                 .andExpect(MockMvcResultMatchers.jsonPath("$.message").value("Cancer type not found: cancer_type_id"));
@@ -128,7 +128,7 @@ public class CancerTypeControllerTest {
 
         Mockito.when(cancerTypeService.getCancerType(Mockito.anyString())).thenReturn(typeOfCancer);
 
-        mockMvc.perform(MockMvcRequestBuilders.get("/cancer-types/cancer_type_id")
+        mockMvc.perform(MockMvcRequestBuilders.get("/api/cancer-types/cancer_type_id")
                 .accept(MediaType.APPLICATION_JSON))
                 .andExpect(MockMvcResultMatchers.status().isOk())
                 .andExpect(MockMvcResultMatchers.content().contentTypeCompatibleWith(MediaType.APPLICATION_JSON))

@@ -39,7 +39,7 @@ import com.mongodb.BasicDBObject;
 import com.mongodb.QueryOperators;
 
 @Controller
-@RequestMapping("/session")
+@RequestMapping("/api/session")
 public class SessionServiceController {
 
     private static final Log LOG = LogFactory.getLog(SessionServiceController.class);
@@ -51,18 +51,15 @@ public class SessionServiceController {
     private String sessionServiceURL;
 
     private boolean isAuthorized() {
-
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         return !(authentication == null || (authentication instanceof AnonymousAuthenticationToken));
     }
 
     private String userName() {
-
         return ((UserDetails) SecurityContextHolder.getContext().getAuthentication().getPrincipal()).getUsername();
     }
 
     private boolean sameOrigin(Set<String> set1, Set<String> set2) {
-
         if (set1 == null || set2 == null) {
             return false;
         }

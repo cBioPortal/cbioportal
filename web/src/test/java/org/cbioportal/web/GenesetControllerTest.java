@@ -49,7 +49,7 @@ public class GenesetControllerTest {
         Mockito.when(genesetService.getAllGenesets(Mockito.anyString(), Mockito.anyInt(),
             Mockito.anyInt())).thenReturn(genesetList);
 
-        mockMvc.perform(MockMvcRequestBuilders.get("/genesets")
+        mockMvc.perform(MockMvcRequestBuilders.get("/api/genesets")
                 .accept(MediaType.APPLICATION_JSON))
                 .andExpect(MockMvcResultMatchers.status().isOk())
                 .andExpect(MockMvcResultMatchers.content().contentTypeCompatibleWith(MediaType.APPLICATION_JSON))
@@ -76,7 +76,7 @@ public class GenesetControllerTest {
         Mockito.when(genesetService.getGeneset(Mockito.anyString())).thenReturn(geneset);
 
         //test /genesets/{genesetId}
-        mockMvc.perform(MockMvcRequestBuilders.get("/genesets/test_geneset_id")
+        mockMvc.perform(MockMvcRequestBuilders.get("/api/genesets/test_geneset_id")
                 .accept(MediaType.APPLICATION_JSON))
                 .andExpect(MockMvcResultMatchers.status().isOk())
                 .andExpect(MockMvcResultMatchers.content().contentTypeCompatibleWith(MediaType.APPLICATION_JSON))

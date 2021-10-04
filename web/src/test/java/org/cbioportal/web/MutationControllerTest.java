@@ -153,7 +153,7 @@ public class MutationControllerTest {
             Mockito.any(), Mockito.any(), Mockito.any(), Mockito.any(),
             Mockito.any(), Mockito.any(), Mockito.any(), Mockito.any())).thenReturn(mutationList);
 
-        mockMvc.perform(MockMvcRequestBuilders.get("/molecular-profiles/test_molecular_profile_id/mutations")
+        mockMvc.perform(MockMvcRequestBuilders.get("/api/molecular-profiles/test_molecular_profile_id/mutations")
             .param("sampleListId", TEST_SAMPLE_LIST_ID)
             .accept(MediaType.APPLICATION_JSON))
             .andExpect(MockMvcResultMatchers.status().isOk())
@@ -243,7 +243,7 @@ public class MutationControllerTest {
             Mockito.any(), Mockito.any(), Mockito.any(), Mockito.any(),
             Mockito.any(), Mockito.any(), Mockito.any(), Mockito.any())).thenReturn(mutationList);
 
-        mockMvc.perform(MockMvcRequestBuilders.get("/molecular-profiles/test_molecular_profile_id/mutations")
+        mockMvc.perform(MockMvcRequestBuilders.get("/api/molecular-profiles/test_molecular_profile_id/mutations")
             .param("sampleListId", TEST_SAMPLE_LIST_ID)
             .param("projection", "DETAILED")
             .accept(MediaType.APPLICATION_JSON))
@@ -352,7 +352,7 @@ public class MutationControllerTest {
         Mockito.when(mutationService.getMetaMutationsInMolecularProfileBySampleListId(Mockito.any(),
             Mockito.any(), Mockito.any())).thenReturn(mutationMeta);
 
-        mockMvc.perform(MockMvcRequestBuilders.get("/molecular-profiles/test_molecular_profile_id/mutations")
+        mockMvc.perform(MockMvcRequestBuilders.get("/api/molecular-profiles/test_molecular_profile_id/mutations")
             .param("sampleListId", TEST_SAMPLE_LIST_ID)
             .param("projection", "META"))
             .andExpect(MockMvcResultMatchers.status().isOk())
@@ -382,7 +382,7 @@ public class MutationControllerTest {
         MutationMultipleStudyFilter mutationMultipleStudyFilter = new MutationMultipleStudyFilter();
         mutationMultipleStudyFilter.setSampleMolecularIdentifiers(sampleMolecularIdentifiers);
 
-        mockMvc.perform(MockMvcRequestBuilders.post("/mutations/fetch").with(csrf())
+        mockMvc.perform(MockMvcRequestBuilders.post("/api/mutations/fetch").with(csrf())
             .accept(MediaType.APPLICATION_JSON)
             .contentType(MediaType.APPLICATION_JSON)
             .content(objectMapper.writeValueAsString(mutationMultipleStudyFilter)))
@@ -478,7 +478,7 @@ public class MutationControllerTest {
         MutationFilter mutationFilter = new MutationFilter();
         mutationFilter.setSampleIds(sampleIds);
 
-        mockMvc.perform(MockMvcRequestBuilders.post("/molecular-profiles/test_molecular_profile_id/mutations/fetch").with(csrf())
+        mockMvc.perform(MockMvcRequestBuilders.post("/api/molecular-profiles/test_molecular_profile_id/mutations/fetch").with(csrf())
             .accept(MediaType.APPLICATION_JSON)
             .contentType(MediaType.APPLICATION_JSON)
             .content(objectMapper.writeValueAsString(mutationFilter)))
@@ -574,7 +574,7 @@ public class MutationControllerTest {
         MutationFilter mutationFilter = new MutationFilter();
         mutationFilter.setSampleIds(sampleIds);
 
-        mockMvc.perform(MockMvcRequestBuilders.post("/molecular-profiles/test_molecular_profile_id/mutations/fetch").with(csrf())
+        mockMvc.perform(MockMvcRequestBuilders.post("/api/molecular-profiles/test_molecular_profile_id/mutations/fetch").with(csrf())
             .param("projection", "DETAILED")
             .accept(MediaType.APPLICATION_JSON)
             .contentType(MediaType.APPLICATION_JSON)
@@ -691,7 +691,7 @@ public class MutationControllerTest {
         MutationFilter mutationFilter = new MutationFilter();
         mutationFilter.setSampleIds(sampleIds);
 
-        mockMvc.perform(MockMvcRequestBuilders.post("/molecular-profiles/test_molecular_profile_id/mutations/fetch").with(csrf())
+        mockMvc.perform(MockMvcRequestBuilders.post("/api/molecular-profiles/test_molecular_profile_id/mutations/fetch").with(csrf())
             .param("projection", "META")
             .contentType(MediaType.APPLICATION_JSON)
             .content(objectMapper.writeValueAsString(mutationFilter)))

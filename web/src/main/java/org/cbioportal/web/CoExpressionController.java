@@ -34,7 +34,7 @@ public class CoExpressionController {
 
     // requires permission to access both molecularProfileIdA and molecularProfileIdB because service layer does not enforce requirement that both profiles are in the same study
     @PreAuthorize("hasPermission(#molecularProfileIdA, 'MolecularProfileId', 'read') and hasPermission(#molecularProfileIdB, 'MolecularProfileId', 'read')")
-    @RequestMapping(value = "/molecular-profiles/co-expressions/fetch",
+    @RequestMapping(value = "/api/molecular-profiles/co-expressions/fetch",
         method = RequestMethod.POST, consumes = MediaType.APPLICATION_JSON_VALUE,
         produces = MediaType.APPLICATION_JSON_VALUE)
     @ApiOperation("Calculates correlations between a genetic entity from a specific profile and another profile from the same study")

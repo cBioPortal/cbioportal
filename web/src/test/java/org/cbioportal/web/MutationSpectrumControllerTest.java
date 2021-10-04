@@ -88,7 +88,7 @@ public class MutationSpectrumControllerTest {
         mutationSpectrumFilter.setSampleIds(Arrays.asList(TEST_SAMPLE_ID_1, TEST_SAMPLE_ID_2));
 
         mockMvc.perform(MockMvcRequestBuilders.post(
-            "/molecular-profiles/test_molecular_profile_id/mutation-spectrums/fetch").with(csrf())
+            "/api/molecular-profiles/test_molecular_profile_id/mutation-spectrums/fetch").with(csrf())
             .accept(MediaType.APPLICATION_JSON)
             .contentType(MediaType.APPLICATION_JSON)
             .content(objectMapper.writeValueAsString(mutationSpectrumFilter)))

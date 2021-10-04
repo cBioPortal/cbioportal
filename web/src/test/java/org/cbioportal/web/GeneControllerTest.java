@@ -64,7 +64,7 @@ public class GeneControllerTest {
         Mockito.when(geneService.getAllGenes(Mockito.any(), Mockito.any(), Mockito.any(), Mockito.any(),
             Mockito.any(), Mockito.any(), Mockito.any())).thenReturn(geneList);
 
-        mockMvc.perform(MockMvcRequestBuilders.get("/genes")
+        mockMvc.perform(MockMvcRequestBuilders.get("/api/genes")
                 .accept(MediaType.APPLICATION_JSON))
                 .andExpect(MockMvcResultMatchers.status().isOk())
                 .andExpect(MockMvcResultMatchers.content().contentTypeCompatibleWith(MediaType.APPLICATION_JSON))
@@ -87,7 +87,7 @@ public class GeneControllerTest {
 
         Mockito.when(geneService.getMetaGenes(Mockito.any(), Mockito.any())).thenReturn(baseMeta);
 
-        mockMvc.perform(MockMvcRequestBuilders.get("/genes")
+        mockMvc.perform(MockMvcRequestBuilders.get("/api/genes")
                 .param("projection", "META"))
                 .andExpect(MockMvcResultMatchers.status().isOk())
                 .andExpect(MockMvcResultMatchers.header().string(HeaderKeyConstants.TOTAL_COUNT, "2"));
@@ -101,7 +101,7 @@ public class GeneControllerTest {
 
         Mockito.when(geneService.getGene(eq("test_gene_id"))).thenThrow(new GeneNotFoundException("test_gene_id"));
 
-        mockMvc.perform(MockMvcRequestBuilders.get("/genes/test_gene_id")
+        mockMvc.perform(MockMvcRequestBuilders.get("/api/genes/test_gene_id")
                 .accept(MediaType.APPLICATION_JSON))
                 .andExpect(MockMvcResultMatchers.status().isNotFound())
                 .andExpect(MockMvcResultMatchers.jsonPath("$.message").value("Gene not found: test_gene_id"));
@@ -120,7 +120,7 @@ public class GeneControllerTest {
 
         Mockito.when(geneService.getGene(Mockito.anyString())).thenReturn(gene);
 
-        mockMvc.perform(MockMvcRequestBuilders.get("/genes/test_gene_id")
+        mockMvc.perform(MockMvcRequestBuilders.get("/api/genes/test_gene_id")
                 .accept(MediaType.APPLICATION_JSON))
                 .andExpect(MockMvcResultMatchers.status().isOk())
                 .andExpect(MockMvcResultMatchers.content().contentTypeCompatibleWith(MediaType.APPLICATION_JSON))
@@ -139,7 +139,7 @@ public class GeneControllerTest {
 
         Mockito.when(geneService.getAliasesOfGene(Mockito.anyString())).thenReturn(aliasList);
 
-        mockMvc.perform(MockMvcRequestBuilders.get("/genes/test_gene_id/aliases")
+        mockMvc.perform(MockMvcRequestBuilders.get("/api/genes/test_gene_id/aliases")
                 .accept(MediaType.APPLICATION_JSON))
                 .andExpect(MockMvcResultMatchers.status().isOk())
                 .andExpect(MockMvcResultMatchers.content().contentTypeCompatibleWith(MediaType.APPLICATION_JSON))
@@ -161,7 +161,7 @@ public class GeneControllerTest {
         geneIds.add(Integer.toString(ENTREZ_GENE_ID_1));
         geneIds.add(HUGO_GENE_SYMBOL_2);
 
-        mockMvc.perform(MockMvcRequestBuilders.post("/genes/fetch").with(csrf())
+        mockMvc.perform(MockMvcRequestBuilders.post("/api/genes/fetch").with(csrf())
                 .accept(MediaType.APPLICATION_JSON)
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(objectMapper.writeValueAsString(geneIds)))
@@ -190,7 +190,7 @@ public class GeneControllerTest {
         geneIds.add(Integer.toString(ENTREZ_GENE_ID_1));
         geneIds.add(HUGO_GENE_SYMBOL_2);
 
-        mockMvc.perform(MockMvcRequestBuilders.post("/genes/fetch").with(csrf())
+        mockMvc.perform(MockMvcRequestBuilders.post("/api/genes/fetch").with(csrf())
                 .param("projection", "META")
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(objectMapper.writeValueAsString(geneIds)))

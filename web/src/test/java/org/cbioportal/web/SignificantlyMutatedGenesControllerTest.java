@@ -83,7 +83,7 @@ public class SignificantlyMutatedGenesControllerTest {
             Mockito.any(), Mockito.any(), Mockito.any(), Mockito.any(), Mockito.any()))
             .thenReturn(mutSigList);
 
-        mockMvc.perform(MockMvcRequestBuilders.get("/studies/test_study_id/significantly-mutated-genes")
+        mockMvc.perform(MockMvcRequestBuilders.get("/api/studies/test_study_id/significantly-mutated-genes")
             .accept(MediaType.APPLICATION_JSON))
             .andExpect(MockMvcResultMatchers.status().isOk())
             .andExpect(MockMvcResultMatchers.content().contentTypeCompatibleWith(MediaType.APPLICATION_JSON))
@@ -120,7 +120,7 @@ public class SignificantlyMutatedGenesControllerTest {
         Mockito.when(significantlyMutatedGeneService.getMetaSignificantlyMutatedGenes(Mockito.anyString()))
             .thenReturn(baseMeta);
 
-        mockMvc.perform(MockMvcRequestBuilders.get("/studies/test_study_id/significantly-mutated-genes")
+        mockMvc.perform(MockMvcRequestBuilders.get("/api/studies/test_study_id/significantly-mutated-genes")
             .param("projection", "META"))
             .andExpect(MockMvcResultMatchers.status().isOk())
             .andExpect(MockMvcResultMatchers.header().string(HeaderKeyConstants.TOTAL_COUNT, "2"));

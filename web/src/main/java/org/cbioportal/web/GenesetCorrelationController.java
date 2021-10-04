@@ -61,7 +61,7 @@ public class GenesetCorrelationController {
     private GenesetCorrelationService genesetCorrelationService;
 
     @PreAuthorize("hasPermission(#geneticProfileId, 'GeneticProfileId', 'read')")
-    @RequestMapping(value = "/genesets/{genesetId}/expression-correlation/fetch", method = RequestMethod.POST,
+    @RequestMapping(value = "/api/genesets/{genesetId}/expression-correlation/fetch", method = RequestMethod.POST,
         consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
     @ApiOperation("Get the genes in a gene set that have expression correlated to the gene set scores (calculated using Spearman's correlation)")
     public ResponseEntity<List<GenesetCorrelation>> fetchCorrelatedGenes(

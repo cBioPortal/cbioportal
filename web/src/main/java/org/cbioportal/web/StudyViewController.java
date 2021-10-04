@@ -77,7 +77,7 @@ public class StudyViewController {
     private MolecularProfileService molecularProfileService;
 
     @PreAuthorize("hasPermission(#involvedCancerStudies, 'Collection<CancerStudyId>', 'read')")
-    @RequestMapping(value = "/clinical-data-counts/fetch", method = RequestMethod.POST,
+    @RequestMapping(value = "/api/clinical-data-counts/fetch", method = RequestMethod.POST,
         consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
     @ApiOperation("Fetch clinical data counts by study view filter")
     public ResponseEntity<List<ClinicalDataCountItem>> fetchClinicalDataCounts(
@@ -109,7 +109,7 @@ public class StudyViewController {
     }
 
     @PreAuthorize("hasPermission(#involvedCancerStudies, 'Collection<CancerStudyId>', 'read')")
-    @RequestMapping(value = "/clinical-data-bin-counts/fetch", method = RequestMethod.POST,
+    @RequestMapping(value = "/api/clinical-data-bin-counts/fetch", method = RequestMethod.POST,
         consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
     @ApiOperation("Fetch clinical data bin counts by study view filter")
     public ResponseEntity<List<ClinicalDataBin>> fetchClinicalDataBinCounts(
@@ -148,7 +148,7 @@ public class StudyViewController {
     }
 
     @PreAuthorize("hasPermission(#involvedCancerStudies, 'Collection<CancerStudyId>', 'read')")
-    @RequestMapping(value = "/mutated-genes/fetch", method = RequestMethod.POST,
+    @RequestMapping(value = "/api/mutated-genes/fetch", method = RequestMethod.POST,
         consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
     @ApiOperation("Fetch mutated genes by study view filter")
     public ResponseEntity<List<AlterationCountByGene>> fetchMutatedGenes(
@@ -174,7 +174,7 @@ public class StudyViewController {
     }
 
     @PreAuthorize("hasPermission(#involvedCancerStudies, 'Collection<CancerStudyId>', 'read')")
-    @RequestMapping(value = "/structuralvariant-genes/fetch", method = RequestMethod.POST,
+    @RequestMapping(value = "/api/structuralvariant-genes/fetch", method = RequestMethod.POST,
         consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
     @ApiOperation("Fetch structural variant genes by study view filter")
     public ResponseEntity<List<AlterationCountByGene>> fetchStructuralVariantGenes(
@@ -201,7 +201,7 @@ public class StudyViewController {
 
     
     @PreAuthorize("hasPermission(#involvedCancerStudies, 'Collection<CancerStudyId>', 'read')")
-    @RequestMapping(value = "/cna-genes/fetch", method = RequestMethod.POST,
+    @RequestMapping(value = "/api/cna-genes/fetch", method = RequestMethod.POST,
         consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
     @ApiOperation("Fetch CNA genes by study view filter")
     public ResponseEntity<List<CopyNumberCountByGene>> fetchCNAGenes(
@@ -227,7 +227,7 @@ public class StudyViewController {
     }
 
     @PreAuthorize("hasPermission(#involvedCancerStudies, 'Collection<CancerStudyId>', 'read')")
-    @RequestMapping(value = "/filtered-samples/fetch", method = RequestMethod.POST,
+    @RequestMapping(value = "/api/filtered-samples/fetch", method = RequestMethod.POST,
         consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
     @ApiOperation("Fetch sample IDs by study view filter")
     public ResponseEntity<List<Sample>> fetchFilteredSamples(
@@ -254,7 +254,7 @@ public class StudyViewController {
     }
 
     @PreAuthorize("hasPermission(#involvedCancerStudies, 'Collection<CancerStudyId>', 'read')")
-    @RequestMapping(value = "/molecular-profile-sample-counts/fetch", method = RequestMethod.POST,
+    @RequestMapping(value = "/api/molecular-profile-sample-counts/fetch", method = RequestMethod.POST,
         consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
     @ApiOperation("Fetch sample counts by study view filter")
     public List<GenomicDataCount> fetchMolecularProfileSampleCounts(
@@ -276,7 +276,7 @@ public class StudyViewController {
     }
 
     @PreAuthorize("hasPermission(#involvedCancerStudies, 'Collection<CancerStudyId>', 'read')")
-    @RequestMapping(value = "/clinical-data-density-plot/fetch", method = RequestMethod.POST,
+    @RequestMapping(value = "/api/clinical-data-density-plot/fetch", method = RequestMethod.POST,
         consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
     @ApiOperation("Fetch clinical data density plot bins by study view filter")
     public ResponseEntity<List<DensityPlotBin>> fetchClinicalDataDensityPlot(
@@ -423,7 +423,7 @@ public class StudyViewController {
     }
 
     @PreAuthorize("hasPermission(#involvedCancerStudies, 'Collection<CancerStudyId>', 'read')")
-    @RequestMapping(value = "/sample-lists-counts/fetch", method = RequestMethod.POST,
+    @RequestMapping(value = "/api/sample-lists-counts/fetch", method = RequestMethod.POST,
         consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
     @ApiOperation("Fetch case list sample counts by study view filter")
     public List<CaseListDataCount> fetchCaseListCounts(
@@ -481,7 +481,7 @@ public class StudyViewController {
     }
     
     @PreAuthorize("hasPermission(#involvedCancerStudies, 'Collection<CancerStudyId>', 'read')")
-    @RequestMapping(value = "/genomic-data-bin-counts/fetch", method = RequestMethod.POST, consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
+    @RequestMapping(value = "/api/genomic-data-bin-counts/fetch", method = RequestMethod.POST, consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
     @ApiOperation("Fetch genomic data bin counts by study view filter")
     public ResponseEntity<List<GenomicDataBin>> fetchGenomicDataBinCounts(
             @ApiParam("Method for data binning") @RequestParam(defaultValue = "DYNAMIC") DataBinMethod dataBinMethod,
@@ -496,7 +496,7 @@ public class StudyViewController {
     }
 
     @PreAuthorize("hasPermission(#involvedCancerStudies, 'Collection<CancerStudyId>', 'read')")
-    @RequestMapping(value = "/generic-assay-data-counts/fetch", method = RequestMethod.POST, consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
+    @RequestMapping(value = "/api/generic-assay-data-counts/fetch", method = RequestMethod.POST, consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
     @ApiOperation("Fetch generic assay data counts by study view filter")
     public ResponseEntity<List<GenericAssayDataCountItem>> fetchGenericAssayDataCounts(
         @ApiParam(required = true, value = "Generic assay data count filter") @Valid @RequestBody(required = false) GenericAssayDataCountFilter genericAssayDataCountFilter,
@@ -537,7 +537,7 @@ public class StudyViewController {
     }
 
     @PreAuthorize("hasPermission(#involvedCancerStudies, 'Collection<CancerStudyId>', 'read')")
-    @RequestMapping(value = "/generic-assay-data-bin-counts/fetch", method = RequestMethod.POST, consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
+    @RequestMapping(value = "/api/generic-assay-data-bin-counts/fetch", method = RequestMethod.POST, consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
     @ApiOperation("Fetch generic assay data bin counts by study view filter")
     public ResponseEntity<List<GenericAssayDataBin>> fetchGenericAssayDataBinCounts(
             @ApiParam("Method for data binning") @RequestParam(defaultValue = "DYNAMIC") DataBinMethod dataBinMethod,

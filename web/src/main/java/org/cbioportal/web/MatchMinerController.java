@@ -21,7 +21,7 @@ import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 
 @RestController
-@RequestMapping("/matchminer")
+@RequestMapping("/api/matchminer")
 public class MatchMinerController {
 
     private static final Log LOG = LogFactory.getLog( MatchMinerController.class);
@@ -32,10 +32,13 @@ public class MatchMinerController {
     @Value("${matchminer.token:}")
     private String token;
 
-    @RequestMapping(value = "/**", produces = "application/json")
+    @RequestMapping(value = "/api/**", produces = "application/json")
     public ResponseEntity<Object> proxy(@RequestBody(required = false) JSONObject body, HttpMethod method, HttpServletRequest request) {
         try {
-            String path = request.getPathInfo().replace("/matchminer", "");
+            // TODO when reimplemeting different dispatcherservlets with different context roots
+            // reset this to  'String requestPathInfo = request.getPathInfo();'
+            String requestPathInfo = request.getPathInfo() == null? request.getServletPath() : request.getPathInfo();
+            String path = requestPathInfo.replace("/matchminer", "");
             URI uri = new URI(this.url + path);
 
             HttpHeaders httpHeaders = new HttpHeaders();

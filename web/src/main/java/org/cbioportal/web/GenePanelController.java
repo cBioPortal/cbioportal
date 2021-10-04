@@ -46,7 +46,7 @@ public class GenePanelController {
     @Autowired
     private GenePanelService genePanelService;
 
-    @RequestMapping(value = "/gene-panels", method = RequestMethod.GET,
+    @RequestMapping(value = "/api/gene-panels", method = RequestMethod.GET,
         produces = MediaType.APPLICATION_JSON_VALUE)
     @ApiOperation("Get all gene panels")
     public ResponseEntity<List<GenePanel>> getAllGenePanels(
@@ -76,7 +76,7 @@ public class GenePanelController {
         }
     }
 
-    @RequestMapping(value = "/gene-panels/{genePanelId}", method = RequestMethod.GET,
+    @RequestMapping(value = "/api/gene-panels/{genePanelId}", method = RequestMethod.GET,
         produces = MediaType.APPLICATION_JSON_VALUE)
     @ApiOperation("Get gene panel")
     public ResponseEntity<GenePanel> getGenePanel(
@@ -86,7 +86,7 @@ public class GenePanelController {
         return new ResponseEntity<>(genePanelService.getGenePanel(genePanelId), HttpStatus.OK);
     }
 
-    @RequestMapping(value = "/gene-panels/fetch", method = RequestMethod.POST,
+    @RequestMapping(value = "/api/gene-panels/fetch", method = RequestMethod.POST,
         consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
     @ApiOperation("Get gene panel")
     public ResponseEntity<List<GenePanel>> fetchGenePanels(
@@ -100,7 +100,7 @@ public class GenePanelController {
     }
 
     @PreAuthorize("hasPermission(#molecularProfileId, 'MolecularProfileId', 'read')")
-    @RequestMapping(value = "/molecular-profiles/{molecularProfileId}/gene-panel-data/fetch", method = RequestMethod.POST,
+    @RequestMapping(value = "/api/molecular-profiles/{molecularProfileId}/gene-panel-data/fetch", method = RequestMethod.POST,
         consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
     @ApiOperation("Get gene panel data")
     public ResponseEntity<List<GenePanelData>> getGenePanelData(
@@ -122,7 +122,7 @@ public class GenePanelController {
     }
 
     @PreAuthorize("hasPermission(#involvedCancerStudies, 'Collection<CancerStudyId>', 'read')")
-    @RequestMapping(value = "/gene-panel-data/fetch", method = RequestMethod.POST,
+    @RequestMapping(value = "/api/gene-panel-data/fetch", method = RequestMethod.POST,
         consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
     @ApiOperation("Fetch gene panel data")
     public ResponseEntity<List<GenePanelData>> fetchGenePanelDataInMultipleMolecularProfiles(

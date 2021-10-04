@@ -47,7 +47,7 @@ public class GenesetHierarchyControllerTest {
         Mockito.when(genesetHierarchyService.fetchGenesetHierarchyInfo(Mockito.anyString(), Mockito.anyInt(),
             Mockito.anyDouble(), Mockito.anyDouble())).thenReturn(genesetHierarchyInfoList);
 
-        mockMvc.perform(MockMvcRequestBuilders.post("/geneset-hierarchy/fetch").with(csrf())
+        mockMvc.perform(MockMvcRequestBuilders.post("/api/geneset-hierarchy/fetch").with(csrf())
                 .param("geneticProfileId", PROF_ID)
                 .accept(MediaType.APPLICATION_JSON)
                 .contentType(MediaType.APPLICATION_JSON))

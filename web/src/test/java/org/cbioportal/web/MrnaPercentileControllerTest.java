@@ -75,7 +75,7 @@ public class MrnaPercentileControllerTest {
         entrezGeneIds.add(TEST_ENTREZ_GENE_ID_2);
 
         mockMvc.perform(MockMvcRequestBuilders
-            .post("/molecular-profiles/test_molecular_profile_id/mrna-percentile/fetch").with(csrf())
+            .post("/api/molecular-profiles/test_molecular_profile_id/mrna-percentile/fetch").with(csrf())
             .param("sampleId", TEST_SAMPLE_STABLE_ID)
             .accept(MediaType.APPLICATION_JSON)
             .contentType(MediaType.APPLICATION_JSON)

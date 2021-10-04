@@ -53,7 +53,7 @@ public class GenesetCorrelationControllerTest {
         Mockito.when(genesetCorrelationService.fetchCorrelatedGenes(Mockito.anyString(), Mockito.anyString(),
             Mockito.anyDouble())).thenReturn(correlationsForGeneset);
 
-        mockMvc.perform(MockMvcRequestBuilders.post("/genesets/" + QUERY_GENESET_ID + "/expression-correlation/fetch").with(csrf())
+        mockMvc.perform(MockMvcRequestBuilders.post("/api/genesets/" + QUERY_GENESET_ID + "/expression-correlation/fetch").with(csrf())
                 .param("geneticProfileId", PROF_ID)
                 .accept(MediaType.APPLICATION_JSON)
                 .contentType(MediaType.APPLICATION_JSON))

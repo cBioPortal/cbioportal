@@ -188,7 +188,7 @@ public class StudyViewControllerTest {
         studyViewFilter.setStudyIds(Arrays.asList(TEST_STUDY_ID));
         clinicalDataCountFilter.setStudyViewFilter(studyViewFilter);
 
-        mockMvc.perform(MockMvcRequestBuilders.post("/clinical-data-counts/fetch").with(csrf())
+        mockMvc.perform(MockMvcRequestBuilders.post("/api/clinical-data-counts/fetch").with(csrf())
             .accept(MediaType.APPLICATION_JSON)
             .contentType(MediaType.APPLICATION_JSON)
             .content(objectMapper.writeValueAsString(clinicalDataCountFilter)))
@@ -258,7 +258,7 @@ public class StudyViewControllerTest {
         studyViewFilter.setStudyIds(Collections.singletonList(TEST_STUDY_ID));
         clinicalDataBinCountFilter.setStudyViewFilter(studyViewFilter);
 
-        mockMvc.perform(MockMvcRequestBuilders.post("/clinical-data-bin-counts/fetch").with(csrf())
+        mockMvc.perform(MockMvcRequestBuilders.post("/api/clinical-data-bin-counts/fetch").with(csrf())
             .accept(MediaType.APPLICATION_JSON)
             .contentType(MediaType.APPLICATION_JSON)
             .content(objectMapper.writeValueAsString(clinicalDataBinCountFilter)))
@@ -315,7 +315,7 @@ public class StudyViewControllerTest {
             any(AlterationFilter.class)))
             .thenReturn(mutationCounts);
 
-        mockMvc.perform(MockMvcRequestBuilders.post("/mutated-genes/fetch").with(csrf())
+        mockMvc.perform(MockMvcRequestBuilders.post("/api/mutated-genes/fetch").with(csrf())
             .accept(MediaType.APPLICATION_JSON)
             .contentType(MediaType.APPLICATION_JSON)
             .content(objectMapper.writeValueAsString(studyViewFilter)))
@@ -365,7 +365,7 @@ public class StudyViewControllerTest {
         StudyViewFilter studyViewFilter = new StudyViewFilter();
         studyViewFilter.setStudyIds(Arrays.asList(TEST_STUDY_ID));
 
-        mockMvc.perform(MockMvcRequestBuilders.post("/structuralvariant-genes/fetch").with(csrf())
+        mockMvc.perform(MockMvcRequestBuilders.post("/api/structuralvariant-genes/fetch").with(csrf())
             .accept(MediaType.APPLICATION_JSON)
             .contentType(MediaType.APPLICATION_JSON)
             .content(objectMapper.writeValueAsString(studyViewFilter)))
@@ -417,7 +417,7 @@ public class StudyViewControllerTest {
         StudyViewFilter studyViewFilter = new StudyViewFilter();
         studyViewFilter.setStudyIds(Arrays.asList(TEST_STUDY_ID));
 
-        mockMvc.perform(MockMvcRequestBuilders.post("/cna-genes/fetch").with(csrf())
+        mockMvc.perform(MockMvcRequestBuilders.post("/api/cna-genes/fetch").with(csrf())
             .accept(MediaType.APPLICATION_JSON)
             .contentType(MediaType.APPLICATION_JSON)
             .content(objectMapper.writeValueAsString(studyViewFilter)))
@@ -468,7 +468,7 @@ public class StudyViewControllerTest {
         StudyViewFilter studyViewFilter = new StudyViewFilter();
         studyViewFilter.setStudyIds(Arrays.asList(TEST_STUDY_ID));
 
-        mockMvc.perform(MockMvcRequestBuilders.post("/filtered-samples/fetch").with(csrf())
+        mockMvc.perform(MockMvcRequestBuilders.post("/api/filtered-samples/fetch").with(csrf())
             .accept(MediaType.APPLICATION_JSON)
             .contentType(MediaType.APPLICATION_JSON)
             .content(objectMapper.writeValueAsString(studyViewFilter)))
@@ -520,7 +520,7 @@ public class StudyViewControllerTest {
             Arrays.asList(TEST_SAMPLE_ID_1, TEST_SAMPLE_ID_2, TEST_SAMPLE_ID_3)))
             .thenReturn(genomicDataCounts);
 
-        mockMvc.perform(MockMvcRequestBuilders.post("/molecular-profile-sample-counts/fetch").with(csrf())
+        mockMvc.perform(MockMvcRequestBuilders.post("/api/molecular-profile-sample-counts/fetch").with(csrf())
             .accept(MediaType.APPLICATION_JSON)
             .contentType(MediaType.APPLICATION_JSON)
             .content(objectMapper.writeValueAsString(studyViewFilter)))
@@ -601,7 +601,7 @@ public class StudyViewControllerTest {
         StudyViewFilter studyViewFilter = new StudyViewFilter();
         studyViewFilter.setStudyIds(Arrays.asList(TEST_STUDY_ID));
 
-        mockMvc.perform(MockMvcRequestBuilders.post("/clinical-data-density-plot/fetch").with(csrf())
+        mockMvc.perform(MockMvcRequestBuilders.post("/api/clinical-data-density-plot/fetch").with(csrf())
             .accept(MediaType.APPLICATION_JSON)
             .contentType(MediaType.APPLICATION_JSON)
             .content(objectMapper.writeValueAsString(studyViewFilter))
@@ -715,7 +715,7 @@ public class StudyViewControllerTest {
         studyViewFilter.setStudyIds(Arrays.asList(TEST_STUDY_ID));
         genericAssayDataCountFilter.setStudyViewFilter(studyViewFilter);
 
-        mockMvc.perform(MockMvcRequestBuilders.post("/generic-assay-data-counts/fetch").with(csrf())
+        mockMvc.perform(MockMvcRequestBuilders.post("/api/generic-assay-data-counts/fetch").with(csrf())
             .accept(MediaType.APPLICATION_JSON)
             .contentType(MediaType.APPLICATION_JSON)
             .content(objectMapper.writeValueAsString(genericAssayDataCountFilter)))

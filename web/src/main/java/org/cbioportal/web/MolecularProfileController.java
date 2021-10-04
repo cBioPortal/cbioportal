@@ -46,7 +46,7 @@ public class MolecularProfileController {
     @Autowired
     private MolecularProfileService molecularProfileService;
 
-    @RequestMapping(value = "/molecular-profiles", method = RequestMethod.GET,
+    @RequestMapping(value = "/api/molecular-profiles", method = RequestMethod.GET,
         produces = MediaType.APPLICATION_JSON_VALUE)
     @ApiOperation("Get all molecular profiles")
     public ResponseEntity<List<MolecularProfile>> getAllMolecularProfiles(
@@ -77,7 +77,7 @@ public class MolecularProfileController {
     }
 
     @PreAuthorize("hasPermission(#molecularProfileId, 'MolecularProfileId', 'read')")
-    @RequestMapping(value = "/molecular-profiles/{molecularProfileId}", method = RequestMethod.GET,
+    @RequestMapping(value = "/api/molecular-profiles/{molecularProfileId}", method = RequestMethod.GET,
         produces = MediaType.APPLICATION_JSON_VALUE)
     @ApiOperation("Get molecular profile")
     public ResponseEntity<MolecularProfile> getMolecularProfile(
@@ -88,7 +88,7 @@ public class MolecularProfileController {
     }
 
     @PreAuthorize("hasPermission(#studyId, 'CancerStudyId', 'read')")
-    @RequestMapping(value = "/studies/{studyId}/molecular-profiles", method = RequestMethod.GET,
+    @RequestMapping(value = "/api/studies/{studyId}/molecular-profiles", method = RequestMethod.GET,
         produces = MediaType.APPLICATION_JSON_VALUE)
     @ApiOperation("Get all molecular profiles in a study")
     public ResponseEntity<List<MolecularProfile>> getAllMolecularProfilesInStudy(
@@ -121,7 +121,7 @@ public class MolecularProfileController {
     }
 
     @PreAuthorize("hasPermission(#involvedCancerStudies, 'Collection<CancerStudyId>', 'read')")
-    @RequestMapping(value = "/molecular-profiles/fetch", method = RequestMethod.POST,
+    @RequestMapping(value = "/api/molecular-profiles/fetch", method = RequestMethod.POST,
         consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
     @ApiOperation("Fetch molecular profiles")
     public ResponseEntity<List<MolecularProfile>> fetchMolecularProfiles(

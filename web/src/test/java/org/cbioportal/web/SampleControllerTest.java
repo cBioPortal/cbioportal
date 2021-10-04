@@ -65,7 +65,7 @@ public class SampleControllerTest {
         Mockito.when(sampleService.getAllSamplesInStudy(Mockito.any(), Mockito.any(), Mockito.any(),
             Mockito.any(), Mockito.any(), Mockito.any())).thenReturn(sampleList);
 
-        mockMvc.perform(MockMvcRequestBuilders.get("/studies/test_study_id/samples")
+        mockMvc.perform(MockMvcRequestBuilders.get("/api/studies/test_study_id/samples")
             .accept(MediaType.APPLICATION_JSON))
             .andExpect(MockMvcResultMatchers.status().isOk())
             .andExpect(MockMvcResultMatchers.content().contentTypeCompatibleWith(MediaType.APPLICATION_JSON))
@@ -97,7 +97,7 @@ public class SampleControllerTest {
 
         Mockito.when(sampleService.getMetaSamplesInStudy(Mockito.anyString())).thenReturn(baseMeta);
 
-        mockMvc.perform(MockMvcRequestBuilders.get("/studies/test_study_id/samples")
+        mockMvc.perform(MockMvcRequestBuilders.get("/api/studies/test_study_id/samples")
             .param("projection", "META"))
             .andExpect(MockMvcResultMatchers.status().isOk())
             .andExpect(MockMvcResultMatchers.header().string(HeaderKeyConstants.TOTAL_COUNT, "2"));
@@ -110,7 +110,7 @@ public class SampleControllerTest {
         Mockito.when(sampleService.getSampleInStudy(Mockito.anyString(), Mockito.anyString())).thenThrow(
             new SampleNotFoundException("test_study_id", "test_sample_id"));
 
-        mockMvc.perform(MockMvcRequestBuilders.get("/studies/test_study_id/samples/test_sample_id")
+        mockMvc.perform(MockMvcRequestBuilders.get("/api/studies/test_study_id/samples/test_sample_id")
             .accept(MediaType.APPLICATION_JSON))
             .andExpect(MockMvcResultMatchers.status().isNotFound())
             .andExpect(MockMvcResultMatchers.jsonPath("$.message")
@@ -129,7 +129,7 @@ public class SampleControllerTest {
             )).thenReturn(samples);
         
         mockMvc.perform(
-            MockMvcRequestBuilders.get("/samples").accept(MediaType.APPLICATION_JSON))
+            MockMvcRequestBuilders.get("/api/samples").accept(MediaType.APPLICATION_JSON))
             .andExpect(MockMvcResultMatchers.status().isOk())
             .andExpect(MockMvcResultMatchers.content().contentTypeCompatibleWith(MediaType.APPLICATION_JSON))
             .andExpect(MockMvcResultMatchers.jsonPath("$", Matchers.hasSize(2)))
@@ -165,7 +165,7 @@ public class SampleControllerTest {
 
         Mockito.when(sampleService.getSampleInStudy(Mockito.anyString(), Mockito.anyString())).thenReturn(sample);
 
-        mockMvc.perform(MockMvcRequestBuilders.get("/studies/test_study_id/samples/test_sample_id")
+        mockMvc.perform(MockMvcRequestBuilders.get("/api/studies/test_study_id/samples/test_sample_id")
             .accept(MediaType.APPLICATION_JSON))
             .andExpect(MockMvcResultMatchers.status().isOk())
             .andExpect(MockMvcResultMatchers.content().contentTypeCompatibleWith(MediaType.APPLICATION_JSON))
@@ -189,7 +189,7 @@ public class SampleControllerTest {
             Mockito.any(), Mockito.any(), Mockito.any(), Mockito.any(), Mockito.any()))
             .thenReturn(sampleList);
 
-        mockMvc.perform(MockMvcRequestBuilders.get("/studies/test_study_id/patients/test_patient_id/samples")
+        mockMvc.perform(MockMvcRequestBuilders.get("/api/studies/test_study_id/patients/test_patient_id/samples")
             .accept(MediaType.APPLICATION_JSON))
             .andExpect(MockMvcResultMatchers.status().isOk())
             .andExpect(MockMvcResultMatchers.content().contentTypeCompatibleWith(MediaType.APPLICATION_JSON))
@@ -222,7 +222,7 @@ public class SampleControllerTest {
         Mockito.when(sampleService.getMetaSamplesOfPatientInStudy(Mockito.anyString(), Mockito.anyString()))
             .thenReturn(baseMeta);
 
-        mockMvc.perform(MockMvcRequestBuilders.get("/studies/test_study_id/patients/test_patient_id/samples")
+        mockMvc.perform(MockMvcRequestBuilders.get("/api/studies/test_study_id/patients/test_patient_id/samples")
             .param("projection", "META"))
             .andExpect(MockMvcResultMatchers.status().isOk())
             .andExpect(MockMvcResultMatchers.header().string(HeaderKeyConstants.TOTAL_COUNT, "2"));
@@ -249,7 +249,7 @@ public class SampleControllerTest {
         sampleIdentifiers.add(sampleIdentifier2);
         sampleFilter.setSampleIdentifiers(sampleIdentifiers);
 
-        mockMvc.perform(MockMvcRequestBuilders.post("/samples/fetch").with(csrf())
+        mockMvc.perform(MockMvcRequestBuilders.post("/api/samples/fetch").with(csrf())
             .accept(MediaType.APPLICATION_JSON)
             .contentType(MediaType.APPLICATION_JSON)
             .content(objectMapper.writeValueAsString(sampleFilter)))
@@ -289,7 +289,7 @@ public class SampleControllerTest {
         uniqueSampleKeys.add("dGVzdF9zdGFibGVfaWRfMjp0ZXN0X3N0dWR5XzE");
         sampleFilter.setUniqueSampleKeys(uniqueSampleKeys);
 
-        mockMvc.perform(MockMvcRequestBuilders.post("/samples/fetch").with(csrf())
+        mockMvc.perform(MockMvcRequestBuilders.post("/api/samples/fetch").with(csrf())
             .accept(MediaType.APPLICATION_JSON)
             .contentType(MediaType.APPLICATION_JSON)
             .content(objectMapper.writeValueAsString(sampleFilter)))
@@ -336,7 +336,7 @@ public class SampleControllerTest {
         sampleIdentifiers.add(sampleIdentifier2);
         sampleFilter.setSampleIdentifiers(sampleIdentifiers);
 
-        mockMvc.perform(MockMvcRequestBuilders.post("/samples/fetch").with(csrf())
+        mockMvc.perform(MockMvcRequestBuilders.post("/api/samples/fetch").with(csrf())
             .param("projection", "META")
             .contentType(MediaType.APPLICATION_JSON)
             .content(objectMapper.writeValueAsString(sampleFilter)))

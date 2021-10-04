@@ -81,7 +81,7 @@ public class MutationCountControllerTest {
         mutationPositionIdentifier2.setProteinPosEnd(TEST_ONCOTATOR_PROTEIN_POS_END_2);
         mutationPositionIdentifiers.add(mutationPositionIdentifier2);
 
-        mockMvc.perform(MockMvcRequestBuilders.post("/mutation-counts-by-position/fetch").with(csrf())
+        mockMvc.perform(MockMvcRequestBuilders.post("/api/mutation-counts-by-position/fetch").with(csrf())
             .accept(MediaType.APPLICATION_JSON)
             .contentType(MediaType.APPLICATION_JSON)
             .content(objectMapper.writeValueAsString(mutationPositionIdentifiers)))

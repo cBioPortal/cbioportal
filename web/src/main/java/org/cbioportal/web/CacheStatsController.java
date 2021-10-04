@@ -29,7 +29,7 @@ public class CacheStatsController {
     @Autowired
     public CacheStatisticsService cacheStatisticsService;
 
-    @RequestMapping(value = "/{cache}/keysInCache", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
+    @RequestMapping(value = "/api/{cache}/keysInCache", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
     @ApiOperation("Get list of keys in cache")
     public ResponseEntity<List<String>> getKeysInCache(
         @ApiParam(required = true, value = "Cache name")
@@ -38,7 +38,7 @@ public class CacheStatsController {
         return new ResponseEntity<>(strings, HttpStatus.OK);
     }
 
-    @RequestMapping(value = "/{cache}/keyCountsPerClass", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
+    @RequestMapping(value = "/api/{cache}/keyCountsPerClass", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
     @ApiOperation("Get counts of keys per repository class")
     public ResponseEntity<List<String>> getKeyCountsPerClass(
         @ApiParam(required = true, value = "Cache name")
@@ -47,7 +47,7 @@ public class CacheStatsController {
         return new ResponseEntity<>(strings, HttpStatus.OK);
     }
 
-    @RequestMapping(value = "/cacheStatistics", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
+    @RequestMapping(value = "/api/cacheStatistics", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
     @ApiOperation("Get general cache statistics")
     public ResponseEntity<String> getCacheStatistics() throws CacheNotFoundException {
         return new ResponseEntity<>(cacheStatisticsService.getCacheStatistics(), HttpStatus.OK);

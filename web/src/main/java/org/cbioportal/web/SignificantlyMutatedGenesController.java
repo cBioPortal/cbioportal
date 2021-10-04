@@ -39,7 +39,7 @@ public class SignificantlyMutatedGenesController {
     private SignificantlyMutatedGeneService significantlyMutatedGeneService;
 
     @PreAuthorize("hasPermission(#studyId, 'CancerStudyId', 'read')")
-    @RequestMapping(value = "/studies/{studyId}/significantly-mutated-genes", method = RequestMethod.GET,
+    @RequestMapping(value = "/api/studies/{studyId}/significantly-mutated-genes", method = RequestMethod.GET,
         produces = MediaType.APPLICATION_JSON_VALUE)
     @ApiOperation("Get significantly mutated genes in a study")
     public ResponseEntity<List<MutSig>> getSignificantlyMutatedGenes(

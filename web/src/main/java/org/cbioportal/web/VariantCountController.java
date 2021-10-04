@@ -36,7 +36,7 @@ public class VariantCountController {
     private VariantCountService variantCountService;
 
     @PreAuthorize("hasPermission(#molecularProfileId, 'MolecularProfileId', 'read')")
-    @RequestMapping(value = "/molecular-profiles/{molecularProfileId}/variant-counts/fetch",
+    @RequestMapping(value = "/api/molecular-profiles/{molecularProfileId}/variant-counts/fetch",
         method = RequestMethod.POST, consumes = MediaType.APPLICATION_JSON_VALUE,
         produces = MediaType.APPLICATION_JSON_VALUE)
     @ApiOperation("Get counts of specific variants within a mutation molecular profile")

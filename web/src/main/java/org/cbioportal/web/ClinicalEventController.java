@@ -41,7 +41,7 @@ public class ClinicalEventController {
     private ClinicalEventService clinicalEventService;
 
     @PreAuthorize("hasPermission(#studyId, 'CancerStudyId', 'read')")
-    @RequestMapping(value = "/studies/{studyId}/patients/{patientId}/clinical-events", method = RequestMethod.GET,
+    @RequestMapping(value = "/api/studies/{studyId}/patients/{patientId}/clinical-events", method = RequestMethod.GET,
         produces = MediaType.APPLICATION_JSON_VALUE)
     @ApiOperation("Get all clinical events of a patient in a study")
     public ResponseEntity<List<ClinicalEvent>> getAllClinicalEventsOfPatientInStudy(
@@ -78,7 +78,7 @@ public class ClinicalEventController {
     }
 
     @PreAuthorize("hasPermission(#studyId, 'CancerStudyId', 'read')")
-    @RequestMapping(value = "/studies/{studyId}/clinical-events", method = RequestMethod.GET,
+    @RequestMapping(value = "/api/studies/{studyId}/clinical-events", method = RequestMethod.GET,
         produces = MediaType.APPLICATION_JSON_VALUE)
     @ApiOperation("Get all clinical events in a study")
     public ResponseEntity<List<ClinicalEvent>> getAllClinicalEventsInStudy(

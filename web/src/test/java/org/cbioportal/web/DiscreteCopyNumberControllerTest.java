@@ -76,7 +76,7 @@ public class DiscreteCopyNumberControllerTest {
             Mockito.any(), Mockito.any(), Mockito.any(),
             Mockito.any(), Mockito.any())).thenReturn(discreteCopyNumberDataList);
 
-        mockMvc.perform(MockMvcRequestBuilders.get("/molecular-profiles/test_molecular_profile_id/discrete-copy-number")
+        mockMvc.perform(MockMvcRequestBuilders.get("/api/molecular-profiles/test_molecular_profile_id/discrete-copy-number")
             .param("sampleListId", TEST_SAMPLE_LIST_ID)
             .param("discreteCopyNumberEventType", DiscreteCopyNumberEventType.HOMDEL_AND_AMP.name())
             .accept(MediaType.APPLICATION_JSON))
@@ -107,7 +107,7 @@ public class DiscreteCopyNumberControllerTest {
             Mockito.any(), Mockito.any(), Mockito.any(),
             Mockito.any(), Mockito.any())).thenReturn(discreteCopyNumberDataList);
 
-        mockMvc.perform(MockMvcRequestBuilders.get("/molecular-profiles/test_molecular_profile_id/discrete-copy-number")
+        mockMvc.perform(MockMvcRequestBuilders.get("/api/molecular-profiles/test_molecular_profile_id/discrete-copy-number")
             .param("sampleListId", TEST_SAMPLE_LIST_ID)
             .param("discreteCopyNumberEventType", DiscreteCopyNumberEventType.HOMDEL_AND_AMP.name())
             .param("projection", "DETAILED")
@@ -144,7 +144,7 @@ public class DiscreteCopyNumberControllerTest {
             Mockito.any(), Mockito.any(), Mockito.any(),
             Mockito.any())).thenReturn(baseMeta);
 
-        mockMvc.perform(MockMvcRequestBuilders.get("/molecular-profiles/test_molecular_profile_id/discrete-copy-number")
+        mockMvc.perform(MockMvcRequestBuilders.get("/api/molecular-profiles/test_molecular_profile_id/discrete-copy-number")
             .param("sampleListId", TEST_SAMPLE_LIST_ID)
             .param("discreteCopyNumberEventType", DiscreteCopyNumberEventType.HOMDEL_AND_AMP.name())
             .param("projection", "META"))
@@ -165,7 +165,7 @@ public class DiscreteCopyNumberControllerTest {
         DiscreteCopyNumberFilter discreteCopyNumberFilter = createDiscreteCopyNumberFilter();
 
         mockMvc.perform(MockMvcRequestBuilders
-            .post("/molecular-profiles/test_molecular_profile_id/discrete-copy-number/fetch").with(csrf())
+            .post("/api/molecular-profiles/test_molecular_profile_id/discrete-copy-number/fetch").with(csrf())
             .param("discreteCopyNumberEventType", DiscreteCopyNumberEventType.HOMDEL_AND_AMP.name())
             .accept(MediaType.APPLICATION_JSON)
             .contentType(MediaType.APPLICATION_JSON)
@@ -199,7 +199,7 @@ public class DiscreteCopyNumberControllerTest {
         DiscreteCopyNumberFilter discreteCopyNumberFilter = createDiscreteCopyNumberFilter();
 
         mockMvc.perform(MockMvcRequestBuilders
-            .post("/molecular-profiles/test_molecular_profile_id/discrete-copy-number/fetch").with(csrf())
+            .post("/api/molecular-profiles/test_molecular_profile_id/discrete-copy-number/fetch").with(csrf())
             .param("discreteCopyNumberEventType", DiscreteCopyNumberEventType.HOMDEL_AND_AMP.name())
             .param("projection", "DETAILED")
             .accept(MediaType.APPLICATION_JSON)
@@ -239,7 +239,7 @@ public class DiscreteCopyNumberControllerTest {
 
         DiscreteCopyNumberFilter discreteCopyNumberFilter = createDiscreteCopyNumberFilter();
 
-        mockMvc.perform(MockMvcRequestBuilders.post("/molecular-profiles/test_molecular_profile_id/discrete-copy-number/fetch").with(csrf())
+        mockMvc.perform(MockMvcRequestBuilders.post("/api/molecular-profiles/test_molecular_profile_id/discrete-copy-number/fetch").with(csrf())
             .contentType(MediaType.APPLICATION_JSON)
             .content(objectMapper.writeValueAsString(discreteCopyNumberFilter))
             .param("discreteCopyNumberEventType", DiscreteCopyNumberEventType.HOMDEL_AND_AMP.name())

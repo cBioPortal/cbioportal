@@ -65,7 +65,7 @@ public class ClinicalEventControllerTest {
             Mockito.any(), Mockito.any(), Mockito.any(), Mockito.any(), Mockito.any()))
             .thenReturn(clinicalEventList);
 
-        mockMvc.perform(MockMvcRequestBuilders.get("/studies/test_study_id/patients/test_patient_id/clinical-events")
+        mockMvc.perform(MockMvcRequestBuilders.get("/api/studies/test_study_id/patients/test_patient_id/clinical-events")
             .accept(MediaType.APPLICATION_JSON))
             .andExpect(MockMvcResultMatchers.status().isOk())
             .andExpect(MockMvcResultMatchers.content().contentTypeCompatibleWith(MediaType.APPLICATION_JSON))
@@ -102,7 +102,7 @@ public class ClinicalEventControllerTest {
         Mockito.when(clinicalEventService.getMetaPatientClinicalEvents(Mockito.anyString(), Mockito.anyString()))
             .thenReturn(baseMeta);
 
-        mockMvc.perform(MockMvcRequestBuilders.get("/studies/test_study_id/patients/test_patient_id/clinical-events")
+        mockMvc.perform(MockMvcRequestBuilders.get("/api/studies/test_study_id/patients/test_patient_id/clinical-events")
             .param("projection", "META"))
             .andExpect(MockMvcResultMatchers.status().isOk())
             .andExpect(MockMvcResultMatchers.header().string(HeaderKeyConstants.TOTAL_COUNT, "2"));
@@ -118,7 +118,7 @@ public class ClinicalEventControllerTest {
             Mockito.any(), Mockito.any(), Mockito.any(), Mockito.any(), Mockito.any()))
             .thenReturn(clinicalEventList);
 
-        mockMvc.perform(MockMvcRequestBuilders.get("/studies/test_study_id/clinical-events")
+        mockMvc.perform(MockMvcRequestBuilders.get("/api/studies/test_study_id/clinical-events")
             .accept(MediaType.APPLICATION_JSON))
             .andExpect(MockMvcResultMatchers.status().isOk())
             .andExpect(MockMvcResultMatchers.content().contentTypeCompatibleWith(MediaType.APPLICATION_JSON))
@@ -155,7 +155,7 @@ public class ClinicalEventControllerTest {
         Mockito.when(clinicalEventService.getMetaClinicalEvents(Mockito.anyString()))
             .thenReturn(baseMeta);
 
-        mockMvc.perform(MockMvcRequestBuilders.get("/studies/test_study_id/clinical-events")
+        mockMvc.perform(MockMvcRequestBuilders.get("/api/studies/test_study_id/clinical-events")
             .param("projection", "META"))
             .andExpect(MockMvcResultMatchers.status().isOk())
             .andExpect(MockMvcResultMatchers.header().string(HeaderKeyConstants.TOTAL_COUNT, "2"));

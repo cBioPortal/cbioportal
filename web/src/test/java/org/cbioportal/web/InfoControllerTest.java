@@ -30,7 +30,7 @@ public class InfoControllerTest {
     @WithMockUser
     public void getInfo() throws Exception {
 
-        mockMvc.perform(MockMvcRequestBuilders.get("/info")
+        mockMvc.perform(MockMvcRequestBuilders.get("/api/info")
             .accept(MediaType.APPLICATION_JSON))
             .andExpect(MockMvcResultMatchers.status().isOk())
             .andExpect(MockMvcResultMatchers.content().contentTypeCompatibleWith(MediaType.APPLICATION_JSON))

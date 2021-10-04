@@ -86,7 +86,7 @@ public class VariantCountControllerTest {
         variantCountIdentifiers.add(variantCountIdentifier2);
 
         mockMvc.perform(MockMvcRequestBuilders
-            .post("/molecular-profiles/test_molecular_profile_id/variant-counts/fetch").with(csrf())
+            .post("/api/molecular-profiles/test_molecular_profile_id/variant-counts/fetch").with(csrf())
             .accept(MediaType.APPLICATION_JSON)
             .contentType(MediaType.APPLICATION_JSON)
             .content(objectMapper.writeValueAsString(variantCountIdentifiers)))

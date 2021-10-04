@@ -44,7 +44,7 @@ public class AlterationDriverAnnotationControllerTest {
     private MockMvc mockMvc;
 
     @Before
-    public void setUp() throws Exception {
+    public void setUp() {
         Mockito.reset(alterationDriverAnnotationService);
     }
 
@@ -58,7 +58,7 @@ public class AlterationDriverAnnotationControllerTest {
 
         List<String> body = new ArrayList<>(Collections.singletonList("molecularProfileId1"));
         mockMvc.perform(MockMvcRequestBuilders.post(
-            "/custom-driver-annotation-report/fetch").with(csrf())
+            "/api/custom-driver-annotation-report/fetch").with(csrf())
             .accept(MediaType.APPLICATION_JSON)
             .contentType(MediaType.APPLICATION_JSON)
             .content(objectMapper.writeValueAsString(body)))

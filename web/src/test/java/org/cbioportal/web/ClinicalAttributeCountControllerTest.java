@@ -80,7 +80,7 @@ public class ClinicalAttributeCountControllerTest {
         sampleIdentifierList.add(sampleIdentifier2);
         clinicalAttributeCountFilter.setSampleIdentifiers(sampleIdentifierList);
 
-        mockMvc.perform(MockMvcRequestBuilders.post("/clinical-attributes/counts/fetch").with(csrf())
+        mockMvc.perform(MockMvcRequestBuilders.post("/api/clinical-attributes/counts/fetch").with(csrf())
             .accept(MediaType.APPLICATION_JSON)
             .contentType(MediaType.APPLICATION_JSON)
             .content(objectMapper.writeValueAsString(clinicalAttributeCountFilter)))
@@ -112,7 +112,7 @@ public class ClinicalAttributeCountControllerTest {
         ClinicalAttributeCountFilter clinicalAttributeCountFilter = new ClinicalAttributeCountFilter();
         clinicalAttributeCountFilter.setSampleListId("test_sample_list_id");
 
-        mockMvc.perform(MockMvcRequestBuilders.post("/clinical-attributes/counts/fetch").with(csrf())
+        mockMvc.perform(MockMvcRequestBuilders.post("/api/clinical-attributes/counts/fetch").with(csrf())
             .accept(MediaType.APPLICATION_JSON)
             .contentType(MediaType.APPLICATION_JSON)
             .content(objectMapper.writeValueAsString(clinicalAttributeCountFilter))

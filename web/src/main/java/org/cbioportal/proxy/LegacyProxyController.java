@@ -56,7 +56,7 @@ import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.client.RestTemplate;
 
 @Controller
-@RequestMapping("/proxy")
+@RequestMapping("/api/proxy")
 public class LegacyProxyController {
 
     private String hotspotsURL;

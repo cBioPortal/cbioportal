@@ -65,7 +65,7 @@ public class DataAccessTokenController {
 
     private String fileName = "cbioportal_data_access_token.txt";
 
-    @PostMapping(value = "/data-access-tokens", produces = MediaType.APPLICATION_JSON_VALUE)
+    @PostMapping(value = "/api/data-access-tokens", produces = MediaType.APPLICATION_JSON_VALUE)
     @ApiOperation("Get all data access tokens")
     public ResponseEntity<DataAccessToken> createDataAccessToken(Authentication authentication) throws HttpClientErrorException {
         String userName = getAuthenticatedUser(authentication);

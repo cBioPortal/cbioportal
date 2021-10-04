@@ -68,7 +68,7 @@ public class CacheStatsControllerTest {
     @Test
     @WithMockUser
     public void testGetKeysInCache() throws Exception {
-        mockMvc.perform(MockMvcRequestBuilders.get("/" + VALID_CACHE_ALIAS + "/keysInCache")
+        mockMvc.perform(MockMvcRequestBuilders.get("/api/" + VALID_CACHE_ALIAS + "/keysInCache")
             .accept(MediaType.APPLICATION_JSON))
             .andExpect(MockMvcResultMatchers.status().isOk())
             .andExpect(MockMvcResultMatchers.content().contentTypeCompatibleWith(MediaType.APPLICATION_JSON));
@@ -77,7 +77,7 @@ public class CacheStatsControllerTest {
     @Test
     @WithMockUser
     public void testGetKeysInInvalidCache() throws Exception {
-        mockMvc.perform(MockMvcRequestBuilders.get("/" + INVALID_CACHE_ALIAS + "/keysInCache")
+        mockMvc.perform(MockMvcRequestBuilders.get("/api/" + INVALID_CACHE_ALIAS + "/keysInCache")
             .accept(MediaType.APPLICATION_JSON))
             .andExpect(MockMvcResultMatchers.status().isNotFound());
     }
@@ -85,7 +85,7 @@ public class CacheStatsControllerTest {
     @Test
     @WithMockUser
     public void testGetKeyCountsPerClass() throws Exception {
-        mockMvc.perform(MockMvcRequestBuilders.get("/" + VALID_CACHE_ALIAS + "/keyCountsPerClass")
+        mockMvc.perform(MockMvcRequestBuilders.get("/api/" + VALID_CACHE_ALIAS + "/keyCountsPerClass")
             .accept(MediaType.APPLICATION_JSON))
             .andExpect(MockMvcResultMatchers.status().isOk())
             .andExpect(MockMvcResultMatchers.content().contentTypeCompatibleWith(MediaType.APPLICATION_JSON));
@@ -94,7 +94,7 @@ public class CacheStatsControllerTest {
     @Test
     @WithMockUser
     public void testGetKeyCountsPerClassInvalidCache() throws Exception {
-        mockMvc.perform(MockMvcRequestBuilders.get("/" + INVALID_CACHE_ALIAS + "/keyCountsPerClass")
+        mockMvc.perform(MockMvcRequestBuilders.get("/api/" + INVALID_CACHE_ALIAS + "/keyCountsPerClass")
             .accept(MediaType.APPLICATION_JSON))
             .andExpect(MockMvcResultMatchers.status().isNotFound());
     }

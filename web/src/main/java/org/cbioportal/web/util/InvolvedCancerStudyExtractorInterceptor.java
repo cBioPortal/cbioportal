@@ -63,47 +63,49 @@ public class InvolvedCancerStudyExtractorInterceptor extends HandlerInterceptorA
     private CacheMapUtil cacheMapUtil;
 
     private static final Logger LOG = LoggerFactory.getLogger(InvolvedCancerStudyExtractorInterceptor.class);
-    public static final String PATIENT_FETCH_PATH = "/patients/fetch";
-    public static final String SAMPLE_FETCH_PATH = "/samples/fetch";
-    public static final String MOLECULAR_PROFILE_FETCH_PATH = "/molecular-profiles/fetch";
-    public static final String CLINICAL_ATTRIBUTE_COUNT_FETCH_PATH = "/clinical-attributes/counts/fetch";
-    public static final String CLINICAL_DATA_FETCH_PATH = "/clinical-data/fetch";
-    public static final String GENE_PANEL_DATA_FETCH_PATH = "/gene-panel-data/fetch";
-    public static final String MOLECULAR_DATA_MULTIPLE_STUDY_FETCH_PATH = "/molecular-data/fetch";
-    public static final String MUTATION_MULTIPLE_STUDY_FETCH_PATH = "/mutations/fetch";
-    public static final String COPY_NUMBER_SEG_FETCH_PATH = "/copy-number-segments/fetch";
-    public static final String STUDY_VIEW_CLINICAL_DATA_BIN_COUNTS_PATH = "/clinical-data-bin-counts/fetch";
-    public static final String STUDY_VIEW_GENOMICL_DATA_BIN_COUNTS_PATH = "/genomic-data-bin-counts/fetch";
-    public static final String STUDY_VIEW_GENERIC_ASSAY_DATA_BIN_COUNTS_PATH = "/generic-assay-data-bin-counts/fetch";
-    public static final String STUDY_VIEW_GENERIC_ASSAY_DATA_COUNTS_PATH = "/generic-assay-data-counts/fetch";
-    public static final String STUDY_VIEW_CLINICAL_DATA_COUNTS_PATH = "/clinical-data-counts/fetch";
-    public static final String STUDY_VIEW_CUSTOM_DATA_COUNTS_PATH = "/custom-data-counts/fetch";
-    public static final String STUDY_VIEW_CLINICAL_DATA_DENSITY_PATH = "/clinical-data-density-plot/fetch";
-    public static final String STUDY_VIEW_CNA_GENES = "/cna-genes/fetch";
-    public static final String STUDY_VIEW_FILTERED_SAMPLES = "/filtered-samples/fetch";
-    public static final String STUDY_VIEW_MUTATED_GENES = "/mutated-genes/fetch";
-    public static final String STUDY_VIEW_STRUCTURAL_VARIANT_GENES = "/structuralvariant-genes/fetch";
-    public static final String STUDY_VIEW_SAMPLE_COUNTS = "/sample-counts/fetch";
-    public static final String STUDY_VIEW_SAMPLE_LIST_COUNTS_PATH = "/sample-lists-counts/fetch";
-    public static final String STUDY_VIEW_PROFILE_SAMPLE_COUNTS_PATH = "/molecular-profile-sample-counts/fetch";
-    public static final String CLINICAL_DATA_ENRICHMENT_FETCH_PATH = "/clinical-data-enrichments/fetch";
-    public static final String MUTATION_ENRICHMENT_FETCH_PATH = "/mutation-enrichments/fetch";
-    public static final String COPY_NUMBER_ENRICHMENT_FETCH_PATH = "/copy-number-enrichments/fetch";
-    public static final String EXPRESSION_ENRICHMENT_FETCH_PATH = "/expression-enrichments/fetch";
-    public static final String ALTERATION_ENRICHMENT_FETCH_PATH = "/alteration-enrichments/fetch";
-    public static final String TREATMENT_FETCH_PATH = "/treatments/fetch";
-    public static final String STRUCTURAL_VARIANT_FETCH_PATH = "/structural-variant/fetch";
-    public static final String GENERIC_ASSAY_DATA_MULTIPLE_STUDY_FETCH_PATH = "/generic_assay_data/fetch";
-    public static final String GENERIC_ASSAY_META_FETCH_PATH = "/generic_assay_meta/fetch";
-    public static final String TREATMENTS_PATIENT_PATH = "/treatments/patient";
-    public static final String TREATMENTS_SAMPLE_PATH = "/treatments/sample";
-    public static final String GENERIC_ASSAY_ENRICHMENT_FETCH_PATH = "/generic-assay-enrichments/fetch";
+    public static final String PATIENT_FETCH_PATH = "/api/patients/fetch";
+    public static final String SAMPLE_FETCH_PATH = "/api/samples/fetch";
+    public static final String MOLECULAR_PROFILE_FETCH_PATH = "/api/molecular-profiles/fetch";
+    public static final String CLINICAL_ATTRIBUTE_COUNT_FETCH_PATH = "/api/clinical-attributes/counts/fetch";
+    public static final String CLINICAL_DATA_FETCH_PATH = "/api/clinical-data/fetch";
+    public static final String GENE_PANEL_DATA_FETCH_PATH = "/api/gene-panel-data/fetch";
+    public static final String MOLECULAR_DATA_MULTIPLE_STUDY_FETCH_PATH = "/api/molecular-data/fetch";
+    public static final String MUTATION_MULTIPLE_STUDY_FETCH_PATH = "/api/mutations/fetch";
+    public static final String COPY_NUMBER_SEG_FETCH_PATH = "/api/copy-number-segments/fetch";
+    public static final String STUDY_VIEW_CLINICAL_DATA_BIN_COUNTS_PATH = "/api/clinical-data-bin-counts/fetch";
+    public static final String STUDY_VIEW_GENOMICL_DATA_BIN_COUNTS_PATH = "/api/genomic-data-bin-counts/fetch";
+    public static final String STUDY_VIEW_GENERIC_ASSAY_DATA_BIN_COUNTS_PATH = "/api/generic-assay-data-bin-counts/fetch";
+    public static final String STUDY_VIEW_GENERIC_ASSAY_DATA_COUNTS_PATH = "/api/generic-assay-data-counts/fetch";
+    public static final String STUDY_VIEW_CLINICAL_DATA_COUNTS_PATH = "/api/clinical-data-counts/fetch";
+    public static final String STUDY_VIEW_CUSTOM_DATA_COUNTS_PATH = "/api/custom-data-counts/fetch";
+    public static final String STUDY_VIEW_CLINICAL_DATA_DENSITY_PATH = "/api/clinical-data-density-plot/fetch";
+    public static final String STUDY_VIEW_CNA_GENES = "/api/cna-genes/fetch";
+    public static final String STUDY_VIEW_FILTERED_SAMPLES = "/api/filtered-samples/fetch";
+    public static final String STUDY_VIEW_MUTATED_GENES = "/api/mutated-genes/fetch";
+    public static final String STUDY_VIEW_STRUCTURAL_VARIANT_GENES = "/api/structuralvariant-genes/fetch";
+    public static final String STUDY_VIEW_SAMPLE_COUNTS = "/api/sample-counts/fetch";
+    public static final String STUDY_VIEW_SAMPLE_LIST_COUNTS_PATH = "/api/sample-lists-counts/fetch";
+    public static final String STUDY_VIEW_PROFILE_SAMPLE_COUNTS_PATH = "/api/molecular-profile-sample-counts/fetch";
+    public static final String CLINICAL_DATA_ENRICHMENT_FETCH_PATH = "/api/clinical-data-enrichments/fetch";
+    public static final String MUTATION_ENRICHMENT_FETCH_PATH = "/api/mutation-enrichments/fetch";
+    public static final String COPY_NUMBER_ENRICHMENT_FETCH_PATH = "/api/copy-number-enrichments/fetch";
+    public static final String EXPRESSION_ENRICHMENT_FETCH_PATH = "/api/expression-enrichments/fetch";
+    public static final String ALTERATION_ENRICHMENT_FETCH_PATH = "/api/alteration-enrichments/fetch";
+    public static final String TREATMENT_FETCH_PATH = "/api/treatments/fetch";
+    public static final String STRUCTURAL_VARIANT_FETCH_PATH = "/api/structural-variant/fetch";
+    public static final String GENERIC_ASSAY_DATA_MULTIPLE_STUDY_FETCH_PATH = "/api/generic_assay_data/fetch";
+    public static final String GENERIC_ASSAY_META_FETCH_PATH = "/api/generic_assay_meta/fetch";
+    public static final String TREATMENTS_PATIENT_PATH = "/api/treatments/patient";
+    public static final String TREATMENTS_SAMPLE_PATH = "/api/treatments/sample";
+    public static final String GENERIC_ASSAY_ENRICHMENT_FETCH_PATH = "/api/generic-assay-enrichments/fetch";
 
     @Override public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object handler) throws Exception {
         if (!request.getMethod().equals("POST")) {
             return true; // no attribute extraction needed because all user supplied filter objects are in POST requests
         }
-        String requestPathInfo = request.getPathInfo();
+        // TODO when reimplemeting different dispatcherservlets with different context roots
+        // reset this to  'String requestPathInfo = request.getPathInfo();'
+        String requestPathInfo = request.getPathInfo() == null? request.getServletPath() : request.getPathInfo();
         if (requestPathInfo.equals(PATIENT_FETCH_PATH)) {
             return extractAttributesFromPatientFilter(request);
         } else if (requestPathInfo.equals(SAMPLE_FETCH_PATH)) {

@@ -35,7 +35,7 @@ public class StaticDataTimestampControllerTest {
         pairs.put("gene", "1997-08-13 22:00:00");
         Mockito.when(service.getTimestamps(Mockito.anyList())).thenReturn(pairs);
         
-        mockMvc.perform(MockMvcRequestBuilders.get("/timestamps")
+        mockMvc.perform(MockMvcRequestBuilders.get("/api/timestamps")
                 .accept(MediaType.APPLICATION_JSON))
                 .andExpect(MockMvcResultMatchers.status().isOk())
                 .andExpect(MockMvcResultMatchers.jsonPath("$.gene").value("1997-08-13 22:00:00"));

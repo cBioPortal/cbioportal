@@ -31,7 +31,7 @@ public class AlterationEnrichmentController {
     private AlterationEnrichmentService alterationEnrichmentService;
 
     @PreAuthorize("hasPermission(#involvedCancerStudies, 'Collection<CancerStudyId>', 'read')")
-    @PostMapping(value = "/alteration-enrichments/fetch",
+    @PostMapping(value = "/api/alteration-enrichments/fetch",
         consumes = MediaType.APPLICATION_JSON_VALUE,
         produces = MediaType.APPLICATION_JSON_VALUE)
     @ApiOperation("Fetch alteration enrichments in molecular profiles")

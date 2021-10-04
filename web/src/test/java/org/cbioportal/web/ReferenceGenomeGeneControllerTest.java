@@ -69,7 +69,7 @@ public class ReferenceGenomeGeneControllerTest {
         Mockito.when(referenceGenomeGeneService.fetchAllReferenceGenomeGenes(Mockito.anyString()))
             .thenReturn(Collections.singletonList(gene));
         
-        mockMvc.perform(MockMvcRequestBuilders.get("/reference-genome-genes/hg19")
+        mockMvc.perform(MockMvcRequestBuilders.get("/api/reference-genome-genes/hg19")
             .accept(MediaType.APPLICATION_JSON))
             .andExpect(MockMvcResultMatchers.status().isOk())
             .andExpect(MockMvcResultMatchers.content().contentTypeCompatibleWith(MediaType.APPLICATION_JSON))
@@ -93,7 +93,7 @@ public class ReferenceGenomeGeneControllerTest {
         Mockito.when(referenceGenomeGeneService.fetchAllReferenceGenomeGenes(Mockito.anyString()))
             .thenReturn(Collections.singletonList(gene));
         
-        mockMvc.perform(MockMvcRequestBuilders.get("/reference-genome-genes/hg19")
+        mockMvc.perform(MockMvcRequestBuilders.get("/api/reference-genome-genes/hg19")
             .accept(MediaType.APPLICATION_JSON))
             .andExpect(MockMvcResultMatchers.status().isOk())
             .andExpect(MockMvcResultMatchers.content().contentTypeCompatibleWith(MediaType.APPLICATION_JSON))
@@ -114,7 +114,7 @@ public class ReferenceGenomeGeneControllerTest {
     public void getGene() throws Exception {
         Mockito.when(referenceGenomeGeneService.getReferenceGenomeGene(Mockito.anyInt(), Mockito.anyString())).thenReturn(gene);
 
-        mockMvc.perform(MockMvcRequestBuilders.get("/reference-genome-genes/hg19/1")
+        mockMvc.perform(MockMvcRequestBuilders.get("/api/reference-genome-genes/hg19/1")
             .accept(MediaType.APPLICATION_JSON))
             .andExpect(MockMvcResultMatchers.status().isOk())
             .andExpect(MockMvcResultMatchers.content().contentTypeCompatibleWith(MediaType.APPLICATION_JSON))
@@ -139,7 +139,7 @@ public class ReferenceGenomeGeneControllerTest {
         geneIds.add(Integer.toString(ENTREZ_GENE_ID_1));
         geneIds.add(Integer.toString(ENTREZ_GENE_ID_2));
 
-        mockMvc.perform(MockMvcRequestBuilders.post("/reference-genome-genes/hg19/fetch").with(csrf())
+        mockMvc.perform(MockMvcRequestBuilders.post("/api/reference-genome-genes/hg19/fetch").with(csrf())
             .accept(MediaType.APPLICATION_JSON)
             .contentType(MediaType.APPLICATION_JSON)
             .content(objectMapper.writeValueAsString(geneIds)))

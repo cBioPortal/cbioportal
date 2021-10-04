@@ -79,7 +79,7 @@ public class ResourceDefinitionControllerTest {
                 Mockito.any(), Mockito.any(), Mockito.any(), Mockito.any(), Mockito.any()))
                 .thenReturn(resourceDefinitions);
 
-        mockMvc.perform(MockMvcRequestBuilders.get("/studies/test_study_id/resource-definitions")
+        mockMvc.perform(MockMvcRequestBuilders.get("/api/studies/test_study_id/resource-definitions")
                 .accept(MediaType.APPLICATION_JSON)).andExpect(MockMvcResultMatchers.status().isOk())
                 .andExpect(MockMvcResultMatchers.content().contentTypeCompatibleWith(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk()).andExpect(MockMvcResultMatchers.jsonPath("$", Matchers.hasSize(3)))
@@ -112,7 +112,7 @@ public class ResourceDefinitionControllerTest {
         Mockito.when(resourceDefinitionService.getResourceDefinition(Mockito.anyString(), Mockito.anyString()))
                 .thenReturn(resourceDefinitions);
 
-        mockMvc.perform(MockMvcRequestBuilders.get("/studies/test_study_id/resource-definitions/PATHOLOGY_SLIDE")
+        mockMvc.perform(MockMvcRequestBuilders.get("/api/studies/test_study_id/resource-definitions/PATHOLOGY_SLIDE")
                 .accept(MediaType.APPLICATION_JSON)).andExpect(MockMvcResultMatchers.status().isOk())
                 .andExpect(MockMvcResultMatchers.content().contentTypeCompatibleWith(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())

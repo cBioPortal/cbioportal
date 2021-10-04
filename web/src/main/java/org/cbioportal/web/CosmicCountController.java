@@ -30,7 +30,7 @@ public class CosmicCountController {
     @Autowired
     private CosmicCountService cosmicCountService;
 
-    @RequestMapping(value = "/cosmic-counts/fetch", method = RequestMethod.POST,
+    @RequestMapping(value = "/api/cosmic-counts/fetch", method = RequestMethod.POST,
         consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
     @ApiOperation("Get counts within the COSMIC database by keywords")
     public ResponseEntity<List<CosmicMutation>> fetchCosmicCounts(

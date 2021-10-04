@@ -68,7 +68,7 @@ public class ClinicalDataControllerTest {
                 Mockito.any(), Mockito.any(), Mockito.any(), Mockito.any(),
                 Mockito.any(), Mockito.any())).thenReturn(sampleClinicalDataList);
 
-        mockMvc.perform(MockMvcRequestBuilders.get("/studies/test_study_id/samples/test_sample_id/clinical-data")
+        mockMvc.perform(MockMvcRequestBuilders.get("/api/studies/test_study_id/samples/test_sample_id/clinical-data")
                 .accept(MediaType.APPLICATION_JSON))
                 .andExpect(MockMvcResultMatchers.status().isOk())
                 .andExpect(MockMvcResultMatchers.content().contentTypeCompatibleWith(MediaType.APPLICATION_JSON))
@@ -95,7 +95,7 @@ public class ClinicalDataControllerTest {
         Mockito.when(clinicalDataService.getMetaSampleClinicalData(Mockito.any(), Mockito.any(),
                 Mockito.any())).thenReturn(baseMeta);
 
-        mockMvc.perform(MockMvcRequestBuilders.get("/studies/test_study_id/samples/test_sample_id/clinical-data")
+        mockMvc.perform(MockMvcRequestBuilders.get("/api/studies/test_study_id/samples/test_sample_id/clinical-data")
                 .param("projection", "META"))
                 .andExpect(MockMvcResultMatchers.status().isOk())
                 .andExpect(MockMvcResultMatchers.header().string(HeaderKeyConstants.TOTAL_COUNT, "2"));
@@ -120,7 +120,7 @@ public class ClinicalDataControllerTest {
                 Mockito.any(), Mockito.any(), Mockito.any(), Mockito.any(),
                 Mockito.any(), Mockito.any())).thenReturn(patientClinicalDataList);
 
-        mockMvc.perform(MockMvcRequestBuilders.get("/studies/test_study_id/patients/test_patient_id/clinical-data")
+        mockMvc.perform(MockMvcRequestBuilders.get("/api/studies/test_study_id/patients/test_patient_id/clinical-data")
                 .accept(MediaType.APPLICATION_JSON))
                 .andExpect(MockMvcResultMatchers.status().isOk())
                 .andExpect(MockMvcResultMatchers.content().contentTypeCompatibleWith(MediaType.APPLICATION_JSON))
@@ -147,7 +147,7 @@ public class ClinicalDataControllerTest {
         Mockito.when(clinicalDataService.getMetaPatientClinicalData(Mockito.any(), Mockito.any(),
                 Mockito.any())).thenReturn(baseMeta);
 
-        mockMvc.perform(MockMvcRequestBuilders.get("/studies/test_study_id/patients/test_patient_id/clinical-data")
+        mockMvc.perform(MockMvcRequestBuilders.get("/api/studies/test_study_id/patients/test_patient_id/clinical-data")
                 .param("projection", "META"))
                 .andExpect(MockMvcResultMatchers.status().isOk())
                 .andExpect(MockMvcResultMatchers.header().string(HeaderKeyConstants.TOTAL_COUNT, "2"));
@@ -172,7 +172,7 @@ public class ClinicalDataControllerTest {
                 Mockito.any(), Mockito.any(), Mockito.any(), Mockito.any(), Mockito.any(),
                 Mockito.any(), Mockito.any(), Mockito.any())).thenReturn(patientClinicalDataList);
 
-        mockMvc.perform(MockMvcRequestBuilders.get("/studies/test_study_id/clinical-data")
+        mockMvc.perform(MockMvcRequestBuilders.get("/api/studies/test_study_id/clinical-data")
                 .param("clinicalDataType", "PATIENT")
                 .accept(MediaType.APPLICATION_JSON))
                 .andExpect(MockMvcResultMatchers.status().isOk())
@@ -200,7 +200,7 @@ public class ClinicalDataControllerTest {
         Mockito.when(clinicalDataService.getMetaAllClinicalData(Mockito.any(), Mockito.any(),
                 Mockito.any())).thenReturn(baseMeta);
 
-        mockMvc.perform(MockMvcRequestBuilders.get("/studies/test_study_id/clinical-data")
+        mockMvc.perform(MockMvcRequestBuilders.get("/api/studies/test_study_id/clinical-data")
                 .param("projection", "META")
                 .param("clinicalDataType", "PATIENT"))
                 .andExpect(MockMvcResultMatchers.status().isOk())
@@ -233,7 +233,7 @@ public class ClinicalDataControllerTest {
         ClinicalDataSingleStudyFilter clinicalDataSingleStudyFilter = new ClinicalDataSingleStudyFilter();
         clinicalDataSingleStudyFilter.setIds(ids);
 
-        mockMvc.perform(MockMvcRequestBuilders.post("/studies/test_study_id/clinical-data/fetch").with(csrf())
+        mockMvc.perform(MockMvcRequestBuilders.post("/api/studies/test_study_id/clinical-data/fetch").with(csrf())
             .param("clinicalDataType", "SAMPLE")
             .accept(MediaType.APPLICATION_JSON)
             .contentType(MediaType.APPLICATION_JSON)
@@ -270,7 +270,7 @@ public class ClinicalDataControllerTest {
         ClinicalDataSingleStudyFilter clinicalDataSingleStudyFilter = new ClinicalDataSingleStudyFilter();
         clinicalDataSingleStudyFilter.setIds(ids);
 
-        mockMvc.perform(MockMvcRequestBuilders.post("/studies/test_study_id/clinical-data/fetch").with(csrf())
+        mockMvc.perform(MockMvcRequestBuilders.post("/api/studies/test_study_id/clinical-data/fetch").with(csrf())
             .param("projection", "META")
             .param("clinicalDataType", "SAMPLE")
             .contentType(MediaType.APPLICATION_JSON)
@@ -310,7 +310,7 @@ public class ClinicalDataControllerTest {
         ClinicalDataMultiStudyFilter clinicalDataMultiStudyFilter = new ClinicalDataMultiStudyFilter();
         clinicalDataMultiStudyFilter.setIdentifiers(clinicalDataIdentifiers);
 
-        mockMvc.perform(MockMvcRequestBuilders.post("/clinical-data/fetch").with(csrf())
+        mockMvc.perform(MockMvcRequestBuilders.post("/api/clinical-data/fetch").with(csrf())
                 .param("clinicalDataType", "PATIENT")
                 .accept(MediaType.APPLICATION_JSON)
                 .contentType(MediaType.APPLICATION_JSON)
@@ -352,7 +352,7 @@ public class ClinicalDataControllerTest {
         ClinicalDataMultiStudyFilter clinicalDataMultiStudyFilter = new ClinicalDataMultiStudyFilter();
         clinicalDataMultiStudyFilter.setIdentifiers(clinicalDataIdentifiers);
 
-        mockMvc.perform(MockMvcRequestBuilders.post("/clinical-data/fetch").with(csrf())
+        mockMvc.perform(MockMvcRequestBuilders.post("/api/clinical-data/fetch").with(csrf())
                 .param("projection", "META")
                 .param("clinicalDataType", "PATIENT")
                 .contentType(MediaType.APPLICATION_JSON)

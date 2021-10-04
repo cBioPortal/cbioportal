@@ -71,7 +71,7 @@ public class CosmicCountControllerTest {
         keywords.add(TEST_KEYWORD_1);
         keywords.add(TEST_KEYWORD_2);
 
-        mockMvc.perform(MockMvcRequestBuilders.post("/cosmic-counts/fetch").with(csrf())
+        mockMvc.perform(MockMvcRequestBuilders.post("/api/cosmic-counts/fetch").with(csrf())
             .accept(MediaType.APPLICATION_JSON)
             .contentType(MediaType.APPLICATION_JSON)
             .content(objectMapper.writeValueAsString(keywords)))

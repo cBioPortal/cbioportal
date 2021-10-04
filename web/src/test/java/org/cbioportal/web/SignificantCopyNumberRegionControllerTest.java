@@ -113,7 +113,7 @@ public class SignificantCopyNumberRegionControllerTest {
             Mockito.any(), Mockito.any(), Mockito.any(), Mockito.any(), Mockito.any()))
             .thenReturn(gisticList);
 
-        mockMvc.perform(MockMvcRequestBuilders.get("/studies/test_study_id/significant-copy-number-regions")
+        mockMvc.perform(MockMvcRequestBuilders.get("/api/studies/test_study_id/significant-copy-number-regions")
             .accept(MediaType.APPLICATION_JSON))
             .andExpect(MockMvcResultMatchers.status().isOk())
             .andExpect(MockMvcResultMatchers.content().contentTypeCompatibleWith(MediaType.APPLICATION_JSON))
@@ -154,7 +154,7 @@ public class SignificantCopyNumberRegionControllerTest {
         Mockito.when(significantCopyNumberRegionService.getMetaSignificantCopyNumberRegions(Mockito.anyString()))
             .thenReturn(baseMeta);
 
-        mockMvc.perform(MockMvcRequestBuilders.get("/studies/test_study_id/significant-copy-number-regions")
+        mockMvc.perform(MockMvcRequestBuilders.get("/api/studies/test_study_id/significant-copy-number-regions")
             .param("projection", "META"))
             .andExpect(MockMvcResultMatchers.status().isOk())
             .andExpect(MockMvcResultMatchers.header().string(HeaderKeyConstants.TOTAL_COUNT, "2"));

@@ -67,7 +67,7 @@ public class GenesetDataControllerTest {
         genesetDataFilterCriteria.setSampleIds(sampleIds);
         genesetDataFilterCriteria.setGenesetIds(genesetIds);
 
-        mockMvc.perform(MockMvcRequestBuilders.post("/genetic-profiles/" + geneticProfileId + "/geneset-genetic-data/fetch").with(csrf())
+        mockMvc.perform(MockMvcRequestBuilders.post("/api/genetic-profiles/" + geneticProfileId + "/geneset-genetic-data/fetch").with(csrf())
             .accept(MediaType.APPLICATION_JSON)
             .contentType(MediaType.APPLICATION_JSON)
             .content(objectMapper.writeValueAsString(genesetDataFilterCriteria)))
@@ -104,7 +104,7 @@ public class GenesetDataControllerTest {
         genesetDataFilterCriteria.setSampleListId(sampleListId);
         genesetDataFilterCriteria.setGenesetIds(genesetIds);
 
-        mockMvc.perform(MockMvcRequestBuilders.post("/genetic-profiles/" + geneticProfileId + "/geneset-genetic-data/fetch").with(csrf())
+        mockMvc.perform(MockMvcRequestBuilders.post("/api/genetic-profiles/" + geneticProfileId + "/geneset-genetic-data/fetch").with(csrf())
             .accept(MediaType.APPLICATION_JSON)
             .contentType(MediaType.APPLICATION_JSON)
             .content(objectMapper.writeValueAsString(genesetDataFilterCriteria)))

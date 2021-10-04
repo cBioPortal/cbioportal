@@ -85,7 +85,7 @@ public class StudyControllerTest {
         Mockito.when(studyService.getAllStudies(Mockito.any(), Mockito.any(), Mockito.any(), Mockito.any(),
                 Mockito.any(), Mockito.any())).thenReturn(cancerStudyList);
 
-        mockMvc.perform(MockMvcRequestBuilders.get("/studies")
+        mockMvc.perform(MockMvcRequestBuilders.get("/api/studies")
                 .accept(MediaType.APPLICATION_JSON))
                 .andExpect(MockMvcResultMatchers.status().isOk())
                 .andExpect(MockMvcResultMatchers.content().contentTypeCompatibleWith(MediaType.APPLICATION_JSON))
@@ -126,7 +126,7 @@ public class StudyControllerTest {
 
         Mockito.when(studyService.getMetaStudies(Mockito.any())).thenReturn(baseMeta);
 
-        mockMvc.perform(MockMvcRequestBuilders.get("/studies")
+        mockMvc.perform(MockMvcRequestBuilders.get("/api/studies")
                 .param("projection", "META"))
                 .andExpect(MockMvcResultMatchers.status().isOk())
                 .andExpect(MockMvcResultMatchers.header().string(HeaderKeyConstants.TOTAL_COUNT, "2"));
@@ -138,7 +138,7 @@ public class StudyControllerTest {
 
         Mockito.when(studyService.getStudy(Mockito.anyString())).thenThrow(new StudyNotFoundException("test_study_id"));
 
-        mockMvc.perform(MockMvcRequestBuilders.get("/studies/test_study_id")
+        mockMvc.perform(MockMvcRequestBuilders.get("/api/studies/test_study_id")
                 .accept(MediaType.APPLICATION_JSON))
                 .andExpect(MockMvcResultMatchers.status().isNotFound())
                 .andExpect(MockMvcResultMatchers.jsonPath("$.message").value("Study not found: test_study_id"));
@@ -173,7 +173,7 @@ public class StudyControllerTest {
 
         Mockito.when(studyService.getStudy(Mockito.anyString())).thenReturn(cancerStudy);
 
-        mockMvc.perform(MockMvcRequestBuilders.get("/studies/test_study_id")
+        mockMvc.perform(MockMvcRequestBuilders.get("/api/studies/test_study_id")
                 .accept(MediaType.APPLICATION_JSON))
                 .andExpect(MockMvcResultMatchers.status().isOk())
                 .andExpect(MockMvcResultMatchers.content().contentTypeCompatibleWith(MediaType.APPLICATION_JSON))
@@ -206,7 +206,7 @@ public class StudyControllerTest {
         Mockito.when(studyService.fetchStudies(Mockito.anyList(), Mockito.anyString()))
             .thenReturn(cancerStudyList);
 
-        mockMvc.perform(MockMvcRequestBuilders.post("/studies/fetch").with(csrf())
+        mockMvc.perform(MockMvcRequestBuilders.post("/api/studies/fetch").with(csrf())
             .accept(MediaType.APPLICATION_JSON)
             .contentType(MediaType.APPLICATION_JSON)
             .content(objectMapper.writeValueAsString(Arrays.asList(TEST_CANCER_STUDY_IDENTIFIER_1,
@@ -249,7 +249,7 @@ public class StudyControllerTest {
 
         Mockito.when(studyService.getTags(Mockito.anyString())).thenReturn(cancerStudyTags);
 
-        mockMvc.perform(MockMvcRequestBuilders.get("/studies/test_study_id/tags")
+        mockMvc.perform(MockMvcRequestBuilders.get("/api/studies/test_study_id/tags")
                 .accept(MediaType.APPLICATION_JSON))
                 .andExpect(MockMvcResultMatchers.status().isOk())
                 .andExpect(MockMvcResultMatchers.content().contentTypeCompatibleWith(MediaType.APPLICATION_JSON))
@@ -262,7 +262,7 @@ public class StudyControllerTest {
 
         Mockito.when(studyService.getTags(Mockito.anyString())).thenReturn(null);
 
-        mockMvc.perform(MockMvcRequestBuilders.get("/studies/test_study_id/tags")
+        mockMvc.perform(MockMvcRequestBuilders.get("/api/studies/test_study_id/tags")
                 .accept(MediaType.APPLICATION_JSON))
                 .andExpect(MockMvcResultMatchers.status().isOk())
                 .andExpect(MockMvcResultMatchers.content().contentTypeCompatibleWith(MediaType.APPLICATION_JSON))
@@ -286,7 +286,7 @@ public class StudyControllerTest {
 
         Mockito.when(studyService.getTagsForMultipleStudies(Mockito.anyList())).thenReturn(cancerStudyTagsList);
 
-        mockMvc.perform(MockMvcRequestBuilders.post("/studies/tags/fetch").with(csrf())
+        mockMvc.perform(MockMvcRequestBuilders.post("/api/studies/tags/fetch").with(csrf())
             .accept(MediaType.APPLICATION_JSON)
             .contentType(MediaType.APPLICATION_JSON)
             .content(objectMapper.writeValueAsString(Arrays.asList(TEST_CANCER_STUDY_IDENTIFIER_1,

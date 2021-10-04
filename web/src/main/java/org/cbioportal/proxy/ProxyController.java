@@ -24,6 +24,8 @@ import java.net.URISyntaxException;
 import java.nio.charset.StandardCharsets;
 import java.util.Properties;
 
+// TODO Consider creating separate DispatcherServlets as in the original web.xml
+// See: https://stackoverflow.com/a/30686733/11651683
 @RestController
 public class ProxyController {
     private static final String DEFAULT_ONCOKB_URL = "https://public.api.oncokb.org/api/v1";
@@ -31,20 +33,23 @@ public class ProxyController {
 
     private Logger LOG = LoggerFactory.getLogger(ProxyController.class);
 
-    @RequestMapping("/**")
+    @RequestMapping("/proxy/**")
     public String proxy(@RequestBody(required = false) String body, HttpMethod method, HttpServletRequest request)
         throws URISyntaxException {
         HttpHeaders httpHeaders = initHeaders(request);
-        
+
+        // TODO when reimplemeting different dispatcherservlets with different context roots
+        // reset this to  'String requestPathInfo = request.getPathInfo();'
+        String requestPathInfo = request.getPathInfo() == null? request.getServletPath() : request.getPathInfo();
         return exchangeData(body,
-            buildUri(request.getPathInfo(), request.getQueryString(), false),
+            buildUri(requestPathInfo, request.getQueryString(), false),
             method,
             httpHeaders,
             String.class
         ).getBody();
     }
 
-    @RequestMapping("/oncokb/**")
+    @RequestMapping("/proxy/oncokb/**")
     public String proxyOncokb(@RequestBody(required = false) String body, HttpMethod method, HttpServletRequest request)
         throws URISyntaxException {
         // load portal.properties
@@ -62,9 +67,13 @@ public class ProxyController {
         if (!StringUtils.isEmpty(oncokbToken)) {
             httpHeaders.add("Authorization", "Bearer " + oncokbToken);
         }
-        
+
+        // TODO when reimplemeting different dispatcherservlets with different context roots
+        // reset this to  'String requestPathInfo = request.getPathInfo();'
+        String requestPathInfo = request.getPathInfo() == null? request.getServletPath() : request.getPathInfo();
+        String replaceString =  request.getPathInfo() == null? "/proxy/oncokb" : "/oncokb";
         return exchangeData(body, 
-            buildUri(oncokbApiUrl + request.getPathInfo().replaceFirst("/oncokb", ""), request.getQueryString()), 
+            buildUri(oncokbApiUrl + requestPathInfo.replaceFirst(replaceString, ""), request.getQueryString()),
             method,
             httpHeaders,
             String.class).getBody();

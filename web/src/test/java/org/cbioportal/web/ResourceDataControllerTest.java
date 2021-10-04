@@ -55,7 +55,7 @@ public class ResourceDataControllerTest {
                 Mockito.any(), Mockito.any(), Mockito.any(), Mockito.any(), Mockito.any(),
                 Mockito.any())).thenReturn(resourceDataList);
 
-        mockMvc.perform(MockMvcRequestBuilders.get("/studies/test_study_id/samples/test_sample_id/resource-data")
+        mockMvc.perform(MockMvcRequestBuilders.get("/api/studies/test_study_id/samples/test_sample_id/resource-data")
                 .accept(MediaType.APPLICATION_JSON)).andExpect(MockMvcResultMatchers.status().isOk())
                 .andExpect(MockMvcResultMatchers.content().contentTypeCompatibleWith(MediaType.APPLICATION_JSON))
                 .andExpect(MockMvcResultMatchers.jsonPath("$", Matchers.hasSize(1)))
@@ -86,7 +86,7 @@ public class ResourceDataControllerTest {
                 Mockito.any(), Mockito.any(), Mockito.any(), Mockito.any(), Mockito.any(),
                 Mockito.any())).thenReturn(resourceDataList);
 
-        mockMvc.perform(MockMvcRequestBuilders.get("/studies/test_study_id/patients/test_sample_id/resource-data")
+        mockMvc.perform(MockMvcRequestBuilders.get("/api/studies/test_study_id/patients/test_sample_id/resource-data")
                 .accept(MediaType.APPLICATION_JSON)).andExpect(MockMvcResultMatchers.status().isOk())
                 .andExpect(MockMvcResultMatchers.content().contentTypeCompatibleWith(MediaType.APPLICATION_JSON))
                 .andExpect(MockMvcResultMatchers.jsonPath("$", Matchers.hasSize(1)))
@@ -116,7 +116,7 @@ public class ResourceDataControllerTest {
                 .thenReturn(resourceDataList);
 
         mockMvc.perform(
-                MockMvcRequestBuilders.get("/studies/test_study_id/resource-data").accept(MediaType.APPLICATION_JSON))
+                MockMvcRequestBuilders.get("/api/studies/test_study_id/resource-data").accept(MediaType.APPLICATION_JSON))
                 .andExpect(MockMvcResultMatchers.status().isOk())
                 .andExpect(MockMvcResultMatchers.content().contentTypeCompatibleWith(MediaType.APPLICATION_JSON))
                 .andExpect(MockMvcResultMatchers.jsonPath("$", Matchers.hasSize(1)))

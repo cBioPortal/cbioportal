@@ -113,7 +113,7 @@ public class GenePanelControllerTest {
         Mockito.when(genePanelService.getAllGenePanels(Mockito.any(), Mockito.any(),
             Mockito.any(), Mockito.any(), Mockito.any())).thenReturn(genePanelList);
 
-        mockMvc.perform(MockMvcRequestBuilders.get("/gene-panels")
+        mockMvc.perform(MockMvcRequestBuilders.get("/api/gene-panels")
             .accept(MediaType.APPLICATION_JSON))
             .andExpect(MockMvcResultMatchers.status().isOk())
             .andExpect(MockMvcResultMatchers.content().contentTypeCompatibleWith(MediaType.APPLICATION_JSON))
@@ -145,7 +145,7 @@ public class GenePanelControllerTest {
 
         Mockito.when(genePanelService.getMetaGenePanels()).thenReturn(baseMeta);
 
-        mockMvc.perform(MockMvcRequestBuilders.get("/gene-panels")
+        mockMvc.perform(MockMvcRequestBuilders.get("/api/gene-panels")
             .param("projection", "META"))
             .andExpect(MockMvcResultMatchers.status().isOk())
             .andExpect(MockMvcResultMatchers.header().string(HeaderKeyConstants.TOTAL_COUNT, "2"));
@@ -159,7 +159,7 @@ public class GenePanelControllerTest {
         Mockito.when(genePanelService.getGenePanel(Mockito.anyString())).thenThrow(
             new GenePanelNotFoundException("test_gene_panel_id"));
 
-        mockMvc.perform(MockMvcRequestBuilders.get("/gene-panels/test_gene_panel_id")
+        mockMvc.perform(MockMvcRequestBuilders.get("/api/gene-panels/test_gene_panel_id")
             .accept(MediaType.APPLICATION_JSON))
             .andExpect(MockMvcResultMatchers.status().isNotFound())
             .andExpect(MockMvcResultMatchers.jsonPath("$.message")
@@ -189,7 +189,7 @@ public class GenePanelControllerTest {
 
         Mockito.when(genePanelService.getGenePanel(Mockito.anyString())).thenReturn(genePanel);
 
-        mockMvc.perform(MockMvcRequestBuilders.get("/gene-panels/test_gene_panel_id")
+        mockMvc.perform(MockMvcRequestBuilders.get("/api/gene-panels/test_gene_panel_id")
             .accept(MediaType.APPLICATION_JSON))
             .andExpect(MockMvcResultMatchers.status().isOk())
             .andExpect(MockMvcResultMatchers.content().contentTypeCompatibleWith(MediaType.APPLICATION_JSON))
@@ -215,7 +215,7 @@ public class GenePanelControllerTest {
         genePanelDataFilter.setSampleListId(TEST_SAMPLE_LIST_ID);
 
         mockMvc.perform(MockMvcRequestBuilders.post(
-            "/molecular-profiles/test_molecular_profile_id/gene-panel-data/fetch").with(csrf())
+            "/api/molecular-profiles/test_molecular_profile_id/gene-panel-data/fetch").with(csrf())
             .accept(MediaType.APPLICATION_JSON)
             .contentType(MediaType.APPLICATION_JSON)
             .content(objectMapper.writeValueAsString(genePanelDataFilter)))
@@ -257,7 +257,7 @@ public class GenePanelControllerTest {
         genePanelDataMultipleStudyFilter.setSampleMolecularIdentifiers(sampleMolecularIdentifiers);
 
         mockMvc.perform(MockMvcRequestBuilders.post(
-            "/gene-panel-data/fetch").with(csrf())
+            "/api/gene-panel-data/fetch").with(csrf())
             .accept(MediaType.APPLICATION_JSON)
             .contentType(MediaType.APPLICATION_JSON)
             .content(objectMapper.writeValueAsString(genePanelDataMultipleStudyFilter)))

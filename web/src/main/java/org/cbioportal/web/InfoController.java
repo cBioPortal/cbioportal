@@ -55,7 +55,7 @@ public class InfoController {
     @Value("${git.dirty}")
     private String gitDirty;
 
-    @RequestMapping(value = "/info", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
+    @RequestMapping(value = "/api/info", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
     @ApiOperation("Get information about the running instance")
     public ResponseEntity<Info> getInfo() {
 

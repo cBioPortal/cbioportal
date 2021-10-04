@@ -42,7 +42,7 @@ public class SampleListController {
     @Autowired
     private SampleListService sampleListService;
 
-    @RequestMapping(value = "/sample-lists", method = RequestMethod.GET,
+    @RequestMapping(value = "/api/sample-lists", method = RequestMethod.GET,
         produces = MediaType.APPLICATION_JSON_VALUE)
     @ApiOperation("Get all sample lists")
     public ResponseEntity<List<SampleList>> getAllSampleLists(
@@ -73,7 +73,7 @@ public class SampleListController {
     }
 
     @PreAuthorize("hasPermission(#sampleListId, 'SampleListId', 'read')")
-    @RequestMapping(value = "/sample-lists/{sampleListId}", method = RequestMethod.GET,
+    @RequestMapping(value = "/api/sample-lists/{sampleListId}", method = RequestMethod.GET,
         produces = MediaType.APPLICATION_JSON_VALUE)
     @ApiOperation("Get sample list")
     public ResponseEntity<SampleList> getSampleList(
@@ -84,7 +84,7 @@ public class SampleListController {
     }
 
     @PreAuthorize("hasPermission(#studyId, 'CancerStudyId', 'read')")
-    @RequestMapping(value = "/studies/{studyId}/sample-lists", method = RequestMethod.GET,
+    @RequestMapping(value = "/api/studies/{studyId}/sample-lists", method = RequestMethod.GET,
         produces = MediaType.APPLICATION_JSON_VALUE)
     @ApiOperation("Get all sample lists in a study")
     public ResponseEntity<List<SampleList>> getAllSampleListsInStudy(
@@ -117,7 +117,7 @@ public class SampleListController {
     }
 
     @PreAuthorize("hasPermission(#sampleListId, 'SampleListId', 'read')")
-    @RequestMapping(value = "/sample-lists/{sampleListId}/sample-ids", method = RequestMethod.GET,
+    @RequestMapping(value = "/api/sample-lists/{sampleListId}/sample-ids", method = RequestMethod.GET,
         produces = MediaType.APPLICATION_JSON_VALUE)
     @ApiOperation("Get all sample IDs in a sample list")
     public ResponseEntity<List<String>> getAllSampleIdsInSampleList(
@@ -128,7 +128,7 @@ public class SampleListController {
     }
 
     @PreAuthorize("hasPermission(#sampleListIds, 'Collection<SampleListId>', 'read')")
-    @RequestMapping(value = "/sample-lists/fetch", method = RequestMethod.POST, consumes = MediaType.APPLICATION_JSON_VALUE,
+    @RequestMapping(value = "/api/sample-lists/fetch", method = RequestMethod.POST, consumes = MediaType.APPLICATION_JSON_VALUE,
     produces = MediaType.APPLICATION_JSON_VALUE)
     @ApiOperation("Fetch sample lists by ID")
     public ResponseEntity<List<SampleList>> fetchSampleLists(

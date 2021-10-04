@@ -39,7 +39,7 @@ public class GenesetController {
     @Autowired
     private GenesetService genesetService;
 
-    @RequestMapping(value = "/genesets", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
+    @RequestMapping(value = "/api/genesets", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
     @ApiOperation("Get all gene sets")
     public ResponseEntity<List<Geneset>> getAllGenesets(
         @ApiParam("Level of detail of the response")
@@ -63,7 +63,7 @@ public class GenesetController {
         }
     }
 
-    @RequestMapping(value = "/genesets/{genesetId}", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
+    @RequestMapping(value = "/api/genesets/{genesetId}", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
     @ApiOperation("Get a gene set")
     public ResponseEntity<Geneset> getGeneset(
         @ApiParam(required = true, value = "Gene set ID e.g. GNF2_ZAP70")
@@ -72,7 +72,7 @@ public class GenesetController {
         return new ResponseEntity<>(genesetService.getGeneset(genesetId), HttpStatus.OK);
     }
 
-    @RequestMapping(value = "/genesets/fetch", method = RequestMethod.POST, consumes = MediaType.APPLICATION_JSON_VALUE,
+    @RequestMapping(value = "/api/genesets/fetch", method = RequestMethod.POST, consumes = MediaType.APPLICATION_JSON_VALUE,
             produces = MediaType.APPLICATION_JSON_VALUE)
     @ApiOperation("Fetch gene sets by ID")
     public ResponseEntity<List<Geneset>> fetchGenesets(
@@ -83,7 +83,7 @@ public class GenesetController {
         return new ResponseEntity<>(genesetService.fetchGenesets(genesetIds), HttpStatus.OK);
     }
 
-    @RequestMapping(value = "/genesets/version", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
+    @RequestMapping(value = "/api/genesets/version", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
     @ApiOperation("Get the geneset version")
     public ResponseEntity<String> getGenesetVersion() {
 

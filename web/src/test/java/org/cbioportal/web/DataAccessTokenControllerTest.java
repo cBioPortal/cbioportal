@@ -78,7 +78,7 @@ public class DataAccessTokenControllerTest extends WebSecurityConfigurerAdapter 
     }
 
     private HttpSession getSession(String user, String password) throws Exception {
-        return mockMvc.perform(MockMvcRequestBuilders.post("/j_spring_security_check").with(csrf())
+        return mockMvc.perform(MockMvcRequestBuilders.post("/api/j_spring_security_check").with(csrf())
             .param("j_user", user)
             .param("j_password", password))
         .andExpect(MockMvcResultMatchers.status().isOk())
@@ -95,7 +95,7 @@ public class DataAccessTokenControllerTest extends WebSecurityConfigurerAdapter 
     public void getTokenInfoForValidTokenTest() throws Exception {
         Mockito.when(tokenService.getDataAccessTokenInfo(VALID_TOKEN_STRING)).thenReturn(MOCK_TOKEN_INFO);
         HttpSession session = getSession(MOCK_USER, MOCK_PASSWORD);
-        MvcResult result = mockMvc.perform(MockMvcRequestBuilders.get("/data-access-tokens/" + VALID_TOKEN_STRING)
+        MvcResult result = mockMvc.perform(MockMvcRequestBuilders.get("/api/data-access-tokens/" + VALID_TOKEN_STRING)
             .session((MockHttpSession) session)
             .accept(MediaType.APPLICATION_JSON)
             .contentType(MediaType.APPLICATION_JSON))
@@ -112,7 +112,7 @@ public class DataAccessTokenControllerTest extends WebSecurityConfigurerAdapter 
     public void getTokenInfoForNonexistentTokenTest() throws Exception {
         Mockito.doThrow(new TokenNotFoundException()).when(tokenService).getDataAccessTokenInfo(NONEXISTENT_TOKEN_STRING);
         HttpSession session = getSession(MOCK_USER, MOCK_PASSWORD);
-        MvcResult result = mockMvc.perform(MockMvcRequestBuilders.get("/data-access-tokens/" + NONEXISTENT_TOKEN_STRING)
+        MvcResult result = mockMvc.perform(MockMvcRequestBuilders.get("/api/data-access-tokens/" + NONEXISTENT_TOKEN_STRING)
             .session((MockHttpSession) session)
             .accept(MediaType.APPLICATION_JSON)
             .contentType(MediaType.APPLICATION_JSON))
@@ -178,7 +178,7 @@ public class DataAccessTokenControllerTest extends WebSecurityConfigurerAdapter 
     public void createTokenValidUserTest() throws Exception {
         Mockito.when(tokenService.createDataAccessToken(ArgumentMatchers.anyString())).thenReturn(MOCK_TOKEN_INFO);
         HttpSession session = getSession(MOCK_USER, MOCK_PASSWORD);
-        MvcResult result = mockMvc.perform(MockMvcRequestBuilders.post("/data-access-tokens").with(csrf())
+        MvcResult result = mockMvc.perform(MockMvcRequestBuilders.post("/api/data-access-tokens").with(csrf())
             .session((MockHttpSession) session)
             .accept(MediaType.APPLICATION_JSON)
             .contentType(MediaType.APPLICATION_JSON))
@@ -229,7 +229,7 @@ public class DataAccessTokenControllerTest extends WebSecurityConfigurerAdapter 
         };
         Mockito.doAnswer(tokenServiceGetAllTokensAnswer).when(tokenService).getAllDataAccessTokens(ArgumentMatchers.anyString());
         HttpSession session = getSession(MOCK_USER, MOCK_PASSWORD);
-        MvcResult result = mockMvc.perform(MockMvcRequestBuilders.get("/data-access-tokens")
+        MvcResult result = mockMvc.perform(MockMvcRequestBuilders.get("/api/data-access-tokens")
             .session((MockHttpSession) session)
             .accept(MediaType.APPLICATION_JSON)
             .contentType(MediaType.APPLICATION_JSON))

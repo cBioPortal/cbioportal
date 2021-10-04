@@ -101,7 +101,7 @@ public class ExpressionEnrichmentControllerTest {
         Mockito.when(expressionEnrichmentService.getGenomicEnrichments(Mockito.anyString(), Mockito.anyMap(),
                 Mockito.any(EnrichmentType.class))).thenReturn(expressionEnrichments);
 
-        mockMvc.perform(MockMvcRequestBuilders.post("/expression-enrichments/fetch").accept(MediaType.APPLICATION_JSON).with(csrf())
+        mockMvc.perform(MockMvcRequestBuilders.post("/api/expression-enrichments/fetch").accept(MediaType.APPLICATION_JSON).with(csrf())
                 .contentType(MediaType.APPLICATION_JSON).content(
                         "[{\"molecularProfileCaseIdentifiers\":[{\"caseId\":\"TCGA-OR-A5JH-01\",\"molecularProfileId\":\"acc_tcga_pan_can_atlas_2018_rna_seq_v2_mrna\"},{\"caseId\":\"TCGA-OR-A5K2-01\",\"molecularProfileId\":\"acc_tcga_pan_can_atlas_2018_rna_seq_v2_mrna\"}],\"name\":\"altered\"},"
                                 + "{\"molecularProfileCaseIdentifiers\":[{\"caseId\":\"TCGA-OR-A5LN-01\",\"molecularProfileId\":\"acc_tcga_pan_can_atlas_2018_rna_seq_v2_mrna\"},{\"caseId\":\"TCGA-OR-A5LS-01\",\"molecularProfileId\":\"acc_tcga_pan_can_atlas_2018_rna_seq_v2_mrna\"}],\"name\":\"unaltered\"}]"))
@@ -176,7 +176,7 @@ public class ExpressionEnrichmentControllerTest {
         Mockito.when(expressionEnrichmentService.getGenericAssayEnrichments(Mockito.anyString(), Mockito.anyMap(),
                 Mockito.any(EnrichmentType.class))).thenReturn(genericAssayEnrichments);
 
-        mockMvc.perform(MockMvcRequestBuilders.post("/generic-assay-enrichments/fetch").with(csrf())
+        mockMvc.perform(MockMvcRequestBuilders.post("/api/generic-assay-enrichments/fetch").with(csrf())
                 .accept(MediaType.APPLICATION_JSON).contentType(MediaType.APPLICATION_JSON).content(
                         "[{\"molecularProfileCaseIdentifiers\":[{\"caseId\":\"TCGA-OR-A5JH-01\",\"molecularProfileId\":\"acc_tcga_pan_can_atlas_2018_rna_seq_v2_mrna\"},{\"caseId\":\"TCGA-OR-A5K2-01\",\"molecularProfileId\":\"acc_tcga_pan_can_atlas_2018_rna_seq_v2_mrna\"}],\"name\":\"altered\"},"
                                 + "{\"molecularProfileCaseIdentifiers\":[{\"caseId\":\"TCGA-OR-A5LN-01\",\"molecularProfileId\":\"acc_tcga_pan_can_atlas_2018_rna_seq_v2_mrna\"},{\"caseId\":\"TCGA-OR-A5LS-01\",\"molecularProfileId\":\"acc_tcga_pan_can_atlas_2018_rna_seq_v2_mrna\"}],\"name\":\"unaltered\"}]"))

@@ -142,7 +142,7 @@ public class ClinicalDataEnrichmentControllerTest {
         groupFilter.setGroups(groups);
 
         mockMvc.perform(
-                MockMvcRequestBuilders.post("/clinical-data-enrichments/fetch").accept(MediaType.APPLICATION_JSON).with(csrf())
+                MockMvcRequestBuilders.post("/api/clinical-data-enrichments/fetch").accept(MediaType.APPLICATION_JSON).with(csrf())
                         .contentType(MediaType.APPLICATION_JSON).content(objectMapper.writeValueAsString(groupFilter)))
                 .andExpect(MockMvcResultMatchers.status().isBadRequest()).andExpect(MockMvcResultMatchers
                         .jsonPath("$.message").value("interceptedGroupFilter size must be between 2 and 2147483647"));
@@ -155,13 +155,13 @@ public class ClinicalDataEnrichmentControllerTest {
 
         // "groups[0].sampleIdentifiers size must be between 1 and 10000000"
         mockMvc.perform(
-                MockMvcRequestBuilders.post("/clinical-data-enrichments/fetch").accept(MediaType.APPLICATION_JSON).with(csrf())
+                MockMvcRequestBuilders.post("/api/clinical-data-enrichments/fetch").accept(MediaType.APPLICATION_JSON).with(csrf())
                         .contentType(MediaType.APPLICATION_JSON).content(objectMapper.writeValueAsString(groupFilter)))
                 .andExpect(MockMvcResultMatchers.status().isBadRequest());
 
         // "groups size must be between 2 and 2147483647"
         mockMvc.perform(
-                MockMvcRequestBuilders.post("/clinical-data-enrichments/fetch").accept(MediaType.APPLICATION_JSON).with(csrf())
+                MockMvcRequestBuilders.post("/api/clinical-data-enrichments/fetch").accept(MediaType.APPLICATION_JSON).with(csrf())
                         .contentType(MediaType.APPLICATION_JSON).content(objectMapper.writeValueAsString(groupFilter)))
                 .andExpect(MockMvcResultMatchers.status().isBadRequest());
 
@@ -174,7 +174,7 @@ public class ClinicalDataEnrichmentControllerTest {
         group1.setSampleIdentifiers(Arrays.asList(sampleIdentifier1, sampleIdentifier2));
 
         mockMvc.perform(
-                MockMvcRequestBuilders.post("/clinical-data-enrichments/fetch").accept(MediaType.APPLICATION_JSON).with(csrf())
+                MockMvcRequestBuilders.post("/api/clinical-data-enrichments/fetch").accept(MediaType.APPLICATION_JSON).with(csrf())
                         .contentType(MediaType.APPLICATION_JSON).content(objectMapper.writeValueAsString(groupFilter)))
                 .andExpect(MockMvcResultMatchers.status().isBadRequest())
                 .andExpect(MockMvcResultMatchers.jsonPath("$.message")
@@ -185,7 +185,7 @@ public class ClinicalDataEnrichmentControllerTest {
 
         // when all are invalid samples
         mockMvc.perform(
-                MockMvcRequestBuilders.post("/clinical-data-enrichments/fetch").accept(MediaType.APPLICATION_JSON).with(csrf())
+                MockMvcRequestBuilders.post("/api/clinical-data-enrichments/fetch").accept(MediaType.APPLICATION_JSON).with(csrf())
                         .contentType(MediaType.APPLICATION_JSON).content(objectMapper.writeValueAsString(groupFilter)))
                 .andExpect(MockMvcResultMatchers.status().isOk())
                 .andExpect(MockMvcResultMatchers.jsonPath("$", Matchers.hasSize(0)));
@@ -229,7 +229,7 @@ public class ClinicalDataEnrichmentControllerTest {
                 .thenReturn(Arrays.asList(clinicalDataEnrichment));
 
         mockMvc.perform(
-                MockMvcRequestBuilders.post("/clinical-data-enrichments/fetch").accept(MediaType.APPLICATION_JSON).with(csrf())
+                MockMvcRequestBuilders.post("/api/clinical-data-enrichments/fetch").accept(MediaType.APPLICATION_JSON).with(csrf())
                         .contentType(MediaType.APPLICATION_JSON).content(objectMapper.writeValueAsString(groupFilter)))
                 .andExpect(MockMvcResultMatchers.status().isOk())
                 .andExpect(MockMvcResultMatchers.jsonPath("$", Matchers.hasSize(2)))

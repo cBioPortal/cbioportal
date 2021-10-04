@@ -45,7 +45,7 @@ public class MolecularDataController {
     private MolecularDataService molecularDataService;
 
     @PreAuthorize("hasPermission(#molecularProfileId, 'MolecularProfileId', 'read')")
-    @RequestMapping(value = "/molecular-profiles/{molecularProfileId}/molecular-data", method = RequestMethod.GET,
+    @RequestMapping(value = "/api/molecular-profiles/{molecularProfileId}/molecular-data", method = RequestMethod.GET,
         produces = MediaType.APPLICATION_JSON_VALUE)
     @ApiOperation("Get all molecular data in a molecular profile")
     public ResponseEntity<List<NumericGeneMolecularData>> getAllMolecularDataInMolecularProfile(
@@ -71,7 +71,7 @@ public class MolecularDataController {
     }
 
     @PreAuthorize("hasPermission(#molecularProfileId, 'MolecularProfileId', 'read')")
-    @RequestMapping(value = "/molecular-profiles/{molecularProfileId}/molecular-data/fetch",
+    @RequestMapping(value = "/api/molecular-profiles/{molecularProfileId}/molecular-data/fetch",
         method = RequestMethod.POST, consumes = MediaType.APPLICATION_JSON_VALUE,
         produces = MediaType.APPLICATION_JSON_VALUE)
     @ApiOperation("Fetch molecular data in a molecular profile")
@@ -102,7 +102,7 @@ public class MolecularDataController {
     }
 
     @PreAuthorize("hasPermission(#involvedCancerStudies, 'Collection<CancerStudyId>', 'read')")
-    @RequestMapping(value = "/molecular-data/fetch", method = RequestMethod.POST,
+    @RequestMapping(value = "/api/molecular-data/fetch", method = RequestMethod.POST,
     consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
     @ApiOperation("Fetch molecular data")
     public ResponseEntity<List<NumericGeneMolecularData>> fetchMolecularDataInMultipleMolecularProfiles(

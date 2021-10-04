@@ -42,7 +42,7 @@ public class GeneController {
     @Autowired
     private GeneService geneService;
 
-    @RequestMapping(value = "/genes", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
+    @RequestMapping(value = "/api/genes", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
     @ApiOperation("Get all genes")
     public ResponseEntity<List<Gene>> getAllGenes(
         @ApiParam("Search keyword that applies to hugo gene symbol of the genes")
@@ -75,7 +75,7 @@ public class GeneController {
         }
     }
 
-    @RequestMapping(value = "/genes/{geneId}", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
+    @RequestMapping(value = "/api/genes/{geneId}", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
     @ApiOperation("Get a gene")
     public ResponseEntity<Gene> getGene(
         @ApiParam(required = true, value = "Entrez Gene ID or Hugo Gene Symbol e.g. 1 or A1BG")
@@ -84,7 +84,7 @@ public class GeneController {
         return new ResponseEntity<>(geneService.getGene(geneId), HttpStatus.OK);
     }
 
-    @RequestMapping(value = "/genes/{geneId}/aliases", method = RequestMethod.GET,
+    @RequestMapping(value = "/api/genes/{geneId}/aliases", method = RequestMethod.GET,
         produces = MediaType.APPLICATION_JSON_VALUE)
     @ApiOperation("Get aliases of a gene")
     public ResponseEntity<List<String>> getAliasesOfGene(
@@ -94,7 +94,7 @@ public class GeneController {
         return new ResponseEntity<>(geneService.getAliasesOfGene(geneId), HttpStatus.OK);
     }
 
-    @RequestMapping(value = "/genes/fetch", method = RequestMethod.POST, consumes = MediaType.APPLICATION_JSON_VALUE,
+    @RequestMapping(value = "/api/genes/fetch", method = RequestMethod.POST, consumes = MediaType.APPLICATION_JSON_VALUE,
         produces = MediaType.APPLICATION_JSON_VALUE)
     @ApiOperation("Fetch genes by ID")
     public ResponseEntity<List<Gene>> fetchGenes(

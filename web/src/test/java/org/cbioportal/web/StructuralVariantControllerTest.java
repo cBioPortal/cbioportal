@@ -122,7 +122,7 @@ public class StructuralVariantControllerTest {
 
         StructuralVariantFilter structuralVariantFilter = createStructuralVariantFilterMolecularProfileId();
 
-        mockMvc.perform(MockMvcRequestBuilders.post("/structural-variant/fetch").with(csrf())
+        mockMvc.perform(MockMvcRequestBuilders.post("/api/structural-variant/fetch").with(csrf())
                 .accept(MediaType.parseMediaType("application/json;charset=UTF-8"))
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(objectMapper.writeValueAsString(structuralVariantFilter)))
@@ -187,7 +187,7 @@ public class StructuralVariantControllerTest {
 
         StructuralVariantFilter structuralVariantFilter = createStructuralVariantFilterSampleMolecularIdentifier();
 
-        mockMvc.perform(MockMvcRequestBuilders.post("/structural-variant/fetch").with(csrf())
+        mockMvc.perform(MockMvcRequestBuilders.post("/api/structural-variant/fetch").with(csrf())
                 .accept(MediaType.parseMediaType("application/json;charset=UTF-8"))
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(objectMapper.writeValueAsString(structuralVariantFilter)))
@@ -252,7 +252,7 @@ public class StructuralVariantControllerTest {
 
         StructuralVariantFilter structuralVariantFilter = createStructuralVariantFilterMolecularProfileIdAndSampleMolecularIdentifier();
 
-        mockMvc.perform(MockMvcRequestBuilders.post("/structural-variant/fetch").with(csrf())
+        mockMvc.perform(MockMvcRequestBuilders.post("/api/structural-variant/fetch").with(csrf())
                 .accept(MediaType.APPLICATION_JSON)
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(objectMapper.writeValueAsString(structuralVariantFilter)))

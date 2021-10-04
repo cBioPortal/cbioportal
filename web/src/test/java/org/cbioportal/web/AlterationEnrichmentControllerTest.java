@@ -162,7 +162,7 @@ public class AlterationEnrichmentControllerTest {
         filter.getAlterationEventTypes().setCopyNumberAlterationEventTypes(cnaTypes);
         
         mockMvc.perform(MockMvcRequestBuilders.post(
-            "/alteration-enrichments/fetch").with(csrf())
+            "/api/alteration-enrichments/fetch").with(csrf())
             .accept(MediaType.APPLICATION_JSON)
             .contentType(MediaType.APPLICATION_JSON)
             .content(objectMapper.writeValueAsString(filter)))
@@ -205,7 +205,7 @@ public class AlterationEnrichmentControllerTest {
         filter.getAlterationEventTypes().setCopyNumberAlterationEventTypes(cnaTypes);
 
         mockMvc.perform(MockMvcRequestBuilders.post(
-            "/alteration-enrichments/fetch").with(csrf())
+            "/api/alteration-enrichments/fetch").with(csrf())
             .accept(MediaType.APPLICATION_JSON)
             .contentType(MediaType.APPLICATION_JSON)
             .content(objectMapper.writeValueAsString(filter)))
@@ -249,7 +249,7 @@ public class AlterationEnrichmentControllerTest {
         filter.getAlterationEventTypes().setCopyNumberAlterationEventTypes(cnaTypes);
 
         mockMvc.perform(MockMvcRequestBuilders.post(
-            "/alteration-enrichments/fetch").with(csrf())
+            "/api/alteration-enrichments/fetch").with(csrf())
             .accept(MediaType.APPLICATION_JSON)
             .contentType(MediaType.APPLICATION_JSON)
             .content(objectMapper.writeValueAsString(filter)))
@@ -293,7 +293,7 @@ public class AlterationEnrichmentControllerTest {
         filter.getAlterationEventTypes().setCopyNumberAlterationEventTypes(cnaTypes);
         
         mockMvc.perform(MockMvcRequestBuilders.post(
-            "/alteration-enrichments/fetch").with(csrf())
+            "/api/alteration-enrichments/fetch").with(csrf())
             .accept(MediaType.APPLICATION_JSON)
             .contentType(MediaType.APPLICATION_JSON)
             .content(objectMapper.writeValueAsString(filter)))
@@ -320,7 +320,7 @@ public class AlterationEnrichmentControllerTest {
         filter.getAlterationEventTypes().setCopyNumberAlterationEventTypes(cnaTypes);
 
         mockMvc.perform(MockMvcRequestBuilders.post(
-            "/alteration-enrichments/fetch").with(csrf())
+            "/api/alteration-enrichments/fetch").with(csrf())
             .accept(MediaType.APPLICATION_JSON)
             .contentType(MediaType.APPLICATION_JSON)
             .content(objectMapper.writeValueAsString(filter)))

@@ -1,6 +1,6 @@
 package org.cbioportal.security.spring;
 
-import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnExpression;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.core.Ordered;
 import org.springframework.core.annotation.Order;
@@ -9,7 +9,7 @@ import org.springframework.security.config.annotation.web.configuration.WebSecur
 
 @Configuration
 @Order(Ordered.HIGHEST_PRECEDENCE)
-@ConditionalOnProperty(value = "authenticate", havingValue = "none")
+@ConditionalOnExpression("'${authenticate}' eq 'false' || '${authenticate}' eq 'noauthsessionservice'")
 public class UnauthenticatedPortalSecurityConfig extends WebSecurityConfigurerAdapter {
 
     @Override

@@ -17,7 +17,7 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 
 @Configuration
 @Order(SecurityProperties.BASIC_AUTH_ORDER - 2)
-@ConditionalOnExpression("'${authenticate}' ne 'none'")
+@ConditionalOnExpression("'${authenticate}' ne 'false' && '${authenticate}' ne 'noauthsessionservice'")
 public class ApiSecurityConfig extends WebSecurityConfigurerAdapter {
 
     // Add security filter chains that handle calls to the API endpoints.

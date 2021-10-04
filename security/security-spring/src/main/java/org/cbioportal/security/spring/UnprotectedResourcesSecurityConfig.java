@@ -8,7 +8,7 @@ import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
 
 @Configuration
-@ConditionalOnExpression("'${authenticate}' ne 'none'")
+@ConditionalOnExpression("'${authenticate}' ne 'false' && '${authenticate}' ne 'noauthsessionservice'")
 @Order(Ordered.HIGHEST_PRECEDENCE)
 public class UnprotectedResourcesSecurityConfig extends WebSecurityConfigurerAdapter {
 

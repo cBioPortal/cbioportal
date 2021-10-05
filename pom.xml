@@ -24,7 +24,7 @@
         <module>service</module>
         <module>db-scripts</module>
         <module>portal</module>
-        <module>core</module>
+<!--        <module>core</module>-->
     </modules>
 
     <properties>
@@ -295,11 +295,6 @@
             <dependency>
                 <groupId>org.cbioportal</groupId>
                 <artifactId>service</artifactId>
-                <version>${project.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>org.cbioportal</groupId>
-                <artifactId>core</artifactId>
                 <version>${project.version}</version>
             </dependency>
 <!--            TODO remove dependency on Junit 4 (Spring boot uses Junit 5 by default)-->

@@ -96,6 +96,10 @@
                 <groupId>ch.qos.logback</groupId>
                 <artifactId>logback-classic</artifactId>
             </exclusion>
+            <exclusion>
+                <artifactId>spring-boot-starter-web</artifactId>
+                <groupId>org.springframework.boot</groupId>
+            </exclusion>
         </exclusions>
     </dependency>
     <dependency>

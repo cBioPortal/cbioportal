@@ -1,0 +1,6 @@
+<script th:if="${T(org.mskcc.cbio.portal.util.GlobalProperties).getFrontendSentryEndpoint() != null}"
+    src="https://browser.sentry-cdn.com/4.1.1/bundle.min.js" crossorigin="anonymous" />
+<script th:if="${T(org.mskcc.cbio.portal.util.GlobalProperties).getFrontendSentryEndpoint() != null}">
+    var release = (typeof FRONTEND_COMMIT === "undefined") ? "norelease" : FRONTEND_COMMIT;
+    Sentry.init({ dsn: '<%=sentryEndpoint.trim()%>', release:release, ignoreErrors: [/Request has been terminated/,/document\.registerElement is deprecated and will be removed/]  });
+</script>

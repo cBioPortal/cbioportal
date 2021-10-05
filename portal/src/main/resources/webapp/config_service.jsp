@@ -1,28 +1,3 @@
-<%@ page import="org.apache.commons.lang3.StringUtils" %>
-<%@ page import="org.mskcc.cbio.portal.servlet.CheckDarwinAccessServlet" %>
-<%@ page import="org.mskcc.cbio.portal.util.GlobalProperties" %>
-<%@ page import="org.json.simple.JSONArray" %>
-<%@ page import="org.json.simple.JSONObject" %>
-
-// an empty string means the property is listed but not assigned to in portal.props
-// a null value means it was entirely missing
-
-// this jsp can either be included in index.jsp or called as a jsonp service (by decoupled frontends not using jsps)
-// if there is a callback url param, we respond as jsonp callback(data), otherwise, we assign to variable
-
-<%
-    String callback = request.getParameter("callback");
-
-    // this is to avoid CORB blocking when jsonp is called across domain
-    if (callback != null) {
-        response.setContentType("text/javascript; charset=UTF-8");
-    }
-
-%>
-
-<%= (callback==null ? "window.rawServerConfig = " : "callback" ) %>(
-
-    <%
         // Set API root variable for cbioportal-frontend repo
         String currentUrl = request.getRequestURL().toString();
         String baseURL = currentUrl.substring(0, currentUrl.length() - request.getRequestURI().length()) + request.getContextPath();

@@ -2,17 +2,18 @@ package org.cbioportal.web;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import java.net.MalformedURLException;
 import java.util.Map;
 import javax.servlet.http.HttpServletRequest;
 import org.cbioportal.service.PropertiesService;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
+import org.springframework.http.HttpRequest;
 import org.springframework.security.core.Authentication;
+import org.springframework.stereotype.Controller;
+import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RestController;
 
-@RestController
+@Controller
 public class ConfigServiceController {
 
     @Autowired
@@ -21,10 +22,10 @@ public class ConfigServiceController {
     private ObjectMapper mapper = new ObjectMapper();
 
     @GetMapping({"/config_service"})
-    public String getFrontedProperties(HttpServletRequest request, Authentication authentication)
-        throws JsonProcessingException {
+    public String getFrontedProperties(HttpServletRequest request, Authentication authentication, Model model)
+        throws JsonProcessingException, MalformedURLException {
     
-        Map<String, String> properties = propertiesService.getFrontendProperties();
+        Map<String, String> properties = propertiesService.getFrontendProperties(request.getRequestURI(), authentication.getName());
         
         // TODO
         //  obj.put("enable_darwin", CheckDarwinAccessServlet.CheckDarwinAccess.existsDarwinProperties()); 
@@ -36,7 +37,8 @@ public class ConfigServiceController {
 
         properties.put("user_email_address", authentication != null ? authentication.getName() : "anonymousUser");
 
-        return mapper.writeValueAsString(properties);
+        model.addAttribute("propertiesJson", mapper.writeValueAsString(properties));
+        return "config_service";
 //        return new ResponseEntity<Map<String, String>>(properties, HttpStatus.OK);
     }
 

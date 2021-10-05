@@ -5,6 +5,8 @@ import java.io.BufferedReader;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
+import java.net.MalformedURLException;
+import java.net.URL;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
@@ -198,13 +200,21 @@ public class PropertiesServiceImpl implements PropertiesService {
         return null;
     }
 
-    public Map<String, String> getFrontendProperties() {
+    public String getFrontendProperty(String property) {
+        // TODO does not work for base_url and user_email_address props
+        return serverConfigProperties.get(property);
+    }
+
+    public Map<String, String> getFrontendProperties(String baseUrl, String username) {
+
+        serverConfigProperties.put("base_url", baseUrl);
+        serverConfigProperties.put("user_email_address", username != null ? username : "anonymousUser");  
+    
         return serverConfigProperties;
     }
 
-    @Override
-    public String getFrontendPropertiesJson() {
-        return mapper.writeValueAsString(getFrontendProperties());
+    public String getFrontendUrl() {
+        return parseUrl(env.getProperty("${frontend.url"));
     }
 
     private String readFile(String fileName)
@@ -234,6 +244,27 @@ public class PropertiesServiceImpl implements PropertiesService {
             }
         }
         return result;
+    }
+
+    /*
+     * Trim whitespace of url and append / if it does not exist. Return empty
+     * string otherwise.
+     */
+    public static String parseUrl(String url)
+    {
+        String rv;
+
+        if (url != null && !url.isEmpty()) {
+            rv = url.trim();
+
+            if (!rv.endsWith("/")) {
+                rv += "/";
+            }
+        } else {
+            rv = "";
+        }
+
+        return rv;
     }
 
 }

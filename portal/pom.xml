@@ -102,12 +102,11 @@
                 </excludes>
             </resource>
             <resource>
-                <directory>src/main/resources/webapp</directory>
-                <!-- 'static' will be picked up by Spring Boot WebMVCAutoconfigure by default -->
-                <targetPath>static</targetPath>
+                <directory>src/main/resources</directory>
                 <filtering>false</filtering>
                 <includes>
-                    <include>**/*</include>
+                    <include>webapp/**</include>
+                    <include>templates/**</include>
                 </includes>
             </resource>
             <!-- copy over database schema and migration logic into classpath of product -->

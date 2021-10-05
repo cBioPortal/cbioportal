@@ -26,6 +26,7 @@ public class IndexPageController {
         String currentUrl = request.getRequestURL().toString();
         String contextPath = request.getContextPath();
         String baseURL = currentUrl.substring(0, currentUrl.length() - request.getRequestURI().length()) + contextPath;
+        baseURL = baseURL.replace("https://", "").replace("http://", "");
         String username = authentication != null ? authentication.getName() : "anonymousUser";
         
         Map<String, String> properties = propertiesService.getFrontendProperties(baseURL, username);

@@ -8,7 +8,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import java.util.Enumeration;
 import java.util.Map;
 import javax.servlet.http.HttpServletRequest;
-import org.cbioportal.service.PropertiesService;
+import org.cbioportal.service.FrontendPropertiesService;
 import org.json.simple.JSONObject;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.Authentication;
@@ -20,7 +20,7 @@ import org.springframework.web.bind.annotation.GetMapping;
 public class IndexPageController {
 
     @Autowired
-    private PropertiesService propertiesService;
+    private FrontendPropertiesService frontendPropertiesService;
 
     private ObjectMapper mapper = new ObjectMapper();
 
@@ -28,7 +28,7 @@ public class IndexPageController {
     public String showIndexPage(HttpServletRequest request, Authentication authentication, Model model)
         throws JsonProcessingException {
 
-        Map<String, String> properties = propertiesService.getFrontendProperties();
+        Map<String, String> properties = frontendPropertiesService.getFrontendProperties();
         
         String currentUrl = request.getRequestURL().toString();
         String contextPath = request.getContextPath();
@@ -40,10 +40,10 @@ public class IndexPageController {
         properties.put("user_email_address", useremail);
         
         model.addAttribute("propertiesJson", mapper.writeValueAsString(properties));
-        model.addAttribute("frontendUrl", propertiesService.getFrontendProperty(FrontendProperty.frontendUrl));
+        model.addAttribute("frontendUrl", frontendPropertiesService.getFrontendProperty(FrontendProperty.frontendUrl));
         model.addAttribute("baseUrl", baseURL);
         model.addAttribute("contextPath", contextPath);
-        model.addAttribute("appVersion", propertiesService.getFrontendProperty(FrontendProperty.app_version));
+        model.addAttribute("appVersion", frontendPropertiesService.getFrontendProperty(FrontendProperty.app_version));
         model.addAttribute("postData", getPostData(request));
         return "index";
     }
@@ -60,7 +60,7 @@ public class IndexPageController {
             }
             return paramsJson.toString();
         }
-        return "";
+        return "{}";
     }
 
 }

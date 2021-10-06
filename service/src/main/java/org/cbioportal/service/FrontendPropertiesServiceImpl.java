@@ -21,7 +21,7 @@ import org.springframework.stereotype.Service;
 
 // Class adapted from legacy config_service.jsp and GlobalProperties.java
 @Service
-public class FrontendPropertiesServiceImpl implements PropertiesService {
+public class FrontendPropertiesServiceImpl implements FrontendPropertiesService {
 
     private final Logger log = LoggerFactory.getLogger(FrontendPropertiesServiceImpl.class);
 
@@ -138,7 +138,7 @@ public class FrontendPropertiesServiceImpl implements PropertiesService {
         query_sets_of_genes("querypage.setsofgenes.location", null),
         authenticationMethod("authenticate", "false"),
         mskWholeSlideViewerToken("msk.whole.slide.viewer.secret.key", null),
-        oncoprintOncoKbHotspotsDefault("oncoprint.oncokb_hotspots.default", null),
+        oncoprintOncoKbHotspotsDefault("oncoprint.oncokb_hotspots.default", "true"),
         oncoKbTokenDefined("oncokb.token", ""),
         sessionServiceEnabled("session.service.url", ""),
         frontendUrl("frontend.url", null);
@@ -181,7 +181,9 @@ public class FrontendPropertiesServiceImpl implements PropertiesService {
     }
 
     private String getPropertyValue(FrontendProperty property) {
-        String propertyValue = env.getProperty(property.getPropertyName(), property.defaultValue).trim();
+        String propertyValue = env.getProperty(property.getPropertyName(), property.getDefaultValue());
+        if (propertyValue != null)
+            propertyValue.trim();
         switch (property.getFrontendName()) {
             // First, add properties that require pre-processing.
             case "frontendConfigOverride":

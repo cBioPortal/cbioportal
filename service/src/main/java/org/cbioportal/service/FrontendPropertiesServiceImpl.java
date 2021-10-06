@@ -131,6 +131,7 @@ public class FrontendPropertiesServiceImpl implements FrontendPropertiesService 
         skin_geneset_hierarchy_default_p_value("skin.geneset_hierarchy.default_p_value", null),
         skin_geneset_hierarchy_default_gsva_score("skin.geneset_hierarchy.default_gsva_score", null),
         app_version("app.version", null),
+        frontendSentryEndpoint("sentryjs.frontend_project_endpoint", null),
 
         // These properties require additional processing.
         // Names refer to the property that requires processing.
@@ -183,7 +184,7 @@ public class FrontendPropertiesServiceImpl implements FrontendPropertiesService 
     private String getPropertyValue(FrontendProperty property) {
         String propertyValue = env.getProperty(property.getPropertyName(), property.getDefaultValue());
         if (propertyValue != null)
-            propertyValue.trim();
+            propertyValue = propertyValue.trim();
         switch (property.getFrontendName()) {
             // First, add properties that require pre-processing.
             case "frontendConfigOverride":

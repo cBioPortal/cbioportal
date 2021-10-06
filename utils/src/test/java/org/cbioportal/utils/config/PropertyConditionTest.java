@@ -29,7 +29,7 @@ public class PropertyConditionTest {
 
     @Before
     public void init() {
-        attributes = new HashMap<String, Object>();
+        attributes = new HashMap();
         attributes.put("name", "requested_prop");
         attributes.put("havingValue", "requested_value");
         attributes.put("matchIfMissing", false);

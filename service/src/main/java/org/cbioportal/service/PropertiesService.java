@@ -4,8 +4,7 @@ import java.util.Map;
 
 public interface PropertiesService {
 
-    String getFrontendProperty(String property);
-    Map<String,String> getFrontendProperties(String baseUrl, String username);
-    String getFrontendUrl();
+    String getFrontendProperty(FrontendPropertiesServiceImpl.FrontendProperty property);
+    Map<String,String> getFrontendProperties();
     
 }

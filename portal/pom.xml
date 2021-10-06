@@ -63,7 +63,12 @@
             <groupId>org.cbioportal</groupId>
             <artifactId>service</artifactId>
         </dependency>
-        
+
+        <!-- This dependency on the classpath autoconfigures MySQL datasource based on application.propteries -->
+        <dependency>
+            <groupId>mysql</groupId>
+            <artifactId>mysql-connector-java</artifactId>
+        </dependency>
         <dependency>
             <groupId>org.springframework.security</groupId>
             <artifactId>spring-security-taglibs</artifactId>

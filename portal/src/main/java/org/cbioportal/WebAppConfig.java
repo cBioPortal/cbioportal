@@ -1,10 +1,12 @@
 package org.cbioportal;
 
 import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.EnableAspectJAutoProxy;
 import org.springframework.web.servlet.config.annotation.ResourceHandlerRegistry;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 
 @Configuration
+@EnableAspectJAutoProxy // TODO no idea what this does; is this logging aspect still usefull?
 public class WebAppConfig implements WebMvcConfigurer {
 
     @Override

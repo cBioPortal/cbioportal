@@ -202,11 +202,18 @@
         </plugins>
     </build>
 
+    <!-- The 'jboss-third-party' repo must be present in both repository and pluginRepository sections -->
+    <!-- for the maven-dependency plugin to work --> 
     <repositories>
         <!-- needed for cbioportal-frontend and session service -->
         <repository>
             <id>jitpack.io</id>
             <url>https://jitpack.io</url>
+        </repository>
+        <!-- needed for the maven-external-version-plugin -->
+        <repository>
+            <id>jboss-third-party</id>
+            <url>https://repository.jboss.org/nexus/content/repositories/thirdparty-releases/</url>
         </repository>
     </repositories>
     <pluginRepositories>

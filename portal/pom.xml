@@ -138,6 +138,7 @@
                 <configuration>
                     <skip>false</skip>
                     <mainClass>org.cbioportal.PortalApplication</mainClass>
+                    <finalName>${final.package.name}-${project.version}</finalName>
                 </configuration>
                 <executions>
                     <execution>

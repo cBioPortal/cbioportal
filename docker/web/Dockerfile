@@ -18,15 +18,20 @@ COPY $PWD /cbioportal
 WORKDIR /cbioportal
 ARG MAVEN_OPTS=-DskipTests
 RUN mvn ${MAVEN_OPTS} clean install
+RUN mkdir -p portal/target/dependency && (cd portal/target/dependency; jar -xf ../*.jar)
 
 FROM shipilev/openjdk:11
 
 ENV PORTAL_WEB_HOME=/cbioportal-webapp
 
-COPY --from=build /cbioportal/portal/target/cbioportal*.war /app.war
-COPY --from=build /cbioportal/portal/target/dependency/webapp-runner.jar /webapp-runner.jar
+# add exploded Spring Boot jar contents to image
+# See: https://spring.io/guides/topicals/spring-boot-docker/
+ARG DEPENDENCY=/cbioportal/portal/target/dependency
+RUN mkdir -p $PORTAL_WEB_HOME
+COPY --from=build ${DEPENDENCY}/BOOT-INF/lib        $PORTAL_WEB_HOME/lib/
+COPY --from=build ${DEPENDENCY}/META-INF            $PORTAL_WEB_HOME/META-INF/
+COPY --from=build ${DEPENDENCY}/BOOT-INF/classes    $PORTAL_WEB_HOME/
 
 RUN mkdir -p $PORTAL_WEB_HOME
-RUN cd $PORTAL_WEB_HOME && jar -xvf /app.war
 
-CMD ["/bin/sh", "-c", "/usr/bin/java ${JAVA_OPTS} -jar /webapp-runner.jar ${WEBAPP_OPTS} ${PORTAL_WEB_HOME}"]
+CMD ["java ${JAVA_OPTS}", "-cp", "/cbioportal-webapp:/cbioportal-webapp/lib/*", "org.cbioportal.PortalApplication ${WEBAPP_OPTS}"]

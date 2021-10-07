@@ -16,9 +16,16 @@
     <properties>
         <maven.compiler.source>11</maven.compiler.source>
         <maven.compiler.target>11</maven.compiler.target>
-        <timestamp>${maven.build.timestamp}</timestamp>
-        <maven.build.timestamp.format>yyyyMMdd-HHmm</maven.build.timestamp.format>
-        <netbeans.hint.deploy.server>Tomcat</netbeans.hint.deploy.server>
+<!--        <timestamp>${maven.build.timestamp}</timestamp>-->
+<!--        <maven.build.timestamp.format>yyyyMMdd-HHmm</maven.build.timestamp.format>-->
+<!--        <netbeans.hint.deploy.server>Tomcat</netbeans.hint.deploy.server>-->
+
+        <!-- for security integration tests -->
+        <db.test.driver>com.mysql.jdbc.Driver</db.test.driver>
+        <!-- For MySQL < 5.5 change 'default_storage_engine' to 'storage_engine' -->
+        <db.test.url>jdbc:mysql://127.0.0.1:3306/cgds_test?sessionVariables=default_storage_engine=InnoDB</db.test.url>
+        <db.test.username>cbio_user</db.test.username>
+        <db.test.password>somepassword</db.test.password>
     </properties>
 
     <dependencies>
@@ -138,7 +145,6 @@
                 <configuration>
                     <skip>false</skip>
                     <mainClass>org.cbioportal.PortalApplication</mainClass>
-                    <finalName>${final.package.name}-${project.version}</finalName>
                 </configuration>
                 <executions>
                     <execution>
@@ -148,6 +154,24 @@
                     </execution>
                 </executions>
             </plugin>
+<!--            <plugin>-->
+<!--                <groupId>net.ggtools.maven</groupId>-->
+<!--                <artifactId>regex-copy-maven-plugin</artifactId>-->
+<!--                <version>0.3.0</version>-->
+<!--                <executions>-->
+<!--                    <execution>-->
+<!--                        <goals>-->
+<!--                            <goal>repackage</goal>-->
+<!--                        </goals>-->
+<!--                    </execution>-->
+<!--                </executions>-->
+<!--                <configuration>-->
+<!--                    <sourceDirectory>${project.build.directory}</sourceDirectory>-->
+<!--                    <destinationDirectory>${project.build.directory}</destinationDirectory>-->
+<!--                    <source>portal(.+)\.jar</source>-->
+<!--                    <destination>${final.package.name}{1}.jar</destination>-->
+<!--                </configuration>-->
+<!--            </plugin>-->
             <!-- unpack cbioportal-frontend -->
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>

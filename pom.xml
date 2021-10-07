@@ -124,9 +124,9 @@
             </plugin>
             <!-- add git version information to the POM so that jars can have the correct version suffix-->
             <plugin>
-                <groupId>com.github.cbioportal.maven-external-version</groupId>
+                <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-external-version-plugin</artifactId>
-                <version>f09c2b9608744881111f24e55d55a91e54e6cb5f</version>
+                <version>0.1.0-jboss-5</version>
                 <extensions>true</extensions>
                 <configuration>
                     <strategy hint="script">
@@ -201,15 +201,17 @@
     </build>
 
     <repositories>
+        <!-- needed for cbioportal-frontend and session service -->
         <repository>
             <id>jitpack.io</id>
             <url>https://jitpack.io</url>
         </repository>
     </repositories>
     <pluginRepositories>
+        <!-- needed for the maven-external-version-plugin -->
         <pluginRepository>
-            <id>jitpack.io</id>
-            <url>https://jitpack.io</url>
+            <id>jboss-third-party</id>
+            <url>https://repository.jboss.org/nexus/content/repositories/thirdparty-releases/</url>
         </pluginRepository>
     </pluginRepositories>
 

@@ -28,7 +28,7 @@ public class InfoController {
     @Value("${git.branch}")
     private String gitBranch;
 
-    @Value("${git.commit.id}")
+    @Value("${git.commit.id.full}")
     private String gitCommitId;
 
     @Value("${git.commit.id.abbrev}")

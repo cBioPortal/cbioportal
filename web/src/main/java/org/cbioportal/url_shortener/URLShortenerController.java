@@ -12,6 +12,8 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+// TODO Consider creating separate DispatcherServlets as in the original web.xml
+// See: https://stackoverflow.com/a/30686733/11651683
 @RestController
 public class URLShortenerController {
 
@@ -21,7 +23,7 @@ public class URLShortenerController {
     private Bitly bitly ;
     private UrlValidator urlValidator = new UrlValidator();
 
-    @RequestMapping(method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
+    @RequestMapping(path = "/api/url-shortener", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<URLShortenerResponse> urlShortener(@RequestParam String url) {
 
         if (urlValidator.isValid(url)) {

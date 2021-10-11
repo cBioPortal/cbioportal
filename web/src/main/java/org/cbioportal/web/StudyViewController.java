@@ -160,7 +160,18 @@ public class StudyViewController {
         @ApiIgnore // prevent reference to this attribute in the swagger-ui interface. this attribute is needed for the @PreAuthorize tag above.
         @Valid @RequestAttribute(required = false, value = "interceptedStudyViewFilter") StudyViewFilter interceptedStudyViewFilter
     ) throws StudyNotFoundException {
+        boolean singleStudyUnfiltered = studyViewFilterUtil.isSingleStudyUnfiltered(interceptedStudyViewFilter);
+        List<AlterationCountByGene> alterationCountByGenes = instance.cachedFetchMutatedGenes(interceptedStudyViewFilter, singleStudyUnfiltered);
+        return new ResponseEntity<>(alterationCountByGenes, HttpStatus.OK);
+    }
 
+    @Cacheable(
+        cacheResolver = "staticRepositoryCacheOneResolver",
+        condition = "@cacheEnabledConfig.getEnabled() && #singleStudyUnfiltered"
+    )
+    public List<AlterationCountByGene> cachedFetchMutatedGenes(
+        StudyViewFilter interceptedStudyViewFilter, boolean singleStudyUnfiltered
+    ) throws StudyNotFoundException {
         AlterationFilter annotationFilters = interceptedStudyViewFilter.getAlterationFilter();
 
         List<SampleIdentifier> sampleIdentifiers = studyViewFilterApplier.apply(interceptedStudyViewFilter);
@@ -171,7 +182,7 @@ public class StudyViewController {
             studyViewFilterUtil.extractStudyAndSampleIds(sampleIdentifiers, studyIds, sampleIds);
             alterationCountByGenes = studyViewService.getMutationAlterationCountByGenes(studyIds, sampleIds, annotationFilters);
         }
-        return new ResponseEntity<>(alterationCountByGenes, HttpStatus.OK);
+        return alterationCountByGenes;
     }
 
     @PreAuthorize("hasPermission(#involvedCancerStudies, 'Collection<CancerStudyId>', T(org.cbioportal.utils.security.AccessLevel).READ)")
@@ -187,8 +198,21 @@ public class StudyViewController {
         @Valid @RequestAttribute(required = false, value = "interceptedStudyViewFilter") StudyViewFilter interceptedStudyViewFilter
     ) throws StudyNotFoundException {
 
+        boolean singleStudyUnfiltered = studyViewFilterUtil.isSingleStudyUnfiltered(interceptedStudyViewFilter);
+        List<AlterationCountByGene> alterationCountByGenes = 
+            instance.cacheableFetchStructuralVariantGenes(interceptedStudyViewFilter, singleStudyUnfiltered);
+        return new ResponseEntity<>(alterationCountByGenes, HttpStatus.OK);
+    }
+
+    @Cacheable(
+        cacheResolver = "staticRepositoryCacheOneResolver",
+        condition = "@cacheEnabledConfig.getEnabled() && #singleStudyUnfiltered"
+    )
+    public List<AlterationCountByGene> cacheableFetchStructuralVariantGenes(
+        StudyViewFilter interceptedStudyViewFilter, boolean singleStudyUnfiltered
+    ) throws StudyNotFoundException {
         AlterationFilter annotationFilters = interceptedStudyViewFilter.getAlterationFilter();
-        
+
         List<SampleIdentifier> sampleIdentifiers = studyViewFilterApplier.apply(interceptedStudyViewFilter);
         List<AlterationCountByGene> alterationCountByGenes = new ArrayList<>();
         if(CollectionUtils.isNotEmpty(sampleIdentifiers)) {
@@ -197,10 +221,10 @@ public class StudyViewController {
             studyViewFilterUtil.extractStudyAndSampleIds(sampleIdentifiers, studyIds, sampleIds);
             alterationCountByGenes = studyViewService.getStructuralVariantAlterationCountByGenes(studyIds, sampleIds, annotationFilters);
         }
-        return new ResponseEntity<>(alterationCountByGenes, HttpStatus.OK);
+        return alterationCountByGenes;
     }
 
-    
+
     @PreAuthorize("hasPermission(#involvedCancerStudies, 'Collection<CancerStudyId>', T(org.cbioportal.utils.security.AccessLevel).READ)")
     @RequestMapping(value = "/cna-genes/fetch", method = RequestMethod.POST,
         consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
@@ -213,9 +237,18 @@ public class StudyViewController {
         @ApiIgnore // prevent reference to this attribute in the swagger-ui interface. this attribute is needed for the @PreAuthorize tag above.
         @Valid @RequestAttribute(required = false, value = "interceptedStudyViewFilter") StudyViewFilter interceptedStudyViewFilter
     ) throws StudyNotFoundException {
+        boolean singleStudyUnfiltered = studyViewFilterUtil.isSingleStudyUnfiltered(interceptedStudyViewFilter);
+        List<CopyNumberCountByGene> copyNumberCountByGenes = instance.cacheableFetchCNAGenes(interceptedStudyViewFilter, singleStudyUnfiltered);
+        return new ResponseEntity<>(copyNumberCountByGenes, HttpStatus.OK);
+    }
 
+    @Cacheable(
+        cacheResolver = "staticRepositoryCacheOneResolver",
+        condition = "@cacheEnabledConfig.getEnabled() && #singleStudyUnfiltered"
+    )
+    public List<CopyNumberCountByGene> cacheableFetchCNAGenes(StudyViewFilter interceptedStudyViewFilter, boolean singleStudyUnfiltered) throws StudyNotFoundException {
         AlterationFilter alterationFilter = interceptedStudyViewFilter.getAlterationFilter();
-        
+
         List<SampleIdentifier> sampleIdentifiers = studyViewFilterApplier.apply(interceptedStudyViewFilter);
         List<CopyNumberCountByGene> copyNumberCountByGenes = new ArrayList<>();
         if(CollectionUtils.isNotEmpty(sampleIdentifiers)) {
@@ -224,7 +257,7 @@ public class StudyViewController {
             studyViewFilterUtil.extractStudyAndSampleIds(sampleIdentifiers, studyIds, sampleIds);
             copyNumberCountByGenes = studyViewService.getCNAAlterationCountByGenes(studyIds, sampleIds, alterationFilter);
         }
-        return new ResponseEntity<>(copyNumberCountByGenes, HttpStatus.OK);
+        return copyNumberCountByGenes;
     }
 
     @PreAuthorize("hasPermission(#involvedCancerStudies, 'Collection<CancerStudyId>', T(org.cbioportal.utils.security.AccessLevel).READ)")
@@ -265,6 +298,17 @@ public class StudyViewController {
         @RequestAttribute(required = false, value = "involvedCancerStudies") Collection<String> involvedCancerStudies,
         @ApiIgnore // prevent reference to this attribute in the swagger-ui interface. this attribute is needed for the @PreAuthorize tag above.
         @Valid @RequestAttribute(required = false, value = "interceptedStudyViewFilter") StudyViewFilter interceptedStudyViewFilter) {
+        boolean singleStudyUnfiltered = studyViewFilterUtil.isSingleStudyUnfiltered(interceptedStudyViewFilter);
+        return cacheableFetchMolecularProfileSampleCounts(interceptedStudyViewFilter, singleStudyUnfiltered);
+    }
+
+    @Cacheable(
+        cacheResolver = "staticRepositoryCacheOneResolver",
+        condition = "@cacheEnabledConfig.getEnabled() && #singleStudyUnfiltered"
+    )
+    public List<GenomicDataCount> cacheableFetchMolecularProfileSampleCounts(
+        StudyViewFilter interceptedStudyViewFilter, boolean singleStudyUnfiltered
+    ) {
         List<SampleIdentifier> sampleIdentifiers = studyViewFilterApplier.apply(interceptedStudyViewFilter);
         List<GenomicDataCount> genomicDataCounts = new ArrayList<>();
         if(CollectionUtils.isNotEmpty(sampleIdentifiers)) {
@@ -275,7 +319,7 @@ public class StudyViewController {
         }
         return genomicDataCounts;
     }
-    
+
     private static boolean isLogScalePossibleForAttribute(String clinicalAttributeId) {
         return clinicalAttributeId.equals("MUTATION_COUNT");
     }

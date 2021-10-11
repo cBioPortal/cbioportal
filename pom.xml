@@ -30,15 +30,14 @@
     <properties>
         <maven.compiler.source>11</maven.compiler.source>
         <maven.compiler.target>11</maven.compiler.target>
-        <frontend.version>7e8d755d2538e124147ad983f4caa38ef0992f6b</frontend.version>
         <frontend.groupId>com.github.cbioportal</frontend.groupId>
+        <frontend.version>7e8d755d2538e124147ad983f4caa38ef0992f6b</frontend.version>
 
         <!-- THIS SHOULD BE KEPT IN SYNC TO VERSION IN CGDS.SQL -->
         <db.version>2.12.10</db.version>
 
-        <final.package.name>cbioportal</final.package.name>
-
-        <!-- version properties for dependencies that should have same version -->
+        <!-- Version properties for dependencies that should have same version. -->
+        <!-- The rest can be set in the dependencyManagement section -->
         <spring.social.version>1.1.6.RELEASE</spring.social.version>
         <springfox.version>2.9.2</springfox.version>
         <mybatis.starter.version>2.2.0</mybatis.starter.version>

@@ -75,6 +75,10 @@
             <groupId>com.datumbox</groupId>
             <artifactId>datumbox-framework-lib</artifactId>
         </dependency>
+        <dependency>
+            <groupId>io.sentry</groupId>
+            <artifactId>sentry-spring</artifactId>
+        </dependency>
     </dependencies>
 
     <properties>

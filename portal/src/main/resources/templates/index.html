@@ -47,8 +47,8 @@
 
     </script>
      
-    <script type="text/javascript" th:src="@{'/webapp/js/src/load-frontend.js'(${@environment.getProperty('app.version')})}" />
-          
+    <script type="text/javascript" th:src="@{'/js/load-frontend.js'(${@environment.getProperty('app.version')})}" />
+    
     <script>
         window.frontendConfig.customTabs && window.frontendConfig.customTabs.forEach(function(tab){
             if (tab.pathsToJs) {

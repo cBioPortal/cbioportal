@@ -91,13 +91,32 @@ public class StudyViewController {
 
         List<ClinicalDataFilter> attributes = interceptedClinicalDataCountFilter.getAttributes();
         StudyViewFilter studyViewFilter = interceptedClinicalDataCountFilter.getStudyViewFilter();
+            if (attributes.size() == 1) {
+                studyViewFilterUtil.removeSelfFromFilter(attributes.get(0).getAttributeId(), studyViewFilter);
+            }
+            boolean singleStudyUnfiltered = studyViewFilterUtil.isSingleStudyUnfiltered(studyViewFilter);
+            List<ClinicalDataCountItem> result = 
+                       instance.cachedClinicalDataCounts(interceptedClinicalDataCountFilter,singleStudyUnfiltered);
+            return new ResponseEntity<>(result, HttpStatus.OK);
+                        
+    }
+    
+    @Cacheable(
+               cacheResolver = "staticRepositoryCacheOneResolver",
+               condition = "@cacheEnabledConfig.getEnabled() && #singleStudyUnfiltered" 
+    )
+    public List<ClinicalDataCountItem> cachedClinicalDataCounts(
+                 ClinicalDataCountFilter interceptedClinicalDataCountFilter, boolean singleStudyUnfilteredStudyViewFilter
+    ) {                
+        List<ClinicalDataFilter> attributes = interceptedClinicalDataCountFilter.getAttributes();  
+        StudyViewFilter studyViewFilter = interceptedClinicalDataCountFilter.getStudyViewFilter();                            
         if (attributes.size() == 1) {
             studyViewFilterUtil.removeSelfFromFilter(attributes.get(0).getAttributeId(), studyViewFilter);
         }
         List<SampleIdentifier> filteredSampleIdentifiers = studyViewFilterApplier.apply(studyViewFilter);
         
         if (filteredSampleIdentifiers.isEmpty()) {
-            return new ResponseEntity<>(new ArrayList<>(), HttpStatus.OK);
+            return new ArrayList<>();
         }
         List<String> studyIds = new ArrayList<>();
         List<String> sampleIds = new ArrayList<>();
@@ -106,7 +125,7 @@ public class StudyViewController {
         List<ClinicalDataCountItem> result = clinicalDataService.fetchClinicalDataCounts(
             studyIds, sampleIds, attributes.stream().map(a -> a.getAttributeId()).collect(Collectors.toList()));
         
-        return new ResponseEntity<>(result, HttpStatus.OK);
+        return result;
     }
 
     @PreAuthorize("hasPermission(#involvedCancerStudies, 'Collection<CancerStudyId>', T(org.cbioportal.utils.security.AccessLevel).READ)")

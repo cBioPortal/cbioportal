@@ -99,7 +99,7 @@ public class InvolvedCancerStudyExtractorInterceptor extends HandlerInterceptorA
     public static final String TREATMENTS_SAMPLE_PATH = "/api/treatments/sample";
     public static final String GENERIC_ASSAY_ENRICHMENT_FETCH_PATH = "/api/generic-assay-enrichments/fetch";
 
-    @Override public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object handler) throws Exception {
+    @Override public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object handler) {
         if (!request.getMethod().equals("POST")) {
             return true; // no attribute extraction needed because all user supplied filter objects are in POST requests
         }
@@ -144,9 +144,9 @@ public class InvolvedCancerStudyExtractorInterceptor extends HandlerInterceptorA
         } else if (requestPathInfo.equals(CLINICAL_DATA_ENRICHMENT_FETCH_PATH)) {
             return extractAttributesFromGroupFilter(request);
         } else if (requestPathInfo.equals(MUTATION_ENRICHMENT_FETCH_PATH) ||
-        		requestPathInfo.equals(COPY_NUMBER_ENRICHMENT_FETCH_PATH) ||
-        		requestPathInfo.equals(EXPRESSION_ENRICHMENT_FETCH_PATH) ||
-        		requestPathInfo.equals(GENERIC_ASSAY_ENRICHMENT_FETCH_PATH)) {
+                requestPathInfo.equals(COPY_NUMBER_ENRICHMENT_FETCH_PATH) ||
+                requestPathInfo.equals(EXPRESSION_ENRICHMENT_FETCH_PATH) ||
+                requestPathInfo.equals(GENERIC_ASSAY_ENRICHMENT_FETCH_PATH)) {
             return extractAttributesFromMolecularProfileCasesGroups(request);
         } else if (requestPathInfo.equals(ALTERATION_ENRICHMENT_FETCH_PATH)) {
             return extractAttributesFromMolecularProfileCasesGroupsAndAlterationTypes(request);
@@ -180,7 +180,7 @@ public class InvolvedCancerStudyExtractorInterceptor extends HandlerInterceptorA
 
     private Collection<String> extractCancerStudyIdsFromPatientFilter(PatientFilter patientFilter) {
         // use hashset as the study list in the patientFilter will usually be populated with many duplicate values
-        Set<String> studyIdSet = new HashSet<String>();
+        Set<String> studyIdSet = new HashSet<>();
         if (patientFilter.getPatientIdentifiers() != null) {
             for (PatientIdentifier patientIdentifier : patientFilter.getPatientIdentifiers()) {
                 studyIdSet.add(patientIdentifier.getStudyId());
@@ -211,7 +211,7 @@ public class InvolvedCancerStudyExtractorInterceptor extends HandlerInterceptorA
 
     private Collection<String> extractCancerStudyIdsFromSampleFilter(SampleFilter sampleFilter) {
         // use hashset as the study list in the sampleFilter will usually be populated with many duplicate values
-        Set<String> studyIdSet = new HashSet<String>();
+        Set<String> studyIdSet = new HashSet<>();
         if (sampleFilter.getSampleListIds() != null) {
             extractCancerStudyIdsFromSampleListIds(sampleFilter.getSampleListIds(), studyIdSet);
         } else if (sampleFilter.getSampleIdentifiers() != null) {
@@ -242,7 +242,7 @@ public class InvolvedCancerStudyExtractorInterceptor extends HandlerInterceptorA
 
     private Collection<String> extractCancerStudyIdsFromMolecularProfileFilter(MolecularProfileFilter molecularProfileFilter) {
         // use hashset as the study list in the molecularProfileFilter may be populated with many duplicate values
-        Set<String> studyIdSet = new HashSet<String>();
+        Set<String> studyIdSet = new HashSet<>();
         if (molecularProfileFilter.getStudyIds() != null) {
             studyIdSet.addAll(molecularProfileFilter.getStudyIds());
         } else {
@@ -271,7 +271,7 @@ public class InvolvedCancerStudyExtractorInterceptor extends HandlerInterceptorA
 
     private Collection<String> extractCancerStudyIdsFromClinicalAttributeCountFilter(ClinicalAttributeCountFilter clinicalAttributeCountFilter) {
         // use hashset as the study list in the clinicalAttributeCountFilter may be populated with many duplicate values
-        Set<String> studyIdSet = new HashSet<String>();
+        Set<String> studyIdSet = new HashSet<>();
         if (clinicalAttributeCountFilter.getSampleListId() != null) {
             extractCancerStudyIdsFromSampleListIds(Arrays.asList(clinicalAttributeCountFilter.getSampleListId()), studyIdSet);
         } else {
@@ -300,7 +300,7 @@ public class InvolvedCancerStudyExtractorInterceptor extends HandlerInterceptorA
 
     private Collection<String> extractCancerStudyIdsFromClinicalDataMultiStudyFilter(ClinicalDataMultiStudyFilter clinicalDataMultiStudyFilter) {
         // use hashset as the study list in the clinicalDataMultiStudyFilter may be populated with many duplicate values
-        Set<String> studyIdSet = new HashSet<String>();
+        Set<String> studyIdSet = new HashSet<>();
         for(ClinicalDataIdentifier clinicalDataIdentifier : clinicalDataMultiStudyFilter.getIdentifiers()) {
             studyIdSet.add(clinicalDataIdentifier.getStudyId());
         }
@@ -326,7 +326,7 @@ public class InvolvedCancerStudyExtractorInterceptor extends HandlerInterceptorA
     }
 
     private Collection<String> extractCancerStudyIdsFromGenePanelDataMultipleStudyFilter(GenePanelDataMultipleStudyFilter genePanelDataMultipleStudyFilter) {
-        Set<String> studyIdSet = new HashSet<String>();
+        Set<String> studyIdSet = new HashSet<>();
         if (genePanelDataMultipleStudyFilter.getMolecularProfileIds() != null) {
             extractCancerStudyIdsFromMolecularProfileIds(genePanelDataMultipleStudyFilter.getMolecularProfileIds(), studyIdSet);
         } else {
@@ -354,7 +354,7 @@ public class InvolvedCancerStudyExtractorInterceptor extends HandlerInterceptorA
     }
 
     private Collection<String> extractCancerStudyIdsFromMolecularDataMultipleStudyFilter(MolecularDataMultipleStudyFilter molecularDataMultipleStudyFilter) {
-        Set<String> studyIdSet = new HashSet<String>();
+        Set<String> studyIdSet = new HashSet<>();
         if (molecularDataMultipleStudyFilter.getMolecularProfileIds() != null) {
             extractCancerStudyIdsFromMolecularProfileIds(molecularDataMultipleStudyFilter.getMolecularProfileIds(), studyIdSet);
         } else {
@@ -382,7 +382,7 @@ public class InvolvedCancerStudyExtractorInterceptor extends HandlerInterceptorA
     }
 
     private Collection<String> extractCancerStudyIdsFromGenericAssayMetaFilter(GenericAssayMetaFilter genericAssayMetaFilter) {
-        Set<String> studyIdSet = new HashSet<String>();
+        Set<String> studyIdSet = new HashSet<>();
         if (genericAssayMetaFilter.getMolecularProfileIds() != null) {
             extractCancerStudyIdsFromMolecularProfileIds(genericAssayMetaFilter.getMolecularProfileIds(), studyIdSet);
         }
@@ -411,7 +411,7 @@ public class InvolvedCancerStudyExtractorInterceptor extends HandlerInterceptorA
     }
 
     private Collection<String> extractCancerStudyIdsFromGenericAssayDataMultipleStudyFilter(GenericAssayDataMultipleStudyFilter genericAssayDataMultipleStudyFilter) {
-        Set<String> studyIdSet = new HashSet<String>();
+        Set<String> studyIdSet = new HashSet<>();
         if (genericAssayDataMultipleStudyFilter.getMolecularProfileIds() != null) {
             extractCancerStudyIdsFromMolecularProfileIds(genericAssayDataMultipleStudyFilter.getMolecularProfileIds(), studyIdSet);
         } else {
@@ -439,7 +439,7 @@ public class InvolvedCancerStudyExtractorInterceptor extends HandlerInterceptorA
     }
 
     private Set<String> extractCancerStudyIdsFromMutationMultipleStudyFilter(MutationMultipleStudyFilter mutationMultipleStudyFilter) {
-        Set<String> studyIdSet = new HashSet<String>();
+        Set<String> studyIdSet = new HashSet<>();
         if (mutationMultipleStudyFilter.getMolecularProfileIds() != null) {
             extractCancerStudyIdsFromMolecularProfileIds(mutationMultipleStudyFilter.getMolecularProfileIds(), studyIdSet);
         } else {
@@ -677,7 +677,7 @@ public class InvolvedCancerStudyExtractorInterceptor extends HandlerInterceptorA
     }
 
     private Collection<String> extractCancerStudyIdsFromStructuralVariantFilter(StructuralVariantFilter structuralVariantFilter) {
-        Set<String> studyIdSet = new HashSet<String>();
+        Set<String> studyIdSet = new HashSet<>();
         if (structuralVariantFilter.getSampleMolecularIdentifiers() != null) {
             // controller handler will preferentially use SampleMolecularIdentifiers if they are present in the filter
             extractCancerStudyIdsFromSampleMolecularIdentifiers(structuralVariantFilter.getSampleMolecularIdentifiers(), studyIdSet);
@@ -691,7 +691,7 @@ public class InvolvedCancerStudyExtractorInterceptor extends HandlerInterceptorA
     }
 
     private Set<String> extractCancerStudyIdsFromSampleIdentifiers(Collection<SampleIdentifier> sampleIdentifiers) {
-        Set<String> studyIdSet = new HashSet<String>();
+        Set<String> studyIdSet = new HashSet<>();
         extractCancerStudyIdsFromSampleIdentifiers(sampleIdentifiers, studyIdSet);
         return studyIdSet;
     }
@@ -726,7 +726,7 @@ public class InvolvedCancerStudyExtractorInterceptor extends HandlerInterceptorA
 
     private void extractCancerStudyIdsFromSampleMolecularIdentifiers(List<SampleMolecularIdentifier> sampleMolecularIdentifiers, Set<String> studyIdSet) {
         // use hashset as the study list in sampleMolecularIdentifiers may be populated with duplicate values
-        Set<String> molecularProfileIds = new HashSet<String>();
+        Set<String> molecularProfileIds = new HashSet<>();
         for (SampleMolecularIdentifier sampleMolecularIdentifier: sampleMolecularIdentifiers) {
             molecularProfileIds.add(sampleMolecularIdentifier.getMolecularProfileId());
         }
@@ -738,7 +738,7 @@ public class InvolvedCancerStudyExtractorInterceptor extends HandlerInterceptorA
         if (clinicalDataBinCountFilter.getStudyViewFilter() != null) {
             return extractCancerStudyIdsFromStudyViewFilter(clinicalDataBinCountFilter.getStudyViewFilter());
         }
-        return new HashSet<String>();
+        return new HashSet<>();
     }
     
     private Set<String> extractCancerStudyIdsFromGenomicDataBinCountFilter(
@@ -746,7 +746,7 @@ public class InvolvedCancerStudyExtractorInterceptor extends HandlerInterceptorA
         if (genomicDataBinCountFilter.getStudyViewFilter() != null) {
             return extractCancerStudyIdsFromStudyViewFilter(genomicDataBinCountFilter.getStudyViewFilter());
         }
-        return new HashSet<String>();
+        return new HashSet<>();
     }
 
     private Set<String> extractCancerStudyIdsFromGenericAssayDataBinCountFilter(
@@ -754,7 +754,7 @@ public class InvolvedCancerStudyExtractorInterceptor extends HandlerInterceptorA
         if (genericAssayDataBinCountFilter.getStudyViewFilter() != null) {
             return extractCancerStudyIdsFromStudyViewFilter(genericAssayDataBinCountFilter.getStudyViewFilter());
         }
-        return new HashSet<String>();
+        return new HashSet<>();
     }
 
     private Set<String> extractCancerStudyIdsFromGenericAssayDataCountFilter(
@@ -762,7 +762,7 @@ public class InvolvedCancerStudyExtractorInterceptor extends HandlerInterceptorA
         if (genericAssayDataCountFilter.getStudyViewFilter() != null) {
             return extractCancerStudyIdsFromStudyViewFilter(genericAssayDataCountFilter.getStudyViewFilter());
         }
-        return new HashSet<String>();
+        return new HashSet<>();
     }
 
     private Set<String> extractCancerStudyIdsFromClinicalDataCountFilter(
@@ -770,11 +770,11 @@ public class InvolvedCancerStudyExtractorInterceptor extends HandlerInterceptorA
         if (clinicalDataCountFilter.getStudyViewFilter() != null) {
             return extractCancerStudyIdsFromStudyViewFilter(clinicalDataCountFilter.getStudyViewFilter());
         }
-        return new HashSet<String>();
+        return new HashSet<>();
     }
 
     private Set<String> extractCancerStudyIdsFromStudyViewFilter(StudyViewFilter studyViewFilter) {
-        Set<String> studyIdSet = new HashSet<String>();
+        Set<String> studyIdSet = new HashSet<>();
         if (studyViewFilter.getSampleIdentifiers() != null && !studyViewFilter.getSampleIdentifiers().isEmpty()) {
             extractCancerStudyIdsFromSampleIdentifiers(studyViewFilter.getSampleIdentifiers(), studyIdSet);
         } else {

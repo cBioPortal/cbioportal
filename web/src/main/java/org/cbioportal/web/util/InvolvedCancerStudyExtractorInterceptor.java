@@ -33,26 +33,49 @@
 package org.cbioportal.web.util;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import java.util.*;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
 import java.util.stream.Collectors;
-
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-
 import org.cbioportal.model.AlterationFilter;
 import org.cbioportal.model.MolecularProfile;
 import org.cbioportal.model.MolecularProfileCaseIdentifier;
 import org.cbioportal.model.SampleList;
 import org.cbioportal.persistence.mybatis.util.CacheMapUtil;
-import org.cbioportal.web.parameter.*;
+import org.cbioportal.web.parameter.ClinicalAttributeCountFilter;
+import org.cbioportal.web.parameter.ClinicalDataBinCountFilter;
+import org.cbioportal.web.parameter.ClinicalDataCountFilter;
+import org.cbioportal.web.parameter.ClinicalDataIdentifier;
+import org.cbioportal.web.parameter.ClinicalDataMultiStudyFilter;
+import org.cbioportal.web.parameter.GenePanelDataMultipleStudyFilter;
+import org.cbioportal.web.parameter.GenericAssayDataBinCountFilter;
+import org.cbioportal.web.parameter.GenericAssayDataCountFilter;
+import org.cbioportal.web.parameter.GenericAssayDataMultipleStudyFilter;
+import org.cbioportal.web.parameter.GenericAssayMetaFilter;
+import org.cbioportal.web.parameter.GenomicDataBinCountFilter;
+import org.cbioportal.web.parameter.GroupFilter;
+import org.cbioportal.web.parameter.MolecularDataMultipleStudyFilter;
+import org.cbioportal.web.parameter.MolecularProfileCasesGroupAndAlterationTypeFilter;
+import org.cbioportal.web.parameter.MolecularProfileCasesGroupFilter;
+import org.cbioportal.web.parameter.MolecularProfileFilter;
+import org.cbioportal.web.parameter.MutationMultipleStudyFilter;
+import org.cbioportal.web.parameter.PatientFilter;
+import org.cbioportal.web.parameter.PatientIdentifier;
+import org.cbioportal.web.parameter.SampleFilter;
+import org.cbioportal.web.parameter.SampleIdentifier;
+import org.cbioportal.web.parameter.SampleMolecularIdentifier;
+import org.cbioportal.web.parameter.StructuralVariantFilter;
+import org.cbioportal.web.parameter.StudyViewFilter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Component;
-import org.springframework.web.servlet.handler.HandlerInterceptorAdapter;
+import org.springframework.web.servlet.HandlerInterceptor;
 
-@Component
-public class InvolvedCancerStudyExtractorInterceptor extends HandlerInterceptorAdapter {
+public class InvolvedCancerStudyExtractorInterceptor implements HandlerInterceptor {
 
     @Autowired
     private UniqueKeyExtractor uniqueKeyExtractor;

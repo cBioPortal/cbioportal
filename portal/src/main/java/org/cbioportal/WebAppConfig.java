@@ -1,7 +1,11 @@
 package org.cbioportal;
 
+import org.cbioportal.web.util.InvolvedCancerStudyExtractorInterceptor;
+import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.EnableAspectJAutoProxy;
+import org.springframework.web.servlet.HandlerInterceptor;
+import org.springframework.web.servlet.config.annotation.InterceptorRegistry;
 import org.springframework.web.servlet.config.annotation.ResourceHandlerRegistry;
 import org.springframework.web.servlet.config.annotation.ViewControllerRegistry;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
@@ -30,4 +34,15 @@ public class WebAppConfig implements WebMvcConfigurer {
     public void addViewControllers(ViewControllerRegistry registry) {
         registry.addRedirectViewController("/api", "/swagger-ui.html");
     }
+    
+    @Bean
+    public HandlerInterceptor involvedCancerStudyExtractorInterceptor() {
+        return new InvolvedCancerStudyExtractorInterceptor();
+    }
+
+    @Override
+    public void addInterceptors(InterceptorRegistry registry) {
+        registry.addInterceptor(involvedCancerStudyExtractorInterceptor());
+    }
+    
 }

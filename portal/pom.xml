@@ -101,8 +101,6 @@
 
         <!-- resolve property placeholders from these files -->
         <filters>
-            <filter>../src/main/resources/application.properties</filter>
-            <!-- TODO decide to use application.properties-->
             <filter>../src/main/resources/portal.properties</filter>
             <filter>../src/main/resources/maven.properties</filter>
         </filters>

@@ -132,15 +132,6 @@
                                 <taskdef resource="net/sf/antcontrib/antlib.xml" classpathref="maven.dependency.classpath" />
                                 <if>
                                     <not>
-                                        <available file="${basedir}/src/main/resources/application.properties" />
-                                    </not>
-                                    <then>
-                                        <copy file="${basedir}/src/main/resources/application.properties.EXAMPLE" tofile="${basedir}/src/main/resources/application.properties" />
-                                    </then>
-                                </if>
-                                <!-- TODO decide to use application.properties-->
-                                <if>
-                                    <not>
                                         <available file="${basedir}/src/main/resources/portal.properties" />
                                     </not>
                                     <then>

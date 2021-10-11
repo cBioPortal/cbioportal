@@ -2,12 +2,18 @@
 app.name=cbioportal
 
 # database
-db.user=cbio_user
-db.password=somepassword
-db.host=localhost:3306
-db.portal_db_name=cbioportal
-db.driver=com.mysql.jdbc.Driver
-db.connection_string=jdbc:mysql://localhost:3306/
+spring.datasource.url=jdbc:mysql://localhost:3306/cbioportal?useSSL=false
+spring.datasource.username=cbio
+spring.datasource.password=P@ssword1
+spring.datasource.driver-class-name=com.mysql.cj.jdbc.Driver
+spring.jpa.database-platform=org.hibernate.dialect.MySQL5InnoDBDialect
+
+# this should normally be set to false. In some cases you could set this to true (e.g. for testing a feature of a newer release that is not related to the schema change in expected db version above):
+db.suppress_schema_version_mismatch_errors=false
+
+# authentication
+authenticate=noauthsessionservice
+
 # set tomcat_resource_name when using dbconnector=jndi instead of the default
 # dbconnector=dbcp. Note that dbconnector needs to be set in CATLINA_OPTS when
 # using Tomcat (CATALINA_OPTS="-Ddbconnector=jndi"). It does not get picked up
@@ -16,9 +22,6 @@ db.connection_string=jdbc:mysql://localhost:3306/
 #
 # db.tomcat_resource_name=jdbc/cbioportal
 
-# this should normally be set to false. In some cases you could set this to true (e.g. for testing a feature of a newer release that is not related to the schema change in expected db version above):
-db.suppress_schema_version_mismatch_errors=false
-db.use_ssl=false
 # web page cosmetics
 skin.title=cBioPortal for Cancer Genomics
 skin.email_contact=cbioportal at googlegroups dot com

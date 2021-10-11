@@ -1,5 +1,8 @@
 package org.cbioportal.web.studyview;
 
+import static org.cbioportal.utils.removeme.Session.*;
+
+
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
@@ -14,7 +17,6 @@ import javax.validation.Valid;
 import org.cbioportal.model.ClinicalDataCountItem;
 import org.cbioportal.model.Patient;
 import org.cbioportal.service.PatientService;
-import org.cbioportal.session_service.domain.SessionType;
 import org.cbioportal.web.config.annotation.InternalApi;
 import org.cbioportal.web.parameter.ClinicalDataCountFilter;
 import org.cbioportal.web.parameter.ClinicalDataFilter;
@@ -83,7 +85,8 @@ public class CustomDataController {
         List<CompletableFuture<CustomDataSession>> postFutures = attributes.stream().map(clinicalDataFilter -> {
             return CompletableFuture.supplyAsync(() -> {
                 try {
-                    return (CustomDataSession) sessionServiceRequestHandler.getSession(SessionType.custom_data,
+                    return (CustomDataSession) sessionServiceRequestHandler.getSession(
+                        SessionType.custom_data,
                             clinicalDataFilter.getAttributeId());
                 } catch (Exception e) {
                     return null;

@@ -1,11 +1,13 @@
 package org.cbioportal.web.util;
 
+import static org.cbioportal.utils.removeme.Session.*;
+
+
 import java.nio.charset.Charset;
 
 import org.apache.commons.codec.binary.Base64;
 import org.apache.commons.lang3.StringUtils;
-import org.cbioportal.session_service.domain.Session;
-import org.cbioportal.session_service.domain.SessionType;
+import org.cbioportal.utils.removeme.*;
 import org.cbioportal.web.parameter.CustomDataSession;
 import org.cbioportal.web.parameter.CustomGeneList;
 import org.cbioportal.web.parameter.PageSettings;

@@ -63,7 +63,7 @@ import org.cbioportal.model.ResourceDefinition;
 import org.cbioportal.model.Sample;
 import org.cbioportal.model.SampleList;
 import org.cbioportal.model.TypeOfCancer;
-import org.cbioportal.session_service.domain.Session;
+import org.cbioportal.utils.removeme.Session;
 import org.cbioportal.web.CustomAttributeWithData;
 import org.cbioportal.web.mixin.CancerStudyMixin;
 import org.cbioportal.web.mixin.ClinicalAttributeCountMixin;

@@ -4,8 +4,7 @@ import java.io.IOException;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.cbioportal.session_service.domain.Session;
-import org.cbioportal.session_service.domain.SessionType;
+import org.cbioportal.utils.removeme.Session;
 import org.cbioportal.web.CustomAttributeWithData;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;

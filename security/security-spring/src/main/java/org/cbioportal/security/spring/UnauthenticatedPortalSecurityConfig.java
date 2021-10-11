@@ -15,7 +15,8 @@ public class UnauthenticatedPortalSecurityConfig extends WebSecurityConfigurerAd
     @Override
     protected void configure(HttpSecurity http) throws Exception {
         http
-            .antMatcher("/**")
+            .csrf().disable()
+            .antMatcher("/**/*")
                 .authorizeRequests()
                     .anyRequest()
                     .permitAll();

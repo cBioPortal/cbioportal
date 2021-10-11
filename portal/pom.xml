@@ -16,9 +16,7 @@
     <properties>
         <maven.compiler.source>11</maven.compiler.source>
         <maven.compiler.target>11</maven.compiler.target>
-<!--        <timestamp>${maven.build.timestamp}</timestamp>-->
-<!--        <maven.build.timestamp.format>yyyyMMdd-HHmm</maven.build.timestamp.format>-->
-<!--        <netbeans.hint.deploy.server>Tomcat</netbeans.hint.deploy.server>-->
+        <maven.build.timestamp.format>yyyyMMdd-HHmm</maven.build.timestamp.format>
 
         <!-- for security integration tests -->
         <db.test.driver>com.mysql.jdbc.Driver</db.test.driver>

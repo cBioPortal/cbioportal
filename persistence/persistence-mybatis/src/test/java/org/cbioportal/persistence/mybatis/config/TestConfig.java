@@ -2,7 +2,7 @@ package org.cbioportal.persistence.mybatis.config;
 
 import javax.sql.DataSource;
 import org.apache.ibatis.session.SqlSessionFactory;
-import org.cbioportal.persistence.mybatis.typehandler.SampleTypeTypeHandler;
+import org.cbioportal.persistence.mybatis.typehandler.SampleTypeHelper;
 import org.cbioportal.persistence.mybatis.util.OffsetCalculator;
 import org.mybatis.spring.SqlSessionFactoryBean;
 import org.mybatis.spring.annotation.MapperScan;
@@ -13,18 +13,11 @@ import org.springframework.jdbc.datasource.embedded.EmbeddedDatabaseBuilder;
 import org.springframework.jdbc.datasource.embedded.EmbeddedDatabaseType;
 import org.springframework.transaction.PlatformTransactionManager;
 
-@MapperScan("org.cbioportal.persistence.mybatis")
 @TestConfiguration
+@MapperScan("org.cbioportal.persistence.mybatis")
 public class TestConfig {
 
-    // mappers that mediate string to enum conversions
     @Bean
-    public SampleTypeTypeHandler sampleTypeTypeHandler() {
-        return new SampleTypeTypeHandler();
-    }
-
-    @Bean
-
     public DataSource dataSource() {
         return new EmbeddedDatabaseBuilder()
             .setType(EmbeddedDatabaseType.H2)
@@ -38,7 +31,8 @@ public class TestConfig {
     public SqlSessionFactory sqlSessionFactory() throws Exception {
         SqlSessionFactoryBean factoryBean = new SqlSessionFactoryBean();
         factoryBean.setDataSource(dataSource());
-        factoryBean.setTypeHandlers(sampleTypeTypeHandler());
+        // mapper that mediate string to enum conversions
+        factoryBean.setTypeHandlers(new SampleTypeHelper());
         return factoryBean.getObject();
     }
 

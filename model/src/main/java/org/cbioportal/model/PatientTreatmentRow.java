@@ -1,9 +1,10 @@
 package org.cbioportal.model;
 
+import java.io.Serializable;
 import java.util.Objects;
 import java.util.Set;
 
-public class PatientTreatmentRow implements TreatmentRow {
+public class PatientTreatmentRow implements TreatmentRow, Serializable {
     private String treatment;
     private int count;
     private Set<ClinicalEventSample> samples;

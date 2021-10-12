@@ -102,6 +102,9 @@ import org.cbioportal.web.parameter.VirtualStudyData;
 import org.springframework.context.annotation.Primary;
 import org.springframework.stereotype.Component;
 
+// This bean automatically registers with MappingJackson2HttpMessageConverter
+// By marking it @Primary it will displace the default ObjectMapper
+// See: https://www.baeldung.com/spring-boot-customize-jackson-objectmapper#1-objectmapper
 @Primary
 @Component
 public class CustomObjectMapper extends ObjectMapper {

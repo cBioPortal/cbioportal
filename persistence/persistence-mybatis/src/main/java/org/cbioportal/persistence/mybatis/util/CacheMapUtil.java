@@ -102,6 +102,7 @@ public class CacheMapUtil {
         // CHANGES TO THIS LIST MUST BE PROPAGATED TO 'GlobalProperties'
         this.cacheEnabled = (!authenticate.isEmpty() 
                 && !authenticate.equals("false") 
+                && !authenticate.equals("noauthsessionservice") 
                 && !authenticate.contains("social_auth"));
         
         if (cacheEnabled) {

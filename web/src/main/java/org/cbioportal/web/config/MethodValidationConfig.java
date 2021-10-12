@@ -1,4 +1,4 @@
-package org.cbioportal;
+package org.cbioportal.web.config;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;

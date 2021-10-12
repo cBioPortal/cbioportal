@@ -1,5 +1,6 @@
 package org.cbioportal;
 
+import io.sentry.spring.SentryExceptionResolver;
 import org.cbioportal.web.util.InvolvedCancerStudyExtractorInterceptor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -9,6 +10,7 @@ import org.springframework.web.servlet.config.annotation.InterceptorRegistry;
 import org.springframework.web.servlet.config.annotation.ResourceHandlerRegistry;
 import org.springframework.web.servlet.config.annotation.ViewControllerRegistry;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
+import springfox.bean.validators.configuration.BeanValidatorPluginsConfiguration;
 
 // TODO Consider creating separate DispatcherServlets as in the original web.xml
 // See: https://stackoverflow.com/a/30686733/11651683

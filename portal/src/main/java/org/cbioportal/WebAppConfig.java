@@ -19,17 +19,10 @@ public class WebAppConfig implements WebMvcConfigurer {
     private static final String SINGLE_PAGE_APP_ROOT = "forward:/";
 
     @Override
-    public void addResourceHandlers(ResourceHandlerRegistry registry)
-    {
-        registry
-            .addResourceHandler("/images/**").addResourceLocations("classpath:/images/")
-            .setCachePeriod(3000);
-        registry
-            .addResourceHandler("/reactapp/**").addResourceLocations("classpath:/reactapp/")
-            .setCachePeriod(3000);
-        registry
-            .addResourceHandler("/js/**").addResourceLocations("classpath:/js/")
-            .setCachePeriod(3000);
+    public void addResourceHandlers(ResourceHandlerRegistry registry) {
+        registry.addResourceHandler("/images/**").addResourceLocations("classpath:/images/");
+        registry.addResourceHandler("/reactapp/**").addResourceLocations("classpath:/reactapp/");
+        registry.addResourceHandler("/js/**").addResourceLocations("classpath:/js/");
     }
 
     @Override

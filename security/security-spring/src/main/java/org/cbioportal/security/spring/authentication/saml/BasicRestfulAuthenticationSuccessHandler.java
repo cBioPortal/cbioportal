@@ -41,8 +41,7 @@ import org.springframework.security.web.*;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.web.authentication.AuthenticationSuccessHandler;
  
-public class BasicRestfulAuthenticationSuccessHandler implements AuthenticationSuccessHandler
-{
+public class BasicRestfulAuthenticationSuccessHandler implements AuthenticationSuccessHandler {
     private RedirectStrategy redirectStrategy = new DefaultRedirectStrategy();
     
     @Override

@@ -290,7 +290,7 @@ The meta file is comprised of the following fields:
 10. **pd_annotations_filename (Optional)**: name of [custom driver annotations file](File-Formats.md#custom-driver-annotations-file)
 
 ### Example
-An example metadata file could be named meta_CNA.txt and its contents could be:
+An example metadata file could be named meta_cna.txt and its contents could be:
 ```
 cancer_study_identifier: brca_tcga_pub
 genetic_alteration_type: COPY_NUMBER_ALTERATION
@@ -299,8 +299,8 @@ stable_id: gistic
 show_profile_in_analysis_tab: true
 profile_name: Putative copy-number alterations from GISTIC
 profile_description: Putative copy-number from GISTIC 2.0. Values: -2 = homozygous deletion; -1 = hemizygous deletion; 0 = neutral / no change; 1 = gain; 2 = high level amplification.
-data_filename: data_CNA.txt
-pd_annotations_filename: data_CNA_pd_annotations.txt
+data_filename: data_cna.txt
+pd_annotations_filename: data_cna_pd_annotations.txt
 ```
 
 ### Data file
@@ -389,7 +389,7 @@ cBioPortal also supports log2 copy number data. If your data is in log2, change 
 4. **stable_id**: log2CNA 
 
 ### Example
-An example metadata file, e.g. meta_CNA_log2.txt, would be:
+An example metadata file, e.g. meta_log2_cna.txt, would be:
 ```
 cancer_study_identifier: brca_tcga_pub
 genetic_alteration_type: COPY_NUMBER_ALTERATION
@@ -398,7 +398,7 @@ stable_id: log2CNA
 show_profile_in_analysis_tab: false
 profile_description: Log2 copy-number values for each gene (from Affymetrix SNP6).
 profile_name: Log2 copy-number values
-data_filename: data_log2CNA.txt
+data_filename: data_log2_cna.txt
 ```
 
 ### Data file
@@ -429,14 +429,14 @@ The segmented metadata file should contain the following fields:
 6. **data_filename**: your datafile
 
 ### Example:
-An example metadata file, e.g. meta_cna_seg.txt, would be:
+An example metadata file, e.g. meta_cna_hg19_seg.txt, would be:
 ```
 cancer_study_identifier: brca_tcga_pub
 genetic_alteration_type: COPY_NUMBER_ALTERATION
 datatype: SEG
 reference_genome_id: hg19
 description: Somatic CNA data (copy number ratio from tumor samples minus ratio from matched normals) from TCGA.
-data_filename: brca_tcga_data_cna_hg19.seg
+data_filename: data_cna_hg19.seg
 ```
 
 ### Data file
@@ -503,7 +503,7 @@ The stable_id for continuous RNA-seq data has two options: `rna_seq_mrna` or `rn
 
 ### Example
 
-An example metadata, e.g. meta_expression_file.txt file would be:
+An example metadata, e.g. meta_expression.txt file would be:
 ```
 cancer_study_identifier: brca_tcga_pub
 genetic_alteration_type: MRNA_EXPRESSION
@@ -512,7 +512,7 @@ stable_id: rna_seq_mrna
 show_profile_in_analysis_tab: false
 profile_name: mRNA expression 
 profile_description: Expression levels 
-data_filename: data_expression_file.txt
+data_filename: data_expression.txt
 ```
 
 ### Data file
@@ -542,7 +542,7 @@ stable_id: rna_seq_mrna_median_Zscores
 show_profile_in_analysis_tab: true
 profile_name: mRNA expression z-scores
 profile_description: Expression levels z-scores
-data_filename: data_expression_zscores_file.txt
+data_filename: data_expression_zscores.txt
 ```
 
 ### Examples of data files: 
@@ -625,7 +625,7 @@ stable_id: mutations
 show_profile_in_analysis_tab: true
 profile_description: Mutation data from whole exome sequencing.
 profile_name: Mutations
-data_filename: brca_tcga_pub.maf
+data_filename: data_mutations.txt
 namespaces: ASCN
 ```
 
@@ -880,7 +880,7 @@ The structural variant metadata file should contain the following fields:
 5. **show_profile_in_analysis_tab**: true.
 6. **profile_name**: A name for the fusion data, e.g., "Structural Variants".
 7. **profile_description**: A description of the structural variant data.
-8. **data_filename**: your datafile (e.g. data_SV.txt)
+8. **data_filename**: your datafile (e.g. data_sv.txt)
 9. **gene_panel (Optional)**:  gene panel stable id
 
 An example metadata file would be:
@@ -893,7 +893,7 @@ stable_id: structural_variants
 show_profile_in_analysis_tab: true
 profile_name: mskimpact2017 SV Data
 profile_description: Structural Variant Data for mskimpact2017
-data_filename: data_SV.txt
+data_filename: data_sv.txt
 ```
 
 ### Data file
@@ -1321,7 +1321,7 @@ Example:
 cancer_study_identifier: msk_impact_2017
 genetic_alteration_type: GENE_PANEL_MATRIX
 datatype: GENE_PANEL_MATRIX
-data_filename: data_gene_matrix.txt
+data_filename: data_gene_panel_matrix.txt
 ```
 
 ### Gene panel property in meta file

@@ -106,7 +106,7 @@ public class StudyViewController {
                condition = "@cacheEnabledConfig.getEnabled() && #singleStudyUnfiltered" 
     )
     public List<ClinicalDataCountItem> cachedClinicalDataCounts(
-                 ClinicalDataCountFilter interceptedClinicalDataCountFilter, boolean singleStudyUnfilteredStudyViewFilter
+                 ClinicalDataCountFilter interceptedClinicalDataCountFilter, boolean singleStudyUnfiltered
     ) {                
         List<ClinicalDataFilter> attributes = interceptedClinicalDataCountFilter.getAttributes();  
         StudyViewFilter studyViewFilter = interceptedClinicalDataCountFilter.getStudyViewFilter();                            

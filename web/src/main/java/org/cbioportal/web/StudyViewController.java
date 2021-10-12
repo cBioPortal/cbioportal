@@ -310,15 +310,18 @@ public class StudyViewController {
     @RequestMapping(value = "/molecular-profile-sample-counts/fetch", method = RequestMethod.POST,
         consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
     @ApiOperation("Fetch sample counts by study view filter")
-    public List<GenomicDataCount> fetchMolecularProfileSampleCounts(
+    public ResponseEntity<List<GenomicDataCount>> fetchMolecularProfileSampleCounts(
         @ApiParam(required = true, value = "Study view filter")
         @Valid @RequestBody(required = false) StudyViewFilter studyViewFilter,
         @ApiIgnore // prevent reference to this attribute in the swagger-ui interface
         @RequestAttribute(required = false, value = "involvedCancerStudies") Collection<String> involvedCancerStudies,
         @ApiIgnore // prevent reference to this attribute in the swagger-ui interface. this attribute is needed for the @PreAuthorize tag above.
-        @Valid @RequestAttribute(required = false, value = "interceptedStudyViewFilter") StudyViewFilter interceptedStudyViewFilter) {
+        @Valid @RequestAttribute(required = false, value = "interceptedStudyViewFilter") StudyViewFilter interceptedStudyViewFilter
+    )
+    {
         boolean singleStudyUnfiltered = studyViewFilterUtil.isSingleStudyUnfiltered(interceptedStudyViewFilter);
-        return cacheableFetchMolecularProfileSampleCounts(interceptedStudyViewFilter, singleStudyUnfiltered);
+        List<GenomicDataCount> sampleCounts = instance.cacheableFetchMolecularProfileSampleCounts(interceptedStudyViewFilter, singleStudyUnfiltered);
+        return new ResponseEntity<>(sampleCounts, HttpStatus.OK);
     }
 
     @Cacheable(

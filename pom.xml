@@ -25,6 +25,7 @@
         <module>db-scripts</module>
         <module>portal</module>
 <!--        <module>core</module>-->
+<!--        <module>scripts</module>-->
     </modules>
 
     <properties>

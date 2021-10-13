@@ -40,6 +40,7 @@
         <!-- The rest can be set in the dependencyManagement section -->
         <spring.social.version>1.1.6.RELEASE</spring.social.version>
         <springfox.version>2.9.2</springfox.version>
+        <io.swagger.version>1.6.3</io.swagger.version>
         <mybatis.starter.version>2.2.0</mybatis.starter.version>
 
         <!-- needed for core module tests -->
@@ -54,7 +55,6 @@
     </properties>
     
     <dependencies>
-<!--        TODO is it needed to these dependencies? The parent POM already has them.-->
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter</artifactId>
@@ -62,6 +62,11 @@
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-test</artifactId>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.junit.vintage</groupId>
+            <artifactId>junit-vintage-engine</artifactId>
             <scope>test</scope>
         </dependency>
     </dependencies>
@@ -224,14 +229,24 @@
                 <version>${springfox.version}</version>
             </dependency>
             <dependency>
-                <groupId>io.swagger</groupId>
-                <artifactId>swagger-annotations</artifactId>
-                <version>1.5.20</version>
+                <groupId>io.springfox</groupId>
+                <artifactId>springfox-documentation</artifactId>
+                <version>${springfox.version}</version>
             </dependency>
             <dependency>
-                <groupId>org.hibernate</groupId>
-                <artifactId>hibernate-validator</artifactId>
-                <version>5.3.4.Final</version>
+                <groupId>io.swagger</groupId>
+                <artifactId>swagger-annotations</artifactId>
+                <version>${io.swagger.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>io.swagger</groupId>
+                <artifactId>swagger-models</artifactId>
+                <version>${io.swagger.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>javax.validation</groupId>
+                <artifactId>validation-api</artifactId>
+                <version>2.0.1.Final</version>
             </dependency>
             <dependency>
                 <groupId>org.cbioportal</groupId>

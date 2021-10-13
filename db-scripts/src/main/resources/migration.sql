@@ -955,6 +955,6 @@ ALTER TABLE `genetic_profile` ADD COLUMN `PATIENT_LEVEL` boolean DEFAULT 0;
 UPDATE `info` SET `DB_SCHEMA_VERSION`="2.12.10";
 
 ##version: 2.12.10
-DROP TABLE `pfam_graphics`;
+DROP TABLE IF EXISTS `pfam_graphics`;
 UPDATE `info` SET `DB_SCHEMA_VERSION`="2.12.10";
 

@@ -564,6 +564,9 @@ public class StudyViewController {
             result.setSpearmanCorr(0.0);
             result.setPearsonCorr(0.0);
         }
+        
+        // filter out empty bins
+        result.setBins(result.getBins().stream().filter((bin)->(bin.getCount() > 0)).collect(Collectors.toList()));
 
         return new ResponseEntity<>(result, HttpStatus.OK);
     }

@@ -555,8 +555,18 @@ public class StudyViewController {
             }
         }
         
-        result.setPearsonCorr(new PearsonsCorrelation().correlation(xValues, yValues)); 
-        result.setSpearmanCorr(new SpearmansCorrelation().correlation(xValues, yValues));
+        if (xValues.length > 1) {
+            // need at least 2 entries in each to compute correlation
+            result.setPearsonCorr(new PearsonsCorrelation().correlation(xValues, yValues));
+            result.setSpearmanCorr(new SpearmansCorrelation().correlation(xValues, yValues));
+        } else {
+            // if less than 1 entry, just set 0 correlation
+            result.setSpearmanCorr(0.0);
+            result.setPearsonCorr(0.0);
+        }
+        
+        // filter out empty bins
+        result.setBins(result.getBins().stream().filter((bin)->(bin.getCount() > 0)).collect(Collectors.toList()));
 
         return new ResponseEntity<>(result, HttpStatus.OK);
     }

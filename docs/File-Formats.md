@@ -20,6 +20,7 @@
     * [Gene Set Data](#gene-set-data)
     * [Study Tags file](#study-tags-file)
     * [Generic Assay](#generic-assay)
+        * [Arm Level CNA Data](#arm-level-cna-data)
     * [Resource Data](#resource-data)
 
 # Introduction
@@ -1509,7 +1510,7 @@ Generic Assay data will be considered `sample_level` data if the `patient_level`
 ### Note on `Generic Assay` genetic_alteration_type and datatype
 All generic assay data is registered to be of the type of `genetic_alteration_type` and data type can choose from `LIMIT-VALUE`, `CATEGORICAL` and `BINARY`. 
 - ***LIMIT-VALUE***: This datatype is intended to be used for any numerical data set with similar structure (entities measured in samples). The `LIMIT-VALUE` is validated to contain any continuous number optionally prefixed with a '>' or '<' threshold symbol (e.g., '>8.00').
-- ***CATEGORICAL (under development)***: This datatype is intended to be used for any categorical data set with similar structure (entities measured in samples). Any text is allowed in `CATEGORICAL` except blank.
+- ***CATEGORICAL (under development)***: This datatype is intended to be used for any categorical data set with similar structure (entities measured in samples). Any text is allowed in `CATEGORICAL`.
 - ***BINARY (under development)***: This datatype is intended to be used for any binary data set with similar structure (entities measured in samples). The `BINARY` is validated to contain only reserved text (`true`, `false`, `yes`, `no`).
 
 If the value for the generic entity in the respective sample could not (or was not) be measured (or detected), the value should be 'NA' or leave that cell blank.
@@ -1533,6 +1534,13 @@ Example with 3 generic entities and 3 samples:
 <tr><td>AEW541</td><td>Larotrectinib</td><td>TrkA/B/C inhibitor</td><td>https://en.wikipedia.org/wiki/Larotrectinib</td><td>>8</td><td>2.33</td><td>2.68</td></tr>
 <tr><td>AZD0530</td><td>Saracatinib</td><td>Src/Bcr-Abl inhibitor</td><td>https://en.wikipedia.org/wiki/Saracatinib</td><td>NA</td><td>>8</td><td>4.60</td></tr>
 </table>
+
+### Arm Level CNA Data
+Arm-level copy-number data is a predefined subtype of Generic Assay Data.
+
+Allowed values for Arm-level copy-number data are `Loss`, `Gain`, and `Unchanged`, use `NA` or leave the cell blank to indicate a missing value.
+
+Please find example file format here: [Meta file example](https://github.com/cBioPortal/cbioportal-frontend/blob/master/end-to-end-test/local/studies/lgg_ucsf_2014_test_generic_assay/meta_armlevel_CNA.txt) and [Data file example](https://github.com/cBioPortal/cbioportal-frontend/blob/master/end-to-end-test/local/studies/lgg_ucsf_2014_test_generic_assay/data_armlevel_CNA.txt)
 
 ## Resource Data
 

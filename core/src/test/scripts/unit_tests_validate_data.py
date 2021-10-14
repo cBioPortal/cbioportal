@@ -2799,6 +2799,30 @@ class GenericAssayCategoricalTestCase(PostClinicalDataFileTestCase):
 
         self.assertEqual(len(record_list), 0)
 
+    def test_generic_assay_predefined_datatype_with_invalid_data_value(self):
+        self.logger.setLevel(logging.ERROR)
+        record_list = self.validate('data_generic_assay_categorical_invalid_predefined_data.txt',
+                                    validateData.GenericAssayCategoricalValidator,
+                                    extra_meta_fields={
+                                        'generic_assay_type': 'ARMLEVEL_CNA',
+                                        'generic_entity_meta_properties': 'name,description'})
+
+        self.assertEqual(len(record_list), 8)
+        record_iterator = iter(record_list)
+        record = next(record_iterator)
+        self.assertEqual(record.levelno, logging.ERROR)
+        self.assertIn('possible values are [Gain, Loss, Unchanged]', record.getMessage())
+
+    def test_generic_assay_predefined_datatype_with_valid_data_value(self):
+        self.logger.setLevel(logging.ERROR)
+        record_list = self.validate('data_generic_assay_categorical_valid_predefined_data.txt',
+                                    validateData.GenericAssayCategoricalValidator,
+                                    extra_meta_fields={
+                                        'generic_assay_type': 'ARMLEVEL_CNA',
+                                        'generic_entity_meta_properties': 'name,description'})
+
+        self.assertEqual(len(record_list), 0)
+
 class GenericAssayBinaryTestCase(PostClinicalDataFileTestCase):
     def test_generic_assay_with_with_valid_binary_data(self):
         self.logger.setLevel(logging.ERROR)

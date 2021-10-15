@@ -66,7 +66,7 @@
           <plugin>
             <groupId>com.github.cbioportal.maven-external-version</groupId>
             <artifactId>maven-external-version-plugin</artifactId>
-            <version>f09c2b9608744881111f24e55d55a91e54e6cb5f</version>
+            <version>f09c2b9608</version>
             <extensions>true</extensions>
             <configuration>
               <strategy hint="script">

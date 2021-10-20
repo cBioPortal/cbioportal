@@ -250,7 +250,13 @@ public class ImportTabDelimData {
                     existingCnaEvents.put(event, event);
                 }
                 MySQLbulkLoader.bulkLoadOn();
-            }                
+            }
+
+            // load entities map from database
+            Map<String, Integer> genericAssayStableIdToEntityIdMap = Collections.emptyMap();
+            if (isGenericAssayProfile) { 
+                genericAssayStableIdToEntityIdMap = GenericAssayMetaUtils.buildGenericAssayStableIdToEntityIdMap();   
+            }
             
             int lenParts = parts.length;
             
@@ -266,7 +272,7 @@ public class ImportTabDelimData {
                             filteredSampleIndices, daoGeneticAlteration);
                 } else if (isGenericAssayProfile) {
                     recordAdded = parseGenericAssayLine(line, lenParts, sampleStartIndex, genericAssayIdIndex, 
-                            filteredSampleIndices, daoGeneticAlteration);
+                            filteredSampleIndices, daoGeneticAlteration, genericAssayStableIdToEntityIdMap);
                 } else {
                     recordAdded = parseLine(line, lenParts, sampleStartIndex, 
                             hugoSymbolIndex, entrezGeneIdIndex, rppaGeneRefIndex, 
@@ -762,7 +768,7 @@ public class ImportTabDelimData {
      */
 
     private boolean parseGenericAssayLine(String line, int nrColumns, int sampleStartIndex, int genericAssayIdIndex,
-             List<Integer> filteredSampleIndices, DaoGeneticAlteration daoGeneticAlteration) throws DaoException {
+             List<Integer> filteredSampleIndices, DaoGeneticAlteration daoGeneticAlteration, Map<String, Integer> genericAssayStableIdToEntityIdMap) throws DaoException {
 
         boolean recordIsStored = false;
         
@@ -783,17 +789,14 @@ public class ImportTabDelimData {
             values = Stream.of(values).map(String::trim).toArray(String[]::new);
             values = filterOutNormalValues(filteredSampleIndices, values);
             
-            GenericAssayMeta genericAssayMeta = DaoGenericAssay.getGenericAssayMetaByStableId(parts[genericAssayIdIndex]);
+            String stableId = parts[genericAssayIdIndex];
+            Integer entityId = genericAssayStableIdToEntityIdMap.getOrDefault(stableId, null);
             
-            if (genericAssayMeta ==  null) {
+            if (entityId ==  null) {
                 ProgressMonitor.logWarning("Generic Assay entity " + parts[genericAssayIdIndex] + " not found in DB. Record will be skipped.");
             } else {
-                GeneticEntity geneticEntity = DaoGeneticEntity.getGeneticEntityByStableId(genericAssayMeta.getStableId());
-                if (geneticEntity == null) {
-                    ProgressMonitor.logWarning("Generic Assay entity " + parts[genericAssayIdIndex] + " not found in DB. Record will be skipped.");
-                }
-                recordIsStored = storeGeneticEntityGeneticAlterations(values, daoGeneticAlteration, geneticEntity.getId(), 
-                                    EntityType.GENERIC_ASSAY, genericAssayMeta.getStableId());
+                recordIsStored = storeGeneticEntityGeneticAlterations(values, daoGeneticAlteration, entityId, 
+                                    EntityType.GENERIC_ASSAY, stableId);
             }
 
             return recordIsStored;

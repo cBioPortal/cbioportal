@@ -4,9 +4,8 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.sql.Statement;
+import java.util.*;
 
-import org.cbioportal.model.EntityType;
 import org.cbioportal.model.GeneticEntity;
 
 public class DaoGeneticEntity {
@@ -62,6 +61,30 @@ public class DaoGeneticEntity {
     public static GeneticEntity getGeneticEntityById(int id) throws DaoException {
         DbContainer container = executeSQLstatment(SqlAction.SELECT, "SELECT * FROM genetic_entity WHERE ID = ?", String.valueOf(id));
         return container.getGeneticEntity();
+    }
+
+    /**
+     * Get all GeneticEntity record.
+     */
+    public static List<GeneticEntity> getAllGeneticEntities() throws DaoException {
+        Connection con = null;
+        PreparedStatement pstmt = null;
+        ResultSet rs = null;
+        try {
+            con = JdbcUtil.getDbConnection(DaoGeneticEntity.class);
+            pstmt = con.prepareStatement
+                ("SELECT * FROM genetic_entity");
+            rs = pstmt.executeQuery();
+            List<GeneticEntity> geneticEntities = new ArrayList<>();
+            while (rs.next()) {
+                geneticEntities.add(extractGeneticEntity(rs));
+            }
+            return geneticEntities;
+        } catch (SQLException e) {
+            throw new DaoException(e);
+        } finally {
+            JdbcUtil.closeAll(DaoGeneticEntity.class, con, pstmt, rs);
+        }
     }
 
     /**

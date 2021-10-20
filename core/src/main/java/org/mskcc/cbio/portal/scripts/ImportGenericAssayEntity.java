@@ -42,11 +42,11 @@ import java.io.FileReader;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import org.cbioportal.model.EntityType;
+import org.cbioportal.model.GenericEntityProperty;
 import org.cbioportal.model.GeneticEntity;
-import org.cbioportal.model.meta.GenericAssayMeta;
-import org.mskcc.cbio.portal.dao.DaoException;
 import org.mskcc.cbio.portal.dao.DaoGenericAssay;
 import org.mskcc.cbio.portal.dao.DaoGeneticEntity;
 import org.mskcc.cbio.portal.model.GeneticAlterationType;
@@ -177,22 +177,26 @@ public class ImportGenericAssayEntity extends ConsoleRunnable {
         List<String> notUpdatedEntities = new ArrayList<>();
         List<String> newEntities = new ArrayList<>();
         
+        // list of generic entity properties to be updated
+        List<GenericEntityProperty> updateProperties = new ArrayList<>();
+
+        // load entities map from database
+        Map<String, Integer> genericAssayStableIdToEntityIdMap = GenericAssayMetaUtils.buildGenericAssayStableIdToEntityIdMap();
+        
         currentLine = buf.readLine();
         
         while (currentLine != null) {
             
             String[] parts = currentLine.split("\t");
             
-            // get stableId and get the meta by the stableId
-            String genericAssayMetaStableId = parts[indexStableIdField];
-            GenericAssayMeta genericAssayMeta = DaoGenericAssay.getGenericAssayMetaByStableId(genericAssayMetaStableId);
-            GeneticEntity genericAssayEntity = DaoGeneticEntity.getGeneticEntityByStableId(genericAssayMetaStableId);
+            // get stableId and try to find related Entity ID from genericAssayStableIdToEntityIdMap
+            String stableId = parts[indexStableIdField];
+            Integer entityId = genericAssayStableIdToEntityIdMap.getOrDefault(stableId, null);
             
             // generic assay meta are always updated to based on the current import;
             // also when present in db a new record is created.
                 
             // extract fields; replace optional fields with the Stable ID when not set
-            String stableId = parts[indexStableIdField];
             HashMap<String, String> propertiesMap = new HashMap<>();
             if (additionalProperties != null) {
                 String[] columnNameList = additionalProperties.trim().split(",");
@@ -205,16 +209,12 @@ public class ImportGenericAssayEntity extends ConsoleRunnable {
             }
 
             // log for the existing entities
-            if (genericAssayMeta != null) {
+            if (entityId != null) {
                 if (updateInfo) {
                     updatedEntities.add(stableId);
-                    DaoGenericAssay.deleteGenericEntityPropertiesByStableId(stableId);
-                    propertiesMap.forEach((k, v) -> {	
-                        try {	
-                            DaoGenericAssay.setGenericEntityProperty(genericAssayEntity.getId(), k, v);	
-                        } catch (DaoException e) {	
-                            e.printStackTrace();	
-                        }	
+                    DaoGenericAssay.deleteGenericEntityPropertiesByEntityId(entityId);
+                    propertiesMap.forEach((k, v) -> {
+                        updateProperties.add(new GenericEntityProperty(k, v, entityId));
                     });
                 } else {
                     notUpdatedEntities.add(stableId);
@@ -226,15 +226,16 @@ public class ImportGenericAssayEntity extends ConsoleRunnable {
                 GeneticEntity newGeneticEntity = new GeneticEntity(geneticAlterationType.name(), stableId);
                 GeneticEntity createdGeneticEntity = DaoGeneticEntity.addNewGeneticEntity(newGeneticEntity);
                 propertiesMap.forEach((k, v) -> {
-                    try {
-                        DaoGenericAssay.setGenericEntityProperty(createdGeneticEntity.getId(), k, v);
-                    } catch (DaoException e) {
-                        e.printStackTrace();
-                    }
+                    updateProperties.add(new GenericEntityProperty(k, v, createdGeneticEntity.getId()));
                 });
             }
-
+            
             currentLine = buf.readLine();
+        }
+
+        // Add new properties
+        if (updateProperties.size() > 0) {
+            DaoGenericAssay.setGenericEntityPropertiesUsingBatch(updateProperties);
         }
         
         // show import result message

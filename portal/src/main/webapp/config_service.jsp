@@ -104,6 +104,7 @@
             "skin.patientview.filter_genes_profiled_all_samples",
             "skin.patientview.show_mskcc_slide_viewer",
             "skin.home_page.show_unauthorized_studies",
+            "skin.home_page.unauthorized_studies_global_message",
             "skin.show_settings_menu",
             "skin.hide_logout_button",
             "quick_search.enabled",

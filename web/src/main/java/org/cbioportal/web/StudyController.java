@@ -161,7 +161,6 @@ public class StudyController {
 
     }
 
-    @PreAuthorize("hasPermission(#studyId, 'CancerStudyId', T(org.cbioportal.utils.security.AccessLevel).READ)")
     @RequestMapping(value = "/studies/{studyId}/tags", method = RequestMethod.GET,
         produces = MediaType.APPLICATION_JSON_VALUE)
     @ApiOperation("Get the tags of a study")
@@ -172,7 +171,7 @@ public class StudyController {
 
         Map<String,Object> map = new HashMap<String,Object>();
         ObjectMapper mapper = new ObjectMapper();
-        CancerStudyTags cancerStudyTags = studyService.getTags(studyId);
+        CancerStudyTags cancerStudyTags = studyService.getTags(studyId, getAccessLevel());
         if (cancerStudyTags != null) { //If tags is null an empty map is returned
             map = mapper.readValue(cancerStudyTags.getTags(), Map.class);
         }

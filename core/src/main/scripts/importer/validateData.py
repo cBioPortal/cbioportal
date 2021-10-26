@@ -4544,12 +4544,42 @@ class GenericAssayCategoricalValidator(GenericAssayWiseFileValidator):
 
     """ Validator for files containing generic assay categorical values.
     """
+
+    # Global validation for specific generic assay types
+    GENERIC_ASSAY_CATEGORICAL_VALUES_MAP_BY_TYPE = {
+        'ARMLEVEL_CNA': ['Gain', 'Loss', 'Unchanged'],
+    }
+
+    ALLOWED_VALUES = None
+    
     def __init__(self, *args, **kwargs):
         """Initialize the instance attributes of the data file validator."""
         super(GenericAssayCategoricalValidator, self).__init__(*args, **kwargs)
+        # Define ALLOWED_VALUES based on generic_assay_type
+        if 'generic_assay_type' in self.meta_dict:
+            generic_assay_type = self.meta_dict['generic_assay_type'].strip().upper()
+            if generic_assay_type in self.GENERIC_ASSAY_CATEGORICAL_VALUES_MAP_BY_TYPE:
+                self.ALLOWED_VALUES = self.GENERIC_ASSAY_CATEGORICAL_VALUES_MAP_BY_TYPE[generic_assay_type]
 
-    # Categorical data do not need further validation
     def checkValue(self, value, col_index):
+        """ Check value if ALLOWED_VALUES defined, or Categorical data do not need further validation """
+        if self.ALLOWED_VALUES:
+            stripped_value = value.strip()
+            # do not check null values
+            # 'NA' is an allowed value. No further validations apply.
+            if stripped_value in self.NULL_VALUES:
+                return
+            # value is not defined (empty cell)
+            if len(stripped_value) == 0:
+                # empty cell is allowed
+                return 
+            if stripped_value not in self.ALLOWED_VALUES:
+                self.logger.error(
+                    'Invalid generic assay categorical value: possible values are [%s]',
+                    ', '.join(self.ALLOWED_VALUES),
+                    extra={'line_number': self.line_number,
+                           'column_number': col_index + 1,
+                           'cause': value})
         return
 
 class GenericAssayBinaryValidator(GenericAssayWiseFileValidator):

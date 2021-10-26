@@ -12,6 +12,7 @@ import org.cbioportal.service.exception.StudyNotFoundException;
 import org.cbioportal.utils.security.AccessLevel;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.access.prepost.PostFilter;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Service;
 
@@ -102,7 +103,8 @@ public class StudyServiceImpl implements StudyService {
 	}
     
     @Override
-    public CancerStudyTags getTags(String studyId) {
+    @PreAuthorize("hasPermission(#studyId, 'CancerStudyId', #accessLevel)")
+    public CancerStudyTags getTags(String studyId, AccessLevel accessLevel) {
 
         return studyRepository.getTags(studyId);
     }

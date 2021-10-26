@@ -176,6 +176,11 @@ Study View.
 ```
 skin.home_page.show_unauthorized_studies=
 ```
+If show_unauthorized_studies has been enabled, then a global message for the studies that are unauthorized can be configured by the property below. The message will appear in a tooltip when hover over the lock icon for the study and can also contain placecards like {$.Owner.email} for the studies that have this information in the study tags.
+```
+skin.home_page.unauthorized_studies_global_message=
+```
+
 
 ## Control the appearance of the settings menu in study view and group comparison that controls custom annotation-based filtering
 A settings menu that allows the user to filter alterations in study view and group comparison may be used

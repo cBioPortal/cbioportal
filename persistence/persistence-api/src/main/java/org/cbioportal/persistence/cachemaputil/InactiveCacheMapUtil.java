@@ -61,11 +61,6 @@ public class InactiveCacheMapUtil implements CacheMapUtil {
         throw new RuntimeException("A CacheMapUtils method was called on a portal where studies are accessible to all users.");
     }
 
-    @Override
-    public Map<String, String> getGenericAssayStableIdToMolecularProfileIdMap() {
-        throw new RuntimeException("A CacheMapUtils method was called on a portal where studies are accessible to all users.");
-    }
-
     //  bean is only instantiated when there is no user authorization
     @Override
     public boolean hasCacheEnabled() {

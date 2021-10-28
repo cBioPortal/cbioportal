@@ -76,28 +76,4 @@ public class CacheMapBuilder {
         LOG.debug("  cancer study map size: " + cancerStudyMap.size());
         return cancerStudyMap;
     }
-
-    public Map<String, String> buildGenericAssayStableIdToMolecularProfileIdMap() {
-        List<MolecularProfile> genericAssayMolecularProfiles = molecularProfileRepository.getAllMolecularProfiles(
-            "SUMMARY",
-            REPOSITORY_RESULT_LIMIT,
-            REPOSITORY_RESULT_OFFSET,
-            null,
-            "ASC").stream()
-            // Only select GENERIC_ASSAY profiles
-            .filter(mp -> EntityType.GENERIC_ASSAY.toString()
-                .equals(mp.getMolecularAlterationType().toString()))
-            .collect(Collectors.toList());
-        HashMap<String, String> genericAssayStableIdToMolecularProfileIdCache = new HashMap<>();
-        genericAssayMolecularProfiles.forEach(mp -> {
-            List<String> molecularId = new ArrayList<>();
-            molecularId.add(mp.getStableId());
-            List<String> stableIds = genericAssayRepository.getGenericAssayStableIdsByMolecularIds(molecularId);
-            for (String stableId : stableIds) {
-                genericAssayStableIdToMolecularProfileIdCache.put(stableId, mp.getStableId());
-            }
-        });
-        LOG.debug(" generic assay stableId to molecularProfileId map size: " + genericAssayStableIdToMolecularProfileIdCache.size());
-        return genericAssayStableIdToMolecularProfileIdCache;
-    }
 }

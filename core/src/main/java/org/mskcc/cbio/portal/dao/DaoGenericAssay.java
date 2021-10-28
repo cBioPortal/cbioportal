@@ -1,18 +1,15 @@
 package org.mskcc.cbio.portal.dao;
 
-import java.sql.Connection;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
-import java.sql.SQLException;
+import java.sql.*;
 import java.util.*;
 
+import org.cbioportal.model.GenericEntityProperty;
 import org.cbioportal.model.GeneticEntity;
 import org.cbioportal.model.meta.GenericAssayMeta;
-import org.mskcc.cbio.portal.util.ProgressMonitor;
 
 public class DaoGenericAssay {
 
-    public static void setGenericEntityProperty(int id, String name, String value) throws DaoException {
+    public static void setGenericEntityProperty(Integer entityId, String name, String value) throws DaoException {
         Connection con = null;
         PreparedStatement pstmt = null;
         ResultSet rs = null;
@@ -21,14 +18,50 @@ public class DaoGenericAssay {
             con = JdbcUtil.getDbConnection(DaoGeneticEntity.class);
             pstmt = con.prepareStatement("INSERT INTO generic_entity_properties (`GENETIC_ENTITY_ID`, `NAME`, `VALUE`) "
             + "VALUES(?,?,?)");
-            GeneticEntity entity = DaoGeneticEntity.getGeneticEntityById(id);
-            if (entity == null) {
+            if (entityId == null) {
                 return;
             }
-            pstmt.setInt(1, entity.getId());
+            pstmt.setInt(1, entityId);
             pstmt.setString(2, name);
             pstmt.setString(3, value);
             pstmt.executeUpdate();
+        } catch (SQLException e) {
+            e.printStackTrace();
+        } finally {
+            JdbcUtil.closeAll(DaoGeneticEntity.class, con, pstmt, rs);
+        }
+    }
+
+    public static void setGenericEntityPropertiesUsingBatch(List<GenericEntityProperty> properties) throws DaoException {
+        Connection con = null;
+        PreparedStatement pstmt = null;
+        ResultSet rs = null;
+        final int batchSize = 1000;
+
+        try {
+            con = JdbcUtil.getDbConnection(DaoGeneticEntity.class);
+            pstmt = con.prepareStatement("INSERT INTO generic_entity_properties (`GENETIC_ENTITY_ID`, `NAME`, `VALUE`) "
+                + "VALUES(?,?,?)");
+            if (properties.size() == 0) {
+                return;
+            }
+
+            // batch execution
+            int count = 0;
+            boolean preservedAutoCommitMode = con.getAutoCommit();
+            con.setAutoCommit(false);
+            for (GenericEntityProperty property : properties) {
+                pstmt.setInt(1, property.getEntityId());
+                pstmt.setString(2, property.getName());
+                pstmt.setString(3, property.getValue());
+                pstmt.addBatch();
+                if (++count % batchSize == 0) {
+                    pstmt.executeBatch();
+                }
+            }
+            // insert remaining records
+            pstmt.executeBatch();
+            con.setAutoCommit(preservedAutoCommitMode);
         } catch (SQLException e) {
             e.printStackTrace();
         } finally {
@@ -65,7 +98,7 @@ public class DaoGenericAssay {
         return null;
     }
 
-    public static void deleteGenericEntityPropertiesByStableId(String stableId) throws DaoException {
+    public static void deleteGenericEntityPropertiesByEntityId(Integer entityId) throws DaoException {
         Connection con = null;
         PreparedStatement pstmt = null;
         ResultSet rs = null;     
@@ -73,11 +106,10 @@ public class DaoGenericAssay {
         try {
             con = JdbcUtil.getDbConnection(DaoGeneticEntity.class);
             pstmt = con.prepareStatement("DELETE FROM generic_entity_properties WHERE GENETIC_ENTITY_ID=?");
-            GeneticEntity entity = DaoGeneticEntity.getGeneticEntityByStableId(stableId);
-            if (entity == null) {
+            if (entityId == null) {
                 return;
             }
-            pstmt.setInt(1, entity.getId());
+            pstmt.setInt(1, entityId);
             pstmt.executeUpdate();
         } catch (SQLException e) {
             e.printStackTrace();

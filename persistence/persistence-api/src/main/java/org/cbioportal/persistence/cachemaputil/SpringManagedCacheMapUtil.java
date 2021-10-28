@@ -96,13 +96,6 @@ public class SpringManagedCacheMapUtil implements CacheMapUtil {
         return cacheMapBuilder.buildCancerStudyMap();
     }
 
-    @Override
-    @Cacheable(cacheResolver = "generalRepositoryCacheResolver", condition = "@cacheEnabledConfig.getEnabled()")
-    public Map<String, String> getGenericAssayStableIdToMolecularProfileIdMap() {
-        LOG.debug("Building genericAssayStableIdToMolecularProfileMap (cache miss)");
-        return cacheMapBuilder.buildGenericAssayStableIdToMolecularProfileIdMap();
-    }
-
     //  bean is only instantiated when there is user authorization
     @Override
     public boolean hasCacheEnabled() {

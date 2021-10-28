@@ -59,6 +59,9 @@ categories:
       - 'chore'
       - 'dependencies'
       - 'cl-chore'
+  - title: '✂️ Reverted due to critical bugs'
+    labels:
+      - 'revert'
   - title: '📐 Prototype (Internal Use)'
     labels:
       - 'cl-prototype'

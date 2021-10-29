@@ -14,35 +14,35 @@ import org.springframework.security.saml.saml2.attribute.Attribute;
 
 @Configuration
 public class BeanConfig extends SamlIdentityProviderServerBeanConfiguration {
-	private final AppConfig config;
+    private final AppConfig config;
 
-	public BeanConfig(AppConfig config) {
-		this.config = config;
-	}
+    public BeanConfig(AppConfig config) {
+        this.config = config;
+    }
 
-	@Override
-	protected SamlServerConfiguration getDefaultHostSamlServerConfiguration() {
-		return config;
-	}
+    @Override
+    protected SamlServerConfiguration getDefaultHostSamlServerConfiguration() {
+        return config;
+    }
 
-	@Bean(name = "samlAssertionEnhancer")
-	public AssertionEnhancer samlAssertionEnhancer(@Value("${user.email}") String testEmail) {
-		return assertion -> {
-			Attribute emailAttribute = new Attribute();
-			emailAttribute.setName("User.email");
-			emailAttribute.addValues(testEmail);
-			assertion.addAttribute(emailAttribute);
-			return assertion;
-		};
-	}
+    @Bean(name = "samlAssertionEnhancer")
+    public AssertionEnhancer samlAssertionEnhancer(@Value("${user.email}") String testEmail) {
+        return assertion -> {
+            Attribute emailAttribute = new Attribute();
+            emailAttribute.setName("User.email");
+            emailAttribute.addValues(testEmail);
+            assertion.addAttribute(emailAttribute);
+            return assertion;
+        };
+    }
 
-	@Bean
-	public UserDetailsService userDetailsService() {
-		UserDetails userDetails = User.withDefaultPasswordEncoder()
-			.username("user")
-			.password("password")
-			.roles("USER")
-			.build();
-		return new InMemoryUserDetailsManager(userDetails);
-	}
+    @Bean
+    public UserDetailsService userDetailsService() {
+        UserDetails userDetails = User.withDefaultPasswordEncoder()
+            .username("user")
+            .password("password")
+            .roles("USER")
+            .build();
+        return new InMemoryUserDetailsManager(userDetails);
+    }
 }

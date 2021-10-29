@@ -21,7 +21,7 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package org.mskcc.cbio.portal;
+package org.cbioportal.test.integration.security.util;
 
 import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
@@ -29,7 +29,7 @@ import java.util.Base64;
 
 public class TokenHelper {
 
-    static String encodeWithoutSigning(String claims) {
+    public static String encodeWithoutSigning(String claims) {
         Base64.Encoder urlEncoder = Base64.getUrlEncoder();
 
         Charset charset = StandardCharsets.UTF_8;

@@ -21,7 +21,7 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package org.mskcc.cbio.portal;
+package org.cbioportal.test.integration.security.util;
 
 import java.io.*;
 import java.net.HttpURLConnection;
@@ -29,12 +29,12 @@ import java.net.URL;
 import java.util.List;
 import java.util.Map;
 
-class HttpHelper {
+public class HttpHelper {
 
-    static class HttpResponse {
-        final String body;
-        final int code;
-        final Map<String, List<String>> headers;
+    public static class HttpResponse {
+        public final String body;
+        public final int code;
+        public final Map<String, List<String>> headers;
 
         private HttpResponse(int code, String body, Map<String, List<String>> headers) {
             this.code = code;
@@ -43,7 +43,7 @@ class HttpHelper {
         }
     }
 
-    static HttpResponse sendGetRequest(String url, String bearerToken, String cookie) throws IOException {
+    public static HttpResponse sendGetRequest(String url, String bearerToken, String cookie) throws IOException {
         HttpURLConnection.setFollowRedirects(false);
         HttpURLConnection connection = (HttpURLConnection) new URL(url).openConnection();
         if (bearerToken != null) {
@@ -63,7 +63,8 @@ class HttpHelper {
         return new HttpResponse(responseCode, bodyContent, headers);
     }
 
-    static HttpResponse sendPostRequest(String url, String bearerToken, String cookie, String body) throws IOException {
+    public static HttpResponse sendPostRequest(String url, String bearerToken, String cookie,
+                                               String body) throws IOException {
         HttpURLConnection.setFollowRedirects(false);
         HttpURLConnection connection = (HttpURLConnection) new URL(url).openConnection();
         if (bearerToken != null) {

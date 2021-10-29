@@ -21,33 +21,32 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package org.mskcc.cbio.portal;
+package org.cbioportal.test.integration.security;
 
 
+import static org.cbioportal.test.integration.security.util.TokenHelper.encodeWithoutSigning;
+
+import java.io.IOException;
+import java.net.URLEncoder;
+import org.cbioportal.test.integration.security.util.HttpHelper;
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
 import org.junit.FixMethodOrder;
 import org.junit.Test;
+import org.junit.jupiter.api.Assertions;
 import org.junit.runners.MethodSorters;
 import org.mockserver.client.MockServerClient;
 import org.mockserver.integration.ClientAndServer;
-
-import java.io.IOException;
-import java.net.URLEncoder;
-
-import static org.junit.Assert.*;
-import static org.mockserver.integration.ClientAndServer.startClientAndServer;
-import static org.mockserver.model.HttpRequest.request;
-import static org.mockserver.model.HttpResponse.response;
-import static org.mockserver.model.StringBody.subString;
-import static org.mskcc.cbio.portal.TokenHelper.encodeWithoutSigning;
+import org.mockserver.model.HttpRequest;
+import org.mockserver.model.HttpResponse;
+import org.mockserver.model.StringBody;
 
 
 /**
  * Tests SAML authentication and offline token download
  */
 @FixMethodOrder(MethodSorters.NAME_ASCENDING)
-public class OfflineTokenDownloadIntegrationTests {
+public class OfflineTokenDownloadIntegrationTest {
 
     private static final String HOST = "http://localhost:8080";
     private static final String CBIO_URL = HOST + "/cbioportal";
@@ -64,37 +63,37 @@ public class OfflineTokenDownloadIntegrationTests {
         String cbioPageUrl = CBIO_URL + "/";
         HttpHelper.HttpResponse discoveryEndpointRedirect = HttpHelper.sendGetRequest(cbioPageUrl, null, null);
         //1. Then we get redirect to the discovery page
-        assertEquals(302, discoveryEndpointRedirect.code);
+        Assertions.assertEquals(302, discoveryEndpointRedirect.code);
         String discoveryEndpointLocation = discoveryEndpointRedirect.headers.get("Location").get(0);
-        assertEquals(CBIO_URL + "/saml/discovery?entityID=cbioportal&returnIDParam=idp", discoveryEndpointLocation);
+        Assertions.assertEquals(CBIO_URL + "/saml/discovery?entityID=cbioportal&returnIDParam=idp", discoveryEndpointLocation);
         //1. And we set the session cookie
         String cbioSetCookie = discoveryEndpointRedirect.headers.get("Set-Cookie").get(0);
-        assertTrue(cbioSetCookie.startsWith("JSESSIONID="));
+        Assertions.assertTrue(cbioSetCookie.startsWith("JSESSIONID="));
         cbioCookie = cbioSetCookie.split(";")[0];
 
         //2. When we make a request to the discovery endpoint
         HttpHelper.HttpResponse cbioIdpLoginRedirect = HttpHelper.sendGetRequest(discoveryEndpointLocation, null, cbioCookie);
         //2. Then it redirects us to the saml idp login screen of the cbioportal
-        assertEquals(302, cbioIdpLoginRedirect.code);
+        Assertions.assertEquals(302, cbioIdpLoginRedirect.code);
         String cbioIdpLoginLocation = cbioIdpLoginRedirect.headers.get("Location").get(0);
-        assertEquals(CBIO_URL + "/saml/login?disco=true&idp=spring.security.saml.idp.id", cbioIdpLoginLocation);
+        Assertions.assertEquals(CBIO_URL + "/saml/login?disco=true&idp=spring.security.saml.idp.id", cbioIdpLoginLocation);
 
         //3. When we make a request to the cbio login page
         HttpHelper.HttpResponse idpRedirect = HttpHelper.sendGetRequest(cbioIdpLoginLocation, null, cbioCookie);
         //3. Then we get redirected to the saml idp site
-        assertEquals(302, idpRedirect.code);
+        Assertions.assertEquals(302, idpRedirect.code);
         String idpLocation = idpRedirect.headers.get("Location").get(0);
-        assertTrue(idpLocation.startsWith(IDP_URL + "/saml/idp/SSO/alias/boot-sample-idp?"));
+        Assertions.assertTrue(idpLocation.startsWith(IDP_URL + "/saml/idp/SSO/alias/boot-sample-idp?"));
 
         //4. When we make a request to the idp page
         HttpHelper.HttpResponse idpLoginRedirect = HttpHelper.sendGetRequest(idpLocation, null, null);
         //4. Then we get redirected to the saml idp login page
-        assertEquals(302, idpLoginRedirect.code);
+        Assertions.assertEquals(302, idpLoginRedirect.code);
         String idpLoginLocation = idpLoginRedirect.headers.get("Location").get(0);
-        assertTrue(idpLoginLocation.startsWith(IDP_URL + "/login"));
+        Assertions.assertTrue(idpLoginLocation.startsWith(IDP_URL + "/login"));
         //4. And we set the idp session cookie
         String idpSetCookie = idpLoginRedirect.headers.get("Set-Cookie").get(0);
-        assertTrue(idpSetCookie.startsWith("JSESSIONID="));
+        Assertions.assertTrue(idpSetCookie.startsWith("JSESSIONID="));
         String idpCookie = idpSetCookie.split(";")[0];
 
         // We skipped requesting the login page for the brevity
@@ -102,22 +101,22 @@ public class OfflineTokenDownloadIntegrationTests {
         //5. When we submit the login form
         HttpHelper.HttpResponse idpLoginRepsonse = HttpHelper.sendPostRequest(idpLoginLocation, null, idpCookie, "username=user&password=password");
         //5. Then we get redirected to the saml idp site
-        assertEquals(302, idpLoginRepsonse.code);
+        Assertions.assertEquals(302, idpLoginRepsonse.code);
         String jumpToServiceProviderPageLocation = idpLoginRepsonse.headers.get("Location").get(0);
-        assertTrue(jumpToServiceProviderPageLocation.startsWith(IDP_URL + "/saml/idp/SSO/alias/boot-sample-idp?"));
+        Assertions.assertTrue(jumpToServiceProviderPageLocation.startsWith(IDP_URL + "/saml/idp/SSO/alias/boot-sample-idp?"));
         //5. And we set the idp session cookie
         idpSetCookie = idpLoginRepsonse.headers.get("Set-Cookie").get(0);
-        assertTrue(idpSetCookie.startsWith("JSESSIONID="));
+        Assertions.assertTrue(idpSetCookie.startsWith("JSESSIONID="));
         idpCookie = idpSetCookie.split(";")[0];
 
         //6. When we reach the jump page
         HttpHelper.HttpResponse jumpToServiceProviderPageRepsonse = HttpHelper.sendGetRequest(jumpToServiceProviderPageLocation, null, idpCookie);
         //6. Then we get html page with javascript that redirects us to the service provider
-        assertEquals(200, jumpToServiceProviderPageRepsonse.code);
+        Assertions.assertEquals(200, jumpToServiceProviderPageRepsonse.code);
         String jumpPage = jumpToServiceProviderPageRepsonse.body;
-        assertTrue(jumpPage.contains("form action=\"" + CBIO_URL + "/saml/SSO\""));
+        Assertions.assertTrue(jumpPage.contains("form action=\"" + CBIO_URL + "/saml/SSO\""));
         String samlResponseValueStart = "name=\"SAMLResponse\" value=\"";
-        assertTrue(jumpPage.contains(samlResponseValueStart));
+        Assertions.assertTrue(jumpPage.contains(samlResponseValueStart));
         int start = jumpPage.indexOf(samlResponseValueStart);
         int end = jumpPage.indexOf("\"", start + samlResponseValueStart.length());
         String samlResponse = jumpPage.substring(start + samlResponseValueStart.length(), end);
@@ -127,15 +126,15 @@ public class OfflineTokenDownloadIntegrationTests {
             .sendPostRequest(CBIO_URL + "/saml/SSO", null, cbioCookie,
                 "SAMLResponse=" + URLEncoder.encode(samlResponse, "UTF-8"));
         //7. Then we get redirected to originally requested page
-        assertEquals(302, requestAssertionsConsumerRepsonse.code);
+        Assertions.assertEquals(302, requestAssertionsConsumerRepsonse.code);
         String dataAccessTokenLocation = requestAssertionsConsumerRepsonse.headers.get("Location").get(0);
         
-        assertEquals("/cbioportal/restore?key=login-redirect", dataAccessTokenLocation);
+        Assertions.assertEquals("/cbioportal/restore?key=login-redirect", dataAccessTokenLocation);
 
         //8. Finally we can reach the home page
         HttpHelper.HttpResponse homePageResponse = HttpHelper.sendGetRequest(cbioPageUrl, null, cbioCookie);
-        assertEquals(200, homePageResponse.code);
-        assertFalse(homePageResponse.body.isEmpty());
+        Assertions.assertEquals(200, homePageResponse.code);
+        Assertions.assertFalse(homePageResponse.body.isEmpty());
 
     }
 
@@ -144,28 +143,28 @@ public class OfflineTokenDownloadIntegrationTests {
         String offlineTokenClaims = "{\"sub\": \"1234567890\"}";
         String encodedOfflineTokenClaims = encodeWithoutSigning(offlineTokenClaims);
         new MockServerClient("localhost", IDP_PORT).when(
-            request()
+            HttpRequest.request()
                 .withMethod("POST")
                 .withPath("/auth/realms/cbio/token")
-                .withBody(subString("code=code1")))
+                .withBody(StringBody.subString("code=code1")))
             .respond(
-                response()
+                HttpResponse.response()
                     .withBody("{\"refresh_token\": \""
                         + encodedOfflineTokenClaims
                         + "\"}"));
 
         HttpHelper.HttpResponse offlineTokenResponse = HttpHelper.sendGetRequest(CBIO_URL + "/api/data-access-token/oauth2?code=code1", null, cbioCookie);
 
-        assertEquals(200, offlineTokenResponse.code);
-        assertTrue(offlineTokenResponse.headers.get("Content-Disposition").get(0).startsWith("attachment; filename="));
-        assertEquals("token: " + encodedOfflineTokenClaims, offlineTokenResponse.body);
+        Assertions.assertEquals(200, offlineTokenResponse.code);
+        Assertions.assertTrue(offlineTokenResponse.headers.get("Content-Disposition").get(0).startsWith("attachment; filename="));
+        Assertions.assertEquals("token: " + encodedOfflineTokenClaims, offlineTokenResponse.body);
     }
 
     private static ClientAndServer mockServer;
 
     @BeforeClass
     public static void startServer() {
-        mockServer = startClientAndServer(IDP_PORT);
+        mockServer = ClientAndServer.startClientAndServer(IDP_PORT);
     }
 
     @AfterClass

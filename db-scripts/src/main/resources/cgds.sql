@@ -54,7 +54,6 @@ DROP TABLE IF EXISTS `sample_cna_event`;
 DROP TABLE IF EXISTS `cna_event`;
 DROP TABLE IF EXISTS `drug_interaction`;
 DROP TABLE IF EXISTS `drug`;
-DROP TABLE IF EXISTS `text_cache`;
 DROP TABLE IF EXISTS `gistic_to_gene`;
 DROP TABLE IF EXISTS `gistic`;
 DROP TABLE IF EXISTS `sanger_cancer_census`;
@@ -665,14 +664,6 @@ CREATE TABLE `gistic_to_gene` (
   PRIMARY KEY(`GISTIC_ROI_ID`, `ENTREZ_GENE_ID`),
   FOREIGN KEY (`ENTREZ_GENE_ID`) REFERENCES `gene` (`ENTREZ_GENE_ID`),
   FOREIGN KEY (`GISTIC_ROI_ID`) REFERENCES `gistic` (`GISTIC_ROI_ID`) ON DELETE CASCADE
-);
-
--- --------------------------------------------------------
-CREATE TABLE `text_cache` (
-  `HASH_KEY` varchar(32) NOT NULL,
-  `TEXT` longtext NOT NULL,
-  `DATE_TIME_STAMP` datetime NOT NULL,
-  PRIMARY KEY (`HASH_KEY`)
 );
 
 -- --------------------------------------------------------

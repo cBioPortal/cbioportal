@@ -9,10 +9,10 @@
     <modelVersion>4.0.0</modelVersion>
     <version>0.0.1-SNAPSHOT</version>
     <packaging>pom</packaging>
-    
+
     <artifactId>master</artifactId>
     <groupId>org.cbioportal</groupId>
-    
+
     <description>Demo project for Spring Boot</description>
 
     <modules>
@@ -24,8 +24,8 @@
         <module>service</module>
         <module>db-scripts</module>
         <module>portal</module>
-<!--        <module>core</module>-->
-<!--        <module>scripts</module>-->
+        <!--        <module>core</module>-->
+        <!--        <module>scripts</module>-->
     </modules>
 
     <properties>
@@ -54,7 +54,7 @@
         <!--        <tomcat.catalina.scope>provided</tomcat.catalina.scope>-->
         <!--        <tomcat.session.timeout>720</tomcat.session.timeout>-->
     </properties>
-    
+
     <dependencies>
         <dependency>
             <groupId>org.springframework.boot</groupId>
@@ -81,6 +81,36 @@
                     <skip>true</skip>
                 </configuration>
             </plugin>
+
+            <!-- config for unit and integration tests -->
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-surefire-plugin</artifactId>
+                <configuration>
+                    <skipTests>${skipTests}</skipTests>
+                    <excludes>
+                        <exclude>**/*IntegrationTest.java</exclude>
+                    </excludes>
+                </configuration>
+            </plugin>
+            <plugin>
+                <artifactId>maven-failsafe-plugin</artifactId>
+                <configuration>
+                    <skipTests>${skipITs}</skipTests>
+                    <includes>
+                        <include>**/*IntegrationTest.java</include>
+                    </includes>
+                </configuration>
+                <executions>
+                    <execution>
+                        <goals>
+                            <goal>integration-test</goal>
+                            <goal>verify</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
+
             <!-- write git version properties file (git.properties) -->
             <plugin>
                 <groupId>io.github.git-commit-id</groupId>
@@ -135,21 +165,24 @@
                         </goals>
                         <configuration>
                             <target>
-                                <taskdef resource="net/sf/antcontrib/antlib.xml" classpathref="maven.dependency.classpath" />
+                                <taskdef resource="net/sf/antcontrib/antlib.xml"
+                                         classpathref="maven.dependency.classpath"/>
                                 <if>
                                     <not>
-                                        <available file="${basedir}/src/main/resources/portal.properties" />
+                                        <available file="${basedir}/src/main/resources/portal.properties"/>
                                     </not>
                                     <then>
-                                        <copy file="${basedir}/src/main/resources/portal.properties.EXAMPLE" tofile="${basedir}/src/main/resources/portal.properties" />
+                                        <copy file="${basedir}/src/main/resources/portal.properties.EXAMPLE"
+                                              tofile="${basedir}/src/main/resources/portal.properties"/>
                                     </then>
                                 </if>
                                 <if>
                                     <not>
-                                        <available file="${basedir}/src/main/resources/log4j.properties" />
+                                        <available file="${basedir}/src/main/resources/log4j.properties"/>
                                     </not>
                                     <then>
-                                        <copy file="${basedir}/src/main/resources/log4j.properties.EXAMPLE" tofile="${basedir}/src/main/resources/log4j.properties" />
+                                        <copy file="${basedir}/src/main/resources/log4j.properties.EXAMPLE"
+                                              tofile="${basedir}/src/main/resources/log4j.properties"/>
                                     </then>
                                 </if>
                             </target>
@@ -178,8 +211,35 @@
         </plugins>
     </build>
 
-    <!-- The 'jboss-third-party' repo must be present in both repository and pluginRepository sections -->
-    <!-- for the maven-dependency plugin to work --> 
+    <!--    TODO: update documentation on running tests 
+        'maven test' runs only unit tests (default behavior)
+        'maven verify' runs only unit tests 
+        'maven verify -P integration-test' runs only integration tests
+        -->
+    <profiles>
+        <profile>
+            <id>default</id>
+            <activation>
+                <activeByDefault>true</activeByDefault>
+            </activation>
+            <properties>
+                <skipTests>false</skipTests>
+                <!-- skipITs is an official Maven param; do not rename-->
+                <skipITs>true</skipITs>
+            </properties>
+        </profile>
+        <profile>
+            <id>integration-test</id>
+            <properties>
+                <skipTests>true</skipTests>
+                <!-- skipITs is an official Maven param; do not rename-->
+                <skipITs>false</skipITs>
+            </properties>
+        </profile>
+    </profiles>
+
+    <!-- The 'jboss-third-party' repo must be present in both repository
+         and pluginRepository sections for the maven-dependency plugin to work -->
     <repositories>
         <!-- needed for cbioportal-frontend and session service -->
         <repository>
@@ -294,7 +354,7 @@
                 <artifactId>service</artifactId>
                 <version>${project.version}</version>
             </dependency>
-<!--            TODO remove dependency on Junit 4 (Spring boot uses Junit 5 by default)-->
+            <!--            TODO remove dependency on Junit 4 (Spring boot uses Junit 5 by default)-->
             <dependency>
                 <groupId>org.junit.vintage</groupId>
                 <artifactId>junit-vintage-engine</artifactId>
@@ -367,12 +427,12 @@
                 <artifactId>simple-java-bitly</artifactId>
                 <version>1.1</version>
             </dependency>
-<!--            <dependency>-->
-<!--                <groupId>com.github.cbioportal</groupId>-->
-<!--                <artifactId>session-service</artifactId>-->
-<!--                <classifier>model</classifier>-->
-<!--                <version>v0.5.0</version>-->
-<!--            </dependency>-->
+            <!--            <dependency>-->
+            <!--                <groupId>com.github.cbioportal</groupId>-->
+            <!--                <artifactId>session-service</artifactId>-->
+            <!--                <classifier>model</classifier>-->
+            <!--                <version>v0.5.0</version>-->
+            <!--            </dependency>-->
             <dependency>
                 <groupId>com.googlecode.json-simple</groupId>
                 <artifactId>json-simple</artifactId>
@@ -414,8 +474,8 @@
                 <artifactId>spring-social-web</artifactId>
                 <version>${spring.social.version}</version>
             </dependency>
-            
-        <!--            for core module-->
+
+            <!--            for core module-->
 
             <!-- antisamy -->
             <dependency>
@@ -577,8 +637,8 @@
                 <artifactId>hrrs-servlet-filter-base64</artifactId>
                 <version>0.6</version>
             </dependency>
-            
-<!--            for security-spring module-->
+
+            <!--            for security-spring module-->
             <dependency>
                 <groupId>org.springframework.security.extensions</groupId>
                 <artifactId>spring-security-saml2-core</artifactId>

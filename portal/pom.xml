@@ -19,11 +19,11 @@
         <maven.build.timestamp.format>yyyyMMdd-HHmm</maven.build.timestamp.format>
 
         <!-- for security integration tests -->
-<!--        <db.test.driver>com.mysql.jdbc.Driver</db.test.driver>-->
-<!--        &lt;!&ndash; For MySQL < 5.5 change 'default_storage_engine' to 'storage_engine' &ndash;&gt;-->
-<!--        <db.test.url>jdbc:mysql://127.0.0.1:3306/cgds_test?sessionVariables=default_storage_engine=InnoDB</db.test.url>-->
-<!--        <db.test.username>cbio_user</db.test.username>-->
-<!--        <db.test.password>somepassword</db.test.password>-->
+        <!--        <db.test.driver>com.mysql.jdbc.Driver</db.test.driver>-->
+        <!--        &lt;!&ndash; For MySQL < 5.5 change 'default_storage_engine' to 'storage_engine' &ndash;&gt;-->
+        <!--        <db.test.url>jdbc:mysql://127.0.0.1:3306/cgds_test?sessionVariables=default_storage_engine=InnoDB</db.test.url>-->
+        <!--        <db.test.username>cbio_user</db.test.username>-->
+        <!--        <db.test.password>somepassword</db.test.password>-->
     </properties>
 
     <dependencies>
@@ -46,7 +46,7 @@
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-thymeleaf</artifactId>
         </dependency>
-        
+
         <dependency>
             <groupId>org.cbioportal</groupId>
             <artifactId>web</artifactId>
@@ -95,7 +95,7 @@
             <groupId>org.mongodb</groupId>
             <artifactId>bson</artifactId>
         </dependency>
-        
+
         <!-- For integration tests -->
         <dependency>
             <groupId>org.mock-server</groupId>
@@ -109,7 +109,7 @@
             <version>5.8.0</version>
             <scope>test</scope>
         </dependency>
-        
+
     </dependencies>
 
     <build>
@@ -119,7 +119,7 @@
             <filter>../src/main/resources/portal.properties</filter>
             <filter>../src/main/resources/maven.properties</filter>
         </filters>
-    
+
         <resources>
             <!-- copy over resources directory into classpath of product -->
             <resource>
@@ -152,7 +152,7 @@
                 </includes>
             </resource>
         </resources>
- 
+
         <plugins>
             <plugin>
                 <groupId>org.springframework.boot</groupId>
@@ -169,24 +169,24 @@
                     </execution>
                 </executions>
             </plugin>
-<!--            <plugin>-->
-<!--                <groupId>net.ggtools.maven</groupId>-->
-<!--                <artifactId>regex-copy-maven-plugin</artifactId>-->
-<!--                <version>0.3.0</version>-->
-<!--                <executions>-->
-<!--                    <execution>-->
-<!--                        <goals>-->
-<!--                            <goal>repackage</goal>-->
-<!--                        </goals>-->
-<!--                    </execution>-->
-<!--                </executions>-->
-<!--                <configuration>-->
-<!--                    <sourceDirectory>${project.build.directory}</sourceDirectory>-->
-<!--                    <destinationDirectory>${project.build.directory}</destinationDirectory>-->
-<!--                    <source>portal(.+)\.jar</source>-->
-<!--                    <destination>${final.package.name}{1}.jar</destination>-->
-<!--                </configuration>-->
-<!--            </plugin>-->
+            <!--            <plugin>-->
+            <!--                <groupId>net.ggtools.maven</groupId>-->
+            <!--                <artifactId>regex-copy-maven-plugin</artifactId>-->
+            <!--                <version>0.3.0</version>-->
+            <!--                <executions>-->
+            <!--                    <execution>-->
+            <!--                        <goals>-->
+            <!--                            <goal>repackage</goal>-->
+            <!--                        </goals>-->
+            <!--                    </execution>-->
+            <!--                </executions>-->
+            <!--                <configuration>-->
+            <!--                    <sourceDirectory>${project.build.directory}</sourceDirectory>-->
+            <!--                    <destinationDirectory>${project.build.directory}</destinationDirectory>-->
+            <!--                    <source>portal(.+)\.jar</source>-->
+            <!--                    <destination>${final.package.name}{1}.jar</destination>-->
+            <!--                </configuration>-->
+            <!--            </plugin>-->
             <!-- unpack cbioportal-frontend -->
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
@@ -252,28 +252,12 @@
             </plugin>
         </plugins>
     </build>
-    
+
     <profiles>
         <profile>
             <id>integration-test</id>
             <build>
                 <plugins>
-                    <plugin>
-                        <artifactId>maven-failsafe-plugin</artifactId>
-                        <configuration>
-                            <includes>
-                                <include>${project.basedir}/src/test/java/**/*IntegrationTest.java</include>
-                            </includes>
-                        </configuration>
-                        <executions>
-                            <execution>
-                                <goals>
-                                    <goal>integration-test</goal>
-                                    <goal>verify</goal>
-                                </goals>
-                            </execution>
-                        </executions>
-                    </plugin>
                     <plugin>
                         <groupId>org.codehaus.mojo</groupId>
                         <artifactId>exec-maven-plugin</artifactId>
@@ -291,7 +275,9 @@
                             <async>true</async>
                             <executable>mvn</executable>
                             <arguments>
-                                <argument>-f ${project.basedir}/src/test/saml-idp/pom.xml clean package spring-boot:run</argument>
+                                <argument>-f ${project.basedir}/src/test/saml-idp/pom.xml clean package
+                                    spring-boot:run
+                                </argument>
                             </arguments>
                         </configuration>
                     </plugin>
@@ -299,60 +285,59 @@
             </build>
         </profile>
     </profiles>
+    <!--    <properties>-->
+    <!--        <timestamp>${maven.build.timestamp}</timestamp>-->
+    <!--        <maven.build.timestamp.format>yyyyMMdd-HHmm</maven.build.timestamp.format>-->
+    <!--        <netbeans.hint.deploy.server>Tomcat</netbeans.hint.deploy.server>-->
+    <!--    </properties>-->
 
-<!--    <properties>-->
-<!--        <timestamp>${maven.build.timestamp}</timestamp>-->
-<!--        <maven.build.timestamp.format>yyyyMMdd-HHmm</maven.build.timestamp.format>-->
-<!--        <netbeans.hint.deploy.server>Tomcat</netbeans.hint.deploy.server>-->
-<!--    </properties>-->
-
-<!--    <profiles>-->
-<!--        &lt;!&ndash; remove portal temp build files when building heroku &ndash;&gt;-->
-<!--        <profile>-->
-<!--            <id>heroku</id>-->
-<!--            <build>-->
-<!--                <plugins>-->
-<!--                    <plugin>-->
-<!--                        <artifactId>maven-clean-plugin</artifactId>-->
-<!--                        <executions>-->
-<!--                            <execution>-->
-<!--                                <id>clean-jar-artifacts</id>-->
-<!--                                <phase>install</phase>-->
-<!--                                <goals>-->
-<!--                                    <goal>clean</goal>-->
-<!--                                </goals>-->
-<!--                                <configuration>-->
-<!--                                    <excludeDefaultDirectories>true</excludeDefaultDirectories>-->
-<!--                                    <filesets>-->
-<!--                                        <fileset>-->
-<!--                                            <directory>${project.parent.basedir}/portal/target</directory>-->
-<!--                                            <excludes>-->
-<!--                                                <exclude>*.war</exclude>-->
-<!--                                                <exclude>dependency/webapp-runner.jar</exclude>-->
-<!--                                            </excludes>-->
-<!--                                        </fileset>-->
-<!--                                    </filesets>-->
-<!--                                </configuration>-->
-<!--                            </execution>-->
-<!--                        </executions>-->
-<!--                    </plugin>-->
-<!--                </plugins>-->
-<!--            </build>-->
-<!--        </profile>-->
-<!--        <profile>-->
-<!--            &lt;!&ndash; if you are not using redis add '-Dexclude-redisson'-->
-<!--                 to your mvn install/package command-->
-<!--                 to exclude redisson*.jar from the war-->
-<!--                 because it could conflict with any redisson*.jar Tomcat has &ndash;&gt;-->
-<!--            <id>exclude-redisson</id>-->
-<!--            <properties>-->
-<!--                <exclude.redisson>WEB-INF/lib/redisson-*.jar</exclude.redisson>-->
-<!--            </properties>-->
-<!--            <activation>-->
-<!--                <property>-->
-<!--                    <name>exclude-redisson</name>-->
-<!--                </property>-->
-<!--            </activation>-->
-<!--        </profile>-->
-<!--    </profiles>-->
+    <!--    <profiles>-->
+    <!--        &lt;!&ndash; remove portal temp build files when building heroku &ndash;&gt;-->
+    <!--        <profile>-->
+    <!--            <id>heroku</id>-->
+    <!--            <build>-->
+    <!--                <plugins>-->
+    <!--                    <plugin>-->
+    <!--                        <artifactId>maven-clean-plugin</artifactId>-->
+    <!--                        <executions>-->
+    <!--                            <execution>-->
+    <!--                                <id>clean-jar-artifacts</id>-->
+    <!--                                <phase>install</phase>-->
+    <!--                                <goals>-->
+    <!--                                    <goal>clean</goal>-->
+    <!--                                </goals>-->
+    <!--                                <configuration>-->
+    <!--                                    <excludeDefaultDirectories>true</excludeDefaultDirectories>-->
+    <!--                                    <filesets>-->
+    <!--                                        <fileset>-->
+    <!--                                            <directory>${project.parent.basedir}/portal/target</directory>-->
+    <!--                                            <excludes>-->
+    <!--                                                <exclude>*.war</exclude>-->
+    <!--                                                <exclude>dependency/webapp-runner.jar</exclude>-->
+    <!--                                            </excludes>-->
+    <!--                                        </fileset>-->
+    <!--                                    </filesets>-->
+    <!--                                </configuration>-->
+    <!--                            </execution>-->
+    <!--                        </executions>-->
+    <!--                    </plugin>-->
+    <!--                </plugins>-->
+    <!--            </build>-->
+    <!--        </profile>-->
+    <!--        <profile>-->
+    <!--            &lt;!&ndash; if you are not using redis add '-Dexclude-redisson'-->
+    <!--                 to your mvn install/package command-->
+    <!--                 to exclude redisson*.jar from the war-->
+    <!--                 because it could conflict with any redisson*.jar Tomcat has &ndash;&gt;-->
+    <!--            <id>exclude-redisson</id>-->
+    <!--            <properties>-->
+    <!--                <exclude.redisson>WEB-INF/lib/redisson-*.jar</exclude.redisson>-->
+    <!--            </properties>-->
+    <!--            <activation>-->
+    <!--                <property>-->
+    <!--                    <name>exclude-redisson</name>-->
+    <!--                </property>-->
+    <!--            </activation>-->
+    <!--        </profile>-->
+    <!--    </profiles>-->
 </project>

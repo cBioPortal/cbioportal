@@ -30,26 +30,84 @@ import static org.junit.Assert.assertEquals;
 
 import java.io.IOException;
 import java.net.URLEncoder;
+import org.cbioportal.PortalApplication;
+import org.cbioportal.security.spring.SamlSecurityConfig;
+import org.cbioportal.test.integration.security.config.TestConfig;
 import org.cbioportal.test.integration.security.util.HttpHelper;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.jupiter.api.Assertions;
+import org.junit.runner.RunWith;
 import org.mockserver.client.MockServerClient;
 import org.mockserver.integration.ClientAndServer;
 import org.mockserver.model.HttpRequest;
 import org.mockserver.model.HttpResponse;
 import org.mockserver.model.StringBody;
+import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.boot.web.server.LocalServerPort;
+import org.springframework.test.context.ContextConfiguration;
+import org.springframework.test.context.TestPropertySource;
+import org.springframework.test.context.junit4.SpringRunner;
 
 
 /**
- * Tests protection of API endpoints
+ * Tests protection of API endpoints by SAML auth
  */
+// This starts a live portal instance on a random port (imported via @LocalServerPort)
+@SpringBootTest(
+    webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT, 
+    classes = {PortalApplication.class, TestConfig.class}
+)
+@RunWith(SpringRunner.class)
+@TestPropertySource(
+    properties = {
+        "authenticate=saml",
+        "dat.method=oauth2",
+        // DB settings
+        "spring.datasource.url=jdbc:h2:mem:testdb",
+        "spring.datasource.driverClassName=org.h2.Driver",
+        "spring.datasource.username=sa",
+        "spring.datasource.password=password",
+        "spring.jpa.database-platform=org.hibernate.dialect.H2Dialect",
+        // SAML settings
+        "saml.keystore.location=classpath:/security/testSamlKeystore.jks",
+        "saml.keystore.password=123456",
+        "saml.keystore.private-key.key=secure-key",
+        "saml.keystore.private-key.password=654321",
+        "saml.keystore.default-key=secure-key",
+        "saml.idp.metadata.location=classpath:/security/saml-idp-metadata.xml",
+        // I had to use specificBinding because of this bug https://github.com/spring-projects/spring-security-saml/issues/460
+        "saml.idp.comm.binding.settings=specificBinding",
+        "saml.idp.comm.binding.type=bindings:HTTP-Redirect",
+        "saml.sp.metadata.entitybaseurl=#{null}",
+        "saml.sp.metadata.entityid=cbioportal",
+        "saml.idp.metadata.entityid=spring.security.saml.idp.id",
+        "saml.idp.metadata.attribute.email=User.email",
+        "saml.custom.userservice.class=org.cbioportal.security.spring.authentication.saml.SAMLUserDetailsServiceImpl",
+        "saml.logout.local=false",
+        // FIXME Our test saml idp does not sign assertions for some reason
+        "saml.sp.metadata.wantassertionsigned=false",
+        "saml.logout.url=/",
+        "dat.oauth2.clientId=client_id",
+        "dat.oauth2.clientSecret=client_secret",
+        "dat.oauth2.issuer=token_issuer",
+        "dat.oauth2.accessTokenUri=http://localhost:8443/auth/realms/cbio/token",
+        "dat.oauth2.redirectUri=http://localhost:8080/api/data-access-token/oauth2",
+        "dat.oauth2.userAuthorizationUri=http://localhost:8443/auth/realms/cbio/auth",
+        "dat.oauth2.jwkUrl=http://localhost:8443/auth/realms/cbio/jwkUrl",
+        "dat.oauth2.jwtRolesPath=resource_access::cbioportal::roles"
+    }
+)
 public class Oauth2ResourceServerIntegrationTest {
 
-    private static final String HOST = "http://localhost:8080/cbioportal";
+    @LocalServerPort
+    protected int port;
+    
+    private String HOST= String.format("http://localhost:%d", port);
     private static final int IDP_PORT = 8443;
 
     @Test
@@ -59,6 +117,7 @@ public class Oauth2ResourceServerIntegrationTest {
     }
 
     @Test
+    @Ignore
     public void testAccessForbiddenForFakeBearerToken() throws IOException {
         String offlineToken = "{\"sub\": \"0000000000\"}";
         String encodedOfflineToken = encodeWithoutSigning(offlineToken);
@@ -75,6 +134,7 @@ public class Oauth2ResourceServerIntegrationTest {
     }
 
     @Test
+    @Ignore
     public void testAccessForValidBearerToken() throws IOException, JSONException {
         String offlineTokenClaims = "{\"sub\": \"1234567890\"}";
         String encodedOfflineToken = encodeWithoutSigning(offlineTokenClaims);

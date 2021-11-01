@@ -48,11 +48,9 @@ import org.mockserver.model.StringBody;
 @FixMethodOrder(MethodSorters.NAME_ASCENDING)
 public class OfflineTokenDownloadIntegrationTest {
 
-    private static final String HOST = "http://localhost:8080";
-    private static final String CBIO_URL = HOST + "/cbioportal";
-    private static final String IDP_URL = HOST + "/saml-idp";
-
-    private static final int IDP_PORT = 8443;
+    private static final String CBIO_URL = "http://localhost:8080/cbioportal";
+    private static final String IDP_URL = "http://localhost:8081";
+    private static final int IDP_PORT = 8081;
 
     private static String cbioCookie;
     //FIXME Endpoints to download offline token do not initiate login with saml, their simply return 401 http code. Should it be this way? Add tests

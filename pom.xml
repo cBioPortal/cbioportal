@@ -98,7 +98,7 @@
                 <configuration>
                     <skipTests>${skipITs}</skipTests>
                     <includes>
-                        <include>**/*IntegrationTest.java</include>
+                        <include>**/Oauth2ResourceServerIntegrationTest.java</include>
                     </includes>
                 </configuration>
                 <executions>

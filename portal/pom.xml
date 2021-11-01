@@ -109,6 +109,16 @@
             <version>5.8.0</version>
             <scope>test</scope>
         </dependency>
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-data-jpa</artifactId>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>com.h2database</groupId>
+            <artifactId>h2</artifactId>
+            <scope>test</scope>
+        </dependency>
 
     </dependencies>
 
@@ -250,41 +260,83 @@
                     </execution>
                 </executions>
             </plugin>
+            <plugin>
+                <groupId>org.codehaus.mojo</groupId>
+                <artifactId>exec-maven-plugin</artifactId>
+                <version>1.6.0</version>
+                <executions>
+                    <execution>
+                        <id>start saml-idp</id>
+                        <phase>pre-integration-test</phase>
+                        <goals>
+                            <goal>exec</goal>
+                        </goals>
+                    </execution>
+                </executions>
+                <configuration>
+                    <skip>${skipITs}</skip>
+                    <async>true</async>
+                    <workingDirectory>${project.basedir}/src/test/saml-idp</workingDirectory>
+                    <executable>mvn</executable>
+                    <arguments>
+                        <argument>clean</argument>
+                        <argument>package</argument>
+                        <argument>spring-boot:run</argument>
+                    </arguments>
+                </configuration>
+            </plugin>
+            <!-- needed to populate H2 database for integration tests -->
+            <plugin>
+                <artifactId>maven-resources-plugin</artifactId>
+                <executions>
+                    <execution>
+                        <id>copy-resources</id>
+                        <phase>pre-integration-test</phase>
+                        <goals>
+                            <goal>copy-resources</goal>
+                        </goals>
+                        <!-- copy cgds.sql from db-scripts module before running tests -->
+                        <configuration>
+                            <outputDirectory>${project.build.directory}/test-classes</outputDirectory>
+                            <resources>
+                                <resource>
+                                    <directory>${session.executionRootDirectory}/db-scripts/src/main/resources</directory>
+                                    <includes>
+                                        <include>cgds.sql</include>
+                                    </includes>
+                                    <filtering>false</filtering>
+                                </resource>
+                            </resources>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+            <plugin>
+                <groupId>com.google.code.maven-replacer-plugin</groupId>
+                <artifactId>replacer</artifactId>
+                <version>1.5.3</version>
+                <executions>
+                    <execution>
+                        <phase>pre-integration-test</phase>
+                        <goals>
+                            <goal>replace</goal>
+                        </goals>
+                    </execution>
+                </executions>
+                <configuration>
+                    <file>${project.build.directory}/test-classes/cgds.sql</file>
+                    <replacements>
+                        <replacement>
+                            <token>.*KEY `KEY_MUTATION_EVENT_DETAILS</token>
+                            <value>-- Line removed for H2 compatibility : KEY `KEY_MUTATION_EVENT_DETAILS </value>
+                        </replacement>
+                    </replacements>
+                </configuration>
+            </plugin>
+            
         </plugins>
     </build>
-
-    <profiles>
-        <profile>
-            <id>integration-test</id>
-            <build>
-                <plugins>
-                    <plugin>
-                        <groupId>org.codehaus.mojo</groupId>
-                        <artifactId>exec-maven-plugin</artifactId>
-                        <version>1.6.0</version>
-                        <executions>
-                            <execution>
-                                <id>start saml-idp</id>
-                                <goals>
-                                    <goal>exec</goal>
-                                </goals>
-                                <phase>pre-integration-test</phase>
-                            </execution>
-                        </executions>
-                        <configuration>
-                            <async>true</async>
-                            <executable>mvn</executable>
-                            <arguments>
-                                <argument>-f ${project.basedir}/src/test/saml-idp/pom.xml clean package
-                                    spring-boot:run
-                                </argument>
-                            </arguments>
-                        </configuration>
-                    </plugin>
-                </plugins>
-            </build>
-        </profile>
-    </profiles>
+    
     <!--    <properties>-->
     <!--        <timestamp>${maven.build.timestamp}</timestamp>-->
     <!--        <maven.build.timestamp.format>yyyyMMdd-HHmm</maven.build.timestamp.format>-->

@@ -10,8 +10,8 @@ import org.springframework.stereotype.Component;
 
 
 // TODO is this logging aspect still usefull?
-@Aspect
-@Component
+//@Aspect
+//@Component
 public class LoggingAspect {
 
     private static final Logger logger = LoggerFactory.getLogger("LoggingAspect");

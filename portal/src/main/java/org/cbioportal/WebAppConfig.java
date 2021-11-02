@@ -13,7 +13,7 @@ import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 // TODO Consider creating separate DispatcherServlets as in the original web.xml
 // See: https://stackoverflow.com/a/30686733/11651683
 @Configuration
-@EnableAspectJAutoProxy // TODO no idea what this does; is this logging aspect still useful?
+//@EnableAspectJAutoProxy // TODO no idea what this does; is this logging aspect still useful?
 public class WebAppConfig implements WebMvcConfigurer {
 
     private static final String SINGLE_PAGE_APP_ROOT = "forward:/";

@@ -6,9 +6,7 @@ import java.io.Serializable;
 
 public class GenericAssayMetaFilter implements Serializable {
 
-    @Size(min = 1, max = PagingConstants.MAX_PAGE_SIZE)
     private List<String> molecularProfileIds;
-    @Size(min = 1, max = PagingConstants.MAX_PAGE_SIZE)
     private List<String> genericAssayStableIds;
 
     public List<String> getMolecularProfileIds() {

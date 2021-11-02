@@ -8,6 +8,7 @@ import springfox.documentation.annotations.ApiIgnore;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -56,17 +57,19 @@ public class GenericAssayController {
     @ApiOperation("Fetch meta data for generic-assay by ID")
     public ResponseEntity<List<GenericAssayMeta>> fetchGenericAssayMetaData(
         @ApiParam(required = true, value = "List of Molecular Profile ID or List of Stable ID")
-        @Valid @RequestBody GenericAssayMetaFilter genericAssayMetaFilter,
+        @RequestBody GenericAssayMetaFilter genericAssayMetaFilter,
         @ApiParam("Level of detail of the response")
         @RequestParam(defaultValue = "SUMMARY") Projection projection) throws GenericAssayNotFoundException {
-            List<GenericAssayMeta> result;
+            List<GenericAssayMeta> result = Collections.emptyList();
 
-            if (genericAssayMetaFilter.getGenericAssayStableIds() == null) {
-                result = genericAssayService.getGenericAssayMetaByStableIdsAndMolecularIds(null, genericAssayMetaFilter.getMolecularProfileIds(), projection.name());
-            } else if (genericAssayMetaFilter.getMolecularProfileIds() == null) {
-                result = genericAssayService.getGenericAssayMetaByStableIdsAndMolecularIds(genericAssayMetaFilter.getGenericAssayStableIds(), null, projection.name());
-            } else {
-                result = genericAssayService.getGenericAssayMetaByStableIdsAndMolecularIds(genericAssayMetaFilter.getGenericAssayStableIds(), genericAssayMetaFilter.getMolecularProfileIds(), projection.name());
+            if (genericAssayMetaFilter != null) {
+                if (genericAssayMetaFilter.getGenericAssayStableIds() == null) {
+                    result = genericAssayService.getGenericAssayMetaByStableIdsAndMolecularIds(null, genericAssayMetaFilter.getMolecularProfileIds(), projection.name());
+                } else if (genericAssayMetaFilter.getMolecularProfileIds() == null) {
+                    result = genericAssayService.getGenericAssayMetaByStableIdsAndMolecularIds(genericAssayMetaFilter.getGenericAssayStableIds(), null, projection.name());
+                } else {
+                    result = genericAssayService.getGenericAssayMetaByStableIdsAndMolecularIds(genericAssayMetaFilter.getGenericAssayStableIds(), genericAssayMetaFilter.getMolecularProfileIds(), projection.name());
+                }   
             }
             return new ResponseEntity<>(result, HttpStatus.OK);
     }

@@ -141,14 +141,16 @@ public class StructuralVariantServiceImpl implements StructuralVariantService {
             String molecularProfileId = molecularProfileIds.get(i);
             if (molecularProfileId.endsWith(molecularProfileUtil.STRUCTURAL_VARIANT_PROFILE_SUFFIX)) {
                 structuralVariantMolecularProfileIds.add(molecularProfileId);
-                structuralVariantSampleIds.add(sampleIds.get(i));
+                if (CollectionUtils.isNotEmpty(sampleIds))  {
+                    structuralVariantSampleIds.add(sampleIds.get(i));
+                }
             } else if (molecularProfileId.endsWith(molecularProfileUtil.FUSION_PROFILE_SUFFIX)) {
-                String mutationMolecularProfileId =
-                        molecularProfileId.replace(molecularProfileUtil.FUSION_PROFILE_SUFFIX,
-                                molecularProfileUtil.MUTATION_PROFILE_SUFFIX);
+                String mutationMolecularProfileId = molecularProfileUtil.replaceFusionProfileWithMutationProfile(molecularProfileId);
                 molecularProfileIdReplaceMap.put(mutationMolecularProfileId, molecularProfileId);
                 fusionVariantMolecularProfileIds.add(molecularProfileId);
-                fusionVariantSampleIds.add(sampleIds.get(i));
+                if (CollectionUtils.isNotEmpty(sampleIds))  {
+                    fusionVariantSampleIds.add(sampleIds.get(i));
+                }
             } else if (molecularProfileId.endsWith(molecularProfileUtil.MUTATION_PROFILE_SUFFIX)) {
                 if (!molecularProfileMap.containsKey(molecularProfileId)) {
                     molecularProfileMap.put(molecularProfileId,
@@ -156,8 +158,12 @@ public class StructuralVariantServiceImpl implements StructuralVariantService {
                 }
                 MolecularProfile mp = molecularProfileMap.get(molecularProfileId);
                 if (mp.getDatatype().equals(molecularProfileUtil.FUSIONS_AS_MUTATIONS_DATATYPE)) {
-                    fusionVariantMolecularProfileIds.add(molecularProfileId);
-                    fusionVariantSampleIds.add(sampleIds.get(i));
+                    String mutationMolecularProfileId = molecularProfileUtil.replaceFusionProfileWithMutationProfile(molecularProfileId);
+                    molecularProfileIdReplaceMap.put(mutationMolecularProfileId, molecularProfileId);
+                    fusionVariantMolecularProfileIds.add(mutationMolecularProfileId);
+                    if (CollectionUtils.isNotEmpty(sampleIds))  {
+                        fusionVariantSampleIds.add(sampleIds.get(i));
+                    }
                 }
             }
         }

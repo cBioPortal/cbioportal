@@ -34,7 +34,7 @@ package org.cbioportal.security.spring.authentication.token;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.cbioportal.security.spring.authentication.social.PortalUserDetailsService;
+import org.cbioportal.security.spring.authentication.PortalUserDetailsService;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.authentication.dao.AbstractUserDetailsAuthenticationProvider;
 import org.springframework.security.core.AuthenticationException;

@@ -48,7 +48,7 @@
 
 package org.cbioportal.security.spring.authentication.token;
 
-import org.cbioportal.security.spring.authentication.social.PortalUserDetailsService;
+import org.cbioportal.security.spring.authentication.PortalUserDetailsService;
 import org.cbioportal.service.DataAccessTokenService;
 import org.cbioportal.service.impl.JwtDataAccessTokenServiceImpl;
 import org.cbioportal.service.util.JwtUtils;

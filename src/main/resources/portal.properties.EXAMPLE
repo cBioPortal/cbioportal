@@ -12,7 +12,7 @@ spring.jpa.database-platform=org.hibernate.dialect.MySQL5InnoDBDialect
 db.suppress_schema_version_mismatch_errors=false
 
 # authentication
-authenticate=noauthsessionservice
+authenticate=saml
 
 # set tomcat_resource_name when using dbconnector=jndi instead of the default
 # dbconnector=dbcp. Note that dbconnector needs to be set in CATLINA_OPTS when
@@ -125,11 +125,15 @@ saml.keystore.default-key=
 # How to send SAML request messages to the IDP.
 # Set to "specificBinding" to configure specific binding:
 saml.idp.comm.binding.settings=defaultBinding
+# TODO it appears that spring security only supports bindings:HTTP-POST and bindings:HTTP-Redirect (see enum Saml2MessageBinding). Update docs if true.
 # Configure the specific binding if above is specificBinding. Leave empty if defaultBinding.
 # Options: bindings:HTTP-POST, bindings:HTTP-Redirect, bindings:PAOS, profiles:holder-of-key:SSO:browser
 saml.idp.comm.binding.type=
-# Change this to configure your custom UserDetails parser (default: org.cbioportal.security.spring.authentication.saml.SAMLUserDetailsServiceImpl)
-saml.custom.userservice.class=org.cbioportal.security.spring.authentication.saml.SAMLUserDetailsServiceImpl
+saml.idp.metadata.attribute.email=
+saml.idp.metadata.attribute.role=
+# TODO document: 'When true, study roles will be retrieved from the cBioPortal database and added to the roles provided by the IDP (default 'false').'
+saml.roles-from-database=
+
 # Change this to configure to configure a custom logout URL: (default: /login.jsp?logout_success=true)
 saml.logout.url=/login.jsp?logout_success=true
 

@@ -1,0 +1,80 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <title>${skin_title}::cBioPortal Login</title>
+    <meta http-equiv="Content-Type" content="text/html;charset=utf-8"/>
+    <style>
+        a {
+            text-decoration: none;
+        }
+
+        #cbioportal-logo img {
+            height: 40px;
+        }
+    </style>
+</head>
+<body>
+<center>
+    <div id="page_wrapper">
+        <table width="90%" cellpadding="0px" cellspacing="5px" border="0px"
+               style="margin-left:5%;padding:20px;text-align:center">
+            <tr valign="top">
+                <td colspan="3">
+                    <div id="login_header_wrapper">
+                        <div id="login_header_top" style="height: 50px">
+                            <a id="cbioportal-logo" href="./"><img src="<c:url value="/images/cbioportal_logo.png"/>"
+                                alt="cBioPortal Logo" /></a>
+                        </div>
+                    </div>
+                </td>
+            </tr>
+            <tr valign="top">
+                <td>
+                    <div>
+                        <div
+                            th:if="${logout_success}"
+                            class="ui-state-highlight ui-corner-all" style="padding: 0 .7em">
+                            <p><span class="ui-icon ui-icon-info" style="float: left; margin-right: .3em"></span>
+                                <strong>You are now signed out. It is recommended that you close your browser to
+                                    complete the termination of this session.</strong></p>
+                        </div>
+                        <div
+                            th:if="${login_error}"
+                            class="ui-state-highlight ui-corner-all" style="padding: 0 .7em">
+                            <p>
+                                <span class="ui-icon ui-icon-info" style="float: left; margin-right: .3em"/>
+                                <strong>You are not authorized to access this resource.</strong>
+                            </p>
+                        </div>
+                        <br>
+                        <table cellspacing="2px" width="100%">
+                            <tr>
+                                <td>
+                                    <div id="login-fieldset">
+                                        <p>
+                                            <span
+                                                style="color:#333333;font-family:'Helvetica Neue',Helvetica,Arial,sans-serif;font-size:14px">${skin_authorization_message}}</span>
+                                        </p>
+                                        <p>
+                                            <button id="saml_login_button" type="button" class="btn btn-danger btn-lg"
+                                                th:onclick="'window.location = \'saml/login?idp= + ${saml_idp_entity_id}\''"
+                                                th:text="${skin_login_saml_registration_html}""
+                                            </button>
+                                        </p>
+                                    </div>
+                                </td>
+                            </tr>
+                        </table>
+                    </div>
+                </td>
+            </tr>
+        </table>
+    </div>
+</center>
+
+<!--TODO what is this?-->
+<!--<jsp:include page="WEB-INF/jsp/global/xdebug.jsp" flush="true"/>-->
+
+</body>
+</html>

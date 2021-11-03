@@ -10,6 +10,7 @@ import javax.servlet.http.HttpServletRequest;
 import org.cbioportal.service.FrontendPropertiesService;
 import org.cbioportal.web.util.HttpRequestUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -23,6 +24,12 @@ public class IndexPageController {
     
     @Autowired
     private HttpRequestUtils requestUtils;
+    
+    @Value("${authenticate}")
+    private String authenticate;
+    
+    @Value("${saml.idp.metadata.entityid:not_defined_in_portalproperties}")
+    private String samlIdpEntityId;
 
     private ObjectMapper mapper = new ObjectMapper();
 
@@ -46,4 +53,31 @@ public class IndexPageController {
         return "index";
     }
 
+    @GetMapping("/login")
+    public String showLoginPage(HttpServletRequest request, Authentication authentication, Model model) {
+    
+        model.addAttribute("skin_title", frontendPropertiesService.getFrontendProperty(FrontendProperty.skin_title));
+        model.addAttribute("logout_success", Boolean.parseBoolean(request.getParameter("logout_success")));
+        model.addAttribute("login_error", Boolean.parseBoolean(request.getParameter("login_error")));
+
+        switch (authenticate) {
+            case "openid":
+                return "login_openid";
+            case "ad":
+            case "ldap":
+                return "login_ad";
+            case "saml":
+                model.addAttribute("skin_login_saml_registration_html", frontendPropertiesService.getFrontendProperty(FrontendProperty.skin_login_saml_registration_html));
+                model.addAttribute("saml_idp_entity_id", samlIdpEntityId);
+                return "login_saml"; 
+        }
+
+//        model.addAttribute("skin_authorization_message", frontendPropertiesService.getFrontendProperty(FrontendProperty.skin_authorization_message));
+        
+        return "login";
+    }
+
+    public FrontendPropertiesService getFrontendPropertiesService() {
+        return frontendPropertiesService;
+    }
 }

@@ -251,6 +251,17 @@
             <id>jboss-third-party</id>
             <url>https://repository.jboss.org/nexus/content/repositories/thirdparty-releases/</url>
         </repository>
+        <!-- needed for the opensaml dependency -->
+        <repository>
+            <id>shiboleth</id>
+            <url>https://build.shibboleth.net/nexus/content/repositories/releases/</url>
+        </repository>
+        <!-- needed for the saml2 -->
+        <!-- TODO remove when spring-security 5.6.0-RC1 is made an official release-->
+        <repository>
+            <id>milestones</id>
+            <url>https://repo.spring.io/milestone/</url>
+        </repository>
     </repositories>
     <pluginRepositories>
         <!-- needed for the maven-external-version-plugin -->
@@ -638,12 +649,12 @@
                 <version>0.6</version>
             </dependency>
 
-            <!--            for security-spring module-->
-            <dependency>
-                <groupId>org.springframework.security.extensions</groupId>
-                <artifactId>spring-security-saml2-core</artifactId>
-                <version>1.0.3.RELEASE</version>
-            </dependency>
+            <!-- for security-spring module-->
+<!--            <dependency>-->
+<!--                <groupId>org.springframework.security.extensions</groupId>-->
+<!--                <artifactId>spring-security-saml2-service-provider</artifactId>-->
+<!--                <version>5.6.0</version>-->
+<!--            </dependency>-->
             <dependency>
                 <groupId>com.github.cbioportal</groupId>
                 <artifactId>spring-social-live</artifactId>
@@ -674,6 +685,59 @@
                 <groupId>io.sentry</groupId>
                 <artifactId>sentry-spring</artifactId>
                 <version>1.7.2</version>
+            </dependency>
+            <dependency>
+                <groupId>org.opensaml</groupId>
+                <artifactId>opensaml-core</artifactId>
+                <version>4.1.1</version>
+            </dependency>
+            <dependency>
+                <groupId>org.opensaml</groupId>
+                <artifactId>opensaml-saml-api</artifactId>
+                <version>4.1.1</version>
+            </dependency>
+            <dependency>
+                <groupId>org.opensaml</groupId>
+                <artifactId>opensaml-saml-impl</artifactId>
+                <version>4.1.1</version>
+            </dependency>
+            
+            <!-- TODO upgraded to v5.6.0 when released
+                this RC version is needed to implement SAML logout -->
+            <dependency>
+                <groupId>org.springframework.security</groupId>
+                <artifactId>spring-security-core</artifactId>
+                <version>5.6.0-RC1</version>
+            </dependency>
+            <dependency>
+                <groupId>org.springframework.security</groupId>
+                <artifactId>spring-security-saml2-service-provider</artifactId>
+                <version>5.6.0-RC1</version>
+            </dependency>
+            <dependency>
+                <groupId>org.springframework.security</groupId>
+                <artifactId>spring-security-crypto</artifactId>
+                <version>5.6.0-RC1</version>
+            </dependency>
+            <dependency>
+                <groupId>org.springframework.security</groupId>
+                <artifactId>spring-security-openid</artifactId>
+                <version>5.6.0-RC1</version>
+            </dependency>
+            <dependency>
+                <groupId>org.springframework.security</groupId>
+                <artifactId>spring-security-taglibs</artifactId>
+                <version>5.6.0-RC1</version>
+            </dependency>
+            <dependency>
+                <groupId>org.springframework.security</groupId>
+                <artifactId>spring-security-test</artifactId>
+                <version>5.6.0-RC1</version>
+            </dependency>
+            <dependency>
+                <groupId>org.springframework.security</groupId>
+                <artifactId>spring-security-web</artifactId>
+                <version>5.6.0-RC1</version>
             </dependency>
         </dependencies>
     </dependencyManagement>

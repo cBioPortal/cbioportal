@@ -4,7 +4,7 @@ import java.util.Arrays;
 import org.cbioportal.security.spring.authentication.PortalSavedRequestAwareAuthenticationSuccessHandler;
 import org.cbioportal.security.spring.authentication.googleplus.GoogleplusConnectionFactory;
 import org.cbioportal.security.spring.authentication.googleplus.GoogleplusUserDetailsService;
-import org.cbioportal.security.spring.authentication.social.PortalUserDetailsService;
+import org.cbioportal.security.spring.authentication.PortalUserDetailsService;
 import org.cbioportal.security.spring.authentication.social.SocialConnectionSignUp;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;

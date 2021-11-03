@@ -30,12 +30,11 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-package org.cbioportal.security.spring.authentication.social;
+package org.cbioportal.security.spring.authentication;
 
 import org.cbioportal.model.User;
 import org.cbioportal.model.UserAuthorities;
 import org.cbioportal.persistence.SecurityRepository;
-import org.cbioportal.security.spring.authentication.PortalUserDetails;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -48,9 +47,6 @@ import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.security.core.userdetails.*;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.AuthorityUtils;
-
-import org.springframework.stereotype.Component;
-import org.springframework.stereotype.Service;
 
 import java.util.List;
 
@@ -106,8 +102,6 @@ public class PortalUserDetailsService implements UserDetailsService {
                 toReturn = new PortalUserDetails(username, grantedAuthorities);
                 toReturn.setEmail(user.getEmail());
                 toReturn.setName(user.getName());
-
-
             }
         }
 

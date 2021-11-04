@@ -66,14 +66,7 @@ public class PortalUserDetailsService implements UserDetailsService {
 
     @Autowired
     private SecurityRepository securityRepository;
-
-    /**
-     * Constructor.
-     *
-     */
-    public PortalUserDetailsService() {
-    }
-
+    
     @Override
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
         Preconditions.checkArgument(!Strings.isNullOrEmpty(username), "A username is required");

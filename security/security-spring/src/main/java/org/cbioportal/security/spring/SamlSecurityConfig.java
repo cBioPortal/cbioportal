@@ -12,8 +12,10 @@ import org.cbioportal.security.spring.authentication.saml.SamlResponseAuthentica
 import org.springframework.beans.factory.BeanCreationException;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
+import org.springframework.boot.autoconfigure.security.SecurityProperties;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.core.annotation.Order;
 import org.springframework.core.io.Resource;
 import org.springframework.security.authentication.ProviderManager;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
@@ -32,6 +34,8 @@ import org.springframework.security.web.authentication.logout.LogoutSuccessHandl
 
 
 @Configuration
+// add new chain after api-filter chain (at position -2), but before the default fallback chain 
+@Order(SecurityProperties.BASIC_AUTH_ORDER - 1)
 @ConditionalOnProperty(value = "authenticate", havingValue = "saml")
 public class SamlSecurityConfig extends WebSecurityConfigurerAdapter {
 
@@ -74,8 +78,8 @@ public class SamlSecurityConfig extends WebSecurityConfigurerAdapter {
     @Override
     protected void configure(HttpSecurity http) throws Exception {
         http
-            .csrf().disable()
             .antMatcher("/**")
+            .csrf().disable()
             .authorizeRequests()
                 .anyRequest().authenticated()
             .and()

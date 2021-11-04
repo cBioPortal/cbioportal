@@ -65,6 +65,7 @@
             "show.transcript_dropdown",
             "show.signal",
             "survival.show_p_q_values_in_survival_type_table",
+            "survival.min_group_threshold",
             "survival.initial_x_axis_limit",
             "skin.documentation.about",
             "skin.documentation.baseurl",

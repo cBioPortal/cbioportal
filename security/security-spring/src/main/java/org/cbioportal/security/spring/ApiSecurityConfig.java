@@ -17,7 +17,7 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 
 @Configuration
 @Order(SecurityProperties.BASIC_AUTH_ORDER - 2)
-@ConditionalOnExpression("'${authenticate}' ne 'false' && '${authenticate}' ne 'noauthsessionservice'")
+//@ConditionalOnExpression("'${authenticate}' ne 'false' && '${authenticate}' ne 'noauthsessionservice'")
 public class ApiSecurityConfig extends WebSecurityConfigurerAdapter {
 
     // Add security filter chains that handle calls to the API endpoints.
@@ -65,13 +65,7 @@ public class ApiSecurityConfig extends WebSecurityConfigurerAdapter {
                          "/api/swagger-ui.html",
                          "/api/health",
                          "/api/cache").permitAll()
-                    .antMatchers("/api/**").authenticated()
-            .and()
-            // TODO should this not be "/webservice.do*"?
-            // TODO this overwrites the previous .antMatcher call - refactor in to new WebSecurityConfigurerAdapter block
-            .antMatcher("/webservice.do")
-                .authorizeRequests()
-                    .antMatchers("/**").authenticated();
+                    .antMatchers("/api/**").authenticated();
     }
  
 }

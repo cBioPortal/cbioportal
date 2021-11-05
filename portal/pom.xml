@@ -96,13 +96,11 @@
         <dependency>
             <groupId>org.mock-server</groupId>
             <artifactId>mockserver-netty</artifactId>
-            <version>5.8.0</version>
             <scope>test</scope>
         </dependency>
         <dependency>
             <groupId>org.mock-server</groupId>
             <artifactId>mockserver-client-java</artifactId>
-            <version>5.8.0</version>
             <scope>test</scope>
         </dependency>
         <dependency>
@@ -111,11 +109,26 @@
             <scope>test</scope>
         </dependency>
         <dependency>
-            <groupId>com.h2database</groupId>
-            <artifactId>h2</artifactId>
+            <groupId>org.apache.httpcomponents</groupId>
+            <artifactId>httpcore</artifactId>
             <scope>test</scope>
         </dependency>
-
+        <dependency>
+            <groupId>org.apache.httpcomponents</groupId>
+            <artifactId>httpclient</artifactId>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.testcontainers</groupId>
+            <artifactId>testcontainers</artifactId>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.testcontainers</groupId>
+            <artifactId>mysql</artifactId>
+            <scope>test</scope>
+        </dependency>
+        
     </dependencies>
 
     <build>
@@ -175,25 +188,6 @@
                     </execution>
                 </executions>
             </plugin>
-            <!--            <plugin>-->
-            <!--                <groupId>net.ggtools.maven</groupId>-->
-            <!--                <artifactId>regex-copy-maven-plugin</artifactId>-->
-            <!--                <version>0.3.0</version>-->
-            <!--                <executions>-->
-            <!--                    <execution>-->
-            <!--                        <goals>-->
-            <!--                            <goal>repackage</goal>-->
-            <!--                        </goals>-->
-            <!--                    </execution>-->
-            <!--                </executions>-->
-            <!--                <configuration>-->
-            <!--                    <sourceDirectory>${project.build.directory}</sourceDirectory>-->
-            <!--                    <destinationDirectory>${project.build.directory}</destinationDirectory>-->
-            <!--                    <source>portal(.+)\.jar</source>-->
-            <!--                    <destination>${final.package.name}{1}.jar</destination>-->
-            <!--                </configuration>-->
-            <!--            </plugin>-->
-            <!-- unpack cbioportal-frontend -->
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-dependency-plugin</artifactId>
@@ -256,31 +250,6 @@
                     </execution>
                 </executions>
             </plugin>
-            <plugin>
-                <groupId>org.codehaus.mojo</groupId>
-                <artifactId>exec-maven-plugin</artifactId>
-                <version>1.6.0</version>
-                <executions>
-                    <execution>
-                        <id>start saml-idp</id>
-                        <phase>pre-integration-test</phase>
-                        <goals>
-                            <goal>exec</goal>
-                        </goals>
-                    </execution>
-                </executions>
-                <configuration>
-                    <skip>${skipITs}</skip>
-                    <async>true</async>
-                    <workingDirectory>${project.basedir}/src/test/saml-idp</workingDirectory>
-                    <executable>mvn</executable>
-                    <arguments>
-                        <argument>clean</argument>
-                        <argument>package</argument>
-                        <argument>spring-boot:run</argument>
-                    </arguments>
-                </configuration>
-            </plugin>
             <!-- needed to populate H2 database for integration tests -->
             <plugin>
                 <artifactId>maven-resources-plugin</artifactId>
@@ -293,6 +262,7 @@
                         </goals>
                         <!-- copy cgds.sql from db-scripts module before running tests -->
                         <configuration>
+                            <skip>${skipITs}</skip>
                             <outputDirectory>${project.build.directory}/test-classes</outputDirectory>
                             <resources>
                                 <resource>
@@ -320,6 +290,7 @@
                     </execution>
                 </executions>
                 <configuration>
+                    <skip>${skipITs}</skip>
                     <file>${project.build.directory}/test-classes/cgds.sql</file>
                     <replacements>
                         <replacement>
@@ -329,63 +300,7 @@
                     </replacements>
                 </configuration>
             </plugin>
-            
         </plugins>
     </build>
-    
-    <!--    <properties>-->
-    <!--        <timestamp>${maven.build.timestamp}</timestamp>-->
-    <!--        <maven.build.timestamp.format>yyyyMMdd-HHmm</maven.build.timestamp.format>-->
-    <!--        <netbeans.hint.deploy.server>Tomcat</netbeans.hint.deploy.server>-->
-    <!--    </properties>-->
-
-    <!--    <profiles>-->
-    <!--        &lt;!&ndash; remove portal temp build files when building heroku &ndash;&gt;-->
-    <!--        <profile>-->
-    <!--            <id>heroku</id>-->
-    <!--            <build>-->
-    <!--                <plugins>-->
-    <!--                    <plugin>-->
-    <!--                        <artifactId>maven-clean-plugin</artifactId>-->
-    <!--                        <executions>-->
-    <!--                            <execution>-->
-    <!--                                <id>clean-jar-artifacts</id>-->
-    <!--                                <phase>install</phase>-->
-    <!--                                <goals>-->
-    <!--                                    <goal>clean</goal>-->
-    <!--                                </goals>-->
-    <!--                                <configuration>-->
-    <!--                                    <excludeDefaultDirectories>true</excludeDefaultDirectories>-->
-    <!--                                    <filesets>-->
-    <!--                                        <fileset>-->
-    <!--                                            <directory>${project.parent.basedir}/portal/target</directory>-->
-    <!--                                            <excludes>-->
-    <!--                                                <exclude>*.war</exclude>-->
-    <!--                                                <exclude>dependency/webapp-runner.jar</exclude>-->
-    <!--                                            </excludes>-->
-    <!--                                        </fileset>-->
-    <!--                                    </filesets>-->
-    <!--                                </configuration>-->
-    <!--                            </execution>-->
-    <!--                        </executions>-->
-    <!--                    </plugin>-->
-    <!--                </plugins>-->
-    <!--            </build>-->
-    <!--        </profile>-->
-    <!--        <profile>-->
-    <!--            &lt;!&ndash; if you are not using redis add '-Dexclude-redisson'-->
-    <!--                 to your mvn install/package command-->
-    <!--                 to exclude redisson*.jar from the war-->
-    <!--                 because it could conflict with any redisson*.jar Tomcat has &ndash;&gt;-->
-    <!--            <id>exclude-redisson</id>-->
-    <!--            <properties>-->
-    <!--                <exclude.redisson>WEB-INF/lib/redisson-*.jar</exclude.redisson>-->
-    <!--            </properties>-->
-    <!--            <activation>-->
-    <!--                <property>-->
-    <!--                    <name>exclude-redisson</name>-->
-    <!--                </property>-->
-    <!--            </activation>-->
-    <!--        </profile>-->
-    <!--    </profiles>-->
+   
 </project>

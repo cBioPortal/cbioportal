@@ -43,16 +43,12 @@
         <springfox.version>2.9.2</springfox.version>
         <io.swagger.version>1.6.3</io.swagger.version>
         <mybatis.starter.version>2.2.0</mybatis.starter.version>
+        <testcontainers.version>1.16.0</testcontainers.version>
+        <mockserver.version>5.8.0</mockserver.version>
+        <!-- TODO upgrade when 5.6.0 is released-->
+        <spring-security.version>5.6.0-RC1</spring-security.version>
+        <opensaml.version>4.1.1</opensaml.version>
 
-        <!-- needed for core module tests -->
-        <!--        <db.test.driver>com.mysql.jdbc.Driver</db.test.driver>-->
-        <!--        &lt;!&ndash; For MySQL < 5.5 change 'default_storage_engine' to 'storage_engine' &ndash;&gt;-->
-        <!--        <db.test.url>jdbc:mysql://127.0.0.1:3306/cgds_test?sessionVariables=default_storage_engine=InnoDB</db.test.url>-->
-        <!--        <db.test.username>cbio_user</db.test.username>-->
-        <!--        <db.test.password>somepassword</db.test.password>-->
-        <!--        &lt;!&ndash;For tomcat instances, the scope to tomcat catalina lib should be provided. this prop is used in portal module.&ndash;&gt;-->
-        <!--        <tomcat.catalina.scope>provided</tomcat.catalina.scope>-->
-        <!--        <tomcat.session.timeout>720</tomcat.session.timeout>-->
     </properties>
 
     <dependencies>
@@ -523,6 +519,7 @@
                 <artifactId>commons-io</artifactId>
                 <version>2.11.0</version>
             </dependency>
+<!--            TODO is this dep needed?-->
             <dependency>
                 <groupId>commons-httpclient</groupId>
                 <artifactId>commons-httpclient</artifactId>
@@ -531,7 +528,12 @@
             <dependency>
                 <groupId>org.apache.httpcomponents</groupId>
                 <artifactId>httpcore</artifactId>
-                <version>4.4-alpha1</version>
+                <version>4.4.14</version>
+            </dependency>
+            <dependency>
+                <groupId>org.apache.httpcomponents</groupId>
+                <artifactId>httpclient</artifactId>
+                <version>4.5.13</version>
             </dependency>
             <dependency>
                 <groupId>commons-cli</groupId>
@@ -689,17 +691,17 @@
             <dependency>
                 <groupId>org.opensaml</groupId>
                 <artifactId>opensaml-core</artifactId>
-                <version>4.1.1</version>
+                <version>${opensaml.version}</version>
             </dependency>
             <dependency>
                 <groupId>org.opensaml</groupId>
                 <artifactId>opensaml-saml-api</artifactId>
-                <version>4.1.1</version>
+                <version>${opensaml.version}</version>
             </dependency>
             <dependency>
                 <groupId>org.opensaml</groupId>
                 <artifactId>opensaml-saml-impl</artifactId>
-                <version>4.1.1</version>
+                <version>${opensaml.version}</version>
             </dependency>
             
             <!-- TODO upgraded to v5.6.0 when released
@@ -707,38 +709,59 @@
             <dependency>
                 <groupId>org.springframework.security</groupId>
                 <artifactId>spring-security-core</artifactId>
-                <version>5.6.0-RC1</version>
+                <version>${spring-security.version}</version>
             </dependency>
             <dependency>
                 <groupId>org.springframework.security</groupId>
                 <artifactId>spring-security-saml2-service-provider</artifactId>
-                <version>5.6.0-RC1</version>
+                <version>${spring-security.version}</version>
             </dependency>
             <dependency>
                 <groupId>org.springframework.security</groupId>
                 <artifactId>spring-security-crypto</artifactId>
-                <version>5.6.0-RC1</version>
+                <version>${spring-security.version}</version>
             </dependency>
             <dependency>
                 <groupId>org.springframework.security</groupId>
                 <artifactId>spring-security-openid</artifactId>
-                <version>5.6.0-RC1</version>
+                <version>${spring-security.version}</version>
             </dependency>
             <dependency>
                 <groupId>org.springframework.security</groupId>
                 <artifactId>spring-security-taglibs</artifactId>
-                <version>5.6.0-RC1</version>
+                <version>${spring-security.version}</version>
             </dependency>
             <dependency>
                 <groupId>org.springframework.security</groupId>
                 <artifactId>spring-security-test</artifactId>
-                <version>5.6.0-RC1</version>
+                <version>${spring-security.version}</version>
             </dependency>
             <dependency>
                 <groupId>org.springframework.security</groupId>
                 <artifactId>spring-security-web</artifactId>
                 <version>5.6.0-RC1</version>
             </dependency>
+            <dependency>
+                <groupId>org.testcontainers</groupId>
+                <artifactId>testcontainers</artifactId>
+                <version>${testcontainers.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.testcontainers</groupId>
+                <artifactId>mysql</artifactId>
+                <version>${testcontainers.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.mock-server</groupId>
+                <artifactId>mockserver-netty</artifactId>
+                <version>${mockserver.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.mock-server</groupId>
+                <artifactId>mockserver-client-java</artifactId>
+                <version>${mockserver.version}</version>
+            </dependency>
+            
         </dependencies>
     </dependencyManagement>
 

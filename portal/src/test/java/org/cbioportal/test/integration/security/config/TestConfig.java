@@ -14,7 +14,6 @@ import org.springframework.jdbc.datasource.embedded.EmbeddedDatabaseType;
 import org.springframework.transaction.PlatformTransactionManager;
 
 @TestConfiguration
-@MapperScan("org.cbioportal.persistence.mybatis")
 public class TestConfig {
 
     @Bean
@@ -23,27 +22,8 @@ public class TestConfig {
             .setType(EmbeddedDatabaseType.H2)
             .setName("testdb;DATABASE_TO_UPPER=true;MODE=MYSQL")
             .addScript("cgds.sql")
-//            .addScript("data.sql")
+            .addScript("data.sql")
             .build();
     }
-
-    @Bean
-    public SqlSessionFactory sqlSessionFactory() throws Exception {
-        SqlSessionFactoryBean factoryBean = new SqlSessionFactoryBean();
-        factoryBean.setDataSource(dataSource());
-        // mapper that mediate string to enum conversions
-        factoryBean.setTypeHandlers(new SampleTypeHelper());
-        return factoryBean.getObject();
-    }
-
-//    @Bean
-//    public OffsetCalculator offsetCalculator() {
-//        return new OffsetCalculator();
-//    }
-//
-//    @Bean
-//    public PlatformTransactionManager platformTransactionManager() {
-//        return new DataSourceTransactionManager(dataSource());
-//    }
-
+    
 }

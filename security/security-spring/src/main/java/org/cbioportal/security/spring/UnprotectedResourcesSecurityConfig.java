@@ -33,7 +33,10 @@ public class UnprotectedResourcesSecurityConfig extends WebSecurityConfigurerAda
                 "/favicon.ico",
                 "/patient/**",
                 "/study/**",
-                "/results/**"
+                "/results/**",
+                // This was needed to make sure integration test for the TokenAuthFilter in API filter chain
+                // returns 401 code instead of a 302 for hitting a secured resource caused by the IDP filter chain.
+                "/error"
             )
             .and()
             .authorizeRequests().antMatchers("/**").permitAll();

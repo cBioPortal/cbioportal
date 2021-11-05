@@ -31,14 +31,14 @@ import static org.junit.Assert.assertEquals;
 import java.io.IOException;
 import java.net.URLEncoder;
 import org.cbioportal.PortalApplication;
-import org.cbioportal.security.spring.SamlSecurityConfig;
-import org.cbioportal.test.integration.security.config.TestConfig;
+import org.cbioportal.test.integration.SharedMysqlContainer;
 import org.cbioportal.test.integration.security.util.HttpHelper;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.junit.AfterClass;
+import org.junit.Before;
 import org.junit.BeforeClass;
-import org.junit.Ignore;
+import org.junit.ClassRule;
 import org.junit.Test;
 import org.junit.jupiter.api.Assertions;
 import org.junit.runner.RunWith;
@@ -47,9 +47,10 @@ import org.mockserver.integration.ClientAndServer;
 import org.mockserver.model.HttpRequest;
 import org.mockserver.model.HttpResponse;
 import org.mockserver.model.StringBody;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.boot.test.web.client.TestRestTemplate;
 import org.springframework.boot.web.server.LocalServerPort;
-import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.TestPropertySource;
 import org.springframework.test.context.junit4.SpringRunner;
 
@@ -59,20 +60,23 @@ import org.springframework.test.context.junit4.SpringRunner;
  */
 // This starts a live portal instance on a random port (imported via @LocalServerPort)
 @SpringBootTest(
-    webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT, 
-    classes = {PortalApplication.class, TestConfig.class}
+    webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT,
+    classes = {PortalApplication.class}
 )
 @RunWith(SpringRunner.class)
 @TestPropertySource(
     properties = {
+        "app.name=cbioportal",
+        "filter_groups_by_appname=true",
         "authenticate=saml",
         "dat.method=oauth2",
         // DB settings
-        "spring.datasource.url=jdbc:h2:mem:testdb",
-        "spring.datasource.driverClassName=org.h2.Driver",
-        "spring.datasource.username=sa",
-        "spring.datasource.password=password",
-        "spring.jpa.database-platform=org.hibernate.dialect.H2Dialect",
+        // note: DB_URL, DB_USERNAME, and DB_PASSWORD are set by SharedMysqlContainer
+        "spring.datasource.url=${DB_URL}",
+        "spring.datasource.username=${DB_USERNAME}",
+        "spring.datasource.password=${DB_PASSWORD}",
+        "spring.datasource.driverClassName=com.mysql.jdbc.Driver",
+        "spring.jpa.database-platform=org.hibernate.dialect.MySQL5Dialect",
         // SAML settings
         "saml.keystore.location=classpath:/security/testSamlKeystore.jks",
         "saml.keystore.password=123456",
@@ -107,8 +111,16 @@ public class Oauth2ResourceServerIntegrationTest {
     @LocalServerPort
     protected int port;
     
-    private String HOST= String.format("http://localhost:%d", port);
+    private static String HOST;
     private static final int IDP_PORT = 8443;
+
+    @ClassRule
+    public static SharedMysqlContainer mysqlContainer = SharedMysqlContainer.getInstance();
+
+    @Before
+    public void setUp() {
+        HOST = String.format("http://localhost:%d", port);
+    }
 
     @Test
     public void testAccessForbiddenForAnonymousUser() throws IOException {
@@ -117,7 +129,6 @@ public class Oauth2ResourceServerIntegrationTest {
     }
 
     @Test
-    @Ignore
     public void testAccessForbiddenForFakeBearerToken() throws IOException {
         String offlineToken = "{\"sub\": \"0000000000\"}";
         String encodedOfflineToken = encodeWithoutSigning(offlineToken);
@@ -134,7 +145,6 @@ public class Oauth2ResourceServerIntegrationTest {
     }
 
     @Test
-    @Ignore
     public void testAccessForValidBearerToken() throws IOException, JSONException {
         String offlineTokenClaims = "{\"sub\": \"1234567890\"}";
         String encodedOfflineToken = encodeWithoutSigning(offlineTokenClaims);

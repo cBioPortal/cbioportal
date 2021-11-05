@@ -34,9 +34,17 @@ public class SamlResponseAuthenticationConverter implements
     
     @Value("${saml.idp.metadata.attribute.role:}")
     private String assertionAttributeRoles;
+
+    @Value("${app.name:}")
+    private String appName;
     
     @Value("${saml.roles-from-database:false}")
     private boolean rolesFromDatabase;
+    
+    // TODO This filter_groups_by_appname feature is unclear to me.
+    // We should write some tests to establish correct logic.
+    @Value("${filter_groups_by_appname:true}")
+    private String filterGroupsByAppName;
 
     private UserDetailsService userDetailsService;
 

@@ -4,7 +4,6 @@ import org.cbioportal.security.spring.authentication.RestAuthenticationEntryPoin
 import org.cbioportal.security.spring.authentication.token.TokenAuthenticationFilter;
 import org.cbioportal.security.spring.authentication.token.TokenAuthenticationSuccessHandler;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.autoconfigure.condition.ConditionalOnExpression;
 import org.springframework.boot.autoconfigure.security.SecurityProperties;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -55,9 +54,11 @@ public class ApiSecurityConfig extends WebSecurityConfigurerAdapter {
         http
             .csrf().disable()
             .addFilterBefore(tokenAuthenticationFilter(), UsernamePasswordAuthenticationFilter.class)
-            .sessionManagement().sessionFixation().none()
+            .sessionManagement()
+                .sessionFixation().none()
             .and()
-            .exceptionHandling().authenticationEntryPoint(restAuthenticationEntryPoint)
+                    .exceptionHandling()                    // add ExceptionTranslationFilter to the chain
+                    .authenticationEntryPoint(restAuthenticationEntryPoint)
             .and()
             .antMatcher("/api/**")
                 .authorizeRequests()
@@ -65,7 +66,7 @@ public class ApiSecurityConfig extends WebSecurityConfigurerAdapter {
                          "/api/swagger-ui.html",
                          "/api/health",
                          "/api/cache").permitAll()
-                    .antMatchers("/api/**").authenticated();
+                    .anyRequest().authenticated();
     }
  
 }

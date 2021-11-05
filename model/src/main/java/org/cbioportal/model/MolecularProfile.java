@@ -80,10 +80,11 @@ public class MolecularProfile implements Serializable {
     }
 
     public MolecularAlterationType getMolecularAlterationType() {
-        // Alteration type is always set to STRUCTURAL_VARIANT when importing fusion profile
+        // TODO: remove this logic once all the fusions are migrated to structural variants
+        // most fusion profiles are imported as SV data but this also handles the archer
+        // study case where the fusions are imported under a mutations profile instead
         // https://github.com/cBioPortal/cbioportal/blob/8704058562c386afeac3082e50f39c1097d47983/core/src/main/java/org/mskcc/cbio/portal/util/GeneticProfileReader.java#L93
         // But somehow there was no migration for existing data. To resolve it replace FUSION alteration type by STRUCTURAL_VARIANT.
-        // TODO: remove this logic once all the fusions are migrated to structural variants
         return (molecularAlterationType.equals(MolecularAlterationType.FUSION) ||
                 (molecularAlterationType.equals(MolecularAlterationType.MUTATION_EXTENDED)
                 && this.datatype.equals("FUSION")))
@@ -162,7 +163,7 @@ public class MolecularProfile implements Serializable {
     public void setGenericAssayType(String genericAssayType) {
         this.genericAssayType = genericAssayType;
     }
-    
+
     public Boolean getPatientLevel() {
         return patientLevel;
     }

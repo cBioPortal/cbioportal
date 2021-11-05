@@ -6,8 +6,10 @@ import io.swagger.annotations.ApiParam;
 
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.math.NumberUtils;
+import org.apache.commons.math3.analysis.function.Gaussian;
 import org.apache.commons.math3.stat.correlation.PearsonsCorrelation;
 import org.apache.commons.math3.stat.correlation.SpearmansCorrelation;
+import org.apache.commons.math3.stat.descriptive.rank.Percentile;
 import org.cbioportal.model.*;
 import org.cbioportal.service.*;
 import org.cbioportal.service.exception.StudyNotFoundException;
@@ -23,6 +25,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.core.parameters.P;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.RequestAttribute;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -567,6 +570,271 @@ public class StudyViewController {
         
         // filter out empty bins
         result.setBins(result.getBins().stream().filter((bin)->(bin.getCount() > 0)).collect(Collectors.toList()));
+
+        return new ResponseEntity<>(result, HttpStatus.OK);
+    }
+
+    @PreAuthorize("hasPermission(#involvedCancerStudies, 'Collection<CancerStudyId>', T(org.cbioportal.utils.security.AccessLevel).READ)")
+    @RequestMapping(value = "/clinical-data-violin-plots/fetch", method = RequestMethod.POST,
+        consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
+    @ApiOperation("Fetch violin plot curves per categorical clinical data value, filtered by study view filter")
+    public ResponseEntity<ClinicalViolinPlotData> fetchClinicalDataViolinPlots(
+        @ApiParam(required = true, value = "Clinical Attribute ID of the categorical attribute")
+        @RequestParam String categoricalAttributeId,
+        @ApiParam(required = true, value = "Clinical Attribute ID of the numerical attribute")
+        @RequestParam String numericalAttributeId,
+        @ApiParam("Starting point of the violin plot axis, if different than smallest value")
+        @RequestParam(required = false) BigDecimal axisStart,
+        @ApiParam("Ending point  of the violin plot axis, if different than largest value")
+        @RequestParam(required = false) BigDecimal axisEnd,
+        @ApiParam("Number of points in the curve")
+        @RequestParam(required = false, defaultValue = "100") BigDecimal numCurvePoints,
+        @ApiParam(value="Use log scale for the numerical attribute")
+        @RequestParam(required = false, defaultValue = "false") Boolean logScale,
+        @ApiParam(value="Sigma stepsize multiplier")
+        @RequestParam(required = false, defaultValue = "1") BigDecimal sigmaMultiplier,
+        @ApiIgnore // prevent reference to this attribute in the swagger-ui interface
+         @RequestAttribute(required = false, value = "involvedCancerStudies") Collection<String> involvedCancerStudies,
+        @ApiIgnore // prevent reference to this attribute in the swagger-ui interface. this attribute is needed for the @PreAuthorize tag above.
+        @Valid @RequestAttribute(required = false, value = "interceptedStudyViewFilter") StudyViewFilter interceptedStudyViewFilter,
+        @ApiParam(required = true, value = "Study view filter")
+        @Valid @RequestBody(required = false) StudyViewFilter studyViewFilter) {
+
+        ClinicalViolinPlotData result = new ClinicalViolinPlotData();
+        result.setAxisStart(Double.POSITIVE_INFINITY);
+        result.setAxisEnd(Double.NEGATIVE_INFINITY);
+        result.setRows(new ArrayList<>());
+
+        List<String> studyIds = new ArrayList<>();
+        List<String> sampleIds = new ArrayList<>();
+        studyViewFilterUtil.extractStudyAndSampleIds(studyViewFilterApplier.apply(interceptedStudyViewFilter), studyIds, sampleIds);
+        //DensityPlotData result = new DensityPlotData();
+        //result.setBins(new ArrayList<>());
+        if (sampleIds.isEmpty()) {
+            return new ResponseEntity<>(result, HttpStatus.OK);
+        }
+
+        List<String> sampleAttributeIds = new ArrayList<>();
+        List<String> patientAttributeIds = new ArrayList<>();
+
+        List<ClinicalAttribute> clinicalAttributes = clinicalAttributeService
+            .getClinicalAttributesByStudyIdsAndAttributeIds(studyIds,
+                Arrays.asList(categoricalAttributeId, numericalAttributeId));
+
+        clinicalAttributeUtil.extractCategorizedClinicalAttributes(clinicalAttributes, sampleAttributeIds, patientAttributeIds, patientAttributeIds);
+
+        List<String> patientIds = new ArrayList<>();
+        List<String> studyIdsOfPatients = new ArrayList<>();
+        Map<String, Map<String, List<Sample>>> patientToSamples = null;
+
+
+        if (CollectionUtils.isNotEmpty(patientAttributeIds)) {
+            List<Sample> samples = sampleService.fetchSamples(studyIds, sampleIds, Projection.DETAILED.name());
+            List<Patient> patients = patientService.getPatientsOfSamples(studyIds, sampleIds);
+            patientIds = patients.stream().map(Patient::getStableId).collect(Collectors.toList());
+            studyIdsOfPatients = patients.stream().map(Patient::getCancerStudyIdentifier).collect(Collectors.toList());
+            patientToSamples = samples.stream().collect(
+                Collectors.groupingBy(Sample::getPatientStableId, Collectors.groupingBy(Sample::getCancerStudyIdentifier))
+            );
+        }
+
+        List<ClinicalData> clinicalDataList = clinicalDataFetcher.fetchClinicalData(
+            studyIds, sampleIds, patientIds, studyIdsOfPatients, sampleAttributeIds, patientAttributeIds, null
+        );
+
+        List<ClinicalData> sampleClinicalDataList;
+        // put all clinical data into sample form
+        if (CollectionUtils.isNotEmpty(patientAttributeIds)) {
+            sampleClinicalDataList = new ArrayList<>();
+            for (ClinicalData d: clinicalDataList) {
+                if (d.getSampleId() == null) {
+                    // null sample id means its a patient data, 
+                    //  we need to distribute the value to samples
+                    List<Sample> samplesForPatient = patientToSamples.get(
+                        d.getPatientId()
+                    ).get(d.getStudyId());
+                    if (samplesForPatient != null) {
+                        for (Sample s: samplesForPatient) {
+                            ClinicalData newData = new ClinicalData();
+                            newData.setAttrId(d.getAttrId());
+                            newData.setPatientId(d.getPatientId());
+                            newData.setStudyId(d.getStudyId());
+                            newData.setAttrValue(d.getAttrValue());
+                            newData.setSampleId(s.getStableId());
+                            sampleClinicalDataList.add(newData);
+                        }
+                    }
+                } else {
+                    // if its a sample data, just add it to the list
+                    sampleClinicalDataList.add(d);
+                }
+            }
+        } else {
+            sampleClinicalDataList = clinicalDataList;
+        }
+
+        // clinicalDataMap is a map sampleId->studyId->data
+        Map<String, Map<String, List<ClinicalData>>> clinicalDataMap = sampleClinicalDataList.stream().collect(Collectors.groupingBy(ClinicalData::getSampleId,
+            Collectors.groupingBy(ClinicalData::getStudyId)));
+        
+        // Group data by category
+        Map<String, List<ClinicalData>> groupedDetailedData = new HashMap<>();
+        boolean useLogScale = logScale && StudyViewController.isLogScalePossibleForAttribute(numericalAttributeId);
+        clinicalDataMap.forEach((k, v) -> v.forEach((m, n) -> {
+            if (
+                // n.size() == 2 means we have clinical data for the sample for both of the queried attributes
+                n.size() == 2 &&
+                    // check if the second data is numerical
+                    NumberUtils.isCreatable(n.get(1).getAttrValue())) {
+                
+                String category = n.get(0).getAttrValue();
+                ClinicalData datum = n.get(1);
+                if (!groupedDetailedData.containsKey(category)) {
+                    groupedDetailedData.put(category, new ArrayList<>());
+                }
+                groupedDetailedData.get(category).add(datum);
+            }
+        }));
+        
+        if (groupedDetailedData.isEmpty()) {
+            return new ResponseEntity<>(result, HttpStatus.OK);
+        }
+
+        // Calculate boxes, outliers, and data bounds
+        Map<String, ClinicalViolinPlotBoxData> boxData = new HashMap<>();
+        Map<String, List<ClinicalData>> nonOutliers = new HashMap<>();
+        Map<String, List<ClinicalData>> outliers = new HashMap<>();
+        groupedDetailedData.forEach((category, data)->{
+            Percentile percentile = new Percentile();
+            // fill double[] to pass into Percentile
+            double[] values = new double[data.size()];
+            double min = Double.POSITIVE_INFINITY;
+            double max = Double.NEGATIVE_INFINITY;
+            int valuesIndex = 0;
+            for (ClinicalData d: data) {
+                Double value = useLogScale ? StudyViewController.logScale(Double.parseDouble(d.getAttrValue())) : Double.parseDouble(d.getAttrValue());
+                values[valuesIndex] = value;
+                min = Math.min(value, min);
+                max = Math.max(value, max);
+                valuesIndex += 1;
+            }
+                
+            //
+            percentile.setData(values);
+            
+            double q1 = percentile.evaluate(25);
+            double q3 = percentile.evaluate(75);
+            double IQR = q3 - q1;
+            double SUSPECTED_OUTLIER_MULTIPLE = 1.5;
+            double OUTLIER_MULTIPLE = 3;
+            double outlierThresholdLower = q1 - OUTLIER_MULTIPLE * IQR;
+            double outlierThresholdUpper = q3 + OUTLIER_MULTIPLE * IQR;
+            double suspectedOutlierThresholdLower = q1 - SUSPECTED_OUTLIER_MULTIPLE * IQR;
+            double suspectedOutlierThresholdUpper = q3 + SUSPECTED_OUTLIER_MULTIPLE * IQR;
+            
+            List<ClinicalData> _outliers = new ArrayList<>();
+            List<ClinicalData> _nonOutliers = new ArrayList<>();
+            List<ClinicalData> detailedData = groupedDetailedData.get(category);
+            int numSuspectedOutliers = 0;
+            for (ClinicalData d: detailedData) {
+                Double value = useLogScale ? StudyViewController.logScale(Double.parseDouble(d.getAttrValue())) : Double.parseDouble(d.getAttrValue());
+                boolean isOutlier = false;
+                if (value <= suspectedOutlierThresholdLower) {
+                    numSuspectedOutliers += 1;
+                    if (value <= outlierThresholdLower) {
+                        isOutlier = true;
+                    }
+                } else if (value >= suspectedOutlierThresholdUpper) {
+                    numSuspectedOutliers += 1;
+                    if (value >= outlierThresholdUpper) {
+                        isOutlier = true;
+                    }
+                }
+                if (isOutlier) {
+                    _outliers.add(d);
+                } else {
+                    _nonOutliers.add(d);
+                }
+            }
+            
+            ClinicalViolinPlotBoxData _boxData = new ClinicalViolinPlotBoxData();
+            _boxData.setMedian(percentile.evaluate(50));
+            _boxData.setQ1(q1);
+            _boxData.setQ3(q3);
+            _boxData.setWhiskerLower(numSuspectedOutliers > 0 ? suspectedOutlierThresholdLower : min);
+            _boxData.setWhiskerUpper(numSuspectedOutliers > 0 ? suspectedOutlierThresholdUpper : max);
+
+            result.setAxisStart(Math.min(result.getAxisStart(), min));
+            result.setAxisEnd(Math.max(result.getAxisEnd(), max));
+            
+            nonOutliers.put(category, _nonOutliers);
+            outliers.put(category, _outliers);
+            boxData.put(category, _boxData);
+        });
+        
+        // Set axis bounds from parameters, if given
+        if (axisStart != null) {
+            result.setAxisStart(axisStart.doubleValue());
+        }
+        if (axisEnd != null) {
+            result.setAxisEnd(axisEnd.doubleValue());
+        }
+        
+        // Create curves
+        // By this point, we know the axis bounds
+        List<Double> curvePoints = new ArrayList<>();
+        Double stepSize = (result.getAxisEnd() - result.getAxisStart()) / (numCurvePoints.doubleValue()-1);
+        for (int i=0; i<numCurvePoints.intValue(); i++) {
+            curvePoints.add(i*stepSize);
+        }
+        double sigma = sigmaMultiplier.doubleValue()*stepSize;
+        List<ClinicalViolinPlotRowData> rows = result.getRows();
+        nonOutliers.forEach((category, data)->{
+            ClinicalViolinPlotRowData row = new ClinicalViolinPlotRowData();
+            row.setCategory(category);
+            row.setNumSamples(data.size() + outliers.get(category).size());
+            row.setBoxData(boxData.get(category).limitWhiskers(result));
+            
+            List<ClinicalData> _individualPoints = new ArrayList<>();
+            
+            if (row.getNumSamples() <= 7) {
+                // show only individual points when data is small
+                row.setCurveData(new ArrayList<>());
+                _individualPoints.addAll(data);
+                _individualPoints.addAll(outliers.get(category));
+            } else {
+                // build violin only based on non-outliers
+                List<Gaussian> gaussians = new ArrayList<>();
+                for (ClinicalData d : data) {
+                    Double value = useLogScale ? StudyViewController.logScale(Double.parseDouble(d.getAttrValue())) : Double.parseDouble(d.getAttrValue());
+                    gaussians.add(new Gaussian(value, sigma));
+                }
+
+                row.setCurveData(
+                    curvePoints.stream().map(p -> {
+                        BigDecimal sum = new BigDecimal(0);
+                        for (Gaussian g : gaussians) {
+                            sum = sum.add(BigDecimal.valueOf(g.value(p)));
+                        }
+                        return sum.doubleValue();
+                    }).collect(Collectors.toList())
+                );
+                
+                // render outliers as individual points
+                _individualPoints = outliers.get(category);
+            }
+
+            List<ClinicalViolinPlotIndividualPoint> individualPoints = new ArrayList<>();
+            for (ClinicalData d: _individualPoints) {
+                ClinicalViolinPlotIndividualPoint p = new ClinicalViolinPlotIndividualPoint();
+                p.setSampleId(d.getSampleId());
+                p.setStudyId(d.getStudyId());
+                p.setValue(useLogScale ? StudyViewController.logScale(Double.parseDouble(d.getAttrValue())) : Double.parseDouble(d.getAttrValue()));
+                individualPoints.add(p);
+            }
+            row.setIndividualPoints(individualPoints);
+            rows.add(row);
+        });
 
         return new ResponseEntity<>(result, HttpStatus.OK);
     }

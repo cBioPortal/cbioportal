@@ -179,6 +179,11 @@ public class SampleServiceImpl implements SampleService {
                 hasFusionsAsMutations(p));
     }
 
+    /**
+     * TODO: Remove this function/logic once fusions are migrated to structural variants.
+     * This case where the molecular alteration type = MUTATION_EXTENDED with datatype = FUSION
+     * is to handle the ARCHER cohort.
+     */
     private Boolean hasFusionsAsMutations(MolecularProfile p) {
         return (p.getMolecularAlterationType().equals(MolecularProfile.MolecularAlterationType.MUTATION_EXTENDED) &&
                 p.getDatatype().equals("FUSION"));
@@ -203,10 +208,10 @@ public class SampleServiceImpl implements SampleService {
                 sequencedSampleIdsMap.put(studyId,
                                           new HashSet<String>(sampleListRepository.getAllSampleIdsInSampleList(studyId + SEQUENCED)));
                 // get sv samples from sequenced case list if fusions imported as mutations
-                Set<String> svSamples = new HashSet<>();
+                Set<String> svSamples = new HashSet<String>();
                 if (studiesProfiledWithFusionsAsMutations.contains(studyId)) {
                     // use sample list that has already been fetched
-                    svSamples = new HashSet<>(sequencedSampleIdsMap.get(studyId));
+                    svSamples = new HashSet<String>(sequencedSampleIdsMap.get(studyId));
                 } else {
                     svSamples = new HashSet<String>(sampleListRepository.getAllSampleIdsInSampleList(studyId + STRUCTURAL_VARIANT));
                 }

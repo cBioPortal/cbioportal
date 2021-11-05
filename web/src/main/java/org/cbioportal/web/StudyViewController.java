@@ -6,8 +6,10 @@ import io.swagger.annotations.ApiParam;
 
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.math.NumberUtils;
+import org.apache.commons.math3.analysis.function.Gaussian;
 import org.apache.commons.math3.stat.correlation.PearsonsCorrelation;
 import org.apache.commons.math3.stat.correlation.SpearmansCorrelation;
+import org.apache.commons.math3.stat.descriptive.rank.Percentile;
 import org.cbioportal.model.*;
 import org.cbioportal.service.*;
 import org.cbioportal.service.exception.StudyNotFoundException;
@@ -23,6 +25,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.core.parameters.P;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.RequestAttribute;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -66,6 +69,8 @@ public class StudyViewController {
     private StudyViewFilterUtil studyViewFilterUtil;
     @Autowired
     private ClinicalAttributeService clinicalAttributeService;
+    @Autowired
+    private ViolinPlotService violinPlotService;
     @Autowired
     private ClinicalAttributeUtil clinicalAttributeUtil;
     @Autowired
@@ -448,6 +453,10 @@ public class StudyViewController {
                             newData.setSampleId(s.getStableId());
                             sampleClinicalDataList.add(newData);
                         }
+                    } else {
+                        // patient has no samples - this shouldn't happen and could affect the integrity
+                        //  of the data analysis
+                        return new ResponseEntity<>(null, HttpStatus.INTERNAL_SERVER_ERROR);
                     }
                 } else {
                     // if its a sample data, just add it to the list
@@ -567,6 +576,120 @@ public class StudyViewController {
         
         // filter out empty bins
         result.setBins(result.getBins().stream().filter((bin)->(bin.getCount() > 0)).collect(Collectors.toList()));
+
+        return new ResponseEntity<>(result, HttpStatus.OK);
+    }
+
+    @PreAuthorize("hasPermission(#involvedCancerStudies, 'Collection<CancerStudyId>', T(org.cbioportal.utils.security.AccessLevel).READ)")
+    @RequestMapping(value = "/clinical-data-violin-plots/fetch", method = RequestMethod.POST,
+        consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
+    @ApiOperation("Fetch violin plot curves per categorical clinical data value, filtered by study view filter")
+    public ResponseEntity<ClinicalViolinPlotData> fetchClinicalDataViolinPlots(
+        @ApiParam(required = true, value = "Clinical Attribute ID of the categorical attribute")
+        @RequestParam String categoricalAttributeId,
+        @ApiParam(required = true, value = "Clinical Attribute ID of the numerical attribute")
+        @RequestParam String numericalAttributeId,
+        @ApiParam("Starting point of the violin plot axis, if different than smallest value")
+        @RequestParam(required = false) BigDecimal axisStart,
+        @ApiParam("Ending point  of the violin plot axis, if different than largest value")
+        @RequestParam(required = false) BigDecimal axisEnd,
+        @ApiParam("Number of points in the curve")
+        @RequestParam(required = false, defaultValue = "100") BigDecimal numCurvePoints,
+        @ApiParam(value="Use log scale for the numerical attribute")
+        @RequestParam(required = false, defaultValue = "false") Boolean logScale,
+        @ApiParam(value="Sigma stepsize multiplier")
+        @RequestParam(required = false, defaultValue = "1") BigDecimal sigmaMultiplier,
+        @ApiIgnore // prevent reference to this attribute in the swagger-ui interface
+         @RequestAttribute(required = false, value = "involvedCancerStudies") Collection<String> involvedCancerStudies,
+        @ApiIgnore // prevent reference to this attribute in the swagger-ui interface. this attribute is needed for the @PreAuthorize tag above.
+        @Valid @RequestAttribute(required = false, value = "interceptedStudyViewFilter") StudyViewFilter interceptedStudyViewFilter,
+        @ApiParam(required = true, value = "Study view filter")
+        @Valid @RequestBody(required = false) StudyViewFilter studyViewFilter) {
+        
+        ClinicalViolinPlotData result = new ClinicalViolinPlotData();
+        
+        List<String> studyIds = new ArrayList<>();
+        List<String> sampleIds = new ArrayList<>();
+        studyViewFilterUtil.extractStudyAndSampleIds(studyViewFilterApplier.apply(interceptedStudyViewFilter), studyIds, sampleIds);
+
+        if (sampleIds.isEmpty()) {
+            return new ResponseEntity<>(result, HttpStatus.OK);
+        }
+        
+        List<String> sampleAttributeIds = new ArrayList<>();
+        List<String> patientAttributeIds = new ArrayList<>();
+
+        List<ClinicalAttribute> clinicalAttributes = clinicalAttributeService
+            .getClinicalAttributesByStudyIdsAndAttributeIds(studyIds,
+                Arrays.asList(categoricalAttributeId, numericalAttributeId));
+
+        clinicalAttributeUtil.extractCategorizedClinicalAttributes(clinicalAttributes, sampleAttributeIds, patientAttributeIds, patientAttributeIds);
+
+        List<String> patientIds = new ArrayList<>();
+        List<String> studyIdsOfPatients = new ArrayList<>();
+        Map<String, Map<String, List<Sample>>> patientToSamples = null;
+
+
+        if (CollectionUtils.isNotEmpty(patientAttributeIds)) {
+            List<Sample> samples = sampleService.fetchSamples(studyIds, sampleIds, Projection.DETAILED.name());
+            List<Patient> patients = patientService.getPatientsOfSamples(studyIds, sampleIds);
+            patientIds = patients.stream().map(Patient::getStableId).collect(Collectors.toList());
+            studyIdsOfPatients = patients.stream().map(Patient::getCancerStudyIdentifier).collect(Collectors.toList());
+            patientToSamples = samples.stream().collect(
+                Collectors.groupingBy(Sample::getPatientStableId, Collectors.groupingBy(Sample::getCancerStudyIdentifier))
+            );
+        }
+
+        List<ClinicalData> clinicalDataList = clinicalDataFetcher.fetchClinicalData(
+            studyIds, sampleIds, patientIds, studyIdsOfPatients, sampleAttributeIds, patientAttributeIds, null
+        );
+
+        List<ClinicalData> sampleClinicalDataList;
+        // put all clinical data into sample form
+        if (CollectionUtils.isNotEmpty(patientAttributeIds)) {
+            sampleClinicalDataList = new ArrayList<>();
+            for (ClinicalData d: clinicalDataList) {
+                if (d.getSampleId() == null) {
+                    // null sample id means its a patient data, 
+                    //  we need to distribute the value to samples
+                    List<Sample> samplesForPatient = patientToSamples.get(
+                        d.getPatientId()
+                    ).get(d.getStudyId());
+                    if (samplesForPatient != null) {
+                        for (Sample s: samplesForPatient) {
+                            ClinicalData newData = new ClinicalData();
+                            newData.setAttrId(d.getAttrId());
+                            newData.setPatientId(d.getPatientId());
+                            newData.setStudyId(d.getStudyId());
+                            newData.setAttrValue(d.getAttrValue());
+                            newData.setSampleId(s.getStableId());
+                            sampleClinicalDataList.add(newData);
+                        }
+                    } else {
+                        // patient has no samples - this shouldn't happen and could affect the integrity
+                        //  of the data analysis
+                        return new ResponseEntity<>(null, HttpStatus.INTERNAL_SERVER_ERROR);
+                    }
+                } else {
+                    // if its a sample data, just add it to the list
+                    sampleClinicalDataList.add(d);
+                }
+            }
+        } else {
+            sampleClinicalDataList = clinicalDataList;
+        }
+
+        boolean useLogScale = logScale && StudyViewController.isLogScalePossibleForAttribute(numericalAttributeId);
+
+        
+        result = violinPlotService.getClinicalViolinPlotData(
+            sampleClinicalDataList,
+            axisStart,
+            axisEnd,
+            numCurvePoints,
+            useLogScale,
+            sigmaMultiplier
+        );
 
         return new ResponseEntity<>(result, HttpStatus.OK);
     }

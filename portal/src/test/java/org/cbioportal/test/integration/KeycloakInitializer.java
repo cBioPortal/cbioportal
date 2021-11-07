@@ -1,4 +1,4 @@
-package org.cbioportal.test.integration.security;
+package org.cbioportal.test.integration;
 
 import dasniko.testcontainers.keycloak.KeycloakContainer;
 import java.io.BufferedWriter;
@@ -17,7 +17,7 @@ public abstract class KeycloakInitializer implements
     private static final Log log = LogFactory.getLog(KeycloakInitializer.class);
 
     public void initializeImpl(ConfigurableApplicationContext configurableApplicationContext,
-                               KeycloakContainer keycloakContainer) {
+                               KeycloakContainer keycloakContainer, String containerUrl) {
 
         try {
             String samlIdpMetadata =
@@ -29,15 +29,11 @@ public abstract class KeycloakInitializer implements
             String samlIdpMetadataPath = tempFile(samlIdpMetadata);
             TestPropertyValues values = TestPropertyValues.of(
                 String.format("saml.idp.metadata.location=file:%s", samlIdpMetadataPath),
-                String.format("dat.oauth2.accessTokenUri=%s/auth/realms/cbio/token",
-                    "http://keycloak:8080"),
-//                    keycloakContainer.getAuthServerUrl()),
+                String.format("dat.oauth2.accessTokenUri=%s/auth/realms/cbio/token", containerUrl),
                 String.format("dat.oauth2.userAuthorizationUri=%s/auth/realms/cbio/auth",
-                    "http://keycloak:8080"),
-//                    keycloakContainer.getAuthServerUrl()),
-                String.format("dat.oauth2.jwkUrl=%s/auth/realms/cbio/jwkUrl",
-                    "http://keycloak:8080")
-//                    keycloakContainer.getAuthServerUrl())
+                    containerUrl),
+                String.format("dat.oauth2.jwkUrl=%s/auth/realms/cbio/jwkUrl", containerUrl),
+                String.format("saml.idp.metadata.entityid=%s/auth/realms/cbio", containerUrl)
             );
             values.applyTo(configurableApplicationContext);
 

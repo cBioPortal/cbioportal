@@ -298,29 +298,6 @@
                     </execution>
                 </executions>
             </plugin>
-            <plugin>
-                <groupId>com.google.code.maven-replacer-plugin</groupId>
-                <artifactId>replacer</artifactId>
-                <version>1.5.3</version>
-                <executions>
-                    <execution>
-                        <phase>pre-integration-test</phase>
-                        <goals>
-                            <goal>replace</goal>
-                        </goals>
-                    </execution>
-                </executions>
-                <configuration>
-                    <skip>${skipITs}</skip>
-                    <file>${project.build.directory}/test-classes/cgds.sql</file>
-                    <replacements>
-                        <replacement>
-                            <token>.*KEY `KEY_MUTATION_EVENT_DETAILS</token>
-                            <value>-- Line removed for H2 compatibility : KEY `KEY_MUTATION_EVENT_DETAILS </value>
-                        </replacement>
-                    </replacements>
-                </configuration>
-            </plugin>
         </plugins>
     </build>
    

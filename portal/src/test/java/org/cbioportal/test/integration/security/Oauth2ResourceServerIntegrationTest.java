@@ -24,6 +24,7 @@
 package org.cbioportal.test.integration.security;
 
 
+import static org.cbioportal.test.integration.security.Oauth2ResourceServerIntegrationTest.*;
 import static org.cbioportal.test.integration.security.util.TokenHelper.encodeWithoutSigning;
 import static org.junit.Assert.assertEquals;
 
@@ -31,6 +32,7 @@ import static org.junit.Assert.assertEquals;
 import java.io.IOException;
 import java.net.URLEncoder;
 import org.cbioportal.PortalApplication;
+import org.cbioportal.test.integration.MysqlInitializer;
 import org.cbioportal.test.integration.SharedMysqlContainer;
 import org.cbioportal.test.integration.security.util.HttpHelper;
 import org.json.JSONArray;
@@ -47,6 +49,8 @@ import org.mockserver.model.HttpRequest;
 import org.mockserver.model.HttpResponse;
 import org.mockserver.model.StringBody;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.context.ConfigurableApplicationContext;
+import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.TestPropertySource;
 import org.springframework.test.context.junit4.SpringRunner;
 
@@ -68,17 +72,13 @@ import org.springframework.test.context.junit4.SpringRunner;
         "authenticate=saml",
         "dat.method=oauth2",
         // DB settings
-        // note: DB_URL, DB_USERNAME, and DB_PASSWORD are set by SharedMysqlContainer
-        "spring.datasource.url=${DB_URL}",
-        "spring.datasource.username=${DB_USERNAME}",
-        "spring.datasource.password=${DB_PASSWORD}",
         "spring.datasource.driverClassName=com.mysql.jdbc.Driver",
         "spring.jpa.database-platform=org.hibernate.dialect.MySQL5Dialect",
         // SAML settings
-        "saml.keystore.location=classpath:/security/testSamlKeystore.jks",
-        "saml.keystore.password=123456",
+        "saml.keystore.location=classpath:/security/samlKeystore.jks",
+        "saml.keystore.password=P@ssword1",
         "saml.keystore.private-key.key=secure-key",
-        "saml.keystore.private-key.password=654321",
+        "saml.keystore.private-key.password=P@ssword1",
         "saml.keystore.default-key=secure-key",
         "saml.idp.metadata.location=classpath:/security/saml-idp-metadata.xml",
         // I had to use specificBinding because of this bug https://github.com/spring-projects/spring-security-saml/issues/460
@@ -102,6 +102,9 @@ import org.springframework.test.context.junit4.SpringRunner;
         "dat.oauth2.jwtRolesPath=resource_access::cbioportal::roles"
     }
 )
+@ContextConfiguration(initializers = {
+    MyMysqlInitializer.class,
+})
 public class Oauth2ResourceServerIntegrationTest {
     
     private static String HOST = "http://localhost:8080";
@@ -110,6 +113,15 @@ public class Oauth2ResourceServerIntegrationTest {
     @ClassRule
     public static SharedMysqlContainer mysqlContainer = SharedMysqlContainer.getInstance();
 
+    // Update application properties with connection info on Mysql container
+    public static class MyMysqlInitializer extends MysqlInitializer {
+        @Override
+        public void initialize(
+            ConfigurableApplicationContext configurableApplicationContext) {
+            super.initializeImpl(configurableApplicationContext, mysqlContainer);
+        }
+    }
+    
     @Test
     public void testAccessForbiddenForAnonymousUser() throws IOException {
         HttpHelper.HttpResponse response = HttpHelper.sendGetRequest(HOST + "/api/studies", null, null);

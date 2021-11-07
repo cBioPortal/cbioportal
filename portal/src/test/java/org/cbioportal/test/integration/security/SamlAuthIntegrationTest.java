@@ -1,12 +1,14 @@
 package org.cbioportal.test.integration.security;
 
-import static org.cbioportal.test.integration.security.TestAuthIntegrationSaml.*;
+import static org.cbioportal.test.integration.security.SamlAuthIntegrationTest.MyKeycloakInitializer;
+import static org.cbioportal.test.integration.security.SamlAuthIntegrationTest.MyMysqlInitializer;
+import static org.cbioportal.test.integration.security.SamlAuthIntegrationTest.PortInitializer;
 
 
 import dasniko.testcontainers.keycloak.KeycloakContainer;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
 import org.cbioportal.PortalApplication;
+import org.cbioportal.test.integration.KeycloakInitializer;
+import org.cbioportal.test.integration.MysqlInitializer;
 import org.cbioportal.test.integration.SharedChromeContainer;
 import org.cbioportal.test.integration.SharedKeycloakContainer;
 import org.cbioportal.test.integration.SharedMysqlContainer;
@@ -54,7 +56,6 @@ import org.testcontainers.containers.BrowserWebDriverContainer;
         "saml.sp.metadata.entitybaseurl=#{null}",
         "saml.sp.metadata.entityid=cbioportal",
         "saml.sp.metadata.wantassertionsigned=true",
-        "saml.idp.metadata.entityid=http://keycloak:8080/auth/realms/cbio",
         "saml.idp.metadata.attribute.email=email",
         "saml.idp.metadata.attribute.role=Role",
         "saml.logout.local=false",
@@ -71,13 +72,16 @@ import org.testcontainers.containers.BrowserWebDriverContainer;
     MyKeycloakInitializer.class,
     PortInitializer.class
 })
-public class TestAuthIntegrationSaml {
-
-    private static final Log log = LogFactory.getLog(TestAuthIntegrationSaml.class);
+public class SamlAuthIntegrationTest {
 
     private final static int CBIO_PORT = 8080;
-    // from perspective of chrome browser container
-    private static String CBIO_URL = String.format("http://host.testcontainers.internal:%d", CBIO_PORT);
+    // cBioPortal Url from perspective of chrome browser container.
+    private static String CBIO_URL =
+        String.format("http://host.testcontainers.internal:%d", CBIO_PORT);
+    // Url of keycloak from perspective of the chrome container.
+    // Browser and Keycloak are on a shared docker network. On this network
+    // Keycloak has aliased Url http://keycloak:8080.
+    private static String KEYCLOAK_URL = "http://keycloak:8080";
 
     @ClassRule
     public static SharedMysqlContainer mysqlContainer = SharedMysqlContainer.getInstance();
@@ -87,16 +91,16 @@ public class TestAuthIntegrationSaml {
 
     @ClassRule
     public static BrowserWebDriverContainer chrome = SharedChromeContainer.getInstance();
-    
+
     // Update application properties with connection info on Keycloak container
     public static class MyKeycloakInitializer extends KeycloakInitializer {
         @Override
         public void initialize(
             ConfigurableApplicationContext configurableApplicationContext) {
-            super.initializeImpl(configurableApplicationContext, keycloakContainer);
+            super.initializeImpl(configurableApplicationContext, keycloakContainer, KEYCLOAK_URL);
         }
     }
-    
+
     // Update application properties with connection info on Mysql container
     public static class MyMysqlInitializer extends MysqlInitializer {
         @Override
@@ -106,18 +110,22 @@ public class TestAuthIntegrationSaml {
         }
     }
 
+    // Exposes the port for the cBioPortal Spring application inside the Chrome container.
+    // This allows the browser to access http://localhost:8080 on the host system.
+    // This address is available on http://host.testcontainers.internal:8080 in the container.
     public static class PortInitializer implements
         ApplicationContextInitializer<ConfigurableApplicationContext> {
         @Override
         public void initialize(ConfigurableApplicationContext applicationContext) {
-            applicationContext.addApplicationListener((ApplicationListener<WebServerInitializedEvent>) event -> {
-                Testcontainers.exposeHostPorts(CBIO_PORT);
-            });
+            applicationContext.addApplicationListener(
+                (ApplicationListener<WebServerInitializedEvent>) event -> {
+                    Testcontainers.exposeHostPorts(CBIO_PORT);
+                });
         }
     }
 
     @Test
-    public void myFirstTest() {
+    public void loginSuccess() {
         RemoteWebDriver driver = chrome.getWebDriver();
         driver.get(CBIO_URL);
         WebElement userNameInput = driver.findElement(By.id("username"));

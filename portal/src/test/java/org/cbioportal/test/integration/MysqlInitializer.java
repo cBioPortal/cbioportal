@@ -1,6 +1,5 @@
-package org.cbioportal.test.integration.security;
+package org.cbioportal.test.integration;
 
-import org.cbioportal.test.integration.SharedMysqlContainer;
 import org.springframework.boot.test.util.TestPropertyValues;
 import org.springframework.context.ApplicationContextInitializer;
 import org.springframework.context.ConfigurableApplicationContext;
@@ -11,12 +10,9 @@ public abstract class MysqlInitializer implements
     public void initializeImpl(ConfigurableApplicationContext configurableApplicationContext,
                                SharedMysqlContainer mysqlContainer) {
         TestPropertyValues values = TestPropertyValues.of(
-            String.format("spring.datasource.url=%s",
-                mysqlContainer.getJdbcUrl()),
-            String.format("spring.datasource.username=%s",
-                mysqlContainer.getUsername()),
-            String.format("spring.datasource.password=%s",
-                mysqlContainer.getPassword())
+            String.format("spring.datasource.url=%s", mysqlContainer.getJdbcUrl()),
+            String.format("spring.datasource.username=%s", mysqlContainer.getUsername()),
+            String.format("spring.datasource.password=%s", mysqlContainer.getPassword())
         );
         values.applyTo(configurableApplicationContext);
     }

@@ -44,7 +44,7 @@ import org.testcontainers.containers.BrowserWebDriverContainer;
         "spring.datasource.driverClassName=com.mysql.jdbc.Driver",
         "spring.jpa.database-platform=org.hibernate.dialect.MySQL5Dialect",
         // SAML settings
-        "saml.keystore.location=classpath:/security/keystore.jks",
+        "saml.keystore.location=classpath:/security/samlKeystore.jks",
         "saml.keystore.password=P@ssword1",
         "saml.keystore.private-key.key=secure-key",
         "saml.keystore.private-key.password=P@ssword1",

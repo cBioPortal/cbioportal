@@ -58,7 +58,8 @@ public class HttpHelper {
         Map<String, List<String>> headers = connection.getHeaderFields();
 
         InputStream inputStream = getInputStream(connection);
-        String bodyContent = readString(inputStream);
+        
+        String bodyContent = inputStream != null ? readString(inputStream) : null;
 
         return new HttpResponse(responseCode, bodyContent, headers);
     }

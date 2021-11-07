@@ -1,7 +1,5 @@
 server:
-  port: 8081
-  servlet:
-    context-path: /sample-idp
+  port: 8082
 
 logging:
   level:
@@ -74,5 +72,5 @@ spring:
               -----END CERTIFICATE-----
         providers:
         - alias: cbioportal
-          metadata: http://localhost:8080/cbioportal/saml/metadata
+          metadata: http://localhost:8080/saml/metadata
           linktext: CBioPortal

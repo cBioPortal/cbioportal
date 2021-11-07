@@ -26,31 +26,89 @@ package org.cbioportal.test.integration.security;
 
 import static org.cbioportal.test.integration.security.util.TokenHelper.encodeWithoutSigning;
 
+
 import java.io.IOException;
 import java.net.URLEncoder;
+import org.cbioportal.PortalApplication;
+import org.cbioportal.test.integration.SharedMysqlContainer;
 import org.cbioportal.test.integration.security.util.HttpHelper;
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
+import org.junit.ClassRule;
 import org.junit.FixMethodOrder;
 import org.junit.Test;
 import org.junit.jupiter.api.Assertions;
+import org.junit.runner.RunWith;
 import org.junit.runners.MethodSorters;
 import org.mockserver.client.MockServerClient;
 import org.mockserver.integration.ClientAndServer;
 import org.mockserver.model.HttpRequest;
 import org.mockserver.model.HttpResponse;
 import org.mockserver.model.StringBody;
+import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.test.context.TestPropertySource;
+import org.springframework.test.context.junit4.SpringRunner;
 
 
 /**
  * Tests SAML authentication and offline token download
  */
+@RunWith(SpringRunner.class)
+@SpringBootTest(
+    webEnvironment = SpringBootTest.WebEnvironment.DEFINED_PORT,
+    classes = {PortalApplication.class}
+)
+@TestPropertySource(
+    properties = {
+        "app.name=cbioportal",
+        "filter_groups_by_appname=true",
+        "authenticate=saml",
+        "dat.method=oauth2",
+        // DB settings
+        // note: DB_URL, DB_USERNAME, and DB_PASSWORD are set by SharedMysqlContainer
+        "spring.datasource.url=${DB_URL}",
+        "spring.datasource.username=${DB_USERNAME}",
+        "spring.datasource.password=${DB_PASSWORD}",
+        "spring.datasource.driverClassName=com.mysql.jdbc.Driver",
+        "spring.jpa.database-platform=org.hibernate.dialect.MySQL5Dialect",
+        // SAML settings
+        "saml.keystore.location=classpath:/security/testSamlKeystore.jks",
+        "saml.keystore.password=123456",
+        "saml.keystore.private-key.key=secure-key",
+        "saml.keystore.private-key.password=654321",
+        "saml.keystore.default-key=secure-key",
+        "saml.idp.metadata.location=classpath:/security/saml-idp-metadata.xml",
+        // I had to use specificBinding because of this bug https://github.com/spring-projects/spring-security-saml/issues/460
+        "saml.idp.comm.binding.settings=specificBinding",
+        "saml.idp.comm.binding.type=bindings:HTTP-Redirect",
+        "saml.sp.metadata.entitybaseurl=#{null}",
+        "saml.sp.metadata.entityid=cbioportal",
+        "saml.idp.metadata.entityid=spring.security.saml.idp.id",
+        "saml.idp.metadata.attribute.email=User.email",
+        // TODO what is this prop?
+        "saml.logout.local=false",
+        // FIXME Our test saml idp does not sign assertions for some reason
+        "saml.sp.metadata.wantassertionsigned=false",
+        "dat.oauth2.clientId=client_id",
+        "dat.oauth2.clientSecret=client_secret",
+        "dat.oauth2.issuer=token_issuer",
+        "dat.oauth2.accessTokenUri=http://localhost:8081/auth/realms/cbio/token",
+        "dat.oauth2.redirectUri=http://localhost:8080/api/data-access-token/oauth2",
+        "dat.oauth2.userAuthorizationUri=http://localhost:8081/auth/realms/cbio/auth",
+        "dat.oauth2.jwkUrl=http://localhost:8081/auth/realms/cbio/jwkUrl",
+        "dat.oauth2.jwtRolesPath=resource_access::cbioportal::roles"
+    }
+)
 @FixMethodOrder(MethodSorters.NAME_ASCENDING)
 public class OfflineTokenDownloadIntegrationTest {
 
-    private static final String CBIO_URL = "http://localhost:8080/cbioportal";
-    private static final String IDP_URL = "http://localhost:8081";
-    private static final int IDP_PORT = 8081;
+    private static String CBIO_URL = "http://localhost:8080";
+    private static final int MOCKSERVER_PORT = 8081;
+    private static final int IDP_PORT = 8082;
+    private static final String IDP_URL = String.format("http://localhost:%d", IDP_PORT);
+
+    @ClassRule
+    public static SharedMysqlContainer mysqlContainer = SharedMysqlContainer.getInstance();
 
     private static String cbioCookie;
     //FIXME Endpoints to download offline token do not initiate login with saml, their simply return 401 http code. Should it be this way? Add tests
@@ -63,7 +121,7 @@ public class OfflineTokenDownloadIntegrationTest {
         //1. Then we get redirect to the discovery page
         Assertions.assertEquals(302, discoveryEndpointRedirect.code);
         String discoveryEndpointLocation = discoveryEndpointRedirect.headers.get("Location").get(0);
-        Assertions.assertEquals(CBIO_URL + "/saml/discovery?entityID=cbioportal&returnIDParam=idp", discoveryEndpointLocation);
+        Assertions.assertEquals(CBIO_URL + "/saml2/authenticate/cbioportal_saml_idp", discoveryEndpointLocation);
         //1. And we set the session cookie
         String cbioSetCookie = discoveryEndpointRedirect.headers.get("Set-Cookie").get(0);
         Assertions.assertTrue(cbioSetCookie.startsWith("JSESSIONID="));
@@ -74,44 +132,48 @@ public class OfflineTokenDownloadIntegrationTest {
         //2. Then it redirects us to the saml idp login screen of the cbioportal
         Assertions.assertEquals(302, cbioIdpLoginRedirect.code);
         String cbioIdpLoginLocation = cbioIdpLoginRedirect.headers.get("Location").get(0);
-        Assertions.assertEquals(CBIO_URL + "/saml/login?disco=true&idp=spring.security.saml.idp.id", cbioIdpLoginLocation);
+        Assertions.assertTrue(cbioIdpLoginLocation.startsWith(IDP_URL + "/saml/idp/SSO/alias/boot-sample-idp"));
 
-        //3. When we make a request to the cbio login page
+        //3. When we make a request to the SAML Single Sign On endpoint
         HttpHelper.HttpResponse idpRedirect = HttpHelper.sendGetRequest(cbioIdpLoginLocation, null, cbioCookie);
         //3. Then we get redirected to the saml idp site
         Assertions.assertEquals(302, idpRedirect.code);
         String idpLocation = idpRedirect.headers.get("Location").get(0);
-        Assertions.assertTrue(idpLocation.startsWith(IDP_URL + "/saml/idp/SSO/alias/boot-sample-idp?"));
+        Assertions.assertTrue(idpLocation.startsWith(IDP_URL + "/login"));
 
         //4. When we make a request to the idp page
         HttpHelper.HttpResponse idpLoginRedirect = HttpHelper.sendGetRequest(idpLocation, null, null);
         //4. Then we get redirected to the saml idp login page
-        Assertions.assertEquals(302, idpLoginRedirect.code);
-        String idpLoginLocation = idpLoginRedirect.headers.get("Location").get(0);
-        Assertions.assertTrue(idpLoginLocation.startsWith(IDP_URL + "/login"));
-        //4. And we set the idp session cookie
-        String idpSetCookie = idpLoginRedirect.headers.get("Set-Cookie").get(0);
-        Assertions.assertTrue(idpSetCookie.startsWith("JSESSIONID="));
-        String idpCookie = idpSetCookie.split(";")[0];
+        Assertions.assertEquals(200, idpLoginRedirect.code);
+//        String idpLoginLocation = idpLoginRedirect.headers.get("Location").get(0);
+//        Assertions.assertTrue(idpLoginLocation.startsWith(IDP_URL + "/login"));
+//        //4. And we set the idp session cookie
+//        String idpSetCookie = idpLoginRedirect.headers.get("Set-Cookie").get(0);
+//        Assertions.assertTrue(idpSetCookie.startsWith("JSESSIONID="));
+//        String idpCookie = idpSetCookie.split(";")[0];
 
         // We skipped requesting the login page for the brevity
 
         //5. When we submit the login form
-        HttpHelper.HttpResponse idpLoginRepsonse = HttpHelper.sendPostRequest(idpLoginLocation, null, idpCookie, "username=user&password=password");
+        HttpHelper.HttpResponse idpLoginReponse = HttpHelper.sendPostRequest(idpLocation, null, null, "username=user&password=password");
         //5. Then we get redirected to the saml idp site
-        Assertions.assertEquals(302, idpLoginRepsonse.code);
-        String jumpToServiceProviderPageLocation = idpLoginRepsonse.headers.get("Location").get(0);
-        Assertions.assertTrue(jumpToServiceProviderPageLocation.startsWith(IDP_URL + "/saml/idp/SSO/alias/boot-sample-idp?"));
+        Assertions.assertEquals(302, idpLoginReponse.code);
+        String jumpToServiceProviderPageLocation = idpLoginReponse.headers.get("Location").get(0);
+        Assertions.assertTrue(jumpToServiceProviderPageLocation.startsWith(IDP_URL + "/"));
         //5. And we set the idp session cookie
-        idpSetCookie = idpLoginRepsonse.headers.get("Set-Cookie").get(0);
+        String idpSetCookie = idpLoginReponse.headers.get("Set-Cookie").get(0);
         Assertions.assertTrue(idpSetCookie.startsWith("JSESSIONID="));
-        idpCookie = idpSetCookie.split(";")[0];
+        String idpCookie = idpSetCookie.split(";")[0];
 
         //6. When we reach the jump page
-        HttpHelper.HttpResponse jumpToServiceProviderPageRepsonse = HttpHelper.sendGetRequest(jumpToServiceProviderPageLocation, null, idpCookie);
+        HttpHelper.HttpResponse jumpToServiceProviderPageReponse = HttpHelper.sendGetRequest(jumpToServiceProviderPageLocation, null, idpCookie);
+
+        
+
+
         //6. Then we get html page with javascript that redirects us to the service provider
-        Assertions.assertEquals(200, jumpToServiceProviderPageRepsonse.code);
-        String jumpPage = jumpToServiceProviderPageRepsonse.body;
+        Assertions.assertEquals(200, jumpToServiceProviderPageReponse.code);
+        String jumpPage = jumpToServiceProviderPageReponse.body;
         Assertions.assertTrue(jumpPage.contains("form action=\"" + CBIO_URL + "/saml/SSO\""));
         String samlResponseValueStart = "name=\"SAMLResponse\" value=\"";
         Assertions.assertTrue(jumpPage.contains(samlResponseValueStart));
@@ -162,7 +224,7 @@ public class OfflineTokenDownloadIntegrationTest {
 
     @BeforeClass
     public static void startServer() {
-        mockServer = ClientAndServer.startClientAndServer(IDP_PORT);
+        mockServer = ClientAndServer.startClientAndServer(MOCKSERVER_PORT);
     }
 
     @AfterClass

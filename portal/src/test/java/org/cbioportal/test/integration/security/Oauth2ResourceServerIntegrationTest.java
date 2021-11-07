@@ -36,7 +36,6 @@ import org.cbioportal.test.integration.security.util.HttpHelper;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.junit.AfterClass;
-import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.ClassRule;
 import org.junit.Test;
@@ -47,10 +46,7 @@ import org.mockserver.integration.ClientAndServer;
 import org.mockserver.model.HttpRequest;
 import org.mockserver.model.HttpResponse;
 import org.mockserver.model.StringBody;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.boot.test.web.client.TestRestTemplate;
-import org.springframework.boot.web.server.LocalServerPort;
 import org.springframework.test.context.TestPropertySource;
 import org.springframework.test.context.junit4.SpringRunner;
 
@@ -59,14 +55,15 @@ import org.springframework.test.context.junit4.SpringRunner;
  * Tests protection of API endpoints by SAML auth
  */
 // This starts a live portal instance on a random port (imported via @LocalServerPort)
+@RunWith(SpringRunner.class)
 @SpringBootTest(
-    webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT,
+    webEnvironment = SpringBootTest.WebEnvironment.DEFINED_PORT,
     classes = {PortalApplication.class}
 )
-@RunWith(SpringRunner.class)
 @TestPropertySource(
     properties = {
         "app.name=cbioportal",
+        "server.port=8080",
         "filter_groups_by_appname=true",
         "authenticate=saml",
         "dat.method=oauth2",
@@ -95,7 +92,6 @@ import org.springframework.test.context.junit4.SpringRunner;
         "saml.logout.local=false",
         // FIXME Our test saml idp does not sign assertions for some reason
         "saml.sp.metadata.wantassertionsigned=false",
-        "saml.logout.url=/",
         "dat.oauth2.clientId=client_id",
         "dat.oauth2.clientSecret=client_secret",
         "dat.oauth2.issuer=token_issuer",
@@ -107,20 +103,12 @@ import org.springframework.test.context.junit4.SpringRunner;
     }
 )
 public class Oauth2ResourceServerIntegrationTest {
-
-    @LocalServerPort
-    protected int port;
     
-    private static String HOST;
+    private static String HOST = "http://localhost:8080";
     private static final int IDP_PORT = 8443;
 
     @ClassRule
     public static SharedMysqlContainer mysqlContainer = SharedMysqlContainer.getInstance();
-
-    @Before
-    public void setUp() {
-        HOST = String.format("http://localhost:%d", port);
-    }
 
     @Test
     public void testAccessForbiddenForAnonymousUser() throws IOException {

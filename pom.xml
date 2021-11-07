@@ -43,7 +43,7 @@
         <springfox.version>2.9.2</springfox.version>
         <io.swagger.version>1.6.3</io.swagger.version>
         <mybatis.starter.version>2.2.0</mybatis.starter.version>
-        <testcontainers.version>1.16.0</testcontainers.version>
+        <testcontainers.version>1.16.2</testcontainers.version>
         <mockserver.version>5.8.0</mockserver.version>
         <!-- TODO upgrade when 5.6.0 is released-->
         <spring-security.version>5.6.0-RC1</spring-security.version>
@@ -257,6 +257,11 @@
         <repository>
             <id>milestones</id>
             <url>https://repo.spring.io/milestone/</url>
+        </repository>
+        <!-- needed for keycloak test containers -->
+        <repository>
+            <id>maven-central</id>
+            <url>https://repo1.maven.org/maven2/</url>
         </repository>
     </repositories>
     <pluginRepositories>

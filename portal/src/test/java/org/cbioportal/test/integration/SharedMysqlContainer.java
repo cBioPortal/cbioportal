@@ -21,7 +21,6 @@ public class SharedMysqlContainer extends MySQLContainer<SharedMysqlContainer> {
             container = new SharedMysqlContainer()
                 .withFileSystemBind(absolutePath("db-scripts/src/main/resources/cgds.sql").toString(), "/docker-entrypoint-initdb.d/a_schema.sql", BindMode.READ_ONLY)
                 .withFileSystemBind(absolutePath("portal/src/test/resources/seed_mini.sql").toString(), "/docker-entrypoint-initdb.d/b_seed.sql", BindMode.READ_ONLY)
-//                .withFileSystemBind("/tmp/cbio_ingegration_test_data/", "/var/lib/mysql/")
                 .withStartupTimeout(Duration.ofMinutes(10));
 
         }
@@ -34,11 +33,6 @@ public class SharedMysqlContainer extends MySQLContainer<SharedMysqlContainer> {
         System.setProperty("DB_URL", container.getJdbcUrl());
         System.setProperty("DB_USERNAME", container.getUsername());
         System.setProperty("DB_PASSWORD", container.getPassword());
-    }
-
-    @Override
-    public void stop() {
-        //do nothing, JVM handles shut down
     }
 
     /**

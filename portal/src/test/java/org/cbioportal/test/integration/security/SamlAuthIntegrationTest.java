@@ -146,6 +146,14 @@ public class SamlAuthIntegrationTest {
         Assertions.assertTrue(downloadedFile().call());
     }
 
+    @Test
+    public void logoutSuccess() {
+        RemoteWebDriver driver = performLogin();
+        driver.findElement(By.id("dat-dropdown")).click();
+        driver.findElement(By.linkText("Sign out")).click();
+        Assertions.assertNotNull(driver.findElement(By.id("username"))); // do we see the login button again?
+    }
+
     private RemoteWebDriver performLogin() {
         RemoteWebDriver driver = chrome.getWebDriver();
         driver.get(CBIO_URL_FROM_BROWSER);

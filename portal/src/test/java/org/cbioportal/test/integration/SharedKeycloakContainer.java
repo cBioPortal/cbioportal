@@ -20,9 +20,7 @@ public class SharedKeycloakContainer extends KeycloakContainer {
             container = new KeycloakContainer()
                 .withRealmImportFile("security/keycloak-configuration-generated.json")
                 .withAdminUsername(kcAdminName)
-                .withAdminPassword(kcAdminPassword)
-                .withNetwork(keycloakNetwork)
-                .withNetworkAliases("keycloak");
+                .withAdminPassword(kcAdminPassword);
         }
         return container;
     }

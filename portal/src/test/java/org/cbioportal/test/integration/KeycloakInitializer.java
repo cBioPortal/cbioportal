@@ -17,23 +17,40 @@ public abstract class KeycloakInitializer implements
     private static final Log log = LogFactory.getLog(KeycloakInitializer.class);
 
     public void initializeImpl(ConfigurableApplicationContext configurableApplicationContext,
-                               KeycloakContainer keycloakContainer, String containerUrl) {
+                               KeycloakContainer keycloakContainer) {
 
         try {
+
+            String keycloakUrlForCBioportal = keycloakContainer.getAuthServerUrl();
+            String keycloakUrlForBrowser = String.format("http://host.testcontainers.internal:%d/auth",
+                keycloakContainer.getHttpPort());
+
             String samlIdpMetadata =
                 keycloakContainer.execInContainer("curl",
-                        String.format("http://localhost:8080/auth/realms/cbio/protocol/saml/descriptor",
-                            keycloakContainer.getAuthServerUrl()))
+                        "http://localhost:8080/auth/realms/cbio/protocol/saml/descriptor")
                     .getStdout()
-                    .replaceAll("http://localhost", "http://keycloak");
+                    .replaceAll("http://localhost:8080/auth", keycloakUrlForBrowser);
             String samlIdpMetadataPath = tempFile(samlIdpMetadata);
+
             TestPropertyValues values = TestPropertyValues.of(
                 String.format("saml.idp.metadata.location=file:%s", samlIdpMetadataPath),
-                String.format("dat.oauth2.accessTokenUri=%s/auth/realms/cbio/token", containerUrl),
-                String.format("dat.oauth2.userAuthorizationUri=%s/auth/realms/cbio/auth",
-                    containerUrl),
-                String.format("dat.oauth2.jwkUrl=%s/auth/realms/cbio/jwkUrl", containerUrl),
-                String.format("saml.idp.metadata.entityid=%s/auth/realms/cbio", containerUrl)
+                // Should match the id in the generated idp metadata xml (samlIdpMetadata)
+                String.format("saml.idp.metadata.entityid=%s/realms/cbio",
+                    keycloakUrlForBrowser),
+
+                // These urls are from the perspective of cBioPortal application (port on host system)
+                String.format(
+                    "dat.oauth2.accessTokenUri=%s/realms/cbio/protocol/openid-connect/token",
+                    keycloakUrlForCBioportal),
+                String.format("dat.oauth2.jwkUrl=%s/realms/cbio/protocol/openid-connect/certs",
+                    keycloakUrlForCBioportal),
+
+                // This url is from the perspective of the browser
+                String.format(
+                    "dat.oauth2.userAuthorizationUri=%s/realms/cbio/protocol/openid-connect/auth",
+                    keycloakUrlForBrowser),
+                String.format("dat.oauth2.issuer=%s/realms/cbio", keycloakUrlForBrowser)
+
             );
             values.applyTo(configurableApplicationContext);
 

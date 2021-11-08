@@ -71,6 +71,7 @@
         "http://host.testcontainers.internal:8080/*",
         "http://host.testcontainers.internal:8080/*"
       ],
+      "secret": "client_secret",
       "protocolMappers": [
         {
           "name": "cbioportal_api_audience",
@@ -103,7 +104,8 @@
         }
       ],
       "realmRoles": [
-        "offline_access"
+        "offline_access",
+        "study_tcga_pub"
       ]
     }
   ]

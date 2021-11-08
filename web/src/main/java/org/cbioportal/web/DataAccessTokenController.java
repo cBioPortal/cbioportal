@@ -28,6 +28,8 @@ import org.cbioportal.service.exception.DataAccessTokenProhibitedUserException;
 import org.cbioportal.web.config.annotation.InternalApi;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnExpression;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -45,10 +47,10 @@ import java.util.List;
 import java.util.Set;
 
 @InternalApi
-@RequestMapping // replaces @RestController; controller is created conditionally in DataAccessTokenConfig of security-spring module
-@ResponseBody   // needed when not using @RestController annotation
+@RestController
 @Validated
-@Api(tags = "Data Access Tokens", description = " ")    
+@Api(tags = "Data Access Tokens", description = " ")   
+@ConditionalOnExpression("'${dat.method}' > '' && '${dat.method}' ne 'oauth2'")
 public class DataAccessTokenController {
 
     @Value("${dat.unauth_users:anonymousUser}")
@@ -76,7 +78,7 @@ public class DataAccessTokenController {
         return new ResponseEntity<>(token, HttpStatus.CREATED);
     }
 
-    @RequestMapping(method = RequestMethod.GET, value = "/data-access-tokens")
+    @RequestMapping(method = RequestMethod.GET, value = "/api/data-access-tokens")
     @ApiOperation("Retrieve all data access tokens")
     public ResponseEntity<List<DataAccessToken>> getAllDataAccessTokens(HttpServletRequest request,
     Authentication authentication) {
@@ -85,7 +87,7 @@ public class DataAccessTokenController {
         return new ResponseEntity<>(allDataAccessTokens, HttpStatus.OK);
     }
 
-    @RequestMapping(method = RequestMethod.GET, value = "/data-access-tokens/{token}")
+    @RequestMapping(method = RequestMethod.GET, value = "/api/data-access-tokens/{token}")
     @ApiOperation("Retrieve an existing data access token")
     public ResponseEntity<DataAccessToken> getDataAccessToken(
     @ApiParam(required = true, value = "token") @PathVariable String token) {
@@ -93,20 +95,20 @@ public class DataAccessTokenController {
         return new ResponseEntity<>(dataAccessToken, HttpStatus.OK);
     }
 
-    @RequestMapping(method = RequestMethod.DELETE, value = "/data-access-tokens")
+    @RequestMapping(method = RequestMethod.DELETE, value = "/api/data-access-tokens")
     @ApiOperation("Delete all data access tokens")
     public void revokeAllDataAccessTokens(Authentication authentication) {
         tokenService.revokeAllDataAccessTokens(getAuthenticatedUser(authentication));
     }
 
-    @RequestMapping(method = RequestMethod.DELETE, value = "/data-access-tokens/{token}")
+    @RequestMapping(method = RequestMethod.DELETE, value = "/api/data-access-tokens/{token}")
     @ApiOperation("Delete a data access token")
     public void revokeDataAccessToken(@ApiParam(required = true, value = "token") @PathVariable String token) {
         tokenService.revokeDataAccessToken(token);
     }
 
     // this is the entrypoint for the cBioPortal frontend to download a single user token
-    @RequestMapping(method = RequestMethod.GET, value = "/data-access-token")
+    @RequestMapping(method = RequestMethod.GET, value = "/api/data-access-token")
     @ApiOperation("Create a new data access token")
     public ResponseEntity<String> downloadDataAccessToken(Authentication authentication,
         HttpServletRequest request, HttpServletResponse response) throws IOException {

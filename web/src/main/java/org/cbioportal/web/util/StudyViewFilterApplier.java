@@ -166,7 +166,6 @@ public class StudyViewFilterApplier {
         }
 
         List<MolecularProfile> molecularProfiles = null;
-
         if (!CollectionUtils.isEmpty(studyViewFilter.getGeneFilters())
                 || !CollectionUtils.isEmpty(studyViewFilter.getGenomicDataFilters())
                 || !CollectionUtils.isEmpty(studyViewFilter.getGenericAssayDataFilters())
@@ -535,7 +534,8 @@ public class StudyViewFilterApplier {
             // determine whether a fusions profile was imported as mutations
             Boolean fusionsImportedAsMutations = Boolean.FALSE;
             for (MolecularProfile mp : filteredMolecularProfiles) {
-                if (mp.getStableId().endsWith("mutations") && mp.getDatatype().equals("FUSION")) {
+                if (mp.getStableId().endsWith("mutations")
+                        && mp.getDatatype().equals("FUSION")) {
                     fusionsImportedAsMutations = Boolean.TRUE;
                     break;
                 }

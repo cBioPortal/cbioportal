@@ -973,3 +973,7 @@ DROP TABLE IF EXISTS `uniprot_id_mapping`;
 DROP TABLE IF EXISTS `pfam_graphics`;
 UPDATE `info` SET `DB_SCHEMA_VERSION`="2.12.10";
 
+##version: 2.12.10
+DROP TABLE IF EXISTS `text_cache`;
+UPDATE `info` SET `DB_SCHEMA_VERSION`="2.12.10";
+

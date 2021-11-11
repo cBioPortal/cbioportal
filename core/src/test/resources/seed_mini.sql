@@ -47,7 +47,6 @@ DELETE FROM sample_cna_event;
 DELETE FROM cna_event;
 DELETE FROM drug_interaction;
 DELETE FROM drug;
-DELETE FROM text_cache;
 DELETE FROM gistic_to_gene;
 DELETE FROM gistic;
 DELETE FROM mut_sig;

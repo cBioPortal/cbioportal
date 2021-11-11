@@ -92,24 +92,9 @@ public class SampleSetUtil
 	 * @throws DaoException 
 	 */
 	public static String shortenSampleIds(String sampleIds)
-			throws DaoException
 	{
-		DaoTextCache dao = new DaoTextCache();
-		
-		// normalize sample IDs list to avoid redundant white spaces  
-		String normalizedIds = normalizeSampleIds(sampleIds);
-		
-		// generate hash key for the sample IDs string
-		String sampleIdsKey = dao.generateKey(normalizedIds);
-		
-		// add new key and list pair to DB if record does not exist
-		if (dao.getText(sampleIdsKey) == null)
-		{
-			dao.cacheText(sampleIdsKey, normalizedIds);
-		}
-		
-		// return hash key
-		return sampleIdsKey;
+	    // return empty
+		return "";
 	}
 	
 	/**
@@ -120,13 +105,9 @@ public class SampleSetUtil
 	 * @throws DaoException 
 	 */
 	public static String getSampleIds(String sampleIdsKey)
-			throws DaoException
 	{
-		DaoTextCache dao = new DaoTextCache();
-		
-		String sampleIds = dao.getText(sampleIdsKey);
-		
-		return sampleIds;
+        // return empty
+        return "";
 	}
 	
 	/**

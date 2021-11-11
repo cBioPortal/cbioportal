@@ -119,6 +119,7 @@ if [[ $screenshot_error_count -gt 0 ]]; then
 		echo "curl '"${url}"' > test/end-to-end/${png}"
 	done
 
+    # TODO support github actions as well 
 	# on travis show where to view failing screenshots online
 	if [[ $TRAVIS ]]; then
 		echo "OR CHECK OUT FAILED SCREENSHOTS ONLINE:"

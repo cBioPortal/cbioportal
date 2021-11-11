@@ -137,6 +137,33 @@ saml.roles-from-database=
 # Change this to configure to configure a custom logout URL: (default: /login.jsp?logout_success=true)
 saml.logout.url=/login.jsp?logout_success=true
 
+# OAuth2 settings
+# Provider information
+# A number of wel known IDP are supported as preconfigured CommonOAuth2Providers.
+# See: https://docs.spring.io/spring-security/site/docs/5.5.x/reference/html5/#oauth2login-common-oauth2-provider
+# For custom IDPs see: https://docs.spring.io/spring-security/site/docs/5.5.x/reference/html5/#oauth2login-custom-provider-properties
+
+# For OAuth2 Client/Login
+spring.security.oauth2.client.provider.cbio-idp.authorization-uri=
+spring.security.oauth2.client.provider.cbio-idp.token-uri=
+spring.security.oauth2.client.provider.cbio-idp.user-info-uri=
+spring.security.oauth2.client.provider.cbio-idp.user-name-attribute=
+spring.security.oauth2.client.provider.cbio-idp.jwk-set-uri=
+spring.security.oauth2.client.registration.cbio-idp.client-id=
+spring.security.oauth2.client.registration.cbio-idp.client-secret=
+# TODO Can be authhorization_code, ...
+spring.security.oauth2.client.registration.cbio-idp.authorization-grant-type=
+# TODO Can be client_secret_post, ...
+spring.security.oauth2.client.registration.cbio-idp.client-authentication-method=client_secret_post
+spring.security.oauth2.client.registration.cbio-idp.redirect-uri=
+spring.security.oauth2.client.registration.cbio-idp.scope=email,roles
+
+# For OAuth2 Resource server
+spring.security.oauth2.resourceserver.jwt.jwk-set-uri=http://localhost:8082/auth/realms/cbio
+
+
+
+
 # data access token settings
 dat.unauth_users=
 dat.method=none

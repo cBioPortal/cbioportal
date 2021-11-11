@@ -780,38 +780,6 @@ CREATE TABLE `cosmic_mutation` (
 );
 
 -- --------------------------------------------------------
-CREATE TABLE `pdb_uniprot_alignment` (
-  `ALIGNMENT_ID` int NOT NULL,
-  `PDB_ID` char(4) NOT NULL,
-  `CHAIN` char(1) NOT NULL,
-  `UNIPROT_ID` varchar(50) NOT NULL,
-  `PDB_FROM` varchar(10) NOT NULL,
-  `PDB_TO` varchar(10) NOT NULL,
-  `UNIPROT_FROM` int NOT NULL,
-  `UNIPROT_TO` int NOT NULL,
-  `EVALUE` float,
-  `IDENTITY` float,
-  `IDENTP` float,
-  `UNIPROT_ALIGN` text,
-  `PDB_ALIGN` text,
-  `MIDLINE_ALIGN` text,
-  PRIMARY KEY (`ALIGNMENT_ID`),
-  KEY(`UNIPROT_ID`),
-  KEY(`PDB_ID`, `CHAIN`)
-);
-
--- --------------------------------------------------------
-CREATE TABLE `pdb_uniprot_residue_mapping` (
-  `ALIGNMENT_ID` int NOT NULL,
-  `PDB_POSITION` int NOT NULL,
-  `PDB_INSERTION_CODE` char(1) DEFAULT NULL,
-  `UNIPROT_POSITION` int NOT NULL,
-  `MATCH` char(1),
-  KEY(`ALIGNMENT_ID`, `UNIPROT_POSITION`),
-  FOREIGN KEY(`ALIGNMENT_ID`) REFERENCES `pdb_uniprot_alignment` (`ALIGNMENT_ID`)
-);
-
--- --------------------------------------------------------
 CREATE TABLE `clinical_event` (
   `CLINICAL_EVENT_ID` int NOT NULL auto_increment,
   `PATIENT_ID`  int(11) NOT NULL,

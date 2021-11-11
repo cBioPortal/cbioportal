@@ -964,16 +964,13 @@ DROP TABLE IF EXISTS `protein_array_data`;
 DROP TABLE IF EXISTS `protein_array_cancer_study`;
 -- version number will be set when migrating database changes
 DROP TABLE `sanger_cancer_census`;
-UPDATE `info` SET `DB_SCHEMA_VERSION`="2.12.10";
 
 ##version: 2.12.10
 -- dropping table uniprot_id_mapping
 DROP TABLE IF EXISTS `uniprot_id_mapping`;
 
 DROP TABLE IF EXISTS `pfam_graphics`;
-UPDATE `info` SET `DB_SCHEMA_VERSION`="2.12.10";
 
-##version: 2.12.10
 DROP TABLE IF EXISTS `text_cache`;
 UPDATE `info` SET `DB_SCHEMA_VERSION`="2.12.10";
 

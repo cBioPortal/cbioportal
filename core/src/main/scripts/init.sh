@@ -16,9 +16,6 @@
 # Drug
 ./importPiHelperData.pl
 
-# Pfam Graphic Data
-./importPfamGraphicsData.pl $PORTAL_DATA_HOME/reference-data/pfam-graphics.txt
-
 # Cosmic
 # ./prepareCosmicData.sh
 ./importCosmicData.pl $PORTAL_DATA_HOME/reference-data/CosmicCodingMuts.vcf

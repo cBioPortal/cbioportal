@@ -76,7 +76,6 @@ public class ResetDatabase {
         DaoInteraction daoInteraction = DaoInteraction.getInstance();
         daoInteraction.deleteAllRecords();
         DaoDrug.getInstance().deleteAllRecords();
-        DaoUniProtIdMapping.deleteAllRecords();
         DaoDrugInteraction.getInstance().deleteAllRecords();
         DaoTextCache daoTextCache = new DaoTextCache();
         daoTextCache.deleteAllKeys();

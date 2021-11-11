@@ -341,29 +341,7 @@ public class TestImportExtendedMutationData {
         daoGene.addGene(new CanonicalGene(6667L, "SP1"));
         daoGene.addGene(new CanonicalGene(2842L, "GPR19"));
 
-        boolean origBulkLoad = MySQLbulkLoader.isBulkLoad();
-        try {
-            MySQLbulkLoader.bulkLoadOn();
-            DaoUniProtIdMapping.addUniProtIdMapping("Q08043", "ACTN3_HUMAN", 89);
-            DaoUniProtIdMapping.addUniProtIdMapping("Q9H694", "BICC1_HUMAN", 80114);
-            DaoUniProtIdMapping.addUniProtIdMapping("Q9NZT1", "CALL5_HUMAN", 51806);
-            DaoUniProtIdMapping.addUniProtIdMapping("Q9BXN2", "CLC7A_HUMAN", 64581);
-            DaoUniProtIdMapping.addUniProtIdMapping("Q15760", "GPR19_HUMAN", 2842);
-            DaoUniProtIdMapping.addUniProtIdMapping("P98160", "PGBM_HUMAN", 3339);
-            DaoUniProtIdMapping.addUniProtIdMapping("Q96P20", "NALP3_HUMAN", 114548);
-            DaoUniProtIdMapping.addUniProtIdMapping("Q8NH19", "O10AG_HUMAN", 282770);
-            DaoUniProtIdMapping.addUniProtIdMapping("Q7Z3Z2", "RD3_HUMAN", 343035);
-            DaoUniProtIdMapping.addUniProtIdMapping("Q96QD8", "S38A2_HUMAN", 54407);
-            DaoUniProtIdMapping.addUniProtIdMapping("P17405", "ASM_HUMAN", 6609);
-            DaoUniProtIdMapping.addUniProtIdMapping("P08047", "SP1_HUMAN", 6667);
-            DaoUniProtIdMapping.addUniProtIdMapping("Q6ZVD7", "STOX1_HUMAN", 219736);
-            DaoUniProtIdMapping.addUniProtIdMapping("Q9NYW0", "T2R10_HUMAN", 50839);
-            DaoUniProtIdMapping.addUniProtIdMapping("Q9P0N5", "TM216_HUMAN", 51259);
-        } finally {
-            if (!origBulkLoad) {
-                MySQLbulkLoader.bulkLoadOff();
-            }
-        }
+       
 
 	    // additional genes for "data_mutations_oncotated.txt"
 	    daoGene.addGene(new CanonicalGene(55138L, "FAM90A1"));

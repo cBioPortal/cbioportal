@@ -10,10 +10,6 @@
 # Load up Cancer Types
 ./importTypesOfCancer.pl $PORTAL_DATA_HOME/reference-data/public-cancers.txt
 
-# Load UniProt Mapping Data
-# You must run:  ./prepareUniProtData.sh first.
-./importUniProtIdMapping.pl $PORTAL_DATA_HOME/reference-data/uniprot-id-mapping.txt
-
 # Network
 ./loadNetwork.sh
 

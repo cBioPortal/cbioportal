@@ -75,9 +75,6 @@ public class ResetDatabase {
         DaoGeneticProfileSamples.deleteAllRecords();
         DaoInteraction daoInteraction = DaoInteraction.getInstance();
         daoInteraction.deleteAllRecords();
-        DaoProteinArrayData.getInstance().deleteAllRecords();
-        DaoProteinArrayInfo.getInstance().deleteAllRecords();
-        DaoProteinArrayTarget.getInstance().deleteAllRecords();
         DaoDrug.getInstance().deleteAllRecords();
         DaoUniProtIdMapping.deleteAllRecords();
         DaoDrugInteraction.getInstance().deleteAllRecords();

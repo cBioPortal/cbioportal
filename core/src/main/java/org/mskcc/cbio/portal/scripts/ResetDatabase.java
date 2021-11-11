@@ -78,8 +78,6 @@ public class ResetDatabase {
         DaoDrug.getInstance().deleteAllRecords();
         DaoUniProtIdMapping.deleteAllRecords();
         DaoDrugInteraction.getInstance().deleteAllRecords();
-        DaoSangerCensus daoSangerCensus = DaoSangerCensus.getInstance();
-        daoSangerCensus.deleteAllRecords();
         DaoTextCache daoTextCache = new DaoTextCache();
         daoTextCache.deleteAllKeys();
         DaoPatient.deleteAllRecords();

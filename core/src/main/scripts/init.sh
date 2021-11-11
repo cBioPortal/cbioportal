@@ -10,9 +10,6 @@
 # Load up Cancer Types
 ./importTypesOfCancer.pl $PORTAL_DATA_HOME/reference-data/public-cancers.txt
 
-# Load up Sanger Cancer Gene Census
-./importSangerCensus.pl $PORTAL_DATA_HOME/reference-data/sanger_gene_census.txt
-
 # Load UniProt Mapping Data
 # You must run:  ./prepareUniProtData.sh first.
 ./importUniProtIdMapping.pl $PORTAL_DATA_HOME/reference-data/uniprot-id-mapping.txt

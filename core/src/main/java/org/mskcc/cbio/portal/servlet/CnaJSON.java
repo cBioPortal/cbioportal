@@ -449,13 +449,8 @@ public class CnaJSON extends HttpServlet {
         
         data.get("altrate").add(context);
         
-        boolean isSangerGene = false;
-        try {
-            isSangerGene = DaoSangerCensus.getInstance().getCancerGeneSet().containsKey(symbol);
-        } catch (DaoException ex) {
-            throw new ServletException(ex);
-        }
-        data.get("sanger").add(isSangerGene);
+
+        data.get("sanger").add(false);
         data.get("cancer-gene").add(false);
         
         // drug

@@ -51,7 +51,6 @@ DELETE FROM pfam_graphics;
 DELETE FROM text_cache;
 DELETE FROM gistic_to_gene;
 DELETE FROM gistic;
-DELETE FROM sanger_cancer_census;
 DELETE FROM mut_sig;
 DELETE FROM interaction;
 DELETE FROM clinical_attribute_meta;

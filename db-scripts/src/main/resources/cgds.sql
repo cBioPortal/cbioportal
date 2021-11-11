@@ -58,7 +58,6 @@ DROP TABLE IF EXISTS `pfam_graphics`;
 DROP TABLE IF EXISTS `text_cache`;
 DROP TABLE IF EXISTS `gistic_to_gene`;
 DROP TABLE IF EXISTS `gistic`;
-DROP TABLE IF EXISTS `sanger_cancer_census`;
 DROP TABLE IF EXISTS `protein_array_cancer_study`;
 DROP TABLE IF EXISTS `protein_array_data`;
 DROP TABLE IF EXISTS `protein_array_target`;
@@ -590,22 +589,6 @@ CREATE TABLE `mut_sig` (
   FOREIGN KEY (`CANCER_STUDY_ID`) REFERENCES `cancer_study` (`CANCER_STUDY_ID`) ON DELETE CASCADE,
   FOREIGN KEY (`ENTREZ_GENE_ID`) REFERENCES `gene` (`ENTREZ_GENE_ID`)
 );
-
--- --------------------------------------------------------
-CREATE TABLE `sanger_cancer_census` (
-  `ENTREZ_GENE_ID` int(11) NOT NULL,
-  `CANCER_SOMATIC_MUT` tinyint(1) NOT NULL,
-  `CANCER_GERMLINE_MUT` tinyint(1) NOT NULL,
-  `TUMOR_TYPES_SOMATIC_MUT` text NOT NULL,
-  `TUMOR_TYPES_GERMLINE_MUT` text NOT NULL,
-  `CANCER_SYNDROME` text NOT NULL,
-  `TISSUE_TYPE` text NOT NULL,
-  `MUTATION_TYPE` text NOT NULL,
-  `TRANSLOCATION_PARTNER` text NOT NULL,
-  `OTHER_GERMLINE_MUT` tinyint(1) NOT NULL,
-  `OTHER_DISEASE` text NOT NULL,
-  FOREIGN KEY (`ENTREZ_GENE_ID`) REFERENCES `gene` (`ENTREZ_GENE_ID`)
-) COMMENT='Sanger Cancer Gene Census';
 
 -- --------------------------------------------------------
 CREATE TABLE `gistic` (

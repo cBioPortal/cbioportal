@@ -1,21 +1,13 @@
 package org.cbioportal.security.spring;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
-import org.cbioportal.security.spring.authentication.oauth2.CBioAccessTokenResponseClient;
 import org.cbioportal.security.spring.authentication.oauth2.CBioAuthoritiesMapper;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.boot.autoconfigure.security.SecurityProperties;
-import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.core.annotation.Order;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
-import org.springframework.security.core.authority.mapping.GrantedAuthoritiesMapper;
-import org.springframework.security.oauth2.client.endpoint.OAuth2AccessTokenResponseClient;
-import org.springframework.security.oauth2.client.endpoint.OAuth2AuthorizationCodeGrantRequest;
-import org.springframework.security.oauth2.server.resource.authentication.JwtAuthenticationConverter;
-import org.springframework.security.oauth2.server.resource.authentication.JwtGrantedAuthoritiesConverter;
 
 
 @Configuration
@@ -24,7 +16,8 @@ import org.springframework.security.oauth2.server.resource.authentication.JwtGra
 @ConditionalOnProperty(value = "authenticate", havingValue = "oauth2")
 public class OAuth2SecurityConfig extends WebSecurityConfigurerAdapter {
 
-    private static Log log = LogFactory.getLog(OAuth2SecurityConfig.class);
+    @Value("${spring.security.oauth2.client.jwt-roles-path:resource_access::cbioportal::roles}")
+    private String jwtRolesPath;
 
     @Override
     // Autoconfigure by Spring Boot
@@ -36,29 +29,14 @@ public class OAuth2SecurityConfig extends WebSecurityConfigurerAdapter {
             .authorizeRequests()
                 .anyRequest()
                     .authenticated()
+            .and()
+            .oauth2Login()
+                .userInfoEndpoint()
+                    .userAuthoritiesMapper(new CBioAuthoritiesMapper(jwtRolesPath))
                 .and()
-                .oauth2Login()
-                .and()
-                .oauth2Client();
-    }
-
-    @Bean
-    public OAuth2AccessTokenResponseClient<OAuth2AuthorizationCodeGrantRequest> cbioAccessTokenResponseClient() {
-        return new CBioAccessTokenResponseClient();
-    }
-
-    @Bean
-    public GrantedAuthoritiesMapper userAuthoritiesMapper() {
-        return new CBioAuthoritiesMapper();
-    }
-
-    @Bean
-    public JwtAuthenticationConverter jwtAuthenticationConverter() {
-        JwtGrantedAuthoritiesConverter grantedAuthoritiesConverter = new JwtGrantedAuthoritiesConverter();
-        grantedAuthoritiesConverter.setAuthoritiesClaimName("authorities");
-        JwtAuthenticationConverter jwtAuthenticationConverter = new JwtAuthenticationConverter();
-        jwtAuthenticationConverter.setJwtGrantedAuthoritiesConverter(grantedAuthoritiesConverter);
-        return jwtAuthenticationConverter;
+            .and()
+                .logout()
+                    .logoutSuccessUrl("/");
     }
 
 }

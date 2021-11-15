@@ -136,17 +136,17 @@
                 </configuration>
             </plugin>
             <!-- add git version information to the POM so that jars can have the correct version suffix-->
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-external-version-plugin</artifactId>
-                <version>0.1.0-jboss-5</version>
-                <extensions>true</extensions>
-                <configuration>
-                    <strategy hint="script">
-                        <script>./version.sh</script>
-                    </strategy>
-                </configuration>
-            </plugin>
+<!--            <plugin>-->
+<!--                <groupId>org.apache.maven.plugins</groupId>-->
+<!--                <artifactId>maven-external-version-plugin</artifactId>-->
+<!--                <version>0.1.0-jboss-5</version>-->
+<!--                <extensions>true</extensions>-->
+<!--                <configuration>-->
+<!--                    <strategy hint="script">-->
+<!--                        <script>./version.sh</script>-->
+<!--                    </strategy>-->
+<!--                </configuration>-->
+<!--            </plugin>-->
             <!-- create portal.properties and log4j.properties from .EXAMPLE files if they don't exist -->
             <plugin>
                 <artifactId>maven-antrun-plugin</artifactId>
@@ -675,7 +675,7 @@
             <dependency>
                 <groupId>org.springframework.security</groupId>
                 <artifactId>spring-security-jwt</artifactId>
-                <version>1.1.1.RELEASE</version>
+                <version>1.0.11.RELEASE</version>
             </dependency>
             <dependency>
                 <groupId>com.google.guava</groupId>
@@ -769,11 +769,6 @@
             <dependency>
                 <groupId>org.springframework.security</groupId>
                 <artifactId>spring-security-oauth2-client</artifactId>
-                <version>${spring-security.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>org.springframework.security</groupId>
-                <artifactId>spring-security-oauth2-resource-server</artifactId>
                 <version>${spring-security.version}</version>
             </dependency>
             <!-- END upgrade to v5.6.0 when released -->

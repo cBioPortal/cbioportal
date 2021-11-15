@@ -87,7 +87,7 @@
     <http pattern="/api/swagger-resources/**" security="none"/>
     <http pattern="/api/swagger-ui.html" security="none"/>
     <http pattern="/api/health" security="none"/>
-    <http pattern="/api/cache" security="none"/>
+    <http pattern="/api/cache/**" security="none"/>
 
     <!-- This must come before the default entry point which will capture everything not matched by pattern -->
     <http use-expressions="true" pattern="/api/**" entry-point-ref="restAuthenticationEntryPoint" create-session="never">

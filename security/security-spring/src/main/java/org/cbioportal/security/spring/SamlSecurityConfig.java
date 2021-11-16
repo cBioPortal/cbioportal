@@ -4,8 +4,8 @@ import java.net.URL;
 import java.security.KeyStore;
 import java.security.PrivateKey;
 import java.security.cert.X509Certificate;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.cbioportal.security.spring.authentication.PortalSavedRequestAwareAuthenticationSuccessHandler;
 import org.cbioportal.security.spring.authentication.PortalUserDetailsService;
 import org.cbioportal.security.spring.authentication.saml.SamlResponseAuthenticationConverter;
@@ -39,7 +39,7 @@ import org.springframework.security.web.authentication.logout.LogoutSuccessHandl
 @ConditionalOnProperty(value = "authenticate", havingValue = "saml")
 public class SamlSecurityConfig extends WebSecurityConfigurerAdapter {
 
-    private static Log log = LogFactory.getLog(SamlSecurityConfig.class);
+    private static Logger log = LoggerFactory.getLogger(SamlSecurityConfig.class);
 
     public static final String SAML_IDP_REGISTRATION_ID = "cbioportal_saml_idp";
 

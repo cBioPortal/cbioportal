@@ -5,8 +5,8 @@ import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.boot.test.util.TestPropertyValues;
 import org.springframework.context.ApplicationContextInitializer;
 import org.springframework.context.ConfigurableApplicationContext;
@@ -14,7 +14,7 @@ import org.springframework.context.ConfigurableApplicationContext;
 public abstract class KeycloakInitializer implements
     ApplicationContextInitializer<ConfigurableApplicationContext> {
 
-    private static final Log log = LogFactory.getLog(KeycloakInitializer.class);
+    private static final Logger log = LoggerFactory.getLogger(KeycloakInitializer.class);
 
     public void initializeImpl(ConfigurableApplicationContext configurableApplicationContext,
                                KeycloakContainer keycloakContainer) {

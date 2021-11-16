@@ -2,8 +2,8 @@ package org.cbioportal.security.spring.authentication.saml;
 
 import java.util.List;
 import java.util.stream.Collectors;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.cbioportal.security.spring.authentication.PortalUserDetails;
 import org.opensaml.core.xml.schema.XSString;
 import org.opensaml.core.xml.schema.impl.XSAnyImpl;
@@ -27,7 +27,7 @@ import org.springframework.util.Assert;
 public class SamlResponseAuthenticationConverter implements
     Converter<OpenSaml4AuthenticationProvider.ResponseToken, AbstractAuthenticationToken> {
 
-    private static Log log = LogFactory.getLog(SamlResponseAuthenticationConverter.class);
+    private static Logger log = LoggerFactory.getLogger(SamlResponseAuthenticationConverter.class);
 
     @Value("${saml.idp.metadata.attribute.email:}")
     private String assertionAttributeEmail;

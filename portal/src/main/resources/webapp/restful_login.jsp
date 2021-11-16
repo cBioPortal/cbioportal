@@ -34,7 +34,7 @@
 <%@ page import="org.apache.commons.logging.LogFactory" %>
 
 <%
-    Log log = LogFactory.getLog(this.getClass());
+    Log log = LoggerFactory.getLogger(this.getClass());
     request.setAttribute("html_title", "MSK cBioPortal");
     String userId = (String)session.getAttribute("user_id");
     if (userId != null) {

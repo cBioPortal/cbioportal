@@ -34,7 +34,6 @@ public class DataAccessTokenConfig {
         return new PortalUserDetailsService();
     }
 
-
     // service
     @Bean("dataAccessTokenService")
     @ConditionalOnProperty(name = "dat.method", havingValue = "oauth2")

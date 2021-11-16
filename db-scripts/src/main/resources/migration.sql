@@ -955,13 +955,13 @@ ALTER TABLE `genetic_profile` ADD COLUMN `PATIENT_LEVEL` boolean DEFAULT 0;
 UPDATE `info` SET `DB_SCHEMA_VERSION`="2.12.10";
 
 ##version: 2.12.11
-DROP TABLE IF EXISTS pdb_uniprot_residue_mapping;
-DROP TABLE IF EXISTS pdb_uniprot_alignment;
+DROP TABLE IF EXISTS `pdb_uniprot_residue_mapping`;
+DROP TABLE IF EXISTS `pdb_uniprot_alignment`;
 
 -- real DB version to be set when PR is merged to main
-DROP TABLE IF EXISTS `protein_array_info`;
-DROP TABLE IF EXISTS `protein_array_target`;
 DROP TABLE IF EXISTS `protein_array_data`;
+DROP TABLE IF EXISTS `protein_array_target`;
+DROP TABLE IF EXISTS `protein_array_info`;
 DROP TABLE IF EXISTS `protein_array_cancer_study`;
 -- version number will be set when migrating database changes
 DROP TABLE `sanger_cancer_census`;

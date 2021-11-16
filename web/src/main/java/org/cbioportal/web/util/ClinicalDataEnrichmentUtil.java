@@ -247,7 +247,12 @@ public class ClinicalDataEnrichmentUtil {
                 .map(clinicalDataCountItem -> {
                     List<ClinicalDataCount> filteredClinicalDataCount = clinicalDataCountItem.getCounts()
                             .stream()
-                            .filter(clinicalDataCount -> !clinicalDataCount.getValue().equals("NA"))
+                            .filter(clinicalDataCount -> 
+                                !(
+                                     clinicalDataCount.getValue().equalsIgnoreCase("NA") ||
+                                     clinicalDataCount.getValue().equalsIgnoreCase("Unknown")
+                                 )
+                            )
                             .collect(Collectors.toList());
                     clinicalDataCountItem.setCounts(filteredClinicalDataCount);
                     return clinicalDataCountItem;

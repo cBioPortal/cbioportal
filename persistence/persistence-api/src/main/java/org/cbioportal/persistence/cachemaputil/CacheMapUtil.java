@@ -12,8 +12,6 @@ public interface CacheMapUtil {
     Map<String, SampleList> getSampleListMap();
 
     Map<String, CancerStudy> getCancerStudyMap();
-
-    Map<String, String> getGenericAssayStableIdToMolecularProfileIdMap();
     
     boolean hasCacheEnabled();
 

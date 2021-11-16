@@ -1,3 +1,22 @@
+## Nov 12, 2021
+*   **Added data** consisting of 3,680 samples from 6 studies: 
+    * [Breast Cancer MAPK (MSKCC, Nat Commun 2021)](https://www.cbioportal.org/study/summary?id=brca_mapk_hp_msk_2021) *145 samples*
+    * [Colorectal Cancer (MSK, 2020)](https://www.cbioportal.org/study/summary?id=crc_nigerian_2020) *64 samples*
+    * [Breast Cancer (MSK, Clinical Cancer Res 2020)](https://www.cbioportal.org/study/summary?id=brca_pareja_msk_2020) *60 samples*
+    * [High-Grade Serous Ovarian Cancer (MSK, 2021)](https://www.cbioportal.org/study/summary?id=hgsoc_msk_2021) *45 samples*
+    * [Diffuse Glioma (GLASS Consortium, Nature 2019)](https://www.cbioportal.org/study/summary?id=difg_glass_2019) *444 samples*
+    * [Pan-cancer analysis of whole genomes (ICGC/TCGA, Nature 2020)](https://www.cbioportal.org/study/summary?id=pancan_pcawg_2020) *2,922 samples*
+
+## Nov 3,2021
+* **New Feature**: Add Uniprot topology as a new annotation track on the Mutations Tab of the Results View. [Example: EGFR in MSK-IMPACT (2017) cohort](https://www.cbioportal.org/results/mutations?cancer_study_list=msk_impact_2017&Z_SCORE_THRESHOLD=2.0&RPPA_SCORE_THRESHOLD=2.0&profileFilter=mutations%2Cfusion%2Ccna&case_set_id=msk_impact_2017_cnaseq&gene_list=EGFR&geneset_list=%20&tab_index=tab_visualize&Action=Submit)
+
+    <img src="https://user-images.githubusercontent.com/16869603/141861719-f91d787e-e8c3-4c27-8273-7642ec3fd5e1.png" width="700" />
+
+## Oct 1, 2021
+* **New Feature**: Arm level Copy Number events are now loaded into cBioPortal using the Categorial Generic Assay Data Type. They can be found in a tab under the Add Charts Button of the _Study View_ [Example: Arm Level Data in TCGA PanCancer Atlas](https://www.cbioportal.org/study/summary?id=laml_tcga_pan_can_atlas_2018%2Cacc_tcga_pan_can_atlas_2018%2Cblca_tcga_pan_can_atlas_2018%2Clgg_tcga_pan_can_atlas_2018%2Cbrca_tcga_pan_can_atlas_2018%2Ccesc_tcga_pan_can_atlas_2018%2Cchol_tcga_pan_can_atlas_2018%2Ccoadread_tcga_pan_can_atlas_2018%2Cdlbc_tcga_pan_can_atlas_2018%2Cesca_tcga_pan_can_atlas_2018%2Cgbm_tcga_pan_can_atlas_2018%2Chnsc_tcga_pan_can_atlas_2018%2Ckich_tcga_pan_can_atlas_2018%2Ckirc_tcga_pan_can_atlas_2018%2Ckirp_tcga_pan_can_atlas_2018%2Clihc_tcga_pan_can_atlas_2018%2Cluad_tcga_pan_can_atlas_2018%2Clusc_tcga_pan_can_atlas_2018%2Cmeso_tcga_pan_can_atlas_2018%2Cov_tcga_pan_can_atlas_2018%2Cpaad_tcga_pan_can_atlas_2018%2Cpcpg_tcga_pan_can_atlas_2018%2Cprad_tcga_pan_can_atlas_2018%2Csarc_tcga_pan_can_atlas_2018%2Cskcm_tcga_pan_can_atlas_2018%2Cstad_tcga_pan_can_atlas_2018%2Ctgct_tcga_pan_can_atlas_2018%2Cthym_tcga_pan_can_atlas_2018%2Cthca_tcga_pan_can_atlas_2018%2Cucs_tcga_pan_can_atlas_2018%2Cucec_tcga_pan_can_atlas_2018%2Cuvm_tcga_pan_can_atlas_2018)
+
+     <img src="https://user-images.githubusercontent.com/1334004/139692484-8245d94f-1821-4476-974e-b6c1a6cd8d12.png" width="700" />
+
 ## Sep 22, 2021
 *   **Added data** consisting of 14,844 samples from 7 studies: 
     * [Colorectal Cancer (MSK, Gastroenterology 2020)](https://www.cbioportal.org/study/summary?id=crc_apc_impact_2020) *471 samples*
@@ -7,7 +26,36 @@
     * [Medulloblastoma (DKFZ, Nature 2017)](https://www.cbioportal.org/study/summary?id=mbl_dkfz_2017) *491 samples*
     * [Thoracic Cancer (MSK, 2021)](https://www.cbioportal.org/study/summary?id=lung_pdx_msk_2021) *68 samples*
     * [China Pan-cancer (OrigiMed, 2020)](https://www.cbioportal.org/study/summary?id=pan_origimed_2020) *10,194 samples*
+
+## Sep 21, 2021
+* **Enhancement**: Dowloading the Lollipop plot on the Mutations Tab of the _Results View_ will now also include the annotation tracks:
     
+    <img src="https://user-images.githubusercontent.com/1334004/139694195-51ad5580-efa5-4b25-9a10-2754726a246b.png" width="700" />
+
+## Aug 17, 2021
+* **New Feature**: The Mutations Tab of the _Results View_ can now show exon numbers as an annotation track [Example: MET Exon 14 Mutations in MSK-IMPACT (2017) cohort](https://www.cbioportal.org/results/mutations?genetic_profile_ids_PROFILE_MUTATION_EXTENDED=msk_impact_2017_mutations&genetic_profile_ids_PROFILE_COPY_NUMBER_ALTERATION=msk_impact_2017_cna&cancer_study_list=msk_impact_2017&Z_SCORE_THRESHOLD=2.0&RPPA_SCORE_THRESHOLD=2.0&data_priority=0&profileFilter=mutations%2Cfusion%2Ccna&case_set_id=msk_impact_2017_cnaseq&gene_list=MET&geneset_list=%20&tab_index=tab_visualize&Action=Submit)
+    
+    <img src="https://user-images.githubusercontent.com/1334004/139694614-62f62640-2fab-4117-ae09-db2281690f76.png" width="700" />
+
+## Aug 10, 2021
+* **New Feature**: Use the filtering capabilities in the Mutations Tab of the _Results View_ to create a custom cohort that one can open directly in the _Study View_ [Example: CTNNB1 in MSK-IMPACT (2017) cohort](https://bit.ly/3w6wu00)
+
+    <img src="https://user-images.githubusercontent.com/1334004/139696976-6e145c05-10d3-44c9-8499-146ad6e13f2f.png" width="700" />
+
+## Jul 27, 2021
+* **New Feature**: Add a custom filter to any column of the Mutations Tab in the _Results View_ [Example: CTNNB1 in MSK-IMPACT (2017) cohort](https://bit.ly/3w6wu00)
+
+    <img src="https://user-images.githubusercontent.com/1334004/139697555-34507fa8-2b57-4aa8-84ee-c477efffa864.png" width="700" />
+
+* **New Feature**: Show detailed descriptions for each annotation source in the header of the the Mutations Table in both the _Results View_ and the _Patient View_ [Example link](https://www.cbioportal.org/patient?studyId=lgg_ucsf_2014&caseId=P04)
+
+    <img src="https://user-images.githubusercontent.com/1334004/139699259-1be86599-c2e0-457c-b257-1b0d446facf4.png" width="350" />
+
+## Jul 6, 2021
+* **New Feature**: Add any clinical data as a column on the Mutations Tab in the _Results View_ [Example: EGFR in MSK-IMPACT (2017) cohort](https://bit.ly/3bxFlyp)
+
+    <img src="https://user-images.githubusercontent.com/1334004/139700811-4b6ce432-4abf-4dc4-8371-634a14d2b603.png" width="700" />
+
 ## June 23, 2021
 *   **Added data** consisting of 1,084 samples from 5 studies: 
     * [Intrahepatic Cholangiocarcinoma (MSK, Hepatology 2021)](https://www.cbioportal.org/study/summary?id=ihch_msk_2021) *412 samples* 
@@ -19,8 +67,13 @@
 *   **Added mass-spec phosphoproteome site level expression** from CPTAC to [Breast Invasive Carcinoma (TCGA, PanCancer Atlas)](https://www.cbioportal.org/study/summary?id=brca_tcga_pan_can_atlas_2018) and [Ovarian Serous Cystadenocarcinoma (TCGA, PanCancer Atlas)](https://www.cbioportal.org/study/summary?id=ov_tcga_pan_can_atlas_2018).
 *   **Updated gene tables** Updated tables of genes (main and alias), based on [HGNC](https://www.genenames.org/). See details [HERE](https://github.com/cBioPortal/datahub/tree/master/seedDB#seed-database-schema-2128) in section `Contents of seed database`. Sripts/resources/process used to construct new tables are described [HERE](https://github.com/cBioPortal/datahub-study-curation-tools/tree/master/gene-table-update/build-input-for-importer).
 
+## June 1, 2021
+* **New Feature**: In certain studies where we have the data we show read counts for uncalled mutations on the _Patient View_ [Example: A patient in the Glioma (MSK, 2019) cohort](https://www.cbioportal.org/patient?studyId=glioma_msk_2018&caseId=IM-GBM-1)
+
+    <img src="https://user-images.githubusercontent.com/1334004/139701937-91a40335-e95a-45f4-9800-356737a17fab.png" width="700" />
+
 ## May 10, 2021
-*   **New Feature**: Pick color for User Defined Groups [Example: Color Bladder Cancer Group in MSK-IMPACT (2017) cohort](https://www.cbioportal.org/study/summary?id=msk_impact_2017), implemented by [The Hyve](https://www.thehyve.nl/services/cbioportal).
+*  **New Feature**: Pick color for User Defined Groups [Example: Color Bladder Cancer Group in MSK-IMPACT (2017) cohort](https://www.cbioportal.org/study/summary?id=msk_impact_2017), implemented by [The Hyve](https://www.thehyve.nl/services/cbioportal).
 
     <img src="https://user-images.githubusercontent.com/1334004/122818654-7b018280-d2a7-11eb-94c1-834b780618b9.png" width="700" />
 

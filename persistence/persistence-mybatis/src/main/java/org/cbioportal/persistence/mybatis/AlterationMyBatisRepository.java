@@ -62,7 +62,8 @@ public class AlterationMyBatisRepository implements AlterationRepository {
         // if fusions were imported as a "mutations" profile then replace STRUCTURAL_VARIANT in
         // groupedIdentifiersByProfileType map with MUTATION_EXTENDED
         for (MolecularProfile profile : molecularProfileRepository.getMolecularProfiles(molecularProfileIds, "SUMMARY")) {
-            if (profile.getStableId().endsWith("mutations") && profile.getDatatype().equals("FUSION")) {
+            if (profile.getStableId().endsWith("mutations") && profile.getDatatype().equals("FUSION") &&
+                    groupedIdentifiersByProfileType.get(MolecularAlterationType.STRUCTURAL_VARIANT) != null) {
                 groupedIdentifiersByProfileType.put(MolecularAlterationType.MUTATION_EXTENDED,
                         groupedIdentifiersByProfileType.get(MolecularAlterationType.STRUCTURAL_VARIANT));
                 groupedIdentifiersByProfileType.remove(MolecularAlterationType.STRUCTURAL_VARIANT);

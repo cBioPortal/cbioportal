@@ -76,7 +76,6 @@ public class StaticRefCacheMapUtil implements CacheMapUtil {
         molecularProfileCache = cacheMapBuilder.buildMolecularProfileMap();
         sampleListCache = cacheMapBuilder.buildSampleListMap();
         cancerStudyCache = cacheMapBuilder.buildCancerStudyMap();
-        genericAssayStableIdToMolecularProfileIdCache = cacheMapBuilder.buildGenericAssayStableIdToMolecularProfileIdMap();
     }
 
     @Override
@@ -92,11 +91,6 @@ public class StaticRefCacheMapUtil implements CacheMapUtil {
     @Override
     public Map<String, CancerStudy> getCancerStudyMap() {
         return cancerStudyCache;
-    }
-
-    @Override
-    public Map<String, String> getGenericAssayStableIdToMolecularProfileIdMap() {
-        return genericAssayStableIdToMolecularProfileIdCache;
     }
     
     @Override

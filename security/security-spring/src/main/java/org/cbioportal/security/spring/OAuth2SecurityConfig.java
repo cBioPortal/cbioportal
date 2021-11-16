@@ -1,13 +1,21 @@
 package org.cbioportal.security.spring;
 
 import org.cbioportal.security.spring.authentication.oauth2.CBioAuthoritiesMapper;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.boot.autoconfigure.security.SecurityProperties;
+import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.core.annotation.Order;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
+import org.springframework.security.oauth2.client.oidc.web.logout.OidcClientInitiatedLogoutSuccessHandler;
+import org.springframework.security.oauth2.client.registration.ClientRegistrationRepository;
+import org.springframework.security.saml2.provider.service.web.DefaultRelyingPartyRegistrationResolver;
+import org.springframework.security.saml2.provider.service.web.authentication.logout.OpenSaml4LogoutRequestResolver;
+import org.springframework.security.saml2.provider.service.web.authentication.logout.Saml2RelyingPartyInitiatedLogoutSuccessHandler;
+import org.springframework.security.web.authentication.logout.LogoutSuccessHandler;
 
 
 @Configuration
@@ -18,6 +26,13 @@ public class OAuth2SecurityConfig extends WebSecurityConfigurerAdapter {
 
     @Value("${spring.security.oauth2.client.jwt-roles-path:resource_access::cbioportal::roles}")
     private String jwtRolesPath;
+
+    // TODO create single logout URL for all implementations
+    @Value("${spring.security.oauth2.logout-url:/j_spring_security_logout}")
+    private String logoutUrl;
+
+    @Autowired
+    private ClientRegistrationRepository clientRegistrationRepository;
 
     @Override
     // Autoconfigure by Spring Boot
@@ -36,7 +51,19 @@ public class OAuth2SecurityConfig extends WebSecurityConfigurerAdapter {
                 .and()
             .and()
                 .logout()
-                    .logoutSuccessUrl("/");
+                    .logoutUrl(logoutUrl)
+                    .logoutSuccessHandler(
+                        logoutSuccessHandler()  // when successful this handler will trigger SSO logout
+                    )
+                    .deleteCookies("JSESSIONID");
+    }
+
+    @Bean
+    public LogoutSuccessHandler logoutSuccessHandler() {
+        OidcClientInitiatedLogoutSuccessHandler oidcLogoutSuccessHandler =
+            new OidcClientInitiatedLogoutSuccessHandler(clientRegistrationRepository);
+        oidcLogoutSuccessHandler.setPostLogoutRedirectUri("{baseUrl}");
+        return oidcLogoutSuccessHandler;
     }
 
 }

@@ -91,6 +91,7 @@ public class SamlSecurityConfig extends WebSecurityConfigurerAdapter {
             .and()
             .logout(logout -> logout
                 .logoutUrl(logoutUrl)       // triggering this backend url will terminate the user session
+                .logoutSuccessUrl("/")
                 .logoutSuccessHandler(
                     logoutSuccessHandler()  // when successful this handler will trigger SSO logout
                 )

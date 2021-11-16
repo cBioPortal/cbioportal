@@ -3,6 +3,7 @@ package org.cbioportal.security.spring;
 import org.cbioportal.security.spring.authentication.RestAuthenticationEntryPoint;
 import org.cbioportal.security.spring.authentication.token.TokenAuthenticationFilter;
 import org.cbioportal.security.spring.authentication.token.TokenAuthenticationSuccessHandler;
+import org.cbioportal.security.spring.authentication.token.TokenUserDetailsAuthenticationProvider;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnExpression;
 import org.springframework.boot.autoconfigure.security.SecurityProperties;
@@ -24,9 +25,9 @@ public class ApiSecurityConfig extends WebSecurityConfigurerAdapter {
     // Different chains are added for the '/api' and legacy '/webservice.do' paths.
     // Both are able to handle API tokens provided in the request.
     // see: "Creating and Customizing Filter Chains" @ https://spring.io/guides/topicals/spring-security-architecture
-
+    
     @Autowired
-    private AuthenticationProvider tokenAuthenticationProvider;
+    private TokenUserDetailsAuthenticationProvider tokenAuthenticationProvider;
 
     @Autowired
     private TokenAuthenticationSuccessHandler tokenAuthenticationSuccessHandler;
@@ -66,7 +67,7 @@ public class ApiSecurityConfig extends WebSecurityConfigurerAdapter {
                     .antMatchers("/api/swagger-resources/**",
                          "/api/swagger-ui.html",
                          "/api/health",
-                         "/api/cache").permitAll()
+                         "/api/cache/**").permitAll()
                     .anyRequest()
                         .authenticated();
     }

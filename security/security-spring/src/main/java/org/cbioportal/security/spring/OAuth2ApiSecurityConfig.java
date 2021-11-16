@@ -26,7 +26,7 @@ public class OAuth2ApiSecurityConfig extends WebSecurityConfigurerAdapter {
                     .antMatchers("/api/swagger-resources/**",
                         "/api/swagger-ui.html",
                         "/api/health",
-                        "/api/cache").permitAll()
+                        "/api/cache/**").permitAll()
                 .anyRequest()
                     .authenticated();
     }

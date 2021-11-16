@@ -40,11 +40,11 @@ public class CBioAuthoritiesMapper implements GrantedAuthoritiesMapper {
             return authorities;
         }
 
-        if (OidcUserAuthority.class.isInstance(firstAuthority.get())) {
+        if (firstAuthority.get() instanceof OidcUserAuthority) {
             OidcUserAuthority oidcUserAuthority = (OidcUserAuthority) firstAuthority.get();
             OidcUserInfo userInfo = oidcUserAuthority.getUserInfo();
             mappedAuthorities = new HashSet<>(getAuthoritiesFromPath(userInfo.getClaims()));
-        } else if (OAuth2UserAuthority.class.isInstance(firstAuthority.get())) {
+        } else if (firstAuthority.get() instanceof OAuth2UserAuthority) {
             OAuth2UserAuthority oauth2UserAuthority = (OAuth2UserAuthority) firstAuthority.get();
             Map<String, Object> userAttributes = oauth2UserAuthority.getAttributes();
             mappedAuthorities = new HashSet<>(getAuthoritiesFromPath(userAttributes));
@@ -69,7 +69,7 @@ public class CBioAuthoritiesMapper implements GrantedAuthoritiesMapper {
                         "''. Please ensure the dat.oauth2.jwtRolesPath property is correct.");
             }
         }
-        if (cursor != null && cursor instanceof List) {
+        if (cursor instanceof List) {
             String[] authoritiesFromUserInfo = ((List<String>) cursor).toArray(String[]::new);
             return AuthorityUtils.createAuthorityList(authoritiesFromUserInfo);
         } else {

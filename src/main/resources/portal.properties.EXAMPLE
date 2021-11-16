@@ -158,7 +158,8 @@ spring.security.oauth2.client.registration.cbio-idp.authorization-grant-type=
 spring.security.oauth2.client.registration.cbio-idp.client-authentication-method=
 spring.security.oauth2.client.registration.cbio-idp.redirect-uri=<server-url>/login/oauth2/authorization/<client-registration-id (cbio-idp in this case)>
 spring.security.oauth2.client.registration.cbio-idp.scope=email,roles
-
+# TODO add to docs (in minutes; default 1)
+spring.security.oauth2.allowed-clock-skew=
 
 # data access token settings
 dat.unauth_users=

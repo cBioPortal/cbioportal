@@ -67,7 +67,8 @@ public class ApiSecurityConfig extends WebSecurityConfigurerAdapter {
                          "/api/swagger-ui.html",
                          "/api/health",
                          "/api/cache").permitAll()
-                    .anyRequest().authenticated();
+                    .anyRequest()
+                        .authenticated();
     }
  
 }

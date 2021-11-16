@@ -12,6 +12,7 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
 @Configuration
+@ConditionalOnProperty(name = "dat.method", havingValue = {"", "none"}, isNot = true)
 public class DataAccessTokenConfig {
 
     // provider

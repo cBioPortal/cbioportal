@@ -40,14 +40,6 @@ public class ApiSecurityConfig extends WebSecurityConfigurerAdapter {
         builder.authenticationProvider(tokenAuthenticationProvider);
     }
 
-    @Bean
-    public TokenAuthenticationFilter tokenAuthenticationFilter() throws Exception {
-        TokenAuthenticationFilter tokenAuthenticationFilter =
-            new TokenAuthenticationFilter("/**", authenticationManager());
-        tokenAuthenticationFilter.setAuthenticationSuccessHandler(tokenAuthenticationSuccessHandler);
-        return tokenAuthenticationFilter;
-    }
-
     @Autowired
     private RestAuthenticationEntryPoint restAuthenticationEntryPoint;
 
@@ -70,6 +62,14 @@ public class ApiSecurityConfig extends WebSecurityConfigurerAdapter {
                          "/api/cache/**").permitAll()
                     .anyRequest()
                         .authenticated();
+    }
+
+    @Bean
+    public TokenAuthenticationFilter tokenAuthenticationFilter() throws Exception {
+        TokenAuthenticationFilter tokenAuthenticationFilter =
+            new TokenAuthenticationFilter("/**", authenticationManager());
+        tokenAuthenticationFilter.setAuthenticationSuccessHandler(tokenAuthenticationSuccessHandler);
+        return tokenAuthenticationFilter;
     }
  
 }

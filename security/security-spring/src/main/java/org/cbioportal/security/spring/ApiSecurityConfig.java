@@ -52,7 +52,7 @@ public class ApiSecurityConfig extends WebSecurityConfigurerAdapter {
                 .sessionFixation().none()
             .and()
                     .exceptionHandling()                    // add ExceptionTranslationFilter to the chain
-                    .authenticationEntryPoint(restAuthenticationEntryPoint)
+                    .authenticationEntryPoint(restAuthenticationEntryPoint())
             .and()
             .antMatcher("/api/**")
                 .authorizeRequests()
@@ -70,6 +70,11 @@ public class ApiSecurityConfig extends WebSecurityConfigurerAdapter {
             new TokenAuthenticationFilter("/**", authenticationManager());
         tokenAuthenticationFilter.setAuthenticationSuccessHandler(tokenAuthenticationSuccessHandler);
         return tokenAuthenticationFilter;
+    }
+    
+    @Bean
+    public RestAuthenticationEntryPoint restAuthenticationEntryPoint() {
+        return new RestAuthenticationEntryPoint();
     }
  
 }

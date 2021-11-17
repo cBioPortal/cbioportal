@@ -137,7 +137,9 @@ public class SamlAuthIntegrationTest {
     @Test
     public void downloadOfflineToken() throws Exception {
         RemoteWebDriver driver = performLogin();
-        driver.findElement(By.id("dat-dropdown")).click();
+        Assertions.assertDoesNotThrow(
+            () -> driver.findElement(By.id("dat-dropdown")).click(),
+            "Logged-in menu could not be found on the page.");
         driver.findElement(By.linkText("Data Access Token")).click();
         driver.findElement(By.xpath("//button[text()='Download Token']")).click();
 
@@ -149,9 +151,14 @@ public class SamlAuthIntegrationTest {
     @Test
     public void logoutSuccess() {
         RemoteWebDriver driver = performLogin();
-        driver.findElement(By.id("dat-dropdown")).click();
+        Assertions.assertDoesNotThrow(
+            () -> driver.findElement(By.id("dat-dropdown")).click(),
+            "Logout menu could not be found on the page.");
         driver.findElement(By.linkText("Sign out")).click();
-        Assertions.assertNotNull(driver.findElement(By.id("username"))); // do we see the login button again?
+        Assertions.assertDoesNotThrow(
+            () -> driver.findElement(By.id("username")),
+            "IDP login screen not visible on the page. Logout did not work correctly."
+        );
     }
 
     private RemoteWebDriver performLogin() {

@@ -54,9 +54,9 @@ import org.springframework.web.filter.GenericFilterBean;
  * This mechanism ensures that update of user permissions is controlled by the lifespan of the access
  * token.
  */
-public class AccessTokenRefreshFilter extends GenericFilterBean {
+public class OAuth2AccessTokenRefreshFilter extends GenericFilterBean {
 
-    private static final Logger log = LoggerFactory.getLogger(AccessTokenRefreshFilter.class);
+    private static final Logger log = LoggerFactory.getLogger(OAuth2AccessTokenRefreshFilter.class);
     private static final OAuth2UserService<OAuth2UserRequest, OAuth2User> oAuth2UserService =
         new DefaultOAuth2UserService();
 
@@ -129,7 +129,7 @@ public class AccessTokenRefreshFilter extends GenericFilterBean {
         OAuth2User newPrincipal = getUserInfo(updatedClient.getClientRegistration(),
             accessTokenResponse.getAccessToken());
         Collection<? extends GrantedAuthority> newStudyPermissions =
-            new CBioAuthoritiesMapper(jwtRolesPath).mapAuthorities(newPrincipal.getAuthorities());
+            new UserInfoAuthoritiesMapper(jwtRolesPath).mapAuthorities(newPrincipal.getAuthorities());
         return new OAuth2AuthenticationToken(newPrincipal, newStudyPermissions,
             updatedClient.getClientRegistration().getRegistrationId());
     }

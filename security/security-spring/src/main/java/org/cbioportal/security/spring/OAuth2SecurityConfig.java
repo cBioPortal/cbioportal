@@ -1,6 +1,6 @@
 package org.cbioportal.security.spring;
 
-import org.cbioportal.security.spring.authentication.oauth2.CBioAuthoritiesMapper;
+import org.cbioportal.security.spring.authentication.oauth2.UserInfoAuthoritiesMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
@@ -12,9 +12,6 @@ import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
 import org.springframework.security.oauth2.client.oidc.web.logout.OidcClientInitiatedLogoutSuccessHandler;
 import org.springframework.security.oauth2.client.registration.ClientRegistrationRepository;
-import org.springframework.security.saml2.provider.service.web.DefaultRelyingPartyRegistrationResolver;
-import org.springframework.security.saml2.provider.service.web.authentication.logout.OpenSaml4LogoutRequestResolver;
-import org.springframework.security.saml2.provider.service.web.authentication.logout.Saml2RelyingPartyInitiatedLogoutSuccessHandler;
 import org.springframework.security.web.authentication.logout.LogoutSuccessHandler;
 
 
@@ -47,7 +44,7 @@ public class OAuth2SecurityConfig extends WebSecurityConfigurerAdapter {
             .and()
             .oauth2Login()
                 .userInfoEndpoint()
-                    .userAuthoritiesMapper(new CBioAuthoritiesMapper(jwtRolesPath))
+                    .userAuthoritiesMapper(new UserInfoAuthoritiesMapper(jwtRolesPath))
                 .and()
             .and()
                 .logout()

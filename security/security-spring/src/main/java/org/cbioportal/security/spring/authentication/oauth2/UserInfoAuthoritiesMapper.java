@@ -19,13 +19,13 @@ import org.springframework.security.oauth2.core.user.OAuth2UserAuthority;
 import org.springframework.util.Assert;
 
 // TODO add tests
-public class CBioAuthoritiesMapper implements GrantedAuthoritiesMapper {
+public class UserInfoAuthoritiesMapper implements GrantedAuthoritiesMapper {
 
-    private static final Logger logger = LoggerFactory.getLogger(CBioAuthoritiesMapper.class);
+    private static final Logger logger = LoggerFactory.getLogger(UserInfoAuthoritiesMapper.class);
 
     private String jwtRolesPath;
 
-    public CBioAuthoritiesMapper(String jwtRolesPath) {
+    public UserInfoAuthoritiesMapper(String jwtRolesPath) {
         this.jwtRolesPath = jwtRolesPath;
     }
 
@@ -61,8 +61,7 @@ public class CBioAuthoritiesMapper implements GrantedAuthoritiesMapper {
             if (cursor instanceof Map && ((Map) cursor).containsKey(keyName)) {
                 cursor = ((Map) cursor).get(keyName);
             } else {
-                logger.warn(
-                    "Bad path! No userAttribute found for path element '" + keyName + "'");
+                logger.warn("Bad path! No userAttribute found for path element {}'", keyName);
                 throw new BadCredentialsException(
                     "Cannot find user roles in userAttributes for element '" + keyName +
                         "' of path '" + jwtRolesPath +

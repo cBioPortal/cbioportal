@@ -56,7 +56,6 @@ import org.springframework.util.StringUtils;
  *
  * @author Manda Wilson
  */
-//@Component
 public class TokenAuthenticationFilter extends AbstractAuthenticationProcessingFilter {
 
     @Autowired

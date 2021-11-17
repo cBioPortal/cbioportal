@@ -30,6 +30,7 @@ jobs:
       - name: 'Setup mysql'
         run: |
           sudo systemctl start mysql && \
+          mysql --host=127.0.0.1 --port=3306 --user=root --password=root <<< 'SET GLOBAL local_infile=1' && \
           mysql --host=127.0.0.1 --port=3306 --user=root --password=root <<< 'CREATE DATABASE cgds_test' && \
           mysql --host=127.0.0.1 --port=3306 --user=root --password=root <<< "CREATE USER 'cbio_user'@'localhost' IDENTIFIED BY 'somepassword'" && \
           mysql --host=127.0.0.1 --port=3306 --user=root --password=root <<< "GRANT ALL ON cgds_test.* TO 'cbio_user'@'localhost'" && \

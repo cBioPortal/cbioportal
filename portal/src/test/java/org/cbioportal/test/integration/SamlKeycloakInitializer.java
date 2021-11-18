@@ -11,10 +11,10 @@ import org.springframework.boot.test.util.TestPropertyValues;
 import org.springframework.context.ApplicationContextInitializer;
 import org.springframework.context.ConfigurableApplicationContext;
 
-public abstract class KeycloakInitializer implements
+public abstract class SamlKeycloakInitializer implements
     ApplicationContextInitializer<ConfigurableApplicationContext> {
 
-    private static final Logger log = LoggerFactory.getLogger(KeycloakInitializer.class);
+    private static final Logger log = LoggerFactory.getLogger(SamlKeycloakInitializer.class);
 
     public void initializeImpl(ConfigurableApplicationContext configurableApplicationContext,
                                KeycloakContainer keycloakContainer) {
@@ -22,8 +22,7 @@ public abstract class KeycloakInitializer implements
         try {
 
             String keycloakUrlForCBioportal = keycloakContainer.getAuthServerUrl();
-            String keycloakUrlForBrowser = String.format("http://host.testcontainers.internal:%d/auth",
-                keycloakContainer.getHttpPort());
+            String keycloakUrlForBrowser = "http://keycloak:8080/auth";
 
             String samlIdpMetadata =
                 keycloakContainer.execInContainer("curl",

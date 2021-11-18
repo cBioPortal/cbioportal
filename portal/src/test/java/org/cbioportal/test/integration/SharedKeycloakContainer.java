@@ -20,7 +20,13 @@ public class SharedKeycloakContainer extends KeycloakContainer {
             container = new KeycloakContainer()
                 .withRealmImportFile("security/keycloak-configuration-generated.json")
                 .withAdminUsername(kcAdminName)
-                .withAdminPassword(kcAdminPassword);
+                .withAdminPassword(kcAdminPassword)
+                .withNetwork(keycloakNetwork)
+                .withNetworkAliases("keycloak")
+                // Needed because cBioPortal and Chrome use differnt urls to Keycloak container
+                // Causes mismatch of 'issuer' field in JWT.
+                // See: https://stackoverflow.com/a/65848717/11651683
+                .withEnv("KEYCLOAK_FRONTEND_URL", "http://keycloak:8080/auth");
         }
         return container;
     }

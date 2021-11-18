@@ -1,8 +1,6 @@
 package org.cbioportal.test.integration.security;
 
-import static org.cbioportal.test.integration.security.SamlAuthIntegrationTest.MySamlKeycloakInitializer;
-import static org.cbioportal.test.integration.security.SamlAuthIntegrationTest.MyMysqlInitializer;
-import static org.cbioportal.test.integration.security.SamlAuthIntegrationTest.PortInitializer;
+import static org.cbioportal.test.integration.security.OAuth2AuthIntegrationTest.*;
 import static org.testcontainers.shaded.org.awaitility.Awaitility.await;
 
 
@@ -12,8 +10,8 @@ import java.time.Duration;
 import java.util.concurrent.Callable;
 import javax.annotation.Nonnull;
 import org.cbioportal.PortalApplication;
-import org.cbioportal.test.integration.SamlKeycloakInitializer;
 import org.cbioportal.test.integration.MysqlInitializer;
+import org.cbioportal.test.integration.OAuth2KeycloakInitializer;
 import org.cbioportal.test.integration.SharedChromeContainer;
 import org.cbioportal.test.integration.SharedKeycloakContainer;
 import org.cbioportal.test.integration.SharedMysqlContainer;
@@ -25,8 +23,10 @@ import org.openqa.selenium.By;
 import org.openqa.selenium.NoSuchElementException;
 import org.openqa.selenium.WebElement;
 import org.openqa.selenium.remote.RemoteWebDriver;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.web.context.WebServerInitializedEvent;
+import org.springframework.context.ApplicationContext;
 import org.springframework.context.ApplicationContextInitializer;
 import org.springframework.context.ApplicationListener;
 import org.springframework.context.ConfigurableApplicationContext;
@@ -49,24 +49,21 @@ import org.testcontainers.containers.GenericContainer;
         "app.name=cbioportal",
         "server.port=8080",
         "filter_groups_by_appname=true",
-        "authenticate=saml",
+        "authenticate=oauth2",
         "dat.method=oauth2",
         // DB settings (also see MysqlInitializer)
         "spring.datasource.driverClassName=com.mysql.jdbc.Driver",
         "spring.jpa.database-platform=org.hibernate.dialect.MySQL5Dialect",
-        // SAML settings
-        "saml.keystore.location=classpath:/security/samlKeystore.jks",
-        "saml.keystore.password=P@ssword1",
-        "saml.keystore.private-key.key=secure-key",
-        "saml.keystore.private-key.password=P@ssword1",
-        "saml.keystore.default-key=secure-key",
-        "saml.idp.comm.binding.settings=defaultBinding",
-        "saml.sp.metadata.entitybaseurl=#{null}",
-        "saml.sp.metadata.entityid=cbioportal",
-        "saml.sp.metadata.wantassertionsigned=true",
-        "saml.idp.metadata.attribute.email=email",
-        "saml.idp.metadata.attribute.role=Role",
-        "saml.logout.local=false",
+        // OAuth2 settings
+        "spring.security.oauth2.client.registration.cbio-idp.redirect-uri=http://host.testcontainers.internal:8080/login/oauth2/code/cbio-idp",
+        "spring.security.oauth2.client.provider.cbio-idp.user-name-attribute=email",
+        "spring.security.oauth2.client.registration.cbio-idp.client-name=cbioportal_oauth2",
+        "spring.security.oauth2.client.registration.cbio-idp.client-id=cbioportal_oauth2",
+        "spring.security.oauth2.client.registration.cbio-idp.client-secret=client_secret",
+        "spring.security.oauth2.client.registration.cbio-idp.authorization-grant-type=authorization_code",
+        "spring.security.oauth2.client.registration.cbio-idp.client-authentication-method=client_secret_post",
+        "spring.security.oauth2.client.registration.cbio-idp.scope=openid,email,roles",
+        "spring.security.oauth2.client.user-info-roles-path=resource_access::cbioportal::roles",
         // Keycloak host settings (also see KeycloakInitializer)
         "dat.oauth2.clientId=cbioportal_oauth2",
         "dat.oauth2.clientSecret=client_secret",
@@ -77,14 +74,17 @@ import org.testcontainers.containers.GenericContainer;
 )
 @ContextConfiguration(initializers = {
     MyMysqlInitializer.class,
-    MySamlKeycloakInitializer.class,
+    MyKeycloakInitializer.class,
     PortInitializer.class
 })
-public class SamlAuthIntegrationTest {
+public class OAuth2AuthIntegrationTest {
 
     private final static int CBIO_PORT = 8080;
     public final static String CBIO_URL_FROM_BROWSER =
         String.format("http://host.testcontainers.internal:%d", CBIO_PORT);
+        
+    @Autowired
+    private ApplicationContext context;
 
     @ClassRule
     public static SharedMysqlContainer mysqlContainer = SharedMysqlContainer.getInstance();
@@ -96,7 +96,7 @@ public class SamlAuthIntegrationTest {
     public static BrowserWebDriverContainer chrome = SharedChromeContainer.getInstance();
 
     // Update application properties with connection info on Keycloak container
-    public static class MySamlKeycloakInitializer extends SamlKeycloakInitializer {
+    public static class MyKeycloakInitializer extends OAuth2KeycloakInitializer {
         @Override
         public void initialize(
             ConfigurableApplicationContext configurableApplicationContext) {
@@ -143,7 +143,7 @@ public class SamlAuthIntegrationTest {
         driver.findElement(By.linkText("Data Access Token")).click();
         driver.findElement(By.xpath("//button[text()='Download Token']")).click();
 
-        await().atMost(Duration.ofSeconds(5)).until(downloadedFile());
+        await().atMost(Duration.ofSeconds(2)).until(downloadedFile());
 
         Assertions.assertTrue(downloadedFile().call());
     }

@@ -48,7 +48,7 @@ import org.testcontainers.containers.GenericContainer;
     properties = {
         "app.name=cbioportal",
         "server.port=8080",
-        "filter_groups_by_appname=true",
+        "filter_groups_by_appname=false",
         "authenticate=saml",
         "dat.method=oauth2",
         // DB settings (also see MysqlInitializer)
@@ -58,6 +58,8 @@ import org.testcontainers.containers.GenericContainer;
         "spring.security.saml2.relyingparty.registration.cbio-idp.entity-id=cbioportal",
         "spring.security.saml2.relyingparty.registration.cbio-idp.signing.credentials[0].certificate-location=classpath:/security/signing-cert.pem",
         "spring.security.saml2.relyingparty.registration.cbio-idp.signing.credentials[0].private-key-location=classpath:/security/signing-key.pem",
+        "saml.idp.metadata.attribute.email=email",
+        "saml.idp.metadata.attribute.role=Role",
         // Keycloak host settings (also see KeycloakInitializer)
         "dat.oauth2.clientId=cbioportal_oauth2",
         "dat.oauth2.clientSecret=client_secret",
@@ -123,6 +125,9 @@ public class SamlAuthIntegrationTest {
         RemoteWebDriver driver = performLogin();
         WebElement loggedInButton = driver.findElement(By.id("dat-dropdown"));
         Assertions.assertEquals("Logged in as testuser@thehyve.nl", loggedInButton.getText());
+        Assertions.assertDoesNotThrow(
+            () -> driver.findElement(By.xpath("//span[.='Breast Invasive Carcinoma (TCGA,Nature 2012)']")),
+        "Study could not be found on the landing page. Permissions are not correctly passed from IDP to client.");
     }
 
     @Test
@@ -151,7 +156,7 @@ public class SamlAuthIntegrationTest {
             "IDP login screen not visible on the page. Logout did not work correctly."
         );
     }
-
+    
     private RemoteWebDriver performLogin() {
         RemoteWebDriver driver = chrome.getWebDriver();
         driver.get(CBIO_URL_FROM_BROWSER);

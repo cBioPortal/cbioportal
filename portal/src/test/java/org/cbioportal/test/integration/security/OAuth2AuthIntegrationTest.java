@@ -48,7 +48,7 @@ import org.testcontainers.containers.GenericContainer;
     properties = {
         "app.name=cbioportal",
         "server.port=8080",
-        "filter_groups_by_appname=true",
+        "filter_groups_by_appname=false",
         "authenticate=oauth2",
         "dat.method=oauth2",
         // DB settings (also see MysqlInitializer)
@@ -132,6 +132,9 @@ public class OAuth2AuthIntegrationTest {
         RemoteWebDriver driver = performLogin();
         WebElement loggedInButton = driver.findElement(By.id("dat-dropdown"));
         Assertions.assertEquals("Logged in as testuser@thehyve.nl", loggedInButton.getText());
+        Assertions.assertDoesNotThrow(
+            () -> driver.findElement(By.xpath("//span[.='Breast Invasive Carcinoma (TCGA,Nature 2012)']")),
+            "Study could not be found on the landing page. Permissions are not correctly passed from IDP to client.");
     }
 
     @Test

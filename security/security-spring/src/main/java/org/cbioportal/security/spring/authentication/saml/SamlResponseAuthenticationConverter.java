@@ -29,10 +29,10 @@ public class SamlResponseAuthenticationConverter implements
 
     private static Logger log = LoggerFactory.getLogger(SamlResponseAuthenticationConverter.class);
 
-    @Value("${saml.idp.metadata.attribute.email:}")
+    @Value("${saml.idp.metadata.attribute.email}")
     private String assertionAttributeEmail;
     
-    @Value("${saml.idp.metadata.attribute.role:}")
+    @Value("${saml.idp.metadata.attribute.role}")
     private String assertionAttributeRoles;
 
     @Value("${saml.roles-from-database:false}")

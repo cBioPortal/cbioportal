@@ -10,6 +10,7 @@ import org.cbioportal.security.spring.authentication.PortalSavedRequestAwareAuth
 import org.cbioportal.security.spring.authentication.PortalUserDetailsService;
 import org.cbioportal.security.spring.authentication.saml.SamlResponseAuthenticationConverter;
 import org.springframework.beans.factory.BeanCreationException;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.boot.autoconfigure.security.SecurityProperties;
@@ -40,42 +41,21 @@ import org.springframework.security.web.authentication.logout.LogoutSuccessHandl
 @ConditionalOnProperty(value = "authenticate", havingValue = "saml")
 public class SamlSecurityConfig extends WebSecurityConfigurerAdapter {
 
-    private static Logger log = LoggerFactory.getLogger(SamlSecurityConfig.class);
-
-    public static final String SAML_IDP_REGISTRATION_ID = "cbioportal_saml_idp";
+    // TODO add to docs
+    // Autoconfig requires registering singing certificate and private key. Follow these steps:
+    // 1. openssl req -x509 -newkey rsa:4096 -keyout key.pem -out cert.pem -days 365 -nodes
+    // 2. Save/mount in classpath
+    // 3. Import cert.pem in Keycloak (client->keys->import->certificate PEM)
+    // 4. Add properties to portal.properties:
+    //    - spring.security.saml2.relyingparty.registration.cbio-idp.signing.credentials[0].certificate-location=classpath:/cert.pem
+    //    - spring.security.saml2.relyingparty.registration.cbio-idp.signing.credentials[0].private-key-location=classpath:/key.pem
 
     // This is the URL called by the frontend to initiate logout
     @Value("${saml.logout.url:/saml/logout}")
     private String logoutUrl;
-
-    // Keystore
-    @Value("${saml.keystore.location}")
-    private Resource samlKeystoreLocation;
-    @Value("${saml.keystore.password}")
-    private String samlKeystorePassword;
-    @Value("${saml.keystore.private-key.key}")
-    private String samlPrivateKeyKey;
-    @Value("${saml.keystore.private-key.password}")
-    private String samlPrivateKeyPassword;
-    @Value("${saml.keystore.default-key}")
-    private String samlKeystoreDefaultKey;
-
-    // SP
-    @Value("${saml.sp.metadata.entityid}")
-    private String samlSPMetadataEntityId;
-    // TODO what to do with these properties?
-    @Value("${saml.sp.metadata.entityBaseURL:#{null}}")
-    private URL samlSPMetadataEntityBaseUrl;
-    @Value("${saml.sp.metadata.wantassertionssigned:true}")
-    private boolean samlSPMetadataWantAssertionsSigned;
-
-    // IDP
-    @Value("${saml.idp.metadata.location}")
-    private String samlIdpMetadataLocation;
-    @Value("${saml.idp.comm.binding.settings:defaultBinding}")
-    private String samlIdpBindingSetting; // can be 'defaultBinding' or 'specificBinding'
-    @Value("${saml.idp.comm.binding.type:bindings:HTTP-POST}")
-    private String samlIdpBindingType;
+    
+    @Autowired
+    private RelyingPartyRegistrationRepository relyingPartyRegistrationRepository;
     
     @Override
     protected void configure(HttpSecurity http) throws Exception {
@@ -89,8 +69,8 @@ public class SamlSecurityConfig extends WebSecurityConfigurerAdapter {
                 .authenticationManager(new ProviderManager(authenticationProvider()))
                 .successHandler(authenticationSuccessHandler())
             .and()
-            // NOTE: I did not get the official .saml2Logout() DLS to work.
-            // TODO add docs Keyclook configured with:
+            // NOTE: I did not get the official .saml2Logout() DSL to work.
+            // TODO add docs Keyclook saml2 client configured with:
             //  BaseURL: http://localhost:8080
             //  Logout Service POST Binding URL: http://localhost:8080/logout/saml2/slo
             .logout(logout -> logout
@@ -100,46 +80,6 @@ public class SamlSecurityConfig extends WebSecurityConfigurerAdapter {
                     logoutSuccessHandler()  // when successful this handler will trigger SSO logout
                 )
                 .deleteCookies("JSESSIONID"));
-    }
-
-    @Bean
-    public RelyingPartyRegistrationRepository relyingPartyRegistrationRepository() {
-
-        try {
-            // Read private key and certificate from java keystore.
-            // Dev note: The use of this keystore prevents us from 
-            // using Spring Boot autoconfiguration from properties file.
-            KeyStore keystore = KeyStore.getInstance("jks");
-            keystore.load(samlKeystoreLocation.getInputStream(),
-                samlKeystorePassword.toCharArray());
-            PrivateKey privateKey =
-                (PrivateKey) keystore.getKey(samlPrivateKeyKey,
-                    samlPrivateKeyPassword.toCharArray());
-            X509Certificate cert =
-                (X509Certificate) keystore.getCertificate(samlKeystoreDefaultKey);
-
-            RelyingPartyRegistration.Builder builder = RelyingPartyRegistrations
-                .fromMetadataLocation(samlIdpMetadataLocation)
-                .registrationId(SAML_IDP_REGISTRATION_ID)
-                .entityId(samlSPMetadataEntityId)
-                .signingX509Credentials(
-                    c -> c.add(Saml2X509Credential.signing(privateKey, cert))
-                );
-
-            // When instructed, do not use the defaultBinding provided by the IDP.
-            if (samlIdpBindingSetting.equals("specificBinding")) {
-                log.debug("Setting binding type to '" + samlIdpBindingType + "'");
-                builder.assertionConsumerServiceBinding(
-                    Saml2MessageBinding.from(
-                        String.format("urn:oasis:names:tc:SAML:2.0:%s", samlIdpBindingType))
-                );
-            }
-
-            return new InMemoryRelyingPartyRegistrationRepository(builder.build());
-        } catch (Exception e) {
-            throw new BeanCreationException(e.getMessage());
-        }
-
     }
 
     @Bean
@@ -171,7 +111,7 @@ public class SamlSecurityConfig extends WebSecurityConfigurerAdapter {
     public LogoutSuccessHandler logoutSuccessHandler() {
         // Perform logout at the SAML2 IDP
         DefaultRelyingPartyRegistrationResolver relyingPartyRegistrationResolver =
-            new DefaultRelyingPartyRegistrationResolver(relyingPartyRegistrationRepository());
+            new DefaultRelyingPartyRegistrationResolver(relyingPartyRegistrationRepository);
         OpenSaml4LogoutRequestResolver logoutRequestResolver =
             new OpenSaml4LogoutRequestResolver(relyingPartyRegistrationResolver);
         return new Saml2RelyingPartyInitiatedLogoutSuccessHandler(logoutRequestResolver);

@@ -111,31 +111,24 @@ microsoftlive.consumer.key=
 microsoftlive.consumer.secret=
 
 ## SAML settings
-saml.sp.metadata.entityid=
-# change this url if behind reverse proxy that handles SSL, see docs/Authenticating-Users-via-SAML.md
-saml.sp.metadata.entityBaseURL=#{null}
-saml.idp.metadata.location=
-saml.idp.metadata.entityid=
-# saml keystore settings:
-saml.keystore.location=
-saml.keystore.password=
-saml.keystore.private-key.key=
-saml.keystore.private-key.password=
-saml.keystore.default-key=
-# How to send SAML request messages to the IDP.
-# Set to "specificBinding" to configure specific binding:
-saml.idp.comm.binding.settings=defaultBinding
-# TODO it appears that spring security only supports bindings:HTTP-POST and bindings:HTTP-Redirect (see enum Saml2MessageBinding). Update docs if true.
-# Configure the specific binding if above is specificBinding. Leave empty if defaultBinding.
-# Options: bindings:HTTP-POST, bindings:HTTP-Redirect, bindings:PAOS, profiles:holder-of-key:SSO:browser
-saml.idp.comm.binding.type=
+# TODO add options for auto- and manual config to docs
+# TODO add to docs: metadata-uri can be both URL or metadata xml file
+# Providing the SAML2 IDP metadata is sufficient to autoconfigure the provider. The 'metadata-uri' property can point to
+# and HTTP endpoint or a metadata xml file on the file system.
+#spring.security.saml2.relyingparty.registration.cbio-idp.identityprovider.metadata-uri=classpath:/client-tailored-saml-idp-metadata.xml
+spring.security.saml2.relyingparty.registration.cbio-idp.identityprovider.metadata-uri=http://localhost:8082/auth/realms/cbio/protocol/saml/descriptor
+spring.security.saml2.relyingparty.registration.cbio-idp.identityprovider.entity-id=http://localhost:8082/auth/realms/cbio
+spring.security.saml2.relyingparty.registration.cbio-idp.entity-id=cbioportal
+spring.security.saml2.relyingparty.registration.cbio-idp.signing.credentials[0].certificate-location=classpath:/cert.pem
+spring.security.saml2.relyingparty.registration.cbio-idp.signing.credentials[0].private-key-location=classpath:/key.pem
+
 saml.idp.metadata.attribute.email=
 saml.idp.metadata.attribute.role=
 # TODO document: 'When true, study roles will be retrieved from the cBioPortal database and added to the roles provided by the IDP (default 'false').'
 saml.roles-from-database=
 
-# Change this to configure to configure a custom logout URL: (default: /login.jsp?logout_success=true)
-saml.logout.url=/login.jsp?logout_success=true
+# Change this to configure to configure a custom logout URL: (default: /saml/logout)
+saml.logout.url=/saml/logout
 
 # OAuth2 settings
 # Provider information
@@ -144,9 +137,10 @@ saml.logout.url=/login.jsp?logout_success=true
 # For custom IDPs see: https://docs.spring.io/spring-security/site/docs/5.5.x/reference/html5/#oauth2login-custom-provider-properties
 
 # For OAuth2 Client/Login
+# TODO add options for auto- and manual config to docs
+# For OIDC clients the issuer-uri is sufficient to autoconfigure the provider (via .well-known endpoint)
 spring.security.oauth2.client.provider.cbio-idp.issuer-uri=
 spring.security.oauth2.client.provider.cbio-idp.user-name-attribute=
-# NOTE: SSO logout works only when using discovery (and spring security autoconfig) via 'issuer-uri'.
 # Configuring the individual settings below is not recommended. 
    # spring.security.oauth2.client.provider.cbio-idp.authorization-uri=
    # spring.security.oauth2.client.provider.cbio-idp.token-uri=

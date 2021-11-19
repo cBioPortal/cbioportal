@@ -24,20 +24,15 @@ public abstract class SamlKeycloakInitializer implements
             String keycloakUrlForCBioportal = keycloakContainer.getAuthServerUrl();
             String keycloakUrlForBrowser = "http://keycloak:8080/auth";
 
-            String samlIdpMetadata =
-                keycloakContainer.execInContainer("curl",
-                        "http://localhost:8080/auth/realms/cbio/protocol/saml/descriptor")
-                    .getStdout()
-                    .replaceAll("http://localhost:8080/auth", keycloakUrlForBrowser);
-            String samlIdpMetadataPath = tempFile(samlIdpMetadata);
-
             TestPropertyValues values = TestPropertyValues.of(
-                String.format("saml.idp.metadata.location=file:%s", samlIdpMetadataPath),
                 // Should match the id in the generated idp metadata xml (samlIdpMetadata)
-                String.format("saml.idp.metadata.entityid=%s/realms/cbio",
+                String.format("spring.security.saml2.relyingparty.registration.cbio-idp.identityprovider.entity-id=%s/realms/cbio",
                     keycloakUrlForBrowser),
 
                 // These urls are from the perspective of cBioPortal application (port on host system)
+                String.format(
+                    "spring.security.saml2.relyingparty.registration.cbio-idp.identityprovider.metadata-uri=%s/realms/cbio/protocol/saml/descriptor",
+                    keycloakUrlForCBioportal),
                 String.format(
                     "dat.oauth2.accessTokenUri=%s/realms/cbio/protocol/openid-connect/token",
                     keycloakUrlForCBioportal),
@@ -58,13 +53,4 @@ public abstract class SamlKeycloakInitializer implements
         }
     }
 
-    private static String tempFile(String samlIdpMetadata) throws IOException {
-        String absolutePath =
-            File.createTempFile("temp-idp-metadata", Long.toString(System.nanoTime()))
-                .getAbsolutePath();
-        BufferedWriter bw = new BufferedWriter(new FileWriter(absolutePath));
-        bw.write(samlIdpMetadata);
-        bw.close();
-        return absolutePath;
-    }
 }

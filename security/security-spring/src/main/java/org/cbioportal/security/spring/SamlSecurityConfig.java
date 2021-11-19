@@ -18,6 +18,7 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.core.annotation.Order;
 import org.springframework.core.io.Resource;
 import org.springframework.security.authentication.ProviderManager;
+import org.springframework.security.config.Customizer;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
 import org.springframework.security.saml2.core.Saml2X509Credential;
@@ -43,6 +44,7 @@ public class SamlSecurityConfig extends WebSecurityConfigurerAdapter {
 
     public static final String SAML_IDP_REGISTRATION_ID = "cbioportal_saml_idp";
 
+    // This is the URL called by the frontend to initiate logout
     @Value("${saml.logout.url:/saml/logout}")
     private String logoutUrl;
 
@@ -61,7 +63,7 @@ public class SamlSecurityConfig extends WebSecurityConfigurerAdapter {
     // SP
     @Value("${saml.sp.metadata.entityid}")
     private String samlSPMetadataEntityId;
-    // TODO what to do with these properties>?
+    // TODO what to do with these properties?
     @Value("${saml.sp.metadata.entityBaseURL:#{null}}")
     private URL samlSPMetadataEntityBaseUrl;
     @Value("${saml.sp.metadata.wantassertionssigned:true}")
@@ -71,8 +73,8 @@ public class SamlSecurityConfig extends WebSecurityConfigurerAdapter {
     @Value("${saml.idp.metadata.location}")
     private String samlIdpMetadataLocation;
     @Value("${saml.idp.comm.binding.settings:defaultBinding}")
-    private String samlIdpBindingSetting; // should be 'defaultBinding' or 'specificBinding'
-    @Value("${saml.idp.comm.binding.type}")
+    private String samlIdpBindingSetting; // can be 'defaultBinding' or 'specificBinding'
+    @Value("${saml.idp.comm.binding.type:bindings:HTTP-POST}")
     private String samlIdpBindingType;
     
     @Override
@@ -86,12 +88,14 @@ public class SamlSecurityConfig extends WebSecurityConfigurerAdapter {
             .saml2Login()
                 .authenticationManager(new ProviderManager(authenticationProvider()))
                 .successHandler(authenticationSuccessHandler())
-            // TODO fix logout redirect. Logout works, but the browser makes a final POST to /saml/logout (caused by keycloak Logout POST binding?)
-            // This is not accepted by cBio backend 
             .and()
+            // NOTE: I did not get the official .saml2Logout() DLS to work.
+            // TODO add docs Keyclook configured with:
+            //  BaseURL: http://localhost:8080
+            //  Logout Service POST Binding URL: http://localhost:8080/logout/saml2/slo
             .logout(logout -> logout
-                .logoutUrl(logoutUrl)       // triggering this backend url will terminate the user session
-                .logoutSuccessUrl("/")
+                .logoutUrl(logoutUrl)
+                .logoutSuccessUrl("/")       // triggering this backend url will terminate the user session
                 .logoutSuccessHandler(
                     logoutSuccessHandler()  // when successful this handler will trigger SSO logout
                 )
@@ -122,7 +126,7 @@ public class SamlSecurityConfig extends WebSecurityConfigurerAdapter {
                     c -> c.add(Saml2X509Credential.signing(privateKey, cert))
                 );
 
-            // When configured, do not use the defaultBinding provided by the IDP.
+            // When instructed, do not use the defaultBinding provided by the IDP.
             if (samlIdpBindingSetting.equals("specificBinding")) {
                 log.debug("Setting binding type to '" + samlIdpBindingType + "'");
                 builder.assertionConsumerServiceBinding(
@@ -165,6 +169,7 @@ public class SamlSecurityConfig extends WebSecurityConfigurerAdapter {
 
     @Bean
     public LogoutSuccessHandler logoutSuccessHandler() {
+        // Perform logout at the SAML2 IDP
         DefaultRelyingPartyRegistrationResolver relyingPartyRegistrationResolver =
             new DefaultRelyingPartyRegistrationResolver(relyingPartyRegistrationRepository());
         OpenSaml4LogoutRequestResolver logoutRequestResolver =

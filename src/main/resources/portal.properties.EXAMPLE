@@ -147,7 +147,7 @@ spring.security.oauth2.client.provider.cbio-idp.user-name-attribute=
    # TODO update docs, the user info endpoint must expose the roles !!
    # spring.security.oauth2.client.provider.cbio-idp.user-info-uri=
    # spring.security.oauth2.client.provider.cbio-idp.jwk-set-uri=
-   # spring.security.oauth2.provider.cbio-idp.logout-uri= # NOTE: this is not an official property.
+   # spring.security.oauth2.client.provider.cbio-idp.logout-uri= # NOTE: this is not an official property.
 spring.security.oauth2.client.registration.cbio-idp.client-id=
 spring.security.oauth2.client.registration.cbio-idp.client-secret=
 # TODO Can be authorization_code, ...

@@ -24,7 +24,7 @@ public class OAuth2SecurityConfig extends WebSecurityConfigurerAdapter {
     @Value("${spring.security.oauth2.client.jwt-roles-path:resource_access::cbioportal::roles}")
     private String jwtRolesPath;
     
-    @Value("${spring.security.oauth2.provider.cbio-idp.logout-uri:not-defined}")
+    @Value("${spring.security.oauth2.client.provider.cbio-idp.logout-uri:not-defined}")
     private String idpOidcLogoutUrl;
 
     // TODO create single logout URL for all implementations

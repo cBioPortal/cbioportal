@@ -291,7 +291,7 @@ public class StudyControllerTest {
         CancerStudyTags cancerStudyTags = new CancerStudyTags();
         cancerStudyTags.setTags(TEST_TAGS_1);
 
-        Mockito.when(studyService.getTags(Mockito.anyString(), expectedAccessLevel)).thenReturn(cancerStudyTags);
+        Mockito.when(studyService.getTags(Mockito.anyString(), Mockito.eq(expectedAccessLevel))).thenReturn(cancerStudyTags);
 
         mockMvc.perform(MockMvcRequestBuilders.get("/studies/test_study_id/tags")
                 .accept(MediaType.APPLICATION_JSON))
@@ -303,7 +303,7 @@ public class StudyControllerTest {
     @Test
     public void getEmptyTags() throws Exception {
         AccessLevel expectedAccessLevel = AccessLevel.READ;
-        Mockito.when(studyService.getTags(Mockito.anyString(), expectedAccessLevel)).thenReturn(null);
+        Mockito.when(studyService.getTags(Mockito.anyString(), Mockito.eq(expectedAccessLevel))).thenReturn(null);
 
         mockMvc.perform(MockMvcRequestBuilders.get("/studies/test_study_id/tags")
                 .accept(MediaType.APPLICATION_JSON))

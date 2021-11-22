@@ -87,7 +87,7 @@ public class MolecularProfile implements Serializable {
         // But somehow there was no migration for existing data. To resolve it replace FUSION alteration type by STRUCTURAL_VARIANT.
         return (molecularAlterationType.equals(MolecularAlterationType.FUSION) ||
                 (molecularAlterationType.equals(MolecularAlterationType.MUTATION_EXTENDED)
-                && this.datatype.equals("FUSION")))
+                && this.datatype != null && this.datatype.equals("FUSION")))
                 ? MolecularAlterationType.STRUCTURAL_VARIANT
                 : molecularAlterationType;
     }

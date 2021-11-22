@@ -1,5 +1,6 @@
-package org.cbioportal.service.util;
+package org.cbioportal;
 
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.env.Environment;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Configuration;
@@ -12,15 +13,14 @@ import java.util.concurrent.Executor;
 
 @Configuration
 @EnableAsync
-public class AppConfig implements AsyncConfigurer {
+public class AsyncConfig implements AsyncConfigurer {
 
-    @Autowired
-    private Environment env;
+    @Value("${multithread.core_pool_size:#{Runtime.getRuntime().availableProcessors()}}")
+    private int corePoolSize;
 
     @Override
     public Executor getAsyncExecutor() {
         ThreadPoolTaskExecutor executor = new ThreadPoolTaskExecutor();
-        int corePoolSize = env.getProperty("multithread.core_pool_size", int.class, Runtime.getRuntime().availableProcessors());
         executor.setCorePoolSize(corePoolSize);
         executor.setThreadNamePrefix("ThreadPoolTaskExecutor-");
         executor.initialize();

@@ -280,7 +280,7 @@
               <url>${db.test.url}</url>
               <username>${db.test.username}</username>
               <password>${db.test.password}</password>
-              <sqlCommand>SET storage_engine=INNODB</sqlCommand>
+              <sqlCommand>SET default_storage_engine=InnoDB</sqlCommand>
               <sqlCommand>SET SESSION sql_mode = 'ANSI_QUOTES'</sqlCommand>
               <srcFiles>
                 <srcFile>${project.build.testOutputDirectory}/cgds-test.sql</srcFile>

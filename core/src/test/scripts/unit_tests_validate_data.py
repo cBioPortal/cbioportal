@@ -100,7 +100,7 @@ class LogBufferTestCase(unittest.TestCase):
 
     def get_log_records(self):
         """Get the log records written to the logger since the last call."""
-        recs = self.buffer_handler.buffer
+        recs = [rec for rec in self.buffer_handler.buffer]
         self.buffer_handler.flush()
         return recs
 
@@ -618,7 +618,7 @@ class GeneIdColumnsTestCase(PostClinicalDataFileTestCase):
         record_list = self.validate('data_cna_genecol_presence_hugo_only.txt',
                                     validateData.CNADiscreteValidator)
         # expecting 1 warning
-        self.assertEqual(len(record_list), 1)
+        self.assertEqual(1, len(record_list))
         for record in record_list:
             self.assertEqual(record.levelno, logging.WARNING)
 

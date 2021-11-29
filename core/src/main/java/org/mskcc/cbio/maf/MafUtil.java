@@ -368,14 +368,19 @@ public class MafUtil {
             } else if(header.equalsIgnoreCase(DRIVER_TIERS_FILTER_ANNOTATION)) {
                 driverTiersAnnIndex = i;
             }  else if (namespaces != null && !namespaces.isEmpty()) {
-                for (String ns : namespaces) {
-                    if (header.toLowerCase().startsWith(ns + NAMESPACE_DELIMITER)) {
-                        String nsKey = header.toLowerCase().replace(ns + NAMESPACE_DELIMITER, "");
-                        Map<String, Integer> nsKeyIndexMap = this.namespaceIndexMap.getOrDefault(ns, new HashMap<String, Integer>());
-                        nsKeyIndexMap.put(nsKey, i);
-                        this.namespaceIndexMap.put(ns, nsKeyIndexMap);
-                    }
-                }
+                int columnIndex = i;
+                namespaces.stream()
+                    // Perform a case-insensitive match of namespace in meta file with the column name.
+                    .filter(namespace -> header.toLowerCase().startsWith(namespace.toLowerCase(
+                        Locale.ROOT) + NAMESPACE_DELIMITER))
+                    .findFirst()
+                    .ifPresent(namespace -> {
+                        String columnName = header.split(NAMESPACE_DELIMITER)[1];
+                        // Key the namespaces with the format (upper-/lowercase) specified in the meta file.
+                        Map<String, Integer> nsKeyIndexMap = this.namespaceIndexMap.getOrDefault(namespace, new HashMap<>());
+                        nsKeyIndexMap.put(columnName, columnIndex);
+                        this.namespaceIndexMap.put(namespace, nsKeyIndexMap);
+                });
             }
         }
     }
@@ -470,12 +475,12 @@ public class MafUtil {
         fixEndPointForInsertion(record);
 
         // extract namespace key-value pairs for json annotation support
-        Map<String, Map<String, String>> recordNamespaceAnnotationJsonMap = new HashMap<String, Map<String, String>>();
+        Map<String, Map<String, String>> recordNamespaceAnnotationJsonMap = new HashMap<>();
         if (!namespaceIndexMap.isEmpty()) {
             for (Map.Entry<String, Map<String, Integer>> nsKeyIndexMap : namespaceIndexMap.entrySet()) {
                 String namespace = nsKeyIndexMap.getKey();
                 // construct map of the key-value pairs from the record
-                Map<String, String> namespaceKeyValueMappings = new HashMap<String, String>();
+                Map<String, String> namespaceKeyValueMappings = new HashMap<>();
                 for (Map.Entry<String, Integer> nsKeyIndexPairs : nsKeyIndexMap.getValue().entrySet()) {
                     String keyName = nsKeyIndexPairs.getKey();
                     Integer keyIndex = nsKeyIndexPairs.getValue();

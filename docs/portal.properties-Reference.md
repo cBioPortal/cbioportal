@@ -200,6 +200,15 @@ the ability to perform a manual logout and download data access tokens by the us
 skin.hide_logout_button=
 ```
 
+## Show namespace columns by default
+Namespace columns are custom columns in the MAF file that can be shown in Mutation Table components. By setting this property
+to _true_ these columns will be visible when the mutation table is created. By default (value is _false_), the 
+namespace column is hidden and can be made visible using the column selection menu.
+
+```
+skin.mutation-table.namespace-column.show-by-default=
+``` 
+
 
 ## Hide p- and q-values in survival types table
 ```

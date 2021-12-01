@@ -87,6 +87,9 @@ prior_validated_geneset_ids = None
 # Global variable to compare stable IDs from meta file with gene panel matrix file
 study_meta_dictionary = {}
 
+# Global variable for the regex that checks hexadecimal colors
+COLOR_REGEX = re.compile("^#[a-fA-F0-9]{6}$")
+
 # ----------------------------------------------------------------------------
 
 VALIDATOR_IDS = {
@@ -3448,11 +3451,25 @@ class TimelineValidator(Validator):
             # super().checkLine() has already logged an error
             value = ''
             if col_index < len(data):
-                value = data[col_index].strip()
+                value = data[col_index].strip()    
             if col_name == 'START_DATE':
                 if not value.strip().lstrip('-').isdigit():
                     self.logger.error(
                         'Invalid START_DATE',
+                        extra={'line_number': self.line_number,
+                               'column_number': col_index + 1,
+                               'cause': value})
+            elif col_name == 'STYLE_COLOR':
+                 if not COLOR_REGEX.match(value.strip()):
+                    self.logger.error(
+                        'Invalid STYLE_COLOR',
+                        extra={'line_number': self.line_number,
+                               'column_number': col_index + 1,
+                               'cause': value})
+            elif col_name == 'STYLE_SHAPE':
+                if not value.strip().lower() in ['circle', 'square', 'triangle', 'diamond', 'star', 'camera']:
+                    self.logger.error(
+                        'Invalid STYLE_SHAPE',
                         extra={'line_number': self.line_number,
                                'column_number': col_index + 1,
                                'cause': value})

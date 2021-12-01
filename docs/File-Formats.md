@@ -1082,16 +1082,18 @@ data_filename: data_timeline_imaging.txt
 
 
 ### Data file
-Each event type requires its own data file, which contains all the events that each patient undergoes. The data format used for timeline data is extremely flexible. There are three required columns:
+Each event type requires its own data file, which contains all the events that each patient undergoes. The data format used for timeline data is extremely flexible. There are four required columns:
 
 1. **PATIENT_ID**: the patient ID from the dataset
 2. **START_DATE**: the start point of any event, calculated in **_days_* from the date of diagnosis (which will act as point zero on the timeline scale)
 3. **STOP_DATE**: The end date of the event is calculated in days from the date of diagnosis (which will act as point zero on the timeline scale). If the event occurs over time (e.g. a Treatment, ...) the STOP_DATE column should have values. If the event occurs at a time point (e.g. a Lab_test, Imaging, ...) the STOP_DATE is still mandatory, but the values should be blanks.
 4. **EVENT_TYPE**: the category of the event. You are free to define any type of event here. For several event types cBioPortal has column naming suggestions and for several events there are column names which have special effects. See [event types](#event-types) for more information. 
 
-And one optional columns with a special effect:
+And optional columns with special effects:
 
 1. **SPECIMEN_REFERENCE_NUMBER**: when this column has values that match the SAMPLE_ID/OTHER_SAMPLE_ID (defined in the clinical data file), the timeline will show case labels with black/red/etc 1, 2, 3, 4 circles. This only works for the first track and only if no STOP_DATE is set.
+2. **STYLE_SHAPE**: when this column has a valid value, this event will be rendered using that shape. The valid shapes are `circle`, `square`, `triangle`, `diamond`, `star`, and `camera`.
+3. **STYLE_COLOR**: when this column has a hexadecimal color value (e.g. #ffffff), it will be used as the color for rendering this event.
 
 ### Event Types
 As previously mentioned, the EVENT_TYPE can be anything. However, several event types have columns with special effects. Furthermore, for some event types cBioPortal has column naming suggestions.

@@ -13,6 +13,7 @@ import org.springframework.stereotype.Component;
 import java.util.*;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
+import java.util.concurrent.CompletableFuture;
 
 @Component
 public class ClinicalDataBinUtil {
@@ -21,6 +22,8 @@ public class ClinicalDataBinUtil {
     private StudyViewFilterApplier studyViewFilterApplier;
     @Autowired
     private ClinicalDataFetcher clinicalDataFetcher;
+    @Autowired
+    private ClinicalDataBinAsyncMethods clinicalDataBinAsyncMethods;
     @Autowired
     private DataBinner dataBinner;
     @Autowired
@@ -277,33 +280,33 @@ public class ClinicalDataBinUtil {
         List<String> filteredUniqueSampleKeys,
         List<String> filteredUniquePatientKeys
     ) {
-        List<ClinicalDataBin> clinicalDataBins = new ArrayList<>();
+        List<CompletableFuture<List<ClinicalDataBin>>> dataBinFutures = new ArrayList<>();
 
         for (ClinicalDataBinFilter attribute : attributes) {
             if (attributeDatatypeMap.containsKey(attribute.getAttributeId())) {
                 ClinicalDataType clinicalDataType = attributeDatatypeMap.get(attribute.getAttributeId());
-                List<String> filteredIds = clinicalDataType == ClinicalDataType.PATIENT ? filteredUniquePatientKeys
+                List<String> filteredIds =
+                    clinicalDataType == ClinicalDataType.PATIENT
+                    ? filteredUniquePatientKeys
                     : filteredUniqueSampleKeys;
                 List<String> unfilteredIds = clinicalDataType == ClinicalDataType.PATIENT
                     ? unfilteredUniquePatientKeys
                     : unfilteredUniqueSampleKeys;
 
-                List<ClinicalDataBin> dataBins = dataBinner
-                    .calculateClinicalDataBins(attribute, clinicalDataType,
-                        filteredClinicalDataByAttributeId.getOrDefault(attribute.getAttributeId(),
-                            Collections.emptyList()),
-                        unfilteredClinicalDataByAttributeId.getOrDefault(attribute.getAttributeId(),
-                            Collections.emptyList()),
-                        filteredIds, unfilteredIds)
-                    .stream()
-                    .map(dataBin -> studyViewFilterUtil.dataBinToClinicalDataBin(attribute, dataBin))
-                    .collect(Collectors.toList());
-
-                clinicalDataBins.addAll(dataBins);
+               CompletableFuture<List<ClinicalDataBin>> future = clinicalDataBinAsyncMethods
+                   .calculateStaticClinicalDataBins(attribute, clinicalDataType,
+                                                    filteredClinicalDataByAttributeId.getOrDefault(attribute.getAttributeId(),
+                                                                                                   Collections.emptyList()),
+                                                    unfilteredClinicalDataByAttributeId.getOrDefault(attribute.getAttributeId(),
+                                                                                                     Collections.emptyList()),
+                                                    filteredIds, unfilteredIds);
+                dataBinFutures.add(future);
             }
         }
 
-        return clinicalDataBins;
+        List<List<ClinicalDataBin>> dataBins =
+            dataBinFutures.stream().map(CompletableFuture::join).collect(Collectors.toList());
+        return dataBins.stream().flatMap(List::stream).filter(Objects::nonNull).collect(Collectors.toList());
     }
 
     public List<ClinicalDataBin> calculateDynamicDataBins(
@@ -313,7 +316,7 @@ public class ClinicalDataBinUtil {
         List<String> filteredUniqueSampleKeys,
         List<String> filteredUniquePatientKeys
     ) {
-        List<ClinicalDataBin> clinicalDataBins = new ArrayList<>();
+        List<CompletableFuture<List<ClinicalDataBin>>> dataBinFutures = new ArrayList<>();
 
         for (ClinicalDataBinFilter attribute : attributes) {
 
@@ -323,19 +326,18 @@ public class ClinicalDataBinUtil {
                     ? filteredUniquePatientKeys
                     : filteredUniqueSampleKeys;
 
-                List<ClinicalDataBin> dataBins = dataBinner
-                    .calculateDataBins(attribute, clinicalDataType,
-                        filteredClinicalDataByAttributeId.getOrDefault(attribute.getAttributeId(),
-                            Collections.emptyList()),
-                        filteredIds)
-                    .stream()
-                    .map(dataBin -> studyViewFilterUtil.dataBinToClinicalDataBin(attribute, dataBin))
-                    .collect(Collectors.toList());
-                clinicalDataBins.addAll(dataBins);
+                CompletableFuture<List<ClinicalDataBin>> future = clinicalDataBinAsyncMethods
+                    .calculateDynamicClinicalDataBins(attribute, clinicalDataType,
+                                                      filteredClinicalDataByAttributeId.getOrDefault(attribute.getAttributeId(),
+                                                                                                     Collections.emptyList()),
+                                                      filteredIds);
+                dataBinFutures.add(future);
             }
         }
 
-        return clinicalDataBins;
+        List<List<ClinicalDataBin>> dataBins =
+            dataBinFutures.stream().map(CompletableFuture::join).collect(Collectors.toList());
+        return dataBins.stream().flatMap(List::stream).filter(Objects::nonNull).collect(Collectors.toList());
     }
 
     public Map<String, ClinicalDataType> constructAttributeDataMap(

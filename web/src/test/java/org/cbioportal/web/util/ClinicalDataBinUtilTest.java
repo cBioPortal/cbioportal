@@ -48,7 +48,10 @@ public class ClinicalDataBinUtilTest {
     private StudyViewFilterUtil studyViewFilterUtil;
     @Spy
     private ClinicalAttributeUtil clinicalAttributeUtil;
-    
+
+    @Spy
+    @InjectMocks
+    private ClinicalDataBinAsyncMethods clinicalDataBinAsyncMethods;
     @Spy
     @InjectMocks
     private DataBinner dataBinner;

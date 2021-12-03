@@ -135,7 +135,6 @@ public class GlobalProperties {
             "prostate msk\n" +
             "serous";
     public static final String SKIN_DATASETS_HEADER = "skin.data_sets_header";
-    public static final String SKIN_DATASETS_HEADER = "skin.mutation-table.namespace-column.show-by-default";
     public static final String DEFAULT_SKIN_DATASETS_HEADER = "The portal currently contains data from the following " +
             "cancer genomics studies.  The table below lists the number of available samples per data type and tumor.";
     public static final String SKIN_DATASETS_FOOTER = "skin.data_sets_footer";

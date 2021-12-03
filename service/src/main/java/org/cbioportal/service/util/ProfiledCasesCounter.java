@@ -19,16 +19,10 @@ public class ProfiledCasesCounter<T extends AlterationCountByGene> {
     Function<GenePanelData, String> sampleUniqueIdentifier = sample -> sample.getStudyId() + sample.getSampleId();
     Function<GenePanelData, String> patientUniqueIdentifier = sample -> sample.getStudyId() + sample.getPatientId();
 
-    private enum ProfiledCaseType {
-        SAMPLE, PATIENT;
-    }
-
     public void calculate(List<T> alterationCounts,
             List<GenePanelData> genePanelDataList,
             boolean includeMissingAlterationsFromGenePanel,
             Function<GenePanelData, String> caseUniqueIdentifier) {
-        ProfiledCaseType profiledCaseType = (caseUniqueIdentifier == patientUniqueIdentifier) ?
-            ProfiledCaseType.PATIENT : ProfiledCaseType.SAMPLE;
         Map<String, Set<String>> casesWithDataInGenePanel = extractCasesWithDataInGenePanel(genePanelDataList, caseUniqueIdentifier);
         List<GenePanel> genePanels = new ArrayList<>();
         if (!casesWithDataInGenePanel.isEmpty()) {
@@ -70,8 +64,7 @@ public class ProfiledCasesCounter<T extends AlterationCountByGene> {
 
         for (AlterationCountByGene alterationCountByGene : alterationCounts) {
             Integer entrezGeneId = alterationCountByGene.getEntrezGeneId();
-            Set<String> totalProfiledPatients = new HashSet<String>();
-            int totalProfiledSamples = 0;
+            Set<String> totalProfiledCases = new HashSet<String>();
             Set<String> allMatchingGenePanelIds = new HashSet<String>();
             Pair<Integer, String> key = new Pair<>(entrezGeneId,alterationCountByGene.getHugoGeneSymbol());
             // different calculations depending on if gene is linked to gene panels
@@ -80,21 +73,12 @@ public class ProfiledCasesCounter<T extends AlterationCountByGene> {
                 // as well as cases without panel data
                 for (GenePanel genePanel : geneGenePanelMap.get(key)) {
                     allMatchingGenePanelIds.add(genePanel.getStableId());
-                    if (profiledCaseType == ProfiledCaseType.PATIENT) {
-                        totalProfiledPatients.addAll(casesWithDataInGenePanel.get(genePanel.getStableId()));
-                    } else {
-                        totalProfiledSamples += casesWithDataInGenePanel.get(genePanel.getStableId()).size();
-                    }
+                    totalProfiledCases.addAll(casesWithDataInGenePanel.get(genePanel.getStableId()));
                 }
-                if (profiledCaseType == ProfiledCaseType.PATIENT) {
-                    totalProfiledPatients.addAll(casesWithoutPanelData);
-                    alterationCountByGene.setNumberOfProfiledCases(totalProfiledPatients.size());
-                } else {
-                    totalProfiledSamples += casesWithoutPanelData.size();
-                    alterationCountByGene.setNumberOfProfiledCases(totalProfiledSamples);
-                }
+                totalProfiledCases.addAll(casesWithoutPanelData);
+                alterationCountByGene.setNumberOfProfiledCases(totalProfiledCases.size());
             } else {
-                alterationCountByGene.setNumberOfProfiledCases(casesWithoutPanelData.size());
+                alterationCountByGene.setNumberOfProfiledCases(profiledCasesCount);
             }
             alterationCountByGene.setMatchingGenePanelIds(allMatchingGenePanelIds);
         }
@@ -112,30 +96,17 @@ public class ProfiledCasesCounter<T extends AlterationCountByGene> {
                 if (!genesWithAlteration.containsKey(entrezGeneId)) {
                     AlterationCountByGene alterationCountByGene = new AlterationCountByGene();
 
-                    Set<String> totalProfiledPatients = new HashSet<String>();
-                    int totalProfiledSamples = 0;
+                    Set<String> totalProfiledCases = new HashSet<String>();
                     Set<String> allMatchingGenePanelIds = new HashSet<String>();
                     for (GenePanel genePanel : geneGenePanelMap.get(key)) {
                         allMatchingGenePanelIds.add(genePanel.getStableId());
-                        if (profiledCaseType == ProfiledCaseType.PATIENT) {
-                            totalProfiledPatients.addAll(casesWithDataInGenePanel.get(genePanel.getStableId()));
-                        } else {
-                            totalProfiledSamples += casesWithDataInGenePanel.get(genePanel.getStableId()).size();
-                        }
+                        totalProfiledCases.addAll(casesWithDataInGenePanel.get(genePanel.getStableId()));
                     }
-                    if (profiledCaseType == ProfiledCaseType.PATIENT) {
-                        totalProfiledPatients.addAll(casesWithoutPanelData);
-                    } else {
-                        totalProfiledSamples += casesWithoutPanelData.size();
-                    }
+                    totalProfiledCases.addAll(casesWithoutPanelData);
 
                     alterationCountByGene.setEntrezGeneId(entrezGeneId);
                     alterationCountByGene.setMatchingGenePanelIds(allMatchingGenePanelIds);
-                    if (profiledCaseType == ProfiledCaseType.PATIENT) {
-                        alterationCountByGene.setNumberOfProfiledCases(totalProfiledPatients.size());
-                    } else {
-                        alterationCountByGene.setNumberOfProfiledCases(totalProfiledSamples);
-                    }
+                    alterationCountByGene.setNumberOfProfiledCases(totalProfiledCases.size());
                     alterationCountByGene.setNumberOfAlteredCases(0);
                     alterationCountByGene.setTotalCount(0);
                     alterationCountByGene.setHugoGeneSymbol(hugoGeneSymbol);

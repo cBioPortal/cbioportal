@@ -419,7 +419,7 @@ public class ImportExtendedMutationData{
 
                     AlleleSpecificCopyNumber ascn = null;
                     if (namespaces != null && namespaces.contains(ASCN_NAMESPACE)) {
-                        Map<String, String> ascnData = record.getNamespacesMap().remove(ASCN_NAMESPACE);
+                        Map<String, Object> ascnData = record.getNamespacesMap().remove(ASCN_NAMESPACE);
                         // The AlleleSpecificCopyNumber constructor will construct the record from
                         // the ascnData hashmap and the ascnData will simultaneously be removed from
                         // the record's namespaces map since it is going into its own table
@@ -643,7 +643,7 @@ public class ImportExtendedMutationData{
         throw new NullPointerException("Sample is not found in database (is it missing from clinical data file?): " + stableSampleID);
     }
 
-    private String convertMapToJsonString(Map<String, Map<String, String>> map) throws JsonProcessingException {
+    private String convertMapToJsonString(Map<String, Map<String, Object>> map) throws JsonProcessingException {
         ObjectMapper mapper = new ObjectMapper();
         return mapper.writeValueAsString(map);
     }

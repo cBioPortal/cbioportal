@@ -1,6 +1,7 @@
 package org.cbioportal.security.spring;
 
 import org.cbioportal.security.spring.authorization.CancerStudyPermissionEvaluator;
+import org.cbioportal.utils.config.annotation.ConditionalOnProperty;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnExpression;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -11,7 +12,8 @@ import org.springframework.security.config.annotation.method.configuration.Globa
 
 @Configuration
 @EnableGlobalMethodSecurity(prePostEnabled = true)
-@ConditionalOnExpression("'${authenticate}' ne 'false' && '${authenticate}' ne 'noauthsessionservice'")
+// Only activate method level security with saml and oauth2 authentication.
+@ConditionalOnProperty(name = "authenticate", havingValue = {"saml", "oauth2"}, isNot = true)
 public class MethodSecurityConfig extends GlobalMethodSecurityConfiguration {
 
     @Bean

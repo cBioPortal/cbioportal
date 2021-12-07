@@ -98,4 +98,14 @@ public class MolecularProfileUtilTest {
         Assert.assertEquals("structural variant/fusion profile case identifiers", 3, result.size());
 
     }
+    
+    @Test
+    public void shouldExtractSuffix() {
+        MolecularProfileCaseIdentifier identifier = new MolecularProfileCaseIdentifier("Sample-01", "some_study_id_fusion", "some_study_id");
+
+        String actual = molecularProfileUtil.extractSuffix(identifier);
+        String expected = "fusion";
+        
+        Assert.assertEquals(expected, actual);
+    }
 }

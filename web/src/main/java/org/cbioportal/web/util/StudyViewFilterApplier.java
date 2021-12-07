@@ -30,12 +30,7 @@ public class StudyViewFilterApplier {
     @PostConstruct
     private void init() {
         instance = applicationContext.getBean(StudyViewFilterApplier.class);
-        subFilterAppliers = Arrays.asList(
-            sampleTreatmentFilterApplier,
-            sampleTreatmentGroupFilterApplier,
-            patientTreatmentFilterApplier,
-            patientTreatmentGroupFilterApplier
-        );
+        subFilterAppliers = new ArrayList<>(applicationContext.getBeansOfType(StudyViewSubFilterApplier.class).values());
     }
 
     @Autowired
@@ -67,17 +62,9 @@ public class StudyViewFilterApplier {
     @Autowired
     private DataBinner dataBinner;
     @Autowired
-    private PatientTreatmentFilterApplier patientTreatmentFilterApplier;
-    @Autowired
-    private PatientTreatmentGroupFilterApplier patientTreatmentGroupFilterApplier;
-    @Autowired
     private StructuralVariantService structuralVariantService;
     @Autowired
     private CustomDataFilterApplier customDataFilterApplier;
-    @Autowired
-    private SampleTreatmentFilterApplier sampleTreatmentFilterApplier;
-    @Autowired
-    private SampleTreatmentGroupFilterApplier sampleTreatmentGroupFilterApplier;
     @Autowired
     private MolecularProfileUtil molecularProfileUtil;
 

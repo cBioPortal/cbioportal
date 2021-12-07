@@ -32,6 +32,11 @@
 
 package org.mskcc.cbio.maf;
 
+import static org.mskcc.cbio.maf.ValueTypeUtil.isDouble;
+import static org.mskcc.cbio.maf.ValueTypeUtil.isFloat;
+import static org.mskcc.cbio.maf.ValueTypeUtil.isInt;
+
+
 import java.math.BigDecimal;
 import java.util.*;
 import java.util.regex.Pattern;
@@ -835,38 +840,16 @@ public class MafUtil {
         return ((tumorSeqAllele1.equals("-") || tumorSeqAllele2.equals("-")) &&
                 (validNucleotidesPattern.matcher(tumorSeqAllele1.toUpperCase()).matches() || validNucleotidesPattern.matcher(tumorSeqAllele2.toUpperCase()).matches()));
     }
-
-    private final static Pattern intPattern = Pattern.compile("-?\\d+");
-    private static boolean isInt(String value) {
-        return value != null && intPattern.matcher(value).matches();
-    }
-
-    private final static Pattern floatPattern = Pattern.compile("-?\\d+(\\.\\d+)?");
-    private static boolean isFloat(String value) {
-        return value != null && floatPattern.matcher(value).matches();
-    }
-
-    private static boolean isScientificNotation(String numberString) {
-        if (numberString == null) {
-            return false;
-        }
-        try {
-            new BigDecimal(numberString);
-        } catch (NumberFormatException e) {
-            return false;
-        }
-        return numberString.toUpperCase().contains("E");
-    }
     
-    public static Object parseNamespaceValue(String stringValue) {
-        if (stringValue == null || stringValue.isBlank()) {
+    private static Object parseNamespaceValue(String stringValue) {
+        if (stringValue == null || stringValue.isEmpty()) {
             return null;
         } else if (isInt(stringValue)) {
             return Integer.parseInt(stringValue);
         } else if (isFloat(stringValue)) {
             return Float.parseFloat(stringValue);
-        } else if (isScientificNotation(stringValue)) {
-            return Double.valueOf(stringValue).longValue();
+        } else if (isDouble(stringValue)) {
+            return Double.parseDouble(stringValue);
         }
         return stringValue;
     }

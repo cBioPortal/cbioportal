@@ -9,12 +9,21 @@ public class MolecularProfileCaseIdentifier implements Serializable, Comparable<
     private String molecularProfileId;
     @NotNull
     private String caseId;
+    // This field isn't included in the equals / hash code logic. The study ID is contained in the
+    // molecular profile ID, so that'd be redundant. This field exists just so we don't have to
+    // parse our own data classes.
+    private String studyStableId;
 
     public MolecularProfileCaseIdentifier() {}
 
     public MolecularProfileCaseIdentifier(String caseId, String molecularProfileId) {
+        this(caseId, molecularProfileId, null);
+    }
+
+    public MolecularProfileCaseIdentifier(String caseId, String molecularProfileId, String studyStableId) {
         this.molecularProfileId = molecularProfileId;
         this.caseId = caseId;
+        this.studyStableId = studyStableId;
     }
 
     public String getMolecularProfileId() {
@@ -31,6 +40,14 @@ public class MolecularProfileCaseIdentifier implements Serializable, Comparable<
 
     public void setCaseId(String caseId) {
         this.caseId = caseId;
+    }
+
+    public String getStudyStableId() {
+        return studyStableId;
+    }
+
+    public void setStudyStableId(String studyStableId) {
+        this.studyStableId = studyStableId;
     }
 
     @Override

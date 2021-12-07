@@ -245,4 +245,38 @@ public class StudyViewServiceImpl implements StudyViewService {
             })
             .collect(Collectors.toList());
     }
+    
+    @Override
+    public List<GenePanelCountItem> fetchGenePanelCounts(List<String> sampleIds, List<String> studyIds) {
+        // sample ID, molecular profile ID pairs
+        List<MolecularProfileCaseIdentifier> profileIds = molecularProfileService.getMolecularProfileCaseIdentifiers(studyIds, sampleIds);
+        return genePanelService.fetchGenePanelDataInMultipleMolecularProfiles(profileIds)
+            .stream()
+            .collect(Collectors.groupingBy(GenePanelData::getMolecularProfileId))
+            .entrySet().stream()
+            .map(this::toGenePanelCountItem)
+            .collect(Collectors.toList());
+    }
+
+    private GenePanelCountItem toGenePanelCountItem(Map.Entry<String, List<GenePanelData>> entry) {
+        GenePanelCountItem count = new GenePanelCountItem();
+        count.setMolecularProfileId(entry.getKey());
+        List<ClinicalDataCount> counts = entry.getValue().stream()
+            .collect(Collectors.groupingBy(GenePanelData::getGenePanelId))
+            .entrySet().stream()
+            .map(genePanelsOfId -> toGenePaneCount(genePanelsOfId, entry.getKey()))
+            .collect(Collectors.toList());
+        count.setCounts(counts);
+        return count;
+    }
+    
+    
+
+    private ClinicalDataCount toGenePaneCount(Map.Entry<String, List<GenePanelData>> entry, String molecularProfileId) {
+        ClinicalDataCount jeanPanelCommaPrivateEye = new ClinicalDataCount();
+        jeanPanelCommaPrivateEye.setValue(entry.getKey());
+        jeanPanelCommaPrivateEye.setCount(entry.getValue().size());
+        jeanPanelCommaPrivateEye.setAttributeId(molecularProfileId);
+        return jeanPanelCommaPrivateEye;
+    }
 }

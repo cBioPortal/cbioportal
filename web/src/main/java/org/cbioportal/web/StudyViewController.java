@@ -841,6 +841,33 @@ public class StudyViewController {
 
         return new ResponseEntity<>(studyViewFilterApplier.getDataBins(dataBinMethod, interceptedGenericAssayDataBinCountFilter), HttpStatus.OK);
     }
+
+    @PreAuthorize("hasPermission(#involvedCancerStudies, 'Collection<CancerStudyId>', T(org.cbioportal.utils.security.AccessLevel).READ)")
+    @RequestMapping(value = "/gene-panel-counts/fetch", method = RequestMethod.POST, produces = MediaType.APPLICATION_JSON_VALUE)
+    @ApiOperation("Fetch gene panel counts for each molecular profile suffix present in the study view filter")
+    public ResponseEntity<List<GenePanelCountItem>> fetchGenePanelCounts(
+        @ApiParam(required = true, value = "Study view filter")
+        @Valid
+        @RequestBody(required = false)
+        StudyViewFilter studyViewFilter,
+
+        @ApiIgnore // prevent reference to this attribute in the swagger-ui interface
+        @RequestAttribute(required = false, value = "involvedCancerStudies")
+        Collection<String> involvedCancerStudies,
+
+        @ApiIgnore // prevent reference to this attribute in the swagger-ui interface. this attribute is needed for the @PreAuthorize tag above.
+        @Valid
+        @RequestAttribute(required = false, value = "interceptedStudyViewFilter")
+        StudyViewFilter interceptedStudyViewFilter
+    ) {
+        List<SampleIdentifier> sampleIdentifiers = studyViewFilterApplier.apply(interceptedStudyViewFilter);
+        List<String> sampleIds = new ArrayList<>();
+        List<String> studyIds = new ArrayList<>();
+        studyViewFilterUtil.extractStudyAndSampleIds(sampleIdentifiers, studyIds, sampleIds);
+
+        List<GenePanelCountItem> counts = studyViewService.fetchGenePanelCounts(sampleIds, studyIds);
+        return new ResponseEntity<>(counts, HttpStatus.OK);
+    }
     
     @PreAuthorize("hasPermission(#involvedCancerStudies, 'Collection<CancerStudyId>', T(org.cbioportal.utils.security.AccessLevel).READ)")
     @RequestMapping(value = "/clinical-data-table/fetch", method = RequestMethod.POST,

@@ -46,14 +46,14 @@ public class MolecularProfileUtil {
             if (mapByStudyId.containsKey(studyId)) {
                 if (profileFilter.isPresent()) {
                     // only add identifier for one molecular profile
-                    caseIdentifiers.add(new MolecularProfileCaseIdentifier(sampleIds.get(i), mapByStudyId.get(studyId).get(0).getStableId()));
+                    caseIdentifiers.add(new MolecularProfileCaseIdentifier(sampleIds.get(i), mapByStudyId.get(studyId).get(0).getStableId(), studyId));
                 } else {
                     // add case identifiers for all molecular profiles
                     int finalI = i;
                     mapByStudyId
                         .getOrDefault(studyId, new ArrayList<>())
                         .forEach(molecularProfile -> {
-                            caseIdentifiers.add(new MolecularProfileCaseIdentifier(sampleIds.get(finalI), molecularProfile.getStableId()));
+                            caseIdentifiers.add(new MolecularProfileCaseIdentifier(sampleIds.get(finalI), molecularProfile.getStableId(), molecularProfile.getCancerStudyIdentifier()));
                         });
                 }
             }
@@ -69,6 +69,15 @@ public class MolecularProfileUtil {
         }
         return molecularProfileStream
             .collect(Collectors.groupingBy(MolecularProfile::getCancerStudyIdentifier));
+    }
+
+    /**
+     * For a molecular profile ID "this_is_a_study_id_fusion", this returns "fusion"
+     */
+    public String extractSuffix(MolecularProfileCaseIdentifier molecularProfile) {
+        return molecularProfile
+            .getMolecularProfileId()
+            .substring(molecularProfile.getStudyStableId().length() + 1);
     }
 
 }

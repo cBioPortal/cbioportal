@@ -93,11 +93,11 @@ public class InvolvedCancerStudyExtractorInterceptor extends HandlerInterceptorA
     public static final String COPY_NUMBER_ENRICHMENT_FETCH_PATH = "/copy-number-enrichments/fetch";
     public static final String EXPRESSION_ENRICHMENT_FETCH_PATH = "/expression-enrichments/fetch";
     public static final String ALTERATION_ENRICHMENT_FETCH_PATH = "/alteration-enrichments/fetch";
-    public static final String TREATMENT_FETCH_PATH = "/treatments/fetch";
     public static final String STRUCTURAL_VARIANT_FETCH_PATH = "/structural-variant/fetch";
     public static final String GENERIC_ASSAY_DATA_MULTIPLE_STUDY_FETCH_PATH = "/generic_assay_data/fetch";
     public static final String TREATMENTS_PATIENT_PATH = "/treatments/patient";
     public static final String TREATMENTS_SAMPLE_PATH = "/treatments/sample";
+    public static final String GENE_PANEL_COUNTS_PATH = "/gene-panel-counts/fetch";
     public static final String GENERIC_ASSAY_ENRICHMENT_FETCH_PATH = "/generic-assay-enrichments/fetch";
 
     @Override public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object handler) throws Exception {
@@ -137,7 +137,8 @@ public class InvolvedCancerStudyExtractorInterceptor extends HandlerInterceptorA
         } else if (Arrays.asList(STUDY_VIEW_CLINICAL_DATA_DENSITY_PATH, STUDY_VIEW_CLINICAL_DATA_VIOLIN_PATH, STUDY_VIEW_CNA_GENES,
                 STUDY_VIEW_FILTERED_SAMPLES, STUDY_VIEW_MUTATED_GENES, STUDY_VIEW_STRUCTURAL_VARIANT_GENES,
                 STUDY_VIEW_SAMPLE_COUNTS, STUDY_VIEW_SAMPLE_LIST_COUNTS_PATH, STUDY_VIEW_CLINICAL_TABLE_DATA_FETCH_PATH,
-                TREATMENTS_PATIENT_PATH, TREATMENTS_SAMPLE_PATH, STUDY_VIEW_PROFILE_SAMPLE_COUNTS_PATH
+                TREATMENTS_PATIENT_PATH, TREATMENTS_SAMPLE_PATH, STUDY_VIEW_PROFILE_SAMPLE_COUNTS_PATH,
+                GENE_PANEL_COUNTS_PATH
         ).contains(requestPathInfo)) {
             return extractAttributesFromStudyViewFilter(request);
         } else if (requestPathInfo.equals(CLINICAL_DATA_ENRICHMENT_FETCH_PATH)) {

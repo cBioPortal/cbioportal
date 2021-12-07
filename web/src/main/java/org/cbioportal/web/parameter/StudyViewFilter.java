@@ -12,6 +12,8 @@ import com.fasterxml.jackson.annotation.JsonInclude.Include;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import org.cbioportal.model.AlterationFilter;
 import org.cbioportal.model.GeneFilter;
+import org.cbioportal.model.GenePanel;
+import org.cbioportal.model.GenePanelFilter;
 import org.cbioportal.web.parameter.filter.*;
 
 @JsonIgnoreProperties(ignoreUnknown = true)
@@ -36,7 +38,16 @@ public class StudyViewFilter implements Serializable {
     private List<List<String>> caseLists;
     private List<ClinicalDataFilter> customDataFilters;
     private AlterationFilter alterationFilter;
-    
+    private List<GenePanelFilter> genePanelFilters;
+
+    public List<GenePanelFilter> getGenePanelFilters() {
+        return genePanelFilters;
+    }
+
+    public void setGenePanelFilters(List<GenePanelFilter> genePanelFilters) {
+        this.genePanelFilters = genePanelFilters;
+    }
+
     @AssertTrue
     private boolean isEitherSampleIdentifiersOrStudyIdsPresent() {
         return sampleIdentifiers != null ^ studyIds != null;

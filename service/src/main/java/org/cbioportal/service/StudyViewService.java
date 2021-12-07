@@ -1,9 +1,7 @@
 package org.cbioportal.service;
 
 import org.cbioportal.model.*;
-import org.cbioportal.service.exception.MolecularProfileNotFoundException;
 import org.cbioportal.service.exception.StudyNotFoundException;
-import org.springframework.cache.annotation.Cacheable;
 
 import java.util.List;
 
@@ -20,4 +18,6 @@ public interface StudyViewService {
         throws StudyNotFoundException;
 
     List<GenericAssayDataCountItem> fetchGenericAssayDataCounts(List<String> sampleIds, List<String> studyIds, List<String> stableIds, List<String> profileTypes);
+    
+    List<GenePanelCountItem> fetchGenePanelCounts(List<String> sampleIds, List<String> studyIds);
 }

@@ -38,8 +38,6 @@ SET SESSION sql_mode = 'ANSI_QUOTES';
 DELETE FROM structural_variant;
 DELETE FROM clinical_event_data;
 DELETE FROM clinical_event;
-DELETE FROM pdb_uniprot_residue_mapping;
-DELETE FROM pdb_uniprot_alignment;
 DELETE FROM cosmic_mutation;
 DELETE FROM copy_number_seg_file;
 DELETE FROM copy_number_seg;

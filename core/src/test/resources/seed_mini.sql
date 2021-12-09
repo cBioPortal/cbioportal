@@ -45,8 +45,6 @@ DELETE FROM copy_number_seg_file;
 DELETE FROM copy_number_seg;
 DELETE FROM sample_cna_event;
 DELETE FROM cna_event;
-DELETE FROM drug_interaction;
-DELETE FROM drug;
 DELETE FROM pfam_graphics;
 DELETE FROM text_cache;
 DELETE FROM gistic_to_gene;

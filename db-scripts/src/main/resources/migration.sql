@@ -953,3 +953,7 @@ UPDATE `info` SET `DB_SCHEMA_VERSION`="2.12.9";
 -- so set 0 (false) as default value for PATIENT_LEVEL field
 ALTER TABLE `genetic_profile` ADD COLUMN `PATIENT_LEVEL` boolean DEFAULT 0;
 UPDATE `info` SET `DB_SCHEMA_VERSION`="2.12.10";
+
+DROP TABLE IF EXISTS `drug_interaction`;
+DROP TABLE IF EXISTS `drug`;
+UPDATE `info` SET `DB_SCHEMA_VERSION`="2.12.12";

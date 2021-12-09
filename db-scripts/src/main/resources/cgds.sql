@@ -52,8 +52,6 @@ DROP TABLE IF EXISTS `copy_number_seg_file`;
 DROP TABLE IF EXISTS `copy_number_seg`;
 DROP TABLE IF EXISTS `sample_cna_event`;
 DROP TABLE IF EXISTS `cna_event`;
-DROP TABLE IF EXISTS `drug_interaction`;
-DROP TABLE IF EXISTS `drug`;
 DROP TABLE IF EXISTS `pfam_graphics`;
 DROP TABLE IF EXISTS `text_cache`;
 DROP TABLE IF EXISTS `gistic_to_gene`;
@@ -683,33 +681,6 @@ CREATE TABLE `pfam_graphics` (
   PRIMARY KEY (`UNIPROT_ACC`)
 );
 
--- --------------------------------------------------------
-CREATE TABLE `drug` (
-  `DRUG_ID` char(30) NOT NULL,
-  `DRUG_RESOURCE` varchar(255) NOT NULL,
-  `DRUG_NAME` varchar(255) NOT NULL,
-  `DRUG_SYNONYMS` varchar(4096) DEFAULT NULL,
-  `DRUG_DESCRIPTION` varchar(4096) DEFAULT NULL,
-  `DRUG_XREF` varchar(4096) DEFAULT NULL,
-  `DRUG_ATC_CODE` varchar(1024) DEFAULT NULL,
-  `DRUG_APPROVED` integer(1) DEFAULT 0,
-  `DRUG_CANCERDRUG` integer(1) DEFAULT 0,
-  `DRUG_NUTRACEUTICAL` integer(1) DEFAULT 0,
-  `DRUG_NUMOFTRIALS` integer DEFAULT -1,
-  PRIMARY KEY (`DRUG_ID`),
-  KEY `DRUG_NAME` (`DRUG_NAME`)
-);
-
--- --------------------------------------------------------
-CREATE TABLE `drug_interaction` (
-  `DRUG` char(30) NOT NULL,
-  `TARGET` bigint(20) NOT NULL,
-  `INTERACTION_TYPE` char(50) NOT NULL,
-  `DATA_SOURCE` varchar(256) NOT NULL,
-  `EXPERIMENT_TYPES` varchar(1024) DEFAULT NULL,
-  `PMIDS` varchar(1024) DEFAULT NULL,
-  FOREIGN KEY (`DRUG`) REFERENCES `drug` (`DRUG_ID`)
-);
 
 -- --------------------------------------------------------
 CREATE TABLE `cna_event` (
@@ -919,4 +890,4 @@ CREATE TABLE `resource_study` (
 );
 
 -- THIS MUST BE KEPT IN SYNC WITH db.version PROPERTY IN pom.xml
-INSERT INTO info VALUES ('2.12.10', NULL);
+INSERT INTO info VALUES ('2.12.12', NULL);

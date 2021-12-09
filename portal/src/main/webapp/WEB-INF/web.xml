@@ -493,15 +493,7 @@
         <servlet-name>SimilarPatientsJSON</servlet-name>
         <url-pattern>/similar_patients.json</url-pattern>
     </servlet-mapping>
-
-    <servlet>
-        <servlet-name>DrugsJSON</servlet-name>
-        <servlet-class>org.mskcc.cbio.portal.servlet.DrugsJSON</servlet-class>
-    </servlet>
-    <servlet-mapping>
-        <servlet-name>DrugsJSON</servlet-name>
-        <url-pattern>/drugs.json</url-pattern>
-    </servlet-mapping>
+    
 
     <servlet>
         <servlet-name>GetProteinArrayDataJSON</servlet-name>

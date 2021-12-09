@@ -974,3 +974,6 @@ DROP TABLE IF EXISTS `pfam_graphics`;
 DROP TABLE IF EXISTS `text_cache`;
 UPDATE `info` SET `DB_SCHEMA_VERSION`="2.12.11";
 
+DROP TABLE IF EXISTS `drug_interaction`;
+DROP TABLE IF EXISTS `drug`;
+UPDATE `info` SET `DB_SCHEMA_VERSION`="2.12.12";

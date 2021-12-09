@@ -73,10 +73,6 @@ public class ResetDatabase {
         DaoCopyNumberSegmentFile.deleteAllRecords();
         DaoMutation.deleteAllRecords();
         DaoGeneticProfileSamples.deleteAllRecords();
-        DaoInteraction daoInteraction = DaoInteraction.getInstance();
-        daoInteraction.deleteAllRecords();
-        DaoDrug.getInstance().deleteAllRecords();
-        DaoDrugInteraction.getInstance().deleteAllRecords();
         DaoPatient.deleteAllRecords();
         DaoSample.deleteAllRecords();
         System.out.println("all database reset.");

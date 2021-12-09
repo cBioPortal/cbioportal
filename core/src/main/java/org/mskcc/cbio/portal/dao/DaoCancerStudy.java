@@ -553,8 +553,6 @@ public final class DaoCancerStudy {
                 "DELETE FROM resource_sample WHERE INTERNAL_ID IN (SELECT INTERNAL_ID FROM sample WHERE PATIENT_ID IN (SELECT INTERNAL_ID FROM patient WHERE CANCER_STUDY_ID=?))",
                 "DELETE FROM copy_number_seg WHERE CANCER_STUDY_ID=?",
                 "DELETE FROM copy_number_seg_file WHERE CANCER_STUDY_ID=?",
-                "DELETE FROM protein_array_data WHERE CANCER_STUDY_ID=?",
-                "DELETE FROM protein_array_cancer_study WHERE CANCER_STUDY_ID=?",
                 "DELETE FROM sample WHERE PATIENT_ID IN (SELECT INTERNAL_ID FROM patient WHERE CANCER_STUDY_ID=?)",
                 "DELETE FROM clinical_patient WHERE INTERNAL_ID IN (SELECT INTERNAL_ID FROM patient WHERE CANCER_STUDY_ID=?)",
                 "DELETE FROM resource_patient WHERE INTERNAL_ID IN (SELECT INTERNAL_ID FROM patient WHERE CANCER_STUDY_ID=?)",

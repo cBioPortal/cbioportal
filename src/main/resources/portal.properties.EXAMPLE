@@ -90,6 +90,9 @@ skin.study_view.link_text=To build your own case set, try out our enhanced Study
 # controls the appearance the logout button on a portal with user authentication
 # skin.hide_logout_button=false
 
+# controls whether namespace columns of the MAF file are immediately visible in mutation tables (default is 'false')
+# skin.mutation_table.namespace_column.show_by_default=true
+
 # setting controlling the home page
 ## enable this to show studies for which the user does not have permission (will appear greyed out and cannot be analyzed in study view or results view). 
 # skin.home_page.show_unauthorized_studies=false

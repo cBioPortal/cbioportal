@@ -11,9 +11,9 @@ import org.springframework.security.config.annotation.method.configuration.Enabl
 import org.springframework.security.config.annotation.method.configuration.GlobalMethodSecurityConfiguration;
 
 @Configuration
-@EnableGlobalMethodSecurity(prePostEnabled = true)
 // Only activate method level security with saml and oauth2 authentication.
-@ConditionalOnProperty(name = "authenticate", havingValue = {"saml", "oauth2"}, isNot = true)
+@ConditionalOnProperty(name = "authenticate", havingValue = {"saml", "oauth2"})
+@EnableGlobalMethodSecurity(prePostEnabled = true)
 public class MethodSecurityConfig extends GlobalMethodSecurityConfiguration {
 
     @Bean

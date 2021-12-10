@@ -69,7 +69,7 @@
             <artifactId>service</artifactId>
         </dependency>
 
-        <!-- This dependency on the classpath autoconfigures MySQL datasource based on application.propteries -->
+        <!-- This dependency on the classpath autoconfigures MySQL datasource based on application.properties -->
         <dependency>
             <groupId>mysql</groupId>
             <artifactId>mysql-connector-java</artifactId>

@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<body>
+    <form 
+        th:fragment="openid"
+        id="openid_form"
+        style="width:  100%;"
+        action="<c:url value='j_spring_openid_security_check'/>"
+        method='POST'>
+        <div th:replace="form-contents" />
+    </form>
+    
+    <form 
+        th:fragment="ad"
+        name='loginForm'
+        action="<c:url value='j_spring_security_check' />"
+        method='POST'>
+        <div th:replace="form-contents" />
+    </form>
+    
+    <div th:fragment="form-contents">
+        <input type="hidden" name="action" value="verify"/>
+        <p></p>
+        <div id="login-fieldset">
+            <p>
+                <span
+                    th:text="${skin_authorization_message}"
+                    style="color:#333333;font-family:'Helvetica Neue',Helvetica,Arial,sans-serif;font-size:14px"
+                />
+            </p>
+    
+            <div id="openid_choice">
+                <p>Please click your account provider:</p>
+                <div id="openid_btns"></div>
+            </div>
+            <div id="openid_input_area">
+                <input id="openid_identifier" name="openid_identifier" type="text" value="http://"/>
+                <input id="openid_submit" type="submit" value="Sign-In"/>
+            </div>
+            <noscript>
+                <p>OpenID is a service that allows you to log-on to many different websites using a single identity.
+                    Find out <a href="http://openid.net/what/">more about OpenID</a> and <a href="http://openid.net/get/">how
+                        to get an OpenID enabled account</a>.</p>
+            </noscript>
+        </div>
+    </div>
+
+    <div th:fragment="saml"
+        id="login-fieldset">
+        <p>
+        <span
+            th:text="${skin_authorization_message}"
+            style="color:#333333;font-family:'Helvetica Neue',Helvetica,Arial,sans-serif;font-size:14px"
+        />
+        </p>
+        <!-- removed the hard-coded saml registration html and calling GlobalProperties instead -->
+        <button
+            type="button"
+            id="saml_login_button"
+            class="btn btn-danger btn-lg"
+            th:attr="onclick=|window.location='saml/login?idp=${saml_idp_metadata_entityid}'|"
+            th:text="${skin_login_saml_registration_html}">
+        </button>
+    </div>
+
+    <div th:fragment="google"
+         id="login-fieldset">
+        <p>
+        <span
+            th:text="${skin_authorization_message}"
+            style="color:#333333;font-family:'Helvetica Neue',Helvetica,Arial,sans-serif;font-size:14px"
+        />
+        </p>
+        <button
+            onclick="window.location = 'auth/google'"
+            style="padding: 0; border:none; background: none" >
+            <!-- we need alt != "Google+" because otherwise it gets hidden by Ad Block Plus chrome plugin -->
+            <IMG alt="cBioPortal Google+ Log-in" src="images/login/googleplus_signin.png" />
+        </button>
+    </div>
+
+    <div th:fragment="microsoft"
+         id="login-fieldset">
+        <p>
+        <span
+            th:text="${skin_authorization_message}"
+            style="color:#333333;font-family:'Helvetica Neue',Helvetica,Arial,sans-serif;font-size:14px"
+        />
+        </p>
+        <button
+            onclick="window.location = 'auth/live'"
+            style="padding: 0; border:none; background: none" >
+            <IMG alt="cBioPortal Microsoft Log-in" src="images/login/microsoft_signin.png" />
+        </button>
+    </div>
+
+
+</body>
+</html>

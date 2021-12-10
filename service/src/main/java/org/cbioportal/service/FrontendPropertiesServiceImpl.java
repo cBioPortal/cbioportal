@@ -126,6 +126,7 @@ public class FrontendPropertiesServiceImpl implements FrontendPropertiesService 
         enable_request_body_gzip_compression("enable_request_body_gzip_compression", null),
         query_product_limit("query_product_limit", null),
         skin_show_gsva("skin.show_gsva", null),
+        saml_idp_metadata_entityid("saml.idp.metadata.entityid", null),
         saml_logout_local("saml.logout.local", null),
         skin_citation_rule_text("skin.citation_rule_text", null),
         skin_geneset_hierarchy_default_p_value("skin.geneset_hierarchy.default_p_value", null),

@@ -5,6 +5,7 @@ import static org.cbioportal.service.FrontendPropertiesServiceImpl.FrontendPrope
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import java.util.Arrays;
 import java.util.Map;
 import javax.servlet.http.HttpServletRequest;
 import org.cbioportal.service.FrontendPropertiesService;
@@ -26,7 +27,7 @@ public class IndexPageController {
     private HttpRequestUtils requestUtils;
     
     @Value("${authenticate}")
-    private String authenticate;
+    private String[] authenticate;
     
     @Value("${saml.idp.metadata.entityid:not_defined_in_portalproperties}")
     private String samlIdpEntityId;
@@ -57,10 +58,17 @@ public class IndexPageController {
     public String showLoginPage(HttpServletRequest request, Authentication authentication, Model model) {
     
         model.addAttribute("skin_title", frontendPropertiesService.getFrontendProperty(FrontendProperty.skin_title));
+        model.addAttribute("skin_authorization_message", frontendPropertiesService.getFrontendProperty(FrontendProperty.skin_authorization_message));
+        model.addAttribute("skin_login_contact_html", frontendPropertiesService.getFrontendProperty(FrontendProperty.skin_login_contact_html));
+        model.addAttribute("skin_login_saml_registration_html", frontendPropertiesService.getFrontendProperty(FrontendProperty.skin_login_saml_registration_html));
+        model.addAttribute("saml_idp_metadata_entityid", frontendPropertiesService.getFrontendProperty(FrontendProperty.saml_idp_metadata_entityid));
         model.addAttribute("logout_success", Boolean.parseBoolean(request.getParameter("logout_success")));
         model.addAttribute("login_error", Boolean.parseBoolean(request.getParameter("login_error")));
+        model.addAttribute("authentication_method", frontendPropertiesService.getFrontendProperty(FrontendProperty.authenticationMethod));
+        model.addAttribute("show_google", Arrays.asList(authenticate).contains("social_auth") || Arrays.asList(authenticate).contains("social_auth_google") );
+        model.addAttribute("show_microsoft", Arrays.asList(authenticate).contains("social_auth_microsoft"));
 
-        switch (authenticate) {
+        switch (authenticate[0]) {
             case "openid":
                 return "login_openid";
             case "ad":
@@ -70,11 +78,11 @@ public class IndexPageController {
                 model.addAttribute("skin_login_saml_registration_html", frontendPropertiesService.getFrontendProperty(FrontendProperty.skin_login_saml_registration_html));
                 model.addAttribute("saml_idp_entity_id", samlIdpEntityId);
                 return "login_saml"; 
+            default:
+                return "login_new";
         }
 
-//        model.addAttribute("skin_authorization_message", frontendPropertiesService.getFrontendProperty(FrontendProperty.skin_authorization_message));
         
-        return "login";
     }
 
     public FrontendPropertiesService getFrontendPropertiesService() {

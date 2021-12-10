@@ -2,7 +2,7 @@ package org.cbioportal.persistence.mybatis.config;
 
 import javax.sql.DataSource;
 import org.apache.ibatis.session.SqlSessionFactory;
-import org.cbioportal.persistence.mybatis.typehandler.SampleTypeHelper;
+import org.cbioportal.persistence.mybatis.typehandler.SampleTypeTypeHandler;
 import org.cbioportal.persistence.mybatis.util.OffsetCalculator;
 import org.mybatis.spring.SqlSessionFactoryBean;
 import org.mybatis.spring.annotation.MapperScan;
@@ -32,7 +32,7 @@ public class TestConfig {
         SqlSessionFactoryBean factoryBean = new SqlSessionFactoryBean();
         factoryBean.setDataSource(dataSource());
         // mapper that mediate string to enum conversions
-        factoryBean.setTypeHandlers(new SampleTypeHelper());
+        factoryBean.setTypeHandlers(new SampleTypeTypeHandler());
         return factoryBean.getObject();
     }
 

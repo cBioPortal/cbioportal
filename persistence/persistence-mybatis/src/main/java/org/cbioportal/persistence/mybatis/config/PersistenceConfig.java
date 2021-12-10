@@ -1,7 +1,7 @@
 package org.cbioportal.persistence.mybatis.config;
 
 import org.cbioportal.model.Sample;
-import org.cbioportal.persistence.mybatis.typehandler.SampleTypeHelper;
+import org.cbioportal.persistence.mybatis.typehandler.SampleTypeTypeHandler;
 import org.mybatis.spring.annotation.MapperScan;
 import org.mybatis.spring.boot.autoconfigure.ConfigurationCustomizer;
 import org.springframework.context.annotation.Bean;
@@ -19,7 +19,7 @@ public class PersistenceConfig {
         return new ConfigurationCustomizer() {
             @Override
             public void customize(org.apache.ibatis.session.Configuration configuration) {
-                configuration.getTypeHandlerRegistry().register(Sample.SampleType.class, new SampleTypeHelper());
+                configuration.getTypeHandlerRegistry().register(Sample.SampleType.class, new SampleTypeTypeHandler());
             }
         };
     }

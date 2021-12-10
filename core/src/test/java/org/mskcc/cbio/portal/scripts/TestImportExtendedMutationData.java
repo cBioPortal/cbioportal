@@ -188,7 +188,6 @@ public class TestImportExtendedMutationData {
         validateMutationAminoAcid(geneticProfileId, sampleId, 3339, "X4137?");
         m = DaoMutation.getMutations(
                 geneticProfileId, sampleId, 3339).get(0);
-        assertEquals("P98160", m.getOncotatorUniprotAccession());
         validateMutationAminoAcid(geneticProfileId, sampleId, 54407, "T32P");
         m = DaoMutation.getMutations(
                 geneticProfileId, sampleId, 54407).get(0);

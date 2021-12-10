@@ -2,9 +2,8 @@ package org.cbioportal.security.spring;
 
 import org.cbioportal.security.spring.authentication.RestAuthenticationEntryPoint;
 import org.cbioportal.security.spring.authentication.oauth2.OAuth2AccessTokenRefreshFilter;
+import org.cbioportal.utils.config.annotation.ConditionalOnProperty;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.boot.autoconfigure.condition.ConditionalOnExpression;
 import org.springframework.boot.autoconfigure.security.SecurityProperties;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -15,16 +14,13 @@ import org.springframework.security.web.context.SecurityContextPersistenceFilter
 
 @Configuration
 @Order(SecurityProperties.BASIC_AUTH_ORDER - 2)
-@ConditionalOnExpression("'${authenticate}' ne 'false' && '${authenticate}' ne 'noauthsessionservice' && '${dat.method:none}' eq 'none'")
+@ConditionalOnProperty(name = "authenticate", havingValue = {"saml", "oauth2"})
 public class ApiSecurityConfig extends WebSecurityConfigurerAdapter {
 
     // Add security filter chains that handle calls to the API endpoints.
     // Different chains are added for the '/api' and legacy '/webservice.do' paths.
     // Both are able to handle API tokens provided in the request.
     // see: "Creating and Customizing Filter Chains" @ https://spring.io/guides/topicals/spring-security-architecture
-    
-    @Value("${authenticate}")
-    private String authenticate;
    
    // Only available when using OAuth2 authentication.
    @Autowired(required = false)

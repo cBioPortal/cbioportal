@@ -61,7 +61,7 @@ public class GooglePlusSecurityConfig extends WebSecurityConfigurerAdapter {
             .and()
             .logout()
                 .logoutUrl("/j_spring_security_logout")
-                .logoutSuccessUrl("/login.jsp?logout_success=true")
+                .logoutSuccessUrl("/login.html?logout_success=true")
                 .deleteCookies("JSESSIONID");
 
     }
@@ -79,8 +79,8 @@ public class GooglePlusSecurityConfig extends WebSecurityConfigurerAdapter {
         SocialAuthenticationFilter socialAuthenticationFilter = new SocialAuthenticationFilter(
             authenticationManager(), authenticationNameUserIdSource(), usersConnectionRepository(),
             connectionFactoryLocator());
-        socialAuthenticationFilter.setSignupUrl("/login.jsp");
-        socialAuthenticationFilter.setDefaultFailureUrl("/login.jsp?login_error=true");
+        socialAuthenticationFilter.setSignupUrl("/login.html");
+        socialAuthenticationFilter.setDefaultFailureUrl("/login.html?login_error=true");
         socialAuthenticationFilter.setPostLoginUrl("/index.do");
         socialAuthenticationFilter.setAuthenticationSuccessHandler(successHandler);
         socialAuthenticationFilter.setAllowSessionCreation(true);

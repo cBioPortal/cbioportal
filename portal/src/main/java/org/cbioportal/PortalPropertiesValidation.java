@@ -20,6 +20,3 @@ public class PortalPropertiesValidation {
         return authenticate;
     }
 }
-
-
-

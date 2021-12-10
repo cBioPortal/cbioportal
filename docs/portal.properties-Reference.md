@@ -206,7 +206,7 @@ property to _true_ these columns will be visible when the mutation table is crea
 hidden and can be made visible using the column selection menu.
 
 ```
-skin.mutation-table.namespace-column.show-by-default=
+skin.mutation_table.namespace_column.show_by_default=
 ``` 
 
 ## Hide p- and q-values in survival types table

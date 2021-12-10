@@ -67,22 +67,8 @@ public class IndexPageController {
         model.addAttribute("authentication_method", frontendPropertiesService.getFrontendProperty(FrontendProperty.authenticationMethod));
         model.addAttribute("show_google", Arrays.asList(authenticate).contains("social_auth") || Arrays.asList(authenticate).contains("social_auth_google") );
         model.addAttribute("show_microsoft", Arrays.asList(authenticate).contains("social_auth_microsoft"));
-
-        switch (authenticate[0]) {
-            case "openid":
-                return "login_openid";
-            case "ad":
-            case "ldap":
-                return "login_ad";
-            case "saml":
-                model.addAttribute("skin_login_saml_registration_html", frontendPropertiesService.getFrontendProperty(FrontendProperty.skin_login_saml_registration_html));
-                model.addAttribute("saml_idp_entity_id", samlIdpEntityId);
-                return "login_saml"; 
-            default:
-                return "login_new";
-        }
-
         
+        return "login";
     }
 
     public FrontendPropertiesService getFrontendPropertiesService() {

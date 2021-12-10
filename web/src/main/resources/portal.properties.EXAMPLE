@@ -127,8 +127,8 @@ saml.idp.comm.binding.settings=defaultBinding
 saml.idp.comm.binding.type=
 # Change this to configure your custom UserDetails parser (default: org.cbioportal.security.spring.authentication.saml.SAMLUserDetailsServiceImpl)
 saml.custom.userservice.class=org.cbioportal.security.spring.authentication.saml.SAMLUserDetailsServiceImpl
-# Change this to configure to configure a custom logout URL: (default: /login.jsp?logout_success=true)
-saml.logout.url=/login.jsp?logout_success=true
+# Change this to configure to configure a custom logout URL: (default: /login.html?logout_success=true)
+saml.logout.url=/login.html?logout_success=true
 
 # data access token settings
 dat.unauth_users=

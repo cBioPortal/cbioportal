@@ -76,7 +76,7 @@
 
 <script type="text/javascript">
 function openSoicalAuthWindow() {
-    var _window = open('login.jsp', '', 'width=1000, height=800');
+    var _window = open('login.html', '', 'width=1000, height=800');
 
     var interval = setInterval(function() {
         try {
@@ -84,7 +84,7 @@ function openSoicalAuthWindow() {
                 clearInterval(interval);
             } else if (_window.document.URL.includes(location.origin) &&
                         !_window.document.URL.includes(location.origin + '/auth') &&
-                        !_window.document.URL.includes('login.jsp')) {
+                        !_window.document.URL.includes('login.html')) {
                 _window.close();
 
                 setTimeout(function() {

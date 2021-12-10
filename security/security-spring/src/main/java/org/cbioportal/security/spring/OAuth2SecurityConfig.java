@@ -1,5 +1,6 @@
 package org.cbioportal.security.spring;
 
+import org.cbioportal.security.spring.authentication.oauth2.OAuth2AccessTokenRefreshFilter;
 import org.cbioportal.security.spring.authentication.oauth2.OidcClientInitiatedLogoutSuccessHandler;
 import org.cbioportal.security.spring.authentication.oauth2.UserInfoAuthoritiesMapper;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -70,6 +71,11 @@ public class OAuth2SecurityConfig extends WebSecurityConfigurerAdapter {
         }
         oidcLogoutSuccessHandler.setPostLogoutRedirectUri("{baseUrl}");
         return oidcLogoutSuccessHandler;
+    }
+
+    @Bean
+    public OAuth2AccessTokenRefreshFilter accessTokenRefreshFilter() {
+        return new OAuth2AccessTokenRefreshFilter();
     }
 
 }

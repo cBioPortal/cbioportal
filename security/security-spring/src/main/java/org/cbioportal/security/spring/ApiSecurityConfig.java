@@ -2,6 +2,7 @@ package org.cbioportal.security.spring;
 
 import org.cbioportal.security.spring.authentication.RestAuthenticationEntryPoint;
 import org.cbioportal.security.spring.authentication.oauth2.OAuth2AccessTokenRefreshFilter;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnExpression;
 import org.springframework.boot.autoconfigure.security.SecurityProperties;
@@ -24,6 +25,10 @@ public class ApiSecurityConfig extends WebSecurityConfigurerAdapter {
     
     @Value("${authenticate}")
     private String authenticate;
+   
+   // Only available when using OAuth2 authentication.
+   @Autowired(required = false)
+   private OAuth2AccessTokenRefreshFilter oAuth2AccessTokenRefreshFilter;
     
     @Override
     protected void configure(HttpSecurity http) throws Exception {
@@ -44,17 +49,12 @@ public class ApiSecurityConfig extends WebSecurityConfigurerAdapter {
                          "/api/cache/**").permitAll()
                     .anyRequest()
                         .authenticated();
-        if (authenticate.equals("oauth2")) {
+        if (oAuth2AccessTokenRefreshFilter != null) {
             http
-                .addFilterAfter(accessTokenRefreshFilter(), SecurityContextPersistenceFilter.class);
+                .addFilterAfter(oAuth2AccessTokenRefreshFilter, SecurityContextPersistenceFilter.class);
         }
     }
-    
-    @Bean
-    public OAuth2AccessTokenRefreshFilter accessTokenRefreshFilter() {
-        return new OAuth2AccessTokenRefreshFilter();
-    }
-    
+
     @Bean
     public RestAuthenticationEntryPoint restAuthenticationEntryPoint() {
         return new RestAuthenticationEntryPoint();

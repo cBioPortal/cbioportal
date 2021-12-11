@@ -45,8 +45,7 @@
         <mybatis.starter.version>2.2.0</mybatis.starter.version>
         <testcontainers.version>1.16.2</testcontainers.version>
         <mockserver.version>5.8.0</mockserver.version>
-        <!-- TODO upgrade when 5.6.0 is released-->
-        <spring-security.version>5.6.0-RC1</spring-security.version>
+        <spring-security.version>5.6.0</spring-security.version>
         <opensaml.version>4.1.1</opensaml.version>
 
     </properties>
@@ -251,12 +250,6 @@
         <repository>
             <id>shiboleth</id>
             <url>https://build.shibboleth.net/nexus/content/repositories/releases/</url>
-        </repository>
-        <!-- needed for the saml2 -->
-        <!-- TODO remove when spring-security 5.6.0-RC1 is made an official release-->
-        <repository>
-            <id>milestones</id>
-            <url>https://repo.spring.io/milestone/</url>
         </repository>
         <!-- needed for keycloak test containers -->
         <repository>

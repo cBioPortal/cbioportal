@@ -5,7 +5,7 @@
         th:fragment="openid"
         id="openid_form"
         style="width:  100%;"
-        action="<c:url value='j_spring_openid_security_check'/>"
+        action="/j_spring_openid_security_check"
         method='POST'>
         <div th:replace="form-contents" />
     </form>
@@ -13,7 +13,7 @@
     <form 
         th:fragment="ad"
         name='loginForm'
-        action="<c:url value='j_spring_security_check' />"
+        action="/j_spring_security_check>"
         method='POST'>
         <div th:replace="form-contents" />
     </form>
@@ -24,7 +24,7 @@
         <div id="login-fieldset">
             <p>
                 <span
-                    th:text="${skin_authorization_message}"
+                    th:utext="${skin_authorization_message}"
                     style="color:#333333;font-family:'Helvetica Neue',Helvetica,Arial,sans-serif;font-size:14px"
                 />
             </p>
@@ -49,7 +49,7 @@
         id="login-fieldset">
         <p>
         <span
-            th:text="${skin_authorization_message}"
+            th:utext="${skin_authorization_message}"
             style="color:#333333;font-family:'Helvetica Neue',Helvetica,Arial,sans-serif;font-size:14px"
         />
         </p>
@@ -67,7 +67,7 @@
          id="login-fieldset">
         <p>
         <span
-            th:text="${skin_authorization_message}"
+            th:utext="${skin_authorization_message}"
             style="color:#333333;font-family:'Helvetica Neue',Helvetica,Arial,sans-serif;font-size:14px"
         />
         </p>
@@ -83,12 +83,12 @@
          id="login-fieldset">
         <p>
         <span
-            th:text="${skin_authorization_message}"
+            th:utext="${skin_authorization_message}"
             style="color:#333333;font-family:'Helvetica Neue',Helvetica,Arial,sans-serif;font-size:14px"
         />
         </p>
         <button
-            onclick="window.location = 'auth/live'"
+            onclick="window.location= 'auth/live'"
             style="padding: 0; border:none; background: none" >
             <IMG alt="cBioPortal Microsoft Log-in" src="images/login/microsoft_signin.png" />
         </button>

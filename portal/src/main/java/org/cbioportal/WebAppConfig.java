@@ -20,7 +20,7 @@ public class WebAppConfig implements WebMvcConfigurer {
 
     @Override
     public void addResourceHandlers(ResourceHandlerRegistry registry) {
-        registry.addResourceHandler("/images/**").addResourceLocations("classpath:/images/");
+        registry.addResourceHandler("/images/**").addResourceLocations("classpath:/webapp/images/");
         registry.addResourceHandler("/reactapp/**").addResourceLocations("classpath:/reactapp/");
         registry.addResourceHandler("/js/**").addResourceLocations("classpath:/js/");
     }

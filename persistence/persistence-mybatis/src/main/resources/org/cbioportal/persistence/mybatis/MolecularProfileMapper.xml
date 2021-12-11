@@ -4,7 +4,7 @@
 <mapper namespace="org.cbioportal.persistence.mybatis.MolecularProfileMapper">
 
     <!--    TODO duplicate of select in StudyMapper - remove-->
-    <!--    somehow the namespace mechanism does not work for this mapper xml-->
+    <!--    somehow the namespace import mechanism does not work for this mapper xml-->
     <sql id="selectStudy">
         cancer_study.CANCER_STUDY_ID AS "${prefix}cancerStudyId",
         cancer_study.CANCER_STUDY_IDENTIFIER AS "${prefix}cancerStudyIdentifier"

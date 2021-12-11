@@ -53,9 +53,6 @@ public class GooglePlusSecurityConfig extends WebSecurityConfigurerAdapter {
             .sessionManagement().sessionFixation().none()
             .and()
                 .authorizeRequests()
-                    // TODO should this one not be handled by the APISecurityConfig?
-                    .antMatchers("/webservice.do*")
-                        .access("isAuthenticated() or hasIpAddress('127.0.0.1')")
                     .antMatchers("/**")
                         .authenticated()
             .and()

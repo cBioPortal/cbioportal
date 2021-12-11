@@ -143,7 +143,6 @@ public class TestImportExtendedMutationData {
         int sampleId = DaoSample.getSampleByCancerStudyAndSampleId(studyId, "TCGA-A2-A0CR-01").getInternalId();
         ExtendedMutation m = DaoMutation.getMutations(
                 geneticProfileId, sampleId, 64581).get(0);
-        assertNull(m.getOncotatorUniprotAccession());
     }
 
     /**
@@ -168,7 +167,6 @@ public class TestImportExtendedMutationData {
         int sampleId = DaoSample.getSampleByCancerStudyAndSampleId(studyId, "TCGA-A2-A0CR-01").getInternalId();
         ExtendedMutation m = DaoMutation.getMutations(
                 geneticProfileId, sampleId, 64581).get(0);
-        assertEquals("Z9ZZZ9ZZZ9", m.getOncotatorUniprotAccession());
     }
 
     /**

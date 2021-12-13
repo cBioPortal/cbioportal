@@ -574,7 +574,7 @@
       <dependency>
         <groupId>org.slf4j</groupId>
         <artifactId>slf4j-log4j12</artifactId>
-        <version>1.7.30</version>
+        <version>1.7.32</version>
       </dependency>
       <dependency>
         <groupId>org.slf4j</groupId>
@@ -788,9 +788,9 @@
       </dependency>
       <!-- log4j -->
       <dependency>
-        <groupId>log4j</groupId>
-        <artifactId>apache-log4j-extras</artifactId>
-        <version>1.1</version>
+        <groupId>org.apache.logging.log4j</groupId>
+        <artifactId>log4j-core</artifactId>
+        <version>2.15.0</version>
       </dependency>
       <!-- junit -->
       <dependency>

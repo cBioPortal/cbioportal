@@ -1,5 +1,7 @@
 package org.cbioportal.web.parameter;
 
+import org.cbioportal.model.SampleIdentifier;
+
 import javax.validation.constraints.AssertTrue;
 import javax.validation.constraints.Size;
 import java.util.List;

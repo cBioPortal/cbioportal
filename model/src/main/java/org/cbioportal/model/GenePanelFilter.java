@@ -1,24 +1,24 @@
 package org.cbioportal.model;
 
-import java.util.List;
+import java.io.Serializable;
 
-public class GenePanelFilter {
-    private String genePanel;
-    private List<String> molecularProfileIds;
+public class GenePanelFilter implements Serializable {
+    private String genePanelId;
+    private String molecularProfileSuffix;
 
-    public String getGenePanel() {
-        return genePanel;
+    public String getGenePanelId() {
+        return genePanelId;
     }
 
-    public void setGenePanel(String genePanel) {
-        this.genePanel = genePanel;
+    public void setGenePanelId(String genePanelId) {
+        this.genePanelId = genePanelId;
     }
 
-    public List<String> getMolecularProfileIds() {
-        return molecularProfileIds;
+    public String getMolecularProfileSuffix() {
+        return molecularProfileSuffix;
     }
 
-    public void setMolecularProfileIds(List<String> molecularProfileIds) {
-        this.molecularProfileIds = molecularProfileIds;
+    public void setMolecularProfileSuffix(String molecularProfileSuffix) {
+        this.molecularProfileSuffix = molecularProfileSuffix;
     }
 }

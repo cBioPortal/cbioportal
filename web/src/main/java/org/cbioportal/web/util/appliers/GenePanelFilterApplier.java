@@ -1,50 +1,59 @@
 package org.cbioportal.web.util.appliers;
 
-import org.cbioportal.model.GenePanelData;
-import org.cbioportal.model.GenePanelFilter;
+import org.cbioportal.model.StudyViewGenePanel;
 import org.cbioportal.service.GenePanelService;
-import org.cbioportal.web.parameter.SampleIdentifier;
+import org.cbioportal.service.StudyViewFilterService;
+import org.cbioportal.model.SampleIdentifier;
 import org.cbioportal.web.parameter.StudyViewFilter;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @Component
 public class GenePanelFilterApplier extends StudyViewSubFilterApplier {
     @Autowired
-    GenePanelService genePanelService;
+    private GenePanelService genePanelService;
+    
+    @Autowired
+    private StudyViewFilterService studyViewFilterService;
     
     @Override
     public List<SampleIdentifier> filter(List<SampleIdentifier> toFilter, StudyViewFilter filters) {
-        // get all unique involved molecular profile ids
-        Set<String> molecularProfileIds = filters.getGenePanelFilters().stream()
-            .flatMap(f -> f.getMolecularProfileIds().stream())
-            .collect(Collectors.toSet());
+        // This logic is less clear than I'd like because of the difference between how the UI represents
+        // molecular profiles and how the database represents them.
         
-        // get all unique involved gene panel ids
-        Set<String> genePanelIds = filters.getGenePanelFilters().stream()
-            .map(GenePanelFilter::getGenePanel)
+        // Given two studies (`study_a` and `study_b`) that both have a `mutations` molecular profile,
+        // the study view UI lists a singular molecular profile, titled `mutations`, but the database is aware of two
+        // molecular profiles: `study_a_mutations` and `study_b_mutations`
+        
+        // I deal with this mapping here in a naive manner. Rather than figure out what molecular profile
+        // suffix belongs to what studies, I just permute all suffixes to all studies. These are just getting listed
+        // in a big IN clause, so the permutations that don't exist are ultimately harmless.
+        // (If this ends up being a performance issue in the future, my bad)
+        Set<String> studies = toFilter.stream()
+            .map(SampleIdentifier::getStudyId)
             .collect(Collectors.toSet());
 
-        Map<String, Set<String>> validSamplesByStudy = 
-            // get the gene panel objects for those molecular profile ids
-            genePanelService.fetchGenePanelDataByMolecularProfileIds(molecularProfileIds)
+        List<StudyViewGenePanel> backendFilters = filters.getGenePanelFilters()
             .stream()
-            // filter out gene panels that belong to those molecular profile ids that aren't included in the filter
-            .filter(panel -> genePanelIds.contains(panel.getGenePanelId()))
-            // make a study_id -> [sample_id...] map that we can use to filter our list of identifiers
-            .collect(Collectors.groupingBy(
-                GenePanelData::getStudyId,
-                Collectors.mapping(GenePanelData::getSampleId, Collectors.toSet())
-            ));
+            .flatMap(filter ->
+                studies.stream()
+                    .map(id -> id + "_" + filter.getMolecularProfileSuffix())
+                    .map(fullMolecularProfileId -> {
+                        StudyViewGenePanel panel = new StudyViewGenePanel();
+                        panel.setGenePanelId(filter.getGenePanelId());
+                        panel.setMolecularProfileId(fullMolecularProfileId);
+                        return panel;
+                    })
+            ).collect(Collectors.toList());
+        
+        Set<SampleIdentifier> allValidIdentifiers = 
+            studyViewFilterService.getSampleIdentifiersForPanels(backendFilters);
         
         return toFilter.stream()
-            .filter(id -> validSamplesByStudy.getOrDefault(id.getStudyId(), new HashSet<>()).contains(id.getSampleId()))
+            .filter(allValidIdentifiers::contains)
             .collect(Collectors.toList());
     }
 

@@ -4,7 +4,7 @@ import org.cbioportal.model.ClinicalEventSample;
 import org.cbioportal.model.SampleTreatmentRow;
 import org.cbioportal.model.TemporalRelation;
 import org.cbioportal.service.TreatmentService;
-import org.cbioportal.web.parameter.SampleIdentifier;
+import org.cbioportal.model.SampleIdentifier;
 import org.cbioportal.web.parameter.StudyViewFilter;
 import org.cbioportal.web.parameter.filter.AndedSampleTreatmentFilters;
 import org.cbioportal.web.parameter.filter.OredSampleTreatmentFilters;

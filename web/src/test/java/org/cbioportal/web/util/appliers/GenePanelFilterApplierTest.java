@@ -1,9 +1,9 @@
 package org.cbioportal.web.util.appliers;
 
-import org.cbioportal.model.GenePanelData;
 import org.cbioportal.model.GenePanelFilter;
-import org.cbioportal.service.GenePanelService;
-import org.cbioportal.web.parameter.SampleIdentifier;
+import org.cbioportal.model.SampleIdentifier;
+import org.cbioportal.model.StudyViewGenePanel;
+import org.cbioportal.service.StudyViewFilterService;
 import org.cbioportal.web.parameter.StudyViewFilter;
 import org.junit.Assert;
 import org.junit.Test;
@@ -14,121 +14,116 @@ import org.mockito.Mockito;
 import org.mockito.junit.MockitoJUnitRunner;
 
 import java.util.ArrayList;
-import java.util.Collections;
+import java.util.Arrays;
 import java.util.HashSet;
 import java.util.List;
 
 @RunWith(MockitoJUnitRunner.Silent.class)
 public class GenePanelFilterApplierTest {
     @Mock
-    GenePanelService genePanelService;
+    StudyViewFilterService filterService;
     
     @InjectMocks
     GenePanelFilterApplier subject;
 
+
     @Test
-    public void shouldNotFilterAnySamples() {
-        GenePanelFilter genePanelFilter = new GenePanelFilter();
-        genePanelFilter.setGenePanel("gene_panel_1");
-        genePanelFilter.setMolecularProfileIds(Collections.singletonList("study_1_cna"));
-        
+    public void shouldSayToApplyFilter() {
         StudyViewFilter filter = new StudyViewFilter();
-        filter.setGenePanelFilters(Collections.singletonList(genePanelFilter));
+        filter.setGenePanelFilters(Arrays.asList(new GenePanelFilter()));
 
-        Mockito.when(genePanelService.fetchGenePanelDataByMolecularProfileIds(new HashSet<>(Collections.singletonList("study_1_cna"))))
-            .thenReturn(Collections.singletonList(genePanelData("gene_panel_1", "sample_1", "study_1")));
-        
-        List<SampleIdentifier> toFilter = Collections.singletonList(sampleIdentifier("sample_1", "study_1"));
-
-        List<SampleIdentifier> actual = subject.filter(toFilter, filter);
-        
-        Assert.assertEquals(toFilter, actual);
+        Assert.assertTrue(subject.shouldApplyFilter(filter));
     }
 
     @Test
-    public void shouldFilterSampleWithMismatchedSampleId() {
-        GenePanelFilter genePanelFilter = new GenePanelFilter();
-        genePanelFilter.setGenePanel("gene_panel_1");
-        genePanelFilter.setMolecularProfileIds(Collections.singletonList("study_1_cna"));
-
-        StudyViewFilter filter = new StudyViewFilter();
-        filter.setGenePanelFilters(Collections.singletonList(genePanelFilter));
-
-        Mockito.when(genePanelService.fetchGenePanelDataByMolecularProfileIds(new HashSet<>(Collections.singletonList("study_1_cna"))))
-            .thenReturn(Collections.singletonList(genePanelData("gene_panel_1", "sample_1", "study_1")));
-
-        List<SampleIdentifier> toFilter = Collections.singletonList(sampleIdentifier("sample_2", "study_1"));
-
-        List<SampleIdentifier> actual = subject.filter(toFilter, filter);
-        List<SampleIdentifier> expected = new ArrayList<>();
-
-        Assert.assertEquals(expected, actual);
-    }
-
-    @Test
-    public void shouldFilterSampleWithMismatchedStudyId() {
-        GenePanelFilter genePanelFilter = new GenePanelFilter();
-        genePanelFilter.setGenePanel("gene_panel_1");
-        genePanelFilter.setMolecularProfileIds(Collections.singletonList("study_1_cna"));
-
-        StudyViewFilter filter = new StudyViewFilter();
-        filter.setGenePanelFilters(Collections.singletonList(genePanelFilter));
-
-        Mockito.when(genePanelService.fetchGenePanelDataByMolecularProfileIds(new HashSet<>(Collections.singletonList("study_1_cna"))))
-            .thenReturn(Collections.singletonList(genePanelData("gene_panel_1", "sample_1", "study_1")));
-
-        List<SampleIdentifier> toFilter = Collections.singletonList(sampleIdentifier("sample_1", "study_2"));
-
-        List<SampleIdentifier> actual = subject.filter(toFilter, filter);
-        List<SampleIdentifier> expected = new ArrayList<>();
-
-        Assert.assertEquals(expected, actual);
-    }
-    
-    private SampleIdentifier sampleIdentifier(String sampleId, String studyId) {
-        SampleIdentifier sampleIdentifier = new SampleIdentifier();
-        sampleIdentifier.setSampleId(sampleId);
-        sampleIdentifier.setStudyId(studyId);
-        return sampleIdentifier;
-    }
-    
-    private GenePanelData genePanelData(String genePanelId, String sampleId, String studyId) {
-        GenePanelData genePanelData = new GenePanelData();
-        genePanelData.setGenePanelId(genePanelId);
-        genePanelData.setSampleId(sampleId);
-        genePanelData.setStudyId(studyId);
-        return genePanelData;
-    }
-
-    @Test
-    public void shouldNotApplyNullFilter() {
+    public void shouldSayNoToApplyFilter() {
         StudyViewFilter filter = new StudyViewFilter();
         filter.setGenePanelFilters(null);
 
-        boolean actual = subject.shouldApplyFilter(filter);
-        boolean expected = false;
-
-        Assert.assertEquals(expected, actual);
-    }
-
-    @Test
-    public void shouldNotApplyEmptyFilter() {
-        StudyViewFilter filter = new StudyViewFilter();
+        Assert.assertFalse(subject.shouldApplyFilter(filter));
+        
         filter.setGenePanelFilters(new ArrayList<>());
+        Assert.assertFalse(subject.shouldApplyFilter(filter));
+    }
 
-        boolean actual = subject.shouldApplyFilter(filter);
-        boolean expected = false;
+    @Test
+    public void shouldIncludeSampleWithMatchingGenePanel() {
+        StudyViewFilter filter = new StudyViewFilter();
+        GenePanelFilter jean = new GenePanelFilter();
+        jean.setGenePanelId("gp1");
+        jean.setMolecularProfileSuffix("mutations");
+        filter.setGenePanelFilters(Arrays.asList(jean));
+
+        StudyViewGenePanel panel = new StudyViewGenePanel();
+        panel.setMolecularProfileId("study1_mutations");
+        panel.setGenePanelId("gp1");
+
+        SampleIdentifier sample = new SampleIdentifier();
+        sample.setSampleId("sample1");
+        sample.setStudyId("study1");
+
+        Mockito
+            .when(filterService.getSampleIdentifiersForPanels(Arrays.asList(panel)))
+            .thenReturn(new HashSet<>(Arrays.asList(sample)));
+
+        List<SampleIdentifier> actual = subject.filter(Arrays.asList(sample), filter);
+        List<SampleIdentifier> expected = Arrays.asList(sample);
+        
+        Assert.assertEquals(expected, actual);
+    }
+
+    @Test
+    public void shouldExcludeSampleWithNoMatchingGenePanel() {
+        StudyViewFilter filter = new StudyViewFilter();
+        GenePanelFilter jean = new GenePanelFilter();
+        jean.setGenePanelId("gp1");
+        jean.setMolecularProfileSuffix("mutations");
+        filter.setGenePanelFilters(Arrays.asList(jean));
+
+        StudyViewGenePanel panel = new StudyViewGenePanel();
+        panel.setMolecularProfileId("study1_mutations");
+        panel.setGenePanelId("gp1");
+
+        SampleIdentifier sample = new SampleIdentifier();
+        sample.setSampleId("sample1");
+        sample.setStudyId("study1");
+
+        Mockito
+            .when(filterService.getSampleIdentifiersForPanels(Arrays.asList(panel)))
+            .thenReturn(new HashSet<>(Arrays.asList()));
+
+        List<SampleIdentifier> actual = subject.filter(Arrays.asList(sample), filter);
+        List<SampleIdentifier> expected = Arrays.asList();
 
         Assert.assertEquals(expected, actual);
     }
 
     @Test
-    public void shouldApplyFilter() {
+    public void shouldSupportMultiStudyQueries() {
         StudyViewFilter filter = new StudyViewFilter();
-        filter.setGenePanelFilters(Collections.singletonList(new GenePanelFilter()));
+        GenePanelFilter jean = new GenePanelFilter();
+        jean.setGenePanelId("gp1");
+        jean.setMolecularProfileSuffix("mutations");
+        filter.setGenePanelFilters(Arrays.asList(jean));
 
-        boolean actual = subject.shouldApplyFilter(filter);
-        boolean expected = true;
+        StudyViewGenePanel panel = new StudyViewGenePanel();
+        panel.setMolecularProfileId("study1_mutations");
+        panel.setGenePanelId("gp1");
+
+        SampleIdentifier sample1 = new SampleIdentifier();
+        sample1.setSampleId("sample1");
+        sample1.setStudyId("study1");
+
+        SampleIdentifier sample2 = new SampleIdentifier();
+        sample2.setSampleId("sample2");
+        sample2.setStudyId("study1");
+
+        Mockito
+            .when(filterService.getSampleIdentifiersForPanels(Arrays.asList(panel)))
+            .thenReturn(new HashSet<>(Arrays.asList(sample1)));
+
+        List<SampleIdentifier> actual = subject.filter(Arrays.asList(sample1, sample2), filter);
+        List<SampleIdentifier> expected = Arrays.asList(sample1);
 
         Assert.assertEquals(expected, actual);
     }

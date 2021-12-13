@@ -10,10 +10,8 @@ import javax.validation.constraints.Size;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonInclude.Include;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
-import org.cbioportal.model.AlterationFilter;
+import org.cbioportal.model.*;
 import org.cbioportal.model.GeneFilter;
-import org.cbioportal.model.GenePanel;
-import org.cbioportal.model.GenePanelFilter;
 import org.cbioportal.web.parameter.filter.*;
 
 @JsonIgnoreProperties(ignoreUnknown = true)

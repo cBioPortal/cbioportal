@@ -4,7 +4,7 @@ import java.io.Serializable;
 import java.util.Map;
 import java.util.Set;
 
-import org.cbioportal.web.parameter.SampleIdentifier;
+import org.cbioportal.model.SampleIdentifier;
 
 public class PatientTreatmentFilter implements Serializable {
     private String treatment;

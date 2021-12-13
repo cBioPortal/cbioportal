@@ -4,7 +4,7 @@ import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
 import org.cbioportal.model.CancerStudy;
-import org.cbioportal.model.SampleList;
+import org.cbioportal.model.SampleIdentifier;
 import org.cbioportal.model.meta.BaseMeta;
 import org.cbioportal.model.Sample;
 import org.cbioportal.service.SampleListService;

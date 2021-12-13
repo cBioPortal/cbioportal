@@ -1,8 +1,6 @@
 package org.cbioportal.web.parameter.filter;
 
-import org.cbioportal.model.ClinicalEventSample;
-import org.cbioportal.model.PatientTreatmentRow;
-import org.cbioportal.web.parameter.SampleIdentifier;
+import org.cbioportal.model.SampleIdentifier;
 
 import java.io.Serializable;
 import java.util.List;

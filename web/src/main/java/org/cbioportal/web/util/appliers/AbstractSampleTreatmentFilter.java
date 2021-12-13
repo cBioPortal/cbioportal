@@ -3,7 +3,7 @@ package org.cbioportal.web.util.appliers;
 import org.cbioportal.model.ClinicalEventKeyCode;
 import org.cbioportal.model.SampleTreatmentRow;
 import org.cbioportal.service.TreatmentService;
-import org.cbioportal.web.parameter.SampleIdentifier;
+import org.cbioportal.model.SampleIdentifier;
 import org.cbioportal.web.parameter.StudyViewFilter;
 import org.cbioportal.web.parameter.filter.AndedSampleTreatmentFilters;
 import org.springframework.beans.factory.annotation.Autowired;

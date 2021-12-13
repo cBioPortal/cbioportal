@@ -1,9 +1,6 @@
 package org.cbioportal.web.util;
 
-import org.cbioportal.model.ClinicalAttribute;
-import org.cbioportal.model.ClinicalData;
-import org.cbioportal.model.ClinicalDataBin;
-import org.cbioportal.model.Patient;
+import org.cbioportal.model.*;
 import org.cbioportal.service.ClinicalAttributeService;
 import org.cbioportal.service.PatientService;
 import org.cbioportal.service.util.ClinicalAttributeUtil;

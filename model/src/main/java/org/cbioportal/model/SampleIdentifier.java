@@ -1,9 +1,9 @@
-package org.cbioportal.web.parameter;
+package org.cbioportal.model;
 
 import java.io.Serializable;
 import java.util.Objects;
 
-public class SampleIdentifier implements Serializable {
+public class SampleIdentifier implements Serializable, Comparable<SampleIdentifier> {
 
     private String sampleId;
     private String studyId;
@@ -42,5 +42,11 @@ public class SampleIdentifier implements Serializable {
     @Override
     public int hashCode() {
         return Objects.hash(sampleId, studyId);
+    }
+
+
+    @Override
+    public int compareTo(SampleIdentifier other) {
+        return (sampleId + "::" + studyId).compareTo(other.getSampleId() + "::" + getStudyId());
     }
 }

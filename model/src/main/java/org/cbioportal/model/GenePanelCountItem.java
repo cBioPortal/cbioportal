@@ -1,16 +1,17 @@
 package org.cbioportal.model;
 
+import java.io.Serializable;
 import java.util.List;
 
 /**
  * Counts of various gene panels for a molecular profile. This model is designed
  * to match ClinicalDataCountItem, with more logical names for the context
  */
-public class GenePanelCountItem {
+public class GenePanelCountItem implements Serializable {
     private String molecularProfileId;
     private List<ClinicalDataCount> counts;
 
-    public String molecularProfileId() {
+    public String getMolecularProfileId() {
         return molecularProfileId;
     }
 
@@ -18,7 +19,7 @@ public class GenePanelCountItem {
         this.molecularProfileId = molecularProfileId;
     }
 
-    public List<ClinicalDataCount> counts() {
+    public List<ClinicalDataCount> getCounts() {
         return counts;
     }
 

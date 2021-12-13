@@ -262,12 +262,21 @@ public class StudyViewServiceImpl implements StudyViewService {
         GenePanelCountItem count = new GenePanelCountItem();
         count.setMolecularProfileId(entry.getKey());
         List<ClinicalDataCount> counts = entry.getValue().stream()
+            .map(this::fixWholeExomeMadness)
             .collect(Collectors.groupingBy(GenePanelData::getGenePanelId))
             .entrySet().stream()
             .map(genePanelsOfId -> toGenePaneCount(genePanelsOfId, entry.getKey()))
             .collect(Collectors.toList());
         count.setCounts(counts);
         return count;
+    }
+    
+    private GenePanelData fixWholeExomeMadness(GenePanelData coolNulls) {
+        if (coolNulls.getGenePanelId() == null) {
+            coolNulls.setGenePanelId("Whole exome seq.");
+        }
+        
+        return coolNulls;
     }
     
     

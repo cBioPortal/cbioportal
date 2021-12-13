@@ -7,7 +7,7 @@ import org.cbioportal.service.SampleService;
 import org.cbioportal.service.exception.SampleNotFoundException;
 import org.cbioportal.web.parameter.HeaderKeyConstants;
 import org.cbioportal.web.parameter.SampleFilter;
-import org.cbioportal.web.parameter.SampleIdentifier;
+import org.cbioportal.model.SampleIdentifier;
 import org.hamcrest.Matchers;
 import org.junit.Before;
 import org.junit.Test;

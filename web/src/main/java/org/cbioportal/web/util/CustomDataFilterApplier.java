@@ -14,7 +14,7 @@ import org.cbioportal.service.PatientService;
 import org.cbioportal.session_service.domain.SessionType;
 import org.cbioportal.web.parameter.ClinicalDataFilter;
 import org.cbioportal.web.parameter.CustomDataSession;
-import org.cbioportal.web.parameter.SampleIdentifier;
+import org.cbioportal.model.SampleIdentifier;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 

@@ -18,7 +18,7 @@ import org.cbioportal.service.SampleService;
 import org.cbioportal.web.config.annotation.InternalApi;
 import org.cbioportal.web.parameter.GroupFilter;
 import org.cbioportal.web.parameter.Projection;
-import org.cbioportal.web.parameter.SampleIdentifier;
+import org.cbioportal.model.SampleIdentifier;
 import org.cbioportal.web.util.ClinicalDataEnrichmentUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;

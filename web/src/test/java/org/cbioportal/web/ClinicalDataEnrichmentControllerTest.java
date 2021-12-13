@@ -13,7 +13,7 @@ import org.cbioportal.service.SampleService;
 import org.cbioportal.service.util.ClinicalAttributeUtil;
 import org.cbioportal.web.parameter.Group;
 import org.cbioportal.web.parameter.GroupFilter;
-import org.cbioportal.web.parameter.SampleIdentifier;
+import org.cbioportal.model.SampleIdentifier;
 import org.cbioportal.web.util.ClinicalDataEnrichmentUtil;
 import org.hamcrest.Matchers;
 import org.junit.Before;

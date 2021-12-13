@@ -823,7 +823,7 @@ public class StudyViewController {
     @PreAuthorize("hasPermission(#involvedCancerStudies, 'Collection<CancerStudyId>', T(org.cbioportal.utils.security.AccessLevel).READ)")
     @RequestMapping(value = "/gene-panel-counts/fetch", method = RequestMethod.POST, produces = MediaType.APPLICATION_JSON_VALUE)
     @ApiOperation("Fetch gene panel counts for each molecular profile suffix present in the study view filter")
-    public ResponseEntity<Map<String, List<GenePanelCount>>> fetchGenePanelCounts(
+    public ResponseEntity<Map<String, List<ClinicalDataCount>>> fetchGenePanelCounts(
         @ApiParam(required = true, value = "Study view filter")
         @Valid
         @RequestBody(required = false)
@@ -843,7 +843,7 @@ public class StudyViewController {
         List<String> studyIds = new ArrayList<>();
         studyViewFilterUtil.extractStudyAndSampleIds(sampleIdentifiers, studyIds, sampleIds);
 
-        Map<String, List<GenePanelCount>> counts = studyViewService.fetchGenePanelCounts(sampleIds, studyIds);
+        Map<String, List<ClinicalDataCount>> counts = studyViewService.fetchGenePanelCounts(sampleIds, studyIds);
         
         return new ResponseEntity<>(counts, HttpStatus.OK);
     }

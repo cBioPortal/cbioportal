@@ -247,7 +247,7 @@ public class StudyViewServiceImpl implements StudyViewService {
     }
     
     @Override
-    public Map<String, List<GenePanelCount>> fetchGenePanelCounts(List<String> sampleIds, List<String> studyIds) {
+    public Map<String, List<ClinicalDataCount>> fetchGenePanelCounts(List<String> sampleIds, List<String> studyIds) {
         // sample ID, molecular profile ID pairs
         List<MolecularProfileCaseIdentifier> profiles = molecularProfileService.getMolecularProfileCaseIdentifiers(studyIds, sampleIds);
 
@@ -262,7 +262,7 @@ public class StudyViewServiceImpl implements StudyViewService {
      * @param identifiers MolecularProfiles with the same suffix
      * @return The number of times each gene panel occurs within this collection of sample, molecular profile pairs
      */
-    private List<GenePanelCount> fetchAndCountGenePanels(List<MolecularProfileCaseIdentifier> identifiers) {
+    private List<ClinicalDataCount> fetchAndCountGenePanels(List<MolecularProfileCaseIdentifier> identifiers) {
         return genePanelService
             .fetchGenePanelDataInMultipleMolecularProfiles(identifiers)
             .stream()
@@ -275,16 +275,15 @@ public class StudyViewServiceImpl implements StudyViewService {
             .collect(Collectors.toList());
     }
 
-    private GenePanelCount toGenePanelCount(Map.Entry<String, List<GenePanelData>> e) {
+    private ClinicalDataCount toGenePanelCount(Map.Entry<String, List<GenePanelData>> e) {
         List<String> molecularProfileIds = e.getValue().stream()
             .map(GenePanelData::getMolecularProfileId)
             .distinct()
             .collect(Collectors.toList());
-        
-        GenePanelCount count = new GenePanelCount();
+
+        ClinicalDataCount count = new ClinicalDataCount();
         count.setCount(e.getValue().size());
-        count.setGenePanelId(e.getKey());
-        count.setMolecularProfileIds(molecularProfileIds);
+        count.setValue(e.getKey());
         return count;
     }
 }

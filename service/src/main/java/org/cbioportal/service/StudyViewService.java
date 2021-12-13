@@ -21,5 +21,5 @@ public interface StudyViewService {
 
     List<GenericAssayDataCountItem> fetchGenericAssayDataCounts(List<String> sampleIds, List<String> studyIds, List<String> stableIds, List<String> profileTypes);
     
-    Map<String, List<GenePanelCount>> fetchGenePanelCounts(List<String> sampleIds, List<String> studyIds);
+    Map<String, List<ClinicalDataCount>> fetchGenePanelCounts(List<String> sampleIds, List<String> studyIds);
 }

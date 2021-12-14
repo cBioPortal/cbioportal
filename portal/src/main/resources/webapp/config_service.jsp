@@ -150,9 +150,9 @@
 
         obj.put("oncoprintOncoKbHotspotsDefault",enableOncoKBandHotspots);
 
-        obj.put("oncoKbTokenDefined", !StringUtils.isEmpty(GlobalProperties.getOncoKbToken()));
+        obj.put("oncoKbTokenDefined", !ObjectUtils.isEmpty(GlobalProperties.getOncoKbToken()));
 
-        obj.put("sessionServiceEnabled", !StringUtils.isEmpty(GlobalProperties.getSessionServiceUrl()));
+        obj.put("sessionServiceEnabled", !ObjectUtils.isEmpty(GlobalProperties.getSessionServiceUrl()));
 
         out.println(obj.toJSONString());
 

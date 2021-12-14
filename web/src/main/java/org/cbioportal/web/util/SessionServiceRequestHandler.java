@@ -6,7 +6,6 @@ import static org.cbioportal.utils.removeme.Session.*;
 import java.nio.charset.Charset;
 
 import org.apache.commons.codec.binary.Base64;
-import org.apache.commons.lang3.StringUtils;
 import org.cbioportal.utils.removeme.*;
 import org.cbioportal.web.parameter.CustomDataSession;
 import org.cbioportal.web.parameter.CustomGeneList;
@@ -18,6 +17,7 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Component;
+import org.springframework.util.ObjectUtils;
 import org.springframework.web.client.RestTemplate;
 
 import com.fasterxml.jackson.databind.DeserializationFeature;
@@ -40,7 +40,7 @@ public class SessionServiceRequestHandler {
     }
 
     public Boolean isSessionServiceEnabled() {
-        return !StringUtils.isEmpty(sessionServiceURL);
+        return !ObjectUtils.isEmpty(sessionServiceURL);
     }
 
     public HttpHeaders getHttpHeaders() {

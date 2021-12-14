@@ -2,10 +2,9 @@ package org.cbioportal.proxy;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.*;
 import org.springframework.http.converter.StringHttpMessageConverter;
-import org.springframework.util.StringUtils;
+import org.springframework.util.ObjectUtils;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseStatus;
@@ -64,7 +63,7 @@ public class ProxyController {
 
         HttpHeaders httpHeaders = initHeaders(request);
         
-        if (!StringUtils.isEmpty(oncokbToken)) {
+        if (!ObjectUtils.isEmpty(oncokbToken)) {
             httpHeaders.add("Authorization", "Bearer " + oncokbToken);
         }
 

@@ -1,12 +1,12 @@
 package org.cbioportal.web.config;
 
-import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.InitializingBean;
 
 import javax.servlet.ServletContextEvent;
 import javax.servlet.ServletContextListener;
 import java.io.*;
 import java.util.Properties;
+import org.springframework.util.ObjectUtils;
 
 /**
  * Created by Hongxin Zhang on 11/15/19.
@@ -46,7 +46,7 @@ public class WebServletContextListener implements ServletContextListener, Initia
     }
 
     private void checkOncokbInfo() {
-        if(StringUtils.isEmpty(this.oncokbToken) && (StringUtils.isEmpty(this.oncokbURL) || this.oncokbURL.equalsIgnoreCase(DEFAULT_ONCOKB_URL))) {
+        if(ObjectUtils.isEmpty(this.oncokbToken) && (ObjectUtils.isEmpty(this.oncokbURL) || this.oncokbURL.equalsIgnoreCase(DEFAULT_ONCOKB_URL))) {
             System.out.println("----------------------------------------------------------------------------------------------------------------");
             // oncokb.org is deprecated, www.oncokb.org should be used
             System.out.println("-- You are connecting to the OncoKB public instance which does not include any therapeutic information.");

@@ -32,7 +32,7 @@
 
 package org.mskcc.cbio.portal.util;
 
-import org.apache.log4j.*;
+import org.apache.logging.log4j.*;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
@@ -50,7 +50,7 @@ public class ProgressMonitor {
     private int curValue;
     private String currentMessage;
     private StringBuffer log = new StringBuffer();
-    private static org.apache.log4j.Logger logger = org.apache.log4j.Logger.getLogger(ProgressMonitor.class);
+    private static org.apache.logging.log4j.Logger logger = org.apache.logging.log4j.LogManager.getLogger(ProgressMonitor.class);
     private boolean consoleMode;
     private boolean showProgress;
     private TreeSet<String> warnings = new TreeSet<>();

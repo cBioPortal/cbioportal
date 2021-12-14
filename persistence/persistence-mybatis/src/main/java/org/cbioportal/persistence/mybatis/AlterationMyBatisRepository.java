@@ -12,6 +12,8 @@ import org.cbioportal.model.MolecularProfile.MolecularAlterationType;
 import org.cbioportal.model.util.Select;
 import org.cbioportal.persistence.AlterationRepository;
 import org.cbioportal.persistence.MolecularProfileRepository;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
 
@@ -20,6 +22,7 @@ import java.util.stream.Collectors;
 
 @Repository
 public class AlterationMyBatisRepository implements AlterationRepository {
+    private static final Logger LOG = LoggerFactory.getLogger(AlterationMyBatisRepository.class);
 
     @Autowired
     private AlterationCountsMapper alterationCountsMapper;
@@ -56,7 +59,15 @@ public class AlterationMyBatisRepository implements AlterationRepository {
         Map<MolecularAlterationType, List<MolecularProfileCaseIdentifier>> groupedIdentifiersByProfileType =
             alterationCountsMapper.getMolecularProfileCaseInternalIdentifier(new ArrayList<>(molecularProfileCaseIdentifiers), "SAMPLE_ID")
             .stream()
-            .collect(Collectors.groupingBy(e -> profileTypeByProfileId.getOrDefault(e.getMolecularProfileId(), null)));
+            .peek(e -> {
+                // Collectors.groupingBy does not allow null keys (it NPEs). The keys for this groupBy should never be null,
+                // but if they are, we filter them out and log a warning about them, rather than letting this whole function break.
+                if (!profileTypeByProfileId.containsKey(e.getMolecularProfileId())) {
+                    LOG.warn("Could not find internal molecular profile id {} - you probably need to clear your cache or restart your server.", e.getMolecularProfileId());
+                }
+            })
+            .filter(e -> profileTypeByProfileId.containsKey(e.getMolecularProfileId()))
+            .collect(Collectors.groupingBy(e -> profileTypeByProfileId.get(e.getMolecularProfileId())));
 
         // TODO: Remove once fusions are removed from mutation table
         // if fusions were imported as a "mutations" profile then replace STRUCTURAL_VARIANT in

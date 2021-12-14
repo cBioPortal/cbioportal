@@ -514,7 +514,7 @@ the cBioPortal application.
 By default the endpoint is disabled. The endpoint can be enabled by setting:
 
 ```
-cache.endpoint.enable=true
+cache.endpoint.enabled=true
 ```
 
 Access to the endpoint is not regulated by the configured user authorization mechanism. Instead, an API key should be passed

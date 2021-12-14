@@ -41,7 +41,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
 import org.mskcc.cbio.portal.model.ExtendedMutation;
 
 import com.google.common.base.Joiner;
@@ -57,7 +58,7 @@ import com.google.common.collect.Sets;
  * Pileup of one or mutations at a single location.
  */
 public final class Pileup {
-    private static final Logger logger = Logger.getLogger(Pileup.class);
+    private static final Logger logger = LogManager.getLogger(Pileup.class);
     private final String label;
     private final int location;
     private final int count;

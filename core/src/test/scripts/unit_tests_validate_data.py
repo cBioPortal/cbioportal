@@ -1479,8 +1479,8 @@ class MutationsSpecialCasesTestCase(PostClinicalDataFileTestCase):
                 'mutations/data_mutations_wrong_gene_position.maf',
                 validateData.MutationsExtendedValidator,
                 extra_meta_fields={'swissprot_identifier': 'name'})
-        # we expect 4 errors:
-        self.assertEqual(4, len(record_list))
+        # we expect 2 errors:
+        self.assertEqual(2, len(record_list))
         record_iterator = iter(record_list)
         # first is an error about wrong value in Start_Position:
         record = next(record_iterator)
@@ -1488,16 +1488,6 @@ class MutationsSpecialCasesTestCase(PostClinicalDataFileTestCase):
         self.assertIn('The start position of this variant is not '
                       'an integer', record.getMessage())
         # second is an error about wrong value in End_Position:
-        record = next(record_iterator)
-        self.assertEqual(logging.ERROR, record.levelno)
-        self.assertIn('The end position of this variant is not '
-                      'an integer', record.getMessage())
-        # third is an error about no value in Start_Position:
-        record = next(record_iterator)
-        self.assertEqual(logging.ERROR, record.levelno)
-        self.assertIn('The start position of this variant is not '
-                      'an integer', record.getMessage())
-        # forth is an error about no value in End_Position:
         record = next(record_iterator)
         self.assertEqual(logging.ERROR, record.levelno)
         self.assertIn('The end position of this variant is not '

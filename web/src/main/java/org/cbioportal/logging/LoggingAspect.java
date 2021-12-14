@@ -7,9 +7,11 @@ import org.aspectj.lang.annotation.After;
 import org.aspectj.lang.annotation.Aspect;
 import org.aspectj.lang.annotation.Before;
 import org.springframework.stereotype.Component;
+import org.cbioportal.utils.config.annotation.ConditionalOnProperty;
 
 @Aspect
 @Component
+@ConditionalOnProperty(name = "aspect.enable.logging", havingValue = "true")
 public class LoggingAspect {
 
     private static final Logger logger = LogManager.getLogger("LoggingAspect");

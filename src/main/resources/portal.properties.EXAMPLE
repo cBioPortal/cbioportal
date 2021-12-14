@@ -345,6 +345,11 @@ persistence.cache_type=no-cache
 #hrrs.logging.filepath=
 #hrrs.enable.logging=false
 
+# enable/disable aspectj logging
+# if active, all enter/exits to methods in web, service-impl,
+# and mybatis packages are logged 
+#aspect.enable.logging=false
+
 # ensembl URL template for transcript lookup in Mutations tab. Default is http://grch37.ensembl.org/homo_sapiens/Transcript/Summary?t=<%= transcriptId %>
 #ensembl.transcript_url=http://ensembl.org/homo_sapiens/Transcript/Summary?t=<%= transcriptId %>
 

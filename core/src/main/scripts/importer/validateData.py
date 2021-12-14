@@ -1701,7 +1701,7 @@ class MutationsExtendedValidator(CustomDriverAnnotationValidator):
             tumor_seq_allele2 = data[self.cols.index('Tumor_Seq_Allele2')].strip()
         if set(necessary_columns_check10).issubset(self.cols):
             # Set positions to False if position are empty, so checks will not be performed
-            if data[self.cols.index('Start_Position')] == "" or data[self.cols.index('End_Position')] == "":
+            if data[self.cols.index('Start_Position')] == '' or data[self.cols.index('Start_Position')] == 'NA' or data[self.cols.index('End_Position')] == '' or data[self.cols.index('End_Position')] == 'NA':
                 positions = False
             else:
                 positions = True
@@ -2208,7 +2208,7 @@ class MutationsExtendedValidator(CustomDriverAnnotationValidator):
 
     def checkStartPosition(self, value):
         """Check that the Start_Position value is an integer."""
-        if value == 'NA':
+        if value == '' or value == 'NA':
             self.logger.warning(
                 'The start position of this variant is not '
                     'defined. The chromosome plot in the patient view '
@@ -2228,7 +2228,7 @@ class MutationsExtendedValidator(CustomDriverAnnotationValidator):
 
     def checkEndPosition(self, value):
         """Check that the End_Position value is an integer."""
-        if value == 'NA':
+        if value == '' or value == 'NA':
             self.logger.warning(
                 'The end position of this variant is not '
                     'defined. The chromosome plot in the patient view '

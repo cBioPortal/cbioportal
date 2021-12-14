@@ -132,21 +132,21 @@
                 </goals>
                 <configuration>
                   <target>
-                    <taskdef resource="net/sf/antcontrib/antlib.xml" classpathref="maven.dependency.classpath" />
+                    <taskdef resource="net/sf/antcontrib/antlib.xml" classpathref="maven.dependency.classpath"/>
                     <if>
                       <not>
-                        <available file="${basedir}/src/main/resources/portal.properties" />
+                        <available file="${basedir}/src/main/resources/portal.properties"/>
                       </not>
                       <then>
-                        <copy file="${basedir}/src/main/resources/portal.properties.EXAMPLE" tofile="${basedir}/src/main/resources/portal.properties" />
+                        <copy file="${basedir}/src/main/resources/portal.properties.EXAMPLE" tofile="${basedir}/src/main/resources/portal.properties"/>
                       </then>
                     </if>
                     <if>
                       <not>
-                        <available file="${basedir}/src/main/resources/log4j.properties" />
+                        <available file="${basedir}/src/main/resources/log4j.properties"/>
                       </not>
                       <then>
-                        <copy file="${basedir}/src/main/resources/log4j.properties.EXAMPLE" tofile="${basedir}/src/main/resources/log4j.properties" />
+                        <copy file="${basedir}/src/main/resources/log4j.properties.EXAMPLE" tofile="${basedir}/src/main/resources/log4j.properties"/>
                       </then>
                     </if>
                   </target>
@@ -532,7 +532,7 @@
       <dependency>
         <groupId>org.hibernate</groupId>
         <artifactId>hibernate-validator</artifactId>
-        <version>5.3.4.Final</version>
+        <version>5.4.3.Final</version>
       </dependency>
       <!-- mockito -->
       <dependency>
@@ -1175,7 +1175,7 @@
                     </goals>
                   </pluginExecutionFilter>
                   <action>
-                    <ignore />
+                    <ignore/>
                   </action>
                 </pluginExecution>
               </pluginExecutions>

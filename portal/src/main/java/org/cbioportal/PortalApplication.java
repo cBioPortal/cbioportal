@@ -1,5 +1,6 @@
 package org.cbioportal;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.autoconfigure.data.mongo.MongoDataAutoConfiguration;
@@ -17,7 +18,6 @@ import org.springframework.context.annotation.PropertySources;
     @PropertySource(ignoreResourceNotFound = true, value = "classpath:maven.properties"),
     @PropertySource(ignoreResourceNotFound = true, value = "classpath:git.properties")
 })
-@EnableConfigurationProperties(PortalPropertiesValidation.class)
 public class PortalApplication {
     public static void main(String[] args) {
         SpringApplication.run(PortalApplication.class, args);

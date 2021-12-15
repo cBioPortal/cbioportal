@@ -25,6 +25,7 @@ import org.springframework.social.security.SocialAuthenticationFilter;
 import org.springframework.social.security.SocialAuthenticationProvider;
 import org.springframework.social.security.SocialAuthenticationServiceRegistry;
 
+// TODO decide on removal of this security option
 @Configuration
 // add new chain after api-filter chain (at position -2), but before the default fallback chain 
 @Order(SecurityProperties.BASIC_AUTH_ORDER - 1)

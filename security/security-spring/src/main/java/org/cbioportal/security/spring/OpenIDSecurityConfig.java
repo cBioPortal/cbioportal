@@ -9,6 +9,7 @@ import org.springframework.core.annotation.Order;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
 
+// TODO decide on removal of this security option
 @Configuration
 // add new chain after api-filter chain (at position -2), but before the default fallback chain 
 @Order(SecurityProperties.BASIC_AUTH_ORDER - 1)

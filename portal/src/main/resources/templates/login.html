@@ -49,13 +49,7 @@
                     
                         <table cellspacing="2px" width="100%">
                             <tr>
-                                <td th:if="${authentication_method == 'openid'}"
-                                    th:insert="~{login_options :: openid}" />
-                                <td th:if="${authentication_method == 'ad'}"
-                                    th:insert="~{login_options :: ad}" />
-                                <td th:if="${authentication_method == 'ldap'}"
-                                    th:insert="~{login_options :: ad}" />
-                                <td th:if="${authentication_method == 'saml'}"
+                                <td th:if="${show_saml}"
                                     th:insert="~{login_options :: saml}" />
                                 <td th:if="${show_google}"
                                     th:insert="~{login_options :: google}" />

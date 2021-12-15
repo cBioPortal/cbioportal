@@ -64,7 +64,7 @@ public class IndexPageController {
         model.addAttribute("saml_idp_metadata_entityid", frontendPropertiesService.getFrontendProperty(FrontendProperty.saml_idp_metadata_entityid));
         model.addAttribute("logout_success", Boolean.parseBoolean(request.getParameter("logout_success")));
         model.addAttribute("login_error", Boolean.parseBoolean(request.getParameter("login_error")));
-        model.addAttribute("authentication_method", frontendPropertiesService.getFrontendProperty(FrontendProperty.authenticationMethod));
+        model.addAttribute("show_saml", frontendPropertiesService.getFrontendProperty(FrontendProperty.authenticationMethod).equals("saml"));
         model.addAttribute("show_google", Arrays.asList(authenticate).contains("social_auth") || Arrays.asList(authenticate).contains("social_auth_google") );
         model.addAttribute("show_microsoft", Arrays.asList(authenticate).contains("social_auth_microsoft"));
         

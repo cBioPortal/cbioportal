@@ -1,49 +1,6 @@
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org">
 <body>
-    <form 
-        th:fragment="openid"
-        id="openid_form"
-        style="width:  100%;"
-        action="/j_spring_openid_security_check"
-        method='POST'>
-        <div th:replace="form-contents" />
-    </form>
-    
-    <form 
-        th:fragment="ad"
-        name='loginForm'
-        action="/j_spring_security_check>"
-        method='POST'>
-        <div th:replace="form-contents" />
-    </form>
-    
-    <div th:fragment="form-contents">
-        <input type="hidden" name="action" value="verify"/>
-        <p></p>
-        <div id="login-fieldset">
-            <p>
-                <span
-                    th:utext="${skin_authorization_message}"
-                    style="color:#333333;font-family:'Helvetica Neue',Helvetica,Arial,sans-serif;font-size:14px"
-                />
-            </p>
-    
-            <div id="openid_choice">
-                <p>Please click your account provider:</p>
-                <div id="openid_btns"></div>
-            </div>
-            <div id="openid_input_area">
-                <input id="openid_identifier" name="openid_identifier" type="text" value="http://"/>
-                <input id="openid_submit" type="submit" value="Sign-In"/>
-            </div>
-            <noscript>
-                <p>OpenID is a service that allows you to log-on to many different websites using a single identity.
-                    Find out <a href="http://openid.net/what/">more about OpenID</a> and <a href="http://openid.net/get/">how
-                        to get an OpenID enabled account</a>.</p>
-            </noscript>
-        </div>
-    </div>
 
     <div th:fragment="saml"
         id="login-fieldset">

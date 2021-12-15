@@ -31,8 +31,9 @@
     <properties>
         <maven.compiler.source>11</maven.compiler.source>
         <maven.compiler.target>11</maven.compiler.target>
-        <frontend.groupId>com.github.cbioportal</frontend.groupId>
-        <frontend.version>7e8d755d2538e124147ad983f4caa38ef0992f6b</frontend.version>
+<!--        TODO replace with version of cbioportal frontend with compatible login url-->
+        <frontend.groupId>com.github.pvannierop</frontend.groupId>
+        <frontend.version>702993fa1cced293903b603bba7c8073113e9204</frontend.version>
 
         <!-- THIS SHOULD BE KEPT IN SYNC TO VERSION IN CGDS.SQL -->
         <db.version>2.12.10</db.version>

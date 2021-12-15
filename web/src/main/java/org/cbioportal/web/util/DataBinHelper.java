@@ -8,6 +8,7 @@ import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.util.*;
 import java.util.stream.Collectors;
+import org.springframework.util.Assert;
 
 @Component
 public class DataBinHelper {
@@ -144,6 +145,11 @@ public class DataBinHelper {
     public BigDecimal calcQ1(List<BigDecimal> sortedValues) {
         return sortedValues.size() > 0 ?
             sortedValues.get((int) Math.floor(sortedValues.size() / 4.0)) : null;
+    }
+
+    public BigDecimal calcMedian(List<BigDecimal> sortedValues) {
+        return sortedValues.size() > 0 ?
+            sortedValues.get((int) Math.ceil((sortedValues.size() * (1.0 / 2.0)))) : null;
     }
 
     public BigDecimal calcQ3(List<BigDecimal> sortedValues) {
@@ -398,5 +404,46 @@ public class DataBinHelper {
             .map(value -> value.stripTrailingZeros().scale() <= 0)
             .reduce((a, b) -> a && b)
             .orElse(false);
+    }
+
+    public List<BigDecimal> generateBins(List<BigDecimal> sortedNumericalValues, BigDecimal binSize, BigDecimal anchorValue) {
+
+        Assert.notNull(sortedNumericalValues, "sortedNumerical values is null!");
+        Assert.notNull(binSize, "binSize values is null!");
+        Assert.notNull(anchorValue, "anchorValue values is null!");
+
+        BigDecimal minValue = min(sortedNumericalValues);
+        BigDecimal maxValue = max(sortedNumericalValues);
+        
+        if (minValue == null) {
+            return null;
+        }
+    
+        List<BigDecimal> bins = new ArrayList<>();
+        
+        // Calculate the lower boundary.
+        BigDecimal deltaL = anchorValue.subtract(minValue);
+        BigDecimal remainderL = deltaL.remainder(binSize);
+        // remainder() is not modulo; correct for this. 
+        if (remainderL.compareTo(new BigDecimal(0)) < 0) {
+            remainderL = remainderL.add(binSize);
+        }
+        BigDecimal lowerBound = minValue.add(remainderL);
+        
+        // While the bound smaller than the maxValue keep adding boundaries.
+        while (lowerBound.compareTo(maxValue) < 0) {
+            bins.add(lowerBound);
+            lowerBound = lowerBound.add(binSize);
+        }
+        
+        return bins;
+    }
+    
+    private BigDecimal min(List<BigDecimal> numericalValues) {
+        return numericalValues.size() > 0 ? Collections.min(numericalValues) : null;
+    }
+    
+    private BigDecimal max(List<BigDecimal> numericalValues) {
+        return numericalValues.size() > 0 ? Collections.max(numericalValues) : null;
     }
 }

@@ -1,4 +1,4 @@
-package org.cbioportal;
+package org.cbioportal.properties;
 
 import org.cbioportal.utils.validation.AllowedValues;
 import org.springframework.boot.context.properties.ConfigurationProperties;
@@ -8,7 +8,7 @@ import org.springframework.validation.annotation.Validated;
 @Validated
 @Configuration
 @ConfigurationProperties
-public class PortalPropertiesValidation {
+public class PortalProperties {
 
     @AllowedValues(values = {"false", "noauthsessionservice", "saml", "oauth2",
         "googleplus", "openid", "ad", "ldap", "social_auth", "social_auth_google",

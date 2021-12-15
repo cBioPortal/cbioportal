@@ -44,19 +44,20 @@
                                         <span th:text="${skin_login_contact_html}"></span>
                                 </strong></p>
                             </div>
-
-                        <br>
-                    
-                        <table cellspacing="2px" width="100%">
-                            <tr>
-                                <td th:if="${show_saml}"
-                                    th:insert="~{login_options :: saml}" />
-                                <td th:if="${show_google}"
-                                    th:insert="~{login_options :: google}" />
-                                <td th:if="${show_microsoft}"
-                                    th:insert="~{login_options :: microsoft}" />
-                            </tr>
-                        </table>
+    
+                            <br>
+                        
+                            <table cellspacing="2px" width="100%">
+                                <tr>
+                                    <td th:if="${show_saml}"
+                                        th:insert="~{login_options :: saml}" />
+                                    <td th:if="${show_google}"
+                                        th:insert="~{login_options :: google}" />
+                                    <td th:if="${show_microsoft}"
+                                        th:insert="~{login_options :: microsoft}" />
+                                </tr>
+                            </table>
+                        </div>
                     </td>
                 </tr>
 

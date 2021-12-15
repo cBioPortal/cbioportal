@@ -106,11 +106,8 @@ public class CustomRedisCache extends AbstractValueAdaptingCache {
     public boolean evictIfPresent(Object pattern) {
         // Pattern is expected to be a regular expression
         if (pattern instanceof String) {
-            String[] keys = redissonClient.getKeys().getKeysStream()
-                .filter(key -> key.startsWith(name))
-                .filter(key -> key.matches((String) pattern))
-                .toArray(String[]::new);
-            return redissonClient.getKeys().delete(keys) > 0;
+//            String regex = ((String) pattern).replaceAll("^", "^" + name + DELIMITER);
+            return redissonClient.getKeys().deleteByPattern((String) pattern) > 0;
         } else {
             LOG.warn("Pattern passed for cache key eviction is not of String type. Cache eviction could not be performed.");
         }
@@ -119,12 +116,12 @@ public class CustomRedisCache extends AbstractValueAdaptingCache {
 
     @Override
     public void clear() {
-        this.redissonClient.getKeys().deleteByPattern(name + DELIMITER + "*");
+        this.redissonClient.getKeys().deleteByPattern(name + DELIMITER + ".*");
     }
 
     @Override
     public boolean invalidate() {
-        return this.redissonClient.getKeys().deleteByPattern(name + DELIMITER + "*") > 0;
+        return this.redissonClient.getKeys().deleteByPattern(name + DELIMITER + ".*") > 0;
     }
 
     @Override

@@ -132,21 +132,21 @@
                 </goals>
                 <configuration>
                   <target>
-                    <taskdef resource="net/sf/antcontrib/antlib.xml" classpathref="maven.dependency.classpath" />
+                    <taskdef resource="net/sf/antcontrib/antlib.xml" classpathref="maven.dependency.classpath"/>
                     <if>
                       <not>
-                        <available file="${basedir}/src/main/resources/portal.properties" />
+                        <available file="${basedir}/src/main/resources/portal.properties"/>
                       </not>
                       <then>
-                        <copy file="${basedir}/src/main/resources/portal.properties.EXAMPLE" tofile="${basedir}/src/main/resources/portal.properties" />
+                        <copy file="${basedir}/src/main/resources/portal.properties.EXAMPLE" tofile="${basedir}/src/main/resources/portal.properties"/>
                       </then>
                     </if>
                     <if>
                       <not>
-                        <available file="${basedir}/src/main/resources/log4j.properties" />
+                        <available file="${basedir}/src/main/resources/log4j.properties"/>
                       </not>
                       <then>
-                        <copy file="${basedir}/src/main/resources/log4j.properties.EXAMPLE" tofile="${basedir}/src/main/resources/log4j.properties" />
+                        <copy file="${basedir}/src/main/resources/log4j.properties.EXAMPLE" tofile="${basedir}/src/main/resources/log4j.properties"/>
                       </then>
                     </if>
                   </target>
@@ -790,7 +790,7 @@
       <dependency>
         <groupId>org.apache.logging.log4j</groupId>
         <artifactId>log4j-core</artifactId>
-        <version>2.16.0</version>
+        <version>2.17.0</version>
       </dependency>
       <!-- junit -->
       <dependency>
@@ -1175,7 +1175,7 @@
                     </goals>
                   </pluginExecutionFilter>
                   <action>
-                    <ignore />
+                    <ignore/>
                   </action>
                 </pluginExecution>
               </pluginExecutions>

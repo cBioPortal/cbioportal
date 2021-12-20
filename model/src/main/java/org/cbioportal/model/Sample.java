@@ -1,6 +1,7 @@
 package org.cbioportal.model;
 
 import javax.validation.constraints.NotNull;
+import java.util.Objects;
 
 public class Sample extends UniqueKeyBase {
 
@@ -129,4 +130,17 @@ public class Sample extends UniqueKeyBase {
     public Boolean getProfiledForFusions() { return profiledForFusions; }
 
     public void setProfiledForFusions(Boolean profiledForFusions) { this.profiledForFusions = profiledForFusions; }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (!(o instanceof Sample)) return false;
+        Sample sample = (Sample) o;
+        return getStableId().equals(sample.getStableId()) && getCancerStudyIdentifier().equals(sample.getCancerStudyIdentifier());
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(getStableId(), getCancerStudyIdentifier());
+    }
 }

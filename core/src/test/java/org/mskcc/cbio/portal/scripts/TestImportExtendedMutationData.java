@@ -121,77 +121,7 @@ public class TestImportExtendedMutationData {
         validateMutationAminoAcid(geneticProfileId, sampleId, 51806, "P113L");   // valid Unknown
         validateMutationAminoAcid(geneticProfileId, sampleId, 89, "S116R"); // Unknown  Somatic
     }
-
-    /**
-     * Tests import of data files with names in the SWISSPROT column.
-     *
-     * @throws IOException  if something goes wrong reading from the data file
-     * @throws DaoException  if something goes wrong talking to the database
-     */
-    @Test
-    public void testImportExtendedMutationDataSwissprotName() throws IOException, DaoException {
-        loadStudyContext1();
-        MySQLbulkLoader.bulkLoadOn();
-
-        File file = new File("src/test/resources/data_mutations_swissprotname.maf");
-        ImportExtendedMutationData parser = new ImportExtendedMutationData(file, geneticProfileId, null);
-        parser.importData();
-        MySQLbulkLoader.flushAll();
-
-        checkSwissprotLoaded();
-        // unknown accessions are only loaded if the column lists accessions
-        int sampleId = DaoSample.getSampleByCancerStudyAndSampleId(studyId, "TCGA-A2-A0CR-01").getInternalId();
-        ExtendedMutation m = DaoMutation.getMutations(
-                geneticProfileId, sampleId, 64581).get(0);
-    }
-
-    /**
-     * Tests import of data files with accessions in the SWISSPROT column.
-     *
-     * @throws IOException  if something goes wrong reading from the data file
-     * @throws DaoException  if something goes wrong talking to the database
-     */
-    @Test
-    public void testImportExtendedMutationDataSwissprotAccession() throws IOException, DaoException {
-        loadStudyContext1();
-        MySQLbulkLoader.bulkLoadOn();
-
-        File file = new File("src/test/resources/data_mutations_swissprotaccession.maf");
-        ImportExtendedMutationData parser = new ImportExtendedMutationData(file, geneticProfileId, null);
-        parser.setSwissprotIsAccession(true);
-        parser.importData();
-        MySQLbulkLoader.flushAll();
-
-        checkSwissprotLoaded();
-        // unknown accessions are only loaded if the column lists accessions
-        int sampleId = DaoSample.getSampleByCancerStudyAndSampleId(studyId, "TCGA-A2-A0CR-01").getInternalId();
-        ExtendedMutation m = DaoMutation.getMutations(
-                geneticProfileId, sampleId, 64581).get(0);
-    }
-
-    /**
-     * Performs common assertions for the tests about the SWISSPROT column.
-     *
-     * @throws DaoException  on errors reading from the database
-     */
-    private void checkSwissprotLoaded() throws DaoException {
-
-        int sampleId;
-        ExtendedMutation m;
-
-        sampleId = DaoSample.getSampleByCancerStudyAndSampleId(studyId, "TCGA-A2-A0CR-01").getInternalId();
-        validateMutationAminoAcid(geneticProfileId, sampleId, 64581, "K145Q");
-
-        sampleId = DaoSample.getSampleByCancerStudyAndSampleId(studyId, "TCGA-A2-A0T5-01").getInternalId();
-        validateMutationAminoAcid(geneticProfileId, sampleId, 3339, "X4137?");
-        m = DaoMutation.getMutations(
-                geneticProfileId, sampleId, 3339).get(0);
-        validateMutationAminoAcid(geneticProfileId, sampleId, 54407, "T32P");
-        m = DaoMutation.getMutations(
-                geneticProfileId, sampleId, 54407).get(0);
-
-    }
-
+    
     /**
      * Check that import of oncotated data works
      * @throws IOException

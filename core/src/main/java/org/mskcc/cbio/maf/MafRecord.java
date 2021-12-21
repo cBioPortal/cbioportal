@@ -119,7 +119,7 @@ public class MafRecord {
     private String driverFilterAnn;
     private String driverTiersFilter;
     private String driverTiersFilterAnn;
-    private Map<String, Map<String, String>> namespacesMap;
+    private Map<String, Map<String, Object>> namespacesMap;
 
     public String getChr() {
         return chr;
@@ -665,11 +665,11 @@ public class MafRecord {
         this.driverTiersFilterAnn = driverTiersFilterAnn;
     }
 
-    public Map<String, Map<String, String>> getNamespacesMap() {
+    public Map<String, Map<String, Object>> getNamespacesMap() {
         return namespacesMap;
     }
 
-    public void setNamespacesMap(Map<String, Map<String, String>> namespacesMap) {
+    public void setNamespacesMap(Map<String, Map<String, Object>> namespacesMap) {
         this.namespacesMap = namespacesMap;
     }
 }

@@ -81,11 +81,17 @@ public class AlterationEnrichmentUtil<T extends AlterationCountByGene> {
             .stream()
             .filter(gene -> {
                 // filter genes where number of altered cases in all groups is 0
+                // or where number of altered cases > number of profiled cases
+                // (the latter can happen in targeted studies when the gene is not on a panel,
+                // but it is a participant in a structural variant, e.g. fusion, with a gene
+                // that is on the panel
                 return groups.stream().filter(group -> {
                     AlterationCountByGene mutationCountByGene = mutationCountsbyEntrezGeneIdAndGroup
                         .getOrDefault(group, new HashMap<Integer, AlterationCountByGene>())
                         .get(gene.getEntrezGeneId());
-                    return mutationCountByGene == null ? false : mutationCountByGene.getNumberOfAlteredCases() != 0;
+                    return mutationCountByGene == null ? false : (mutationCountByGene.getNumberOfAlteredCases() != 0
+                                                                  && mutationCountByGene.getNumberOfAlteredCases() <=
+                                                                  mutationCountByGene.getNumberOfProfiledCases());
                 }).count() > 0;
             })
             .map(gene -> {

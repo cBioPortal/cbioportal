@@ -244,7 +244,7 @@ public class TestMafUtil {
             line = buf.readLine().trim();
         }
         MafUtil mafUtil = new MafUtil(line, VALID_NAMESPACES);
-        Assert.assertTrue(mafUtil.getNamespaceIndexMap().size() == 2);
+        Assert.assertEquals(2, mafUtil.getNamespaceIndexMap().size());
         for (String ns : VALID_NAMESPACES) {
             if (!mafUtil.getNamespaceIndexMap().containsKey(ns)) {
                 Assert.fail("maUtil.getNamespaceIndexMap() is missing expected namespace: '" + ns + "'");
@@ -268,7 +268,7 @@ public class TestMafUtil {
             line = buf.readLine().trim();
         }
         MafUtil mafUtil = new MafUtil(line, new LinkedHashSet<>(Arrays.asList(ASCN_NAMESPACE)));
-        Assert.assertTrue(mafUtil.getNamespaceIndexMap().size() == 1);
+        Assert.assertEquals(1, mafUtil.getNamespaceIndexMap().size());
         Assert.assertTrue(mafUtil.getNamespaceIndexMap().containsKey(ASCN_NAMESPACE));
 
         List<AlleleSpecificCopyNumber> ascnRecords = new ArrayList<>();
@@ -277,7 +277,7 @@ public class TestMafUtil {
                 MafRecord record = mafUtil.parseRecord(line);
                 // every record in test MAF should have ASCN data
                 Assert.assertTrue(record.getNamespacesMap().containsKey(ASCN_NAMESPACE));
-                Map<String, String> ascnData = record.getNamespacesMap().get(ASCN_NAMESPACE);
+                Map<String, Object> ascnData = record.getNamespacesMap().get(ASCN_NAMESPACE);
                 ascnRecords.add(new AlleleSpecificCopyNumber(ascnData));
             }
         }

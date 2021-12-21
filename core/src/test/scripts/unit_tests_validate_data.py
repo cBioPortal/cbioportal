@@ -1722,6 +1722,21 @@ class MutationsSpecialCasesTestCase(PostClinicalDataFileTestCase):
         self.assertIn("File contains invalid UTF-8 bytes. Please check values in file", record_list[0].getMessage())
         self.assertEqual(logging.ERROR, record_list[0].levelno)
 
+        def test_zygosity_column_enforced_with_namespace_defined(self):
+
+            """Test error is raised when namespace defined, but the corresponding column is not present"""
+            self.logger.setLevel(logging.INFO)
+            record_list = self.validate('mutations/data_mutations_missing_zygosity_status_column.maf',
+                                        validateData.MutationsExtendedValidator,
+                                        extra_meta_fields={'swissprot_identifier': 'name',
+                                                           'namespaces': 'ZYGOSITY'})
+            self.assertEqual(len(record_list), 3)
+            print(record_list)
+            record_iterator = iter(record_list)
+            record = next(record_iterator)
+            self.assertEqual(record.levelno, logging.ERROR)
+            self.assertEqual(record.getMessage(), 'Namespace defined but MAF is missing required column.')
+
 
 class FusionValidationTestCase(PostClinicalDataFileTestCase):
 

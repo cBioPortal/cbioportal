@@ -130,6 +130,7 @@
             "skin.citation_rule_text",
             "skin.geneset_hierarchy.default_p_value",
             "skin.geneset_hierarchy.default_gsva_score",
+            "skin.mutation_table.namespace_column.show_by_default"
         };
 
 

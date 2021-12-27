@@ -73,7 +73,7 @@ public class ImportExtendedMutationData{
     private Set<String> filteredMutations = new HashSet<String>();
     private Set<String> namespaces = new HashSet<String>();
     private Pattern SEQUENCE_SAMPLES_REGEX = Pattern.compile("^.*sequenced_samples:(.*)$");
-    private final String ASCN_NAMESPACE = "ascn";
+    private final String ASCN_NAMESPACE = "ASCN";
 
     /**
      * construct an ImportExtendedMutationData.

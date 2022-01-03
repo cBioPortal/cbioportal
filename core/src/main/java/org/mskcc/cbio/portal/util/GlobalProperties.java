@@ -153,6 +153,7 @@ public class GlobalProperties {
     public static final String STUDY_VIEW_MDACC_HEATMAP_META_URL = "mdacc.heatmap.study.meta.url";
 
     public static final String SHOW_ONCOKB = "show.oncokb";
+    public static final String MERGE_ONCOKB_ICONS_BY_DEFAULT = "oncokb.merge_icons_by_default";
     public static final String ONCOKB_TOKEN = "oncokb.token";
 
     private static String sessionServiceURL;
@@ -899,6 +900,15 @@ public class GlobalProperties {
             return true; // show oncoKB by default
         } else {
             return Boolean.parseBoolean(showOncokb);
+        }
+    }
+
+    public static boolean mergeOncoKBIcons() {
+        String mergeOncoKbIconsByDefault = portalProperties.getProperty(MERGE_ONCOKB_ICONS_BY_DEFAULT);
+        if (mergeOncoKbIconsByDefault == null || mergeOncoKbIconsByDefault.isEmpty()) {
+            return true; // merge OncoKB icons by default
+        } else {
+            return Boolean.parseBoolean(mergeOncoKbIconsByDefault);
         }
     }
 

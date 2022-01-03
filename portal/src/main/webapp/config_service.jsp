@@ -45,6 +45,7 @@
             "oncoprint.hide_vus.default",
             "mycancergenome.show",
             "oncokb.public_api.url",
+            "oncokb.merge_icons_by_default",
             "digitalslidearchive.iframe.url",
             "digitalslidearchive.meta.url",
             "mdacc.heatmap.meta.url",

@@ -191,6 +191,8 @@ oncokb.public_api.url=https://public.api.oncokb.org/api/v1
 # Your OncoKB Token which an be found under https://www.oncokb.org/account/settings
 oncokb.token=
 
+# Enable merging of OncoKB icons by default
+# oncokb.merge_icons_by_default=true
 
 # Enable Chang's hotspot list (true, false)
 show.hotspot=true

@@ -145,13 +145,11 @@ public class ImportExtendedMutationData{
         GeneticProfile geneticProfile = DaoGeneticProfile.getGeneticProfileById(geneticProfileId);
 
         CancerStudy cancerStudy = DaoCancerStudy.getCancerStudyByInternalId(geneticProfile.getCancerStudyId());
-        String genomeBuildName;
         String referenceGenome = cancerStudy.getReferenceGenome();
         if (referenceGenome == null) {
-            genomeBuildName = GlobalProperties.getReferenceGenomeName();
-        } else {
-            genomeBuildName = DaoReferenceGenome.getReferenceGenomeByGenomeName(referenceGenome).getBuildName();
+            referenceGenome = GlobalProperties.getReferenceGenomeName();
         }
+        String genomeBuildName = DaoReferenceGenome.getReferenceGenomeByGenomeName(referenceGenome).getBuildName();
 
         while((line=buf.readLine()) != null)
         {

@@ -38,7 +38,8 @@ import java.util.*;
 import javax.servlet.ServletConfig;
 import javax.servlet.ServletException;
 import javax.servlet.http.*;
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
 import org.json.simple.*;
 import org.mskcc.cbio.portal.dao.*;
 import org.mskcc.cbio.portal.model.*;
@@ -50,7 +51,7 @@ import org.mskcc.cbio.portal.util.SpringUtil;
  * @author jj
  */
 public class SimilarPatientsJSON extends HttpServlet {
-    private static Logger logger = Logger.getLogger(SimilarPatientsJSON.class);
+    private static Logger logger = LogManager.getLogger(SimilarPatientsJSON.class);
     
     public static final String MUTATION = "mutation";
     public static final String CNA = "cna";

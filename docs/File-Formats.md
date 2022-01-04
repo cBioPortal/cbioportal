@@ -1122,6 +1122,16 @@ And optional columns with special effects:
 2. **STYLE_SHAPE**: when this column has a valid value, this event will be rendered using that shape. The valid shapes are `circle`, `square`, `triangle`, `diamond`, `star`, and `camera`.
 3. **STYLE_COLOR**: when this column has a hexadecimal color value (e.g. #ffffff), it will be used as the color for rendering this event.
 
+To embed hyperlinks in custom columns:
+
+Values in custom columns can include markdown for hyperlinks that will show up in event tooltips, allowing users to click through to external resources associated with events.
+
+![link-in-timeline-data](images/timeline-link.png)
+
+Example column:
+
+SOME_HYPERLINK: ```[Link text Here](https://link-url-here.org)```
+
 ### Event Types
 As previously mentioned, the EVENT_TYPE can be anything. However, several event types have columns with special effects. Furthermore, for some event types cBioPortal has column naming suggestions.
 

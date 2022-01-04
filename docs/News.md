@@ -11,6 +11,8 @@
     * [MSK MetTropism (MSK, Cell 2021)](https://www.cbioportal.org/study/summary?id=msk_met_2021) *25,775 samples*
     * [Renal Cel Carcinoma: SDHRCC and FHRCC (MSK 2021)](https://www.cbioportal.org/study/summary?id=rcc_msk_2021) *37 samples*
 
+*   **Added MSI data** for all studies. Details for how the TMB are calculated can be found [HERE](https://github.com/cBioPortal/datahub-study-curation-tools/blob/master/tmb/calculate_tmb/Readme.md)
+
 ## Nov 12, 2021
 *   **Added data** consisting of 3,680 samples from 6 studies: 
     * [Breast Cancer MAPK (MSKCC, Nat Commun 2021)](https://www.cbioportal.org/study/summary?id=brca_mapk_hp_msk_2021) *145 samples*

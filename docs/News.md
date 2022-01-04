@@ -6,7 +6,7 @@
     * [Lung Adenocarcinoma (CPTAC, Cell 2020)](https://www.cbioportal.org/study/summary?id=luad_cptac_2020) *110 samples*
     * [Glioblastoma (CPTAC, Cell 2021)](https://www.cbioportal.org/study/summary?id=gbm_cptac_2021) *99 samples*
     * [Breast Cancer (CPTAC, Cell 2020)](https://www.cbioportal.org/study/summary?id=brca_cptac_2020) *122 samples*
-    * [Pediatric Brain Cancer (CPTAC, Cell 2020)](https://www.cbioportal.org/study/summary?id=brain_cptac_2020) *218 samples*
+    * [Pediatric Brain Cancer (CPTAC/CHOP, Cell 2020)](https://www.cbioportal.org/study/summary?id=brain_cptac_2020) *218 samples*
     * [Metastatic Prostate Cancer (Provisional, June 2021)](https://www.cbioportal.org/study/summary?id=mpcproject_broad_2021) *123 samples*
     * [MSK MetTropism (MSK, Cell 2021)](https://www.cbioportal.org/study/summary?id=msk_met_2021) *25,775 samples*
     * [Renal Cel Carcinoma: SDHRCC and FHRCC (MSK 2021)](https://www.cbioportal.org/study/summary?id=rcc_msk_2021) *37 samples*

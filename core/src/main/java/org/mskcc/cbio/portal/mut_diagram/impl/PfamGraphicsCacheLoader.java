@@ -36,7 +36,8 @@ import java.net.URL;
 import java.util.LinkedList;
 import java.util.List;
 
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.mskcc.cbio.portal.mut_diagram.Sequence;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -49,7 +50,7 @@ import com.google.common.collect.ImmutableList;
  * Feature service cache loader that calls the Pfam graphics service.
  */
 public final class PfamGraphicsCacheLoader extends CacheLoader<String, List<Sequence>> {
-    private static final Logger logger = Logger.getLogger(PfamGraphicsCacheLoader.class);
+    private static final Logger logger = LogManager.getLogger(PfamGraphicsCacheLoader.class);
     static final String URL_PREFIX = "http://pfam.sanger.ac.uk/protein/";
     static final String URL_SUFFIX = "/graphic";
     private final ObjectMapper objectMapper;

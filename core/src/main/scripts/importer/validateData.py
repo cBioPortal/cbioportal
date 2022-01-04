@@ -308,8 +308,8 @@ class PortalInstance(object):
 
         #Set defaults for genome version and species
         self.__species = 'human'
-        self.__ncbi_build = '37'
-        self.__genome_build = 'hg19'
+        self.__ncbi_build = 'GRCh37'
+        self.__genome_name = 'hg19'
 
         # determine version, and the reason why it might be unknown
         if portal_info_dict is None:
@@ -328,23 +328,26 @@ class PortalInstance(object):
 
     @species.setter
     def species(self, species):
-       self.__species= species
+       self.__species = species
 
     @property
-    def genome_build(self):
-        return self.__genome_build
+    def reference_genome(self):
+        return self.__genome_name
 
-    @genome_build.setter
-    def genome_build(self, genome_build):
-       self.__genome_build= genome_build
+    @reference_genome.setter
+    def reference_genome(self, genome_name):
+       self.__genome_name = genome_name
 
     @property
     def ncbi_build(self):
        return self.__ncbi_build
 
     @ncbi_build.setter
-    def ncbi_build(self, ncbi_build):
-       self.__ncbi_build = ncbi_build
+    def ncbi_build(self, ncbi_build):    
+        prefix = 'GRCm' if self.__species == 'mouse' else 'GRCh'
+        if str(ncbi_build) in ('37', '38'):
+            ncbi_build = prefix + str(ncbi_build)
+        self.__ncbi_build = ncbi_build
 
 class Validator(object):
 
@@ -931,7 +934,7 @@ class Validator(object):
         return num_errors
 
     @staticmethod
-    def load_chromosome_lengths(genome_build, logger):
+    def load_chromosome_lengths(reference_genome, logger):
 
         """Get the length of each chromosome and return a dict.
 
@@ -951,9 +954,10 @@ class Validator(object):
                      chrom_size_file)
 
         try:
-            chrom_size_dict = chrom_sizes[genome_build]
+            chrom_size_dict = chrom_sizes[reference_genome]
         except KeyError:
-            raise KeyError('Could not load chromosome sizes for genome build %s.' % genome_build)
+            raise KeyError('Could not load chromosome sizes for genome build %s. Expecting one of '
+                           '["hg19", "hg38", "mm10"]' % reference_genome)
 
         return chrom_size_dict
 
@@ -1985,20 +1989,20 @@ class MutationsExtendedValidator(CustomDriverAnnotationValidator):
 
 
     def checkNCBIbuild(self, value):
+        """
+        Checks whether the value found in MAF NCBI_Build column matches the genome specified in portal.properties at 
+        field ncbi.build. Expecting GRCh37, GRCh38, GRCm38 or without the GRCx prefix
+        """    
+    
         if value != '':
-            # based on MutationDataUtils.getNcbiBuild
-            if self.portal.species == "human":
-                if value not in [str(self.portal.ncbi_build), self.portal.genome_build, 'GRCh'+str(self.portal.ncbi_build)]:
-                    self.logger.error('The specified reference genome does not correspond with the reference genome found in the MAF.',
-                                      extra={'line_number': self.line_number,
-                                             'cause':value})
-                    return False
-            elif self.portal.species == "mouse":
-                if value not in [str(self.portal.ncbi_build), self.portal.genome_build, 'GRCm'+str(self.portal.ncbi_build)]:
-                    self.logger.error('The specified reference genome does not correspond with the reference genome found in the MAF.',
-                                      extra={'line_number': self.line_number,
-                                             'cause':value})
-                    return False
+            prefix = 'GRCm' if self.portal.species == 'mouse' else 'GRCh'
+            if str(value) in ('37', '38'):
+                value = prefix + str(value)
+            if value != str(self.portal.ncbi_build):
+                self.extra = 'The reference genome in column NCBI_Build does not correspond with the ' \
+                             'reference genome specified for this study (%s)' % (self.portal.ncbi_build)
+                self.extra_exists = True
+                return False
         return True
 
     def checkMatchedNormSampleBarcode(self, value):
@@ -4662,9 +4666,9 @@ def process_metadata_files(directory, portal_instance, logger, relaxed_mode, str
 
     # implemented ref genomes
     reference_genome_map = {
-        'hg19':('human','37','hg19'),
-        'hg38':('human','38','hg38'),
-        'mm10':('mouse','38','mm10')
+        'hg19': ('human', 'GRCh37', 'hg19'),
+        'hg38': ('human', 'GRCh38', 'hg38'),
+        'mm10': ('mouse', 'GRCm38', 'mm10')
     }
 
     DISALLOWED_CHARACTERS = r'[^A-Za-z0-9_-]'
@@ -4732,17 +4736,20 @@ def process_metadata_files(directory, portal_instance, logger, relaxed_mode, str
                         meta_dictionary['add_global_case_list'].lower() == 'true'):
                     case_list_suffix_fns['all'] = filename
 
+            # if reference_genome is specified in the meta file, override the defaults in portal properties
             if 'reference_genome' in meta_dictionary:
                 if meta_dictionary['reference_genome'] not in reference_genome_map:
                     logger.error('Unknown reference genome defined. Should be one of %s' %
                                  list(reference_genome_map.keys()),
                                  extra={
-                                     'filename_':filename,
-                                     'cause':meta_dictionary['reference_genome'].strip()
+                                     'filename_': filename,
+                                     'cause': meta_dictionary['reference_genome'].strip()
                                  })
                 else:
-                    portal_instance.species, portal_instance.ncbi_build, portal_instance.genome_build = \
-                        reference_genome_map[meta_dictionary['reference_genome']]
+                    genome_info = reference_genome_map[meta_dictionary['reference_genome']]
+                    logger.info('Setting reference genome to %s (%s, %s)' % genome_info,
+                                extra={'filename_': filename})
+                    portal_instance.species, portal_instance.ncbi_build, portal_instance.reference_genome = genome_info
             else:
                 logger.info('No reference genome specified -- using default (hg19)',
                             extra={'filename_': filename})

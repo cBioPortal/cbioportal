@@ -35,7 +35,8 @@ package org.mskcc.cbio.portal.servlet;
 import org.mskcc.cbio.portal.model.*;
 import org.mskcc.cbio.portal.dao.*;
 import org.mskcc.cbio.portal.util.*;
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
 import org.cbioportal.model.CNA;
 
 import java.io.*;
@@ -52,7 +53,7 @@ import javax.servlet.ServletException;
  * @author jj
  */
 public class CnaJSON extends HttpServlet {
-    private static Logger logger = Logger.getLogger(CnaJSON.class);
+    private static Logger logger = LogManager.getLogger(CnaJSON.class);
     
     public static final String CMD = "cmd";
     public static final String GET_DRUG_CMD = "get_drug";

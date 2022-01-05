@@ -52,8 +52,7 @@ You can then use a JAVA IDE to connect to that port. E.g. in [VSCode](https://co
 | Live instance version | https://www.cbioportal.org/api/info / https://master.cbioportal.org/api/info | -- | https://rc.cbioportal.org/api/info |
 | Docker Image | cbioportal/cbioportal:master | --| cbioportal/cbioportal:rc |
 | Kubernetes Config | [production](https://github.com/knowledgesystems/knowledgesystems-k8s-deployment/blob/master/cbioportal/cbioportal_spring_boot.yaml) / [master](https://github.com/knowledgesystems/knowledgesystems-k8s-deployment/blob/master/cbioportal/cbioportal_backend_master.yaml) | -- | [rc](https://github.com/knowledgesystems/knowledgesystems-k8s-deployment/blob/master/cbioportal/cbioportal_backend_rc.yaml) |
-| Status | [![master build status](https://travis.com/cBioPortal/cbioportal.svg?branch=master)](https://travis-ci.com/cBioPortal/cbioportal/branches) | -- | [![Build Status](https://travis-ci.com/cBioPortal/cbioportal.svg?branch=rc)](https://travis-ci.com/cBioPortal/cbioportal/branches) |
-
+| Status | [![master build status](https://github.com/cbioportal/cbioportal/workflows/Core%20tests/badge.svg)](https://github.com/cBioPortal/cbioportal/actions/workflows/core-test.yml?query=branch%3Amaster) [![master build status](https://github.com/cbioportal/cbioportal/workflows/Integration%20tests/badge.svg)](https://github.com/cBioPortal/cbioportal/actions/workflows/integration-test.yml?query=branch%3Amaster) [![master build status](https://github.com/cbioportal/cbioportal/workflows/Docker%20Image%20CI/badge.svg)](https://github.com/cBioPortal/cbioportal/actions/workflows/dockerimage.yml?query=branch%3Amaster) [![master build status](https://github.com/cbioportal/cbioportal/workflows/Python%20validator/badge.svg)](https://github.com/cBioPortal/cbioportal/actions/workflows/validate-data.yml?query=branch%3Amaster) | -- | -- |
 
 ## 🚀 Releases
 Release Notes on GitHub:

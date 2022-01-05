@@ -39,7 +39,8 @@ import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
 import org.mskcc.cbio.portal.util.*;
 
 import org.springframework.web.context.support.SpringBeanAutowiringSupport;
@@ -62,7 +63,7 @@ public class PatientView extends HttpServlet {
     public static final String DRUG_TYPE_CANCER_DRUG = "cancer_drug";
     public static final String DRUG_TYPE_FDA_ONLY = "fda_approved";
 
-    private static Logger logger = Logger.getLogger(PatientView.class);
+    private static Logger logger = LogManager.getLogger(PatientView.class);
 
     @Override
     public void init(ServletConfig config) throws ServletException {

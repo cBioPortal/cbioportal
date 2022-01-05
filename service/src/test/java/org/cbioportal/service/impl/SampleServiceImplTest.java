@@ -286,7 +286,7 @@ public class SampleServiceImplTest extends BaseServiceImplTest {
         Sample sample = new Sample();
         expectedSampleList.add(sample);
 
-        Mockito.when(sampleRepository.fetchSamples(Arrays.asList(SAMPLE_LIST_ID), PROJECTION))
+        Mockito.when(sampleRepository.fetchSamplesBySampleListIds(Arrays.asList(SAMPLE_LIST_ID), PROJECTION))
                 .thenReturn(expectedSampleList);
 
         List<Sample> result = sampleService.fetchSamples(Arrays.asList(SAMPLE_LIST_ID), PROJECTION);

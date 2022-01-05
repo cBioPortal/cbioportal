@@ -44,8 +44,10 @@ public interface SampleRepository {
     @Cacheable(cacheResolver = "generalRepositoryCacheResolver", condition = "@cacheEnabledConfig.getEnabled()")
     List<Sample> fetchSamples(List<String> studyIds, List<String> sampleIds, String projection);
 
+    List<Sample> fetchSamplesBySampleListIds(List<String> sampleListIds, String projection);
+    
     @Cacheable(cacheResolver = "staticRepositoryCacheOneResolver", condition = "@cacheEnabledConfig.getEnabled()")
-    List<Sample> fetchSamples(List<String> sampleListIds, String projection);
+    List<Sample> fetchSampleBySampleListId(String sampleListIds, String projection);
 
     @Cacheable(cacheResolver = "generalRepositoryCacheResolver", condition = "@cacheEnabledConfig.getEnabled()")
     BaseMeta fetchMetaSamples(List<String> studyIds, List<String> sampleIds);

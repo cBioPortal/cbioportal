@@ -1,6 +1,5 @@
 package org.cbioportal.service.impl;
 
-import org.cbioportal.model.CopyNumberSeg;
 import org.cbioportal.model.MolecularProfile;
 import org.cbioportal.model.Sample;
 import org.cbioportal.model.meta.BaseMeta;
@@ -15,9 +14,6 @@ import org.cbioportal.service.exception.PatientNotFoundException;
 import org.cbioportal.service.exception.SampleNotFoundException;
 import org.cbioportal.service.exception.StudyNotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.http.HttpStatus;
-import org.springframework.security.access.prepost.PostFilter;
 import org.springframework.stereotype.Service;
 
 import java.util.*;
@@ -150,7 +146,7 @@ public class SampleServiceImpl implements SampleService {
     @Override
 	public List<Sample> fetchSamples(List<String> sampleListIds, String projection) {
 
-        List<Sample> samples = sampleRepository.fetchSamples(sampleListIds, projection);
+        List<Sample> samples = sampleRepository.fetchSamplesBySampleListIds(sampleListIds, projection);
 
         processSamples(samples, projection);
         return samples;

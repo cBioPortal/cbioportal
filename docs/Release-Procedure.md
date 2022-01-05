@@ -47,6 +47,15 @@ which needs to be merged to master on both backend and frontend:
    having to create another branch just to update the frontend version.
 
 ## A note on versioning
+
+### From pre-release to official release
+On the [GitHub Release Page](https://github.com/cBioPortal/cbioportal/releases) you
+will see that some releases have the pre-release indication whereas others do not. In general 
+we make a new pre-release release every week. We test it out in production 
+(https://cbioportal.org) for one week and if no new critical issues are identified
+we make it an official release.
+
+### Version Numbers
 We follow the following logic when deciding how/when to increment the version
 of cBioPortal. It's a complete modification of semantic versioning
 (MAJOR.MINOR.PATCH) more suitable for our purposes:
@@ -57,7 +66,7 @@ MAJOR
 React calling a REST service. Another example: we changed from 2 to 3 when we made session-service a requirement.
 
 MINOR
-: Changes that require a database migration
+: Changes that require a database migration or an upgrade to another cBioPortal component (e.g. [session-service](https://docs.cbioportal.org/2.1-deployment/architecture-overview))
 
 PATCH
 : Changes that don't require database migrations. Could be new features as well as bug fixes to either frontend, backend or both.

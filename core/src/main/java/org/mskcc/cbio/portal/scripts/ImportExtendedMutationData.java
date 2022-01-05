@@ -73,7 +73,7 @@ public class ImportExtendedMutationData{
     private Set<String> filteredMutations = new HashSet<String>();
     private Set<String> namespaces = new HashSet<String>();
     private Pattern SEQUENCE_SAMPLES_REGEX = Pattern.compile("^.*sequenced_samples:(.*)$");
-    private final String ASCN_NAMESPACE = "ascn";
+    private final String ASCN_NAMESPACE = "ASCN";
 
     /**
      * construct an ImportExtendedMutationData.
@@ -145,13 +145,11 @@ public class ImportExtendedMutationData{
         GeneticProfile geneticProfile = DaoGeneticProfile.getGeneticProfileById(geneticProfileId);
 
         CancerStudy cancerStudy = DaoCancerStudy.getCancerStudyByInternalId(geneticProfile.getCancerStudyId());
-        String genomeBuildName;
         String referenceGenome = cancerStudy.getReferenceGenome();
         if (referenceGenome == null) {
-            genomeBuildName = GlobalProperties.getReferenceGenomeName();
-        } else {
-            genomeBuildName = DaoReferenceGenome.getReferenceGenomeByGenomeName(referenceGenome).getBuildName();
+            referenceGenome = GlobalProperties.getReferenceGenomeName();
         }
+        String genomeBuildName = DaoReferenceGenome.getReferenceGenomeByGenomeName(referenceGenome).getBuildName();
 
         while((line=buf.readLine()) != null)
         {

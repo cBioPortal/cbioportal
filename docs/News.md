@@ -10,7 +10,7 @@
     * [Metastatic Prostate Cancer (Provisional, June 2021)](https://www.cbioportal.org/study/summary?id=mpcproject_broad_2021) *123 samples*
     * [MSK MetTropism (MSK, Cell 2021)](https://www.cbioportal.org/study/summary?id=msk_met_2021) *25,775 samples*
 
-*   **Added TMB (non-synonymous) scores** for all studies. [Example: new TMB field for study gbm_cptac_2021](https://www.cbioportal.org/study/clinicalData?id=gbm_cptac_2021)   
+*   **Added TMB (nonsynonymous) scores** for all studies. [Example: new TMB field for study gbm_cptac_2021](https://www.cbioportal.org/study/clinicalData?id=gbm_cptac_2021)   
     (Details for the calculation can be found [HERE](https://github.com/cBioPortal/datahub-study-curation-tools/blob/master/tmb/calculate_tmb/Readme.md))   
     <img width="361" alt="Screen Shot 2022-01-04 at 11 39 20 PM" src="https://user-images.githubusercontent.com/5973438/148133673-a23506e9-7957-4581-99f0-820ca9548672.png"> 
 

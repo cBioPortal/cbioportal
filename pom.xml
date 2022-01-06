@@ -1018,7 +1018,7 @@
       <dependency>
         <groupId>com.auth0</groupId>
         <artifactId>jwks-rsa</artifactId>
-        <version>0.9.0</version>
+        <version>0.20.0</version>
       </dependency>
     </dependencies>
   </dependencyManagement>

@@ -228,7 +228,7 @@ The following columns affect the header of the patient view by adding text to th
 - **METASTATIC_SITE** or **PRIMARY_SITE**: Override TUMOR_SITE (patient level attribute) depending on sample type
 
 The following columns additionally affect the [Timeline data](#timeline-data) visualization:
-- **OTHER_SAMPLE_ID**: sometimes the timeline data (see the [timeline data section](#timeline-data)) will not have the SAMPLE_ID but instead an alias to the sample (in the field `SPECIMEN_REFERENCE_NUMBER`). To ensure that the timeline data field `SPECIMEN_REFERENCE_NUMBER` is correctly linked to this sample, be sure to add this column `OTHER_SAMPLE_ID` as an attribute to your sample attributes file.  
+- **OTHER_SAMPLE_ID**: OTHER_SAMPLE_ID is no longer supported. Please replace this column header with SAMPLE_ID.   
 - **SAMPLE_TYPE**, **TUMOR_TISSUE_SITE** or **TUMOR_TYPE**: gives sample icon in the timeline a color.
     - If set to `recurrence`, `recurred`, `progression` or `progressed`: orange
     - If set to `metastatic` or `metastasis`: red
@@ -632,10 +632,10 @@ namespaces: ASCN
 ### Data file
 The mutation data file extends the [Mutation Annotation Format](https://docs.gdc.cancer.gov/Data/File_Formats/MAF_Format/) (MAF) created as part of The Cancer Genome Atlas (TCGA) project, by adding *extra annotations* to each mutation record. This section describes two types of MAF files:
 1. A minimal MAF file with only the columns required for cBioPortal.
-2. An extended MAF file created with [vcf2maf, maf2maf](https://github.com/mskcc/vcf2maf) or the [Genome Nexus Annotation Pipeline](https://github.com/genome-nexus/genome-nexus-annotation-pipeline).
+2. An extended MAF file created with  the [Genome Nexus Annotation Pipeline](https://github.com/genome-nexus/genome-nexus-annotation-pipeline). When converting from vcf one can use: [vcf2maf](https://github.com/mskcc/vcf2maf).
 
 ### Minimal MAF format
-A minimal mutation annotations file can contain just three of the MAF columns plus one annotation column. From this minimal MAF, it is possible to create an extended MAF by running maf2maf.
+A minimal mutation annotations file can contain just three of the MAF columns plus one annotation column. From this minimal MAF, it is possible to create an extended MAF by running it through the [Genome Nexus Annotation Pipeline](https://github.com/genome-nexus/genome-nexus-annotation-pipeline).
 1. **Hugo_Symbol (Required)**: (MAF column) A [HUGO](https://www.genenames.org/) gene symbol.
 2. **Tumor_Sample_Barcode (Required)**: (MAF column) This is the sample ID as listed in the clinical data file.
 3. **Variant_Classification (Required)**: (MAF column) Translational effect of variant allele. Allowed values (from [Mutation Annotation Format page](https://docs.gdc.cancer.gov/Data/File_Formats/MAF_Format/)): `Frame_Shift_Del, Frame_Shift_Ins, In_Frame_Del, In_Frame_Ins, Missense_Mutation, Nonsense_Mutation, Silent, Splice_Site, Translation_Start_Site, Nonstop_Mutation, 3'UTR, 3'Flank, 5'UTR, 5'Flank, IGR, Intron, RNA, Targeted_Region, De_novo_Start_InFrame, De_novo_Start_OutOfFrame`. cBioPortal skips the following types during the import: `Silent, Intron, 3'UTR, 3'Flank, 5'UTR, 5'Flank, IGR and RNA`. Two extra values are allowed by cBioPortal here as well: `Splice_Region, Unknown`. :warning: the values should be in the correct case. E.g. `missense_mutation` is not allowed, while `Missense_Mutation` is.
@@ -650,8 +650,9 @@ The following extra annotation columns are important for making sure mutation sp
 6. **Protein_position (Optional)**: (annotation column) Required to initialize the 3D viewer in [mutations view](https://www.cbioportal.org/index.do?cancer_study_list=brca_tcga_pub&cancer_study_id=brca_tcga_pub&genetic_profile_ids_PROFILE_MUTATION_EXTENDED=brca_tcga_pub_mutations&genetic_profile_ids_PROFILE_COPY_NUMBER_ALTERATION=brca_tcga_pub_gistic&genetic_profile_ids_PROFILE_MRNA_EXPRESSION=brca_tcga_pub_mrna_median_Zscores&Z_SCORE_THRESHOLD=2.0&RPPA_SCORE_THRESHOLD=2.0&data_priority=0&case_set_id=brca_tcga_pub_complete&case_ids=&patient_case_select=sample&gene_set_choice=prostate-cancer%3A-ar-signaling-%2810-genes%29&gene_list=TP53&clinical_param_selection=null&tab_index=tab_visualize&Action=Submit#mutation_details)
 7. **SWISSPROT (Optional)**: (annotation column) UniProtKB/SWISS-PROT name (formerly called ID) or accession code depending on the value of the `swissprot_identifier` metadatum, e.g. O11H1_HUMAN or Q8NG94. Is not required, but not having it may result in inconsistent PDB structure matching in [mutations view](https://www.cbioportal.org/index.do?cancer_study_list=brca_tcga_pub&cancer_study_id=brca_tcga_pub&genetic_profile_ids_PROFILE_MUTATION_EXTENDED=brca_tcga_pub_mutations&genetic_profile_ids_PROFILE_COPY_NUMBER_ALTERATION=brca_tcga_pub_gistic&genetic_profile_ids_PROFILE_MRNA_EXPRESSION=brca_tcga_pub_mrna_median_Zscores&Z_SCORE_THRESHOLD=2.0&RPPA_SCORE_THRESHOLD=2.0&data_priority=0&case_set_id=brca_tcga_pub_complete&case_ids=&patient_case_select=sample&gene_set_choice=prostate-cancer%3A-ar-signaling-%2810-genes%29&gene_list=TP53&clinical_param_selection=null&tab_index=tab_visualize&Action=Submit#mutation_details).
 
-### Creating an extended MAF file with vcf2maf or maf2maf
-If your mutation data is already in [VCF](https://www.1000genomes.org/wiki/Analysis/Variant%20Call%20Format/vcf-variant-call-format-version-41) format (which most variant callers produce by default) you can use the [vcf2maf](https://github.com/mskcc/vcf2maf) converter. This tool parses VCF and MAF files, runs Ensembl Variant Effect Predictor (VEP) and selects a single effect per variant. Protein identifiers should be mapped to UniProt canonical isoforms by adding the `--custom-enst` flag and [this mapping file](https://github.com/mskcc/vcf2maf/blob/master/data/isoform_overrides_uniprot). This will override the Ensembl canonical isoforms with UniProt canonical isoforms, which ensures the SWISSPROT column can be used correctly by cBioPortal.
+### Creating an extended MAF file
+Once you have a minimal MAF you can run it through the [Genome Nexus Annotation Pipeline](https://github.com/genome-nexus/genome-nexus-annotation-pipeline).
+This tool runs annotates variants against the [Genome Nexus Server](https://genomenexus.org), which in turn leverages Ensembl Variant Effect Predictor (VEP) and selects a single effect per variant. Protein identifiers will be mapped to UniProt canonical isoforms (see also [this mapping file](https://github.com/genome-nexus/genome-nexus-importer/blob/master/data/grch37_ensembl92/export/ensembl_biomart_canonical_transcripts_per_hgnc.txt)).
 
 ### Extended MAF format
 The extended MAF format recognized by the portal has:
@@ -1118,7 +1119,7 @@ Each event type requires its own data file, which contains all the events that e
 
 And optional columns with special effects:
 
-1. **SPECIMEN_REFERENCE_NUMBER**: when this column has values that match the SAMPLE_ID/OTHER_SAMPLE_ID (defined in the clinical data file), the timeline will show case labels with black/red/etc 1, 2, 3, 4 circles. This only works for the first track and only if no STOP_DATE is set.
+1. **SPECIMEN_REFERENCE_NUMBER**: SPECIMEN_REFERENCE_NUMBER is no longer supported. Please replace this column header with SAMPLE_ID.
 2. **STYLE_SHAPE**: when this column has a valid value, this event will be rendered using that shape. The valid shapes are `circle`, `square`, `triangle`, `diamond`, `star`, and `camera`.
 3. **STYLE_COLOR**: when this column has a hexadecimal color value (e.g. #ffffff), it will be used as the color for rendering this event.
 
@@ -1179,13 +1180,11 @@ _**EVENT_TYPE: SPECIMEN**_
 
 Suggested columns
 
- * **SPECIMEN_REFERENCE_NUMBER**: This corresponds to the SAMPLE_ID/OTHER_SAMPLE_ID
  * **SPECIMEN_SITE**: This is the site from where the specimen was collected.
  * **SPECIMEN_TYPE**: This can either be tissue or blood.
  * **SOURCE**: Where was the specimen collection done.
  * Based on different cancer types you can add additional data here.
 
-Special: when the SPECIMEN_REFERENCE_NUMBER column has values that match the SAMPLE_ID/OTHER_SAMPLE_ID (defined in the clinical data file), the timeline will show case labels with black/red/etc 1, 2, 3, 4 circles. This only works for the first track and only if no STOP_DATE is set.
 
 ### Clinical Track Ordering
 Clinical tracks are ordered as follows (if available):
@@ -1205,7 +1204,7 @@ Clinical tracks are ordered as follows (if available):
 
 An example timeline file for SPECIMEN would be:
 ```
-PATIENT_ID<TAB>START_DATE<TAB>EVENT_TYPE<TAB>SPECIMEN_REFERENCE_NUMBER<TAB>SPECIMEN_SITE<TAB>SPECIMEN_TYPE<TAB>SOURCE<TAB>MyCustomColumn
+PATIENT_ID<TAB>START_DATE<TAB>EVENT_TYPE<TAB>SAMPLE_ID<TAB>SPECIMEN_SITE<TAB>SPECIMEN_TYPE<TAB>SOURCE<TAB>MyCustomColumn
 CACO2<TAB>0<TAB>SPECIMEN<TAB>CACO2_S1<TAB>liver<TAB>tissue<TAB>hospital<TAB>T1
 CACO2<TAB>100<TAB>SPECIMEN<TAB>CACO2_S2<TAB>lung<TAB>tissue<TAB>hospital<TAB>T2
 ...

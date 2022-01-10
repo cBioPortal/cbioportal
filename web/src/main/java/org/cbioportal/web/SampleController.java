@@ -4,10 +4,13 @@ import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
 import org.cbioportal.model.CancerStudy;
+import org.cbioportal.model.SampleList;
 import org.cbioportal.model.meta.BaseMeta;
 import org.cbioportal.model.Sample;
+import org.cbioportal.service.SampleListService;
 import org.cbioportal.service.StudyService;
 import org.cbioportal.service.exception.PatientNotFoundException;
+import org.cbioportal.service.exception.SampleListNotFoundException;
 import org.cbioportal.service.exception.SampleNotFoundException;
 import org.cbioportal.service.exception.StudyNotFoundException;
 import org.cbioportal.service.SampleService;
@@ -55,6 +58,9 @@ public class SampleController {
     
     @Autowired
     private SampleService sampleService;
+
+    @Autowired
+    private SampleListService sampleListService;
     
     @Autowired
     private StudyService studyService;
@@ -217,7 +223,7 @@ public class SampleController {
         @ApiParam(required = true, value = "List of sample identifiers")
         @Valid @RequestBody(required = false) SampleFilter sampleFilter,
         @ApiParam("Level of detail of the response")
-        @RequestParam(defaultValue = "SUMMARY") Projection projection) {
+        @RequestParam(defaultValue = "SUMMARY") Projection projection) throws SampleListNotFoundException {
 
         List<String> studyIds = new ArrayList<>();
         List<String> sampleIds = new ArrayList<>();
@@ -241,11 +247,13 @@ public class SampleController {
         } else {
             List<Sample> samples;
             if (interceptedSampleFilter.getSampleListIds() != null) {
-                samples = new ArrayList<>();
                 List<String> sampleListIds = interceptedSampleFilter.getSampleListIds();
+                
                 for (String sampleListId : sampleListIds) {
-                    samples.addAll(fetchSamplesInner(Arrays.asList(sampleListId), projection.name()));
+                    // check that all sample lists exist (this method throws an exception if one does not)
+                    sampleListService.getSampleList(sampleListId);
                 }
+                samples = sampleService.fetchSamples(sampleListIds, projection.name());
             } else {
                 if (interceptedSampleFilter.getSampleIdentifiers() != null) {
                     extractStudyAndSampleIds(interceptedSampleFilter, studyIds, sampleIds);
@@ -257,12 +265,6 @@ public class SampleController {
 
             return new ResponseEntity<>(samples, HttpStatus.OK);
         }
-    }
-    
-    public List<Sample> fetchSamplesInner(
-        List<String> sampleListIds, String projection
-    ) {
-        return sampleService.fetchSamples(sampleListIds, projection);
     }
     
     private void extractStudyAndSampleIds(SampleFilter sampleFilter, List<String> studyIds, List<String> sampleIds) {

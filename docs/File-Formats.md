@@ -228,7 +228,7 @@ The following columns affect the header of the patient view by adding text to th
 - **METASTATIC_SITE** or **PRIMARY_SITE**: Override TUMOR_SITE (patient level attribute) depending on sample type
 
 The following columns additionally affect the [Timeline data](#timeline-data) visualization:
-- **OTHER_SAMPLE_ID**: sometimes the timeline data (see the [timeline data section](#timeline-data)) will not have the SAMPLE_ID but instead an alias to the sample (in the field `SPECIMEN_REFERENCE_NUMBER`). To ensure that the timeline data field `SPECIMEN_REFERENCE_NUMBER` is correctly linked to this sample, be sure to add this column `OTHER_SAMPLE_ID` as an attribute to your sample attributes file.  
+- **OTHER_SAMPLE_ID**: this column is no longer supported. Using the column SAMPLE_ID will show the data in the Timeline.   
 - **SAMPLE_TYPE**, **TUMOR_TISSUE_SITE** or **TUMOR_TYPE**: gives sample icon in the timeline a color.
     - If set to `recurrence`, `recurred`, `progression` or `progressed`: orange
     - If set to `metastatic` or `metastasis`: red
@@ -1118,7 +1118,7 @@ Each event type requires its own data file, which contains all the events that e
 
 And optional columns with special effects:
 
-1. **SPECIMEN_REFERENCE_NUMBER**: when this column has values that match the SAMPLE_ID/OTHER_SAMPLE_ID (defined in the clinical data file), the timeline will show case labels with black/red/etc 1, 2, 3, 4 circles. This only works for the first track and only if no STOP_DATE is set.
+1. **SPECIMEN_REFERENCE_NUMBER**: this column has been removed. Using, the column name SAMPLE_ID will render the event in the timeline.
 2. **STYLE_SHAPE**: when this column has a valid value, this event will be rendered using that shape. The valid shapes are `circle`, `square`, `triangle`, `diamond`, `star`, and `camera`.
 3. **STYLE_COLOR**: when this column has a hexadecimal color value (e.g. #ffffff), it will be used as the color for rendering this event.
 
@@ -1179,13 +1179,11 @@ _**EVENT_TYPE: SPECIMEN**_
 
 Suggested columns
 
- * **SPECIMEN_REFERENCE_NUMBER**: This corresponds to the SAMPLE_ID/OTHER_SAMPLE_ID
  * **SPECIMEN_SITE**: This is the site from where the specimen was collected.
  * **SPECIMEN_TYPE**: This can either be tissue or blood.
  * **SOURCE**: Where was the specimen collection done.
  * Based on different cancer types you can add additional data here.
 
-Special: when the SPECIMEN_REFERENCE_NUMBER column has values that match the SAMPLE_ID/OTHER_SAMPLE_ID (defined in the clinical data file), the timeline will show case labels with black/red/etc 1, 2, 3, 4 circles. This only works for the first track and only if no STOP_DATE is set.
 
 ### Clinical Track Ordering
 Clinical tracks are ordered as follows (if available):
@@ -1205,7 +1203,7 @@ Clinical tracks are ordered as follows (if available):
 
 An example timeline file for SPECIMEN would be:
 ```
-PATIENT_ID<TAB>START_DATE<TAB>EVENT_TYPE<TAB>SPECIMEN_REFERENCE_NUMBER<TAB>SPECIMEN_SITE<TAB>SPECIMEN_TYPE<TAB>SOURCE<TAB>MyCustomColumn
+PATIENT_ID<TAB>START_DATE<TAB>EVENT_TYPE<TAB>SAMPLE_ID<TAB>SPECIMEN_SITE<TAB>SPECIMEN_TYPE<TAB>SOURCE<TAB>MyCustomColumn
 CACO2<TAB>0<TAB>SPECIMEN<TAB>CACO2_S1<TAB>liver<TAB>tissue<TAB>hospital<TAB>T1
 CACO2<TAB>100<TAB>SPECIMEN<TAB>CACO2_S2<TAB>lung<TAB>tissue<TAB>hospital<TAB>T2
 ...

@@ -1,5 +1,5 @@
 ## Jan 4, 2022
-*   **Added data** consisting of 26,827 samples from 10 studies: 
+*   **Added data** consisting of 27,447 samples from 10 studies: 
     * [Endometrial Carcinoma (CPTAC, Cell 2020)](https://www.cbioportal.org/study/summary?id=ucec_cptac_2020) *95 samples*
     * [Pancreatic Ductal Adenocarcinoma (CPTAC, Cell 2021)](https://www.cbioportal.org/study/summary?id=paad_cptac_2021) *140 samples*
     * [Lung Squamous Cell Carcinoma (CPTAC, Cell 2021)](https://www.cbioportal.org/study/summary?id=lusc_cptac_2021) *108 samples*
@@ -9,6 +9,7 @@
     * [Pediatric Brain Cancer (CPTAC/CHOP, Cell 2020)](https://www.cbioportal.org/study/summary?id=brain_cptac_2020) *218 samples*
     * [Metastatic Prostate Cancer (Provisional, June 2021)](https://www.cbioportal.org/study/summary?id=mpcproject_broad_2021) *123 samples*
     * [MSK MetTropism (MSK, Cell 2021)](https://www.cbioportal.org/study/summary?id=msk_met_2021) *25,775 samples*
+    * [Cancer Therapy and Clonal Hematopoiesis (MSK, 2021)](https://www.cbioportal.org/study/summary?id=msk_ch_ped_2021) *657 samples*
 
 *   **Added TMB (nonsynonymous) scores** for all studies. [Example: new TMB field for study gbm_cptac_2021](https://www.cbioportal.org/study/clinicalData?id=gbm_cptac_2021)   
     (Details for the calculation can be found [HERE](https://github.com/cBioPortal/datahub-study-curation-tools/blob/master/tmb/calculate_tmb/Readme.md))   

@@ -228,7 +228,7 @@ The following columns affect the header of the patient view by adding text to th
 - **METASTATIC_SITE** or **PRIMARY_SITE**: Override TUMOR_SITE (patient level attribute) depending on sample type
 
 The following columns additionally affect the [Timeline data](#timeline-data) visualization:
-- **OTHER_SAMPLE_ID**: this column is no longer supported. Using the column SAMPLE_ID will show the data in the Timeline.   
+- **OTHER_SAMPLE_ID**: OTHER_SAMPLE_ID is no longer supported. Please replace this column header with SAMPLE_ID.   
 - **SAMPLE_TYPE**, **TUMOR_TISSUE_SITE** or **TUMOR_TYPE**: gives sample icon in the timeline a color.
     - If set to `recurrence`, `recurred`, `progression` or `progressed`: orange
     - If set to `metastatic` or `metastasis`: red
@@ -1118,7 +1118,7 @@ Each event type requires its own data file, which contains all the events that e
 
 And optional columns with special effects:
 
-1. **SPECIMEN_REFERENCE_NUMBER**: this column has been removed. Using, the column name SAMPLE_ID will render the event in the timeline.
+1. **SPECIMEN_REFERENCE_NUMBER**: SPECIMEN_REFERENCE_NUMBER is no longer supported. Please replace this column header with SAMPLE_ID.
 2. **STYLE_SHAPE**: when this column has a valid value, this event will be rendered using that shape. The valid shapes are `circle`, `square`, `triangle`, `diamond`, `star`, and `camera`.
 3. **STYLE_COLOR**: when this column has a hexadecimal color value (e.g. #ffffff), it will be used as the color for rendering this event.
 

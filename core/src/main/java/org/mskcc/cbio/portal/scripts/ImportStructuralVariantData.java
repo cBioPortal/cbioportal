@@ -111,22 +111,23 @@ public class ImportStructuralVariantData {
                     CanonicalGene site2CanonicalGene = setCanonicalGene(site2EntrezGeneId, site2HugoSymbol, daoGene);
 
                     // If neither of the genes is recognized, skip the line
-                    if(site1CanonicalGene == null) {
-                        ProgressMonitor.logWarning("Gene not found:  " + site1HugoSymbol + " ["
-                                + site1EntrezGeneId + "]. Ignoring it "
-                                + "and all fusion data associated with it!");
-                    } else if (site2CanonicalGene == null) {
-                        ProgressMonitor.logWarning("Gene not found:  " + site2HugoSymbol + " ["
+                    if(site1CanonicalGene == null && site2CanonicalGene == null) {
+                        ProgressMonitor.logWarning("Could not find gene 1: " + site1HugoSymbol + " [" + site1EntrezGeneId
+                                + "] or gene 2: " + site2HugoSymbol + " ["
                                 + site2EntrezGeneId + "]. Ignoring it "
-                                + "and all fusion data associated with it!");
-                    // If both genes are recognized, continue
+                                + "and all SV data associated with it!");
+                    // If at least one gene is recognized, continue
                     } else {
                         // Save the Entrez Gene Id if it was not saved before
-                        if (site1EntrezGeneId == TabDelimitedFileUtil.NA_LONG) {
+                        if (site1EntrezGeneId == TabDelimitedFileUtil.NA_LONG && site1CanonicalGene != null) {
                             structuralVariant.setSite1EntrezGeneId(site1CanonicalGene.getEntrezGeneId());
+                        } else if (site1EntrezGeneId == TabDelimitedFileUtil.NA_LONG) {
+                            structuralVariant.setSite1EntrezGeneId(null); // we want this to be null in the database, not NA_LONG
                         }
-                        if (site2EntrezGeneId == TabDelimitedFileUtil.NA_LONG) {
+                        if (site2EntrezGeneId == TabDelimitedFileUtil.NA_LONG && site2CanonicalGene != null) {
                             structuralVariant.setSite2EntrezGeneId(site2CanonicalGene.getEntrezGeneId());
+                        } else if (site2EntrezGeneId == TabDelimitedFileUtil.NA_LONG) {
+                            structuralVariant.setSite2EntrezGeneId(null); // we want this to be null in the database, not NA_LONG
                         }
                         // Add structural variant
                         DaoStructuralVariant.addStructuralVariantToBulkLoader(structuralVariant);
@@ -160,7 +161,7 @@ public class ImportStructuralVariantData {
         }
 
         // If no gene can be found based on Entrez Gene ID, try Symbol.
-        if (siteCanonicalGene == null) {
+        if (siteCanonicalGene == null && !TabDelimitedFileUtil.NA_STRING.equals(siteHugoSymbol)) {
             siteCanonicalGene = daoGene.getNonAmbiguousGene(siteHugoSymbol, true);
         }
 

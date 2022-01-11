@@ -97,9 +97,6 @@ public class ImportProfileData extends ConsoleRunnable {
                     throw new RuntimeException( "Unrecognized swissprot_identifier specification, must be 'name' or 'accession'.");
                 }
                 importer.importData();
-            } else if (geneticProfile.getGeneticAlterationType() == GeneticAlterationType.FUSION) {
-                ImportFusionData importer = new ImportFusionData(dataFile, geneticProfile.getGeneticProfileId(), genePanel);
-                importer.importData();
             } else if (geneticProfile.getGeneticAlterationType() == GeneticAlterationType.STRUCTURAL_VARIANT) {
                 ImportStructuralVariantData importer = new ImportStructuralVariantData(dataFile, geneticProfile.getGeneticProfileId(), genePanel);
                 importer.importData();

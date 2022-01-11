@@ -33,16 +33,20 @@ public class StructuralVariant {
     private Long site1EntrezGeneId;
     private String site1HugoSymbol;
     private String site1EnsemblTranscriptId;
-    private int site1Exon;
     private String site1Chromosome;
     private int site1Position;
+    private String site1Contig;
+    private String site1Region;
+    private Integer site1RegionNumber;
     private String site1Description;
     private Long site2EntrezGeneId;
     private String site2HugoSymbol;
     private String site2EnsemblTranscriptId;
-    private int site2Exon;
     private String site2Chromosome;
     private int site2Position;
+    private String  site2Contig;
+    private String site2Region;
+    private Integer site2RegionNumber;
     private String site2Description;
     private String site2EffectOnFrame;
     private String ncbiBuild;
@@ -58,13 +62,12 @@ public class StructuralVariant {
     private int tumorSplitReadCount;
     private String annotation;
     private String breakpointType;
-    private String center;
     private String connectionType;
     private String eventInfo;
     private String variantClass;
     private int length;
     private String comments;
-    private String externalAnnotation;
+    private String svStatus;
     private String driverFilter;
     private String driverFilterAnn;
     private String driverTiersFilter;
@@ -76,7 +79,6 @@ public class StructuralVariant {
     public void setInternalId(long internalId) {
         this.internalId = internalId;
     }
-
     public int getGeneticProfileId() {
         return geneticProfileId;
     }
@@ -119,12 +121,6 @@ public class StructuralVariant {
     public void setSite1EnsemblTranscriptId(String site1TranscriptId) {
         this.site1EnsemblTranscriptId = site1TranscriptId;
     }
-    public int getSite1Exon() {
-        return site1Exon;
-    }
-    public void setSite1Exon(int site1Exon) {
-        this.site1Exon = site1Exon;
-    }
     public String getSite1Chromosome() {
         return site1Chromosome;
     }
@@ -160,12 +156,6 @@ public class StructuralVariant {
     }
     public void setSite2EnsemblTranscriptId(String site2TranscriptId) {
         this.site2EnsemblTranscriptId = site2TranscriptId;
-    }
-    public int getSite2Exon() {
-        return site2Exon;
-    }
-    public void setSite2Exon(int site2Exon) {
-        this.site2Exon = site2Exon;
     }
     public String getSite2Chromosome() {
         return site2Chromosome;
@@ -269,12 +259,6 @@ public class StructuralVariant {
     public void setBreakpointType(String breakpointType) {
         this.breakpointType = breakpointType;
     }
-    public String getCenter() {
-        return center;
-    }
-    public void setCenter(String center) {
-        this.center = center;
-    }
     public String getConnectionType() {
         return connectionType;
     }
@@ -305,34 +289,94 @@ public class StructuralVariant {
     public void setComments(String comments) {
         this.comments = comments;
     }
-    public String getExternalAnnotation() {
-        return externalAnnotation;
+    public String getSvStatus() {
+        return svStatus;
     }
-    public void setExternalAnnotation(String externalAnnotation) {
-        this.externalAnnotation = externalAnnotation;
+    public void setSvStatus(String svStatus) {
+        this.svStatus = svStatus;
     }
+
+    public String getSite1Contig() {
+        return site1Contig;
+    }
+
+    public void setSite1Contig(String site1Contig) {
+        this.site1Contig = site1Contig;
+    }
+
+    public String getSite1Region() {
+        return site1Region;
+    }
+
+    public void setSite1Region(String site1Region) {
+        this.site1Region = site1Region;
+    }
+
+    public Integer getSite1RegionNumber() {
+        return site1RegionNumber;
+    }
+
+    public void setSite1RegionNumber(Integer site1RegionNumber) {
+        this.site1RegionNumber = site1RegionNumber;
+    }
+
+    public String getSite2Contig() {
+        return site2Contig;
+    }
+
+    public void setSite2Contig(String site2Contig) {
+        this.site2Contig = site2Contig;
+    }
+
+    public String getSite2Region() {
+        return site2Region;
+    }
+
+    public void setSite2Region(String site2Region) {
+        this.site2Region = site2Region;
+    }
+
+    public Integer getSite2RegionNumber() {
+        return site2RegionNumber;
+    }
+
+    public void setSite2RegionNumber(Integer site2RegionNumber) {
+        this.site2RegionNumber = site2RegionNumber;
+    }
+
+
     public String getDriverFilter() {
         return driverFilter;
     }
+
     public void setDriverFilter(String driverFilter) {
         this.driverFilter = driverFilter;
     }
+
     public String getDriverFilterAnn() {
         return driverFilterAnn;
     }
+
     public void setDriverFilterAnn(String driverFilterAnn) {
         this.driverFilterAnn = driverFilterAnn;
     }
+
     public String getDriverTiersFilter() {
         return driverTiersFilter;
     }
+
     public void setDriverTiersFilter(String driverTiersFilter) {
         this.driverTiersFilter = driverTiersFilter;
     }
+
     public String getDriverTiersFilterAnn() {
         return driverTiersFilterAnn;
     }
+
     public void setDriverTiersFilterAnn(String driverTiersFilterAnn) {
         this.driverTiersFilterAnn = driverTiersFilterAnn;
     }
+
+
+
 }

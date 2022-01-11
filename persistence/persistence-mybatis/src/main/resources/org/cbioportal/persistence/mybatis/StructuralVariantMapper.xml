@@ -11,14 +11,18 @@
         structural_variant.SITE1_ENTREZ_GENE_ID AS "${prefix}site1EntrezGeneId",
         gene1.HUGO_GENE_SYMBOL AS "${prefix}site1HugoSymbol",
         structural_variant.SITE1_ENSEMBL_TRANSCRIPT_ID AS "${prefix}site1EnsemblTranscriptId",
-        structural_variant.SITE1_EXON AS "${prefix}site1Exon",
+        structural_variant.SITE1_CONTIG AS "${prefix}site1Contig",
+        structural_variant.SITE1_REGION AS "${prefix}site1Region",
+        structural_variant.SITE1_REGION_NUMBER AS "${prefix}site1RegionNumber",
         structural_variant.SITE1_CHROMOSOME AS "${prefix}site1Chromosome",
         structural_variant.SITE1_POSITION AS "${prefix}site1Position",
         structural_variant.SITE1_DESCRIPTION AS "${prefix}site1Description",
         structural_variant.SITE2_ENTREZ_GENE_ID AS "${prefix}site2EntrezGeneId",
         gene2.HUGO_GENE_SYMBOL AS "${prefix}site2HugoSymbol",
         structural_variant.SITE2_ENSEMBL_TRANSCRIPT_ID AS "${prefix}site2EnsemblTranscriptId",
-        structural_variant.SITE2_EXON AS "${prefix}site2Exon",
+        structural_variant.SITE2_CONTIG AS "${prefix}site2Contig",
+        structural_variant.SITE2_REGION AS "${prefix}site2Region",
+        structural_variant.SITE2_REGION_NUMBER AS "${prefix}site2RegionNumber",
         structural_variant.SITE2_CHROMOSOME AS "${prefix}site2Chromosome",
         structural_variant.SITE2_POSITION AS "${prefix}site2Position",
         structural_variant.SITE2_DESCRIPTION AS "${prefix}site2Description",
@@ -36,13 +40,12 @@
         structural_variant.TUMOR_SPLIT_READ_COUNT AS "${prefix}tumorSplitReadCount",
         structural_variant.ANNOTATION AS "${prefix}annotation",
         structural_variant.BREAKPOINT_TYPE AS "${prefix}breakpointType",
-        structural_variant.CENTER AS "${prefix}center",
         structural_variant.CONNECTION_TYPE AS "${prefix}connectionType",
         structural_variant.EVENT_INFO AS "${prefix}eventInfo",
         structural_variant.CLASS AS "${prefix}variantClass",
         structural_variant.LENGTH AS "${prefix}length",
         structural_variant.COMMENTS AS "${prefix}comments",
-        structural_variant.EXTERNAL_ANNOTATION AS "${prefix}externalAnnotation",
+        structural_variant.SV_STATUS AS "${prefix}svStatus",
         alteration_driver_annotation.DRIVER_FILTER AS "${prefix}driverFilter",
         alteration_driver_annotation.DRIVER_FILTER_ANNOTATION AS "${prefix}driverFilterAnn",
         alteration_driver_annotation.DRIVER_TIERS_FILTER AS "${prefix}driverTiersFilter",
@@ -163,8 +166,8 @@
         </include>
         FROM structural_variant
         JOIN genetic_profile ON structural_variant.GENETIC_PROFILE_ID = genetic_profile.GENETIC_PROFILE_ID
-        JOIN gene gene1 ON structural_variant.SITE1_ENTREZ_GENE_ID = gene1.ENTREZ_GENE_ID
-        JOIN gene gene2 ON structural_variant.SITE2_ENTREZ_GENE_ID = gene2.ENTREZ_GENE_ID
+        LEFT JOIN gene gene1 ON structural_variant.SITE1_ENTREZ_GENE_ID = gene1.ENTREZ_GENE_ID
+        LEFT JOIN gene gene2 ON structural_variant.SITE2_ENTREZ_GENE_ID = gene2.ENTREZ_GENE_ID
         JOIN sample ON structural_variant.SAMPLE_ID = sample.INTERNAL_ID
         JOIN patient ON sample.PATIENT_ID = patient.INTERNAL_ID
         JOIN cancer_study ON patient.CANCER_STUDY_ID = cancer_study.CANCER_STUDY_ID AND genetic_profile.CANCER_STUDY_ID = cancer_study.CANCER_STUDY_ID
@@ -186,8 +189,8 @@
         </include>
         FROM structural_variant
         JOIN genetic_profile ON structural_variant.GENETIC_PROFILE_ID = genetic_profile.GENETIC_PROFILE_ID
-        JOIN gene gene1 ON structural_variant.SITE1_ENTREZ_GENE_ID = gene1.ENTREZ_GENE_ID
-        JOIN gene gene2 ON structural_variant.SITE2_ENTREZ_GENE_ID = gene2.ENTREZ_GENE_ID
+        LEFT JOIN gene gene1 ON structural_variant.SITE1_ENTREZ_GENE_ID = gene1.ENTREZ_GENE_ID
+        LEFT JOIN gene gene2 ON structural_variant.SITE2_ENTREZ_GENE_ID = gene2.ENTREZ_GENE_ID
         JOIN sample ON structural_variant.SAMPLE_ID = sample.INTERNAL_ID
         JOIN patient ON sample.PATIENT_ID = patient.INTERNAL_ID
         JOIN cancer_study ON patient.CANCER_STUDY_ID = cancer_study.CANCER_STUDY_ID AND genetic_profile.CANCER_STUDY_ID = cancer_study.CANCER_STUDY_ID

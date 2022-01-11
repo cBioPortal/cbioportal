@@ -188,8 +188,7 @@ public final class DaoMutation {
              * We do not add the MUTATION_COUNT clinical data for the sample if
              * it's not profiled. If it *is* profiled but there are 0
              * mutations, add a MUTATION_COUNT with 0 value record. Do not
-             * include germline and fusions (msk internal) when counting
-             * mutations.
+             * include germline when counting mutations.
              *
              * Use REPLACE (conditional INSERT/UPDATE) which inserts
              * new counts if they don't exist and overwrites them if they do.
@@ -207,7 +206,6 @@ public final class DaoMutation {
                     "LEFT JOIN mutation ON mutation.`SAMPLE_ID` = sample_profile.`SAMPLE_ID` " +
                     "AND ( mutation.`MUTATION_STATUS` <> 'GERMLINE' OR mutation.`MUTATION_STATUS` IS NULL ) " +
                     "LEFT JOIN mutation_event ON mutation.`MUTATION_EVENT_ID` = mutation_event.`MUTATION_EVENT_ID` " +
-                    "AND ( mutation_event.`MUTATION_TYPE` <> 'Fusion' OR mutation_event.`MUTATION_TYPE` IS NULL ) " +
                     "INNER JOIN genetic_profile ON genetic_profile.`GENETIC_PROFILE_ID` = sample_profile.`GENETIC_PROFILE_ID` " +
                     "WHERE genetic_profile.`GENETIC_ALTERATION_TYPE` = 'MUTATION_EXTENDED' " +
                     "AND genetic_profile.`GENETIC_PROFILE_ID`=? " +

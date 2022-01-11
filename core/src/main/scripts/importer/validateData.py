@@ -3177,12 +3177,37 @@ class StructuralVariantValidator(Validator):
         # Parse Hugo Symbol and Entrez Gene Id and check them for Site 2
         site2_hugo_symbol = checkPresenceValue('Site2_Hugo_Symbol', self, data)
         site2_entrez_gene_id = checkPresenceValue('Site2_Entrez_Gene_Id', self, data)
-        self.checkGeneIdentification(site2_hugo_symbol, site2_entrez_gene_id)
-
-        # Validate fusion events if Event_Info is 'Fusion'
-        if data[self.cols.index('Event_Info')] == 'Fusion':
-            checkFusionValues(self, data)
-
+        site2_gene = self.checkGeneIdentification(site2_hugo_symbol, site2_entrez_gene_id, 'SV')
+        
+        # Check whether at least one of the Site1 or Site2 is valid.
+        if site1_gene is None and site2_gene is None:
+            self.logger.error(
+                'No Entrez gene id or gene symbol provided for site 1 and site 2. '
+                'This record will not be loaded',
+                extra={'line_number': self.line_number})
+        elif site1_gene is None and site2_gene is not None:
+            self.logger.warning(
+                'No Entrez gene id or gene symbol provided for site 1. '
+                'Assuming either the intragenic, deletion, duplication, translocation or inversion variant',
+                extra={'line_number': self.line_number})
+        elif site2_gene is None and site1_gene is not None:
+            self.logger.warning(
+                'No Entrez gene id or gene symbol provided for site 2. '
+                'Assuming either the intragenic, deletion, duplication, translocation or inversion variant',
+                extra={'line_number': self.line_number})
+                
+        # validate the uniqueness of SV records
+        sv_entry = "\t".join([data[self.cols.index(attr)] for attr in self.unique_fields])
+        if sv_entry in self.sv_entries:
+            self.logger.error(
+                'Duplicate entry in structural variant data',
+                extra = {'line_number': self.line_number,
+                         'cause': '%s (already defined on line %d)' % (
+                             sv_entry,
+                             self.sv_entries[sv_entry])})
+        else:
+            self.sv_entries[sv_entry] = self.line_number
+         
     def onComplete(self):
         """Perform final validations based on the data parsed."""
 

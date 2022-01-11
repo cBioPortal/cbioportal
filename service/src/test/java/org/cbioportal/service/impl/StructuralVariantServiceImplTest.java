@@ -46,9 +46,6 @@ public class StructuralVariantServiceImplTest extends BaseServiceImplTest {
 
     @Mock
     private StructuralVariantRepository structuralVariantRepository;
-    @Spy
-    @InjectMocks
-    private MolecularProfileUtil molecularProfileUtil;
 
     @Test
     public void getStructuralVariants() throws Exception {

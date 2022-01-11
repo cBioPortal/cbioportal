@@ -530,17 +530,6 @@ public class StudyViewFilterApplier {
                     .map(molecularProfileMap::get)
                     .collect(Collectors.toList());
 
-            // TODO: Remove once fusions are removed from mutation table
-            // determine whether a fusions profile was imported as mutations
-            Boolean fusionsImportedAsMutations = Boolean.FALSE;
-            for (MolecularProfile mp : filteredMolecularProfiles) {
-                if (mp.getStableId().endsWith("mutations")
-                        && mp.getDatatype().equals("FUSION")) {
-                    fusionsImportedAsMutations = Boolean.TRUE;
-                    break;
-                }
-            }
-
             Set<MolecularAlterationType> alterationTypes = filteredMolecularProfiles.stream()
                     .map(MolecularProfile::getMolecularAlterationType)
                     .collect(Collectors.toSet());
@@ -557,9 +546,7 @@ public class StudyViewFilterApplier {
             if (alterationTypes.size() == 1) {
                 MolecularAlterationType alterationType = alterationTypes.iterator().next();
 
-                if (alterationType.equals(MolecularAlterationType.STRUCTURAL_VARIANT) ||
-                        alterationType.equals(MolecularProfile.MolecularAlterationType.FUSION) ||
-                        fusionsImportedAsMutations) {
+                if (alterationType.equals(MolecularAlterationType.STRUCTURAL_VARIANT)) {
                     structuralVariantGeneFilters.add(genefilter);
                 } else if (alterationType == MolecularAlterationType.MUTATION_EXTENDED) {
                     mutatedGeneFilters.add(genefilter);

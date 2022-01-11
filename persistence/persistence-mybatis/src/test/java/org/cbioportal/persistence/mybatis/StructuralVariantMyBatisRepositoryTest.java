@@ -110,14 +110,12 @@ public class StructuralVariantMyBatisRepositoryTest {
         Assert.assertEquals((Integer) 57670, structuralVariantFirstResult.getSite1EntrezGeneId());
         Assert.assertEquals("KIAA1549", structuralVariantFirstResult.getSite1HugoSymbol());
         Assert.assertEquals("ENST00000242365", structuralVariantFirstResult.getSite1EnsemblTranscriptId());
-        Assert.assertEquals((Integer) 15, structuralVariantFirstResult.getSite1Exon());
         Assert.assertEquals("7", structuralVariantFirstResult.getSite1Chromosome());
         Assert.assertEquals((Integer) 138536968, structuralVariantFirstResult.getSite1Position());
         Assert.assertEquals("KIAA1549-BRAF.K16B10.COSF509_1", structuralVariantFirstResult.getSite1Description());
         Assert.assertEquals((Integer) 673, structuralVariantFirstResult.getSite2EntrezGeneId());
         Assert.assertEquals("BRAF", structuralVariantFirstResult.getSite2HugoSymbol());
         Assert.assertEquals("ENST00000288602", structuralVariantFirstResult.getSite2EnsemblTranscriptId());
-        Assert.assertEquals((Integer) 10, structuralVariantFirstResult.getSite2Exon());
         Assert.assertEquals("7", structuralVariantFirstResult.getSite2Chromosome());
         Assert.assertEquals((Integer) 140482957, structuralVariantFirstResult.getSite2Position());
         Assert.assertEquals("KIAA1549-BRAF.K16B10.COSF509_2", structuralVariantFirstResult.getSite2Description());
@@ -135,17 +133,17 @@ public class StructuralVariantMyBatisRepositoryTest {
         Assert.assertEquals(null, structuralVariantFirstResult.getTumorSplitReadCount());
         Assert.assertEquals("KIAA1549-BRAF.K16B10.COSF509", structuralVariantFirstResult.getAnnotation());
         Assert.assertEquals(null, structuralVariantFirstResult.getBreakpointType());
-        Assert.assertEquals(null, structuralVariantFirstResult.getCenter());
         Assert.assertEquals(null, structuralVariantFirstResult.getConnectionType());
         Assert.assertEquals("Fusion", structuralVariantFirstResult.getEventInfo());
         Assert.assertEquals(null, structuralVariantFirstResult.getVariantClass());
         Assert.assertEquals(null, structuralVariantFirstResult.getLength());
         Assert.assertEquals("Gain-of-Function", structuralVariantFirstResult.getComments());
-        Assert.assertEquals("COSMIC:COSF509", structuralVariantFirstResult.getExternalAnnotation());
         Assert.assertEquals("Putative_Passenger", structuralVariantFirstResult.getDriverFilter());
         Assert.assertEquals("Pathogenic", structuralVariantFirstResult.getDriverFilterAnn());
         Assert.assertEquals("Tier 1", structuralVariantFirstResult.getDriverTiersFilter());
         Assert.assertEquals("Potentially Actionable", structuralVariantFirstResult.getDriverTiersFilterAnn());
+        Assert.assertEquals("Potentially Actionable", structuralVariantFirstResult.getDriverTiersFilterAnn());
+        Assert.assertEquals("SOMATIC", structuralVariantFirstResult.getSvStatus());
         StructuralVariant structuralVariantSecondResult = result.get(1);
         Assert.assertEquals("study_tcga_pub_sv", structuralVariantSecondResult.getMolecularProfileId());
         Assert.assertEquals((String) "TCGA-A1-A0SD-01", structuralVariantSecondResult.getSampleId());
@@ -154,14 +152,12 @@ public class StructuralVariantMyBatisRepositoryTest {
         Assert.assertEquals((Integer) 57670, structuralVariantSecondResult.getSite1EntrezGeneId());
         Assert.assertEquals("KIAA1549", structuralVariantSecondResult.getSite1HugoSymbol());
         Assert.assertEquals("ENST00000242365", structuralVariantSecondResult.getSite1EnsemblTranscriptId());
-        Assert.assertEquals((Integer) 15, structuralVariantSecondResult.getSite1Exon());
         Assert.assertEquals("7", structuralVariantSecondResult.getSite1Chromosome());
         Assert.assertEquals((Integer) 138536968, structuralVariantSecondResult.getSite1Position());
         Assert.assertEquals("KIAA1549-BRAF.K16B10.COSF509_1", structuralVariantSecondResult.getSite1Description());
         Assert.assertEquals((Integer)673, structuralVariantSecondResult.getSite2EntrezGeneId());
         Assert.assertEquals("BRAF", structuralVariantSecondResult.getSite2HugoSymbol());
         Assert.assertEquals("ENST00000288602", structuralVariantSecondResult.getSite2EnsemblTranscriptId());
-        Assert.assertEquals((Integer) 10, structuralVariantSecondResult.getSite2Exon());
         Assert.assertEquals("7", structuralVariantSecondResult.getSite2Chromosome());
         Assert.assertEquals((Integer) 140482957, structuralVariantSecondResult.getSite2Position());
         Assert.assertEquals("KIAA1549-BRAF.K16B10.COSF509_2", structuralVariantSecondResult.getSite2Description());
@@ -179,17 +175,16 @@ public class StructuralVariantMyBatisRepositoryTest {
         Assert.assertEquals(null, structuralVariantSecondResult.getTumorSplitReadCount());
         Assert.assertEquals("KIAA1549-BRAF.K16B10.COSF509", structuralVariantSecondResult.getAnnotation());
         Assert.assertEquals(null, structuralVariantSecondResult.getBreakpointType());
-        Assert.assertEquals(null, structuralVariantSecondResult.getCenter());
         Assert.assertEquals(null, structuralVariantSecondResult.getConnectionType());
         Assert.assertEquals("Fusion", structuralVariantSecondResult.getEventInfo());
         Assert.assertEquals(null, structuralVariantSecondResult.getVariantClass());
         Assert.assertEquals(null, structuralVariantSecondResult.getLength());
         Assert.assertEquals("Gain-of-Function", structuralVariantSecondResult.getComments());
-        Assert.assertEquals("COSMIC:COSF509", structuralVariantSecondResult.getExternalAnnotation());
         Assert.assertEquals(null, structuralVariantSecondResult.getDriverFilter());
         Assert.assertEquals(null, structuralVariantSecondResult.getDriverFilterAnn());
         Assert.assertEquals(null, structuralVariantSecondResult.getDriverTiersFilter());
         Assert.assertEquals(null, structuralVariantSecondResult.getDriverTiersFilterAnn());
+        Assert.assertEquals("SOMATIC", structuralVariantSecondResult.getSvStatus());
 
     }
 

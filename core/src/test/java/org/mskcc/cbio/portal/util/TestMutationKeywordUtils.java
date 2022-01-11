@@ -94,7 +94,6 @@ public class TestMutationKeywordUtils {
         // others
         assertEquals("Exon skipping", MutationKeywordUtils.guessOncotatorMutationKeyword("Exon skipping", "Exon skipping"));
         assertEquals("vIII deletion", MutationKeywordUtils.guessOncotatorMutationKeyword("vIII deletion", "vIII deletion"));
-        assertEquals("Fusion", MutationKeywordUtils.guessOncotatorMutationKeyword("Fusion", "Fusion"));
     }
     
 	@Test

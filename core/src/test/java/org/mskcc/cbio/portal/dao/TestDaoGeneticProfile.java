@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2015 - 2016 Memorial Sloan-Kettering Cancer Center.
+ * Copyright (c) 2015 - 2022 Memorial Sloan-Kettering Cancer Center.
  *
  * This library is distributed in the hope that it will be useful, but WITHOUT
  * ANY WARRANTY, WITHOUT EVEN THE IMPLIED WARRANTY OF MERCHANTABILITY OR FITNESS
@@ -93,7 +93,7 @@ public class TestDaoGeneticProfile {
 		geneticProfile.setCancerStudyId(studyId);
 		geneticProfile.setProfileName("test profile");
 		geneticProfile.setStableId("test");
-		geneticProfile.setGeneticAlterationType(GeneticAlterationType.FUSION);
+		geneticProfile.setGeneticAlterationType(GeneticAlterationType.STRUCTURAL_VARIANT);
 		geneticProfile.setDatatype("test");
 		DaoGeneticProfile.addGeneticProfile(geneticProfile);
 		
@@ -101,7 +101,7 @@ public class TestDaoGeneticProfile {
 		assertEquals(studyId, readGeneticProfile.getCancerStudyId());
 		assertEquals("test", readGeneticProfile.getStableId());
 		assertEquals("test profile", readGeneticProfile.getProfileName());
-		assertEquals(GeneticAlterationType.FUSION, readGeneticProfile.getGeneticAlterationType());
+		assertEquals(GeneticAlterationType.STRUCTURAL_VARIANT, readGeneticProfile.getGeneticAlterationType());
 	}
 
 	@Test

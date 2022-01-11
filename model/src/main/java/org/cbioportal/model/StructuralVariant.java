@@ -36,16 +36,20 @@ public class StructuralVariant extends UniqueKeyBase implements Serializable {
     private Integer site1EntrezGeneId;
     private String site1HugoSymbol;
     private String site1EnsemblTranscriptId;
-    private Integer site1Exon;
     private String site1Chromosome;
     private Integer site1Position;
+    private String site1Contig;
+    private String site1Region;
+    private Integer site1RegionNumber;
     private String site1Description;
     private Integer site2EntrezGeneId;
     private String site2HugoSymbol;
     private String site2EnsemblTranscriptId;
-    private Integer site2Exon;
     private String site2Chromosome;
     private Integer site2Position;
+    private String  site2Contig;
+    private String site2Region;
+    private Integer site2RegionNumber;
     private String site2Description;
     private String site2EffectOnFrame;
     private String ncbiBuild;
@@ -61,17 +65,16 @@ public class StructuralVariant extends UniqueKeyBase implements Serializable {
     private Integer tumorSplitReadCount;
     private String annotation;
     private String breakpointType;
-    private String center;
     private String connectionType;
     private String eventInfo;
     private String variantClass;
     private Integer length;
     private String comments;
-    private String externalAnnotation;
     private String driverFilter;
     private String driverFilterAnn;
     private String driverTiersFilter;
     private String driverTiersFilterAnn;
+    private String svStatus;
 
     public String getMolecularProfileId() {
         return molecularProfileId;
@@ -128,15 +131,7 @@ public class StructuralVariant extends UniqueKeyBase implements Serializable {
     public void setSite1EnsemblTranscriptId(String site1TranscriptId) {
         this.site1EnsemblTranscriptId = site1TranscriptId;
     }
-
-    public Integer getSite1Exon() {
-        return site1Exon;
-    }
-
-    public void setSite1Exon(Integer site1Exon) {
-        this.site1Exon = site1Exon;
-    }
-
+    
     public String getSite1Chromosome() {
         return site1Chromosome;
     }
@@ -184,15 +179,7 @@ public class StructuralVariant extends UniqueKeyBase implements Serializable {
     public void setSite2EnsemblTranscriptId(String site2TranscriptId) {
         this.site2EnsemblTranscriptId = site2TranscriptId;
     }
-
-    public Integer getSite2Exon() {
-        return site2Exon;
-    }
-
-    public void setSite2Exon(Integer site2Exon) {
-        this.site2Exon = site2Exon;
-    }
-
+    
     public String getSite2Chromosome() {
         return site2Chromosome;
     }
@@ -329,14 +316,6 @@ public class StructuralVariant extends UniqueKeyBase implements Serializable {
         this.breakpointType = breakpointType;
     }
 
-    public String getCenter() {
-        return center;
-    }
-
-    public void setCenter(String center) {
-        this.center = center;
-    }
-
     public String getConnectionType() {
         return connectionType;
     }
@@ -377,14 +356,6 @@ public class StructuralVariant extends UniqueKeyBase implements Serializable {
         this.comments = comments;
     }
 
-    public String getExternalAnnotation() {
-        return externalAnnotation;
-    }
-
-    public void setExternalAnnotation(String externalAnnotation) {
-        this.externalAnnotation = externalAnnotation;
-    }
-
     public String getDriverFilter() {
         return driverFilter;
     }
@@ -416,4 +387,63 @@ public class StructuralVariant extends UniqueKeyBase implements Serializable {
     public void setDriverTiersFilterAnn(String driverTiersFilterAnn) {
         this.driverTiersFilterAnn = driverTiersFilterAnn;
     }
+
+    public String getSvStatus() {
+        return svStatus;
+    }
+
+    public void setSvStatus(String svStatus) {
+        this.svStatus = svStatus;
+    }
+
+
+    public String getSite1Contig() {
+        return site1Contig;
+    }
+
+    public void setSite1Contig(String site1Contig) {
+        this.site1Contig = site1Contig;
+    }
+
+    public String getSite1Region() {
+        return site1Region;
+    }
+
+    public void setSite1Region(String site1Region) {
+        this.site1Region = site1Region;
+    }
+
+    public Integer getSite1RegionNumber() {
+        return site1RegionNumber;
+    }
+
+    public void setSite1RegionNumber(Integer site1RegionNumber) {
+        this.site1RegionNumber = site1RegionNumber;
+    }
+
+    public String getSite2Contig() {
+        return site2Contig;
+    }
+
+    public void setSite2Contig(String site2Contig) {
+        this.site2Contig = site2Contig;
+    }
+
+    public String getSite2Region() {
+        return site2Region;
+    }
+
+    public void setSite2Region(String site2Region) {
+        this.site2Region = site2Region;
+    }
+
+    public Integer getSite2RegionNumber() {
+        return site2RegionNumber;
+    }
+
+    public void setSite2RegionNumber(Integer site2RegionNumber) {
+        this.site2RegionNumber = site2RegionNumber;
+    }
+
+
 }

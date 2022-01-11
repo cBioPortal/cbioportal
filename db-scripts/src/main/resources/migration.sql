@@ -977,3 +977,18 @@ UPDATE `info` SET `DB_SCHEMA_VERSION`="2.12.12";
 ##version: 2.12.13
 ALTER TABLE `sample` MODIFY COLUMN `STABLE_ID` VARCHAR(63) NOT NULL;
 UPDATE `info` SET `DB_SCHEMA_VERSION`="2.12.13";
+
+##version: 2.12.14
+ALTER TABLE `structural_variant` ADD COLUMN `SV_STATUS` varchar(25) NOT NULL DEFAULT 'SOMATIC';
+ALTER TABLE `structural_variant` MODIFY COLUMN `SITE1_ENTREZ_GENE_ID` int(11);
+ALTER TABLE `structural_variant` DROP COLUMN `SITE1_EXON`;
+ALTER TABLE `structural_variant` DROP COLUMN `SITE2_EXON`;
+ALTER TABLE `structural_variant` DROP COLUMN `CENTER`;
+ALTER TABLE `structural_variant` DROP COLUMN `EXTERNAL_ANNOTATION`;
+ALTER TABLE `structural_variant` ADD COLUMN `SITE1_REGION` varchar(25);
+ALTER TABLE `structural_variant` ADD COLUMN `SITE1_REGION_NUMBER` int(11);
+ALTER TABLE `structural_variant` ADD COLUMN `SITE1_CONTIG` varchar(100);
+ALTER TABLE `structural_variant` ADD COLUMN `SITE2_REGION` varchar(25);
+ALTER TABLE `structural_variant` ADD COLUMN `SITE2_REGION_NUMBER` int(11);
+ALTER TABLE `structural_variant` ADD COLUMN `SITE2_CONTIG` varchar(100);
+UPDATE `info` SET `DB_SCHEMA_VERSION`="2.12.14";

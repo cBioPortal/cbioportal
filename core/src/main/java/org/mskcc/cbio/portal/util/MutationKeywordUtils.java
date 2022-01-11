@@ -128,8 +128,7 @@ public final class MutationKeywordUtils {
             }
         }
         
-        if (mutationType.equals("Fusion")
-                || mutationType.equals("Exon skipping")
+        if (mutationType.equals("Exon skipping")
                 || mutationType.equals("vIII deletion")) {
             return aminoAcidChange;
         }

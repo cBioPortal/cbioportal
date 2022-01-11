@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2015 Memorial Sloan-Kettering Cancer Center.
+ * Copyright (c) 2015 - 2022 Memorial Sloan-Kettering Cancer Center.
  *
  * This library is distributed in the hope that it will be useful, but WITHOUT
  * ANY WARRANTY, WITHOUT EVEN THE IMPLIED WARRANTY OF MERCHANTABILITY OR FITNESS
@@ -42,7 +42,6 @@ import java.util.Map;
 public enum SampleListCategory {
     ALL_CASES_IN_STUDY("all_cases_in_study"),
     ALL_CASES_WITH_MUTATION_DATA("all_cases_with_mutation_data"),
-    ALL_CASES_WITH_FUSION_DATA("all_cases_with_fusion_data"),
     ALL_CASES_WITH_CNA_DATA("all_cases_with_cna_data"),
     ALL_CASES_WITH_LOG2_CNA_DNA("all_cases_with_log2_cna_data"),
     ALL_CASES_WITH_METHYLATION_DATA("all_cases_with_methylation_data"),

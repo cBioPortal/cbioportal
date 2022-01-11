@@ -15,16 +15,10 @@ import java.util.stream.Stream;
 public class MolecularProfileUtil {
 
     public final String MUTATION_PROFILE_SUFFIX = "_mutations";
-    public final String FUSION_PROFILE_SUFFIX = "_fusion";
     public final String STRUCTURAL_VARIANT_PROFILE_SUFFIX = "_structural_variants";
-    public final String FUSIONS_AS_MUTATIONS_DATATYPE = "FUSION";
 
-    // TODO: Remove once fusions are removed from mutation table
     public Predicate<MolecularProfile> isStructuralVariantMolecularProfile =
-        m -> m.getMolecularAlterationType().equals(MolecularProfile.MolecularAlterationType.FUSION) ||
-            m.getMolecularAlterationType().equals(MolecularProfile.MolecularAlterationType.STRUCTURAL_VARIANT) || 
-                (m.getMolecularAlterationType().equals(MolecularProfile.MolecularAlterationType.MUTATION_EXTENDED) 
-                        && m.getDatatype().equals(FUSIONS_AS_MUTATIONS_DATATYPE));
+        m -> m.getMolecularAlterationType().equals(MolecularProfile.MolecularAlterationType.STRUCTURAL_VARIANT);
 
     public Predicate<MolecularProfile> isDiscreteCNAMolecularProfile =
         m -> m.getMolecularAlterationType().equals(MolecularProfile.MolecularAlterationType.COPY_NUMBER_ALTERATION) && 
@@ -73,42 +67,8 @@ public class MolecularProfileUtil {
         if (profileFilter.isPresent()) {
             molecularProfileStream = molecularProfileStream.filter(profileFilter.get());
         }
-        Map<String, List<MolecularProfile>> studyMolecularProfilesSet = molecularProfileStream
-            .collect(Collectors.groupingBy(MolecularProfile::getCancerStudyIdentifier))
-            .entrySet().stream().collect(Collectors.toMap(
-                Map.Entry::getKey,
-                entry -> {
-                    List<MolecularProfile> profilesToReturn = new ArrayList<>();
-                    MolecularProfile structuralVariantProfile = null;
-                    for (MolecularProfile molecularProfile : entry.getValue()) {
-                        if (molecularProfile.getMolecularAlterationType().equals(MolecularProfile.MolecularAlterationType.FUSION)
-                            || molecularProfile.getMolecularAlterationType()
-                            .equals(MolecularProfile.MolecularAlterationType.STRUCTURAL_VARIANT)) {
-                            if (structuralVariantProfile == null) {
-                                structuralVariantProfile = molecularProfile;
-                            } else if (!(molecularProfile.getMolecularAlterationType()
-                                .equals(MolecularProfile.MolecularAlterationType.STRUCTURAL_VARIANT)
-                                && molecularProfile.getDatatype().equals("SV"))) {
-                                // replace structural variant profile with
-                                // mutation profile having fusion data
-                                structuralVariantProfile = molecularProfile;
-                            }
-                        } else {
-                            profilesToReturn.add(molecularProfile);
-                        }
-                    }
-
-                    if (structuralVariantProfile != null) {
-                        profilesToReturn.add(structuralVariantProfile);
-                    }
-
-                    return profilesToReturn;
-                }));
-        return studyMolecularProfilesSet;
-    }
-
-    public String replaceFusionProfileWithMutationProfile(String profileId) {
-        return profileId.replace(FUSION_PROFILE_SUFFIX, MUTATION_PROFILE_SUFFIX);
+        return molecularProfileStream
+            .collect(Collectors.groupingBy(MolecularProfile::getCancerStudyIdentifier));
     }
 
 }

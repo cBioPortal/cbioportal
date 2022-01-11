@@ -220,41 +220,6 @@ public class TestImportProfileData {
     }
 
     @Test
-    public void testImportSplitFusionsFile() throws Exception {
-        /*
-         * Check case where study has multiple fusions file.
-         * i.e somatic and germline fusions are in seperate files
-         * Check that an SV genetic profile is created.
-         * Check that the second fusion file does not insert duplicate genetic profile.
-         */
-        String svStudyStableId = "study_tcga_pub_fusion";
-        GeneticProfile svGeneticProfile = DaoGeneticProfile.getGeneticProfileByStableId(svStudyStableId);
-        assertNull(svGeneticProfile);
-
-        String[] args = {
-                "--data","src/test/resources/splitFusionsData/data_fusions.txt",
-                "--meta","src/test/resources/splitFusionsData/meta_fusions.txt",
-                "--loadMode", "bulkLoad"
-        };
-        ImportProfileData runner = new ImportProfileData(args);
-        runner.run();
-        svGeneticProfile = DaoGeneticProfile.getGeneticProfileByStableId(svStudyStableId);
-        assertNotNull(svGeneticProfile);
-       
-        // load a second fusions file - new genetic profile not created
-        String[] secondArgs = {
-                "--data","src/test/resources/splitFusionsData/data_fusions_gml.txt",
-                "--meta","src/test/resources/splitFusionsData/meta_fusions_gml.txt",
-                "--loadMode", "bulkLoad"
-        };
-        ImportProfileData secondRunner = new ImportProfileData(secondArgs);
-        secondRunner.run();
-        svGeneticProfile = DaoGeneticProfile.getGeneticProfileByStableId(svStudyStableId);
-        assertNotNull(svGeneticProfile);
-        assertEquals(GeneticAlterationType.STRUCTURAL_VARIANT, svGeneticProfile.getGeneticAlterationType());
-    }
-
-    @Test
     public void testImportGermlineOnlyFile() throws Exception {
         /* Mutations file split over two files with same stable id */
         String[] args = {

@@ -39,8 +39,6 @@ public class MutationMyBatisRepositoryTest {
     //        7	    672	BRCA1	6	MUTATION    Nonsense_Mutation	Putative_Driver	    Tier 2  TCGA-A1-A0SI    germline
     //        12	672	BRCA1	6	MUTATION    Splice_Site	        Putative_Passenger	Tier 1  TCGA-A1-A0SO    germline
     //        13	672	BRCA1	6	MUTATION    Splice_Site	        Putative_Driver	    Tier 1  TCGA-A1-A0SP    germline
-    //        7 	2064	ERBB2	6	FUSION              	        <null>	            <null>  TCGA-A1-A0SI    NA
-
 
     @Autowired
     private MutationMyBatisRepository mutationMyBatisRepository;
@@ -488,28 +486,6 @@ public class MutationMyBatisRepositoryTest {
         Assert.assertEquals(3, result.size());
         List<String> expectedSampleIds = Arrays.asList("TCGA-A1-A0SB-01", "TCGA-A1-A0SH-01", "TCGA-A1-A0SO-01");
         assert(result.stream().allMatch(r -> expectedSampleIds.contains(r.getSampleId())));
-    }
-
-    @Test
-    public void getFusionsInMultipleMolecularProfiles() throws Exception {
-
-        List<String> molecularProfileIds = new ArrayList<>();
-        molecularProfileIds.add("acc_tcga_mutations");
-        molecularProfileIds.add("study_tcga_pub_mutations");
-        molecularProfileIds.add("study_tcga_pub_mutations");
-
-        List<String> sampleIds = new ArrayList<>();
-        sampleIds.add("TCGA-A1-B0SO-01");
-        sampleIds.add("TCGA-A1-A0SH-01");
-        sampleIds.add("TCGA-A1-A0SI-01");
-        
-        List<String> tiers = new ArrayList<>();
-        List<Mutation> result = mutationMyBatisRepository.getFusionsInMultipleMolecularProfiles(molecularProfileIds,
-            sampleIds, null, "SUMMARY", null, null, null, null);
-
-        // TODO: cleanup once fusion/structural data is fixed in database
-        // This test should correctly return entries from the structural_variant table (7 records)
-        Assert.assertEquals(1, result.size());
     }
 
     @Test

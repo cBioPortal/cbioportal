@@ -38,6 +38,11 @@ public class AlterationEnrichmentServiceImpl implements AlterationEnrichmentServ
         Map<String, List<MolecularProfileCaseIdentifier>> molecularProfileCaseSets,
         EnrichmentType enrichmentType,
         AlterationFilter alterationFilter) {
+        System.out.println("This mangy case sets: " + molecularProfileCaseSets.size());
+        for (String keyName : molecularProfileCaseSets.keySet()) {
+            System.out.println("Key: " + keyName);
+            System.out.println("Length of list case ids: " + molecularProfileCaseSets.get(keyName).size()); 
+        }
         return molecularProfileCaseSets
             .entrySet()
             .stream()
@@ -52,7 +57,6 @@ public class AlterationEnrichmentServiceImpl implements AlterationEnrichmentServ
                                 Select.all(),
                                 true,
                                 true,
-                                QueryElement.PASS,
                                 alterationFilter);
                     } else {
                         return alterationCountService
@@ -61,7 +65,6 @@ public class AlterationEnrichmentServiceImpl implements AlterationEnrichmentServ
                                 Select.all(),
                                 true,
                                 true,
-                                QueryElement.PASS,
                                 alterationFilter);
                     }
                 }));

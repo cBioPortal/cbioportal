@@ -267,17 +267,6 @@
         </choose>
     </sql>
 
-    <sql id="whereSearchFusions">
-        <if test="searchFusions.name() == 'ACTIVE'">
-            AND
-            LOWER(mutation_event.MUTATION_TYPE) = 'fusion'
-        </if>
-        <if test="searchFusions.name() == 'INACTIVE'">
-            AND
-            LOWER(mutation_event.MUTATION_TYPE) != 'fusion'
-        </if>
-    </sql>
-
     <sql id="whereGene">
         <choose>
             <when test="entrezGeneIds == null or entrezGeneIds.hasNone()">
@@ -335,15 +324,6 @@
                     <foreach item="type" collection="mutationTypes" open="(" separator="," close=")">
                         LOWER(#{type})
                     </foreach>
-                </when>
-                <!-- BEWARE: at the moment fusions are in the mutations table with MUTATION_TYPE 
-                    'Fusion' this results in undesired interaction of fusion vs mutation queries 
-                    and the ability to pass a list of mutation types (that can include fusion 
-                    events). Now, fusions can be only filtered out when there is no limit on 
-                    the mutation types ('mutationTypes.hasAll()'). This code should be changed 
-                    when fusions move to the strucural variants table. -->
-                <when test="mutationTypes.hasAll()">
-                    <include refid="whereSearchFusions" />
                 </when>
             </choose>
             <include refid="whereCustomAnnotations"/>
@@ -421,12 +401,15 @@
             INNER JOIN genetic_profile ON structural_variant.GENETIC_PROFILE_ID = genetic_profile.GENETIC_PROFILE_ID
             INNER JOIN sample ON structural_variant.SAMPLE_ID = sample.INTERNAL_ID
             INNER JOIN patient ON sample.PATIENT_ID = patient.INTERNAL_ID
-            INNER JOIN gene ON structural_variant.SITE2_ENTREZ_GENE_ID = gene.ENTREZ_GENE_ID) as combinedResults
+            INNER JOIN gene ON structural_variant.SITE2_ENTREZ_GENE_ID = gene.ENTREZ_GENE_ID
+            WHERE structural_variant.SITE2_ENTREZ_GENE_ID != structural_variant.SITE1_ENTREZ_GENE_ID
+                OR structural_variant.SITE1_ENTREZ_GENE_ID IS NULL
+            ) AS combinedResults
         <where>
             <include refid="caseFilter">
                 <property name="identifiers" value="structuralVariantMolecularProfileCaseIdentifiers" />
                 <property name="geneticProfileIdentifier" value="geneticProfileId" />
-                <property name="caseStableIdentifier" value="caseStableId" />
+                <property name="caseStableIdentifier" value="caseUniqueId" />
             </include>
         </where>
     </sql>
@@ -480,6 +463,10 @@
 
     <sql id="caseStableId">
         caseStableId
+    </sql>
+    
+    <sql id="caseUniqueId">
+        caseUniqueId
     </sql>
     
     <select id="getMolecularProfileCaseInternalIdentifier" resultType="org.cbioportal.model.MolecularProfileCaseIdentifier">

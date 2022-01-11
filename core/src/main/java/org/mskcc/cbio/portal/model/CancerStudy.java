@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2015 - 2016 Memorial Sloan-Kettering Cancer Center.
+ * Copyright (c) 2015 - 2022 Memorial Sloan-Kettering Cancer Center.
  *
  * This library is distributed in the hope that it will be useful, but WITHOUT
  * ANY WARRANTY, WITHOUT EVEN THE IMPLIED WARRANTY OF MERCHANTABILITY OR FITNESS
@@ -445,23 +445,6 @@ public class CancerStudy {
                     attrs.contains(ClinicalAttribute.DFS_STATUS);
     }
 
-    /**
-     * Check if study has fusion data 
-     * @return true if has fusion data, false when it's not
-     */
-    public boolean hasFusionData() {
-        ArrayList<GeneticProfile> geneticProfiles = DaoGeneticProfile.getAllGeneticProfiles(studyID);
-        boolean hasFusionData = false;
-        for (GeneticProfile geneticProfile : geneticProfiles) {
-            if (geneticProfile.getDatatype().equals("SV")) { // check if genetic profiles contains Structural Variant
-                                                             // data type
-                hasFusionData = true;
-                break;
-            }
-        }
-        return hasFusionData;
-    }
-    
     public String getTypeOfCancer() throws DaoException {
         return DaoTypeOfCancer.getTypeOfCancerById(this.typeOfCancerId).getName();
     }

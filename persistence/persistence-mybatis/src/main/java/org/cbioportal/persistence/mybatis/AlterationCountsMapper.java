@@ -15,7 +15,6 @@ public interface AlterationCountsMapper {
      * @param entrezGeneIds  Gene ids to get counts for.
      * @param mutationTypes  Types of mutations to include in alteration counts. 
      * @param cnaTypes  Types of discrete copy number alteration types to include in alteration counts.
-     * @param searchFusions  'ACTIVE': counts are limited to fusion type. 'INACTIVE': counts are limited to non-fusion alterations.'PASS': no filtering on mutation vs fusions (mutation types and cnaTypes are used)
      * @param includeDriver Include Variants of Unknown significance. Uses annotations loaded as 'custom driver annotations'.
      * @param includeVUS  Include Variants of Unknown significance. Uses annotations loaded as 'custom driver annotations'.
      * @param includeUnknownOncogenicity  Include variants that are not annotated as driver or VUS. Uses annotations loaded as 'custom driver annotations'.
@@ -31,7 +30,6 @@ public interface AlterationCountsMapper {
                                                           Select<Integer> entrezGeneIds,
                                                           Select<String> mutationTypes,
                                                           Select<Short> cnaTypes,
-                                                          QueryElement searchFusions,
                                                           boolean includeDriver,
                                                           boolean includeVUS,
                                                           boolean includeUnknownOncogenicity,
@@ -45,7 +43,6 @@ public interface AlterationCountsMapper {
      * @param entrezGeneIds  Gene ids to get counts for.
      * @param mutationTypes  Types of mutations to include in alteration counts.
      * @param cnaTypes  Types of discrete copy number alteration types to include in alteration counts.
-     * @param searchFusions  'ACTIVE': counts are limited to fusion type. 'INACTIVE': counts are limited to non-fusion alterations.'PASS': no filtering on mutation vs fusions (mutation types and cnaTypes are used) 
      * @param includeDriver Include Variants of Unknown significance. Uses annotations loaded as 'custom driver annotations'.
      * @param includeVUS  Include Variants of Unknown significance. Uses annotations loaded as 'custom driver annotations'.
      * @param includeUnknownOncogenicity  Include variants that are not annotated as driver or VUS. Uses annotations loaded as 'custom driver annotations'.
@@ -62,7 +59,6 @@ public interface AlterationCountsMapper {
                                                            Select<Integer> entrezGeneIds,
                                                            Select<String> mutationTypes,
                                                            Select<Short> cnaTypes,
-                                                           QueryElement searchFusions,
                                                            boolean includeDriver,
                                                            boolean includeVUS,
                                                            boolean includeUnknownOncogenicity,

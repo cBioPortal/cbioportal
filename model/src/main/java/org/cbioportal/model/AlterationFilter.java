@@ -85,19 +85,12 @@ public class AlterationFilter extends BaseAlterationFilter implements Serializab
 
     @JsonIgnore
     public Select<MutationEventType> getMutationTypeSelect() {
-        /*
-         * Appropriately add fusion mutation type depending on structural variant since fusions are still in mutation table
-         * TODO: do necessary changes once fusion data is cleaned up from mutation table
-         * */
-        
         if (mutationTypeSelect != null)
             return mutationTypeSelect;
 
         if (mutationEventTypes == null || mutationEventTypes.getOrDefault(MutationEventType.any, false)
             || allOptionsSelected(mutationEventTypes, Arrays.asList(MutationEventType.any.toString()))) {
-            if(this.structuralVariants == null || this.structuralVariants == true) {
-                return Select.all();
-            }
+            return Select.all();
         }
 
         // if MutationEventType.other is true and not allOptionsSelected
@@ -108,9 +101,6 @@ public class AlterationFilter extends BaseAlterationFilter implements Serializab
                 .filter(e -> !e.getValue())
                 .map(Entry::getKey)
                 .collect(Collectors.toList());
-            if(this.structuralVariants == null || this.structuralVariants == false) {
-                unSelected.add(MutationEventType.fusion);
-            }
             Select<MutationEventType> select = Select.byValues(unSelected);
             // setting this would execute NOT IN clause in sql query
             select.inverse(true);
@@ -122,9 +112,6 @@ public class AlterationFilter extends BaseAlterationFilter implements Serializab
                 .filter(Entry::getValue)
                 .map(Entry::getKey)
                 .collect(Collectors.toList());
-            if(this.structuralVariants != null && this.structuralVariants == true) {
-                selected.add(MutationEventType.fusion);
-            }
             return Select.byValues(selected);
         }
     }

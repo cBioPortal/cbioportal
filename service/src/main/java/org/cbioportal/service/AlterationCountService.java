@@ -13,14 +13,12 @@ public interface AlterationCountService {
                                                                       Select<Integer> entrezGeneIds,
                                                                       boolean includeFrequency,
                                                                       boolean includeMissingAlterationsFromGenePanel,
-                                                                      QueryElement searchFusions,
                                                                       AlterationFilter alterationFilter);
 
     Pair<List<AlterationCountByGene>, Long> getPatientAlterationCounts(List<MolecularProfileCaseIdentifier> molecularProfileCaseIdentifiers,
                                                            Select<Integer> entrezGeneIds,
                                                            boolean includeFrequency,
                                                            boolean includeMissingAlterationsFromGenePanel,
-                                                           QueryElement searchFusions,
                                                            AlterationFilter alterationFilter);
 
     Pair<List<AlterationCountByGene>, Long> getSampleMutationCounts(List<MolecularProfileCaseIdentifier> molecularProfileCaseIdentifiers,

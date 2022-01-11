@@ -39,7 +39,7 @@ public class DaoStructuralVariant {
      * Adds a new Structural variant record to the database.
      * @param structuralVariant
      * @return number of records successfully added
-     * @throws DaoException 
+     * @throws DaoException
      */
 
     public static void addStructuralVariantToBulkLoader(StructuralVariant structuralVariant) throws DaoException {
@@ -50,15 +50,19 @@ public class DaoStructuralVariant {
                                             "SAMPLE_ID",
                                             "SITE1_ENTREZ_GENE_ID",
                                             "SITE1_ENSEMBL_TRANSCRIPT_ID",
-                                            "SITE1_EXON",
                                             "SITE1_CHROMOSOME",
                                             "SITE1_POSITION",
+                                            "SITE1_CONTIG",
+                                            "SITE1_REGION",
+                                            "SITE1_REGION_NUMBER",
                                             "SITE1_DESCRIPTION",
                                             "SITE2_ENTREZ_GENE_ID",
                                             "SITE2_ENSEMBL_TRANSCRIPT_ID",
-                                            "SITE2_EXON",
                                             "SITE2_CHROMOSOME",
                                             "SITE2_POSITION",
+                                            "SITE2_CONTIG",
+                                            "SITE2_REGION",
+                                            "SITE2_REGION_NUMBER",
                                             "SITE2_DESCRIPTION",
                                             "SITE2_EFFECT_ON_FRAME",
                                             "NCBI_BUILD",
@@ -74,13 +78,12 @@ public class DaoStructuralVariant {
                                             "TUMOR_SPLIT_READ_COUNT",
                                             "ANNOTATION",
                                             "BREAKPOINT_TYPE",
-                                            "CENTER",
                                             "CONNECTION_TYPE",
                                             "EVENT_INFO",
                                             "CLASS",
                                             "LENGTH",
                                             "COMMENTS",
-                                            "EXTERNAL_ANNOTATION"
+                                            "SV_STATUS",
                                             };
         bl.setFieldNames(fieldNames);
 
@@ -89,17 +92,21 @@ public class DaoStructuralVariant {
            Long.toString(structuralVariant.getInternalId()),
            Integer.toString(structuralVariant.getGeneticProfileId()),
            Integer.toString(structuralVariant.getSampleIdInternal()),
-           Long.toString(structuralVariant.getSite1EntrezGeneId()),
+           structuralVariant.getSite1EntrezGeneId() == null ? null : Long.toString(structuralVariant.getSite1EntrezGeneId()),
            structuralVariant.getSite1EnsemblTranscriptId(),
-           Integer.toString(structuralVariant.getSite1Exon()),
            structuralVariant.getSite1Chromosome(),
            Integer.toString(structuralVariant.getSite1Position()),
+           structuralVariant.getSite1Contig(),
+           structuralVariant.getSite1Region(),
+           Integer.toString(structuralVariant.getSite1RegionNumber()),
            structuralVariant.getSite1Description(),
-           Long.toString(structuralVariant.getSite2EntrezGeneId()),
+           structuralVariant.getSite2EntrezGeneId() == null ? null : Long.toString(structuralVariant.getSite2EntrezGeneId()),
            structuralVariant.getSite2EnsemblTranscriptId(),
-           Integer.toString(structuralVariant.getSite2Exon()),
            structuralVariant.getSite2Chromosome(),
            Integer.toString(structuralVariant.getSite2Position()),
+            structuralVariant.getSite2Contig(),
+            structuralVariant.getSite2Region(),
+            Integer.toString(structuralVariant.getSite2RegionNumber()),
            structuralVariant.getSite2Description(),
            structuralVariant.getSite2EffectOnFrame(),
            structuralVariant.getNcbiBuild(),
@@ -115,13 +122,12 @@ public class DaoStructuralVariant {
            Integer.toString(structuralVariant.getTumorSplitReadCount()),
            structuralVariant.getAnnotation(),
            structuralVariant.getBreakpointType(),
-           structuralVariant.getCenter(),
            structuralVariant.getConnectionType(),
            structuralVariant.getEventInfo(),
            structuralVariant.getVariantClass(),
            Integer.toString(structuralVariant.getLength()),
            structuralVariant.getComments(),
-           structuralVariant.getExternalAnnotation());
+           structuralVariant.getSvStatus());
 
         if ((structuralVariant.getDriverFilter() != null
             && !structuralVariant.getDriverFilter().isEmpty()
@@ -202,15 +208,19 @@ public class DaoStructuralVariant {
         structuralVariant.setSampleIdInternal(rs.getInt("SAMPLE_ID"));
         structuralVariant.setSite1EntrezGeneId(rs.getLong("SITE1_ENTREZ_GENE_ID"));
         structuralVariant.setSite1EnsemblTranscriptId(rs.getString("SITE1_ENSEMBL_TRANSCRIPT_ID"));
-        structuralVariant.setSite1Exon(rs.getInt("SITE1_EXON"));
         structuralVariant.setSite1Chromosome(rs.getString("SITE1_CHROMOSOME"));
         structuralVariant.setSite1Position(rs.getInt("SITE1_POSITION"));
+        structuralVariant.setSite1Contig(rs.getString("SITE1_CONTIG"));
+        structuralVariant.setSite1Region(rs.getString("SITE1_REGION"));
+        structuralVariant.setSite1RegionNumber(rs.getInt("SITE1_REGION_NUMBER"));
         structuralVariant.setSite1Description(rs.getString("SITE1_DESCRIPTION"));
         structuralVariant.setSite2EntrezGeneId(rs.getLong("SITE2_ENTREZ_GENE_ID"));
         structuralVariant.setSite2EnsemblTranscriptId(rs.getString("SITE2_ENSEMBL_TRANSCRIPT_ID"));
-        structuralVariant.setSite2Exon(rs.getInt("SITE2_EXON"));
         structuralVariant.setSite2Chromosome(rs.getString("SITE2_CHROMOSOME"));
         structuralVariant.setSite2Position(rs.getInt("SITE2_POSITION"));
+        structuralVariant.setSite2Contig(rs.getString("SITE2_CONTIG"));
+        structuralVariant.setSite2Region(rs.getString("SITE2_REGION"));
+        structuralVariant.setSite2RegionNumber(rs.getInt("SITE2_REGION_NUMBER"));
         structuralVariant.setSite2Description(rs.getString("SITE2_DESCRIPTION"));
         structuralVariant.setSite2EffectOnFrame(rs.getString("SITE2_EFFECT_ON_FRAME"));
         structuralVariant.setNcbiBuild(rs.getString("NCBI_BUILD"));
@@ -226,17 +236,16 @@ public class DaoStructuralVariant {
         structuralVariant.setTumorSplitReadCount(rs.getInt("TUMOR_SPLIT_READ_COUNT"));
         structuralVariant.setAnnotation(rs.getString("ANNOTATION"));
         structuralVariant.setBreakpointType(rs.getString("BREAKPOINT_TYPE"));
-        structuralVariant.setCenter(rs.getString("CENTER"));
         structuralVariant.setConnectionType(rs.getString("CONNECTION_TYPE"));
         structuralVariant.setEventInfo(rs.getString("EVENT_INFO"));
         structuralVariant.setVariantClass(rs.getString("CLASS"));
         structuralVariant.setLength(rs.getInt("LENGTH"));
         structuralVariant.setComments(rs.getString("COMMENTS"));
-        structuralVariant.setExternalAnnotation(rs.getString("EXTERNAL_ANNOTATION"));
         structuralVariant.setDriverFilter(rs.getString("DRIVER_FILTER"));
         structuralVariant.setDriverFilterAnn(rs.getString("DRIVER_FILTER_ANNOTATION"));
         structuralVariant.setDriverTiersFilter(rs.getString("DRIVER_TIERS_FILTER"));
         structuralVariant.setDriverTiersFilterAnn(rs.getString("DRIVER_TIERS_FILTER_ANNOTATION"));
+        structuralVariant.setSvStatus(rs.getString("SV_STATUS"));
         return structuralVariant;
     }
 }

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2015 - 2016 Memorial Sloan-Kettering Cancer Center.
+ * Copyright (c) 2015 - 2022 Memorial Sloan-Kettering Cancer Center.
  *
  * This library is distributed in the hope that it will be useful, but WITHOUT
  * ANY WARRANTY, WITHOUT EVEN THE IMPLIED WARRANTY OF MERCHANTABILITY OR FITNESS
@@ -39,7 +39,6 @@ public enum GeneticAlterationType {
     // uncalled mutations (mskcc internal) for showing read counts even if
     // mutation wasn't called
     MUTATION_UNCALLED,
-    FUSION,
     STRUCTURAL_VARIANT,
     COPY_NUMBER_ALTERATION,
     MICRO_RNA_EXPRESSION,

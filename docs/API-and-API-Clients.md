@@ -34,7 +34,7 @@ client <- get_api(url = "https://www.cbioportal.org/api/api-docs")
 The CGDS-R package connects an older version of our web API (`webservice.do`). Althought we will continue to keep `webservice.do` running for a while, we can't guarantee the same level of quality as our new API (`cbioportal.org/api`) provides. Therefore we recommend that you use `cBioPortalData` instead.
 
 ### Python client
-There are multiple ways to access the API using Python. One can use the `bravado` package to access the API directly, or by using the `cbio_py` client, which provide a simple wrapper for the API and return data in a format that is easy to work with.
+There are multiple ways to access the API using Python. One can use the `bravado` package to access the API directly, or use the `cbio_py` client, which provides a simple wrapper for the API and returns data in a format that is easy to work with.
 
 #### bravado
 Generate a client in Python using [bravado](https://github.com/Yelp/bravado)

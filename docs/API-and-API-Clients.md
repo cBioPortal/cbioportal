@@ -34,13 +34,16 @@ client <- get_api(url = "https://www.cbioportal.org/api/api-docs")
 The CGDS-R package connects an older version of our web API (`webservice.do`). Althought we will continue to keep `webservice.do` running for a while, we can't guarantee the same level of quality as our new API (`cbioportal.org/api`) provides. Therefore we recommend that you use `cBioPortalData` instead.
 
 ### Python client
+There are multiple ways to access the API using Python. One can use the `bravado` package to access the API directly, or by using the `cbio_py` client, which provide a simple wrapper for the API and return data in a format that is easy to work with.
+
+#### bravado
 Generate a client in Python using [bravado](https://github.com/Yelp/bravado)
 like this:
 
 ```python
 from bravado.client import SwaggerClient
 cbioportal = SwaggerClient.from_url('https://www.cbioportal.org/api/api-docs',
-                                    config={"validate_requests":False,"validate_responses":False})
+                                    config={"validate_requests":False,"validate_responses":False,"validate_swagger_spec": False})
 ```
 This allows you to access all API endpoints:
 ```python
@@ -77,3 +80,5 @@ muts = cbioportal.mutations.getMutationsInMolecularProfileBySampleListIdUsingGET
 
 A Jupyter notebook with more examples can be found [here](https://github.com/mskcc/cbsp-hackathon/blob/master/0-introduction/cbsp_hackathon.ipynb).
 
+#### cbio_py
+See the `cbio_py` documentation: https://pypi.org/project/cbio-py/.

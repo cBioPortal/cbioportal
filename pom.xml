@@ -292,7 +292,7 @@
   <properties>
     <frontend.version>v3.7.22</frontend.version>
     <frontend.groupId>com.github.cbioportal</frontend.groupId>
-    <spring.version>5.2.6.RELEASE</spring.version>
+    <spring.version>5.2.19.RELEASE</spring.version>
     <spring.integration.version>5.3.0.RELEASE</spring.integration.version>
     <spring.security.version>5.3.1.RELEASE</spring.security.version>
     <spring.social.version>1.1.6.RELEASE</spring.social.version>
@@ -610,7 +610,7 @@
       <dependency>
         <groupId>org.springframework</groupId>
         <artifactId>spring-context-support</artifactId>
-        <version>5.2.6.RELEASE</version>
+        <version>5.2.19.RELEASE</version>
       </dependency>
       <dependency>
         <groupId>org.springframework.integration</groupId>
@@ -1018,7 +1018,7 @@
       <dependency>
         <groupId>com.auth0</groupId>
         <artifactId>jwks-rsa</artifactId>
-        <version>0.9.0</version>
+        <version>0.14.1</version>
       </dependency>
     </dependencies>
   </dependencyManagement>

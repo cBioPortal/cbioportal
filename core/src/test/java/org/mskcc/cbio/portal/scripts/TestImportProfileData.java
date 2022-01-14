@@ -49,6 +49,7 @@ import org.mskcc.cbio.portal.dao.DaoMutation;
 import org.mskcc.cbio.portal.dao.DaoPatient;
 import org.mskcc.cbio.portal.dao.DaoSample;
 import org.mskcc.cbio.portal.dao.DaoSampleProfile;
+import org.mskcc.cbio.portal.dao.DaoStructuralVariant;
 import org.mskcc.cbio.portal.dao.MySQLbulkLoader;
 import org.mskcc.cbio.portal.model.CancerStudy;
 import org.mskcc.cbio.portal.model.CanonicalGene;
@@ -60,6 +61,7 @@ import org.mskcc.cbio.portal.model.GeneticProfile;
 import org.mskcc.cbio.portal.model.GeneticAlterationType;
 import org.mskcc.cbio.portal.model.Patient;
 import org.mskcc.cbio.portal.model.Sample;
+import org.mskcc.cbio.portal.model.StructuralVariant;
 
 import org.mskcc.cbio.portal.util.ConsoleUtil;
 import org.mskcc.cbio.portal.util.ProgressMonitor;
@@ -93,6 +95,11 @@ public class TestImportProfileData {
         if (geneticProfile != null) {
             DaoGeneticProfile.deleteGeneticProfile(geneticProfile);
             assertNull(DaoGeneticProfile.getGeneticProfileByStableId("study_tcga_pub_breast_mutations"));
+        }
+        geneticProfile = DaoGeneticProfile.getGeneticProfileByStableId("study_tcga_pub_sv");
+        if (geneticProfile != null) {
+            DaoGeneticProfile.deleteGeneticProfile(geneticProfile);
+            assertNull(DaoGeneticProfile.getGeneticProfileByStableId("study_tcga_pub_sv"));
         }
     }
 
@@ -253,6 +260,101 @@ public class TestImportProfileData {
         // remove profile at the end
         DaoGeneticProfile.deleteGeneticProfile(geneticProfile);
         assertNull(DaoGeneticProfile.getGeneticProfileByStableId(studyStableId + "_breast_mutations"));
+    }
+
+    @Test
+    public void testImportStructuralVariantFile() throws Exception {
+        String[] sampleIds = {"TCGA-A1-A0SD-01", "TCGA-A1-A0SB-01"};
+        String studyStableId = "study_tcga_pub";
+        CancerStudy study = DaoCancerStudy.getCancerStudyByStableId(studyStableId);
+        int studyId = study.getInternalId();
+        String testSampleStableId = "TCGA-A1-A0SB-01";
+        int testSampleId = -1;
+        // we need the internal sample id
+        for (String sampleId : sampleIds) {
+            String patientId = sampleId.substring(0, 12);
+            Patient patient = DaoPatient.getPatientByCancerStudyAndPatientId(studyId, patientId);
+            Integer patientIdInt = patient.getInternalId();
+            Sample sample = DaoSample.getSampleByPatientAndSampleId(patientIdInt, sampleId);
+            Integer sampleIdInt = sample.getInternalId();
+            if (testSampleStableId.equals(sample.getStableId())) {
+                testSampleId = sampleIdInt.intValue();
+            }
+        }
+
+        assertNotEquals(-1, testSampleId);
+
+        String[] args = {
+                "--data","src/test/resources/data_structural_variants.txt",
+                "--meta","src/test/resources/meta_structural_variants.txt" ,
+                "--noprogress",
+                "--loadMode", "bulkLoad"
+        };
+
+        try {
+            ImportProfileData runner = new ImportProfileData(args);
+            runner.run();
+        } catch (Throwable e) {
+            //useful info for when this fails:
+            ConsoleUtil.showMessages();
+            throw e;
+        }
+
+        GeneticProfile geneticProfile = DaoGeneticProfile.getGeneticProfileByStableId("study_tcga_pub_sv");
+        assertNotNull(geneticProfile);
+
+        int countStructuralVariantsInProfile = 0;
+        boolean foundTestSample = false;
+
+        List<StructuralVariant> structuralVariants = DaoStructuralVariant.getAllStructuralVariants();
+        for (StructuralVariant structuralVariant : structuralVariants) {
+            if (geneticProfile.getGeneticProfileId() == structuralVariant.getGeneticProfileId()) {
+                countStructuralVariantsInProfile += 1;
+                if (testSampleId == structuralVariant.getSampleIdInternal()) {
+                    foundTestSample = true;
+                    DaoGeneOptimized daoGene = DaoGeneOptimized.getInstance();
+                    CanonicalGene canonicalGene = daoGene.getGene("KIAA1549");
+                    assertNotNull(canonicalGene);
+                    assertEquals(canonicalGene.getEntrezGeneId(), (long) structuralVariant.getSite1EntrezGeneId());
+                    assertEquals("ENST00000242365", structuralVariant.getSite1EnsemblTranscriptId());
+                    assertEquals(15, structuralVariant.getSite1Exon());
+                    assertEquals("7", structuralVariant.getSite1Chromosome());
+                    assertEquals(138536968, structuralVariant.getSite1Position());
+                    assertEquals("KIAA1549-BRAF.K16B10.COSF509_1", structuralVariant.getSite1Description());
+                    canonicalGene = daoGene.getGene("BRAF");
+                    assertNotNull(canonicalGene);
+                    assertEquals(canonicalGene.getEntrezGeneId(), (long) structuralVariant.getSite2EntrezGeneId());
+                    assertEquals("ENST00000288602", structuralVariant.getSite2EnsemblTranscriptId());
+                    assertEquals(10, structuralVariant.getSite2Exon());
+                    assertEquals("7", structuralVariant.getSite2Chromosome());
+                    assertEquals(140482957, structuralVariant.getSite2Position());
+                    assertEquals("KIAA1549-BRAF.K16B10.COSF509_2", structuralVariant.getSite2Description());
+                    assertEquals("NA", structuralVariant.getSite2EffectOnFrame());
+                    assertEquals("GRCh37", structuralVariant.getNcbiBuild());
+                    assertEquals("no", structuralVariant.getDnaSupport());
+                    assertEquals("yes", structuralVariant.getRnaSupport());
+                    assertEquals(-1, structuralVariant.getNormalReadCount());
+                    assertEquals(1000, structuralVariant.getTumorReadCount());
+                    assertEquals(-1, structuralVariant.getNormalVariantCount());
+                    assertEquals(900, structuralVariant.getTumorVariantCount());
+                    assertEquals(-1, structuralVariant.getNormalPairedEndReadCount());
+                    assertEquals(-1, structuralVariant.getTumorPairedEndReadCount());
+                    assertEquals(-1, structuralVariant.getNormalSplitReadCount());
+                    assertEquals(-1, structuralVariant.getTumorSplitReadCount());
+                    assertEquals("KIAA1549-BRAF.K16B10.COSF509", structuralVariant.getAnnotation());
+                    assertEquals("NA", structuralVariant.getBreakpointType());
+                    assertEquals("NA", structuralVariant.getCenter());
+                    assertEquals("NA", structuralVariant.getConnectionType());
+                    assertEquals("Fusion", structuralVariant.getEventInfo());
+                    assertEquals("NA", structuralVariant.getVariantClass());
+                    assertEquals(-1, structuralVariant.getLength());
+                    assertEquals("Gain-of-Function", structuralVariant.getComments());
+                    assertEquals("COSMIC:COSF509", structuralVariant.getExternalAnnotation());
+                }
+            }
+        }
+        assertEquals(2, countStructuralVariantsInProfile);
+        assertEquals(true, foundTestSample);
     }
 
     @Test

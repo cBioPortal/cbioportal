@@ -141,11 +141,19 @@ public class TabDelimitedFileUtil
 		}
 	}
 
+	// This method does not call Integer.parseInt() as one might expect.
+	// Presumably this is to allow the convertion of strings like "6.2" to "6".
+	// The method previously called (int)Float.parseFloat() but floats
+	// reserve 23 bits for the mantissa and ints are 32 bits so precision
+	// was lost parsing "138536968" which was converted to 138536960. 
+	// Now we call (int)Double.parseDouble() because double allocates
+	// 52 bits for the mantissa. Note getPartLong calls Long.parseLong()
+	// when this does not call Integer.parseInt() which seems inconsistent.
 	public static Integer getPartInt(int index, String[] parts)
 	{
 		try {
 			String part = parts[index];
-			return (int)(Float.parseFloat(part));
+			return (int)(Double.parseDouble(part));
 		} catch (ArrayIndexOutOfBoundsException e) {
 			return NA_INT;
 		} catch (NumberFormatException e) {

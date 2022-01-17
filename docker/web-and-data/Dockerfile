@@ -71,6 +71,8 @@ RUN find /cbioportal/core/src/main/scripts/ -type f -executable \! -name '*.pl' 
 # put config files in this folder if you want to override config
 ENV PORTAL_WEB_HOME=/cbioportal-webapp
 ENV PORTAL_HOME=/cbioportal
+ENV JAVA_OPTS="-Xms2G -Xmx8G"
+ENV WEBAPP_OPTS=
 
 # add exploded Spring Boot jar contents to image
 # See: https://spring.io/guides/topicals/spring-boot-docker/
@@ -83,4 +85,4 @@ COPY --from=build ${DEPENDENCY}/BOOT-INF/classes    $PORTAL_WEB_HOME/
 # add entrypoint
 COPY --from=build /cbioportal/docker/web-and-data/docker-entrypoint.sh /usr/local/bin/
 ENTRYPOINT ["docker-entrypoint.sh"]
-CMD ["java ${JAVA_OPTS}", "-cp", "/cbioportal-webapp:/cbioportal-webapp/lib/*", "org.cbioportal.PortalApplication ${WEBAPP_OPTS}"]
+CMD ["sh", "-c", "java $(echo $JAVA_OPTS) -cp /cbioportal-webapp:/cbioportal-webapp/lib/* org.cbioportal.PortalApplication $(echo $WEBAPP_OPTS)"]

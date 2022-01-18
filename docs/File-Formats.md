@@ -966,6 +966,7 @@ A structural variant data file is a tab-delimited file with one structural varia
 | External_Annotation | COSMIC:COSF1197 | Other annotation sources. Examples of contents could be AB462411 (NCBI)  and COSF1197 (Cosmic). This column supports both types of annotations. |
 
 For an example see [datahub](https://github.com/cBioPortal/datahub/blob/master/public/msk_impact_2017/data_fusions.txt). At a minimum `Sample_ID`, `Site1_Hugo_Symbol` and `Site2_Hugo_Symbol` are required. For the fusion tab visualization (still in development) one needs to provide those field as well as `Site1_Ensembl_Transcript_Id`, `Site2_Ensembl_Transcript_Id`. `Site1_Exon` and `Site2_Exon`. Some of the other columns are shown at several other pages on the website. The `Class`, `Annotation` and `Event_Info` columns are shown prominently on several locations.
+#TODO : now we are going to accept structural variants with only site1 gene plus sample id (for germline cnv records) -- is this a third category? Let's spell this out
 
 ## Fusion Data
 **⚠️ DEPRECATED Use the: [SV format](#structural-variant-data) instead**

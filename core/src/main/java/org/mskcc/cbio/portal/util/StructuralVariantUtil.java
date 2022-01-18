@@ -83,6 +83,7 @@ public class StructuralVariantUtil {
     public static final String DRIVER_FILTER_ANNOTATION = "cbp_driver_annotation";
     public static final String DRIVER_TIERS_FILTER = "cbp_driver_tiers";
     public static final String DRIVER_TIERS_FILTER_ANNOTATION = "cbp_driver_tiers_annotation";
+    public static final String IS_GERMLINE = "is_germline";
 
     public StructuralVariantUtil(){}
 
@@ -139,6 +140,7 @@ public class StructuralVariantUtil {
         structuralVariant.setDriverFilterAnn(TabDelimitedFileUtil.getPartString(getColumnIndex(StructuralVariantUtil.DRIVER_FILTER_ANNOTATION), parts));
         structuralVariant.setDriverTiersFilter(TabDelimitedFileUtil.getPartString(getColumnIndex(StructuralVariantUtil.DRIVER_TIERS_FILTER), parts));
         structuralVariant.setDriverTiersFilterAnn(TabDelimitedFileUtil.getPartString(getColumnIndex(StructuralVariantUtil.DRIVER_TIERS_FILTER_ANNOTATION), parts));
+        structuralVariant.setIsGermline(TabDelimitedFileUtil.getPartInt(getColumnIndex(StructuralVariantUtil.IS_GERMLINE), parts) != 0);
         return structuralVariant;
     }
 

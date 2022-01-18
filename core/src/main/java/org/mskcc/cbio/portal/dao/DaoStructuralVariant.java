@@ -80,7 +80,8 @@ public class DaoStructuralVariant {
                                             "CLASS",
                                             "LENGTH",
                                             "COMMENTS",
-                                            "EXTERNAL_ANNOTATION"
+                                            "EXTERNAL_ANNOTATION",
+                                            "IS_GERMLINE",
                                             };
         bl.setFieldNames(fieldNames);
 
@@ -121,7 +122,9 @@ public class DaoStructuralVariant {
            structuralVariant.getVariantClass(),
            Integer.toString(structuralVariant.getLength()),
            structuralVariant.getComments(),
-           structuralVariant.getExternalAnnotation());
+           structuralVariant.getExternalAnnotation(),
+           Integer.toString(structuralVariant.getIsGermline()?1:0));
+//TODO: fix this ... the value must be converted to an integer
 
         if ((structuralVariant.getDriverFilter() != null
             && !structuralVariant.getDriverFilter().isEmpty()
@@ -237,6 +240,7 @@ public class DaoStructuralVariant {
         structuralVariant.setDriverFilterAnn(rs.getString("DRIVER_FILTER_ANNOTATION"));
         structuralVariant.setDriverTiersFilter(rs.getString("DRIVER_TIERS_FILTER"));
         structuralVariant.setDriverTiersFilterAnn(rs.getString("DRIVER_TIERS_FILTER_ANNOTATION"));
+        structuralVariant.setIsGermline(rs.getBoolean("IS_GERMLINE"));
         return structuralVariant;
     }
 }

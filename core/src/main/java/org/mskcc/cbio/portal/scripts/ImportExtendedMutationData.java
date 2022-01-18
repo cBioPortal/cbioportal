@@ -312,6 +312,8 @@ public class ImportExtendedMutationData{
                     }
                 }
 
+                // this is nothing
+                
                 // If Entrez Gene ID Fails, try Symbol.
                 if (gene == null &&
                         !(geneSymbol.equals("") ||

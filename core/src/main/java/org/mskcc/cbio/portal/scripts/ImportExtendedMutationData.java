@@ -312,6 +312,8 @@ public class ImportExtendedMutationData{
                     }
                 }
 
+                // donkeys
+                
                 // If Entrez Gene ID Fails, try Symbol.
                 if (gene == null &&
                         !(geneSymbol.equals("") ||

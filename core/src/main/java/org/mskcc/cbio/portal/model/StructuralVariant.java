@@ -69,6 +69,7 @@ public class StructuralVariant {
     private String driverFilterAnn;
     private String driverTiersFilter;
     private String driverTiersFilterAnn;
+    private Boolean isGermline;
 
     public long getInternalId() {
         return internalId;
@@ -76,7 +77,6 @@ public class StructuralVariant {
     public void setInternalId(long internalId) {
         this.internalId = internalId;
     }
-
     public int getGeneticProfileId() {
         return geneticProfileId;
     }
@@ -334,5 +334,11 @@ public class StructuralVariant {
     }
     public void setDriverTiersFilterAnn(String driverTiersFilterAnn) {
         this.driverTiersFilterAnn = driverTiersFilterAnn;
+    }
+    public Boolean getIsGermline() {
+        return isGermline;
+    }
+    public void setIsGermline(Boolean isGermline) {
+        this.isGermline = isGermline;
     }
 }

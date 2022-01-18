@@ -10,6 +10,7 @@ import org.mskcc.cbio.portal.model.StructuralVariant;
 public class TestStructuralVariantUtil {
     private StructuralVariantUtil structuralVariantUtil = new StructuralVariantUtil();
 
+//TODO: the set of required fields has shrunk to just [Site1EntrezGeneId or <<Site1HugoSymbol>>] ... but also, sampleId is needed??
     @Test
     public void testValidStructuralVariantRecordWithCompleteGeneTranscriptInfo() {
         // confirm that record meets minimum requirements for import

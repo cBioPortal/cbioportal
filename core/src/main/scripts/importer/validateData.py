@@ -3105,6 +3105,8 @@ class StructuralVariantValidator(Validator):
                                           extra={'line_number': self.line_number,
                                                  'cause': '%s and %s' % (self.ncbi_build, ncbi_build)})
 
+# TODO: discuss what that actual requirement are for different categories of structural variants. We now allow records which are germline cnv events referencing only a single gene for instance. Is that a third category or not?
+
         def checkFusionValues(self, data):
             """Check if all values are present for a fusion event"""
 
@@ -3162,11 +3164,6 @@ class StructuralVariantValidator(Validator):
         site1_hugo_symbol = checkPresenceValue('Site1_Hugo_Symbol', self, data)
         site1_entrez_gene_id = checkPresenceValue('Site1_Entrez_Gene_Id', self, data)
         self.checkGeneIdentification(site1_hugo_symbol, site1_entrez_gene_id)
-
-        # Parse Hugo Symbol and Entrez Gene Id and check them for Site 2
-        site2_hugo_symbol = checkPresenceValue('Site2_Hugo_Symbol', self, data)
-        site2_entrez_gene_id = checkPresenceValue('Site2_Entrez_Gene_Id', self, data)
-        self.checkGeneIdentification(site2_hugo_symbol, site2_entrez_gene_id)
 
         # Validate fusion events if Event_Info is 'Fusion'
         if data[self.cols.index('Event_Info')] == 'Fusion':

@@ -43,6 +43,7 @@
         structural_variant.LENGTH AS "${prefix}length",
         structural_variant.COMMENTS AS "${prefix}comments",
         structural_variant.EXTERNAL_ANNOTATION AS "${prefix}externalAnnotation",
+        structural_variant.IS_GERMLINE AS "${prefix}isGermline",
         alteration_driver_annotation.DRIVER_FILTER AS "${prefix}driverFilter",
         alteration_driver_annotation.DRIVER_FILTER_ANNOTATION AS "${prefix}driverFilterAnn",
         alteration_driver_annotation.DRIVER_TIERS_FILTER AS "${prefix}driverTiersFilter",

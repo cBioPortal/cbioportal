@@ -104,6 +104,7 @@ public class StructuralVariantControllerTest {
     private static final String TEST_DRIVER_FILTER_ANN_1 = "test_driver_filter_ann_1";
     private static final String TEST_DRIVER_TIERS_FILTER_1 = "test_driver_tiers_filter_1";
     private static final String TEST_DRIVER_TIERS_FILTER_ANN_1 = "test_driver_tiers_filter_ann_1";
+    private static final Boolean TEST_IS_GERMLINE = false;
 
     @Autowired
     private WebApplicationContext wac;
@@ -187,7 +188,8 @@ public class StructuralVariantControllerTest {
                 .andExpect(MockMvcResultMatchers.jsonPath("$[0].driverFilter").value(TEST_DRIVER_FILTER_1))
                 .andExpect(MockMvcResultMatchers.jsonPath("$[0].driverFilterAnn").value(TEST_DRIVER_FILTER_ANN_1))
                 .andExpect(MockMvcResultMatchers.jsonPath("$[0].driverTiersFilter").value(TEST_DRIVER_TIERS_FILTER_1))
-                .andExpect(MockMvcResultMatchers.jsonPath("$[0].driverTiersFilterAnn").value(TEST_DRIVER_TIERS_FILTER_ANN_1));
+                .andExpect(MockMvcResultMatchers.jsonPath("$[0].driverTiersFilterAnn").value(TEST_DRIVER_TIERS_FILTER_ANN_1))
+                .andExpect(MockMvcResultMatchers.jsonPath("$[0].isGermline").value(TEST_IS_GERMLINE));
     }
 
     @Test
@@ -251,7 +253,8 @@ public class StructuralVariantControllerTest {
                 .andExpect(MockMvcResultMatchers.jsonPath("$[0].driverFilter").value(TEST_DRIVER_FILTER_1))
                 .andExpect(MockMvcResultMatchers.jsonPath("$[0].driverFilterAnn").value(TEST_DRIVER_FILTER_ANN_1))
                 .andExpect(MockMvcResultMatchers.jsonPath("$[0].driverTiersFilter").value(TEST_DRIVER_TIERS_FILTER_1))
-                .andExpect(MockMvcResultMatchers.jsonPath("$[0].driverTiersFilterAnn").value(TEST_DRIVER_TIERS_FILTER_ANN_1));
+                .andExpect(MockMvcResultMatchers.jsonPath("$[0].driverTiersFilterAnn").value(TEST_DRIVER_TIERS_FILTER_ANN_1))
+                .andExpect(MockMvcResultMatchers.jsonPath("$[0].isGermline").value(TEST_IS_GERMLINE));
     }
 
     @Test
@@ -322,6 +325,7 @@ public class StructuralVariantControllerTest {
         structuralVariant1.setDriverFilterAnn(TEST_DRIVER_FILTER_ANN_1);
         structuralVariant1.setDriverTiersFilter(TEST_DRIVER_TIERS_FILTER_1);
         structuralVariant1.setDriverTiersFilterAnn(TEST_DRIVER_TIERS_FILTER_ANN_1);
+        structuralVariant1.setIsGermline(false);
         structuralVariantList.add(structuralVariant1);
         return structuralVariantList;
     }

@@ -72,6 +72,7 @@ public class StructuralVariant extends UniqueKeyBase implements Serializable {
     private String driverFilterAnn;
     private String driverTiersFilter;
     private String driverTiersFilterAnn;
+    private Boolean isGermline;
 
     public String getMolecularProfileId() {
         return molecularProfileId;
@@ -415,5 +416,13 @@ public class StructuralVariant extends UniqueKeyBase implements Serializable {
 
     public void setDriverTiersFilterAnn(String driverTiersFilterAnn) {
         this.driverTiersFilterAnn = driverTiersFilterAnn;
+    }
+
+    public Boolean getIsGermline() {
+        return isGermline;
+    }
+
+    public void setIsGermline(Boolean isGermline) {
+        this.isGermline = isGermline;
     }
 }

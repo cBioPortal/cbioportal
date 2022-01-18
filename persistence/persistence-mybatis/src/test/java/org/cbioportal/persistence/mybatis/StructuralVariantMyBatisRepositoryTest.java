@@ -146,6 +146,8 @@ public class StructuralVariantMyBatisRepositoryTest {
         Assert.assertEquals("Pathogenic", structuralVariantFirstResult.getDriverFilterAnn());
         Assert.assertEquals("Tier 1", structuralVariantFirstResult.getDriverTiersFilter());
         Assert.assertEquals("Potentially Actionable", structuralVariantFirstResult.getDriverTiersFilterAnn());
+        Assert.assertEquals("Potentially Actionable", structuralVariantFirstResult.getDriverTiersFilterAnn());
+        Assert.assertEquals(false, structuralVariantFirstResult.getIsGermline());
         StructuralVariant structuralVariantSecondResult = result.get(1);
         Assert.assertEquals("study_tcga_pub_sv", structuralVariantSecondResult.getMolecularProfileId());
         Assert.assertEquals((String) "TCGA-A1-A0SD-01", structuralVariantSecondResult.getSampleId());
@@ -190,6 +192,7 @@ public class StructuralVariantMyBatisRepositoryTest {
         Assert.assertEquals(null, structuralVariantSecondResult.getDriverFilterAnn());
         Assert.assertEquals(null, structuralVariantSecondResult.getDriverTiersFilter());
         Assert.assertEquals(null, structuralVariantSecondResult.getDriverTiersFilterAnn());
+        Assert.assertEquals(false, structuralVariantSecondResult.getIsGermline());
 
     }
 

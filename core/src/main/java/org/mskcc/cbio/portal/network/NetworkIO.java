@@ -256,16 +256,10 @@ public final class NetworkIO {
      */
     public static Network readNetworkFromCGDS(Set<String> genes, NetworkSize netSize,
             Collection<String> dataSources, boolean removeSelfEdge) throws DaoException {
-        DaoInteraction daoInteraction = DaoInteraction.getInstance();
         DaoGeneOptimized daoGeneOptimized = DaoGeneOptimized.getInstance();
         Map<Long,String> entrezHugoMap = getEntrezHugoMap(genes);
         Set<Long> seedGenes = new HashSet<Long>(entrezHugoMap.keySet());
-        List<Interaction> interactionList;
-        if (netSize==NetworkSize.SMALL) {
-            interactionList = daoInteraction.getInteractionsAmongSeeds(seedGenes, dataSources);
-        } else {
-            interactionList = daoInteraction.getInteractions(seedGenes, dataSources);
-        }
+        List<Interaction> interactionList=null;
         Network net = new Network();
         for (Interaction interaction : interactionList) {
             long geneA = interaction.getGeneA();

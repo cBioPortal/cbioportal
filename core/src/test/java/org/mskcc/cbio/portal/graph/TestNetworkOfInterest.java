@@ -68,7 +68,6 @@ public class TestNetworkOfInterest {
     public void testDaoInteraction() throws DaoException {
 
 		MySQLbulkLoader.bulkLoadOff();
-        DaoInteraction daoInteraction = DaoInteraction.getInstance();
 
         CanonicalGene brca1 = new CanonicalGene (672, "BRCA1");
         CanonicalGene brca2 = new CanonicalGene (675, "BRCA2");
@@ -81,11 +80,7 @@ public class TestNetworkOfInterest {
         daoGene.addGene(tp53);
         daoGene.addGene(pten);
 
-        daoInteraction.addInteraction(brca1, brca2, "pp", "HPRD", "Y2H", "12344");
-        daoInteraction.addInteraction(brca1, tp53, "pp", "HPRD", "Y2H", "12344");
-        daoInteraction.addInteraction(brca1, pten, "pp", "HPRD", "Y2H", "12344");
-        daoInteraction.addInteraction(tp53, pten, "pp", "HPRD", "Y2H", "12344");
-
+ 
         ArrayList<CanonicalGene> geneList = new ArrayList<CanonicalGene>();
         geneList.add(brca1);
         geneList.add(brca2);

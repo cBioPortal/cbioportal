@@ -57,7 +57,6 @@ DELETE FROM protein_array_data;
 DELETE FROM protein_array_target;
 DELETE FROM protein_array_info;
 DELETE FROM mut_sig;
-DELETE FROM interaction;
 DELETE FROM clinical_attribute_meta;
 DELETE FROM mutation;
 DELETE FROM mutation_event;

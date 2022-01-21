@@ -71,7 +71,6 @@ public class NetworkOfInterest {
      */
     public NetworkOfInterest (ArrayList<CanonicalGene> geneList,
             Collection<String> dataSources) throws DaoException {
-        DaoInteraction daoInteraction = DaoInteraction.getInstance();
         ArrayList<Interaction> interactionList = new ArrayList<Interaction>();
         HashSet<String> seedSet = new HashSet<String>();
 
@@ -79,7 +78,7 @@ public class NetworkOfInterest {
 
             //  Get all interactions involving current gene.
             ArrayList<Interaction> currentInteractionList = 
-                    daoInteraction.getInteractions(gene, dataSources);
+                    null;
             interactionList.addAll(currentInteractionList);
             seedSet.add(gene.getHugoGeneSymbolAllCaps());
         }

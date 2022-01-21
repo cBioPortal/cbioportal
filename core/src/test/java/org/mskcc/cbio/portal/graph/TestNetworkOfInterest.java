@@ -58,39 +58,5 @@ import edu.uci.ics.jung.graph.Graph;
 @Rollback
 @Transactional
 public class TestNetworkOfInterest {
-
-    /**
-     * Test the Network Of Interaction Class.
-     *
-     * @throws org.mskcc.cbio.portal.dao.DaoException Database Error
-     */
-	@Test
-    public void testDaoInteraction() throws DaoException {
-
-		MySQLbulkLoader.bulkLoadOff();
-
-        CanonicalGene brca1 = new CanonicalGene (672, "BRCA1");
-        CanonicalGene brca2 = new CanonicalGene (675, "BRCA2");
-        CanonicalGene tp53 = new CanonicalGene (7157, "TP53");
-        CanonicalGene pten = new CanonicalGene (5728, "PTEN");
-
-        DaoGeneOptimized daoGene = DaoGeneOptimized.getInstance();
-        daoGene.addGene(brca1);
-        daoGene.addGene(brca2);
-        daoGene.addGene(tp53);
-        daoGene.addGene(pten);
-
- 
-        ArrayList<CanonicalGene> geneList = new ArrayList<CanonicalGene>();
-        geneList.add(brca1);
-        geneList.add(brca2);
-        geneList.add(tp53);
-        geneList.add(pten);
-        NetworkOfInterest noi = new NetworkOfInterest(geneList);
-        Graph<String, String> graph = noi.getGraph();
-
-        assertEquals (4, graph.getVertexCount());
-        assertEquals (4, graph.getEdgeCount());
-    }
-
+    
 }

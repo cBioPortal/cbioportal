@@ -955,7 +955,7 @@ ALTER TABLE `genetic_profile` ADD COLUMN `PATIENT_LEVEL` boolean DEFAULT 0;
 UPDATE `info` SET `DB_SCHEMA_VERSION`="2.12.10";
 
 
-##version: 2.12.10
+##version: 2.12.11
 -- removing table interaction
 DROP TABLE IF EXISTS `interaction`;
-UPDATE `info` SET `DB_SCHEMA_VERSION`="2.12.10";
+UPDATE `info` SET `DB_SCHEMA_VERSION`="2.12.11";

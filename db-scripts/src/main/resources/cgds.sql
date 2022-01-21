@@ -64,7 +64,6 @@ DROP TABLE IF EXISTS `protein_array_data`;
 DROP TABLE IF EXISTS `protein_array_target`;
 DROP TABLE IF EXISTS `protein_array_info`;
 DROP TABLE IF EXISTS `mut_sig`;
-DROP TABLE IF EXISTS `interaction`;
 DROP TABLE IF EXISTS `clinical_attribute_meta`;
 DROP TABLE IF EXISTS `clinical_sample`;
 DROP TABLE IF EXISTS `clinical_patient`;
@@ -565,16 +564,6 @@ CREATE TABLE `clinical_attribute_meta` (
   `CANCER_STUDY_ID` int(11) NOT NULL,
   PRIMARY KEY (`ATTR_ID`,`CANCER_STUDY_ID`),
   FOREIGN KEY (`CANCER_STUDY_ID`) REFERENCES `cancer_study` (`CANCER_STUDY_ID`) ON DELETE CASCADE
-);
-
--- --------------------------------------------------------
-CREATE TABLE `interaction` (
-  `GENE_A` bigint(20) NOT NULL,
-  `GENE_B` bigint(20) NOT NULL,
-  `INTERACTION_TYPE` varchar(256) NOT NULL,
-  `DATA_SOURCE` varchar(256) NOT NULL,
-  `EXPERIMENT_TYPES` varchar(1024) NOT NULL,
-  `PMIDS` varchar(1024) NOT NULL
 );
 
 -- --------------------------------------------------------

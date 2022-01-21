@@ -908,4 +908,4 @@ CREATE TABLE `resource_study` (
 );
 
 -- THIS MUST BE KEPT IN SYNC WITH db.version PROPERTY IN pom.xml
-INSERT INTO info VALUES ('2.12.10', NULL);
+INSERT INTO info VALUES ('2.12.11', NULL);

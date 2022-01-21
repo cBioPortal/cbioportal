@@ -958,4 +958,4 @@ UPDATE `info` SET `DB_SCHEMA_VERSION`="2.12.10";
 ##version: 2.12.10
 -- removing table interaction
 DROP TABLE IF EXISTS `interaction`;
-UPDATE `info` SET `DB_SCHEMA_VERSION`="2.12.11";
+UPDATE `info` SET `DB_SCHEMA_VERSION`="2.12.10";

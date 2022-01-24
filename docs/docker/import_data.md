@@ -57,6 +57,4 @@ docker-compose restart cbioportal
 ```
 
 ### Import GRCh38 data
-If you are importing GRCh38 data, please remember to add `-ncbi 38` in your [importing data command](https://docs.cbioportal.org/2.1.1-deploy-with-docker-recommended/example_commands#importing-data). The `-ncbi` is set to `37` by default, adding `-ncbi 37` is optional for importing GRCh37 data.
-
-Description for other parameters can be found by running `docker-compose run cbioportal metaImport.py -h` or following [this link](https://docs.cbioportal.org/5.1-data-loading/data-loading/using-the-metaimport-script#importing-data-into-cbioportal)
+If you are importing GRCh38 data, please remember to set the `reference_genome: hg38` field in the `meta_study.txt` file. See also [cancer study metadata](https://docs.cbioportal.org/5.1-data-loading/data-loading/file-formats#cancer-study).

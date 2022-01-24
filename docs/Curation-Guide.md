@@ -13,7 +13,7 @@ Now let's try to import another study:
 4. Restart the cbioportal instance `docker-compose restart cbioportal` and see if the new study shows up on http://localhost:8080
 
 ## Curate a new study
-This section is under development and explaion how one can create a new study for import into cBioPortal.
+This section is under development and will in the future explain how one can create a new study for import into cBioPortal.
 
 ## Datahub
 The cBioPortal team has curated many published studies in formats suitable for import in cBioPortal. These can

@@ -64,7 +64,12 @@ This will start all four containers (services) defined [here](https://github.com
 - the session service Java web app. This service has a REST API and stores session information (e.g. what genes are being queried) and user specific data (e.g. saved cohorts) in a separate mongo database
 - the mongo database that persists the data for the session service
 
-It will take a few minutes the first time to import the seed database and perform migrations if necessary. Each container outputs logs to the terminal. For each log you'll see the name of the container that outputs it (e.g. `cbioportal_container` or `cbioportal_session_database_container`). If all is well you won't see any significant errors (maybe some warnings, that's fine to ignore). If all went well you should be able to visit the cBioPortal homepage on http://localhost:8080. You'll notice that no studies are shown on the homepage yet. Go to the next step to see how to import studies.
+It will take a few minutes the first time to import the seed database and perform migrations if necessary. Each container outputs logs to the terminal. For each log you'll see the name of the container that outputs it (e.g. `cbioportal_container` or `cbioportal_session_database_container`). If all is well you won't see any significant errors (maybe some warnings, that's fine to ignore). If all went well you should be able to visit the cBioPortal homepage on http://localhost:8080. You'll notice that no studies are shown on the homepage yet:
+
+<img width="1414" alt="Screen Shot 2022-01-24 at 2 10 10 PM" src="https://user-images.githubusercontent.com/1334004/150848276-dec9551f-6b90-470f-bb59-e7754829fc83.png">
+
+
+Go to the next step to see how to import studies.
 
 ##### Notes on detached mode
 

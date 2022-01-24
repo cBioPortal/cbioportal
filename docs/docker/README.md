@@ -9,8 +9,8 @@ Make sure that you have the latest version of Docker installed on your machine. 
 
 [Notes for non-Linux systems](notes-for-non-linux.md)
 
-## Usage instructions ##
-In this example we use [Docker Compose](https://docs.docker.com/compose/) to spin up all the different containers for cBioPortal.
+## Usage instructions
+In this example we use [Docker Compose](https://docs.docker.com/compose/) to spin up all the different required containers/services for cBioPortal.
 
 ### Quick Start
 

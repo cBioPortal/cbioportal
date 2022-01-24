@@ -1,10 +1,8 @@
 # Curation Guide
 This guide is to help data curators learn how to curate a study on their own computer.
 
-## Set up cBioPortal using Docker
-
 ## Load an example study
-First follow all the steps [here](https://docs.cbioportal.org/2.1.1-deploy-with-docker-recommended/docker#comprehensive-start) to set up a local cBioPortal instance using Docker and import an example study. You will end up with the study [Low-Grade Gliomas (UCSF, Science 2014)
+First follow all the steps [here](docker/README.md) to set up a local cBioPortal instance using Docker and import an example study. You will end up with the study [Low-Grade Gliomas (UCSF, Science 2014)
 ](https://www.cbioportal.org/study/summary?id=lgg_ucsf_2014) loaded locally.
 
 Now let's try to import another study:

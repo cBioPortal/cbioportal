@@ -1,11 +1,13 @@
 # Curation Guide
-This guide is to help data curators learn how to curate a study on their own computer.
+This guide is to help data curators learn how to curate a study on their own computer
+
+## Prerequisites
+- To follow this guide the curator should have some familiarity with running commands on the command line. We will be using Docker. No Docker knowledge is required, one will obtain some basic understanding by following the guide.
+- Learn how to setup cBioPortal locally [here](docker/README.md) first.
 
 ## Load an example study
-First follow all the steps [here](docker/README.md) to set up a local cBioPortal instance using Docker and import an example study. You will end up with the study [Low-Grade Gliomas (UCSF, Science 2014)
-](https://www.cbioportal.org/study/summary?id=lgg_ucsf_2014) loaded locally.
-
-Now let's try to import another study:
+After having followed the steps in the [Docker Deployment instructions]([here](docker/README.md)) you will end up with the study [Low-Grade Gliomas (UCSF, Science 2014)
+](https://www.cbioportal.org/study/summary?id=lgg_ucsf_2014) loaded locally. Now let's try to import another study:
 
 1. Choose another example study from the [datahub](https://github.com/cBioPortal/datahub/tree/master/public). Note the name of the folder which is identical to the study id defined in [meta_study.txt](https://github.com/cBioPortal/datahub/blob/master/public/lgg_ucsf_2014/meta_study.txt#L2).
 2. From the root of the `cbioportal-docker-compose` folder run `DATAHUB_STUDIES=my_study_id ./study/init.sh`. Change `my_study_id` to the study you picked in 1. The study should now be downloaded in `./study/`.

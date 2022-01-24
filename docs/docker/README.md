@@ -103,15 +103,18 @@ This will import the [lgg_ucsf_2014 study](https://www.cbioportal.org/patient?st
 docker-compose restart cbioportal
 ```
 
-or call the `/api/cache` endpoint with a `DELETE` http-request (see [here](portal.properties-Reference.md#flush-caches-with-the-_apicache_-endpoint) for more information):
-
-```
-curl -x DELETE -H "X-API-KEY: 7d70fecb-cda8-490f-9ea2-ef874b6512f4" http://localhost:8080/api/cache
-```
-
-where the value of the API key is configured in the _portal.properties_ file. You can visit http://localhost:8080 again and you should be able to see the new study.
+or 
 
 All public studies can be downloaded from https://www.cbioportal.org/datasets, or https://github.com/cBioPortal/datahub/. You can add any of them to the `./study` folder and import them. There's also a script (`./study/init.sh`) to download multiple studies. You can set `DATAHUB_STUDIES` to any public study id (e.g. `lgg_ucsf_2014`) and run `./init.sh`.
+
+##### Notes on restarting
+To avoid having to restart one can alternatively hit an API endpoint. To do so, call the `/api/cache` endpoint with a `DELETE` http-request (see [here](portal.properties-Reference.md#flush-caches-with-the-_apicache_-endpoint) for more information):
+
+```
+curl -x DELETE -H "X-API-KEY: my-secret-api-key-value" http://localhost:8080/api/cache
+```
+
+The value of the API key is configured in the _portal.properties_ file. You can visit http://localhost:8080 again and you should be able to see the new study.
 
 #### Step 3 - Customize your portal.properties file ###
 

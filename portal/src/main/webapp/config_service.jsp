@@ -126,11 +126,12 @@
             "enable_request_body_gzip_compression",
             "enable_treatment_groups",
             "query_product_limit",
-            "skin.show_gsva",
             "saml.logout.local",
             "skin.citation_rule_text",
+            "skin.show_gsva",
             "skin.geneset_hierarchy.default_p_value",
             "skin.geneset_hierarchy.default_gsva_score",
+            "skin.geneset_hierarchy.collapse_by_default",
             "skin.mutation_table.namespace_column.show_by_default"
         };
 

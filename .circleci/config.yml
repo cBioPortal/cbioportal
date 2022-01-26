@@ -76,9 +76,9 @@ jobs:
                     - v4-dependencies-{{ checksum "yarn.lock" }}
             # Download and cache dependencies
             - run: yarn
-            - run:
-                name: "Make sure lock file is still the same"
-                command: 'git diff --exit-code yarn.lock > /dev/null || (echo -e "New package lock file at $(cat yarn.lock | curl -F c=@- https://ptpb.pw | grep url) (include this file in your PR to fix this test)"; git diff --exit-code yarn.lock; exit 1)'
+#            - run:
+#                name: "Make sure lock file is still the same"
+#                command: 'git diff --exit-code yarn.lock > /dev/null || (echo -e "New package lock file at $(cat yarn.lock | curl -F c=@- https://ptpb.pw | grep url) (include this file in your PR to fix this test)"; git diff --exit-code yarn.lock; exit 1)'
             - save_cache:
                 paths:
                     - node_modules

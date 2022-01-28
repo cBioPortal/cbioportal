@@ -549,9 +549,9 @@ skin.geneset_hierarchy.default_p_value=0.02
 ```
 
 # Collapses the tree widget of the geneset hierarchy dialog on initialization
-By default, the three is expanded (property value is `false`).
+By default, the tree is expanded (property value is `false`).
 ```
-skin.geneset_hierarchy.collapse_by_default' =true
+skin.geneset_hierarchy.collapse_by_default = true
 ```
 
 

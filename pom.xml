@@ -297,7 +297,7 @@
     <spring.security.version>5.3.1.RELEASE</spring.security.version>
     <spring.social.version>1.1.6.RELEASE</spring.social.version>
     <jackson.version>2.13.0</jackson.version>
-    <mysql-connector.version>5.1.48</mysql-connector.version>
+    <mysql-connector.version>8.0.28</mysql-connector.version>
     <webapp-runner.version>8.5.61.0</webapp-runner.version>
 
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>

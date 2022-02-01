@@ -696,4 +696,20 @@ public class StudyViewController {
 
         return new ResponseEntity<>(studyViewFilterApplier.getDataBins(dataBinMethod, interceptedGenericAssayDataBinCountFilter), HttpStatus.OK);
     }
+    private String getFirstName() {
+        return "Smith" + new Random().nextInt();
+    }
+    
+    private String getLastName() { 
+        return "Smith" + new Random().nextInt();
+    }
+    
+    private void bugFunction() {
+        String firstName = getFirstName(); // String overrides equals
+        String lastName = getLastName();
+
+        if (firstName == lastName) {
+            System.out.println("Sonar pls report");
+        }; // Non-compliant; false even if the strings have the same value
+    }
 }

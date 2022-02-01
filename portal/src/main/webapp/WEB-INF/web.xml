@@ -92,7 +92,7 @@
         </init-param>
         <init-param>
             <param-name>cors.allowed.headers</param-name>
-            <param-value>Origin,Accept,X-Requested-With,Content-Type,Access-Control-Request-Method,Access-Control-Request-Headers,Content-Encoding</param-value>
+            <param-value>Origin,Accept,X-Requested-With,Content-Type,Access-Control-Request-Method,Access-Control-Request-Headers,Content-Encoding,X-Proxy-User-Agreement</param-value>
         </init-param>
         <!-- expose cors headers defined in HeaderKeyConstants.java -->
         <init-param>

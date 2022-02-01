@@ -20,4 +20,5 @@ This section is under development and will in the future explain how one can cre
 ## Datahub
 The cBioPortal team has curated many published studies in formats suitable for import in cBioPortal. These can
 be found on the [datahub](https://github.com/cbioportal/datahub) and can serve as an example of how our curation
-processes works.
+processes works. There is a [checklist](https://github.com/cBioPortal/datahub/blob/master/docs/complete-curation-checklist.md) available
+that details the requirements for submitting a study to datahub.

@@ -370,6 +370,8 @@ persistence.cache_type=no-cache
 # Set default thresholds for geneset hierarchy
 # skin.geneset_hierarchy.default_gsva_score=0.5
 # skin.geneset_hierarchy.default_p_value=0.05
+# Collapse the tree widget of the gsva hierarchy dialog on init
+# skin.geneset_hierarchy.collapse_by_default=true
 
 # Compress some particularly large request bodies. enable_request_body_gzip_compression enables the feature, and
 # request_gzip_body_size_bytes sets the maximum allowable uncompressed request body size in bytes. Requests larger than

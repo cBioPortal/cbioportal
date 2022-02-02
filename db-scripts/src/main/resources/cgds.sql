@@ -837,7 +837,6 @@ CREATE TABLE `reference_genome_gene` (
     `REFERENCE_GENOME_ID` int(4) NOT NULL,
     `CHR` varchar(5) DEFAULT NULL,
     `CYTOBAND` varchar(64) DEFAULT NULL,
-    `EXONIC_LENGTH` int(11) DEFAULT NULL,
     `START` bigint(20) DEFAULT NULL,
     `END` bigint(20) DEFAULT NULL,
     PRIMARY KEY (`ENTREZ_GENE_ID`,`REFERENCE_GENOME_ID`),
@@ -919,4 +918,4 @@ CREATE TABLE `resource_study` (
 );
 
 -- THIS MUST BE KEPT IN SYNC WITH db.version PROPERTY IN pom.xml
-INSERT INTO info VALUES ('2.12.10', NULL);
+INSERT INTO info VALUES ('2.12.11', NULL);

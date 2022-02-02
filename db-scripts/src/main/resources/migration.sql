@@ -408,7 +408,6 @@ CREATE TABLE `reference_genome_gene` (
     `REFERENCE_GENOME_ID` int(4) NOT NULL,
     `CHR` varchar(4) DEFAULT NULL,
     `CYTOBAND` varchar(64) DEFAULT NULL,
-    `EXONIC_LENGTH` int(11) DEFAULT NULL,
     `START` bigint(20) DEFAULT NULL,
     `END` bigint(20) DEFAULT NULL,
     `ENSEMBL_GENE_ID` varchar(64) DEFAULT NULL,
@@ -417,11 +416,10 @@ CREATE TABLE `reference_genome_gene` (
     FOREIGN KEY (`ENTREZ_GENE_ID`) REFERENCES `gene` (`ENTREZ_GENE_ID`) ON DELETE CASCADE
 );
 
-INSERT INTO reference_genome_gene (ENTREZ_GENE_ID, CYTOBAND, EXONIC_LENGTH, CHR, REFERENCE_GENOME_ID)
+INSERT INTO reference_genome_gene (ENTREZ_GENE_ID, CYTOBAND, CHR, REFERENCE_GENOME_ID)
 (SELECT
 	ENTREZ_GENE_ID,
 	CYTOBAND,
-	LENGTH,
   SUBSTRING_INDEX(
     SUBSTRING_INDEX(
       SUBSTRING_INDEX(
@@ -696,11 +694,10 @@ UPDATE `reference_genome` SET `GENOME_SIZE` = 2897310462 WHERE `NAME`='hg19';
 UPDATE `reference_genome` SET `GENOME_SIZE` = 3049315783 WHERE `NAME`='hg38';
 UPDATE `reference_genome` SET `GENOME_SIZE` = 2652783500 WHERE `NAME`='mm10';
 ALTER TABLE `reference_genome_gene` MODIFY COLUMN `CHR` varchar(5);
-INSERT INTO reference_genome_gene (ENTREZ_GENE_ID, CYTOBAND, EXONIC_LENGTH, CHR, REFERENCE_GENOME_ID)
+INSERT INTO reference_genome_gene (ENTREZ_GENE_ID, CYTOBAND, CHR, REFERENCE_GENOME_ID)
 SELECT
     ENTREZ_GENE_ID,
     CYTOBAND,
-    0,
     SUBSTRING_INDEX(SUBSTRING_INDEX(SUBSTRING_INDEX(gene.CYTOBAND,IF(LOCATE('p', gene.CYTOBAND), 'p', 'q'), 1),'q',1),'cen',1),
     1
 FROM `gene`
@@ -953,3 +950,10 @@ UPDATE `info` SET `DB_SCHEMA_VERSION`="2.12.9";
 -- so set 0 (false) as default value for PATIENT_LEVEL field
 ALTER TABLE `genetic_profile` ADD COLUMN `PATIENT_LEVEL` boolean DEFAULT 0;
 UPDATE `info` SET `DB_SCHEMA_VERSION`="2.12.10";
+
+##version: 2.12.11
+-- all previous genetic_profile will be considered as sample level data
+-- so set 0 (false) as default value for PATIENT_LEVEL field
+ALTER TABLE `reference_genome` 
+DROP COLUMN `EXONIC_LENGTH`
+UPDATE `info` SET `DB_SCHEMA_VERSION`="2.12.11";

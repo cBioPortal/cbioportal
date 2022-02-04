@@ -420,7 +420,7 @@ def main():
         if is_version_larger(MULTI_REFERENCE_GENOME_SUPPORT_MIGRATION_STEP, db_version):
             #retrieve reference genomes from database
             check_reference_genome(portal_properties, cursor, parser.force)
-        if not is_version_larger(SAMPLE_FK_MIGRATION_STEP, db_version):
+        if is_version_larger(SAMPLE_FK_MIGRATION_STEP, db_version):
             check_and_remove_type_of_cancer_id_foreign_key(cursor)
         run_migration(db_version, sql_filename, connection, cursor, parser.no_transaction)
         # TODO: remove this after we update mysql version

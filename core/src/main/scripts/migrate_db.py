@@ -307,11 +307,12 @@ def run_migration(db_version, sql_filename, connection, cursor, no_transaction, 
     for line in sql_file:
         if line.startswith('##'):
             sql_version = tuple(map(int, line.split(':')[1].strip().split('.')))
-            run_line = is_version_larger(sql_version, db_version)
-            continue
-        # stop at the version specified
-        if stop_at_version is not None and is_version_equal(sql_version, stop_at_version):
-            return
+            # stop at the version specified
+            if stop_at_version is not None and is_version_equal(sql_version, stop_at_version):
+                break
+            else
+                run_line = is_version_larger(sql_version, db_version)
+                continue
         # skip blank lines
         if len(line.strip()) < 1:
             continue
@@ -428,8 +429,10 @@ def main():
             #retrieve reference genomes from database
             check_reference_genome(portal_properties, cursor, parser.force)
         if is_version_larger(SAMPLE_FK_MIGRATION_STEP, db_version):
-            run_migration(db_version, sql_filename, connection, cursor, parser.no_transaction, SAMPLE_FK_MIGRATION_STEP)
+            run_migration(db_version, sql_filename, connection, cursor, parser.no_transaction, stop_at_version=SAMPLE_FK_MIGRATION_STEP)
             check_and_remove_type_of_cancer_id_foreign_key(cursor)
+            db_version = get_db_version(cursor)
+            print('Migrated to {}.{}.{}'.format(*db_version), file=OUTPUT_FILE)
         run_migration(db_version, sql_filename, connection, cursor, parser.no_transaction)
         # TODO: remove this after we update mysql version
         # check invalid foreign key only when current db version larger or qeuals to GENERIC_ASSAY_MIGRATION_STEP

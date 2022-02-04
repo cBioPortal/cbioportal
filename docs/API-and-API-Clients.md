@@ -20,7 +20,16 @@ cBioPortalData aims to import all cBioPortal datasets as MultiAssayExperiment ob
 
 For a comprehensive user guide to `cBioportalData` see: https://waldronlab.io/cBioPortalData/articles/cBioPortalData.html
 
-See also the workshop materials from our webinar which include an intro to `cBioPortalData`: https://github.com/cBioPortal/2020-cbioportal-r-workshop
+See also the workshop materials from our webinar which include an intro to `cBioPortalData`: https://github.com/cBioPortal/2020-cbioportal-r-workshop.
+
+Note that one can point to private authenticated instances like this:
+
+```R
+cBioPortal(
+    hostname = "genie.cbioportal.org",
+    token = "~/Downloads/cbioportal_data_access_token.txt"
+)
+```
 
 #### rapiclient
 Although we recommend to use [cBioPortalData](#cBioPortalData) for most use cases, it is possible to connect to the API directly using [rapiclient](https://github.com/bergant/rapiclient):
@@ -45,6 +54,7 @@ from bravado.client import SwaggerClient
 cbioportal = SwaggerClient.from_url('https://www.cbioportal.org/api/api-docs',
                                     config={"validate_requests":False,"validate_responses":False,"validate_swagger_spec": False})
 ```
+
 This allows you to access all API endpoints:
 ```python
 >>> dir(cbioportal)
@@ -76,6 +86,23 @@ muts = cbioportal.mutations.getMutationsInMolecularProfileBySampleListIdUsingGET
     sampleListId="msk_impact_2017_all", # {study_id}_all includes all samples
     projection="DETAILED" # include gene info
 ).result()
+```
+
+For a portal that requires authentication one can use (see [Data Access Using Tokens](https://docs.cbioportal.org/2.2-authorization-and-authentication/authenticating-users-via-tokens#using-data-access-tokens)):
+
+```
+headers = {
+  'Authorization': 'Bearer 63efa81c-2490-4e15-9d1c-fb6e8e50e35d'
+}
+requestOptions = {
+   'headers': headers,
+}
+cbioportal = SwaggerClient.from_url('https://genie.cbioportal.org',
+                                    request_headers=headers,
+                                    config={"validate_requests":False,
+                                            "validate_responses":False,
+                                            "validate_swagger_spec": False}
+)
 ```
 
 A Jupyter notebook with more examples can be found [here](https://github.com/mskcc/cbsp-hackathon/blob/master/0-introduction/cbsp_hackathon.ipynb).

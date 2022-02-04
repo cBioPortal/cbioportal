@@ -310,7 +310,7 @@ def run_migration(db_version, sql_filename, connection, cursor, no_transaction, 
             # stop at the version specified
             if stop_at_version is not None and is_version_equal(sql_version, stop_at_version):
                 break
-            else
+            else:
                 run_line = is_version_larger(sql_version, db_version)
                 continue
         # skip blank lines

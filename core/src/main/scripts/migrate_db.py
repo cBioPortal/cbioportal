@@ -23,7 +23,7 @@ ALLOWABLE_GENOME_REFERENCES = ['37', 'hg19', 'GRCh37', '38', 'hg38', 'GRCh38', '
 DEFAULT_GENOME_REFERENCE = 'hg19'
 MULTI_REFERENCE_GENOME_SUPPORT_MIGRATION_STEP = (2,11,0)
 GENERIC_ASSAY_MIGRATION_STEP = (2,12,1)
-SAMPLE_FK_MIGRATION_STEP = (2,12,8)
+SAMPLE_FK_MIGRATION_STEP = (2,12,9)
 
 class PortalProperties(object):
     """ Properties object class, just has fields for db conn """

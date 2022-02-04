@@ -432,7 +432,6 @@ def main():
             run_migration(db_version, sql_filename, connection, cursor, parser.no_transaction, stop_at_version=SAMPLE_FK_MIGRATION_STEP)
             check_and_remove_type_of_cancer_id_foreign_key(cursor)
             db_version = get_db_version(cursor)
-            print('Migrated to {}.{}.{}'.format(*db_version), file=OUTPUT_FILE)
         run_migration(db_version, sql_filename, connection, cursor, parser.no_transaction)
         # TODO: remove this after we update mysql version
         # check invalid foreign key only when current db version larger or qeuals to GENERIC_ASSAY_MIGRATION_STEP

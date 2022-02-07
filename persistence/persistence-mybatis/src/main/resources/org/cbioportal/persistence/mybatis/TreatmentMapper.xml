@@ -16,7 +16,7 @@
             INNER JOIN sample ON patient.INTERNAL_ID = sample.PATIENT_ID
             INNER JOIN cancer_study ON patient.CANCER_STUDY_ID = cancer_study.CANCER_STUDY_ID
         <include refid="where"/>
-            AND clinical_event_data.KEY = 'AGENT'
+        AND clinical_event_data.KEY = #{key}
     </select>
 
     <select id="getAllSamples" resultType="org.cbioportal.model.ClinicalEventSample">
@@ -57,7 +57,7 @@
             INNER JOIN sample ON patient.INTERNAL_ID = sample.PATIENT_ID
             INNER JOIN cancer_study ON patient.CANCER_STUDY_ID = cancer_study.CANCER_STUDY_ID
         <include refid="where"/>
-            AND clinical_event_data.KEY = 'AGENT'
+            AND clinical_event_data.KEY = #{key}
     </select>
 
     <select id="getTreatmentCount" resultType="java.lang.Integer">
@@ -70,7 +70,7 @@
             INNER JOIN sample ON patient.INTERNAL_ID = sample.PATIENT_ID
             INNER JOIN cancer_study ON patient.CANCER_STUDY_ID = cancer_study.CANCER_STUDY_ID
         <include refid="where"/>
-            AND clinical_event_data.KEY = 'AGENT'
+            AND clinical_event_data.KEY = #{key}
     </select>
 
     <select id="getSampleCount" resultType="java.lang.Integer">

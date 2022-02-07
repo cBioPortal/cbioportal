@@ -32,18 +32,19 @@
 
 package org.cbioportal.persistence.util;
 
+import org.cbioportal.utils.config.annotation.ConditionalOnProperty;
 import org.ehcache.core.statistics.*;
 import org.ehcache.config.ResourceType;
 import org.ehcache.impl.internal.statistics.DefaultStatisticsService;
 
-import org.springframework.context.annotation.Profile;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import java.util.Map;
 import javax.annotation.PostConstruct;
 
 @Component
-@Profile({"ehcache-heap", "ehcache-disk", "ehcache-hybrid"})
+@ConditionalOnProperty(name = "persistence.cache_type", havingValue = {"ehcache-heap", "ehcache-disk", "ehcache-hybrid"})
 public class EhcacheStatistics {
 
     private static String TIER_NOT_IN_USE = "Tier not in use";
@@ -51,19 +52,16 @@ public class EhcacheStatistics {
     private static double BYTES_IN_MB = 1048576.0;
     private static double BYTES_IN_GB = 1073741824.0;
 
+    @Autowired
+    private CustomEhcachingProvider customEhcachingProvider;
+    
     private javax.cache.CacheManager cacheManager;
     private DefaultStatisticsService statisticsService;
-
-    public EhcacheStatistics(javax.cache.CacheManager cacheManager) {
-        if (cacheManager == null) {
-            throw new RuntimeException("A CacheManager needs to be set before calling this method.");
-        }
-        this.cacheManager = cacheManager;
-    }
 
     @PostConstruct
     public void initializeStatisticsService () {
         try {
+            cacheManager = customEhcachingProvider.getCacheManager();
             statisticsService = new DefaultStatisticsService();
             for (String cacheName : cacheManager.getCacheNames()) {
                 javax.cache.Cache cache = cacheManager.getCache(cacheName);

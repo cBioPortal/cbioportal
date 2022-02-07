@@ -20,7 +20,7 @@
 {"entrezGeneId":7157, "hugoGeneSymbol":"TP53"},
 {"entrezGeneId":672, "hugoGeneSymbol":"BRCA1"},
 {"entrezGeneId":472, "hugoGeneSymbol":"ATM"},
-{"entrezGeneId":55, "hugoGeneSymbol":"ACPP"},
+{"entrezGeneId":55, "hugoGeneSymbol":"ACP3"},
 
 {"_comment": "additional genes for CNA data",
  "entrezGeneId":2073, "hugoGeneSymbol":"ERCC5"},

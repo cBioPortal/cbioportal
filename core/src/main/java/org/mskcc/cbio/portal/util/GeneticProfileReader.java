@@ -35,12 +35,12 @@ package org.mskcc.cbio.portal.util;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Properties;
 import java.util.Set;
 
+import java.util.stream.Collectors;
 import org.mskcc.cbio.portal.dao.*;
 import org.mskcc.cbio.portal.model.CancerStudy;
 import org.mskcc.cbio.portal.model.GeneticAlterationType;
@@ -83,7 +83,7 @@ public class GeneticProfileReader {
                        + existingGeneticProfile.getStableId() + ". Remove the existing genetic_profile record first.");
             } else if (geneticProfile.getDatatype().equals("FUSION")) {
                 String svStableId = existingGeneticProfile.getStableId().replace("mutations", "fusion");
-                // check if structural variant genetic proile already exists for fusions
+                // check if structural variant genetic profile already exists for fusions
                 // if an auto-generated <study_id>_fusion genetic profile exists, do not attempt to add it again
                 // otherwise, exception is thrown causing import to exit
                 // populate the structural variant genetic profile for fusions
@@ -380,15 +380,11 @@ public class GeneticProfileReader {
         Properties properties = new TrimmedProperties();
         properties.load(new FileInputStream(file));
         String value = properties.getProperty("namespaces");
-        if (value != null) {
-                Set<String> namespaces = new HashSet<String>();
-                for (String ns : (Arrays.asList(value.split(",")))) {
-                        ns = ns.trim();
-                        namespaces.add(ns.toLowerCase());
-                    }
-                return namespaces;
-        } else {
-            return null;
-        }
+        return value != null ?
+            Arrays.stream(value.split(","))
+                .map(String::trim)
+                .collect(Collectors.toSet())
+        :
+            null;
     }
 }

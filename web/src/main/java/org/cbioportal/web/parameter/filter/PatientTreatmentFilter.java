@@ -1,6 +1,7 @@
 package org.cbioportal.web.parameter.filter;
 
 import java.util.Map;
+import java.util.Set;
 
 import org.cbioportal.web.parameter.SampleIdentifier;
 
@@ -13,9 +14,9 @@ public class PatientTreatmentFilter {
      * @param sampleId sample.STABLE_ID
      * @param treatments key is PatientTreatmentRow::calculateKey
      */
-    public boolean filter(SampleIdentifier sampleId, Map<String, Map<String, Boolean>> treatments) {
-        Map<String, Boolean> row = treatments.get(treatment);
-        return row != null && row.containsKey(sampleId.toString());
+    public boolean filter(SampleIdentifier sampleId, Map<String, Set<String>> treatments) {
+        Set<String> row = treatments.get(treatment);
+        return row != null && row.contains(sampleId.toString());
     }
 
     public String getTreatment() {

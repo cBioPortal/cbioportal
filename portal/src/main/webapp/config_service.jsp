@@ -45,6 +45,7 @@
             "oncoprint.hide_vus.default",
             "mycancergenome.show",
             "oncokb.public_api.url",
+            "oncokb.merge_icons_by_default",
             "digitalslidearchive.iframe.url",
             "digitalslidearchive.meta.url",
             "mdacc.heatmap.meta.url",
@@ -65,6 +66,7 @@
             "show.transcript_dropdown",
             "show.signal",
             "survival.show_p_q_values_in_survival_type_table",
+            "survival.min_group_threshold",
             "survival.initial_x_axis_limit",
             "skin.documentation.about",
             "skin.documentation.baseurl",
@@ -103,6 +105,8 @@
             "skin.show_tweet_button",
             "skin.patientview.filter_genes_profiled_all_samples",
             "skin.patientview.show_mskcc_slide_viewer",
+            "skin.home_page.show_unauthorized_studies",
+            "skin.home_page.unauthorized_studies_global_message",
             "skin.show_settings_menu",
             "skin.hide_logout_button",
             "quick_search.enabled",
@@ -120,12 +124,15 @@
             "ensembl.transcript_url",
             "enable_persistent_cache",
             "enable_request_body_gzip_compression",
+            "enable_treatment_groups",
             "query_product_limit",
-            "skin.show_gsva",
             "saml.logout.local",
             "skin.citation_rule_text",
+            "skin.show_gsva",
             "skin.geneset_hierarchy.default_p_value",
             "skin.geneset_hierarchy.default_gsva_score",
+            "skin.geneset_hierarchy.collapse_by_default",
+            "skin.mutation_table.namespace_column.show_by_default"
         };
 
 

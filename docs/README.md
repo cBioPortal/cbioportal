@@ -55,6 +55,7 @@ We also maintain an active [list of RFCs (Requests for Comments)](RFC-List.md) w
 * [Feature Development Guide](feature-development-guide.md)
 * [cBioPortal Entity-relationship Diagram](cBioPortal-ER-Diagram.md)
 * [Build cBioPortal with a different frontend version](Build-Different-Frontend.md)
+* [Session Service](session-service-working.md)
 * [Manual test cases](manual-test-cases.md)
 * [Release Procedure](Release-Procedure.md)
 * [Deployment Procedure](Deployment-Procedure.md)

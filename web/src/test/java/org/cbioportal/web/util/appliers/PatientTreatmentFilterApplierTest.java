@@ -11,6 +11,7 @@ import org.cbioportal.model.ClinicalEventSample;
 import org.cbioportal.model.PatientTreatmentRow;
 import org.cbioportal.service.TreatmentService;
 import org.cbioportal.web.parameter.SampleIdentifier;
+import org.cbioportal.web.parameter.StudyViewFilter;
 import org.cbioportal.web.parameter.filter.AndedPatientTreatmentFilters;
 import org.cbioportal.web.parameter.filter.OredPatientTreatmentFilters;
 import org.cbioportal.web.parameter.filter.PatientTreatmentFilter;
@@ -18,16 +19,16 @@ import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.mockito.InjectMocks;
-import org.mockito.Mock;
-import org.mockito.Mockito;
-import org.mockito.MockitoAnnotations;
+import org.mockito.*;
 import org.mockito.junit.MockitoJUnitRunner;
 
 @RunWith(MockitoJUnitRunner.Silent.class)
 public class PatientTreatmentFilterApplierTest {
     @Mock
     TreatmentService treatmentService;
+
+    @Spy
+    TreatmentRowExtractor treatmentRowExtractor;
     
     @InjectMocks
     PatientTreatmentFilterApplier subject;
@@ -40,12 +41,12 @@ public class PatientTreatmentFilterApplierTest {
     @Test
     public void filterEmptyList() {
         List<SampleIdentifier> samples = new ArrayList<>();
-        AndedPatientTreatmentFilters andedFilters = createAndedFilters(
+        StudyViewFilter andedFilters = createAndedFilters(
             Arrays.asList("Fakeazil", "Madeupanib"),
             Arrays.asList("Fabricada", "Fakeamab")
         );
         Mockito
-            .when(treatmentService.getAllPatientTreatmentRows(Mockito.anyList(), Mockito.anyList()))
+            .when(treatmentService.getAllPatientTreatmentRows(Mockito.anyList(), Mockito.anyList(), Mockito.any()))
             .thenReturn(new ArrayList<>());
 
         List<SampleIdentifier> actual = subject.filter(samples, andedFilters);
@@ -62,12 +63,12 @@ public class PatientTreatmentFilterApplierTest {
             createSampleId("SA_2", "ST_1"),
             createSampleId("SA_3", "ST_1")
         );
-        AndedPatientTreatmentFilters andedFilters = createAndedFilters(
+        StudyViewFilter andedFilters = createAndedFilters(
             Arrays.asList("Improvizox", "Madeupanib"),
             Arrays.asList("Fabricada", "Fakeamab")
         );
         Mockito
-            .when(treatmentService.getAllPatientTreatmentRows(Mockito.anyList(), Mockito.anyList()))
+            .when(treatmentService.getAllPatientTreatmentRows(Mockito.anyList(), Mockito.anyList(), Mockito.any()))
             .thenReturn(new ArrayList<>());
 
         List<SampleIdentifier> actual = subject.filter(samples, andedFilters);
@@ -84,13 +85,13 @@ public class PatientTreatmentFilterApplierTest {
             createSampleId("SA_2", "ST_1"),
             createSampleId("SA_3", "ST_1")
         );
-        AndedPatientTreatmentFilters andedFilters = createAndedFilters(
+        StudyViewFilter andedFilters = createAndedFilters(
             // so each sample needs to be from a patient that has recieved...
             Arrays.asList("Improvizox", "Madeupanib"), // one of these treatments
             Arrays.asList("Fabricada", "Fakeamab") // AND one of these treatments
         );
         Mockito
-            .when(treatmentService.getAllPatientTreatmentRows(Mockito.anyList(), Mockito.anyList()))
+            .when(treatmentService.getAllPatientTreatmentRows(Mockito.anyList(), Mockito.anyList(), Mockito.any()))
             .thenReturn(Arrays.asList(
                 new PatientTreatmentRow("Improvizox", 2, toSet(createEvent("SA_0", "ST_0"), createEvent("SA_1", "ST_0"))),
                 new PatientTreatmentRow("Fakeamab", 2, toSet(createEvent("SA_0", "ST_0"), createEvent("SA_1", "ST_0"))),
@@ -124,14 +125,16 @@ public class PatientTreatmentFilterApplierTest {
     }
     
     @SafeVarargs
-    private final AndedPatientTreatmentFilters createAndedFilters(List<String>... treatments) {
+    private final StudyViewFilter createAndedFilters(List<String>... treatments) {
         AndedPatientTreatmentFilters andedFilters = new AndedPatientTreatmentFilters();
         List<OredPatientTreatmentFilters> oredFilters = Arrays.stream(treatments)
             .map(this::createOredFilters)
             .collect(Collectors.toList());
         andedFilters.setFilters(oredFilters);
-        
-        return andedFilters;
+
+        StudyViewFilter filter = new StudyViewFilter();
+        filter.setPatientTreatmentFilters(andedFilters);
+        return filter;
     }
     
     private OredPatientTreatmentFilters createOredFilters(List<String> treatments) {

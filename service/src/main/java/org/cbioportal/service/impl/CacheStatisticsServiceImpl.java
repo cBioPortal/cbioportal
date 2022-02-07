@@ -1,26 +1,38 @@
 package org.cbioportal.service.impl;
 
+import org.cbioportal.persistence.util.CustomEhcachingProvider;
 import org.cbioportal.service.CacheStatisticsService;
 import org.cbioportal.service.exception.CacheNotFoundException;
-
-import java.lang.String;
-import java.util.*;
-import javax.cache.*;
+import org.cbioportal.utils.config.annotation.ConditionalOnProperty;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.context.annotation.Profile;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.stereotype.Service;
 
+import javax.annotation.PostConstruct;
+import javax.cache.Cache;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
+
 @Service
-@Profile({"ehcache-heap", "ehcache-disk", "ehcache-hybrid"})
+@ConditionalOnProperty(name = "persistence.cache_type", havingValue = {"ehcache-heap", "ehcache-disk", "ehcache-hybrid"})
 public class CacheStatisticsServiceImpl implements CacheStatisticsService {
 
     @Autowired
-    public CacheManager cacheManager;
+    private CustomEhcachingProvider customEhcachingProvider;
+
+    private javax.cache.CacheManager cacheManager;
 
     @Value("${cache.statistics_endpoint_enabled:false}")
     public boolean cacheStatisticsEndpointEnabled;
+
+    @PostConstruct
+    public void initializeStatisticsService () {
+        cacheManager = customEhcachingProvider.getCacheManager();
+    }
 
     protected void checkIfCacheStatisticsEndpointEnabled() {
         if (!cacheStatisticsEndpointEnabled) {

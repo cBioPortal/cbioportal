@@ -153,6 +153,7 @@ public class GlobalProperties {
     public static final String STUDY_VIEW_MDACC_HEATMAP_META_URL = "mdacc.heatmap.study.meta.url";
 
     public static final String SHOW_ONCOKB = "show.oncokb";
+    public static final String MERGE_ONCOKB_ICONS_BY_DEFAULT = "oncokb.merge_icons_by_default";
     public static final String ONCOKB_TOKEN = "oncokb.token";
 
     private static String sessionServiceURL;
@@ -484,11 +485,12 @@ public class GlobalProperties {
 		return (studies.length > 0) ? Arrays.asList(studies) : Collections.<String>emptyList();
 	}
 
-    // CHANGES TO THIS LIST MUST BE PROPAGATED TO 'CacheMapUtil'
+    // This method is the equivalent of @portalSecurityConfig.userAuthorizationEnabled()
+    // method in the org.cbioportal.utils package. Update both when changes are needed.
     public static boolean usersMustAuthenticate()
     {
         // authentication for social_auth/social_auth_google/social_auth_microsoft is optional
-        return (!authenticate.isEmpty() && !authenticate.equals("false") && !authenticate.contains("social_auth"));
+        return (!authenticate.isEmpty() && !authenticate.equals("noauthsessionservice") && !authenticate.equals("false") && !authenticate.contains("social_auth"));
     }
 
     public static String authenticationMethod()
@@ -898,6 +900,15 @@ public class GlobalProperties {
             return true; // show oncoKB by default
         } else {
             return Boolean.parseBoolean(showOncokb);
+        }
+    }
+
+    public static boolean mergeOncoKBIcons() {
+        String mergeOncoKbIconsByDefault = portalProperties.getProperty(MERGE_ONCOKB_ICONS_BY_DEFAULT);
+        if (mergeOncoKbIconsByDefault == null || mergeOncoKbIconsByDefault.isEmpty()) {
+            return true; // merge OncoKB icons by default
+        } else {
+            return Boolean.parseBoolean(mergeOncoKbIconsByDefault);
         }
     }
 

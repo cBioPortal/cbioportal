@@ -49,8 +49,12 @@ MRNA_EXPRESSION	Z-SCORE	mrna_seq_tpm_all_sample_Zscores
 MRNA_EXPRESSION	Z-SCORE	rna_seq_mrna_capture_all_sample_Zscores
 MRNA_EXPRESSION	Z-SCORE	mrna_seq_fpkm_capture_all_sample_Zscores
 MRNA_EXPRESSION	Z-SCORE	mrna_seq_fpkm_polya_all_sample_Zscores
+MRNA_EXPRESSION	Z-SCORE	mrna_seq_fpkm_Zscores
+MRNA_EXPRESSION	Z-SCORE	mrna_seq_fpkm_all_sample_Zscores
 METHYLATION	CONTINUOUS	methylation_hm27
 METHYLATION	CONTINUOUS	methylation_hm450
+METHYLATION	CONTINUOUS	methylation_epic
+METHYLATION	CONTINUOUS	methylation_promoters_rrbs
 FUSION	FUSION	fusion
 PROTEIN_LEVEL	LOG2-VALUE	rppa
 PROTEIN_LEVEL	Z-SCORE	rppa_Zscores

@@ -26,7 +26,7 @@ These are the steps we follow:
    same tag as the frontend repo. You should see a draft from release drafter similar to the frontend in the backend repo: https://github.com/cBioPortal/cbioportal/releases. The idea is to create one set of release notes in the backend repo that is a combination of the frontend and backend notes. To make the hyperlinks from the frontend repo work in the backend repo you can copy the frontend release notes raw markdown and run the following one liner to convert the links:
    
    ```
-   pbpaste | sed 's|(#\(....\)|([#\1](https://github.com/cBioPortal/cbioportal-frontend/pull/\1)|g'
+   pbpaste | sed 's|(#\(....\)|([cbioportal-frontend#\1](https://github.com/cBioPortal/cbioportal-frontend/pull/\1)|g'
    ```
    then put them in the right sections following same style as other releases: https://github.com/cBioPortal/cbioportal-frontend/releases.
 4. Create a news item with a link to your carefully crafted release notes. Highlight a few major changes that could be interesting to users of cBioPortal ideally with a screenshot similar to: https://github.com/cBioPortal/cbioportal/pull/6914/files?short_path=6f95322#diff-6f953229832059bab3fe229d4af08b52 (in the files changed section, you can click on view rich diff to see the converted markdown). 
@@ -47,6 +47,15 @@ which needs to be merged to master on both backend and frontend:
    having to create another branch just to update the frontend version.
 
 ## A note on versioning
+
+### From pre-release to official release
+On the [GitHub Release Page](https://github.com/cBioPortal/cbioportal/releases) you
+will see that some releases have the pre-release indication whereas others do not. In general 
+we make a new pre-release release every week. We test it out in production 
+(https://cbioportal.org) for one week and if no new critical issues are identified
+we make it an official release.
+
+### Version Numbers
 We follow the following logic when deciding how/when to increment the version
 of cBioPortal. It's a complete modification of semantic versioning
 (MAJOR.MINOR.PATCH) more suitable for our purposes:
@@ -57,7 +66,7 @@ MAJOR
 React calling a REST service. Another example: we changed from 2 to 3 when we made session-service a requirement.
 
 MINOR
-: Changes that require a database migration
+: Changes that require a database migration or an upgrade to another cBioPortal component (e.g. [session-service](https://docs.cbioportal.org/2.1-deployment/architecture-overview))
 
 PATCH
 : Changes that don't require database migrations. Could be new features as well as bug fixes to either frontend, backend or both.

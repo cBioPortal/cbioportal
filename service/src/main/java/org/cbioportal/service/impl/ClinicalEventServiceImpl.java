@@ -33,7 +33,7 @@ public class ClinicalEventServiceImpl implements ClinicalEventService {
         List<ClinicalEvent> clinicalEvents = clinicalEventRepository.getAllClinicalEventsOfPatientInStudy(studyId,
             patientId, projection, pageSize, pageNumber, sortBy, direction);
 
-        if (!projection.equals("ID")) {
+        if (!projection.equals("ID") && !clinicalEvents.isEmpty() ) {
 
             List<ClinicalEventData> clinicalEventDataList = clinicalEventRepository.getDataOfClinicalEvents(
                 clinicalEvents.stream().map(ClinicalEvent::getClinicalEventId).collect(Collectors.toList()));

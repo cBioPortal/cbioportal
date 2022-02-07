@@ -84,8 +84,27 @@
       <artifactId>datumbox-framework-lib</artifactId>
     </dependency>
     <dependency>
-      <groupId>com.github.cbioportal</groupId>
-      <artifactId>session-service</artifactId>
+      <groupId>org.mongodb</groupId>
+      <artifactId>mongo-java-driver</artifactId>
+    </dependency>
+    <dependency>
+        <groupId>com.github.cbioportal</groupId>
+        <artifactId>session-service</artifactId>
+        <classifier>model</classifier>
+        <exclusions>
+            <exclusion>
+                <groupId>ch.qos.logback</groupId>
+                <artifactId>logback-classic</artifactId>
+            </exclusion>
+            <exclusion>
+                <artifactId>spring-boot-starter-web</artifactId>
+                <groupId>org.springframework.boot</groupId>
+            </exclusion>
+            <exclusion>
+                <artifactId>spring-boot-starter-data-mongodb</artifactId>
+                <groupId>org.springframework.boot</groupId>
+            </exclusion>
+        </exclusions>
     </dependency>
     <dependency>
       <groupId>com.fasterxml.jackson.core</groupId>
@@ -96,8 +115,8 @@
       <artifactId>mockito-core</artifactId>
     </dependency>
     <dependency>
-      <groupId>org.slf4j</groupId>
-      <artifactId>slf4j-log4j12</artifactId>
+      <groupId>org.apache.logging.log4j</groupId>
+      <artifactId>log4j-to-slf4j</artifactId>
     </dependency>
     <dependency>
       <groupId>org.springframework.security</groupId>

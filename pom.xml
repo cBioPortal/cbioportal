@@ -66,7 +66,7 @@
           <plugin>
             <groupId>com.github.cbioportal.maven-external-version</groupId>
             <artifactId>maven-external-version-plugin</artifactId>
-            <version>f09c2b9608744881111f24e55d55a91e54e6cb5f</version>
+            <version>f09c2b9608</version>
             <extensions>true</extensions>
             <configuration>
               <strategy hint="script">
@@ -132,21 +132,21 @@
                 </goals>
                 <configuration>
                   <target>
-                    <taskdef resource="net/sf/antcontrib/antlib.xml" classpathref="maven.dependency.classpath" />
+                    <taskdef resource="net/sf/antcontrib/antlib.xml" classpathref="maven.dependency.classpath"/>
                     <if>
                       <not>
-                        <available file="${basedir}/src/main/resources/portal.properties" />
+                        <available file="${basedir}/src/main/resources/portal.properties"/>
                       </not>
                       <then>
-                        <copy file="${basedir}/src/main/resources/portal.properties.EXAMPLE" tofile="${basedir}/src/main/resources/portal.properties" />
+                        <copy file="${basedir}/src/main/resources/portal.properties.EXAMPLE" tofile="${basedir}/src/main/resources/portal.properties"/>
                       </then>
                     </if>
                     <if>
                       <not>
-                        <available file="${basedir}/src/main/resources/log4j.properties" />
+                        <available file="${basedir}/src/main/resources/log4j.properties"/>
                       </not>
                       <then>
-                        <copy file="${basedir}/src/main/resources/log4j.properties.EXAMPLE" tofile="${basedir}/src/main/resources/log4j.properties" />
+                        <copy file="${basedir}/src/main/resources/log4j.properties.EXAMPLE" tofile="${basedir}/src/main/resources/log4j.properties"/>
                       </then>
                     </if>
                   </target>
@@ -290,13 +290,13 @@
   </profiles>
 
   <properties>
-    <frontend.version>8170f583b966a47d1205cb237801acd992697816</frontend.version>
+    <frontend.version>a7c7126d3e6b4d7b80e40bfeadd54037fda624ea</frontend.version>
     <frontend.groupId>com.github.cbioportal</frontend.groupId>
     <spring.version>5.2.6.RELEASE</spring.version>
     <spring.integration.version>5.3.0.RELEASE</spring.integration.version>
     <spring.security.version>5.3.1.RELEASE</spring.security.version>
     <spring.social.version>1.1.6.RELEASE</spring.social.version>
-    <jackson.version>2.12.1</jackson.version>
+    <jackson.version>2.13.0</jackson.version>
     <mysql-connector.version>5.1.48</mysql-connector.version>
     <webapp-runner.version>8.5.61.0</webapp-runner.version>
 
@@ -316,7 +316,7 @@
 
     <db.test.driver>com.mysql.jdbc.Driver</db.test.driver>
     <!-- For MySQL < 5.5 change 'default_storage_engine' to 'storage_engine' -->
-    <db.test.url>jdbc:mysql://127.0.0.1:3306/cgds_test?sessionVariables=default_storage_engine=InnoDB</db.test.url>
+    <db.test.url>jdbc:mysql://127.0.0.1:3306/cgds_test?sessionVariables=default_storage_engine=InnoDB&amp;allowLoadLocalInfile=true</db.test.url>
     <db.test.username>cbio_user</db.test.username>
     <db.test.password>somepassword</db.test.password>
 
@@ -338,6 +338,7 @@
     <module>scripts</module>
     <module>db-scripts</module>
     <module>security</module>
+    <module>utils</module>
   </modules>
 
   <dependencyManagement>
@@ -410,39 +411,25 @@
         <version>${project.version}</version>
       </dependency>
       <dependency>
+        <groupId>org.mskcc.cbio</groupId>
+        <artifactId>permission-evaluator</artifactId>
+        <version>${project.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>org.mongodb</groupId>
+        <artifactId>mongo-java-driver</artifactId>
+        <version>3.12.9</version>
+      </dependency>
+      <dependency>
+        <groupId>org.mskcc.cbio</groupId>
+        <artifactId>utils</artifactId>
+        <version>${project.version}</version>
+      </dependency>
+      <dependency>
         <groupId>com.github.cbioportal</groupId>
         <artifactId>session-service</artifactId>
-        <version>0.3.0</version>
-        <exclusions>
-          <exclusion>
-            <groupId>org.springframework.boot</groupId>
-            <artifactId>spring-boot-starter</artifactId>
-          </exclusion>
-          <exclusion>
-            <groupId>com.fasterxml.jackson.core</groupId>
-            <artifactId>jackson-annotations</artifactId>
-          </exclusion>
-          <exclusion>
-            <groupId>org.springframework.boot</groupId>
-            <artifactId>spring-boot-starter-web</artifactId>
-          </exclusion>
-          <exclusion>
-            <groupId>org.springframework.boot</groupId>
-            <artifactId>spring-boot-starter-security</artifactId>
-          </exclusion>
-          <exclusion>
-            <groupId>io.springfox</groupId>
-            <artifactId>springfox-swagger2</artifactId>
-          </exclusion>
-          <exclusion>
-            <groupId>io.springfox</groupId>
-            <artifactId>springfox-swagger-ui</artifactId>
-          </exclusion>
-          <exclusion>
-            <groupId>io.sentry</groupId>
-            <artifactId>sentry</artifactId>
-          </exclusion>
-        </exclusions>
+        <classifier>model</classifier>
+        <version>v0.5.0</version>
       </dependency>
 
       <!-- external dependencies -->
@@ -581,18 +568,18 @@
       <dependency>
         <groupId>org.mybatis</groupId>
         <artifactId>mybatis</artifactId>
-        <version>3.5.6</version>
+        <version>3.5.7</version>
       </dependency>
       <!-- slf4j -->
       <dependency>
-        <groupId>org.slf4j</groupId>
-        <artifactId>slf4j-log4j12</artifactId>
-        <version>1.7.30</version>
+        <groupId>org.apache.logging.log4j</groupId>
+        <artifactId>log4j-to-slf4j</artifactId>
+        <version>2.16.0</version>
       </dependency>
       <dependency>
         <groupId>org.slf4j</groupId>
         <artifactId>slf4j-api</artifactId>
-        <version>1.7.30</version>
+        <version>1.7.32</version>
       </dependency>
       <!-- spring -->
       <dependency>
@@ -801,9 +788,9 @@
       </dependency>
       <!-- log4j -->
       <dependency>
-        <groupId>log4j</groupId>
-        <artifactId>apache-log4j-extras</artifactId>
-        <version>1.1</version>
+        <groupId>org.apache.logging.log4j</groupId>
+        <artifactId>log4j-core</artifactId>
+        <version>2.17.1</version>
       </dependency>
       <!-- junit -->
       <dependency>
@@ -1078,7 +1065,7 @@
         <plugin>
           <groupId>org.apache.maven.plugins</groupId>
           <artifactId>maven-compiler-plugin</artifactId>
-          <version>3.5.1</version>
+          <version>3.8.1</version>
           <configuration>
             <source>1.8</source>
             <target>1.8</target>
@@ -1115,7 +1102,7 @@
         <plugin>
           <groupId>org.apache.maven.plugins</groupId>
           <artifactId>maven-war-plugin</artifactId>
-          <version>2.2</version>
+          <version>3.3.1</version>
         </plugin>
         <plugin>
           <groupId>org.apache.maven.plugins</groupId>
@@ -1188,7 +1175,7 @@
                     </goals>
                   </pluginExecutionFilter>
                   <action>
-                    <ignore />
+                    <ignore/>
                   </action>
                 </pluginExecution>
               </pluginExecutions>

@@ -46,6 +46,7 @@ import org.ehcache.core.config.DefaultConfiguration;
 import org.ehcache.jsr107.EhcacheCachingProvider;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.ehcache.impl.config.persistence.DefaultPersistenceConfiguration;
 import org.cbioportal.persistence.CacheEnabledConfig;
@@ -74,13 +75,16 @@ public class CustomEhcachingProvider extends EhcacheCachingProvider {
 
     @Value("${ehcache.static_repository_cache_one.max_mega_bytes_local_disk:32}")
     private Integer staticRepositoryCacheOneMaxMegaBytesLocalDisk;
+    
+    @Autowired
+    private CacheEnabledConfig cacheEnabledConfig;
 
     @Override
     public CacheManager getCacheManager() {
 
         CacheManager toReturn = null;
         try {
-            if (CacheEnabledConfig.enableCache(cacheType)) {
+            if (cacheEnabledConfig.enableCache(cacheType)) {
                 detectCacheConfigurationErrorsAndLog();
                 LOG.info("Caching is enabled, using '" + xmlConfigurationFile + "' for configuration");
                 XmlConfiguration xmlConfiguration = new XmlConfiguration(getClass().getResource(xmlConfigurationFile));

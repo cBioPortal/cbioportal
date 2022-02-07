@@ -1,5 +1,9 @@
 package org.cbioportal.persistence.util;
 
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.List;
+import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
@@ -17,8 +21,22 @@ import static org.mockito.Mockito.*;
 
 @RunWith(MockitoJUnitRunner.class)
 public class CustomRedisCacheTest {
+
     @Mock
     RedissonClient client;
+    
+    private RKeys mockKeys;
+
+    @Before
+    public void setUp() throws Exception {
+
+        List<String> keys = Arrays .asList("subject_1_key_1", "subject_1_key_2", "subject_2_key_1", "subject_2_key_2");
+        mockKeys = mock(RKeys.class);
+        when(client.getKeys()).thenReturn(mockKeys);
+        when(mockKeys.getKeysStream()).thenReturn(keys.stream());
+        
+        
+    }
 
     @Test
     public void shouldHaveGetters() {
@@ -189,25 +207,50 @@ public class CustomRedisCacheTest {
         verify(bucket, times(0)).setAsync(any(), anyLong(), any(TimeUnit.class));
         assertEquals("success", actual.get());
     }
-
+    
     @Test
-    public void shouldNoopForEvict() {
+    public void evictIfPresentNoStringPattern() {
         CustomRedisCache subject = new CustomRedisCache("subject", client, 100);
-        subject.evict("sdrazil");
-
-        // evict is a no op, so there should be no calls to the client
-        verify(client, times(0)).getBucket(any());
+        subject.evictIfPresent(new HashMap<String,String>());
+        subject.evictIfPresent(new HashMap<String,String>());
+        verify(mockKeys, never()).delete(anyString());
     }
 
     @Test
-    public void shouldNoopForEvictIfPresent() {
+    public void evictIfPresentNullPattern() {
         CustomRedisCache subject = new CustomRedisCache("subject", client, 100);
-        subject.evictIfPresent("sdrazil");
-
-        // evict is a no op, so there should be no calls to the client
-        verify(client, times(0)).getBucket(any());
+        subject.evictIfPresent(null);
+        verify(mockKeys, never()).delete(anyString());
     }
 
+    @Test
+    public void evictIfPresentSuccess() {
+        CustomRedisCache subject = new CustomRedisCache("subject_1", client, 100);
+        subject.evictIfPresent(".*key_2.*");
+        verify(mockKeys, times(1)).delete(eq("subject_1_key_2"));
+    }
+
+    @Test
+    public void evictNoStringPattern() {
+        CustomRedisCache subject = new CustomRedisCache("subject", client, 100);
+        subject.evict(new HashMap<String,String>());
+        verify(mockKeys, never()).delete(anyString());
+    }
+
+    @Test
+    public void evictNullPattern() {
+        CustomRedisCache subject = new CustomRedisCache("subject", client, 100);
+        subject.evict(null);
+        verify(mockKeys, never()).delete(anyString());
+    }
+    
+    @Test
+    public void evictSuccess() {
+        CustomRedisCache subject = new CustomRedisCache("subject_1", client, 100);
+        subject.evict(".*key_2.*");
+        verify(mockKeys, times(1)).delete(eq("subject_1_key_2"));
+    }
+    
     @Test
     public void shouldClear() {
         RKeys allKeys = mock(RKeys.class);

@@ -66,7 +66,7 @@
     if (special_style != null) {
         special_style = "css/" + special_style+"?"+GlobalProperties.getAppVersion();
     }
-    String globalStyleCSSPath = (authenticationMethod.equals("saml")) ?
+    String globalStyleCSSPath = (authenticationMethod.equals("saml") || authenticationMethod.equals("saml_plus_basic")) ?
         "/" + global_style : global_style;
     pageContext.setAttribute("globalStyleCSSPath", globalStyleCSSPath);
 %>

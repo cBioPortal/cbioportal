@@ -4,11 +4,11 @@ import org.cbioportal.persistence.util.CustomKeyGenerator;
 import org.cbioportal.persistence.util.CustomRedisCache;
 import org.cbioportal.service.CacheStatisticsService;
 import org.cbioportal.service.exception.CacheNotFoundException;
+import org.cbioportal.utils.config.annotation.ConditionalOnProperty;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.cache.Cache;
 import org.springframework.cache.CacheManager;
-import org.springframework.context.annotation.Profile;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.stereotype.Service;
 
@@ -19,7 +19,7 @@ import java.util.function.Function;
 import java.util.stream.Collectors;
 
 @Service
-@Profile({"redis"})
+@ConditionalOnProperty(name = "persistence.cache_type", havingValue = {"redis"})
 public class RedisCacheStatisticsServiceImpl implements CacheStatisticsService {
 
     @Autowired
@@ -51,7 +51,7 @@ public class RedisCacheStatisticsServiceImpl implements CacheStatisticsService {
                 // cut off cache name from key
                 .map(k -> k.substring(redisCache.getName().length() + CustomRedisCache.DELIMITER.length()))
                 // cut off everything after the class of the class of the cached method
-                .map(k -> k.substring(0, k.indexOf(CustomKeyGenerator.DELIMITER)))
+                .map(k -> k.substring(0, k.indexOf(CustomKeyGenerator.CACHE_KEY_PARAM_DELIMITER)))
                 .collect(Collectors.groupingBy(Function.identity(), Collectors.counting()));
             
             return keyCountPerClass.entrySet().stream()

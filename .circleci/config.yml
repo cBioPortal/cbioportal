@@ -76,9 +76,9 @@ jobs:
                     - v4-dependencies-{{ checksum "yarn.lock" }}
             # Download and cache dependencies
             - run: yarn
-            - run:
-                name: "Make sure lock file is still the same"
-                command: 'git diff --exit-code yarn.lock > /dev/null || (echo -e "New package lock file at $(cat yarn.lock | curl -F c=@- https://ptpb.pw | grep url) (include this file in your PR to fix this test)"; git diff --exit-code yarn.lock; exit 1)'
+#            - run:
+#                name: "Make sure lock file is still the same"
+#                command: 'git diff --exit-code yarn.lock > /dev/null || (echo -e "New package lock file at $(cat yarn.lock | curl -F c=@- https://ptpb.pw | grep url) (include this file in your PR to fix this test)"; git diff --exit-code yarn.lock; exit 1)'
             - save_cache:
                 paths:
                     - node_modules
@@ -113,7 +113,7 @@ jobs:
             - run:
                 # needed to get python3 on the path (https://discuss.circleci.com/t/pyenv-pyvenv-command-not-found/4087/2)
                 name: Add python3 to path [corrects bug in circle ci image and may be removed in the future]
-                command: pyenv local 3.5.2 && virtualenv venv
+                command: pyenv local 3.6.5 && virtualenv venv
             - run:
                 name: Setup python libraries
                 command: |
@@ -222,6 +222,8 @@ jobs:
             E2E_WORKSPACE: /tmp/repos/cbioportal-frontend/e2e-localdb-workspace
             CBIO_DB_DATA_DIR: /tmp/repos/cbioportal-frontend/e2e-localdb-workspace/cbio_db_data
             KC_DB_DATA_DIR: /tmp/repos/cbioportal-frontend/e2e-localdb-workspace/kc_db_data
+            DOCKER_IMAGE_SESSION_SERVICE: cbioportal/session-service:0.5.0
+            FRONTEND_TEST_DO_NOT_LOAD_EXTERNAL_FRONTEND: true
 
 
 workflows:

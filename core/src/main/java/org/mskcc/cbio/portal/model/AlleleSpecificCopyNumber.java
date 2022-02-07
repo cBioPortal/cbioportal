@@ -35,6 +35,9 @@ package org.mskcc.cbio.portal.model;
 import java.io.Serializable;
 import java.util.*;
 
+import static org.mskcc.cbio.maf.ValueTypeUtil.toFloat;
+import static org.mskcc.cbio.maf.ValueTypeUtil.toInt;
+
 /**
  *
  * @author averyniceday.
@@ -63,15 +66,15 @@ public class AlleleSpecificCopyNumber implements Serializable {
     private Integer expectedAltCopies;
     private Integer totalCopyNumber;
 
-    public AlleleSpecificCopyNumber(Map<String,String> ascnData) {
-        this.ascnIntegerCopyNumber = mapContainsValueForKey(ascnData, ASCN_INT_COPY_NUMBER) ? Integer.parseInt(ascnData.get(ASCN_INT_COPY_NUMBER)) : null;
-        this.ascnMethod = mapContainsValueForKey(ascnData, ASCN_METHOD) ? ascnData.get(ASCN_METHOD) : null;
-        this.ccfExpectedCopiesUpper = mapContainsValueForKey(ascnData, CCF_EXPECTED_COPIES_UPPER) ? Float.parseFloat(ascnData.get(CCF_EXPECTED_COPIES_UPPER)) : null;
-        this.ccfExpectedCopies = mapContainsValueForKey(ascnData, CCF_EXPECTED_COPIES) ? Float.parseFloat(ascnData.get(CCF_EXPECTED_COPIES)) : null;
-        this.clonal = mapContainsValueForKey(ascnData, CLONAL) ? normalizeClonalValue(ascnData.get(CLONAL)) : null;
-        this.minorCopyNumber = mapContainsValueForKey(ascnData, MINOR_COPY_NUMBER) ? Integer.parseInt(ascnData.get(MINOR_COPY_NUMBER)) : null;
-        this.expectedAltCopies = mapContainsValueForKey(ascnData, EXPECTED_ALT_COPIES) ? Integer.parseInt(ascnData.get(EXPECTED_ALT_COPIES)) : null;
-        this.totalCopyNumber = mapContainsValueForKey(ascnData, TOTAL_COPY_NUMBER) ? Integer.parseInt(ascnData.get(TOTAL_COPY_NUMBER)) : null;
+    public AlleleSpecificCopyNumber(Map<String,Object> ascnData) {
+        this.ascnIntegerCopyNumber = toInt(ascnData.getOrDefault(ASCN_INT_COPY_NUMBER, null));
+        this.ascnMethod = (String) ascnData.getOrDefault(ASCN_METHOD, null);
+        this.ccfExpectedCopiesUpper = toFloat(ascnData.getOrDefault(CCF_EXPECTED_COPIES_UPPER, null));
+        this.ccfExpectedCopies = toFloat(ascnData.getOrDefault(CCF_EXPECTED_COPIES, null));
+        this.clonal = normalizeClonalValue((String) ascnData.getOrDefault(CLONAL, null));
+        this.minorCopyNumber = toInt(ascnData.getOrDefault(MINOR_COPY_NUMBER, null));
+        this.expectedAltCopies = toInt(ascnData.getOrDefault(EXPECTED_ALT_COPIES, null));
+        this.totalCopyNumber = toInt(ascnData.getOrDefault(TOTAL_COPY_NUMBER, null));
     }
 
     public void updateAscnUniqueKeyDetails(ExtendedMutation mutation) {
@@ -169,6 +172,9 @@ public class AlleleSpecificCopyNumber implements Serializable {
     }
 
     private String normalizeClonalValue(String clonal) {
+        if (clonal == null) {
+            return null;
+        }
         String upperCaseClonal = clonal.toUpperCase();
         if (ACCEPTED_CLONAL_VALUES.contains(upperCaseClonal)) {
             return upperCaseClonal;
@@ -176,7 +182,4 @@ public class AlleleSpecificCopyNumber implements Serializable {
         return "NA";
     }
 
-    private boolean mapContainsValueForKey(Map<String, String> data, String key) {
-        return data.containsKey(key) && !data.get(key).isEmpty();
-    }
 }

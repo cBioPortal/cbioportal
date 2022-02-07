@@ -44,7 +44,8 @@
     else if (authenticationMethod.equals("googleplus") ||
 	    		authenticationMethod.equals("saml") ||
 	    		authenticationMethod.equals("ad") ||
-	    		authenticationMethod.contains("social_auth")) {
+	    		authenticationMethod.contains("social_auth") ||
+                        authenticationMethod.equals("saml_plus_basic")) {
         principal = "principal.username";
     }
     pageContext.setAttribute("principal", principal);
@@ -221,3 +222,16 @@ function openSoicalAuthWindow() {
         </div>
 
     </header>
+
+<script>
+function postLoadForMskCIS() {
+try {
+	var userDiv = document.getElementsByClassName('username');
+	if (userDiv.length===1) {
+		userDiv[0].remove();
+	}
+} catch(err) {
+}
+}
+</script>
+

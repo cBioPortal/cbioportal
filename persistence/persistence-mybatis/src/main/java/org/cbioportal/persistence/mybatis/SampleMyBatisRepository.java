@@ -9,7 +9,11 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
 
 import java.util.Arrays;
+import java.util.Collections;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 @Repository
 public class SampleMyBatisRepository implements SampleRepository {
@@ -97,9 +101,20 @@ public class SampleMyBatisRepository implements SampleRepository {
     }
 
     @Override
-    public List<Sample> fetchSamples(List<String> sampleListIds, String projection) {
-        
-        return sampleMapper.getSamplesBySampleListIds(sampleListIds, projection);
+    public List<Sample> fetchSamplesBySampleListIds(List<String> sampleListIds, String projection) {
+        // Rather than get all the samples for all the sample list IDs all at once,
+        // we get them 1 sample list ID at a time. This allows for more efficient caching, since
+        // the samples associated with each sample list are only cached once.
+        // We also need to remove duplicates samples because samples from multiple sample list IDs can have overlapping
+        return sampleListIds.stream()
+            .flatMap(id -> fetchSampleBySampleListId(id, projection).stream())
+            .distinct()
+            .collect(Collectors.toList());
+    }
+
+    @Override
+    public List<Sample> fetchSampleBySampleListId(String sampleListId, String projection) {
+        return sampleMapper.getSamplesBySampleListIds(Collections.singletonList(sampleListId), projection);
     }
 
     @Override

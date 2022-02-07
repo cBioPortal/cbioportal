@@ -1,9 +1,10 @@
 package org.cbioportal.model;
 
+import java.io.Serializable;
 import java.util.Objects;
 import java.util.Set;
 
-public class SampleTreatmentRow {
+public class SampleTreatmentRow implements TreatmentRow, Serializable {
     private TemporalRelation time;
     private String treatment;
     private int count;
@@ -42,6 +43,7 @@ public class SampleTreatmentRow {
         this.count = count;
     }
 
+    @Override
     public Set<ClinicalEventSample> getSamples() {
         return samples;
     }

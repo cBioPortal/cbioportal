@@ -49,33 +49,29 @@ public class GenericAssayController {
     
     @Autowired
     private GenericAssayService genericAssayService;
-
-    @PreAuthorize("hasPermission(#involvedCancerStudies, 'Collection<CancerStudyId>', 'read')")
+    
+    // PreAuthorize is removed for performance reason
     @RequestMapping(value = "/generic_assay_meta/fetch", method = RequestMethod.POST, consumes = MediaType.APPLICATION_JSON_VALUE,
         produces = MediaType.APPLICATION_JSON_VALUE)
     @ApiOperation("Fetch meta data for generic-assay by ID")
     public ResponseEntity<List<GenericAssayMeta>> fetchGenericAssayMetaData(
-        @ApiIgnore // prevent reference to this attribute in the swagger-ui interface
-        @RequestAttribute(required = false, value = "involvedCancerStudies") Collection<String> involvedCancerStudies,
-        @ApiIgnore // prevent reference to this attribute in the swagger-ui interface. this attribute is needed for the @PreAuthorize tag above.
-        @RequestAttribute(required = false, value = "interceptedGenericAssayMetaFilter") GenericAssayMetaFilter interceptedGenericAssayMetaFilter,
         @ApiParam(required = true, value = "List of Molecular Profile ID or List of Stable ID")
-        @Valid @RequestBody(required = false) GenericAssayMetaFilter genericAssayMetaFilter,
+        @Valid @RequestBody GenericAssayMetaFilter genericAssayMetaFilter,
         @ApiParam("Level of detail of the response")
         @RequestParam(defaultValue = "SUMMARY") Projection projection) throws GenericAssayNotFoundException {
             List<GenericAssayMeta> result;
 
-            if (interceptedGenericAssayMetaFilter.getGenericAssayStableIds() == null) {
-                result = genericAssayService.getGenericAssayMetaByStableIdsAndMolecularIds(null, interceptedGenericAssayMetaFilter.getMolecularProfileIds(), projection.name());
-            } else if (interceptedGenericAssayMetaFilter.getMolecularProfileIds() == null) {
-                result = genericAssayService.getGenericAssayMetaByStableIdsAndMolecularIds(interceptedGenericAssayMetaFilter.getGenericAssayStableIds(), null, projection.name());
+            if (genericAssayMetaFilter.getGenericAssayStableIds() == null) {
+                result = genericAssayService.getGenericAssayMetaByStableIdsAndMolecularIds(null, genericAssayMetaFilter.getMolecularProfileIds(), projection.name());
+            } else if (genericAssayMetaFilter.getMolecularProfileIds() == null) {
+                result = genericAssayService.getGenericAssayMetaByStableIdsAndMolecularIds(genericAssayMetaFilter.getGenericAssayStableIds(), null, projection.name());
             } else {
-                result = genericAssayService.getGenericAssayMetaByStableIdsAndMolecularIds(interceptedGenericAssayMetaFilter.getGenericAssayStableIds(), interceptedGenericAssayMetaFilter.getMolecularProfileIds(), projection.name());
+                result = genericAssayService.getGenericAssayMetaByStableIdsAndMolecularIds(genericAssayMetaFilter.getGenericAssayStableIds(), genericAssayMetaFilter.getMolecularProfileIds(), projection.name());
             }
             return new ResponseEntity<>(result, HttpStatus.OK);
     }
 
-    @PreAuthorize("hasPermission(#molecularProfileId, 'MolecularProfileId', 'read')")
+    @PreAuthorize("hasPermission(#molecularProfileId, 'MolecularProfileId', T(org.cbioportal.utils.security.AccessLevel).READ)")
     @RequestMapping(value = "/generic_assay_data/{molecularProfileId}/fetch",
         method = RequestMethod.POST, consumes = MediaType.APPLICATION_JSON_VALUE,
         produces = MediaType.APPLICATION_JSON_VALUE)
@@ -106,7 +102,7 @@ public class GenericAssayController {
         }
     }
 
-    @PreAuthorize("hasPermission(#involvedCancerStudies, 'Collection<CancerStudyId>', 'read')")
+    @PreAuthorize("hasPermission(#involvedCancerStudies, 'Collection<CancerStudyId>', T(org.cbioportal.utils.security.AccessLevel).READ)")
     @RequestMapping(value = "/generic_assay_data/fetch", method = RequestMethod.POST,
     consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
     @ApiOperation("Fetch generic_assay_data")

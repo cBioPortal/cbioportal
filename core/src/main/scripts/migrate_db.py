@@ -426,8 +426,10 @@ def main():
     with contextlib.closing(connection):
         db_version = get_db_version(cursor)
         if is_version_larger(MULTI_REFERENCE_GENOME_SUPPORT_MIGRATION_STEP, db_version):
+            run_migration(db_version, sql_filename, connection, cursor, parser.no_transaction, stop_at_version=MULTI_REFERENCE_GENOME_SUPPORT_MIGRATION_STEP)
             #retrieve reference genomes from database
             check_reference_genome(portal_properties, cursor, parser.force)
+            db_version = get_db_version(cursor)
         if is_version_larger(SAMPLE_FK_MIGRATION_STEP, db_version):
             run_migration(db_version, sql_filename, connection, cursor, parser.no_transaction, stop_at_version=SAMPLE_FK_MIGRATION_STEP)
             check_and_remove_type_of_cancer_id_foreign_key(cursor)

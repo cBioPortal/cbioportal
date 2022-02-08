@@ -401,12 +401,13 @@
             INNER JOIN genetic_profile ON structural_variant.GENETIC_PROFILE_ID = genetic_profile.GENETIC_PROFILE_ID
             INNER JOIN sample ON structural_variant.SAMPLE_ID = sample.INTERNAL_ID
             INNER JOIN patient ON sample.PATIENT_ID = patient.INTERNAL_ID
-            INNER JOIN gene ON structural_variant.SITE2_ENTREZ_GENE_ID = gene.ENTREZ_GENE_ID) as combinedResults
+            INNER JOIN gene ON structural_variant.SITE2_ENTREZ_GENE_ID = gene.ENTREZ_GENE_ID
+            WHERE structural_variant.SITE2_ENTREZ_GENE_ID != structural_variant.SITE1_ENTREZ_GENE_ID) as combinedResults
         <where>
             <include refid="caseFilter">
                 <property name="identifiers" value="structuralVariantMolecularProfileCaseIdentifiers" />
                 <property name="geneticProfileIdentifier" value="geneticProfileId" />
-                <property name="caseStableIdentifier" value="caseStableId" />
+                <property name="caseStableIdentifier" value="caseUniqueId" />
             </include>
         </where>
     </sql>
@@ -460,6 +461,10 @@
 
     <sql id="caseStableId">
         caseStableId
+    </sql>
+    
+    <sql id="caseUniqueId">
+        caseUniqueId
     </sql>
     
     <select id="getMolecularProfileCaseInternalIdentifier" resultType="org.cbioportal.model.MolecularProfileCaseIdentifier">

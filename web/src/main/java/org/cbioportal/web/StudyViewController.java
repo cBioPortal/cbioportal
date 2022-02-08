@@ -700,7 +700,8 @@ public class StudyViewController {
         return "Smith" + new Random().nextInt();
     }
     
-    private String getLastName() { 
+    private String getLastName() {
+        System.out.println("howdy");
         return "Smith" + new Random().nextInt();
     }
     

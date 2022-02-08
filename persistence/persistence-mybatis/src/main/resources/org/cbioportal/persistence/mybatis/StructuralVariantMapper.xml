@@ -43,7 +43,7 @@
         structural_variant.LENGTH AS "${prefix}length",
         structural_variant.COMMENTS AS "${prefix}comments",
         structural_variant.EXTERNAL_ANNOTATION AS "${prefix}externalAnnotation",
-        structural_variant.IS_GERMLINE AS "${prefix}isGermline",
+        structural_variant.SV_STATUS AS "${prefix}svStatus",
         alteration_driver_annotation.DRIVER_FILTER AS "${prefix}driverFilter",
         alteration_driver_annotation.DRIVER_FILTER_ANNOTATION AS "${prefix}driverFilterAnn",
         alteration_driver_annotation.DRIVER_TIERS_FILTER AS "${prefix}driverTiersFilter",
@@ -164,8 +164,8 @@
         </include>
         FROM structural_variant
         JOIN genetic_profile ON structural_variant.GENETIC_PROFILE_ID = genetic_profile.GENETIC_PROFILE_ID
-        JOIN gene gene1 ON structural_variant.SITE1_ENTREZ_GENE_ID = gene1.ENTREZ_GENE_ID
-        JOIN gene gene2 ON structural_variant.SITE2_ENTREZ_GENE_ID = gene2.ENTREZ_GENE_ID
+        LEFT JOIN gene gene1 ON structural_variant.SITE1_ENTREZ_GENE_ID = gene1.ENTREZ_GENE_ID
+        LEFT JOIN gene gene2 ON structural_variant.SITE2_ENTREZ_GENE_ID = gene2.ENTREZ_GENE_ID
         JOIN sample ON structural_variant.SAMPLE_ID = sample.INTERNAL_ID
         JOIN patient ON sample.PATIENT_ID = patient.INTERNAL_ID
         JOIN cancer_study ON patient.CANCER_STUDY_ID = cancer_study.CANCER_STUDY_ID AND genetic_profile.CANCER_STUDY_ID = cancer_study.CANCER_STUDY_ID
@@ -187,8 +187,8 @@
         </include>
         FROM structural_variant
         JOIN genetic_profile ON structural_variant.GENETIC_PROFILE_ID = genetic_profile.GENETIC_PROFILE_ID
-        JOIN gene gene1 ON structural_variant.SITE1_ENTREZ_GENE_ID = gene1.ENTREZ_GENE_ID
-        JOIN gene gene2 ON structural_variant.SITE2_ENTREZ_GENE_ID = gene2.ENTREZ_GENE_ID
+        LEFT JOIN gene gene1 ON structural_variant.SITE1_ENTREZ_GENE_ID = gene1.ENTREZ_GENE_ID
+        LEFT JOIN gene gene2 ON structural_variant.SITE2_ENTREZ_GENE_ID = gene2.ENTREZ_GENE_ID
         JOIN sample ON structural_variant.SAMPLE_ID = sample.INTERNAL_ID
         JOIN patient ON sample.PATIENT_ID = patient.INTERNAL_ID
         JOIN cancer_study ON patient.CANCER_STUDY_ID = cancer_study.CANCER_STUDY_ID AND genetic_profile.CANCER_STUDY_ID = cancer_study.CANCER_STUDY_ID

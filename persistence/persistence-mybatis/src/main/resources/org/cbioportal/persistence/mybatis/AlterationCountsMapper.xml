@@ -402,7 +402,9 @@
             INNER JOIN sample ON structural_variant.SAMPLE_ID = sample.INTERNAL_ID
             INNER JOIN patient ON sample.PATIENT_ID = patient.INTERNAL_ID
             INNER JOIN gene ON structural_variant.SITE2_ENTREZ_GENE_ID = gene.ENTREZ_GENE_ID
-            WHERE structural_variant.SITE2_ENTREZ_GENE_ID != structural_variant.SITE1_ENTREZ_GENE_ID) as combinedResults
+            WHERE structural_variant.SITE2_ENTREZ_GENE_ID != structural_variant.SITE1_ENTREZ_GENE_ID
+                OR structural_variant.SITE1_ENTREZ_GENE_ID IS NULL
+            ) AS combinedResults
         <where>
             <include refid="caseFilter">
                 <property name="identifiers" value="structuralVariantMolecularProfileCaseIdentifiers" />

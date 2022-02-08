@@ -20,7 +20,7 @@
     * [Gene Set Data](#gene-set-data)
     * [Study Tags file](#study-tags-file)
     * [Generic Assay](#generic-assay)
-        * [Arm Level CNA Data](#arm-level-cna-data)
+    * [Arm Level CNA Data](#arm-level-cna-data)
     * [Resource Data](#resource-data)
 
 # Introduction

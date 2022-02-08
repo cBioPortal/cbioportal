@@ -83,8 +83,8 @@ public class StructuralVariantUtil {
     public static final String DRIVER_FILTER_ANNOTATION = "cbp_driver_annotation";
     public static final String DRIVER_TIERS_FILTER = "cbp_driver_tiers";
     public static final String DRIVER_TIERS_FILTER_ANNOTATION = "cbp_driver_tiers_annotation";
-    public static final String IS_GERMLINE = "is_germline";
-
+    public static final String SV_STATUS = "Sv_Status";
+ 
     public StructuralVariantUtil(){}
 
     public StructuralVariantUtil(String line) {
@@ -140,7 +140,10 @@ public class StructuralVariantUtil {
         structuralVariant.setDriverFilterAnn(TabDelimitedFileUtil.getPartString(getColumnIndex(StructuralVariantUtil.DRIVER_FILTER_ANNOTATION), parts));
         structuralVariant.setDriverTiersFilter(TabDelimitedFileUtil.getPartString(getColumnIndex(StructuralVariantUtil.DRIVER_TIERS_FILTER), parts));
         structuralVariant.setDriverTiersFilterAnn(TabDelimitedFileUtil.getPartString(getColumnIndex(StructuralVariantUtil.DRIVER_TIERS_FILTER_ANNOTATION), parts));
-        structuralVariant.setIsGermline(TabDelimitedFileUtil.getPartInt(getColumnIndex(StructuralVariantUtil.IS_GERMLINE), parts) != 0);
+        structuralVariant.setSvStatus(TabDelimitedFileUtil.getPartString(getColumnIndex(StructuralVariantUtil.SV_STATUS), parts));
+        if (TabDelimitedFileUtil.NA_STRING.equals(structuralVariant.getSvStatus())) {
+            structuralVariant.setSvStatus(null); // we want to use the database default
+        }
         return structuralVariant;
     }
 
@@ -162,7 +165,7 @@ public class StructuralVariantUtil {
      * If a structural variant record has a mix of defined and missing values for Site 1 or Site 2
      * Ensembl transcript IDs and/or exons then the structural variant record will not be imported.
      *
-     * Example (assuming that site 1 and site 2 hugo symbol and/or entrez id are present):
+     * Example (assuming that site 1 or site 2 hugo symbol and/or entrez id are present):
      *
      * Valid Record:
      *     Site 1 Transcript: EST0000024958
@@ -195,8 +198,7 @@ public class StructuralVariantUtil {
                 record.getSite1Exon() != -1 &&
                 record.getSite2Exon() != -1);
         return ( hasNoEnsemblExonValues || hasAllEnsemblExonValues ) &&
-                (record.getSite1EntrezGeneId() != Long.MIN_VALUE || !record.getSite1HugoSymbol().equalsIgnoreCase(TabDelimitedFileUtil.NA_STRING)) &&
-                (record.getSite2EntrezGeneId() != Long.MIN_VALUE || !record.getSite2HugoSymbol().equalsIgnoreCase(TabDelimitedFileUtil.NA_STRING));
+                (record.getSite1EntrezGeneId() != Long.MIN_VALUE || !record.getSite1HugoSymbol().equalsIgnoreCase(TabDelimitedFileUtil.NA_STRING) || record.getSite2EntrezGeneId() != Long.MIN_VALUE || !record.getSite2HugoSymbol().equalsIgnoreCase(TabDelimitedFileUtil.NA_STRING));
     }
 
 }

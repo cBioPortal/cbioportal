@@ -81,7 +81,7 @@ public class DaoStructuralVariant {
                                             "LENGTH",
                                             "COMMENTS",
                                             "EXTERNAL_ANNOTATION",
-                                            "IS_GERMLINE",
+                                            "SV_STATUS",
                                             };
         bl.setFieldNames(fieldNames);
 
@@ -90,13 +90,13 @@ public class DaoStructuralVariant {
            Long.toString(structuralVariant.getInternalId()),
            Integer.toString(structuralVariant.getGeneticProfileId()),
            Integer.toString(structuralVariant.getSampleIdInternal()),
-           Long.toString(structuralVariant.getSite1EntrezGeneId()),
+           structuralVariant.getSite1EntrezGeneId() == null ? null : Long.toString(structuralVariant.getSite1EntrezGeneId()),
            structuralVariant.getSite1EnsemblTranscriptId(),
            Integer.toString(structuralVariant.getSite1Exon()),
            structuralVariant.getSite1Chromosome(),
            Integer.toString(structuralVariant.getSite1Position()),
            structuralVariant.getSite1Description(),
-           Long.toString(structuralVariant.getSite2EntrezGeneId()),
+           structuralVariant.getSite2EntrezGeneId() == null ? null : Long.toString(structuralVariant.getSite2EntrezGeneId()),
            structuralVariant.getSite2EnsemblTranscriptId(),
            Integer.toString(structuralVariant.getSite2Exon()),
            structuralVariant.getSite2Chromosome(),
@@ -123,8 +123,7 @@ public class DaoStructuralVariant {
            Integer.toString(structuralVariant.getLength()),
            structuralVariant.getComments(),
            structuralVariant.getExternalAnnotation(),
-           Integer.toString(structuralVariant.getIsGermline()?1:0));
-//TODO: fix this ... the value must be converted to an integer
+           structuralVariant.getSvStatus());
 
         if ((structuralVariant.getDriverFilter() != null
             && !structuralVariant.getDriverFilter().isEmpty()
@@ -240,7 +239,7 @@ public class DaoStructuralVariant {
         structuralVariant.setDriverFilterAnn(rs.getString("DRIVER_FILTER_ANNOTATION"));
         structuralVariant.setDriverTiersFilter(rs.getString("DRIVER_TIERS_FILTER"));
         structuralVariant.setDriverTiersFilterAnn(rs.getString("DRIVER_TIERS_FILTER_ANNOTATION"));
-        structuralVariant.setIsGermline(rs.getBoolean("IS_GERMLINE"));
+        structuralVariant.setSvStatus(rs.getString("SV_STATUS"));
         return structuralVariant;
     }
 }

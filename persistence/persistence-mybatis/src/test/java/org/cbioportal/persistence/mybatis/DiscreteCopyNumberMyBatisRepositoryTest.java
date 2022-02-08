@@ -139,7 +139,6 @@ public class DiscreteCopyNumberMyBatisRepositoryTest {
         Assert.assertEquals("AKT1", gene.getHugoGeneSymbol());
         ReferenceGenomeGene refGene = refGeneMyBatisRepository.getReferenceGenomeGene(gene.getEntrezGeneId(), "hg19");
         Assert.assertEquals("14q32.33", refGene.getCytoband());
-        Assert.assertEquals((Integer) 10838, refGene.getLength());
 
         DiscreteCopyNumberData discreteCopyNumberDataB208 = result.get(1);
         Assert.assertEquals("study_tcga_pub_gistic", discreteCopyNumberDataB208.getMolecularProfileId());

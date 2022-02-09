@@ -954,6 +954,5 @@ UPDATE `info` SET `DB_SCHEMA_VERSION`="2.12.10";
 ##version: 2.12.11
 -- all previous genetic_profile will be considered as sample level data
 -- so set 0 (false) as default value for PATIENT_LEVEL field
-ALTER TABLE `reference_genome` 
-DROP COLUMN `EXONIC_LENGTH`
+ALTER TABLE `reference_genome` DROP COLUMN `EXONIC_LENGTH`;
 UPDATE `info` SET `DB_SCHEMA_VERSION`="2.12.11";

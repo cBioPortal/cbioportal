@@ -956,5 +956,5 @@ UPDATE `info` SET `DB_SCHEMA_VERSION`="2.12.10";
 
 ##version: 2.12.11
 -- changes for issue 9257
-ALTER TABLE `reference_genome` DROP COLUMN `EXONIC_LENGTH`;
+ALTER TABLE `reference_genome_gene` DROP COLUMN `EXONIC_LENGTH`;
 UPDATE `info` SET `DB_SCHEMA_VERSION`="2.12.11";

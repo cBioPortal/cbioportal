@@ -87,6 +87,9 @@ prior_validated_geneset_ids = None
 # Global variable to compare stable IDs from meta file with gene panel matrix file
 study_meta_dictionary = {}
 
+# Global variable for the regex that checks hexadecimal colors
+COLOR_REGEX = re.compile("^#[a-fA-F0-9]{6}$")
+
 # ----------------------------------------------------------------------------
 
 VALIDATOR_IDS = {
@@ -724,7 +727,7 @@ class Validator(object):
                        'cause': sample_id})
             return False
         return True
-    
+
     def checkPatientId(self, patient_id, column_number):
         """Check whether a patient id is defined, logging an error if not.
 
@@ -1103,7 +1106,7 @@ class FeaturewiseFileValidator(Validator):
         # check either sample Id or patient Id
         # override this to check Id
         return 0
-    
+
     def checkIdInSamples(self):
         # check sample Id
         num_errors = 0
@@ -1285,7 +1288,7 @@ class CustomDriverAnnotationValidator(Validator):
         has_custom_driver_cols = len(list(set(self.cols) & set(self.CUSTOM_DRIVER_CHECK_FUNCTION_MAP.keys()))) > 0
         if not has_custom_driver_cols:
             return
-        
+
         driver_value, driver_annotation, driver_tiers_value, driver_tiers_annotation = self.parsePdAnnotations(data)
         if driver_tiers_annotation is not None and driver_tiers_value is None:
             self.logger.error(
@@ -3456,6 +3459,20 @@ class TimelineValidator(Validator):
                         extra={'line_number': self.line_number,
                                'column_number': col_index + 1,
                                'cause': value})
+            elif col_name == 'STYLE_COLOR':
+                 if not COLOR_REGEX.match(value.strip()):
+                    self.logger.error(
+                        'Invalid STYLE_COLOR',
+                        extra={'line_number': self.line_number,
+                               'column_number': col_index + 1,
+                               'cause': value})
+            elif col_name == 'STYLE_SHAPE':
+                if not value.strip().lower() in ['circle', 'square', 'triangle', 'diamond', 'star', 'camera']:
+                    self.logger.error(
+                        'Invalid STYLE_SHAPE',
+                        extra={'line_number': self.line_number,
+                               'column_number': col_index + 1,
+                               'cause': value})
 
 class CancerTypeValidator(Validator):
 
@@ -3899,13 +3916,6 @@ class PatientResourceValidator(ResourceValidator):
                                'cause': RESOURCE_DEFINITION_DICTIONARY[value]})
                 resource_id = value
             if col_name == 'PATIENT_ID':
-                if value not in RESOURCE_PATIENTS_WITH_SAMPLES:
-                    self.logger.warning(
-                        'Resource data defined for a patient with '
-                        'no samples',
-                        extra={'line_number': self.line_number,
-                                'column_number': col_index + 1,
-                                'cause': value})
                 if value not in self.patient_id_lines:
                     self.patient_id_lines[value] = self.line_number
                 patient_id = value
@@ -3919,16 +3929,6 @@ class PatientResourceValidator(ResourceValidator):
                         'duplicated_line_number': self.defined_resources[(resource_id, patient_id, resource_url)]})
         else:
             self.defined_resources[(resource_id, patient_id, resource_url)] = self.line_number
-
-    def onComplete(self):
-        """Perform final validations based on the data parsed."""
-        for patient_id in RESOURCE_PATIENTS_WITH_SAMPLES:
-            if patient_id not in self.patient_id_lines:
-                self.logger.warning(
-                    'Missing resource data for a patient associated with '
-                    'samples',
-                    extra={'cause': patient_id})
-        super(PatientResourceValidator, self).onComplete()
 
 class StudyResourceValidator(ResourceValidator):
 
@@ -4447,7 +4447,7 @@ class GenericAssayWiseFileValidator(FeaturewiseFileValidator):
                                      'column_number': 1,
                                      'cause': nonsample_col_vals[0]})
         return value
-    
+
     def checkId(self):
         """Check if patient/sample IDs are imported"""
         num_errors = 0
@@ -4468,7 +4468,7 @@ class GenericAssayWiseFileValidator(FeaturewiseFileValidator):
                         id,
                         column_number=self.num_nonsample_cols + index + 1):
                     num_errors += 1
-            else:           
+            else:
                 # check sample id for non patient level data
                 if not self.checkSampleId(
                         id,
@@ -4551,7 +4551,7 @@ class GenericAssayCategoricalValidator(GenericAssayWiseFileValidator):
     }
 
     ALLOWED_VALUES = None
-    
+
     def __init__(self, *args, **kwargs):
         """Initialize the instance attributes of the data file validator."""
         super(GenericAssayCategoricalValidator, self).__init__(*args, **kwargs)
@@ -4572,7 +4572,7 @@ class GenericAssayCategoricalValidator(GenericAssayWiseFileValidator):
             # value is not defined (empty cell)
             if len(stripped_value) == 0:
                 # empty cell is allowed
-                return 
+                return
             if stripped_value not in self.ALLOWED_VALUES:
                 self.logger.error(
                     'Invalid generic assay categorical value: possible values are [%s]',

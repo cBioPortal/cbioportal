@@ -290,7 +290,7 @@
   </profiles>
 
   <properties>
-    <frontend.version>3cea186d0f402589b1b60fa16f69a034b75c6f9c</frontend.version>
+    <frontend.version>1d4583588fb4ae6a9244e3d9713e7236a70ca283</frontend.version>
     <frontend.groupId>com.github.cbioportal</frontend.groupId>
     <spring.version>5.2.6.RELEASE</spring.version>
     <spring.integration.version>5.3.0.RELEASE</spring.integration.version>
@@ -316,7 +316,7 @@
 
     <db.test.driver>com.mysql.jdbc.Driver</db.test.driver>
     <!-- For MySQL < 5.5 change 'default_storage_engine' to 'storage_engine' -->
-    <db.test.url>jdbc:mysql://127.0.0.1:3306/cgds_test?sessionVariables=default_storage_engine=InnoDB</db.test.url>
+    <db.test.url>jdbc:mysql://127.0.0.1:3306/cgds_test?sessionVariables=default_storage_engine=InnoDB&amp;allowLoadLocalInfile=true</db.test.url>
     <db.test.username>cbio_user</db.test.username>
     <db.test.password>somepassword</db.test.password>
 

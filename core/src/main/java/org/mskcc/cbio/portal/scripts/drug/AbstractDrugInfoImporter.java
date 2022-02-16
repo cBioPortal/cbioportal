@@ -32,7 +32,6 @@
 
 package org.mskcc.cbio.portal.scripts.drug;
 
-import org.mskcc.cbio.portal.dao.DaoDrug;
 import org.mskcc.cbio.portal.dao.DaoException;
 import org.mskcc.cbio.portal.dao.DaoInteraction;
 

@@ -65,7 +65,6 @@ public class ImportSif {
      * @throws DaoException Database Error.
      */
     public void importData() throws IOException, DaoException {
-        DaoInteraction daoInteraction = DaoInteraction.getInstance();
         DaoGeneOptimized daoGeneOptimized = DaoGeneOptimized.getInstance();
         int numInteractionsSaved = 0;
         int numInteractionsNotSaved = 0;
@@ -102,9 +101,7 @@ public class ImportSif {
                     String key = createKey(geneA, geneB, interactionType);
                     if (!interactionSet.contains(key)) {
                         //  SIF Interactions do not have experiment details or PMIDs.  So, we set to null.
-                        daoInteraction.addInteraction(geneA, geneB, interactionType, dataSource,
-                                null, null);
-                        numInteractionsSaved++;
+                        numInteractionsNotSaved++;
                         interactionSet.add(key);
                     } else {
                         numRedundantInteractionsSkipped++;

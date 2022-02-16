@@ -33,22 +33,11 @@
 package org.mskcc.cbio.portal.scripts.drug;
 
 import org.mskcc.cbio.portal.dao.DaoException;
-import org.mskcc.cbio.portal.dao.DaoInteraction;
 
 abstract public class AbstractDrugInfoImporter {
     public static String DRUG_INTERACTION_TYPE = "DRUG_TARGET";
 
     private DrugDataResource dataResource;
-    private DaoInteraction daoInteraction;
-
-    public AbstractDrugInfoImporter(DrugDataResource dataResource) throws DaoException {
-        this(dataResource, DaoInteraction.getInstance());
-    }
-
-    public AbstractDrugInfoImporter(DrugDataResource dataResource, DaoInteraction daoInteraction) {
-        this.dataResource = dataResource;
-        this.daoInteraction = daoInteraction;
-    }
 
     public DrugDataResource getDataResource() {
         return dataResource;
@@ -56,14 +45,6 @@ abstract public class AbstractDrugInfoImporter {
 
     public void setDataResource(DrugDataResource dataResource) {
         this.dataResource = dataResource;
-    }
-
-    public DaoInteraction getDaoInteraction() {
-        return daoInteraction;
-    }
-
-    public void setDaoInteraction(DaoInteraction daoInteraction) {
-        this.daoInteraction = daoInteraction;
     }
 
     abstract public void importData() throws Exception;

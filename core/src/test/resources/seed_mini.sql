@@ -46,7 +46,6 @@ DELETE FROM cna_event;
 DELETE FROM gistic_to_gene;
 DELETE FROM gistic;
 DELETE FROM mut_sig;
-DELETE FROM interaction;
 DELETE FROM clinical_attribute_meta;
 DELETE FROM mutation;
 DELETE FROM mutation_event;

@@ -56,7 +56,7 @@ public class PiHelperImporter extends AbstractDrugInfoImporter {
     private final Drug DRUG_SKIP = new Drug();
 
     public PiHelperImporter(DrugDataResource dataResource) throws DaoException {
-        super(dataResource);
+        super.setDataResource(dataResource);
     }
 
     public InputStream getDrugInfoFile() {

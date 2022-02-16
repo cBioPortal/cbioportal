@@ -52,12 +52,11 @@ public class DaoReferenceGenomeGene {
             MySQLbulkLoader.bulkLoadOff();
             con = JdbcUtil.getDbConnection(DaoReferenceGenome.class);
             pstmt = con.prepareStatement
-                ("UPDATE reference_genome_gene SET `EXONIC_LENGTH`=?,`START`=?, `END`=? WHERE `ENTREZ_GENE_ID`=? AND `REFERENCE_GENOME_ID`=?");
-            pstmt.setInt(1, gene.getExonicLength());
-            pstmt.setLong(2, gene.getStart());
-            pstmt.setLong(3, gene.getEnd());
-            pstmt.setLong(4, gene.getEntrezGeneId());
-            pstmt.setInt(5, gene.getReferenceGenomeId());
+                ("UPDATE reference_genome_gene SET `START`=?, `END`=? WHERE `ENTREZ_GENE_ID`=? AND `REFERENCE_GENOME_ID`=?");
+            pstmt.setLong(1, gene.getStart());
+            pstmt.setLong(2, gene.getEnd());
+            pstmt.setLong(3, gene.getEntrezGeneId());
+            pstmt.setInt(4, gene.getReferenceGenomeId());
             pstmt.executeUpdate();
         } catch (SQLException e) {
             throw new DaoException(e);
@@ -83,15 +82,14 @@ public class DaoReferenceGenomeGene {
                 //add gene, referring to this genetic entity
                 con = JdbcUtil.getDbConnection(DaoGene.class);
                 pstmt = con.prepareStatement
-                    ("INSERT INTO `reference_genome_gene` (`ENTREZ_GENE_ID`, `REFERENCE_GENOME_ID`,`CHR`,`CYTOBAND`,`EXONIC_LENGTH`,`START`,`END`) "
-                        + "VALUES (?,?,?,?,?,?,?)");
+                    ("INSERT INTO `reference_genome_gene` (`ENTREZ_GENE_ID`, `REFERENCE_GENOME_ID`,`CHR`,`CYTOBAND`,`START`,`END`) "
+                        + "VALUES (?,?,?,?,?,?)");
                 pstmt.setLong(1, gene.getEntrezGeneId());
                 pstmt.setInt(2, gene.getReferenceGenomeId());
                 pstmt.setString(3, gene.getChr());
                 pstmt.setString(4, gene.getCytoband());
-                pstmt.setInt(5, gene.getExonicLength());
-                pstmt.setLong(6, gene.getStart());
-                pstmt.setLong(7, gene.getEnd());
+                pstmt.setLong(5, gene.getStart());
+                pstmt.setLong(6, gene.getEnd());
                 pstmt.executeUpdate();
             }
             else {
@@ -141,7 +139,6 @@ public class DaoReferenceGenomeGene {
         ReferenceGenomeGene gene = new ReferenceGenomeGene(entrezGeneId, reference_genome_id);
         gene.setChr(rs.getString("CHR"));
         gene.setCytoband(rs.getString("CYTOBAND"));
-        gene.setExonicLength(rs.getInt("EXONIC_LENGTH"));
         gene.setStart(rs.getLong("START"));
         gene.setEnd(rs.getLong("END"));
         return gene;

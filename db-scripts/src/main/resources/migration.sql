@@ -954,7 +954,6 @@ UPDATE `info` SET `DB_SCHEMA_VERSION`="2.12.9";
 ALTER TABLE `genetic_profile` ADD COLUMN `PATIENT_LEVEL` boolean DEFAULT 0;
 UPDATE `info` SET `DB_SCHEMA_VERSION`="2.12.10";
 
-##version: 2.12.12
 DROP TABLE IF EXISTS `pdb_uniprot_residue_mapping`;
 DROP TABLE IF EXISTS `pdb_uniprot_alignment`;
 
@@ -978,4 +977,7 @@ DROP TABLE IF EXISTS `drug`;
 
 -- removing table interaction
 DROP TABLE IF EXISTS `interaction`;
+##version: 2.12.11
+-- changes for issue 9257
+ALTER TABLE `reference_genome_gene` DROP COLUMN `EXONIC_LENGTH`;
 UPDATE `info` SET `DB_SCHEMA_VERSION`="2.12.12";

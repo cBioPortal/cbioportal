@@ -35,6 +35,9 @@ package org.mskcc.cbio.portal.model;
 import java.io.Serializable;
 import java.util.*;
 
+import static org.mskcc.cbio.maf.ValueTypeUtil.toFloat;
+import static org.mskcc.cbio.maf.ValueTypeUtil.toInt;
+
 /**
  *
  * @author averyniceday.
@@ -64,14 +67,14 @@ public class AlleleSpecificCopyNumber implements Serializable {
     private Integer totalCopyNumber;
 
     public AlleleSpecificCopyNumber(Map<String,Object> ascnData) {
-        this.ascnIntegerCopyNumber = (Integer) ascnData.getOrDefault(ASCN_INT_COPY_NUMBER, null);
+        this.ascnIntegerCopyNumber = toInt(ascnData.getOrDefault(ASCN_INT_COPY_NUMBER, null));
         this.ascnMethod = (String) ascnData.getOrDefault(ASCN_METHOD, null);
-        this.ccfExpectedCopiesUpper = (Float) ascnData.getOrDefault(CCF_EXPECTED_COPIES_UPPER, null);
-        this.ccfExpectedCopies = (Float) ascnData.getOrDefault(CCF_EXPECTED_COPIES, null);
+        this.ccfExpectedCopiesUpper = toFloat(ascnData.getOrDefault(CCF_EXPECTED_COPIES_UPPER, null));
+        this.ccfExpectedCopies = toFloat(ascnData.getOrDefault(CCF_EXPECTED_COPIES, null));
         this.clonal = normalizeClonalValue((String) ascnData.getOrDefault(CLONAL, null));
-        this.minorCopyNumber = (Integer) ascnData.getOrDefault(MINOR_COPY_NUMBER, null);
-        this.expectedAltCopies = (Integer) ascnData.getOrDefault(EXPECTED_ALT_COPIES, null);
-        this.totalCopyNumber = (Integer) ascnData.getOrDefault(TOTAL_COPY_NUMBER, null);
+        this.minorCopyNumber = toInt(ascnData.getOrDefault(MINOR_COPY_NUMBER, null));
+        this.expectedAltCopies = toInt(ascnData.getOrDefault(EXPECTED_ALT_COPIES, null));
+        this.totalCopyNumber = toInt(ascnData.getOrDefault(TOTAL_COPY_NUMBER, null));
     }
 
     public void updateAscnUniqueKeyDetails(ExtendedMutation mutation) {

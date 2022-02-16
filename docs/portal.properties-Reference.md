@@ -348,6 +348,11 @@ The default view in OncoPrint ("patient" or "sample") can be set with the follow
 oncoprint.defaultview=sample
 ```
 
+Configuration of tracks that will be visible by default in the oncoprint. It points to a JSON file on the classpath.
+```
+oncoprint.clinical_tracks.show_by_default=classpath:/oncoprint-default-tracks.json
+```
+
 # Custom annotation of driver and passenger mutations
 cBioPortal supports 2 formats to add custom annotations for driver and passenger mutations.
 1. **cbp_driver**: This will define whether a mutation is a driver or not.

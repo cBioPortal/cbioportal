@@ -23,7 +23,7 @@ ALLOWABLE_GENOME_REFERENCES = ['37', 'hg19', 'GRCh37', '38', 'hg38', 'GRCh38', '
 DEFAULT_GENOME_REFERENCE = 'hg19'
 MULTI_REFERENCE_GENOME_SUPPORT_MIGRATION_STEP = (2,11,0)
 GENERIC_ASSAY_MIGRATION_STEP = (2,12,1)
-SAMPLE_FK_MIGRATION_STEP = (2,12,8)
+SAMPLE_FK_MIGRATION_STEP = (2,12,9)
 
 class PortalProperties(object):
     """ Properties object class, just has fields for db conn """
@@ -146,6 +146,10 @@ def is_version_larger(version1, version2):
     if version1[2] > version2[2]:
         return True
     return False
+
+def is_version_equal(version1, version2):
+    """ Checks if version 1 is equal to version 2"""
+    return version1[0] == version2[0] and version1[1] == version2[1] and version1[2] == version2[2]
 
 def print_all_check_reference_genome_warnings(warnings, force_migration):
     """ Format warnings for output according to mode, and print to ERROR_FILE """
@@ -285,7 +289,7 @@ def strip_trailing_comment_from_line(line):
     line_parts = re.split("--\s",line)
     return line_parts[0]
 
-def run_migration(db_version, sql_filename, connection, cursor, no_transaction):
+def run_migration(db_version, sql_filename, connection, cursor, no_transaction, stop_at_version=None):
     """
         Goes through the sql and runs lines based on the version numbers. SQL version should be stated as follows:
 
@@ -303,8 +307,12 @@ def run_migration(db_version, sql_filename, connection, cursor, no_transaction):
     for line in sql_file:
         if line.startswith('##'):
             sql_version = tuple(map(int, line.split(':')[1].strip().split('.')))
-            run_line = is_version_larger(sql_version, db_version)
-            continue
+            # stop at the version specified
+            if stop_at_version is not None and is_version_equal(sql_version, stop_at_version):
+                break
+            else:
+                run_line = is_version_larger(sql_version, db_version)
+                continue
         # skip blank lines
         if len(line.strip()) < 1:
             continue
@@ -418,10 +426,14 @@ def main():
     with contextlib.closing(connection):
         db_version = get_db_version(cursor)
         if is_version_larger(MULTI_REFERENCE_GENOME_SUPPORT_MIGRATION_STEP, db_version):
+            run_migration(db_version, sql_filename, connection, cursor, parser.no_transaction, stop_at_version=MULTI_REFERENCE_GENOME_SUPPORT_MIGRATION_STEP)
             #retrieve reference genomes from database
             check_reference_genome(portal_properties, cursor, parser.force)
-        if not is_version_larger(SAMPLE_FK_MIGRATION_STEP, db_version):
+            db_version = get_db_version(cursor)
+        if is_version_larger(SAMPLE_FK_MIGRATION_STEP, db_version):
+            run_migration(db_version, sql_filename, connection, cursor, parser.no_transaction, stop_at_version=SAMPLE_FK_MIGRATION_STEP)
             check_and_remove_type_of_cancer_id_foreign_key(cursor)
+            db_version = get_db_version(cursor)
         run_migration(db_version, sql_filename, connection, cursor, parser.no_transaction)
         # TODO: remove this after we update mysql version
         # check invalid foreign key only when current db version larger or qeuals to GENERIC_ASSAY_MIGRATION_STEP

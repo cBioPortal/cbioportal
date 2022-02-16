@@ -20,7 +20,16 @@ cBioPortalData aims to import all cBioPortal datasets as MultiAssayExperiment ob
 
 For a comprehensive user guide to `cBioportalData` see: https://waldronlab.io/cBioPortalData/articles/cBioPortalData.html
 
-See also the workshop materials from our webinar which include an intro to `cBioPortalData`: https://github.com/cBioPortal/2020-cbioportal-r-workshop
+See also the workshop materials from our webinar which include an intro to `cBioPortalData`: https://github.com/cBioPortal/2020-cbioportal-r-workshop.
+
+Note that one can point to private authenticated instances like this:
+
+```R
+cBioPortal(
+    hostname = "genie.cbioportal.org",
+    token = "~/Downloads/cbioportal_data_access_token.txt"
+)
+```
 
 #### rapiclient
 Although we recommend to use [cBioPortalData](#cBioPortalData) for most use cases, it is possible to connect to the API directly using [rapiclient](https://github.com/bergant/rapiclient):
@@ -34,14 +43,18 @@ client <- get_api(url = "https://www.cbioportal.org/api/api-docs")
 The CGDS-R package connects an older version of our web API (`webservice.do`). Althought we will continue to keep `webservice.do` running for a while, we can't guarantee the same level of quality as our new API (`cbioportal.org/api`) provides. Therefore we recommend that you use `cBioPortalData` instead.
 
 ### Python client
+There are multiple ways to access the API using Python. One can use the `bravado` package to access the API directly, or use the `cbio_py` client, which provides a simple wrapper for the API and returns data in a format that is easy to work with.
+
+#### bravado
 Generate a client in Python using [bravado](https://github.com/Yelp/bravado)
 like this:
 
 ```python
 from bravado.client import SwaggerClient
 cbioportal = SwaggerClient.from_url('https://www.cbioportal.org/api/api-docs',
-                                    config={"validate_requests":False,"validate_responses":False})
+                                    config={"validate_requests":False,"validate_responses":False,"validate_swagger_spec": False})
 ```
+
 This allows you to access all API endpoints:
 ```python
 >>> dir(cbioportal)
@@ -75,5 +88,24 @@ muts = cbioportal.mutations.getMutationsInMolecularProfileBySampleListIdUsingGET
 ).result()
 ```
 
+For a portal that requires authentication one can use (see [Data Access Using Tokens](https://docs.cbioportal.org/2.2-authorization-and-authentication/authenticating-users-via-tokens#using-data-access-tokens)):
+
+```
+headers = {
+  'Authorization': 'Bearer 63efa81c-2490-4e15-9d1c-fb6e8e50e35d'
+}
+requestOptions = {
+   'headers': headers,
+}
+cbioportal = SwaggerClient.from_url('https://genie.cbioportal.org',
+                                    request_headers=headers,
+                                    config={"validate_requests":False,
+                                            "validate_responses":False,
+                                            "validate_swagger_spec": False}
+)
+```
+
 A Jupyter notebook with more examples can be found [here](https://github.com/mskcc/cbsp-hackathon/blob/master/0-introduction/cbsp_hackathon.ipynb).
 
+#### cbio_py
+See the `cbio_py` documentation: https://pypi.org/project/cbio-py/.

@@ -28,7 +28,7 @@
  *
  * You should have received a copy of the GNU Affero General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
-*/
+ */
 
 package org.mskcc.cbio.maf;
 
@@ -37,9 +37,9 @@ import static org.mskcc.cbio.maf.ValueTypeUtil.isFloat;
 import static org.mskcc.cbio.maf.ValueTypeUtil.isInt;
 
 
-import java.math.BigDecimal;
 import java.util.*;
 import java.util.regex.Pattern;
+
 import joptsimple.internal.Strings;
 
 /**
@@ -383,6 +383,10 @@ public class MafUtil {
                     .findFirst()
                     .ifPresent(namespace -> {
                         String columnName = header.split(NAMESPACE_DELIMITER_REGEX)[1];
+                        // For legacy reasons perform lower-case transformation for ASCN column names. 
+                        if  (namespace.equalsIgnoreCase("ascn")) {
+                            columnName = columnName.toLowerCase();
+                        }
                         // Key the namespaces with the format (upper-/lowercase) specified in the meta file.
                         Map<String, Integer> nsKeyIndexMap = this.namespaceIndexMap.getOrDefault(namespace, new HashMap<>());
                         nsKeyIndexMap.put(columnName, columnIndex);

@@ -79,6 +79,7 @@ public class InvolvedCancerStudyExtractorInterceptor extends HandlerInterceptorA
     public static final String STUDY_VIEW_CLINICAL_DATA_COUNTS_PATH = "/clinical-data-counts/fetch";
     public static final String STUDY_VIEW_CUSTOM_DATA_COUNTS_PATH = "/custom-data-counts/fetch";
     public static final String STUDY_VIEW_CLINICAL_DATA_DENSITY_PATH = "/clinical-data-density-plot/fetch";
+    public static final String STUDY_VIEW_CLINICAL_DATA_VIOLIN_PATH = "/clinical-data-violin-plots/fetch";
     public static final String STUDY_VIEW_CNA_GENES = "/cna-genes/fetch";
     public static final String STUDY_VIEW_FILTERED_SAMPLES = "/filtered-samples/fetch";
     public static final String STUDY_VIEW_MUTATED_GENES = "/mutated-genes/fetch";
@@ -132,7 +133,7 @@ public class InvolvedCancerStudyExtractorInterceptor extends HandlerInterceptorA
         } else if (Arrays.asList(STUDY_VIEW_CLINICAL_DATA_COUNTS_PATH, STUDY_VIEW_CUSTOM_DATA_COUNTS_PATH)
                 .contains(requestPathInfo)) {
             return extractAttributesFromClinicalDataCountFilter(request);
-        } else if (Arrays.asList(STUDY_VIEW_CLINICAL_DATA_DENSITY_PATH, STUDY_VIEW_CNA_GENES,
+        } else if (Arrays.asList(STUDY_VIEW_CLINICAL_DATA_DENSITY_PATH, STUDY_VIEW_CLINICAL_DATA_VIOLIN_PATH, STUDY_VIEW_CNA_GENES,
                 STUDY_VIEW_FILTERED_SAMPLES, STUDY_VIEW_MUTATED_GENES, STUDY_VIEW_STRUCTURAL_VARIANT_GENES,
                 STUDY_VIEW_SAMPLE_COUNTS, STUDY_VIEW_SAMPLE_LIST_COUNTS_PATH,
                 TREATMENTS_PATIENT_PATH, TREATMENTS_SAMPLE_PATH, STUDY_VIEW_PROFILE_SAMPLE_COUNTS_PATH

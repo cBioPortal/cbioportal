@@ -114,6 +114,11 @@ public class StudyViewControllerTest {
         return Mockito.mock(AlterationRepository.class);
     }
 
+    @Bean
+    public ViolinPlotService violinPlotService() {
+        return Mockito.mock(ViolinPlotService.class);
+    }
+
     @Before
     public void setUp() throws Exception {
 

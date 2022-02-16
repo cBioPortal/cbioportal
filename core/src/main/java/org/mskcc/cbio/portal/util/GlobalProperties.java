@@ -172,6 +172,10 @@ public class GlobalProperties {
     @Value("${frontend.config:}") // default is empty string
     public void setFrontendConfig(String property) { frontendConfig = property; }
 
+    private static String oncoprintDefaultTracksConfig;
+    @Value("${oncoprint.clinical_tracks.show_by_default:}") // default is empty string
+    public void setOncoprintDefaultTracksConfig(String property) { oncoprintDefaultTracksConfig = property; }
+
     // properties for showing the right logo in the header_bar and default logo
     public static final String SKIN_RIGHT_LOGO = "skin.right_logo";
 
@@ -1175,6 +1179,14 @@ public class GlobalProperties {
     public static String getFrontendConfig() {
         if (frontendConfig.length() > 0) {
             return readFile(frontendConfig);
+        } else {
+            return null;
+        }
+    }
+
+    public static String getOncoprintDefaultTracksConfig() {
+        if (oncoprintDefaultTracksConfig.length() > 0) {
+            return readFile(oncoprintDefaultTracksConfig);
         } else {
             return null;
         }

@@ -121,6 +121,7 @@
             "bitly.user",
             "bitly.access.token",
             "oncoprint.custom_driver_annotation.tiers.default",
+            "oncoprint.clinical_tracks.show_by_default",
             "ensembl.transcript_url",
             "enable_persistent_cache",
             "enable_request_body_gzip_compression",
@@ -164,6 +165,8 @@
         obj.put("user_email_address",GlobalProperties.getAuthenticatedUserName());
 
         obj.put("frontendConfigOverride",GlobalProperties.getFrontendConfig());
+
+        obj.put("oncoprint_clinical_tracks_show_by_default",GlobalProperties.getOncoprintDefaultTracksConfig());
 
         obj.put("authenticationMethod",GlobalProperties.authenticationMethod());
 

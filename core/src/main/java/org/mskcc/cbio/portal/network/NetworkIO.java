@@ -248,97 +248,6 @@ public final class NetworkIO {
         return false;
     }
 
-    /**
-     * Read network in CGDS database
-     * @param genes
-     * @return
-     * @throws Exception
-     */
-    public static Network readNetworkFromCGDS(Set<String> genes, NetworkSize netSize,
-            Collection<String> dataSources, boolean removeSelfEdge) throws DaoException {
-        DaoInteraction daoInteraction = DaoInteraction.getInstance();
-        DaoGeneOptimized daoGeneOptimized = DaoGeneOptimized.getInstance();
-        Map<Long,String> entrezHugoMap = getEntrezHugoMap(genes);
-        Set<Long> seedGenes = new HashSet<Long>(entrezHugoMap.keySet());
-        List<Interaction> interactionList;
-        if (netSize==NetworkSize.SMALL) {
-            interactionList = daoInteraction.getInteractionsAmongSeeds(seedGenes, dataSources);
-        } else {
-            interactionList = daoInteraction.getInteractions(seedGenes, dataSources);
-        }
-        Network net = new Network();
-        for (Interaction interaction : interactionList) {
-            long geneA = interaction.getGeneA();
-            long geneB = interaction.getGeneB();
-            if (removeSelfEdge && geneA == geneB) {
-                continue;
-            }
-
-            String geneAID = Long.toString(geneA);
-            String geneBID = Long.toString(geneB);
-
-            addNode(net, geneAID, entrezToHugo(entrezHugoMap, geneA, daoGeneOptimized));
-            addNode(net, geneBID, entrezToHugo(entrezHugoMap, geneB, daoGeneOptimized));
-
-            String interactionType = interaction.getInteractionType();
-            String pubmed = interaction.getPmids();
-            String source = interaction.getSource();
-            String exp = interaction.getExperimentTypes();
-            boolean isDirected = isEdgeDirected(interactionType); //TODO: how about HPRD
-            Edge edge = new Edge(isDirected, interactionType, geneAID, geneBID);
-            if (pubmed!=null) {
-                edge.addAttribute("INTERACTION_PUBMED_ID", pubmed);
-            }
-            if (source!=null) {
-                edge.addAttribute("INTERACTION_DATA_SOURCE", source);
-            }
-            if (exp!=null) {
-                edge.addAttribute("EXPERIMENTAL_TYPE", exp);
-            }
-
-            net.addEdge(edge);
-        }
-
-        Set<Node> seedNodes = addMissingGenesAndReturnSeedNodes(net, genes);
-        classifyNodes(net, seedNodes);
-        if (netSize==NetworkSize.MEDIUM) {
-            pruneMediumNetwork(net, seedNodes);
-        }
-
-        DaoDrugInteraction daoDrugInteraction = DaoDrugInteraction.getInstance();
-        DaoDrug daoDrug = DaoDrug.getInstance();
-        for(DrugInteraction interaction: daoDrugInteraction.getInteractions(seedGenes)) {
-            String drugID = interaction.getDrug();
-            Long targetGene = interaction.getTargetGene();
-            String geneID = Long.toString(targetGene);
-
-            addDrugNode(net, daoDrug.getDrug(drugID));
-            addNode(net, geneID, entrezToHugo(entrezHugoMap, targetGene, daoGeneOptimized));
-
-            String interactionType = interaction.getInteractionType();
-            String pubmed = interaction.getPubMedIDs();
-            String source = interaction.getDataSource();
-
-            String exp = interaction.getExperimentTypes();
-            boolean isDirected = isEdgeDirected(interactionType);
-            Edge edge = new Edge(isDirected, interactionType, drugID, geneID);
-
-            if (pubmed!=null) {
-                edge.addAttribute("INTERACTION_PUBMED_ID", pubmed);
-            }
-            if (source!=null) {
-                edge.addAttribute("INTERACTION_DATA_SOURCE", source);
-            }
-            if (exp!=null) {
-                edge.addAttribute("EXPERIMENTAL_TYPE", exp);
-            }
-
-            net.addEdge(edge);
-        }
-
-        return net;
-    }
-
     private static Set<Node> addMissingGenesAndReturnSeedNodes(Network net, Set<String> seedGenes)
             throws DaoException {
         Set<Node> seedNodes = new HashSet<Node>(seedGenes.size());
@@ -428,27 +337,11 @@ public final class NetworkIO {
         node.setAttribute("NUMBER_OF_CLINICAL_TRIALS", drug.getNumberOfClinicalTrials());
         node.setAttribute("DESCRIPTION", drug.getDescription());
         node.setAttribute("SYNONYMS", drug.getSynonyms());
-        node.setAttribute("TARGETS", createDrugTargetList(drug));
 
         net.addNode(node);
         return node;
     }
-
-    private static String createDrugTargetList(Drug drug) throws DaoException {
-        DaoDrugInteraction daoDrugInteraction = DaoDrugInteraction.getInstance();
-        DaoGeneOptimized daoGeneOptimized = DaoGeneOptimized.getInstance();
-        String targets = "";
-
-        for (DrugInteraction interaction : daoDrugInteraction.getTargets(drug)) {
-            CanonicalGene gene = daoGeneOptimized.getGene(interaction.getTargetGene());
-            targets += gene.getStandardSymbol() + ";";
-        }
-        if(targets.length() > 0)
-            targets = targets.substring(0, targets.length()-1);
-
-        return targets;
-    }
-
+    
     private static Map<Long,String> getEntrezHugoMap(Set<String> genes) throws DaoException {
         Map<Long,String> map = new HashMap<Long,String>(genes.size());
         DaoGeneOptimized daoGeneOptimized = DaoGeneOptimized.getInstance();

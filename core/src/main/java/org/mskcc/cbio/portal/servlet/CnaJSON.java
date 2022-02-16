@@ -289,60 +289,6 @@ public class CnaJSON extends HttpServlet {
         return sb.toString();
     }
     
-    private Map<Long, Set<String>> getDrugs(List<CnaEvent> cnaEvents, boolean fdaOnly, boolean cancerDrug)
-            throws DaoException {
-        DaoDrugInteraction daoDrugInteraction = DaoDrugInteraction.getInstance();
-        Set<Long> genes = new HashSet<Long>();
-        
-        // Temporary way of handling cases such as akt inhibitor for pten loss
-        Map<Long,Set<Long>> mapTargetToEventGenes = new HashMap<Long,Set<Long>>();
-        // end Temporary way of handling cases such as akt inhibitor for pten loss
-        
-        for (CnaEvent cnaEvent : cnaEvents) {
-            long gene = cnaEvent.getEntrezGeneId();
-            if (cnaEvent.getAlteration()==CNA.AMP
-                    ||cnaEvent.getAlteration()==CNA.GAIN) { // since drugs are usually intibiting
-                genes.add(gene);
-            }
-            
-            // Temporary way of handling cases such as akt inhibitor for pten loss
-            Set<Long> targets = daoDrugInteraction.getMoreTargets(gene, cnaEvent.getAlteration().name());
-            genes.addAll(targets);
-            for (Long target : targets) {
-                Set<Long> eventGenes = mapTargetToEventGenes.get(target);
-                if (eventGenes==null) {
-                    eventGenes = new HashSet<Long>();
-                    mapTargetToEventGenes.put(target, eventGenes);
-                }
-                eventGenes.add(gene);
-            }
-            // end Temporary way of handling cases such as akt inhibitor for pten loss
-        }
-        
-        Map<Long, List<String>> map = daoDrugInteraction.getDrugs(genes,fdaOnly,cancerDrug);
-        Map<Long, Set<String>> ret = new HashMap<Long, Set<String>>(map.size());
-        for (Map.Entry<Long, List<String>> entry : map.entrySet()) {
-            ret.put(entry.getKey(), new HashSet<String>(entry.getValue()));
-        }
-        
-        // Temporary way of handling cases such as akt inhibitor for pten loss
-        for (Map.Entry<Long, List<String>> entry : map.entrySet()) {
-            Set<Long> eventGenes = mapTargetToEventGenes.get(entry.getKey());
-            if (eventGenes!=null) {
-                for (long eventGene : eventGenes) {
-                    Set<String> drugs = ret.get(eventGene);
-                    if (drugs==null) {
-                        drugs = new HashSet<String>();
-                        ret.put(eventGene, drugs);
-                    }
-                    drugs.addAll(entry.getValue());
-                }
-            }
-        }
-        // end Temporary way of handling cases such as akt inhibitor for pten loss
-        
-        return ret;
-    }
     
     private Map<Long, Map<String,Object>> getMrnaContext(Integer internalSampleId, List<CnaEvent> cnaEvents,
             String mrnaProfileId) throws DaoException {
@@ -450,13 +396,8 @@ public class CnaJSON extends HttpServlet {
         
         data.get("altrate").add(context);
         
-        boolean isSangerGene = false;
-        try {
-            isSangerGene = DaoSangerCensus.getInstance().getCancerGeneSet().containsKey(symbol);
-        } catch (DaoException ex) {
-            throw new ServletException(ex);
-        }
-        data.get("sanger").add(isSangerGene);
+
+        data.get("sanger").add(false);
         data.get("cancer-gene").add(false);
         
         // drug

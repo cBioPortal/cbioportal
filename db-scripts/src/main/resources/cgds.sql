@@ -52,17 +52,8 @@ DROP TABLE IF EXISTS `copy_number_seg_file`;
 DROP TABLE IF EXISTS `copy_number_seg`;
 DROP TABLE IF EXISTS `sample_cna_event`;
 DROP TABLE IF EXISTS `cna_event`;
-DROP TABLE IF EXISTS `drug_interaction`;
-DROP TABLE IF EXISTS `drug`;
-DROP TABLE IF EXISTS `pfam_graphics`;
-DROP TABLE IF EXISTS `text_cache`;
 DROP TABLE IF EXISTS `gistic_to_gene`;
 DROP TABLE IF EXISTS `gistic`;
-DROP TABLE IF EXISTS `sanger_cancer_census`;
-DROP TABLE IF EXISTS `protein_array_cancer_study`;
-DROP TABLE IF EXISTS `protein_array_data`;
-DROP TABLE IF EXISTS `protein_array_target`;
-DROP TABLE IF EXISTS `protein_array_info`;
 DROP TABLE IF EXISTS `mut_sig`;
 DROP TABLE IF EXISTS `interaction`;
 DROP TABLE IF EXISTS `clinical_attribute_meta`;
@@ -85,7 +76,6 @@ DROP TABLE IF EXISTS `genetic_alteration`;
 DROP TABLE IF EXISTS `genetic_profile_link`;
 DROP TABLE IF EXISTS `alteration_driver_annotation`;
 DROP TABLE IF EXISTS `genetic_profile`;
-DROP TABLE IF EXISTS `uniprot_id_mapping`;
 DROP TABLE IF EXISTS `gene_alias`;
 DROP TABLE IF EXISTS `geneset_gene`;
 DROP TABLE IF EXISTS `reference_genome_gene`;
@@ -292,17 +282,6 @@ CREATE TABLE `generic_entity_properties` (
   UNIQUE (`GENETIC_ENTITY_ID`, `NAME`),
   PRIMARY KEY (`ID`),
   FOREIGN KEY (`GENETIC_ENTITY_ID`) REFERENCES `genetic_entity` (`ID`) ON DELETE CASCADE
-);
-
--- --------------------------------------------------------
-CREATE TABLE `uniprot_id_mapping` (
-  `UNIPROT_ACC` varchar(255) NOT NULL,
-  `UNIPROT_ID` varchar(255) NOT NULL,
-  `ENTREZ_GENE_ID` int(11),
-  PRIMARY KEY (`ENTREZ_GENE_ID`, `UNIPROT_ID`),
-  KEY (`UNIPROT_ID`),
-  Key (`UNIPROT_ACC`),
-  FOREIGN KEY (`ENTREZ_GENE_ID`) REFERENCES `gene` (`ENTREZ_GENE_ID`)
 );
 
 -- --------------------------------------------------------
@@ -592,60 +571,6 @@ CREATE TABLE `mut_sig` (
 );
 
 -- --------------------------------------------------------
-CREATE TABLE `protein_array_info` (
-  `PROTEIN_ARRAY_ID` varchar(50) NOT NULL,
-  `TYPE` varchar(50) NOT NULL,
-  `GENE_SYMBOL` varchar(50) NOT NULL,
-  `TARGET_RESIDUE` varchar(20) default NULL,
-  PRIMARY KEY (`PROTEIN_ARRAY_ID`)
-);
-
--- --------------------------------------------------------
-CREATE TABLE `protein_array_target` (
-  `PROTEIN_ARRAY_ID` varchar(50) NOT NULL,
-  `ENTREZ_GENE_ID` int(11) NOT NULL,
-  PRIMARY KEY (`PROTEIN_ARRAY_ID`,`ENTREZ_GENE_ID`),
-  FOREIGN KEY (`ENTREZ_GENE_ID`) REFERENCES `gene` (`ENTREZ_GENE_ID`),
-  FOREIGN KEY (`PROTEIN_ARRAY_ID`) REFERENCES `protein_array_info` (`PROTEIN_ARRAY_ID`)
-);
-
--- --------------------------------------------------------
-CREATE TABLE `protein_array_data` (
-  `PROTEIN_ARRAY_ID` varchar(50) NOT NULL,
-  `CANCER_STUDY_ID` int(11) NOT NULL,
-  `SAMPLE_ID` int(11) NOT NULL,
-  `ABUNDANCE` double NOT NULL,
-  PRIMARY KEY (`PROTEIN_ARRAY_ID`,`CANCER_STUDY_ID`,`SAMPLE_ID`),
-  FOREIGN KEY (`PROTEIN_ARRAY_ID`) REFERENCES `protein_array_info` (`PROTEIN_ARRAY_ID`),
-  FOREIGN KEY (`CANCER_STUDY_ID`) REFERENCES `cancer_study` (`CANCER_STUDY_ID`) ON DELETE CASCADE,
-  FOREIGN KEY (`SAMPLE_ID`) REFERENCES `sample` (`INTERNAL_ID`) ON DELETE CASCADE
-);
-
--- --------------------------------------------------------
-CREATE TABLE `protein_array_cancer_study` (
-  `PROTEIN_ARRAY_ID` varchar(50) NOT NULL,
-  `CANCER_STUDY_ID` int(11) NOT NULL,
-  PRIMARY KEY (`PROTEIN_ARRAY_ID`,`CANCER_STUDY_ID`),
-  FOREIGN KEY (`CANCER_STUDY_ID`) REFERENCES `cancer_study` (`CANCER_STUDY_ID`) ON DELETE CASCADE
-);
-
--- --------------------------------------------------------
-CREATE TABLE `sanger_cancer_census` (
-  `ENTREZ_GENE_ID` int(11) NOT NULL,
-  `CANCER_SOMATIC_MUT` tinyint(1) NOT NULL,
-  `CANCER_GERMLINE_MUT` tinyint(1) NOT NULL,
-  `TUMOR_TYPES_SOMATIC_MUT` text NOT NULL,
-  `TUMOR_TYPES_GERMLINE_MUT` text NOT NULL,
-  `CANCER_SYNDROME` text NOT NULL,
-  `TISSUE_TYPE` text NOT NULL,
-  `MUTATION_TYPE` text NOT NULL,
-  `TRANSLOCATION_PARTNER` text NOT NULL,
-  `OTHER_GERMLINE_MUT` tinyint(1) NOT NULL,
-  `OTHER_DISEASE` text NOT NULL,
-  FOREIGN KEY (`ENTREZ_GENE_ID`) REFERENCES `gene` (`ENTREZ_GENE_ID`)
-) COMMENT='Sanger Cancer Gene Census';
-
--- --------------------------------------------------------
 CREATE TABLE `gistic` (
   `GISTIC_ROI_ID` bigint(20) NOT NULL auto_increment,
   `CANCER_STUDY_ID` int(11) NOT NULL,
@@ -666,49 +591,6 @@ CREATE TABLE `gistic_to_gene` (
   PRIMARY KEY(`GISTIC_ROI_ID`, `ENTREZ_GENE_ID`),
   FOREIGN KEY (`ENTREZ_GENE_ID`) REFERENCES `gene` (`ENTREZ_GENE_ID`),
   FOREIGN KEY (`GISTIC_ROI_ID`) REFERENCES `gistic` (`GISTIC_ROI_ID`) ON DELETE CASCADE
-);
-
--- --------------------------------------------------------
-CREATE TABLE `text_cache` (
-  `HASH_KEY` varchar(32) NOT NULL,
-  `TEXT` longtext NOT NULL,
-  `DATE_TIME_STAMP` datetime NOT NULL,
-  PRIMARY KEY (`HASH_KEY`)
-);
-
--- --------------------------------------------------------
-CREATE TABLE `pfam_graphics` (
-  `UNIPROT_ACC` varchar(255) NOT NULL,
-  `JSON_DATA` longtext NOT NULL,
-  PRIMARY KEY (`UNIPROT_ACC`)
-);
-
--- --------------------------------------------------------
-CREATE TABLE `drug` (
-  `DRUG_ID` char(30) NOT NULL,
-  `DRUG_RESOURCE` varchar(255) NOT NULL,
-  `DRUG_NAME` varchar(255) NOT NULL,
-  `DRUG_SYNONYMS` varchar(4096) DEFAULT NULL,
-  `DRUG_DESCRIPTION` varchar(4096) DEFAULT NULL,
-  `DRUG_XREF` varchar(4096) DEFAULT NULL,
-  `DRUG_ATC_CODE` varchar(1024) DEFAULT NULL,
-  `DRUG_APPROVED` integer(1) DEFAULT 0,
-  `DRUG_CANCERDRUG` integer(1) DEFAULT 0,
-  `DRUG_NUTRACEUTICAL` integer(1) DEFAULT 0,
-  `DRUG_NUMOFTRIALS` integer DEFAULT -1,
-  PRIMARY KEY (`DRUG_ID`),
-  KEY `DRUG_NAME` (`DRUG_NAME`)
-);
-
--- --------------------------------------------------------
-CREATE TABLE `drug_interaction` (
-  `DRUG` char(30) NOT NULL,
-  `TARGET` bigint(20) NOT NULL,
-  `INTERACTION_TYPE` char(50) NOT NULL,
-  `DATA_SOURCE` varchar(256) NOT NULL,
-  `EXPERIMENT_TYPES` varchar(1024) DEFAULT NULL,
-  `PMIDS` varchar(1024) DEFAULT NULL,
-  FOREIGN KEY (`DRUG`) REFERENCES `drug` (`DRUG_ID`)
 );
 
 -- --------------------------------------------------------
@@ -777,38 +659,6 @@ CREATE TABLE `cosmic_mutation` (
   KEY (`KEYWORD`),
   PRIMARY KEY (`COSMIC_MUTATION_ID`),
   FOREIGN KEY (`ENTREZ_GENE_ID`) REFERENCES `gene` (`ENTREZ_GENE_ID`)
-);
-
--- --------------------------------------------------------
-CREATE TABLE `pdb_uniprot_alignment` (
-  `ALIGNMENT_ID` int NOT NULL,
-  `PDB_ID` char(4) NOT NULL,
-  `CHAIN` char(1) NOT NULL,
-  `UNIPROT_ID` varchar(50) NOT NULL,
-  `PDB_FROM` varchar(10) NOT NULL,
-  `PDB_TO` varchar(10) NOT NULL,
-  `UNIPROT_FROM` int NOT NULL,
-  `UNIPROT_TO` int NOT NULL,
-  `EVALUE` float,
-  `IDENTITY` float,
-  `IDENTP` float,
-  `UNIPROT_ALIGN` text,
-  `PDB_ALIGN` text,
-  `MIDLINE_ALIGN` text,
-  PRIMARY KEY (`ALIGNMENT_ID`),
-  KEY(`UNIPROT_ID`),
-  KEY(`PDB_ID`, `CHAIN`)
-);
-
--- --------------------------------------------------------
-CREATE TABLE `pdb_uniprot_residue_mapping` (
-  `ALIGNMENT_ID` int NOT NULL,
-  `PDB_POSITION` int NOT NULL,
-  `PDB_INSERTION_CODE` char(1) DEFAULT NULL,
-  `UNIPROT_POSITION` int NOT NULL,
-  `MATCH` char(1),
-  KEY(`ALIGNMENT_ID`, `UNIPROT_POSITION`),
-  FOREIGN KEY(`ALIGNMENT_ID`) REFERENCES `pdb_uniprot_alignment` (`ALIGNMENT_ID`)
 );
 
 -- --------------------------------------------------------
@@ -919,4 +769,4 @@ CREATE TABLE `resource_study` (
 );
 
 -- THIS MUST BE KEPT IN SYNC WITH db.version PROPERTY IN pom.xml
-INSERT INTO info VALUES ('2.12.10', NULL);
+INSERT INTO info VALUES ('2.12.12', NULL);

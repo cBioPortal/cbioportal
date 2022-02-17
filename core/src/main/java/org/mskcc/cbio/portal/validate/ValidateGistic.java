@@ -32,8 +32,8 @@
 
 package org.mskcc.cbio.portal.validate;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.mskcc.cbio.portal.model.CanonicalGene;
 import org.mskcc.cbio.portal.model.Gistic;
 
@@ -41,7 +41,7 @@ import java.util.ArrayList;
 
 // todo: later this can be refactored into a factory method.
 public class ValidateGistic {
-    private static final Log logger = LogFactory.getLog(ValidateGistic.class);
+    private static final Logger logger = LoggerFactory.getLogger(ValidateGistic.class);
 
     /**
      * Validates a gistic bean object according to some basic "business logic".

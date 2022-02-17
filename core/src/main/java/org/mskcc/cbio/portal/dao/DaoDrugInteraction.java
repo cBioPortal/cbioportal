@@ -41,8 +41,8 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.*;
 import org.apache.commons.lang3.StringUtils;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.mskcc.cbio.portal.model.CanonicalGene;
 import org.mskcc.cbio.portal.model.Drug;
 import org.mskcc.cbio.portal.model.DrugInteraction;
@@ -51,7 +51,7 @@ public class DaoDrugInteraction {
     private static DaoDrugInteraction daoDrugInteraction;
     private static final String NA = "NA";
 
-    private static final Log log = LogFactory.getLog(DaoDrugInteraction.class);
+    private static final Logger log = LoggerFactory.getLogger(DaoDrugInteraction.class);
 
     private DaoDrugInteraction() {
     }

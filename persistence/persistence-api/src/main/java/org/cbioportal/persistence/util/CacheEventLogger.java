@@ -33,11 +33,12 @@
 package org.cbioportal.persistence.util;
 
 import org.ehcache.event.*;
-import org.apache.commons.logging.*;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class CacheEventLogger implements CacheEventListener<Object, Object> {
 
-    private static Log log = LogFactory.getLog(CacheEventLogger.class);
+    private static final Logger log = LoggerFactory.getLogger(CacheEventLogger.class);
 
     // this is to allow spring to inject EhcacheStatistics via MethodInvokingFactoryBean
     private static EhcacheStatistics ehcacheStatistics;

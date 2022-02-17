@@ -37,8 +37,8 @@ import org.cbioportal.model.UserAuthorities;
 import org.cbioportal.persistence.SecurityRepository;
 import org.cbioportal.security.spring.authentication.PortalUserDetails;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.google.common.base.*;
 
@@ -63,7 +63,7 @@ import java.util.List;
  */
 public class PortalUserDetailsService implements UserDetailsService {
 
-    private static final Log log = LogFactory.getLog(PortalUserDetailsService.class);
+    private static final Logger log = LoggerFactory.getLogger(PortalUserDetailsService.class);
 
     @Autowired
     private SecurityRepository securityRepository;

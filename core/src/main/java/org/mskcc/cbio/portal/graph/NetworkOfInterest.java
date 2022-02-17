@@ -34,13 +34,11 @@ package org.mskcc.cbio.portal.graph;
 
 import org.mskcc.cbio.portal.model.CanonicalGene;
 import org.mskcc.cbio.portal.model.Interaction;
-import org.mskcc.cbio.portal.dao.DaoInteraction;
 import org.mskcc.cbio.portal.dao.DaoException;
 
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashSet;
-import java.util.Iterator;
 
 import edu.uci.ics.jung.graph.Graph;
 

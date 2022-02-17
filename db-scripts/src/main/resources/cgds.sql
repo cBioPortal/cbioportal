@@ -206,7 +206,7 @@ CREATE TABLE `sample_list_list` (
 CREATE TABLE `genetic_entity` (
   `ID` int(11) NOT NULL AUTO_INCREMENT,
   `ENTITY_TYPE` varchar(45) NOT NULL,
-  `STABLE_ID` varchar(45) DEFAULT NULL,
+  `STABLE_ID` varchar(255) DEFAULT NULL,
   PRIMARY KEY (`ID`)
 );
 

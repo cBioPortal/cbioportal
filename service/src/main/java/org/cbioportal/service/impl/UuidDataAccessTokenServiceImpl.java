@@ -32,8 +32,8 @@
 
 package org.cbioportal.service.impl;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.cbioportal.model.DataAccessToken;
 import org.cbioportal.persistence.DataAccessTokenRepository;
 import org.cbioportal.service.DataAccessTokenService;
@@ -60,7 +60,7 @@ public class UuidDataAccessTokenServiceImpl implements DataAccessTokenService {
     @Value("${dat.uuid.max_number_per_user:-1}")
     private int maxNumberOfAccessTokens;
 
-    private static final Log log = LogFactory.getLog(UuidDataAccessTokenServiceImpl.class);
+    private static final Logger log = LoggerFactory.getLogger(UuidDataAccessTokenServiceImpl.class);
 
     // create a data access token (randomly generated UUID) and insert corresponding record into table with parts:
     // username

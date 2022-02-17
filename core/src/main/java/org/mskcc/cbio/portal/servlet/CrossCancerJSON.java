@@ -36,8 +36,8 @@ import java.io.*;
 import javax.servlet.ServletException;
 import javax.servlet.http.*;
 import org.apache.commons.lang3.StringUtils;
-import org.apache.logging.log4j.Logger;
-import org.apache.logging.log4j.LogManager;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.json.simple.JSONValue;
 import org.mskcc.cbio.portal.dao.*;
 import org.mskcc.cbio.portal.model.*;
@@ -47,7 +47,7 @@ import org.mskcc.cbio.portal.web_api.*;
 import java.util.*;
 
 public class CrossCancerJSON extends HttpServlet {
-    private static Logger logger = LogManager.getLogger(CrossCancerJSON.class);
+    private static Logger logger = LoggerFactory.getLogger(CrossCancerJSON.class);
 
     // class which process access control to cancer studies
     private AccessControl accessControl;

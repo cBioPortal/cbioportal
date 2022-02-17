@@ -34,8 +34,8 @@ package org.cbioportal.security.spring.authentication.token;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.cbioportal.service.util.JwtUtils;
 import org.junit.Assert;
 import org.junit.runner.RunWith;
@@ -75,7 +75,7 @@ public class TokenAuthenticationFilterTest {
 
     private static final int TEST_TOKEN_EXPIRATION_SECONDS = 1;
 
-    private static final Log LOG = LogFactory.getLog(TokenAuthenticationFilterTest.class);
+    private static final Logger LOG = LoggerFactory.getLogger(TokenAuthenticationFilterTest.class);
 
     // TODO: test requiresValidation() function maybe
 

@@ -40,8 +40,8 @@ import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import org.apache.commons.lang3.StringUtils;
-import org.apache.logging.log4j.Logger;
-import org.apache.logging.log4j.LogManager;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.json.simple.JSONArray;
 import org.json.simple.JSONValue;
 import org.mskcc.cbio.portal.dao.DaoDrug;
@@ -56,7 +56,7 @@ import org.mskcc.cbio.portal.model.DrugInteraction;
  * @author jj
  */
 public class DrugsJSON extends HttpServlet {
-    private static Logger logger = LogManager.getLogger(DrugsJSON.class);
+    private static Logger logger = LoggerFactory.getLogger(DrugsJSON.class);
     
     public static final String DRUG_IDS = "drug_ids";
     

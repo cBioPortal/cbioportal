@@ -41,8 +41,8 @@ import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.json.simple.JSONArray;
 import org.mskcc.cbio.portal.dao.DaoException;
 import org.mskcc.cbio.portal.dao.DaoGeneOptimized;
@@ -62,7 +62,7 @@ import org.owasp.validator.html.PolicyException;
  */
 public class PancancerMutationsJSON extends HttpServlet {
     private ServletXssUtil servletXssUtil;
-    private static Log log = LogFactory.getLog(PancancerMutationsJSON.class);
+    private static Logger log = LoggerFactory.getLogger(PancancerMutationsJSON.class);
     private static AccessControl accessControl = null;
 
     /**

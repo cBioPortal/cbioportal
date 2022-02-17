@@ -33,15 +33,15 @@ package org.cbioportal.security.spring.sessionservice;
 
 import javax.servlet.http.HttpServletRequest;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class SessionServiceSecurity {
 
   private static String NUM_SESSION_SERVICE_REQ = "count_session_requests";
   private static int MAX_SESSION_SERVICE_REQ = 1000;
 
-  private static Log LOG = LogFactory.getLog(SessionServiceSecurity.class);
+  private static Logger LOG = LoggerFactory.getLogger(SessionServiceSecurity.class);
 
   public boolean checkRead(HttpServletRequest request) {
     return request.getSession(false) != null;

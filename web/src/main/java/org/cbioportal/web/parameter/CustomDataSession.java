@@ -2,8 +2,8 @@ package org.cbioportal.web.parameter;
 
 import java.io.IOException;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.cbioportal.session_service.domain.Session;
 import org.cbioportal.session_service.domain.SessionType;
 import org.cbioportal.web.CustomAttributeWithData;
@@ -15,7 +15,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class CustomDataSession extends Session {
 
-    private final Log LOG = LogFactory.getLog(CustomDataSession.class);
+    private static final Logger LOG = LoggerFactory.getLogger(CustomDataSession.class);
     private CustomAttributeWithData data;
 
     @Override
@@ -24,7 +24,7 @@ public class CustomDataSession extends Session {
         try {
             this.data = mapper.readValue(mapper.writeValueAsString(data), CustomAttributeWithData.class);
         } catch (IOException e) {
-            LOG.error(e);
+            LOG.error("Error occurred", e);
         }
     }
 

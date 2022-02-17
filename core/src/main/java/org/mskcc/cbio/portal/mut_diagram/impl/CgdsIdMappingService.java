@@ -37,8 +37,8 @@ import static com.google.common.base.Preconditions.checkNotNull;
 import java.util.Collections;
 import java.util.List;
 
-import org.apache.logging.log4j.Logger;
-import org.apache.logging.log4j.LogManager;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.mskcc.cbio.portal.dao.DaoException;
 import org.mskcc.cbio.portal.dao.DaoGeneOptimized;
 import org.mskcc.cbio.portal.dao.DaoUniProtIdMapping;
@@ -49,7 +49,7 @@ import org.mskcc.cbio.portal.mut_diagram.IdMappingService;
  * Implementation of IdMappingService that reads from the CGDS data source.
  */
 public final class CgdsIdMappingService implements IdMappingService {
-    private static final Logger logger = LogManager.getLogger(CgdsIdMappingService.class);
+    private static final Logger logger = LoggerFactory.getLogger(CgdsIdMappingService.class);
     private final DaoGeneOptimized geneDao;
 
     public CgdsIdMappingService(final DaoGeneOptimized geneDao) {

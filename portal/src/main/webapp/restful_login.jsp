@@ -30,11 +30,11 @@
  - along with this program.  If not, see <http://www.gnu.org/licenses/>.
 --%>
 
-<%@ page import="org.apache.commons.logging.Log" %>
-<%@ page import="org.apache.commons.logging.LogFactory" %>
+<%@ page import="org.slf4j.Logger" %>
+<%@ page import="org.slf4j.LoggerFactory" %>
 
 <%
-    Log log = LogFactory.getLog(this.getClass());
+    Logger log = LoggerFactory.getLogger(this.getClass());
     request.setAttribute("html_title", "MSK cBioPortal");
     String userId = (String)session.getAttribute("user_id");
     if (userId != null) {

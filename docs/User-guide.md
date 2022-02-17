@@ -33,6 +33,10 @@ If you still have questions after revewing the resources listed below, please ch
 * [FAQ](https://www.cbioportal.org/faq)
 * [OQL](https://www.cbioportal.org/oql)
 
+### Publications
+* Cerami et al. Cancer Discovery 2012 [PubMed](http://cancerdiscovery.aacrjournals.org/content/2/5/401.abstract)
+* Gao et al. Science Signaling 2013 [PubMed](https://www.ncbi.nlm.nih.gov/pubmed/23550210)
+
 ## Resources by Page
 ### Study View
 * Tutorial Slides: Single Study Exploration [Google slides](https://www.cbioportal.org/tutorials#single-study-exploration) [PDF](https://raw.githubusercontent.com/cBioPortal/cbioportal/master/docs/tutorials/cBioPortal%20Tutorial%201%20Single%20Study%20Exploration.pdf)
@@ -54,7 +58,7 @@ If you still have questions after revewing the resources listed below, please ch
 
 #### OQL
 * Documentation [OQL](https://www.cbioportal.org/oql)
-* Tutorial: Onco Query Language (OQL) [Google slides](https://www.cbioportal.org/tutorials#oql) | [PDF](https://raw.githubusercontent.com/cBioPortal/cbioportal/master/docs/tutorials/cBioPortal%20Tutorial%205%20Onco%20Query%20Language.pdf)
+* Tutorial Slides: Onco Query Language (OQL) [Google slides](https://www.cbioportal.org/tutorials#oql) | [PDF](https://raw.githubusercontent.com/cBioPortal/cbioportal/master/docs/tutorials/cBioPortal%20Tutorial%205%20Onco%20Query%20Language.pdf)
 * Webinar: Expression Data Analysis [youtube.com](https://www.youtube.com/watch?v=YUxVv6pkxD4&t=1559s) | [bilibili.com](https://www.bilibili.com/video/BV1HK4y1t7dE)
 * How-To Video: Using Onco Query Language (OQL) to query based on the expression level of genes [youtube.com](https://www.youtube.com/watch?v=kHlFXw2TMzc)
 
@@ -95,7 +99,7 @@ If you still have questions after revewing the resources listed below, please ch
 * Webinar: Introduction to cBioPortal [youtube.com](https://www.youtube.com/watch?v=fPIAxH--cSo&t=2449s) | [bilibili.com](https://www.bilibili.com/video/BV1tf4y1m7Lp)
 
 #### Pathways
-* Tutorial: Pathways [Google slides](https://www.cbioportal.org/tutorials#pathways) | [PDF](https://raw.githubusercontent.com/cBioPortal/cbioportal/master/docs/tutorials/cBioPortal%20Tutorial%207%20Pathways.pdf)
+* Tutorial Slides: Pathways [Google slides](https://www.cbioportal.org/tutorials#pathways) | [PDF](https://raw.githubusercontent.com/cBioPortal/cbioportal/master/docs/tutorials/cBioPortal%20Tutorial%207%20Pathways.pdf)
 * Tutorial Slides: Single Study Query [Google slides](https://www.cbioportal.org/tutorials#single-study-query) | [PDF](https://raw.githubusercontent.com/cBioPortal/cbioportal/master/docs/tutorials/cBioPortal%20Tutorial%202%20Single%20Study%20Query.pdf)
 * Webinar: Introduction to cBioPortal [youtube.com](https://www.youtube.com/watch?v=fPIAxH--cSo&t=2512s) | [bilibili.com](https://www.bilibili.com/video/BV1tf4y1m7Lp)
 
@@ -104,8 +108,8 @@ If you still have questions after revewing the resources listed below, please ch
 * Webinar: Introduction to cBioPortal [youtube.com](https://www.youtube.com/watch?v=fPIAxH--cSo&t=2543s) | [bilibili.com](https://www.bilibili.com/video/BV1tf4y1m7Lp)
 
 ### Patient View
-* Tutorial: Patient View [Google slides](https://www.cbioportal.org/tutorials#patient-view) | [PDF](https://raw.githubusercontent.com/cBioPortal/cbioportal/master/docs/tutorials/cBioPortal%20Tutorial%203%20Patient%20View.pdf)
-* Tutorial: Pathways [Google slides](https://www.cbioportal.org/tutorials#pathways) | [PDF](https://raw.githubusercontent.com/cBioPortal/cbioportal/master/docs/tutorials/cBioPortal%20Tutorial%207%20Pathways.pdf)
+* Tutorial Slides: Patient View [Google slides](https://www.cbioportal.org/tutorials#patient-view) | [PDF](https://raw.githubusercontent.com/cBioPortal/cbioportal/master/docs/tutorials/cBioPortal%20Tutorial%203%20Patient%20View.pdf)
+* Tutorial Slides: Pathways [Google slides](https://www.cbioportal.org/tutorials#pathways) | [PDF](https://raw.githubusercontent.com/cBioPortal/cbioportal/master/docs/tutorials/cBioPortal%20Tutorial%207%20Pathways.pdf)
 * Webinar: Introduction to cBioPortal [youtube.com](https://www.youtube.com/watch?v=fPIAxH--cSo&t=1022s) | [bilibili.com](https://www.bilibili.com/video/BV1tf4y1m7Lp)
 * Webinar: Mutation Details & Patient View [youtube.com](https://www.youtube.com/watch?v=uJsp9kd2jIk) | [bilibili.com](https://www.bilibili.com/video/BV1Qf4y1m7Lx)
 * How-To Video: Exploring the longitudinal evolution of individual patients [youtube.com](https://www.youtube.com/watch?v=Hbbs-tHh9LQ)

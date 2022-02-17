@@ -980,4 +980,6 @@ DROP TABLE IF EXISTS `interaction`;
 ##version: 2.12.11
 -- changes for issue 9257
 ALTER TABLE `reference_genome_gene` DROP COLUMN `EXONIC_LENGTH`;
+-- changes for issue 9032
+ALTER TABLE `genetic_entity` MODIFY COLUMN `STABLE_ID` VARCHAR(255) DEFAULT NULL;
 UPDATE `info` SET `DB_SCHEMA_VERSION`="2.12.12";

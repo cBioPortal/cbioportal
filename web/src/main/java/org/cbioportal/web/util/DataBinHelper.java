@@ -411,14 +411,16 @@ public class DataBinHelper {
         Assert.notNull(sortedNumericalValues, "sortedNumerical values is null!");
         Assert.notNull(binSize, "binSize values is null!");
         Assert.notNull(anchorValue, "anchorValue values is null!");
-
-        BigDecimal minValue = min(sortedNumericalValues);
-        BigDecimal maxValue = max(sortedNumericalValues);
         
-        if (minValue == null) {
+        if (sortedNumericalValues.isEmpty()) {
             return null;
         }
-    
+
+        // Assumes that elements are sorted in ascending order
+        BigDecimal minValue = sortedNumericalValues.get(0);
+        BigDecimal maxValue = sortedNumericalValues.get(sortedNumericalValues.size()-1);
+        Assert.isTrue(minValue.compareTo(maxValue) != 1, "minValue larger than maxValue. Input is not sorted in ascending order!");
+        
         List<BigDecimal> bins = new ArrayList<>();
         
         // Calculate the lower boundary.

@@ -4,6 +4,7 @@ import static org.junit.Assert.*;
 
 
 import java.math.BigDecimal;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
@@ -91,6 +92,15 @@ public class DataBinHelperTest {
             dataBinHelper.generateBins(sortedNumericalValues, new BigDecimal(10),
                 new BigDecimal(40));
         assertEquals(decList(), boundaries);
+    }
+
+    @Test
+    public void emptyNumericalValues() {
+        List<BigDecimal> sortedNumericalValues = new ArrayList<>();
+        List<BigDecimal> boundaries =
+            dataBinHelper.generateBins(sortedNumericalValues, new BigDecimal(10),
+                new BigDecimal(40));
+        assertNull(boundaries);
     }
 
     @Test(expected = IllegalArgumentException.class)

@@ -1,6 +1,7 @@
 package org.cbioportal.web.util;
 
 import com.google.common.collect.Range;
+import org.apache.commons.lang3.ObjectUtils;
 import org.cbioportal.model.DataBin;
 import org.springframework.stereotype.Component;
 
@@ -143,18 +144,17 @@ public class DataBinHelper {
     }
 
     public BigDecimal calcQ1(List<BigDecimal> sortedValues) {
-        return sortedValues.size() > 0 ?
-            sortedValues.get((int) Math.floor(sortedValues.size() / 4.0)) : null;
+        return sortedValues.isEmpty() ?
+            null : sortedValues.get((int) Math.floor(sortedValues.size() / 4.0));
     }
 
     public BigDecimal calcMedian(List<BigDecimal> sortedValues) {
-        return sortedValues.size() > 0 ?
-            sortedValues.get((int) Math.ceil((sortedValues.size() * (1.0 / 2.0)))) : null;
+        return ObjectUtils.median(sortedValues.toArray(new BigDecimal[0]));
     }
 
     public BigDecimal calcQ3(List<BigDecimal> sortedValues) {
-        return sortedValues.size() > 0 ?
-            sortedValues.get((int) Math.floor(sortedValues.size() * (3.0 / 4.0))) : null;
+        return sortedValues.isEmpty() ?
+             null : sortedValues.get((int) Math.floor(sortedValues.size() * (3.0 / 4.0)));
     }
 
     public List<BigDecimal> filterIntervals(List<BigDecimal> intervals, BigDecimal lowerOutlier, BigDecimal upperOutlier) {

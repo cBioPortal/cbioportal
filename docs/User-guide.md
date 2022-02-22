@@ -33,8 +33,8 @@ Short videos that show how to perform specific analyses or how to use specific p
 3. Filtering and adding clinical data to Mutations tab [youtube.com](https://www.youtube.com/watch?v=q9No2073c5o)
 4. Exploring the longitudinal evolution of individual patients [youtube.com](https://www.youtube.com/watch?v=Hbbs-tHh9LQ)
 5. Using Onco Query Language (OQL) to query based on the expression level of genes [youtube.com](https://www.youtube.com/watch?v=kHlFXw2TMzc)
-6. How to explore a study in study view [youtube.com](https://www.youtube.com/watch?v=N8ffDgkqDWc)
-7. How to run a query [youtube.com](https://www.youtube.com/watch?v=MH-kY5usA70)
+6. How to explore the data in a study [youtube.com](https://www.youtube.com/watch?v=N8ffDgkqDWc)
+7. How to run a query for genes of interest [youtube.com](https://www.youtube.com/watch?v=MH-kY5usA70)
 
 ### Documentation
 * Frequently Asked Questions [FAQ](https://www.cbioportal.org/faq)

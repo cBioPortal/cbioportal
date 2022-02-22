@@ -33,6 +33,8 @@ Short videos that show how to perform specific analyses or how to use specific p
 3. Filtering and adding clinical data to Mutations tab [youtube.com](https://www.youtube.com/watch?v=q9No2073c5o)
 4. Exploring the longitudinal evolution of individual patients [youtube.com](https://www.youtube.com/watch?v=Hbbs-tHh9LQ)
 5. Using Onco Query Language (OQL) to query based on the expression level of genes [youtube.com](https://www.youtube.com/watch?v=kHlFXw2TMzc)
+6. How to explore a study in study view [youtube.com](https://www.youtube.com/watch?v=N8ffDgkqDWc)
+7. How to run a query [youtube.com](https://www.youtube.com/watch?v=MH-kY5usA70)
 
 ### Documentation
 * Frequently Asked Questions [FAQ](https://www.cbioportal.org/faq)
@@ -49,7 +51,7 @@ If you have an hour, we highly recommend watching the recording of our Introduct
 
 Don't have an hour? Review our tutorial slides for exploring a study ([Google slides](https://www.cbioportal.org/tutorials#single-study-exploration) or [PDF](https://raw.githubusercontent.com/cBioPortal/cbioportal/master/docs/tutorials/cBioPortal%20Tutorial%201%20Single%20Study%20Exploration.pdf)) and running a query ([Google slides](https://www.cbioportal.org/tutorials#single-study-query) or [PDF](https://raw.githubusercontent.com/cBioPortal/cbioportal/master/docs/tutorials/cBioPortal%20Tutorial%202%20Single%20Study%20Query.pdf))
 
-Or, watch two of our short how-to videos which demonstrate how to explore a study (coming soon) and how to run a query (coming soon).
+Or, watch two of our short how-to videos which demonstrate how to explore a study ([youtube.com](https://www.youtube.com/watch?v=N8ffDgkqDWc)) and how to run a query ([youtube.com](https://www.youtube.com/watch?v=MH-kY5usA70)).
 
 
 ## Resources by Page

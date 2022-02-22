@@ -419,7 +419,7 @@ public class DataBinHelper {
         // Assumes that elements are sorted in ascending order
         BigDecimal minValue = sortedNumericalValues.get(0);
         BigDecimal maxValue = sortedNumericalValues.get(sortedNumericalValues.size()-1);
-        Assert.isTrue(minValue.compareTo(maxValue) != 1, "minValue larger than maxValue. Input is not sorted in ascending order!");
+        Assert.isTrue(minValue.compareTo(maxValue) < 1, "minValue larger than maxValue. Input is not sorted in ascending order!");
         
         List<BigDecimal> bins = new ArrayList<>();
         

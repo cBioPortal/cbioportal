@@ -60,7 +60,7 @@
             "show.hotspot",
             "show.oncokb",
             "show.cbioportal",
-	    "show.cosmic",
+            "show.cosmic",
             "show.civic",
             "show.genomenexus",
             "show.genomenexus.annotation_sources",

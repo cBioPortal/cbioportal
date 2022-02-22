@@ -283,6 +283,7 @@ oncoprint.defaultview=patient
 oncoprint.oncokb.default=true
 oncoprint.hotspots.default=true
 # oncoprint.hide_vus.default=true
+# oncoprint.clinical_tracks.show_by_default=classpath:/oncoprint-default-tracks.json
 
 # Custom gene sets
 # querypage.setsofgenes.location=file:/<path>

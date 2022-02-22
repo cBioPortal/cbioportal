@@ -4,6 +4,7 @@ import com.google.common.collect.Range;
 import org.apache.commons.lang3.math.NumberUtils;
 import org.cbioportal.model.ClinicalData;
 import org.cbioportal.model.DataBin;
+import org.cbioportal.web.parameter.BinsGeneratorConfig;
 import org.cbioportal.web.parameter.ClinicalDataBinFilter;
 import org.cbioportal.web.parameter.ClinicalDataType;
 import org.cbioportal.web.parameter.DataBinFilter;
@@ -132,6 +133,8 @@ public class DataBinner {
             dataBinFilter,
             clinicalData,
             dataBinFilter.getCustomBins(),
+            dataBinFilter.getBinMethod(),
+            dataBinFilter.getBinsGeneratorConfig(),
             lowerOutlierBin,
             upperOutlierBin,
             dataBinFilter.getDisableLogScale(),
@@ -219,6 +222,8 @@ public class DataBinner {
         DataBinFilter dataBinFilter,
         List<ClinicalData> clinicalData,
         List<BigDecimal> customBins,
+        DataBinFilter.BinMethod binMethod,
+        BinsGeneratorConfig binsGeneratorConfig,
         DataBin lowerOutlierBin,
         DataBin upperOutlierBin,
         Boolean disableLogScale,
@@ -228,6 +233,8 @@ public class DataBinner {
             dataBinFilter,
             filterNumericalValues(clinicalData),
             customBins,
+            binMethod,
+            binsGeneratorConfig,
             lowerOutlierBin,
             upperOutlierBin,
             disableLogScale,
@@ -247,42 +254,30 @@ public class DataBinner {
         DataBinFilter dataBinFilter,
         List<BigDecimal> numericalValues,
         List<BigDecimal> customBins,
+        DataBinFilter.BinMethod binMethod,
+        BinsGeneratorConfig binsGeneratorConfig,
         DataBin lowerOutlierBin,
         DataBin upperOutlierBin,
         Boolean disableLogScale,
         Integer distinctValueThreshold
     ) {
-        Predicate<BigDecimal> isLowerOutlier = new Predicate<BigDecimal>() {
-            @Override
-            public boolean test(BigDecimal d) {
-                return (
-                    lowerOutlierBin != null &&
-                        lowerOutlierBin.getEnd() != null &&
-                        (lowerOutlierBin.getSpecialValue() != null && lowerOutlierBin.getSpecialValue().contains("=") ?
-                            d.compareTo(lowerOutlierBin.getEnd()) != 1  : d.compareTo(lowerOutlierBin.getEnd()) == -1)
-                );
-            }
-        };
+    
+        Predicate<BigDecimal> isLowerOutlier = d -> (
+            lowerOutlierBin != null &&
+                lowerOutlierBin.getEnd() != null &&
+                (lowerOutlierBin.getSpecialValue() != null && lowerOutlierBin.getSpecialValue().contains("=") ?
+                    d.compareTo(lowerOutlierBin.getEnd()) != 1  : d.compareTo(lowerOutlierBin.getEnd()) == -1)
+        );
 
-        Predicate<BigDecimal> isUpperOutlier = new Predicate<BigDecimal>() {
-            @Override
-            public boolean test(BigDecimal d) {
-                return (
-                    upperOutlierBin != null &&
-                        upperOutlierBin.getStart() != null &&
-                        (upperOutlierBin.getSpecialValue() != null && upperOutlierBin.getSpecialValue().contains("=") ?
-                            d.compareTo(upperOutlierBin.getStart()) != -1 : d.compareTo(upperOutlierBin.getStart()) == 1)
-                );
-            }
-        };
+        Predicate<BigDecimal> isUpperOutlier = d -> (
+            upperOutlierBin != null &&
+                upperOutlierBin.getStart() != null &&
+                (upperOutlierBin.getSpecialValue() != null && upperOutlierBin.getSpecialValue().contains("=") ?
+                    d.compareTo(upperOutlierBin.getStart()) != -1 : d.compareTo(upperOutlierBin.getStart()) == 1)
+        );
 
-        Predicate<BigDecimal> isNotOutlier = new Predicate<BigDecimal>() {
-            @Override
-            public boolean test(BigDecimal d) {
-                return !isUpperOutlier.test(d) && !isLowerOutlier.test(d);
-            }
-        };
-
+        Predicate<BigDecimal> isNotOutlier =
+            d -> !isUpperOutlier.test(d) && !isLowerOutlier.test(d);
 
         List<BigDecimal> sortedNumericalValues = new ArrayList<>(numericalValues);
         Collections.sort(sortedNumericalValues);
@@ -301,12 +296,24 @@ public class DataBinner {
             // No data intervals when the number of distinct values less than or equal to the threshold.
             // In this case, number of bins = number of distinct data values
             dataBins = discreteDataBinner.calculateDataBins(withoutOutliers, uniqueValues);
-        } else if (withoutOutliers.size() > 0) {
+        } else if (!withoutOutliers.isEmpty()) {
 
-            if (customBins != null) {
+            if (DataBinFilter.BinMethod.CUSTOM == binMethod && customBins != null) {
                 // adjust custom bins w.r.t. outliers (if any)
                 customBins = this.adjustCustomBins(customBins, lowerOutlierBin, upperOutlierBin);
                 dataBins = linearDataBinner.calculateDataBins(customBins, numericalValues);
+            } else if (DataBinFilter.BinMethod.GENERATE == binMethod && binsGeneratorConfig != null) {
+                List<BigDecimal> bins = this.dataBinHelper.generateBins(sortedNumericalValues, binsGeneratorConfig.getBinSize(), binsGeneratorConfig.getAnchorValue());
+                dataBins = linearDataBinner.calculateDataBins(bins, numericalValues);
+            } else if (DataBinFilter.BinMethod.MEDIAN == binMethod) {
+                // NOOP - handled later
+            } else if (DataBinFilter.BinMethod.QUARTILE == binMethod) {
+                List<BigDecimal> bins = Arrays.asList(
+                    this.dataBinHelper.calcQ1(sortedNumericalValues),
+                    this.dataBinHelper.calcMedian(sortedNumericalValues),
+                    this.dataBinHelper.calcQ3(sortedNumericalValues)
+                );
+                dataBins = linearDataBinner.calculateDataBins(bins, numericalValues);
             } else if (boxRange.upperEndpoint().subtract(boxRange.lowerEndpoint()).compareTo(new BigDecimal(1000)) == 1  &&
                 (disableLogScale == null || !disableLogScale)) {
                 dataBins = logScaleDataBinner.calculateDataBins(
@@ -322,7 +329,7 @@ public class DataBinner {
                     upperOutlierBin.getStart());
 
                 // override box range with data bin min & max values (ignoring actual box range for now)
-                if (dataBins.size() > 0) {
+                if (!dataBins.isEmpty()) {
                     boxRange = Range.closed(dataBins.get(0).getStart(), dataBins.get(dataBins.size() - 1).getEnd());
                 }
             } else {
@@ -347,7 +354,17 @@ public class DataBinner {
                 dataBins = linearDataBinner.calculateDataBins(areAllIntegers, boxRange, withoutOutliers, lowerOutlier,
                         upperOutlier, attributeId);
             }
-
+            
+            if (DataBinFilter.BinMethod.MEDIAN == binMethod) {
+                BigDecimal median = this.dataBinHelper.calcMedian(sortedNumericalValues);
+                lowerOutlierBin.setEnd(median);
+                upperOutlierBin.setStart(median);
+            // Covers the situation where there is a single custom boundary (i.e. there are only outlier bins).
+            } else if (DataBinFilter.BinMethod.CUSTOM == binMethod && customBins != null &&
+                customBins.size() == 1) {
+                lowerOutlierBin.setEnd(customBins.get(0));
+                upperOutlierBin.setStart(customBins.get(0));
+            }
 
             // adjust the outlier limits:
             //
@@ -359,11 +376,11 @@ public class DataBinner {
 
             if (lowerOutlierBin.getEnd() == null) {
 
-                BigDecimal end = dataBins != null && dataBins.size() > 0 ? dataBins.get(0).getStart() :
+                BigDecimal end = dataBins != null && !dataBins.isEmpty() ? dataBins.get(0).getStart() :
                     boxRange.lowerEndpoint();
 
                 lowerOutlierBin.setEnd(end);
-            } else if (dataBins != null && dataBins.size() > 0) {
+            } else if (dataBins != null && !dataBins.isEmpty()) {
                 if (dataBins.get(0).getStart().compareTo(lowerOutlierBin.getEnd()) == 1) {
                     lowerOutlierBin.setEnd(dataBins.get(0).getStart());
                 } else {
@@ -372,11 +389,11 @@ public class DataBinner {
             }
 
             if (upperOutlierBin.getStart() == null) {
-                BigDecimal start = dataBins != null && dataBins.size() > 0 ? dataBins.get(dataBins.size() - 1).getEnd() :
+                BigDecimal start = dataBins != null && !dataBins.isEmpty() ? dataBins.get(dataBins.size() - 1).getEnd() :
                     boxRange.upperEndpoint();
 
                 upperOutlierBin.setStart(start);
-            } else if (dataBins != null && dataBins.size() > 0) {
+            } else if (dataBins != null && !dataBins.isEmpty()) {
                 if (dataBins.get(dataBins.size() - 1).getEnd().compareTo(upperOutlierBin.getStart()) == -1) {
                     upperOutlierBin.setStart(dataBins.get(dataBins.size() - 1).getEnd());
                 } else {

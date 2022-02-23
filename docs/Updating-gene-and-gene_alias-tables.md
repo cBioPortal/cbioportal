@@ -77,14 +77,9 @@ SELECT count(*) FROM cbioportal.gene;
 SELECT count(*) FROM cbioportal.gene_alias;
 ```
 
-7- Additionally, there are other tables you may want to update now (only in human).
-
-* Updating the COSMIC coding mutations, can be downloaded from [here](https://cancer.sanger.ac.uk/cosmic/download) and require the script `importCosmicData.pl`
-
-8- Clean-up old data:
+7- Clean-up old data:
 ```sql
 SET SQL_SAFE_UPDATES = 0;
-DELETE FROM cosmic_mutation where ENTREZ_GENE_ID not in (SELECT ENTREZ_GENE_ID from gene);
 DELETE FROM sanger_cancer_census where ENTREZ_GENE_ID not in (SELECT ENTREZ_GENE_ID from gene);
 DELETE FROM uniprot_id_mapping where ENTREZ_GENE_ID not in (SELECT ENTREZ_GENE_ID from gene);
 DELETE FROM interaction where GENE_A not in (SELECT ENTREZ_GENE_ID from gene) or GENE_B not in (SELECT ENTREZ_GENE_ID from gene);
@@ -93,7 +88,7 @@ SET SQL_SAFE_UPDATES = 1;
 commit;
 ```
 
-9- If DB engine supports FK constraints, e.g. InnoDB, restore constraints:
+8- If DB engine supports FK constraints, e.g. InnoDB, restore constraints:
 ```sql
 ALTER TABLE cosmic_mutation
   ADD CONSTRAINT cosmic_mutation_ibfk_1 FOREIGN KEY (`ENTREZ_GENE_ID`) REFERENCES `gene` (`ENTREZ_GENE_ID`);
@@ -102,7 +97,7 @@ ALTER TABLE uniprot_id_mapping
   ADD CONSTRAINT uniprot_id_mapping_ibfk_1 FOREIGN KEY (`ENTREZ_GENE_ID`) REFERENCES `gene` (`ENTREZ_GENE_ID`);
 ```
 
-10- You can import new gene sets using the gene set importer. These gene sets are currently only used for gene set scoring. See [Import-Gene-Sets.md](Import-Gene-Sets.md) and [File-Formats.md#gene-set-data](File-Formats.md#gene-set-data).
+9- You can import new gene sets using the gene set importer. These gene sets are currently only used for gene set scoring. See [Import-Gene-Sets.md](Import-Gene-Sets.md) and [File-Formats.md#gene-set-data](File-Formats.md#gene-set-data).
 
 For example, run in folder `<cbioportal_source_folder>/core/src/main/scripts`:
 ```bash

@@ -110,7 +110,9 @@ public class CustomRedisCache extends AbstractValueAdaptingCache {
                 .filter(key -> key.startsWith(name))
                 .filter(key -> key.matches((String) pattern))
                 .toArray(String[]::new);
-            return redissonClient.getKeys().delete(keys) > 0;
+            // Calling delete() with empty array causes an error in the Redisson client.
+            if (keys.length > 0)
+                return redissonClient.getKeys().delete(keys) > 0;
         } else {
             LOG.warn("Pattern passed for cache key eviction is not of String type. Cache eviction could not be performed.");
         }

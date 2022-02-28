@@ -249,11 +249,22 @@ public class SampleController {
             if (interceptedSampleFilter.getSampleListIds() != null) {
                 List<String> sampleListIds = interceptedSampleFilter.getSampleListIds();
                 
+                samples = new ArrayList<Sample>();
+                
                 for (String sampleListId : sampleListIds) {
                     // check that all sample lists exist (this method throws an exception if one does not)
                     sampleListService.getSampleList(sampleListId);
                 }
-                samples = sampleService.fetchSamples(sampleListIds, projection.name());
+                
+                for (String sampleListId : sampleListIds) {
+                    // fetch by sampleId so that we get cache at level of id instead list of ids
+                    samples.addAll(
+                        sampleService.fetchSamples(Arrays.asList(sampleListId), projection.name())
+                    );
+                }
+                
+                //samples = sampleService.fetchSamples(sampleListIds, projection.name());
+            
             } else {
                 if (interceptedSampleFilter.getSampleIdentifiers() != null) {
                     extractStudyAndSampleIds(interceptedSampleFilter, studyIds, sampleIds);

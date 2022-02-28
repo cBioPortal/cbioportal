@@ -14,6 +14,7 @@ import org.cbioportal.service.exception.PatientNotFoundException;
 import org.cbioportal.service.exception.SampleNotFoundException;
 import org.cbioportal.service.exception.StudyNotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 
 import java.util.*;
@@ -144,6 +145,10 @@ public class SampleServiceImpl implements SampleService {
     }
 
     @Override
+    @Cacheable(
+        cacheResolver = "staticRepositoryCacheOneResolver",
+        condition = "@cacheEnabledConfig.getEnabled()"
+    )
 	public List<Sample> fetchSamples(List<String> sampleListIds, String projection) {
 
         List<Sample> samples = sampleRepository.fetchSamplesBySampleListIds(sampleListIds, projection);

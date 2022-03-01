@@ -22,7 +22,7 @@ public class TreatmentServiceImpl implements TreatmentService {
         Map<String, List<ClinicalEventSample>> samplesByPatient = 
             treatmentRepository.getSamplesByPatientId(sampleIds, studyIds);
         Map<String, List<Treatment>> treatmentsByPatient = 
-            treatmentRepository.getTreatmentsByPatientId(sampleIds, studyIds, key.getKey());
+            treatmentRepository.getTreatmentsByPatientId(sampleIds, studyIds, key);
 
         Stream<SampleTreatmentRow> rows = samplesByPatient.keySet().stream()
             .flatMap(patientId -> getSampleTreatmentRowsForPatient(patientId, samplesByPatient, treatmentsByPatient))
@@ -128,14 +128,14 @@ public class TreatmentServiceImpl implements TreatmentService {
         List<String> sampleIds, List<String> studyIds, ClinicalEventKeyCode key
     ) {
         Map<String, List<Treatment>> treatmentsByPatient = 
-            treatmentRepository.getTreatmentsByPatientId(sampleIds, studyIds, key.getKey());
+            treatmentRepository.getTreatmentsByPatientId(sampleIds, studyIds, key);
         Map<String, List<ClinicalEventSample>> samplesByPatient = treatmentRepository
             .getShallowSamplesByPatientId(sampleIds, studyIds)
             .entrySet()
             .stream()
             .filter(e -> treatmentsByPatient.containsKey(e.getKey()))
             .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
-        Set<String> treatments = treatmentRepository.getAllUniqueTreatments(sampleIds, studyIds, key.getKey());
+        Set<String> treatments = treatmentRepository.getAllUniqueTreatments(sampleIds, studyIds, key);
 
         return treatments.stream()
             .map(t -> createPatientTreatmentRowForTreatment(t, treatmentsByPatient, samplesByPatient))

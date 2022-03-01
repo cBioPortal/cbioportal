@@ -4,10 +4,11 @@ import org.cbioportal.model.TemporalRelation;
 import org.cbioportal.model.SampleTreatmentRow;
 import org.cbioportal.web.parameter.SampleIdentifier;
 
+import java.io.Serializable;
 import java.util.Map;
 import java.util.Set;
 
-public class SampleTreatmentFilter {
+public class SampleTreatmentFilter implements Serializable {
     private String treatment;
     private TemporalRelation time;
 

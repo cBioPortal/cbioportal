@@ -12,7 +12,6 @@
             gene.hugo_gene_symbol AS "${prefix}hugoGeneSymbol",
             reference_genome_gene.CHR AS "${prefix}chromosome",
             reference_genome_gene.CYTOBAND AS "${prefix}cytoband",
-            reference_genome_gene.EXONIC_LENGTH AS "${prefix}length",
             reference_genome_gene.START AS "${prefix}start",
             reference_genome_gene.END AS "${prefix}end"
         </if>

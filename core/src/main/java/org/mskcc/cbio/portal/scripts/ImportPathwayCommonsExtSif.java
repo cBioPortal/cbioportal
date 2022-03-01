@@ -62,7 +62,6 @@ public class ImportPathwayCommonsExtSif {
      */
     public void importData() throws IOException, DaoException {
         DaoGeneOptimized daoGene = DaoGeneOptimized.getInstance();
-        DaoInteraction daoInteraction = DaoInteraction.getInstance();
         int numInteractionsSaved = 0;
         int numInteractionsNotSaved = 0;
 
@@ -92,11 +91,7 @@ public class ImportPathwayCommonsExtSif {
                     String dataSource = parts[3];
                     String pmids = parts.length<=4 ? null : parts[4].replaceAll(";", ",");
                     String expTypes = null;
-
-                    daoInteraction.addInteraction(geneA, geneB, interactionType, dataSource,
-                            expTypes, pmids);
-
-                    numInteractionsSaved++;
+                    numInteractionsNotSaved++;
                 } else {
                     numInteractionsNotSaved++;
                 }

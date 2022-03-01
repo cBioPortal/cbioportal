@@ -121,81 +121,7 @@ public class TestImportExtendedMutationData {
         validateMutationAminoAcid(geneticProfileId, sampleId, 51806, "P113L");   // valid Unknown
         validateMutationAminoAcid(geneticProfileId, sampleId, 89, "S116R"); // Unknown  Somatic
     }
-
-    /**
-     * Tests import of data files with names in the SWISSPROT column.
-     *
-     * @throws IOException  if something goes wrong reading from the data file
-     * @throws DaoException  if something goes wrong talking to the database
-     */
-    @Test
-    public void testImportExtendedMutationDataSwissprotName() throws IOException, DaoException {
-        loadStudyContext1();
-        MySQLbulkLoader.bulkLoadOn();
-
-        File file = new File("src/test/resources/data_mutations_swissprotname.maf");
-        ImportExtendedMutationData parser = new ImportExtendedMutationData(file, geneticProfileId, null);
-        parser.importData();
-        MySQLbulkLoader.flushAll();
-
-        checkSwissprotLoaded();
-        // unknown accessions are only loaded if the column lists accessions
-        int sampleId = DaoSample.getSampleByCancerStudyAndSampleId(studyId, "TCGA-A2-A0CR-01").getInternalId();
-        ExtendedMutation m = DaoMutation.getMutations(
-                geneticProfileId, sampleId, 64581).get(0);
-        assertNull(m.getOncotatorUniprotAccession());
-    }
-
-    /**
-     * Tests import of data files with accessions in the SWISSPROT column.
-     *
-     * @throws IOException  if something goes wrong reading from the data file
-     * @throws DaoException  if something goes wrong talking to the database
-     */
-    @Test
-    public void testImportExtendedMutationDataSwissprotAccession() throws IOException, DaoException {
-        loadStudyContext1();
-        MySQLbulkLoader.bulkLoadOn();
-
-        File file = new File("src/test/resources/data_mutations_swissprotaccession.maf");
-        ImportExtendedMutationData parser = new ImportExtendedMutationData(file, geneticProfileId, null);
-        parser.setSwissprotIsAccession(true);
-        parser.importData();
-        MySQLbulkLoader.flushAll();
-
-        checkSwissprotLoaded();
-        // unknown accessions are only loaded if the column lists accessions
-        int sampleId = DaoSample.getSampleByCancerStudyAndSampleId(studyId, "TCGA-A2-A0CR-01").getInternalId();
-        ExtendedMutation m = DaoMutation.getMutations(
-                geneticProfileId, sampleId, 64581).get(0);
-        assertEquals("Z9ZZZ9ZZZ9", m.getOncotatorUniprotAccession());
-    }
-
-    /**
-     * Performs common assertions for the tests about the SWISSPROT column.
-     *
-     * @throws DaoException  on errors reading from the database
-     */
-    private void checkSwissprotLoaded() throws DaoException {
-
-        int sampleId;
-        ExtendedMutation m;
-
-        sampleId = DaoSample.getSampleByCancerStudyAndSampleId(studyId, "TCGA-A2-A0CR-01").getInternalId();
-        validateMutationAminoAcid(geneticProfileId, sampleId, 64581, "K145Q");
-
-        sampleId = DaoSample.getSampleByCancerStudyAndSampleId(studyId, "TCGA-A2-A0T5-01").getInternalId();
-        validateMutationAminoAcid(geneticProfileId, sampleId, 3339, "X4137?");
-        m = DaoMutation.getMutations(
-                geneticProfileId, sampleId, 3339).get(0);
-        assertEquals("P98160", m.getOncotatorUniprotAccession());
-        validateMutationAminoAcid(geneticProfileId, sampleId, 54407, "T32P");
-        m = DaoMutation.getMutations(
-                geneticProfileId, sampleId, 54407).get(0);
-        assertEquals("Q96QD8", m.getOncotatorUniprotAccession());
-
-    }
-
+    
     /**
      * Check that import of oncotated data works
      * @throws IOException
@@ -341,29 +267,7 @@ public class TestImportExtendedMutationData {
         daoGene.addGene(new CanonicalGene(6667L, "SP1"));
         daoGene.addGene(new CanonicalGene(2842L, "GPR19"));
 
-        boolean origBulkLoad = MySQLbulkLoader.isBulkLoad();
-        try {
-            MySQLbulkLoader.bulkLoadOn();
-            DaoUniProtIdMapping.addUniProtIdMapping("Q08043", "ACTN3_HUMAN", 89);
-            DaoUniProtIdMapping.addUniProtIdMapping("Q9H694", "BICC1_HUMAN", 80114);
-            DaoUniProtIdMapping.addUniProtIdMapping("Q9NZT1", "CALL5_HUMAN", 51806);
-            DaoUniProtIdMapping.addUniProtIdMapping("Q9BXN2", "CLC7A_HUMAN", 64581);
-            DaoUniProtIdMapping.addUniProtIdMapping("Q15760", "GPR19_HUMAN", 2842);
-            DaoUniProtIdMapping.addUniProtIdMapping("P98160", "PGBM_HUMAN", 3339);
-            DaoUniProtIdMapping.addUniProtIdMapping("Q96P20", "NALP3_HUMAN", 114548);
-            DaoUniProtIdMapping.addUniProtIdMapping("Q8NH19", "O10AG_HUMAN", 282770);
-            DaoUniProtIdMapping.addUniProtIdMapping("Q7Z3Z2", "RD3_HUMAN", 343035);
-            DaoUniProtIdMapping.addUniProtIdMapping("Q96QD8", "S38A2_HUMAN", 54407);
-            DaoUniProtIdMapping.addUniProtIdMapping("P17405", "ASM_HUMAN", 6609);
-            DaoUniProtIdMapping.addUniProtIdMapping("P08047", "SP1_HUMAN", 6667);
-            DaoUniProtIdMapping.addUniProtIdMapping("Q6ZVD7", "STOX1_HUMAN", 219736);
-            DaoUniProtIdMapping.addUniProtIdMapping("Q9NYW0", "T2R10_HUMAN", 50839);
-            DaoUniProtIdMapping.addUniProtIdMapping("Q9P0N5", "TM216_HUMAN", 51259);
-        } finally {
-            if (!origBulkLoad) {
-                MySQLbulkLoader.bulkLoadOff();
-            }
-        }
+       
 
 	    // additional genes for "data_mutations_oncotated.txt"
 	    daoGene.addGene(new CanonicalGene(55138L, "FAM90A1"));

@@ -128,7 +128,7 @@ public class ImportGeneData extends ConsoleRunnable {
                 if (!mainSymbol.equals("-")) {
                     //Try the main symbol:
                     gene = new CanonicalGene(entrezGeneId, mainSymbol, aliases);
-                    refGene = new ReferenceGenomeGene(entrezGeneId, referenceGenomeId, chr, cytoband, 0, 0, 0);
+                    refGene = new ReferenceGenomeGene(entrezGeneId, referenceGenomeId, chr, cytoband, 0, 0);
                     Set<CanonicalGene> genes = genesWithSymbolFromNomenClatureAuthority.get(mainSymbol);
                     Set<ReferenceGenomeGene> refGenes = refGenesWithSymbolFromNomenClatureAuthority.get(mainSymbol);
                     if (genes==null) {
@@ -144,7 +144,7 @@ public class ImportGeneData extends ConsoleRunnable {
                 } else if (!geneSymbol.equals("-")) {
                     //there is no main symbol, so import using the temporary/unofficial(?) symbol:
                     gene = new CanonicalGene(entrezGeneId, geneSymbol, aliases);
-                    refGene = new ReferenceGenomeGene(entrezGeneId, referenceGenomeId, chr, cytoband, 0, 0, 0);
+                    refGene = new ReferenceGenomeGene(entrezGeneId, referenceGenomeId, chr, cytoband, 0, 0);
                     Set<CanonicalGene> genes = genesWithoutSymbolFromNomenClatureAuthority.get(geneSymbol);
                     Set<ReferenceGenomeGene> refGenes = refGenesWithoutSymbolFromNomenClatureAuthority.get(geneSymbol);
                     if (genes==null) {
@@ -223,7 +223,7 @@ public class ImportGeneData extends ConsoleRunnable {
 
                 CanonicalGene canonicalGene = new CanonicalGene(entrezGeneId, geneSymbol, aliases);
                 canonicalGene.setType(type);
-                ReferenceGenomeGene refGene = new ReferenceGenomeGene(entrezGeneId, referenceGenomeId, chr, cytoband, 0, 0, 0);
+                ReferenceGenomeGene refGene = new ReferenceGenomeGene(entrezGeneId, referenceGenomeId, chr, cytoband, 0, 0);
                 Set<CanonicalGene> canonicalGenes = canonicalGeneMap.get(geneSymbol);
                 Set<ReferenceGenomeGene> refGenes = refGeneMap.get(geneSymbol);
                 if (canonicalGenes == null) {
@@ -607,13 +607,9 @@ public class ImportGeneData extends ConsoleRunnable {
                 if (cbChr.equals(chromosome)) { //Update the length only if the chromosome matches
                     // update reference genome gene
                     System.out.println(" updateLength--> update reference genome gene:  " + gene.getHugoGeneSymbolAllCaps());
-                    refGene.setExonicLength((int) exonic[2]);
                     refGene.setStart(exonic[0]);
                     refGene.setEnd(exonic[1]);
                     daoReferenceGenomeGene.updateGene(refGene);
-                    System.out.println(" updateLength--> exonic length of the gene:  " +
-                            daoReferenceGenomeGene.getGene(gene.getEntrezGeneId(), refreneceGenomeId).getExonicLength());
-                    lengthUpdated = true;
                 }
                 else {
                     ProgressMonitor.logWarning("Cytoband from reference gene is not on the same chromosome - unable to update the length of this gene (likely another version of gene in gtf has correct chr and is saved)");

@@ -50,7 +50,6 @@ public class ReferenceGenomeGeneControllerTest {
         gene.setReferenceGenomeId(REFERENCE_GENOME_ID);
         gene.setCytoband(CYTOBAND_1);
         gene.setChromosome(CHROMOSOME_1);
-        gene.setLength(LENGTH_1);
     }
 
     @Autowired
@@ -96,7 +95,6 @@ public class ReferenceGenomeGeneControllerTest {
             .andExpect(MockMvcResultMatchers.jsonPath("$[0].entrezGeneId").value(ENTREZ_GENE_ID_1))
             .andExpect(MockMvcResultMatchers.jsonPath("$[0].referenceGenomeId").value(REFERENCE_GENOME_ID))
             .andExpect(MockMvcResultMatchers.jsonPath("$[0].cytoband").value(CYTOBAND_1))
-            .andExpect(MockMvcResultMatchers.jsonPath("$[0].length").value(LENGTH_1))
             .andExpect(MockMvcResultMatchers.jsonPath("$[0].chromosome").value(CHROMOSOME_1));
 
         
@@ -119,7 +117,6 @@ public class ReferenceGenomeGeneControllerTest {
             .andExpect(MockMvcResultMatchers.jsonPath("$[0].entrezGeneId").value(ENTREZ_GENE_ID_1))
             .andExpect(MockMvcResultMatchers.jsonPath("$[0].referenceGenomeId").value(REFERENCE_GENOME_ID))
             .andExpect(MockMvcResultMatchers.jsonPath("$[0].cytoband").value(CYTOBAND_1))
-            .andExpect(MockMvcResultMatchers.jsonPath("$[0].length").value(LENGTH_1))
             .andExpect(MockMvcResultMatchers.jsonPath("$[0].chromosome").value(CHROMOSOME_1));
 
         // The service is called because the cache is invalid
@@ -139,7 +136,6 @@ public class ReferenceGenomeGeneControllerTest {
             .andExpect(MockMvcResultMatchers.jsonPath("$.entrezGeneId").value(ENTREZ_GENE_ID_1))
             .andExpect(MockMvcResultMatchers.jsonPath("$.referenceGenomeId").value(REFERENCE_GENOME_ID))
             .andExpect(MockMvcResultMatchers.jsonPath("$.cytoband").value(CYTOBAND_1))
-            .andExpect(MockMvcResultMatchers.jsonPath("$.length").value(LENGTH_1))
             .andExpect(MockMvcResultMatchers.jsonPath("$.chromosome").value(CHROMOSOME_1));
     }
 
@@ -166,12 +162,10 @@ public class ReferenceGenomeGeneControllerTest {
             .andExpect(MockMvcResultMatchers.jsonPath("$[0].entrezGeneId").value(ENTREZ_GENE_ID_1))
             .andExpect(MockMvcResultMatchers.jsonPath("$[0].referenceGenomeId").value(REFERENCE_GENOME_ID))
             .andExpect(MockMvcResultMatchers.jsonPath("$[0].cytoband").value(CYTOBAND_1))
-            .andExpect(MockMvcResultMatchers.jsonPath("$[0].length").value(LENGTH_1))
             .andExpect(MockMvcResultMatchers.jsonPath("$[0].chromosome").value(CHROMOSOME_1))
             .andExpect(MockMvcResultMatchers.jsonPath("$[1].entrezGeneId").value(ENTREZ_GENE_ID_2))
             .andExpect(MockMvcResultMatchers.jsonPath("$[1].referenceGenomeId").value(REFERENCE_GENOME_ID))
             .andExpect(MockMvcResultMatchers.jsonPath("$[1].cytoband").value(CYTOBAND_2))
-            .andExpect(MockMvcResultMatchers.jsonPath("$[1].length").value(LENGTH_2))
             .andExpect(MockMvcResultMatchers.jsonPath("$[1].chromosome").value(CHROMOSOME_2));
     }
 
@@ -183,13 +177,11 @@ public class ReferenceGenomeGeneControllerTest {
         gene1.setCytoband(CYTOBAND_1);
         gene1.setReferenceGenomeId(REFERENCE_GENOME_ID);
         gene1.setChromosome(CHROMOSOME_1);
-        gene1.setLength(LENGTH_1);
         geneList.add(gene1);
         ReferenceGenomeGene gene2 = new ReferenceGenomeGene();
         gene2.setEntrezGeneId(ENTREZ_GENE_ID_2);
         gene2.setReferenceGenomeId(REFERENCE_GENOME_ID);
         gene2.setCytoband(CYTOBAND_2);
-        gene2.setLength(LENGTH_2);
         gene2.setChromosome(CHROMOSOME_2);
         geneList.add(gene2);
         return geneList;

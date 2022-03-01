@@ -6,12 +6,14 @@ package org.cbioportal.model;
  * to keep those key constants in one enum.
  */
 public enum ClinicalEventKeyCode {
-    Agent("AGENT"), AgentClass ("AGENT_CLASS");
+    Agent("AGENT", null), AgentClass ("AGENT_CLASS", null), AgentTarget("AGENT_TARGET", ", *");
 
     private final String key;
-    
-    ClinicalEventKeyCode(String key) {
-        this.key = key;    
+    private final String delimiter;
+
+    ClinicalEventKeyCode(String key, String delimiter) {
+        this.key = key;
+        this.delimiter = delimiter;
     }
 
     public String getKey() {
@@ -20,5 +22,13 @@ public enum ClinicalEventKeyCode {
     
     public String getPropertyReference() {
         return name().toLowerCase();
+    }
+    
+    public String getDelimiter() {
+        return delimiter;
+    }
+    
+    public boolean isDelimited() {
+        return delimiter != null;
     }
 }

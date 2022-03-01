@@ -26,16 +26,16 @@ public class StudyViewFilterApplier {
     @Autowired
     private ApplicationContext applicationContext;
     StudyViewFilterApplier instance;
-    private List<? extends StudyViewSubFilterApplier> subFilterAppliers = new ArrayList<>();
+    
+    // This gets initialized and overwritten. We do this because Spring's unit tests
+    // don't know how to autowire this, even though production Spring does. If we 
+    // don't give this an initial value, we get NPEs.
+    @Autowired
+    private List<StudyViewSubFilterApplier> subFilterAppliers = new ArrayList<>();
+    
     @PostConstruct
     private void init() {
         instance = applicationContext.getBean(StudyViewFilterApplier.class);
-        subFilterAppliers = Arrays.asList(
-            sampleTreatmentFilterApplier,
-            sampleTreatmentGroupFilterApplier,
-            patientTreatmentFilterApplier,
-            patientTreatmentGroupFilterApplier
-        );
     }
 
     @Autowired
@@ -67,17 +67,9 @@ public class StudyViewFilterApplier {
     @Autowired
     private DataBinner dataBinner;
     @Autowired
-    private PatientTreatmentFilterApplier patientTreatmentFilterApplier;
-    @Autowired
-    private PatientTreatmentGroupFilterApplier patientTreatmentGroupFilterApplier;
-    @Autowired
     private StructuralVariantService structuralVariantService;
     @Autowired
     private CustomDataFilterApplier customDataFilterApplier;
-    @Autowired
-    private SampleTreatmentFilterApplier sampleTreatmentFilterApplier;
-    @Autowired
-    private SampleTreatmentGroupFilterApplier sampleTreatmentGroupFilterApplier;
     @Autowired
     private MolecularProfileUtil molecularProfileUtil;
 

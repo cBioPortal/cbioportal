@@ -33,7 +33,6 @@ public class ReferenceGenomeGene implements Serializable {
     private String hugoGeneSymbol;
     private String chromosome;
     private String cytoband;
-    private Integer length;
     private Long start;
     private Long end;
     
@@ -70,15 +69,7 @@ public class ReferenceGenomeGene implements Serializable {
     public void setCytoband(String cytoband) {
         this.cytoband = cytoband;
     }
-
-    public Integer getLength() {
-        return length;
-    }
-
-    public void setLength(int length) {
-        this.length = length;
-    }
-
+    
     public Long getStart() { return this.start; }
 
     public void setStart(Long start) { this.start = start; }

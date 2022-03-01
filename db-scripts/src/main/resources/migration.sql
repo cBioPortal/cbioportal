@@ -961,7 +961,7 @@ DROP TABLE IF EXISTS `protein_array_data`;
 DROP TABLE IF EXISTS `protein_array_target`;
 DROP TABLE IF EXISTS `protein_array_info`;
 DROP TABLE IF EXISTS `protein_array_cancer_study`;
-DROP TABLE `sanger_cancer_census`;
+DROP TABLE IF EXISTS `sanger_cancer_census`;
 DROP TABLE IF EXISTS `uniprot_id_mapping`;
 DROP TABLE IF EXISTS `pfam_graphics`;
 DROP TABLE IF EXISTS `text_cache`;

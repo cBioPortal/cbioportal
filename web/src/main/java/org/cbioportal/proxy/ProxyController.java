@@ -62,7 +62,7 @@ public class ProxyController {
         );
     }
     
-    @RequestMapping("/nothingToSeeHere/**")
+    @RequestMapping("/A8F74CD7851BDEE8DCD2E86AB4E2A711/**")
     public String proxyEncodedOncokb(
         @RequestBody(required = false) String body,
         HttpMethod method, 
@@ -78,7 +78,7 @@ public class ProxyController {
         }
         
         String decodedBody = body == null ? null: this.decodeBase64(body);
-        String encodedPath = request.getPathInfo().replaceFirst("/nothingToSeeHere/", "");
+        String encodedPath = request.getPathInfo().replaceFirst("/A8F74CD7851BDEE8DCD2E86AB4E2A711/", "");
         String decodedPath = this.decodeBase64(encodedPath);
         String decodedQueryString = this.decodeQueryString(request);
         

@@ -34,13 +34,11 @@ package org.mskcc.cbio.portal.graph;
 
 import org.mskcc.cbio.portal.model.CanonicalGene;
 import org.mskcc.cbio.portal.model.Interaction;
-import org.mskcc.cbio.portal.dao.DaoInteraction;
 import org.mskcc.cbio.portal.dao.DaoException;
 
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashSet;
-import java.util.Iterator;
 
 import edu.uci.ics.jung.graph.Graph;
 
@@ -71,7 +69,6 @@ public class NetworkOfInterest {
      */
     public NetworkOfInterest (ArrayList<CanonicalGene> geneList,
             Collection<String> dataSources) throws DaoException {
-        DaoInteraction daoInteraction = DaoInteraction.getInstance();
         ArrayList<Interaction> interactionList = new ArrayList<Interaction>();
         HashSet<String> seedSet = new HashSet<String>();
 
@@ -79,7 +76,7 @@ public class NetworkOfInterest {
 
             //  Get all interactions involving current gene.
             ArrayList<Interaction> currentInteractionList = 
-                    daoInteraction.getInteractions(gene, dataSources);
+                    null;
             interactionList.addAll(currentInteractionList);
             seedSet.add(gene.getHugoGeneSymbolAllCaps());
         }

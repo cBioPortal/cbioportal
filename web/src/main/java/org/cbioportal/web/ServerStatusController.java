@@ -3,6 +3,7 @@ package org.cbioportal.web;
 import org.cbioportal.service.ServerStatusService;
 import org.cbioportal.service.impl.ServerStatusServiceImpl.ServerStatusMessage;
 import org.cbioportal.web.config.annotation.InternalApi;
+import org.cbioportal.web.config.annotation.PublicApi;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
@@ -15,7 +16,7 @@ import org.springframework.web.bind.annotation.RestController;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 
-@InternalApi
+@PublicApi
 @RestController
 @Validated
 @Api(tags = "Server running status", description = "This end point does not require authentication")

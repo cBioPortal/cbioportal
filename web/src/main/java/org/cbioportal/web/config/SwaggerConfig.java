@@ -47,7 +47,8 @@ public class SwaggerConfig {
             new Tag(PublicApiTags.GENES, "", 12),
             new Tag(PublicApiTags.GENE_PANELS, "", 13),
             new Tag(PublicApiTags.GENERIC_ASSAYS, "", 14),
-            new Tag(PublicApiTags.STRUCTURAL_VARIANTS, "", 15)
+            new Tag(PublicApiTags.GENERIC_ASSAY_DATA, "", 15),
+            new Tag(PublicApiTags.INFO, "", 16)
         );
 
         return d;

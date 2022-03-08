@@ -76,3 +76,7 @@
 
 ## 6. Web API and Clients
  * [API and API Clients](API-and-API-Clients.md)
+
+## 7. User Guide
+ * [User Guide](User-guide.md)
+

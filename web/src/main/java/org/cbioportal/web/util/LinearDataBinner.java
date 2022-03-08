@@ -70,6 +70,8 @@ public class LinearDataBinner {
         return dataBins;
     }
 
+    // Add bins that have a defined start and end value.
+    // Ignore bins for lower (<=) and upper (>) limits.
     public List<DataBin> initDataBins(List<BigDecimal> bins) {
         List<DataBin> dataBins = new ArrayList<>();
         for (int i = 0; i < bins.size() - 1; i++) {

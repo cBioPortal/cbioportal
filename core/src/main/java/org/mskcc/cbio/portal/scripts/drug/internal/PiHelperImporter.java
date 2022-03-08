@@ -37,7 +37,6 @@ import org.slf4j.LoggerFactory;
 import org.mskcc.cbio.portal.dao.*;
 import org.mskcc.cbio.portal.model.CanonicalGene;
 import org.mskcc.cbio.portal.model.Drug;
-import org.mskcc.cbio.portal.model.DrugInteraction;
 import org.mskcc.cbio.portal.scripts.drug.AbstractDrugInfoImporter;
 import org.mskcc.cbio.portal.scripts.drug.DrugDataResource;
 
@@ -57,11 +56,7 @@ public class PiHelperImporter extends AbstractDrugInfoImporter {
     private final Drug DRUG_SKIP = new Drug();
 
     public PiHelperImporter(DrugDataResource dataResource) throws DaoException {
-        super(dataResource);
-    }
-
-    public PiHelperImporter(DrugDataResource dataResource, DaoDrug drugDao, DaoInteraction daoInteraction) {
-        super(dataResource, drugDao, daoInteraction);
+        super.setDataResource(dataResource);
     }
 
     public InputStream getDrugInfoFile() {
@@ -94,7 +89,6 @@ public class PiHelperImporter extends AbstractDrugInfoImporter {
     private void importDrugTargets() throws Exception {
         Scanner scanner = new Scanner(getDrugTargetsFile());
         DaoGeneOptimized daoGeneOptimized = DaoGeneOptimized.getInstance();
-        DaoDrugInteraction daoDrugInteraction = DaoDrugInteraction.getInstance();
 
         int lineNo = 0, saved = 0;
         while (scanner.hasNextLine()) {
@@ -124,16 +118,6 @@ public class PiHelperImporter extends AbstractDrugInfoImporter {
                 continue;
 
             CanonicalGene gene = daoGeneOptimized.getNonAmbiguousGene(geneSymbol);
-            if (gene!=null) {
-                daoDrugInteraction.addDrugInteraction(
-                        drug,
-                        gene,
-                        DRUG_INTERACTION_TYPE,
-                        datasources,
-                        "",
-                        refs);
-                saved++;
-            }
         }
 
         scanner.close();
@@ -200,7 +184,6 @@ public class PiHelperImporter extends AbstractDrugInfoImporter {
             if(drug.isNutraceuitical()) { // We don't want these drugs within the database
                 nameToDrugMap.put(drug.getName(), DRUG_SKIP);
             } else {
-                getDrugDao().addDrug(drug);
                 nameToDrugMap.put(drug.getName(), drug);
             }
     }

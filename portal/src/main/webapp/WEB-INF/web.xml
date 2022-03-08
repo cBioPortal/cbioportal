@@ -92,7 +92,7 @@
         </init-param>
         <init-param>
             <param-name>cors.allowed.headers</param-name>
-            <param-value>Origin,Accept,X-Requested-With,Content-Type,Access-Control-Request-Method,Access-Control-Request-Headers,Content-Encoding</param-value>
+            <param-value>Origin,Accept,X-Requested-With,Content-Type,Access-Control-Request-Method,Access-Control-Request-Headers,Content-Encoding,X-Proxy-User-Agreement</param-value>
         </init-param>
         <!-- expose cors headers defined in HeaderKeyConstants.java -->
         <init-param>
@@ -493,15 +493,7 @@
         <servlet-name>SimilarPatientsJSON</servlet-name>
         <url-pattern>/similar_patients.json</url-pattern>
     </servlet-mapping>
-
-    <servlet>
-        <servlet-name>DrugsJSON</servlet-name>
-        <servlet-class>org.mskcc.cbio.portal.servlet.DrugsJSON</servlet-class>
-    </servlet>
-    <servlet-mapping>
-        <servlet-name>DrugsJSON</servlet-name>
-        <url-pattern>/drugs.json</url-pattern>
-    </servlet-mapping>
+    
 
     <servlet>
         <servlet-name>GetProteinArrayDataJSON</servlet-name>

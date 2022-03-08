@@ -176,7 +176,9 @@ Study View.
 ```
 skin.home_page.show_unauthorized_studies=
 ```
-If show_unauthorized_studies has been enabled, then a global message for the studies that are unauthorized can be configured by the property below. The message will appear in a tooltip when hover over the lock icon for the study and can also contain placecards like {$.Owner.email} for the studies that have this information in the study tags.
+If _show_unauthorized_studies_ feature has been enabled, a message (template) can be defined by the property below that informs the user of insufficient permissions. This message will appear inside a tooltip when hovering the lock icon next to the study name on the Study Selection page. This message may contain placeholders for study-specific information derived from [study tags data](https://docs.cbioportal.org/5.1-data-loading/data-loading/file-formats#study-tags-file). The information in the study tags JSON file can be accessed using Json Path placeholders. For example `{$.Owner.email}` points to member `{Owner: {email: "me@myself.org"}}`. For the studies that don't have this information available in the study tags, the default message "The study is unauthorized. You need to request access." will be displayed. In addition to the study tags information, the cancer study identifier can be included in the message using {$.studyId} placeholder (does not have to be present in study tags file).
+For example:
+skin.home_page.unauthorized_studies_global_message=You do not have access to this study. You can request access with {$.Owner.email} (please mention the '{$.studyId}' study identifier).
 ```
 skin.home_page.unauthorized_studies_global_message=
 ```
@@ -301,6 +303,14 @@ A private token is required to access the OncoKB Data (for details see the secti
 ```
 oncokb.token=
 ```
+"cBioPortal>=" driver annotation sources in the settings menu of Results View can be hidden by turning off the following property (default: true):
+```
+show.cbioportal=true|false
+```
+"COSMIC>=" driver annotation sources in the settings menu of Results View can be hidden by turning off the following property (default: true):
+```
+show.cosmic=true|false
+```
 
 # CIViC integration
 
@@ -346,6 +356,11 @@ show.mdacc.heatmap=true
 The default view in OncoPrint ("patient" or "sample") can be set with the following option. The default is "patient".
 ```
 oncoprint.defaultview=sample
+```
+
+Configuration of tracks that will be visible by default in the oncoprint. It points to a JSON file on the classpath.
+```
+oncoprint.clinical_tracks.show_by_default=classpath:/oncoprint-default-tracks.json
 ```
 
 # Custom annotation of driver and passenger mutations
@@ -547,6 +562,13 @@ skin.show_gsva=true
 skin.geneset_hierarchy.default_gsva_score=0.3
 skin.geneset_hierarchy.default_p_value=0.02
 ```
+
+# Collapses the tree widget of the geneset hierarchy dialog on initialization
+By default, the tree is expanded (property value is `false`).
+```
+skin.geneset_hierarchy.collapse_by_default = true
+```
+
 
 # Request Body Compression
 

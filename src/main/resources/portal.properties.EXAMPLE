@@ -194,6 +194,11 @@ oncokb.token=
 # Enable merging of OncoKB icons by default
 # oncokb.merge_icons_by_default=true
 
+# Enable "cBioPortal>=" driver annotation sources in the settings menu of Results View (true, false)
+show.cbioportal=true
+# Enable "COSMIC>=" driver annotation sources in the settings menu of Results View (true, false)
+show.cosmic=true
+
 # Enable Chang's hotspot list (true, false)
 show.hotspot=true
 hotspots.url=https://www.cancerhotspots.org/api/
@@ -255,7 +260,7 @@ session.service.url=
 # session.service.password=pass
 
 # disabled tabs, | delimited
-# possible values: cancer_types_summary, mutual_exclusivity, plots, mutations, co_expression, enrichments, survival, network, download, bookmark, IGV
+# possible values: cancer_types_summary, mutual_exclusivity, comparison, plots, mutations, co_expression, enrichments, survival, network, download, bookmark, IGV
 disabled_tabs=
 
 # study ids and categories to force to top of study selector
@@ -278,6 +283,7 @@ oncoprint.defaultview=patient
 oncoprint.oncokb.default=true
 oncoprint.hotspots.default=true
 # oncoprint.hide_vus.default=true
+# oncoprint.clinical_tracks.show_by_default=classpath:/oncoprint-default-tracks.json
 
 # Custom gene sets
 # querypage.setsofgenes.location=file:/<path>
@@ -370,6 +376,8 @@ persistence.cache_type=no-cache
 # Set default thresholds for geneset hierarchy
 # skin.geneset_hierarchy.default_gsva_score=0.5
 # skin.geneset_hierarchy.default_p_value=0.05
+# Collapse the tree widget of the gsva hierarchy dialog on init
+# skin.geneset_hierarchy.collapse_by_default=true
 
 # Compress some particularly large request bodies. enable_request_body_gzip_compression enables the feature, and
 # request_gzip_body_size_bytes sets the maximum allowable uncompressed request body size in bytes. Requests larger than

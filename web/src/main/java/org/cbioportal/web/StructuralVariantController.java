@@ -31,8 +31,8 @@ import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
 
-import org.cbioportal.web.config.PublicApiTags;
-import org.cbioportal.web.config.annotation.PublicApi;
+import org.cbioportal.web.config.InternalApiTags;
+import org.cbioportal.web.config.annotation.InternalApi;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
@@ -49,10 +49,10 @@ import springfox.documentation.annotations.ApiIgnore;
 import javax.validation.Valid;
 import java.util.*;
 
-@PublicApi
+@InternalApi
 @RestController
 @Validated
-@Api(tags = PublicApiTags.STRUCTURAL_VARIANTS, description = " ")
+@Api(tags = InternalApiTags.STRUCTURAL_VARIANTS, description = " ")
 public class StructuralVariantController {
     @Autowired
     private StructuralVariantService structuralVariantService;

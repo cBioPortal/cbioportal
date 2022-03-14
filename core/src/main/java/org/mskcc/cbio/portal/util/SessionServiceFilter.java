@@ -32,8 +32,8 @@
 
 package org.mskcc.cbio.portal.util;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.apache.commons.lang3.StringUtils;
 
 import javax.servlet.*;
@@ -47,7 +47,7 @@ import java.io.IOException;
  */
 public class SessionServiceFilter <W extends HttpServletRequestWrapper> implements Filter {
 
-    private static Log LOG = LogFactory.getLog(SessionServiceFilter.class);
+    private static Logger LOG = LoggerFactory.getLogger(SessionServiceFilter.class);
     // this is used to see if we have already redirected
     // to same URL with the URL fragment/anchor (#blah)
     private static String RETRIEVED_SESSION_PARAM = "found_session";

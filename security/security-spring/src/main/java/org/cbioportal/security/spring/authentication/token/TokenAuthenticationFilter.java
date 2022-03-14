@@ -41,8 +41,8 @@ import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.cbioportal.service.DataAccessTokenService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.authentication.BadCredentialsException;
@@ -63,7 +63,7 @@ public class TokenAuthenticationFilter extends AbstractAuthenticationProcessingF
 
     private static final String BEARER = "Bearer";
 
-    private static final Log LOG = LogFactory.getLog(TokenAuthenticationFilter.class);
+    private static final Logger LOG = LoggerFactory.getLogger(TokenAuthenticationFilter.class);
 
     public TokenAuthenticationFilter() {
         // allow any request to contain an authorization header

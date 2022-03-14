@@ -34,8 +34,8 @@ package org.mskcc.cbio.portal.servlet;
 
 import org.mskcc.cbio.portal.util.SpringUtil;
 import org.mskcc.cbio.portal.util.GlobalProperties;
-import org.apache.logging.log4j.Logger;
-import org.apache.logging.log4j.LogManager;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import org.springframework.http.*;
 import org.springframework.web.client.RestTemplate;
@@ -69,7 +69,7 @@ import javax.servlet.ServletException;
 "deidentification_id"
 })
 public class CheckDarwinAccessServlet extends HttpServlet {
-    private static Logger logger = LogManager.getLogger(CheckDarwinAccessServlet.class);
+    private static Logger logger = LoggerFactory.getLogger(CheckDarwinAccessServlet.class);
     private static final String DDP_INFO_ENDPOINT = "/info";
 
     @Override

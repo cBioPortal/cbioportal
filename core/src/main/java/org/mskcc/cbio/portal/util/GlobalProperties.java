@@ -50,8 +50,8 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Properties;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -350,7 +350,7 @@ public class GlobalProperties {
     @Value("${frontend.url.runtime:}") 
     public void setFrontendUrlRuntime(String property) { frontendUrlRuntime = property; }
 
-    private static Log LOG = LogFactory.getLog(GlobalProperties.class);
+    private static Logger LOG = LoggerFactory.getLogger(GlobalProperties.class);
     private static ConfigPropertyResolver portalProperties = new ConfigPropertyResolver();
     private static Properties mavenProperties = initializeProperties(MAVEN_PROPERTIES_FILE_NAME);
 

@@ -38,8 +38,8 @@ import java.util.*;
 import javax.servlet.ServletConfig;
 import javax.servlet.ServletException;
 import javax.servlet.http.*;
-import org.apache.logging.log4j.Logger;
-import org.apache.logging.log4j.LogManager;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.json.simple.*;
 import org.mskcc.cbio.portal.dao.*;
 import org.mskcc.cbio.portal.model.*;
@@ -51,7 +51,7 @@ import org.mskcc.cbio.portal.util.SpringUtil;
  * @author jj
  */
 public class SimilarPatientsJSON extends HttpServlet {
-    private static Logger logger = LogManager.getLogger(SimilarPatientsJSON.class);
+    private static Logger logger = LoggerFactory.getLogger(SimilarPatientsJSON.class);
     
     public static final String MUTATION = "mutation";
     public static final String CNA = "cna";
@@ -149,7 +149,7 @@ public class SimilarPatientsJSON extends HttpServlet {
                 cancerStudy[0] = study.getCancerStudyStableId();
                 cancerStudy[1] = study.getName();
             } catch (Exception e) {
-                logger.error(e.getStackTrace());
+                logger.error(e.getMessage());
             }
 
             row.add(Arrays.asList(cancerStudy));

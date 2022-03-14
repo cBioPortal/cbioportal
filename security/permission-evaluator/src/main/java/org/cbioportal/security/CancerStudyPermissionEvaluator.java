@@ -34,7 +34,8 @@ package org.cbioportal.security;
 
 import java.io.Serializable;
 import java.util.*;
-import org.apache.commons.logging.*;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.cbioportal.model.*;
 import org.cbioportal.persistence.cachemaputil.CacheMapUtil;
 import org.springframework.beans.factory.annotation.*;
@@ -67,7 +68,7 @@ public class CancerStudyPermissionEvaluator implements PermissionEvaluator {
     private static final String TARGET_TYPE_COLLECTION_OF_CANCER_STUDY_IDS = "Collection<CancerStudyId>";
     private static final String TARGET_TYPE_COLLECTION_OF_MOLECULAR_PROFILE_IDS = "Collection<MolecularProfileId>";
     private static final String TARGET_TYPE_COLLECTION_OF_GENETIC_PROFILE_IDS = "Collection<GeneticProfileId>";
-    private static Log log = LogFactory.getLog(CancerStudyPermissionEvaluator.class);
+    private static Logger log = LoggerFactory.getLogger(CancerStudyPermissionEvaluator.class);
 
     @Value("${app.name:}")
     private String APP_NAME;

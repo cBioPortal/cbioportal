@@ -391,3 +391,6 @@ persistence.cache_type=no-cache
 
 # Feature flag for treatment groups
 # enable_treatment_groups=false
+
+# Set comparison categorical "NA" value (not case sensitive)
+# comparison.categorical_na_value=NA,unknown

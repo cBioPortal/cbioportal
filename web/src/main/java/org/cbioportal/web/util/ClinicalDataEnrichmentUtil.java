@@ -1,12 +1,7 @@
 package org.cbioportal.web.util;
 
 import java.math.BigDecimal;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 import java.util.function.Supplier;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -22,6 +17,7 @@ import org.cbioportal.service.ClinicalDataService;
 import org.cbioportal.service.util.ClinicalAttributeUtil;
 import org.cbioportal.web.parameter.ClinicalDataType;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
 import com.datumbox.framework.common.dataobjects.AssociativeArray;
@@ -43,6 +39,9 @@ public class ClinicalDataEnrichmentUtil {
     private ClinicalDataService clinicalDataService;
     @Autowired
     private ClinicalAttributeUtil clinicalAttributeUtil;
+
+    @Value("${comparison.categorical_na_value:}")
+    private String ComparisonCategoricalNaValuesString;
 
     public List<ClinicalDataEnrichment> createEnrichmentsForNumericData(List<ClinicalAttribute> attributes,
             List<List<Sample>> groupedSamples) {
@@ -247,11 +246,17 @@ public class ClinicalDataEnrichmentUtil {
                 .map(clinicalDataCountItem -> {
                     List<ClinicalDataCount> filteredClinicalDataCount = clinicalDataCountItem.getCounts()
                             .stream()
-                            .filter(clinicalDataCount -> 
-                                !(
-                                     clinicalDataCount.getValue().equalsIgnoreCase("NA") ||
-                                     clinicalDataCount.getValue().equalsIgnoreCase("Unknown")
-                                 )
+                            .filter(clinicalDataCount -> {
+                                    if (ComparisonCategoricalNaValuesString != null) {
+                                        String[] ComparisonCategoricalNaValues = ComparisonCategoricalNaValuesString.split(",");
+                                        for (String naValue : ComparisonCategoricalNaValues) {
+                                            if (clinicalDataCount.getValue().equalsIgnoreCase(naValue)) {
+                                                return false;
+                                            }
+                                        }
+                                    }
+                                    return true;
+                                }
                             )
                             .collect(Collectors.toList());
                     clinicalDataCountItem.setCounts(filteredClinicalDataCount);

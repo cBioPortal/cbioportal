@@ -37,8 +37,8 @@ import org.mskcc.cbio.portal.web_api.ProtocolException;
 import org.mskcc.cbio.portal.dao.DaoCancerStudy;
 import org.mskcc.cbio.portal.dao.DaoException;
 import org.owasp.validator.html.PolicyException;
-import org.apache.logging.log4j.Logger;
-import org.apache.logging.log4j.LogManager;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import javax.servlet.http.HttpServletRequest;
 import java.net.URLEncoder;
@@ -56,7 +56,7 @@ public class LinkOutRequest {
     public static final String STABLE_PARAM_REPORT = "report";
     public static final String REPORT_FULL = "full";
     public static final String REPORT_ONCOPRINT_HTML = "oncoprint_html";
-    private static Logger logger = LogManager.getLogger(LinkOutRequest.class);
+    private static Logger logger = LoggerFactory.getLogger(LinkOutRequest.class);
 
     private String cancerStudyId;
     private String geneList;

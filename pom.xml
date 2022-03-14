@@ -299,6 +299,8 @@
     <jackson.version>2.13.0</jackson.version>
     <mysql-connector.version>5.1.48</mysql-connector.version>
     <webapp-runner.version>8.5.61.0</webapp-runner.version>
+    <slf4j.version>1.7.32</slf4j.version>
+    <logback.version>1.2.10</logback.version>
 
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
@@ -340,6 +342,19 @@
     <module>security</module>
     <module>utils</module>
   </modules>
+  
+  <dependencies>
+      <!--logging implementation shared by modules-->
+      <dependency>
+          <groupId>org.slf4j</groupId>
+          <artifactId>slf4j-api</artifactId>
+      </dependency>
+      <dependency>
+          <groupId>org.slf4j</groupId>
+          <artifactId>slf4j-simple</artifactId>
+          <scope>test</scope>
+      </dependency>
+  </dependencies>
 
   <dependencyManagement>
     <dependencies>
@@ -572,15 +587,26 @@
       </dependency>
       <!-- slf4j -->
       <dependency>
-        <groupId>org.apache.logging.log4j</groupId>
-        <artifactId>log4j-to-slf4j</artifactId>
-        <version>2.16.0</version>
+        <groupId>org.slf4j</groupId>
+        <artifactId>slf4j-api</artifactId>
+        <version>${slf4j.version}</version>
       </dependency>
       <dependency>
         <groupId>org.slf4j</groupId>
-        <artifactId>slf4j-api</artifactId>
-        <version>1.7.32</version>
+        <artifactId>slf4j-simple</artifactId>
+        <version>${slf4j.version}</version>
       </dependency>
+        <dependency>
+            <groupId>ch.qos.logback</groupId>
+            <artifactId>logback-core</artifactId>
+            <version>${logback.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>ch.qos.logback</groupId>
+            <artifactId>logback-classic</artifactId>
+            <version>${logback.version}</version>
+        </dependency>
+
       <!-- spring -->
       <dependency>
         <groupId>org.springframework</groupId>
@@ -785,12 +811,6 @@
         <groupId>com.fasterxml.jackson.core</groupId>
         <artifactId>jackson-annotations</artifactId>
         <version>${jackson.version}</version>
-      </dependency>
-      <!-- log4j -->
-      <dependency>
-        <groupId>org.apache.logging.log4j</groupId>
-        <artifactId>log4j-core</artifactId>
-        <version>2.17.1</version>
       </dependency>
       <!-- junit -->
       <dependency>

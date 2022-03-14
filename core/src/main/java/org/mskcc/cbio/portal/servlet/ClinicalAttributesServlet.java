@@ -32,8 +32,8 @@
 
 package org.mskcc.cbio.portal.servlet;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.json.simple.JSONArray;
 import org.mskcc.cbio.portal.dao.DaoClinicalAttributeMeta;
 import org.mskcc.cbio.portal.dao.DaoException;
@@ -53,7 +53,7 @@ import java.util.List;
 import org.mskcc.cbio.portal.dao.DaoCancerStudy;
 
 public class ClinicalAttributesServlet extends HttpServlet {
-    private static Log log = LogFactory.getLog(ClinicalAttributesServlet.class);
+    private static Logger log = LoggerFactory.getLogger(ClinicalAttributesServlet.class);
     
     // class which process access control to cancer studies
     private AccessControl accessControl;

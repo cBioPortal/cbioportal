@@ -3,7 +3,8 @@ package org.mskcc.portal.oncotator;
 import org.mskcc.cgds.dao.DaoException;
 import org.mskcc.cgds.dao.DaoOncotatorCache;
 import org.mskcc.portal.util.WebFileConnect;
-import org.apache.logging.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 import java.io.BufferedReader;

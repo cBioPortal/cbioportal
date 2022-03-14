@@ -1,8 +1,8 @@
 package org.cbioportal.web;
 
 import org.apache.commons.codec.binary.Base64;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
 import org.json.simple.parser.ParseException;
@@ -24,7 +24,7 @@ import java.nio.charset.StandardCharsets;
 @RequestMapping("/matchminer")
 public class MatchMinerController {
 
-    private static final Log LOG = LogFactory.getLog( MatchMinerController.class);
+    private static final Logger LOG = LoggerFactory.getLogger( MatchMinerController.class);
 
     @Value("${matchminer.url:}")
     private String url;
@@ -57,10 +57,10 @@ public class MatchMinerController {
             Object response = new JSONParser().parse(responseEntity.getBody());
             return new ResponseEntity<>(response, responseEntity.getStatusCode());
         } catch (URISyntaxException e) {
-            LOG.error(e);
+            LOG.error("Error occurred", e);
             return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
         } catch (ParseException e) {
-            LOG.error(e);
+            LOG.error("Error occurred", e);
             return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }

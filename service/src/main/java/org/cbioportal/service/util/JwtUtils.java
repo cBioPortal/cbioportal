@@ -52,6 +52,8 @@ import com.mysql.jdbc.StringUtils;
 import org.cbioportal.model.DataAccessToken;
 import org.cbioportal.service.exception.InvalidDataAccessTokenException;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.ExpiredJwtException;
 import io.jsonwebtoken.io.Decoders;
@@ -62,7 +64,6 @@ import io.jsonwebtoken.SignatureAlgorithm;
 import io.jsonwebtoken.SignatureException;
 import java.util.*;
 import javax.crypto.SecretKey;
-import org.apache.commons.logging.*;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
@@ -80,7 +81,7 @@ public class JwtUtils {
     @Value("${dat.ttl_seconds:-1}") // default value is -1
     private int jwtTtlSeconds;
 
-    private static final Log LOG = LogFactory.getLog(JwtUtils.class);
+    private static final Logger LOG = LoggerFactory.getLogger(JwtUtils.class);
 
     public DataAccessToken createToken(String username) {
         return this.createToken(username, this.jwtTtlSeconds);
@@ -128,10 +129,10 @@ public class JwtUtils {
                 .parseClaimsJws(token);
             claims = jwsClaims.getBody();
         } catch (SignatureException e) {
-            LOG.error(e);
+            LOG.error("Error occurred", e);
             throw new InvalidDataAccessTokenException("signature not valid");
         } catch (ExpiredJwtException e) {
-            LOG.error(e);
+            LOG.error("Error occurred", e);
             throw new InvalidDataAccessTokenException("token has expired");
         }
         return claims;

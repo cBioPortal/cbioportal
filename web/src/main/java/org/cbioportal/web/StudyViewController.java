@@ -600,7 +600,7 @@ public class StudyViewController {
         @ApiParam(value="Sigma stepsize multiplier")
         @RequestParam(required = false, defaultValue = "1") BigDecimal sigmaMultiplier,
         @ApiIgnore // prevent reference to this attribute in the swagger-ui interface
-         @RequestAttribute(required = false, value = "involvedCancerStudies") Collection<String> involvedCancerStudies,
+        @RequestAttribute(required = false, value = "involvedCancerStudies") Collection<String> involvedCancerStudies,
         @ApiIgnore // prevent reference to this attribute in the swagger-ui interface. this attribute is needed for the @PreAuthorize tag above.
         @Valid @RequestAttribute(required = false, value = "interceptedStudyViewFilter") StudyViewFilter interceptedStudyViewFilter,
         @ApiParam(required = true, value = "Study view filter")
@@ -652,9 +652,7 @@ public class StudyViewController {
                 if (d.getSampleId() == null) {
                     // null sample id means its a patient data, 
                     //  we need to distribute the value to samples
-                    List<Sample> samplesForPatient = patientToSamples.get(
-                        d.getPatientId()
-                    ).get(d.getStudyId());
+                    List<Sample> samplesForPatient = patientToSamples.get(d.getPatientId()).get(d.getStudyId());
                     if (samplesForPatient != null) {
                         for (Sample s: samplesForPatient) {
                             ClinicalData newData = new ClinicalData();

@@ -6,15 +6,15 @@ import org.cbioportal.web.parameter.filter.AndedPatientTreatmentFilters;
 import org.springframework.stereotype.Component;
 
 @Component
-public class PatientTreatmentGroupFilterApplier extends AbstractPatientTreatmentFilter {
+public class PatientTreatmentTargetFilterApplier extends AbstractPatientTreatmentFilter {
 
     @Override
     protected AndedPatientTreatmentFilters getFilters(StudyViewFilter filter) {
-        return filter.getPatientTreatmentGroupFilters();
+        return filter.getPatientTreatmentTargetFilters();
     }
 
     @Override
     protected ClinicalEventKeyCode getCode() {
-        return ClinicalEventKeyCode.AgentClass;
+        return ClinicalEventKeyCode.AgentTarget;
     }
 }

@@ -31,7 +31,8 @@ public class AlterationMyBatisRepository implements AlterationRepository {
                                                                  Select<Integer> entrezGeneIds,
                                                                  AlterationFilter alterationFilter) {
 
-        if ((alterationFilter.getMutationTypeSelect().hasNone() && alterationFilter.getCNAEventTypeSelect().hasNone())
+        if ((alterationFilter.getMutationTypeSelect().hasNone() && alterationFilter.getCNAEventTypeSelect().hasNone()
+                  && !alterationFilter.getStructuralVariants())
             || (molecularProfileCaseIdentifiers == null || molecularProfileCaseIdentifiers.isEmpty())
             || allAlterationsExcludedDriverAnnotation(alterationFilter)
             || allAlterationsExcludedMutationStatus(alterationFilter)
@@ -78,7 +79,8 @@ public class AlterationMyBatisRepository implements AlterationRepository {
                                                                   Select<Integer> entrezGeneIds,
                                                                   AlterationFilter alterationFilter) {
 
-        if ((alterationFilter.getMutationTypeSelect().hasNone() && alterationFilter.getCNAEventTypeSelect().hasNone())
+        if ((alterationFilter.getMutationTypeSelect().hasNone() && alterationFilter.getCNAEventTypeSelect().hasNone()
+            && !alterationFilter.getStructuralVariants())
             || (molecularProfileCaseIdentifiers == null || molecularProfileCaseIdentifiers.isEmpty())
             || allAlterationsExcludedDriverAnnotation(alterationFilter)
             || allAlterationsExcludedMutationStatus(alterationFilter)

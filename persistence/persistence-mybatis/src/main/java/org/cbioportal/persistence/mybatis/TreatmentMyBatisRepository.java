@@ -2,11 +2,11 @@ package org.cbioportal.persistence.mybatis;
 
 import static java.util.stream.Collectors.groupingBy;
 
-import java.util.Comparator;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
+import org.cbioportal.model.ClinicalEventKeyCode;
 import org.cbioportal.model.ClinicalEventSample;
 import org.cbioportal.model.Treatment;
 import org.cbioportal.persistence.TreatmentRepository;
@@ -19,10 +19,30 @@ public class TreatmentMyBatisRepository implements TreatmentRepository {
     private TreatmentMapper treatmentMapper;
     
     @Override
-    public Map<String, List<Treatment>> getTreatmentsByPatientId(List<String> sampleIds, List<String> studyIds, String key) {
-        return treatmentMapper.getAllTreatments(sampleIds, studyIds, key)
+    public Map<String, List<Treatment>> getTreatmentsByPatientId(List<String> sampleIds, List<String> studyIds, ClinicalEventKeyCode key) {
+        return treatmentMapper.getAllTreatments(sampleIds, studyIds, key.getKey())
             .stream()
+            .flatMap(treatment -> splitIfDelimited(treatment, key))
             .collect(groupingBy(Treatment::getPatientId));
+        
+        
+    }
+
+    private Stream<Treatment> splitIfDelimited(Treatment unsplitTreatment, ClinicalEventKeyCode key) {
+        if (key.isDelimited()) {
+            return Arrays.stream(unsplitTreatment.getTreatment().split(key.getDelimiter()))
+                .map(treatmentName -> {
+                    Treatment treatment = new Treatment();
+                    treatment.setTreatment(treatmentName);
+                    treatment.setStudyId(unsplitTreatment.getStudyId());
+                    treatment.setPatientId(unsplitTreatment.getPatientId());
+                    treatment.setStart(unsplitTreatment.getStart());
+                    treatment.setStop(unsplitTreatment.getStop());
+                    treatment.setPatientId(unsplitTreatment.getPatientId());
+                    return treatment;
+                });
+        }
+        return Stream.of(unsplitTreatment);
     }
 
     @Override
@@ -43,8 +63,17 @@ public class TreatmentMyBatisRepository implements TreatmentRepository {
     }
 
     @Override
-    public Set<String> getAllUniqueTreatments(List<String> sampleIds, List<String> studyIds, String key) {
-        return treatmentMapper.getAllUniqueTreatments(sampleIds, studyIds, key);
+    public Set<String> getAllUniqueTreatments(List<String> sampleIds, List<String> studyIds, ClinicalEventKeyCode key) {
+        return treatmentMapper.getAllUniqueTreatments(sampleIds, studyIds, key.getKey())
+            .stream()
+            .flatMap(treatment -> {
+                if (key.isDelimited()) {
+                    return Arrays.stream(treatment.split(key.getDelimiter()));
+                } else {
+                    return Stream.of(treatment);
+                }
+            })
+            .collect(Collectors.toSet());
     }
 
     @Override

@@ -90,8 +90,6 @@ public class AlterationEnrichmentUtil<T extends AlterationCountByGene> {
                     AlterationCountByGene mutationCountByGene = mutationCountsbyEntrezGeneIdAndGroup
                         .getOrDefault(group, new HashMap<Integer, AlterationCountByGene>())
                         .get(gene.getEntrezGeneId());
-                    System.out.println("mutationCountByGene.getNumberOfAlteredCases" + mutationCountByGene.getNumberOfAlteredCases());
-                    System.out.println("mutationCountByGene.getNumberOfProfiledCases" + mutationCountByGene.getNumberOfProfiledCases());
                     return mutationCountByGene == null ? false : (mutationCountByGene.getNumberOfAlteredCases() != 0
                                                                   && mutationCountByGene.getNumberOfAlteredCases() <=
                                                                   mutationCountByGene.getNumberOfProfiledCases());

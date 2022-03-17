@@ -196,7 +196,7 @@ skin.show_settings_menu=
 ## Customize "NA" values in group comparison
 Customize "NA" category in group comparison, for example "NA" and "unknown", all values are treated as "NA" and could be shown or hidden together on comparison page.
 ```
-comparison.categorical_na_value=NA,unknown
+comparison.categorical_na_values=NA,unknown
 ```
 
 ## Hide logout button

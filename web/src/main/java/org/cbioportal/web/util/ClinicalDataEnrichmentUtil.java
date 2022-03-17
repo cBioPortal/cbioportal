@@ -40,7 +40,7 @@ public class ClinicalDataEnrichmentUtil {
     @Autowired
     private ClinicalAttributeUtil clinicalAttributeUtil;
 
-    @Value("${comparison.categorical_na_value:}")
+    @Value("${comparison.categorical_na_values:}")
     private String ComparisonCategoricalNaValuesString;
 
     public List<ClinicalDataEnrichment> createEnrichmentsForNumericData(List<ClinicalAttribute> attributes,

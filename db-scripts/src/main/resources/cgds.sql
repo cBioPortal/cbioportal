@@ -173,7 +173,7 @@ CREATE TABLE `patient` (
 -- --------------------------------------------------------
 CREATE TABLE `sample` (
   `INTERNAL_ID` int(11) NOT NULL auto_increment,
-  `STABLE_ID` varchar(50) NOT NULL,
+  `STABLE_ID` varchar(63) NOT NULL,
   `SAMPLE_TYPE` varchar(255) NOT NULL,
   `PATIENT_ID` int(11) NOT NULL,
   PRIMARY KEY (`INTERNAL_ID`),
@@ -757,4 +757,4 @@ CREATE TABLE `resource_study` (
 );
 
 -- THIS MUST BE KEPT IN SYNC WITH db.version PROPERTY IN pom.xml
-INSERT INTO info VALUES ('2.12.12', NULL);
+INSERT INTO info VALUES ('2.12.13', NULL);

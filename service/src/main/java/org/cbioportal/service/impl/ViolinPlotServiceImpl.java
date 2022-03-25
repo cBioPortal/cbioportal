@@ -8,10 +8,7 @@ import org.cbioportal.service.ViolinPlotService;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @Service
@@ -21,7 +18,8 @@ public class ViolinPlotServiceImpl implements ViolinPlotService {
     static final int SHOW_ONLY_POINTS_THRESHOLD = 7;
     
     public ClinicalViolinPlotData getClinicalViolinPlotData(
-        List<ClinicalData> sampleClinicalData,
+        List<ClinicalData> sampleClinicalDataForViolinPlot,
+        List<Sample> samplesForSampleCounts,
         BigDecimal axisStart,
         BigDecimal axisEnd,
         BigDecimal numCurvePoints,
@@ -33,8 +31,14 @@ public class ViolinPlotServiceImpl implements ViolinPlotService {
         result.setAxisEnd(Double.NEGATIVE_INFINITY);
         result.setRows(new ArrayList<>());
         
+        // collect filtered samples into a set for quick lookup
+        Set<Integer> samplesForSampleCountsIds = 
+            samplesForSampleCounts.stream()
+                .map(Sample::getInternalId)
+                .collect(Collectors.toSet());
+        
         // clinicalDataMap is a map sampleId->studyId->data
-        Map<String, Map<String, List<ClinicalData>>> clinicalDataMap = sampleClinicalData.stream()
+        Map<String, Map<String, List<ClinicalData>>> clinicalDataMap = sampleClinicalDataForViolinPlot.stream()
             .collect(Collectors.groupingBy(ClinicalData::getSampleId, Collectors.groupingBy(ClinicalData::getStudyId)));
 
         // Group data by category
@@ -153,12 +157,12 @@ public class ViolinPlotServiceImpl implements ViolinPlotService {
         nonOutliers.forEach((category, data)->{
             ClinicalViolinPlotRowData row = new ClinicalViolinPlotRowData();
             row.setCategory(category);
-            row.setNumSamples(data.size() + outliers.get(category).size());
+            row.setNumSamples(countFilteredSamples(samplesForSampleCountsIds, data, outliers.get(category)));
             row.setBoxData(boxData.get(category).limitWhiskers(result));
 
             List<ClinicalData> _individualPoints = new ArrayList<>();
-
-            if (row.getNumSamples() <= SHOW_ONLY_POINTS_THRESHOLD) {
+            
+            if (data.size() + outliers.get(category).size() <= SHOW_ONLY_POINTS_THRESHOLD) {
                 // show only individual points when data is small
                 row.setCurveData(new ArrayList<>());
                 _individualPoints.addAll(data);
@@ -196,7 +200,21 @@ public class ViolinPlotServiceImpl implements ViolinPlotService {
             row.setIndividualPoints(individualPoints);
             rows.add(row);
         });
+        
+        // put everything into bins and then do one gaussian per bin, weighted by bin size
         return result;
+    }
+    
+    @SafeVarargs
+    private static int countFilteredSamples(
+        Set<Integer> filteredSampleIds,
+        List<ClinicalData>... dataLists
+    ) {
+        return (int) Arrays.stream(dataLists)
+            .flatMap(Collection::stream)
+            .map(ClinicalData::getInternalId)
+            .filter(filteredSampleIds::contains)
+            .count();
     }
 
     private static double logScale(double val) {

@@ -112,17 +112,18 @@ public final class DaoGeneticProfile {
             pstmt.setString(6, profile.getProfileDescription());
             pstmt.setBoolean(7, profile.showProfileInAnalysisTab());
 
-            // `pivot_threshold_value` and `value_sort_order` fields are treatment data 
-            // specific. These fields are set to null when not present in profile object.
+            // `pivot_threshold_value` and `value_sort_order` `GENERIC_ASSAY_TYPE` fields are geneirc assay data specific.
+            // These fields are set to null when not present in profile object.
             if (profile.getPivotThreshold() == null) {
                 pstmt.setNull(8, java.sql.Types.FLOAT);
-                pstmt.setNull(9, java.sql.Types.INTEGER);
             } else {
                 pstmt.setFloat(8, profile.getPivotThreshold());
+            }
+            if (profile.getSortOrder() == null) {
+                pstmt.setNull(9, java.sql.Types.INTEGER);
+            } else {
                 pstmt.setString(9, profile.getSortOrder());
             }
-
-            // `GENERIC_ASSAY_TYPE` is for Generic Assay, this field is set to null when not present in profile object.
             if (profile.getGenericAssayType() == null) {
                 pstmt.setNull(10, java.sql.Types.VARCHAR);
             } else {

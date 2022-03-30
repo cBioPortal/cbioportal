@@ -32,8 +32,8 @@
 
 package org.mskcc.cbio.portal.servlet;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
 import org.mskcc.cbio.portal.dao.DaoCancerStudy;
@@ -60,7 +60,7 @@ import java.util.*;
 public class ClinicalJSON extends HttpServlet {
 
     // our logger
-    private static Log LOG = LogFactory.getLog(ClinicalJSON.class);
+    private static Logger LOG = LoggerFactory.getLogger(ClinicalJSON.class);
     
     // class which process access control to cancer studies
     private AccessControl accessControl;

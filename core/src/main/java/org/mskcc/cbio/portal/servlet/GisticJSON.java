@@ -52,8 +52,8 @@ import java.io.IOException;
 import java.io.PrintWriter;
 import java.util.*;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  *
@@ -63,7 +63,7 @@ import org.apache.commons.logging.LogFactory;
  */
 public class GisticJSON extends HttpServlet {
     public static final String SELECTED_CANCER_STUDY = "selected_cancer_type";
-    private static Log log = LogFactory.getLog(GisticJSON.class);
+    private static Logger log = LoggerFactory.getLogger(GisticJSON.class);
     
     // class which process access control to cancer studies
     private AccessControl accessControl;
@@ -96,20 +96,7 @@ public class GisticJSON extends HttpServlet {
         ArrayList<String> sangerGenes = new ArrayList<String>();
 
         for (CanonicalGene g : gistic.getGenes_in_ROI()) {
-            try {
-                if (g.isSangerGene()) {
-                    sangerGenes.add(g.getHugoGeneSymbolAllCaps());
-                } else {
-                    nonSangerGenes.add(g.getHugoGeneSymbolAllCaps());
-                }
-            } catch (DaoException e) {
-                // assume that it is not a Sanger Gene if causes an exception
-                nonSangerGenes.add(g.getHugoGeneSymbolAllCaps());
-
-                if (log.isDebugEnabled()) {
-                    log.debug(e + " :gene <" + g +">");
-                }
-            }
+            nonSangerGenes.add(g.getHugoGeneSymbolAllCaps());
         }
 
         map.put("sangerGenes", sangerGenes);
@@ -165,7 +152,7 @@ public class GisticJSON extends HttpServlet {
                 out.close();
             }
         } catch (DaoException e) {
-            log.debug(e);
+            log.error("Error occurred", e);
             throw new ServletException(e);
         }
     }

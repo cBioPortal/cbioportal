@@ -45,8 +45,8 @@ import java.util.Map;
 import org.apache.commons.codec.binary.Base64;
 import org.apache.commons.httpclient.HttpException;
 import org.apache.commons.io.IOUtils;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.mskcc.cbio.portal.model.virtualstudy.VirtualStudy;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpEntity;
@@ -64,7 +64,7 @@ import org.springframework.web.client.RestTemplate;
 
 public class SessionServiceUtil {
 
-    private static Log LOG = LogFactory.getLog(SessionServiceUtil.class);
+    private static Logger LOG = LoggerFactory.getLogger(SessionServiceUtil.class);
 
     /**
      * Returns an ServletRequest parameter map for a given sessionId. 

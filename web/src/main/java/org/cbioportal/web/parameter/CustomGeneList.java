@@ -3,8 +3,8 @@ package org.cbioportal.web.parameter;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.cbioportal.session_service.domain.Session;
 import org.cbioportal.session_service.domain.SessionType;
 
@@ -13,7 +13,7 @@ import java.io.IOException;
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class CustomGeneList extends Session {
 
-    private final Log LOG = LogFactory.getLog(CustomGeneList.class);
+    private final Logger LOG = LoggerFactory.getLogger(CustomGeneList.class);
     private CustomGeneListData data;
 
     @Override
@@ -22,7 +22,7 @@ public class CustomGeneList extends Session {
         try {
             this.data = mapper.readValue(mapper.writeValueAsString(data), CustomGeneListData.class);
         } catch (IOException e) {
-            LOG.error(e);
+            LOG.error("Error occurred", e);
         }
     }
 

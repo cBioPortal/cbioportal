@@ -55,7 +55,7 @@ export JAVA_HOME=<jre_installation_folder>
 ```
 export PORTAL_HOME=<cbioportal_configuration_folder>
 export JAVA_HOME=<jre_installation_folder>
-./importGenes.pl --genes <Mus_musculus.gene_info.gz> --gtf <gencode.v25.annotation.gtf> --genome-build <GRCh37>
+./importGenes.pl --genes <Mus_musculus.gene_info.gz> --gtf <gencode.vM25.annotation.gtf> --genome-build <GRCm38>
 ```
 **IMPORTANT NOTE**: 
 1. The **reference_genome** table needs to be populated before updating the **gene** table. Further details can be found in [this document](import-reference-genome.md). 

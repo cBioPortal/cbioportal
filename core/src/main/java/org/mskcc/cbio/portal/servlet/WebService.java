@@ -45,8 +45,8 @@ import java.util.*;
 import java.util.regex.Pattern;
 import javax.servlet.http.*;
 import javax.servlet.ServletException;
-import org.apache.logging.log4j.Logger;
-import org.apache.logging.log4j.LogManager;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * Core Web Service.
@@ -55,7 +55,7 @@ import org.apache.logging.log4j.LogManager;
  * @author Arthur Goldberg goldberg@cbio.mskcc.org
  */
 public class WebService extends HttpServlet {
-    private static Logger logger = LogManager.getLogger(WebService.class);
+    private static Logger logger = LoggerFactory.getLogger(WebService.class);
     public static final String CANCER_STUDY_ID = "cancer_study_id";
     public static final String CANCER_TYPE_ID = "cancer_type_id";
     public static final String GENETIC_PROFILE_ID = "genetic_profile_id";
@@ -171,14 +171,6 @@ public class WebService extends HttpServlet {
                 return;
             }
 
-            if (cmd.equals("getProteinArrayInfo")) {
-                getProteinArrayInfo(httpServletRequest, writer);
-                return;
-            }
-            if (cmd.equals("getProteinArrayData")) {
-                getProteinArrayData(httpServletRequest, writer);
-                return;
-            }
             if (cmd.equals("getMutSig")) {
                 getMutSig(httpServletRequest, writer);
                 return;
@@ -282,47 +274,7 @@ public class WebService extends HttpServlet {
         String out = GetNetwork.getNetwork(targetGeneList);
         writer.print(out);
     }
-
-    private void getProteinArrayInfo(HttpServletRequest httpServletRequest,
-                                     PrintWriter writer) throws DaoException, ProtocolException {
-        String cancerStudyId = WebserviceParserUtils.getCancerStudyId(httpServletRequest);
-        if (cancerStudyId == null) {
-            outputMissingParameterError(writer, CANCER_STUDY_ID);
-            return;
-        }
-        
-        String geneList = httpServletRequest.getParameter(GENE_LIST);
-        ArrayList<String> targetGeneList;
-        if (geneList == null || geneList.length() == 0) {
-            targetGeneList = null;
-        } else {
-            targetGeneList = getGeneList(httpServletRequest);
-        }
-
-        String type = httpServletRequest.getParameter(PROTEIN_ARRAY_TYPE);
-        writer.print(GetProteinArrayData.getProteinArrayInfo(cancerStudyId, targetGeneList, type));
-    }
-
-    private void getProteinArrayData(HttpServletRequest httpServletRequest,
-                                     PrintWriter writer) throws DaoException, ProtocolException {
-        String arrayId = httpServletRequest.getParameter(PROTEIN_ARRAY_ID);
-        String cancerStudyId = null;
-        if (arrayId == null || arrayId.length() == 0) {
-            cancerStudyId = WebserviceParserUtils.getCancerStudyIDs(httpServletRequest).iterator().next();
-        }
-        List<String> targetSampleIds = null;
-        if (null != httpServletRequest.getParameter(CASE_LIST)
-        		|| null != httpServletRequest.getParameter(CASE_SET_ID)
-        		|| null != httpServletRequest.getParameter(CASE_IDS_KEY))
-            targetSampleIds = WebserviceParserUtils.getSampleIds(httpServletRequest);
-        
-        String arrayInfo = httpServletRequest.getParameter("array_info");
-        boolean includeArrayInfo = arrayInfo!=null && arrayInfo.equalsIgnoreCase("1");
-        writer.print(GetProteinArrayData.getProteinArrayData(cancerStudyId, 
-                arrayId==null?null : Arrays.asList(arrayId.split("[ ,]+")), 
-                targetSampleIds, includeArrayInfo));
-    }
-
+    
     private void getTypesOfCancer(PrintWriter writer) throws DaoException, ProtocolException {
 
         String out = GetTypesOfCancer.getTypesOfCancer();

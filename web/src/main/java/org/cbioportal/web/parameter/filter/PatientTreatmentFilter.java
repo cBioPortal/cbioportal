@@ -1,11 +1,12 @@
 package org.cbioportal.web.parameter.filter;
 
+import java.io.Serializable;
 import java.util.Map;
 import java.util.Set;
 
 import org.cbioportal.web.parameter.SampleIdentifier;
 
-public class PatientTreatmentFilter {
+public class PatientTreatmentFilter implements Serializable {
     private String treatment;
 
     /**

@@ -2,8 +2,8 @@ package org.cbioportal.web.parameter;
 
 import java.io.IOException;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.cbioportal.session_service.domain.Session;
 import org.cbioportal.session_service.domain.SessionType;
 
@@ -14,7 +14,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class PageSettings extends Session {
 
-    private final Log LOG = LogFactory.getLog(PageSettings.class);
+    private final Logger LOG = LoggerFactory.getLogger(PageSettings.class);
     private PageSettingsData data;
 
     @Override
@@ -23,7 +23,7 @@ public class PageSettings extends Session {
         try {
             this.data = mapper.readValue(mapper.writeValueAsString(data), PageSettingsData.class);
         } catch (IOException e) {
-            LOG.error(e);
+            LOG.error("Error occurred", e);
         }
     }
 

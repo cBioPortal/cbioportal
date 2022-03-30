@@ -38,8 +38,8 @@ import java.util.Collections;
 import java.util.HashSet;
 import java.util.Set;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import org.cbioportal.model.User;
 import org.cbioportal.model.UserAuthorities;
@@ -51,7 +51,7 @@ import org.springframework.stereotype.Repository;
 @Repository
 public class SecurityMyBatisRepository implements SecurityRepository {
 
-    private static final Log log = LogFactory.getLog(SecurityMyBatisRepository.class);
+    private static final Logger log = LoggerFactory.getLogger(SecurityMyBatisRepository.class);
 
     @Autowired
     private SecurityMapper securityMapper;

@@ -206,21 +206,8 @@ public class StructuralVariantUtil {
             record.getSvStatus().equalsIgnoreCase(TabDelimitedFileUtil.NA_STRING)) {
             return false;
         }
-        Boolean hasNoEnsemblExonValues = (TabDelimitedFileUtil.NA_STRING.equalsIgnoreCase(record.getSite1EnsemblTranscriptId()) &&
-                TabDelimitedFileUtil.NA_STRING.equalsIgnoreCase(record.getSite2EnsemblTranscriptId()) &&
-                TabDelimitedFileUtil.NA_STRING.equalsIgnoreCase(record.getSite1Region()) &&
-                TabDelimitedFileUtil.NA_STRING.equalsIgnoreCase(record.getSite2Region()) &&
-                (record.getSite1RegionNumber() == null || record.getSite1RegionNumber() == -1) &&
-                (record.getSite2RegionNumber() == null || record.getSite2RegionNumber() == -1));
-        Boolean hasAllEnsemblExonValues = (!TabDelimitedFileUtil.NA_STRING.equalsIgnoreCase(record.getSite1EnsemblTranscriptId()) &&
-                !TabDelimitedFileUtil.NA_STRING.equalsIgnoreCase(record.getSite2EnsemblTranscriptId()) &&
-                !TabDelimitedFileUtil.NA_STRING.equalsIgnoreCase(record.getSite1Region()) &&
-                !TabDelimitedFileUtil.NA_STRING.equalsIgnoreCase(record.getSite2Region()) &&
-                (record.getSite1RegionNumber() != null && record.getSite1RegionNumber() != -1) &&
-                (record.getSite2RegionNumber() != null && record.getSite2RegionNumber() != -1));
 
-        return ( hasNoEnsemblExonValues || hasAllEnsemblExonValues ) &&
-                ((record.getSite1EntrezGeneId() != null && record.getSite1EntrezGeneId() != Long.MIN_VALUE) || !TabDelimitedFileUtil.NA_STRING.equalsIgnoreCase(record.getSite1HugoSymbol()) || (record.getSite2EntrezGeneId() != null && record.getSite2EntrezGeneId() != Long.MIN_VALUE) || !TabDelimitedFileUtil.NA_STRING.equalsIgnoreCase(record.getSite2HugoSymbol()));
+        return ((record.getSite1EntrezGeneId() != null && record.getSite1EntrezGeneId() != Long.MIN_VALUE) || !TabDelimitedFileUtil.NA_STRING.equalsIgnoreCase(record.getSite1HugoSymbol()) || (record.getSite2EntrezGeneId() != null && record.getSite2EntrezGeneId() != Long.MIN_VALUE) || !TabDelimitedFileUtil.NA_STRING.equalsIgnoreCase(record.getSite2HugoSymbol()));
     }
 
 }

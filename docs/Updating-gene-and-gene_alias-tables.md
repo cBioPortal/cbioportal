@@ -65,7 +65,7 @@ export JAVA_HOME=<jre_installation_folder>
 5. For mouse genes only: to load genes only to the **reference_genome_gene** table without updating the **gene** table, please use the following command:
 ### Mouse genes
 ```
-./importGenes.pl --gtf <gencode.v27.annotation.gtf> --genome-build <GRCh37>
+./importGenes.pl --gtf <gencode.vM25.annotation.gtf> --genome-build <GRCm38>
 ```
 6- :warning: Check the `gene` and `gene_alias` tables to verify that they are filled correctly.
 ```sql

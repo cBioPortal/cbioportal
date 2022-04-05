@@ -221,7 +221,7 @@ def check_and_exit_if_fusions(cursor):
                 WHERE MUTATION_TYPE = "Fusion";
             """)
         fusion_count = cursor.fetchone()
-        if (fusion_count >= 1):
+        if (fusion_count[0] >= 1):
             print('Found %i fusions in the mutation_event table.  Fusions are being replaced by structural variants. Any study with fusions need to be dropped.' % (fusion_count), file=ERROR_FILE)
             # get the list of studies that need to be cleaned up
             cursor.execute(
@@ -237,10 +237,10 @@ def check_and_exit_if_fusions(cursor):
                     GROUP BY cancer_study.CANCER_STUDY_IDENTIFIER
                     HAVING count(mutation.MUTATION_EVENT_ID) > 0
                 """)
-                rows = cursor.fetchall()
-                print("The following studies have fusions in the mutation_event table:", file=ERROR_FILE)
-                for row in rows:
-                    print("\t%s" % (row[0]), file=ERROR_FILE)
+            rows = cursor.fetchall()
+            print("The following studies have fusions in the mutation_event table:", file=ERROR_FILE)
+            for row in rows:
+                print("\t%s" % (row[0]), file=ERROR_FILE)
             sys.exit(1)
     
     except MySQLdb.Error as msg:
@@ -471,7 +471,8 @@ def main():
             run_migration(db_version, sql_filename, connection, cursor, parser.no_transaction, stop_at_version=SAMPLE_FK_MIGRATION_STEP)
             check_and_remove_type_of_cancer_id_foreign_key(cursor)
             db_version = get_db_version(cursor)
-        if is_version_larger(FUSIONS_VERBOTEN_STEP, db_version:
+        if is_version_larger(FUSIONS_VERBOTEN_STEP, db_version):
+            print("FUSIONS VERBOTEN STEP")
             run_migration(db_version, sql_filename, connection, cursor, parser.no_transaction, stop_at_version=FUSIONS_VERBOTEN_STEP)
             check_and_exit_if_fusions(cursor)
             db_version = get_db_version(cursor)

@@ -566,7 +566,7 @@
       <dependency>
         <groupId>com.vlkan.hrrs</groupId>
         <artifactId>hrrs-servlet-filter-base64</artifactId>
-        <version>0.5</version>
+        <version>0.7.0</version>
       </dependency>
       <!-- guava -->
       <dependency>

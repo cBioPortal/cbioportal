@@ -1,18 +1,16 @@
 package org.cbioportal.proxy;
 
-import org.apache.commons.codec.binary.Base64;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.*;
 import org.springframework.http.converter.StringHttpMessageConverter;
-import org.springframework.util.CollectionUtils;
 import org.springframework.util.StringUtils;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.client.RestTemplate;
-import org.springframework.web.util.UriComponentsBuilder;
 
 import javax.servlet.http.HttpServletRequest;
 
@@ -20,11 +18,8 @@ import java.io.*;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.nio.charset.StandardCharsets;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Map;
 import java.util.Properties;
-import java.util.stream.Collectors;
+
 
 @RestController
 public class ProxyController {
@@ -33,6 +28,9 @@ public class ProxyController {
 
     private Logger LOG = LoggerFactory.getLogger(ProxyController.class);
 
+    @Autowired
+    private Monkifier monkifier;
+    
     @RequestMapping("/**")
     public String proxy(@RequestBody(required = false) String body, HttpMethod method, HttpServletRequest request)
         throws URISyntaxException {
@@ -77,10 +75,10 @@ public class ProxyController {
             throw new OncoKBProxyUserAgreementException();
         }
         
-        String decodedBody = body == null ? null: this.decodeBase64(body);
+        String decodedBody = body == null ? null: this.monkifier.decodeBase64(body);
         String encodedPath = request.getPathInfo().replaceFirst("/A8F74CD7851BDEE8DCD2E86AB4E2A711/", "");
-        String decodedPath = this.decodeBase64(encodedPath);
-        String decodedQueryString = this.decodeQueryString(request);
+        String decodedPath = this.monkifier.decodeBase64(encodedPath);
+        String decodedQueryString = this.monkifier.decodeQueryString(request);
         
         String response = exchangeOncokbData(
             decodedBody,
@@ -90,38 +88,7 @@ public class ProxyController {
             getOncokbHeaders(request)
         );
         
-        return "\"" + this.encodeBase64(response) + "\"";
-    }
-
-    private String decodeBase64(String value) {
-        return new String(Base64.decodeBase64(value.getBytes()));
-    }
-
-    private String encodeBase64(String value) {
-        return value == null ? "": new String(Base64.encodeBase64(value.getBytes()));
-    }
-    
-    private String decodeQueryString(HttpServletRequest request) {
-        if (request.getQueryString() == null) {
-            return null;
-        }
-        
-        Map<String, String[]> encodedQueryParams = request.getParameterMap();
-        Map<String, List<String>> decodedQueryParams = encodedQueryParams
-            .entrySet()
-            .stream()
-            .collect(
-                Collectors.toMap(
-                    e -> this.decodeBase64(e.getKey()),
-                    e -> Arrays.stream(e.getValue()).map(this::decodeBase64).collect(Collectors.toList())
-                )
-            );
-        
-        return UriComponentsBuilder
-            .newInstance()
-            .queryParams(CollectionUtils.toMultiValueMap(decodedQueryParams))
-            .build()
-            .toString();
+        return "\"" + this.monkifier.encodeBase64(response) + "\"";
     }
     
     private String exchangeOncokbData(

@@ -2,10 +2,14 @@ package org.mskcc.cbio.portal.dao;
 
 import java.sql.*;
 import java.util.*;
+import java.util.stream.Collectors;
 
+import org.apache.commons.lang3.tuple.Pair;
 import org.cbioportal.model.GenericEntityProperty;
 import org.cbioportal.model.GeneticEntity;
 import org.cbioportal.model.meta.GenericAssayMeta;
+import org.mskcc.cbio.portal.model.GeneticAlterationType;
+import org.mskcc.cbio.portal.model.GeneticProfile;
 
 public class DaoGenericAssay {
 
@@ -118,15 +122,15 @@ public class DaoGenericAssay {
         }
     }
 
-    public static boolean geneticEntitiesOnlyExistInSingleStudy(int cancerStudyId) throws DaoException {
+    public static boolean geneticEntitiesOnlyExistInSingleStudy(int geneticProfileId) throws DaoException {
         Connection con = null;
         PreparedStatement pstmt = null;
         ResultSet rs = null;
 
         try {
             con = JdbcUtil.getDbConnection(DaoGeneticEntity.class);
-            pstmt = con.prepareStatement("SELECT DISTINCT CANCER_STUDY_ID FROM genetic_profile WHERE GENETIC_PROFILE_ID IN (SELECT GENETIC_PROFILE_ID FROM genetic_alteration WHERE GENETIC_ENTITY_ID IN (SELECT GENETIC_ENTITY_ID FROM genetic_alteration WHERE GENETIC_PROFILE_ID IN (SELECT GENETIC_PROFILE_ID FROM genetic_profile WHERE CANCER_STUDY_ID=? AND GENETIC_ALTERATION_TYPE='GENERIC_ASSAY')))");
-            pstmt.setInt(1, cancerStudyId);
+            pstmt = con.prepareStatement("SELECT DISTINCT CANCER_STUDY_ID FROM genetic_profile WHERE GENETIC_PROFILE_ID IN (SELECT GENETIC_PROFILE_ID FROM genetic_alteration WHERE GENETIC_ENTITY_ID IN (SELECT GENETIC_ENTITY_ID FROM genetic_alteration WHERE GENETIC_PROFILE_ID=?))");
+            pstmt.setInt(1, geneticProfileId);
             rs = pstmt.executeQuery();
 
             List<Integer> studies = new ArrayList<Integer>();
@@ -142,5 +146,43 @@ public class DaoGenericAssay {
         }
         // do not update if there is an error
         return false;
+    }
+
+    /**
+     * delete generic assay meta records if meta is not shared with other studies
+     * check and delete generic assay meta records profile by profile
+     * @throws DaoException
+     */
+    public static void checkAndDeleteGenericAssayMetaInStudy(int internalCancerStudyId) throws DaoException {
+        List<GeneticProfile> geneticProfiles = DaoGeneticProfile.getAllGeneticProfiles(internalCancerStudyId);
+        List<GeneticProfile> genericAssayProfiles = geneticProfiles.stream().filter(profile -> profile.getGeneticAlterationType() == GeneticAlterationType.GENERIC_ASSAY).collect(Collectors.toList());
+        List<Pair<Integer, String>> deleteGenericAssayStatements = new ArrayList<>();
+
+        for (GeneticProfile profile : genericAssayProfiles) {
+            if (DaoGenericAssay.geneticEntitiesOnlyExistInSingleStudy(profile.getGeneticProfileId())) {
+                deleteGenericAssayStatements.add(Pair.of(profile.getGeneticProfileId(), "DELETE FROM generic_entity_properties WHERE GENETIC_ENTITY_ID IN (SELECT GENETIC_ENTITY_ID FROM genetic_alteration WHERE GENETIC_PROFILE_ID=?)"));
+                deleteGenericAssayStatements.add(Pair.of(profile.getGeneticProfileId(), "DELETE FROM genetic_entity WHERE ID IN (SELECT GENETIC_ENTITY_ID FROM genetic_alteration WHERE GENETIC_PROFILE_ID=?)"));
+            }
+        }
+
+        Connection con = null;
+        PreparedStatement pstmt = null;
+        ResultSet rs = null;
+
+        try {
+            con = JdbcUtil.getDbConnection(DaoCancerStudy.class);
+            for (Pair<Integer, String> profileIdAndStatementPair : deleteGenericAssayStatements) {
+                pstmt = con.prepareStatement(profileIdAndStatementPair.getValue());
+                if (profileIdAndStatementPair.getValue().contains("?")) {
+                    pstmt.setInt(1, profileIdAndStatementPair.getKey());
+                }
+                pstmt.executeUpdate();
+                pstmt.close();
+            }
+        } catch (SQLException e) {
+            throw new DaoException(e);
+        } finally {
+            JdbcUtil.closeAll(DaoCancerStudy.class, con, pstmt, rs);
+        }
     }
 }

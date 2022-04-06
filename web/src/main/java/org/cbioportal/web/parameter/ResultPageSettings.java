@@ -9,7 +9,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 @JsonIgnoreProperties(ignoreUnknown = true)
-@JsonInclude(Include.NON_NULL)
+@JsonInclude(Include.ALWAYS)
 public class ResultPageSettings extends PageSettingsData implements Serializable {
     
     private List<ClinicalTrackConfig> clinicallist = new ArrayList<>();
@@ -23,8 +23,9 @@ public class ResultPageSettings extends PageSettingsData implements Serializable
     }
 }
 
+@JsonInclude(Include.ALWAYS)
 class ClinicalTrackConfig {
     public String stableId;
     public String sortOrder;
-    public boolean gapOn;
+    public Boolean gapOn;
 }

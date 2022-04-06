@@ -610,7 +610,27 @@ public class StudyViewController {
         
         List<String> studyIds = new ArrayList<>();
         List<String> sampleIds = new ArrayList<>();
+        // first get samples that are filtered by all current filters - this will give us
+        //  the by-row sample counts
         studyViewFilterUtil.extractStudyAndSampleIds(studyViewFilterApplier.apply(interceptedStudyViewFilter), studyIds, sampleIds);
+        List<Sample> filteredSamples = sampleService.fetchSamples(studyIds, sampleIds, Projection.DETAILED.name());
+
+        List<String> studyIdsWithoutNumericalFilter = new ArrayList<>();
+        List<String> sampleIdsWithoutNumericalFilter = new ArrayList<>();
+        // next, get samples that are filtered without the numerical filter - this will
+        //  give us the violin plot data
+        if (interceptedStudyViewFilter.getClinicalDataFilters() != null) {
+            // Remove numerical clinical data filter, if there is one
+            interceptedStudyViewFilter.getClinicalDataFilters().stream()
+                .filter(f->f.getAttributeId().equals(numericalAttributeId))
+                .findAny()
+                .ifPresent(f->interceptedStudyViewFilter.getClinicalDataFilters().remove(f));
+        }
+        studyViewFilterUtil.extractStudyAndSampleIds(
+            studyViewFilterApplier.apply(interceptedStudyViewFilter), 
+            studyIdsWithoutNumericalFilter, 
+            sampleIdsWithoutNumericalFilter
+        );
 
         if (sampleIds.isEmpty()) {
             return new ResponseEntity<>(result, HttpStatus.OK);
@@ -629,19 +649,18 @@ public class StudyViewController {
         List<String> studyIdsOfPatients = new ArrayList<>();
         Map<String, Map<String, List<Sample>>> patientToSamples = null;
 
-
         if (CollectionUtils.isNotEmpty(patientAttributeIds)) {
-            List<Sample> samples = sampleService.fetchSamples(studyIds, sampleIds, Projection.DETAILED.name());
-            List<Patient> patients = patientService.getPatientsOfSamples(studyIds, sampleIds);
+            List<Sample> samplesWithoutNumericalFilter = sampleService.fetchSamples(studyIdsWithoutNumericalFilter, sampleIdsWithoutNumericalFilter, Projection.DETAILED.name());
+            List<Patient> patients = patientService.getPatientsOfSamples(studyIdsWithoutNumericalFilter, sampleIdsWithoutNumericalFilter);
             patientIds = patients.stream().map(Patient::getStableId).collect(Collectors.toList());
             studyIdsOfPatients = patients.stream().map(Patient::getCancerStudyIdentifier).collect(Collectors.toList());
-            patientToSamples = samples.stream().collect(
+            patientToSamples = samplesWithoutNumericalFilter.stream().collect(
                 Collectors.groupingBy(Sample::getPatientStableId, Collectors.groupingBy(Sample::getCancerStudyIdentifier))
             );
         }
 
         List<ClinicalData> clinicalDataList = clinicalDataFetcher.fetchClinicalData(
-            studyIds, sampleIds, patientIds, studyIdsOfPatients, sampleAttributeIds, patientAttributeIds, null
+            studyIdsWithoutNumericalFilter, sampleIdsWithoutNumericalFilter, patientIds, studyIdsOfPatients, sampleAttributeIds, patientAttributeIds, null
         );
 
         List<ClinicalData> sampleClinicalDataList;
@@ -656,6 +675,7 @@ public class StudyViewController {
                     if (samplesForPatient != null) {
                         for (Sample s: samplesForPatient) {
                             ClinicalData newData = new ClinicalData();
+                            newData.setInternalId(s.getInternalId());
                             newData.setAttrId(d.getAttrId());
                             newData.setPatientId(d.getPatientId());
                             newData.setStudyId(d.getStudyId());
@@ -682,6 +702,7 @@ public class StudyViewController {
         
         result = violinPlotService.getClinicalViolinPlotData(
             sampleClinicalDataList,
+            filteredSamples,
             axisStart,
             axisEnd,
             numCurvePoints,

@@ -18,4 +18,6 @@ public interface TreatmentMapper {
     Integer getTreatmentCount(List<String> sampleIds, List<String> studyIds, String key);
 
     Integer getSampleCount(List<String> sampleIds, List<String> studyIds);
+
+    Boolean studyIdHasTreatments(String studyId, String key);
 }

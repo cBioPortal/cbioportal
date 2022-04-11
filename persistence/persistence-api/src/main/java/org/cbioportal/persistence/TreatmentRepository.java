@@ -1,13 +1,13 @@
 package org.cbioportal.persistence;
 
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-
 import org.cbioportal.model.ClinicalEventKeyCode;
 import org.cbioportal.model.ClinicalEventSample;
 import org.cbioportal.model.Treatment;
 import org.springframework.cache.annotation.Cacheable;
+
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
 public interface TreatmentRepository {
     @Cacheable(cacheResolver = "generalRepositoryCacheResolver", condition = "@cacheEnabledConfig.getEnabled()")
@@ -27,4 +27,7 @@ public interface TreatmentRepository {
 
     @Cacheable(cacheResolver = "generalRepositoryCacheResolver", condition = "@cacheEnabledConfig.getEnabled()")
     public Integer getSampleCount(List<String> studies);
+
+    @Cacheable(cacheResolver = "generalRepositoryCacheResolver", condition = "@cacheEnabledConfig.getEnabled()")
+    public Boolean studyIdHasTreatments(String studyId, ClinicalEventKeyCode key);
 }

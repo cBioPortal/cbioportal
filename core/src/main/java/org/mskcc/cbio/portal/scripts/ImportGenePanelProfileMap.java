@@ -132,10 +132,27 @@ public class ImportGenePanelProfileMap extends ConsoleRunnable {
             // Loop over the values in the row
             for (int i = 0; i < row_data.size(); i++) {
                 
-                // Extract gene panel ID
                 String genePanelName = row_data.get(i);
-                GenePanel genePanel = DaoGenePanel.getGenePanelByStableId(genePanelName);
+                
+                // NA triggers specific case to indicate sample was not profiled
+                // e.g. an aggregate study from multiple institutions
+                // on of which definitely did not profile for the sv profile
+                if ("NA".equals(genePanelName)) {
+                    continue;
+                }
+                
+                // WXS triggers               
+                if ("WXS".equals(genePanelName) || "WGS".equals(genePanelName)) {
+                    System.out.println("Here I am importing WXS/WGS");
+                    DaoSampleProfile.updateSampleProfile(
+                        sample.getInternalId(),
+                        profileIds.get(i),
+                        null);
+                    continue;
+                }
 
+                // Extract gene panel ID
+                GenePanel genePanel = DaoGenePanel.getGenePanelByStableId(genePanelName);
                 // Add gene panel information to database
                 if (genePanel != null) {
                     DaoSampleProfile.updateSampleProfile(

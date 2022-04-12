@@ -7,6 +7,7 @@ import java.util.regex.Pattern;
 import javax.servlet.http.HttpServletResponse;
 import javax.validation.constraints.Size;
 
+import com.google.common.collect.ImmutableMap;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.cbioportal.web.parameter.*;
@@ -50,6 +51,15 @@ public class SessionServiceController {
     @Value("${session.service.url:}")
     private String sessionServiceURL;
 
+    private static Map<SessionPage, Class<? extends PageSettingsData>> pageTypeToData;
+    
+    static {
+         SessionServiceController.pageTypeToData = ImmutableMap.of(
+             SessionPage.result_view, ResultPageSettings.class,
+             SessionPage.study_view, StudyPageSettings.class
+         );
+    }
+    
     private boolean isAuthorized() {
 
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
@@ -120,7 +130,13 @@ public class SessionServiceController {
                 if (!(isAuthorized())) {
                     return new ResponseEntity<>(HttpStatus.SERVICE_UNAVAILABLE);
                 }
-                StudyPageSettings studyPageSettings = mapper.readValue(body.toString(), StudyPageSettings.class);
+                Class<? extends PageSettingsData> pageDataClass = pageTypeToData.get(
+                    SessionPage.valueOf((String) body.get("page"))
+                );
+                PageSettingsData studyPageSettings = mapper.readValue(
+                    body.toString(),
+                    pageDataClass
+                );
                 studyPageSettings.setOwner(userName());
                 httpEntity = new HttpEntity<>(studyPageSettings, sessionServiceRequestHandler.getHttpHeaders());
 

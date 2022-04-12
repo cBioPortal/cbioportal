@@ -81,9 +81,7 @@ public class SAMLUserDetailsServiceImpl implements SAMLUserDetailsService
         String userId = null;
         // get userid and name: iterate over attributes searching for "mail" and "displayName":
         for (Attribute cAttribute : credential.getAttributes()) {
-            log.debug("loadUserBySAML(), parsing attribute - " + cAttribute.toString());
-            log.debug("loadUserBySAML(), parsing attribute - " + cAttribute.getName());
-            log.debug("loadUserBySAML(), parsing attribute - " + credential.getAttributeAsString(cAttribute.getName()));
+            log.debug("loadUserBySAML(), parsing attribute: " + cAttribute.getName() + "=" + credential.getAttributeAsString(cAttribute.getName()));
             if (userId == null && cAttribute.getName().equals(samlIdpMetadataEmailAttributeName))
             {
                 userId = credential.getAttributeAsString(cAttribute.getName());
@@ -95,7 +93,7 @@ public class SAMLUserDetailsServiceImpl implements SAMLUserDetailsService
         try {
             //validate parsing:
             if (userId == null) {
-                String errorMessage = "loadUserBySAML(), Could not parse the user details from credential message. Expected 'mail' attribute, but attribute was not found. "
+                String errorMessage = "loadUserBySAML(), Could not parse the user details from credential message. Expected '" + samlIdpMetadataEmailAttributeName + "' attribute, but attribute was not found. "
                         + " Previous debug messages show which attributes were found and parsed.";
                 log.error(errorMessage);
                 throw new Exception(errorMessage);

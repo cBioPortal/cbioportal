@@ -93,8 +93,11 @@ public class SessionServiceController {
         return sessions.isEmpty() ? null : sessions.get(0);
     }
 
-    private ResponseEntity<Session> addSession(SessionType type, Optional<SessionOperation> operation,
-            JSONObject body) {
+    private ResponseEntity<Session> addSession(
+        SessionType type, 
+        Optional<SessionOperation> operation,
+        JSONObject body
+    ) {
         try {
             HttpEntity<?> httpEntity;
             ObjectMapper mapper = new ObjectMapper().configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES,
@@ -331,7 +334,7 @@ public class SessionServiceController {
                 if (pageSettings == null) {
                     addSession(SessionType.settings, Optional.empty(), jsonObject);
                 } else {
-                    updatedPageSettingSession(pageSettings, jsonObject, response);
+                    updatedPageSettingSession(pageSettings, settingsData, response);
                 }
                 response.setStatus(HttpStatus.OK.value());
             } else {
@@ -344,8 +347,11 @@ public class SessionServiceController {
     }
 
     // updates only allowed for type page settings session 
-    private void updatedPageSettingSession(PageSettings pageSettings, @RequestBody JSONObject body,
-                                           HttpServletResponse response) throws IOException {
+    private void updatedPageSettingSession(
+        PageSettings pageSettings, 
+        @RequestBody PageSettingsData body,
+        HttpServletResponse response
+    ) throws IOException {
 
         if (isAuthorized()) {
 
@@ -353,17 +359,16 @@ public class SessionServiceController {
                     false);
 
             PageSettingsData pageSettingsData = pageSettings.getData();
-            StudyPageSettings updatedPageSettings = mapper.readValue(body.toString(), StudyPageSettings.class);
             // only allow owner to update his session and see if the origin(studies) are same
             if (userName().equals(pageSettingsData.getOwner()) &&
-                sameOrigin(pageSettingsData.getOrigin(), updatedPageSettings.getOrigin())) {
+                sameOrigin(pageSettingsData.getOrigin(), body.getOrigin())) {
 
-                updatedPageSettings.setCreated(pageSettingsData.getCreated());
-                updatedPageSettings.setOwner(pageSettingsData.getOwner());
-                updatedPageSettings.setOrigin(pageSettingsData.getOrigin());
+                body.setCreated(pageSettingsData.getCreated());
+                body.setOwner(pageSettingsData.getOwner());
+                body.setOrigin(pageSettingsData.getOrigin());
 
                 RestTemplate restTemplate = new RestTemplate();
-                HttpEntity<Object> httpEntity = new HttpEntity<>(updatedPageSettings, sessionServiceRequestHandler.getHttpHeaders());
+                HttpEntity<Object> httpEntity = new HttpEntity<>(body, sessionServiceRequestHandler.getHttpHeaders());
 
                 restTemplate.put(sessionServiceURL + pageSettings.getType() + "/" + pageSettings.getId(), httpEntity);
                 response.setStatus(HttpStatus.OK.value());

@@ -27,9 +27,3 @@ public class ResultPageSettings extends PageSettingsData implements Serializable
     }
 }
 
-@JsonInclude(Include.ALWAYS)
-class ClinicalTrackConfig {
-    public String stableId;
-    public String sortOrder;
-    public Boolean gapOn;
-}

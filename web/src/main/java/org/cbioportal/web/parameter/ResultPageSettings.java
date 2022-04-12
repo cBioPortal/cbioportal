@@ -11,7 +11,11 @@ import java.util.List;
 @JsonIgnoreProperties(ignoreUnknown = true)
 @JsonInclude(Include.ALWAYS)
 public class ResultPageSettings extends PageSettingsData implements Serializable {
-    
+
+    /**
+     * Configuration of clinical tracks
+     * Use lowercase instead of camelCase to be compatible with url query param 
+     */
     private List<ClinicalTrackConfig> clinicallist = new ArrayList<>();
 
     public List<ClinicalTrackConfig> getClinicallist() {

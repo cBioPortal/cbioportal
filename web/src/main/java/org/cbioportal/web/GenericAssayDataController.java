@@ -4,8 +4,10 @@ import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
 import org.apache.commons.lang3.StringUtils;
+import org.cbioportal.model.GenePanel;
 import org.cbioportal.model.GenericAssayData;
 import org.cbioportal.service.GenericAssayService;
+import org.cbioportal.service.exception.GenePanelNotFoundException;
 import org.cbioportal.service.exception.MolecularProfileNotFoundException;
 import org.cbioportal.web.config.PublicApiTags;
 import org.cbioportal.web.config.annotation.PublicApi;
@@ -22,6 +24,7 @@ import springfox.documentation.annotations.ApiIgnore;
 
 import javax.validation.Valid;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -34,6 +37,31 @@ public class GenericAssayDataController {
 
     @Autowired
     private GenericAssayService genericAssayService;
+
+    @PreAuthorize("hasPermission(#molecularProfileId, 'MolecularProfileId', T(org.cbioportal.utils.security.AccessLevel).READ)")
+    @RequestMapping(value = "/generic-assay-data/{molecularProfileId}/generic-assay/{genericAssayStableId}", method = RequestMethod.GET,
+        produces = MediaType.APPLICATION_JSON_VALUE)
+    @ApiOperation("Get generic_assay_data in a molecular profile")
+    public ResponseEntity<List<GenericAssayData>> getGenericAssayDataInMolecularProfile(
+        @ApiParam(required = true, value = "Molecular Profile ID")
+        @PathVariable String molecularProfileId,
+        @ApiParam(required = true, value = "Generic Assay stable ID")
+        @PathVariable String genericAssayStableId,
+        @ApiParam("Level of detail of the response")
+        @RequestParam(defaultValue = "SUMMARY") Projection projection) throws MolecularProfileNotFoundException {
+
+        List<GenericAssayData> result;
+        result = filterEmptyGenericAssayData(genericAssayService.fetchGenericAssayData(molecularProfileId,
+            null, Arrays.asList(genericAssayStableId) , projection.name()));
+
+        if (projection == Projection.META) {
+            HttpHeaders responseHeaders = new HttpHeaders();
+            responseHeaders.add(HeaderKeyConstants.TOTAL_COUNT, String.valueOf(result.size()));
+            return new ResponseEntity<>(responseHeaders, HttpStatus.OK);
+        } else {
+            return new ResponseEntity<>(result, HttpStatus.OK);
+        }
+    }
     
     @PreAuthorize("hasPermission(#molecularProfileId, 'MolecularProfileId', T(org.cbioportal.utils.security.AccessLevel).READ)")
     @RequestMapping(value = "/generic_assay_data/{molecularProfileId}/fetch",

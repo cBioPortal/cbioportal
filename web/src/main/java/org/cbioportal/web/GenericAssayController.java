@@ -7,6 +7,7 @@ import org.apache.commons.lang3.StringUtils;
 import springfox.documentation.annotations.ApiIgnore;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -54,7 +55,7 @@ public class GenericAssayController {
     @RequestMapping(value = "/generic_assay_meta/fetch", method = RequestMethod.POST, consumes = MediaType.APPLICATION_JSON_VALUE,
         produces = MediaType.APPLICATION_JSON_VALUE)
     @ApiOperation("Fetch meta data for generic-assay by ID")
-    public ResponseEntity<List<GenericAssayMeta>> fetchGenericAssayMetaData(
+    public ResponseEntity<List<GenericAssayMeta>> fetchGenericAssayMeta(
         @ApiParam(required = true, value = "List of Molecular Profile ID or List of Stable ID")
         @Valid @RequestBody GenericAssayMetaFilter genericAssayMetaFilter,
         @ApiParam("Level of detail of the response")
@@ -70,5 +71,36 @@ public class GenericAssayController {
             }
             return new ResponseEntity<>(result, HttpStatus.OK);
     }
+
+    // PreAuthorize is removed for performance reason
+    @RequestMapping(value = "/generic-assay-meta/{molecularProfileId}", method = RequestMethod.GET,
+        produces = MediaType.APPLICATION_JSON_VALUE)
+    @ApiOperation("Fetch meta data for generic-assay by ID")
+    public ResponseEntity<List<GenericAssayMeta>> getGenericAssayMeta(
+        @ApiParam(required = true, value = "Molecular Profile ID")
+        @PathVariable String molecularProfileId,
+        @ApiParam("Level of detail of the response")
+        @RequestParam(defaultValue = "SUMMARY") Projection projection) throws GenericAssayNotFoundException {
+        List<GenericAssayMeta> result;
+        
+        result = genericAssayService.getGenericAssayMetaByStableIdsAndMolecularIds(null, Arrays.asList(molecularProfileId), projection.name());
+
+        return new ResponseEntity<>(result, HttpStatus.OK);
+    }
+
+    @RequestMapping(value = "/generic-assay-meta/generic-assay/{genericAssayStableId}", method = RequestMethod.GET,
+        produces = MediaType.APPLICATION_JSON_VALUE)
+    @ApiOperation("Fetch meta data for generic-assay by ID")
+    public ResponseEntity<List<GenericAssayMeta>> getGenericAssayMeta_ga(
+        @ApiParam(required = false, value = "Generic Assay stable ID")
+        @PathVariable String genericAssayStableId,
+        @ApiParam("Level of detail of the response")
+        @RequestParam(defaultValue = "SUMMARY") Projection projection) throws GenericAssayNotFoundException {
+        List<GenericAssayMeta> result;         
+        result = genericAssayService.getGenericAssayMetaByStableIdsAndMolecularIds(Arrays.asList(genericAssayStableId), null, projection.name());
+            
+        return new ResponseEntity<>(result, HttpStatus.OK);
+    }
+
 
 }

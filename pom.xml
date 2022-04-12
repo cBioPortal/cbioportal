@@ -298,6 +298,7 @@
     <spring.social.version>1.1.6.RELEASE</spring.social.version>
     <jackson.version>2.13.0</jackson.version>
     <mysql-connector.version>5.1.48</mysql-connector.version>
+    <slf4j.version>1.7.32</slf4j.version>
     <webapp-runner.version>8.5.61.0</webapp-runner.version>
 
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
@@ -579,7 +580,12 @@
       <dependency>
         <groupId>org.slf4j</groupId>
         <artifactId>slf4j-api</artifactId>
-        <version>1.7.32</version>
+        <version>${slf4j.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>org.slf4j</groupId>
+        <artifactId>slf4j-simple</artifactId>
+        <version>${slf4j.version}</version>
       </dependency>
       <!-- spring -->
       <dependency>

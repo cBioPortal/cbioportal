@@ -13,7 +13,10 @@ import com.fasterxml.jackson.annotation.JsonTypeInfo;
 
 @JsonIgnoreProperties(ignoreUnknown = true)
 @JsonTypeInfo(use = JsonTypeInfo.Id.NAME, include = JsonTypeInfo.As.EXISTING_PROPERTY, property = "page", visible = true)
-@JsonSubTypes({ @JsonSubTypes.Type(value = StudyPageSettings.class, name = "study_view") })
+@JsonSubTypes({ 
+    @JsonSubTypes.Type(value = ResultPageSettings.class, name = "result_view"),
+    @JsonSubTypes.Type(value = StudyPageSettings.class, name = "study_view") 
+})
 @JsonInclude(Include.NON_NULL)
 public abstract class PageSettingsData implements Serializable {
 

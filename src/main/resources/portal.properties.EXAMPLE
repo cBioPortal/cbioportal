@@ -394,3 +394,8 @@ persistence.cache_type=no-cache
 
 # Set comparison categorical "NA" value (not case sensitive)
 # comparison.categorical_na_values=NA,unknown
+#
+# Genome nexus urls
+#
+# genomenexus.url=v1.genomenexus.org
+# genomenexus.url.grch38=grch38.genomenexus.org

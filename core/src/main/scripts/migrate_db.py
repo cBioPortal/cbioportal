@@ -24,7 +24,7 @@ DEFAULT_GENOME_REFERENCE = 'hg19'
 MULTI_REFERENCE_GENOME_SUPPORT_MIGRATION_STEP = (2,11,0)
 GENERIC_ASSAY_MIGRATION_STEP = (2,12,1)
 SAMPLE_FK_MIGRATION_STEP = (2,12,9)
-FUSIONS_VERBOTEN_STEP = (2, 12, 13) # TODO check version -- it is when we are not allowed to have fusions anymore
+FUSIONS_VERBOTEN_STEP = (2, 12, 14)
 
 class PortalProperties(object):
     """ Properties object class, just has fields for db conn """

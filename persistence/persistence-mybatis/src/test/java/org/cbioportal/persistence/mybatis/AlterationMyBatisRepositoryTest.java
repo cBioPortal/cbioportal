@@ -313,6 +313,7 @@ public class AlterationMyBatisRepositoryTest {
     public void getSampleAlterationCountsReturnsZeroForMutationsAndCnaSelectorsInNone() {
         alterationFilter.setCnaTypeSelect(Select.none());
         alterationFilter.setMutationTypeSelect(Select.none());
+	alterationFilter.setStructuralVariants(false);
         List<AlterationCountByGene> result = alterationMyBatisRepository.getSampleAlterationCounts(
             new TreeSet<>(sampleIdToProfileId),
             entrezGeneIds,

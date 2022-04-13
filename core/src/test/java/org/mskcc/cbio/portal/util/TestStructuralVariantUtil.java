@@ -33,26 +33,6 @@ public class TestStructuralVariantUtil {
     }
 
     @Test
-    public void testInvalidStructuralVariantRecordWithIncompleteTranscriptInfo() {
-        // confirm that record does not meet minimum requirements for import
-        // this record is same as above but missing site 2 ensembl transcript id
-        StructuralVariant record = new StructuralVariant();
-        record.setSampleId("SMP0001");
-        record.setSvStatus("SOMATIC");
-        record.setSite1EntrezGeneId(654684L);
-        record.setSite1HugoSymbol("NA");
-        record.setSite1EnsemblTranscriptId("ENST29O3403");
-        record.setSite1Region("exon");
-        record.setSite1RegionNumber(5);
-        record.setSite2EntrezGeneId(-1L);
-        record.setSite2HugoSymbol("ALK1");
-        record.setSite2EnsemblTranscriptId("NA");
-        record.setSite2Region("exon");
-        record.setSite2RegionNumber(7);
-        Assert.assertFalse(structuralVariantUtil.hasRequiredStructuralVariantFields(record));
-    }
-
-    @Test
     public void testValidStructuralVariantRecordMissingGeneInfo() {
         // confirm that record does meet minimum requirements for import
         // record is missing site 1 gene info (renders record invalid)
@@ -74,7 +54,7 @@ public class TestStructuralVariantUtil {
     }
 
     @Test
-    public void testInvalidStructuralVariantRecordMissingGeneAndTranscriptInfo() {
+    public void testValidStructuralVariantRecordMissingSite1GeneAndTranscriptInfo() {
         // confirm that record does not meet minimum requirements for import
         // record is missing site 1 gene info (renders record invalid)
         // and missing site 2 entrez id but present site 2 hugo symbol
@@ -91,7 +71,7 @@ public class TestStructuralVariantUtil {
         record.setSite2EnsemblTranscriptId("ENST2843757657");
         record.setSite2Region("NA");
         record.setSite2RegionNumber(-1);
-        Assert.assertFalse(structuralVariantUtil.hasRequiredStructuralVariantFields(record));
+        Assert.assertTrue(structuralVariantUtil.hasRequiredStructuralVariantFields(record));
     }
 
     @Test

@@ -37,26 +37,20 @@ public class AlterationMyBatisRepository implements AlterationRepository {
             || allAlterationsExcludedDriverAnnotation(alterationFilter)
             || allAlterationsExcludedMutationStatus(alterationFilter)
             || allAlterationsExcludedDriverTierAnnotation(alterationFilter)) {
-            System.out.println("AND RETUREND SOMETHING EMPTY");
             return Collections.emptyList();
         }
 
         Set<String> molecularProfileIds = molecularProfileCaseIdentifiers.stream()
                 .map(MolecularProfileCaseIdentifier::getMolecularProfileId)
                 .collect(Collectors.toSet());
-        for (String mpi : molecularProfileIds) {
-            System.out.println(mpi);
-        }
         Map<String, MolecularAlterationType> profileTypeByProfileId = molecularProfileRepository
             .getMolecularProfiles(molecularProfileIds, "SUMMARY")
             .stream()
             .collect(Collectors.toMap(datum -> datum.getMolecularProfileId().toString(), MolecularProfile::getMolecularAlterationType));
-        System.out.println("profiletypebyprofileid " + profileTypeByProfileId.size());
         Map<MolecularAlterationType, List<MolecularProfileCaseIdentifier>> groupedIdentifiersByProfileType =
             alterationCountsMapper.getMolecularProfileCaseInternalIdentifier(new ArrayList<>(molecularProfileCaseIdentifiers), "SAMPLE_ID")
             .stream()
             .collect(Collectors.groupingBy(e -> profileTypeByProfileId.getOrDefault(e.getMolecularProfileId(), null)));
-        System.out.println("groupedIdentifiersbyprofiletype " + groupedIdentifiersByProfileType.size());
         return alterationCountsMapper.getSampleAlterationCounts(
             groupedIdentifiersByProfileType.get(MolecularAlterationType.MUTATION_EXTENDED),
             groupedIdentifiersByProfileType.get(MolecularAlterationType.COPY_NUMBER_ALTERATION),

@@ -238,22 +238,18 @@ public class AlterationCountServiceImpl implements AlterationCountService {
                 .values()
                 .forEach(studyMolecularProfileCaseIdentifiers -> {
                     List<S> studyAlterationCountByGenes = dataFetcher.apply(studyMolecularProfileCaseIdentifiers);
-                    System.out.println("Length of studyAlterationCountByGenes:" + studyAlterationCountByGenes.size());
                     if (includeFrequency) {
                         Long studyProfiledCasesCount = includeFrequencyFunction.apply(studyMolecularProfileCaseIdentifiers, studyAlterationCountByGenes);
                         profiledCasesCount.updateAndGet(v -> v + studyProfiledCasesCount);
                     }
                     studyAlterationCountByGenes.forEach(datum -> {
                         String key = keyGenerator.apply(datum);
-                        System.out.println("studyAlterationCountByGenes Key: " + key);
                         if (totalResult.containsKey(key)) {
                             S alterationCountByGene = totalResult.get(key);
                             alterationCountByGene.setTotalCount(alterationCountByGene.getTotalCount() + datum.getTotalCount());
                             alterationCountByGene.setNumberOfAlteredCases(alterationCountByGene.getNumberOfAlteredCases() + datum.getNumberOfAlteredCases());
                             alterationCountByGene.setNumberOfProfiledCases(alterationCountByGene.getNumberOfProfiledCases() + datum.getNumberOfProfiledCases());
                             Set<String> matchingGenePanelIds = new HashSet<>();
-                            System.out.println("Number of Altered Cases: " + alterationCountByGene.getNumberOfAlteredCases());
-                            System.out.println("Number of Profiled Cases: " + alterationCountByGene.getNumberOfProfiledCases());
                             if (CollectionUtils.isNotEmpty(alterationCountByGene.getMatchingGenePanelIds())) {
                                 matchingGenePanelIds.addAll(alterationCountByGene.getMatchingGenePanelIds());
                             }
@@ -263,15 +259,12 @@ public class AlterationCountServiceImpl implements AlterationCountService {
                             alterationCountByGene.setMatchingGenePanelIds(matchingGenePanelIds);
                             totalResult.put(key, alterationCountByGene);
                         } else {
-                            System.out.println("Number of Datum Altered Cases: " + datum.getNumberOfAlteredCases());
-                            System.out.println("Number of Datum Profiled Cases: " + datum.getNumberOfProfiledCases());
                             totalResult.put(key, datum);
                         }
                     });
                 });
             alterationCountByGenes = new ArrayList<>(totalResult.values());
         }
-        System.out.println("WHAT IS THIS (profiled cases count): " + profiledCasesCount.get());
         return new Pair<>(alterationCountByGenes, profiledCasesCount.get());
     }
 

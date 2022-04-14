@@ -176,18 +176,7 @@ public class SampleServiceImpl implements SampleService {
     }
 
     private Boolean isProfiledWithSV(MolecularProfile p) {
-        return (p.getMolecularAlterationType().equals(MolecularProfile.MolecularAlterationType.STRUCTURAL_VARIANT) ||
-                hasFusionsAsMutations(p));
-    }
-
-    /**
-     * TODO: Remove this function/logic once fusions are migrated to structural variants.
-     * This case where the molecular alteration type = MUTATION_EXTENDED with datatype = FUSION
-     * is to handle the ARCHER cohort.
-     */
-    private Boolean hasFusionsAsMutations(MolecularProfile p) {
-        return (p.getMolecularAlterationType().equals(MolecularProfile.MolecularAlterationType.MUTATION_EXTENDED) &&
-                p.getDatatype().equals("FUSION"));
+        return p.getMolecularAlterationType().equals(MolecularProfile.MolecularAlterationType.STRUCTURAL_VARIANT);
     }
 
     private void processSamples(List<Sample> samples, String projection) {
@@ -196,26 +185,13 @@ public class SampleServiceImpl implements SampleService {
             Map<String, Set<String>> structuralVariantSampleIdsMap = new HashMap<>();
             List<String> distinctStudyIds = samples.stream().map(Sample::getCancerStudyIdentifier).distinct()
                 .collect(Collectors.toList());
-            List<MolecularProfile> molecularProfiles = molecularProfileRepository.getMolecularProfilesInStudies(distinctStudyIds, projection);
-            List<String> studiesProfiledWithSVs = molecularProfiles.stream()
-                        .filter(p -> isProfiledWithSV(p))
-                        .map(MolecularProfile::getCancerStudyIdentifier)
-                        .collect(Collectors.toList());
-            List<String> studiesProfiledWithFusionsAsMutations = molecularProfiles.stream()
-                        .filter(p -> hasFusionsAsMutations(p))
-                        .map(MolecularProfile::getCancerStudyIdentifier)
-                        .collect(Collectors.toList());
             for (String studyId : distinctStudyIds) {
                 sequencedSampleIdsMap.put(studyId,
                                           new HashSet<String>(sampleListRepository.getAllSampleIdsInSampleList(studyId + SEQUENCED)));
-                // get sv samples from sequenced case list if fusions imported as mutations
+                // Seems like this is built for future use to support additional detailing about samples with sv data
+                // would be used to set a data member at the end of this function
                 Set<String> svSamples = new HashSet<String>();
-                if (studiesProfiledWithFusionsAsMutations.contains(studyId)) {
-                    // use sample list that has already been fetched
-                    svSamples = new HashSet<String>(sequencedSampleIdsMap.get(studyId));
-                } else {
-                    svSamples = new HashSet<String>(sampleListRepository.getAllSampleIdsInSampleList(studyId + STRUCTURAL_VARIANT));
-                }
+                svSamples = new HashSet<String>(sampleListRepository.getAllSampleIdsInSampleList(studyId + STRUCTURAL_VARIANT));
                 structuralVariantSampleIdsMap.put(studyId, svSamples);
             }
 

@@ -21,9 +21,9 @@ VERSION_FIELD = 'DB_SCHEMA_VERSION'
 REQUIRED_PROPERTIES = [DATABASE_HOST, DATABASE_NAME, DATABASE_USER, DATABASE_PW, DATABASE_USE_SSL]
 ALLOWABLE_GENOME_REFERENCES = ['37', 'hg19', 'GRCh37', '38', 'hg38', 'GRCh38', 'mm10', 'GRCm38']
 DEFAULT_GENOME_REFERENCE = 'hg19'
-MULTI_REFERENCE_GENOME_SUPPORT_MIGRATION_STEP = (2,11,0)
-GENERIC_ASSAY_MIGRATION_STEP = (2,12,1)
-SAMPLE_FK_MIGRATION_STEP = (2,12,9)
+MULTI_REFERENCE_GENOME_SUPPORT_MIGRATION_STEP = (2, 11, 0)
+GENERIC_ASSAY_MIGRATION_STEP = (2, 12, 1)
+SAMPLE_FK_MIGRATION_STEP = (2, 12, 9)
 FUSIONS_VERBOTEN_STEP = (2, 12, 14)
 
 class PortalProperties(object):
@@ -212,8 +212,6 @@ def check_reference_genome(portal_properties, cursor, force_migration):
 
 def check_and_exit_if_fusions(cursor):
     try:
-        # look for any fusion records
-        # TODO is this OK or maybe we could have fusions from mutation files?
         cursor.execute(
             """
                 SELECT COUNT(*)
@@ -222,7 +220,7 @@ def check_and_exit_if_fusions(cursor):
             """)
         fusion_count = cursor.fetchone()
         if (fusion_count[0] >= 1):
-            print('Found %i fusions in the mutation_event table.  Fusions are being replaced by structural variants. Any study with fusions need to be dropped.' % (fusion_count), file=ERROR_FILE)
+            print('Found %i records in the mutation_event table where the mutation_type was "Fusion". The latest database schema does not allow records in the mutation table where mutation_type is set to "Fusion". Studies linked to existing records of this type should be deleted in order to migrate to DB version 2.12.14' % (fusion_count), file=ERROR_FILE)) 
             # get the list of studies that need to be cleaned up
             cursor.execute(
                 """
@@ -245,6 +243,7 @@ def check_and_exit_if_fusions(cursor):
     
     except MySQLdb.Error as msg:
         print(msg, file=ERROR_FILE)
+        sys.exit(1)
 
 # TODO: remove this after we update mysql version
 def check_and_remove_invalid_foreign_keys(cursor):
@@ -279,6 +278,7 @@ def check_and_remove_invalid_foreign_keys(cursor):
                 print('Invalid foreign key has been deleted.', file=OUTPUT_FILE)
     except MySQLdb.Error as msg:
         print(msg, file=ERROR_FILE)
+        sys.exit(1)
 
 def check_and_remove_type_of_cancer_id_foreign_key(cursor):
     """The TYPE_OF_CANCER_ID foreign key in the sample table can be either sample_ibfk_1 or sample_ibfk_2. Figure out which one it is and remove it"""
@@ -321,6 +321,7 @@ def check_and_remove_type_of_cancer_id_foreign_key(cursor):
             print('sample_ibfk_2 foreign key has been deleted.', file=OUTPUT_FILE)                  
     except MySQLdb.Error as msg:
         print(msg, file=ERROR_FILE)
+        sys.exit(1)
 
 def strip_trailing_comment_from_line(line):
     line_parts = re.split("--\s",line)
@@ -472,7 +473,6 @@ def main():
             check_and_remove_type_of_cancer_id_foreign_key(cursor)
             db_version = get_db_version(cursor)
         if is_version_larger(FUSIONS_VERBOTEN_STEP, db_version):
-            print("FUSIONS VERBOTEN STEP")
             run_migration(db_version, sql_filename, connection, cursor, parser.no_transaction, stop_at_version=FUSIONS_VERBOTEN_STEP)
             check_and_exit_if_fusions(cursor)
             db_version = get_db_version(cursor)

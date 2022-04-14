@@ -140,7 +140,7 @@ public class GenePanelServiceImpl implements GenePanelService {
             .flatMap(profileId -> {
                 List<GenePanelData> genePanelData = molecularProfileIdToGenePanelDataMap
                     .getOrDefault(profileId, new ArrayList<>());
-                if(CollectionUtils.isNotEmpty(genePanelData)) {
+                if (CollectionUtils.isNotEmpty(genePanelData)) {
                     genePanelData = annotateDataFromSequencedSampleLists(genePanelData, molecularProfileIdMap.get(profileId));
                 }
                 return genePanelData.stream();

@@ -119,15 +119,19 @@ public class ImportStructuralVariantData {
                     // If at least one gene is recognized, continue
                     } else {
                         // Save the Entrez Gene Id if it was not saved before
-                        if (site1EntrezGeneId == TabDelimitedFileUtil.NA_LONG && site1CanonicalGene != null) {
-                            structuralVariant.setSite1EntrezGeneId(site1CanonicalGene.getEntrezGeneId());
-                        } else if (site1EntrezGeneId == TabDelimitedFileUtil.NA_LONG) {
-                            structuralVariant.setSite1EntrezGeneId(null); // we want this to be null in the database, not NA_LONG
+                        if (site1EntrezGeneId == TabDelimitedFileUtil.NA_LONG) {
+                            if (site1CanonicalGene != null) {
+                            	structuralVariant.setSite1EntrezGeneId(site1CanonicalGene.getEntrezGeneId());
+                            } else {
+                                structuralVariant.setSite1EntrezGeneId(null); // we want this to be null in the database, not NA_LONG
+			    }
                         }
-                        if (site2EntrezGeneId == TabDelimitedFileUtil.NA_LONG && site2CanonicalGene != null) {
-                            structuralVariant.setSite2EntrezGeneId(site2CanonicalGene.getEntrezGeneId());
-                        } else if (site2EntrezGeneId == TabDelimitedFileUtil.NA_LONG) {
-                            structuralVariant.setSite2EntrezGeneId(null); // we want this to be null in the database, not NA_LONG
+                        if (site2EntrezGeneId == TabDelimitedFileUtil.NA_LONG) {
+                            if (site2CanonicalGene != null) {
+                            	structuralVariant.setSite2EntrezGeneId(site2CanonicalGene.getEntrezGeneId());
+                            } else {
+                                structuralVariant.setSite2EntrezGeneId(null); // we want this to be null in the database, not NA_LONG
+			    }
                         }
                         // Add structural variant
                         DaoStructuralVariant.addStructuralVariantToBulkLoader(structuralVariant);

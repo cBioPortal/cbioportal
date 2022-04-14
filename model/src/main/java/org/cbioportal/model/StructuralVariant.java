@@ -445,5 +445,4 @@ public class StructuralVariant extends UniqueKeyBase implements Serializable {
         this.site2RegionNumber = site2RegionNumber;
     }
 
-
 }

@@ -377,6 +377,4 @@ public class StructuralVariant {
         this.driverTiersFilterAnn = driverTiersFilterAnn;
     }
 
-
-
 }

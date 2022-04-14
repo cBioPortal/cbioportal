@@ -53,21 +53,18 @@ public class AlterationEnrichmentUtil<T extends AlterationCountByGene> {
                                 return entry.getValue().getFirst().stream()
                                         .collect(Collectors.toMap(AlterationCountByGene::getEntrezGeneId, c -> c));
                             }));
-        System.out.println("mutationCountsbyentrezgene: " + mutationCountsbyEntrezGeneIdAndGroup.size());
         Map<String, Long> profiledCaseCountsByGroup = mutationCountsbyGroup
             .entrySet()
             .stream()
             .collect(Collectors.toMap(
                 Entry::getKey,
                 entry -> entry.getValue().getSecond()));
-        System.out.println("profiledCaseCountsByGroup: " + profiledCaseCountsByGroup.size());
         Set<Integer> allGeneIds = mutationCountsbyEntrezGeneIdAndGroup
             .values()
             .stream()
             .flatMap(x -> x.keySet().stream())
             .collect(Collectors.toSet());
 
-        System.out.println("allgeneids: " + allGeneIds.size());
         Set<String> groups = mutationCountsbyEntrezGeneIdAndGroup.keySet();
 
         List<Gene> genes = geneService.fetchGenes(
@@ -77,7 +74,6 @@ public class AlterationEnrichmentUtil<T extends AlterationCountByGene> {
                 .collect(Collectors.toList()),
             "ENTREZ_GENE_ID",
             "SUMMARY");
-        System.out.println("genes: " + genes.size());
         return genes
             .stream()
             .filter(gene -> {
@@ -112,12 +108,10 @@ public class AlterationEnrichmentUtil<T extends AlterationCountByGene> {
                     groupCasesCount.setProfiledCount(profiledCount);
                     return groupCasesCount;
                 }).collect(Collectors.toList());
-                System.out.println("Counts Size - number of counts per gene: " + counts.size());
                 List<CountSummary> filteredCounts = counts.stream()
                     .filter(groupCasesCount -> groupCasesCount.getProfiledCount() > 0)
                     .collect(Collectors.toList());
 
-                System.out.println("filteredCounts:" + filteredCounts.size());
                 // groups where number of altered cases is greater than profiled cases.
                 // This is a temporary fix for https://github.com/cBioPortal/cbioportal/issues/7274
                 // and https://github.com/cBioPortal/cbioportal/issues/7418
@@ -126,7 +120,6 @@ public class AlterationEnrichmentUtil<T extends AlterationCountByGene> {
                     .filter(groupCasesCount -> groupCasesCount.getAlteredCount() > groupCasesCount.getProfiledCount())
                     .count();
 
-                System.out.println("invalidDataGroups: " + invalidDataGroups);
                 // calculate p-value only if more than one group have profile cases count
                 // greater than 0
                 if (filteredCounts.size() > 1 && invalidDataGroups == 0) {

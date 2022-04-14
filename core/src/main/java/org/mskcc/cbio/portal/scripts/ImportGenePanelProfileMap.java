@@ -49,6 +49,10 @@ public class ImportGenePanelProfileMap extends ConsoleRunnable {
     private File genePanelProfileMapFile;
     private String cancerStudyStableId;
 
+    private final static String NA_STRING = "NA";
+    prvate final static String WXS_STRING = "WXS";
+    private final static String WGS_STRING = "WGS";
+
     @Override
     public void run() {
         try {
@@ -137,12 +141,12 @@ public class ImportGenePanelProfileMap extends ConsoleRunnable {
                 // NA triggers specific case to indicate sample was not profiled
                 // e.g. an aggregate study from multiple institutions
                 // on of which definitely did not profile for the sv profile
-                if ("NA".equals(genePanelName)) {
+                if (NA_STRING.equals(genePanelName)) {
                     continue;
                 }
                 
                 // WXS triggers               
-                if ("WXS".equals(genePanelName) || "WGS".equals(genePanelName)) {
+                if (WXS_STRING.equals(genePanelName) || WGS_STRING.equals(genePanelName)) {
                     System.out.println("Here I am importing WXS/WGS");
                     DaoSampleProfile.updateSampleProfile(
                         sample.getInternalId(),
@@ -162,9 +166,7 @@ public class ImportGenePanelProfileMap extends ConsoleRunnable {
 
                 // Throw an error if gene panel is not in database and is not NA
                 } else {
-                    if (!genePanelName.equals("NA")) {
-                        throw new RuntimeException("Gene panel cannot be found in database: " + genePanelName);
-                    }
+                    throw new RuntimeException("Gene panel cannot be found in database: " + genePanelName);
                 }
             }
         }

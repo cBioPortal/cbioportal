@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 
 #
-# Copyright (c) 2016 The Hyve B.V.
+# Copyright (c) 2016 - 2022 The Hyve B.V.
 # This code is licensed under the GNU Affero General Public License (AGPL),
 # version 3, or (at your option) any later version.
 #

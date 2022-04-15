@@ -1,7 +1,6 @@
 package org.cbioportal.persistence;
 
 import org.cbioportal.model.*;
-import org.cbioportal.model.QueryElement;
 import org.cbioportal.model.util.Select;
 import org.springframework.cache.annotation.Cacheable;
 

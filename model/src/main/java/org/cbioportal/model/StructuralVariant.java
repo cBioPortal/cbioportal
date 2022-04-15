@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2018 The Hyve B.V.
+ * Copyright (c) 2018 - 2022 The Hyve B.V.
  * This code is licensed under the GNU Affero General Public License (AGPL),
  * version 3, or (at your option) any later version.
  */
@@ -47,7 +47,7 @@ public class StructuralVariant extends UniqueKeyBase implements Serializable {
     private String site2EnsemblTranscriptId;
     private String site2Chromosome;
     private Integer site2Position;
-    private String  site2Contig;
+    private String site2Contig;
     private String site2Region;
     private Integer site2RegionNumber;
     private String site2Description;
@@ -395,7 +395,6 @@ public class StructuralVariant extends UniqueKeyBase implements Serializable {
     public void setSvStatus(String svStatus) {
         this.svStatus = svStatus;
     }
-
 
     public String getSite1Contig() {
         return site1Contig;

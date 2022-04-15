@@ -228,15 +228,15 @@ If this does not happen, see the Troubleshooting Tips  below.
 
 ### Logging
 
-Getting this to work requires many steps, and can be a bit tricky.  If you get stuck or get an obscure error message, your best bet is to turn on all DEBUG logging.  This can be done via `src/main/resources/log4j.properties`.  For example:
+Getting this to work requires many steps, and can be a bit tricky.  If you get stuck or get an obscure error message, your best bet is to turn on all DEBUG logging.  This can be done via `src/main/resources/simplelogger.properties`.  For example:
 
 ```
-# Change INFO to DEBUG, if you want to see debugging info on underlying libraries we use.
-log4j.rootLogger=DEBUG, a
+# Change warn to debug, if you want to see debugging info on underlying libraries we use.
+org.slf4j.simpleLogger.defaultLogLevel=warn
 
-# Change INFO to DEBUG, if you want see debugging info on our packages and spring security packages.
-log4j.category.org.mskcc=DEBUG
-log4j.logger.org.springframework.security=DEBUG
+# Change warn to debug, if you want see debugging info on our packages and spring security packages.
+org.slf4j.simpleLogger.log.org.mskcc=warn
+org.slf4j.simpleLogger.log.org.springframework.security=warn
 ```
 
 Then, rebuild the WAR, redeploy, and try to authenticate again.  Your log file will then include hundreds of SAML-specific messages, even the full XML of each SAML message, and this should help you debug the error.

@@ -636,7 +636,7 @@
       <dependency>
         <groupId>org.springframework</groupId>
         <artifactId>spring-context-support</artifactId>
-        <version>5.2.6.RELEASE</version>
+        <version>5.2.21.RELEASE</version>
       </dependency>
       <dependency>
         <groupId>org.springframework.integration</groupId>

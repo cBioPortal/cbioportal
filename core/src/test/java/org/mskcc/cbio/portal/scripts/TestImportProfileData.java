@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2016 The Hyve B.V.
+ * Copyright (c) 2016 - 2022 The Hyve B.V.
  * This code is licensed under the GNU Affero General Public License (AGPL),
  * version 3, or (at your option) any later version.
  */
@@ -262,6 +262,133 @@ public class TestImportProfileData {
         assertNull(DaoGeneticProfile.getGeneticProfileByStableId(studyStableId + "_breast_mutations"));
     }
 
+    private StructuralVariant constructExpectedStructuralVariant1() {
+        DaoGeneOptimized daoGene = DaoGeneOptimized.getInstance();
+        CanonicalGene site1Gene = daoGene.getGene("KIAA1549");
+        CanonicalGene site2Gene = daoGene.getGene("BRAF");
+        assertNotNull(site1Gene);
+        assertNotNull(site2Gene);
+        StructuralVariant sv = new StructuralVariant();
+        sv.setInternalId(-1); // not retrieved from database DaoStructuralVariant.getAllStructuralVariants(), so no test
+        sv.setGeneticProfileId(-1); // internal identifier for profile is not stable, so no test
+        sv.setStructuralVariantId(-1); // not retrieved from database DaoStructuralVariant.getAllStructuralVariants(), so no test
+        sv.setSampleIdInternal(-1); // internal identifier for sample is not stable, so no test
+        sv.setSampleId(null);// not retrieved from database DaoStructuralVariant.getAllStructuralVariants(), so no test
+        sv.setSite1EntrezGeneId(site1Gene.getEntrezGeneId());
+        sv.setSite1HugoSymbol(null); // not retrieved from database DaoStructuralVariant.getAllStructuralVariants(), so no test
+        sv.setSite1EnsemblTranscriptId("ENST00000242365");
+        sv.setSite1Chromosome("7");
+        sv.setSite1Position(138536968);
+        sv.setSite1Contig("p11.2");
+        sv.setSite1Region("intron");
+        sv.setSite1RegionNumber(5);
+        sv.setSite1Description("KIAA1549-BRAF.K16B10.COSF509_1");
+        sv.setSite2EntrezGeneId(site2Gene.getEntrezGeneId());
+        sv.setSite2HugoSymbol(null); // not retrieved from database DaoStructuralVariant.getAllStructuralVariants(), so no test
+        sv.setSite2EnsemblTranscriptId("ENST00000288602");
+        sv.setSite2Chromosome("7");
+        sv.setSite2Position(140482957);
+        sv.setSite2Contig("q14.1");
+        sv.setSite2Region("exon");
+        sv.setSite2RegionNumber(2);
+        sv.setSite2Description("KIAA1549-BRAF.K16B10.COSF509_2");
+        sv.setSite2EffectOnFrame("NA");
+        sv.setNcbiBuild("GRCh37");
+        sv.setDnaSupport("no");
+        sv.setRnaSupport("yes");
+        sv.setNormalReadCount(-1);
+        sv.setTumorReadCount(1000);
+        sv.setNormalVariantCount(-1);
+        sv.setTumorVariantCount(900);
+        sv.setNormalPairedEndReadCount(-1);
+        sv.setTumorPairedEndReadCount(-1);
+        sv.setNormalSplitReadCount(-1);
+        sv.setTumorSplitReadCount(-1);
+        sv.setAnnotation("KIAA1549-BRAF.K16B10.COSF509");
+        sv.setBreakpointType("NA");
+        sv.setConnectionType("NA");
+        sv.setEventInfo("Fusion");
+        sv.setVariantClass("NA");
+        sv.setLength(-1);
+        sv.setComments("Gain-of-Function");
+        sv.setSvStatus("SOMATIC");
+        sv.setDriverFilter("testdriver");
+        sv.setDriverFilterAnn("testdriveranno");
+        sv.setDriverTiersFilter("testdrivertiers");
+        sv.setDriverTiersFilterAnn("testdrivertiersanno");
+        return sv;
+    }
+
+    private <T> void registerDifference(StringBuilder response, String fieldId, T actual, T expected) {
+        if (actual == expected) {
+            return;
+        }
+        if (actual == null && expected != null) {
+            response.append("actual " + fieldId + " value is null, but expected value is '" + expected + "'\n");
+            return;
+        }
+        if (expected == null && actual != null) {
+            response.append("actual " + fieldId + " value is '" + actual + "', but expected value is null" + expected + "\n");
+            return;
+        }
+        if (!actual.equals(expected)) {
+            response.append("actual " + fieldId + " value is '" + actual + "', but expected value is '" + expected + "'\n");
+            return;
+        }
+    }
+
+    private String differenceReport(StructuralVariant actualSV, StructuralVariant expectedSV) {
+        StringBuilder response = new StringBuilder();
+        // internalId not tested
+        // geneticProfileId not tested
+        // structuralVariantId not tested
+        // sampleIdInternal not tested
+        // sampleId not tested
+        registerDifference(response, "site1EntrezGeneId", actualSV.getSite1EntrezGeneId(), expectedSV.getSite1EntrezGeneId());
+        // site1HugoSymbol not tested
+        registerDifference(response, "site1EnsemblTranscriptId", actualSV.getSite1EnsemblTranscriptId(), expectedSV.getSite1EnsemblTranscriptId());
+        registerDifference(response, "site1Chromosome", actualSV.getSite1Chromosome(), expectedSV.getSite1Chromosome());
+        registerDifference(response, "site1Position", actualSV.getSite1Position(), expectedSV.getSite1Position());
+        registerDifference(response, "site1Contig", actualSV.getSite1Contig(), expectedSV.getSite1Contig());
+        registerDifference(response, "site1Region", actualSV.getSite1Region(), expectedSV.getSite1Region());
+        registerDifference(response, "site1RegionNumber", actualSV.getSite1RegionNumber(), expectedSV.getSite1RegionNumber());
+        registerDifference(response, "site1Description", actualSV.getSite1Description(), expectedSV.getSite1Description());
+        registerDifference(response, "site2EntrezGeneId", actualSV.getSite2EntrezGeneId(), expectedSV.getSite2EntrezGeneId());
+        // site2HugoSymbol not tested
+        registerDifference(response, "site2EnsemblTranscriptId", actualSV.getSite2EnsemblTranscriptId(), expectedSV.getSite2EnsemblTranscriptId());
+        registerDifference(response, "site2Chromosome", actualSV.getSite2Chromosome(), expectedSV.getSite2Chromosome());
+        registerDifference(response, "site2Position", actualSV.getSite2Position(), expectedSV.getSite2Position());
+        registerDifference(response, "site2Contig", actualSV.getSite2Contig(), expectedSV.getSite2Contig());
+        registerDifference(response, "site2Region", actualSV.getSite2Region(), expectedSV.getSite2Region());
+        registerDifference(response, "site2RegionNumber", actualSV.getSite2RegionNumber(), expectedSV.getSite2RegionNumber());
+        registerDifference(response, "site2Description", actualSV.getSite2Description(), expectedSV.getSite2Description());
+        registerDifference(response, "site2EffectOnFrame", actualSV.getSite2EffectOnFrame(), expectedSV.getSite2EffectOnFrame());
+        registerDifference(response, "ncbiBuild", actualSV.getNcbiBuild(), expectedSV.getNcbiBuild());
+        registerDifference(response, "dnaSupport", actualSV.getDnaSupport(), expectedSV.getDnaSupport());
+        registerDifference(response, "rnaSupport", actualSV.getRnaSupport(), expectedSV.getRnaSupport());
+        registerDifference(response, "normalReadCount", actualSV.getNormalReadCount(), expectedSV.getNormalReadCount());
+        registerDifference(response, "tumorReadCount", actualSV.getTumorReadCount(), expectedSV.getTumorReadCount());
+        registerDifference(response, "normalVariantCount", actualSV.getNormalVariantCount(), expectedSV.getNormalVariantCount());
+        registerDifference(response, "tumorVariantCount", actualSV.getTumorVariantCount(), expectedSV.getTumorVariantCount());
+        registerDifference(response, "normalPairedEndReadCount", actualSV.getNormalPairedEndReadCount(), expectedSV.getNormalPairedEndReadCount());
+        registerDifference(response, "tumorPairedEndReadCount", actualSV.getTumorPairedEndReadCount(), expectedSV.getTumorPairedEndReadCount());
+        registerDifference(response, "normalSplitReadCount", actualSV.getNormalSplitReadCount(), expectedSV.getNormalSplitReadCount());
+        registerDifference(response, "tumorSplitReadCount", actualSV.getTumorSplitReadCount(), expectedSV.getTumorSplitReadCount());
+        registerDifference(response, "annotation", actualSV.getAnnotation(), expectedSV.getAnnotation());
+        registerDifference(response, "breakpointType", actualSV.getBreakpointType(), expectedSV.getBreakpointType());
+        registerDifference(response, "connectionType", actualSV.getConnectionType(), expectedSV.getConnectionType());
+        registerDifference(response, "eventInfo", actualSV.getEventInfo(), expectedSV.getEventInfo());
+        registerDifference(response, "variantClass", actualSV.getVariantClass(), expectedSV.getVariantClass());
+        registerDifference(response, "length", actualSV.getLength(), expectedSV.getLength());
+        registerDifference(response, "comments", actualSV.getComments(), expectedSV.getComments());
+        registerDifference(response, "svStatus", actualSV.getSvStatus(), expectedSV.getSvStatus());
+        registerDifference(response, "driverFilter", actualSV.getDriverFilter(), expectedSV.getDriverFilter());
+        registerDifference(response, "driverFilterAnn", actualSV.getDriverFilterAnn(), expectedSV.getDriverFilterAnn());
+        registerDifference(response, "driverTiersFilter", actualSV.getDriverTiersFilter(), expectedSV.getDriverTiersFilter());
+        registerDifference(response, "driverTiersFilterAnn", actualSV.getDriverTiersFilterAnn(), expectedSV.getDriverTiersFilterAnn());
+        return response.toString();
+    }
+
     @Test
     public void testImportStructuralVariantFile() throws Exception {
         String[] sampleIds = {"TCGA-A1-A0SD-01", "TCGA-A1-A0SB-01"};
@@ -312,40 +439,7 @@ public class TestImportProfileData {
                 countStructuralVariantsInProfile += 1;
                 if (testSampleId == structuralVariant.getSampleIdInternal()) {
                     foundTestSample = true;
-                    DaoGeneOptimized daoGene = DaoGeneOptimized.getInstance();
-                    CanonicalGene canonicalGene = daoGene.getGene("KIAA1549");
-                    assertNotNull(canonicalGene);
-                    assertEquals(canonicalGene.getEntrezGeneId(), (long) structuralVariant.getSite1EntrezGeneId());
-                    assertEquals("ENST00000242365", structuralVariant.getSite1EnsemblTranscriptId());
-                    assertEquals("7", structuralVariant.getSite1Chromosome());
-                    assertEquals(138536968, structuralVariant.getSite1Position());
-                    assertEquals("KIAA1549-BRAF.K16B10.COSF509_1", structuralVariant.getSite1Description());
-                    canonicalGene = daoGene.getGene("BRAF");
-                    assertNotNull(canonicalGene);
-                    assertEquals(canonicalGene.getEntrezGeneId(), (long) structuralVariant.getSite2EntrezGeneId());
-                    assertEquals("ENST00000288602", structuralVariant.getSite2EnsemblTranscriptId());
-                    assertEquals("7", structuralVariant.getSite2Chromosome());
-                    assertEquals(140482957, structuralVariant.getSite2Position());
-                    assertEquals("KIAA1549-BRAF.K16B10.COSF509_2", structuralVariant.getSite2Description());
-                    assertEquals("NA", structuralVariant.getSite2EffectOnFrame());
-                    assertEquals("GRCh37", structuralVariant.getNcbiBuild());
-                    assertEquals("no", structuralVariant.getDnaSupport());
-                    assertEquals("yes", structuralVariant.getRnaSupport());
-                    assertEquals(-1, structuralVariant.getNormalReadCount());
-                    assertEquals(1000, structuralVariant.getTumorReadCount());
-                    assertEquals(-1, structuralVariant.getNormalVariantCount());
-                    assertEquals(900, structuralVariant.getTumorVariantCount());
-                    assertEquals(-1, structuralVariant.getNormalPairedEndReadCount());
-                    assertEquals(-1, structuralVariant.getTumorPairedEndReadCount());
-                    assertEquals(-1, structuralVariant.getNormalSplitReadCount());
-                    assertEquals(-1, structuralVariant.getTumorSplitReadCount());
-                    assertEquals("KIAA1549-BRAF.K16B10.COSF509", structuralVariant.getAnnotation());
-                    assertEquals("NA", structuralVariant.getBreakpointType());
-                    assertEquals("NA", structuralVariant.getConnectionType());
-                    assertEquals("Fusion", structuralVariant.getEventInfo());
-                    assertEquals("NA", structuralVariant.getVariantClass());
-                    assertEquals(-1, structuralVariant.getLength());
-                    assertEquals("Gain-of-Function", structuralVariant.getComments());
+                    assertEquals("", differenceReport(structuralVariant, constructExpectedStructuralVariant1()));
                 }
             }
         }

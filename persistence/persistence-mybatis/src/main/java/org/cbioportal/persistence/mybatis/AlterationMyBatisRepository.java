@@ -7,7 +7,6 @@ import org.cbioportal.model.CopyNumberCountByGene;
 import org.cbioportal.model.MolecularProfile;
 import org.cbioportal.model.MolecularProfileCaseIdentifier;
 import org.cbioportal.model.MutationEventType;
-import org.cbioportal.model.QueryElement;
 import org.cbioportal.model.MolecularProfile.MolecularAlterationType;
 import org.cbioportal.model.util.Select;
 import org.cbioportal.persistence.AlterationRepository;

@@ -3,7 +3,6 @@ package org.cbioportal.persistence.mybatis;
 import org.cbioportal.model.AlterationCountByGene;
 import org.cbioportal.model.CopyNumberCountByGene;
 import org.cbioportal.model.MolecularProfileCaseIdentifier;
-import org.cbioportal.model.QueryElement;
 import org.cbioportal.model.util.Select;
 
 import java.util.List;

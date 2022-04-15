@@ -1,0 +1,22 @@
+# Base logger settings
+org.slf4j.simpleLogger.showDateTime=true
+org.slf4j.simpleLogger.dateTimeFormat=HH:mm:ss.SSS
+# Change this to change the global log level
+org.slf4j.simpleLogger.defaultLogLevel=warn
+# Output file
+org.slf4j.simpleLogger.logFile=System.out
+
+# Class specific log levels. The way SimpleLogger works, it will use the log config you give it for
+# a specific logger. If there is no such config, it will traverse the logger's ancestors until
+# it either finds a config, or ends up at the base logger, specified above
+
+# Controller log levels
+org.slf4j.simpleLogger.log.org.cbioportal.web=warn
+
+# Service log levels
+org.slf4j.simpleLogger.log.org.cbioportal.service=warn
+
+# Log levels relevant to auth / security issues
+org.slf4j.simpleLogger.log.org.mskcc.cbio.portal.util.RequestBodyGZipFilter=debug
+org.slf4j.simpleLogger.log.org.mskcc=debug
+org.slf4j.simpleLogger.log.org.springframework.security=debug

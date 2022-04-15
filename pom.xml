@@ -143,10 +143,10 @@
                     </if>
                     <if>
                       <not>
-                        <available file="${basedir}/src/main/resources/log4j.properties"/>
+                        <available file="${basedir}/src/main/resources/simplelogger.properties"/>
                       </not>
                       <then>
-                        <copy file="${basedir}/src/main/resources/log4j.properties.EXAMPLE" tofile="${basedir}/src/main/resources/log4j.properties"/>
+                        <copy file="${basedir}/src/main/resources/simplelogger.properties.EXAMPLE" tofile="${basedir}/src/main/resources/simplelogger.properties"/>
                       </then>
                     </if>
                   </target>

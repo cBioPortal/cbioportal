@@ -14,14 +14,12 @@ This file configures logging for the portal.
 An example file is available within GitHub:
 ```
     cd src/main/resources
-    cp log4j.properties.EXAMPLE log4j.properties
+    cp simplelogger.properties.EXAMPLE simplelogger.properties
 ```
 
-But you must update the following lines with paths that make sense for the systems your build should target.
-```
-    log4j.appender.a.rollingPolicy.FileNamePattern = ${catalina.base}/logs/public-portal.log.%d.gz
-    log4j.appender.a.File = ${catalina.base}/logs/public-portal.log
-```
+If you don't create your own `simplelogger.properties`, maven will copy the EXAMPLE file to that location when it builds.
+If `simplelogger.properties` already exists, it will just use that. This allows us to give you a working, versioned
+log config, which you can then override easily.
 
 ## Create the cBioPortal MySQL Databases and User
 

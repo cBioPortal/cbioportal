@@ -50,6 +50,7 @@ portal/src/main/resources/logging.properties
 portal/src/main/webapp/js/bower_components/*
 src/main/resources/importer.properties.*
 src/main/resources/portal.properties.*
+src/main/resources/simplelogger.properties
 !src/main/resource/*.EXAMPLE
 firehose-importer/reference_data/gene_info
 portal.properties

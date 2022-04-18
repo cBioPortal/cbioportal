@@ -46,10 +46,34 @@ java -jar portal/target/dependency/webapp-runner.jar --help
 
 This runs the app in the foreground. If a port is already in use it will raise
 an error mentioning that. To change the port use the `--port` flag.
+To change the context path use the `--path` flag.
+
+The below code start cbioportal on port `8081` under context path `cbio` so you can reach it with http://localhost:8081/cbio
+```
+java -jar portal/target/dependency/webapp-runner.jar --port 8081 --path /cbio /cbioportal-webapp
+```
 
 There are three main ways to run the portal: without authentication, with
 optional login and with required login. All of them require the cBioPortal
 session service to be running.
+
+### Behind reverse proxy
+If you hide cbioportal behind a reverse proxy, cbioportal has to know the proxy url to calculate the `baseUrl` correctly.
+You have to use `--proxy-base-url` to specify the reverse proxy url.
+e.g.
+```
+java -jar portal/target/dependency/webapp-runner.jar --proxy-base-url https://example.com /cbioportal-webapp
+```
+Note that `--proxy-base-url` ignores the path part (e.g. https://example.com/cbio). Use the `--path` option instead
+```
+java -jar portal/target/dependency/webapp-runner.jar --proxy-base-url https://example.com --path /cbio /cbioportal-webapp
+```
+And configure rev. proxy to use the same path (`/cbio` -> `/cbio`).
+Here is an example of an nginx configuration to achieve that:
+```
+location /cbio {
+	proxy_pass http://cbioportal:8080/cbio;
+```
 
 ### Without authentication
 In this mode users are able to use the portal, but they won't be able to save

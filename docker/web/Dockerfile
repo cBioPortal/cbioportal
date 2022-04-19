@@ -10,13 +10,16 @@
 # Use from root directory of repo like:
 #
 # docker build -f docker/web/Dockerfile -t cbioportal-container:web-shenandoah-tag-name .
-FROM maven:3-openjdk-8 as build
+#
+# WARNING: the shendoah image is a nightly, untested, experimental build. If
+# you want to use an official openjdk image instead use the web-and-data image.
+FROM maven:3-openjdk-11 as build
 COPY $PWD /cbioportal
 WORKDIR /cbioportal
 ARG MAVEN_OPTS=-DskipTests
 RUN mvn ${MAVEN_OPTS} clean install
 
-FROM shipilev/openjdk-shenandoah:8
+FROM shipilev/openjdk:11
 
 ENV PORTAL_WEB_HOME=/cbioportal-webapp
 

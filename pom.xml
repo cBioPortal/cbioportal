@@ -17,22 +17,6 @@
 
   <repositories>
     <repository>
-      <id>plugins-release</id>
-      <name>Spring Plugins</name>
-      <url>https://repo.spring.io/plugins-release</url>
-      <snapshots>
-        <enabled>false</enabled>
-      </snapshots>
-    </repository>
-    <repository>
-      <id>spring-milestones</id>
-      <name>Spring Milestones</name>
-      <url>https://repo.spring.io/milestone</url>
-      <snapshots>
-        <enabled>false</enabled>
-      </snapshots>
-    </repository>
-    <repository>
       <id>alfresco</id>
       <name>Alfresco</name>
       <url>https://artifacts.alfresco.com/nexus/content/repositories/public/</url>
@@ -292,7 +276,7 @@
   <properties>
     <frontend.version>f8782baa28c23ed97a6b3534742e5d67c9f0d308</frontend.version>
     <frontend.groupId>com.github.cbioportal</frontend.groupId>
-    <spring.version>5.2.6.RELEASE</spring.version>
+    <spring.version>5.2.20.RELEASE</spring.version>
     <spring.integration.version>5.3.0.RELEASE</spring.integration.version>
     <spring.security.version>5.3.1.RELEASE</spring.security.version>
     <spring.social.version>1.1.6.RELEASE</spring.social.version>

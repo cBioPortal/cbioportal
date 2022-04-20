@@ -248,7 +248,7 @@ public class ClinicalDataEnrichmentUtil {
                             .stream()
                             .filter(clinicalDataCount -> {
                                     if (ComparisonCategoricalNaValuesString != null) {
-                                        String[] ComparisonCategoricalNaValues = ComparisonCategoricalNaValuesString.split(",");
+                                        String[] ComparisonCategoricalNaValues = ComparisonCategoricalNaValuesString.split("|");
                                         for (String naValue : ComparisonCategoricalNaValues) {
                                             if (clinicalDataCount.getValue().equalsIgnoreCase(naValue)) {
                                                 return false;

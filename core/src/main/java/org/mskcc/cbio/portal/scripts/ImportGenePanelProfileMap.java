@@ -52,6 +52,7 @@ public class ImportGenePanelProfileMap extends ConsoleRunnable {
     private static final String NA_STRING = "NA";
     private static final String WXS_STRING = "WXS";
     private static final String WGS_STRING = "WGS";
+    private static final String WXS_WGS_STRING = "WGS";
 
     @Override
     public void run() {
@@ -106,7 +107,7 @@ public class ImportGenePanelProfileMap extends ConsoleRunnable {
 
     private Integer determineGenePanelId(String genePanelName) {
         // use null for WXS (whole exome sequencing) or WGS (whole genome sequencing)
-        if (WXS_STRING.equals(genePanelName) || WGS_STRING.equals(genePanelName)) {
+        if (WXS_STRING.equals(genePanelName) || WGS_STRING.equals(genePanelName) || WXS_WGS_STRING.equals(genePanelName)) {
             return null;
         }
         // extract gene panel ID

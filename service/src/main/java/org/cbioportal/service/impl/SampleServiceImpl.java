@@ -1,6 +1,5 @@
 package org.cbioportal.service.impl;
 
-import org.cbioportal.model.MolecularProfile;
 import org.cbioportal.model.Sample;
 import org.cbioportal.model.meta.BaseMeta;
 import org.cbioportal.persistence.CopyNumberSegmentRepository;
@@ -173,10 +172,6 @@ public class SampleServiceImpl implements SampleService {
     public List<Sample> getSamplesByInternalIds(List<Integer> internalIds) {
 
         return sampleRepository.getSamplesByInternalIds(internalIds);
-    }
-
-    private Boolean isProfiledWithSV(MolecularProfile p) {
-        return p.getMolecularAlterationType().equals(MolecularProfile.MolecularAlterationType.STRUCTURAL_VARIANT);
     }
 
     private void processSamples(List<Sample> samples, String projection) {

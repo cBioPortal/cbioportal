@@ -220,7 +220,7 @@ def check_and_exit_if_fusions(cursor):
             """)
         fusion_count = cursor.fetchone()
         if (fusion_count[0] >= 1):
-            print('Found %i records in the mutation_event table where the mutation_type was "Fusion". The latest database schema does not allow records in the mutation table where mutation_type is set to "Fusion". Studies linked to existing records of this type should be deleted in order to migrate to DB version 2.12.14' % (fusion_count), file=ERROR_FILE)) 
+            print('Found %i records in the mutation_event table where the mutation_type was "Fusion". The latest database schema does not allow records in the mutation table where mutation_type is set to "Fusion". Studies linked to existing records of this type should be deleted in order to migrate to DB version 2.12.14' % (fusion_count), file=ERROR_FILE)
             # get the list of studies that need to be cleaned up
             cursor.execute(
                 """

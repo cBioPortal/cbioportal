@@ -2,7 +2,6 @@ package org.cbioportal.service;
 
 import org.apache.commons.math3.util.Pair;
 import org.cbioportal.model.*;
-import org.cbioportal.model.QueryElement;
 import org.cbioportal.model.util.Select;
 
 import java.util.List;

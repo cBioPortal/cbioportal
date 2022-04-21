@@ -80,10 +80,14 @@ public class ImportStructuralVariantData {
                 structuralVariant.setInternalId(++id);
                 structuralVariant.setGeneticProfileId(geneticProfileId);
                 if (!structuralVariantUtil.hasRequiredStructuralVariantFields(structuralVariant)) {
-                    ProgressMonitor.logWarning("Invalid Site 1 or 2 Ensembl transcript ID or exon found, ignoring structural variant for SV record #" +
-                            recordCount + " (sample, site 1 gene, site 2 gene):  (" +
-                            structuralVariant.getSampleId() + ", " + structuralVariant.getSite1HugoSymbol() +
-                            ", " + structuralVariant.getSite2HugoSymbol() + ")");
+                    ProgressMonitor.logWarning(
+                            "Data requirements not satisfied for SV record #" + recordCount +
+                            " : sampleId was '" + structuralVariant.getSampleId() + "' (required)." +
+                            " And at least one involved gene must be identified by entrez_id or hugo symbol: " +
+                            " site1 geneId : '" + structuralVariant.getSite1EntrezGeneId() + "'" +
+                            " site1 hugoSymbol : '" + structuralVariant.getSite1EntrezGeneId() + "'" +
+                            " site2 geneId : '" + structuralVariant.getSite2EntrezGeneId() + "'" +
+                            " site2 hugoSymbol : '" + structuralVariant.getSite2EntrezGeneId() + "'");
                     continue;
                 }
 

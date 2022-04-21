@@ -105,6 +105,9 @@ public class ImportGenePanelProfileMap extends ConsoleRunnable {
         }
     }
 
+    /* This function will return null for special cases "WXS", "WGS", and "WXS/WGS". Otherwise
+       it will throw a RuntimeException if the specified genePanelName is not in the database.
+    */
     private Integer determineGenePanelId(String genePanelName) {
         // use null for WXS (whole exome sequencing) or WGS (whole genome sequencing)
         if (WXS_STRING.equals(genePanelName) || WGS_STRING.equals(genePanelName) || WXS_WGS_STRING.equals(genePanelName)) {

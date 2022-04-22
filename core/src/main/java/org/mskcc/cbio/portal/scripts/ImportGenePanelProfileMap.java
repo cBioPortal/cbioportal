@@ -52,7 +52,7 @@ public class ImportGenePanelProfileMap extends ConsoleRunnable {
     private static final String NA_STRING = "NA";
     private static final String WXS_STRING = "WXS";
     private static final String WGS_STRING = "WGS";
-    private static final String WXS_WGS_STRING = "WGS";
+    private static final String WXS_WGS_STRING = "WXS/WGS";
 
     @Override
     public void run() {

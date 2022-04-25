@@ -3,6 +3,7 @@ package org.cbioportal.service.impl;
 import org.cbioportal.model.ClinicalData;
 import org.cbioportal.model.ClinicalViolinPlotData;
 import org.cbioportal.model.ClinicalViolinPlotRowData;
+import org.cbioportal.model.Sample;
 import org.junit.Assert;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -11,9 +12,7 @@ import org.mockito.Mockito;
 import org.mockito.junit.MockitoJUnitRunner;
 
 import java.math.BigDecimal;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
+import java.util.*;
 
 import static org.mockito.ArgumentMatchers.anyList;
 
@@ -45,6 +44,7 @@ public class ViolinPlotServiceImplTest {
     @Test
     public void getClinicalViolinPlotData() throws Exception {
         List<ClinicalData> sampleClinicalData = new ArrayList<>();
+        List<Sample> filteredSamples = new ArrayList<>();
         for (int j=0; j<FGA_VALUES.length; j++){
             for (int i=0; i<FGA_VALUES[j].length; i++) {
                 ClinicalData num = new ClinicalData();
@@ -52,6 +52,7 @@ public class ViolinPlotServiceImplTest {
                 num.setAttrValue(FGA_VALUES[j][i]);
                 num.setStudyId("test_study_id");
                 num.setSampleId("test_sample_id_"+i+"_"+j);
+                num.setUniqueSampleKey("test_sample_id_"+i+"_"+j);
                 sampleClinicalData.add(num);
 
                 ClinicalData cat = new ClinicalData();
@@ -59,13 +60,19 @@ public class ViolinPlotServiceImplTest {
                 cat.setAttrValue("cancer_type_"+j);
                 cat.setStudyId("test_study_id");
                 cat.setSampleId("test_sample_id_"+i+"_"+j);
+                cat.setUniqueSampleKey("test_sample_id_"+i+"_"+j);
                 sampleClinicalData.add(cat);
+                
+                Sample s = new Sample();
+                s.setUniqueSampleKey("test_sample_id_"+i+"_"+j);
+                filteredSamples.add(s);
             }
         }
 
         final int NUM_CURVE_POINTS = 100;
         ClinicalViolinPlotData result = violinPlotService.getClinicalViolinPlotData(
             sampleClinicalData,
+            filteredSamples,
             new BigDecimal(0),
             new BigDecimal(1),
             new BigDecimal(NUM_CURVE_POINTS),

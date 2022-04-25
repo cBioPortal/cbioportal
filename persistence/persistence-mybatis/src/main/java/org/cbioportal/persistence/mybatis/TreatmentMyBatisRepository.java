@@ -1,17 +1,15 @@
 package org.cbioportal.persistence.mybatis;
 
-import static java.util.stream.Collectors.groupingBy;
+import org.cbioportal.model.*;
+import org.cbioportal.persistence.TreatmentRepository;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Repository;
 
 import java.util.*;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-import org.cbioportal.model.ClinicalEventKeyCode;
-import org.cbioportal.model.ClinicalEventSample;
-import org.cbioportal.model.Treatment;
-import org.cbioportal.persistence.TreatmentRepository;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Repository;
+import static java.util.stream.Collectors.groupingBy;
 
 @Repository
 public class TreatmentMyBatisRepository implements TreatmentRepository {
@@ -84,5 +82,10 @@ public class TreatmentMyBatisRepository implements TreatmentRepository {
     @Override
     public Integer getSampleCount(List<String> studies) {
         return treatmentMapper.getSampleCount(null, studies);
+    }
+
+    @Override
+    public Boolean studyIdHasTreatments(String studyId, ClinicalEventKeyCode key) {
+        return treatmentMapper.studyIdHasTreatments(studyId, key.getKey());
     }
 }

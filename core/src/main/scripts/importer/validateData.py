@@ -90,6 +90,9 @@ study_meta_dictionary = {}
 # Global variable for the regex that checks hexadecimal colors
 COLOR_REGEX = re.compile("^#[a-fA-F0-9]{6}$")
 
+# global character limit on sample stable ids
+MAX_SAMPLE_STABLE_ID_LENGTH = 63
+
 # ----------------------------------------------------------------------------
 
 VALIDATOR_IDS = {
@@ -2667,6 +2670,14 @@ class SampleClinicalValidator(ClinicalValidator):
                                'column_number': col_index + 1,
                                'cause': value})
                     continue
+                if len(value.strip()) > MAX_SAMPLE_STABLE_ID_LENGTH:
+                    self.logger.error(
+                        'SAMPLE_ID too long (%s character maximum)' % (MAX_SAMPLE_STABLE_ID_LENGTH),
+                        extra={'line_number': self.line_number,
+                               'column_number': col_index + 1,
+                               'cause': value})
+                    continue
+                
                 if value in self.sample_id_lines:
                     if value.startswith('TCGA-'):
                         self.logger.warning(

@@ -103,11 +103,11 @@ public class GenericAssayControllerTest {
 
     @Test
     public void testGenericAssayMetaGetGenericAssayStableId() throws Exception {
-        List<GenericAssayMeta> genericAssayMetaItems = createGenericAssayMetaItemsList();
+        List<GenericAssayMeta> genericAssayMetaSingleItem = createGenericAssayMetaSingleItem();
 
-        Mockito.when(genericAssayService.getGenericAssayMetaByStableIdsAndMolecularIds(Mockito.any(), Mockito.any(), Mockito.any())).thenReturn(genericAssayMetaItems);
+        Mockito.when(genericAssayService.getGenericAssayMetaByStableIdsAndMolecularIds(Mockito.any(), Mockito.any(), Mockito.any())).thenReturn(genericAssayMetaSingleItem);
 
-        mockMvc.perform(MockMvcRequestBuilders.get("/generic-assay-meta/" + PROF_ID + "/generic-assay/" + GENERIC_ASSAY_STABLE_ID_2)
+        mockMvc.perform(MockMvcRequestBuilders.get("/generic-assay-meta/generic-assay/" + GENERIC_ASSAY_STABLE_ID_2)
             .accept(MediaType.APPLICATION_JSON))
             .andExpect(MockMvcResultMatchers.status().isOk())
             .andExpect(MockMvcResultMatchers.status().isOk())
@@ -145,6 +145,16 @@ public class GenericAssayControllerTest {
             .andExpect(MockMvcResultMatchers.jsonPath("$[1].genericEntityMetaProperties", Matchers.hasValue(TEST_NAME_VALUE)))
             .andExpect(MockMvcResultMatchers.jsonPath("$[1].genericEntityMetaProperties", Matchers.hasKey(TEST_DESCRIPTION)))
             .andExpect(MockMvcResultMatchers.jsonPath("$[1].genericEntityMetaProperties", Matchers.hasValue(TEST_DESCRIPTION_VALUE)));
+    }
+
+    private List<GenericAssayMeta> createGenericAssayMetaSingleItem() {
+
+        List<GenericAssayMeta> genericAssayMetaItems = new ArrayList<>();
+        
+        GenericAssayMeta item2 = new GenericAssayMeta(ENTITY_TYPE, GENERIC_ASSAY_STABLE_ID_2, GENERIC_ENTITY_META_PROPERTIES);
+        genericAssayMetaItems.add(item2);
+
+        return genericAssayMetaItems;
     }
     
     private List<GenericAssayMeta> createGenericAssayMetaItemsList() {

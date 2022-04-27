@@ -72,12 +72,7 @@ public class GenePanelDataControllerTest {
     private ObjectMapper objectMapper = new ObjectMapper();
 
     private MockMvc mockMvc;
-
-    @Bean
-    public GenePanelService genePanelService() {
-        return Mockito.mock(GenePanelService.class);
-    }
-
+    
     @Before
     public void setUp() throws Exception {
 

@@ -65,11 +65,6 @@ public class GenericAssayDataControllerTest {
     private MockMvc mockMvc;
 
     private ObjectMapper objectMapper = new ObjectMapper();
-
-    @Bean
-    public GenericAssayService genericAssayService() {
-        return Mockito.mock(GenericAssayService.class);
-    }
     
     @Before
     public void setUp() throws Exception {

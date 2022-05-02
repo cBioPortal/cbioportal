@@ -147,7 +147,10 @@ public class ImportGenePanelProfileMap extends ConsoleRunnable {
             List<String> row_data = new LinkedList<>(Arrays.asList(row.split("\t")));
             
             // Extract and parse sample ID
-            String sampleId = row_data.get(sampleIdIndex);
+            // Use StableIdUtil to convert IDs to match what would be stored in DB
+            // Specifically, TCGA samples have additional processing that changes the sample stable id
+            String sampleId = StableIdUtil.getSampleId(row_data.get(sampleIdIndex));
+            
             Sample sample = DaoSample.getSampleByCancerStudyAndSampleId(cancerStudy.getInternalId(), sampleId);
             row_data.remove((int)sampleIdIndex);
             

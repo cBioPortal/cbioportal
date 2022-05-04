@@ -3,6 +3,7 @@ We have release procedures for the following scenarios:
 
 1. [cBioPortal community release of code already in production](#cbioportal-community-release-of-code-already-in-production)
 2. [Release with database migration](#Release-with-database-migration)
+3. [Community releases](#community-releases)
 
 ## cBioPortal community release of code already in production
 We often run code in production that is not ready yet for use by the wider
@@ -45,6 +46,34 @@ which needs to be merged to master on both backend and frontend:
    add it to the already existing backend branch release-x.y.z and open the PR
    from there to backend's master. This is merely for convenience to avoid
    having to create another branch just to update the frontend version.
+
+## Community Releases
+While we use a rolling, weekly release model for cbioportal.org, we understand that most people that maintain their
+own cBioPortal cannot afford to update it every week. To better accommodate the needs of these maintainers, we have
+decided to release a community version of the cBioPortal.
+
+### What constitutes a community release?
+A community release is a version of the cBioPortal that we think is reliable, and that changes as little as possible. We
+will only make changes to a community release to fix a significant security issue.
+
+### How do I use the current community version?
+We offer two potential solutions:
+- If you want a release / image with only the changes laid out above, you should
+use `3.7.community`.
+- If you want a release that we think is reliable that will have NO changes, you should use `3.7.31`.
+We also release docker images for both of these tags. 
+
+### Release cadence
+Tentatively, we plan to create a new community release every 6 months. This cadence may change as we become more
+familiar with this process.
+
+### Support duration
+We will support one community release at a time. Once we release a newer community release, we will stop making patches
+to the prior version.
+
+### Patch cadence
+Patches to a community release will occur as needed, up to once a week. In practice, patches should be much rarer than
+that.
 
 ## A note on versioning
 

@@ -67,6 +67,10 @@ Docker Images are available for each tag and branch:
 
 https://hub.docker.com/repository/docker/cbioportal/cbioportal/tags
 
+Documentation about our release procedure:
+
+https://docs.cbioportal.org/release-procedure/
+
 ## 👉 Other Repos
 Read the [Architecture docs](https://docs.cbioportal.org/2.1-deployment/architecture-overview) to see how these relate:
 

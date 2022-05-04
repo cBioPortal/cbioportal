@@ -2,7 +2,7 @@
 *   **Added data** consisting of 2,557 samples from 5 studies: 
     * [Breast Cancer (HTAN, 2022)](https://www.cbioportal.org/study/summary?id=brca_hta9_htan_2022) *5 samples*
     * [Colorectal Cancer (MSK, 2022)](https://www.cbioportal.org/study/summary?id=crc_dd_2022) *47 samples*
-    * [Mixed Tumors (MSK, 2022)](https://www.cbioportal.org/study/summary?id=mixed_kunga_msk_2022) *135 samples*
+    * [Pediatric Pancan Tumors (MSK, 2022)](https://www.cbioportal.org/study/summary?id=mixed_kunga_msk_2022) *135 samples*
     * [Sarcoma (MSK, 2022)](https://www.cbioportal.org/study/summary?id=sarcoma_mskcc_2022) *2,138 samples*
     * [Lung Cancer in Never Smokers (NCI, Nature Genetics 2021)](https://www.cbioportal.org/study/summary?id=lung_nci_2022) *232 samples*
 *   **Gene Tables Update** Updated tables of genes (main and alias), based on [Jan 1, 2022 HGNC release](http://ftp.ebi.ac.uk/pub/databases/genenames/hgnc/archive/monthly/tsv/). See seedDB release note [here](https://github.com/cBioPortal/datahub/tree/master/seedDB#latest-seed-database) for details.

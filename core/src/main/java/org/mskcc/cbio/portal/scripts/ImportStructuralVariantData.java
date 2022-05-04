@@ -70,6 +70,7 @@ public class ImportStructuralVariantData {
         GeneticProfile geneticProfile = DaoGeneticProfile.getGeneticProfileById(geneticProfileId);
         ArrayList <Integer> orderedSampleList = new ArrayList<Integer>();
         long id = DaoStructuralVariant.getLargestInternalId();
+        Set<String> uniqueSVs = new HashSet<>();
         while ((line = buf.readLine()) != null) {
             ProgressMonitor.incrementCurValue();
             ConsoleUtil.showProgress();
@@ -125,18 +126,33 @@ public class ImportStructuralVariantData {
                         // Save the Entrez Gene Id if it was not saved before
                         if (site1EntrezGeneId == TabDelimitedFileUtil.NA_LONG) {
                             if (site1CanonicalGene != null) {
-                            	structuralVariant.setSite1EntrezGeneId(site1CanonicalGene.getEntrezGeneId());
+                                structuralVariant.setSite1EntrezGeneId(site1CanonicalGene.getEntrezGeneId());
                             } else {
                                 structuralVariant.setSite1EntrezGeneId(null); // we want this to be null in the database, not NA_LONG
-			    }
+                            }
                         }
                         if (site2EntrezGeneId == TabDelimitedFileUtil.NA_LONG) {
                             if (site2CanonicalGene != null) {
-                            	structuralVariant.setSite2EntrezGeneId(site2CanonicalGene.getEntrezGeneId());
+                                structuralVariant.setSite2EntrezGeneId(site2CanonicalGene.getEntrezGeneId());
                             } else {
                                 structuralVariant.setSite2EntrezGeneId(null); // we want this to be null in the database, not NA_LONG
-			    }
+                            }
                         }
+
+                        // check this is unique within the file
+                        String key = getSVKey(structuralVariant);
+                        if (!uniqueSVs.add(key)) { // we have already seen this SV in this file
+                            ProgressMonitor.logWarning("Ignoring duplicate structural variant with sample id: " + structuralVariant.getSampleId() + ", site 1 Entrez gene id: "
+                                + structuralVariant.getSite1EntrezGeneId() + ", site 1 chromosome: " + structuralVariant.getSite1Chromosome()
+                                + ", site 1 position: " + structuralVariant.getSite1Position() + ", site 1 region number: "
+                                + structuralVariant.getSite1RegionNumber() + ", site 1 Ensembl transcript id: " + structuralVariant.getSite1EnsemblTranscriptId()
+                                + ", site 2 Entrez gene id: "
+                                + structuralVariant.getSite2EntrezGeneId() + ", site 2 chromosome: " + structuralVariant.getSite2Chromosome()
+                                + ", site 2 position: " + structuralVariant.getSite2Position() + ", site 2 region number: "
+                                + structuralVariant.getSite2RegionNumber() + ", site 2 Ensembl transcript id: " + structuralVariant.getSite2EnsemblTranscriptId());
+                            continue;
+                        }
+
                         // Add structural variant
                         DaoStructuralVariant.addStructuralVariantToBulkLoader(structuralVariant);
 
@@ -174,5 +190,20 @@ public class ImportStructuralVariantData {
         }
 
         return siteCanonicalGene;
+    }
+
+    private String getSVKey(StructuralVariant sv) {
+        StringBuffer sb = new StringBuffer(sv.getSampleId());
+        sb.append(sv.getSite1EntrezGeneId());
+        sb.append(sv.getSite1Chromosome());
+        sb.append(sv.getSite1Position());
+        sb.append(sv.getSite1RegionNumber());
+        sb.append(sv.getSite1EnsemblTranscriptId());
+        sb.append(sv.getSite2EntrezGeneId());
+        sb.append(sv.getSite2Chromosome());
+        sb.append(sv.getSite2Position());
+        sb.append(sv.getSite2RegionNumber());
+        sb.append(sv.getSite2EnsemblTranscriptId());
+        return sb.toString();
     }
 }

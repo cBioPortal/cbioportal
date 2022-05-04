@@ -1,3 +1,18 @@
+## Apr 20, 2022
+*   **Added data** consisting of 2,557 samples from 5 studies: 
+    * [Breast Cancer (HTAN, 2022)](https://www.cbioportal.org/study/summary?id=brca_hta9_htan_2022) *5 samples*
+    * [Colorectal Cancer (MSK, 2022)](https://www.cbioportal.org/study/summary?id=crc_dd_2022) *47 samples*
+    * [Pediatric Pancan Tumors (MSK, 2022)](https://www.cbioportal.org/study/summary?id=mixed_kunga_msk_2022) *135 samples*
+    * [Sarcoma (MSK, 2022)](https://www.cbioportal.org/study/summary?id=sarcoma_mskcc_2022) *2,138 samples*
+    * [Lung Cancer in Never Smokers (NCI, Nature Genetics 2021)](https://www.cbioportal.org/study/summary?id=lung_nci_2022) *232 samples*
+*   **Gene Tables Update** Updated tables of genes (main and alias), based on [Jan 1, 2022 HGNC release](http://ftp.ebi.ac.uk/pub/databases/genenames/hgnc/archive/monthly/tsv/). See seedDB release note [here](https://github.com/cBioPortal/datahub/tree/master/seedDB#latest-seed-database) for details.
+*   **Data Improvement**
+    * Pan-can studies timeline addition: `TREATMENT`, `OTHER MALIGNANCY FORM`, `SAMPLE ACQUISITION`, `STATUS` are added to all 32 TCGA Pan-Can studies. Details for data source and transformation process can be found [here](https://github.com/cBioPortal/datahub/pull/1597) or in the [README.md](https://github.com/cBioPortal/datahub/blob/master/public/acc_tcga_pan_can_atlas_2018/README.md) files included in each study folder on datahub. [Example: patient view of TCGA-A2-A04P in Breast Invasive Carcinoma Tumor Type](https://www.cbioportal.org/patient?studyId=brca_tcga_pan_can_atlas_2018&caseId=TCGA-A2-A04P)<img width="1204" alt="Screen Shot 2022-04-25 at 11 40 51 AM" src="https://user-images.githubusercontent.com/5973438/165153293-3d400e03-48d5-4919-ae32-7f16fa7d2f4f.png">
+
+    * Pan-can studies methylation addition: methylation profile (27k and 450k merged) are added to all 32 TCGA Pan-Can studies, in generic assay format. Data source: [GDC](https://gdc.cancer.gov/node/977). Example: search by gene or probe from dropdown, to add a chart in study view, a track in Oncoprint (single study query only), or plots in plots tab. <img width="860" alt="Screen Shot 2022-03-22 at 9 52 20 PM" src="https://user-images.githubusercontent.com/5973438/159626976-72601dc9-e5be-4b50-bae9-dedb5be6e7fc.png"><img width="340" alt="Screen Shot 2022-03-22 at 9 52 27 PM" src="https://user-images.githubusercontent.com/5973438/159626985-2423c556-2180-4a00-b9b8-69b4d2e361ba.png"><img width="430" alt="Screen Shot 2022-03-22 at 9 53 38 PM" src="https://user-images.githubusercontent.com/5973438/159626987-e6b51bef-814e-4a76-826a-211fcdd5e9a1.png">
+
+    * Single cell (type fraction and phases) data (in generic assay format) is added to [Glioblastoma (CPTAC, Cell 2021)](https://www.cbioportal.org/study/summary?id=gbm_cptac_2021) 
+
 ## Jan 4, 2022
 *   **Added data** consisting of 27,447 samples from 10 studies: 
     * [Endometrial Carcinoma (CPTAC, Cell 2020)](https://www.cbioportal.org/study/summary?id=ucec_cptac_2020) *95 samples*

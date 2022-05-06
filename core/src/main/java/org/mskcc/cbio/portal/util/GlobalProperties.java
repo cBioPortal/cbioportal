@@ -300,6 +300,10 @@ public class GlobalProperties {
     @Value("${show.signal:false}") // default is false
     public void setShowSignal(String property) { showSignal = Boolean.parseBoolean(property); }
 
+    private static boolean showNdex;
+    @Value("${show.ndex:true}") // default is true
+    public void setShowNdex(String property) { showNdex = Boolean.parseBoolean(property); }
+
 	/*
      * Trim whitespace of url and append / if it does not exist. Return empty
      * string otherwise.
@@ -951,6 +955,10 @@ public class GlobalProperties {
 
     public static boolean showMutationMapperToolGrch38() {
         return showMutationMapperToolGrch38;
+    }
+
+    public static boolean showNdex() {
+        return showNdex;
     }
 
     public static boolean showSignal() {

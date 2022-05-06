@@ -67,6 +67,7 @@
             "show.mutation_mappert_tool.grch38",
             "show.transcript_dropdown",
             "show.signal",
+            "show.ndex",
             "survival.show_p_q_values_in_survival_type_table",
             "survival.min_group_threshold",
             "survival.initial_x_axis_limit",

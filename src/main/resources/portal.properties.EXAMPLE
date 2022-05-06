@@ -225,6 +225,9 @@ mycancergenome.show=true
 # Enable SIGNAL column in mutations table(true, false)
 # show.signal=false
 
+# Enable NDex pathways integration (true, false)
+# show.ndex=false
+
 # igv bam linking
 igv.bam.linking=
 # colon delimited

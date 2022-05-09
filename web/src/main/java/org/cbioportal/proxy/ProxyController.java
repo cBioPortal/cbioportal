@@ -43,20 +43,22 @@ public class ProxyController {
             String.class
         ).getBody();
     }
-
-    // TODO remove this endpoint after external projects switch to the new proxy
+    
     @RequestMapping("/oncokb/**")
     public String proxyOncokb(
         @RequestBody(required = false) String body,
         HttpMethod method,
         HttpServletRequest request
     ) throws URISyntaxException {
+        String token = request.getHeader("X-Proxy-User-Agreement");
+        token = (token == null || token.isEmpty()) ? "NA": token;
+        
         return exchangeOncokbData(
             body,
             request.getPathInfo().replaceFirst("/oncokb", ""),
             request.getQueryString(),
             method,
-            getOncokbHeaders(request)
+            getOncokbHeaders(request, token)
         );
     }
     
@@ -112,10 +114,14 @@ public class ProxyController {
     }
     
     private HttpHeaders getOncokbHeaders(HttpServletRequest request) {
+        return this.getOncokbHeaders(request, null);
+    }
+    
+    private HttpHeaders getOncokbHeaders(HttpServletRequest request, String token) {
         // load portal.properties
         this.properties = loadProperties(getResourceStream("portal.properties"));
         boolean showOncokb = Boolean.parseBoolean(getProperty("show.oncokb", "true"));
-        String oncokbToken = getProperty("oncokb.token", "");
+        String oncokbToken = token == null ? getProperty("oncokb.token", ""): token;
 
         if (!showOncokb) {
             throw new OncoKBServiceIsDisabledException();

@@ -283,7 +283,7 @@
     <jackson.version>2.13.0</jackson.version>
     <mysql-connector.version>5.1.48</mysql-connector.version>
     <webapp-runner.version>8.5.61.0</webapp-runner.version>
-    <slf4j.version>1.7.32</slf4j.version>
+    <slf4j.version>1.7.36</slf4j.version>
     <logback.version>1.2.10</logback.version>
 
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>

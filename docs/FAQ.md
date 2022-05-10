@@ -5,6 +5,7 @@
     * [What is the cBioPortal for Cancer Genomics?](#what-is-the-cbioportal-for-cancer-genomics)
     * [How do I get started?](#how-do-i-get-started)
     * [What data types are in the portal?](#what-data-types-are-in-the-portal)
+    * [What does ___ stand for?](#what-does-stand-for)
     * [What is the process of data curation?](#what-is-the-process-of-data-curation)
     * [How do I get updates on new portal developments and new data sets?](#how-do-i-get-updates-on-new-portal-developments-and-new-data-sets)
     * [Does the portal work on all browsers and operating systems?](#does-the-portal-work-on-all-browsers-and-operating-systems)
@@ -86,6 +87,16 @@ The cBioPortal for Cancer Genomics is an open-access, open-source resource for i
 Check out our [tutorial slides](https://www.cbioportal.org/tutorials) to get started or go through our [tutorial paper](https://www.ncbi.nlm.nih.gov/pubmed/23550210).
 #### What data types are in the portal?
 The portal supports and stores non-synonymous mutations, DNA copy-number data (putative, discrete values per gene, e.g. "deeply deleted" or "amplified", as well as log2 or linear copy number data), mRNA and microRNA expression data, protein-level and phosphoprotein level data (RPPA or mass spectrometry based), DNA methylation data, and de-identified clinical data. For a complete breakdown of available data types per cancer study go to the [Data Sets Page](https://www.cbioportal.org/datasets). Note that for many studies, only somatic mutation data and limited clinical data are available. For TCGA studies, the other data types are also available. Germline mutations are supported by cBioPortal, but are, with a few exceptions, not available in the public instance.
+#### What does ___ stand for?
+Here are the meanings of some of the abbreviations used by cBioPortal:
+* VUS: variant of unknown significance
+* CNA: copy number alteration
+* AMP: amplification
+* HOMDEL: deep deletion
+* TMB: tumor mutational burden, calculated as mutations per megabase of sequenced DNA
+* KM: Kaplan-Meier
+* MSI: microsatellite instability
+* OQL: Onco Query Language, used within cBioPortal to define the types of alterations included in a query. For more on OQL, review the [documentation](https://www.cbioportal.org/oql), [tutorial slides](https://www.cbioportal.org/tutorials#oql), and [videos](https://www.cbioportal.org/tutorials)
 #### What is the process of data curation?
 The TCGA firehose legacy datasets are imported directly from the original TCGA Data Coordinating Center via the [Broad Firehose](https://gdac.broadinstitute.org/).
 

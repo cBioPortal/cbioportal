@@ -802,6 +802,51 @@ public class DataBinnerTest {
     }
 
     @Test
+    public void testLinearDataBinnerQuartileBinsLowComplexitySeriesQ1Q2Q3Identical() {
+        String studyId = "skcm_broad";
+        String attributeId = "AGE_AT_PROCUREMENT";
+        String[] values = mockData.get("q1q2q3_identical");
+
+        ClinicalDataBinFilter clinicalDataBinFilter = new ClinicalDataBinFilter();
+        clinicalDataBinFilter.setAttributeId(attributeId);
+        clinicalDataBinFilter.setBinMethod(BinMethod.QUARTILE);
+
+        List<ClinicalData> clinicalData = mockClinicalData(attributeId, studyId, values);
+        List<String> patientIds = getCaseIds(clinicalData, true);
+
+        List<DataBin> dataBins = dataBinner.calculateDataBins(clinicalDataBinFilter, ClinicalDataType.PATIENT, clinicalData, patientIds);
+
+        List<DataBin> expected = Arrays.asList(
+            createDataBin("<=", null ,"250", 50)
+        );
+
+        testBinsIdentical(expected, dataBins);
+    }
+
+    @Test
+    public void testLinearDataBinnerQuartileBinsLowComplexitySeriesQ2Q3Identical() {
+        String studyId = "skcm_broad";
+        String attributeId = "AGE_AT_PROCUREMENT";
+        String[] values = mockData.get("q2q3_identical");
+
+        ClinicalDataBinFilter clinicalDataBinFilter = new ClinicalDataBinFilter();
+        clinicalDataBinFilter.setAttributeId(attributeId);
+        clinicalDataBinFilter.setBinMethod(BinMethod.QUARTILE);
+
+        List<ClinicalData> clinicalData = mockClinicalData(attributeId, studyId, values);
+        List<String> patientIds = getCaseIds(clinicalData, true);
+
+        List<DataBin> dataBins = dataBinner.calculateDataBins(clinicalDataBinFilter, ClinicalDataType.PATIENT, clinicalData, patientIds);
+
+        List<DataBin> expected = Arrays.asList(
+            createDataBin("<=", null, "15", 6),
+            createDataBin(null, "15", "250", 17)
+        );
+
+        testBinsIdentical(expected, dataBins);
+    }
+
+    @Test
     public void testLinearDataBinnerWithBigNumbers() {
         String studyId = "random_";
         String attributeId = "BIG_NUMBER";

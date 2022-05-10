@@ -145,16 +145,17 @@ public class DataBinHelper {
 
     public BigDecimal calcQ1(List<BigDecimal> sortedValues) {
         return sortedValues.isEmpty() ?
-            null : sortedValues.get((int) Math.floor(sortedValues.size() / 4.0));
+            null : sortedValues.get((int) Math.floor(sortedValues.size() * 0.25));
     }
 
     public BigDecimal calcMedian(List<BigDecimal> sortedValues) {
-        return ObjectUtils.median(sortedValues.toArray(new BigDecimal[0]));
+        return sortedValues.isEmpty() ?
+            null : sortedValues.get((int) Math.floor(sortedValues.size() * 0.50));
     }
 
     public BigDecimal calcQ3(List<BigDecimal> sortedValues) {
         return sortedValues.isEmpty() ?
-             null : sortedValues.get((int) Math.floor(sortedValues.size() * (3.0 / 4.0)));
+             null : sortedValues.get((int) Math.floor(sortedValues.size() * 0.75));
     }
 
     public List<BigDecimal> filterIntervals(List<BigDecimal> intervals, BigDecimal lowerOutlier, BigDecimal upperOutlier) {

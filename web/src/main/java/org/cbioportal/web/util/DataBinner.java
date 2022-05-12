@@ -309,14 +309,8 @@ public class DataBinner {
             } else if (DataBinFilter.BinMethod.MEDIAN == binMethod) {
                 // NOOP - handled later
             } else if (DataBinFilter.BinMethod.QUARTILE == binMethod) {
-                // Edge case: some of Q1, Q2, and Q3 are the same value.
-                // Solution: reduce bins to represent unique values only.
-                List<BigDecimal> bins = Stream.of(
-                    this.dataBinHelper.calcQ1(sortedNumericalValues),
-                    this.dataBinHelper.calcMedian(sortedNumericalValues),
-                    this.dataBinHelper.calcQ3(sortedNumericalValues)
-                ).distinct().collect(Collectors.toList());
-                dataBins = linearDataBinner.calculateDataBins(bins, numericalValues);
+                List<BigDecimal> boundaries = this.dataBinHelper.calcQuartileBoundaries(sortedNumericalValues);
+                dataBins = linearDataBinner.calculateDataBins(boundaries, numericalValues);
             } else if (boxRange.upperEndpoint().subtract(boxRange.lowerEndpoint()).compareTo(new BigDecimal(1000)) == 1  &&
                 (disableLogScale == null || !disableLogScale)) {
                 dataBins = logScaleDataBinner.calculateDataBins(

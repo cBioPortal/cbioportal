@@ -1,7 +1,6 @@
 package org.cbioportal.web.util;
 
 import com.google.common.collect.Range;
-import org.apache.commons.lang3.ObjectUtils;
 import org.cbioportal.model.DataBin;
 import org.springframework.stereotype.Component;
 
@@ -66,6 +65,28 @@ public class DataBinHelper {
 
         return dataBin;
     }
+    
+    public List<BigDecimal> calcQuartileBoundaries(List<BigDecimal> sortedValues) {
+        // Edge case: some of Q1, Q2, and Q3 are the same value.
+        // Solution: reduce bins to represent unique values only.
+        // Note: cannot use stream.distinct() because BigDecimal does
+        // not play nice with this (e.g., "2.5E+2" is not identical to "250"
+        // when using Object.equals())
+        final BigDecimal q1 = calcQ1(sortedValues);
+        final BigDecimal q2 = calcMedian(sortedValues);
+        final BigDecimal q3 = calcQ3(sortedValues);
+        List<BigDecimal> boundaries = new ArrayList<>();
+        boundaries.add(q1);
+        // Check Q1 smaller than Q2
+        if (q1.compareTo(q2) < 0) {
+            boundaries.add(q2);
+        }
+        // Check Q2 smaller than Q3
+        if (q2.compareTo(q3) < 0) {
+            boundaries.add(q3);
+        }
+        return boundaries;
+    }
 
     public Range<BigDecimal> calcBoxRange(List<BigDecimal> sortedValues) {
         if (sortedValues == null || sortedValues.size() == 0) {
@@ -75,7 +96,7 @@ public class DataBinHelper {
         // Find a generous IQR. This is generous because if (values.length / 4)
         // is not an int, then really you should average the two elements on either
         // side to find q1 and q3.
-        Range<BigDecimal> interquartileRange = calcInterquartileRange(sortedValues);
+        Range<BigDecimal> interquartileRange = calcInterquartileRangeApproximation(sortedValues);
 
         BigDecimal q1 = interquartileRange.lowerEndpoint();
         BigDecimal q3 = interquartileRange.upperEndpoint();
@@ -119,18 +140,18 @@ public class DataBinHelper {
         return Range.closed(minValue, maxValue);
     }
 
-    public Range<BigDecimal> calcInterquartileRange(List<BigDecimal> sortedValues) {
+    public Range<BigDecimal> calcInterquartileRangeApproximation(List<BigDecimal> sortedValues) {
         Range<BigDecimal> iqr = null;
 
         if (sortedValues.size() > 0) {
-            BigDecimal q1 = calcQ1(sortedValues);
-            BigDecimal q3 = calcQ3(sortedValues);
+            BigDecimal q1 = valueCloseToQ1(sortedValues);
+            BigDecimal q3 = valueCloseToQ3(sortedValues);
             BigDecimal max = sortedValues.get(sortedValues.size() - 1);
 
-            // if iqr == 0 AND max == q3 then recursively try finding a non-zero iqr
+            // if iqr == 0 AND max == q3 then recursively try finding a non-zero iqr approximation.
             if (q1.compareTo(q3) == 0 && max.compareTo(q3) == 0) {
                 // filter out max and try again
-                iqr = this.calcInterquartileRange(
+                iqr = this.calcInterquartileRangeApproximation(
                     sortedValues.stream().filter(d -> d.compareTo(max) == -1).collect(Collectors.toList()));
             }
 
@@ -144,18 +165,54 @@ public class DataBinHelper {
     }
 
     public BigDecimal calcQ1(List<BigDecimal> sortedValues) {
-        return sortedValues.isEmpty() ?
-            null : sortedValues.get((int) Math.floor(sortedValues.size() * 0.25));
+        if (sortedValues == null || sortedValues.isEmpty()) {
+            return null;
+        }
+        // Stop is one position before the median array index.
+        int stopIndex = (int) (sortedValues.size() * 0.5) - 1;
+        return calcMedian(sortedValues, 0,  stopIndex);
     }
 
     public BigDecimal calcMedian(List<BigDecimal> sortedValues) {
-        return sortedValues.isEmpty() ?
-            null : sortedValues.get((int) Math.floor(sortedValues.size() * 0.50));
+        return (sortedValues == null || sortedValues.isEmpty()) ? null
+            : calcMedian(sortedValues, 0, sortedValues.size() - 1);
     }
 
     public BigDecimal calcQ3(List<BigDecimal> sortedValues) {
-        return sortedValues.isEmpty() ?
-             null : sortedValues.get((int) Math.floor(sortedValues.size() * 0.75));
+        if (sortedValues == null || sortedValues.isEmpty()) {
+            return null;
+        }
+        // Start one position after the median array index.
+        int startIndex = (int) (sortedValues.size() * 0.5);
+        if (sortedValues.size() % 2 != 0) {
+            startIndex += 1;
+        }
+        return calcMedian(sortedValues, startIndex, sortedValues.size() - 1);
+   }
+
+    private BigDecimal calcMedian(List<BigDecimal> sortedValues, int start, int stop) {
+        if (sortedValues == null || sortedValues.isEmpty()) {
+            return null;
+        }
+        final List<BigDecimal> values = sortedValues.subList(start, stop + 1);
+        double index = values.size() * 0.5;
+        BigDecimal value = values.get((int) index);
+        if (values.size() % 2 != 0) {
+            return value;
+        } else {
+            BigDecimal valueBelow = values.get((int) index - 1);
+            return value.add(valueBelow).divide(new BigDecimal("2.0"));
+        }
+    }
+
+    public BigDecimal valueCloseToQ1(List<BigDecimal> sortedValues) {
+        return (sortedValues == null || sortedValues.isEmpty()) ?
+            null : sortedValues.get((int) (sortedValues.size() * 0.25));
+    }
+
+    public BigDecimal valueCloseToQ3(List<BigDecimal> sortedValues) {
+        return (sortedValues == null || sortedValues.isEmpty()) ?
+            null : sortedValues.get((int) (sortedValues.size() * 0.75));
     }
 
     public List<BigDecimal> filterIntervals(List<BigDecimal> intervals, BigDecimal lowerOutlier, BigDecimal upperOutlier) {

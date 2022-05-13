@@ -330,6 +330,7 @@
     <b:bean id="specificBinding" class="org.springframework.security.saml.websso.WebSSOProfileOptions">
 	<b:property name="includeScoping" value="false"/>
 	<b:property name="binding" value="urn:oasis:names:tc:SAML:2.0:${saml.idp.comm.binding.type}"/>
+	<b:property name="forceAuthN" value="${saml.idp.comm.binding.force-auth-n:false}"/>
     </b:bean>
 
     <!-- IDP Discovery Service -->
@@ -624,6 +625,7 @@
     <b:bean id="specificBinding" class="org.springframework.security.saml.websso.WebSSOProfileOptions">
 	<b:property name="includeScoping" value="false"/>
 	<b:property name="binding" value="urn:oasis:names:tc:SAML:2.0:${saml.idp.comm.binding.type}"/>
+	<b:property name="forceAuthN" value="${saml.idp.comm.binding.force-auth-n:false}"/>
     </b:bean>
 
     <!-- IDP Discovery Service -->

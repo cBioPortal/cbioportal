@@ -137,6 +137,10 @@ saml.idp.comm.binding.settings=defaultBinding
 # Configure the specific binding if above is specificBinding. Leave empty if defaultBinding.
 # Options: bindings:HTTP-POST, bindings:HTTP-Redirect, bindings:PAOS, profiles:holder-of-key:SSO:browser
 saml.idp.comm.binding.type=
+# If true it means that the user will be forced to re-authenticate, even if they have a valid session with the IDP
+# it's useful when you don't have control over IDP and the IDP caches user data for to long
+# causing cbioportal to CredentialsExpiredException Authentication statement is too old to be used with value <DATE>
+saml.idp.comm.binding.force-auth-n=false
 # Change this to configure your custom UserDetails parser (default: org.cbioportal.security.spring.authentication.saml.SAMLUserDetailsServiceImpl)
 saml.custom.userservice.class=org.cbioportal.security.spring.authentication.saml.SAMLUserDetailsServiceImpl
 # Change this to configure to configure a custom logout URL: (default: /login.jsp?logout_success=true)

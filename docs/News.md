@@ -1,3 +1,8 @@
+## May 12, 2022
+* **New Feature**: Show cohort alteration frequencies in pathways from [NDEx](https://www.ndexbio.org/iquery/) on the _Results View_. [Example: Glioblastoma signaling pathways in MSK-IMPACT (2017) cohort](https://bit.ly/3sE4UqD)
+
+    <img src="https://user-images.githubusercontent.com/1334004/168684594-fafd1fd6-b2a9-45d7-ad3a-d5611f3f469c.png" width="700" />
+
 ## May 5, 2022
 * **New Feature**: View mutations and copy number changes in the [Integrative Genomics Viewer (IGV)](https://igv.org/) on the _Patient View_. [Example: Endometrial cancer patient in TCGA](https://www.cbioportal.org/patient?studyId=ucec_tcga_pub&caseId=TCGA-BK-A0CC)
 

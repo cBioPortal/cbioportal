@@ -17,7 +17,7 @@
     *  Compare differences in cell type fractions between groups on the _Comparison Page_ ([Example](https://www.cbioportal.org/comparison/generic_assay_single_cell_type_fractions?comparisonId=6282d44d0934121b56df47fb&unselectedGroups=%5B%220.05-0.06%22%2C%220.03-0.05%22%5D))
 
     
-    <a href="https://bit.ly/37QiC2x"><img src="https://user-images.githubusercontent.com/1334004/168697958-18412ba6-01ae-4276-8b42-f1e7e4123e7e.png" width="700" /></a>
+    <img src="https://user-images.githubusercontent.com/1334004/168699333-a50ef433-5efe-45cc-a477-a3a99ed419dc.png" width="700" />
 
 ## Apr 20, 2022
 *   **Added data** consisting of 2,557 samples from 5 studies: 

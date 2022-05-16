@@ -1,5 +1,5 @@
 ## May 5, 2022
-* **New Feature**: View mutations and copy number changes in the [Integrative Genomics Viewer (IGV)](https://software.broadinstitute.org/software/igv/) on the _Patient View_. [Example: Endometrial cancer patient in TCGA](https://www.cbioportal.org/patient?studyId=ucec_tcga_pub&caseId=TCGA-BK-A0CC)
+* **New Feature**: View mutations and copy number changes in the [Integrative Genomics Viewer (IGV)](https://igv.org/) on the _Patient View_. [Example: Endometrial cancer patient in TCGA](https://www.cbioportal.org/patient?studyId=ucec_tcga_pub&caseId=TCGA-BK-A0CC)
 
     <img src="https://user-images.githubusercontent.com/1334004/168593020-253a4bfe-3922-4bf9-8dcc-89e298ba87c7.png" width="700" />
 * **New Feature**: Add charts that plot categorical vs continuous data on the _Study View_. [Example: MSK-IMPACT (2017) cohort](https://www.cbioportal.org/study/summary?id=msk_impact_2017)

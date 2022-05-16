@@ -127,11 +127,14 @@
                     </if>
                     <if>
                       <not>
-                        <available file="${basedir}/src/main/resources/log4j.properties"/>
+                        <available file="${basedir}/src/main/resources/logback.xml"/>
                       </not>
                       <then>
-                        <copy file="${basedir}/src/main/resources/log4j.properties.EXAMPLE" tofile="${basedir}/src/main/resources/log4j.properties"/>
+                        <copy file="${basedir}/src/main/resources/logback.xml.EXAMPLE" tofile="${basedir}/portal/src/main/webapp/WEB-INF/logback.xml"/>
                       </then>
+                      <else>
+                        <copy file="${basedir}/src/main/resources/logback.xml" tofile="${basedir}/portal/src/main/webapp/WEB-INF/logback.xml"/>
+                      </else>
                     </if>
                   </target>
                 </configuration>

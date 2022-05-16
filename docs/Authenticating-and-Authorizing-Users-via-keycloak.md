@@ -348,13 +348,11 @@ Getting this to work requires many steps, and can be a bit tricky.  If you get s
  This can be done via `src/main/resources/logback.xml`.  For example:
 
 ```
-# Change warn to debug, if you want to see debugging info on underlying libraries we use.
-<root level="warn">
+<root level="debug">
     <appender-ref ref="STDOUT" />
     <appender-ref ref="FILE" />
 </root>
 
-# Change warn to debug, if you want see debugging info on our packages and spring security packages.
 <logger name="org.mskcc" level="debug">
     <appender-ref ref="STDOUT" />
     <appender-ref ref="FILE" />

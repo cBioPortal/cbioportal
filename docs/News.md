@@ -10,6 +10,10 @@
 * **New Feature**: Add charts that plot categorical vs continuous data on the _Study View_. [Example: MSK-IMPACT (2017) cohort](https://www.cbioportal.org/study/summary?id=msk_impact_2017)
 
     <img src="https://user-images.githubusercontent.com/1334004/168595352-6416db7e-b6b5-4ef8-95e7-eaf67c841d94.png" width="700" />
+* **New Feature**: Single cell data integrations are now available for the [CPTAC glioblastoma study](https://www.cbioportal.org/study/summary?id=gbm_cptac_2021), including Oncoprints that show cell type fractions on the _Results View_, cohort selection by cell type on the _Study View_ and linkouts to to view single cell data in [Vitessce](http://vitessce.io/) on the _Patient View_. [Example: Oncoprint of several genes and cell types in CPTAC glioblastoma](https://bit.ly/37QiC2x)
+
+    <img src="https://user-images.githubusercontent.com/1334004/168689371-9a08da14-9298-4f84-b141-a24a6f6874c6.png" width="700" />
+
 ## Apr 20, 2022
 *   **Added data** consisting of 2,557 samples from 5 studies: 
     * [Breast Cancer (HTAN, 2022)](https://www.cbioportal.org/study/summary?id=brca_hta9_htan_2022) *5 samples*

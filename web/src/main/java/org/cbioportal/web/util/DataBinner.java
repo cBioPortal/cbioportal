@@ -15,6 +15,7 @@ import java.math.BigDecimal;
 import java.util.*;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 @Component
 public class DataBinner {
@@ -308,12 +309,8 @@ public class DataBinner {
             } else if (DataBinFilter.BinMethod.MEDIAN == binMethod) {
                 // NOOP - handled later
             } else if (DataBinFilter.BinMethod.QUARTILE == binMethod) {
-                List<BigDecimal> bins = Arrays.asList(
-                    this.dataBinHelper.calcQ1(sortedNumericalValues),
-                    this.dataBinHelper.calcMedian(sortedNumericalValues),
-                    this.dataBinHelper.calcQ3(sortedNumericalValues)
-                );
-                dataBins = linearDataBinner.calculateDataBins(bins, numericalValues);
+                List<BigDecimal> boundaries = this.dataBinHelper.calcQuartileBoundaries(sortedNumericalValues);
+                dataBins = linearDataBinner.calculateDataBins(boundaries, numericalValues);
             } else if (boxRange.upperEndpoint().subtract(boxRange.lowerEndpoint()).compareTo(new BigDecimal(1000)) == 1  &&
                 (disableLogScale == null || !disableLogScale)) {
                 dataBins = logScaleDataBinner.calculateDataBins(
@@ -355,7 +352,10 @@ public class DataBinner {
                         upperOutlier, attributeId);
             }
             
-            if (DataBinFilter.BinMethod.MEDIAN == binMethod) {
+            if (DataBinFilter.BinMethod.MEDIAN == binMethod
+                // In edge cases all quartile values can be identical (all
+                // values are in the outlier bins). 
+                || (DataBinFilter.BinMethod.QUARTILE == binMethod && dataBins.size() == 0)) {
                 BigDecimal median = this.dataBinHelper.calcMedian(sortedNumericalValues);
                 lowerOutlierBin.setEnd(median);
                 upperOutlierBin.setStart(median);

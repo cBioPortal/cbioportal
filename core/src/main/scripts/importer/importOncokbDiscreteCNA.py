@@ -110,7 +110,7 @@ def main_import(args):
     else:
         portal_instance = validateData.load_portal_info(server_url, logger)
 
-    cna_events = get_cna_events(cna_file_path)
+    cna_events = get_cna_events(cna_file_path, server_url, portal_instance.alias_entrez_map)
     id_to_annotation = fetch_and_map_oncokb_annotations(cna_events)
     for cna_event in cna_events:
         if cna_event[INTERNAL_ID] in id_to_annotation:
@@ -125,8 +125,9 @@ def main_import(args):
 
     return exit_status_handler.get_exit_status()
 
-def get_cna_events(cna_file_path):
+def get_cna_events(cna_file_path, server_url=None, alias_map=None):
     """Extract CNA events from CNA data file."""
+    assert server_url or alias_map, 'At least one of "server_url" or "alias_map" must be specified'
     header_elements = libImportOncokb.get_first_line_cells(libImportOncokb.open_file(cna_file_path), '\t')
     header_indexes = {}
     for required_column in required_cna_columns + [ENTREZ_ID]:
@@ -135,6 +136,9 @@ def get_cna_events(cna_file_path):
     sample_indexes = {}
     for sample_id in sample_ids:
         sample_indexes[sample_id] = header_elements.index(sample_id)
+
+    # reduce API requests
+    resolved_aliases = {}
 
     features = []
     cna_file = libImportOncokb.open_file(cna_file_path)
@@ -168,7 +172,12 @@ def get_cna_events(cna_file_path):
                 ENTREZ_ID] != '':
                 entrez_gene_ids = [feature[ENTREZ_ID]]
             elif feature[HUGO_SYMBOL] in portal_instance.hugo_entrez_map:
-                entrez_gene_ids = portal_instance.hugo_entrez_map[feature[HUGO_SYMBOL]]
+                # in case of failure, try aliases
+                entrez_gene_ids = portal_instance.hugo_entrez_map.get(
+                    feature[FIELD_HUGO_SYMBOL],
+                    resolved_aliases.get(feature[FIELD_HUGO_SYMBOL])
+                ) or libImportOncokb.try_get_entrez_from_alias(feature[FIELD_HUGO_SYMBOL], server_url, alias_map)
+                resolved_aliases[feature[FIELD_HUGO_SYMBOL]] = entrez_gene_ids
 
             if len(entrez_gene_ids) > 1:
                 logger.error(""" Multiple Entrez gene ids were found for a gene.

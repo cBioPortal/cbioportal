@@ -5122,6 +5122,11 @@ def request_from_portal_api(server_url, api_name, logger):
         service_url = server_url + '/api/' + api_name
     elif api_name in ['genesets_version']:
         service_url = server_url + '/api/genesets/version'
+        
+    # NOTE: There is no 'genesaliases' API enpoint and iterative querying by symbol is not viable.
+    # Thus for now, aliases can be imported only in offline mode 
+    elif api_name == 'genesaliases':
+        return []
 
     logger.debug("Requesting %s from portal at '%s'",
                 api_name, server_url)
@@ -5269,7 +5274,12 @@ def load_portal_info(path, logger, offline=False):
             ('genesets_version',
                 lambda json_data: str(json_data).strip(' \'[]')),
             ('gene-panels',
-                lambda json_data: extract_panels(json_data, 'genePanelId'))):
+                lambda json_data: extract_panels(json_data, 'genePanelId')),
+            ('genesaliases',
+                lambda json_data: transform_symbol_entrez_map(json_data, 
+                                                              id_field='alias', 
+                                                              values_field='entrezGeneId'))
+    ):
         if offline:
             parsed_json = read_portal_json_file(path, api_name, logger)
         else:
@@ -5284,7 +5294,7 @@ def load_portal_info(path, logger, offline=False):
                           cancer_type_dict=portal_dict['cancer-types'],
                           hugo_entrez_map=portal_dict['genes'],
                           # TODO - create a /genealiases equivalent in the new api
-                          alias_entrez_map={},
+                          alias_entrez_map=portal_dict['genesaliases'],
                           gene_set_list=portal_dict['genesets'],
                           gene_panel_list=portal_dict['gene-panels'],
                           geneset_version = portal_dict['genesets_version'],

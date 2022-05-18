@@ -54,8 +54,8 @@ public class DumpPortalInfo extends ConsoleRunnable {
     private static final int MIN_PAGE_NUMBER = 0;
 
     static class GeneAlias implements Serializable {
-        public String gene_alias;
-        public String entrez_gene_id;
+        public String alias;
+        public String entrezGeneId;
     }
 
     private static List<GeneAlias> extractGeneAliases(List<CanonicalGene> canonicalGenes) {
@@ -64,8 +64,8 @@ public class DumpPortalInfo extends ConsoleRunnable {
             String entrezGeneId = String.valueOf(canonicalGene.getEntrezGeneId()); 
             for (String alias : canonicalGene.getAliases()) {
                 GeneAlias geneAlias = new GeneAlias();
-                geneAlias.gene_alias = alias;
-                geneAlias.entrez_gene_id = entrezGeneId;
+                geneAlias.alias = alias;
+                geneAlias.entrezGeneId = entrezGeneId;
                 toReturn.add(geneAlias);
             }
         }

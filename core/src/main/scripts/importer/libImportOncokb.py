@@ -45,6 +45,18 @@ def load_portal_genes(server_url):
     return transform_symbol_entrez_map(parsed_json, 'hugoGeneSymbol')
 
 
+def try_get_entrez_from_alias(alias, server_url=None, alias_map=None):
+    assert server_url or alias_map
+    
+    if server_url:
+        response = requests.get(f'{server_url}/api/genes?alias={alias}').json()
+        entrez = [gene['entrezGeneId'] for gene in response]
+    elif alias_map:
+        entrez = alias_map.get(alias, [])
+        
+    return entrez
+
+
 # after: getProteinStart() in ExtendedMutationUtil.java
 def get_protein_pos_start(protein_position, protein_change):
     start = -1

@@ -6,7 +6,7 @@ version: 2
 jobs:
     build_backend:
         docker:
-            - image: maven:3-openjdk-11
+            - image: maven:3-openjdk-17
         working_directory: /tmp/repos/cbioportal
         steps:
             - checkout
@@ -21,7 +21,11 @@ jobs:
                 name: Build and unzip war
                 command: |
                     mvn -DskipTests clean install && \
-                    unzip portal/target/cbioportal*.war -d portal/target/war-exploded
+                    mkdir portal/target/war-exploded && \
+                    mv portal/target/cbioportal*.war portal/target/war-exploded/ && \
+                    cd portal/target/war-exploded/ && \
+                    jar -xvf cbioportal*.war && \
+                    cd ../../..
             - save_cache:
                 paths:
                   - ~/.m2
@@ -180,6 +184,7 @@ jobs:
             - run:
                 name: Start cbioportal and other services
                 command: |
+                    export DOCKER_IMAGE_CBIOPORTAL='cbioportal/cbioportal:demo-java-17' && \
                     $TEST_HOME/docker_compose/start.sh
             - run:
                 name: Change owner of keycloak MySQL database files (needed by cache)

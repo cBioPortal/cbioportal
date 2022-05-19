@@ -33,9 +33,9 @@
 package org.cbioportal.persistence.util;
 
 import org.cbioportal.utils.config.annotation.ConditionalOnProperty;
+import org.ehcache.core.internal.statistics.DefaultStatisticsService;
 import org.ehcache.core.statistics.*;
 import org.ehcache.config.ResourceType;
-import org.ehcache.impl.internal.statistics.DefaultStatisticsService;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;

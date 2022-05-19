@@ -279,9 +279,9 @@
   <properties>
     <frontend.version>2004ec63289004efa93cbb4fc58c96f17625799e</frontend.version>
     <frontend.groupId>com.github.cbioportal</frontend.groupId>
-    <spring.version>5.2.20.RELEASE</spring.version>
-    <spring.integration.version>5.3.0.RELEASE</spring.integration.version>
-    <spring.security.version>5.3.1.RELEASE</spring.security.version>
+    <spring.version>5.3.20</spring.version>
+    <spring.integration.version>5.3.10.RELEASE</spring.integration.version>
+    <spring.security.version>5.3.13.RELEASE</spring.security.version>
     <spring.social.version>1.1.6.RELEASE</spring.social.version>
     <jackson.version>2.13.0</jackson.version>
     <mysql-connector.version>5.1.48</mysql-connector.version>
@@ -570,7 +570,7 @@
       <dependency>
         <groupId>org.mybatis</groupId>
         <artifactId>mybatis</artifactId>
-        <version>3.5.7</version>
+        <version>3.5.10</version>
       </dependency>
       <!-- slf4j -->
       <dependency>
@@ -822,7 +822,18 @@
       <dependency>
         <groupId>org.ehcache</groupId>
         <artifactId>ehcache</artifactId>
-        <version>3.7.1</version>
+        <version>3.10.0</version>
+      </dependency>
+      <!-- These are used by the caching provider. They were in the JVM itself circa java 8, but not in 17 -->
+      <dependency>
+        <groupId>jakarta.xml.bind</groupId>
+        <artifactId>jakarta.xml.bind-api</artifactId>
+        <version>2.3.2</version>
+      </dependency>
+      <dependency>
+        <groupId>org.glassfish.jaxb</groupId>
+        <artifactId>jaxb-runtime</artifactId>
+        <version>2.3.2</version>
       </dependency>
       <!-- Google guice -->
       <dependency>
@@ -866,7 +877,7 @@
       <dependency>
         <groupId>org.apache.tomcat</groupId>
         <artifactId>tomcat-catalina</artifactId>
-        <version>7.0.68</version>
+        <version>7.0.109</version>
         <scope>
           ${tomcat.catalina.scope}
         </scope>
@@ -1074,8 +1085,8 @@
           <artifactId>maven-compiler-plugin</artifactId>
           <version>3.8.1</version>
           <configuration>
-            <source>1.8</source>
-            <target>1.8</target>
+            <source>17</source>
+            <target>17</target>
             <compilerArgs>
               <arg>-parameters</arg>
             </compilerArgs>

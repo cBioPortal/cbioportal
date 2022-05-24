@@ -951,7 +951,7 @@
       <dependency>
         <groupId>net.sf.jopt-simple</groupId>
         <artifactId>jopt-simple</artifactId>
-        <version>3.0-rc2</version>
+        <version>3.3</version>
       </dependency>
       <dependency>
         <groupId>net.sf.jung</groupId>

@@ -52,7 +52,6 @@ class MetaFileTypes(object):
     MUTATION = 'meta_mutations_extended'
     MUTATION_UNCALLED = 'meta_mutations_uncalled'
     METHYLATION = 'meta_methylation'
-    FUSION = 'meta_fusions'
     PROTEIN = 'meta_protein'
     GISTIC_GENES = 'meta_gistic_genes'
     TIMELINE = 'meta_timeline'
@@ -208,17 +207,6 @@ META_FIELD_MAP = {
         'data_filename': True,
         'gene_panel': False
     },
-    MetaFileTypes.FUSION: {
-        'cancer_study_identifier': True,
-        'genetic_alteration_type': True,
-        'datatype': True,
-        'stable_id': True,
-        'show_profile_in_analysis_tab': True,
-        'profile_name': True,
-        'profile_description': True,
-        'data_filename': True,
-        'gene_panel': False
-    },
     MetaFileTypes.GISTIC_GENES: {
         'cancer_study_identifier': True,
         'genetic_alteration_type': True,
@@ -362,7 +350,6 @@ IMPORTER_CLASSNAME_BY_META_TYPE = {
     MetaFileTypes.MUTATION: "org.mskcc.cbio.portal.scripts.ImportProfileData",
     MetaFileTypes.MUTATION_UNCALLED: "org.mskcc.cbio.portal.scripts.ImportProfileData",
     MetaFileTypes.METHYLATION: "org.mskcc.cbio.portal.scripts.ImportProfileData",
-    MetaFileTypes.FUSION: "org.mskcc.cbio.portal.scripts.ImportProfileData",
     MetaFileTypes.PROTEIN: "org.mskcc.cbio.portal.scripts.ImportProfileData",
     MetaFileTypes.GISTIC_GENES: "org.mskcc.cbio.portal.scripts.ImportGisticData",
     MetaFileTypes.TIMELINE: "org.mskcc.cbio.portal.scripts.ImportTimelineData",
@@ -642,7 +629,6 @@ def get_meta_file_type(meta_dictionary, logger, filename):
         ("MUTATION_UNCALLED", "MAF"): MetaFileTypes.MUTATION_UNCALLED,
         # others
         ("METHYLATION", "CONTINUOUS"): MetaFileTypes.METHYLATION,
-        ("FUSION", "FUSION"): MetaFileTypes.FUSION,
         ("GENE_PANEL_MATRIX", "GENE_PANEL_MATRIX"): MetaFileTypes.GENE_PANEL_MATRIX,
         ("STRUCTURAL_VARIANT", "SV"): MetaFileTypes.STRUCTURAL_VARIANT,
         # cross-sample molecular statistics (for gene selection)
@@ -662,13 +648,22 @@ def get_meta_file_type(meta_dictionary, logger, filename):
         if (genetic_alteration_type, data_type) in alt_type_datatype_to_meta:
             result = alt_type_datatype_to_meta[(genetic_alteration_type, data_type)]
         else:
-            logger.error(
-                'Could not determine the file type. Please check your meta files for correct configuration.',
-                extra={'filename_': filename,
-                       'cause': ('genetic_alteration_type: %s, '
-                                 'datatype: %s' % (
-                                     meta_dictionary['genetic_alteration_type'],
-                                     meta_dictionary['datatype']))})
+            if meta_dictionary['datatype'] == 'FUSION':
+                logger.error(
+                    'The Fusion file format is deprecated. Consider adding the data in Structural Variant format.',
+                    extra={'filename_': filename,
+                               'cause': ('genetic_alteration_type: %s, '
+                                     'datatype: %s' % (
+                                         meta_dictionary['genetic_alteration_type'],
+                                         meta_dictionary['datatype']))})
+            else:
+                logger.error(
+                    'Could not determine the file type. Please check your meta files for correct configuration.',
+                    extra={'filename_': filename,
+                               'cause': ('genetic_alteration_type: %s, '
+                                     'datatype: %s' % (
+                                         meta_dictionary['genetic_alteration_type'],
+                                         meta_dictionary['datatype']))})
     elif 'cancer_study_identifier' in meta_dictionary and 'type_of_cancer' in meta_dictionary:
         result = MetaFileTypes.STUDY
     elif 'type_of_cancer' in meta_dictionary:

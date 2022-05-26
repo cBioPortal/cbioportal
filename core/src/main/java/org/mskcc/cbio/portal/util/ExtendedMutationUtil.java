@@ -298,11 +298,6 @@ public class ExtendedMutationUtil {
         mutation.setEndPosition(defaultLong);
         mutation.setValidationStatus(defaultStr);
         mutation.setMutationStatus(defaultStr);
-        mutation.setFunctionalImpactScore(defaultStr);
-        mutation.setFisValue(defaultFloat);
-        mutation.setLinkXVar(defaultStr);
-        mutation.setLinkPdb(defaultStr);
-        mutation.setLinkMsa(defaultStr);
         mutation.setNcbiBuild(defaultStr);
         mutation.setStrand(defaultStr);
         mutation.setVariantType(defaultStr);

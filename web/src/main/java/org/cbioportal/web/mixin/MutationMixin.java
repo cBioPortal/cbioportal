@@ -6,8 +6,6 @@ public class MutationMixin {
 
     @JsonProperty("variantAllele")
     private String tumorSeqAllele;
-    @JsonProperty("refseqMrnaId")
-    private String oncotatorRefseqMrnaId;
     @JsonProperty("proteinPosStart")
     private Integer oncotatorProteinPosStart;
     @JsonProperty("proteinPosEnd")

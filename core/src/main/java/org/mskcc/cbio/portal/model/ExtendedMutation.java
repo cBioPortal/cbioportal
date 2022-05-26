@@ -52,12 +52,7 @@ public final class ExtendedMutation
         private long endPosition;
         private String proteinChange; // amino acid change
         private String mutationType; // variant classification
-        private String functionalImpactScore;
-        private float fisValue;
-        private String linkXVar;
-        private String linkPdb;
-        private String linkMsa;
-            private String keyword;
+        private String keyword;
         private String ncbiBuild;
         private String strand;
         private String variantType;
@@ -66,7 +61,6 @@ public final class ExtendedMutation
         private String dbSnpRs;
         private String dbSnpValStatus;
         private String oncotatorDbSnpRs;
-        private String oncotatorRefseqMrnaId;
         private String oncotatorUniprotName;
         private String oncotatorUniprotAccession;
         private String oncotatorCodonChange;
@@ -130,46 +124,6 @@ public final class ExtendedMutation
 
         public void setMutationType(String mutationType) {
             this.mutationType = mutationType;
-        }
-
-        public String getFunctionalImpactScore() {
-            return functionalImpactScore;
-        }
-
-        public void setFunctionalImpactScore(String functionalImpactScore) {
-            this.functionalImpactScore = functionalImpactScore;
-        }
-
-        public float getFisValue() {
-            return fisValue;
-        }
-
-        public void setFisValue(float fisValue) {
-            this.fisValue = fisValue;
-        }
-
-        public String getLinkXVar() {
-            return linkXVar;
-        }
-
-        public void setLinkXVar(String linkXVar) {
-            this.linkXVar = linkXVar;
-        }
-
-        public String getLinkPdb() {
-            return linkPdb;
-        }
-
-        public void setLinkPdb(String linkPdb) {
-            this.linkPdb = linkPdb;
-        }
-
-        public String getLinkMsa() {
-            return linkMsa;
-        }
-
-        public void setLinkMsa(String linkMsa) {
-            this.linkMsa = linkMsa;
         }
 
         public String getKeyword() {
@@ -242,14 +196,6 @@ public final class ExtendedMutation
 
         public void setOncotatorDbSnpRs(String oncotatorDbSnpRs) {
             this.oncotatorDbSnpRs = oncotatorDbSnpRs;
-        }
-
-        public String getOncotatorRefseqMrnaId() {
-            return oncotatorRefseqMrnaId;
-        }
-
-        public void setOncotatorRefseqMrnaId(String oncotatorRefseqMrnaId) {
-            this.oncotatorRefseqMrnaId = oncotatorRefseqMrnaId;
         }
 
         public String getOncotatorUniprotName() {
@@ -543,47 +489,7 @@ public final class ExtendedMutation
 	{
 		this.aminoAcidChange = aminoAcidChange;
 	}
-
-	public String getFunctionalImpactScore() {
-        return event.getFunctionalImpactScore();
-    }
-
-    public void setFunctionalImpactScore(String fImpact) {
-        event.setFunctionalImpactScore(fImpact);
-    }
-
-    public float getFisValue() {
-        return event.getFisValue();
-    }
-
-    public void setFisValue(Float fisValue) {
-        event.setFisValue(fisValue);
-    }
-
-    public String getLinkXVar() {
-        return event.getLinkXVar();
-    }
-
-    public void setLinkXVar(String linkXVar) {
-        event.setLinkXVar(linkXVar);
-    }
-
-    public String getLinkPdb() {
-        return event.getLinkPdb();
-    }
-
-    public void setLinkPdb(String linkPdb) {
-        event.setLinkPdb(linkPdb);
-    }
-
-    public String getLinkMsa() {
-        return event.getLinkMsa();
-    }
-
-    public void setLinkMsa(String linkMsa) {
-        event.setLinkMsa(linkMsa);
-    }
-
+	
     public String getSequencer() {
         return sequencer;
     }
@@ -826,16 +732,6 @@ public final class ExtendedMutation
 
     public void setOncotatorDbSnpRs(String oncotatorDbSnpRs) {
         event.setOncotatorDbSnpRs(oncotatorDbSnpRs);
-    }
-
-    public String getOncotatorRefseqMrnaId()
-    {
-        return event.getOncotatorRefseqMrnaId();
-    }
-
-    public void setOncotatorRefseqMrnaId(String oncotatorRefseqMrnaId)
-    {
-        event.setOncotatorRefseqMrnaId(oncotatorRefseqMrnaId);
     }
 
     public String getOncotatorUniprotName()

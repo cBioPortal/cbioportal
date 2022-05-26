@@ -298,11 +298,6 @@ public class ExtendedMutationUtil {
         mutation.setEndPosition(defaultLong);
         mutation.setValidationStatus(defaultStr);
         mutation.setMutationStatus(defaultStr);
-        mutation.setFunctionalImpactScore(defaultStr);
-        mutation.setFisValue(defaultFloat);
-        mutation.setLinkXVar(defaultStr);
-        mutation.setLinkPdb(defaultStr);
-        mutation.setLinkMsa(defaultStr);
         mutation.setNcbiBuild(defaultStr);
         mutation.setStrand(defaultStr);
         mutation.setVariantType(defaultStr);
@@ -328,7 +323,6 @@ public class ExtendedMutationUtil {
         mutation.setNormalRefCount(defaultInt);
         mutation.setOncotatorDbSnpRs(defaultStr);
         mutation.setOncotatorCodonChange(defaultStr);
-        mutation.setOncotatorRefseqMrnaId(defaultStr);
         mutation.setOncotatorUniprotName(defaultStr);
         mutation.setOncotatorUniprotAccession(defaultStr);
         mutation.setOncotatorProteinPosStart(defaultInt);

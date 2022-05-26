@@ -368,8 +368,8 @@ def process_directory(jvm_args, study_directory, update_generic_assay_entity = N
         import_study_data(jvm_args, meta_filename, data_filename, update_generic_assay_entity, study_meta_dictionary[meta_filename])
 
     # Import structural variant data
-    if structural variant_filepair is not None:
-        meta_filename, data_filename = structural variant_filepair
+    if structural_variant_filepair is not None:
+        meta_filename, data_filename = structural_variant_filepair
         import_study_data(jvm_args, meta_filename, data_filename, update_generic_assay_entity, study_meta_dictionary[meta_filename])
 
     # Import expression z-score (after expression)

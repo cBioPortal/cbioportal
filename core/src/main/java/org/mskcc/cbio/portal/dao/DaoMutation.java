@@ -145,11 +145,6 @@ public final class DaoMutation {
                 event.getTumorSeqAllele(),
                 event.getProteinChange(),
                 event.getMutationType(),
-                event.getFunctionalImpactScore(),
-                Float.toString(event.getFisValue()),
-                event.getLinkXVar(),
-                event.getLinkPdb(),
-                event.getLinkMsa(),
                 event.getNcbiBuild(),
                 event.getStrand(),
                 event.getVariantType(),
@@ -800,11 +795,6 @@ public final class DaoMutation {
         event.setEndPosition(rs.getLong("END_POSITION"));
         event.setProteinChange(rs.getString("PROTEIN_CHANGE"));
         event.setMutationType(rs.getString("MUTATION_TYPE"));
-        event.setFunctionalImpactScore(rs.getString("FUNCTIONAL_IMPACT_SCORE"));
-        event.setFisValue(rs.getFloat("FIS_VALUE"));
-        event.setLinkXVar(rs.getString("LINK_XVAR"));
-        event.setLinkPdb(rs.getString("LINK_PDB"));
-        event.setLinkMsa(rs.getString("LINK_MSA"));
         event.setNcbiBuild(rs.getString("NCBI_BUILD"));
         event.setStrand(rs.getString("STRAND"));
         event.setVariantType(rs.getString("VARIANT_TYPE"));

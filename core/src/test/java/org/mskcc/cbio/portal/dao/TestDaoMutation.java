@@ -101,11 +101,6 @@ public class TestDaoMutation {
         mutation.setSequencingCenter("Broad");
         mutation.setSequencer("SOLiD");
         mutation.setProteinChange("BRCA1_123");
-        mutation.setFunctionalImpactScore("H");
-        mutation.setFisValue(Float.MIN_VALUE);
-        mutation.setLinkXVar("link1");
-        mutation.setLinkPdb("link2");
-        mutation.setLinkMsa("link3");
         mutation.setNcbiBuild("37/hg19");
         mutation.setStrand("+");
         mutation.setVariantType("Consolidated");
@@ -174,11 +169,6 @@ public class TestDaoMutation {
         assertEquals("Broad", mutation.getSequencingCenter());
         assertEquals("SOLiD", mutation.getSequencer());
         assertEquals("BRCA1_123", mutation.getProteinChange());
-        assertEquals("H", mutation.getFunctionalImpactScore());
-        assertEquals(Float.MIN_VALUE, mutation.getFisValue(), 1E-30);
-        assertEquals("link1", mutation.getLinkXVar());
-        assertEquals("link2", mutation.getLinkPdb());
-        assertEquals("link3", mutation.getLinkMsa());
         assertEquals("37/hg19", mutation.getNcbiBuild());
         assertEquals("+", mutation.getStrand());
         assertEquals("Consolidated", mutation.getVariantType());

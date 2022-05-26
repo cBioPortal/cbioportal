@@ -58,11 +58,6 @@ public class MutationControllerTest {
     private static final String TEST_TUMOR_SEQ_ALLELE_1 = "test_tumor_seq_allele_1";
     private static final String TEST_PROTEIN_CHANGE_1 = "test_protein_change_1";
     private static final String TEST_MUTATION_TYPE_1 = "test_mutation_type_1";
-    private static final String TEST_FUNCTIONAL_IMPACT_SCORE_1 = "test_functional_impact_score_1";
-    private static final BigDecimal TEST_FIS_VALUE_1 = new BigDecimal(0.1);
-    private static final String TEST_LINK_XVAR_1 = "test_link_xvar_1";
-    private static final String TEST_LINK_PDB_1 = "test_link_pdb_1";
-    private static final String TEST_LINK_MSA_1 = "test_link_msa_1";
     private static final String TEST_NCBI_BUILD_1 = "test_ncbi_build_1";
     private static final String TEST_VARIANT_TYPE_1 = "test_variant_type_1";
     private static final String TEST_ONCOTATOR_REFSEQ_MRNA_ID_1 = "test_oncotator_refseq_mrna_id_1";
@@ -100,11 +95,6 @@ public class MutationControllerTest {
     private static final String TEST_TUMOR_SEQ_ALLELE_2 = "test_tumor_seq_allele_2";
     private static final String TEST_PROTEIN_CHANGE_2 = "test_protein_change_2";
     private static final String TEST_MUTATION_TYPE_2 = "test_mutation_type_2";
-    private static final String TEST_FUNCTIONAL_IMPACT_SCORE_2 = "test_functional_impact_score_2";
-    private static final BigDecimal TEST_FIS_VALUE_2 = new BigDecimal(0.2);
-    private static final String TEST_LINK_XVAR_2 = "test_link_xvar_2";
-    private static final String TEST_LINK_PDB_2 = "test_link_pdb_2";
-    private static final String TEST_LINK_MSA_2 = "test_link_msa_2";
     private static final String TEST_NCBI_BUILD_2 = "test_ncbi_build_2";
     private static final String TEST_VARIANT_TYPE_2 = "test_variant_type_2";
     private static final String TEST_ONCOTATOR_REFSEQ_MRNA_ID_2 = "test_oncotator_refseq_mrna_id_2";
@@ -195,12 +185,6 @@ public class MutationControllerTest {
             .andExpect(MockMvcResultMatchers.jsonPath("$[0].driverFilterAnnotation").value(TEST_DRIVER_FILTER_ANNOTATION_1))
             .andExpect(MockMvcResultMatchers.jsonPath("$[0].driverTiersFilter").value(TEST_DRIVER_TIERS_FILTER_1))
             .andExpect(MockMvcResultMatchers.jsonPath("$[0].driverTiersFilterAnnotation").value(TEST_DRIVER_TIERS_FILTER_ANNOTATION_1))
-            .andExpect(MockMvcResultMatchers.jsonPath("$[0].functionalImpactScore")
-                .value(TEST_FUNCTIONAL_IMPACT_SCORE_1))
-            .andExpect(MockMvcResultMatchers.jsonPath("$[0].fisValue").value(TEST_FIS_VALUE_1))
-            .andExpect(MockMvcResultMatchers.jsonPath("$[0].linkXvar").value(TEST_LINK_XVAR_1))
-            .andExpect(MockMvcResultMatchers.jsonPath("$[0].linkPdb").value(TEST_LINK_PDB_1))
-            .andExpect(MockMvcResultMatchers.jsonPath("$[0].linkMsa").value(TEST_LINK_MSA_1))
             .andExpect(MockMvcResultMatchers.jsonPath("$[0].ncbiBuild").value(TEST_NCBI_BUILD_1))
             .andExpect(MockMvcResultMatchers.jsonPath("$[0].variantType").value(TEST_VARIANT_TYPE_1))
             .andExpect(MockMvcResultMatchers.jsonPath("$[0].refseqMrnaId").value(TEST_ONCOTATOR_REFSEQ_MRNA_ID_1))
@@ -231,12 +215,6 @@ public class MutationControllerTest {
             .andExpect(MockMvcResultMatchers.jsonPath("$[1].driverFilterAnnotation").value(TEST_DRIVER_FILTER_ANNOTATION_2))
             .andExpect(MockMvcResultMatchers.jsonPath("$[1].driverTiersFilter").value(TEST_DRIVER_TIERS_FILTER_2))
             .andExpect(MockMvcResultMatchers.jsonPath("$[1].driverTiersFilterAnnotation").value(TEST_DRIVER_TIERS_FILTER_ANNOTATION_2))
-            .andExpect(MockMvcResultMatchers.jsonPath("$[1].functionalImpactScore")
-                .value(TEST_FUNCTIONAL_IMPACT_SCORE_2))
-            .andExpect(MockMvcResultMatchers.jsonPath("$[1].fisValue").value(TEST_FIS_VALUE_2))
-            .andExpect(MockMvcResultMatchers.jsonPath("$[1].linkXvar").value(TEST_LINK_XVAR_2))
-            .andExpect(MockMvcResultMatchers.jsonPath("$[1].linkPdb").value(TEST_LINK_PDB_2))
-            .andExpect(MockMvcResultMatchers.jsonPath("$[1].linkMsa").value(TEST_LINK_MSA_2))
             .andExpect(MockMvcResultMatchers.jsonPath("$[1].ncbiBuild").value(TEST_NCBI_BUILD_2))
             .andExpect(MockMvcResultMatchers.jsonPath("$[1].variantType").value(TEST_VARIANT_TYPE_2))
             .andExpect(MockMvcResultMatchers.jsonPath("$[1].refseqMrnaId").value(TEST_ONCOTATOR_REFSEQ_MRNA_ID_2))
@@ -285,12 +263,6 @@ public class MutationControllerTest {
             .andExpect(MockMvcResultMatchers.jsonPath("$[0].driverFilterAnnotation").value(TEST_DRIVER_FILTER_ANNOTATION_1))
             .andExpect(MockMvcResultMatchers.jsonPath("$[0].driverTiersFilter").value(TEST_DRIVER_TIERS_FILTER_1))
             .andExpect(MockMvcResultMatchers.jsonPath("$[0].driverTiersFilterAnnotation").value(TEST_DRIVER_TIERS_FILTER_ANNOTATION_1))
-            .andExpect(MockMvcResultMatchers.jsonPath("$[0].functionalImpactScore")
-                .value(TEST_FUNCTIONAL_IMPACT_SCORE_1))
-            .andExpect(MockMvcResultMatchers.jsonPath("$[0].fisValue").value(TEST_FIS_VALUE_1))
-            .andExpect(MockMvcResultMatchers.jsonPath("$[0].linkXvar").value(TEST_LINK_XVAR_1))
-            .andExpect(MockMvcResultMatchers.jsonPath("$[0].linkPdb").value(TEST_LINK_PDB_1))
-            .andExpect(MockMvcResultMatchers.jsonPath("$[0].linkMsa").value(TEST_LINK_MSA_1))
             .andExpect(MockMvcResultMatchers.jsonPath("$[0].ncbiBuild").value(TEST_NCBI_BUILD_1))
             .andExpect(MockMvcResultMatchers.jsonPath("$[0].variantType").value(TEST_VARIANT_TYPE_1))
             .andExpect(MockMvcResultMatchers.jsonPath("$[0].refseqMrnaId").value(TEST_ONCOTATOR_REFSEQ_MRNA_ID_1))
@@ -329,12 +301,6 @@ public class MutationControllerTest {
             .andExpect(MockMvcResultMatchers.jsonPath("$[1].driverFilterAnnotation").value(TEST_DRIVER_FILTER_ANNOTATION_2))
             .andExpect(MockMvcResultMatchers.jsonPath("$[1].driverTiersFilter").value(TEST_DRIVER_TIERS_FILTER_2))
             .andExpect(MockMvcResultMatchers.jsonPath("$[1].driverTiersFilterAnnotation").value(TEST_DRIVER_TIERS_FILTER_ANNOTATION_2))
-            .andExpect(MockMvcResultMatchers.jsonPath("$[1].functionalImpactScore")
-                .value(TEST_FUNCTIONAL_IMPACT_SCORE_2))
-            .andExpect(MockMvcResultMatchers.jsonPath("$[1].fisValue").value(TEST_FIS_VALUE_2))
-            .andExpect(MockMvcResultMatchers.jsonPath("$[1].linkXvar").value(TEST_LINK_XVAR_2))
-            .andExpect(MockMvcResultMatchers.jsonPath("$[1].linkPdb").value(TEST_LINK_PDB_2))
-            .andExpect(MockMvcResultMatchers.jsonPath("$[1].linkMsa").value(TEST_LINK_MSA_2))
             .andExpect(MockMvcResultMatchers.jsonPath("$[1].ncbiBuild").value(TEST_NCBI_BUILD_2))
             .andExpect(MockMvcResultMatchers.jsonPath("$[1].variantType").value(TEST_VARIANT_TYPE_2))
             .andExpect(MockMvcResultMatchers.jsonPath("$[1].refseqMrnaId").value(TEST_ONCOTATOR_REFSEQ_MRNA_ID_2))
@@ -422,12 +388,6 @@ public class MutationControllerTest {
             .andExpect(MockMvcResultMatchers.jsonPath("$[0].driverFilterAnnotation").value(TEST_DRIVER_FILTER_ANNOTATION_1))
             .andExpect(MockMvcResultMatchers.jsonPath("$[0].driverTiersFilter").value(TEST_DRIVER_TIERS_FILTER_1))
             .andExpect(MockMvcResultMatchers.jsonPath("$[0].driverTiersFilterAnnotation").value(TEST_DRIVER_TIERS_FILTER_ANNOTATION_1))
-            .andExpect(MockMvcResultMatchers.jsonPath("$[0].functionalImpactScore")
-                .value(TEST_FUNCTIONAL_IMPACT_SCORE_1))
-            .andExpect(MockMvcResultMatchers.jsonPath("$[0].fisValue").value(TEST_FIS_VALUE_1))
-            .andExpect(MockMvcResultMatchers.jsonPath("$[0].linkXvar").value(TEST_LINK_XVAR_1))
-            .andExpect(MockMvcResultMatchers.jsonPath("$[0].linkPdb").value(TEST_LINK_PDB_1))
-            .andExpect(MockMvcResultMatchers.jsonPath("$[0].linkMsa").value(TEST_LINK_MSA_1))
             .andExpect(MockMvcResultMatchers.jsonPath("$[0].ncbiBuild").value(TEST_NCBI_BUILD_1))
             .andExpect(MockMvcResultMatchers.jsonPath("$[0].variantType").value(TEST_VARIANT_TYPE_1))
             .andExpect(MockMvcResultMatchers.jsonPath("$[0].refseqMrnaId").value(TEST_ONCOTATOR_REFSEQ_MRNA_ID_1))
@@ -457,12 +417,6 @@ public class MutationControllerTest {
             .andExpect(MockMvcResultMatchers.jsonPath("$[1].driverFilterAnnotation").value(TEST_DRIVER_FILTER_ANNOTATION_2))
             .andExpect(MockMvcResultMatchers.jsonPath("$[1].driverTiersFilter").value(TEST_DRIVER_TIERS_FILTER_2))
             .andExpect(MockMvcResultMatchers.jsonPath("$[1].driverTiersFilterAnnotation").value(TEST_DRIVER_TIERS_FILTER_ANNOTATION_2))
-            .andExpect(MockMvcResultMatchers.jsonPath("$[1].functionalImpactScore")
-                .value(TEST_FUNCTIONAL_IMPACT_SCORE_2))
-            .andExpect(MockMvcResultMatchers.jsonPath("$[1].fisValue").value(TEST_FIS_VALUE_2))
-            .andExpect(MockMvcResultMatchers.jsonPath("$[1].linkXvar").value(TEST_LINK_XVAR_2))
-            .andExpect(MockMvcResultMatchers.jsonPath("$[1].linkPdb").value(TEST_LINK_PDB_2))
-            .andExpect(MockMvcResultMatchers.jsonPath("$[1].linkMsa").value(TEST_LINK_MSA_2))
             .andExpect(MockMvcResultMatchers.jsonPath("$[1].ncbiBuild").value(TEST_NCBI_BUILD_2))
             .andExpect(MockMvcResultMatchers.jsonPath("$[1].variantType").value(TEST_VARIANT_TYPE_2))
             .andExpect(MockMvcResultMatchers.jsonPath("$[1].refseqMrnaId").value(TEST_ONCOTATOR_REFSEQ_MRNA_ID_2))
@@ -517,12 +471,6 @@ public class MutationControllerTest {
             .andExpect(MockMvcResultMatchers.jsonPath("$[0].driverFilterAnnotation").value(TEST_DRIVER_FILTER_ANNOTATION_1))
             .andExpect(MockMvcResultMatchers.jsonPath("$[0].driverTiersFilter").value(TEST_DRIVER_TIERS_FILTER_1))
             .andExpect(MockMvcResultMatchers.jsonPath("$[0].driverTiersFilterAnnotation").value(TEST_DRIVER_TIERS_FILTER_ANNOTATION_1))
-            .andExpect(MockMvcResultMatchers.jsonPath("$[0].functionalImpactScore")
-                .value(TEST_FUNCTIONAL_IMPACT_SCORE_1))
-            .andExpect(MockMvcResultMatchers.jsonPath("$[0].fisValue").value(TEST_FIS_VALUE_1))
-            .andExpect(MockMvcResultMatchers.jsonPath("$[0].linkXvar").value(TEST_LINK_XVAR_1))
-            .andExpect(MockMvcResultMatchers.jsonPath("$[0].linkPdb").value(TEST_LINK_PDB_1))
-            .andExpect(MockMvcResultMatchers.jsonPath("$[0].linkMsa").value(TEST_LINK_MSA_1))
             .andExpect(MockMvcResultMatchers.jsonPath("$[0].ncbiBuild").value(TEST_NCBI_BUILD_1))
             .andExpect(MockMvcResultMatchers.jsonPath("$[0].variantType").value(TEST_VARIANT_TYPE_1))
             .andExpect(MockMvcResultMatchers.jsonPath("$[0].refseqMrnaId").value(TEST_ONCOTATOR_REFSEQ_MRNA_ID_1))
@@ -552,12 +500,6 @@ public class MutationControllerTest {
             .andExpect(MockMvcResultMatchers.jsonPath("$[1].driverFilterAnnotation").value(TEST_DRIVER_FILTER_ANNOTATION_2))
             .andExpect(MockMvcResultMatchers.jsonPath("$[1].driverTiersFilter").value(TEST_DRIVER_TIERS_FILTER_2))
             .andExpect(MockMvcResultMatchers.jsonPath("$[1].driverTiersFilterAnnotation").value(TEST_DRIVER_TIERS_FILTER_ANNOTATION_2))
-            .andExpect(MockMvcResultMatchers.jsonPath("$[1].functionalImpactScore")
-                .value(TEST_FUNCTIONAL_IMPACT_SCORE_2))
-            .andExpect(MockMvcResultMatchers.jsonPath("$[1].fisValue").value(TEST_FIS_VALUE_2))
-            .andExpect(MockMvcResultMatchers.jsonPath("$[1].linkXvar").value(TEST_LINK_XVAR_2))
-            .andExpect(MockMvcResultMatchers.jsonPath("$[1].linkPdb").value(TEST_LINK_PDB_2))
-            .andExpect(MockMvcResultMatchers.jsonPath("$[1].linkMsa").value(TEST_LINK_MSA_2))
             .andExpect(MockMvcResultMatchers.jsonPath("$[1].ncbiBuild").value(TEST_NCBI_BUILD_2))
             .andExpect(MockMvcResultMatchers.jsonPath("$[1].variantType").value(TEST_VARIANT_TYPE_2))
             .andExpect(MockMvcResultMatchers.jsonPath("$[1].refseqMrnaId").value(TEST_ONCOTATOR_REFSEQ_MRNA_ID_2))
@@ -613,12 +555,6 @@ public class MutationControllerTest {
             .andExpect(MockMvcResultMatchers.jsonPath("$[0].driverFilterAnnotation").value(TEST_DRIVER_FILTER_ANNOTATION_1))
             .andExpect(MockMvcResultMatchers.jsonPath("$[0].driverTiersFilter").value(TEST_DRIVER_TIERS_FILTER_1))
             .andExpect(MockMvcResultMatchers.jsonPath("$[0].driverTiersFilterAnnotation").value(TEST_DRIVER_TIERS_FILTER_ANNOTATION_1))
-            .andExpect(MockMvcResultMatchers.jsonPath("$[0].functionalImpactScore")
-                .value(TEST_FUNCTIONAL_IMPACT_SCORE_1))
-            .andExpect(MockMvcResultMatchers.jsonPath("$[0].fisValue").value(TEST_FIS_VALUE_1))
-            .andExpect(MockMvcResultMatchers.jsonPath("$[0].linkXvar").value(TEST_LINK_XVAR_1))
-            .andExpect(MockMvcResultMatchers.jsonPath("$[0].linkPdb").value(TEST_LINK_PDB_1))
-            .andExpect(MockMvcResultMatchers.jsonPath("$[0].linkMsa").value(TEST_LINK_MSA_1))
             .andExpect(MockMvcResultMatchers.jsonPath("$[0].ncbiBuild").value(TEST_NCBI_BUILD_1))
             .andExpect(MockMvcResultMatchers.jsonPath("$[0].variantType").value(TEST_VARIANT_TYPE_1))
             .andExpect(MockMvcResultMatchers.jsonPath("$[0].refseqMrnaId").value(TEST_ONCOTATOR_REFSEQ_MRNA_ID_1))
@@ -658,12 +594,6 @@ public class MutationControllerTest {
             .andExpect(MockMvcResultMatchers.jsonPath("$[1].driverFilterAnnotation").value(TEST_DRIVER_FILTER_ANNOTATION_2))
             .andExpect(MockMvcResultMatchers.jsonPath("$[1].driverTiersFilter").value(TEST_DRIVER_TIERS_FILTER_2))
             .andExpect(MockMvcResultMatchers.jsonPath("$[1].driverTiersFilterAnnotation").value(TEST_DRIVER_TIERS_FILTER_ANNOTATION_2))
-            .andExpect(MockMvcResultMatchers.jsonPath("$[1].functionalImpactScore")
-                .value(TEST_FUNCTIONAL_IMPACT_SCORE_2))
-            .andExpect(MockMvcResultMatchers.jsonPath("$[1].fisValue").value(TEST_FIS_VALUE_2))
-            .andExpect(MockMvcResultMatchers.jsonPath("$[1].linkXvar").value(TEST_LINK_XVAR_2))
-            .andExpect(MockMvcResultMatchers.jsonPath("$[1].linkPdb").value(TEST_LINK_PDB_2))
-            .andExpect(MockMvcResultMatchers.jsonPath("$[1].linkMsa").value(TEST_LINK_MSA_2))
             .andExpect(MockMvcResultMatchers.jsonPath("$[1].ncbiBuild").value(TEST_NCBI_BUILD_2))
             .andExpect(MockMvcResultMatchers.jsonPath("$[1].variantType").value(TEST_VARIANT_TYPE_2))
             .andExpect(MockMvcResultMatchers.jsonPath("$[1].refseqMrnaId").value(TEST_ONCOTATOR_REFSEQ_MRNA_ID_2))
@@ -783,11 +713,6 @@ public class MutationControllerTest {
         mutation1.setDriverFilterAnnotation(TEST_DRIVER_FILTER_ANNOTATION_1);
         mutation1.setDriverTiersFilter(TEST_DRIVER_TIERS_FILTER_1);
         mutation1.setDriverTiersFilterAnnotation(TEST_DRIVER_TIERS_FILTER_ANNOTATION_1);
-        mutation1.setFunctionalImpactScore(TEST_FUNCTIONAL_IMPACT_SCORE_1);
-        mutation1.setFisValue(TEST_FIS_VALUE_1);
-        mutation1.setLinkXvar(TEST_LINK_XVAR_1);
-        mutation1.setLinkPdb(TEST_LINK_PDB_1);
-        mutation1.setLinkMsa(TEST_LINK_MSA_1);
         mutation1.setNcbiBuild(TEST_NCBI_BUILD_1);
         mutation1.setVariantType(TEST_VARIANT_TYPE_1);
         mutation1.setOncotatorRefseqMrnaId(TEST_ONCOTATOR_REFSEQ_MRNA_ID_1);
@@ -818,11 +743,6 @@ public class MutationControllerTest {
         mutation2.setDriverFilterAnnotation(TEST_DRIVER_FILTER_ANNOTATION_2);
         mutation2.setDriverTiersFilter(TEST_DRIVER_TIERS_FILTER_2);
         mutation2.setDriverTiersFilterAnnotation(TEST_DRIVER_TIERS_FILTER_ANNOTATION_2);
-        mutation2.setFunctionalImpactScore(TEST_FUNCTIONAL_IMPACT_SCORE_2);
-        mutation2.setFisValue(TEST_FIS_VALUE_2);
-        mutation2.setLinkXvar(TEST_LINK_XVAR_2);
-        mutation2.setLinkPdb(TEST_LINK_PDB_2);
-        mutation2.setLinkMsa(TEST_LINK_MSA_2);
         mutation2.setNcbiBuild(TEST_NCBI_BUILD_2);
         mutation2.setVariantType(TEST_VARIANT_TYPE_2);
         mutation2.setOncotatorRefseqMrnaId(TEST_ONCOTATOR_REFSEQ_MRNA_ID_2);

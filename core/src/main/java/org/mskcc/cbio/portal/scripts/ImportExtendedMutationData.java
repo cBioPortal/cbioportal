@@ -206,31 +206,6 @@ public class ImportExtendedMutationData{
                 if (record.getEndPosition() < 0)
                     record.setEndPosition(0);
 
-                String functionalImpactScore = "";
-                // using -1 is not safe, FIS can be a negative value
-                Float fisValue = Float.MIN_VALUE;
-                String linkXVar = "";
-                String linkMsa = "";
-                String linkPdb = "";
-
-                if (fileHasOMAData)
-                {
-//                    functionalImpactScore = getField(parts, "MA:FImpact" );
-//                    fisValue = getField(parts, "MA:FIS");
-//                    linkXVar = getField(parts, "MA:link.var" );
-//                    linkMsa = getField(parts, "MA:link.MSA" );
-//                    linkPdb = getField(parts, "MA:link.PDB" );
-
-                    functionalImpactScore = record.getMaFuncImpact();
-                    fisValue = record.getMaFIS();
-                    linkXVar = record.getMaLinkVar();
-                    linkMsa = record.getMaLinkMsa();
-                    linkPdb = record.getMaLinkPdb();
-
-                    functionalImpactScore = transformOMAScore(functionalImpactScore);
-                    linkXVar = linkXVar.replace("\"", "");
-                }
-
                 String mutationType,
                     proteinChange,
                     aaChange,
@@ -361,11 +336,6 @@ public class ImportExtendedMutationData{
                     mutation.setEndPosition(record.getEndPosition());
                     mutation.setValidationStatus(record.getValidationStatus());
                     mutation.setMutationStatus(record.getMutationStatus());
-                    mutation.setFunctionalImpactScore(functionalImpactScore);
-                    mutation.setFisValue(fisValue);
-                    mutation.setLinkXVar(linkXVar);
-                    mutation.setLinkPdb(linkPdb);
-                    mutation.setLinkMsa(linkMsa);
                     mutation.setNcbiBuild(record.getNcbiBuild());
                     mutation.setStrand(record.getStrand());
                     mutation.setVariantType(record.getVariantType());

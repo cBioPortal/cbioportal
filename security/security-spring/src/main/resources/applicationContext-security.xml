@@ -87,6 +87,7 @@
     <http pattern="/api/swagger-resources/**" security="none"/>
     <http pattern="/api/swagger-ui.html" security="none"/>
     <http pattern="/api/health" security="none"/>
+    <http pattern="/api/api-docs" security="none"/>
     <http pattern="/api/cache/**" security="none"/>
     <http pattern="/api/cacheStatistics" security="none"/>
     <http pattern="/api/**/keysInCache" security="none"/>

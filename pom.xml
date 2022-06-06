@@ -16,6 +16,12 @@
   </scm>
 
   <repositories>
+    <!--See: https://github.com/ulisesbocchio/spring-boot-security-saml-samples/issues/22-->
+    <repository>
+      <id>shibboleth</id>
+      <name>Shibboleth</name>
+      <url>https://build.shibboleth.net/nexus/content/repositories/releases/</url>
+    </repository>
     <repository>
       <id>alfresco</id>
       <name>Alfresco</name>
@@ -61,7 +67,7 @@
           <plugin>
             <groupId>org.jacoco</groupId>
             <artifactId>jacoco-maven-plugin</artifactId>
-            <version>0.8.5</version>
+            <version>0.8.8</version>
             <executions>
               <!--
                     Prepares the property pointing to the JaCoCo runtime agent which
@@ -284,7 +290,7 @@
     <spring.security.version>5.3.13.RELEASE</spring.security.version>
     <spring.social.version>1.1.6.RELEASE</spring.social.version>
     <jackson.version>2.13.0</jackson.version>
-    <mysql-connector.version>5.1.48</mysql-connector.version>
+    <mysql-connector.version>5.1.49</mysql-connector.version>
     <webapp-runner.version>8.5.61.0</webapp-runner.version>
     <slf4j.version>1.7.32</slf4j.version>
     <logback.version>1.2.10</logback.version>
@@ -732,7 +738,7 @@
       <dependency>
         <groupId>org.springframework.security.extensions</groupId>
         <artifactId>spring-security-saml2-core</artifactId>
-        <version>1.0.3.RELEASE</version>
+        <version>1.0.10.RELEASE</version>
       </dependency>
       <!-- Spring Social -->
       <dependency>
@@ -845,7 +851,7 @@
       <dependency>
         <groupId>javax.servlet</groupId>
         <artifactId>javax.servlet-api</artifactId>
-        <version>3.0.1</version>
+        <version>3.1.0</version>
       </dependency>
       <!-- jsonwebtoken -->
       <dependency>
@@ -980,19 +986,20 @@
         <version>2.3</version>
       </dependency>
       <dependency>
-        <groupId>batik</groupId>
+        <groupId>org.apache.xmlgraphics</groupId>
         <artifactId>batik</artifactId>
-        <version>1.5</version>
+        <version>1.14</version>
+        <type>pom</type>
       </dependency>
       <dependency>
-        <groupId>batik</groupId>
+        <groupId>org.apache.xmlgraphics</groupId>
         <artifactId>batik-rasterizer</artifactId>
-        <version>1.5</version>
+        <version>1.14</version>
       </dependency>
       <dependency>
         <groupId>org.apache.xmlgraphics</groupId>
         <artifactId>batik-codec</artifactId>
-        <version>1.7</version>
+        <version>1.14</version>
         <exclusions>
           <exclusion>
             <groupId>xalan</groupId>
@@ -1120,7 +1127,7 @@
         <plugin>
           <groupId>org.apache.maven.plugins</groupId>
           <artifactId>maven-war-plugin</artifactId>
-          <version>3.3.1</version>
+          <version>3.3.2</version>
         </plugin>
         <plugin>
           <groupId>org.apache.maven.plugins</groupId>

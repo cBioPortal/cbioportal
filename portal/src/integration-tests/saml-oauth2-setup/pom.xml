@@ -10,6 +10,16 @@
         <module>saml-idp</module>
     </modules>
 
+    <repositories>
+        <!--See: https://github.com/ulisesbocchio/spring-boot-security-saml-samples/issues/22-->
+        <repository>
+            <id>shibboleth</id>
+            <name>Shibboleth</name>
+            <url>https://build.shibboleth.net/nexus/content/repositories/releases/</url>
+        </repository>
+    </repositories>
+    
+
     <dependencies>
         <dependency>
             <groupId>junit</groupId>
@@ -20,13 +30,19 @@
         <dependency>
             <groupId>org.mock-server</groupId>
             <artifactId>mockserver-netty</artifactId>
-            <version>5.8.0</version>
+            <version>5.13.2</version>
             <scope>test</scope>
         </dependency>
         <dependency>
             <groupId>org.mock-server</groupId>
             <artifactId>mockserver-client-java</artifactId>
-            <version>5.8.0</version>
+            <version>5.13.2</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.json</groupId>
+            <artifactId>json</artifactId>
+            <version>20220320</version>
             <scope>test</scope>
         </dependency>
     </dependencies>
@@ -38,8 +54,8 @@
                 <artifactId>maven-compiler-plugin</artifactId>
                 <version>3.5.1</version>
                 <configuration>
-                    <source>1.8</source>
-                    <target>1.8</target>
+                    <source>17</source>
+                    <target>17</target>
                     <compilerArgs>
                         <arg>-parameters</arg>
                     </compilerArgs>

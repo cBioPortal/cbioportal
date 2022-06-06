@@ -50,11 +50,7 @@ import javax.servlet.RequestDispatcher;
 import javax.servlet.ServletInputStream;
 import javax.servlet.DispatcherType;
 import javax.servlet.AsyncContext;
-import javax.servlet.http.Cookie;
-import javax.servlet.http.Part;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-import javax.servlet.http.HttpSession;
+import javax.servlet.http.*;
 
 /**
  * Useful for unit testing code that uses HttpServletRequest.
@@ -176,7 +172,12 @@ public class NullHttpServletRequest implements HttpServletRequest{
       return null;
    }
 
-   public Collection<Part> getParts() {
+    @Override
+    public <T extends HttpUpgradeHandler> T upgrade(Class<T> aClass) throws IOException, ServletException {
+        throw new UnsupportedOperationException();
+    }
+
+    public Collection<Part> getParts() {
       return null;
    }
 

@@ -8,6 +8,7 @@ import org.mockito.Mockito;
 import org.springframework.test.util.ReflectionTestUtils;
 
 import javax.servlet.FilterChain;
+import javax.servlet.ReadListener;
 import javax.servlet.ServletInputStream;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -163,6 +164,21 @@ public class TestRequestBodyGZipFilter {
 
         GzippedJsonFileInputStream() {
             this.byteInputStream = new ByteArrayInputStream(GZIPPED_JSON_FILE_BYTES);
+        }
+
+        @Override
+        public boolean isFinished() {
+            return byteInputStream.available() == 0;
+        }
+
+        @Override
+        public boolean isReady() {
+            return true;
+        }
+
+        @Override
+        public void setReadListener(ReadListener readListener) {
+            // noop
         }
 
         @Override

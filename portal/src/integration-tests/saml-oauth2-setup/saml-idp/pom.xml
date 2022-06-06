@@ -6,6 +6,15 @@
     <version>0.0.1-SNAPSHOT</version>
     <packaging>war</packaging>
 
+    <repositories>
+        <!--See: https://github.com/ulisesbocchio/spring-boot-security-saml-samples/issues/22-->
+        <repository>
+            <id>shibboleth</id>
+            <name>Shibboleth</name>
+            <url>https://build.shibboleth.net/nexus/content/repositories/releases/</url>
+        </repository>
+    </repositories>
+
     <dependencies>
         <dependency>
             <groupId>org.springframework.security.extensions</groupId>
@@ -36,7 +45,7 @@
         <plugins>
             <plugin>
                 <artifactId>maven-war-plugin</artifactId>
-                <version>2.2</version>
+                <version>3.3.2</version>
                 <configuration>
                     <failOnMissingWebXml>false</failOnMissingWebXml>
                 </configuration>

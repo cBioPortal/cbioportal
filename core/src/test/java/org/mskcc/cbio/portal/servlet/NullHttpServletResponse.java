@@ -57,6 +57,7 @@ package org.mskcc.cbio.portal.servlet;
  * Fifth Floor, Boston, MA  02110-1301  USA
  */
 
+import javax.servlet.WriteListener;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.ServletResponse;
 import javax.servlet.ServletOutputStream;
@@ -86,14 +87,18 @@ public class NullHttpServletResponse implements  HttpServletResponse {
     /**
      * An OutputStream implementation for JUnit tests.
      */
-    private static class NullServletOutputStream extends
-            ServletOutputStream {
+    private static class NullServletOutputStream extends ServletOutputStream {
 
         public void write(int b) {
             // do nothing
         }
         public boolean isReady() {
             return false;
+        }
+
+        @Override
+        public void setWriteListener(WriteListener writeListener) {
+            throw new UnsupportedOperationException();
         }
     }
 

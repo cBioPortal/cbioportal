@@ -1,7 +1,5 @@
 package org.cbioportal.web;
 
-import org.cbioportal.model.CancerStudy;
-import org.cbioportal.persistence.StudyRepository;
 import org.cbioportal.service.CacheService;
 import org.cbioportal.service.exception.CacheOperationException;
 import org.junit.Before;
@@ -21,9 +19,6 @@ import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import org.springframework.web.context.WebApplicationContext;
-
-import java.util.Arrays;
-import java.util.List;
 
 import static org.mockito.Mockito.*;
 

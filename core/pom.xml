@@ -141,11 +141,12 @@
     </dependency>
     <!--svg to PDF Converter-->
     <dependency>
-      <groupId>batik</groupId>
+      <groupId>org.apache.xmlgraphics</groupId>
       <artifactId>batik</artifactId>
+      <type>pom</type>
     </dependency>
     <dependency>
-      <groupId>batik</groupId>
+      <groupId>org.apache.xmlgraphics</groupId>
       <artifactId>batik-rasterizer</artifactId>
     </dependency>
     <dependency>

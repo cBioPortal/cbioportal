@@ -130,7 +130,7 @@ public class GenericAssayControllerTest {
 
         Mockito.when(genericAssayService.getGenericAssayMetaByStableIdsAndMolecularIds(Mockito.any(), Mockito.any(), Mockito.any())).thenReturn(genericAssayMetaItems);
 
-        mockMvc.perform(MockMvcRequestBuilders.post("/generic_assay_meta/fetch")
+        mockMvc.perform(MockMvcRequestBuilders.post("/generic-assay-meta/fetch")
             .accept(MediaType.APPLICATION_JSON)
             .contentType(MediaType.APPLICATION_JSON)
             .content(objectMapper.writeValueAsString(genericAssayMetaFilter)))

@@ -46,9 +46,10 @@ public class SwaggerConfig {
             new Tag(PublicApiTags.COPY_NUMBER_SEGMENTS, "", 11),
             new Tag(PublicApiTags.GENES, "", 12),
             new Tag(PublicApiTags.GENE_PANELS, "", 13),
-            new Tag(PublicApiTags.GENERIC_ASSAYS, "", 14),
-            new Tag(PublicApiTags.GENERIC_ASSAY_DATA, "", 15),
-            new Tag(PublicApiTags.INFO, "", 16)
+            new Tag(PublicApiTags.GENE_PANEL_DATA, "", 14),
+            new Tag(PublicApiTags.GENERIC_ASSAYS, "", 15),
+            new Tag(PublicApiTags.GENERIC_ASSAY_DATA, "", 16),
+            new Tag(PublicApiTags.INFO, "", 17)
         );
 
         return d;

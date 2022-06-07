@@ -83,7 +83,7 @@ public class GenericAssayDataControllerTest {
         genericAssayDataFilter.setSampleIds(Arrays.asList(SAMPLE_ID));	
         genericAssayDataFilter.setGenericAssayStableIds(Arrays.asList(GENERIC_ASSAY_STABLE_ID_1, GENERIC_ASSAY_STABLE_ID_2, GENERIC_ASSAY_STABLE_ID_3, GENERIC_ASSAY_STABLE_ID_4));	
 
-        mockMvc.perform(MockMvcRequestBuilders.post("/generic_assay_data/" + PROF_ID + "/fetch")	
+        mockMvc.perform(MockMvcRequestBuilders.post("/generic-assay-data/" + PROF_ID + "/fetch")	
                 .accept(MediaType.APPLICATION_JSON)	
                 .contentType(MediaType.APPLICATION_JSON)	
                 .content(objectMapper.writeValueAsString(genericAssayDataFilter)))	
@@ -109,7 +109,7 @@ public class GenericAssayDataControllerTest {
         Mockito.when(genericAssayService.fetchGenericAssayData(Mockito.anyList(), Mockito.any(),
             Mockito.any(), Mockito.any())).thenReturn(genericAssayDataItems);
 
-        mockMvc.perform(MockMvcRequestBuilders.post("/generic_assay_data/fetch")
+        mockMvc.perform(MockMvcRequestBuilders.post("/generic-assay-data/fetch")
                 .accept(MediaType.APPLICATION_JSON)
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(objectMapper.writeValueAsString(genericAssayDataMultipleStudyFilter)))

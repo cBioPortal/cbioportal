@@ -52,7 +52,7 @@ public class GenericAssayController {
     private GenericAssayService genericAssayService;
     
     // PreAuthorize is removed for performance reason
-    @RequestMapping(value = "/generic_assay_meta/fetch", method = RequestMethod.POST, consumes = MediaType.APPLICATION_JSON_VALUE,
+    @RequestMapping(value = "/generic-assay-meta/fetch", method = RequestMethod.POST, consumes = MediaType.APPLICATION_JSON_VALUE,
         produces = MediaType.APPLICATION_JSON_VALUE)
     @ApiOperation("Fetch meta data for generic-assay by ID")
     public ResponseEntity<List<GenericAssayMeta>> fetchGenericAssayMeta(

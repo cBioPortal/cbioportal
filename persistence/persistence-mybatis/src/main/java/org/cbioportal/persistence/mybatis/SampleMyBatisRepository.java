@@ -1,5 +1,6 @@
 package org.cbioportal.persistence.mybatis;
 
+import org.cbioportal.model.CancerStudy;
 import org.cbioportal.model.Sample;
 import org.cbioportal.model.meta.BaseMeta;
 import org.cbioportal.persistence.SampleRepository;

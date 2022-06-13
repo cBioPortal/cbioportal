@@ -1,5 +1,7 @@
 package org.cbioportal.persistence.mybatis;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.cbioportal.model.ClinicalData;
 import org.cbioportal.model.ClinicalDataCount;
 import org.cbioportal.model.Patient;
@@ -15,6 +17,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
+import java.util.UUID;
 
 @Repository
 public class ClinicalDataMyBatisRepository implements ClinicalDataRepository {
@@ -26,15 +29,26 @@ public class ClinicalDataMyBatisRepository implements ClinicalDataRepository {
     @Autowired
     private OffsetCalculator offsetCalculator;
 
+    private static final Log log = LogFactory.getLog(ClinicalDataMyBatisRepository.class);
+
     @Override
     public List<ClinicalData> getAllClinicalDataOfSampleInStudy(String studyId, String sampleId,
                                                                 String attributeId, String projection,
                                                                 Integer pageSize, Integer pageNumber,
                                                                 String sortBy, String direction) {
-
-        return clinicalDataMapper.getSampleClinicalData(Arrays.asList(studyId), Arrays.asList(sampleId),
-            attributeId != null ? Arrays.asList(attributeId) : null, projection, pageSize, 
-            offsetCalculator.calculate(pageSize, pageNumber), sortBy, direction);
+        UUID uuid = UUID.randomUUID();
+        log.info("entry to getAllClinicalDataOfSampleInStudy() : " + uuid + "\n");
+        List<ClinicalData> returnValue = clinicalDataMapper.getSampleClinicalData(
+                Arrays.asList(studyId),
+                Arrays.asList(sampleId),
+                attributeId != null ? Arrays.asList(attributeId) : null,
+                projection,
+                pageSize,
+                offsetCalculator.calculate(pageSize, pageNumber),
+                sortBy,
+                direction);
+        log.info("exit from getAllClinicalDataOfSampleInStudy() : " + uuid + "\n");
+        return returnValue;
     }
 
     @Override

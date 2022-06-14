@@ -64,7 +64,7 @@ public class ClinicalDataMyBatisRepository implements ClinicalDataRepository {
                                                                  String sortBy, String direction) {
 
         return clinicalDataMapper.getPatientClinicalData(Arrays.asList(studyId), Arrays.asList(patientId),
-            attributeId != null ? Arrays.asList(attributeId) : null, projection, pageSize, 
+            attributeId != null ? Arrays.asList(attributeId) : null, projection, pageSize,
             offsetCalculator.calculate(pageSize, pageNumber), sortBy, direction);
     }
 
@@ -81,12 +81,12 @@ public class ClinicalDataMyBatisRepository implements ClinicalDataRepository {
                                                         String sortBy, String direction) {
 
         if (clinicalDataType.equals(PersistenceConstants.SAMPLE_CLINICAL_DATA_TYPE)) {
-            return clinicalDataMapper.getSampleClinicalData(Arrays.asList(studyId), null, 
-                attributeId != null ? Arrays.asList(attributeId) : null, projection, pageSize, 
+            return clinicalDataMapper.getSampleClinicalData(Arrays.asList(studyId), null,
+                attributeId != null ? Arrays.asList(attributeId) : null, projection, pageSize,
                 offsetCalculator.calculate(pageSize, pageNumber), sortBy, direction);
         } else {
-            return clinicalDataMapper.getPatientClinicalData(Arrays.asList(studyId), null, 
-                attributeId != null ? Arrays.asList(attributeId) : null, projection, pageSize, 
+            return clinicalDataMapper.getPatientClinicalData(Arrays.asList(studyId), null,
+                attributeId != null ? Arrays.asList(attributeId) : null, projection, pageSize,
                 offsetCalculator.calculate(pageSize, pageNumber), sortBy, direction);
         }
     }
@@ -176,11 +176,11 @@ public class ClinicalDataMyBatisRepository implements ClinicalDataRepository {
             List<Patient> patients = patientRepository.getPatientsOfSamples(studyIds, sampleIds);
             List<String> patientStudyIds = new ArrayList<>();
             patients.forEach(p -> patientStudyIds.add(p.getCancerStudyIdentifier()));
-            return clinicalDataMapper.fetchPatientClinicalDataCounts(patientStudyIds, 
+            return clinicalDataMapper.fetchPatientClinicalDataCounts(patientStudyIds,
                 patients.stream().map(Patient::getStableId).collect(Collectors.toList()), attributeIds, projection);
         }
 	}
-	
+
     @Override
     public List<ClinicalData> getPatientClinicalDataDetailedToSample(List<String> studyIds, List<String> patientIds,
             List<String> attributeIds) {

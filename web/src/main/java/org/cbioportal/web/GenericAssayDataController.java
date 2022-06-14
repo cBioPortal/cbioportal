@@ -64,7 +64,7 @@ public class GenericAssayDataController {
     }
 
     @PreAuthorize("hasPermission(#molecularProfileId, 'MolecularProfileId', T(org.cbioportal.utils.security.AccessLevel).READ)")
-    @RequestMapping(value = "/generic-assay-data/{molecularProfileId}/fetch",
+    @RequestMapping(value = "/generic_assay_data/{molecularProfileId}/fetch",
         method = RequestMethod.POST, consumes = MediaType.APPLICATION_JSON_VALUE,
         produces = MediaType.APPLICATION_JSON_VALUE)
     @ApiOperation("fetch generic_assay_data in a molecular profile")
@@ -113,7 +113,7 @@ public class GenericAssayDataController {
     }
 
     @PreAuthorize("hasPermission(#involvedCancerStudies, 'Collection<CancerStudyId>', T(org.cbioportal.utils.security.AccessLevel).READ)")
-    @RequestMapping(value = "/generic-assay-data/fetch", method = RequestMethod.POST,
+    @RequestMapping(value = "/generic_assay_data/fetch", method = RequestMethod.POST,
         consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
     @ApiOperation("Fetch generic_assay_data")
     public ResponseEntity<List<GenericAssayData>> fetchGenericAssayDataInMultipleMolecularProfilesRedirect(

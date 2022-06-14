@@ -62,6 +62,24 @@ public class GenericAssayDataController {
             return new ResponseEntity<>(result, HttpStatus.OK);
         }
     }
+
+    @PreAuthorize("hasPermission(#molecularProfileId, 'MolecularProfileId', T(org.cbioportal.utils.security.AccessLevel).READ)")
+    @RequestMapping(value = "/generic_assay_data/{molecularProfileId}/fetch",
+        method = RequestMethod.POST, consumes = MediaType.APPLICATION_JSON_VALUE,
+        produces = MediaType.APPLICATION_JSON_VALUE)
+    @ApiOperation("fetch generic_assay_data in a molecular profile")
+    public ResponseEntity<List<GenericAssayData>> fetchGenericAssayDataInMolecularProfileRedirect(
+        @ApiParam(required = true, value = "Molecular Profile ID")
+        @PathVariable String molecularProfileId,
+        @ApiParam(required = true, value = "List of Sample IDs/Sample List ID and Generic Assay IDs")
+        @Valid @RequestBody GenericAssayFilter genericAssayDataFilter,
+        @ApiParam("Level of detail of the response")
+        @RequestParam(defaultValue = "SUMMARY") Projection projection) throws MolecularProfileNotFoundException {
+
+        HttpHeaders headers = new HttpHeaders();
+        headers.add("Location", "/generic-assay-data/" + molecularProfileId + "/fetch");
+        return new ResponseEntity<>(headers, HttpStatus.PERMANENT_REDIRECT);
+    }
     
     @PreAuthorize("hasPermission(#molecularProfileId, 'MolecularProfileId', T(org.cbioportal.utils.security.AccessLevel).READ)")
     @RequestMapping(value = "/generic-assay-data/{molecularProfileId}/fetch",
@@ -95,9 +113,29 @@ public class GenericAssayDataController {
     }
 
     @PreAuthorize("hasPermission(#involvedCancerStudies, 'Collection<CancerStudyId>', T(org.cbioportal.utils.security.AccessLevel).READ)")
-    @RequestMapping(value = "/generic-assay-data/fetch", method = RequestMethod.POST,
+    @RequestMapping(value = "/generic_assay_data/fetch", method = RequestMethod.POST,
         consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
     @ApiOperation("Fetch generic_assay_data")
+    public ResponseEntity<List<GenericAssayData>> fetchGenericAssayDataInMultipleMolecularProfilesRedirect(
+        @ApiIgnore // prevent reference to this attribute in the swagger-ui interface
+        @RequestAttribute(required = false, value = "involvedCancerStudies") Collection<String> involvedCancerStudies,
+        @ApiIgnore // prevent reference to this attribute in the swagger-ui interface. this attribute is needed for the @PreAuthorize tag above.
+        @RequestAttribute(required = false, value = "interceptedGenericAssayDataMultipleStudyFilter") GenericAssayDataMultipleStudyFilter interceptedGenericAssayDataMultipleStudyFilter,
+        @ApiParam(required = true, value = "List of Molecular Profile ID and Sample ID pairs or List of Molecular" +
+            "Profile IDs and Generic Assay IDs")
+        @Valid @RequestBody(required = false) GenericAssayDataMultipleStudyFilter genericAssayDataMultipleStudyFilter,
+        @ApiParam("Level of detail of the response")
+        @RequestParam(defaultValue = "SUMMARY") Projection projection) throws MolecularProfileNotFoundException {
+
+        HttpHeaders headers = new HttpHeaders();
+        headers.add("Location", "/generic-assay-data/fetch");
+        return new ResponseEntity<>(headers, HttpStatus.PERMANENT_REDIRECT);
+    }
+
+    @PreAuthorize("hasPermission(#involvedCancerStudies, 'Collection<CancerStudyId>', T(org.cbioportal.utils.security.AccessLevel).READ)")
+    @RequestMapping(value = "/generic-assay-data/fetch", method = RequestMethod.POST,
+        consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
+    @ApiOperation("Fetch generic-assay-data")
     public ResponseEntity<List<GenericAssayData>> fetchGenericAssayDataInMultipleMolecularProfiles(
         @ApiIgnore // prevent reference to this attribute in the swagger-ui interface
         @RequestAttribute(required = false, value = "involvedCancerStudies") Collection<String> involvedCancerStudies,

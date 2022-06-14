@@ -71,6 +71,20 @@ public class GenericAssayController {
             }
             return new ResponseEntity<>(result, HttpStatus.OK);
     }
+    
+    @RequestMapping(value = "/generic_assay_meta/fetch", method = RequestMethod.POST, consumes = MediaType.APPLICATION_JSON_VALUE,
+        produces = MediaType.APPLICATION_JSON_VALUE)
+    @ApiOperation("Fetch meta data for generic-assay by ID")
+    public ResponseEntity<List<GenericAssayMeta>> fetchGenericAssayMetaRedirect(
+        @ApiParam(required = true, value = "List of Molecular Profile ID or List of Stable ID")
+        @Valid @RequestBody GenericAssayMetaFilter genericAssayMetaFilter,
+        @ApiParam("Level of detail of the response")
+        @RequestParam(defaultValue = "SUMMARY") Projection projection) throws GenericAssayNotFoundException {
+        
+        HttpHeaders headers = new HttpHeaders();
+        headers.add("Location", "/generic-assay-meta/fetch");
+        return new ResponseEntity<>(headers, HttpStatus.PERMANENT_REDIRECT);
+    }
 
     // PreAuthorize is removed for performance reason
     @RequestMapping(value = "/generic-assay-meta/{molecularProfileId}", method = RequestMethod.GET,

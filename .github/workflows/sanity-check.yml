@@ -1,5 +1,8 @@
 name: Sanity checks
 on: [push, pull_request]
+permissions:
+  contents: read
+
 jobs:
   build:
     name: Sanity Check

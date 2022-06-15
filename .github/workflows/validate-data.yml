@@ -1,5 +1,8 @@
 name: Python validator
 on: [push, pull_request]
+permissions:
+  contents: read
+
 jobs:
   build:
     name: Validate Data

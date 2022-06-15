@@ -4,9 +4,14 @@ on:
   schedule:
     - cron:  '0 8 * * *'
 
+permissions:
+  contents: read
+
 jobs:
   probe-genie-endpoint:
     
+    permissions:
+      contents: none
     name: Genie private endpoint probe
 
     runs-on: ubuntu-latest

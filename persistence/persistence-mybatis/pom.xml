@@ -52,9 +52,32 @@
         </dependency>
         <dependency>
             <groupId>org.apache.arrow</groupId>
-            <artifactId>arrow-flight</artifactId>
+            <artifactId>flight-core</artifactId>
             <version>8.0.0</version>
-            <type>pom</type>
+            <exclusions>
+                <exclusion>
+                    <groupId>io.netty</groupId>
+                    <artifactId>netty-transport-native-unix-common</artifactId>
+                </exclusion>
+                <exclusion>
+                    <groupId>io.netty</groupId>
+                    <artifactId>netty-transport-native-kqueue</artifactId>
+                </exclusion>
+                <exclusion>
+                    <groupId>io.netty</groupId>
+                    <artifactId>netty-transport-native-epoll</artifactId>
+                </exclusion>
+            </exclusions>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.arrow</groupId>
+            <artifactId>flight-grpc</artifactId>
+            <version>8.0.0</version>
+        </dependency>
+        <dependency>
+            <groupId>org.bouncycastle</groupId>
+            <artifactId>bcpkix-jdk15on</artifactId>
+            <version>1.61</version>
         </dependency>
         <dependency>
             <groupId>org.apache.commons</groupId>

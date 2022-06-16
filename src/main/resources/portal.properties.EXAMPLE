@@ -397,3 +397,9 @@ persistence.cache_type=no-cache
 
 # Set comparison categorical "NA" value (not case sensitive), separated by "|"
 # comparison.categorical_na_values=NA|unknown
+
+# Dremio connection
+# dremio.host=
+# dremio.port=
+# dremio.user=
+# dremio.password=

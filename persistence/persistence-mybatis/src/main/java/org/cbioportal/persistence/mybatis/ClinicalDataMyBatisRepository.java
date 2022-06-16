@@ -37,7 +37,7 @@ public class ClinicalDataMyBatisRepository implements ClinicalDataRepository {
                                                                 Integer pageSize, Integer pageNumber,
                                                                 String sortBy, String direction) {
         UUID uuid = UUID.randomUUID();
-        log.info("entry to getAllClinicalDataOfSampleInStudy() : " + uuid + "\n");
+        log.debug("entry to getAllClinicalDataOfSampleInStudy() : " + uuid + "\n");
         List<ClinicalData> returnValue = clinicalDataMapper.getSampleClinicalData(
                 Arrays.asList(studyId),
                 Arrays.asList(sampleId),
@@ -47,12 +47,14 @@ public class ClinicalDataMyBatisRepository implements ClinicalDataRepository {
                 offsetCalculator.calculate(pageSize, pageNumber),
                 sortBy,
                 direction);
-        log.info("exit from getAllClinicalDataOfSampleInStudy() : " + uuid + "\n");
+        log.debug("exit from getAllClinicalDataOfSampleInStudy() : " + uuid + "\n");
         return returnValue;
     }
 
     @Override
     public BaseMeta getMetaSampleClinicalData(String studyId, String sampleId, String attributeId) {
+        UUID uuid = UUID.randomUUID();
+        log.debug("entry to getMetaSampleClinicalData() : " + uuid + "\n");
         return clinicalDataMapper.getMetaSampleClinicalData(Arrays.asList(studyId), Arrays.asList(sampleId),
             attributeId != null ? Arrays.asList(attributeId) : null);
     }
@@ -63,6 +65,8 @@ public class ClinicalDataMyBatisRepository implements ClinicalDataRepository {
                                                                  Integer pageSize, Integer pageNumber,
                                                                  String sortBy, String direction) {
 
+        UUID uuid = UUID.randomUUID();
+        log.debug("entry to getAllClinicalDataOfPatientInStudy() : " + uuid + "\n");
         return clinicalDataMapper.getPatientClinicalData(Arrays.asList(studyId), Arrays.asList(patientId),
             attributeId != null ? Arrays.asList(attributeId) : null, projection, pageSize,
             offsetCalculator.calculate(pageSize, pageNumber), sortBy, direction);
@@ -70,6 +74,8 @@ public class ClinicalDataMyBatisRepository implements ClinicalDataRepository {
 
     @Override
     public BaseMeta getMetaPatientClinicalData(String studyId, String patientId, String attributeId) {
+        UUID uuid = UUID.randomUUID();
+        log.debug("entry to getMetaPatientClinicalData() : " + uuid + "\n");
         return clinicalDataMapper.getMetaPatientClinicalData(Arrays.asList(studyId), Arrays.asList(patientId),
             attributeId != null ? Arrays.asList(attributeId) : null);
     }
@@ -80,6 +86,8 @@ public class ClinicalDataMyBatisRepository implements ClinicalDataRepository {
                                                         Integer pageSize, Integer pageNumber,
                                                         String sortBy, String direction) {
 
+        UUID uuid = UUID.randomUUID();
+        log.debug("entry to getAllClinicalDataInStudy() : " + uuid + "\n");
         if (clinicalDataType.equals(PersistenceConstants.SAMPLE_CLINICAL_DATA_TYPE)) {
             return clinicalDataMapper.getSampleClinicalData(Arrays.asList(studyId), null,
                 attributeId != null ? Arrays.asList(attributeId) : null, projection, pageSize,
@@ -96,6 +104,8 @@ public class ClinicalDataMyBatisRepository implements ClinicalDataRepository {
 
         BaseMeta baseMeta = new BaseMeta();
 
+        UUID uuid = UUID.randomUUID();
+        log.debug("entry to getMetaAllClinicalData() : " + uuid + "\n");
         if (clinicalDataType.equals(PersistenceConstants.SAMPLE_CLINICAL_DATA_TYPE)) {
             baseMeta.setTotalCount(clinicalDataMapper.getMetaSampleClinicalData(Arrays.asList(studyId), null,
                 attributeId != null ? Arrays.asList(attributeId) : null).getTotalCount());
@@ -111,6 +121,8 @@ public class ClinicalDataMyBatisRepository implements ClinicalDataRepository {
     public List<ClinicalData> fetchAllClinicalDataInStudy(String studyId, List<String> ids, List<String> attributeIds,
                                                           String clinicalDataType, String projection) {
 
+        UUID uuid = UUID.randomUUID();
+        log.debug("entry to fetchAllClinicalDataInStudy() : " + uuid + "\n");
         if (clinicalDataType.equals(PersistenceConstants.SAMPLE_CLINICAL_DATA_TYPE)) {
             return clinicalDataMapper.getSampleClinicalData(Arrays.asList(studyId), ids, attributeIds,
                 projection, 0, 0, null, null);
@@ -126,6 +138,8 @@ public class ClinicalDataMyBatisRepository implements ClinicalDataRepository {
 
         BaseMeta baseMeta = new BaseMeta();
 
+        UUID uuid = UUID.randomUUID();
+        log.debug("entry to fetchMetaClinicalDataInStudy() : " + uuid + "\n");
         if (clinicalDataType.equals(PersistenceConstants.SAMPLE_CLINICAL_DATA_TYPE)) {
             baseMeta.setTotalCount(clinicalDataMapper.getMetaSampleClinicalData(Arrays.asList(studyId), ids,
                 attributeIds).getTotalCount());
@@ -142,6 +156,8 @@ public class ClinicalDataMyBatisRepository implements ClinicalDataRepository {
                                                 List<String> attributeIds, String clinicalDataType,
                                                 String projection) {
 
+        UUID uuid = UUID.randomUUID();
+        log.debug("entry to fetchClinicalData() : " + uuid + "\n");
         if (clinicalDataType.equals(PersistenceConstants.SAMPLE_CLINICAL_DATA_TYPE)) {
             return clinicalDataMapper.getSampleClinicalData(studyIds, ids, attributeIds, projection, 0, 0, null, null);
         } else {
@@ -155,6 +171,8 @@ public class ClinicalDataMyBatisRepository implements ClinicalDataRepository {
 
         BaseMeta baseMeta = new BaseMeta();
 
+        UUID uuid = UUID.randomUUID();
+        log.debug("entry to fetchMetaClinicalData() : " + uuid + "\n");
         if (clinicalDataType.equals(PersistenceConstants.SAMPLE_CLINICAL_DATA_TYPE)) {
             baseMeta.setTotalCount(clinicalDataMapper.getMetaSampleClinicalData(studyIds, ids, attributeIds)
                 .getTotalCount());
@@ -170,6 +188,8 @@ public class ClinicalDataMyBatisRepository implements ClinicalDataRepository {
 	public List<ClinicalDataCount> fetchClinicalDataCounts(List<String> studyIds, List<String> sampleIds,
 			List<String> attributeIds, String clinicalDataType, String projection) {
 
+        UUID uuid = UUID.randomUUID();
+        log.debug("entry to fetchClinicalDataCounts() : " + uuid + "\n");
         if (clinicalDataType.equals(PersistenceConstants.SAMPLE_CLINICAL_DATA_TYPE)) {
             return clinicalDataMapper.fetchSampleClinicalDataCounts(studyIds, sampleIds, attributeIds);
         } else {
@@ -185,6 +205,8 @@ public class ClinicalDataMyBatisRepository implements ClinicalDataRepository {
     public List<ClinicalData> getPatientClinicalDataDetailedToSample(List<String> studyIds, List<String> patientIds,
             List<String> attributeIds) {
 
+        UUID uuid = UUID.randomUUID();
+        log.debug("entry to getPatientClinicalDataDetailedToSample() : " + uuid + "\n");
         return clinicalDataMapper.getPatientClinicalDataDetailedToSample(studyIds, patientIds, attributeIds, "SUMMARY",
                 0, 0, null, null);
     }

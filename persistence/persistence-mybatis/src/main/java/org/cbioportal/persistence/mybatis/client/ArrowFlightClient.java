@@ -21,7 +21,13 @@ public class ArrowFlightClient {
     
     private static int port;
     @Value("${dremio.port}")
-    public void setPort(int property) { port = property; }
+    public void setPort(String property) {
+        try {
+            port = Integer.parseInt(property);
+        } catch (NumberFormatException e) {
+            throw new RuntimeException(e);
+        }
+    }
     
     private static String userName;
     @Value("${dremio.user}")

@@ -47,7 +47,7 @@ public class ArrowFlightClient {
     private ArrowFlightClient() {
     }
 
-    public static AdhocFlightClient getClient() throws Exception {
+    public static AdhocFlightClient getClient() {
         if (client == null) {
             client = AdhocFlightClient.getBasicClient(BUFFER_ALLOCATOR,
                 host, port,
@@ -57,8 +57,6 @@ public class ArrowFlightClient {
                 null);;
         }
         log.info("client setup successfully!" + "\n");
-        // run query to test connection
-        // client.runQuery("select * from cBioPortal.\"cbioportal-dremio\".\"expression-data-parquet\" limit 100", createClientProperties(sessionPropertiesMap), null, true);
         return client;
     }
 

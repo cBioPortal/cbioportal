@@ -54,8 +54,8 @@ import org.apache.arrow.vector.ipc.ArrowStreamWriter;
 import org.apache.arrow.vector.ipc.message.ArrowRecordBatch;
 
 import org.cbioportal.persistence.mybatis.util.EncryptedConnectionUtils;
-import org.cbioportal.persistence.mybatis.util.QueryUtils;
 import com.google.common.base.Strings;
+import org.cbioportal.persistence.mybatis.util.TsvParser;
 
 /**
  * Adhoc Flight Client encapsulating an active FlightClient and a corresponding
@@ -323,26 +323,38 @@ public final class AdhocFlightClient implements AutoCloseable {
   }
 
   /**
+  * An example of how to use runQuery function
+    AdhocFlightClient client = ArrowFlightClient.getClient();
+    // run query to test connection
+    try {
+        client.runQuery("select * from cBioPortal.\"cbioportal-dremio\".\"expression-data-parquet\" limit 100", null, TsvTestClass.class);
+    } catch (Exception e) {
+        e.printStackTrace();
+    }
+  */
+  /**
    * Make FlightRPC requests to the Dremio Flight Server Endpoint to retrieve results of the
    * provided SQL query.
    *
    * @param query            the SQL query to execute.
    * @param headerCallOption client properties to execute provided SQL query with.
-   * @param fileToSaveTo     the file to which the binary data of the resulting {@link VectorSchemaRoot}
-   *                         should be saved.
+   * @param t     results class.
    * @throws Exception if an error occurs during query execution.
    */
-  public void runQuery(final String query,
-                       final @Nullable HeaderCallOption headerCallOption,
-                       final @Nullable File fileToSaveTo,
-                       final boolean printToConsole) throws Exception {
+  public <T> List<T> runQuery(final String query,
+                              final @Nullable HeaderCallOption headerCallOption,
+                              final Class<T> t) throws Exception {
 
     final FlightInfo flightInfo = getInfo(query, bearerToken, headerCallOption);
-    try (final FlightStream flightStream = getStream(flightInfo, bearerToken, headerCallOption);
-         final OutputStream outputStream =
-             fileToSaveTo == null ? null : new BufferedOutputStream(new FileOutputStream(fileToSaveTo))) {
-      writeToOutputStream(
-          flightStream, allocator, outputStream, printToConsole ? QueryUtils::printResults : null);
+    StringBuilder sb = new StringBuilder();
+      try (final FlightStream flightStream = getStream(flightInfo, bearerToken, headerCallOption)) {
+        // Iterate through the stream until the end, add results to string builder
+        while (flightStream.next()) {
+            VectorSchemaRoot vectorSchemaRoot = flightStream.getRoot();
+            sb.append(vectorSchemaRoot.contentToTSVString());
+        }
+        TsvParser<T> parser = new TsvParser<>();
+        return parser.readTsv(sb.toString(),t);
     }
   }
 

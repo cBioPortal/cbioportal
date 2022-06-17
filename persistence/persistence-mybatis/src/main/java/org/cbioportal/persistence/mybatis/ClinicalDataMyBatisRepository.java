@@ -38,6 +38,7 @@ public class ClinicalDataMyBatisRepository implements ClinicalDataRepository {
                                                                 String sortBy, String direction) {
         UUID uuid = UUID.randomUUID();
         log.debug("entry to getAllClinicalDataOfSampleInStudy() : " + uuid + "\n");
+        System.out.println("entry to getAllClinicalDataOfSampleInStudy() : " + uuid + "\n");
         List<ClinicalData> returnValue = clinicalDataMapper.getSampleClinicalData(
                 Arrays.asList(studyId),
                 Arrays.asList(sampleId),
@@ -48,6 +49,7 @@ public class ClinicalDataMyBatisRepository implements ClinicalDataRepository {
                 sortBy,
                 direction);
         log.debug("exit from getAllClinicalDataOfSampleInStudy() : " + uuid + "\n");
+        System.out.println("exit from getAllClinicalDataOfSampleInStudy() : " + uuid + "\n");
         return returnValue;
     }
 
@@ -55,6 +57,7 @@ public class ClinicalDataMyBatisRepository implements ClinicalDataRepository {
     public BaseMeta getMetaSampleClinicalData(String studyId, String sampleId, String attributeId) {
         UUID uuid = UUID.randomUUID();
         log.debug("entry to getMetaSampleClinicalData() : " + uuid + "\n");
+        System.out.println("entry to getMetaSampleClinicalData() : " + uuid + "\n");
         return clinicalDataMapper.getMetaSampleClinicalData(Arrays.asList(studyId), Arrays.asList(sampleId),
             attributeId != null ? Arrays.asList(attributeId) : null);
     }
@@ -67,6 +70,7 @@ public class ClinicalDataMyBatisRepository implements ClinicalDataRepository {
 
         UUID uuid = UUID.randomUUID();
         log.debug("entry to getAllClinicalDataOfPatientInStudy() : " + uuid + "\n");
+        System.out.println("entry to getAllClinicalDataOfPatientInStudy() : " + uuid + "\n");
         return clinicalDataMapper.getPatientClinicalData(Arrays.asList(studyId), Arrays.asList(patientId),
             attributeId != null ? Arrays.asList(attributeId) : null, projection, pageSize,
             offsetCalculator.calculate(pageSize, pageNumber), sortBy, direction);
@@ -76,6 +80,7 @@ public class ClinicalDataMyBatisRepository implements ClinicalDataRepository {
     public BaseMeta getMetaPatientClinicalData(String studyId, String patientId, String attributeId) {
         UUID uuid = UUID.randomUUID();
         log.debug("entry to getMetaPatientClinicalData() : " + uuid + "\n");
+        System.out.println("entry to getMetaPatientClinicalData() : " + uuid + "\n");
         return clinicalDataMapper.getMetaPatientClinicalData(Arrays.asList(studyId), Arrays.asList(patientId),
             attributeId != null ? Arrays.asList(attributeId) : null);
     }
@@ -88,6 +93,7 @@ public class ClinicalDataMyBatisRepository implements ClinicalDataRepository {
 
         UUID uuid = UUID.randomUUID();
         log.debug("entry to getAllClinicalDataInStudy() : " + uuid + "\n");
+        System.out.println("entry to getAllClinicalDataInStudy() : " + uuid + "\n");
         if (clinicalDataType.equals(PersistenceConstants.SAMPLE_CLINICAL_DATA_TYPE)) {
             return clinicalDataMapper.getSampleClinicalData(Arrays.asList(studyId), null,
                 attributeId != null ? Arrays.asList(attributeId) : null, projection, pageSize,
@@ -106,6 +112,7 @@ public class ClinicalDataMyBatisRepository implements ClinicalDataRepository {
 
         UUID uuid = UUID.randomUUID();
         log.debug("entry to getMetaAllClinicalData() : " + uuid + "\n");
+        System.out.println("entry to getMetaAllClinicalData() : " + uuid + "\n");
         if (clinicalDataType.equals(PersistenceConstants.SAMPLE_CLINICAL_DATA_TYPE)) {
             baseMeta.setTotalCount(clinicalDataMapper.getMetaSampleClinicalData(Arrays.asList(studyId), null,
                 attributeId != null ? Arrays.asList(attributeId) : null).getTotalCount());
@@ -123,6 +130,7 @@ public class ClinicalDataMyBatisRepository implements ClinicalDataRepository {
 
         UUID uuid = UUID.randomUUID();
         log.debug("entry to fetchAllClinicalDataInStudy() : " + uuid + "\n");
+        System.out.println("entry to fetchAllClinicalDataInStudy() : " + uuid + "\n");
         if (clinicalDataType.equals(PersistenceConstants.SAMPLE_CLINICAL_DATA_TYPE)) {
             return clinicalDataMapper.getSampleClinicalData(Arrays.asList(studyId), ids, attributeIds,
                 projection, 0, 0, null, null);
@@ -140,6 +148,7 @@ public class ClinicalDataMyBatisRepository implements ClinicalDataRepository {
 
         UUID uuid = UUID.randomUUID();
         log.debug("entry to fetchMetaClinicalDataInStudy() : " + uuid + "\n");
+        System.out.println("entry to fetchMetaClinicalDataInStudy() : " + uuid + "\n");
         if (clinicalDataType.equals(PersistenceConstants.SAMPLE_CLINICAL_DATA_TYPE)) {
             baseMeta.setTotalCount(clinicalDataMapper.getMetaSampleClinicalData(Arrays.asList(studyId), ids,
                 attributeIds).getTotalCount());
@@ -158,6 +167,7 @@ public class ClinicalDataMyBatisRepository implements ClinicalDataRepository {
 
         UUID uuid = UUID.randomUUID();
         log.debug("entry to fetchClinicalData() : " + uuid + "\n");
+        System.out.println("entry to fetchClinicalData() : " + uuid + "\n");
         if (clinicalDataType.equals(PersistenceConstants.SAMPLE_CLINICAL_DATA_TYPE)) {
             return clinicalDataMapper.getSampleClinicalData(studyIds, ids, attributeIds, projection, 0, 0, null, null);
         } else {
@@ -173,6 +183,7 @@ public class ClinicalDataMyBatisRepository implements ClinicalDataRepository {
 
         UUID uuid = UUID.randomUUID();
         log.debug("entry to fetchMetaClinicalData() : " + uuid + "\n");
+        System.out.println("entry to fetchMetaClinicalData() : " + uuid + "\n");
         if (clinicalDataType.equals(PersistenceConstants.SAMPLE_CLINICAL_DATA_TYPE)) {
             baseMeta.setTotalCount(clinicalDataMapper.getMetaSampleClinicalData(studyIds, ids, attributeIds)
                 .getTotalCount());
@@ -190,6 +201,7 @@ public class ClinicalDataMyBatisRepository implements ClinicalDataRepository {
 
         UUID uuid = UUID.randomUUID();
         log.debug("entry to fetchClinicalDataCounts() : " + uuid + "\n");
+        System.out.println("entry to fetchClinicalDataCounts() : " + uuid + "\n");
         if (clinicalDataType.equals(PersistenceConstants.SAMPLE_CLINICAL_DATA_TYPE)) {
             return clinicalDataMapper.fetchSampleClinicalDataCounts(studyIds, sampleIds, attributeIds);
         } else {
@@ -207,6 +219,7 @@ public class ClinicalDataMyBatisRepository implements ClinicalDataRepository {
 
         UUID uuid = UUID.randomUUID();
         log.debug("entry to getPatientClinicalDataDetailedToSample() : " + uuid + "\n");
+        System.out.println("entry to getPatientClinicalDataDetailedToSample() : " + uuid + "\n");
         return clinicalDataMapper.getPatientClinicalDataDetailedToSample(studyIds, patientIds, attributeIds, "SUMMARY",
                 0, 0, null, null);
     }

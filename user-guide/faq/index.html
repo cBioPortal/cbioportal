@@ -1,0 +1,1044 @@
+<!DOCTYPE html>
+<html lang="en" class="h-full">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width,initial-scale=1">
+    <meta name="turbo-cache-control" content="no-cache" data-turbo-track="reload" data-track-token="2.3.0.708804358306">
+
+    <!-- See retype.com -->
+    <meta name="generator" content="Retype 2.3.0">
+
+    <!-- Primary Meta Tags -->
+    <title>cBioPortal FAQs</title>
+    <meta name="title" content="cBioPortal FAQs">
+    <meta name="description" content="General Questions" />
+
+    <!-- Canonical -->
+    <link rel="canonical" href="/user-guide/faq/" />
+
+    <!-- Open Graph / Facebook -->
+    <meta property="og:type" content="website">
+    <meta property="og:url" content="/user-guide/faq/">
+    <meta property="og:title" content="cBioPortal FAQs">
+    <meta property="og:description" content="General Questions">
+    <meta property="og:image" content="https://cloud.githubusercontent.com/assets/840895/24209131/d34e33b2-0efb-11e7-945a-fd2b3c66d195.png">
+
+    <!-- Twitter -->
+    <meta property="twitter:card" content="summary_large_image">
+    <meta property="twitter:url" content="/user-guide/faq/">
+    <meta property="twitter:title" content="cBioPortal FAQs">
+    <meta property="twitter:description" content="General Questions">
+    <meta property="twitter:image" content="https://cloud.githubusercontent.com/assets/840895/24209131/d34e33b2-0efb-11e7-945a-fd2b3c66d195.png">
+
+    <script>(function () { var el = document.documentElement, m = localStorage.getItem("doc_theme"), wm = window.matchMedia; if (m === "dark" || (!m && wm && wm("(prefers-color-scheme: dark)").matches)) { el.classList.add("dark") } else { el.classList.remove("dark") } })();</script>
+
+    <link href="../../images/cbio-logo.png" rel="icon" />
+    <link href="../../resources/css/retype.css?v=2.3.0.708804358306" rel="stylesheet" />
+
+    <script type="text/javascript" src="../../resources/js/config.js?v=2.3.0.708804358306" data-turbo-eval="false" defer></script>
+    <script type="text/javascript" src="../../resources/js/retype.js?v=2.3.0" data-turbo-eval="false" defer></script>
+    <script id="lunr-js" type="text/javascript" src="../../resources/js/lunr.js?v=2.3.0.708804358306" data-turbo-eval="false" defer></script>
+
+    <link rel="stylesheet" href="/static/custom.css"></link>
+</head>
+<body>
+    <div id="docs-app" class="relative text-base antialiased text-gray-700 bg-white font-body dark:bg-dark-850 dark:text-dark-300">
+        <div class="absolute bottom-0 left-0 bg-gray-100 dark:bg-dark-800" style="top: 5rem; right: 50%"></div>
+    
+        <header id="docs-site-header" class="sticky top-0 z-30 flex w-full h-16 bg-white border-b border-gray-200 md:h-20 dark:bg-dark-850 dark:border-dark-650">
+            <div class="container relative flex items-center justify-between grow pr-6 md:justify-start">
+                <!-- Mobile menu button skeleton -->
+                <button v-cloak class="skeleton docs-mobile-menu-button flex items-center justify-center shrink-0 overflow-hidden dark:text-white focus:outline-none rounded-full w-10 h-10 ml-3.5 md:hidden"><svg xmlns="http://www.w3.org/2000/svg" class="mb-px shrink-0" width="24" height="24" viewBox="0 0 24 24" role="presentation" style="margin-bottom: 0px;"><g fill="currentColor"><path d="M2 4h20v2H2zM2 11h20v2H2zM2 18h20v2H2z"></path></g></svg></button>
+                <div v-cloak id="docs-sidebar-toggle"></div>
+        
+                <!-- Logo -->
+                <div class="flex items-center justify-between h-full py-2 md:w-75">
+                    <div class="flex items-center px-2 md:px-6">
+                        <a id="docs-site-logo" href="../../" class="flex items-center leading-snug text-xl">
+                            <span class="w-10 mr-2 grow-0 shrink-0 overflow-hidden">
+                                <img class="max-h-10 dark:hidden md:inline-block" src="../../images/cbio-logo.png">
+                                <img class="max-h-10 hidden dark:inline-block" src="../../images/cbio-logo.png">
+                            </span>
+                            <span class="dark:text-white font-semibold line-clamp-1 md:line-clamp-2">cBioPortal Docs</span>
+                        </a>
+                    </div>
+        
+                    <span class="hidden h-8 border-r md:inline-block dark:border-dark-650"></span>
+                </div>
+        
+                <div class="flex justify-between md:grow">
+                    <!-- Top Nav -->
+                    <nav class="hidden md:flex">
+                        <ul class="flex flex-col mb-4 md:pl-16 md:mb-0 md:flex-row md:items-center">
+                            <li class="mr-6">
+                                <a class="py-2 md:mb-0 inline-flex items-center text-sm whitespace-nowrap transition-colors duration-200 ease-linear md:text-blue-500 dark:text-blue-400 hover:text-blue-800 dark:hover:text-blue-200" href="https://www.cbioportal.org">
+                                    <img class="mb-px mr-1" width="18" src="../../images/cbio-logo.png" />
+                                    <span>cBioPortal</span>
+                                </a>
+                            </li>
+                            <li class="mr-6">
+                                <a class="py-2 md:mb-0 inline-flex items-center text-sm whitespace-nowrap transition-colors duration-200 ease-linear md:text-blue-500 dark:text-blue-400 hover:text-blue-800 dark:hover:text-blue-200" href="https://github.com/cbioportal/cbioportal/">
+                                    <svg xmlns="http://www.w3.org/2000/svg" class="mb-px mr-1" width="18" height="18" viewBox="0 0 24 24" role="presentation">
+                                        <g fill="currentColor">
+                                            <symbol id="mark-github-icon-symbol" viewBox="0 0 16 16"><path fill-rule="evenodd" d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.013 8.013 0 0016 8c0-4.42-3.58-8-8-8z"/></symbol><use xlink:href="#mark-github-icon-symbol" />
+                                        </g>
+                                    </svg>
+                                    <span>Github</span>
+                                </a>
+                            </li>
+                            <li class="mr-6">
+                                <a class="py-2 md:mb-0 inline-flex items-center text-sm whitespace-nowrap transition-colors duration-200 ease-linear md:text-blue-500 dark:text-blue-400 hover:text-blue-800 dark:hover:text-blue-200" href="https://github.com/cbioportal/cbioportal/issues/">
+                                    <svg xmlns="http://www.w3.org/2000/svg" class="mb-px mr-1" width="18" height="18" viewBox="0 0 24 24" role="presentation">
+                                        <g fill="currentColor">
+                                            <path fill-rule="evenodd" d="M7.72.22a.75.75 0 011.06 0l1.204 1.203A4.983 4.983 0 0112 1c.717 0 1.4.151 2.016.423L15.22.22a.75.75 0 011.06 1.06l-.971.972A4.988 4.988 0 0117 6v1.104a2.755 2.755 0 011.917 1.974l1.998-.999a.75.75 0 01.67 1.342L19 10.714V13.5l3.25.003a.75.75 0 110 1.5L19 15.001V16a7.02 7.02 0 01-.204 1.686.833.833 0 01.04.018l2.75 1.375a.75.75 0 11-.671 1.342l-2.638-1.319A7 7 0 0112 23a7 7 0 01-6.197-3.742l-2.758 1.181a.75.75 0 11-.59-1.378l2.795-1.199A7.007 7.007 0 015 16v-.996H1.75a.75.75 0 010-1.5H5v-2.79L2.415 9.42a.75.75 0 01.67-1.342l1.998.999A2.755 2.755 0 017 7.104V6a4.99 4.99 0 011.69-3.748l-.97-.972a.75.75 0 010-1.06zM8.5 7h7V6a3.5 3.5 0 10-7 0v1zm-2 3.266V9.75c0-.69.56-1.25 1.25-1.25h8.5c.69 0 1.25.56 1.25 1.25V16a5.5 5.5 0 01-11 0v-5.734z"/>
+                                        </g>
+                                    </svg>
+                                    <span>Issues</span>
+                                </a>
+                            </li>
+                            <li class="mr-6">
+                                <a class="py-2 md:mb-0 inline-flex items-center text-sm whitespace-nowrap transition-colors duration-200 ease-linear md:text-blue-500 dark:text-blue-400 hover:text-blue-800 dark:hover:text-blue-200" href="https://groups.google.com/g/cbioportal">
+                                    <svg xmlns="http://www.w3.org/2000/svg" class="mb-px mr-1" width="18" height="18" viewBox="0 0 24 24" role="presentation">
+                                        <g fill="currentColor">
+                                            <path fill-rule="evenodd" d="M1.75 1A1.75 1.75 0 000 2.75v9.5C0 13.216.784 14 1.75 14H3v1.543a1.457 1.457 0 002.487 1.03L8.061 14h6.189A1.75 1.75 0 0016 12.25v-9.5A1.75 1.75 0 0014.25 1H1.75zM1.5 2.75a.25.25 0 01.25-.25h12.5a.25.25 0 01.25.25v9.5a.25.25 0 01-.25.25h-6.5a.75.75 0 00-.53.22L4.5 15.44v-2.19a.75.75 0 00-.75-.75h-2a.25.25 0 01-.25-.25v-9.5z"/><path d="M22.5 8.75a.25.25 0 00-.25-.25h-3.5a.75.75 0 010-1.5h3.5c.966 0 1.75.784 1.75 1.75v9.5A1.75 1.75 0 0122.25 20H21v1.543a1.457 1.457 0 01-2.487 1.03L15.939 20H10.75A1.75 1.75 0 019 18.25v-1.465a.75.75 0 011.5 0v1.465c0 .138.112.25.25.25h5.5a.75.75 0 01.53.22l2.72 2.72v-2.19a.75.75 0 01.75-.75h2a.25.25 0 00.25-.25v-9.5z"/>
+                                        </g>
+                                    </svg>
+                                    <span>Google Group</span>
+                                </a>
+                            </li>
+        
+                        </ul>
+                    </nav>
+        
+                    <!-- Header Right Skeleton -->
+                    <div v-cloak class="flex justify-end grow skeleton">
+        
+                        <!-- Search input mock -->
+                        <div class="relative hidden w-40 lg:block lg:max-w-sm lg:ml-auto">
+                            <div class="absolute flex items-center justify-center h-full pl-3 dark:text-dark-300">
+                                <svg xmlns="http://www.w3.org/2000/svg" class="icon-base" width="16" height="16" viewBox="0 0 24 24" aria-labelledby="icon" role="presentation"  style="margin-bottom: 1px;"><g fill="currentColor" ><path d="M21.71 20.29l-3.68-3.68A8.963 8.963 0 0020 11c0-4.96-4.04-9-9-9s-9 4.04-9 9 4.04 9 9 9c2.12 0 4.07-.74 5.61-1.97l3.68 3.68c.2.19.45.29.71.29s.51-.1.71-.29c.39-.39.39-1.03 0-1.42zM4 11c0-3.86 3.14-7 7-7s7 3.14 7 7c0 1.92-.78 3.66-2.04 4.93-.01.01-.02.01-.02.01-.01.01-.01.01-.01.02A6.98 6.98 0 0111 18c-3.86 0-7-3.14-7-7z" ></path></g></svg>
+                            </div>
+        
+                            <input class="w-full h-10 transition-colors duration-200 ease-in bg-gray-200 border border-transparent rounded md:text-sm hover:bg-white hover:border-gray-300 focus:outline-none focus:bg-white focus:border-gray-500 dark:bg-dark-600 dark:border-dark-600 placeholder-gray-400 dark:placeholder-dark-400"
+                            style="padding: 0.625rem 0.75rem 0.625rem 2rem" type="text" placeholder="Search" />
+                        </div>
+        
+                        <!-- Mobile search button mock -->
+                        <div class="flex items-center justify-center w-10 h-10 lg:hidden">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="shrink-0 icon-base" width="20" height="20" viewBox="0 0 24 24" aria-labelledby="icon" role="presentation"  style="margin-bottom: 0px;"><g fill="currentColor" ><path d="M21.71 20.29l-3.68-3.68A8.963 8.963 0 0020 11c0-4.96-4.04-9-9-9s-9 4.04-9 9 4.04 9 9 9c2.12 0 4.07-.74 5.61-1.97l3.68 3.68c.2.19.45.29.71.29s.51-.1.71-.29c.39-.39.39-1.03 0-1.42zM4 11c0-3.86 3.14-7 7-7s7 3.14 7 7c0 1.92-.78 3.66-2.04 4.93-.01.01-.02.01-.02.01-.01.01-.01.01-.01.02A6.98 6.98 0 0111 18c-3.86 0-7-3.14-7-7z" ></path></g></svg>
+                        </div>
+        
+                        <!-- Dark mode switch placehokder -->
+                        <div class="w-10 h-10 lg:ml-2"></div>
+        
+                        <!-- History button mock -->
+                        <div class="flex items-center justify-center w-10 h-10" style="margin-right: -0.625rem;">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="shrink-0 icon-base" width="22" height="22" viewBox="0 0 24 24" aria-labelledby="icon" role="presentation"  style="margin-bottom: 0px;"><g fill="currentColor" ><g ><path d="M12.01 6.01c-.55 0-1 .45-1 1V12a1 1 0 00.4.8l3 2.22a.985.985 0 001.39-.2.996.996 0 00-.21-1.4l-2.6-1.92V7.01c.02-.55-.43-1-.98-1z"></path><path d="M12.01 1.91c-5.33 0-9.69 4.16-10.05 9.4l-.29-.26a.997.997 0 10-1.34 1.48l1.97 1.79c.19.17.43.26.67.26s.48-.09.67-.26l1.97-1.79a.997.997 0 10-1.34-1.48l-.31.28c.34-4.14 3.82-7.41 8.05-7.41 4.46 0 8.08 3.63 8.08 8.09s-3.63 8.08-8.08 8.08c-2.18 0-4.22-.85-5.75-2.4a.996.996 0 10-1.42 1.4 10.02 10.02 0 007.17 2.99c5.56 0 10.08-4.52 10.08-10.08.01-5.56-4.52-10.09-10.08-10.09z"></path></g></g></svg>
+                        </div>
+                    </div>
+        
+                    <div v-cloak class="flex justify-end grow">
+                        <div id="docs-mobile-search-button"></div>
+                        <doc-search-desktop></doc-search-desktop>
+        
+                        <doc-theme-switch class="lg:ml-2"></doc-theme-switch>
+                        <doc-history></doc-history>
+                    </div>
+                </div>
+            </div>
+        </header>
+    
+        <div class="container relative flex bg-white">
+            <!-- Sidebar Skeleton -->
+            <div v-cloak class="fixed flex flex-col shrink-0 duration-300 ease-in-out bg-gray-100 border-gray-200 sidebar top-20 w-75 border-r h-screen md:sticky transition-transform skeleton dark:bg-dark-800 dark:border-dark-650">
+            
+                <!-- Render this div, if config.showSidebarFilter is `true` -->
+                <div class="flex items-center h-16 px-6">
+                    <input class="w-full h-8 px-3 py-2 transition-colors duration-200 ease-linear bg-white border border-gray-200 rounded shadow-none text-sm focus:outline-none focus:border-gray-600 dark:bg-dark-600 dark:border-dark-600" type="text" placeholder="Filter" />
+                </div>
+            
+                <div class="pl-6 mb-4 mt-1">
+                    <div class="w-32 h-3 mb-4 bg-gray-200 rounded-full loading dark:bg-dark-600"></div>
+                    <div class="w-48 h-3 mb-4 bg-gray-200 rounded-full loading dark:bg-dark-600"></div>
+                    <div class="w-40 h-3 mb-4 bg-gray-200 rounded-full loading dark:bg-dark-600"></div>
+                    <div class="w-32 h-3 mb-4 bg-gray-200 rounded-full loading dark:bg-dark-600"></div>
+                    <div class="w-48 h-3 mb-4 bg-gray-200 rounded-full loading dark:bg-dark-600"></div>
+                    <div class="w-40 h-3 mb-4 bg-gray-200 rounded-full loading dark:bg-dark-600"></div>
+                </div>
+            
+                <div class="shrink-0 mt-auto bg-transparent dark:border-dark-650">
+                    <a class="flex items-center justify-center flex-nowrap h-16 text-gray-400 dark:text-dark-400 hover:text-gray-700 dark:hover:text-dark-300 transition-colors duration-150 ease-in docs-powered-by" target="_blank" href="https://retype.com/" rel="noopener">
+                        <span class="text-xs whitespace-nowrap">Powered by</span>
+                        <svg xmlns="http://www.w3.org/2000/svg" class="ml-2" fill="currentColor" width="96" height="20" overflow="visible"><path d="M0 0v20h13.59V0H0zm11.15 17.54H2.44V2.46h8.71v15.08zM15.8 20h2.44V4.67L15.8 2.22zM20.45 6.89V20h2.44V9.34z"/><g><path d="M40.16 8.44c0 1.49-.59 2.45-1.75 2.88l2.34 3.32h-2.53l-2.04-2.96h-1.43v2.96h-2.06V5.36h3.5c1.43 0 2.46.24 3.07.73s.9 1.27.9 2.35zm-2.48 1.1c.26-.23.38-.59.38-1.09 0-.5-.13-.84-.4-1.03s-.73-.28-1.39-.28h-1.54v2.75h1.5c.72 0 1.2-.12 1.45-.35zM51.56 5.36V7.2h-4.59v1.91h4.13v1.76h-4.13v1.92h4.74v1.83h-6.79V5.36h6.64zM60.09 7.15v7.48h-2.06V7.15h-2.61V5.36h7.28v1.79h-2.61zM70.81 14.64h-2.06v-3.66l-3.19-5.61h2.23l1.99 3.45 1.99-3.45H74l-3.19 5.61v3.66zM83.99 6.19c.65.55.97 1.4.97 2.55s-.33 1.98-1 2.51-1.68.8-3.04.8h-1.23v2.59h-2.06V5.36h3.26c1.42 0 2.45.28 3.1.83zm-1.51 3.65c.25-.28.37-.69.37-1.22s-.16-.92-.48-1.14c-.32-.23-.82-.34-1.5-.34H79.7v3.12h1.38c.68 0 1.15-.14 1.4-.42zM95.85 5.36V7.2h-4.59v1.91h4.13v1.76h-4.13v1.92H96v1.83h-6.79V5.36h6.64z"/></g></svg>
+                    </a>
+                </div>
+            </div>
+            
+            <!-- Sidebar component -->
+            <doc-sidebar v-cloak>
+                <template #sidebar-footer>
+                    <div class="shrink-0 mt-auto border-t md:bg-transparent md:border-none dark:border-dark-650">
+            
+                        <div class="py-3 px-6 md:hidden border-b dark:border-dark-650">
+                            <nav>
+                                <ul class="flex flex-wrap justify-center items-center">
+                                    <li class="mr-6">
+                                        <a class="block py-1 inline-flex items-center text-sm whitespace-nowrap transition-colors duration-200 ease-linear md:text-blue-500 dark:text-blue-400 hover:text-blue-800 dark:hover:text-blue-200" href="https://www.cbioportal.org">
+                                            <img class="mb-px mr-1" width="18" src="../../images/cbio-logo.png" />
+                                            <span>cBioPortal</span>
+                                        </a>
+                                    </li>
+                                    <li class="mr-6">
+                                        <a class="block py-1 inline-flex items-center text-sm whitespace-nowrap transition-colors duration-200 ease-linear md:text-blue-500 dark:text-blue-400 hover:text-blue-800 dark:hover:text-blue-200" href="https://github.com/cbioportal/cbioportal/">
+                                            <svg xmlns="http://www.w3.org/2000/svg" class="mb-px mr-1" width="18" height="18" viewBox="0 0 24 24" role="presentation">
+                                                <g fill="currentColor">
+                                                    <symbol id="mark-github-icon-symbol" viewBox="0 0 16 16"><path fill-rule="evenodd" d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.013 8.013 0 0016 8c0-4.42-3.58-8-8-8z"/></symbol><use xlink:href="#mark-github-icon-symbol" />
+                                                </g>
+                                            </svg>
+                                            <span>Github</span>
+                                        </a>
+                                    </li>
+                                    <li class="mr-6">
+                                        <a class="block py-1 inline-flex items-center text-sm whitespace-nowrap transition-colors duration-200 ease-linear md:text-blue-500 dark:text-blue-400 hover:text-blue-800 dark:hover:text-blue-200" href="https://github.com/cbioportal/cbioportal/issues/">
+                                            <svg xmlns="http://www.w3.org/2000/svg" class="mb-px mr-1" width="18" height="18" viewBox="0 0 24 24" role="presentation">
+                                                <g fill="currentColor">
+                                                    <path fill-rule="evenodd" d="M7.72.22a.75.75 0 011.06 0l1.204 1.203A4.983 4.983 0 0112 1c.717 0 1.4.151 2.016.423L15.22.22a.75.75 0 011.06 1.06l-.971.972A4.988 4.988 0 0117 6v1.104a2.755 2.755 0 011.917 1.974l1.998-.999a.75.75 0 01.67 1.342L19 10.714V13.5l3.25.003a.75.75 0 110 1.5L19 15.001V16a7.02 7.02 0 01-.204 1.686.833.833 0 01.04.018l2.75 1.375a.75.75 0 11-.671 1.342l-2.638-1.319A7 7 0 0112 23a7 7 0 01-6.197-3.742l-2.758 1.181a.75.75 0 11-.59-1.378l2.795-1.199A7.007 7.007 0 015 16v-.996H1.75a.75.75 0 010-1.5H5v-2.79L2.415 9.42a.75.75 0 01.67-1.342l1.998.999A2.755 2.755 0 017 7.104V6a4.99 4.99 0 011.69-3.748l-.97-.972a.75.75 0 010-1.06zM8.5 7h7V6a3.5 3.5 0 10-7 0v1zm-2 3.266V9.75c0-.69.56-1.25 1.25-1.25h8.5c.69 0 1.25.56 1.25 1.25V16a5.5 5.5 0 01-11 0v-5.734z"/>
+                                                </g>
+                                            </svg>
+                                            <span>Issues</span>
+                                        </a>
+                                    </li>
+                                    <li class="mr-6">
+                                        <a class="block py-1 inline-flex items-center text-sm whitespace-nowrap transition-colors duration-200 ease-linear md:text-blue-500 dark:text-blue-400 hover:text-blue-800 dark:hover:text-blue-200" href="https://groups.google.com/g/cbioportal">
+                                            <svg xmlns="http://www.w3.org/2000/svg" class="mb-px mr-1" width="18" height="18" viewBox="0 0 24 24" role="presentation">
+                                                <g fill="currentColor">
+                                                    <path fill-rule="evenodd" d="M1.75 1A1.75 1.75 0 000 2.75v9.5C0 13.216.784 14 1.75 14H3v1.543a1.457 1.457 0 002.487 1.03L8.061 14h6.189A1.75 1.75 0 0016 12.25v-9.5A1.75 1.75 0 0014.25 1H1.75zM1.5 2.75a.25.25 0 01.25-.25h12.5a.25.25 0 01.25.25v9.5a.25.25 0 01-.25.25h-6.5a.75.75 0 00-.53.22L4.5 15.44v-2.19a.75.75 0 00-.75-.75h-2a.25.25 0 01-.25-.25v-9.5z"/><path d="M22.5 8.75a.25.25 0 00-.25-.25h-3.5a.75.75 0 010-1.5h3.5c.966 0 1.75.784 1.75 1.75v9.5A1.75 1.75 0 0122.25 20H21v1.543a1.457 1.457 0 01-2.487 1.03L15.939 20H10.75A1.75 1.75 0 019 18.25v-1.465a.75.75 0 011.5 0v1.465c0 .138.112.25.25.25h5.5a.75.75 0 01.53.22l2.72 2.72v-2.19a.75.75 0 01.75-.75h2a.25.25 0 00.25-.25v-9.5z"/>
+                                                </g>
+                                            </svg>
+                                            <span>Google Group</span>
+                                        </a>
+                                    </li>
+            
+                                </ul>
+                            </nav>
+                        </div>
+            
+                        <a class="flex items-center justify-center flex-nowrap h-16 text-gray-400 dark:text-dark-400 hover:text-gray-700 dark:hover:text-dark-300 transition-colors duration-150 ease-in docs-powered-by" target="_blank" href="https://retype.com/" rel="noopener">
+                            <span class="text-xs whitespace-nowrap">Powered by</span>
+                            <svg xmlns="http://www.w3.org/2000/svg" class="ml-2" fill="currentColor" width="96" height="20" overflow="visible"><path d="M0 0v20h13.59V0H0zm11.15 17.54H2.44V2.46h8.71v15.08zM15.8 20h2.44V4.67L15.8 2.22zM20.45 6.89V20h2.44V9.34z"/><g><path d="M40.16 8.44c0 1.49-.59 2.45-1.75 2.88l2.34 3.32h-2.53l-2.04-2.96h-1.43v2.96h-2.06V5.36h3.5c1.43 0 2.46.24 3.07.73s.9 1.27.9 2.35zm-2.48 1.1c.26-.23.38-.59.38-1.09 0-.5-.13-.84-.4-1.03s-.73-.28-1.39-.28h-1.54v2.75h1.5c.72 0 1.2-.12 1.45-.35zM51.56 5.36V7.2h-4.59v1.91h4.13v1.76h-4.13v1.92h4.74v1.83h-6.79V5.36h6.64zM60.09 7.15v7.48h-2.06V7.15h-2.61V5.36h7.28v1.79h-2.61zM70.81 14.64h-2.06v-3.66l-3.19-5.61h2.23l1.99 3.45 1.99-3.45H74l-3.19 5.61v3.66zM83.99 6.19c.65.55.97 1.4.97 2.55s-.33 1.98-1 2.51-1.68.8-3.04.8h-1.23v2.59h-2.06V5.36h3.26c1.42 0 2.45.28 3.1.83zm-1.51 3.65c.25-.28.37-.69.37-1.22s-.16-.92-.48-1.14c-.32-.23-.82-.34-1.5-.34H79.7v3.12h1.38c.68 0 1.15-.14 1.4-.42zM95.85 5.36V7.2h-4.59v1.91h4.13v1.76h-4.13v1.92H96v1.83h-6.79V5.36h6.64z"/></g></svg>
+                        </a>
+                    </div>
+                </template>
+            </doc-sidebar>
+    
+            <div class="grow min-w-0 dark:bg-dark-850">
+                <!-- Render "toolbar" template here on api pages --><!-- Render page content -->
+                <div class="flex">
+                    <div class="grow min-w-0 px-6 md:px-16">
+                        <main class="relative pt-6 pb-16">
+                            <div class="docs-markdown" id="docs-content">
+                                <!-- Rendered if sidebar right is enabled -->
+                                <div id="docs-sidebar-right-toggle"></div>
+                
+                                <!-- Page content  -->
+<doc-anchor-target id="cbioportal-faqs" class="break-words">
+    <h1>
+        <doc-anchor-trigger class="header-anchor-trigger" to="#cbioportal-faqs">#</doc-anchor-trigger>
+        <span>cBioPortal FAQs</span>
+    </h1>
+</doc-anchor-target>
+<ul>
+<li><doc-anchor-trigger to="#general-questions">General Questions</doc-anchor-trigger>
+<ul>
+<li><doc-anchor-trigger to="#what-is-the-cbioportal-for-cancer-genomics">What is the cBioPortal for Cancer Genomics?</doc-anchor-trigger></li>
+<li><doc-anchor-trigger to="#how-do-i-get-started">How do I get started?</doc-anchor-trigger></li>
+<li><doc-anchor-trigger to="#what-data-types-are-in-the-portal">What data types are in the portal?</doc-anchor-trigger></li>
+<li><doc-anchor-trigger to="#what-is-the-process-of-data-curation">What is the process of data curation?</doc-anchor-trigger></li>
+<li><doc-anchor-trigger to="#how-do-i-get-updates-on-new-portal-developments-and-new-data-sets">How do I get updates on new portal developments and new data sets?</doc-anchor-trigger></li>
+<li><doc-anchor-trigger to="#does-the-portal-work-on-all-browsers-and-operating-systems">Does the portal work on all browsers and operating systems?</doc-anchor-trigger></li>
+<li><doc-anchor-trigger to="#how-do-i-cite-the-cbioportal">How do I cite the cBioPortal?</doc-anchor-trigger></li>
+<li><doc-anchor-trigger to="#can-i-use-figures-from-the-cbioportal-in-my-publications-or-presentations">Can I use figures from the cBioPortal in my publications or presentations?</doc-anchor-trigger></li>
+<li><doc-anchor-trigger to="#can-i-save-or-bookmark-my-results-in-cbioportal">Can I save or bookmark my results in cBioPortal?</doc-anchor-trigger></li>
+<li><doc-anchor-trigger to="#how-is-the-cbioportal-for-cancer-genomics-different-from-the-genomic-data-commons-gdc">How is the cBioPortal for Cancer Genomics different from the Genomic Data Commons (GDC)?</doc-anchor-trigger></li>
+<li><doc-anchor-trigger to="#does-the-cbioportal-provide-a-web-service-api-r-interface-matlab-interface">Does the cBioPortal provide a Web Service API? R interface? MATLAB interface?</doc-anchor-trigger></li>
+<li><doc-anchor-trigger to="#can-i-use-cbioportal-with-my-own-data">Can I use cBioPortal with my own data?</doc-anchor-trigger></li>
+<li><doc-anchor-trigger to="#can-i-create-a-local-instance-of-cbioportal-to-host-my-own-data">Can I create a local instance of cBioPortal to host my own data?</doc-anchor-trigger></li>
+<li><doc-anchor-trigger to="#id-like-to-contribute-code-to-the-cbioportal-how-do-i-get-started">I&#x27;d like to contribute code to the cBioPortal. How do I get started?</doc-anchor-trigger></li>
+<li><doc-anchor-trigger to="#what-is-a-virtual-study">What is a Virtual Study?</doc-anchor-trigger></li>
+<li><doc-anchor-trigger to="#is-it-necessary-to-log-in-to-use-virtual-studies-if-i-do-log-in-what-additional-functionality-do-i-gain">Is it necessary to log in to use virtual studies? If I do log in, what additional functionality do I gain?</doc-anchor-trigger></li>
+<li><doc-anchor-trigger to="#what-is-group-comparison">What is Group Comparison?</doc-anchor-trigger></li>
+</ul>
+</li>
+<li><doc-anchor-trigger to="#data-questions">Data Questions</doc-anchor-trigger>
+<ul>
+<li><doc-anchor-trigger to="#general-data">General Data</doc-anchor-trigger>
+<ul>
+<li><doc-anchor-trigger to="#does-the-portal-contain-cancer-study-x">Does the portal contain cancer study X?</doc-anchor-trigger></li>
+<li><doc-anchor-trigger to="#which-resources-are-integrated-for-variant-annotation">Which resources are integrated for variant annotation?</doc-anchor-trigger></li>
+<li><doc-anchor-trigger to="#what-version-of-the-human-reference-genome-is-being-used-in-cbioportal">What version of the human reference genome is being used in cBioPortal?</doc-anchor-trigger></li>
+<li><doc-anchor-trigger to="#how-does-cbioportal-handle-duplicate-samples-or-sample-ids-across-different-studies">How does cBioPortal handle duplicate samples or sample IDs across different studies?</doc-anchor-trigger></li>
+<li><doc-anchor-trigger to="#are-there-any-normal-tissue-samples-available-through-cbioportal">Are there any normal tissue samples available through cBioPortal?</doc-anchor-trigger></li>
+<li><doc-anchor-trigger to="#how-can-i-find-which-studies-have-mrna-expression-data-or-any-other-specific-data-type">How can I find which studies have mRNA expression data (or any other specific data type)?</doc-anchor-trigger></li>
+<li><doc-anchor-trigger to="#can-i-download-all-data-at-once">Can I download all data at once?</doc-anchor-trigger></li>
+<li><doc-anchor-trigger to="#the-data-today-is-different-than-the-last-time-i-looked-what-happened">The data today is different than the last time i looked. What happened?</doc-anchor-trigger></li>
+<li><doc-anchor-trigger to="#how-do-i-access-data-from-aacr-project-genie">How do I access data from AACR Project GENIE?</doc-anchor-trigger></li>
+</ul>
+</li>
+<li><doc-anchor-trigger to="#tcga">TCGA</doc-anchor-trigger>
+<ul>
+<li><doc-anchor-trigger to="#how-does-tcga-data-in-cbioportal-compare-to-tcga-data-in-genome-data-commons">How does TCGA data in cBioPortal compare to TCGA data in Genome Data Commons?</doc-anchor-trigger></li>
+<li><doc-anchor-trigger to="#what-happened-to-tcga-provisional-datasets">What happened to TCGA Provisional datasets?</doc-anchor-trigger></li>
+<li><doc-anchor-trigger to="#what-are-tcga-firehose-legacy-datasets-and-how-do-they-compare-to-the-publication-associated-datasets-and-the-pancancer-atlas-datasets">What are TCGA Firehose Legacy datasets and how do they compare to the publication-associated datasets and the PanCancer Atlas datasets?</doc-anchor-trigger></li>
+<li><doc-anchor-trigger to="#where-do-the-thresholded-copy-number-call-in-tcga-firehose-legacy-data-come-from">Where do the thresholded copy number call in TCGA Firehose Legacy data come from?</doc-anchor-trigger></li>
+<li><doc-anchor-trigger to="#which-studies-have-mutsig-and-gistic-results-how-do-these-results-compare-to-the-data-in-the-tcga-publications">Which studies have MutSig and GISTIC results? How do these results compare to the data in the TCGA publications?</doc-anchor-trigger></li>
+<li><doc-anchor-trigger to="#how-can-i-download-the-pancancer-atlas-data">How can I download the PanCancer Atlas data?</doc-anchor-trigger></li>
+</ul>
+</li>
+<li><doc-anchor-trigger to="#dna-mutations-copy-number--fusions">DNA (Mutations, Copy Number &amp; Fusions)</doc-anchor-trigger>
+<ul>
+<li><doc-anchor-trigger to="#does-the-cbioportal-contain-synonymous-mutation-data">Does the cBioPortal contain synonymous mutation data?</doc-anchor-trigger></li>
+<li><doc-anchor-trigger to="#what-processing-or-filtering-is-applied-to-generate-the-mutation-data">What processing or filtering is applied to generate the mutation data?</doc-anchor-trigger></li>
+<li><doc-anchor-trigger to="#what-transcripts-are-used-for-annotating-mutations">What transcripts are used for annotating mutations?</doc-anchor-trigger></li>
+<li><doc-anchor-trigger to="#how-are-protein-domains-in-the-mutational-lollipop-diagrams-specified">How are protein domains in the mutational lollipop diagrams specified?</doc-anchor-trigger></li>
+<li><doc-anchor-trigger to="#what-is-the-difference-between-a-splice-site-mutation-and-a-splice-region-mutation">What is the difference between a “splice site” mutation and a “splice region” mutation?</doc-anchor-trigger></li>
+<li><doc-anchor-trigger to="#what-do-amplification-gain-deep-deletion-shallow-deletion-and--2--1-0-1-and-2-mean-in-the-copy-number-data">What do “Amplification”, “Gain”, “Deep Deletion”, “Shallow Deletion” and &quot;-2&quot;, &quot;-1&quot;, &quot;0&quot;, &quot;1&quot;, and &quot;2&quot; mean in the copy-number data?</doc-anchor-trigger></li>
+<li><doc-anchor-trigger to="#what-is-gistic-what-is-rae">What is GISTIC? What is RAE?</doc-anchor-trigger></li>
+</ul>
+</li>
+<li><doc-anchor-trigger to="#rna">RNA</doc-anchor-trigger>
+<ul>
+<li><doc-anchor-trigger to="#does-the-portal-store-raw-or-probe-level-data">Does the portal store raw or probe-level data?</doc-anchor-trigger></li>
+<li><doc-anchor-trigger to="#what-are-mrna-and-microrna-z-scores">What are mRNA and microRNA Z-Scores?</doc-anchor-trigger></li>
+<li><doc-anchor-trigger to="#is-there-any-normal-rna-seq-data-in-cbioportal">Is there any normal RNA-seq data in cBioPortal?</doc-anchor-trigger></li>
+<li><doc-anchor-trigger to="#how-is-tcga-rnaseqv2-processed-what-units-are-used">How is TCGA RNASeqV2 processed? What units are used?</doc-anchor-trigger></li>
+<li><doc-anchor-trigger to="#is-there-microrna-data">Is there microRNA data?</doc-anchor-trigger></li>
+<li><doc-anchor-trigger to="#how-can-i-query-micrornas-in-the-portal">How can I query microRNAs in the portal?</doc-anchor-trigger></li>
+</ul>
+</li>
+<li><doc-anchor-trigger to="#protein">Protein</doc-anchor-trigger>
+<ul>
+<li><doc-anchor-trigger to="#how-can-i-query-phosphoprotein-levels-in-the-portal">How can I query phosphoprotein levels in the portal?</doc-anchor-trigger></li>
+<li><doc-anchor-trigger to="#why-isnt-there-protein-data-for-my-gene-of-interest">Why isn’t there protein data for my gene of interest?</doc-anchor-trigger></li>
+</ul>
+</li>
+<li><doc-anchor-trigger to="#dna-methylation">DNA Methylation</doc-anchor-trigger>
+<ul>
+<li><doc-anchor-trigger to="#which-methylation-probe-is-used-for-genes-with-multiple-probes">Which methylation probe is used for genes with multiple probes?</doc-anchor-trigger></li>
+</ul>
+</li>
+<li><doc-anchor-trigger to="#clinical-data">Clinical Data</doc-anchor-trigger>
+<ul>
+<li><doc-anchor-trigger to="#what-kind-of-clinical-data-is-stored-in-the-portal">What kind of clinical data is stored in the portal?</doc-anchor-trigger></li>
+<li><doc-anchor-trigger to="#what-is-the-meaning-of-os_status--os_months-and-pfs_status--pfs_months">What is the meaning of OS_STATUS / OS_MONTHS, and PFS_STATUS / PFS_MONTHS?</doc-anchor-trigger></li>
+</ul>
+</li>
+</ul>
+</li>
+<li><doc-anchor-trigger to="#analysis-questions">Analysis Questions</doc-anchor-trigger>
+<ul>
+<li><doc-anchor-trigger to="#how-can-i-queryexplore-a-select-subset-of-samples">How can I query/explore a select subset of samples?</doc-anchor-trigger></li>
+<li><doc-anchor-trigger to="#how-can-i-compare-two-or-more-subsets-of-samples">How can I compare two or more subsets of samples?</doc-anchor-trigger></li>
+<li><doc-anchor-trigger to="#is-it-possible-to-determine-if-a-particular-mutation-is-heterozygous-or-homozygous-in-a-sample-when-a-sample-has-2-mutations-in-one-gene-is-it-possible-to-determine-whether-the-mutations-are-in-cis-or-in-trans-with-each-other">Is it possible to determine if a particular mutation is heterozygous or homozygous in a sample? When a sample has 2 mutations in one gene, is it possible to determine whether the mutations are in cis or in trans with each other?</doc-anchor-trigger></li>
+<li><doc-anchor-trigger to="#how-can-i-query-overunder-expression-of-a-gene">How can I query over/under expression of a gene?</doc-anchor-trigger></li>
+<li><doc-anchor-trigger to="#how-can-i-compare-outcomes-in-patients-with-high-vs-low-expression-of-a-gene">How can I compare outcomes in patients with high vs low expression of a gene?</doc-anchor-trigger></li>
+</ul>
+</li>
+<li><doc-anchor-trigger to="#results-view">Results View</doc-anchor-trigger>
+<ul>
+<li><doc-anchor-trigger to="#oncoprint">OncoPrint</doc-anchor-trigger>
+<ul>
+<li><doc-anchor-trigger to="#what-are-oncoprints">What are OncoPrints?</doc-anchor-trigger></li>
+<li><doc-anchor-trigger to="#can-i-change-the-order-of-genes-in-the-oncoprint">Can I change the order of genes in the OncoPrint?</doc-anchor-trigger></li>
+<li><doc-anchor-trigger to="#can-i-visualize-my-own-data-within-an-oncoprint">Can I visualize my own data within an OncoPrint?</doc-anchor-trigger></li>
+<li><doc-anchor-trigger to="#why-are-some-samples-not-profiled-for-certain-genes">Why are some samples “Not profiled” for certain genes?</doc-anchor-trigger></li>
+</ul>
+</li>
+<li><doc-anchor-trigger to="#other-pages">Other pages</doc-anchor-trigger>
+<ul>
+<li><doc-anchor-trigger to="#does-the-mutual-exclusivity-tab-calculate-its-statistics-using-all-samplesalterations-or-only-a-specific-subset">Does the Mutual Exclusivity tab calculate its statistics using all samples/alterations or only a specific subset?</doc-anchor-trigger></li>
+<li><doc-anchor-trigger to="#what-are-the-values-of-the-box-and-whiskers-in-a-boxplot">What are the values of the box and whiskers in a boxplot?</doc-anchor-trigger></li>
+</ul>
+</li>
+</ul>
+</li>
+<li><doc-anchor-trigger to="#study-view">Study View</doc-anchor-trigger>
+<ul>
+<li><doc-anchor-trigger to="#how-to-use-filter-in-the-url-of-study-view-page">How to use filter in the URL of Study View page?</doc-anchor-trigger></li>
+</ul>
+</li>
+<li><doc-anchor-trigger to="#what-if-i-have-other-questions-or-comments">What if I have other questions or comments?</doc-anchor-trigger></li>
+</ul>
+<doc-anchor-target id="general-questions">
+    <h2>
+        <doc-anchor-trigger class="header-anchor-trigger" to="#general-questions">#</doc-anchor-trigger>
+        <span>General Questions</span>
+    </h2>
+</doc-anchor-target>
+<doc-anchor-target id="what-is-the-cbioportal-for-cancer-genomics">
+    <h4>
+        <doc-anchor-trigger class="header-anchor-trigger" to="#what-is-the-cbioportal-for-cancer-genomics">#</doc-anchor-trigger>
+        <span>What is the cBioPortal for Cancer Genomics?</span>
+    </h4>
+</doc-anchor-target>
+<p>The cBioPortal for Cancer Genomics is an open-access, open-source resource for interactive exploration of multidimensional cancer genomics data sets. The goal of cBioPortal is to significantly lower the barriers between complex genomic data and cancer researchers by providing rapid, intuitive, and high-quality access to molecular profiles and clinical attributes from large-scale cancer genomics projects, and therefore to empower researchers to translate these rich data sets into biologic insights and clinical applications.</p>
+<doc-anchor-target id="how-do-i-get-started">
+    <h4>
+        <doc-anchor-trigger class="header-anchor-trigger" to="#how-do-i-get-started">#</doc-anchor-trigger>
+        <span>How do I get started?</span>
+    </h4>
+</doc-anchor-target>
+<p>Check out our <a href="https://www.cbioportal.org/tutorials">tutorial slides</a> to get started or go through our <a href="https://www.ncbi.nlm.nih.gov/pubmed/23550210">tutorial paper</a>.</p>
+<doc-anchor-target id="what-data-types-are-in-the-portal">
+    <h4>
+        <doc-anchor-trigger class="header-anchor-trigger" to="#what-data-types-are-in-the-portal">#</doc-anchor-trigger>
+        <span>What data types are in the portal?</span>
+    </h4>
+</doc-anchor-target>
+<p>The portal supports and stores non-synonymous mutations, DNA copy-number data (putative, discrete values per gene, e.g. &quot;deeply deleted&quot; or &quot;amplified&quot;, as well as log2 or linear copy number data), mRNA and microRNA expression data, protein-level and phosphoprotein level data (RPPA or mass spectrometry based), DNA methylation data, and de-identified clinical data. For a complete breakdown of available data types per cancer study go to the <a href="https://www.cbioportal.org/datasets">Data Sets Page</a>. Note that for many studies, only somatic mutation data and limited clinical data are available. For TCGA studies, the other data types are also available. Germline mutations are supported by cBioPortal, but are, with a few exceptions, not available in the public instance.</p>
+<doc-anchor-target id="what-is-the-process-of-data-curation">
+    <h4>
+        <doc-anchor-trigger class="header-anchor-trigger" to="#what-is-the-process-of-data-curation">#</doc-anchor-trigger>
+        <span>What is the process of data curation?</span>
+    </h4>
+</doc-anchor-target>
+<p>The TCGA firehose legacy datasets are imported directly from the original TCGA Data Coordinating Center via the <a href="https://gdac.broadinstitute.org/">Broad Firehose</a>.</p>
+<p>We are also actively curating datasets from the literature. Studies from the literature were curated from the data published with the manuscripts. We sometimes reach out to the investigators to acquire additional data, such as clinical attributes. All mutation calls (in VCF or MAF format) are processed through an internal pipeline to annotate the variant effects in a consistent way across studies. Please <a href="mailto:cbioportal@googlegroups.com">contact us</a> to suggest additional public datasets to curate or view the list of studies suggested for curation in our <a href="https://github.com/cBioPortal/datahub/issues?q=is%3Aissue+is%3Aopen+label%3A%22new+public+study%22">Datahub on Github</a>.</p>
+<doc-anchor-target id="how-do-i-get-updates-on-new-portal-developments-and-new-data-sets">
+    <h4>
+        <doc-anchor-trigger class="header-anchor-trigger" to="#how-do-i-get-updates-on-new-portal-developments-and-new-data-sets">#</doc-anchor-trigger>
+        <span>How do I get updates on new portal developments and new data sets?</span>
+    </h4>
+</doc-anchor-target>
+<p>Please subscribe to our low-volume <a href="https://groups.google.com/group/cbioportal-news">news mailing list</a> or follow <a href="https://twitter.com/cbioportal">@cbioportal on Twitter</a>.</p>
+<doc-anchor-target id="does-the-portal-work-on-all-browsers-and-operating-systems">
+    <h4>
+        <doc-anchor-trigger class="header-anchor-trigger" to="#does-the-portal-work-on-all-browsers-and-operating-systems">#</doc-anchor-trigger>
+        <span>Does the portal work on all browsers and operating systems?</span>
+    </h4>
+</doc-anchor-target>
+<p>We support and test on the following web browsers: Safari, Google Chrome, Firefox and Edge. (As of release v3.5.4 we no longer support Internet Explorer 11). If you notice any incompatibilities, please let us know.</p>
+<doc-anchor-target id="how-do-i-cite-the-cbioportal">
+    <h4>
+        <doc-anchor-trigger class="header-anchor-trigger" to="#how-do-i-cite-the-cbioportal">#</doc-anchor-trigger>
+        <span>How do I cite the cBioPortal?</span>
+    </h4>
+</doc-anchor-target>
+<p>Please cite the following portal papers:</p>
+<ul>
+<li>Cerami et al. The cBio Cancer Genomics Portal: An Open Platform for Exploring Multidimensional Cancer Genomics Data. Cancer Discovery. May 2012 2; 401. <a href="https://www.ncbi.nlm.nih.gov/pubmed/22588877">PubMed</a>.</li>
+<li>Gao et al. Integrative analysis of complex cancer genomics and clinical profiles using the cBioPortal. Sci. Signal. 6, pl1 (2013). <a href="https://www.ncbi.nlm.nih.gov/pubmed/23550210">PubMed</a>.</li>
+</ul>
+<p>Remember to also cite the source of the data if you are using a publicly available dataset.</p>
+<doc-anchor-target id="can-i-use-figures-from-the-cbioportal-in-my-publications-or-presentations">
+    <h4>
+        <doc-anchor-trigger class="header-anchor-trigger" to="#can-i-use-figures-from-the-cbioportal-in-my-publications-or-presentations">#</doc-anchor-trigger>
+        <span>Can I use figures from the cBioPortal in my publications or presentations?</span>
+    </h4>
+</doc-anchor-target>
+<p>Yes, you are free to use any of the figures from the portal in your publications or presentations (many are available in SVG or PDF format for easier scaling and editing). When you do, please cite Cerami et al., Cancer Discov. 2012, and Gao et al., Sci. Signal. 2013 (see the previous question for full citations).</p>
+<doc-anchor-target id="can-i-save-or-bookmark-my-results-in-cbioportal">
+    <h4>
+        <doc-anchor-trigger class="header-anchor-trigger" to="#can-i-save-or-bookmark-my-results-in-cbioportal">#</doc-anchor-trigger>
+        <span>Can I save or bookmark my results in cBioPortal?</span>
+    </h4>
+</doc-anchor-target>
+<p>You can bookmark your query results and share the URL with collaborators. We store all queries via Session IDs, and these are saved indefinitely. Use the bookmark tab to retrieve the full link, or generate a short link via the bit.ly link generator.</p>
+<doc-anchor-target id="how-is-the-cbioportal-for-cancer-genomics-different-from-the-genomic-data-commons-gdc">
+    <h4>
+        <doc-anchor-trigger class="header-anchor-trigger" to="#how-is-the-cbioportal-for-cancer-genomics-different-from-the-genomic-data-commons-gdc">#</doc-anchor-trigger>
+        <span>How is the cBioPortal for Cancer Genomics different from the Genomic Data Commons (GDC)?</span>
+    </h4>
+</doc-anchor-target>
+<p>The cBioPortal is an exploratory analysis tool for exploring large-scale cancer genomic data sets that hosts data from large consortium efforts, like <a href="https://cancergenome.nih.gov/">TCGA</a> and <a href="https://ocg.cancer.gov/programs/target">TARGET</a>, as well as publications from individual labs. You can quickly view genomic alterations across a set of patients, across a set of cancer types, perform survival analysis and perform group comparisons. If you want to explore specific genes or a pathway of interest in one or more cancer types, the cBioPortal is probably where you want to start.</p>
+<p>By contrast, the <a href="https://gdc.cancer.gov/">Genomic Data Commons (GDC)</a> aims to be the definitive place for full-download and access to all data generated by TCGA and TARGET. If you want to download raw mRNA expression files or full segmented copy number files, the GDC is probably where you want to start.</p>
+<doc-anchor-target id="does-the-cbioportal-provide-a-web-service-api-r-interface-matlab-interface">
+    <h4>
+        <doc-anchor-trigger class="header-anchor-trigger" to="#does-the-cbioportal-provide-a-web-service-api-r-interface-matlab-interface">#</doc-anchor-trigger>
+        <span>Does the cBioPortal provide a Web Service API? R interface? MATLAB interface?</span>
+    </h4>
+</doc-anchor-target>
+<p>Yes, the cBioPortal provides a <a href="https://www.cbioportal.org/api/swagger-ui.html">Swagger API</a>, and <a href="../../web-api-and-clients/#r-client">R/MATLAB interfaces</a>.</p>
+<doc-anchor-target id="can-i-use-cbioportal-with-my-own-data">
+    <h4>
+        <doc-anchor-trigger class="header-anchor-trigger" to="#can-i-use-cbioportal-with-my-own-data">#</doc-anchor-trigger>
+        <span>Can I use cBioPortal with my own data?</span>
+    </h4>
+</doc-anchor-target>
+<p>cBioPortal provides several options for analyzing your own data. Visit our <a href="https://www.cbioportal.org/visualize">Visualize Your Data</a> page to generate an OncoPrint or Lollipop Plot with your own data. To utilize the entire suite of analysis and visualization tools, you can also install your own instance of cBioPortal (see next question).</p>
+<doc-anchor-target id="can-i-create-a-local-instance-of-cbioportal-to-host-my-own-data">
+    <h4>
+        <doc-anchor-trigger class="header-anchor-trigger" to="#can-i-create-a-local-instance-of-cbioportal-to-host-my-own-data">#</doc-anchor-trigger>
+        <span>Can I create a local instance of cBioPortal to host my own data?</span>
+    </h4>
+</doc-anchor-target>
+<p>Yes, the cBioPortal is open-source, and available on <a href="https://github.com/cBioPortal/cbioportal">GitHub</a>. Our <a href="../../">documentation</a> provides complete download and installation instructions.</p>
+<doc-anchor-target id="id-like-to-contribute-code-to-the-cbioportal-how-do-i-get-started">
+    <h4>
+        <doc-anchor-trigger class="header-anchor-trigger" to="#id-like-to-contribute-code-to-the-cbioportal-how-do-i-get-started">#</doc-anchor-trigger>
+        <span>I&#x27;d like to contribute code to the cBioPortal. How do I get started?</span>
+    </h4>
+</doc-anchor-target>
+<p>Great! We would love to have your contributions. To get started, head over to our GitHub repository and check out our page on <a href="https://github.com/cBioPortal/cbioportal/blob/master/CONTRIBUTING.md">how to contribute</a>.</p>
+<doc-anchor-target id="what-is-a-virtual-study">
+    <h4>
+        <doc-anchor-trigger class="header-anchor-trigger" to="#what-is-a-virtual-study">#</doc-anchor-trigger>
+        <span>What is a Virtual Study?</span>
+    </h4>
+</doc-anchor-target>
+<p>A virtual study is a custom study comprised of samples from one or more existing studies. The virtual study feature allows you to define a custom cohort of samples that fit your specific genomic or clinical criteria of interest. These samples can be a subset of the data available in an existing study, or result from the combination of multiple existing studies. This cohort of samples can then be queried or explored just like a traditional study, and can be returned to at a later date or shared with a collaborator. For more information and examples, see our <a href="https://www.cbioportal.org/tutorials">tutorial on virtual studies</a>.</p>
+<doc-anchor-target id="is-it-necessary-to-log-in-to-use-virtual-studies-if-i-do-log-in-what-additional-functionality-do-i-gain">
+    <h4>
+        <doc-anchor-trigger class="header-anchor-trigger" to="#is-it-necessary-to-log-in-to-use-virtual-studies-if-i-do-log-in-what-additional-functionality-do-i-gain">#</doc-anchor-trigger>
+        <span>Is it necessary to log in to use virtual studies? If I do log in, what additional functionality do I gain?</span>
+    </h4>
+</doc-anchor-target>
+<p>No. A user that has not logged in can create virtual studies and run queries in those studies (by using the query box on the study summary page). Links to virtual studies are permanent, so you can save the link on your computer and come back to it anytime, or share it with others.</p>
+<p>If you log in, you gain the ability to save your virtual study to the list of existing studies on the homepage. This makes a virtual study functionally the same as any other study: you can access your virtual studies in the query builder and you can combine an existing virtual study with any other study to create a new virtual study.</p>
+<doc-anchor-target id="what-is-group-comparison">
+    <h4>
+        <doc-anchor-trigger class="header-anchor-trigger" to="#what-is-group-comparison">#</doc-anchor-trigger>
+        <span>What is Group Comparison?</span>
+    </h4>
+</doc-anchor-target>
+<p>Group Comparison is a suite of analysis features which allows a user to compare clinical or genomic features of user-defined groups of samples. These groups can be defined based on any clinical or genomic features. For an overview, see <a href="https://www.cbioportal.org/tutorials">our tutorial on group comparison</a>.</p>
+<doc-anchor-target id="data-questions">
+    <h2>
+        <doc-anchor-trigger class="header-anchor-trigger" to="#data-questions">#</doc-anchor-trigger>
+        <span>Data Questions</span>
+    </h2>
+</doc-anchor-target>
+<doc-anchor-target id="general-data">
+    <h3>
+        <doc-anchor-trigger class="header-anchor-trigger" to="#general-data">#</doc-anchor-trigger>
+        <span>General Data</span>
+    </h3>
+</doc-anchor-target>
+<doc-anchor-target id="does-the-portal-contain-cancer-study-x">
+    <h4>
+        <doc-anchor-trigger class="header-anchor-trigger" to="#does-the-portal-contain-cancer-study-x">#</doc-anchor-trigger>
+        <span>Does the portal contain cancer study X?</span>
+    </h4>
+</doc-anchor-target>
+<p>Check out the <a href="https://www.cbioportal.org/datasets">Data Sets Page</a> for the complete set of cancer studies currently stored in the portal. If you do not see your specific cancer study of interest, please <a href="mailto:cbioportal@googlegroups.com">contact us</a>, and we will let you know if it&#x27;s in the queue.</p>
+<doc-anchor-target id="which-resources-are-integrated-for-variant-annotation">
+    <h4>
+        <doc-anchor-trigger class="header-anchor-trigger" to="#which-resources-are-integrated-for-variant-annotation">#</doc-anchor-trigger>
+        <span>Which resources are integrated for variant annotation?</span>
+    </h4>
+</doc-anchor-target>
+<p>cBioPortal supports the annotation of variants from several different databases. These databases provide information about the recurrence of, or prior knowledge about, specific amino acid changes. For each variant, the number of occurrences of mutations at the same amino acid position present in the COSMIC database are reported. Furthermore, variants are annotated as “hotspots” if the amino acid positions were found to be recurrent linear hotspots, as defined by the Cancer Hotspots method (<a href="https://www.cancerhotspots.org/">cancerhotspots.org</a>), or three-dimensional hotspots, as defined by 3D Hotspots (<a href="https://www.3dhotspots.org/">3dhotspots.org</a>). Prior knowledge about variants, including clinical actionability information, is provided from three different sources: OncoKB (<a href="https://www.oncokb.org/">www.oncokb.org</a>), CIViC (<a href="https://civicdb.org/">civicdb.org</a>), as well as My Cancer Genome (<a href="https://www.mycancergenome.org/">mycancergenome.org</a>). For OncoKB, exact levels of clinical actionability are displayed in cBioPortal, as defined by <a href="https://ascopubs.org/doi/full/10.1200/PO.17.00011">the OncoKB paper</a>.</p>
+<doc-anchor-target id="what-version-of-the-human-reference-genome-is-being-used-in-cbioportal">
+    <h4>
+        <doc-anchor-trigger class="header-anchor-trigger" to="#what-version-of-the-human-reference-genome-is-being-used-in-cbioportal">#</doc-anchor-trigger>
+        <span>What version of the human reference genome is being used in cBioPortal?</span>
+    </h4>
+</doc-anchor-target>
+<p>The <a href="https://www.cbioportal.org">public cBioPortal</a> is currently using hg19/GRCh37.</p>
+<doc-anchor-target id="how-does-cbioportal-handle-duplicate-samples-or-sample-ids-across-different-studies">
+    <h4>
+        <doc-anchor-trigger class="header-anchor-trigger" to="#how-does-cbioportal-handle-duplicate-samples-or-sample-ids-across-different-studies">#</doc-anchor-trigger>
+        <span>How does cBioPortal handle duplicate samples or sample IDs across different studies?</span>
+    </h4>
+</doc-anchor-target>
+<p>The cBioPortal generally assumes that samples or patients that have the same ID are actually the same. This is important for cross-cancer queries, where each sample should only be counted once. If a sample is part of multiple cancer cohorts, its alterations are only counted once in the Mutations tab (it will be listed multiple times in the table, but is only counted once in the lollipop plot). However, other tabs (including OncoPrint and Cancer Types Summary) will count the sample twice - for this reason, we advise against querying multiple studies that contain the same samples (e.g., TCGA PanCancer Atlas and TCGA Firehose Legacy).</p>
+<doc-anchor-target id="are-there-any-normal-tissue-samples-available-through-cbioportal">
+    <h4>
+        <doc-anchor-trigger class="header-anchor-trigger" to="#are-there-any-normal-tissue-samples-available-through-cbioportal">#</doc-anchor-trigger>
+        <span>Are there any normal tissue samples available through cBioPortal?</span>
+    </h4>
+</doc-anchor-target>
+<p>No, we currently do not store any normal tissue data in our system.</p>
+<doc-anchor-target id="how-can-i-find-which-studies-have-mrna-expression-data-or-any-other-specific-data-type">
+    <h4>
+        <doc-anchor-trigger class="header-anchor-trigger" to="#how-can-i-find-which-studies-have-mrna-expression-data-or-any-other-specific-data-type">#</doc-anchor-trigger>
+        <span>How can I find which studies have mRNA expression data (or any other specific data type)?</span>
+    </h4>
+</doc-anchor-target>
+<p>Check out the <a href="https://www.cbioportal.org/datasets">Data Sets Page</a> where you can view the complete set of cancer studies and sort by the number of samples with data available for any data type.</p>
+<doc-anchor-target id="can-i-download-all-data-at-once">
+    <h4>
+        <doc-anchor-trigger class="header-anchor-trigger" to="#can-i-download-all-data-at-once">#</doc-anchor-trigger>
+        <span>Can I download all data at once?</span>
+    </h4>
+</doc-anchor-target>
+<p>You can download all data for individual studies on the <a href="https://www.cbioportal.org/datasets">Data Sets Page</a> or the study view page for the study of interest. You can also download all studies from our <a href="https://github.com/cBioPortal/datahub">Data Hub</a>.</p>
+<doc-anchor-target id="the-data-today-is-different-than-the-last-time-i-looked-what-happened">
+    <h4>
+        <doc-anchor-trigger class="header-anchor-trigger" to="#the-data-today-is-different-than-the-last-time-i-looked-what-happened">#</doc-anchor-trigger>
+        <span>The data today is different than the last time I looked. What happened?</span>
+    </h4>
+</doc-anchor-target>
+<p>We do occasionally update existing datasets to provide the most up-to-date, accurate and consistent data possible. The data you see today is likely an improved version of what you have seen previously. However, if you suspect that there is an error in the current version, please let us know at <a href="mailto:cbioportal@googlegroups.com">cbioportal@googlegroups.com</a>.</p>
+<p>If you need to reference an old version of a dataset, you can find previous versions in our <a href="https://github.com/cBioPortal/datahub/tree/master/public">Datahub repository</a>.</p>
+<doc-anchor-target id="how-do-i-access-data-from-aacr-project-genie">
+    <h4>
+        <doc-anchor-trigger class="header-anchor-trigger" to="#how-do-i-access-data-from-aacr-project-genie">#</doc-anchor-trigger>
+        <span>How do I access data from AACR Project GENIE?</span>
+    </h4>
+</doc-anchor-target>
+<p>Data from AACR Project GENIE are provided in a <a href="https://www.cbioportal.org/genie/">dedicated instance of cBioPortal</a>. You can also download GENIE data from the <a href="https://synapse.org/genie">Synapse Platform</a>. Note that you will need to register before accessing the data. Additional information about AACR Project GENIE can be found on the <a href="https://www.aacr.org/Research/Research/Pages/aacr-project-genie.aspx">AACR website</a>.</p>
+<doc-anchor-target id="tcga">
+    <h3>
+        <doc-anchor-trigger class="header-anchor-trigger" to="#tcga">#</doc-anchor-trigger>
+        <span>TCGA</span>
+    </h3>
+</doc-anchor-target>
+<doc-anchor-target id="how-does-tcga-data-in-cbioportal-compare-to-tcga-data-in-genome-data-commons">
+    <h4>
+        <doc-anchor-trigger class="header-anchor-trigger" to="#how-does-tcga-data-in-cbioportal-compare-to-tcga-data-in-genome-data-commons">#</doc-anchor-trigger>
+        <span>How does TCGA data in cBioPortal compare to TCGA data in Genome Data Commons?</span>
+    </h4>
+</doc-anchor-target>
+<p>We do not currently load the mutation data from the GDC. Instead, we have the original mutation data generated by the individual TCGA sequencing centers. The source of the data is the Broad Firehose (or the publication pages for data that matches a specific manuscript). These data are usually a combination of two mutation callers, but they differ by center (typically a variant caller like MuTect plus an indel caller), and sequencing centers have modified their mutation calling pipelines over time.</p>
+<doc-anchor-target id="what-happened-to-tcga-provisional-datasets">
+    <h4>
+        <doc-anchor-trigger class="header-anchor-trigger" to="#what-happened-to-tcga-provisional-datasets">#</doc-anchor-trigger>
+        <span>What happened to TCGA Provisional datasets?</span>
+    </h4>
+</doc-anchor-target>
+<p>We renamed TCGA Provisional datasets to TCGA Firehose Legacy to better reflect that this data comes from a legacy processing pipeline. The exact same data is now available in TCGA Firehose Legacy studies.</p>
+<doc-anchor-target id="what-are-tcga-firehose-legacy-datasets-and-how-do-they-compare-to-the-publication-associated-datasets-and-the-pancancer-atlas-datasets">
+    <h4>
+        <doc-anchor-trigger class="header-anchor-trigger" to="#what-are-tcga-firehose-legacy-datasets-and-how-do-they-compare-to-the-publication-associated-datasets-and-the-pancancer-atlas-datasets">#</doc-anchor-trigger>
+        <span>What are TCGA Firehose Legacy datasets and how do they compare to the publication-associated datasets and the PanCancer Atlas datasets?</span>
+    </h4>
+</doc-anchor-target>
+<p>The Firehose Legacy dataset (formerly Provisional datasets) for each TCGA cancer type contains all data available from the Broad Firehose. The publication datasets reflect the data that were used for each of the publications. The samples in a published dataset are usually a subset of the firehose legacy dataset, since manuscripts were often written before TCGA completed their goal of sequencing 500 tumors.</p>
+<p>There can be differences between firehose legacy and published data. For example, the mutation data in the publication usually underwent more QC, and false positives might have been removed or, in rare cases, false negatives added. RNA-Seq and copy-number values may also differ slightly, as different versions of analysis pipelines could have been used. Additionally, due to additional curation during the publication process, the clinical data for the publication may be of higher quality or may contain a few more data elements, sometimes derived from the genomic data (e.g., genomic subtypes).</p>
+<p>The TCGA PanCancer Atlas datasets derive from an effort to unify TCGA data across all tumor types. Publications resulting from this effort can be found at the <a href="https://www.cell.com/pb-assets/consortium/pancanceratlas/pancani3/index.html">TCGA PanCancer Atlas site</a>. In the cBioPortal, data from the PanCancer Atlas is divided by tumor type, but these studies have uniform clinical elements, consistent processing and normalization of mutations, copy number, mRNA data and are ideally processed for comparative analyses.</p>
+<doc-anchor-target id="where-do-the-thresholded-copy-number-call-in-tcga-firehose-legacy-data-come-from">
+    <h4>
+        <doc-anchor-trigger class="header-anchor-trigger" to="#where-do-the-thresholded-copy-number-call-in-tcga-firehose-legacy-data-come-from">#</doc-anchor-trigger>
+        <span>Where do the thresholded copy number call in TCGA Firehose Legacy data come from?</span>
+    </h4>
+</doc-anchor-target>
+<p>Thresholded copy number calls in the TCGA Firehouse Legacy datasets are generated by the GISTIC 2.0 algorithm and obtained from the Broad Firehose.</p>
+<doc-anchor-target id="which-studies-have-mutsig-and-gistic-results-how-do-these-results-compare-to-the-data-in-the-tcga-publications">
+    <h4>
+        <doc-anchor-trigger class="header-anchor-trigger" to="#which-studies-have-mutsig-and-gistic-results-how-do-these-results-compare-to-the-data-in-the-tcga-publications">#</doc-anchor-trigger>
+        <span>Which studies have MutSig and GISTIC results? How do these results compare to the data in the TCGA publications?</span>
+    </h4>
+</doc-anchor-target>
+<p>MutSig and GISTIC results about the statistical significance of recurrence of mutations and copy-number alterations in specific genes are available for many TCGA studies. The MutSig and GISTIC results reported in cBioPortal are based on the same mutations and copy number data reported in each TCGA publication, or the Broad Firehose for the firehose legacy data sets. However, the publication may or may not have included the complete MutSig and GISTIC output, and therefore there may be some discrepancies between the publication and the data in cBioPortal.</p>
+<doc-anchor-target id="how-can-i-download-the-pancancer-atlas-data">
+    <h4>
+        <doc-anchor-trigger class="header-anchor-trigger" to="#how-can-i-download-the-pancancer-atlas-data">#</doc-anchor-trigger>
+        <span>How can I download the PanCancer Atlas data?</span>
+    </h4>
+</doc-anchor-target>
+<p>PanCancer Atlas data can be downloaded on a study-by-study basis from cBioPortal through the <a href="https://www.cbioportal.org/datasets">Datasets page</a> or our <a href="https://github.com/cBioPortal/datahub/tree/master/public">DataHub</a>. To download all cancer types together, try the <a href="https://gdc.cancer.gov/about-data/publications/pancanatlas">Genomic Data Commons PanCancer Atlas page</a>.</p>
+<doc-anchor-target id="dna-mutations-copy-number--fusions">
+    <h3>
+        <doc-anchor-trigger class="header-anchor-trigger" to="#dna-mutations-copy-number--fusions">#</doc-anchor-trigger>
+        <span>DNA (Mutations, Copy Number &amp; Fusions)</span>
+    </h3>
+</doc-anchor-target>
+<doc-anchor-target id="does-the-cbioportal-contain-synonymous-mutation-data">
+    <h4>
+        <doc-anchor-trigger class="header-anchor-trigger" to="#does-the-cbioportal-contain-synonymous-mutation-data">#</doc-anchor-trigger>
+        <span>Does the cBioPortal contain synonymous mutation data?</span>
+    </h4>
+</doc-anchor-target>
+<p>No, the cBioPortal does not currently support synonymous mutations. This may change in the future, but we have no plans yet to add this feature.</p>
+<doc-anchor-target id="what-processing-or-filtering-is-applied-to-generate-the-mutation-data">
+    <h4>
+        <doc-anchor-trigger class="header-anchor-trigger" to="#what-processing-or-filtering-is-applied-to-generate-the-mutation-data">#</doc-anchor-trigger>
+        <span>What processing or filtering is applied to generate the mutation data?</span>
+    </h4>
+</doc-anchor-target>
+<p>Within cBioPortal, we utilize the mutation calls as provided by each publication. We do not perform any additional filtering. The only processing we do is to standardize the annotation of the mutations using <a href="https://genomenexus.org">Genome Nexus</a> (which utilizes <a href="https://useast.ensembl.org/info/docs/tools/vep/index.html">VEP</a> with the <a href="https://github.com/mskcc/vcf2maf/blob/master/data/isoform_overrides_uniprot">canonical UniProt transcript</a>). For specifics of which tools were used to call mutations and filters that may have been applied, refer to the publication manuscript.</p>
+<doc-anchor-target id="what-transcripts-are-used-for-annotating-mutations">
+    <h4>
+        <doc-anchor-trigger class="header-anchor-trigger" to="#what-transcripts-are-used-for-annotating-mutations">#</doc-anchor-trigger>
+        <span>What transcripts are used for annotating mutations?</span>
+    </h4>
+</doc-anchor-target>
+<p>Prior to loading a study into cBioPortal, we run all mutation data through a standard pipeline (see above), which re-annotates all mutations to the <a href="https://github.com/mskcc/vcf2maf/blob/master/data/isoform_overrides_uniprot">canonical UniProt transcript</a>,</p>
+<doc-anchor-target id="how-are-protein-domains-in-the-mutational-lollipop-diagrams-specified">
+    <h4>
+        <doc-anchor-trigger class="header-anchor-trigger" to="#how-are-protein-domains-in-the-mutational-lollipop-diagrams-specified">#</doc-anchor-trigger>
+        <span>How are protein domains in the mutational lollipop diagrams specified?</span>
+    </h4>
+</doc-anchor-target>
+<p>Protein domain definitions come from <a href="https://pfam.xfam.org/">PFAM</a>.</p>
+<doc-anchor-target id="what-is-the-difference-between-a-splice-site-mutation-and-a-splice-region-mutation">
+    <h4>
+        <doc-anchor-trigger class="header-anchor-trigger" to="#what-is-the-difference-between-a-splice-site-mutation-and-a-splice-region-mutation">#</doc-anchor-trigger>
+        <span>What is the difference between a “splice site” mutation and a “splice region” mutation?</span>
+    </h4>
+</doc-anchor-target>
+<p>A “splice site” mutation occurs in an intron, in a splice acceptor or donor site (2bp into an intron adjacent to the intron/exon junction), defined by <a href="https://www.sequenceontology.org/browser/current_svn/term/SO:0001629">Sequence Ontology</a>. “Splice region” mutations are mutations that occur near the intron/exon junction, defined by <a href="https://www.sequenceontology.org/browser/current_svn/term/SO:0001630">Sequence Ontology</a>. While synonymous mutations are generally excluded from cBioPortal, these “splice region” synonymous mutations are included due to their potential impact on splicing.</p>
+<doc-anchor-target id="what-do-amplification-gain-deep-deletion-shallow-deletion-and--2--1-0-1-and-2-mean-in-the-copy-number-data">
+    <h4>
+        <doc-anchor-trigger class="header-anchor-trigger" to="#what-do-amplification-gain-deep-deletion-shallow-deletion-and--2--1-0-1-and-2-mean-in-the-copy-number-data">#</doc-anchor-trigger>
+        <span>What do “Amplification”, “Gain”, “Deep Deletion”, “Shallow Deletion” and &quot;-2&quot;, &quot;-1&quot;, &quot;0&quot;, &quot;1&quot;, and &quot;2&quot; mean in the copy-number data?</span>
+    </h4>
+</doc-anchor-target>
+<p>These levels are derived from copy-number analysis algorithms like GISTIC or RAE, and indicate the copy-number level per gene:</p>
+<ul>
+<li>-2 or Deep Deletion indicates a deep loss, possibly a homozygous deletion</li>
+<li>-1 or Shallow Deletion indicates a shallow loss, possibley a heterozygous deletion</li>
+<li>0 is diploid</li>
+<li>1 or Gain indicates a low-level gain (a few additional copies, often broad)</li>
+<li>2 or Amplification indicate a high-level amplification (more copies, often focal)</li>
+</ul>
+<p>Note that these calls are putative. We consider the deep deletions and amplifications as biologically relevant for individual genes by default. Note that these calls are usually not manually reviewed, and due to differences in purity and ploidy between samples, there may be false positives and false negatives.</p>
+<doc-anchor-target id="what-is-gistic-what-is-rae">
+    <h4>
+        <doc-anchor-trigger class="header-anchor-trigger" to="#what-is-gistic-what-is-rae">#</doc-anchor-trigger>
+        <span>What is GISTIC? What is RAE?</span>
+    </h4>
+</doc-anchor-target>
+<p>Copy number data sets within the portal are often generated by the <a href="https://www.ncbi.nlm.nih.gov/sites/entrez?term=18077431">GISTIC</a> or <a href="https://www.ncbi.nlm.nih.gov/sites/entrez?term=18784837">RAE</a> algorithms. Both algorithms attempt to identify significantly altered regions of amplification or deletion across sets of patients. Both algorithms also generate putative gene/patient copy number specific calls, which are then input into the portal.</p>
+<p>For TCGA studies, the table in allthresholded.bygenes.txt (which is the part of the GISTIC output that is used to determine the copy-number status of each gene in each sample in cBioPortal) is obtained by applying both low- and high-level thresholds to to the gene copy levels of all the samples. The entries with value +/- 2 exceed the high-level thresholds for amplifications/deep deletions, and those with +/- 1 exceed the low-level thresholds but not the high-level thresholds. The low-level thresholds are just the &#x27;ampthresh&#x27; and &#x27;delthresh&#x27; noise threshold input values to GISTIC (typically 0.1 or 0.3) and are the same for every thresholds.</p>
+<p>By contrast, the high-level thresholds are calculated on a sample-by-sample basis and are based on the maximum (or minimum) median arm-level amplification (or deletion) copy number found in the sample. The idea, for deletions anyway, is that this level is a good approximation for hemizygous losses given the purity and ploidy of the sample. The actual cutoffs used for each sample can be found in a table in the output file sample_cutoffs.txt. All GISTIC output files for TCGA are available at: gdac.broadinstitute.org.</p>
+<doc-anchor-target id="rna">
+    <h3>
+        <doc-anchor-trigger class="header-anchor-trigger" to="#rna">#</doc-anchor-trigger>
+        <span>RNA</span>
+    </h3>
+</doc-anchor-target>
+<doc-anchor-target id="does-the-portal-store-raw-or-probe-level-data">
+    <h4>
+        <doc-anchor-trigger class="header-anchor-trigger" to="#does-the-portal-store-raw-or-probe-level-data">#</doc-anchor-trigger>
+        <span>Does the portal store raw or probe-level data?</span>
+    </h4>
+</doc-anchor-target>
+<p>No, the portal only contains gene-level data. Data for different isoforms of a given gene are merged. Raw and probe-level data for data sets are available via <a href="https://www.ncbi.nlm.nih.gov/geo/">NCBI GEO</a>, <a href="https://www.ncbi.nlm.nih.gov/gap/">dbGaP</a> or through the <a href="https://portal.gdc.cancer.gov/">GDC</a>. See the cancer type description on the main query page or refer to the original publication for links to the raw data.</p>
+<doc-anchor-target id="what-are-mrna-and-microrna-z-scores">
+    <h4>
+        <doc-anchor-trigger class="header-anchor-trigger" to="#what-are-mrna-and-microrna-z-scores">#</doc-anchor-trigger>
+        <span>What are mRNA and microRNA Z-Scores?</span>
+    </h4>
+</doc-anchor-target>
+<p>For mRNA and microRNA expression data, we typically compute the relative expression of an individual gene in a tumor sample to the gene&#x27;s expression distribution in a reference population of samples. That reference population is all profiled samples (by default for mRNA), or normal samples (when specified), or all samples that are diploid for the gene in question (discontinued).  The returned value indicates the number of standard deviations away from the mean of expression in the reference population (Z-score). The normalization method is described <a href="https://github.com/cBioPortal/cbioportal/blob/master/docs/Z-Score-normalization-script.md">here</a>. Please note that the expression results by querying a gene with the default setting (z-score threshold of 2) oftentimes are not meaningful. Since the z-scores were usually calculated compared to other tumor samples, high or low expression does not necessarily mean that the gene is expressed irregularly in tumors. The data is useful for correlation analysis, for example, pick a threshold based on overall expression (using Plots tab) and compare survival data between expression high and low groups.</p>
+<doc-anchor-target id="is-there-any-normal-rna-seq-data-in-cbioportal">
+    <h4>
+        <doc-anchor-trigger class="header-anchor-trigger" to="#is-there-any-normal-rna-seq-data-in-cbioportal">#</doc-anchor-trigger>
+        <span>Is there any normal RNA-seq data in cBioPortal?</span>
+    </h4>
+</doc-anchor-target>
+<p>We have RNASeqV2 mRNA expression data for normal samples of 16 TCGA PanCan Atlas Cohorts. The data was curated from <a href="https://gdc.cancer.gov/about-data/publications/pancanatlas">GDC</a>, and can be downloaded from our <a href="https://github.com/cBioPortal/datahub">Datahub</a> or <a href="https://www.cbioportal.org/datasets">Data Set</a> page. This data is not directly queriable in portal; they are only used as reference data for calculating the &quot;relavtive to normal expression z-score&quot; profile. <a href="https://www.cbioportal.org/results/plots?Action=Submit&amp;RPPA_SCORE_THRESHOLD=2.0&amp;Z_SCORE_THRESHOLD=2.0&amp;cancer_study_list=laml_tcga_pan_can_atlas_2018%2Cacc_tcga_pan_can_atlas_2018%2Cblca_tcga_pan_can_atlas_2018%2Clgg_tcga_pan_can_atlas_2018%2Cbrca_tcga_pan_can_atlas_2018%2Ccesc_tcga_pan_can_atlas_2018%2Cchol_tcga_pan_can_atlas_2018%2Ccoadread_tcga_pan_can_atlas_2018%2Cdlbc_tcga_pan_can_atlas_2018%2Cesca_tcga_pan_can_atlas_2018%2Cgbm_tcga_pan_can_atlas_2018%2Chnsc_tcga_pan_can_atlas_2018%2Ckich_tcga_pan_can_atlas_2018%2Ckirc_tcga_pan_can_atlas_2018%2Ckirp_tcga_pan_can_atlas_2018%2Clihc_tcga_pan_can_atlas_2018%2Cluad_tcga_pan_can_atlas_2018%2Clusc_tcga_pan_can_atlas_2018%2Cmeso_tcga_pan_can_atlas_2018%2Cov_tcga_pan_can_atlas_2018%2Cpaad_tcga_pan_can_atlas_2018%2Cpcpg_tcga_pan_can_atlas_2018%2Cprad_tcga_pan_can_atlas_2018%2Csarc_tcga_pan_can_atlas_2018%2Cskcm_tcga_pan_can_atlas_2018%2Cstad_tcga_pan_can_atlas_2018%2Ctgct_tcga_pan_can_atlas_2018%2Cthym_tcga_pan_can_atlas_2018%2Cthca_tcga_pan_can_atlas_2018%2Cucs_tcga_pan_can_atlas_2018%2Cucec_tcga_pan_can_atlas_2018%2Cuvm_tcga_pan_can_atlas_2018&amp;case_set_id=all&amp;data_priority=0&amp;gene_list=ERBB2&amp;geneset_list=%20&amp;plots_coloring_selection=%7B%22colorByCopyNumber%22%3A%22true%22%7D&amp;plots_horz_selection=%7B%22dataType%22%3A%22clinical_attribute%22%2C%22selectedDataSourceOption%22%3A%22CANCER_STUDY%22%7D&amp;plots_vert_selection=%7B%22selectedGeneOption%22%3A2064%2C%22dataType%22%3A%22MRNA_EXPRESSION%22%2C%22selectedDataSourceOption%22%3A%22rna_seq_v2_mrna_median_all_sample_ref_normal_Zscores%22%2C%22logScale%22%3A%22true%22%7D&amp;profileFilter=0&amp;tab_index=tab_visualize">Example: ERBB2 expression z-scores relative to normal expression</a>.</p>
+<doc-anchor-target id="how-is-tcga-rnaseqv2-processed-what-units-are-used">
+    <h4>
+        <doc-anchor-trigger class="header-anchor-trigger" to="#how-is-tcga-rnaseqv2-processed-what-units-are-used">#</doc-anchor-trigger>
+        <span>How is TCGA RNASeqV2 processed? What units are used?</span>
+    </h4>
+</doc-anchor-target>
+<p>RNASeqV2 from TCGA is processed and normalized using <a href="https://bmcbioinformatics.biomedcentral.com/articles/10.1186/1471-2105-12-323">RSEM</a>. Specifically, the RNASeq V2 data in cBioPortal corresponds to the rsem.genes.normalized_results file from TCGA. A more detailed explanation of RSEM output can be found <a href="https://www.biostars.org/p/106127/">here</a>. cBioPortal then calculates z-scores as described above in <doc-anchor-trigger to="#what-are-mrna-and-microrna-z-scores">What are mRNA and microRNA Z-Scores?</doc-anchor-trigger></p>
+<doc-anchor-target id="is-there-microrna-data">
+    <h4>
+        <doc-anchor-trigger class="header-anchor-trigger" to="#is-there-microrna-data">#</doc-anchor-trigger>
+        <span>Is there microRNA data?</span>
+    </h4>
+</doc-anchor-target>
+<p>We have microRNA data for only a few studies and they are not up to date. To download more updated miRNA data, please go to either <a href="https://gdac.broadinstitute.org/">Broad Firehose</a>, or <a href="https://portal.gdc.cancer.gov/">GDC</a>.</p>
+<doc-anchor-target id="how-can-i-query-micrornas-in-the-portal">
+    <h4>
+        <doc-anchor-trigger class="header-anchor-trigger" to="#how-can-i-query-micrornas-in-the-portal">#</doc-anchor-trigger>
+        <span>How can I query microRNAs in the portal?</span>
+    </h4>
+</doc-anchor-target>
+<p>You can input either precursor or mature miRNA IDs. Since one precursor ID may correspond to multiple mature IDs and vise versa, the portal creates one internal ID for each pair of precursor ID and mature ID mapping. For example, an internal ID of MIR-29B-1/29B stands for precursor microRNA hsa-mir-29b-1 and mature microRNA hsa-miR-29b. After entering a precursor or mature ID, you will be asked to select one internal ID for query and that internal ID will also be displayed in the Oncoprint.</p>
+<doc-anchor-target id="protein">
+    <h3>
+        <doc-anchor-trigger class="header-anchor-trigger" to="#protein">#</doc-anchor-trigger>
+        <span>Protein</span>
+    </h3>
+</doc-anchor-target>
+<doc-anchor-target id="how-can-i-query-phosphoprotein-levels-in-the-portal">
+    <h4>
+        <doc-anchor-trigger class="header-anchor-trigger" to="#how-can-i-query-phosphoprotein-levels-in-the-portal">#</doc-anchor-trigger>
+        <span>How can I query phosphoprotein levels in the portal?</span>
+    </h4>
+</doc-anchor-target>
+<p>You need to input special IDs for each phosphoprotein/phopshosite such as AKT1_pS473 (which means AKT1 protein phosphorylated at serine residue at position 473). You could also input aliases such as phosphoAKT1 or phosphoprotein, and the portal will ask you to select the phosphoprotein/phosphosite of your interest. Note that phosphoprotein data is only available for select studies and for a limited number of proteins / phosphorylation sites.</p>
+<doc-anchor-target id="why-isnt-there-protein-data-for-my-gene-of-interest">
+    <h4>
+        <doc-anchor-trigger class="header-anchor-trigger" to="#why-isnt-there-protein-data-for-my-gene-of-interest">#</doc-anchor-trigger>
+        <span>Why isn’t there protein data for my gene of interest?</span>
+    </h4>
+</doc-anchor-target>
+<p>Most of the protein expression data in cBioPortal comes from assays like RPPA which only interrogate a subset of all proteins. TCGA ovarian, breast, and colorectal firehose legacy studies also have mass-spectrometry-based proteomics data from <a href="https://proteomics.cancer.gov/programs/cptac">CPTAC</a> which cover more genes/proteins.</p>
+<doc-anchor-target id="dna-methylation">
+    <h3>
+        <doc-anchor-trigger class="header-anchor-trigger" to="#dna-methylation">#</doc-anchor-trigger>
+        <span>DNA Methylation</span>
+    </h3>
+</doc-anchor-target>
+<doc-anchor-target id="which-methylation-probe-is-used-for-genes-with-multiple-probes">
+    <h4>
+        <doc-anchor-trigger class="header-anchor-trigger" to="#which-methylation-probe-is-used-for-genes-with-multiple-probes">#</doc-anchor-trigger>
+        <span>Which methylation probe is used for genes with multiple probes?</span>
+    </h4>
+</doc-anchor-target>
+<p>For genes with multiple probes (usually from the Infinium arrays), we only include methylation data from the probe with the strongest negative correlation between the methylation signal and the gene&#x27;s expression in the study (TCGA only).</p>
+<doc-anchor-target id="clinical-data">
+    <h3>
+        <doc-anchor-trigger class="header-anchor-trigger" to="#clinical-data">#</doc-anchor-trigger>
+        <span>Clinical Data</span>
+    </h3>
+</doc-anchor-target>
+<doc-anchor-target id="what-kind-of-clinical-data-is-stored-in-the-portal">
+    <h4>
+        <doc-anchor-trigger class="header-anchor-trigger" to="#what-kind-of-clinical-data-is-stored-in-the-portal">#</doc-anchor-trigger>
+        <span>What kind of clinical data is stored in the portal?</span>
+    </h4>
+</doc-anchor-target>
+<p>The portal currently stores de-identified clinical data, such as gender, age, tumor type, tumor grade, overall and disease-free survival data, when available. The available clinical data will differ from study to study.</p>
+<doc-anchor-target id="what-is-the-meaning-of-os_status--os_months-and-pfs_status--pfs_months">
+    <h4>
+        <doc-anchor-trigger class="header-anchor-trigger" to="#what-is-the-meaning-of-os_status--os_months-and-pfs_status--pfs_months">#</doc-anchor-trigger>
+        <span>What is the meaning of OS_STATUS / OS_MONTHS, and PFS_STATUS / PFS_MONTHS?</span>
+    </h4>
+</doc-anchor-target>
+<p>OS_STATUS means overall survival status (&quot;0&quot; -&gt; &quot;living&quot; or &quot;1&quot; -&gt; &quot;deceased&quot;) and OS_MONTHS indicates the number of months from time of diagnosis to time of death or last follow up. PFS refers to “progression free survival”, indicating whether patient’s disease has recurred/progressed (PFS_STATUS), and at what time the disease recurred or the patient was last seen (PFS_MONTHS).</p>
+<doc-anchor-target id="analysis-questions">
+    <h2>
+        <doc-anchor-trigger class="header-anchor-trigger" to="#analysis-questions">#</doc-anchor-trigger>
+        <span>Analysis Questions</span>
+    </h2>
+</doc-anchor-target>
+<doc-anchor-target id="how-can-i-queryexplore-a-select-subset-of-samples">
+    <h4>
+        <doc-anchor-trigger class="header-anchor-trigger" to="#how-can-i-queryexplore-a-select-subset-of-samples">#</doc-anchor-trigger>
+        <span>How can I query/explore a select subset of samples?</span>
+    </h4>
+</doc-anchor-target>
+<p>cBioPortal allows you to run a query or explore study view using a user-specified list of samples/patients.</p>
+<p>The first step is to define your sample set. There are two slightly different approaches you can take to defining your sample set, depending on whether you are selecting based on a positive criteria (samples with TP53 mutations) or a negative criteria (samples without a KRAS mutation).</p>
+<p>Let’s take the positive criteria example first. Run a query for TP53 mutations using OQL (TP53: MUT) in your study of interest. Click over to the “Download” tab. In the table at the top, find the row that starts with “Samples affected”, and either Copy or Download that list. This is your list of samples that have a TP53 mutation.</p>
+<p>Now for the negative criteria example. This also begins by using OQL to run a query for KRAS mutations (KRAS: MUT) in your study of interest. Click over to the “Download” tab. Look at the table at the top again, but this time find the row that starts with “Sample matrix”. Copy or download this data and open it in Excel. You will see a two column table that indicates whether a given sample is altered or not, indicated by 0 or 1. Sort by the second column and then copy all the sample IDs from the first column that have a 0 in the second column. This is your list of samples that do not have a KRAS mutation.</p>
+<p>With a sample list in hand, you can now either run a query in just the selected samples (select “User-defined Case List” in the “Select Patient/Case Set:” dropdown) or explore this set of patients in study view (click “Select cases by IDs” and then create a Virtual Study restricted to just those samples).</p>
+<p>For more information about OQL, see the <a href="../oql/">specification page</a> or view the <a href="https://www.cbioportal.org/tutorials#oql">tutorial slides</a>. For more information about virtual studies, read <doc-anchor-trigger to="#what-is-a-virtual-study">this FAQ</doc-anchor-trigger> or view the <a href="https://www.cbioportal.org/tutorials">tutorial slides</a>.</p>
+<doc-anchor-target id="how-can-i-compare-two-or-more-subsets-of-samples">
+    <h4>
+        <doc-anchor-trigger class="header-anchor-trigger" to="#how-can-i-compare-two-or-more-subsets-of-samples">#</doc-anchor-trigger>
+        <span>How can I compare two or more subsets of samples?</span>
+    </h4>
+</doc-anchor-target>
+<p>cBioPortal has a suite of analysis tools to enable comparisons between user-defined groups of samples/patients. For an overview of this functionality, see our <a href="https://www.cbioportal.org/tutorials">tutorial on group comparison</a>.</p>
+<doc-anchor-target id="is-it-possible-to-determine-if-a-particular-mutation-is-heterozygous-or-homozygous-in-a-sample-when-a-sample-has-2-mutations-in-one-gene-is-it-possible-to-determine-whether-the-mutations-are-in-cis-or-in-trans-with-each-other">
+    <h4>
+        <doc-anchor-trigger class="header-anchor-trigger" to="#is-it-possible-to-determine-if-a-particular-mutation-is-heterozygous-or-homozygous-in-a-sample-when-a-sample-has-2-mutations-in-one-gene-is-it-possible-to-determine-whether-the-mutations-are-in-cis-or-in-trans-with-each-other">#</doc-anchor-trigger>
+        <span>Is it possible to determine if a particular mutation is heterozygous or homozygous in a sample? When a sample has 2 mutations in one gene, is it possible to determine whether the mutations are in cis or in trans with each other?</span>
+    </h4>
+</doc-anchor-target>
+<p>There is currently no way to definitively determine whether a mutation is heterozygous/homozygous or in cis/trans with another mutation. However, you can try to infer the status of mutations by noting the copy number status of the gene and the variant allele frequency of the mutation(s) of interest relative to other mutations in the same sample. The cBioPortal patient/sample view can help you accomplish this.</p>
+<p>Specifically in the case of TCGA samples with two mutations in the same gene, you can also obtain access to the aligned sequencing reads from the <a href="https://portal.gdc.cancer.gov/">GDC</a> and check if the mutations are in cis or in trans (if the mutations are close enough to each other).</p>
+<doc-anchor-target id="how-can-i-query-overunder-expression-of-a-gene">
+    <h4>
+        <doc-anchor-trigger class="header-anchor-trigger" to="#how-can-i-query-overunder-expression-of-a-gene">#</doc-anchor-trigger>
+        <span>How can I query over/under expression of a gene?</span>
+    </h4>
+</doc-anchor-target>
+<p>cBioPortal supports Onco Query Language (OQL) which can be used to query over/under expression of a gene. When writing a query, select an mRNA expression profile. By default, samples with expression z-scores &gt;2 or &lt;-2 in any queried genes are considered altered. Alternate cut-offs can be defined using OQL, for example: &quot;EGFR: EXP&gt;2&quot; will query for samples with an EGFR expression z-score &gt;2. Review for the OQL <a href="../oql/">specification page</a> or <a href="https://www.cbioportal.org/tutorials#oql">tutorial slides</a> for more specifics and examples.</p>
+<doc-anchor-target id="how-can-i-compare-outcomes-in-patients-with-high-vs-low-expression-of-a-gene">
+    <h4>
+        <doc-anchor-trigger class="header-anchor-trigger" to="#how-can-i-compare-outcomes-in-patients-with-high-vs-low-expression-of-a-gene">#</doc-anchor-trigger>
+        <span>How can I compare outcomes in patients with high vs low expression of a gene?</span>
+    </h4>
+</doc-anchor-target>
+<p>To compare outcomes in patients with high vs low expression of a gene (excluding those patients with intermediate levels of expression), we will follow a 2 step process that builds on the approach described above in <doc-anchor-trigger to="#how-can-i-queryexplore-a-select-subset-of-samples">How can I query/explore a select subset of samples?</doc-anchor-trigger>, utilizing <a href="../oql/">OQL</a> to first identify and then stratify that cases of interest.</p>
+<p>First, identify the sample set using OQL. For example, to stratify patients based on expression of EGFR, add an mRNA profile to the query, and write &quot;EGFR: EXP&gt;2 EXP&lt;-2&quot; in the gene set box. After running the query, go to the Download tab and copy/download the “Samples affected” list.</p>
+<p>Second, return to the homepage and paste the list of sample IDs from the previous step into the “User-defined Case List” in the “Select Patient/Case Set:” dropdown. This query will now only look at samples with high or low expression. To now stratify into high vs low for survival analysis, enter &quot;EGFR: EXP&gt;2&quot; in the gene set box (don’t forget to select the same mRNA profile). Run the query and click over to the Survival tab. The “cases with alteration” are patients with high expression of EGFR and the cases without alteration are those with low expression of EGFR.</p>
+<p>We use 2 and -2 as example thresholds above, but it is also a good idea to look at the distribution of expression data and select a threshold based on that. Plots tab can be useful for analyzing the expression distribution.</p>
+<doc-anchor-target id="results-view">
+    <h2>
+        <doc-anchor-trigger class="header-anchor-trigger" to="#results-view">#</doc-anchor-trigger>
+        <span>Results View</span>
+    </h2>
+</doc-anchor-target>
+<doc-anchor-target id="oncoprint">
+    <h3>
+        <doc-anchor-trigger class="header-anchor-trigger" to="#oncoprint">#</doc-anchor-trigger>
+        <span>OncoPrint</span>
+    </h3>
+</doc-anchor-target>
+<doc-anchor-target id="what-are-oncoprints">
+    <h4>
+        <doc-anchor-trigger class="header-anchor-trigger" to="#what-are-oncoprints">#</doc-anchor-trigger>
+        <span>What are OncoPrints?</span>
+    </h4>
+</doc-anchor-target>
+<p>OncoPrints are compact means of visualizing distinct genomic alterations, including somatic mutations, copy number alterations, and mRNA expression changes across a set of cases. They are extremely useful for visualizing gene set and pathway alterations across a set of cases, and for visually identifying trends, such as trends in mutual exclusivity or co-occurrence between gene pairs within a gene set. Individual genes are represented as rows, and individual cases or patients are represented as columns.</p>
+<p><figure class="content-center">
+    <img src="https://cloud.githubusercontent.com/assets/840895/24209131/d34e33b2-0efb-11e7-945a-fd2b3c66d195.png" alt="image" />
+    <figcaption class="caption">image</figcaption>
+</figure>
+</p>
+<doc-anchor-target id="can-i-change-the-order-of-genes-in-the-oncoprint">
+    <h4>
+        <doc-anchor-trigger class="header-anchor-trigger" to="#can-i-change-the-order-of-genes-in-the-oncoprint">#</doc-anchor-trigger>
+        <span>Can I change the order of genes in the OncoPrint?</span>
+    </h4>
+</doc-anchor-target>
+<p>By default, the order of genes in the OncoPrint will be the same as in your query. You can change the order by (a) clicking on the gene name and dragging it up/down or (b) clicking on the three vertical dots next to the gene name to move the gene up/down.</p>
+<doc-anchor-target id="can-i-visualize-my-own-data-within-an-oncoprint">
+    <h4>
+        <doc-anchor-trigger class="header-anchor-trigger" to="#can-i-visualize-my-own-data-within-an-oncoprint">#</doc-anchor-trigger>
+        <span>Can I visualize my own data within an OncoPrint?</span>
+    </h4>
+</doc-anchor-target>
+<p>Yes, check out the OncoPrinter tool on our <a href="https://www.cbioportal.org/visualize">Visualize Your Data page</a>.</p>
+<doc-anchor-target id="why-are-some-samples-not-profiled-for-certain-genes">
+    <h4>
+        <doc-anchor-trigger class="header-anchor-trigger" to="#why-are-some-samples-not-profiled-for-certain-genes">#</doc-anchor-trigger>
+        <span>Why are some samples “Not profiled” for certain genes?</span>
+    </h4>
+</doc-anchor-target>
+<p>Some studies include data from one or more targeted sequencing platforms which do not include all genes. For samples sequenced on these smaller panels, cBioPortal will indicate that a particular gene was not included on the sequencing panel used for that sample. Alteration frequency calculations for each gene also take this information into account. Hover over a sample in OncoPrint to see the gene panel name, and click on that gene panel name to view a list of the genes included on that panel.</p>
+<doc-anchor-target id="other-pages">
+    <h3>
+        <doc-anchor-trigger class="header-anchor-trigger" to="#other-pages">#</doc-anchor-trigger>
+        <span>Other pages</span>
+    </h3>
+</doc-anchor-target>
+<doc-anchor-target id="does-the-mutual-exclusivity-tab-calculate-its-statistics-using-all-samplesalterations-or-only-a-specific-subset">
+    <h4>
+        <doc-anchor-trigger class="header-anchor-trigger" to="#does-the-mutual-exclusivity-tab-calculate-its-statistics-using-all-samplesalterations-or-only-a-specific-subset">#</doc-anchor-trigger>
+        <span>Does the Mutual Exclusivity tab calculate its statistics using all samples/alterations or only a specific subset?</span>
+    </h4>
+</doc-anchor-target>
+<p>The calculations on the Mutual Exclusivity tab are performed using all samples included in the query. A sample is defined as altered or unaltered for each gene based on the <a href="../oql/">OQL</a> utilized in the query - by default, this will be non-synonymous mutations, fusions, amplifications and deep deletions.</p>
+<doc-anchor-target id="what-are-the-values-of-the-box-and-whiskers-in-a-boxplot">
+    <h4>
+        <doc-anchor-trigger class="header-anchor-trigger" to="#what-are-the-values-of-the-box-and-whiskers-in-a-boxplot">#</doc-anchor-trigger>
+        <span>What are the values of the box and whiskers in a boxplot?</span>
+    </h4>
+</doc-anchor-target>
+<p>In boxplots on cBioPortal, the box is drawn from the 25th percentile (Q1) to the 75th percentile (Q3), with the horizontal line in between representing the median. Whiskers are drawn independently above and below the box, and will extend to the maximum or minimum data values, unless there are outlier values, in which case the whisker will extend to 1.5 * IQR (interquartile range = Q3-Q1). Outliers are defined as values that extend beyond 1.5 * IQR.</p>
+<doc-anchor-target id="study-view">
+    <h2>
+        <doc-anchor-trigger class="header-anchor-trigger" to="#study-view">#</doc-anchor-trigger>
+        <span>Study View</span>
+    </h2>
+</doc-anchor-target>
+<doc-anchor-target id="how-to-use-filter-in-the-url-of-study-view-page">
+    <h3>
+        <doc-anchor-trigger class="header-anchor-trigger" to="#how-to-use-filter-in-the-url-of-study-view-page">#</doc-anchor-trigger>
+        <span>How to use filter in the URL of Study View page?</span>
+    </h3>
+</doc-anchor-target>
+<p>You can filter the study based on values of one attribute in the URL. For example, <a href="https://www.cbioportal.org/study/summary?id=msk_impact_2017#filterJson=%7B%22clinicalDataFilters%22:%5B%7B%22attributeId%22:%22CANCER_TYPE%22,%22values%22:%5B%7B%22value%22:%22Melanoma%22%7D%5D%7D%5D%7D">https://www.cbioportal.org/study/summary?id=msk_impact_2017#filterJson={&quot;clinicalDataFilters&quot;:[{&quot;attributeId&quot;:&quot;CANCER_TYPE&quot;,&quot;values&quot;:[{&quot;value&quot;:&quot;Melanoma&quot;}]}]}</a></p>
+<p>filterJson is set in the url hash string. Here are the allowed parameters and format for it in filterJson:</p>
+<div class="codeblock-wrapper"><doc-codeblock>
+<pre class="language-none"><code v-pre class="language-none">{
+	&quot;caseLists&quot;: [
+		[&quot;string&quot;]
+	],
+	&quot;clinicalDataFilters&quot;: [{
+		&quot;attributeId&quot;: &quot;string&quot;,
+		&quot;values&quot;: [{
+			&quot;end&quot;: 0,
+			&quot;start&quot;: 0,
+			&quot;value&quot;: &quot;string&quot;
+		}]
+	}],
+	&quot;geneFilters&quot;: [{
+		&quot;geneQueries&quot;: [
+			[&quot;string&quot;]
+		],
+		&quot;molecularProfileIds&quot;: [&quot;string&quot;]
+	}],
+	&quot;genomicDataFilters&quot;: [{
+		&quot;hugoGeneSymbol&quot;: &quot;string&quot;,
+		&quot;profileType&quot;: &quot;string&quot;,
+		&quot;values&quot;: [{
+			&quot;end&quot;: 0,
+			&quot;start&quot;: 0,
+			&quot;value&quot;: &quot;string&quot;
+		}]
+	}],
+	&quot;genomicProfiles&quot;: [
+		[&quot;string&quot;]
+	],
+	&quot;sampleIdentifiers&quot;: [{
+		&quot;sampleId&quot;: &quot;string&quot;,
+		&quot;studyId&quot;: &quot;string&quot;
+	}],
+	&quot;studyIds&quot;: [&quot;string&quot;]
+}</code></pre>
+</doc-codeblock></div>
+<doc-anchor-target id="what-if-i-have-other-questions-or-comments">
+    <h2>
+        <doc-anchor-trigger class="header-anchor-trigger" to="#what-if-i-have-other-questions-or-comments">#</doc-anchor-trigger>
+        <span>What if I have other questions or comments?</span>
+    </h2>
+</doc-anchor-target>
+<p>Please contact us at <a href="mailto:cbioportal@googlegroups.com">cbioportal@googlegroups.com</a>. Previous discussions about cBioPortal are available on the <a href="https://groups.google.com/group/cbioportal">user discussion mailing list</a>.</p>
+
+                                
+                                <!-- Required only on API pages -->
+                                <doc-toolbar-member-filter-no-results />
+                            </div>
+                            <footer class="clear-both">
+                                <div class="flex flex-wrap items-center justify-between mt-14">
+                                    <a class="my-2.5 inline-flex items-center text-sm whitespace-nowrap text-blue-500 dark:text-blue-400 hover:text-blue-700 hover:underline" href="https://github.com/cbioportal/documentation/blob/main/user-guide/faq.md" target="_blank" rel="noopener">
+                                        <svg class="mr-1.5" xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="currentColor" overflow="visible"><path d="M20 12c-.55 0-1 .45-1 1v7c0 .55-.45 1-1 1H4c-.55 0-1-.45-1-1V6c0-.55.45-1 1-1h7c.55 0 1-.45 1-1s-.45-1-1-1H4C2.35 3 1 4.35 1 6v14c0 1.65 1.35 3 3 3h14c1.65 0 3-1.35 3-3v-7c0-.55-.45-1-1-1z" /><path d="M22.21 1.79c-1.18-1.18-3.24-1.18-4.41 0l-9.5 9.5c-.13.13-.22.29-.26.46l-1 4c-.08.34.01.7.26.95.18.2.44.3.7.3.08 0 .16-.01.24-.03l4-1c.18-.04.34-.13.46-.26l9.5-9.5c1.22-1.22 1.22-3.2.01-4.42zm-1.42 3l-9.3 9.3-2.11.53.53-2.11 9.3-9.3c.42-.42 1.16-.42 1.59 0 .43.43.43 1.15-.01 1.58z" /><path fill="none" d="M0 0h24v24H0z" /></svg>
+                                        <span>Edit this page</span>
+                                    </a>
+                                </div>
+                            
+                                <nav class="flex mt-14">
+                                    <div class="w-1/2">
+                                        <a class="px-5 py-4 h-full flex items-center break-normal font-medium text-blue-500 dark:text-blue-400 border border-gray-300 hover:border-gray-400 dark:border-dark-650 dark:hover:border-dark-450 rounded-l-lg transition-colors duration-150 relative hover:z-5" href="../../user-guide/">
+                                            <svg xmlns="http://www.w3.org/2000/svg" class="mr-3" width="24" height="24" viewBox="0 0 24 24" fill="currentColor" overflow="visible"><path d="M19 11H7.41l5.29-5.29a.996.996 0 10-1.41-1.41l-7 7a1 1 0 000 1.42l7 7a1.024 1.024 0 001.42-.01.996.996 0 000-1.41L7.41 13H19c.55 0 1-.45 1-1s-.45-1-1-1z" /><path fill="none" d="M0 0h24v24H0z" /></svg>
+                                            <span>
+                                                <span class="block text-xs font-normal text-gray-400 dark:text-dark-400">Previous</span>
+                                                <span class="block mt-1">User Guide</span>
+                                            </span>
+                                        </a>
+                                    </div>
+                            
+                                    <div class="w-1/2">
+                                        <a class="px-5 py-4 -mx-px h-full flex items-center justify-end break-normal font-medium text-blue-500 dark:text-blue-400 border border-gray-300 hover:border-gray-400 dark:border-dark-650 dark:hover:border-dark-450 rounded-r-lg transition-colors duration-150 relative hover:z-5" href="../../user-guide/overview/">
+                                            <span>
+                                                <span class="block text-xs font-normal text-right text-gray-400 dark:text-dark-400">Next</span>
+                                                <span class="block mt-1">Overview</span>
+                                            </span>
+                                            <svg xmlns="http://www.w3.org/2000/svg" class="ml-3" width="24" height="24" viewBox="0 0 24 24" fill="currentColor" overflow="visible"><path d="M19.92 12.38a1 1 0 00-.22-1.09l-7-7a.996.996 0 10-1.41 1.41l5.3 5.3H5c-.55 0-1 .45-1 1s.45 1 1 1h11.59l-5.29 5.29a.996.996 0 000 1.41c.19.2.44.3.7.3s.51-.1.71-.29l7-7c.09-.09.16-.21.21-.33z" /><path fill="none" d="M0 0h24v24H0z" /></svg>
+                                        </a>
+                                    </div>
+                                </nav>
+                            </footer>
+                        </main>
+                
+                        <div class="border-t dark:border-dark-650 pt-6 mb-8">
+                            <footer class="flex flex-wrap items-center justify-between">
+                                <div>
+                                    <ul class="flex flex-wrap items-center text-sm">
+                                    </ul>
+                                </div>
+                                <div class="docs-copyright py-2 text-gray-500 dark:text-dark-350 text-sm leading-relaxed"><p>© Copyright 2022. All rights reserved.</p></div>
+                            </footer>
+                        </div>
+                    </div>
+                
+                    <!-- Rendered if sidebar right is enabled -->
+                    <!-- Sidebar right skeleton-->
+                    <div v-cloak class="fixed top-0 bottom-0 right-0 translate-x-full bg-white border-gray-200 lg:sticky lg:border-l lg:shrink-0 lg:pt-6 lg:transform-none sm:w-1/2 lg:w-64 lg:z-0 md:w-104 sidebar-right skeleton dark:bg-dark-850 dark:border-dark-650">
+                        <div class="pl-5">
+                            <div class="w-32 h-3 mb-4 bg-gray-200 dark:bg-dark-600 rounded-full loading"></div>
+                            <div class="w-48 h-3 mb-4 bg-gray-200 dark:bg-dark-600 rounded-full loading"></div>
+                            <div class="w-40 h-3 mb-4 bg-gray-200 dark:bg-dark-600 rounded-full loading"></div>
+                        </div>
+                    </div>
+                
+                    <!-- User should be able to hide sidebar right -->
+                    <doc-sidebar-right v-cloak></doc-sidebar-right>
+                </div>
+
+            </div>
+        </div>
+    
+        <doc-search-mobile></doc-search-mobile>
+        <doc-back-to-top></doc-back-to-top>
+    </div>
+
+
+    <div id="docs-overlay-target"></div>
+
+    <script>window.__DOCS__ = { "title": "cBioPortal FAQs", level: 2, icon: "file", hasPrism: false, hasMermaid: false, hasMath: false }</script>
+</body>
+</html>

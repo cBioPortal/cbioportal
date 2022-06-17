@@ -1,0 +1,570 @@
+<!DOCTYPE html>
+<html lang="en" class="h-full">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width,initial-scale=1">
+    <meta name="turbo-cache-control" content="no-cache" data-turbo-track="reload" data-track-token="2.3.0.708804358306">
+
+    <!-- See retype.com -->
+    <meta name="generator" content="Retype 2.3.0">
+
+    <!-- Primary Meta Tags -->
+    <title>Deployment Procedure</title>
+    <meta name="title" content="Deployment Procedure">
+    <meta name="description" content="This describes our internal deployment procedure. Shared publicly, in case it may be of use." />
+
+    <!-- Canonical -->
+    <link rel="canonical" href="/deployment-procedure/" />
+
+    <!-- Open Graph / Facebook -->
+    <meta property="og:type" content="website">
+    <meta property="og:url" content="/deployment-procedure/">
+    <meta property="og:title" content="Deployment Procedure">
+    <meta property="og:description" content="This describes our internal deployment procedure. Shared publicly, in case it may be of use.">
+
+    <!-- Twitter -->
+    <meta property="twitter:card" content="summary_large_image">
+    <meta property="twitter:url" content="/deployment-procedure/">
+    <meta property="twitter:title" content="Deployment Procedure">
+    <meta property="twitter:description" content="This describes our internal deployment procedure. Shared publicly, in case it may be of use.">
+
+    <script>(function () { var el = document.documentElement, m = localStorage.getItem("doc_theme"), wm = window.matchMedia; if (m === "dark" || (!m && wm && wm("(prefers-color-scheme: dark)").matches)) { el.classList.add("dark") } else { el.classList.remove("dark") } })();</script>
+
+    <link href="../images/cbio-logo.png" rel="icon" />
+    <link href="../resources/css/retype.css?v=2.3.0.708804358306" rel="stylesheet" />
+
+    <script type="text/javascript" src="../resources/js/config.js?v=2.3.0.708804358306" data-turbo-eval="false" defer></script>
+    <script type="text/javascript" src="../resources/js/retype.js?v=2.3.0" data-turbo-eval="false" defer></script>
+    <script id="lunr-js" type="text/javascript" src="../resources/js/lunr.js?v=2.3.0.708804358306" data-turbo-eval="false" defer></script>
+
+    <link rel="stylesheet" href="/static/custom.css"></link>
+</head>
+<body>
+    <div id="docs-app" class="relative text-base antialiased text-gray-700 bg-white font-body dark:bg-dark-850 dark:text-dark-300">
+        <div class="absolute bottom-0 left-0 bg-gray-100 dark:bg-dark-800" style="top: 5rem; right: 50%"></div>
+    
+        <header id="docs-site-header" class="sticky top-0 z-30 flex w-full h-16 bg-white border-b border-gray-200 md:h-20 dark:bg-dark-850 dark:border-dark-650">
+            <div class="container relative flex items-center justify-between grow pr-6 md:justify-start">
+                <!-- Mobile menu button skeleton -->
+                <button v-cloak class="skeleton docs-mobile-menu-button flex items-center justify-center shrink-0 overflow-hidden dark:text-white focus:outline-none rounded-full w-10 h-10 ml-3.5 md:hidden"><svg xmlns="http://www.w3.org/2000/svg" class="mb-px shrink-0" width="24" height="24" viewBox="0 0 24 24" role="presentation" style="margin-bottom: 0px;"><g fill="currentColor"><path d="M2 4h20v2H2zM2 11h20v2H2zM2 18h20v2H2z"></path></g></svg></button>
+                <div v-cloak id="docs-sidebar-toggle"></div>
+        
+                <!-- Logo -->
+                <div class="flex items-center justify-between h-full py-2 md:w-75">
+                    <div class="flex items-center px-2 md:px-6">
+                        <a id="docs-site-logo" href="../" class="flex items-center leading-snug text-xl">
+                            <span class="w-10 mr-2 grow-0 shrink-0 overflow-hidden">
+                                <img class="max-h-10 dark:hidden md:inline-block" src="../images/cbio-logo.png">
+                                <img class="max-h-10 hidden dark:inline-block" src="../images/cbio-logo.png">
+                            </span>
+                            <span class="dark:text-white font-semibold line-clamp-1 md:line-clamp-2">cBioPortal Docs</span>
+                        </a>
+                    </div>
+        
+                    <span class="hidden h-8 border-r md:inline-block dark:border-dark-650"></span>
+                </div>
+        
+                <div class="flex justify-between md:grow">
+                    <!-- Top Nav -->
+                    <nav class="hidden md:flex">
+                        <ul class="flex flex-col mb-4 md:pl-16 md:mb-0 md:flex-row md:items-center">
+                            <li class="mr-6">
+                                <a class="py-2 md:mb-0 inline-flex items-center text-sm whitespace-nowrap transition-colors duration-200 ease-linear md:text-blue-500 dark:text-blue-400 hover:text-blue-800 dark:hover:text-blue-200" href="https://www.cbioportal.org">
+                                    <img class="mb-px mr-1" width="18" src="../images/cbio-logo.png" />
+                                    <span>cBioPortal</span>
+                                </a>
+                            </li>
+                            <li class="mr-6">
+                                <a class="py-2 md:mb-0 inline-flex items-center text-sm whitespace-nowrap transition-colors duration-200 ease-linear md:text-blue-500 dark:text-blue-400 hover:text-blue-800 dark:hover:text-blue-200" href="https://github.com/cbioportal/cbioportal/">
+                                    <svg xmlns="http://www.w3.org/2000/svg" class="mb-px mr-1" width="18" height="18" viewBox="0 0 24 24" role="presentation">
+                                        <g fill="currentColor">
+                                            <symbol id="mark-github-icon-symbol" viewBox="0 0 16 16"><path fill-rule="evenodd" d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.013 8.013 0 0016 8c0-4.42-3.58-8-8-8z"/></symbol><use xlink:href="#mark-github-icon-symbol" />
+                                        </g>
+                                    </svg>
+                                    <span>Github</span>
+                                </a>
+                            </li>
+                            <li class="mr-6">
+                                <a class="py-2 md:mb-0 inline-flex items-center text-sm whitespace-nowrap transition-colors duration-200 ease-linear md:text-blue-500 dark:text-blue-400 hover:text-blue-800 dark:hover:text-blue-200" href="https://github.com/cbioportal/cbioportal/issues/">
+                                    <svg xmlns="http://www.w3.org/2000/svg" class="mb-px mr-1" width="18" height="18" viewBox="0 0 24 24" role="presentation">
+                                        <g fill="currentColor">
+                                            <path fill-rule="evenodd" d="M7.72.22a.75.75 0 011.06 0l1.204 1.203A4.983 4.983 0 0112 1c.717 0 1.4.151 2.016.423L15.22.22a.75.75 0 011.06 1.06l-.971.972A4.988 4.988 0 0117 6v1.104a2.755 2.755 0 011.917 1.974l1.998-.999a.75.75 0 01.67 1.342L19 10.714V13.5l3.25.003a.75.75 0 110 1.5L19 15.001V16a7.02 7.02 0 01-.204 1.686.833.833 0 01.04.018l2.75 1.375a.75.75 0 11-.671 1.342l-2.638-1.319A7 7 0 0112 23a7 7 0 01-6.197-3.742l-2.758 1.181a.75.75 0 11-.59-1.378l2.795-1.199A7.007 7.007 0 015 16v-.996H1.75a.75.75 0 010-1.5H5v-2.79L2.415 9.42a.75.75 0 01.67-1.342l1.998.999A2.755 2.755 0 017 7.104V6a4.99 4.99 0 011.69-3.748l-.97-.972a.75.75 0 010-1.06zM8.5 7h7V6a3.5 3.5 0 10-7 0v1zm-2 3.266V9.75c0-.69.56-1.25 1.25-1.25h8.5c.69 0 1.25.56 1.25 1.25V16a5.5 5.5 0 01-11 0v-5.734z"/>
+                                        </g>
+                                    </svg>
+                                    <span>Issues</span>
+                                </a>
+                            </li>
+                            <li class="mr-6">
+                                <a class="py-2 md:mb-0 inline-flex items-center text-sm whitespace-nowrap transition-colors duration-200 ease-linear md:text-blue-500 dark:text-blue-400 hover:text-blue-800 dark:hover:text-blue-200" href="https://groups.google.com/g/cbioportal">
+                                    <svg xmlns="http://www.w3.org/2000/svg" class="mb-px mr-1" width="18" height="18" viewBox="0 0 24 24" role="presentation">
+                                        <g fill="currentColor">
+                                            <path fill-rule="evenodd" d="M1.75 1A1.75 1.75 0 000 2.75v9.5C0 13.216.784 14 1.75 14H3v1.543a1.457 1.457 0 002.487 1.03L8.061 14h6.189A1.75 1.75 0 0016 12.25v-9.5A1.75 1.75 0 0014.25 1H1.75zM1.5 2.75a.25.25 0 01.25-.25h12.5a.25.25 0 01.25.25v9.5a.25.25 0 01-.25.25h-6.5a.75.75 0 00-.53.22L4.5 15.44v-2.19a.75.75 0 00-.75-.75h-2a.25.25 0 01-.25-.25v-9.5z"/><path d="M22.5 8.75a.25.25 0 00-.25-.25h-3.5a.75.75 0 010-1.5h3.5c.966 0 1.75.784 1.75 1.75v9.5A1.75 1.75 0 0122.25 20H21v1.543a1.457 1.457 0 01-2.487 1.03L15.939 20H10.75A1.75 1.75 0 019 18.25v-1.465a.75.75 0 011.5 0v1.465c0 .138.112.25.25.25h5.5a.75.75 0 01.53.22l2.72 2.72v-2.19a.75.75 0 01.75-.75h2a.25.25 0 00.25-.25v-9.5z"/>
+                                        </g>
+                                    </svg>
+                                    <span>Google Group</span>
+                                </a>
+                            </li>
+        
+                        </ul>
+                    </nav>
+        
+                    <!-- Header Right Skeleton -->
+                    <div v-cloak class="flex justify-end grow skeleton">
+        
+                        <!-- Search input mock -->
+                        <div class="relative hidden w-40 lg:block lg:max-w-sm lg:ml-auto">
+                            <div class="absolute flex items-center justify-center h-full pl-3 dark:text-dark-300">
+                                <svg xmlns="http://www.w3.org/2000/svg" class="icon-base" width="16" height="16" viewBox="0 0 24 24" aria-labelledby="icon" role="presentation"  style="margin-bottom: 1px;"><g fill="currentColor" ><path d="M21.71 20.29l-3.68-3.68A8.963 8.963 0 0020 11c0-4.96-4.04-9-9-9s-9 4.04-9 9 4.04 9 9 9c2.12 0 4.07-.74 5.61-1.97l3.68 3.68c.2.19.45.29.71.29s.51-.1.71-.29c.39-.39.39-1.03 0-1.42zM4 11c0-3.86 3.14-7 7-7s7 3.14 7 7c0 1.92-.78 3.66-2.04 4.93-.01.01-.02.01-.02.01-.01.01-.01.01-.01.02A6.98 6.98 0 0111 18c-3.86 0-7-3.14-7-7z" ></path></g></svg>
+                            </div>
+        
+                            <input class="w-full h-10 transition-colors duration-200 ease-in bg-gray-200 border border-transparent rounded md:text-sm hover:bg-white hover:border-gray-300 focus:outline-none focus:bg-white focus:border-gray-500 dark:bg-dark-600 dark:border-dark-600 placeholder-gray-400 dark:placeholder-dark-400"
+                            style="padding: 0.625rem 0.75rem 0.625rem 2rem" type="text" placeholder="Search" />
+                        </div>
+        
+                        <!-- Mobile search button mock -->
+                        <div class="flex items-center justify-center w-10 h-10 lg:hidden">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="shrink-0 icon-base" width="20" height="20" viewBox="0 0 24 24" aria-labelledby="icon" role="presentation"  style="margin-bottom: 0px;"><g fill="currentColor" ><path d="M21.71 20.29l-3.68-3.68A8.963 8.963 0 0020 11c0-4.96-4.04-9-9-9s-9 4.04-9 9 4.04 9 9 9c2.12 0 4.07-.74 5.61-1.97l3.68 3.68c.2.19.45.29.71.29s.51-.1.71-.29c.39-.39.39-1.03 0-1.42zM4 11c0-3.86 3.14-7 7-7s7 3.14 7 7c0 1.92-.78 3.66-2.04 4.93-.01.01-.02.01-.02.01-.01.01-.01.01-.01.02A6.98 6.98 0 0111 18c-3.86 0-7-3.14-7-7z" ></path></g></svg>
+                        </div>
+        
+                        <!-- Dark mode switch placehokder -->
+                        <div class="w-10 h-10 lg:ml-2"></div>
+        
+                        <!-- History button mock -->
+                        <div class="flex items-center justify-center w-10 h-10" style="margin-right: -0.625rem;">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="shrink-0 icon-base" width="22" height="22" viewBox="0 0 24 24" aria-labelledby="icon" role="presentation"  style="margin-bottom: 0px;"><g fill="currentColor" ><g ><path d="M12.01 6.01c-.55 0-1 .45-1 1V12a1 1 0 00.4.8l3 2.22a.985.985 0 001.39-.2.996.996 0 00-.21-1.4l-2.6-1.92V7.01c.02-.55-.43-1-.98-1z"></path><path d="M12.01 1.91c-5.33 0-9.69 4.16-10.05 9.4l-.29-.26a.997.997 0 10-1.34 1.48l1.97 1.79c.19.17.43.26.67.26s.48-.09.67-.26l1.97-1.79a.997.997 0 10-1.34-1.48l-.31.28c.34-4.14 3.82-7.41 8.05-7.41 4.46 0 8.08 3.63 8.08 8.09s-3.63 8.08-8.08 8.08c-2.18 0-4.22-.85-5.75-2.4a.996.996 0 10-1.42 1.4 10.02 10.02 0 007.17 2.99c5.56 0 10.08-4.52 10.08-10.08.01-5.56-4.52-10.09-10.08-10.09z"></path></g></g></svg>
+                        </div>
+                    </div>
+        
+                    <div v-cloak class="flex justify-end grow">
+                        <div id="docs-mobile-search-button"></div>
+                        <doc-search-desktop></doc-search-desktop>
+        
+                        <doc-theme-switch class="lg:ml-2"></doc-theme-switch>
+                        <doc-history></doc-history>
+                    </div>
+                </div>
+            </div>
+        </header>
+    
+        <div class="container relative flex bg-white">
+            <!-- Sidebar Skeleton -->
+            <div v-cloak class="fixed flex flex-col shrink-0 duration-300 ease-in-out bg-gray-100 border-gray-200 sidebar top-20 w-75 border-r h-screen md:sticky transition-transform skeleton dark:bg-dark-800 dark:border-dark-650">
+            
+                <!-- Render this div, if config.showSidebarFilter is `true` -->
+                <div class="flex items-center h-16 px-6">
+                    <input class="w-full h-8 px-3 py-2 transition-colors duration-200 ease-linear bg-white border border-gray-200 rounded shadow-none text-sm focus:outline-none focus:border-gray-600 dark:bg-dark-600 dark:border-dark-600" type="text" placeholder="Filter" />
+                </div>
+            
+                <div class="pl-6 mb-4 mt-1">
+                    <div class="w-32 h-3 mb-4 bg-gray-200 rounded-full loading dark:bg-dark-600"></div>
+                    <div class="w-48 h-3 mb-4 bg-gray-200 rounded-full loading dark:bg-dark-600"></div>
+                    <div class="w-40 h-3 mb-4 bg-gray-200 rounded-full loading dark:bg-dark-600"></div>
+                    <div class="w-32 h-3 mb-4 bg-gray-200 rounded-full loading dark:bg-dark-600"></div>
+                    <div class="w-48 h-3 mb-4 bg-gray-200 rounded-full loading dark:bg-dark-600"></div>
+                    <div class="w-40 h-3 mb-4 bg-gray-200 rounded-full loading dark:bg-dark-600"></div>
+                </div>
+            
+                <div class="shrink-0 mt-auto bg-transparent dark:border-dark-650">
+                    <a class="flex items-center justify-center flex-nowrap h-16 text-gray-400 dark:text-dark-400 hover:text-gray-700 dark:hover:text-dark-300 transition-colors duration-150 ease-in docs-powered-by" target="_blank" href="https://retype.com/" rel="noopener">
+                        <span class="text-xs whitespace-nowrap">Powered by</span>
+                        <svg xmlns="http://www.w3.org/2000/svg" class="ml-2" fill="currentColor" width="96" height="20" overflow="visible"><path d="M0 0v20h13.59V0H0zm11.15 17.54H2.44V2.46h8.71v15.08zM15.8 20h2.44V4.67L15.8 2.22zM20.45 6.89V20h2.44V9.34z"/><g><path d="M40.16 8.44c0 1.49-.59 2.45-1.75 2.88l2.34 3.32h-2.53l-2.04-2.96h-1.43v2.96h-2.06V5.36h3.5c1.43 0 2.46.24 3.07.73s.9 1.27.9 2.35zm-2.48 1.1c.26-.23.38-.59.38-1.09 0-.5-.13-.84-.4-1.03s-.73-.28-1.39-.28h-1.54v2.75h1.5c.72 0 1.2-.12 1.45-.35zM51.56 5.36V7.2h-4.59v1.91h4.13v1.76h-4.13v1.92h4.74v1.83h-6.79V5.36h6.64zM60.09 7.15v7.48h-2.06V7.15h-2.61V5.36h7.28v1.79h-2.61zM70.81 14.64h-2.06v-3.66l-3.19-5.61h2.23l1.99 3.45 1.99-3.45H74l-3.19 5.61v3.66zM83.99 6.19c.65.55.97 1.4.97 2.55s-.33 1.98-1 2.51-1.68.8-3.04.8h-1.23v2.59h-2.06V5.36h3.26c1.42 0 2.45.28 3.1.83zm-1.51 3.65c.25-.28.37-.69.37-1.22s-.16-.92-.48-1.14c-.32-.23-.82-.34-1.5-.34H79.7v3.12h1.38c.68 0 1.15-.14 1.4-.42zM95.85 5.36V7.2h-4.59v1.91h4.13v1.76h-4.13v1.92H96v1.83h-6.79V5.36h6.64z"/></g></svg>
+                    </a>
+                </div>
+            </div>
+            
+            <!-- Sidebar component -->
+            <doc-sidebar v-cloak>
+                <template #sidebar-footer>
+                    <div class="shrink-0 mt-auto border-t md:bg-transparent md:border-none dark:border-dark-650">
+            
+                        <div class="py-3 px-6 md:hidden border-b dark:border-dark-650">
+                            <nav>
+                                <ul class="flex flex-wrap justify-center items-center">
+                                    <li class="mr-6">
+                                        <a class="block py-1 inline-flex items-center text-sm whitespace-nowrap transition-colors duration-200 ease-linear md:text-blue-500 dark:text-blue-400 hover:text-blue-800 dark:hover:text-blue-200" href="https://www.cbioportal.org">
+                                            <img class="mb-px mr-1" width="18" src="../images/cbio-logo.png" />
+                                            <span>cBioPortal</span>
+                                        </a>
+                                    </li>
+                                    <li class="mr-6">
+                                        <a class="block py-1 inline-flex items-center text-sm whitespace-nowrap transition-colors duration-200 ease-linear md:text-blue-500 dark:text-blue-400 hover:text-blue-800 dark:hover:text-blue-200" href="https://github.com/cbioportal/cbioportal/">
+                                            <svg xmlns="http://www.w3.org/2000/svg" class="mb-px mr-1" width="18" height="18" viewBox="0 0 24 24" role="presentation">
+                                                <g fill="currentColor">
+                                                    <symbol id="mark-github-icon-symbol" viewBox="0 0 16 16"><path fill-rule="evenodd" d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.013 8.013 0 0016 8c0-4.42-3.58-8-8-8z"/></symbol><use xlink:href="#mark-github-icon-symbol" />
+                                                </g>
+                                            </svg>
+                                            <span>Github</span>
+                                        </a>
+                                    </li>
+                                    <li class="mr-6">
+                                        <a class="block py-1 inline-flex items-center text-sm whitespace-nowrap transition-colors duration-200 ease-linear md:text-blue-500 dark:text-blue-400 hover:text-blue-800 dark:hover:text-blue-200" href="https://github.com/cbioportal/cbioportal/issues/">
+                                            <svg xmlns="http://www.w3.org/2000/svg" class="mb-px mr-1" width="18" height="18" viewBox="0 0 24 24" role="presentation">
+                                                <g fill="currentColor">
+                                                    <path fill-rule="evenodd" d="M7.72.22a.75.75 0 011.06 0l1.204 1.203A4.983 4.983 0 0112 1c.717 0 1.4.151 2.016.423L15.22.22a.75.75 0 011.06 1.06l-.971.972A4.988 4.988 0 0117 6v1.104a2.755 2.755 0 011.917 1.974l1.998-.999a.75.75 0 01.67 1.342L19 10.714V13.5l3.25.003a.75.75 0 110 1.5L19 15.001V16a7.02 7.02 0 01-.204 1.686.833.833 0 01.04.018l2.75 1.375a.75.75 0 11-.671 1.342l-2.638-1.319A7 7 0 0112 23a7 7 0 01-6.197-3.742l-2.758 1.181a.75.75 0 11-.59-1.378l2.795-1.199A7.007 7.007 0 015 16v-.996H1.75a.75.75 0 010-1.5H5v-2.79L2.415 9.42a.75.75 0 01.67-1.342l1.998.999A2.755 2.755 0 017 7.104V6a4.99 4.99 0 011.69-3.748l-.97-.972a.75.75 0 010-1.06zM8.5 7h7V6a3.5 3.5 0 10-7 0v1zm-2 3.266V9.75c0-.69.56-1.25 1.25-1.25h8.5c.69 0 1.25.56 1.25 1.25V16a5.5 5.5 0 01-11 0v-5.734z"/>
+                                                </g>
+                                            </svg>
+                                            <span>Issues</span>
+                                        </a>
+                                    </li>
+                                    <li class="mr-6">
+                                        <a class="block py-1 inline-flex items-center text-sm whitespace-nowrap transition-colors duration-200 ease-linear md:text-blue-500 dark:text-blue-400 hover:text-blue-800 dark:hover:text-blue-200" href="https://groups.google.com/g/cbioportal">
+                                            <svg xmlns="http://www.w3.org/2000/svg" class="mb-px mr-1" width="18" height="18" viewBox="0 0 24 24" role="presentation">
+                                                <g fill="currentColor">
+                                                    <path fill-rule="evenodd" d="M1.75 1A1.75 1.75 0 000 2.75v9.5C0 13.216.784 14 1.75 14H3v1.543a1.457 1.457 0 002.487 1.03L8.061 14h6.189A1.75 1.75 0 0016 12.25v-9.5A1.75 1.75 0 0014.25 1H1.75zM1.5 2.75a.25.25 0 01.25-.25h12.5a.25.25 0 01.25.25v9.5a.25.25 0 01-.25.25h-6.5a.75.75 0 00-.53.22L4.5 15.44v-2.19a.75.75 0 00-.75-.75h-2a.25.25 0 01-.25-.25v-9.5z"/><path d="M22.5 8.75a.25.25 0 00-.25-.25h-3.5a.75.75 0 010-1.5h3.5c.966 0 1.75.784 1.75 1.75v9.5A1.75 1.75 0 0122.25 20H21v1.543a1.457 1.457 0 01-2.487 1.03L15.939 20H10.75A1.75 1.75 0 019 18.25v-1.465a.75.75 0 011.5 0v1.465c0 .138.112.25.25.25h5.5a.75.75 0 01.53.22l2.72 2.72v-2.19a.75.75 0 01.75-.75h2a.25.25 0 00.25-.25v-9.5z"/>
+                                                </g>
+                                            </svg>
+                                            <span>Google Group</span>
+                                        </a>
+                                    </li>
+            
+                                </ul>
+                            </nav>
+                        </div>
+            
+                        <a class="flex items-center justify-center flex-nowrap h-16 text-gray-400 dark:text-dark-400 hover:text-gray-700 dark:hover:text-dark-300 transition-colors duration-150 ease-in docs-powered-by" target="_blank" href="https://retype.com/" rel="noopener">
+                            <span class="text-xs whitespace-nowrap">Powered by</span>
+                            <svg xmlns="http://www.w3.org/2000/svg" class="ml-2" fill="currentColor" width="96" height="20" overflow="visible"><path d="M0 0v20h13.59V0H0zm11.15 17.54H2.44V2.46h8.71v15.08zM15.8 20h2.44V4.67L15.8 2.22zM20.45 6.89V20h2.44V9.34z"/><g><path d="M40.16 8.44c0 1.49-.59 2.45-1.75 2.88l2.34 3.32h-2.53l-2.04-2.96h-1.43v2.96h-2.06V5.36h3.5c1.43 0 2.46.24 3.07.73s.9 1.27.9 2.35zm-2.48 1.1c.26-.23.38-.59.38-1.09 0-.5-.13-.84-.4-1.03s-.73-.28-1.39-.28h-1.54v2.75h1.5c.72 0 1.2-.12 1.45-.35zM51.56 5.36V7.2h-4.59v1.91h4.13v1.76h-4.13v1.92h4.74v1.83h-6.79V5.36h6.64zM60.09 7.15v7.48h-2.06V7.15h-2.61V5.36h7.28v1.79h-2.61zM70.81 14.64h-2.06v-3.66l-3.19-5.61h2.23l1.99 3.45 1.99-3.45H74l-3.19 5.61v3.66zM83.99 6.19c.65.55.97 1.4.97 2.55s-.33 1.98-1 2.51-1.68.8-3.04.8h-1.23v2.59h-2.06V5.36h3.26c1.42 0 2.45.28 3.1.83zm-1.51 3.65c.25-.28.37-.69.37-1.22s-.16-.92-.48-1.14c-.32-.23-.82-.34-1.5-.34H79.7v3.12h1.38c.68 0 1.15-.14 1.4-.42zM95.85 5.36V7.2h-4.59v1.91h4.13v1.76h-4.13v1.92H96v1.83h-6.79V5.36h6.64z"/></g></svg>
+                        </a>
+                    </div>
+                </template>
+            </doc-sidebar>
+    
+            <div class="grow min-w-0 dark:bg-dark-850">
+                <!-- Render "toolbar" template here on api pages --><!-- Render page content -->
+                <div class="flex">
+                    <div class="grow min-w-0 px-6 md:px-16">
+                        <main class="relative pt-6 pb-16">
+                            <div class="docs-markdown" id="docs-content">
+                                <!-- Rendered if sidebar right is enabled -->
+                                <div id="docs-sidebar-right-toggle"></div>
+                
+                                <!-- Page content  -->
+<doc-anchor-target id="deployment-procedure" class="break-words">
+    <h1>
+        <doc-anchor-trigger class="header-anchor-trigger" to="#deployment-procedure">#</doc-anchor-trigger>
+        <span>Deployment Procedure</span>
+    </h1>
+</doc-anchor-target>
+<p>This describes our internal deployment procedure. Shared publicly, in case it
+may be of use. Instructions on how to deploy cBioPortal can be found elsewhere,
+see e.g. <a href="../deployment/deploy-without-docker/deploying/">Deploying the web application</a> and <a href="../deployment/docker/">Deploy using
+Docker</a>.</p>
+<p>We deploy the master branch of backend and the master branch of frontend to
+production. The public portal (<a href="https://www.cbioportal.org">https://www.cbioportal.org</a>) runs on AWS inside
+kubernetes. The configuration can be found in the knowledgesystems repo:</p>
+<p><a href="https://github.com/knowledgesystems/knowledgesystems-k8s-deployment">https://github.com/knowledgesystems/knowledgesystems-k8s-deployment</a></p>
+<p>Other portals run at MSKCC on two internal machines called dashi and dashi2.
+Since we&#x27;re running several apps in several tomcats internally the procedure
+for updating them is different from the public portal on AWS. The configuration
+is in the mercurial portal-configuration repo. To make changes, ask Ben for
+access.</p>
+<p>The frontend and backend can be upgraded independently. We have the following
+events that can require a new deployment:</p>
+<ul>
+<li>New <strong>frontend</strong> commit in master</li>
+<li>New <strong>backend</strong> commit in master</li>
+</ul>
+<doc-anchor-target id="new-frontend-commit-in-master">
+    <h2>
+        <doc-anchor-trigger class="header-anchor-trigger" to="#new-frontend-commit-in-master">#</doc-anchor-trigger>
+        <span>New frontend commit in master</span>
+    </h2>
+</doc-anchor-target>
+<p>Currently we are auto-deploying the frontend master branch to netlify:
+<a href="https://frontend.cbioportal.org">https://frontend.cbioportal.org</a>. So any change should be automatically
+built and deployed to the relevant portals if the frontend configuration has
+been set up properly. Do note that the current build time for the frontend
+project is ~15 minutes or so. To see what frontend commit is deployed, check
+<code v-pre>window.FRONTEND_COMMIT</code> in the console of the browser.</p>
+<doc-anchor-target id="public-portal-frontend-url">
+    <h3>
+        <doc-anchor-trigger class="header-anchor-trigger" to="#public-portal-frontend-url">#</doc-anchor-trigger>
+        <span>Public Portal Frontend URL</span>
+    </h3>
+</doc-anchor-target>
+<p>The public portal is on AWS and running inside a Kubernetes cluster.
+The URL that it gets the frontend version from is here:</p>
+<p><a href="https://github.com/knowledgesystems/knowledgesystems-k8s-deployment/search?q=-Dfrontend.url&amp;unscoped_q=-Dfrontend.url">https://github.com/knowledgesystems/knowledgesystems-k8s-deployment/search?q=-Dfrontend.url&amp;unscoped_q=-Dfrontend.url</a></p>
+<p>This should be a URL pointing to netlify.</p>
+<doc-anchor-target id="internal-portal-frontend-url">
+    <h3>
+        <doc-anchor-trigger class="header-anchor-trigger" to="#internal-portal-frontend-url">#</doc-anchor-trigger>
+        <span>Internal Portal Frontend URL</span>
+    </h3>
+</doc-anchor-target>
+<p>For the internally runnning portals the frontend.url is defined in the
+portal.properties file in the mercurial portal-configuration repo. If set up
+correctly, this should point to a file on both dashi and dashi2 that in turn
+points to a netlify frontend URL. The reason we have a separate file with the
+URL in it is that it allows us to update the frontend URL without redeploying
+the backend.</p>
+<doc-anchor-target id="new-backend-commit-in-master">
+    <h2>
+        <doc-anchor-trigger class="header-anchor-trigger" to="#new-backend-commit-in-master">#</doc-anchor-trigger>
+        <span>New backend commit in master</span>
+    </h2>
+</doc-anchor-target>
+<p>A new backend commit usually also means a new frontend change is necessary. For
+this reason the following sections assume that&#x27;s the case.</p>
+<doc-anchor-target id="public-portal-backend-upgrade">
+    <h3>
+        <doc-anchor-trigger class="header-anchor-trigger" to="#public-portal-backend-upgrade">#</doc-anchor-trigger>
+        <span>Public Portal Backend Upgrade</span>
+    </h3>
+</doc-anchor-target>
+<p>Once the backend repo has been tagged on github, a docker image gets build on Docker Hub automatically. It can take ~5 min before the image is available. You can check here what the status of the builds is: <a href="https://github.com/cBioPortal/cbioportal/actions?query=workflow%3A%22Docker+Image+CI%22">https://github.com/cBioPortal/cbioportal/actions?query=workflow%3A%22Docker+Image+CI%22</a>.</p>
+<p>After that, if you have access to the kubernetes cluster you can change the image in the configuration of the kubernetes cluster:</p>
+<p><a href="https://github.com/knowledgesystems/knowledgesystems-k8s-deployment/blob/master/cbioportal/cbioportal_spring_boot.yaml">https://github.com/knowledgesystems/knowledgesystems-k8s-deployment/blob/master/cbioportal/cbioportal_spring_boot.yaml</a></p>
+<p>point this line, to the new tag on docker hub e.g.:</p>
+<div class="codeblock-wrapper"><doc-codeblock>
+<pre class="language-none"><code v-pre class="language-none">image: cbioportal/cbioportal:3.0.3-web-shenandoah</code></pre>
+</doc-codeblock></div>
+<p>Make sure it is an image with the postfix <code v-pre>-web-shenandoah</code>. This is the image that only has the web part of cBioPortal and uses the shenandoah garbage collector.</p>
+<p>Also remove the <code v-pre>-Dfrontend.url</code> parameter such that the frontend version inside the war will be used:</p>
+<div class="codeblock-wrapper"><doc-codeblock>
+<pre class="language-none"><code v-pre class="language-none">&quot;-Dfrontend.url=https://frontend.cbioportal.org&quot;</code></pre>
+</doc-codeblock></div>
+<p>Then running this command applies the changes to the cluster:</p>
+<div class="codeblock-wrapper"><doc-codeblock>
+<pre class="language-none"><code v-pre class="language-none">kubectl apply -f cbioportal/cbioportal_spring_boot.yaml</code></pre>
+</doc-codeblock></div>
+<p>You can keep track of what&#x27;s happening by looking at the pods:</p>
+<div class="codeblock-wrapper"><doc-codeblock>
+<pre class="language-none"><code v-pre class="language-none">kubectl get po</code></pre>
+</doc-codeblock></div>
+<p>If you have the watch command installed you can also use that to see the output
+of this every 2s:</p>
+<div class="codeblock-wrapper"><doc-codeblock>
+<pre class="language-none"><code v-pre class="language-none">watch kubectl get po</code></pre>
+</doc-codeblock></div>
+<p>Another thing to look at is the events:</p>
+<div class="codeblock-wrapper"><doc-codeblock>
+<pre class="language-none"><code v-pre class="language-none">kubectl get events --sort-by='{.lastTimestamp}'</code></pre>
+</doc-codeblock></div>
+<p>If there are any issues, point the image back to what it was, set
+<code v-pre>-Dfrontend.url</code> and run <code v-pre>kubectl apply -f filename</code> again.</p>
+<p>If everything went ok, you can re-enable auto deployment on netlify, set
+<code v-pre>-Dfrontend.url</code> in the kubernetes file and run <code v-pre>kubectl apply -f filename</code>
+again.</p>
+<p>Make sure to commit your changes to the knowledgesystems-k8s-deployment repo
+and push them to the main repo, so that other people making changes to the
+kubernetes config will be using the latest version.</p>
+<doc-anchor-target id="private-portal-backend-upgrade">
+    <h3>
+        <doc-anchor-trigger class="header-anchor-trigger" to="#private-portal-backend-upgrade">#</doc-anchor-trigger>
+        <span>Private Portal Backend Upgrade</span>
+    </h3>
+</doc-anchor-target>
+<p>First update the frontend portal configuration to point to a new file. It&#x27;s
+fine if this file does not exist yet, because if it doesn&#x27;t the frontend
+bundled with the war will be used. We can later point the file to netlify, once
+we&#x27;ve determined everything looks ok.</p>
+<p>You can use this for loop to update the frontend url in all properties files
+(set it to a file that doesn&#x27;t exist yet and give it a sensible name e.g. <code v-pre>frontend_url_version_x_y_z.txt</code>):</p>
+<div class="codeblock-wrapper"><doc-codeblock>
+<pre class="language-none"><code v-pre class="language-none">for f in $(grep frontend.url.runtime properties/*/portal.properties | grep -v beta | cut -d: -f1); do sed -i 's|frontend.url.runtime=/srv/www/msk-tomcat/frontend_url_version_2_0_0.txt|frontend.url.runtime=/srv/www/msk-tomcat/frontend_url_version_2_1_0.txt|g' $f; done</code></pre>
+</doc-codeblock></div>
+<p>Same for triage-tomcat (agin set the correct file name)::</p>
+<div class="codeblock-wrapper"><doc-codeblock>
+<pre class="language-none"><code v-pre class="language-none"> for f in $(grep frontend.url.runtime properties/*/portal.properties | grep -v beta | cut -d: -f1); do sed -i 's|frontend.url.runtime=/srv/www/triage-tomcat/frontend_url_version_2_0_0.txt|frontend.url.runtime=/srv/www/triage-tomcat/frontend_url_version_2_1_0.txt|g' $f; done</code></pre>
+</doc-codeblock></div>
+<p>Make sure you see the frontend url file updated correctly:</p>
+<div class="codeblock-wrapper"><doc-codeblock>
+<pre class="language-none"><code v-pre class="language-none">hg diff</code></pre>
+</doc-codeblock></div>
+<p>Then commit and push your changes to the mercurial repo:</p>
+<div class="codeblock-wrapper"><doc-codeblock>
+<pre class="language-none"><code v-pre class="language-none">hg commit -u username -m 'update frontend url files for new release'
+hg push</code></pre>
+</doc-codeblock></div>
+<p>If you have your public key added for the relevant deploy scripts you should be able to deploy with the following command on dashi-dev:</p>
+<div class="codeblock-wrapper"><doc-codeblock>
+<pre class="language-none"><code v-pre class="language-none"># set PROJECT_CONFIG_HOME and PORTAL_HOME to your own directory
+unset PROJECT_VERSION &amp;&amp; export PORTAL_HOME=/data/debruiji/git/cbioportal &amp;&amp; export PORTAL_CONFIG_HOME=/data/debruiji/hg/portal-configuration &amp;&amp; cd ${PORTAL_CONFIG_HOME}/buildwars &amp;&amp; hg pull &amp;&amp; hg update &amp;&amp; export JAVA_HOME=/usr/lib/jvm/java-1.8.0-openjdk.x86_64 &amp;&amp; bash buildproductionwars.sh master &amp;&amp; bash ${PORTAL_CONFIG_HOME}/deploywars-remotely/deployproductionportals.sh</code></pre>
+</doc-codeblock></div>
+<p>If you don&#x27;t have a SSH key set up to run the deploy script ask Ino.</p>
+<p>If everything looks ok you can update the frontend url file to point to
+netlify. Log in to dashi and become msk-tomcat with <code v-pre>sudo su - msk-tomcat</code>.
+Then change the update script:</p>
+<div class="codeblock-wrapper"><doc-codeblock>
+<pre class="language-none"><code v-pre class="language-none">vi /data/cbio-portal-data/portal-configuration/deploy-scripts/updatefrontendurl.sh</code></pre>
+</doc-codeblock></div>
+<p>to point <code v-pre>oldurlfile=/srv/www/msk-tomcat/frontend_url_version_2_0_0.txt</code> to the
+new frontend url file you supplied above.</p>
+<p>Then update the url like:</p>
+<div class="codeblock-wrapper"><doc-codeblock>
+<pre class="language-none"><code v-pre class="language-none">./updatefrontendurl.sh &quot;https://frontend.cbioportal.org&quot;</code></pre>
+</doc-codeblock></div>
+<p>Do the same thing on dashi2.</p>
+<p>The last step is to modify the frontend url file for the triage portal. Log in to the pipelines machine, log in as triage-tomcat user: <code v-pre>sudo su - triage-tomcat</code>, and update the frontend url file there:</p>
+<div class="codeblock-wrapper"><doc-codeblock>
+<pre class="language-none"><code v-pre class="language-none">echo 'https://frontend.cbioportal.org' &gt; /srv/www/triage-tomcat/frontend_url_version_2_1_0.txt</code></pre>
+</doc-codeblock></div>
+<doc-anchor-target id="upgrading-related-backend-components">
+    <h2>
+        <doc-anchor-trigger class="header-anchor-trigger" to="#upgrading-related-backend-components">#</doc-anchor-trigger>
+        <span>Upgrading Related Backend Components</span>
+    </h2>
+</doc-anchor-target>
+<p>Backend upgrades involving the database schema, DAO classes, etc. require updates to databases and importers. CBioPortal has multiple databases (located both internally on pipelines and in AWS) backing different portals. Similarly there are multiple importers responsible for loading portal-specific data. Every database must be manually migrated on an individual basis; all importers/data fetchers can be updated simultaenously through an existing deployment script.</p>
+<p>Before upgrading, make sure to turn off import jobs in the crontab and alert the backend pipelines team (Avery, Angelica, Rob, Manda).</p>
+<p>To access the crontab, log in to pipelines, log in as cbioportal_importer: <code v-pre>sudo su - cbioportal_importer</code>, and run <code v-pre>crontab -e</code>. Comment out any lines that run import jobs, save, and exit. Make sure to uncomment these lines once the upgrade (database and importers) is complete. Lines that need to be commented out will be under the <code v-pre>Import Jobs</code> section, shown <a href="https://github.com/knowledgesystems/cmo-pipelines/blob/942de83c0f9a731e301151d10dad73744cd9c9a0/import-scripts/mycrontab#L4">here</a>.</p>
+<doc-anchor-target id="updating-databases">
+    <h2>
+        <doc-anchor-trigger class="header-anchor-trigger" to="#updating-databases">#</doc-anchor-trigger>
+        <span>Updating Databases</span>
+    </h2>
+</doc-anchor-target>
+<p>First, make sure there is a backup of the database being migrated.
+If there is not a weekly dump, backup the database being migrated using mysqldump. This process may take awhile depending on the size of the database.</p>
+<div class="codeblock-wrapper"><doc-codeblock>
+<pre class="language-none"><code v-pre class="language-none">mysqldump -u &lt;user&gt; -h &lt;host&gt; -p &lt;database name&gt; | gzip &gt; &lt;database_name&gt;_`date +%Y%m%d_%H%M`.sql.gz </code></pre>
+</doc-codeblock></div>
+<p>The second step is to migrate the database. Make sure that the migration script is the same version as the deployed cBioPortal website. It is recommended to first test the migration script manually line-by-line in a copy of the existing database. This will catch any data-related bugs that might not be captured by the python migration script. After testing is successful, migrate the production databases following these steps <a href="../updating-your-cbioportal-installation/#running-the-migration-script">here</a>.</p>
+<p>These are all cBioPortal databases and their locations:</p>
+<div class="table-wrapper scrollbar overflow-hidden">
+<table class="comfortable">
+<thead>
+<tr>
+<th>Website</th>
+<th>Database</th>
+<th>Location</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>cbioportal.mskcc.org</td>
+<td>cgds_gdac</td>
+<td>pipelines</td>
+</tr>
+<tr>
+<td>cbioportal.org</td>
+<td>cgds_public</td>
+<td>AWS</td>
+</tr>
+<tr>
+<td>genie.cbioportal.org</td>
+<td>cgds_genie</td>
+<td>AWS</td>
+</tr>
+<tr>
+<td>triage.cbioportal.org</td>
+<td>cgds_triage</td>
+<td>pipelines</td>
+</tr>
+</tbody>
+</table>
+</div>
+<p>To obtain information such as usernames, passwords, hostnames - ask Avery, Angelica, Rob, Manda, and Ino.</p>
+<doc-anchor-target id="updating-importersdata-fetchers">
+    <h2>
+        <doc-anchor-trigger class="header-anchor-trigger" to="#updating-importersdata-fetchers">#</doc-anchor-trigger>
+        <span>Updating Importers/Data Fetchers</span>
+    </h2>
+</doc-anchor-target>
+<p>Importers (code found <a href="https://github.com/knowledgesystems/pipelines">here</a>) and data fetchers (code found <a href="https://github.com/knowledgesystems/cmo-pipelines">here</a>) use code from the cBioPortal codebase. The cbioportal dependency is packaged with the genome-nexus-annotation-pipeline and specified in the pipelines importer pom.</p>
+<p>The following steps are used during releases/updates to build new importers with the <strong>most-up-to-date</strong> cBioPortal and genome-nexus-annotation-pipeline code. All steps should be performed on the pipelines machine.</p>
+<ol>
+<li><p>Set the jitpack hash <a href="https://github.com/genome-nexus/genome-nexus-annotation-pipeline/blob/9510299395986653d9e9b672a38d472e52e7625b/pom.xml#L71">here</a> in the genome-nexus-annotation-pipeline codebase to the most recent cbioportal/cbioportal commit hash in master.</p>
+</li>
+<li><p>Merge this change into genome-nexus-annotation-pipeline/master.</p>
+</li>
+<li><p>Set the commit hash <a href="https://github.com/knowledgesystems/pipelines/blob/f6c52bbda86b3929222d42c9bc84581fd6333fb4/pom.xml#L76">here</a> in the pipelines codebase to the most most recent genome-nexus/genome-nexus-annotation-pipeline commit hash <strong>(after merge specfied in step 2)</strong>. Also ensure the db version in the pom <a href="https://github.com/knowledgesystems/pipelines/blob/f6c52bbda86b3929222d42c9bc84581fd6333fb4/pom.xml#L76">here</a> matches the db schema version in the cbioportal codebase.</p>
+</li>
+<li><p>Merge this change into pipelines/master.</p>
+</li>
+<li><p>Set the commit hash <a href="https://github.com/knowledgesystems/cmo-pipelines/blob/e740c9fa3d409ab75988e7a157682733e261fca5/cvr/pom.xml#L70">here</a> in the cmo-pipelines codebase to the most recent genome-nexus/genome-nexus-annotation-pipeline commit hash <strong>(after merge specified in step 2)</strong></p>
+</li>
+<li><p>Merge this change into cmo-pipelines/master</p>
+</li>
+<li><p>Run the deployment wrapper script. See details <doc-anchor-trigger to="#deployment-script">here</doc-anchor-trigger>.</p>
+</li>
+<li><p>Verify new importers/data fetchers have been placed in <code v-pre>/data/portal-cron/lib</code> by checking timestamps.</p>
+</li>
+</ol>
+<div class="codeblock-wrapper"><doc-codeblock>
+<pre class="language-none"><code v-pre class="language-none">ls -tlra /data/portal-cron/lib</code></pre>
+</doc-codeblock></div>
+<doc-anchor-target id="deployment-script">
+    <h2>
+        <doc-anchor-trigger class="header-anchor-trigger" to="#deployment-script">#</doc-anchor-trigger>
+        <span>Deployment Script</span>
+    </h2>
+</doc-anchor-target>
+<p>The wrapper script is found on pipelines here:
+<code v-pre>/data/portal-cron/git-repos/pipelines-configuration/build-importer-jars/buildproductionjars.sh</code>.</p>
+<p>Run <code v-pre>git pull</code> to pull in any updates to the build script.</p>
+<p>The wrapper script takes two arguments:</p>
+<ol>
+<li>--cbioportal-git-hash (required): Set to the cBioPortal commit hash being used in the pipelines build (hash specified in <strong>step 1</strong> of <doc-anchor-trigger to="#updating-importersdata-fetchers">updating importers</doc-anchor-trigger>). This must match because the build copies out resource files (e.g application-context-business.xml) from the cbioportal codebase.</li>
+<li>--skip-deployment (optional): Set to true to skip auto-deployment to <code v-pre>/data/portal-cron/lib</code>. Built jars will be found in <code v-pre>/data/portal-cron/git-repos/pipelines-configuration/build-importer-jars/</code> and can be be manually moved.</li>
+</ol>
+<p>The wrapper script will automatically backup the importers/data-fetchers to <code v-pre>/data/portal-cron/lib/backup</code>.</p>
+
+                                
+                                <!-- Required only on API pages -->
+                                <doc-toolbar-member-filter-no-results />
+                            </div>
+                            <footer class="clear-both">
+                                <div class="flex flex-wrap items-center justify-between mt-14">
+                                    <a class="my-2.5 inline-flex items-center text-sm whitespace-nowrap text-blue-500 dark:text-blue-400 hover:text-blue-700 hover:underline" href="https://github.com/cbioportal/documentation/blob/main/Deployment-Procedure.md" target="_blank" rel="noopener">
+                                        <svg class="mr-1.5" xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="currentColor" overflow="visible"><path d="M20 12c-.55 0-1 .45-1 1v7c0 .55-.45 1-1 1H4c-.55 0-1-.45-1-1V6c0-.55.45-1 1-1h7c.55 0 1-.45 1-1s-.45-1-1-1H4C2.35 3 1 4.35 1 6v14c0 1.65 1.35 3 3 3h14c1.65 0 3-1.35 3-3v-7c0-.55-.45-1-1-1z" /><path d="M22.21 1.79c-1.18-1.18-3.24-1.18-4.41 0l-9.5 9.5c-.13.13-.22.29-.26.46l-1 4c-.08.34.01.7.26.95.18.2.44.3.7.3.08 0 .16-.01.24-.03l4-1c.18-.04.34-.13.46-.26l9.5-9.5c1.22-1.22 1.22-3.2.01-4.42zm-1.42 3l-9.3 9.3-2.11.53.53-2.11 9.3-9.3c.42-.42 1.16-.42 1.59 0 .43.43.43 1.15-.01 1.58z" /><path fill="none" d="M0 0h24v24H0z" /></svg>
+                                        <span>Edit this page</span>
+                                    </a>
+                                </div>
+                            
+                                <nav class="flex mt-14">
+                                    <div class="w-1/2">
+                                        <a class="px-5 py-4 h-full flex items-center break-normal font-medium text-blue-500 dark:text-blue-400 border border-gray-300 hover:border-gray-400 dark:border-dark-650 dark:hover:border-dark-450 rounded-r rounded-l-lg transition-colors duration-150 relative hover:z-5" href="../release-procedure/">
+                                            <svg xmlns="http://www.w3.org/2000/svg" class="mr-3" width="24" height="24" viewBox="0 0 24 24" fill="currentColor" overflow="visible"><path d="M19 11H7.41l5.29-5.29a.996.996 0 10-1.41-1.41l-7 7a1 1 0 000 1.42l7 7a1.024 1.024 0 001.42-.01.996.996 0 000-1.41L7.41 13H19c.55 0 1-.45 1-1s-.45-1-1-1z" /><path fill="none" d="M0 0h24v24H0z" /></svg>
+                                            <span>
+                                                <span class="block text-xs font-normal text-gray-400 dark:text-dark-400">Previous</span>
+                                                <span class="block mt-1">Release Procedure</span>
+                                            </span>
+                                        </a>
+                                    </div>
+                            
+                                    <div class="w-1/2">
+                                    </div>
+                                </nav>
+                            </footer>
+                        </main>
+                
+                        <div class="border-t dark:border-dark-650 pt-6 mb-8">
+                            <footer class="flex flex-wrap items-center justify-between">
+                                <div>
+                                    <ul class="flex flex-wrap items-center text-sm">
+                                    </ul>
+                                </div>
+                                <div class="docs-copyright py-2 text-gray-500 dark:text-dark-350 text-sm leading-relaxed"><p>© Copyright 2022. All rights reserved.</p></div>
+                            </footer>
+                        </div>
+                    </div>
+                
+                    <!-- Rendered if sidebar right is enabled -->
+                    <!-- Sidebar right skeleton-->
+                    <div v-cloak class="fixed top-0 bottom-0 right-0 translate-x-full bg-white border-gray-200 lg:sticky lg:border-l lg:shrink-0 lg:pt-6 lg:transform-none sm:w-1/2 lg:w-64 lg:z-0 md:w-104 sidebar-right skeleton dark:bg-dark-850 dark:border-dark-650">
+                        <div class="pl-5">
+                            <div class="w-32 h-3 mb-4 bg-gray-200 dark:bg-dark-600 rounded-full loading"></div>
+                            <div class="w-48 h-3 mb-4 bg-gray-200 dark:bg-dark-600 rounded-full loading"></div>
+                            <div class="w-40 h-3 mb-4 bg-gray-200 dark:bg-dark-600 rounded-full loading"></div>
+                        </div>
+                    </div>
+                
+                    <!-- User should be able to hide sidebar right -->
+                    <doc-sidebar-right v-cloak></doc-sidebar-right>
+                </div>
+
+            </div>
+        </div>
+    
+        <doc-search-mobile></doc-search-mobile>
+        <doc-back-to-top></doc-back-to-top>
+    </div>
+
+
+    <div id="docs-overlay-target"></div>
+
+    <script>window.__DOCS__ = { "title": "Deployment Procedure", level: 1, icon: "file", hasPrism: false, hasMermaid: false, hasMath: false }</script>
+</body>
+</html>

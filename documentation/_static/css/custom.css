@@ -1,0 +1,54 @@
+@import url("theme.css");
+
+/* Make background white */
+.wy-side-nav-search {
+    background-color: #fcfcfc;
+}
+/* Remove expand/collapse buttons in navbar */
+.wy-menu-vertical li a span.toctree-expand {
+    display: none;
+}
+/* Make sidebar white */
+.wy-nav-side {
+    background-color: #fcfcfc;
+}
+/* Make sidebar buttons blue */
+.wy-menu-vertical a,
+.wy-menu-vertical li ul li a {
+    color: #3091d1;
+}
+/* Give sidebar buttons white background on hover */
+.wy-menu-vertical a:hover {
+    background-color: #fcfcfc;
+}
+/* Make version number gray */
+.wy-side-nav-search > div.version {
+    color: #bbb;
+}
+/* Hide version bar */
+.rst-versions .rst-current-version {
+    background-color: #fcfcfc;
+}
+.rst-versions {
+    border-top: solid .5px #2472a4;
+}
+table {
+    overflow: auto;
+    width: 100%;
+    display: block;
+}
+table tr {
+    background-color: #fff;
+    border-top: 1px solid #ccc;
+}
+table td {
+    padding: 6px 13px;
+    border: 1px solid #ddd;
+}
+
+
+.homeLinks td {
+    border:none !important;
+    padding-bottom:40px !important;
+    vertical-align: top;
+}

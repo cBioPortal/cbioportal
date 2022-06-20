@@ -4,6 +4,8 @@ import org.cbioportal.model.CancerStudy;
 import org.cbioportal.model.CancerStudyTags;
 import org.cbioportal.model.meta.BaseMeta;
 import org.cbioportal.persistence.StudyRepository;
+import org.cbioportal.persistence.mybatis.client.AdhocFlightClient;
+import org.cbioportal.persistence.mybatis.client.ArrowFlightClient;
 import org.cbioportal.persistence.mybatis.util.OffsetCalculator;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
@@ -33,7 +35,16 @@ public class StudyMyBatisRepository implements StudyRepository {
 
     @Override
     public CancerStudy getStudy(String studyId, String projection) {
-        return studyMapper.getStudy(studyId, projection);
+        AdhocFlightClient client = ArrowFlightClient.getClient();
+        try {
+            List<CancerStudy> cancerStudies = client.runQuery("select * from \"database_2022_06\".\"cbioportal-database-2022-06\".\"cancer_study.parquet\" where CANCER_STUDY_IDENTIFIER = '" + studyId + "'", null, CancerStudy.class);
+            if (cancerStudies.size() == 1) {
+                return cancerStudies.get(0);
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return null;
     }
 
 	@Override

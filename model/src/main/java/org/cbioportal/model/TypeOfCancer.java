@@ -1,11 +1,14 @@
 package org.cbioportal.model;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
+
 import java.io.Serializable;
 import javax.validation.constraints.NotNull;
 
 public class TypeOfCancer implements Serializable {
 
     @NotNull
+    @JsonProperty("TYPE_OF_CANCER_ID")
     private String typeOfCancerId;
     private String name;
     private String dedicatedColor;

@@ -1,23 +1,39 @@
 package org.cbioportal.model;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
+import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.annotation.JsonUnwrapped;
+
 import java.io.Serializable;
 import java.util.Date;
 import javax.validation.constraints.NotNull;
 
 public class CancerStudy implements ReadPermission, Serializable {
 
+    @JsonProperty("CANCER_STUDY_ID")
     private Integer cancerStudyId;
     @NotNull
+    @JsonProperty("CANCER_STUDY_IDENTIFIER")
     private String cancerStudyIdentifier;
     private String typeOfCancerId;
+    @JsonProperty("NAME")
     private String name;
+    @JsonProperty("DESCRIPTION")
     private String description;
+    @JsonProperty("PUBLIC")
     private Boolean publicStudy;
+    @JsonProperty("PMID")
     private String pmid;
+    @JsonProperty("CITATION")
     private String citation;
+    @JsonProperty("GROUPS")
     private String groups;
+    @JsonProperty("STATUS")
     private Integer status;
+    @JsonProperty("IMPORT_DATE")
+    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd'T'HH:mm:ss")
     private Date importDate;
+    @JsonUnwrapped
     private TypeOfCancer typeOfCancer;
     private Integer allSampleCount;
     private Integer sequencedSampleCount;
@@ -30,6 +46,7 @@ public class CancerStudy implements ReadPermission, Serializable {
     private Integer rppaSampleCount;
     private Integer massSpectrometrySampleCount;
     private Integer completeSampleCount;
+    @JsonProperty("REFERENCE_GENOME_ID")
     private String referenceGenome;
     private Boolean readPermission = true;
     

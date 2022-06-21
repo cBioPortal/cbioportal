@@ -1,8 +1,8 @@
 # Deployment Procedure
 This describes our internal deployment procedure. Shared publicly, in case it
 may be of use. Instructions on how to deploy cBioPortal can be found elsewhere,
-see e.g. [Deploying the web application](Deploying.md) and [Deploy using
-Docker](Deploy-Using-Docker.md).
+see e.g. [Deploying the web application](/deployment/deploy-without-docker/Deploying.md) and [Deploy using
+Docker](/deployment/docker/).
 
 We deploy the master branch of backend and the master branch of frontend to
 production. The public portal (https://www.cbioportal.org) runs on AWS inside
@@ -19,8 +19,8 @@ access.
 The frontend and backend can be upgraded independently. We have the following
 events that can require a new deployment:
 
-1. [New frontend commit in master](new-frontend-commit-in-master)
-1. [New backend commit in master](new-backend-commit-in-master)
+- New **frontend** commit in master
+- New **backend** commit in master
 
 ## New frontend commit in master
 Currently we are auto-deploying the frontend master branch to netlify:
@@ -125,7 +125,8 @@ Same for triage-tomcat (agin set the correct file name)::
 
 ```
  for f in $(grep frontend.url.runtime properties/*/portal.properties | grep -v beta | cut -d: -f1); do sed -i 's|frontend.url.runtime=/srv/www/triage-tomcat/frontend_url_version_2_0_0.txt|frontend.url.runtime=/srv/www/triage-tomcat/frontend_url_version_2_1_0.txt|g' $f; done
-```	
+```
+
 Make sure you see the frontend url file updated correctly:
 
 ```
@@ -186,9 +187,10 @@ If there is not a weekly dump, backup the database being migrated using mysqldum
 mysqldump -u <user> -h <host> -p <database name> | gzip > <database_name>_`date +%Y%m%d_%H%M`.sql.gz 
 ```
     
-The second step is to migrate the database. Make sure that the migration script is the same version as the deployed cBioPortal website. It is recommended to first test the migration script manually line-by-line in a copy of the existing database. This will catch any data-related bugs that might not be captured by the python migration script. After testing is successful, migrate the production databases following these steps [here](Updating-your-cBioPortal-installation.md#Running-the-migration-script). 
+The second step is to migrate the database. Make sure that the migration script is the same version as the deployed cBioPortal website. It is recommended to first test the migration script manually line-by-line in a copy of the existing database. This will catch any data-related bugs that might not be captured by the python migration script. After testing is successful, migrate the production databases following these steps [here](/Updating-your-cBioPortal-installation.md#running-the-migration-script). 
 
 These are all cBioPortal databases and their locations:
+
 | Website  | Database | Location |
 | ------------- | ------------- | ------------- |
 | cbioportal.mskcc.org  | cgds_gdac  | pipelines |
@@ -215,7 +217,7 @@ The following steps are used during releases/updates to build new importers with
 
 6. Merge this change into cmo-pipelines/master
 
-7. Run the deployment wrapper script. See details [here](Deployment-Procedure.md#Deployment-Script).  
+7. Run the deployment wrapper script. See details [here](/Deployment-Procedure.md#deployment-script).  
 
 8. Verify new importers/data fetchers have been placed in `/data/portal-cron/lib` by checking timestamps.
 ```
@@ -229,7 +231,7 @@ The wrapper script is found on pipelines here:
 Run `git pull` to pull in any updates to the build script.
 
 The wrapper script takes two arguments:
-1. --cbioportal-git-hash (required): Set to the cBioPortal commit hash being used in the pipelines build (hash specified in **step 1** of [updating importers](#Updating-Importers)). This must match because the build copies out resource files (e.g application-context-business.xml) from the cbioportal codebase. 
+1. --cbioportal-git-hash (required): Set to the cBioPortal commit hash being used in the pipelines build (hash specified in **step 1** of [updating importers](#updating-importersdata-fetchers)). This must match because the build copies out resource files (e.g application-context-business.xml) from the cbioportal codebase. 
 2. --skip-deployment (optional): Set to true to skip auto-deployment to `/data/portal-cron/lib`. Built jars will be found in `/data/portal-cron/git-repos/pipelines-configuration/build-importer-jars/` and can be be manually moved.
 
 The wrapper script will automatically backup the importers/data-fetchers to `/data/portal-cron/lib/backup`.

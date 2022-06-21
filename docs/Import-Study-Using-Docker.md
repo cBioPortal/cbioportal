@@ -1,7 +1,7 @@
 # Import Study Using Docker
 
 :warning: Every time you add/remove/overwrite a study please restart tomcat (or the Docker container), or 
-call the `/api/cache` endpoint with a `DELETE` http-request (see [here](portal.properties-Reference.md#flush-caches-with-the-_apicache_-endpoint) for more information).
+call the `/api/cache` endpoint with a `DELETE` http-request (see [here](/deployment/customization/portal.properties-Reference.md#evict-caches-with-the-apicache-endpoint) for more information).
 
 ## Adding a Study
 

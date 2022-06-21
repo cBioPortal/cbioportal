@@ -1,17 +1,25 @@
 package org.cbioportal.model;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
+
 import javax.validation.constraints.NotNull;
 
 public class ClinicalData extends UniqueKeyBase {
 
+    @JsonProperty("internalId")
     private Integer internalId;
+    @JsonProperty("sampleId")
     private String sampleId;
     @NotNull
+    @JsonProperty("patientId")
     private String patientId;
     @NotNull
+    @JsonProperty("studyId")
     private String studyId;
     @NotNull
+    @JsonProperty("attrId")
     private String attrId;
+    @JsonProperty("attrValue")
     private String attrValue;
     private ClinicalAttribute clinicalAttribute;
 

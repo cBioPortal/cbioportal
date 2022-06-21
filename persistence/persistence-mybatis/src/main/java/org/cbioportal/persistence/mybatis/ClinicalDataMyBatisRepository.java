@@ -9,6 +9,8 @@ import org.cbioportal.model.meta.BaseMeta;
 import org.cbioportal.persistence.ClinicalDataRepository;
 import org.cbioportal.persistence.PatientRepository;
 import org.cbioportal.persistence.PersistenceConstants;
+import org.cbioportal.persistence.mybatis.client.AdhocFlightClient;
+import org.cbioportal.persistence.mybatis.client.ArrowFlightClient;
 import org.cbioportal.persistence.mybatis.util.OffsetCalculator;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
@@ -39,18 +41,26 @@ public class ClinicalDataMyBatisRepository implements ClinicalDataRepository {
         UUID uuid = UUID.randomUUID();
         log.debug("entry to getAllClinicalDataOfSampleInStudy() : " + uuid + "\n");
         System.out.println("entry to getAllClinicalDataOfSampleInStudy() : " + uuid + "\n");
-        List<ClinicalData> returnValue = clinicalDataMapper.getSampleClinicalData(
-                Arrays.asList(studyId),
-                Arrays.asList(sampleId),
-                attributeId != null ? Arrays.asList(attributeId) : null,
-                projection,
-                pageSize,
-                offsetCalculator.calculate(pageSize, pageNumber),
-                sortBy,
-                direction);
-        log.debug("exit from getAllClinicalDataOfSampleInStudy() : " + uuid + "\n");
-        System.out.println("exit from getAllClinicalDataOfSampleInStudy() : " + uuid + "\n");
-        return returnValue;
+        try {
+            AdhocFlightClient client = ArrowFlightClient.getClient();
+            // initial query           
+            StringBuilder sb = new StringBuilder("select * from \"cbioportal_prototype\".\"database_2022_06\".\"clinical_data_sample_select_from_set\"");
+            if (sampleId == null) {
+                sb.append(String.format(" where studyId = '%s'", studyId));
+            } else {
+                sb.append(String.format(" where studyId = '%s' and sampleId in ('%s')", studyId, sampleId));
+            }
+            if (attributeId != null) {
+                sb.append(String.format(" and attrId in ('%s')", attributeId));
+            }
+            List<ClinicalData> clinicalDataList = client.runQuery(sb.toString(), null, ClinicalData.class);
+            log.debug("exit from getAllClinicalDataOfSampleInStudy() : " + uuid + "\n");
+            System.out.println("exit from getAllClinicalDataOfSampleInStudy() : " + uuid + "\n");
+            return clinicalDataList;
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return null;
     }
 
     @Override

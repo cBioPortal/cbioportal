@@ -2,9 +2,9 @@
 
 This page describes how to import a gene panel into the cBioPortal database.  It assumes the following requirements have been satisfied:
 
-1. The cBioPortal software has been correctly [built from source](Build-from-Source.md).
+1. The cBioPortal software has been correctly [built from source](/deployment/deploy-without-docker/Build-from-Source.md).
 2. The gene panel to import is in the proper file format. See [Gene Panel File format](#gene-panel-file-format) for more information.
-3. The `PORTAL_HOME` environment variable has been properly defined.  See [Loading a Sample Study](Load-Sample-Cancer-Study.md#set-the-portal_home-environment-variable) for more information.
+3. The `PORTAL_HOME` environment variable has been properly defined.  See [Loading a Sample Study](/deployment/deploy-without-docker/Load-Sample-Cancer-Study.md#set-the-portal_home-environment-variable) for more information.
 
 ## Gene panel file format
 The gene panel file follows the format of a meta file with the following fields:
@@ -30,7 +30,7 @@ cd <cbioportal_source_folder>/core/src/main/scripts
 ```
 
 After loading gene panels into the database, please restart Tomcat or call the `/api/cache` endpoint with a `DELETE` http-request
-(see [here](portal.properties-Reference.md#flush-caches-with-the-_apicache_-endpoint) for more information) so that the
+(see [here](/deployment/customization/portal.properties-Reference.md#cache-settings) for more information) so that the
 validator can retrieve gene panel information from the cBioPortal API. 
 
 #### Update existing gene panel

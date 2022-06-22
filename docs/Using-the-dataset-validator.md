@@ -1,12 +1,6 @@
-* [Introduction](#introduction)
-* [Running the validator](#running-the-validator)
-* [Offline Validation](#offline-validation)
-* [Validation of non-human data](#validation-of-non-human-data)
-* [Running the validator for multiple studies](#running-the-validator-for-multiple-studies)
+# Using the dataset validator
 
-## Introduction
-
-To facilitate the loading of new studies into its database, cBioPortal [provides a set of staging files formats](File-Formats.md) for the various data types. To validate your files you can use the dataset validator script. 
+To facilitate the loading of new studies into its database, cBioPortal [provides a set of staging files formats](/File-Formats.md) for the various data types. To validate your files you can use the dataset validator script. 
 
 ## Running the validator
 
@@ -778,7 +772,7 @@ Validation of study succeeded with warnings.
 ## Validation of non-human data ##
 When importing a study with a reference genome other than hg19/GRCh37, this should be specified in the `meta_study.txt` file, next to the `reference_genome` field. Supported values are **hg19**, **hg38** and **mm10**.
 
-cBioPortal is gradually introducing support for mouse. If you want to load mouse studies and you have to [set up your database for mouse](Import-the-Seed-Database.md#download-the-cbioportal-database).
+cBioPortal is gradually introducing support for mouse. If you want to load mouse studies and you have to [set up your database for mouse](/deployment/deploy-without-docker/Import-the-Seed-Database.md#download-the-cbioportal-seed-database).
 
 As an example, the command for the mouse example using the three parameters is given:
 ```

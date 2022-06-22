@@ -10,7 +10,7 @@ cBioPortal consists of the following components:
 - [session service](https://github.com/cBioPortal/session-service) for storing
   user saved data such as virtual studies and groups
 - Mongo database which session service uses
-- cBioPortal also uses the APIs from various [external services](#External-Services) to provide more information about a variant
+- cBioPortal also uses the APIs from various [external services](#external-services) to provide more information about a variant
 
 ## Backend
 
@@ -50,17 +50,17 @@ with the backend so no extra setup is required.
 cBioPortal uses the APIs from several external services to provide more
 information about a variant:
 
-- [OncoKB](#OncoKB)
-- [CIVIC](#CIVIC)
-- [Genome Nexus](#Genome-Nexus)
-- [G2S](#G2S)
+- [OncoKB](#oncokb)
+- [CIVIC](#civic)
+- [Genome Nexus](#genome-nexus)
+- [G2S](#g2s)
 
-For privacy concerns see the section: [A note on privacy](#A-note-on-privacy).
+For privacy concerns see the section: [A note on privacy](#a-note-on-privacy).
 
 ### OncoKB
 [OncoKB](https://www.oncokb.org) is a precision oncology knowledge base that
 contains information about the effects and treatment implications of specific
-cancer gene alterations. See the section [OncoKB Data Access](OncoKB-Data-Access.md)
+cancer gene alterations. See the section [OncoKB Data Access](/deployment/integration-with-other-webservices/OncoKB-Data-Access.md)
 for how to configure external OncoKB service.
 
 ### CIVIC
@@ -70,7 +70,7 @@ relevance of variants (or biomarker alterations) in cancer. For information on
 how to deploy this service yourself see:
 https://github.com/griffithlab/civic-server. It is also possible to disable
 showing CIVIC in cBioPortal by setting `show.civic=false` in the
-`portal.properties` (See [portal.properties reference](portal.properties-Reference.md)).
+`portal.properties` (See [portal.properties reference](/deployment/customization/portal.properties-Reference.md#civic-integration)).
 
 ### Genome Nexus
 [Genome Nexus](https://www.genomenexus.org) is a comprehensive one-stop

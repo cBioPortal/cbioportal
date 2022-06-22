@@ -1,5 +1,8 @@
 package org.cbioportal.model;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.annotation.JsonValue;
+
 import javax.validation.constraints.NotNull;
 import java.util.Objects;
 
@@ -21,6 +24,7 @@ public class Sample extends UniqueKeyBase {
             this.value = value;
         }
 
+        @JsonValue
         public String getValue() {
             return value;
         }
@@ -43,15 +47,21 @@ public class Sample extends UniqueKeyBase {
         }
     }
 
+    @JsonProperty("internalId")
     private Integer internalId;
     @NotNull
+    @JsonProperty("stableId")
     private String stableId;
+    @JsonProperty("sampleType")
     private SampleType sampleType;
+    @JsonProperty("patientId")
     private Integer patientId;
     @NotNull
+    @JsonProperty("patientStableId")
     private String patientStableId;
     private Patient patient;
     @NotNull
+    @JsonProperty("cancerStudyIdentifier")
     private String cancerStudyIdentifier;
     private Boolean sequenced;
     private Boolean copyNumberSegmentPresent;

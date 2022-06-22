@@ -1,9 +1,12 @@
 package org.cbioportal.persistence.mybatis;
 
+import org.cbioportal.model.CancerStudy;
 import org.cbioportal.model.Sample;
 import org.cbioportal.model.meta.BaseMeta;
 import org.cbioportal.persistence.SampleRepository;
 import org.cbioportal.persistence.PersistenceConstants;
+import org.cbioportal.persistence.mybatis.client.AdhocFlightClient;
+import org.cbioportal.persistence.mybatis.client.ArrowFlightClient;
 import org.cbioportal.persistence.mybatis.util.OffsetCalculator;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
@@ -61,8 +64,16 @@ public class SampleMyBatisRepository implements SampleRepository {
     
     @Override
     public Sample getSampleInStudy(String studyId, String sampleId) {
-
-        return sampleMapper.getSample(studyId, sampleId, PersistenceConstants.DETAILED_PROJECTION);
+        AdhocFlightClient client = ArrowFlightClient.getClient();
+        try {
+            List<Sample> samples = client.runQuery(String.format("select * from \"cbioportal_prototype\".\"database_2022_06\".\"sample_select_from_set\" where stableId = '%s' and cancerStudyIdentifier='%s'",sampleId,studyId), null, Sample.class);
+            if (samples.size() == 1) {
+                return samples.get(0);
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return null;
     }
 
     @Override

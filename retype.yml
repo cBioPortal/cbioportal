@@ -1,4 +1,4 @@
-input: ./documentation
+input: ./docs
 output: .retype
 branding:
   title: cBioPortal Docs

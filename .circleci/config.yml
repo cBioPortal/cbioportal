@@ -107,6 +107,9 @@ jobs:
         machine:
             enabled: true
             image: ubuntu-2004:202201-02
+            pre:
+                - pyenv local 3.6.5
+                - virtualenv venv
         steps:
             - attach_workspace:
                 at: /tmp/repos

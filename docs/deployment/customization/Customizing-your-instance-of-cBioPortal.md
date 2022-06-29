@@ -70,7 +70,7 @@ Below you can find the complete list of all the available skin properties.
       <tr>
          <td>skin.documentation.faq</td>
          <td>set the faq page which can be accessed via FAQ in the header. Please see the cBioPortal Documentation section for details on how to properly configure the documentation pages.</td>
-         <td>FAQ.md</td>
+         <td>user-guide/faq.md</td>
          <td>text</td>
       </tr>
       <tr>

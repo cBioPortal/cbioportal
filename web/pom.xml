@@ -33,11 +33,20 @@
     </dependency>
     <dependency>
       <groupId>io.springfox</groupId>
-      <artifactId>springfox-swagger2</artifactId>
+      <artifactId>springfox-oas</artifactId>
     </dependency>
     <dependency>
       <groupId>io.springfox</groupId>
-      <artifactId>springfox-swagger-ui</artifactId>
+      <artifactId>springfox-spring-web</artifactId>
+    </dependency>
+<!--
+    Even though this isn't a spring boot project, we need this artifact.
+    Removing it causes a wire time error:
+        No qualifying bean of type 'springfox.documentation.spring.web.DescriptionResolver'
+-->
+    <dependency>
+      <groupId>io.springfox</groupId>
+      <artifactId>springfox-boot-starter</artifactId>
     </dependency>
     <dependency>
       <groupId>io.springfox</groupId>

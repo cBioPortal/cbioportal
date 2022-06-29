@@ -31,7 +31,7 @@ skin.data_sets_footer=Data sets of TCGA studies were downloaded from Broad Fireh
 # documentation pages
 skin.documentation.baseurl=https://raw.githubusercontent.com/cBioPortal/cbioportal/master/docs/
 skin.documentation.markdown=true
-skin.documentation.faq=FAQ.md
+skin.documentation.faq=user-guide/faq.md
 skin.documentation.about=About-Us.md
 skin.documentation.news=News.md
 skin.documentation.oql=Onco-Query-Language.md

@@ -92,6 +92,7 @@ public class InvolvedCancerStudyExtractorInterceptor extends HandlerInterceptorA
     public static final String COPY_NUMBER_ENRICHMENT_FETCH_PATH = "/copy-number-enrichments/fetch";
     public static final String EXPRESSION_ENRICHMENT_FETCH_PATH = "/expression-enrichments/fetch";
     public static final String ALTERATION_ENRICHMENT_FETCH_PATH = "/alteration-enrichments/fetch";
+    public static final String ALTERATION_COUNTS_FETCH_PATH = "/alteration-counts/fetch";
     public static final String TREATMENT_FETCH_PATH = "/treatments/fetch";
     public static final String STRUCTURAL_VARIANT_FETCH_PATH = "/structural-variant/fetch";
     public static final String GENERIC_ASSAY_DATA_MULTIPLE_STUDY_FETCH_PATH = "/generic_assay_data/fetch";
@@ -148,6 +149,8 @@ public class InvolvedCancerStudyExtractorInterceptor extends HandlerInterceptorA
             return extractAttributesFromMolecularProfileCasesGroups(request);
         } else if (requestPathInfo.equals(ALTERATION_ENRICHMENT_FETCH_PATH)) {
             return extractAttributesFromMolecularProfileCasesGroupsAndAlterationTypes(request);
+        } else if (requestPathInfo.equals(ALTERATION_COUNTS_FETCH_PATH)) {
+            return extractAttributesFromAlterationCountFilter(request);
         } else if (requestPathInfo.equals(STRUCTURAL_VARIANT_FETCH_PATH)) {
             return extractAttributesFromStructuralVariantFilter(request);
         } else if (requestPathInfo.equals(GENERIC_ASSAY_DATA_MULTIPLE_STUDY_FETCH_PATH)) {
@@ -643,6 +646,23 @@ public class InvolvedCancerStudyExtractorInterceptor extends HandlerInterceptorA
         return true;
     }
 
+    private boolean extractAttributesFromAlterationCountFilter(HttpServletRequest request) {
+        try {
+            AlterationCountFilter alterationCountFilter = objectMapper.readValue(request.getInputStream(), AlterationCountFilter.class);
+            LOG.debug("extracted alterationCountFilter: " + alterationCountFilter);
+            request.setAttribute("interceptedAlterationCountFilter", alterationCountFilter);
+            if (cacheMapUtil.hasCacheEnabled()) {
+                Collection<String> cancerStudyIdCollection = extractCancerStudyIdsFromAlterationCountFilter(alterationCountFilter);
+                LOG.debug("setting involvedCancerStudies to " + cancerStudyIdCollection);
+                request.setAttribute("involvedCancerStudies", cancerStudyIdCollection);
+            }
+        } catch (Exception e) {
+            LOG.error("exception thrown during extraction of molecularProfileCasesGroupFilters: " + e);
+            return false;
+        }
+        return true;
+    }
+    
     private Collection<String> extractCancerStudyIdsFromStructuralVariantFilter(StructuralVariantFilter structuralVariantFilter) {
         Set<String> studyIdSet = new HashSet<String>();
         if (structuralVariantFilter.getSampleMolecularIdentifiers() != null) {
@@ -752,4 +772,14 @@ public class InvolvedCancerStudyExtractorInterceptor extends HandlerInterceptorA
         return studyIdSet;
     }
 
+    private Set<String> extractCancerStudyIdsFromAlterationCountFilter(AlterationCountFilter alterationCountFilter) {
+        Set<String> molecularProfileIds = alterationCountFilter
+            .getMolecularProfileCaseIdentifiers()
+            .stream()
+            .map(MolecularProfileCaseIdentifier::getMolecularProfileId)
+            .collect(Collectors.toSet());
+        Set<String> studyIdSet = new HashSet<>();
+        extractCancerStudyIdsFromMolecularProfileIds(molecularProfileIds, studyIdSet);
+        return studyIdSet;
+    }
 }

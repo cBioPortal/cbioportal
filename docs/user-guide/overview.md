@@ -27,6 +27,7 @@ Short videos that show how to perform specific analyses or how to use specific p
 5. Using Onco Query Language (OQL) to query based on the expression level of genes [youtube.com](https://www.youtube.com/watch?v=kHlFXw2TMzc)
 6. How to explore the data in a study [youtube.com](https://www.youtube.com/watch?v=N8ffDgkqDWc)
 7. How to run a query for genes of interest [youtube.com](https://www.youtube.com/watch?v=MH-kY5usA70)
+8. How to download data [youtube.com](https://www.youtube.com/watch?v=JId304dp3tc)
 
 ### Documentation
 * Frequently Asked Questions [FAQ](https://www.cbioportal.org/faq)

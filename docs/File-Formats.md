@@ -619,17 +619,15 @@ A minimal mutation annotations file can contain just the six genomic change colu
 6. **Tumor_Seq_Allele2 (Required)**: Primary data genotype.
 7. **Tumor_Sample_Barcode (Required)**: This is the sample ID. Either a TCGA barcode (patient identifier will be extracted), or for non-TCGA data, a literal SAMPLE_ID as listed in the clinical data file.
 
-In addition to the above columns, it is recommended to have the allele counts 
+In addition to the above columns, it is recommended to have the read counts to calculate variant allele frequencies:
 
 8. **t_alt_count (Optional, but recommended)**: Variant allele count (tumor). 
 9. **t_ref_count (Optional, but recommended)**: Reference allele count (tumor).
-10. **n_alt_count (Optional, but recommended)**: Variant allele count (normal).
-11. **n_ref_count (Optional, but recommended)**: Reference allele count (normal).
 
 The following extra annotation columns are important for making sure mutation specific UI functionality works well in the portal:
 
-12. **Protein_position (Optional)**: (annotation column) Required to initialize the 3D viewer in [mutations view](https://www.cbioportal.org/index.do?cancer_study_list=brca_tcga_pub&cancer_study_id=brca_tcga_pub&genetic_profile_ids_PROFILE_MUTATION_EXTENDED=brca_tcga_pub_mutations&genetic_profile_ids_PROFILE_COPY_NUMBER_ALTERATION=brca_tcga_pub_gistic&genetic_profile_ids_PROFILE_MRNA_EXPRESSION=brca_tcga_pub_mrna_median_Zscores&Z_SCORE_THRESHOLD=2.0&RPPA_SCORE_THRESHOLD=2.0&data_priority=0&case_set_id=brca_tcga_pub_complete&case_ids=&patient_case_select=sample&gene_set_choice=prostate-cancer%3A-ar-signaling-%2810-genes%29&gene_list=TP53&clinical_param_selection=null&tab_index=tab_visualize&Action=Submit#mutation_details)
-13. **SWISSPROT (Optional)**: (annotation column) UniProtKB/SWISS-PROT name (formerly called ID) or accession code depending on the value of the `swissprot_identifier` metadatum, e.g. O11H1_HUMAN or Q8NG94. Is not required, but not having it may result in inconsistent PDB structure matching in [mutations view](https://www.cbioportal.org/index.do?cancer_study_list=brca_tcga_pub&cancer_study_id=brca_tcga_pub&genetic_profile_ids_PROFILE_MUTATION_EXTENDED=brca_tcga_pub_mutations&genetic_profile_ids_PROFILE_COPY_NUMBER_ALTERATION=brca_tcga_pub_gistic&genetic_profile_ids_PROFILE_MRNA_EXPRESSION=brca_tcga_pub_mrna_median_Zscores&Z_SCORE_THRESHOLD=2.0&RPPA_SCORE_THRESHOLD=2.0&data_priority=0&case_set_id=brca_tcga_pub_complete&case_ids=&patient_case_select=sample&gene_set_choice=prostate-cancer%3A-ar-signaling-%2810-genes%29&gene_list=TP53&clinical_param_selection=null&tab_index=tab_visualize&Action=Submit#mutation_details).
+10. **Protein_position (Optional)**: (annotation column) Required to initialize the 3D viewer in [mutations view](https://www.cbioportal.org/index.do?cancer_study_list=brca_tcga_pub&cancer_study_id=brca_tcga_pub&genetic_profile_ids_PROFILE_MUTATION_EXTENDED=brca_tcga_pub_mutations&genetic_profile_ids_PROFILE_COPY_NUMBER_ALTERATION=brca_tcga_pub_gistic&genetic_profile_ids_PROFILE_MRNA_EXPRESSION=brca_tcga_pub_mrna_median_Zscores&Z_SCORE_THRESHOLD=2.0&RPPA_SCORE_THRESHOLD=2.0&data_priority=0&case_set_id=brca_tcga_pub_complete&case_ids=&patient_case_select=sample&gene_set_choice=prostate-cancer%3A-ar-signaling-%2810-genes%29&gene_list=TP53&clinical_param_selection=null&tab_index=tab_visualize&Action=Submit#mutation_details)
+11. **SWISSPROT (Optional)**: (annotation column) UniProtKB/SWISS-PROT name (formerly called ID) or accession code depending on the value of the `swissprot_identifier` metadatum, e.g. O11H1_HUMAN or Q8NG94. Is not required, but not having it may result in inconsistent PDB structure matching in [mutations view](https://www.cbioportal.org/index.do?cancer_study_list=brca_tcga_pub&cancer_study_id=brca_tcga_pub&genetic_profile_ids_PROFILE_MUTATION_EXTENDED=brca_tcga_pub_mutations&genetic_profile_ids_PROFILE_COPY_NUMBER_ALTERATION=brca_tcga_pub_gistic&genetic_profile_ids_PROFILE_MRNA_EXPRESSION=brca_tcga_pub_mrna_median_Zscores&Z_SCORE_THRESHOLD=2.0&RPPA_SCORE_THRESHOLD=2.0&data_priority=0&case_set_id=brca_tcga_pub_complete&case_ids=&patient_case_select=sample&gene_set_choice=prostate-cancer%3A-ar-signaling-%2810-genes%29&gene_list=TP53&clinical_param_selection=null&tab_index=tab_visualize&Action=Submit#mutation_details).
 
 ### Creating an extended MAF file
 Once you have a minimal MAF you can run it through the [Genome Nexus Annotation Pipeline](https://github.com/genome-nexus/genome-nexus-annotation-pipeline).
@@ -645,15 +643,15 @@ The extended MAF format recognized by the portal has:
 2. **Entrez_Gene_Id (Optional, but recommended)**: A [Entrez Gene](https://www.ncbi.nlm.nih.gov/gene) identifier.
 3. **Center (Optional)**: The sequencing center.
 4. **NCBI_Build (Required)<sup>1</sup>**: The Genome Reference Consortium Build is used by a variant calling software. It must be "GRCh37" or "GRCh38" for a human, and "GRCm38" for a mouse.
-5. **Chromosome (Optional)**: A chromosome number, e.g., "7".
-6. **Start_Position (Optional)**: Start position of event.
-7. **End_Position (Optional)**: End position of event.
+5. **Chromosome (Required)**: A chromosome number, e.g., "7".
+6. **Start_Position (Required)**: Start position of event.
+7. **End_Position (Required)**: End position of event.
 8. **Strand (Optional)**: We assume that the mutation is reported for the + strand.
 9. **Variant_Classification (Required)**: Translational effect of variant allele, e.g. Missense_Mutation, Silent, etc.
 10. **Variant_Type <sup>1</sup>(Optional)**: Variant Type, e.g. SNP, DNP, etc.
-11. **Reference_Allele (Optional)**: The plus strand reference allele at this position.
+11. **Reference_Allele (Required)**: The plus strand reference allele at this position.
 12. **Tumor_Seq_Allele1 (Optional)**: Primary data genotype.
-13. **Tumor_Seq_Allele2 (Optional)**: Primary data genotype.
+13. **Tumor_Seq_Allele2 (Required)**: Primary data genotype.
 14. **dbSNP_RS<sup>1</sup> (Optional)**: Latest dbSNP rs ID.
 15. **dbSNP_Val_Status<sup>1</sup> (Optional)**: dbSNP validation status.
 16. **Tumor_Sample_Barcode (Required)**: This is the sample ID. Either a TCGA barcode (patient identifier will be extracted), or for non-TCGA data, a literal SAMPLE_ID as listed in the clinical data file.

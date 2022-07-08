@@ -28,7 +28,7 @@ Compile your code again. After restarting the webserver the page should now stat
 
 ## Running the migration script
 
-First, make sure you have the DB connection properties correctly set in your portal.properties file (see [DB connection settings here](portal.properties-Reference.md#database-settings)).
+First, make sure you have the DB connection properties correctly set in your portal.properties file (see [DB connection settings here](/deployment/customization/portal.properties-Reference.md#database-settings)).
 
 **Dependencies:** the migration script is a Python script that depends on the `mysqlclient` library. If necessary, you can install it with the following commands (example for Ubuntu):
 ```console
@@ -70,4 +70,4 @@ etc
 ```
 
 **Final step:** Restart your webserver or call the `/api/cache` endpoint with a `DELETE` http-request
-(see [here](portal.properties-Reference.md#flush-caches-with-the-_apicache_-endpoint) for more information).
+(see [here](/deployment/customization/portal.properties-Reference.md#evict-caches-with-the-apicache-endpoint) for more information).

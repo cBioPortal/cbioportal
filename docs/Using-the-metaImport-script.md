@@ -48,7 +48,7 @@ optional arguments:
 ```
 
 #### Example of Importing a study
-Export `PORTAL_HOME` as explained [here](Load-Sample-Cancer-Study.md), e.g.
+Export `PORTAL_HOME` as explained [here](/deployment/deploy-without-docker/Load-Sample-Cancer-Study.md), e.g.
 
 ```
 export PORTAL_HOME=<cbioportal_configuration_folder>

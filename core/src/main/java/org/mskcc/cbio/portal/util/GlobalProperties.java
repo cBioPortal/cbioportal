@@ -219,13 +219,13 @@ public class GlobalProperties {
     public static final String SKIN_DOCUMENTATION_MARKDOWN="skin.documentation.markdown";
 
     public static final String SKIN_FAQ="skin.documentation.faq";
-    public static final String DEFAULT_SKIN_FAQ="FAQ.md";
+    public static final String DEFAULT_SKIN_FAQ="user-guide/faq.md";
     public static final String SKIN_ABOUT="skin.documentation.about";
     public static final String DEFAULT_SKIN_ABOUT="About-Us.md";
     public static final String SKIN_NEWS="skin.documentation.news";
     public static final String DEFAULT_SKIN_NEWS="News.md";
     public static final String SKIN_OQL="skin.documentation.oql";
-    public static final String DEFAULT_SKIN_OQL="Onco-Query-Language.md";
+    public static final String DEFAULT_SKIN_OQL="user-guide/oql.md";
 
     public static final String SKIN_EXAMPLES_RIGHT_COLUMN_HTML="skin.examples_right_column_html";
     

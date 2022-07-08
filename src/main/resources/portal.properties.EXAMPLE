@@ -31,7 +31,7 @@ skin.data_sets_footer=Data sets of TCGA studies were downloaded from Broad Fireh
 # documentation pages
 skin.documentation.baseurl=https://raw.githubusercontent.com/cBioPortal/cbioportal/master/docs/
 skin.documentation.markdown=true
-skin.documentation.faq=FAQ.md
+skin.documentation.faq=user-guide/faq.md
 skin.documentation.about=About-Us.md
 skin.documentation.news=News.md
 skin.documentation.oql=Onco-Query-Language.md
@@ -98,6 +98,9 @@ skin.study_view.link_text=To build your own case set, try out our enhanced Study
 # skin.home_page.show_unauthorized_studies=false
 ## enable this to configure a global message for the studies that are unauthorized; the message can contain placecards like {$.Owner.email} for the studies that have the information in the study tags 
 # skin.home_page.unauthorized_studies_global_message=The study is unauthorized. You need to request access.
+
+setting controlling whether Download tabs and download/copy-to-clipboard controls should be shown
+# skin.hide_download_controls=true
 
 ## enable and set this property to specify a study group to be used to identify public studies for which no specific authorization entries are needed in the `authorities` table
 # always_show_study_group=

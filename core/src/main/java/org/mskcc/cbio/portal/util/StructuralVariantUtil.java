@@ -79,13 +79,13 @@ public class StructuralVariantUtil {
     public static final String CONNECTION_TYPE = "Connection_Type";
     public static final String EVENT_INFO = "Event_Info";
     public static final String VARIANT_CLASS = "Class";
-    public static final String LENGTH = "Length";
+    public static final String LENGTH = "SV_Length";
     public static final String COMMENTS = "Comments";
     public static final String DRIVER_FILTER = "cbp_driver";
     public static final String DRIVER_FILTER_ANNOTATION = "cbp_driver_annotation";
     public static final String DRIVER_TIERS_FILTER = "cbp_driver_tiers";
     public static final String DRIVER_TIERS_FILTER_ANNOTATION = "cbp_driver_tiers_annotation";
-    public static final String SV_STATUS = "Sv_Status";
+    public static final String SV_STATUS = "SV_Status";
 
     public StructuralVariantUtil(){}
 

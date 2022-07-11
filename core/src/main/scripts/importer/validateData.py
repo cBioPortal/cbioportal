@@ -73,7 +73,6 @@ PATIENTS_WITH_SAMPLES = None
 DEFINED_CANCER_TYPES = None
 mutation_sample_ids = None
 mutation_file_sample_ids = set()
-fusion_file_sample_ids = set()
 sample_ids_panel_dict = {}
 
 # resource globals
@@ -107,7 +106,6 @@ VALIDATOR_IDS = {
     cbioportal_common.MetaFileTypes.SAMPLE_ATTRIBUTES:'SampleClinicalValidator',
     cbioportal_common.MetaFileTypes.PATIENT_ATTRIBUTES:'PatientClinicalValidator',
     cbioportal_common.MetaFileTypes.SEG:'SegValidator',
-    cbioportal_common.MetaFileTypes.FUSION:'FusionValidator',
     cbioportal_common.MetaFileTypes.PROTEIN:'ProteinLevelValidator',
     cbioportal_common.MetaFileTypes.GISTIC_GENES: 'GisticGenesValidator',
     cbioportal_common.MetaFileTypes.TIMELINE:'TimelineValidator',
@@ -307,7 +305,7 @@ class PortalInstance(object):
             if entrez_map is not None:
                 for entrez_list in list(entrez_map.values()):
                     for entrez_id in entrez_list:
-                        self.entrez_set.add(entrez_id)
+                        self.entrez_set.add(int(entrez_id))
 
         #Set defaults for genome version and species
         self.__species = 'human'
@@ -749,7 +747,7 @@ class Validator(object):
         return True
 
     # TODO: let this function know the column numbers for logging messages
-    def checkGeneIdentification(self, gene_symbol=None, entrez_id=None):
+    def checkGeneIdentification(self, gene_symbol=None, entrez_id=None, profile_type=None):
         """Attempt to resolve a symbol-Entrez pair, logging any issues.
 
         It will fail to resolve in these cases:
@@ -817,9 +815,10 @@ class Validator(object):
 
         # check whether at least one is present
         if entrez_id is None and gene_symbol is None:
-            self.logger.error(
-                'No Entrez gene id or gene symbol provided for gene.',
-                extra={'line_number': self.line_number})
+            if profile_type != 'SV':
+                self.logger.error(
+                    'No Entrez gene id or gene symbol provided for gene.',
+                    extra={'line_number': self.line_number})
             return None
 
         # if portal information is absent, skip the rest of the checks
@@ -1627,7 +1626,7 @@ class MutationsExtendedValidator(CustomDriverAnnotationValidator):
         sample_id = data[sample_id_column_index]
         self.checkSampleId(sample_id, column_number=sample_id_column_index + 1)
 
-        # Keep track of all sample IDs in the fusion data file
+        # Keep track of all sample IDs in the mutation data file
         mutation_file_sample_ids.add(sample_id)
 
         # parse hugo and entrez to validate them together
@@ -2964,74 +2963,9 @@ class SegValidator(Validator):
         # meanwhile adding up the number of (non-overlapping) bases covered on
         # that chromosome in that patient.
 
-
-class FusionValidator(Validator):
-
-    """Basic validation for fusion data. Validates:
-
-    1. Required column headers and the order
-    2. Values of Hugo_Symbol, Entrez_Gene_Id, Fusion and Tumor_Sample_Barcode
-    3. Uniqueness of lines
-    """
-
-    REQUIRED_HEADERS = [
-        'Hugo_Symbol',
-        'Entrez_Gene_Id',
-        'Center',
-        'Tumor_Sample_Barcode',
-        'Fusion',
-        'DNA_support',
-        'RNA_support',
-        'Method',
-        'Frame']
-    REQUIRE_COLUMN_ORDER = True
-    ALLOW_BLANKS = True
-
-    def __init__(self, *args, ** kwargs):
-        super(FusionValidator, self).__init__(*args, **kwargs)
-        self.fusion_entries = {}
-
-    def checkLine(self, data):
-
-        super(FusionValidator, self).checkLine(data)
-
-        # parse hugo and entrez to validate them together
-        hugo_symbol = None
-        entrez_id = None
-        if 'Hugo_Symbol' in self.cols:
-            hugo_symbol = data[self.cols.index('Hugo_Symbol')].strip()
-            # treat the empty string or 'Unknown' as a missing value
-            if hugo_symbol == '':
-                hugo_symbol = None
-        if 'Entrez_Gene_Id' in self.cols:
-            entrez_id = data[self.cols.index('Entrez_Gene_Id')].strip()
-            # treat empty string, 0 or 'NA' as a missing value
-            if entrez_id in ['', '0', 'NA']:
-                entrez_id = None
-        # validate hugo and entrez together:
-        self.checkGeneIdentification(hugo_symbol, entrez_id)
-
-        # validate uniqueness based on Hugo_Symbol, Entrez_Gene_Id, Tumor_Sample_Barcode and Fusion
-        fusion_entry = "\t".join([data[self.cols.index('Hugo_Symbol')],
-                                  data[self.cols.index('Entrez_Gene_Id')],
-                                  data[self.cols.index('Tumor_Sample_Barcode')],
-                                  data[self.cols.index('Fusion')]])
-        if fusion_entry in self.fusion_entries:
-            self.logger.warning(
-                'Duplicate entry in fusion data.',
-                extra = {'line_number': self.line_number,
-                         'cause': '%s (already defined on line %d)' % (
-                             fusion_entry,
-                             self.fusion_entries[fusion_entry])})
-        else:
-            self.fusion_entries[fusion_entry] = self.line_number
-
-        # Keep a list of samples which are in the fusion genetic profile
-        fusion_file_sample_ids.add(data[self.cols.index('Tumor_Sample_Barcode')])
-
 class StructuralVariantValidator(Validator):
 
-    """Basic validation for fusion data. Validates:
+    """Basic validation for structural variant data. Validates:
 
     1. Required column headers
     2. Gene IDs
@@ -3039,53 +2973,71 @@ class StructuralVariantValidator(Validator):
     """
 
     REQUIRED_HEADERS = [
-        'Sample_ID',
-        'Event_Info',  # For example: Fusion
+        'Sample_Id',
+        'SV_Status',
         ]
     REQUIRE_COLUMN_ORDER = False
     ALLOW_BLANKS = True
+    
+    UNIQUENESS_COLUMNS = [
+        'Sample_Id',
+        'Site1_Hugo_Symbol',
+        'Site1_Entrez_Gene_Id',
+        'Site1_Chromosome',
+        'Site1_Position',
+        'Site1_Region_Number',
+        'Site1_Ensembl_Transcript_Id', 
+        'Site2_Hugo_Symbol',
+        'Site2_Entrez_Gene_Id',
+        'Site2_Chromosome',
+        'Site2_Position',
+        'Site2_Region_Number',
+        'Site2_Ensembl_Transcript_Id']
 
-    def __init__(self, *args, ** kwargs):
+    # TODO: Revive the support to validate the events based on transcripts and exons - once the new visualization features (UI for fusion tab, breakpoint visualization) are added to front-end.
+    
+    def __init__(self, *args, **kwargs):
         super(StructuralVariantValidator, self).__init__(*args, **kwargs)
-        self.structural_variant_entries = {}
+        self.sv_entries = {}
         self.ncbi_build = None
-        self.transcript_set = set()
-        self.transcript_exons_dict = {}
+        self.unique_fields = []
+        self.other_required_genomic_fields = ['Site1_Region', 'Site2_Region', 'Site1_Contig', 'Site2_Contig']
+        self.missing_genomic_fields = []
 
     def checkHeader(self, data):
         num_errors = super(StructuralVariantValidator, self).checkHeader(data)
 
         # Check presence of gene
         if not ('Site1_Hugo_Symbol' in self.cols or 'Site1_Entrez_Gene_Id' in self.cols):
-            self.logger.error('Structural variant requires Site1_Entrez_Gene_Id and/or Site1_Hugo_Symbol column',
+            self.logger.error('Structural variant event requires Site1_Entrez_Gene_Id and/or Site1_Hugo_Symbol column',
                               extra={'line_number': self.line_number})
             num_errors += 1
 
         # Check second gene column
         if not ('Site2_Hugo_Symbol' in self.cols or 'Site2_Entrez_Gene_Id' in self.cols):
-            self.logger.error('Fusion event requires Site2_Entrez_Gene_Id and/or Site2_Hugo_Symbol column',
+            self.logger.error('Structural variant event requires Site2_Entrez_Gene_Id and/or Site2_Hugo_Symbol column',
                               extra={'line_number': self.line_number})
             num_errors += 1
 
-        # Fusion events should be described by exons.
-        # Using chromosomal locations to describe fusion events is not supported.
-        if not {'Site1_Exon', 'Site2_Exon'}.issubset(set(self.cols)):
-            self.logger.error('Fusion event requires "Site1_Exon" and "Site2_Exon" columns',
-                              extra={'line_number': self.line_number})
-            num_errors += 1
-
-        if not {'Site1_Ensembl_Transcript_Id', 'Site2_Ensembl_Transcript_Id'}.issubset(set(self.cols)):
-            self.logger.error('Fusion event requires "Site1_Ensembl_Transcript_Id" and "Site2_Ensembl_Transcript_Id" '
-                              'columns',
-                              extra={'line_number': self.line_number})
-            num_errors += 1
+        # Check the columns to define the uniqueness of SV records
+        # Report the missing genomic fields
+        for value in self.UNIQUENESS_COLUMNS:
+            if value in self.cols:
+                self.unique_fields.append(value)
+            else:
+                self.missing_genomic_fields.append(value)
+        
+        self.missing_genomic_fields.extend([value for value in self.other_required_genomic_fields if value not in self.cols])
+        
+        if len(self.missing_genomic_fields) > 1:
+            self.logger.warning('Missing genomic information. Consider'
+                                 ' adding the fields: [%s]', ', '.join(sorted(self.missing_genomic_fields)),
+                                 extra={'line_number': self.line_number})
 
         return num_errors
 
     def checkLine(self, data):
         super(StructuralVariantValidator, self).checkLine(data)
-
-        self.structural_variant_entries[self.line_number] = {}
 
         # Check whether a value is present or not available
         def checkPresenceValue(column_name, self, data):
@@ -3115,51 +3067,21 @@ class StructuralVariantValidator(Validator):
                         self.logger.error('Multiple values in NCBI_Build found, this is not supported',
                                           extra={'line_number': self.line_number,
                                                  'cause': '%s and %s' % (self.ncbi_build, ncbi_build)})
-
-        def checkFusionValues(self, data):
-            """Check if all values are present for a fusion event"""
-
-            def checkTranscriptPresence(self, transcript, column_name):
-                """Check if transcript is present"""
-                if transcript is None and column_name in self.cols:
-                    self.logger.error('No Ensembl transcript ID found. Please provide the Ensembl transcript ID '
-                                      'to refer the fusion event to the correct transcript and exons',
+                                                                                       
+        def checkSVstatus(sv_status):
+            """ Allowed values for SV_Status column are SOMATIC and GERMLINE """
+            if sv_status is None:
+                self.logger.warning('No value in SV_Status, assuming the variant is SOMATIC',
+                                  extra={'line_number': self.line_number})
+            else:
+                if not sv_status.lower() in ['somatic', 'germline']:
+                    self.logger.error('Invalid SV_Status value: possible values are [SOMATIC, GERMLINE]',
                                       extra={'line_number': self.line_number,
-                                             'column_number': self.cols.index(column_name) + 1})
+                                             'cause': sv_status})
 
-            def checkExonPresence(self, exon, column_name):
-                """Check if exon is present"""
-                if exon is None and column_name in self.cols:
-                    self.logger.error('No exon found. Please provide the exon for breakpoint visualization',
-                                      extra={'line_number': self.line_number,
-                                     'column_number': self.cols.index(column_name) + 1})
-
-            # Check presence of values in the columns
-            site1_transcript = checkPresenceValue('Site1_Ensembl_Transcript_Id', self, data)
-            site2_transcript = checkPresenceValue('Site2_Ensembl_Transcript_Id', self, data)
-            site1_exon = checkPresenceValue('Site1_Exon', self, data)
-            site2_exon = checkPresenceValue('Site2_Exon', self, data)
-
-            # Give specific error messages when values are None
-            checkTranscriptPresence(self, site1_transcript, 'Site1_Ensembl_Transcript_Id')
-            checkTranscriptPresence(self, site2_transcript, 'Site2_Ensembl_Transcript_Id')
-            checkExonPresence(self, site1_exon, 'Site1_Exon')
-            checkExonPresence(self, site2_exon, 'Site2_Exon')
-
-            # Attempt to parse exon values
-            if None not in [site1_exon, site2_exon]:
-                # Check value of exon
-                site1_exon = self.parse_exon(site1_exon, column_number=self.cols.index('Site1_Exon') + 1)
-                site2_exon = self.parse_exon(site2_exon, column_number=self.cols.index('Site2_Exon') + 1)
-
-            # Add values to dictionary which we have to check after we've retrieved transcripts and exons
-            self.structural_variant_entries[self.line_number]['Site1_Ensembl_Transcript_Id'] = site1_transcript
-            self.structural_variant_entries[self.line_number]['Site1_Exon'] = site1_exon
-            self.structural_variant_entries[self.line_number]['Site2_Ensembl_Transcript_Id'] = site2_transcript
-            self.structural_variant_entries[self.line_number]['Site2_Exon'] = site2_exon
-            self.structural_variant_entries[self.line_number]['NCBI_Build'] = self.ncbi_build
-            self.structural_variant_entries[self.line_number]['Event_Info'] = 'Fusion'
-            return
+        # Check SV_Status
+        sv_status = checkPresenceValue('SV_Status', self, data)
+        checkSVstatus(sv_status)
 
         # Check NCBI build
         if 'NCBI_Build' in self.cols:
@@ -3172,127 +3094,44 @@ class StructuralVariantValidator(Validator):
         # Parse Hugo Symbol and Entrez Gene Id and check them for Site 1
         site1_hugo_symbol = checkPresenceValue('Site1_Hugo_Symbol', self, data)
         site1_entrez_gene_id = checkPresenceValue('Site1_Entrez_Gene_Id', self, data)
-        self.checkGeneIdentification(site1_hugo_symbol, site1_entrez_gene_id)
+        site1_gene = self.checkGeneIdentification(site1_hugo_symbol, site1_entrez_gene_id, 'SV')
 
         # Parse Hugo Symbol and Entrez Gene Id and check them for Site 2
         site2_hugo_symbol = checkPresenceValue('Site2_Hugo_Symbol', self, data)
         site2_entrez_gene_id = checkPresenceValue('Site2_Entrez_Gene_Id', self, data)
-        self.checkGeneIdentification(site2_hugo_symbol, site2_entrez_gene_id)
-
-        # Validate fusion events if Event_Info is 'Fusion'
-        if data[self.cols.index('Event_Info')] == 'Fusion':
-            checkFusionValues(self, data)
-
+        site2_gene = self.checkGeneIdentification(site2_hugo_symbol, site2_entrez_gene_id, 'SV')
+        
+        # Check whether at least one of the Site1 or Site2 is valid.
+        if site1_gene is None and site2_gene is None:
+            self.logger.error(
+                'No Entrez gene id or gene symbol provided for site 1 and site 2. '
+                'This record will not be loaded',
+                extra={'line_number': self.line_number})
+        elif site1_gene is None and site2_gene is not None:
+            self.logger.warning(
+                'No Entrez gene id or gene symbol provided for site 1. '
+                'Assuming either the intragenic, deletion, duplication, translocation or inversion variant',
+                extra={'line_number': self.line_number})
+        elif site2_gene is None and site1_gene is not None:
+            self.logger.warning(
+                'No Entrez gene id or gene symbol provided for site 2. '
+                'Assuming either the intragenic, deletion, duplication, translocation or inversion variant',
+                extra={'line_number': self.line_number})
+                
+        # validate the uniqueness of SV records
+        sv_entry = "\t".join([data[self.cols.index(attr)] for attr in self.unique_fields])
+        if sv_entry in self.sv_entries:
+            self.logger.error(
+                'Duplicate entry in structural variant data',
+                extra = {'line_number': self.line_number,
+                         'cause': '%s (already defined on line %d)' % (
+                             sv_entry,
+                             self.sv_entries[sv_entry])})
+        else:
+            self.sv_entries[sv_entry] = self.line_number
+         
+         
     def onComplete(self):
-        """Perform final validations based on the data parsed."""
-
-        def listAllTranscripts(self):
-            """List all transcripts"""
-            for line_number in self.structural_variant_entries.keys():
-                # skip non-fusion events
-                if len(self.structural_variant_entries[line_number].keys()) == 0:
-                    continue
-                if self.structural_variant_entries[line_number]['Site1_Ensembl_Transcript_Id'] is not None:
-                    self.transcript_set.add(self.structural_variant_entries[line_number]['Site1_Ensembl_Transcript_Id'])
-                if self.structural_variant_entries[line_number]['Site2_Ensembl_Transcript_Id'] is not None:
-                    self.transcript_set.add(self.structural_variant_entries[line_number]['Site2_Ensembl_Transcript_Id'])
-
-        def retrieveTranscriptsAndExons(self):
-            """Retrieve transcript and exons information from Genome Nexus."""
-            request_url = "http://v1.genomenexus.org/ensembl/transcript"
-            request_headers = {'Content-Type': 'application/json', 'Accept': 'application/json'}
-            request_data = '{ "transcriptIds" : ["%s"] }' % ('", "'.join(self.transcript_set))
-            request = requests.post(url=request_url, headers=request_headers, data=request_data)
-            if request.ok:
-                # Parse transcripts and exons from JSON
-                result_json = request.json()
-                for transcript in result_json:
-                    if 'exons' not in transcript:
-                        self.transcript_exons_dict[transcript['transcriptId']] = None
-                    else:
-                        self.transcript_exons_dict[transcript['transcriptId']] = transcript['exons']
-            else:
-                if request.status_code == 404:
-                    self.logger.error(
-                        'An error occurred when trying to connect to Genome Nexus for retrieving exons in transcripts',
-                        extra={'cause': request.status_code})
-                else:
-                    request.raise_for_status()
-            return
-
-        def validateTranscripts(self):
-            """Validate whether the transcripts in the data can also be found in Genome Nexus"""
-
-            for transcript in list(self.transcript_set):
-                if transcript not in self.transcript_exons_dict:
-                    self.logger.error('Ensembl transcript not found in Genome Nexus.',
-                                      extra={'cause': transcript})
-                else:
-                    if self.transcript_exons_dict[transcript] is None:
-                        self.logger.error('This transcript does not contain known exons in Genome Nexus. Please update'
-                                          'the Ensembl transcript in your data. `Homo_sapiens.GRCh37.87.gff3.gz` is '
-                                          'used by Genome Nexus for retrieving exons in transcripts',
-                                          extra={'cause': transcript})
-
-        def validateExons(self):
-            """Validate exons, particularly for structural variants"""
-
-            def validateExonsInTranscript(self, transcript, exon, line_number):
-                """Check if exons are in transcript"""
-
-                # Loop over the exons in the transcript and try to find the exon in the 'rank' field
-                exon_in_transcript = False
-                for retrieved_exon in self.transcript_exons_dict[transcript]:
-                    if int(exon) is retrieved_exon['rank']:
-                        exon_in_transcript = True
-                        break
-
-                # Log an error if the transcript is not found in the transcript
-                if not exon_in_transcript:
-                    self.logger.error('Exon is not found in rank of transcript',
-                                      extra={'line_number': line_number,
-                                             'cause': '%s not in %s' % (exon, transcript)})
-
-            # Check all structural variants
-            for line_number in self.structural_variant_entries.keys():
-
-                # For fusion events, exons have to be validated
-                if self.structural_variant_entries[line_number]['Event_Info'] == 'Fusion':
-
-                    # Retrieve event info
-                    site1_exon = self.structural_variant_entries[line_number]['Site1_Exon']
-                    site2_exon = self.structural_variant_entries[line_number]['Site2_Exon']
-                    site1_transcript = self.structural_variant_entries[line_number]['Site1_Ensembl_Transcript_Id']
-                    site2_transcript = self.structural_variant_entries[line_number]['Site2_Ensembl_Transcript_Id']
-
-                    # Validate exons
-                    if (site1_exon is not None and
-                            site1_transcript is not None and
-                            site1_transcript in self.transcript_exons_dict):
-                        if self.transcript_exons_dict[site1_transcript] is not None:
-                            validateExonsInTranscript(self, site1_transcript, site1_exon, line_number)
-                    if (site2_exon is not None and
-                            site2_transcript is not None and
-                            site2_transcript in self.transcript_exons_dict):
-                        if self.transcript_exons_dict[site2_transcript] is not None:
-                            validateExonsInTranscript(self, site2_transcript, site2_exon, line_number)
-
-            return
-
-        # Start with validation for onComplete(self)
-        # List all transcripts
-        listAllTranscripts(self)
-
-        # Retrieve all transcripts and exons in Genome Nexus
-        if len(self.transcript_set) > 0:
-            retrieveTranscriptsAndExons(self)
-
-            # Validate whether the transcripts in the data can also be found in Genome Nexus
-            validateTranscripts(self)
-
-            # For every fusion event, check if exon is part of the transcript
-            validateExons(self)
-
         # End validation of this data type by running the super function
         super(StructuralVariantValidator, self).onComplete()
 
@@ -3390,7 +3229,7 @@ class GenePanelMatrixValidator(Validator):
         # Check whether gene panel stable ids are in the database
         if self.portal.gene_panel_list is not None:
             for gene_panel_id in data:
-                if gene_panel_id not in self.portal.gene_panel_list and gene_panel_id != 'NA':
+                if gene_panel_id not in self.portal.gene_panel_list and gene_panel_id not in ['NA','WGS','WXS','WGS/WXS']:
                     self.logger.error('Gene panel ID is not in database. Please import this gene panel before loading '
                                     'study data.',
                                     extra={'line_number': self.line_number,
@@ -4953,18 +4792,6 @@ def processCaseListDirectory(caseListDir, cancerStudyId, logger,
                         extra={'filename_': case,
                                'cause': mutation_sample_ids_not_in_case_list})
 
-            # When the fusion events are moved to the structural variant data model, this validation should check the
-            # samples in the fusion data with the samples in the '_structural_variant' case list.
-            if len(fusion_file_sample_ids) > 0:
-                if not fusion_file_sample_ids.issubset(mutation_sample_ids):
-                    fusion_sample_ids_not_in_case_list = ", ".join(fusion_file_sample_ids - mutation_sample_ids)
-                    logger.warning(
-                        "Sample IDs from fusion data are missing from the '_sequenced' case list. This might lead to "
-                        "incorrect calculation of mutated samples. In the future fusion variants will be moved to the "
-                        "'structural variant' data model and its respective case list.",
-                        extra={'filename_': case,
-                               'cause': fusion_sample_ids_not_in_case_list})
-
     logger.info('Validation of case list folder complete')
 
     return stableid_files
@@ -5122,7 +4949,7 @@ def request_from_portal_api(server_url, api_name, logger):
         service_url = server_url + '/api/' + api_name
     elif api_name in ['genesets_version']:
         service_url = server_url + '/api/genesets/version'
-        
+
     # NOTE: There is no 'genesaliases' API enpoint and iterative querying by symbol is not viable.
     # Thus for now, aliases can be imported only in offline mode 
     elif api_name == 'genesaliases':

@@ -997,7 +997,7 @@
       <dependency>
         <groupId>xerces</groupId>
         <artifactId>xercesImpl</artifactId>
-        <version>2.12.0-alfresco-patched-20191004</version>
+        <version>2.12.2</version>
       </dependency>
       <!--xml parser-->
       <dependency>

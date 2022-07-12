@@ -204,7 +204,6 @@ show.cosmic=true
 
 # Enable Chang's hotspot list (true, false)
 show.hotspot=true
-hotspots.url=https://www.cancerhotspots.org/api/
 
 # Enable Civic variant annotation (true, false)
 show.civic=false

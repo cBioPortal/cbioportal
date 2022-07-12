@@ -59,15 +59,9 @@ import org.springframework.web.client.RestTemplate;
 @RequestMapping("/proxy")
 public class LegacyProxyController {
 
-    private String hotspotsURL;
     private String bitlyURL;
     private String sessionServiceURL;
     private Boolean enableOncokb;
-
-    @Value("${hotspots.url:https://www.cancerhotspots.org/api/}")
-    public void setHotspotsURL(String property) {
-        this.hotspotsURL = property;
-    }
 
     @Value("${bitly.url:''}")
     public void setBitlyURL(String property) {
@@ -98,7 +92,6 @@ public class LegacyProxyController {
         Map<String, String> pathToUrl = new HashMap<>();
 
         pathToUrl.put("bitly", bitlyURL);
-        pathToUrl.put("cancerHotSpots", hotspotsURL + "hotspots/single/");
         pathToUrl.put("3dHotspots", "https://www.3dhotspots.org/api/hotspots/3d/");
 
         String URL = pathToUrl.get(path) == null ? "" : pathToUrl.get(path);

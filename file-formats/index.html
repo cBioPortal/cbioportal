@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width,initial-scale=1">
-    <meta name="turbo-cache-control" content="no-cache" data-turbo-track="reload" data-track-token="2.3.0.710950032898">
+    <meta name="turbo-cache-control" content="no-cache" data-turbo-track="reload" data-track-token="2.3.0.710960447475">
 
     <!-- See retype.com -->
     <meta name="generator" content="Retype 2.3.0">
@@ -33,12 +33,12 @@
     <script>(function () { var el = document.documentElement, m = localStorage.getItem("doc_theme"), wm = window.matchMedia; if (m === "dark" || (!m && wm && wm("(prefers-color-scheme: dark)").matches)) { el.classList.add("dark") } else { el.classList.remove("dark") } })();</script>
 
     <link href="../images/cbio-logo.png" rel="icon" />
-    <link href="../resources/css/retype.css?v=2.3.0.710950032898" rel="stylesheet" />
+    <link href="../resources/css/retype.css?v=2.3.0.710960447475" rel="stylesheet" />
 
-    <script type="text/javascript" src="../resources/js/config.js?v=2.3.0.710950032898" data-turbo-eval="false" defer></script>
+    <script type="text/javascript" src="../resources/js/config.js?v=2.3.0.710960447475" data-turbo-eval="false" defer></script>
     <script type="text/javascript" src="../resources/js/retype.js?v=2.3.0" data-turbo-eval="false" defer></script>
-    <script id="lunr-js" type="text/javascript" src="../resources/js/lunr.js?v=2.3.0.710950032898" data-turbo-eval="false" defer></script>
-    <script id="prism-js" type="text/javascript" src="../resources/js/prism.js?v=2.3.0.710950032898" defer></script>
+    <script id="lunr-js" type="text/javascript" src="../resources/js/lunr.js?v=2.3.0.710960447475" data-turbo-eval="false" defer></script>
+    <script id="prism-js" type="text/javascript" src="../resources/js/prism.js?v=2.3.0.710960447475" defer></script>
 
     <link rel="stylesheet" href="/static/custom.css"></link>
 </head>
@@ -1454,190 +1454,251 @@ data_filename: data_sv.txt</code></pre>
 <thead>
 <tr>
 <th>Field</th>
-<th>Allowed/Example values</th>
+<th>Example Values</th>
+<th>Allowed  Values</th>
 <th>Comments</th>
 </tr>
 </thead>
 <tbody>
 <tr>
-<td>Sample_ID</td>
+<td>Sample_Id (Required)</td>
 <td>Sample_1</td>
-<td>This is the sample ID</td>
+<td></td>
+<td>As defined in the clinical sample file.</td>
+</tr>
+<tr>
+<td>SV_Status (Required)</td>
+<td>SOMATIC</td>
+<td>SOMATIC or GERMLINE</td>
+<td></td>
 </tr>
 <tr>
 <td>Site1_Hugo_Symbol</td>
-<td>ERG</td>
-<td>A <a href="https://www.genenames.org/">HUGO</a> gene symbol.</td>
-</tr>
-<tr>
-<td>Site1_Entrez_Gene_Id</td>
-<td>Entrez gene id of ERG</td>
+<td>TMPRSS2</td>
 <td></td>
+<td><a href="http://www.genenames.org/">HUGO</a> gene symbol of gene 1. One might call this the left site(3’) as well. (strongly recommended field)</td>
 </tr>
 <tr>
 <td>Site1_Ensembl_Transcript_Id</td>
-<td>ENST00000288319</td>
-<td>An <a href="https://useast.ensembl.org/Help/View?id=151#:%7E:text=Each%20transcript%20ID%20includes%20a,ENSMUST%20defines%20a%20mouse%20transcript">Ensembl Transcript</a>.) identifier.</td>
+<td>ENST00000398585</td>
+<td></td>
+<td>Ensembl transcript ID of gene 1.</td>
 </tr>
 <tr>
-<td>Site1_Exon</td>
-<td>4</td>
+<td>Site1_Entrez_Gene_Id</td>
+<td>7113</td>
 <td></td>
+<td><a href="http://www.ncbi.nlm.nih.gov/gene">Entrez Gene</a> identifier of gene 1. (strongly recommended field)</td>
+</tr>
+<tr>
+<td>Site1_Region_Number</td>
+<td>2</td>
+<td></td>
+<td>Number of Site 1 region e.g. exon 2.(strongly recommended field)</td>
+</tr>
+<tr>
+<td>Site1_Region</td>
+<td>EXON</td>
+<td>5_PRIME_UTR,3_PRIME_UTR,PROMOTER,EXON,INTRON</td>
+<td>We advise using one of these {5_PRIME_UTR,3_PRIME_UTR,PROMOTER,EXON,INTRON},but it is a free text. (strongly recommended field)</td>
 </tr>
 <tr>
 <td>Site1_Chromosome</td>
 <td>21</td>
 <td></td>
+<td>Chromosome of Gene 1.(strongly recommended field)</td>
+</tr>
+<tr>
+<td>Site1_Contig</td>
+<td>q22.3</td>
+<td></td>
+<td>The contig of Site 1.(strongly recommended field)</td>
 </tr>
 <tr>
 <td>Site1_Position</td>
-<td>39842043</td>
+<td>42874110</td>
 <td></td>
+<td>Genomic position of breakpoint of Gene 1.(strongly recommended field)</td>
 </tr>
 <tr>
 <td>Site1_Description</td>
+<td>Intron of TMPRSS2(-): 511bp before exon 3</td>
 <td></td>
-<td></td>
+<td>Description of this event at site 2. This could be the location of the 2nd breakpoint in case of a fusion event.</td>
 </tr>
 <tr>
 <td>Site2_Hugo_Symbol</td>
-<td>TMPRSS2</td>
-<td>A <a href="https://www.genenames.org/">HUGO</a> gene symbol.</td>
-</tr>
-<tr>
-<td>Site2_Entrez_Gene_Id</td>
-<td>Entrez gene id of TMPRSS2</td>
+<td>ERG</td>
 <td></td>
+<td><a href="http://www.genenames.org/">HUGO</a> gene symbol of gene 2.One might call this the right site(5’) as well.</td>
 </tr>
 <tr>
 <td>Site2_Ensembl_Transcript_Id</td>
 <td>ENST00000288319</td>
-<td>An <a href="https://useast.ensembl.org/Help/View?id=151#:%7E:text=Each%20transcript%20ID%20includes%20a,ENSMUST%20defines%20a%20mouse%20transcript">Ensembl Transcript</a>.) identifier.</td>
+<td></td>
+<td>Ensembl transcript ID of gene 2.</td>
 </tr>
 <tr>
-<td>Site2_Exon</td>
-<td>2</td>
+<td>Site2_Entrez_Gene_Id</td>
+<td>2078</td>
 <td></td>
+<td><a href="http://www.ncbi.nlm.nih.gov/gene">Entrez Gene</a> identifier of gene 2.</td>
+</tr>
+<tr>
+<td>Site2_Region_Number</td>
+<td>4</td>
+<td></td>
+<td>Number of Site 2 region e.g. exon 4.</td>
+</tr>
+<tr>
+<td>Site2_Region</td>
+<td>EXON</td>
+<td>5_PRIME_UTR,3_PRIME_UTR,PROMOTER,EXON,INTRON</td>
+<td>We advise using one of these {5_PRIME_UTR,3_PRIME_UTR,PROMOTER,EXON,INTRON},but it is a free text.</td>
 </tr>
 <tr>
 <td>Site2_Chromosome</td>
 <td>21</td>
 <td></td>
+<td>Chromosome of Gene 2.</td>
+</tr>
+<tr>
+<td>Site2_Contig</td>
+<td>q22.2</td>
+<td></td>
+<td>The contig of Site 2.</td>
 </tr>
 <tr>
 <td>Site2_Position</td>
-<td>3032067</td>
+<td>39842043</td>
 <td></td>
+<td>Genomic position of breakpoint of Gene 2.</td>
 </tr>
 <tr>
 <td>Site2_Description</td>
+<td>Intron of ERG(-): 6Kb after exon 1</td>
 <td></td>
-<td></td>
+<td>Description of this event at site 1. This could be the location of 1st breakpoint in case of a fusion event</td>
 </tr>
 <tr>
 <td>Site2_Effect_On_Frame</td>
-<td>IN_FRAME, FRAMESHIFT</td>
-<td>Whether the fusion breaks the reading frame of the 2nd gene.</td>
+<td>Out-of-frame</td>
+<td>In_frame, Out-of-frame,Frameshift</td>
+<td>The effect on frame reading in gene 2. Frame_Shift or InFrame,but it is a free text.</td>
 </tr>
 <tr>
 <td>NCBI_Build</td>
+<td>GRCh37</td>
 <td>GRCh37,GRCh38</td>
-<td>Necessary for validation (check if chromosomal locations are on 37 or 38).</td>
+<td>The NCBI assembly. Only one assembly per study can be used, see<a href="https://docs.cbioportal.org/5.1-data-loading/data-loading/file-formats#meta-file"> study metadata</a>.</td>
 </tr>
 <tr>
-<td>DNA_Support</td>
-<td>Yes/No</td>
-<td>Fusion detected from DNA sequence data, &quot;yes&quot; or &quot;no&quot;.</td>
-</tr>
-<tr>
-<td>RNA_Support</td>
-<td>Yes/No</td>
-<td>Fusion detected from RNA sequence data, &quot;yes&quot; or &quot;no&quot;.</td>
-</tr>
-<tr>
-<td>Normal_Read_Count</td>
-<td>100</td>
-<td>Counts in normal sample</td>
-</tr>
-<tr>
-<td>Tumor_Read_Count</td>
-<td>30</td>
-<td>Counts in tumor sample</td>
-</tr>
-<tr>
-<td>Normal_Variant_count</td>
-<td>0</td>
-<td>Amount of times variant occurs in reads from normal</td>
-</tr>
-<tr>
-<td>Tumor_Variant_Count</td>
-<td>125</td>
-<td>Amount of times variant occurs in reads from tumor</td>
-</tr>
-<tr>
-<td>Normal_Paired_End_Read_Count</td>
-<td>12</td>
-<td>How many paired-end reads support the call in normal</td>
-</tr>
-<tr>
-<td>Tumor_Paired_End_Read_Count</td>
-<td>55</td>
-<td>How many paired-end reads support the call in tumor</td>
-</tr>
-<tr>
-<td>Normal_Split_Read_Count</td>
-<td>0</td>
-<td>How many split reads support the call in normal</td>
+<td>Class</td>
+<td>Deletion</td>
+<td>Deletion,Duplication,Insertion,Inversion,Translocation.</td>
+<td>We advise using one of these terms [DELETION, DUPLICATION, INSERTION, INVERSION or TRANSLOCATION], but it is free text.</td>
 </tr>
 <tr>
 <td>Tumor_Split_Read_Count</td>
 <td>4</td>
-<td>How many split reads support the call in tumor</td>
+<td></td>
+<td>The number of split reads of the tumor tissue that support the call.[Tumor Split Read Count is the same as “Junction Reads”.]</td>
 </tr>
 <tr>
-<td>Annotation</td>
-<td>TMPRSS2 (NM_001135099) - ERG (NM_182918) fusion: c.56-3994:TMPRSS2_c.19-24499:ERGdel</td>
-<td>Gene Name (Gene Transcript) rearrangement: <code v-pre>cDNA(start)_cDNA(end)(type)</code></td>
-</tr>
-<tr>
-<td>Breakpoint_Type</td>
-<td>PRECISE/IMPRECISE</td>
-<td>precise - Breakpoint resolution is known down to the exact base pair</td>
-</tr>
-<tr>
-<td>Connection_Type</td>
-<td>3to5</td>
-<td>Which direction the connection is made (3&#x27; to 5&#x27;, 5&#x27; to 5&#x27;, etc)</td>
+<td>Tumor_Paired_End_Read_Count</td>
+<td>55</td>
+<td></td>
+<td>The number of paired-end reads of the tumor tissue that support the call. [Tumor Paired End Read Count is the same as “Spanning Fragments”.]</td>
 </tr>
 <tr>
 <td>Event_Info</td>
 <td>Protein fusion: out of frame (TMPRSS2-ERG)</td>
-<td></td>
+<td>Antisense fusion, Deletion within transcript: mid-exon, Duplication of 1 exon: in frame</td>
+<td>Description of the event. For a fusion event, fill in Fusion. It is a free text.</td>
 </tr>
 <tr>
-<td>Class</td>
-<td>DELETION, DUPLICATION, INSERTION, INVERSION, TRANSLOCATION</td>
-<td></td>
+<td>Connection_Type</td>
+<td>3to5</td>
+<td>3to5 or 5to3 or 5to5 or 3to3</td>
+<td>Which direction the connection is made (3&#x27; to 5&#x27;, 5&#x27; to 3&#x27;, etc)</td>
 </tr>
 <tr>
-<td>Length</td>
-<td>24085</td>
-<td>Length of SV (in bp)</td>
+<td>Breakpoint_Type</td>
+<td>PRECISE</td>
+<td>PRECISE/IMPRECISE</td>
+<td>PRECISE or IMPRECISE which explain the resolution. Fill in lPRECISE if the breakpoint resolution is known down to the exact base pair.</td>
+</tr>
+<tr>
+<td>Annotation</td>
+<td>TMPRSS2 (NM_001135099) - ERG (NM_001243428) fusion (TMPRSS2 exons 1-2 fused with ERG exons 4-11):(c.126+879:TMRPSS2_c.40-63033:ERGdel)</td>
+<td>Free Text</td>
+<td>Free text description of the gene or transcript rearrangement.</td>
+</tr>
+<tr>
+<td>DNA_Support</td>
+<td>Yes</td>
+<td>Yes or No</td>
+<td>Fusion detected from DNA sequence data, &quot;yes&quot; or &quot;no&quot;.</td>
+</tr>
+<tr>
+<td>RNA_Support</td>
+<td></td>
+<td>Yes or No</td>
+<td>Fusion detected from DNA sequence data, &quot;yes&quot; or &quot;no&quot;.</td>
+</tr>
+<tr>
+<td>SV_Length</td>
+<td>3032067</td>
+<td></td>
+<td>Length of the structural variant in number of bases.</td>
+</tr>
+<tr>
+<td>Normal_Read_Count</td>
+<td>93891</td>
+<td></td>
+<td>The total number of reads of the normal tissue.</td>
+</tr>
+<tr>
+<td>Tumor_Read_Count</td>
+<td>45556</td>
+<td></td>
+<td>The total number of reads of the tumor tissue.</td>
+</tr>
+<tr>
+<td>Normal_Variant_Count</td>
+<td>0</td>
+<td></td>
+<td>The number of reads of the normal tissue that have the variant/allele.</td>
+</tr>
+<tr>
+<td>Tumor_Variant_Count</td>
+<td>39</td>
+<td></td>
+<td>The number of reads of the tumor tissue that have the variant/allele.</td>
+</tr>
+<tr>
+<td>Normal_Paired_End_Read_Count</td>
+<td>41</td>
+<td></td>
+<td>The number of paired-end reads of the normal tissue that support the call.</td>
+</tr>
+<tr>
+<td>Normal_Split_Read_Count</td>
+<td>63</td>
+<td></td>
+<td>The number of split reads of the normal tissue that support the call.</td>
 </tr>
 <tr>
 <td>Comments</td>
 <td></td>
+<td></td>
 <td>Any comments/free text.</td>
-</tr>
-<tr>
-<td>External_Annotation</td>
-<td>COSMIC:COSF1197</td>
-<td>Other annotation sources. Examples of contents could be AB462411 (NCBI)  and COSF1197 (Cosmic). This column supports both types of annotations.</td>
 </tr>
 </tbody>
 </table>
 </div>
-<p>For an example see <a href="https://github.com/cBioPortal/datahub/blob/master/public/msk_impact_2017/data_fusions.txt">datahub</a>. At a minimum <code v-pre>Sample_ID</code>, <code v-pre>Site1_Hugo_Symbol</code> and <code v-pre>Site2_Hugo_Symbol</code> are required. For the fusion tab visualization (still in development) one needs to provide those field as well as <code v-pre>Site1_Ensembl_Transcript_Id</code>, <code v-pre>Site2_Ensembl_Transcript_Id</code>. <code v-pre>Site1_Exon</code> and <code v-pre>Site2_Exon</code>. Some of the other columns are shown at several other pages on the website. The <code v-pre>Class</code>, <code v-pre>Annotation</code> and <code v-pre>Event_Info</code> columns are shown prominently on several locations.</p>
+<p>For an example see <a href="https://github.com/cBioPortal/datahub/blob/master/public/msk_impact_2017/data_sv.txt">datahub</a>. At a minimum <code v-pre>Sample_Id</code>, <code v-pre>Site1_Hugo_Symbol</code> and <code v-pre>SV_Status</code> are required. For the stuctural variant tab visualization (still in development) one needs to provide those field as well as <code v-pre>Site1_Ensembl_Transcript_Id</code>, <code v-pre>Site2_Ensembl_Transcript_Id</code>. <code v-pre>Site1_Region</code> and <code v-pre>Site2_Region</code>. Some of the other columns are shown at several other pages on the website. The <code v-pre>Class</code>, <code v-pre>Annotation</code> and <code v-pre>Event_Info</code> columns are shown prominently on several locations.</p>
+<p><strong>Note</strong>: We strongly recommend all the data providers to submit genomic locations  in addition to required fields for future visualization features.</p>
 <doc-anchor-target id="fusion-data">
     <h2>
         <doc-anchor-trigger class="header-anchor-trigger" to="#fusion-data">#</doc-anchor-trigger>

@@ -204,6 +204,7 @@ public class ImportStructuralVariantData {
         sb.append(sv.getSite2Position());
         sb.append(sv.getSite2RegionNumber());
         sb.append(sv.getSite2EnsemblTranscriptId());
+        sb.append(sv.getEventInfo());
         return sb.toString();
     }
 }

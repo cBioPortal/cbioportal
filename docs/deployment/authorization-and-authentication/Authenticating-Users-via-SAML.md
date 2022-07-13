@@ -172,6 +172,14 @@ If you need a very different parsing of the SAML tokens than what is done at `or
     saml.logout.url=<idp specific logout URL, e.g. https://idp.logoutpage.com >
     
 
+:warning: Some IDPs (e.g. Azure Active Directory) cache user data for more than 2 hours causing cbioportal to complain that the authentication statement is too old to be used. You can fix this problem by setting `forceAuthN` to true. Below is an example how you can do this with the properties. You can choose any binding type you like. `bindings:HTTP-Redirect` is given just as an example.
+
+```
+    saml.idp.comm.binding.settings=specificBinding
+    saml.idp.comm.binding.type=bindings:HTTP-Redirect
+    saml.idp.comm.binding.force-auth-n=true
+```
+
 ## More customizations
 
 If your IDP does not have the flexibility of sending the specific credential fields expected by our 

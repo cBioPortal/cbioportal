@@ -2992,7 +2992,8 @@ class StructuralVariantValidator(Validator):
         'Site2_Chromosome',
         'Site2_Position',
         'Site2_Region_Number',
-        'Site2_Ensembl_Transcript_Id']
+        'Site2_Ensembl_Transcript_Id',
+        'Event_Info']
 
     # TODO: Revive the support to validate the events based on transcripts and exons - once the new visualization features (UI for fusion tab, breakpoint visualization) are added to front-end.
     
@@ -3229,7 +3230,7 @@ class GenePanelMatrixValidator(Validator):
         # Check whether gene panel stable ids are in the database
         if self.portal.gene_panel_list is not None:
             for gene_panel_id in data:
-                if gene_panel_id not in self.portal.gene_panel_list and gene_panel_id not in ['NA','WGS','WXS','WGS/WXS']:
+                if gene_panel_id not in self.portal.gene_panel_list and gene_panel_id not in ['NA','WGS','WXS','WXS/WGS']:
                     self.logger.error('Gene panel ID is not in database. Please import this gene panel before loading '
                                     'study data.',
                                     extra={'line_number': self.line_number,

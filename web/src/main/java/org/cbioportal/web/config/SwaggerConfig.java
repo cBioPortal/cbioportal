@@ -1,22 +1,22 @@
 package org.cbioportal.web.config;
 
-import java.util.Collections;
-
 import org.cbioportal.web.config.annotation.InternalApi;
 import org.cbioportal.web.config.annotation.PublicApi;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.PropertySource;
 import springfox.documentation.builders.RequestHandlerSelectors;
 import springfox.documentation.service.ApiInfo;
 import springfox.documentation.service.Contact;
 import springfox.documentation.service.Tag;
 import springfox.documentation.spi.DocumentationType;
 import springfox.documentation.spring.web.plugins.Docket;
-import org.springframework.context.annotation.Bean;
-import org.springframework.context.annotation.Configuration;
-import org.springframework.context.annotation.PropertySource;
-
-import springfox.documentation.swagger2.annotations.EnableSwagger2;
 import springfox.documentation.swagger.web.UiConfiguration;
 import springfox.documentation.swagger.web.UiConfigurationBuilder;
+import springfox.documentation.swagger2.annotations.EnableSwagger2;
+
+import java.util.Collections;
 
 @Configuration
 @EnableSwagger2
@@ -73,7 +73,7 @@ public class SwaggerConfig {
     }
 
     private ApiInfo publicApiInfo() {
-        ApiInfo apiInfo = new ApiInfo(
+        return new ApiInfo(
             "cBioPortal web Public API [Beta]",
             "A web service for supplying JSON formatted data to cBioPortal clients. " +
                 "Please note that this API is currently in beta and subject to change.",
@@ -81,12 +81,13 @@ public class SwaggerConfig {
             null,
             new Contact("cBioPortal", "https://www.cbioportal.org", "cbioportal@googlegroups.com"),
             "License",
-            "https://github.com/cBioPortal/cbioportal/blob/master/LICENSE", Collections.emptyList());
-        return apiInfo;
+            "https://github.com/cBioPortal/cbioportal/blob/master/LICENSE",
+            Collections.emptyList()
+        );
     }
 
     private ApiInfo internalApiInfo() {
-        ApiInfo apiInfo = new ApiInfo(
+        return new ApiInfo(
             "cBioPortal web Internal API [Beta]",
             "A web service for supplying JSON formatted data to cBioPortal clients. " +
                 "Please note that interal API is currently in beta and subject to change.",
@@ -94,7 +95,8 @@ public class SwaggerConfig {
             null,
             new Contact("cBioPortal", "https://www.cbioportal.org", "cbioportal@googlegroups.com"),
             "License",
-            "https://github.com/cBioPortal/cbioportal/blob/master/LICENSE", Collections.emptyList());
-        return apiInfo;
+            "https://github.com/cBioPortal/cbioportal/blob/master/LICENSE",
+            Collections.emptyList()
+        );
     }
 }

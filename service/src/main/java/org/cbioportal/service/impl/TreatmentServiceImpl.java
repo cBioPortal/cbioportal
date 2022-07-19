@@ -24,6 +24,7 @@ public class TreatmentServiceImpl implements TreatmentService {
             return new ImmutablePair<>(sampleIds, studyIds);
         }
         Set<String> studiesWithTreatments = studyIds.stream()
+            .distinct()
             .filter(studyId -> treatmentRepository.studyIdHasTreatments(studyId, key))
             .collect(Collectors.toSet());
         

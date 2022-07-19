@@ -10,7 +10,7 @@ import java.util.List;
 
 @JsonIgnoreProperties(ignoreUnknown = true)
 @JsonInclude(Include.ALWAYS)
-public class ResultPageSettings extends PageSettingsData implements Serializable {
+public class ResultsPageSettings extends PageSettingsData implements Serializable {
 
     /**
      * Configuration of clinical tracks

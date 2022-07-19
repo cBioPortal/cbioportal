@@ -51,15 +51,11 @@ public class SessionServiceController {
     @Value("${session.service.url:}")
     private String sessionServiceURL;
 
-    private static Map<SessionPage, Class<? extends PageSettingsData>> pageToSettingsDataClass;
-    
-    static {
-         SessionServiceController.pageTypeToData = ImmutableMap.of(
-             SessionPage.result_view, ResultPageSettings.class,
-             SessionPage.study_view, StudyPageSettings.class
-         );
-    }
-    
+    private static Map<SessionPage, Class<? extends PageSettingsData>> pageToSettingsDataClass = ImmutableMap.of(
+         SessionPage.study_view, StudyPageSettings.class,
+         SessionPage.results_view, ResultsPageSettings.class
+     );
+
     private boolean isAuthorized() {
 
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
@@ -130,15 +126,15 @@ public class SessionServiceController {
                 if (!(isAuthorized())) {
                     return new ResponseEntity<>(HttpStatus.SERVICE_UNAVAILABLE);
                 }
-                Class<? extends PageSettingsData> pageDataClass = pageTypeToData.get(
+                Class<? extends PageSettingsData> pageDataClass = pageToSettingsDataClass.get(
                     SessionPage.valueOf((String) body.get("page"))
                 );
                 PageSettingsData pageSettings = mapper.readValue(
                     body.toString(),
                     pageDataClass
                 );
-                studyPageSettings.setOwner(userName());
-                httpEntity = new HttpEntity<>(studyPageSettings, sessionServiceRequestHandler.getHttpHeaders());
+                pageSettings.setOwner(userName());
+                httpEntity = new HttpEntity<>(pageSettings, sessionServiceRequestHandler.getHttpHeaders());
 
             } else if(type.equals(SessionType.custom_data)) {
                 // JSON from file to Object

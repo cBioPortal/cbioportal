@@ -51,7 +51,7 @@ public class SessionServiceController {
     @Value("${session.service.url:}")
     private String sessionServiceURL;
 
-    private static Map<SessionPage, Class<? extends PageSettingsData>> pageTypeToData;
+    private static Map<SessionPage, Class<? extends PageSettingsData>> pageToSettingsDataClass;
     
     static {
          SessionServiceController.pageTypeToData = ImmutableMap.of(
@@ -133,7 +133,7 @@ public class SessionServiceController {
                 Class<? extends PageSettingsData> pageDataClass = pageTypeToData.get(
                     SessionPage.valueOf((String) body.get("page"))
                 );
-                PageSettingsData studyPageSettings = mapper.readValue(
+                PageSettingsData pageSettings = mapper.readValue(
                     body.toString(),
                     pageDataClass
                 );

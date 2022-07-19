@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width,initial-scale=1">
-    <meta name="turbo-cache-control" content="no-cache" data-turbo-track="reload" data-track-token="2.4.0.711584672273">
+    <meta name="turbo-cache-control" content="no-cache" data-turbo-track="reload" data-track-token="2.4.0.711585019645">
 
     <!-- See retype.com -->
     <meta name="generator" content="Retype 2.4.0">
@@ -33,12 +33,12 @@
     <script>(function () { var el = document.documentElement, m = localStorage.getItem("doc_theme"), wm = window.matchMedia; if (m === "dark" || (!m && wm && wm("(prefers-color-scheme: dark)").matches)) { el.classList.add("dark") } else { el.classList.remove("dark") } })();</script>
 
     <link href="../images/cbio-logo.png" rel="icon" />
-    <link href="../resources/css/retype.css?v=2.4.0.711584672273" rel="stylesheet" />
+    <link href="../resources/css/retype.css?v=2.4.0.711585019645" rel="stylesheet" />
 
-    <script type="text/javascript" src="../resources/js/config.js?v=2.4.0.711584672273" data-turbo-eval="false" defer></script>
+    <script type="text/javascript" src="../resources/js/config.js?v=2.4.0.711585019645" data-turbo-eval="false" defer></script>
     <script type="text/javascript" src="../resources/js/retype.js?v=2.4.0" data-turbo-eval="false" defer></script>
-    <script id="lunr-js" type="text/javascript" src="../resources/js/lunr.js?v=2.4.0.711584672273" data-turbo-eval="false" defer></script>
-    <script id="prism-js" type="text/javascript" src="../resources/js/prism.js?v=2.4.0.711584672273" defer></script>
+    <script id="lunr-js" type="text/javascript" src="../resources/js/lunr.js?v=2.4.0.711585019645" data-turbo-eval="false" defer></script>
+    <script id="prism-js" type="text/javascript" src="../resources/js/prism.js?v=2.4.0.711585019645" defer></script>
 
     <link rel="stylesheet" href="/static/custom.css"></link>
 </head>
@@ -1094,19 +1094,23 @@ namespaces: ASCN</code></pre>
         <span>Minimal MAF format</span>
     </h3>
 </doc-anchor-target>
-<p>A minimal mutation annotations file can contain just three of the MAF columns plus one annotation column. From this minimal MAF, it is possible to create an extended MAF by running it through the <a href="https://github.com/genome-nexus/genome-nexus-annotation-pipeline">Genome Nexus Annotation Pipeline</a>.</p>
+<p>A minimal mutation annotations file can contain just the six genomic change columns plus one sample identifier column. From this minimal MAF, it is possible to create an extended MAF by running it through the <a href="https://github.com/genome-nexus/genome-nexus-annotation-pipeline">Genome Nexus Annotation Pipeline</a>.</p>
 <ol>
-<li><strong>Hugo_Symbol (Required)</strong>: (MAF column) A <a href="https://www.genenames.org/">HUGO</a> gene symbol.</li>
-<li><strong>Tumor_Sample_Barcode (Required)</strong>: (MAF column) This is the sample ID as listed in the clinical data file.</li>
-<li><strong>Variant_Classification (Required)</strong>: (MAF column) Translational effect of variant allele. Allowed values (from <a href="https://docs.gdc.cancer.gov/Data/File_Formats/MAF_Format/">Mutation Annotation Format page</a>): <code v-pre>Frame_Shift_Del, Frame_Shift_Ins, In_Frame_Del, In_Frame_Ins, Missense_Mutation, Nonsense_Mutation, Silent, Splice_Site, Translation_Start_Site, Nonstop_Mutation, 3'UTR, 3'Flank, 5'UTR, 5'Flank, IGR, Intron, RNA, Targeted_Region, De_novo_Start_InFrame, De_novo_Start_OutOfFrame</code>. cBioPortal skips the following types during the import: <code v-pre>Silent, Intron, 3'UTR, 3'Flank, 5'UTR, 5'Flank, IGR and RNA</code>. Two extra values are allowed by cBioPortal here as well: <code v-pre>Splice_Region, Unknown</code>. <span class="docs-emoji">&#x26A0;&#xFE0F;</span> the values should be in the correct case. E.g. <code v-pre>missense_mutation</code> is not allowed, while <code v-pre>Missense_Mutation</code> is.</li>
-<li><strong>HGVSp_Short (Required)</strong>: (annotation column) Amino Acid Change, e.g. p.V600E.</li>
+<li><strong>NCBI_Build (Required)</strong>: The Genome Reference Consortium Build is used by a variant calling software. It must be &quot;GRCh37&quot; or &quot;GRCh38&quot; for a human, and &quot;GRCm38&quot; for a mouse.</li>
+<li><strong>Chromosome (Required)</strong>:  A chromosome number, e.g., &quot;7&quot;.</li>
+<li><strong>Start_Position (Required)</strong>: Start position of event.</li>
+<li><strong>End_Position (Required)</strong>: End position of event.</li>
+<li><strong>Reference_Allele (Required)</strong>: The plus strand reference allele at this position.</li>
+<li><strong>Tumor_Seq_Allele2 (Required)</strong>: Primary data genotype.</li>
+<li><strong>Tumor_Sample_Barcode (Required)</strong>: This is the sample ID. Either a TCGA barcode (patient identifier will be extracted), or for non-TCGA data, a literal SAMPLE_ID as listed in the clinical data file.</li>
 </ol>
-<p>Next to Hugo_Symbol, it is recommended to have the Entrez gene ID:</p>
-<ol start="5">
-<li><strong>Entrez_Gene_Id (Optional, but recommended)</strong> : An <a href="https://www.ncbi.nlm.nih.gov/gene">Entrez Gene</a> identifier.</li>
+<p>In addition to the above columns, it is recommended to have the read counts to calculate variant allele frequencies:</p>
+<ol start="8">
+<li><strong>t_alt_count (Optional, but recommended)</strong>: Variant allele count (tumor).</li>
+<li><strong>t_ref_count (Optional, but recommended)</strong>: Reference allele count (tumor).</li>
 </ol>
 <p>The following extra annotation columns are important for making sure mutation specific UI functionality works well in the portal:</p>
-<ol start="6">
+<ol start="10">
 <li><strong>Protein_position (Optional)</strong>: (annotation column) Required to initialize the 3D viewer in <a href="https://www.cbioportal.org/index.do?cancer_study_list=brca_tcga_pub&amp;cancer_study_id=brca_tcga_pub&amp;genetic_profile_ids_PROFILE_MUTATION_EXTENDED=brca_tcga_pub_mutations&amp;genetic_profile_ids_PROFILE_COPY_NUMBER_ALTERATION=brca_tcga_pub_gistic&amp;genetic_profile_ids_PROFILE_MRNA_EXPRESSION=brca_tcga_pub_mrna_median_Zscores&amp;Z_SCORE_THRESHOLD=2.0&amp;RPPA_SCORE_THRESHOLD=2.0&amp;data_priority=0&amp;case_set_id=brca_tcga_pub_complete&amp;case_ids=&amp;patient_case_select=sample&amp;gene_set_choice=prostate-cancer%3A-ar-signaling-%2810-genes%29&amp;gene_list=TP53&amp;clinical_param_selection=null&amp;tab_index=tab_visualize&amp;Action=Submit#mutation_details">mutations view</a></li>
 <li><strong>SWISSPROT (Optional)</strong>: (annotation column) UniProtKB/SWISS-PROT name (formerly called ID) or accession code depending on the value of the <code v-pre>swissprot_identifier</code> metadatum, e.g. O11H1_HUMAN or Q8NG94. Is not required, but not having it may result in inconsistent PDB structure matching in <a href="https://www.cbioportal.org/index.do?cancer_study_list=brca_tcga_pub&amp;cancer_study_id=brca_tcga_pub&amp;genetic_profile_ids_PROFILE_MUTATION_EXTENDED=brca_tcga_pub_mutations&amp;genetic_profile_ids_PROFILE_COPY_NUMBER_ALTERATION=brca_tcga_pub_gistic&amp;genetic_profile_ids_PROFILE_MRNA_EXPRESSION=brca_tcga_pub_mrna_median_Zscores&amp;Z_SCORE_THRESHOLD=2.0&amp;RPPA_SCORE_THRESHOLD=2.0&amp;data_priority=0&amp;case_set_id=brca_tcga_pub_complete&amp;case_ids=&amp;patient_case_select=sample&amp;gene_set_choice=prostate-cancer%3A-ar-signaling-%2810-genes%29&amp;gene_list=TP53&amp;clinical_param_selection=null&amp;tab_index=tab_visualize&amp;Action=Submit#mutation_details">mutations view</a>.</li>
 </ol>
@@ -1135,15 +1139,15 @@ This tool runs annotates variants against the <a href="https://genomenexus.org">
 <li><strong>Entrez_Gene_Id (Optional, but recommended)</strong>: A <a href="https://www.ncbi.nlm.nih.gov/gene">Entrez Gene</a> identifier.</li>
 <li><strong>Center (Optional)</strong>: The sequencing center.</li>
 <li><strong>NCBI_Build (Required)<sup>1</sup></strong>: The Genome Reference Consortium Build is used by a variant calling software. It must be &quot;GRCh37&quot; or &quot;GRCh38&quot; for a human, and &quot;GRCm38&quot; for a mouse.</li>
-<li><strong>Chromosome (Optional)</strong>: A chromosome number, e.g., &quot;7&quot;.</li>
-<li><strong>Start_Position (Optional)</strong>: Start position of event.</li>
-<li><strong>End_Position (Optional)</strong>: End position of event.</li>
+<li><strong>Chromosome (Required)</strong>: A chromosome number, e.g., &quot;7&quot;.</li>
+<li><strong>Start_Position (Required)</strong>: Start position of event.</li>
+<li><strong>End_Position (Required)</strong>: End position of event.</li>
 <li><strong>Strand (Optional)</strong>: We assume that the mutation is reported for the + strand.</li>
 <li><strong>Variant_Classification (Required)</strong>: Translational effect of variant allele, e.g. Missense_Mutation, Silent, etc.</li>
 <li><strong>Variant_Type <sup>1</sup>(Optional)</strong>: Variant Type, e.g. SNP, DNP, etc.</li>
-<li><strong>Reference_Allele (Optional)</strong>: The plus strand reference allele at this position.</li>
+<li><strong>Reference_Allele (Required)</strong>: The plus strand reference allele at this position.</li>
 <li><strong>Tumor_Seq_Allele1 (Optional)</strong>: Primary data genotype.</li>
-<li><strong>Tumor_Seq_Allele2 (Optional)</strong>: Primary data genotype.</li>
+<li><strong>Tumor_Seq_Allele2 (Required)</strong>: Primary data genotype.</li>
 <li><strong>dbSNP_RS<sup>1</sup> (Optional)</strong>: Latest dbSNP rs ID.</li>
 <li><strong>dbSNP_Val_Status<sup>1</sup> (Optional)</strong>: dbSNP validation status.</li>
 <li><strong>Tumor_Sample_Barcode (Required)</strong>: This is the sample ID. Either a TCGA barcode (patient identifier will be extracted), or for non-TCGA data, a literal SAMPLE_ID as listed in the clinical data file.</li>

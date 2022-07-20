@@ -1,5 +1,33 @@
 # Genie News
-
+## July 6, 2022
+*   **Public Release GENIE ERBB2 Cohort**
+    * The study contains 315 samples from 135 patients from 6 institues.
+## May 19, 2022
+*   **Public Release BPC NSCLC 2.0-PUBLIC**
+    *   The GENIE BPC NSCLC v2.0-public dataset contains 1,846 NSCLC patients from 4 institutions: MSKCC, DFCI, VICC and UHN.
+    *   The complete, post-processed data are available on [Synapse](https://www.synapse.org/#!Synapse:syn27056172/wiki/616601)
+## January 7, 2022
+*   **Public Release 11.0 of AACR Project GENIE:**
+    *   The first set of cancer genomic data aggregated through AACR Project Genomics Evidence Neoplasia Information Exchange (GENIE) was released to the global community in January 2017. The current release, GENIE 11.0-public, was released in January 2022. The registry now contains over 136,000 sequenced samples from over 121,000 patients, making the AACR Project GENIE registry among the largest fully public cancer genomic data sets released to date.
+    *   More detailed information can be found in the [AACR GENIE Data Guide](https://www.aacr.org/wp-content/uploads/2022/02/GENIE_data_guide_11.0-public-1.pdf).  In addition to accessing the data via the cBioPortal, users can download the data directly from [Sage Bionetworks](http://synapse.org/genie). Users will need to create an account for either site and agree to the [terms of access](http://www.aacr.org/Documents/Terms%20of%20Access.pdf).
+## June 22, 2021
+*   **Public Release 10.0 of AACR Project GENIE:**
+    *   The first set of cancer genomic data aggregated through AACR Project Genomics Evidence Neoplasia Information Exchange (GENIE) was released to the global community in January 2017. The tenth data set, GENIE 10.0-public, was released in June 2021. With the most recent data release, the registry now contains genomic information from 120953 samples.  
+*   More detailed information can be found in the [AACR GENIE Data Guide](http://www.aacr.org/Research/Research/Documents/GENIE%20Data%20Guide.pdf).  In addition to accessing the data via the cBioPortal, users can download the data directly from [Sage Bionetworks](http://synapse.org/genie). Users will need to create an account for either site and agree to the [terms of access](http://www.aacr.org/Documents/Terms%20of%20Access.pdf).
+## February 8, 2021
+*   **Public Release 9.0 of AACR Project GENIE:**
+    *   The first set of cancer genomic data aggregated through AACR Project Genomics Evidence Neoplasia Information Exchange (GENIE) was released to the global community in January 2017. The ninth data set, GENIE 9.0-public, was released in February 2021. With the most recent data release, the registry now contains genomic information from more nearly 17,000 non-small cell lung carcinomas, and nearly 12,000 breast and more than 11,000 colorectal cancers.  
+*   More detailed information can be found in the [AACR GENIE Data Guide](http://www.aacr.org/Research/Research/Documents/GENIE%20Data%20Guide.pdf).  In addition to accessing the data via the cBioPortal, users can download the data directly from [Sage Bionetworks](http://synapse.org/genie). Users will need to create an account for either site and agree to the [terms of access](http://www.aacr.org/Documents/Terms%20of%20Access.pdf).
+## July 7, 2020
+*   **Public Release 8.0 of AACR Project GENIE:**
+    *   The first set of cancer genomic data aggregated through AACR Project Genomics Evidence Neoplasia Information Exchange (GENIE) was released to the global community in January 2017. The eighth data set, GENIE 8.0-public, was released in July 2020. The combined data set now includes nearly 96,000 de-identified genomic records collected from patients who were treated at each of the consortium's 19 participating institutions, making it among the largest fully public cancer genomic data sets released to date. The combined data set now includes data for over 80 major cancer types, including data from greater than 14,000 patients with lung cancer, nearly 12,000 patients with breast cancer, and nearly 9,500 patients with colorectal cancer.
+*   More detailed information can be found in the [AACR GENIE Data Guide](http://www.aacr.org/Research/Research/Documents/GENIE%20Data%20Guide.pdf).  In addition to accessing the data via the cBioPortal, users can download the data directly from [Sage Bionetworks](http://synapse.org/genie). Users will need to create an account for either site and agree to the [terms of access](http://www.aacr.org/Documents/Terms%20of%20Access.pdf).
+*   For frequently asked questions, visit the [AACR FAQ page](http://www.aacr.org/Research/Research/Pages/aacr-project-genie.aspx).
+## January 29, 2020
+*   **Public Release 7.0 of AACR Project GENIE:**
+    *   The first set of cancer genomic data aggregated through AACR Project Genomics Evidence Neoplasia Information Exchange (GENIE) was released to the global community in January 2017. The seventh data set, GENIE 7.0-public, was released in January 2020. The combined data set now includes nearly 79720 de-identified genomic records collected from patients who were treated at each of the consortium's participating institutions, making it among the largest fully public cancer genomic data sets released to date. The combined data set now includes data for over 80 major cancer types.
+*   More detailed information can be found in the [AACR GENIE Data Guide](http://www.aacr.org/Research/Research/Documents/GENIE%20Data%20Guide.pdf).  In addition to accessing the data via the cBioPortal, users can download the data directly from [Sage Bionetworks](http://synapse.org/genie). Users will need to create an account for either site and agree to the [terms of access](http://www.aacr.org/Documents/Terms%20of%20Access.pdf).
+*   For frequently asked questions, visit the [AACR FAQ page](http://www.aacr.org/Research/Research/Pages/aacr-project-genie.aspx).
 ## July 13, 2019
 *   **Public Release 6.1 of AACR Project GENIE:**
     *   The sixth data set, GENIE 6.0-public, was released in early July 2019.  A patch to GENIE 6.0-public, GENIE 6.1-pubic, was subsequently released on July 13, 2019.  The combined data set now includes nearly 70,000 de-identified genomic records collected from patients who were treated at each of the consortium's participating institutions, making it among the largest fully public cancer genomic data sets released to date. The combined data set now includes data for nearly 80 major cancer types, including data from nearly 11,000 patients with lung cancer, greater than  9,700 patients with breast cancer, and nearly 7,000 patients with colorectal cancer.

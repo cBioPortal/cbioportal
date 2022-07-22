@@ -31,7 +31,7 @@
     <dependency>
       <groupId>org.redisson</groupId>
       <artifactId>redisson</artifactId>
-      <version>3.13.2</version>
+      <version>3.17.5</version>
     </dependency>
     <dependency>
       <groupId>commons-io</groupId>

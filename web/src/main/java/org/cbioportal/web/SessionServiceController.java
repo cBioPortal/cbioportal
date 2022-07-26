@@ -7,6 +7,7 @@ import java.util.regex.Pattern;
 import javax.servlet.http.HttpServletResponse;
 import javax.validation.constraints.Size;
 
+import com.google.common.collect.ImmutableMap;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.cbioportal.web.parameter.*;
@@ -49,6 +50,11 @@ public class SessionServiceController {
 
     @Value("${session.service.url:}")
     private String sessionServiceURL;
+
+    private static Map<SessionPage, Class<? extends PageSettingsData>> pageToSettingsDataClass = ImmutableMap.of(
+         SessionPage.study_view, StudyPageSettings.class,
+         SessionPage.results_view, ResultsPageSettings.class
+     );
 
     private boolean isAuthorized() {
 
@@ -93,8 +99,11 @@ public class SessionServiceController {
         return sessions.isEmpty() ? null : sessions.get(0);
     }
 
-    private ResponseEntity<Session> addSession(SessionType type, Optional<SessionOperation> operation,
-            JSONObject body) {
+    private ResponseEntity<Session> addSession(
+        SessionType type, 
+        Optional<SessionOperation> operation,
+        JSONObject body
+    ) {
         try {
             HttpEntity<?> httpEntity;
             ObjectMapper mapper = new ObjectMapper().configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES,
@@ -117,9 +126,15 @@ public class SessionServiceController {
                 if (!(isAuthorized())) {
                     return new ResponseEntity<>(HttpStatus.SERVICE_UNAVAILABLE);
                 }
-                StudyPageSettings studyPageSettings = mapper.readValue(body.toString(), StudyPageSettings.class);
-                studyPageSettings.setOwner(userName());
-                httpEntity = new HttpEntity<>(studyPageSettings, sessionServiceRequestHandler.getHttpHeaders());
+                Class<? extends PageSettingsData> pageDataClass = pageToSettingsDataClass.get(
+                    SessionPage.valueOf((String) body.get("page"))
+                );
+                PageSettingsData pageSettings = mapper.readValue(
+                    body.toString(),
+                    pageDataClass
+                );
+                pageSettings.setOwner(userName());
+                httpEntity = new HttpEntity<>(pageSettings, sessionServiceRequestHandler.getHttpHeaders());
 
             } else if(type.equals(SessionType.custom_data)) {
                 // JSON from file to Object
@@ -303,8 +318,7 @@ public class SessionServiceController {
     }
 
     @RequestMapping(value = "/settings", method = RequestMethod.POST)
-    public void updateUserPageSettings(@RequestBody PageSettingsData settingsData, HttpServletResponse response)
-            throws IOException {
+    public void updateUserPageSettings(@RequestBody PageSettingsData settingsData, HttpServletResponse response) {
 
         try {
             ObjectMapper objectMapper = new ObjectMapper()
@@ -331,7 +345,7 @@ public class SessionServiceController {
                 if (pageSettings == null) {
                     addSession(SessionType.settings, Optional.empty(), jsonObject);
                 } else {
-                    updatedPageSettingSession(pageSettings, jsonObject, response);
+                    updatedPageSettingSession(pageSettings, settingsData, response);
                 }
                 response.setStatus(HttpStatus.OK.value());
             } else {
@@ -344,26 +358,25 @@ public class SessionServiceController {
     }
 
     // updates only allowed for type page settings session 
-    private void updatedPageSettingSession(PageSettings pageSettings, @RequestBody JSONObject body,
-                                           HttpServletResponse response) throws IOException {
+    private void updatedPageSettingSession(
+        PageSettings pageSettings, 
+        @RequestBody PageSettingsData body,
+        HttpServletResponse response
+    ) throws IOException {
 
         if (isAuthorized()) {
 
-            ObjectMapper mapper = new ObjectMapper().configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES,
-                    false);
-
             PageSettingsData pageSettingsData = pageSettings.getData();
-            StudyPageSettings updatedPageSettings = mapper.readValue(body.toString(), StudyPageSettings.class);
             // only allow owner to update his session and see if the origin(studies) are same
             if (userName().equals(pageSettingsData.getOwner()) &&
-                sameOrigin(pageSettingsData.getOrigin(), updatedPageSettings.getOrigin())) {
+                sameOrigin(pageSettingsData.getOrigin(), body.getOrigin())) {
 
-                updatedPageSettings.setCreated(pageSettingsData.getCreated());
-                updatedPageSettings.setOwner(pageSettingsData.getOwner());
-                updatedPageSettings.setOrigin(pageSettingsData.getOrigin());
+                body.setCreated(pageSettingsData.getCreated());
+                body.setOwner(pageSettingsData.getOwner());
+                body.setOrigin(pageSettingsData.getOrigin());
 
                 RestTemplate restTemplate = new RestTemplate();
-                HttpEntity<Object> httpEntity = new HttpEntity<>(updatedPageSettings, sessionServiceRequestHandler.getHttpHeaders());
+                HttpEntity<Object> httpEntity = new HttpEntity<>(body, sessionServiceRequestHandler.getHttpHeaders());
 
                 restTemplate.put(sessionServiceURL + pageSettings.getType() + "/" + pageSettings.getId(), httpEntity);
                 response.setStatus(HttpStatus.OK.value());

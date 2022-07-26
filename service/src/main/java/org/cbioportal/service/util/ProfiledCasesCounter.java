@@ -60,14 +60,29 @@ public class ProfiledCasesCounter<T extends AlterationCountByGene> {
                 .map(caseUniqueIdentifier)
                 .collect(Collectors.toSet());
         int profiledCasesCount = profiledCases.size();
-
-        Set<String> casesWithoutPanelData = profiled
+        
+        // here we look for cases where none of the profiles have gene panel ids
+        // a case with at least one profile with gene panel id is considered as a case with gene panel data
+        // so a case is considered without panel data only if none of the profiles has a gene panel id
+        
+        // first identify cases with gene panel data
+        Set<String> casesWithPanelData = profiled
                 .stream()
-                .filter(g -> g.getGenePanelId() == null)
+                .filter(g -> g.getGenePanelId() != null)
                 // there can be duplicate patient or sample id, append study id
                 .map(caseUniqueIdentifier)
                 .collect(Collectors.toSet());
 
+        // find all unique cases
+        Set<String> casesWithoutPanelData = profiled
+            .stream()
+            // there can be duplicate patient or sample id, append study id
+            .map(caseUniqueIdentifier)
+            .collect(Collectors.toSet());
+
+        // removing cases with panel data from all unique cases gives us the cases without panel data
+        casesWithoutPanelData.removeAll(casesWithPanelData);
+        
         for (AlterationCountByGene alterationCountByGene : alterationCounts) {
             Integer entrezGeneId = alterationCountByGene.getEntrezGeneId();
             Set<String> totalProfiledPatients = new HashSet<String>();

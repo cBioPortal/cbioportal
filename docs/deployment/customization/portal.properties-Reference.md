@@ -366,7 +366,7 @@ oncoprint.defaultview=sample
 Configuration of tracks that will be visible by default in the oncoprint. It points to a JSON file on the classpath.
 
 ```
-oncoprint.clinical_tracks.show_by_default=classpath:/oncoprint-default-tracks.json
+oncoprint.clinical_tracks.config_json=classpath:/oncoprint-default-tracks.json
 ```
 
 ## Custom annotation of driver and passenger mutations

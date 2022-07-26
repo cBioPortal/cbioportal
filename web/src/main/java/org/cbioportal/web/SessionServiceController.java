@@ -318,8 +318,7 @@ public class SessionServiceController {
     }
 
     @RequestMapping(value = "/settings", method = RequestMethod.POST)
-    public void updateUserPageSettings(@RequestBody PageSettingsData settingsData, HttpServletResponse response)
-            throws IOException {
+    public void updateUserPageSettings(@RequestBody PageSettingsData settingsData, HttpServletResponse response) {
 
         try {
             ObjectMapper objectMapper = new ObjectMapper()
@@ -366,9 +365,6 @@ public class SessionServiceController {
     ) throws IOException {
 
         if (isAuthorized()) {
-
-            ObjectMapper mapper = new ObjectMapper().configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES,
-                    false);
 
             PageSettingsData pageSettingsData = pageSettings.getData();
             // only allow owner to update his session and see if the origin(studies) are same

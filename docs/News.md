@@ -1,3 +1,13 @@
+## Jul 26, 2022
+*   **Added data** consisting of 6,631 samples from 7 studies:
+	* [Metastatic Biliary Tract Cancers (SUMMIT - Neratinib Basket Trial, 2022)](https://www.cbioportal.org/study/summary?id=biliary_tract_summit_2022) *36 samples*
+    * [Rectal Cancer (MSKCC, Nature Medicine 2022)](https://www.cbioportal.org/study/summary?id=rectal_msk_2022) *801 samples*
+    * [MSK Mind Lung 2020](https://www.cbioportal.org/study/summary?id=lung_msk_mind_2020) *247 samples*
+    * [Myelodysplastic Syndromes (MDS IWG, IPSSM, NEJM Evidence 2022)](https://www.cbioportal.org/study/summary?id=mds_iwg_2022) *3,323 samples*
+    * [Esophagogastric Cancer (MSK, Clin Cancer Res 2022)](https://www.cbioportal.org/study/summary?id=egc_msk_tp53_ccr_2022) *237 samples*
+    * [Pan-cancer Analysis of Advanced and Metastatic Tumors (BCGSC, Nature Cancer 2020)](https://www.cbioportal.org/study/summary?id=pog570_bcgsc_2020) *570 samples*
+    * [PIK3R1 Alterations in Prostate Cancer (MSK, 2021)](https://www.cbioportal.org/study/summary?id=prad_pik3r1_msk_2021) *1,417 samples*
+
 ## May 12, 2022
 * **New Feature**: Show cohort alteration frequencies in pathways from [NDEx](https://www.ndexbio.org/iquery/) on the _Results View_. [Example: Glioblastoma signaling pathways in MSK-IMPACT (2017) cohort](https://bit.ly/3sE4UqD)
 

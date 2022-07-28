@@ -3090,7 +3090,11 @@ class StructuralVariantValidator(Validator):
         else:
             self.logger.warning('No column NCBI_Build, assuming GRCh37 is the assembly',
                               extra={'line_number': self.line_number})
-
+                              
+        # Check whether sample ID is in clinical sample IDs
+        sample_id = checkPresenceValue('Sample_Id', self, data)
+        self.checkSampleId(sample_id, column_number = self.cols.index('Sample_Id') + 1)
+        
         # Parse Hugo Symbol and Entrez Gene Id and check them for Site 1
         site1_hugo_symbol = checkPresenceValue('Site1_Hugo_Symbol', self, data)
         site1_entrez_gene_id = checkPresenceValue('Site1_Entrez_Gene_Id', self, data)

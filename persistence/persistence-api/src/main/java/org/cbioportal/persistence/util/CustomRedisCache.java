@@ -78,6 +78,9 @@ public class CustomRedisCache extends AbstractValueAdaptingCache {
 
     @Override
     public void put(Object key, @Nullable Object value) {
+        if (value == null) {
+            LOG.warn("Storing null value for key {} in cache. That's probably not great.", key);
+        }
         if (ttlMinutes == INFINITE_TTL) {
             this.redissonClient.getBucket(name + DELIMITER + key).setAsync(toStoreValue(value));
         } else {
@@ -132,7 +135,6 @@ public class CustomRedisCache extends AbstractValueAdaptingCache {
     @Override
     protected Object toStoreValue(@Nullable Object userValue) {
         if (userValue == null) {
-            LOG.warn("Storing null value in cache. That's probably not great.");
             return null;
         }
         

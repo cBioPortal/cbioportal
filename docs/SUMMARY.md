@@ -54,6 +54,7 @@
   * [cBioPortal Maintenance](deployment/cbioportal-maintenance/README.md)
     * [Updating your cBioPortal Database Scheme](Updating-your-cBioPortal-installation.md)
     * [Update genes and gene aliases](Updating-gene-and-gene_alias-tables.md)
+    * [Migration Guide](Migration-Guide.md)
 * [Development](documentation/docs/README.md)
   * [Feature Development Guide](feature-development-guide.md)
   * [cBioPortal Entity-relationship Diagram](cBioPortal-ER-Diagram.md)

@@ -380,6 +380,10 @@ persistence.cache_type=no-cache
 # This limit is enforced on the frontend.
 # query_product_limit=1000000
 
+# Limit the size of samples in clinical tab in study view page. clinical attribute count * sample count < clinical_attribute_product_limit
+# This limit is enforced on the frontend.
+# clinical_attribute_product_limit=6500000
+
 # Enable gsva to query
 # skin.show_gsva=true
 # Set default thresholds for geneset hierarchy

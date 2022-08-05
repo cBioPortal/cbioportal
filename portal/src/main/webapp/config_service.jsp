@@ -130,6 +130,7 @@
             "enable_request_body_gzip_compression",
             "enable_treatment_groups",
             "query_product_limit",
+            "clinical_attribute_product_limit",
             "saml.logout.local",
             "skin.citation_rule_text",
             "skin.show_gsva",

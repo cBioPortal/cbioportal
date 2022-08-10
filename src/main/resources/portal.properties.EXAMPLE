@@ -292,7 +292,7 @@ oncoprint.defaultview=patient
 oncoprint.oncokb.default=true
 oncoprint.hotspots.default=true
 # oncoprint.hide_vus.default=true
-# oncoprint.clinical_tracks.show_by_default=classpath:/oncoprint-default-tracks.json
+# oncoprint.clinical_tracks.config_json=classpath:/oncoprint-default-tracks.json
 
 # Custom gene sets
 # querypage.setsofgenes.location=file:/<path>
@@ -379,6 +379,10 @@ persistence.cache_type=no-cache
 # Limit the size of gene queries (number). gene count * sample count < query_product_limit
 # This limit is enforced on the frontend.
 # query_product_limit=1000000
+
+# Limit the size of samples in clinical tab in study view page. clinical attribute count * sample count < clinical_attribute_product_limit
+# This limit is enforced on the frontend.
+# clinical_attribute_product_limit=6500000
 
 # Enable gsva to query
 # skin.show_gsva=true

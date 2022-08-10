@@ -124,12 +124,13 @@
             "bitly.user",
             "bitly.access.token",
             "oncoprint.custom_driver_annotation.tiers.default",
-            "oncoprint.clinical_tracks.show_by_default",
+            "oncoprint.clinical_tracks.config_json",
             "ensembl.transcript_url",
             "enable_persistent_cache",
             "enable_request_body_gzip_compression",
             "enable_treatment_groups",
             "query_product_limit",
+            "clinical_attribute_product_limit",
             "saml.logout.local",
             "skin.citation_rule_text",
             "skin.show_gsva",
@@ -171,7 +172,7 @@
 
         obj.put("frontendConfigOverride",GlobalProperties.getFrontendConfig());
 
-        obj.put("oncoprint_clinical_tracks_show_by_default",GlobalProperties.getOncoprintDefaultTracksConfig());
+        obj.put("oncoprint_clinical_tracks_config_json",GlobalProperties.getOncoprintClinicalTracksConfigJson());
 
         obj.put("authenticationMethod",GlobalProperties.authenticationMethod());
 

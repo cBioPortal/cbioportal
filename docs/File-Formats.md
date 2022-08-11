@@ -1,3 +1,28 @@
+* [Introduction](#introduction)
+* [Formats](#formats)
+    * [Cancer Study](#cancer-study)
+    * [Cancer Type](#cancer-type)
+    * [Clinical Data](#clinical-data)
+    * [Discrete Copy Number Data](#discrete-copy-number-data)
+    * [Continuous Copy Number Data](#continuous-copy-number-data)
+    * [Segmented Data](#segmented-data)
+    * [Expression Data](#expression-data)
+    * [Mutation Data](#mutation-data)
+    * [Structural Variant Data](#structural-variant-data)
+    * [Fusion Data](#fusion-data) (DEPRECATED)
+    * [Methylation Data](#methylation-data)
+    * [Protein level Data](#protein-level-data)
+    * [Case Lists](#case-lists)
+    * [Timeline Data](#timeline-data)
+    * [GISTIC 2.0 Data](#gistic-20-data)
+    * [Mutsig Data](#mutsig-data)
+    * [Gene Panel Data](#gene-panel-data)
+    * [Gene Set Data](#gene-set-data)
+    * [Study Tags file](#study-tags-file)
+    * [Generic Assay](#generic-assay)
+        * [Arm Level CNA Data](#arm-level-cna-data)
+    * [Resource Data](#resource-data)
+
 # Introduction
 
 This page describes the file formats that cancer study data should assume in order to be successfully imported into the database.  Unless otherwise noted, all data files are in tabular-TSV (tab separated value) format and have an associated metadata file which is in a multiline record format.  The metadata and data files should follow a [few rules documented at the Data Loading page](Data-Loading.md#preparing-study-data).

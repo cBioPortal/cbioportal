@@ -237,7 +237,7 @@ def process_directory(jvm_args, study_directory, update_generic_assay_entity = N
     zscore_filepairs = []
     gsva_score_filepair = None
     gsva_pvalue_filepair = None
-    fusion_filepair = None
+    structural_variant_filepair = None
 
     # Determine meta filenames in study directory
     meta_filenames = (
@@ -323,9 +323,9 @@ def process_directory(jvm_args, study_directory, update_generic_assay_entity = N
         elif meta_file_type == MetaFileTypes.GSVA_PVALUES:
             gsva_pvalue_filepair = (
                 (meta_filename, os.path.join(study_directory, meta_dictionary['data_filename'])))
-        # Check for fusion data
-        elif meta_file_type == MetaFileTypes.FUSION:
-            fusion_filepair = (
+        # Check for structural variant data
+        elif meta_file_type == MetaFileTypes.STRUCTURAL_VARIANT:
+            structural_variant_filepair = (
                 (meta_filename, os.path.join(study_directory, meta_dictionary['data_filename'])))
         # Add all other types of data
         else:
@@ -361,15 +361,15 @@ def process_directory(jvm_args, study_directory, update_generic_assay_entity = N
         meta_filename, data_filename = sample_resource_filepair
         import_study_data(jvm_args, meta_filename, data_filename, update_generic_assay_entity, study_meta_dictionary[meta_filename])
 
-    # Next, import everything else except gene panel, fusion data, GSVA and
+    # Next, import everything else except gene panel, structural variant data, GSVA and
     # z-score expression. If in the future more types refer to each other, (like
     # in a tree structure) this could be programmed in a recursive fashion.
     for meta_filename, data_filename in regular_filepairs:
         import_study_data(jvm_args, meta_filename, data_filename, update_generic_assay_entity, study_meta_dictionary[meta_filename])
 
-    # Import fusion data (after mutation)
-    if fusion_filepair is not None:
-        meta_filename, data_filename = fusion_filepair
+    # Import structural variant data
+    if structural_variant_filepair is not None:
+        meta_filename, data_filename = structural_variant_filepair
         import_study_data(jvm_args, meta_filename, data_filename, update_generic_assay_entity, study_meta_dictionary[meta_filename])
 
     # Import expression z-score (after expression)

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2018 The Hyve B.V.
+ * Copyright (c) 2018 - 2022 The Hyve B.V.
  * This code is licensed under the GNU Affero General Public License (AGPL),
  * version 3, or (at your option) any later version.
  */
@@ -46,9 +46,6 @@ public class StructuralVariantServiceImplTest extends BaseServiceImplTest {
 
     @Mock
     private StructuralVariantRepository structuralVariantRepository;
-    @Spy
-    @InjectMocks
-    private MolecularProfileUtil molecularProfileUtil;
 
     @Test
     public void getStructuralVariants() throws Exception {

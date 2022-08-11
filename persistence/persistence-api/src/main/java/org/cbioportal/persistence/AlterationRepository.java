@@ -1,7 +1,6 @@
 package org.cbioportal.persistence;
 
 import org.cbioportal.model.*;
-import org.cbioportal.model.QueryElement;
 import org.cbioportal.model.util.Select;
 import org.springframework.cache.annotation.Cacheable;
 
@@ -13,13 +12,11 @@ public interface AlterationRepository {
     @Cacheable(cacheResolver = "generalRepositoryCacheResolver", condition = "@cacheEnabledConfig.getEnabled()")
     List<AlterationCountByGene> getSampleAlterationCounts(Set<MolecularProfileCaseIdentifier> molecularProfileCaseIdentifiers,
                                                           Select<Integer> entrezGeneIds,
-                                                          QueryElement searchFusions,
                                                           AlterationFilter alterationFilter);
 
     @Cacheable(cacheResolver = "generalRepositoryCacheResolver", condition = "@cacheEnabledConfig.getEnabled()")
     List<AlterationCountByGene> getPatientAlterationCounts(List<MolecularProfileCaseIdentifier> molecularProfileCaseIdentifiers,
                                                            Select<Integer> entrezGeneIds,
-                                                           QueryElement searchFusions,
                                                            AlterationFilter alterationFilter);
 
     @Cacheable(cacheResolver = "generalRepositoryCacheResolver", condition = "@cacheEnabledConfig.getEnabled()")

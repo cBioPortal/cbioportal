@@ -97,16 +97,6 @@
             <if test="_parameter.containsKey('geneQueries') and geneQueries != null and !geneQueries.isEmpty()">
                 <include refid="whereWithGeneQueries"/>
             </if>
-            <if test="_parameter.containsKey('searchFusions')">
-                <if test="searchFusions">
-                    AND
-                    mutation_event.MUTATION_TYPE = 'Fusion'
-                </if>
-                <if test="not searchFusions">
-                    AND
-                    mutation_event.MUTATION_TYPE != 'Fusion'
-                </if>
-            </if>
             <if test="snpOnly != null and snpOnly == true">
                 AND mutation_event.REFERENCE_ALLELE IN ('A','T','C','G')
                 AND mutation_event.TUMOR_SEQ_ALLELE IN ('A','T','C','G')
@@ -179,16 +169,6 @@
             </if>
             <if test="_parameter.containsKey('geneQueries') and geneQueries != null and !geneQueries.isEmpty()">
                 <include refid="whereWithGeneQueries"/>
-            </if>
-            <if test="_parameter.containsKey('searchFusions')">
-                <if test="searchFusions">
-                    AND
-                    mutation_event.MUTATION_TYPE = 'Fusion'
-                </if>
-                <if test="not searchFusions">
-                    AND
-                    mutation_event.MUTATION_TYPE != 'Fusion'
-                </if>
             </if>
             <if test="snpOnly != null and snpOnly == true">
                 AND mutation_event.REFERENCE_ALLELE IN ('A','T','C','G')
@@ -309,8 +289,7 @@
         SELECT
         <include refid="select"/>
         <include refid="from"/>
-        <!-- TODO: Remove once fusions are removed from mutation table -->
-        INNER JOIN mutation_event ON mutation.MUTATION_EVENT_ID = mutation_event.MUTATION_EVENT_ID AND mutation_event.MUTATION_TYPE != 'Fusion'
+        INNER JOIN mutation_event ON mutation.MUTATION_EVENT_ID = mutation_event.MUTATION_EVENT_ID
         <if test="projection == 'DETAILED'">
             INNER JOIN gene ON mutation.ENTREZ_GENE_ID = gene.ENTREZ_GENE_ID
             <include refid="includeAlleleSpecificCopyNumber"/>
@@ -332,8 +311,7 @@
         COUNT(*) AS totalCount,
         COUNT(DISTINCT(mutation.SAMPLE_ID)) AS sampleCount
         <include refid="from"/>
-        <!-- TODO: Remove once fusions are removed from mutation table -->
-        INNER JOIN mutation_event ON mutation.MUTATION_EVENT_ID = mutation_event.MUTATION_EVENT_ID AND mutation_event.MUTATION_TYPE != 'Fusion'
+        INNER JOIN mutation_event ON mutation.MUTATION_EVENT_ID = mutation_event.MUTATION_EVENT_ID
         <include refid="whereBySampleListId"/>
     </select>
 
@@ -341,7 +319,6 @@
         SELECT
         <include refid="select"/>
         <include refid="from"/>
-        <!-- TODO: Remove once fusions are removed from mutation table -->
         INNER JOIN mutation_event ON mutation.MUTATION_EVENT_ID = mutation_event.MUTATION_EVENT_ID
         <if test="projection == 'DETAILED'">
             INNER JOIN gene ON mutation.ENTREZ_GENE_ID = gene.ENTREZ_GENE_ID
@@ -355,7 +332,6 @@
         SELECT
         <include refid="select"/>
         <include refid="from"/>
-        <!-- TODO: Remove once fusions are removed from mutation table -->
         INNER JOIN mutation_event ON mutation.MUTATION_EVENT_ID = mutation_event.MUTATION_EVENT_ID
         <if test="projection == 'DETAILED'">
             INNER JOIN gene ON mutation.ENTREZ_GENE_ID = gene.ENTREZ_GENE_ID
@@ -370,8 +346,7 @@
         COUNT(*) AS totalCount,
         COUNT(DISTINCT(mutation.SAMPLE_ID)) AS sampleCount
         <include refid="from"/>
-        <!-- TODO: Remove once fusions are removed from mutation table -->
-        INNER JOIN mutation_event ON mutation.MUTATION_EVENT_ID = mutation_event.MUTATION_EVENT_ID AND mutation_event.MUTATION_TYPE != 'Fusion'
+        INNER JOIN mutation_event ON mutation.MUTATION_EVENT_ID = mutation_event.MUTATION_EVENT_ID
         <include refid="whereInMultipleMolecularProfiles"/>
     </select>
 
@@ -380,8 +355,7 @@
         COUNT(*) AS totalCount,
         COUNT(DISTINCT(mutation.SAMPLE_ID)) AS sampleCount
         <include refid="from"/>
-        <!-- TODO: Remove once fusions are removed from mutation table -->
-        INNER JOIN mutation_event ON mutation_event.MUTATION_EVENT_ID = mutation.MUTATION_EVENT_ID AND mutation_event.MUTATION_TYPE != 'Fusion'
+        INNER JOIN mutation_event ON mutation_event.MUTATION_EVENT_ID = mutation.MUTATION_EVENT_ID
         <include refid="where"/>
     </select>
 
@@ -392,8 +366,7 @@
         COUNT(*) AS totalCount,
         COUNT(DISTINCT(mutation.SAMPLE_ID)) AS numberOfAlteredCases
         FROM mutation
-        <!-- TODO: Remove once fusions are removed from mutation table -->
-        INNER JOIN mutation_event ON mutation_event.MUTATION_EVENT_ID = mutation.MUTATION_EVENT_ID AND mutation_event.MUTATION_TYPE != 'Fusion'
+        INNER JOIN mutation_event ON mutation_event.MUTATION_EVENT_ID = mutation.MUTATION_EVENT_ID
         INNER JOIN genetic_profile ON mutation.GENETIC_PROFILE_ID = genetic_profile.GENETIC_PROFILE_ID
         INNER JOIN sample ON mutation.SAMPLE_ID = sample.INTERNAL_ID
         INNER JOIN gene ON mutation.ENTREZ_GENE_ID = gene.ENTREZ_GENE_ID
@@ -412,7 +385,5 @@
         WHERE mutation_event.ENTREZ_GENE_ID = #{entrezGeneId}
         AND mutation_event.ONCOTATOR_PROTEIN_POS_START >= #{proteinPosStart}
         AND mutation_event.ONCOTATOR_PROTEIN_POS_END <![CDATA[ <= ]]> #{proteinPosEnd}
-        <!-- TODO: Remove once fusions are removed from mutation table -->
-        AND mutation_event.MUTATION_TYPE != 'Fusion'
     </select>
 </mapper>

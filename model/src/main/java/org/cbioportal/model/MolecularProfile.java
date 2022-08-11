@@ -12,7 +12,6 @@ public class MolecularProfile implements Serializable {
         // uncalled mutations (mskcc internal) for showing read counts even if
         // mutation wasn't called
         MUTATION_UNCALLED,
-        FUSION,
         STRUCTURAL_VARIANT,
         COPY_NUMBER_ALTERATION,
         MICRO_RNA_EXPRESSION,
@@ -80,16 +79,7 @@ public class MolecularProfile implements Serializable {
     }
 
     public MolecularAlterationType getMolecularAlterationType() {
-        // TODO: remove this logic once all the fusions are migrated to structural variants
-        // most fusion profiles are imported as SV data but this also handles the archer
-        // study case where the fusions are imported under a mutations profile instead
-        // https://github.com/cBioPortal/cbioportal/blob/8704058562c386afeac3082e50f39c1097d47983/core/src/main/java/org/mskcc/cbio/portal/util/GeneticProfileReader.java#L93
-        // But somehow there was no migration for existing data. To resolve it replace FUSION alteration type by STRUCTURAL_VARIANT.
-        return (molecularAlterationType.equals(MolecularAlterationType.FUSION) ||
-                (molecularAlterationType.equals(MolecularAlterationType.MUTATION_EXTENDED)
-                && this.datatype != null && this.datatype.equals("FUSION")))
-                ? MolecularAlterationType.STRUCTURAL_VARIANT
-                : molecularAlterationType;
+        return molecularAlterationType;
     }
 
     public void setMolecularAlterationType(MolecularAlterationType molecularAlterationType) {
@@ -121,11 +111,7 @@ public class MolecularProfile implements Serializable {
     }
 
     public Boolean getShowProfileInAnalysisTab() {
-        // TODO: remove this logic once the data is fixed (when all the fusions are migrated to structural variants)
-        return showProfileInAnalysisTab
-                || ((molecularAlterationType.equals(MolecularAlterationType.STRUCTURAL_VARIANT)
-                        || molecularAlterationType.equals(MolecularAlterationType.MUTATION_EXTENDED))
-                        && datatype.equals("FUSION"));
+        return showProfileInAnalysisTab;
     }
 
     public void setShowProfileInAnalysisTab(Boolean showProfileInAnalysisTab) {

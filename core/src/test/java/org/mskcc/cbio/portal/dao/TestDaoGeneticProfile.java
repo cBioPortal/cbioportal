@@ -1,15 +1,15 @@
 /*
- * Copyright (c) 2015 - 2016 Memorial Sloan-Kettering Cancer Center.
+ * Copyright (c) 2015 - 2022 Memorial Sloan Kettering Cancer Center.
  *
  * This library is distributed in the hope that it will be useful, but WITHOUT
  * ANY WARRANTY, WITHOUT EVEN THE IMPLIED WARRANTY OF MERCHANTABILITY OR FITNESS
  * FOR A PARTICULAR PURPOSE. The software and documentation provided hereunder
- * is on an "as is" basis, and Memorial Sloan-Kettering Cancer Center has no
+ * is on an "as is" basis, and Memorial Sloan Kettering Cancer Center has no
  * obligations to provide maintenance, support, updates, enhancements or
- * modifications. In no event shall Memorial Sloan-Kettering Cancer Center be
+ * modifications. In no event shall Memorial Sloan Kettering Cancer Center be
  * liable to any party for direct, indirect, special, incidental or
  * consequential damages, including lost profits, arising out of the use of this
- * software and its documentation, even if Memorial Sloan-Kettering Cancer
+ * software and its documentation, even if Memorial Sloan Kettering Cancer
  * Center has been advised of the possibility of such damage.
  */
 
@@ -93,7 +93,7 @@ public class TestDaoGeneticProfile {
 		geneticProfile.setCancerStudyId(studyId);
 		geneticProfile.setProfileName("test profile");
 		geneticProfile.setStableId("test");
-		geneticProfile.setGeneticAlterationType(GeneticAlterationType.FUSION);
+		geneticProfile.setGeneticAlterationType(GeneticAlterationType.STRUCTURAL_VARIANT);
 		geneticProfile.setDatatype("test");
 		DaoGeneticProfile.addGeneticProfile(geneticProfile);
 		
@@ -101,7 +101,7 @@ public class TestDaoGeneticProfile {
 		assertEquals(studyId, readGeneticProfile.getCancerStudyId());
 		assertEquals("test", readGeneticProfile.getStableId());
 		assertEquals("test profile", readGeneticProfile.getProfileName());
-		assertEquals(GeneticAlterationType.FUSION, readGeneticProfile.getGeneticAlterationType());
+		assertEquals(GeneticAlterationType.STRUCTURAL_VARIANT, readGeneticProfile.getGeneticAlterationType());
 	}
 
 	@Test

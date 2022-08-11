@@ -17,17 +17,14 @@ public interface MutationMapper {
                                                 List<Integer> entrezGeneIds, Boolean snpOnly);
 
     
-    // TODO: cleanup searchFusions param once fusion/structural data is fixed in database
     List<Mutation> getMutationsInMultipleMolecularProfiles(List<String> molecularProfileIds, List<String> sampleIds,
                                                                         List<Integer> entrezGeneIds, Boolean snpOnly,
-                                                                        boolean searchFusions, String projection, Integer limit,
+                                                                        String projection, Integer limit,
                                                                         Integer offset, String sortBy, String direction);
 
-    // TODO: cleanup searchFusions param once fusion/structural data is fixed in database
     List<Mutation> getMutationsInMultipleMolecularProfilesByGeneQueries(List<String> molecularProfileIds,
                                                                         List<String> sampleIds,
                                                                         Boolean snpOnly,
-                                                                        boolean searchFusions,
                                                                         String projection,
                                                                         Integer limit,
                                                                         Integer offset,

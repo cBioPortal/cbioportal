@@ -1,15 +1,15 @@
 /*
- * Copyright (c) 2015 Memorial Sloan-Kettering Cancer Center.
+ * Copyright (c) 2015 - 2022 Memorial Sloan Kettering Cancer Center.
  *
  * This library is distributed in the hope that it will be useful, but WITHOUT
  * ANY WARRANTY, WITHOUT EVEN THE IMPLIED WARRANTY OF MERCHANTABILITY OR FITNESS
  * FOR A PARTICULAR PURPOSE. The software and documentation provided hereunder
- * is on an "as is" basis, and Memorial Sloan-Kettering Cancer Center has no
+ * is on an "as is" basis, and Memorial Sloan Kettering Cancer Center has no
  * obligations to provide maintenance, support, updates, enhancements or
- * modifications. In no event shall Memorial Sloan-Kettering Cancer Center be
+ * modifications. In no event shall Memorial Sloan Kettering Cancer Center be
  * liable to any party for direct, indirect, special, incidental or
  * consequential damages, including lost profits, arising out of the use of this
- * software and its documentation, even if Memorial Sloan-Kettering Cancer
+ * software and its documentation, even if Memorial Sloan Kettering Cancer
  * Center has been advised of the possibility of such damage.
  */
 
@@ -120,15 +120,24 @@ public final class DaoSampleProfile {
         try {
             con = JdbcUtil.getDbConnection(DaoSampleProfile.class);
             if (!sampleExistsInGeneticProfile(sampleId, geneticProfileId)) {
+                
                 pstmt = con.prepareStatement
                     ("INSERT INTO sample_profile (`SAMPLE_ID`, `GENETIC_PROFILE_ID`, `PANEL_ID`) VALUES (?,?,?)");
                 pstmt.setInt(1, sampleId);
                 pstmt.setInt(2, geneticProfileId);
-                pstmt.setInt(3, panelId);
+                if (panelId != null) {
+                    pstmt.setInt(3, panelId);
+                } else {
+                    pstmt.setNull(3, java.sql.Types.INTEGER);
+                }
             } else {
                 pstmt = con.prepareStatement
                     ("UPDATE `sample_profile` SET `PANEL_ID` = ? WHERE (`SAMPLE_ID` = ? AND `GENETIC_PROFILE_ID` = ?)");
-                pstmt.setInt(1, panelId);
+                if (panelId != null) {
+                    pstmt.setInt(1, panelId);
+                } else {
+                    pstmt.setNull(1, java.sql.Types.INTEGER);
+                }
                 pstmt.setInt(2, sampleId);
                 pstmt.setInt(3, geneticProfileId);
             }

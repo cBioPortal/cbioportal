@@ -1,15 +1,15 @@
 /*
- * Copyright (c) 2015 Memorial Sloan-Kettering Cancer Center.
+ * Copyright (c) 2015 - 2022 Memorial Sloan Kettering Cancer Center.
  *
  * This library is distributed in the hope that it will be useful, but WITHOUT
  * ANY WARRANTY, WITHOUT EVEN THE IMPLIED WARRANTY OF MERCHANTABILITY OR FITNESS
  * FOR A PARTICULAR PURPOSE. The software and documentation provided hereunder
- * is on an "as is" basis, and Memorial Sloan-Kettering Cancer Center has no
+ * is on an "as is" basis, and Memorial Sloan Kettering Cancer Center has no
  * obligations to provide maintenance, support, updates, enhancements or
- * modifications. In no event shall Memorial Sloan-Kettering Cancer Center be
+ * modifications. In no event shall Memorial Sloan Kettering Cancer Center be
  * liable to any party for direct, indirect, special, incidental or
  * consequential damages, including lost profits, arising out of the use of this
- * software and its documentation, even if Memorial Sloan-Kettering Cancer
+ * software and its documentation, even if Memorial Sloan Kettering Cancer
  * Center has been advised of the possibility of such damage.
  */
 
@@ -141,11 +141,19 @@ public class TabDelimitedFileUtil
 		}
 	}
 
+	// This method does not call Integer.parseInt() as one might expect.
+	// Presumably this is to allow the convertion of strings like "6.2" to "6".
+	// The method previously called (int)Float.parseFloat() but floats
+	// reserve 23 bits for the mantissa and ints are 32 bits so precision
+	// was lost parsing "138536968" which was converted to 138536960. 
+	// Now we call (int)Double.parseDouble() because double allocates
+	// 52 bits for the mantissa. Note getPartLong calls Long.parseLong()
+	// when this does not call Integer.parseInt() which seems inconsistent.
 	public static Integer getPartInt(int index, String[] parts)
 	{
 		try {
 			String part = parts[index];
-			return (int)(Float.parseFloat(part));
+			return (int)(Double.parseDouble(part));
 		} catch (ArrayIndexOutOfBoundsException e) {
 			return NA_INT;
 		} catch (NumberFormatException e) {

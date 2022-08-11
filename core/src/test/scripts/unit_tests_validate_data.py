@@ -36,7 +36,7 @@ def setUpModule():
     global PORTAL_INSTANCE
     global mutation_sample_ids
     # mock information parsed from the sample attribute file
-    DEFINED_SAMPLE_IDS = ["TCGA-A1-A0SB-01", "TCGA-A1-A0SD-01", "TCGA-A1-A0SE-01", "TCGA-A1-A0SH-01", "TCGA-A2-A04U-01", "TCGA-B6-A0RS-01", "TCGA-BH-A0HP-01", "TCGA-BH-A18P-01", "TCGA-BH-A18H-01", "TCGA-C8-A138-01", "TCGA-A2-A0EY-01", "TCGA-A8-A08G-01"]
+    DEFINED_SAMPLE_IDS = ["TCGA-A1-A0SB-01", "TCGA-A1-A0SD-01", "TCGA-A1-A0SE-01", "TCGA-A1-A0SH-01", "TCGA-A2-A04U-01", "TCGA-B6-A0RS-01", "TCGA-BH-A0HP-01", "TCGA-BH-A18P-01", "TCGA-BH-A18H-01", "TCGA-C8-A138-01", "TCGA-A2-A0EY-01", "TCGA-A8-A08G-01", "TCGA-A2-A04P-01"]
     DEFINED_SAMPLE_ATTRIBUTES = {'PATIENT_ID', 'SAMPLE_ID', 'SUBTYPE', 'CANCER_TYPE', 'CANCER_TYPE_DETAILED'}
     PATIENTS_WITH_SAMPLES = set("TEST-PAT{}".format(num) for
                                 num in list(range(1, 10)) if
@@ -1737,45 +1737,29 @@ class MutationsSpecialCasesTestCase(PostClinicalDataFileTestCase):
             self.assertEqual(record.levelno, logging.ERROR)
             self.assertEqual(record.getMessage(), 'Namespace defined but MAF is missing required column.')
 
-
-class FusionValidationTestCase(PostClinicalDataFileTestCase):
-
-    """Tests for the various validations of data in Fusion data files."""
-
-    def test_duplicate_line(self):
-        """Test if duplicate lines are detected"""
-        # set level according to this test case:
-        self.logger.setLevel(logging.WARNING)
-        record_list = self.validate('data_fusions_duplicate_entry.txt',
-                                    validateData.FusionValidator)
-
-        self.assertEqual(1, len(record_list))
-        self.assertIn("duplicate entry in fusion data", record_list[0].getMessage().lower())
-
-
 class StructuralVariantValidationTestCase(PostClinicalDataFileTestCase):
     """Tests for the various validations of data in structural variant data files."""
 
     def test_missing_columns(self):
-        """Test whether the exons are found in the transcript"""
+        """Test whether the required fields are present"""
         self.logger.setLevel(logging.ERROR)
         record_list = self.validate('data_structural_variants_missing_columns.txt',
                                     validateData.StructuralVariantValidator)
         self.assertEqual(3, len(record_list))
         record_iterator = iter(record_list)
 
-        # Expected ERROR message due to missing Ensembl transcript column
+        # Expected ERROR message due to missing SV_Status column
         record = next(record_iterator)
         self.assertEqual(logging.ERROR, record.levelno)
         self.assertEqual(1, record.line_number)
-        self.assertEqual('Fusion event requires "Site1_Exon" and "Site2_Exon" columns', record.message)
+        self.assertEqual('Missing column: SV_Status', record.message)
 
-        # Expected ERROR message due to missing Exon column
+        # Expected ERROR message due to missing Entrez gene id and Hugo symbol column
         record = next(record_iterator)
         self.assertEqual(logging.ERROR, record.levelno)
         self.assertEqual(1, record.line_number)
-        self.assertEqual('Fusion event requires "Site1_Ensembl_Transcript_Id" and "Site2_Ensembl_Transcript_Id" '
-                         'columns', record.message)
+        self.assertEqual('Structural variant event requires Site2_Entrez_Gene_Id and/or Site2_Hugo_Symbol '
+                         'column', record.message)
 
         # Expected generic ERROR message due to invalid column header
         record = next(record_iterator)
@@ -1783,79 +1767,33 @@ class StructuralVariantValidationTestCase(PostClinicalDataFileTestCase):
         self.assertEqual('Invalid column header, file cannot be parsed', record.message)
 
     def test_missing_values(self):
-        """Test whether the exons are found in the transcript"""
+        """Test whether the entrez gene id and hugo symbols are found in both the sites"""
         self.logger.setLevel(logging.ERROR)
         record_list = self.validate('data_structural_variants_missing_values.txt',
                                     validateData.StructuralVariantValidator)
-        self.assertEqual(4, len(record_list))
-        record_iterator = iter(record_list)
-
-        # Expected ERROR message due to missing Ensembl transcript column
-        record = next(record_iterator)
-        self.assertEqual(logging.ERROR, record.levelno)
-        self.assertEqual(2, record.line_number)
-        self.assertEqual(11, record.column_number)
-        self.assertIn("No Ensembl transcript ID found.", record.message)
-
-        # Expected ERROR message due to missing Exon column
-        record = next(record_iterator)
-        self.assertEqual(logging.ERROR, record.levelno)
-        self.assertEqual(3, record.line_number)
-        self.assertEqual(4, record.column_number)
-        self.assertIn("No Ensembl transcript ID found.", record.message)
-
-        # Expected ERROR message due to missing Ensembl transcript column
-        record = next(record_iterator)
-        self.assertEqual(logging.ERROR, record.levelno)
-        self.assertEqual(6, record.line_number)
-        self.assertEqual(5, record.column_number)
-        self.assertIn("No exon found.", record.message)
-
-        # Expected ERROR message due to missing Exon column
-        record = next(record_iterator)
-        self.assertEqual(logging.ERROR, record.levelno)
-        self.assertEqual(8, record.line_number)
-        self.assertEqual(12, record.column_number)
-        self.assertIn("No exon found.", record.message)
-
-    def test_transcript_not_in_genome_nexus(self):
-        """Test whether the transcripts are validated correctly by checking Genome Nexus"""
-        self.logger.setLevel(logging.ERROR)
-        record_list = self.validate('data_structural_variants_transcript_not_in_genome_nexus.txt',
-                                    validateData.StructuralVariantValidator)
-
-        self.assertEqual(1, len(record_list))
-        record_iterator = iter(record_list)
-
-        # Expected ERROR message due to value "1500" in Site1_Exon in line 2
-        record = next(record_iterator)
-        self.assertEqual(logging.ERROR, record.levelno)
-        self.assertEqual("TEST_TRANSCRIPT", record.cause)
-        self.assertIn("Ensembl transcript not found in Genome Nexus.", record.getMessage())
-
-    def test_exon_not_in_transcript(self):
-        """Test whether the exons are found in the transcript"""
-        self.logger.setLevel(logging.ERROR)
-        record_list = self.validate('data_structural_variants_exon_not_in_transcript.txt',
-                                    validateData.StructuralVariantValidator)
-
         self.assertEqual(2, len(record_list))
         record_iterator = iter(record_list)
 
-        # Expected ERROR message due to value "1500" in Site1_Exon in line 2
+        # Expected ERROR message due to missing Entrez gene id and/or gene symbol at site 1 and site 2
         record = next(record_iterator)
         self.assertEqual(logging.ERROR, record.levelno)
-        self.assertEqual(2, record.line_number)
-        self.assertEqual("1500 not in ENST00000242365", record.cause)
-        self.assertIn("Exon is not found in rank of transcript", record.getMessage())
-
-        # Expected ERROR message due to value "2000" in Site2_Exon in line 4
+        self.assertEqual(3, record.line_number)
+        self.assertIn("No Entrez gene id or gene symbol provided for site 1 and site 2. This record will not be loaded", record.message)
+        
         record = next(record_iterator)
         self.assertEqual(logging.ERROR, record.levelno)
-        self.assertEqual(4, record.line_number)
-        self.assertEqual("2000 not in ENST00000389048", record.cause)
-        self.assertIn("Exon is not found in rank of transcript", record.getMessage())
+        self.assertEqual(8, record.line_number)
+        self.assertIn("No Entrez gene id or gene symbol provided for site 1 and site 2. This record will not be loaded", record.message)
+        
+    def test_duplicate_line(self):
+        """Test if duplicate lines are detected"""
+        # set level according to this test case:
+        self.logger.setLevel(logging.ERROR)
+        record_list = self.validate('data_structural_variants_duplicate_entry.txt',
+                                    validateData.StructuralVariantValidator)
 
+        self.assertEqual(1, len(record_list))
+        self.assertIn("duplicate entry in structural variant data", record_list[0].getMessage().lower())
 
 class SegFileValidationTestCase(PostClinicalDataFileTestCase):
 

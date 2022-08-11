@@ -32,7 +32,6 @@ public class AlterationMyBatisRepositoryTest {
     //        7	    672	    BRCA1	6	MUTATION    Nonsense_Mutation	Putative_Driver	    Tier 2  TCGA-A1-A0SI    germline
     //        12	672	    BRCA1	6	MUTATION    Splice_Site	        Putative_Passenger	Tier 1  TCGA-A1-A0SO    germline
     //        13	672	    BRCA1	6	MUTATION    Splice_Site	        Putative_Driver	    Tier 1  TCGA-A1-A0SP    germline
-    //        7 	2064	ERBB2	6	FUSION              	        <null>	            <null>  TCGA-A1-A0SI    NA
 
     @Autowired
     private AlterationMyBatisRepository alterationMyBatisRepository;
@@ -99,7 +98,6 @@ public class AlterationMyBatisRepositoryTest {
         List<AlterationCountByGene> result = alterationMyBatisRepository.getSampleAlterationCounts(
             new HashSet<>(sampleIdToProfileId),
             entrezGeneIds,
-            QueryElement.PASS,
             alterationFilter);
         Assert.assertEquals(0, result.size());
     }
@@ -112,7 +110,6 @@ public class AlterationMyBatisRepositoryTest {
         List<AlterationCountByGene> result = alterationMyBatisRepository.getSampleAlterationCounts(
             new TreeSet<>(sampleIdToProfileId),
             entrezGeneIds,
-            QueryElement.PASS,
             alterationFilter);
         Assert.assertEquals(0, result.size());
     }
@@ -125,7 +122,6 @@ public class AlterationMyBatisRepositoryTest {
         List<AlterationCountByGene> result = alterationMyBatisRepository.getSampleAlterationCounts(
             new TreeSet<>(sampleIdToProfileId),
             entrezGeneIds,
-            QueryElement.PASS,
             alterationFilter);
         Assert.assertEquals(0, result.size());
     }
@@ -139,7 +135,6 @@ public class AlterationMyBatisRepositoryTest {
         List<AlterationCountByGene> result = alterationMyBatisRepository.getSampleAlterationCounts(
             new TreeSet<>(sampleIdToProfileId),
             entrezGeneIds,
-            QueryElement.PASS,
             alterationFilter);
         Assert.assertEquals(0, result.size());
     }
@@ -150,7 +145,6 @@ public class AlterationMyBatisRepositoryTest {
         List<AlterationCountByGene> result = alterationMyBatisRepository.getSampleAlterationCounts(
             new TreeSet<>(sampleIdToProfileId),
             entrezGeneIds,
-            QueryElement.PASS,
             alterationFilter);
 
         Assert.assertEquals(3, result.size());
@@ -171,7 +165,6 @@ public class AlterationMyBatisRepositoryTest {
         List<AlterationCountByGene> result = alterationMyBatisRepository.getSampleAlterationCounts(
             new TreeSet<>(sampleIdToProfileId),
             entrezGeneIds,
-            QueryElement.PASS,
             alterationFilter);
 
         Assert.assertEquals(2, result.size());
@@ -188,7 +181,6 @@ public class AlterationMyBatisRepositoryTest {
         List<AlterationCountByGene> result = alterationMyBatisRepository.getSampleAlterationCounts(
             new TreeSet<>(sampleIdToProfileId),
             entrezGeneIds,
-            QueryElement.PASS,
             alterationFilter);
 
         Assert.assertEquals(3, result.size());
@@ -213,33 +205,8 @@ public class AlterationMyBatisRepositoryTest {
         List<AlterationCountByGene> result = alterationMyBatisRepository.getSampleAlterationCounts(
             new TreeSet<>(sampleIdToProfileId),
             entrezGeneIds,
-            QueryElement.PASS,
             alterationFilter);
         Assert.assertEquals(0, result.size());
-    }
-
-    @Test
-    public void getSampleMutationCountFilterFusions() throws Exception {
-        alterationFilter.setCnaTypeSelect(Select.none());
-        alterationFilter.setMutationTypeSelect(Select.all());
-        List<AlterationCountByGene> result = alterationMyBatisRepository.getSampleAlterationCounts(
-            new TreeSet<>(sampleIdToProfileId),
-            entrezGeneIds,
-            QueryElement.ACTIVE,
-            alterationFilter);
-        Assert.assertEquals(1, result.size());
-    }
-
-    @Test
-    public void getSampleMutationCountFilterFusionsViaType() throws Exception {
-        alterationFilter.setCnaTypeSelect(Select.none());
-        alterationFilter.setMutationTypeSelect(Select.byValues(Arrays.asList(MutationEventType.fusion)));
-        List<AlterationCountByGene> result = alterationMyBatisRepository.getSampleAlterationCounts(
-            new TreeSet<>(sampleIdToProfileId),
-            entrezGeneIds,
-            QueryElement.PASS,
-            alterationFilter);
-        Assert.assertEquals(1, result.size());
     }
 
     @Test
@@ -251,7 +218,6 @@ public class AlterationMyBatisRepositoryTest {
         List<AlterationCountByGene> result = alterationMyBatisRepository.getPatientAlterationCounts(
             patientIdToProfileId,
             entrezGeneIds,
-            QueryElement.PASS,
             alterationFilter);
         Assert.assertEquals(0, result.size());
     }
@@ -264,7 +230,6 @@ public class AlterationMyBatisRepositoryTest {
         List<AlterationCountByGene> result = alterationMyBatisRepository.getPatientAlterationCounts(
             patientIdToProfileId,
             entrezGeneIds,
-            QueryElement.PASS,
             alterationFilter);
         Assert.assertEquals(0, result.size());
     }
@@ -277,7 +242,6 @@ public class AlterationMyBatisRepositoryTest {
         List<AlterationCountByGene> result = alterationMyBatisRepository.getPatientAlterationCounts(
             patientIdToProfileId,
             entrezGeneIds,
-            QueryElement.PASS,
             alterationFilter);
         Assert.assertEquals(0, result.size());
     }
@@ -288,7 +252,6 @@ public class AlterationMyBatisRepositoryTest {
         List<AlterationCountByGene> result = alterationMyBatisRepository.getPatientAlterationCounts(
             patientIdToProfileId,
             entrezGeneIds,    
-            QueryElement.PASS,
             alterationFilter);
 
         // For testSql.sql there are no more samples per patient for the investigated genes.
@@ -350,10 +313,10 @@ public class AlterationMyBatisRepositoryTest {
     public void getSampleAlterationCountsReturnsZeroForMutationsAndCnaSelectorsInNone() {
         alterationFilter.setCnaTypeSelect(Select.none());
         alterationFilter.setMutationTypeSelect(Select.none());
+	alterationFilter.setStructuralVariants(false);
         List<AlterationCountByGene> result = alterationMyBatisRepository.getSampleAlterationCounts(
             new TreeSet<>(sampleIdToProfileId),
             entrezGeneIds,
-            QueryElement.PASS,
             alterationFilter);
 
         Assert.assertEquals(0, result.size());
@@ -366,48 +329,22 @@ public class AlterationMyBatisRepositoryTest {
         List<AlterationCountByGene> result = alterationMyBatisRepository.getSampleAlterationCounts(
             new TreeSet<>(sampleIdToProfileId),
             entrezGeneIds,
-            QueryElement.PASS,
             alterationFilter);
 
-        Assert.assertEquals(4, result.size());
-    }
-
-    @Test(expected = IllegalArgumentException.class)
-    public void disallowMutationTypesAndFusionSearchSamples() throws Exception {
-        alterationMyBatisRepository.getSampleAlterationCounts(
-            new TreeSet<>(sampleIdToProfileId), entrezGeneIds, QueryElement.ACTIVE,
-            alterationFilter);
-    }
-    
-    @Test(expected = IllegalArgumentException.class)
-    public void disallowMutationTypesAndMutationSearchSamples() throws Exception {
-        alterationMyBatisRepository.getSampleAlterationCounts(
-            new TreeSet<>(sampleIdToProfileId), entrezGeneIds, QueryElement.INACTIVE, alterationFilter);
-    }
-
-    @Test(expected = IllegalArgumentException.class)
-    public void disallowMutationTypesAndFusionSearchPatients() throws Exception {
-        alterationMyBatisRepository.getPatientAlterationCounts(
-            sampleIdToProfileId, entrezGeneIds, QueryElement.ACTIVE, alterationFilter);
-    }
-    
-    @Test(expected = IllegalArgumentException.class)
-    public void disallowMutationTypesAndMutationSearchPatients() throws Exception {
-        alterationMyBatisRepository.getPatientAlterationCounts(
-            sampleIdToProfileId, entrezGeneIds, QueryElement.INACTIVE, alterationFilter);
+        Assert.assertEquals(3, result.size());
     }
 
     @Test
     public void getSampleCountNullIds() throws Exception {
         List<AlterationCountByGene> result = alterationMyBatisRepository.getSampleAlterationCounts(
-            null, entrezGeneIds, QueryElement.PASS, new AlterationFilter());
+            null, entrezGeneIds, new AlterationFilter());
         Assert.assertEquals(0, result.size());
     }
 
     @Test
     public void getPatientCountNullIds() throws Exception {
         List<AlterationCountByGene> result = alterationMyBatisRepository.getPatientAlterationCounts(
-            null, entrezGeneIds, QueryElement.PASS, new AlterationFilter());
+            null, entrezGeneIds, new AlterationFilter());
         Assert.assertEquals(0, result.size());
     }
 
@@ -425,7 +362,6 @@ public class AlterationMyBatisRepositoryTest {
         List<AlterationCountByGene> result = alterationMyBatisRepository.getSampleAlterationCounts(
             new TreeSet<>(sampleIdToProfileId),
             entrezGeneIds,
-            QueryElement.PASS,
             alterationFilter);
 
         Assert.assertEquals(2, result.size());
@@ -444,7 +380,6 @@ public class AlterationMyBatisRepositoryTest {
         List<AlterationCountByGene> result = alterationMyBatisRepository.getSampleAlterationCounts(
             new TreeSet<>(sampleIdToProfileId),
             entrezGeneIds,
-            QueryElement.PASS,
             alterationFilter);
 
         Assert.assertEquals(3, result.size());
@@ -466,7 +401,6 @@ public class AlterationMyBatisRepositoryTest {
         List<AlterationCountByGene> result = alterationMyBatisRepository.getSampleAlterationCounts(
             new TreeSet<>(sampleIdToProfileId),
             entrezGeneIds,
-            QueryElement.PASS,
             alterationFilter);
 
         Assert.assertEquals(1, result.size());
@@ -483,7 +417,6 @@ public class AlterationMyBatisRepositoryTest {
         List<AlterationCountByGene> result = alterationMyBatisRepository.getSampleAlterationCounts(
             new TreeSet<>(sampleIdToProfileId),
             entrezGeneIds,
-            QueryElement.PASS,
             alterationFilter);
 
         Assert.assertEquals(2, result.size());
@@ -501,7 +434,6 @@ public class AlterationMyBatisRepositoryTest {
         List<AlterationCountByGene> result = alterationMyBatisRepository.getSampleAlterationCounts(
             new TreeSet<>(sampleIdToProfileId),
             entrezGeneIds,
-            QueryElement.PASS,
             alterationFilter);
 
         Assert.assertEquals(1, result.size());
@@ -515,7 +447,6 @@ public class AlterationMyBatisRepositoryTest {
         List<AlterationCountByGene> result = alterationMyBatisRepository.getPatientAlterationCounts(
             patientIdToProfileId,
             entrezGeneIds,
-            QueryElement.PASS,
             alterationFilter);
 
         // For testSql.sql there are no more samples per patient for the investigated genes.
@@ -540,7 +471,6 @@ public class AlterationMyBatisRepositoryTest {
         List<AlterationCountByGene> result = alterationMyBatisRepository.getPatientAlterationCounts(
             patientIdToProfileId,
             entrezGeneIds,
-            QueryElement.PASS,
             alterationFilter);
         // all but one mutations in testSql.sql are Germline mutations
         Assert.assertEquals(3, result.size());
@@ -563,7 +493,6 @@ public class AlterationMyBatisRepositoryTest {
         List<AlterationCountByGene> result = alterationMyBatisRepository.getPatientAlterationCounts(
             patientIdToProfileId,
             entrezGeneIds,
-            QueryElement.PASS,
             alterationFilter);
         // all but one mutations in testSql.sql are Germline mutations
         Assert.assertEquals(0, result.size());
@@ -577,33 +506,8 @@ public class AlterationMyBatisRepositoryTest {
         List<AlterationCountByGene> result = alterationMyBatisRepository.getPatientAlterationCounts(
             patientIdToProfileId,
             entrezGeneIds,
-            QueryElement.PASS,
             alterationFilter);
         // all but one mutations in testSql.sql are Germline mutations
-        Assert.assertEquals(1, result.size());
-    }
-
-    @Test
-    public void getPatientMutationCountFilterFusions() throws Exception {
-        alterationFilter.setCnaTypeSelect(Select.none());
-        alterationFilter.setMutationTypeSelect(Select.all());
-        List<AlterationCountByGene> result = alterationMyBatisRepository.getPatientAlterationCounts(
-            patientIdToProfileId,
-            entrezGeneIds,
-            QueryElement.ACTIVE,
-            alterationFilter);
-        Assert.assertEquals(1, result.size());
-    }
-
-    @Test
-    public void getPatientMutationCountFilterFusionsViaType() throws Exception {
-        alterationFilter.setCnaTypeSelect(Select.none());
-        alterationFilter.setMutationTypeSelect(Select.byValues(Arrays.asList(MutationEventType.fusion)));
-        List<AlterationCountByGene> result = alterationMyBatisRepository.getPatientAlterationCounts(
-            patientIdToProfileId,
-            entrezGeneIds,
-            QueryElement.PASS,
-            alterationFilter);
         Assert.assertEquals(1, result.size());
     }
 
@@ -614,7 +518,6 @@ public class AlterationMyBatisRepositoryTest {
         List<AlterationCountByGene> result = alterationMyBatisRepository.getPatientAlterationCounts(
             patientIdToProfileId,
             entrezGeneIds,
-            QueryElement.PASS,
             alterationFilter);
 
         Assert.assertEquals(2, result.size());
@@ -633,7 +536,6 @@ public class AlterationMyBatisRepositoryTest {
         List<AlterationCountByGene> result = alterationMyBatisRepository.getPatientAlterationCounts(
             patientIdToProfileId,
             entrezGeneIds,
-            QueryElement.PASS,
             alterationFilter);
 
         Assert.assertEquals(3, result.size());
@@ -655,7 +557,6 @@ public class AlterationMyBatisRepositoryTest {
         List<AlterationCountByGene> result = alterationMyBatisRepository.getPatientAlterationCounts(
             patientIdToProfileId,
             entrezGeneIds,
-            QueryElement.PASS,
             alterationFilter);
 
         Assert.assertEquals(1, result.size());
@@ -672,7 +573,6 @@ public class AlterationMyBatisRepositoryTest {
         List<AlterationCountByGene> result = alterationMyBatisRepository.getPatientAlterationCounts(
             patientIdToProfileId,
             entrezGeneIds,
-            QueryElement.PASS,
             alterationFilter);
 
         Assert.assertEquals(2, result.size());
@@ -690,7 +590,6 @@ public class AlterationMyBatisRepositoryTest {
         List<AlterationCountByGene> result = alterationMyBatisRepository.getPatientAlterationCounts(
             patientIdToProfileId,
             entrezGeneIds,
-            QueryElement.PASS,
             alterationFilter);
 
         Assert.assertEquals(1, result.size());
@@ -839,43 +738,43 @@ public class AlterationMyBatisRepositoryTest {
     @Test
     public void getSampleCountNullEntrezGeneIds() throws Exception {
         List<AlterationCountByGene> result = alterationMyBatisRepository.getSampleAlterationCounts(
-            new TreeSet<>(sampleIdToProfileId), null, QueryElement.PASS, new AlterationFilter());
+            new TreeSet<>(sampleIdToProfileId), null, new AlterationFilter());
         Assert.assertEquals(0, result.size());
     }
     
     @Test
     public void getSampleCountEmptyEntrezGeneIds() throws Exception {
         List<AlterationCountByGene> result = alterationMyBatisRepository.getSampleAlterationCounts(
-            new TreeSet<>(sampleIdToProfileId), Select.none(), QueryElement.PASS, new AlterationFilter());
+            new TreeSet<>(sampleIdToProfileId), Select.none(), new AlterationFilter());
         Assert.assertEquals(0, result.size());
     }
     
     @Test
     public void getSampleCountAllEntrezGeneIds() throws Exception {
         List<AlterationCountByGene> result = alterationMyBatisRepository.getSampleAlterationCounts(
-            new TreeSet<>(sampleIdToProfileId), Select.all(), QueryElement.PASS, new AlterationFilter());
-        Assert.assertEquals(4, result.size());
+            new TreeSet<>(sampleIdToProfileId), Select.all(), new AlterationFilter());
+        Assert.assertEquals(3, result.size());
     }
 
     @Test
     public void getPatientCountNullEntrezGeneIds() throws Exception {
         List<AlterationCountByGene> result = alterationMyBatisRepository.getPatientAlterationCounts(
-            patientIdToProfileId, null, QueryElement.PASS, new AlterationFilter());
+            patientIdToProfileId, null, new AlterationFilter());
         Assert.assertEquals(0, result.size());
     }
 
     @Test
     public void getPatientCountEmptyEntrezGeneIds() throws Exception {
         List<AlterationCountByGene> result = alterationMyBatisRepository.getPatientAlterationCounts(
-            patientIdToProfileId, Select.none(), QueryElement.PASS, new AlterationFilter());
+            patientIdToProfileId, Select.none(), new AlterationFilter());
         Assert.assertEquals(0, result.size());
     }
 
     @Test
     public void getPatientCountAllEntrezGeneIds() throws Exception {
         List<AlterationCountByGene> result = alterationMyBatisRepository.getPatientAlterationCounts(
-            patientIdToProfileId, Select.all(), QueryElement.PASS, new AlterationFilter());
-        Assert.assertEquals(4, result.size());
+            patientIdToProfileId, Select.all(), new AlterationFilter());
+        Assert.assertEquals(3, result.size());
     }
 
     @Test

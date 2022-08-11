@@ -34,12 +34,6 @@ public class MolecularProfileUtilTest {
         structuralVariantMolecularProfile.setMolecularAlterationType(MolecularProfile.MolecularAlterationType.STRUCTURAL_VARIANT);
         structuralVariantMolecularProfile.setDatatype("SV");
 
-        MolecularProfile fusionMolecularProfile = new MolecularProfile();
-        fusionMolecularProfile.setCancerStudyIdentifier(BaseServiceImplTest.STUDY_ID);
-        fusionMolecularProfile.setStableId(BaseServiceImplTest.STUDY_ID + "_fusion");
-        fusionMolecularProfile.setMolecularAlterationType(MolecularProfile.MolecularAlterationType.STRUCTURAL_VARIANT);
-        fusionMolecularProfile.setDatatype("FUSION");
-
         MolecularProfile discreteCNAMolecularProfile = new MolecularProfile();
         discreteCNAMolecularProfile.setCancerStudyIdentifier(BaseServiceImplTest.STUDY_ID);
         discreteCNAMolecularProfile.setStableId(BaseServiceImplTest.STUDY_ID + "_gistic");
@@ -74,7 +68,6 @@ public class MolecularProfileUtilTest {
 
         List<MolecularProfile> allMolecularProfiles = Arrays.asList(mutationMolecularProfile,
             structuralVariantMolecularProfile,
-            fusionMolecularProfile,
             discreteCNAMolecularProfile,
             linearCNAMolecularProfile,
             continuousMRNAMolecularProfile,
@@ -82,7 +75,6 @@ public class MolecularProfileUtilTest {
         result = molecularProfileUtil.getFilteredMolecularProfileCaseIdentifiers(allMolecularProfiles, studyIds, sampleIds, Optional.empty());
         // all molecular profiles
         // return would 18(6 profiles X 3 samples) instead of 24(8 profiles X 3 samples)
-        // because only one from structural variant and fusion profiles is considered
         Assert.assertEquals("all profiles", 18, result.size());
 
         //filtered mutation profile case identifiers
@@ -93,9 +85,9 @@ public class MolecularProfileUtilTest {
         result = molecularProfileUtil.getFilteredMolecularProfileCaseIdentifiers(allMolecularProfiles, studyIds, sampleIds, Optional.of(molecularProfileUtil.isDiscreteCNAMolecularProfile));
         Assert.assertEquals("discrete CNA profile case identifiers", 3, result.size());
 
-        //filtered structural variant/fusion profile case identifiers
+        //filtered structural variant profile case identifiers
         result = molecularProfileUtil.getFilteredMolecularProfileCaseIdentifiers(allMolecularProfiles, studyIds, sampleIds, Optional.of(molecularProfileUtil.isStructuralVariantMolecularProfile));
-        Assert.assertEquals("structural variant/fusion profile case identifiers", 3, result.size());
+        Assert.assertEquals("structural variant profile case identifiers", 3, result.size());
 
     }
 }

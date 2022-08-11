@@ -315,11 +315,13 @@
     <tomcat.session.timeout>720</tomcat.session.timeout>
 
     <!-- THIS SHOULD BE KEPT IN SYNC TO VERSION IN CGDS.SQL -->
-    <db.version>2.12.13</db.version>
+    <db.version>2.12.14</db.version>
   </properties>
 
   <modules>
     <module>portal</module>
+<!-- TODO: the frontend probably needs adjustment. At the very least, the portal API has changed to include the isGermline field, so the public and internal API projects need to be updated and rebuilt (a script does this) -->
+<!-- TODO: the frontend also need to have the "germline" indicator be added to the table showing structural variants ... like the indicator on mutation records which are germline -->
     <module>core</module>
     <module>web</module>
     <module>model</module>

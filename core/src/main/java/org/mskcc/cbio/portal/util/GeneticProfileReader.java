@@ -1,15 +1,15 @@
 /*
- * Copyright (c) 2015 - 2016 Memorial Sloan-Kettering Cancer Center.
+ * Copyright (c) 2015 - 2022 Memorial Sloan Kettering Cancer Center.
  *
  * This library is distributed in the hope that it will be useful, but WITHOUT
  * ANY WARRANTY, WITHOUT EVEN THE IMPLIED WARRANTY OF MERCHANTABILITY OR FITNESS
  * FOR A PARTICULAR PURPOSE. The software and documentation provided hereunder
- * is on an "as is" basis, and Memorial Sloan-Kettering Cancer Center has no
+ * is on an "as is" basis, and Memorial Sloan Kettering Cancer Center has no
  * obligations to provide maintenance, support, updates, enhancements or
- * modifications. In no event shall Memorial Sloan-Kettering Cancer Center be
+ * modifications. In no event shall Memorial Sloan Kettering Cancer Center be
  * liable to any party for direct, indirect, special, incidental or
  * consequential damages, including lost profits, arising out of the use of this
- * software and its documentation, even if Memorial Sloan-Kettering Cancer
+ * software and its documentation, even if Memorial Sloan Kettering Cancer
  * Center has been advised of the possibility of such damage.
  */
 
@@ -81,22 +81,6 @@ public class GeneticProfileReader {
                // anymore, so throw error telling user to remove existing profile first:
                throw new RuntimeException("Error: genetic_profile record found with same Stable ID as the one used in your data:  "
                        + existingGeneticProfile.getStableId() + ". Remove the existing genetic_profile record first.");
-            } else if (geneticProfile.getDatatype().equals("FUSION")) {
-                String svStableId = existingGeneticProfile.getStableId().replace("mutations", "fusion");
-                // check if structural variant genetic profile already exists for fusions
-                // if an auto-generated <study_id>_fusion genetic profile exists, do not attempt to add it again
-                // otherwise, exception is thrown causing import to exit
-                // populate the structural variant genetic profile for fusions
-                GeneticProfile existingSVGeneticProfile = DaoGeneticProfile.getGeneticProfileByStableId(svStableId);
-                if (existingSVGeneticProfile == null ) {
-                    GeneticProfile gp = new GeneticProfile(geneticProfile);
-                    gp.setGeneticAlterationType(GeneticAlterationType.STRUCTURAL_VARIANT);
-                    gp.setStableId(svStableId);
-                    DaoGeneticProfile.addGeneticProfile(gp);
-                }
-                // return existing mutation genetic profile for fusions that are currently stored in the mutation_event table
-                geneticProfile.setGeneticProfileId(existingGeneticProfile.getGeneticProfileId());
-                return geneticProfile;
             } else {
                 // For mutation data only we can have multiple files with the same genetic_profile.
                 // There is a constraint in the mutation database table to prevent duplicated data
@@ -118,16 +102,16 @@ public class GeneticProfileReader {
         // This geneticProfileLink is required for the oncoprint in a GSVA study. In the future it might
         // be useful to make this a requirement for every expression zscore file.
         GeneticProfileLink geneticProfileLink = null;
-    	if (geneticProfile.getGeneticAlterationType() == GeneticAlterationType.GENESET_SCORE ||
-    			(geneticProfile.getGeneticAlterationType() == GeneticAlterationType.MRNA_EXPRESSION &&
-    			geneticProfile.getDatatype().equals("Z-SCORE") &&
-    			geneticProfile.getAllOtherMetadataFields().getProperty("source_stable_id") != null)) {
+        if (geneticProfile.getGeneticAlterationType() == GeneticAlterationType.GENESET_SCORE ||
+                (geneticProfile.getGeneticAlterationType() == GeneticAlterationType.MRNA_EXPRESSION &&
+                geneticProfile.getDatatype().equals("Z-SCORE") &&
+                geneticProfile.getAllOtherMetadataFields().getProperty("source_stable_id") != null)) {
             geneticProfileLink = createGeneticProfileLink(geneticProfile);
-    	}
+        }
 
-		// For GSVA profiles, we want to check that the version in the meta file is
+        // For GSVA profiles, we want to check that the version in the meta file is
         // the same as the version of the gene sets in the database (genesets_info table).
-    	if (geneticProfile.getGeneticAlterationType() == GeneticAlterationType.GENESET_SCORE) {
+        if (geneticProfile.getGeneticAlterationType() == GeneticAlterationType.GENESET_SCORE) {
             validateGenesetProfile(geneticProfile, file);
         }
 
@@ -153,7 +137,7 @@ public class GeneticProfileReader {
         // add genetic profile link if set
         if (geneticProfileLink != null) {
             // Set `REFERRING_GENETIC_PROFILE_ID`
-        	int geneticProfileId = DaoGeneticProfile.getGeneticProfileByStableId(geneticProfile.getStableId()).getGeneticProfileId();
+            int geneticProfileId = DaoGeneticProfile.getGeneticProfileByStableId(geneticProfile.getStableId()).getGeneticProfileId();
             geneticProfileLink.setReferringGeneticProfileId(geneticProfileId);
             DaoGeneticProfileLink.addGeneticProfileLink(geneticProfileLink);
         }
@@ -170,7 +154,7 @@ public class GeneticProfileReader {
         // Set `REFERRED_GENETIC_PROFILE_ID`
         String referredGeneticProfileStableId = parseStableId(geneticProfile.getAllOtherMetadataFields(), "source_stable_id");
         if (referredGeneticProfileStableId == null) {
-        	throw new RuntimeException("'source_stable_id' is required in meta file for " + geneticProfile.getStableId());
+            throw new RuntimeException("'source_stable_id' is required in meta file for " + geneticProfile.getStableId());
         }
         GeneticProfile referredGeneticProfile = DaoGeneticProfile.getGeneticProfileByStableId(referredGeneticProfileStableId);
         geneticProfileLink.setReferredGeneticProfileId(referredGeneticProfile.getGeneticProfileId());
@@ -179,45 +163,45 @@ public class GeneticProfileReader {
         // In the future with other types of genetic profile links, this should be configurable in the meta file.
         String referenceType;
         if (Arrays.asList("P-VALUE", "Z-SCORE").contains(geneticProfile.getDatatype())) {
-        	referenceType = "STATISTIC";
+            referenceType = "STATISTIC";
         } else if (geneticProfile.getDatatype().equals("GSVA-SCORE")) {
             referenceType = "AGGREGATION";
         } else {
             // not expected but might be useful for future genetic profile links
-        	throw new RuntimeException("Unknown datatype '" + geneticProfile.getDatatype() + "' in meta file for " + geneticProfile.getStableId());
+            throw new RuntimeException("Unknown datatype '" + geneticProfile.getDatatype() + "' in meta file for " + geneticProfile.getStableId());
         }
         // Set `REFERENCE_TYPE`
         geneticProfileLink.setReferenceType(referenceType);
 
         return geneticProfileLink;
-	}
+    }
 
-	private static void validateGenesetProfile(GeneticProfile geneticProfile, File file) throws DaoException {
+    private static void validateGenesetProfile(GeneticProfile geneticProfile, File file) throws DaoException {
         String genesetVersion = DaoInfo.getGenesetVersion();
 
-    	// TODO Auto-generated method stub
+        // TODO Auto-generated method stub
 
-    	// Check if version is present in database
+        // Check if version is present in database
         if (genesetVersion == null) {
             throw new RuntimeException("Attempted to import GENESET_SCORE data, but all gene set tables are empty.\n"
             + "Please load gene sets with ImportGenesetData.pl first. See:\n"
             + "https://github.com/cBioPortal/cbioportal/blob/master/docs/Import-Gene-Sets.md\n");
 
-    		// Check if version is present in meta file
-    	} else if (geneticProfile.getOtherMetaDataField("geneset_def_version") == null) {
+            // Check if version is present in meta file
+        } else if (geneticProfile.getOtherMetaDataField("geneset_def_version") == null) {
             throw new RuntimeException("Missing geneset_def_version property in '" + file.getPath() + "'. This version must be "
             + "the same as the gene set version loaded with ImportGenesetData.pl .");
 
-    		// Check if version is same as database version
-    	} else if (!geneticProfile.getOtherMetaDataField("geneset_def_version").equals(genesetVersion)) {
+            // Check if version is same as database version
+        } else if (!geneticProfile.getOtherMetaDataField("geneset_def_version").equals(genesetVersion)) {
             throw new RuntimeException("'geneset_def_version' property (" + geneticProfile.getOtherMetaDataField("geneset_def_version") +
             ") in '" + file.getPath() + "' differs from database version (" + genesetVersion + ").");
-    	}
+        }
 
-    	// Prevent p-value profile to show up as selectable genomic profile
-    	if (geneticProfile.getDatatype().equals("P-VALUE")) {
-    		geneticProfile.setShowProfileInAnalysisTab(false);
-    	}
+        // Prevent p-value profile to show up as selectable genomic profile
+        if (geneticProfile.getDatatype().equals("P-VALUE")) {
+            geneticProfile.setShowProfileInAnalysisTab(false);
+        }
     }
 
     /**
@@ -239,7 +223,7 @@ public class GeneticProfileReader {
             throw new RuntimeException("Missing `generic_assay_type` property in '" + file.getPath() + "' meta data file.");
     }
     
-	/**
+    /**
      * Load a GeneticProfile from a description file.
      *
      * @author Ethan Cerami
@@ -321,22 +305,10 @@ public class GeneticProfileReader {
         if (!stableId.startsWith(cancerStudyIdentifier + "_")) {
             stableId = cancerStudyIdentifier + "_" + stableId;
         }
-        // Workaround to import fusion data as mutation genetic profile. This way fusion meta file can contain 'stable_id: fusion'.
-        // The validator will check for 'stable_id: fusion', and this section in the importer
-        // will convert it to 'stable_id: mutations'. See https://github.com/cBioPortal/cbioportal/pull/2506
-        // TODO: This should be removed when other parts of cBioPortal have implemented support for a separate fusion profile".
-        if (stableId.equals(cancerStudyIdentifier + "_fusion")) {
-            String newStableId = cancerStudyIdentifier + "_mutations";
-            GeneticProfile existingGeneticProfile = DaoGeneticProfile.getGeneticProfileByStableId(newStableId);
-            if (existingGeneticProfile == null) {
-                throw new IllegalArgumentException("Wrong order: FUSION data should be loaded after MUTATION data");
-            }
-            stableId = newStableId;
-        }
         return stableId;
-	}
+    }
 
-	public static String loadGenePanelInformation(File file) throws Exception {
+    public static String loadGenePanelInformation(File file) throws Exception {
         Properties properties = new TrimmedProperties();
         properties.load(new FileInputStream(file));
         return properties.getProperty("gene_panel");

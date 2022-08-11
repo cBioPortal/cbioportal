@@ -1,15 +1,15 @@
 /*
- * Copyright (c) 2016 Memorial Sloan-Kettering Cancer Center.
+ * Copyright (c) 2016 - 2022 Memorial Sloan Kettering Cancer Center.
  *
  * This library is distributed in the hope that it will be useful, but WITHOUT
  * ANY WARRANTY, WITHOUT EVEN THE IMPLIED WARRANTY OF MERCHANTABILITY OR FITNESS
  * FOR A PARTICULAR PURPOSE. The software and documentation provided hereunder
- * is on an "as is" basis, and Memorial Sloan-Kettering Cancer Center has no
+ * is on an "as is" basis, and Memorial Sloan Kettering Cancer Center has no
  * obligations to provide maintenance, support, updates, enhancements or
- * modifications. In no event shall Memorial Sloan-Kettering Cancer Center be
+ * modifications. In no event shall Memorial Sloan Kettering Cancer Center be
  * liable to any party for direct, indirect, special, incidental or
  * consequential damages, including lost profits, arising out of the use of this
- * software and its documentation, even if Memorial Sloan-Kettering Cancer
+ * software and its documentation, even if Memorial Sloan Kettering Cancer
  * Center has been advised of the possibility of such damage.
  */
 
@@ -48,6 +48,11 @@ public class ImportGenePanelProfileMap extends ConsoleRunnable {
 
     private File genePanelProfileMapFile;
     private String cancerStudyStableId;
+
+    private static final String NA_STRING = "NA";
+    private static final String WXS_STRING = "WXS";
+    private static final String WGS_STRING = "WGS";
+    private static final String WXS_WGS_STRING = "WXS/WGS";
 
     @Override
     public void run() {
@@ -100,8 +105,25 @@ public class ImportGenePanelProfileMap extends ConsoleRunnable {
         }
     }
 
+    /* This function will return null for special cases "WXS", "WGS", and "WXS/WGS". Otherwise
+       it will throw a RuntimeException if the specified genePanelName is not in the database.
+    */
+    private Integer determineGenePanelId(String genePanelName) {
+        // use null for WXS (whole exome sequencing) or WGS (whole genome sequencing)
+        if (WXS_STRING.equals(genePanelName) || WGS_STRING.equals(genePanelName) || WXS_WGS_STRING.equals(genePanelName)) {
+            return null;
+        }
+        // extract gene panel ID
+        GenePanel genePanel = DaoGenePanel.getGenePanelByStableId(genePanelName);
+        if (genePanel != null) {
+            return genePanel.getInternalId();
+        } else {
+            // Throw an exception if gene panel is not in database
+            throw new RuntimeException("Gene panel cannot be found in database: " + genePanelName);
+        }
+    }
+
     public void importData() throws Exception {
-        
         ProgressMonitor.setCurrentMessage("Reading data from: " + genePanelProfileMapFile.getAbsolutePath());
         FileReader reader = new FileReader(genePanelProfileMapFile);
         BufferedReader buff = new BufferedReader(reader);
@@ -125,30 +147,30 @@ public class ImportGenePanelProfileMap extends ConsoleRunnable {
             List<String> row_data = new LinkedList<>(Arrays.asList(row.split("\t")));
             
             // Extract and parse sample ID
-            String sampleId = row_data.get(sampleIdIndex);
+            // Use StableIdUtil to convert IDs to match what would be stored in DB
+            // Specifically, TCGA samples have additional processing that changes the sample stable id
+            String sampleId = StableIdUtil.getSampleId(row_data.get(sampleIdIndex));
+            
             Sample sample = DaoSample.getSampleByCancerStudyAndSampleId(cancerStudy.getInternalId(), sampleId);
             row_data.remove((int)sampleIdIndex);
             
             // Loop over the values in the row
             for (int i = 0; i < row_data.size(); i++) {
-                
-                // Extract gene panel ID
                 String genePanelName = row_data.get(i);
-                GenePanel genePanel = DaoGenePanel.getGenePanelByStableId(genePanelName);
 
+                // NA triggers specific case to indicate sample was not profiled
+                // e.g. an aggregate study from multiple institutions
+                // one of which definitely did not profile for the sv profile
+                if (NA_STRING.equals(genePanelName)) {
+                    continue;
+                }
+
+                Integer genePanelId = determineGenePanelId(genePanelName);
                 // Add gene panel information to database
-                if (genePanel != null) {
-                    DaoSampleProfile.updateSampleProfile(
+                DaoSampleProfile.updateSampleProfile(
                         sample.getInternalId(), 
                         profileIds.get(i), 
-                        genePanel.getInternalId());
-
-                // Throw an error if gene panel is not in database and is not NA
-                } else {
-                    if (!genePanelName.equals("NA")) {
-                        throw new RuntimeException("Gene panel cannot be found in database: " + genePanelName);
-                    }
-                }
+                        genePanelId);
             }
         }
     }

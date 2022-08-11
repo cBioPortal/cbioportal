@@ -1,15 +1,15 @@
 --
--- Copyright (c) 2016 - 2020 Memorial Sloan-Kettering Cancer Center.
+-- Copyright (c) 2016 - 2022 Memorial Sloan Kettering Cancer Center.
 --
 -- This library is distributed in the hope that it will be useful, but WITHOUT
 -- ANY WARRANTY, WITHOUT EVEN THE IMPLIED WARRANTY OF MERCHANTABILITY OR FITNESS
 -- FOR A PARTICULAR PURPOSE. The software and documentation provided hereunder
--- is on an "as is" basis, and Memorial Sloan-Kettering Cancer Center has no
+-- is on an "as is" basis, and Memorial Sloan Kettering Cancer Center has no
 -- obligations to provide maintenance, support, updates, enhancements or
--- modifications. In no event shall Memorial Sloan-Kettering Cancer Center be
+-- modifications. In no event shall Memorial Sloan Kettering Cancer Center be
 -- liable to any party for direct, indirect, special, incidental or
 -- consequential damages, including lost profits, arising out of the use of this
--- software and its documentation, even if Memorial Sloan-Kettering Cancer
+-- software and its documentation, even if Memorial Sloan Kettering Cancer
 -- Center has been advised of the possibility of such damage.
 --
 -- This file is part of cBioPortal.
@@ -365,16 +365,20 @@ CREATE TABLE `structural_variant` (
   `INTERNAL_ID` int(11) NOT NULL auto_increment,
   `GENETIC_PROFILE_ID` int(11) NOT NULL,
   `SAMPLE_ID` int(11) NOT NULL,
-  `SITE1_ENTREZ_GENE_ID` int(11) NOT NULL,
+  `SITE1_ENTREZ_GENE_ID` int(11),
   `SITE1_ENSEMBL_TRANSCRIPT_ID` varchar(25),
-  `SITE1_EXON` int(4),
   `SITE1_CHROMOSOME` varchar(5),
+  `SITE1_REGION` varchar(25),
+  `SITE1_REGION_NUMBER` int(11),
+  `SITE1_CONTIG` varchar(100),
   `SITE1_POSITION` int(11),
   `SITE1_DESCRIPTION` varchar(255),
   `SITE2_ENTREZ_GENE_ID` int(11),
   `SITE2_ENSEMBL_TRANSCRIPT_ID` varchar(25),
-  `SITE2_EXON` int(4),
   `SITE2_CHROMOSOME` varchar(5),
+  `SITE2_REGION` varchar(25),
+  `SITE2_REGION_NUMBER` int(11),
+  `SITE2_CONTIG` varchar(100),
   `SITE2_POSITION` int(11),
   `SITE2_DESCRIPTION` varchar(255),
   `SITE2_EFFECT_ON_FRAME` varchar(25),
@@ -391,13 +395,12 @@ CREATE TABLE `structural_variant` (
   `TUMOR_SPLIT_READ_COUNT` int(11),
   `ANNOTATION` varchar(255),
   `BREAKPOINT_TYPE` varchar(25),
-  `CENTER` varchar(25),
   `CONNECTION_TYPE` varchar(25),
   `EVENT_INFO` varchar(255),
   `CLASS` varchar(25),
   `LENGTH` int(11),
   `COMMENTS` varchar(255),
-  `EXTERNAL_ANNOTATION` varchar(80),
+  `SV_STATUS` varchar(25) NOT NULL DEFAULT 'SOMATIC' COMMENT 'GERMLINE or SOMATIC.',
   PRIMARY KEY (`INTERNAL_ID`),
   FOREIGN KEY (`SAMPLE_ID`) REFERENCES `sample` (`INTERNAL_ID`) ON DELETE CASCADE,
   FOREIGN KEY (`SITE1_ENTREZ_GENE_ID`) REFERENCES `gene` (`ENTREZ_GENE_ID`) ON DELETE CASCADE,
@@ -757,4 +760,4 @@ CREATE TABLE `resource_study` (
 );
 
 -- THIS MUST BE KEPT IN SYNC WITH db.version PROPERTY IN pom.xml
-INSERT INTO info VALUES ('2.12.13', NULL);
+INSERT INTO info VALUES ('2.12.14', NULL);

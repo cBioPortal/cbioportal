@@ -88,7 +88,6 @@ public class AlterationCountServiceImplTest extends BaseServiceImplTest {
         when(alterationRepository.getSampleAlterationCounts(
             new HashSet<>(caseIdentifiers),
             entrezGeneIds,
-            QueryElement.PASS,
             alterationFilter)).thenReturn(expectedCountByGeneList);
 
         Pair<List<AlterationCountByGene>, Long> result = alterationCountService.getSampleAlterationCounts(
@@ -96,7 +95,6 @@ public class AlterationCountServiceImplTest extends BaseServiceImplTest {
             entrezGeneIds,
             includeFrequency,
             includeMissingAlterationsFromGenePanel,
-            QueryElement.PASS,
             alterationFilter);
         
         verify(alterationEnrichmentUtil, times(1)).includeFrequencyForSamples(anyList(), anyList(), anyBoolean());
@@ -110,7 +108,6 @@ public class AlterationCountServiceImplTest extends BaseServiceImplTest {
         when(alterationRepository.getPatientAlterationCounts(
             caseIdentifiers,
             entrezGeneIds,
-            QueryElement.PASS,
             alterationFilter)).thenReturn(expectedCountByGeneList);
 
         Pair<List<AlterationCountByGene>, Long> result = alterationCountService.getPatientAlterationCounts(
@@ -118,7 +115,6 @@ public class AlterationCountServiceImplTest extends BaseServiceImplTest {
             entrezGeneIds,
             includeFrequency,
             includeMissingAlterationsFromGenePanel,
-            QueryElement.PASS,
             alterationFilter);
 
         verify(alterationEnrichmentUtil, times(1)).includeFrequencyForPatients(anyList(), anyList(), anyBoolean());
@@ -131,7 +127,6 @@ public class AlterationCountServiceImplTest extends BaseServiceImplTest {
         when(alterationRepository.getSampleAlterationCounts(
             new HashSet<>(caseIdentifiers),
             entrezGeneIds,
-            QueryElement.INACTIVE,
             alterationFilter)).thenReturn(expectedCountByGeneList);
 
         Pair<List<AlterationCountByGene>, Long> result = alterationCountService.getSampleMutationCounts(
@@ -152,7 +147,6 @@ public class AlterationCountServiceImplTest extends BaseServiceImplTest {
         when(alterationRepository.getPatientAlterationCounts(
             caseIdentifiers,
             entrezGeneIds,
-            QueryElement.INACTIVE,
             alterationFilter)).thenReturn(expectedCountByGeneList);
 
         Pair<List<AlterationCountByGene>, Long> result = alterationCountService.getPatientMutationCounts(
@@ -164,51 +158,6 @@ public class AlterationCountServiceImplTest extends BaseServiceImplTest {
 
         Assert.assertEquals(expectedCountByGeneList, result.getFirst());
 
-    }
-
-    @Test
-    public void getSampleFusionCounts() {
-
-        QueryElement searchFusions = QueryElement.ACTIVE;
-
-        // this mock tests correct argument types
-        when(alterationRepository.getSampleAlterationCounts(
-            new HashSet<>(caseIdentifiers),
-            entrezGeneIds,
-            searchFusions,
-            alterationFilter
-        )).thenReturn(expectedCountByGeneList);
-        
-        Pair<List<AlterationCountByGene>, Long> result = alterationCountService.getSampleStructuralVariantCounts(
-            caseIdentifiers,
-            entrezGeneIds,
-            includeFrequency,
-            includeMissingAlterationsFromGenePanel,
-            alterationFilter);
-
-        Assert.assertEquals(expectedCountByGeneList, result.getFirst());
-    }
-
-    @Test
-    public void getPatientFusionCounts() {
-
-        QueryElement searchFusions = QueryElement.ACTIVE;
-
-        // this mock tests correct argument types
-        when(alterationRepository.getPatientAlterationCounts(
-            caseIdentifiers,
-            entrezGeneIds,
-            searchFusions,
-            alterationFilter)).thenReturn(expectedCountByGeneList);
-
-        Pair<List<AlterationCountByGene>, Long> result = alterationCountService.getPatientStructuralVariantCounts(
-            caseIdentifiers,
-            entrezGeneIds,
-            includeFrequency,
-            includeMissingAlterationsFromGenePanel,
-            alterationFilter);
-
-        Assert.assertEquals(expectedCountByGeneList, result.getFirst());
     }
 
     @Test

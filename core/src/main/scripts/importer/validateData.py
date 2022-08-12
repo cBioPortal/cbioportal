@@ -2992,7 +2992,8 @@ class StructuralVariantValidator(Validator):
         'Site2_Chromosome',
         'Site2_Position',
         'Site2_Region_Number',
-        'Site2_Ensembl_Transcript_Id']
+        'Site2_Ensembl_Transcript_Id',
+        'Event_Info']
 
     # TODO: Revive the support to validate the events based on transcripts and exons - once the new visualization features (UI for fusion tab, breakpoint visualization) are added to front-end.
     

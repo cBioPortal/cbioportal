@@ -3045,7 +3045,7 @@ class StructuralVariantValidator(Validator):
             if column_name in self.cols:
                 column_value = data[self.cols.index(column_name)].strip()
                 # Treat the empty string or 'NA' as a missing value
-                if column_value in ['', 'NA']:
+                if column_value in ['', 'NA', 'Unknown', '0']:
                     column_value = None
             return column_value
 

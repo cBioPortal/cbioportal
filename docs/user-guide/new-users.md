@@ -1,4 +1,5 @@
-## New Users
+# New Users
+
 Are you new to cBioPortal? Welcome! We have a few options to help you get started.
 
 If you have an hour, we highly recommend watching the recording of our Introduction to cBioPortal webinar ([youtube.com](https://www.youtube.com/watch?v=fPIAxH--cSo) or [bilibili.com](https://www.bilibili.com/video/BV1tf4y1m7Lp)).

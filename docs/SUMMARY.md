@@ -4,6 +4,7 @@
 * [About Us](About-Us.md)
 * [List of RFCs](RFC-List.md)
 * [User Guide](user-guide/README.md)
+  * [New Users](user-guide/new-users.md)
   * [Frequently Asked Questions](user-guide/faq.md)
   * [Overview of Resources](user-guide/overview.md)
   * [Page Specific Resources](user-guide/by-page.md)

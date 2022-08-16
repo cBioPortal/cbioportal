@@ -920,7 +920,7 @@ An example metadata file would be:
 cancer_study_identifier: msk_impact_2017
 genetic_alteration_type: STRUCTURAL_VARIANT
 datatype: SV
-stable_id: structural_variants
+stable_id: msk_impact_2017_structural_variants
 show_profile_in_analysis_tab: true
 profile_name: mskimpact2017 SV Data
 profile_description: Structural Variant Data for mskimpact2017

@@ -542,8 +542,7 @@ public class StudyViewFilterApplier {
                     structuralVariantGeneFilters.add(genefilter);
                 } else if (alterationType == MolecularAlterationType.MUTATION_EXTENDED) {
                     mutatedGeneFilters.add(genefilter);
-                } else if (alterationType == MolecularAlterationType.COPY_NUMBER_ALTERATION
-                        && dataTypes.size() == 1 && dataTypes.iterator().next().equals("DISCRETE")) {
+                } else if (alterationType == MolecularAlterationType.COPY_NUMBER_ALTERATION) {
                     cnaGeneFilters.add(genefilter);
                 }
             }

@@ -1,11 +1,8 @@
 package org.cbioportal.web;
 
 import org.springframework.stereotype.Controller;
-import org.springframework.ui.ModelMap;
 import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.servlet.ModelAndView;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 import org.springframework.web.servlet.view.RedirectView;
 
@@ -19,7 +16,7 @@ import javax.servlet.http.HttpServletRequest;
 @Controller
 public class DocRedirectController {
     @GetMapping("/api-docs")
-    public RedirectView redirectWithUsingRedirectView(
+    public RedirectView docRedirect(
         @RequestParam(value = "group", defaultValue = "default")
         String group,
         final RedirectAttributes redirectAttributes,
@@ -27,5 +24,16 @@ public class DocRedirectController {
     ) {
         redirectAttributes.addAttribute("group", group);
         return new RedirectView("/api/v2/api-docs");
+    }
+
+    @GetMapping({"/", "/swagger-ui.html"})
+    public RedirectView swaggerUIRedirect(
+        @RequestParam(value = "group", defaultValue = "default")
+        String group,
+        final RedirectAttributes redirectAttributes,
+        HttpServletRequest request
+    ) {
+        redirectAttributes.addAttribute("group", group);
+        return new RedirectView("/api/swagger-ui/index.html");
     }
 }

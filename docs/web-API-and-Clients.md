@@ -2,7 +2,7 @@
 
 cBioPortal provides a REST API for programmatic access to the data. The visualizations one can see on the website leverage the same API. By connecting to the API directly, anyone can build their own visalizations/reports.
 
-Please see the full reference documentation for the API [here](https://www.cbioportal.org/api/swagger-ui.html).
+Please see the full reference documentation for the API [here](https://www.cbioportal.org/api/swagger-ui/index.html).
 
 ## API Clients
 

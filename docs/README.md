@@ -56,7 +56,7 @@ We maintain an active [list of RFCs (Requests for Comments)](RFC-List.md) where 
 
 - [FAQ](user-guide/faq.md)
 - [Tutorials](https://www.cbioportal.org/tutorials)
-- [API documentation](API-and-API-Clients.md)
+- [API documentation](web-API-and-Clients.md)
 
 
 <script>

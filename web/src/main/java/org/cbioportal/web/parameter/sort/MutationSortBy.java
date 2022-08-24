@@ -19,8 +19,6 @@ public enum MutationSortBy {
     mutationType("mutationType"),
     ncbiBuild("ncbiBuild"),
     variantType("variantType"),
-    proteinPosStart("oncotatorProteinPosStart"),
-    proteinPosEnd("oncotatorProteinPosEnd"),
     keyword("keyword");
 
     private String originalValue;

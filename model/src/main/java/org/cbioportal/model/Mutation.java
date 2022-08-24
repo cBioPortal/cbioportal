@@ -25,8 +25,6 @@ public class Mutation extends Alteration implements Serializable {
     private String mutationType;
     private String ncbiBuild;
     private String variantType;
-    private Integer oncotatorProteinPosStart;
-    private Integer oncotatorProteinPosEnd;
     private String keyword;
     private AlleleSpecificCopyNumber alleleSpecificCopyNumber;
     @JsonRawValue
@@ -163,22 +161,6 @@ public class Mutation extends Alteration implements Serializable {
 
     public void setVariantType(String variantType) {
         this.variantType = variantType;
-    }
-
-    public Integer getOncotatorProteinPosStart() {
-        return oncotatorProteinPosStart;
-    }
-
-    public void setOncotatorProteinPosStart(Integer oncotatorProteinPosStart) {
-        this.oncotatorProteinPosStart = oncotatorProteinPosStart;
-    }
-
-    public Integer getOncotatorProteinPosEnd() {
-        return oncotatorProteinPosEnd;
-    }
-
-    public void setOncotatorProteinPosEnd(Integer oncotatorProteinPosEnd) {
-        this.oncotatorProteinPosEnd = oncotatorProteinPosEnd;
     }
 
     public String getKeyword() {

@@ -127,12 +127,6 @@ public class TestDaoMutation {
         mutation.setTumorRefCount(16);
         mutation.setNormalAltCount(8);
         mutation.setNormalRefCount(18);
-        mutation.setOncotatorDbSnpRs("rs149680468");
-        mutation.setOncotatorCodonChange("c.(133-135)TCT>TTT");
-        mutation.setOncotatorUniprotName("CTNB1_HUMAN");
-        mutation.setOncotatorUniprotAccession("P35222");
-        mutation.setOncotatorProteinPosStart(666);
-        mutation.setOncotatorProteinPosEnd(678);
         mutation.setCanonicalTranscript(true);
         mutation.setAnnotationJson(makeMockAnnotationJsonString());
 
@@ -193,12 +187,6 @@ public class TestDaoMutation {
         assertEquals(Integer.valueOf(16), mutation.getTumorRefCount());
         assertEquals(Integer.valueOf(8), mutation.getNormalAltCount());
         assertEquals(Integer.valueOf(18), mutation.getNormalRefCount());
-        assertEquals("rs149680468", mutation.getOncotatorDbSnpRs());
-        assertEquals("c.(133-135)TCT>TTT", mutation.getOncotatorCodonChange());
-        assertEquals("CTNB1_HUMAN", mutation.getOncotatorUniprotName());
-        assertEquals("P35222", mutation.getOncotatorUniprotAccession());
-        assertEquals(666, mutation.getOncotatorProteinPosStart());
-        assertEquals(678, mutation.getOncotatorProteinPosEnd());
         assertEquals(true, mutation.isCanonicalTranscript());
         validateMockAnnotationJson(mutation);
 

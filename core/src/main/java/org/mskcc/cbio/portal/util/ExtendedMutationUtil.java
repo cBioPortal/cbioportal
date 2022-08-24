@@ -195,16 +195,7 @@ public class ExtendedMutationUtil {
     }
 
     public static String getMutationType(MafRecord record) {
-        String mutationType = record.getOncotatorVariantClassification();
-
-        if (mutationType == null ||
-                mutationType.length() == 0 ||
-                mutationType.equals("NULL") ||
-                mutationType.equals(TabDelimitedFileUtil.NA_STRING)) {
-            mutationType = record.getVariantClassification();
-        }
-
-        return mutationType;
+        return record.getVariantClassification();
     }
 
     public static Integer getTumorAltCount(MafRecord record) {
@@ -321,12 +312,6 @@ public class ExtendedMutationUtil {
         mutation.setTumorRefCount(defaultInt);
         mutation.setNormalAltCount(defaultInt);
         mutation.setNormalRefCount(defaultInt);
-        mutation.setOncotatorDbSnpRs(defaultStr);
-        mutation.setOncotatorCodonChange(defaultStr);
-        mutation.setOncotatorUniprotName(defaultStr);
-        mutation.setOncotatorUniprotAccession(defaultStr);
-        mutation.setOncotatorProteinPosStart(defaultInt);
-        mutation.setOncotatorProteinPosEnd(defaultInt);
         mutation.setCanonicalTranscript(true);
 
         return mutation;

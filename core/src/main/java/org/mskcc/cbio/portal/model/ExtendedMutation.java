@@ -60,12 +60,6 @@ public final class ExtendedMutation
         private String tumorSeqAllele;
         private String dbSnpRs;
         private String dbSnpValStatus;
-        private String oncotatorDbSnpRs;
-        private String oncotatorUniprotName;
-        private String oncotatorUniprotAccession;
-        private String oncotatorCodonChange;
-        private int oncotatorProteinPosStart;
-        private int oncotatorProteinPosEnd;
         private boolean canonicalTranscript;
 
         public long getMutationEventId() {
@@ -189,63 +183,7 @@ public final class ExtendedMutation
         public void setDbSnpValStatus(String dbSnpValStatus) {
             this.dbSnpValStatus = dbSnpValStatus;
         }
-
-        public String getOncotatorDbSnpRs() {
-            return oncotatorDbSnpRs;
-        }
-
-        public void setOncotatorDbSnpRs(String oncotatorDbSnpRs) {
-            this.oncotatorDbSnpRs = oncotatorDbSnpRs;
-        }
-
-        public String getOncotatorUniprotName() {
-            return oncotatorUniprotName;
-        }
-
-        /**
-         * Set the UniprotKB name (formerly known as ID) of the protein record.
-         *
-         * @param oncotatorUniprotName the UniprotKB name
-         * @deprecated set the accession with
-         *             {@link #setOncotatorUniprotAccession(String)} instead
-         */
-        @Deprecated
-        public void setOncotatorUniprotName(String oncotatorUniprotName) {
-            this.oncotatorUniprotName = oncotatorUniprotName;
-        }
-
-        public String getOncotatorUniprotAccession() {
-            return oncotatorUniprotAccession;
-        }
-
-        public void setOncotatorUniprotAccession(String oncotatorUniprotAccession) {
-            this.oncotatorUniprotAccession = oncotatorUniprotAccession;
-        }
-
-        public String getOncotatorCodonChange() {
-            return oncotatorCodonChange;
-        }
-
-        public void setOncotatorCodonChange(String oncotatorCodonChange) {
-            this.oncotatorCodonChange = oncotatorCodonChange;
-        }
-
-        public int getOncotatorProteinPosStart() {
-            return oncotatorProteinPosStart;
-        }
-
-        public void setOncotatorProteinPosStart(int oncotatorProteinPosStart) {
-            this.oncotatorProteinPosStart = oncotatorProteinPosStart;
-        }
-
-        public int getOncotatorProteinPosEnd() {
-            return oncotatorProteinPosEnd;
-        }
-
-        public void setOncotatorProteinPosEnd(int oncotatorProteinPosEnd) {
-            this.oncotatorProteinPosEnd = oncotatorProteinPosEnd;
-        }
-
+        
         public boolean isCanonicalTranscript() {
             return canonicalTranscript;
         }
@@ -725,73 +663,7 @@ public final class ExtendedMutation
     public void setNormalRefCount(Integer normalRefCount) {
         this.normalRefCount = normalRefCount;
     }
-
-    public String getOncotatorDbSnpRs() {
-        return event.getOncotatorDbSnpRs();
-    }
-
-    public void setOncotatorDbSnpRs(String oncotatorDbSnpRs) {
-        event.setOncotatorDbSnpRs(oncotatorDbSnpRs);
-    }
-
-    public String getOncotatorUniprotName()
-    {
-        return event.getOncotatorUniprotName();
-    }
-
-    /**
-     * Set the UniprotKB name (formerly known as ID) of the protein record.
-     *
-     * @param oncotatorUniprotName the UniprotKB name
-     * @deprecated set the accession with
-     *             {@link #setOncotatorUniprotAccession(String)} instead
-     */
-    @Deprecated
-    public void setOncotatorUniprotName(String oncotatorUniprotName)
-    {
-        event.setOncotatorUniprotName(oncotatorUniprotName);
-    }
-
-    public String getOncotatorUniprotAccession()
-    {
-        return event.getOncotatorUniprotAccession();
-    }
-
-    public void setOncotatorUniprotAccession(String oncotatorUniprotAccession)
-    {
-        event.setOncotatorUniprotAccession(oncotatorUniprotAccession);
-    }
-
-    public String getOncotatorCodonChange()
-    {
-        return event.getOncotatorCodonChange();
-    }
-
-    public void setOncotatorCodonChange(String oncotatorCodonChange)
-    {
-        event.setOncotatorCodonChange(oncotatorCodonChange);
-    }
-
-    public int getOncotatorProteinPosStart()
-    {
-        return event.getOncotatorProteinPosStart();
-    }
-
-    public void setOncotatorProteinPosStart(int oncotatorProteinPosStart)
-    {
-        event.setOncotatorProteinPosStart(oncotatorProteinPosStart);
-    }
-
-    public int getOncotatorProteinPosEnd()
-    {
-        return event.getOncotatorProteinPosEnd();
-    }
-
-    public void setOncotatorProteinPosEnd(int oncotatorProteinPosEnd)
-    {
-        event.setOncotatorProteinPosEnd(oncotatorProteinPosEnd);
-    }
-
+    
     public boolean isCanonicalTranscript()
     {
         return event.isCanonicalTranscript();

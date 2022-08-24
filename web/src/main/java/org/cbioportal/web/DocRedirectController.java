@@ -7,6 +7,8 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 import org.springframework.web.servlet.view.RedirectView;
 
 import javax.servlet.http.HttpServletRequest;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 /**
  * Springfox 3.0 doesn't completely respect the path we specify for the swagger UI
@@ -23,7 +25,8 @@ public class DocRedirectController {
         HttpServletRequest request
     ) {
         redirectAttributes.addAttribute("group", group);
-        return new RedirectView("/api/v2/api-docs");
+        String baseUrl = getBaseUrl(request, "/api/api-docs");
+        return new RedirectView(baseUrl + "/api/v2/api-docs");
     }
 
     @GetMapping({"/", "/swagger-ui.html"})
@@ -34,6 +37,13 @@ public class DocRedirectController {
         HttpServletRequest request
     ) {
         redirectAttributes.addAttribute("group", group);
-        return new RedirectView("/api/swagger-ui/index.html");
+        String baseUrl = getBaseUrl(request, "/api/(|swagger-ui.html)");
+        return new RedirectView(baseUrl + "/api/swagger-ui/index.html");
+    }
+    
+    private String getBaseUrl(HttpServletRequest request, String suffix) {
+        Pattern p = Pattern.compile("^(.*)(" + suffix + ")$");
+        Matcher m = p.matcher(request.getRequestURI());
+        return m.find() ? m.group(1) : "";
     }
 }

@@ -7,7 +7,7 @@ OQL-specified alterations will be reflected on most tabs, including OncoPrint, b
 
 Note that OQL assumes any word that it doesn't recognize is a mutation code.
 
-Additional explanation and examples using OQL are available in the [OQL tutorial](https://www.cbioportal.org/tutorials#oql).
+Additional explanation and examples using OQL are available in the [User Guide](https://docs.cbioportal.org/user-guide/by-page/#oql).
 
 ## OQL Keywords
 Users can define specific subsets of genetic alterations for five data types:
@@ -234,7 +234,7 @@ Note that merged gene tracks only appear in OncoPrint. All other pages show the 
 
 ## Example: RB Pathway Alterations
 
-Provided below is one example of the power of using OQL. Additional examples are available in the [OQL tutorial](https://www.cbioportal.org/tutorials#oql).
+Provided below is one example of the power of using OQL. Additional examples are available in the [User Guide](https://docs.cbioportal.org/user-guide/by-page/#oql).
 
 ### Using the Defaults
 Select Ovarian Serous Cystadenocarcinoma (TCGA, Nature 2011) with the following data types:
@@ -274,4 +274,4 @@ This shows that alterations in these genes are almost entirely mutually-exclusiv
 ## Questions? Feedback?
 Please share any questions or feedback on OQL with us: <https://groups.google.com/group/cbioportal>
 
-Also note that additional explanation and examples using OQL are available in the [OQL tutorial](https://www.cbioportal.org/tutorials#oql).
+Also note that additional explanation and examples using OQL are available in the [User Guide](https://docs.cbioportal.org/user-guide/by-page/#oql).

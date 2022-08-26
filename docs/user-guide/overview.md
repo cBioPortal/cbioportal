@@ -2,13 +2,13 @@
 
 ### Tutorial Slides
 These tutorial slides contain annoted screenshots to walk you through using the cBioPortal site.
-1. Single Study Exploration [Google slides](https://www.cbioportal.org/tutorials#single-study-exploration) | [PDF](https://raw.githubusercontent.com/cBioPortal/cbioportal/master/docs/tutorials/cBioPortal%20Tutorial%201%20Single%20Study%20Exploration.pdf)
-2. Single Study Query [Google slides](https://www.cbioportal.org/tutorials#single-study-query) | [PDF](https://raw.githubusercontent.com/cBioPortal/cbioportal/master/docs/tutorials/cBioPortal%20Tutorial%202%20Single%20Study%20Query.pdf)
-3. Patient View [Google slides](https://www.cbioportal.org/tutorials#patient-view) | [PDF](https://raw.githubusercontent.com/cBioPortal/cbioportal/master/docs/tutorials/cBioPortal%20Tutorial%203%20Patient%20View.pdf)
-4. Virtual Studies [Google slides](https://www.cbioportal.org/tutorials#virtual-studies) | [PDF](https://raw.githubusercontent.com/cBioPortal/cbioportal/master/docs/tutorials/cBioPortal%20Tutorial%204%20Virtual%20Studies.pdf)
-5. Onco Query Language (OQL) [Google slides](https://www.cbioportal.org/tutorials#oql) | [PDF](https://raw.githubusercontent.com/cBioPortal/cbioportal/master/docs/tutorials/cBioPortal%20Tutorial%205%20Onco%20Query%20Language.pdf)
-6. Group Comparison [Google slides](https://www.cbioportal.org/tutorials#group-comparison) | [PDF](https://raw.githubusercontent.com/cBioPortal/cbioportal/master/docs/tutorials/cBioPortal%20Tutorial%205%20Onco%20Query%20Language.pdf)
-7. Pathways [Google slides](https://www.cbioportal.org/tutorials#pathways) | [PDF](https://raw.githubusercontent.com/cBioPortal/cbioportal/master/docs/tutorials/cBioPortal%20Tutorial%207%20Pathways.pdf)
+1. Single Study Exploration [Google slides](https://docs.google.com/presentation/d/1_OGK69lO4Z62WaxHHkNYmWvY0LQN2v0slfaLyY1_IQ0) | [PDF](https://raw.githubusercontent.com/cBioPortal/cbioportal/master/docs/tutorials/cBioPortal%20Tutorial%201%20Single%20Study%20Exploration.pdf)
+2. Single Study Query [Google slides](https://docs.google.com/presentation/d/1y9UTIr5vHmsNVWqtGTVGgiuYX9wkK_a_RPNYiR8kYD8) | [PDF](https://raw.githubusercontent.com/cBioPortal/cbioportal/master/docs/tutorials/cBioPortal%20Tutorial%202%20Single%20Study%20Query.pdf)
+3. Patient View [Google slides](https://docs.google.com/presentation/d/1Jr_2yEfgjKBn4DBiXRk4kmhIbtsRp6gd0iD3k1fIUUk) | [PDF](https://raw.githubusercontent.com/cBioPortal/cbioportal/master/docs/tutorials/cBioPortal%20Tutorial%203%20Patient%20View.pdf)
+4. Virtual Studies [Google slides](https://docs.google.com/presentation/d/1rQE5rbFNdmup-rAtySHFxlLp3i4qa8SBA7MiQpMdn1I) | [PDF](https://raw.githubusercontent.com/cBioPortal/cbioportal/master/docs/tutorials/cBioPortal%20Tutorial%204%20Virtual%20Studies.pdf)
+5. Onco Query Language (OQL) [Google slides](https://docs.google.com/presentation/d/1U39xgVujtBodwW20qIfcGu4E5n2zzaKkl2KmzzHqj4A) | [PDF](https://raw.githubusercontent.com/cBioPortal/cbioportal/master/docs/tutorials/cBioPortal%20Tutorial%205%20Onco%20Query%20Language.pdf)
+6. Group Comparison [Google slides](https://docs.google.com/presentation/d/1P2boDph8IfpvjxoxDj_496CLHGtshzJnbbZhszPsmf4) | [PDF](https://raw.githubusercontent.com/cBioPortal/cbioportal/master/docs/tutorials/cBioPortal%20Tutorial%205%20Onco%20Query%20Language.pdf)
+7. Pathways [Google slides](https://docs.google.com/presentation/d/1O5WGucz0lrfdY25b5QS6zaID_26i434EYXBluqZfT2g) | [PDF](https://raw.githubusercontent.com/cBioPortal/cbioportal/master/docs/tutorials/cBioPortal%20Tutorial%207%20Pathways.pdf)
 
 ### Webinar Recordings
 Recordings of live webinars from April & May 2020
@@ -30,7 +30,7 @@ Short videos that show how to perform specific analyses or how to use specific p
 8. How to download data [youtube.com](https://www.youtube.com/watch?v=JId304dp3tc)
 
 ### Documentation
-* Frequently Asked Questions [FAQ](https://www.cbioportal.org/faq)
+* Frequently Asked Questions [FAQ](/user-guide/faq.md)
 * Onco Query Language [OQL](/user-guide/oql.md)
 
 ### Publications

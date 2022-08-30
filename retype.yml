@@ -31,3 +31,4 @@ footer:
 
 edit:
   repo: "https://github.com/cbioportal/cbioportal/"
+  branch: master

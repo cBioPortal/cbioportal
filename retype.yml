@@ -30,4 +30,4 @@ footer:
   copyright: "&copy; Copyright {{ year }}. All rights reserved."
 
 edit:
-  repo: "https://github.com/cbioportal/documentation/"
+  repo: "https://github.com/cbioportal/cbioportal/"

@@ -38,6 +38,6 @@ docker run -d --restart=always \
     jboss/keycloak:4.8.3.Final
 ```
 
-Finally, configure Keycloak and cBioPortal as explained in the [Keycloak documentation](./../deployment/authorization-and-authentication/Authenticating-and-Authorizing-Users-via-keycloak.md). Remember to specify port 8180 for the Keycloak server, wherever the guide says 8080.
+Finally, configure Keycloak and cBioPortal as explained in the [Keycloak documentation](./../authorization-and-authentication/Authenticating-and-Authorizing-Users-via-keycloak.md). Remember to specify port 8180 for the Keycloak server, wherever the guide says 8080.
 
 After configuring Keycloak, set up cBioPortal containers [as specified in the documentation](./). Make sure to update the `-Dauthenticate` in the [docker-compose file](https://github.com/cBioPortal/cbioportal-docker-compose/blob/5da068f0eb9b4f42db52ab5e91321b26a1826d7a/docker-compose.yml#L20) to `-Dauthenticate=saml`.

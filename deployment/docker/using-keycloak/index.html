@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width,initial-scale=1">
-    <meta name="turbo-cache-control" content="no-cache" data-turbo-track="reload" data-track-token="2.4.0.715290894878">
+    <meta name="turbo-cache-control" content="no-cache" data-turbo-track="reload" data-track-token="2.4.0.715291634439">
 
     <!-- See retype.com -->
     <meta name="generator" content="Retype 2.4.0">
@@ -31,12 +31,12 @@
     <script>(function () { var el = document.documentElement, m = localStorage.getItem("doc_theme"), wm = window.matchMedia; if (m === "dark" || (!m && wm && wm("(prefers-color-scheme: dark)").matches)) { el.classList.add("dark") } else { el.classList.remove("dark") } })();</script>
 
     <link href="../../../images/cbio-logo.png" rel="icon" />
-    <link href="../../../resources/css/retype.css?v=2.4.0.715290894878" rel="stylesheet" />
+    <link href="../../../resources/css/retype.css?v=2.4.0.715291634439" rel="stylesheet" />
 
-    <script type="text/javascript" src="../../../resources/js/config.js?v=2.4.0.715290894878" data-turbo-eval="false" defer></script>
+    <script type="text/javascript" src="../../../resources/js/config.js?v=2.4.0.715291634439" data-turbo-eval="false" defer></script>
     <script type="text/javascript" src="../../../resources/js/retype.js?v=2.4.0" data-turbo-eval="false" defer></script>
-    <script id="lunr-js" type="text/javascript" src="../../../resources/js/lunr.js?v=2.4.0.715290894878" data-turbo-eval="false" defer></script>
-    <script id="prism-js" type="text/javascript" src="../../../resources/js/prism.js?v=2.4.0.715290894878" defer></script>
+    <script id="lunr-js" type="text/javascript" src="../../../resources/js/lunr.js?v=2.4.0.715291634439" data-turbo-eval="false" defer></script>
+    <script id="prism-js" type="text/javascript" src="../../../resources/js/prism.js?v=2.4.0.715291634439" defer></script>
 
     <link rel="stylesheet" href="/static/custom.css"></link>
 </head>
@@ -276,7 +276,7 @@
     -e &quot;KEYCLOAK_PASSWORD=&lt;admin_password_here&gt;&quot; \
     jboss/keycloak:4.8.3.Final</code></pre>
 </doc-codeblock></div>
-<p>Finally, configure Keycloak and cBioPortal as explained in the <a href="./../deployment/authorization-and-authentication/authenticating-and-authorizing-users-via-keycloak.md">Keycloak documentation</a>. Remember to specify port 8180 for the Keycloak server, wherever the guide says 8080.</p>
+<p>Finally, configure Keycloak and cBioPortal as explained in the <a href="../../authorization-and-authentication/authenticating-and-authorizing-users-via-keycloak/">Keycloak documentation</a>. Remember to specify port 8180 for the Keycloak server, wherever the guide says 8080.</p>
 <p>After configuring Keycloak, set up cBioPortal containers <a href="../">as specified in the documentation</a>. Make sure to update the <code v-pre>-Dauthenticate</code> in the <a href="https://github.com/cBioPortal/cbioportal-docker-compose/blob/5da068f0eb9b4f42db52ab5e91321b26a1826d7a/docker-compose.yml#L20">docker-compose file</a> to <code v-pre>-Dauthenticate=saml</code>.</p>
 
                                 

@@ -46,7 +46,7 @@ We follow the following logic when deciding how/when to increment the version of
 
 MAJOR : A big change in how cBioPortal works. We changed the major version from 1 to 2 when we completely moved from using JSPs to a Single Page App written in React calling a REST service. Another example: we changed from 2 to 3 when we made session-service a requirement.
 
-MINOR : Changes that require a database migration or an upgrade to another cBioPortal component (e.g. [session-service](session-service-working.md))
+MINOR : Changes that require a database migration, an upgrade to another cBioPortal component (e.g. [session-service](session-service-working.md)) or anything that could require additional effort for a deployer of cBioPortal (e.g. see [transcript change](https://github.com/cBioPortal/cbioportal-frontend/pull/4350)).
 
 PATCH : Changes that don't require database migrations. Could be new features as well as bug fixes to either frontend, backend or both.
 

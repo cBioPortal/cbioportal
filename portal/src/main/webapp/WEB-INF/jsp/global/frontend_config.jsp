@@ -98,10 +98,13 @@ if (/localdist=true/.test(window.location.href)) {
 }
 window.localdist = localStorage.getItem("localdist") === "true";
 
-if (window.localdist || window.localdev) {
-	window.frontendConfig.frontendUrl = '//localhost:3000/'
+if (window.localdist) {
+    window.frontendConfig.frontendUrl = '//localhost:3000/'
+} else if ( window.localdev) {
+    // localdev always on https now (with fake cert)
+    window.frontendConfig.frontendUrl = 'https://localhost:3000/'
 } else if (localStorage.netlify) {
-	var netlifyInstance = '//' + localStorage.getItem('netlify') + '.netlify.app/';
+	var netlifyInstance = 'https://' + localStorage.getItem('netlify') + '.netlify.app/';
 	window.frontendConfig.frontendUrl = netlifyInstance;
 }
 // clean userEmailAddress config

@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width,initial-scale=1">
-    <meta name="turbo-cache-control" content="no-cache" data-turbo-track="reload" data-track-token="2.4.0.715291634439">
+    <meta name="turbo-cache-control" content="no-cache" data-turbo-track="reload" data-track-token="2.4.0.715791659983">
 
     <!-- See retype.com -->
     <meta name="generator" content="Retype 2.4.0">
@@ -31,11 +31,11 @@
     <script>(function () { var el = document.documentElement, m = localStorage.getItem("doc_theme"), wm = window.matchMedia; if (m === "dark" || (!m && wm && wm("(prefers-color-scheme: dark)").matches)) { el.classList.add("dark") } else { el.classList.remove("dark") } })();</script>
 
     <link href="../images/cbio-logo.png" rel="icon" />
-    <link href="../resources/css/retype.css?v=2.4.0.715291634439" rel="stylesheet" />
+    <link href="../resources/css/retype.css?v=2.4.0.715791659983" rel="stylesheet" />
 
-    <script type="text/javascript" src="../resources/js/config.js?v=2.4.0.715291634439" data-turbo-eval="false" defer></script>
+    <script type="text/javascript" src="../resources/js/config.js?v=2.4.0.715791659983" data-turbo-eval="false" defer></script>
     <script type="text/javascript" src="../resources/js/retype.js?v=2.4.0" data-turbo-eval="false" defer></script>
-    <script id="lunr-js" type="text/javascript" src="../resources/js/lunr.js?v=2.4.0.715291634439" data-turbo-eval="false" defer></script>
+    <script id="lunr-js" type="text/javascript" src="../resources/js/lunr.js?v=2.4.0.715791659983" data-turbo-eval="false" defer></script>
 
     <link rel="stylesheet" href="/static/custom.css"></link>
 </head>
@@ -309,7 +309,7 @@
 </doc-anchor-target>
 <p>We follow the following logic when deciding how/when to increment the version of cBioPortal. It&#x27;s a complete modification of semantic versioning (MAJOR.MINOR.PATCH) more suitable for our purposes:</p>
 <p>MAJOR : A big change in how cBioPortal works. We changed the major version from 1 to 2 when we completely moved from using JSPs to a Single Page App written in React calling a REST service. Another example: we changed from 2 to 3 when we made session-service a requirement.</p>
-<p>MINOR : Changes that require a database migration or an upgrade to another cBioPortal component (e.g. <a href="../session-service-working/">session-service</a>)</p>
+<p>MINOR : Changes that require a database migration, an upgrade to another cBioPortal component (e.g. <a href="../session-service-working/">session-service</a>) or anything that could require additional effort for a deployer of cBioPortal (e.g. see <a href="https://github.com/cBioPortal/cbioportal-frontend/pull/4350">transcript change</a>).</p>
 <p>PATCH : Changes that don&#x27;t require database migrations. Could be new features as well as bug fixes to either frontend, backend or both.</p>
 <p>See also: <a href="https://github.com/cBioPortal/cbioportal/releases">https://github.com/cBioPortal/cbioportal/releases</a></p>
 <doc-anchor-target id="user-announcements">

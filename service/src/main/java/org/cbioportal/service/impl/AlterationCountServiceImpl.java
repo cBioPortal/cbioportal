@@ -231,17 +231,41 @@ public class AlterationCountServiceImpl implements AlterationCountService {
 
             Map<String, S> totalResult = new HashMap<>();
 
-            molecularProfileCaseIdentifiers
+            Map<String, List<MolecularProfileCaseIdentifier>> groupedByMolecularProfileIds = molecularProfileCaseIdentifiers
                 .stream()
                 .collect(Collectors
-                    .groupingBy(identifier -> molecularProfileIdStudyIdMap.get(identifier.getMolecularProfileId())))
-                .values()
-                .forEach(studyMolecularProfileCaseIdentifiers -> {
-                    List<S> studyAlterationCountByGenes = dataFetcher.apply(studyMolecularProfileCaseIdentifiers);
-                    if (includeFrequency) {
-                        Long studyProfiledCasesCount = includeFrequencyFunction.apply(studyMolecularProfileCaseIdentifiers, studyAlterationCountByGenes);
-                        profiledCasesCount.updateAndGet(v -> v + studyProfiledCasesCount);
-                    }
+                    .groupingBy(identifier -> molecularProfileIdStudyIdMap.get(identifier.getMolecularProfileId()))
+                );
+
+            Map<String, List<S>> studyAlterationCountByMolecularProfileIds = groupedByMolecularProfileIds
+                .entrySet()
+                .stream()
+                .collect(Collectors.toMap(
+                    e -> e.getKey(),
+                    e -> dataFetcher.apply(e.getValue())
+                ));
+
+            // TODO this should probably be an argument
+            boolean frequencyByAllGroups = true;
+
+            if (includeFrequency) {
+                if (frequencyByAllGroups) {
+                    // make sure all groups have alteration count for the exact same genes 
+                    // even if alteration count may be zero for certain studies
+                    // TODO update studyAlterationCountByMolecularProfileIds map
+                }
+
+                studyAlterationCountByMolecularProfileIds.forEach((molecularProfileId, studyAlterationCountByGenes) -> {
+                    List<MolecularProfileCaseIdentifier> studyMolecularProfileCaseIdentifiers = 
+                        groupedByMolecularProfileIds.get(molecularProfileId);
+                    Long studyProfiledCasesCount = includeFrequencyFunction.apply(
+                        studyMolecularProfileCaseIdentifiers, studyAlterationCountByGenes);
+                    profiledCasesCount.updateAndGet(v -> v + studyProfiledCasesCount);
+                });
+            }
+
+            studyAlterationCountByMolecularProfileIds
+                .forEach((molecularProfileId, studyAlterationCountByGenes) -> {
                     studyAlterationCountByGenes.forEach(datum -> {
                         String key = keyGenerator.apply(datum);
                         if (totalResult.containsKey(key)) {

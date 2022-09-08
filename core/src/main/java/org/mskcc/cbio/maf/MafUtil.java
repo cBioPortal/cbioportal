@@ -115,13 +115,6 @@ public class MafUtil {
     public static final String REFSEQ = "RefSeq";
     public static final String PROTEIN_POSITION = "Protein_position";
 
-    // oncotator column names
-    public static final String ONCOTATOR_DBSNP_RS = "ONCOTATOR_DBSNP_RS";
-    public static final String ONCOTATOR_VARIANT_CLASSIFICATION = "ONCOTATOR_VARIANT_CLASSIFICATION";
-    public static final String ONCOTATOR_REFSEQ_MRNA_ID = "ONCOTATOR_REFSEQ_MRNA_ID";
-    public static final String ONCOTATOR_UNIPROT_ENTRY_NAME = "ONCOTATOR_UNIPROT_ENTRY_NAME";
-    public static final String ONCOTATOR_UNIPROT_ACCESSION = "ONCOTATOR_UNIPROT_ACCESSION";
-    public static final String ONCOTATOR_CODON_CHANGE = "ONCOTATOR_CODON_CHANGE";
     public static final String ONCOTATOR_PROTEIN_POS_START = "ONCOTATOR_PROTEIN_POS_START";
     public static final String ONCOTATOR_PROTEIN_POS_END = "ONCOTATOR_PROTEIN_POS_END";
 
@@ -187,13 +180,6 @@ public class MafUtil {
     private int normalDepthIndex = -1;
     private int normalVafIndex = -1;
 
-    // default Oncotator column indices
-    private int oncoDbSnpRsIndex = -1;
-    private int oncoVariantClassificationIndex = -1;
-    private int oncoRefseqMrnaIdIndex = -1;
-    private int oncoUniprotNameIndex = -1;
-    private int oncoUniprotAccessionIndex = -1;
-    private int oncoCodonChangeIndex = -1;
     private int oncoProteinPosStartIndex = -1;
     private int oncoProteinPosEndIndex = -1;
 
@@ -310,18 +296,6 @@ public class MafUtil {
                 scoreIndex = i;
             } else if(header.equalsIgnoreCase(BAM_FILE)) {
                 bamFileIndex = i;
-            } else if(header.equalsIgnoreCase(ONCOTATOR_DBSNP_RS)) {
-                oncoDbSnpRsIndex = i;
-            } else if(header.equalsIgnoreCase(ONCOTATOR_VARIANT_CLASSIFICATION)) {
-                oncoVariantClassificationIndex = i;
-            } else if(header.equalsIgnoreCase(ONCOTATOR_REFSEQ_MRNA_ID)) {
-                oncoRefseqMrnaIdIndex = i;
-            } else if(header.equalsIgnoreCase(ONCOTATOR_UNIPROT_ENTRY_NAME)) {
-                oncoUniprotNameIndex = i;
-            } else if(header.equalsIgnoreCase(ONCOTATOR_UNIPROT_ACCESSION)) {
-                oncoUniprotAccessionIndex = i;
-            } else if(header.equalsIgnoreCase(ONCOTATOR_CODON_CHANGE)) {
-                oncoCodonChangeIndex = i;
             } else if(header.equalsIgnoreCase(ONCOTATOR_PROTEIN_POS_START)) {
                 oncoProteinPosStartIndex = i;
             } else if(header.equalsIgnoreCase(ONCOTATOR_PROTEIN_POS_END)) {
@@ -662,15 +636,7 @@ public class MafUtil {
     public int getTumorVarCovIndex() {
         return tVarCovIndex;
     }
-
-    public int getOncoVariantClassificationIndex() {
-        return oncoVariantClassificationIndex;
-    }
-
-    public int getOncoDbSnpRsIndex() {
-        return oncoDbSnpRsIndex;
-    }
-
+    
     public int getMaFImpactIndex() {
         return maFImpactIndex;
     }
@@ -690,23 +656,7 @@ public class MafUtil {
     public int getMaLinkPdbIndex() {
         return maLinkPdbIndex;
     }
-
-    public int getOncoRefseqMrnaIdIndex() {
-        return oncoRefseqMrnaIdIndex;
-    }
-
-    public int getOncoUniprotNameIndex() {
-        return oncoUniprotNameIndex;
-    }
-
-    public int getOncoCodonChangeIndex() {
-        return oncoCodonChangeIndex;
-    }
-
-    public int getOncoUniprotAccessionIndex() {
-        return oncoUniprotAccessionIndex;
-    }
-
+    
     public int getOncoProteinPosStartIndex() {
         return oncoProteinPosStartIndex;
     }

@@ -138,14 +138,7 @@ public class TestImportExtendedMutationData {
 
         // assert table size; 3 silent mutations should be rejected
         assertEquals(17, mutationList.size());
-
-        // assert data for oncotator columns
-        //assertEquals("FAM90A1", mutationList.get(0).getGeneSymbol());
-        //assertEquals("Missense_Mutation", mutationList.get(1).getOncotatorVariantClassification());
-        //assertEquals("p.R131H", mutationList.get(4).getOncotatorProteinChange());
-        //assertEquals("rs76360727;rs33980232", mutationList.get(9).getOncotatorDbSnpRs());
-        //assertEquals("p.E366_Q409del(13)|p.Q367R(1)|p.E366_K477del(1)",
-        //mutationList.get(15).getOncotatorCosmicOverlapping());
+        
     }
    /**
     * Tests custom filtering mutation types option (filtering for missense and nonsensemutations).

@@ -68,6 +68,22 @@ class ValidateStudiesSystemTester(unittest.TestCase):
         exit_status = validateStudies.main(args)
         self.assertEqual(0, exit_status)
 
+    def test_exit_status_success_for_legacy_cna_discrete(self):
+        """study 0 : no errors, expected exit_status = 0.
+
+        Possible exit statuses:
+                0: 'VALID',
+                1: 'INVALID'
+        """
+
+        # Build up arguments and run
+        print("===study 0")
+        args = ['--list-of-studies', 'test_data/study_es_0_legacy_cna_discrete/',
+                '--portal_info_dir', PORTAL_INFO_DIR]
+        args = validateStudies.interface(args)
+        exit_status = validateStudies.main(args)
+        self.assertEqual(0, exit_status)
+        
     def test_exit_status_failure(self):
         """study 1 : errors, expected exit_status = 1."""
 

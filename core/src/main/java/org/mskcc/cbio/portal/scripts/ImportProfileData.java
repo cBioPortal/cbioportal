@@ -33,13 +33,11 @@
 package org.mskcc.cbio.portal.scripts;
 
 import java.io.*;
-import java.util.ArrayList;
-import java.util.Date;
 import java.util.Set;
 
 import joptsimple.*;
 
-import org.cbioportal.model.EntityType;
+import org.mskcc.cbio.portal.dao.*;
 import org.mskcc.cbio.portal.model.*;
 import org.mskcc.cbio.portal.util.*;
 
@@ -52,6 +50,15 @@ import org.mskcc.cbio.portal.util.*;
 public class ImportProfileData extends ConsoleRunnable {
 
     public void run() {
+        DaoGeneOptimized daoGene;
+        DaoGeneticAlteration daoGeneticAlteration;
+        try {
+            daoGene = DaoGeneOptimized.getInstance();
+            daoGeneticAlteration = DaoGeneticAlteration.getInstance();
+        } catch (DaoException e) {
+            throw new RuntimeException("Could not create dao instances", e);
+        }
+
         try {
             // Parse arguments
             // using a real options parser, helps avoid bugs
@@ -110,11 +117,36 @@ public class ImportProfileData extends ConsoleRunnable {
                     genericAssayProfileImporter.importData(numLines);
                 } else {
                     // use ImportTabDelimData importer for non-patient level data
-                    ImportTabDelimData genericAssayProfileImporter = new ImportTabDelimData(dataFile, geneticProfile.getTargetLine(), geneticProfile.getGeneticProfileId(), genePanel, geneticProfile.getOtherMetaDataField("generic_entity_meta_properties"));
+                    ImportTabDelimData genericAssayProfileImporter = new ImportTabDelimData(
+                        dataFile, 
+                        geneticProfile.getTargetLine(), 
+                        geneticProfile.getGeneticProfileId(), 
+                        genePanel, 
+                        geneticProfile.getOtherMetaDataField("generic_entity_meta_properties"),
+                        daoGeneticAlteration
+                    );
                     genericAssayProfileImporter.importData(numLines);
                 }
+            } else if(
+                geneticProfile.getGeneticAlterationType() == GeneticAlterationType.COPY_NUMBER_ALTERATION 
+                && geneticProfile.getDatatype().equals("DISCRETE_LONG")
+            ) {
+                ImportCnaDiscreteLongData importer = new ImportCnaDiscreteLongData(
+                    dataFile, 
+                    geneticProfile.getGeneticProfileId(), 
+                    genePanel,
+                    daoGene,
+                    daoGeneticAlteration
+                );
+                importer.importData();
             } else {
-                ImportTabDelimData importer = new ImportTabDelimData(dataFile, geneticProfile.getTargetLine(), geneticProfile.getGeneticProfileId(), genePanel);
+                ImportTabDelimData importer = new ImportTabDelimData(
+                    dataFile, 
+                    geneticProfile.getTargetLine(), 
+                    geneticProfile.getGeneticProfileId(), 
+                    genePanel,
+                    daoGeneticAlteration                    
+                );
                 String pdAnnotationsFilename = geneticProfile.getOtherMetaDataField("pd_annotations_filename");
                 if (pdAnnotationsFilename != null && !"".equals(pdAnnotationsFilename)) {
                     importer.setPdAnnotationsFile(new File(dataFile.getParent(), pdAnnotationsFilename));

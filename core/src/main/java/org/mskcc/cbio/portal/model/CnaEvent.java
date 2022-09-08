@@ -72,7 +72,7 @@ public class CnaEvent {
         public void setEntrezGeneId(long entrezGeneId) {
             setGene(DaoGeneOptimized.getInstance().getGene(entrezGeneId));
             if (gene == null) {
-                throw new IllegalArgumentException("Could not find entrez gene id: "+entrezGeneId);
+                throw new IllegalArgumentException("Could not find entrez gene id: " + entrezGeneId);
             } 
         }
 
@@ -99,6 +99,10 @@ public class CnaEvent {
             return hash;
         }
 
+        /**
+         * Compare by gene and alteration, 
+         * but not by eventId 
+         */
         @Override
         public boolean equals(Object obj) {
             if (obj == null) {

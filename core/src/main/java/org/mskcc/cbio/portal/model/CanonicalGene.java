@@ -32,8 +32,6 @@
 
 package org.mskcc.cbio.portal.model;
 
-import org.mskcc.cbio.portal.dao.DaoException;
-
 import java.util.*;
 import java.io.Serializable;
 

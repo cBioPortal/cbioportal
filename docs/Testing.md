@@ -78,6 +78,7 @@ SET SESSION sql_mode = 'ANSI_QUOTES';
   -v <path-to-file>/cgds-test.sql:/docker-entrypoint-initdb.d/second_file.sql \
   -v <path-to-file>/seed_mini.sql:/docker-entrypoint-initdb.d/third_file.sql \
   -p 3306:3306 mysql:5.7
+  --ssl=0
 ```
 
 #### Notes

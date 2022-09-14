@@ -115,6 +115,18 @@ public class ImportStructuralVariantData {
                     CanonicalGene site1CanonicalGene = setCanonicalGene(site1EntrezGeneId, site1HugoSymbol, daoGene);
                     CanonicalGene site2CanonicalGene = setCanonicalGene(site2EntrezGeneId, site2HugoSymbol, daoGene);
 
+                    // Check for an invalid entrez gene id and make it null (but keep processing record)
+                    if (site1EntrezGeneId != TabDelimitedFileUtil.NA_LONG && site1CanonicalGene == null) {
+                        ProgressMonitor.logWarning("Could not find entrez gene id for gene 1: [" + site1EntrezGeneId
+                                + "]. If we found gene 2, this record will still be loaded but without gene 1.");
+                        site1EntrezGeneId = TabDelimitedFileUtil.NA_LONG;
+                    }
+                    if (site2EntrezGeneId != TabDelimitedFileUtil.NA_LONG && site2CanonicalGene == null) {
+                        ProgressMonitor.logWarning("Could not find entrez gene id for gene 2: [" + site2EntrezGeneId
+                                + "]. If we found gene 1, this record will still be loaded but without gene 2.");
+                        site2EntrezGeneId = TabDelimitedFileUtil.NA_LONG;
+                    }
+
                     // If neither of the genes is recognized, skip the line
                     if(site1CanonicalGene == null && site2CanonicalGene == null) {
                         ProgressMonitor.logWarning("Could not find gene 1: " + site1HugoSymbol + " [" + site1EntrezGeneId

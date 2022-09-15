@@ -749,7 +749,7 @@ the following JSON record for this mutation (only relevant fields are shown):
         }
     },
 }
-``` 
+```
 
 Note: ASCN namespace data is not exported via the `namespaceColumns` field.
 
@@ -973,8 +973,7 @@ A structural variant data file is a tab-delimited file with one structural varia
 | Normal_Split_Read_Count      | 63 |  | The number of split reads of the normal tissue that support the call. |
 | Comments                     |  |  | Any comments/free text.|
 
-For an example see [datahub](https://github.com/cBioPortal/datahub/blob/master/public/msk_impact_2017/data_sv.txt). At a minimum `Sample_Id`, `Site1_Hugo_Symbol` and `SV_Status` are required. For the stuctural variant tab visualization (still in development) one needs to provide those field as well as `Site1_Ensembl_Transcript_Id`, `Site2_Ensembl_Transcript_Id`. `Site1_Region` and `Site2_Region`. Some of the other columns are shown at several other pages on the website. The `Class`, `Annotation` and `Event_Info` columns are shown prominently on several locations.
-
+For an example see [datahub](https://github.com/cBioPortal/datahub/blob/master/public/msk_impact_2017/data_sv.txt). For an example see [datahub](https://github.com/cBioPortal/datahub/blob/master/public/msk_impact_2017/data_sv.txt). At a minimum `Sample_Id`, either `Site1_Hugo_Symbol`/ `Site1_Entrez_Gene_Id` or  `Site2_Hugo_Symbol`/ `Site2_Entrez_Gene_Id` and `SV_Status` are required. For the stuctural variant tab visualization (still in development) one needs to provide those field as well as `Site1_Ensembl_Transcript_Id`, `Site2_Ensembl_Transcript_Id`, `Site1_Region` and `Site2_Region`. Some of the other columns are shown at several other pages on the website. The `Class`, `Annotation` and `Event_Info` columns are shown prominently on several locations.
 **Note**: We strongly recommend all the data providers to submit genomic locations  in addition to required fields for future visualization features. 
 
 ## Fusion Data
@@ -1336,7 +1335,7 @@ Gene panel functionality can specify which genes are assayed on a panel and assi
 
 To include gene panel data in your instance, the following data and/or configurations can be used:
 1. **Gene panel file**: This file contains the genes on the gene panel. A panel can be used for multiple studies within the instance and should be loaded prior to loading a study with gene panel data. For information on the format and import process please visit: [Import-Gene-Panels](Import-Gene-Panels.md).
-2. **Gene panel matrix file**: This file is used to specify which samples are sequenced on which gene panel in which genetic profile. This is recommended for mutation and fusion data, because the MAF and fusion formats are unable to include samples which are sequenced but contain no called mutations, and only a single gene panel can be defined in the meta file. For other genetic profiles, columns can be added to specify their gene panel, but a property can also be added to their respective meta file, because these data files contain all profiled samples. Although the gene panel matrix functionality overlaps with the case list functionality, a case list for mutations (`_sequenced`) is also required.
+2. **Gene panel matrix file**: This file is used to specify which samples are sequenced on which gene panel in which genetic profile. This is recommended for mutation and structural variant data, because the MAF and structural variant formats are unable to include samples which are sequenced but contain no called mutations, and only a single gene panel can be defined in the meta file. For other genetic profiles, columns can be added to specify their gene panel, but a property can also be added to their respective meta file, because these data files contain all profiled samples. Although the gene panel matrix functionality overlaps with the case list functionality, a case list for mutations (`_sequenced`) and Structural variants (`_sv`) is also required.
 3. **Gene panel property in meta file**: Adding the `gene_panel:` property to the meta file of data profile will assign all samples from that profile to the gene panel. In this case it is not necessary to include a column for this profile in the gene panel matrix file.
 
 ### Gene Panel Matrix file

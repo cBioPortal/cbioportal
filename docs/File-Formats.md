@@ -630,12 +630,13 @@ namespaces: ASCN
 ```
 
 ### Data file
-The mutation data file extends the [Mutation Annotation Format](https://docs.gdc.cancer.gov/Data/File_Formats/MAF_Format/) (MAF) created as part of The Cancer Genome Atlas (TCGA) project, by adding *extra annotations* to each mutation record. This section describes two types of MAF files:
-1. A minimal MAF file with only the columns required for cBioPortal.
-2. An extended MAF file created with  the [Genome Nexus Annotation Pipeline](https://github.com/genome-nexus/genome-nexus-annotation-pipeline). When converting from vcf one can use: [vcf2maf](https://github.com/mskcc/vcf2maf).
+The cBioPortal mutation data file extends the [Mutation Annotation Format](https://docs.gdc.cancer.gov/Data/File_Formats/MAF_Format/) (MAF) created as part of The Cancer Genome Atlas (TCGA) project, by adding *extra annotations* to each mutation record. This section describes:
+1. How to create the cBioPortal mutation data file with a minimal MAF file using the [Genome Nexus Annotation Pipeline](https://github.com/genome-nexus/genome-nexus-annotation-pipeline).
+2. The description of the cBioPortal mutation data file. You can also get the cBioPortal mutation data file from vcf using: [vcf2maf](https://github.com/mskcc/vcf2maf).
 
-### Minimal MAF format
-A minimal mutation annotations file can contain just the five genomic change columns plus one sample identifier column. From this minimal MAF, it is possible to create an extended MAF by running it through the [Genome Nexus Annotation Pipeline](https://github.com/genome-nexus/genome-nexus-annotation-pipeline).
+### Create the cBioPortal mutation data file with Genome Nexus with a minimal MAF file
+#### Minimal MAF file format
+A minimal mutation annotations file can contain just the five genomic change columns plus one sample identifier column. From this minimal MAF, it is possible to create the cBioPortal mutation data file by running it through the [Genome Nexus Annotation Pipeline](https://github.com/genome-nexus/genome-nexus-annotation-pipeline).
 1. **Chromosome (Required)**:  A chromosome number, e.g., "7".
 2. **Start_Position (Required)**: Start position of event.
 3. **End_Position (Required)**: End position of event.
@@ -653,12 +654,12 @@ The following extra annotation columns are important for making sure mutation sp
 9. **Protein_position (Optional)**: (annotation column) Required to initialize the 3D viewer in [mutations view](https://www.cbioportal.org/index.do?cancer_study_list=brca_tcga_pub&cancer_study_id=brca_tcga_pub&genetic_profile_ids_PROFILE_MUTATION_EXTENDED=brca_tcga_pub_mutations&genetic_profile_ids_PROFILE_COPY_NUMBER_ALTERATION=brca_tcga_pub_gistic&genetic_profile_ids_PROFILE_MRNA_EXPRESSION=brca_tcga_pub_mrna_median_Zscores&Z_SCORE_THRESHOLD=2.0&RPPA_SCORE_THRESHOLD=2.0&data_priority=0&case_set_id=brca_tcga_pub_complete&case_ids=&patient_case_select=sample&gene_set_choice=prostate-cancer%3A-ar-signaling-%2810-genes%29&gene_list=TP53&clinical_param_selection=null&tab_index=tab_visualize&Action=Submit#mutation_details)
 10. **SWISSPROT (Optional)**: (annotation column) UniProtKB/SWISS-PROT name (formerly called ID) or accession code depending on the value of the `swissprot_identifier` metadatum, e.g. O11H1_HUMAN or Q8NG94. Is not required, but not having it may result in inconsistent PDB structure matching in [mutations view](https://www.cbioportal.org/index.do?cancer_study_list=brca_tcga_pub&cancer_study_id=brca_tcga_pub&genetic_profile_ids_PROFILE_MUTATION_EXTENDED=brca_tcga_pub_mutations&genetic_profile_ids_PROFILE_COPY_NUMBER_ALTERATION=brca_tcga_pub_gistic&genetic_profile_ids_PROFILE_MRNA_EXPRESSION=brca_tcga_pub_mrna_median_Zscores&Z_SCORE_THRESHOLD=2.0&RPPA_SCORE_THRESHOLD=2.0&data_priority=0&case_set_id=brca_tcga_pub_complete&case_ids=&patient_case_select=sample&gene_set_choice=prostate-cancer%3A-ar-signaling-%2810-genes%29&gene_list=TP53&clinical_param_selection=null&tab_index=tab_visualize&Action=Submit#mutation_details).
 
-### Creating an extended MAF file
+### Creating the cBioPortal mutation data file
 Once you have a minimal MAF you can run it through the [Genome Nexus Annotation Pipeline](https://github.com/genome-nexus/genome-nexus-annotation-pipeline).
 This tool runs annotates variants against the [Genome Nexus Server](https://genomenexus.org), which in turn leverages Ensembl Variant Effect Predictor (VEP) and selects a single effect per variant. Protein identifiers will be mapped to UniProt canonical isoforms (see also [this mapping file](https://github.com/genome-nexus/genome-nexus-importer/blob/master/data/grch37_ensembl92/export/ensembl_biomart_canonical_transcripts_per_hgnc.txt)).
 
-### Extended MAF format
-The extended MAF format recognized by the portal has:
+### cBioPortal mutation data file format
+The cBioPortal mutation data file format recognized by the portal has:
 * 32 columns from the [TCGA MAF format](https://docs.gdc.cancer.gov/Data/File_Formats/MAF_Format/).
 * 1 column with the amino acid change.
 * 4 columns with information on reference and variant allele counts in tumor and normal samples. 
@@ -668,8 +669,8 @@ The extended MAF format recognized by the portal has:
 3. **Center (Optional)**: The sequencing center.
 4. **NCBI_Build (Required)<sup>1</sup>**: The Genome Reference Consortium Build is used by a variant calling software. It must be "GRCh37" or "GRCh38" for a human, and "GRCm38" for a mouse.
 5. **Chromosome (Required)**: A chromosome number, e.g., "7".
-6. **Start_Position (Required)**: Start position of event.
-7. **End_Position (Required)**: End position of event.
+6. **Start_Position (Optional, but recommended for additional features such as [Cancer Hotspots annotations](https://www.cancerhotspots.org/))**: Start position of event.
+7. **End_Position (Optional, but recommended for additional features such as [Cancer Hotspots annotations](https://www.cancerhotspots.org/))**: End position of event.
 8. **Strand (Optional)**: We assume that the mutation is reported for the + strand.
 9. **Variant_Classification (Required)**: Translational effect of variant allele, e.g. Missense_Mutation, Silent, etc.
 10. **Variant_Type <sup>1</sup>(Optional)**: Variant Type, e.g. SNP, DNP, etc.
@@ -717,12 +718,12 @@ You can learn more about configuring these annotations in the [portal.properties
 ![schreenshot mutation color menu](/images/screenshot-mutation-color-menu.png) 
 
 ### Adding your own mutation annotation columns
-Adding additional mutation annotation columns to the extended MAF rows can also be done. In this way, the portal will parse and store your own MAF fields in the database. For example, mutation data that you find on cBioPortal.org comes from MAF files that have been further enriched with information from [mutationassessor.org](https://mutationassessor.org/), which leads to a "Mutation Assessor" column in the [mutation table](https://www.cbioportal.org/index.do?cancer_study_list=acc_tcga&cancer_study_id=acc_tcga&genetic_profile_ids_PROFILE_MUTATION_EXTENDED=acc_tcga_mutations&Z_SCORE_THRESHOLD=2.0&RPPA_SCORE_THRESHOLD=2.0&data_priority=0&case_set_id=acc_tcga_sequenced&case_ids=&patient_case_select=sample&gene_set_choice=user-defined-list&gene_list=ZFPM1&clinical_param_selection=null&tab_index=tab_visualize&Action=Submit).
+Adding additional mutation annotation columns to the cBioPortal mutation data file rows can also be done. In this way, the portal will parse and store your own MAF fields in the database. For example, mutation data that you find on cBioPortal.org comes from MAF files that have been further enriched with information from [mutationassessor.org](https://mutationassessor.org/), which leads to a "Mutation Assessor" column in the [mutation table](https://www.cbioportal.org/index.do?cancer_study_list=acc_tcga&cancer_study_id=acc_tcga&genetic_profile_ids_PROFILE_MUTATION_EXTENDED=acc_tcga_mutations&Z_SCORE_THRESHOLD=2.0&RPPA_SCORE_THRESHOLD=2.0&data_priority=0&case_set_id=acc_tcga_sequenced&case_ids=&patient_case_select=sample&gene_set_choice=user-defined-list&gene_list=ZFPM1&clinical_param_selection=null&tab_index=tab_visualize&Action=Submit).
 
 ### Adding mutation annotation columns through namespaces
-Additional columns may also be added into the MAF and imported through the namespace mechanism. Any columns starting with a prefix specified in the `namespaces` field in the metafile will be imported into the database. Namespace columns should be formatted as the namespace and namespace attribute seperated with a period (e.g ASCN.total_copy_number where ASCN is the namespace and total_copy_number is the attribute). 
+Additional columns may also be added into the cBioPortal mutation data file and imported through the namespace mechanism. Any columns starting with a prefix specified in the `namespaces` field in the metafile will be imported into the database. Namespace columns should be formatted as the namespace and namespace attribute seperated with a period (e.g ASCN.total_copy_number where ASCN is the namespace and total_copy_number is the attribute). 
 
-An example MAF with the following **additional** columns:
+An example cBioPortal mutation data file with the following **additional** columns:
 ```
 ASCN.total_copy_number    ASCN.clonal     MUTATION.name    MUTATION.type
 ```
@@ -780,7 +781,7 @@ and the first word in the column header.
 
 
 ### Allele specific copy number (ASCN) annotations
-Allele specific copy number (ASCN) annotation is also supported and may be added using namespaces, described [here](#adding-mutation-annotation-columns-through-namespaces). If ASCN data is present in the MAF, the deployed cBioPortal instance will display additional columns in the mutation table showing ASCN data.
+Allele specific copy number (ASCN) annotation is also supported and may be added using namespaces, described [here](#adding-mutation-annotation-columns-through-namespaces). If ASCN data is present in the cBioPortal mutation data file, the deployed cBioPortal instance will display additional columns in the mutation table showing ASCN data.
 
 **The ASCN columns below are optional by default. If `ascn` is a defined namespace in `meta_mutations_extended.txt`, then these columns are ALL required.**
 
@@ -793,8 +794,8 @@ Allele specific copy number (ASCN) annotation is also supported and may be added
 48. **ASCN.MINOR_COPY_NUMBER (Optional)**: Copy number of the minor allele.
 49. **ASCN.ASCN_INTEGER_COPY_NUMER (Optional)**: Absolute integer copy-number estimate.
 
-### Example MAF
-An example MAF can be found in the cBioPortal test study [study_es_0](https://github.com/cBioPortal/cbioportal/blob/master/core/src/test/scripts/test_data/study_es_0/data_mutations_extended.maf).
+### Example cBioPortal mutation data file
+An example cBioPortal mutation data file can be found in the cBioPortal test study [study_es_0](https://github.com/cBioPortal/cbioportal/blob/master/core/src/test/scripts/test_data/study_es_0/data_mutations_extended.maf).
 
 ### Filtered mutations
 A special case for **Entrez_Gene_Id=0** and **Hugo_Symbol=Unknown**: when this combination is given, the record is parsed in the same way as **Variant_Classification=IGR** and therefore filtered out.

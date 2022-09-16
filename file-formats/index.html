@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width,initial-scale=1">
-    <meta name="turbo-cache-control" content="no-cache" data-turbo-track="reload" data-track-token="2.4.0.716495892098">
+    <meta name="turbo-cache-control" content="no-cache" data-turbo-track="reload" data-track-token="2.4.0.716648766629">
 
     <!-- See retype.com -->
     <meta name="generator" content="Retype 2.4.0">
@@ -33,12 +33,12 @@
     <script>(function () { var el = document.documentElement, m = localStorage.getItem("doc_theme"), wm = window.matchMedia; if (m === "dark" || (!m && wm && wm("(prefers-color-scheme: dark)").matches)) { el.classList.add("dark") } else { el.classList.remove("dark") } })();</script>
 
     <link href="../images/cbio-logo.png" rel="icon" />
-    <link href="../resources/css/retype.css?v=2.4.0.716495892098" rel="stylesheet" />
+    <link href="../resources/css/retype.css?v=2.4.0.716648766629" rel="stylesheet" />
 
-    <script type="text/javascript" src="../resources/js/config.js?v=2.4.0.716495892098" data-turbo-eval="false" defer></script>
+    <script type="text/javascript" src="../resources/js/config.js?v=2.4.0.716648766629" data-turbo-eval="false" defer></script>
     <script type="text/javascript" src="../resources/js/retype.js?v=2.4.0" data-turbo-eval="false" defer></script>
-    <script id="lunr-js" type="text/javascript" src="../resources/js/lunr.js?v=2.4.0.716495892098" data-turbo-eval="false" defer></script>
-    <script id="prism-js" type="text/javascript" src="../resources/js/prism.js?v=2.4.0.716495892098" defer></script>
+    <script id="lunr-js" type="text/javascript" src="../resources/js/lunr.js?v=2.4.0.716648766629" data-turbo-eval="false" defer></script>
+    <script id="prism-js" type="text/javascript" src="../resources/js/prism.js?v=2.4.0.716648766629" defer></script>
 
     <link rel="stylesheet" href="/static/custom.css"></link>
 </head>
@@ -1115,18 +1115,24 @@ namespaces: ASCN</code></pre>
         <span>Data file</span>
     </h3>
 </doc-anchor-target>
-<p>The mutation data file extends the <a href="https://docs.gdc.cancer.gov/Data/File_Formats/MAF_Format/">Mutation Annotation Format</a> (MAF) created as part of The Cancer Genome Atlas (TCGA) project, by adding <em>extra annotations</em> to each mutation record. This section describes two types of MAF files:</p>
+<p>The cBioPortal mutation data file extends the <a href="https://docs.gdc.cancer.gov/Data/File_Formats/MAF_Format/">Mutation Annotation Format</a> (MAF) created as part of The Cancer Genome Atlas (TCGA) project, by adding <em>extra annotations</em> to each mutation record. This section describes:</p>
 <ol>
-<li>A minimal MAF file with only the columns required for cBioPortal.</li>
-<li>An extended MAF file created with  the <a href="https://github.com/genome-nexus/genome-nexus-annotation-pipeline">Genome Nexus Annotation Pipeline</a>. When converting from vcf one can use: <a href="https://github.com/mskcc/vcf2maf">vcf2maf</a>.</li>
+<li>How to create the cBioPortal mutation data file with a minimal MAF file using the <a href="https://github.com/genome-nexus/genome-nexus-annotation-pipeline">Genome Nexus Annotation Pipeline</a>.</li>
+<li>The description of the cBioPortal mutation data file. You can also get the cBioPortal mutation data file from vcf using: <a href="https://github.com/mskcc/vcf2maf">vcf2maf</a>.</li>
 </ol>
-<doc-anchor-target id="minimal-maf-format">
+<doc-anchor-target id="create-the-cbioportal-mutation-data-file-with-genome-nexus-with-a-minimal-maf-file">
     <h3>
-        <doc-anchor-trigger class="header-anchor-trigger" to="#minimal-maf-format">#</doc-anchor-trigger>
-        <span>Minimal MAF format</span>
+        <doc-anchor-trigger class="header-anchor-trigger" to="#create-the-cbioportal-mutation-data-file-with-genome-nexus-with-a-minimal-maf-file">#</doc-anchor-trigger>
+        <span>Create the cBioPortal mutation data file with Genome Nexus with a minimal MAF file</span>
     </h3>
 </doc-anchor-target>
-<p>A minimal mutation annotations file can contain just the five genomic change columns plus one sample identifier column. From this minimal MAF, it is possible to create an extended MAF by running it through the <a href="https://github.com/genome-nexus/genome-nexus-annotation-pipeline">Genome Nexus Annotation Pipeline</a>.</p>
+<doc-anchor-target id="minimal-maf-file-format">
+    <h4>
+        <doc-anchor-trigger class="header-anchor-trigger" to="#minimal-maf-file-format">#</doc-anchor-trigger>
+        <span>Minimal MAF file format</span>
+    </h4>
+</doc-anchor-target>
+<p>A minimal mutation annotations file can contain just the five genomic change columns plus one sample identifier column. From this minimal MAF, it is possible to create the cBioPortal mutation data file by running it through the <a href="https://github.com/genome-nexus/genome-nexus-annotation-pipeline">Genome Nexus Annotation Pipeline</a>.</p>
 <ol>
 <li><strong>Chromosome (Required)</strong>:  A chromosome number, e.g., &quot;7&quot;.</li>
 <li><strong>Start_Position (Required)</strong>: Start position of event.</li>
@@ -1145,21 +1151,21 @@ namespaces: ASCN</code></pre>
 <li><strong>Protein_position (Optional)</strong>: (annotation column) Required to initialize the 3D viewer in <a href="https://www.cbioportal.org/index.do?cancer_study_list=brca_tcga_pub&amp;cancer_study_id=brca_tcga_pub&amp;genetic_profile_ids_PROFILE_MUTATION_EXTENDED=brca_tcga_pub_mutations&amp;genetic_profile_ids_PROFILE_COPY_NUMBER_ALTERATION=brca_tcga_pub_gistic&amp;genetic_profile_ids_PROFILE_MRNA_EXPRESSION=brca_tcga_pub_mrna_median_Zscores&amp;Z_SCORE_THRESHOLD=2.0&amp;RPPA_SCORE_THRESHOLD=2.0&amp;data_priority=0&amp;case_set_id=brca_tcga_pub_complete&amp;case_ids=&amp;patient_case_select=sample&amp;gene_set_choice=prostate-cancer%3A-ar-signaling-%2810-genes%29&amp;gene_list=TP53&amp;clinical_param_selection=null&amp;tab_index=tab_visualize&amp;Action=Submit#mutation_details">mutations view</a></li>
 <li><strong>SWISSPROT (Optional)</strong>: (annotation column) UniProtKB/SWISS-PROT name (formerly called ID) or accession code depending on the value of the <code v-pre>swissprot_identifier</code> metadatum, e.g. O11H1_HUMAN or Q8NG94. Is not required, but not having it may result in inconsistent PDB structure matching in <a href="https://www.cbioportal.org/index.do?cancer_study_list=brca_tcga_pub&amp;cancer_study_id=brca_tcga_pub&amp;genetic_profile_ids_PROFILE_MUTATION_EXTENDED=brca_tcga_pub_mutations&amp;genetic_profile_ids_PROFILE_COPY_NUMBER_ALTERATION=brca_tcga_pub_gistic&amp;genetic_profile_ids_PROFILE_MRNA_EXPRESSION=brca_tcga_pub_mrna_median_Zscores&amp;Z_SCORE_THRESHOLD=2.0&amp;RPPA_SCORE_THRESHOLD=2.0&amp;data_priority=0&amp;case_set_id=brca_tcga_pub_complete&amp;case_ids=&amp;patient_case_select=sample&amp;gene_set_choice=prostate-cancer%3A-ar-signaling-%2810-genes%29&amp;gene_list=TP53&amp;clinical_param_selection=null&amp;tab_index=tab_visualize&amp;Action=Submit#mutation_details">mutations view</a>.</li>
 </ol>
-<doc-anchor-target id="creating-an-extended-maf-file">
+<doc-anchor-target id="creating-the-cbioportal-mutation-data-file">
     <h3>
-        <doc-anchor-trigger class="header-anchor-trigger" to="#creating-an-extended-maf-file">#</doc-anchor-trigger>
-        <span>Creating an extended MAF file</span>
+        <doc-anchor-trigger class="header-anchor-trigger" to="#creating-the-cbioportal-mutation-data-file">#</doc-anchor-trigger>
+        <span>Creating the cBioPortal mutation data file</span>
     </h3>
 </doc-anchor-target>
 <p>Once you have a minimal MAF you can run it through the <a href="https://github.com/genome-nexus/genome-nexus-annotation-pipeline">Genome Nexus Annotation Pipeline</a>.
 This tool runs annotates variants against the <a href="https://genomenexus.org">Genome Nexus Server</a>, which in turn leverages Ensembl Variant Effect Predictor (VEP) and selects a single effect per variant. Protein identifiers will be mapped to UniProt canonical isoforms (see also <a href="https://github.com/genome-nexus/genome-nexus-importer/blob/master/data/grch37_ensembl92/export/ensembl_biomart_canonical_transcripts_per_hgnc.txt">this mapping file</a>).</p>
-<doc-anchor-target id="extended-maf-format">
+<doc-anchor-target id="cbioportal-mutation-data-file-format">
     <h3>
-        <doc-anchor-trigger class="header-anchor-trigger" to="#extended-maf-format">#</doc-anchor-trigger>
-        <span>Extended MAF format</span>
+        <doc-anchor-trigger class="header-anchor-trigger" to="#cbioportal-mutation-data-file-format">#</doc-anchor-trigger>
+        <span>cBioPortal mutation data file format</span>
     </h3>
 </doc-anchor-target>
-<p>The extended MAF format recognized by the portal has:</p>
+<p>The cBioPortal mutation data file format recognized by the portal has:</p>
 <ul>
 <li>32 columns from the <a href="https://docs.gdc.cancer.gov/Data/File_Formats/MAF_Format/">TCGA MAF format</a>.</li>
 <li>1 column with the amino acid change.</li>
@@ -1171,8 +1177,8 @@ This tool runs annotates variants against the <a href="https://genomenexus.org">
 <li><strong>Center (Optional)</strong>: The sequencing center.</li>
 <li><strong>NCBI_Build (Required)<sup>1</sup></strong>: The Genome Reference Consortium Build is used by a variant calling software. It must be &quot;GRCh37&quot; or &quot;GRCh38&quot; for a human, and &quot;GRCm38&quot; for a mouse.</li>
 <li><strong>Chromosome (Required)</strong>: A chromosome number, e.g., &quot;7&quot;.</li>
-<li><strong>Start_Position (Required)</strong>: Start position of event.</li>
-<li><strong>End_Position (Required)</strong>: End position of event.</li>
+<li><strong>Start_Position (Optional, but recommended for additional features such as <a href="https://www.cancerhotspots.org/">Cancer Hotspots annotations</a>)</strong>: Start position of event.</li>
+<li><strong>End_Position (Optional, but recommended for additional features such as <a href="https://www.cancerhotspots.org/">Cancer Hotspots annotations</a>)</strong>: End position of event.</li>
 <li><strong>Strand (Optional)</strong>: We assume that the mutation is reported for the + strand.</li>
 <li><strong>Variant_Classification (Required)</strong>: Translational effect of variant allele, e.g. Missense_Mutation, Silent, etc.</li>
 <li><strong>Variant_Type <sup>1</sup>(Optional)</strong>: Variant Type, e.g. SNP, DNP, etc.</li>
@@ -1231,15 +1237,15 @@ This tool runs annotates variants against the <a href="https://genomenexus.org">
         <span>Adding your own mutation annotation columns</span>
     </h3>
 </doc-anchor-target>
-<p>Adding additional mutation annotation columns to the extended MAF rows can also be done. In this way, the portal will parse and store your own MAF fields in the database. For example, mutation data that you find on cBioPortal.org comes from MAF files that have been further enriched with information from <a href="https://mutationassessor.org/">mutationassessor.org</a>, which leads to a &quot;Mutation Assessor&quot; column in the <a href="https://www.cbioportal.org/index.do?cancer_study_list=acc_tcga&amp;cancer_study_id=acc_tcga&amp;genetic_profile_ids_PROFILE_MUTATION_EXTENDED=acc_tcga_mutations&amp;Z_SCORE_THRESHOLD=2.0&amp;RPPA_SCORE_THRESHOLD=2.0&amp;data_priority=0&amp;case_set_id=acc_tcga_sequenced&amp;case_ids=&amp;patient_case_select=sample&amp;gene_set_choice=user-defined-list&amp;gene_list=ZFPM1&amp;clinical_param_selection=null&amp;tab_index=tab_visualize&amp;Action=Submit">mutation table</a>.</p>
+<p>Adding additional mutation annotation columns to the cBioPortal mutation data file rows can also be done. In this way, the portal will parse and store your own MAF fields in the database. For example, mutation data that you find on cBioPortal.org comes from MAF files that have been further enriched with information from <a href="https://mutationassessor.org/">mutationassessor.org</a>, which leads to a &quot;Mutation Assessor&quot; column in the <a href="https://www.cbioportal.org/index.do?cancer_study_list=acc_tcga&amp;cancer_study_id=acc_tcga&amp;genetic_profile_ids_PROFILE_MUTATION_EXTENDED=acc_tcga_mutations&amp;Z_SCORE_THRESHOLD=2.0&amp;RPPA_SCORE_THRESHOLD=2.0&amp;data_priority=0&amp;case_set_id=acc_tcga_sequenced&amp;case_ids=&amp;patient_case_select=sample&amp;gene_set_choice=user-defined-list&amp;gene_list=ZFPM1&amp;clinical_param_selection=null&amp;tab_index=tab_visualize&amp;Action=Submit">mutation table</a>.</p>
 <doc-anchor-target id="adding-mutation-annotation-columns-through-namespaces">
     <h3>
         <doc-anchor-trigger class="header-anchor-trigger" to="#adding-mutation-annotation-columns-through-namespaces">#</doc-anchor-trigger>
         <span>Adding mutation annotation columns through namespaces</span>
     </h3>
 </doc-anchor-target>
-<p>Additional columns may also be added into the MAF and imported through the namespace mechanism. Any columns starting with a prefix specified in the <code v-pre>namespaces</code> field in the metafile will be imported into the database. Namespace columns should be formatted as the namespace and namespace attribute seperated with a period (e.g ASCN.total_copy_number where ASCN is the namespace and total_copy_number is the attribute).</p>
-<p>An example MAF with the following <strong>additional</strong> columns:</p>
+<p>Additional columns may also be added into the cBioPortal mutation data file and imported through the namespace mechanism. Any columns starting with a prefix specified in the <code v-pre>namespaces</code> field in the metafile will be imported into the database. Namespace columns should be formatted as the namespace and namespace attribute seperated with a period (e.g ASCN.total_copy_number where ASCN is the namespace and total_copy_number is the attribute).</p>
+<p>An example cBioPortal mutation data file with the following <strong>additional</strong> columns:</p>
 <div class="codeblock-wrapper"><doc-codeblock>
 <pre class="language-none"><code v-pre class="language-none">ASCN.total_copy_number    ASCN.clonal     MUTATION.name    MUTATION.type</code></pre>
 </doc-codeblock></div>
@@ -1298,7 +1304,7 @@ and the first word in the column header.</p>
         <span>Allele specific copy number (ASCN) annotations</span>
     </h3>
 </doc-anchor-target>
-<p>Allele specific copy number (ASCN) annotation is also supported and may be added using namespaces, described <doc-anchor-trigger to="#adding-mutation-annotation-columns-through-namespaces">here</doc-anchor-trigger>. If ASCN data is present in the MAF, the deployed cBioPortal instance will display additional columns in the mutation table showing ASCN data.</p>
+<p>Allele specific copy number (ASCN) annotation is also supported and may be added using namespaces, described <doc-anchor-trigger to="#adding-mutation-annotation-columns-through-namespaces">here</doc-anchor-trigger>. If ASCN data is present in the cBioPortal mutation data file, the deployed cBioPortal instance will display additional columns in the mutation table showing ASCN data.</p>
 <p><strong>The ASCN columns below are optional by default. If <code v-pre>ascn</code> is a defined namespace in <code v-pre>meta_mutations_extended.txt</code>, then these columns are ALL required.</strong></p>
 <ol start="42">
 <li><strong>ASCN.ASCN_METHOD (Optional)</strong>: Method used to obtain ASCN data e.g &quot;FACETS&quot;.</li>
@@ -1310,13 +1316,13 @@ and the first word in the column header.</p>
 <li><strong>ASCN.MINOR_COPY_NUMBER (Optional)</strong>: Copy number of the minor allele.</li>
 <li><strong>ASCN.ASCN_INTEGER_COPY_NUMER (Optional)</strong>: Absolute integer copy-number estimate.</li>
 </ol>
-<doc-anchor-target id="example-maf">
+<doc-anchor-target id="example-cbioportal-mutation-data-file">
     <h3>
-        <doc-anchor-trigger class="header-anchor-trigger" to="#example-maf">#</doc-anchor-trigger>
-        <span>Example MAF</span>
+        <doc-anchor-trigger class="header-anchor-trigger" to="#example-cbioportal-mutation-data-file">#</doc-anchor-trigger>
+        <span>Example cBioPortal mutation data file</span>
     </h3>
 </doc-anchor-target>
-<p>An example MAF can be found in the cBioPortal test study <a href="https://github.com/cBioPortal/cbioportal/blob/master/core/src/test/scripts/test_data/study_es_0/data_mutations_extended.maf">study_es_0</a>.</p>
+<p>An example cBioPortal mutation data file can be found in the cBioPortal test study <a href="https://github.com/cBioPortal/cbioportal/blob/master/core/src/test/scripts/test_data/study_es_0/data_mutations_extended.maf">study_es_0</a>.</p>
 <doc-anchor-target id="filtered-mutations">
     <h3>
         <doc-anchor-trigger class="header-anchor-trigger" to="#filtered-mutations">#</doc-anchor-trigger>

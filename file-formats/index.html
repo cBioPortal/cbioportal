@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width,initial-scale=1">
-    <meta name="turbo-cache-control" content="no-cache" data-turbo-track="reload" data-track-token="2.4.0.716648766629">
+    <meta name="turbo-cache-control" content="no-cache" data-turbo-track="reload" data-track-token="2.4.0.716653062388">
 
     <!-- See retype.com -->
     <meta name="generator" content="Retype 2.4.0">
@@ -33,12 +33,12 @@
     <script>(function () { var el = document.documentElement, m = localStorage.getItem("doc_theme"), wm = window.matchMedia; if (m === "dark" || (!m && wm && wm("(prefers-color-scheme: dark)").matches)) { el.classList.add("dark") } else { el.classList.remove("dark") } })();</script>
 
     <link href="../images/cbio-logo.png" rel="icon" />
-    <link href="../resources/css/retype.css?v=2.4.0.716648766629" rel="stylesheet" />
+    <link href="../resources/css/retype.css?v=2.4.0.716653062388" rel="stylesheet" />
 
-    <script type="text/javascript" src="../resources/js/config.js?v=2.4.0.716648766629" data-turbo-eval="false" defer></script>
+    <script type="text/javascript" src="../resources/js/config.js?v=2.4.0.716653062388" data-turbo-eval="false" defer></script>
     <script type="text/javascript" src="../resources/js/retype.js?v=2.4.0" data-turbo-eval="false" defer></script>
-    <script id="lunr-js" type="text/javascript" src="../resources/js/lunr.js?v=2.4.0.716648766629" data-turbo-eval="false" defer></script>
-    <script id="prism-js" type="text/javascript" src="../resources/js/prism.js?v=2.4.0.716648766629" defer></script>
+    <script id="lunr-js" type="text/javascript" src="../resources/js/lunr.js?v=2.4.0.716653062388" data-turbo-eval="false" defer></script>
+    <script id="prism-js" type="text/javascript" src="../resources/js/prism.js?v=2.4.0.716653062388" defer></script>
 
     <link rel="stylesheet" href="/static/custom.css"></link>
 </head>
@@ -1738,8 +1738,8 @@ data_filename: data_sv.txt</code></pre>
 </tbody>
 </table>
 </div>
-<p>For an example see <a href="https://github.com/cBioPortal/datahub/blob/master/public/msk_impact_2017/data_sv.txt">datahub</a>. At a minimum <code v-pre>Sample_Id</code>, <code v-pre>Site1_Hugo_Symbol</code> and <code v-pre>SV_Status</code> are required. For the stuctural variant tab visualization (still in development) one needs to provide those field as well as <code v-pre>Site1_Ensembl_Transcript_Id</code>, <code v-pre>Site2_Ensembl_Transcript_Id</code>. <code v-pre>Site1_Region</code> and <code v-pre>Site2_Region</code>. Some of the other columns are shown at several other pages on the website. The <code v-pre>Class</code>, <code v-pre>Annotation</code> and <code v-pre>Event_Info</code> columns are shown prominently on several locations.</p>
-<p><strong>Note</strong>: We strongly recommend all the data providers to submit genomic locations  in addition to required fields for future visualization features.</p>
+<p>For an example see <a href="https://github.com/cBioPortal/datahub/blob/master/public/msk_impact_2017/data_sv.txt">datahub</a>. For an example see <a href="https://github.com/cBioPortal/datahub/blob/master/public/msk_impact_2017/data_sv.txt">datahub</a>. At a minimum <code v-pre>Sample_Id</code>, either <code v-pre>Site1_Hugo_Symbol</code>/ <code v-pre>Site1_Entrez_Gene_Id</code> or  <code v-pre>Site2_Hugo_Symbol</code>/ <code v-pre>Site2_Entrez_Gene_Id</code> and <code v-pre>SV_Status</code> are required. For the stuctural variant tab visualization (still in development) one needs to provide those field as well as <code v-pre>Site1_Ensembl_Transcript_Id</code>, <code v-pre>Site2_Ensembl_Transcript_Id</code>, <code v-pre>Site1_Region</code> and <code v-pre>Site2_Region</code>. Some of the other columns are shown at several other pages on the website. The <code v-pre>Class</code>, <code v-pre>Annotation</code> and <code v-pre>Event_Info</code> columns are shown prominently on several locations.
+<strong>Note</strong>: We strongly recommend all the data providers to submit genomic locations  in addition to required fields for future visualization features.</p>
 <doc-anchor-target id="fusion-data">
     <h2>
         <doc-anchor-trigger class="header-anchor-trigger" to="#fusion-data">#</doc-anchor-trigger>
@@ -2184,7 +2184,7 @@ data_filename: data_mutsig.txt</code></pre>
 <p>To include gene panel data in your instance, the following data and/or configurations can be used:</p>
 <ol>
 <li><strong>Gene panel file</strong>: This file contains the genes on the gene panel. A panel can be used for multiple studies within the instance and should be loaded prior to loading a study with gene panel data. For information on the format and import process please visit: <a href="../import-gene-panels/">Import-Gene-Panels</a>.</li>
-<li><strong>Gene panel matrix file</strong>: This file is used to specify which samples are sequenced on which gene panel in which genetic profile. This is recommended for mutation and fusion data, because the MAF and fusion formats are unable to include samples which are sequenced but contain no called mutations, and only a single gene panel can be defined in the meta file. For other genetic profiles, columns can be added to specify their gene panel, but a property can also be added to their respective meta file, because these data files contain all profiled samples. Although the gene panel matrix functionality overlaps with the case list functionality, a case list for mutations (<code v-pre>_sequenced</code>) is also required.</li>
+<li><strong>Gene panel matrix file</strong>: This file is used to specify which samples are sequenced on which gene panel in which genetic profile. This is recommended for mutation and structural variant data, because the MAF and structural variant formats are unable to include samples which are sequenced but contain no called mutations, and only a single gene panel can be defined in the meta file. For other genetic profiles, columns can be added to specify their gene panel, but a property can also be added to their respective meta file, because these data files contain all profiled samples. Although the gene panel matrix functionality overlaps with the case list functionality, a case list for mutations (<code v-pre>_sequenced</code>) and Structural variants (<code v-pre>_sv</code>) is also required.</li>
 <li><strong>Gene panel property in meta file</strong>: Adding the <code v-pre>gene_panel:</code> property to the meta file of data profile will assign all samples from that profile to the gene panel. In this case it is not necessary to include a column for this profile in the gene panel matrix file.</li>
 </ol>
 <doc-anchor-target id="gene-panel-matrix-file">

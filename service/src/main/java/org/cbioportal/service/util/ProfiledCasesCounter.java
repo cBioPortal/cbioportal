@@ -158,6 +158,8 @@ public class ProfiledCasesCounter<T extends AlterationCountByGene> {
                     alterationCountByGene.setTotalCount(0);
                     alterationCountByGene.setHugoGeneSymbol(hugoGeneSymbol);
 
+                    // ideally we should be instantiating an object of type <T> instead of the base type to avoid this
+                    // unsafe cast, but it's not straightforward to do that without knowing the actual runtime class
                     alterationCounts.add((T) alterationCountByGene);
                 }
             });

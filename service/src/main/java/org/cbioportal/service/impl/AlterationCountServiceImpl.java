@@ -224,12 +224,11 @@ public class AlterationCountServiceImpl implements AlterationCountService {
                 .stream()
                 .map(MolecularProfileCaseIdentifier::getMolecularProfileId)
                 .collect(Collectors.toSet());
+            
             Map<String, String> molecularProfileIdStudyIdMap = molecularProfileRepository
                 .getMolecularProfiles(molecularProfileIds, "SUMMARY")
                 .stream()
                 .collect(Collectors.toMap(MolecularProfile::getStableId, MolecularProfile::getCancerStudyIdentifier));
-
-            Map<String, S> totalResult = new HashMap<>();
 
             Map<String, List<MolecularProfileCaseIdentifier>> groupedByMolecularProfileIds = molecularProfileCaseIdentifiers
                 .stream()
@@ -245,16 +244,12 @@ public class AlterationCountServiceImpl implements AlterationCountService {
                     e -> dataFetcher.apply(e.getValue())
                 ));
 
-            // TODO this should probably be an argument
-            boolean frequencyByAllGroups = true;
-
             if (includeFrequency) {
-                if (frequencyByAllGroups) {
-                    // make sure all groups have alteration count for the exact same genes 
-                    // even if alteration count may be zero for certain studies
-                    // TODO update studyAlterationCountByMolecularProfileIds map
-                }
-
+                // TODO should we make this step optional with an additional parameter?
+                // make sure all groups have alteration count for the exact same genes 
+                // even if alteration count may be zero for certain studies
+                this.addAlterationCountsForAllGenes(studyAlterationCountByMolecularProfileIds);
+            
                 studyAlterationCountByMolecularProfileIds.forEach((molecularProfileId, studyAlterationCountByGenes) -> {
                     List<MolecularProfileCaseIdentifier> studyMolecularProfileCaseIdentifiers = 
                         groupedByMolecularProfileIds.get(molecularProfileId);
@@ -264,32 +259,88 @@ public class AlterationCountServiceImpl implements AlterationCountService {
                 });
             }
 
-            studyAlterationCountByMolecularProfileIds
-                .forEach((molecularProfileId, studyAlterationCountByGenes) -> {
-                    studyAlterationCountByGenes.forEach(datum -> {
-                        String key = keyGenerator.apply(datum);
-                        if (totalResult.containsKey(key)) {
-                            S alterationCountByGene = totalResult.get(key);
-                            alterationCountByGene.setTotalCount(alterationCountByGene.getTotalCount() + datum.getTotalCount());
-                            alterationCountByGene.setNumberOfAlteredCases(alterationCountByGene.getNumberOfAlteredCases() + datum.getNumberOfAlteredCases());
-                            alterationCountByGene.setNumberOfProfiledCases(alterationCountByGene.getNumberOfProfiledCases() + datum.getNumberOfProfiledCases());
-                            Set<String> matchingGenePanelIds = new HashSet<>();
-                            if (CollectionUtils.isNotEmpty(alterationCountByGene.getMatchingGenePanelIds())) {
-                                matchingGenePanelIds.addAll(alterationCountByGene.getMatchingGenePanelIds());
-                            }
-                            if (CollectionUtils.isNotEmpty(datum.getMatchingGenePanelIds())) {
-                                matchingGenePanelIds.addAll(datum.getMatchingGenePanelIds());
-                            }
-                            alterationCountByGene.setMatchingGenePanelIds(matchingGenePanelIds);
-                            totalResult.put(key, alterationCountByGene);
-                        } else {
-                            totalResult.put(key, datum);
-                        }
-                    });
-                });
-            alterationCountByGenes = new ArrayList<>(totalResult.values());
+            alterationCountByGenes = this.calculateAggregatedAlterationCounts(
+                studyAlterationCountByMolecularProfileIds,
+                keyGenerator
+            );
         }
         return new Pair<>(alterationCountByGenes, profiledCasesCount.get());
     }
 
+    /**
+     * Make sure that each molecular profile has alteration counts for the exact same genes by adding
+     * a missing AlterationCountByGene with zero alteration count where necessary.
+     * 
+     * @param studyAlterationCountByMolecularProfileIds alteration counts per gene grouped by molecular profile id
+     * @param <S> alteration count for a single gene
+     */
+    private <S extends AlterationCountByGene> void addAlterationCountsForAllGenes(
+        Map<String, List<S>> studyAlterationCountByMolecularProfileIds
+    ) {
+        Map<Integer, String> entrezGeneIdToHugoSymbol = studyAlterationCountByMolecularProfileIds
+            .values()
+            .stream()
+            .flatMap(Collection::stream)
+            .collect(Collectors.toMap(S::getEntrezGeneId, S::getHugoGeneSymbol, (a, b) -> a));
+
+        studyAlterationCountByMolecularProfileIds.forEach((molecularProfileId, studyAlterationCountByGenes) -> {
+            Map<Integer, S> map = studyAlterationCountByGenes.stream().collect(Collectors.toMap(S::getEntrezGeneId, c -> c));
+            entrezGeneIdToHugoSymbol.forEach((entrezGeneId, hugoGeneSymbol) -> {
+                // gene has zero alteration count for this study
+                // add a new alteration count object for this gene with zero count
+                if (!map.containsKey(entrezGeneId)) {
+                    AlterationCountByGene missingGeneAlterationCount = new AlterationCountByGene();
+                    missingGeneAlterationCount.setEntrezGeneId(entrezGeneId);
+                    missingGeneAlterationCount.setHugoGeneSymbol(hugoGeneSymbol);
+                    missingGeneAlterationCount.setTotalCount(0);
+                    missingGeneAlterationCount.setNumberOfAlteredCases(0);
+
+                    // ideally we should be instantiating an object of type <S> instead of the base type to avoid this
+                    // unsafe cast, but it's not straightforward to do that without knowing the actual runtime class
+                    studyAlterationCountByGenes.add((S) missingGeneAlterationCount);
+                }
+            });
+        });
+    }
+
+    /**
+     * Aggregates alteration and profiled case counts for each gene from multiple studies.
+     * 
+     * @param studyAlterationCountByMolecularProfileIds alteration counts per gene grouped by molecular profile id
+     * @param keyGenerator unique key generator for AlterationCountByGene
+     * @return a list of AlterationCountByGene where each gene has only one corresponding AlterationCountByGene
+     * @param <S> alteration count for a single gene
+     */
+    private <S extends AlterationCountByGene> List<S> calculateAggregatedAlterationCounts(
+        Map<String, List<S>> studyAlterationCountByMolecularProfileIds,
+        Function<S, String> keyGenerator
+    ) {
+        Map<String, S> aggregatedAlterationCounts = new HashMap<>();
+
+        studyAlterationCountByMolecularProfileIds
+            .forEach((molecularProfileId, studyAlterationCountByGenes) -> {
+                studyAlterationCountByGenes.forEach(datum -> {
+                    String key = keyGenerator.apply(datum);
+                    if (aggregatedAlterationCounts.containsKey(key)) {
+                        S alterationCountByGene = aggregatedAlterationCounts.get(key);
+                        alterationCountByGene.setTotalCount(alterationCountByGene.getTotalCount() + datum.getTotalCount());
+                        alterationCountByGene.setNumberOfAlteredCases(alterationCountByGene.getNumberOfAlteredCases() + datum.getNumberOfAlteredCases());
+                        alterationCountByGene.setNumberOfProfiledCases(alterationCountByGene.getNumberOfProfiledCases() + datum.getNumberOfProfiledCases());
+                        Set<String> matchingGenePanelIds = new HashSet<>();
+                        if (CollectionUtils.isNotEmpty(alterationCountByGene.getMatchingGenePanelIds())) {
+                            matchingGenePanelIds.addAll(alterationCountByGene.getMatchingGenePanelIds());
+                        }
+                        if (CollectionUtils.isNotEmpty(datum.getMatchingGenePanelIds())) {
+                            matchingGenePanelIds.addAll(datum.getMatchingGenePanelIds());
+                        }
+                        alterationCountByGene.setMatchingGenePanelIds(matchingGenePanelIds);
+                        aggregatedAlterationCounts.put(key, alterationCountByGene);
+                    } else {
+                        aggregatedAlterationCounts.put(key, datum);
+                    }
+                });
+            });
+        
+        return new ArrayList<>(aggregatedAlterationCounts.values());
+    }
 }

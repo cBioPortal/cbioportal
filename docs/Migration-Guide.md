@@ -3,7 +3,7 @@ This page describes various changes deployers will need to make as they deploy n
 
 ## v4 -> v5
 - All fusion profiles are now required to be migrated to structural variant format. One can use this [migration tool](https://github.com/cBioPortal/datahub-study-curation-tools/tree/master/fusion-to-sv-converter) to migrate the fusion files.
-- All fusion files on [datahub](https://github.com/cBioPortal/datahub)) were migrated to the structural variant format and their molecular profile ids were renamed from `{study_id}_fusion` to `{study_id}_structural_variants`. If you are using these datahub files one would need to re-import them.
+- All fusion files on [datahub](https://github.com/cBioPortal/datahub) were migrated to the structural variant format and their molecular profile ids were renamed from `{study_id}_fusion` to `{study_id}_structural_variants`. If you are using these datahub files one would need to re-import them.
 - Study view user setting will be outdated after migration, please follow `Clear Study View User settings` section in [Session Service Management](Session-Service-Management.md#Clear-Study-View-User-settings)
 
 See the [v5.0.0 release notes](https://github.com/cBioPortal/cbioportal/releases/tag/v5.0.0) for more details.

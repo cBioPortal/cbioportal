@@ -18,6 +18,7 @@ public class ImportResourceDefinition extends ConsoleRunnable {
     public static final String RESOURCE_TYPE_COLUMN_NAME = "RESOURCE_TYPE";
     public static final String OPEN_BY_DEFAULT_COLUMN_NAME = "OPEN_BY_DEFAULT";
     public static final String PRIORITY_COLUMN_NAME = "PRIORITY";
+    public static final int MISSING_COLUMN_INDEX = -1;
     private int numResourceDefinitionsAdded = 0;
 
     private static Properties properties;
@@ -89,7 +90,7 @@ public class ImportResourceDefinition extends ConsoleRunnable {
                         "Please provide a valid display name");
             }
             // get description (optional)
-            if (isValueNotMissing(fieldValues[descriptionIndex])) {
+            if (descriptionIndex != MISSING_COLUMN_INDEX && isValueNotMissing(fieldValues[descriptionIndex])) {
                 description = fieldValues[descriptionIndex];
             }
             // get resourceType (must be value of ResourceTypes)
@@ -97,15 +98,17 @@ public class ImportResourceDefinition extends ConsoleRunnable {
                 resourceType = ResourceType.valueOf(fieldValues[resourceTypeIndex]);
             }
             // get openByDefault (optional)
-            if (isValidOpenByDefault(fieldValues[openByDefaultIndex])) {
+            if (openByDefaultIndex != MISSING_COLUMN_INDEX && isValidOpenByDefault(fieldValues[openByDefaultIndex])) {
                 openByDefault = Boolean.parseBoolean(fieldValues[openByDefaultIndex]);
             }
             // get priority (optional)
-            try {
-                priority = Integer.parseInt(fieldValues[priorityIndex]);
-            } catch (NumberFormatException ex) {
-                throw new DaoException(
-                    "priority cannot be parsed as an integer, all priority should be an integer.");
+            if (priorityIndex != MISSING_COLUMN_INDEX) {
+                try {
+                    priority = Integer.parseInt(fieldValues[priorityIndex]);
+                } catch (NumberFormatException ex) {
+                    throw new DaoException(
+                        "priority cannot be parsed as an integer, all priority should be an integer.");
+                }
             }
 
             // add resource definitions into database
@@ -205,7 +208,7 @@ public class ImportResourceDefinition extends ConsoleRunnable {
     }
 
     private int findAndValidateDescriptionColumn(Map<String, Integer> headerIndexMap) {
-        return findAndValidateColumnIndexInHeaders(DESCRIPTION_COLUMN_NAME, headerIndexMap);
+        return findAndValidateOptionalColumnIndexInHeaders(DESCRIPTION_COLUMN_NAME, headerIndexMap);
     }
 
     private int findAndValidateResourceTypeColumn(Map<String, Integer> headerIndexMap) {
@@ -213,11 +216,11 @@ public class ImportResourceDefinition extends ConsoleRunnable {
     }
 
     private int findAndValidateOpenByDefaultColumn(Map<String, Integer> headerIndexMap) {
-        return findAndValidateColumnIndexInHeaders(OPEN_BY_DEFAULT_COLUMN_NAME, headerIndexMap);
+        return findAndValidateOptionalColumnIndexInHeaders(OPEN_BY_DEFAULT_COLUMN_NAME, headerIndexMap);
     }
 
     private int findAndValidatePriorityColumn(Map<String, Integer> headerIndexMap) {
-        return findAndValidateColumnIndexInHeaders(PRIORITY_COLUMN_NAME, headerIndexMap);
+        return findAndValidateOptionalColumnIndexInHeaders(PRIORITY_COLUMN_NAME, headerIndexMap);
     }
 
     private int findAndValidateColumnIndexInHeaders(String columnHeader, Map<String, Integer> headerIndexMap) {
@@ -226,6 +229,14 @@ public class ImportResourceDefinition extends ConsoleRunnable {
         }
         throw new RuntimeException("Aborting owing to failure to find " + columnHeader + 
         " in file. Please check your file format and try again.");
+    }
+
+    private int findAndValidateOptionalColumnIndexInHeaders(String columnHeader, Map<String, Integer> headerIndexMap) {
+        if (headerIndexMap.containsKey(columnHeader)) {
+            return headerIndexMap.get(columnHeader);
+        } else {
+            return MISSING_COLUMN_INDEX;
+        }
     }
 
     public int getNumResourceDefinitionsAdded() {

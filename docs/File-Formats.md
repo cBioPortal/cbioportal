@@ -1627,9 +1627,9 @@ The resource definition file should follow this format, it has three **required*
 - **RESOURCE_ID (required)**: a unique resource ID. This field allows only numbers, letters, points, underscores and hyphens.
 - **DISPLAY_NAME (required)**: a display name for resources.
 - **RESOURCE_TYPE (required)**: resource type for resources, must be SAMPLE, PATIENT or STUDY.
-- **DESCRIPTION (required)**: a discription for resources.
-- **OPEN_BY_DEFAULT (required)**: define if the resource will be open by default (`true` / `false`), dafault is `false`.
-- **PRIORITY (required)**: if not given, will give a default value.
+- **DESCRIPTION (optional)**: a discription for resources.
+- **OPEN_BY_DEFAULT (optional)**: define if the resource will be open by default (`true` / `false`), dafault is `false`.
+- **PRIORITY (optional)**: if not given, will give a default value.
 
 ### Example *Resource Definition* data file
 <table>

@@ -1394,11 +1394,11 @@ class CustomDriverAnnotationValidator(Validator):
 
 class CNADiscretePDAAnnotationsValidator(CustomDriverAnnotationValidator):
     REQUIRED_HEADERS = [
-        'SAMPLE_ID'
+        'SAMPLE_ID',
+        'Entrez_Gene_Id'
     ]
     OPTIONAL_HEADERS = [
         'Hugo_Symbol',
-        'Entrez_Gene_Id',
         'cbp_driver',
         'cbp_driver_annotation',
         'cbp_driver_tiers',
@@ -1415,9 +1415,8 @@ class CNADiscretePDAAnnotationsValidator(CustomDriverAnnotationValidator):
 
     def checkHeader(self, cols):
         num_errors = super(CNADiscretePDAAnnotationsValidator, self).checkHeader(cols)
-        if ('Hugo_Symbol' not in cols and
-                'Entrez_Gene_Id' not in cols):
-            self.logger.error('Hugo_Symbol or Entrez_Gene_Id column needs to be present in the file.',
+        if 'Entrez_Gene_Id' not in cols:
+            self.logger.error('Entrez_Gene_Id column needs to be present in the file.',
                               extra={'line_number': self.line_number})
             num_errors += 1
         return num_errors
@@ -1436,8 +1435,9 @@ class CNADiscretePDAAnnotationsValidator(CustomDriverAnnotationValidator):
             if data[self.cols.index('Hugo_Symbol')] != '':
                 hugo_symbol = data[self.cols.index('Hugo_Symbol')]
         entrez_gene_id = self.checkGeneIdentification(hugo_symbol, entrez_gene_id)
-        self.entrez_gene_ids.add(entrez_gene_id)
-
+        if entrez_gene_id:
+            self.entrez_gene_ids.add(entrez_gene_id)
+        
     def onComplete(self):
         """Perform final validations based on the data parsed."""
         if self.data_entrez_gene_ids is not None:

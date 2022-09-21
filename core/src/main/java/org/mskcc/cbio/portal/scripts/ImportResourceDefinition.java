@@ -232,11 +232,7 @@ public class ImportResourceDefinition extends ConsoleRunnable {
     }
 
     private int findAndValidateOptionalColumnIndexInHeaders(String columnHeader, Map<String, Integer> headerIndexMap) {
-        if (headerIndexMap.containsKey(columnHeader)) {
-            return headerIndexMap.get(columnHeader);
-        } else {
-            return MISSING_COLUMN_INDEX;
-        }
+        return headerIndexMap.getOrDefault(columnHeader, MISSING_COLUMN_INDEX);
     }
 
     public int getNumResourceDefinitionsAdded() {

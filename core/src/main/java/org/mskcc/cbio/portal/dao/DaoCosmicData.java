@@ -116,7 +116,7 @@ public class DaoCosmicData {
         
         Set<CosmicMutationFrequency> ret = new HashSet<CosmicMutationFrequency>();
         Pattern p = Pattern.compile("[0-9]+");
-        int mutPos = -1;
+        int mutPos = 0;
         for (CosmicMutationFrequency cmf : cmfs) {
             String aa = cmf.getAminoAcidChange();
             Matcher m = p.matcher(aa);

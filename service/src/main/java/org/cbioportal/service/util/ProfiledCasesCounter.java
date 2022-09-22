@@ -16,18 +16,76 @@ public class ProfiledCasesCounter<T extends AlterationCountByGene> {
     @Autowired
     private GenePanelService genePanelService;
 
-    Function<GenePanelData, String> sampleUniqueIdentifier = sample -> sample.getStudyId() + sample.getSampleId();
-    Function<GenePanelData, String> patientUniqueIdentifier = sample -> sample.getStudyId() + sample.getPatientId();
+    public static Function<GenePanelData, String> SAMPLE_UNIQUE_IDENTIFIER = sample -> sample.getStudyId() + sample.getSampleId();
+    public static Function<GenePanelData, String> PATIENT_UNIQUE_IDENTIFIER = sample -> sample.getStudyId() + sample.getPatientId();
 
     private enum ProfiledCaseType {
-        SAMPLE, PATIENT;
+        SAMPLE, PATIENT
     }
 
-    public void calculate(List<T> alterationCounts,
-            List<GenePanelData> genePanelDataList,
-            boolean includeMissingAlterationsFromGenePanel,
-            Function<GenePanelData, String> caseUniqueIdentifier) {
-        ProfiledCaseType profiledCaseType = (caseUniqueIdentifier == patientUniqueIdentifier) ?
+    public List<GenePanelData> findGenePanelDataForProfiledCases(List<GenePanelData> genePanelDataList) {
+        return genePanelDataList
+            .stream()
+            .filter(GenePanelData::getProfiled)
+            .collect(Collectors.toList());
+    }
+    
+    public Set<String> findCasesWithGenePanelData(
+        List<GenePanelData> genePanelDataForProfiledCases,
+        Function<GenePanelData, String> caseUniqueIdentifier
+    ) {
+        // first identify cases with gene panel data
+        return genePanelDataForProfiledCases
+            .stream()
+            .filter(g -> g.getGenePanelId() != null)
+            // there can be duplicate patient or sample id, append study id
+            .map(caseUniqueIdentifier)
+            .collect(Collectors.toSet());
+    }
+    
+    public Set<String> findCasesWithoutGenePanelData(
+        List<GenePanelData> genePanelDataForProfiledCases,
+        Function<GenePanelData, String> caseUniqueIdentifier
+    ) {
+        // here we look for cases where none of the profiles have gene panel ids
+        // a case with at least one profile with gene panel id is considered as a case with gene panel data
+        // so a case is considered without panel data only if none of the profiles has a gene panel id
+
+        // first identify cases with gene panel data
+        Set<String> casesWithPanelData = findCasesWithGenePanelData(
+            genePanelDataForProfiledCases, caseUniqueIdentifier);
+
+        // find all unique cases
+        Set<String> casesWithoutPanelData = genePanelDataForProfiledCases
+            .stream()
+            // there can be duplicate patient or sample id, append study id
+            .map(caseUniqueIdentifier)
+            .collect(Collectors.toSet());
+
+        // removing cases with panel data from all unique cases gives us the cases without panel data
+        casesWithoutPanelData.removeAll(casesWithPanelData);
+        
+        return casesWithoutPanelData;
+    }
+    
+    public Set<String> findProfiledCases(
+        List<GenePanelData> genePanelDataForProfiledCases,
+        Function<GenePanelData, String> caseUniqueIdentifier
+    ) {
+        return genePanelDataForProfiledCases
+            .stream()
+            // there can be duplicate patient or sample id, append study id
+            .map(caseUniqueIdentifier)
+            .collect(Collectors.toSet());
+    }
+    
+    public void calculate(
+        List<T> alterationCounts,
+        List<GenePanelData> genePanelDataList,
+        boolean includeMissingAlterationsFromGenePanel,
+        Function<GenePanelData, String> caseUniqueIdentifier
+    ) {
+        ProfiledCaseType profiledCaseType = (caseUniqueIdentifier == PATIENT_UNIQUE_IDENTIFIER) ?
             ProfiledCaseType.PATIENT : ProfiledCaseType.SAMPLE;
         Map<String, Set<String>> casesWithDataInGenePanel = extractCasesWithDataInGenePanel(genePanelDataList, caseUniqueIdentifier);
         List<GenePanel> genePanels = new ArrayList<>();
@@ -49,39 +107,9 @@ public class ProfiledCasesCounter<T extends AlterationCountByGene> {
             }
         }
 
-        List<GenePanelData> profiled = genePanelDataList
-                .stream()
-                .filter(GenePanelData::getProfiled)
-                .collect(Collectors.toList());
-
-        Set<String> profiledCases = profiled
-                .stream()
-                // there can be duplicate patient or sample id, append study id
-                .map(caseUniqueIdentifier)
-                .collect(Collectors.toSet());
-        int profiledCasesCount = profiledCases.size();
-        
-        // here we look for cases where none of the profiles have gene panel ids
-        // a case with at least one profile with gene panel id is considered as a case with gene panel data
-        // so a case is considered without panel data only if none of the profiles has a gene panel id
-        
-        // first identify cases with gene panel data
-        Set<String> casesWithPanelData = profiled
-                .stream()
-                .filter(g -> g.getGenePanelId() != null)
-                // there can be duplicate patient or sample id, append study id
-                .map(caseUniqueIdentifier)
-                .collect(Collectors.toSet());
-
-        // find all unique cases
-        Set<String> casesWithoutPanelData = profiled
-            .stream()
-            // there can be duplicate patient or sample id, append study id
-            .map(caseUniqueIdentifier)
-            .collect(Collectors.toSet());
-
-        // removing cases with panel data from all unique cases gives us the cases without panel data
-        casesWithoutPanelData.removeAll(casesWithPanelData);
+        List<GenePanelData> genePanelDataForProfiledCases = this.findGenePanelDataForProfiledCases(genePanelDataList);
+        int profiledCasesCount = this.findProfiledCases(genePanelDataForProfiledCases, caseUniqueIdentifier).size();
+        Set<String> casesWithoutPanelData = this.findCasesWithoutGenePanelData(genePanelDataForProfiledCases, caseUniqueIdentifier);
         
         for (AlterationCountByGene alterationCountByGene : alterationCounts) {
             Integer entrezGeneId = alterationCountByGene.getEntrezGeneId();

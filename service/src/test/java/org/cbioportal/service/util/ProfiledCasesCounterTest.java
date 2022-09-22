@@ -102,20 +102,20 @@ public class ProfiledCasesCounterTest {
         alterationCount3.setEntrezGeneId(ENTREZ_GENE_ID_3);
         alterationCounts.add(alterationCount3);
 
-        profiledSamplesCounter.calculate(alterationCounts, genePanelDataList, false, profiledSamplesCounter.sampleUniqueIdentifier);
+        profiledSamplesCounter.calculate(alterationCounts, genePanelDataList, false, ProfiledCasesCounter.SAMPLE_UNIQUE_IDENTIFIER);
 
         Assert.assertEquals(Integer.valueOf(3), alterationCounts.get(0).getNumberOfProfiledCases());
         Assert.assertEquals(Integer.valueOf(2), alterationCounts.get(1).getNumberOfProfiledCases());
         Assert.assertEquals(Integer.valueOf(3), alterationCounts.get(2).getNumberOfProfiledCases());
         
         
-        profiledSamplesCounter.calculate(alterationCounts, genePanelDataList, false, profiledSamplesCounter.patientUniqueIdentifier);
+        profiledSamplesCounter.calculate(alterationCounts, genePanelDataList, false, ProfiledCasesCounter.PATIENT_UNIQUE_IDENTIFIER);
         
         Assert.assertEquals(Integer.valueOf(2), alterationCounts.get(0).getNumberOfProfiledCases());
         Assert.assertEquals(Integer.valueOf(2), alterationCounts.get(1).getNumberOfProfiledCases());
         Assert.assertEquals(Integer.valueOf(2), alterationCounts.get(2).getNumberOfProfiledCases());
 
-        profiledSamplesCounter.calculate(alterationCounts, genePanelDataList, true, profiledSamplesCounter.patientUniqueIdentifier);
+        profiledSamplesCounter.calculate(alterationCounts, genePanelDataList, true, ProfiledCasesCounter.PATIENT_UNIQUE_IDENTIFIER);
 
         Assert.assertEquals(4, alterationCounts.size());
         Assert.assertEquals(Integer.valueOf(2), alterationCounts.get(0).getNumberOfProfiledCases());

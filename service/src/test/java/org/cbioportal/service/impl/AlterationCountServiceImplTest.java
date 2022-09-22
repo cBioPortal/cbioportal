@@ -2,7 +2,6 @@ package org.cbioportal.service.impl;
 
 import org.apache.commons.math3.util.Pair;
 import org.cbioportal.model.*;
-import org.cbioportal.model.QueryElement;
 import org.cbioportal.model.util.Select;
 import org.cbioportal.persistence.AlterationRepository;
 import org.cbioportal.persistence.MolecularProfileRepository;

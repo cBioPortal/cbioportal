@@ -9,7 +9,6 @@ import org.cbioportal.model.EnrichmentType;
 import org.cbioportal.model.MolecularProfileCaseIdentifier;
 import org.cbioportal.model.MutationCountByGene;
 import org.cbioportal.model.MutationEventType;
-import org.cbioportal.model.QueryElement;
 import org.cbioportal.model.util.Select;
 import org.cbioportal.service.AlterationCountService;
 import org.cbioportal.service.util.AlterationEnrichmentUtil;

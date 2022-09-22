@@ -177,12 +177,12 @@ public class AlterationEnrichmentUtil<T extends AlterationCountByGene> {
             .fetchGenePanelDataInMultipleMolecularProfiles(molecularProfileCaseIdentifiers);
 
         profiledCasesCounter.calculate(alterationCountByGenes, genePanelDataList,
-                includeMissingAlterationsFromGenePanel, profiledCasesCounter.sampleUniqueIdentifier);
+                includeMissingAlterationsFromGenePanel, ProfiledCasesCounter.SAMPLE_UNIQUE_IDENTIFIER);
 
         return genePanelDataList
             .stream()
             .filter(GenePanelData::getProfiled)
-            .map(profiledCasesCounter.sampleUniqueIdentifier)
+            .map(ProfiledCasesCounter.SAMPLE_UNIQUE_IDENTIFIER)
             .distinct()
             .count();
     }
@@ -206,12 +206,12 @@ public class AlterationEnrichmentUtil<T extends AlterationCountByGene> {
             .fetchGenePanelDataInMultipleMolecularProfilesByPatientIds(molecularProfileCaseIdentifiers);
 
         profiledCasesCounter.calculate(alterationCountByGenes, genePanelDataList,
-            includeMissingAlterationsFromGenePanel, profiledCasesCounter.patientUniqueIdentifier);
+            includeMissingAlterationsFromGenePanel, ProfiledCasesCounter.PATIENT_UNIQUE_IDENTIFIER);
 
         return genePanelDataList
             .stream()
             .filter(GenePanelData::getProfiled)
-            .map(profiledCasesCounter.patientUniqueIdentifier)
+            .map(ProfiledCasesCounter.PATIENT_UNIQUE_IDENTIFIER)
             .distinct()
             .count();
     }

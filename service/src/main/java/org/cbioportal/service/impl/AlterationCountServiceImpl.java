@@ -281,7 +281,10 @@ public class AlterationCountServiceImpl implements AlterationCountService {
             .values()
             .stream()
             .flatMap(Collection::stream)
-            .collect(Collectors.toMap(S::getEntrezGeneId, S::getHugoGeneSymbol, (a, b) -> a));
+            // Collectors.toMap throws exception when hugo gene symbol is null, 
+            // we need a custom collect function to keep null values as is 
+            // .collect(Collectors.toMap(S::getEntrezGeneId, S::getHugoGeneSymbol, (a, b) -> a));
+            .collect(HashMap::new, (map, count) -> map.put(count.getEntrezGeneId(), count.getHugoGeneSymbol()), HashMap::putAll);
 
         studyAlterationCountByMolecularProfileIds.forEach((molecularProfileId, studyAlterationCountByGenes) -> {
             Map<Integer, S> map = studyAlterationCountByGenes.stream().collect(Collectors.toMap(S::getEntrezGeneId, c -> c));

@@ -1,0 +1,1065 @@
+/* Colors */
+.portalWidth {
+  padding-left: 20px;
+  padding-right: 20px;
+  min-width: 400px; }
+
+.framedImage {
+  margin: 20px 0;
+  border: 1px solid #eee !important;
+  border-radius: 5px;
+  padding: 10px;
+  display: block;
+  box-shadow: 1px 1px 1px 0px rgba(0, 0, 0, 0.21); }
+
+.simple-table th {
+  padding-left: 10px;
+  padding-bottom: 5px;
+  background-color: white; }
+
+.simple-table tbody > tr:nth-of-type(odd).highlighted {
+  background-color: #9fafd1 !important; }
+
+.simple-table tbody > tr:nth-of-type(even) {
+  background-color: white; }
+
+.simple-table tbody > tr:nth-of-type(even).highlighted {
+  background-color: #b0bed9; }
+
+.simple-table tbody > tr.clickable {
+  cursor: pointer; }
+
+.simple-table tbody > tr:nth-of-type(even).clickable:hover {
+  background-color: #b6c4df !important; }
+
+.simple-table tbody > tr:nth-of-type(odd).clickable:hover {
+  background-color: #a7b6d8 !important; }
+
+.simple-table td.columnResizer {
+  border-color: transparent !important; }
+
+.simple-table thead td.columnResizer {
+  border-color: transparent !important;
+  background-color: #ddd; }
+
+/* Colors */
+.portalWidth {
+  padding-left: 20px;
+  padding-right: 20px;
+  min-width: 400px; }
+
+.framedImage {
+  margin: 20px 0;
+  border: 1px solid #eee !important;
+  border-radius: 5px;
+  padding: 10px;
+  display: block;
+  box-shadow: 1px 1px 1px 0px rgba(0, 0, 0, 0.21); }
+
+th.sort-des:after {
+  content: ' \25BC'; }
+
+th.sort-asc:after {
+  content: ' \25B2'; }
+
+.cbioportal-frontend .table > thead > tr > th.multilineHeader {
+  vertical-align: top;
+  line-height: 1.1;
+  padding-bottom: 4px; }
+
+.topPagination {
+  display: flex;
+  align-items: center;
+  justify-content: center; }
+  .topPagination .textBetweenButtons {
+    opacity: 1 !important; }
+
+.tableMainToolbar .form-group {
+  margin-bottom: 5px; }
+
+.cbioportal-frontend .table > tbody > tr > td.columnResizer,
+.cbioportal-frontend .table > thead > tr > td.columnResizer {
+  width: 2px;
+  border-right: #ccc 1px solid;
+  border-left: #ccc 1px solid;
+  padding: 0 !important; }
+
+/* Colors */
+.paginationControls-module__portalWidth__2gIaM {
+  padding-left: 20px;
+  padding-right: 20px;
+  min-width: 400px; }
+
+.paginationControls-module__framedImage__2QU5w {
+  margin: 20px 0;
+  border: 1px solid #eee !important;
+  border-radius: 5px;
+  padding: 10px;
+  display: block;
+  box-shadow: 1px 1px 1px 0px rgba(0, 0, 0, 0.21); }
+
+.paginationControls-module__default-cursor__3qNcu {
+  cursor: default !important;
+  height: 30px; }
+
+.paginationControls-module__form-select__3-BhF {
+  display: inline-block;
+  margin-left: 5px; }
+
+.paginationControls-module__page-number-input__2DGhO {
+  cursor: auto !important;
+  border: 1px inset;
+  height: 18px;
+  padding: 0 5px 0 5px;
+  display: inline-block; }
+
+.legacy .paginationControls-module__paginationControls__MF0uG button i {
+  line-height: 1.5; }
+
+.paginationControls-module__margin-right-button__3tzhL {
+  margin-right: 15px !important; }
+
+.paginationControls-module__margin-left-button__1rLFR {
+  margin-left: 15px !important; }
+
+.paginationControls-module__hidden-button__2mt4l {
+  display: none !important; }
+
+/* Colors */
+.copyDownloadControls-module__portalWidth__wDcH_ {
+  padding-left: 20px;
+  padding-right: 20px;
+  min-width: 400px; }
+
+.copyDownloadControls-module__framedImage__1bvsU {
+  margin: 20px 0;
+  border: 1px solid #eee !important;
+  border-radius: 5px;
+  padding: 10px;
+  display: block;
+  box-shadow: 1px 1px 1px 0px rgba(0, 0, 0, 0.21); }
+
+.copyDownloadControls-module__downloadTabLinksGroup__-hkGB > a > i {
+  margin-right: 5px !important; }
+
+.copyDownloadControls-module__downloadTabLinksGroup__-hkGB > a:last-of-type {
+  margin-right: 10px; }
+
+.copyDownloadControls-module__downloadTabLinksGroup__-hkGB > span {
+  margin: 0px 10px; }
+
+.copyDownloadControls-module__downloadTabLinksGroup__-hkGB > span:last-child {
+  margin: 0px; }
+
+/* Colors */
+.styles-module__portalWidth__QOSi2 {
+  padding-left: 20px;
+  padding-right: 20px;
+  min-width: 400px; }
+
+.styles-module__framedImage__1dzkM {
+  margin: 20px 0;
+  border: 1px solid #eee !important;
+  border-radius: 5px;
+  padding: 10px;
+  display: block;
+  box-shadow: 1px 1px 1px 0px rgba(0, 0, 0, 0.21); }
+
+.styles-module__virtualStudy__U7f0- {
+  width: 350px; }
+  .styles-module__virtualStudy__U7f0- .styles-module__virtualStudyForm__24Vwu {
+    margin-bottom: 5px; }
+    .styles-module__virtualStudy__U7f0- .styles-module__virtualStudyForm__24Vwu textarea {
+      resize: none; }
+    .styles-module__virtualStudy__U7f0- .styles-module__virtualStudyForm__24Vwu .styles-module__saveButton__272LI {
+      height: 34px; }
+  .styles-module__virtualStudy__U7f0- .styles-module__studiesSummaryInfo__3ewzF {
+    margin-top: 5px;
+    font-size: 12px;
+    max-height: 200px;
+    overflow-y: auto; }
+  .styles-module__virtualStudy__U7f0- .styles-module__result__1BQ9F {
+    display: flex;
+    align-items: center; }
+    .styles-module__virtualStudy__U7f0- .styles-module__result__1BQ9F .styles-module__name__3bVye {
+      flex-grow: 1; }
+    .styles-module__virtualStudy__U7f0- .styles-module__result__1BQ9F .styles-module__controls__31KcC {
+      flex-shrink: 0;
+      float: right; }
+  .styles-module__virtualStudy__U7f0- .styles-module__disabled__M8SEC {
+    pointer-events: none;
+    opacity: 0.5; }
+
+.styles-module__studySummary__3Tls0 .styles-module__studyName__3U1tn {
+  cursor: pointer;
+  padding-right: 5px; }
+  .styles-module__studySummary__3Tls0 .styles-module__studyName__3U1tn i {
+    padding-right: 3px; }
+
+.styles-module__studySummary__3Tls0 .styles-module__studyDescription__1tQcY {
+  padding: 7px; }
+
+.styles-module__studySummary__3Tls0 .input-group {
+  margin-bottom: 5px; }
+
+.styles-module__studySummary__3Tls0 .btn {
+  line-height: inherit; }
+
+.styles-module__studySummary__3Tls0 .panel {
+  margin-bottom: 5px; }
+
+.styles-module__studySummary__3Tls0 .panel-heading,
+.styles-module__studySummary__3Tls0 .panel-body {
+  padding: 7px; }
+
+/* Colors */
+.styles-module__portalWidth__3H61V {
+  padding-left: 20px;
+  padding-right: 20px;
+  min-width: 400px; }
+
+.styles-module__framedImage__3vt8Y {
+  margin: 20px 0;
+  border: 1px solid #eee !important;
+  border-radius: 5px;
+  padding: 10px;
+  display: block;
+  box-shadow: 1px 1px 1px 0px rgba(0, 0, 0, 0.21); }
+
+.styles-module__absolutePanel__3vVTX {
+  position: absolute;
+  top: 5px;
+  right: 18px;
+  z-index: 2;
+  display: flex; }
+
+.styles-module__selectedInfoLoadingIndicator__lMgyy {
+  padding: 5px;
+  width: 200px; }
+
+.styles-module__selectedInfo__1Vuvh {
+  display: flex;
+  align-items: center;
+  margin-right: 10px; }
+
+.styles-module__selectedInfoCheckbox__1dPUi {
+  margin: 2px 3px 0 0 !important; }
+
+.styles-module__mainTabs__3BkVf {
+  position: relative; }
+
+.styles-module__studyViewSurvivalPlot__2J73a {
+  float: left;
+  margin: 5px; }
+
+.styles-module__studyViewSurvivalPlotTitle__3oyYN {
+  font-size: 18px;
+  color: #000;
+  font-weight: 700;
+  text-align: center; }
+
+.styles-module__studyViewSurvivalPlotBody__38PYq {
+  position: relative; }
+
+.styles-module__studyViewAutoMargin__ST9aM {
+  margin: auto; }
+
+.styles-module__studyViewLoadingIndicator__3qAeE {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-grow: 1;
+  flex-direction: column; }
+
+.styles-module__userSelections__2SV9k {
+  font-size: 13px;
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  margin-bottom: 10px; }
+
+.styles-module__parentGroupLogic__3_MlA {
+  background-color: #ececec;
+  border: 1px solid #ddd;
+  border-radius: 5px;
+  margin: 2px 5px 2px 0;
+  padding: 5px; }
+
+.styles-module__summaryClearAllBtn__2ZLVo {
+  height: 30px;
+  margin-left: 5px !important; }
+
+.styles-module__filterClinicalAttrName__1bFhQ {
+  font-size: 13px;
+  font-weight: bold; }
+
+.styles-module__summary___VCN0 {
+  flex-grow: 1; }
+  .styles-module__summary___VCN0 .styles-module__description__2DLbO {
+    font-size: 13px; }
+
+.styles-module__actionButtons__3xgw0 {
+  display: flex; }
+  .styles-module__actionButtons__3xgw0 button {
+    margin-left: 10px; }
+
+.styles-module__studyFilterResult__2WKz_ {
+  transition: all 500ms;
+  transform: scale(0);
+  /* Standard syntax */
+  display: flex;
+  z-index: 2; }
+  .styles-module__studyFilterResult__2WKz_ > div {
+    white-space: nowrap; }
+    .styles-module__studyFilterResult__2WKz_ > div:nth-child(n + 2) {
+      margin-left: 5px; }
+
+.styles-module__titleMeta__2ZbFA {
+  font-size: smaller;
+  color: #a9a9a9; }
+
+/* Colors */
+.styles-module__portalWidth__39rg3 {
+  padding-left: 20px;
+  padding-right: 20px;
+  min-width: 400px; }
+
+.styles-module__framedImage__3ikaJ {
+  margin: 20px 0;
+  border: 1px solid #eee !important;
+  border-radius: 5px;
+  padding: 10px;
+  display: block;
+  box-shadow: 1px 1px 1px 0px rgba(0, 0, 0, 0.21); }
+
+.styles-module__ChartsPanel__1kFpX {
+  display: flex;
+  justify-content: flex-start;
+  margin-bottom: 15px; }
+  .styles-module__ChartsPanel__1kFpX > div {
+    margin-right: 15px; }
+    .styles-module__ChartsPanel__1kFpX > div:last-child {
+      margin-right: 0; }
+
+.styles-module__Checkboxes__3JkxF {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  height: 30px;
+  float: left; }
+
+.styles-module__Checkboxes__3JkxF > * {
+  margin-right: 10px !important; }
+
+.styles-module__TableContainer__3OVxd .tableSearchInput {
+  width: 194px !important; }
+
+.styles-module__Checkbox__w95Pc {
+  margin-top: -2px !important;
+  margin-bottom: 0 !important; }
+
+.styles-module__Checkbox__w95Pc label input:disabled {
+  cursor: auto !important; }
+
+.styles-module__Checkbox__w95Pc label {
+  cursor: auto !important;
+  min-height: 12px !important; }
+
+.styles-module__GeneName__1qAkS {
+  margin-bottom: 5px; }
+
+.styles-module__DataSet__7fRDD {
+  padding-bottom: 15px; }
+  .styles-module__DataSet__7fRDD div.Select-menu-outer {
+    z-index: 99 !important; }
+
+.styles-module__ScatterTooltip__3EYSa div:last-child {
+  padding: 4px;
+  font-size: 11px;
+  white-space: nowrap; }
+
+.styles-module__BarTooltip__1hGLv div:last-child {
+  padding: 3px;
+  font-size: 11px;
+  white-space: nowrap; }
+
+.styles-module__BoxTooltip__2FA6X div:last-child {
+  padding: 3px 10px;
+  white-space: nowrap; }
+
+.styles-module__Tendency__rxjNz {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start; }
+  .styles-module__Tendency__rxjNz.styles-module__Significant__1CIHn {
+    font-weight: bold; }
+  .styles-module__Tendency__rxjNz.styles-module__ColoredBackground__hGi2k {
+    border-radius: 3px;
+    padding: 1px 5px 1px 5px;
+    display: inline-block;
+    line-height: 1.4; }
+
+.styles-module__FlexCheckbox__3iqpB label {
+  font-weight: normal !important;
+  display: flex;
+  align-items: center; }
+
+.styles-module__FlexCheckbox__3iqpB label input {
+  margin-top: 1px !important;
+  margin-right: 5px !important; }
+
+.styles-module__ChartLoader__IBVBT {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%); }
+  .styles-module__ChartLoader__IBVBT > div {
+    margin-left: 0px !important; }
+
+.styles-module__BoxEmpty__2g857 {
+  width: 350px;
+  height: 350px;
+  display: flex;
+  justify-content: center;
+  align-items: center; }
+
+.styles-module__BoxPlot__3hhKs {
+  overflow-x: auto;
+  overflow-y: hidden;
+  height: 350px;
+  min-width: 350px;
+  display: flex; }
+
+/* Colors */
+.styles-module__portalWidth__1kueS {
+  padding-left: 20px;
+  padding-right: 20px;
+  min-width: 400px; }
+
+.styles-module__framedImage__1ndwn {
+  margin: 20px 0;
+  border: 1px solid #eee !important;
+  border-radius: 5px;
+  padding: 10px;
+  display: block;
+  box-shadow: 1px 1px 1px 0px rgba(0, 0, 0, 0.21); }
+
+.styles-module__SurvivalTable__2NKCT {
+  margin: 30px auto;
+  width: 70%; }
+
+.styles-module__SurvivalTable__2NKCT table {
+  border-collapse: collapse !important; }
+
+.styles-module__SurvivalTable__2NKCT td {
+  border: 1px solid black;
+  padding: 0 10px;
+  text-align: center;
+  font-size: 12px;
+  background-color: #f8f8f8;
+  white-space: nowrap; }
+
+.styles-module__Tooltip__1I-Ty {
+  max-width: none !important;
+  white-space: nowrap; }
+  .styles-module__Tooltip__1I-Ty div {
+    font-size: 12px; }
+
+.styles-module__NotAvailable__1Zx5R {
+  font-size: 18px;
+  text-align: center;
+  margin: 20px 0; }
+
+.styles-module__XmaxNumberInput__SQsf6 {
+  margin-right: 5px;
+  cursor: auto !important;
+  border: 1px inset;
+  height: 18px;
+  padding: 0 5px 0 5px;
+  display: inline-block; }
+
+/* Colors */
+.portalWidth {
+  padding-left: 20px;
+  padding-right: 20px;
+  min-width: 400px; }
+
+.framedImage {
+  margin: 20px 0;
+  border: 1px solid #eee !important;
+  border-radius: 5px;
+  padding: 10px;
+  display: block;
+  box-shadow: 1px 1px 1px 0px rgba(0, 0, 0, 0.21); }
+
+.RangeSliderContainer {
+  width: 300px;
+  margin-left: 10px;
+  margin-right: 10px; }
+  .RangeSliderContainer .rangeslider {
+    margin: 0; }
+    .RangeSliderContainer .rangeslider .rangeslider__handle {
+      height: 10px;
+      width: 10px; }
+      .RangeSliderContainer .rangeslider .rangeslider__handle:after {
+        display: none; }
+    .RangeSliderContainer .rangeslider .rangeslider__fill {
+      background-image: -webkit-linear-gradient(top, #89cdef 0, #81bfde 100%);
+      background-image: -o-linear-gradient(top, #89cdef 0, #81bfde 100%);
+      background-image: linear-gradient(to bottom, #89cdef 0, #81bfde 100%);
+      background-repeat: repeat-x; }
+
+/* Colors */
+.tables-module__portalWidth__2u2eA {
+  padding-left: 20px;
+  padding-right: 20px;
+  min-width: 400px; }
+
+.tables-module__framedImage__2sdMG {
+  margin: 20px 0;
+  border: 1px solid #eee !important;
+  border-radius: 5px;
+  padding: 10px;
+  display: block;
+  box-shadow: 1px 1px 1px 0px rgba(0, 0, 0, 0.21); }
+
+.tables-module__studyViewTablesTable__29Y2_ {
+  display: flex;
+  flex-direction: column;
+  flex-grow: 1; }
+
+.tables-module__tableSearchInput__2uOMk {
+  width: 150px !important;
+  height: 25px !important; }
+
+.tables-module__labelContent__2FLsJ {
+  overflow: hidden;
+  white-space: nowrap;
+  display: flex;
+  align-items: center; }
+
+.tables-module__labelContentSVG__2v71D {
+  flex-shrink: 0; }
+
+.tables-module__controls__2KTG_ {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-grow: 1;
+  font-size: 13px !important;
+  padding: 0 5px; }
+
+.tables-module__controlsBtn__24B4k {
+  padding: 2px 5px; }
+
+.tables-module__geneSymbol__1OUGZ:hover {
+  cursor: pointer; }
+
+.tables-module__cancerGene__CqmRo {
+  font-weight: bold; }
+
+.tables-module__headerColumn__WCJTO {
+  text-transform: none;
+  font-size: 13px;
+  line-height: 15px; }
+
+.tables-module__headerRow__3Ckx0 {
+  border-bottom: 1px solid #d1d1d1; }
+
+.tables-module__row__20ZyT {
+  font-size: 13px; }
+
+.tables-module__oddRow__3vz4c {
+  background-color: #f9f9f9; }
+
+.tables-module__evenRow__KCskI {
+  background-color: #ffffff; }
+
+.tables-module__highlightedEvenRow__2EYSy,
+.tables-module__highlightedRow__1wuhn {
+  background-color: #d3d3d3; }
+
+.tables-module__highlightedOddRow__1RWUf {
+  background-color: #e0e0e0; }
+
+.tables-module__cancerGeneIcon__1Zp6i {
+  margin-right: 5px; }
+
+.tables-module__cancerGeneIcon__1Zp6i > img {
+  height: 10px; }
+
+.tables-module__gistic__1d6Gl,
+.tables-module__mutsig__3Q3o0,
+.tables-module__cancerGenesRow__1crxh > img {
+  height: 10px;
+  margin-left: 2px;
+  vertical-align: inherit !important; }
+
+.tables-module__amp__yRy0o {
+  color: red; }
+
+.tables-module__del__PLU6Y {
+  color: #0000ff; }
+
+.tables-module__amp__yRy0o,
+.tables-module__del__PLU6Y {
+  font-weight: bold; }
+
+.tables-module__displayFlex__7WOab {
+  display: flex;
+  align-items: center; }
+
+.tables-module__headerSortingIcon__1aRye {
+  margin-left: 5px; }
+
+.tables-module__autoMarginCheckbox__3tMQV {
+  margin-top: auto !important;
+  margin-bottom: auto !important; }
+
+/* Colors */
+.portalWidth {
+  padding-left: 20px;
+  padding-right: 20px;
+  min-width: 400px; }
+
+.framedImage {
+  margin: 20px 0;
+  border: 1px solid #eee !important;
+  border-radius: 5px;
+  padding: 10px;
+  display: block;
+  box-shadow: 1px 1px 1px 0px rgba(0, 0, 0, 0.21); }
+
+.oncoprintjs__tooltip {
+  padding: 5px;
+  margin-top: -10px;
+  width: 250px;
+  word-break: break-all; }
+
+.oncoprint-hidden {
+  opacity: 0; }
+
+.oncoprintjs__scroll_div::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+  background-color: rgba(0, 0, 0, 0);
+  -webkit-border-radius: 100px; }
+
+.oncoprintjs__scroll_div::-webkit-scrollbar-thumb {
+  background: rgba(0, 0, 0, 0.21);
+  -webkit-border-radius: 100px;
+  width: 8px;
+  height: 8px; }
+
+.oncoprintjs__scroll_div::-webkit-scrollbar-thumb:hover {
+  background: rgba(0, 0, 0, 0.3); }
+
+.oncoprintjs__scroll_div::-webkit-scrollbar-thumb:active {
+  background: rgba(0, 0, 0, 0.42);
+  -webkit-border-radius: 100px; }
+
+/* Colors */
+.portalWidth {
+  padding-left: 20px;
+  padding-right: 20px;
+  min-width: 400px; }
+
+.framedImage {
+  margin: 20px 0;
+  border: 1px solid #eee !important;
+  border-radius: 5px;
+  padding: 10px;
+  display: block;
+  box-shadow: 1px 1px 1px 0px rgba(0, 0, 0, 0.21); }
+
+.oncoprint__controls {
+  display: flex; }
+  .oncoprint__controls .rangeslider {
+    margin: 0; }
+    .oncoprint__controls .rangeslider .rangeslider__labels {
+      display: none; }
+    .oncoprint__controls .rangeslider .rangeslider__handle {
+      height: 10px;
+      width: 10px; }
+      .oncoprint__controls .rangeslider .rangeslider__handle:after {
+        display: none; }
+  .oncoprint__controls .checkbox:first-child,
+  .oncoprint__controls .radio:first-child {
+    margin-top: 0px; }
+  .oncoprint__controls .dropdown-menu {
+    width: 270px;
+    padding: 12px !important; }
+    .oncoprint__controls .dropdown-menu > *,
+    .oncoprint__controls .dropdown-menu button {
+      margin-bottom: 10px;
+      width: 100%; }
+    .oncoprint__controls .dropdown-menu > :last-child {
+      margin-bottom: 0 !important; }
+    .oncoprint__controls .dropdown-menu.heatmap {
+      width: 450px; }
+  .oncoprint__controls .oncoprint__controls__heatmap_menu textarea {
+    width: 100%;
+    min-height: 50px;
+    border: 1px solid #ddd;
+    resize: vertical; }
+    .oncoprint__controls .oncoprint__controls__heatmap_menu textarea.treatment-textarea {
+      border-radius: 2px; }
+  .oncoprint__controls .oncoprint__controls__heatmap_menu > *,
+  .oncoprint__controls .oncoprint__controls__heatmap_menu button {
+    margin-bottom: 10px;
+    width: 100%; }
+  .oncoprint__controls .oncoprint__controls__heatmap_menu > :last-child {
+    margin-bottom: 0 !important; }
+  .oncoprint__controls .oncoprint__controls__heatmap_menu .treatment-selector button {
+    width: auto;
+    margin: 0;
+    padding: 5px 10px;
+    vertical-align: middle; }
+  .oncoprint__controls .oncoprint__controls__heatmap_menu .text-icon-area {
+    width: 100%;
+    min-height: 50px;
+    overflow: hidden;
+    margin-bottom: 5px; }
+    .oncoprint__controls .oncoprint__controls__heatmap_menu .text-icon-area .icon-area {
+      min-height: 0px;
+      overflow: hidden;
+      padding: 1px;
+      padding-bottom: 2px; }
+      .oncoprint__controls .oncoprint__controls__heatmap_menu .text-icon-area .icon-area .icon {
+        padding: 1px;
+        padding-left: 7px;
+        padding-right: 7px;
+        margin: 2px;
+        margin-bottom: 3px;
+        background: #3786c2;
+        color: white;
+        border-radius: 4px;
+        float: left; }
+    .oncoprint__controls .oncoprint__controls__heatmap_menu .text-icon-area .text-area {
+      width: 100%;
+      min-height: 50px;
+      resize: vertical;
+      overflow: hidden;
+      border: 1px solid #ddd; }
+  .oncoprint__controls .oncoprint__zoom-controls {
+    display: flex !important;
+    align-items: center; }
+    .oncoprint__controls .oncoprint__zoom-controls > * {
+      margin-right: 10px; }
+    .oncoprint__controls .oncoprint__zoom-controls > :last-child {
+      margin-right: 0; }
+  .oncoprint__controls .Select {
+    margin-right: 10px; }
+    .oncoprint__controls .Select .Select-control {
+      height: 32px; }
+    .oncoprint__controls .Select .Select-input {
+      height: 32px; }
+  .oncoprint__controls .clinical-track-selector .Select-control {
+    height: 33px; }
+  .oncoprint__controls .clinical-track-selector .Select .Select-placeholder {
+    color: #000; }
+  .oncoprint__controls .clinical-track-selector .Select .Select-arrow {
+    border-color: #000 transparent transparent; }
+  .oncoprint__controls .clinical-track-selector .Select .Select-menu-outer {
+    max-height: 400px; }
+  .oncoprint__controls .clinical-track-selector .Select .Select-menu {
+    max-height: 398px;
+    overflow: hidden; }
+    .oncoprint__controls .clinical-track-selector .Select .Select-menu > div > div:nth-child(2) {
+      max-height: 350px !important;
+      overflow-x: hidden !important;
+      overflow-y: scroll !important; }
+  .oncoprint__controls .clinical-track-selector .is-open .Select-control .Select-arrow {
+    border-color: transparent transparent #000; }
+
+/* Colors */
+.styles-module__portalWidth__3xfuL {
+  padding-left: 20px;
+  padding-right: 20px;
+  min-width: 400px; }
+
+.styles-module__framedImage__3MWaq {
+  margin: 20px 0;
+  border: 1px solid #eee !important;
+  border-radius: 5px;
+  padding: 10px;
+  display: block;
+  box-shadow: 1px 1px 1px 0px rgba(0, 0, 0, 0.21); }
+
+.styles-module__validationBubbleBase__1bQNI, .styles-module__genesSelection__17BpH .styles-module__GeneSymbolValidator__1K2q1 div.styles-module__validBubble__2iAqd,
+.styles-module__genesSelection__17BpH .styles-module__GeneSymbolValidator__1K2q1 div.styles-module__invalidBubble__3Hs4P, .styles-module__genesSelection__17BpH .styles-module__GeneSymbolValidator__1K2q1 div.styles-module__suggestionBubble__1TnzN {
+  margin: 0px 5px 3px 0;
+  padding: 2px 5px;
+  border-radius: 4px;
+  font-size: 0.8rem; }
+
+.styles-module__topRow__2F7H0 {
+  display: flex;
+  align-items: flex-start;
+  margin-bottom: 5px; }
+
+.styles-module__genesSelection__17BpH textarea.styles-module__default__3ZAms {
+  width: 555px;
+  resize: vertical; }
+
+.styles-module__genesSelection__17BpH textarea.styles-module__oncoprintHeatmap__lvPrO {
+  width: 100%;
+  resize: vertical;
+  border-radius: 2px; }
+
+.styles-module__genesSelection__17BpH textarea {
+  border-radius: 4px;
+  padding: 5px;
+  border-color: #ddd; }
+
+.styles-module__genesSelection__17BpH textarea.styles-module__studyView__3TtjM {
+  width: 200px;
+  height: 30px;
+  border-radius: 4px;
+  outline-offset: -2px;
+  font-size: 12px;
+  resize: none;
+  margin: 0px 3px;
+  line-height: 18px;
+  padding-left: 10px; }
+
+.styles-module__genesSelection__17BpH textarea.styles-module__studyViewFocus__1CfEf {
+  height: 5em;
+  font-size: 13px; }
+
+.styles-module__genesSelection__17BpH .styles-module__GeneSymbolValidator__1K2q1 {
+  cursor: default;
+  display: flex;
+  align-items: center;
+  padding-top: 1px;
+  flex-wrap: wrap; }
+  .styles-module__genesSelection__17BpH .styles-module__GeneSymbolValidator__1K2q1.styles-module__nowrap__1GVDf {
+    white-space: nowrap;
+    flex-wrap: nowrap;
+    width: 200px; }
+  .styles-module__genesSelection__17BpH .styles-module__GeneSymbolValidator__1K2q1 button {
+    line-height: 1 !important; }
+  .styles-module__genesSelection__17BpH .styles-module__GeneSymbolValidator__1K2q1 span.styles-module__icon__2RDD6 {
+    text-align: center;
+    margin-right: 4px;
+    width: 16px;
+    height: 16px;
+    line-height: 17px; }
+  .styles-module__genesSelection__17BpH .styles-module__GeneSymbolValidator__1K2q1 span.styles-module__pendingMessage__1gVAe,
+  .styles-module__genesSelection__17BpH .styles-module__GeneSymbolValidator__1K2q1 span.styles-module__oqlNotice__3naFJ,
+  .styles-module__genesSelection__17BpH .styles-module__GeneSymbolValidator__1K2q1 span.styles-module__errorMessage__3pZ_v {
+    font-size: small;
+    color: #a71111;
+    font-weight: bold; }
+  .styles-module__genesSelection__17BpH .styles-module__GeneSymbolValidator__1K2q1 div.styles-module__validBubble__2iAqd,
+  .styles-module__genesSelection__17BpH .styles-module__GeneSymbolValidator__1K2q1 div.styles-module__invalidBubble__3Hs4P {
+    color: #fff;
+    display: flex;
+    align-items: center; }
+    .styles-module__genesSelection__17BpH .styles-module__GeneSymbolValidator__1K2q1 div.styles-module__validBubble__2iAqd span.styles-module__icon__2RDD6,
+    .styles-module__genesSelection__17BpH .styles-module__GeneSymbolValidator__1K2q1 div.styles-module__invalidBubble__3Hs4P span.styles-module__icon__2RDD6 {
+      color: #fff;
+      line-height: 17px; }
+  .styles-module__genesSelection__17BpH .styles-module__GeneSymbolValidator__1K2q1 div.styles-module__invalidBubble__3Hs4P {
+    background: #a71111;
+    white-space: nowrap; }
+  .styles-module__genesSelection__17BpH .styles-module__GeneSymbolValidator__1K2q1 div.styles-module__validBubble__2iAqd {
+    background: #11a747;
+    white-space: nowrap; }
+  .styles-module__genesSelection__17BpH .styles-module__GeneSymbolValidator__1K2q1 div.styles-module__suggestionBubble__1TnzN {
+    color: rgba(0, 0, 0, 0.5);
+    white-space: nowrap;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    background-color: #ececec;
+    border-radius: 2px; }
+    .styles-module__genesSelection__17BpH .styles-module__GeneSymbolValidator__1K2q1 div.styles-module__suggestionBubble__1TnzN:hover {
+      background-color: #ddd; }
+    .styles-module__genesSelection__17BpH .styles-module__GeneSymbolValidator__1K2q1 div.styles-module__suggestionBubble__1TnzN span.styles-module__icon__2RDD6 {
+      color: #999;
+      line-height: 17px; }
+    .styles-module__genesSelection__17BpH .styles-module__GeneSymbolValidator__1K2q1 div.styles-module__suggestionBubble__1TnzN span.styles-module__noChoiceLabel__2sdit {
+      font-weight: normal; }
+    .styles-module__genesSelection__17BpH .styles-module__GeneSymbolValidator__1K2q1 div.styles-module__suggestionBubble__1TnzN span.styles-module__singleChoiceLabel__178JA {
+      font-weight: bold; }
+    .styles-module__genesSelection__17BpH .styles-module__GeneSymbolValidator__1K2q1 div.styles-module__suggestionBubble__1TnzN span.styles-module__multiChoiceLabel__1PPmp {
+      font-weight: normal; }
+    .styles-module__genesSelection__17BpH .styles-module__GeneSymbolValidator__1K2q1 div.styles-module__suggestionBubble__1TnzN div.Select {
+      width: 140px;
+      margin-left: 4px;
+      float: left; }
+
+/* Colors */
+.portalWidth {
+  padding-left: 20px;
+  padding-right: 20px;
+  min-width: 400px; }
+
+.framedImage {
+  margin: 20px 0;
+  border: 1px solid #eee !important;
+  border-radius: 5px;
+  padding: 10px;
+  display: block;
+  box-shadow: 1px 1px 1px 0px rgba(0, 0, 0, 0.21); }
+
+/* Colors */
+.styles-module__portalWidth__1Knza {
+  padding-left: 20px;
+  padding-right: 20px;
+  min-width: 400px; }
+
+.styles-module__framedImage__p1p-k {
+  margin: 20px 0;
+  border: 1px solid #eee !important;
+  border-radius: 5px;
+  padding: 10px;
+  display: block;
+  box-shadow: 1px 1px 1px 0px rgba(0, 0, 0, 0.21); }
+
+.styles-module__main__2V5AI {
+  display: flex;
+  flex-direction: column; }
+
+.styles-module__operations__2tHBt {
+  display: flex;
+  justify-content: space-between; }
+
+.styles-module__options__2V0tE {
+  display: flex;
+  flex-direction: column; }
+
+.styles-module__option__dhLVt {
+  margin-top: 5px;
+  overflow: hidden;
+  white-space: nowrap;
+  display: flex;
+  align-items: center; }
+
+.styles-module__footer__8u68Z {
+  display: flex;
+  justify-content: space-between; }
+
+.styles-module__input__2Zk8R {
+  margin-right: 5px !important; }
+
+.styles-module__label__YKqSs {
+  white-space: nowrap;
+  overflow: hidden;
+  -ms-text-overflow: ellipsis;
+  text-overflow: ellipsis;
+  font-weight: normal !important;
+  cursor: pointer;
+  display: flex !important; }
+
+.styles-module__labelDisabled__3jDaR {
+  color: #cccccc;
+  cursor: default; }
+
+/* Colors */
+.styles-module__portalWidth__-Qj7G {
+  padding-left: 20px;
+  padding-right: 20px;
+  min-width: 400px; }
+
+.styles-module__framedImage__TmznI {
+  margin: 20px 0;
+  border: 1px solid #eee !important;
+  border-radius: 5px;
+  padding: 10px;
+  display: block;
+  box-shadow: 1px 1px 1px 0px rgba(0, 0, 0, 0.21); }
+
+label.styles-module__labeledCheckbox__jTAe1 {
+  cursor: pointer;
+  display: flex;
+  flex-direction: row;
+  align-items: flex-start;
+  margin: 0px;
+  min-height: 1.2em;
+  font-weight: normal; }
+  label.styles-module__labeledCheckbox__jTAe1 > input[type='checkbox'] {
+    cursor: pointer;
+    margin: 1px 6px 0 0;
+    min-width: 1em; }
+
+/* Colors */
+.styles-module__portalWidth__22mhB {
+  padding-left: 20px;
+  padding-right: 20px;
+  min-width: 400px; }
+
+.styles-module__framedImage__-4l6t {
+  margin: 20px 0;
+  border: 1px solid #eee !important;
+  border-radius: 5px;
+  padding: 10px;
+  display: block;
+  box-shadow: 1px 1px 1px 0px rgba(0, 0, 0, 0.21); }
+
+.styles-module__Checkboxes__2oyZv {
+  display: flex;
+  flex-direction: row;
+  float: left; }
+
+.styles-module__Checkboxes__2oyZv > * {
+  margin: 0 10px !important; }
+
+.styles-module__Tendency__2Y46X {
+  display: flex;
+  flex-direction: column; }
+  .styles-module__Tendency__2Y46X.styles-module__Significant__34YnP {
+    font-weight: bold; }
+
+/* Colors */
+.portalWidth {
+  padding-left: 20px;
+  padding-right: 20px;
+  min-width: 400px; }
+
+.framedImage {
+  margin: 20px 0;
+  border: 1px solid #eee !important;
+  border-radius: 5px;
+  padding: 10px;
+  display: block;
+  box-shadow: 1px 1px 1px 0px rgba(0, 0, 0, 0.21); }
+
+.oql-status-banner .banner-icon {
+  vertical-align: middle !important; }
+
+.alert-unaffected {
+  background-color: #f3f3f3;
+  border-color: #bce8f1;
+  color: #31708f; }
+
+/* Colors */
+.styles-module__portalWidth__38sW0 {
+  padding-left: 20px;
+  padding-right: 20px;
+  min-width: 400px; }
+
+.styles-module__framedImage__20n6Q {
+  margin: 20px 0;
+  border: 1px solid #eee !important;
+  border-radius: 5px;
+  padding: 10px;
+  display: block;
+  box-shadow: 1px 1px 1px 0px rgba(0, 0, 0, 0.21); }
+
+.styles-module__dataFormatHelp__3eOr2 {
+  background-color: #eee;
+  padding: 13px;
+  border-radius: 11px;
+  margin-top: 10px;
+  display: inline-flex; }
+  .styles-module__dataFormatHelp__3eOr2 .styles-module__dataFormatHelpSection__2246e {
+    max-width: 600px; }
+  .styles-module__dataFormatHelp__3eOr2 .styles-module__dataFormatHelpBorder__2uZE3 {
+    border-left: 1px solid black;
+    margin-left: 15px;
+    margin-right: 15px; }
+
+
+/*# sourceMappingURL=8.styles.css.map*/

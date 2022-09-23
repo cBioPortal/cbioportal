@@ -81,27 +81,6 @@
               </artifactItems>
             </configuration>
           </execution>
-          <!-- unpack cbioportal-frontend -->
-          <execution>
-            <id>unpack</id>
-            <phase>prepare-package</phase>
-            <goals>
-              <goal>unpack</goal>
-            </goals>
-            <configuration>
-              <artifactItems>
-                <artifactItem>
-                  <groupId>${frontend.groupId}</groupId>
-                  <artifactId>cbioportal-frontend</artifactId>
-                  <version>${frontend.version}</version>
-                  <type>jar</type>
-                  <outputDirectory>.</outputDirectory>
-                  <excludes>*index*</excludes>
-                  <overWrite>true</overWrite>
-                </artifactItem>
-              </artifactItems>
-            </configuration>
-          </execution>
         </executions>
       </plugin>
       <!-- war plugin config -->

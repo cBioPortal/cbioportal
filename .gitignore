@@ -5,10 +5,8 @@ portal/Portal-Google-Code.ipr
 portal/Portal-Google-Code.iws
 portal/Portal.iml
 portal/portal.log
-portal/common/FreeSans.json
 portal/nbproject
 portal/build
-portal/images
 portal/.idea
 portal/.DS_Store
 portal/Portal.ipr
@@ -96,8 +94,6 @@ Procfile
 scripts/target
 node_modules/
 target/
-portal/META-INF/*
-portal/reactapp/*
 package.json
 .vscode/
 *.tramp_history

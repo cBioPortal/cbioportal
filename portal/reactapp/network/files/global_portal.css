@@ -1,0 +1,1718 @@
+/* CSS THAT APPLIES TO ALLLLLL PORTALS */
+
+body {
+    background-color: #fff;
+    font-family: "Helvetica Neue",Helvetica,Arial,sans-serif;
+    table-layout: fixed;
+    text-align: center;
+    margin: 0;
+    color: #333;
+    font-size: 14px;
+    line-height: 1.42857143;
+}
+
+/*
+    --------------------------------------------------------------
+        Overwrite bootstrap.min.css styles
+*/
+* {
+    -webkit-box-sizing: content-box;
+    -moz-box-sizing: content-box;
+    box-sizing: content-box;
+}
+
+:after, :before {
+    -webkit-box-sizing: content-box;
+    -moz-box-sizing: content-box;
+    box-sizing: content-box;
+}
+
+a {
+    color: #428bca;
+}
+
+.input-group-sm > .form-control, .input-group-sm > .input-group-btn > .btn {
+    height: 18px;
+    padding: 5px 10px;
+    font-size: 12px;
+    line-height: 1.5;
+    border-radius: 3px
+}
+
+.input-group .form-control {
+    width: calc(100% - 20px);
+}
+
+fieldset {
+    padding: .35em .625em .75em;
+    margin: 0 2px;
+    border: 1px solid silver;
+}
+table {
+    border-spacing: 2px;
+    border-collapse: separate;
+}
+td, th {
+    padding: 1px;
+}
+
+/*
+    --------------------------------------------------------------
+*/
+
+#page_wrapper {
+  margin: 0 auto;
+  min-width: 780px;
+  max-width: 1280px !important;
+  text-align: left;
+  padding: 0px;
+}
+
+fieldset#clinical-timeline-fieldset, fieldset#patient-view-summary-fieldset {
+    padding-left: 5px;
+    padding-right: 5px;
+}
+
+fieldset#login-fieldset {
+    border: 2px groove threedface;
+}
+
+fieldset#clinical-timeline-fieldset, fieldset#patient-view-summary-fieldset {
+    border: 1px solid #aaaaaa;
+}
+
+fieldset#login-fieldset > legend {
+    width: 96px;
+    border-bottom: none;
+    color: #666666;
+    font-family: verdana, arial, sans-serif;
+    font-size: 12px;
+    margin-bottom: 0;
+}
+
+fieldset#clinical-timeline-fieldset > legend,
+fieldset#patient-view-summary-fieldset > legend {
+    font-size: 12px !important;
+    text-align: left !important;
+    width: auto;
+    padding: 0 10px;
+    border-bottom: none;
+    color: #1974b8;
+    margin-bottom: 0px;
+}
+
+#header_site_name{
+  font-size:24px;
+  font-weight:bold;
+  color:#1974b8;
+}
+
+#page_wrapper_table {
+  border-collapse: collapse;
+  border-spacing: 0px;
+}
+
+/*@media (max-width: 1299px) {*/
+    /*#content {*/
+        /*padding: 0 10px;*/
+    /*}*/
+/*}*/
+/*@media (min-width: 1300px) {*/
+    /*#content {*/
+        /*padding: 0 20px;*/
+    /*}*/
+/*}*/
+
+/*#content {*/
+    /*padding: 0 20px;*/
+/*}*/
+
+img {
+  border: 0px;
+}
+
+A:link {
+  COLOR: #0000FF; text-decoration: none;
+}
+A:visited {
+  COLOR: #0000FF; text-decoration: none;
+}
+A:active {
+  COLOR: #0000FF; text-decoration: none;
+}
+A:hover {
+  COLOR: #FF0000; text-decoration: underline;
+}
+
+#instructions {
+  margin-left: auto;
+  margin-right: auto;
+  text-align: left;
+  background: #FFFFFF;
+  border: 8px solid #FFFFFF;
+}
+
+#main_submit {
+    background-color: #e6e6e6;    
+    color: transparent;     
+    display: inline-block;           
+    text-shadow: 0 0 0 black;
+}
+
+.wpasA {
+    font-size: 12px;
+}
+
+.error {
+    color:red;
+    font-weight:bold;
+    font-family: verdana, arial, sans-serif;
+    font-size:12px;
+    background-image: url('../images/warning.gif');
+    background-repeat: no-repeat;
+    padding-left:25px;
+    padding-bottom:5px;
+}
+
+.user_message {
+    color:red;
+    font-weight:bold;
+    font-family: verdana, arial, sans-serif;
+    font-size:13px;
+    padding-left:0px;
+    padding-bottom:25px;
+    padding-top:5px;
+}
+
+.gray {
+    color:#666666;
+}
+
+
+#results_container {
+    padding: 0px;
+    margin: 0px;
+}
+.section {
+    border: 1px solid #cccccc;
+    margin: 0px;
+    padding: 0px;
+    background: #ffffff;
+    font-size: 12px;
+}
+
+#network {
+    height: 750px;
+  /* never allow setting display to none
+     this is to fix flash (CytoWeb) repaint problem */
+  /*display: block !important;*/
+}
+
+.map table {
+  border: 1px solid #03476F;
+  color: #363636;
+  background: #CCCCFF;
+}
+
+.map caption {
+  text-align: center;
+  font: bold 18px arial, helvetica, sans-serif;
+  background: transparent;
+  padding:6px 4px 8px 0px;
+  color: #03476F;
+  text-transform: uppercase;
+}
+
+.map th {
+  padding: .4em;
+  color: #363636;
+  border-bottom: 1px solid #AEAEFF;
+  vertical-align: top;
+  text-align: left;
+  font-size:12px;
+}
+
+.map thead td{
+  color: #000;
+  font-weight: bold !important;
+  border-bottom: 1px solid #AEAEFF;
+}
+
+.map td {
+  padding: .4em;
+  color: #363636;
+  vertical-align: top;
+  text-align: left;
+  font-size:100%;
+}
+
+.map .amp_1 {
+    background: #DD8F8F;
+}
+
+.map .amp_2 {
+    background: red;
+    color: #FFFFFF;
+    font-weight:bold;
+}
+
+.map .del_1 {
+    background:  #C6D2F7;
+}
+
+.map .del_2 {
+    color: #FFFFFF;
+    background:  blue;
+    font-weight:bold;
+}
+
+.map .hetloss_2 {
+    color: #000;
+    background:  lightblue;
+    font-weight:bold;
+}
+
+.map .gained_2 {
+    color: #000;
+    background:  lightpink;
+    font-weight:bold;
+}
+
+.map .no_change {
+    background:  #FFFFFF;
+    color:  black;
+}
+
+.map .no_cna {
+    background:  #CCCCCC;
+    color:  black;
+}
+
+.nowrap {white-space: nowrap}
+
+.map .significant {
+    border: 2px solid red;
+}
+
+.last_mut {
+    border-bottom: 1px solid #AEAEFF;
+}
+
+.gene_set_summary {
+    font-family: verdana, arial, sans-serif;
+    color: green;
+    font-size:125%;
+    font-weight:bold;
+}
+
+.main_smry {
+    padding: 0;
+}
+
+.main_smry table {
+  border-collapse: collapse;
+}
+
+#main_smry_modify_query_btn button {
+  margin-left: 0px;
+}
+
+.warning h4{
+    color:red !important;
+}
+
+.warning li{
+    color:red !important;
+}
+
+.tab_active, .tab_inactive {
+    padding-left:10px;
+    padding-top:5px;
+    padding-right:10px;
+    padding-bottom:5px;
+    font-family: verdana, arial, sans-serif;
+    font-size:150%;
+    font-weight:bold;
+    color:#222222;
+    border-radius:          8px 8px 0px 0;
+    -moz-border-radius:     8px 8px 0px 0;
+    -webkit-border-radius:  8px 8px 0px 0;
+}
+
+.tab_active {
+   background: #DDDDDD;
+   border: 2px solid #DDDDDD;
+   color:#444444;
+}
+
+.tab_inactive{
+   background: #FFFFFF;
+   border: 2px solid #DDDDDD;
+}
+
+h1 {
+  /* margin:0px; */
+  font-family: verdana, arial, sans-serif;
+  font-size: 28px;
+  color:gray;
+  letter-spacing: -1px;
+  text-align: left;
+  padding-bottom:7px;
+}
+
+.map h5 {
+  margin-left:2px;
+  margin-top:4px;
+  font-family: verdana, arial, sans-serif;
+  font-size: 13px !important;
+  color:black;
+  letter-spacing: -1px;
+  text-align: left;
+  padding-bottom:9px;
+  font-weight:bold !important;
+}
+
+#caseList {
+    display:none;
+}
+
+table td {
+  font-size:12px;
+}
+
+.somatic {
+  background: #CCFFFF;
+  color:black;
+  padding-left:5px;
+  padding-right:5px;
+  font-weight:bold;
+}
+
+.germline {
+  background: #FFFFCC;
+  color:black;
+  padding:1px;
+  padding-left:3px;
+  padding-right:3px;
+  font-weight:bold;
+}
+
+.valid {
+    background: #CCFFCC;
+    color:black;
+    padding-left:5px;
+    padding-right:5px;
+    font-weight:bold;
+}
+
+.map A:link {text-decoration: underline !important;}
+.map A:visited {text-decoration: underline !important;}
+.map A:active {text-decoration: underline !important;}
+
+.markdown {
+    word-wrap:break-word;
+    overflow:hidden;
+}
+
+.markdown h1 {
+  font-family: verdana, arial, sans-serif;
+  font-size: 16px;
+  color:#555555;
+  background: #DDDDDD;
+  padding-left:5px;
+  padding-top:4px;
+  margin:0px;
+  padding-bottom:5px;
+}
+
+.markdown h2 {
+  font-family: verdana, arial, sans-serif;
+  font-size: 12px;
+  color:#555555;
+  background: #EEEEEE;
+  padding-left:5px;
+  padding-top:4px;
+  padding-bottom:4px;
+  margin:0px;
+  margin-top:5px;
+}
+
+.markdown h3 {
+  font-family: verdana, arial, sans-serif;
+  font-size: 12px !important;
+  padding-left:5px;
+  margin:0px;
+  margin-top:5px;
+}
+
+.markdown h4 {
+  font-family: verdana, arial, sans-serif;
+  font-size: 14px !important;
+  padding-left:5px;
+  margin:0px;
+  margin-top:5px;
+}
+
+.markdown p {
+  padding-left:5px;
+  font-size:14px !important;
+  text-align:left !important;
+}
+
+.markdown li {
+  padding-left:5px;
+  font-size:14px !important;
+}
+
+.markdown code {
+  background:  #FFFFCC;
+  font-size:14px;
+  padding-bottom: 5px;
+  border :1px;
+  /*padding: 10px 10px 10px 20px;*/
+  color:black;
+}
+
+pre code{
+    display: block;
+}
+
+
+/* OncoPrint styles*/
+.oncoprint_accordion_panel {
+    background-color: #FFFFFF;
+}
+
+.oncoprint_accordion_panel h1 {
+  margin-top:0px;margin-bottom:0px;
+  font-family: verdana, arial, sans-serif;
+  font-size: 13px;
+  font-weight: bold;
+  line-height: 12px;
+  letter-spacing: -1px;
+  color: #2153AA;
+  text-align:justify;
+    cursor: default;
+}
+
+.oncoprint_accordion_panel h1:hover{
+    cursor:pointer;
+}
+
+/* Accordion AJAX Panel with appropriate padding */
+.oncoprint_accordion_content {
+    padding-top:5px;
+    padding-bottom:5px;
+}
+
+.oncoprint_accordion_panel table {
+  padding-left:15px;
+}
+
+.oncoprint_accordion_panel td {
+    font-size:12px;
+    color:#666666;
+}
+
+.oncoprint {
+    font-family: verdana, arial, sans-serif;
+    font-size:13px !important;
+    text-align: left;
+    background: white;
+    border: none;
+}
+
+.oncoprint td {
+    font-size:12px;
+}
+
+.oncoprint th{
+    font-family: verdana, arial, sans-serif;
+    font-size:12px !important;
+    color:#666666;
+}
+
+.oncoprint_section {
+    font-family: verdana, arial, sans-serif;
+    font-size:12px !important;
+    text-align: left;
+    border:  gray 1px solid;
+    margin-top:6px;
+    border: 1px solid #cccccc;
+    overflow-y:hidden;
+    overflow-x:auto;
+    padding-left:10px;
+}
+
+.oncoprint_indicator {
+  font-size: 10px;
+    color: #FF0000;
+  display: none;
+    padding-left:25px;
+}
+
+.oncoprint-content-area {
+    max-width: 1200px;
+}
+
+#oncoprint_zoom_scale_input {
+    font-size: 11px;
+}
+
+#oncoprint_zoom_scale_input_tail:hover, #oncoprint_zoom_scale_input_tail:active {
+    background-color: #e6e6e6;
+    border-color: #cccccc;
+    box-shadow: none;
+}
+
+input[type=range]#oncoprint_zoom_slider {
+    /*removes default webkit styles*/
+    -webkit-appearance: none;
+
+    /*fix for FF unable to apply focus style bug */
+    border: none;
+
+    /*required for proper track sizing in FF*/
+    width: 80px;
+    height: 16px;
+
+    background: transparent;
+    padding: 1px 2px
+}
+
+input[type=range]#oncoprint_zoom_slider:focus {
+    outline: none;
+}
+
+input[type=range]#oncoprint_zoom_slider:hover {
+    cursor: pointer;
+}
+
+/* Input range styles for Chrome, Safari and Opera*/
+input[type=range]#oncoprint_zoom_slider::-webkit-slider-runnable-track {
+    width: 80px;
+    height: 5px;
+    background: #ccc;
+    border: none;
+    border-radius: 3px;
+}
+
+input[type=range]#oncoprint_zoom_slider::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    border: none;
+    height: 16px;
+    width: 16px;
+    border-radius: 50%;
+    background: grey;
+    margin-top: -5px;
+}
+
+/* Input range styles for FireFox*/
+input[type=range]#oncoprint_zoom_slider::-moz-range-track {
+    width: 80px;
+    height: 5px;
+    background: #ccc;
+    border: none;
+    border-radius: 3px;
+}
+
+input[type=range]#oncoprint_zoom_slider::-moz-range-thumb {
+    border: none;
+    height: 16px;
+    width: 16px;
+    border-radius: 50%;
+    background: grey;
+}
+
+/* Input range styles for IE*/
+input[type=range]#oncoprint_zoom_slider::-ms-track {
+    width: 80px;
+
+    /*remove bg colour from the track, we'll use ms-fill-lower and ms-fill-upper instead */
+    background: transparent;
+
+    /*leave room for the larger thumb to overflow with a transparent border */
+    border-color: transparent;
+    border-width: 6px 0;
+
+    /*remove default tick marks*/
+    color: transparent;
+}
+
+input[type=range]#oncoprint_zoom_slider::-ms-fill-lower {
+    background: #ccc;
+    border-radius: 10px;
+}
+
+/* The thumb still can't overflow the track in IE. 
+We can fake a wide enough track by adding a thick transparent border on the top and bottom of the track. 
+We'll also move most of our styles to ::-ms-fill-lower and ::-ms-fill-upper instead of ::ms-track 
+to make sure things like border-radius render correctly.*/
+input[type=range]#oncoprint_zoom_slider::-ms-fill-upper {
+    background: #ccc;
+    border-radius: 10px;
+}
+
+input[type=range]#oncoprint_zoom_slider::-ms-thumb {
+    border: none;
+    height: 16px;
+    width: 16px;
+    border-radius: 50%;
+    background: grey;
+}
+
+/* Disable IE range tooltip, it shows tooltip by default*/
+input[type="range"]#oncoprint_zoom_slider::-ms-tooltip {
+    display: none;
+}
+
+#frequency_plot {
+    font-family: verdana, arial, sans-serif;
+    font-size:12px !important;
+    text-align: left;
+    border:  gray 1px solid;
+    margin-top:6px;
+    border: 1px solid #cccccc;
+    overflow-y:hidden;
+    overflow-x:auto;
+    padding-left:10px;
+}
+
+#gene_info {
+    font-family: verdana, arial, sans-serif;
+    font-size:12px !important;
+    text-align: left;
+    border:  gray 1px solid;
+    margin-top:6px;
+    border: 1px solid #cccccc;
+    overflow-y:hidden;
+    overflow-x:auto;
+    padding-left:10px;
+}
+
+
+.oncoprint TH{
+    font: 11px verdana, arial, helvetica, sans-serif;
+    border: none;
+}
+
+.oncoprint p{
+    font-size: 90% !important;
+}
+
+td.op_data_cell{
+    width: 8px
+}
+
+#video {
+    font: 14px verdana, arial, helvetica, sans-serif;
+    border: solid gray 1px;
+    padding:4px;
+    background: #FFFFCC;
+}
+
+#video td {
+    font: 14px verdana, arial, helvetica, sans-serif;
+}
+
+#genomic_profiles .checkbox,
+#genomic_profiles .radio {
+   margin-left: 40px;
+}
+
+#mRNAcheckbox input {
+   margin-left: 40px;
+}
+
+
+/*#threshold {
+    height: 35px;
+    display: none;
+    margin:0px;
+    padding-top: 1px;
+    margin-left:77px;
+}  */
+
+#tabs {
+    display: none;
+    margin-top:10px;
+}
+
+#tabs li {
+    font-size:90%;
+}
+
+#tabs li a:link{
+    text-decoration:none;
+}
+#tabs li a:hover{
+    text-decoration:none;
+}
+#tabs li a:active{
+    text-decoration:none;
+}
+#tabs li a:visited{
+    text-decoration:none;
+}
+
+#tabs li a { outline: none }
+
+.markdown table {
+  border: 1px solid #03476F;
+  font: normal 11px verdana, arial, helvetica, sans-serif;
+  color: #363636;
+}
+
+.markdown td, th {
+  border:none;
+  padding: .2em;
+  color: #363636;
+  vertical-align: top;
+  text_align: left;
+}
+
+.markdown td {
+  font-size:93%;
+}
+
+.markdown th {
+  font-size:97%;
+}
+
+#left_side p, #right_side p {
+  margin:10px;margin-top:15px;margin-bottom:15px;
+  font-family: verdana, arial, sans-serif;
+  font-size: 12px;
+  line-height: 16px;
+  color:black;
+}
+
+#right_side p {
+  margin: 15px 0;
+}
+
+#right_side table {
+  margin:10px;
+}
+
+#right_side td {
+  font-size:125%;
+}
+
+#left_side, #right_side li {
+  margin-left:0px;
+  font-family: verdana, arial, sans-serif;
+  font-size: 12px;
+  line-height: 16px;
+  color:black;
+}
+
+#content A:link {
+        COLOR: #1974b8; text-decoration: none; !important;
+}
+#content A:visited {
+  COLOR: #1974b8; text-decoration: none; !important;
+}
+#content A:active {
+  COLOR: #1974b8; text-decoration: none; !important;
+}
+#content A:hover {
+  COLOR: #1974b8; text-decoration: none; !important;
+}
+
+.tip {
+  color: white;
+  width: 250px;
+    background:black;
+  z-index: 13000;
+}
+
+.tip-title {
+  font-size: 12px;
+    font-weight:bold;
+  margin: 0;
+  color: white;
+  padding: 8px 8px 4px;
+        text-align:left;
+}
+
+.tip-text {
+  font-size: 11px;
+  padding: 4px 8px 8px;
+}
+
+#optional_args {
+  margin:5px;
+  padding:3px;
+  font-size:12px;
+}
+
+#step5 .step_header{
+  cursor:pointer;
+}
+
+.tiny {
+  font-size:12px;
+}
+
+#load {
+  border: 1px solid #aaaaaa;
+  border-top-right-radius: 10px;
+  border-bottom-right-radius: 10px;
+  border-bottom-left-radius: 10px;
+  display: none;
+  position: relative;
+  background: url(../files/ajax-loader.gif);
+  background-repeat: no-repeat;
+  background-position:center;
+  width: 100%;
+  height: 500px;
+  margin-top: 5px;
+}
+
+#plots {
+    padding: 5px;
+}
+
+#plots table {
+    min-height: 500px;
+}
+
+#plot_images {
+    margin-left: -10px;
+}
+
+#results {
+    display:none;
+}
+
+.url_warning {
+    margin: 10px;
+    border: solid 1px red;
+    padding: 10px;
+    background: #dddddd;
+}
+
+html { min-height: 100%; margin-bottom: 1px; min-width: 100%; margin-right: 1px; }
+
+/*html { overflow: -moz-scrollbars-vertical !important; } */
+
+
+#content p {
+  margin: 0 0 15px 0;
+  padding: 0;
+  font-family: verdana, arial, sans-serif;
+  font-size: 14px;
+  line-height: 18px;
+  color: #333333;
+  text-align: justify;
+}
+
+#content ol {
+  margin-top:15px; margin-bottom: 15px;
+  font-family: verdana, arial, sans-serif;
+  font-size: 12px;
+  line-height: 18px;
+  color: #333333;
+  text-align: justify;
+}
+
+
+#content h3 {
+  margin-top:5px; margin-bottom: 10px;
+  font-family: verdana, arial, sans-serif;
+  font-size: 17px;
+  font-weight: bold;
+  letter-spacing: -1px;
+  line-height: 18px;
+  color: #2153AA;
+}
+
+#content h4 {
+  margin-top:0px;margin-bottom:0px;
+  font-family: verdana, arial, sans-serif;
+  font-size: 14px;
+  font-weight: bold;
+  line-height: 12px;
+  letter-spacing: -1px;
+  color: #2153AA;
+  text-align:justify;
+}
+
+#content h5 {
+  margin-top:0px;margin-bottom:0px;
+  font-family: verdana, arial, sans-serif;
+  font-size: 12px;
+  font-weight: normal;
+  line-height: 12px;
+  color: #000000;
+  text-align:left;
+}
+
+.rowcolor { background: #DDDDDD; }
+
+
+#content h4 A:link {
+  COLOR: #2153AA; text-decoration: underline;
+}
+#content h4 A:visited {
+  COLOR: #2153AA; text-decoration: underline;
+}
+#content h4 A:active {
+  COLOR: #2153AA; text-decoration: underline;
+}
+#content h4 A:hover {
+  COLOR: #2153AA; text-decoration: underline;
+}
+
+.float_left {
+  float: left;
+  margin-right: 10px;
+}
+
+.float_right {
+  float: right;
+  margin-left: 10px;
+}
+
+.featurebox_center {
+  background-color: #dff1ff;
+  margin:0px;
+  padding:10px;
+  border: 1px solid #DFE8F7;
+  font-family: verdana, arial, sans-serif;
+  font-size: 11px;
+  line-height: 20px;
+  color: #333333;
+  vertical-align: center;
+}
+
+.featurebox_side {
+  background-color: #fffff6;
+  margin:0px;margin-left:10px;margin-right:10px;margin-bottom:15px;
+  padding:10px;
+  border: 1px solid #DFE8F7;
+  font-family: verdana, arial, sans-serif;
+  font-size: 11px;
+  line-height: 18px;
+  color: #333333;
+}
+
+.center {
+  font-family: verdana, arial, sans-serif;
+  font-size: 12px;
+  color: #333333;
+  text-align: center;
+}
+
+.left {
+  font-family: verdana, arial, sans-serif;
+  font-size: 12px;
+  color: #333333;
+  text-align: left;
+}
+
+
+.center_small {
+  font-family: Verdana, Arial, Helvetica, sans-serif;
+  font-size: 9px;
+  color: #333333;
+  text-align: center;
+}
+
+.align_right{
+   text-align: right;
+}
+
+
+.welcome {
+    padding: 3px;
+}
+
+#right_side {
+  margin: 5px 20px 0 10px;
+  padding: 5px 15px;
+  background: #F1F6FE url(../images/side_bg.gif) bottom left repeat-x;
+  text-align: left;
+  font-size: 80%;
+  width: 315px;
+}
+
+#right_side .sidebar-box {
+  padding: 0 0 15px 0;
+}
+
+#right_side ul {
+  padding: 0px 15px;
+  margin: 15px 0px;
+  list-style-type: disc;
+}
+
+#right_side li {
+  color: #cfd9ea;
+  padding: 2px 0;
+  text-indent: -3px;
+}
+
+#whats-new form {
+  overflow: auto;
+}
+
+#whats-new p {
+  color: #cfd9ea;
+  margin-left: -1px;
+}
+
+#whats-new b {
+  font: normal normal 400 12px/16px 'Verdana',Arial,sans-serif;
+  margin-left: -10px;
+}
+
+#whats-new p a {
+  margin-left: 12px;
+}
+
+#whats-new input[type="text"] {
+  box-sizing: border-box;
+  width: 100%;
+  display: inline-block;
+  padding: 0 10px;
+  font-size: 12px;
+  font-weight: 200;
+  border: 1px solid #1974b8;
+  outline: none;
+  float: left;
+  height: 30px;
+  line-height: 30px;
+  border-radius: 2px;
+  margin: 5px 0px;
+}
+
+#whats-new input[type="submit"] {
+  box-sizing: border-box;
+  color: #fff;
+  font-size: 11px;
+  text-transform: uppercase;
+  background: #1974b8;
+  border: 1px solid #1974b8;
+  border-left: 0px;
+  font-weight: 700;
+  display: inline-block;
+  width: 100%;
+  margin: 0 0 5px 0;
+  text-align: center;
+  line-height: 30px;
+  float: right;
+  border-radius: 2px;
+  height: 30px;
+  padding: 0;
+}
+
+#whats-new input[type="submit"]:hover {
+  cursor: pointer;
+  background: #2893e2;
+}
+
+@media screen and (max-width: 1000px) {
+  #authentication {
+    position: absolute;
+    top: 0;
+    right: 0;
+  }
+
+  #main-nav {
+    padding-top: 0;
+  }
+
+  #header {
+    position: unset;
+  }
+}
+
+/* IE11 specific styling */
+@media screen and (-ms-high-contrast: active), (-ms-high-contrast: none) {  
+  #right_side input[type="submit"] {
+    line-height: 28px;
+  }
+}
+
+/* section of right column containing user testimonials,
+aka, "what people are saying" */
+#rotating_testimonials #testimonials {
+    height: 350px;
+}
+
+/* float link to "view all" on right */
+#rotating_testimonials a {
+    float: right;
+}
+
+/* individual testimonials */
+#testimonials blockquote {
+    margin: 0;
+    padding: 0;
+    border: 0;
+}
+
+/* actual quote from user */
+#testimonials blockquote p {
+  font: normal normal 400 13px/18px Verdana, Arial sans-serif;
+  margin: 15px 0px;
+}
+
+/* name and institution of user */
+
+cite { font-style: italic; display: block; text-align: left; text-transform: none; margin-left: 10px; }
+
+#rotating_testimonials blockquote cite { font-size: 11px; }
+
+
+#login_header {
+  height: 50px;
+  background-color: #1974b8;
+  clear: both;
+  text-align: center;
+  padding-top:12px;
+  /*color: #B6CEF9;*/
+  font-family: verdana, arial, sans-serif;
+  font-size: 11px;
+  line-height: 18px;
+  border-right: 1px solid #ffffff;
+  border-bottom: 1px solid #ccc;
+  border-top: 1px solid #0f3974;
+  border-left:1px solid #0f3974; /*#bbb;*/
+  background: -moz-linear-gradient(top, #c5deea 0%, #8abbd7 16%, #1974B8 100%); /* firefox */
+  background: -webkit-gradient(linear, left top, left bottom, color-stop(0%,#c5deea), color-stop(16%,#8abbd7), color-stop(100%,#1974B8)); /* webkit */
+  filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#c5deea', endColorstr='#1974B8',GradientType=0 ); /* ie */
+}
+
+#footer {
+  background: #f5f5f5;
+  clear: both;
+  text-align: center;
+  padding: 15px 20px;
+  margin: 20px 20px 0 20px;
+  font: normal normal 12px/18px 'Helvetica Neue', Arial, sans-serif;
+}
+
+#footer a:link, #footer a:visited, #footer a:active, a:hover {
+  color: #428bca;
+  text-decoration: none;
+}
+
+#right_side h3 {
+  margin: 10px 0;
+  padding: 0;
+  font: normal normal 600 18px/24px 'Helvetica Neue', Helvetica, Verdana, Arial, sans-serif;
+  color: #333;
+  border-bottom: 1px solid #cfd9ea;
+}
+
+#left_side h3{
+  margin-top:5px; margin-bottom:10px; margin-left:2.5px; margin-right:2.5px;
+  padding:0.5px;
+  font-family: verdana, arial, sans-serif;
+  font-size: 16px;
+  font-weight: bold;
+  text-align: center;
+  vertical-align: center;
+  line-height: 14px;
+  color: #FFFFFF;
+  border:1px solid #0F3974;
+  background-color: #1974b8;
+}
+
+#right_side A:link {
+  color: #1974b8;
+}
+#right_side A:visited {
+  color: #1974b8;
+}
+#right_side A:active {
+  color: #1974b8;
+}
+
+#content A:link {
+  COLOR: #1974b8; text-decoration: none;
+}
+#content A:visited {
+  COLOR: #1974b8; text-decoration: none;
+}
+#content A:active {
+  COLOR: #1974b8; text-decoration: none;
+}
+#content A:hover {
+  COLOR: #1974b8; text-decoration: underline;
+}
+
+/* The Cytoscape Web container must have its dimensions set. */
+table #network_wrapper{
+    width: 1190px !important;
+}
+
+#cytoscapeweb {
+    width: 100%;
+    height: 100%;
+}
+#note { width: 100%; text-align: center; padding-top: 1em; }
+/*.link { text-decoration: underline; color: #0b94b1; cursor: pointer; } */
+
+.scroll {
+background-color:#FFFFFF;
+width:100%;
+height:215px;
+overflow:auto;
+}
+
+.hide_details {
+background-color:#eeeeee;
+border: 1px solid #aaaaaa;
+padding:1px;
+text-decoration:none !important;
+cursor: default;
+}
+
+/*********************************************************************
+* New Styles Required for Accordion Functionality
+**********************************************************************/
+
+/* Accordion Panel, with rounded corners*/
+.accordion_panel {
+    padding:10px;
+    margin-left:0px;
+    margin-top:5px;
+    background-color: #FFFFFF;
+    border:1px solid #aaaaaa;
+    -moz-border-radius: 10px;
+    border-radius: 10px;
+    width: 900px;
+}
+
+/* Divider in the accordion page */
+.crosscancer-hr {
+    width: 920px;
+    margin-bottom: 20px;
+}
+
+/* Accordion Panel H1 */
+.accordion_panel h1 {
+    font-size: 105%;
+    padding-bottom: 5px;
+    padding-top: 10px;
+    color: #444444;
+    cursor: default;
+}
+
+/* Required to Show Mouse Hand Point when User Mouses Over an H1 Element in an Accordion */
+.accordion_panel h1:hover{
+    cursor:pointer;
+}
+
+/* Accordion AJAX Panel with appropriate padding */
+.accordion_ajax {
+    padding-top:5px;
+    padding-left:15px;
+}
+
+/*********************************************************************
+* Styles Required for Dynamic Query Sections
+*/
+
+/* Main Query Form */
+#main_query_form {
+    display:none; /* hide until window is loaded */
+}
+
+/* Step Section */
+.query_step_section {
+    padding:10px;
+    margin-left:0px;
+    margin-top:5px;
+    background-color: #FFFFFF;
+    border:1px solid #aaaaaa;
+    -moz-border-radius: 10px;
+    border-radius: 10px;
+}
+
+.query_step_section:nth-of-type(1) {
+  border-top-left-radius: 0px;
+}
+
+/* Step Header */
+.step_header {
+  font-size:15px;
+  font-weight:bold;
+  margin-right:5px;
+  color:#2986e2;
+}
+#jstree_selected_study_count {
+    width: 140px;
+}
+/*.step_header_result {
+    font-size: 14px;
+    font-weight: bold;
+    font-style: italic;
+    color: black;
+}
+#select_cancer_type_section label {
+    margin: 0;
+}
+#select_cancer_type_section input[type=checkbox] { display:none; }  to hide the checkbox itself
+#select_cancer_type_section input[type=checkbox] + label:before {
+  font-family: FontAwesome;
+  display: inline-block;
+  margin: 0 0 0 3px;
+}
+#select_cancer_type_section input[type=checkbox] + label:hover {
+  cursor: pointer;
+}
+#select_cancer_type_section input[type=checkbox] + label:before { content: "\f096"; letter-spacing: 5px;}  unchecked icon
+
+#select_cancer_type_section input[type=checkbox]:checked + label:before { content: "\f046"; letter-spacing: 5px;}  checked icon */
+#select_cancer_type_section .step_header_search_result {
+    padding-top: 10px;
+}
+#step_header_first_line_empty_search{
+    position: absolute;
+    right: 40px;
+    top: 0;
+    bottom: 0;
+    height: 14px;
+    margin: auto;
+    font-size: 14px;
+    cursor: pointer;
+    color: #ccc;
+    display: none;
+    z-index: 999;
+}
+.row.step_header_first_line, .row.step_header_bottom_line{
+    margin: 0;
+}
+.row.step_header_first_line>div, .row.step_header_bottom_line>div{
+    margin: 5px 10px 5px 0;
+    float: left;
+    font-weight: bold;
+}
+.row.step_header_first_line button{
+    margin: 0;
+}
+.row.step_header_first_line .dropdown-menu{
+    list-style-type: none !important;
+}
+
+/* Genomic Profiles Div */
+#genomic_profiles {
+  padding-top:10px;
+  padding-bottom:5px;
+  font-size: 11px !important;
+  color:black;
+}
+
+/*  Genomic Profiles Input Box */
+#genomic_profiles .checkbox,
+#genomic_profiles .radio {
+    margin-bottom: 0;
+    margin-left: 25px;
+    margin-top: 0;
+}
+
+#genomic_profiles .checkbox input,
+#genomic_profiles .radio input {
+    margin-right: 1em;
+    postition: relative;
+}
+
+.score_threshold label {
+    font-weight: normal;
+}
+
+/* This is the gene_list input text area */
+#gene_list {
+  background-color:#eeeeee;
+  width:75%;
+  font-weight:bold;
+  font-size:15px;
+  font-family: verdana, arial, sans-serif;
+}
+
+/* This refers to a subgroup of profiles that all share the same alteration type,
+   e.g. a group of expression profiles. */
+.genomic_profiles_subgroup{
+   margin-left:20px;
+   margin-top:2px;
+   margin-bottom:5px;
+   font-size:90%;
+}
+
+/* Z-score threshold input (hidden until appropriate radio button selected) */
+.score_threshold {
+   display: none;
+   margin-left: 64px;
+   font-size: 90%;
+}
+
+/* Do not allow user to resize the text area */
+textarea {
+    resize: none;
+    width: 98%;
+}
+
+#query_form_on_results_page{
+  background-color:#CCCCFF;
+}
+
+.profile_help {
+vertical-align:middle;
+padding:4px;
+}
+
+.ui-state-error{
+  padding:5px !important;
+  margin-top:10px !important;
+  font-size:125%;
+}
+
+.percent_altered {
+    color:green;
+}
+
+#netmsg {
+  padding-bottom:10px;
+  padding-left:5px;
+}
+
+h2.cross_cancer_header {
+    text-align: left;
+    padding-left:  5px;
+    font-size:125%;
+}
+
+.section ul {
+  padding-top:10px;
+  font-size:16px !important;
+}
+
+.section h4 {
+  padding-bottom:5px;
+}
+
+.exp_error_box {
+    margin-bottom: .5em;
+}
+
+.exp_error_button {
+    float: left;
+    margin-right: .3em;
+}
+
+.exp_error_text {
+    font-weight:bold;
+    font-size: 90%;
+}
+
+.crosscancer-info {
+    float: left;
+    padding: 4px;
+}
+
+.crosscancer-info span {
+    cursor: default;
+}
+
+#crosscancer_summary_loading {
+    font-weight: bold;
+}
+
+/* IE 8 specific warning message on the cross-cancer query page */
+cc-ie-message {
+    padding: 15px;
+    background: #d3d3d3;
+    border-color: #1974B8;
+}
+
+.left-align-td {
+    text-align: left;
+}
+
+.right-align-td {
+    text-align: right;
+}
+
+.center-align-td {
+    text-align: center;
+}
+
+.no-wrap-td {
+    white-space: nowrap;
+}
+
+.qtip-lightyellow {
+    background-color: lightyellow;
+}
+
+.qtip-wide {
+    max-width: 600px;
+}
+
+/* Float on alright! */
+#previewContainer {
+    /*z-index: 9999999;*/
+  width: 170px;
+  height: 145px;
+  float: right;
+  border: 2px solid #FFFFFF;
+  border-radius: 3px;
+  box-shadow: 0 0 7px #999999;
+  overflow-y: hidden;
+  margin-left: 15px;
+}
+
+/* This is a fix to remove the tiny bullet
+ * appearing on the preview image slider
+ */
+#previewContainer li {
+  list-style-type: none;
+}
+
+/* right menu d3 map */
+#rightmenu-stats-box rect {
+    fill: none;
+    pointer-events: all;
+}
+
+#rightmenu-stats-box line {
+    stroke: #000;
+    stroke-width: 1.5px;
+}
+
+/* Gene validation */
+#genestatus ul.validation-list {margin: 0; padding: 0;}
+#genestatus * li.ui-state-default {
+    margin: 2px;
+    position: relative;
+    padding: 4px 0;
+    cursor: pointer;
+    float: left;
+    list-style: none;
+    height: 20px;
+}
+#genestatus * span.ui-icon {float: left; margin: 0 4px;}
+#genestatus * span.text {float: left; padding-right: 5px;}
+.geneset-button .ui-button-text { padding: 0.35em; }
+.ui-autocomplete-input { padding: 0.48em 0 0.47em 0.45em; }
+ul.ui-autocomplete li.ui-menu-item { font-size: 0.6em; text-align: left; }
+#genestatus { clear: both; }
+#example_gene_set { clear: both; }
+
+.chzn-container .chzn-results {
+    max-height: 350px !important;
+}
+
+/* this is required because of
+  .section ul css settings*/
+.chzn-results li {
+  font-size: 12px !important;
+}
+
+.brush .extent {
+    stroke: #fff;
+    fill-opacity: .125;
+    shape-rendering: crispEdges;
+    z-index: -1;
+}
+
+.qtip-ui-wide {
+    max-width: 600px;
+}
+
+.fa-lg {
+   line-height: inherit !important;
+   vertical-align: top !important;
+}
+.fa-md {
+   line-height: inherit !important;
+   vertical-align: top !important;
+}
+.mutationsProteinChangeWarning {
+    opacity: 0.1;
+}
+.mutationsProteinChangeWarning:hover {
+    opacity: 1;
+}
+.new-feature-label {
+    background-color: #d00000;
+    border-radius: 3px;
+    color: white;
+    font-size: 8px;
+    margin-bottom: -2px;
+    padding-bottom: -2px;
+}
+
+.annotation-item {
+    width: 22px;
+    height: 24px;
+    line-height: 24px;
+    float: left;
+    display: inline-block;
+}
+
+.annotation-item img {
+    margin: 6px 0 2px 6px;
+}
+
+.bootstrap-dialog-close {
+    float: right;
+    width: 100%;
+    text-align: right;
+    color: grey;
+}
+
+/* BootstrapDialog styles*/
+.oncokb-feedback .modal-dialog {
+    padding: 0;
+}
+
+.cbioportal-cancer-gene-list span{
+    margin-right: 10px;
+}
+
+/* fixes style clash */
+#content .dropdown-menu li.active a {
+    color:#fff !important;
+}
+
+#main_smry_stat_div {
+    float: right;
+    margin-right: 15px;
+    margin-bottom: -5px;
+    width: 40%;
+    text-align: right;
+}
+
+#main_smry_info_div table {
+    margin-left: 0px;
+    margin-top: -10px;
+    margin-bottom: -5px;
+}
+
+#main_smry_info_div table td {
+    vertical-align: top;
+}
+
+#main_smry_query_div {
+    font-family: verdana, arial, sans-serif;
+}
+
+#main_smry_query_div a.name {
+    cursor: pointer;
+    font-size: 14px;
+    font-weight: bold;
+}
+
+#main_smry_query_div .description {
+    font-size: 12px;
+}
+
+.combined-study-title-toggle-icon {
+    cursor: pointer;
+}

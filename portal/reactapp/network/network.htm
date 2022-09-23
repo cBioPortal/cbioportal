@@ -1,0 +1,1726 @@
+<!DOCTYPE HTML>
+<html lang="eng" class="legacy">
+<head>
+<meta http-equiv="Content-Type" content="text/html;charset=utf-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+
+<link rel="stylesheet" href="//maxcdn.bootstrapcdn.com/font-awesome/4.3.0/css/font-awesome.min.css"></link>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/js-url/2.5.3/url.min.js"></script>
+
+<script>
+
+    var queryParams = url("?");
+
+    var host = "./files";
+    var apiHost;
+
+    function validateHost(host, url){
+        return RegExp("^"+window.location.protocol+"//" + host).test(url);
+    }
+
+    apiHost = "//" +  decodeURIComponent(queryParams.apiHost);
+
+    function writeScriptTag(path) {
+        document.write('<script src="' + host + "/" + path + '"></' + 'script>');
+    }
+
+    function writeLinkTag(path) {
+        document.write('<link rel="stylesheet" href="' + host + "/" + path + '"></' + 'link>');
+    }
+
+    writeLinkTag("bootstrap.min.css");
+    writeLinkTag("responsiveslides.css");
+    writeLinkTag("tipTip.css");
+    writeLinkTag("jquery.qtip.min.css");
+    writeLinkTag("jquery-ui-1.10.3.custom.css");
+    writeLinkTag("data_table.css");
+    writeLinkTag("data_table.css");
+    writeLinkTag("dataTables.tableTools.min.css");
+    writeLinkTag("data_table_jui.css");
+    writeLinkTag("data_table_ColVis.css");
+    writeLinkTag("custom_case_set.css");
+    writeLinkTag("ui.dropdownchecklist.themeroller.css");
+    writeLinkTag("chosen.css");
+    writeLinkTag("jstree.style.css");
+    writeLinkTag("bootstrap-dialog.css");
+    writeLinkTag("oncoprint.css");
+    writeLinkTag("header.css");
+    writeLinkTag("vc-session.css");
+    writeLinkTag("global_portal.css");
+    writeLinkTag("network_ui.css");
+    writeLinkTag("cytoscape.js-panzoom.css");
+
+
+    writeScriptTag("jquery.min.js");
+    writeScriptTag("jquery-migrate.js");
+
+</script>
+
+
+<script>
+    writeScriptTag("jquery.cookie.js");
+    writeScriptTag("jquery.address.min.js");
+    writeScriptTag("jquery.expander.min.js");
+    writeScriptTag("jquery.tipTip.minified.js");
+    writeScriptTag("jquery-ui.min.js");
+    writeScriptTag("jquery.qtip.min.js");
+    writeScriptTag("chosen.jquery.js");
+    writeScriptTag("ui.tabs.paging.js");
+    writeScriptTag("FileSaver.min.js");
+    writeScriptTag("mailme.js");
+    writeScriptTag("json2.js");
+    writeScriptTag("ui.dropdownchecklist-1.4-min.js");
+    writeScriptTag("underscore-min.js");
+    writeScriptTag("backbone-min.js");
+    writeScriptTag("d3.min.js");
+
+    writeScriptTag("cbio-util.js");
+    writeScriptTag("download-util.js");
+    writeScriptTag("json2.js");
+    writeScriptTag("cytoscape.js");
+    writeScriptTag("cytoscape.js-panzoom.js");
+    writeScriptTag("layout.cose-bilkent.js");
+    writeScriptTag("network-visualization.js");
+    writeScriptTag("GraphMLIO.js");
+    writeScriptTag("network-viz2.js");
+    writeScriptTag("cytoscape.renderer.canvas.portal-renderer.js");
+    writeScriptTag("d3.min.js");
+
+</script>
+
+<script>
+    function formSubmit(path, params, target, method) {
+        // method="smart" means submit with GET iff the URL wouldn't be too long
+
+        const form = document.createElement('form');
+        let computedMethod = method;
+        if (method === "smart") {
+            computedMethod = buildCBioPortalPageUrl(path, params).length > 1800 ? "post" : "get"; // use POST if URL will be too large for some browsers
+        }
+        form.setAttribute('method', computedMethod);
+        form.setAttribute('action', path);
+        if (target) {
+            form.setAttribute('target', target);
+        }
+
+        for (const key of Object.keys(params)) {
+            const hiddenField = document.createElement('input');
+            hiddenField.setAttribute('type', 'hidden');
+            hiddenField.setAttribute('name', key);
+            hiddenField.setAttribute('value', params[key]);
+            form.appendChild(hiddenField);
+        }
+
+        document.body.appendChild(form);
+        form.submit();
+    }
+</script>
+
+<script type="text/javascript">
+    // This is for the moustache-like templates
+    // prevents collisions with JSP tags
+    _.templateSettings = {
+        interpolate: /\{\{(.+?)\}\}/g
+    };
+
+    // calls to network do must now include all case ids
+    // so we need to hijack click and form submit
+    $(document).ready(function(){
+
+
+
+        $("body").on("click","#netmsg a",function(e){
+            e.preventDefault();
+
+            switch(this.innerText) {
+                case "GraphML":
+                    e.preventDefault();
+                    formSubmit(apiHost + "network.do?download=on&msgoff=t", networkParams, "_self", "post");
+                    break;
+                case "SIF":
+                    e.preventDefault();
+                    formSubmit(apiHost + "network.do?download=on&format=sif&msgoff=t", networkParams, "_self", "post");
+                    break;
+            }
+
+        });
+    });
+
+</script>
+
+
+    <title>cBioPortal for Cancer Genomics (Beta)::Results</title>
+
+<style>
+.section {
+    border: none !important
+}
+.legacy .contentWidth {
+    padding-left:0 !important;
+    padding-right:0 !important;
+}
+    body {overflow:hidden;
+    }
+
+#vis_content {
+    width:860px !important;
+    border:none !important;
+}
+
+    body {
+        background:transparent !important;
+    }
+
+    #netmsg a {
+        color:#1974b8;
+        cursor:pointer;
+    }
+    #netmsg a:hover {
+        text-decoration:underline;
+    }
+
+</style>
+
+</head>
+<body>
+
+<div id="page_wrapper" style="">
+<table width="100%" cellpadding="0px" cellspacing="5px" border="0px">
+<tbody>
+<tr valign="top">
+    <td>
+        <div id="content" class="contentWidth">
+            <div>
+
+                <script type="text/javascript">
+
+                    var networkParams = JSON.parse(decodeURIComponent(window.location.hash).replace(/^#/,""));
+
+                    $(document).ready(function () {
+                        showNetwork(networkParams);
+                    });
+
+                    // show messages in graphml
+                    function showNetworkMessage(graphml, divNetMsg) {
+                        var msgbegin = "<!--messages begin:";
+                        var ix1 = graphml.indexOf(msgbegin);
+                        if (ix1 == -1) {
+                            $(divNetMsg).hide();
+                        } else {
+                            ix1 += msgbegin.length;
+                            var ix2 = graphml.indexOf("messages end-->", ix1);
+                            var msgs = $.trim(graphml.substring(ix1, ix2));
+                            if (msgs) {
+                                $(divNetMsg).append(msgs.replace(/\n/g, "<br/>\n"));
+                            }
+                        }
+
+                        // these download links should not open in a new tab
+                        // text is stored in backend so this is a cloodge
+                        $("#netmsg a:lt(2)").removeAttr("href");
+
+                    }
+
+                    function showXDebug(graphml) {
+                        if (0) {
+                            var xdebugsbegin = "<!--xdebug messages begin:";
+                            var ix1 = xdebugsbegin.length + graphml.indexOf(xdebugsbegin);
+                            var ix2 = graphml.indexOf("xdebug messages end-->", ix1);
+                            var xdebugmsgs = $.trim(graphml.substring(ix1, ix2));
+                            $("#cytoscapeweb").css('height', '70%');
+                            $("#vis_content").append("\n<div id='network_xdebug'>"
+                                + xdebugmsgs.replace(/\n/g, "<br/>\n") + "</div>");
+                        }
+                    }
+
+                    var showNetwork = function (networkParams) {
+
+                        $.ajax({
+                            type:"POST",
+                            url:window.apiHost.replace(/\/$/,"") + "/network.do",
+                            data:networkParams
+                        }).then(function(graphml){
+
+                            var gml2jsonConverter = new GraphMLToJSon(graphml);
+                            var json = gml2jsonConverter.toJSON();
+                            window.networkGraphJSON = json;
+
+                            $("#networkLoading").hide();
+                            $("#network").css({ background:"#ffffff" });
+                            $("#network_wrapper").show();
+
+                            if (typeof graphml !== "string") {
+                                if (window.ActiveXObject) { // IE
+                                    graphml = (new XMLSerializer()).serializeToString(graphml);
+                                } else { // Other browsers
+                                    graphml = (new XMLSerializer()).serializeToString(graphml);
+                                }
+                            }
+
+                            //show debug message !
+                            showXDebug(graphml);
+                            showNetworkMessage(graphml, "#network #netmsg");
+
+                            $("#network").show();
+
+                            // when the data is available call send2cytoscapeweb
+                            send2cytoscapeweb(window.networkGraphJSON, "cytoscapeweb", "network");
+                        });
+
+                        // get the graphml data from the server
+                        // $.post(window.apiHost + "/network.do",
+                        //     networkParams,
+                        //     function (graphml) {
+                        //         var gml2jsonConverter = new GraphMLToJSon(graphml);
+                        //         var json = gml2jsonConverter.toJSON();
+                        //         window.networkGraphJSON = json;
+                        //
+                        //         $("#networkLoading").hide();
+                        //         $("#network").css({ background:"#ffffff" });
+                        //         $("#network_wrapper").show();
+                        //
+                        //         if (typeof graphml !== "string") {
+                        //             if (window.ActiveXObject) { // IE
+                        //                 graphml = (new XMLSerializer()).serializeToString(graphml);
+                        //             } else { // Other browsers
+                        //                 graphml = (new XMLSerializer()).serializeToString(graphml);
+                        //             }
+                        //         }
+                        //
+                        //         //show debug message !
+                        //         showXDebug(graphml);
+                        //         showNetworkMessage(graphml, "#network #netmsg");
+                        //
+                        //         $("#network").show();
+                        //
+                        //         // when the data is available call send2cytoscapeweb
+                        //         send2cytoscapeweb(window.networkGraphJSON, "cytoscapeweb", "network");
+                        //     });
+                    }
+
+
+                </script>
+
+                <script type="text/template" id="drug_info_template">
+                    <table class="drug-data">
+                        <tr align="left" class="targets-data-row">
+                            <td>
+                                <strong>Drug Name: </strong>
+                                {{drugName}}
+                                <br><br>
+                            </td>
+                        </tr>
+                        <tr align="left" class="targets-data-row">
+                            <td>
+                                <strong>Number of Genes Targeted: </strong>
+                                <span class="num-of-drug-targets" title="{{targets}}">{{numOfTargets}}</span>
+                                <br><br>
+                            </td>
+                        </tr>
+                        <tr align="left" class="atc_codes-data-row">
+                            <td>
+                                <strong>Drug Class(ATC codes): </strong>
+                                {{atcCodeLinks}}
+                                <br><br>
+                            </td>
+                        </tr>
+                        <tr align="left" class="synonyms-data-row">
+                            <td>
+                                <strong>Synonyms: </strong><br>
+                                {{synonymList}}
+                                <br>
+                            </td>
+                        </tr>
+                        <tr align="left" class="description-data-row">
+                            <td>
+                                <strong>Description: </strong>
+                                {{drugDescription}}
+                                <br><br>
+                            </td>
+                        </tr>
+                        <tr align="left" class="fda-data-row">
+                            <td>
+                                <strong>FDA Approval: </strong>
+                                {{fdaApproval}}
+                                <br>
+                            </td>
+                        </tr>
+                        <tr align="left" class="cancerdrug-data-row">
+                            <td>
+                                <strong>Cancer Drug: </strong> {{cancerDrug}}<br>
+                            </td>
+                        </tr>
+                        <tr align="left" class="clinicaltrials-data-row">
+                            <td>
+                                <strong>Number Of Clinical Trials: </strong>
+                                {{numOfClinicalTrials}}
+                                <br><br>
+                            </td>
+                        </tr>
+                        <tr align="left" class="pubmed-data-row">
+                            <td>
+                                <strong>PubMed IDs:</strong><br>
+                                {{pubmedIdLinks}}
+                                <br>
+                            </td>
+                        </tr>
+                        <tr class="xref-row">
+                            <td>
+                                <strong>More at: </strong>
+                                {{xrefLinks}}
+                            </td>
+                        </tr>
+                    </table>
+
+                </script>
+
+                <script type="text/template" id="genomic_profile_template">
+                    <table class="profile-header">
+                        <tr class="header-row">
+                            <td>
+                                Genomic Profile(s):
+                            </td>
+                        </tr>
+                    </table>
+                    <table class="profile">
+                        <tr class="total-alteration percent-row">
+                            <td class="label-cell">
+                                <div class="percent-label">Total Alteration</div>
+                            </td>
+                            <td class="percent-cell"></td>
+                            <td>
+                                <div class="percent-value">{{totalAlterationPercent}}%</div>
+                            </td>
+                        </tr>
+                        <tr class="total-alteration-separator">
+                            <td></td>
+                            <td></td>
+                            <td></td>
+                        </tr>
+                        <tr class="cna-amplified percent-row">
+                            <td class="label-cell">
+                                <div class="percent-label">Amplification</div>
+                            </td>
+                            <td class="percent-cell">
+                                <div class="percent-bar"
+                                     style="width: {{cnaAmplifiedWidth}}%; background-color: #FF2500;"></div>
+                            </td>
+                            <td>
+                                <div class="percent-value">{{cnaAmplifiedPercent}}%</div>
+                            </td>
+                        </tr>
+                        <tr class="cna-homozygously-deleted percent-row">
+                            <td class="label-cell">
+                                <div class="percent-label">Homozygous Deletion</div>
+                            </td>
+                            <td class="percent-cell">
+                                <div class="percent-bar"
+                                     style="width: {{homozygousDelWidth}}%; background-color: #0332FF;"></div>
+                            </td>
+                            <td>
+                                <div class="percent-value">{{homozygousDelPercent}}%</div>
+                            </td>
+                        </tr>
+                        <tr class="cna-gained percent-row">
+                            <td class="label-cell">
+                                <div class="percent-label">Gain</div>
+                            </td>
+                            <td class="percent-cell">
+                                <div class="percent-bar"
+                                     style="width: {{cnaGainedWidth}}%; background-color: #FFC5CC;"></div>
+                            </td>
+                            <td>
+                                <div class="percent-value">{{cnaGainedPercent}}%</div>
+                            </td>
+                        </tr>
+                        <tr class="cna-hemizygously-deleted percent-row">
+                            <td class="label-cell">
+                                <div class="percent-label">Hemizygous Deletion</div>
+                            </td>
+                            <td class="percent-cell">
+                                <div class="percent-bar"
+                                     style="width: {{hemizygousDelWidth}}%; background-color: #9EDFE0;"></div>
+                            </td>
+                            <td>
+                                <div class="percent-value">{{hemizygousDelPercent}}%</div>
+                            </td>
+                        </tr>
+                        <tr class="section-separator cna-section-separator">
+                            <td></td>
+                            <td></td>
+                            <td></td>
+                        </tr>
+                        <tr class="mrna-way-up percent-row">
+                            <td class="label-cell">
+                                <div class="percent-label">Up-regulation</div>
+                            </td>
+                            <td class="percent-cell">
+                                <div class="percent-bar"
+                                     style="width: {{upRegulationWidth}}%; background-color: #FFACA9;"></div>
+                            </td>
+                            <td>
+                                <div class="percent-value">{{upRegulationPercent}}%</div>
+                            </td>
+                        </tr>
+                        <tr class="mrna-way-down percent-row">
+                            <td class="label-cell">
+                                <div class="percent-label">Down-regulation</div>
+                            </td>
+                            <td class="percent-cell">
+                                <div class="percent-bar"
+                                     style="width: {{downRegulationWidth}}%; background-color: #78AAD6;"></div>
+                            </td>
+                            <td>
+                                <div class="percent-value">{{downRegulationPercent}}%</div>
+                            </td>
+                        </tr>
+                        <tr class="section-separator mrna-section-separator">
+                            <td></td>
+                            <td></td>
+                            <td></td>
+                        </tr>
+                        <tr class="mutated percent-row">
+                            <td class="label-cell">
+                                <div class="percent-label">Mutation</div>
+                            </td>
+                            <td class="percent-cell">
+                                <div class="percent-bar"
+                                     style="width: {{mutationWidth}}%; background-color: #008F00;"></div>
+                            </td>
+                            <td>
+                                <div class="percent-value">{{mutationPercent}}%</div>
+                            </td>
+                        </tr>
+                    </table>
+                </script>
+
+                <script type="text/template" id="biogene_template">
+                    <div class='node-details-info'>
+                        <div class='biogene-info biogene-symbol'><b>Gene Symbol:</b> {{geneSymbol}}</div>
+                        <div class='biogene-info biogene-description'><b>Description:</b> {{geneDescription}}
+                        </div>
+                        <div class='biogene-info biogene-aliases'><b>Aliases:</b> {{geneAliases}}</div>
+                        <div class='biogene-info biogene-designations'><b>Designations:</b> {{geneDesignations}}
+                        </div>
+                        <div class='biogene-info biogene-location'><b>Chromosome Location:</b> {{geneLocation}}
+                        </div>
+                        <div class='biogene-info biogene-mim'>
+                            <b>MIM:</b>
+                            <a href='http://omim.org/entry/{{geneMim}}' target='blank'>{{geneMim}}</a>
+                        </div>
+                        <div class='biogene-info biogene-id'>
+                            <b>Gene ID:</b>
+                            <a href='http://www.ncbi.nlm.nih.gov/gene?term={{geneId}}'
+                               target='blank'>{{geneId}}</a>
+                        </div>
+                        <div class='biogene-info biogene-uniprot-links'>
+                            <b>UniProt ID:</b>
+                            <a href='http://www.uniprot.org/uniprot/{{geneUniprotId}}'
+                               target='blank'>{{geneUniprotId}}</a><span class='biogene-uniprot-links-extra'>{{geneUniprotLinks}}</span>
+                        </div>
+                    </div>
+                    <div class='node-details-summary'>
+                        <b>Gene Function:</b>
+                        {{geneSummary}}
+                    </div>
+                    <!--div class='node-details-footer'>
+<a href='http://cbio.mskcc.org/biogene/index.html' target='blank'>more</a>
+</div-->
+                </script>
+
+                <script type="text/javascript">
+
+                    /**
+                     * Backbone View Class for the drug data.
+                     *
+                     * Expected options fields:
+                     * options.el               target html selector for the content
+                     * options.data             data associated with a single drug
+                     * options.linkMap          mapping for the external links (xrefs)
+                     * options.idPlaceHolder    string constant to be used to generate links
+                     * options.edges            list of edges for the current network
+                     */
+                    var DrugInfoView = Backbone.View.extend({
+                        initialize: function (options) {
+                            this.render(options);
+                        },
+                        render: function (options) {
+                            var data = options.data;
+                            var xrefLinks = this.generateXrefLinks(data,
+                                options.linkMap,
+                                options.idPlaceHolder);
+                            var atcCodeLinks = this.generateAtcCodes(data["ATC_CODE"]);
+                            var synonymList = this.generateSynonyms(data["SYNONYMS"]);
+                            var cancerDrug = (data["CANCER_DRUG"] == "true") ? "Yes" : "No";
+                            var fdaApproval = (data["FDA_APPROVAL"] == "true") ? "Approved" : "Not Approved";
+                            var pubmedIdLinks = this.generatePubMedIdLinks(data,
+                                options.edges,
+                                options.linkMap,
+                                options.idPlaceHolder);
+                            var desc = data["DESCRIPTION"];
+                            var clinicalTrials = data["NUMBER_OF_CLINICAL_TRIALS"];
+
+                            // pass variables in using Underscore.js template
+                            var variables = {
+                                drugName: data.label,
+                                numOfTargets: data["TARGETS"].split(";").length,
+                                targets: data["TARGETS"],
+                                numOfClinicalTrials: clinicalTrials,
+                                xrefLinks: xrefLinks,
+                                atcCodeLinks: atcCodeLinks,
+                                synonymList: synonymList,
+                                drugDescription: desc,
+                                cancerDrug: cancerDrug,
+                                fdaApproval: fdaApproval,
+                                pubmedIdLinks: pubmedIdLinks
+                            };
+
+                            // compile the template using underscore
+                            var template = _.template($("#drug_info_template").html());
+
+                            // load the compiled HTML into the Backbone "el"
+                            this.$el.html(template(variables));
+
+                            // format after loading
+                            this.format(options, variables);
+                        },
+                        format: function (options, variables) {
+                            // hide titles with no information
+
+                            if (variables.xrefLinks == "") {
+                                $(options.el + " .xref-row").hide();
+                            }
+
+                            if (variables.atcCodeLinks == "") {
+                                $(options.el + " .atc_codes-data-row").hide();
+                            }
+
+                            if (variables.synonymList == "") {
+                                $(options.el + " .synonyms-data-row").hide();
+                            }
+
+                            if (variables.pubmedIdLinks == "") {
+                                $(options.el + " .pubmed-data-row").hide();
+                            }
+
+                            if (variables.drugDescription == null ||
+                                variables.drugDescription == "") {
+                                $(options.el + " .description-data-row").hide();
+                            }
+
+                            if (variables.numOfClinicalTrials == null ||
+                                variables.numOfClinicalTrials < 1) {
+                                $(options.el + " .clinicaltrials-data-row").hide();
+                            }
+
+                            $(options.el + " .num-of-drug-targets").tipTip();
+                        },
+                        generateXrefLinks: function (data, linkMap, idPlaceHolder) {
+                            var xrefs = [];
+                            var xrefLinks = "";
+
+                            if (data["UNIFICATION_XREF"] != null) {
+                                xrefs = data["UNIFICATION_XREF"].split(";");
+                            }
+
+                            if (data["RELATIONSHIP_XREF"] != null) {
+                                xrefs = xrefs.concat(data["RELATIONSHIP_XREF"].split(";"));
+                            }
+
+                            var link;
+
+                            if (xrefs.length > 0) {
+                                link = _resolveXref(xrefs[0], linkMap, idPlaceHolder);
+
+                                if (link.href != "#")
+                                    xrefLinks += '<a href="' + link.href + '" target="_blank">' + link.text + '</a>';
+                            }
+
+                            for (var i = 1; i < xrefs.length; i++) {
+                                link = _resolveXref(xrefs[i], linkMap, idPlaceHolder);
+
+                                if (link.href != "#")
+                                    xrefLinks += ', ' + '<a href="' + link.href + '" target="_blank">' + link.text + '</a>';
+                            }
+
+                            return xrefLinks;
+                        },
+                        generateAtcCodes: function (atcCode) {
+                            var href = "http://www.whocc.no/atc_ddd_index/?code=";
+                            var atcLinks = "";
+
+                            if (atcCode != null && atcCode.length > 0) {
+                                var atcCodes = atcCode.split(";");
+
+                                if (atcCodes.length > 0) {
+                                    atcLinks += '<a href="' + href + atcCodes[0] + '" target="_blank">' + atcCodes[0] + '</a>';
+                                }
+
+                                for (var i = 1; i < atcCodes.length; i++) {
+                                    atcLinks += ', <a href="' + href + atcCodes[i] + '" target="_blank">' + atcCodes[i] + '</a>';
+                                }
+                            }
+
+                            return atcLinks;
+                        },
+                        generateSynonyms: function (synonyms) {
+                            var synonymList = "";
+
+                            if (synonyms != null && synonyms.length > 0) {
+                                synonyms = synonyms.split(";");
+
+                                if (synonyms.length == 1) {
+                                    synonymList += synonyms[0];
+                                }
+                                else {
+                                    for (var i = 0; i < synonyms.length; i++) {
+                                        synonymList += '- ' + synonyms[i] + '</br>';
+                                    }
+                                }
+                            }
+
+                            return synonymList;
+                        },
+                        generatePubMedIdLinks: function (data, edges, linkMap, idPlaceHolder) {
+                            var pubMedLinks = "";
+
+                            for (var k = 0; k < edges.length; k++) {
+                                if (edges[k].data.source == data.id &&
+                                    edges[k].data["INTERACTION_PUBMED_ID"] != "") {
+                                    var pubmeds = edges[k].data["INTERACTION_PUBMED_ID"];
+                                    var pubmedTokens = pubmeds.split(";");
+
+                                    for (var j = 0; j < pubmedTokens.length; j++) {
+                                        var link = _resolveXref(pubmedTokens[j], linkMap, idPlaceHolder);
+
+                                        if (link.href == "#") {
+                                            // skip unknown sources
+                                            continue;
+                                        }
+
+                                        var xref = '- <a href="' + link.href + '" target="_blank">' + link.pieces[1] + '</a><br>';
+                                        pubMedLinks += xref;
+                                    }
+                                }
+                            }
+
+                            return pubMedLinks;
+                        }
+                    });
+
+                    /**
+                     * Backbone view for the genomic profile information.
+                     *
+                     * Expected fields for the options object:
+                     * options.el   target html selector for the content
+                     * options.data data associated with a single gene
+                     */
+                    var GenomicProfileView = Backbone.View.extend({
+                        initialize: function (options) {
+                            this.render(options);
+                        },
+                        render: function (options) {
+                            var data = options.data;
+
+                            var cnaDataAvailable = !(data["PERCENT_CNA_AMPLIFIED"] == null &&
+                                data["PERCENT_CNA_HOMOZYGOUSLY_DELETED"] == null &&
+                                data["PERCENT_CNA_GAINED"] &&
+                                data["PERCENT_CNA_HEMIZYGOUSLY_DELETED"] == null);
+
+                            var mrnaDataAvailable = !(data["PERCENT_MRNA_WAY_UP"] == null &&
+                                data["PERCENT_MRNA_WAY_DOWN"] == null);
+
+                            var mutationDataAvailable = data["PERCENT_MUTATED"] != null;
+
+                            // if no genomic data available at all, do not render anything
+                            if (!cnaDataAvailable && !mrnaDataAvailable && !mutationDataAvailable) {
+                                return;
+                            }
+
+                            // pass variables in using Underscore.js template
+                            var variables = {
+                                totalAlterationPercent: (data["PERCENT_ALTERED"] * 100).toFixed(1),
+                                cnaAmplifiedPercent: (data["PERCENT_CNA_AMPLIFIED"] * 100).toFixed(1),
+                                cnaAmplifiedWidth: Math.max(Math.ceil(data["PERCENT_CNA_AMPLIFIED"] * 100)),
+                                homozygousDelPercent: (data["PERCENT_CNA_HOMOZYGOUSLY_DELETED"] * 100).toFixed(1),
+                                homozygousDelWidth: Math.ceil(data["PERCENT_CNA_HOMOZYGOUSLY_DELETED"] * 100),
+                                cnaGainedPercent: (data["PERCENT_CNA_GAINED"] * 100).toFixed(1),
+                                cnaGainedWidth: Math.ceil(data["PERCENT_CNA_GAINED"] * 100),
+                                hemizygousDelPercent: (data["PERCENT_CNA_HEMIZYGOUSLY_DELETED"] * 100).toFixed(1),
+                                hemizygousDelWidth: Math.ceil(data["PERCENT_CNA_HEMIZYGOUSLY_DELETED"] * 100),
+                                upRegulationPercent: (data["PERCENT_MRNA_WAY_UP"] * 100).toFixed(1),
+                                upRegulationWidth: Math.ceil(data["PERCENT_MRNA_WAY_UP"] * 100),
+                                downRegulationPercent: (data["PERCENT_MRNA_WAY_DOWN"] * 100).toFixed(1),
+                                downRegulationWidth: Math.ceil(data["PERCENT_MRNA_WAY_DOWN"] * 100),
+                                mutationPercent: (data["PERCENT_MUTATED"] * 100).toFixed(1),
+                                mutationWidth: Math.ceil(data["PERCENT_MUTATED"] * 100)
+                            };
+
+                            // compile the template using underscore
+                            var template = _.template($("#genomic_profile_template").html());
+
+                            // load the compiled HTML into the Backbone "el"
+                            this.$el.html(template(variables));
+
+                            // format after loading
+                            this.format(options, variables);
+                        },
+                        format: function (options, variables) {
+                            var data = options.data;
+
+                            var cnaDataAvailable = !(data["PERCENT_CNA_AMPLIFIED"] == null &&
+                                data["PERCENT_CNA_HOMOZYGOUSLY_DELETED"] == null &&
+                                data["PERCENT_CNA_GAINED"] &&
+                                data["PERCENT_CNA_HEMIZYGOUSLY_DELETED"] == null);
+
+                            var mrnaDataAvailable = !(data["PERCENT_MRNA_WAY_UP"] == null &&
+                                data["PERCENT_MRNA_WAY_DOWN"] == null);
+
+                            // hide data rows with no information
+
+                            if (data["PERCENT_CNA_AMPLIFIED"] == null)
+                                $(options.el + " .cna-amplified").hide();
+
+                            if (data["PERCENT_CNA_HOMOZYGOUSLY_DELETED"] == null)
+                                $(options.el + " .cna-homozygously-deleted").hide();
+
+                            if (data["PERCENT_CNA_GAINED"] == null)
+                                $(options.el + " .cna-gained").hide();
+
+                            if (data["PERCENT_CNA_HEMIZYGOUSLY_DELETED"] == null)
+                                $(options.el + " .cna-hemizygously-deleted").hide();
+
+                            if (data["PERCENT_MRNA_WAY_UP"] == null)
+                                $(options.el + " .mrna-way-up").hide();
+
+                            if (data["PERCENT_MRNA_WAY_DOWN"] == null)
+                                $(options.el + " .mrna-way-down").hide();
+
+                            if (data["PERCENT_MUTATED"] == null)
+                                $(options.el + " .mutated").hide();
+
+                            // hide section separators if none of the rows is available
+                            // for a specific data group
+
+                            if (!cnaDataAvailable)
+                                $(options.el + " .cna-section-separator").hide();
+
+                            if (!mrnaDataAvailable)
+                                $(options.el + " .mrna-section-separator").hide();
+                        }
+                    });
+
+                    /**
+                     * Backbone view for the BioGene information.
+                     *
+                     * Expected fields for the options object:
+                     * options.el   target html selector for the content
+                     * options.data data associated with a single gene
+                     */
+                    var BioGeneView = Backbone.View.extend({
+                        initialize: function (options) {
+                            this.render(options);
+                        },
+                        render: function (options) {
+                            // pass variables in using Underscore.js template
+                            var variables = {
+                                geneSymbol: options.data.geneSymbol,
+                                geneDescription: options.data.geneDescription,
+                                geneAliases: _parseDelimitedInfo(options.data.geneAliases, ":", ",", null),
+                                geneDesignations: _parseDelimitedInfo(options.data.geneDesignations, ":", ",", null),
+                                geneLocation: options.data.geneLocation,
+                                geneMim: options.data.geneMim,
+                                geneId: options.data.geneId,
+                                geneUniprotId: this.extractFirstUniprotId(options.data.geneUniprotMapping),
+                                geneUniprotLinks: this.generateUniprotLinks(options.data.geneUniprotMapping),
+                                geneSummary: options.data.geneSummary
+                            };
+
+                            // compile the template using underscore
+                            var template = _.template($("#biogene_template").html());
+
+                            // load the compiled HTML into the Backbone "el"
+                            this.$el.html(template(variables));
+
+                            // format after loading
+                            this.format(options, variables);
+                        },
+                        format: function (options, variables) {
+                            // hide rows with undefined data
+
+                            if (options.data.geneSymbol == undefined)
+                                $(options.el + " .biogene-symbol").hide();
+
+                            if (options.data.geneDescription == undefined)
+                                $(options.el + " .biogene-description").hide();
+
+                            if (options.data.geneAliases == undefined)
+                                $(options.el + " .biogene-aliases").hide();
+
+                            if (options.data.geneDesignations == undefined)
+                                $(options.el + " .biogene-designations").hide();
+
+                            if (options.data.geneChromosome == undefined)
+                                $(options.el + " .biogene-chromosome").hide();
+
+                            if (options.data.geneLocation == undefined)
+                                $(options.el + " .biogene-location").hide();
+
+                            if (options.data.geneMim == undefined)
+                                $(options.el + " .biogene-mim").hide();
+
+                            if (options.data.geneId == undefined)
+                                $(options.el + " .biogene-id").hide();
+
+                            if (options.data.geneUniprotMapping == undefined)
+                                $(options.el + " .biogene-uniprot-links").hide();
+
+                            if (options.data.geneSummary == undefined)
+                                $(options.el + " .node-details-summary").hide();
+
+                            var expanderOpts = {
+                                slicePoint: 200, // default is 100
+                                expandPrefix: ' ',
+                                expandText: '[...]',
+                                //collapseTimer: 5000, // default is 0, so no re-collapsing
+                                userCollapseText: '[^]',
+                                moreClass: 'expander-read-more',
+                                lessClass: 'expander-read-less',
+                                detailClass: 'expander-details',
+                                // do not use default effects
+                                // (see https://github.com/kswedberg/jquery-expander/issues/46)
+                                expandEffect: 'fadeIn',
+                                collapseEffect: 'fadeOut'
+                            };
+
+                            // make long texts expandable
+                            $(options.el + " .biogene-description").expander(expanderOpts);
+                            $(options.el + " .biogene-aliases").expander(expanderOpts);
+                            $(options.el + " .biogene-designations").expander(expanderOpts);
+                            $(options.el + " .node-details-summary").expander(expanderOpts);
+
+                            // note: the first uniprot link has a separate section in the template,
+                            // therefore it is not included here. since the expander plugin
+                            // has problems with cutting hyperlink elements, there is another
+                            // section (span) for all other remaining uniprot links.
+
+                            // display only comma (the comma after the first link)
+                            // (assuming the first 2 chars of this section is ", ")
+                            expanderOpts.slicePoint = 2; // show comma and the space
+                            expanderOpts.widow = 0; // hide everything else in any case
+
+                            $(options.el + " .biogene-uniprot-links-extra").expander(expanderOpts);
+                        },
+                        generateUniprotLinks: function (mapping) {
+                            var formatter = function (id) {
+                                return '<a href="http://www.uniprot.org/uniprot/' + id + '" target="_blank">' + id + '</a>';
+                            };
+
+                            if (mapping == undefined || mapping == null) {
+                                return "";
+                            }
+
+                            // remove first id (assuming it is already processed)
+                            if (mapping.indexOf(':') < 0) {
+                                return "";
+                            }
+                            else {
+                                mapping = mapping.substring(mapping.indexOf(':') + 1);
+                                return ', ' + _parseDelimitedInfo(mapping, ':', ',', formatter);
+                            }
+                        },
+                        extractFirstUniprotId: function (mapping) {
+                            if (mapping == undefined || mapping == null) {
+                                return "";
+                            }
+
+                            var parts = mapping.split(":");
+
+                            if (parts.length > 0) {
+                                return parts[0];
+                            }
+
+                            return "";
+                        }
+                    });
+
+                    /**
+                     * Utility function to convert a delimited data into a human readable
+                     * text separated by the given separator.
+                     *
+                     * @param info      original data as a string
+                     * @param delimiter delimiter for the original data
+                     * @param separator separator for the new output
+                     * @param formatter custom text formatter function
+                     * @return String
+                     */
+                    function _parseDelimitedInfo(info, delimiter, separator, formatter) {
+                        // do not process undefined or null values
+                        if (info == undefined || info == null) {
+                            return info;
+                        }
+
+                        var text = "";
+                        var parts = info.split(delimiter);
+
+                        if (parts.length > 0) {
+                            if (formatter) {
+                                text = formatter(parts[0]);
+                            }
+                            else {
+                                text = parts[0];
+                            }
+                        }
+
+                        for (var i = 1; i < parts.length; i++) {
+                            text += separator + " ";
+
+                            if (formatter) {
+                                text += formatter(parts[i]);
+                            }
+                            else {
+                                text += parts[i];
+                            }
+                        }
+
+                        return text;
+                    }
+
+                    // TODO remove the function (having the same name) in network-visualization.js
+                    // after migrating everything into backbone (refactoring)
+                    function _resolveXref(xref, linkMap, idPlaceHolder) {
+                        var link = null;
+
+                        if (xref != null) {
+                            // split the string into two parts
+                            var pieces = xref.split(":", 2);
+
+                            // construct the link object containing href and text
+                            link = {};
+
+                            link.href = linkMap[pieces[0].toLowerCase()];
+
+                            if (link.href == null) {
+                                // unknown source
+                                link.href = "#";
+                            }
+                            // else, check where search id should be inserted
+                            else if (link.href.indexOf(idPlaceHolder) != -1) {
+                                link.href = link.href.replace(idPlaceHolder, pieces[1]);
+                            }
+                            else {
+                                link.href += pieces[1];
+                            }
+
+                            link.text = xref;
+                            link.pieces = pieces;
+                        }
+
+                        return link;
+                    }
+                </script>
+
+                <div class="section ui-tabs-panel ui-widget-content ui-corner-bottom" style="background:transparent" id="network"
+                     aria-labelledby="network-result-tab" role="tabpanel" aria-expanded="true"
+                     aria-hidden="false">
+
+
+                    <div id="netmsg" style="margin-bottom: 12px; text-align: left">
+                    </div>
+                    <div id="networkLoading" style="display:none;text-align:center">
+                        Loading network data ...<br/>
+                        <div style="height:60px;width:60px;position:relative;margin:10px auto">
+                        <img style="position:absolute;left:-76px;top:-76px;" src="./files/ajax-loader.gif" />
+                        </div>
+                    </div>
+                    <table id="network_wrapper" style="display:none">
+                        <tbody>
+                        <tr>
+                            <td>
+                                <div>
+
+
+                                    <div id="network_menu_div" class="">
+                                        <ul id="network_menu">
+                                            <li>
+                                                <a id="network_menu_file" class="main-menu-item">File</a>
+                                                <ul id="file_menu" style="display: none;">
+                                                    <li>
+                                                        <a id="save_as_png"
+                                                           class="first-menu-item separator-menu-item last-menu-item">
+                                                            Save as Image (PNG)
+                                                        </a>
+                                                    </li>
+                                                </ul>
+                                            </li>
+                                            <li>
+                                                <a id="network_menu_topology"
+                                                   class="main-menu-item">Topology</a>
+                                                <ul id="topology_menu" style="display: none;">
+                                                    <li>
+                                                        <a id="hide_selected"
+                                                           class="first-menu-item separator-menu-item">
+                                                            Hide Selected
+                                                        </a>
+                                                    </li>
+                                                    <li>
+                                                        <a id="hide_non_selected">
+                                                            Show Only Selected
+                                                        </a>
+                                                    </li>
+                                                    <li>
+                                                        <a id="unhide_all">
+                                                            Show All
+                                                        </a>
+                                                    </li>
+                                                    <li>
+                                                        <a id="remove_disconnected" alt="remove_disconnected"
+                                                           class="separator-menu-item last-menu-item checked-menu-item">
+                                                            Remove Disconnected Nodes on Hide
+                                                        </a>
+                                                    </li>
+                                                </ul>
+                                            </li>
+                                            <li>
+                                                <a id="network_menu_view" class="main-menu-item">View</a>
+                                                <ul id="view_menu" style="display: none;">
+                                                    <li>
+                                                        <a id="show_profile_data"
+                                                           class="first-menu-item separator-menu-item">
+                                                            Always Show Profile Data
+                                                        </a>
+                                                    </li>
+                                                    <li>
+                                                        <a id="merge_links" class="">
+                                                            Merge Interactions
+                                                        </a>
+                                                    </li>
+                                                    <li>
+                                                        <a id="show_node_labels" class="checked-menu-item">
+                                                            Show Node Labels
+                                                        </a>
+                                                    </li>
+                                                    <li>
+                                                        <a id="show_pan_zoom_control" class="checked-menu-item">
+                                                            Show Pan-Zoom Control
+                                                        </a>
+                                                    </li>
+                                                    <li>
+                                                        <a id="highlight_neighbors" class="separator-menu-item">
+                                                            Highlight Neighbors
+                                                        </a>
+                                                    </li>
+                                                    <li>
+                                                        <a id="remove_highlights" class="last-menu-item">
+                                                            Remove Highlights
+                                                        </a>
+                                                    </li>
+                                                </ul>
+                                            </li>
+                                            <li>
+                                                <a id="network_menu_layout" class="main-menu-item">Layout</a>
+                                                <ul id="layout_menu" style="display: none;">
+                                                    <li>
+                                                        <a id="perform_layout"
+                                                           class="first-menu-item separator-menu-item">
+                                                            Perform Layout
+                                                        </a>
+                                                    </li>
+                                                    <li>
+                                                        <a id="layout_properties">
+                                                            Layout Properties ...
+                                                        </a>
+                                                    </li>
+                                                    <li>
+                                                        <a id="auto_layout"
+                                                           class="separator-menu-item last-menu-item checked-menu-item">
+                                                            Auto Layout on Changes
+                                                        </a>
+                                                    </li>
+                                                </ul>
+                                            </li>
+
+                                            <li>
+                                                <a id="network_menu_legends" class="main-menu-item">Legends</a>
+                                                <ul id="legends_menu" style="display: none;">
+                                                    <li>
+                                                        <a id="show_node_legend">
+                                                            Gene Legend
+                                                        </a>
+                                                    </li>
+                                                    <li>
+                                                        <a id="show_drug_legend">
+                                                            Drug Legend
+                                                        </a>
+                                                    </li>
+                                                    <li>
+                                                        <a id="show_edge_legend" class="last-menu-item">
+                                                            Interaction Legend
+                                                        </a>
+                                                    </li>
+                                                </ul>
+                                            </li>
+
+                                        </ul>
+                                    </div>
+
+                                    <div id="quick_info_div" class="">
+                                        <label id="quick_info_label">Double-click nodes/edges for details.</label>
+                                    </div>
+
+                                </div>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td id="vis_content">
+                                <div id="cytoscapeweb">
+                                    <div class="cy-panzoom" style="position: absolute;">
+                                        <div class="cy-panzoom-zoom-in cy-panzoom-zoom-button"><span
+                                                class="icon fa fa-plus"></span></div>
+                                        <div class="cy-panzoom-zoom-out cy-panzoom-zoom-button"><span
+                                                class="icon fa fa-minus"></span></div>
+                                        <div class="cy-panzoom-reset cy-panzoom-zoom-button"><span
+                                                class="icon fa fa-expand"></span></div>
+                                        <div class="cy-panzoom-slider">
+                                            <div class="cy-panzoom-slider-background"></div>
+                                            <div class="cy-panzoom-slider-handle" style="top: 38.1004px;"><span
+                                                    class="icon fa fa-minus"></span></div>
+                                            <div class="cy-panzoom-no-zoom-tick" style="top: 43px;"></div>
+                                        </div>
+                                        <div class="cy-panzoom-panner">
+                                            <div class="cy-panzoom-panner-handle"></div>
+                                            <div class="cy-panzoom-pan-up cy-panzoom-pan-button"></div>
+                                            <div class="cy-panzoom-pan-down cy-panzoom-pan-button"></div>
+                                            <div class="cy-panzoom-pan-left cy-panzoom-pan-button"></div>
+                                            <div class="cy-panzoom-pan-right cy-panzoom-pan-button"></div>
+                                            <div class="cy-panzoom-pan-indicator"></div>
+                                        </div>
+                                    </div>
+                                    <div style="position: absolute; z-index: 0; overflow: hidden; width: 891px; height: 671px;">
+                                        <canvas data-id="layer0-selectbox" width="891" height="671"
+                                                style="position: absolute; z-index: 3; width: 891px; height: 671px;"></canvas>
+                                        <canvas data-id="layer1-drag" width="891" height="671"
+                                                style="position: absolute; z-index: 2; width: 891px; height: 671px;"></canvas>
+                                        <canvas data-id="layer2-node" width="891" height="671"
+                                                style="position: absolute; z-index: 1; width: 891px; height: 671px;"></canvas>
+                                    </div>
+                                </div>
+                            </td>
+                            <td>
+                                <div>
+
+                                    <div id="network_tabs" class="hidden-network-ui">
+                                        <ul>
+                                            <li><a href="#genes_tab" class="network-tab-ref"
+                                                   title="Genes &amp; Drugs (Nodes)"><span>Genes</span></a></li>
+                                            <li><a href="#relations_tab" class="network-tab-ref"
+                                                   title="Edges between nodes"><span>Interactions</span></a>
+                                            </li>
+                                            <li><a href="#element_details_tab" class="network-tab-ref"
+                                                   title="Node details"><span>Details</span></a></li>
+
+                                            <li><a href="#help_tab" class="network-tab-ref"
+                                                   title="About &amp; Help"><span>Help</span></a></li>
+
+                                        </ul>
+                                        <div id="genes_tab">
+                                            <div class="header">
+                                                <span class="title"><label>Drugs of Specified Genes</label></span><br><br>
+                                                <div class="combo">
+                                                    <select id="drop_down_select" title="Show drugs options">
+                                                        <option value="HIDE_DRUGS">Hide Drugs</option>
+                                                        <option value="SHOW_CANCER"> Show Cancer Drugs</option>
+                                                        <option value="SHOW_FDA"> Show FDA Approved Drugs
+                                                        </option>
+                                                        <option value="SHOW_ALL">Show All Drugs</option>
+                                                    </select>
+                                                </div>
+                                                <span class="title"><label>Genes</label></span><br><br>
+                                                <div id="slider_area">
+                                                    <label>Filter Neighbors by Alteration (%)</label>
+                                                    <div id="weight_slider_area">
+            <span class="slider-value">
+                <input id="weight_slider_field" type="text" value="0" title="weight slider">
+            </span>
+                                                        <span class="slider-min"><label>0</label></span>
+                                                        <span class="slider-max"><label>MAX</label></span>
+                                                        <div id="weight_slider_bar"></div>
+                                                    </div>
+
+                                                    <div id="affinity_slider_area" class="hidden-network-ui">
+            <span class="slider-value">
+                <input id="affinity_slider_field" type="text" value="0.80" title="affinity slider">
+            </span>
+                                                        <span class="slider-min"><label>0</label></span>
+                                                        <span class="slider-max"><label>1.0</label></span>
+                                                        <div id="affinity_slider_bar"></div>
+                                                    </div>
+                                                </div>
+                                                <div id="control_area">
+                                                    <table>
+                                                        <tbody>
+                                                        <tr>
+                                                            <td>
+                                                                <button id="filter_genes" class="tabs-button"
+                                                                        title="Hide Selected">
+                                                                    <span class="ui-button-icon-primary ui-icon ui-icon-circle-minus"></span>
+                                                                </button>
+                                                            </td>
+                                                            <td>
+                                                                <button id="crop_genes" class="tabs-button"
+                                                                        title="Show Only Selected">
+                                                                    <span class="ui-button-icon-primary ui-icon ui-icon-crop"></span>
+                                                                </button>
+                                                            </td>
+                                                            <td>
+                                                                <button id="unhide_genes" class="tabs-button"
+                                                                        title="Show All">
+                                                                    <span class="ui-button-icon-primary ui-icon ui-icon-circle-plus"></span>
+                                                                </button>
+                                                            </td>
+                                                            <td>
+                                                                <input type="text" id="search_box" value=""
+                                                                       title="search genes">
+                                                            </td>
+                                                            <td>
+                                                                <button id="search_genes" class="tabs-button"
+                                                                        title="Search">
+                                                                    <span class="ui-button-icon-primary ui-icon ui-icon-search"></span>
+                                                                </button>
+                                                            </td>
+                                                        </tr>
+                                                        </tbody>
+                                                    </table>
+                                                    <table id="network-resubmit-query">
+                                                        <tbody>
+                                                        <tr>
+                                                            <td>
+                                                                <label class="button-text">Submit New
+                                                                    Query</label>
+                                                            </td>
+                                                            <td>
+                                                                <button id="re-submit_query" class="tabs-button"
+                                                                        title="Submit New Query with Genes Selected Below">
+                                                                    <span class="ui-button-icon-primary ui-icon ui-icon-play"></span>
+                                                                </button>
+                                                            </td>
+                                                        </tr>
+                                                        </tbody>
+                                                    </table>
+                                                </div>
+                                            </div>
+                                            <div id="gene_list_area">
+                                            </div>
+                                        </div>
+                                        <div id="relations_tab">
+                                            <div>
+                                                <table id="edge_type_filter">
+                                                </table>
+                                                <table id="edge_source_filter">
+                                                </table>
+                                            </div>
+                                            <!-- <div class="footer">
+                                                <table>
+                                                    <tr>
+                                                        <td>
+                                                            <label class="button-text">Update</label>
+                                                        </td>
+                                                        <td>
+                                                            <button id="update_edges" class="tabs-button" title="Update">
+                                                                <span class="ui-button-icon-primary ui-icon ui-icon-refresh"></span>
+                                                            </button>
+                                                        </td>
+                                                    </tr>
+                                                </table>
+                                            </div> -->
+                                        </div>
+                                        <div id="element_details_tab">
+                                            <div class="error">
+                                                Currently there is no selected node/edge. Please, select a
+                                                node/edge to see details.
+                                            </div>
+                                            <div class="genomic-profile-content"></div>
+                                            <div class="biogene-content"></div>
+                                            <div class="drug-info-content"></div>
+                                            <div class="edge-inspector-content"></div>
+                                        </div>
+
+                                        <div id="help_tab">
+
+
+                                            <p class="heading">
+                                                About the Network View
+                                            </p>
+                                            <p>
+                                            </p>
+                                            <p class="regular">
+                                                The network view shows the genes you entered (referred to as
+                                                <span class="italic">seed nodes</span>) in the context of
+                                                biological interactions derived from public pathway databases.
+                                                Each gene in the network view is color-coded with
+                                                multi-dimensional genomic data derived from the cancer study you
+                                                have selected.
+                                            </p>
+
+                                            <p class="heading">
+                                                Source of Pathway Data
+                                            </p>
+                                            <p>
+                                            </p>
+                                            <p class="regular">
+                                                Pathway and interaction data is from <a
+                                                    href="http://www.hprd.org/" target="_blank">HPRD</a>,
+                                                <a href="http://www.reactome.org/" target="_blank">Reactome</a>,
+                                                <a href="http://pid.nci.nih.gov/" target="_blank">NCI-Nature
+                                                    Pathway Interaction Database</a>,
+                                                and the <a href="http://cancer.cellmap.org/cellmap/"
+                                                           target="_blank">MSKCC Cancer Call Map</a>,
+                                                as derived from <a href="http://pathwaycommons.org"
+                                                                   target="_blank">Pathway Commons</a>.
+                                            </p>
+
+                                            <p class="heading">
+                                                Source of Drug Data
+                                            </p>
+                                            <p>
+                                            </p>
+                                            <p class="regular">
+                                                Drug data is derived from <a
+                                                    href="https://bitbucket.org/armish/pihelper"
+                                                    target="_blank">PiHelper</a>.
+                                            </p>
+
+                                            <p class="heading">
+                                                Seed Nodes vs. Linker Nodes
+                                            </p>
+                                            <p class="regular">
+                                                A <span class="italic">seed node</span> represents a gene that
+                                                you have entered.
+                                                A <span class="italic">linker node</span> represents a gene that
+                                                connects to one or more of your seed genes.
+                                            </p>
+                                            <p class="regular">
+                                                <span class="italic">Seed nodes</span> are represented with a
+                                                thick border:<br><br>
+                                                <img class="seed_node_img" src="./files/images/seed_node.png"
+                                                     alt="seed node">
+                                            </p>
+                                            <p class="regular">
+                                                <span class="italic">Linker nodes</span> are represented with a
+                                                thin border:<br><br>
+                                                <img class="linker_node_img" src="./files/images/linker_node.png"
+                                                     alt="linker node">
+                                            </p>
+
+                                            <p class="heading">
+                                                Visualization Summary of Genomic Data
+                                            </p>
+                                            <p class="regular">
+                                                The exact genomic data displayed on the network depends on the
+                                                genomic profiles you have selected.
+                                                For example, you can chose to include mutation, copy number and
+                                                mRNA expression profiles.
+                                            </p>
+                                            <p class="regular">
+                                                By default, each node is color coded along a white to red color
+                                                gradient,
+                                                indicating the total frequency of alteration across the selected
+                                                case set
+                                                (deeper red indicates higher frequency of alteration).
+                                            </p>
+                                            <p class="regular">
+                                                For example, EGFR is frequently altered in glibolastoma:<br><br>
+                                                <img class="altered_node_img" src="./files/images/altered_node.png"
+                                                     alt="altered node">
+                                            </p>
+                                            <p class="regular">
+                                                By contrast, STAT3 is not altered at all in
+                                                glioblastoma:<br><br>
+                                                <img class="not_altered_node_img"
+                                                     src="./files/images/not_altered_node.png" alt="not altered node">
+                                            </p>
+
+                                            <p class="regular">
+                                                If you mouse over a node, or select "View::Always Show Profile
+                                                Data",
+                                                you will see additional details regarding the genomic
+                                                alterations affecting the gene.
+                                                This breaks down into mutation, copy number and mRNA expression
+                                                changes affecting the gene across all cases.
+                                            </p>
+                                            <p class="regular">
+                                                Click <a id="show_node_legend">here</a> to see the gene legend.
+                                            </p>
+
+                                            <p class="heading">
+                                                Drug Information
+                                            </p>
+                                            <p class="regular">
+                                                Drugs targeting genes in the network are hidden by default. If
+                                                you would like
+                                                to see them, select "Show All Drugs" or, "Show FDA Approved
+                                                Drugs" or "Show Cancer Drugs"
+                                                from the drop-down box under the "Genes &amp; Drugs" tab.
+                                            </p>
+                                            <p class="regular">
+                                                Number of Genes Targeted shown in the drug inspector refers to
+                                                the total number of genes
+                                                (regardless of whether or not any such gene is in the current
+                                                network of interest) targeted by this drug.
+                                            </p>
+                                            <p class="regular">
+                                                Click <a id="show_drug_legend">here</a> to see the drug legend.
+                                            </p>
+
+                                            <p class="heading">
+                                                Understanding Interaction and Edge Types
+                                            </p>
+                                            <p class="regular">
+                                                The interaction types are derived from the <a
+                                                    href="http://biopax.org" target="_blank">BioPAX</a> to
+                                                binary interaction mapping rules defined within Pathway Commons.
+                                                They are encoded by different edge colors and can be seleted on
+                                                the "Interactions" tab to the right of the network.
+                                                In addition, if selected, drug-gene interactions are shown as
+                                                edges in the network. The interaction types are:
+                                            </p>
+                                            <ul>
+                                                <li>
+  <span class="bold">Controls-state-change-of:
+  </span>First protein controls a reaction that changes the state of the second protein.
+                                                </li>
+                                                <li>
+  <span class="bold">Controls-transport-of:
+  </span>First protein controls a reaction that changes the cellular location of the second protein.
+                                                </li>
+                                                <li>
+  <span class="bold">Controls-phosphorylation-of:
+  </span>First protein controls a reaction that changes the phosphorylation status of the second protein.
+                                                </li>
+                                                <li>
+  <span class="bold">Controls-expression-of:
+  </span>First protein controls a conversion or a template reaction that changes expression of the second
+                                                    protein.
+                                                </li>
+                                                <li>
+  <span class="bold">Catalysis-precedes:
+  </span>First protein controls a reaction whose output molecule is input to another reaction controled by the
+                                                    second protein.
+                                                </li>
+                                                <li>
+  <span class="bold">In-complex-with:
+  </span>Proteins are members of the same complex.
+                                                </li>
+                                                <li>
+  <span class="bold">Interacts-with:
+  </span>Proteins are participants of the same MolecularInteraction.
+                                                </li>
+                                                <li>
+  <span class="bold">Neighbor-of:
+  </span>Proteins are participants or controlers of the same interaction.
+                                                </li>
+                                                <li>
+  <span class="bold">Consumption-controled-by:
+  </span>The small molecule is consumed by a reaction that is controled by a protein
+                                                </li>
+                                                <li>
+  <span class="bold">Controls-production-of:
+  </span>The protein controls a reaction of which the small molecule is an output.
+                                                </li>
+                                                <li>
+  <span class="bold">Controls-transport-of-chemical:
+  </span>The protein controls a reaction that changes cellular location of the small molecule.
+                                                </li>
+                                                <li>
+  <span class="bold">Chemical-affects:
+  </span>A small molecule has an effect on the protein state.
+                                                </li>
+                                                <li>
+  <span class="bold">Reacts-with:
+  </span>Small molecules are input to a biochemical reaction.
+                                                </li>
+                                                <li>
+  <span class="bold">Used-to-produce:
+  </span>A reaction consumes a small molecule to produce another small molecule.
+                                                </li>
+                                            </ul>
+                                            <p></p>
+                                            <p class="regular">
+                                                Click <a id="show_edge_legend">here</a> to see the color codes.
+                                            </p>
+                                            <p class="regular">
+                                                Complete details are available on the <a
+                                                    href="http://www.pathwaycommons.org/pc2/formats"
+                                                    target="_blank">Pathway Commons web site</a>.
+                                            </p>
+                                            <p class="regular">
+                                                By default, redundant interactions are merged are merged into a
+                                                single edge.
+                                                To see all interactions, uncheck "Merge Interactions" in the
+                                                "View" menu.
+                                            </p>
+
+                                            <p class="heading">
+                                                Complexity Management
+                                            </p>
+                                            <p class="regular">
+                                                There are a number of options to better deal with complex
+                                                networks:
+                                            </p>
+                                            <ul>
+                                                <li>
+                                                    <span class="bold">Hide Selected/Crop:</span>
+                                                    Selected nodes can be hidden using "Topology::Hide
+                                                    Selected".
+                                                    Alternatively, you can select the set of nodes that you
+                                                    would like to view and hide the rest
+                                                    of the network using "Topology::Show Only Selected".
+                                                    Alternatively, buttons are available for these operations on
+                                                    the "Genes &amp; Drugs" tab.
+                                                </li>
+                                                <li>
+                                                    <span class="bold">Filter by Interaction Type or Source:</span>
+                                                    If you are interested in only certain types of interactions
+                                                    or interactions from selected sources,
+                                                    you may use the filtering mechanisms on the "Interactions"
+                                                    tab by checking the corresponding check boxes and clicking
+                                                    "Update".
+                                                </li>
+                                                <li>
+                                                    <span class="bold">Filter by Total Alteration:</span>
+                                                    Networks can be filtered based on alteration frequencies of
+                                                    individual nodes using a slider under the "Genes &amp;
+                                                    Drugs" tab.
+                                                    You can specify a threshold of total alteration frequency -
+                                                    nodes with alteration frequencies below the threshold will
+                                                    be filtered out,
+                                                    but seed nodes are always kept in the network.
+                                                </li>
+                                                <li>
+                                                    <span class="bold">Filter Drugs by FDA Approval:</span>
+                                                    Networks can be filtered based on whether drugs associated
+                                                    with genes of this network are FDA approved or not.
+                                                </li>
+                                                <li>
+                                                    <span class="bold">Filter Cancer Drugs:</span>
+                                                    Networks can be filtered based on whether drugs associated
+                                                    with genes of this network are cancer drugs or not.
+                                                    Notice that all cancer drugs are FDA approved.
+                                                </li>
+                                            </ul>
+                                            <p></p>
+                                            <p class="regular">
+                                                All filtering can be undone by clicking "Unhide" in the
+                                                "Topology" menu.
+                                            </p>
+                                            <p class="regular">
+                                                When the flag "Remove Disconnected Nodes on Hide" in the
+                                                "Topology" menu is checked,
+                                                an automatic layout is performed upon all changes to the network
+                                                topology.
+                                            </p>
+
+                                            <p class="heading">
+                                                Performing Layout
+                                            </p>
+                                            <p class="regular">
+                                                A Force-Directed layout algorithm is used by default.
+                                                However, you may choose to re-perform the layout with different
+                                                parameters (by selecting "Layout::Layout Properties ...") or
+                                                after the topology of the network changes with operations such
+                                                as hiding or filtering.
+                                                If you would like the layout to be performed automatically upon
+                                                such operations
+                                                simply check "Layout::Auto Layout on Changes".
+                                            </p>
+
+                                            <p class="heading">
+                                                Exporting Networks
+                                            </p>
+                                            <p class="regular">
+                                                You can export a network to a PNG file.
+                                                To do so, select "File::Save as Image (PNG)".
+                                                We do not currently support export to PDF.
+                                            </p>
+
+                                            <p class="heading">
+                                                Detailed Process Level (SBGN) View
+                                            </p>
+                                            <p class="regular">
+                                                When you are interested in process level details of an
+                                                interaction,
+                                                you may either right-click on that interaction or click the
+                                                "Detailed Process (SBGN)" button
+                                                in the Details tab while inspecting the interaction.
+                                                This will pop up a detailed process view in <a
+                                                    href="http://www.sbgn.org/Main_Page" target="_blank">SBGN
+                                                Process Description Language</a>.
+                                                The shown network corresponds to all paths between source and
+                                                target genes of that interaction as returned by <a
+                                                    href="http://www.pathwaycommons.org/pc2/" target="_blank">Pathway
+                                                Commons' web service</a>.
+                                                SBGN view allows users to modify the process level view in many
+                                                ways, including changing its layout and topology through
+                                                complexity management techniques such as hiding or collapsing.
+                                                You may also store the current network as a static image or in
+                                                <a href="http://www.sbgn.org/LibSBGN/Exchange_Format"
+                                                   target="_blank">SBGN-ML format</a>. For further help, please
+                                                refer to the Help menu of this view.
+                                            </p>
+                                            <p class="heading">
+                                                Technology
+                                            </p>
+                                            <p class="regular">
+                                                Network visualization is powered by <a
+                                                    href="http://js.cytoscape.org/"
+                                                    target="_blank">Cytoscape.js</a> and <a
+                                                    href="https://github.com/iVis-at-Bilkent/sbgnviz-js"
+                                                    target="_blank">SBGNViz.js</a>.
+                                            </p>
+
+                                        </div>
+
+                                    </div>
+                                </div>
+                            </td>
+                        </tr>
+                        </tbody>
+                    </table>
+                </div>
+
+            </div>
+        </div>
+    </td>
+</tr>
+
+</tbody>
+</table>
+</div>
+
+
+<style type="text/css">
+    input[type="checkbox"] {
+        margin: 5px;
+    }
+
+    input[type="radio"] {
+        margin: 3px;
+    }
+
+    button {
+        margin: 3px;
+    }
+
+    [class*="ui-button-text"] {
+        margin: 3px;
+    }
+
+    .result-tab-qtip-content {
+        font-size: 13px;
+        line-height: 110%;
+    }
+</style>
+
+
+</body>
+</html>

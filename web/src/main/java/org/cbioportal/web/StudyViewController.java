@@ -4,6 +4,8 @@ import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.math.NumberUtils;
 import org.apache.commons.math3.analysis.function.Gaussian;
@@ -82,6 +84,8 @@ public class StudyViewController {
     @Autowired
     private MolecularProfileService molecularProfileService;
 
+    private static final Log log = LogFactory.getLog(StudyViewController.class);
+
     @PreAuthorize("hasPermission(#involvedCancerStudies, 'Collection<CancerStudyId>', T(org.cbioportal.utils.security.AccessLevel).READ)")
     @RequestMapping(value = "/clinical-data-counts/fetch", method = RequestMethod.POST,
         consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
@@ -147,12 +151,29 @@ public class StudyViewController {
         @ApiIgnore // prevent reference to this attribute in the swagger-ui interface. this attribute is needed for the @PreAuthorize tag above.
         @Valid @RequestAttribute(required = false, value = "interceptedClinicalDataBinCountFilter") ClinicalDataBinCountFilter interceptedClinicalDataBinCountFilter
     ) {
+        UUID uuid = UUID.randomUUID();
+        List<String> attributeIds = new ArrayList<>();
+        log.warn("entry to fetchClinicalDataBinCounts() : " + uuid);
         StudyViewFilter studyViewFilter = clinicalDataBinUtil.removeSelfFromFilter(interceptedClinicalDataBinCountFilter);
+        String attributeList = "";
+        List<ClinicalDataFilter> clinicalDataFilters = studyViewFilter.getClinicalDataFilters();
+        if (clinicalDataFilters != null && clinicalDataFilters.size() > 0) {
+            for (ClinicalDataFilter clinicalDataFilter : studyViewFilter.getClinicalDataFilters()) {
+                attributeIds.add(clinicalDataFilter.getAttributeId());
+            }
+        }
+        if (attributeIds.size() > 0) {
+            attributeList = String.format(" attrs=('%s')", String.join("','", attributeIds)); 
+        }
+        log.warn("filter constructed in fetchClinicalDataBinCounts() : " + uuid + attributeList);
         boolean singleStudyUnfiltered = studyViewFilterUtil.isSingleStudyUnfiltered(studyViewFilter);
+        log.warn("singleStudyUnfiltered constructed in fetchClinicalDataBinCounts() : " + uuid + attributeList);
         List<ClinicalDataBin> clinicalDataBins = 
             instance.cachableFetchClinicalDataBinCounts(dataBinMethod, interceptedClinicalDataBinCountFilter, singleStudyUnfiltered);
-
-        return new ResponseEntity<>(clinicalDataBins, HttpStatus.OK);
+        log.warn("bin statistics computed in fetchClinicalDataBinCounts() : " + uuid + attributeList);
+        ResponseEntity<List<ClinicalDataBin>> return_value = new ResponseEntity<>(clinicalDataBins, HttpStatus.OK);
+        log.warn("exit from fetchClinicalDataBinCounts() : " + uuid + attributeList);
+        return return_value;
     }
 
     @Cacheable(

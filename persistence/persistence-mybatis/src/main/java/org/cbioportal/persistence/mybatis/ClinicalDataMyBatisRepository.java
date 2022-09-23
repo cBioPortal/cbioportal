@@ -1,5 +1,7 @@
 package org.cbioportal.persistence.mybatis;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.cbioportal.model.ClinicalData;
 import org.cbioportal.model.ClinicalDataCount;
 import org.cbioportal.model.Patient;
@@ -11,9 +13,7 @@ import org.cbioportal.persistence.mybatis.util.OffsetCalculator;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @Repository
@@ -26,21 +26,32 @@ public class ClinicalDataMyBatisRepository implements ClinicalDataRepository {
     @Autowired
     private OffsetCalculator offsetCalculator;
 
+    private static final Log log = LogFactory.getLog(ClinicalDataMyBatisRepository.class);
+
     @Override
     public List<ClinicalData> getAllClinicalDataOfSampleInStudy(String studyId, String sampleId,
                                                                 String attributeId, String projection,
                                                                 Integer pageSize, Integer pageNumber,
                                                                 String sortBy, String direction) {
+        UUID uuid = UUID.randomUUID();
+        log.warn("entry to getAllClinicalDataOfSampleInStudy() : " + uuid);
 
-        return clinicalDataMapper.getSampleClinicalData(Arrays.asList(studyId), Arrays.asList(sampleId),
-            attributeId != null ? Arrays.asList(attributeId) : null, projection, pageSize, 
-            offsetCalculator.calculate(pageSize, pageNumber), sortBy, direction);
+        List<ClinicalData> clinicalDataList = clinicalDataMapper.getSampleClinicalData(Arrays.asList(studyId), Arrays.asList(sampleId),
+                attributeId != null ? Arrays.asList(attributeId) : null, projection, pageSize, 
+                offsetCalculator.calculate(pageSize, pageNumber), sortBy, direction);
+        log.warn("exit from getAllClinicalDataOfSampleInStudy() : " + uuid);
+        return clinicalDataList;
     }
 
     @Override
     public BaseMeta getMetaSampleClinicalData(String studyId, String sampleId, String attributeId) {
-        return clinicalDataMapper.getMetaSampleClinicalData(Arrays.asList(studyId), Arrays.asList(sampleId),
+        UUID uuid = UUID.randomUUID();
+        log.warn("entry to getMetaSampleClinicalData() : " + uuid);
+
+        BaseMeta returnValue = clinicalDataMapper.getMetaSampleClinicalData(Arrays.asList(studyId), Arrays.asList(sampleId),
             attributeId != null ? Arrays.asList(attributeId) : null);
+        log.warn("exit from getMetaSampleClinicalData() : " + uuid);
+        return returnValue;
     }
 
     @Override
@@ -49,15 +60,23 @@ public class ClinicalDataMyBatisRepository implements ClinicalDataRepository {
                                                                  Integer pageSize, Integer pageNumber,
                                                                  String sortBy, String direction) {
 
-        return clinicalDataMapper.getPatientClinicalData(Arrays.asList(studyId), Arrays.asList(patientId),
-            attributeId != null ? Arrays.asList(attributeId) : null, projection, pageSize, 
-            offsetCalculator.calculate(pageSize, pageNumber), sortBy, direction);
+        UUID uuid = UUID.randomUUID();
+        log.warn("entry to getAllClinicalDataOfPatientInStudy() : " + uuid);
+        List<ClinicalData> returnValue = clinicalDataMapper.getPatientClinicalData(Arrays.asList(studyId), Arrays.asList(patientId),
+                attributeId != null ? Arrays.asList(attributeId) : null, projection, pageSize, 
+                offsetCalculator.calculate(pageSize, pageNumber), sortBy, direction);
+        log.warn("exit from getAllClinicalDataOfPatientInStudy() : " + uuid);
+        return returnValue;
     }
 
     @Override
     public BaseMeta getMetaPatientClinicalData(String studyId, String patientId, String attributeId) {
-        return clinicalDataMapper.getMetaPatientClinicalData(Arrays.asList(studyId), Arrays.asList(patientId),
-            attributeId != null ? Arrays.asList(attributeId) : null);
+        UUID uuid = UUID.randomUUID();
+        log.warn("entry to getMetaPatientClinicalData() : " + uuid);
+        BaseMeta returnValue = clinicalDataMapper.getMetaPatientClinicalData(Arrays.asList(studyId), Arrays.asList(patientId),
+                attributeId != null ? Arrays.asList(attributeId) : null);
+        log.warn("exit from getMetaPatientClinicalData() : " + uuid);
+        return returnValue;
     }
 
     @Override
@@ -65,23 +84,28 @@ public class ClinicalDataMyBatisRepository implements ClinicalDataRepository {
                                                         String clinicalDataType, String projection,
                                                         Integer pageSize, Integer pageNumber,
                                                         String sortBy, String direction) {
-
+        UUID uuid = UUID.randomUUID();
+        log.warn("entry to getAllClinicalDataInStudy() : " + uuid);
         if (clinicalDataType.equals(PersistenceConstants.SAMPLE_CLINICAL_DATA_TYPE)) {
-            return clinicalDataMapper.getSampleClinicalData(Arrays.asList(studyId), null, 
-                attributeId != null ? Arrays.asList(attributeId) : null, projection, pageSize, 
-                offsetCalculator.calculate(pageSize, pageNumber), sortBy, direction);
+            List<ClinicalData> returnValue = clinicalDataMapper.getSampleClinicalData(Arrays.asList(studyId), null, 
+                    attributeId != null ? Arrays.asList(attributeId) : null, projection, pageSize, 
+                    offsetCalculator.calculate(pageSize, pageNumber), sortBy, direction);
+            log.warn("exit from getAllClinicalDataInStudy() : " + uuid);
+            return returnValue;
         } else {
-            return clinicalDataMapper.getPatientClinicalData(Arrays.asList(studyId), null, 
-                attributeId != null ? Arrays.asList(attributeId) : null, projection, pageSize, 
-                offsetCalculator.calculate(pageSize, pageNumber), sortBy, direction);
+            List<ClinicalData> returnValue = clinicalDataMapper.getPatientClinicalData(Arrays.asList(studyId), null, 
+                    attributeId != null ? Arrays.asList(attributeId) : null, projection, pageSize, 
+                    offsetCalculator.calculate(pageSize, pageNumber), sortBy, direction);
+            log.warn("exit from getAllClinicalDataInStudy() : " + uuid);
+            return returnValue;
         }
     }
 
     @Override
     public BaseMeta getMetaAllClinicalData(String studyId, String attributeId, String clinicalDataType) {
-
         BaseMeta baseMeta = new BaseMeta();
-
+        UUID uuid = UUID.randomUUID();
+        log.warn("entry to getMetaAllClinicalData() : " + uuid);
         if (clinicalDataType.equals(PersistenceConstants.SAMPLE_CLINICAL_DATA_TYPE)) {
             baseMeta.setTotalCount(clinicalDataMapper.getMetaSampleClinicalData(Arrays.asList(studyId), null,
                 attributeId != null ? Arrays.asList(attributeId) : null).getTotalCount());
@@ -89,20 +113,29 @@ public class ClinicalDataMyBatisRepository implements ClinicalDataRepository {
             baseMeta.setTotalCount(clinicalDataMapper.getMetaPatientClinicalData(Arrays.asList(studyId), null,
                 attributeId != null ? Arrays.asList(attributeId) : null).getTotalCount());
         }
-
+        log.warn("exit from getMetaAllClinicalData() : " + uuid);
         return baseMeta;
     }
 
     @Override
     public List<ClinicalData> fetchAllClinicalDataInStudy(String studyId, List<String> ids, List<String> attributeIds,
                                                           String clinicalDataType, String projection) {
-
+        UUID uuid = UUID.randomUUID();
+        String attributeList = "";
+        if (attributeIds.size() > 0) {
+            attributeList = String.format(" attrs=('%s')", String.join("','", attributeIds)); 
+        }
+        log.warn("entry to fetchAllClinicalDataInStudy() : " + uuid + attributeList);
         if (clinicalDataType.equals(PersistenceConstants.SAMPLE_CLINICAL_DATA_TYPE)) {
-            return clinicalDataMapper.getSampleClinicalData(Arrays.asList(studyId), ids, attributeIds,
+            List<ClinicalData> clinicalDataList = clinicalDataMapper.getSampleClinicalData(Arrays.asList(studyId), ids, attributeIds,
                 projection, 0, 0, null, null);
+            log.warn("exit from fetchAllClinicalDataInStudy() : " + uuid + attributeList);
+            return clinicalDataList;
         } else {
-            return clinicalDataMapper.getPatientClinicalData(Arrays.asList(studyId), ids, attributeIds,
+            List<ClinicalData> clinicalDataList = clinicalDataMapper.getPatientClinicalData(Arrays.asList(studyId), ids, attributeIds,
                 projection, 0, 0, null, null);
+            log.warn("exit from fetchAllClinicalDataInStudy() : " + uuid + attributeList);
+            return clinicalDataList;
         }
     }
 
@@ -111,7 +144,12 @@ public class ClinicalDataMyBatisRepository implements ClinicalDataRepository {
                                                  String clinicalDataType) {
 
         BaseMeta baseMeta = new BaseMeta();
-
+        UUID uuid = UUID.randomUUID();
+        String attributeList = "";
+        if (attributeIds.size() > 0) {
+            attributeList = String.format(" attrs=('%s')", String.join("','", attributeIds)); 
+        }
+        log.warn("entry to fetchMetaClinicalDataInStudy() : " + uuid + attributeList);
         if (clinicalDataType.equals(PersistenceConstants.SAMPLE_CLINICAL_DATA_TYPE)) {
             baseMeta.setTotalCount(clinicalDataMapper.getMetaSampleClinicalData(Arrays.asList(studyId), ids,
                 attributeIds).getTotalCount());
@@ -119,7 +157,7 @@ public class ClinicalDataMyBatisRepository implements ClinicalDataRepository {
             baseMeta.setTotalCount(clinicalDataMapper.getMetaPatientClinicalData(Arrays.asList(studyId), ids,
                 attributeIds).getTotalCount());
         }
-
+        log.warn("exit from fetchMetaClinicalDataInStudy() : " + uuid + attributeList);
         return baseMeta;
     }
 
@@ -127,11 +165,20 @@ public class ClinicalDataMyBatisRepository implements ClinicalDataRepository {
     public List<ClinicalData> fetchClinicalData(List<String> studyIds, List<String> ids,
                                                 List<String> attributeIds, String clinicalDataType,
                                                 String projection) {
-
+        UUID uuid = UUID.randomUUID();
+        String attributeList = "";
+        if (attributeIds.size() > 0) {
+            attributeList = String.format(" attrs=('%s')", String.join("','", attributeIds)); 
+        }
+        log.warn("entry to fetchClinicalData() : " + uuid + attributeList);
         if (clinicalDataType.equals(PersistenceConstants.SAMPLE_CLINICAL_DATA_TYPE)) {
-            return clinicalDataMapper.getSampleClinicalData(studyIds, ids, attributeIds, projection, 0, 0, null, null);
+            List<ClinicalData> returnValue = clinicalDataMapper.getSampleClinicalData(studyIds, ids, attributeIds, projection, 0, 0, null, null);
+            log.warn("exit from fetchClinicalData() : " + uuid + attributeList);
+            return returnValue;
         } else {
-            return clinicalDataMapper.getPatientClinicalData(studyIds, ids, attributeIds, projection, 0, 0, null, null);
+            List<ClinicalData> returnValue = clinicalDataMapper.getPatientClinicalData(studyIds, ids, attributeIds, projection, 0, 0, null, null);
+            log.warn("exit from fetchClinicalData() : " + uuid + attributeList);
+            return returnValue;
         }
     }
 
@@ -140,38 +187,59 @@ public class ClinicalDataMyBatisRepository implements ClinicalDataRepository {
                                           String clinicalDataType) {
 
         BaseMeta baseMeta = new BaseMeta();
-
+        UUID uuid = UUID.randomUUID();
+        String attributeList = "";
+        if (attributeIds.size() > 0) {
+            attributeList = String.format(" attrs=('%s')", String.join("','", attributeIds)); 
+        }
+        log.warn("entry to fetchMetaClinicalData() : " + uuid + attributeList);
         if (clinicalDataType.equals(PersistenceConstants.SAMPLE_CLINICAL_DATA_TYPE)) {
-            baseMeta.setTotalCount(clinicalDataMapper.getMetaSampleClinicalData(studyIds, ids, attributeIds)
+                baseMeta.setTotalCount(clinicalDataMapper.getMetaSampleClinicalData(studyIds, ids, attributeIds)
                 .getTotalCount());
         } else {
-            baseMeta.setTotalCount(clinicalDataMapper.getMetaPatientClinicalData(studyIds, ids, attributeIds)
+                baseMeta.setTotalCount(clinicalDataMapper.getMetaPatientClinicalData(studyIds, ids, attributeIds)
                 .getTotalCount());
         }
-
+        log.warn("exit from fetchMetaClinicalData() : " + uuid + attributeList);
         return baseMeta;
     }
 
-	@Override
-	public List<ClinicalDataCount> fetchClinicalDataCounts(List<String> studyIds, List<String> sampleIds,
-			List<String> attributeIds, String clinicalDataType, String projection) {
-
+    @Override
+    public List<ClinicalDataCount> fetchClinicalDataCounts(List<String> studyIds, List<String> sampleIds,
+            List<String> attributeIds, String clinicalDataType, String projection) {
+        UUID uuid = UUID.randomUUID();
+        String attributeList = "";
+        if (attributeIds.size() > 0) {
+            attributeList = String.format(" attrs=('%s')", String.join("','", attributeIds)); 
+        }
+        log.warn("entry to fetchClinicalDataCounts() : " + uuid + attributeList);
         if (clinicalDataType.equals(PersistenceConstants.SAMPLE_CLINICAL_DATA_TYPE)) {
-            return clinicalDataMapper.fetchSampleClinicalDataCounts(studyIds, sampleIds, attributeIds);
+            List<ClinicalDataCount> returnValue = clinicalDataMapper.fetchSampleClinicalDataCounts(studyIds, sampleIds, attributeIds);
+            log.warn("exit from fetchClinicalDataCounts() : " + uuid + attributeList);
+            return returnValue;
         } else {
             List<Patient> patients = patientRepository.getPatientsOfSamples(studyIds, sampleIds);
             List<String> patientStudyIds = new ArrayList<>();
             patients.forEach(p -> patientStudyIds.add(p.getCancerStudyIdentifier()));
-            return clinicalDataMapper.fetchPatientClinicalDataCounts(patientStudyIds, 
+            List<ClinicalDataCount> returnValue = clinicalDataMapper.fetchPatientClinicalDataCounts(patientStudyIds, 
                 patients.stream().map(Patient::getStableId).collect(Collectors.toList()), attributeIds, projection);
+            log.warn("exit from fetchClinicalDataCounts() : " + uuid + attributeList);
+            return returnValue;
         }
-	}
-	
+    }
+
     @Override
     public List<ClinicalData> getPatientClinicalDataDetailedToSample(List<String> studyIds, List<String> patientIds,
             List<String> attributeIds) {
-
-        return clinicalDataMapper.getPatientClinicalDataDetailedToSample(studyIds, patientIds, attributeIds, "SUMMARY",
+        UUID uuid = UUID.randomUUID();
+        String attributeList = "";
+        if (attributeIds.size() > 0) {
+            attributeList = String.format(" attrs=('%s')", String.join("','", attributeIds)); 
+        }
+        log.warn("entry to getPatientClinicalDataDetailedToSample() : " + uuid + attributeList);
+        List<ClinicalData> returnValue = clinicalDataMapper.getPatientClinicalDataDetailedToSample(studyIds, patientIds, attributeIds, "SUMMARY",
                 0, 0, null, null);
+        log.warn("exit from getPatientClinicalDataDetailedToSample() : " + uuid + attributeList);
+        return returnValue;
     }
 }

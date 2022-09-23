@@ -1,5 +1,7 @@
 package org.cbioportal.service.impl;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.cbioportal.model.*;
 import org.cbioportal.model.meta.BaseMeta;
 import org.cbioportal.persistence.ClinicalDataRepository;
@@ -28,6 +30,8 @@ public class ClinicalDataServiceImpl implements ClinicalDataService {
     private ClinicalAttributeService clinicalAttributeService;
     @Autowired
     private ClinicalAttributeUtil clinicalAttributeUtil ;
+
+    private static final Log log = LogFactory.getLog(ClinicalDataServiceImpl.class);
 
     @Override
     public List<ClinicalData> getAllClinicalDataOfSampleInStudy(String studyId, String sampleId, String attributeId, 
@@ -115,7 +119,15 @@ public class ClinicalDataServiceImpl implements ClinicalDataService {
     public List<ClinicalData> fetchClinicalData(List<String> studyIds, List<String> ids, List<String> attributeIds, 
                                                 String clinicalDataType, String projection) {
 
-        return clinicalDataRepository.fetchClinicalData(studyIds, ids, attributeIds, clinicalDataType, projection);
+        UUID uuid = UUID.randomUUID();
+        String attributeList = "";
+        if (attributeIds.size() > 0) {
+            attributeList = String.format(" attrs=('%s')", String.join("','", attributeIds)); 
+        }
+        log.warn("entry to fetchClinicalData() : " + uuid + attributeList);
+        List<ClinicalData> return_value = clinicalDataRepository.fetchClinicalData(studyIds, ids, attributeIds, clinicalDataType, projection);
+        log.warn("exit from fetchClinicalData() : " + uuid + attributeList);
+        return return_value;
     }
 
     @Override

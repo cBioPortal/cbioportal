@@ -4,6 +4,8 @@ import java.util.*;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.collections4.map.MultiKeyMap;
 import org.cbioportal.model.*;
@@ -73,6 +75,8 @@ public class StudyViewFilterApplier {
     @Autowired
     private MolecularProfileUtil molecularProfileUtil;
 
+    private static final Log log = LogFactory.getLog(StudyViewFilterApplier.class);
+
     Function<Sample, SampleIdentifier> sampleToSampleIdentifier = new Function<Sample, SampleIdentifier>() {
 
         public SampleIdentifier apply(Sample sample) {
@@ -97,8 +101,12 @@ public class StudyViewFilterApplier {
 
     public List<SampleIdentifier> apply(StudyViewFilter studyViewFilter, Boolean negateFilters) {
 
+        UUID uuid = UUID.randomUUID();
+        log.warn("entry to apply() : " + uuid);
+
         List<SampleIdentifier> sampleIdentifiers = new ArrayList<>();
         if (studyViewFilter == null) {
+            log.warn("exit from apply() : " + uuid);
             return sampleIdentifiers;
         }
 
@@ -196,6 +204,7 @@ public class StudyViewFilterApplier {
                 }
 
             } else {
+                log.warn("exit from apply() : " + uuid);
                 return new ArrayList<>();
             }
         }
@@ -267,8 +276,9 @@ public class StudyViewFilterApplier {
                 sampleIdentifiers.retainAll(filteredSampleIdentifiers);
             }
         }
-
-        return chainSubFilters(studyViewFilter, sampleIdentifiers);
+        List<SampleIdentifier> return_value = chainSubFilters(studyViewFilter, sampleIdentifiers);
+        log.warn("exit from apply() : " + uuid);
+        return return_value;
     }
     
     private List<SampleIdentifier> chainSubFilters(StudyViewFilter studyViewFilter, List<SampleIdentifier> sampleIdentifiers) {

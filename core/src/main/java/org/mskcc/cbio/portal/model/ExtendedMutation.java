@@ -61,6 +61,7 @@ public final class ExtendedMutation
         private String dbSnpRs;
         private String dbSnpValStatus;
         private String oncotatorDbSnpRs;
+        private String oncotatorRefseqMrnaId;
         private String oncotatorUniprotName;
         private String oncotatorUniprotAccession;
         private String oncotatorCodonChange;
@@ -196,6 +197,14 @@ public final class ExtendedMutation
 
         public void setOncotatorDbSnpRs(String oncotatorDbSnpRs) {
             this.oncotatorDbSnpRs = oncotatorDbSnpRs;
+        }
+
+        public String getOncotatorRefseqMrnaId() {
+            return oncotatorRefseqMrnaId;
+        }
+
+        public void setOncotatorRefseqMrnaId(String oncotatorRefseqMrnaId) {
+            this.oncotatorRefseqMrnaId = oncotatorRefseqMrnaId;
         }
 
         public String getOncotatorUniprotName() {

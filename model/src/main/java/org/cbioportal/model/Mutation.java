@@ -25,6 +25,7 @@ public class Mutation extends Alteration implements Serializable {
     private String mutationType;
     private String ncbiBuild;
     private String variantType;
+    private String oncotatorRefseqMrnaId;
     private Integer oncotatorProteinPosStart;
     private Integer oncotatorProteinPosEnd;
     private String keyword;
@@ -164,7 +165,14 @@ public class Mutation extends Alteration implements Serializable {
     public void setVariantType(String variantType) {
         this.variantType = variantType;
     }
+    public String getOncotatorRefseqMrnaId() {
+        return oncotatorRefseqMrnaId;
+    }
 
+    public void setOncotatorRefseqMrnaId(String oncotatorRefseqMrnaId) {
+        this.oncotatorRefseqMrnaId = oncotatorRefseqMrnaId;
+    }
+    
     public Integer getOncotatorProteinPosStart() {
         return oncotatorProteinPosStart;
     }

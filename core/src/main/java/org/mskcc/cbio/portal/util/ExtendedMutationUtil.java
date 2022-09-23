@@ -323,6 +323,7 @@ public class ExtendedMutationUtil {
         mutation.setNormalRefCount(defaultInt);
         mutation.setOncotatorDbSnpRs(defaultStr);
         mutation.setOncotatorCodonChange(defaultStr);
+        mutation.setOncotatorRefseqMrnaId(defaultStr);
         mutation.setOncotatorUniprotName(defaultStr);
         mutation.setOncotatorUniprotAccession(defaultStr);
         mutation.setOncotatorProteinPosStart(defaultInt);

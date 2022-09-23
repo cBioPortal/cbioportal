@@ -119,6 +119,7 @@ public class MutationMyBatisRepositoryTest {
         Assert.assertEquals((Integer) (-1), mutation.getNormalRefCount());
         Assert.assertEquals((Integer) 934, mutation.getOncotatorProteinPosEnd());
         Assert.assertEquals((Integer) 934, mutation.getOncotatorProteinPosStart());
+        Assert.assertEquals("NM_007294", mutation.getOncotatorRefseqMrnaId());
         Assert.assertEquals("Q934*", mutation.getProteinChange());
         Assert.assertEquals("G", mutation.getReferenceAllele());
         Assert.assertEquals((Long) 41244748L, mutation.getStartPosition());
@@ -159,6 +160,7 @@ public class MutationMyBatisRepositoryTest {
         Assert.assertEquals((Integer) (-1), mutation.getNormalRefCount());
         Assert.assertEquals((Integer) 934, mutation.getOncotatorProteinPosEnd());
         Assert.assertEquals((Integer) 934, mutation.getOncotatorProteinPosStart());
+        Assert.assertEquals("NM_007294", mutation.getOncotatorRefseqMrnaId());
         Assert.assertEquals("Q934*", mutation.getProteinChange());
         Assert.assertEquals("G", mutation.getReferenceAllele());
         Assert.assertEquals((Long) 41244748L, mutation.getStartPosition());
@@ -195,6 +197,7 @@ public class MutationMyBatisRepositoryTest {
         Assert.assertEquals((Integer) (-1), mutation.getNormalRefCount());
         Assert.assertEquals((Integer) 934, mutation.getOncotatorProteinPosEnd());
         Assert.assertEquals((Integer) 934, mutation.getOncotatorProteinPosStart());
+        Assert.assertEquals("NM_007294", mutation.getOncotatorRefseqMrnaId());
         Assert.assertEquals("Q934*", mutation.getProteinChange());
         Assert.assertEquals("G", mutation.getReferenceAllele());
         Assert.assertEquals((Long) 41244748L, mutation.getStartPosition());

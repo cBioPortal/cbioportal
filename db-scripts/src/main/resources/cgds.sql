@@ -441,6 +441,7 @@ CREATE TABLE `mutation_event` (
   `DB_SNP_RS` varchar(25),
   `DB_SNP_VAL_STATUS` varchar(255),
   `ONCOTATOR_DBSNP_RS` varchar(255),
+  `ONCOTATOR_REFSEQ_MRNA_ID` varchar(64),
   `ONCOTATOR_CODON_CHANGE` varchar(255),
   `ONCOTATOR_UNIPROT_ENTRY_NAME` varchar(64),
   `ONCOTATOR_UNIPROT_ACCESSION` varchar(64),

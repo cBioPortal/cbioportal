@@ -210,6 +210,7 @@ public class ImportExtendedMutationData{
                     proteinChange,
                     aaChange,
                     codonChange,
+                    refseqMrnaId,
                     uniprotAccession;
 
                 int proteinPosStart,
@@ -240,6 +241,7 @@ public class ImportExtendedMutationData{
                 //proteinChange = record.getProteinChange();
                 aaChange = record.getAminoAcidChange();
                 codonChange = record.getCodons();
+                refseqMrnaId = record.getRefSeq();
                 //always uniprot accession
                 uniprotAccession = record.getSwissprot();
                 
@@ -367,6 +369,7 @@ public class ImportExtendedMutationData{
 
                     // TODO rename the oncotator column names (remove "oncotator")
                     mutation.setOncotatorCodonChange(codonChange);
+                    mutation.setOncotatorRefseqMrnaId(refseqMrnaId);
                     mutation.setOncotatorUniprotAccession(uniprotAccession);
                     mutation.setOncotatorProteinPosStart(proteinPosStart);
                     mutation.setOncotatorProteinPosEnd(proteinPosEnd);

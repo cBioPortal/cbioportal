@@ -28,6 +28,7 @@
             mutation_event.MUTATION_TYPE AS mutationType,
             mutation_event.NCBI_BUILD AS ncbiBuild,
             mutation_event.VARIANT_TYPE AS variantType,
+            mutation_event.ONCOTATOR_REFSEQ_MRNA_ID AS oncotatorRefseqMrnaId,
             mutation_event.ONCOTATOR_PROTEIN_POS_START AS oncotatorProteinPosStart,
             mutation_event.ONCOTATOR_PROTEIN_POS_END AS oncotatorProteinPosEnd,
             mutation_event.KEYWORD AS keyword,

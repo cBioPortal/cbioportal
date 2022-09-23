@@ -44,6 +44,7 @@ import org.mskcc.cbio.maf.MafUtil;
  */
 public final class ExtendedMutation
 {
+
     public final static class MutationEvent {
         private long mutationEventId;
         private CanonicalGene gene;
@@ -743,6 +744,16 @@ public final class ExtendedMutation
         event.setOncotatorDbSnpRs(oncotatorDbSnpRs);
     }
 
+    public String getOncotatorRefseqMrnaId()
+    {
+        return event.getOncotatorRefseqMrnaId();
+    }
+
+    public void setOncotatorRefseqMrnaId(String oncotatorRefseqMrnaId)
+    {
+        event.setOncotatorRefseqMrnaId(oncotatorRefseqMrnaId);
+    }
+    
     public String getOncotatorUniprotName()
     {
         return event.getOncotatorUniprotName();

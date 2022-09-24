@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width,initial-scale=1">
-    <meta name="turbo-cache-control" content="no-cache" data-turbo-track="reload" data-track-token="2.4.0.717000226748">
+    <meta name="turbo-cache-control" content="no-cache" data-turbo-track="reload" data-track-token="2.4.0.717300168596">
 
     <!-- See retype.com -->
     <meta name="generator" content="Retype 2.4.0">
@@ -33,12 +33,12 @@
     <script>(function () { var el = document.documentElement, m = localStorage.getItem("doc_theme"), wm = window.matchMedia; if (m === "dark" || (!m && wm && wm("(prefers-color-scheme: dark)").matches)) { el.classList.add("dark") } else { el.classList.remove("dark") } })();</script>
 
     <link href="../images/cbio-logo.png" rel="icon" />
-    <link href="../resources/css/retype.css?v=2.4.0.717000226748" rel="stylesheet" />
+    <link href="../resources/css/retype.css?v=2.4.0.717300168596" rel="stylesheet" />
 
-    <script type="text/javascript" src="../resources/js/config.js?v=2.4.0.717000226748" data-turbo-eval="false" defer></script>
+    <script type="text/javascript" src="../resources/js/config.js?v=2.4.0.717300168596" data-turbo-eval="false" defer></script>
     <script type="text/javascript" src="../resources/js/retype.js?v=2.4.0" data-turbo-eval="false" defer></script>
-    <script id="lunr-js" type="text/javascript" src="../resources/js/lunr.js?v=2.4.0.717000226748" data-turbo-eval="false" defer></script>
-    <script id="prism-js" type="text/javascript" src="../resources/js/prism.js?v=2.4.0.717000226748" defer></script>
+    <script id="lunr-js" type="text/javascript" src="../resources/js/lunr.js?v=2.4.0.717300168596" data-turbo-eval="false" defer></script>
+    <script id="prism-js" type="text/javascript" src="../resources/js/prism.js?v=2.4.0.717300168596" defer></script>
 
     <link rel="stylesheet" href="/static/custom.css"></link>
 </head>
@@ -2585,9 +2585,9 @@ data_filename: data_resource_sample.txt</code></pre>
 <li><strong>RESOURCE_ID (required)</strong>: a unique resource ID. This field allows only numbers, letters, points, underscores and hyphens.</li>
 <li><strong>DISPLAY_NAME (required)</strong>: a display name for resources.</li>
 <li><strong>RESOURCE_TYPE (required)</strong>: resource type for resources, must be SAMPLE, PATIENT or STUDY.</li>
-<li><strong>DESCRIPTION (required)</strong>: a discription for resources.</li>
-<li><strong>OPEN_BY_DEFAULT (required)</strong>: define if the resource will be open by default (<code v-pre>true</code> / <code v-pre>false</code>), dafault is <code v-pre>false</code>.</li>
-<li><strong>PRIORITY (required)</strong>: if not given, will give a default value.</li>
+<li><strong>DESCRIPTION (optional)</strong>: a discription for resources.</li>
+<li><strong>OPEN_BY_DEFAULT (optional)</strong>: define if the resource will be open by default (<code v-pre>true</code> / <code v-pre>false</code>), dafault is <code v-pre>false</code>.</li>
+<li><strong>PRIORITY (optional)</strong>: if not given, will give a default value.</li>
 </ul>
 <doc-anchor-target id="example-resource-definition-data-file">
     <h3>

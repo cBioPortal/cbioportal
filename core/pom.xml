@@ -199,6 +199,10 @@
       <groupId>junit</groupId>
       <artifactId>junit</artifactId>
     </dependency>
+    <dependency>
+      <groupId>com.github.Luke-Sikina</groupId>
+      <artifactId>maf</artifactId>
+    </dependency>
   </dependencies>
 
   <build>

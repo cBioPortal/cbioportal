@@ -962,6 +962,11 @@
         <version>3.0-rc2</version>
       </dependency>
       <dependency>
+        <groupId>com.github.Luke-Sikina</groupId>
+        <artifactId>maf</artifactId>
+        <version>5129753f402c218581810d6aefad9b50b7cabdc9</version>
+      </dependency>
+      <dependency>
         <groupId>net.sf.jung</groupId>
         <artifactId>jung-api</artifactId>
         <version>2.0.1</version>

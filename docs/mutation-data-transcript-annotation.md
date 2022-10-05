@@ -27,15 +27,13 @@ Ensembl database assigns ids for these transcript with names like `ENSTxxx`). Yo
 website for the [BRAF gene](https://grch37.ensembl.org/Homo_sapiens/Gene/Summary?g=ENSG00000157764;r=7:140719327-
 140924929#): 
 
-<img width="995" alt="Screen Shot 2022-10-05 at 9 35 55 AM" src="https://user-
-images.githubusercontent.com/1334004/194073821-9a43cab2-3d31-40ab-b47e-517f1ce8bca3.png"> 
+<img width="995" alt="Screen Shot 2022-10-05 at 9 35 55 AM" src="https://user-images.githubusercontent.com/1334004/194073821-9a43cab2-3d31-40ab-b47e-517f1ce8bca3.png">
 
 The transcript `ENST00000288602.6` is 2480 base pairs long (nucleotides ACGT) and the associated protein isoform is 766 
 amino acids (V/P/etc). You can see we are showing that same transcript and protein isoform on [cBioPortal](https:
 //bit.ly/3vaclXN): 
 
-<img width="1052" alt="Screen Shot 2022-10-05 at 9 37 32 AM" src="https://user-
-images.githubusercontent.com/1334004/194074248-c3e205b4-c2e4-4e19-a541-17517dc07913.png"> 
+<img width="1052" alt="Screen Shot 2022-10-05 at 9 37 32 AM" src="https://user-images.githubusercontent.com/1334004/194074248-c3e205b4-c2e4-4e19-a541-17517dc07913.png"> 
 
 For each gene name in cBioPortal a canonical/default transcript is assigned. These assignments are stored in [Genome 
 Nexus](https://www.genomenexus.org/) and explained below. Although cBioPortal does not store changes to different 

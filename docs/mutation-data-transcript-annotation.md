@@ -13,23 +13,25 @@ example: parts of the gene that code for proteins (exons) can be included or exc
 is called an [isoform](https://en.wikipedia.org/wiki/Protein_isoform). A single mutation can change the amino acids in 
 each of these these isoforms differently. E.g. in one isoform it might change a P to a T, but in the other isoform that 
 particular exon does not get included and it is therefore not changing the amino acid sequence at all. In cBioPortal 
-for convenience sake we assign a single gene symbol + protein change to each mutation. In several cases this works well 
+for convenience sake we assign a single gene symbol + protein change to each mutation. For most cases this works well 
 because there is only one protein isoform relevant in a clinical setting. There are of course exceptions and we are 
-therefore working on improving this representation. The term isoform generally refers to a protein, but oftentimes one 
-wants to know changes to non-exonic parts of the gene as well. Although cBioPortal currently only displays exonic 
-events aside from a few exceptions of known oncogenic events (e.g. TERT promoter), we do store the change to the 
-transcript in the MAF file. This allows computational researchers to easily investigate these further outside of 
-cBioPortal. 
+therefore working on improving this representation. An explanation of the relation between transcripts and protein isoforms can be found in the next section.
 
 #### What is a transcript? 
 
-DNA is transcribed to an mRNA transcript which is then translated to a protein sequence. DNA sequencers sequence DNA 
-which is why the transcript is usually stored as cDNA (the complementary DNA sequence of the mRNA) and the change is 
+DNA is transcribed to an mRNA transcript which is then translated to a protein sequence. A transcript is thus 
+associated with a specific protein isoform. DNA sequencers sequence DNA which is why the transcript is usually stored as cDNA (the complementary DNA sequence of the mRNA) and the change is 
 stored as a change to that cDNA transcript (the Ensembl database assigns ids for these transcript with names like `
-ENSTxxx`). For each gene name in cBioPortal a canonical transcript is assigned. These assignemnts are stored in [Genome 
-Nexus](https://www.genomenexus.org/). Although cBioPortal does not store changes to different transcripts/isoforms for 
-each mutation in the database itself, it does allow viewing them on the [Mutations Tab](https://bit.ly/39hVtDd) by re-
-annotating the mutations on the fly through [Genome Nexus](https://www.genomenexus.org/). 
+ENSTxxx`). You can see this on e.g. the Ensembl website for the [BRAF gene](https://grch37.ensembl.org/Homo_sapiens/Gene/Summary?g=ENSG00000157764;r=7:140719327-140924929#):
+
+<img width="995" alt="Screen Shot 2022-10-05 at 9 35 55 AM" src="https://user-images.githubusercontent.com/1334004/194073821-9a43cab2-3d31-40ab-b47e-517f1ce8bca3.png">
+
+The transcript `ENST00000288602.6` is 2480 base pairs long (nucleotides ACGT) and the associated protein isoform is 766 amino acids (V/P/etc). You can see we are showing that same transcript and protein isoform on [cBioPortal](https://bit.ly/3vaclXN):
+
+<img width="1052" alt="Screen Shot 2022-10-05 at 9 37 32 AM" src="https://user-images.githubusercontent.com/1334004/194074248-c3e205b4-c2e4-4e19-a541-17517dc07913.png">
+
+For each gene name in cBioPortal a canonical/default transcript is assigned. These assignments are stored in [Genome 
+Nexus](https://www.genomenexus.org/) and explained below. Although cBioPortal does not store changes to different transcripts/isoforms for each mutation in the database itself, it does allow viewing them on the [Mutations Tab](https://bit.ly/39hVtDd) by re-annotating the mutations on the fly through [Genome Nexus](https://www.genomenexus.org/) whenever a user clicks on the transcript dropdown.
 
 ### Transcript Assignment 
 

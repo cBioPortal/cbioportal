@@ -1,22 +1,78 @@
-## Mutation Data Transcript Annotation
-This document describes how each mutation in cBioPortal gets annotated with a specific gene symbol + protein change.
+## Mutation Data Transcript Annotation 
 
-### Biological Background
-This section explains the concepts of protein isoforms and transcripts.
+This document describes how each mutation in cBioPortal gets annotated with a specific gene symbol + protein change. 
 
-#### What is an isoform?
-From a single gene (string of nucleotides) multiple protein sequences can be formed (string of amino acids). For example: parts of the gene that code for proteins (exons) can be included or excluded. Each of these different proteins is called an [isoform](https://en.wikipedia.org/wiki/Protein_isoform). A single mutation can change the amino acids in each of these these isoforms differently. E.g. in one isoform it might change a P to a T, but in the other isoform that particular exon does not get included and it is therefore not changing the amino acid sequence at all. In cBioPortal for convenience sake we assign a single gene symbol + protein change to each mutation. In several cases this works well because there is only one protein isoform relevant in a clinical setting. There are of course exceptions and we are therefore working on improving this representation. The term isoform generally refers to a protein, but oftentimes one wants to know changes to non-exonic parts of the gene as well. Although cBioPortal currently only displays exonic events aside from a few exceptions of known oncogenic events (e.g. TERT promoter), we do store the change to the transcript in the MAF file. This allows computational researchers to easily investigate these further outside of cBioPortal.
+### Biological Background 
 
-#### What is a transcript?
-DNA is transcribed to an mRNA transcript which is then translated to a protein sequence. DNA sequencers sequence DNA which is why the transcript is usually stored as cDNA (the complementary DNA sequence of the mRNA) and the change is stored as a change to that cDNA transcript (the Ensembl database assigns ids for these transcript with names like `ENSTxxx`). For each gene name in cBioPortal a canonical transcript is assigned. These assignemnts are stored in [Genome Nexus](https://www.genomenexus.org/). Although cBioPortal does not store changes to different transcripts/isoforms for each mutation in the database itself, it does allow viewing them on the [Mutations Tab](https://bit.ly/39hVtDd) by re-annotating the mutations on the fly through [Genome Nexus](https://www.genomenexus.org/).
+This section explains the concepts of protein isoforms and transcripts. 
 
-### Transcript Assignment
-The cBioPortal database stores one gene + protein change annotation for each mutation event in the database. To allow comparing mutation data across studies it is important to annotate the mutation data (be it in MAF or VCF format) in the same way, otherwise the gene + protein changes can mean entirely different things. For all public studies stored in [datahub](https://github.com/cBioPortal/datahub/tree/master/public) we leverage [Genome Nexus](https://www.genomenexus.org) to do so. Genome Nexus assigns one canonical Ensembl Transcript + gene name + protein change for each mutation. You can find the mapping of hugo symbol to transcript id
-[here](https://github.com/genome-nexus/genome-nexus-importer/blob/master/data/grch37_ensembl92/export/ensembl_biomart_canonical_transcripts_per_hgnc.txt).
-There are two sets of default transcripts: `uniprot` and `mskcc`. We recommend to use the `mskcc` set of transcripts when starting from scratch, since these are more up to date and correspond to transcripts that were chosen as relevant for clinical sequencing at MSKCC. The `uniprot` set of transcripts was constructed several years ago, but we are no longer certain about the logic on how to reconstruct them hence they are not being kept up to date. One can see the differences between the two in [this file](https://github.com/cBioPortal/cbioportal-frontend/files/9498680/genes_with_different_uniprot_mskcc_isoforms.txt). For the public cBioPortal (https://www.cbioportal.org) we are using `mskcc`, for for the GENIE cBioPortal (https://genie.cbioportal.org) we use `uniprot`. Although for local installations the default currently is `uniprot` to avoid people upgrading from a previous version of cBioPortal to accidentally switch to `mskcc`, we do recommend to use `mskcc`.
+#### What is an isoform? 
 
-#### How default transcript assignment affects the Mutations Tab
-The [Mutations Tab](https://bit.ly/39hVtDd) shows the full protein sequence. The one shown by default is the canonical transcript (`mskcc` or `uniprot` depending on configuration). The mutations are drawn on the lollipop based on the protein position found in the cBioPortal database. For the [public cBioPortal](https://cbioportal.org) all mutation data in MAF format are annotated using [Genome Nexus](https://www.genomenexus.org) to add the gene and protein change columns. This is then imported into the cBioPortal database. Whether you choose to use the set of `uniprot` or `mskcc` transcripts, make sure to indicate it in the [Genome Nexus Annotation Pipeline](https://github.com/genome-nexus/genome-nexus-annotation-pipeline#maf-annotation)(`--isoform-override <mskcc or uniprot>`) when annotating as well as in the properties file of cBioPortal. That way the [Mutations Tab](https://bit.ly/39hVtDd) will show the correct canonical transcript. Note that whenever somebody uses the dropdown on the Mutations Tab to change the displayed transcript, Genome Neuxs re-annotates all mutations on the fly. The browser sends over the genomic location (chrom,start,end,ref,alt) to get the protein change information for each transcript.
+From a single gene (string of nucleotides) multiple protein sequences can be formed (string of amino acids). For 
+example: parts of the gene that code for proteins (exons) can be included or excluded. Each of these different proteins 
+is called an [isoform](https://en.wikipedia.org/wiki/Protein_isoform). A single mutation can change the amino acids in 
+each of these these isoforms differently. E.g. in one isoform it might change a P to a T, but in the other isoform that 
+particular exon does not get included and it is therefore not changing the amino acid sequence at all. In cBioPortal 
+for convenience sake we assign a single gene symbol + protein change to each mutation. In several cases this works well 
+because there is only one protein isoform relevant in a clinical setting. There are of course exceptions and we are 
+therefore working on improving this representation. The term isoform generally refers to a protein, but oftentimes one 
+wants to know changes to non-exonic parts of the gene as well. Although cBioPortal currently only displays exonic 
+events aside from a few exceptions of known oncogenic events (e.g. TERT promoter), we do store the change to the 
+transcript in the MAF file. This allows computational researchers to easily investigate these further outside of 
+cBioPortal. 
 
-#### Plans for default transcripts
-We are planning to move to a single set of default transcripts over time, previously `uniprot` was used for the public facing portals and is currently still the default for new installations. Our plan is to use `mskcc` everywhere and eventually we will most likely move to [MANE](https://www.ensembl.org/info/genome/genebuild/mane.html). MANE is only available for grch38 and since most of our data is for grch37 this is currently not feasible. Whichever set of transcripts you choose to use, make sure to indicate so in the [Genome Nexus Annotation Pipeline](https://github.com/genome-nexus/genome-nexus-annotation-pipeline#maf-annotation) (`--isoform-override <mskcc or uniprot>`) and put the same set of transcripts in the properties file of cBioPortal, such that the [Mutations Tab](https://bit.ly/39hVtDd) will show the correct canonical transcript (currently defaults to `uniprot`). The re-annotation of mutations only happens once a user clicks to change the transcript, which is why it's important that the protein change in the database is for the specific transcript displayed first.
+#### What is a transcript? 
+
+DNA is transcribed to an mRNA transcript which is then translated to a protein sequence. DNA sequencers sequence DNA 
+which is why the transcript is usually stored as cDNA (the complementary DNA sequence of the mRNA) and the change is 
+stored as a change to that cDNA transcript (the Ensembl database assigns ids for these transcript with names like `
+ENSTxxx`). For each gene name in cBioPortal a canonical transcript is assigned. These assignemnts are stored in [Genome 
+Nexus](https://www.genomenexus.org/). Although cBioPortal does not store changes to different transcripts/isoforms for 
+each mutation in the database itself, it does allow viewing them on the [Mutations Tab](https://bit.ly/39hVtDd) by re-
+annotating the mutations on the fly through [Genome Nexus](https://www.genomenexus.org/). 
+
+### Transcript Assignment 
+
+The cBioPortal database stores one gene + protein change annotation for each mutation event in the database. To allow 
+comparing mutation data across studies it is important to annotate the mutation data (be it in MAF or VCF format) in 
+the same way, otherwise the gene + protein changes can mean entirely different things. For all public studies stored 
+in [datahub](https://github.com/cBioPortal/datahub/tree/master/public) we leverage [Genome Nexus](https:
+//www.genomenexus.org) to do so. Genome Nexus assigns one canonical Ensembl Transcript + gene name + protein change for 
+each mutation. You can find the mapping of hugo symbol to transcript id[here](https://github.com/genome-nexus/genome-
+nexus-importer/blob/master/data/grch37_ensembl92/export/ensembl_biomart_canonical_transcripts_per_hgnc.txt).There are 
+two sets of default transcripts: `uniprot` and `mskcc`. We recommend to use the `mskcc` set of transcripts when 
+starting from scratch, since these are more up to date and correspond to transcripts that were chosen as relevant for 
+clinical sequencing at MSKCC. The `uniprot` set of transcripts was constructed several years ago, but we are no longer 
+certain about the logic on how to reconstruct them hence they are not being kept up to date. One can see the 
+differences between the two in [this file](https://github.com/cBioPortal/cbioportal-
+frontend/files/9498680/genes_with_different_uniprot_mskcc_isoforms.txt). For the public cBioPortal (https:
+//www.cbioportal.org) we are using `mskcc`, for for the GENIE cBioPortal (https://genie.cbioportal.org) we use `uniprot`
+. Although for local installations the default currently is `uniprot` to avoid people upgrading from a previous version 
+of cBioPortal to accidentally switch to `mskcc`, we do recommend to use `mskcc`. 
+
+#### How default transcript assignment affects the Mutations Tab 
+
+The [Mutations Tab](https://bit.ly/39hVtDd) shows the full protein sequence. The one shown by default is the canonical 
+transcript (`mskcc` or `uniprot` depending on configuration). The mutations are drawn on the lollipop based on the 
+protein position found in the cBioPortal database. For the [public cBioPortal](https://cbioportal.org) all mutation 
+data in MAF format are annotated using [Genome Nexus](https://www.genomenexus.org) to add the gene and protein change 
+columns. This is then imported into the cBioPortal database. Whether you choose to use the set of `uniprot` or `mskcc` 
+transcripts, make sure to indicate it in the [Genome Nexus Annotation Pipeline](https://github.com/genome-nexus/genome-
+nexus-annotation-pipeline#maf-annotation)(`--isoform-override <mskcc or uniprot>`) when annotating as well as in the 
+properties file of cBioPortal. That way the [Mutations Tab](https://bit.ly/39hVtDd) will show the correct canonical 
+transcript. Note that whenever somebody uses the dropdown on the Mutations Tab to change the displayed transcript, 
+Genome Neuxs re-annotates all mutations on the fly. The browser sends over the genomic location (chrom,start,end,ref,
+alt) to get the protein change information for each transcript. 
+
+#### Plans for default transcripts 
+
+We are planning to move to a single set of default transcripts over time, previously `uniprot` was used for the public 
+facing portals and is currently still the default for new installations. Our plan is to use `mskcc` everywhere and 
+eventually we will most likely move to [MANE](https://www.ensembl.org/info/genome/genebuild/mane.html). MANE is only 
+available for grch38 and since most of our data is for grch37 this is currently not feasible. Whichever set of 
+transcripts you choose to use, make sure to indicate so in the [Genome Nexus Annotation Pipeline](https:
+//github.com/genome-nexus/genome-nexus-annotation-pipeline#maf-annotation) (`--isoform-override <mskcc or uniprot>`) 
+and put the same set of transcripts in the properties file of cBioPortal, such that the [Mutations Tab](https:
+//bit.ly/39hVtDd) will show the correct canonical transcript (currently defaults to `uniprot`). The re-annotation of 
+mutations only happens once a user clicks to change the transcript, which is why it's important that the protein change 
+in the database is for the specific transcript displayed first. 

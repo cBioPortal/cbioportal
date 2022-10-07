@@ -859,7 +859,7 @@
       <dependency>
         <groupId>org.apache.tomcat</groupId>
         <artifactId>tomcat-catalina</artifactId>
-        <version>7.0.68</version>
+        <version>7.0.81</version>
         <scope>
           ${tomcat.catalina.scope}
         </scope>

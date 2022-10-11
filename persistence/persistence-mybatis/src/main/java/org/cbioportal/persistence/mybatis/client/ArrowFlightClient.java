@@ -55,8 +55,8 @@ public class ArrowFlightClient {
                 null,
                 createClientProperties(sessionPropertiesMap),
                 null);;
+            log.info("client setup successfully!" + "\n");
         }
-        log.info("client setup successfully!" + "\n");
         return client;
     }
 

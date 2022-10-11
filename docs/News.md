@@ -1,3 +1,16 @@
+## Oct 12, 2022
+*   **Added data** consisting of 1,459 samples from 10 studies:
+	* [Hepatocellular Carcinoma (MERiC,Basel 2021)](https://www.cbioportal.org/study/summary?id=hcc_meric_2021) *122 samples*
+    * [Prostate Cancer Brain Metastases (Swiss 2019)](https://www.cbioportal.org/study/summary?id=prostate_pcbm_swiss_2019) *168 samples*
+    * [Pan-Cancer MSK-IMPACT MET Validation Cohort (MSK 2022)](https://www.cbioportal.org/study/summary?id=mixed_impact_subset_2022) *69 samples*
+    * [Endometrial Carcinoma cfDNA (MSK, Clin Cancer Res 2022)](https://www.cbioportal.org/study/summary?id=ucec_ccr_cfdna_msk_2022) *44 samples*
+    * [Endometrial Carcinoma MSI (MSK, Clin Cancer Res 2022)](https://www.cbioportal.org/study/summary?id=ucec_ccr_msk_2022) *181 samples*
+    * [Gallbladder Cancer (MSKCC, 2022)](https://www.cbioportal.org/study/summary?id=gbc_mskcc_2022) *244 samples*
+    * [Meningioma (University of Toronto, 2021)](https://www.cbioportal.org/study/summary?id=mng_utoronto_2021) *121 samples*
+	* [Mixed Tumors: Selpercatinib RET Trial (MSK 2020)](https://www.cbioportal.org/study/summary?id=mixed_selpercatinib_2020) *188 samples*
+	* [Low-Grade Serous Ovarian Cancer (MSK, Clin Cancer Res 2022)](https://www.cbioportal.org/study/summary?id=lgsoc_mapk_msk_2022) *119 samples*
+	* [Urothelial Carcinoma (BCAN/HCRN 2022)](http://www.cbioportal.org/study/summary?id=blca_bcan_hcrn_2022) *203 samples*
+	
 ## Jul 26, 2022
 *   **Added data** consisting of 6,631 samples from 7 studies:
 	* [Metastatic Biliary Tract Cancers (SUMMIT - Neratinib Basket Trial, 2022)](https://www.cbioportal.org/study/summary?id=biliary_tract_summit_2022) *36 samples*

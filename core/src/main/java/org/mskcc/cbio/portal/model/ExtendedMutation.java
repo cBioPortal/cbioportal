@@ -61,9 +61,7 @@ public final class ExtendedMutation
         private String tumorSeqAllele;
         private String dbSnpRs;
         private String dbSnpValStatus;
-        private String oncotatorDbSnpRs;
         private String oncotatorRefseqMrnaId;
-        private String oncotatorUniprotName;
         private String oncotatorUniprotAccession;
         private String oncotatorCodonChange;
         private int oncotatorProteinPosStart;
@@ -192,14 +190,6 @@ public final class ExtendedMutation
             this.dbSnpValStatus = dbSnpValStatus;
         }
 
-        public String getOncotatorDbSnpRs() {
-            return oncotatorDbSnpRs;
-        }
-
-        public void setOncotatorDbSnpRs(String oncotatorDbSnpRs) {
-            this.oncotatorDbSnpRs = oncotatorDbSnpRs;
-        }
-
         public String getOncotatorRefseqMrnaId() {
             return oncotatorRefseqMrnaId;
         }
@@ -207,23 +197,7 @@ public final class ExtendedMutation
         public void setOncotatorRefseqMrnaId(String oncotatorRefseqMrnaId) {
             this.oncotatorRefseqMrnaId = oncotatorRefseqMrnaId;
         }
-
-        public String getOncotatorUniprotName() {
-            return oncotatorUniprotName;
-        }
-
-        /**
-         * Set the UniprotKB name (formerly known as ID) of the protein record.
-         *
-         * @param oncotatorUniprotName the UniprotKB name
-         * @deprecated set the accession with
-         *             {@link #setOncotatorUniprotAccession(String)} instead
-         */
-        @Deprecated
-        public void setOncotatorUniprotName(String oncotatorUniprotName) {
-            this.oncotatorUniprotName = oncotatorUniprotName;
-        }
-
+        
         public String getOncotatorUniprotAccession() {
             return oncotatorUniprotAccession;
         }
@@ -736,14 +710,6 @@ public final class ExtendedMutation
         this.normalRefCount = normalRefCount;
     }
 
-    public String getOncotatorDbSnpRs() {
-        return event.getOncotatorDbSnpRs();
-    }
-
-    public void setOncotatorDbSnpRs(String oncotatorDbSnpRs) {
-        event.setOncotatorDbSnpRs(oncotatorDbSnpRs);
-    }
-
     public String getOncotatorRefseqMrnaId()
     {
         return event.getOncotatorRefseqMrnaId();
@@ -752,24 +718,6 @@ public final class ExtendedMutation
     public void setOncotatorRefseqMrnaId(String oncotatorRefseqMrnaId)
     {
         event.setOncotatorRefseqMrnaId(oncotatorRefseqMrnaId);
-    }
-    
-    public String getOncotatorUniprotName()
-    {
-        return event.getOncotatorUniprotName();
-    }
-
-    /**
-     * Set the UniprotKB name (formerly known as ID) of the protein record.
-     *
-     * @param oncotatorUniprotName the UniprotKB name
-     * @deprecated set the accession with
-     *             {@link #setOncotatorUniprotAccession(String)} instead
-     */
-    @Deprecated
-    public void setOncotatorUniprotName(String oncotatorUniprotName)
-    {
-        event.setOncotatorUniprotName(oncotatorUniprotName);
     }
 
     public String getOncotatorUniprotAccession()

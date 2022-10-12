@@ -104,11 +104,9 @@ public class MafRecord {
     private String maLinkPdb;
 
     // Oncotator cols
-    private String oncotatorDbSnpRs;
     private String oncotatorDbSnpValStatus;
     private String oncotatorVariantClassification;
     private String oncotatorRefseqMrnaId;
-    private String oncotatorUniprotName;
     private String oncotatorUniprotAccession;
     private String oncotatorCodonChange;
     private int oncotatorProteinPosStart;
@@ -528,15 +526,7 @@ public class MafRecord {
     public void setOncotatorVariantClassification(String oncotatorVariantClassification) {
         this.oncotatorVariantClassification = oncotatorVariantClassification;
     }
-
-    public String getOncotatorDbSnpRs() {
-        return oncotatorDbSnpRs;
-    }
-
-    public void setOncotatorDbSnpRs(String oncotatorDbSnpRs) {
-        this.oncotatorDbSnpRs = oncotatorDbSnpRs;
-    }
-
+    
     public String getOncotatorDbSnpValStatus() {
         return oncotatorDbSnpValStatus;
     }
@@ -551,14 +541,6 @@ public class MafRecord {
 
     public void setOncotatorRefseqMrnaId(String oncotatorRefseqMrnaId) {
         this.oncotatorRefseqMrnaId = oncotatorRefseqMrnaId;
-    }
-
-    public String getOncotatorUniprotName() {
-        return oncotatorUniprotName;
-    }
-
-    public void setOncotatorUniprotName(String oncotatorUniprotName) {
-        this.oncotatorUniprotName = oncotatorUniprotName;
     }
 
     public String getOncotatorUniprotAccession() {

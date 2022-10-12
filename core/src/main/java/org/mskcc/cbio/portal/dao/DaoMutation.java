@@ -150,10 +150,8 @@ public final class DaoMutation {
                 event.getVariantType(),
                 event.getDbSnpRs(),
                 event.getDbSnpValStatus(),
-                event.getOncotatorDbSnpRs(),
                 event.getOncotatorRefseqMrnaId(),
                 event.getOncotatorCodonChange(),
-                event.getOncotatorUniprotName(),
                 event.getOncotatorUniprotAccession(),
                 Integer.toString(event.getOncotatorProteinPosStart()),
                 Integer.toString(event.getOncotatorProteinPosEnd()),
@@ -801,10 +799,8 @@ public final class DaoMutation {
         event.setDbSnpRs(rs.getString("DB_SNP_RS"));
         event.setDbSnpValStatus(rs.getString("DB_SNP_VAL_STATUS"));
         event.setReferenceAllele(rs.getString("REFERENCE_ALLELE"));
-        event.setOncotatorDbSnpRs(rs.getString("ONCOTATOR_DBSNP_RS"));
         event.setOncotatorRefseqMrnaId(rs.getString("ONCOTATOR_REFSEQ_MRNA_ID"));
         event.setOncotatorCodonChange(rs.getString("ONCOTATOR_CODON_CHANGE"));
-        event.setOncotatorUniprotName(rs.getString("ONCOTATOR_UNIPROT_ENTRY_NAME"));
         event.setOncotatorUniprotAccession(rs.getString("ONCOTATOR_UNIPROT_ACCESSION"));
         event.setOncotatorProteinPosStart(rs.getInt("ONCOTATOR_PROTEIN_POS_START"));
         event.setOncotatorProteinPosEnd(rs.getInt("ONCOTATOR_PROTEIN_POS_END"));

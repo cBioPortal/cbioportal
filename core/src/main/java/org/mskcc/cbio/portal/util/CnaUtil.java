@@ -1,11 +1,15 @@
 package org.mskcc.cbio.portal.util;
 
+import com.fasterxml.jackson.core.*;
 import org.cbioportal.model.*;
 import org.mskcc.cbio.maf.TabDelimitedFileUtil;
 import org.mskcc.cbio.portal.dao.*;
 import org.mskcc.cbio.portal.model.CnaEvent;
 import org.mskcc.cbio.portal.model.GeneticProfile;
+import org.mskcc.cbio.portal.scripts.*;
+import com.fasterxml.jackson.databind.ObjectMapper;
 
+import java.io.*;
 import java.util.*;
 
 import static org.mskcc.cbio.portal.scripts.ImportTabDelimData.*;
@@ -21,6 +25,25 @@ public class CnaUtil {
     public static final String CBP_DRIVER = "cbp_driver";
     public static final String CBP_DRIVER_ANNOTATION = "cbp_driver_annotation";
     public static final String CBP_DRIVER_TIERS = "cbp_driver_tiers";
+
+    public static final String CBP_DRIVER_TIERS_ANNOTATION = "cbp_driver_tiers_annotation";
+    private NamespaceColumnParser namespaceColumnParser;
+    private ObjectMapper objectMapper = new ObjectMapper();
+
+    public CnaUtil(String[] headerParts, Set<String> namespaces) {
+        this.columnIndexMap = new HashMap<>();
+
+        // Find header indices
+        for (int i = 0; i < headerParts.length; i++) {
+            // Put the index in the map
+            this.columnIndexMap.put(headerParts[i].toLowerCase(), i);
+        }
+
+        if (getColumnIndex(HUGO_SYMBOL) == -1 && getColumnIndex(ENTREZ_GENE_ID) == -1) {
+            throw new RuntimeException("Error: at least one of the following columns should be present: Hugo_Symbol or Entrez_Gene_Id");
+        }
+        this.namespaceColumnParser = new NamespaceColumnParser(namespaces, headerParts);
+    }
 
     public static void storeCnaEvents(
         Set<CnaEvent.Event> existingCnaEvents,
@@ -44,24 +67,11 @@ public class CnaUtil {
         }
     }
 
-    public static final String CBP_DRIVER_TIERS_ANNOTATION = "cbp_driver_tiers_annotation";
-
-    public CnaUtil(String headerRow) {
-        this.columnIndexMap = new HashMap<>();
-        String[] headerParts = headerRow.trim().split("\t");
-
-        // Find header indices
-        for (int i = 0; i < headerParts.length; i++) {
-            // Put the index in the map
-            this.columnIndexMap.put(headerParts[i].toLowerCase(), i);
-        }
-
-        if (getColumnIndex(HUGO_SYMBOL) == -1 && getColumnIndex(ENTREZ_GENE_ID) == -1) {
-            throw new RuntimeException("Error: at least one of the following columns should be present: Hugo_Symbol or Entrez_Gene_Id");
-        }
-    }
-
-    public CnaEvent createEvent(GeneticProfile geneticProfile, int sampleId, String[] parts) {
+    public CnaEvent createEvent(
+        GeneticProfile geneticProfile, 
+        int sampleId, 
+        String[] parts
+    ) throws IOException {
         int cnaProfileId = geneticProfile.getGeneticProfileId();
         long entrezGeneId = getEntrezSymbol(parts);
         short alteration = createAlteration(parts);
@@ -70,9 +80,18 @@ public class CnaUtil {
         cna.setDriverFilterAnnotation(TabDelimitedFileUtil.getPartString(getColumnIndex(CnaUtil.CBP_DRIVER_ANNOTATION), parts));
         cna.setDriverTiersFilter(TabDelimitedFileUtil.getPartString(getColumnIndex(CnaUtil.CBP_DRIVER_TIERS), parts));
         cna.setDriverTiersFilterAnnotation(TabDelimitedFileUtil.getPartString(getColumnIndex(CnaUtil.CBP_DRIVER_TIERS_ANNOTATION), parts));
+        cna.setAnnotationJson(
+            convertMapToJsonString(
+                this.namespaceColumnParser.parseCustomNamespaces(parts)
+            )
+        );
         return cna;
     }
-
+    
+    private String convertMapToJsonString(Map<String, Map<String, Object>> map) throws JsonProcessingException {
+        return this.objectMapper.writeValueAsString(map);
+    }
+    
     public long getEntrezSymbol(String[] parts) {
         String entrezAsString = TabDelimitedFileUtil.getPartString(getColumnIndex(CnaUtil.ENTREZ_GENE_ID), parts);
         if (entrezAsString.isEmpty()) {
@@ -98,12 +117,14 @@ public class CnaUtil {
         return Integer.valueOf(result).shortValue();
     }
 
+    /**
+     * @return column index, or -1 when not found
+     */
     public int getColumnIndex(String colName) {
-        Integer index = this.columnIndexMap.get(colName.toLowerCase());
-        if (index == null) {
-            index = -1;
-        }
-        return index;
+        return this.columnIndexMap.getOrDefault(
+            colName.toLowerCase(), 
+            -1
+        );
     }
 
     public String getSampleIdStr(String[] parts) {

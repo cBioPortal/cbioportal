@@ -6,6 +6,7 @@
     <sql id="select">
         cna_event.ENTREZ_GENE_ID as entrezGeneId,
         cna_event.ALTERATION AS alteration,
+        sample_cna_event.ANNOTATION_JSON as annotationJson,
         genetic_profile.STABLE_ID AS molecularProfileId,
         sample.STABLE_ID AS sampleId,
         patient.STABLE_ID AS patientId,

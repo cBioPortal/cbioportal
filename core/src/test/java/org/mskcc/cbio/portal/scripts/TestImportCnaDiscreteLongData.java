@@ -27,10 +27,10 @@
 
 package org.mskcc.cbio.portal.scripts;
 
+import org.codehaus.jackson.map.*;
 import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
-import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mskcc.cbio.portal.dao.*;
@@ -48,10 +48,10 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.util.ArrayList;
-import java.util.List;
+import java.util.*;
 
 import static com.google.common.collect.Lists.newArrayList;
+import static com.google.common.collect.Sets.newHashSet;
 import static java.util.stream.Collectors.joining;
 import static java.util.stream.Collectors.toList;
 import static org.cbioportal.model.MolecularProfile.DataType.DISCRETE;
@@ -67,6 +67,7 @@ public class TestImportCnaDiscreteLongData {
     int studyId;
     GeneticProfile geneticProfile;
     String genePanel = "TESTPANEL_CNA_DISCRETE_LONG_FORMAT";
+    Set<String> noNamespaces = new HashSet<>();
 
     @Before
     public void setUp() throws DaoException {
@@ -93,8 +94,8 @@ public class TestImportCnaDiscreteLongData {
             geneticProfile.getGeneticProfileId(),
             genePanel,
             DaoGeneOptimized.getInstance(),
-            DaoGeneticAlteration.getInstance()
-        ).importData();
+            DaoGeneticAlteration.getInstance(),
+            noNamespaces).importData();
 
         // Test new samples are added:
         List<String> expectedSampleIds = newArrayList("TCGA-A1-A0SB-11", "TCGA-A2-A04U-11");
@@ -119,7 +120,8 @@ public class TestImportCnaDiscreteLongData {
             geneticProfile.getGeneticProfileId(),
             genePanel,
             DaoGeneOptimized.getInstance(),
-            DaoGeneticAlteration.getInstance()
+            DaoGeneticAlteration.getInstance(),
+            noNamespaces
         ).importData();
 
         List<CnaEvent.Event> resultCnaEvents = DaoCnaEvent.getAllCnaEvents();
@@ -172,8 +174,8 @@ public class TestImportCnaDiscreteLongData {
             geneticProfile.getGeneticProfileId(),
             genePanel,
             DaoGeneOptimized.getInstance(),
-            DaoGeneticAlteration.getInstance()
-        ).importData();
+            DaoGeneticAlteration.getInstance(),
+            noNamespaces).importData();
 
         // Test genetic alterations are added for all genes:
         List<TestGeneticAlteration> resultGeneticAlterations = getAllGeneticAlterations();
@@ -195,8 +197,8 @@ public class TestImportCnaDiscreteLongData {
             geneticProfile.getGeneticProfileId(),
             genePanel,
             DaoGeneOptimized.getInstance(),
-            DaoGeneticAlteration.getInstance()
-        ).importData();
+            DaoGeneticAlteration.getInstance(),
+            noNamespaces).importData();
 
         // Test order of genetic alteration values:
         TestGeneticAlteration geneticAlteration = getGeneticAlterationBy(2115L);
@@ -222,8 +224,8 @@ public class TestImportCnaDiscreteLongData {
             geneticProfile.getGeneticProfileId(),
             genePanel,
             DaoGeneOptimized.getInstance(),
-            DaoGeneticAlteration.getInstance()
-        ).importData();
+            DaoGeneticAlteration.getInstance(),
+            noNamespaces).importData();
 
         // Test genetic alteration are added of non-cna event:
         TestGeneticAlteration geneticAlteration = getGeneticAlterationBy(56914);
@@ -247,8 +249,8 @@ public class TestImportCnaDiscreteLongData {
             geneticProfile.getGeneticProfileId(),
             genePanel,
             DaoGeneOptimized.getInstance(),
-            DaoGeneticAlteration.getInstance()
-        ).importData();
+            DaoGeneticAlteration.getInstance(),
+            noNamespaces).importData();
 
         // Test genetic alteration are deduplicated:
         TestGeneticAlteration geneticAlteration = getGeneticAlterationBy(57670);
@@ -269,7 +271,8 @@ public class TestImportCnaDiscreteLongData {
             geneticProfile.getGeneticProfileId(),
             genePanel,
             DaoGeneOptimized.getInstance(),
-            DaoGeneticAlteration.getInstance()
+            DaoGeneticAlteration.getInstance(),
+            noNamespaces
         ).importData();
         List<Long> genes = newArrayList(3983L, 27334L, 2115L);
         List<CnaEvent.Event> resultCnaEvents = DaoCnaEvent.getAllCnaEvents()
@@ -298,13 +301,148 @@ public class TestImportCnaDiscreteLongData {
             geneticProfile.getGeneticProfileId(),
             genePanel,
             DaoGeneOptimized.getInstance(),
-            DaoGeneticAlteration.getInstance()
+            DaoGeneticAlteration.getInstance(),
+            noNamespaces
         ).importData();
 
         String resultDatatype = getGeneticProfileDatatype(this.geneticProfile.getGeneticProfileId());
         assertEquals(DISCRETE.name(), resultDatatype);
     }
 
+
+    /**
+     * Test the import of cna data file in long format with:
+     * - two custom namespaces that should be imported
+     * - one unknown namespace that should be ignored
+     */
+    @Test
+    public void testImportCnaDiscreteLongDataOnlyAddsSpecifiedCustomNamespaceColumns() throws Exception {
+        ObjectMapper mapper = new ObjectMapper();
+        File file = new File("src/test/resources/data_cna_discrete_import_test_with_namespaces.txt");
+        Set<String> namespacesToImport = newHashSet("MyNamespace", "MyNamespace2");
+        new ImportCnaDiscreteLongData(
+            file,
+            geneticProfile.getGeneticProfileId(),
+            genePanel,
+            DaoGeneOptimized.getInstance(),
+            DaoGeneticAlteration.getInstance(),
+            namespacesToImport
+        ).importData();
+
+        // All namespace columns provided:
+        List<NamespaceAnnotationJson> results = getAnnotationJsonBy(geneticProfile.getGeneticProfileId());
+        assertEquals(2, results.size());
+        String resultAnnotationJson = results
+            .stream()
+            .filter(r -> r.entrezGeneId == 2115L)
+            .map(r -> r.annotationJson)
+            .findFirst().get();
+        
+        // Namespace 'InvalidNamespace' should be ignored:
+        String expectedAnnotationJson = "{\"MyNamespace\": {\"column1\": \"MyValue1\", \"column2\": \"MyValue2\"}, \"MyNamespace2\": {\"blarp\": \"blorp\"}}";
+        assertEquals(
+            mapper.readTree(results.get(0).annotationJson), 
+            mapper.readTree(expectedAnnotationJson)
+        );
+        assertEquals(
+            mapper.readTree(expectedAnnotationJson), 
+            mapper.readTree(resultAnnotationJson)
+        );
+    }
+
+    /**
+     * Test the import of cna data file in long format with:
+     * - one row with both namespaces
+     * - one row with a missing namespace, imported as null
+     */
+    @Test
+    public void testImportCnaDiscreteLongDataImportsMissingNamespacesAsNull() throws Exception {
+        ObjectMapper mapper = new ObjectMapper();
+        File file = new File("src/test/resources/data_cna_discrete_import_test_with_namespaces.txt");
+        Set<String> namespacesToImport = newHashSet("MyNamespace", "MyNamespace2");
+        new ImportCnaDiscreteLongData(
+            file,
+            geneticProfile.getGeneticProfileId(),
+            genePanel,
+            DaoGeneOptimized.getInstance(),
+            DaoGeneticAlteration.getInstance(),
+            namespacesToImport
+        ).importData();
+
+        // All namespace columns provided:
+        List<NamespaceAnnotationJson> results = getAnnotationJsonBy(geneticProfile.getGeneticProfileId());
+        assertEquals(2, results.size());
+        String resultAnnotationJson = results
+            .stream()
+            .filter(r -> r.entrezGeneId == 2115L)
+            .map(r -> r.annotationJson)
+            .findFirst().get();
+        String expectedAnnotationJson = "{\"MyNamespace\": {\"column1\": \"MyValue1\", \"column2\": \"MyValue2\"}, \"MyNamespace2\": {\"blarp\": \"blorp\"}}";
+        assertEquals(
+            mapper.readTree(results.get(0).annotationJson),
+            mapper.readTree(expectedAnnotationJson)
+        );
+        assertEquals(
+            mapper.readTree(expectedAnnotationJson),
+            mapper.readTree(resultAnnotationJson)
+        );
+
+        // Only one namespace column provided:
+        resultAnnotationJson = results
+            .stream()
+            .filter(r -> r.entrezGeneId == 27334L)
+            .map(r -> r.annotationJson)
+            .findFirst().get();
+        expectedAnnotationJson = "{\"MyNamespace\": {\"column1\": null, \"column2\": null}, \"MyNamespace2\": {\"blarp\": \"bloerp\"}}";
+        assertEquals(
+            mapper.readTree(expectedAnnotationJson),
+            mapper.readTree(resultAnnotationJson)
+        );
+    }
+    
+    /**
+     * Test the import of cna data file in long format with:
+     * - two rows with the same gene and two different samples each with their own annotationJson 
+     */
+    @Test
+    public void testImportCnaDiscreteLongDataAddsCustomNamespaceColumnsForEachSample() throws Exception {
+        ObjectMapper mapper = new ObjectMapper();
+        File file = new File("src/test/resources/data_cna_discrete_import_test_with_namespaces2.txt");
+        Set<String> namespaces = newHashSet("MyNamespace", "MyNamespace2");
+        new ImportCnaDiscreteLongData(
+            file,
+            geneticProfile.getGeneticProfileId(),
+            genePanel,
+            DaoGeneOptimized.getInstance(),
+            DaoGeneticAlteration.getInstance(),
+            namespaces
+        ).importData();
+
+        List<NamespaceAnnotationJson> results = getAnnotationJsonBy(geneticProfile.getGeneticProfileId());
+        assertEquals(2, results.size());
+        String expectedAnnotationJsonA1 = "{\"MyNamespace\": {\"column1\": \"v1a\", \"column2\": \"v2a\"}, \"MyNamespace2\": {\"blarp\": \"bloerp\"}}";
+        String expectedAnnotationJsonA2 = "{\"MyNamespace\": {\"column1\": \"v1b\", \"column2\": \"v2b\"}, \"MyNamespace2\": {\"blarp\": \"bleurp\"}}";
+        
+        String resultAnnotationJsonA1 = results
+            .stream()
+            .filter(r -> "TCGA-A1-A0SB-11".equals(r.stableId))
+            .map(r -> r.annotationJson)
+            .findFirst().get();
+        assertEquals(
+            mapper.readTree(expectedAnnotationJsonA1), 
+            mapper.readTree(resultAnnotationJsonA1)
+        );
+        String resultAnnotationJsonA2 = results
+            .stream()
+            .filter(r -> "TCGA-A2-A04U-11".equals(r.stableId))
+            .map(r -> r.annotationJson)
+            .findFirst().get();
+        assertEquals(
+            mapper.readTree(expectedAnnotationJsonA2), 
+            mapper.readTree(resultAnnotationJsonA2)
+        );
+    }
+    
     private List<TestPdAnnotationPK> createPrimaryKeys(String sample, List<CnaEvent.Event> cnaEvents) {
         return cnaEvents.stream().map(e -> {
             TestPdAnnotationPK pk = new TestPdAnnotationPK();
@@ -333,12 +471,38 @@ public class TestImportCnaDiscreteLongData {
     }
     
     private String getGeneticProfileDatatype(long geneticProfileId) throws DaoException {
-        return query(
+        return runSelectQuery(
             "select DATATYPE " +
                 "FROM genetic_profile " +
                 "WHERE GENETIC_PROFILE_ID=" + geneticProfileId + " ;",
             (ResultSet rs) -> rs.getString("DATATYPE")
         ).get(0);
+    }
+
+    class NamespaceAnnotationJson {
+        public int cnaEventId;
+        public int sampleId;
+        public int entrezGeneId;
+        public String stableId;
+        public String annotationJson;
+    }
+
+    private List<NamespaceAnnotationJson> getAnnotationJsonBy(long geneticProfileId) throws DaoException {
+        return runSelectQuery(
+            "select cna_event.CNA_EVENT_ID, SAMPLE_ID, STABLE_ID, GENETIC_PROFILE_ID, ENTREZ_GENE_ID, ANNOTATION_JSON " +
+                "FROM sample_cna_event " +
+                "LEFT JOIN sample ON sample.INTERNAL_ID = sample_cna_event.SAMPLE_ID " +
+                "LEFT JOIN cna_event ON cna_event.CNA_EVENT_ID = sample_cna_event.CNA_EVENT_ID " +
+                "WHERE GENETIC_PROFILE_ID=" + geneticProfileId + " ;",
+            (ResultSet rs) -> {
+                NamespaceAnnotationJson result = new NamespaceAnnotationJson();
+                result.cnaEventId = rs.getInt("CNA_EVENT_ID");
+                result.sampleId = rs.getInt("SAMPLE_ID");
+                result.stableId = rs.getString("STABLE_ID");
+                result.entrezGeneId = rs.getInt("ENTREZ_GENE_ID");
+                result.annotationJson = rs.getString("ANNOTATION_JSON");
+                return result;
+            });
     }
 
     private List<TestPdAnnotation> getAllCnaPdAnnotations(List<TestPdAnnotationPK> pks) throws DaoException {
@@ -349,8 +513,7 @@ public class TestImportCnaDiscreteLongData {
                 pk.alterationEventId, pk.geneticProfileId, pk.sampleId
             ));
         }
-
-
+        
         String q = "SELECT DRIVER_TIERS_FILTER_ANNOTATION, DRIVER_TIERS_FILTER, DRIVER_FILTER_ANNOTATION, DRIVER_FILTER, "
             + "ALTERATION_EVENT_ID, GENETIC_PROFILE_ID, SAMPLE_ID "
             + "FROM alteration_driver_annotation ";
@@ -358,7 +521,7 @@ public class TestImportCnaDiscreteLongData {
             q += "WHERE " + String.join(" OR ", pkStrings);
         }
 
-        return query(
+        return runSelectQuery(
             q,
             (ResultSet rs) -> {
                 TestPdAnnotation line = new TestPdAnnotation();
@@ -377,7 +540,7 @@ public class TestImportCnaDiscreteLongData {
     }
 
     private List<TestGeneticAlteration> getAllGeneticAlterations() throws DaoException {
-        return query("SELECT * FROM genetic_alteration", (ResultSet rs) -> {
+        return runSelectQuery("SELECT * FROM genetic_alteration", (ResultSet rs) -> {
             TestGeneticAlteration line = new TestGeneticAlteration();
             line.geneticProfileId = rs.getInt("GENETIC_PROFILE_ID");
             line.geneticEntityId = rs.getInt("GENETIC_ENTITY_ID");
@@ -387,7 +550,7 @@ public class TestImportCnaDiscreteLongData {
     }
 
     private TestGeneticAlteration getGeneticAlterationBy(long entrezId) throws DaoException {
-        return query("SELECT ga.GENETIC_PROFILE_ID, ga.GENETIC_ENTITY_ID, ga.VALUES, g.ENTREZ_GENE_ID " +
+        return runSelectQuery("SELECT ga.GENETIC_PROFILE_ID, ga.GENETIC_ENTITY_ID, ga.VALUES, g.ENTREZ_GENE_ID " +
                 "FROM genetic_alteration AS ga " +
                 "RIGHT JOIN gene AS g " +
                 "ON g.GENETIC_ENTITY_ID = ga.GENETIC_ENTITY_ID " +
@@ -403,7 +566,7 @@ public class TestImportCnaDiscreteLongData {
     }
 
     private TestGeneticProfileSample getGeneticProfileSample(long profileId) throws DaoException {
-        return query(
+        return runSelectQuery(
             "SELECT * FROM genetic_profile_samples WHERE GENETIC_PROFILE_ID=" + profileId,
             (ResultSet rs) -> {
                 TestGeneticProfileSample line = new TestGeneticProfileSample();
@@ -413,7 +576,7 @@ public class TestImportCnaDiscreteLongData {
             }).get(0);
     }
 
-    private <T> List<T> query(String query, FunctionThrowsSql<ResultSet, T> handler) throws DaoException {
+    private <T> List<T> runSelectQuery(String query, FunctionThrowsSql<ResultSet, T> handler) throws DaoException {
         Connection con = null;
         PreparedStatement pstmt = null;
         ResultSet rs = null;

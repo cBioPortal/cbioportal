@@ -61,8 +61,9 @@ public final class DaoCnaEvent {
             MySQLbulkLoader.getMySQLbulkLoader("sample_cna_event").insertRecord(
                     Long.toString(eventId),
                     Integer.toString(cnaEvent.getSampleId()),
-                    Integer.toString(cnaEvent.getCnaProfileId())
-                    );
+                    Integer.toString(cnaEvent.getCnaProfileId()),
+                    cnaEvent.getAnnotationJson()
+            );
 
             if ((cnaEvent.getDriverFilter() != null
                 && !cnaEvent.getDriverFilter().isEmpty()
@@ -72,17 +73,17 @@ public final class DaoCnaEvent {
                 && !cnaEvent.getDriverTiersFilter().isEmpty()
                 && !cnaEvent.getDriverTiersFilter().toLowerCase().equals("na"))
             ) {
-                    MySQLbulkLoader
-                        .getMySQLbulkLoader("alteration_driver_annotation")
-                        .insertRecord(
-                    Long.toString(eventId),
-                    Integer.toString(cnaEvent.getCnaProfileId()),
-                    Integer.toString(cnaEvent.getSampleId()),
-                    cnaEvent.getDriverFilter(),
-                    cnaEvent.getDriverFilterAnnotation(),
-                    cnaEvent.getDriverTiersFilter(),
-                    cnaEvent.getDriverTiersFilterAnnotation()
-                );
+                MySQLbulkLoader
+                    .getMySQLbulkLoader("alteration_driver_annotation")
+                    .insertRecord(
+                        Long.toString(eventId),
+                        Integer.toString(cnaEvent.getCnaProfileId()),
+                        Integer.toString(cnaEvent.getSampleId()),
+                        cnaEvent.getDriverFilter(),
+                        cnaEvent.getDriverFilterAnnotation(),
+                        cnaEvent.getDriverTiersFilter(),
+                        cnaEvent.getDriverTiersFilterAnnotation()
+                    );
             }
         }
     }

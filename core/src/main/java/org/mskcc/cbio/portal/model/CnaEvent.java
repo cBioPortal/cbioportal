@@ -47,7 +47,8 @@ public class CnaEvent {
     private String driverFilterAnnotation;
     private String driverTiersFilter;
     private String driverTiersFilterAnnotation;
-    
+    private String annotationJson;
+
     public static class Event {
         private long eventId;
         private CanonicalGene gene;
@@ -220,6 +221,14 @@ public class CnaEvent {
 
     public void setDriverTiersFilterAnnotation(String driverTiersFilterAnnotation) {
         this.driverTiersFilterAnnotation = driverTiersFilterAnnotation;
+    }
+    
+    public String getAnnotationJson() {
+        return annotationJson;
+    }
+
+    public void setAnnotationJson(String annotationJson) {
+        this.annotationJson = annotationJson;
     }
 
     @Override

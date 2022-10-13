@@ -1,0 +1,3 @@
+Hugo_Symbol	Entrez_Gene_Id	Sample_Id	Value	cbp_driver	cbp_driver_annotation	cbp_driver_tiers	cbp_driver_tiers_annotation	MyNamespace.column1	MyNamespace.column2	MyNamespace2.blarp	InvalidNamespace.column1
+P2RY10	27334	TCGA-A1-A0SB-11	2					v1a	v2a	bloerp	
+P2RY10	27334	TCGA-A2-A04U-11	2					v1b	v2b	bleurp	

@@ -58,7 +58,7 @@ public class ClinicalDataMyBatisRepository implements ClinicalDataRepository {
         } finally {
             log.warn("exit from getAllClinicalDataOfSampleInStudy() : " + uuid);
         }
-        return null;
+        return Collections.<ClinicalData>emptyList();
     }
 
     @Override
@@ -121,7 +121,7 @@ public class ClinicalDataMyBatisRepository implements ClinicalDataRepository {
             } finally {
                 log.warn("exit from getAllClinicalDataInStudy() : " + uuid);
             }
-            return null;
+            return Collections.<ClinicalData>emptyList();
         } else {
             List<ClinicalData> returnValue = clinicalDataMapper.getPatientClinicalData(Arrays.asList(studyId), null,
                     attributeId != null ? Arrays.asList(attributeId) : null, projection, pageSize,
@@ -193,7 +193,7 @@ public class ClinicalDataMyBatisRepository implements ClinicalDataRepository {
             } finally {
                 log.warn("exit from fetchAllClinicalDataInStudy() : " + uuid + attributeList);
             }
-            return null;
+            return Collections.<ClinicalData>emptyList();
         } else {
             // TODO : this should go to Dremio client too!
             List<ClinicalData> returnValue = clinicalDataMapper.getPatientClinicalData(Arrays.asList(studyId), ids, attributeIds,
@@ -287,7 +287,7 @@ public class ClinicalDataMyBatisRepository implements ClinicalDataRepository {
             } finally {
                 log.warn("exit from fetchClinicalData() : " + uuid + attributeList);
             }
-            return null;
+            return Collections.<ClinicalData>emptyList();
         } else {
             log.warn("entry to fetchClinicalData() : " + uuid + attributeList + " (for patients)");
             try {
@@ -340,7 +340,7 @@ public class ClinicalDataMyBatisRepository implements ClinicalDataRepository {
             } finally {
                 log.warn("exit from fetchClinicalData() : " + uuid + attributeList);
             }
-            return null;
+            return Collections.<ClinicalData>emptyList();
         }
     }
 
@@ -451,6 +451,6 @@ public class ClinicalDataMyBatisRepository implements ClinicalDataRepository {
         } finally {
             log.warn("exit from fetchClinicalData() : " + uuid + attributeList);
         }
-        return null;
+        return Collections.<ClinicalData>emptyList();
     }
 }

@@ -1768,12 +1768,12 @@ class StructuralVariantValidationTestCase(PostClinicalDataFileTestCase):
         record = next(record_iterator)
         self.assertEqual(logging.ERROR, record.levelno)
         self.assertEqual(3, record.line_number)
-        self.assertIn("No Entrez gene id or gene symbol provided for site 1 and site 2. This record will not be loaded", record.message)
+        self.assertIn("No Entrez gene id or gene symbol provided for site 1 and site 2", record.message)
         
         record = next(record_iterator)
         self.assertEqual(logging.ERROR, record.levelno)
         self.assertEqual(8, record.line_number)
-        self.assertIn("No Entrez gene id or gene symbol provided for site 1 and site 2. This record will not be loaded", record.message)
+        self.assertIn("No Entrez gene id or gene symbol provided for site 1 and site 2", record.message)
         
     def test_duplicate_line(self):
         """Test if duplicate lines are detected"""

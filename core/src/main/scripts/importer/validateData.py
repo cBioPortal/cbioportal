@@ -3109,8 +3109,7 @@ class StructuralVariantValidator(Validator):
         # Check whether at least one of the Site1 or Site2 is valid.
         if site1_gene is None and site2_gene is None:
             self.logger.error(
-                'No Entrez gene id or gene symbol provided for site 1 and site 2. '
-                'This record will not be loaded',
+                'No Entrez gene id or gene symbol provided for site 1 and site 2',
                 extra={'line_number': self.line_number})
         elif site1_gene is None and site2_gene is not None:
             self.logger.warning(

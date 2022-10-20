@@ -201,6 +201,14 @@ skin.patient_view.copy_number_table.columns.show_on_init=
 skin.patient_view.structural_variant_table.columns.show_on_init=
 ```
 
+### Choose the display name for authenticated users
+
+By default the display name for authenticated users is email, but it can be changed for the user name:
+
+```
+skin.user_display_name=username
+```
+
 ### Hide p- and q-values in survival types table
 
 ```

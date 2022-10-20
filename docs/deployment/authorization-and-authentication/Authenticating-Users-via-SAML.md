@@ -139,6 +139,7 @@ Then, modify the section labeled `authentication`. See SAML parameters shown in 
     saml.idp.comm.binding.settings=defaultBinding
     saml.idp.comm.binding.type=
     saml.idp.metadata.attribute.email=User.email
+    saml.idp.metadata.attribute.userName=User.name
     saml.custom.userservice.class=org.cbioportal.security.spring.authentication.saml.SAMLUserDetailsServiceImpl
     # global logout (as opposed to local logout):
     saml.logout.local=false
@@ -162,7 +163,7 @@ If you need a very different parsing of the SAML tokens than what is done at `or
 
     saml.custom.userservice.class=<your_package.your_class_name>
 
-:warning: The property `saml.idp.metadata.attribute.email` can also vary per IDP. It is important to set this correctly since this is a required field by the cBioPortal SAML parser (that is, if `org.cbioportal.security.spring.authentication.saml.SAMLUserDetailsServiceImpl` is chosen for property `saml.custom.userservice.class`). 
+:warning: The properties `saml.idp.metadata.attribute.email`, and `saml.idp.metadata.attribute.userName` can also vary per IDP. It is important to set these correctly since these are a required field by the cBioPortal SAML parser (that is, if `org.cbioportal.security.spring.authentication.saml.SAMLUserDetailsServiceImpl` is chosen for property `saml.custom.userservice.class`). 
 
 :warning: Some IDPs like to provide their own logout page (e.g. when they don't support the custom SAML Single Logout protocol). For this you can adjust the  
 `saml.logout.url` property to a custom URL provided by the IDP. Also set the `saml.logout.local=true` property in this case to indicate that global logout (or Single Logout) is not supported by IDP:

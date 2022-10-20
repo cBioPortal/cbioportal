@@ -3108,9 +3108,27 @@ class StructuralVariantValidator(Validator):
         
         # Check whether at least one of the Site1 or Site2 is valid.
         if site1_gene is None and site2_gene is None:
-            self.logger.error(
-                'No Entrez gene id or gene symbol provided for site 1 and site 2',
-                extra={'line_number': self.line_number})
+            # Check if the Site1 and Site2 Hugo Symbols or Entrez Gene Ids have been left empty or not
+            # If they are defined, but the gene is none, it means they are not included in the db so  
+            # we need to throw a warning rather than an error.
+            non_recognized_genes = []
+            if site1_hugo_symbol is not None:
+                non_recognized_genes += [site1_hugo_symbol]
+            elif site1_entrez_gene_id is not None:
+                non_recognized_genes += [site1_entrez_gene_id]
+            elif site2_hugo_symbol is not None:
+                non_recognized_genes += [site2_hugo_symbol]
+            elif site2_entrez_gene_id is not None:
+                non_recognized_genes += [site2_entrez_gene_id]
+            if len(non_recognized_genes) > 0:
+                self.logger.warning(
+                    'All Entrez Gene Ids and Gene Symbols provided for site 1 and site 2 are not known to the cBioPortal instance. ' \
+                        'This record will not be loaded.;',
+                    extra={'line_number': self.line_number, 'cause': ", ".join(non_recognized_genes) })
+            else: #Explicit empty Entrez Gene Ids and Gene Symbols in Site1 and Site2
+                self.logger.error(
+                    'No Entrez gene id or gene symbol provided for site 1 and site 2',
+                    extra={'line_number': self.line_number})
         elif site1_gene is None and site2_gene is not None:
             self.logger.warning(
                 'No Entrez gene id or gene symbol provided for site 1. '

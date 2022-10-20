@@ -53,6 +53,9 @@ public class SAMLUserDetailsServiceImpl implements SAMLUserDetailsService
     @Value("${saml.idp.metadata.attribute.email:}")
     private String SAML_IDP_METADATA_EMAIL_ATTR_NAME;
 
+    @Value("${saml.idp.metadata.attribute.userName:username}")
+    private String SAML_IDP_METADATA_USERNAME_ATTR_NAME;
+
     @Value("${saml.idp.metadata.attribute.role:}")
     private String SAML_IDP_METADATA_ROLE_ATTR_NAME;
 
@@ -91,18 +94,24 @@ public class SAMLUserDetailsServiceImpl implements SAMLUserDetailsService
     public Object loadUserBySAML(SAMLCredential credential)
     {
         PortalUserDetails userDetailsObj = null;
-        String userId = null;
+        String email = null;
+        String userName = null;
         List<String> userRoles = new ArrayList<String>();
 
-        // get userid and roles: iterate over attributes searching for "email" and "roles":
+        // get email, userName and roles: iterate over attributes searching for "email", "userName" and "roles":
         for (Attribute cAttribute : credential.getAttributes()) {
             String attrName = cAttribute.getName();
             log.debug("loadUserBySAML(), parsing attribute -" + attrName);
 
 
-            if (userId == null && attrName.equals(SAML_IDP_METADATA_EMAIL_ATTR_NAME)) {
-                userId = credential.getAttributeAsString(cAttribute.getName());
-                log.debug(userId);
+            if (email == null && attrName.equals(SAML_IDP_METADATA_EMAIL_ATTR_NAME)) {
+                email = credential.getAttributeAsString(attrName);
+                log.debug(email);
+            }
+
+            if (userName == null && attrName.equals(SAML_IDP_METADATA_USERNAME_ATTR_NAME)) {
+                userName = credential.getAttributeAsString(attrName);
+                log.debug(userName);
             }
             if (attrName.equals(SAML_IDP_METADATA_ROLE_ATTR_NAME)) {
                 List<XMLObject> attributeValues = cAttribute.getAttributeValues();
@@ -116,7 +125,7 @@ public class SAMLUserDetailsServiceImpl implements SAMLUserDetailsService
         
         try {
             
-            if (userId == null) {
+            if (email == null) {
 
                 String errorMsg = "loadUserBySAML(), can not instantiate PortalUserDetails from SAML assertion."
                     + " Expected 'email' attribute was not found or has no values. ";
@@ -124,15 +133,15 @@ public class SAMLUserDetailsServiceImpl implements SAMLUserDetailsService
                 throw new Exception(errorMsg);
             }
 
-            log.debug("loadUserBySAML(), IDP successfully authenticated user, userid: " + userId);
+            log.debug("loadUserBySAML(), IDP successfully authenticated user, username: " + userName +", email: " + email);
 
             //add granted authorities:
-            if (userRoles.size() > 0) userDetailsObj = new PortalUserDetails(userId,
+            if (userRoles.size() > 0) userDetailsObj = new PortalUserDetails(email,
                 AuthorityUtils.createAuthorityList(userRoles.toArray(new String[userRoles.size()])));
             else
-                userDetailsObj = new PortalUserDetails(userId, AuthorityUtils.createAuthorityList(new String[0]));
-            userDetailsObj.setEmail(userId);
-            userDetailsObj.setName(userId);
+                userDetailsObj = new PortalUserDetails(email, AuthorityUtils.createAuthorityList(new String[0]));
+            userDetailsObj.setEmail(email);
+            userDetailsObj.setUserName(userName);
             return userDetailsObj;
         }
         catch (Exception e) {

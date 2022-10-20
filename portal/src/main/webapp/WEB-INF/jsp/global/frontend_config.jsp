@@ -33,7 +33,7 @@ window.legacySupportFrontendConfig = {
     skinRightNavExamplesHTML : '<%=GlobalProperties.getExamplesRightColumnHtml()%>',
     skinRightNavExamplesHTML : '<%=GlobalProperties.getExamplesRightColumnHtml()%>',
     skinRightNavWhatsNewBlurb : '<%=GlobalProperties.getRightNavWhatsNewBlurb()%>',
-    userEmailAddress : '<%=GlobalProperties.getAuthenticatedUserName()%>',
+    skinUserDisplayName : '<%=GlobalProperties.getAuthenticatedDisplayName()%>',
     oncoprintCustomDriverAnnotationBinaryMenuLabel: '<%=GlobalProperties.getBinaryCustomDriverAnnotationMenuLabel()%>',
     oncoprintCustomDriverAnnotationTiersMenuLabel: '<%=GlobalProperties.getTiersCustomDriverAnnotationMenuLabel()%>',
     oncoprintCustomDriverAnnotationDefault:'<%=GlobalProperties.enableDriverAnnotations()%>' !== "false", // true unless "false"

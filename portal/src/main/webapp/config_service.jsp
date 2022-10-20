@@ -173,7 +173,7 @@
 
         obj.put("base_url", baseURL);
 
-        obj.put("user_email_address",GlobalProperties.getAuthenticatedUserName());
+        obj.put("user_display_name", GlobalProperties.getAuthenticatedDisplayName());
 
         obj.put("frontendConfigOverride",GlobalProperties.getFrontendConfig());
 

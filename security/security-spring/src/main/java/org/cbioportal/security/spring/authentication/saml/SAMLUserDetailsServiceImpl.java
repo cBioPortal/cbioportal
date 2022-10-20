@@ -60,6 +60,10 @@ public class SAMLUserDetailsServiceImpl implements SAMLUserDetailsService
     @Value("${saml.idp.metadata.attribute.email:mail}")
     public void setSamlIdpMetadataEmailAttributeName(String property) { this.samlIdpMetadataEmailAttributeName = property; }
 
+    private static String samlIdpMetadataUserNameAttributeName;
+    @Value("${saml.idp.metadata.attribute.userName:username}")
+    public void setsamlIdpMetadataUserNameAttributeName(String property) { this.samlIdpMetadataUserNameAttributeName = property; }
+
     @Autowired
     private SecurityRepository securityRepository;
 
@@ -78,50 +82,55 @@ public class SAMLUserDetailsServiceImpl implements SAMLUserDetailsService
     {
         PortalUserDetails toReturn = null;
 
-        String userId = null;
+        String email = null;
+        String userName = null;
         // get userid and name: iterate over attributes searching for "mail" and "displayName":
         for (Attribute cAttribute : credential.getAttributes()) {
-            log.debug("loadUserBySAML(), parsing attribute: " + cAttribute.getName() + "=" + credential.getAttributeAsString(cAttribute.getName()));
-            if (userId == null && cAttribute.getName().equals(samlIdpMetadataEmailAttributeName))
+            String attrName = cAttribute.getName();
+            log.debug("loadUserBySAML(), parsing attribute: " + cAttribute.getName() + "=" + credential.getAttributeAsString(attrName));
+            if (email == null && attrName.equals(samlIdpMetadataEmailAttributeName))
             {
-                userId = credential.getAttributeAsString(cAttribute.getName());
-                //userid = credential.getNameID().getValue(); needed to support OneLogin...?? Although with OneLogin we haven't gotten this far yet...
+                email = credential.getAttributeAsString(attrName);
+            }
+            if (userName == null && attrName.equals(samlIdpMetadataUserNameAttributeName))
+            {
+                userName = credential.getAttributeAsString(attrName);
             }
         }
 
         //check if this user exists in our DB
         try {
             //validate parsing:
-            if (userId == null) {
+            if (email == null) {
                 String errorMessage = "loadUserBySAML(), Could not parse the user details from credential message. Expected '" + samlIdpMetadataEmailAttributeName + "' attribute, but attribute was not found. "
                         + " Previous debug messages show which attributes were found and parsed.";
                 log.error(errorMessage);
                 throw new Exception(errorMessage);
             }
             
-            log.debug("loadUserBySAML(), IDP successfully authenticated user, userid: " + userId);
-            log.debug("loadUserBySAML(), now attempting to fetch portal user authorities for userid: " + userId);
+            log.debug("loadUserBySAML(), IDP successfully authenticated user, username: " + userName +", email: " + email);
+            log.debug("loadUserBySAML(), now attempting to fetch portal user authorities for user with username: " + userName +", email: " + email);
             
             //try to find user in DB
-            User user = securityRepository.getPortalUser(userId);
+            User user = securityRepository.getPortalUser(email);
             if (user != null && user.isEnabled()) {
-                log.debug("loadUserBySAML(), user is enabled; attempting to fetch portal user authorities, userid: " + userId);
+                log.debug("loadUserBySAML(), user is enabled; attempting to fetch portal user authorities, for user with username: " + userName +", email: " + email);
 
-                UserAuthorities authorities = securityRepository.getPortalUserAuthorities(userId);
+                UserAuthorities authorities = securityRepository.getPortalUserAuthorities(email);
                 if (authorities != null) {
                     List<GrantedAuthority> grantedAuthorities =
                         AuthorityUtils.createAuthorityList(authorities.getAuthorities().toArray(new String[authorities.getAuthorities().size()]));
                     //add granted authorities:
-                    toReturn = new PortalUserDetails(userId, grantedAuthorities);
-                    toReturn.setEmail(userId);
-                    toReturn.setName(userId);
+                    toReturn = new PortalUserDetails(email, grantedAuthorities);
+                    toReturn.setEmail(email);
+                    toReturn.setUserName(userName);
                 } 
           } else if (user == null) { // new user
-              log.debug("loadUserBySAML(), user authorities is null, userid: " + userId + ". Depending on property always_show_study_group, "
-                  + "he could still have default access (to PUBLIC studies)");
-              toReturn = new PortalUserDetails(userId, getInitialEmptyAuthoritiesList());
-              toReturn.setEmail(userId);
-              toReturn.setName(userId);
+                log.debug("loadUserBySAML(), user authorities is null, for user, with username: " + userName +", email: " + email + ". Depending on property always_show_study_group, "
+                    + "he could still have default access (to PUBLIC studies)");
+                toReturn = new PortalUserDetails(email, getInitialEmptyAuthoritiesList());
+                toReturn.setEmail(email);
+                toReturn.setUserName(userName);
             } else {
                 //user WAS found in DB but has been actively disabled:
                 throw new UsernameNotFoundException("Error: Your user access to cBioPortal has been disabled");

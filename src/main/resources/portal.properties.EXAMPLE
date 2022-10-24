@@ -228,6 +228,10 @@ mycancergenome.show=true
 # Available sources: mutation_assessor
 # show.genomenexus.annotation_sources=mutation_assessor
 
+# Choose Genome Nexus default set of isoforms. Read more at
+# https://docs.cbioportal.org. (uniprot, mskcc)
+# genomenexus.isoform_override_source=uniprot
+
 # Enable SIGNAL column in mutations table(true, false)
 # show.signal=false
 

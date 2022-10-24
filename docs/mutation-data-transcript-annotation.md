@@ -56,8 +56,8 @@ protein position found in the cBioPortal database. For the [public cBioPortal](h
 data in MAF format are annotated using [Genome Nexus](https://www.genomenexus.org) to add the gene and protein change 
 columns. This is then imported into the cBioPortal database. Whether you choose to use the set of `uniprot` or `mskcc` 
 transcripts, make sure to indicate it in the [Genome Nexus Annotation Pipeline](https://github.com/genome-nexus/genome-
-nexus-annotation-pipeline#maf-annotation)(`--isoform-override <mskcc or uniprot>`) when annotating as well as in the 
-properties file of cBioPortal. That way the [Mutations Tab](https://bit.ly/39hVtDd) will show the correct canonical 
+nexus-annotation-pipeline#maf-annotation)(`--isoform-override <mskcc or uniprot>`) when annotating as well as in [the properties file](https://docs.cbioportal.org/deployment/customization/portal.properties-reference/#properties)
+of cBioPortal. That way the [Mutations Tab](https://bit.ly/39hVtDd) will show the correct canonical 
 transcript. Note that whenever somebody uses the dropdown on the Mutations Tab to change the displayed transcript, 
 Genome Neuxs re-annotates all mutations on the fly. The browser sends over the genomic location (chrom,start,end,ref,
 alt) to get the protein change information for each transcript. Since many of the annotations are for the canonical transcripts

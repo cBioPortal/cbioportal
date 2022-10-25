@@ -38,15 +38,15 @@ comparing mutation data across studies it is important to annotate the mutation 
 the same way, otherwise the gene + protein changes can mean entirely different things. For all public studies stored 
 in [datahub](https://github.com/cBioPortal/datahub/tree/master/public) we leverage [Genome Nexus](https:
 //www.genomenexus.org) to do so. Genome Nexus assigns one canonical Ensembl Transcript + gene name + protein change for 
-each mutation. You can find the mapping of hugo symbol to transcript id[here](https://github.com/genome-nexus/genome-nexus-importer/blob/master/data/grch37_ensembl92/export/ensembl_biomart_canonical_transcripts_per_hgnc.txt).There are 
+each mutation. You can find the mapping of hugo symbol to transcript id[here](https://github.com/genome-nexus/genome-nexus-importer/blob/master/data/grch37_ensembl92/export/ensembl_biomart_canonical_transcripts_per_hgnc.txt). There are 
 two sets of default transcripts: `uniprot` and `mskcc`. We recommend to use the `mskcc` set of transcripts when 
 starting from scratch, since these are more up to date and correspond to transcripts that were chosen as relevant for 
 clinical sequencing at MSKCC. The `uniprot` set of transcripts was constructed several years ago, but we are no longer 
 certain about the logic on how to reconstruct them hence they are not being kept up to date. One can see the 
 differences between the two in [this file](https://github.com/cBioPortal/cbioportal-frontend/files/9498680/genes_with_different_uniprot_mskcc_isoforms.txt). For the public cBioPortal (https:
 //www.cbioportal.org) we are using `mskcc`, for the GENIE cBioPortal (https://genie.cbioportal.org) we use `uniprot`
-. Although for local installations the default is still `uniprot` (to not break existing installations when upgrading), we 
-do recommend `mskcc` for new installations and recommend that existing installations consider migrating as well.
+. For local installations the default is `mskcc` since v5, it was `uniprot` prior to v5. We recommend that people upgrading to v5
+consider migrating to `mskcc` as well (see [migration guide](https://docs.cbioportal.org/migration-guide/) and [the properties reference docs](https://docs.cbioportal.org/deployment/customization/portal.properties-reference/#properties)).
 
 #### How default transcript assignment affects the Mutations Tab 
 
@@ -65,9 +65,8 @@ only we are currently hiding annotations for non-canonical transcripts.
 
 #### Plans for default transcripts 
 
-We are planning to move to a single set of default transcripts over time, previously `uniprot` was used for the public 
-facing portals and is currently still the default for new installations. Our plan is to use `mskcc` everywhere and 
-eventually we will most likely move to [MANE](https://www.ensembl.org/info/genome/genebuild/mane.html). MANE is only 
+We are planning to move to a single set of default transcripts over time. Prior to v5 `uniprot` was used for the public 
+facing portals and local installations. Our plan is to use `mskcc` everywhere and eventually we will most likely move to [MANE](https://www.ensembl.org/info/genome/genebuild/mane.html). MANE is only 
 available for grch38 and since most of our data is for grch37 this is currently not feasible. Whichever set of 
 transcripts you choose to use, make sure to indicate so in the [Genome Nexus Annotation Pipeline](https://github.com/genome-nexus/genome-nexus-annotation-pipeline#maf-annotation) (`--isoform-override <mskcc or uniprot>`) and put the same 
-set of transcripts in the properties file of cBioPortal, such that the [Mutations Tab](https://bit.ly/39hVtDd) will show the correct canonical transcript (currently defaults to `uniprot`). The re-annotation of mutations only happens once a user clicks to change the transcript, which is why it's important that the protein change in the database is for the specific transcript displayed first. 
+set of transcripts in [the properties file](https://docs.cbioportal.org/deployment/customization/portal.properties-reference/#properties) of cBioPortal, such that the [Mutations Tab](https://bit.ly/39hVtDd) will show the correct canonical transcript (currently defaults to `mskcc`). The re-annotation of mutations only happens once a user clicks to change the transcript, which is why it's important that the protein change in the database is for the specific transcript displayed first. 

@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width,initial-scale=1">
-    <meta name="turbo-cache-control" content="no-cache" data-turbo-track="reload" data-track-token="2.4.0.720026211548">
+    <meta name="turbo-cache-control" content="no-cache" data-turbo-track="reload" data-track-token="2.4.0.720039693537">
 
     <!-- See retype.com -->
     <meta name="generator" content="Retype 2.4.0">
@@ -11,7 +11,7 @@
     <!-- Primary Meta Tags -->
     <title>Migration Guide</title>
     <meta name="title" content="Migration Guide">
-    <meta name="description" content="This page describes various changes deployers will need to make as they deploy newer versions of the portal. Only" />
+    <meta name="description" content="This page describes various changes deployers will need to make as they deploy newer versions of the portal." />
 
     <!-- Canonical -->
     <link rel="canonical" href="/migration-guide/" />
@@ -20,22 +20,22 @@
     <meta property="og:type" content="website">
     <meta property="og:url" content="/migration-guide/">
     <meta property="og:title" content="Migration Guide">
-    <meta property="og:description" content="This page describes various changes deployers will need to make as they deploy newer versions of the portal. Only">
+    <meta property="og:description" content="This page describes various changes deployers will need to make as they deploy newer versions of the portal.">
 
     <!-- Twitter -->
     <meta property="twitter:card" content="summary_large_image">
     <meta property="twitter:url" content="/migration-guide/">
     <meta property="twitter:title" content="Migration Guide">
-    <meta property="twitter:description" content="This page describes various changes deployers will need to make as they deploy newer versions of the portal. Only">
+    <meta property="twitter:description" content="This page describes various changes deployers will need to make as they deploy newer versions of the portal.">
 
     <script>(function () { var el = document.documentElement, m = localStorage.getItem("doc_theme"), wm = window.matchMedia; if (m === "dark" || (!m && wm && wm("(prefers-color-scheme: dark)").matches)) { el.classList.add("dark") } else { el.classList.remove("dark") } })();</script>
 
     <link href="../images/cbio-logo.png" rel="icon" />
-    <link href="../resources/css/retype.css?v=2.4.0.720026211548" rel="stylesheet" />
+    <link href="../resources/css/retype.css?v=2.4.0.720039693537" rel="stylesheet" />
 
-    <script type="text/javascript" src="../resources/js/config.js?v=2.4.0.720026211548" data-turbo-eval="false" defer></script>
+    <script type="text/javascript" src="../resources/js/config.js?v=2.4.0.720039693537" data-turbo-eval="false" defer></script>
     <script type="text/javascript" src="../resources/js/retype.js?v=2.4.0" data-turbo-eval="false" defer></script>
-    <script id="lunr-js" type="text/javascript" src="../resources/js/lunr.js?v=2.4.0.720026211548" data-turbo-eval="false" defer></script>
+    <script id="lunr-js" type="text/javascript" src="../resources/js/lunr.js?v=2.4.0.720039693537" data-turbo-eval="false" defer></script>
 
     <link rel="stylesheet" href="/static/custom.css"></link>
 </head>
@@ -245,7 +245,7 @@
         <span>Migration Guide</span>
     </h1>
 </doc-anchor-target>
-<p>This page describes various changes deployers will need to make as they deploy newer versions of the portal. Only</p>
+<p>This page describes various changes deployers will need to make as they deploy newer versions of the portal.</p>
 <doc-anchor-target id="v4---v5">
     <h2>
         <doc-anchor-trigger class="header-anchor-trigger" to="#v4---v5">#</doc-anchor-trigger>
@@ -256,6 +256,7 @@
 <li>All fusion profiles are now required to be migrated to structural variant format. One can use this <a href="https://github.com/cBioPortal/datahub-study-curation-tools/tree/master/fusion-to-sv-converter">migration tool</a> to migrate the fusion files.</li>
 <li>All fusion files on <a href="https://github.com/cBioPortal/datahub">datahub</a> were migrated to the structural variant format and their molecular profile ids were renamed from <code v-pre>{study_id}_fusion</code> to <code v-pre>{study_id}_structural_variants</code>. If you are using these datahub files one would need to re-import them.</li>
 <li>Study view user setting will be outdated after migration, please follow <code v-pre>Clear Study View User settings</code> section in <a href="../session-service-management/#Clear-Study-View-User-settings">Session Service Management</a></li>
+<li>The new default set of transcripts for each gene has changed from <code v-pre>uniprot</code> to <code v-pre>mskcc</code>. See the <a href="../mutation-data-transcript-annotation/">Mutation Data Annotation Section</a> for more details. To keep the old set of default transcripts add the property <code v-pre>genomenexus.isoform_override_source=uniprot</code> to <a href="https://docs.cbioportal.org/deployment/customization/portal.properties-reference/#properties">the properties file</a>.</li>
 </ul>
 <p>See the <a href="https://github.com/cBioPortal/cbioportal/releases/tag/v5.0.0">v5.0.0 release notes</a> for more details.</p>
 <doc-anchor-target id="v3---v4">

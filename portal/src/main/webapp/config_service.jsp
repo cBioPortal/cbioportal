@@ -64,6 +64,7 @@
             "show.civic",
             "show.genomenexus",
             "show.genomenexus.annotation_sources",
+            "genomenexus.isoform_override_source",
             "show.mutation_mappert_tool.grch38",
             "show.transcript_dropdown",
             "show.signal",

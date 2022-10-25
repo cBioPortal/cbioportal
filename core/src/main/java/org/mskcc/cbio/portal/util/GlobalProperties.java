@@ -294,6 +294,10 @@ public class GlobalProperties {
     @Value("${show.genomenexus.annotation_sources:mutation_assessor}") // Available sources: mutation_assessor
     public void setShowGenomeNexusAnnotationSources(String property) { showGenomeNexusAnnotationSources = property; }
 
+    private static String genomeNexusIsoformOverrideSource;
+    @Value("${genomenexus.isoform_override_source:mskcc}") // Options: mskcc, uniprot
+    public void setGenomeNexusIsoformOverrideSource(String property) { genomeNexusIsoformOverrideSource = property; }
+
     private static boolean showMutationMapperToolGrch38;
     @Value("${show.mutation_mappert_tool.grch38:true}") // default is true
     public void setShowMutationMapperToolGrch38(String property) { showMutationMapperToolGrch38 = Boolean.parseBoolean(property); }
@@ -953,6 +957,10 @@ public class GlobalProperties {
 
     public static String showGenomeNexusAnnotationSources() {
         return showGenomeNexusAnnotationSources;
+    }
+
+    public static String getGenomeNexusIsoformOverrideSource() {
+        return genomeNexusIsoformOverrideSource;
     }
 
     public static boolean showMutationMapperToolGrch38() {

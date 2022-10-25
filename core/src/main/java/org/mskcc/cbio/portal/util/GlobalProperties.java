@@ -295,7 +295,7 @@ public class GlobalProperties {
     public void setShowGenomeNexusAnnotationSources(String property) { showGenomeNexusAnnotationSources = property; }
 
     private static String genomeNexusIsoformOverrideSource;
-    @Value("${genomenexus.isoform_override_source:mskcc}") // Available sources: mutation_assessor
+    @Value("${genomenexus.isoform_override_source:mskcc}") // Options: mskcc, uniprot
     public void setGenomeNexusIsoformOverrideSource(String property) { genomeNexusIsoformOverrideSource = property; }
 
     private static boolean showMutationMapperToolGrch38;

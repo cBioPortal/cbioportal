@@ -49,6 +49,7 @@
     * [Maintaining Studies](Data-Loading-Maintaining-Studies.md)
     * [For Developers](Data-Loading-For-Developers.md)
     * [Tips and Best Practices](Data-Loading-Tips-and-Best-Practices.md)
+    * [Mutation Data Transcript Annotation](mutation-data-transcript-annotation.md)
     * [Importing Gene Sets for Gene Set Scoring Data](Import-Gene-Sets.md)
     * [Importing Gene Panels](Import-Gene-Panels.md)
     * [Study View Customization with Priority Data](deployment/customization/Studyview.md)

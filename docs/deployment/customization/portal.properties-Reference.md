@@ -339,13 +339,21 @@ By default the Genome Nexus API url is set to https://v1.genomenexus.org/, which
 genomenexus.url=
 ```
 
+Genome Nexus provides a set of mappings from Hugo genes names to Ensembl transcript IDs. There are two mappings: `mskcc` and `uniprot`. 
+You can read more about the difference between those in the [Mutation Data Annotation Section](./../../mutation-data-transcript-annotation.md). The default is currently `uniprot`, but we recommend new installers to use `mskcc` and people with older installations to consider migrating. The property
+can be changed with:
+
+```
+genomenexus.isoform_override_source=mskcc
+```
+
 The mutation mapper tool page can annotate GRCh38 coordinates. By default it uses https://grch38.genomenexus.org. It can be overridden by setting:
 
 ```
 genomenexus.url.grch38=
 ```
 
-The GRCh38 annotation in mutation mapper can be hidden by setting `show.mutation_mappert_tool.grch38=false`, by default it's set to `true`;
+The GRCh38 annotation in mutation mapper can be hidden by setting `show.mutation_mappert_tool.grch38=false`, by default it's set to `true`.
 
 ## MDACC Heatmap Integration
 

@@ -7,11 +7,11 @@ public class MutationMixin {
     @JsonProperty("variantAllele")
     private String tumorSeqAllele;
     @JsonProperty("refseqMrnaId")
-    private String oncotatorRefseqMrnaId;
+    private String mutationRefseqMrnaId;
     @JsonProperty("proteinPosStart")
-    private Integer oncotatorProteinPosStart;
+    private Integer mutationProteinPosStart;
     @JsonProperty("proteinPosEnd")
-    private Integer oncotatorProteinPosEnd;
+    private Integer mutationProteinPosEnd;
     @JsonProperty("chr")
     private String chr;
     @JsonProperty("namespaceColumns")

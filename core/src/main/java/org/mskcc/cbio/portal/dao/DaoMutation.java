@@ -150,11 +150,11 @@ public final class DaoMutation {
                 event.getVariantType(),
                 event.getDbSnpRs(),
                 event.getDbSnpValStatus(),
-                event.getOncotatorRefseqMrnaId(),
-                event.getOncotatorCodonChange(),
-                event.getOncotatorUniprotAccession(),
-                Integer.toString(event.getOncotatorProteinPosStart()),
-                Integer.toString(event.getOncotatorProteinPosEnd()),
+                event.getMutationRefseqMrnaId(),
+                event.getMutationCodonChange(),
+                event.getMutationUniprotAccession(),
+                Integer.toString(event.getMutationProteinPosStart()),
+                Integer.toString(event.getMutationProteinPosEnd()),
                 boolToStr(event.isCanonicalTranscript()),
                 keyword==null ? "\\N":(event.getGene().getHugoGeneSymbolAllCaps()+" "+keyword));
         return 1;
@@ -799,11 +799,11 @@ public final class DaoMutation {
         event.setDbSnpRs(rs.getString("DB_SNP_RS"));
         event.setDbSnpValStatus(rs.getString("DB_SNP_VAL_STATUS"));
         event.setReferenceAllele(rs.getString("REFERENCE_ALLELE"));
-        event.setOncotatorRefseqMrnaId(rs.getString("ONCOTATOR_REFSEQ_MRNA_ID"));
-        event.setOncotatorCodonChange(rs.getString("ONCOTATOR_CODON_CHANGE"));
-        event.setOncotatorUniprotAccession(rs.getString("ONCOTATOR_UNIPROT_ACCESSION"));
-        event.setOncotatorProteinPosStart(rs.getInt("ONCOTATOR_PROTEIN_POS_START"));
-        event.setOncotatorProteinPosEnd(rs.getInt("ONCOTATOR_PROTEIN_POS_END"));
+        event.setMutationRefseqMrnaId(rs.getString("MUTATION_REFSEQ_MRNA_ID"));
+        event.setMutationCodonChange(rs.getString("MUTATION_CODON_CHANGE"));
+        event.setMutationUniprotAccession(rs.getString("MUTATION_UNIPROT_ACCESSION"));
+        event.setMutationProteinPosStart(rs.getInt("MUTATION_PROTEIN_POS_START"));
+        event.setMutationProteinPosEnd(rs.getInt("MUTATION_PROTEIN_POS_END"));
         event.setCanonicalTranscript(rs.getBoolean("CANONICAL_TRANSCRIPT"));
         event.setTumorSeqAllele(rs.getString("TUMOR_SEQ_ALLELE"));
         event.setKeyword(rs.getString("KEYWORD"));

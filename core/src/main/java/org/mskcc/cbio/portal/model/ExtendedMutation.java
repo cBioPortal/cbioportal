@@ -49,7 +49,7 @@ public final class ExtendedMutation
         private long mutationEventId;
         private CanonicalGene gene;
         private String chr;
-            private long startPosition;
+        private long startPosition;
         private long endPosition;
         private String proteinChange; // amino acid change
         private String mutationType; // variant classification
@@ -61,11 +61,11 @@ public final class ExtendedMutation
         private String tumorSeqAllele;
         private String dbSnpRs;
         private String dbSnpValStatus;
-        private String oncotatorRefseqMrnaId;
-        private String oncotatorUniprotAccession;
-        private String oncotatorCodonChange;
-        private int oncotatorProteinPosStart;
-        private int oncotatorProteinPosEnd;
+        private String mutationRefseqMrnaId;
+        private String mutationUniprotAccession;
+        private String mutationCodonChange;
+        private int mutationProteinPosStart;
+        private int mutationProteinPosEnd;
         private boolean canonicalTranscript;
 
         public long getMutationEventId() {
@@ -190,44 +190,44 @@ public final class ExtendedMutation
             this.dbSnpValStatus = dbSnpValStatus;
         }
 
-        public String getOncotatorRefseqMrnaId() {
-            return oncotatorRefseqMrnaId;
+        public String getMutationRefseqMrnaId() {
+            return mutationRefseqMrnaId;
         }
 
-        public void setOncotatorRefseqMrnaId(String oncotatorRefseqMrnaId) {
-            this.oncotatorRefseqMrnaId = oncotatorRefseqMrnaId;
+        public void setMutationRefseqMrnaId(String mutationRefseqMrnaId) {
+            this.mutationRefseqMrnaId = mutationRefseqMrnaId;
         }
         
-        public String getOncotatorUniprotAccession() {
-            return oncotatorUniprotAccession;
+        public String getMutationUniprotAccession() {
+            return mutationUniprotAccession;
         }
 
-        public void setOncotatorUniprotAccession(String oncotatorUniprotAccession) {
-            this.oncotatorUniprotAccession = oncotatorUniprotAccession;
+        public void setMutationUniprotAccession(String mutationUniprotAccession) {
+            this.mutationUniprotAccession = mutationUniprotAccession;
         }
 
-        public String getOncotatorCodonChange() {
-            return oncotatorCodonChange;
+        public String getMutationCodonChange() {
+            return mutationCodonChange;
         }
 
-        public void setOncotatorCodonChange(String oncotatorCodonChange) {
-            this.oncotatorCodonChange = oncotatorCodonChange;
+        public void setMutationCodonChange(String mutationCodonChange) {
+            this.mutationCodonChange = mutationCodonChange;
         }
 
-        public int getOncotatorProteinPosStart() {
-            return oncotatorProteinPosStart;
+        public int getMutationProteinPosStart() {
+            return mutationProteinPosStart;
         }
 
-        public void setOncotatorProteinPosStart(int oncotatorProteinPosStart) {
-            this.oncotatorProteinPosStart = oncotatorProteinPosStart;
+        public void setMutationProteinPosStart(int mutationProteinPosStart) {
+            this.mutationProteinPosStart = mutationProteinPosStart;
         }
 
-        public int getOncotatorProteinPosEnd() {
-            return oncotatorProteinPosEnd;
+        public int getMutationProteinPosEnd() {
+            return mutationProteinPosEnd;
         }
 
-        public void setOncotatorProteinPosEnd(int oncotatorProteinPosEnd) {
-            this.oncotatorProteinPosEnd = oncotatorProteinPosEnd;
+        public void setMutationProteinPosEnd(int mutationProteinPosEnd) {
+            this.mutationProteinPosEnd = mutationProteinPosEnd;
         }
 
         public boolean isCanonicalTranscript() {
@@ -710,54 +710,54 @@ public final class ExtendedMutation
         this.normalRefCount = normalRefCount;
     }
 
-    public String getOncotatorRefseqMrnaId()
+    public String getMutationRefseqMrnaId()
     {
-        return event.getOncotatorRefseqMrnaId();
+        return event.getMutationRefseqMrnaId();
     }
 
-    public void setOncotatorRefseqMrnaId(String oncotatorRefseqMrnaId)
+    public void setMutationRefseqMrnaId(String mutationRefseqMrnaId)
     {
-        event.setOncotatorRefseqMrnaId(oncotatorRefseqMrnaId);
+        event.setMutationRefseqMrnaId(mutationRefseqMrnaId);
     }
 
-    public String getOncotatorUniprotAccession()
+    public String getMutationUniprotAccession()
     {
-        return event.getOncotatorUniprotAccession();
+        return event.getMutationUniprotAccession();
     }
 
-    public void setOncotatorUniprotAccession(String oncotatorUniprotAccession)
+    public void setMutationUniprotAccession(String mutationUniprotAccession)
     {
-        event.setOncotatorUniprotAccession(oncotatorUniprotAccession);
+        event.setMutationUniprotAccession(mutationUniprotAccession);
     }
 
-    public String getOncotatorCodonChange()
+    public String getMutationCodonChange()
     {
-        return event.getOncotatorCodonChange();
+        return event.getMutationCodonChange();
     }
 
-    public void setOncotatorCodonChange(String oncotatorCodonChange)
+    public void setMutationCodonChange(String mutationCodonChange)
     {
-        event.setOncotatorCodonChange(oncotatorCodonChange);
+        event.setMutationCodonChange(mutationCodonChange);
     }
 
-    public int getOncotatorProteinPosStart()
+    public int getMutationProteinPosStart()
     {
-        return event.getOncotatorProteinPosStart();
+        return event.getMutationProteinPosStart();
     }
 
-    public void setOncotatorProteinPosStart(int oncotatorProteinPosStart)
+    public void setMutationProteinPosStart(int mutationProteinPosStart)
     {
-        event.setOncotatorProteinPosStart(oncotatorProteinPosStart);
+        event.setMutationProteinPosStart(mutationProteinPosStart);
     }
 
-    public int getOncotatorProteinPosEnd()
+    public int getMutationProteinPosEnd()
     {
-        return event.getOncotatorProteinPosEnd();
+        return event.getMutationProteinPosEnd();
     }
 
-    public void setOncotatorProteinPosEnd(int oncotatorProteinPosEnd)
+    public void setMutationProteinPosEnd(int mutationProteinPosEnd)
     {
-        event.setOncotatorProteinPosEnd(oncotatorProteinPosEnd);
+        event.setMutationProteinPosEnd(mutationProteinPosEnd);
     }
 
     public boolean isCanonicalTranscript()

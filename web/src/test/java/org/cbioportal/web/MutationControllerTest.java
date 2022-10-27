@@ -30,7 +30,6 @@ import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import org.springframework.web.context.WebApplicationContext;
 
-import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -60,9 +59,9 @@ public class MutationControllerTest {
     private static final String TEST_MUTATION_TYPE_1 = "test_mutation_type_1";
     private static final String TEST_NCBI_BUILD_1 = "test_ncbi_build_1";
     private static final String TEST_VARIANT_TYPE_1 = "test_variant_type_1";
-    private static final String TEST_ONCOTATOR_REFSEQ_MRNA_ID_1 = "test_oncotator_refseq_mrna_id_1";
-    private static final int TEST_ONCOTATOR_PROTEIN_POS_START_1 = 1;
-    private static final int TEST_ONCOTATOR_PROTEIN_POS_END_1 = 1;
+    private static final String TEST_MUTATION_REFSEQ_MRNA_ID_1 = "test_mutation_refseq_mrna_id_1";
+    private static final int TEST_MUTATION_PROTEIN_POS_START_1 = 1;
+    private static final int TEST_MUTATION_PROTEIN_POS_END_1 = 1;
     private static final String TEST_KEYWORD_1 = "test_keyword_1";
     private static final String TEST_HUGO_GENE_SYMBOL_1 = "test_hugo_gene_symbol_1";
     private static final String TEST_TYPE_1 = "test_type_1";
@@ -97,9 +96,9 @@ public class MutationControllerTest {
     private static final String TEST_MUTATION_TYPE_2 = "test_mutation_type_2";
     private static final String TEST_NCBI_BUILD_2 = "test_ncbi_build_2";
     private static final String TEST_VARIANT_TYPE_2 = "test_variant_type_2";
-    private static final String TEST_ONCOTATOR_REFSEQ_MRNA_ID_2 = "test_oncotator_refseq_mrna_id_2";
-    private static final int TEST_ONCOTATOR_PROTEIN_POS_START_2 = 2;
-    private static final int TEST_ONCOTATOR_PROTEIN_POS_END_2 = 2;
+    private static final String TEST_MUTATION_REFSEQ_MRNA_ID_2 = "test_MUTATION_refseq_mrna_id_2";
+    private static final int TEST_MUTATION_PROTEIN_POS_START_2 = 2;
+    private static final int TEST_MUTATION_PROTEIN_POS_END_2 = 2;
     private static final String TEST_KEYWORD_2 = "test_keyword_2";
     private static final String TEST_HUGO_GENE_SYMBOL_2 = "test_hugo_gene_symbol_2";
     private static final String TEST_TYPE_2 = "test_type_2";
@@ -187,9 +186,9 @@ public class MutationControllerTest {
             .andExpect(MockMvcResultMatchers.jsonPath("$[0].driverTiersFilterAnnotation").value(TEST_DRIVER_TIERS_FILTER_ANNOTATION_1))
             .andExpect(MockMvcResultMatchers.jsonPath("$[0].ncbiBuild").value(TEST_NCBI_BUILD_1))
             .andExpect(MockMvcResultMatchers.jsonPath("$[0].variantType").value(TEST_VARIANT_TYPE_1))
-            .andExpect(MockMvcResultMatchers.jsonPath("$[0].refseqMrnaId").value(TEST_ONCOTATOR_REFSEQ_MRNA_ID_1))
-            .andExpect(MockMvcResultMatchers.jsonPath("$[0].proteinPosStart").value(TEST_ONCOTATOR_PROTEIN_POS_START_1))
-            .andExpect(MockMvcResultMatchers.jsonPath("$[0].proteinPosEnd").value(TEST_ONCOTATOR_PROTEIN_POS_END_1))
+            .andExpect(MockMvcResultMatchers.jsonPath("$[0].refseqMrnaId").value(TEST_MUTATION_REFSEQ_MRNA_ID_1))
+            .andExpect(MockMvcResultMatchers.jsonPath("$[0].proteinPosStart").value(TEST_MUTATION_PROTEIN_POS_START_1))
+            .andExpect(MockMvcResultMatchers.jsonPath("$[0].proteinPosEnd").value(TEST_MUTATION_PROTEIN_POS_END_1))
             .andExpect(MockMvcResultMatchers.jsonPath("$[0].keyword").value(TEST_KEYWORD_1))
             .andExpect(MockMvcResultMatchers.jsonPath("$[0].gene").doesNotExist())
             .andExpect(MockMvcResultMatchers.jsonPath("$[0].namespaceColumns.columnName.fieldName").value("fieldValue"))
@@ -217,9 +216,9 @@ public class MutationControllerTest {
             .andExpect(MockMvcResultMatchers.jsonPath("$[1].driverTiersFilterAnnotation").value(TEST_DRIVER_TIERS_FILTER_ANNOTATION_2))
             .andExpect(MockMvcResultMatchers.jsonPath("$[1].ncbiBuild").value(TEST_NCBI_BUILD_2))
             .andExpect(MockMvcResultMatchers.jsonPath("$[1].variantType").value(TEST_VARIANT_TYPE_2))
-            .andExpect(MockMvcResultMatchers.jsonPath("$[1].refseqMrnaId").value(TEST_ONCOTATOR_REFSEQ_MRNA_ID_2))
-            .andExpect(MockMvcResultMatchers.jsonPath("$[1].proteinPosStart").value(TEST_ONCOTATOR_PROTEIN_POS_START_2))
-            .andExpect(MockMvcResultMatchers.jsonPath("$[1].proteinPosEnd").value(TEST_ONCOTATOR_PROTEIN_POS_END_2))
+            .andExpect(MockMvcResultMatchers.jsonPath("$[1].refseqMrnaId").value(TEST_MUTATION_REFSEQ_MRNA_ID_2))
+            .andExpect(MockMvcResultMatchers.jsonPath("$[1].proteinPosStart").value(TEST_MUTATION_PROTEIN_POS_START_2))
+            .andExpect(MockMvcResultMatchers.jsonPath("$[1].proteinPosEnd").value(TEST_MUTATION_PROTEIN_POS_END_2))
             .andExpect(MockMvcResultMatchers.jsonPath("$[1].keyword").value(TEST_KEYWORD_2))
             .andExpect(MockMvcResultMatchers.jsonPath("$[1].gene").doesNotExist())
             .andExpect(MockMvcResultMatchers.jsonPath("$[1].namespaceColumns.columnName.fieldName").value("fieldValue"));
@@ -265,9 +264,9 @@ public class MutationControllerTest {
             .andExpect(MockMvcResultMatchers.jsonPath("$[0].driverTiersFilterAnnotation").value(TEST_DRIVER_TIERS_FILTER_ANNOTATION_1))
             .andExpect(MockMvcResultMatchers.jsonPath("$[0].ncbiBuild").value(TEST_NCBI_BUILD_1))
             .andExpect(MockMvcResultMatchers.jsonPath("$[0].variantType").value(TEST_VARIANT_TYPE_1))
-            .andExpect(MockMvcResultMatchers.jsonPath("$[0].refseqMrnaId").value(TEST_ONCOTATOR_REFSEQ_MRNA_ID_1))
-            .andExpect(MockMvcResultMatchers.jsonPath("$[0].proteinPosStart").value(TEST_ONCOTATOR_PROTEIN_POS_START_1))
-            .andExpect(MockMvcResultMatchers.jsonPath("$[0].proteinPosEnd").value(TEST_ONCOTATOR_PROTEIN_POS_END_1))
+            .andExpect(MockMvcResultMatchers.jsonPath("$[0].refseqMrnaId").value(TEST_MUTATION_REFSEQ_MRNA_ID_1))
+            .andExpect(MockMvcResultMatchers.jsonPath("$[0].proteinPosStart").value(TEST_MUTATION_PROTEIN_POS_START_1))
+            .andExpect(MockMvcResultMatchers.jsonPath("$[0].proteinPosEnd").value(TEST_MUTATION_PROTEIN_POS_END_1))
             .andExpect(MockMvcResultMatchers.jsonPath("$[0].keyword").value(TEST_KEYWORD_1))
             .andExpect(MockMvcResultMatchers.jsonPath("$[0].gene.entrezGeneId").value(TEST_ENTREZ_GENE_ID_1))
             .andExpect(MockMvcResultMatchers.jsonPath("$[0].gene.hugoGeneSymbol").value(TEST_HUGO_GENE_SYMBOL_1))
@@ -303,9 +302,9 @@ public class MutationControllerTest {
             .andExpect(MockMvcResultMatchers.jsonPath("$[1].driverTiersFilterAnnotation").value(TEST_DRIVER_TIERS_FILTER_ANNOTATION_2))
             .andExpect(MockMvcResultMatchers.jsonPath("$[1].ncbiBuild").value(TEST_NCBI_BUILD_2))
             .andExpect(MockMvcResultMatchers.jsonPath("$[1].variantType").value(TEST_VARIANT_TYPE_2))
-            .andExpect(MockMvcResultMatchers.jsonPath("$[1].refseqMrnaId").value(TEST_ONCOTATOR_REFSEQ_MRNA_ID_2))
-            .andExpect(MockMvcResultMatchers.jsonPath("$[1].proteinPosStart").value(TEST_ONCOTATOR_PROTEIN_POS_START_2))
-            .andExpect(MockMvcResultMatchers.jsonPath("$[1].proteinPosEnd").value(TEST_ONCOTATOR_PROTEIN_POS_END_2))
+            .andExpect(MockMvcResultMatchers.jsonPath("$[1].refseqMrnaId").value(TEST_MUTATION_REFSEQ_MRNA_ID_2))
+            .andExpect(MockMvcResultMatchers.jsonPath("$[1].proteinPosStart").value(TEST_MUTATION_PROTEIN_POS_START_2))
+            .andExpect(MockMvcResultMatchers.jsonPath("$[1].proteinPosEnd").value(TEST_MUTATION_PROTEIN_POS_END_2))
             .andExpect(MockMvcResultMatchers.jsonPath("$[1].keyword").value(TEST_KEYWORD_2))
             .andExpect(MockMvcResultMatchers.jsonPath("$[1].gene.entrezGeneId").value(TEST_ENTREZ_GENE_ID_2))
             .andExpect(MockMvcResultMatchers.jsonPath("$[1].gene.hugoGeneSymbol").value(TEST_HUGO_GENE_SYMBOL_2))
@@ -390,9 +389,9 @@ public class MutationControllerTest {
             .andExpect(MockMvcResultMatchers.jsonPath("$[0].driverTiersFilterAnnotation").value(TEST_DRIVER_TIERS_FILTER_ANNOTATION_1))
             .andExpect(MockMvcResultMatchers.jsonPath("$[0].ncbiBuild").value(TEST_NCBI_BUILD_1))
             .andExpect(MockMvcResultMatchers.jsonPath("$[0].variantType").value(TEST_VARIANT_TYPE_1))
-            .andExpect(MockMvcResultMatchers.jsonPath("$[0].refseqMrnaId").value(TEST_ONCOTATOR_REFSEQ_MRNA_ID_1))
-            .andExpect(MockMvcResultMatchers.jsonPath("$[0].proteinPosStart").value(TEST_ONCOTATOR_PROTEIN_POS_START_1))
-            .andExpect(MockMvcResultMatchers.jsonPath("$[0].proteinPosEnd").value(TEST_ONCOTATOR_PROTEIN_POS_END_1))
+            .andExpect(MockMvcResultMatchers.jsonPath("$[0].refseqMrnaId").value(TEST_MUTATION_REFSEQ_MRNA_ID_1))
+            .andExpect(MockMvcResultMatchers.jsonPath("$[0].proteinPosStart").value(TEST_MUTATION_PROTEIN_POS_START_1))
+            .andExpect(MockMvcResultMatchers.jsonPath("$[0].proteinPosEnd").value(TEST_MUTATION_PROTEIN_POS_END_1))
             .andExpect(MockMvcResultMatchers.jsonPath("$[0].keyword").value(TEST_KEYWORD_1))
             .andExpect(MockMvcResultMatchers.jsonPath("$[0].gene").doesNotExist())
             .andExpect(MockMvcResultMatchers.jsonPath("$[1].molecularProfileId")
@@ -419,9 +418,9 @@ public class MutationControllerTest {
             .andExpect(MockMvcResultMatchers.jsonPath("$[1].driverTiersFilterAnnotation").value(TEST_DRIVER_TIERS_FILTER_ANNOTATION_2))
             .andExpect(MockMvcResultMatchers.jsonPath("$[1].ncbiBuild").value(TEST_NCBI_BUILD_2))
             .andExpect(MockMvcResultMatchers.jsonPath("$[1].variantType").value(TEST_VARIANT_TYPE_2))
-            .andExpect(MockMvcResultMatchers.jsonPath("$[1].refseqMrnaId").value(TEST_ONCOTATOR_REFSEQ_MRNA_ID_2))
-            .andExpect(MockMvcResultMatchers.jsonPath("$[1].proteinPosStart").value(TEST_ONCOTATOR_PROTEIN_POS_START_2))
-            .andExpect(MockMvcResultMatchers.jsonPath("$[1].proteinPosEnd").value(TEST_ONCOTATOR_PROTEIN_POS_END_2))
+            .andExpect(MockMvcResultMatchers.jsonPath("$[1].refseqMrnaId").value(TEST_MUTATION_REFSEQ_MRNA_ID_2))
+            .andExpect(MockMvcResultMatchers.jsonPath("$[1].proteinPosStart").value(TEST_MUTATION_PROTEIN_POS_START_2))
+            .andExpect(MockMvcResultMatchers.jsonPath("$[1].proteinPosEnd").value(TEST_MUTATION_PROTEIN_POS_END_2))
             .andExpect(MockMvcResultMatchers.jsonPath("$[1].keyword").value(TEST_KEYWORD_2))
             .andExpect(MockMvcResultMatchers.jsonPath("$[1].gene").doesNotExist());
     }
@@ -473,9 +472,9 @@ public class MutationControllerTest {
             .andExpect(MockMvcResultMatchers.jsonPath("$[0].driverTiersFilterAnnotation").value(TEST_DRIVER_TIERS_FILTER_ANNOTATION_1))
             .andExpect(MockMvcResultMatchers.jsonPath("$[0].ncbiBuild").value(TEST_NCBI_BUILD_1))
             .andExpect(MockMvcResultMatchers.jsonPath("$[0].variantType").value(TEST_VARIANT_TYPE_1))
-            .andExpect(MockMvcResultMatchers.jsonPath("$[0].refseqMrnaId").value(TEST_ONCOTATOR_REFSEQ_MRNA_ID_1))
-            .andExpect(MockMvcResultMatchers.jsonPath("$[0].proteinPosStart").value(TEST_ONCOTATOR_PROTEIN_POS_START_1))
-            .andExpect(MockMvcResultMatchers.jsonPath("$[0].proteinPosEnd").value(TEST_ONCOTATOR_PROTEIN_POS_END_1))
+            .andExpect(MockMvcResultMatchers.jsonPath("$[0].refseqMrnaId").value(TEST_MUTATION_REFSEQ_MRNA_ID_1))
+            .andExpect(MockMvcResultMatchers.jsonPath("$[0].proteinPosStart").value(TEST_MUTATION_PROTEIN_POS_START_1))
+            .andExpect(MockMvcResultMatchers.jsonPath("$[0].proteinPosEnd").value(TEST_MUTATION_PROTEIN_POS_END_1))
             .andExpect(MockMvcResultMatchers.jsonPath("$[0].keyword").value(TEST_KEYWORD_1))
             .andExpect(MockMvcResultMatchers.jsonPath("$[0].gene").doesNotExist())
             .andExpect(MockMvcResultMatchers.jsonPath("$[1].molecularProfileId")
@@ -502,9 +501,9 @@ public class MutationControllerTest {
             .andExpect(MockMvcResultMatchers.jsonPath("$[1].driverTiersFilterAnnotation").value(TEST_DRIVER_TIERS_FILTER_ANNOTATION_2))
             .andExpect(MockMvcResultMatchers.jsonPath("$[1].ncbiBuild").value(TEST_NCBI_BUILD_2))
             .andExpect(MockMvcResultMatchers.jsonPath("$[1].variantType").value(TEST_VARIANT_TYPE_2))
-            .andExpect(MockMvcResultMatchers.jsonPath("$[1].refseqMrnaId").value(TEST_ONCOTATOR_REFSEQ_MRNA_ID_2))
-            .andExpect(MockMvcResultMatchers.jsonPath("$[1].proteinPosStart").value(TEST_ONCOTATOR_PROTEIN_POS_START_2))
-            .andExpect(MockMvcResultMatchers.jsonPath("$[1].proteinPosEnd").value(TEST_ONCOTATOR_PROTEIN_POS_END_2))
+            .andExpect(MockMvcResultMatchers.jsonPath("$[1].refseqMrnaId").value(TEST_MUTATION_REFSEQ_MRNA_ID_2))
+            .andExpect(MockMvcResultMatchers.jsonPath("$[1].proteinPosStart").value(TEST_MUTATION_PROTEIN_POS_START_2))
+            .andExpect(MockMvcResultMatchers.jsonPath("$[1].proteinPosEnd").value(TEST_MUTATION_PROTEIN_POS_END_2))
             .andExpect(MockMvcResultMatchers.jsonPath("$[1].keyword").value(TEST_KEYWORD_2))
             .andExpect(MockMvcResultMatchers.jsonPath("$[1].gene").doesNotExist());
     }
@@ -557,9 +556,9 @@ public class MutationControllerTest {
             .andExpect(MockMvcResultMatchers.jsonPath("$[0].driverTiersFilterAnnotation").value(TEST_DRIVER_TIERS_FILTER_ANNOTATION_1))
             .andExpect(MockMvcResultMatchers.jsonPath("$[0].ncbiBuild").value(TEST_NCBI_BUILD_1))
             .andExpect(MockMvcResultMatchers.jsonPath("$[0].variantType").value(TEST_VARIANT_TYPE_1))
-            .andExpect(MockMvcResultMatchers.jsonPath("$[0].refseqMrnaId").value(TEST_ONCOTATOR_REFSEQ_MRNA_ID_1))
-            .andExpect(MockMvcResultMatchers.jsonPath("$[0].proteinPosStart").value(TEST_ONCOTATOR_PROTEIN_POS_START_1))
-            .andExpect(MockMvcResultMatchers.jsonPath("$[0].proteinPosEnd").value(TEST_ONCOTATOR_PROTEIN_POS_END_1))
+            .andExpect(MockMvcResultMatchers.jsonPath("$[0].refseqMrnaId").value(TEST_MUTATION_REFSEQ_MRNA_ID_1))
+            .andExpect(MockMvcResultMatchers.jsonPath("$[0].proteinPosStart").value(TEST_MUTATION_PROTEIN_POS_START_1))
+            .andExpect(MockMvcResultMatchers.jsonPath("$[0].proteinPosEnd").value(TEST_MUTATION_PROTEIN_POS_END_1))
             .andExpect(MockMvcResultMatchers.jsonPath("$[0].keyword").value(TEST_KEYWORD_1))
             .andExpect(MockMvcResultMatchers.jsonPath("$[0].gene.entrezGeneId").value(TEST_ENTREZ_GENE_ID_1))
             .andExpect(MockMvcResultMatchers.jsonPath("$[0].gene.hugoGeneSymbol").value(TEST_HUGO_GENE_SYMBOL_1))
@@ -596,9 +595,9 @@ public class MutationControllerTest {
             .andExpect(MockMvcResultMatchers.jsonPath("$[1].driverTiersFilterAnnotation").value(TEST_DRIVER_TIERS_FILTER_ANNOTATION_2))
             .andExpect(MockMvcResultMatchers.jsonPath("$[1].ncbiBuild").value(TEST_NCBI_BUILD_2))
             .andExpect(MockMvcResultMatchers.jsonPath("$[1].variantType").value(TEST_VARIANT_TYPE_2))
-            .andExpect(MockMvcResultMatchers.jsonPath("$[1].refseqMrnaId").value(TEST_ONCOTATOR_REFSEQ_MRNA_ID_2))
-            .andExpect(MockMvcResultMatchers.jsonPath("$[1].proteinPosStart").value(TEST_ONCOTATOR_PROTEIN_POS_START_2))
-            .andExpect(MockMvcResultMatchers.jsonPath("$[1].proteinPosEnd").value(TEST_ONCOTATOR_PROTEIN_POS_END_2))
+            .andExpect(MockMvcResultMatchers.jsonPath("$[1].refseqMrnaId").value(TEST_MUTATION_REFSEQ_MRNA_ID_2))
+            .andExpect(MockMvcResultMatchers.jsonPath("$[1].proteinPosStart").value(TEST_MUTATION_PROTEIN_POS_START_2))
+            .andExpect(MockMvcResultMatchers.jsonPath("$[1].proteinPosEnd").value(TEST_MUTATION_PROTEIN_POS_END_2))
             .andExpect(MockMvcResultMatchers.jsonPath("$[1].keyword").value(TEST_KEYWORD_2))
             .andExpect(MockMvcResultMatchers.jsonPath("$[1].gene.entrezGeneId").value(TEST_ENTREZ_GENE_ID_2))
             .andExpect(MockMvcResultMatchers.jsonPath("$[1].gene.hugoGeneSymbol").value(TEST_HUGO_GENE_SYMBOL_2))
@@ -644,14 +643,14 @@ public class MutationControllerTest {
         List<MutationCountByPosition> mutationCountByPositionList = new ArrayList<>();
         MutationCountByPosition mutationCountByPosition1 = new MutationCountByPosition();
         mutationCountByPosition1.setEntrezGeneId(TEST_ENTREZ_GENE_ID_1);
-        mutationCountByPosition1.setProteinPosStart(TEST_ONCOTATOR_PROTEIN_POS_START_1);
-        mutationCountByPosition1.setProteinPosEnd(TEST_ONCOTATOR_PROTEIN_POS_END_1);
+        mutationCountByPosition1.setProteinPosStart(TEST_MUTATION_PROTEIN_POS_START_1);
+        mutationCountByPosition1.setProteinPosEnd(TEST_MUTATION_PROTEIN_POS_END_1);
         mutationCountByPosition1.setCount(TEST_MUTATION_COUNT_1);
         mutationCountByPositionList.add(mutationCountByPosition1);
         MutationCountByPosition mutationCountByPosition2 = new MutationCountByPosition();
         mutationCountByPosition2.setEntrezGeneId(TEST_ENTREZ_GENE_ID_2);
-        mutationCountByPosition2.setProteinPosStart(TEST_ONCOTATOR_PROTEIN_POS_START_2);
-        mutationCountByPosition2.setProteinPosEnd(TEST_ONCOTATOR_PROTEIN_POS_END_2);
+        mutationCountByPosition2.setProteinPosStart(TEST_MUTATION_PROTEIN_POS_START_2);
+        mutationCountByPosition2.setProteinPosEnd(TEST_MUTATION_PROTEIN_POS_END_2);
         mutationCountByPosition2.setCount(TEST_MUTATION_COUNT_2);
         mutationCountByPositionList.add(mutationCountByPosition2);
 
@@ -662,13 +661,13 @@ public class MutationControllerTest {
         List<MutationPositionIdentifier> mutationPositionIdentifiers = new ArrayList<>();
         MutationPositionIdentifier mutationPositionIdentifier1 = new MutationPositionIdentifier();
         mutationPositionIdentifier1.setEntrezGeneId(TEST_ENTREZ_GENE_ID_1);
-        mutationPositionIdentifier1.setProteinPosStart(TEST_ONCOTATOR_PROTEIN_POS_START_1);
-        mutationPositionIdentifier1.setProteinPosEnd(TEST_ONCOTATOR_PROTEIN_POS_END_1);
+        mutationPositionIdentifier1.setProteinPosStart(TEST_MUTATION_PROTEIN_POS_START_1);
+        mutationPositionIdentifier1.setProteinPosEnd(TEST_MUTATION_PROTEIN_POS_END_1);
         mutationPositionIdentifiers.add(mutationPositionIdentifier1);
         MutationPositionIdentifier mutationPositionIdentifier2 = new MutationPositionIdentifier();
         mutationPositionIdentifier2.setEntrezGeneId(TEST_ENTREZ_GENE_ID_2);
-        mutationPositionIdentifier2.setProteinPosStart(TEST_ONCOTATOR_PROTEIN_POS_START_2);
-        mutationPositionIdentifier2.setProteinPosEnd(TEST_ONCOTATOR_PROTEIN_POS_END_2);
+        mutationPositionIdentifier2.setProteinPosStart(TEST_MUTATION_PROTEIN_POS_START_2);
+        mutationPositionIdentifier2.setProteinPosEnd(TEST_MUTATION_PROTEIN_POS_END_2);
         mutationPositionIdentifiers.add(mutationPositionIdentifier2);
 
         mockMvc.perform(MockMvcRequestBuilders.post("/mutation-counts-by-position/fetch")
@@ -679,12 +678,12 @@ public class MutationControllerTest {
             .andExpect(MockMvcResultMatchers.content().contentTypeCompatibleWith(MediaType.APPLICATION_JSON))
             .andExpect(MockMvcResultMatchers.jsonPath("$", Matchers.hasSize(2)))
             .andExpect(MockMvcResultMatchers.jsonPath("$[0].entrezGeneId").value(TEST_ENTREZ_GENE_ID_1))
-            .andExpect(MockMvcResultMatchers.jsonPath("$[0].proteinPosStart").value(TEST_ONCOTATOR_PROTEIN_POS_START_1))
-            .andExpect(MockMvcResultMatchers.jsonPath("$[0].proteinPosEnd").value(TEST_ONCOTATOR_PROTEIN_POS_END_1))
+            .andExpect(MockMvcResultMatchers.jsonPath("$[0].proteinPosStart").value(TEST_MUTATION_PROTEIN_POS_START_1))
+            .andExpect(MockMvcResultMatchers.jsonPath("$[0].proteinPosEnd").value(TEST_MUTATION_PROTEIN_POS_END_1))
             .andExpect(MockMvcResultMatchers.jsonPath("$[0].count").value(TEST_MUTATION_COUNT_1))
             .andExpect(MockMvcResultMatchers.jsonPath("$[1].entrezGeneId").value(TEST_ENTREZ_GENE_ID_2))
-            .andExpect(MockMvcResultMatchers.jsonPath("$[1].proteinPosStart").value(TEST_ONCOTATOR_PROTEIN_POS_START_2))
-            .andExpect(MockMvcResultMatchers.jsonPath("$[1].proteinPosEnd").value(TEST_ONCOTATOR_PROTEIN_POS_END_2))
+            .andExpect(MockMvcResultMatchers.jsonPath("$[1].proteinPosStart").value(TEST_MUTATION_PROTEIN_POS_START_2))
+            .andExpect(MockMvcResultMatchers.jsonPath("$[1].proteinPosEnd").value(TEST_MUTATION_PROTEIN_POS_END_2))
             .andExpect(MockMvcResultMatchers.jsonPath("$[1].count").value(TEST_MUTATION_COUNT_2));
     }
 
@@ -715,9 +714,9 @@ public class MutationControllerTest {
         mutation1.setDriverTiersFilterAnnotation(TEST_DRIVER_TIERS_FILTER_ANNOTATION_1);
         mutation1.setNcbiBuild(TEST_NCBI_BUILD_1);
         mutation1.setVariantType(TEST_VARIANT_TYPE_1);
-        mutation1.setOncotatorRefseqMrnaId(TEST_ONCOTATOR_REFSEQ_MRNA_ID_1);
-        mutation1.setOncotatorProteinPosStart(TEST_ONCOTATOR_PROTEIN_POS_START_1);
-        mutation1.setOncotatorProteinPosEnd(TEST_ONCOTATOR_PROTEIN_POS_END_1);
+        mutation1.setMutationRefseqMrnaId(TEST_MUTATION_REFSEQ_MRNA_ID_1);
+        mutation1.setMutationProteinPosStart(TEST_MUTATION_PROTEIN_POS_START_1);
+        mutation1.setMutationProteinPosEnd(TEST_MUTATION_PROTEIN_POS_END_1);
         mutation1.setKeyword(TEST_KEYWORD_1);
         mutation1.setAnnotationJSON(NAME_SPACE_COLUMNS);
         mutationList.add(mutation1);
@@ -745,9 +744,9 @@ public class MutationControllerTest {
         mutation2.setDriverTiersFilterAnnotation(TEST_DRIVER_TIERS_FILTER_ANNOTATION_2);
         mutation2.setNcbiBuild(TEST_NCBI_BUILD_2);
         mutation2.setVariantType(TEST_VARIANT_TYPE_2);
-        mutation2.setOncotatorRefseqMrnaId(TEST_ONCOTATOR_REFSEQ_MRNA_ID_2);
-        mutation2.setOncotatorProteinPosStart(TEST_ONCOTATOR_PROTEIN_POS_START_2);
-        mutation2.setOncotatorProteinPosEnd(TEST_ONCOTATOR_PROTEIN_POS_END_2);
+        mutation2.setMutationRefseqMrnaId(TEST_MUTATION_REFSEQ_MRNA_ID_2);
+        mutation2.setMutationProteinPosStart(TEST_MUTATION_PROTEIN_POS_START_2);
+        mutation2.setMutationProteinPosEnd(TEST_MUTATION_PROTEIN_POS_END_2);
         mutation2.setKeyword(TEST_KEYWORD_2);
         mutation2.setAnnotationJSON(NAME_SPACE_COLUMNS);
         mutationList.add(mutation2);

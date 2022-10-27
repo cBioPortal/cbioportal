@@ -460,12 +460,12 @@ public class MafUtil {
         record.setMaLinkPdb(TabDelimitedFileUtil.getPartString(maLinkPdbIndex, parts));
 
         // Oncotator columns
-        record.setOncotatorVariantClassification(TabDelimitedFileUtil.getPartString(oncoVariantClassificationIndex, parts));
-        record.setOncotatorRefseqMrnaId(TabDelimitedFileUtil.getPartString(oncoRefseqMrnaIdIndex, parts));
-        record.setOncotatorUniprotAccession(TabDelimitedFileUtil.getPartString(oncoUniprotAccessionIndex, parts));
-        record.setOncotatorCodonChange(TabDelimitedFileUtil.getPartString(oncoCodonChangeIndex, parts));
-        record.setOncotatorProteinPosStart(TabDelimitedFileUtil.getPartInt(oncoProteinPosStartIndex, parts));
-        record.setOncotatorProteinPosEnd(TabDelimitedFileUtil.getPartInt(oncoProteinPosEndIndex, parts));
+        record.setMafVariantClassification(TabDelimitedFileUtil.getPartString(oncoVariantClassificationIndex, parts));
+        record.setMafRefseqMrnaId(TabDelimitedFileUtil.getPartString(oncoRefseqMrnaIdIndex, parts));
+        record.setMafUniprotAccession(TabDelimitedFileUtil.getPartString(oncoUniprotAccessionIndex, parts));
+        record.setMafCodonChange(TabDelimitedFileUtil.getPartString(oncoCodonChangeIndex, parts));
+        record.setMafProteinPosStart(TabDelimitedFileUtil.getPartInt(oncoProteinPosStartIndex, parts));
+        record.setMafProteinPosEnd(TabDelimitedFileUtil.getPartInt(oncoProteinPosEndIndex, parts));
 
         // custom filtering of passenger and driver mutations columns
         record.setDriverFilter(TabDelimitedFileUtil.getPartStringAllowEmptyAndNA(driverIndex, parts));

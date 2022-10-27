@@ -103,14 +103,14 @@ public class MafRecord {
     private String maLinkMsa;
     private String maLinkPdb;
 
-    // Oncotator cols
-    private String oncotatorDbSnpValStatus;
-    private String oncotatorVariantClassification;
-    private String oncotatorRefseqMrnaId;
-    private String oncotatorUniprotAccession;
-    private String oncotatorCodonChange;
-    private int oncotatorProteinPosStart;
-    private int oncotatorProteinPosEnd;
+    // Oncotator columns are renamed to maf columns
+    private String mafDbSnpValStatus;
+    private String mafVariantClassification;
+    private String mafRefseqMrnaId;
+    private String mafUniprotAccession;
+    private String mafCodonChange;
+    private int mafProteinPosStart;
+    private int mafProteinPosEnd;
 
     // custom filtering of passenger and driver mutations cols
     private String driverFilter;
@@ -519,60 +519,60 @@ public class MafRecord {
         this.proteinPosition = proteinPosition;
     }
 
-    public String getOncotatorVariantClassification() {
-        return oncotatorVariantClassification;
+    public String getMafVariantClassification() {
+        return mafVariantClassification;
     }
 
-    public void setOncotatorVariantClassification(String oncotatorVariantClassification) {
-        this.oncotatorVariantClassification = oncotatorVariantClassification;
+    public void setMafVariantClassification(String mafVariantClassification) {
+        this.mafVariantClassification = mafVariantClassification;
     }
     
-    public String getOncotatorDbSnpValStatus() {
-        return oncotatorDbSnpValStatus;
+    public String getMafDbSnpValStatus() {
+        return mafDbSnpValStatus;
     }
 
-    public void setOncotatorDbSnpValStatus(String oncotatorDbSnpValStatus) {
-        this.oncotatorDbSnpValStatus = oncotatorDbSnpValStatus;
+    public void setMafDbSnpValStatus(String mafDbSnpValStatus) {
+        this.mafDbSnpValStatus = mafDbSnpValStatus;
     }
 
-    public String getOncotatorRefseqMrnaId() {
-        return oncotatorRefseqMrnaId;
+    public String getMafRefseqMrnaId() {
+        return mafRefseqMrnaId;
     }
 
-    public void setOncotatorRefseqMrnaId(String oncotatorRefseqMrnaId) {
-        this.oncotatorRefseqMrnaId = oncotatorRefseqMrnaId;
+    public void setMafRefseqMrnaId(String mafRefseqMrnaId) {
+        this.mafRefseqMrnaId = mafRefseqMrnaId;
     }
 
-    public String getOncotatorUniprotAccession() {
-        return oncotatorUniprotAccession;
+    public String getMafUniprotAccession() {
+        return mafUniprotAccession;
     }
 
-    public void setOncotatorUniprotAccession(String oncotatorUniprotAccession) {
-        this.oncotatorUniprotAccession = oncotatorUniprotAccession;
+    public void setMafUniprotAccession(String mafUniprotAccession) {
+        this.mafUniprotAccession = mafUniprotAccession;
     }
 
-    public String getOncotatorCodonChange() {
-        return oncotatorCodonChange;
+    public String getMafCodonChange() {
+        return mafCodonChange;
     }
 
-    public void setOncotatorCodonChange(String oncotatorCodonChange) {
-        this.oncotatorCodonChange = oncotatorCodonChange;
+    public void setMafCodonChange(String mafCodonChange) {
+        this.mafCodonChange = mafCodonChange;
     }
 
-    public int getOncotatorProteinPosStart() {
-        return oncotatorProteinPosStart;
+    public int getMafProteinPosStart() {
+        return mafProteinPosStart;
     }
 
-    public void setOncotatorProteinPosStart(int oncotatorProteinPosStart) {
-        this.oncotatorProteinPosStart = oncotatorProteinPosStart;
+    public void setMafProteinPosStart(int mafProteinPosStart) {
+        this.mafProteinPosStart = mafProteinPosStart;
     }
 
-    public int getOncotatorProteinPosEnd() {
-        return oncotatorProteinPosEnd;
+    public int getMafProteinPosEnd() {
+        return mafProteinPosEnd;
     }
 
-    public void setOncotatorProteinPosEnd(int oncotatorProteinPosEnd) {
-        this.oncotatorProteinPosEnd = oncotatorProteinPosEnd;
+    public void setMafProteinPosEnd(int mafProteinPosEnd) {
+        this.mafProteinPosEnd = mafProteinPosEnd;
     }
 
     public String getMaFuncImpact() {

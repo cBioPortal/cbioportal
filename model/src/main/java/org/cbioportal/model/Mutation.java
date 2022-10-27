@@ -25,9 +25,9 @@ public class Mutation extends Alteration implements Serializable {
     private String mutationType;
     private String ncbiBuild;
     private String variantType;
-    private String oncotatorRefseqMrnaId;
-    private Integer oncotatorProteinPosStart;
-    private Integer oncotatorProteinPosEnd;
+    private String mutationRefseqMrnaId;
+    private Integer mutationProteinPosStart;
+    private Integer mutationProteinPosEnd;
     private String keyword;
     private AlleleSpecificCopyNumber alleleSpecificCopyNumber;
     @JsonRawValue
@@ -165,28 +165,28 @@ public class Mutation extends Alteration implements Serializable {
     public void setVariantType(String variantType) {
         this.variantType = variantType;
     }
-    public String getOncotatorRefseqMrnaId() {
-        return oncotatorRefseqMrnaId;
+    public String getMutationRefseqMrnaId() {
+        return mutationRefseqMrnaId;
     }
 
-    public void setOncotatorRefseqMrnaId(String oncotatorRefseqMrnaId) {
-        this.oncotatorRefseqMrnaId = oncotatorRefseqMrnaId;
+    public void setMutationRefseqMrnaId(String mutationRefseqMrnaId) {
+        this.mutationRefseqMrnaId = mutationRefseqMrnaId;
     }
     
-    public Integer getOncotatorProteinPosStart() {
-        return oncotatorProteinPosStart;
+    public Integer getMutationProteinPosStart() {
+        return mutationProteinPosStart;
     }
 
-    public void setOncotatorProteinPosStart(Integer oncotatorProteinPosStart) {
-        this.oncotatorProteinPosStart = oncotatorProteinPosStart;
+    public void setMutationProteinPosStart(Integer mutationProteinPosStart) {
+        this.mutationProteinPosStart = mutationProteinPosStart;
     }
 
-    public Integer getOncotatorProteinPosEnd() {
-        return oncotatorProteinPosEnd;
+    public Integer getMutationProteinPosEnd() {
+        return mutationProteinPosEnd;
     }
 
-    public void setOncotatorProteinPosEnd(Integer oncotatorProteinPosEnd) {
-        this.oncotatorProteinPosEnd = oncotatorProteinPosEnd;
+    public void setMutationProteinPosEnd(Integer mutationProteinPosEnd) {
+        this.mutationProteinPosEnd = mutationProteinPosEnd;
     }
 
     public String getKeyword() {

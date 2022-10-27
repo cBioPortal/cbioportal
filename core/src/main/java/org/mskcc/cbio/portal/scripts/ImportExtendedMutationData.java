@@ -367,12 +367,12 @@ public class ImportExtendedMutationData{
                     mutation.setNormalAltCount(ExtendedMutationUtil.getNormalAltCount(record));
                     mutation.setNormalRefCount(ExtendedMutationUtil.getNormalRefCount(record));
 
-                    // TODO rename the oncotator column names (remove "oncotator")
-                    mutation.setOncotatorCodonChange(codonChange);
-                    mutation.setOncotatorRefseqMrnaId(refseqMrnaId);
-                    mutation.setOncotatorUniprotAccession(uniprotAccession);
-                    mutation.setOncotatorProteinPosStart(proteinPosStart);
-                    mutation.setOncotatorProteinPosEnd(proteinPosEnd);
+                    //  renamed the oncotator column names to mutation
+                    mutation.setMutationCodonChange(codonChange);
+                    mutation.setMutationRefseqMrnaId(refseqMrnaId);
+                    mutation.setMutationUniprotAccession(uniprotAccession);
+                    mutation.setMutationProteinPosStart(proteinPosStart);
+                    mutation.setMutationProteinPosEnd(proteinPosEnd);
 
                     mutation.setDriverFilter(record.getDriverFilter());
                     mutation.setDriverFilterAnn(record.getDriverFilterAnn());

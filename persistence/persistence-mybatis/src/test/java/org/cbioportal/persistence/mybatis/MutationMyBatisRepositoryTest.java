@@ -16,7 +16,6 @@ import org.springframework.beans.factory.annotation.Configurable;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
-import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -117,9 +116,9 @@ public class MutationMyBatisRepositoryTest {
         Assert.assertEquals("37", mutation.getNcbiBuild());
         Assert.assertEquals((Integer) (-1), mutation.getNormalAltCount());
         Assert.assertEquals((Integer) (-1), mutation.getNormalRefCount());
-        Assert.assertEquals((Integer) 934, mutation.getOncotatorProteinPosEnd());
-        Assert.assertEquals((Integer) 934, mutation.getOncotatorProteinPosStart());
-        Assert.assertEquals("NM_007294", mutation.getOncotatorRefseqMrnaId());
+        Assert.assertEquals((Integer) 934, mutation.getMutationProteinPosEnd());
+        Assert.assertEquals((Integer) 934, mutation.getMutationProteinPosStart());
+        Assert.assertEquals("NM_007294", mutation.getMutationRefseqMrnaId());
         Assert.assertEquals("Q934*", mutation.getProteinChange());
         Assert.assertEquals("G", mutation.getReferenceAllele());
         Assert.assertEquals((Long) 41244748L, mutation.getStartPosition());
@@ -158,9 +157,9 @@ public class MutationMyBatisRepositoryTest {
         Assert.assertEquals("37", mutation.getNcbiBuild());
         Assert.assertEquals((Integer) (-1), mutation.getNormalAltCount());
         Assert.assertEquals((Integer) (-1), mutation.getNormalRefCount());
-        Assert.assertEquals((Integer) 934, mutation.getOncotatorProteinPosEnd());
-        Assert.assertEquals((Integer) 934, mutation.getOncotatorProteinPosStart());
-        Assert.assertEquals("NM_007294", mutation.getOncotatorRefseqMrnaId());
+        Assert.assertEquals((Integer) 934, mutation.getMutationProteinPosEnd());
+        Assert.assertEquals((Integer) 934, mutation.getMutationProteinPosStart());
+        Assert.assertEquals("NM_007294", mutation.getMutationRefseqMrnaId());
         Assert.assertEquals("Q934*", mutation.getProteinChange());
         Assert.assertEquals("G", mutation.getReferenceAllele());
         Assert.assertEquals((Long) 41244748L, mutation.getStartPosition());
@@ -195,9 +194,9 @@ public class MutationMyBatisRepositoryTest {
         Assert.assertEquals("37", mutation.getNcbiBuild());
         Assert.assertEquals((Integer) (-1), mutation.getNormalAltCount());
         Assert.assertEquals((Integer) (-1), mutation.getNormalRefCount());
-        Assert.assertEquals((Integer) 934, mutation.getOncotatorProteinPosEnd());
-        Assert.assertEquals((Integer) 934, mutation.getOncotatorProteinPosStart());
-        Assert.assertEquals("NM_007294", mutation.getOncotatorRefseqMrnaId());
+        Assert.assertEquals((Integer) 934, mutation.getMutationProteinPosEnd());
+        Assert.assertEquals((Integer) 934, mutation.getMutationProteinPosStart());
+        Assert.assertEquals("NM_007294", mutation.getMutationRefseqMrnaId());
         Assert.assertEquals("Q934*", mutation.getProteinChange());
         Assert.assertEquals("G", mutation.getReferenceAllele());
         Assert.assertEquals((Long) 41244748L, mutation.getStartPosition());

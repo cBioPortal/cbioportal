@@ -2797,10 +2797,10 @@ class CNADiscretePDAAnnotationsValidatorTestCase(PostClinicalDataFileTestCase):
         record_list = self.validate('data_pd_annotation_missing_col_gene_ids.txt',
                                     validateData.CNADiscretePDAAnnotationsValidator)
 
-        self.assertEqual(2, len(record_list))
+        self.assertEqual(3, len(record_list))
         record = record_list[0]
         self.assertEqual(logging.ERROR, record.levelno)
-        self.assertIn('Hugo_Symbol or Entrez_Gene_Id column needs to be present in the file.', record.getMessage())
+        self.assertIn("Missing column: Entrez_Gene_Id", record.getMessage())
 
     def test_required_sample_columns(self):
 

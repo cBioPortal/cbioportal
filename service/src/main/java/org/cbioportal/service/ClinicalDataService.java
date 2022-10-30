@@ -27,9 +27,9 @@ public interface ClinicalDataService {
         throws PatientNotFoundException, StudyNotFoundException;
 
     List<ClinicalData> getAllClinicalDataInStudy(String studyId, String attributeId,
-                                                                  String clinicalDataType, String projection,
-                                                                  Integer pageSize, Integer pageNumber, String sortBy,
-                                                                  String direction) throws StudyNotFoundException;
+                                                  String clinicalDataType, String projection,
+                                                  Integer pageSize, Integer pageNumber, String sortBy,
+                                                  String direction) throws StudyNotFoundException;
 
     BaseMeta getMetaAllClinicalData(String studyId, String attributeId, String clinicalDataType) 
         throws StudyNotFoundException;
@@ -51,4 +51,7 @@ public interface ClinicalDataService {
 
     List<ClinicalData> getPatientClinicalDataDetailedToSample(List<String> studyIds, List<String> patientIds,
             List<String> attributeIds);
+
+    List<ClinicalData> fetchSampleClinicalDataClinicalTable(List<String> studyIds, List<String> sampleIds, Integer pageSize,
+                                                            Integer pageNumber, String searchTerm, String sortBy, String direction);
 }

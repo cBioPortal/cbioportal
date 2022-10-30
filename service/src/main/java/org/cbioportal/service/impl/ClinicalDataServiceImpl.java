@@ -1,5 +1,6 @@
 package org.cbioportal.service.impl;
 
+import org.apache.commons.collections4.list.UnmodifiableList;
 import org.cbioportal.model.*;
 import org.cbioportal.model.meta.BaseMeta;
 import org.cbioportal.persistence.ClinicalDataRepository;
@@ -112,9 +113,11 @@ public class ClinicalDataServiceImpl implements ClinicalDataService {
     }
 
     @Override
-    public List<ClinicalData> fetchClinicalData(List<String> studyIds, List<String> ids, List<String> attributeIds, 
+    public List<ClinicalData> fetchClinicalData(List<String> studyIds, List<String> ids, List<String> attributeIds,
                                                 String clinicalDataType, String projection) {
-
+        if (ids.isEmpty()) {
+            return new ArrayList<>();
+        }
         return clinicalDataRepository.fetchClinicalData(studyIds, ids, attributeIds, clinicalDataType, projection);
     }
 
@@ -222,5 +225,13 @@ public class ClinicalDataServiceImpl implements ClinicalDataService {
     public List<ClinicalData> getPatientClinicalDataDetailedToSample(List<String> studyIds, List<String> patientIds,
             List<String> attributeIds) {
         return clinicalDataRepository.getPatientClinicalDataDetailedToSample(studyIds, patientIds, attributeIds);
+    }
+
+    @Override
+    public List<ClinicalData> fetchSampleClinicalDataClinicalTable(List<String> studyIds, List<String> sampleIds, Integer pageSize,
+                                                                   Integer pageNumber, String searchTerm, String sortBy,
+                                                                   String direction) {
+        return clinicalDataRepository.fetchSampleClinicalDataClinicalTable(studyIds, sampleIds, pageSize, pageNumber, searchTerm,
+                                                                            sortBy, direction);
     }
 }

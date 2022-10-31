@@ -33,7 +33,7 @@ import sys
 import os
 import importlib
 import logging.handlers
-from collections import OrderedDict
+from collections import OrderedDict, namedtuple
 import argparse
 import re
 import csv
@@ -96,6 +96,7 @@ MAX_SAMPLE_STABLE_ID_LENGTH = 63
 
 VALIDATOR_IDS = {
     cbioportal_common.MetaFileTypes.CNA_DISCRETE: 'CNADiscreteValidator',
+    cbioportal_common.MetaFileTypes.CNA_DISCRETE_LONG: 'CNADiscreteLongValidator',
     cbioportal_common.MetaFileTypes.CNA_LOG2:'CNAContinuousValuesValidator',
     cbioportal_common.MetaFileTypes.CNA_CONTINUOUS:'CNAContinuousValuesValidator',
     cbioportal_common.MetaFileTypes.EXPRESSION:'ContinuousValuesValidator',
@@ -1392,6 +1393,149 @@ class CustomDriverAnnotationValidator(Validator):
                    'column_number': col_index + 1,
                    'cause': value})
 
+class CustomNamespacesValidator(Validator):
+    """ Logic to validate custom namespace data."""
+
+    def __init__(self, *args, **kwargs):
+        super(CustomNamespacesValidator, self).__init__(*args, **kwargs)
+
+    def checkHeader(self, cols):
+        num_errors = super(CustomNamespacesValidator, self).checkHeader(cols)
+
+        #Namespaces column are compulsory
+        namespaces = []
+        if 'namespaces' in self.meta_dict:
+            namespaces = self.meta_dict['namespaces'].split(',')
+        for namespace in namespaces:
+            defined_namespace = namespace.strip().lower()
+            defined_namespace_found = any([True for col in cols if col.lower().startswith(defined_namespace + '.')])
+            if not defined_namespace_found:
+                self.logger.error('%s namespace defined but the file does not have any matching columns' 
+                                  % (defined_namespace))
+                num_errors += 1
+        
+        return num_errors
+
+class CNADiscreteLongValidator(CustomDriverAnnotationValidator, CustomNamespacesValidator):
+    """ Logic to validate discrete long CNA data."""
+    REQUIRED_HEADERS = [
+        'Sample_Id',
+        'Value'
+    ]
+    OPTIONAL_HEADERS = [
+        'Hugo_Symbol',
+        'Entrez_Gene_Id',
+        'cbp_driver',
+        'cbp_driver_annotation',
+        'cbp_driver_tiers',
+        'cbp_driver_tiers_annotation'
+    ]
+    REQUIRE_COLUMN_ORDER = False
+    ALLOW_BLANKS = True
+
+    ALLOWED_CNA_VALUES = ['-2', '-1.5', '-1', '0', '1', '2', 'NA']
+
+    def __init__(self, *args, **kwargs):
+        super(CNADiscreteLongValidator, self).__init__(*args, **kwargs)
+        self.cna_entries = {} #Dictionary of dictionaries with sampleid: {entrez: hugo}
+        self.cna_entry = namedtuple('CNAEntry', 'hugo line')
+
+    def checkHeader(self, cols):
+        num_errors = super(CNADiscreteLongValidator, self).checkHeader(cols)
+        if ('Hugo_Symbol' not in cols and
+                'Entrez_Gene_Id' not in cols):
+            self.logger.error('Hugo_Symbol or Entrez_Gene_Id column needs to be present in the file.',
+                              extra={'line_number': self.line_number})
+            num_errors += 1
+
+        return num_errors
+
+    def checkLine(self, data):
+        super(CNADiscreteLongValidator, self).checkLine(data)
+        sample_id_index = self.cols.index('Sample_Id')
+        self.checkSampleId(data[sample_id_index], column_number = sample_id_index + 1)
+
+        entrez_gene_id = None
+        hugo_symbol = None
+        if 'Entrez_Gene_Id' in self.cols:
+            if data[self.cols.index('Entrez_Gene_Id')] != '':
+                entrez_gene_id = data[self.cols.index('Entrez_Gene_Id')]
+        if 'Hugo_Symbol' in self.cols:
+            if data[self.cols.index('Hugo_Symbol')] != '':
+                hugo_symbol = data[self.cols.index('Hugo_Symbol')]
+        entrez_gene_id = self.checkGeneIdentification(hugo_symbol, entrez_gene_id)
+
+        #Check uniqueness gene - sampleId
+        sample_id = data[self.cols.index('Sample_Id')]
+        if entrez_gene_id is not None:
+            if sample_id in self.cna_entries.keys():
+                if entrez_gene_id in self.cna_entries[sample_id]:
+                    if hugo_symbol is not None and self.cna_entries[sample_id][entrez_gene_id].hugo is not None:
+                        if self.cna_entries[sample_id][entrez_gene_id].hugo == hugo_symbol:
+                            self.logger.error(
+                                'Duplicated gene found within the same sample.',
+                                extra = {'line_number': self.line_number,
+                                'cause': 'Sample Id: %s, Hugo Symbol: %s, Entrez Gene Id: %s '
+                                '(already defined on line %d)' % (
+                                    sample_id,
+                                    hugo_symbol,
+                                    entrez_gene_id,
+                                    self.cna_entries[sample_id][entrez_gene_id].line)})
+                        else:
+                            self.logger.error(
+                                'Two different Hugo Symbols that map to the same Entrez Gene Id '
+                                'found within the same sample.',
+                                extra = {'line_number': self.line_number,
+                                'cause': 'Sample Id: %s, Entrez Gene Id: %s, '
+                                'Hugo Symbol: %s (already defined on line %d, '
+                                'with Hugo Symbol: %s)' % (
+                                    sample_id,
+                                    entrez_gene_id,
+                                    hugo_symbol,
+                                    self.cna_entries[sample_id][entrez_gene_id].line,
+                                    self.cna_entries[sample_id][entrez_gene_id].hugo)})
+                    elif hugo_symbol is not None or self.cna_entries[sample_id][entrez_gene_id].hugo is not None:
+                            #self.logger.error("Error: %s %s %s %s" %(str(sample_id), str(entrez_gene_id), str(hugo_symbol), str(self.cna_entries[sample_id])))
+                            self.logger.error(
+                                        'A Hugo Symbol that maps to an already existing Entrez Gene '
+                                        'Id found within the same sample.',
+                                        extra = {'line_number': self.line_number,
+                                        'cause': 'Sample Id: %s, Hugo Symbol: %s, '
+                                        'Entrez Gene Id: %s '
+                                        '(already defined on line %d)' % (
+                                            sample_id,
+                                            hugo_symbol if hugo_symbol is not None else self.cna_entries[sample_id][entrez_gene_id].hugo,
+                                            entrez_gene_id,
+                                            self.cna_entries[sample_id][entrez_gene_id].line)})
+                    else:
+                        self.logger.error(
+                                'Duplicated Entrez Gene Id found within the same sample.',
+                                extra = {'line_number': self.line_number,
+                                'cause': 'Sample Id: %s, Entrez Gene Id: %s '
+                                '(already defined on line %d)' % (
+                                    sample_id,
+                                    entrez_gene_id,
+                                    self.cna_entries[sample_id][entrez_gene_id].line)})
+                else:
+                    self.cna_entries[sample_id][entrez_gene_id] = self.cna_entry(hugo=hugo_symbol, line=self.line_number)
+            else:
+                self.cna_entries[sample_id] = {entrez_gene_id: self.cna_entry(hugo=hugo_symbol, line=self.line_number)}
+
+        if 'Value' in self.cols:
+            cna_value = data[self.cols.index('Value')]
+            if cna_value.strip() not in self.ALLOWED_CNA_VALUES:
+                if self.logger.isEnabledFor(logging.ERROR):
+                    self.logger.error(
+                        'Invalid CNA value: possible values are [%s]',
+                        ', '.join(self.ALLOWED_CNA_VALUES),
+                        extra={'line_number': self.line_number,
+                            'column_number': self.cols.index('Value'),
+                            'cause': cna_value})
+
+    def onComplete(self):
+        #End validation of this data type by running the super function
+        super(CNADiscreteLongValidator, self).onComplete()
+
 class CNADiscretePDAAnnotationsValidator(CustomDriverAnnotationValidator):
     REQUIRED_HEADERS = [
         'SAMPLE_ID'
@@ -1452,7 +1596,7 @@ class CNAContinuousValuesValidator(CNAValidator, ContinuousValuesValidator):
     """Logic to validate continuous CNA data."""
 
 
-class MutationsExtendedValidator(CustomDriverAnnotationValidator):
+class MutationsExtendedValidator(CustomDriverAnnotationValidator, CustomNamespacesValidator):
     """Sub-class mutations_extended validator."""
 
     # TODO - maybe this should comply to https://wiki.nci.nih.gov/display/TCGA/Mutation+Annotation+Format+%28MAF%29+Specification ?
@@ -1575,14 +1719,6 @@ class MutationsExtendedValidator(CustomDriverAnnotationValidator):
                                   'Missing %s' % (','.join(missing_ascn_columns)))
                 num_errors += 1
 
-        for namespace in namespaces:
-            defined_namespace = namespace.strip().lower()
-            if defined_namespace != 'ascn':
-                defined_namespace_found = any([True for col in cols if col.lower().startswith(defined_namespace + '.')])
-                if not defined_namespace_found:
-                    self.logger.error('%s namespace defined but MAF '
-                                      'does not have any matching columns' % (defined_namespace))
-                    num_errors += 1
         return num_errors
 
     def checkLine(self, data):

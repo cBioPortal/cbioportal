@@ -36,22 +36,6 @@ public class MolecularProfile implements Serializable {
         DISCRETE_LONG;
     }
 
-    public enum CnaDatatype {
-        DISCRETE,
-        DISCRETE_LONG;
-
-        public static CnaDatatype findByName(String name) {
-            CnaDatatype result = null;
-            for (CnaDatatype value : values()) {
-                if (value.name().equalsIgnoreCase(name)) {
-                    result = value;
-                    break;
-                }
-            }
-            return result;
-        }
-    }
-
     private Integer molecularProfileId;
     @NotNull
     private String stableId;

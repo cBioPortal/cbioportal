@@ -1,8 +1,8 @@
 package org.cbioportal.web.mixin;
 
-import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.annotation.*;
 
-public class DiscreteCopyNumberDataMixin {
+public class StructuralVariantMixin {
 
     @JsonProperty("namespaceColumns")
     private String annotationJson;

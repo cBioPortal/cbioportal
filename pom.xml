@@ -315,7 +315,7 @@
     <tomcat.session.timeout>720</tomcat.session.timeout>
 
     <!-- THIS SHOULD BE KEPT IN SYNC TO VERSION IN CGDS.SQL -->
-    <db.version>2.12.15</db.version>
+    <db.version>2.12.16</db.version>
   </properties>
 
   <modules>
@@ -343,6 +343,12 @@
       <dependency>
           <groupId>org.slf4j</groupId>
           <artifactId>slf4j-simple</artifactId>
+          <scope>test</scope>
+      </dependency>
+      <dependency>
+          <groupId>pl.pragmatists</groupId>
+          <artifactId>JUnitParams</artifactId>
+          <version>1.1.0</version>
           <scope>test</scope>
       </dependency>
   </dependencies>

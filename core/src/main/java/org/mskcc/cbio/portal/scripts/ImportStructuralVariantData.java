@@ -49,12 +49,19 @@ public class ImportStructuralVariantData {
     private File structuralVariantFile;
     private int geneticProfileId;
     private String genePanel;
+    private Set<String> namespaces;
     private Set<String> sampleSet  = new HashSet<>();
 
-    public ImportStructuralVariantData(File structuralVariantFile, int geneticProfileId, String genePanel) throws DaoException {
+    public ImportStructuralVariantData(
+        File structuralVariantFile, 
+        int geneticProfileId, 
+        String genePanel, 
+        Set<String> namespaces
+    ) throws DaoException {
         this.structuralVariantFile = structuralVariantFile;
         this.geneticProfileId = geneticProfileId;
         this.genePanel = genePanel;
+        this.namespaces = namespaces;
     }
 
     public void importData() throws IOException, DaoException {
@@ -63,7 +70,7 @@ public class ImportStructuralVariantData {
         BufferedReader buf = new BufferedReader(reader);
         DaoGeneOptimized daoGene = DaoGeneOptimized.getInstance();
         String line = buf.readLine();
-        StructuralVariantUtil structuralVariantUtil = new StructuralVariantUtil(line);
+        StructuralVariantUtil structuralVariantUtil = new StructuralVariantUtil(line, namespaces);
 
         int recordCount = 0;
         // Genetic profile is read in first

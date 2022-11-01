@@ -17,7 +17,7 @@ window.legacySupportFrontendConfig = {
     showTranscriptDropdown : <%=GlobalProperties.showTranscriptDropdown()%>,
     showGenomeNexus : <%=GlobalProperties.showGenomeNexus()%>,
     showGenomeNexusAnnotationSources : <%=GlobalProperties.showGenomeNexusAnnotationSources()%>,
-    genomeNexusIsoformOverrideSource : <%GlobalProperties.getGenomeNexusIsoformOverrideSource()%>,
+    genomeNexusIsoformOverrideSource : <%=GlobalProperties.getGenomeNexusIsoformOverrideSource()%>,
     showMutationMapperToolGrch38 : <%=GlobalProperties.showMutationMapperToolGrch38()%>,
     showSignal : <%=GlobalProperties.showSignal()%>,
     showNdex : <%=GlobalProperties.showNdex()%>,

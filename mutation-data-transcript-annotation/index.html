@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width,initial-scale=1">
-    <meta name="turbo-cache-control" content="no-cache" data-turbo-track="reload" data-track-token="2.4.0.720642217124">
+    <meta name="turbo-cache-control" content="no-cache" data-turbo-track="reload" data-track-token="2.4.0.720642652763">
 
     <!-- See retype.com -->
     <meta name="generator" content="Retype 2.4.0">
@@ -31,11 +31,11 @@
     <script>(function () { var el = document.documentElement, m = localStorage.getItem("doc_theme"), wm = window.matchMedia; if (m === "dark" || (!m && wm && wm("(prefers-color-scheme: dark)").matches)) { el.classList.add("dark") } else { el.classList.remove("dark") } })();</script>
 
     <link href="../images/cbio-logo.png" rel="icon" />
-    <link href="../resources/css/retype.css?v=2.4.0.720642217124" rel="stylesheet" />
+    <link href="../resources/css/retype.css?v=2.4.0.720642652763" rel="stylesheet" />
 
-    <script type="text/javascript" src="../resources/js/config.js?v=2.4.0.720642217124" data-turbo-eval="false" defer></script>
+    <script type="text/javascript" src="../resources/js/config.js?v=2.4.0.720642652763" data-turbo-eval="false" defer></script>
     <script type="text/javascript" src="../resources/js/retype.js?v=2.4.0" data-turbo-eval="false" defer></script>
-    <script id="lunr-js" type="text/javascript" src="../resources/js/lunr.js?v=2.4.0.720642217124" data-turbo-eval="false" defer></script>
+    <script id="lunr-js" type="text/javascript" src="../resources/js/lunr.js?v=2.4.0.720642652763" data-turbo-eval="false" defer></script>
 
     <link rel="stylesheet" href="/static/custom.css"></link>
 </head>
@@ -289,17 +289,15 @@ transcripts/isoforms for each mutation in the database itself, it does allow vie
 <p>The cBioPortal database stores one gene + protein change annotation for each mutation event in the database. To allow
 comparing mutation data across studies it is important to annotate the mutation data (be it in MAF or VCF format) in
 the same way, otherwise the gene + protein changes can mean entirely different things. For all public studies stored
-in <a href="https://github.com/cBioPortal/datahub/tree/master/public">datahub</a> we leverage [Genome Nexus](https:
-//www.genomenexus.org) to do so. Genome Nexus assigns one canonical Ensembl Transcript + gene name + protein change for
-each mutation. You can find the mapping of hugo symbol to transcript id<a href="https://github.com/genome-nexus/genome-nexus-importer/blob/master/data/grch37_ensembl92/export/ensembl_biomart_canonical_transcripts_per_hgnc.txt">here</a>. There are
+in <a href="https://github.com/cBioPortal/datahub/tree/master/public">datahub</a> we leverage <a href="https://www.genomenexus.org">Genome Nexus</a> to do so.
+Genome Nexus assigns one canonical Ensembl Transcript + gene name + protein change for
+each mutation. You can find the mapping of hugo symbol to transcript id <a href="https://github.com/genome-nexus/genome-nexus-importer/blob/master/data/grch37_ensembl92/export/ensembl_biomart_canonical_transcripts_per_hgnc.txt">here</a>. There are
 two sets of default transcripts: <code v-pre>uniprot</code> and <code v-pre>mskcc</code>. We recommend to use the <code v-pre>mskcc</code> set of transcripts when
 starting from scratch, since these are more up to date and correspond to transcripts that were chosen as relevant for
 clinical sequencing at MSKCC. The <code v-pre>uniprot</code> set of transcripts was constructed several years ago, but we are no longer
 certain about the logic on how to reconstruct them hence they are not being kept up to date. One can see the
 differences between the two in <a href="https://github.com/cBioPortal/cbioportal-frontend/files/9498680/genes_with_different_uniprot_mskcc_isoforms.txt">this file</a>. For the public cBioPortal (https:
-//www.cbioportal.org) we are using <code v-pre>mskcc</code>, for the GENIE cBioPortal (<a href="https://genie.cbioportal.org">https://genie.cbioportal.org</a>) we use <code v-pre>uniprot</code>
-. For local installations the default is <code v-pre>mskcc</code> since v5, it was <code v-pre>uniprot</code> prior to v5. We recommend that people upgrading to v5
-consider migrating to <code v-pre>mskcc</code> as well (see <a href="https://docs.cbioportal.org/migration-guide/">migration guide</a> and <a href="https://docs.cbioportal.org/deployment/customization/portal.properties-reference/#properties">the properties reference docs</a>).</p>
+//www.cbioportal.org) and <a href="https://github.com/cBioPortal/datahub/tree/master/public">datahub</a> we are using <code v-pre>mskcc</code>, for the GENIE cBioPortal (<a href="https://genie.cbioportal.org">https://genie.cbioportal.org</a>) we still use <code v-pre>uniprot</code>. As of cBioPortal v5 the default is <code v-pre>mskcc</code> for local installations. Prior to v5 it was <code v-pre>uniprot</code>. We recommend that people upgrading to v5 consider migrating to <code v-pre>mskcc</code> as well (see <a href="https://docs.cbioportal.org/migration-guide/">migration guide</a> and <a href="https://docs.cbioportal.org/deployment/customization/portal.properties-reference/#properties">the properties reference docs</a>).</p>
 <doc-anchor-target id="how-default-transcript-assignment-affects-the-mutations-tab">
     <h4>
         <doc-anchor-trigger class="header-anchor-trigger" to="#how-default-transcript-assignment-affects-the-mutations-tab">#</doc-anchor-trigger>

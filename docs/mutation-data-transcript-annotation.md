@@ -34,17 +34,15 @@ transcripts/isoforms for each mutation in the database itself, it does allow vie
 The cBioPortal database stores one gene + protein change annotation for each mutation event in the database. To allow 
 comparing mutation data across studies it is important to annotate the mutation data (be it in MAF or VCF format) in 
 the same way, otherwise the gene + protein changes can mean entirely different things. For all public studies stored 
-in [datahub](https://github.com/cBioPortal/datahub/tree/master/public) we leverage [Genome Nexus](https:
-//www.genomenexus.org) to do so. Genome Nexus assigns one canonical Ensembl Transcript + gene name + protein change for 
-each mutation. You can find the mapping of hugo symbol to transcript id[here](https://github.com/genome-nexus/genome-nexus-importer/blob/master/data/grch37_ensembl92/export/ensembl_biomart_canonical_transcripts_per_hgnc.txt). There are 
+in [datahub](https://github.com/cBioPortal/datahub/tree/master/public) we leverage [Genome Nexus](https://www.genomenexus.org) to do so. 
+Genome Nexus assigns one canonical Ensembl Transcript + gene name + protein change for 
+each mutation. You can find the mapping of hugo symbol to transcript id [here](https://github.com/genome-nexus/genome-nexus-importer/blob/master/data/grch37_ensembl92/export/ensembl_biomart_canonical_transcripts_per_hgnc.txt). There are 
 two sets of default transcripts: `uniprot` and `mskcc`. We recommend to use the `mskcc` set of transcripts when 
 starting from scratch, since these are more up to date and correspond to transcripts that were chosen as relevant for 
 clinical sequencing at MSKCC. The `uniprot` set of transcripts was constructed several years ago, but we are no longer 
 certain about the logic on how to reconstruct them hence they are not being kept up to date. One can see the 
 differences between the two in [this file](https://github.com/cBioPortal/cbioportal-frontend/files/9498680/genes_with_different_uniprot_mskcc_isoforms.txt). For the public cBioPortal (https:
-//www.cbioportal.org) we are using `mskcc`, for the GENIE cBioPortal (https://genie.cbioportal.org) we use `uniprot`
-. For local installations the default is `mskcc` since v5, it was `uniprot` prior to v5. We recommend that people upgrading to v5
-consider migrating to `mskcc` as well (see [migration guide](https://docs.cbioportal.org/migration-guide/) and [the properties reference docs](https://docs.cbioportal.org/deployment/customization/portal.properties-reference/#properties)).
+//www.cbioportal.org) and [datahub](https://github.com/cBioPortal/datahub/tree/master/public) we are using `mskcc`, for the GENIE cBioPortal (https://genie.cbioportal.org) we still use `uniprot`. As of cBioPortal v5 the default is `mskcc` for local installations. Prior to v5 it was `uniprot`. We recommend that people upgrading to v5 consider migrating to `mskcc` as well (see [migration guide](https://docs.cbioportal.org/migration-guide/) and [the properties reference docs](https://docs.cbioportal.org/deployment/customization/portal.properties-reference/#properties)).
 
 #### How default transcript assignment affects the Mutations Tab 
 

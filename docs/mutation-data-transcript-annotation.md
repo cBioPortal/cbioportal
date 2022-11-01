@@ -1,5 +1,3 @@
-## Mutation Data Transcript Annotation 
-
 This document describes how each mutation in cBioPortal gets annotated with a specific gene symbol + protein change. 
 
 ### Biological Background 

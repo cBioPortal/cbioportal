@@ -1436,7 +1436,8 @@ class CNADiscretePDAAnnotationsValidator(CustomDriverAnnotationValidator):
             if data[self.cols.index('Hugo_Symbol')] != '':
                 hugo_symbol = data[self.cols.index('Hugo_Symbol')]
         entrez_gene_id = self.checkGeneIdentification(hugo_symbol, entrez_gene_id)
-        self.entrez_gene_ids.add(entrez_gene_id)
+        if entrez_gene_id is not None:
+            self.entrez_gene_ids.add(entrez_gene_id)
 
     def onComplete(self):
         """Perform final validations based on the data parsed."""

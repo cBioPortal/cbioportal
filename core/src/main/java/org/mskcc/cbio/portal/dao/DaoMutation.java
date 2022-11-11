@@ -799,11 +799,11 @@ public final class DaoMutation {
         event.setDbSnpRs(rs.getString("DB_SNP_RS"));
         event.setDbSnpValStatus(rs.getString("DB_SNP_VAL_STATUS"));
         event.setReferenceAllele(rs.getString("REFERENCE_ALLELE"));
-        event.setMutationRefseqMrnaId(rs.getString("ONCOTATOR_REFSEQ_MRNA_ID"));
-        event.setMutationCodonChange(rs.getString("ONCOTATOR_CODON_CHANGE"));
-        event.setMutationUniprotAccession(rs.getString("ONCOTATOR_UNIPROT_ACCESSION"));
-        event.setMutationProteinPosStart(rs.getInt("ONCOTATOR_PROTEIN_POS_START"));
-        event.setMutationProteinPosEnd(rs.getInt("ONCOTATOR_PROTEIN_POS_END"));
+        event.setMutationRefseqMrnaId(rs.getString("MUTATION_REFSEQ_MRNA_ID"));
+        event.setMutationCodonChange(rs.getString("MUTATION_CODON_CHANGE"));
+        event.setMutationUniprotAccession(rs.getString("MUTATION_UNIPROT_ACCESSION"));
+        event.setMutationProteinPosStart(rs.getInt("MUTATION_PROTEIN_POS_START"));
+        event.setMutationProteinPosEnd(rs.getInt("MUTATION_PROTEIN_POS_END"));
         event.setCanonicalTranscript(rs.getBoolean("CANONICAL_TRANSCRIPT"));
         event.setTumorSeqAllele(rs.getString("TUMOR_SEQ_ALLELE"));
         event.setKeyword(rs.getString("KEYWORD"));
@@ -1377,12 +1377,12 @@ public final class DaoMutation {
         if (geneIdSet.size() == 0 || internalProfileIds.size() == 0) return new ArrayList<Map<String, Object>>(); //empty IN() clause would be a SQL error below
         try {
             con = JdbcUtil.getDbConnection(DaoMutation.class);
-            String sql = "SELECT ONCOTATOR_PROTEIN_POS_START, GENETIC_PROFILE_ID, mutation.ENTREZ_GENE_ID, count(DISTINCT SAMPLE_ID) " +
+            String sql = "SELECT MUTATION_PROTEIN_POS_START, GENETIC_PROFILE_ID, mutation.ENTREZ_GENE_ID, count(DISTINCT SAMPLE_ID) " +
                     "FROM mutation INNER JOIN mutation_event ON mutation.MUTATION_EVENT_ID=mutation_event.MUTATION_EVENT_ID " +
                     "WHERE mutation.ENTREZ_GENE_ID IN (" + StringUtils.join(geneIdSet, ",") + ") " +
                     "AND GENETIC_PROFILE_ID IN (" + StringUtils.join(internalProfileIds, ",") + ") " +
-                    "AND (mutation.ENTREZ_GENE_ID, ONCOTATOR_PROTEIN_POS_START) IN (" + StringUtils.join(proteinPosStarts, ",") + ") " +
-                    "GROUP BY ONCOTATOR_PROTEIN_POS_START, GENETIC_PROFILE_ID, mutation.ENTREZ_GENE_ID";
+                    "AND (mutation.ENTREZ_GENE_ID, MUTATION_PROTEIN_POS_START) IN (" + StringUtils.join(proteinPosStarts, ",") + ") " +
+                    "GROUP BY MUTATION_PROTEIN_POS_START, GENETIC_PROFILE_ID, mutation.ENTREZ_GENE_ID";
             pstmt = con.prepareStatement(sql);
             rs = pstmt.executeQuery();
             Collection<Map<String, Object>> data = new ArrayList<Map<String, Object>>();

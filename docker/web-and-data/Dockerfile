@@ -11,7 +11,7 @@
 # NOTE: the .git folder is included in the build stage, but excluded 
 # from the final image. No confidential information is exposed.
 # (see: stackoverflow.com/questions/56278325)
-FROM maven:3-openjdk-11 as build
+FROM maven:3-eclipse-temurin-11 as build
 
 # download maven dependencies first to take advantage of docker caching
 COPY pom.xml                                     /cbioportal/
@@ -35,9 +35,10 @@ COPY portal/pom.xml                                 portal/
 RUN mvn dependency:go-offline --fail-never
 
 COPY $PWD /cbioportal
-RUN mvn -DskipTests clean install
+# Use quite output so we can see the build steps easily
+RUN mvn -DskipTests clean install -q
 
-FROM openjdk:11-jre-slim
+FROM eclipse-temurin:11
 
 # download system dependencies first to take advantage of docker caching
 RUN apt-get update; apt-get install -y --no-install-recommends \

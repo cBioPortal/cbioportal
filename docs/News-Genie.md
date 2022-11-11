@@ -1,7 +1,15 @@
 # Genie News
+## November 3, 2022
+*   **Public Release BPC CRC 2.0-PUBLIC**
+    *   The GENIE BPC CRC v2.0-public dataset contains 1,485 CRC patients from three institutions: MSKCC, DFCI, and VICC. 
+    *   The complete, post-processed data are available on [Synapse](https://www.synapse.org/#!Synapse:syn30102262)
 ## July 6, 2022
 *   **Public Release GENIE ERBB2 Cohort**
     * The study contains 315 samples from 135 patients from 6 institues.
+## July 22, 2022
+*   **Public Release 12.0 of AACR Project GENIE:**
+    *   The first set of cancer genomic data aggregated through AACR Project Genomics Evidence Neoplasia Information Exchange (GENIE) was released to the global community in January 2017. The current release, GENIE 12.0-public, was released in July 2022. he registry now contains more than 154,000 sequenced samples from 137,000+ patients, making the AACR Project GENIE registry among the largest fully public cancer genomic data sets released to date.
+    *   More detailed information can be found in the [AACR GENIE Data Guide](https://www.aacr.org/wp-content/uploads/2022/07/GENIE_12.0-public_data_guide.pdf).  In addition to accessing the data via the cBioPortal, users can download the data directly from [Sage Bionetworks](http://synapse.org/genie). Users will need to create an account for either site and agree to the [terms of access](http://www.aacr.org/Documents/Terms%20of%20Access.pdf).
 ## May 19, 2022
 *   **Public Release BPC NSCLC 2.0-PUBLIC**
     *   The GENIE BPC NSCLC v2.0-public dataset contains 1,846 NSCLC patients from 4 institutions: MSKCC, DFCI, VICC and UHN.

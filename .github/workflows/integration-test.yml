@@ -4,7 +4,7 @@ jobs:
   build:
     name: Integration tests
     runs-on: ubuntu-latest
-    env: 
+    env:
       PORTAL_SOURCE_DIR: /home/runner/work/cbioportal/cbioportal/cbioportal
       PORTAL_COMPOSE_DIR: /home/runner/work/cbioportal/cbioportal/cbioportal-docker-compose
       PORTAL_INFO_DIR: /home/runner/work/cbioportal/cbioportal/portalInfo

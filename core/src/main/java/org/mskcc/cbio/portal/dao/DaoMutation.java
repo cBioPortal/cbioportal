@@ -1377,12 +1377,12 @@ public final class DaoMutation {
         if (geneIdSet.size() == 0 || internalProfileIds.size() == 0) return new ArrayList<Map<String, Object>>(); //empty IN() clause would be a SQL error below
         try {
             con = JdbcUtil.getDbConnection(DaoMutation.class);
-            String sql = "SELECT ONCOTATOR_PROTEIN_POS_START, GENETIC_PROFILE_ID, mutation.ENTREZ_GENE_ID, count(DISTINCT SAMPLE_ID) " +
+            String sql = "SELECT MUTATION_PROTEIN_POS_START, GENETIC_PROFILE_ID, mutation.ENTREZ_GENE_ID, count(DISTINCT SAMPLE_ID) " +
                     "FROM mutation INNER JOIN mutation_event ON mutation.MUTATION_EVENT_ID=mutation_event.MUTATION_EVENT_ID " +
                     "WHERE mutation.ENTREZ_GENE_ID IN (" + StringUtils.join(geneIdSet, ",") + ") " +
                     "AND GENETIC_PROFILE_ID IN (" + StringUtils.join(internalProfileIds, ",") + ") " +
-                    "AND (mutation.ENTREZ_GENE_ID, ONCOTATOR_PROTEIN_POS_START) IN (" + StringUtils.join(proteinPosStarts, ",") + ") " +
-                    "GROUP BY ONCOTATOR_PROTEIN_POS_START, GENETIC_PROFILE_ID, mutation.ENTREZ_GENE_ID";
+                    "AND (mutation.ENTREZ_GENE_ID, MUTATION_PROTEIN_POS_START) IN (" + StringUtils.join(proteinPosStarts, ",") + ") " +
+                    "GROUP BY MUTATION_PROTEIN_POS_START, GENETIC_PROFILE_ID, mutation.ENTREZ_GENE_ID";
             pstmt = con.prepareStatement(sql);
             rs = pstmt.executeQuery();
             Collection<Map<String, Object>> data = new ArrayList<Map<String, Object>>();

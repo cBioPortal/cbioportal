@@ -1402,7 +1402,7 @@ class CustomNamespacesValidator(Validator):
     def checkHeader(self, cols):
         num_errors = super(CustomNamespacesValidator, self).checkHeader(cols)
 
-        #Namespaces column are compulsory
+        #Namespaces column are compulsory when custom namespaces are defined in meta file
         namespaces = []
         if 'namespaces' in self.meta_dict:
             namespaces = self.meta_dict['namespaces'].split(',')
@@ -1433,7 +1433,9 @@ class CNADiscreteLongValidator(CustomDriverAnnotationValidator, CustomNamespaces
     REQUIRE_COLUMN_ORDER = False
     ALLOW_BLANKS = True
 
-    ALLOWED_CNA_VALUES = ['-2', '-1.5', '-1', '0', '1', '2', 'NA']
+    ALLOWED_CNA_VALUES = ['-2', '-1.5', '-1', '0', '1', '2']
+
+    NULL_VALUES = ['NA']
 
     def __init__(self, *args, **kwargs):
         super(CNADiscreteLongValidator, self).__init__(*args, **kwargs)

@@ -1056,12 +1056,22 @@ class CNADiscreteLongFormatValidatorTestCase(PostClinicalDataFileTestCase):
                                     extra_meta_fields={'namespaces': 'MyNamespace'})
         # two errors after the info: the first makes the file unparsable
         self.assertEqual(3, len(record_list))
-        for record in record_list[1:]:
-            self.assertEqual(logging.ERROR, record.levelno)
-        self.assertEqual(1, record_list[1].line_number)
-
-    # Tests validating gene-wise files with different combinations of gene id columns,
-    # now with invalid Entrez ID and/or Hugo names """
+        #First message is a debug message
+        record_iterator = iter(record_list)
+        record = next(record_iterator)
+        self.assertEqual(record.levelno, logging.DEBUG)
+        self.assertEqual(record.getMessage(),
+                         'Starting validation of file')
+        #Second message is an error
+        record = next(record_iterator)
+        self.assertEqual(record.levelno, logging.ERROR)
+        self.assertEqual(record.getMessage(),
+                         'Hugo_Symbol or Entrez_Gene_Id column needs to be present in the file.')
+        #Third message is an error
+        record = next(record_iterator)
+        self.assertEqual(record.levelno, logging.ERROR)
+        self.assertEqual(record.getMessage(),
+                         'Invalid column header, file cannot be parsed')
 
     def test_missing_sample_column(self):
         """Test when a file do not have the Sample_Id column."""
@@ -1070,9 +1080,22 @@ class CNADiscreteLongFormatValidatorTestCase(PostClinicalDataFileTestCase):
                                     extra_meta_fields={'namespaces': 'MyNamespace'})
         # two errors after the info: the first makes the file unparsable
         self.assertEqual(3, len(record_list))
-        for record in record_list[1:]:
-            self.assertEqual(logging.ERROR, record.levelno)
-        self.assertEqual(1, record_list[1].line_number)
+        #First message is a debug message
+        record_iterator = iter(record_list)
+        record = next(record_iterator)
+        self.assertEqual(record.levelno, logging.DEBUG)
+        self.assertEqual(record.getMessage(),
+                         'Starting validation of file')
+        #Second message is an error
+        record = next(record_iterator)
+        self.assertEqual(record.levelno, logging.ERROR)
+        self.assertEqual(record.getMessage(),
+                         'Missing column: Sample_Id')
+        #Third message is an error
+        record = next(record_iterator)
+        self.assertEqual(record.levelno, logging.ERROR)
+        self.assertEqual(record.getMessage(),
+                         'Invalid column header, file cannot be parsed')
     def test_missing_value_column(self):
         """Test when a file do not have the Value column."""
         record_list = self.validate('data_cna_long_genecol_no_value.txt',
@@ -1080,9 +1103,22 @@ class CNADiscreteLongFormatValidatorTestCase(PostClinicalDataFileTestCase):
                                     extra_meta_fields={'namespaces': 'MyNamespace'})
         # two errors after the info: the first makes the file unparsable
         self.assertEqual(3, len(record_list))
-        for record in record_list[1:]:
-            self.assertEqual(logging.ERROR, record.levelno)
-        self.assertEqual(1, record_list[1].line_number)
+        #First message is a debug message
+        record_iterator = iter(record_list)
+        record = next(record_iterator)
+        self.assertEqual(record.levelno, logging.DEBUG)
+        self.assertEqual(record.getMessage(),
+                         'Starting validation of file')
+        #Second message is an error
+        record = next(record_iterator)
+        self.assertEqual(record.levelno, logging.ERROR)
+        self.assertEqual(record.getMessage(),
+                         'Missing column: Value')
+        #Third message is an error
+        record = next(record_iterator)
+        self.assertEqual(record.levelno, logging.ERROR)
+        self.assertEqual(record.getMessage(),
+                         'Invalid column header, file cannot be parsed')
 
     def test_missing_custom_driver_annotation_columns(self):
         """Test when a file do not have the custom driver annotation columns."""
@@ -1102,7 +1138,6 @@ class CNADiscreteLongFormatValidatorTestCase(PostClinicalDataFileTestCase):
                                     validateData.CNADiscreteLongValidator,
                                     extra_meta_fields={'namespaces': 'Test'})
         self.assertEqual(len(record_list), 2)
-        print(record_list)
         record_iterator = iter(record_list)
         record = next(record_iterator)
         self.assertEqual(record.levelno, logging.ERROR)
@@ -1129,8 +1164,12 @@ class CNADiscreteLongFormatValidatorTestCase(PostClinicalDataFileTestCase):
                                     extra_meta_fields={'namespaces': 'MyNamespace'})
         # Expecting 1 error due to a duplicated gene
         self.assertEqual(1, len(record_list))
-        for record in record_list[1:]:
-            self.assertEqual(logging.ERROR, record.levelno)
+        # The message is an error
+        record_iterator = iter(record_list)
+        record = next(record_iterator)
+        self.assertEqual(record.levelno, logging.ERROR)
+        self.assertEqual(record.getMessage(),
+                         'Duplicated gene found within the same sample.')
 
     def test_two_hugos_same_entrez(self):
         """Test if a errors are issued when two Hugo Symbols map to the same Entrez Gene Id.
@@ -1147,6 +1186,8 @@ class CNADiscreteLongFormatValidatorTestCase(PostClinicalDataFileTestCase):
         self.assertEqual(5, len(record_list))
         for record in record_list[1:]:
             self.assertEqual(logging.ERROR, record.levelno)
+            self.assertEqual(record.getMessage(),
+                             'Two different Hugo Symbols that map to the same Entrez Gene Id found within the same sample.')
 
     def test_one_hugo_same_entrez(self):
         """Test if a errors are issued when one Hugo Symbol map to an entry with the same Entrez Gene Id. This
@@ -1170,8 +1211,12 @@ class CNADiscreteLongFormatValidatorTestCase(PostClinicalDataFileTestCase):
                                     extra_meta_fields={'namespaces': 'MyNamespace'})
         # Expecting 1 error due to a duplicated entrez
         self.assertEqual(1, len(record_list))
-        for record in record_list[1:]:
-            self.assertEqual(logging.ERROR, record.levelno)
+        # The message is an error
+        record_iterator = iter(record_list)
+        record = next(record_iterator)
+        self.assertEqual(record.levelno, logging.ERROR)
+        self.assertEqual(record.getMessage(),
+                         'Duplicated Entrez Gene Id found within the same sample.')
 
     def test_invalid_long_discrete_cna(self):
         """Check a discrete CNA long file with values that should yield errors."""
@@ -1183,6 +1228,8 @@ class CNADiscreteLongFormatValidatorTestCase(PostClinicalDataFileTestCase):
         self.assertEqual(5, len(record_list))
         for record in record_list:
             self.assertEqual(logging.ERROR, record.levelno)
+            self.assertEqual(record.getMessage(),
+                             'Invalid CNA value: possible values are [-2, -1.5, -1, 0, 1, 2]')
         record_iterator = iter(record_list)
         record = next(record_iterator)
         self.assertEqual(7, record.line_number)

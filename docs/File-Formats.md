@@ -921,9 +921,9 @@ An example metadata file would be:
 cancer_study_identifier: msk_impact_2017
 genetic_alteration_type: STRUCTURAL_VARIANT
 datatype: SV
-stable_id: msk_impact_2017_structural_variants
+stable_id: structural_variants
 show_profile_in_analysis_tab: true
-profile_name: mskimpact2017 SV Data
+profile_name: Structural variants
 profile_description: Structural Variant Data for mskimpact2017
 data_filename: data_sv.txt
 ```
@@ -940,7 +940,7 @@ A structural variant data file is a tab-delimited file with one structural varia
 | Site1_Ensembl_Transcript_Id  | ENST00000398585  |  | Ensembl transcript ID of gene 1. |
 | Site1_Entrez_Gene_Id         | 7113 |  | [Entrez Gene](http://www.ncbi.nlm.nih.gov/gene) identifier of gene 1. (strongly recommended field) |
 | Site1_Region_Number          | 2 |  | Number of Site 1 region e.g. exon 2.(strongly recommended field) |
-| Site1_Region                 | EXON | 5_PRIME_UTR,3_PRIME_UTR,PROMOTER,EXON,INTRON | We advise using one of these {5_PRIME_UTR,3_PRIME_UTR,PROMOTER,EXON,INTRON},but it is a free text. (strongly recommended field) |
+| Site1_Region                 | Exon | 5_Prime_UTR,3_Prime_UTR,Promoter,Exon,Intron | We advise using one of these {5_Prime_UTR,3_Prime_UTR,Promoter,Exon,Intron},but it is a free text. (strongly recommended field) |
 | Site1_Chromosome             | 21 |  | Chromosome of Gene 1.(strongly recommended field) |
 | Site1_Contig                 | q22.3 |  | The contig of Site 1.(strongly recommended field) |
 | Site1_Position               | 42874110 |  | Genomic position of breakpoint of Gene 1.(strongly recommended field) |
@@ -961,10 +961,10 @@ A structural variant data file is a tab-delimited file with one structural varia
 | Tumor_Paired_End_Read_Count  | 55 |  | The number of paired-end reads of the tumor tissue that support the call. [Tumor Paired End Read Count is the same as “Spanning Fragments”.] |
 | Event_Info                   | Protein fusion: out of frame (TMPRSS2-ERG) | Antisense fusion, Deletion within transcript: mid-exon, Duplication of 1 exon: in frame | Description of the event. For a fusion event, fill in Fusion. It is a free text. |
 | Connection_Type              | 3to5 | 3to5 or 5to3 or 5to5 or 3to3 | Which direction the connection is made (3' to 5', 5' to 3', etc) |
-| Breakpoint_Type              | PRECISE  | PRECISE/IMPRECISE  | PRECISE or IMPRECISE which explain the resolution. Fill in lPRECISE if the breakpoint resolution is known down to the exact base pair. |
+| Breakpoint_Type              | PRECISE  | PRECISE/IMPRECISE  | PRECISE or IMPRECISE which explain the resolution. Fill in PRECISE if the breakpoint resolution is known down to the exact base pair. |
 | Annotation                   | TMPRSS2 (NM_001135099) - ERG (NM_001243428) fusion (TMPRSS2 exons 1-2 fused with ERG exons 4-11):(c.126+879:TMRPSS2_c.40-63033:ERGdel) | Free Text                                                    | Free text description of the gene or transcript rearrangement. |
-| DNA_Support                  | Yes  | Yes or No  | Fusion detected from DNA sequence data, "yes" or "no".|
-| RNA_Support                  |   | Yes or No | Fusion detected from DNA sequence data, "yes" or "no".|
+| DNA_Support                  | Yes  | Yes or No  | Fusion detected from DNA sequence data, "Yes" or "No".|
+| RNA_Support                  |   | Yes or No | Fusion detected from DNA sequence data, "Yes" or "No".|
 | SV_Length                    | 3032067 |  | Length of the structural variant in number of bases.|
 | Normal_Read_Count            | 93891 |  | The total number of reads of the normal tissue.|
 | Tumor_Read_Count             | 45556 |  | The total number of reads of the tumor tissue. |

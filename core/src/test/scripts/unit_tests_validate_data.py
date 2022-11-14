@@ -36,7 +36,9 @@ def setUpModule():
     global PORTAL_INSTANCE
     global mutation_sample_ids
     # mock information parsed from the sample attribute file
-    DEFINED_SAMPLE_IDS = ["TCGA-A1-A0SB-01", "TCGA-A1-A0SD-01", "TCGA-A1-A0SE-01", "TCGA-A1-A0SH-01", "TCGA-A2-A04U-01", "TCGA-B6-A0RS-01", "TCGA-BH-A0HP-01", "TCGA-BH-A18P-01", "TCGA-BH-A18H-01", "TCGA-C8-A138-01", "TCGA-A2-A0EY-01", "TCGA-A8-A08G-01", "TCGA-A2-A04P-01"]
+    DEFINED_SAMPLE_IDS = ["TCGA-A1-A0SB-01", "TCGA-A1-A0SD-01", "TCGA-A1-A0SE-01", "TCGA-A1-A0SH-01", "TCGA-A2-A04U-01",
+                          "TCGA-B6-A0RS-01", "TCGA-BH-A0HP-01", "TCGA-BH-A18P-01", "TCGA-BH-A18H-01", "TCGA-C8-A138-01",
+                          "TCGA-A2-A0EY-01", "TCGA-A8-A08G-01", "TCGA-A2-A04P-01"]
     DEFINED_SAMPLE_ATTRIBUTES = {'PATIENT_ID', 'SAMPLE_ID', 'SUBTYPE', 'CANCER_TYPE', 'CANCER_TYPE_DETAILED'}
     PATIENTS_WITH_SAMPLES = set("TEST-PAT{}".format(num) for
                                 num in list(range(1, 10)) if
@@ -411,10 +413,10 @@ class PatientAttrFileTestCase(PostClinicalDataFileTestCase):
         self.assertEqual(3, record.column_number)
         self.assertEqual('0:ALIVE', record.cause)
         # DFS_STATUS having an OS_STATUS value
-        record = next(record_iterator)	
-        self.assertEqual(logging.ERROR, record.levelno)	
-        self.assertEqual(7, record.line_number)	
-        self.assertEqual(5, record.column_number)	
+        record = next(record_iterator)
+        self.assertEqual(logging.ERROR, record.levelno)
+        self.assertEqual(7, record.line_number)
+        self.assertEqual(5, record.column_number)
         self.assertEqual('0:LIVING', record.cause)
         # PFS_STATUS not start with 0 / 1
         record = next(record_iterator)
@@ -791,7 +793,6 @@ class GeneIdColumnsTestCase(PostClinicalDataFileTestCase):
         # expecting zero warning messages:
         self.assertEqual(0, len(record_list))
 
-
     # TODO - add extra unit tests for the genesaliases scenarios (now only test_name_only_but_ambiguous tests part of this)
 
 
@@ -1012,7 +1013,245 @@ class FeatureWiseValuesTestCase(PostClinicalDataFileTestCase):
             self.assertEqual(logging.ERROR, record.levelno)
         self.assertEqual("Gene sets column in score and p-value file are not equal. The same set of gene sets should be used in the score and p-value files for this study. Please ensure that all gene set id's of one file are present in the other gene set data file.", record.getMessage())
         return
-        
+
+
+class CNADiscreteLongFormatValidatorTestCase(PostClinicalDataFileTestCase):
+    def test_all_columns(self):
+        """
+        Test when a file has all compulsory columns (Hugo_Symbol, Entrez_Gene_Id, Sample_Id, Value, cbp_driver,
+        cbp_driver_annotation, cbp_driver_tiers, and cbp_driver_tiers_annotation).
+        """
+        record_list = self.validate('data_cna_long_genecol_presence_all.txt',
+                                    validateData.CNADiscreteLongValidator,
+                                    extra_meta_fields={'namespaces': 'MyNamespace'})
+        # expecting only status messages about the file being validated
+        self.assertEqual(5, len(record_list))
+        for record in record_list:
+            self.assertLessEqual(record.levelno, logging.INFO)
+
+    def test_hugo_only(self):
+        """Test when a file has a Hugo Symbol column but none for Entrez IDs."""
+        record_list = self.validate('data_cna_long_genecol_presence_hugo_only.txt',
+                                    validateData.CNADiscreteLongValidator,
+                                    extra_meta_fields={'namespaces': 'MyNamespace'})
+        # expecting only status messages about the file being validated
+        self.assertEqual(5, len(record_list))
+        for record in record_list:
+            self.assertLessEqual(record.levelno, logging.INFO)
+
+    def test_entrez_only(self):
+        """Test when a file has an Entrez ID column but none for Hugo names."""
+        record_list = self.validate('data_cna_long_genecol_presence_entrez_only.txt',
+                                    validateData.CNADiscreteLongValidator,
+                                    extra_meta_fields={'namespaces': 'MyNamespace'})
+        # expecting only status messages about the file being validated
+        self.assertEqual(5, len(record_list))
+        for record in record_list:
+            self.assertLessEqual(record.levelno, logging.INFO)
+
+    def test_neither_genic_columns(self):
+        """Test when a file lacks the Entrez ID and Hugo name columns."""
+        record_list = self.validate('data_cna_long_genecol_presence_neither_genic.txt',
+                                    validateData.CNADiscreteLongValidator,
+                                    extra_meta_fields={'namespaces': 'MyNamespace'})
+        # two errors after the info: the first makes the file unparsable
+        self.assertEqual(3, len(record_list))
+        #First message is a debug message
+        record_iterator = iter(record_list)
+        record = next(record_iterator)
+        self.assertEqual(record.levelno, logging.DEBUG)
+        self.assertEqual(record.getMessage(),
+                         'Starting validation of file')
+        #Second message is an error
+        record = next(record_iterator)
+        self.assertEqual(record.levelno, logging.ERROR)
+        self.assertEqual(record.getMessage(),
+                         'Hugo_Symbol or Entrez_Gene_Id column needs to be present in the file.')
+        #Third message is an error
+        record = next(record_iterator)
+        self.assertEqual(record.levelno, logging.ERROR)
+        self.assertEqual(record.getMessage(),
+                         'Invalid column header, file cannot be parsed')
+
+    def test_missing_sample_column(self):
+        """Test when a file do not have the Sample_Id column."""
+        record_list = self.validate('data_cna_long_genecol_no_sample_id.txt',
+                                    validateData.CNADiscreteLongValidator,
+                                    extra_meta_fields={'namespaces': 'MyNamespace'})
+        # two errors after the info: the first makes the file unparsable
+        self.assertEqual(3, len(record_list))
+        #First message is a debug message
+        record_iterator = iter(record_list)
+        record = next(record_iterator)
+        self.assertEqual(record.levelno, logging.DEBUG)
+        self.assertEqual(record.getMessage(),
+                         'Starting validation of file')
+        #Second message is an error
+        record = next(record_iterator)
+        self.assertEqual(record.levelno, logging.ERROR)
+        self.assertEqual(record.getMessage(),
+                         'Missing column: Sample_Id')
+        #Third message is an error
+        record = next(record_iterator)
+        self.assertEqual(record.levelno, logging.ERROR)
+        self.assertEqual(record.getMessage(),
+                         'Invalid column header, file cannot be parsed')
+    def test_missing_value_column(self):
+        """Test when a file do not have the Value column."""
+        record_list = self.validate('data_cna_long_genecol_no_value.txt',
+                                    validateData.CNADiscreteLongValidator,
+                                    extra_meta_fields={'namespaces': 'MyNamespace'})
+        # two errors after the info: the first makes the file unparsable
+        self.assertEqual(3, len(record_list))
+        #First message is a debug message
+        record_iterator = iter(record_list)
+        record = next(record_iterator)
+        self.assertEqual(record.levelno, logging.DEBUG)
+        self.assertEqual(record.getMessage(),
+                         'Starting validation of file')
+        #Second message is an error
+        record = next(record_iterator)
+        self.assertEqual(record.levelno, logging.ERROR)
+        self.assertEqual(record.getMessage(),
+                         'Missing column: Value')
+        #Third message is an error
+        record = next(record_iterator)
+        self.assertEqual(record.levelno, logging.ERROR)
+        self.assertEqual(record.getMessage(),
+                         'Invalid column header, file cannot be parsed')
+
+    def test_missing_custom_driver_annotation_columns(self):
+        """Test when a file do not have the custom driver annotation columns."""
+        record_list = self.validate('data_cna_long_genecol_no_custom_driver.txt',
+                                    validateData.CNADiscreteLongValidator,
+                                    extra_meta_fields={'namespaces': 'MyNamespace'})
+        # expecting only status messages about the file being validated
+        self.assertEqual(3, len(record_list))
+        for record in record_list:
+            self.assertLessEqual(record.levelno, logging.INFO)
+
+    def test_missing_namespace_column(self):
+
+        """Test error is raised when namespace defined, but the corresponding column is not present"""
+        self.logger.setLevel(logging.INFO)
+        record_list = self.validate('data_cna_long_genecol_no_namespace.txt',
+                                    validateData.CNADiscreteLongValidator,
+                                    extra_meta_fields={'namespaces': 'Test'})
+        self.assertEqual(len(record_list), 2)
+        record_iterator = iter(record_list)
+        record = next(record_iterator)
+        self.assertEqual(record.levelno, logging.ERROR)
+        self.assertEqual(record.getMessage(), 
+                         'test namespace defined but the file does not have any matching columns')
+
+    def test_valid_discrete_long_cna(self):
+        """Check a valid discrete CNA Long file that should yield no errors."""
+        self.logger.setLevel(logging.DEBUG)
+        record_list = self.validate('data_cna_long_genecol_presence_all.txt',
+                                    validateData.CNADiscreteLongValidator,
+                                    extra_meta_fields={'namespaces': 'MyNamespace'})
+        # expecting only status messages about the file being validated
+        self.assertEqual(5, len(record_list))
+        for record in record_list:
+            self.assertLessEqual(record.levelno, logging.INFO)
+
+    def test_duplicated_genes_same_sample(self):
+        """Test if a errors are issued when two exact genes are mapped to the same sample."""
+
+        self.logger.setLevel(logging.ERROR)
+        record_list = self.validate('data_cna_long_duplicated_gene.txt',
+                                    validateData.CNADiscreteLongValidator,
+                                    extra_meta_fields={'namespaces': 'MyNamespace'})
+        # Expecting 1 error due to a duplicated gene
+        self.assertEqual(1, len(record_list))
+        # The message is an error
+        record_iterator = iter(record_list)
+        record = next(record_iterator)
+        self.assertEqual(record.levelno, logging.ERROR)
+        self.assertEqual(record.getMessage(),
+                         'Duplicated gene found within the same sample.')
+
+    def test_two_hugos_same_entrez(self):
+        """Test if a errors are issued when two Hugo Symbols map to the same Entrez Gene Id.
+
+        In the test data, CENTB5 is introduced in 5 lines without an Entrez Gene Id. CENTB5 is an alias for 
+        Entrez 116983 (ACAP3). Both genes are present 5 times, in 5 different samples. Therefore, we should expect 
+        errors due to two Hugo Symbols mapping to the same Entrez Gene Id."""
+
+        self.logger.setLevel(logging.ERROR)
+        record_list = self.validate('data_cna_long_two_hugos_same_gene.txt',
+                                    validateData.CNADiscreteLongValidator,
+                                    extra_meta_fields={'namespaces': 'MyNamespace'})
+        # Expecting 5 error messages
+        self.assertEqual(5, len(record_list))
+        for record in record_list[1:]:
+            self.assertEqual(logging.ERROR, record.levelno)
+            self.assertEqual(record.getMessage(),
+                             'Two different Hugo Symbols that map to the same Entrez Gene Id found within the same sample.')
+
+    def test_one_hugo_same_entrez(self):
+        """Test if a errors are issued when one Hugo Symbol map to an entry with the same Entrez Gene Id. This
+        happens 5 times in the file, one per sample."""
+
+        self.logger.setLevel(logging.ERROR)
+        record_list = self.validate('data_cna_long_one_hugo_same_gene.txt',
+                                    validateData.CNADiscreteLongValidator,
+                                    extra_meta_fields={'namespaces': 'MyNamespace'})
+        # Expecting 5 error messages
+        self.assertEqual(5, len(record_list))
+        for record in record_list[1:]:
+            self.assertEqual(logging.ERROR, record.levelno)
+
+    def test_duplicated_entrez_same_sample(self):
+        """Test if a errors are issued when two genes with the same Entrez are mapped to the same sample."""
+
+        self.logger.setLevel(logging.ERROR)
+        record_list = self.validate('data_cna_long_duplicated_entrez.txt',
+                                    validateData.CNADiscreteLongValidator,
+                                    extra_meta_fields={'namespaces': 'MyNamespace'})
+        # Expecting 1 error due to a duplicated entrez
+        self.assertEqual(1, len(record_list))
+        # The message is an error
+        record_iterator = iter(record_list)
+        record = next(record_iterator)
+        self.assertEqual(record.levelno, logging.ERROR)
+        self.assertEqual(record.getMessage(),
+                         'Duplicated Entrez Gene Id found within the same sample.')
+
+    def test_invalid_long_discrete_cna(self):
+        """Check a discrete CNA long file with values that should yield errors."""
+        self.logger.setLevel(logging.ERROR)
+        record_list = self.validate('data_cna_long_invalid_values.txt',
+                                    validateData.CNADiscreteLongValidator,
+                                    extra_meta_fields={'namespaces': 'MyNamespace'})
+        # expecting various errors about data values, about one per line
+        self.assertEqual(5, len(record_list))
+        for record in record_list:
+            self.assertEqual(logging.ERROR, record.levelno)
+            self.assertEqual(record.getMessage(),
+                             'Invalid CNA value: possible values are [-2, -1.5, -1, 0, 1, 2, NA]')
+        record_iterator = iter(record_list)
+        record = next(record_iterator)
+        self.assertEqual(7, record.line_number)
+        self.assertEqual(3, record.column_number)
+        self.assertEqual('[Not Available]', record.cause)
+        record = next(record_iterator)
+        self.assertEqual(12, record.line_number)
+        self.assertEqual(3, record.column_number)
+        self.assertEqual('ATAD3B', record.cause)
+        record = next(record_iterator)
+        self.assertEqual(18, record.line_number)
+        self.assertEqual(3, record.column_number)
+        self.assertEqual('N/A', record.cause)
+        record = next(record_iterator)
+        self.assertEqual(24, record.line_number)
+        self.assertEqual(3, record.column_number)
+        self.assertEqual('1.5', record.cause)
+        record = next(record_iterator)
+        self.assertEqual(33, record.line_number)
+        self.assertEqual(3, record.column_number)
+        self.assertEqual('3', record.cause)
+
 class MultipleDataFileValidatorTestCase(unittest.TestCase):
 
     def feature_id_is_accepted(self):

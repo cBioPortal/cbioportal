@@ -1229,7 +1229,7 @@ class CNADiscreteLongFormatValidatorTestCase(PostClinicalDataFileTestCase):
         for record in record_list:
             self.assertEqual(logging.ERROR, record.levelno)
             self.assertEqual(record.getMessage(),
-                             'Invalid CNA value: possible values are [-2, -1.5, -1, 0, 1, 2]')
+                             'Invalid CNA value: possible values are [-2, -1.5, -1, 0, 1, 2, NA]')
         record_iterator = iter(record_list)
         record = next(record_iterator)
         self.assertEqual(7, record.line_number)

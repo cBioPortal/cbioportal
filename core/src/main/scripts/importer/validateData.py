@@ -1433,9 +1433,11 @@ class CNADiscreteLongValidator(CustomDriverAnnotationValidator, CustomNamespaces
     REQUIRE_COLUMN_ORDER = False
     ALLOW_BLANKS = True
 
-    ALLOWED_CNA_VALUES = ['-2', '-1.5', '-1', '0', '1', '2']
-
     NULL_VALUES = ['NA']
+
+    ALLOWED_CNA_VALUES = ['-2', '-1.5', '-1', '0', '1', '2'] + NULL_VALUES
+
+    
 
     def __init__(self, *args, **kwargs):
         super(CNADiscreteLongValidator, self).__init__(*args, **kwargs)

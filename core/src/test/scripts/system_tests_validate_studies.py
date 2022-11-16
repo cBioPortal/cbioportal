@@ -77,7 +77,7 @@ class ValidateStudiesSystemTester(unittest.TestCase):
         """
 
         # Build up arguments and run
-        print("===study 0")
+        print("===study 0 legacy")
         args = ['--list-of-studies', 'test_data/study_es_0_legacy_cna_discrete/',
                 '--portal_info_dir', PORTAL_INFO_DIR]
         args = validateStudies.interface(args)

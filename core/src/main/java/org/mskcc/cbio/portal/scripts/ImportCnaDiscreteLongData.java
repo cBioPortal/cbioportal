@@ -35,6 +35,7 @@ import java.util.stream.*;
 
 import static com.google.common.collect.Lists.*;
 import static java.lang.String.*;
+import static org.cbioportal.model.MolecularProfile.DataType.DISCRETE;
 
 public class ImportCnaDiscreteLongData {
 
@@ -106,8 +107,11 @@ public class ImportCnaDiscreteLongData {
             }
         }
 
-        ProgressMonitor.setCurrentMessage(" --> total number of samples skipped (normal samples): " + getSamplesSkipped()
-        );
+        // Once the CNA import is done, update DISCRETE_LONG input datatype into resulting DISCRETE datatype:
+        geneticProfile.setDatatype(DISCRETE.name());
+        DaoGeneticProfile.updateDatatype(geneticProfile.getGeneticProfileId(), geneticProfile.getDatatype());
+                
+        ProgressMonitor.setCurrentMessage(" --> total number of samples skipped (normal samples): " + getSamplesSkipped());
         buf.close();
         MySQLbulkLoader.flushAll();
     }

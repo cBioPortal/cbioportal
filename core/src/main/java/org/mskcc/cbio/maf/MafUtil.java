@@ -37,7 +37,6 @@ import java.util.*;
 import java.util.regex.Pattern;
 
 import joptsimple.internal.Strings;
-import org.mskcc.cbio.portal.scripts.*;
 
 /**
  * Utility Class for Parsing MAF Files.

@@ -1,4 +1,4 @@
-package org.mskcc.cbio.portal.scripts;
+package org.mskcc.cbio.maf;
 
 import com.fasterxml.jackson.databind.*;
 import org.mskcc.cbio.maf.*;

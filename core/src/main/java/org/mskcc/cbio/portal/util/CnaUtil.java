@@ -2,11 +2,11 @@ package org.mskcc.cbio.portal.util;
 
 import com.fasterxml.jackson.core.*;
 import org.cbioportal.model.*;
+import org.mskcc.cbio.maf.NamespaceColumnParser;
 import org.mskcc.cbio.maf.TabDelimitedFileUtil;
 import org.mskcc.cbio.portal.dao.*;
 import org.mskcc.cbio.portal.model.CnaEvent;
 import org.mskcc.cbio.portal.model.GeneticProfile;
-import org.mskcc.cbio.portal.scripts.*;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 import java.io.*;

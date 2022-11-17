@@ -41,6 +41,8 @@ import org.mskcc.cbio.portal.dao.*;
 import org.mskcc.cbio.portal.model.*;
 import org.mskcc.cbio.portal.util.*;
 
+import static org.cbioportal.model.MolecularProfile.ImportType.DISCRETE_LONG;
+
 /**
  * Import 'profile' files that contain data matrices indexed by gene, case.
  *
@@ -129,7 +131,7 @@ public class ImportProfileData extends ConsoleRunnable {
                 }
             } else if(
                 geneticProfile.getGeneticAlterationType() == GeneticAlterationType.COPY_NUMBER_ALTERATION 
-                && geneticProfile.getDatatype().equals("DISCRETE_LONG")
+                && DISCRETE_LONG.name().equals(geneticProfile.getDatatype())
             ) {
                 ImportCnaDiscreteLongData importer = new ImportCnaDiscreteLongData(
                     dataFile, 

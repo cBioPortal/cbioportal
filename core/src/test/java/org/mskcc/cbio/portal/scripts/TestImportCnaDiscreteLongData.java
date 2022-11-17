@@ -54,6 +54,8 @@ import java.util.List;
 import static com.google.common.collect.Lists.newArrayList;
 import static java.util.stream.Collectors.joining;
 import static java.util.stream.Collectors.toList;
+import static org.cbioportal.model.MolecularProfile.DataType.DISCRETE;
+import static org.cbioportal.model.MolecularProfile.ImportType.DISCRETE_LONG;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 
@@ -284,6 +286,25 @@ public class TestImportCnaDiscreteLongData {
         assertEquals("Class 2,Class 1,NA", allDriverTiersFilters);
     }
 
+    @Test
+    public void testImportCnaDiscreteLongData_changesProfileDatatypeFromDiscreteLongToDiscrete() throws Exception {
+        File file = new File("src/test/resources/data_cna_discrete_import_test.txt");
+        
+        String startInputDatatype = getGeneticProfileDatatype(this.geneticProfile.getGeneticProfileId());
+        assertEquals(DISCRETE_LONG.name(), startInputDatatype);
+
+        new ImportCnaDiscreteLongData(
+            file,
+            geneticProfile.getGeneticProfileId(),
+            genePanel,
+            DaoGeneOptimized.getInstance(),
+            DaoGeneticAlteration.getInstance()
+        ).importData();
+
+        String resultDatatype = getGeneticProfileDatatype(this.geneticProfile.getGeneticProfileId());
+        assertEquals(DISCRETE.name(), resultDatatype);
+    }
+
     private List<TestPdAnnotationPK> createPrimaryKeys(String sample, List<CnaEvent.Event> cnaEvents) {
         return cnaEvents.stream().map(e -> {
             TestPdAnnotationPK pk = new TestPdAnnotationPK();
@@ -310,6 +331,15 @@ public class TestImportCnaDiscreteLongData {
             geneticProfile.getGeneticProfileId()
         ));
     }
+    
+    private String getGeneticProfileDatatype(long geneticProfileId) throws DaoException {
+        return query(
+            "select DATATYPE " +
+                "FROM genetic_profile " +
+                "WHERE GENETIC_PROFILE_ID=" + geneticProfileId + " ;",
+            (ResultSet rs) -> rs.getString("DATATYPE")
+        ).get(0);
+    }
 
     private List<TestPdAnnotation> getAllCnaPdAnnotations(List<TestPdAnnotationPK> pks) throws DaoException {
         List<String> pkStrings = new ArrayList<>();
@@ -328,7 +358,6 @@ public class TestImportCnaDiscreteLongData {
             q += "WHERE " + String.join(" OR ", pkStrings);
         }
 
-        System.out.println("pkq:" + q);
         return query(
             q,
             (ResultSet rs) -> {

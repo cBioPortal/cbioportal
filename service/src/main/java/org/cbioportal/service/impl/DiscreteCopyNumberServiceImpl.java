@@ -240,9 +240,9 @@ public class DiscreteCopyNumberServiceImpl implements DiscreteCopyNumberService 
         MolecularProfile molecularProfile = molecularProfileService.getMolecularProfile(molecularProfileId);
 
         if (!molecularProfile.getMolecularAlterationType()
-            .equals(MolecularProfile.MolecularAlterationType.COPY_NUMBER_ALTERATION) ||
-            !molecularProfile.getDatatype().equals("DISCRETE")) {
-
+            .equals(MolecularProfile.MolecularAlterationType.COPY_NUMBER_ALTERATION)
+            || !MolecularProfile.DataType.DISCRETE.name().equals(molecularProfile.getDatatype())
+        ) {
             throw new MolecularProfileNotFoundException(molecularProfileId);
         }
 

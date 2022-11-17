@@ -175,6 +175,34 @@ public final class DaoGeneticProfile {
         
         reCache();
         return ret;
+    }    
+    
+    /**
+     * Updates a Genetic Profile datatype
+     */
+    public static boolean updateDatatype(
+        int geneticProfileId,
+        String datatype
+    ) throws DaoException {
+        Connection con = null;
+        PreparedStatement pstmt = null;
+        ResultSet rs = null;
+        boolean ret;
+        try {
+            con = JdbcUtil.getDbConnection(DaoGeneticProfile.class);
+            pstmt = con.prepareStatement("UPDATE genetic_profile SET DATATYPE=? " +
+                "WHERE GENETIC_PROFILE_ID=?");
+            pstmt.setString(1, datatype);
+            pstmt.setInt(2, geneticProfileId);
+            ret = pstmt.executeUpdate() > 0;
+        } catch (SQLException e) {
+            throw new DaoException(e);
+        } finally {
+            JdbcUtil.closeAll(DaoGeneticProfile.class, con, pstmt, rs);
+        }
+
+        reCache();
+        return ret;
     }
     
     public static int deleteGeneticProfile(GeneticProfile profile) throws DaoException {

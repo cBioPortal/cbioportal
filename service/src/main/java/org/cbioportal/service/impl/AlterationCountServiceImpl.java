@@ -33,21 +33,21 @@ public class AlterationCountServiceImpl implements AlterationCountService {
     private MolecularProfileRepository molecularProfileRepository;
 
     @Override
-    public Pair<List<AlterationCountByGene>, Long> getSampleAlterationCounts(List<MolecularProfileCaseIdentifier> molecularProfileCaseIdentifiers,
-                                                                             Select<Integer> entrezGeneIds,
-                                                                             boolean includeFrequency,
-                                                                             boolean includeMissingAlterationsFromGenePanel,
-                                                                             AlterationFilter alterationFilter) {
+    public Pair<List<AlterationCountByGene>, Long> getSampleAlterationGeneCounts(List<MolecularProfileCaseIdentifier> molecularProfileCaseIdentifiers,
+                                                                                 Select<Integer> entrezGeneIds,
+                                                                                 boolean includeFrequency,
+                                                                                 boolean includeMissingAlterationsFromGenePanel,
+                                                                                 AlterationFilter alterationFilter) {
 
         Function<List<MolecularProfileCaseIdentifier>, List<AlterationCountByGene>> dataFetcher = profileCaseIdentifiers ->
-            alterationRepository.getSampleAlterationCounts(new TreeSet<>(profileCaseIdentifiers), entrezGeneIds, alterationFilter);
+            alterationRepository.getSampleAlterationGeneCounts(new TreeSet<>(profileCaseIdentifiers), entrezGeneIds, alterationFilter);
 
         BiFunction<List<MolecularProfileCaseIdentifier>, List<AlterationCountByGene>, Long> includeFrequencyFunction =
             (a, b) -> alterationEnrichmentUtil.includeFrequencyForSamples(a, b, includeMissingAlterationsFromGenePanel);
 
         Function<AlterationCountByGene, String> keyGenerator = d -> d.getEntrezGeneId().toString();
 
-        return getAlterationCounts(
+        return getAlterationGeneCounts(
             molecularProfileCaseIdentifiers,
             includeFrequency,
             dataFetcher,
@@ -56,21 +56,21 @@ public class AlterationCountServiceImpl implements AlterationCountService {
     }
 
     @Override
-    public Pair<List<AlterationCountByGene>, Long> getPatientAlterationCounts(List<MolecularProfileCaseIdentifier> molecularProfileCaseIdentifiers,
-                                                                              Select<Integer> entrezGeneIds,
-                                                                              boolean includeFrequency,
-                                                                              boolean includeMissingAlterationsFromGenePanel,
-                                                                              AlterationFilter alterationFilter) {
+    public Pair<List<AlterationCountByGene>, Long> getPatientAlterationGeneCounts(List<MolecularProfileCaseIdentifier> molecularProfileCaseIdentifiers,
+                                                                                  Select<Integer> entrezGeneIds,
+                                                                                  boolean includeFrequency,
+                                                                                  boolean includeMissingAlterationsFromGenePanel,
+                                                                                  AlterationFilter alterationFilter) {
 
         Function<List<MolecularProfileCaseIdentifier>, List<AlterationCountByGene>> dataFetcher = profileCaseIdentifiers ->
-            alterationRepository.getPatientAlterationCounts(profileCaseIdentifiers, entrezGeneIds, alterationFilter);
+            alterationRepository.getPatientAlterationGeneCounts(profileCaseIdentifiers, entrezGeneIds, alterationFilter);
 
         BiFunction<List<MolecularProfileCaseIdentifier>, List<AlterationCountByGene>, Long> includeFrequencyFunction =
             (a, b) -> alterationEnrichmentUtil.includeFrequencyForPatients(a, b, includeMissingAlterationsFromGenePanel);
 
         Function<AlterationCountByGene, String> keyGenerator = d -> d.getEntrezGeneId().toString();
 
-        return getAlterationCounts(
+        return getAlterationGeneCounts(
             molecularProfileCaseIdentifiers,
             includeFrequency,
             dataFetcher,
@@ -79,12 +79,12 @@ public class AlterationCountServiceImpl implements AlterationCountService {
     }
 
     @Override
-    public Pair<List<AlterationCountByGene>, Long> getSampleMutationCounts(List<MolecularProfileCaseIdentifier> molecularProfileCaseIdentifiers,
-                                                                           Select<Integer> entrezGeneIds,
-                                                                           boolean includeFrequency,
-                                                                           boolean includeMissingAlterationsFromGenePanel,
-                                                                           AlterationFilter alterationFilter) {
-        return getSampleAlterationCounts(molecularProfileCaseIdentifiers,
+    public Pair<List<AlterationCountByGene>, Long> getSampleMutationGeneCounts(List<MolecularProfileCaseIdentifier> molecularProfileCaseIdentifiers,
+                                                                               Select<Integer> entrezGeneIds,
+                                                                               boolean includeFrequency,
+                                                                               boolean includeMissingAlterationsFromGenePanel,
+                                                                               AlterationFilter alterationFilter) {
+        return getSampleAlterationGeneCounts(molecularProfileCaseIdentifiers,
             entrezGeneIds,
             includeFrequency,
             includeMissingAlterationsFromGenePanel,
@@ -93,12 +93,12 @@ public class AlterationCountServiceImpl implements AlterationCountService {
     }
 
     @Override
-    public Pair<List<AlterationCountByGene>, Long> getPatientMutationCounts(List<MolecularProfileCaseIdentifier> molecularProfileCaseIdentifiers,
-                                                                            Select<Integer> entrezGeneIds,
-                                                                            boolean includeFrequency,
-                                                                            boolean includeMissingAlterationsFromGenePanel,
-                                                                            AlterationFilter alterationFilter) {
-        return getPatientAlterationCounts(molecularProfileCaseIdentifiers,
+    public Pair<List<AlterationCountByGene>, Long> getPatientMutationGeneCounts(List<MolecularProfileCaseIdentifier> molecularProfileCaseIdentifiers,
+                                                                                Select<Integer> entrezGeneIds,
+                                                                                boolean includeFrequency,
+                                                                                boolean includeMissingAlterationsFromGenePanel,
+                                                                                AlterationFilter alterationFilter) {
+        return getPatientAlterationGeneCounts(molecularProfileCaseIdentifiers,
             entrezGeneIds,
             includeFrequency,
             includeMissingAlterationsFromGenePanel,
@@ -106,12 +106,12 @@ public class AlterationCountServiceImpl implements AlterationCountService {
     }
 
     @Override
-    public Pair<List<AlterationCountByGene>, Long> getSampleStructuralVariantCounts(List<MolecularProfileCaseIdentifier> molecularProfileCaseIdentifiers,
-                                                                                    Select<Integer> entrezGeneIds,
-                                                                                    boolean includeFrequency,
-                                                                                    boolean includeMissingAlterationsFromGenePanel,
-                                                                                    AlterationFilter alterationFilter) {
-        return getSampleAlterationCounts(molecularProfileCaseIdentifiers,
+    public Pair<List<AlterationCountByGene>, Long> getSampleStructuralVariantGeneCounts(List<MolecularProfileCaseIdentifier> molecularProfileCaseIdentifiers,
+                                                                                        Select<Integer> entrezGeneIds,
+                                                                                        boolean includeFrequency,
+                                                                                        boolean includeMissingAlterationsFromGenePanel,
+                                                                                        AlterationFilter alterationFilter) {
+        return getSampleAlterationGeneCounts(molecularProfileCaseIdentifiers,
             entrezGeneIds,
             includeFrequency,
             includeMissingAlterationsFromGenePanel,
@@ -120,12 +120,12 @@ public class AlterationCountServiceImpl implements AlterationCountService {
     }
 
     @Override
-    public Pair<List<AlterationCountByGene>, Long> getPatientStructuralVariantCounts(List<MolecularProfileCaseIdentifier> molecularProfileCaseIdentifiers,
-                                                                                     Select<Integer> entrezGeneIds,
-                                                                                     boolean includeFrequency,
-                                                                                     boolean includeMissingAlterationsFromGenePanel,
-                                                                                     AlterationFilter alterationFilter) {
-        return getPatientAlterationCounts(molecularProfileCaseIdentifiers,
+    public Pair<List<AlterationCountByGene>, Long> getPatientStructuralVariantGeneCounts(List<MolecularProfileCaseIdentifier> molecularProfileCaseIdentifiers,
+                                                                                         Select<Integer> entrezGeneIds,
+                                                                                         boolean includeFrequency,
+                                                                                         boolean includeMissingAlterationsFromGenePanel,
+                                                                                         AlterationFilter alterationFilter) {
+        return getPatientAlterationGeneCounts(molecularProfileCaseIdentifiers,
             entrezGeneIds,
             includeFrequency,
             includeMissingAlterationsFromGenePanel,
@@ -163,21 +163,21 @@ public class AlterationCountServiceImpl implements AlterationCountService {
 //    }
 
     @Override
-    public Pair<List<CopyNumberCountByGene>, Long> getSampleCnaCounts(List<MolecularProfileCaseIdentifier> molecularProfileCaseIdentifiers,
-                                                                      Select<Integer> entrezGeneIds,
-                                                                      boolean includeFrequency,
-                                                                      boolean includeMissingAlterationsFromGenePanel,
-                                                                      AlterationFilter alterationFilter) {
+    public Pair<List<CopyNumberCountByGene>, Long> getSampleCnaGeneCounts(List<MolecularProfileCaseIdentifier> molecularProfileCaseIdentifiers,
+                                                                          Select<Integer> entrezGeneIds,
+                                                                          boolean includeFrequency,
+                                                                          boolean includeMissingAlterationsFromGenePanel,
+                                                                          AlterationFilter alterationFilter) {
 
         Function<List<MolecularProfileCaseIdentifier>, List<CopyNumberCountByGene>> dataFetcher = profileCaseIdentifiers ->
-            alterationRepository.getSampleCnaCounts(new TreeSet<>(profileCaseIdentifiers), entrezGeneIds, alterationFilter);
+            alterationRepository.getSampleCnaGeneCounts(new TreeSet<>(profileCaseIdentifiers), entrezGeneIds, alterationFilter);
 
         BiFunction<List<MolecularProfileCaseIdentifier>, List<CopyNumberCountByGene>, Long> includeFrequencyFunction =
             (a, b) -> alterationEnrichmentUtilCna.includeFrequencyForSamples(a, b, includeMissingAlterationsFromGenePanel);
 
         Function<CopyNumberCountByGene, String> keyGenerator = d -> d.getEntrezGeneId().toString() + d.getAlteration().toString();
 
-        return getAlterationCounts(
+        return getAlterationGeneCounts(
             molecularProfileCaseIdentifiers,
             includeFrequency,
             dataFetcher,
@@ -186,21 +186,21 @@ public class AlterationCountServiceImpl implements AlterationCountService {
     }
 
     @Override
-    public Pair<List<CopyNumberCountByGene>, Long> getPatientCnaCounts(List<MolecularProfileCaseIdentifier> molecularProfileCaseIdentifiers,
-                                                                       Select<Integer> entrezGeneIds,
-                                                                       boolean includeFrequency,
-                                                                       boolean includeMissingAlterationsFromGenePanel,
-                                                                       AlterationFilter alterationFilter) {
+    public Pair<List<CopyNumberCountByGene>, Long> getPatientCnaGeneCounts(List<MolecularProfileCaseIdentifier> molecularProfileCaseIdentifiers,
+                                                                           Select<Integer> entrezGeneIds,
+                                                                           boolean includeFrequency,
+                                                                           boolean includeMissingAlterationsFromGenePanel,
+                                                                           AlterationFilter alterationFilter) {
 
         Function<List<MolecularProfileCaseIdentifier>, List<CopyNumberCountByGene>> dataFetcher = profileCaseIdentifiers ->
-            alterationRepository.getPatientCnaCounts(profileCaseIdentifiers, entrezGeneIds, alterationFilter);
+            alterationRepository.getPatientCnaGeneCounts(profileCaseIdentifiers, entrezGeneIds, alterationFilter);
 
         BiFunction<List<MolecularProfileCaseIdentifier>, List<CopyNumberCountByGene>, Long> includeFrequencyFunction =
             (a, b) -> alterationEnrichmentUtilCna.includeFrequencyForPatients(a, b, includeMissingAlterationsFromGenePanel);
 
         Function<CopyNumberCountByGene, String> keyGenerator = d -> d.getEntrezGeneId().toString() + d.getAlteration().toString();
 
-        return getAlterationCounts(
+        return getAlterationGeneCounts(
             molecularProfileCaseIdentifiers,
             includeFrequency,
             dataFetcher,
@@ -208,7 +208,7 @@ public class AlterationCountServiceImpl implements AlterationCountService {
             keyGenerator);
     }
 
-    private <S extends AlterationCountByGene> Pair<List<S>, Long> getAlterationCounts(
+    private <S extends AlterationCountByGene> Pair<List<S>, Long> getAlterationGeneCounts(
         List<MolecularProfileCaseIdentifier> molecularProfileCaseIdentifiers,
         boolean includeFrequency,
         Function<List<MolecularProfileCaseIdentifier>, List<S>> dataFetcher,

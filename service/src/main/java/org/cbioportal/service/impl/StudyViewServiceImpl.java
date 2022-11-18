@@ -82,7 +82,7 @@ public class StudyViewServiceImpl implements StudyViewService {
         throws StudyNotFoundException {
         List<MolecularProfileCaseIdentifier> caseIdentifiers =
             molecularProfileService.getFirstMutationProfileCaseIdentifiers(studyIds, sampleIds);
-        List<AlterationCountByGene> alterationCountByGenes = alterationCountService.getSampleMutationCounts(
+        List<AlterationCountByGene> alterationCountByGenes = alterationCountService.getSampleMutationGeneCounts(
             caseIdentifiers,
             Select.all(),
             true,
@@ -99,7 +99,7 @@ public class StudyViewServiceImpl implements StudyViewService {
         throws StudyNotFoundException {
         List<MolecularProfileCaseIdentifier> caseIdentifiers =
             molecularProfileService.getFirstStructuralVariantProfileCaseIdentifiers(studyIds, sampleIds);
-        List<AlterationCountByGene> alterationCountByGenes = alterationCountService.getSampleStructuralVariantCounts(
+        List<AlterationCountByGene> alterationCountByGenes = alterationCountService.getSampleStructuralVariantGeneCounts(
             caseIdentifiers,
             Select.all(),
             true,
@@ -139,7 +139,7 @@ public class StudyViewServiceImpl implements StudyViewService {
         List<MolecularProfileCaseIdentifier> caseIdentifiers =
             molecularProfileService.getFirstDiscreteCNAProfileCaseIdentifiers(studyIds, sampleIds);
         Select<CNA> cnaTypes = Select.byValues(CNA_TYPES_AMP_AND_HOMDEL);
-        List<CopyNumberCountByGene> copyNumberCountByGenes = alterationCountService.getSampleCnaCounts(
+        List<CopyNumberCountByGene> copyNumberCountByGenes = alterationCountService.getSampleCnaGeneCounts(
             caseIdentifiers,
             Select.all(),
             true,

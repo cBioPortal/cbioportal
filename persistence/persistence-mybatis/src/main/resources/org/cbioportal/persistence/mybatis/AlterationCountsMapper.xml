@@ -3,7 +3,7 @@
 
 <mapper namespace="org.cbioportal.persistence.mybatis.AlterationCountsMapper">
 
-    <select id="getSampleAlterationCounts" resultType="org.cbioportal.model.AlterationCountByGene">
+    <select id="getSampleAlterationGeneCounts" resultType="org.cbioportal.model.AlterationCountByGene">
         SELECT 
             ENTREZ_GENE_ID AS entrezGeneId,
             HUGO_GENE_SYMBOL AS hugoGeneSymbol,
@@ -37,7 +37,7 @@
         GROUP BY ENTREZ_GENE_ID, HUGO_GENE_SYMBOL;
     </select>
 
-    <select id="getPatientAlterationCounts" resultType="org.cbioportal.model.AlterationCountByGene">
+    <select id="getPatientAlterationGeneCounts" resultType="org.cbioportal.model.AlterationCountByGene">
         SELECT
             ENTREZ_GENE_ID AS entrezGeneId,
             HUGO_GENE_SYMBOL AS hugoGeneSymbol,
@@ -71,7 +71,7 @@
         GROUP BY ENTREZ_GENE_ID, HUGO_GENE_SYMBOL;
     </select>
 
-    <select id="getSampleCnaCounts" resultType="org.cbioportal.model.CopyNumberCountByGene">
+    <select id="getSampleCnaGeneCounts" resultType="org.cbioportal.model.CopyNumberCountByGene">
         SELECT
             cna_event.ENTREZ_GENE_ID AS entrezGeneId,
             gene.HUGO_GENE_SYMBOL AS hugoGeneSymbol,
@@ -111,7 +111,7 @@
         GROUP BY cna_event.ENTREZ_GENE_ID, cna_event.ALTERATION, reference_genome_gene.CYTOBAND, gene.HUGO_GENE_SYMBOL
     </select>
 
-    <select id="getPatientCnaCounts" resultType="org.cbioportal.model.CopyNumberCountByGene">
+    <select id="getPatientCnaGeneCounts" resultType="org.cbioportal.model.CopyNumberCountByGene">
         SELECT
             cna_event.ENTREZ_GENE_ID AS entrezGeneId,
             gene.HUGO_GENE_SYMBOL AS hugoGeneSymbol,

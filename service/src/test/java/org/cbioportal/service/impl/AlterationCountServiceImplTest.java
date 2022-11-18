@@ -2,7 +2,6 @@ package org.cbioportal.service.impl;
 
 import org.apache.commons.math3.util.Pair;
 import org.cbioportal.model.*;
-import org.cbioportal.model.QueryElement;
 import org.cbioportal.model.util.Select;
 import org.cbioportal.persistence.AlterationRepository;
 import org.cbioportal.persistence.MolecularProfileRepository;
@@ -85,12 +84,12 @@ public class AlterationCountServiceImplTest extends BaseServiceImplTest {
     public void getSampleAlterationCounts() {
 
         // this mock tests correct argument types
-        when(alterationRepository.getSampleAlterationCounts(
+        when(alterationRepository.getSampleAlterationGeneCounts(
             new HashSet<>(caseIdentifiers),
             entrezGeneIds,
             alterationFilter)).thenReturn(expectedCountByGeneList);
 
-        Pair<List<AlterationCountByGene>, Long> result = alterationCountService.getSampleAlterationCounts(
+        Pair<List<AlterationCountByGene>, Long> result = alterationCountService.getSampleAlterationGeneCounts(
             caseIdentifiers,
             entrezGeneIds,
             includeFrequency,
@@ -105,12 +104,12 @@ public class AlterationCountServiceImplTest extends BaseServiceImplTest {
     public void getPatientAlterationCounts() {
 
         // this mock tests correct argument types
-        when(alterationRepository.getPatientAlterationCounts(
+        when(alterationRepository.getPatientAlterationGeneCounts(
             caseIdentifiers,
             entrezGeneIds,
             alterationFilter)).thenReturn(expectedCountByGeneList);
 
-        Pair<List<AlterationCountByGene>, Long> result = alterationCountService.getPatientAlterationCounts(
+        Pair<List<AlterationCountByGene>, Long> result = alterationCountService.getPatientAlterationGeneCounts(
             caseIdentifiers,
             entrezGeneIds,
             includeFrequency,
@@ -124,12 +123,12 @@ public class AlterationCountServiceImplTest extends BaseServiceImplTest {
     @Test
     public void getSampleMutationCounts() {
         // this mock tests correct argument types
-        when(alterationRepository.getSampleAlterationCounts(
+        when(alterationRepository.getSampleAlterationGeneCounts(
             new HashSet<>(caseIdentifiers),
             entrezGeneIds,
             alterationFilter)).thenReturn(expectedCountByGeneList);
 
-        Pair<List<AlterationCountByGene>, Long> result = alterationCountService.getSampleMutationCounts(
+        Pair<List<AlterationCountByGene>, Long> result = alterationCountService.getSampleMutationGeneCounts(
             caseIdentifiers,
             entrezGeneIds,
             includeFrequency,
@@ -144,12 +143,12 @@ public class AlterationCountServiceImplTest extends BaseServiceImplTest {
     public void getPatientMutationCounts() throws MolecularProfileNotFoundException {
 
         // this mock tests correct argument types
-        when(alterationRepository.getPatientAlterationCounts(
+        when(alterationRepository.getPatientAlterationGeneCounts(
             caseIdentifiers,
             entrezGeneIds,
             alterationFilter)).thenReturn(expectedCountByGeneList);
 
-        Pair<List<AlterationCountByGene>, Long> result = alterationCountService.getPatientMutationCounts(
+        Pair<List<AlterationCountByGene>, Long> result = alterationCountService.getPatientMutationGeneCounts(
             caseIdentifiers,
             entrezGeneIds,
             includeFrequency,
@@ -164,12 +163,12 @@ public class AlterationCountServiceImplTest extends BaseServiceImplTest {
     public void getSampleCnaCounts() {
 
         // this mock tests correct argument types
-        when(alterationRepository.getSampleCnaCounts(
+        when(alterationRepository.getSampleCnaGeneCounts(
             new TreeSet<>(caseIdentifiers),
             entrezGeneIds,
             alterationFilter)).thenReturn(expectedCnaCountByGeneList);
 
-        Pair<List<CopyNumberCountByGene>, Long> result = alterationCountService.getSampleCnaCounts(
+        Pair<List<CopyNumberCountByGene>, Long> result = alterationCountService.getSampleCnaGeneCounts(
             caseIdentifiers,
             entrezGeneIds,
             includeFrequency,
@@ -185,13 +184,13 @@ public class AlterationCountServiceImplTest extends BaseServiceImplTest {
     public void getPatientCnaCounts() {
 
         // this mock tests correct argument types
-        when(alterationRepository.getPatientCnaCounts(
+        when(alterationRepository.getPatientCnaGeneCounts(
             caseIdentifiers,
             entrezGeneIds,
             alterationFilter)).thenReturn(expectedCnaCountByGeneList);
 
 
-        Pair<List<CopyNumberCountByGene>, Long> result = alterationCountService.getPatientCnaCounts(
+        Pair<List<CopyNumberCountByGene>, Long> result = alterationCountService.getPatientCnaGeneCounts(
             caseIdentifiers,
             entrezGeneIds,
             includeFrequency,

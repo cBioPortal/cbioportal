@@ -23,19 +23,19 @@ public interface AlterationCountsMapper {
      * @param includeSomatic  Include somatic mutations in alteration counts
      * @return  Gene-level counts of (1) the total number of alterations and (2) the number of altered samples.
      */
-    List<AlterationCountByGene> getSampleAlterationCounts(List<MolecularProfileCaseIdentifier> mutationMolecularProfileCaseIdentifiers,
-                                                          List<MolecularProfileCaseIdentifier> cnaMolecularProfileCaseIdentifiers,
-                                                          List<MolecularProfileCaseIdentifier> structuralVariantMolecularProfileCaseIdentifiers,
-                                                          Select<Integer> entrezGeneIds,
-                                                          Select<String> mutationTypes,
-                                                          Select<Short> cnaTypes,
-                                                          boolean includeDriver,
-                                                          boolean includeVUS,
-                                                          boolean includeUnknownOncogenicity,
-                                                          Select<String> selectedTiers,
-                                                          boolean includeUnknownTier, boolean includeGermline,
-                                                          boolean includeSomatic,
-                                                          boolean includeUnknownStatus);
+    List<AlterationCountByGene> getSampleAlterationGeneCounts(List<MolecularProfileCaseIdentifier> mutationMolecularProfileCaseIdentifiers,
+                                                              List<MolecularProfileCaseIdentifier> cnaMolecularProfileCaseIdentifiers,
+                                                              List<MolecularProfileCaseIdentifier> structuralVariantMolecularProfileCaseIdentifiers,
+                                                              Select<Integer> entrezGeneIds,
+                                                              Select<String> mutationTypes,
+                                                              Select<Short> cnaTypes,
+                                                              boolean includeDriver,
+                                                              boolean includeVUS,
+                                                              boolean includeUnknownOncogenicity,
+                                                              Select<String> selectedTiers,
+                                                              boolean includeUnknownTier, boolean includeGermline,
+                                                              boolean includeSomatic,
+                                                              boolean includeUnknownStatus);
 
     /**
      * Calculate patient-level counts of mutation and discrete CNA alteration events.
@@ -52,40 +52,40 @@ public interface AlterationCountsMapper {
      * @param includeUnknownStatus  Include mutations that have mutation status 'unknown' in alteration counts
      * @return  Gene-level counts of (1) the total number of alterations and (2) the number of altered patients.
      */
-    List<AlterationCountByGene> getPatientAlterationCounts(List<MolecularProfileCaseIdentifier> mutationMolecularProfileCaseIdentifiers,
-                                                           List<MolecularProfileCaseIdentifier> cnaMolecularProfileCaseIdentifiers,
-                                                           List<MolecularProfileCaseIdentifier> structuralVariantMolecularProfileCaseIdentifiers,
-                                                           Select<Integer> entrezGeneIds,
-                                                           Select<String> mutationTypes,
-                                                           Select<Short> cnaTypes,
-                                                           boolean includeDriver,
-                                                           boolean includeVUS,
-                                                           boolean includeUnknownOncogenicity,
-                                                           Select<String> selectedTiers,
-                                                           boolean includeUnknownTier,
-                                                           boolean includeGermline,
-                                                           boolean includeSomatic,
-                                                           boolean includeUnknownStatus);
+    List<AlterationCountByGene> getPatientAlterationGeneCounts(List<MolecularProfileCaseIdentifier> mutationMolecularProfileCaseIdentifiers,
+                                                               List<MolecularProfileCaseIdentifier> cnaMolecularProfileCaseIdentifiers,
+                                                               List<MolecularProfileCaseIdentifier> structuralVariantMolecularProfileCaseIdentifiers,
+                                                               Select<Integer> entrezGeneIds,
+                                                               Select<String> mutationTypes,
+                                                               Select<Short> cnaTypes,
+                                                               boolean includeDriver,
+                                                               boolean includeVUS,
+                                                               boolean includeUnknownOncogenicity,
+                                                               Select<String> selectedTiers,
+                                                               boolean includeUnknownTier,
+                                                               boolean includeGermline,
+                                                               boolean includeSomatic,
+                                                               boolean includeUnknownStatus);
 
     // legacy method that returns CopyNumberCountByGene
-    List<CopyNumberCountByGene> getSampleCnaCounts(List<MolecularProfileCaseIdentifier> cnaMolecularProfileCaseIdentifiers,
-                                                   Select<Integer> entrezGeneIds,
-                                                   Select<Short> cnaTypes,
-                                                   boolean includeDriver,
-                                                   boolean includeVUS,
-                                                   boolean includeUnknownOncogenicity,
-                                                   Select<String> selectedTiers,
-                                                   boolean includeUnknownTier);
+    List<CopyNumberCountByGene> getSampleCnaGeneCounts(List<MolecularProfileCaseIdentifier> cnaMolecularProfileCaseIdentifiers,
+                                                       Select<Integer> entrezGeneIds,
+                                                       Select<Short> cnaTypes,
+                                                       boolean includeDriver,
+                                                       boolean includeVUS,
+                                                       boolean includeUnknownOncogenicity,
+                                                       Select<String> selectedTiers,
+                                                       boolean includeUnknownTier);
 
     // legacy method that returns CopyNumberCountByGene
-    List<CopyNumberCountByGene> getPatientCnaCounts(List<MolecularProfileCaseIdentifier> cnaMolecularProfileCaseIdentifiers,
-                                                    Select<Integer> entrezGeneIds,
-                                                    Select<Short> cnaTypes,
-                                                    boolean includeDriver,
-                                                    boolean includeVUS,
-                                                    boolean includeUnknownOncogenicity,
-                                                    Select<String> selectedTiers,
-                                                    boolean includeUnknownTier);
+    List<CopyNumberCountByGene> getPatientCnaGeneCounts(List<MolecularProfileCaseIdentifier> cnaMolecularProfileCaseIdentifiers,
+                                                        Select<Integer> entrezGeneIds,
+                                                        Select<Short> cnaTypes,
+                                                        boolean includeDriver,
+                                                        boolean includeVUS,
+                                                        boolean includeUnknownOncogenicity,
+                                                        Select<String> selectedTiers,
+                                                        boolean includeUnknownTier);
 
     List<MolecularProfileCaseIdentifier> getMolecularProfileCaseInternalIdentifier(List<MolecularProfileCaseIdentifier> molecularProfileSampleIdentifiers, String caseType);
 }

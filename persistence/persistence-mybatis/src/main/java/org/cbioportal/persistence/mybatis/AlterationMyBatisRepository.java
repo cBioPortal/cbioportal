@@ -68,7 +68,7 @@ public class AlterationMyBatisRepository implements AlterationRepository {
     }
 
     @Override
-    public List<AlterationCountByGene> getPatientAlterationGeneCounts(List<MolecularProfileCaseIdentifier> molecularProfileCaseIdentifiers,
+    public List<AlterationCountByGene> getPatientAlterationGeneCounts(Set<MolecularProfileCaseIdentifier> molecularProfileCaseIdentifiers,
                                                                       Select<Integer> entrezGeneIds,
                                                                       AlterationFilter alterationFilter) {
 
@@ -91,7 +91,7 @@ public class AlterationMyBatisRepository implements AlterationRepository {
             .collect(Collectors.toMap(datum -> datum.getMolecularProfileId().toString(), MolecularProfile::getMolecularAlterationType));
 
         Map<MolecularAlterationType, List<MolecularProfileCaseIdentifier>> groupedIdentifiersByProfileType =
-            alterationCountsMapper.getMolecularProfileCaseInternalIdentifier(molecularProfileCaseIdentifiers, "PATIENT_ID")
+            alterationCountsMapper.getMolecularProfileCaseInternalIdentifier(new ArrayList<>(molecularProfileCaseIdentifiers), "PATIENT_ID")
             .stream()
             .collect(Collectors.groupingBy(e -> profileTypeByProfileId.getOrDefault(e.getMolecularProfileId(), null)));
 
@@ -139,7 +139,7 @@ public class AlterationMyBatisRepository implements AlterationRepository {
     }
 
     @Override
-    public List<CopyNumberCountByGene> getPatientCnaGeneCounts(List<MolecularProfileCaseIdentifier> molecularProfileCaseIdentifiers,
+    public List<CopyNumberCountByGene> getPatientCnaGeneCounts(Set<MolecularProfileCaseIdentifier> molecularProfileCaseIdentifiers,
                                                                Select<Integer> entrezGeneIds,
                                                                AlterationFilter alterationFilter) {
 
@@ -149,7 +149,7 @@ public class AlterationMyBatisRepository implements AlterationRepository {
             return Collections.emptyList();
         }
         List<MolecularProfileCaseIdentifier> molecularProfileCaseInternalIdentifiers =
-            alterationCountsMapper.getMolecularProfileCaseInternalIdentifier(molecularProfileCaseIdentifiers, "PATIENT_ID");
+            alterationCountsMapper.getMolecularProfileCaseInternalIdentifier(new ArrayList<>(molecularProfileCaseIdentifiers), "PATIENT_ID");
 
         return alterationCountsMapper.getPatientCnaGeneCounts(
             molecularProfileCaseInternalIdentifiers,
@@ -161,7 +161,7 @@ public class AlterationMyBatisRepository implements AlterationRepository {
             alterationFilter.getSelectedTiers(),
             alterationFilter.getIncludeUnknownTier());
     }
-
+    
     private Select<Short> createCnaTypeList(final AlterationFilter alterationFilter) {
         if (alterationFilter.getCNAEventTypeSelect().hasNone())
             return Select.none();

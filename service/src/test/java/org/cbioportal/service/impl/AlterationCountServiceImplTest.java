@@ -105,7 +105,7 @@ public class AlterationCountServiceImplTest extends BaseServiceImplTest {
 
         // this mock tests correct argument types
         when(alterationRepository.getPatientAlterationGeneCounts(
-            caseIdentifiers,
+            new HashSet<>(caseIdentifiers),
             entrezGeneIds,
             alterationFilter)).thenReturn(expectedCountByGeneList);
 
@@ -144,7 +144,7 @@ public class AlterationCountServiceImplTest extends BaseServiceImplTest {
 
         // this mock tests correct argument types
         when(alterationRepository.getPatientAlterationGeneCounts(
-            caseIdentifiers,
+            new HashSet<>(caseIdentifiers),
             entrezGeneIds,
             alterationFilter)).thenReturn(expectedCountByGeneList);
 
@@ -185,7 +185,7 @@ public class AlterationCountServiceImplTest extends BaseServiceImplTest {
 
         // this mock tests correct argument types
         when(alterationRepository.getPatientCnaGeneCounts(
-            caseIdentifiers,
+            new HashSet<>(caseIdentifiers),
             entrezGeneIds,
             alterationFilter)).thenReturn(expectedCnaCountByGeneList);
 

@@ -44,8 +44,8 @@ public class AlterationMyBatisRepositoryTest {
         CNA.AMP,
         CNA.HOMDEL
     ));
-    List<MolecularProfileCaseIdentifier> sampleIdToProfileId = new ArrayList<>();
-    List<MolecularProfileCaseIdentifier> patientIdToProfileId = new ArrayList<>();
+    Set<MolecularProfileCaseIdentifier> sampleIdToProfileId = new TreeSet<>();
+    Set<MolecularProfileCaseIdentifier> patientIdToProfileId = new TreeSet<>();
     AlterationFilter alterationFilter;
     
     Select<Integer> entrezGeneIds;
@@ -107,7 +107,7 @@ public class AlterationMyBatisRepositoryTest {
         alterationFilter.setIncludeUnknownTier(false);
         alterationFilter.setCnaTypeSelect(Select.none());
         List<AlterationCountByGene> result = alterationMyBatisRepository.getSampleAlterationGeneCounts(
-            new TreeSet<>(sampleIdToProfileId),
+            sampleIdToProfileId,
             entrezGeneIds,
             alterationFilter);
         Assert.assertEquals(0, result.size());
@@ -119,7 +119,7 @@ public class AlterationMyBatisRepositoryTest {
         alterationFilter.setIncludeUnknownTier(false);
         alterationFilter.setCnaTypeSelect(Select.none());
         List<AlterationCountByGene> result = alterationMyBatisRepository.getSampleAlterationGeneCounts(
-            new TreeSet<>(sampleIdToProfileId),
+            sampleIdToProfileId,
             entrezGeneIds,
             alterationFilter);
         Assert.assertEquals(0, result.size());
@@ -132,7 +132,7 @@ public class AlterationMyBatisRepositoryTest {
         alterationFilter.setIncludeUnknownStatus(false);
         alterationFilter.setCnaTypeSelect(Select.none());
         List<AlterationCountByGene> result = alterationMyBatisRepository.getSampleAlterationGeneCounts(
-            new TreeSet<>(sampleIdToProfileId),
+            sampleIdToProfileId,
             entrezGeneIds,
             alterationFilter);
         Assert.assertEquals(0, result.size());
@@ -142,7 +142,7 @@ public class AlterationMyBatisRepositoryTest {
     public void getSampleMutationGeneCount() throws Exception {
         alterationFilter.setCnaTypeSelect(Select.none());
         List<AlterationCountByGene> result = alterationMyBatisRepository.getSampleAlterationGeneCounts(
-            new TreeSet<>(sampleIdToProfileId),
+            sampleIdToProfileId,
             entrezGeneIds,
             alterationFilter);
 
@@ -162,7 +162,7 @@ public class AlterationMyBatisRepositoryTest {
     public void getSampleCnaGeneCount() throws Exception {
         alterationFilter.setMutationTypeSelect(Select.none());
         List<AlterationCountByGene> result = alterationMyBatisRepository.getSampleAlterationGeneCounts(
-            new TreeSet<>(sampleIdToProfileId),
+            sampleIdToProfileId,
             entrezGeneIds,
             alterationFilter);
 
@@ -178,7 +178,7 @@ public class AlterationMyBatisRepositoryTest {
     @Test
     public void getSampleMutationAndCnaGeneCount() throws Exception {
         List<AlterationCountByGene> result = alterationMyBatisRepository.getSampleAlterationGeneCounts(
-            new TreeSet<>(sampleIdToProfileId),
+            sampleIdToProfileId,
             entrezGeneIds,
             alterationFilter);
 
@@ -197,12 +197,12 @@ public class AlterationMyBatisRepositoryTest {
     @Test
     public void whenSampleNotProfiledForCNA() throws Exception {
 
-        List<MolecularProfileCaseIdentifier> sampleIdToProfileId = new ArrayList<>();
+        Set<MolecularProfileCaseIdentifier> sampleIdToProfileId = new TreeSet<>();
         // Sample is not profiled for mutations and not cna
         sampleIdToProfileId.add(new MolecularProfileCaseIdentifier("TCGA-A1-A0SE-01", "study_tcga_pub_gistic"));
 
         List<AlterationCountByGene> result = alterationMyBatisRepository.getSampleAlterationGeneCounts(
-            new TreeSet<>(sampleIdToProfileId),
+            sampleIdToProfileId,
             entrezGeneIds,
             alterationFilter);
         Assert.assertEquals(0, result.size());
@@ -272,7 +272,7 @@ public class AlterationMyBatisRepositoryTest {
         // harmonize these endpoints (both or none return 'cytoband') and use the AlterationCount
         // endpoint for all counts. Let's discuss...
         List<CopyNumberCountByGene> result = alterationMyBatisRepository.getSampleCnaGeneCounts(
-            new TreeSet<>(sampleIdToProfileId), 
+            sampleIdToProfileId, 
             entrezGeneIds,
             alterationFilter);
 
@@ -314,7 +314,7 @@ public class AlterationMyBatisRepositoryTest {
         alterationFilter.setMutationTypeSelect(Select.none());
 	alterationFilter.setStructuralVariants(false);
         List<AlterationCountByGene> result = alterationMyBatisRepository.getSampleAlterationGeneCounts(
-            new TreeSet<>(sampleIdToProfileId),
+            sampleIdToProfileId,
             entrezGeneIds,
             alterationFilter);
 
@@ -326,7 +326,7 @@ public class AlterationMyBatisRepositoryTest {
         alterationFilter.setCnaTypeSelect(Select.all());
         alterationFilter.setMutationTypeSelect(Select.all());
         List<AlterationCountByGene> result = alterationMyBatisRepository.getSampleAlterationGeneCounts(
-            new TreeSet<>(sampleIdToProfileId),
+            sampleIdToProfileId,
             entrezGeneIds,
             alterationFilter);
 
@@ -359,7 +359,7 @@ public class AlterationMyBatisRepositoryTest {
         alterationFilter.setIncludeVUS(false);
         alterationFilter.setIncludeUnknownOncogenicity(false);
         List<AlterationCountByGene> result = alterationMyBatisRepository.getSampleAlterationGeneCounts(
-            new TreeSet<>(sampleIdToProfileId),
+            sampleIdToProfileId,
             entrezGeneIds,
             alterationFilter);
 
@@ -377,7 +377,7 @@ public class AlterationMyBatisRepositoryTest {
         alterationFilter.setIncludeDriver(false);
         alterationFilter.setIncludeUnknownOncogenicity(false);
         List<AlterationCountByGene> result = alterationMyBatisRepository.getSampleAlterationGeneCounts(
-            new TreeSet<>(sampleIdToProfileId),
+            sampleIdToProfileId,
             entrezGeneIds,
             alterationFilter);
 
@@ -398,7 +398,7 @@ public class AlterationMyBatisRepositoryTest {
         alterationFilter.setIncludeDriver(false);
         alterationFilter.setIncludeVUS(false);
         List<AlterationCountByGene> result = alterationMyBatisRepository.getSampleAlterationGeneCounts(
-            new TreeSet<>(sampleIdToProfileId),
+            sampleIdToProfileId,
             entrezGeneIds,
             alterationFilter);
 
@@ -414,7 +414,7 @@ public class AlterationMyBatisRepositoryTest {
         alterationFilter.setSelectedTiers(Select.byValues(Arrays.asList("Tier 2")));
         alterationFilter.setIncludeUnknownTier(false);
         List<AlterationCountByGene> result = alterationMyBatisRepository.getSampleAlterationGeneCounts(
-            new TreeSet<>(sampleIdToProfileId),
+            sampleIdToProfileId,
             entrezGeneIds,
             alterationFilter);
 
@@ -431,7 +431,7 @@ public class AlterationMyBatisRepositoryTest {
     public void getSampleGeneCountIncludeUnknownTier() throws Exception {
         alterationFilter.setSelectedTiers(Select.none());
         List<AlterationCountByGene> result = alterationMyBatisRepository.getSampleAlterationGeneCounts(
-            new TreeSet<>(sampleIdToProfileId),
+            sampleIdToProfileId,
             entrezGeneIds,
             alterationFilter);
 
@@ -601,7 +601,7 @@ public class AlterationMyBatisRepositoryTest {
     public void getSampleCnaGeneCountLegacyOnlyDriver() throws Exception {
         alterationFilter.setIncludeVUS(false);
         alterationFilter.setIncludeUnknownOncogenicity(false);
-        List<CopyNumberCountByGene> result = alterationMyBatisRepository.getSampleCnaGeneCounts(new TreeSet<>(sampleIdToProfileId), entrezGeneIds, alterationFilter);
+        List<CopyNumberCountByGene> result = alterationMyBatisRepository.getSampleCnaGeneCounts(sampleIdToProfileId, entrezGeneIds, alterationFilter);
 
         Assert.assertEquals(1, result.size());
         AlterationCountByGene result207 = result.stream().filter(r -> r.getEntrezGeneId() == 207).findFirst().get();
@@ -613,7 +613,7 @@ public class AlterationMyBatisRepositoryTest {
     public void getSampleCnaGeneCountLegacyOnlyVUS() throws Exception {
         alterationFilter.setIncludeDriver(false);
         alterationFilter.setIncludeUnknownOncogenicity(false);
-        List<CopyNumberCountByGene> result = alterationMyBatisRepository.getSampleCnaGeneCounts(new TreeSet<>(sampleIdToProfileId), entrezGeneIds, alterationFilter);
+        List<CopyNumberCountByGene> result = alterationMyBatisRepository.getSampleCnaGeneCounts(sampleIdToProfileId, entrezGeneIds, alterationFilter);
 
         Assert.assertEquals(1, result.size());
         AlterationCountByGene result207 = result.stream().filter(r -> r.getEntrezGeneId() == 207).findFirst().get();
@@ -626,7 +626,7 @@ public class AlterationMyBatisRepositoryTest {
         alterationFilter.setIncludeDriver(false);
         alterationFilter.setIncludeVUS(false);
         List<CopyNumberCountByGene> result = alterationMyBatisRepository.getSampleCnaGeneCounts(
-            new TreeSet<>(sampleIdToProfileId), entrezGeneIds, alterationFilter);
+            sampleIdToProfileId, entrezGeneIds, alterationFilter);
 
         Assert.assertEquals(1, result.size());
         AlterationCountByGene result208 = result.stream().filter(r -> r.getEntrezGeneId() == 208).findFirst().get();
@@ -638,7 +638,7 @@ public class AlterationMyBatisRepositoryTest {
     public void getSampleCnaGeneCountLegacyOnlyUnknownTier() throws Exception {
         alterationFilter.setSelectedTiers(Select.none());
         List<CopyNumberCountByGene> result = alterationMyBatisRepository.getSampleCnaGeneCounts(
-            new TreeSet<>(sampleIdToProfileId), entrezGeneIds, alterationFilter);
+            sampleIdToProfileId, entrezGeneIds, alterationFilter);
 
         Assert.assertEquals(1, result.size());
         AlterationCountByGene result208 = result.stream().filter(r -> r.getEntrezGeneId() == 208).findFirst().get();
@@ -652,7 +652,7 @@ public class AlterationMyBatisRepositoryTest {
         alterationFilter.setSelectedTiers(Select.byValues(Arrays.asList("Tier 2")));
         alterationFilter.setIncludeUnknownTier(false);
         List<CopyNumberCountByGene> result = alterationMyBatisRepository.getSampleCnaGeneCounts(
-            new TreeSet<>(sampleIdToProfileId), entrezGeneIds, alterationFilter);
+            sampleIdToProfileId, entrezGeneIds, alterationFilter);
 
         Assert.assertEquals(1, result.size());
         AlterationCountByGene result207 = result.stream().filter(r -> r.getEntrezGeneId() == 207).findFirst().get();
@@ -737,21 +737,21 @@ public class AlterationMyBatisRepositoryTest {
     @Test
     public void getSampleGeneCountNullEntrezGeneIds() throws Exception {
         List<AlterationCountByGene> result = alterationMyBatisRepository.getSampleAlterationGeneCounts(
-            new TreeSet<>(sampleIdToProfileId), null, new AlterationFilter());
+            sampleIdToProfileId, null, new AlterationFilter());
         Assert.assertEquals(0, result.size());
     }
     
     @Test
     public void getSampleGeneCountEmptyEntrezGeneIds() throws Exception {
         List<AlterationCountByGene> result = alterationMyBatisRepository.getSampleAlterationGeneCounts(
-            new TreeSet<>(sampleIdToProfileId), Select.none(), new AlterationFilter());
+            sampleIdToProfileId, Select.none(), new AlterationFilter());
         Assert.assertEquals(0, result.size());
     }
     
     @Test
     public void getSampleGeneCountAllEntrezGeneIds() throws Exception {
         List<AlterationCountByGene> result = alterationMyBatisRepository.getSampleAlterationGeneCounts(
-            new TreeSet<>(sampleIdToProfileId), Select.all(), new AlterationFilter());
+            sampleIdToProfileId, Select.all(), new AlterationFilter());
         Assert.assertEquals(3, result.size());
     }
 
@@ -779,21 +779,21 @@ public class AlterationMyBatisRepositoryTest {
     @Test
     public void getSampleCnaGeneCountNullEntrezGeneIds() throws Exception {
         List<CopyNumberCountByGene> result = alterationMyBatisRepository.getSampleCnaGeneCounts(
-            new TreeSet<>(sampleIdToProfileId), null, new AlterationFilter());
+            sampleIdToProfileId, null, new AlterationFilter());
         Assert.assertEquals(0, result.size());
     }
 
     @Test
     public void getSampleCnaGeneCountEmptyEntrezGeneIds() throws Exception {
         List<CopyNumberCountByGene> result = alterationMyBatisRepository.getSampleCnaGeneCounts(
-            new TreeSet<>(sampleIdToProfileId), Select.none(), new AlterationFilter());
+            sampleIdToProfileId, Select.none(), new AlterationFilter());
         Assert.assertEquals(0, result.size());
     }
 
     @Test
     public void getSampleCnaGeneCountAllEntrezGeneIds() throws Exception {
         List<CopyNumberCountByGene> result = alterationMyBatisRepository.getSampleCnaGeneCounts(
-            new TreeSet<>(sampleIdToProfileId), Select.all(), new AlterationFilter());
+            sampleIdToProfileId, Select.all(), new AlterationFilter());
         Assert.assertEquals(3, result.size());
     }
 

@@ -62,6 +62,9 @@ public class AlterationMyBatisRepositoryTest {
         sampleIdToProfileId.add(new MolecularProfileCaseIdentifier("TCGA-A1-A0SD-01", "study_tcga_pub_mutations"));
         sampleIdToProfileId.add(new MolecularProfileCaseIdentifier("TCGA-A1-A0SB-01", "study_tcga_pub_gistic"));
         sampleIdToProfileId.add(new MolecularProfileCaseIdentifier("TCGA-A1-A0SD-01", "study_tcga_pub_gistic"));
+        sampleIdToProfileId.add(new MolecularProfileCaseIdentifier("TCGA-A1-A0SB-01", "study_tcga_pub_sv"));
+        sampleIdToProfileId.add(new MolecularProfileCaseIdentifier("TCGA-A1-A0SD-01", "study_tcga_pub_sv"));
+        sampleIdToProfileId.add(new MolecularProfileCaseIdentifier("TCGA-A1-B0SO-01", "study_tcga_pub_sv"));
 
         patientIdToProfileId.add(new MolecularProfileCaseIdentifier("TCGA-A1-A0SB", "study_tcga_pub_mutations"));
         patientIdToProfileId.add(new MolecularProfileCaseIdentifier("TCGA-A1-A0SE", "study_tcga_pub_mutations"));
@@ -72,6 +75,9 @@ public class AlterationMyBatisRepositoryTest {
         patientIdToProfileId.add(new MolecularProfileCaseIdentifier("TCGA-A1-A0SD", "study_tcga_pub_mutations"));
         patientIdToProfileId.add(new MolecularProfileCaseIdentifier("TCGA-A1-A0SB", "study_tcga_pub_gistic"));
         patientIdToProfileId.add(new MolecularProfileCaseIdentifier("TCGA-A1-A0SD", "study_tcga_pub_gistic"));
+        patientIdToProfileId.add(new MolecularProfileCaseIdentifier("TCGA-A1-A0SB", "study_tcga_pub_sv"));
+        patientIdToProfileId.add(new MolecularProfileCaseIdentifier("TCGA-A1-A0SD", "study_tcga_pub_sv"));
+        patientIdToProfileId.add(new MolecularProfileCaseIdentifier("TCGA-A1-B0SO", "study_tcga_pub_sv"));
 
         entrezGeneIds = Select.byValues(Arrays.asList(207, 208, 672, 2064));
         alterationFilter = new AlterationFilter(
@@ -752,7 +758,7 @@ public class AlterationMyBatisRepositoryTest {
     public void getSampleGeneCountAllEntrezGeneIds() throws Exception {
         List<AlterationCountByGene> result = alterationMyBatisRepository.getSampleAlterationGeneCounts(
             sampleIdToProfileId, Select.all(), new AlterationFilter());
-        Assert.assertEquals(3, result.size());
+        Assert.assertEquals(11, result.size());
     }
 
     @Test
@@ -773,7 +779,7 @@ public class AlterationMyBatisRepositoryTest {
     public void getPatientGeneCountAllEntrezGeneIds() throws Exception {
         List<AlterationCountByGene> result = alterationMyBatisRepository.getPatientAlterationGeneCounts(
             patientIdToProfileId, Select.all(), new AlterationFilter());
-        Assert.assertEquals(3, result.size());
+        Assert.assertEquals(11, result.size());
     }
 
     @Test

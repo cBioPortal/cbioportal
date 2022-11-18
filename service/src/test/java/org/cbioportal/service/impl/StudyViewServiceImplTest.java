@@ -174,7 +174,7 @@ public class StudyViewServiceImplTest extends BaseServiceImplTest {
         alterationCountByGene1.setTotalCount(2);
         alterationCountByGene1.setNumberOfProfiledCases(2);
         alterationCountByGenes.add(alterationCountByGene1);
-        Mockito.when(alterationCountService.getSampleMutationCounts(molecularProfileCaseIdentifiers,
+        Mockito.when(alterationCountService.getSampleMutationGeneCounts(molecularProfileCaseIdentifiers,
             Select.all(),
             true,
             false,
@@ -208,7 +208,7 @@ public class StudyViewServiceImplTest extends BaseServiceImplTest {
         alterationCountByGene1.setTotalCount(2);
         alterationCountByGene1.setNumberOfProfiledCases(2);
         alterationCountByGenes.add(alterationCountByGene1);
-        Mockito.when(alterationCountService.getSampleStructuralVariantCounts(
+        Mockito.when(alterationCountService.getSampleStructuralVariantGeneCounts(
             molecularProfileCaseIdentifiers,
             Select.all(),
             true,
@@ -245,7 +245,7 @@ public class StudyViewServiceImplTest extends BaseServiceImplTest {
         alterationCountByGene1.setAlteration(2);
         alterationCountByGenes.add(alterationCountByGene1);
 
-        Mockito.when(alterationCountService.getSampleCnaCounts(
+        Mockito.when(alterationCountService.getSampleCnaGeneCounts(
             anyList(),
             any(Select.class),
             anyBoolean(),

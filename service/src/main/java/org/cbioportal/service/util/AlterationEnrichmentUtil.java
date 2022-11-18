@@ -2,6 +2,8 @@ package org.cbioportal.service.util;
 
 import org.apache.commons.math3.stat.inference.ChiSquareTest;
 import org.apache.commons.math3.util.Pair;
+import org.cbioportal.model.AlterationCountBase;
+import org.cbioportal.model.AlterationCountBase;
 import org.cbioportal.model.AlterationCountByGene;
 import org.cbioportal.model.AlterationEnrichment;
 import org.cbioportal.model.CountSummary;
@@ -19,6 +21,7 @@ import org.springframework.stereotype.Component;
 
 import java.math.BigDecimal;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -28,7 +31,7 @@ import java.util.stream.Collectors;
 import java.util.Map.Entry;
 
 @Component
-public class AlterationEnrichmentUtil<T extends AlterationCountByGene> {
+public class AlterationEnrichmentUtil<T extends AlterationCountBase> {
 
     @Autowired
     private FisherExactTestCalculator fisherExactTestCalculator;
@@ -41,7 +44,7 @@ public class AlterationEnrichmentUtil<T extends AlterationCountByGene> {
     @Autowired
     private MolecularProfileService molecularProfileService;
 
-    public List<AlterationEnrichment> createAlterationEnrichments(Map<String, Pair<List<T>, Long>> mutationCountsbyGroup) {
+    public List<AlterationEnrichment> createAlterationEnrichments(Map<String, Pair<List<AlterationCountByGene>, Long>> mutationCountsbyGroup) {
         
         Map<String, Map<Integer, AlterationCountByGene>> mutationCountsbyEntrezGeneIdAndGroup = mutationCountsbyGroup
                     .entrySet()
@@ -160,7 +163,7 @@ public class AlterationEnrichmentUtil<T extends AlterationCountByGene> {
     
     public long includeFrequencyForSamples(
             List<MolecularProfileCaseIdentifier> molecularProfileCaseIdentifiers,
-            List<T> alterationCountByGenes,
+            List<T> alterationCounts,
             boolean includeMissingAlterationsFromGenePanel) {
 
         // Collect profile id and sample id arrays.
@@ -176,7 +179,7 @@ public class AlterationEnrichmentUtil<T extends AlterationCountByGene> {
         List<GenePanelData> genePanelDataList = genePanelService
             .fetchGenePanelDataInMultipleMolecularProfiles(molecularProfileCaseIdentifiers);
 
-        profiledCasesCounter.calculate(alterationCountByGenes, genePanelDataList,
+        profiledCasesCounter.calculate(alterationCounts, genePanelDataList,
                 includeMissingAlterationsFromGenePanel, profiledCasesCounter.sampleUniqueIdentifier);
 
         return genePanelDataList
@@ -189,7 +192,7 @@ public class AlterationEnrichmentUtil<T extends AlterationCountByGene> {
 
     public long includeFrequencyForPatients(
             List<MolecularProfileCaseIdentifier> molecularProfileCaseIdentifiers,
-            List<T> alterationCountByGenes,
+            List<T> AlterationCountBases,
             boolean includeMissingAlterationsFromGenePanel) {
 
         // Collect profile id and sample id arrays.
@@ -205,7 +208,7 @@ public class AlterationEnrichmentUtil<T extends AlterationCountByGene> {
         List<GenePanelData> genePanelDataList = genePanelService
             .fetchGenePanelDataInMultipleMolecularProfilesByPatientIds(molecularProfileCaseIdentifiers);
 
-        profiledCasesCounter.calculate(alterationCountByGenes, genePanelDataList,
+        profiledCasesCounter.calculate(AlterationCountBases, genePanelDataList,
             includeMissingAlterationsFromGenePanel, profiledCasesCounter.patientUniqueIdentifier);
 
         return genePanelDataList

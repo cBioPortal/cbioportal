@@ -823,5 +823,91 @@ public class AlterationMyBatisRepositoryTest {
             patientIdToProfileId, Select.all(), new AlterationFilter());
         Assert.assertEquals(3, result.size());
     }
+
+    @Test
+    public void getSampleStructuralVariantCount() throws Exception {
+        List<AlterationCountByStructuralVariant> result = alterationMyBatisRepository.getSampleStructuralVariantCounts(
+            sampleIdToProfileId,
+            alterationFilter);
+
+        Assert.assertEquals(4, result.size());
+        AlterationCountByStructuralVariant resultEmlAlk = findStructVarCount("EML4", "ALK", result);
+        AlterationCountByStructuralVariant resultKiaaBraf= findStructVarCount("KIAA1549", "BRAF", result);
+        AlterationCountByStructuralVariant resultTmprsErg = findStructVarCount("TMPRSS2", "ERG", result);
+        AlterationCountByStructuralVariant resultNcoRet = findStructVarCount("NCOA4", "RET", result);
+        Assert.assertEquals((Integer) 1, resultEmlAlk.getTotalCount());
+        Assert.assertEquals((Integer) 1, resultEmlAlk.getNumberOfAlteredCases());
+        Assert.assertEquals((Integer) 3, resultKiaaBraf.getTotalCount());
+        Assert.assertEquals((Integer) 3, resultKiaaBraf.getNumberOfAlteredCases());
+        Assert.assertEquals((Integer) 2, resultNcoRet.getTotalCount());
+        Assert.assertEquals((Integer) 2, resultNcoRet.getNumberOfAlteredCases());
+        Assert.assertEquals((Integer) 1, resultTmprsErg.getTotalCount());
+        Assert.assertEquals((Integer) 1, resultTmprsErg.getNumberOfAlteredCases());
+    }
+
+    @Test
+    public void getSampleStructuralVariantCountAllSvStatusExcluded() throws Exception {
+    
+        // Note: 'NA' for SV status is not allowed as per file-formats.md
+        alterationFilter.setIncludeSomatic(false);
+        alterationFilter.setIncludeGermline(false);
+        alterationFilter.setIncludeUnknownStatus(false);
+        List<AlterationCountByStructuralVariant> result = alterationMyBatisRepository.getSampleStructuralVariantCounts(
+            sampleIdToProfileId,
+            alterationFilter);
+
+        Assert.assertEquals(0, result.size());
+    }
+
+    @Test
+    public void getSampleStructuralVariantCountSomaticSvStatusExcluded() throws Exception {
+
+        // Note: 'NA' for SV status is not allowed as per file-formats.md
+        alterationFilter.setIncludeSomatic(false);
+        alterationFilter.setIncludeUnknownStatus(false);
+        List<AlterationCountByStructuralVariant> result = alterationMyBatisRepository.getSampleStructuralVariantCounts(
+            sampleIdToProfileId,
+            alterationFilter);
+
+        Assert.assertEquals(2, result.size());
+        AlterationCountByStructuralVariant resultKiaaBraf= findStructVarCount("KIAA1549", "BRAF", result);
+        AlterationCountByStructuralVariant resultNcoRet = findStructVarCount("NCOA4", "RET", result);
+        Assert.assertEquals((Integer) 1, resultKiaaBraf.getTotalCount());
+        Assert.assertEquals((Integer) 1, resultKiaaBraf.getNumberOfAlteredCases());
+        Assert.assertEquals((Integer) 1, resultNcoRet.getTotalCount());
+        Assert.assertEquals((Integer) 1, resultNcoRet.getNumberOfAlteredCases());
+    }
+
+    @Test
+    public void getSampleStructuralVariantCountGermlineSvStatusExcluded() throws Exception {
+        // Note: 'NA' for SV status is not allowed as per file-formats.md
+        alterationFilter.setIncludeGermline(false);
+        alterationFilter.setIncludeUnknownStatus(false);
+        List<AlterationCountByStructuralVariant> result = alterationMyBatisRepository.getSampleStructuralVariantCounts(
+            sampleIdToProfileId,
+            alterationFilter);
+
+        Assert.assertEquals(4, result.size());
+        AlterationCountByStructuralVariant resultEmlAlk = findStructVarCount("EML4", "ALK", result);
+        AlterationCountByStructuralVariant resultKiaaBraf= findStructVarCount("KIAA1549", "BRAF", result);
+        AlterationCountByStructuralVariant resultTmprsErg = findStructVarCount("TMPRSS2", "ERG", result);
+        AlterationCountByStructuralVariant resultNcoRet = findStructVarCount("NCOA4", "RET", result);
+        Assert.assertEquals((Integer) 1, resultEmlAlk.getTotalCount());
+        Assert.assertEquals((Integer) 1, resultEmlAlk.getNumberOfAlteredCases());
+        Assert.assertEquals((Integer) 2, resultKiaaBraf.getTotalCount());
+        Assert.assertEquals((Integer) 2, resultKiaaBraf.getNumberOfAlteredCases());
+        Assert.assertEquals((Integer) 1, resultNcoRet.getTotalCount());
+        Assert.assertEquals((Integer) 1, resultNcoRet.getNumberOfAlteredCases());
+        Assert.assertEquals((Integer) 1, resultTmprsErg.getTotalCount());
+        Assert.assertEquals((Integer) 1, resultTmprsErg.getNumberOfAlteredCases());
+    }
+
+    private AlterationCountByStructuralVariant findStructVarCount(String gene1HugoSymbol,
+                                                                  String gene2HugoSymbol,
+                                                                  List<AlterationCountByStructuralVariant> counts) {
+        return counts.stream().filter(
+            c -> c.getGene1HugoGeneSymbol().equals(gene1HugoSymbol)
+                && c.getGene2HugoGeneSymbol().equals(gene2HugoSymbol)).findFirst().get();
+    }
     
 }

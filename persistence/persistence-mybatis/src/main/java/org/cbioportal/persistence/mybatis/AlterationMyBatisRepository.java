@@ -1,6 +1,7 @@
 package org.cbioportal.persistence.mybatis;
 
 import org.cbioportal.model.AlterationCountByGene;
+import org.cbioportal.model.AlterationCountByStructuralVariant;
 import org.cbioportal.model.AlterationFilter;
 import org.cbioportal.model.CNA;
 import org.cbioportal.model.CopyNumberCountByGene;
@@ -160,6 +161,40 @@ public class AlterationMyBatisRepository implements AlterationRepository {
             alterationFilter.getIncludeUnknownOncogenicity(),
             alterationFilter.getSelectedTiers(),
             alterationFilter.getIncludeUnknownTier());
+    }
+
+    @Override
+    public List<AlterationCountByStructuralVariant> getSampleStructuralVariantCounts(Set<MolecularProfileCaseIdentifier> molecularProfileCaseIdentifiers,
+                                                                                     AlterationFilter alterationFilter) {
+
+        if (molecularProfileCaseIdentifiers == null
+            || molecularProfileCaseIdentifiers.isEmpty()
+            || allAlterationsExcludedMutationStatus(alterationFilter)) {
+            return Collections.emptyList();
+        }
+
+        return alterationCountsMapper.getSampleStructuralVariantCounts(
+            new ArrayList<>(molecularProfileCaseIdentifiers),
+            alterationFilter.getIncludeGermline(),
+            alterationFilter.getIncludeSomatic(),
+            alterationFilter.getIncludeUnknownStatus());
+    }
+
+    @Override
+    public List<AlterationCountByStructuralVariant> getPatientStructuralVariantCounts(Set<MolecularProfileCaseIdentifier> molecularProfileCaseIdentifiers,
+                                                                                     AlterationFilter alterationFilter) {
+
+        if (molecularProfileCaseIdentifiers == null
+            || molecularProfileCaseIdentifiers.isEmpty()
+            || allAlterationsExcludedMutationStatus(alterationFilter)) {
+            return Collections.emptyList();
+        }
+
+        return alterationCountsMapper.getPatientStructuralVariantCounts(
+            new ArrayList<>(molecularProfileCaseIdentifiers),
+            alterationFilter.getIncludeGermline(),
+            alterationFilter.getIncludeSomatic(),
+            alterationFilter.getIncludeUnknownStatus());
     }
     
     private Select<Short> createCnaTypeList(final AlterationFilter alterationFilter) {

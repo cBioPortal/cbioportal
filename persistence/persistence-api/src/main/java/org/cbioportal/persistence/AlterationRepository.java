@@ -28,5 +28,13 @@ public interface AlterationRepository {
     List<CopyNumberCountByGene> getPatientCnaGeneCounts(Set<MolecularProfileCaseIdentifier> molecularProfileCaseIdentifiers,
                                                         Select<Integer> entrezGeneIds,
                                                         AlterationFilter alterationFilter);
+
+    @Cacheable(cacheResolver = "generalRepositoryCacheResolver", condition = "@cacheEnabledConfig.getEnabled()")
+    List<AlterationCountByStructuralVariant> getSampleStructuralVariantCounts(Set<MolecularProfileCaseIdentifier> molecularProfileCaseIdentifiers,
+                                                              AlterationFilter alterationFilter);
+
+    @Cacheable(cacheResolver = "generalRepositoryCacheResolver", condition = "@cacheEnabledConfig.getEnabled()")
+    List<AlterationCountByStructuralVariant> getPatientStructuralVariantCounts(Set<MolecularProfileCaseIdentifier> molecularProfileCaseIdentifiers,
+                                                               AlterationFilter alterationFilter);
     
 }

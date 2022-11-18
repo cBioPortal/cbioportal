@@ -95,7 +95,7 @@ public class StructuralVariantMyBatisRepositoryTest {
     boolean includeSomatic;
     boolean includeUnknownStatus;
     private List<GeneFilterQuery> geneQueries;
-    List<StructuralVariantQuery> noStructVars = Collections.emptyList();
+    private List<StructuralVariantQuery> noStructVars = Collections.emptyList();
 
     @Test
     public void fetchStructuralVariantsNoSampleIdentifiers() {
@@ -103,6 +103,7 @@ public class StructuralVariantMyBatisRepositoryTest {
         List<String> molecularProfileIds = new ArrayList<>();
         List<Integer> entrezGeneIds = new ArrayList<>();
         List<String> sampleIds = new ArrayList<>();
+        
         molecularProfileIds.add("study_tcga_pub_sv");
         entrezGeneIds.add(57670);
 
@@ -639,6 +640,5 @@ public class StructuralVariantMyBatisRepositoryTest {
         Assert.assertEquals((Integer) 8031, result.get(0).getSite1EntrezGeneId());
         Assert.assertEquals("ENST00000340058_NULL",  result.get(0).getSite2EnsemblTranscriptId());
     }
-
 
 }

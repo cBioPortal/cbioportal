@@ -4,6 +4,7 @@ import org.apache.commons.collections4.map.MultiKeyMap;
 import org.apache.commons.lang3.StringUtils;
 import org.cbioportal.model.*;
 import org.cbioportal.model.util.Select;
+import org.cbioportal.persistence.AlterationRepository;
 import org.cbioportal.service.*;
 import org.cbioportal.service.exception.MolecularProfileNotFoundException;
 import org.cbioportal.service.exception.StudyNotFoundException;
@@ -32,6 +33,9 @@ public class StudyViewServiceImpl implements StudyViewService {
     private SignificantCopyNumberRegionService significantCopyNumberRegionService;
     @Autowired
     private GenericAssayService genericAssayService;
+
+    @Autowired
+    private AlterationRepository alterationRepository;
 
     @Override
     public List<GenomicDataCount> getGenomicDataCounts(List<String> studyIds, List<String> sampleIds) {
@@ -82,7 +86,7 @@ public class StudyViewServiceImpl implements StudyViewService {
         throws StudyNotFoundException {
         List<MolecularProfileCaseIdentifier> caseIdentifiers =
             molecularProfileService.getFirstMutationProfileCaseIdentifiers(studyIds, sampleIds);
-        List<AlterationCountByGene> alterationCountByGenes = alterationCountService.getSampleMutationCounts(
+        List<AlterationCountByGene> alterationCountByGenes = alterationCountService.getSampleMutationGeneCounts(
             caseIdentifiers,
             Select.all(),
             true,
@@ -99,7 +103,7 @@ public class StudyViewServiceImpl implements StudyViewService {
         throws StudyNotFoundException {
         List<MolecularProfileCaseIdentifier> caseIdentifiers =
             molecularProfileService.getFirstStructuralVariantProfileCaseIdentifiers(studyIds, sampleIds);
-        List<AlterationCountByGene> alterationCountByGenes = alterationCountService.getSampleStructuralVariantCounts(
+        List<AlterationCountByGene> alterationCountByGenes = alterationCountService.getSampleStructuralVariantGeneCounts(
             caseIdentifiers,
             Select.all(),
             true,
@@ -107,6 +111,18 @@ public class StudyViewServiceImpl implements StudyViewService {
             alterationFilter).getFirst();
         annotateDataWithQValue(studyIds, alterationCountByGenes);
         return alterationCountByGenes;
+    }
+
+    @Override
+    public List<AlterationCountByStructuralVariant> getStructuralVariantAlterationCounts(List<String> studyIds,
+                                                                                         List<String> sampleIds,
+                                                                                         AlterationFilter annotationFilters) {
+        List<MolecularProfileCaseIdentifier> caseIdentifiers =
+            molecularProfileService.getFirstStructuralVariantProfileCaseIdentifiers(studyIds, sampleIds);
+        return alterationCountService.getSampleStructuralVariantCounts(caseIdentifiers,
+            true,
+            false,
+            annotationFilters).getFirst();
     }
 
     private void annotateDataWithQValue(List<String> studyIds, List<AlterationCountByGene> alterationCountByGenes)
@@ -139,7 +155,7 @@ public class StudyViewServiceImpl implements StudyViewService {
         List<MolecularProfileCaseIdentifier> caseIdentifiers =
             molecularProfileService.getFirstDiscreteCNAProfileCaseIdentifiers(studyIds, sampleIds);
         Select<CNA> cnaTypes = Select.byValues(CNA_TYPES_AMP_AND_HOMDEL);
-        List<CopyNumberCountByGene> copyNumberCountByGenes = alterationCountService.getSampleCnaCounts(
+        List<CopyNumberCountByGene> copyNumberCountByGenes = alterationCountService.getSampleCnaGeneCounts(
             caseIdentifiers,
             Select.all(),
             true,
@@ -245,4 +261,5 @@ public class StudyViewServiceImpl implements StudyViewService {
             })
             .collect(Collectors.toList());
     }
+
 }

@@ -16,6 +16,7 @@ import org.cbioportal.service.util.ClinicalAttributeUtil;
 import org.cbioportal.web.config.annotation.InternalApi;
 import org.cbioportal.model.AlterationFilter;
 import org.cbioportal.web.parameter.*;
+import org.cbioportal.web.parameter.sort.ClinicalDataSortBy;
 import org.cbioportal.web.util.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cache.annotation.Cacheable;
@@ -85,8 +86,9 @@ public class StudyViewController {
     @Autowired
     private ClinicalDataBinUtil clinicalDataBinUtil;
     @Autowired
+    private AlterationCountService alterationCountService;
+    @Autowired
     private CustomDataService customDataService;
-    
     @Autowired
     private ClinicalEventService clinicalEventService;
 
@@ -287,7 +289,43 @@ public class StudyViewController {
         }
         return alterationCountByGenes;
     }
+    
+    @PreAuthorize("hasPermission(#involvedCancerStudies, 'Collection<CancerStudyId>', T(org.cbioportal.utils.security.AccessLevel).READ)")
+    @RequestMapping(value = "/structuralvariant-counts/fetch", method = RequestMethod.POST,
+        consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
+    @ApiOperation("Fetch structural variant genes by study view filter")
+    public ResponseEntity<List<AlterationCountByStructuralVariant>> fetchStructuralVariantCounts(
+        @ApiParam(required = true, value = "Study view filter")
+        @Valid @RequestBody(required = false) StudyViewFilter studyViewFilter,
+        @ApiIgnore // prevent reference to this attribute in the swagger-ui interface. This attribute is needed for the @PreAuthorize tag above.
+        @RequestAttribute(required = false, value = "involvedCancerStudies") Collection<String> involvedCancerStudies,
+        @ApiIgnore // prevent reference to this attribute in the swagger-ui interface.
+        @Valid @RequestAttribute(required = false, value = "interceptedStudyViewFilter") StudyViewFilter interceptedStudyViewFilter
+    ) throws StudyNotFoundException {
 
+        boolean singleStudyUnfiltered = studyViewFilterUtil.isSingleStudyUnfiltered(interceptedStudyViewFilter);
+        List<AlterationCountByStructuralVariant> alterationCountByStructuralVariants = 
+            instance.cacheableFetchStructuralVariantCounts(interceptedStudyViewFilter, singleStudyUnfiltered);
+        return new ResponseEntity<>(alterationCountByStructuralVariants, HttpStatus.OK);
+    }
+
+    @Cacheable(
+        cacheResolver = "staticRepositoryCacheOneResolver",
+        condition = "@cacheEnabledConfig.getEnabled() && #singleStudyUnfiltered"
+    )
+    public List<AlterationCountByStructuralVariant> cacheableFetchStructuralVariantCounts(
+        StudyViewFilter interceptedStudyViewFilter, boolean singleStudyUnfiltered
+    ) throws StudyNotFoundException {
+
+        List<SampleIdentifier> sampleIdentifiers = studyViewFilterApplier.apply(interceptedStudyViewFilter);
+        if(CollectionUtils.isNotEmpty(sampleIdentifiers)) {
+            List<String> studyIds = new ArrayList<>();
+            List<String> sampleIds = new ArrayList<>();
+            studyViewFilterUtil.extractStudyAndSampleIds(sampleIdentifiers, studyIds, sampleIds);
+            return studyViewService.getStructuralVariantAlterationCounts(studyIds, sampleIds, interceptedStudyViewFilter.getAlterationFilter());
+        }
+        return new ArrayList<>();
+    }
 
     @PreAuthorize("hasPermission(#involvedCancerStudies, 'Collection<CancerStudyId>', T(org.cbioportal.utils.security.AccessLevel).READ)")
     @RequestMapping(value = "/cna-genes/fetch", method = RequestMethod.POST,

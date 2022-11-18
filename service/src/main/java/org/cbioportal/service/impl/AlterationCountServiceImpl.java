@@ -132,6 +132,12 @@ public class AlterationCountServiceImpl implements AlterationCountService {
             alterationFilter
         );
     }
+    
+    @Override
+    public List<AlterationCountByStructuralVariant> getSampleStructuralVariantCounts(Set<MolecularProfileCaseIdentifier> molecularProfileCaseIdentifiers,
+                                                                                     AlterationFilter alterationFilter) {
+        return alterationRepository.getSampleStructuralVariantCounts(molecularProfileCaseIdentifiers, alterationFilter);
+    }
 
 // -- Should be reinstated when the legacy CNA count endpoint retires            
 //    @Override

@@ -4,6 +4,7 @@ import org.apache.commons.collections4.map.MultiKeyMap;
 import org.apache.commons.lang3.StringUtils;
 import org.cbioportal.model.*;
 import org.cbioportal.model.util.Select;
+import org.cbioportal.persistence.AlterationRepository;
 import org.cbioportal.service.*;
 import org.cbioportal.service.exception.MolecularProfileNotFoundException;
 import org.cbioportal.service.exception.StudyNotFoundException;
@@ -32,6 +33,9 @@ public class StudyViewServiceImpl implements StudyViewService {
     private SignificantCopyNumberRegionService significantCopyNumberRegionService;
     @Autowired
     private GenericAssayService genericAssayService;
+
+    @Autowired
+    private AlterationRepository alterationRepository;
 
     @Override
     public List<GenomicDataCount> getGenomicDataCounts(List<String> studyIds, List<String> sampleIds) {
@@ -245,4 +249,5 @@ public class StudyViewServiceImpl implements StudyViewService {
             })
             .collect(Collectors.toList());
     }
+
 }

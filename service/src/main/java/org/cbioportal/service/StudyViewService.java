@@ -20,4 +20,5 @@ public interface StudyViewService {
         throws StudyNotFoundException;
 
     List<GenericAssayDataCountItem> fetchGenericAssayDataCounts(List<String> sampleIds, List<String> studyIds, List<String> stableIds, List<String> profileTypes);
+
 }

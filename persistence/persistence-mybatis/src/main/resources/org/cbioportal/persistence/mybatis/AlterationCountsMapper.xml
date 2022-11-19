@@ -186,8 +186,8 @@
             INNER JOIN genetic_profile ON structural_variant.GENETIC_PROFILE_ID = genetic_profile.GENETIC_PROFILE_ID
             INNER JOIN sample ON structural_variant.SAMPLE_ID = sample.INTERNAL_ID
             INNER JOIN patient ON sample.PATIENT_ID = patient.INTERNAL_ID
-            INNER JOIN gene as gene1 ON structural_variant.SITE1_ENTREZ_GENE_ID = gene.ENTREZ_GENE_ID
-            INNER JOIN gene as gene2 ON structural_variant.SITE2_ENTREZ_GENE_ID = gene.ENTREZ_GENE_ID
+            INNER JOIN gene as gene1 ON structural_variant.SITE1_ENTREZ_GENE_ID = gene1.ENTREZ_GENE_ID
+            INNER JOIN gene as gene2 ON structural_variant.SITE2_ENTREZ_GENE_ID = gene2.ENTREZ_GENE_ID
         <where>
             <include refid="whereStructuralVariantStatus" />
             <include refid="caseFilter">

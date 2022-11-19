@@ -52,9 +52,11 @@ public class StructuralVariantMyBatisRepositoryTest {
     public void init() {
         molecularProfileIds = new ArrayList<>();
         molecularProfileIds.add("study_tcga_pub_sv");
-        molecularProfileIds.add("acc_tcga_mutations");
+        molecularProfileIds.add("study_tcga_pub_sv");
+        molecularProfileIds.add("acc_tcga_sv");
         sampleIds = new ArrayList<>();
         sampleIds.add("TCGA-A1-A0SB-01");
+        sampleIds.add("TCGA-A1-A0SD-01");
         sampleIds.add("TCGA-A1-B0SO-01");
         tiers = Select.all();
         includeUnknownTier = true;
@@ -67,11 +69,13 @@ public class StructuralVariantMyBatisRepositoryTest {
         
         GeneFilterQuery geneFilterQuery1 = new GeneFilterQuery("KIAA1549", 57670, null,
             includeDriver, includeVUS, includeUnknownOncogenicity, tiers, includeUnknownTier, includeGermline, includeSomatic, includeUnknownStatus);
-        GeneFilterQuery geneFilterQuery2 = new GeneFilterQuery("RET", 5979, null,
+        GeneFilterQuery geneFilterQuery2 = new GeneFilterQuery("TMPRSS2", 7113, null,
             includeDriver, includeVUS, includeUnknownOncogenicity, tiers, includeUnknownTier, includeGermline, includeSomatic, includeUnknownStatus);
-        GeneFilterQuery geneFilterQuery3 = new GeneFilterQuery("TMPRSS2", 7113, null,
+        GeneFilterQuery geneFilterQuery3 = new GeneFilterQuery("EML4", 27436, null,
             includeDriver, includeVUS, includeUnknownOncogenicity, tiers, includeUnknownTier, includeGermline, includeSomatic, includeUnknownStatus);
-        geneQueries =  Arrays.asList(geneFilterQuery1, geneFilterQuery2, geneFilterQuery3);
+        GeneFilterQuery geneFilterQuery4 = new GeneFilterQuery("NCOA4", 8031, null,
+            includeDriver, includeVUS, includeUnknownOncogenicity, tiers, includeUnknownTier, includeGermline, includeSomatic, includeUnknownStatus);
+        geneQueries =  Arrays.asList(geneFilterQuery1, geneFilterQuery2, geneFilterQuery3, geneFilterQuery4);
         
     }
 
@@ -101,7 +105,7 @@ public class StructuralVariantMyBatisRepositoryTest {
                 structuralVariantMyBatisRepository.fetchStructuralVariants(molecularProfileIds,
                     sampleIds, entrezGeneIds);
 
-        Assert.assertEquals(2,  result.size());
+        Assert.assertEquals(3,  result.size());
         StructuralVariant structuralVariantFirstResult = result.get(0);
         Assert.assertEquals("study_tcga_pub_sv", structuralVariantFirstResult.getMolecularProfileId());
         Assert.assertEquals((String) "TCGA-A1-A0SB-01", structuralVariantFirstResult.getSampleId());
@@ -183,7 +187,7 @@ public class StructuralVariantMyBatisRepositoryTest {
         Assert.assertEquals(null, structuralVariantSecondResult.getDriverFilterAnn());
         Assert.assertEquals(null, structuralVariantSecondResult.getDriverTiersFilter());
         Assert.assertEquals(null, structuralVariantSecondResult.getDriverTiersFilterAnn());
-        Assert.assertEquals("SOMATIC", structuralVariantSecondResult.getSvStatus());
+        Assert.assertEquals("GERMLINE", structuralVariantSecondResult.getSvStatus());
 
     }
 
@@ -221,7 +225,7 @@ public class StructuralVariantMyBatisRepositoryTest {
         entrezGeneIds.add(57670);
         molecularProfileIds.add("study_tcga_pub_sv");
         sampleIds.add("TCGA-A1-A0SB-01");
-        molecularProfileIds.add("acc_tcga_mutations");
+        molecularProfileIds.add("acc_tcga_sv");
         sampleIds.add("TCGA-A1-B0SO-01");
         
         List<StructuralVariant> result = 
@@ -230,7 +234,7 @@ public class StructuralVariantMyBatisRepositoryTest {
 
         Assert.assertEquals(2,  result.size());
         StructuralVariant structuralVariantFirstResult = result.get(0);
-        Assert.assertEquals("acc_tcga_mutations", structuralVariantFirstResult.getMolecularProfileId());
+        Assert.assertEquals("acc_tcga_sv", structuralVariantFirstResult.getMolecularProfileId());
         Assert.assertEquals((String) "TCGA-A1-B0SO-01", structuralVariantFirstResult.getSampleId());
         Assert.assertEquals((String) "TCGA-A1-B0SO", structuralVariantFirstResult.getPatientId());
         Assert.assertEquals((String) "acc_tcga", structuralVariantFirstResult.getStudyId());
@@ -248,18 +252,18 @@ public class StructuralVariantMyBatisRepositoryTest {
             structuralVariantMyBatisRepository.fetchStructuralVariantsByGeneQueries(molecularProfileIds,
                 sampleIds, geneQueries);
 
-        Assert.assertEquals(5,  result.size());
+        Assert.assertEquals(9,  result.size());
 
         List<String> resultTcgaPubVariants = result.stream()
             .filter(s -> "study_tcga_pub_sv".equals(s.getMolecularProfileId()))
             .map(StructuralVariant::getAnnotation)
             .collect(Collectors.toList());
         List<String> resultTcgaVariants = result.stream()
-            .filter(s -> "acc_tcga_mutations".equals(s.getMolecularProfileId()))
+            .filter(s -> "acc_tcga_sv".equals(s.getMolecularProfileId()))
             .map(StructuralVariant::getAnnotation)
             .collect(Collectors.toList());
         
-        Assert.assertArrayEquals(new String[] {"KIAA1549-BRAF.K16B10.COSF509", "NCOA4-RET.N7R1", "TMPRSS2-ERG.T1E2.COSF23.1"}, resultTcgaPubVariants.toArray());
+        Assert.assertArrayEquals(new String[] {"EML4-ALK.E6bA20.AB374362", "EML4-ALK.E6bA20.AB374362", "KIAA1549-BRAF.K16B10.COSF509", "KIAA1549-BRAF.K16B10.COSF509", "KIAA1549-BRAF.K16B10.COSF509", "NCOA4-RET.N7R1", "TMPRSS2-ERG.T1E2.COSF23.1"}, resultTcgaPubVariants.toArray());
         Assert.assertArrayEquals(new String[] {"KIAA1549-BRAF.K16B10.COSF509", "NCOA4-RET.N7R1"}, resultTcgaVariants.toArray());
     }
 
@@ -277,18 +281,20 @@ public class StructuralVariantMyBatisRepositoryTest {
             structuralVariantMyBatisRepository.fetchStructuralVariantsByGeneQueries(molecularProfileIds,
                 sampleIds, geneQueries);
 
-        Assert.assertEquals(4,  result.size());
+        Assert.assertEquals(8,  result.size());
 
         List<String> resultTcgaPubVariants = result.stream()
             .filter(s -> "study_tcga_pub_sv".equals(s.getMolecularProfileId()))
             .map(StructuralVariant::getAnnotation)
             .collect(Collectors.toList());
         List<String> resultTcgaVariants = result.stream()
-            .filter(s -> "acc_tcga_mutations".equals(s.getMolecularProfileId()))
+            .filter(s -> "acc_tcga_sv".equals(s.getMolecularProfileId()))
             .map(StructuralVariant::getAnnotation)
             .collect(Collectors.toList());
+            
+            
 
-        Assert.assertArrayEquals(new String[] {"NCOA4-RET.N7R1", "TMPRSS2-ERG.T1E2.COSF23.1"}, resultTcgaPubVariants.toArray());
+        Assert.assertArrayEquals(new String[] {"EML4-ALK.E6bA20.AB374362", "EML4-ALK.E6bA20.AB374362", "KIAA1549-BRAF.K16B10.COSF509", "KIAA1549-BRAF.K16B10.COSF509", "NCOA4-RET.N7R1", "TMPRSS2-ERG.T1E2.COSF23.1"}, resultTcgaPubVariants.toArray());
         Assert.assertArrayEquals(new String[] {"KIAA1549-BRAF.K16B10.COSF509", "NCOA4-RET.N7R1"}, resultTcgaVariants.toArray());
     }
 
@@ -307,18 +313,18 @@ public class StructuralVariantMyBatisRepositoryTest {
             structuralVariantMyBatisRepository.fetchStructuralVariantsByGeneQueries(molecularProfileIds,
                 sampleIds, geneQueries);
 
-        Assert.assertEquals(4,  result.size());
+        Assert.assertEquals(8,  result.size());
 
         List<String> resultTcgaPubVariants = result.stream()
             .filter(s -> "study_tcga_pub_sv".equals(s.getMolecularProfileId()))
             .map(StructuralVariant::getAnnotation)
             .collect(Collectors.toList());
         List<String> resultTcgaVariants = result.stream()
-            .filter(s -> "acc_tcga_mutations".equals(s.getMolecularProfileId()))
+            .filter(s -> "acc_tcga_sv".equals(s.getMolecularProfileId()))
             .map(StructuralVariant::getAnnotation)
             .collect(Collectors.toList());
 
-        Assert.assertArrayEquals(new String[] {"NCOA4-RET.N7R1", "TMPRSS2-ERG.T1E2.COSF23.1"}, resultTcgaPubVariants.toArray());
+        Assert.assertArrayEquals(new String[] {"EML4-ALK.E6bA20.AB374362", "EML4-ALK.E6bA20.AB374362", "KIAA1549-BRAF.K16B10.COSF509", "KIAA1549-BRAF.K16B10.COSF509", "NCOA4-RET.N7R1", "TMPRSS2-ERG.T1E2.COSF23.1"}, resultTcgaPubVariants.toArray());
         Assert.assertArrayEquals(new String[] {"KIAA1549-BRAF.K16B10.COSF509", "NCOA4-RET.N7R1"}, resultTcgaVariants.toArray());
     }
 
@@ -377,7 +383,6 @@ public class StructuralVariantMyBatisRepositoryTest {
     public void fetchStructuralVariantsMultiStudyByGeneQueriesWithSampleIdentifiersUnknownTier() throws Exception {
 
         // There is one passenger event that is 'Tier 1 annotated' in 'study_tcga_pub_sv', the rest is unannotated
-
         geneQueries.stream().forEach(
             q -> {
                 q.setSelectedTiers(Select.none());
@@ -388,18 +393,18 @@ public class StructuralVariantMyBatisRepositoryTest {
             structuralVariantMyBatisRepository.fetchStructuralVariantsByGeneQueries(molecularProfileIds,
                 sampleIds, geneQueries);
 
-        Assert.assertEquals(4,  result.size());
+        Assert.assertEquals(8,  result.size());
 
         List<String> resultTcgaPubVariants = result.stream()
             .filter(s -> "study_tcga_pub_sv".equals(s.getMolecularProfileId()))
             .map(StructuralVariant::getAnnotation)
             .collect(Collectors.toList());
         List<String> resultTcgaVariants = result.stream()
-            .filter(s -> "acc_tcga_mutations".equals(s.getMolecularProfileId()))
+            .filter(s -> "acc_tcga_sv".equals(s.getMolecularProfileId()))
             .map(StructuralVariant::getAnnotation)
             .collect(Collectors.toList());
 
-        Assert.assertArrayEquals(new String[] {"NCOA4-RET.N7R1", "TMPRSS2-ERG.T1E2.COSF23.1"}, resultTcgaPubVariants.toArray());
+        Assert.assertArrayEquals(new String[] {"EML4-ALK.E6bA20.AB374362", "EML4-ALK.E6bA20.AB374362", "KIAA1549-BRAF.K16B10.COSF509", "KIAA1549-BRAF.K16B10.COSF509", "NCOA4-RET.N7R1", "TMPRSS2-ERG.T1E2.COSF23.1"}, resultTcgaPubVariants.toArray());
         Assert.assertArrayEquals(new String[] {"KIAA1549-BRAF.K16B10.COSF509", "NCOA4-RET.N7R1"}, resultTcgaVariants.toArray());
     }
     

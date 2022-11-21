@@ -225,7 +225,7 @@ public class MafUtil {
         this.columnIndexMap = new HashMap<String, Integer>();
 
         // split header names
-        String parts[] = headerLine.split("\t");
+        String[] parts = headerLine.split("\t");
 
         // update header count
         this.headerCount = parts.length;

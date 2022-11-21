@@ -199,6 +199,11 @@
       <groupId>junit</groupId>
       <artifactId>junit</artifactId>
     </dependency>
+    <dependency>
+      <groupId>org.mskcc.cbio</groupId>
+      <artifactId>maf</artifactId>
+      <version>0-unknown-version-SNAPSHOT</version>
+    </dependency>
   </dependencies>
 
   <build>

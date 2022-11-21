@@ -331,6 +331,7 @@
     <module>db-scripts</module>
     <module>security</module>
     <module>utils</module>
+    <module>maf</module>
   </modules>
 
   <dependencies>

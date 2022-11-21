@@ -257,7 +257,7 @@ public class StudyViewController {
     @RequestMapping(value = "/structuralvariant-counts/fetch", method = RequestMethod.POST,
         consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
     @ApiOperation("Fetch structural variant genes by study view filter")
-    public ResponseEntity<List<AlterationCountByStructuralVariant>> fetchStructuralVariantGenesByEvent(
+    public ResponseEntity<List<AlterationCountByStructuralVariant>> fetchStructuralVariantCounts(
         @ApiParam(required = true, value = "Study view filter")
         @Valid @RequestBody(required = false) StudyViewFilter studyViewFilter,
         @ApiIgnore // prevent reference to this attribute in the swagger-ui interface. This attribute is needed for the @PreAuthorize tag above.

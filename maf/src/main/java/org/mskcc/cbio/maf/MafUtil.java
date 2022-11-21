@@ -32,15 +32,15 @@
 
 package org.mskcc.cbio.maf;
 
-import static org.mskcc.cbio.maf.ValueTypeUtil.isDouble;
-import static org.mskcc.cbio.maf.ValueTypeUtil.isFloat;
-import static org.mskcc.cbio.maf.ValueTypeUtil.isInt;
+import joptsimple.internal.Strings;
 
-
-import java.util.*;
+import java.util.HashMap;
+import java.util.Locale;
+import java.util.Map;
+import java.util.Set;
 import java.util.regex.Pattern;
 
-import joptsimple.internal.Strings;
+import static org.mskcc.cbio.maf.ValueTypeUtil.*;
 
 /**
  * Utility Class for Parsing MAF Files.

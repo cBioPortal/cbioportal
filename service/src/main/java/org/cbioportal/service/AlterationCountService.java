@@ -4,9 +4,7 @@ import org.apache.commons.math3.util.Pair;
 import org.cbioportal.model.*;
 import org.cbioportal.model.util.Select;
 
-import java.util.HashSet;
 import java.util.List;
-import java.util.Set;
 
 public interface AlterationCountService {
 
@@ -46,8 +44,8 @@ public interface AlterationCountService {
                                                                                   boolean includeMissingAlterationsFromGenePanel,
                                                                                   AlterationFilter alterationFilter);
 
-    List<AlterationCountByStructuralVariant> getSampleStructuralVariantCounts(Set<MolecularProfileCaseIdentifier> molecularProfileCaseIdentifiers,
-                                                                              AlterationFilter alterationFilter);
+    Pair<List<AlterationCountByStructuralVariant>, Long> getSampleStructuralVariantCounts(List<MolecularProfileCaseIdentifier> molecularProfileCaseIdentifiers,
+                                                                                          AlterationFilter alterationFilter);
 
 // Should be restored when old CNA count endpoint is retired
 //    Pair<List<AlterationCountByGene>, Long> getSampleCnaCounts(List<MolecularProfileCaseIdentifier> molecularProfileCaseIdentifiers,

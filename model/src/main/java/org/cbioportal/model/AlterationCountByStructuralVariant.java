@@ -1,18 +1,11 @@
 package org.cbioportal.model;
 
-import java.io.Serializable;
-import java.math.BigDecimal;
-import java.util.Set;
-
-public class AlterationCountByStructuralVariant implements Serializable {
+public class AlterationCountByStructuralVariant extends AlterationCountBase {
 
     private Integer gene1EntrezGeneId;
     private String gene1HugoGeneSymbol; 
     private Integer gene2EntrezGeneId;
     private String gene2HugoGeneSymbol;
-    private Integer numberOfAlteredCases;
-    private Integer totalCount;
-    private Integer numberOfProfiledCases;
     
     public Integer getGene1EntrezGeneId() {
         return gene1EntrezGeneId;
@@ -45,29 +38,5 @@ public class AlterationCountByStructuralVariant implements Serializable {
     public void setGene2HugoGeneSymbol(String gene2HugoGeneSymbol) {
         this.gene2HugoGeneSymbol = gene2HugoGeneSymbol;
     }
-
-    public Integer getNumberOfAlteredCases() {
-        return numberOfAlteredCases;
-    }
-
-    public void setNumberOfAlteredCases(Integer numberOfAlteredCases) {
-        this.numberOfAlteredCases = numberOfAlteredCases;
-    }
-
-    public Integer getTotalCount() {
-        return totalCount;
-    }
-
-    public void setTotalCount(Integer totalCount) {
-        this.totalCount = totalCount;
-    }
     
-    public Integer getNumberOfProfiledCases() {
-        return numberOfProfiledCases;
-    }
-
-    public void setNumberOfProfiledCases(Integer numberOfProfiledCases) {
-        this.numberOfProfiledCases = numberOfProfiledCases;
-    }
-
 }

@@ -132,11 +132,21 @@ public class AlterationCountServiceImpl implements AlterationCountService {
             alterationFilter
         );
     }
-    
+
     @Override
-    public List<AlterationCountByStructuralVariant> getSampleStructuralVariantCounts(Set<MolecularProfileCaseIdentifier> molecularProfileCaseIdentifiers,
-                                                                                     AlterationFilter alterationFilter) {
-        return alterationRepository.getSampleStructuralVariantCounts(molecularProfileCaseIdentifiers, alterationFilter);
+    public Pair<List<AlterationCountByStructuralVariant>, Long> getSampleStructuralVariantCounts(List<MolecularProfileCaseIdentifier> molecularProfileCaseIdentifiers,
+                                                                                                 AlterationFilter alterationFilter) {
+        Function<AlterationCountByStructuralVariant, String> keyGenerator = d -> d.getGene1HugoGeneSymbol() + "::" + d.getGene2HugoGeneSymbol();
+        Function<List<MolecularProfileCaseIdentifier>, List<AlterationCountByStructuralVariant>> dataFetcher = profileCaseIdentifiers ->
+            alterationRepository.getSampleStructuralVariantCounts(new TreeSet<>(profileCaseIdentifiers), alterationFilter);
+
+        return getAlterationGeneCounts(
+            molecularProfileCaseIdentifiers,
+            false,
+            dataFetcher,
+            null,
+            keyGenerator
+        );
     }
 
 // -- Should be reinstated when the legacy CNA count endpoint retires            
@@ -214,7 +224,9 @@ public class AlterationCountServiceImpl implements AlterationCountService {
             keyGenerator);
     }
 
-    private <S extends AlterationCountByGene> Pair<List<S>, Long> getAlterationGeneCounts(
+    // TODO The logic in this block of code is untested. Since this handles integration of gene panel
+    // counts, I think this is needed badly...
+    private <S extends AlterationCountBase> Pair<List<S>, Long> getAlterationGeneCounts(
         List<MolecularProfileCaseIdentifier> molecularProfileCaseIdentifiers,
         boolean includeFrequency,
         Function<List<MolecularProfileCaseIdentifier>, List<S>> dataFetcher,
@@ -242,6 +254,7 @@ public class AlterationCountServiceImpl implements AlterationCountService {
                 .collect(Collectors
                     .groupingBy(identifier -> molecularProfileIdStudyIdMap.get(identifier.getMolecularProfileId())))
                 .values()
+                // Retrieve counts for each molecular profile individually
                 .forEach(studyMolecularProfileCaseIdentifiers -> {
                     List<S> studyAlterationCountByGenes = dataFetcher.apply(studyMolecularProfileCaseIdentifiers);
                     if (includeFrequency) {

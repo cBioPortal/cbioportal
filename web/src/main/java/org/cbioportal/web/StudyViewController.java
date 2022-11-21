@@ -288,9 +288,9 @@ public class StudyViewController {
             List<String> studyIds = new ArrayList<>();
             List<String> sampleIds = new ArrayList<>();
             studyViewFilterUtil.extractStudyAndSampleIds(sampleIdentifiers, studyIds, sampleIds);
-            final Set<MolecularProfileCaseIdentifier> molecularProfileCaseIdentifiers = sampleIdentifiers.stream()
-                .map(s -> new MolecularProfileCaseIdentifier(s.getSampleId(), s.getStudyId())).collect(Collectors.toSet());
-            alterationCountByStructuralVariants = alterationCountService.getSampleStructuralVariantCounts(molecularProfileCaseIdentifiers, annotationFilters);
+            final List<MolecularProfileCaseIdentifier> molecularProfileCaseIdentifiers = sampleIdentifiers.stream()
+                .map(s -> new MolecularProfileCaseIdentifier(s.getSampleId(), s.getStudyId())).collect(Collectors.toList());
+            alterationCountByStructuralVariants = alterationCountService.getSampleStructuralVariantCounts(molecularProfileCaseIdentifiers, annotationFilters).getFirst();
         }
         return alterationCountByStructuralVariants;
     }

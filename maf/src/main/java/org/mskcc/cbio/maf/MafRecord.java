@@ -32,7 +32,7 @@
 
 package org.mskcc.cbio.maf;
 
-import java.util.*;
+import java.util.Map;
 
 /**
  * Encapsulates Details Regarding a Single MAF Record.

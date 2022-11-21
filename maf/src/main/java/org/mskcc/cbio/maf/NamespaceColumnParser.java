@@ -1,9 +1,7 @@
 package org.mskcc.cbio.maf;
 
 import com.fasterxml.jackson.databind.*;
-import org.mskcc.cbio.maf.*;
 
-import java.io.*;
 import java.util.*;
 
 import static org.mskcc.cbio.maf.ValueTypeUtil.isDouble;

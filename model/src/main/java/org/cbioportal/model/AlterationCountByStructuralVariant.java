@@ -13,9 +13,7 @@ public class AlterationCountByStructuralVariant implements Serializable {
     private Integer numberOfAlteredCases;
     private Integer totalCount;
     private Integer numberOfProfiledCases;
-    private BigDecimal qValue;
-    private Set<String> matchingGenePanelIds;
-
+    
     public Integer getGene1EntrezGeneId() {
         return gene1EntrezGeneId;
     }
@@ -72,19 +70,4 @@ public class AlterationCountByStructuralVariant implements Serializable {
         this.numberOfProfiledCases = numberOfProfiledCases;
     }
 
-    public BigDecimal getqValue() {
-        return qValue;
-    }
-
-    public void setqValue(BigDecimal qValue) {
-        this.qValue = qValue;
-    }
-
-    public Set<String> getMatchingGenePanelIds() {
-        return matchingGenePanelIds;
-    }
-
-    public void setMatchingGenePanelIds(Set<String> matchingGenePanelIds) {
-        this.matchingGenePanelIds = matchingGenePanelIds;
-    }
 }

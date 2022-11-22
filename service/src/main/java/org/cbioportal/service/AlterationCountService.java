@@ -45,6 +45,8 @@ public interface AlterationCountService {
                                                                                   AlterationFilter alterationFilter);
 
     Pair<List<AlterationCountByStructuralVariant>, Long> getSampleStructuralVariantCounts(List<MolecularProfileCaseIdentifier> molecularProfileCaseIdentifiers,
+                                                                                          boolean includeFrequency,
+                                                                                          boolean includeMissingAlterationsFromGenePanel,
                                                                                           AlterationFilter alterationFilter);
 
 // Should be restored when old CNA count endpoint is retired

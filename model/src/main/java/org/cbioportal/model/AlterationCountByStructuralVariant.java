@@ -38,5 +38,19 @@ public class AlterationCountByStructuralVariant extends AlterationCountBase {
     public void setGene2HugoGeneSymbol(String gene2HugoGeneSymbol) {
         this.gene2HugoGeneSymbol = gene2HugoGeneSymbol;
     }
-    
+
+    @Override
+    public String getUniqueEventKey() {
+        return gene1HugoGeneSymbol + "::" + gene2HugoGeneSymbol;
+    }
+
+    @Override
+    public String[] getHugoGeneSymbols() {
+        return new String[]{gene1HugoGeneSymbol, gene2HugoGeneSymbol};
+    }
+
+    @Override
+    public Integer[] getEntrezGeneIds() {
+        return new Integer[]{gene1EntrezGeneId, gene2EntrezGeneId};
+    }
 }

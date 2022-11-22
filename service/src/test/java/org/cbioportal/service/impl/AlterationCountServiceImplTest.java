@@ -32,6 +32,8 @@ public class AlterationCountServiceImplTest extends BaseServiceImplTest {
     private AlterationEnrichmentUtil<AlterationCountByGene> alterationEnrichmentUtil;
     @Mock
     private AlterationEnrichmentUtil<CopyNumberCountByGene> alterationEnrichmentUtilCna;
+    @Mock
+    private AlterationEnrichmentUtil<AlterationCountByStructuralVariant> alterationEnrichmentUtilStructVar;
     @Spy
     @InjectMocks
     private MolecularProfileUtil molecularProfileUtil;
@@ -219,9 +221,11 @@ public class AlterationCountServiceImplTest extends BaseServiceImplTest {
 
         Pair<List<AlterationCountByStructuralVariant>, Long> result = alterationCountService.getSampleStructuralVariantCounts(
             caseIdentifiers,
+            includeFrequency,
+            includeMissingAlterationsFromGenePanel,
             alterationFilter);
 
-        verify(alterationEnrichmentUtilCna, never()).includeFrequencyForSamples(anyList(), anyList(), anyBoolean());
+        verify(alterationEnrichmentUtilStructVar, times(1)).includeFrequencyForSamples(anyList(), anyList(), anyBoolean());
         Assert.assertEquals(expectedStructuralVariantList, result.getFirst());
 
     }

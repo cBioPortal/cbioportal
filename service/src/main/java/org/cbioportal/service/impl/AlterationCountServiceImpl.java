@@ -8,7 +8,6 @@ import org.cbioportal.persistence.AlterationRepository;
 import org.cbioportal.persistence.MolecularProfileRepository;
 import org.cbioportal.service.AlterationCountService;
 import org.cbioportal.service.util.AlterationEnrichmentUtil;
-import org.cbioportal.service.util.MolecularProfileUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -28,7 +27,7 @@ public class AlterationCountServiceImpl implements AlterationCountService {
     @Autowired
     private AlterationEnrichmentUtil<CopyNumberCountByGene> alterationEnrichmentUtilCna;
     @Autowired
-    private MolecularProfileUtil molecularProfileUtil;
+    private AlterationEnrichmentUtil<AlterationCountByStructuralVariant> alterationEnrichmentUtilStructVar;
     @Autowired
     private MolecularProfileRepository molecularProfileRepository;
 
@@ -45,14 +44,12 @@ public class AlterationCountServiceImpl implements AlterationCountService {
         BiFunction<List<MolecularProfileCaseIdentifier>, List<AlterationCountByGene>, Long> includeFrequencyFunction =
             (a, b) -> alterationEnrichmentUtil.includeFrequencyForSamples(a, b, includeMissingAlterationsFromGenePanel);
 
-        Function<AlterationCountByGene, String> keyGenerator = d -> d.getEntrezGeneId().toString();
-
         return getAlterationGeneCounts(
             molecularProfileCaseIdentifiers,
             includeFrequency,
             dataFetcher,
-            includeFrequencyFunction,
-            keyGenerator);
+            includeFrequencyFunction
+        );
     }
 
     @Override
@@ -68,14 +65,12 @@ public class AlterationCountServiceImpl implements AlterationCountService {
         BiFunction<List<MolecularProfileCaseIdentifier>, List<AlterationCountByGene>, Long> includeFrequencyFunction =
             (a, b) -> alterationEnrichmentUtil.includeFrequencyForPatients(a, b, includeMissingAlterationsFromGenePanel);
 
-        Function<AlterationCountByGene, String> keyGenerator = d -> d.getEntrezGeneId().toString();
-
         return getAlterationGeneCounts(
             molecularProfileCaseIdentifiers,
             includeFrequency,
             dataFetcher,
-            includeFrequencyFunction,
-            keyGenerator);
+            includeFrequencyFunction
+        );
     }
 
     @Override
@@ -135,18 +130,21 @@ public class AlterationCountServiceImpl implements AlterationCountService {
 
     @Override
     public Pair<List<AlterationCountByStructuralVariant>, Long> getSampleStructuralVariantCounts(List<MolecularProfileCaseIdentifier> molecularProfileCaseIdentifiers,
+                                                                                                 boolean includeFrequency,
+                                                                                                 boolean includeMissingAlterationsFromGenePanel,
                                                                                                  AlterationFilter alterationFilter) {
-        Function<AlterationCountByStructuralVariant, String> keyGenerator = d -> d.getGene1HugoGeneSymbol() + "::" + d.getGene2HugoGeneSymbol();
+                                                                                                 
         Function<List<MolecularProfileCaseIdentifier>, List<AlterationCountByStructuralVariant>> dataFetcher = profileCaseIdentifiers ->
             alterationRepository.getSampleStructuralVariantCounts(new TreeSet<>(profileCaseIdentifiers), alterationFilter);
 
-        // TODO I do not understand how to calulate the gene panel counts.
+        BiFunction<List<MolecularProfileCaseIdentifier>, List<AlterationCountByStructuralVariant>, Long> includeFrequencyFunction =
+            (a, b) -> alterationEnrichmentUtilStructVar.includeFrequencyForSamples(a, b, includeMissingAlterationsFromGenePanel);
+            
         return getAlterationGeneCounts(
             molecularProfileCaseIdentifiers,
-            false,
+            includeFrequency,
             dataFetcher,
-            null,
-            keyGenerator
+            includeFrequencyFunction
         );
     }
 
@@ -198,8 +196,8 @@ public class AlterationCountServiceImpl implements AlterationCountService {
             molecularProfileCaseIdentifiers,
             includeFrequency,
             dataFetcher,
-            includeFrequencyFunction,
-            keyGenerator);
+            includeFrequencyFunction
+        );
     }
 
     @Override
@@ -221,8 +219,8 @@ public class AlterationCountServiceImpl implements AlterationCountService {
             molecularProfileCaseIdentifiers,
             includeFrequency,
             dataFetcher,
-            includeFrequencyFunction,
-            keyGenerator);
+            includeFrequencyFunction
+        );
     }
 
     // TODO The logic in this block of code is untested. Since this handles integration of gene panel
@@ -231,8 +229,7 @@ public class AlterationCountServiceImpl implements AlterationCountService {
         List<MolecularProfileCaseIdentifier> molecularProfileCaseIdentifiers,
         boolean includeFrequency,
         Function<List<MolecularProfileCaseIdentifier>, List<S>> dataFetcher,
-        BiFunction<List<MolecularProfileCaseIdentifier>, List<S>, Long> includeFrequencyFunction,
-        Function<S, String> keyGenerator) {
+        BiFunction<List<MolecularProfileCaseIdentifier>, List<S>, Long> includeFrequencyFunction) {
 
         List<S> alterationCountByGenes;
         AtomicReference<Long> profiledCasesCount = new AtomicReference<>(0L);
@@ -263,7 +260,7 @@ public class AlterationCountServiceImpl implements AlterationCountService {
                         profiledCasesCount.updateAndGet(v -> v + studyProfiledCasesCount);
                     }
                     studyAlterationCountByGenes.forEach(datum -> {
-                        String key = keyGenerator.apply(datum);
+                        String key = datum.getUniqueEventKey();
                         if (totalResult.containsKey(key)) {
                             S alterationCountByGene = totalResult.get(key);
                             alterationCountByGene.setTotalCount(alterationCountByGene.getTotalCount() + datum.getTotalCount());

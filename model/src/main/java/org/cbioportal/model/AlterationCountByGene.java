@@ -41,4 +41,19 @@ public class AlterationCountByGene extends AlterationCountBase {
         this.qValue = qValue;
     }
 
+    @Override
+    public String getUniqueEventKey() {
+        return hugoGeneSymbol;
+    }
+
+    @Override
+    public String[] getHugoGeneSymbols() {
+        return new String[]{hugoGeneSymbol};
+    }
+
+    @Override
+    public Integer[] getEntrezGeneIds() {
+        return new Integer[]{entrezGeneId};
+    }
+
 }

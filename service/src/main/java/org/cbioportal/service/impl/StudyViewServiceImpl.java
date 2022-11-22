@@ -120,6 +120,8 @@ public class StudyViewServiceImpl implements StudyViewService {
         List<MolecularProfileCaseIdentifier> caseIdentifiers =
             molecularProfileService.getFirstStructuralVariantProfileCaseIdentifiers(studyIds, sampleIds);
         return alterationCountService.getSampleStructuralVariantCounts(caseIdentifiers,
+            true,
+            false,
             annotationFilters).getFirst();
     }
 

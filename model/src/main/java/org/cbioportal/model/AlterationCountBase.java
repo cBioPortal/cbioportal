@@ -41,4 +41,11 @@ public abstract class AlterationCountBase implements Serializable {
     public void setMatchingGenePanelIds(Set<String> matchingGenePanelIds) {
         this.matchingGenePanelIds = matchingGenePanelIds;
     }
+    
+    public abstract String getUniqueEventKey();
+    
+    public abstract String[] getHugoGeneSymbols();
+    
+    public abstract Integer[] getEntrezGeneIds();
+
 }

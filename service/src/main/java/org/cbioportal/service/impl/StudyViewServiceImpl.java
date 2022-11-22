@@ -113,6 +113,16 @@ public class StudyViewServiceImpl implements StudyViewService {
         return alterationCountByGenes;
     }
 
+    @Override
+    public List<AlterationCountByStructuralVariant> getStructuralVariantAlterationCounts(List<String> studyIds,
+                                                                                         List<String> sampleIds,
+                                                                                         AlterationFilter annotationFilters) {
+        List<MolecularProfileCaseIdentifier> caseIdentifiers =
+            molecularProfileService.getFirstStructuralVariantProfileCaseIdentifiers(studyIds, sampleIds);
+        return alterationCountService.getSampleStructuralVariantCounts(caseIdentifiers,
+            annotationFilters).getFirst();
+    }
+
     private void annotateDataWithQValue(List<String> studyIds, List<AlterationCountByGene> alterationCountByGenes)
         throws StudyNotFoundException {
         Set<String> distinctStudyIds = new HashSet<>(studyIds);

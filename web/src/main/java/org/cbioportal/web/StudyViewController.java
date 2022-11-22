@@ -279,20 +279,15 @@ public class StudyViewController {
     public List<AlterationCountByStructuralVariant> cacheableFetchStructuralVariantCounts(
         StudyViewFilter interceptedStudyViewFilter, boolean singleStudyUnfiltered
     ) throws StudyNotFoundException {
-        AlterationFilter annotationFilters = interceptedStudyViewFilter.getAlterationFilter();
 
         List<SampleIdentifier> sampleIdentifiers = studyViewFilterApplier.apply(interceptedStudyViewFilter);
-        List<AlterationCountByStructuralVariant> alterationCountByStructuralVariants = new ArrayList<>();
         if(CollectionUtils.isNotEmpty(sampleIdentifiers)) {
-            
             List<String> studyIds = new ArrayList<>();
             List<String> sampleIds = new ArrayList<>();
             studyViewFilterUtil.extractStudyAndSampleIds(sampleIdentifiers, studyIds, sampleIds);
-            final List<MolecularProfileCaseIdentifier> molecularProfileCaseIdentifiers = sampleIdentifiers.stream()
-                .map(s -> new MolecularProfileCaseIdentifier(s.getSampleId(), s.getStudyId())).collect(Collectors.toList());
-            alterationCountByStructuralVariants = alterationCountService.getSampleStructuralVariantCounts(molecularProfileCaseIdentifiers, annotationFilters).getFirst();
+            return studyViewService.getStructuralVariantAlterationCounts(studyIds, sampleIds, interceptedStudyViewFilter.getAlterationFilter());
         }
-        return alterationCountByStructuralVariants;
+        return new ArrayList<>();
     }
 
     @PreAuthorize("hasPermission(#involvedCancerStudies, 'Collection<CancerStudyId>', T(org.cbioportal.utils.security.AccessLevel).READ)")

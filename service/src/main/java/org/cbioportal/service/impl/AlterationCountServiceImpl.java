@@ -140,6 +140,7 @@ public class AlterationCountServiceImpl implements AlterationCountService {
         Function<List<MolecularProfileCaseIdentifier>, List<AlterationCountByStructuralVariant>> dataFetcher = profileCaseIdentifiers ->
             alterationRepository.getSampleStructuralVariantCounts(new TreeSet<>(profileCaseIdentifiers), alterationFilter);
 
+        // TODO I do not understand how to calulate the gene panel counts.
         return getAlterationGeneCounts(
             molecularProfileCaseIdentifiers,
             false,

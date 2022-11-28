@@ -70,8 +70,11 @@ public final class DaoCnaEvent {
                 || 
                 (cnaEvent.getDriverTiersFilter() != null
                 && !cnaEvent.getDriverTiersFilter().isEmpty()
-                && !cnaEvent.getDriverTiersFilter().toLowerCase().equals("na"))) {
-                MySQLbulkLoader.getMySQLbulkLoader("alteration_driver_annotation").insertRecord(
+                && !cnaEvent.getDriverTiersFilter().toLowerCase().equals("na"))
+            ) {
+                    MySQLbulkLoader
+                        .getMySQLbulkLoader("alteration_driver_annotation")
+                        .insertRecord(
                     Long.toString(eventId),
                     Integer.toString(cnaEvent.getCnaProfileId()),
                     Integer.toString(cnaEvent.getSampleId()),

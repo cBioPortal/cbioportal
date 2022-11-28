@@ -150,7 +150,7 @@ public class TestImportTabDelimData {
         ProgressMonitor.setConsoleMode(false);
 		// TBD: change this to use getResourceAsStream()
         File file = new File("src/test/resources/cna_test.txt");
-        ImportTabDelimData parser = new ImportTabDelimData(file, "Barry", geneticProfileId, null);
+        ImportTabDelimData parser = new ImportTabDelimData(file, "Barry", geneticProfileId, null, DaoGeneticAlteration.getInstance());
         int numLines = FileUtil.getNumLines(file);
         parser.importData(numLines);
 
@@ -215,7 +215,7 @@ public class TestImportTabDelimData {
         ProgressMonitor.setConsoleMode(false);
 		// TBD: change this to use getResourceAsStream()
         File file = new File("src/test/resources/cna_test2.txt");
-        ImportTabDelimData parser = new ImportTabDelimData(file, geneticProfileId, null);
+        ImportTabDelimData parser = new ImportTabDelimData(file, geneticProfileId, null, DaoGeneticAlteration.getInstance());
         int numLines = FileUtil.getNumLines(file);
         parser.importData(numLines);
 
@@ -300,7 +300,7 @@ public class TestImportTabDelimData {
 		// TBD: change this to use getResourceAsStream()
         File file = new File("src/test/resources/mrna_test.txt");
         addTestPatientAndSampleRecords(file);
-        ImportTabDelimData parser = new ImportTabDelimData(file, newGeneticProfileId, null);
+        ImportTabDelimData parser = new ImportTabDelimData(file, newGeneticProfileId, null, DaoGeneticAlteration.getInstance());
         int numLines = FileUtil.getNumLines(file);
         parser.importData(numLines);
         ConsoleUtil.showMessages();
@@ -354,7 +354,7 @@ public class TestImportTabDelimData {
 		// TBD: change this to use getResourceAsStream()
         File file = new File("src/test/resources/tabDelimitedData/data_expression2.txt");
         addTestPatientAndSampleRecords(file);
-        ImportTabDelimData parser = new ImportTabDelimData(file, newGeneticProfileId, null);
+        ImportTabDelimData parser = new ImportTabDelimData(file, newGeneticProfileId, null, DaoGeneticAlteration.getInstance());
         int numLines = FileUtil.getNumLines(file);
         parser.importData(numLines);
         
@@ -447,7 +447,7 @@ public class TestImportTabDelimData {
 		// TBD: change this to use getResourceAsStream()
         File file = new File("src/test/resources/tabDelimitedData/data_rppa.txt");
         addTestPatientAndSampleRecords(file);
-        ImportTabDelimData parser = new ImportTabDelimData(file, newGeneticProfileId, null);
+        ImportTabDelimData parser = new ImportTabDelimData(file, newGeneticProfileId, null, DaoGeneticAlteration.getInstance());
         int numLines = FileUtil.getNumLines(file);
         parser.importData(numLines);
         ConsoleUtil.showMessages();

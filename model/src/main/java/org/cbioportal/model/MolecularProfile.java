@@ -27,6 +27,14 @@ public class MolecularProfile implements Serializable {
         GENESET_SCORE,
         GENERIC_ASSAY
     }
+    
+    public enum DataType {
+        DISCRETE;
+    }
+
+    public enum ImportType {
+        DISCRETE_LONG;
+    }
 
     private Integer molecularProfileId;
     @NotNull

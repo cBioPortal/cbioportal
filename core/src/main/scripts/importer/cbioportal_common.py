@@ -45,6 +45,7 @@ class MetaFileTypes(object):
     SAMPLE_ATTRIBUTES = 'meta_clinical_sample'
     PATIENT_ATTRIBUTES = 'meta_clinical_patient'
     CNA_DISCRETE = 'meta_CNA'
+    CNA_DISCRETE_LONG = 'meta_CNA_long'
     CNA_LOG2 = 'meta_log2CNA'
     CNA_CONTINUOUS = 'meta_contCNA'
     SEG = 'meta_segment'
@@ -112,6 +113,18 @@ META_FIELD_MAP = {
         'data_filename': True,
         'gene_panel': False,
         'pd_annotations_filename': False
+    },
+    MetaFileTypes.CNA_DISCRETE_LONG: {
+        'cancer_study_identifier': True,
+        'genetic_alteration_type': True,
+        'datatype': True,
+        'stable_id': True,
+        'show_profile_in_analysis_tab': True,
+        'profile_name': True,
+        'profile_description': True,
+        'data_filename': True,
+        'gene_panel': False,
+        'namespaces': False
     },
     MetaFileTypes.CNA_LOG2: {
         'cancer_study_identifier': True,
@@ -343,6 +356,7 @@ IMPORTER_CLASSNAME_BY_META_TYPE = {
     MetaFileTypes.SAMPLE_ATTRIBUTES: "org.mskcc.cbio.portal.scripts.ImportClinicalData",
     MetaFileTypes.PATIENT_ATTRIBUTES: "org.mskcc.cbio.portal.scripts.ImportClinicalData",
     MetaFileTypes.CNA_DISCRETE: "org.mskcc.cbio.portal.scripts.ImportProfileData",
+    MetaFileTypes.CNA_DISCRETE_LONG: "org.mskcc.cbio.portal.scripts.ImportProfileData",
     MetaFileTypes.CNA_LOG2: "org.mskcc.cbio.portal.scripts.ImportProfileData",
     MetaFileTypes.CNA_CONTINUOUS: "org.mskcc.cbio.portal.scripts.ImportProfileData",
     MetaFileTypes.SEG: "org.mskcc.cbio.portal.scripts.ImportCopyNumberSegmentData",
@@ -617,6 +631,7 @@ def get_meta_file_type(meta_dictionary, logger, filename):
         ("PROTEIN_LEVEL", "CONTINUOUS"): MetaFileTypes.PROTEIN,
         # cna
         ("COPY_NUMBER_ALTERATION", "DISCRETE"): MetaFileTypes.CNA_DISCRETE,
+        ("COPY_NUMBER_ALTERATION", "DISCRETE_LONG"): MetaFileTypes.CNA_DISCRETE_LONG,
         ("COPY_NUMBER_ALTERATION", "CONTINUOUS"): MetaFileTypes.CNA_CONTINUOUS,
         ("COPY_NUMBER_ALTERATION", "LOG2-VALUE"): MetaFileTypes.CNA_LOG2,
         ("COPY_NUMBER_ALTERATION", "SEG"): MetaFileTypes.SEG,

@@ -3,21 +3,22 @@
 
 <mapper namespace="org.cbioportal.persistence.mybatis.ClinicalDataMapper">
     
-
     <sql id="selectSample">
         clinical_sample.INTERNAL_ID AS "${prefix}internalId",
         sample.STABLE_ID AS "${prefix}sampleId",
         patient.STABLE_ID AS "${prefix}patientId",
         clinical_sample.ATTR_ID AS "${prefix}attrId",
         cancer_study.CANCER_STUDY_IDENTIFIER AS "${prefix}studyId"
-        <if test="projection == 'SUMMARY' || projection == 'DETAILED'">
-            , clinical_sample.ATTR_VALUE AS "${prefix}attrValue"
-        </if>
-        <if test="projection == 'DETAILED'">
-            ,
-            <include refid="org.cbioportal.persistence.mybatis.ClinicalAttributeMapper.select">
-                <property name="prefix" value="${prefix}clinicalAttribute."/>
-            </include>
+        <if test="_parameter.containsKey('projection')">
+            <if test="projection == 'SUMMARY' || projection == 'DETAILED'">
+                , clinical_sample.ATTR_VALUE AS "${prefix}attrValue"
+            </if>
+            <if test="projection == 'DETAILED'">
+                ,
+                <include refid="org.cbioportal.persistence.mybatis.ClinicalAttributeMapper.select">
+                    <property name="prefix" value="${prefix}clinicalAttribute."/>
+                </include>
+            </if>
         </if>
     </sql>
 
@@ -26,16 +27,18 @@
         patient.STABLE_ID AS "${prefix}patientId",
         clinical_patient.ATTR_ID AS "${prefix}attrId",
         cancer_study.CANCER_STUDY_IDENTIFIER AS "${prefix}studyId"
-        <if test="projection == 'SUMMARY' || projection == 'DETAILED'">
-            , clinical_patient.ATTR_VALUE AS "${prefix}attrValue"
+        <if test="_parameter.containsKey('projection')">
+            <if test="projection == 'SUMMARY' || projection == 'DETAILED'">
+                , clinical_patient.ATTR_VALUE AS "${prefix}attrValue"
+            </if>
+            <if test="projection == 'DETAILED'">
+                ,
+                <include refid="org.cbioportal.persistence.mybatis.ClinicalAttributeMapper.select">
+                    <property name="prefix" value="${prefix}clinicalAttribute."/>
+                </include>
+            </if>
         </if>
-        <if test="projection == 'DETAILED'">
-            ,
-            <include refid="org.cbioportal.persistence.mybatis.ClinicalAttributeMapper.select">
-                <property name="prefix" value="${prefix}clinicalAttribute."/>
-            </include>
-        </if>
-    </sql>
+     </sql>
 
     <sql id="fromSample">
         FROM clinical_sample
@@ -56,21 +59,23 @@
                 cancer_study.CANCER_STUDY_IDENTIFIER = #{studyIds[0]}
             </if>
             <if test="sampleIds != null">
-                <if test="@java.util.Arrays@stream(studyIds.toArray()).distinct().count() == 1">
-                    cancer_study.CANCER_STUDY_IDENTIFIER = #{studyIds[0]} AND
-                    sample.STABLE_ID IN
-                    <foreach item="item" collection="sampleIds" open="(" separator="," close=")">
-                        #{item}
-                    </foreach>
-                </if>
-                <if test="@java.util.Arrays@stream(studyIds.toArray()).distinct().count() > 1">
-                    (cancer_study.CANCER_STUDY_IDENTIFIER, sample.STABLE_ID) IN
-                    <foreach index="i" collection="sampleIds" open="(" separator="," close=")">
-                        (#{studyIds[${i}]}, #{sampleIds[${i}]})
-                    </foreach>
-                </if>
+                <choose>
+                    <when test="studyIds.stream().distinct().count() == 1">
+                        cancer_study.CANCER_STUDY_IDENTIFIER = #{studyIds[0]} AND
+                        sample.STABLE_ID IN
+                        <foreach item="item" collection="sampleIds" open="(" separator="," close=")">
+                            #{item}
+                        </foreach>
+                    </when>
+                    <otherwise>
+                        (cancer_study.CANCER_STUDY_IDENTIFIER, sample.STABLE_ID) IN
+                        <foreach index="i" collection="sampleIds" open="(" separator="," close=")">
+                            (#{studyIds[${i}]}, #{sampleIds[${i}]})
+                        </foreach>
+                    </otherwise>
+                </choose>
             </if>
-            <if test="attributeIds != null">
+            <if test="_parameter.containsKey('attributeIds') and attributeIds != null">
                 AND clinical_sample.ATTR_ID IN
                 <foreach item="item" collection="attributeIds" open="(" separator="," close=")">
                     #{item}
@@ -85,21 +90,23 @@
                 cancer_study.CANCER_STUDY_IDENTIFIER = #{studyIds[0]}
             </if>
             <if test="patientIds != null">
-                <if test="@java.util.Arrays@stream(studyIds.toArray()).distinct().count() == 1">
-                    cancer_study.CANCER_STUDY_IDENTIFIER = #{studyIds[0]} AND
-                    patient.STABLE_ID IN
-                    <foreach item="item" collection="patientIds" open="(" separator="," close=")">
-                        #{item}
-                    </foreach>
-                </if>
-                <if test="@java.util.Arrays@stream(studyIds.toArray()).distinct().count() > 1">
-                    (cancer_study.CANCER_STUDY_IDENTIFIER, patient.STABLE_ID) IN
-                    <foreach index="i" collection="patientIds" open="(" separator="," close=")">
-                        (#{studyIds[${i}]}, #{patientIds[${i}]})
-                    </foreach>
-                </if>
+                <choose>
+                    <when test="studyIds.stream().distinct().count() == 1">
+                        cancer_study.CANCER_STUDY_IDENTIFIER = #{studyIds[0]} AND
+                        patient.STABLE_ID IN
+                        <foreach item="item" collection="patientIds" open="(" separator="," close=")">
+                            #{item}
+                        </foreach>
+                    </when>
+                    <otherwise>
+                        (cancer_study.CANCER_STUDY_IDENTIFIER, patient.STABLE_ID) IN
+                        <foreach index="i" collection="patientIds" open="(" separator="," close=")">
+                            (#{studyIds[${i}]}, #{patientIds[${i}]})
+                        </foreach>
+                    </otherwise>
+                </choose>
             </if>
-            <if test="attributeIds != null">
+            <if test="_parameter.containsKey('attributeIds') and attributeIds != null">
                 AND clinical_patient.ATTR_ID IN
                 <foreach item="item" collection="attributeIds" open="(" separator="," close=")">
                     #{item}
@@ -120,7 +127,7 @@
             INNER JOIN type_of_cancer ON cancer_study.TYPE_OF_CANCER_ID = type_of_cancer.TYPE_OF_CANCER_ID
         </if>
         <include refid="whereSample"/>
-        <if test="sortBy != null and projection != 'ID'">
+        <if test="_parameter.containsKey('sortBy') and sortBy != null and projection != 'ID'">
             ORDER BY ${sortBy} ${direction}
         </if>
         <if test="projection == 'ID'">
@@ -150,7 +157,7 @@
             INNER JOIN type_of_cancer ON cancer_study.TYPE_OF_CANCER_ID = type_of_cancer.TYPE_OF_CANCER_ID
         </if>
         <include refid="wherePatient"/>
-        <if test="sortBy != null and projection != 'ID'">
+        <if test="_parameter.containsKey('sortBy') and sortBy != null and projection != 'ID'">
             ORDER BY ${sortBy} ${direction}
         </if>
         <if test="projection == 'ID'">
@@ -175,7 +182,7 @@
             INNER JOIN type_of_cancer ON cancer_study.TYPE_OF_CANCER_ID = type_of_cancer.TYPE_OF_CANCER_ID
         </if>
         <include refid="wherePatient"/>
-        <if test="sortBy != null and projection != 'ID'">
+        <if test="_parameter.containsKey('sortBy') and sortBy != null and projection != 'ID'">
             ORDER BY ${sortBy} ${direction}
         </if>
         <if test="projection == 'ID'">
@@ -214,4 +221,37 @@
         GROUP BY clinical_patient.ATTR_ID, clinical_patient.ATTR_VALUE
     </select>
 
+    <select id="getSampleClinicalDataClinicalTable" resultType="org.cbioportal.model.ClinicalData">
+        SELECT
+        <include refid="selectSample">
+            <property name="prefix" value=""/>
+        </include>
+        <include refid="fromSample"/>
+        <include refid="whereSampleSearchAndPagination"/>
+    </select>
+
+    <sql id="whereSampleSearchAndPagination">
+        INNER JOIN
+        (SELECT DISTINCT clinical_sample.INTERNAL_ID
+            <if test="_parameter.containsKey('sortBy') and sortBy != null">
+                , clinical_sample.ATTR_ID, clinical_sample.ATTR_VALUE
+            </if>
+            <include refid="fromSample"/>
+            <include refid="whereSample"/>
+            <if test="_parameter.containsKey('searchTerm') and searchTerm != null and not searchTerm.isBlank()">
+                AND
+                clinical_sample.ATTR_VALUE LIKE CONCAT('%','${searchTerm}', '%')
+            </if>
+            <if test="_parameter.containsKey('sortBy') and sortBy != null">
+                AND 
+                clinical_sample.ATTR_ID = '${sortBy}'
+                ORDER BY clinical_sample.ATTR_VALUE ${direction}
+            </if>
+            <if test="_parameter.containsKey('limit') and limit != null and limit != 0">
+                LIMIT #{limit} OFFSET #{offset}
+            </if>
+        ) as sample_id_subquery
+        ON clinical_sample.INTERNAL_ID = sample_id_subquery.INTERNAL_ID
+    </sql>
+    
 </mapper>

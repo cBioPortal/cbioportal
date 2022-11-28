@@ -6,10 +6,9 @@ import io.swagger.annotations.ApiParam;
 
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.math.NumberUtils;
-import org.apache.commons.math3.analysis.function.Gaussian;
+import org.apache.commons.lang3.tuple.ImmutablePair;
 import org.apache.commons.math3.stat.correlation.PearsonsCorrelation;
 import org.apache.commons.math3.stat.correlation.SpearmansCorrelation;
-import org.apache.commons.math3.stat.descriptive.rank.Percentile;
 import org.cbioportal.model.*;
 import org.cbioportal.service.*;
 import org.cbioportal.service.exception.StudyNotFoundException;
@@ -17,6 +16,7 @@ import org.cbioportal.service.util.ClinicalAttributeUtil;
 import org.cbioportal.web.config.annotation.InternalApi;
 import org.cbioportal.model.AlterationFilter;
 import org.cbioportal.web.parameter.*;
+import org.cbioportal.web.parameter.sort.ClinicalDataSortBy;
 import org.cbioportal.web.util.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cache.annotation.Cacheable;
@@ -25,7 +25,6 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
-import org.springframework.security.core.parameters.P;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.RequestAttribute;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -37,16 +36,22 @@ import springfox.documentation.annotations.ApiIgnore;
 
 import javax.annotation.PostConstruct;
 import javax.validation.Valid;
+import javax.validation.constraints.Max;
+import javax.validation.constraints.Min;
 import java.math.BigDecimal;
 import java.util.*;
 import java.util.function.Function;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 @InternalApi
 @RestController
 @Validated
 @Api(tags = "Study View", description = " ")
 public class StudyViewController {
+
+    public static final int CLINICAL_TAB_MAX_PAGE_SIZE = 1000000;
+    
     @Autowired
     private ApplicationContext applicationContext;
     StudyViewController instance;
@@ -79,8 +84,6 @@ public class StudyViewController {
     private StudyViewService studyViewService;
     @Autowired
     private ClinicalDataBinUtil clinicalDataBinUtil;
-    @Autowired
-    private MolecularProfileService molecularProfileService;
 
     @PreAuthorize("hasPermission(#involvedCancerStudies, 'Collection<CancerStudyId>', T(org.cbioportal.utils.security.AccessLevel).READ)")
     @RequestMapping(value = "/clinical-data-counts/fetch", method = RequestMethod.POST,
@@ -837,5 +840,70 @@ public class StudyViewController {
             @Valid @RequestAttribute(required = false, value = "interceptedGenericAssayDataBinCountFilter") GenericAssayDataBinCountFilter interceptedGenericAssayDataBinCountFilter) {
 
         return new ResponseEntity<>(studyViewFilterApplier.getDataBins(dataBinMethod, interceptedGenericAssayDataBinCountFilter), HttpStatus.OK);
+    }
+    
+    @PreAuthorize("hasPermission(#involvedCancerStudies, 'Collection<CancerStudyId>', T(org.cbioportal.utils.security.AccessLevel).READ)")
+    @RequestMapping(value = "/clinical-data-table/fetch", method = RequestMethod.POST,
+        consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
+    @ApiOperation("Fetch clinical data for the Clinical Tab of Study View")
+    public ResponseEntity<ClinicalDataCollection> fetchClinicalDataClinicalTable(
+        @ApiParam(required = true, value = "Study view filter")
+        @Valid @RequestBody(required = false) StudyViewFilter studyViewFilter,
+        @ApiIgnore // prevent reference to this attribute in the swagger-ui interface
+        @RequestAttribute(required = false, value = "involvedCancerStudies") Collection<String> involvedCancerStudies,
+        @ApiIgnore // prevent reference to this attribute in the swagger-ui interface. this attribute is needed for the @PreAuthorize tag above.
+        @Valid @RequestAttribute(required = false, value = "interceptedStudyViewFilter") StudyViewFilter interceptedStudyViewFilter,
+        @ApiParam("Page size of the result list")
+        @Max(CLINICAL_TAB_MAX_PAGE_SIZE)
+        @Min(PagingConstants.NO_PAGING_PAGE_SIZE)
+        @RequestParam(defaultValue = PagingConstants.DEFAULT_NO_PAGING_PAGE_SIZE) Integer pageSize,
+        @ApiParam("Page number of the result list")
+        @Min(PagingConstants.MIN_PAGE_NUMBER)
+        @RequestParam(defaultValue = PagingConstants.DEFAULT_PAGE_NUMBER) Integer pageNumber,
+        @ApiParam("Search term to filter sample rows. Samples are returned " +
+            "with a partial match to the search term for any sample clinical attribute.")
+        @RequestParam(defaultValue = "") String searchTerm,
+        @ApiParam("Name of the property that the result list is sorted by")
+        @RequestParam(required = false) ClinicalDataSortBy sortBy,
+        @ApiParam("Direction of the sort")
+        @RequestParam(defaultValue = "ASC") Direction direction) {
+
+        List<String> sampleStudyIds = new ArrayList<>();
+        List<String> sampleIds = new ArrayList<>();
+        List<SampleIdentifier> filteredSampleIdentifiers = studyViewFilterApplier.apply(interceptedStudyViewFilter);
+        studyViewFilterUtil.extractStudyAndSampleIds(filteredSampleIdentifiers, sampleStudyIds, sampleIds);
+        
+        List<ClinicalData> sampleClinicalData = clinicalDataService.fetchSampleClinicalDataClinicalTable(
+            sampleStudyIds,
+            sampleIds,
+            pageSize,
+            pageNumber,
+            searchTerm,
+            sortBy != null ? sortBy.getOriginalValue() : null,
+            direction.name());
+            
+        // Return empty when possible.
+        if (sampleClinicalData.isEmpty()) {
+            return new ResponseEntity<>(new ClinicalDataCollection(), HttpStatus.OK);
+        }
+
+        // Resolve for which patient clinical data should be included.
+        final List<ImmutablePair<String, String>> patientIdentifiers = sampleClinicalData.stream()
+            .map(d -> new ImmutablePair<>(d.getStudyId(), d.getPatientId()))
+            .distinct()
+            .collect(Collectors.toList());
+        List<String> patientStudyIds = patientIdentifiers.stream().map(p -> p.getLeft()).collect(Collectors.toList());
+        List<String> patientIds = patientIdentifiers.stream().map(p -> p.getRight()).collect(Collectors.toList());
+        
+        
+        List<String> searchAllAttributes = null;
+        final List<ClinicalData> patientClinicalData = clinicalDataService.fetchClinicalData(patientStudyIds, patientIds,
+            searchAllAttributes, ClinicalDataType.PATIENT.name(), Projection.SUMMARY.name());
+
+        final ClinicalDataCollection clinicalDataCollection = new ClinicalDataCollection();
+        clinicalDataCollection.setSampleClinicalData(sampleClinicalData);
+        clinicalDataCollection.setPatientClinicalData(patientClinicalData);
+
+        return new ResponseEntity<>(clinicalDataCollection, HttpStatus.OK);
     }
 }

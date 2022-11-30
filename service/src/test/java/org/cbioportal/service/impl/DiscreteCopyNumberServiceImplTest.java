@@ -65,6 +65,64 @@ public class DiscreteCopyNumberServiceImplTest extends BaseServiceImplTest {
     }
 
     @Test
+    public void getDiscreteCopyNumbersWithAnnotationJson() {
+        List<DiscreteCopyNumberData> returned = Arrays.asList(
+            discreteCopyNumberData("sample1", "study1", -2),
+            discreteCopyNumberData("sample2", "study2", 2)
+        );
+        returned.get(0).setAnnotationJson("{\"columnName\":{\"fieldName\":\"fieldValue\"}}");
+        List<String> profiles = Arrays.asList("profile1", "profile2");
+        List<String> samples = Arrays.asList("sample1", "sample2");
+        List<Integer> geneIds = Arrays.asList(0, 1);
+        List<Integer> alterationTypes = Arrays.asList(-2, 2);
+        
+        Mockito.when(discreteCopyNumberRepository.getDiscreteCopyNumbersInMultipleMolecularProfiles(
+                profiles,
+                samples,
+                geneIds,
+                alterationTypes,
+                PROJECTION
+            ))
+            .thenReturn(
+                returned
+            );
+
+        List<DiscreteCopyNumberData> actual = discreteCopyNumberService.getDiscreteCopyNumbersInMultipleMolecularProfiles(
+            profiles, samples, geneIds, alterationTypes, PROJECTION
+        );
+        
+        Assert.assertEquals(toStrings(returned), toStrings(actual));
+    }
+    @Test
+    public void getDiscreteCopyNumbersWithoutAnnotationJson() {
+        List<DiscreteCopyNumberData> returned = Arrays.asList(
+            discreteCopyNumberData("sample1", "study1", -2),
+            discreteCopyNumberData("sample2", "study2", 2)
+        );
+        List<String> profiles = Arrays.asList("profile1", "profile2");
+        List<String> samples = Arrays.asList("sample1", "sample2");
+        List<Integer> geneIds = Arrays.asList(0, 1);
+        List<Integer> alterationTypes = Arrays.asList(-2, 2);
+        
+        Mockito.when(discreteCopyNumberRepository.getDiscreteCopyNumbersInMultipleMolecularProfiles(
+                profiles,
+                samples,
+                geneIds,
+                alterationTypes,
+                PROJECTION
+            ))
+            .thenReturn(
+                returned
+            );
+
+        List<DiscreteCopyNumberData> actual = discreteCopyNumberService.getDiscreteCopyNumbersInMultipleMolecularProfiles(
+            profiles, samples, geneIds, alterationTypes, PROJECTION
+        );
+        Assert.assertNull(returned.get(0).getAnnotationJson());
+        Assert.assertEquals(toStrings(returned), toStrings(actual));
+    }
+
+    @Test
     public void getDiscreteCopyNumbersInMultipleMolecularProfilesAllAlterationTypes() {
         List<GeneMolecularData> returned = Arrays.asList(
             geneMolecularData("sample1", "study1", "-2"),

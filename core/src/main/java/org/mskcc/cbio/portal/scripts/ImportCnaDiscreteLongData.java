@@ -47,7 +47,8 @@ public class ImportCnaDiscreteLongData {
     private CnaUtil cnaUtil;
     private Set<CnaEvent.Event> existingCnaEvents = new HashSet<>();
     private int samplesSkipped = 0;
-
+    private Set<String> namespaces;
+    
     private final ArrayList<SampleIdGeneticProfileId> sampleIdGeneticProfileIds = new ArrayList<>();
 
     public ImportCnaDiscreteLongData(
@@ -55,8 +56,10 @@ public class ImportCnaDiscreteLongData {
         int geneticProfileId,
         String genePanel,
         DaoGeneOptimized daoGene,
-        DaoGeneticAlteration daoGeneticAlteration
+        DaoGeneticAlteration daoGeneticAlteration,
+        Set<String> namespaces
     ) {
+        this.namespaces = namespaces;
         this.cnaFile = cnaFile;
         this.geneticProfileId = geneticProfileId;
         this.genePanel = genePanel;
@@ -71,7 +74,8 @@ public class ImportCnaDiscreteLongData {
         // Pass first line with headers to util:
         String line = buf.readLine();
         int lineIndex = 1;
-        this.cnaUtil = new CnaUtil(line);
+        String[] headerParts = line.split("\t", -1);
+        this.cnaUtil = new CnaUtil(headerParts, this.namespaces);
 
         GeneticProfile geneticProfile = DaoGeneticProfile.getGeneticProfileById(geneticProfileId);
 
@@ -147,6 +151,8 @@ public class ImportCnaDiscreteLongData {
         long entrezId = gene.getEntrezGeneId();
         int sampleId = sample.getInternalId();
         CnaEventImportData eventContainer = new CnaEventImportData();
+        eventContainer.cnaEvent = cnaUtil.createEvent(geneticProfile, sample.getInternalId(), lineParts);
+        
         Table<Long, Integer, CnaEventImportData> geneBySampleEventTable = importContainer.eventsTable;
 
         if (!geneBySampleEventTable.contains(entrezId, sample.getInternalId())) {
@@ -155,7 +161,6 @@ public class ImportCnaDiscreteLongData {
             ProgressMonitor.logWarning(format("Skipping line %d with duplicate gene %d and sample %d", lineIndex, entrezId, sampleId));
         }
 
-        eventContainer.geneticEvent = cnaUtil.createEvent(geneticProfile, sample.getInternalId(), lineParts);
     }
 
     /**
@@ -166,8 +171,8 @@ public class ImportCnaDiscreteLongData {
             .row(entrezId)
             .values()
             .stream()
-            .filter(v -> v.geneticEvent != null)
-            .map(v -> v.geneticEvent)
+            .filter(v -> v.cnaEvent != null)
+            .map(v -> v.cnaEvent)
             .collect(Collectors.toList());
         CnaUtil.storeCnaEvents(existingCnaEvents, events);
     }
@@ -180,9 +185,9 @@ public class ImportCnaDiscreteLongData {
             .row(entrezId)
             .values()
             .stream()
-            .filter(v -> v.geneticEvent != null)
+            .filter(v -> v.cnaEvent != null)
             .map(v -> "" + v
-                .geneticEvent
+                .cnaEvent
                 .getAlteration()
                 .getCode()
             )
@@ -324,7 +329,7 @@ public class ImportCnaDiscreteLongData {
     
     private class CnaEventImportData {
         public int line;
-        public CnaEvent geneticEvent;
+        public CnaEvent cnaEvent;
         public String geneSymbol;
     }
 

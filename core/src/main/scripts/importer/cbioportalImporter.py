@@ -102,7 +102,7 @@ def remove_study_id(jvm_args, study_id):
     run_java(*args)
 
 
-def import_study_data(jvm_args, meta_filename, data_filename, update_generic_assay_entity, meta_file_dictionary = None):
+def import_study_data(jvm_args, meta_filename, data_filename, update_generic_assay_entity = None, meta_file_dictionary = None):
     args = jvm_args.split(' ')
 
     # In case the meta file is already parsed in a previous function, it is not
@@ -238,6 +238,7 @@ def process_directory(jvm_args, study_directory, update_generic_assay_entity = N
     gsva_score_filepair = None
     gsva_pvalue_filepair = None
     structural_variant_filepair = None
+    cna_long_filepair = None
 
     # Determine meta filenames in study directory
     meta_filenames = (
@@ -327,6 +328,9 @@ def process_directory(jvm_args, study_directory, update_generic_assay_entity = N
         elif meta_file_type == MetaFileTypes.STRUCTURAL_VARIANT:
             structural_variant_filepair = (
                 (meta_filename, os.path.join(study_directory, meta_dictionary['data_filename'])))
+        elif meta_file_type == MetaFileTypes.CNA_DISCRETE_LONG:
+            cna_long_filepair = (
+                (meta_filename, os.path.join(study_directory, meta_dictionary['data_filename'])))
         # Add all other types of data
         else:
             regular_filepairs.append(
@@ -371,6 +375,12 @@ def process_directory(jvm_args, study_directory, update_generic_assay_entity = N
     if structural_variant_filepair is not None:
         meta_filename, data_filename = structural_variant_filepair
         import_study_data(jvm_args, meta_filename, data_filename, update_generic_assay_entity, study_meta_dictionary[meta_filename])
+
+    # Import cna data
+    if cna_long_filepair is not None:
+        meta_filename, data_filename = cna_long_filepair
+        import_study_data(jvm_args=jvm_args, meta_filename=meta_filename, data_filename=data_filename,
+                          meta_file_dictionary=study_meta_dictionary[meta_filename])
 
     # Import expression z-score (after expression)
     for meta_filename, data_filename in zscore_filepairs:

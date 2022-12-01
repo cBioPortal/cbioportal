@@ -23,6 +23,8 @@
 
 package org.cbioportal.model;
 
+import com.fasterxml.jackson.annotation.*;
+import io.swagger.annotations.*;
 import org.cbioportal.model.UniqueKeyBase;
 
 import java.io.Serializable;
@@ -75,6 +77,10 @@ public class StructuralVariant extends UniqueKeyBase implements Serializable {
     private String driverTiersFilter;
     private String driverTiersFilterAnn;
     private String svStatus;
+
+    @JsonRawValue
+    @ApiModelProperty(dataType = "java.util.Map")
+    private String annotationJson;
 
     public String getMolecularProfileId() {
         return molecularProfileId;
@@ -444,4 +450,11 @@ public class StructuralVariant extends UniqueKeyBase implements Serializable {
         this.site2RegionNumber = site2RegionNumber;
     }
 
+    public String getAnnotationJson() {
+        return annotationJson;
+    }
+
+    public void setAnnotationJson(String annotationJson) {
+        this.annotationJson = annotationJson;
+    }
 }

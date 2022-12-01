@@ -7,3 +7,4 @@ profile_name: Targeted Fusion Assay data (Fake data)
 profile_description: Targeted Fusion Assay data created by The Hyve
 show_profile_in_analysis_tab: true
 gene_panel: TESTPANEL1
+namespaces: StructVarNs,StructVarNs2

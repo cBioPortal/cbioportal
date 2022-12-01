@@ -327,6 +327,7 @@ META_FIELD_MAP = {
         'profile_description': True,
         'data_filename': True,
         'gene_panel': False,
+        'namespaces': False
     },
     MetaFileTypes.SAMPLE_RESOURCES: {
         'cancer_study_identifier': True,

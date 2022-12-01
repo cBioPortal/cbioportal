@@ -83,6 +83,7 @@ public class StructuralVariant {
     private String driverFilterAnn;
     private String driverTiersFilter;
     private String driverTiersFilterAnn;
+    private String annotationJson;
 
     public long getInternalId() {
         return internalId;
@@ -460,4 +461,11 @@ public class StructuralVariant {
         this.driverTiersFilterAnn = driverTiersFilterAnn;
     }
 
+    public String getAnnotationJson() {
+        return annotationJson;
+    }
+
+    public void setAnnotationJson(String annotationJson) {
+        this.annotationJson = annotationJson;
+    }
 }

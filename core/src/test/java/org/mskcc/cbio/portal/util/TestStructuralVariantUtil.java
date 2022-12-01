@@ -8,7 +8,7 @@ import org.mskcc.cbio.portal.model.StructuralVariant;
  * @author ochoaa
  */
 public class TestStructuralVariantUtil {
-    private StructuralVariantUtil structuralVariantUtil = new StructuralVariantUtil();
+    private StructuralVariantUtil structuralVariantUtil = new StructuralVariantUtil("", null);
 
     @Test
     public void testValidStructuralVariantRecordWithCompleteGeneTranscriptInfo() {

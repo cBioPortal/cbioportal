@@ -2,17 +2,22 @@ package org.cbioportal.web.util;
 
 import java.util.*;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.collections4.map.MultiKeyMap;
+import org.cbioportal.model.BaseAlterationFilter;
 import org.cbioportal.model.ClinicalData;
 import org.cbioportal.model.ClinicalDataBin;
 import org.cbioportal.model.ClinicalDataCount;
 import org.cbioportal.model.ClinicalDataCountItem;
 import org.cbioportal.model.DataBin;
-import org.cbioportal.model.MolecularProfile;
+import org.cbioportal.model.Gene;
+import org.cbioportal.model.GeneFilterQuery;
 import org.cbioportal.model.Patient;
 import org.cbioportal.model.SampleList;
+import org.cbioportal.model.StructVarFilterQuery;
+import org.cbioportal.service.GeneService;
 import org.cbioportal.service.util.MolecularProfileUtil;
 import org.cbioportal.web.parameter.*;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -22,6 +27,9 @@ import org.springframework.stereotype.Component;
 public class StudyViewFilterUtil {
     @Autowired
     private MolecularProfileUtil molecularProfileUtil;
+
+    @Autowired
+    private GeneService geneService;
     
     public void extractStudyAndSampleIds(List<SampleIdentifier> sampleIdentifiers, List<String> studyIds, List<String> sampleIds) {
         for (SampleIdentifier sampleIdentifier : sampleIdentifiers) {
@@ -251,6 +259,58 @@ public class StudyViewFilterUtil {
         return combinedResult;
     }
     
+    public List<GeneFilterQuery> cleanQueryGeneIds(List<GeneFilterQuery> geneQueries) {
+        List<String> hugoGeneSymbols = geneQueries
+            .stream()
+            .map(GeneFilterQuery::getHugoGeneSymbol)
+            .collect(Collectors.toList());
+
+        Map<String, Integer> symbolToEntrezGeneId = getStringIntegerMap(hugoGeneSymbols);
+
+        geneQueries.removeIf(
+            q -> !symbolToEntrezGeneId.containsKey(q.getHugoGeneSymbol())
+        );
+
+        geneQueries.stream().forEach(
+            q -> q.setEntrezGeneId(symbolToEntrezGeneId.get(q.getHugoGeneSymbol()))
+        );
+        
+        return geneQueries;
+    }
+
+    private Map<String, Integer> getStringIntegerMap(List<String> hugoGeneSymbols) {
+        Map<String, Integer> symbolToEntrezGeneId = geneService
+            .fetchGenes(new ArrayList<>(hugoGeneSymbols),
+                GeneIdType.HUGO_GENE_SYMBOL.name(), Projection.SUMMARY.name())
+            .stream()
+            .collect(Collectors.toMap(Gene::getHugoGeneSymbol, Gene::getEntrezGeneId));
+        return symbolToEntrezGeneId;
+    }
+
+    public List<StructVarFilterQuery> cleanSvQueryGeneIds(List<StructVarFilterQuery> structVarQueries) {
+    
+        List<String> hugoGeneSymbols = structVarQueries
+            .stream()
+            .flatMap(q -> Stream.of(q.getGene1HugoGeneSymbol(), q.getGene2HugoGeneSymbol()))
+            .collect(Collectors.toList());
+
+        Map<String, Integer> symbolToEntrezGeneId = getStringIntegerMap(hugoGeneSymbols);
+
+        structVarQueries.removeIf(
+            q -> !symbolToEntrezGeneId.containsKey(q.getGene1HugoGeneSymbol())
+                || !symbolToEntrezGeneId.containsKey(q.getGene2HugoGeneSymbol())
+        );
+
+        structVarQueries.stream().forEach(
+            q -> {
+                q.setGene1EntrezGeneId(symbolToEntrezGeneId.get(q.getGene1HugoGeneSymbol()));
+                q.setGene2EntrezGeneId(symbolToEntrezGeneId.get(q.getGene2HugoGeneSymbol()));
+            }
+        );
+        
+        return structVarQueries;
+    }
+    
     private List<ClinicalData> filterClinicalDataByStudyAndSampleAndAttribute(
         List<ClinicalData> clinicalData,
         Map<String, String> sampleToStudyId,
@@ -307,4 +367,5 @@ public class StudyViewFilterUtil {
     private String generateCaseToStudyKey(String studyId, String caseId) {
         return studyId + ":" + caseId;
     }
+    
 }

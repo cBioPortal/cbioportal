@@ -24,6 +24,7 @@
 package org.cbioportal.persistence.mybatis;
 
 import org.cbioportal.model.GeneFilterQuery;
+import org.cbioportal.model.StructVarFilterQuery;
 import org.cbioportal.model.StructuralVariant;
 import org.cbioportal.persistence.StructuralVariantRepository;
 import org.cbioportal.persistence.mybatis.util.MolecularProfileCaseIdentifierUtil;
@@ -62,5 +63,12 @@ public class StructuralVariantMyBatisRepository implements StructuralVariantRepo
                                                                         List<String> sampleIds,
                                                                         List<GeneFilterQuery> geneQueries) {
         return structuralVariantMapper.fetchStructuralVariantsByGeneQueries(molecularProfileIds, sampleIds, geneQueries);
+    }
+
+    @Override
+    public List<StructuralVariant> fetchStructuralVariantsByStructVarQueries(List<String> molecularProfileIds,
+                                                                             List<String> sampleIds,
+                                                                             List<StructVarFilterQuery> structVarQueries) {
+        return structuralVariantMapper.fetchStructuralVariantsByStructVarQueries(molecularProfileIds, sampleIds, structVarQueries);
     }
 }

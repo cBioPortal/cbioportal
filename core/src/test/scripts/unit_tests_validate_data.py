@@ -1973,8 +1973,9 @@ class StructuralVariantValidationTestCase(PostClinicalDataFileTestCase):
         """Test whether the required fields are present"""
         self.logger.setLevel(logging.ERROR)
         record_list = self.validate('data_structural_variants_missing_columns.txt',
-                                    validateData.StructuralVariantValidator)
-        self.assertEqual(3, len(record_list))
+                                    validateData.StructuralVariantValidator,
+                                    extra_meta_fields={'namespaces': 'MyNamespace'})
+        self.assertEqual(4, len(record_list))
         record_iterator = iter(record_list)
 
         # Expected ERROR message due to missing SV_Status column
@@ -1982,6 +1983,12 @@ class StructuralVariantValidationTestCase(PostClinicalDataFileTestCase):
         self.assertEqual(logging.ERROR, record.levelno)
         self.assertEqual(1, record.line_number)
         self.assertEqual('Missing column: SV_Status', record.message)
+
+        # Expected ERROR message due to no columns having the namespace defined in the meta file
+        record = next(record_iterator)
+        self.assertEqual(logging.ERROR, record.levelno)
+        self.assertEqual('mynamespace namespace defined but the file does not have any matching columns', 
+                         record.message)
 
         # Expected ERROR message due to missing Entrez gene id and Hugo symbol column
         record = next(record_iterator)

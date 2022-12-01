@@ -3103,7 +3103,7 @@ class SegValidator(Validator):
         # meanwhile adding up the number of (non-overlapping) bases covered on
         # that chromosome in that patient.
 
-class StructuralVariantValidator(Validator):
+class StructuralVariantValidator(CustomNamespacesValidator):
 
     """Basic validation for structural variant data. Validates:
 

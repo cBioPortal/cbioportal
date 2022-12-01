@@ -79,8 +79,8 @@ public class StructuralVariantMyBatisRepositoryTest {
         geneQueries =  Arrays.asList(geneFilterQuery1, geneFilterQuery2, geneFilterQuery3, geneFilterQuery4);
 
         // Only search for the KIAA..-BRAF and EML4-ALK fusions.
-        structVarFilterQuery1 = new StructVarFilterQuery("KIAA1549", 57670, "BRAF", 673, includeDriver, includeVUS, includeUnknownOncogenicity, tiers, includeUnknownTier, includeGermline, includeSomatic, includeUnknownStatus);
-        structVarFilterQuery2 = new StructVarFilterQuery("EML4", 27436, "ALK", 238, includeDriver, includeVUS, includeUnknownOncogenicity, tiers, includeUnknownTier, includeGermline, includeSomatic, includeUnknownStatus);
+        structVarFilterQuery1 = new StructVarFilterQuery("KIAA1549", "BRAF", includeDriver, includeVUS, includeUnknownOncogenicity, tiers, includeUnknownTier, includeGermline, includeSomatic, includeUnknownStatus);
+        structVarFilterQuery2 = new StructVarFilterQuery("EML4", "ALK", includeDriver, includeVUS, includeUnknownOncogenicity, tiers, includeUnknownTier, includeGermline, includeSomatic, includeUnknownStatus);
         structVarQueries = Arrays.asList(structVarFilterQuery1, structVarFilterQuery2);
     }
 

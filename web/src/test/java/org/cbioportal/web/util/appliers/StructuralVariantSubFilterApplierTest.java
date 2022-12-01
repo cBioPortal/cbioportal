@@ -120,7 +120,7 @@ public class StructuralVariantSubFilterApplierTest {
     }
     
     private StructVarFilterQuery createQuery(String gene1, String gene2) {
-        return new StructVarFilterQuery(gene1, null, gene2, null,
+        return new StructVarFilterQuery(gene1, gene2,
             true, true, true, Select.all(),
             true, true, true, true);
     }

@@ -15,7 +15,7 @@ import org.cbioportal.model.GeneFilter;
 import org.cbioportal.web.parameter.filter.*;
 
 @JsonIgnoreProperties(ignoreUnknown = true)
-@JsonInclude(Include.NON_NULL)
+@JsonInclude(Include.ALWAYS)
 public class StudyViewFilter implements Serializable {
 
     @Size(min = 1)

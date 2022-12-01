@@ -6,7 +6,6 @@ import java.util.stream.Stream;
 
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.collections4.map.MultiKeyMap;
-import org.cbioportal.model.BaseAlterationFilter;
 import org.cbioportal.model.ClinicalData;
 import org.cbioportal.model.ClinicalDataBin;
 import org.cbioportal.model.ClinicalDataCount;
@@ -287,24 +286,35 @@ public class StudyViewFilterUtil {
         return symbolToEntrezGeneId;
     }
 
+    // TODO write test.
     public List<StructVarFilterQuery> cleanSvQueryGeneIds(List<StructVarFilterQuery> structVarQueries) {
     
         List<String> hugoGeneSymbols = structVarQueries
             .stream()
             .flatMap(q -> Stream.of(q.getGene1HugoGeneSymbol(), q.getGene2HugoGeneSymbol()))
+            .filter(structVarIdentifier -> structVarIdentifier.getGeneId() != null)
+            .map(structVarIdentifier -> structVarIdentifier.getGeneId())
             .collect(Collectors.toList());
 
         Map<String, Integer> symbolToEntrezGeneId = getStringIntegerMap(hugoGeneSymbols);
 
         structVarQueries.removeIf(
-            q -> !symbolToEntrezGeneId.containsKey(q.getGene1HugoGeneSymbol())
-                || !symbolToEntrezGeneId.containsKey(q.getGene2HugoGeneSymbol())
+            q -> !symbolToEntrezGeneId.containsKey(q.getGene1HugoGeneSymbol().getGeneId())
+                || !symbolToEntrezGeneId.containsKey(q.getGene2HugoGeneSymbol().getGeneId())
         );
 
         structVarQueries.stream().forEach(
             q -> {
-                q.setGene1EntrezGeneId(symbolToEntrezGeneId.get(q.getGene1HugoGeneSymbol()));
-                q.setGene2EntrezGeneId(symbolToEntrezGeneId.get(q.getGene2HugoGeneSymbol()));
+                q.setGene1EntrezGeneId(
+                    symbolToEntrezGeneId.getOrDefault(
+                        q.getGene1HugoGeneSymbol().getGeneId(),
+                        null
+                ));
+                q.setGene2EntrezGeneId(
+                    symbolToEntrezGeneId.getOrDefault(
+                        q.getGene2HugoGeneSymbol().getGeneId(),
+                        null
+                ));           
             }
         );
         

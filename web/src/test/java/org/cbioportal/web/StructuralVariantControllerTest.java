@@ -44,7 +44,7 @@ import org.springframework.http.MediaType;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import org.springframework.test.context.web.WebAppConfiguration;
-import org.springframework.test.web.servlet.MockMvc;
+import org.springframework.test.web.servlet.*;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
@@ -107,6 +107,7 @@ public class StructuralVariantControllerTest {
     private static final String TEST_DRIVER_TIERS_FILTER_1 = "test_driver_tiers_filter_1";
     private static final String TEST_DRIVER_TIERS_FILTER_ANN_1 = "test_driver_tiers_filter_ann_1";
     private static final String TEST_SV_STATUS = "SOMATIC";
+    private static final String TEST_ANNOTATION_JSON_1 = "{\"columnName\":{\"fieldName\":\"fieldValue\"}}";
 
     @Autowired
     private WebApplicationContext wac;
@@ -210,57 +211,58 @@ public class StructuralVariantControllerTest {
                 .accept(MediaType.parseMediaType("application/json;charset=UTF-8"))
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(objectMapper.writeValueAsString(structuralVariantFilter)))
-                .andExpect(MockMvcResultMatchers.status().isOk())
-                .andExpect(MockMvcResultMatchers.content().contentType(MediaType.parseMediaType("application/json;charset=UTF-8")))
-                .andExpect(MockMvcResultMatchers.jsonPath("$", Matchers.hasSize(1)))
-                .andExpect(MockMvcResultMatchers.jsonPath("$[0].molecularProfileId").value(TEST_GENETIC_PROFILE_STABLE_ID_1))
-                .andExpect(MockMvcResultMatchers.jsonPath("$[0].sampleId").value(TEST_SAMPLE_ID_1))
-                .andExpect(MockMvcResultMatchers.jsonPath("$[0].patientId").value(TEST_PATIENT_ID_1))
-                .andExpect(MockMvcResultMatchers.jsonPath("$[0].studyId").value(TEST_STUDY_ID_1))
-                .andExpect(MockMvcResultMatchers.jsonPath("$[0].uniqueSampleKey").value(TEST_UNIQUE_SAMPLE_KEY_1))
-                .andExpect(MockMvcResultMatchers.jsonPath("$[0].uniquePatientKey").value(TEST_UNIQUE_PATIENT_KEY_1))
-                .andExpect(MockMvcResultMatchers.jsonPath("$[0].site1EntrezGeneId").value((int) TEST_SITE1_ENTREZ_GENE_ID_1))
-                .andExpect(MockMvcResultMatchers.jsonPath("$[0].site1HugoSymbol").value(TEST_SITE1_HUGO_SYMBOL_1))
-                .andExpect(MockMvcResultMatchers.jsonPath("$[0].site1EnsemblTranscriptId").value(TEST_SITE1_ENSEMBL_TRANSCRIPT_ID_1))
-                .andExpect(MockMvcResultMatchers.jsonPath("$[0].site1Chromosome").value(TEST_SITE1_CHROMOSOME_1))
-                .andExpect(MockMvcResultMatchers.jsonPath("$[0].site1Region").value(TEST_SITE1_REGION))
-                .andExpect(MockMvcResultMatchers.jsonPath("$[0].site1RegionNumber").value(TEST_SITE1_REGION_NUMBER))
-                .andExpect(MockMvcResultMatchers.jsonPath("$[0].site1Contig").value(TEST_SITE1_CONTIG))
-                .andExpect(MockMvcResultMatchers.jsonPath("$[0].site1Position").value(TEST_SITE1_POSITION_1))
-                .andExpect(MockMvcResultMatchers.jsonPath("$[0].site1Description").value(TEST_SITE1_DESCRIPTION_1))
-                .andExpect(MockMvcResultMatchers.jsonPath("$[0].site2EntrezGeneId").value((int) TEST_SITE2_ENTREZ_GENE_ID_1))
-                .andExpect(MockMvcResultMatchers.jsonPath("$[0].site2HugoSymbol").value(TEST_SITE2_HUGO_SYMBOL_1))
-                .andExpect(MockMvcResultMatchers.jsonPath("$[0].site2EnsemblTranscriptId").value(TEST_SITE2_ENSEMBL_TRANSCRIPT_ID_1))
-                .andExpect(MockMvcResultMatchers.jsonPath("$[0].site2Chromosome").value(TEST_SITE2_CHROMOSOME_1))
-                .andExpect(MockMvcResultMatchers.jsonPath("$[0].site2Region").value(TEST_SITE2_REGION))
-                .andExpect(MockMvcResultMatchers.jsonPath("$[0].site2RegionNumber").value(TEST_SITE2_REGION_NUMBER))
-                .andExpect(MockMvcResultMatchers.jsonPath("$[0].site2Contig").value(TEST_SITE2_CONTIG))
-                .andExpect(MockMvcResultMatchers.jsonPath("$[0].site2Position").value(TEST_SITE2_POSITION_1))
-                .andExpect(MockMvcResultMatchers.jsonPath("$[0].site2Description").value(TEST_SITE2_DESCRIPTION_1))
-                .andExpect(MockMvcResultMatchers.jsonPath("$[0].site2EffectOnFrame").value(TEST_SITE2_EFFECT_ON_FRAME_1))
-                .andExpect(MockMvcResultMatchers.jsonPath("$[0].ncbiBuild").value(TEST_NCBI_BUILD_1))
-                .andExpect(MockMvcResultMatchers.jsonPath("$[0].dnaSupport").value(TEST_DNA_SUPPORT_1))
-                .andExpect(MockMvcResultMatchers.jsonPath("$[0].rnaSupport").value(TEST_RNA_SUPPORT_1))
-                .andExpect(MockMvcResultMatchers.jsonPath("$[0].normalReadCount").value(TEST_NORMAL_READ_COUNT_1))
-                .andExpect(MockMvcResultMatchers.jsonPath("$[0].tumorReadCount").value(TEST_TUMOR_READ_COUNT_1))
-                .andExpect(MockMvcResultMatchers.jsonPath("$[0].normalVariantCount").value(TEST_NORMAL_VARIANT_COUNT_1))
-                .andExpect(MockMvcResultMatchers.jsonPath("$[0].tumorVariantCount").value(TEST_TUMOR_VARIANT_COUNT_1))
-                .andExpect(MockMvcResultMatchers.jsonPath("$[0].normalPairedEndReadCount").value(TEST_NORMAL_PAIRED_END_READ_COUNT_1))
-                .andExpect(MockMvcResultMatchers.jsonPath("$[0].tumorPairedEndReadCount").value(TEST_TUMOR_PAIRED_END_READ_COUNT_1))
-                .andExpect(MockMvcResultMatchers.jsonPath("$[0].normalSplitReadCount").value(TEST_NORMAL_SPLIT_READ_COUNT_1))
-                .andExpect(MockMvcResultMatchers.jsonPath("$[0].tumorSplitReadCount").value(TEST_TUMOR_SPLIT_READ_COUNT_1))
-                .andExpect(MockMvcResultMatchers.jsonPath("$[0].annotation").value(TEST_ANNOTATION_1))
-                .andExpect(MockMvcResultMatchers.jsonPath("$[0].breakpointType").value(TEST_BREAKPOINT_TYPE_1))
-                .andExpect(MockMvcResultMatchers.jsonPath("$[0].connectionType").value(TEST_CONNECTION_TYPE_1))
-                .andExpect(MockMvcResultMatchers.jsonPath("$[0].eventInfo").value(TEST_EVENT_INFO_1))
-                .andExpect(MockMvcResultMatchers.jsonPath("$[0].variantClass").value(TEST_VARIANT_CLASS_1))
-                .andExpect(MockMvcResultMatchers.jsonPath("$[0].length").value(TEST_LENGTH_1))
-                .andExpect(MockMvcResultMatchers.jsonPath("$[0].comments").value(TEST_COMMENTS_1))
-                .andExpect(MockMvcResultMatchers.jsonPath("$[0].driverFilter").value(TEST_DRIVER_FILTER_1))
-                .andExpect(MockMvcResultMatchers.jsonPath("$[0].driverFilterAnn").value(TEST_DRIVER_FILTER_ANN_1))
-                .andExpect(MockMvcResultMatchers.jsonPath("$[0].driverTiersFilter").value(TEST_DRIVER_TIERS_FILTER_1))
-                .andExpect(MockMvcResultMatchers.jsonPath("$[0].driverTiersFilterAnn").value(TEST_DRIVER_TIERS_FILTER_ANN_1))
-                .andExpect(MockMvcResultMatchers.jsonPath("$[0].svStatus").value(TEST_SV_STATUS));
+            .andExpect(MockMvcResultMatchers.status().isOk())
+            .andExpect(MockMvcResultMatchers.content().contentType(MediaType.parseMediaType("application/json;charset=UTF-8")))
+            .andExpect(MockMvcResultMatchers.jsonPath("$", Matchers.hasSize(1)))
+            .andExpect(MockMvcResultMatchers.jsonPath("$[0].molecularProfileId").value(TEST_GENETIC_PROFILE_STABLE_ID_1))
+            .andExpect(MockMvcResultMatchers.jsonPath("$[0].sampleId").value(TEST_SAMPLE_ID_1))
+            .andExpect(MockMvcResultMatchers.jsonPath("$[0].patientId").value(TEST_PATIENT_ID_1))
+            .andExpect(MockMvcResultMatchers.jsonPath("$[0].studyId").value(TEST_STUDY_ID_1))
+            .andExpect(MockMvcResultMatchers.jsonPath("$[0].uniqueSampleKey").value(TEST_UNIQUE_SAMPLE_KEY_1))
+            .andExpect(MockMvcResultMatchers.jsonPath("$[0].uniquePatientKey").value(TEST_UNIQUE_PATIENT_KEY_1))
+            .andExpect(MockMvcResultMatchers.jsonPath("$[0].site1EntrezGeneId").value((int) TEST_SITE1_ENTREZ_GENE_ID_1))
+            .andExpect(MockMvcResultMatchers.jsonPath("$[0].site1HugoSymbol").value(TEST_SITE1_HUGO_SYMBOL_1))
+            .andExpect(MockMvcResultMatchers.jsonPath("$[0].site1EnsemblTranscriptId").value(TEST_SITE1_ENSEMBL_TRANSCRIPT_ID_1))
+            .andExpect(MockMvcResultMatchers.jsonPath("$[0].site1Chromosome").value(TEST_SITE1_CHROMOSOME_1))
+            .andExpect(MockMvcResultMatchers.jsonPath("$[0].site1Region").value(TEST_SITE1_REGION))
+            .andExpect(MockMvcResultMatchers.jsonPath("$[0].site1RegionNumber").value(TEST_SITE1_REGION_NUMBER))
+            .andExpect(MockMvcResultMatchers.jsonPath("$[0].site1Contig").value(TEST_SITE1_CONTIG))
+            .andExpect(MockMvcResultMatchers.jsonPath("$[0].site1Position").value(TEST_SITE1_POSITION_1))
+            .andExpect(MockMvcResultMatchers.jsonPath("$[0].site1Description").value(TEST_SITE1_DESCRIPTION_1))
+            .andExpect(MockMvcResultMatchers.jsonPath("$[0].site2EntrezGeneId").value((int) TEST_SITE2_ENTREZ_GENE_ID_1))
+            .andExpect(MockMvcResultMatchers.jsonPath("$[0].site2HugoSymbol").value(TEST_SITE2_HUGO_SYMBOL_1))
+            .andExpect(MockMvcResultMatchers.jsonPath("$[0].site2EnsemblTranscriptId").value(TEST_SITE2_ENSEMBL_TRANSCRIPT_ID_1))
+            .andExpect(MockMvcResultMatchers.jsonPath("$[0].site2Chromosome").value(TEST_SITE2_CHROMOSOME_1))
+            .andExpect(MockMvcResultMatchers.jsonPath("$[0].site2Region").value(TEST_SITE2_REGION))
+            .andExpect(MockMvcResultMatchers.jsonPath("$[0].site2RegionNumber").value(TEST_SITE2_REGION_NUMBER))
+            .andExpect(MockMvcResultMatchers.jsonPath("$[0].site2Contig").value(TEST_SITE2_CONTIG))
+            .andExpect(MockMvcResultMatchers.jsonPath("$[0].site2Position").value(TEST_SITE2_POSITION_1))
+            .andExpect(MockMvcResultMatchers.jsonPath("$[0].site2Description").value(TEST_SITE2_DESCRIPTION_1))
+            .andExpect(MockMvcResultMatchers.jsonPath("$[0].site2EffectOnFrame").value(TEST_SITE2_EFFECT_ON_FRAME_1))
+            .andExpect(MockMvcResultMatchers.jsonPath("$[0].ncbiBuild").value(TEST_NCBI_BUILD_1))
+            .andExpect(MockMvcResultMatchers.jsonPath("$[0].dnaSupport").value(TEST_DNA_SUPPORT_1))
+            .andExpect(MockMvcResultMatchers.jsonPath("$[0].rnaSupport").value(TEST_RNA_SUPPORT_1))
+            .andExpect(MockMvcResultMatchers.jsonPath("$[0].normalReadCount").value(TEST_NORMAL_READ_COUNT_1))
+            .andExpect(MockMvcResultMatchers.jsonPath("$[0].tumorReadCount").value(TEST_TUMOR_READ_COUNT_1))
+            .andExpect(MockMvcResultMatchers.jsonPath("$[0].normalVariantCount").value(TEST_NORMAL_VARIANT_COUNT_1))
+            .andExpect(MockMvcResultMatchers.jsonPath("$[0].tumorVariantCount").value(TEST_TUMOR_VARIANT_COUNT_1))
+            .andExpect(MockMvcResultMatchers.jsonPath("$[0].normalPairedEndReadCount").value(TEST_NORMAL_PAIRED_END_READ_COUNT_1))
+            .andExpect(MockMvcResultMatchers.jsonPath("$[0].tumorPairedEndReadCount").value(TEST_TUMOR_PAIRED_END_READ_COUNT_1))
+            .andExpect(MockMvcResultMatchers.jsonPath("$[0].normalSplitReadCount").value(TEST_NORMAL_SPLIT_READ_COUNT_1))
+            .andExpect(MockMvcResultMatchers.jsonPath("$[0].tumorSplitReadCount").value(TEST_TUMOR_SPLIT_READ_COUNT_1))
+            .andExpect(MockMvcResultMatchers.jsonPath("$[0].annotation").value(TEST_ANNOTATION_1))
+            .andExpect(MockMvcResultMatchers.jsonPath("$[0].breakpointType").value(TEST_BREAKPOINT_TYPE_1))
+            .andExpect(MockMvcResultMatchers.jsonPath("$[0].connectionType").value(TEST_CONNECTION_TYPE_1))
+            .andExpect(MockMvcResultMatchers.jsonPath("$[0].eventInfo").value(TEST_EVENT_INFO_1))
+            .andExpect(MockMvcResultMatchers.jsonPath("$[0].variantClass").value(TEST_VARIANT_CLASS_1))
+            .andExpect(MockMvcResultMatchers.jsonPath("$[0].length").value(TEST_LENGTH_1))
+            .andExpect(MockMvcResultMatchers.jsonPath("$[0].comments").value(TEST_COMMENTS_1))
+            .andExpect(MockMvcResultMatchers.jsonPath("$[0].driverFilter").value(TEST_DRIVER_FILTER_1))
+            .andExpect(MockMvcResultMatchers.jsonPath("$[0].driverFilterAnn").value(TEST_DRIVER_FILTER_ANN_1))
+            .andExpect(MockMvcResultMatchers.jsonPath("$[0].driverTiersFilter").value(TEST_DRIVER_TIERS_FILTER_1))
+            .andExpect(MockMvcResultMatchers.jsonPath("$[0].driverTiersFilterAnn").value(TEST_DRIVER_TIERS_FILTER_ANN_1))
+            .andExpect(MockMvcResultMatchers.jsonPath("$[0].svStatus").value(TEST_SV_STATUS))
+            .andExpect(MockMvcResultMatchers.jsonPath("$[0].namespaceColumns.columnName.fieldName").value("fieldValue"));
     }
 
     @Test
@@ -334,6 +336,7 @@ public class StructuralVariantControllerTest {
         structuralVariant1.setDriverTiersFilter(TEST_DRIVER_TIERS_FILTER_1);
         structuralVariant1.setDriverTiersFilterAnn(TEST_DRIVER_TIERS_FILTER_ANN_1);
         structuralVariant1.setSvStatus(TEST_SV_STATUS);
+        structuralVariant1.setAnnotationJson(TEST_ANNOTATION_JSON_1);
         structuralVariantList.add(structuralVariant1);
         return structuralVariantList;
     }

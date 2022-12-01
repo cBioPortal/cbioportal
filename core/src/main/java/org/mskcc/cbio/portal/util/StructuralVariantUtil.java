@@ -32,15 +32,22 @@
 
 package org.mskcc.cbio.portal.util;
 
-import java.util.HashMap;
+import java.io.*;
+import java.util.*;
+
+import com.fasterxml.jackson.databind.*;
+import org.mskcc.cbio.maf.NamespaceColumnParser;
 import org.mskcc.cbio.maf.TabDelimitedFileUtil;
 import org.mskcc.cbio.portal.model.StructuralVariant;
+import org.mskcc.cbio.portal.scripts.*;
 
 /**
  * @author ochoaa
  */
 public class StructuralVariantUtil {
     private HashMap<String, Integer> columnIndexMap;
+    private final NamespaceColumnParser namespaceColumnParser;
+    private final ObjectMapper objectMapper = new ObjectMapper();
 
     // Column names structural variant file
     public static final String SAMPLE_ID = "Sample_ID";
@@ -86,13 +93,11 @@ public class StructuralVariantUtil {
     public static final String DRIVER_TIERS_FILTER = "cbp_driver_tiers";
     public static final String DRIVER_TIERS_FILTER_ANNOTATION = "cbp_driver_tiers_annotation";
     public static final String SV_STATUS = "SV_Status";
-
-    public StructuralVariantUtil(){}
-
-    public StructuralVariantUtil(String line) {
+    
+    public StructuralVariantUtil(String line, Set<String> namespaces) {
         this.columnIndexMap = new HashMap<String, Integer>();
         String[] headerParts = line.trim().split("\t");
-
+        this.namespaceColumnParser = new NamespaceColumnParser(namespaces, headerParts);
         // Find header indices
         for (int i=0; i<headerParts.length; i++) {
             // Put the index in the map
@@ -100,7 +105,7 @@ public class StructuralVariantUtil {
         }
     }
 
-    public StructuralVariant parseStructuralVariantRecord(String[] parts) {
+    public StructuralVariant parseStructuralVariantRecord(String[] parts) throws IOException {
         StructuralVariant structuralVariant = new StructuralVariant();
         structuralVariant.setSampleId(TabDelimitedFileUtil.getPartString(getColumnIndex(StructuralVariantUtil.SAMPLE_ID), parts));
         structuralVariant.setSite1EntrezGeneId(TabDelimitedFileUtil.getPartLong(getColumnIndex(StructuralVariantUtil.SITE1_ENTREZ_GENE_ID), parts));
@@ -148,6 +153,10 @@ public class StructuralVariantUtil {
         if (TabDelimitedFileUtil.NA_STRING.equals(structuralVariant.getSvStatus())) {
             structuralVariant.setSvStatus(null); // we want to use the database default
         }
+        Map<String, Map<String, Object>> namespaces = this.namespaceColumnParser.parseCustomNamespaces(parts);
+        structuralVariant.setAnnotationJson(
+            this.objectMapper.writeValueAsString(namespaces)
+        );
         return structuralVariant;
     }
 

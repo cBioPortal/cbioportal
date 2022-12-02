@@ -116,14 +116,7 @@ public class MafUtil {
     public static final String ONCOTATOR_CODON_CHANGE = "ONCOTATOR_CODON_CHANGE";
     public static final String ONCOTATOR_PROTEIN_POS_START = "ONCOTATOR_PROTEIN_POS_START";
     public static final String ONCOTATOR_PROTEIN_POS_END = "ONCOTATOR_PROTEIN_POS_END";
-
-    // mutation assessor column names
-    public static final String MA_FIMPACT = "MA:FImpact";
-    public static final String MA_FIS = "MA:FIS";
-    public static final String MA_LINK_VAR = "MA:link.var";
-    public static final String MA_LINK_MSA = "MA:link.MSA";
-    public static final String MA_LINK_PDB = "MA:link.PDB";
-
+    
     // custom filtering of passenger and driver mutations column names
     public static final String DRIVER_FILTER = "cbp_driver";
     public static final String DRIVER_FILTER_ANNOTATION = "cbp_driver_annotation";
@@ -312,16 +305,6 @@ public class MafUtil {
                 oncoProteinPosStartIndex = i;
             } else if(header.equalsIgnoreCase(ONCOTATOR_PROTEIN_POS_END)) {
                 oncoProteinPosEndIndex = i;
-            } else if(header.equalsIgnoreCase(MA_FIMPACT)) {
-                maFImpactIndex = i;
-            } else if(header.equalsIgnoreCase(MA_FIS)) {
-                maFisIndex = i;
-            } else if(header.equalsIgnoreCase(MA_LINK_VAR)) {
-                maLinkVarIndex = i;
-            } else if(header.equalsIgnoreCase(MA_LINK_MSA)) {
-                maLinkMsaIndex = i;
-            } else if(header.equalsIgnoreCase(MA_LINK_PDB)) {
-                maLinkPdbIndex = i;
             } else if(header.equalsIgnoreCase(T_REF_COUNT) ||
                     header.equalsIgnoreCase(I_T_REF_COUNT) ||
                     header.equalsIgnoreCase(AD_REF)) {

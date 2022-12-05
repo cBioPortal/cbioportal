@@ -85,7 +85,7 @@ public class StructuralVariantSubFilterApplierTest {
             createStructVar("5", ST_1_ID)
         );
         // Subsequently, return results for svA and svB queries.
-        when(studyViewFilterUtil.cleanSvQueryGeneIds(anyList()))
+        when(studyViewFilterUtil.addEntrezGeneIds(anyList()))
             .thenReturn(svA, svB);
         when(structuralVariantService.fetchStructuralVariantsByStructVarQueries(anyList(), anyList(), anyList())
         ).thenReturn(structuralVariantsQuerySvA, structuralVariantsQuerySvB);

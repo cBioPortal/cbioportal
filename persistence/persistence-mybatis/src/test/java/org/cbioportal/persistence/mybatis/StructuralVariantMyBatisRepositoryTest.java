@@ -26,6 +26,7 @@ package org.cbioportal.persistence.mybatis;
 import org.cbioportal.model.GeneFilterQuery;
 import org.cbioportal.model.StructVarFilterQuery;
 import org.cbioportal.model.StructuralVariant;
+import org.cbioportal.model.StructuralVariantSpecialValue;
 import org.cbioportal.model.util.Select;
 import org.junit.Assert;
 import org.junit.Before;
@@ -80,7 +81,11 @@ public class StructuralVariantMyBatisRepositoryTest {
 
         // Only search for the KIAA..-BRAF and EML4-ALK fusions.
         structVarFilterQuery1 = new StructVarFilterQuery("KIAA1549", "BRAF", includeDriver, includeVUS, includeUnknownOncogenicity, tiers, includeUnknownTier, includeGermline, includeSomatic, includeUnknownStatus);
+        structVarFilterQuery1.setGene1EntrezGeneId(57670);
+        structVarFilterQuery1.setGene2EntrezGeneId(673);
         structVarFilterQuery2 = new StructVarFilterQuery("EML4", "ALK", includeDriver, includeVUS, includeUnknownOncogenicity, tiers, includeUnknownTier, includeGermline, includeSomatic, includeUnknownStatus);
+        structVarFilterQuery2.setGene1EntrezGeneId(27436);
+        structVarFilterQuery2.setGene2EntrezGeneId(238);
         structVarQueries = Arrays.asList(structVarFilterQuery1, structVarFilterQuery2);
     }
 
@@ -483,6 +488,66 @@ public class StructuralVariantMyBatisRepositoryTest {
 
         Assert.assertArrayEquals(new String[] {"EML4-ALK.E6bA20.AB374362", "KIAA1549-BRAF.K16B10.COSF509"}, resultTcgaPubVariants.toArray());
         Assert.assertEquals(0, resultTcgaVariants.size());
+    }
+
+    @Test
+    public void fetchStructuralVariantsMultiStudyByStructVarQueriesAnyGene1() throws Exception {
+
+        structVarFilterQuery1.getGene1HugoGeneSymbol()
+            .setSpecialValue(StructuralVariantSpecialValue.ANY_GENE);
+        structVarFilterQuery2.getGene1HugoGeneSymbol()
+            .setSpecialValue(StructuralVariantSpecialValue.ANY_GENE);
+        
+        List<StructuralVariant> result =
+            structuralVariantMyBatisRepository.fetchStructuralVariantsByStructVarQueries(molecularProfileIds,
+                sampleIds, structVarQueries);
+
+        Assert.assertEquals(6,  result.size());
+    }
+
+    @Test
+    public void fetchStructuralVariantsMultiStudyByStructVarQueriesAnyGene2() throws Exception {
+
+        structVarFilterQuery1.getGene2HugoGeneSymbol()
+            .setSpecialValue(StructuralVariantSpecialValue.ANY_GENE);
+        structVarFilterQuery2.getGene2HugoGeneSymbol()
+            .setSpecialValue(StructuralVariantSpecialValue.ANY_GENE);
+        
+        List<StructuralVariant> result =
+            structuralVariantMyBatisRepository.fetchStructuralVariantsByStructVarQueries(molecularProfileIds,
+                sampleIds, structVarQueries);
+
+        Assert.assertEquals(6,  result.size());
+    }
+    
+    @Test
+    public void fetchStructuralVariantsMultiStudyByStructVarQueriesNullGene1() throws Exception {
+
+        structVarFilterQuery1.getGene1HugoGeneSymbol()
+            .setSpecialValue(StructuralVariantSpecialValue.NO_GENE);
+        structVarFilterQuery2.getGene1HugoGeneSymbol()
+            .setSpecialValue(StructuralVariantSpecialValue.NO_GENE);
+        
+        List<StructuralVariant> result =
+            structuralVariantMyBatisRepository.fetchStructuralVariantsByStructVarQueries(molecularProfileIds,
+                sampleIds, structVarQueries);
+
+        Assert.assertEquals(0,  result.size());
+    }
+    
+    @Test
+    public void fetchStructuralVariantsMultiStudyByStructVarQueriesNullGene2() throws Exception {
+
+        structVarFilterQuery1.getGene2HugoGeneSymbol()
+            .setSpecialValue(StructuralVariantSpecialValue.NO_GENE);
+        structVarFilterQuery2.getGene2HugoGeneSymbol()
+            .setSpecialValue(StructuralVariantSpecialValue.NO_GENE);
+        
+        List<StructuralVariant> result =
+            structuralVariantMyBatisRepository.fetchStructuralVariantsByStructVarQueries(molecularProfileIds,
+                sampleIds, structVarQueries);
+
+        Assert.assertEquals(0,  result.size());
     }
 
 }

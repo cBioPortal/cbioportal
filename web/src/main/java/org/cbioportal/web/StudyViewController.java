@@ -408,6 +408,7 @@ public class StudyViewController {
     @RequestMapping(value = "/clinical-data-density-plot/fetch", method = RequestMethod.POST,
         consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
     @ApiOperation("Fetch clinical data density plot bins by study view filter")
+    @Validated
     public ResponseEntity<DensityPlotData> fetchClinicalDataDensityPlot(
         @ApiParam(required = true, value = "Clinical Attribute ID of the X axis")
         @RequestParam String xAxisAttributeId,
@@ -434,7 +435,7 @@ public class StudyViewController {
         @ApiIgnore // prevent reference to this attribute in the swagger-ui interface. this attribute is needed for the @PreAuthorize tag above.
         @Valid @RequestAttribute(required = false, value = "interceptedStudyViewFilter") StudyViewFilter interceptedStudyViewFilter,
         @ApiParam(required = true, value = "Study view filter")
-        @Valid @RequestBody(required = false) StudyViewFilter studyViewFilter) {
+        @RequestBody(required = false) StudyViewFilter studyViewFilter) {
 
         List<String> studyIds = new ArrayList<>();
         List<String> sampleIds = new ArrayList<>();

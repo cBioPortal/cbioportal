@@ -10,6 +10,8 @@ public class StringStructuralVariantGeneSubQuery {
     @Nullable
     protected StructuralVariantSpecialValue specialValue;
 
+    public StringStructuralVariantGeneSubQuery() {}
+
     public StringStructuralVariantGeneSubQuery(String hugoGeneSymbol) {
         geneId = hugoGeneSymbol;
     }

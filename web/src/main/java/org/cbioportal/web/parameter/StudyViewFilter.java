@@ -4,6 +4,7 @@ import java.io.Serializable;
 import java.util.List;
 import java.util.Objects;
 
+import javax.validation.Valid;
 import javax.validation.constraints.AssertTrue;
 import javax.validation.constraints.Size;
 
@@ -23,6 +24,7 @@ public class StudyViewFilter implements Serializable {
     @Size(min = 1)
     private List<String> studyIds;
     private List<ClinicalDataFilter> clinicalDataFilters;
+    @Valid
     private List<GeneFilter> geneFilters;
     private AndedSampleTreatmentFilters sampleTreatmentFilters;
     private AndedSampleTreatmentFilters sampleTreatmentGroupFilters;

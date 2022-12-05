@@ -75,9 +75,9 @@ public class StructuralVariantSubFilterApplier extends StudyViewSubFilterApplier
                         .map(SampleIdentifier::getSampleId)
                         .collect(Collectors.toList());
 
-                final List<StructVarFilterQuery> cleanedSvQueries = studyViewFilterUtil.cleanSvQueryGeneIds(structVarQueries);
+                final List<StructVarFilterQuery> entrezIdEnhancedSvQueries = studyViewFilterUtil.addEntrezGeneIds(structVarQueries);
                 remainingSampleIdentifiers = structuralVariantService
-                    .fetchStructuralVariantsByStructVarQueries(molecularProfileIds, sampleIds, cleanedSvQueries)
+                    .fetchStructuralVariantsByStructVarQueries(molecularProfileIds, sampleIds, entrezIdEnhancedSvQueries)
                     .stream()
                     .map(m -> {
                         SampleIdentifier sampleIdentifier = new SampleIdentifier();

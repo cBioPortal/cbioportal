@@ -83,14 +83,35 @@
     <sql id="whereWithQueries">
         AND
         <foreach item="filterQuery" collection="${queries}" open="(" separator=" OR " close=")">
+        (
         <choose>
-            <when test="${geneMode}">
-                (( structural_variant.SITE1_ENTREZ_GENE_ID = '${filterQuery.getEntrezGeneId()}'
-                OR structural_variant.SITE2_ENTREZ_GENE_ID = '${filterQuery.getEntrezGeneId()}')
+            <when test="${singleGeneMode}">
+                (structural_variant.SITE1_ENTREZ_GENE_ID = ${filterQuery.getEntrezGeneId()}
+                OR structural_variant.SITE2_ENTREZ_GENE_ID = ${filterQuery.getEntrezGeneId()})
             </when>
             <otherwise>
-                (( structural_variant.SITE1_ENTREZ_GENE_ID = '${filterQuery.getGene1EntrezGeneId()}'
-                AND structural_variant.SITE2_ENTREZ_GENE_ID = '${filterQuery.getGene2EntrezGeneId()}')
+                <trim prefix="" prefixOverrides="AND">
+                     <choose>
+                        <when test="filterQuery.getGene1HugoGeneSymbol().getSpecialValue() == @org.cbioportal.model.StructuralVariantSpecialValue@NO_GENE">
+                            AND structural_variant.SITE1_ENTREZ_GENE_ID IS NULL
+                        </when>
+                        <when test="filterQuery.getGene1HugoGeneSymbol().getSpecialValue() == @org.cbioportal.model.StructuralVariantSpecialValue@ANY_GENE" />
+                        <otherwise>
+                            AND structural_variant.SITE1_ENTREZ_GENE_ID = ${filterQuery.getGene1EntrezGeneId()}
+                        </otherwise>
+                    </choose>
+                    <choose>
+                        <when test="filterQuery.getGene2HugoGeneSymbol().getSpecialValue() == @org.cbioportal.model.StructuralVariantSpecialValue@NO_GENE">
+                            AND
+                            structural_variant.SITE2_ENTREZ_GENE_ID IS NULL
+                        </when>
+                        <when test="filterQuery.getGene2HugoGeneSymbol().getSpecialValue() == @org.cbioportal.model.StructuralVariantSpecialValue@ANY_GENE" />
+                        <otherwise>
+                            AND
+                            structural_variant.SITE2_ENTREZ_GENE_ID = ${filterQuery.getGene2EntrezGeneId()}
+                        </otherwise>
+                    </choose>
+                </trim>       
             </otherwise>
         </choose>
         <bind name="allMutationStatusSelected" value="filterQuery.getIncludeGermline() and filterQuery.getIncludeSomatic() and filterQuery.getIncludeUnknownStatus()" />
@@ -234,7 +255,7 @@
         <where>
             <include refid="whereInMultipleMolecularProfiles" />
             <include refid="whereWithQueries">
-                <property name="geneMode" value="true" />
+                <property name="singleGeneMode" value="true" />
                 <property name="queries" value="geneQueries" />
             </include>
         </where>
@@ -260,7 +281,7 @@
         <where>
             <include refid="whereInMultipleMolecularProfiles" />
             <include refid="whereWithQueries">
-                <property name="geneMode" value="false" />
+                <property name="singleGeneMode" value="false" />
                 <property name="queries" value="structVarQueries" />
             </include>
         </where>

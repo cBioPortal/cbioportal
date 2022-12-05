@@ -287,7 +287,7 @@ public class StudyViewFilterUtil {
     }
 
     // TODO write test.
-    public List<StructVarFilterQuery> cleanSvQueryGeneIds(List<StructVarFilterQuery> structVarQueries) {
+    public List<StructVarFilterQuery> addEntrezGeneIds(List<StructVarFilterQuery> structVarQueries) {
     
         List<String> hugoGeneSymbols = structVarQueries
             .stream()

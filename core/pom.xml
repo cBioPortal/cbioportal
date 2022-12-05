@@ -310,6 +310,13 @@
             <configuration>
               <outputDirectory>${project.build.directory}/classes</outputDirectory>
               <resources>
+                  <resource>
+                      <directory>${project.parent.basedir}/portal/src/main/webapp/WEB-INF</directory>
+                      <filtering>true</filtering>
+                      <includes>
+                          <include>logback.xml</include>
+                      </includes>
+                  </resource>
                 <resource>
                   <directory>${project.parent.basedir}/src/main/resources</directory>
                   <includes>
@@ -317,7 +324,6 @@
                   </includes>
                   <excludes>
                     <exclude>**/portal.properties.*</exclude>
-                    <exclude>**/logback.xml.*</exclude>
                     <exclude>**/maven.properties.*</exclude>
                     <exclude>**/git.properties.*</exclude>
                     <exclude>**/*.EXAMPLE</exclude>

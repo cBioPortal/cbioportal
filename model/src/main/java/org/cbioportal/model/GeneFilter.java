@@ -1,6 +1,5 @@
 package org.cbioportal.model;
 
-import javax.validation.constraints.AssertFalse;
 import javax.validation.constraints.AssertTrue;
 import java.io.Serializable;
 import java.util.List;
@@ -16,12 +15,12 @@ public class GeneFilter implements Serializable {
     private boolean isGeneQueriesSpecialValueCorrect() {
         return structVarQueries.stream()
             .flatMap(queryList -> queryList.stream())
-            .filter(structVarFilterQuery -> structVarFilterQuery.getGene1HugoGeneSymbol().getSpecialValue() != null
-                && structVarFilterQuery.getGene2HugoGeneSymbol().getSpecialValue() != null
+            .filter(structVarFilterQuery -> structVarFilterQuery.getGene1Query().getSpecialValue() != null
+                && structVarFilterQuery.getGene2Query().getSpecialValue() != null
             )
             .noneMatch(structVarFilterQuery -> 
-                structVarFilterQuery.getGene1HugoGeneSymbol().getSpecialValue() == 
-                structVarFilterQuery.getGene2HugoGeneSymbol().getSpecialValue()
+                structVarFilterQuery.getGene1Query().getSpecialValue() == 
+                structVarFilterQuery.getGene2Query().getSpecialValue()
             );
     }
 
@@ -30,8 +29,20 @@ public class GeneFilter implements Serializable {
         return structVarQueries.stream()
             .flatMap(queryList -> queryList.stream())
             .noneMatch(structVarFilterQuery -> 
-                structVarFilterQuery.getGene1HugoGeneSymbol().getGeneId() == null &&
-                structVarFilterQuery.getGene2HugoGeneSymbol().getGeneId() == null
+                structVarFilterQuery.getGene1Query().getHugoSymbol() == null &&
+                structVarFilterQuery.getGene2Query().getHugoSymbol() == null
+            );
+    }
+                
+    @AssertTrue(message = "'geneId' field of gene1/gene2 StructVarGeneSubQueries cannot be null when no specialValue set.")
+    private boolean isGeneQueriesHasGeneIdWhenSpecialValueNull() {
+        return structVarQueries.stream()
+            .flatMap(queryList -> queryList.stream())
+            .noneMatch(structVarFilterQuery ->
+                (structVarFilterQuery.getGene1Query().getHugoSymbol() == null &&
+                structVarFilterQuery.getGene1Query().getSpecialValue() == null)
+                || (structVarFilterQuery.getGene2Query().getHugoSymbol() == null &&
+                    structVarFilterQuery.getGene2Query().getSpecialValue() == null)
             );
     }
 

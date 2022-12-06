@@ -92,23 +92,23 @@
             <otherwise>
                 <trim prefix="" prefixOverrides="AND">
                      <choose>
-                        <when test="filterQuery.getGene1HugoGeneSymbol().getSpecialValue() == @org.cbioportal.model.StructuralVariantSpecialValue@NO_GENE">
+                        <when test="filterQuery.getGene1Query().getSpecialValue() == @org.cbioportal.model.StructuralVariantSpecialValue@NO_GENE">
                             AND structural_variant.SITE1_ENTREZ_GENE_ID IS NULL
                         </when>
-                        <when test="filterQuery.getGene1HugoGeneSymbol().getSpecialValue() == @org.cbioportal.model.StructuralVariantSpecialValue@ANY_GENE" />
+                        <when test="filterQuery.getGene1Query().getSpecialValue() == @org.cbioportal.model.StructuralVariantSpecialValue@ANY_GENE" />
                         <otherwise>
-                            AND structural_variant.SITE1_ENTREZ_GENE_ID = ${filterQuery.getGene1EntrezGeneId()}
+                            AND structural_variant.SITE1_ENTREZ_GENE_ID = ${filterQuery.getGene1Query().getEntrezId()}
                         </otherwise>
                     </choose>
                     <choose>
-                        <when test="filterQuery.getGene2HugoGeneSymbol().getSpecialValue() == @org.cbioportal.model.StructuralVariantSpecialValue@NO_GENE">
+                        <when test="filterQuery.getGene2Query().getSpecialValue() == @org.cbioportal.model.StructuralVariantSpecialValue@NO_GENE">
                             AND
                             structural_variant.SITE2_ENTREZ_GENE_ID IS NULL
                         </when>
-                        <when test="filterQuery.getGene2HugoGeneSymbol().getSpecialValue() == @org.cbioportal.model.StructuralVariantSpecialValue@ANY_GENE" />
+                        <when test="filterQuery.getGene2Query().getSpecialValue() == @org.cbioportal.model.StructuralVariantSpecialValue@ANY_GENE" />
                         <otherwise>
                             AND
-                            structural_variant.SITE2_ENTREZ_GENE_ID = ${filterQuery.getGene2EntrezGeneId()}
+                            structural_variant.SITE2_ENTREZ_GENE_ID = ${filterQuery.getGene2Query().getEntrezId()}
                         </otherwise>
                     </choose>
                 </trim>       

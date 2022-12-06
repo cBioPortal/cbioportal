@@ -862,7 +862,7 @@ public class StudyViewControllerTest {
         StudyViewFilter studyViewFilter = new StudyViewFilter();
         studyViewFilter.setStudyIds(Arrays.asList(TEST_STUDY_ID));
 
-        final StructVarFilterQuery structVarFilterQuery = new StructVarFilterQuery("A", "B",
+        final StructVarFilterQuery structVarFilterQuery = new StructVarFilterQuery("A", null, "B", null,
             true, true, true, Select.all(),
             true, true, true, true);
         final GeneFilter geneFilter = new GeneFilter();
@@ -870,8 +870,8 @@ public class StudyViewControllerTest {
         studyViewFilter.setGeneFilters(Arrays.asList(geneFilter));
 
         // Test case:
-        structVarFilterQuery.getGene1HugoGeneSymbol().setSpecialValue(StructuralVariantSpecialValue.ANY_GENE);
-        structVarFilterQuery.getGene2HugoGeneSymbol().setSpecialValue(StructuralVariantSpecialValue.ANY_GENE);
+        structVarFilterQuery.getGene1Query().setSpecialValue(StructuralVariantSpecialValue.ANY_GENE);
+        structVarFilterQuery.getGene2Query().setSpecialValue(StructuralVariantSpecialValue.ANY_GENE);
         
         mockMvc.perform(MockMvcRequestBuilders.post("/filtered-samples/fetch")
                 .accept(MediaType.APPLICATION_JSON)
@@ -889,7 +889,7 @@ public class StudyViewControllerTest {
         StudyViewFilter studyViewFilter = new StudyViewFilter();
         studyViewFilter.setStudyIds(Arrays.asList(TEST_STUDY_ID));
 
-        final StructVarFilterQuery structVarFilterQuery = new StructVarFilterQuery("A", "B",
+        final StructVarFilterQuery structVarFilterQuery = new StructVarFilterQuery("A", null, "B", null,
             true, true, true, Select.all(),
             true, true, true, true);
         final GeneFilter geneFilter = new GeneFilter();
@@ -897,8 +897,8 @@ public class StudyViewControllerTest {
         studyViewFilter.setGeneFilters(Arrays.asList(geneFilter));
 
         // Test case:
-        structVarFilterQuery.getGene1HugoGeneSymbol().setSpecialValue(StructuralVariantSpecialValue.ANY_GENE);
-        structVarFilterQuery.getGene2HugoGeneSymbol().setSpecialValue(StructuralVariantSpecialValue.ANY_GENE);
+        structVarFilterQuery.getGene1Query().setSpecialValue(StructuralVariantSpecialValue.ANY_GENE);
+        structVarFilterQuery.getGene2Query().setSpecialValue(StructuralVariantSpecialValue.ANY_GENE);
         
         mockMvc.perform(MockMvcRequestBuilders.post("/filtered-samples/fetch")
                 .accept(MediaType.APPLICATION_JSON)
@@ -917,7 +917,7 @@ public class StudyViewControllerTest {
         StudyViewFilter studyViewFilter = new StudyViewFilter();
         studyViewFilter.setStudyIds(Arrays.asList(TEST_STUDY_ID));
 
-        final StructVarFilterQuery structVarFilterQuery = new StructVarFilterQuery("A", "B",
+        final StructVarFilterQuery structVarFilterQuery = new StructVarFilterQuery("A", null, "B", null,
             true, true, true, Select.all(),
             true, true, true, true);
         final GeneFilter geneFilter = new GeneFilter();
@@ -925,8 +925,8 @@ public class StudyViewControllerTest {
         studyViewFilter.setGeneFilters(Arrays.asList(geneFilter));
 
         // Test case:
-        structVarFilterQuery.getGene1HugoGeneSymbol().setSpecialValue(StructuralVariantSpecialValue.NO_GENE);
-        structVarFilterQuery.getGene2HugoGeneSymbol().setSpecialValue(StructuralVariantSpecialValue.NO_GENE);
+        structVarFilterQuery.getGene1Query().setSpecialValue(StructuralVariantSpecialValue.NO_GENE);
+        structVarFilterQuery.getGene2Query().setSpecialValue(StructuralVariantSpecialValue.NO_GENE);
         
         mockMvc.perform(MockMvcRequestBuilders.post("/filtered-samples/fetch")
                 .accept(MediaType.APPLICATION_JSON)
@@ -946,9 +946,36 @@ public class StudyViewControllerTest {
         studyViewFilter.setStudyIds(Arrays.asList(TEST_STUDY_ID));
 
         // Test case:
-        final StructVarFilterQuery structVarFilterQuery = new StructVarFilterQuery(null, null,
+        final StructVarFilterQuery structVarFilterQuery = new StructVarFilterQuery(null, null, null, null,
             true, true, true, Select.all(),
             true, true, true, true);
+            
+        final GeneFilter geneFilter = new GeneFilter();
+        geneFilter.setStructVarQueries(Arrays.asList(Arrays.asList(structVarFilterQuery)));
+        studyViewFilter.setGeneFilters(Arrays.asList(geneFilter));
+
+        mockMvc.perform(MockMvcRequestBuilders.post("/filtered-samples/fetch")
+                .accept(MediaType.APPLICATION_JSON)
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(studyViewFilter)))
+            .andExpect(MockMvcResultMatchers.status().isBadRequest());
+    }
+    
+    @Test
+    public void validateStructVarFilterBothGeneIdAndSpecialValueNull() throws Exception {
+
+        when(studyViewFilterApplier.apply(any())).thenReturn(filteredSampleIdentifiers);
+        when(studyViewFilterApplier.apply(any(), eq(false))).thenReturn(filteredSampleIdentifiers);
+        when(sampleService.fetchSamples(anyList(), anyList(), anyString())).thenReturn(filteredSamples);
+
+        StudyViewFilter studyViewFilter = new StudyViewFilter();
+        studyViewFilter.setStudyIds(Arrays.asList(TEST_STUDY_ID));
+
+        // Test case:
+        final StructVarFilterQuery structVarFilterQuery = new StructVarFilterQuery(null, null, "B", null,
+            true, true, true, Select.all(),
+            true, true, true, true);
+        structVarFilterQuery.getGene1Query().setSpecialValue(null);
             
         final GeneFilter geneFilter = new GeneFilter();
         geneFilter.setStructVarQueries(Arrays.asList(Arrays.asList(structVarFilterQuery)));

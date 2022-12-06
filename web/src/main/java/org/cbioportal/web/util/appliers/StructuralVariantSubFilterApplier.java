@@ -1,10 +1,13 @@
 package org.cbioportal.web.util.appliers;
 
+import org.cbioportal.model.Gene;
 import org.cbioportal.model.GeneFilter;
 import org.cbioportal.model.MolecularProfile;
 import org.cbioportal.model.StructVarFilterQuery;
 import org.cbioportal.service.MolecularProfileService;
 import org.cbioportal.service.StructuralVariantService;
+import org.cbioportal.web.parameter.GeneIdType;
+import org.cbioportal.web.parameter.Projection;
 import org.cbioportal.web.parameter.SampleIdentifier;
 import org.cbioportal.web.parameter.StudyViewFilter;
 import org.cbioportal.web.util.StudyViewFilterUtil;

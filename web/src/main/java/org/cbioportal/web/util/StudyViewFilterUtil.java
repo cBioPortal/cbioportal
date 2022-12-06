@@ -16,6 +16,7 @@ import org.cbioportal.model.GeneFilterQuery;
 import org.cbioportal.model.Patient;
 import org.cbioportal.model.SampleList;
 import org.cbioportal.model.StructVarFilterQuery;
+import org.cbioportal.model.StructuralVariantSpecialValue;
 import org.cbioportal.service.GeneService;
 import org.cbioportal.service.util.MolecularProfileUtil;
 import org.cbioportal.web.parameter.*;
@@ -286,39 +287,51 @@ public class StudyViewFilterUtil {
         return symbolToEntrezGeneId;
     }
 
+    // TODO test this logic.
     // TODO write test.
     public List<StructVarFilterQuery> addEntrezGeneIds(List<StructVarFilterQuery> structVarQueries) {
-    
+
         List<String> hugoGeneSymbols = structVarQueries
             .stream()
-            .flatMap(q -> Stream.of(q.getGene1HugoGeneSymbol(), q.getGene2HugoGeneSymbol()))
-            .filter(structVarIdentifier -> structVarIdentifier.getGeneId() != null)
-            .map(structVarIdentifier -> structVarIdentifier.getGeneId())
+            .flatMap(q -> Stream.of(q.getGene1Query(), q.getGene2Query()))
+            .filter(structVarIdentifier -> structVarIdentifier.getHugoSymbol() != null)
+            .map(structVarIdentifier -> structVarIdentifier.getHugoSymbol())
             .collect(Collectors.toList());
 
         Map<String, Integer> symbolToEntrezGeneId = getStringIntegerMap(hugoGeneSymbols);
+    
+        // Add Entrez gene ids to the queries.
+        structVarQueries.forEach(structVarQuery -> {
+                structVarQuery.getGene1Query().setEntrezId(
+                    symbolToEntrezGeneId.getOrDefault(structVarQuery.getGene1Query().getHugoSymbol(), null)
+                );
+            structVarQuery.getGene2Query().setEntrezId(
+                symbolToEntrezGeneId.getOrDefault(structVarQuery.getGene2Query().getHugoSymbol(), null)
+            );
+        });
 
+        // Remove any genes where the Entrez gene id is needed, but translation failed.
         structVarQueries.removeIf(
-            q -> !symbolToEntrezGeneId.containsKey(q.getGene1HugoGeneSymbol().getGeneId())
-                || !symbolToEntrezGeneId.containsKey(q.getGene2HugoGeneSymbol().getGeneId())
-        );
-
-        structVarQueries.stream().forEach(
-            q -> {
-                q.setGene1EntrezGeneId(
-                    symbolToEntrezGeneId.getOrDefault(
-                        q.getGene1HugoGeneSymbol().getGeneId(),
-                        null
-                ));
-                q.setGene2EntrezGeneId(
-                    symbolToEntrezGeneId.getOrDefault(
-                        q.getGene2HugoGeneSymbol().getGeneId(),
-                        null
-                ));           
-            }
+            q ->   (q.getGene1Query().getHugoSymbol() != null
+                     && q.getGene1Query().getSpecialValue() != StructuralVariantSpecialValue.NO_GENE
+                     && q.getGene1Query().getSpecialValue() != StructuralVariantSpecialValue.ANY_GENE
+                     && !symbolToEntrezGeneId.containsKey(q.getGene1Query().getEntrezId()))
+                || (q.getGene2Query().getHugoSymbol() != null
+                && q.getGene2Query().getSpecialValue() != StructuralVariantSpecialValue.NO_GENE
+                && q.getGene2Query().getSpecialValue() != StructuralVariantSpecialValue.ANY_GENE
+                && !symbolToEntrezGeneId.containsKey(q.getGene2Query().getEntrezId()))
         );
         
         return structVarQueries;
+    }
+
+    private Map<String, Integer> getHugoToEntrezQueryMap(List<String> hugoGeneSymbols) {
+        Map<String, Integer> symbolToEntrezGeneId = geneService
+            .fetchGenes(new ArrayList<>(hugoGeneSymbols),
+                GeneIdType.HUGO_GENE_SYMBOL.name(), Projection.SUMMARY.name())
+            .stream()
+            .collect(Collectors.toMap(Gene::getHugoGeneSymbol, Gene::getEntrezGeneId));
+        return symbolToEntrezGeneId;
     }
     
     private List<ClinicalData> filterClinicalDataByStudyAndSampleAndAttribute(

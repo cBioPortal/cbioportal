@@ -94,8 +94,10 @@ skin.study_view.link_text=To build your own case set, try out our enhanced Study
 # skin.mutation_table.namespace_column.show_by_default=true
 
 # controls which columns from the mutation tables are immediately visible in mutation tables
-# skin.patient_view.mutation_table.columns.show_on_init=Gene,Protein Change,Annotation,Mutation Type,Copy #,Cosmic,# Mut in Sample
 # skin.results_view.mutation_table.columns.show_on_init=Sample Id,Protein Change,Annotation,Mutation Type,Copy #,Cosmic,# Mut in Sample
+# skin.patient_view.mutation_table.columns.show_on_init=Gene,Protein Change,Annotation,Mutation Type,Copy #,Cosmic,# Mut in Sample
+# skin.patient_view.copy_number_table.columns.show_on_init=Gene,CNA,Annotation,Cytoband,Cohort
+# skin.patient_view.structural_variant_table.columns.show_on_init=Gene 1,Gene2,Status,Annotation,Variant Class,Event Info,Connection Type
 
 # setting controlling the home page
 ## enable this to show studies for which the user does not have permission (will appear greyed out and cannot be analyzed in study view or results view). 

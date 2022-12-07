@@ -14,6 +14,7 @@ import org.cbioportal.model.GenericAssayDataCountItem;
 import org.cbioportal.model.GenomicDataCount;
 import org.cbioportal.model.Sample;
 import org.cbioportal.model.StructVarFilterQuery;
+import org.cbioportal.model.StructuralVariantFilter;
 import org.cbioportal.model.StructuralVariantSpecialValue;
 import org.cbioportal.model.util.Select;
 import org.cbioportal.persistence.AlterationRepository;
@@ -865,9 +866,9 @@ public class StudyViewControllerTest {
         final StructVarFilterQuery structVarFilterQuery = new StructVarFilterQuery("A", null, "B", null,
             true, true, true, Select.all(),
             true, true, true, true);
-        final GeneFilter geneFilter = new GeneFilter();
-        geneFilter.setStructVarQueries(Arrays.asList(Arrays.asList(structVarFilterQuery)));
-        studyViewFilter.setGeneFilters(Arrays.asList(geneFilter));
+        final StructuralVariantFilter structuralVariantFilter = new StructuralVariantFilter();
+        structuralVariantFilter.setStructVarQueries(Arrays.asList(Arrays.asList(structVarFilterQuery)));
+        studyViewFilter.setStructuralVariantFilters(Arrays.asList(structuralVariantFilter));
 
         // Test case:
         structVarFilterQuery.getGene1Query().setSpecialValue(StructuralVariantSpecialValue.ANY_GENE);
@@ -892,9 +893,9 @@ public class StudyViewControllerTest {
         final StructVarFilterQuery structVarFilterQuery = new StructVarFilterQuery("A", null, "B", null,
             true, true, true, Select.all(),
             true, true, true, true);
-        final GeneFilter geneFilter = new GeneFilter();
-        geneFilter.setStructVarQueries(Arrays.asList(Arrays.asList(structVarFilterQuery)));
-        studyViewFilter.setGeneFilters(Arrays.asList(geneFilter));
+        final StructuralVariantFilter structuralVariantFilter = new StructuralVariantFilter();
+        structuralVariantFilter.setStructVarQueries(Arrays.asList(Arrays.asList(structVarFilterQuery)));
+        studyViewFilter.setStructuralVariantFilters(Arrays.asList(structuralVariantFilter));
 
         // Test case:
         structVarFilterQuery.getGene1Query().setSpecialValue(StructuralVariantSpecialValue.ANY_GENE);
@@ -920,9 +921,9 @@ public class StudyViewControllerTest {
         final StructVarFilterQuery structVarFilterQuery = new StructVarFilterQuery("A", null, "B", null,
             true, true, true, Select.all(),
             true, true, true, true);
-        final GeneFilter geneFilter = new GeneFilter();
-        geneFilter.setStructVarQueries(Arrays.asList(Arrays.asList(structVarFilterQuery)));
-        studyViewFilter.setGeneFilters(Arrays.asList(geneFilter));
+        final StructuralVariantFilter structuralVariantFilter = new StructuralVariantFilter();
+        structuralVariantFilter.setStructVarQueries(Arrays.asList(Arrays.asList(structVarFilterQuery)));
+        studyViewFilter.setStructuralVariantFilters(Arrays.asList(structuralVariantFilter));
 
         // Test case:
         structVarFilterQuery.getGene1Query().setSpecialValue(StructuralVariantSpecialValue.NO_GENE);
@@ -950,9 +951,9 @@ public class StudyViewControllerTest {
             true, true, true, Select.all(),
             true, true, true, true);
             
-        final GeneFilter geneFilter = new GeneFilter();
-        geneFilter.setStructVarQueries(Arrays.asList(Arrays.asList(structVarFilterQuery)));
-        studyViewFilter.setGeneFilters(Arrays.asList(geneFilter));
+        final StructuralVariantFilter structuralVariantFilter = new StructuralVariantFilter();
+        structuralVariantFilter.setStructVarQueries(Arrays.asList(Arrays.asList(structVarFilterQuery)));
+        studyViewFilter.setStructuralVariantFilters(Arrays.asList(structuralVariantFilter));
 
         mockMvc.perform(MockMvcRequestBuilders.post("/filtered-samples/fetch")
                 .accept(MediaType.APPLICATION_JSON)
@@ -976,10 +977,10 @@ public class StudyViewControllerTest {
             true, true, true, Select.all(),
             true, true, true, true);
         structVarFilterQuery.getGene1Query().setSpecialValue(null);
-            
-        final GeneFilter geneFilter = new GeneFilter();
-        geneFilter.setStructVarQueries(Arrays.asList(Arrays.asList(structVarFilterQuery)));
-        studyViewFilter.setGeneFilters(Arrays.asList(geneFilter));
+
+        final StructuralVariantFilter structuralVariantFilter = new StructuralVariantFilter();
+        structuralVariantFilter.setStructVarQueries(Arrays.asList(Arrays.asList(structVarFilterQuery)));
+        studyViewFilter.setStructuralVariantFilters(Arrays.asList(structuralVariantFilter));
 
         mockMvc.perform(MockMvcRequestBuilders.post("/filtered-samples/fetch")
                 .accept(MediaType.APPLICATION_JSON)

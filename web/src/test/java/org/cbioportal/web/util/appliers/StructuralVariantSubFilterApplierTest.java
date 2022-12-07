@@ -5,6 +5,7 @@ import org.cbioportal.model.GeneFilter;
 import org.cbioportal.model.MolecularProfile;
 import org.cbioportal.model.StructVarFilterQuery;
 import org.cbioportal.model.StructuralVariant;
+import org.cbioportal.model.StructuralVariantFilter;
 import org.cbioportal.model.util.Select;
 import org.cbioportal.service.MolecularProfileService;
 import org.cbioportal.service.impl.StructuralVariantServiceImpl;
@@ -58,11 +59,10 @@ public class StructuralVariantSubFilterApplierTest {
         List<StructVarFilterQuery> svA = Arrays.asList(createQuery(G1, G2));
         List<StructVarFilterQuery> svB = Arrays.asList(createQuery(G1, G2));
         List<List<StructVarFilterQuery>> svA_and_svB_filterQuery = Arrays.asList(svA, svB);
-        
-        final GeneFilter geneFilter = new GeneFilter();
-        geneFilter.setStructVarQueries(svA_and_svB_filterQuery);
-        geneFilter.setMolecularProfileIds(Sets.newHashSet(MP_1_ID));
-        structVarStudyViewFilter.setGeneFilters(Arrays.asList(geneFilter));
+
+        final StructuralVariantFilter structuralVariantFilter = new StructuralVariantFilter();
+        structuralVariantFilter.setStructVarQueries(svA_and_svB_filterQuery);
+        structVarStudyViewFilter.setStructuralVariantFilters(Arrays.asList(structuralVariantFilter));
 
         MolecularProfile molecularProfile1 = new MolecularProfile();
         molecularProfile1.setStableId(MP_1_ID);

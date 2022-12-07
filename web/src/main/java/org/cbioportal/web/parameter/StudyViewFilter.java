@@ -13,6 +13,7 @@ import com.fasterxml.jackson.annotation.JsonInclude.Include;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import org.cbioportal.model.AlterationFilter;
 import org.cbioportal.model.GeneFilter;
+import org.cbioportal.model.StructuralVariantFilter;
 import org.cbioportal.web.parameter.filter.*;
 
 @JsonIgnoreProperties(ignoreUnknown = true)
@@ -24,8 +25,9 @@ public class StudyViewFilter implements Serializable {
     @Size(min = 1)
     private List<String> studyIds;
     private List<ClinicalDataFilter> clinicalDataFilters;
-    @Valid
     private List<GeneFilter> geneFilters;
+    @Valid
+    private List<StructuralVariantFilter> structuralVariantFilters;
     private AndedSampleTreatmentFilters sampleTreatmentFilters;
     private AndedSampleTreatmentFilters sampleTreatmentGroupFilters;
     private AndedSampleTreatmentFilters sampleTreatmentTargetFilters;
@@ -108,6 +110,14 @@ public class StudyViewFilter implements Serializable {
 
     public void setGeneFilters(List<GeneFilter> geneFilters) {
         this.geneFilters = geneFilters;
+    }
+
+    public List<StructuralVariantFilter> getStructuralVariantFilters() {
+        return structuralVariantFilters;
+    }
+
+    public void setStructuralVariantFilters(List<StructuralVariantFilter> structuralVariantFilters) {
+        this.structuralVariantFilters = structuralVariantFilters;
     }
 
     public List<List<String>> getGenomicProfiles() {

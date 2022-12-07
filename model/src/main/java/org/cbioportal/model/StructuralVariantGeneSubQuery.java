@@ -20,6 +20,14 @@ public class StructuralVariantGeneSubQuery {
         this.hugoSymbol = hugoSymbol;
     }
 
+    public StructuralVariantGeneSubQuery(Integer entrezId) {
+        this.entrezId = entrezId;
+    }
+
+    public StructuralVariantGeneSubQuery(StructuralVariantSpecialValue specialValue) {
+        this.specialValue = specialValue;
+    }
+
     public StructuralVariantGeneSubQuery(String hugoSymbol, Integer entrezId) {
         this.entrezId = entrezId;
     }

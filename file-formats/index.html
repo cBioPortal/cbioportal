@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width,initial-scale=1">
-    <meta name="turbo-cache-control" content="no-cache" data-turbo-track="reload" data-track-token="2.4.0.723580935377">
+    <meta name="turbo-cache-control" content="no-cache" data-turbo-track="reload" data-track-token="2.4.0.723821511331">
 
     <!-- See retype.com -->
     <meta name="generator" content="Retype 2.4.0">
@@ -33,12 +33,12 @@
     <script>(function () { var el = document.documentElement, m = localStorage.getItem("doc_theme"), wm = window.matchMedia; if (m === "dark" || (!m && wm && wm("(prefers-color-scheme: dark)").matches)) { el.classList.add("dark") } else { el.classList.remove("dark") } })();</script>
 
     <link href="../images/cbio-logo.png" rel="icon" />
-    <link href="../resources/css/retype.css?v=2.4.0.723580935377" rel="stylesheet" />
+    <link href="../resources/css/retype.css?v=2.4.0.723821511331" rel="stylesheet" />
 
-    <script type="text/javascript" src="../resources/js/config.js?v=2.4.0.723580935377" data-turbo-eval="false" defer></script>
+    <script type="text/javascript" src="../resources/js/config.js?v=2.4.0.723821511331" data-turbo-eval="false" defer></script>
     <script type="text/javascript" src="../resources/js/retype.js?v=2.4.0" data-turbo-eval="false" defer></script>
-    <script id="lunr-js" type="text/javascript" src="../resources/js/lunr.js?v=2.4.0.723580935377" data-turbo-eval="false" defer></script>
-    <script id="prism-js" type="text/javascript" src="../resources/js/prism.js?v=2.4.0.723580935377" defer></script>
+    <script id="lunr-js" type="text/javascript" src="../resources/js/lunr.js?v=2.4.0.723821511331" data-turbo-eval="false" defer></script>
+    <script id="prism-js" type="text/javascript" src="../resources/js/prism.js?v=2.4.0.723821511331" defer></script>
 
     <link rel="stylesheet" href="/static/custom.css"></link>
 </head>
@@ -271,6 +271,7 @@
 </ul>
 </li>
 <li><doc-anchor-trigger to="#resource-data">Resource Data</doc-anchor-trigger></li>
+<li><doc-anchor-trigger to="#custom-namespace-columns">Custom namespace columns</doc-anchor-trigger></li>
 </ul>
 </li>
 </ul>
@@ -637,17 +638,34 @@ PATIENT_ID_2&lt;TAB&gt;SAMPLE_ID_2&lt;TAB&gt;Her2 enriched&lt;TAB&gt;...
     </h2>
 </doc-anchor-target>
 <p>The discrete copy number data file contain values that would be derived from copy-number analysis algorithms like <a href="https://www.ncbi.nlm.nih.gov/sites/entrez?term=18077431">GISTIC 2.0</a> or <a href="https://www.ncbi.nlm.nih.gov/sites/entrez?term=18784837">RAE</a>. GISTIC 2.0 can be <a href="https://www.broadinstitute.org/cgi-bin/cancer/publications/pub_paper.cgi?mode=view&amp;paper_id=216&amp;p=t">installed</a> or run online using the GISTIC 2.0 module on <a href="https://cloud.genepattern.org">GenePattern</a>. For some help on using GISTIC 2.0, check the <a href="../data-loading-tips-and-best-practices/">Data Loading: Tips and Best Practices</a> page. When loading case list data, the <code v-pre>_cna</code> case list is required. See the <doc-anchor-trigger to="#case-lists">case list section</doc-anchor-trigger>.</p>
-<doc-anchor-target id="meta-file-2">
+<doc-anchor-target id="wide-vs-long-format">
     <h3>
+        <doc-anchor-trigger class="header-anchor-trigger" to="#wide-vs-long-format">#</doc-anchor-trigger>
+        <span>Wide vs Long format</span>
+    </h3>
+</doc-anchor-target>
+<p>For CNA data two formats are supported: the wide, and the long format:</p>
+<ul>
+<li><strong>Wide format</strong>: a matrix, where each row is a gene, and each column is a sample</li>
+<li><strong>Long format</strong>: not a matrix, each row is a gene-sample combination; this makes the file longer</li>
+</ul>
+<doc-anchor-target id="wide-format">
+    <h3>
+        <doc-anchor-trigger class="header-anchor-trigger" to="#wide-format">#</doc-anchor-trigger>
+        <span>Wide format</span>
+    </h3>
+</doc-anchor-target>
+<doc-anchor-target id="meta-file-2">
+    <h4>
         <doc-anchor-trigger class="header-anchor-trigger" to="#meta-file-2">#</doc-anchor-trigger>
         <span>Meta file</span>
-    </h3>
+    </h4>
 </doc-anchor-target>
 <p>The meta file is comprised of the following fields:</p>
 <ol>
 <li><strong>cancer_study_identifier</strong>: same value as specified in <doc-anchor-trigger to="#cancer-study">study meta file</doc-anchor-trigger></li>
 <li><strong>genetic_alteration_type</strong>: COPY_NUMBER_ALTERATION</li>
-<li><strong>datatype</strong>: DISCRETE</li>
+<li><strong>datatype</strong>: <code v-pre>DISCRETE</code></li>
 <li><strong>stable_id</strong>: gistic, cna, cna_rae or cna_consensus</li>
 <li><strong>show_profile_in_analysis_tab</strong>: true</li>
 <li><strong>profile_name</strong>: A name for the discrete copy number data, e.g., &quot;Putative copy-number alterations from GISTIC&quot;</li>
@@ -657,10 +675,10 @@ PATIENT_ID_2&lt;TAB&gt;SAMPLE_ID_2&lt;TAB&gt;Her2 enriched&lt;TAB&gt;...
 <li><strong>pd_annotations_filename (Optional)</strong>: name of <doc-anchor-trigger to="#custom-driver-annotations-file">custom driver annotations file</doc-anchor-trigger></li>
 </ol>
 <doc-anchor-target id="example-3">
-    <h3>
+    <h5>
         <doc-anchor-trigger class="header-anchor-trigger" to="#example-3">#</doc-anchor-trigger>
         <span>Example</span>
-    </h3>
+    </h5>
 </doc-anchor-target>
 <p>An example metadata file could be named meta_cna.txt and its contents could be:</p>
 <div class="codeblock-wrapper"><doc-codeblock>
@@ -675,10 +693,10 @@ data_filename: data_cna.txt
 pd_annotations_filename: data_cna_pd_annotations.txt</code></pre>
 </doc-codeblock></div>
 <doc-anchor-target id="data-file-1">
-    <h3>
+    <h4>
         <doc-anchor-trigger class="header-anchor-trigger" to="#data-file-1">#</doc-anchor-trigger>
         <span>Data file</span>
-    </h3>
+    </h4>
 </doc-anchor-target>
 <p>For each gene (row) in the data file, the following columns are required in the order specified:</p>
 <p>One or both of:</p>
@@ -699,10 +717,10 @@ pd_annotations_filename: data_cna_pd_annotations.txt</code></pre>
 <li>&quot;2&quot; is a high-level amplification.</li>
 </ul>
 <doc-anchor-target id="example-4">
-    <h3>
+    <h5>
         <doc-anchor-trigger class="header-anchor-trigger" to="#example-4">#</doc-anchor-trigger>
         <span>Example</span>
-    </h3>
+    </h5>
 </doc-anchor-target>
 <p>An example data file which includes the required column header would look like:</p>
 <div class="codeblock-wrapper"><doc-codeblock>
@@ -712,6 +730,77 @@ AGRN&lt;TAB&gt;375790&lt;TAB&gt;2&lt;TAB&gt;0&lt;TAB&gt;...
 ...
 ...</code></pre>
 </doc-codeblock></div>
+<doc-anchor-target id="long-format">
+    <h3>
+        <doc-anchor-trigger class="header-anchor-trigger" to="#long-format">#</doc-anchor-trigger>
+        <span>Long format</span>
+    </h3>
+</doc-anchor-target>
+<doc-anchor-target id="meta-file-3">
+    <h4>
+        <doc-anchor-trigger class="header-anchor-trigger" to="#meta-file-3">#</doc-anchor-trigger>
+        <span>Meta file</span>
+    </h4>
+</doc-anchor-target>
+<p>The meta file of <strong>wide format</strong> is comprised of the following fields:</p>
+<ol>
+<li><strong>cancer_study_identifier</strong>: same value as specified in <doc-anchor-trigger to="#cancer-study">study meta file</doc-anchor-trigger></li>
+<li><strong>genetic_alteration_type</strong>: COPY_NUMBER_ALTERATION</li>
+<li><strong>datatype</strong>: <code v-pre>DISCRETE_LONG</code>
+Note: It will end up as datatype <code v-pre>DISCRETE</code> in the database, because the LONG data format is only relevant while importing.</li>
+<li><strong>stable_id</strong>: gistic, cna, cna_rae or cna_consensus</li>
+<li><strong>show_profile_in_analysis_tab</strong>: true</li>
+<li><strong>profile_name</strong>: A name for the discrete copy number data, e.g., &quot;Putative copy-number alterations from GISTIC&quot;</li>
+<li><strong>profile_description</strong>: A description of the copy number data, e.g., &quot;Putative copy-number from GISTIC 2.0. Values: -2 = homozygous deletion; -1 = hemizygous deletion; 0 = neutral / no change; 1 = gain; 2 = high level amplification.&quot;</li>
+<li><strong>data_filename</strong>: your datafile</li>
+<li><strong>gene_panel (Optional)</strong>:  gene panel stable id</li>
+<li><strong>namespaces (Optional)</strong>: Comma-delimited list of <code v-pre>namespaces</code> to import.</li>
+</ol>
+<doc-anchor-target id="example-5">
+    <h5>
+        <doc-anchor-trigger class="header-anchor-trigger" to="#example-5">#</doc-anchor-trigger>
+        <span>Example</span>
+    </h5>
+</doc-anchor-target>
+<p>An example metadata file could be named meta_cna.txt and its contents could be:</p>
+<div class="codeblock-wrapper"><doc-codeblock>
+<pre class="language-none"><code v-pre class="language-none">cancer_study_identifier: brca_tcga_pub
+genetic_alteration_type: COPY_NUMBER_ALTERATION
+datatype: DISCRETE_LONG
+stable_id: gistic
+show_profile_in_analysis_tab: true
+profile_name: Putative copy-number alterations from GISTIC
+profile_description: Putative copy-number from GISTIC 2.0. Values: -2 = homozygous deletion; -1 = hemizygous deletion; 0 = neutral / no change; 1 = gain; 2 = high level amplification.
+data_filename: data_cna.txt
+namespaces: MyNamespace,MyNamespace2</code></pre>
+</doc-codeblock></div>
+<doc-anchor-target id="data-file-2">
+    <h4>
+        <doc-anchor-trigger class="header-anchor-trigger" to="#data-file-2">#</doc-anchor-trigger>
+        <span>Data file</span>
+    </h4>
+</doc-anchor-target>
+<p>Each row contains a row-sample combination. Custom driver annotations are added as columns to the data file, just like custom namespace columns.</p>
+<doc-anchor-target id="example-6">
+    <h5>
+        <doc-anchor-trigger class="header-anchor-trigger" to="#example-6">#</doc-anchor-trigger>
+        <span>Example</span>
+    </h5>
+</doc-anchor-target>
+<p>An example data file which includes the required column header would look like:</p>
+<div class="codeblock-wrapper"><doc-codeblock>
+<pre class="language-none"><code v-pre class="language-none">Hugo_Symbol	Entrez_Gene_Id	Sample_Id	Value	cbp_driver	cbp_driver_annotation	cbp_driver_tiers	cbp_driver_tiers_annotation	MyNamespace.column1
+ACAP3	116983	TCGA-A2-A04U-01	2	Putative_Passenger	Test passenger	Class 2	Class annotation	value1
+...</code></pre>
+</doc-codeblock></div>
+<doc-anchor-target id="adding-your-own-discrete-copy-number-columns">
+    <h4>
+        <doc-anchor-trigger class="header-anchor-trigger" to="#adding-your-own-discrete-copy-number-columns">#</doc-anchor-trigger>
+        <span>Adding your own discrete copy number columns</span>
+    </h4>
+</doc-anchor-target>
+<p>Additional columns can be added to the discrete copy number <strong>long</strong> data file. In this way, the portal will parse and store your own CNA fields in the database.</p>
+<p>See <doc-anchor-trigger to="#custom-namespace-columns">Custom namespace columns</doc-anchor-trigger> for more information on adding custom columns to data files.</p>
 <doc-anchor-target id="custom-driver-annotations-file">
     <h3>
         <doc-anchor-trigger class="header-anchor-trigger" to="#custom-driver-annotations-file">#</doc-anchor-trigger>
@@ -737,9 +826,9 @@ Custom driver annotations can be placed in a separate file that is referenced by
     <figcaption class="caption">schreenshot mutation color menu</figcaption>
 </figure>
 </p>
-<doc-anchor-target id="example-5">
+<doc-anchor-target id="example-7">
     <h3>
-        <doc-anchor-trigger class="header-anchor-trigger" to="#example-5">#</doc-anchor-trigger>
+        <doc-anchor-trigger class="header-anchor-trigger" to="#example-7">#</doc-anchor-trigger>
         <span>Example</span>
     </h3>
 </doc-anchor-target>
@@ -768,9 +857,9 @@ the seed database.</p>
         <span>Continuous Copy Number Data</span>
     </h2>
 </doc-anchor-target>
-<doc-anchor-target id="meta-file-3">
+<doc-anchor-target id="meta-file-4">
     <h3>
-        <doc-anchor-trigger class="header-anchor-trigger" to="#meta-file-3">#</doc-anchor-trigger>
+        <doc-anchor-trigger class="header-anchor-trigger" to="#meta-file-4">#</doc-anchor-trigger>
         <span>Meta file</span>
     </h3>
 </doc-anchor-target>
@@ -791,9 +880,9 @@ the seed database.</p>
 <li><strong>datatype</strong>: LOG2-VALUE</li>
 <li><strong>stable_id</strong>: log2CNA</li>
 </ol>
-<doc-anchor-target id="example-6">
+<doc-anchor-target id="example-8">
     <h3>
-        <doc-anchor-trigger class="header-anchor-trigger" to="#example-6">#</doc-anchor-trigger>
+        <doc-anchor-trigger class="header-anchor-trigger" to="#example-8">#</doc-anchor-trigger>
         <span>Example</span>
     </h3>
 </doc-anchor-target>
@@ -808,9 +897,9 @@ profile_description: Log2 copy-number values for each gene (from Affymetrix SNP6
 profile_name: Log2 copy-number values
 data_filename: data_log2_cna.txt</code></pre>
 </doc-codeblock></div>
-<doc-anchor-target id="data-file-2">
+<doc-anchor-target id="data-file-3">
     <h3>
-        <doc-anchor-trigger class="header-anchor-trigger" to="#data-file-2">#</doc-anchor-trigger>
+        <doc-anchor-trigger class="header-anchor-trigger" to="#data-file-3">#</doc-anchor-trigger>
         <span>Data file</span>
     </h3>
 </doc-anchor-target>
@@ -834,9 +923,9 @@ the seed database.</p>
     </h2>
 </doc-anchor-target>
 <p>A SEG file (segmented data; .seg or .cbs) is a tab-delimited text file that lists loci and associated numeric values. The segmented data file format is the output of the Circular Binary Segmentation algorithm (Olshen et al., 2004). This Segment data enables the &#x27;CNA&#x27; lane in the Genomic overview of the Patient view (as <a href="https://www.cbioportal.org/patient?sampleId=TCGA-BH-A0E6-01&amp;studyId=brca_tcga">can be seen in this example</a>).</p>
-<doc-anchor-target id="meta-file-4">
+<doc-anchor-target id="meta-file-5">
     <h3>
-        <doc-anchor-trigger class="header-anchor-trigger" to="#meta-file-4">#</doc-anchor-trigger>
+        <doc-anchor-trigger class="header-anchor-trigger" to="#meta-file-5">#</doc-anchor-trigger>
         <span>Meta file</span>
     </h3>
 </doc-anchor-target>
@@ -849,9 +938,9 @@ the seed database.</p>
 <li><strong>description</strong>: A description of the segmented data, e.g., &quot;Segment data for the XYZ cancer study.&quot;.</li>
 <li><strong>data_filename</strong>: your datafile</li>
 </ol>
-<doc-anchor-target id="example-7">
+<doc-anchor-target id="example-9">
     <h3>
-        <doc-anchor-trigger class="header-anchor-trigger" to="#example-7">#</doc-anchor-trigger>
+        <doc-anchor-trigger class="header-anchor-trigger" to="#example-9">#</doc-anchor-trigger>
         <span>Example:</span>
     </h3>
 </doc-anchor-target>
@@ -864,16 +953,16 @@ reference_genome_id: hg19
 description: Somatic CNA data (copy number ratio from tumor samples minus ratio from matched normals) from TCGA.
 data_filename: data_cna_hg19.seg</code></pre>
 </doc-codeblock></div>
-<doc-anchor-target id="data-file-3">
+<doc-anchor-target id="data-file-4">
     <h3>
-        <doc-anchor-trigger class="header-anchor-trigger" to="#data-file-3">#</doc-anchor-trigger>
+        <doc-anchor-trigger class="header-anchor-trigger" to="#data-file-4">#</doc-anchor-trigger>
         <span>Data file</span>
     </h3>
 </doc-anchor-target>
 <p>The first row contains column headings and each subsequent row contains a locus and an associated numeric value. See also the <a href="https://www.broadinstitute.org/software/igv/SEG">Broad IGV page on this format</a>.</p>
-<doc-anchor-target id="example-8">
+<doc-anchor-target id="example-10">
     <h3>
-        <doc-anchor-trigger class="header-anchor-trigger" to="#example-8">#</doc-anchor-trigger>
+        <doc-anchor-trigger class="header-anchor-trigger" to="#example-10">#</doc-anchor-trigger>
         <span>Example:</span>
     </h3>
 </doc-anchor-target>
@@ -894,9 +983,9 @@ SAMPLE_ID_2&lt;TAB&gt;2&lt;TAB&gt;5512374&lt;TAB&gt;159004775&lt;TAB&gt;80678&lt
     </h2>
 </doc-anchor-target>
 <p>An expression data file is a two dimensional matrix with a gene per row and a sample per column.  For each gene-sample pair, a real number represents the gene expression in that sample.</p>
-<doc-anchor-target id="meta-file-5">
+<doc-anchor-target id="meta-file-6">
     <h3>
-        <doc-anchor-trigger class="header-anchor-trigger" to="#meta-file-5">#</doc-anchor-trigger>
+        <doc-anchor-trigger class="header-anchor-trigger" to="#meta-file-6">#</doc-anchor-trigger>
         <span>Meta file</span>
     </h3>
 </doc-anchor-target>
@@ -941,9 +1030,9 @@ The stable_id for continuous RNA-seq data has two options: <code v-pre>rna_seq_m
 <tr><td>CONTINUOUS</td><td>rna_seq_mrna_capture</td><td>data from Roche mRNA Capture Kit</td></tr>
 <tr><td>Z-SCORE</td><td>rna_seq_mrna_capture_Zscores</td><td>data from Roche mRNA Capture Kit</td></tr>
 </table>
-<doc-anchor-target id="example-9">
+<doc-anchor-target id="example-11">
     <h3>
-        <doc-anchor-trigger class="header-anchor-trigger" to="#example-9">#</doc-anchor-trigger>
+        <doc-anchor-trigger class="header-anchor-trigger" to="#example-11">#</doc-anchor-trigger>
         <span>Example</span>
     </h3>
 </doc-anchor-target>
@@ -958,9 +1047,9 @@ profile_name: mRNA expression
 profile_description: Expression levels 
 data_filename: data_expression.txt</code></pre>
 </doc-codeblock></div>
-<doc-anchor-target id="data-file-4">
+<doc-anchor-target id="data-file-5">
     <h3>
-        <doc-anchor-trigger class="header-anchor-trigger" to="#data-file-4">#</doc-anchor-trigger>
+        <doc-anchor-trigger class="header-anchor-trigger" to="#data-file-5">#</doc-anchor-trigger>
         <span>Data file</span>
     </h3>
 </doc-anchor-target>
@@ -1034,9 +1123,9 @@ AGRN&lt;TAB&gt;0.142&lt;TAB&gt;0.091&lt;TAB&gt;...
     </h2>
 </doc-anchor-target>
 <p>When loading mutation data, the <code v-pre>_sequenced</code> case list is required. See the <doc-anchor-trigger to="#case-lists">case list section</doc-anchor-trigger>.</p>
-<doc-anchor-target id="meta-file-6">
+<doc-anchor-target id="meta-file-7">
     <h3>
-        <doc-anchor-trigger class="header-anchor-trigger" to="#meta-file-6">#</doc-anchor-trigger>
+        <doc-anchor-trigger class="header-anchor-trigger" to="#meta-file-7">#</doc-anchor-trigger>
         <span>Meta file</span>
     </h3>
 </doc-anchor-target>
@@ -1091,9 +1180,9 @@ For example, given <code v-pre>Reference_Allele</code> = &quot;G&quot;, <code v-
     </h3>
 </doc-anchor-target>
 <p>The <code v-pre>namespaces</code> field can be used to specify additional MAF columns for import. This field should contain a comma separated list of namespaces. Namespaces can be identified as prefixes to an arbitrary set of additional MAF columns (separated with a period e.g <code v-pre>ASCN.total_copy_number</code>, <code v-pre>ASCN.minor_copy_number</code>). All columns with a prefix matching a namespace specified in the metafile will be imported; columns with an unspecified namespace will be ignored. If no additional columns beyond the required set need to be imported, the field should be left blank.</p>
-<doc-anchor-target id="example-10">
+<doc-anchor-target id="example-12">
     <h3>
-        <doc-anchor-trigger class="header-anchor-trigger" to="#example-10">#</doc-anchor-trigger>
+        <doc-anchor-trigger class="header-anchor-trigger" to="#example-12">#</doc-anchor-trigger>
         <span>Example</span>
     </h3>
 </doc-anchor-target>
@@ -1109,9 +1198,9 @@ profile_name: Mutations
 data_filename: data_mutations.txt
 namespaces: ASCN</code></pre>
 </doc-codeblock></div>
-<doc-anchor-target id="data-file-5">
+<doc-anchor-target id="data-file-6">
     <h3>
-        <doc-anchor-trigger class="header-anchor-trigger" to="#data-file-5">#</doc-anchor-trigger>
+        <doc-anchor-trigger class="header-anchor-trigger" to="#data-file-6">#</doc-anchor-trigger>
         <span>Data file</span>
     </h3>
 </doc-anchor-target>
@@ -1237,67 +1326,12 @@ This tool runs annotates variants against the <a href="https://genomenexus.org">
         <span>Adding your own mutation annotation columns</span>
     </h3>
 </doc-anchor-target>
-<p>Adding additional mutation annotation columns to the cBioPortal mutation data file rows can also be done. In this way, the portal will parse and store your own MAF fields in the database. For example, mutation data that you find on cBioPortal.org comes from MAF files that have been further enriched with information from <a href="https://mutationassessor.org/">mutationassessor.org</a>, which leads to a &quot;Mutation Assessor&quot; column in the <a href="https://www.cbioportal.org/index.do?cancer_study_list=acc_tcga&amp;cancer_study_id=acc_tcga&amp;genetic_profile_ids_PROFILE_MUTATION_EXTENDED=acc_tcga_mutations&amp;Z_SCORE_THRESHOLD=2.0&amp;RPPA_SCORE_THRESHOLD=2.0&amp;data_priority=0&amp;case_set_id=acc_tcga_sequenced&amp;case_ids=&amp;patient_case_select=sample&amp;gene_set_choice=user-defined-list&amp;gene_list=ZFPM1&amp;clinical_param_selection=null&amp;tab_index=tab_visualize&amp;Action=Submit">mutation table</a>.</p>
-<doc-anchor-target id="adding-mutation-annotation-columns-through-namespaces">
-    <h3>
-        <doc-anchor-trigger class="header-anchor-trigger" to="#adding-mutation-annotation-columns-through-namespaces">#</doc-anchor-trigger>
-        <span>Adding mutation annotation columns through namespaces</span>
-    </h3>
-</doc-anchor-target>
-<p>Additional columns may also be added into the cBioPortal mutation data file and imported through the namespace mechanism. Any columns starting with a prefix specified in the <code v-pre>namespaces</code> field in the metafile will be imported into the database. Namespace columns should be formatted as the namespace and namespace attribute seperated with a period (e.g ASCN.total_copy_number where ASCN is the namespace and total_copy_number is the attribute).</p>
-<p>An example cBioPortal mutation data file with the following <strong>additional</strong> columns:</p>
-<div class="codeblock-wrapper"><doc-codeblock>
-<pre class="language-none"><code v-pre class="language-none">ASCN.total_copy_number    ASCN.clonal     MUTATION.name    MUTATION.type</code></pre>
-</doc-codeblock></div>
-<p>imported with the following <code v-pre>namespaces</code> field in the metafile:</p>
-<div class="codeblock-wrapper"><doc-codeblock>
-<pre class="language-none"><code v-pre class="language-none">namespaces: ascn</code></pre>
-</doc-codeblock></div>
-<p>will import the <code v-pre>ASCN.total_copy_number</code> and <code v-pre>ASCN.clonal</code> column into the database. <code v-pre>MUTATION.name</code> and <code v-pre>MUTATION.type</code> will be ignored because <code v-pre>mutation</code> is not specified in the <code v-pre>namespaces</code> field.</p>
-<doc-anchor-target id="representation-of-namespace-columns-by-mutation-api-endpoints">
-    <h2>
-        <doc-anchor-trigger class="header-anchor-trigger" to="#representation-of-namespace-columns-by-mutation-api-endpoints">#</doc-anchor-trigger>
-        <span>Representation of namespace columns by mutation API endpoints</span>
-    </h2>
-</doc-anchor-target>
-<p>Columns added through namespaces will be returned by mutation API endpoints. Namespace data will be available in
-the <code v-pre>namespaceColumn</code>
-of respective JSON representations of mutation records. The <code v-pre>namespaceColumns</code> property will be a JSON object where
-namespace data is keyed by name of the namespace in lowercase. For instance, when namespace <code v-pre>ZYGOSITY</code> is defined in the
-meta file and the data file has column <code v-pre>ZYGOSITY.status</code> with value <code v-pre>Homozygous</code> for a mutation row, the API will return
-the following JSON record for this mutation (only relevant fields are shown):</p>
-<div class="codeblock-wrapper"><doc-codeblock>
-<pre class="language-none"><code v-pre class="language-none">{
-    &quot;namespaceColumns&quot;: {
-        &quot;ZYGOSITY&quot;: {
-            &quot;status&quot;: &quot;Homozygous&quot;
-        }
-    },
-}</code></pre>
-</doc-codeblock></div>
-<p>Note: ASCN namespace data is not exported via the <code v-pre>namespaceColumns</code> field.</p>
-<doc-anchor-target id="representation-of-namespace-columns-in-the-cbioportal-frontend">
-    <h2>
-        <doc-anchor-trigger class="header-anchor-trigger" to="#representation-of-namespace-columns-in-the-cbioportal-frontend">#</doc-anchor-trigger>
-        <span>Representation of namespace columns in the cBioPortal frontend</span>
-    </h2>
-</doc-anchor-target>
-<p>Namespace columns will be added as columns to mutation tables in Patient View and Results View. The case of the
-namespace in the column header will be as specified in the mutations meta file and the column name will be capitalized.
-For instance, this metafile entry:</p>
-<div class="codeblock-wrapper"><doc-codeblock>
-<pre class="language-bash"><code v-pre class="language-bash">namespaces: Zygosity</code></pre>
-</doc-codeblock></div>
-<p>and this column header:</p>
-<div class="codeblock-wrapper"><doc-codeblock>
-<pre class="language-bash"><code v-pre class="language-bash">ZYGOSITY.status</code></pre>
-</doc-codeblock></div>
-<p>will show in the mutation table with column name:</p>
-<div class="codeblock-wrapper"><doc-codeblock>
-<pre class="language-bash"><code v-pre class="language-bash">Zygosity Status</code></pre>
-</doc-codeblock></div>
-<p>Note: namespace columns are recognized by a case-insensitive match of the namespace reported in the mutations meta file
-and the first word in the column header.</p>
+<p>Additional mutation annotation columns can be added to the cBioPortal mutation data file. In this way, the portal will
+parse and store your own MAF fields in the database. For example, mutation data that you find on cBioPortal.org comes
+from MAF files that have been further enriched with information
+from <a href="https://mutationassessor.org/">mutationassessor.org</a>, which leads to a &quot;Mutation Assessor&quot; column in
+the <a href="https://www.cbioportal.org/index.do?cancer_study_list=acc_tcga&amp;cancer_study_id=acc_tcga&amp;genetic_profile_ids_PROFILE_MUTATION_EXTENDED=acc_tcga_mutations&amp;Z_SCORE_THRESHOLD=2.0&amp;RPPA_SCORE_THRESHOLD=2.0&amp;data_priority=0&amp;case_set_id=acc_tcga_sequenced&amp;case_ids=&amp;patient_case_select=sample&amp;gene_set_choice=user-defined-list&amp;gene_list=ZFPM1&amp;clinical_param_selection=null&amp;tab_index=tab_visualize&amp;Action=Submit">mutation table</a>.</p>
+<p>See <doc-anchor-trigger to="#custom-namespace-columns">Custom namespace columns</doc-anchor-trigger> for more information on adding custom columns to data files.</p>
 <doc-anchor-target id="allele-specific-copy-number-ascn-annotations">
     <h3>
         <doc-anchor-trigger class="header-anchor-trigger" to="#allele-specific-copy-number-ascn-annotations">#</doc-anchor-trigger>
@@ -1337,9 +1371,9 @@ and the first word in the column header.</p>
     </h2>
 </doc-anchor-target>
 <p>The Portal expects a single value for each gene in each sample, usually a beta-value from the Infinium methylation array platform.</p>
-<doc-anchor-target id="meta-file-7">
+<doc-anchor-target id="meta-file-8">
     <h3>
-        <doc-anchor-trigger class="header-anchor-trigger" to="#meta-file-7">#</doc-anchor-trigger>
+        <doc-anchor-trigger class="header-anchor-trigger" to="#meta-file-8">#</doc-anchor-trigger>
         <span>Meta file</span>
     </h3>
 </doc-anchor-target>
@@ -1355,9 +1389,9 @@ and the first word in the column header.</p>
 <li><strong>data_filename</strong>: your datafile</li>
 <li><strong>gene_panel (Optional)</strong>:  gene panel stable id</li>
 </ol>
-<doc-anchor-target id="example-11">
+<doc-anchor-target id="example-13">
     <h3>
-        <doc-anchor-trigger class="header-anchor-trigger" to="#example-11">#</doc-anchor-trigger>
+        <doc-anchor-trigger class="header-anchor-trigger" to="#example-13">#</doc-anchor-trigger>
         <span>Example</span>
     </h3>
 </doc-anchor-target>
@@ -1372,9 +1406,9 @@ profile_name: Methylation (HM27)
 profile_description: Methylation beta-values (HM27 platform). For genes with multiple methylation probes, the probe least correlated with expression is selected.
 data_filename: data_methylation_hm27.txt</code></pre>
 </doc-codeblock></div>
-<doc-anchor-target id="data-file-6">
+<doc-anchor-target id="data-file-7">
     <h3>
-        <doc-anchor-trigger class="header-anchor-trigger" to="#data-file-6">#</doc-anchor-trigger>
+        <doc-anchor-trigger class="header-anchor-trigger" to="#data-file-7">#</doc-anchor-trigger>
         <span>Data file</span>
     </h3>
 </doc-anchor-target>
@@ -1386,9 +1420,9 @@ data_filename: data_methylation_hm27.txt</code></pre>
     </h2>
 </doc-anchor-target>
 <p>Protein expression measured by reverse-phase protein array or mass spectrometry. Antibody-sample pairs, with a real number representing the protein level for that sample.</p>
-<doc-anchor-target id="meta-file-8">
+<doc-anchor-target id="meta-file-9">
     <h3>
-        <doc-anchor-trigger class="header-anchor-trigger" to="#meta-file-8">#</doc-anchor-trigger>
+        <doc-anchor-trigger class="header-anchor-trigger" to="#meta-file-9">#</doc-anchor-trigger>
         <span>Meta file</span>
     </h3>
 </doc-anchor-target>
@@ -1426,16 +1460,16 @@ show_profile_in_analysis_tab: true
 profile_description: Protein expression Z-scores (RPPA)
 profile_name: Protein expression Z-scores (RPPA)</code></pre>
 </doc-codeblock></div>
-<doc-anchor-target id="data-file-7">
+<doc-anchor-target id="data-file-8">
     <h3>
-        <doc-anchor-trigger class="header-anchor-trigger" to="#data-file-7">#</doc-anchor-trigger>
+        <doc-anchor-trigger class="header-anchor-trigger" to="#data-file-8">#</doc-anchor-trigger>
         <span>Data file</span>
     </h3>
 </doc-anchor-target>
 <p>A protein level data file is a two dimensional matrix with a RPPA antibody per row and a sample per column. For each antibody-sample pair, a real number represents the protein level for that sample.  The antibody information can contain one or more HUGO gene symbols and/or entrez gene identifiers, separated by a space, and an antibody ID pair separated by the &quot;|&quot; symbol.</p>
-<doc-anchor-target id="example-12">
+<doc-anchor-target id="example-14">
     <h3>
-        <doc-anchor-trigger class="header-anchor-trigger" to="#example-12">#</doc-anchor-trigger>
+        <doc-anchor-trigger class="header-anchor-trigger" to="#example-14">#</doc-anchor-trigger>
         <span>Example</span>
     </h3>
 </doc-anchor-target>
@@ -1454,9 +1488,9 @@ AKT1 AKT2 10000|AKT&lt;TAB&gt;0.17071492725&lt;TAB&gt;0.264067254391
     </h2>
 </doc-anchor-target>
 <p>The cBioPortal can load all kinds of structural variant data but at the moment only a subset of them, fusions, are displayed.</p>
-<doc-anchor-target id="meta-file-9">
+<doc-anchor-target id="meta-file-10">
     <h3>
-        <doc-anchor-trigger class="header-anchor-trigger" to="#meta-file-9">#</doc-anchor-trigger>
+        <doc-anchor-trigger class="header-anchor-trigger" to="#meta-file-10">#</doc-anchor-trigger>
         <span>Meta file</span>
     </h3>
 </doc-anchor-target>
@@ -1483,9 +1517,9 @@ profile_name: Structural variants
 profile_description: Structural Variant Data for mskimpact2017
 data_filename: data_sv.txt</code></pre>
 </doc-codeblock></div>
-<doc-anchor-target id="data-file-8">
+<doc-anchor-target id="data-file-9">
     <h3>
-        <doc-anchor-trigger class="header-anchor-trigger" to="#data-file-8">#</doc-anchor-trigger>
+        <doc-anchor-trigger class="header-anchor-trigger" to="#data-file-9">#</doc-anchor-trigger>
         <span>Data file</span>
     </h3>
 </doc-anchor-target>
@@ -1740,6 +1774,15 @@ data_filename: data_sv.txt</code></pre>
 </div>
 <p>For an example see <a href="https://github.com/cBioPortal/datahub/blob/master/public/msk_impact_2017/data_sv.txt">datahub</a>. For an example see <a href="https://github.com/cBioPortal/datahub/blob/master/public/msk_impact_2017/data_sv.txt">datahub</a>. At a minimum <code v-pre>Sample_Id</code>, either <code v-pre>Site1_Hugo_Symbol</code>/ <code v-pre>Site1_Entrez_Gene_Id</code> or  <code v-pre>Site2_Hugo_Symbol</code>/ <code v-pre>Site2_Entrez_Gene_Id</code> and <code v-pre>SV_Status</code> are required. For the stuctural variant tab visualization (still in development) one needs to provide those field as well as <code v-pre>Site1_Ensembl_Transcript_Id</code>, <code v-pre>Site2_Ensembl_Transcript_Id</code>, <code v-pre>Site1_Region</code> and <code v-pre>Site2_Region</code>. Some of the other columns are shown at several other pages on the website. The <code v-pre>Class</code>, <code v-pre>Annotation</code> and <code v-pre>Event_Info</code> columns are shown prominently on several locations.
 <strong>Note</strong>: We strongly recommend all the data providers to submit genomic locations  in addition to required fields for future visualization features.</p>
+<doc-anchor-target id="adding-your-own-structural-variant-columns">
+    <h3>
+        <doc-anchor-trigger class="header-anchor-trigger" to="#adding-your-own-structural-variant-columns">#</doc-anchor-trigger>
+        <span>Adding your own structural variant columns</span>
+    </h3>
+</doc-anchor-target>
+<p>Additional mutation annotation columns can be added to the structural variant data file. In this way, the portal will
+parse and store your own structural variant fields in the database.</p>
+<p>See <doc-anchor-trigger to="#custom-namespace-columns">Custom namespace columns</doc-anchor-trigger> for more information on adding custom columns to data files.</p>
 <doc-anchor-target id="fusion-data">
     <h2>
         <doc-anchor-trigger class="header-anchor-trigger" to="#fusion-data">#</doc-anchor-trigger>
@@ -1747,9 +1790,9 @@ data_filename: data_sv.txt</code></pre>
     </h2>
 </doc-anchor-target>
 <p><strong><span class="docs-emoji">&#x26A0;&#xFE0F;</span> DEPRECATED Use the: <doc-anchor-trigger to="#structural-variant-data">SV format</doc-anchor-trigger> instead</strong></p>
-<doc-anchor-target id="meta-file-10">
+<doc-anchor-target id="meta-file-11">
     <h3>
-        <doc-anchor-trigger class="header-anchor-trigger" to="#meta-file-10">#</doc-anchor-trigger>
+        <doc-anchor-trigger class="header-anchor-trigger" to="#meta-file-11">#</doc-anchor-trigger>
         <span>Meta file</span>
     </h3>
 </doc-anchor-target>
@@ -1765,9 +1808,9 @@ data_filename: data_sv.txt</code></pre>
 <li><strong>data_filename</strong>: your datafile</li>
 <li><strong>gene_panel (Optional)</strong>:  gene panel stable id</li>
 </ol>
-<doc-anchor-target id="example-13">
+<doc-anchor-target id="example-15">
     <h3>
-        <doc-anchor-trigger class="header-anchor-trigger" to="#example-13">#</doc-anchor-trigger>
+        <doc-anchor-trigger class="header-anchor-trigger" to="#example-15">#</doc-anchor-trigger>
         <span>Example</span>
     </h3>
 </doc-anchor-target>
@@ -1782,9 +1825,9 @@ profile_name: Fusions
 profile_description: Fusion data.
 data_filename: data_fusions.txt</code></pre>
 </doc-codeblock></div>
-<doc-anchor-target id="data-file-9">
+<doc-anchor-target id="data-file-10">
     <h3>
-        <doc-anchor-trigger class="header-anchor-trigger" to="#data-file-9">#</doc-anchor-trigger>
+        <doc-anchor-trigger class="header-anchor-trigger" to="#data-file-10">#</doc-anchor-trigger>
         <span>Data file</span>
     </h3>
 </doc-anchor-target>
@@ -1827,9 +1870,9 @@ The case list file should contain the following fields:</p>
 <li><strong>case_list_ids</strong>: A tab-delimited list of sample ids from the dataset.</li>
 <li><strong>case_list_category</strong>: Optional <em>alternative</em> way of linking your case list to a specific molecular profile. E.g. setting this to <code v-pre>all_cases_with_cna_data</code> will signal to the portal that this is the list of samples to be associated with CNA data in <em>some</em> of the analysis.</li>
 </ol>
-<doc-anchor-target id="example-14">
+<doc-anchor-target id="example-16">
     <h3>
-        <doc-anchor-trigger class="header-anchor-trigger" to="#example-14">#</doc-anchor-trigger>
+        <doc-anchor-trigger class="header-anchor-trigger" to="#example-16">#</doc-anchor-trigger>
         <span>Example</span>
     </h3>
 </doc-anchor-target>
@@ -1907,9 +1950,9 @@ case_list_ids: SAMPLE_ID_1&lt;TAB&gt;SAMPLE_ID_2&lt;TAB&gt;SAMPLE_ID_3&lt;TAB&gt
 <p>The timeline data is a representation of the various events that occur during the course of treatment for a patient from initial diagnosis. In cBioPortal timeline data is represented as one or more tracks in the patient view. Each main track is based on an event type, such as &quot;Specimen&quot;, &quot;Imaging&quot;, &quot;Lab_test&quot;, etc.</p>
 <p><strong>Attention</strong>: some clinical attributes affect the timeline visualization. Please check the <doc-anchor-trigger to="#clinical-data">Clinical Data</doc-anchor-trigger> section for more information.</p>
 <p>This type data is not yet being validated. It can, however, be uploaded.</p>
-<doc-anchor-target id="meta-file-11">
+<doc-anchor-target id="meta-file-12">
     <h3>
-        <doc-anchor-trigger class="header-anchor-trigger" to="#meta-file-11">#</doc-anchor-trigger>
+        <doc-anchor-trigger class="header-anchor-trigger" to="#meta-file-12">#</doc-anchor-trigger>
         <span>Meta file</span>
     </h3>
 </doc-anchor-target>
@@ -1927,9 +1970,9 @@ genetic_alteration_type: CLINICAL
 datatype: TIMELINE
 data_filename: data_timeline_imaging.txt</code></pre>
 </doc-codeblock></div>
-<doc-anchor-target id="data-file-10">
+<doc-anchor-target id="data-file-11">
     <h3>
-        <doc-anchor-trigger class="header-anchor-trigger" to="#data-file-10">#</doc-anchor-trigger>
+        <doc-anchor-trigger class="header-anchor-trigger" to="#data-file-11">#</doc-anchor-trigger>
         <span>Data file</span>
     </h3>
 </doc-anchor-target>
@@ -2024,9 +2067,9 @@ data_filename: data_timeline_imaging.txt</code></pre>
 <li>First custom event</li>
 <li>etc.</li>
 </ol>
-<doc-anchor-target id="example-15">
+<doc-anchor-target id="example-17">
     <h3>
-        <doc-anchor-trigger class="header-anchor-trigger" to="#example-15">#</doc-anchor-trigger>
+        <doc-anchor-trigger class="header-anchor-trigger" to="#example-17">#</doc-anchor-trigger>
         <span>Example</span>
     </h3>
 </doc-anchor-target>
@@ -2059,9 +2102,9 @@ CACO2&lt;TAB&gt;250&lt;TAB&gt;LAB_TEST&lt;TAB&gt;PSA&lt;TAB&gt;100
     <figcaption class="caption">recurrently-altered-genes-table</figcaption>
 </figure>
 </p>
-<doc-anchor-target id="meta-file-12">
+<doc-anchor-target id="meta-file-13">
     <h3>
-        <doc-anchor-trigger class="header-anchor-trigger" to="#meta-file-12">#</doc-anchor-trigger>
+        <doc-anchor-trigger class="header-anchor-trigger" to="#meta-file-13">#</doc-anchor-trigger>
         <span>Meta file</span>
     </h3>
 </doc-anchor-target>
@@ -2081,9 +2124,9 @@ datatype: Q-VALUE
 reference_genome_id: hg19
 data_filename: data_gistic_genes_amp.txt</code></pre>
 </doc-codeblock></div>
-<doc-anchor-target id="data-file-11">
+<doc-anchor-target id="data-file-12">
     <h3>
-        <doc-anchor-trigger class="header-anchor-trigger" to="#data-file-11">#</doc-anchor-trigger>
+        <doc-anchor-trigger class="header-anchor-trigger" to="#data-file-12">#</doc-anchor-trigger>
         <span>Data file</span>
     </h3>
 </doc-anchor-target>
@@ -2097,9 +2140,9 @@ data_filename: data_gistic_genes_amp.txt</code></pre>
 <li><strong>cytoband</strong>: cytogenetic band specification of the region, including chromosome (Giemsa stain)</li>
 <li><strong>q_value</strong>: the q-value of the peak region</li>
 </ul>
-<doc-anchor-target id="example-16">
+<doc-anchor-target id="example-18">
     <h3>
-        <doc-anchor-trigger class="header-anchor-trigger" to="#example-16">#</doc-anchor-trigger>
+        <doc-anchor-trigger class="header-anchor-trigger" to="#example-18">#</doc-anchor-trigger>
         <span>Example</span>
     </h3>
 </doc-anchor-target>
@@ -2126,9 +2169,9 @@ data_filename: data_gistic_genes_amp.txt</code></pre>
 </figure>
 </p>
 <p>This type data is not yet being validated. It can, however, be uploaded.</p>
-<doc-anchor-target id="meta-file-13">
+<doc-anchor-target id="meta-file-14">
     <h3>
-        <doc-anchor-trigger class="header-anchor-trigger" to="#meta-file-13">#</doc-anchor-trigger>
+        <doc-anchor-trigger class="header-anchor-trigger" to="#meta-file-14">#</doc-anchor-trigger>
         <span>Meta file</span>
     </h3>
 </doc-anchor-target>
@@ -2146,9 +2189,9 @@ genetic_alteration_type: MUTSIG
 datatype: Q-VALUE
 data_filename: data_mutsig.txt</code></pre>
 </doc-codeblock></div>
-<doc-anchor-target id="data-file-12">
+<doc-anchor-target id="data-file-13">
     <h3>
-        <doc-anchor-trigger class="header-anchor-trigger" to="#data-file-12">#</doc-anchor-trigger>
+        <doc-anchor-trigger class="header-anchor-trigger" to="#data-file-13">#</doc-anchor-trigger>
         <span>Data file</span>
     </h3>
 </doc-anchor-target>
@@ -2161,9 +2204,9 @@ data_filename: data_mutsig.txt</code></pre>
 <li><strong>p</strong>: result of testing the hypothesis that all of the observed mutations in this gene are a consequence of random background mutation processes, taking into account the list of bases that are successfully interrogated by sequencing (i.e., “covered”) and the list of observed somatic mutations, as well as the length and composition of the gene in addition to the background mutation rates in different sequence contexts (<a href="https://www.ncbi.nlm.nih.gov/pmc/articles/PMC3059829/">https://www.ncbi.nlm.nih.gov/pmc/articles/PMC3059829/</a>)</li>
 <li><strong>q</strong>: p value correct for multiple testing</li>
 </ul>
-<doc-anchor-target id="example-17">
+<doc-anchor-target id="example-19">
     <h3>
-        <doc-anchor-trigger class="header-anchor-trigger" to="#example-17">#</doc-anchor-trigger>
+        <doc-anchor-trigger class="header-anchor-trigger" to="#example-19">#</doc-anchor-trigger>
         <span>Example</span>
     </h3>
 </doc-anchor-target>
@@ -2207,9 +2250,9 @@ data_filename: data_mutsig.txt</code></pre>
     </h3>
 </doc-anchor-target>
 <p>For each sample-profile combination, a gene panel should be specified. Please make sure this gene panel is imported before loading the study data. When the sample is not profiled on a gene panel, or if the sample is not profiled at all, use <code v-pre>NA</code> as value. If the sample is profiled for mutations, make sure it is also in the <code v-pre>_sequenced</code> case list.</p>
-<doc-anchor-target id="example-18">
+<doc-anchor-target id="example-20">
     <h3>
-        <doc-anchor-trigger class="header-anchor-trigger" to="#example-18">#</doc-anchor-trigger>
+        <doc-anchor-trigger class="header-anchor-trigger" to="#example-20">#</doc-anchor-trigger>
         <span>Example</span>
     </h3>
 </doc-anchor-target>
@@ -2242,9 +2285,9 @@ data_filename: data_mutsig.txt</code></pre>
 </tbody>
 </table>
 </div>
-<doc-anchor-target id="meta-file-14">
+<doc-anchor-target id="meta-file-15">
     <h3>
-        <doc-anchor-trigger class="header-anchor-trigger" to="#meta-file-14">#</doc-anchor-trigger>
+        <doc-anchor-trigger class="header-anchor-trigger" to="#meta-file-15">#</doc-anchor-trigger>
         <span>Meta file</span>
     </h3>
 </doc-anchor-target>
@@ -2473,14 +2516,17 @@ values to the left.  When <code v-pre>value_sort_order</code> is <code v-pre>DES
         <span>Note on <code v-pre>generic_entity_meta_properties</code></span>
     </h3>
 </doc-anchor-target>
-<p>All meta properties must be specified in the <code v-pre>generic_entity_meta_properties</code> field. Every meta property listed here must appear as a column header in the corresponding data file. It&#x27;s highly recommend to add <code v-pre>NAME</code>, <code v-pre>DESCRIPTION</code> and an optional <code v-pre>URL</code> to get the best visualization on OncoPrint tab and Plots tab.</p>
+<p>All meta properties must be specified in the <code v-pre>generic_entity_meta_properties</code> field. Every meta property listed here
+must appear as a column header in the corresponding data file. It&#x27;s highly recommend to add <code v-pre>NAME</code>, <code v-pre>DESCRIPTION</code> and an
+optional <code v-pre>URL</code> to get the best visualization on OncoPrint tab and Plots tab.</p>
 <doc-anchor-target id="note-on-patient_level">
     <h3>
         <doc-anchor-trigger class="header-anchor-trigger" to="#note-on-patient_level">#</doc-anchor-trigger>
         <span>Note on <code v-pre>patient_level</code></span>
     </h3>
 </doc-anchor-target>
-<p>Generic Assay data will be considered <code v-pre>sample_level</code> data if the <code v-pre>patient_level</code> property is missing or set to <code v-pre>false</code>. In addition, the patient or sample identifiers need to be included in the <doc-anchor-trigger to="#clinical-data">Clinical Data</doc-anchor-trigger> file.</p>
+<p>Generic Assay data will be considered <code v-pre>sample_level</code> data if the <code v-pre>patient_level</code> property is missing or set to <code v-pre>false</code>.
+In addition, the patient or sample identifiers need to be included in the <doc-anchor-trigger to="#clinical-data">Clinical Data</doc-anchor-trigger> file.</p>
 <doc-anchor-target id="note-on-generic-assay-genetic_alteration_type-and-datatype">
     <h3>
         <doc-anchor-trigger class="header-anchor-trigger" to="#note-on-generic-assay-genetic_alteration_type-and-datatype">#</doc-anchor-trigger>
@@ -2669,6 +2715,75 @@ data_filename: data_resource_sample.txt</code></pre>
 <thead><tr><th>RESOURCE_ID</th><th>URL</th></tr></thead>
 <tr><td>STUDY_SPONSORS</td><td>https://url-to-study-sponsors</td></tr>
 </table>
+<doc-anchor-target id="custom-namespace-columns">
+    <h2>
+        <doc-anchor-trigger class="header-anchor-trigger" to="#custom-namespace-columns">#</doc-anchor-trigger>
+        <span>Custom namespace columns</span>
+    </h2>
+</doc-anchor-target>
+<doc-anchor-target id="adding-annotation-columns-through-namespaces">
+    <h3>
+        <doc-anchor-trigger class="header-anchor-trigger" to="#adding-annotation-columns-through-namespaces">#</doc-anchor-trigger>
+        <span>Adding annotation columns through namespaces</span>
+    </h3>
+</doc-anchor-target>
+<p>Custom columns can be added to the data files of mutations, structural variants and discrete copy number (long) data.
+The columns can be imported through the namespace mechanism into a database table column called <code v-pre>ANNOTATION_JSON</code>. Any columns starting with a prefix specified in the <code v-pre>namespaces</code> field in the metafile will be imported into the database. Namespace columns should be formatted as the namespace and namespace attribute seperated with a period (e.g <code v-pre>ASCN.total_copy_number</code> where <code v-pre>ASCN</code> is the namespace and <code v-pre>total_copy_number</code> is the attribute).</p>
+<p>An example cBioPortal mutation data file with the following <strong>additional</strong> columns:</p>
+<div class="codeblock-wrapper"><doc-codeblock>
+<pre class="language-none"><code v-pre class="language-none">ASCN.total_copy_number    ASCN.clonal     MUTATION.name    MUTATION.type</code></pre>
+</doc-codeblock></div>
+<p>imported with the following <code v-pre>namespaces</code> field in the metafile:</p>
+<div class="codeblock-wrapper"><doc-codeblock>
+<pre class="language-none"><code v-pre class="language-none">namespaces: ascn</code></pre>
+</doc-codeblock></div>
+<p>will import the <code v-pre>ASCN.total_copy_number</code> and <code v-pre>ASCN.clonal</code> column into the database. <code v-pre>MUTATION.name</code> and <code v-pre>MUTATION.type</code>
+will be ignored because <code v-pre>mutation</code> is not specified in the <code v-pre>namespaces</code> field.</p>
+<doc-anchor-target id="representation-of-namespace-columns-by-mutation-api-endpoints">
+    <h2>
+        <doc-anchor-trigger class="header-anchor-trigger" to="#representation-of-namespace-columns-by-mutation-api-endpoints">#</doc-anchor-trigger>
+        <span>Representation of namespace columns by mutation API endpoints</span>
+    </h2>
+</doc-anchor-target>
+<p>Columns added through namespaces will be returned by relevant mutation, discrete copy number and structural variant API
+endpoints. Namespace data will be available in the <code v-pre>namespaceColumn</code> of respective JSON representations of mutation
+records. The <code v-pre>namespaceColumns</code> property will be a JSON object where namespace data is keyed by name of the namespace in
+lowercase. For instance, when namespace <code v-pre>ZYGOSITY</code> is defined in the meta file and the data file has column
+<code v-pre>ZYGOSITY.status</code> with value <code v-pre>Homozygous</code> for a mutation row, the API will return the following JSON record for this
+mutation (only relevant fields are shown):</p>
+<div class="codeblock-wrapper"><doc-codeblock>
+<pre class="language-none"><code v-pre class="language-none">{
+    &quot;namespaceColumns&quot;: {
+        &quot;ZYGOSITY&quot;: {
+            &quot;status&quot;: &quot;Homozygous&quot;
+        }
+    },
+}</code></pre>
+</doc-codeblock></div>
+<p>Note: ASCN namespace data is not exported via the <code v-pre>namespaceColumns</code> field.</p>
+<doc-anchor-target id="representation-of-namespace-columns-in-the-cbioportal-frontend">
+    <h2>
+        <doc-anchor-trigger class="header-anchor-trigger" to="#representation-of-namespace-columns-in-the-cbioportal-frontend">#</doc-anchor-trigger>
+        <span>Representation of namespace columns in the cBioPortal frontend</span>
+    </h2>
+</doc-anchor-target>
+<p>Namespace columns will be added as columns to mutation, structural variant and copy number alteration tables in Patient
+View and Results View. The case of the namespace in the column header will be as specified in the mutations meta file
+and the column name will be capitalized.</p>
+<p>For instance, this metafile entry:</p>
+<div class="codeblock-wrapper"><doc-codeblock>
+<pre class="language-bash"><code v-pre class="language-bash">namespaces: Zygosity</code></pre>
+</doc-codeblock></div>
+<p>and this column header:</p>
+<div class="codeblock-wrapper"><doc-codeblock>
+<pre class="language-bash"><code v-pre class="language-bash">ZYGOSITY.status</code></pre>
+</doc-codeblock></div>
+<p>will show in the mutation table with column name:</p>
+<div class="codeblock-wrapper"><doc-codeblock>
+<pre class="language-bash"><code v-pre class="language-bash">Zygosity Status</code></pre>
+</doc-codeblock></div>
+<p>Note: namespace columns are recognized by a case-insensitive match of the namespace reported in the meta file
+and the first word in the column header.</p>
 
                                 
                                 <!-- Required only on API pages -->

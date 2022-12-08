@@ -5,7 +5,7 @@ import java.io.Serializable;
 import java.util.List;
 import java.util.Set;
 
-public class StructuralVariantFilter implements Serializable {
+public class StudyViewStructuralVariantFilter implements Serializable {
 
     private Set<String> molecularProfileIds;
     private List<List<StructVarFilterQuery>> structVarQueries;

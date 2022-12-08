@@ -1,14 +1,10 @@
 package org.cbioportal.web.util.appliers;
 
-import org.cbioportal.model.Gene;
-import org.cbioportal.model.GeneFilter;
 import org.cbioportal.model.MolecularProfile;
 import org.cbioportal.model.StructVarFilterQuery;
-import org.cbioportal.model.StructuralVariantFilter;
+import org.cbioportal.model.StudyViewStructuralVariantFilter;
 import org.cbioportal.service.MolecularProfileService;
 import org.cbioportal.service.StructuralVariantService;
-import org.cbioportal.web.parameter.GeneIdType;
-import org.cbioportal.web.parameter.Projection;
 import org.cbioportal.web.parameter.SampleIdentifier;
 import org.cbioportal.web.parameter.StudyViewFilter;
 import org.cbioportal.web.util.StudyViewFilterUtil;
@@ -36,7 +32,7 @@ public class StructuralVariantSubFilterApplier extends StudyViewSubFilterApplier
     @Override
     public List<SampleIdentifier> filter(List<SampleIdentifier> toFilter, StudyViewFilter filters) {
 
-        final List<StructuralVariantFilter> structVarFilters = getStructVarFilters(filters);
+        final List<StudyViewStructuralVariantFilter> structVarFilters = getStructVarFilters(filters);
 
         List<String> includedStudyIds = toFilter.stream()
             .map(SampleIdentifier::getStudyId)
@@ -50,7 +46,7 @@ public class StructuralVariantSubFilterApplier extends StudyViewSubFilterApplier
 
         List<SampleIdentifier> remainingSampleIdentifiers = toFilter;
         
-        for (StructuralVariantFilter genefilter : structVarFilters) {
+        for (StudyViewStructuralVariantFilter genefilter : structVarFilters) {
 
             // Collect molecular profiles referenced in gene filter.
             List<MolecularProfile> filteredMolecularProfiles = genefilter
@@ -102,12 +98,12 @@ public class StructuralVariantSubFilterApplier extends StudyViewSubFilterApplier
         return !getStructVarFilters(studyViewFilter).isEmpty();
     }
 
-    private static List<StructuralVariantFilter> getStructVarFilters(StudyViewFilter filters) {
-        final List<StructuralVariantFilter> structuralVariantFilters = filters.getStructuralVariantFilters();
+    private static List<StudyViewStructuralVariantFilter> getStructVarFilters(StudyViewFilter filters) {
+        final List<StudyViewStructuralVariantFilter> structuralVariantFilters = filters.getStructuralVariantFilters();
         if (structuralVariantFilters == null || structuralVariantFilters.isEmpty()) {
             return new ArrayList<>();
         }
-        final List<StructuralVariantFilter> structVarFilters = structuralVariantFilters.stream()
+        final List<StudyViewStructuralVariantFilter> structVarFilters = structuralVariantFilters.stream()
             .filter(structuralVariantFilter -> !structuralVariantFilter.getStructVarQueries().isEmpty())
             .collect(Collectors.toList());
         return structVarFilters;

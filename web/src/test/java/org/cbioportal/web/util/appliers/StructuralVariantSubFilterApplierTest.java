@@ -1,11 +1,9 @@
 package org.cbioportal.web.util.appliers;
 
-import com.google.common.collect.Sets;
-import org.cbioportal.model.GeneFilter;
 import org.cbioportal.model.MolecularProfile;
 import org.cbioportal.model.StructVarFilterQuery;
 import org.cbioportal.model.StructuralVariant;
-import org.cbioportal.model.StructuralVariantFilter;
+import org.cbioportal.model.StudyViewStructuralVariantFilter;
 import org.cbioportal.model.util.Select;
 import org.cbioportal.service.MolecularProfileService;
 import org.cbioportal.service.impl.StructuralVariantServiceImpl;
@@ -60,7 +58,7 @@ public class StructuralVariantSubFilterApplierTest {
         List<StructVarFilterQuery> svB = Arrays.asList(createQuery(G1, G2));
         List<List<StructVarFilterQuery>> svA_and_svB_filterQuery = Arrays.asList(svA, svB);
 
-        final StructuralVariantFilter structuralVariantFilter = new StructuralVariantFilter();
+        final StudyViewStructuralVariantFilter structuralVariantFilter = new StudyViewStructuralVariantFilter();
         structuralVariantFilter.setStructVarQueries(svA_and_svB_filterQuery);
         structVarStudyViewFilter.setStructuralVariantFilters(Arrays.asList(structuralVariantFilter));
 

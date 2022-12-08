@@ -8,13 +8,12 @@ import org.cbioportal.model.ClinicalData;
 import org.cbioportal.model.ClinicalDataCount;
 import org.cbioportal.model.ClinicalDataCountItem;
 import org.cbioportal.model.CopyNumberCountByGene;
-import org.cbioportal.model.GeneFilter;
 import org.cbioportal.model.GenericAssayDataCount;
 import org.cbioportal.model.GenericAssayDataCountItem;
 import org.cbioportal.model.GenomicDataCount;
 import org.cbioportal.model.Sample;
 import org.cbioportal.model.StructVarFilterQuery;
-import org.cbioportal.model.StructuralVariantFilter;
+import org.cbioportal.model.StudyViewStructuralVariantFilter;
 import org.cbioportal.model.StructuralVariantSpecialValue;
 import org.cbioportal.model.util.Select;
 import org.cbioportal.persistence.AlterationRepository;
@@ -866,7 +865,7 @@ public class StudyViewControllerTest {
         final StructVarFilterQuery structVarFilterQuery = new StructVarFilterQuery("A", null, "B", null,
             true, true, true, Select.all(),
             true, true, true, true);
-        final StructuralVariantFilter structuralVariantFilter = new StructuralVariantFilter();
+        final StudyViewStructuralVariantFilter structuralVariantFilter = new StudyViewStructuralVariantFilter();
         structuralVariantFilter.setStructVarQueries(Arrays.asList(Arrays.asList(structVarFilterQuery)));
         studyViewFilter.setStructuralVariantFilters(Arrays.asList(structuralVariantFilter));
 
@@ -893,7 +892,7 @@ public class StudyViewControllerTest {
         final StructVarFilterQuery structVarFilterQuery = new StructVarFilterQuery("A", null, "B", null,
             true, true, true, Select.all(),
             true, true, true, true);
-        final StructuralVariantFilter structuralVariantFilter = new StructuralVariantFilter();
+        final StudyViewStructuralVariantFilter structuralVariantFilter = new StudyViewStructuralVariantFilter();
         structuralVariantFilter.setStructVarQueries(Arrays.asList(Arrays.asList(structVarFilterQuery)));
         studyViewFilter.setStructuralVariantFilters(Arrays.asList(structuralVariantFilter));
 
@@ -921,7 +920,7 @@ public class StudyViewControllerTest {
         final StructVarFilterQuery structVarFilterQuery = new StructVarFilterQuery("A", null, "B", null,
             true, true, true, Select.all(),
             true, true, true, true);
-        final StructuralVariantFilter structuralVariantFilter = new StructuralVariantFilter();
+        final StudyViewStructuralVariantFilter structuralVariantFilter = new StudyViewStructuralVariantFilter();
         structuralVariantFilter.setStructVarQueries(Arrays.asList(Arrays.asList(structVarFilterQuery)));
         studyViewFilter.setStructuralVariantFilters(Arrays.asList(structuralVariantFilter));
 
@@ -951,7 +950,7 @@ public class StudyViewControllerTest {
             true, true, true, Select.all(),
             true, true, true, true);
             
-        final StructuralVariantFilter structuralVariantFilter = new StructuralVariantFilter();
+        final StudyViewStructuralVariantFilter structuralVariantFilter = new StudyViewStructuralVariantFilter();
         structuralVariantFilter.setStructVarQueries(Arrays.asList(Arrays.asList(structVarFilterQuery)));
         studyViewFilter.setStructuralVariantFilters(Arrays.asList(structuralVariantFilter));
 
@@ -978,7 +977,7 @@ public class StudyViewControllerTest {
             true, true, true, true);
         structVarFilterQuery.getGene1Query().setSpecialValue(null);
 
-        final StructuralVariantFilter structuralVariantFilter = new StructuralVariantFilter();
+        final StudyViewStructuralVariantFilter structuralVariantFilter = new StudyViewStructuralVariantFilter();
         structuralVariantFilter.setStructVarQueries(Arrays.asList(Arrays.asList(structVarFilterQuery)));
         studyViewFilter.setStructuralVariantFilters(Arrays.asList(structuralVariantFilter));
 

@@ -89,11 +89,13 @@ public class TestImportStructuralVariantData{
         List<StructuralVariant> structuralVariants = DaoStructuralVariant.getAllStructuralVariants();
         assertEquals("KIAA1549-BRAF.K16B10.COSF509_2", structuralVariants.get(0).getSite2Description());
         assertEquals("ENST00000318522", structuralVariants.get(1).getSite1EnsemblTranscriptId());
-        assertEquals(4, structuralVariants.size());
+        assertEquals(5, structuralVariants.size());
         assertEquals(0L, (long) structuralVariants.get(2).getSite1EntrezGeneId()); // null in db
         assertEquals(673L, (long) structuralVariants.get(2).getSite2EntrezGeneId());
         assertEquals(0L, (long) structuralVariants.get(3).getSite2EntrezGeneId()); // null in db
         assertEquals(673L, (long) structuralVariants.get(3).getSite1EntrezGeneId());
+        assertEquals(0L, (long) structuralVariants.get(4).getSite2EntrezGeneId()); // null in db
+        assertEquals(207, (long) structuralVariants.get(4).getSite1EntrezGeneId()); // 110384692 in file, 207 in DB by hugo
     }
 
     private Object[] namespaceJsonParams() {

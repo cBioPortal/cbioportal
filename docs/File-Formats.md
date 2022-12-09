@@ -22,6 +22,7 @@
     * [Generic Assay](#generic-assay)
         * [Arm Level CNA Data](#arm-level-cna-data)
     * [Resource Data](#resource-data)
+    * [Custom namespace columns](#custom-namespace-columns)
 
 # Introduction
 
@@ -275,12 +276,19 @@ The Clinical Data Dictionary from MSKCC is used to normalize clinical data, and 
 ## Discrete Copy Number Data
 The discrete copy number data file contain values that would be derived from copy-number analysis algorithms like [GISTIC 2.0](https://www.ncbi.nlm.nih.gov/sites/entrez?term=18077431) or [RAE](https://www.ncbi.nlm.nih.gov/sites/entrez?term=18784837). GISTIC 2.0 can be [installed](https://www.broadinstitute.org/cgi-bin/cancer/publications/pub_paper.cgi?mode=view&paper_id=216&p=t) or run online using the GISTIC 2.0 module on [GenePattern](https://cloud.genepattern.org). For some help on using GISTIC 2.0, check the [Data Loading: Tips and Best Practices](Data-Loading-Tips-and-Best-Practices.md) page. When loading case list data, the `_cna` case list is required. See the [case list section](#case-lists).
 
-### Meta file 
+### Wide vs Long format
+For CNA data two formats are supported: the wide, and the long format:
+- **Wide format**: a matrix, where each row is a gene, and each column is a sample
+- **Long format**: not a matrix, each row is a gene-sample combination; this makes the file longer
+
+### Wide format
+
+#### Meta file 
 The meta file is comprised of the following fields:
 
 1. **cancer_study_identifier**: same value as specified in [study meta file](#cancer-study)
 2. **genetic_alteration_type**: COPY_NUMBER_ALTERATION
-3. **datatype**: DISCRETE
+3. **datatype**: `DISCRETE`
 4. **stable_id**: gistic, cna, cna_rae or cna_consensus
 5. **show_profile_in_analysis_tab**: true
 6. **profile_name**: A name for the discrete copy number data, e.g., "Putative copy-number alterations from GISTIC"
@@ -289,7 +297,7 @@ The meta file is comprised of the following fields:
 9. **gene_panel (Optional)**:  gene panel stable id
 10. **pd_annotations_filename (Optional)**: name of [custom driver annotations file](File-Formats.md#custom-driver-annotations-file)
 
-### Example
+##### Example
 An example metadata file could be named meta_cna.txt and its contents could be:
 ```
 cancer_study_identifier: brca_tcga_pub
@@ -303,8 +311,7 @@ data_filename: data_cna.txt
 pd_annotations_filename: data_cna_pd_annotations.txt
 ```
 
-### Data file
-
+#### Data file
 For each gene (row) in the data file, the following columns are required in the order specified:
 
 One or both of:
@@ -321,7 +328,7 @@ For each gene-sample combination, a copy number level is specified:
 - "1" indicates a low-level gain
 - "2" is a high-level amplification.
 
-### Example
+##### Example
 An example data file which includes the required column header would look like:
 ```
 Hugo_Symbol<TAB>Entrez_Gene_Id<TAB>SAMPLE_ID_1<TAB>SAMPLE_ID_2<TAB>...
@@ -330,6 +337,53 @@ AGRN<TAB>375790<TAB>2<TAB>0<TAB>...
 ...
 ...
 `````
+
+### Long format
+
+#### Meta file 
+The meta file of **wide format** is comprised of the following fields:
+
+1. **cancer_study_identifier**: same value as specified in [study meta file](#cancer-study)
+2. **genetic_alteration_type**: COPY_NUMBER_ALTERATION
+3. **datatype**: `DISCRETE_LONG`
+   Note: It will end up as datatype `DISCRETE` in the database, because the LONG data format is only relevant while importing. 
+4. **stable_id**: gistic, cna, cna_rae or cna_consensus
+5. **show_profile_in_analysis_tab**: true
+6. **profile_name**: A name for the discrete copy number data, e.g., "Putative copy-number alterations from GISTIC"
+7. **profile_description**: A description of the copy number data, e.g., "Putative copy-number from GISTIC 2.0. Values: -2 = homozygous deletion; -1 = hemizygous deletion; 0 = neutral / no change; 1 = gain; 2 = high level amplification."
+8. **data_filename**: your datafile
+9. **gene_panel (Optional)**:  gene panel stable id
+10. **namespaces (Optional)**: Comma-delimited list of `namespaces` to import. 
+
+##### Example
+An example metadata file could be named meta_cna.txt and its contents could be:
+```
+cancer_study_identifier: brca_tcga_pub
+genetic_alteration_type: COPY_NUMBER_ALTERATION
+datatype: DISCRETE_LONG
+stable_id: gistic
+show_profile_in_analysis_tab: true
+profile_name: Putative copy-number alterations from GISTIC
+profile_description: Putative copy-number from GISTIC 2.0. Values: -2 = homozygous deletion; -1 = hemizygous deletion; 0 = neutral / no change; 1 = gain; 2 = high level amplification.
+data_filename: data_cna.txt
+namespaces: MyNamespace,MyNamespace2
+```
+
+#### Data file
+Each row contains a row-sample combination. Custom driver annotations are added as columns to the data file, just like custom namespace columns.
+
+##### Example
+An example data file which includes the required column header would look like:
+```
+Hugo_Symbol	Entrez_Gene_Id	Sample_Id	Value	cbp_driver	cbp_driver_annotation	cbp_driver_tiers	cbp_driver_tiers_annotation	MyNamespace.column1
+ACAP3	116983	TCGA-A2-A04U-01	2	Putative_Passenger	Test passenger	Class 2	Class annotation	value1
+...
+```
+
+#### Adding your own discrete copy number columns
+Additional columns can be added to the discrete copy number **long** data file. In this way, the portal will parse and store your own CNA fields in the database.
+
+See [Custom namespace columns](#custom-namespace-columns) for more information on adding custom columns to data files.
 
 ### Custom driver annotations file
 
@@ -718,67 +772,13 @@ You can learn more about configuring these annotations in the [portal.properties
 ![schreenshot mutation color menu](/images/screenshot-mutation-color-menu.png) 
 
 ### Adding your own mutation annotation columns
-Adding additional mutation annotation columns to the cBioPortal mutation data file rows can also be done. In this way, the portal will parse and store your own MAF fields in the database. For example, mutation data that you find on cBioPortal.org comes from MAF files that have been further enriched with information from [mutationassessor.org](https://mutationassessor.org/), which leads to a "Mutation Assessor" column in the [mutation table](https://www.cbioportal.org/index.do?cancer_study_list=acc_tcga&cancer_study_id=acc_tcga&genetic_profile_ids_PROFILE_MUTATION_EXTENDED=acc_tcga_mutations&Z_SCORE_THRESHOLD=2.0&RPPA_SCORE_THRESHOLD=2.0&data_priority=0&case_set_id=acc_tcga_sequenced&case_ids=&patient_case_select=sample&gene_set_choice=user-defined-list&gene_list=ZFPM1&clinical_param_selection=null&tab_index=tab_visualize&Action=Submit).
+Additional mutation annotation columns can be added to the cBioPortal mutation data file. In this way, the portal will
+parse and store your own MAF fields in the database. For example, mutation data that you find on cBioPortal.org comes
+from MAF files that have been further enriched with information
+from [mutationassessor.org](https://mutationassessor.org/), which leads to a "Mutation Assessor" column in
+the [mutation table](https://www.cbioportal.org/index.do?cancer_study_list=acc_tcga&cancer_study_id=acc_tcga&genetic_profile_ids_PROFILE_MUTATION_EXTENDED=acc_tcga_mutations&Z_SCORE_THRESHOLD=2.0&RPPA_SCORE_THRESHOLD=2.0&data_priority=0&case_set_id=acc_tcga_sequenced&case_ids=&patient_case_select=sample&gene_set_choice=user-defined-list&gene_list=ZFPM1&clinical_param_selection=null&tab_index=tab_visualize&Action=Submit).
 
-### Adding mutation annotation columns through namespaces
-Additional columns may also be added into the cBioPortal mutation data file and imported through the namespace mechanism. Any columns starting with a prefix specified in the `namespaces` field in the metafile will be imported into the database. Namespace columns should be formatted as the namespace and namespace attribute seperated with a period (e.g ASCN.total_copy_number where ASCN is the namespace and total_copy_number is the attribute). 
-
-An example cBioPortal mutation data file with the following **additional** columns:
-```
-ASCN.total_copy_number    ASCN.clonal     MUTATION.name    MUTATION.type
-```
-imported with the following `namespaces` field in the metafile:
-```
-namespaces: ascn
-```
-will import the `ASCN.total_copy_number` and `ASCN.clonal` column into the database. `MUTATION.name` and `MUTATION.type` will be ignored because `mutation` is not specified in the `namespaces` field. 
-
-## Representation of namespace columns by mutation API endpoints
-
-Columns added through namespaces will be returned by mutation API endpoints. Namespace data will be available in
-the `namespaceColumn`
-of respective JSON representations of mutation records. The `namespaceColumns` property will be a JSON object where
-namespace data is keyed by name of the namespace in lowercase. For instance, when namespace `ZYGOSITY` is defined in the
-meta file and the data file has column `ZYGOSITY.status` with value `Homozygous` for a mutation row, the API will return
-the following JSON record for this mutation (only relevant fields are shown):
-
-```
-{
-    "namespaceColumns": {
-        "ZYGOSITY": {
-            "status": "Homozygous"
-        }
-    },
-}
-```
-
-Note: ASCN namespace data is not exported via the `namespaceColumns` field.
-
-## Representation of namespace columns in the cBioPortal frontend
-
-Namespace columns will be added as columns to mutation tables in Patient View and Results View. The case of the
-namespace in the column header will be as specified in the mutations meta file and the column name will be capitalized.
-For instance, this metafile entry:
-
-```shell
-namespaces: Zygosity
-```
-
-and this column header:
-
-```shell
-ZYGOSITY.status
-```
-
-will show in the mutation table with column name:
-
-```shell
-Zygosity Status
-```
-
-Note: namespace columns are recognized by a case-insensitive match of the namespace reported in the mutations meta file
-and the first word in the column header.
-
+See [Custom namespace columns](#custom-namespace-columns) for more information on adding custom columns to data files.
 
 ### Allele specific copy number (ASCN) annotations
 Allele specific copy number (ASCN) annotation is also supported and may be added using namespaces, described [here](#adding-mutation-annotation-columns-through-namespaces). If ASCN data is present in the cBioPortal mutation data file, the deployed cBioPortal instance will display additional columns in the mutation table showing ASCN data.
@@ -976,6 +976,12 @@ A structural variant data file is a tab-delimited file with one structural varia
 
 For an example see [datahub](https://github.com/cBioPortal/datahub/blob/master/public/msk_impact_2017/data_sv.txt). For an example see [datahub](https://github.com/cBioPortal/datahub/blob/master/public/msk_impact_2017/data_sv.txt). At a minimum `Sample_Id`, either `Site1_Hugo_Symbol`/ `Site1_Entrez_Gene_Id` or  `Site2_Hugo_Symbol`/ `Site2_Entrez_Gene_Id` and `SV_Status` are required. For the stuctural variant tab visualization (still in development) one needs to provide those field as well as `Site1_Ensembl_Transcript_Id`, `Site2_Ensembl_Transcript_Id`, `Site1_Region` and `Site2_Region`. Some of the other columns are shown at several other pages on the website. The `Class`, `Annotation` and `Event_Info` columns are shown prominently on several locations.
 **Note**: We strongly recommend all the data providers to submit genomic locations  in addition to required fields for future visualization features. 
+
+### Adding your own structural variant columns
+Additional mutation annotation columns can be added to the structural variant data file. In this way, the portal will
+parse and store your own structural variant fields in the database.
+
+See [Custom namespace columns](#custom-namespace-columns) for more information on adding custom columns to data files.
 
 ## Fusion Data
 **⚠️ DEPRECATED Use the: [SV format](#structural-variant-data) instead**
@@ -1550,10 +1556,13 @@ shown at the left side of the plot. When `value_sort_order` is `ASC` the x-axis 
 values to the left.  When `value_sort_order` is `DESC` the x-axis will be in descending order with larger values to the left.
 
 ### Note on `generic_entity_meta_properties`
-All meta properties must be specified in the `generic_entity_meta_properties` field. Every meta property listed here must appear as a column header in the corresponding data file. It's highly recommend to add `NAME`, `DESCRIPTION` and an optional `URL` to get the best visualization on OncoPrint tab and Plots tab.
+All meta properties must be specified in the `generic_entity_meta_properties` field. Every meta property listed here 
+must appear as a column header in the corresponding data file. It's highly recommend to add `NAME`, `DESCRIPTION` and an 
+optional `URL` to get the best visualization on OncoPrint tab and Plots tab.
 
 ### Note on `patient_level`
-Generic Assay data will be considered `sample_level` data if the `patient_level` property is missing or set to `false`. In addition, the patient or sample identifiers need to be included in the [Clinical Data](#clinical-data) file.
+Generic Assay data will be considered `sample_level` data if the `patient_level` property is missing or set to `false`. 
+In addition, the patient or sample identifiers need to be included in the [Clinical Data](#clinical-data) file.
 
 ### Note on `Generic Assay` genetic_alteration_type and datatype
 All generic assay data is registered to be of the type of `genetic_alteration_type` and data type can choose from `LIMIT-VALUE`, `CATEGORICAL` and `BINARY`. 
@@ -1676,3 +1685,68 @@ The study resource file should follow this format, it has two **required** colum
 <thead><tr><th>RESOURCE_ID</th><th>URL</th></tr></thead>
 <tr><td>STUDY_SPONSORS</td><td>https://url-to-study-sponsors</td></tr>
 </table>
+
+## Custom namespace columns
+
+### Adding annotation columns through namespaces
+Custom columns can be added to the data files of mutations, structural variants and discrete copy number (long) data. 
+The columns can be imported through the namespace mechanism into a database table column called `ANNOTATION_JSON`. Any columns starting with a prefix specified in the `namespaces` field in the metafile will be imported into the database. Namespace columns should be formatted as the namespace and namespace attribute seperated with a period (e.g `ASCN.total_copy_number` where `ASCN` is the namespace and `total_copy_number` is the attribute).
+
+An example cBioPortal mutation data file with the following **additional** columns:
+```
+ASCN.total_copy_number    ASCN.clonal     MUTATION.name    MUTATION.type
+```
+imported with the following `namespaces` field in the metafile:
+```
+namespaces: ascn
+```
+will import the `ASCN.total_copy_number` and `ASCN.clonal` column into the database. `MUTATION.name` and `MUTATION.type` 
+will be ignored because `mutation` is not specified in the `namespaces` field. 
+
+## Representation of namespace columns by mutation API endpoints
+
+Columns added through namespaces will be returned by relevant mutation, discrete copy number and structural variant API 
+endpoints. Namespace data will be available in the `namespaceColumn` of respective JSON representations of mutation 
+records. The `namespaceColumns` property will be a JSON object where namespace data is keyed by name of the namespace in 
+lowercase. For instance, when namespace `ZYGOSITY` is defined in the meta file and the data file has column 
+`ZYGOSITY.status` with value `Homozygous` for a mutation row, the API will return the following JSON record for this 
+mutation (only relevant fields are shown):
+
+```
+{
+    "namespaceColumns": {
+        "ZYGOSITY": {
+            "status": "Homozygous"
+        }
+    },
+}
+```
+
+Note: ASCN namespace data is not exported via the `namespaceColumns` field.
+
+## Representation of namespace columns in the cBioPortal frontend
+
+Namespace columns will be added as columns to mutation, structural variant and copy number alteration tables in Patient 
+View and Results View. The case of the namespace in the column header will be as specified in the mutations meta file 
+and the column name will be capitalized. 
+
+For instance, this metafile entry:
+
+```shell
+namespaces: Zygosity
+```
+
+and this column header:
+
+```shell
+ZYGOSITY.status
+```
+
+will show in the mutation table with column name:
+
+```shell
+Zygosity Status
+```
+
+Note: namespace columns are recognized by a case-insensitive match of the namespace reported in the meta file
+and the first word in the column header.

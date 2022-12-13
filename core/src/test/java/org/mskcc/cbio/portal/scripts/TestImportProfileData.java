@@ -443,7 +443,7 @@ public class TestImportProfileData {
                 }
             }
         }
-        assertEquals(4, countStructuralVariantsInProfile);
+        assertEquals(5, countStructuralVariantsInProfile);
         assertEquals(true, foundTestSample);
     }
 

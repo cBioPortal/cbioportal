@@ -48,8 +48,8 @@ import math
 from abc import ABCMeta, abstractmethod
 from urllib.parse import urlparse
 
-# configure relative imports if running as a script; see PEP 366
-# it might passed as empty string by certain tooling to mark a top level module
+# Configure relative imports if running as a script; see PEP 366
+# it might passed as empty string by certain tooling to mark a top level module.
 if __name__ == "__main__" and (__package__ is None or __package__ == ''):
     # replace the script's location in the Python search path by the main
     # scripts/ folder, above it, so that the importer package folder is in
@@ -1584,7 +1584,8 @@ class CNADiscretePDAAnnotationsValidator(CustomDriverAnnotationValidator):
             if data[self.cols.index('Hugo_Symbol')] != '':
                 hugo_symbol = data[self.cols.index('Hugo_Symbol')]
         entrez_gene_id = self.checkGeneIdentification(hugo_symbol, entrez_gene_id)
-        self.entrez_gene_ids.add(entrez_gene_id)
+        if entrez_gene_id is not None:
+            self.entrez_gene_ids.add(entrez_gene_id)
 
     def onComplete(self):
         """Perform final validations based on the data parsed."""

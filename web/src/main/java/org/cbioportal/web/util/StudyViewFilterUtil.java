@@ -302,9 +302,9 @@ public class StudyViewFilterUtil {
     
         // Add Entrez gene ids to the queries.
         structVarQueries.forEach(structVarQuery -> {
-                structVarQuery.getGene1Query().setEntrezId(
-                    symbolToEntrezGeneId.getOrDefault(structVarQuery.getGene1Query().getHugoSymbol(), null)
-                );
+            structVarQuery.getGene1Query().setEntrezId(
+                symbolToEntrezGeneId.getOrDefault(structVarQuery.getGene1Query().getHugoSymbol(), null)
+            );
             structVarQuery.getGene2Query().setEntrezId(
                 symbolToEntrezGeneId.getOrDefault(structVarQuery.getGene2Query().getHugoSymbol(), null)
             );
@@ -312,14 +312,12 @@ public class StudyViewFilterUtil {
 
         // Remove any genes where the Entrez gene id is needed, but translation failed.
         structVarQueries.removeIf(
-            q ->   (q.getGene1Query().getHugoSymbol() != null
-                     && q.getGene1Query().getSpecialValue() != StructuralVariantSpecialValue.NO_GENE
+            q ->   (q.getGene1Query().getSpecialValue() != StructuralVariantSpecialValue.NO_GENE
                      && q.getGene1Query().getSpecialValue() != StructuralVariantSpecialValue.ANY_GENE
-                     && !symbolToEntrezGeneId.containsKey(q.getGene1Query().getEntrezId()))
-                || (q.getGene2Query().getHugoSymbol() != null
-                && q.getGene2Query().getSpecialValue() != StructuralVariantSpecialValue.NO_GENE
+                     && q.getGene1Query().getEntrezId() == null)
+                || (q.getGene2Query().getSpecialValue() != StructuralVariantSpecialValue.NO_GENE
                 && q.getGene2Query().getSpecialValue() != StructuralVariantSpecialValue.ANY_GENE
-                && !symbolToEntrezGeneId.containsKey(q.getGene2Query().getEntrezId()))
+                && q.getGene2Query().getEntrezId() == null)
         );
         
         return structVarQueries;

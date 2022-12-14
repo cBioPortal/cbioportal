@@ -1,4 +1,4 @@
-The cBioPortal for Cancer Genomics was originally developed at [Memorial Sloan Kettering Cancer Center](https://www.mskcc.org/) (MSK). The [public cBioPortal site](https://www.cbioportal.org) is hosted by the [Center for Molecular Oncology](https://www.mskcc.org/research/molecular-oncology) at MSK. The cBioPortal software is now available under an open source license via [GitHub](https://github.com/cBioPortal/). The software is now developed and maintained by a multi-institutional team, consisting of MSK, the Dana Farber Cancer Institute, Princess Margaret Cancer Centre in Toronto, Children's Hospital of Philadelphia, Caris Life Sciences, [The Hyve](https://thehyve.nl) in the Netherlands, and Bilkent University in Ankara, Turkey.
+The cBioPortal for Cancer Genomics was originally developed at [Memorial Sloan Kettering Cancer Center](https://www.mskcc.org/) (MSK). The [public cBioPortal site](https://www.cbioportal.org) is hosted by the [Center for Molecular Oncology](https://www.mskcc.org/research/molecular-oncology) at MSK. The cBioPortal software is now available under an open source license via [GitHub](https://github.com/cBioPortal/). The software is now developed and maintained by a multi-institutional team, consisting of MSK, the Dana Farber Cancer Institute, Princess Margaret Cancer Centre in Toronto, Children's Hospital of Philadelphia, Caris Life Sciences, [The Hyve](https://thehyve.nl) and [SE4BIO](https://www.se4.bio/) in the Netherlands, and Bilkent University in Ankara, Turkey.
 
 ## Memorial Sloan Kettering Cancer Center
 * Benjamin Gross
@@ -33,6 +33,7 @@ The cBioPortal for Cancer Genomics was originally developed at [Memorial Sloan K
 * Trevor Pugh
 
 ## Children's Hospital of Philadelphia
+* Charles Haynes
 * David Higgins
 * Allison Heath
 * John Maris
@@ -50,6 +51,10 @@ The cBioPortal for Cancer Genomics was originally developed at [Memorial Sloan K
 * Paul van Dijk
 * Sjoerd van Hagen
 * Kees van Bochove
+
+## SE4BIO
+* Pieter Lukasse
+* Ruslan Forostianov
 
 ## Bilkent University
 * Ugur Dogrusoz
@@ -78,7 +83,6 @@ The cBioPortal for Cancer Genomics was originally developed at [Memorial Sloan K
 * Karthik Kalletla
 * Erik Larsson
 * Dong Li
-* Pieter Lukasse
 * Tamba Monrose
 * Peter Kok
 * Irina Pulyakhina

@@ -60,10 +60,6 @@ The cBioPortal for Cancer Genomics was originally developed at [Memorial Sloan K
 * Ugur Dogrusoz
 * M. Salih Altun
 
-## Weill Cornell Medicine
-* Alexandros Sigaras
-* Olivier Elemento
-
 ## Alumni
 * B. Arman Aksoy
 * Istemi Bahceci
@@ -75,6 +71,7 @@ The cBioPortal for Cancer Genomics was originally developed at [Memorial Sloan K
 * Gideon Dresdner
 * Andy Dufilie
 * Catherine Del Vecchio Fitz
+* Olivier Elemento
 * Ziya Erkoc
 * Arthur Goldberg
 * Zachary Heins
@@ -89,6 +86,7 @@ The cBioPortal for Cancer Genomics was originally developed at [Memorial Sloan K
 * Pichai Raman
 * M. Furkan Sahin
 * Kaan Sancak
+* Alexandros Sigaras
 * Jing Su
 * Sander Tan
 * Jiaojiao Wang

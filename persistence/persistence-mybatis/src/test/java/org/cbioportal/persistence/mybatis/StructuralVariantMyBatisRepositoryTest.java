@@ -27,6 +27,8 @@ import org.cbioportal.model.GeneFilterQuery;
 import org.cbioportal.model.StructVarFilterQuery;
 import org.cbioportal.model.StructuralVariant;
 import org.cbioportal.model.StructuralVariantSpecialValue;
+import org.cbioportal.model.StructuralVariantGeneSubQuery;
+import org.cbioportal.model.StructuralVariantQuery;
 import org.cbioportal.model.util.Select;
 import org.junit.Assert;
 import org.junit.Before;
@@ -39,7 +41,9 @@ import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
+import java.util.Objects;
 import java.util.stream.Collectors;
 
 @RunWith(SpringJUnit4ClassRunner.class)
@@ -106,13 +110,13 @@ public class StructuralVariantMyBatisRepositoryTest {
         List<String> molecularProfileIds = new ArrayList<>();
         List<Integer> entrezGeneIds = new ArrayList<>();
         List<String> sampleIds = new ArrayList<>();
-
+        List<StructuralVariantQuery> noStructVars = Collections.emptyList();
         molecularProfileIds.add("study_tcga_pub_sv");
         entrezGeneIds.add(57670);
 
         List<StructuralVariant> result = 
                 structuralVariantMyBatisRepository.fetchStructuralVariants(molecularProfileIds,
-                    sampleIds, entrezGeneIds);
+                    sampleIds, entrezGeneIds, noStructVars);
 
         Assert.assertEquals(3,  result.size());
         StructuralVariant structuralVariantFirstResult = result.get(0);
@@ -210,10 +214,11 @@ public class StructuralVariantMyBatisRepositoryTest {
         molecularProfileIds.add("study_tcga_pub_sv");
         entrezGeneIds.add(57670);
         sampleIds.add("TCGA-A1-A0SB-01");
+        List<StructuralVariantQuery> noStructVars = Collections.emptyList();
 
         List<StructuralVariant> result = 
                 structuralVariantMyBatisRepository.fetchStructuralVariants(molecularProfileIds,
-                    sampleIds, entrezGeneIds);
+                    sampleIds, entrezGeneIds, noStructVars);
 
         Assert.assertEquals(1,  result.size());
         StructuralVariant structuralVariantResult = result.get(0);
@@ -236,23 +241,27 @@ public class StructuralVariantMyBatisRepositoryTest {
         sampleIds.add("TCGA-A1-A0SB-01");
         molecularProfileIds.add("acc_tcga_sv");
         sampleIds.add("TCGA-A1-B0SO-01");
-        
+        List<StructuralVariantQuery> noStructVars = Collections.emptyList();
+
         List<StructuralVariant> result = 
                 structuralVariantMyBatisRepository.fetchStructuralVariants(molecularProfileIds,
-                    sampleIds, entrezGeneIds);
+                    sampleIds, entrezGeneIds, noStructVars);
 
-        Assert.assertEquals(2,  result.size());
+        Assert.assertEquals(3,  result.size());
         StructuralVariant structuralVariantFirstResult = result.get(0);
         Assert.assertEquals("acc_tcga_sv", structuralVariantFirstResult.getMolecularProfileId());
         Assert.assertEquals((String) "TCGA-A1-B0SO-01", structuralVariantFirstResult.getSampleId());
         Assert.assertEquals((String) "TCGA-A1-B0SO", structuralVariantFirstResult.getPatientId());
         Assert.assertEquals((String) "acc_tcga", structuralVariantFirstResult.getStudyId());
-        StructuralVariant structuralVariantSecondResult = result.get(1);
+        Assert.assertEquals("acc_tcga_sv", structuralVariantFirstResult.getMolecularProfileId());
+        Assert.assertEquals("TCGA-A1-B0SO-01", structuralVariantFirstResult.getSampleId());
+        Assert.assertEquals("TCGA-A1-B0SO", structuralVariantFirstResult.getPatientId());
+        Assert.assertEquals("acc_tcga", structuralVariantFirstResult.getStudyId());
+        StructuralVariant structuralVariantSecondResult = result.get(2);
         Assert.assertEquals("study_tcga_pub_sv", structuralVariantSecondResult.getMolecularProfileId());
         Assert.assertEquals((String) "TCGA-A1-A0SB-01", structuralVariantSecondResult.getSampleId());
         Assert.assertEquals((String) "TCGA-A1-A0SB", structuralVariantSecondResult.getPatientId());
-        Assert.assertEquals((String) "study_tcga_pub", structuralVariantSecondResult.getStudyId());
-    }
+        Assert.assertEquals((String) "study_tcga_pub", structuralVariantSecondResult.getStudyId());    }
 
     @Test
     public void fetchStructuralVariantsMultiStudyByGeneQueriesWithSampleIdentifiers() throws Exception {
@@ -261,7 +270,7 @@ public class StructuralVariantMyBatisRepositoryTest {
             structuralVariantMyBatisRepository.fetchStructuralVariantsByGeneQueries(molecularProfileIds,
                 sampleIds, geneQueries);
 
-        Assert.assertEquals(9,  result.size());
+        Assert.assertEquals(10,  result.size());
 
         List<String> resultTcgaPubVariants = result.stream()
             .filter(s -> "study_tcga_pub_sv".equals(s.getMolecularProfileId()))
@@ -273,7 +282,7 @@ public class StructuralVariantMyBatisRepositoryTest {
             .collect(Collectors.toList());
         
         Assert.assertArrayEquals(new String[] {"EML4-ALK.E6bA20.AB374362", "EML4-ALK.E6bA20.AB374362", "KIAA1549-BRAF.K16B10.COSF509", "KIAA1549-BRAF.K16B10.COSF509", "KIAA1549-BRAF.K16B10.COSF509", "NCOA4-RET.N7R1", "TMPRSS2-ERG.T1E2.COSF23.1"}, resultTcgaPubVariants.toArray());
-        Assert.assertArrayEquals(new String[] {"KIAA1549-BRAF.K16B10.COSF509", "NCOA4-RET.N7R1"}, resultTcgaVariants.toArray());
+        Assert.assertArrayEquals(new String[] {"NCOA4-RET.N7R1_NULL", "KIAA1549-BRAF.K16B10.COSF509", "NCOA4-RET.N7R1"}, resultTcgaVariants.toArray());
     }
 
     @Test
@@ -290,7 +299,7 @@ public class StructuralVariantMyBatisRepositoryTest {
             structuralVariantMyBatisRepository.fetchStructuralVariantsByGeneQueries(molecularProfileIds,
                 sampleIds, geneQueries);
 
-        Assert.assertEquals(8,  result.size());
+        Assert.assertEquals(9,  result.size());
 
         List<String> resultTcgaPubVariants = result.stream()
             .filter(s -> "study_tcga_pub_sv".equals(s.getMolecularProfileId()))
@@ -302,7 +311,7 @@ public class StructuralVariantMyBatisRepositoryTest {
             .collect(Collectors.toList());
 
         Assert.assertArrayEquals(new String[] {"EML4-ALK.E6bA20.AB374362", "EML4-ALK.E6bA20.AB374362", "KIAA1549-BRAF.K16B10.COSF509", "KIAA1549-BRAF.K16B10.COSF509", "NCOA4-RET.N7R1", "TMPRSS2-ERG.T1E2.COSF23.1"}, resultTcgaPubVariants.toArray());
-        Assert.assertArrayEquals(new String[] {"KIAA1549-BRAF.K16B10.COSF509", "NCOA4-RET.N7R1"}, resultTcgaVariants.toArray());
+        Assert.assertArrayEquals(new String[] {"NCOA4-RET.N7R1_NULL", "KIAA1549-BRAF.K16B10.COSF509", "NCOA4-RET.N7R1"}, resultTcgaVariants.toArray());
     }
 
     @Test
@@ -320,7 +329,7 @@ public class StructuralVariantMyBatisRepositoryTest {
             structuralVariantMyBatisRepository.fetchStructuralVariantsByGeneQueries(molecularProfileIds,
                 sampleIds, geneQueries);
 
-        Assert.assertEquals(8,  result.size());
+        Assert.assertEquals(9,  result.size());
 
         List<String> resultTcgaPubVariants = result.stream()
             .filter(s -> "study_tcga_pub_sv".equals(s.getMolecularProfileId()))
@@ -332,7 +341,7 @@ public class StructuralVariantMyBatisRepositoryTest {
             .collect(Collectors.toList());
 
         Assert.assertArrayEquals(new String[] {"EML4-ALK.E6bA20.AB374362", "EML4-ALK.E6bA20.AB374362", "KIAA1549-BRAF.K16B10.COSF509", "KIAA1549-BRAF.K16B10.COSF509", "NCOA4-RET.N7R1", "TMPRSS2-ERG.T1E2.COSF23.1"}, resultTcgaPubVariants.toArray());
-        Assert.assertArrayEquals(new String[] {"KIAA1549-BRAF.K16B10.COSF509", "NCOA4-RET.N7R1"}, resultTcgaVariants.toArray());
+        Assert.assertArrayEquals(new String[] {"NCOA4-RET.N7R1_NULL", "KIAA1549-BRAF.K16B10.COSF509", "NCOA4-RET.N7R1"}, resultTcgaVariants.toArray());
     }
 
     @Test
@@ -400,7 +409,7 @@ public class StructuralVariantMyBatisRepositoryTest {
             structuralVariantMyBatisRepository.fetchStructuralVariantsByGeneQueries(molecularProfileIds,
                 sampleIds, geneQueries);
 
-        Assert.assertEquals(8,  result.size());
+        Assert.assertEquals(9,  result.size());
 
         List<String> resultTcgaPubVariants = result.stream()
             .filter(s -> "study_tcga_pub_sv".equals(s.getMolecularProfileId()))
@@ -412,7 +421,144 @@ public class StructuralVariantMyBatisRepositoryTest {
             .collect(Collectors.toList());
 
         Assert.assertArrayEquals(new String[] {"EML4-ALK.E6bA20.AB374362", "EML4-ALK.E6bA20.AB374362", "KIAA1549-BRAF.K16B10.COSF509", "KIAA1549-BRAF.K16B10.COSF509", "NCOA4-RET.N7R1", "TMPRSS2-ERG.T1E2.COSF23.1"}, resultTcgaPubVariants.toArray());
-        Assert.assertArrayEquals(new String[] {"KIAA1549-BRAF.K16B10.COSF509", "NCOA4-RET.N7R1"}, resultTcgaVariants.toArray());
+        Assert.assertArrayEquals(new String[] {"NCOA4-RET.N7R1_NULL", "KIAA1549-BRAF.K16B10.COSF509", "NCOA4-RET.N7R1"}, resultTcgaVariants.toArray());
+    }
+    
+        @Test
+    public void fetchStructuralVariantsWithSingleStructuralVariantQueries() throws Exception {
+
+        List<String> molecularProfileIds = new ArrayList<>();
+        List<String> sampleIds = new ArrayList<>();
+
+        molecularProfileIds.add("study_tcga_pub_sv");
+
+        List<StructuralVariantQuery> singleStructVarQuery = new ArrayList<>();
+        singleStructVarQuery.add(new StructuralVariantQuery(
+            new StructuralVariantGeneSubQuery(27436), 
+            new StructuralVariantGeneSubQuery(238)
+        ));
+        
+        List<Integer> noEntrezIds = Collections.emptyList();
+        
+        List<StructuralVariant> result = 
+                structuralVariantMyBatisRepository.fetchStructuralVariants(
+                    molecularProfileIds,
+                    sampleIds, 
+                    noEntrezIds,
+                    singleStructVarQuery
+                );
+        
+        Assert.assertEquals(2,  result.size());
+        StructuralVariant structuralVariantFirstResult = result.get(0);
+        Assert.assertEquals((Integer) 27436, structuralVariantFirstResult.getSite1EntrezGeneId());
+        Assert.assertEquals((Integer) 238, structuralVariantFirstResult.getSite2EntrezGeneId());
+        Assert.assertEquals("Fusion", structuralVariantFirstResult.getEventInfo());
+    }
+    
+    @Test
+    public void fetchStructuralVariantsWithMultipleStructuralVariantQueries() throws Exception {
+        List<String> molecularProfileIds = new ArrayList<>();
+        List<String> sampleIds = new ArrayList<>();
+
+        molecularProfileIds.add("study_tcga_pub_sv");
+
+        List<StructuralVariantQuery> multipleStructVarQueries = new ArrayList<>();
+        multipleStructVarQueries.add(new StructuralVariantQuery(
+            new StructuralVariantGeneSubQuery(27436), 
+            new StructuralVariantGeneSubQuery(238)
+        ));
+        multipleStructVarQueries.add(new StructuralVariantQuery(
+            new StructuralVariantGeneSubQuery(57670),
+            new StructuralVariantGeneSubQuery(673)
+        ));
+        List<Integer> noEntrezIds = Collections.emptyList();
+        
+        List<StructuralVariant> result = 
+                structuralVariantMyBatisRepository.fetchStructuralVariants(molecularProfileIds,
+                    sampleIds, noEntrezIds, multipleStructVarQueries
+                );
+        
+        Assert.assertEquals(5,  result.size());
+
+        List<StructuralVariant> structuralVariantFirstResult = result.stream()
+            .filter(sv -> Objects.equals(sv.getSite1EntrezGeneId(), 27436) 
+                && Objects.equals(sv.getSite2EntrezGeneId(), 238))
+            .collect(Collectors.toList());;
+        Assert.assertEquals(2,  structuralVariantFirstResult.size());
+
+        List<StructuralVariant> structuralVariantSecondResults = result.stream()
+            .filter(sv -> Objects.equals(sv.getSite1EntrezGeneId(), 57670) 
+                && Objects.equals(sv.getSite2EntrezGeneId(), 673))
+            .collect(Collectors.toList());
+        Assert.assertEquals(3, structuralVariantSecondResults.size());
+    }
+    
+    @Test
+    public void fetchStructuralVariantsWithMultipleStructuralVariantIdentifierWildcardQueryValue() {
+        List<String> molecularProfileIds = new ArrayList<>();
+        List<String> sampleIds = new ArrayList<>();
+
+        molecularProfileIds.add("study_tcga_pub_sv");
+
+        List<StructuralVariantQuery> structVarQueries = new ArrayList<>();
+        
+        StructuralVariantQuery svId1 = new StructuralVariantQuery(
+            new StructuralVariantGeneSubQuery(27436),
+            new StructuralVariantGeneSubQuery(StructuralVariantSpecialValue.ANY_GENE)
+        );
+        structVarQueries.add(svId1);
+        
+        StructuralVariantQuery svId2 = new StructuralVariantQuery(
+            new StructuralVariantGeneSubQuery(StructuralVariantSpecialValue.ANY_GENE),
+            new StructuralVariantGeneSubQuery(673)
+        );
+        structVarQueries.add(svId2);
+        
+        List<Integer> noEntrezIds = Collections.emptyList();
+
+        List<StructuralVariant> result = 
+                structuralVariantMyBatisRepository.fetchStructuralVariants(molecularProfileIds,
+                    sampleIds, noEntrezIds, structVarQueries
+                );
+        
+        Assert.assertEquals(5,  result.size());
+
+        List<StructuralVariant> structuralVariantFirstResult = result.stream()
+            .filter(sv -> Objects.equals(sv.getSite1EntrezGeneId(), 27436) 
+                && Objects.equals(sv.getSite2EntrezGeneId(), 238))
+            .collect(Collectors.toList());;
+        Assert.assertEquals(2,  structuralVariantFirstResult.size());
+
+        List<StructuralVariant> structuralVariantSecondResults = result.stream()
+            .filter(sv -> Objects.equals(sv.getSite1EntrezGeneId(), 57670) 
+                && Objects.equals(sv.getSite2EntrezGeneId(), 673))
+            .collect(Collectors.toList());
+        Assert.assertEquals(3, structuralVariantSecondResults.size());
+    }
+    
+    @Test
+    public void fetchStructuralVariantsWithMultipleStructuralVariantQueryNullQueryValue() {
+        List<String> molecularProfileIds = new ArrayList<>();
+        List<String> sampleIds = new ArrayList<>();
+
+        molecularProfileIds.add("acc_tcga_sv");
+
+        List<StructuralVariantQuery> structVarQueries = new ArrayList<>();
+        StructuralVariantQuery structVarWithNull = new StructuralVariantQuery(
+            new StructuralVariantGeneSubQuery(57670), 
+            new StructuralVariantGeneSubQuery(StructuralVariantSpecialValue.NO_GENE)
+        );
+        structVarQueries.add(structVarWithNull);
+        List<Integer> noEntrezIds = Collections.emptyList();
+
+        List<StructuralVariant> result = 
+                structuralVariantMyBatisRepository.fetchStructuralVariants(molecularProfileIds,
+                    sampleIds, noEntrezIds, structVarQueries
+                );
+        
+        Assert.assertEquals(1,  result.size());
+        Assert.assertEquals((Integer) 57670, result.get(0).getSite1EntrezGeneId());
+        Assert.assertEquals("ENST00000340058_NULL",  result.get(0).getSite2EnsemblTranscriptId());
     }
 
     @Test
@@ -513,7 +659,7 @@ public class StructuralVariantMyBatisRepositoryTest {
             structuralVariantMyBatisRepository.fetchStructuralVariantsByStructVarQueries(molecularProfileIds,
                 sampleIds, structVarQueries);
 
-        Assert.assertEquals(6,  result.size());
+        Assert.assertEquals(7,  result.size());
     }
     
     @Test
@@ -536,6 +682,7 @@ public class StructuralVariantMyBatisRepositoryTest {
 
         structVarFilterQuery1.getGene2Query()
             .setSpecialValue(StructuralVariantSpecialValue.NO_GENE);
+        // One NULL case for SITE1_ENTREZ_GENE_ID=27436:
         structVarFilterQuery2.getGene2Query()
             .setSpecialValue(StructuralVariantSpecialValue.NO_GENE);
         
@@ -543,7 +690,7 @@ public class StructuralVariantMyBatisRepositoryTest {
             structuralVariantMyBatisRepository.fetchStructuralVariantsByStructVarQueries(molecularProfileIds,
                 sampleIds, structVarQueries);
 
-        Assert.assertEquals(0,  result.size());
+        Assert.assertEquals(1,  result.size());
     }
 
 }

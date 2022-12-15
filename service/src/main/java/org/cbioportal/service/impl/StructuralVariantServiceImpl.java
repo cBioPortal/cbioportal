@@ -26,6 +26,7 @@ package org.cbioportal.service.impl;
 import org.cbioportal.model.GeneFilterQuery;
 import org.cbioportal.model.StructVarFilterQuery;
 import org.cbioportal.model.StructuralVariant;
+import org.cbioportal.model.StructuralVariantQuery;
 import org.cbioportal.persistence.StructuralVariantRepository;
 import org.cbioportal.service.StructuralVariantService;
 import org.springframework.beans.PropertyValues;
@@ -40,12 +41,15 @@ public class StructuralVariantServiceImpl implements StructuralVariantService {
     private StructuralVariantRepository structuralVariantRepository;
 
     @Override
-    public List<StructuralVariant> fetchStructuralVariants(List<String> molecularProfileIds,
-                                                           List<String> sampleIds,
-                                                           List<Integer> entrezGeneIds) {
-
+    public List<StructuralVariant> fetchStructuralVariants(
+        List<String> molecularProfileIds,
+        List<String> sampleIds,
+        List<Integer> entrezGeneIds,
+        List<StructuralVariantQuery> structuralVariantQueries
+    ) {
         return structuralVariantRepository.fetchStructuralVariants(
-            molecularProfileIds, sampleIds, entrezGeneIds);
+            molecularProfileIds, sampleIds, entrezGeneIds, structuralVariantQueries
+        );
     }
 
     @Override

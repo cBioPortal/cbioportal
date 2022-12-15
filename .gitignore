@@ -108,3 +108,4 @@ pom.xml.*
 Dockerfile.local
 .factorypath
 .retype
+simplelogger.properties

@@ -879,6 +879,7 @@ public class StudyViewControllerTest {
                 .content(objectMapper.writeValueAsString(studyViewFilter)))
             .andExpect(MockMvcResultMatchers.status().isBadRequest());
     }
+    
     @Test
     public void validateStructVarFilterBothAnyGene() throws Exception {
 

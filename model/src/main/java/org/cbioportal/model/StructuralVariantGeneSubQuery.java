@@ -3,6 +3,8 @@ package org.cbioportal.model;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import org.springframework.lang.Nullable;
 
+import javax.validation.constraints.AssertTrue;
+
 public class StructuralVariantGeneSubQuery {
 
     @Nullable
@@ -13,7 +15,17 @@ public class StructuralVariantGeneSubQuery {
 
     @Nullable
     protected StructuralVariantSpecialValue specialValue;
-
+    
+    @JsonIgnore
+    @AssertTrue(message = "should contain only one entrezId, hugoSymbol or specialValue")
+    public boolean isContainingOnlyOneIdentifierOrSpecialValue() {
+        int fieldCount = 0;
+        if(entrezId != null) fieldCount ++;
+        if(hugoSymbol != null) fieldCount ++;
+        if(specialValue != null) fieldCount ++;
+        return fieldCount == 1;
+    }
+    
     public StructuralVariantGeneSubQuery() {}
 
     public StructuralVariantGeneSubQuery(String hugoSymbol) {
@@ -55,7 +67,6 @@ public class StructuralVariantGeneSubQuery {
         return entrezId;
     }
 
-    @JsonIgnore
     public void setEntrezId(@Nullable Integer entrezId) {
         this.entrezId = entrezId;
     }

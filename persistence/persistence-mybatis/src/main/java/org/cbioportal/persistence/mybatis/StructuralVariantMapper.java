@@ -28,14 +28,15 @@ import java.util.List;
 import org.cbioportal.model.GeneFilterQuery;
 import org.cbioportal.model.StructVarFilterQuery;
 import org.cbioportal.model.StructuralVariant;
-import org.springframework.beans.PropertyValues;
+import org.cbioportal.model.StructuralVariantQuery;
 
 public interface StructuralVariantMapper {
 
     List<StructuralVariant> fetchStructuralVariants(List<String> molecularProfileIds,
                                                     List<String> sampleIds,
-                                                    List<Integer> entrezGeneIds);
-
+                                                    List<Integer> entrezGeneIds,
+                                                    List<StructuralVariantQuery> structuralVariantQueries);
+    
     List<StructuralVariant> fetchStructuralVariantsByGeneQueries(List<String> molecularProfileIds,
                                                                  List<String> sampleIds,
                                                                  List<GeneFilterQuery> geneQueries);

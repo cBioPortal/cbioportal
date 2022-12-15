@@ -201,14 +201,46 @@
     
     <sql id="whereWithEntrezGeneIds">
         <if test="entrezGeneIds != null and !entrezGeneIds.isEmpty()">
-            AND (structural_variant.SITE1_ENTREZ_GENE_ID in
-            <foreach item="item" collection="entrezGeneIds" open="(" separator="," close=")">
-                #{item}
-            </foreach>
-            OR structural_variant.SITE2_ENTREZ_GENE_ID IN
-            <foreach item="item" collection="entrezGeneIds" open="(" separator="," close=")">
-                #{item}
-            </foreach>
+            (
+                structural_variant.SITE1_ENTREZ_GENE_ID in
+                <foreach item="item" collection="entrezGeneIds" open="(" separator="," close=")">
+                    #{item}
+                </foreach>
+                OR 
+                structural_variant.SITE2_ENTREZ_GENE_ID IN
+                <foreach item="item" collection="entrezGeneIds" open="(" separator="," close=")">
+                    #{item}
+                </foreach>
+            )
+        </if>
+    </sql>
+
+    <sql id="whereStructuralVariantQueries">
+        <if test="structuralVariantQueries != null and !structuralVariantQueries.isEmpty()">
+            (
+                <foreach item="item" collection="structuralVariantQueries" open="(" separator=") OR (" close=")">
+                    <if test="item.gene1.entrezId != null">
+                        structural_variant.SITE1_ENTREZ_GENE_ID=#{item.gene1.entrezId}
+                    </if>
+                    <if test='item.gene1.specialValue != null and item.gene1.specialValue.name() == "NO_GENE"'>
+                        structural_variant.SITE1_ENTREZ_GENE_ID IS NULL
+                    </if>                
+                    <if test='item.gene1.specialValue != null and item.gene1.specialValue.name() == "ANY_GENE"'>
+                        TRUE
+                    </if>
+                    
+                    AND
+                    
+                    <if test="item.gene2.entrezId != null">
+                        structural_variant.SITE2_ENTREZ_GENE_ID=#{item.gene2.entrezId}
+                    </if>
+                    <if test='item.gene2.specialValue != null and item.gene2.specialValue.name() == "NO_GENE"'>
+                        structural_variant.SITE2_ENTREZ_GENE_ID IS NULL
+                    </if>
+                    <if test='item.gene2.specialValue != null and item.gene2.specialValue.name() == "ANY_GENE"'>
+                        TRUE
+                    </if>
+                </foreach>
             )
         </if>
     </sql>
@@ -231,7 +263,17 @@
         and structural_variant.INTERNAL_ID = alteration_driver_annotation.ALTERATION_EVENT_ID
         <where>
             <include refid="whereInMultipleMolecularProfiles"/>
-            <include refid="whereWithEntrezGeneIds"/>
+            <if test="(entrezGeneIds != null and !entrezGeneIds.isEmpty()) or (structuralVariantQueries != null and !structuralVariantQueries.isEmpty())">
+                AND (
+                    <include refid="whereWithEntrezGeneIds"/>
+
+                    <if test="(entrezGeneIds != null and !entrezGeneIds.isEmpty()) and (structuralVariantQueries != null and !structuralVariantQueries.isEmpty())">
+                        OR
+                    </if>
+                    
+                    <include refid="whereStructuralVariantQueries"/>
+                )
+            </if>
         </where>
         ORDER BY gene1.HUGO_GENE_SYMBOL, gene2.HUGO_GENE_SYMBOL
     </select>

@@ -10,6 +10,6 @@ public enum StructuralVariantSpecialValue {
     /**
      * Match gene IS NULL
      */
-    NO_GENE,
+    NO_GENE;
 
 }

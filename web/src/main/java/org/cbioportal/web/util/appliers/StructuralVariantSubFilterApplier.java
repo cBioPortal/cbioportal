@@ -46,10 +46,10 @@ public class StructuralVariantSubFilterApplier extends StudyViewSubFilterApplier
 
         List<SampleIdentifier> remainingSampleIdentifiers = toFilter;
         
-        for (StudyViewStructuralVariantFilter genefilter : structVarFilters) {
+        for (StudyViewStructuralVariantFilter structuralVariantFilter : structVarFilters) {
 
             // Collect molecular profiles referenced in gene filter.
-            List<MolecularProfile> filteredMolecularProfiles = genefilter
+            List<MolecularProfile> filteredMolecularProfiles = structuralVariantFilter
                 .getMolecularProfileIds()
                 .stream()
                 .map(molecularProfileId -> molecularProfileMap.get(molecularProfileId))
@@ -59,7 +59,7 @@ public class StructuralVariantSubFilterApplier extends StudyViewSubFilterApplier
                 .stream()
                 .collect(Collectors.groupingBy(MolecularProfile::getCancerStudyIdentifier));
 
-            for (List<StructVarFilterQuery> structVarQueries: genefilter.getStructVarQueries()) {
+            for (List<StructVarFilterQuery> structVarQueries: structuralVariantFilter.getStructVarQueries()) {
 
                 // Remove samples in remainingSampleIdentifiers that belong to a study that is not accessible to the current user
                 // (do not appear in the molecularProfileMap argument). 

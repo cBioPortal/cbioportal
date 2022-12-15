@@ -880,8 +880,15 @@ public class AlterationMyBatisRepositoryTest {
             new TreeSet<>(svSampleIdToProfileId),
             svEntrezGeneIds,
             alterationFilter);
-        // all structural variants in testSql.sql are Somatic mutations
-        Assert.assertEquals(0, result.size());
+        // two structural variants in testSql.sql are germline mutations
+
+        AlterationCountByGene result57670 = result.stream().filter(r -> r.getEntrezGeneId() == 57670).findFirst().get();
+        AlterationCountByGene result27436 = result.stream().filter(r -> r.getEntrezGeneId() == 27436).findFirst().get();
+        Assert.assertEquals(2, result.size());
+        Assert.assertEquals((Integer) 1, result57670.getTotalCount());
+        Assert.assertEquals((Integer) 1, result57670.getNumberOfAlteredCases());
+        Assert.assertEquals((Integer) 1, result27436.getTotalCount());
+        Assert.assertEquals((Integer) 1, result27436.getNumberOfAlteredCases());
     }
 
     @Test
@@ -895,7 +902,6 @@ public class AlterationMyBatisRepositoryTest {
             new TreeSet<>(svSampleIdToProfileId),
             svEntrezGeneIds,
             alterationFilter);
-        // all structural variants in testSql.sql are Somatic mutations
         Assert.assertEquals(4, result.size());
 
         AlterationCountByGene result57670 = result.stream().filter(r -> r.getEntrezGeneId() == 57670).findFirst().get();
@@ -923,7 +929,6 @@ public class AlterationMyBatisRepositoryTest {
             new TreeSet<>(svSampleIdToProfileId),
             svEntrezGeneIds,
             alterationFilter);
-        // all structural variants in testSql.sql are Somatic mutations
         Assert.assertEquals(0, result.size());
     }
 
@@ -966,8 +971,15 @@ public class AlterationMyBatisRepositoryTest {
             svPatientIdToProfileId,
             svEntrezGeneIds,
             alterationFilter);
-        // all structural variants in testSql.sql are Somatic mutations
-        Assert.assertEquals(0, result.size());
+        // two structural variants in testSql.sql are germline mutations
+        Assert.assertEquals(2, result.size());
+
+        AlterationCountByGene result57670 = result.stream().filter(r -> r.getEntrezGeneId() == 57670).findFirst().get();
+        AlterationCountByGene result27436 = result.stream().filter(r -> r.getEntrezGeneId() == 27436).findFirst().get();
+        Assert.assertEquals((Integer) 1, result57670.getTotalCount());
+        Assert.assertEquals((Integer) 1, result57670.getNumberOfAlteredCases());
+        Assert.assertEquals((Integer) 1, result27436.getTotalCount());
+        Assert.assertEquals((Integer) 1, result27436.getNumberOfAlteredCases());
     }
 
     @Test
@@ -981,7 +993,6 @@ public class AlterationMyBatisRepositoryTest {
             svPatientIdToProfileId,
             svEntrezGeneIds,
             alterationFilter);
-        // all structural variants in testSql.sql are Somatic mutations
         Assert.assertEquals(4, result.size());
         
         AlterationCountByGene result57670 = result.stream().filter(r -> r.getEntrezGeneId() == 57670).findFirst().get();
@@ -1009,7 +1020,6 @@ public class AlterationMyBatisRepositoryTest {
             svPatientIdToProfileId,
             svEntrezGeneIds,
             alterationFilter);
-        // all structural variants in testSql.sql are Somatic mutations
         Assert.assertEquals(0, result.size());
     }
     

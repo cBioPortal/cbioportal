@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width,initial-scale=1">
-    <meta name="turbo-cache-control" content="no-cache" data-turbo-track="reload" data-track-token="2.4.0.724360141622">
+    <meta name="turbo-cache-control" content="no-cache" data-turbo-track="reload" data-track-token="2.4.0.724511434522">
 
     <!-- See retype.com -->
     <meta name="generator" content="Retype 2.4.0">
@@ -33,11 +33,11 @@
     <script>(function () { var el = document.documentElement, m = localStorage.getItem("doc_theme"), wm = window.matchMedia; if (m === "dark" || (!m && wm && wm("(prefers-color-scheme: dark)").matches)) { el.classList.add("dark") } else { el.classList.remove("dark") } })();</script>
 
     <link href="../../images/cbio-logo.png" rel="icon" />
-    <link href="../../resources/css/retype.css?v=2.4.0.724360141622" rel="stylesheet" />
+    <link href="../../resources/css/retype.css?v=2.4.0.724511434522" rel="stylesheet" />
 
-    <script type="text/javascript" src="../../resources/js/config.js?v=2.4.0.724360141622" data-turbo-eval="false" defer></script>
+    <script type="text/javascript" src="../../resources/js/config.js?v=2.4.0.724511434522" data-turbo-eval="false" defer></script>
     <script type="text/javascript" src="../../resources/js/retype.js?v=2.4.0" data-turbo-eval="false" defer></script>
-    <script id="lunr-js" type="text/javascript" src="../../resources/js/lunr.js?v=2.4.0.724360141622" data-turbo-eval="false" defer></script>
+    <script id="lunr-js" type="text/javascript" src="../../resources/js/lunr.js?v=2.4.0.724511434522" data-turbo-eval="false" defer></script>
 
     <link rel="stylesheet" href="/static/custom.css"></link>
 </head>
@@ -664,14 +664,14 @@
         <span>What processing or filtering is applied to generate the mutation data?</span>
     </h4>
 </doc-anchor-target>
-<p>Within cBioPortal, we utilize the mutation calls as provided by each publication. We do not perform any additional filtering. The only processing we do is to standardize the annotation of the mutations using <a href="https://genomenexus.org">Genome Nexus</a> (which utilizes <a href="https://useast.ensembl.org/info/docs/tools/vep/index.html">VEP</a> with the <a href="https://github.com/mskcc/vcf2maf/blob/master/data/isoform_overrides_uniprot">canonical UniProt transcript</a>). For specifics of which tools were used to call mutations and filters that may have been applied, refer to the publication manuscript.</p>
+<p>Within cBioPortal, we utilize the mutation calls as provided by each publication. We do not perform any additional filtering. The only processing we do is to standardize the annotation of the mutations using <a href="https://genomenexus.org">Genome Nexus</a> (which utilizes <a href="https://useast.ensembl.org/info/docs/tools/vep/index.html">VEP</a> with the <a href="https://github.com/genome-nexus/genome-nexus-importer/blob/master/data/common_input/isoform_overrides_at_mskcc_grch37.txt">canonical MSKCC transcript</a>). Read more about the transcript assignments <a href="https://docs.cbioportal.org/mutation-data-transcript-annotation/#transcript-assignment">here</a>. For specifics of which tools were used to call mutations and filters that may have been applied, refer to the publication manuscript.</p>
 <doc-anchor-target id="what-transcripts-are-used-for-annotating-mutations">
     <h4>
         <doc-anchor-trigger class="header-anchor-trigger" to="#what-transcripts-are-used-for-annotating-mutations">#</doc-anchor-trigger>
         <span>What transcripts are used for annotating mutations?</span>
     </h4>
 </doc-anchor-target>
-<p>Prior to loading a study into cBioPortal, we run all mutation data through a standard pipeline (see above), which re-annotates all mutations to the <a href="https://github.com/mskcc/vcf2maf/blob/master/data/isoform_overrides_uniprot">canonical UniProt transcript</a>,</p>
+<p>Prior to loading a study into cBioPortal, we run all mutation data through a standard pipeline (see above), which re-annotates all mutations to the <a href="https://github.com/genome-nexus/genome-nexus-importer/blob/master/data/common_input/isoform_overrides_at_mskcc_grch37.txt">canonical MSKCC transcript</a>. Read more about the transcript assignments <a href="https://docs.cbioportal.org/mutation-data-transcript-annotation/#transcript-assignment">here</a>.</p>
 <doc-anchor-target id="how-are-protein-domains-in-the-mutational-lollipop-diagrams-specified">
     <h4>
         <doc-anchor-trigger class="header-anchor-trigger" to="#how-are-protein-domains-in-the-mutational-lollipop-diagrams-specified">#</doc-anchor-trigger>

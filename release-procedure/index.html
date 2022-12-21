@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width,initial-scale=1">
-    <meta name="turbo-cache-control" content="no-cache" data-turbo-track="reload" data-track-token="2.4.0.724869173675">
+    <meta name="turbo-cache-control" content="no-cache" data-turbo-track="reload" data-track-token="2.4.0.724952276665">
 
     <!-- See retype.com -->
     <meta name="generator" content="Retype 2.4.0">
@@ -31,11 +31,11 @@
     <script>(function () { var el = document.documentElement, m = localStorage.getItem("doc_theme"), wm = window.matchMedia; if (m === "dark" || (!m && wm && wm("(prefers-color-scheme: dark)").matches)) { el.classList.add("dark") } else { el.classList.remove("dark") } })();</script>
 
     <link href="../images/cbio-logo.png" rel="icon" />
-    <link href="../resources/css/retype.css?v=2.4.0.724869173675" rel="stylesheet" />
+    <link href="../resources/css/retype.css?v=2.4.0.724952276665" rel="stylesheet" />
 
-    <script type="text/javascript" src="../resources/js/config.js?v=2.4.0.724869173675" data-turbo-eval="false" defer></script>
+    <script type="text/javascript" src="../resources/js/config.js?v=2.4.0.724952276665" data-turbo-eval="false" defer></script>
     <script type="text/javascript" src="../resources/js/retype.js?v=2.4.0" data-turbo-eval="false" defer></script>
-    <script id="lunr-js" type="text/javascript" src="../resources/js/lunr.js?v=2.4.0.724869173675" data-turbo-eval="false" defer></script>
+    <script id="lunr-js" type="text/javascript" src="../resources/js/lunr.js?v=2.4.0.724952276665" data-turbo-eval="false" defer></script>
 
     <link rel="stylesheet" href="/static/custom.css"></link>
 </head>
@@ -301,10 +301,10 @@
     </h3>
 </doc-anchor-target>
 <p>On the <a href="https://github.com/cBioPortal/cbioportal/releases">GitHub Release Page</a> you will see that some releases have the pre-release indication whereas others do not. In general we make a new pre-release release every week. We test it out in production (<a href="https://cbioportal.org">https://cbioportal.org</a>) for one week and if no new critical issues are identified we make it an official release.</p>
-<doc-anchor-target id="version-numbers">
+<doc-anchor-target id="cbioportal-software-version-numbers">
     <h3>
-        <doc-anchor-trigger class="header-anchor-trigger" to="#version-numbers">#</doc-anchor-trigger>
-        <span>Version Numbers</span>
+        <doc-anchor-trigger class="header-anchor-trigger" to="#cbioportal-software-version-numbers">#</doc-anchor-trigger>
+        <span>cBioPortal Software Version Numbers</span>
     </h3>
 </doc-anchor-target>
 <p>We follow the following logic when deciding how/when to increment the version of cBioPortal. It&#x27;s a complete modification of semantic versioning (MAJOR.MINOR.PATCH) more suitable for our purposes:</p>
@@ -312,6 +312,13 @@
 <p>MINOR : Changes that require a database migration, an upgrade to another cBioPortal component (e.g. <a href="../session-service-working/">session-service</a>) or anything that could require additional effort for a deployer of cBioPortal (e.g. see <a href="https://github.com/cBioPortal/cbioportal-frontend/pull/4350">transcript change</a>).</p>
 <p>PATCH : Changes that don&#x27;t require database migrations. Could be new features as well as bug fixes to either frontend, backend or both.</p>
 <p>See also: <a href="https://github.com/cBioPortal/cbioportal/releases">https://github.com/cBioPortal/cbioportal/releases</a></p>
+<doc-anchor-target id="cbioportal-database-version-numbers">
+    <h3>
+        <doc-anchor-trigger class="header-anchor-trigger" to="#cbioportal-database-version-numbers">#</doc-anchor-trigger>
+        <span>cBioPortal Database Version Numbers</span>
+    </h3>
+</doc-anchor-target>
+<p>cBioPortal database version numbers are different version numbers than the software version numbers, it&#x27;s only updated when developers make database scheme changes, please see <a href="../database-versioning/">cBioPortal Database Versioning</a></p>
 <doc-anchor-target id="user-announcements">
     <h2>
         <doc-anchor-trigger class="header-anchor-trigger" to="#user-announcements">#</doc-anchor-trigger>

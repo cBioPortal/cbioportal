@@ -1,4 +1,4 @@
-# Curation Guide
+# Study Curation Guide
 This guide is to help data curators learn how to curate a study on their own computer
 
 ## Prerequisites

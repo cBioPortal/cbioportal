@@ -15,10 +15,6 @@ After having followed the steps in the [Docker Deployment instructions](docker/R
 4. Restart the cbioportal instance `docker-compose restart cbioportal` and see if the new study shows up on http://localhost:8080
 
 ## Curate a new study
-This section is under development and will in the future explain how one can create a new study for import into cBioPortal.
-
-## Datahub
 The cBioPortal team has curated many published studies in formats suitable for import in cBioPortal. These can
 be found on the [datahub](https://github.com/cbioportal/datahub) and can serve as an example of how our curation
-processes works. There is a [checklist](https://github.com/cBioPortal/datahub/blob/master/docs/complete-curation-checklist.md) available
-that details the requirements for submitting a study to datahub.
+processes works. You can find a step by step description of how to curate a new study [here](https://github.com/cBioPortal/datahub/blob/master/docs/curation-process.md).

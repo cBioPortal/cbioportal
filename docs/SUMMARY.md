@@ -46,6 +46,7 @@
     * [Using the metaImport Script](Using-the-metaImport-script.md)
     * [File Formats](File-Formats.md)
       * [Z-Score Normalization](Z-Score-normalization-script.md)
+    * [Study Curation Guide](Study-Curation-Guide.md)
     * [Maintaining Studies](Data-Loading-Maintaining-Studies.md)
     * [For Developers](Data-Loading-For-Developers.md)
     * [Tips and Best Practices](Data-Loading-Tips-and-Best-Practices.md)

@@ -13,10 +13,7 @@ import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.junit.MockitoJUnitRunner;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.HashSet;
-import java.util.List;
+import java.util.*;
 
 @RunWith(MockitoJUnitRunner.Silent.class)
 public class GenePanelFilterApplierTest {
@@ -30,7 +27,7 @@ public class GenePanelFilterApplierTest {
     @Test
     public void shouldSayToApplyFilter() {
         StudyViewFilter filter = new StudyViewFilter();
-        filter.setGenePanelFilters(Arrays.asList(new GenePanelFilter()));
+        filter.setGenePanelFilters(Collections.singletonList(new GenePanelFilter()));
 
         Assert.assertTrue(subject.shouldApplyFilter(filter));
     }
@@ -52,7 +49,7 @@ public class GenePanelFilterApplierTest {
         GenePanelFilter jean = new GenePanelFilter();
         jean.setGenePanelId("gp1");
         jean.setMolecularProfileSuffix("mutations");
-        filter.setGenePanelFilters(Arrays.asList(jean));
+        filter.setGenePanelFilters(Collections.singletonList(jean));
 
         StudyViewGenePanel panel = new StudyViewGenePanel();
         panel.setMolecularProfileId("study1_mutations");
@@ -63,11 +60,11 @@ public class GenePanelFilterApplierTest {
         sample.setStudyId("study1");
 
         Mockito
-            .when(filterService.getSampleIdentifiersForPanels(Arrays.asList(panel)))
-            .thenReturn(new HashSet<>(Arrays.asList(sample)));
+            .when(filterService.getSampleIdentifiersForPanels(Collections.singletonList(panel)))
+            .thenReturn(new HashSet<>(Collections.singletonList(sample)));
 
-        List<SampleIdentifier> actual = subject.filter(Arrays.asList(sample), filter);
-        List<SampleIdentifier> expected = Arrays.asList(sample);
+        List<SampleIdentifier> actual = subject.filter(Collections.singletonList(sample), filter);
+        List<SampleIdentifier> expected = Collections.singletonList(sample);
         
         Assert.assertEquals(expected, actual);
     }
@@ -78,7 +75,7 @@ public class GenePanelFilterApplierTest {
         GenePanelFilter jean = new GenePanelFilter();
         jean.setGenePanelId("gp1");
         jean.setMolecularProfileSuffix("mutations");
-        filter.setGenePanelFilters(Arrays.asList(jean));
+        filter.setGenePanelFilters(Collections.singletonList(jean));
 
         StudyViewGenePanel panel = new StudyViewGenePanel();
         panel.setMolecularProfileId("study1_mutations");
@@ -89,11 +86,11 @@ public class GenePanelFilterApplierTest {
         sample.setStudyId("study1");
 
         Mockito
-            .when(filterService.getSampleIdentifiersForPanels(Arrays.asList(panel)))
-            .thenReturn(new HashSet<>(Arrays.asList()));
+            .when(filterService.getSampleIdentifiersForPanels(Collections.singletonList(panel)))
+            .thenReturn(new HashSet<>(Collections.emptyList()));
 
-        List<SampleIdentifier> actual = subject.filter(Arrays.asList(sample), filter);
-        List<SampleIdentifier> expected = Arrays.asList();
+        List<SampleIdentifier> actual = subject.filter(Collections.singletonList(sample), filter);
+        List<SampleIdentifier> expected = Collections.emptyList();
 
         Assert.assertEquals(expected, actual);
     }
@@ -104,7 +101,7 @@ public class GenePanelFilterApplierTest {
         GenePanelFilter jean = new GenePanelFilter();
         jean.setGenePanelId("gp1");
         jean.setMolecularProfileSuffix("mutations");
-        filter.setGenePanelFilters(Arrays.asList(jean));
+        filter.setGenePanelFilters(Collections.singletonList(jean));
 
         StudyViewGenePanel panel = new StudyViewGenePanel();
         panel.setMolecularProfileId("study1_mutations");
@@ -119,11 +116,11 @@ public class GenePanelFilterApplierTest {
         sample2.setStudyId("study1");
 
         Mockito
-            .when(filterService.getSampleIdentifiersForPanels(Arrays.asList(panel)))
-            .thenReturn(new HashSet<>(Arrays.asList(sample1)));
+            .when(filterService.getSampleIdentifiersForPanels(Collections.singletonList(panel)))
+            .thenReturn(new HashSet<>(Collections.singletonList(sample1)));
 
         List<SampleIdentifier> actual = subject.filter(Arrays.asList(sample1, sample2), filter);
-        List<SampleIdentifier> expected = Arrays.asList(sample1);
+        List<SampleIdentifier> expected = Collections.singletonList(sample1);
 
         Assert.assertEquals(expected, actual);
     }

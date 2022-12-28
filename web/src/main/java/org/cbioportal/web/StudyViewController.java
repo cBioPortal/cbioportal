@@ -859,6 +859,7 @@ public class StudyViewController {
         @RequestAttribute(required = false, value = "interceptedStudyViewFilter")
         StudyViewFilter interceptedStudyViewFilter
     ) {
+        interceptedStudyViewFilter.setGenePanelFilters(new ArrayList<>());
         List<SampleIdentifier> sampleIdentifiers = studyViewFilterApplier.apply(interceptedStudyViewFilter);
         List<String> sampleIds = new ArrayList<>();
         List<String> studyIds = new ArrayList<>();

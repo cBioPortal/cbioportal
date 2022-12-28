@@ -8,6 +8,7 @@ import org.cbioportal.service.util.MolecularProfileUtil;
 import org.cbioportal.web.config.CustomObjectMapper;
 import org.cbioportal.web.parameter.*;
 import org.cbioportal.web.util.StudyViewFilterApplier;
+import org.cbioportal.web.util.appliers.GenePanelFilterApplier;
 import org.junit.Before;
 import org.junit.Ignore;
 import org.junit.Test;
@@ -122,6 +123,16 @@ public class StudyViewControllerTest {
     @Bean
     public ViolinPlotService violinPlotService() {
         return mock(ViolinPlotService.class);
+    }
+    
+    @Bean
+    public GenePanelFilterApplier genePanelFilterApplier() {
+        return mock(GenePanelFilterApplier.class);
+    }
+    
+    @Bean
+    public StudyViewFilterService studyViewFilterService() {
+        return mock(StudyViewFilterService.class);
     }
 
     @Before

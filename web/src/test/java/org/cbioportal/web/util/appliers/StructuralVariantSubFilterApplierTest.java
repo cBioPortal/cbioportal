@@ -19,7 +19,9 @@ import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
 
 import java.util.Arrays;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 import static org.mockito.ArgumentMatchers.anyList;
 import static org.mockito.ArgumentMatchers.eq;
@@ -60,6 +62,7 @@ public class StructuralVariantSubFilterApplierTest {
 
         final StudyViewStructuralVariantFilter structuralVariantFilter = new StudyViewStructuralVariantFilter();
         structuralVariantFilter.setStructVarQueries(svA_and_svB_filterQuery);
+        structuralVariantFilter.setMolecularProfileIds(new HashSet<>(Arrays.asList(MP_1_ID)));
         structVarStudyViewFilter.setStructuralVariantFilters(Arrays.asList(structuralVariantFilter));
 
         MolecularProfile molecularProfile1 = new MolecularProfile();

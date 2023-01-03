@@ -175,6 +175,11 @@ public class AlterationMyBatisRepository implements AlterationRepository {
 
         return alterationCountsMapper.getSampleStructuralVariantCounts(
             new ArrayList<>(molecularProfileCaseIdentifiers),
+            alterationFilter.getIncludeDriver(),
+            alterationFilter.getIncludeVUS(),
+            alterationFilter.getIncludeUnknownOncogenicity(),
+            alterationFilter.getSelectedTiers(),
+            alterationFilter.getIncludeUnknownTier(),
             alterationFilter.getIncludeGermline(),
             alterationFilter.getIncludeSomatic(),
             alterationFilter.getIncludeUnknownStatus());
@@ -192,6 +197,11 @@ public class AlterationMyBatisRepository implements AlterationRepository {
 
         return alterationCountsMapper.getPatientStructuralVariantCounts(
             new ArrayList<>(molecularProfileCaseIdentifiers),
+            alterationFilter.getIncludeDriver(),
+            alterationFilter.getIncludeVUS(),
+            alterationFilter.getIncludeUnknownOncogenicity(),
+            alterationFilter.getSelectedTiers(),
+            alterationFilter.getIncludeUnknownTier(),
             alterationFilter.getIncludeGermline(),
             alterationFilter.getIncludeSomatic(),
             alterationFilter.getIncludeUnknownStatus());

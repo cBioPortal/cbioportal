@@ -120,7 +120,7 @@
             COUNT(DISTINCT(patient.INTERNAL_ID)) AS numberOfAlteredCases
         FROM cna_event
         INNER JOIN sample_cna_event ON cna_event.CNA_EVENT_ID = sample_cna_event.CNA_EVENT_ID
-        <include refid="fromIncludeCustomAnnotationsCna"/>
+        <include refid="fromIncludeCustomAnnotationsCna" />
         INNER JOIN genetic_profile ON sample_cna_event.GENETIC_PROFILE_ID = genetic_profile.GENETIC_PROFILE_ID
         INNER JOIN sample ON sample_cna_event.SAMPLE_ID = sample.INTERNAL_ID
         INNER JOIN patient ON sample.PATIENT_ID = patient.INTERNAL_ID
@@ -158,11 +158,13 @@
             COUNT(DISTINCT(sample.INTERNAL_ID)) AS numberOfAlteredCases
         FROM structural_variant
             INNER JOIN genetic_profile ON structural_variant.GENETIC_PROFILE_ID = genetic_profile.GENETIC_PROFILE_ID
+            <include refid="fromIncludeCustomAnnotationsStructVar" />
             INNER JOIN sample ON structural_variant.SAMPLE_ID = sample.INTERNAL_ID
             INNER JOIN patient ON sample.PATIENT_ID = patient.INTERNAL_ID
             INNER JOIN gene as gene1 ON structural_variant.SITE1_ENTREZ_GENE_ID = gene1.ENTREZ_GENE_ID
             INNER JOIN gene as gene2 ON structural_variant.SITE2_ENTREZ_GENE_ID = gene2.ENTREZ_GENE_ID
         <where>
+            <include refid="whereCustomAnnotations"/>
             <include refid="whereStructuralVariantStatus" />
             <include refid="caseFilter">
                 <property name="case_type" value="'SAMPLE_ID'"/>
@@ -225,6 +227,20 @@
             sample_cna_event.CNA_EVENT_ID = alteration_driver_annotation.ALTERATION_EVENT_ID
             AND sample_cna_event.GENETIC_PROFILE_ID = alteration_driver_annotation.GENETIC_PROFILE_ID
             AND sample_cna_event.SAMPLE_ID = alteration_driver_annotation.SAMPLE_ID
+        </if>
+    </sql>
+    
+    <sql id="fromIncludeCustomAnnotationsStructVar">
+        <!--For better performance, only join in the alteration_driver_annotation table when we need to filter on it.-->
+        <bind name="allDriverAnnotationsSelected" value="includeDriver and includeVUS and includeUnknownOncogenicity" />
+        <bind name="noDriverAnnotationsSelected" value="not includeDriver and not includeVUS and not includeUnknownOncogenicity" />
+        <bind name="allTierOptionsSelected" value="(selectedTiers != null and selectedTiers.hasAll()) and includeUnknownTier" />
+        <bind name="noTierOptionsSelected" value="(selectedTiers == null or selectedTiers.hasNone()) and not includeUnknownTier" />
+        <if test="(not allDriverAnnotationsSelected and not noDriverAnnotationsSelected) or (not allTierOptionsSelected and not noTierOptionsSelected)">
+            LEFT JOIN alteration_driver_annotation ON
+            structural_variant.INTERNAL_ID = alteration_driver_annotation.ALTERATION_EVENT_ID
+            AND structural_variant.GENETIC_PROFILE_ID = alteration_driver_annotation.GENETIC_PROFILE_ID
+            AND structural_variant.SAMPLE_ID = alteration_driver_annotation.SAMPLE_ID
         </if>
     </sql>
     

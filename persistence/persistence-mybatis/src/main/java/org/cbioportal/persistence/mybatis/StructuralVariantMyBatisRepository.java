@@ -48,7 +48,10 @@ public class StructuralVariantMyBatisRepository implements StructuralVariantRepo
     public List<StructuralVariant> fetchStructuralVariants(List<String> molecularProfileIds,
                                                            List<String> sampleIds,
                                                            List<Integer> entrezGeneIds) {
-
+        if (entrezGeneIds == null || entrezGeneIds.isEmpty()
+            || molecularProfileIds == null || molecularProfileIds.isEmpty()) {
+            return new ArrayList<>();
+        }
         return molecularProfileCaseIdentifierUtil.getGroupedCasesByMolecularProfileId(molecularProfileIds, sampleIds)
             .entrySet()
             .stream()
@@ -62,6 +65,10 @@ public class StructuralVariantMyBatisRepository implements StructuralVariantRepo
     public List<StructuralVariant> fetchStructuralVariantsByGeneQueries(List<String>  molecularProfileIds,
                                                                         List<String> sampleIds,
                                                                         List<GeneFilterQuery> geneQueries) {
+        if (geneQueries == null || geneQueries.isEmpty()
+            || molecularProfileIds == null || molecularProfileIds.isEmpty()) {
+            return new ArrayList<>();
+        }
         return structuralVariantMapper.fetchStructuralVariantsByGeneQueries(molecularProfileIds, sampleIds, geneQueries);
     }
 
@@ -69,6 +76,10 @@ public class StructuralVariantMyBatisRepository implements StructuralVariantRepo
     public List<StructuralVariant> fetchStructuralVariantsByStructVarQueries(List<String> molecularProfileIds,
                                                                              List<String> sampleIds,
                                                                              List<StructVarFilterQuery> structVarQueries) {
+        if (structVarQueries == null || structVarQueries.isEmpty()
+            || molecularProfileIds == null || molecularProfileIds.isEmpty()) {
+            return new ArrayList<>();
+        }
         return structuralVariantMapper.fetchStructuralVariantsByStructVarQueries(molecularProfileIds, sampleIds, structVarQueries);
     }
 }

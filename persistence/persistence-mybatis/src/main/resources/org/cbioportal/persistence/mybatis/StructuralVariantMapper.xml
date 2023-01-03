@@ -114,10 +114,10 @@
                 </trim>       
             </otherwise>
         </choose>
-        <bind name="allMutationStatusSelected" value="filterQuery.getIncludeGermline() and filterQuery.getIncludeSomatic() and filterQuery.getIncludeUnknownStatus()" />
-        <bind name="noMutationStatusSelected" value="not filterQuery.getIncludeGermline() and not filterQuery.getIncludeSomatic() and not filterQuery.getIncludeUnknownStatus()" />
+        <bind name="allStructVarStatusSelected" value="filterQuery.getIncludeGermline() and filterQuery.getIncludeSomatic() and filterQuery.getIncludeUnknownStatus()" />
+        <bind name="noStructVarStatusSelected" value="not filterQuery.getIncludeGermline() and not filterQuery.getIncludeSomatic() and not filterQuery.getIncludeUnknownStatus()" />
         <choose>
-            <when test="not allMutationStatusSelected and not noMutationStatusSelected">
+            <when test="not allStructVarStatusSelected and not noStructVarStatusSelected">
                 <trim prefix="AND (" prefixOverrides="OR">
                     <if test="filterQuery.getIncludeGermline()">
                         OR LOWER(structural_variant.SV_STATUS) = 'germline'
@@ -131,11 +131,11 @@
                 </trim>
                 )
             </when>
-            <when test="noMutationStatusSelected">
+            <when test="noStructVarStatusSelected">
                 AND NULL
             </when>
             <otherwise>
-                <!--when allMutationStatusSelected do not filter-->
+                <!--when allStructVarStatusSelected do not filter-->
             </otherwise>
         </choose>
         <bind name="allDriverAnnotationsSelected" value="filterQuery.getIncludeDriver() and filterQuery.getIncludeVUS() and filterQuery.getIncludeUnknownOncogenicity()" />
@@ -276,8 +276,8 @@
         JOIN cancer_study ON patient.CANCER_STUDY_ID = cancer_study.CANCER_STUDY_ID AND genetic_profile.CANCER_STUDY_ID = cancer_study.CANCER_STUDY_ID
         LEFT JOIN alteration_driver_annotation ON
         structural_variant.GENETIC_PROFILE_ID = alteration_driver_annotation.GENETIC_PROFILE_ID
-        and structural_variant.SAMPLE_ID = alteration_driver_annotation.SAMPLE_ID
-        and structural_variant.INTERNAL_ID = alteration_driver_annotation.ALTERATION_EVENT_ID
+        AND structural_variant.SAMPLE_ID = alteration_driver_annotation.SAMPLE_ID
+        AND structural_variant.INTERNAL_ID = alteration_driver_annotation.ALTERATION_EVENT_ID
         <where>
             <include refid="whereInMultipleMolecularProfiles" />
             <include refid="whereWithQueries">

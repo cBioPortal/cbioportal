@@ -26,7 +26,6 @@ package org.cbioportal.persistence.mybatis;
 import org.cbioportal.model.GeneFilterQuery;
 import org.cbioportal.model.StructVarFilterQuery;
 import org.cbioportal.model.StructuralVariant;
-import org.cbioportal.model.StructuralVariantGeneSubQuery;
 import org.cbioportal.model.StructuralVariantSpecialValue;
 import org.cbioportal.model.util.Select;
 import org.junit.Assert;
@@ -102,11 +101,11 @@ public class StructuralVariantMyBatisRepositoryTest {
     private StructVarFilterQuery structVarFilterQuery2;
 
     @Test
-    public void fetchStructuralVariantsNoSampleIdentifiers() throws Exception {
+    public void fetchStructuralVariantsNoSampleIdentifiers() {
 
-        List<String> molecularProfileIds = new ArrayList<String>();
-        List<Integer> entrezGeneIds = new ArrayList<Integer>();
-        List<String> sampleIds = new ArrayList<String>();
+        List<String> molecularProfileIds = new ArrayList<>();
+        List<Integer> entrezGeneIds = new ArrayList<>();
+        List<String> sampleIds = new ArrayList<>();
 
         molecularProfileIds.add("study_tcga_pub_sv");
         entrezGeneIds.add(57670);

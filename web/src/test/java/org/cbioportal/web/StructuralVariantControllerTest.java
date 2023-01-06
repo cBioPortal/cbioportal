@@ -26,16 +26,22 @@ package org.cbioportal.web;
 import java.util.ArrayList;
 import java.util.List;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.node.ObjectNode;
 import org.cbioportal.model.StructuralVariant;
+import org.cbioportal.model.StructuralVariantQuery;
+import org.cbioportal.model.StructuralVariantSpecialValue;
 import org.cbioportal.service.StructuralVariantService;
 import org.cbioportal.web.parameter.SampleMolecularIdentifier;
 import org.cbioportal.web.parameter.StructuralVariantFilter;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.hamcrest.Matchers;
+import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.mockito.ArgumentCaptor;
 import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
@@ -136,7 +142,7 @@ public class StructuralVariantControllerTest {
         List<StructuralVariant> structuralVariant = createExampleStructuralVariant();
 
         Mockito.when(structuralVariantService.fetchStructuralVariants(Mockito.anyList(),
-                Mockito.anyList(), Mockito.anyList())).thenReturn(structuralVariant);
+                Mockito.anyList(), Mockito.anyList(), Mockito.any())).thenReturn(structuralVariant);
 
         StructuralVariantFilter structuralVariantFilter = createStructuralVariantFilterMolecularProfileId();
 
@@ -203,7 +209,7 @@ public class StructuralVariantControllerTest {
         List<StructuralVariant> structuralVariant = createExampleStructuralVariant();
 
         Mockito.when(structuralVariantService.fetchStructuralVariants(Mockito.anyList(),
-                Mockito.anyList(), Mockito.anyList())).thenReturn(structuralVariant);
+                Mockito.anyList(), Mockito.anyList(), Mockito.any())).thenReturn(structuralVariant);
 
         StructuralVariantFilter structuralVariantFilter = createStructuralVariantFilterSampleMolecularIdentifier();
 
@@ -271,7 +277,7 @@ public class StructuralVariantControllerTest {
         List<StructuralVariant> structuralVariant = createExampleStructuralVariant();
 
         Mockito.when(structuralVariantService.fetchStructuralVariants(Mockito.anyList(),
-                Mockito.anyList(), Mockito.anyList())).thenReturn(structuralVariant);
+                Mockito.anyList(), Mockito.anyList(), Mockito.any())).thenReturn(structuralVariant);
 
         StructuralVariantFilter structuralVariantFilter = createStructuralVariantFilterMolecularProfileIdAndSampleMolecularIdentifier();
 
@@ -282,6 +288,72 @@ public class StructuralVariantControllerTest {
                 .andExpect(MockMvcResultMatchers.status().isBadRequest())
                 .andExpect(MockMvcResultMatchers.jsonPath("$.message")
                         .value("interceptedStructuralVariantFilter must be true"));
+    }
+    
+    @Test
+    public void fetchStructuralVariantsWithBothEntrezIdsAndStructVariantIdsReturnsStatusOk() throws Exception {
+        String structuralVariantFilter = createStructuralVariantFilterWithEntrezIdAndStructuralVariantJson();
+        mockMvc.perform(MockMvcRequestBuilders.post("/structural-variant/fetch")
+                .accept(MediaType.APPLICATION_JSON)
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(structuralVariantFilter))
+                .andExpect(MockMvcResultMatchers.status().isOk());
+    }
+    
+    @Test
+    public void fetchStructuralVariantsWithStructuralVariantSpecialQueryValues() throws Exception {
+
+        List<StructuralVariant> structuralVariant = createExampleStructuralVariant();
+
+        ArgumentCaptor<ArrayList<StructuralVariantQuery>> structVarIdCaptor = ArgumentCaptor.forClass(ArrayList.class);
+        Mockito.when(structuralVariantService.fetchStructuralVariants(
+            Mockito.anyList(), Mockito.anyList(), Mockito.any(), Mockito.any()
+        )).thenReturn(structuralVariant);
+
+        String structuralVariantFilterJson = createStructuralVariantFilterWithStructuralVariantWildcard();
+        mockMvc.perform(MockMvcRequestBuilders.post("/structural-variant/fetch")
+                .accept(MediaType.APPLICATION_JSON)
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(structuralVariantFilterJson))
+            .andExpect(MockMvcResultMatchers.status().isOk());
+        
+        Mockito.verify(structuralVariantService).fetchStructuralVariants(
+            Mockito.anyList(), Mockito.anyList(), Mockito.any(), structVarIdCaptor.capture()
+        );
+
+        List<StructuralVariantQuery> capturedStructVarIds = structVarIdCaptor.getValue();
+        Assert.assertEquals(capturedStructVarIds.size(), 2);
+
+        Assert.assertEquals(capturedStructVarIds.get(0).getGene1().getSpecialValue(), StructuralVariantSpecialValue.ANY_GENE);
+        Assert.assertNull(capturedStructVarIds.get(0).getGene1().getEntrezId());
+        Assert.assertEquals(capturedStructVarIds.get(0).getGene2().getEntrezId(), (Integer) 2);
+        Assert.assertNull(capturedStructVarIds.get(0).getGene2().getSpecialValue());
+
+        Assert.assertNull(capturedStructVarIds.get(1).getGene1().getSpecialValue());
+        Assert.assertEquals(capturedStructVarIds.get(1).getGene1().getEntrezId(), (Integer) 1);
+        Assert.assertNull(capturedStructVarIds.get(1).getGene2().getEntrezId());
+        Assert.assertEquals(capturedStructVarIds.get(1).getGene2().getSpecialValue(), StructuralVariantSpecialValue.NO_GENE);
+    }
+
+    @Test
+    public void fetchStructuralVariantsWithStructuralVariantIdWithNoIdAndSpecialValueReturnsBadRequest() throws Exception {
+
+        List<StructuralVariant> structuralVariant = createExampleStructuralVariant();
+
+        Mockito.when(structuralVariantService.fetchStructuralVariants(
+            Mockito.anyList(), Mockito.anyList(), Mockito.any(), Mockito.any()
+        )).thenReturn(structuralVariant);
+
+        String structuralVariantFilterJson = createStructuralVariantFilterWithEmptyStructuralVariantId();
+        mockMvc.perform(MockMvcRequestBuilders.post("/structural-variant/fetch")
+                .accept(MediaType.APPLICATION_JSON)
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(structuralVariantFilterJson))
+            .andExpect(MockMvcResultMatchers.status().isBadRequest())
+            .andExpect(MockMvcResultMatchers.jsonPath("$.message")
+                        .value("interceptedStructuralVariantFilter " +
+                            "Should contain only one EntrezId, hugoSymbol or specialValue."));
+        
     }
 
     private List<StructuralVariant> createExampleStructuralVariant() {
@@ -392,5 +464,69 @@ public class StructuralVariantControllerTest {
         structuralVariantFilter.setEntrezGeneIds(entrezGeneIds);
         structuralVariantFilter.setSampleMolecularIdentifiers(sampleMolecularIdentifierList);
         return structuralVariantFilter;
+    }
+
+    private String createStructuralVariantFilterWithEntrezIdAndStructuralVariantJson( ) throws JsonProcessingException {
+
+        StructuralVariantFilter structuralVariantFilter = new StructuralVariantFilter();
+        
+        List<SampleMolecularIdentifier> sampleMolecularIdentifierList = new ArrayList<>();
+        structuralVariantFilter.setSampleMolecularIdentifiers(sampleMolecularIdentifierList);
+        SampleMolecularIdentifier sampleMolecularIdentifier1 = new SampleMolecularIdentifier();
+        sampleMolecularIdentifier1.setSampleId(TEST_SAMPLE_ID_1);
+        sampleMolecularIdentifier1.setMolecularProfileId(TEST_GENETIC_PROFILE_STABLE_ID_1);
+        sampleMolecularIdentifierList.add(sampleMolecularIdentifier1);
+
+        List<Integer> entrezGeneIds = new ArrayList<>();
+        entrezGeneIds.add(TEST_SITE1_ENTREZ_GENE_ID_1);
+        structuralVariantFilter.setEntrezGeneIds(entrezGeneIds);
+
+        ObjectNode jsonTree = objectMapper.valueToTree(structuralVariantFilter);
+        // Dummy entrez gene IDs:
+        jsonTree.put("structuralVariantQueries", objectMapper.readTree(
+            "[{\"gene1\": {\"entrezId\": 1},\"gene2\": {\"entrezId\":2}}]"
+        ));
+        return jsonTree.toString();
+    }
+    
+    private String createStructuralVariantFilterWithEmptyStructuralVariantId( ) throws JsonProcessingException {
+
+        StructuralVariantFilter structuralVariantFilter = new StructuralVariantFilter();
+        
+        List<SampleMolecularIdentifier> sampleMolecularIdentifierList = new ArrayList<>();
+        structuralVariantFilter.setSampleMolecularIdentifiers(sampleMolecularIdentifierList);
+        SampleMolecularIdentifier sampleMolecularIdentifier1 = new SampleMolecularIdentifier();
+        sampleMolecularIdentifier1.setSampleId(TEST_SAMPLE_ID_1);
+        sampleMolecularIdentifier1.setMolecularProfileId(TEST_GENETIC_PROFILE_STABLE_ID_1);
+        sampleMolecularIdentifierList.add(sampleMolecularIdentifier1);
+
+        ObjectNode jsonTree = objectMapper.valueToTree(structuralVariantFilter);
+        // All struct var query fields empty:
+        jsonTree.put("structuralVariantQueries", objectMapper.readTree(
+            "[{\"gene1\": {\"entrezId\": null},\"gene2\": {\"entrezId\": null}}]"
+        ));
+        return jsonTree.toString();
+    }
+
+    private String createStructuralVariantFilterWithStructuralVariantWildcard( ) throws JsonProcessingException {
+
+        StructuralVariantFilter structuralVariantFilter = new StructuralVariantFilter();
+        
+        List<SampleMolecularIdentifier> sampleMolecularIdentifierList = new ArrayList<>();
+        structuralVariantFilter.setSampleMolecularIdentifiers(sampleMolecularIdentifierList);
+        SampleMolecularIdentifier sampleMolecularIdentifier1 = new SampleMolecularIdentifier();
+        sampleMolecularIdentifier1.setSampleId(TEST_SAMPLE_ID_1);
+        sampleMolecularIdentifier1.setMolecularProfileId(TEST_GENETIC_PROFILE_STABLE_ID_1);
+        sampleMolecularIdentifierList.add(sampleMolecularIdentifier1);
+        
+        ObjectNode jsonTree = objectMapper.valueToTree(structuralVariantFilter);
+        // Replace with special wildcard and null oql values:
+        jsonTree.put("structuralVariantQueries", objectMapper.readTree(
+            "[" +
+                "{\"gene1\": {\"specialValue\": \"ANY_GENE\"},\"gene2\": {\"entrezId\":2}}," +
+                "{\"gene1\": {\"entrezId\":1}, \"gene2\": {\"specialValue\":\"NO_GENE\"}}" +
+                "]"
+        ));
+        return jsonTree.toString();
     }
 }

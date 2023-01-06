@@ -38,6 +38,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.util.Assert;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.RequestAttribute;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -68,6 +69,10 @@ public class StructuralVariantController {
             @ApiParam(required = true, value = "List of entrezGeneIds and molecularProfileIds or sampleMolecularIdentifiers")
             @Valid @RequestBody(required = false) StructuralVariantFilter structuralVariantFilter) {
 
+        Assert.isTrue(interceptedStructuralVariantFilter.getStructuralVariantQueries() != null
+            || interceptedStructuralVariantFilter.getEntrezGeneIds() != null,
+         "Either Entrez gene ids or Structural Variant queries should be passed.");
+        
         List<String> molecularProfileIds = new ArrayList<>();
         List<String> sampleIds = new ArrayList<>();
 
@@ -82,10 +87,12 @@ public class StructuralVariantController {
         } else {
             molecularProfileIds.addAll(interceptedStructuralVariantFilter.getMolecularProfileIds());
         }
-        List<StructuralVariant> structuralVariantList = structuralVariantService.fetchStructuralVariants(molecularProfileIds,
+        List<StructuralVariant> structuralVariantList = structuralVariantService.fetchStructuralVariants(
+            molecularProfileIds,
             sampleIds,
-            interceptedStructuralVariantFilter.getEntrezGeneIds());
-
+            interceptedStructuralVariantFilter.getEntrezGeneIds(),
+            interceptedStructuralVariantFilter.getStructuralVariantQueries()
+        );
 
         return new ResponseEntity<>(structuralVariantList, HttpStatus.OK);
 

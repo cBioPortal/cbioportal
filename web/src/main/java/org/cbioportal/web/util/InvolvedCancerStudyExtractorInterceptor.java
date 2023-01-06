@@ -629,6 +629,11 @@ public class InvolvedCancerStudyExtractorInterceptor extends HandlerInterceptorA
             StructuralVariantFilter structuralVariantFilter = objectMapper.readValue(request.getInputStream(),
                     StructuralVariantFilter.class);
             LOG.debug("extracted structuralVariantFilter: " + structuralVariantFilter.toString());
+            if (structuralVariantFilter.getStructuralVariantQueries() == null) {
+                // For backwards compatibility an empty set of queries is inferred
+                // when the StructuralVariantFilter is not part of the request.
+                structuralVariantFilter.setStructuralVariantQueries(new ArrayList<>());
+            }
             LOG.debug("setting interceptedStructuralVariantFilter to " + structuralVariantFilter);
             request.setAttribute("interceptedStructuralVariantFilter", structuralVariantFilter);
             if (cacheMapUtil.hasCacheEnabled()) {

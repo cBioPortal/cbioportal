@@ -33,6 +33,18 @@ public class AlterationMyBatisRepositoryTest {
     //        12	672	    BRCA1	6	MUTATION    Splice_Site	        Putative_Passenger	Tier 1  TCGA-A1-A0SO    germline
     //        13	672	    BRCA1	6	MUTATION    Splice_Site	        Putative_Driver	    Tier 1  TCGA-A1-A0SP    germline
 
+    //    structural_variant table in testSql.sql
+    //        SAMPLE_ID,    ENTREZ_GENE_ID, HUGO_GENE_SYMBOL, GENETIC_PROFILE_ID, TYPE, MUTATION_TYPE, DRIVER_FILTER, DRIVER_TIERS_FILTER, PATIENT_ID, MUTATION_TYPE
+    //        1     27436-238   EML4-ALK    7   SV          Fusion              <noi>               <noi>   TCGA-A1-A0SB    germline
+    //        2     27436-238   EML4-ALK    7   SV          Fusion              <noi>               <noi>   TCGA-A1-A0SD    somatic
+    //        1     57670-673   KIAA..-BRAF 7   SV          Fusion              <noi>               <noi>   TCGA-A1-A0SB    somatic
+    //        2     57670-673   KIAA..-BRAF 7   SV          Fusion              <noi>               <noi>   TCGA-A1-A0SD    germline
+    //        2     57670-673   KIAA..-BRAF 7   SV          Fusion              <noi>               <noi>   TCGA-A1-A0SD    somatic
+    //       15     57670-673   KIAA..-BRAF 13  SV          Fusion              <noi>               <noi>   TCGA-A1-A0SD    somatic
+    //        1     8031-5979   NCOA4-RET   7   SV          Fusion              <noi>               <noi>   TCGA-A1-A0SB    somatic
+    //       15     8031-5979   NCOA4-RET   13  SV          Fusion              <noi>               <noi>   TCGA-A1-A0SB    somatic
+    //        1     7113-2078   TMPRSS2-ERG 7   SV          Fusion              <noi>               <noi>   TCGA-A1-A0SB    somatic
+
     @Autowired
     private AlterationMyBatisRepository alterationMyBatisRepository;
 
@@ -47,9 +59,14 @@ public class AlterationMyBatisRepositoryTest {
     ));
     List<MolecularProfileCaseIdentifier> sampleIdToProfileId = new ArrayList<>();
     List<MolecularProfileCaseIdentifier> patientIdToProfileId = new ArrayList<>();
+
+    List<MolecularProfileCaseIdentifier> svSampleIdToProfileId = new ArrayList<>();
+    List<MolecularProfileCaseIdentifier> svPatientIdToProfileId = new ArrayList<>();
     AlterationFilter alterationFilter;
     
     Select<Integer> entrezGeneIds;
+
+    Select<Integer> svEntrezGeneIds;
 
     @Before
     public void setup() {
@@ -63,6 +80,8 @@ public class AlterationMyBatisRepositoryTest {
         sampleIdToProfileId.add(new MolecularProfileCaseIdentifier("TCGA-A1-A0SD-01", "study_tcga_pub_mutations"));
         sampleIdToProfileId.add(new MolecularProfileCaseIdentifier("TCGA-A1-A0SB-01", "study_tcga_pub_gistic"));
         sampleIdToProfileId.add(new MolecularProfileCaseIdentifier("TCGA-A1-A0SD-01", "study_tcga_pub_gistic"));
+        svSampleIdToProfileId.add(new MolecularProfileCaseIdentifier("TCGA-A1-A0SB-01", "study_tcga_pub_sv"));
+        svSampleIdToProfileId.add(new MolecularProfileCaseIdentifier("TCGA-A1-A0SD-01", "study_tcga_pub_sv"));
 
         patientIdToProfileId.add(new MolecularProfileCaseIdentifier("TCGA-A1-A0SB", "study_tcga_pub_mutations"));
         patientIdToProfileId.add(new MolecularProfileCaseIdentifier("TCGA-A1-A0SE", "study_tcga_pub_mutations"));
@@ -73,8 +92,11 @@ public class AlterationMyBatisRepositoryTest {
         patientIdToProfileId.add(new MolecularProfileCaseIdentifier("TCGA-A1-A0SD", "study_tcga_pub_mutations"));
         patientIdToProfileId.add(new MolecularProfileCaseIdentifier("TCGA-A1-A0SB", "study_tcga_pub_gistic"));
         patientIdToProfileId.add(new MolecularProfileCaseIdentifier("TCGA-A1-A0SD", "study_tcga_pub_gistic"));
+        svPatientIdToProfileId.add(new MolecularProfileCaseIdentifier("TCGA-A1-A0SB", "study_tcga_pub_sv"));
+        svPatientIdToProfileId.add(new MolecularProfileCaseIdentifier("TCGA-A1-A0SD", "study_tcga_pub_sv"));
 
         entrezGeneIds = Select.byValues(Arrays.asList(207, 208, 672, 2064));
+        svEntrezGeneIds = Select.byValues(Arrays.asList(57670, 8031, 27436, 7113));
         alterationFilter = new AlterationFilter(
             mutationEventTypes,
             cnaEventTypes,
@@ -817,6 +839,188 @@ public class AlterationMyBatisRepositoryTest {
         List<CopyNumberCountByGene> result = alterationMyBatisRepository.getPatientCnaCounts(
             patientIdToProfileId, Select.all(), new AlterationFilter());
         Assert.assertEquals(3, result.size());
+    }
+
+    //    StructuralVariant sample count tests
+    @Test
+    public void getSampleStructuralVariantCountAllStructuralVariantStatusExcluded() throws Exception {
+        alterationFilter.setIncludeSomatic(false);
+        alterationFilter.setIncludeGermline(false);
+        alterationFilter.setIncludeUnknownStatus(false);
+        alterationFilter.setStructuralVariants(true);
+        alterationFilter.setMutationTypeSelect(Select.none());
+        alterationFilter.setCnaTypeSelect(Select.none());
+        List<AlterationCountByGene> result = alterationMyBatisRepository.getSampleAlterationCounts(
+            new TreeSet<>(svSampleIdToProfileId),
+            svEntrezGeneIds,
+            alterationFilter);
+        Assert.assertEquals(0, result.size());
+    }
+
+    @Test
+    public void getSampleStructuralVariantCountAllStructuralVariantStatusIncluded() throws Exception {
+        alterationFilter.setStructuralVariants(true);
+        alterationFilter.setMutationTypeSelect(Select.none());
+        alterationFilter.setCnaTypeSelect(Select.none());
+        List<AlterationCountByGene> result = alterationMyBatisRepository.getSampleAlterationCounts(
+            new TreeSet<>(svSampleIdToProfileId),
+            svEntrezGeneIds,
+            alterationFilter);
+        Assert.assertEquals(4, result.size());
+    }
+
+    @Test
+    public void getSampleStructuralVariantCountIncludeOnlyGermline() throws Exception {
+        alterationFilter.setIncludeSomatic(false);
+        alterationFilter.setIncludeUnknownStatus(false);
+        alterationFilter.setStructuralVariants(true);
+        alterationFilter.setMutationTypeSelect(Select.none());
+        alterationFilter.setCnaTypeSelect(Select.none());
+        List<AlterationCountByGene> result = alterationMyBatisRepository.getSampleAlterationCounts(
+            new TreeSet<>(svSampleIdToProfileId),
+            svEntrezGeneIds,
+            alterationFilter);
+        // two structural variants in testSql.sql are germline mutations
+
+        AlterationCountByGene result57670 = result.stream().filter(r -> r.getEntrezGeneId() == 57670).findFirst().get();
+        AlterationCountByGene result27436 = result.stream().filter(r -> r.getEntrezGeneId() == 27436).findFirst().get();
+        Assert.assertEquals(2, result.size());
+        Assert.assertEquals((Integer) 1, result57670.getTotalCount());
+        Assert.assertEquals((Integer) 1, result57670.getNumberOfAlteredCases());
+        Assert.assertEquals((Integer) 1, result27436.getTotalCount());
+        Assert.assertEquals((Integer) 1, result27436.getNumberOfAlteredCases());
+    }
+
+    @Test
+    public void getSampleStructuralVariantCountIncludeOnlySomatic() throws Exception {
+        alterationFilter.setIncludeGermline(false);
+        alterationFilter.setIncludeUnknownStatus(false);
+        alterationFilter.setStructuralVariants(true);
+        alterationFilter.setMutationTypeSelect(Select.none());
+        alterationFilter.setCnaTypeSelect(Select.none());
+        List<AlterationCountByGene> result = alterationMyBatisRepository.getSampleAlterationCounts(
+            new TreeSet<>(svSampleIdToProfileId),
+            svEntrezGeneIds,
+            alterationFilter);
+        Assert.assertEquals(4, result.size());
+
+        AlterationCountByGene result57670 = result.stream().filter(r -> r.getEntrezGeneId() == 57670).findFirst().get();
+        AlterationCountByGene result8031 = result.stream().filter(r -> r.getEntrezGeneId() == 8031).findFirst().get();
+        AlterationCountByGene result27436 = result.stream().filter(r -> r.getEntrezGeneId() == 27436).findFirst().get();
+        AlterationCountByGene result7113 = result.stream().filter(r -> r.getEntrezGeneId() == 7113).findFirst().get();
+        Assert.assertEquals((Integer) 2, result57670.getTotalCount());
+        Assert.assertEquals((Integer) 2, result57670.getNumberOfAlteredCases());
+        Assert.assertEquals((Integer) 1, result8031.getTotalCount());
+        Assert.assertEquals((Integer) 1, result8031.getNumberOfAlteredCases());
+        Assert.assertEquals((Integer) 1, result27436.getTotalCount());
+        Assert.assertEquals((Integer) 1, result27436.getNumberOfAlteredCases());
+        Assert.assertEquals((Integer) 1, result7113.getTotalCount());
+        Assert.assertEquals((Integer) 1, result7113.getNumberOfAlteredCases());
+    }
+
+    @Test
+    public void getSampleStructuralVariantCountIncludeOnlyUnknownStatus() throws Exception {
+        alterationFilter.setIncludeGermline(false);
+        alterationFilter.setIncludeSomatic(false);
+        alterationFilter.setStructuralVariants(true);
+        alterationFilter.setMutationTypeSelect(Select.none());
+        alterationFilter.setCnaTypeSelect(Select.none());
+        List<AlterationCountByGene> result = alterationMyBatisRepository.getSampleAlterationCounts(
+            new TreeSet<>(svSampleIdToProfileId),
+            svEntrezGeneIds,
+            alterationFilter);
+        Assert.assertEquals(0, result.size());
+    }
+
+    //    StructuralVariant patient count tests
+    @Test
+    public void getPatientStructuralVariantCountAllStructuralVariantStatusExcluded() throws Exception {
+        alterationFilter.setIncludeSomatic(false);
+        alterationFilter.setIncludeGermline(false);
+        alterationFilter.setIncludeUnknownStatus(false);
+        alterationFilter.setStructuralVariants(true);
+        alterationFilter.setMutationTypeSelect(Select.none());
+        alterationFilter.setCnaTypeSelect(Select.none());
+        List<AlterationCountByGene> result = alterationMyBatisRepository.getPatientAlterationCounts(
+            svPatientIdToProfileId,
+            svEntrezGeneIds,
+            alterationFilter);
+        Assert.assertEquals(0, result.size());
+    }
+
+    @Test
+    public void getPatientStructuralVariantCountAllStructuralVariantStatusIncluded() throws Exception {
+        alterationFilter.setStructuralVariants(true);
+        alterationFilter.setMutationTypeSelect(Select.none());
+        alterationFilter.setCnaTypeSelect(Select.none());
+        List<AlterationCountByGene> result = alterationMyBatisRepository.getPatientAlterationCounts(
+            svPatientIdToProfileId,
+            svEntrezGeneIds,
+            alterationFilter);
+        Assert.assertEquals(4, result.size());
+    }
+    
+    @Test
+    public void getPatientStructuralVariantCountIncludeOnlyGermline() throws Exception {
+        alterationFilter.setIncludeSomatic(false);
+        alterationFilter.setIncludeUnknownStatus(false);
+        alterationFilter.setStructuralVariants(true);
+        alterationFilter.setMutationTypeSelect(Select.none());
+        alterationFilter.setCnaTypeSelect(Select.none());
+        List<AlterationCountByGene> result = alterationMyBatisRepository.getPatientAlterationCounts(
+            svPatientIdToProfileId,
+            svEntrezGeneIds,
+            alterationFilter);
+        // two structural variants in testSql.sql are germline mutations
+        Assert.assertEquals(2, result.size());
+
+        AlterationCountByGene result57670 = result.stream().filter(r -> r.getEntrezGeneId() == 57670).findFirst().get();
+        AlterationCountByGene result27436 = result.stream().filter(r -> r.getEntrezGeneId() == 27436).findFirst().get();
+        Assert.assertEquals((Integer) 1, result57670.getTotalCount());
+        Assert.assertEquals((Integer) 1, result57670.getNumberOfAlteredCases());
+        Assert.assertEquals((Integer) 1, result27436.getTotalCount());
+        Assert.assertEquals((Integer) 1, result27436.getNumberOfAlteredCases());
+    }
+
+    @Test
+    public void getPatientStructuralVariantCountIncludeOnlySomatic() throws Exception {
+        alterationFilter.setIncludeGermline(false);
+        alterationFilter.setIncludeUnknownStatus(false);
+        alterationFilter.setStructuralVariants(true);
+        alterationFilter.setMutationTypeSelect(Select.none());
+        alterationFilter.setCnaTypeSelect(Select.none());
+        List<AlterationCountByGene> result = alterationMyBatisRepository.getPatientAlterationCounts(
+            svPatientIdToProfileId,
+            svEntrezGeneIds,
+            alterationFilter);
+        Assert.assertEquals(4, result.size());
+        
+        AlterationCountByGene result57670 = result.stream().filter(r -> r.getEntrezGeneId() == 57670).findFirst().get();
+        AlterationCountByGene result8031 = result.stream().filter(r -> r.getEntrezGeneId() == 8031).findFirst().get();
+        AlterationCountByGene result27436 = result.stream().filter(r -> r.getEntrezGeneId() == 27436).findFirst().get();
+        AlterationCountByGene result7113 = result.stream().filter(r -> r.getEntrezGeneId() == 7113).findFirst().get();
+        Assert.assertEquals((Integer) 2, result57670.getTotalCount());
+        Assert.assertEquals((Integer) 2, result57670.getNumberOfAlteredCases());
+        Assert.assertEquals((Integer) 1, result8031.getTotalCount());
+        Assert.assertEquals((Integer) 1, result8031.getNumberOfAlteredCases());
+        Assert.assertEquals((Integer) 1, result27436.getTotalCount());
+        Assert.assertEquals((Integer) 1, result27436.getNumberOfAlteredCases());
+        Assert.assertEquals((Integer) 1, result7113.getTotalCount());
+        Assert.assertEquals((Integer) 1, result7113.getNumberOfAlteredCases());
+    }
+
+    @Test
+    public void getPatientStructuralVariantCountIncludeOnlyUnknownStatus() throws Exception {
+        alterationFilter.setIncludeGermline(false);
+        alterationFilter.setIncludeSomatic(false);
+        alterationFilter.setStructuralVariants(true);
+        alterationFilter.setMutationTypeSelect(Select.none());
+        alterationFilter.setCnaTypeSelect(Select.none());
+        List<AlterationCountByGene> result = alterationMyBatisRepository.getPatientAlterationCounts(
+            svPatientIdToProfileId,
+            svEntrezGeneIds,
+            alterationFilter);
+        Assert.assertEquals(0, result.size());
     }
     
 }

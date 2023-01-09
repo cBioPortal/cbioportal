@@ -52,7 +52,7 @@ public class StructuralVariantMyBatisRepositoryTest {
     public void init() {
         molecularProfileIds = new ArrayList<>();
         molecularProfileIds.add("study_tcga_pub_sv");
-        molecularProfileIds.add("acc_tcga_mutations");
+        molecularProfileIds.add("acc_tcga_sv");
         sampleIds = new ArrayList<>();
         sampleIds.add("TCGA-A1-A0SB-01");
         sampleIds.add("TCGA-A1-B0SO-01");
@@ -101,7 +101,7 @@ public class StructuralVariantMyBatisRepositoryTest {
                 structuralVariantMyBatisRepository.fetchStructuralVariants(molecularProfileIds,
                     sampleIds, entrezGeneIds);
 
-        Assert.assertEquals(2,  result.size());
+        Assert.assertEquals(3,  result.size());
         StructuralVariant structuralVariantFirstResult = result.get(0);
         Assert.assertEquals("study_tcga_pub_sv", structuralVariantFirstResult.getMolecularProfileId());
         Assert.assertEquals((String) "TCGA-A1-A0SB-01", structuralVariantFirstResult.getSampleId());
@@ -154,7 +154,7 @@ public class StructuralVariantMyBatisRepositoryTest {
         Assert.assertEquals("7", structuralVariantSecondResult.getSite1Chromosome());
         Assert.assertEquals((Integer) 138536968, structuralVariantSecondResult.getSite1Position());
         Assert.assertEquals("KIAA1549-BRAF.K16B10.COSF509_1", structuralVariantSecondResult.getSite1Description());
-        Assert.assertEquals((Integer)673, structuralVariantSecondResult.getSite2EntrezGeneId());
+        Assert.assertEquals((Integer) 673, structuralVariantSecondResult.getSite2EntrezGeneId());
         Assert.assertEquals("BRAF", structuralVariantSecondResult.getSite2HugoSymbol());
         Assert.assertEquals("ENST00000288602", structuralVariantSecondResult.getSite2EnsemblTranscriptId());
         Assert.assertEquals("7", structuralVariantSecondResult.getSite2Chromosome());
@@ -183,7 +183,48 @@ public class StructuralVariantMyBatisRepositoryTest {
         Assert.assertEquals(null, structuralVariantSecondResult.getDriverFilterAnn());
         Assert.assertEquals(null, structuralVariantSecondResult.getDriverTiersFilter());
         Assert.assertEquals(null, structuralVariantSecondResult.getDriverTiersFilterAnn());
-        Assert.assertEquals("SOMATIC", structuralVariantSecondResult.getSvStatus());
+        Assert.assertEquals("GERMLINE", structuralVariantSecondResult.getSvStatus());
+        StructuralVariant structuralVariantThirdResult = result.get(2);
+        Assert.assertEquals("study_tcga_pub_sv", structuralVariantThirdResult.getMolecularProfileId());
+        Assert.assertEquals((String) "TCGA-A1-A0SD-01", structuralVariantThirdResult.getSampleId());
+        Assert.assertEquals((String) "TCGA-A1-A0SD", structuralVariantThirdResult.getPatientId());
+        Assert.assertEquals((String) "study_tcga_pub", structuralVariantThirdResult.getStudyId());
+        Assert.assertEquals((Integer) 57670, structuralVariantThirdResult.getSite1EntrezGeneId());
+        Assert.assertEquals("KIAA1549", structuralVariantThirdResult.getSite1HugoSymbol());
+        Assert.assertEquals("ENST00000242365", structuralVariantThirdResult.getSite1EnsemblTranscriptId());
+        Assert.assertEquals("7", structuralVariantThirdResult.getSite1Chromosome());
+        Assert.assertEquals((Integer) 138536968, structuralVariantThirdResult.getSite1Position());
+        Assert.assertEquals("KIAA1549-BRAF.K16B10.COSF509_1", structuralVariantThirdResult.getSite1Description());
+        Assert.assertEquals((Integer)673, structuralVariantThirdResult.getSite2EntrezGeneId());
+        Assert.assertEquals("BRAF", structuralVariantThirdResult.getSite2HugoSymbol());
+        Assert.assertEquals("ENST00000288602", structuralVariantThirdResult.getSite2EnsemblTranscriptId());
+        Assert.assertEquals("7", structuralVariantThirdResult.getSite2Chromosome());
+        Assert.assertEquals((Integer) 140482957, structuralVariantThirdResult.getSite2Position());
+        Assert.assertEquals("KIAA1549-BRAF.K16B10.COSF509_2", structuralVariantThirdResult.getSite2Description());
+        Assert.assertEquals(null, structuralVariantThirdResult.getSite2EffectOnFrame());
+        Assert.assertEquals("GRCh37", structuralVariantThirdResult.getNcbiBuild());
+        Assert.assertEquals("no", structuralVariantThirdResult.getDnaSupport());
+        Assert.assertEquals("yes", structuralVariantThirdResult.getRnaSupport());
+        Assert.assertEquals(null, structuralVariantThirdResult.getNormalReadCount());
+        Assert.assertEquals((Integer) 100000, structuralVariantThirdResult.getTumorReadCount());
+        Assert.assertEquals(null, structuralVariantThirdResult.getNormalVariantCount());
+        Assert.assertEquals((Integer) 90000, structuralVariantThirdResult.getTumorVariantCount());
+        Assert.assertEquals(null, structuralVariantThirdResult.getNormalPairedEndReadCount());
+        Assert.assertEquals(null, structuralVariantThirdResult.getTumorPairedEndReadCount());
+        Assert.assertEquals(null, structuralVariantThirdResult.getNormalSplitReadCount());
+        Assert.assertEquals(null, structuralVariantThirdResult.getTumorSplitReadCount());
+        Assert.assertEquals("KIAA1549-BRAF.K16B10.COSF509", structuralVariantThirdResult.getAnnotation());
+        Assert.assertEquals(null, structuralVariantThirdResult.getBreakpointType());
+        Assert.assertEquals(null, structuralVariantThirdResult.getConnectionType());
+        Assert.assertEquals("Fusion", structuralVariantThirdResult.getEventInfo());
+        Assert.assertEquals(null, structuralVariantThirdResult.getVariantClass());
+        Assert.assertEquals(null, structuralVariantThirdResult.getLength());
+        Assert.assertEquals("Gain-of-Function", structuralVariantThirdResult.getComments());
+        Assert.assertEquals(null, structuralVariantThirdResult.getDriverFilter());
+        Assert.assertEquals(null, structuralVariantThirdResult.getDriverFilterAnn());
+        Assert.assertEquals(null, structuralVariantThirdResult.getDriverTiersFilter());
+        Assert.assertEquals(null, structuralVariantThirdResult.getDriverTiersFilterAnn());
+        Assert.assertEquals("SOMATIC", structuralVariantThirdResult.getSvStatus());
 
     }
 
@@ -221,7 +262,7 @@ public class StructuralVariantMyBatisRepositoryTest {
         entrezGeneIds.add(57670);
         molecularProfileIds.add("study_tcga_pub_sv");
         sampleIds.add("TCGA-A1-A0SB-01");
-        molecularProfileIds.add("acc_tcga_mutations");
+        molecularProfileIds.add("acc_tcga_sv");
         sampleIds.add("TCGA-A1-B0SO-01");
         
         List<StructuralVariant> result = 
@@ -230,7 +271,7 @@ public class StructuralVariantMyBatisRepositoryTest {
 
         Assert.assertEquals(2,  result.size());
         StructuralVariant structuralVariantFirstResult = result.get(0);
-        Assert.assertEquals("acc_tcga_mutations", structuralVariantFirstResult.getMolecularProfileId());
+        Assert.assertEquals("acc_tcga_sv", structuralVariantFirstResult.getMolecularProfileId());
         Assert.assertEquals((String) "TCGA-A1-B0SO-01", structuralVariantFirstResult.getSampleId());
         Assert.assertEquals((String) "TCGA-A1-B0SO", structuralVariantFirstResult.getPatientId());
         Assert.assertEquals((String) "acc_tcga", structuralVariantFirstResult.getStudyId());
@@ -255,7 +296,7 @@ public class StructuralVariantMyBatisRepositoryTest {
             .map(StructuralVariant::getAnnotation)
             .collect(Collectors.toList());
         List<String> resultTcgaVariants = result.stream()
-            .filter(s -> "acc_tcga_mutations".equals(s.getMolecularProfileId()))
+            .filter(s -> "acc_tcga_sv".equals(s.getMolecularProfileId()))
             .map(StructuralVariant::getAnnotation)
             .collect(Collectors.toList());
         
@@ -284,7 +325,7 @@ public class StructuralVariantMyBatisRepositoryTest {
             .map(StructuralVariant::getAnnotation)
             .collect(Collectors.toList());
         List<String> resultTcgaVariants = result.stream()
-            .filter(s -> "acc_tcga_mutations".equals(s.getMolecularProfileId()))
+            .filter(s -> "acc_tcga_sv".equals(s.getMolecularProfileId()))
             .map(StructuralVariant::getAnnotation)
             .collect(Collectors.toList());
 
@@ -314,7 +355,7 @@ public class StructuralVariantMyBatisRepositoryTest {
             .map(StructuralVariant::getAnnotation)
             .collect(Collectors.toList());
         List<String> resultTcgaVariants = result.stream()
-            .filter(s -> "acc_tcga_mutations".equals(s.getMolecularProfileId()))
+            .filter(s -> "acc_tcga_sv".equals(s.getMolecularProfileId()))
             .map(StructuralVariant::getAnnotation)
             .collect(Collectors.toList());
 
@@ -395,7 +436,7 @@ public class StructuralVariantMyBatisRepositoryTest {
             .map(StructuralVariant::getAnnotation)
             .collect(Collectors.toList());
         List<String> resultTcgaVariants = result.stream()
-            .filter(s -> "acc_tcga_mutations".equals(s.getMolecularProfileId()))
+            .filter(s -> "acc_tcga_sv".equals(s.getMolecularProfileId()))
             .map(StructuralVariant::getAnnotation)
             .collect(Collectors.toList());
 

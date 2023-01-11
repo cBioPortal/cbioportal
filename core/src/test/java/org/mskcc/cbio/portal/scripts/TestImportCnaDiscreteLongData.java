@@ -184,6 +184,36 @@ public class TestImportCnaDiscreteLongData {
     }
 
     /**
+     * Missing cna events should be inserted in genetic_events table as missing value:
+     * - data file containing two samples and two genes;
+     * - missing combination: gene ETV1 * sample TCGA-A2-A04U-11
+     */
+    @Test
+    public void testImportCnaDiscreteLongDataAddsMissingGeneticAlterations() throws Exception {
+        List<TestGeneticAlteration> beforeGeneticAlterations = getAllGeneticAlterations();
+        assertEquals(beforeGeneticAlterations.size(), 42);
+
+        File file = new File("src/test/resources/data_cna_discrete_import_test_with_cna_events_missing.txt");
+        new ImportCnaDiscreteLongData(
+            file,
+            geneticProfile.getGeneticProfileId(),
+            genePanel,
+            DaoGeneOptimized.getInstance(),
+            DaoGeneticAlteration.getInstance(),
+            noNamespaces).importData();
+
+        // Test genetic alteration are added of non-cna event:
+        TestGeneticAlteration geneticAlteration = getGeneticAlterationByEntrez(2115);
+        assertEquals(geneticProfile.getGeneticProfileId(), geneticAlteration.geneticProfileId);
+        TestGeneticProfileSample geneticProfileSample = getGeneticProfileSample(geneticProfile.getGeneticProfileId());
+        assertEquals("21,20,", geneticProfileSample.orderedSampleList);
+        assertEquals(getSampleStableIdFromInternalId(21), "TCGA-A1-A0SB-11");
+        assertEquals(getSampleStableIdFromInternalId(20), "TCGA-A2-A04U-11");
+        // Sample TCGA-A1-A0SB-11 has value 2, and TCGA-A2-A04U-11 is missing:
+        assertEquals("2,,", geneticAlteration.values);
+    }
+
+    /**
      * Test the imported events match the imported genetic profile samples
      */
     @Test
@@ -201,7 +231,7 @@ public class TestImportCnaDiscreteLongData {
             noNamespaces).importData();
 
         // Test order of genetic alteration values:
-        TestGeneticAlteration geneticAlteration = getGeneticAlterationBy(2115L);
+        TestGeneticAlteration geneticAlteration = getGeneticAlterationByEntrez(2115L);
         assertEquals(geneticProfile.getGeneticProfileId(), geneticAlteration.geneticProfileId);
         assertEquals("2,-2,", geneticAlteration.values);
 
@@ -228,11 +258,14 @@ public class TestImportCnaDiscreteLongData {
             noNamespaces).importData();
 
         // Test genetic alteration are added of non-cna event:
-        TestGeneticAlteration geneticAlteration = getGeneticAlterationBy(56914);
+        TestGeneticAlteration geneticAlteration = getGeneticAlterationByEntrez(56914);
         assertEquals(geneticProfile.getGeneticProfileId(), geneticAlteration.geneticProfileId);
-        assertEquals("0,1,", geneticAlteration.values);
         TestGeneticProfileSample geneticProfileSample = getGeneticProfileSample(geneticProfile.getGeneticProfileId());
         assertEquals("21,20,", geneticProfileSample.orderedSampleList);
+        assertEquals(getSampleStableIdFromInternalId(21), "TCGA-A1-A0SB-11");
+        assertEquals(getSampleStableIdFromInternalId(20), "TCGA-A2-A04U-11");
+        // Sample TCGA-A1-A0SB-11 has value 1, and TCGA-A2-A04U-11 has value 0:
+        assertEquals("1,0,", geneticAlteration.values);
     }
 
     /**
@@ -253,7 +286,7 @@ public class TestImportCnaDiscreteLongData {
             noNamespaces).importData();
 
         // Test genetic alteration are deduplicated:
-        TestGeneticAlteration geneticAlteration = getGeneticAlterationBy(57670);
+        TestGeneticAlteration geneticAlteration = getGeneticAlterationByEntrez(57670);
         assertEquals(geneticProfile.getGeneticProfileId(), geneticAlteration.geneticProfileId);
         // Should not be "2,-2,2" or (2,2):
         assertEquals("2,-2,", geneticAlteration.values);
@@ -540,17 +573,18 @@ public class TestImportCnaDiscreteLongData {
     }
 
     private List<TestGeneticAlteration> getAllGeneticAlterations() throws DaoException {
-        return runSelectQuery("SELECT * FROM genetic_alteration", (ResultSet rs) -> {
+        return runSelectQuery("SELECT ga.*, g.HUGO_GENE_SYMBOL FROM genetic_alteration as ga left join gene as g on ga.GENETIC_ENTITY_ID=g.GENETIC_ENTITY_ID", (ResultSet rs) -> {
             TestGeneticAlteration line = new TestGeneticAlteration();
             line.geneticProfileId = rs.getInt("GENETIC_PROFILE_ID");
             line.geneticEntityId = rs.getInt("GENETIC_ENTITY_ID");
             line.values = rs.getString("VALUES");
+            line.hugoGeneSymbol = rs.getString("HUGO_GENE_SYMBOL");
             return line;
         });
     }
 
-    private TestGeneticAlteration getGeneticAlterationBy(long entrezId) throws DaoException {
-        return runSelectQuery("SELECT ga.GENETIC_PROFILE_ID, ga.GENETIC_ENTITY_ID, ga.VALUES, g.ENTREZ_GENE_ID " +
+    private TestGeneticAlteration getGeneticAlterationByEntrez(long entrezId) throws DaoException {
+        return runSelectQuery("SELECT ga.GENETIC_PROFILE_ID, ga.GENETIC_ENTITY_ID, ga.VALUES, g.HUGO_GENE_SYMBOL " +
                 "FROM genetic_alteration AS ga " +
                 "RIGHT JOIN gene AS g " +
                 "ON g.GENETIC_ENTITY_ID = ga.GENETIC_ENTITY_ID " +
@@ -560,7 +594,7 @@ public class TestImportCnaDiscreteLongData {
                 line.geneticProfileId = rs.getInt("GENETIC_PROFILE_ID");
                 line.geneticEntityId = rs.getInt("GENETIC_ENTITY_ID");
                 line.values = rs.getString("VALUES");
-                line.entrezId = rs.getLong("ENTREZ_GENE_ID");
+                line.hugoGeneSymbol = rs.getString("HUGO_GENE_SYMBOL");
                 return line;
             }).get(0);
     }
@@ -574,6 +608,13 @@ public class TestImportCnaDiscreteLongData {
                 line.orderedSampleList = rs.getString("ORDERED_SAMPLE_LIST");
                 return line;
             }).get(0);
+    }
+
+    private String getSampleStableIdFromInternalId(Integer internalSampleId) throws DaoException {
+        return runSelectQuery(
+            "select STABLE_ID from sample where INTERNAL_ID = " + internalSampleId,
+            (ResultSet rs) -> rs.getString("STABLE_ID")
+        ).get(0);
     }
 
     private <T> List<T> runSelectQuery(String query, FunctionThrowsSql<ResultSet, T> handler) throws DaoException {
@@ -602,7 +643,7 @@ class TestGeneticAlteration {
     public int geneticProfileId;
     public int geneticEntityId;
     public String values;
-    public long entrezId;
+    public String hugoGeneSymbol;
 }
 
 class TestGeneticProfileSample {

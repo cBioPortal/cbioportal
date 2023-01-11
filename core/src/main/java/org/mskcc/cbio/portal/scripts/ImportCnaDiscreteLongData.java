@@ -182,15 +182,20 @@ public class ImportCnaDiscreteLongData {
      */
     private boolean storeGeneticAlterations(CnaImportData toImport, Long entrezId) throws DaoException {
         String[] values = toImport.eventsTable
-            .row(entrezId)
-            .values()
+            .columnKeySet()
             .stream()
-            .filter(v -> v.cnaEvent != null)
-            .map(v -> "" + v
-                .cnaEvent
-                .getAlteration()
-                .getCode()
-            )
+            .map(sample -> {
+                CnaEventImportData event = toImport
+                    .eventsTable
+                    .get(entrezId, sample);
+                if(event == null) {
+                    return "";
+                }
+                return "" + event
+                    .cnaEvent
+                    .getAlteration()
+                    .getCode();
+            })
             .toArray(String[]::new);
 
         Optional<CanonicalGene> gene = toImport.genes

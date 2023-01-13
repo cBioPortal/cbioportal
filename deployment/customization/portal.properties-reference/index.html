@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width,initial-scale=1">
-    <meta name="turbo-cache-control" content="no-cache" data-turbo-track="reload" data-track-token="2.4.0.726939280656">
+    <meta name="turbo-cache-control" content="no-cache" data-turbo-track="reload" data-track-token="2.4.0.726939594385">
 
     <!-- See retype.com -->
     <meta name="generator" content="Retype 2.4.0">
@@ -33,11 +33,11 @@
     <script>(function () { var el = document.documentElement, m = localStorage.getItem("doc_theme"), wm = window.matchMedia; if (m === "dark" || (!m && wm && wm("(prefers-color-scheme: dark)").matches)) { el.classList.add("dark") } else { el.classList.remove("dark") } })();</script>
 
     <link href="../../../images/cbio-logo.png" rel="icon" />
-    <link href="../../../resources/css/retype.css?v=2.4.0.726939280656" rel="stylesheet" />
+    <link href="../../../resources/css/retype.css?v=2.4.0.726939594385" rel="stylesheet" />
 
-    <script type="text/javascript" src="../../../resources/js/config.js?v=2.4.0.726939280656" data-turbo-eval="false" defer></script>
+    <script type="text/javascript" src="../../../resources/js/config.js?v=2.4.0.726939594385" data-turbo-eval="false" defer></script>
     <script type="text/javascript" src="../../../resources/js/retype.js?v=2.4.0" data-turbo-eval="false" defer></script>
-    <script id="lunr-js" type="text/javascript" src="../../../resources/js/lunr.js?v=2.4.0.726939280656" data-turbo-eval="false" defer></script>
+    <script id="lunr-js" type="text/javascript" src="../../../resources/js/lunr.js?v=2.4.0.726939594385" data-turbo-eval="false" defer></script>
     <link href="../../../resources/css/katex.css?v=2.4.0" rel="stylesheet" />
     <script id="katex-js" type="text/javascript" src="../../../resources/js/katex.js?v=2.4.0" defer></script>
 
@@ -444,6 +444,17 @@ skin.right_nav.show_twitter=</code></pre>
 <p>Namespace columns are custom columns in the MAF file that can be shown in Mutation Table components. By setting this property to <em>true</em> these columns will be visible when the mutation table is created. By default, the namespace column is hidden and can be made visible using the column selection menu.</p>
 <div class="codeblock-wrapper"><doc-codeblock>
 <pre class="language-none"><code v-pre class="language-none">skin.mutation_table.namespace_column.show_by_default=</code></pre>
+</doc-codeblock></div>
+<doc-anchor-target id="default-visible-columns-on-init-in-mutations-table">
+    <h3>
+        <doc-anchor-trigger class="header-anchor-trigger" to="#default-visible-columns-on-init-in-mutations-table">#</doc-anchor-trigger>
+        <span>Default visible columns on init in Mutations Table</span>
+    </h3>
+</doc-anchor-target>
+<p>Define the columns that are going to be visible in the Mutation Table on the Patient View and the Results View. If namespace columns are set to visible by default, they will also be shown.</p>
+<div class="codeblock-wrapper"><doc-codeblock>
+<pre class="language-none"><code v-pre class="language-none"># skin.patient_view.mutation_table.columns.show_on_init=
+# skin.results_view.mutation_table.columns.show_on_init=</code></pre>
 </doc-codeblock></div>
 <doc-anchor-target id="hide-p--and-q-values-in-survival-types-table">
     <h3>

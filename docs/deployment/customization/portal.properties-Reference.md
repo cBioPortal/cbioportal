@@ -196,8 +196,8 @@ skin.mutation_table.namespace_column.show_by_default=
 Define the columns that are going to be visible in the Mutation Table on the Patient View and the Results View. If namespace columns are set to visible by default, they will also be shown.
 
 ```
-# skin.patient_view.mutation_table.columns.show_on_init=
-# skin.results_view.mutation_table.columns.show_on_init=
+skin.patient_view.mutation_table.columns.show_on_init=
+skin.results_view.mutation_table.columns.show_on_init=
 ```
 
 ### Hide p- and q-values in survival types table

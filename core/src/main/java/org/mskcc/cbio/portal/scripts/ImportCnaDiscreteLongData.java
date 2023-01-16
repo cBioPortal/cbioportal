@@ -151,7 +151,7 @@ public class ImportCnaDiscreteLongData {
         long entrezId = gene.getEntrezGeneId();
         int sampleId = sample.getInternalId();
         CnaEventImportData eventContainer = new CnaEventImportData();
-        eventContainer.cnaEvent = cnaUtil.createEvent(geneticProfile, sample.getInternalId(), lineParts);
+        eventContainer.cnaEvent = cnaUtil.createEvent(geneticProfile, sampleId, entrezId, lineParts);
         
         Table<Long, Integer, CnaEventImportData> geneBySampleEventTable = importContainer.eventsTable;
 

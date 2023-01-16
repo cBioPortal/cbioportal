@@ -95,6 +95,7 @@ public class StructuralVariantMyBatisRepositoryTest {
     boolean includeSomatic;
     boolean includeUnknownStatus;
     private List<GeneFilterQuery> geneQueries;
+    List<StructuralVariantQuery> noStructVars = Collections.emptyList();
 
     @Test
     public void fetchStructuralVariantsNoSampleIdentifiers() {
@@ -102,7 +103,6 @@ public class StructuralVariantMyBatisRepositoryTest {
         List<String> molecularProfileIds = new ArrayList<>();
         List<Integer> entrezGeneIds = new ArrayList<>();
         List<String> sampleIds = new ArrayList<>();
-        List<StructuralVariantQuery> noStructVars = Collections.emptyList();
         molecularProfileIds.add("study_tcga_pub_sv");
         entrezGeneIds.add(57670);
 
@@ -240,14 +240,13 @@ public class StructuralVariantMyBatisRepositoryTest {
     @Test
     public void fetchStructuralVariantsWithSampleIdentifier() throws Exception {
 
-        List<String> molecularProfileIds = new ArrayList<String>();
+        List<String> molecularProfileIds = new ArrayList<>();
         List<Integer> entrezGeneIds = new ArrayList<Integer>();
         List<String> sampleIds = new ArrayList<String>();
 
         molecularProfileIds.add("study_tcga_pub_sv");
         entrezGeneIds.add(57670);
         sampleIds.add("TCGA-A1-A0SB-01");
-        List<StructuralVariantQuery> noStructVars = Collections.emptyList();
 
         List<StructuralVariant> result = 
                 structuralVariantMyBatisRepository.fetchStructuralVariants(molecularProfileIds,
@@ -274,7 +273,6 @@ public class StructuralVariantMyBatisRepositoryTest {
         sampleIds.add("TCGA-A1-A0SB-01");
         molecularProfileIds.add("acc_tcga_sv");
         sampleIds.add("TCGA-A1-B0SO-01");
-        List<StructuralVariantQuery> noStructVars = Collections.emptyList();
 
         List<StructuralVariant> result = 
                 structuralVariantMyBatisRepository.fetchStructuralVariants(molecularProfileIds,

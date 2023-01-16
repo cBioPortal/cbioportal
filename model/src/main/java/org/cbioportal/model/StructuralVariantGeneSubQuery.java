@@ -4,8 +4,9 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import org.springframework.lang.Nullable;
 
 import javax.validation.constraints.AssertTrue;
+import java.io.Serializable;
 
-public class StructuralVariantGeneSubQuery {
+public class StructuralVariantGeneSubQuery implements Serializable {
 
     @Nullable
     protected String hugoSymbol;

@@ -5,14 +5,15 @@ import java.util.stream.Collectors;
 
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.collections4.map.MultiKeyMap;
-import org.cbioportal.model.ClinicalData;
+import org.cbioportal.model.Binnable;
 import org.cbioportal.model.ClinicalDataBin;
 import org.cbioportal.model.ClinicalDataCount;
 import org.cbioportal.model.ClinicalDataCountItem;
 import org.cbioportal.model.DataBin;
-import org.cbioportal.model.MolecularProfile;
 import org.cbioportal.model.Patient;
 import org.cbioportal.model.SampleList;
+import org.cbioportal.service.util.CustomDataSession;
+import org.cbioportal.service.util.CustomDataValue;
 import org.cbioportal.service.util.MolecularProfileUtil;
 import org.cbioportal.web.parameter.*;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -23,7 +24,11 @@ public class StudyViewFilterUtil {
     @Autowired
     private MolecularProfileUtil molecularProfileUtil;
     
-    public void extractStudyAndSampleIds(List<SampleIdentifier> sampleIdentifiers, List<String> studyIds, List<String> sampleIds) {
+    public void extractStudyAndSampleIds(
+        List<SampleIdentifier> sampleIdentifiers, 
+        List<String> studyIds, 
+        List<String> sampleIds
+    ) {
         for (SampleIdentifier sampleIdentifier : sampleIdentifiers) {
             studyIds.add(sampleIdentifier.getStudyId());
             sampleIds.add(sampleIdentifier.getSampleId());
@@ -103,7 +108,7 @@ public class StudyViewFilterUtil {
         return count;
     }
 
-    public List<ClinicalDataCountItem> getClinicalDataCountsFromCustomData(List<CustomDataSession> customDataSessions,
+    public List<ClinicalDataCountItem> getClinicalDataCountsFromCustomData(Collection<CustomDataSession> customDataSessions,
             Map<String, SampleIdentifier> filteredSamplesMap, List<Patient> patients) {
         int totalSamplesCount = filteredSamplesMap.keySet().size();
         int totalPatientsCount = patients.size();
@@ -111,10 +116,9 @@ public class StudyViewFilterUtil {
         return customDataSessions.stream().map(customDataSession -> {
 
             Map<String, List<CustomDataValue>> groupedDatabyValue = customDataSession.getData().getData().stream()
-                    .filter(datum -> {
-                        return filteredSamplesMap
-                                .containsKey(getCaseUniqueKey(datum.getStudyId(), datum.getSampleId()));
-                    }).collect(Collectors.groupingBy(CustomDataValue::getValue));
+                .filter(datum -> filteredSamplesMap
+                    .containsKey(getCaseUniqueKey(datum.getStudyId(), datum.getSampleId()))
+                ).collect(Collectors.groupingBy(CustomDataValue::getValue));
 
             ClinicalDataCountItem clinicalDataCountItem = new ClinicalDataCountItem();
             clinicalDataCountItem.setAttributeId(customDataSession.getId());
@@ -188,10 +192,10 @@ public class StudyViewFilterUtil {
         );
     }
     
-    public List<ClinicalData> filterClinicalData(
-        List<ClinicalData> unfilteredClinicalDataForSamples,
-        List<ClinicalData> unfilteredClinicalDataForPatients,
-        List<ClinicalData> unfilteredClinicalDataForConflictingPatientAttributes,
+    public List<Binnable> filterClinicalData(
+        List<Binnable> unfilteredClinicalDataForSamples,
+        List<Binnable> unfilteredClinicalDataForPatients,
+        List<Binnable> unfilteredClinicalDataForConflictingPatientAttributes,
         List<String> studyIds,
         List<String> sampleIds,
         List<String> studyIdsOfPatients,
@@ -200,7 +204,7 @@ public class StudyViewFilterUtil {
         List<String> patientAttributeIds,
         List<String> conflictingPatientAttributes
     ) {
-        List<ClinicalData> combinedResult = new ArrayList<>();
+        List<Binnable> combinedResult = new ArrayList<>();
         
         Map<String, String> patientIdToStudyId = null;
             
@@ -251,8 +255,8 @@ public class StudyViewFilterUtil {
         return combinedResult;
     }
     
-    private List<ClinicalData> filterClinicalDataByStudyAndSampleAndAttribute(
-        List<ClinicalData> clinicalData,
+    private List<Binnable> filterClinicalDataByStudyAndSampleAndAttribute(
+        List<Binnable> clinicalData,
         Map<String, String> sampleToStudyId,
         Map<String, Boolean> attributeIdLookup
     ) {
@@ -265,8 +269,8 @@ public class StudyViewFilterUtil {
             .collect(Collectors.toList());
     }
 
-    private List<ClinicalData> filterClinicalDataByStudyAndPatientAndAttribute(
-        List<ClinicalData> clinicalData,
+    private List<Binnable> filterClinicalDataByStudyAndPatientAndAttribute(
+        List<Binnable> clinicalData,
         Map<String, String> patientToStudyId,
         Map<String, Boolean> attributeIdLookup
     ) {
@@ -296,11 +300,11 @@ public class StudyViewFilterUtil {
         return caseToStudy;
     }
 
-    private String generateSampleToStudyKey(ClinicalData clinicalData) {
+    private String generateSampleToStudyKey(Binnable clinicalData) {
         return generateCaseToStudyKey(clinicalData.getStudyId(), clinicalData.getSampleId());
     }
     
-    private String generatePatientToStudyKey(ClinicalData clinicalData) {
+    private String generatePatientToStudyKey(Binnable clinicalData) {
         return generateCaseToStudyKey(clinicalData.getStudyId(), clinicalData.getPatientId());
     }
     

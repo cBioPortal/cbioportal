@@ -58,7 +58,7 @@ import org.springframework.web.context.WebApplicationContext;
 
 @RunWith(SpringJUnit4ClassRunner.class)
 @WebAppConfiguration
-@ContextConfiguration("/applicationContext-web.xml")
+@ContextConfiguration("/applicationContext-web-test.xml")
 @Configuration
 public class StructuralVariantControllerTest {
 

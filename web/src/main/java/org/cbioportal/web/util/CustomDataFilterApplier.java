@@ -1,88 +1,132 @@
 package org.cbioportal.web.util;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
-import java.util.concurrent.CompletableFuture;
-import java.util.function.Function;
-import java.util.stream.Collectors;
-
 import org.apache.commons.collections4.map.MultiKeyMap;
-import org.cbioportal.service.ClinicalDataService;
-import org.cbioportal.service.PatientService;
-import org.cbioportal.session_service.domain.SessionType;
+import org.cbioportal.service.CustomDataService;
+import org.cbioportal.service.util.CustomDataSession;
 import org.cbioportal.web.parameter.ClinicalDataFilter;
-import org.cbioportal.web.parameter.CustomDataSession;
 import org.cbioportal.web.parameter.SampleIdentifier;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
+import java.util.function.Function;
+import java.util.stream.Collectors;
+
 @Component
-public class CustomDataFilterApplier extends ClinicalDataEqualityFilterApplier {
+public class CustomDataFilterApplier implements DataFilterApplier<ClinicalDataFilter> {
 
+    private CustomDataService customDataService;
+
+    private ClinicalDataEqualityFilterApplier equalityFilterApplier;
+    private ClinicalDataIntervalFilterApplier intervalFilterApplier;
+    
     @Autowired
-    public CustomDataFilterApplier(PatientService patientService, ClinicalDataService clinicalDataService,
-            StudyViewFilterUtil studyViewFilterUtil) {
-        super(patientService, clinicalDataService, studyViewFilterUtil);
+    public CustomDataFilterApplier(
+        CustomDataService customDataService,
+        ClinicalDataEqualityFilterApplier equalityFilterApplier, 
+        ClinicalDataIntervalFilterApplier intervalFilterApplier
+    ) {
+        this.customDataService = customDataService;
+        this.equalityFilterApplier = equalityFilterApplier;
+        this.intervalFilterApplier = intervalFilterApplier;
     }
-
-    @Autowired
-    private SessionServiceRequestHandler sessionServiceRequestHandler;
 
     @Override
-    public List<SampleIdentifier> apply(List<SampleIdentifier> sampleIdentifiers,
-            List<ClinicalDataFilter> customDataFilters, Boolean negateFilters) {
-        if (!customDataFilters.isEmpty() && !sampleIdentifiers.isEmpty()) {
-
-            List<CompletableFuture<CustomDataSession>> postFutures = customDataFilters.stream()
-                    .map(clinicalDataFilter -> {
-                        return CompletableFuture.supplyAsync(() -> {
-                            try {
-                                return (CustomDataSession) sessionServiceRequestHandler
-                                        .getSession(SessionType.custom_data, clinicalDataFilter.getAttributeId());
-                            } catch (Exception e) {
-                                return null;
-                            }
-                        });
-                    }).collect(Collectors.toList());
-
-            CompletableFuture.allOf(postFutures.toArray(new CompletableFuture[postFutures.size()])).join();
-
-            Map<String, CustomDataSession> customDataSessionById = postFutures
-                    .stream()
-                    .map(CompletableFuture::join)
-                    .filter(Objects::nonNull)
-                    .collect(Collectors.toMap(CustomDataSession::getId, Function.identity()));
-
-            MultiKeyMap clinicalDataMap = new MultiKeyMap();
-
-            customDataSessionById.values()
-            .stream()
-            .forEach(customDataSession -> {
-                customDataSession.getData().getData().forEach(datum -> {
-                    String value = datum.getValue().toUpperCase();
-                    if (value.equals("NAN") || value.equals("N/A")) {
-                        value = "NA";
-                    }
-                    clinicalDataMap.put(datum.getStudyId(), datum.getSampleId(), customDataSession.getId(), value);
-                });
-            });
-
-            List<SampleIdentifier> newSampleIdentifiers = new ArrayList<>();
-
-            sampleIdentifiers.forEach(sampleIdentifier -> {
-                int count = apply(customDataFilters, clinicalDataMap,
-                        sampleIdentifier.getSampleId(), sampleIdentifier.getStudyId(), negateFilters);
-
-                if (count == customDataFilters.size()) {
-                    newSampleIdentifiers.add(sampleIdentifier);
-                }
-            });
-
-            return newSampleIdentifiers;
+    public List<SampleIdentifier> apply(
+        List<SampleIdentifier> sampleIdentifiers,
+        List<ClinicalDataFilter> dataFilters,
+        Boolean negateFilters
+    ) {
+        if (dataFilters.isEmpty() || sampleIdentifiers.isEmpty()) {
+            return sampleIdentifiers;
         }
-        return sampleIdentifiers;
-    }
 
+        final List<String> attributeIds = dataFilters.stream()
+            .map(ClinicalDataFilter::getAttributeId)
+            .collect(Collectors.toList());
+
+        final Map<String, CustomDataSession> customDataSessions = customDataService.getCustomDataSessions(attributeIds);
+
+        Map<String, CustomDataSession> customDataSessionById = customDataSessions
+            .values()
+            .stream()
+            .collect(Collectors.toMap(
+                CustomDataSession::getId, 
+                Function.identity()
+            ));
+
+        /* 
+        Custom data entry with: 
+        - key1: studyId; 
+        - key2: sampleId; 
+        - key3: sessionId.
+        */
+        MultiKeyMap<String, String> customDataByStudySampleSession = new MultiKeyMap<>();
+
+        customDataSessionById.values().forEach(customDataSession -> customDataSession
+            .getData()
+            .getData()
+            .forEach(datum -> {
+                String value = datum.getValue().toUpperCase();
+                if (value.equals("NAN") || value.equals("N/A")) {
+                    value = "NA";
+                }
+                customDataByStudySampleSession.put(datum.getStudyId(), datum.getSampleId(), customDataSession.getId(), value);
+            })
+        );
+
+        return filterCustomData(
+            dataFilters, 
+            negateFilters, 
+            sampleIdentifiers, 
+            customDataSessionById,
+            customDataByStudySampleSession
+        );
+    }
+    
+    private List<SampleIdentifier> filterCustomData(
+        List<ClinicalDataFilter> customDataFilters,
+        Boolean negateFilters,
+        List<SampleIdentifier> sampleIdentifiers,
+        Map<String, CustomDataSession> customDataSessionById,
+        MultiKeyMap<String, String> clinicalDataMap
+    ) {
+        List<ClinicalDataFilter> equalityFilters = new ArrayList<>();
+        List<ClinicalDataFilter> intervalFilters = new ArrayList<>();
+        
+        customDataFilters.forEach(filter -> {
+            String attributeId = filter.getAttributeId();
+            if (!customDataSessionById.containsKey(attributeId)) {
+                return;
+            }
+            if (customDataSessionById
+                .get(attributeId)
+                .getData()
+                .getDatatype()
+                .equals(CustomDataDatatype.STRING.name())
+            ) {
+                equalityFilters.add(filter);
+            } else {
+                intervalFilters.add(filter);
+            }
+        });
+
+        List<SampleIdentifier> filtered = new ArrayList<>();
+        sampleIdentifiers.forEach(sampleIdentifier -> {
+            int equalityFilterCount = equalityFilterApplier.apply(equalityFilters, clinicalDataMap,
+                sampleIdentifier.getSampleId(), sampleIdentifier.getStudyId(), negateFilters);
+            int intervalFilterCount = intervalFilterApplier.apply(intervalFilters, clinicalDataMap,
+                sampleIdentifier.getSampleId(), sampleIdentifier.getStudyId(), negateFilters);
+            if (equalityFilterCount == equalityFilters.size() 
+                && intervalFilterCount == intervalFilters.size()
+            ) {
+                filtered.add(sampleIdentifier);
+            }
+        });
+        
+        return filtered;
+    }
+    
 }

@@ -4,6 +4,8 @@ import static org.cbioportal.web.parameter.DataBinFilter.*;
 
 
 import java.util.stream.IntStream;
+
+import org.cbioportal.model.Binnable;
 import org.cbioportal.model.ClinicalData;
 import org.cbioportal.model.DataBin;
 import org.cbioportal.web.parameter.BinsGeneratorConfig;
@@ -57,7 +59,7 @@ public class DataBinnerTest {
         MockitoAnnotations.initMocks(this);
     }
 
-    private List<String> getCaseIds(List<ClinicalData> unfilteredClinicalData, boolean getPatientIds) {
+    private List<String> getCaseIds(List<Binnable> unfilteredClinicalData, boolean getPatientIds) {
         return unfilteredClinicalData
                 .stream()
                 .map(datum -> studyViewFilterUtil.getCaseUniqueKey(datum.getStudyId(),
@@ -73,7 +75,7 @@ public class DataBinnerTest {
         ClinicalDataBinFilter clinicalDataBinFilter = new ClinicalDataBinFilter();
         clinicalDataBinFilter.setAttributeId(attributeId);
 
-        List<ClinicalData> clinicalData = mockClinicalData(attributeId, studyId, values);
+        List<Binnable> clinicalData = mockClinicalData(attributeId, studyId, values);
         List<String> patientIds = getCaseIds(clinicalData, true);
         
         List<DataBin> dataBins = dataBinner.calculateDataBins(clinicalDataBinFilter, ClinicalDataType.PATIENT, clinicalData, patientIds);
@@ -136,7 +138,7 @@ public class DataBinnerTest {
         clinicalDataBinFilter.setStart(new BigDecimal("39.5"));
         clinicalDataBinFilter.setEnd(new BigDecimal("80.5"));
 
-        List<ClinicalData> clinicalData = mockClinicalData(attributeId, studyId, values);
+        List<Binnable> clinicalData = mockClinicalData(attributeId, studyId, values);
         List<String> patientIds = getCaseIds(clinicalData, true);
 
         List<DataBin> dataBins = dataBinner.calculateDataBins(clinicalDataBinFilter, ClinicalDataType.PATIENT, clinicalData, patientIds);
@@ -171,7 +173,7 @@ public class DataBinnerTest {
         clinicalDataBinFilter.setStart(new BigDecimal("39.5"));
         clinicalDataBinFilter.setEnd(new BigDecimal("80.5"));
 
-        List<ClinicalData> clinicalData = mockClinicalData(attributeId, studyId, values);
+        List<Binnable> clinicalData = mockClinicalData(attributeId, studyId, values);
         List<String> patientIds = getCaseIds(clinicalData, true);
 
         List<DataBin> dataBins = dataBinner.calculateDataBins(clinicalDataBinFilter, ClinicalDataType.PATIENT, clinicalData, patientIds);
@@ -205,7 +207,7 @@ public class DataBinnerTest {
         clinicalDataBinFilter.setStart(new BigDecimal("39.5"));
         clinicalDataBinFilter.setEnd(new BigDecimal("81.5"));
 
-        List<ClinicalData> clinicalData = mockClinicalData(attributeId, studyId, values);
+        List<Binnable> clinicalData = mockClinicalData(attributeId, studyId, values);
         List<String> patientIds = getCaseIds(clinicalData, true);
 
         List<DataBin> dataBins = dataBinner.calculateDataBins(clinicalDataBinFilter, ClinicalDataType.PATIENT, clinicalData, patientIds);
@@ -245,7 +247,7 @@ public class DataBinnerTest {
         clinicalDataBinFilter.setBinMethod(BinMethod.CUSTOM);
         clinicalDataBinFilter.setCustomBins(Arrays.asList(50.0, 60.0, 70.0).stream().map(item -> BigDecimal.valueOf(item)).collect(Collectors.toList()));
 
-        List<ClinicalData> clinicalData = mockClinicalData(attributeId, studyId, values);
+        List<Binnable> clinicalData = mockClinicalData(attributeId, studyId, values);
         List<String> patientIds = getCaseIds(clinicalData, true);
 
         List<DataBin> dataBins = dataBinner.calculateDataBins(clinicalDataBinFilter, ClinicalDataType.PATIENT, clinicalData, patientIds);
@@ -278,13 +280,13 @@ public class DataBinnerTest {
         ClinicalDataBinFilter clinicalDataBinFilter = new ClinicalDataBinFilter();
         clinicalDataBinFilter.setAttributeId(attributeId);
 
-        List<ClinicalData> unfilteredClinicalData = mockClinicalData(attributeId, studyId, values);
+        List<Binnable> unfilteredClinicalData = mockClinicalData(attributeId, studyId, values);
         List<String> unfilteredPatientIds =
             getCaseIds(unfilteredClinicalData, true);
         List<DataBin> unfilteredDataBins = dataBinner.calculateDataBins(
             clinicalDataBinFilter, ClinicalDataType.PATIENT, unfilteredClinicalData, unfilteredPatientIds);
         
-        List<ClinicalData> filteredClinicalData = unfilteredClinicalData.subList(0, 108); // (0, 60] interval
+        List<Binnable> filteredClinicalData = unfilteredClinicalData.subList(0, 108); // (0, 60] interval
         List<String> filteredPatientIds =
             getCaseIds(filteredClinicalData, true);
         List<DataBin> filteredDataBins = dataBinner.calculateClinicalDataBins(clinicalDataBinFilter,
@@ -365,7 +367,7 @@ public class DataBinnerTest {
         String attributeId = "N_SCANS_PET_CT_PT";
         String[] values = mockData.get("genie_N_SCANS_PET_CT_PT");
 
-        List<ClinicalData> clinicalData = mockClinicalData(attributeId, studyId, values);
+        List<Binnable> clinicalData = mockClinicalData(attributeId, studyId, values);
         List<String> patientIds = getCaseIds(clinicalData, true);
 
         ClinicalDataBinFilter clinicalDataBinFilter = new ClinicalDataBinFilter();
@@ -395,7 +397,7 @@ public class DataBinnerTest {
         String attributeId = "N_SCANS_BONE_PT";
         String[] values = mockData.get("genie_N_SCANS_BONE_PT");
 
-        List<ClinicalData> clinicalData = mockClinicalData(attributeId, studyId, values);
+        List<Binnable> clinicalData = mockClinicalData(attributeId, studyId, values);
         List<String> patientIds = getCaseIds(clinicalData, true);
 
         ClinicalDataBinFilter clinicalDataBinFilter = new ClinicalDataBinFilter();
@@ -433,7 +435,7 @@ public class DataBinnerTest {
         String attributeId = "AGE_AT_WHICH_SEQUENCING_WAS_REPORTED";
         String[] values = mockData.get("genie_public_AGE_AT_WHICH_SEQUENCING_WAS_REPORTED");
 
-        List<ClinicalData> clinicalData = mockClinicalData(attributeId, studyId, values);
+        List<Binnable> clinicalData = mockClinicalData(attributeId, studyId, values);
         List<String> patientIds = getCaseIds(clinicalData, true);
         
         ClinicalDataBinFilter clinicalDataBinFilter = new ClinicalDataBinFilter();
@@ -530,7 +532,7 @@ public class DataBinnerTest {
         clinicalDataBinFilter.setBinMethod(BinMethod.CUSTOM);
         clinicalDataBinFilter.setCustomBins(Arrays.asList(18.0, 20.0, 30.0, 40.0, 50.0, 60.0, 70.0, 80.0, 90.0).stream().map(item -> BigDecimal.valueOf(item)).collect(Collectors.toList()));
 
-        List<ClinicalData> clinicalData = mockClinicalData(attributeId, studyId, values);
+        List<Binnable> clinicalData = mockClinicalData(attributeId, studyId, values);
         List<String> patientIds = getCaseIds(clinicalData, true);
         patientIds.addAll(Arrays.asList(patientsWithNoClinicalData));
 
@@ -591,7 +593,7 @@ public class DataBinnerTest {
         clinicalDataBinFilter.setBinMethod(BinMethod.CUSTOM);
         clinicalDataBinFilter.setCustomBins(Arrays.asList(18.0, 20.0, 30.0, 40.0, 50.0, 60.0, 70.0, 80.0, 90.0).stream().map(item -> BigDecimal.valueOf(item)).collect(Collectors.toList()));
 
-        List<ClinicalData> clinicalData = mockClinicalData(attributeId, studyId, values);
+        List<Binnable> clinicalData = mockClinicalData(attributeId, studyId, values);
         List<String> patientIds = getCaseIds(clinicalData, true);
         patientIds.addAll(Arrays.asList(patientsWithNoClinicalData));
 
@@ -626,7 +628,7 @@ public class DataBinnerTest {
         clinicalDataBinFilter.setBinMethod(BinMethod.CUSTOM);
         clinicalDataBinFilter.setCustomBins(Arrays.asList(18.0, 25.0, 30.0, 35.0).stream().map(item -> BigDecimal.valueOf(item)).collect(Collectors.toList()));
 
-        List<ClinicalData> clinicalData = mockClinicalData(attributeId, studyId, values);
+        List<Binnable> clinicalData = mockClinicalData(attributeId, studyId, values);
         List<String> patientIds = getCaseIds(clinicalData, true);
         patientIds.addAll(Arrays.asList(patientsWithNoClinicalData));
 
@@ -658,7 +660,7 @@ public class DataBinnerTest {
         clinicalDataBinFilter.setBinMethod(BinMethod.CUSTOM);
         clinicalDataBinFilter.setCustomBins(Arrays.asList(30.0).stream().map(item -> BigDecimal.valueOf(item)).collect(Collectors.toList()));
 
-        List<ClinicalData> clinicalData = mockClinicalData(attributeId, studyId, values);
+        List<Binnable> clinicalData = mockClinicalData(attributeId, studyId, values);
         List<String> patientIds = getCaseIds(clinicalData, true);
         patientIds.addAll(Arrays.asList(patientsWithNoClinicalData));
 
@@ -688,7 +690,7 @@ public class DataBinnerTest {
         clinicalDataBinFilter.setBinMethod(BinMethod.CUSTOM);
         clinicalDataBinFilter.setCustomBins(Arrays.asList(20.0, 50.0).stream().map(item -> BigDecimal.valueOf(item)).collect(Collectors.toList()));
 
-        List<ClinicalData> clinicalData = mockClinicalData(attributeId, studyId, values);
+        List<Binnable> clinicalData = mockClinicalData(attributeId, studyId, values);
         List<String> patientIds = getCaseIds(clinicalData, true);
         patientIds.addAll(Arrays.asList(patientsWithNoClinicalData));
 
@@ -722,7 +724,7 @@ public class DataBinnerTest {
         generateBins.setAnchorValue(new BigDecimal(50));
         clinicalDataBinFilter.setBinsGeneratorConfig(generateBins);
 
-        List<ClinicalData> clinicalData = mockClinicalData(attributeId, studyId, values);
+        List<Binnable> clinicalData = mockClinicalData(attributeId, studyId, values);
         List<String> patientIds = getCaseIds(clinicalData, true);
         patientIds.addAll(Arrays.asList(patientsWithNoClinicalData));
 
@@ -756,7 +758,7 @@ public class DataBinnerTest {
         clinicalDataBinFilter.setAttributeId(attributeId);
         clinicalDataBinFilter.setBinMethod(BinMethod.MEDIAN);
 
-        List<ClinicalData> clinicalData = mockClinicalData(attributeId, studyId, values);
+        List<Binnable> clinicalData = mockClinicalData(attributeId, studyId, values);
         List<String> patientIds = getCaseIds(clinicalData, true);
         patientIds.addAll(Arrays.asList(patientsWithNoClinicalData));
 
@@ -784,7 +786,7 @@ public class DataBinnerTest {
         clinicalDataBinFilter.setAttributeId(attributeId);
         clinicalDataBinFilter.setBinMethod(BinMethod.QUARTILE);
 
-        List<ClinicalData> clinicalData = mockClinicalData(attributeId, studyId, values);
+        List<Binnable> clinicalData = mockClinicalData(attributeId, studyId, values);
         List<String> patientIds = getCaseIds(clinicalData, true);
         patientIds.addAll(Arrays.asList(patientsWithNoClinicalData));
 
@@ -811,7 +813,7 @@ public class DataBinnerTest {
         clinicalDataBinFilter.setAttributeId(attributeId);
         clinicalDataBinFilter.setBinMethod(BinMethod.QUARTILE);
 
-        List<ClinicalData> clinicalData = mockClinicalData(attributeId, studyId, values);
+        List<Binnable> clinicalData = mockClinicalData(attributeId, studyId, values);
         List<String> patientIds = getCaseIds(clinicalData, true);
 
         List<DataBin> dataBins = dataBinner.calculateDataBins(clinicalDataBinFilter, ClinicalDataType.PATIENT, clinicalData, patientIds);
@@ -833,7 +835,7 @@ public class DataBinnerTest {
         clinicalDataBinFilter.setAttributeId(attributeId);
         clinicalDataBinFilter.setBinMethod(BinMethod.QUARTILE);
 
-        List<ClinicalData> clinicalData = mockClinicalData(attributeId, studyId, values);
+        List<Binnable> clinicalData = mockClinicalData(attributeId, studyId, values);
         List<String> patientIds = getCaseIds(clinicalData, true);
 
         List<DataBin> dataBins = dataBinner.calculateDataBins(clinicalDataBinFilter, ClinicalDataType.PATIENT, clinicalData, patientIds);
@@ -854,7 +856,7 @@ public class DataBinnerTest {
         ClinicalDataBinFilter clinicalDataBinFilter = new ClinicalDataBinFilter();
         clinicalDataBinFilter.setAttributeId(attributeId);
 
-        List<ClinicalData> clinicalData = mockClinicalData(attributeId, studyId, values);
+        List<Binnable> clinicalData = mockClinicalData(attributeId, studyId, values);
         List<String> patientIds = getCaseIds(clinicalData, true);
 
         List<DataBin> dataBins = dataBinner.calculateDataBins(clinicalDataBinFilter, ClinicalDataType.PATIENT, clinicalData, patientIds);
@@ -879,7 +881,7 @@ public class DataBinnerTest {
         clinicalDataBinFilter.setBinMethod(BinMethod.CUSTOM);
         clinicalDataBinFilter.setCustomBins(Arrays.asList(1.0, 2.0, 5.0, 10.0, 30.0).stream().map(item -> BigDecimal.valueOf(item)).collect(Collectors.toList()));
 
-        List<ClinicalData> clinicalData = mockClinicalData(attributeId, studyId, values);
+        List<Binnable> clinicalData = mockClinicalData(attributeId, studyId, values);
         List<String> sampleIds = getCaseIds(clinicalData, false);
 
         List<DataBin> dataBins = dataBinner.calculateDataBins(clinicalDataBinFilter, ClinicalDataType.SAMPLE, clinicalData, sampleIds);
@@ -905,7 +907,7 @@ public class DataBinnerTest {
         ClinicalDataBinFilter clinicalDataBinFilter = new ClinicalDataBinFilter();
         clinicalDataBinFilter.setAttributeId(attributeId);
 
-        List<ClinicalData> clinicalData = mockClinicalData(attributeId, studyId, values);
+        List<Binnable> clinicalData = mockClinicalData(attributeId, studyId, values);
         List<String> patientIds = getCaseIds(clinicalData, true);
 
         List<DataBin> dataBins = dataBinner.calculateDataBins(clinicalDataBinFilter, ClinicalDataType.PATIENT, clinicalData, patientIds);
@@ -939,7 +941,7 @@ public class DataBinnerTest {
         ClinicalDataBinFilter clinicalDataBinFilter = new ClinicalDataBinFilter();
         clinicalDataBinFilter.setAttributeId(attributeId);
 
-        List<ClinicalData> clinicalData = mockClinicalData(attributeId, studyId, values);
+        List<Binnable> clinicalData = mockClinicalData(attributeId, studyId, values);
         List<String> sampleIds = getCaseIds(clinicalData, false);
 
         List<DataBin> dataBins = dataBinner.calculateDataBins(clinicalDataBinFilter, ClinicalDataType.SAMPLE, clinicalData, sampleIds);
@@ -964,7 +966,7 @@ public class DataBinnerTest {
         ClinicalDataBinFilter clinicalDataBinFilter = new ClinicalDataBinFilter();
         clinicalDataBinFilter.setAttributeId(attributeId);
 
-        List<ClinicalData> clinicalData = mockClinicalData(attributeId, studyId, values);
+        List<Binnable> clinicalData = mockClinicalData(attributeId, studyId, values);
         List<String> sampleIds = getCaseIds(clinicalData, false);
 
         List<DataBin> dataBins = dataBinner.calculateDataBins(clinicalDataBinFilter, ClinicalDataType.SAMPLE, clinicalData, sampleIds, 5);
@@ -985,7 +987,7 @@ public class DataBinnerTest {
         ClinicalDataBinFilter clinicalDataBinFilter = new ClinicalDataBinFilter();
         clinicalDataBinFilter.setAttributeId(attributeId);
 
-        List<ClinicalData> clinicalData = mockClinicalData(attributeId, studyId, values);
+        List<Binnable> clinicalData = mockClinicalData(attributeId, studyId, values);
         List<String> sampleIds = getCaseIds(clinicalData, false);
 
         List<DataBin> dataBins = dataBinner.calculateDataBins(clinicalDataBinFilter, ClinicalDataType.SAMPLE, clinicalData, sampleIds);
@@ -1024,7 +1026,7 @@ public class DataBinnerTest {
         ClinicalDataBinFilter clinicalDataBinFilter = new ClinicalDataBinFilter();
         clinicalDataBinFilter.setAttributeId(attributeId);
 
-        List<ClinicalData> clinicalData = mockClinicalData(attributeId, studyId, values);
+        List<Binnable> clinicalData = mockClinicalData(attributeId, studyId, values);
         List<String> sampleIds = getCaseIds(clinicalData, false);
         sampleIds.addAll(Arrays.asList(samplesWithNoClinicalData));
 
@@ -1060,7 +1062,7 @@ public class DataBinnerTest {
         ClinicalDataBinFilter clinicalDataBinFilter = new ClinicalDataBinFilter();
         clinicalDataBinFilter.setAttributeId(attributeId);
 
-        List<ClinicalData> clinicalData = mockClinicalData(attributeId, studyId, values);
+        List<Binnable> clinicalData = mockClinicalData(attributeId, studyId, values);
         List<String> sampleIds = getCaseIds(clinicalData, false);
 
         List<DataBin> dataBins = dataBinner.calculateDataBins(clinicalDataBinFilter, ClinicalDataType.SAMPLE, clinicalData, sampleIds);
@@ -1108,7 +1110,7 @@ public class DataBinnerTest {
         ClinicalDataBinFilter clinicalDataBinFilter = new ClinicalDataBinFilter();
         clinicalDataBinFilter.setAttributeId(attributeId);
 
-        List<ClinicalData> clinicalData = mockClinicalData(attributeId, studyId, values);
+        List<Binnable> clinicalData = mockClinicalData(attributeId, studyId, values);
         List<String> patientIds = getCaseIds(clinicalData, true);
 
         List<DataBin> dataBins = dataBinner.calculateDataBins(clinicalDataBinFilter, ClinicalDataType.PATIENT, clinicalData, patientIds);
@@ -1153,7 +1155,7 @@ public class DataBinnerTest {
         clinicalDataBinFilter.setAttributeId(attributeId);
         clinicalDataBinFilter.setDisableLogScale(true);
 
-        List<ClinicalData> clinicalData = mockClinicalData(attributeId, studyId, values);
+        List<Binnable> clinicalData = mockClinicalData(attributeId, studyId, values);
         List<String> patientIds = getCaseIds(clinicalData, true);
 
         List<DataBin> dataBins = dataBinner.calculateDataBins(clinicalDataBinFilter, ClinicalDataType.PATIENT, clinicalData, patientIds);
@@ -1181,7 +1183,7 @@ public class DataBinnerTest {
         ClinicalDataBinFilter clinicalDataBinFilter = new ClinicalDataBinFilter();
         clinicalDataBinFilter.setAttributeId(attributeId);
 
-        List<ClinicalData> clinicalData = mockClinicalData(attributeId, studyId, values);
+        List<Binnable> clinicalData = mockClinicalData(attributeId, studyId, values);
         List<String> patientIds = getCaseIds(clinicalData, true);
 
         List<DataBin> dataBins = dataBinner.calculateDataBins(clinicalDataBinFilter, ClinicalDataType.PATIENT, clinicalData, patientIds);
@@ -1205,7 +1207,7 @@ public class DataBinnerTest {
         ClinicalDataBinFilter clinicalDataBinFilter = new ClinicalDataBinFilter();
         clinicalDataBinFilter.setAttributeId(attributeId);
 
-        List<ClinicalData> clinicalData = mockClinicalData(attributeId, studyId, values);
+        List<Binnable> clinicalData = mockClinicalData(attributeId, studyId, values);
         List<String> patientIds = getCaseIds(clinicalData, true);
 
         List<DataBin> dataBins = dataBinner.calculateDataBins(clinicalDataBinFilter, ClinicalDataType.PATIENT, clinicalData, patientIds);
@@ -1239,7 +1241,7 @@ public class DataBinnerTest {
         clinicalDataBinFilter.setAttributeId(attributeId);
         clinicalDataBinFilter.setDisableLogScale(true);
 
-        List<ClinicalData> clinicalData = mockClinicalData(attributeId, studyId, values);
+        List<Binnable> clinicalData = mockClinicalData(attributeId, studyId, values);
         List<String> patientIds = getCaseIds(clinicalData, true);
 
         List<DataBin> dataBins = dataBinner.calculateDataBins(clinicalDataBinFilter, ClinicalDataType.PATIENT, clinicalData, patientIds);
@@ -1253,8 +1255,8 @@ public class DataBinnerTest {
         Assert.assertEquals(">", dataBins.get(13).getSpecialValue());
     }
 
-    private List<ClinicalData> mockClinicalData(String attributeId, String studyId, String[] values) {
-        List<ClinicalData> clinicalDataList =  new ArrayList<>();
+    private List<Binnable> mockClinicalData(String attributeId, String studyId, String[] values) {
+        List<Binnable> clinicalDataList =  new ArrayList<>();
 
         for (int index = 0; index < values.length; index++)
         {

@@ -264,6 +264,29 @@ public class TestImportCnaDiscreteLongData {
     }
 
     /**
+     * Test that entries are imported when invalid entrez IDs and valid Hugo IDs are provided
+     */
+    @Test
+    public void testImportCnaDiscreteLongDataHandlesEntriesWithWrongEntrezAndCorrectHugo() throws Exception {
+        List<TestGeneticAlteration> beforeGeneticAlterations = getAllGeneticAlterations();
+        assertEquals(beforeGeneticAlterations.size(), 42);
+
+        File file = new File("src/test/resources/data_cna_discrete_import_test_with_wrong_entrez_and_correct_hugo.txt");
+        new ImportCnaDiscreteLongData(
+            file,
+            geneticProfile.getGeneticProfileId(),
+            genePanel,
+            DaoGeneOptimized.getInstance(),
+            DaoGeneticAlteration.getInstance(),
+            noNamespaces).importData();
+
+        // Test order of genetic alteration values:
+        TestGeneticAlteration geneticAlteration = getGeneticAlterationByEntrez(57670L);
+        assertEquals(geneticProfile.getGeneticProfileId(), geneticAlteration.geneticProfileId);
+        assertEquals("2,-2,", geneticAlteration.values);
+    }
+    
+    /**
      * Test genetic events are imported, even when not imported as cna event
      */
     @Test

@@ -48,7 +48,7 @@ public class ImportCnaDiscreteLongData {
     private Set<CnaEvent.Event> existingCnaEvents = new HashSet<>();
     private int samplesSkipped = 0;
     private Set<String> namespaces;
-    
+
     private final ArrayList<SampleIdGeneticProfileId> sampleIdGeneticProfileIds = new ArrayList<>();
 
     public ImportCnaDiscreteLongData(
@@ -114,7 +114,7 @@ public class ImportCnaDiscreteLongData {
         // Once the CNA import is done, update DISCRETE_LONG input datatype into resulting DISCRETE datatype:
         geneticProfile.setDatatype(DISCRETE.name());
         DaoGeneticProfile.updateDatatype(geneticProfile.getGeneticProfileId(), geneticProfile.getDatatype());
-                
+
         ProgressMonitor.setCurrentMessage(" --> total number of samples skipped (normal samples): " + getSamplesSkipped());
         buf.close();
         MySQLbulkLoader.flushAll();
@@ -139,6 +139,7 @@ public class ImportCnaDiscreteLongData {
         importContainer.genes.add(gene);
 
         if (gene == null) {
+            ProgressMonitor.logWarning("Ignoring line with no Hugo_Symbol and no Entrez_Id");
             return;
         }
 
@@ -151,8 +152,8 @@ public class ImportCnaDiscreteLongData {
         long entrezId = gene.getEntrezGeneId();
         int sampleId = sample.getInternalId();
         CnaEventImportData eventContainer = new CnaEventImportData();
-        eventContainer.cnaEvent = cnaUtil.createEvent(geneticProfile, sample.getInternalId(), lineParts);
-        
+        eventContainer.cnaEvent = cnaUtil.createEvent(geneticProfile, sampleId, entrezId, lineParts);
+
         Table<Long, Integer, CnaEventImportData> geneBySampleEventTable = importContainer.eventsTable;
 
         if (!geneBySampleEventTable.contains(entrezId, sample.getInternalId())) {
@@ -188,7 +189,7 @@ public class ImportCnaDiscreteLongData {
                 CnaEventImportData event = toImport
                     .eventsTable
                     .get(entrezId, sample);
-                if(event == null) {
+                if (event == null) {
                     return "";
                 }
                 return "" + event
@@ -216,6 +217,7 @@ public class ImportCnaDiscreteLongData {
     }
 
     /**
+     * Try to find gene by entrez ID, or else by hugo ID
      * @return null when no gene could be found
      */
     private CanonicalGene getGene(
@@ -227,14 +229,19 @@ public class ImportCnaDiscreteLongData {
         String hugoSymbol = util.getHugoSymbol(parts);
 
         if (Strings.isNullOrEmpty(hugoSymbol) && entrez == 0) {
-            ProgressMonitor.logWarning("Ignoring line with no Hugo_Symbol and no Entrez_Id");
             return null;
         }
+
+        // 1. try entrez:
         if (entrez != 0) {
-            //try entrez:
-            return this.daoGene.getGene(entrez);
-        } else if (!Strings.isNullOrEmpty(hugoSymbol)) {
-            //try hugo:
+            CanonicalGene foundByEntrez = this.daoGene.getGene(entrez);
+            if (foundByEntrez != null) {
+                return foundByEntrez;
+            }
+        }
+
+        // 2. try hugo:
+        if (!Strings.isNullOrEmpty(hugoSymbol)) {
             if (hugoSymbol.contains("///") || hugoSymbol.contains("---")) {
                 //  Ignore gene IDs separated by ///.  This indicates that
                 //  the line contains information regarding multiple genes, and
@@ -254,10 +261,9 @@ public class ImportCnaDiscreteLongData {
                 throw new IllegalStateException("Found multiple genes for Hugo symbol " + hugoSymbol + " while importing cna");
             }
             return genes.get(0);
-        } else {
-            ProgressMonitor.logWarning("Entrez_Id " + entrez + " not found. Record will be skipped for this gene.");
-            return null;
         }
+        ProgressMonitor.logWarning("Entrez_Id " + entrez + " not found. Record will be skipped for this gene.");
+        return null;
     }
 
     /**
@@ -331,7 +337,7 @@ public class ImportCnaDiscreteLongData {
         public Table<Long, Integer, CnaEventImportData> eventsTable = HashBasedTable.create();
         public Set<CanonicalGene> genes = new HashSet<>();
     }
-    
+
     private class CnaEventImportData {
         public int line;
         public CnaEvent cnaEvent;

@@ -68,14 +68,14 @@ public class CnaUtil {
     }
 
     public CnaEvent createEvent(
-        GeneticProfile geneticProfile, 
-        int sampleId, 
+        GeneticProfile geneticProfile,
+        int sampleId,
+        long entrezId, 
         String[] parts
     ) throws IOException {
         int cnaProfileId = geneticProfile.getGeneticProfileId();
-        long entrezGeneId = getEntrezSymbol(parts);
         short alteration = createAlteration(parts);
-        CnaEvent cna = new CnaEvent(sampleId, cnaProfileId, entrezGeneId, alteration);
+        CnaEvent cna = new CnaEvent(sampleId, cnaProfileId, entrezId, alteration);
         cna.setDriverFilter(TabDelimitedFileUtil.getPartString(getColumnIndex(CnaUtil.CBP_DRIVER), parts));
         cna.setDriverFilterAnnotation(TabDelimitedFileUtil.getPartString(getColumnIndex(CnaUtil.CBP_DRIVER_ANNOTATION), parts));
         cna.setDriverTiersFilter(TabDelimitedFileUtil.getPartString(getColumnIndex(CnaUtil.CBP_DRIVER_TIERS), parts));

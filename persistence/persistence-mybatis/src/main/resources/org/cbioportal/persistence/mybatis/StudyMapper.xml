@@ -34,7 +34,7 @@
         COUNT(CASE WHEN sample_list.STABLE_ID = CONCAT(cancer_study.CANCER_STUDY_IDENTIFIER,'_rppa') THEN 1 ELSE NULL END) AS rppaSampleCount,
         COUNT(CASE WHEN sample_list.STABLE_ID = CONCAT(cancer_study.CANCER_STUDY_IDENTIFIER,'_protein_quantification') THEN 1 ELSE NULL END) AS massSpectrometrySampleCount,
         COUNT(CASE WHEN sample_list.STABLE_ID = CONCAT(cancer_study.CANCER_STUDY_IDENTIFIER,'_3way_complete') THEN 1 ELSE NULL END) AS completeSampleCount,
-        clinical_event_and_study_id.treatmentCount as treatmentCount, 
+        treatment.count as treatmentCount, 
         <include refid="org.cbioportal.persistence.mybatis.CancerTypeMapper.select">
             <property name="prefix" value="typeOfCancer."/>
         </include>
@@ -49,13 +49,14 @@
             INNER JOIN type_of_cancer ON cancer_study.TYPE_OF_CANCER_ID = type_of_cancer.TYPE_OF_CANCER_ID
             INNER JOIN 
             (
-                SELECT Count(Distinct clinical_event.PATIENT_ID, case when clinical_event.EVENT_TYPE = "Treatment" then 1 else NULL END) as treatmentCount,
+                SELECT Count(Distinct(clinical_event.PATIENT_ID)) as count,
                 patient.CANCER_STUDY_ID as CANCER_STUDY_ID
                 FROM cancer_study
                 INNER JOIN patient on cancer_study.CANCER_STUDY_ID = patient.CANCER_STUDY_ID
                 Left Join clinical_event on clinical_event.PATIENT_ID = patient.INTERNAL_ID
+                WHERE clinical_event.EVENT_TYPE = "Treatment"
                 GROUP BY cancer_study.CANCER_STUDY_ID
-            ) as clinical_event_and_study_id on cancer_study.CANCER_STUDY_ID = clinical_event_and_study_id.CANCER_STUDY_ID
+            ) as treatment on cancer_study.CANCER_STUDY_ID = treatment.CANCER_STUDY_ID
         </if>
     </sql>
 

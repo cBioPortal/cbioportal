@@ -521,6 +521,30 @@ public class TestImportCnaDiscreteLongData {
             mapper.readTree(resultAnnotationJsonA2)
         );
     }
+    /**
+     * Test the import of cna data file in long format with:
+     * - two rows with the same gene and two different samples each with their own annotationJson 
+     */
+    @Test
+    public void testImportCnaDiscreteLongDataImportsCustomNamespaceColumnsAsNullWhenMissing() throws Exception {
+        ObjectMapper mapper = new ObjectMapper();
+        File file = new File("src/test/resources/data_cna_discrete_import_test_without_namespaces.txt");
+        Set<String> namespaces = newHashSet("MyNamespace", "MyNamespace2");
+        new ImportCnaDiscreteLongData(
+            file,
+            geneticProfile.getGeneticProfileId(),
+            genePanel,
+            DaoGeneOptimized.getInstance(),
+            DaoGeneticAlteration.getInstance(),
+            namespaces
+        ).importData();
+
+        List<NamespaceAnnotationJson> results = getAnnotationJsonBy(geneticProfile.getGeneticProfileId());
+        assertEquals(1, results.size());
+
+        String expectedAnnotationJson = null;
+        assertEquals(expectedAnnotationJson, results.get(0).annotationJson);
+    }
     
     private List<TestPdAnnotationPK> createPrimaryKeys(String sample, List<CnaEvent.Event> cnaEvents) {
         return cnaEvents.stream().map(e -> {

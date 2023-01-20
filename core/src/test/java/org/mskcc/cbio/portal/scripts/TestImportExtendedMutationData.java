@@ -43,6 +43,7 @@ import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import org.springframework.transaction.annotation.Transactional;
 
+import static com.google.common.collect.Sets.newHashSet;
 import static org.junit.Assert.*;
 
 import java.io.*;
@@ -68,7 +69,7 @@ public class TestImportExtendedMutationData {
 
     int studyId;
     int geneticProfileId;
-    int geneticProfileIdDupEvents;
+    int testGeneticProfileId;
     @Before
     public void setUp() throws DaoException {
         studyId = DaoCancerStudy.getCancerStudyByStableId("study_tcga_pub").getInternalId();
@@ -90,11 +91,11 @@ public class TestImportExtendedMutationData {
         GeneticProfile geneticProfile2 = new GeneticProfile();
         geneticProfile2.setCancerStudyId(studyId);
         geneticProfile2.setProfileName("test duplicate mutation events profile");
-        geneticProfile2.setStableId("test_dup_mut_events");
+        geneticProfile2.setStableId("test_importer_id");
         geneticProfile2.setGeneticAlterationType(GeneticAlterationType.MUTATION_EXTENDED);
         geneticProfile2.setDatatype("test");
         DaoGeneticProfile.addGeneticProfile(geneticProfile2);
-        geneticProfileIdDupEvents = DaoGeneticProfile.getGeneticProfileByStableId("test_dup_mut_events").getGeneticProfileId();
+        testGeneticProfileId = DaoGeneticProfile.getGeneticProfileByStableId("test_importer_id").getGeneticProfileId();
 
         ProgressMonitor.setConsoleMode(false);
         loadGenes();
@@ -352,12 +353,12 @@ public class TestImportExtendedMutationData {
         // import maf
         MySQLbulkLoader.bulkLoadOn();
         File file = new File("src/test/resources/data_mutations_extended_duplicate_events.txt");
-        ImportExtendedMutationData parser = new ImportExtendedMutationData(file, geneticProfileIdDupEvents, null);
+        ImportExtendedMutationData parser = new ImportExtendedMutationData(file, testGeneticProfileId, null);
         parser.importData();
         MySQLbulkLoader.flushAll();
         ConsoleUtil.showMessages();
         // fetch mutations for test genetic profile
-        int geneticProfileId = DaoGeneticProfile.getGeneticProfileByStableId("test_dup_mut_events").getGeneticProfileId();
+        int geneticProfileId = DaoGeneticProfile.getGeneticProfileByStableId("test_importer_id").getGeneticProfileId();
         List<ExtendedMutation> mutations = DaoMutation.getAllMutations(geneticProfileId);
         // there are 2 identical mutation records from 2 different samples in test MAF
         // verify that only one mutation event is associated with these samples
@@ -367,5 +368,25 @@ public class TestImportExtendedMutationData {
             events.add(mut.getMutationEventId());
         }
         assertEquals(1, events.size());
+    }    
+
+    @Test
+    public void testImportExtendedMutationDataExtendedWithoutNamespacesResultsInNull() throws IOException, DaoException {
+        // import maf
+        MySQLbulkLoader.bulkLoadOn();
+        File file = new File("src/test/resources/data_mutations_extended_without_namespaces.txt");
+        ImportExtendedMutationData parser = new ImportExtendedMutationData(
+            file, testGeneticProfileId, null, null, newHashSet("foo-namespace", "bar-namespace")
+        );
+        parser.importData();
+        MySQLbulkLoader.flushAll();
+        ConsoleUtil.showMessages();
+        // fetch mutations for test genetic profile
+        int geneticProfileId = DaoGeneticProfile.getGeneticProfileByStableId("test_importer_id").getGeneticProfileId();
+        List<ExtendedMutation> mutations = DaoMutation.getAllMutations(geneticProfileId);
+
+        assertEquals(1, mutations.size());
+
+        assertNull(mutations.get(0).getAnnotationJson());
     }
 }

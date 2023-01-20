@@ -1,5 +1,6 @@
 package org.mskcc.cbio.maf;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.*;
 
 import java.util.*;
@@ -14,7 +15,7 @@ public class NamespaceColumnParser {
     public static final String NAMESPACE_DELIMITER_REGEX = "\\.";
 
     private Map<String, Map<String, Integer>> namespaceIndexMap;
-    private ObjectMapper mapper;
+    private static ObjectMapper mapper;
 
     public NamespaceColumnParser(Set<String> namespaces, String[] parts) {
         this.namespaceIndexMap = new HashMap<>();
@@ -61,7 +62,7 @@ public class NamespaceColumnParser {
         // extract namespace key-value pairs for json annotation support
         Map<String, Map<String, Object>> recordNamespaceAnnotationJsonMap = new HashMap<>();
         if (this.namespaceIndexMap.isEmpty()) {
-            return recordNamespaceAnnotationJsonMap;
+            return null;
         }
         for (Map.Entry<String, Map<String, Integer>> nsKeyIndexMap : namespaceIndexMap.entrySet()) {
             String namespace = nsKeyIndexMap.getKey();
@@ -90,6 +91,16 @@ public class NamespaceColumnParser {
             return Double.parseDouble(stringValue);
         }
         return stringValue;
+    }
+
+    /**
+     * Map to string, or return `null` (instead of `"null"`) when null
+     */
+    public String writeValueAsString(Map<String, Map<String, Object>> namespaces) throws JsonProcessingException {
+        if (namespaces == null || namespaces.isEmpty()) {
+            return null;
+        }
+        return NamespaceColumnParser.mapper.writeValueAsString(namespaces);
     }
 
 }

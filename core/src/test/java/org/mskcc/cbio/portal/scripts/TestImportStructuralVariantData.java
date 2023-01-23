@@ -164,6 +164,28 @@ public class TestImportStructuralVariantData{
             .getAnnotationJson();
         String expectedAnnotationJson = "{\"StructVarNamespace2\":{\"foo\":\"bar\"},\"StructVarNamespace\":{\"column1\":\"value1a\",\"column2\":\"value2a\"}}";
         assertEquals(expectedAnnotationJson, annotationJson);
+    }
+    
+    @Test
+    public void testImportStructuralVariantDataWithNoNamespaceData() throws DaoException, IOException {
+        ProgressMonitor.setConsoleMode(false);
+
+        // Load test structural variants
+        File file = new File("src/test/resources/data_structural_variants_with_no_namespace_data.txt");
+        Set<String> namespacesToImport = newHashSet("StructVarNamespace", "StructVarNamespace2");
+        ImportStructuralVariantData importer = new ImportStructuralVariantData(file, geneticProfileId, null, namespacesToImport);
+        importer.importData();
+        MySQLbulkLoader.flushAll();
+
+        List<StructuralVariant> all = DaoStructuralVariant
+            .getAllStructuralVariants();
         
+        // result should be null:
+        String annotationJson = all
+            .stream().filter(sv -> "EML4-ALK.E13A20.AB462411_2".equals(sv.getSite2Description()))
+            .findFirst().get()
+            .getAnnotationJson();
+        String expectedAnnotationJson = null;
+        assertEquals(expectedAnnotationJson, annotationJson);
     }
 }

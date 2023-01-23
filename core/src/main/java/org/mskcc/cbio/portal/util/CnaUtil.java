@@ -80,8 +80,7 @@ public class CnaUtil {
         cna.setDriverFilterAnnotation(TabDelimitedFileUtil.getPartString(getColumnIndex(CnaUtil.CBP_DRIVER_ANNOTATION), parts));
         cna.setDriverTiersFilter(TabDelimitedFileUtil.getPartString(getColumnIndex(CnaUtil.CBP_DRIVER_TIERS), parts));
         cna.setDriverTiersFilterAnnotation(TabDelimitedFileUtil.getPartString(getColumnIndex(CnaUtil.CBP_DRIVER_TIERS_ANNOTATION), parts));
-        cna.setAnnotationJson(
-            convertMapToJsonString(
+        cna.setAnnotationJson(this.namespaceColumnParser.writeValueAsString(
                 this.namespaceColumnParser.parseCustomNamespaces(parts)
             )
         );

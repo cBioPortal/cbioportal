@@ -39,7 +39,6 @@ import com.fasterxml.jackson.databind.*;
 import org.mskcc.cbio.maf.NamespaceColumnParser;
 import org.mskcc.cbio.maf.TabDelimitedFileUtil;
 import org.mskcc.cbio.portal.model.StructuralVariant;
-import org.mskcc.cbio.portal.scripts.*;
 
 /**
  * @author ochoaa
@@ -154,9 +153,7 @@ public class StructuralVariantUtil {
             structuralVariant.setSvStatus(null); // we want to use the database default
         }
         Map<String, Map<String, Object>> namespaces = this.namespaceColumnParser.parseCustomNamespaces(parts);
-        structuralVariant.setAnnotationJson(
-            this.objectMapper.writeValueAsString(namespaces)
-        );
+        structuralVariant.setAnnotationJson(this.namespaceColumnParser.writeValueAsString(namespaces));
         return structuralVariant;
     }
 

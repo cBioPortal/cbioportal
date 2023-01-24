@@ -32,6 +32,7 @@ public class CancerStudy implements ReadPermission, Serializable {
     private Integer completeSampleCount;
     private String referenceGenome;
     private Boolean readPermission = true;
+    private Integer treatmentCount;
     
     public Integer getCancerStudyId() {
         return cancerStudyId;
@@ -229,5 +230,13 @@ public class CancerStudy implements ReadPermission, Serializable {
     @Override
     public Boolean getReadPermission() {
         return readPermission;
+    }
+
+    public Integer getTreatmentCount() {
+        return treatmentCount;
+    }
+
+    public void setTreatmentCount(Integer treatmentCount) {
+        this.treatmentCount = treatmentCount;
     }
 }

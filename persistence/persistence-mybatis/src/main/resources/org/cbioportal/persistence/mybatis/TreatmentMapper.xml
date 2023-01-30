@@ -33,7 +33,7 @@
             INNER JOIN cancer_study ON patient.CANCER_STUDY_ID = cancer_study.CANCER_STUDY_ID
         <include refid="where"/>
             AND clinical_event_data.KEY = 'SAMPLE_ID'
-            AND (clinical_event.EVENT_TYPE = 'Sample Acquisition' OR clinical_event.EVENT_TYPE = 'SPECIMEN')
+            AND (clinical_event.EVENT_TYPE LIKE 'Sample Acquisition' OR clinical_event.EVENT_TYPE LIKE 'SPECIMEN')
     </select>
 
     <select id="getAllShallowSamples" resultType="org.cbioportal.model.ClinicalEventSample">
@@ -85,7 +85,7 @@
             INNER JOIN cancer_study ON patient.CANCER_STUDY_ID = cancer_study.CANCER_STUDY_ID
         <include refid="where"/>
             AND clinical_event_data.KEY = 'SAMPLE_ID'
-            AND (clinical_event.EVENT_TYPE = 'Sample Acquisition' OR clinical_event.EVENT_TYPE = 'SPECIMEN')
+            AND (clinical_event.EVENT_TYPE LIKE 'Sample Acquisition' OR clinical_event.EVENT_TYPE LIKE 'SPECIMEN')
     </select>
     
     <select id="studyIdHasTreatments" resultType="java.lang.Boolean">

@@ -104,7 +104,7 @@ public class ClinicalEventMyBatisRepositoryTest {
         clinicalEventIds.add(2);
         List<ClinicalEventData> result = clinicalEventMyBatisRepository.getDataOfClinicalEvents(clinicalEventIds);
 
-        Assert.assertEquals(3, result.size());
+        Assert.assertEquals(4, result.size());
         ClinicalEventData gisticToGene1 = result.get(0);
         Assert.assertEquals("STATUS", gisticToGene1.getKey());
         Assert.assertEquals("radiographic_progression", gisticToGene1.getValue());
@@ -113,7 +113,10 @@ public class ClinicalEventMyBatisRepositoryTest {
         Assert.assertEquals("TCGA-A1-A0SB-01", gisticToGene2.getValue());
         ClinicalEventData gisticToGene3 = result.get(2);
         Assert.assertEquals("SURGERY", gisticToGene3.getKey());
-        Assert.assertEquals("OA II Initial", gisticToGene3.getValue());
+        Assert.assertEquals("OA II Initial", gisticToGene3.getValue());     
+        ClinicalEventData gisticToGene4 = result.get(3);
+        Assert.assertEquals("SAMPLE_ID", gisticToGene4.getKey());
+        Assert.assertEquals("TCGA-A1-A0SB-01", gisticToGene4.getValue());
     }
 
     @Test

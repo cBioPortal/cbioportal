@@ -141,6 +141,8 @@
             "skin.mutation_table.namespace_column.show_by_default",
             "skin.patient_view.mutation_table.columns.show_on_init",
             "skin.results_view.mutation_table.columns.show_on_init",
+            "skin.patient_view.copy_number_table.columns.show_on_init",
+            "skin.patient_view.structural_variant_table.columns.show_on_init",
             "comparison.categorical_na_values",
             "skin.hide_download_controls"
         };

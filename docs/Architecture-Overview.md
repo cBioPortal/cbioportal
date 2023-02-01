@@ -11,7 +11,8 @@ cBioPortal consists of the following components:
   built with React, Mobx and Bootstrap
 - [session service](https://github.com/cBioPortal/session-service) for storing
   user saved data such as virtual studies and groups
-     - Mongo database
+     - REST API written in Java Spring enabling retrieval and writing to the database
+     - MongoDB database
 - cBioPortal also uses the APIs from various [external services](#external-services) to provide more information about a variant
 
 ## Backend

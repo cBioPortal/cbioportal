@@ -1,15 +1,17 @@
 # Architecture Overview
 cBioPortal consists of the following components:
 
-- [backend](https://github.com/cBioPortal/cbioportal) written in Java
-- MySQL database that the backend uses
+- [backend](https://github.com/cBioPortal/cbioportal)
+    - MySQL database
+    - REST API written in Java Spring
+    - Redis cache for storing frequently used queries (optional)
 - [validator](https://github.com/cBioPortal/cbioportal/tree/master/core/src/main/scripts/importer)
-  which checks file formats before importing data into the database
+  checks file formats before importing data into the database
 - [frontend](https://github.com/cBioPortal/cbioportal-frontend)
   built with React, Mobx and Bootstrap
 - [session service](https://github.com/cBioPortal/session-service) for storing
   user saved data such as virtual studies and groups
-- Mongo database which session service uses
+     - Mongo database
 - cBioPortal also uses the APIs from various [external services](#external-services) to provide more information about a variant
 
 ## Backend
@@ -18,7 +20,8 @@ The [backend](https://github.com/cBioPortal/cbioportal) is written in Java and
 connects to a MySQL database to serve a REST API following the OpenAPI
 specification (https://www.cbioportal.org/api/). Note that the repo where this
 lives in (https://github.com/cBioPortal/cbioportal) also contains Java classes
-to import data as well as the validator.
+to import data as well as the validator. The backend can be configured to
+connect to a Redis cache to store database query results for improved performance.
 
 The backend is organized as a multi-module Maven project.
 See [cBioPortal backend code organization](Backend-Code-Organization.md).

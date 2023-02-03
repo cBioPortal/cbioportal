@@ -2,7 +2,7 @@ The cBioPortal for Cancer Genomics was originally developed at [Memorial Sloan K
 
 ## Memorial Sloan Kettering Cancer Center
 * Benjamin Gross
-* Onur Sumer
+* S Onur Sumer
 * Yichao Sun
 * Hongxin Zhang
 * Adam Abeshouse
@@ -48,7 +48,7 @@ The cBioPortal for Cancer Genomics was originally developed at [Memorial Sloan K
 * Pim van Nierop
 * Sander Rodenburg
 * Bas Leenknegt
-* Elena G. Lara
+* Elena G Lara
 * Jessica Singh
 * Matthijs Pon
 * Tim Kuijpers
@@ -61,10 +61,10 @@ The cBioPortal for Cancer Genomics was originally developed at [Memorial Sloan K
 
 ## Bilkent University
 * Ugur Dogrusoz
-* M. Salih Altun
+* M Salih Altun
 
 ## Alumni
-* B. Arman Aksoy
+* B Arman Aksoy
 * Istemi Bahceci
 * Caitlin Byrne
 * Hsiao-Wei Chen
@@ -87,7 +87,7 @@ The cBioPortal for Cancer Genomics was originally developed at [Memorial Sloan K
 * Peter Kok
 * Irina Pulyakhina
 * Pichai Raman
-* M. Furkan Sahin
+* M Furkan Sahin
 * Kaan Sancak
 * Alexandros Sigaras
 * Jing Su

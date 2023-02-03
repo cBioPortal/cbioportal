@@ -420,9 +420,9 @@ public class ImportExtendedMutationData{
                         // the record's namespaces map since it is going into its own table
                         ascn = new AlleleSpecificCopyNumber(ascnData);
                     }
-                    if (record.getNamespacesMap() != null && !record.getNamespacesMap().isEmpty()) {
-                        mutation.setAnnotationJson(convertMapToJsonString(record.getNamespacesMap()));
-                    }
+                    mutation.setAnnotationJson(
+                        mafUtil.getNamespaceColumnParser().writeValueAsString(record.getNamespacesMap())
+                    );
 
                     sequencedCaseSet.add(sample.getStableId());
 

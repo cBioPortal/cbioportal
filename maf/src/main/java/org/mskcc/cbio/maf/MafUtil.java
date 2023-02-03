@@ -807,6 +807,10 @@ public class MafUtil {
         return ((tumorSeqAllele1.equals("-") || tumorSeqAllele2.equals("-")) &&
                 (validNucleotidesPattern.matcher(tumorSeqAllele1.toUpperCase()).matches() || validNucleotidesPattern.matcher(tumorSeqAllele2.toUpperCase()).matches()));
     }
-    
+
+    public NamespaceColumnParser getNamespaceColumnParser() {
+        return namespaceColumnParser;
+    }
+
 }
 

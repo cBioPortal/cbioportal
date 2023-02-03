@@ -191,6 +191,16 @@ Namespace columns are custom columns in the MAF file that can be shown in Mutati
 skin.mutation_table.namespace_column.show_by_default=
 ```
 
+### Default visible columns on init in Mutation, Copy-Number and Structural Variant Tables
+
+Define the columns that are going to be visible in the Mutation, Copy-Number and Structural Variant Tables on the Patient View and the Mutation Table in the Results View. The `skin.mutation_table.namespace_column.show_by_default` takes precedence over these settings for namespace columns.
+```
+skin.results_view.mutation_table.columns.show_on_init=
+skin.patient_view.mutation_table.columns.show_on_init=
+skin.patient_view.copy_number_table.columns.show_on_init=
+skin.patient_view.structural_variant_table.columns.show_on_init=
+```
+
 ### Hide p- and q-values in survival types table
 
 ```

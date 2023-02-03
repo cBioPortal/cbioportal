@@ -47,10 +47,13 @@ The cBioPortal for Cancer Genomics was originally developed at [Memorial Sloan K
 * Oleguer Plantalech
 * Pim van Nierop
 * Sander Rodenburg
-* Diana Baiceanu
-* Paul van Dijk
+* Bas Leenknegt
+* Elena G. Lara
+* Jessica Singh
+* Matthijs Pon
+* Tim Kuijpers
+* Mirella Kalafati
 * Sjoerd van Hagen
-* Kees van Bochove
 
 ## SE4BIO
 * Pieter Lukasse
@@ -97,6 +100,9 @@ The cBioPortal for Cancer Genomics was originally developed at [Memorial Sloan K
 * Fedde Schaeffer
 * Riza Nugraha
 * Ngoc Nguyen
+* Diana Baiceanu
+* Paul van Dijk
+* Kees van Bochove
 
 ## Funding for the cBioPortal for Cancer Genomics is or has been provided by:
 

@@ -40,7 +40,7 @@ For releases with database migrations, we increase the MINOR number in MAJOR.MIN
 
 On the [GitHub Release Page](https://github.com/cBioPortal/cbioportal/releases) you will see that some releases have the pre-release indication whereas others do not. In general we make a new pre-release release every week. We test it out in production (https://cbioportal.org) for one week and if no new critical issues are identified we make it an official release.
 
-### Version Numbers
+### cBioPortal Software Version Numbers
 
 We follow the following logic when deciding how/when to increment the version of cBioPortal. It's a complete modification of semantic versioning (MAJOR.MINOR.PATCH) more suitable for our purposes:
 
@@ -51,6 +51,10 @@ MINOR : Changes that require a database migration, an upgrade to another cBioPor
 PATCH : Changes that don't require database migrations. Could be new features as well as bug fixes to either frontend, backend or both.
 
 See also: https://github.com/cBioPortal/cbioportal/releases
+
+### cBioPortal Database Version Numbers
+
+cBioPortal database version numbers are different version numbers than the software version numbers, it's only updated when developers make database scheme changes, please see [cBioPortal Database Versioning](Database-Versioning.md)
 
 ## User announcements
 

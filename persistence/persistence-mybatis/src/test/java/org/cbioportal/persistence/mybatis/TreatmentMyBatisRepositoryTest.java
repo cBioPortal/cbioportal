@@ -76,7 +76,7 @@ public class TreatmentMyBatisRepositoryTest {
     }
 
     @Test
-    public void getSamplesByPatientId() {
+    public void getSamplesByPatientIdWhenNoMatchingSamples() {
         ClinicalEventSample clinicalEventSample = new ClinicalEventSample();
         clinicalEventSample.setPatientId("TCGA-A1-A0SD");
         clinicalEventSample.setSampleId("TCGA-A1-A0SD-01");
@@ -84,14 +84,30 @@ public class TreatmentMyBatisRepositoryTest {
         clinicalEventSample.setTimeTaken(211);
 
         HashMap<String, List<ClinicalEventSample>> expected = new HashMap<>();
-        expected.put("TCGA-A1-A0SD", Collections.singletonList(clinicalEventSample));
-
 
         Map<String, List<ClinicalEventSample>> actual = treatmentRepository.getSamplesByPatientId(
             Collections.singletonList("TCGA-A1-A0SD-01"),
             Collections.singletonList("study_tcga_pub")
         );
+        
+        Assert.assertEquals(actual, expected);
+    }
 
+    @Test
+    public void getSamplesByPatientId() {
+        ClinicalEventSample clinicalEventSample = new ClinicalEventSample();
+        clinicalEventSample.setPatientId("TCGA-A1-A0SB");
+        clinicalEventSample.setSampleId("TCGA-A1-A0SB-01");
+        clinicalEventSample.setStudyId("study_tcga_pub");
+        clinicalEventSample.setTimeTaken(211);
+
+        HashMap<String, List<ClinicalEventSample>> expected = new HashMap<>();
+        expected.put("TCGA-A1-A0SB", Collections.singletonList(clinicalEventSample));
+        
+        Map<String, List<ClinicalEventSample>> actual = treatmentRepository.getSamplesByPatientId(
+            Collections.singletonList("TCGA-A1-A0SB-01"),
+            Collections.singletonList("study_tcga_pub")
+        );
 
         Assert.assertEquals(actual, expected);
     }
@@ -140,7 +156,7 @@ public class TreatmentMyBatisRepositoryTest {
 
     @Test
     public void getSampleCount() {
-        Integer expected = 4;
+        Integer expected = 2;
         Integer actual = treatmentRepository.getSampleCount(Collections.singletonList("study_tcga_pub"));
         
         Assert.assertEquals(actual, expected);

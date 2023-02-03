@@ -1,8 +1,8 @@
-The cBioPortal for Cancer Genomics was originally developed at [Memorial Sloan Kettering Cancer Center](https://www.mskcc.org/) (MSK). The [public cBioPortal site](https://www.cbioportal.org) is hosted by the [Center for Molecular Oncology](https://www.mskcc.org/research/molecular-oncology) at MSK. The cBioPortal software is now available under an open source license via [GitHub](https://github.com/cBioPortal/). The software is now developed and maintained by a multi-institutional team, consisting of MSK, the Dana Farber Cancer Institute, Princess Margaret Cancer Centre in Toronto, Children's Hospital of Philadelphia, Caris Life Sciences, [The Hyve](https://thehyve.nl) in the Netherlands, and Bilkent University in Ankara, Turkey.
+The cBioPortal for Cancer Genomics was originally developed at [Memorial Sloan Kettering Cancer Center](https://www.mskcc.org/) (MSK). The [public cBioPortal site](https://www.cbioportal.org) is hosted by the [Center for Molecular Oncology](https://www.mskcc.org/research/molecular-oncology) at MSK. The cBioPortal software is now available under an open source license via [GitHub](https://github.com/cBioPortal/). The software is now developed and maintained by a multi-institutional team, consisting of MSK, the Dana Farber Cancer Institute, Princess Margaret Cancer Centre in Toronto, Children's Hospital of Philadelphia, Caris Life Sciences, [The Hyve](https://thehyve.nl) and [SE4BIO](https://www.se4.bio/) in the Netherlands, and Bilkent University in Ankara, Turkey.
 
 ## Memorial Sloan Kettering Cancer Center
 * Benjamin Gross
-* Onur Sumer
+* S Onur Sumer
 * Yichao Sun
 * Hongxin Zhang
 * Adam Abeshouse
@@ -33,6 +33,7 @@ The cBioPortal for Cancer Genomics was originally developed at [Memorial Sloan K
 * Trevor Pugh
 
 ## Children's Hospital of Philadelphia
+* Charles Haynes
 * David Higgins
 * Allison Heath
 * John Maris
@@ -47,23 +48,23 @@ The cBioPortal for Cancer Genomics was originally developed at [Memorial Sloan K
 * Pim van Nierop
 * Sander Rodenburg
 * Bas Leenknegt
-* Elena G. Lara
+* Elena G Lara
 * Jessica Singh
 * Matthijs Pon
 * Tim Kuijpers
 * Mirella Kalafati
 * Sjoerd van Hagen
 
+## SE4BIO
+* Pieter Lukasse
+* Ruslan Forostianov
+
 ## Bilkent University
 * Ugur Dogrusoz
-* M. Salih Altun
-
-## Weill Cornell Medicine
-* Alexandros Sigaras
-* Olivier Elemento
+* M Salih Altun
 
 ## Alumni
-* B. Arman Aksoy
+* B Arman Aksoy
 * Istemi Bahceci
 * Caitlin Byrne
 * Hsiao-Wei Chen
@@ -73,6 +74,7 @@ The cBioPortal for Cancer Genomics was originally developed at [Memorial Sloan K
 * Gideon Dresdner
 * Andy Dufilie
 * Catherine Del Vecchio Fitz
+* Olivier Elemento
 * Ziya Erkoc
 * Arthur Goldberg
 * Zachary Heins
@@ -81,13 +83,13 @@ The cBioPortal for Cancer Genomics was originally developed at [Memorial Sloan K
 * Karthik Kalletla
 * Erik Larsson
 * Dong Li
-* Pieter Lukasse
 * Tamba Monrose
 * Peter Kok
 * Irina Pulyakhina
 * Pichai Raman
-* M. Furkan Sahin
+* M Furkan Sahin
 * Kaan Sancak
+* Alexandros Sigaras
 * Jing Su
 * Sander Tan
 * Jiaojiao Wang

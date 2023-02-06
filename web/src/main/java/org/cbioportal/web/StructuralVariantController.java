@@ -68,10 +68,6 @@ public class StructuralVariantController {
             @Valid @RequestAttribute(required = false, value = "interceptedStructuralVariantFilter") StructuralVariantFilter interceptedStructuralVariantFilter,
             @ApiParam(required = true, value = "List of entrezGeneIds and molecularProfileIds or sampleMolecularIdentifiers")
             @Valid @RequestBody(required = false) StructuralVariantFilter structuralVariantFilter) {
-
-        Assert.isTrue(interceptedStructuralVariantFilter.getStructuralVariantQueries() != null
-            || interceptedStructuralVariantFilter.getEntrezGeneIds() != null,
-         "Either Entrez gene ids or Structural Variant queries should be passed.");
         
         List<String> molecularProfileIds = new ArrayList<>();
         List<String> sampleIds = new ArrayList<>();

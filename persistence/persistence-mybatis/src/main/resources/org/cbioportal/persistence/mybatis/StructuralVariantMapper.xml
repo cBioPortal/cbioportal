@@ -206,18 +206,10 @@
         and structural_variant.INTERNAL_ID = alteration_driver_annotation.ALTERATION_EVENT_ID
         <where>
             <include refid="whereInMultipleMolecularProfiles"/>
-            <choose>
-                <when test="(entrezGeneIds == null or entrezGeneIds.isEmpty()) and
-                    (structuralVariantQueries == null or structuralVariantQueries.isEmpty())">
-                    AND NULL
-                </when>
-                <otherwise>
-                    <trim prefix="AND (" suffix=")" prefixOverrides="OR">
-                        <include refid="whereWithEntrezGeneIds"/>
-                        <include refid="whereStructuralVariantQueries"/>
-                    </trim>
-                </otherwise>
-            </choose>
+            <trim prefix="AND (" suffix=")" prefixOverrides="OR">
+                <include refid="whereWithEntrezGeneIds"/>
+                <include refid="whereStructuralVariantQueries"/>
+            </trim>
         </where>
         ORDER BY gene1.HUGO_GENE_SYMBOL, gene2.HUGO_GENE_SYMBOL
     </select>

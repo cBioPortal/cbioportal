@@ -292,7 +292,27 @@ public class StructuralVariantMyBatisRepositoryTest {
         Assert.assertEquals("study_tcga_pub_sv", structuralVariantSecondResult.getMolecularProfileId());
         Assert.assertEquals((String) "TCGA-A1-A0SB-01", structuralVariantSecondResult.getSampleId());
         Assert.assertEquals((String) "TCGA-A1-A0SB", structuralVariantSecondResult.getPatientId());
-        Assert.assertEquals((String) "study_tcga_pub", structuralVariantSecondResult.getStudyId());    }
+        Assert.assertEquals((String) "study_tcga_pub", structuralVariantSecondResult.getStudyId());
+    }
+
+    @Test
+    public void fetchStructuralVariantsMultiStudyNoGeneIdentifiers() throws Exception {
+
+        List<Integer> noEntrezGeneIds = new ArrayList<>();
+        List<String> molecularProfileIds = new ArrayList<>();
+        List<String> sampleIds = new ArrayList<>();
+
+        molecularProfileIds.add("study_tcga_pub_sv");
+        sampleIds.add("TCGA-A1-A0SB-01");
+        molecularProfileIds.add("acc_tcga_sv");
+        sampleIds.add("TCGA-A1-B0SO-01");
+
+        List<StructuralVariant> result =
+            structuralVariantMyBatisRepository.fetchStructuralVariants(molecularProfileIds,
+                sampleIds, noEntrezGeneIds, noStructVars);
+
+        Assert.assertEquals(0,  result.size());
+    }
 
     @Test
     public void fetchStructuralVariantsMultiStudyByGeneQueriesWithSampleIdentifiers() throws Exception {

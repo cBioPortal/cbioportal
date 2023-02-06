@@ -311,7 +311,7 @@ public class StructuralVariantMyBatisRepositoryTest {
             structuralVariantMyBatisRepository.fetchStructuralVariants(molecularProfileIds,
                 sampleIds, noEntrezGeneIds, noStructVars);
 
-        Assert.assertEquals(0,  result.size());
+        Assert.assertEquals(8,  result.size());
     }
 
     @Test

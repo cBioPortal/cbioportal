@@ -65,8 +65,9 @@ public class StructuralVariantController {
     public ResponseEntity<List<StructuralVariant>> fetchStructuralVariants(
             @ApiIgnore // prevent reference to this attribute in the swagger-ui interface
             @RequestAttribute(required = false, value = "involvedCancerStudies") Collection<String> involvedCancerStudies,
+            @ApiIgnore // prevent reference to this attribute in the swagger-ui interface
             @Valid @RequestAttribute(required = false, value = "interceptedStructuralVariantFilter") StructuralVariantFilter interceptedStructuralVariantFilter,
-            @ApiParam(required = true, value = "List of entrezGeneIds and molecularProfileIds or sampleMolecularIdentifiers")
+            @ApiParam(required = true, value = "List of entrezGeneIds, structural variant queries and molecularProfileIds or sampleMolecularIdentifiers")
             @Valid @RequestBody(required = false) StructuralVariantFilter structuralVariantFilter) {
         
         List<String> molecularProfileIds = new ArrayList<>();

@@ -9,7 +9,7 @@
     </parent>
     <modelVersion>4.0.0</modelVersion>
     <artifactId>maf</artifactId>
-    <name>Portal utils</name>
+    <name>maf</name>
     <description>Utility classes for the Mutation Annotation Format (MAF) </description>
     <dependencies>
         <dependency>

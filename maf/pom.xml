@@ -20,16 +20,24 @@
             <groupId>com.fasterxml.jackson.core</groupId>
             <artifactId>jackson-databind</artifactId>
         </dependency>
-        <exclusions>
-       <exclusion>
-         <groupId>ch.qos.logback</groupId>
-         <artifactId>logback-core</artifactId>
-       </exclusion>
-       <exclusion>
-         <groupId>ch.qos.logback</groupId>
-         <artifactId>logback-classic</artifactId>
-       </exclusion>
-     </exclusions>
     </dependencies>
-
+    <dependencyManagement>
+        <dependencies>
+            <dependency>
+                <groupId>org.mskcc.cbio</groupId>
+                <artifactId>master</artifactId>
+                <version>0-unknown-version-SNAPSHOT</version>
+                <exclusions>
+                    <exclusion>
+                        <groupId>ch.qos.logback</groupId>
+                        <artifactId>logback-core</artifactId>
+                    </exclusion>
+                    <exclusion>
+                        <groupId>ch.qos.logback</groupId>
+                        <artifactId>logback-classic</artifactId>
+                    </exclusion>
+                </exclusions>
+            </dependency>
+        </dependencies>
+    </dependencyManagement>
 </project>

@@ -278,11 +278,11 @@
   <properties>
     <frontend.version>v5.2.7</frontend.version>
     <frontend.groupId>com.github.cbioportal</frontend.groupId>
-    <spring.version>5.2.20.RELEASE</spring.version>
+    <spring.version>5.2.22.RELEASE</spring.version>
     <spring.integration.version>5.3.0.RELEASE</spring.integration.version>
     <spring.security.version>5.5.7</spring.security.version>
     <spring.social.version>1.1.6.RELEASE</spring.social.version>
-    <jackson.version>2.13.5</jackson.version>
+    <jackson.version>2.14.0</jackson.version>
     <mysql-connector.version>5.1.48</mysql-connector.version>
     <webapp-runner.version>8.5.61.0</webapp-runner.version>
     <slf4j.version>1.7.32</slf4j.version>
@@ -493,7 +493,7 @@
       <dependency>
         <groupId>org.apache.commons</groupId>
         <artifactId>commons-dbcp2</artifactId>
-        <version>2.8.0</version>
+        <version>2.9.0</version>
       </dependency>
       <dependency>
         <groupId>commons-fileupload</groupId>
@@ -565,7 +565,7 @@
       <dependency>
         <groupId>com.vlkan.hrrs</groupId>
         <artifactId>hrrs-servlet-filter-base64</artifactId>
-        <version>0.5</version>
+        <version>0.7.0</version>
       </dependency>
       <!-- guava -->
       <dependency>
@@ -963,7 +963,7 @@
       <dependency>
         <groupId>net.sf.jopt-simple</groupId>
         <artifactId>jopt-simple</artifactId>
-        <version>3.0-rc2</version>
+        <version>3.0.1</version>
       </dependency>
       <dependency>
         <groupId>net.sf.jung</groupId>
@@ -993,7 +993,7 @@
       <dependency>
         <groupId>org.apache.xmlgraphics</groupId>
         <artifactId>batik-codec</artifactId>
-        <version>1.7</version>
+        <version>1.16</version>
         <exclusions>
           <exclusion>
             <groupId>xalan</groupId>
@@ -1004,12 +1004,12 @@
       <dependency>
         <groupId>org.apache.xmlgraphics</groupId>
         <artifactId>fop</artifactId>
-        <version>1.0</version>
+        <version>2.4</version>
       </dependency>
       <dependency>
         <groupId>xerces</groupId>
         <artifactId>xercesImpl</artifactId>
-        <version>2.12.0-alfresco-patched-20191004</version>
+        <version>2.12.2</version>
       </dependency>
       <!--xml parser-->
       <dependency>

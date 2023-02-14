@@ -280,9 +280,9 @@
     <frontend.groupId>com.github.cbioportal</frontend.groupId>
     <spring.version>5.2.20.RELEASE</spring.version>
     <spring.integration.version>5.3.0.RELEASE</spring.integration.version>
-    <spring.security.version>5.3.1.RELEASE</spring.security.version>
+    <spring.security.version>5.5.7</spring.security.version>
     <spring.social.version>1.1.6.RELEASE</spring.social.version>
-    <jackson.version>2.13.0</jackson.version>
+    <jackson.version>2.13.5</jackson.version>
     <mysql-connector.version>5.1.48</mysql-connector.version>
     <webapp-runner.version>8.5.61.0</webapp-runner.version>
     <slf4j.version>1.7.32</slf4j.version>
@@ -873,7 +873,7 @@
       <dependency>
         <groupId>org.apache.tomcat</groupId>
         <artifactId>tomcat-catalina</artifactId>
-        <version>7.0.68</version>
+        <version>7.0.109</version>
         <scope>
           ${tomcat.catalina.scope}
         </scope>

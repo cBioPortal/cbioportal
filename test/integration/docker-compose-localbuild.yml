@@ -10,6 +10,8 @@ services:
      - $PORTAL_INFO_DIR:/portalinfo/
      # make docker compose run the cbioportal version-under-test
      # by volume mounting the local portal source folder into the container
-     # and running 
+     # and running
      - $PORTAL_SOURCE_DIR:/cbioportal/
      - $PORTAL_SOURCE_DIR/portal/target/cbioportal.war:/app.war
+     # TODO: remove line below after upgrade of cbioportal-docker-compose to > v5.3.20
+     - $PORTAL_SOURCE_DIR/docker/web-and-data/docker-entrypoint.sh:/usr/local/bin/docker-entrypoint.sh

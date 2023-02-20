@@ -36,6 +36,8 @@ public class StudyViewFilter implements Serializable {
     private List<List<String>> caseLists;
     private List<ClinicalDataFilter> customDataFilters;
     private AlterationFilter alterationFilter;
+
+    private List<DataFilter> clinicalEventFilters;
     
     @AssertTrue
     private boolean isEitherSampleIdentifiersOrStudyIdsPresent() {
@@ -202,5 +204,13 @@ public class StudyViewFilter implements Serializable {
 
     public void setPatientTreatmentTargetFilters(AndedPatientTreatmentFilters patientTreatmentTagetFilters) {
         this.patientTreatmentTargetFilters = patientTreatmentTagetFilters;
+    }
+
+    public List<DataFilter> getClinicalEventFilters() {
+        return clinicalEventFilters;
+    }
+
+    public void setClinicalEventFilters(List<DataFilter> clinicalEventFilters) {
+        this.clinicalEventFilters = clinicalEventFilters;
     }
 }

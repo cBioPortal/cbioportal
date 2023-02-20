@@ -9,6 +9,11 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.stream.Collectors;
+
+import static java.util.stream.Collectors.groupingBy;
 
 @Repository
 public class ClinicalEventMyBatisRepository implements ClinicalEventRepository {
@@ -49,5 +54,18 @@ public class ClinicalEventMyBatisRepository implements ClinicalEventRepository {
     public BaseMeta getMetaClinicalEvents(String studyId) {
         
         return clinicalEventMapper.getMetaClinicalEvent(studyId);
+    }
+
+    @Override
+    public Map<String, Set<String>> getSamplesOfPatientsPerEventTypeInStudy(List<String> studyIds, List<String> sampleIds) {
+        return clinicalEventMapper.getSamplesOfPatientsPerEventType(studyIds, sampleIds)
+            .stream()
+            .collect(groupingBy(ClinicalEvent::getEventType,
+                Collectors.mapping(ClinicalEvent::getUniqueSampleKey, Collectors.toSet())));
+    }
+
+    @Override
+    public List<ClinicalEvent> getPatientsDistinctClinicalEventInStudies(List<String> studyIds, List<String> patientIds) {
+        return clinicalEventMapper.getPatientsDistinctClinicalEventInStudies(studyIds, patientIds);
     }
 }

@@ -84,6 +84,9 @@ public class StudyViewController {
     private StudyViewService studyViewService;
     @Autowired
     private ClinicalDataBinUtil clinicalDataBinUtil;
+    
+    @Autowired
+    private ClinicalEventService clinicalEventService;
 
     @PreAuthorize("hasPermission(#involvedCancerStudies, 'Collection<CancerStudyId>', T(org.cbioportal.utils.security.AccessLevel).READ)")
     @RequestMapping(value = "/clinical-data-counts/fetch", method = RequestMethod.POST,
@@ -99,13 +102,14 @@ public class StudyViewController {
 
         List<ClinicalDataFilter> attributes = interceptedClinicalDataCountFilter.getAttributes();
         StudyViewFilter studyViewFilter = interceptedClinicalDataCountFilter.getStudyViewFilter();
-            if (attributes.size() == 1) {
-                studyViewFilterUtil.removeSelfFromFilter(attributes.get(0).getAttributeId(), studyViewFilter);
-            }
-            boolean singleStudyUnfiltered = studyViewFilterUtil.isSingleStudyUnfiltered(studyViewFilter);
-            List<ClinicalDataCountItem> result = 
-                       instance.cachedClinicalDataCounts(interceptedClinicalDataCountFilter,singleStudyUnfiltered);
-            return new ResponseEntity<>(result, HttpStatus.OK);
+        
+        if (attributes.size() == 1) {
+            studyViewFilterUtil.removeSelfFromFilter(attributes.get(0).getAttributeId(), studyViewFilter);
+        }
+        boolean singleStudyUnfiltered = studyViewFilterUtil.isSingleStudyUnfiltered(studyViewFilter);
+        List<ClinicalDataCountItem> result = 
+                   instance.cachedClinicalDataCounts(interceptedClinicalDataCountFilter,singleStudyUnfiltered);
+        return new ResponseEntity<>(result, HttpStatus.OK);
                         
     }
     
@@ -905,5 +909,46 @@ public class StudyViewController {
         clinicalDataCollection.setPatientClinicalData(patientClinicalData);
 
         return new ResponseEntity<>(clinicalDataCollection, HttpStatus.OK);
+    }
+
+    @PreAuthorize("hasPermission(#involvedCancerStudies, 'Collection<CancerStudyId>', T(org.cbioportal.utils.security.AccessLevel).READ)")
+    @RequestMapping(value = "/clinical-event-type-counts/fetch", method = RequestMethod.POST, produces = MediaType.APPLICATION_JSON_VALUE)
+    @ApiOperation("Get Counts of Clinical Event Types by Study View Filter")
+    public ResponseEntity<List<ClinicalEventTypeCount>> getClinicalEventTypeCounts(
+        @ApiParam(required = true, value = "Study view filter")
+        @Valid
+        @RequestBody(required = false)
+        StudyViewFilter studyViewFilter,
+
+        @ApiIgnore // prevent reference to this attribute in the swagger-ui interface
+        @RequestAttribute(required = false, value = "involvedCancerStudies")
+        Collection<String> involvedCancerStudies,
+
+        @ApiIgnore // prevent reference to this attribute in the swagger-ui interface. this attribute is needed for the @PreAuthorize tag above.
+        @Valid
+        @RequestAttribute(required = false, value = "interceptedStudyViewFilter")
+        StudyViewFilter interceptedStudyViewFilter
+    ) {
+        boolean singleStudyUnfiltered = studyViewFilterUtil.isSingleStudyUnfiltered(interceptedStudyViewFilter);
+        List<ClinicalEventTypeCount> eventTypeCounts = instance.cachedClinicalEventTypeCounts(interceptedStudyViewFilter, singleStudyUnfiltered); 
+        return new ResponseEntity<>(eventTypeCounts, HttpStatus.OK);
+    }
+
+    @Cacheable(
+        cacheResolver = "staticRepositoryCacheOneResolver",
+        condition = "@cacheEnabledConfig.getEnabled() && #singleStudyUnfiltered"
+    )
+    public List<ClinicalEventTypeCount> cachedClinicalEventTypeCounts(
+        StudyViewFilter interceptedStudyViewFilter, boolean singleStudyUnfiltered
+    ){
+        List<SampleIdentifier> filteredSampleIdentifiers = studyViewFilterApplier.apply(interceptedStudyViewFilter);
+        List<String> sampleIds = new ArrayList<>();
+        List<String> studyIds = new ArrayList<>();
+        studyViewFilterUtil.extractStudyAndSampleIds(filteredSampleIdentifiers, studyIds, sampleIds);
+        Set<String> filteredSampleIds = filteredSampleIdentifiers.stream()
+            .map(SampleIdentifier::getSampleId)
+            .collect(Collectors.toSet());
+        
+        return clinicalEventService.getClinicalEventTypeCounts(studyIds, sampleIds);
     }
 }

@@ -12,7 +12,13 @@ import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.stream.Collectors;
+
+import static java.util.stream.Collectors.groupingBy;
 
 @RunWith(SpringJUnit4ClassRunner.class)
 @ContextConfiguration("/testContextDatabase.xml")
@@ -187,5 +193,22 @@ public class ClinicalEventMyBatisRepositoryTest {
         BaseMeta result = clinicalEventMyBatisRepository.getMetaClinicalEvents("study_tcga_pub");
 
         Assert.assertEquals((Integer) 4, result.getTotalCount());
+    }
+    
+    @Test
+    public void getSamplesOfPatientsPerEventTypeInStudy() {
+       Map<String, Set<String>> result = clinicalEventMyBatisRepository
+           .getSamplesOfPatientsPerEventTypeInStudy(List.of("study_tcga_pub"), List.of("TCGA-A1-A0SB-01"));
+       
+       Assert.assertNotNull(result.get("STATUS"));
+    }
+    
+    @Test
+    public void getPatientsDistinctClinicalEventInStudies() {
+        List<ClinicalEvent> result = clinicalEventMyBatisRepository.getPatientsDistinctClinicalEventInStudies(List.of("study_tcga_pub"), List.of("TCGA-A1-A0SB"));
+        
+        List<String> eventTypes = result.stream().map(ClinicalEvent::getEventType).collect(Collectors.toList());
+        Assert.assertEquals(2, result.size());
+        Assert.assertTrue(eventTypes.contains("STATUS"));
     }
 }

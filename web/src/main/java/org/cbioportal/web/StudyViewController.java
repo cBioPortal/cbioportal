@@ -913,7 +913,7 @@ public class StudyViewController {
     }
 
     @PreAuthorize("hasPermission(#involvedCancerStudies, 'Collection<CancerStudyId>', T(org.cbioportal.utils.security.AccessLevel).READ)")
-    @PostMapping(value = "/clinical-event-type-counts/fetch",t s produces = MediaType.APPLICATION_JSON_VALUE)
+    @PostMapping(value = "/clinical-event-type-counts/fetch", consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
     @ApiOperation("Get Counts of Clinical Event Types by Study View Filter")
     public ResponseEntity<List<ClinicalEventTypeCount>> getClinicalEventTypeCounts(
         @ApiParam(required = true, value = "Study view filter")

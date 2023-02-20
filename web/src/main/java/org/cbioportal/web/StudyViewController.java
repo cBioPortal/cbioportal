@@ -26,6 +26,7 @@ import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.validation.annotation.Validated;
+import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestAttribute;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -912,7 +913,7 @@ public class StudyViewController {
     }
 
     @PreAuthorize("hasPermission(#involvedCancerStudies, 'Collection<CancerStudyId>', T(org.cbioportal.utils.security.AccessLevel).READ)")
-    @RequestMapping(value = "/clinical-event-type-counts/fetch", method = RequestMethod.POST, produces = MediaType.APPLICATION_JSON_VALUE)
+    @PostMapping(value = "/clinical-event-type-counts/fetch",t s produces = MediaType.APPLICATION_JSON_VALUE)
     @ApiOperation("Get Counts of Clinical Event Types by Study View Filter")
     public ResponseEntity<List<ClinicalEventTypeCount>> getClinicalEventTypeCounts(
         @ApiParam(required = true, value = "Study view filter")
@@ -945,10 +946,6 @@ public class StudyViewController {
         List<String> sampleIds = new ArrayList<>();
         List<String> studyIds = new ArrayList<>();
         studyViewFilterUtil.extractStudyAndSampleIds(filteredSampleIdentifiers, studyIds, sampleIds);
-        Set<String> filteredSampleIds = filteredSampleIdentifiers.stream()
-            .map(SampleIdentifier::getSampleId)
-            .collect(Collectors.toSet());
-        
         return clinicalEventService.getClinicalEventTypeCounts(studyIds, sampleIds);
     }
 }

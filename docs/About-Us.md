@@ -23,7 +23,7 @@ The cBioPortal for Cancer Genomics was originally developed at [Memorial Sloan K
 ## Dana-Farber Cancer Institute
 * Ethan Cerami
 * Tali Mazor
-* Luke Sikina
+* Zhaoyuan (Ryan) Fu
 * Augustin Luna
 * James Lindsay
 * Chris Sander
@@ -90,6 +90,7 @@ The cBioPortal for Cancer Genomics was originally developed at [Memorial Sloan K
 * M Furkan Sahin
 * Kaan Sancak
 * Alexandros Sigaras
+* Luke Sikina
 * Jing Su
 * Sander Tan
 * Jiaojiao Wang

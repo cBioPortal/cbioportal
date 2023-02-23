@@ -2941,7 +2941,6 @@ class PatientClinicalValidator(ClinicalValidator):
                     self.logger.error(
                             'Value in DFS_STATUS column is not 0:DiseaseFree, '
                             '1:Recurred/Progressed, 1:Recurred, 1:Progressed',
-                            'DiseaseFree, Recurred/Progressed, Recurred or Progressed',
                             extra={'line_number': self.line_number,
                                    'column_number': col_index + 1,
                                    'cause': value})

@@ -273,7 +273,7 @@ public class StudyViewFilterApplier {
     
     private List<SampleIdentifier> chainSubFilters(StudyViewFilter studyViewFilter, List<SampleIdentifier> sampleIdentifiers) {
         for (StudyViewSubFilterApplier subFilterApplier : subFilterAppliers) {
-            if (subFilterApplier.shouldApplyFilter(studyViewFilter)) {
+            if (!sampleIdentifiers.isEmpty() && subFilterApplier.shouldApplyFilter(studyViewFilter)) {
                 sampleIdentifiers = subFilterApplier.filter(sampleIdentifiers, studyViewFilter);
             }
         }

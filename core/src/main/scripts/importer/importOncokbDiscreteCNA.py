@@ -49,15 +49,15 @@ from . import cbioportal_common
 from . import libImportOncokb
 from . import validateData
 
-ENTREZ_ID = 'Entrez_Gene_Id'
-HUGO_SYMBOL = 'Hugo_Symbol'
+FIELD_ENTREZ_ID = 'Entrez_Gene_Id'
+FIELD_HUGO_SYMBOL = 'Hugo_Symbol'
 CNA_TYPE = 'copyNameAlterationType'
 ALTERATION = 'alteration'
 SAMPLE_ID = 'sample_id'
 INTERNAL_ID = 'id'
 ONCOGENIC = libImportOncokb.ONCOKB_JSON_ONCOGENIC_FIELD
 
-required_cna_columns = [HUGO_SYMBOL]
+required_cna_columns = [FIELD_HUGO_SYMBOL]
 
 # from: cbioportal-frontend file CopyNumberUtils.ts
 cna_alteration_types = {
@@ -66,6 +66,12 @@ cna_alteration_types = {
     "GAIN": 1,
     "AMPLIFICATION": 2,
 }
+cna_null_values = [
+    '0',
+    'NA',
+    'nan',
+    ''
+]
 
 
 def main_import(args):
@@ -130,7 +136,7 @@ def get_cna_events(cna_file_path, server_url=None, alias_map=None):
     assert server_url or alias_map, 'At least one of "server_url" or "alias_map" must be specified'
     header_elements = libImportOncokb.get_first_line_cells(libImportOncokb.open_file(cna_file_path), '\t')
     header_indexes = {}
-    for required_column in required_cna_columns + [ENTREZ_ID]:
+    for required_column in required_cna_columns + [FIELD_ENTREZ_ID]:
         header_indexes[required_column] = header_elements.index(required_column)
     sample_ids = [i for j, i in enumerate(header_elements) if j not in header_indexes.values()]
     sample_indexes = {}
@@ -150,7 +156,11 @@ def get_cna_events(cna_file_path, server_url=None, alias_map=None):
         for sample_id in sample_ids:
             feature = {}
             feature[SAMPLE_ID] = sample_id
-            feature[ALTERATION] = int(line_elements[sample_indexes[sample_id]])
+            cna_value = line_elements[sample_indexes[sample_id]]
+            try:
+                feature[ALTERATION] = 0 if cna_value in cna_null_values else int(round(float(cna_value)))
+            except TypeError:
+                continue
             # CNA value 0 (no CNA) is skipped
             if not feature[ALTERATION] in cna_alteration_types.values():
                 continue
@@ -160,7 +170,7 @@ def get_cna_events(cna_file_path, server_url=None, alias_map=None):
                 value = line_elements[index]
                 if value != '':
                     feature[column_name] = value
-                elif column_name != ENTREZ_ID:
+                elif column_name != FIELD_ENTREZ_ID:
                     print(Color.RED + "Empty value encounterd in column '" + column_name + "' in row " + str(
                         row_counter) + ". OncoKB annotations cannot be imported. Please fix and rerun." + Color.END,
                           file=sys.stderr)
@@ -168,10 +178,10 @@ def get_cna_events(cna_file_path, server_url=None, alias_map=None):
                     sys.exit(1)
 
             # resolve gene symbols to Entrez Ids if needed
-            if ENTREZ_ID in feature and feature[ENTREZ_ID] is not None and feature[
-                ENTREZ_ID] != '':
-                entrez_gene_ids = [feature[ENTREZ_ID]]
-            elif feature[HUGO_SYMBOL] in portal_instance.hugo_entrez_map:
+            if FIELD_ENTREZ_ID in feature and feature[FIELD_ENTREZ_ID] is not None and feature[
+                FIELD_ENTREZ_ID] != '':
+                entrez_gene_ids = [feature[FIELD_ENTREZ_ID]]
+            elif feature[FIELD_HUGO_SYMBOL] in portal_instance.hugo_entrez_map:
                 # in case of failure, try aliases
                 entrez_gene_ids = portal_instance.hugo_entrez_map.get(
                     feature[FIELD_HUGO_SYMBOL],
@@ -183,23 +193,23 @@ def get_cna_events(cna_file_path, server_url=None, alias_map=None):
                 logger.error(""" Multiple Entrez gene ids were found for a gene.
                                  OncoKB annotations will not be imported for this gene.
                                  Please fix and rerun. """,
-                             extra={'symbol': feature[HUGO_SYMBOL]})
-                feature[ENTREZ_ID] = None
+                             extra={'symbol': feature[FIELD_HUGO_SYMBOL]})
+                feature[FIELD_ENTREZ_ID] = None
             elif len(entrez_gene_ids) == 0:
                 logger.error(""" Could not find the Entrez gene id for a gene.
                                  OncoKB annotations will not be imported for this gene.
                                  Please fix and rerun. """,
-                             extra={'symbol': feature[HUGO_SYMBOL]})
-                feature[ENTREZ_ID] = None
+                             extra={'symbol': feature[FIELD_HUGO_SYMBOL]})
+                feature[FIELD_ENTREZ_ID] = None
             else:
-                feature[ENTREZ_ID] = str(entrez_gene_ids[0])
-                feature[INTERNAL_ID] = "_".join([feature[ENTREZ_ID], feature[CNA_TYPE]])
+                feature[FIELD_ENTREZ_ID] = str(entrez_gene_ids[0])
+                feature[INTERNAL_ID] = "_".join([feature[FIELD_ENTREZ_ID], feature[CNA_TYPE]])
 
             features.append(feature)
     cna_file.close()
     # FIXME this should not occur, right?
     # Remove duplicate entrez_gene_id/sample_id occurrences.
-    non_redundant_features_dict = {x[ENTREZ_ID]+x[SAMPLE_ID]:x for x in features}
+    non_redundant_features_dict = {x[FIELD_ENTREZ_ID]+x[SAMPLE_ID]:x for x in features}
     print(" DONE")
     return non_redundant_features_dict.values();
 
@@ -220,7 +230,7 @@ def create_request_payload(features):
     elements = {}
     for feature in features:
         elements[feature[INTERNAL_ID]] = '{ "copyNameAlterationType":"%s", "gene":{"entrezGeneId":%s}, "id":"%s", "tumorType":null} ' \
-                     % (feature[CNA_TYPE], feature[ENTREZ_ID], feature[INTERNAL_ID])
+                     % (feature[CNA_TYPE], feature[FIELD_ENTREZ_ID], feature[INTERNAL_ID])
     # normalize for alteration id since same alteration is represented in multiple samples
     return list(elements.values())
 
@@ -249,7 +259,7 @@ def write_annotations_to_file(features, pd_file_name):
     for feature in features:
         if ONCOGENIC in feature:
             oncokb_annotation = feature[ONCOGENIC]
-            line = feature[SAMPLE_ID] + '\t' + feature[ENTREZ_ID] + libImportOncokb.get_annotation_cells(oncokb_annotation)
+            line = feature[SAMPLE_ID] + '\t' + feature[FIELD_ENTREZ_ID] + libImportOncokb.get_annotation_cells(oncokb_annotation)
             new_file.write(line)
     new_file.close()
 

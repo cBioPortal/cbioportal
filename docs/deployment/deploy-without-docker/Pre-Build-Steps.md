@@ -21,6 +21,8 @@ If you don't create your own `logback.xml`, maven will copy the EXAMPLE file to 
 If `logback.xml` already exists, it will just use that. This allows us to give you a working, versioned
 log config, which you can then override easily.
 
+To modify the logging during tests the same EXAMPLE file can be copied to the relevant test resources folder.
+
 ## Create the cBioPortal MySQL Databases and User
 
 You must create a `cbioportal` database and a `cgds_test` database within MySQL, and a user account with rights to access both databases.  This is done via the `mysql` shell.

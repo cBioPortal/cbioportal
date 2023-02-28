@@ -107,6 +107,7 @@ jobs:
         machine:
             enabled: true
             image: ubuntu-2204:2023.02.1
+        resource_class: large
         steps:
             - attach_workspace:
                 at: /tmp/repos

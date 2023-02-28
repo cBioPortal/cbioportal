@@ -106,7 +106,7 @@ jobs:
         working_directory: /tmp/repos/cbioportal-frontend
         machine:
             enabled: true
-            image: ubuntu-2004:202201-02
+            image: ubuntu-2204:2023.02.1
         steps:
             - attach_workspace:
                 at: /tmp/repos

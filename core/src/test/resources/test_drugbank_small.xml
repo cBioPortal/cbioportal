@@ -1,0 +1,860 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<drugs xmlns:xs="http://www.w3.org/2001/XMLSchema-instance" xmlns="http://drugbank.ca" xs:schemaLocation="http://drugbank.ca http://lims.drugbank.ca/docs/drugbank.xsd">
+  <drug type="biotech" created="2005-06-13 07:24:05 -0600" version="3.0" updated="2012-01-22 23:24:39 -0700">
+    <drugbank-id>DB00001</drugbank-id>
+    <name>Lepirudin</name>
+    <description>Lepirudin is identical to natural hirudin except for substitution of leucine for isoleucine at the N-terminal end of the molecule and the absence of a sulfate group on the tyrosine at position 63. It is produced via yeast cells.&#xD;
+</description>
+    <cas-number>120993-53-5</cas-number>
+    <general-references># Smythe MA, Stephens JL, Koerber JM, Mattson JC: A comparison of lepirudin and argatroban outcomes. Clin Appl Thromb Hemost. 2005 Oct;11(4):371-4. "Pubmed":http://www.ncbi.nlm.nih.gov/pubmed/16244762&#xD;
+# Tardy B, Lecompte T, Boelhen F, Tardy-Poncet B, Elalamy I, Morange P, Gruel Y, Wolf M, Francois D, Racadot E, Camarasa P, Blouch MT, Nguyen F, Doubine S, Dutrillaux F, Alhenc-Gelas M, Martin-Toutain I, Bauters A, Ffrench P, de Maistre E, Grunebaum L, Mouton C, Huisse MG, Gouault-Heilmann M, Lucke V: Predictive factors for thrombosis and major bleeding in an observational study in 181 patients with heparin-induced thrombocytopenia treated with lepirudin. Blood. 2006 Sep 1;108(5):1492-6. Epub 2006 May 11. "Pubmed":http://www.ncbi.nlm.nih.gov/pubmed/16690967&#xD;
+# Lubenow N, Eichler P, Lietz T, Greinacher A: Lepirudin in patients with heparin-induced thrombocytopenia - results of the third prospective study (HAT-3) and a combined analysis of HAT-1, HAT-2, and HAT-3. J Thromb Haemost. 2005 Nov;3(11):2428-36. "Pubmed":http://www.ncbi.nlm.nih.gov/pubmed/16241940&#xD;
+# Askari AT, Lincoff AM: Antithrombotic Drug Therapy in Cardiovascular Disease. 2009 Oct; pp. 440&#x2013;. ISBN 9781603272346. "Google books":http://books.google.com/books?id=iadLoXoQkWEC&amp;pg=PA440. </general-references>
+    <synthesis-reference></synthesis-reference>
+    <indication>For the treatment of heparin-induced thrombocytopenia</indication>
+    <pharmacology>Lepirudin is used to break up clots and to reduce thrombocytopenia. It binds to thrombin and prevents thrombus or clot formation. It is a highly potent, selective, and essentially irreversible inhibitor of thrombin and clot-bond thrombin. Lepirudin requires no cofactor for its anticoagulant action. Lepirudin is a recombinant form of hirudin, an endogenous anticoagulant found in medicinal leeches.</pharmacology>
+    <mechanism-of-action>Lepirudin forms a stable non-covalent complex with alpha-thrombin, thereby abolishing its ability to cleave fibrinogen and initiate the clotting cascade. The inhibition of thrombin prevents the blood clotting cascade. </mechanism-of-action>
+    <toxicity>In case of overdose (eg, suggested by excessively high aPTT values) the risk of bleeding is increased.</toxicity>
+    <biotransformation>Lepirudin is thought to be metabolized by release of amino acids via catabolic hydrolysis of the parent drug. However, con-clusive data are not available. About 48% of the administration dose is excreted in the urine which consists of unchanged drug (35%) and other fragments of the parent drug.</biotransformation>
+    <absorption>Bioavailability is 100% following injection.</absorption>
+    <half-life>Approximately 1.3 hours</half-life>
+    <protein-binding></protein-binding>
+    <route-of-elimination>Lepirudin is thought to be metabolized by release of amino acids via catabolic hydrolysis of the parent drug. About 48% of the administration dose is excreted in the urine which consists of unchanged drug (35%) and other fragments of the parent drug.</route-of-elimination>
+    <volume-of-distribution>* 12.2 L [Healthy young subjects (n = 18, age 18-60 years)]&#xD;
+* 18.7 L [Healthy elderly subjects (n = 10, age 65-80 years)]&#xD;
+* 18 L [Renally impaired patients (n = 16, creatinine clearance below 80 mL/min)]&#xD;
+* 32.1 L [HIT patients (n = 73)]</volume-of-distribution>
+    <clearance>* 164 ml/min [Healthy 18-60 yrs]&#xD;
+* 139 ml/min [Healthy 65-80 yrs]&#xD;
+* 61 ml/min [renal impaired]&#xD;
+* 114 ml/min [HIT (Heparin-induced thrombocytopenia)]</clearance>
+    <secondary-accession-numbers>
+      <secondary-accession-number>BIOD00024</secondary-accession-number>
+      <secondary-accession-number>BTD00024</secondary-accession-number>
+    </secondary-accession-numbers>
+    <groups>
+      <group>approved</group>
+    </groups>
+    <taxonomy>
+      <kingdom></kingdom>
+      <substructures/>
+    </taxonomy>
+    <synonyms>
+      <synonym>Hirudin variant-1</synonym>
+    </synonyms>
+    <brands>
+      <brand>Refludan</brand>
+    </brands>
+    <mixtures/>
+    <packagers>
+      <packager>
+        <name>Bayer Healthcare</name>
+        <url>http://www.bayerhealthcare.com</url>
+      </packager>
+      <packager>
+        <name>Berlex Labs</name>
+        <url>http://www.berlex.com</url>
+      </packager>
+    </packagers>
+    <manufacturers>
+      <manufacturer generic="false">Bayer healthcare pharmaceuticals inc</manufacturer>
+    </manufacturers>
+    <prices>
+      <price>
+        <description>Refludan 50 mg vial</description>
+        <cost currency="USD">273.19</cost>
+        <unit>vial</unit>
+      </price>
+    </prices>
+    <categories>
+      <category>Anticoagulants</category>
+      <category>Antithrombotic Agents</category>
+      <category>Fibrinolytic Agents</category>
+    </categories>
+    <affected-organisms>
+      <affected-organism>Humans and other mammals</affected-organism>
+    </affected-organisms>
+    <dosages>
+      <dosage>
+        <form>Powder, for solution</form>
+        <route>Intravenous</route>
+        <strength></strength>
+      </dosage>
+    </dosages>
+    <atc-codes>
+      <atc-code>B01AE02</atc-code>
+    </atc-codes>
+    <ahfs-codes>
+      <ahfs-code>20:12.04.12</ahfs-code>
+    </ahfs-codes>
+    <patents>
+      <patent>
+        <number>5180668</number>
+        <country>United States</country>
+        <approved>1993-01-19</approved>
+        <expires>2010-01-19</expires>
+      </patent>
+      <patent>
+        <number>1339104</number>
+        <country>Canada</country>
+        <approved>1997-07-29</approved>
+        <expires>2014-07-29</expires>
+      </patent>
+    </patents>
+    <food-interactions/>
+    <drug-interactions>
+      <drug-interaction>
+        <drug>374</drug>
+        <description>The prostacyclin analogue, Treprostinil, increases the risk of bleeding when combined with the anticoagulant, Lepirudin. Monitor for increased bleeding during concomitant thearpy. </description>
+      </drug-interaction>
+      <drug-interaction>
+        <drug>1381</drug>
+        <description>Additive anticoagulant/antiplatelet effects may increase bleed risk. Concomitant therapy should be avoided.</description>
+      </drug-interaction>
+    </drug-interactions>
+    <protein-sequences>
+      <protein-sequence>
+        <header>DB00001 sequence</header>
+        <chain>LVYTDCTESGQNLCLCEGSNVCGQGNKCILGSDGEKNQCVTGEGTPKPQSHNDGDFEEIPEEYLQ</chain>
+      </protein-sequence>
+    </protein-sequences>
+    <experimental-properties>
+      <property>
+        <kind>logP/hydrophobicity</kind>
+        <value>-0.777</value>
+        <source></source>
+      </property>
+      <property>
+        <kind>Molecular Weight</kind>
+        <value>6963.4250</value>
+        <source></source>
+      </property>
+      <property>
+        <kind>Molecular Formula</kind>
+        <value>C287H440N80O110S6</value>
+        <source></source>
+      </property>
+    </experimental-properties>
+    <external-identifiers>
+      <external-identifier>
+        <resource>Drugs Product Database (DPD)</resource>
+        <identifier>2240996</identifier>
+      </external-identifier>
+      <external-identifier>
+        <resource>National Drug Code Directory</resource>
+        <identifier>50419-150-57</identifier>
+      </external-identifier>
+      <external-identifier>
+        <resource>PharmGKB</resource>
+        <identifier>PA450195</identifier>
+      </external-identifier>
+      <external-identifier>
+        <resource>UniProtKB</resource>
+        <identifier>P01050</identifier>
+      </external-identifier>
+    </external-identifiers>
+    <external-links>
+      <external-link>
+        <resource>Wikipedia</resource>
+        <url>http://en.wikipedia.org/wiki/Lepirudin</url>
+      </external-link>
+      <external-link>
+        <resource>RxList</resource>
+        <url>http://www.rxlist.com/cgi/generic/lepirudin.htm</url>
+      </external-link>
+      <external-link>
+        <resource>Drugs.com</resource>
+        <url>http://www.drugs.com/cdi/lepirudin.html</url>
+      </external-link>
+    </external-links>
+    <targets>
+      <target partner="54">
+        <actions>
+          <action>inhibitor</action>
+        </actions>
+        <references># Turpie AG: Anticoagulants in acute coronary syndromes. Am J Cardiol. 1999 Sep 2;84(5A):2M-6M. "Pubmed":http://www.ncbi.nlm.nih.gov/pubmed/10505536&#xD;
+# Warkentin TE: Venous thromboembolism in heparin-induced thrombocytopenia. Curr Opin Pulm Med. 2000 Jul;6(4):343-51. "Pubmed":http://www.ncbi.nlm.nih.gov/pubmed/10912644&#xD;
+# Eriksson BI: New therapeutic options in deep vein thrombosis prophylaxis. Semin Hematol. 2000 Jul;37(3 Suppl 5):7-9. "Pubmed":http://www.ncbi.nlm.nih.gov/pubmed/11055889&#xD;
+# Fabrizio MC: Use of ecarin clotting time (ECT) with lepirudin therapy in heparin-induced thrombocytopenia and cardiopulmonary bypass. J Extra Corpor Technol. 2001 May;33(2):117-25. "Pubmed":http://www.ncbi.nlm.nih.gov/pubmed/11467439&#xD;
+# Szaba FM, Smiley ST: Roles for thrombin and fibrin(ogen) in cytokine/chemokine production and macrophage adhesion in vivo. Blood. 2002 Feb 1;99(3):1053-9. "Pubmed":http://www.ncbi.nlm.nih.gov/pubmed/11807012&#xD;
+# Chen X, Ji ZL, Chen YZ: TTD: Therapeutic Target Database. Nucleic Acids Res. 2002 Jan 1;30(1):412-5. "Pubmed":http://www.ncbi.nlm.nih.gov/pubmed/11752352</references>
+        <known-action>yes</known-action>
+      </target>
+    </targets>
+    <enzymes/>
+    <transporters/>
+    <carriers/>
+  </drug>
+  <drug type="biotech" created="2005-06-13 07:24:05 -0600" version="3.0" updated="2011-07-31 23:04:49 -0600">
+    <drugbank-id>DB00002</drugbank-id>
+    <name>Cetuximab</name>
+    <description>Epidermal growth factor receptor binding FAB. Cetuximab is composed of the Fv (variable; antigen-binding) regions of the 225 murine EGFr monoclonal antibody specific for the N-terminal portion of human EGFr with human IgG1 heavy and kappa light chain constant (framework) regions.</description>
+    <cas-number>205923-56-4</cas-number>
+    <general-references></general-references>
+    <synthesis-reference></synthesis-reference>
+    <indication>For treatment of EGFR-expressing metastatic colorectal cancer in patients who are refractory to other irinotecan-based chemotherapy regimens. Cetuximab is also indicated for treatment of squamous cell carcinoma of the head and neck in conjucntion with radiation therapy.</indication>
+    <pharmacology>Used in the treatment of colorectal cancer, cetuximab binds specifically to the epidermal growth factor receptor (EGFr, HER1, c-ErbB-1) on both normal and tumor cells. EGFr is over-expressed in many colorectal cancers. Cetuximab competitively inhibits the binding of epidermal growth factor (EGF) and other ligands, such as transforming growth factor&#x2013;alpha. Binding of cetuximab to the EGFr blocks phosphorylation and activation of receptor-associated kinases, resulting in inhibition of cell growth, induction of apoptosis, decreased matrix metalloproteinase secretion and reduced vascular endothelial growth factor production.</pharmacology>
+    <mechanism-of-action>Cetuximab binds to the epidermal growth factor receptor (EGFr) on both normal and tumor cells. EGFr is over-expressed in many colorectal cancers. Cetuximab competitively inhibits the binding of epidermal growth factor (EGF) and TGF alpha, thereby reducing their effects on cell growth and metastatic spread.</mechanism-of-action>
+    <toxicity>Single doses of cetuximab higher than 500 mg/m&lt;sup&gt;2&lt;/sup&gt; have not been tested. There is no experience with overdosage in human clinical trials.&#xD;
+&#xD;
+</toxicity>
+    <biotransformation></biotransformation>
+    <absorption></absorption>
+    <half-life>114 hrs</half-life>
+    <protein-binding></protein-binding>
+    <route-of-elimination></route-of-elimination>
+    <volume-of-distribution></volume-of-distribution>
+    <clearance></clearance>
+    <secondary-accession-numbers>
+      <secondary-accession-number>BIOD00071</secondary-accession-number>
+      <secondary-accession-number>BTD00071</secondary-accession-number>
+    </secondary-accession-numbers>
+    <groups>
+      <group>approved</group>
+    </groups>
+    <taxonomy>
+      <kingdom></kingdom>
+      <substructures/>
+    </taxonomy>
+    <synonyms>
+      <synonym>Anti EGFR</synonym>
+      <synonym>cetuximab</synonym>
+      <synonym>IMC-C225</synonym>
+    </synonyms>
+    <brands>
+      <brand>Erbitux</brand>
+    </brands>
+    <mixtures/>
+    <packagers>
+      <packager>
+        <name>Cardinal Health</name>
+        <url>http://www.cardinal.com</url>
+      </packager>
+      <packager>
+        <name>Catalent Pharma Solutions</name>
+        <url>http://www.catalent.com</url>
+      </packager>
+      <packager>
+        <name>ImClone Systems Inc.</name>
+        <url>http://www.imclone.com</url>
+      </packager>
+      <packager>
+        <name>Oso Biopharmaceuticals Manufacturing LLC</name>
+        <url></url>
+      </packager>
+    </packagers>
+    <manufacturers/>
+    <prices/>
+    <categories>
+      <category>Antineoplastic Agents</category>
+    </categories>
+    <affected-organisms>
+      <affected-organism>Humans and other mammals</affected-organism>
+    </affected-organisms>
+    <dosages>
+      <dosage>
+        <form>Solution</form>
+        <route>Intravenous</route>
+        <strength></strength>
+      </dosage>
+    </dosages>
+    <atc-codes>
+      <atc-code>L01XC06</atc-code>
+    </atc-codes>
+    <ahfs-codes/>
+    <patents>
+      <patent>
+        <number>1340417</number>
+        <country>Canada</country>
+        <approved>1999-03-02</approved>
+        <expires>2016-03-02</expires>
+      </patent>
+    </patents>
+    <food-interactions/>
+    <drug-interactions/>
+    <protein-sequences>
+      <protein-sequence>
+        <header>Anti-EGFR heavy chain 1</header>
+        <chain>QVQLKQSGPGLVQPSQSLSITCTVSGFSLTNYGVHWVRQSPGKGLEWLGVIWSGGNTDYNTPFTSRLSINKDNSKSQVFFKMNSLQSNDTAIYYCARALTYYDYEFAYWGQGTLVTVSAASTKGPSVFPLAPSSKSTSGGTAALGCLVKDYFPEPVTVSWNSGALTSGVHTFPAVLQSSGLYSLSSVVTVPSSSLGTQTYICNVNHKPSNTKVDKRVEPKSPKSCDKTHTCPPCPAPELLGGPSVFLFPPKPKDTLMISRTPEVTCVVVDVSHEDPEVKFNWYVDGVEVHNAKTKPREEQYNSTYRVVSVLTVLHQDWLNGKEYKCKVSNKALPAPIEKTISKAKGQPREPQVYTLPPSRDELTKNQVSLTCLVKGFYPSDIAVEWESNGQPENNYKTTPPVLDSDGSFFLYSKLTVDKSRWQQGNVFSCSVMHEALHNHYTQKSLSLSPGK</chain>
+      </protein-sequence>
+      <protein-sequence>
+        <header>Anti-EGFR light chain 1</header>
+        <chain>DILLTQSPVILSVSPGERVSFSCRASQSIGTNIHWYQQRTNGSPRLLIKYASESISGIPSRFSGSGSGTDFTLSINSVESEDIADYYCQQNNNWPTTFGAGTKLELKRTVAAPSVFIFPPSDEQLKSGTASVVCLLNNFYPREAKVQWKVDNALQSGNSQESVTEQDSKDSTYSLSSTLTLSKADYEKHKVYACEVTHQGLSSPVTKSFNRGA</chain>
+      </protein-sequence>
+      <protein-sequence>
+        <header>Anti-EGFR heavy chain 2</header>
+        <chain>QVQLKQSGPGLVQPSQSLSITCTVSGFSLTNYGVHWVRQSPGKGLEWLGVIWSGGNTDYNTPFTSRLSINKDNSKSQVFFKMNSLQSNDTAIYYCARALTYYDYEFAYWGQGTLVTVSAASTKGPSVFPLAPSSKSTSGGTAALGCLVKDYFPEPVTVSWNSGALTSGVHTFPAVLQSSGLYSLSSVVTVPSSSLGTQTYICNVNHKPSNTKVDKRVEPKSPKSCDKTHTCPPCPAPELLGGPSVFLFPPKPKDTLMISRTPEVTCVVVDVSHEDPEVKFNWYVDGVEVHNAKTKPREEQYNSTYRVVSVLTVLHQDWLNGKEYKCKVSNKALPAPIEKTISKAKGQPREPQVYTLPPSRDELTKNQVSLTCLVKGFYPSDIAVEWESNGQPENNYKTTPPVLDSDGSFFLYSKLTVDKSRWQQGNVFSCSVMHEALHNHYTQKSLSLSPGK</chain>
+      </protein-sequence>
+      <protein-sequence>
+        <header>Anti-EGFR light chain 2</header>
+        <chain>DILLTQSPVILSVSPGERVSFSCRASQSIGTNIHWYQQRTNGSPRLLIKYASESISGIPSRFSGSGSGTDFTLSINSVESEDIADYYCQQNNNWPTTFGAGTKLELKRTVAAPSVFIFPPSDEQLKSGTASVVCLLNNFYPREAKVQWKVDNALQSGNSQESVTEQDSKDSTYSLSSTLTLSKADYEKHKVYACEVTHQGLSSPVTKSFNRGA</chain>
+      </protein-sequence>
+    </protein-sequences>
+    <experimental-properties>
+      <property>
+        <kind>logP/hydrophobicity</kind>
+        <value>-0.413</value>
+        <source></source>
+      </property>
+      <property>
+        <kind>Molecular Weight</kind>
+        <value>145781.6000</value>
+        <source></source>
+      </property>
+      <property>
+        <kind>Molecular Formula</kind>
+        <value>C6484H10042N1732O2023S36</value>
+        <source></source>
+      </property>
+    </experimental-properties>
+    <external-identifiers>
+      <external-identifier>
+        <resource>Drugs Product Database (DPD)</resource>
+        <identifier>0</identifier>
+      </external-identifier>
+      <external-identifier>
+        <resource>National Drug Code Directory</resource>
+        <identifier>66733-948-23</identifier>
+      </external-identifier>
+      <external-identifier>
+        <resource>GenBank</resource>
+        <identifier>J00228</identifier>
+      </external-identifier>
+      <external-identifier>
+        <resource>PharmGKB</resource>
+        <identifier>PA10040</identifier>
+      </external-identifier>
+    </external-identifiers>
+    <external-links>
+      <external-link>
+        <resource>Wikipedia</resource>
+        <url>http://en.wikipedia.org/wiki/Cetuximab</url>
+      </external-link>
+      <external-link>
+        <resource>RxList</resource>
+        <url>http://www.rxlist.com/cgi/generic3/erbitux.htm</url>
+      </external-link>
+      <external-link>
+        <resource>Drugs.com</resource>
+        <url>http://www.drugs.com/cdi/cetuximab.html</url>
+      </external-link>
+    </external-links>
+    <targets>
+      <target partner="844" position="1">
+        <actions>
+          <action>antagonist</action>
+        </actions>
+        <references># Hosokawa N, Yamamoto S, Uehara Y, Hori M, Tsuchiya KS: Effect of thiazinotrienomycin B, an ansamycin antibiotic, on the function of epidermal growth factor receptor in human stomach tumor cells. J Antibiot (Tokyo). 1999 May;52(5):485-90. "Pubmed":http://www.ncbi.nlm.nih.gov/pubmed/10480573&#xD;
+# Wakita H, Takigawa M: Activation of epidermal growth factor receptor promotes late terminal differentiation of cell-matrix interaction-disrupted keratinocytes. J Biol Chem. 1999 Dec 24;274(52):37285-91. "Pubmed":http://www.ncbi.nlm.nih.gov/pubmed/10601294&#xD;
+# Suwa T, Ueda M, Jinno H, Ozawa S, Kitagawa Y, Ando N, Kitajima M: Epidermal growth factor receptor-dependent cytotoxic effect of anti-EGFR antibody-ribonuclease conjugate on human cancer cells. Anticancer Res. 1999 Sep-Oct;19(5B):4161-5. "Pubmed":http://www.ncbi.nlm.nih.gov/pubmed/10628369&#xD;
+# Burke P, Schooler K, Wiley HS: Regulation of epidermal growth factor receptor signaling by endocytosis and intracellular trafficking. Mol Biol Cell. 2001 Jun;12(6):1897-910. "Pubmed":http://www.ncbi.nlm.nih.gov/pubmed/11408594&#xD;
+# Viloria-Petit A, Crombet T, Jothy S, Hicklin D, Bohlen P, Schlaeppi JM, Rak J, Kerbel RS: Acquired resistance to the antitumor effect of epidermal growth factor receptor-blocking antibodies in vivo: a role for altered tumor angiogenesis. Cancer Res. 2001 Jul 1;61(13):5090-101. "Pubmed":http://www.ncbi.nlm.nih.gov/pubmed/11431346&#xD;
+# Chen X, Ji ZL, Chen YZ: TTD: Therapeutic Target Database. Nucleic Acids Res. 2002 Jan 1;30(1):412-5. "Pubmed":http://www.ncbi.nlm.nih.gov/pubmed/11752352</references>
+        <known-action>yes</known-action>
+      </target>
+      <target partner="1102" position="2">
+        <actions/>
+        <references># Snyder LC, Astsaturov I, Weiner LM: Overview of monoclonal antibodies and small molecules targeting the epidermal growth factor receptor pathway in colorectal cancer. Clin Colorectal Cancer. 2005 Nov;5 Suppl 2:S71-80. "Pubmed":http://www.ncbi.nlm.nih.gov/pubmed/16336752</references>
+        <known-action>unknown</known-action>
+      </target>
+      <target partner="3814" position="3">
+        <actions/>
+        <references># Overington JP, Al-Lazikani B, Hopkins AL: How many drug targets are there? Nat Rev Drug Discov. 2006 Dec;5(12):993-6. "Pubmed":http://www.ncbi.nlm.nih.gov/pubmed/17139284&#xD;
+# Imming P, Sinning C, Meyer A: Drugs, their targets and the nature and number of drug targets. Nat Rev Drug Discov. 2006 Oct;5(10):821-34. "Pubmed":http://www.ncbi.nlm.nih.gov/pubmed/17016423</references>
+        <known-action>unknown</known-action>
+      </target>
+      <target partner="3815" position="4">
+        <actions/>
+        <references># Overington JP, Al-Lazikani B, Hopkins AL: How many drug targets are there? Nat Rev Drug Discov. 2006 Dec;5(12):993-6. "Pubmed":http://www.ncbi.nlm.nih.gov/pubmed/17139284&#xD;
+# Imming P, Sinning C, Meyer A: Drugs, their targets and the nature and number of drug targets. Nat Rev Drug Discov. 2006 Oct;5(10):821-34. "Pubmed":http://www.ncbi.nlm.nih.gov/pubmed/17016423</references>
+        <known-action>unknown</known-action>
+      </target>
+      <target partner="3816" position="5">
+        <actions/>
+        <references># Overington JP, Al-Lazikani B, Hopkins AL: How many drug targets are there? Nat Rev Drug Discov. 2006 Dec;5(12):993-6. "Pubmed":http://www.ncbi.nlm.nih.gov/pubmed/17139284&#xD;
+# Imming P, Sinning C, Meyer A: Drugs, their targets and the nature and number of drug targets. Nat Rev Drug Discov. 2006 Oct;5(10):821-34. "Pubmed":http://www.ncbi.nlm.nih.gov/pubmed/17016423</references>
+        <known-action>unknown</known-action>
+      </target>
+      <target partner="3817" position="6">
+        <actions/>
+        <references># Overington JP, Al-Lazikani B, Hopkins AL: How many drug targets are there? Nat Rev Drug Discov. 2006 Dec;5(12):993-6. "Pubmed":http://www.ncbi.nlm.nih.gov/pubmed/17139284&#xD;
+# Imming P, Sinning C, Meyer A: Drugs, their targets and the nature and number of drug targets. Nat Rev Drug Discov. 2006 Oct;5(10):821-34. "Pubmed":http://www.ncbi.nlm.nih.gov/pubmed/17016423</references>
+        <known-action>unknown</known-action>
+      </target>
+      <target partner="3818" position="7">
+        <actions/>
+        <references># Overington JP, Al-Lazikani B, Hopkins AL: How many drug targets are there? Nat Rev Drug Discov. 2006 Dec;5(12):993-6. "Pubmed":http://www.ncbi.nlm.nih.gov/pubmed/17139284&#xD;
+# Imming P, Sinning C, Meyer A: Drugs, their targets and the nature and number of drug targets. Nat Rev Drug Discov. 2006 Oct;5(10):821-34. "Pubmed":http://www.ncbi.nlm.nih.gov/pubmed/17016423&#xD;
+# Zhang W, Gordon M, Schultheis AM, Yang DY, Nagashima F, Azuma M, Chang HM, Borucka E, Lurje G, Sherrod AE, Iqbal S, Groshen S, Lenz HJ: FCGR2A and FCGR3A polymorphisms associated with clinical outcome of epidermal growth factor receptor expressing metastatic colorectal cancer patients treated with single-agent cetuximab. J Clin Oncol. 2007 Aug 20;25(24):3712-8. "Pubmed":http://www.ncbi.nlm.nih.gov/pubmed/17704420</references>
+        <known-action>unknown</known-action>
+      </target>
+      <target partner="2782" position="8">
+        <actions/>
+        <references># Overington JP, Al-Lazikani B, Hopkins AL: How many drug targets are there? Nat Rev Drug Discov. 2006 Dec;5(12):993-6. "Pubmed":http://www.ncbi.nlm.nih.gov/pubmed/17139284&#xD;
+# Imming P, Sinning C, Meyer A: Drugs, their targets and the nature and number of drug targets. Nat Rev Drug Discov. 2006 Oct;5(10):821-34. "Pubmed":http://www.ncbi.nlm.nih.gov/pubmed/17016423</references>
+        <known-action>unknown</known-action>
+      </target>
+      <target partner="784" position="9">
+        <actions/>
+        <references># Negri DR, Tosi E, Valota O, Ferrini S, Cambiaggi A, Sforzini S, Silvani A, Ruffini PA, Colnaghi MI, Canevari S: In vitro and in vivo stability and anti-tumour efficacy of an anti-EGFR/anti-CD3 F(ab')2 bispecific monoclonal antibody. Br J Cancer. 1995 Oct;72(4):928-33. "Pubmed":http://www.ncbi.nlm.nih.gov/pubmed/7547242</references>
+        <known-action>unknown</known-action>
+      </target>
+      <target partner="3819" position="10">
+        <actions/>
+        <references># Overington JP, Al-Lazikani B, Hopkins AL: How many drug targets are there? Nat Rev Drug Discov. 2006 Dec;5(12):993-6. "Pubmed":http://www.ncbi.nlm.nih.gov/pubmed/17139284&#xD;
+# Imming P, Sinning C, Meyer A: Drugs, their targets and the nature and number of drug targets. Nat Rev Drug Discov. 2006 Oct;5(10):821-34. "Pubmed":http://www.ncbi.nlm.nih.gov/pubmed/17016423&#xD;
+# Zhang W, Gordon M, Schultheis AM, Yang DY, Nagashima F, Azuma M, Chang HM, Borucka E, Lurje G, Sherrod AE, Iqbal S, Groshen S, Lenz HJ: FCGR2A and FCGR3A polymorphisms associated with clinical outcome of epidermal growth factor receptor expressing metastatic colorectal cancer patients treated with single-agent cetuximab. J Clin Oncol. 2007 Aug 20;25(24):3712-8. "Pubmed":http://www.ncbi.nlm.nih.gov/pubmed/17704420</references>
+        <known-action>unknown</known-action>
+      </target>
+      <target partner="3820" position="11">
+        <actions/>
+        <references># Overington JP, Al-Lazikani B, Hopkins AL: How many drug targets are there? Nat Rev Drug Discov. 2006 Dec;5(12):993-6. "Pubmed":http://www.ncbi.nlm.nih.gov/pubmed/17139284&#xD;
+# Imming P, Sinning C, Meyer A: Drugs, their targets and the nature and number of drug targets. Nat Rev Drug Discov. 2006 Oct;5(10):821-34. "Pubmed":http://www.ncbi.nlm.nih.gov/pubmed/17016423</references>
+        <known-action>unknown</known-action>
+      </target>
+      <target partner="3821" position="12">
+        <actions/>
+        <references># Overington JP, Al-Lazikani B, Hopkins AL: How many drug targets are there? Nat Rev Drug Discov. 2006 Dec;5(12):993-6. "Pubmed":http://www.ncbi.nlm.nih.gov/pubmed/17139284&#xD;
+# Imming P, Sinning C, Meyer A: Drugs, their targets and the nature and number of drug targets. Nat Rev Drug Discov. 2006 Oct;5(10):821-34. "Pubmed":http://www.ncbi.nlm.nih.gov/pubmed/17016423</references>
+        <known-action>unknown</known-action>
+      </target>
+    </targets>
+    <enzymes/>
+    <transporters/>
+    <carriers/>
+  </drug>
+  <drug type="biotech" created="2005-06-13 07:24:05 -0600" version="3.0" updated="2010-09-29 14:34:47 -0600">
+    <drugbank-id>DB00003</drugbank-id>
+    <name>Dornase Alfa</name>
+    <description>Dornase alfa is a biosynthetic form of human deoxyribunuclease I (DNase I) enzyme. It is produced in genetically modified Chinese hamster ovary (CHO) cells using recombinant DNA technology. The 260-amino acid sequence of dornase alfa is identical to the endogenous human enzyme. Dornase alfa cleaves extracellular DNA to 5&#xB4;-phosphodinucleotide and 5&#xB4;-phosphooligonucleotide end products without affecting intracellular DNA. In individuals with cystic fibrosis, extracellular DNA, which is an extremely viscous anion, is released by degenerating leukocytes that accumulate during inflammatory responses to infections. Enzymatic breakdown of this extracellular DNA appears to reduce sputum viscosity and viscoelasticity. </description>
+    <cas-number>9003-98-9</cas-number>
+    <general-references># Cramer GW, Bosso JA: The role of dornase alfa in the treatment of cystic fibrosis. Ann Pharmacother. 1996 Jun;30(6):656-61. "Pubmed":http://www.ncbi.nlm.nih.gov/pubmed/8792953 &#xD;
+# Jones AP, Wallis C: Dornase alfa for cystic fibrosis. Cochrane Database Syst Rev. 2010 Mar 17;3:CD001127. "Pubmed":http://www.ncbi.nlm.nih.gov/pubmed/20238314 &#xD;
+# Riethmueller J, Kumpf M, Borth-Bruhns T, Brehm W, Wiskirchen J, Sieverding L, Ankele C, Hofbeck M, Baden W: Clinical and in vitro effect of dornase alfa in mechanically ventilated pediatric non-cystic fibrosis patients with atelectases. Cell Physiol Biochem. 2009;23(1-3):205-10. Epub 2009 Feb 18. "Pubmed":http://www.ncbi.nlm.nih.gov/pubmed/19255515 &#xD;
+</general-references>
+    <synthesis-reference></synthesis-reference>
+    <indication>Used as adjunct therapy in the treatment of cystic fibrosis. </indication>
+    <pharmacology>Cystic fibrosis (CF) is a disease characterized by the retention of viscous purulent secretions in the airways. These thick secretions contribute both to reduced pulmonary function and to frequent pulmonary infection. Purulent pulmonary secretions of individuals with cystic fibrosis contain very high concentrations of extracellular DNA released by degenerating leukocytes that accumulate in response to these infections. Dornase alfa hydrolyzes the DNA in sputum of CF patients and reduces sputum viscosity and viscoelasticity. The enzyme does not appear to affect sputum in the absence of an inflammatory response to infection, nor does it affect the sputum of healthy individuals. </pharmacology>
+    <mechanism-of-action>Dornase alfa is a biosynthetic form of human DNase I. The enzyme is involved in endonucleolytic cleavage of extracellular DNA to 5&#xB4;-phosphodinucleotide and 5&#xB4;-phosphooligonucleotide end products. It has no effect on intracellular DNA. Optimal activity is dependent on the presence of divalent cations such as calcium and magnesium. Extracellular DNA is a viscous anionic polymer and its breakdown appears to improve the viscosity and viscoelasticity of purulent sputum of individuals with CF. </mechanism-of-action>
+    <toxicity>Adverse reactions occur at a frequency of &lt; 1/1000 and are usually mild and transient in nature. Reported adverse effects include chest pain (pleuritic/non-cardiac), fever, dyspepsia, voice alteration (hoarseness), pharyngitis, dyspnea, laryngitis, rhinitis, decreased lung function, rash, urticaria, and conjunctivitis. </toxicity>
+    <biotransformation></biotransformation>
+    <absorption>Systemic absorption undetectable following administration by inhalation. </absorption>
+    <half-life></half-life>
+    <protein-binding></protein-binding>
+    <route-of-elimination></route-of-elimination>
+    <volume-of-distribution></volume-of-distribution>
+    <clearance></clearance>
+    <secondary-accession-numbers>
+      <secondary-accession-number>BIOD00001</secondary-accession-number>
+      <secondary-accession-number>BTD00001</secondary-accession-number>
+    </secondary-accession-numbers>
+    <groups>
+      <group>approved</group>
+    </groups>
+    <taxonomy>
+      <kingdom></kingdom>
+      <substructures/>
+    </taxonomy>
+    <synonyms>
+      <synonym>Deoxyribonuclease I</synonym>
+      <synonym>Deoxyribonuclease-1 precursor</synonym>
+      <synonym>DNase</synonym>
+      <synonym>DNase I</synonym>
+      <synonym>rhDNase</synonym>
+    </synonyms>
+    <brands>
+      <brand>Pulmozyme</brand>
+      <brand>Viscozyme</brand>
+    </brands>
+    <mixtures>
+      <mixture>
+        <name>Cauterex</name>
+        <ingredients>dornase alfa + fibrinolysin + gentamicin sulfate</ingredients>
+      </mixture>
+      <mixture>
+        <name>Clorfibrase</name>
+        <ingredients>dornase alfa + fibrinolysin + chloramphenicol</ingredients>
+      </mixture>
+      <mixture>
+        <name>Elase</name>
+        <ingredients>dornase alfa + fibrinolysin</ingredients>
+      </mixture>
+      <mixture>
+        <name>Fibrabene</name>
+        <ingredients>dornase alfa + fibrinolysin (bovine)</ingredients>
+      </mixture>
+      <mixture>
+        <name>Fibrase SA</name>
+        <ingredients>dornase alfa + fibrinolysin (bovine)</ingredients>
+      </mixture>
+      <mixture>
+        <name>Fibrolan</name>
+        <ingredients>dornase alfa + fibrinolysin (bovine)</ingredients>
+      </mixture>
+      <mixture>
+        <name>Parkelase</name>
+        <ingredients>dornase alfa + fibrinolysin</ingredients>
+      </mixture>
+      <mixture>
+        <name>Ridasa</name>
+        <ingredients>dornase alfa + ribonuclease</ingredients>
+      </mixture>
+    </mixtures>
+    <packagers>
+      <packager>
+        <name>Cardinal Health</name>
+        <url>http://www.cardinal.com</url>
+      </packager>
+      <packager>
+        <name>Catalent Pharma Solutions</name>
+        <url>http://www.catalent.com</url>
+      </packager>
+      <packager>
+        <name>F Hoffmann-La Roche Ltd.</name>
+        <url>http://www.roche.com</url>
+      </packager>
+      <packager>
+        <name>Genentech Inc.</name>
+        <url>http://www.gene.com</url>
+      </packager>
+      <packager>
+        <name>Meda AB</name>
+        <url>http://www.meda.se</url>
+      </packager>
+      <packager>
+        <name>Medpointe Pharmaceuticals</name>
+        <url></url>
+      </packager>
+    </packagers>
+    <manufacturers>
+      <manufacturer generic="false">Genentech, Inc</manufacturer>
+    </manufacturers>
+    <prices>
+      <price>
+        <description>Lufyllin 200 mg tablet</description>
+        <cost currency="USD">3.21</cost>
+        <unit>tablet</unit>
+      </price>
+      <price>
+        <description>Lufyllin-gg tablet</description>
+        <cost currency="USD">3.84</cost>
+        <unit>tablet</unit>
+      </price>
+      <price>
+        <description>Lufyllin-GG 200-200 mg tablet</description>
+        <cost currency="USD">3.99</cost>
+        <unit>tablet</unit>
+      </price>
+      <price>
+        <description>Lufyllin-400 tablet</description>
+        <cost currency="USD">4.62</cost>
+        <unit>tablet</unit>
+      </price>
+      <price>
+        <description>Lufyllin 400 mg tablet</description>
+        <cost currency="USD">4.81</cost>
+        <unit>tablet</unit>
+      </price>
+      <price>
+        <description>Pulmozyme 1 mg/ml ampul</description>
+        <cost currency="USD">37.05</cost>
+        <unit>ml</unit>
+      </price>
+      <price>
+        <description>Pulmozyme 1 mg/ml Solution 2.5ml Plastic Container</description>
+        <cost currency="USD">77.06</cost>
+        <unit>plastic</unit>
+      </price>
+      <price>
+        <description>Lufyllin-GG 100-100 mg/15ml Elixir</description>
+        <cost currency="USD">0.6</cost>
+        <unit>ml</unit>
+      </price>
+    </prices>
+    <categories>
+      <category>Enzyme</category>
+    </categories>
+    <affected-organisms>
+      <affected-organism>Humans and other mammals</affected-organism>
+    </affected-organisms>
+    <dosages>
+      <dosage>
+        <form>Solution</form>
+        <route>Respiratory (inhalation)</route>
+        <strength>1 mg/ml</strength>
+      </dosage>
+    </dosages>
+    <atc-codes>
+      <atc-code>R05CB13</atc-code>
+    </atc-codes>
+    <ahfs-codes>
+      <ahfs-code>44:00</ahfs-code>
+    </ahfs-codes>
+    <patents>
+      <patent>
+        <number>2184581</number>
+        <country>Canada</country>
+        <approved>2005-02-22</approved>
+        <expires>2015-02-28</expires>
+      </patent>
+      <patent>
+        <number>2137237</number>
+        <country>Canada</country>
+        <approved>2004-10-26</approved>
+        <expires>2013-05-28</expires>
+      </patent>
+    </patents>
+    <food-interactions/>
+    <drug-interactions/>
+    <protein-sequences>
+      <protein-sequence>
+        <header>DB00003 sequence</header>
+        <chain>LKIAAFNIQTFGETKMSNATLVSYIVQILSRYDIALVQEVRDSHLTAVGKLLDNLNQDAPDTYHYVVSEPLGRNSYKERYLFVYRPDQVSAVDSYYYDDGCEPCGNDTFNREPAIVRFFSRFTEVREFAIVPLHAAPGDAVAEIDALYDVYLDVQEKWGLEDVMLMGDFNAGCSYVRPSQWSSIRLWTSPTFQWLIPDSADTTATPTHCAYDRIVVAGMLLRGAVVPDSALPFNFQAAYGLSDQLAQAISDHYPVEVMLK</chain>
+      </protein-sequence>
+    </protein-sequences>
+    <experimental-properties>
+      <property>
+        <kind>logP/hydrophobicity</kind>
+        <value>-0.083</value>
+        <source></source>
+      </property>
+      <property>
+        <kind>Molecular Weight</kind>
+        <value>29253.9000</value>
+        <source></source>
+      </property>
+      <property>
+        <kind>Molecular Formula</kind>
+        <value>C1321H1999N339O396S9</value>
+        <source></source>
+      </property>
+    </experimental-properties>
+    <external-identifiers>
+      <external-identifier>
+        <resource>Drugs Product Database (DPD)</resource>
+        <identifier>2046733</identifier>
+      </external-identifier>
+      <external-identifier>
+        <resource>GenBank</resource>
+        <identifier>M55983</identifier>
+      </external-identifier>
+      <external-identifier>
+        <resource>PharmGKB</resource>
+        <identifier>PA10318</identifier>
+      </external-identifier>
+      <external-identifier>
+        <resource>UniProtKB</resource>
+        <identifier>P24855</identifier>
+      </external-identifier>
+    </external-identifiers>
+    <external-links>
+      <external-link>
+        <resource>Wikipedia</resource>
+        <url>http://en.wikipedia.org/wiki/Dornase_alfa</url>
+      </external-link>
+      <external-link>
+        <resource>RxList</resource>
+        <url>http://www.rxlist.com/cgi/generic/pulmozyme.htm</url>
+      </external-link>
+      <external-link>
+        <resource>Drugs.com</resource>
+        <url>http://www.drugs.com/cdi/dornase-alfa.html</url>
+      </external-link>
+    </external-links>
+    <targets>
+      <target partner="874">
+        <actions/>
+        <references># Cramer GW, Bosso JA: The role of dornase alfa in the treatment of cystic fibrosis. Ann Pharmacother. 1996 Jun;30(6):656-61. "Pubmed":http://www.ncbi.nlm.nih.gov/pubmed/8792953</references>
+        <known-action>yes</known-action>
+      </target>
+    </targets>
+    <enzymes/>
+    <transporters/>
+    <carriers/>
+  </drug>
+  <drug type="biotech" created="2005-06-13 07:24:05 -0600" version="3.0" updated="2010-09-29 14:34:47 -0600">
+    <drugbank-id>DB00004</drugbank-id>
+    <name>Denileukin diftitox</name>
+    <description>A recombinant DNA-derived cytotoxic protein composed of the amino acid sequences for diphtheria toxin fragments A and B (Met 1-Thr 387)-His followed by the sequences for interleukin-2 (IL-2; Ala 1-Thr 133). It is produced in an E. coli expression system.</description>
+    <cas-number>173146-27-5</cas-number>
+    <general-references># Turturro F: Denileukin diftitox: a biotherapeutic paradigm shift in the treatment of lymphoid-derived disorders. Expert Rev Anticancer Ther. 2007 Jan;7(1):11-7. "Pubmed":http://www.ncbi.nlm.nih.gov/pubmed/17187516&#xD;
+# Park M, Liu GT, Piltz-Seymour J, Wisda CL, Rook AH, Junkins-Hopkins JM, Nasta SD, Kim EJ: Vision loss following denileukin diftitox treatment: a case report of possible posterior ischemic optic neuropathy. Leuk Lymphoma. 2007 Apr;48(4):808-11. "Pubmed":http://www.ncbi.nlm.nih.gov/pubmed/17454642</general-references>
+    <synthesis-reference></synthesis-reference>
+    <indication>For treatment of cutaneous T-cell lymphoma</indication>
+    <pharmacology>Denileukin diftitox (Ontak) directs the cytocidal action of diphtheria toxin to cells which express the IL-2 receptor. The human IL-2 receptor exists in three forms, low (CD25), intermediate (CD122/CD132) and high (CD25/CD122/CD132) affinity. Malignant cells expressing one or more of the subunits of the IL-2 receptor are found in certain leukemias and lymphomas including cutaneous T-cell lymphoma (CTCL). Ontak interacts with the high affinity IL-2 receptor on the cell surface and inhibits cellular protein synthesis, resulting in cell death within hours.</pharmacology>
+    <mechanism-of-action>Denileukin diftitox binds to the high-affinity IL-2 receptor complex. The IL-2 receptor (Tac) subunit is expressed on activated but not resting lymphocytes. The diphtheria toxin associated with Ontak then selectively kills the IL-2 bearing cells.</mechanism-of-action>
+    <toxicity></toxicity>
+    <biotransformation></biotransformation>
+    <absorption></absorption>
+    <half-life>70-80 min</half-life>
+    <protein-binding></protein-binding>
+    <route-of-elimination></route-of-elimination>
+    <volume-of-distribution>* 0.06 to 0.09 L/kg</volume-of-distribution>
+    <clearance>* 0.6 - 2.0 mL/min/kg [Lymphoma]</clearance>
+    <secondary-accession-numbers>
+      <secondary-accession-number>BIOD00084</secondary-accession-number>
+      <secondary-accession-number>BTD00084</secondary-accession-number>
+    </secondary-accession-numbers>
+    <groups>
+      <group>approved</group>
+    </groups>
+    <taxonomy>
+      <kingdom>Organic</kingdom>
+      <substructures>
+        <substructure class="true">Polypeptides</substructure>
+      </substructures>
+    </taxonomy>
+    <synonyms>
+      <synonym>denileukin diftitox</synonym>
+      <synonym>Diphtheria toxin precursor</synonym>
+      <synonym>DT</synonym>
+      <synonym>NAD(+--diphthamide ADP- ribosyltransferase)</synonym>
+    </synonyms>
+    <brands>
+      <brand>Ontak</brand>
+    </brands>
+    <mixtures/>
+    <packagers>
+      <packager>
+        <name>Eisai Inc.</name>
+        <url>http://www.eisai.com</url>
+      </packager>
+      <packager>
+        <name>Hollister-Stier Laboratories LLC</name>
+        <url>http://www.hollisterstier.com</url>
+      </packager>
+      <packager>
+        <name>Ligand Pharmaceuticals Inc.</name>
+        <url>http://www.ligand.com</url>
+      </packager>
+    </packagers>
+    <manufacturers/>
+    <prices>
+      <price>
+        <description>Ontak 150 mcg/ml vial</description>
+        <cost currency="USD">878.4</cost>
+        <unit>ml</unit>
+      </price>
+    </prices>
+    <categories>
+      <category>Antineoplastic Agents</category>
+    </categories>
+    <affected-organisms>
+      <affected-organism>Humans and other mammals</affected-organism>
+    </affected-organisms>
+    <dosages>
+      <dosage>
+        <form>Solution</form>
+        <route>Intravenous</route>
+        <strength></strength>
+      </dosage>
+    </dosages>
+    <atc-codes>
+      <atc-code>L01XX29</atc-code>
+    </atc-codes>
+    <ahfs-codes/>
+    <patents/>
+    <food-interactions/>
+    <drug-interactions>
+      <drug-interaction>
+        <drug>72</drug>
+        <description>Trastuzumab may increase the risk of neutropenia and anemia. Monitor closely for signs and symptoms of adverse events.</description>
+      </drug-interaction>
+    </drug-interactions>
+    <protein-sequences>
+      <protein-sequence>
+        <header>DB00004 sequence</header>
+        <chain>MGADDVVDSSKSFVMENFSSYHGTKPGYVDSIQKGIQKPKSGTQGNYDDDWKGFYSTDNKYDAAGYSVDNENPLSGKAGGVVKVTYPGLTKVLALKVDNAETIKKELGLSLTEPLMEQVGTEEFIKRFGDGASRVVLSLPFAEGSSSVEYINNWEQAKALSVELEINFETRGKRGQDAMYEYMAQACAGNRVRRSVGSSLSCINLDWDVIRDKTKTKIESLKEHGPIKNKMSESPNKTVSEEKAKQYLEEFHQTALEHPELSELKTVTGTNPVFAGANYAAWAVNVAQVIDSETADNLEKTTAALSILPGIGSVMGIADGAVHHNTEEIVAQSIALSSLMVAQAIPLVGELVDIGFAAYNFVESIINLFQVVHNSYNRPAYSPGHKTHAPTSSSTKKTQLQLEHLLLDLQMILNGINNYKNPKLTRMLTFKFYMPKKATELKHLQCLEEELKPLEEVLNLAQSKNFHLRPRDLISNINVIVLELKGSETTFMCEYADETATIVEFLNRWITFCQSIISTLT</chain>
+      </protein-sequence>
+    </protein-sequences>
+    <experimental-properties>
+      <property>
+        <kind>logP/hydrophobicity</kind>
+        <value>-0.301</value>
+        <source></source>
+      </property>
+      <property>
+        <kind>Molecular Weight</kind>
+        <value>57647.3000</value>
+        <source></source>
+      </property>
+      <property>
+        <kind>Molecular Formula</kind>
+        <value>C2560H4042N678O799S17</value>
+        <source></source>
+      </property>
+    </experimental-properties>
+    <external-identifiers>
+      <external-identifier>
+        <resource>Drugs Product Database (DPD)</resource>
+        <identifier>0</identifier>
+      </external-identifier>
+      <external-identifier>
+        <resource>National Drug Code Directory</resource>
+        <identifier>62856-603-01</identifier>
+      </external-identifier>
+      <external-identifier>
+        <resource>GenBank</resource>
+        <identifier>V01536</identifier>
+      </external-identifier>
+      <external-identifier>
+        <resource>PharmGKB</resource>
+        <identifier>PA10317</identifier>
+      </external-identifier>
+      <external-identifier>
+        <resource>UniProtKB</resource>
+        <identifier>P00587</identifier>
+      </external-identifier>
+    </external-identifiers>
+    <external-links>
+      <external-link>
+        <resource>Wikipedia</resource>
+        <url>http://en.wikipedia.org/wiki/Denileukin_diftitox</url>
+      </external-link>
+      <external-link>
+        <resource>RxList</resource>
+        <url>http://www.rxlist.com/cgi/generic2/denileukin.htm</url>
+      </external-link>
+      <external-link>
+        <resource>Drugs.com</resource>
+        <url>http://www.drugs.com/cdi/denileukin-diftitox.html</url>
+      </external-link>
+    </external-links>
+    <targets>
+      <target partner="724">
+        <actions>
+          <action>binder</action>
+        </actions>
+        <references># Overington JP, Al-Lazikani B, Hopkins AL: How many drug targets are there? Nat Rev Drug Discov. 2006 Dec;5(12):993-6. "Pubmed":http://www.ncbi.nlm.nih.gov/pubmed/17139284
+# Imming P, Sinning C, Meyer A: Drugs, their targets and the nature and number of drug targets. Nat Rev Drug Discov. 2006 Oct;5(10):821-34. "Pubmed":http://www.ncbi.nlm.nih.gov/pubmed/17016423
+# Kiyokawa T, Shirono K, Hattori T, Nishimura H, Yamaguchi K, Nichols JC, Strom TB, Murphy JR, Takatsuki K: Cytotoxicity of interleukin 2-toxin toward lymphocytes from patients with adult T-cell leukemia. Cancer Res. 1989 Jul 15;49(14):4042-6. "Pubmed":http://www.ncbi.nlm.nih.gov/pubmed/2786749
+# Murphy JR, Kelley VE, Strom TB: Interleukin 2 toxin: a step toward selective immunomodulation. Am J Kidney Dis. 1988 Feb;11(2):159-62. "Pubmed":http://www.ncbi.nlm.nih.gov/pubmed/3124610
+# Duvic M, Talpur R: Optimizing denileukin diftitox (Ontak) therapy. Future Oncol. 2008 Aug;4(4):457-69. "Pubmed":http://www.ncbi.nlm.nih.gov/pubmed/18684057
+# Turturro F: Denileukin diftitox: a biotherapeutic paradigm shift in the treatment of lymphoid-derived disorders. Expert Rev Anticancer Ther. 2007 Jan;7(1):11-7. "Pubmed":http://www.ncbi.nlm.nih.gov/pubmed/17187516
+# Chen X, Ji ZL, Chen YZ: TTD: Therapeutic Target Database. Nucleic Acids Res. 2002 Jan 1;30(1):412-5. "Pubmed":http://www.ncbi.nlm.nih.gov/pubmed/11752352</references>
+        <known-action>yes</known-action>
+      </target>
+      <target partner="3823">
+        <actions/>
+        <references># Foss F, Demierre MF, DiVenuti G: A phase-1 trial of bexarotene and denileukin diftitox in patients with relapsed or refractory cutaneous T-cell lymphoma. Blood. 2005 Jul 15;106(2):454-7. Epub 2005 Apr 5. "Pubmed":http://www.ncbi.nlm.nih.gov/pubmed/15811959
+# Foss F: Clinical experience with denileukin diftitox (ONTAK). Semin Oncol. 2006 Feb;33(1 Suppl 3):S11-6. "Pubmed":http://www.ncbi.nlm.nih.gov/pubmed/16516670
+# Foss FM: DAB(389)IL-2 (denileukin diftitox, ONTAK): a new fusion protein technology. Clin Lymphoma. 2000 Nov;1 Suppl 1:S27-31. "Pubmed":http://www.ncbi.nlm.nih.gov/pubmed/11707860</references>
+        <known-action>unknown</known-action>
+      </target>
+      <target partner="717">
+        <actions>
+          <action>agonist</action>
+        </actions>
+        <references># Foss F, Demierre MF, DiVenuti G: A phase-1 trial of bexarotene and denileukin diftitox in patients with relapsed or refractory cutaneous T-cell lymphoma. Blood. 2005 Jul 15;106(2):454-7. Epub 2005 Apr 5. "Pubmed":http://www.ncbi.nlm.nih.gov/pubmed/15811959
+# Foss F: Clinical experience with denileukin diftitox (ONTAK). Semin Oncol. 2006 Feb;33(1 Suppl 3):S11-6. "Pubmed":http://www.ncbi.nlm.nih.gov/pubmed/16516670
+# Duvic M, Talpur R: Optimizing denileukin diftitox (Ontak) therapy. Future Oncol. 2008 Aug;4(4):457-69. "Pubmed":http://www.ncbi.nlm.nih.gov/pubmed/18684057
+# Turturro F: Denileukin diftitox: a biotherapeutic paradigm shift in the treatment of lymphoid-derived disorders. Expert Rev Anticancer Ther. 2007 Jan;7(1):11-7. "Pubmed":http://www.ncbi.nlm.nih.gov/pubmed/17187516
+# Chen X, Ji ZL, Chen YZ: TTD: Therapeutic Target Database. Nucleic Acids Res. 2002 Jan 1;30(1):412-5. "Pubmed":http://www.ncbi.nlm.nih.gov/pubmed/11752352</references>
+        <known-action>yes</known-action>
+      </target>
+    </targets>
+    <enzymes/>
+    <transporters/>
+    <carriers/>
+  </drug>
+</drugs>

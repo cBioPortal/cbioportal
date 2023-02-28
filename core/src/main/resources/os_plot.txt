@@ -1,0 +1,25 @@
+library(Cairo)
+library(survival)
+attach(df)
+
+# Perform Overall Survival Analysis
+os_surv = Surv (df$OS_MONTHS, df$OS_STATUS)
+two_colors = c("blue", "red")
+os_surv_fit = survfit(os_surv ~ GENE_SET_ALTERED)
+
+if (length(unique(df$GENE_SET_ALTERED))==1) {
+    # Plot Single Group
+    plot (os_surv_fit, yscale=100, xlab="Months Survival", ylab="% Surviving", cex.main=1.0, cex.axis=1.0, cex.lab=1.0, font=1)
+} else {
+    # Plot Two Groups
+    os_log_rank = survdiff (os_surv ~ GENE_SET_ALTERED)
+    os_p_val <- 1 - pchisq(os_log_rank$chisq, length(os_log_rank$n) - 1)
+
+    # Plot it
+    plot (os_surv_fit, col=two_colors, yscale=100, xlab="Months Survival", ylab="% Surviving", cex.main=1.0, cex.axis=1.0, cex.lab=1.0, font=1)
+    strata = names (os_surv_fit$strata)
+    strata_english = gsub("GENE_SET_ALTERED=TRUE", "Gene Set Altered", strata)
+    strata_english = gsub("GENE_SET_ALTERED=FALSE", "Gene Set Not Altered", strata_english)
+    legend ("topright", bty="n", strata_english, fill=two_colors)
+    legend ("topright", bty="n", paste("Logrank test p-value: ", sprintf("%.6f", os_p_val)), inset=c(0.0, 0.1))
+}

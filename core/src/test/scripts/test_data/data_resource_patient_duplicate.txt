@@ -1,0 +1,4 @@
+PATIENT_ID	RESOURCE_ID	URL
+TCGA-A2-A04P	PATIENT_NOTES	http://url-to-patient-notes-patient1
+TCGA-A1-A0SK	PATIENT_NOTES	http://url-to-patient-notes-patient2
+TCGA-A1-A0SK	PATIENT_NOTES	http://url-to-patient-notes-patient2

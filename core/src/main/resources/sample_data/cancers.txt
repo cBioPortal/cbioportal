@@ -1,0 +1,22 @@
+BLCA : Bladder Urothelial Carcinoma
+BRCA : Breast invasive carcinoma
+CESC : Cervical Squamous Cell Carcinoma
+COAD : Colon adenocarcinoma
+GBM : Glioblastoma multiforme
+HNSC : Head and Neck squamous cell carcinoma
+KIRC : Kidney renal clear cell carcinoma
+KIRP : Kidney renal papillary cell carcinoma
+LAML : Acute Myeloid Leukemia
+LGG : Brain Lower Grade Glioma
+LIHC : Liver hepatocellular carcinoma
+LUAD : Lung adenocarcinoma
+LUSC : Lung squamous cell carcinoma
+OV : Ovarian serous cystadenocarcinoma
+PAAD : Pancreatic adenocarcinoma
+PRAD : Prostate adenocarcinoma
+READ : Rectum adenocarcinoma
+SARC: Sarcoma
+STAD : Stomach adenocarcinoma
+THCA : Thyroid carcinoma
+UCEC : Uterine Corpus Endometrioid Carcinoma
+COADREAD : Colon and Rectum adenocarcinoma

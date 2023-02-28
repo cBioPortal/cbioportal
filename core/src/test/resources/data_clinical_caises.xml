@@ -1,0 +1,850 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Patients>
+	<Patient>
+		<PtRace>White Non-Hispanic</PtRace>
+		<PtProtocolStudyId>97115001</PtProtocolStudyId>
+		<PtRegistrationAge>66</PtRegistrationAge>
+		<Categories>
+			<Category>
+				<Category>Standard of care abiraterone</Category>
+			</Category>
+		</Categories>
+		<ClinicalStages>
+			<ClinicalStage>
+				<ClinStageDate>0</ClinStageDate>
+				<ClinStageDate_Unmasked>2004-08-17</ClinStageDate_Unmasked>
+				<ClinStageSystem>UICC_02</ClinStageSystem>
+				<ClinStageT>T2c</ClinStageT>
+				<ClinStageN>N0</ClinStageN>
+				<ClinStageM>M1</ClinStageM>
+			</ClinicalStage>
+		</ClinicalStages>
+		<Encounters>
+			<Encounter>
+				<EncDate>3116</EncDate>
+				<EncDate_Unmasked>2013-02-27</EncDate_Unmasked>
+				<EncECOG_Score>1</EncECOG_Score>
+			</Encounter>
+		</Encounters>
+		<LabTests>
+			<LabTest>
+				<LabTest>ACP</LabTest>
+				<LabResult>N/D</LabResult>
+			</LabTest>
+			<LabTest>
+				<LabDate>3116</LabDate>
+				<LabDate_Unmasked>2013-02-27</LabDate_Unmasked>
+				<LabTest>ALK</LabTest>
+				<LabResult>79.0</LabResult>
+				<LabUnits>U/L</LabUnits>
+			</LabTest>
+			<LabTest>
+				<LabDate>3116</LabDate>
+				<LabDate_Unmasked>2013-02-27</LabDate_Unmasked>
+				<LabTest>HGB</LabTest>
+				<LabResult>12.2</LabResult>
+				<LabUnits>g/L</LabUnits>
+			</LabTest>
+			<LabTest>
+				<LabDate>3116</LabDate>
+				<LabDate_Unmasked>2013-02-27</LabDate_Unmasked>
+				<LabTest>LDH</LabTest>
+				<LabResult>176</LabResult>
+				<LabUnits>U/L</LabUnits>
+			</LabTest>
+			<LabTest>
+				<LabDate>3116</LabDate>
+				<LabDate_Unmasked>2013-02-27</LabDate_Unmasked>
+				<LabTest>Phos</LabTest>
+				<LabResult>0.86</LabResult>
+				<LabUnits>mmol/L</LabUnits>
+			</LabTest>
+			<LabTest>
+				<LabDate>0</LabDate>
+				<LabDate_Unmasked>2004-08-17</LabDate_Unmasked>
+				<LabTest>PSA</LabTest>
+				<LabResult>4.7</LabResult>
+				<LabUnits>ng/ml</LabUnits>
+			</LabTest>
+			<LabTest>
+				<LabDate>3116</LabDate>
+				<LabDate_Unmasked>2013-02-27</LabDate_Unmasked>
+				<LabTest>PSA</LabTest>
+				<LabResult>8.6</LabResult>
+				<LabUnits>ug/L</LabUnits>
+			</LabTest>
+			<LabTest>
+				<LabTest>TEST</LabTest>
+				<LabResult>N/D</LabResult>
+			</LabTest>
+		</LabTests>
+		<MedicalTherapies>
+			<MedicalTherapy>
+				<MedTxDate>59</MedTxDate>
+				<MedTxDate_Unmasked>2004-10-15</MedTxDate_Unmasked>
+				<MedTxType>HORM</MedTxType>
+				<MedTxIndication>Prostate Cancer</MedTxIndication>
+				<MedTxAgent>Zoladex (goserelin)</MedTxAgent>
+				<MedTxDose>10.8</MedTxDose>
+				<MedTxUnits>mg</MedTxUnits>
+				<MedTxSchedule>Every 3 months</MedTxSchedule>
+			</MedicalTherapy>
+			<MedicalTherapy>
+				<MedTxDate>568</MedTxDate>
+				<MedTxDate_Unmasked>2006-03-08</MedTxDate_Unmasked>
+				<MedTxType>HORM</MedTxType>
+				<MedTxIndication>Prostate Cancer</MedTxIndication>
+				<MedTxAgent>Bicalutamide</MedTxAgent>
+				<MedTxStopDate>850</MedTxStopDate>
+				<MedTxStopDate_Unmasked>2006-12-15</MedTxStopDate_Unmasked>
+			</MedicalTherapy>
+			<MedicalTherapy>
+				<MedTxDate>932</MedTxDate>
+				<MedTxDate_Unmasked>2007-03-07</MedTxDate_Unmasked>
+				<MedTxType>HORM</MedTxType>
+				<MedTxIndication>Prostate Cancer</MedTxIndication>
+				<MedTxAgent>Olaparib</MedTxAgent>
+				<MedTxStopDate>2034</MedTxStopDate>
+				<MedTxStopDate_Unmasked>2010-03-13</MedTxStopDate_Unmasked>
+				<MedTxDose>200</MedTxDose>
+				<MedTxUnits>mg</MedTxUnits>
+				<MedTxSchedule>Twice Daily</MedTxSchedule>
+			</MedicalTherapy>
+			<MedicalTherapy>
+				<MedTxDate>2173</MedTxDate>
+				<MedTxDate_Unmasked>2010-07-30</MedTxDate_Unmasked>
+				<MedTxType>CHEMO</MedTxType>
+				<MedTxIndication>Prostate Cancer</MedTxIndication>
+				<MedTxAgent>Carboplatin</MedTxAgent>
+				<MedTxStopDate>2194</MedTxStopDate>
+				<MedTxStopDate_Unmasked>2010-08-20</MedTxStopDate_Unmasked>
+			</MedicalTherapy>
+			<MedicalTherapy>
+				<MedTxDate>2365</MedTxDate>
+				<MedTxDate_Unmasked>2011-02-07</MedTxDate_Unmasked>
+				<MedTxType>CHEMO</MedTxType>
+				<MedTxIndication>Prostate Cancer</MedTxIndication>
+				<MedTxAgent>Docetaxel</MedTxAgent>
+				<MedTxStopDate>2521</MedTxStopDate>
+				<MedTxStopDate_Unmasked>2011-07-13</MedTxStopDate_Unmasked>
+			</MedicalTherapy>
+			<MedicalTherapy>
+				<MedTxDate>2702</MedTxDate>
+				<MedTxDate_Unmasked>2012-01-10</MedTxDate_Unmasked>
+				<MedTxType>CLIN_TRIAL</MedTxType>
+				<MedTxAgent>Biomarin Phase I PARP trial</MedTxAgent>
+				<MedTxStopDate>2788</MedTxStopDate>
+				<MedTxStopDate_Unmasked>2012-04-05</MedTxStopDate_Unmasked>
+			</MedicalTherapy>
+			<MedicalTherapy>
+				<MedTxDate>2802</MedTxDate>
+				<MedTxDate_Unmasked>2012-04-19</MedTxDate_Unmasked>
+				<MedTxType>HORM</MedTxType>
+				<MedTxIndication>Prostate Cancer</MedTxIndication>
+				<MedTxAgent>Abiraterone Acetate</MedTxAgent>
+				<MedTxDose>1000</MedTxDose>
+				<MedTxUnits>mg</MedTxUnits>
+				<MedTxSchedule>Daily</MedTxSchedule>
+			</MedicalTherapy>
+			<MedicalTherapy>
+				<MedTxDate>3159</MedTxDate>
+				<MedTxDate_Unmasked>2013-04-11</MedTxDate_Unmasked>
+				<MedTxType>CLIN_TRIAL</MedTxType>
+				<MedTxIndication>Prostate Cancer</MedTxIndication>
+				<MedTxAgent>BKM120 Phase 1B trial</MedTxAgent>
+				<MedTxDose>100-120</MedTxDose>
+				<MedTxUnits>mg</MedTxUnits>
+				<MedTxSchedule>Daily</MedTxSchedule>
+			</MedicalTherapy>
+			<MedicalTherapy>
+				<MedTxDate>3167</MedTxDate>
+				<MedTxDate_Unmasked>2013-04-19</MedTxDate_Unmasked>
+				<MedTxType>STEROID</MedTxType>
+				<MedTxIndication>Prostate Cancer</MedTxIndication>
+				<MedTxAgent>Dexamethasone</MedTxAgent>
+				<MedTxDose>0.5</MedTxDose>
+				<MedTxUnits>mg</MedTxUnits>
+				<MedTxSchedule>Daily</MedTxSchedule>
+			</MedicalTherapy>
+		</MedicalTherapies>
+		<Pathologies>
+			<Pathology>
+				<PathDate>0</PathDate>
+				<PathDate_Unmasked>2004-08-17</PathDate_Unmasked>
+				<PathSpecimenType>Biopsy</PathSpecimenType>
+				<PathHistology>Adenocarcinoma</PathHistology>
+				<PathResult>MOD</PathResult>
+				<PathologyStageGrades />
+				<ProstateBiopsyPaths>
+					<ProstateBiopsyPath>
+						<PathGG1>4</PathGG1>
+						<PathGG2>3</PathGG2>
+						<PathGGS>7</PathGGS>
+					</ProstateBiopsyPath>
+				</ProstateBiopsyPaths>
+			</Pathology>
+		</Pathologies>
+		<Procedures>
+			<Procedure>
+				<ProcDate>0</ProcDate>
+				<ProcDate_Unmasked>2004-08-17</ProcDate_Unmasked>
+				<ProcName>Biopsy</ProcName>
+			</Procedure>
+			<Procedure>
+				<ProcDate>2036</ProcDate>
+				<ProcDate_Unmasked>2010-03-15</ProcDate_Unmasked>
+				<ProcName>TURP</ProcName>
+				<ProcNotes>Exact date of the procedure not known</ProcNotes>
+			</Procedure>
+		</Procedures>
+		<RadiationTherapies>
+			<RadiationTherapy>
+				<RadTxDate>2128</RadTxDate>
+				<RadTxDate_Unmasked>2010-06-15</RadTxDate_Unmasked>
+				<RadTxType>Radiation Therapy, Unspecified</RadTxType>
+				<RadTxIndication>Local Recurrence</RadTxIndication>
+				<RadTxTarget>Prostate and Pelvis</RadTxTarget>
+				<RadTxStopDate>2144</RadTxStopDate>
+				<RadTxStopDate_Unmasked>2010-07-01</RadTxStopDate_Unmasked>
+				<RadTxDosePerFraction>39/13 to prostate+ 30/10 to pelvis</RadTxDosePerFraction>
+			</RadiationTherapy>
+		</RadiationTherapies>
+		<SpecimenAccessions>
+			<SpecimenAccession>
+				<AccessionDate>3095</AccessionDate>
+				<AccessionDate_Unmasked>2013-02-06</AccessionDate_Unmasked>
+				<AccessionAnatomicSite>Penis, Ventral Shaft</AccessionAnatomicSite>
+				<AccessionVisitType>Pre-Treatment (A)</AccessionVisitType>
+				<AccessionNotes>Snap frozen in foil and dry ice</AccessionNotes>
+				<Specimens>
+					<Specimen>
+						<SpecimenStatus>Analysis Complete</SpecimenStatus>
+						<SpecimenType>Tissue</SpecimenType>
+						<SpecimenSubType>Soft Tissue</SpecimenSubType>
+						<SpecimenPreservationType>Fresh Frozen, Snap</SpecimenPreservationType>
+						<SpecimenReferenceNumber>97115001-T-A-1</SpecimenReferenceNumber>
+						<SpecimenCollectionTime>13:50</SpecimenCollectionTime>
+						<SpecimenFrozenTime>14:26</SpecimenFrozenTime>
+						<SpecimenNotes>Adequate</SpecimenNotes>
+					</Specimen>
+				</Specimens>
+			</SpecimenAccession>
+			<SpecimenAccession>
+				<AccessionDate>3135</AccessionDate>
+				<AccessionDate_Unmasked>2013-03-18</AccessionDate_Unmasked>
+				<AccessionVisitType>Pre-Treatment (A)</AccessionVisitType>
+				<AccessionNotes>No buffy coat layer identified</AccessionNotes>
+				<Specimens>
+					<Specimen>
+						<SpecimenStatus>Banked by Pathology</SpecimenStatus>
+						<SpecimenType>Blood</SpecimenType>
+						<SpecimenSubType>Serum</SpecimenSubType>
+						<SpecimenReferenceNumber>97115001-S-1</SpecimenReferenceNumber>
+						<SpecimenCollectionTime>15:20</SpecimenCollectionTime>
+						<SpecimenFrozenTime>17:10</SpecimenFrozenTime>
+						<SpecimenNotes>Adequate</SpecimenNotes>
+					</Specimen>
+					<Specimen>
+						<SpecimenStatus>Banked by Pathology</SpecimenStatus>
+						<SpecimenType>Blood</SpecimenType>
+						<SpecimenSubType>Serum</SpecimenSubType>
+						<SpecimenReferenceNumber>97115001-S-2</SpecimenReferenceNumber>
+						<SpecimenCollectionTime>15:20</SpecimenCollectionTime>
+						<SpecimenFrozenTime>17:10</SpecimenFrozenTime>
+						<SpecimenNotes>Adequate</SpecimenNotes>
+					</Specimen>
+					<Specimen>
+						<SpecimenStatus>Banked by Pathology</SpecimenStatus>
+						<SpecimenType>Blood</SpecimenType>
+						<SpecimenSubType>Plasma</SpecimenSubType>
+						<SpecimenReferenceNumber>97115001-P-1</SpecimenReferenceNumber>
+						<SpecimenCollectionTime>15:20</SpecimenCollectionTime>
+						<SpecimenFrozenTime>17:10</SpecimenFrozenTime>
+						<SpecimenNotes>Adequate</SpecimenNotes>
+					</Specimen>
+					<Specimen>
+						<SpecimenStatus>Banked by Pathology</SpecimenStatus>
+						<SpecimenType>Blood</SpecimenType>
+						<SpecimenSubType>Plasma</SpecimenSubType>
+						<SpecimenReferenceNumber>97115001-P-2</SpecimenReferenceNumber>
+						<SpecimenCollectionTime>15:20</SpecimenCollectionTime>
+						<SpecimenFrozenTime>17:10</SpecimenFrozenTime>
+						<SpecimenNotes>Adequate</SpecimenNotes>
+					</Specimen>
+					<Specimen>
+						<SpecimenType>Blood</SpecimenType>
+						<SpecimenSubType>Buffy Coat</SpecimenSubType>
+						<SpecimenReferenceNumber>97115001-B-1</SpecimenReferenceNumber>
+					</Specimen>
+					<Specimen>
+						<SpecimenType>Blood</SpecimenType>
+						<SpecimenSubType>Buccolic Swab</SpecimenSubType>
+						<SpecimenReferenceNumber>97115001-BU-1</SpecimenReferenceNumber>
+					</Specimen>
+					<Specimen>
+						<SpecimenStatus>Banked by Pathology</SpecimenStatus>
+						<SpecimenType>Blood</SpecimenType>
+						<SpecimenSubType>PAXgene</SpecimenSubType>
+						<SpecimenReferenceNumber>97115001-PAX-2</SpecimenReferenceNumber>
+						<SpecimenCollectionTime>15:20</SpecimenCollectionTime>
+						<SpecimenFrozenTime>17:26</SpecimenFrozenTime>
+						<SpecimenNotes>Adequate</SpecimenNotes>
+					</Specimen>
+					<Specimen>
+						<SpecimenStatus>Banked by Pathology</SpecimenStatus>
+						<SpecimenType>Blood</SpecimenType>
+						<SpecimenSubType>PAXgene</SpecimenSubType>
+						<SpecimenReferenceNumber>97115001-PAX-1</SpecimenReferenceNumber>
+						<SpecimenCollectionTime>15:20</SpecimenCollectionTime>
+						<SpecimenFrozenTime>17:26</SpecimenFrozenTime>
+						<SpecimenNotes>Adequate</SpecimenNotes>
+					</Specimen>
+				</Specimens>
+			</SpecimenAccession>
+		</SpecimenAccessions>
+		<Statuses>
+			<Status>
+				<StatusDate>0</StatusDate>
+				<StatusDate_Unmasked>2004-08-17</StatusDate_Unmasked>
+				<Status>Diagnosis Date</Status>
+			</Status>
+			<Status>
+				<StatusDate>885</StatusDate>
+				<StatusDate_Unmasked>2007-01-19</StatusDate_Unmasked>
+				<Status>Clinical Mets Castrate</Status>
+			</Status>
+		</Statuses>
+	</Patient>
+	<Patient>
+		<PtRace>White Non-Hispanic</PtRace>
+		<PtProtocolStudyId>97115002</PtProtocolStudyId>
+		<PtRegistrationAge>78</PtRegistrationAge>
+		<Categories>
+			<Category>
+				<Category>Other: Bicalutamide</Category>
+			</Category>
+		</Categories>
+		<MedicalTherapies>
+			<MedicalTherapy>
+				<MedTxDate>3517</MedTxDate>
+				<MedTxDate_Unmasked>2013-02-15</MedTxDate_Unmasked>
+				<MedTxType>HORM</MedTxType>
+				<MedTxAgent>Bicalutamide</MedTxAgent>
+				<MedTxStopDate>3537</MedTxStopDate>
+				<MedTxStopDate_Unmasked>2013-03-07</MedTxStopDate_Unmasked>
+				<MedTxNotes>Progression</MedTxNotes>
+			</MedicalTherapy>
+			<MedicalTherapy>
+				<MedTxDate>3537</MedTxDate>
+				<MedTxDate_Unmasked>2013-03-07</MedTxDate_Unmasked>
+				<MedTxType>HORM</MedTxType>
+				<MedTxAgent>Zoladex (goserelin)</MedTxAgent>
+				<MedTxDose>10.8</MedTxDose>
+				<MedTxUnits>mg</MedTxUnits>
+				<MedTxSchedule>Every 3 months</MedTxSchedule>
+			</MedicalTherapy>
+		</MedicalTherapies>
+		<Procedures>
+			<Procedure>
+				<ProcDate>2453</ProcDate>
+				<ProcDate_Unmasked>2010-03-19</ProcDate_Unmasked>
+				<ProcName>Cystoprostectomy</ProcName>
+			</Procedure>
+			<Procedure>
+				<ProcDate>0</ProcDate>
+				<ProcDate_Unmasked>2003-07-01</ProcDate_Unmasked>
+				<ProcName>TURP</ProcName>
+			</Procedure>
+		</Procedures>
+		<RadiationTherapies>
+			<RadiationTherapy>
+				<RadTxDate>0</RadTxDate>
+				<RadTxDate_Unmasked>2003-07-01</RadTxDate_Unmasked>
+				<RadTxType>Brachytherapy</RadTxType>
+				<RadTxStopDate>0</RadTxStopDate>
+				<RadTxStopDate_Unmasked>2003-07-01</RadTxStopDate_Unmasked>
+			</RadiationTherapy>
+			<RadiationTherapy>
+				<RadTxDate>2557</RadTxDate>
+				<RadTxDate_Unmasked>2010-07-01</RadTxDate_Unmasked>
+				<RadTxType>Radiation Therapy, Unspecified</RadTxType>
+				<RadTxStopDate>2557</RadTxStopDate>
+				<RadTxStopDate_Unmasked>2010-07-01</RadTxStopDate_Unmasked>
+			</RadiationTherapy>
+		</RadiationTherapies>
+		<SpecimenAccessions>
+			<SpecimenAccession>
+				<AccessionDate>3536</AccessionDate>
+				<AccessionDate_Unmasked>2013-03-06</AccessionDate_Unmasked>
+				<AccessionAnatomicSite>Right iliac crest</AccessionAnatomicSite>
+				<AccessionVisitType>Post-Treatment (C)</AccessionVisitType>
+				<AccessionProcInstrument>8G 4 in</AccessionProcInstrument>
+				<Specimens>
+					<Specimen>
+						<SpecimenStatus>Analysis Complete</SpecimenStatus>
+						<SpecimenType>Tissue</SpecimenType>
+						<SpecimenSubType>Bone</SpecimenSubType>
+						<SpecimenPreservationType>Fresh Frozen, Direct</SpecimenPreservationType>
+						<SpecimenReferenceNumber>97115002-T-C-1</SpecimenReferenceNumber>
+						<SpecimenCollectionTime>12:03</SpecimenCollectionTime>
+						<SpecimenFrozenTime>12:04</SpecimenFrozenTime>
+						<SpecimenNotes>Adequate</SpecimenNotes>
+					</Specimen>
+				</Specimens>
+			</SpecimenAccession>
+			<SpecimenAccession>
+				<AccessionDate>3536</AccessionDate>
+				<AccessionDate_Unmasked>2013-03-06</AccessionDate_Unmasked>
+				<AccessionVisitType>Pre-Treatment (A)</AccessionVisitType>
+				<AccessionNotes>SST tube drawn separetly at 12:40</AccessionNotes>
+				<Specimens>
+					<Specimen>
+						<SpecimenStatus>Banked by Pathology</SpecimenStatus>
+						<SpecimenType>Blood</SpecimenType>
+						<SpecimenSubType>Serum</SpecimenSubType>
+						<SpecimenReferenceNumber>97115002-S-1</SpecimenReferenceNumber>
+						<SpecimenCollectionTime>11:30</SpecimenCollectionTime>
+						<SpecimenFrozenTime>15:10</SpecimenFrozenTime>
+						<SpecimenNotes>Adequate</SpecimenNotes>
+					</Specimen>
+					<Specimen>
+						<SpecimenStatus>Banked by Pathology</SpecimenStatus>
+						<SpecimenType>Blood</SpecimenType>
+						<SpecimenSubType>Serum</SpecimenSubType>
+						<SpecimenReferenceNumber>97115002-S-2</SpecimenReferenceNumber>
+						<SpecimenCollectionTime>11:30</SpecimenCollectionTime>
+						<SpecimenFrozenTime>15:10</SpecimenFrozenTime>
+						<SpecimenNotes>Adequate</SpecimenNotes>
+					</Specimen>
+					<Specimen>
+						<SpecimenStatus>Banked by Pathology</SpecimenStatus>
+						<SpecimenType>Blood</SpecimenType>
+						<SpecimenSubType>Plasma</SpecimenSubType>
+						<SpecimenReferenceNumber>97115002-P-1</SpecimenReferenceNumber>
+						<SpecimenCollectionTime>11:30</SpecimenCollectionTime>
+						<SpecimenFrozenTime>13:22</SpecimenFrozenTime>
+						<SpecimenNotes>Adequate</SpecimenNotes>
+					</Specimen>
+					<Specimen>
+						<SpecimenStatus>Banked by Pathology</SpecimenStatus>
+						<SpecimenType>Blood</SpecimenType>
+						<SpecimenSubType>Plasma</SpecimenSubType>
+						<SpecimenReferenceNumber>97115002-P-2</SpecimenReferenceNumber>
+						<SpecimenCollectionTime>11:30</SpecimenCollectionTime>
+						<SpecimenFrozenTime>13:22</SpecimenFrozenTime>
+						<SpecimenNotes>Adequate</SpecimenNotes>
+					</Specimen>
+					<Specimen>
+						<SpecimenStatus>Library Construction Unsuccessful</SpecimenStatus>
+						<SpecimenType>Blood</SpecimenType>
+						<SpecimenSubType>Buffy Coat</SpecimenSubType>
+						<SpecimenReferenceNumber>97115002-B-1</SpecimenReferenceNumber>
+						<SpecimenCollectionTime>11:30</SpecimenCollectionTime>
+						<SpecimenFrozenTime>13:22</SpecimenFrozenTime>
+						<SpecimenNotes>Adequate</SpecimenNotes>
+					</Specimen>
+					<Specimen>
+						<SpecimenStatus>In Transit to Analysis</SpecimenStatus>
+						<SpecimenType>Blood</SpecimenType>
+						<SpecimenSubType>Buccolic Swab</SpecimenSubType>
+						<SpecimenReferenceNumber>97115002-BU-1</SpecimenReferenceNumber>
+						<SpecimenNotes>Adequate</SpecimenNotes>
+					</Specimen>
+					<Specimen>
+						<SpecimenStatus>Banked by Pathology</SpecimenStatus>
+						<SpecimenType>Blood</SpecimenType>
+						<SpecimenSubType>PAXgene</SpecimenSubType>
+						<SpecimenReferenceNumber>97115002-PAX-1</SpecimenReferenceNumber>
+						<SpecimenCollectionTime>11:30</SpecimenCollectionTime>
+						<SpecimenFrozenTime>15:13</SpecimenFrozenTime>
+						<SpecimenNotes>Adequate</SpecimenNotes>
+					</Specimen>
+					<Specimen>
+						<SpecimenStatus>Banked by Pathology</SpecimenStatus>
+						<SpecimenType>Blood</SpecimenType>
+						<SpecimenSubType>PAXgene</SpecimenSubType>
+						<SpecimenReferenceNumber>97115002-PAX-2</SpecimenReferenceNumber>
+						<SpecimenCollectionTime>11:30</SpecimenCollectionTime>
+						<SpecimenFrozenTime>15:13</SpecimenFrozenTime>
+						<SpecimenNotes>Adequate</SpecimenNotes>
+					</Specimen>
+				</Specimens>
+			</SpecimenAccession>
+		</SpecimenAccessions>
+		<Statuses>
+			<Status>
+				<StatusDate>0</StatusDate>
+				<StatusDate_Unmasked>2003-07-01</StatusDate_Unmasked>
+				<Status>Diagnosis Date</Status>
+			</Status>
+			<Status>
+				<StatusDate>3653</StatusDate>
+				<StatusDate_Unmasked>2013-07-01</StatusDate_Unmasked>
+				<Status>Clinical Mets Castrate</Status>
+			</Status>
+		</Statuses>
+	</Patient>
+	<Patient>
+		<PtRace>White Non-Hispanic</PtRace>
+		<PtProtocolStudyId>97115003</PtProtocolStudyId>
+		<PtRegistrationAge>73</PtRegistrationAge>
+		<Categories>
+			<Category>
+				<Category>Standard of care abiraterone</Category>
+			</Category>
+		</Categories>
+		<ClinicalStages>
+			<ClinicalStage>
+				<ClinStageDate>0</ClinStageDate>
+				<ClinStageDate_Unmasked>2000-02-08</ClinStageDate_Unmasked>
+				<ClinStageSystem>UICC_02</ClinStageSystem>
+				<ClinStageT>T3b</ClinStageT>
+				<ClinStageN>N0</ClinStageN>
+				<ClinStageM>M0</ClinStageM>
+			</ClinicalStage>
+		</ClinicalStages>
+		<LabTests>
+			<LabTest>
+				<LabDate>731</LabDate>
+				<LabDate_Unmasked>2002-02-08</LabDate_Unmasked>
+				<LabTest>PSA</LabTest>
+				<LabResult>21.2</LabResult>
+				<LabUnits>ng/ml</LabUnits>
+			</LabTest>
+		</LabTests>
+		<MedicalTherapies>
+			<MedicalTherapy>
+				<MedTxDate>36</MedTxDate>
+				<MedTxDate_Unmasked>2000-03-15</MedTxDate_Unmasked>
+				<MedTxType>HORM</MedTxType>
+				<MedTxAgent>Zoladex (goserelin)</MedTxAgent>
+				<MedTxStopDate>3528</MedTxStopDate>
+				<MedTxStopDate_Unmasked>2009-10-06</MedTxStopDate_Unmasked>
+				<MedTxDose>10.8</MedTxDose>
+				<MedTxUnits>mg</MedTxUnits>
+				<MedTxSchedule>Every 3 months</MedTxSchedule>
+				<MedTxNotes>Progression</MedTxNotes>
+			</MedicalTherapy>
+			<MedicalTherapy>
+				<MedTxDate>1498</MedTxDate>
+				<MedTxDate_Unmasked>2004-03-16</MedTxDate_Unmasked>
+				<MedTxType>HORM</MedTxType>
+				<MedTxAgent>Casodex (bicalutamide)</MedTxAgent>
+				<MedTxStopDate>2058</MedTxStopDate>
+				<MedTxStopDate_Unmasked>2005-09-27</MedTxStopDate_Unmasked>
+				<MedTxDose>50</MedTxDose>
+				<MedTxUnits>mg</MedTxUnits>
+				<MedTxSchedule>Daily</MedTxSchedule>
+				<MedTxNotes>Progression</MedTxNotes>
+			</MedicalTherapy>
+			<MedicalTherapy>
+				<MedTxDate>2307</MedTxDate>
+				<MedTxDate_Unmasked>2006-06-03</MedTxDate_Unmasked>
+				<MedTxType>HORM</MedTxType>
+				<MedTxAgent>Dexamethasone</MedTxAgent>
+				<MedTxStopDate>3528</MedTxStopDate>
+				<MedTxStopDate_Unmasked>2009-10-06</MedTxStopDate_Unmasked>
+				<MedTxDose>0.5</MedTxDose>
+				<MedTxUnits>mg</MedTxUnits>
+				<MedTxSchedule>Daily</MedTxSchedule>
+				<MedTxNotes>Progression</MedTxNotes>
+			</MedicalTherapy>
+			<MedicalTherapy>
+				<MedTxDate>3808</MedTxDate>
+				<MedTxDate_Unmasked>2010-07-13</MedTxDate_Unmasked>
+				<MedTxType>HORM</MedTxType>
+				<MedTxAgent>Cyproterone acetate</MedTxAgent>
+				<MedTxStopDate>3858</MedTxStopDate>
+				<MedTxStopDate_Unmasked>2010-09-01</MedTxStopDate_Unmasked>
+				<MedTxDose>100</MedTxDose>
+				<MedTxUnits>mg</MedTxUnits>
+				<MedTxSchedule>Three Times Daily</MedTxSchedule>
+				<MedTxNotes>Completed Treatment</MedTxNotes>
+			</MedicalTherapy>
+			<MedicalTherapy>
+				<MedTxDate>3815</MedTxDate>
+				<MedTxDate_Unmasked>2010-07-20</MedTxDate_Unmasked>
+				<MedTxType>HORM</MedTxType>
+				<MedTxAgent>Zoladex (goserelin)</MedTxAgent>
+				<MedTxDose>10.8</MedTxDose>
+				<MedTxUnits>mg</MedTxUnits>
+				<MedTxSchedule>Every 3 months</MedTxSchedule>
+			</MedicalTherapy>
+			<MedicalTherapy>
+				<MedTxDate>3528</MedTxDate>
+				<MedTxDate_Unmasked>2009-10-06</MedTxDate_Unmasked>
+				<MedTxType>HORM</MedTxType>
+				<MedTxAgent>Pamidronate (Aredia)</MedTxAgent>
+				<MedTxStopDate>3717</MedTxStopDate>
+				<MedTxStopDate_Unmasked>2010-04-13</MedTxStopDate_Unmasked>
+				<MedTxNotes>Unknown</MedTxNotes>
+			</MedicalTherapy>
+			<MedicalTherapy>
+				<MedTxDate>3909</MedTxDate>
+				<MedTxDate_Unmasked>2010-10-22</MedTxDate_Unmasked>
+				<MedTxType>HORM</MedTxType>
+				<MedTxAgent>Zoledronic Acid (Zometa)</MedTxAgent>
+				<MedTxStopDate>3979</MedTxStopDate>
+				<MedTxStopDate_Unmasked>2010-12-31</MedTxStopDate_Unmasked>
+				<MedTxDose>4</MedTxDose>
+				<MedTxUnits>mg</MedTxUnits>
+				<MedTxSchedule>Every 3 months</MedTxSchedule>
+				<MedTxNotes>Unknown</MedTxNotes>
+			</MedicalTherapy>
+			<MedicalTherapy>
+				<MedTxDate>4523</MedTxDate>
+				<MedTxDate_Unmasked>2012-06-27</MedTxDate_Unmasked>
+				<MedTxType>HORM</MedTxType>
+				<MedTxAgent>Abiraterone Acetate</MedTxAgent>
+				<MedTxStopDate>4775</MedTxStopDate>
+				<MedTxStopDate_Unmasked>2013-03-06</MedTxStopDate_Unmasked>
+				<MedTxDose>250</MedTxDose>
+				<MedTxUnits>mg</MedTxUnits>
+				<MedTxSchedule>Four Times Daily</MedTxSchedule>
+				<MedTxNotes>Progression</MedTxNotes>
+			</MedicalTherapy>
+			<MedicalTherapy>
+				<MedTxDate>4234</MedTxDate>
+				<MedTxDate_Unmasked>2011-09-12</MedTxDate_Unmasked>
+				<MedTxType>CHEMO</MedTxType>
+				<MedTxAgent>Docetaxel (part of OGX-011-11)</MedTxAgent>
+				<MedTxStopDate>4375</MedTxStopDate>
+				<MedTxStopDate_Unmasked>2012-01-31</MedTxStopDate_Unmasked>
+				<MedTxDose>106</MedTxDose>
+				<MedTxUnits>mg</MedTxUnits>
+				<MedTxSchedule>every 3 weeks</MedTxSchedule>
+				<MedTxCycle>6</MedTxCycle>
+				<MedTxNotes>Toxicity</MedTxNotes>
+			</MedicalTherapy>
+			<MedicalTherapy>
+				<MedTxDate>4719</MedTxDate>
+				<MedTxDate_Unmasked>2013-01-09</MedTxDate_Unmasked>
+				<MedTxType>CLIN_TRIAL</MedTxType>
+				<MedTxAgent>AT13387</MedTxAgent>
+				<MedTxStopDate>4761</MedTxStopDate>
+				<MedTxStopDate_Unmasked>2013-02-20</MedTxStopDate_Unmasked>
+				<MedTxDose>363</MedTxDose>
+				<MedTxUnits>mg</MedTxUnits>
+				<MedTxSchedule>Three Times Weekly</MedTxSchedule>
+				<MedTxCycle>2</MedTxCycle>
+				<MedTxNotes>Progression</MedTxNotes>
+			</MedicalTherapy>
+			<MedicalTherapy>
+				<MedTxDate>4234</MedTxDate>
+				<MedTxDate_Unmasked>2011-09-12</MedTxDate_Unmasked>
+				<MedTxType>HORM</MedTxType>
+				<MedTxAgent>Custirsen (part of OGX-011-11)</MedTxAgent>
+				<MedTxStopDate>4375</MedTxStopDate>
+				<MedTxStopDate_Unmasked>2012-01-31</MedTxStopDate_Unmasked>
+				<MedTxDose>640</MedTxDose>
+				<MedTxUnits>mg</MedTxUnits>
+				<MedTxSchedule>Three Times Weekly</MedTxSchedule>
+				<MedTxCycle>6</MedTxCycle>
+				<MedTxNotes>Toxicity</MedTxNotes>
+			</MedicalTherapy>
+			<MedicalTherapy>
+				<MedTxDate>4803</MedTxDate>
+				<MedTxDate_Unmasked>2013-04-03</MedTxDate_Unmasked>
+				<MedTxType>CHEMO</MedTxType>
+				<MedTxAgent>Cabazitaxel</MedTxAgent>
+				<MedTxDose>20</MedTxDose>
+				<MedTxUnits>mg</MedTxUnits>
+				<MedTxSchedule>every 3 weeks </MedTxSchedule>
+			</MedicalTherapy>
+			<MedicalTherapy>
+				<MedTxDate>4040</MedTxDate>
+				<MedTxDate_Unmasked>2011-03-02</MedTxDate_Unmasked>
+				<MedTxType>AA</MedTxType>
+				<MedTxAgent>MDV3100/placebo</MedTxAgent>
+				<MedTxStopDate>4181</MedTxStopDate>
+				<MedTxStopDate_Unmasked>2011-07-21</MedTxStopDate_Unmasked>
+				<MedTxDose>40</MedTxDose>
+				<MedTxTotalDose>160</MedTxTotalDose>
+				<MedTxUnits>mg</MedTxUnits>
+				<MedTxRoute>Orally</MedTxRoute>
+				<MedTxSchedule>Daily</MedTxSchedule>
+			</MedicalTherapy>
+		</MedicalTherapies>
+		<Pathologies>
+			<Pathology>
+				<PathDate>4749</PathDate>
+				<PathDate_Unmasked>2013-02-08</PathDate_Unmasked>
+				<PathSpecimenType>Biopsy</PathSpecimenType>
+				<PathHistology>Adenocarcinoma</PathHistology>
+				<PathResult>POOR</PathResult>
+				<PathologyStageGrades>
+					<PathologyStageGrade>
+						<PathStageSystem>UICC_02</PathStageSystem>
+						<PathStageT>pT3b</PathStageT>
+						<PathStageN>N0</PathStageN>
+						<PathStageM>M0</PathStageM>
+						<PathGrade>G3</PathGrade>
+					</PathologyStageGrade>
+				</PathologyStageGrades>
+				<ProstateBiopsyPaths>
+					<ProstateBiopsyPath>
+						<PathGG1>3</PathGG1>
+						<PathGG2>5</PathGG2>
+						<PathGGS>8</PathGGS>
+					</ProstateBiopsyPath>
+				</ProstateBiopsyPaths>
+			</Pathology>
+		</Pathologies>
+		<Procedures>
+			<Procedure>
+				<ProcDate>4749</ProcDate>
+				<ProcDate_Unmasked>2013-02-08</ProcDate_Unmasked>
+				<ProcName>Biopsy</ProcName>
+			</Procedure>
+		</Procedures>
+		<RadiationTherapies>
+			<RadiationTherapy>
+				<RadTxDate>2830</RadTxDate>
+				<RadTxDate_Unmasked>2007-11-08</RadTxDate_Unmasked>
+				<RadTxType>High dose</RadTxType>
+				<RadTxIntent>Palliative</RadTxIntent>
+				<RadTxTarget>Prostate</RadTxTarget>
+				<RadTxStopDate>2876</RadTxStopDate>
+				<RadTxStopDate_Unmasked>2007-12-24</RadTxStopDate_Unmasked>
+				<RadTxTotalDose>36</RadTxTotalDose>
+				<RadTxUnits>Gy</RadTxUnits>
+				<RadTxNumFractions>6</RadTxNumFractions>
+				<RadTxNotes>Completed Treatment</RadTxNotes>
+			</RadiationTherapy>
+			<RadiationTherapy>
+				<RadTxDate>4781</RadTxDate>
+				<RadTxDate_Unmasked>2013-03-12</RadTxDate_Unmasked>
+				<RadTxType>External Beam</RadTxType>
+				<RadTxIntent>Palliative</RadTxIntent>
+				<RadTxTarget>L1-L5 spine</RadTxTarget>
+				<RadTxStopDate>4787</RadTxStopDate>
+				<RadTxStopDate_Unmasked>2013-03-18</RadTxStopDate_Unmasked>
+				<RadTxTotalDose>20</RadTxTotalDose>
+				<RadTxUnits>Gy</RadTxUnits>
+				<RadTxNumFractions>5</RadTxNumFractions>
+				<RadTxNotes>Completed Treatment</RadTxNotes>
+			</RadiationTherapy>
+		</RadiationTherapies>
+		<SpecimenAccessions>
+			<SpecimenAccession>
+				<AccessionDate>4523</AccessionDate>
+				<AccessionDate_Unmasked>2012-06-27</AccessionDate_Unmasked>
+				<AccessionAnatomicSite>Left Supraclavicular node</AccessionAnatomicSite>
+				<AccessionVisitType>Pre-Treatment (A)</AccessionVisitType>
+				<AccessionProcInstrument>18G  </AccessionProcInstrument>
+				<AccessionNotes>Snap frozen in foil and liquid nitrogen</AccessionNotes>
+				<Specimens>
+					<Specimen>
+						<SpecimenStatus>Analysis Complete</SpecimenStatus>
+						<SpecimenType>Tissue</SpecimenType>
+						<SpecimenSubType>Soft Tissue</SpecimenSubType>
+						<SpecimenPreservationType>Fresh Frozen, Snap</SpecimenPreservationType>
+						<SpecimenReferenceNumber>97115003-T-A-1</SpecimenReferenceNumber>
+						<SpecimenCollectionTime>12:54</SpecimenCollectionTime>
+						<SpecimenFrozenTime>12:55</SpecimenFrozenTime>
+						<SpecimenNotes>Adequate</SpecimenNotes>
+					</Specimen>
+				</Specimens>
+			</SpecimenAccession>
+			<SpecimenAccession>
+				<AccessionDate>4787</AccessionDate>
+				<AccessionDate_Unmasked>2013-03-18</AccessionDate_Unmasked>
+				<AccessionVisitType>Pre-Treatment (A)</AccessionVisitType>
+				<AccessionNotes>No buffy coat layer identified</AccessionNotes>
+				<Specimens>
+					<Specimen>
+						<SpecimenStatus>Banked by Pathology</SpecimenStatus>
+						<SpecimenType>Blood</SpecimenType>
+						<SpecimenSubType>Serum</SpecimenSubType>
+						<SpecimenReferenceNumber>97115003-S-1</SpecimenReferenceNumber>
+						<SpecimenCollectionTime>11:45</SpecimenCollectionTime>
+						<SpecimenFrozenTime>14:01</SpecimenFrozenTime>
+						<SpecimenNotes>Adequate</SpecimenNotes>
+					</Specimen>
+					<Specimen>
+						<SpecimenStatus>Banked by Pathology</SpecimenStatus>
+						<SpecimenType>Blood</SpecimenType>
+						<SpecimenSubType>Serum</SpecimenSubType>
+						<SpecimenReferenceNumber>97115003-S-2</SpecimenReferenceNumber>
+						<SpecimenCollectionTime>11:45</SpecimenCollectionTime>
+						<SpecimenFrozenTime>14:01</SpecimenFrozenTime>
+						<SpecimenNotes>Adequate</SpecimenNotes>
+					</Specimen>
+					<Specimen>
+						<SpecimenStatus>Banked by Pathology</SpecimenStatus>
+						<SpecimenType>Blood</SpecimenType>
+						<SpecimenSubType>Plasma</SpecimenSubType>
+						<SpecimenReferenceNumber>97115003-P-1</SpecimenReferenceNumber>
+						<SpecimenCollectionTime>11:45</SpecimenCollectionTime>
+						<SpecimenFrozenTime>14:01</SpecimenFrozenTime>
+						<SpecimenNotes>Adequate</SpecimenNotes>
+					</Specimen>
+					<Specimen>
+						<SpecimenStatus>Banked by Pathology</SpecimenStatus>
+						<SpecimenType>Blood</SpecimenType>
+						<SpecimenSubType>Plasma</SpecimenSubType>
+						<SpecimenReferenceNumber>97115003-P-2</SpecimenReferenceNumber>
+						<SpecimenCollectionTime>11:45</SpecimenCollectionTime>
+						<SpecimenFrozenTime>14:01</SpecimenFrozenTime>
+						<SpecimenNotes>Adequate</SpecimenNotes>
+					</Specimen>
+					<Specimen>
+						<SpecimenType>Blood</SpecimenType>
+						<SpecimenSubType>Buffy Coat</SpecimenSubType>
+						<SpecimenReferenceNumber>97115003-B-1</SpecimenReferenceNumber>
+					</Specimen>
+					<Specimen>
+						<SpecimenType>Blood</SpecimenType>
+						<SpecimenSubType>Buccolic Swab</SpecimenSubType>
+						<SpecimenReferenceNumber>97115003-BU-1</SpecimenReferenceNumber>
+					</Specimen>
+					<Specimen>
+						<SpecimenStatus>Banked by Pathology</SpecimenStatus>
+						<SpecimenType>Blood</SpecimenType>
+						<SpecimenSubType>PAXgene</SpecimenSubType>
+						<SpecimenReferenceNumber>97115003-PAX-1</SpecimenReferenceNumber>
+						<SpecimenCollectionTime>11:45</SpecimenCollectionTime>
+						<SpecimenFrozenTime>14:01</SpecimenFrozenTime>
+						<SpecimenNotes>Adequate</SpecimenNotes>
+					</Specimen>
+					<Specimen>
+						<SpecimenStatus>Banked by Pathology</SpecimenStatus>
+						<SpecimenType>Blood</SpecimenType>
+						<SpecimenSubType>PAXgene</SpecimenSubType>
+						<SpecimenReferenceNumber>97115003-PAX-2</SpecimenReferenceNumber>
+						<SpecimenCollectionTime>11:45</SpecimenCollectionTime>
+						<SpecimenFrozenTime>14:01</SpecimenFrozenTime>
+						<SpecimenNotes>Adequate</SpecimenNotes>
+					</Specimen>
+				</Specimens>
+			</SpecimenAccession>
+		</SpecimenAccessions>
+		<Statuses>
+			<Status>
+				<StatusDate>0</StatusDate>
+				<StatusDate_Unmasked>2000-02-08</StatusDate_Unmasked>
+				<Status>Diagnosis Date</Status>
+			</Status>
+			<Status>
+				<StatusDate>15</StatusDate>
+				<StatusDate_Unmasked>2000-02-23</StatusDate_Unmasked>
+				<Status>Localized</Status>
+			</Status>
+			<Status>
+				<StatusDate>1001</StatusDate>
+				<StatusDate_Unmasked>2002-11-05</StatusDate_Unmasked>
+				<Status>Rising PSA Non-Castrate</Status>
+			</Status>
+			<Status>
+				<StatusDate>2058</StatusDate>
+				<StatusDate_Unmasked>2005-09-27</StatusDate_Unmasked>
+				<Status>Rising PSA Castrate</Status>
+			</Status>
+			<Status>
+				<StatusDate>4096</StatusDate>
+				<StatusDate_Unmasked>2011-04-27</StatusDate_Unmasked>
+				<Status>Clinical Mets Castrate</Status>
+			</Status>
+		</Statuses>
+	</Patient>
+</Patients>

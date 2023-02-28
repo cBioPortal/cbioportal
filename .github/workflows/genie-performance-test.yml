@@ -1,0 +1,44 @@
+name: genie-performance-test
+
+on:
+  schedule:
+    - cron:  '0 8 * * *'
+
+jobs:
+  probe-genie-endpoint:
+    
+    name: Genie private endpoint probe
+
+    runs-on: ubuntu-latest
+    
+    env:
+      SLACK_URL_SECRET: ${{ secrets.SLACK_URL_SECRET }}
+      SLACK_CHANNEL: backend-performance-status 
+
+    steps:
+    - name: GET request to genie private page
+      env:
+        GENIE_DATA_ACCESS_TOKEN_SECRET: ${{ secrets.GENIE_DATA_ACCESS_TOKEN_SECRET }}
+        MAX_WAIT_TIME_IN_SECONDS: 300
+        URL: "https://genie-private.cbioportal.org/api/mutated-genes/fetch"
+        OK_RESPONSE_CODE: 200
+      # GET request to URL with a MAX_WAIT_TIME_IN_SECONDS second limit
+      #   if curl fails, automatically exit with curl's non-zero exit code
+      #   else if we did not get a OK_RESPONSE_CODE exit with a non-zero exit code
+      #   else we are OK!
+      run: |
+        curl --max-time $MAX_WAIT_TIME_IN_SECONDS -s -o /dev/null -w "%{http_code}" -X POST -H "Authorization:Bearer $GENIE_DATA_ACCESS_TOKEN_SECRET" "$URL" -H "accept:application/json" -H "Content-Type:application/json" -d "{\"studyIds\":[\"genie_private\"]}" > curl.out
+        RESPONSE_CODE=`cat curl.out`
+        if [ "$RESPONSE_CODE" != "$OK_RESPONSE_CODE" ]; then
+          echo "Request failed with response code '$RESPONSE_CODE', expected '$OK_RESPONSE_CODE'"
+          exit 1
+        else
+          echo "Request succeeded with expected response code '$OK_RESPONSE_CODE'"
+          exit 0
+        fi
+    - name: Failure
+      if: failure()
+      run: curl -X POST --data-urlencode "payload={\"channel\":\"#$SLACK_CHANNEL\", \"username\":\"github-action\", \"text\":\"Genie private performance test failed! <https://github.com/$GITHUB_REPOSITORY/actions|view details>\", \"icon_emoji\":\":cloud:\"}" $SLACK_URL_SECRET
+    - name: Success
+      if: success()
+      run: curl -X POST --data-urlencode "payload={\"channel\":\"#$SLACK_CHANNEL\", \"username\":\"github-action\", \"text\":\"Genie private performance test succeeded! <https://github.com/$GITHUB_REPOSITORY/actions|view details>\", \"icon_emoji\":\":sunny:\"}" $SLACK_URL_SECRET

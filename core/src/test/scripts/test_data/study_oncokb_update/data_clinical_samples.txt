@@ -1,0 +1,6 @@
+#Patient Identifier	Sample Identifier	Subtype
+#Patient identifier	Sample identifier	Subtype description
+#STRING	STRING	STRING
+#1	1	1
+PATIENT_ID	SAMPLE_ID	SUBTYPE
+TCGA-A1-A0SB	TCGA-A1-A0SB-01	NA

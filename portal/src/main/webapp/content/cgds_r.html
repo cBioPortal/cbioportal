@@ -1,0 +1,94 @@
+<h1>R/MATLAB</h1>
+
+<h2 id="cgds-r-package">CGDS-R Package</h2>
+<h3 id="description">Description</h3>
+<p>The CGDS-R package provides a basic set of functions for querying the Cancer Genomic Data Server (CGDS) via the <a href="http://www.r-project.org/">R platform for statistical computing</a>.  </p>
+<p>Maintained by <a href="http://cbio.mskcc.org/people/info/anders_jacobsen.html">Anders Jacobsen</a> at the Computational Biology Center, MSKCC.</p>
+<h3 id="documentation">Documentation</h3>
+<ul>
+<li><a href="http://cran.r-project.org/web/packages/cgdsr/index.html">CGDS-R Package on CRAN</a>.</li>
+<li>The <a href="http://cran.r-project.org/web/packages/cgdsr/cgdsr.pdf">CGDS-R reference manual</a>.</li>
+<li>The <a href="http://cran.r-project.org/web/packages/cgdsr/vignettes/cgdsr.pdf">CGDS-R documentation vignette</a>.</li>
+</ul>
+<h3 id="installation">Installation</h3>
+<ol>
+<li>
+<p>The CDGS-R package currently <strong>only works with R Version 2.12 or higher</strong>.</p>
+</li>
+<li>
+<p>Then install the cgds-R package from within R: <code>install.packages('cgdsr')</code></p>
+</li>
+</ol>
+<h3 id="example-usage">Example usage</h3>
+<pre><code># Create CGDS object
+mycgds = CGDS("https://www.cbioportal.org/")
+
+test(mycgds)
+
+# Get list of cancer studies at server
+getCancerStudies(mycgds)
+
+# Get available case lists (collection of samples) for a given cancer study
+mycancerstudy = getCancerStudies(mycgds)[2,1]
+mycaselist = getCaseLists(mycgds,mycancerstudy)[1,1]
+
+# Get available genetic profiles
+mygeneticprofile = getGeneticProfiles(mycgds,mycancerstudy)[4,1]
+
+# Get data slices for a specified list of genes, genetic profile and case list
+getProfileData(mycgds,c('BRCA1','BRCA2'),mygeneticprofile,mycaselist)
+
+# Get clinical data for the case list
+myclinicaldata = getClinicalData(mycgds,mycaselist)
+
+# documentation
+help('cgdsr')
+help('CGDS')
+</code></pre>
+
+<hr>
+
+<h2 id="matlab-cgds-cancer-genomics-toolbox">MATLAB CGDS Cancer Genomics Toolbox</h2>
+<h3 id="description_1">Description</h3>
+<p>This toolbox provides direct access to cancer genomics data from within the MATLAB environment. The toolbox will query the Cancer Genomics Data Server Web API, and return data in a structured format.</p>
+<p>Maintained by <a href="http://cbio.mskcc.org/people/info/erik_larsson.html">Erik Larsson</a> at the Computational Biology Center, MSKCC.</p>
+<p>A tutorial ('showdemo cgdstutorial') makes it easy to get started. </p>
+<h3 id="download">Download</h3>
+<p><a href="http://www.mathworks.com/matlabcentral/fileexchange/31297-mskcc-cgds-cancer-genomics-toolbox">CGDS Toolbox @ MATLAB Central</a></p>
+<h3 id="documentation_1">Documentation</h3>
+<p><a href="http://www.mathworks.com/matlabcentral/fileexchange/31297-mskcc-cgds-cancer-genomics-toolbox/content/html/cgdstutorial.html">Complete CGDS Tutorial</a></p>
+<h3 id="example-usage_1">Example Usage</h3>
+<p>Like the R package, the CGDS MATLAB toolbox provides a set of functions for direct retrieval of portal data from within the MATLAB (MathWorks Inc.) environment. Each toolbox function has a direct counterpart in the CGDS Web API. Data is returned as structured arrays, in a format that is easy to interpret and ready for subsequent visualization and statistical analysis. </p>
+<p>An included tutorial ("showdemo cgdstutorial") shows how to use all the functions, as well as how to make basic plots.</p>
+<pre><code>% Get started by adding the CGDS toolbox directory to the path (this will depend
+% on install location) and setting the server URL
+addpath('/MATLAB/cgds');
+cgdsURL = 'https://www.cbioportal.org/';
+
+% Show toolbox help ('helpwin cgds' will open in the Help window)
+help cgds;
+
+% Get list of cancer studies at server
+cancerStudies = getcancerstudies(cgdsURL);
+
+% Get available genetic profiles for a given cancer type (GBM below)
+geneticProfiles = getgeneticprofiles(cgdsURL, cancerStudies.cancerStudyId{2});
+
+% Get available case lists (collections of samples)
+caseLists = getcaselists(cgdsURL, cancerStudies.cancerStudyId{2});
+
+% Get multiple types of genetic profile data for p53 in GBM
+profileData = getprofiledata(cgdsURL, caseLists.caseListId{2}, ...
+                            geneticProfiles.geneticProfileId([3 4]), ...
+                            'TP53', true);
+
+% Plot mRNA levels as a function of copy number status
+boxplot(profileData.data(2,:),profileData.data(1,:));
+title('TP53'); xlabel('Copy-number status'); ylabel('mRNA level');
+
+% Get clinical data for all patients in a given case list
+clinicalData = getclinicaldata(cgdsURL, caseLists.caseListId{2});
+
+% Run a function in non-verbose mode
+cancerStudies = getcancerstudies(cgdsURL, 'silent');
+</code></pre>

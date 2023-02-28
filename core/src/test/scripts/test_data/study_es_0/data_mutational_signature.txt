@@ -1,0 +1,61 @@
+ENTITY_STABLE_ID	name	description	confidenceStatement	TCGA-A1-A0SB-01	TCGA-A1-A0SD-01	TCGA-A1-A0SE-01	TCGA-A1-A0SH-01	TCGA-A2-A04U-01	TCGA-B6-A0RS-01	TCGA-BH-A0HP-01	TCGA-BH-A18P-01
+mean_1	mean_1	mean_1	Signature 1, the aging signature, is detected in this case.	0.370266873	0.010373016	0.005419294	0.022753384	0.037687823	0.016708976	0.100042446	0.104214723
+mean_10	mean_10	mean_10	Signature 10, the POLE signature, is detected in this case.  It is associated with functions to the exonucleus domain of the POLE gene and enormous mutational burden.  Oftentimes MMR signatures 6, 14,16, 20,21 and 26 co-occur with the POLE signature.	0.002709404	0.009212318	0.002650657	0.005475484	0.074175715	0.033049207	0.027323826	0.008861145
+mean_11	mean_11	mean_11	Signature 11, the Temozolomide (TMZ) signature, is detected in this case.	0.006035782	0.010095773	0.011926486	0.010637541	0.012168938	0.006641113	0.025730547	0.020463421
+mean_12	mean_12	mean_12	Signature 12 is detected in this case.  We are not confident that we are able to detect signature 9 in the IMPACT cohort.  In the literature it is found in liver cancer.	0.026432791	0.012953054	0.002587003	0.02225923	0.031026708	0.01642898	0.022392184	0.013437576
+mean_13	mean_13	mean_13	Signature 13, the APOBEC signature, is detected in this case.  This signature often coccurs with signature 2, the other APOBEC signature.	0.002533773	0.012080707	0.06750656	0.403672528	0.011124	0.007631916	0.018970187	0.006076126
+mean_14	mean_14	mean_14	Signature 14, the signature of simultaneous MMR and POLE dysfunction is detected in this case.  This signature usually occurs in cases with the POLE signature (signature 10) and other MMR signatures (6, 15, 20, 21 26).	0.006562519	0.009705064	0.005008429	0.01169992	0.02000342	0.014500145	0.034613722	0.030906098
+mean_15	mean_15	mean_15	Signature 15, a MMR signature, is detected in this case.  It is usually associated with high mutational burden.	0.011970661	0.013967505	0.003583145	0.066176992	0.024139531	0.012422269	0.035150854	0.024233274
+mean_16	mean_16	mean_16	Signature 16 is detected in this case. We are not confident that we are able to detect signature 16 in the IMPACT cohort.  In the literature it is associated with Liver cancer and alcohol consumption.	0.018075581	0.016174795	0.004085478	0.044836595	0.021500178	0.033960161	0.017962899	0.018849434
+mean_17	mean_17	mean_17	Signature 17 is detected in this case.  The aetiology of this signature is unknown.  It is predominantly found in gastric cancers.	0.004132642	0.017328434	0.001582939	0.00748642	0.018217142	0.008715209	0.029658706	0.021823903
+mean_18	mean_18	mean_18	Signature 18 is detected in this case.  This signature is associated with MUTYH dysfunction and neuroblastoma.	0.005101312	0.027691339	0.078176692	0.007035636	0.016781154	0.226542324	0.030862216	0.05876765
+mean_19	mean_19	mean_19	Signature 19 is detected in this case. We are not confident that we are able to detect signature 19 in the IMPACT cohort.	0.018196853	0.016768977	0.010922822	0.014000266	0.011772131	0.011231503	0.035316214	0.094947481
+mean_2	mean_2	mean_2	Signature 2, the APOBEC signature, is detected in this case.  This signature often coccurs with signature 13, the other APOBEC signature.	0.002663685	0.009194336	0.003716748	0.067693367	0.019050891	0.008820839	0.024258107	0.005814542
+mean_20	mean_20	mean_20	Signature 20 is detected in this case. This signature is associated with MMR and usually occurs in cases with the POLE signature (signature 10) and other MMR signatures (6, 14, 15, 21, 26).	0.03066836	0.012905178	0.003569324	0.014119672	0.022474579	0.014813438	0.055457368	0.030155165
+mean_21	mean_21	mean_21	Signature 21 is detected in this case. This signature is associated with MMR and usually co-occurs with other MMR signatures (6, 14, 15, 21, 26).	0.010964959	0.011272353	0.002258851	0.051853446	0.281501917	0.01281546	0.044179589	0.008190074
+mean_22	mean_22	mean_22	Signature 22 is detected in this case. We are not confident that we are able to detect signature 22 in the IMPACT cohort. In the literature it is associated with exposure to Aristolochic Acid.	0.028491957	0.010217024	0.004586289	0.011222009	0.019770493	0.008535491	0.024637853	0.020913163
+mean_23	mean_23	mean_23	Signature 23 is detected in this case. We are not confident that we are able to detect signature 23 in the IMPACT cohort.	0.00396734	0.010046981	0.01277244	0.007964559	0.011004478	0.008391836	0.034836096	0.03286779
+mean_24	mean_24	mean_24	Signature 24 is detected in this case. We are not confident that we are able to detect signature 24 in the IMPACT cohort.  In the literature it is associated with aflatoxin exposure.  In our cohort we believe it is detected by accident in cases with the smoking signature (signature 4).	0.032792827	0.078245387	0.066150339	0.014742662	0.017324086	0.061761186	0.017605536	0.051708779
+mean_25	mean_25	mean_25	Signature 25 is detected in this case. We are not confident that we are able to detect signature 25 in the IMPACT cohort.	0.011646217	0.048154399	0.03076214	0.013605822	0.038587852	0.013944057	0.023546505	0.037501919
+mean_26	mean_26	mean_26	Signature 26 is detected in this case.  This signature is associated with MMR and usually co-occurs with other MMR signatures (6, 14, 15, 20, 21).	0.015537112	0.013825612	0.002464907	0.028813826	0.070298683	0.01999462	0.030799083	0.009143951
+mean_27	mean_27	mean_27	Signature 27 is detected in this case. We are not confident that we are able to detect signature 27 in the IMPACT cohort.	0.003465676	0.012766477	0.004909123	0.00658944	0.010038977	0.008511252	0.023474418	0.009076485
+mean_28	mean_28	mean_28	Signature 28 is detected in this case. We are not confident that we are able to detect signature 28 in the IMPACT cohort.  It often co-occurs with signature 28.	0.003755223	0.011667726	0.001739293	0.005067195	0.012723938	0.007772049	0.021565925	0.007837668
+mean_29	mean_29	mean_29	Signature 29, the mutational signature of chewing tobacco is detected in this case.	0.010813509	0.013306168	0.034629865	0.011708457	0.01498353	0.042949985	0.030807758	0.04361619
+mean_3	mean_3	mean_3	Signature 3, the signature of Homologous Recombination Repair deficiency is detected in this case.  This signature is most commonly associated with BRCA mutations.	0.012076334	0.399378181	0.058149399	0.024712129	0.022463858	0.069775315	0.022253226	0.023919542
+mean_30	mean_30	mean_30	Signature 30 is detected in this case. We are not confident that we are able to detect signature 30 in the IMPACT cohort.	0.021187235	0.019180665	0.007104322	0.015637667	0.021432941	0.020436345	0.036460701	0.022300431
+mean_4	mean_4	mean_4	Signature 4, the smoking signature is detected in this case.	0.02998631	0.05161966	0.066550323	0.017921856	0.016096543	0.179497941	0.024659786	0.097992724
+mean_5	mean_5	mean_5	Signature 5 is detected in this case.  We are not confident that we are able to detect signature 5 in the IMPACT cohort.  It is a 'flat' signature--when it is detected it is more likely to be an artefact. In the literature it is associated with age.	0.065346508	0.065105663	0.005317173	0.039082099	0.025806853	0.071908149	0.028765511	0.030413987
+mean_6	mean_6	mean_6	Signature 6, a MMR signature, is detected in this case.  It is usually associated with high mutational burden.  This signature often co-occurs with other MMR signatures (14, 15, 20, 21 26).	0.215904676	0.009298163	0.004855268	0.020464262	0.030032579	0.01055262	0.094946543	0.100148333
+mean_7	mean_7	mean_7	Signature 7, the UV light signature, is detected in this case.	0.008428142	0.011008883	0.009634254	0.010727403	0.037470752	0.007375711	0.036357093	0.025096172
+mean_8	mean_8	mean_8	Signature 8 is detected in this case. We are not confident that we are able to detect signature 8 in the IMPACT cohort. It is a 'flat' signature--when it is detected it is more likely to be an artefact. In the literature it is associated with HRD defects.	0.009033066	0.04154581	0.483003282	0.014265047	0.029063134	0.028977736	0.026974185	0.031083861
+mean_9	mean_9	mean_9	Signature 9 is detected in this case.  We are not confident that we are able to detect signature 9 in the IMPACT cohort.  In the literature it is associated with POLH.	0.011252674	0.014910352	0.004377151	0.007775086	0.021277177	0.015334168	0.020390915	0.009638392
+confidence_1	confidence_1	confidence_1	NA	0.653	0.066	0.05	0.129	0.1415	0.079	0.234	0.274
+confidence_10	confidence_10	confidence_10	NA	0.0235	0.0645	0.022	0.0465	0.2595	0.1505	0.1	0.062
+confidence_11	confidence_11	confidence_11	NA	0.0465	0.067	0.115	0.0775	0.0745	0.0535	0.0995	0.098
+confidence_12	confidence_12	confidence_12	NA	0.1375	0.068	0.024	0.1275	0.1165	0.0945	0.09	0.074
+confidence_13	confidence_13	confidence_13	NA	0.0185	0.0685	0.5655	0.936	0.0665	0.052	0.083	0.0515
+confidence_14	confidence_14	confidence_14	NA	0.054	0.067	0.0405	0.0785	0.0845	0.0755	0.119	0.1415
+confidence_15	confidence_15	confidence_15	NA	0.0745	0.0745	0.034	0.284	0.092	0.0745	0.1185	0.1215
+confidence_16	confidence_16	confidence_16	NA	0.1025	0.0795	0.031	0.196	0.1	0.139	0.0815	0.0895
+confidence_17	confidence_17	confidence_17	NA	0.036	0.0825	0.011	0.0605	0.094	0.0555	0.11	0.1105
+confidence_18	confidence_18	confidence_18	NA	0.0445	0.1105	0.297	0.0615	0.069	0.434	0.1055	0.1965
+confidence_19	confidence_19	confidence_19	NA	0.0955	0.073	0.0885	0.086	0.0725	0.065	0.114	0.2685
+confidence_2	confidence_2	confidence_2	NA	0.0235	0.0525	0.0325	0.293	0.0945	0.057	0.1015	0.0415
+confidence_20	confidence_20	confidence_20	NA	0.14	0.0745	0.0305	0.0835	0.101	0.0725	0.1505	0.1325
+confidence_21	confidence_21	confidence_21	NA	0.0725	0.072	0.0215	0.24	0.5255	0.09	0.131	0.0635
+confidence_22	confidence_22	confidence_22	NA	0.2335	0.0685	0.0415	0.09	0.0865	0.063	0.103	0.126
+confidence_23	confidence_23	confidence_23	NA	0.0365	0.0605	0.12	0.0635	0.064	0.0615	0.112	0.1525
+confidence_24	confidence_24	confidence_24	NA	0.1975	0.1925	0.297	0.0905	0.081	0.215	0.08	0.195
+confidence_25	confidence_25	confidence_25	NA	0.0695	0.134	0.132	0.083	0.123	0.079	0.094	0.1365
+confidence_26	confidence_26	confidence_26	NA	0.0955	0.073	0.023	0.1475	0.183	0.0995	0.109	0.067
+confidence_27	confidence_27	confidence_27	NA	0.0305	0.0795	0.05	0.053	0.0675	0.0605	0.0955	0.064
+confidence_28	confidence_28	confidence_28	NA	0.0325	0.077	0.0135	0.044	0.0785	0.0555	0.1	0.0605
+confidence_29	confidence_29	confidence_29	NA	0.0835	0.0725	0.172	0.074	0.08	0.138	0.111	0.164
+confidence_3	confidence_3	confidence_3	NA	0.083	0.629	0.1835	0.12	0.101	0.21	0.0845	0.1215
+confidence_30	confidence_30	confidence_30	NA	0.123	0.096	0.0625	0.091	0.0995	0.107	0.1145	0.107
+confidence_4	confidence_4	confidence_4	NA	0.1685	0.1485	0.2155	0.1005	0.08	0.382	0.0995	0.2815
+confidence_5	confidence_5	confidence_5	NA	0.218	0.1645	0.0445	0.1665	0.1045	0.187	0.114	0.1155
+confidence_6	confidence_6	confidence_6	NA	0.4325	0.062	0.043	0.1275	0.113	0.069	0.2225	0.2885
+confidence_7	confidence_7	confidence_7	NA	0.0705	0.075	0.0975	0.0765	0.137	0.0545	0.1105	0.1225
+confidence_8	confidence_8	confidence_8	NA	0.07	0.132	0.859	0.0935	0.106	0.123	0.106	0.131
+confidence_9	confidence_9	confidence_9	NA	0.081	0.0775	0.033	0.0615	0.0845	0.082	0.09	0.064

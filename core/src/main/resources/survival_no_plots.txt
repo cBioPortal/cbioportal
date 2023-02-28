@@ -1,0 +1,51 @@
+library(survival)
+attach(df)
+
+os_p_val = -1
+dfs_p_val = -1
+num_groups = -1
+os_error = 0
+dfs_error = 0
+
+# Determine number of groups we are dealing with
+num_groups = length(unique(df$GENE_SET_ALTERED))
+# Perform Overall Survival Analysis
+os_surv = Surv (df$OS_MONTHS, df$OS_STATUS)
+two_colors = c("red", "blue")
+os_surv_fit = tryCatch(survfit(os_surv ~ GENE_SET_ALTERED),
+        error=function(e) NULL)
+
+if (num_groups > 1) {
+    if (! is.null(os_surv_fit)) {
+        os_log_rank = survdiff (os_surv ~ GENE_SET_ALTERED)
+        os_p_val <- 1 - pchisq(os_log_rank$chisq, length(os_log_rank$n) - 1)
+    } else {
+        os_error = 1
+    }
+} else {
+    if (is.null(os_surv_fit)) {
+        os_error = 1
+    }
+}
+
+# Perform Disease Free Survival Analysis
+dfs_surv = Surv (df$DFS_MONTHS, df$DFS_STATUS)
+dfs_surv_fit = tryCatch(survfit(dfs_surv ~ GENE_SET_ALTERED),
+    error=function(e) NULL)
+if (num_groups > 1) {
+    if (! is.null(dfs_surv_fit)) {
+        dfs_log_rank = tryCatch(survdiff (dfs_surv ~ GENE_SET_ALTERED),
+            error=function(e) NULL)
+        if (! is.null(dfs_log_rank)) {
+            dfs_p_val <- 1 - pchisq(dfs_log_rank$chisq, length(dfs_log_rank$n) - 1)
+        } else {
+            dfs_error = 1
+        }
+    } else {
+        dfs_error = 1
+    }
+} else {
+    if (is.null(dfs_surv_fit)) {
+        dfs_error = 1
+    }
+}

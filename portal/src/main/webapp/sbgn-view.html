@@ -1,0 +1,58 @@
+<!--
+ - Copyright (c) 2015 Memorial Sloan-Kettering Cancer Center.
+ -
+ - This library is distributed in the hope that it will be useful, but WITHOUT
+ - ANY WARRANTY, WITHOUT EVEN THE IMPLIED WARRANTY OF MERCHANTABILITY OR FITNESS
+ - FOR A PARTICULAR PURPOSE. The software and documentation provided hereunder
+ - is on an "as is" basis, and Memorial Sloan-Kettering Cancer Center has no
+ - obligations to provide maintenance, support, updates, enhancements or
+ - modifications. In no event shall Memorial Sloan-Kettering Cancer Center be
+ - liable to any party for direct, indirect, special, incidental or
+ - consequential damages, including lost profits, arising out of the use of this
+ - software and its documentation, even if Memorial Sloan-Kettering Cancer
+ - Center has been advised of the possibility of such damage.
+ -->
+
+<!--
+ - This file is part of cBioPortal.
+ -
+ - cBioPortal is free software: you can redistribute it and/or modify
+ - it under the terms of the GNU Affero General Public License as
+ - published by the Free Software Foundation, either version 3 of the
+ - License.
+ -
+ - This program is distributed in the hope that it will be useful,
+ - but WITHOUT ANY WARRANTY; without even the implied warranty of
+ - MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ - GNU Affero General Public License for more details.
+ -
+ - You should have received a copy of the GNU Affero General Public License
+ - along with this program.  If not, see <http://www.gnu.org/licenses/>.
+-->
+
+<html>
+<head>
+
+  <link rel="stylesheet" href="//maxcdn.bootstrapcdn.com/font-awesome/4.3.0/css/font-awesome.min.css">
+  <link href="css/network/cytoscape.js-panzoom.css" type="text/css" rel="stylesheet"/>
+  <link href="css/network/network_ui.css" type="text/css" rel="stylesheet"/>
+
+  <script src="http://ajax.googleapis.com/ajax/libs/jquery/1.11.0/jquery.min.js"></script>
+  <script type="text/javascript" src="js/lib/cytoscape_js/cytoscape.js"></script>
+  <script type="text/javascript" src="js/lib/cytoscape_js/layout.cose-bilkent.js?"></script>
+  <script type="text/javascript" src="js/lib/cytoscape_js/cytoscape.js-panzoom.js"></script>
+
+  <script type="text/javascript" src="js/lib/SBGNViz/cytoscape.renderer.canvas.sbgn-renderer.js"></script>
+  <script type="text/javascript" src="js/src/network/sbgn-network-viz.js"></script>
+
+  <script type="text/javascript" src="js/lib/SBGNViz/json-to-sbgnml-converter.js"></script>
+  <script type="text/javascript" src="js/lib/SBGNViz/sbgnml-to-json-converter.js"></script>
+  <script type="text/javascript" src="js/lib/SBGNViz/sbgn-filtering.js"></script>
+
+</head>
+<body>
+    <div id="sbgnCanvas">
+      <div id="sbgnLoadingAnimation"></div>
+    </div>
+</body>
+</html>

@@ -1,0 +1,10 @@
+UNITTEST_GENESET1	http://www.broadinstitute.org/gsea/msigdb/cards/GLI1_UP.V1_DN	207	208
+UNITTEST_GENESET2	http://www.broadinstitute.org/gsea/msigdb/cards/GLI1_UP.V1_UP	672	673	675
+UNITTEST_GENESET3	http://www.broadinstitute.org/gsea/msigdb/cards/E2F1_UP.V1_DN	207	472
+UNITTEST_GENESET4	http://www.broadinstitute.org/gsea/msigdb/cards/E2F1_UP.V1_UP	675	673
+UNITTEST_GENESET5	http://www.broadinstitute.org/gsea/msigdb/cards/EGFR_UP.V1_DN	207	472	208	3265
+UNITTEST_GENESET6	http://www.broadinstitute.org/gsea/msigdb/cards/EGFR_UP.V1_UP	1	207	208
+UNITTEST_GENESET7	http://www.broadinstitute.org/gsea/msigdb/cards/ERB2_UP.V1_DN	1	2	3
+UNITTEST_GENESET8	http://www.broadinstitute.org/gsea/msigdb/cards/ERB2_UP.V1_UP	10000
+UNITTEST_GENESET9	http://www.broadinstitute.org/gsea/msigdb/cards/GCNP_SHH_UP_EARLY.V1_DN	20000	675
+UNITTEST_GENESET10	http://www.broadinstitute.org/gsea/msigdb/cards/GCNP_SHH_UP_EARLY.V1_UP	4893	207	208

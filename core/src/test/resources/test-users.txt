@@ -1,0 +1,13 @@
+#
+# List of users for testing.  Each line is the following format:
+#
+# EMAIL_ADDRESS\tUSERNAME\tENABLED\tAUTHORITIES
+#
+# where AUTHORITIES is a semicolon separated list of authorities
+#
+# Current valid authorities: ROLE_USER, ROLE_MANAGER
+#
+jami@gmail.com	Jami Bax	true	ROLE_USER
+Lonnie@openid.org	Lonnie Penaloza	false	ROLE_USER
+Dhorak@yahoo.com	Darryl Horak	true	ROLE_MANAGER;ROLE_USER
+

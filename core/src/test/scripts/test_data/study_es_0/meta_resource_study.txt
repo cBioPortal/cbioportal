@@ -1,0 +1,3 @@
+cancer_study_identifier: study_es_0
+resource_type: STUDY
+data_filename: data_resource_study.txt

@@ -1,0 +1,100 @@
+name: Docker Image CI
+on:
+  push:
+    branches:
+      - master
+      - release-*
+      - rc
+      - demo-*
+      - fusion-sv-migration
+      - redis-branch-up-to-date
+    tags: '*'
+
+jobs:
+  build_and_publish_web_and_data:
+    if: github.repository == 'cBioPortal/cbioportal'
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout git repo
+        uses: actions/checkout@v3
+
+      - name: Extract metadata
+        id: meta
+        uses: docker/metadata-action@v4
+        with:
+          images: |
+            cbioportal/cbioportal
+          # The latest tag will also be generated on tag event with a valid semver tag
+          tags: |
+            type=ref,event=branch
+            type=semver,pattern={{version}}
+
+      # The following two actions are required to build multi-platform images
+      # buildx is an extension of docker build, QUEM is used to convert the binary to varies architecture
+      - name: Set up QEMU
+        uses: docker/setup-qemu-action@v2
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v2
+
+      - name: Login to DockerHub
+        uses: docker/login-action@v2
+        with:
+          username: ${{ secrets.DOCKER_USERNAME }}
+          password: ${{ secrets.DOCKER_PASSWORD }}
+
+      - name: Publish Docker Image on Tag
+        uses: docker/build-push-action@v3
+        with:
+          context: .
+          push: true
+          tags: ${{ steps.meta.outputs.tags }}
+          platforms: linux/amd64,linux/arm64
+          file: docker/web-and-data/Dockerfile
+          cache-from: type=gha
+          cache-to: type=gha
+
+  build_and_publish_web:
+      if: github.repository == 'cBioPortal/cbioportal'
+      runs-on: ubuntu-latest
+      steps:
+        - name: Checkout git repo
+          uses: actions/checkout@v3
+
+        - name: Extract metadata
+          id: meta
+          uses: docker/metadata-action@v4
+          with:
+            images: |
+              cbioportal/cbioportal
+            # Do not generate latest tag
+            flavor: |
+              latest=false
+              suffix=-web-shenandoah
+            tags: |
+              type=ref,event=branch
+              type=semver,pattern={{version}}
+
+        # The following two actions are required to build multi-platform images
+        # buildx is an extension of docker build, QUEM is used to convert the binary to varies architecture
+        - name: Set up QEMU
+          uses: docker/setup-qemu-action@v2
+        - name: Set up Docker Buildx
+          uses: docker/setup-buildx-action@v2
+
+        - name: Login to DockerHub
+          uses: docker/login-action@v2
+          with:
+            username: ${{ secrets.DOCKER_USERNAME }}
+            password: ${{ secrets.DOCKER_PASSWORD }}
+
+        - name: Publish Docker Image on Tag
+          uses: docker/build-push-action@v3
+          with:
+            context: .
+            push: true
+            tags: ${{ steps.meta.outputs.tags }}
+            platforms: linux/amd64,linux/arm64
+            file: docker/web/Dockerfile
+            cache-from: type=gha
+            cache-to: type=gha
+

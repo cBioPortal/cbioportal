@@ -1,0 +1,9 @@
+type_of_cancer: brca
+cancer_study_identifier: study_es_0
+name: Test study es_0
+description: Test study es_0
+citation: Cell 2018
+pmid: 29625048,29596782,29622463,29617662,29625055,29625050
+groups: PUBLIC;GDAC;SU2C-PI3K
+add_global_case_list: true
+

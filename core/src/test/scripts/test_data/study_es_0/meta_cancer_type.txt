@@ -1,0 +1,3 @@
+genetic_alteration_type: CANCER_TYPE
+datatype: CANCER_TYPE
+data_filename: data_cancer_type.txt

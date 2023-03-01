@@ -239,7 +239,7 @@
                 <trim prefix="AND (" suffix=")" prefixOverrides="OR">
                     <if test="includeGermline">
                         OR
-                        LOWER(mutation.MUTATION_STATUS) = 'germline'
+                        LOWER(mutation.MUTATION_STATUS) LIKE '%germline%'
                     </if>
                     <if test="includeSomatic">
                         OR
@@ -247,7 +247,7 @@
                     </if>
                     <if test="includeUnknownStatus">
                         OR
-                        LOWER(mutation.MUTATION_STATUS) NOT IN ('germline', 'somatic')
+                        (LOWER(mutation.MUTATION_STATUS) != 'somatic' AND LOWER(mutation.MUTATION_STATUS) NOT LIKE '%germline%')
                     </if>
                 </trim>
             </when>

@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width,initial-scale=1">
-    <meta name="turbo-cache-control" content="no-cache" data-turbo-track="reload" data-track-token="2.4.0.730967309844">
+    <meta name="turbo-cache-control" content="no-cache" data-turbo-track="reload" data-track-token="2.4.0.730999848006">
 
     <!-- See retype.com -->
     <meta name="generator" content="Retype 2.4.0">
@@ -33,11 +33,11 @@
     <script>(function () { var el = document.documentElement, m = localStorage.getItem("doc_theme"), wm = window.matchMedia; if (m === "dark" || (!m && wm && wm("(prefers-color-scheme: dark)").matches)) { el.classList.add("dark") } else { el.classList.remove("dark") } })();</script>
 
     <link href="../../../images/cbio-logo.png" rel="icon" />
-    <link href="../../../resources/css/retype.css?v=2.4.0.730967309844" rel="stylesheet" />
+    <link href="../../../resources/css/retype.css?v=2.4.0.730999848006" rel="stylesheet" />
 
-    <script type="text/javascript" src="../../../resources/js/config.js?v=2.4.0.730967309844" data-turbo-eval="false" defer></script>
+    <script type="text/javascript" src="../../../resources/js/config.js?v=2.4.0.730999848006" data-turbo-eval="false" defer></script>
     <script type="text/javascript" src="../../../resources/js/retype.js?v=2.4.0" data-turbo-eval="false" defer></script>
-    <script id="lunr-js" type="text/javascript" src="../../../resources/js/lunr.js?v=2.4.0.730967309844" data-turbo-eval="false" defer></script>
+    <script id="lunr-js" type="text/javascript" src="../../../resources/js/lunr.js?v=2.4.0.730999848006" data-turbo-eval="false" defer></script>
 
     <link rel="stylesheet" href="/static/custom.css"></link>
 </head>
@@ -440,6 +440,7 @@ saml.keystore.default-key=secure-key
 saml.idp.comm.binding.settings=defaultBinding
 saml.idp.comm.binding.type=
 saml.idp.metadata.attribute.email=User.email
+saml.idp.metadata.attribute.userName=User.name
 saml.custom.userservice.class=org.cbioportal.security.spring.authentication.saml.SAMLUserDetailsServiceImpl
 # global logout (as opposed to local logout):
 saml.logout.local=false
@@ -464,7 +465,7 @@ saml.idp.comm.binding.type=bindings:HTTP-Redirect</code></pre>
 <div class="codeblock-wrapper"><doc-codeblock>
 <pre class="language-none"><code v-pre class="language-none">saml.custom.userservice.class=&lt;your_package.your_class_name&gt;</code></pre>
 </doc-codeblock></div>
-<p><span class="docs-emoji">&#x26A0;&#xFE0F;</span> The property <code v-pre>saml.idp.metadata.attribute.email</code> can also vary per IDP. It is important to set this correctly since this is a required field by the cBioPortal SAML parser (that is, if <code v-pre>org.cbioportal.security.spring.authentication.saml.SAMLUserDetailsServiceImpl</code> is chosen for property <code v-pre>saml.custom.userservice.class</code>).</p>
+<p><span class="docs-emoji">&#x26A0;&#xFE0F;</span> The properties <code v-pre>saml.idp.metadata.attribute.email</code>, and <code v-pre>saml.idp.metadata.attribute.userName</code> can also vary per IDP. It is important to set these correctly since these are a required field by the cBioPortal SAML parser (that is, if <code v-pre>org.cbioportal.security.spring.authentication.saml.SAMLUserDetailsServiceImpl</code> is chosen for property <code v-pre>saml.custom.userservice.class</code>).</p>
 <p><span class="docs-emoji">&#x26A0;&#xFE0F;</span> Some IDPs like to provide their own logout page (e.g. when they don&#x27;t support the custom SAML Single Logout protocol). For this you can adjust the<br />
 <code v-pre>saml.logout.url</code> property to a custom URL provided by the IDP. Also set the <code v-pre>saml.logout.local=true</code> property in this case to indicate that global logout (or Single Logout) is not supported by IDP:</p>
 <div class="codeblock-wrapper"><doc-codeblock>

@@ -19,4 +19,8 @@ public interface ClinicalEventMapper {
                                                 Integer offset, String sortBy, String direction);
     
     BaseMeta getMetaClinicalEvent(String studyId);
+    
+    List<ClinicalEvent> getSamplesOfPatientsPerEventType(List<String> studyIds, List<String> sampleIds);
+    
+    List<ClinicalEvent> getPatientsDistinctClinicalEventInStudies(List<String> studyIds, List<String> patientIds);
 }

@@ -106,7 +106,8 @@ jobs:
         working_directory: /tmp/repos/cbioportal-frontend
         machine:
             enabled: true
-            image: ubuntu-2004:202201-02
+            image: ubuntu-2204:2023.02.1
+        resource_class: large
         steps:
             - attach_workspace:
                 at: /tmp/repos
@@ -155,10 +156,10 @@ jobs:
                   docker volume rm --force cbioportal-docker-compose_cbioportal_mysql_data && mkdir -p $CBIO_DB_DATA_DIR && rm -rf $CBIO_DB_DATA_DIR/*
             - restore_cache:
                 keys:
-                - v6-cbio-database-files-{{ checksum "/tmp/db_data_md5key" }}
+                - v8-cbio-database-files-{{ checksum "/tmp/db_data_md5key" }}
             - restore_cache:
                 keys:
-                - v6-keycloak-database-files-{{ checksum "e2e-localdb-workspace/keycloak/keycloak-config-generated.json" }}
+                - v8-keycloak-database-files-{{ checksum "e2e-localdb-workspace/keycloak/keycloak-config-generated.json" }}
             - run:
                 name: Init database
                 command: |
@@ -172,7 +173,7 @@ jobs:
             - save_cache:
                 paths:
                   - /tmp/repos/cbioportal-frontend/e2e-localdb-workspace/cbio_db_data
-                key: v6-cbio-database-files-{{ checksum "/tmp/db_data_md5key" }}
+                key: v9-cbio-database-files-{{ checksum "/tmp/db_data_md5key" }}
             - run:
                 name: Start cbioportal and other services
                 command: |
@@ -187,7 +188,7 @@ jobs:
             - save_cache:
                 paths:
                   - /tmp/repos/cbioportal-frontend/e2e-localdb-workspace/kc_db_data
-                key: v6-keycloak-database-files-{{ checksum "e2e-localdb-workspace/keycloak/keycloak-config-generated.json" }}
+                key: v9-keycloak-database-files-{{ checksum "e2e-localdb-workspace/keycloak/keycloak-config-generated.json" }}
             - run:
                 name: Run end-2-end tests with studies in local database
                 command: |

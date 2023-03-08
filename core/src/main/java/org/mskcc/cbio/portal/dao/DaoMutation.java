@@ -150,11 +150,11 @@ public final class DaoMutation {
                 event.getVariantType(),
                 event.getDbSnpRs(),
                 event.getDbSnpValStatus(),
-                event.getMutationRefseqMrnaId(),
-                event.getMutationCodonChange(),
-                event.getMutationUniprotAccession(),
-                Integer.toString(event.getMutationProteinPosStart()),
-                Integer.toString(event.getMutationProteinPosEnd()),
+                event.getRefseqMrnaId(),
+                event.getCodonChange(),
+                event.getUniprotAccession(),
+                Integer.toString(event.getProteinPosStart()),
+                Integer.toString(event.getProteinPosEnd()),
                 boolToStr(event.isCanonicalTranscript()),
                 keyword==null ? "\\N":(event.getGene().getHugoGeneSymbolAllCaps()+" "+keyword));
         return 1;
@@ -799,11 +799,11 @@ public final class DaoMutation {
         event.setDbSnpRs(rs.getString("DB_SNP_RS"));
         event.setDbSnpValStatus(rs.getString("DB_SNP_VAL_STATUS"));
         event.setReferenceAllele(rs.getString("REFERENCE_ALLELE"));
-        event.setMutationRefseqMrnaId(rs.getString("REFSEQ_MRNA_ID"));
-        event.setMutationCodonChange(rs.getString("CODON_CHANGE"));
-        event.setMutationUniprotAccession(rs.getString("UNIPROT_ACCESSION"));
-        event.setMutationProteinPosStart(rs.getInt("PROTEIN_POS_START"));
-        event.setMutationProteinPosEnd(rs.getInt("PROTEIN_POS_END"));
+        event.setRefseqMrnaId(rs.getString("REFSEQ_MRNA_ID"));
+        event.setCodonChange(rs.getString("CODON_CHANGE"));
+        event.setUniprotAccession(rs.getString("UNIPROT_ACCESSION"));
+        event.setProteinPosStart(rs.getInt("PROTEIN_POS_START"));
+        event.setProteinPosEnd(rs.getInt("PROTEIN_POS_END"));
         event.setCanonicalTranscript(rs.getBoolean("CANONICAL_TRANSCRIPT"));
         event.setTumorSeqAllele(rs.getString("TUMOR_SEQ_ALLELE"));
         event.setKeyword(rs.getString("KEYWORD"));

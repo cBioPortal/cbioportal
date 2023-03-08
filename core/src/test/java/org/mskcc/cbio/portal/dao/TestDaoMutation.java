@@ -127,11 +127,11 @@ public class TestDaoMutation {
         mutation.setTumorRefCount(16);
         mutation.setNormalAltCount(8);
         mutation.setNormalRefCount(18);
-        mutation.setMutationCodonChange("c.(133-135)TCT>TTT");
-        mutation.setMutationRefseqMrnaId("NM_001904");
-        mutation.setMutationUniprotAccession("P35222");
-        mutation.setMutationProteinPosStart(666);
-        mutation.setMutationProteinPosEnd(678);
+        mutation.setCodonChange("c.(133-135)TCT>TTT");
+        mutation.setRefseqMrnaId("NM_001904");
+        mutation.setUniprotAccession("P35222");
+        mutation.setProteinPosStart(666);
+        mutation.setProteinPosEnd(678);
         mutation.setCanonicalTranscript(true);
         mutation.setAnnotationJson(makeMockAnnotationJsonString());
 
@@ -192,11 +192,11 @@ public class TestDaoMutation {
         assertEquals(Integer.valueOf(16), mutation.getTumorRefCount());
         assertEquals(Integer.valueOf(8), mutation.getNormalAltCount());
         assertEquals(Integer.valueOf(18), mutation.getNormalRefCount());
-        assertEquals("c.(133-135)TCT>TTT", mutation.getMutationCodonChange());
-        assertEquals("NM_001904", mutation.getMutationRefseqMrnaId());
-        assertEquals("P35222", mutation.getMutationUniprotAccession());
-        assertEquals(666, mutation.getMutationProteinPosStart());
-        assertEquals(678, mutation.getMutationProteinPosEnd());
+        assertEquals("c.(133-135)TCT>TTT", mutation.getCodonChange());
+        assertEquals("NM_001904", mutation.getRefseqMrnaId());
+        assertEquals("P35222", mutation.getUniprotAccession());
+        assertEquals(666, mutation.getProteinPosStart());
+        assertEquals(678, mutation.getProteinPosEnd());
         assertEquals(true, mutation.isCanonicalTranscript());
         validateMockAnnotationJson(mutation);
 

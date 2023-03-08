@@ -116,9 +116,9 @@ public class MutationMyBatisRepositoryTest {
         Assert.assertEquals("37", mutation.getNcbiBuild());
         Assert.assertEquals((Integer) (-1), mutation.getNormalAltCount());
         Assert.assertEquals((Integer) (-1), mutation.getNormalRefCount());
-        Assert.assertEquals((Integer) 934, mutation.getMutationProteinPosEnd());
-        Assert.assertEquals((Integer) 934, mutation.getMutationProteinPosStart());
-        Assert.assertEquals("NM_007294", mutation.getMutationRefseqMrnaId());
+        Assert.assertEquals((Integer) 934, mutation.getProteinPosEnd());
+        Assert.assertEquals((Integer) 934, mutation.getProteinPosStart());
+        Assert.assertEquals("NM_007294", mutation.getRefseqMrnaId());
         Assert.assertEquals("Q934*", mutation.getProteinChange());
         Assert.assertEquals("G", mutation.getReferenceAllele());
         Assert.assertEquals((Long) 41244748L, mutation.getStartPosition());
@@ -157,9 +157,9 @@ public class MutationMyBatisRepositoryTest {
         Assert.assertEquals("37", mutation.getNcbiBuild());
         Assert.assertEquals((Integer) (-1), mutation.getNormalAltCount());
         Assert.assertEquals((Integer) (-1), mutation.getNormalRefCount());
-        Assert.assertEquals((Integer) 934, mutation.getMutationProteinPosEnd());
-        Assert.assertEquals((Integer) 934, mutation.getMutationProteinPosStart());
-        Assert.assertEquals("NM_007294", mutation.getMutationRefseqMrnaId());
+        Assert.assertEquals((Integer) 934, mutation.getProteinPosEnd());
+        Assert.assertEquals((Integer) 934, mutation.getProteinPosStart());
+        Assert.assertEquals("NM_007294", mutation.getRefseqMrnaId());
         Assert.assertEquals("Q934*", mutation.getProteinChange());
         Assert.assertEquals("G", mutation.getReferenceAllele());
         Assert.assertEquals((Long) 41244748L, mutation.getStartPosition());
@@ -194,9 +194,9 @@ public class MutationMyBatisRepositoryTest {
         Assert.assertEquals("37", mutation.getNcbiBuild());
         Assert.assertEquals((Integer) (-1), mutation.getNormalAltCount());
         Assert.assertEquals((Integer) (-1), mutation.getNormalRefCount());
-        Assert.assertEquals((Integer) 934, mutation.getMutationProteinPosEnd());
-        Assert.assertEquals((Integer) 934, mutation.getMutationProteinPosStart());
-        Assert.assertEquals("NM_007294", mutation.getMutationRefseqMrnaId());
+        Assert.assertEquals((Integer) 934, mutation.getProteinPosEnd());
+        Assert.assertEquals((Integer) 934, mutation.getProteinPosStart());
+        Assert.assertEquals("NM_007294", mutation.getRefseqMrnaId());
         Assert.assertEquals("Q934*", mutation.getProteinChange());
         Assert.assertEquals("G", mutation.getReferenceAllele());
         Assert.assertEquals((Long) 41244748L, mutation.getStartPosition());

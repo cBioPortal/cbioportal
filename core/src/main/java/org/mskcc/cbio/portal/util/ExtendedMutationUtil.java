@@ -321,11 +321,11 @@ public class ExtendedMutationUtil {
         mutation.setTumorRefCount(defaultInt);
         mutation.setNormalAltCount(defaultInt);
         mutation.setNormalRefCount(defaultInt);
-        mutation.setMutationCodonChange(defaultStr);
-        mutation.setMutationRefseqMrnaId(defaultStr);
-        mutation.setMutationUniprotAccession(defaultStr);
-        mutation.setMutationProteinPosStart(defaultInt);
-        mutation.setMutationProteinPosEnd(defaultInt);
+        mutation.setCodonChange(defaultStr);
+        mutation.setRefseqMrnaId(defaultStr);
+        mutation.setUniprotAccession(defaultStr);
+        mutation.setProteinPosStart(defaultInt);
+        mutation.setProteinPosEnd(defaultInt);
         mutation.setCanonicalTranscript(true);
 
         return mutation;

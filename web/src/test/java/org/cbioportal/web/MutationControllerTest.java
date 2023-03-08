@@ -714,9 +714,9 @@ public class MutationControllerTest {
         mutation1.setDriverTiersFilterAnnotation(TEST_DRIVER_TIERS_FILTER_ANNOTATION_1);
         mutation1.setNcbiBuild(TEST_NCBI_BUILD_1);
         mutation1.setVariantType(TEST_VARIANT_TYPE_1);
-        mutation1.setMutationRefseqMrnaId(TEST_MUTATION_REFSEQ_MRNA_ID_1);
-        mutation1.setMutationProteinPosStart(TEST_MUTATION_PROTEIN_POS_START_1);
-        mutation1.setMutationProteinPosEnd(TEST_MUTATION_PROTEIN_POS_END_1);
+        mutation1.setRefseqMrnaId(TEST_MUTATION_REFSEQ_MRNA_ID_1);
+        mutation1.setProteinPosStart(TEST_MUTATION_PROTEIN_POS_START_1);
+        mutation1.setProteinPosEnd(TEST_MUTATION_PROTEIN_POS_END_1);
         mutation1.setKeyword(TEST_KEYWORD_1);
         mutation1.setAnnotationJSON(NAME_SPACE_COLUMNS);
         mutationList.add(mutation1);
@@ -744,9 +744,9 @@ public class MutationControllerTest {
         mutation2.setDriverTiersFilterAnnotation(TEST_DRIVER_TIERS_FILTER_ANNOTATION_2);
         mutation2.setNcbiBuild(TEST_NCBI_BUILD_2);
         mutation2.setVariantType(TEST_VARIANT_TYPE_2);
-        mutation2.setMutationRefseqMrnaId(TEST_MUTATION_REFSEQ_MRNA_ID_2);
-        mutation2.setMutationProteinPosStart(TEST_MUTATION_PROTEIN_POS_START_2);
-        mutation2.setMutationProteinPosEnd(TEST_MUTATION_PROTEIN_POS_END_2);
+        mutation2.setRefseqMrnaId(TEST_MUTATION_REFSEQ_MRNA_ID_2);
+        mutation2.setProteinPosStart(TEST_MUTATION_PROTEIN_POS_START_2);
+        mutation2.setProteinPosEnd(TEST_MUTATION_PROTEIN_POS_END_2);
         mutation2.setKeyword(TEST_KEYWORD_2);
         mutation2.setAnnotationJSON(NAME_SPACE_COLUMNS);
         mutationList.add(mutation2);

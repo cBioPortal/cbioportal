@@ -25,9 +25,9 @@ public class Mutation extends Alteration implements Serializable {
     private String mutationType;
     private String ncbiBuild;
     private String variantType;
-    private String mutationRefseqMrnaId;
-    private Integer mutationProteinPosStart;
-    private Integer mutationProteinPosEnd;
+    private String refseqMrnaId;
+    private Integer proteinPosStart;
+    private Integer proteinPosEnd;
     private String keyword;
     private AlleleSpecificCopyNumber alleleSpecificCopyNumber;
     @JsonRawValue
@@ -165,28 +165,28 @@ public class Mutation extends Alteration implements Serializable {
     public void setVariantType(String variantType) {
         this.variantType = variantType;
     }
-    public String getMutationRefseqMrnaId() {
-        return mutationRefseqMrnaId;
+    public String getRefseqMrnaId() {
+        return refseqMrnaId;
     }
 
-    public void setMutationRefseqMrnaId(String mutationRefseqMrnaId) {
-        this.mutationRefseqMrnaId = mutationRefseqMrnaId;
+    public void setRefseqMrnaId(String refseqMrnaId) {
+        this.refseqMrnaId = refseqMrnaId;
     }
     
-    public Integer getMutationProteinPosStart() {
-        return mutationProteinPosStart;
+    public Integer getProteinPosStart() {
+        return proteinPosStart;
     }
 
-    public void setMutationProteinPosStart(Integer mutationProteinPosStart) {
-        this.mutationProteinPosStart = mutationProteinPosStart;
+    public void setProteinPosStart(Integer proteinPosStart) {
+        this.proteinPosStart = proteinPosStart;
     }
 
-    public Integer getMutationProteinPosEnd() {
-        return mutationProteinPosEnd;
+    public Integer getProteinPosEnd() {
+        return proteinPosEnd;
     }
 
-    public void setMutationProteinPosEnd(Integer mutationProteinPosEnd) {
-        this.mutationProteinPosEnd = mutationProteinPosEnd;
+    public void setProteinPosEnd(Integer proteinPosEnd) {
+        this.proteinPosEnd = proteinPosEnd;
     }
 
     public String getKeyword() {

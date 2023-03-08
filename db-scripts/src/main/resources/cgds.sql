@@ -441,11 +441,11 @@ CREATE TABLE `mutation_event` (
   `VARIANT_TYPE` varchar(15),
   `DB_SNP_RS` varchar(25),
   `DB_SNP_VAL_STATUS` varchar(255),
-  `MUTATION_REFSEQ_MRNA_ID` varchar(64),
-  `MUTATION_CODON_CHANGE` varchar(255),
-  `MUTATION_UNIPROT_ACCESSION` varchar(64),
-  `MUTATION_PROTEIN_POS_START` int(11),
-  `MUTATION_PROTEIN_POS_END` int(11),
+  `REFSEQ_MRNA_ID` varchar(64),
+  `CODON_CHANGE` varchar(255),
+  `UNIPROT_ACCESSION` varchar(64),
+  `PROTEIN_POS_START` int(11),
+  `PROTEIN_POS_END` int(11),
   `CANONICAL_TRANSCRIPT` boolean,
   `KEYWORD` varchar(255) DEFAULT NULL COMMENT 'e.g. truncating, V200 Missense, E338del, ',
   KEY (`KEYWORD`),
@@ -755,5 +755,5 @@ CREATE TABLE `resource_study` (
 );
 
 -- THIS MUST BE KEPT IN SYNC WITH db.version PROPERTY IN pom.xml
-INSERT INTO info VALUES ('2.12.16', NULL);
+INSERT INTO info VALUES ('2.13.0', NULL);
 

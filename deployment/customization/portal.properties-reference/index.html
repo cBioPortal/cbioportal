@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width,initial-scale=1">
-    <meta name="turbo-cache-control" content="no-cache" data-turbo-track="reload" data-track-token="2.4.0.731543806923">
+    <meta name="turbo-cache-control" content="no-cache" data-turbo-track="reload" data-track-token="2.4.0.732031388468">
 
     <!-- See retype.com -->
     <meta name="generator" content="Retype 2.4.0">
@@ -33,11 +33,11 @@
     <script>(function () { var el = document.documentElement, m = localStorage.getItem("doc_theme"), wm = window.matchMedia; if (m === "dark" || (!m && wm && wm("(prefers-color-scheme: dark)").matches)) { el.classList.add("dark") } else { el.classList.remove("dark") } })();</script>
 
     <link href="../../../images/cbio-logo.png" rel="icon" />
-    <link href="../../../resources/css/retype.css?v=2.4.0.731543806923" rel="stylesheet" />
+    <link href="../../../resources/css/retype.css?v=2.4.0.732031388468" rel="stylesheet" />
 
-    <script type="text/javascript" src="../../../resources/js/config.js?v=2.4.0.731543806923" data-turbo-eval="false" defer></script>
+    <script type="text/javascript" src="../../../resources/js/config.js?v=2.4.0.732031388468" data-turbo-eval="false" defer></script>
     <script type="text/javascript" src="../../../resources/js/retype.js?v=2.4.0" data-turbo-eval="false" defer></script>
-    <script id="lunr-js" type="text/javascript" src="../../../resources/js/lunr.js?v=2.4.0.731543806923" data-turbo-eval="false" defer></script>
+    <script id="lunr-js" type="text/javascript" src="../../../resources/js/lunr.js?v=2.4.0.732031388468" data-turbo-eval="false" defer></script>
     <link href="../../../resources/css/katex.css?v=2.4.0" rel="stylesheet" />
     <script id="katex-js" type="text/javascript" src="../../../resources/js/katex.js?v=2.4.0" defer></script>
 
@@ -879,6 +879,28 @@ skin.geneset_hierarchy.default_p_value=0.02</code></pre>
 <p>By default, the tree is expanded (property value is <code v-pre>false</code>).</p>
 <div class="codeblock-wrapper"><doc-codeblock>
 <pre class="language-none"><code v-pre class="language-none">skin.geneset_hierarchy.collapse_by_default = true</code></pre>
+</doc-codeblock></div>
+<doc-anchor-target id="cross-study-expression-and-protein-data">
+    <h2>
+        <doc-anchor-trigger class="header-anchor-trigger" to="#cross-study-expression-and-protein-data">#</doc-anchor-trigger>
+        <span>Cross study expression and protein data</span>
+    </h2>
+</doc-anchor-target>
+<p>By default we hide expression data for multi-study queries as they are
+usually not normalized across studies. For the public cBioPortal for instance, only TCGA Pancan Atlas studies expression data has been normalized.</p>
+<p>If you know the expression data in your instance is comparable, or is comparable for a subset of
+studies, you can configure a rule as follows.</p>
+<p>The value of this property can be boolean (true|false) or a javascript function
+which executes at runtime and is passed the list of study objects being queried
+by the user and evaluates whether expression data can be safely displayed.</p>
+<div class="codeblock-wrapper"><doc-codeblock>
+<pre class="language-none"><code v-pre class="language-none">// a function that accepts the users's selected studies and
+// returns whether or not to allow expression data from the involved studies to be mixed
+enable_cross_study_expression = (selectedStudies)=&gt;{ [your logic] return true|false }</code></pre>
+</doc-codeblock></div>
+<div class="codeblock-wrapper"><doc-codeblock>
+<pre class="language-none"><code v-pre class="language-none">// boolean
+enable_cross_study_expression = true|false</code></pre>
 </doc-codeblock></div>
 <doc-anchor-target id="request-body-compression">
     <h2>

@@ -47,10 +47,10 @@ public class MafRecord {
     private int normalAltCount;
     private int normalRefCount;
     
-    private String oncotatorProteinChange;
-    private String oncotatorVariantClassification;
-    private String oncotatorCosmicOverlapping;
-    private String oncotatorDbSnpRs;
+    private String mafProteinChange;
+    private String mafVariantClassification;
+    private String mafCosmicOverlapping;
+    private String mafDbSnpRs;
 
 	public String getChr() {
         return chr;
@@ -340,37 +340,37 @@ public class MafRecord {
 		this.normalRefCount = normalRefCount;
 	}
 
-	public String getOncotatorProteinChange() {
-		return oncotatorProteinChange;
+	public String getMafProteinChange() {
+		return mafProteinChange;
 	}
 
-	public void setOncotatorProteinChange(String oncotatorProteinChange) {
-		this.oncotatorProteinChange = oncotatorProteinChange;
+	public void setMafProteinChange(String mafProteinChange) {
+		this.mafProteinChange = mafProteinChange;
 	}
 
-	public String getOncotatorVariantClassification() {
-		return oncotatorVariantClassification;
+	public String getMafVariantClassification() {
+		return mafVariantClassification;
 	}
 
-	public void setOncotatorVariantClassification(
-			String oncotatorVariantClassification) {
-		this.oncotatorVariantClassification = oncotatorVariantClassification;
+	public void setMafVariantClassification(
+			String mafVariantClassification) {
+		this.mafVariantClassification = mafVariantClassification;
 	}
 
-	public String getOncotatorCosmicOverlapping() {
-		return oncotatorCosmicOverlapping;
+	public String getMafCosmicOverlapping() {
+		return mafCosmicOverlapping;
 	}
 
-	public void setOncotatorCosmicOverlapping(String oncotatorCosmicOverlapping) {
-		this.oncotatorCosmicOverlapping = oncotatorCosmicOverlapping;
+	public void setMafCosmicOverlapping(String mafCosmicOverlapping) {
+		this.mafCosmicOverlapping = mafCosmicOverlapping;
 	}
 
-	public String getOncotatorDbSnpRs() {
-		return oncotatorDbSnpRs;
+	public String getMafDbSnpRs() {
+		return mafDbSnpRs;
 	}
 
-	public void setOncotatorDbSnpRs(String oncotatorDbSnpRs) {
-		this.oncotatorDbSnpRs = oncotatorDbSnpRs;
+	public void setMafDbSnpRs(String mafDbSnpRs) {
+		this.mafDbSnpRs = mafDbSnpRs;
 	}
 	
 	

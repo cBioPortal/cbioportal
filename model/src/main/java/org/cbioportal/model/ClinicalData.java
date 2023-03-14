@@ -2,7 +2,7 @@ package org.cbioportal.model;
 
 import javax.validation.constraints.NotNull;
 
-public class ClinicalData  extends UniqueKeyBase implements Binnable  {
+public class ClinicalData extends UniqueKeyBase implements Binnable  {
 
     private Integer internalId;
     private String sampleId;

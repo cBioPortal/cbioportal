@@ -54,7 +54,7 @@ public class IdPopulator {
         uniqueSampleKeys.addAll(studyViewFilterApplier.getUniqkeyKeys(studyIds, sampleIds));
         uniquePatientKeys.addAll(studyViewFilterApplier.getUniqkeyKeys(studyIdsOfPatients, patientIds));
 
-        if (clinicalAttributes != null && ! clinicalAttributes.isEmpty()) {
+        if (clinicalAttributes != null && !clinicalAttributes.isEmpty()) {
             clinicalAttributeUtil.extractCategorizedClinicalAttributes(
                 clinicalAttributes,
                 sampleAttributeIds,
@@ -62,7 +62,6 @@ public class IdPopulator {
                 conflictingPatientAttributeIds
             );
         }
-        binningIds.toImmutable();
         return binningIds;
     }
 

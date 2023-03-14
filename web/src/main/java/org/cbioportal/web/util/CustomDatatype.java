@@ -1,6 +1,6 @@
 package org.cbioportal.web.util;
 
-public enum CustomDataDatatype {
+public enum CustomDatatype {
     /**
      * Categorical data
      */

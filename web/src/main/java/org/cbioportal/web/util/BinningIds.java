@@ -37,22 +37,6 @@ public class BinningIds {
         this.conflictingPatientAttributeIds = new ArrayList<>(toClone.getConflictingPatientAttributeIds());
     }
 
-    /**
-     * Convert lists into unmodifiable lists 
-     * to prevent unknown side effects
-     */
-    public void toImmutable() {
-        this.studyIds = unmodifiableList(this.getStudyIds());
-        this.sampleIds = unmodifiableList(this.getSampleIds());
-        this.patientIds = unmodifiableList(this.getPatientIds());
-        this.studyIdsOfPatients = unmodifiableList(this.getStudyIdsOfPatients());
-        this.uniqueSampleKeys = unmodifiableList(this.getUniqueSampleKeys());
-        this.uniquePatientKeys = unmodifiableList(this.getUniquePatientKeys());
-        this.sampleAttributeIds = unmodifiableList(this.getSampleAttributeIds());
-        this.patientAttributeIds = unmodifiableList(this.getPatientAttributeIds());
-        this.conflictingPatientAttributeIds = unmodifiableList(this.getConflictingPatientAttributeIds());
-    }
-
     public List<String> getStudyIds() {
         return studyIds;
     }

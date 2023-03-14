@@ -26,16 +26,11 @@
             mutation_event.TUMOR_SEQ_ALLELE AS tumorSeqAllele,
             mutation_event.PROTEIN_CHANGE AS proteinChange,
             mutation_event.MUTATION_TYPE AS mutationType,
-            mutation_event.FUNCTIONAL_IMPACT_SCORE AS functionalImpactScore,
-            mutation_event.FIS_VALUE AS fisValue,
-            mutation_event.LINK_XVAR AS linkXvar,
-            mutation_event.LINK_PDB AS linkPdb,
-            mutation_event.LINK_MSA AS linkMsa,
             mutation_event.NCBI_BUILD AS ncbiBuild,
             mutation_event.VARIANT_TYPE AS variantType,
-            mutation_event.ONCOTATOR_REFSEQ_MRNA_ID AS oncotatorRefseqMrnaId,
-            mutation_event.ONCOTATOR_PROTEIN_POS_START AS oncotatorProteinPosStart,
-            mutation_event.ONCOTATOR_PROTEIN_POS_END AS oncotatorProteinPosEnd,
+            mutation_event.REFSEQ_MRNA_ID AS refseqMrnaId,
+            mutation_event.PROTEIN_POS_START AS proteinPosStart,
+            mutation_event.PROTEIN_POS_END AS proteinPosEnd,
             mutation_event.KEYWORD AS keyword,
             mutation.ANNOTATION_JSON as annotationJSON,
             alteration_driver_annotation.DRIVER_FILTER as driverFilter,
@@ -378,7 +373,7 @@
         FROM mutation
         INNER JOIN mutation_event ON mutation.MUTATION_EVENT_ID = mutation_event.MUTATION_EVENT_ID
         WHERE mutation_event.ENTREZ_GENE_ID = #{entrezGeneId}
-        AND mutation_event.ONCOTATOR_PROTEIN_POS_START >= #{proteinPosStart}
-        AND mutation_event.ONCOTATOR_PROTEIN_POS_END <![CDATA[ <= ]]> #{proteinPosEnd}
+        AND mutation_event.PROTEIN_POS_START >= #{proteinPosStart}
+        AND mutation_event.PROTEIN_POS_END <![CDATA[ <= ]]> #{proteinPosEnd}
     </select>
 </mapper>

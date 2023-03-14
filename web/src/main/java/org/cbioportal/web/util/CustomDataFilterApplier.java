@@ -105,7 +105,7 @@ public class CustomDataFilterApplier implements DataFilterApplier<ClinicalDataFi
                 .get(attributeId)
                 .getData()
                 .getDatatype()
-                .equals(CustomDataDatatype.STRING.name())
+                .equals(CustomDatatype.STRING.name())
             ) {
                 equalityFilters.add(filter);
             } else {

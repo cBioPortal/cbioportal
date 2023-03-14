@@ -179,6 +179,8 @@ public class ClinicalDataBinUtilTest {
         
         
         // assert function calls
+        verify(idPopulator, times(1))
+                    .populateIdLists(any(), any());
         
         // we don't expect filterClinicalData to be called for an unfiltered query
         verify(studyViewFilterUtil, never())

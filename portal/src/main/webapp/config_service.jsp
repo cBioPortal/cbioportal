@@ -113,6 +113,7 @@
             "skin.home_page.unauthorized_studies_global_message",
             "skin.show_settings_menu",
             "skin.hide_logout_button",
+            "enable_cross_study_expression",
             "quick_search.enabled",
             "default_cross_cancer_study_session_id",
             "default_cross_cancer_study_list",

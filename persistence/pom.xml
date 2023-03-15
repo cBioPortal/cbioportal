@@ -15,6 +15,10 @@
             <artifactId>org.osgi.service.component.annotations</artifactId>
         </dependency>
         <dependency>
+            <groupId>ru.yandex.clickhouse</groupId>
+            <artifactId>clickhouse-jdbc</artifactId>
+        </dependency>
+        <dependency>
             <groupId>javax.annotation</groupId>
             <artifactId>javax.annotation-api</artifactId>
           </dependency>

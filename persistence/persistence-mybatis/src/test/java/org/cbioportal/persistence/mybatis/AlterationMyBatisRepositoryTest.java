@@ -12,6 +12,7 @@ import org.springframework.beans.factory.annotation.Configurable;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
+import java.sql.ResultSet;
 import java.util.*;
 
 @RunWith(SpringJUnit4ClassRunner.class)
@@ -19,6 +20,9 @@ import java.util.*;
 @Configurable
 public class AlterationMyBatisRepositoryTest {
 
+    @Autowired
+    private org.springframework.jdbc.datasource.DriverManagerDataSource datasource;
+    
     //    mutation and cna events in testSql.sql
     //        SAMPLE_ID,    ENTREZ_GENE_ID, HUGO_GENE_SYMBOL, GENETIC_PROFILE_ID, TYPE, MUTATION_TYPE, DRIVER_FILTER, DRIVER_TIERS_FILTER, PATIENT_ID, MUTATION_TYPE
     //        1	    207	    AKT1	2	CNA         -2	                Putative_Driver	    Tier 1  TCGA-A1-A0SB    germline
@@ -1021,6 +1025,36 @@ public class AlterationMyBatisRepositoryTest {
             svEntrezGeneIds,
             alterationFilter);
         Assert.assertEquals(0, result.size());
+    }
+    
+    @Test
+    public void getPatientStructuralVariantCountIncludeCustomDriverAnnotationsIncludeUnknown() throws Exception {
+        alterationFilter.setStructuralVariants(true);
+        alterationFilter.setMutationTypeSelect(Select.none());
+        alterationFilter.setCnaTypeSelect(Select.none());
+        alterationFilter.setSelectedTiers(Select.byValues(List.of("Class 2")));
+        alterationFilter.setIncludeUnknownTier(true);
+        List<AlterationCountByGene> result = alterationMyBatisRepository.getPatientAlterationCounts(
+            svPatientIdToProfileId,
+            svEntrezGeneIds,
+            alterationFilter
+        );
+        Assert.assertEquals(4, result.size());
+    }
+    
+    @Test
+    public void getPatientStructuralVariantCountIncludeCustomDriverAnnotationsExcludeUnknown() throws Exception {
+        alterationFilter.setStructuralVariants(true);
+        alterationFilter.setMutationTypeSelect(Select.none());
+        alterationFilter.setCnaTypeSelect(Select.none());
+        alterationFilter.setSelectedTiers(Select.byValues(List.of("Class 2")));
+        alterationFilter.setIncludeUnknownTier(false);
+        List<AlterationCountByGene> result = alterationMyBatisRepository.getPatientAlterationCounts(
+            svPatientIdToProfileId,
+            svEntrezGeneIds,
+            alterationFilter
+        );
+        Assert.assertEquals(1, result.size());
     }
     
 }

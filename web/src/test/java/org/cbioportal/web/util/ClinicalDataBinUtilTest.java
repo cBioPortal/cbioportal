@@ -7,7 +7,7 @@ import org.cbioportal.model.Patient;
 import org.cbioportal.service.ClinicalAttributeService;
 import org.cbioportal.service.PatientService;
 import org.cbioportal.service.util.ClinicalAttributeUtil;
-import org.cbioportal.web.parameter.*;
+import org.cbioportal.webparam.*;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;

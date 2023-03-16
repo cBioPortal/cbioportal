@@ -6,7 +6,7 @@ import java.util.List;
 
 import org.cbioportal.model.GenesetMolecularData;
 import org.cbioportal.service.GenesetDataService;
-import org.cbioportal.web.parameter.GenesetDataFilterCriteria;
+import org.cbioportal.webparam.GenesetDataFilterCriteria;
 import org.hamcrest.Matchers;
 import org.junit.Before;
 import org.junit.Test;

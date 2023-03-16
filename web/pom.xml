@@ -14,6 +14,10 @@
   <description>Web Module for Portal</description>
 
   <dependencies>
+      <dependency>
+          <groupId>org.mskcc.cbio</groupId>
+          <artifactId>webparam</artifactId>
+      </dependency>
     <dependency>
       <groupId>org.mskcc.cbio</groupId>
       <artifactId>service</artifactId>

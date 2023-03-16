@@ -3,8 +3,8 @@ package org.cbioportal.web.util;
 import org.apache.commons.collections4.CollectionUtils;
 import org.cbioportal.model.ClinicalData;
 import org.cbioportal.service.ClinicalDataService;
-import org.cbioportal.web.parameter.ClinicalDataType;
-import org.cbioportal.web.parameter.Projection;
+import org.cbioportal.webparam.ClinicalDataType;
+import org.cbioportal.webparam.Projection;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 

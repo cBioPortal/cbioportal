@@ -1,6 +1,6 @@
 package org.cbioportal.service;
 
-import org.cbioportal.model.GeneFilterQuery;
+import org.cbioportal.webparam.GeneFilterQuery;
 import org.cbioportal.model.GeneMolecularAlteration;
 import org.cbioportal.model.GeneMolecularData;
 import org.cbioportal.model.meta.BaseMeta;

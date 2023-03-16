@@ -4,7 +4,7 @@ import org.cbioportal.model.CNA;
 import org.cbioportal.model.CopyNumberCount;
 import org.cbioportal.model.CopyNumberCountByGene;
 import org.cbioportal.model.DiscreteCopyNumberData;
-import org.cbioportal.model.GeneFilterQuery;
+import org.cbioportal.webparam.GeneFilterQuery;
 import org.cbioportal.model.GeneMolecularData;
 import org.cbioportal.model.MolecularProfile;
 import org.cbioportal.model.meta.BaseMeta;

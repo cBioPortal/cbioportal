@@ -22,6 +22,10 @@
         </dependency>
         <dependency>
             <groupId>org.mskcc.cbio</groupId>
+            <artifactId>webparam</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.mskcc.cbio</groupId>
             <artifactId>permission-evaluator</artifactId>
         </dependency>
         <dependency>

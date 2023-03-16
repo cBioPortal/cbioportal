@@ -3,7 +3,7 @@ package org.cbioportal.web;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.cbioportal.model.MutationSpectrum;
 import org.cbioportal.service.MutationSpectrumService;
-import org.cbioportal.web.parameter.MutationSpectrumFilter;
+import org.cbioportal.webparam.MutationSpectrumFilter;
 import org.hamcrest.Matchers;
 import org.junit.Before;
 import org.junit.Test;

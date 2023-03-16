@@ -6,7 +6,12 @@ import org.cbioportal.model.ClinicalDataBin;
 import org.cbioportal.service.ClinicalAttributeService;
 import org.cbioportal.service.PatientService;
 import org.cbioportal.service.util.ClinicalAttributeUtil;
-import org.cbioportal.web.parameter.*;
+import org.cbioportal.webparam.ClinicalDataBinCountFilter;
+import org.cbioportal.webparam.ClinicalDataBinFilter;
+import org.cbioportal.webparam.ClinicalDataType;
+import org.cbioportal.webparam.DataBinMethod;
+import org.cbioportal.webparam.SampleIdentifier;
+import org.cbioportal.webparam.StudyViewFilter;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 

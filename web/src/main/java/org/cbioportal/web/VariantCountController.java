@@ -7,7 +7,7 @@ import org.cbioportal.model.VariantCount;
 import org.cbioportal.service.VariantCountService;
 import org.cbioportal.service.exception.MolecularProfileNotFoundException;
 import org.cbioportal.web.config.annotation.InternalApi;
-import org.cbioportal.web.parameter.VariantCountIdentifier;
+import org.cbioportal.webparam.VariantCountIdentifier;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;

@@ -17,14 +17,15 @@ import org.cbioportal.service.SampleListService;
 import org.cbioportal.service.SampleService;
 import org.cbioportal.service.StructuralVariantService;
 import org.cbioportal.service.util.MolecularProfileUtil;
-import org.cbioportal.web.parameter.ClinicalDataFilter;
-import org.cbioportal.web.parameter.DataFilterValue;
-import org.cbioportal.web.parameter.GeneIdType;
-import org.cbioportal.web.parameter.GenericAssayDataFilter;
-import org.cbioportal.web.parameter.Projection;
-import org.cbioportal.web.parameter.SampleIdentifier;
-import org.cbioportal.web.parameter.StudyViewFilter;
-import org.cbioportal.web.util.appliers.*;
+import org.cbioportal.webparam.ClinicalDataFilter;
+import org.cbioportal.webparam.DataFilterValue;
+import org.cbioportal.webparam.GeneFilterQuery;
+import org.cbioportal.webparam.GeneIdType;
+import org.cbioportal.webparam.GenericAssayDataFilter;
+import org.cbioportal.webparam.Projection;
+import org.cbioportal.webparam.SampleIdentifier;
+import org.cbioportal.webparam.StudyViewFilter;
+import org.cbioportal.webparam.StudyViewGeneFilter;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
@@ -35,12 +36,9 @@ import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
 import org.mockito.Spy;
 import org.mockito.junit.MockitoJUnitRunner;
-import org.springframework.context.ApplicationContext;
 
 import java.math.BigDecimal;
 import java.util.*;
-import java.util.function.Function;
-import java.util.stream.Collectors;
 
 import static org.mockito.ArgumentMatchers.*;
 
@@ -187,9 +185,9 @@ public class StudyViewFilterApplierTest {
         boolean includeUnknownStatus = true;
         Select<String> selectedTiers = Select.none();
         boolean includeUnknownTier = true;
-        List<GeneFilter> geneFilters = new ArrayList<>();
-        GeneFilter mutationGeneFilter = new GeneFilter();
-        mutationGeneFilter.setMolecularProfileIds(new HashSet<>(Arrays.asList(MOLECULAR_PROFILE_ID_1)));
+        List<StudyViewGeneFilter> studyViewGeneFilters = new ArrayList<>();
+        StudyViewGeneFilter mutationStudyViewGeneFilter = new StudyViewGeneFilter();
+        mutationStudyViewGeneFilter.setMolecularProfileIds(new HashSet<>(Arrays.asList(MOLECULAR_PROFILE_ID_1)));
 
         GeneFilterQuery geneFilterQuery1 = new GeneFilterQuery("HUGO_GENE_SYMBOL_1", null,
             null, includeDriver, includeVUS, includeUnknownOncogenicity,  selectedTiers, includeUnknownTier,
@@ -198,10 +196,10 @@ public class StudyViewFilterApplierTest {
         List<GeneFilterQuery> q2 = new ArrayList<>();
         q2.add(geneFilterQuery1);
         q1.add(q2);
-        mutationGeneFilter.setGeneQueries(q1);
+        mutationStudyViewGeneFilter.setGeneQueries(q1);
 
-        GeneFilter copyNumberGeneFilter = new GeneFilter();
-        copyNumberGeneFilter.setMolecularProfileIds(new HashSet<>(Arrays.asList(MOLECULAR_PROFILE_ID_2)));
+        StudyViewGeneFilter copyNumberStudyViewGeneFilter = new StudyViewGeneFilter();
+        copyNumberStudyViewGeneFilter.setMolecularProfileIds(new HashSet<>(Arrays.asList(MOLECULAR_PROFILE_ID_2)));
         GeneFilterQuery geneFilterQuery2 = new GeneFilterQuery("HUGO_GENE_SYMBOL_2", null,
             Arrays.asList(CNA.HOMDEL), includeDriver, includeVUS, includeUnknownOncogenicity,  selectedTiers,
             includeUnknownTier,includeGermline, includeSomatic, includeUnknownStatus);
@@ -209,11 +207,11 @@ public class StudyViewFilterApplierTest {
         List<GeneFilterQuery> q4 = new ArrayList<>();
         q4.add(geneFilterQuery2);
         q3.add(q4);
-        copyNumberGeneFilter.setGeneQueries(q3);
+        copyNumberStudyViewGeneFilter.setGeneQueries(q3);
 
-        geneFilters.add(mutationGeneFilter);
-        geneFilters.add(copyNumberGeneFilter);
-        studyViewFilter.setGeneFilters(geneFilters);
+        studyViewGeneFilters.add(mutationStudyViewGeneFilter);
+        studyViewGeneFilters.add(copyNumberStudyViewGeneFilter);
+        studyViewFilter.setGeneFilters(studyViewGeneFilters);
 
         List<Sample> samples = new ArrayList<>();
         Sample sample1 = new Sample();

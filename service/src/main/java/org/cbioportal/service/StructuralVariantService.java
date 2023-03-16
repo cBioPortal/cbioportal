@@ -25,7 +25,7 @@ package org.cbioportal.service;
 
 import java.util.List;
 
-import org.cbioportal.model.GeneFilterQuery;
+import org.cbioportal.webparam.GeneFilterQuery;
 import org.cbioportal.model.StructuralVariant;
 import org.cbioportal.model.StructuralVariantQuery;
 

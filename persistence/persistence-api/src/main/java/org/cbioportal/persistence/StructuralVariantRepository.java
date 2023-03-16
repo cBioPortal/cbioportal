@@ -2,9 +2,9 @@ package org.cbioportal.persistence;
 
 import java.util.List;
 
-import org.cbioportal.model.GeneFilterQuery;
 import org.cbioportal.model.StructuralVariant;
 import org.cbioportal.model.StructuralVariantQuery;
+import org.cbioportal.webparam.GeneFilterQuery;
 import org.springframework.cache.annotation.Cacheable;
 
 public interface StructuralVariantRepository {

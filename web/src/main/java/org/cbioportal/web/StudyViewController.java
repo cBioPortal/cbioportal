@@ -15,9 +15,22 @@ import org.cbioportal.service.exception.StudyNotFoundException;
 import org.cbioportal.service.util.ClinicalAttributeUtil;
 import org.cbioportal.web.config.annotation.InternalApi;
 import org.cbioportal.model.AlterationFilter;
-import org.cbioportal.web.parameter.*;
-import org.cbioportal.web.parameter.sort.ClinicalDataSortBy;
 import org.cbioportal.web.util.*;
+import org.cbioportal.webparam.ClinicalDataBinCountFilter;
+import org.cbioportal.webparam.ClinicalDataCountFilter;
+import org.cbioportal.webparam.ClinicalDataFilter;
+import org.cbioportal.webparam.ClinicalDataType;
+import org.cbioportal.webparam.DataBinMethod;
+import org.cbioportal.webparam.Direction;
+import org.cbioportal.webparam.GenericAssayDataBinCountFilter;
+import org.cbioportal.webparam.GenericAssayDataCountFilter;
+import org.cbioportal.webparam.GenericAssayDataFilter;
+import org.cbioportal.webparam.GenomicDataBinCountFilter;
+import org.cbioportal.webparam.PagingConstants;
+import org.cbioportal.webparam.Projection;
+import org.cbioportal.webparam.SampleIdentifier;
+import org.cbioportal.webparam.StudyViewFilter;
+import org.cbioportal.webparam.sort.ClinicalDataSortBy;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.context.ApplicationContext;
@@ -94,7 +107,7 @@ public class StudyViewController {
     @ApiOperation("Fetch clinical data counts by study view filter")
     public ResponseEntity<List<ClinicalDataCountItem>> fetchClinicalDataCounts(
         @ApiParam(required = true, value = "Clinical data count filter")
-        @Valid @RequestBody(required = false)  ClinicalDataCountFilter clinicalDataCountFilter,
+        @Valid @RequestBody(required = false) ClinicalDataCountFilter clinicalDataCountFilter,
         @ApiIgnore // prevent reference to this attribute in the swagger-ui interface
         @RequestAttribute(required = false, value = "involvedCancerStudies") Collection<String> involvedCancerStudies,
         @ApiIgnore // prevent reference to this attribute in the swagger-ui interface. this attribute is needed for the @PreAuthorize tag above.

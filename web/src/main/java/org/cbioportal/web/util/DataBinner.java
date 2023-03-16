@@ -4,10 +4,10 @@ import com.google.common.collect.Range;
 import org.apache.commons.lang3.math.NumberUtils;
 import org.cbioportal.model.ClinicalData;
 import org.cbioportal.model.DataBin;
-import org.cbioportal.web.parameter.BinsGeneratorConfig;
-import org.cbioportal.web.parameter.ClinicalDataBinFilter;
-import org.cbioportal.web.parameter.ClinicalDataType;
-import org.cbioportal.web.parameter.DataBinFilter;
+import org.cbioportal.webparam.BinsGeneratorConfig;
+import org.cbioportal.webparam.ClinicalDataBinFilter;
+import org.cbioportal.webparam.ClinicalDataType;
+import org.cbioportal.webparam.DataBinFilter;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
@@ -33,11 +33,11 @@ public class DataBinner {
     private LogScaleDataBinner logScaleDataBinner;
 
     public <T extends DataBinFilter> List<DataBin> calculateClinicalDataBins(T dataBinFilter,
-                                                   ClinicalDataType clinicalDataType,
-                                                   List<ClinicalData> filteredClinicalData,
-                                                   List<ClinicalData> unfilteredClinicalData,
-                                                   List<String> filteredIds,
-                                                   List<String> unfilteredIds) {
+                                                                             ClinicalDataType clinicalDataType,
+                                                                             List<ClinicalData> filteredClinicalData,
+                                                                             List<ClinicalData> unfilteredClinicalData,
+                                                                             List<String> filteredIds,
+                                                                             List<String> unfilteredIds) {
         // calculate data bins for unfiltered clinical data
         List<DataBin> dataBins = calculateDataBins(
             dataBinFilter, clinicalDataType, unfilteredClinicalData, unfilteredIds);

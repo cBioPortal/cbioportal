@@ -12,9 +12,9 @@ import org.apache.commons.collections4.map.MultiKeyMap;
 import org.cbioportal.service.ClinicalDataService;
 import org.cbioportal.service.PatientService;
 import org.cbioportal.session_service.domain.SessionType;
-import org.cbioportal.web.parameter.ClinicalDataFilter;
-import org.cbioportal.web.parameter.CustomDataSession;
-import org.cbioportal.web.parameter.SampleIdentifier;
+import org.cbioportal.webparam.ClinicalDataFilter;
+import org.cbioportal.webparam.CustomDataSession;
+import org.cbioportal.webparam.SampleIdentifier;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
@@ -32,7 +32,7 @@ public class CustomDataFilterApplier extends ClinicalDataEqualityFilterApplier {
 
     @Override
     public List<SampleIdentifier> apply(List<SampleIdentifier> sampleIdentifiers,
-            List<ClinicalDataFilter> customDataFilters, Boolean negateFilters) {
+                                        List<ClinicalDataFilter> customDataFilters, Boolean negateFilters) {
         if (!customDataFilters.isEmpty() && !sampleIdentifiers.isEmpty()) {
 
             List<CompletableFuture<CustomDataSession>> postFutures = customDataFilters.stream()

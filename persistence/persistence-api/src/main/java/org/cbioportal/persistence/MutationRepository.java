@@ -1,9 +1,9 @@
 package org.cbioportal.persistence;
 
-import org.cbioportal.model.GeneFilterQuery;
 import org.cbioportal.model.Mutation;
 import org.cbioportal.model.MutationCountByPosition;
 import org.cbioportal.model.meta.MutationMeta;
+import org.cbioportal.webparam.GeneFilterQuery;
 import org.springframework.cache.annotation.Cacheable;
 
 import java.util.List;

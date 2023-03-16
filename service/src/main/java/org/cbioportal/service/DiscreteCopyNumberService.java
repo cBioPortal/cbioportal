@@ -3,6 +3,7 @@ package org.cbioportal.service;
 import org.cbioportal.model.*;
 import org.cbioportal.model.meta.BaseMeta;
 import org.cbioportal.service.exception.MolecularProfileNotFoundException;
+import org.cbioportal.webparam.GeneFilterQuery;
 
 import java.util.List;
 

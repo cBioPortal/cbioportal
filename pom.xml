@@ -331,6 +331,7 @@
     <module>security</module>
     <module>utils</module>
     <module>maf</module>
+    <module>webparam</module>
   </modules>
 
   <dependencies>
@@ -437,6 +438,11 @@
       <dependency>
         <groupId>org.mskcc.cbio</groupId>
         <artifactId>utils</artifactId>
+        <version>${project.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>org.mskcc.cbio</groupId>
+        <artifactId>webparam</artifactId>
         <version>${project.version}</version>
       </dependency>
       <dependency>

@@ -318,17 +318,20 @@ public class StudyViewController {
         @ApiParam(required = true, value = "Study view filter")
         @Valid @RequestBody(required = false) StudyViewFilter studyViewFilter) {
 
-        List<String> studyIds = new ArrayList<>();
-        List<String> sampleIds = new ArrayList<>();
+        return new ResponseEntity<>(
+            studyViewService.getFilteredSamplesFromColumnstore(interceptedStudyViewFilter),
+            HttpStatus.OK
+        );
+//        List<String> studyIds = new ArrayList<>();
+//        List<String> sampleIds = new ArrayList<>();
 
-        studyViewFilterUtil.extractStudyAndSampleIds(
-            studyViewFilterApplier.apply(interceptedStudyViewFilter, negateFilters), studyIds, sampleIds);
-
-        List<Sample> result = new ArrayList<>();
-        if (!sampleIds.isEmpty()) {
-            result = sampleService.fetchSamples(studyIds, sampleIds, Projection.ID.name());
-        }
-        return new ResponseEntity<>(result, HttpStatus.OK);
+//        studyViewFilterUtil.extractStudyAndSampleIds(
+//            studyViewFilterApplier.apply(interceptedStudyViewFilter, negateFilters), studyIds, sampleIds);
+//
+//        List<Sample> result = new ArrayList<>();
+//        if (!sampleIds.isEmpty()) {
+//            result = sampleService.fetchSamples(studyIds, sampleIds, Projection.ID.name());
+//        }
     }
 
     @PreAuthorize("hasPermission(#involvedCancerStudies, 'Collection<CancerStudyId>', T(org.cbioportal.utils.security.AccessLevel).READ)")

@@ -4,10 +4,12 @@ import org.apache.commons.collections4.map.MultiKeyMap;
 import org.apache.commons.lang3.StringUtils;
 import org.cbioportal.model.*;
 import org.cbioportal.model.util.Select;
+import org.cbioportal.persistence.StudyViewRepository;
 import org.cbioportal.service.*;
 import org.cbioportal.service.exception.MolecularProfileNotFoundException;
 import org.cbioportal.service.exception.StudyNotFoundException;
 import org.cbioportal.service.util.MolecularProfileUtil;
+import org.cbioportal.webparam.StudyViewFilter;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -32,6 +34,8 @@ public class StudyViewServiceImpl implements StudyViewService {
     private SignificantCopyNumberRegionService significantCopyNumberRegionService;
     @Autowired
     private GenericAssayService genericAssayService;
+    @Autowired
+    private StudyViewRepository studyViewRepository;
 
     @Override
     public List<GenomicDataCount> getGenomicDataCounts(List<String> studyIds, List<String> sampleIds) {
@@ -244,5 +248,11 @@ public class StudyViewServiceImpl implements StudyViewService {
                 return genericAssayDataCountItem;
             })
             .collect(Collectors.toList());
+    }
+
+    @Override
+    public List<Sample> getFilteredSamplesFromColumnstore(StudyViewFilter studyViewFilter) {
+        List<Sample> samples = studyViewRepository.getFilteredSamplesFromColumnstore(studyViewFilter);
+        return samples;
     }
 }

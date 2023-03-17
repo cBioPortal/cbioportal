@@ -1,15 +1,24 @@
 package org.cbioportal.web.util;
 
+import com.fasterxml.jackson.core.TreeNode;
+import com.fasterxml.jackson.core.type.TypeReference;
+import com.fasterxml.jackson.databind.DeserializationFeature;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import org.cbioportal.model.ClinicalAttribute;
 import org.cbioportal.model.ClinicalData;
 import org.cbioportal.model.ClinicalDataBin;
 import org.cbioportal.model.Patient;
 import org.cbioportal.service.ClinicalAttributeService;
 import org.cbioportal.service.PatientService;
+import org.cbioportal.service.impl.CustomDataServiceImpl;
 import org.cbioportal.service.util.ClinicalAttributeUtil;
+import org.cbioportal.service.util.CustomAttributeWithData;
+import org.cbioportal.service.util.CustomDataSession;
+import org.cbioportal.service.util.CustomDataValue;
+import org.cbioportal.service.util.SessionServiceRequestHandler;
 import org.cbioportal.web.parameter.*;
-import org.junit.Assert;
 import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
@@ -19,13 +28,19 @@ import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 import org.mockito.Spy;
 import org.mockito.junit.MockitoJUnitRunner;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.core.io.Resource;
+import org.springframework.util.ResourceUtils;
 
+import java.io.IOException;
+import java.nio.file.Files;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
 import java.util.stream.Collectors;
 
+import static org.junit.Assert.assertEquals;
 import static org.mockito.Mockito.*;
 
 @RunWith(MockitoJUnitRunner.class)
@@ -44,6 +59,13 @@ public class ClinicalDataBinUtilTest {
     private ClinicalAttributeService clinicalAttributeService;
     @Mock
     private PatientService patientService;
+    @Mock
+    private SessionServiceRequestHandler sessionServiceRequestHandler;
+    @Spy
+    private ObjectMapper sessionServiceObjectMapper = new ObjectMapper();
+    @Spy
+    @InjectMocks
+    private CustomDataServiceImpl customDataService;
     @Spy
     private StudyViewFilterUtil studyViewFilterUtil;
     @Spy
@@ -61,11 +83,19 @@ public class ClinicalDataBinUtilTest {
     @Spy
     @InjectMocks
     private ScientificSmallDataBinner scientificSmallDataBinner;
+
+    @Spy
+    @InjectMocks
+    private IdPopulator idPopulator;
+    
     @Spy
     @InjectMocks
     private LogScaleDataBinner logScaleDataBinner;
     @Spy
     private DataBinHelper dataBinHelper;
+    private final String testDataAttributeId = "test";
+    private final ObjectMapper customDatasetMapper = new ObjectMapper()
+        .configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
 
     @Before
     public void setup() {
@@ -84,71 +114,73 @@ public class ClinicalDataBinUtilTest {
         
         // assert data bin counts
         
-        Assert.assertEquals(33, dataBins.size());
+        assertEquals(33, dataBins.size());
         
         List<ClinicalDataBin> mutationCountBins = 
             dataBins.stream().filter(bin -> bin.getAttributeId().equals("MUTATION_COUNT")).collect(Collectors.toList());
-        Assert.assertEquals(6, mutationCountBins.size());
-        Assert.assertEquals(2, mutationCountBins.get(0).getCount().intValue());
-        Assert.assertEquals(1, mutationCountBins.get(1).getCount().intValue());
-        Assert.assertEquals(1, mutationCountBins.get(2).getCount().intValue());
-        Assert.assertEquals(1, mutationCountBins.get(3).getCount().intValue());
-        Assert.assertEquals(1, mutationCountBins.get(4).getCount().intValue());
-        Assert.assertEquals(1, mutationCountBins.get(5).getCount().intValue());
+        assertEquals(6, mutationCountBins.size());
+        assertEquals(2, mutationCountBins.get(0).getCount().intValue());
+        assertEquals(1, mutationCountBins.get(1).getCount().intValue());
+        assertEquals(1, mutationCountBins.get(2).getCount().intValue());
+        assertEquals(1, mutationCountBins.get(3).getCount().intValue());
+        assertEquals(1, mutationCountBins.get(4).getCount().intValue());
+        assertEquals(1, mutationCountBins.get(5).getCount().intValue());
 
         List<ClinicalDataBin> fractionGenomeAlteredBins =
             dataBins.stream().filter(bin -> bin.getAttributeId().equals("FRACTION_GENOME_ALTERED")).collect(Collectors.toList());
-        Assert.assertEquals(7, fractionGenomeAlteredBins.size());
-        Assert.assertEquals(1, fractionGenomeAlteredBins.get(0).getCount().intValue());
-        Assert.assertEquals(1, fractionGenomeAlteredBins.get(1).getCount().intValue());
-        Assert.assertEquals(1, fractionGenomeAlteredBins.get(2).getCount().intValue());
-        Assert.assertEquals(1, fractionGenomeAlteredBins.get(3).getCount().intValue());
-        Assert.assertEquals(1, fractionGenomeAlteredBins.get(4).getCount().intValue());
-        Assert.assertEquals(1, fractionGenomeAlteredBins.get(5).getCount().intValue());
-        Assert.assertEquals(1, fractionGenomeAlteredBins.get(6).getCount().intValue());
+        assertEquals(7, fractionGenomeAlteredBins.size());
+        assertEquals(1, fractionGenomeAlteredBins.get(0).getCount().intValue());
+        assertEquals(1, fractionGenomeAlteredBins.get(1).getCount().intValue());
+        assertEquals(1, fractionGenomeAlteredBins.get(2).getCount().intValue());
+        assertEquals(1, fractionGenomeAlteredBins.get(3).getCount().intValue());
+        assertEquals(1, fractionGenomeAlteredBins.get(4).getCount().intValue());
+        assertEquals(1, fractionGenomeAlteredBins.get(5).getCount().intValue());
+        assertEquals(1, fractionGenomeAlteredBins.get(6).getCount().intValue());
 
         List<ClinicalDataBin> ageAtSeqReportedYearsBins =
             dataBins.stream().filter(bin -> bin.getAttributeId().equals("AGE_AT_SEQ_REPORTED_YEARS")).collect(Collectors.toList());
-        Assert.assertEquals(6, ageAtSeqReportedYearsBins.size());
-        Assert.assertEquals(1, ageAtSeqReportedYearsBins.get(0).getCount().intValue());
-        Assert.assertEquals(1, ageAtSeqReportedYearsBins.get(1).getCount().intValue());
-        Assert.assertEquals(2, ageAtSeqReportedYearsBins.get(2).getCount().intValue());
-        Assert.assertEquals(1, ageAtSeqReportedYearsBins.get(3).getCount().intValue());
-        Assert.assertEquals(1, ageAtSeqReportedYearsBins.get(4).getCount().intValue());
-        Assert.assertEquals(1, ageAtSeqReportedYearsBins.get(5).getCount().intValue());
+        assertEquals(6, ageAtSeqReportedYearsBins.size());
+        assertEquals(1, ageAtSeqReportedYearsBins.get(0).getCount().intValue());
+        assertEquals(1, ageAtSeqReportedYearsBins.get(1).getCount().intValue());
+        assertEquals(2, ageAtSeqReportedYearsBins.get(2).getCount().intValue());
+        assertEquals(1, ageAtSeqReportedYearsBins.get(3).getCount().intValue());
+        assertEquals(1, ageAtSeqReportedYearsBins.get(4).getCount().intValue());
+        assertEquals(1, ageAtSeqReportedYearsBins.get(5).getCount().intValue());
         
         List<ClinicalDataBin> caAgeBins =
             dataBins.stream().filter(bin -> bin.getAttributeId().equals("CA_AGE")).collect(Collectors.toList());
-        Assert.assertEquals(5, caAgeBins.size());
-        Assert.assertEquals(1, caAgeBins.get(0).getCount().intValue());
-        Assert.assertEquals(1, caAgeBins.get(1).getCount().intValue());
-        Assert.assertEquals(1, caAgeBins.get(2).getCount().intValue());
-        Assert.assertEquals(1, caAgeBins.get(3).getCount().intValue());
-        Assert.assertEquals(1, caAgeBins.get(4).getCount().intValue());
+        assertEquals(5, caAgeBins.size());
+        assertEquals(1, caAgeBins.get(0).getCount().intValue());
+        assertEquals(1, caAgeBins.get(1).getCount().intValue());
+        assertEquals(1, caAgeBins.get(2).getCount().intValue());
+        assertEquals(1, caAgeBins.get(3).getCount().intValue());
+        assertEquals(1, caAgeBins.get(4).getCount().intValue());
 
         List<ClinicalDataBin> cptSeqBins =
             dataBins.stream().filter(bin -> bin.getAttributeId().equals("CPT_SEQ_DATE")).collect(Collectors.toList());
-        Assert.assertEquals(3, cptSeqBins.size());
-        Assert.assertEquals(1, cptSeqBins.get(0).getCount().intValue());
-        Assert.assertEquals(3, cptSeqBins.get(1).getCount().intValue());
-        Assert.assertEquals(3, cptSeqBins.get(2).getCount().intValue());
+        assertEquals(3, cptSeqBins.size());
+        assertEquals(1, cptSeqBins.get(0).getCount().intValue());
+        assertEquals(3, cptSeqBins.get(1).getCount().intValue());
+        assertEquals(3, cptSeqBins.get(2).getCount().intValue());
         
         List<ClinicalDataBin> cptOrderIntBins =
             dataBins.stream().filter(bin -> bin.getAttributeId().equals("CPT_ORDER_INT")).collect(Collectors.toList());
-        Assert.assertEquals(1, cptOrderIntBins.size());
-        Assert.assertEquals(7, cptOrderIntBins.get(0).getCount().intValue());
+        assertEquals(1, cptOrderIntBins.size());
+        assertEquals(7, cptOrderIntBins.get(0).getCount().intValue());
         
         List<ClinicalDataBin> hybridDeathIntBins =
             dataBins.stream().filter(bin -> bin.getAttributeId().equals("HYBRID_DEATH_INT")).collect(Collectors.toList());
-        Assert.assertEquals(5, hybridDeathIntBins.size());
-        Assert.assertEquals(1, hybridDeathIntBins.get(0).getCount().intValue());
-        Assert.assertEquals(1, hybridDeathIntBins.get(1).getCount().intValue());
-        Assert.assertEquals(1, hybridDeathIntBins.get(2).getCount().intValue());
-        Assert.assertEquals(1, hybridDeathIntBins.get(3).getCount().intValue());
-        Assert.assertEquals(1, hybridDeathIntBins.get(4).getCount().intValue());
+        assertEquals(5, hybridDeathIntBins.size());
+        assertEquals(1, hybridDeathIntBins.get(0).getCount().intValue());
+        assertEquals(1, hybridDeathIntBins.get(1).getCount().intValue());
+        assertEquals(1, hybridDeathIntBins.get(2).getCount().intValue());
+        assertEquals(1, hybridDeathIntBins.get(3).getCount().intValue());
+        assertEquals(1, hybridDeathIntBins.get(4).getCount().intValue());
         
         
         // assert function calls
+        verify(idPopulator, times(1))
+                    .populateIdLists(any(), any());
         
         // we don't expect filterClinicalData to be called for an unfiltered query
         verify(studyViewFilterUtil, never())
@@ -157,10 +189,6 @@ public class ClinicalDataBinUtilTest {
         // study view filter should be applied only once
         verify(studyViewFilterApplier, times(1)).apply(any());
         
-        // ids should be populated only once
-        verify(clinicalDataBinUtil, times(1))
-            .populateIdLists(any(), any(), any(), any(), any(), any(), any(), any(), any(), any(), any());
-
         // should call the correct bin calculate method only once for the given binning method
         verify(clinicalDataBinUtil, times(1))
             .calculateStaticDataBins(any(), any(), any(), any(), any(), any(), any(), any());
@@ -178,71 +206,70 @@ public class ClinicalDataBinUtilTest {
             mockQueryFilter()
         );
 
-        
         // assert data bin counts
         
-        Assert.assertEquals(33, dataBins.size());
+        assertEquals(33, dataBins.size());
 
         List<ClinicalDataBin> mutationCountBins =
             dataBins.stream().filter(bin -> bin.getAttributeId().equals("MUTATION_COUNT")).collect(Collectors.toList());
-        Assert.assertEquals(6, mutationCountBins.size());
-        Assert.assertEquals(0, mutationCountBins.get(0).getCount().intValue());
-        Assert.assertEquals(0, mutationCountBins.get(1).getCount().intValue());
-        Assert.assertEquals(0, mutationCountBins.get(2).getCount().intValue());
-        Assert.assertEquals(1, mutationCountBins.get(3).getCount().intValue());
-        Assert.assertEquals(1, mutationCountBins.get(4).getCount().intValue());
-        Assert.assertEquals(0, mutationCountBins.get(5).getCount().intValue());
+        assertEquals(6, mutationCountBins.size());
+        assertEquals(0, mutationCountBins.get(0).getCount().intValue());
+        assertEquals(0, mutationCountBins.get(1).getCount().intValue());
+        assertEquals(0, mutationCountBins.get(2).getCount().intValue());
+        assertEquals(1, mutationCountBins.get(3).getCount().intValue());
+        assertEquals(1, mutationCountBins.get(4).getCount().intValue());
+        assertEquals(0, mutationCountBins.get(5).getCount().intValue());
 
         List<ClinicalDataBin> fractionGenomeAlteredBins =
             dataBins.stream().filter(bin -> bin.getAttributeId().equals("FRACTION_GENOME_ALTERED")).collect(Collectors.toList());
-        Assert.assertEquals(7, fractionGenomeAlteredBins.size());
-        Assert.assertEquals(1, fractionGenomeAlteredBins.get(0).getCount().intValue());
-        Assert.assertEquals(0, fractionGenomeAlteredBins.get(1).getCount().intValue());
-        Assert.assertEquals(1, fractionGenomeAlteredBins.get(2).getCount().intValue());
-        Assert.assertEquals(0, fractionGenomeAlteredBins.get(3).getCount().intValue());
-        Assert.assertEquals(0, fractionGenomeAlteredBins.get(4).getCount().intValue());
-        Assert.assertEquals(0, fractionGenomeAlteredBins.get(5).getCount().intValue());
-        Assert.assertEquals(0, fractionGenomeAlteredBins.get(6).getCount().intValue());
+        assertEquals(7, fractionGenomeAlteredBins.size());
+        assertEquals(1, fractionGenomeAlteredBins.get(0).getCount().intValue());
+        assertEquals(0, fractionGenomeAlteredBins.get(1).getCount().intValue());
+        assertEquals(1, fractionGenomeAlteredBins.get(2).getCount().intValue());
+        assertEquals(0, fractionGenomeAlteredBins.get(3).getCount().intValue());
+        assertEquals(0, fractionGenomeAlteredBins.get(4).getCount().intValue());
+        assertEquals(0, fractionGenomeAlteredBins.get(5).getCount().intValue());
+        assertEquals(0, fractionGenomeAlteredBins.get(6).getCount().intValue());
 
         List<ClinicalDataBin> ageAtSeqReportedYearsBins =
             dataBins.stream().filter(bin -> bin.getAttributeId().equals("AGE_AT_SEQ_REPORTED_YEARS")).collect(Collectors.toList());
-        Assert.assertEquals(6, ageAtSeqReportedYearsBins.size());
-        Assert.assertEquals(1, ageAtSeqReportedYearsBins.get(0).getCount().intValue());
-        Assert.assertEquals(1, ageAtSeqReportedYearsBins.get(1).getCount().intValue());
-        Assert.assertEquals(0, ageAtSeqReportedYearsBins.get(2).getCount().intValue());
-        Assert.assertEquals(0, ageAtSeqReportedYearsBins.get(3).getCount().intValue());
-        Assert.assertEquals(0, ageAtSeqReportedYearsBins.get(4).getCount().intValue());
-        Assert.assertEquals(0, ageAtSeqReportedYearsBins.get(5).getCount().intValue());
+        assertEquals(6, ageAtSeqReportedYearsBins.size());
+        assertEquals(1, ageAtSeqReportedYearsBins.get(0).getCount().intValue());
+        assertEquals(1, ageAtSeqReportedYearsBins.get(1).getCount().intValue());
+        assertEquals(0, ageAtSeqReportedYearsBins.get(2).getCount().intValue());
+        assertEquals(0, ageAtSeqReportedYearsBins.get(3).getCount().intValue());
+        assertEquals(0, ageAtSeqReportedYearsBins.get(4).getCount().intValue());
+        assertEquals(0, ageAtSeqReportedYearsBins.get(5).getCount().intValue());
 
         List<ClinicalDataBin> caAgeBins =
             dataBins.stream().filter(bin -> bin.getAttributeId().equals("CA_AGE")).collect(Collectors.toList());
-        Assert.assertEquals(5, caAgeBins.size());
-        Assert.assertEquals(1, caAgeBins.get(0).getCount().intValue());
-        Assert.assertEquals(1, caAgeBins.get(1).getCount().intValue());
-        Assert.assertEquals(0, caAgeBins.get(2).getCount().intValue());
-        Assert.assertEquals(0, caAgeBins.get(3).getCount().intValue());
-        Assert.assertEquals(0, caAgeBins.get(4).getCount().intValue());
+        assertEquals(5, caAgeBins.size());
+        assertEquals(1, caAgeBins.get(0).getCount().intValue());
+        assertEquals(1, caAgeBins.get(1).getCount().intValue());
+        assertEquals(0, caAgeBins.get(2).getCount().intValue());
+        assertEquals(0, caAgeBins.get(3).getCount().intValue());
+        assertEquals(0, caAgeBins.get(4).getCount().intValue());
 
         List<ClinicalDataBin> cptSeqBins =
             dataBins.stream().filter(bin -> bin.getAttributeId().equals("CPT_SEQ_DATE")).collect(Collectors.toList());
-        Assert.assertEquals(3, cptSeqBins.size());
-        Assert.assertEquals(0, cptSeqBins.get(0).getCount().intValue());
-        Assert.assertEquals(2, cptSeqBins.get(1).getCount().intValue());
-        Assert.assertEquals(0, cptSeqBins.get(2).getCount().intValue());
+        assertEquals(3, cptSeqBins.size());
+        assertEquals(0, cptSeqBins.get(0).getCount().intValue());
+        assertEquals(2, cptSeqBins.get(1).getCount().intValue());
+        assertEquals(0, cptSeqBins.get(2).getCount().intValue());
 
         List<ClinicalDataBin> cptOrderIntBins =
             dataBins.stream().filter(bin -> bin.getAttributeId().equals("CPT_ORDER_INT")).collect(Collectors.toList());
-        Assert.assertEquals(1, cptOrderIntBins.size());
-        Assert.assertEquals(2, cptOrderIntBins.get(0).getCount().intValue());
+        assertEquals(1, cptOrderIntBins.size());
+        assertEquals(2, cptOrderIntBins.get(0).getCount().intValue());
 
         List<ClinicalDataBin> hybridDeathIntBins =
             dataBins.stream().filter(bin -> bin.getAttributeId().equals("HYBRID_DEATH_INT")).collect(Collectors.toList());
-        Assert.assertEquals(5, hybridDeathIntBins.size());
-        Assert.assertEquals(1, hybridDeathIntBins.get(0).getCount().intValue());
-        Assert.assertEquals(0, hybridDeathIntBins.get(1).getCount().intValue());
-        Assert.assertEquals(0, hybridDeathIntBins.get(2).getCount().intValue());
-        Assert.assertEquals(1, hybridDeathIntBins.get(3).getCount().intValue());
-        Assert.assertEquals(0, hybridDeathIntBins.get(4).getCount().intValue());
+        assertEquals(5, hybridDeathIntBins.size());
+        assertEquals(1, hybridDeathIntBins.get(0).getCount().intValue());
+        assertEquals(0, hybridDeathIntBins.get(1).getCount().intValue());
+        assertEquals(0, hybridDeathIntBins.get(2).getCount().intValue());
+        assertEquals(1, hybridDeathIntBins.get(3).getCount().intValue());
+        assertEquals(0, hybridDeathIntBins.get(4).getCount().intValue());
         
         
         // assert function calls
@@ -253,18 +280,120 @@ public class ClinicalDataBinUtilTest {
 
         // study view filter should be applied twice
         verify(studyViewFilterApplier, times(2)).apply(any());
-
-        // ids should be populated twice
-        verify(clinicalDataBinUtil, times(2))
-            .populateIdLists(any(), any(), any(), any(), any(), any(), any(), any(), any(), any(), any());
-
+        
         // should call the correct bin calculate method only once for the given binning method
         verify(clinicalDataBinUtil, times(1))
             .calculateStaticDataBins(any(), any(), any(), any(), any(), any(), any(), any());
         verify(clinicalDataBinUtil, never())
             .calculateDynamicDataBins(any(), any(), any(), any(), any());
-    }
+    }    
     
+    @Test
+    public void fetchCustomDataBinCountsWithStaticBinningMethod() throws Exception {
+        String customDataset = getFileContents("classpath:custom-dataset.json");
+        
+        mockCustomDataService(customDataset);
+        mockStudyViewFilterApplier(customDataset);
+        ClinicalDataBinCountFilter filter = createClinicalDataBinCountFilter();
+        
+        List<ClinicalDataBin> bins = clinicalDataBinUtil.fetchCustomDataBinCounts(
+            DataBinMethod.STATIC,
+            filter,
+            false
+        );
+        
+        // Total number of bins:
+        assertEquals(11, bins.size());
+
+        // All bins should have the custom data set name as attribute:
+        List<ClinicalDataBin> customDatasetAttributeBins = bins
+            .stream()
+            .filter(bin -> bin.getAttributeId().equals(testDataAttributeId))
+            .collect(Collectors.toList());
+        assertEquals(11, customDatasetAttributeBins.size());
+
+        assertEquals("<=", bins.get(0).getSpecialValue());
+        assertEquals(3, bins.get(0).getCount().intValue());
+
+        // Bin size should be five:
+        assertEquals(5, bins.get(1).getEnd().intValue() - bins.get(1).getStart().intValue());
+        assertEquals(5, bins.get(1).getCount().intValue());
+
+        assertEquals(8, bins.get(2).getCount().intValue());
+        assertEquals(5, bins.get(3).getCount().intValue());
+        assertEquals(8, bins.get(4).getCount().intValue());
+        assertEquals(5, bins.get(5).getCount().intValue());
+        assertEquals(8, bins.get(6).getCount().intValue());
+        assertEquals(5, bins.get(7).getCount().intValue());
+        assertEquals(6, bins.get(8).getCount().intValue());
+        assertEquals(2, bins.get(9).getCount().intValue());
+        
+        assertEquals(">", bins.get(10).getSpecialValue());
+        assertEquals(1, bins.get(10).getCount().intValue());
+    }
+
+    @Test
+    public void fetchCustomDataBinCountsWithStaticBinningMethod_minimalExample() throws Exception {
+        String customDataset = getFileContents("classpath:custom-dataset-minimal.json");
+        
+        mockCustomDataService(customDataset);
+        mockStudyViewFilterApplier(customDataset);
+        ClinicalDataBinCountFilter filter = createClinicalDataBinCountFilter();
+        
+        List<ClinicalDataBin> bins = clinicalDataBinUtil.fetchCustomDataBinCounts(
+            DataBinMethod.STATIC,
+            filter,
+            false
+        );
+        
+        // Total number of bins:
+        assertEquals(13, bins.size());
+
+        // All bins should have the custom data set name as attribute:
+        List<ClinicalDataBin> customDatasetAttributeBins = bins
+            .stream()
+            .filter(bin -> bin.getAttributeId().equals(testDataAttributeId))
+            .collect(Collectors.toList());
+        assertEquals(13, customDatasetAttributeBins.size());
+        
+        // Start bin:
+        assertEquals("<=", bins.get(0).getSpecialValue());
+        assertEquals(1, bins.get(0).getCount().intValue());
+        assertEquals(-1.0, bins.get(0).getEnd().intValue(), 0);
+
+        // Size of next bins should be 1:
+        assertEquals(1, bins.get(1).getEnd().intValue() - bins.get(1).getStart().intValue(), 0);
+        assertEquals(1, bins.get(1).getCount().intValue());
+
+        assertEquals(1, bins.get(2).getCount().intValue());
+        assertEquals(2, bins.get(3).getCount().intValue());
+        assertEquals(2, bins.get(4).getCount().intValue());
+        assertEquals(1, bins.get(5).getCount().intValue());
+        assertEquals(0, bins.get(6).getCount().intValue());
+        assertEquals(1, bins.get(7).getCount().intValue());
+        assertEquals(1, bins.get(8).getCount().intValue());
+        assertEquals(1, bins.get(9).getCount().intValue());
+        assertEquals(1, bins.get(10).getCount().intValue());
+        assertEquals(1, bins.get(11).getCount().intValue());
+        assertEquals(1, bins.get(12).getCount().intValue());
+        
+    }
+
+    private void mockStudyViewFilterApplier(String customDataset) throws IOException {
+        TreeNode path = customDatasetMapper.readTree(customDataset).path("data").path("data");
+
+        TypeReference<List<SampleIdentifier>> type = new TypeReference<List<SampleIdentifier>>() {};
+        List<SampleIdentifier> customIDs = customDatasetMapper.readValue(customDatasetMapper.treeAsTokens(path), type);
+
+        when(
+            studyViewFilterApplier.apply(any())
+        ).thenReturn(customIDs);
+    }
+
+    private String getFileContents(String resourceLocation) throws IOException {
+        return new String(Files.readAllBytes(ResourceUtils.getFile(resourceLocation).toPath()));
+    }
+
     private void mockUnfilteredQuery()
     {
         mockMethods(
@@ -306,7 +435,17 @@ public class ClinicalDataBinUtilTest {
             mockFilteredClinicalAttributes()
         );
     }
-    
+
+    private static final String sessionTestKey = "testkey";
+
+    @Value("classpath:state.json") Resource stateFile;
+
+    private void mockCustomDataService(String customDataset) throws Exception {
+        when(
+            sessionServiceRequestHandler.getSessionDataJson(any(), any())
+        ).thenReturn(customDataset);
+    }
+
     private void mockMethods(
         List<SampleIdentifier> sampleIdentifiers,
         List<String> sampleIds,
@@ -330,7 +469,6 @@ public class ClinicalDataBinUtilTest {
         when(
             clinicalAttributeService.getClinicalAttributesByStudyIdsAndAttributeIds(eq(studyIds), eq(attributeIds))
         ).thenReturn(clinicalAttributes);
-
         when(
             studyViewFilterApplier.apply(argThat(new StudyViewFilterMatcher(studyViewFilter)))
         ).thenReturn(sampleIdentifiers);
@@ -348,7 +486,7 @@ public class ClinicalDataBinUtilTest {
             clinicalDataFetcher.fetchClinicalDataForPatients(eq(studyIdsOfPatients), eq(patientIds), eq(patientAttributeIds))
         ).thenReturn(clinicalDataForPatients);
     }
-    
+
     private ClinicalDataBinCountFilter mockBaseFilter() {
         ClinicalDataBinCountFilter filter = new ClinicalDataBinCountFilter();
         
@@ -366,7 +504,7 @@ public class ClinicalDataBinUtilTest {
 
         return filter;
     }
-    
+
     private List<String> mockUnfilteredStudySampleUniqueKeys() {
         List<String> keys = new ArrayList<>();
         
@@ -380,7 +518,7 @@ public class ClinicalDataBinUtilTest {
         
         return keys;
     }
-    
+
     private List<String> mockFilteredStudySampleUniqueKeys() {
         List<String> keys = new ArrayList<>();
         
@@ -389,7 +527,7 @@ public class ClinicalDataBinUtilTest {
         
         return keys;
     }
-    
+
     private List<String> mockUnfilteredStudyPatientUniqueKeys() {
         List<String> keys = new ArrayList<>();
         
@@ -401,7 +539,7 @@ public class ClinicalDataBinUtilTest {
         
         return keys;
     }
-    
+
     private List<String> mockFilteredStudyPatientUniqueKeys() {
         List<String> keys = new ArrayList<>();
         
@@ -410,7 +548,7 @@ public class ClinicalDataBinUtilTest {
         
         return keys;
     }
-    
+
     private List<String> mockUnfilteredSampleIds() {
         List<String> sampleIds = new ArrayList<>();
 
@@ -424,7 +562,7 @@ public class ClinicalDataBinUtilTest {
 
         return sampleIds;
     }
-    
+
     private List<String> mockFilteredSampleIds() {
         List<String> sampleIds = new ArrayList<>();
 
@@ -445,7 +583,7 @@ public class ClinicalDataBinUtilTest {
 
         return patientIds;
     }
-    
+
     private List<String> mockFilteredPatientIds() {
         List<String> patientIds = new ArrayList<>();
 
@@ -454,7 +592,7 @@ public class ClinicalDataBinUtilTest {
 
         return patientIds;
     }
-    
+
     private List<Patient> mockUnfilteredPatients() {
         return mockPatients(mockUnfilteredPatientIds());
     }
@@ -462,7 +600,7 @@ public class ClinicalDataBinUtilTest {
     private List<Patient> mockFilteredPatients() {
         return mockPatients(mockFilteredPatientIds());
     }
-    
+
     private List<Patient> mockPatients(List<String> patientIds) {
         List<Patient> patients = new ArrayList<>();
         
@@ -479,7 +617,7 @@ public class ClinicalDataBinUtilTest {
     private List<String> mockUnfilteredStudyIds() {
         return Collections.nCopies(7, STUDY_ID);
     }
-    
+
     private List<String> mockFilteredStudyIds() {
         return Collections.nCopies(2, STUDY_ID);
     }
@@ -487,11 +625,11 @@ public class ClinicalDataBinUtilTest {
     private List<String> mockUnfilteredStudyIdsOfPatients() {
         return Collections.nCopies(5, STUDY_ID);
     }
-    
+
     private List<String> mockFilteredStudyIdsOfPatients() {
         return Collections.nCopies(2, STUDY_ID);
     }
-    
+
     private List<SampleIdentifier> mockUnfilteredSampleIdentifiers() {
         return mockSampleIdentifiers(mockUnfilteredSampleIds());
     }
@@ -512,7 +650,7 @@ public class ClinicalDataBinUtilTest {
 
         return sampleIdentifiers;
     }
-    
+
     private List<String> mockUnfilteredAttributeIds() {
         List<String> attributeIds = new ArrayList<>();
         
@@ -542,7 +680,7 @@ public class ClinicalDataBinUtilTest {
 
         return attributeIds;
     }
-    
+
     private List<ClinicalDataBinFilter> mockUnfilteredAttributes() {
         List<ClinicalDataBinFilter> attributes = new ArrayList<>();
         List<String> attributeIds = mockUnfilteredAttributeIds();
@@ -555,7 +693,7 @@ public class ClinicalDataBinUtilTest {
         
         return attributes;
     }
-    
+
     private ClinicalAttribute mockClinicalAttribute(String attrId, String displayName, boolean isPatientAttribute) {
         ClinicalAttribute attr = new ClinicalAttribute();
         
@@ -568,7 +706,7 @@ public class ClinicalDataBinUtilTest {
         
         return attr;
     }
-    
+
     private List<ClinicalAttribute> mockUnfilteredClinicalAttributes() {
         List<ClinicalAttribute> clinicalAttributes = new ArrayList<>();
         
@@ -595,7 +733,7 @@ public class ClinicalDataBinUtilTest {
 
         return clinicalAttributes;
     }
-    
+
     private ClinicalData mockClinicalData(String id, String value, String patientId, String sampleId)
     {
         ClinicalData data = new ClinicalData();
@@ -608,7 +746,7 @@ public class ClinicalDataBinUtilTest {
         
         return data;
     }
-    
+
     private List<ClinicalData> mockUnfilteredClinicalDataForSamples() {
         List<ClinicalData> data = new ArrayList<>();
         
@@ -659,7 +797,7 @@ public class ClinicalDataBinUtilTest {
 
         return data;
     }
-    
+
     private StudyViewFilter mockUnfilteredStudyViewFilter() {
         StudyViewFilter studyViewFilter = new StudyViewFilter();
 
@@ -669,7 +807,7 @@ public class ClinicalDataBinUtilTest {
         
         return studyViewFilter;
     }
-    
+
     private StudyViewFilter mockFilteredStudyViewFilter() {
         StudyViewFilter studyViewFilter = mockUnfilteredStudyViewFilter();
         
@@ -699,8 +837,8 @@ public class ClinicalDataBinUtilTest {
     }
 
     private class StudyViewFilterMatcher implements ArgumentMatcher<StudyViewFilter> {
-        private StudyViewFilter source;
 
+        private StudyViewFilter source;
         public StudyViewFilterMatcher(StudyViewFilter source) {
             this.source = source;
         }
@@ -714,7 +852,7 @@ public class ClinicalDataBinUtilTest {
                 equalClinicalDataFilters(source.getClinicalDataFilters(), target.getClinicalDataFilters())
             );
         }
-        
+
         private boolean equalClinicalDataFilters(List<ClinicalDataFilter> sourceFilters, List<ClinicalDataFilter> targetFilters) {
             if (sourceFilters == null && targetFilters == null) {
                 return true;
@@ -736,7 +874,7 @@ public class ClinicalDataBinUtilTest {
             
             return true;
         }
-        
+
         private boolean equalDataFilterValues(List<DataFilterValue> sourceValues, List<DataFilterValue> targetValues)
         {
             if (sourceValues == null && targetValues == null) {
@@ -760,5 +898,22 @@ public class ClinicalDataBinUtilTest {
 
             return true;
         }
+
+    }
+
+    private ClinicalDataBinCountFilter createClinicalDataBinCountFilter() {
+        ClinicalDataBinCountFilter clinicalDataBinCountFilter = new ClinicalDataBinCountFilter();
+        List<ClinicalDataBinFilter> attributes = new ArrayList<>();
+        ClinicalDataBinFilter clinicalDataBinFilter = new ClinicalDataBinFilter();
+        clinicalDataBinFilter.setAttributeId(testDataAttributeId);
+        clinicalDataBinFilter.setBinMethod(DataBinFilter.BinMethod.CUSTOM);
+        StudyViewFilter studyViewFilter = new StudyViewFilter();
+        ArrayList<String> studyIds = new ArrayList<>();
+        studyIds.add("study_es_0");
+        studyViewFilter.setStudyIds(studyIds);
+        clinicalDataBinCountFilter.setStudyViewFilter(studyViewFilter);
+        attributes.add(clinicalDataBinFilter);
+        clinicalDataBinCountFilter.setAttributes(attributes);
+        return clinicalDataBinCountFilter;
     }
 }

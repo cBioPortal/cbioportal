@@ -47,7 +47,7 @@ import org.springframework.web.context.WebApplicationContext;
 import javax.servlet.http.HttpSession;
 
 @RunWith(SpringJUnit4ClassRunner.class)
-@ContextConfiguration(locations={"/applicationContext-web.xml", "/applicationContext-security-test.xml"})
+@ContextConfiguration(locations={"/applicationContext-web-test.xml", "/applicationContext-security-test.xml"})
 @WebAppConfiguration
 public class DataAccessTokenControllerTest {
 

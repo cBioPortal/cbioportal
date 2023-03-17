@@ -1,22 +1,32 @@
 package org.cbioportal.web.util;
 
+import org.cbioportal.model.Binnable;
 import org.cbioportal.model.ClinicalAttribute;
 import org.cbioportal.model.ClinicalData;
 import org.cbioportal.model.ClinicalDataBin;
-import org.cbioportal.service.ClinicalAttributeService;
-import org.cbioportal.service.PatientService;
-import org.cbioportal.service.util.ClinicalAttributeUtil;
+import org.cbioportal.service.AttributeByStudyService;
+import org.cbioportal.service.CustomDataService;
+import org.cbioportal.service.util.BinnableCustomDataValue;
+import org.cbioportal.service.util.CustomAttributeWithData;
+import org.cbioportal.service.util.CustomDataSession;
+import org.cbioportal.service.util.CustomDataValue;
 import org.cbioportal.web.parameter.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import java.util.*;
+import java.util.function.Function;
 import java.util.stream.Collectors;
-import java.util.stream.Stream;
+
+import static java.util.Collections.emptyList;
+import static java.util.stream.Collectors.toList;
+import static java.util.stream.Collectors.toMap;
 
 @Component
 public class ClinicalDataBinUtil {
 
+    @Autowired
+    private AttributeByStudyService clinicalAttributeService;
     @Autowired
     private StudyViewFilterApplier studyViewFilterApplier;
     @Autowired
@@ -26,12 +36,10 @@ public class ClinicalDataBinUtil {
     @Autowired
     private StudyViewFilterUtil studyViewFilterUtil;
     @Autowired
-    private ClinicalAttributeService clinicalAttributeService;
+    private CustomDataService customDataService;
     @Autowired
-    private ClinicalAttributeUtil clinicalAttributeUtil;
-    @Autowired
-    private PatientService patientService;
-    
+    private IdPopulator idPopulator;
+
     public StudyViewFilter removeSelfFromFilter(ClinicalDataBinCountFilter dataBinCountFilter) {
         List<ClinicalDataBinFilter> attributes = dataBinCountFilter.getAttributes();
         StudyViewFilter studyViewFilter = dataBinCountFilter.getStudyViewFilter();
@@ -39,7 +47,7 @@ public class ClinicalDataBinUtil {
         if (attributes.size() == 1) {
             studyViewFilterUtil.removeSelfFromFilter(attributes.get(0).getAttributeId(), studyViewFilter);
         }
-        
+
         return studyViewFilter;
     }
 
@@ -48,230 +56,261 @@ public class ClinicalDataBinUtil {
         ClinicalDataBinCountFilter dataBinCountFilter
     ) {
         return this.fetchClinicalDataBinCounts(
-            dataBinMethod, 
-            dataBinCountFilter, 
+            dataBinMethod,
+            dataBinCountFilter,
             // by default call the method to remove self from filter
             true
         );
     }
-    
+
     public List<ClinicalDataBin> fetchClinicalDataBinCounts(
         DataBinMethod dataBinMethod,
         ClinicalDataBinCountFilter dataBinCountFilter,
         boolean shouldRemoveSelfFromFilter
     ) {
+        StudyViewFilter studyViewFilter = toStudyViewFilter(dataBinCountFilter, shouldRemoveSelfFromFilter);
+        List<SampleIdentifier> unfilteredSamples = filterByStudyAndSample(studyViewFilter);
+        List<String> attributeIds = toAttributeIds(dataBinCountFilter.getAttributes());
+        List<ClinicalAttribute> clinicalAttributes = fetchClinicalAttributes(attributeIds, unfilteredSamples);
+        BinningIds binningIds = idPopulator.populateIdLists(unfilteredSamples, clinicalAttributes);
+        Map<String, ClinicalDataType> attributeByDatatype = toAttributeDatatypeMap(binningIds);
+        BinningData<Binnable> unfilteredData = (BinningData<Binnable>) (BinningData<? extends Binnable>) fetchBinningData(binningIds);
+        return createBins(
+            dataBinMethod, 
+            dataBinCountFilter, 
+            studyViewFilter,
+            attributeByDatatype, 
+            clinicalAttributes,
+            binningIds, 
+            unfilteredSamples,
+            unfilteredData
+        );
+    }
+
+    public List<ClinicalDataBin> fetchCustomDataBinCounts(
+        DataBinMethod dataBinMethod,
+        ClinicalDataBinCountFilter dataBinCountFilter,
+        boolean shouldRemoveSelfFromFilter
+    ) {
+        List<String> attributeIds = toAttributeIds(dataBinCountFilter.getAttributes());
+        Map<String, CustomDataSession> customDataSessions = customDataService.getCustomDataSessions(attributeIds);
+        Map<String, List<Binnable>> customDataByAttributeId = createCustomDataByAttributeId(customDataSessions);
+        Map<String, ClinicalDataType> customAttributeByDatatype = createCustomAttributeDatatypeMap(customDataSessions);
+
+        StudyViewFilter studyViewFilter = toStudyViewFilter(dataBinCountFilter, shouldRemoveSelfFromFilter);
+        List<SampleIdentifier> unfilteredSamples = filterByStudyAndSample(studyViewFilter);
+        List<ClinicalAttribute> customDataAttributes = toCustomAttributes(customDataSessions);
+            
+        BinningIds unfilteredIds = idPopulator.populateIdLists(unfilteredSamples, customDataAttributes);
+        BinningData<Binnable> unfilteredData = fetchCustomBinningData(customDataByAttributeId, unfilteredIds);
+
+        return createBins(
+            dataBinMethod, 
+            dataBinCountFilter, 
+            studyViewFilter,
+            customAttributeByDatatype, 
+            customDataAttributes, 
+            unfilteredIds, 
+            unfilteredSamples,
+            unfilteredData
+        );
+    }
+
+    private List<ClinicalDataBin> createBins(
+        DataBinMethod dataBinMethod,
+        ClinicalDataBinCountFilter dataBinCountFilter,
+        StudyViewFilter studyViewFilter,
+        Map<String, ClinicalDataType> clinicalDataAttributeDatatypeMap,
+        List<ClinicalAttribute> clinicalAttributes,
+        BinningIds unfilteredIds,
+        List<SampleIdentifier> unfilteredSampleIds,
+        BinningData<Binnable> unfilteredData
+    ) {
+        List<SampleIdentifier> filteredSampleIds = filterSampleIds(studyViewFilter, unfilteredSampleIds);
+
+        BinningIds filteredIds;
+        List<Binnable> filteredClinicalData;
+        if (filteredSampleIds.equals(unfilteredSampleIds)) {
+            // if filtered and unfiltered samples are exactly the same, no need to fetch clinical data again:
+            filteredIds = new BinningIds(unfilteredIds);
+            filteredClinicalData = unfilteredData.getAllData();
+        } else {
+            filteredIds = idPopulator.populateIdLists(filteredSampleIds, clinicalAttributes);
+            filteredClinicalData = filterClinicalData(unfilteredData, filteredIds);
+        }
+
         List<ClinicalDataBinFilter> attributes = dataBinCountFilter.getAttributes();
+        if (dataBinMethod == DataBinMethod.STATIC) {
+            if (unfilteredSampleIds.isEmpty() || unfilteredData.getAllData().isEmpty()) {
+                return emptyList();
+            }
+            return calculateStaticDataBins(
+                attributes,
+                clinicalDataAttributeDatatypeMap,
+                toClinicalDataByAttributeId(unfilteredData.getAllData()),
+                toClinicalDataByAttributeId(filteredClinicalData),
+                unfilteredIds.getUniqueSampleKeys(),
+                unfilteredIds.getUniquePatientKeys(),
+                filteredIds.getUniqueSampleKeys(),
+                filteredIds.getUniquePatientKeys()
+            );
+        } else { // dataBinMethod == DataBinMethod.DYNAMIC
+            if (filteredClinicalData.isEmpty()) {
+                return emptyList();
+            }
+            return calculateDynamicDataBins(
+                attributes,
+                clinicalDataAttributeDatatypeMap,
+                toClinicalDataByAttributeId(filteredClinicalData),
+                filteredIds.getUniqueSampleKeys(),
+                filteredIds.getUniquePatientKeys()
+            );
+        }
+    }
+
+    private List<ClinicalAttribute> toCustomAttributes(
+        Map<String, CustomDataSession> customDataSessions
+    ) {
+        return customDataSessions
+            .entrySet()
+            .stream()
+            .map(e -> toClinicalAttribute(e.getKey(), e.getValue().getData()))
+            .collect(toList());
+    }
+
+    private ClinicalAttribute toClinicalAttribute(String key, CustomAttributeWithData data) {
+        ClinicalAttribute result = new ClinicalAttribute();
+        result.setPatientAttribute(data.getPatientAttribute());
+        result.setAttrId(key);
+        result.setDatatype(data.getDatatype());
+        return result;
+    }
+
+    private Map<String, List<Binnable>> toClinicalDataByAttributeId(List<Binnable> unfilteredData) {
+        return unfilteredData.stream().collect(Collectors.groupingBy(Binnable::getAttrId));
+    }
+
+    private List<Binnable> filterClinicalData(
+        BinningData<Binnable> unfilteredData, 
+        BinningIds filteredIds
+    ) {
+        return studyViewFilterUtil.filterClinicalData(
+            unfilteredData.samples,
+            unfilteredData.patients,
+            unfilteredData.conflictingPatientAttributes,
+            filteredIds.getStudyIds(),
+            filteredIds.getSampleIds(),
+            filteredIds.getStudyIdsOfPatients(),
+            filteredIds.getPatientIds(),
+            filteredIds.getSampleAttributeIds(),
+            filteredIds.getPatientAttributeIds(),
+            filteredIds.getConflictingPatientAttributeIds()
+        );
+    }
+
+    private List<SampleIdentifier> filterSampleIds(StudyViewFilter studyViewFilter, List<SampleIdentifier> unfilteredSampleIds) {
+        return studyViewFilterUtil.shouldSkipFilterForClinicalDataBins(studyViewFilter)
+            ? unfilteredSampleIds
+            : studyViewFilterApplier.apply(studyViewFilter);
+    }
+
+    private List<String> toAttributeIds(List<ClinicalDataBinFilter> dataBinCountFilter) {
+        return dataBinCountFilter.stream()
+            .map(ClinicalDataBinFilter::getAttributeId).collect(toList());
+    }
+
+    private StudyViewFilter toStudyViewFilter(ClinicalDataBinCountFilter dataBinCountFilter, boolean shouldRemoveSelfFromFilter) {
         StudyViewFilter studyViewFilter = dataBinCountFilter.getStudyViewFilter();
 
         if (shouldRemoveSelfFromFilter) {
             studyViewFilter = removeSelfFromFilter(dataBinCountFilter);
         }
+        return studyViewFilter;
+    }
 
-        List<String> attributeIds = attributes.stream().map(ClinicalDataBinFilter::getAttributeId).collect(Collectors.toList());
+    private Map<String, List<Binnable>> createCustomDataByAttributeId(Map<String, CustomDataSession> customDataSessions) {
+        return customDataSessions.entrySet().stream()
+            .collect(toMap(
+                Map.Entry::getKey,
+                entry -> entry
+                    .getValue()
+                    .getData()
+                    .getData()
+                    .stream()
+                    .map(mapCustomToBinnable(entry))
+                    .collect(toList())
+            ));
+    }
 
-        // filter only by study id and sample identifiers, ignore rest
-        List<SampleIdentifier> unfilteredSampleIdentifiers = filterByStudyAndSample(studyViewFilter);
-
-        List<String> unfilteredStudyIds = new ArrayList<>();
-        List<String> unfilteredSampleIds = new ArrayList<>();
-        List<String> unfilteredPatientIds = new ArrayList<>();
-        List<String> studyIdsOfUnfilteredPatients = new ArrayList<>();
-        List<String> unfilteredUniqueSampleKeys = new ArrayList<>();
-        List<String> unfilteredUniquePatientKeys = new ArrayList<>();
-        List<String> unfilteredSampleAttributeIds = new ArrayList<>();
-        List<String> unfilteredPatientAttributeIds = new ArrayList<>();
-        // patient attributes which are also sample attributes in other studies
-        List<String> unfilteredConflictingPatientAttributeIds = new ArrayList<>();
-
-        populateIdLists(
-            // input
-            unfilteredSampleIdentifiers,
-            attributeIds,
-
-            // output
-            unfilteredStudyIds,
-            unfilteredSampleIds,
-            unfilteredPatientIds,
-            studyIdsOfUnfilteredPatients,
-            unfilteredUniqueSampleKeys,
-            unfilteredUniquePatientKeys,
-            unfilteredSampleAttributeIds,
-            unfilteredPatientAttributeIds,
-            unfilteredConflictingPatientAttributeIds
+    private BinningData<ClinicalData> fetchBinningData(BinningIds binningIds) {
+        List<ClinicalData> samples = clinicalDataFetcher.fetchClinicalDataForSamples(
+            binningIds.getStudyIds(),
+            binningIds.getSampleIds(),
+            binningIds.getSampleAttributeIds()
         );
 
-        Map<String, ClinicalDataType> attributeDatatypeMap = constructAttributeDataMap(
-            unfilteredSampleAttributeIds,
-            unfilteredPatientAttributeIds,
-            unfilteredConflictingPatientAttributeIds
+        List<ClinicalData> patients = clinicalDataFetcher.fetchClinicalDataForPatients(
+            binningIds.getStudyIdsOfPatients(),
+            binningIds.getPatientIds(),
+            binningIds.getPatientAttributeIds()
         );
 
-        List<ClinicalData> unfilteredClinicalDataForSamples = clinicalDataFetcher.fetchClinicalDataForSamples(
-            unfilteredStudyIds,
-            unfilteredSampleIds,
-            new ArrayList<>(unfilteredSampleAttributeIds)
+        List<ClinicalData> conflictingPatientAttributes = clinicalDataFetcher.fetchClinicalDataForConflictingPatientAttributes(
+            binningIds.getStudyIdsOfPatients(),
+            binningIds.getPatientIds(),
+            binningIds.getConflictingPatientAttributeIds()
         );
-
-        List<ClinicalData> unfilteredClinicalDataForPatients = clinicalDataFetcher.fetchClinicalDataForPatients(
-            studyIdsOfUnfilteredPatients,
-            unfilteredPatientIds,
-            new ArrayList<>(unfilteredPatientAttributeIds)
-        );
-
-        List<ClinicalData> unfilteredClinicalDataForConflictingPatientAttributes = clinicalDataFetcher.fetchClinicalDataForConflictingPatientAttributes(
-            studyIdsOfUnfilteredPatients,
-            unfilteredPatientIds,
-            new ArrayList<>(unfilteredConflictingPatientAttributeIds)
-        );
-
-        List<ClinicalData> unfilteredClinicalData = Stream.of(
-            unfilteredClinicalDataForSamples,
-            unfilteredClinicalDataForPatients,
-            unfilteredClinicalDataForConflictingPatientAttributes
-        ).flatMap(Collection::stream).collect(Collectors.toList());
-
-        // if filters are practically the same no need to re-apply them
-        List<SampleIdentifier> filteredSampleIdentifiers =
-            studyViewFilterUtil.shouldSkipFilterForClinicalDataBins(studyViewFilter) ?
-                unfilteredSampleIdentifiers : studyViewFilterApplier.apply(studyViewFilter);
-
-        List<String> filteredUniqueSampleKeys;
-        List<String> filteredUniquePatientKeys;
-        List<ClinicalData> filteredClinicalData;
-
-        // if filtered and unfiltered samples are exactly the same, no need to fetch clinical data again
-        if (filteredSampleIdentifiers.equals(unfilteredSampleIdentifiers)) {
-            filteredUniqueSampleKeys = unfilteredUniqueSampleKeys;
-            filteredUniquePatientKeys = unfilteredUniquePatientKeys;
-            filteredClinicalData = unfilteredClinicalData;
-        }
-        else {
-            List<String> filteredStudyIds = new ArrayList<>();
-            List<String> filteredSampleIds = new ArrayList<>();
-            List<String> filteredPatientIds = new ArrayList<>();
-            List<String> studyIdsOfFilteredPatients = new ArrayList<>();
-            filteredUniqueSampleKeys = new ArrayList<>();
-            filteredUniquePatientKeys = new ArrayList<>();
-            List<String> filteredSampleAttributeIds = new ArrayList<>();
-            List<String> filteredPatientAttributeIds = new ArrayList<>();
-            // patient attributes which are also sample attributes in other studies
-            List<String> filteredConflictingPatientAttributeIds = new ArrayList<>();
-
-            populateIdLists(
-                // input
-                filteredSampleIdentifiers,
-                attributeIds,
-
-                // output
-                filteredStudyIds,
-                filteredSampleIds,
-                filteredPatientIds,
-                studyIdsOfFilteredPatients,
-                filteredUniqueSampleKeys,
-                filteredUniquePatientKeys,
-                filteredSampleAttributeIds,
-                filteredPatientAttributeIds,
-                filteredConflictingPatientAttributeIds
-            );
-
-            filteredClinicalData = studyViewFilterUtil.filterClinicalData(
-                unfilteredClinicalDataForSamples,
-                unfilteredClinicalDataForPatients,
-                unfilteredClinicalDataForConflictingPatientAttributes,
-                filteredStudyIds,
-                filteredSampleIds,
-                studyIdsOfFilteredPatients,
-                filteredPatientIds,
-                filteredSampleAttributeIds,
-                filteredPatientAttributeIds,
-                filteredConflictingPatientAttributeIds
-            );
-        }
-
-        Map<String, List<ClinicalData>> unfilteredClinicalDataByAttributeId =
-            unfilteredClinicalData.stream().collect(Collectors.groupingBy(ClinicalData::getAttrId));
-
-        Map<String, List<ClinicalData>> filteredClinicalDataByAttributeId =
-            filteredClinicalData.stream().collect(Collectors.groupingBy(ClinicalData::getAttrId));
-
-        List<ClinicalDataBin> clinicalDataBins = Collections.emptyList();
-
-        if (dataBinMethod == DataBinMethod.STATIC) {
-            if (!unfilteredSampleIdentifiers.isEmpty() && !unfilteredClinicalData.isEmpty()) {
-                clinicalDataBins = calculateStaticDataBins(
-                    attributes,
-                    attributeDatatypeMap,
-                    unfilteredClinicalDataByAttributeId,
-                    filteredClinicalDataByAttributeId,
-                    unfilteredUniqueSampleKeys,
-                    unfilteredUniquePatientKeys,
-                    filteredUniqueSampleKeys,
-                    filteredUniquePatientKeys
-                );
-            }
-        }
-        else { // dataBinMethod == DataBinMethod.DYNAMIC
-            if (!filteredClinicalData.isEmpty()) {
-                clinicalDataBins = calculateDynamicDataBins(
-                    attributes,
-                    attributeDatatypeMap,
-                    filteredClinicalDataByAttributeId,
-                    filteredUniqueSampleKeys,
-                    filteredUniquePatientKeys
-                );
-            }
-        }
-        
-        return clinicalDataBins;
+        return new BinningData<>(samples, patients, conflictingPatientAttributes);
     }
     
-    public void populateIdLists(
-        // input lists
-        List<SampleIdentifier> sampleIdentifiers,
-        List<String> attributeIds,
-        // lists to get populated
-        List<String> studyIds,
-        List<String> sampleIds,
-        List<String> patientIds,
-        List<String> studyIdsOfPatients,
-        List<String> uniqueSampleKeys,
-        List<String> uniquePatientKeys,
-        List<String> sampleAttributeIds,
-        List<String> patientAttributeIds,
-        List<String> conflictingPatientAttributeIds
+    private BinningData<Binnable> fetchCustomBinningData(
+        Map<String, List<Binnable>> clinicalDataByAttributeId, 
+        BinningIds binningIds
     ) {
-        studyViewFilterUtil.extractStudyAndSampleIds(
-            sampleIdentifiers,
-            studyIds,
-            sampleIds
+        List<Binnable> clinicalDataForPatients = clinicalDataByAttributeId
+            .values()
+            .stream()
+            .filter(e -> e.get(0).isPatientAttribute())
+            .flatMap(List::stream)
+            .collect(toList());
+
+        List<Binnable> clinicalDataForSamples = clinicalDataByAttributeId
+            .values()
+            .stream()
+            .filter(e -> !e.get(0).isPatientAttribute())
+            .flatMap(List::stream)
+            .collect(toList());
+
+        List<ClinicalData> unfilteredClinicalDataForConflictingPatientAttributes = clinicalDataFetcher.fetchClinicalDataForConflictingPatientAttributes(
+            binningIds.getStudyIdsOfPatients(),
+            binningIds.getPatientIds(),
+            binningIds.getConflictingPatientAttributeIds()
         );
+        return new BinningData<>(
+            clinicalDataForSamples,
+            clinicalDataForPatients,
+            (List<Binnable>) (List<? extends Binnable>) unfilteredClinicalDataForConflictingPatientAttributes
+        );
+    }
 
-        patientService.getPatientsOfSamples(studyIds, sampleIds).stream().forEach(patient -> {
-            patientIds.add(patient.getStableId());
-            studyIdsOfPatients.add(patient.getCancerStudyIdentifier());
-        });
 
-        uniqueSampleKeys.addAll(studyViewFilterApplier.getUniqkeyKeys(studyIds, sampleIds));
-        uniquePatientKeys.addAll(studyViewFilterApplier.getUniqkeyKeys(studyIdsOfPatients, patientIds));
-
-        if (attributeIds != null) {
-            List<ClinicalAttribute> clinicalAttributes = clinicalAttributeService
-                .getClinicalAttributesByStudyIdsAndAttributeIds(studyIds, attributeIds);
-
-            clinicalAttributeUtil.extractCategorizedClinicalAttributes(
-                clinicalAttributes,
-                sampleAttributeIds,
-                patientAttributeIds,
-                conflictingPatientAttributeIds
+    private Function<CustomDataValue, Binnable> mapCustomToBinnable(Map.Entry<String, CustomDataSession> entry) {
+        return customDataValue -> {
+            final String attributeId = entry.getKey();
+            final Boolean patientAttribute = entry.getValue().getData().getPatientAttribute();
+            return new BinnableCustomDataValue(
+                customDataValue, 
+                attributeId, 
+                patientAttribute
             );
-        }
+        };
     }
 
     public List<ClinicalDataBin> calculateStaticDataBins(
-        List<ClinicalDataBinFilter> attributes,
+        List<ClinicalDataBinFilter> attributes, 
         Map<String, ClinicalDataType> attributeDatatypeMap,
-        Map<String, List<ClinicalData>> unfilteredClinicalDataByAttributeId,
-        Map<String, List<ClinicalData>> filteredClinicalDataByAttributeId,
+        Map<String, List<Binnable>> unfilteredClinicalDataByAttributeId,
+        Map<String, List<Binnable>> filteredClinicalDataByAttributeId,
         List<String> unfilteredUniqueSampleKeys,
         List<String> unfilteredUniquePatientKeys,
         List<String> filteredUniqueSampleKeys,
@@ -291,13 +330,13 @@ public class ClinicalDataBinUtil {
                 List<ClinicalDataBin> dataBins = dataBinner
                     .calculateClinicalDataBins(attribute, clinicalDataType,
                         filteredClinicalDataByAttributeId.getOrDefault(attribute.getAttributeId(),
-                            Collections.emptyList()),
+                            emptyList()),
                         unfilteredClinicalDataByAttributeId.getOrDefault(attribute.getAttributeId(),
-                            Collections.emptyList()),
+                            emptyList()),
                         filteredIds, unfilteredIds)
                     .stream()
                     .map(dataBin -> studyViewFilterUtil.dataBinToClinicalDataBin(attribute, dataBin))
-                    .collect(Collectors.toList());
+                    .collect(toList());
 
                 clinicalDataBins.addAll(dataBins);
             }
@@ -309,7 +348,7 @@ public class ClinicalDataBinUtil {
     public List<ClinicalDataBin> calculateDynamicDataBins(
         List<ClinicalDataBinFilter> attributes,
         Map<String, ClinicalDataType> attributeDatatypeMap,
-        Map<String, List<ClinicalData>> filteredClinicalDataByAttributeId,
+        Map<String, List<Binnable>> filteredClinicalDataByAttributeId,
         List<String> filteredUniqueSampleKeys,
         List<String> filteredUniquePatientKeys
     ) {
@@ -317,6 +356,7 @@ public class ClinicalDataBinUtil {
 
         for (ClinicalDataBinFilter attribute : attributes) {
 
+            // if there is clinical data for requested attribute
             if (attributeDatatypeMap.containsKey(attribute.getAttributeId())) {
                 ClinicalDataType clinicalDataType = attributeDatatypeMap.get(attribute.getAttributeId());
                 List<String> filteredIds = clinicalDataType == ClinicalDataType.PATIENT
@@ -326,36 +366,51 @@ public class ClinicalDataBinUtil {
                 List<ClinicalDataBin> dataBins = dataBinner
                     .calculateDataBins(attribute, clinicalDataType,
                         filteredClinicalDataByAttributeId.getOrDefault(attribute.getAttributeId(),
-                            Collections.emptyList()),
+                            emptyList()),
                         filteredIds)
                     .stream()
                     .map(dataBin -> studyViewFilterUtil.dataBinToClinicalDataBin(attribute, dataBin))
-                    .collect(Collectors.toList());
+                    .collect(toList());
                 clinicalDataBins.addAll(dataBins);
             }
         }
 
         return clinicalDataBins;
     }
-
-    public Map<String, ClinicalDataType> constructAttributeDataMap(
+    private Map<String, ClinicalDataType> toAttributeDatatypeMap(BinningIds binningIds) {
+        return toAttributeDatatypeMap(
+            binningIds.getSampleAttributeIds(),
+            binningIds.getPatientAttributeIds(),
+            binningIds.getConflictingPatientAttributeIds()
+        );
+    }
+    public Map<String, ClinicalDataType> toAttributeDatatypeMap(
         List<String> sampleAttributeIds,
         List<String> patientAttributeIds,
         List<String> conflictingPatientAttributeIds
     ) {
         Map<String, ClinicalDataType> attributeDatatypeMap = new HashMap<>();
 
-        sampleAttributeIds.forEach(attribute->{
+        sampleAttributeIds.forEach(attribute -> {
             attributeDatatypeMap.put(attribute, ClinicalDataType.SAMPLE);
         });
-        patientAttributeIds.forEach(attribute->{
+        patientAttributeIds.forEach(attribute -> {
             attributeDatatypeMap.put(attribute, ClinicalDataType.PATIENT);
         });
-        conflictingPatientAttributeIds.forEach(attribute->{
+        conflictingPatientAttributeIds.forEach(attribute -> {
             attributeDatatypeMap.put(attribute, ClinicalDataType.SAMPLE);
         });
 
         return attributeDatatypeMap;
+    }
+
+    private Map<String, ClinicalDataType> createCustomAttributeDatatypeMap(
+        Map<String, CustomDataSession> customDataSessions
+    ) {
+        return customDataSessions.entrySet().stream().collect(toMap(
+            Map.Entry::getKey,
+            ClinicalDataBinUtil::getDataType
+        ));
     }
 
     public List<SampleIdentifier> filterByStudyAndSample(
@@ -372,4 +427,22 @@ public class ClinicalDataBinUtil {
 
         return studyViewFilterApplier.apply(filter);
     }
+
+    private static ClinicalDataType getDataType(Map.Entry<String, CustomDataSession> entry) {
+        return entry.getValue().getData().getPatientAttribute() ? ClinicalDataType.PATIENT : ClinicalDataType.SAMPLE;
+    }
+    
+    private List<ClinicalAttribute> fetchClinicalAttributes(List<String> attributeIds, List<SampleIdentifier> unfilteredSamples) {
+
+        List<String> studyIds = new ArrayList<>();
+        List<String> sampleIds = new ArrayList<>();
+        studyViewFilterUtil.extractStudyAndSampleIds(
+            unfilteredSamples,
+            studyIds,
+            sampleIds
+        );
+        
+       return clinicalAttributeService.getClinicalAttributesByStudyIdsAndAttributeIds(studyIds, attributeIds);
+    }
+    
 }

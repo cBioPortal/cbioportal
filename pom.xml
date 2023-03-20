@@ -460,9 +460,9 @@
         <version>${mysql-connector.version}</version>
       </dependency>
         <dependency>
-            <groupId>ru.yandex.clickhouse</groupId>
+            <groupId>com.clickhouse</groupId>
             <artifactId>clickhouse-jdbc</artifactId>
-            <version>0.3.2</version>
+            <version>0.4.0</version>
         </dependency>
       <!-- Apache commons -->
       <dependency>

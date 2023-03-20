@@ -1,7 +1,10 @@
 package org.cbioportal.persistence.mybatiscolumnstore;
 
+import org.cbioportal.model.Sample;
 import org.cbioportal.webparam.StudyViewFilter;
 
+import java.util.List;
+
 public interface StudyViewMapper {
-    void filteredSamples(StudyViewFilter studyViewFilter);
+    List<Sample> getFilteredSamples(StudyViewFilter studyViewFilter);
 }

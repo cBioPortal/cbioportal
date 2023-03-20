@@ -191,10 +191,13 @@
     </sql>
 
     <sql id="whereSite1IsNot2">
-        structural_variant.SITE2_ENTREZ_GENE_ID != structural_variant.SITE1_ENTREZ_GENE_ID
-                OR structural_variant.SITE1_ENTREZ_GENE_ID IS NULL
+        (
+            structural_variant.SITE2_ENTREZ_GENE_ID != structural_variant.SITE1_ENTREZ_GENE_ID
+            OR
+            structural_variant.SITE1_ENTREZ_GENE_ID IS NULL
+        )
     </sql>
-    
+
     <sql id="whereCustomAnnotations">
         <bind name="allDriverAnnotationsSelected" value="includeDriver and includeVUS and includeUnknownOncogenicity" />
         <bind name="noDriverAnnotationsSelected" value="not includeDriver and not includeVUS and not includeUnknownOncogenicity" />

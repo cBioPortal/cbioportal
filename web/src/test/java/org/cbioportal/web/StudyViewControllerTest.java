@@ -801,7 +801,7 @@ public class StudyViewControllerTest {
     @Test
     public void fetchClinicalEventTypeCounts() throws Exception
     {
-        List<ClinicalEventTypeCount> testEventTypeCounts = List.of(new ClinicalEventTypeCount(TEST_CLINICAL_EVENT_TYPE, TEST_CLINICAL_EVENT_TYPE_COUNT));
+        List<ClinicalEventTypeCount> testEventTypeCounts = Arrays.asList(new ClinicalEventTypeCount(TEST_CLINICAL_EVENT_TYPE, TEST_CLINICAL_EVENT_TYPE_COUNT));
 
         when(studyViewFilterApplier.apply(any())).thenReturn(filteredSampleIdentifiers);
         when(clinicalEventService.getClinicalEventTypeCounts(anyList(), anyList()))

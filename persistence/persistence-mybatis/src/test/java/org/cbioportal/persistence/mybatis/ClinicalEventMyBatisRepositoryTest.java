@@ -197,15 +197,23 @@ public class ClinicalEventMyBatisRepositoryTest {
     
     @Test
     public void getSamplesOfPatientsPerEventTypeInStudy() {
+       List<String> studyList = new ArrayList<>();
+       studyList.add("study_tcga_pub");
+       List<String> sampleList = new ArrayList<>();
+       sampleList.add("TCGA-A1-A0SB-01");
        Map<String, Set<String>> result = clinicalEventMyBatisRepository
-           .getSamplesOfPatientsPerEventTypeInStudy(List.of("study_tcga_pub"), List.of("TCGA-A1-A0SB-01"));
+           .getSamplesOfPatientsPerEventTypeInStudy(studyList, sampleList);
        
        Assert.assertNotNull(result.get("STATUS"));
     }
     
     @Test
     public void getPatientsDistinctClinicalEventInStudies() {
-        List<ClinicalEvent> result = clinicalEventMyBatisRepository.getPatientsDistinctClinicalEventInStudies(List.of("study_tcga_pub"), List.of("TCGA-A1-A0SB"));
+        List<String> studyList = new ArrayList<>();
+        studyList.add("study_tcga_pub");
+        List<String> patientList = new ArrayList<>();
+        patientList.add("TCGA-A1-A0SB");
+        List<ClinicalEvent> result = clinicalEventMyBatisRepository.getPatientsDistinctClinicalEventInStudies(studyList, patientList);
         
         List<String> eventTypes = result.stream().map(ClinicalEvent::getEventType).collect(Collectors.toList());
         Assert.assertEquals(2, result.size());

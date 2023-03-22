@@ -135,8 +135,8 @@ public class ClinicalEventServiceImplTest extends BaseServiceImplTest {
     
     @Test
     public void getPatientsSamplesPerClinicalEventType() {
-        List<String> studyIds = List.of(STUDY_ID);
-        List<String> sampleIds = List.of(SAMPLE_ID1);
+        List<String> studyIds = Arrays.asList(STUDY_ID);
+        List<String> sampleIds = Arrays.asList(SAMPLE_ID1);
         
         Map<String, Set<String>> patientsSamplesPerEventType = new HashMap<>();
         patientsSamplesPerEventType.put(CLINICAL_EVENT_TYPE, new HashSet<>(sampleIds));
@@ -150,8 +150,8 @@ public class ClinicalEventServiceImplTest extends BaseServiceImplTest {
     
     @Test
     public void getClinicalEventTypeCounts() {
-        List<String> studyIds = List.of(STUDY_ID);
-        List<String> sampleIds = List.of(SAMPLE_ID1);
+        List<String> studyIds = Arrays.asList(STUDY_ID);
+        List<String> sampleIds = Arrays.asList(SAMPLE_ID1);
         
         Patient p = new Patient();
         p.setCancerStudyIdentifier(STUDY_ID);
@@ -161,9 +161,9 @@ public class ClinicalEventServiceImplTest extends BaseServiceImplTest {
         ce.setEventType(CLINICAL_EVENT_TYPE);
         
         Mockito.when(patientService.getPatientsOfSamples(anyList(), anyList()))
-            .thenReturn(List.of(p));
+            .thenReturn(Arrays.asList(p));
         Mockito.when(clinicalEventRepository.getPatientsDistinctClinicalEventInStudies(anyList(), anyList()))
-            .thenReturn(List.of(ce));
+            .thenReturn(Arrays.asList(ce));
         
         List<ClinicalEventTypeCount> eventTypeCounts = clinicalEventService.getClinicalEventTypeCounts(studyIds, sampleIds);
         Assert.assertEquals(1, eventTypeCounts.size());

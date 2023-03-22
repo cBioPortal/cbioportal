@@ -195,7 +195,7 @@ public class ExtendedMutationUtil {
     }
 
     public static String getMutationType(MafRecord record) {
-        String mutationType = record.getOncotatorVariantClassification();
+        String mutationType = record.getMafVariantClassification();
 
         if (mutationType == null ||
                 mutationType.length() == 0 ||
@@ -298,11 +298,6 @@ public class ExtendedMutationUtil {
         mutation.setEndPosition(defaultLong);
         mutation.setValidationStatus(defaultStr);
         mutation.setMutationStatus(defaultStr);
-        mutation.setFunctionalImpactScore(defaultStr);
-        mutation.setFisValue(defaultFloat);
-        mutation.setLinkXVar(defaultStr);
-        mutation.setLinkPdb(defaultStr);
-        mutation.setLinkMsa(defaultStr);
         mutation.setNcbiBuild(defaultStr);
         mutation.setStrand(defaultStr);
         mutation.setVariantType(defaultStr);
@@ -326,13 +321,11 @@ public class ExtendedMutationUtil {
         mutation.setTumorRefCount(defaultInt);
         mutation.setNormalAltCount(defaultInt);
         mutation.setNormalRefCount(defaultInt);
-        mutation.setOncotatorDbSnpRs(defaultStr);
-        mutation.setOncotatorCodonChange(defaultStr);
-        mutation.setOncotatorRefseqMrnaId(defaultStr);
-        mutation.setOncotatorUniprotName(defaultStr);
-        mutation.setOncotatorUniprotAccession(defaultStr);
-        mutation.setOncotatorProteinPosStart(defaultInt);
-        mutation.setOncotatorProteinPosEnd(defaultInt);
+        mutation.setCodonChange(defaultStr);
+        mutation.setRefseqMrnaId(defaultStr);
+        mutation.setUniprotAccession(defaultStr);
+        mutation.setProteinPosStart(defaultInt);
+        mutation.setProteinPosEnd(defaultInt);
         mutation.setCanonicalTranscript(true);
 
         return mutation;

@@ -13,6 +13,10 @@
 
     <!-- load beans from shared test configuration -->
     <bean class="org.cbioportal.web.config.CacheMapUtilConfig"/>
+    
+    <bean class="org.cbioportal.service.impl.CustomDataServiceImpl"/>
+    <bean class="org.cbioportal.service.util.SessionServiceRequestHandler"/>
+    <bean class="com.fasterxml.jackson.databind.ObjectMapper"/>
 
     <bean
         class="org.springframework.beans.factory.config.PropertyPlaceholderConfigurer">

@@ -45,10 +45,20 @@
         <property name="url" value="jdbc:h2:mem:;MODE=MySQL;DATABASE_TO_UPPER=false;INIT=RUNSCRIPT FROM 'classpath:cgds-test.sql'\;RUNSCRIPT FROM 'classpath:testSql.sql'"/>
     </bean>
 
+    <bean id="databaseIdProvider" class="org.apache.ibatis.mapping.VendorDatabaseIdProvider">
+        <property name="properties">
+            <props>
+                <prop key="MySQL">mysql</prop>
+                <prop key="H2">h2</prop>
+            </props>
+        </property>
+    </bean>
+    
     <bean id="sqlSessionFactory" class="org.mybatis.spring.SqlSessionFactoryBean">
         <property name="dataSource" ref="dbcpDataSource"/>
         <property name="typeAliasesPackage" value="org.mskcc.cbio.portal.model"/>
         <property name="typeHandlersPackage" value="org.cbioportal.persistence.mybatis.typehandler"/>
+        <property name="databaseIdProvider" ref="databaseIdProvider"/>
     </bean>
 
     <bean id="transactionManager" class="org.springframework.jdbc.datasource.DataSourceTransactionManager">

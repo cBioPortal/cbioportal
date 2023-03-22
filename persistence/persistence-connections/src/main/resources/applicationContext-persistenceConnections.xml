@@ -44,7 +44,15 @@
         </bean>
 
         <bean id="customObjectFactory" class="org.cbioportal.persistence.mybatis.util.CustomMyBatisObjectFactory" />
-
+        
+        <bean id="databaseIdProvider" class="org.apache.ibatis.mapping.VendorDatabaseIdProvider">
+            <property name="properties">
+                <props>
+                    <prop key="MySQL">mysql</prop>
+                    <prop key="H2">h2</prop>
+                </props>
+            </property>
+        </bean> 
         <!-- define the SqlSessionFactory -->
         <bean id="sqlSessionFactory" class="org.mybatis.spring.SqlSessionFactoryBean">
             <property name="dataSource" ref="businessDataSource" />
@@ -60,6 +68,7 @@
             <!-- mapper locations is set here to support interdependency between mappers without -->
             <!-- having to autowire repositories into java classes that do not make direct use of them -->
             <property name="mapperLocations" value="classpath*:org/cbioportal/persistence/mybatis/**/*.xml" />
+            <property name="databaseIdProvider" ref="databaseIdProvider"/>
         </bean>
     </beans>
   

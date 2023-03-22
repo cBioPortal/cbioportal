@@ -8,7 +8,7 @@ import org.cbioportal.service.exception.StudyNotFoundException;
 
 import java.util.List;
 
-public interface ClinicalAttributeService {
+public interface ClinicalAttributeService extends AttributeByStudyService {
 
     List<ClinicalAttribute> getAllClinicalAttributes(String projection, Integer pageSize, Integer pageNumber,
                                                      String sortBy, String direction);
@@ -31,5 +31,4 @@ public interface ClinicalAttributeService {
 
     List<ClinicalAttributeCount> getClinicalAttributeCountsBySampleListId(String sampleListId);
     
-    List<ClinicalAttribute> getClinicalAttributesByStudyIdsAndAttributeIds(List<String> studyIds, List<String> attributeIds);
 }

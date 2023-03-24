@@ -150,7 +150,7 @@ public final class MutationKeywordUtils {
      * @return 
      */
     public static String guessCosmicKeyword(String aminoAcidChange) {
-        if (aminoAcidChange.matches("\\(?[A-Z\\*]?[0-9]+\\)?fs\\*?>?\\??[0-9]*") // frameshift
+        if (aminoAcidChange.matches("\\(?[A-Z\\*]?[0-9]+[A-Z\\*]?\\)?fs\\*?>?\\??[0-9]*") // frameshift
                 || aminoAcidChange.equals("?fs") // frameshift
                 || aminoAcidChange.matches("[A-Z][0-9]+>?\\*") // non sense
                 || aminoAcidChange.matches("M1>?[A-LN-Z]") // non start
@@ -166,7 +166,7 @@ public final class MutationKeywordUtils {
             return "truncating";
         }
         
-        Pattern p = Pattern.compile("(([A-Z\\*])[0-9]+)>?\\2");
+        Pattern p = Pattern.compile("(([A-Z\\*])[0-9]+)>?((\\2)|(=)|(%3D))");  // cosmic encodes = as %3D
         Matcher m = p.matcher(aminoAcidChange);
         if (m.matches()) {
             return m.group(1)+" silent";
@@ -181,10 +181,22 @@ public final class MutationKeywordUtils {
             return m.group(1)+" missense";
         }
         
-        p = Pattern.compile("[A-Z]?([0-9]+)_[A-Z]?[0-9]+ins(([A-Z]+)|([0-9]+))");
+        p = Pattern.compile("[A-Z]?([0-9]+)_[A-Z\\*]?[0-9]+ins(([A-Z]+)|([0-9]+))"); //incl. ins before stop codon
         m = p.matcher(aminoAcidChange);
         if (m.matches()) {
             return m.group(1)+" insertion";
+        }
+
+        p = Pattern.compile("\\*([0-9]+)[A-Z]?ext\\*(([0-9]+)|(\\?))"); //extension of stop codon
+        m = p.matcher(aminoAcidChange);
+        if (m.matches()) {
+            return m.group(1)+" insertion";
+        }
+
+        p = Pattern.compile("[A-Z*]([0-9]+)(_[A-Z*][0-9]+)?dup"); //duplication treated as insertion
+        m = p.matcher(aminoAcidChange);
+        if (m.matches()) {
+            return m.group(1)+" insertion";  
         }
         
         p = Pattern.compile("[A-Z]?([0-9]+)>[A-Z][A-Z]+");
@@ -211,11 +223,11 @@ public final class MutationKeywordUtils {
             return m.group(1) + "-" + m.group(2) + " deletion";
         }
         
-        p = Pattern.compile("[A-Z]([0-9]+)_[A-Z]([0-9]+)>([A-Z]+)"); // this is actually similar to missense mutation for more than 1 amino acid
+        p = Pattern.compile("[A-Z]([0-9]+)_[A-Z*]([0-9]+)((>)|(delins))([A-Z*]+)"); // this is actually similar to missense mutation for more than 1 amino acid
         m = p.matcher(aminoAcidChange);
         if (m.matches()) {
             int n1 = Integer.parseInt(m.group(2)) - Integer.parseInt(m.group(1)) + 1;
-            int n2 = m.group(3).length();
+            int n2 = m.group(6).length();
             if (n1==n2) {
                 return m.group(1) + "-" + m.group(2) + " missense";
             }
@@ -225,6 +237,27 @@ public final class MutationKeywordUtils {
             }
             
             return m.group(1) + " insertion";
+        }
+
+        p = Pattern.compile("[A-Z*]([0-9]+)delins[A-Z*]+[0-9]*"); //delins with 1 del & >1 ins
+        m = p.matcher(aminoAcidChange);
+        if (m.matches()) {
+            return m.group(1)+" insertion";
+        }
+
+        p = Pattern.compile("([A-Z*]+)([0-9]+)delext\\*([0-9]+)"); //delext
+        m = p.matcher(aminoAcidChange);
+        if (m.matches()) {
+            int n1 = m.group(1).length(); // no. of AA deleted
+            int n2 = Integer.parseInt(m.group(3));  // no. of AA added
+            int n3 = Integer.parseInt(m.group(2)); // location of AA1
+            if (n1==n2) {
+                return m.group(2) + "-" + Integer.toString(n3 + n2 - 1) + " missense";
+            }
+
+            if (n1 < n2) {
+                return m.group(2) + " insertion";
+            }
         }
         
         return null;

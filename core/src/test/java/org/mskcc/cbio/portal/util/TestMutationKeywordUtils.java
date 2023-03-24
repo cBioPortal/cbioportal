@@ -107,11 +107,15 @@ public class TestMutationKeywordUtils {
         assertNull(MutationKeywordUtils.guessCosmicKeyword("K267_D268ins?"));
         assertNull(MutationKeywordUtils.guessCosmicKeyword("WQQQSYLD25?"));
         assertNull(MutationKeywordUtils.guessCosmicKeyword("M1>?"));
-        
+        assertNull(MutationKeywordUtils.guessCosmicKeyword("PCRF*177delext*4")); //delext deletion should be Null
+
+
         // silent
         assertEquals("*803 silent", MutationKeywordUtils.guessCosmicKeyword("*803*"));
         assertEquals("A803 silent", MutationKeywordUtils.guessCosmicKeyword("A803A"));
         assertEquals("A803 silent", MutationKeywordUtils.guessCosmicKeyword("A803>A"));
+        assertEquals("A803 silent", MutationKeywordUtils.guessCosmicKeyword("A803="));
+        assertEquals("A803 silent", MutationKeywordUtils.guessCosmicKeyword("A803%3D"));
         
         // missense
         assertEquals("A2 missense", MutationKeywordUtils.guessCosmicKeyword("A2S"));
@@ -127,8 +131,30 @@ public class TestMutationKeywordUtils {
         assertEquals("630 insertion", MutationKeywordUtils.guessCosmicKeyword("D630_I631insRG"));
         assertEquals("299 insertion", MutationKeywordUtils.guessCosmicKeyword("299_300insGRS"));
         assertEquals("976 insertion", MutationKeywordUtils.guessCosmicKeyword("V976_C977ins3"));
+        assertEquals("172 insertion", MutationKeywordUtils.guessCosmicKeyword("D172_*173insCTSTDGS"));
         assertEquals("452 insertion", MutationKeywordUtils.guessCosmicKeyword("Y452_Q455>SGGSRIK")); // this is actually missense?
         assertEquals("475 insertion", MutationKeywordUtils.guessCosmicKeyword("Q475_E476>VLQ")); // this is actually missense?
+        
+        // extension (treated as insertion)
+        assertEquals("1001 insertion", MutationKeywordUtils.guessCosmicKeyword("*1001Rext*22"));
+        
+        // duplication (treated as insertion)
+        assertEquals("100 insertion", MutationKeywordUtils.guessCosmicKeyword("A100dup"));
+        assertEquals("102 insertion", MutationKeywordUtils.guessCosmicKeyword("A102_A104dup"));
+        
+        // delins (treated as insertion/missense/deletion)
+        assertEquals("1038-1041 deletion", MutationKeywordUtils.guessCosmicKeyword("A1038_R1041delinsCFC"));
+        assertEquals("102-104 deletion", MutationKeywordUtils.guessCosmicKeyword("A102_L104delinsV"));
+        assertEquals("106 insertion", MutationKeywordUtils.guessCosmicKeyword("A106delinsGRLS"));
+        assertEquals("106 insertion", MutationKeywordUtils.guessCosmicKeyword("A106_A107delinsGRLS"));
+        assertEquals("107-108 missense", MutationKeywordUtils.guessCosmicKeyword("A107_L108delinsSD"));
+
+        
+        // delext (treated as insertion/missense), logically it should only be insertion
+        assertEquals("125 insertion", MutationKeywordUtils.guessCosmicKeyword("*125delext*8"));
+        assertEquals("177 insertion", MutationKeywordUtils.guessCosmicKeyword("PCRF*177delext*64"));
+        assertEquals("177-181 missense", MutationKeywordUtils.guessCosmicKeyword("PCRF*177delext*5"));
+        
         
         // deletion
         assertEquals("738-738 deletion", MutationKeywordUtils.guessCosmicKeyword("G738delG"));
@@ -156,6 +182,7 @@ public class TestMutationKeywordUtils {
         assertEquals("truncating", MutationKeywordUtils.guessCosmicKeyword("*257fs*>4"));
         assertEquals("truncating", MutationKeywordUtils.guessCosmicKeyword("557fs*?"));
         assertEquals("truncating", MutationKeywordUtils.guessCosmicKeyword("?fs"));
+        assertEquals("truncating", MutationKeywordUtils.guessCosmicKeyword("*100Ifs*4"));
         assertEquals("truncating", MutationKeywordUtils.guessCosmicKeyword("R412_*413delR*"));
         assertEquals("truncating", MutationKeywordUtils.guessCosmicKeyword("(P1249)fs*?"));
         

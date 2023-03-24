@@ -505,6 +505,34 @@ public class StructuralVariantMyBatisRepositoryTest {
         Assert.assertEquals((Integer) 238, structuralVariantFirstResult.getSite2EntrezGeneId());
         Assert.assertEquals("Fusion", structuralVariantFirstResult.getEventInfo());
     }
+
+    @Test
+    public void fetchStructuralVariantsWithStructuralVariantQueryAndGeneId() throws Exception {
+
+        List<String> molecularProfileIds = new ArrayList<>();
+        List<String> sampleIds = new ArrayList<>();
+
+        molecularProfileIds.add("study_tcga_pub_sv");
+
+        List<Integer> entrezGeneId = Arrays.asList(8031);
+        List<StructuralVariantQuery> singleStructVarQuery = new ArrayList<>();
+        singleStructVarQuery.add(new StructuralVariantQuery(
+            new StructuralVariantGeneSubQuery(27436),
+            new StructuralVariantGeneSubQuery(238)
+        ));
+
+        List<Integer> noEntrezIds = Collections.emptyList();
+
+        List<StructuralVariant> result =
+            structuralVariantMyBatisRepository.fetchStructuralVariants(
+                molecularProfileIds,
+                sampleIds,
+                entrezGeneId,
+                singleStructVarQuery
+            );
+
+        Assert.assertEquals(3,  result.size());
+    }
     
     @Test
     public void fetchStructuralVariantsWithMultipleStructuralVariantQueries() throws Exception {

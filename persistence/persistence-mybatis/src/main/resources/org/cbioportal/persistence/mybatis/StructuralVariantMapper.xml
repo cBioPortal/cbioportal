@@ -160,7 +160,7 @@
 
     <sql id="whereStructuralVariantQueries">
         <if test="structuralVariantQueries != null and !structuralVariantQueries.isEmpty()">
-            (
+            OR (
                 <foreach item="item" collection="structuralVariantQueries" open="(" separator=") OR (" close=")">
                     <if test="item.gene1.entrezId != null">
                         structural_variant.SITE1_ENTREZ_GENE_ID=#{item.gene1.entrezId}

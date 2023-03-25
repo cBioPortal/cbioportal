@@ -57,7 +57,7 @@ public class TreatmentController {
     @RequestMapping(value = "/treatments/patient", method = RequestMethod.POST, produces = MediaType.APPLICATION_JSON_VALUE)
     @ApiOperation("Get all patient level treatments")
     public ResponseEntity<List<PatientTreatmentRow>> getAllPatientTreatments(
-        @ApiParam(required = false, defaultValue = "Treatment")
+        @ApiParam(required = false, defaultValue = "Agent")
         @RequestParam(name = "tier", required = false, defaultValue = "Agent")
         ClinicalEventKeyCode tier,
         
@@ -101,7 +101,7 @@ public class TreatmentController {
     @RequestMapping(value = "/treatments/sample", method = RequestMethod.POST, produces = MediaType.APPLICATION_JSON_VALUE)
     @ApiOperation("Get all sample level treatments")
     public ResponseEntity<List<SampleTreatmentRow>> getAllSampleTreatments(
-        @ApiParam(required = false, defaultValue = "Treatment")
+        @ApiParam(required = false, defaultValue = "Agent")
         @RequestParam(name = "tier", required = false, defaultValue = "Agent")
         ClinicalEventKeyCode tier,
 
@@ -144,7 +144,7 @@ public class TreatmentController {
     @RequestMapping(value = "/treatments/display-patient", method = RequestMethod.POST, produces = MediaType.APPLICATION_JSON_VALUE)
     @ApiOperation("Should patient level treatments be displayed")
     public ResponseEntity<Boolean> getContainsTreatmentData(
-        @ApiParam(required = false, defaultValue = "Treatment")
+        @ApiParam(required = false, defaultValue = "Agent")
         @RequestParam(name = "tier", required = false, defaultValue = "Agent")
         ClinicalEventKeyCode tier,
         
@@ -161,7 +161,7 @@ public class TreatmentController {
     @RequestMapping(value = "/treatments/display-sample", method = RequestMethod.POST, produces = MediaType.APPLICATION_JSON_VALUE)
     @ApiOperation("Should sample level treatments be displayed")
     public ResponseEntity<Boolean> getContainsSampleTreatmentData(
-        @ApiParam(required = false, defaultValue = "Treatment")
+        @ApiParam(required = false, defaultValue = "Agent")
         @RequestParam(name = "tier", required = false, defaultValue = "Agent")
         ClinicalEventKeyCode tier,
         

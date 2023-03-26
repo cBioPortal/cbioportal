@@ -42,6 +42,10 @@
         <bean id="transactionManager" class="org.springframework.jdbc.datasource.DataSourceTransactionManager">
             <property name="dataSource" ref="businessDataSource" />
         </bean>
+        
+        <bean id="columnstoreTransactionManager" class="org.springframework.jdbc.datasource.DataSourceTransactionManager">
+            <property name="dataSource" ref="columnstoreDataSource" />
+        </bean>
 
         <bean id="customObjectFactory" class="org.cbioportal.persistence.mybatis.util.CustomMyBatisObjectFactory" />
 
@@ -68,7 +72,11 @@
             <property name="objectFactory" ref="customObjectFactory" />
             <!-- mapper locations is set here to support interdependency between mappers without -->
             <!-- having to autowire repositories into java classes that do not make direct use of them -->
-            <property name="mapperLocations" value="classpath*:org/cbioportal/persistence/mybatiscolumnstore/*.xml" />
+            <!--            <property name="mapperLocations" value="classpath*:org/cbioportal/persistence/mybatiscolumnstore/*.xml" />-->
+        </bean>
+        <bean id="studyViewMapper" class="org.mybatis.spring.mapper.MapperFactoryBean">
+            <property name="mapperInterface" value="org.cbioportal.persistence.mybatiscolumnstore.StudyViewMapper" />
+            <property name="sqlSessionFactory" ref="columnstoreSqlSessionFactory" />
         </bean>
     </beans>
   

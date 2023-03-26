@@ -322,16 +322,6 @@ public class StudyViewController {
             studyViewService.getFilteredSamplesFromColumnstore(interceptedStudyViewFilter),
             HttpStatus.OK
         );
-//        List<String> studyIds = new ArrayList<>();
-//        List<String> sampleIds = new ArrayList<>();
-
-//        studyViewFilterUtil.extractStudyAndSampleIds(
-//            studyViewFilterApplier.apply(interceptedStudyViewFilter, negateFilters), studyIds, sampleIds);
-//
-//        List<Sample> result = new ArrayList<>();
-//        if (!sampleIds.isEmpty()) {
-//            result = sampleService.fetchSamples(studyIds, sampleIds, Projection.ID.name());
-//        }
     }
 
     @PreAuthorize("hasPermission(#involvedCancerStudies, 'Collection<CancerStudyId>', T(org.cbioportal.utils.security.AccessLevel).READ)")

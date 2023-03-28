@@ -44,6 +44,7 @@ categories:
       - 'documentation'
       - 'cl-documentation'
   - title: '🖊️ Data Importer & Validator'
+    labels:
       - 'importer'
       - 'validator'
   - title: '🧹 Cleanup & Refactoring 🔧'

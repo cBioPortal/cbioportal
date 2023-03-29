@@ -1,12 +1,13 @@
-## Mar 28, 2023
+## Mar 29, 2023
 *   **Added data** consisting of 2,472 samples from 5 studies:
     * [Bladder Cancer (MSK, Cell Reports 2022)](https://www.cbioportal.org/study/summary?id=paired_bladder_2022) *1659 samples*
     * [Gastrointestinal Stromal Tumor (MSK, NPJ Precis Oncol 2023)](https://www.cbioportal.org/study/summary?id=gist_msk_2022) *499 samples*
     * [Appendiceal Cancer (MSK, J Clin Oncol 2022)](https://www.cbioportal.org/study/summary?id=appendiceal_msk_2022) *273 samples*
     * [Colorectal Cancer (MSK, Cancer Discovery 2022)](https://www.cbioportal.org/study/summary?id=coadread_mskresistance_2022) *22 samples*
-    
-*	**Added first GRCh38 study**
-    * [Nerve Sheath Tumors (Johns Hopkins, Sci Data 2020)](https://www.cbioportal.org/study/summary?id=nst_nfosi_ntap)*19 samples*
+    * [Nerve Sheath Tumors (Johns Hopkins, Sci Data 2020)](https://www.cbioportal.org/study/summary?id=nst_nfosi_ntap) *19 samples* [**First GRCh38 Study**]
+
+*   **Data Improvement**
+   	* Added TERT promoter mutation status to [Melanomas (TCGA, Cell 2015)](https://www.cbioportal.org/study/summary?id=skcm_tcga_pub_2015), [Papillary Thyroid Carcinoma (TCGA, Cell 2014)](https://www.cbioportal.org/study/summary?id=thca_tcga_pub) TCGA studies.
 
 ## Oct 12, 2022
 *   **Added data** consisting of 1,459 samples from 10 studies:

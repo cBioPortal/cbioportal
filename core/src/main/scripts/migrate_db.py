@@ -7,6 +7,7 @@ import contextlib
 import argparse
 from collections import OrderedDict
 import MySQLdb
+from pathlib import Path
 
 # globals
 ERROR_FILE = sys.stderr
@@ -421,10 +422,12 @@ def main():
     """ main function to run mysql migration """
     parser = argparse.ArgumentParser(description='cBioPortal DB migration script')
     parser.add_argument('-y', '--suppress_confirmation', default=False, action='store_true')
-    parser.add_argument('-p', '--properties-file', type=str, required=True,
-                        help='Path to portal.properties file')
-    parser.add_argument('-s', '--sql', type=str, required=True,
-                        help='Path to official migration.sql script.')
+    parser.add_argument('-p', '--properties-file', type=str, required=False,
+                        help='Path to portal.properties file (default: locate it '
+                             'relative to the script)')
+    parser.add_argument('-s', '--sql', type=str, required=False,
+                        help='Path to official migration.sql script. (default: locate it '
+                             'relative to the script)')
     parser.add_argument('-f', '--force', default=False, action='store_true', help='Force to run database migration')
     parser.add_argument('--no-transaction', default=False, action='store_true', help="""
         Do not run migration in a single transaction. Only use this when you known what you are doing!!!
@@ -432,7 +435,22 @@ def main():
     parser = parser.parse_args()
 
     properties_filename = parser.properties_file
+    if properties_filename is None:
+        # get the directory name of the currently running script,
+        # resolving any symlinks
+        script_dir = Path(__file__).resolve().parent
+        # go up from cbioportal/core/src/main/scripts/ to cbioportal/
+        src_root = script_dir.parent.parent.parent.parent
+        properties_filename = src_root / 'portal.properties'
+                
     sql_filename = parser.sql
+    if sql_filename is None:
+        # get the directory name of the currently running script,
+        # resolving any symlinks
+        script_dir = Path(__file__).resolve().parent
+        # go up from cbioportal/core/src/main/scripts/ to cbioportal/
+        src_root = script_dir.parent.parent.parent.parent
+        sql_filename = src_root / 'db-scripts/src/main/resources/migration.sql'
 
     # check existence of properties file and sql file
     if not os.path.exists(properties_filename):

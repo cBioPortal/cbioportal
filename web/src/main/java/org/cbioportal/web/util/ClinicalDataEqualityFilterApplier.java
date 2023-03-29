@@ -26,7 +26,8 @@ public class ClinicalDataEqualityFilterApplier extends ClinicalDataFilterApplier
                          MultiKeyMap clinicalDataMap,
                          String entityId,
                          String studyId,
-                         Boolean negateFilters) {
+                         Boolean negateFilters
+    ) {
         return studyViewFilterUtil.getFilteredCountByDataEquality(attributes, clinicalDataMap, entityId, studyId, negateFilters);
     }
 }

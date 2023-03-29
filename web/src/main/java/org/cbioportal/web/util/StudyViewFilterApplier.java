@@ -53,6 +53,8 @@ public class StudyViewFilterApplier {
     @Autowired
     private ClinicalDataIntervalFilterApplier clinicalDataIntervalFilterApplier;
     @Autowired
+    private CustomDataFilterApplier customDataFilterApplier;
+    @Autowired
     private StudyViewFilterUtil studyViewFilterUtil;
     @Autowired
     private GeneService geneService;
@@ -68,8 +70,6 @@ public class StudyViewFilterApplier {
     private DataBinner dataBinner;
     @Autowired
     private StructuralVariantService structuralVariantService;
-    @Autowired
-    private CustomDataFilterApplier customDataFilterApplier;
     @Autowired
     private MolecularProfileUtil molecularProfileUtil;
 
@@ -273,7 +273,7 @@ public class StudyViewFilterApplier {
     
     private List<SampleIdentifier> chainSubFilters(StudyViewFilter studyViewFilter, List<SampleIdentifier> sampleIdentifiers) {
         for (StudyViewSubFilterApplier subFilterApplier : subFilterAppliers) {
-            if (subFilterApplier.shouldApplyFilter(studyViewFilter)) {
+            if (!sampleIdentifiers.isEmpty() && subFilterApplier.shouldApplyFilter(studyViewFilter)) {
                 sampleIdentifiers = subFilterApplier.filter(sampleIdentifiers, studyViewFilter);
             }
         }
@@ -568,16 +568,16 @@ public class StudyViewFilterApplier {
             removeSelfFromFilter(dataBinFilters.get(0), studyViewFilter);
         }
 
-        List<U> resultDataBins = new ArrayList<>();
+        List<U> resultDataBins;
         List<String> filteredSampleIds = new ArrayList<>();
         List<String> filteredStudyIds = new ArrayList<>();
-        List<ClinicalData> filteredData = fetchData(dataBinCountFilter, studyViewFilter, filteredSampleIds,
+        List<Binnable> filteredData = fetchData(dataBinCountFilter, studyViewFilter, filteredSampleIds,
                 filteredStudyIds);
 
         List<String> filteredUniqueSampleKeys = getUniqkeyKeys(filteredStudyIds, filteredSampleIds);
 
-        Map<String, List<ClinicalData>> filteredClinicalDataByAttributeId = filteredData.stream()
-                .collect(Collectors.groupingBy(ClinicalData::getAttrId));
+        Map<String, List<Binnable>> filteredClinicalDataByAttributeId = filteredData.stream()
+                .collect(Collectors.groupingBy(Binnable::getAttrId));
 
         if (dataBinMethod == DataBinMethod.STATIC) {
 
@@ -589,15 +589,15 @@ public class StudyViewFilterApplier {
 
             List<String> unfilteredSampleIds = new ArrayList<>();
             List<String> unfilteredStudyIds = new ArrayList<>();
-            List<ClinicalData> unfilteredData = fetchData(dataBinCountFilter, filter, unfilteredSampleIds,
+            List<Binnable> unfilteredData = fetchData(dataBinCountFilter, filter, unfilteredSampleIds,
                     unfilteredStudyIds);
 
             List<String> unFilteredUniqueSampleKeys = getUniqkeyKeys(unfilteredSampleIds, unfilteredStudyIds);
 
-            Map<String, List<ClinicalData>> unfilteredDataByAttributeId = unfilteredData.stream()
-                    .collect(Collectors.groupingBy(ClinicalData::getAttrId));
+            Map<String, List<Binnable>> unfilteredDataByAttributeId = unfilteredData.stream()
+                    .collect(Collectors.groupingBy(Binnable::getAttrId));
 
-            resultDataBins = (List<U>) dataBinFilters.stream().flatMap(dataBinFilter -> {
+            resultDataBins = dataBinFilters.stream().flatMap(dataBinFilter -> {
                 String attributeId = getAttributeUniqueKey(dataBinFilter);
                 return dataBinner
                         .calculateClinicalDataBins(dataBinFilter, ClinicalDataType.SAMPLE,
@@ -622,8 +622,12 @@ public class StudyViewFilterApplier {
         return resultDataBins;
     }
 
-    private <S extends DataBinCountFilter> List<ClinicalData> fetchData(S dataBinCountFilter,
-            StudyViewFilter studyViewFilter, List<String> sampleIds, List<String> studyIds) {
+    private <S extends DataBinCountFilter> List<Binnable> fetchData(
+        S dataBinCountFilter,
+        StudyViewFilter studyViewFilter, 
+        List<String> sampleIds, 
+        List<String> studyIds
+    ) {
 
         List<SampleIdentifier> filteredSampleIdentifiers = apply(studyViewFilter);
         studyViewFilterUtil.extractStudyAndSampleIds(filteredSampleIdentifiers, studyIds, sampleIds);

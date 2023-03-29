@@ -59,6 +59,8 @@ public class StudyViewControllerTest {
     private static final String TEST_STABLE_ID = "test_stable_id";
     private static final String TEST_GENERIC_ASSAY_DATA_VALUE_1 = "value1";
     private static final String TEST_GENERIC_ASSAY_DATA_VALUE_2 = "value2";
+    private static final String TEST_CLINICAL_EVENT_TYPE = "STATUS";
+    private static final Integer TEST_CLINICAL_EVENT_TYPE_COUNT = 513;
 
     private List<SampleIdentifier> filteredSampleIdentifiers = new ArrayList<>();
     private List<ClinicalData> clinicalData = new ArrayList<>();
@@ -82,6 +84,8 @@ public class StudyViewControllerTest {
     private ClinicalAttributeService clinicalAttributeService;
     @Autowired
     private PatientService patientService;
+    @Autowired
+    private ClinicalEventService clinicalEventService;
 
     private ObjectMapper objectMapper = new CustomObjectMapper();
 
@@ -792,6 +796,28 @@ public class StudyViewControllerTest {
             .andExpect(MockMvcResultMatchers.jsonPath("$.patientClinicalData[2].clinicalAttributeId").value(TEST_ATTRIBUTE_ID))
             .andExpect(MockMvcResultMatchers.jsonPath("$.patientClinicalData[2].sampleId").value(TEST_SAMPLE_ID_3));
             
+    }
+
+    @Test
+    public void fetchClinicalEventTypeCounts() throws Exception
+    {
+        List<ClinicalEventTypeCount> testEventTypeCounts = Arrays.asList(new ClinicalEventTypeCount(TEST_CLINICAL_EVENT_TYPE, TEST_CLINICAL_EVENT_TYPE_COUNT));
+
+        when(studyViewFilterApplier.apply(any())).thenReturn(filteredSampleIdentifiers);
+        when(clinicalEventService.getClinicalEventTypeCounts(anyList(), anyList()))
+            .thenReturn(testEventTypeCounts);
+        
+        StudyViewFilter studyViewFilter = new StudyViewFilter();
+        studyViewFilter.setStudyIds(Collections.singletonList(TEST_STUDY_ID));
+
+        mockMvc.perform(MockMvcRequestBuilders.post("/clinical-event-type-counts/fetch")
+                .accept(MediaType.APPLICATION_JSON)
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(studyViewFilter)))
+            .andExpect(MockMvcResultMatchers.status().isOk())
+            .andExpect(MockMvcResultMatchers.content().contentTypeCompatibleWith(MediaType.APPLICATION_JSON))
+            .andExpect(MockMvcResultMatchers.jsonPath("$[0].eventType").value(TEST_CLINICAL_EVENT_TYPE))
+            .andExpect(MockMvcResultMatchers.jsonPath("$[0].count").value(TEST_CLINICAL_EVENT_TYPE_COUNT));
     }
 
 }

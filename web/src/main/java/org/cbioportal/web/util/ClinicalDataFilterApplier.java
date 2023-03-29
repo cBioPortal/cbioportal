@@ -13,22 +13,27 @@ import org.cbioportal.web.parameter.ClinicalDataFilter;
 import org.cbioportal.web.parameter.Projection;
 import org.cbioportal.web.parameter.SampleIdentifier;
 
-public abstract class ClinicalDataFilterApplier {
+public abstract class ClinicalDataFilterApplier implements DataFilterApplier<ClinicalDataFilter> {
     private PatientService patientService;
     private ClinicalDataService clinicalDataService;
     protected StudyViewFilterUtil studyViewFilterUtil;
 
-    public ClinicalDataFilterApplier(PatientService patientService,
-                                     ClinicalDataService clinicalDataService,
-                                     StudyViewFilterUtil studyViewFilterUtil) {
+    public ClinicalDataFilterApplier(
+        PatientService patientService,
+        ClinicalDataService clinicalDataService,
+        StudyViewFilterUtil studyViewFilterUtil
+    ) {
         this.patientService = patientService;
         this.clinicalDataService = clinicalDataService;
         this.studyViewFilterUtil = studyViewFilterUtil;
     }
 
-    public List<SampleIdentifier> apply(List<SampleIdentifier> sampleIdentifiers,
-                                        List<ClinicalDataFilter> clinicalDataFilters,
-                                        Boolean negateFilters) {
+    @Override
+    public List<SampleIdentifier> apply(
+        List<SampleIdentifier> sampleIdentifiers,
+        List<ClinicalDataFilter> clinicalDataFilters,
+        Boolean negateFilters
+    ) {
         if (!clinicalDataFilters.isEmpty() && !sampleIdentifiers.isEmpty()) {
             List<String> studyIds = new ArrayList<>();
             List<String> sampleIds = new ArrayList<>();

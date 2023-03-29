@@ -11,17 +11,24 @@ import org.springframework.stereotype.Component;
 
 @Component
 public class ClinicalAttributeUtil {
-    public void extractCategorizedClinicalAttributes(List<ClinicalAttribute> clinicalAttributes,
-            List<String> sampleAttributeIds, List<String> patientAttributeIds,
-            List<String> conflictingPatientAttributeIds) {
-        
+
+    public void extractCategorizedClinicalAttributes(
+        List<ClinicalAttribute> clinicalAttributes,
+        List<String> sampleAttributeIds, 
+        List<String> patientAttributeIds,
+        List<String> conflictingPatientAttributeIds
+    ) {
+
         Set<String> sampleAttributeIdsSet = new HashSet<String>();
         Set<String> patientAttributeIdsSet = new HashSet<String>();
         Set<String> conflictingPatientAttributeIdsSet = new HashSet<String>();
 
-        Map<String, Map<Boolean, List<ClinicalAttribute>>> groupedAttributesByIdAndType = clinicalAttributes.stream()
-                .collect(Collectors.groupingBy(ClinicalAttribute::getAttrId,
-                        Collectors.groupingBy(ClinicalAttribute::getPatientAttribute)));
+        Map<String, Map<Boolean, List<ClinicalAttribute>>> groupedAttributesByIdAndType = clinicalAttributes
+            .stream()
+            .collect(Collectors.groupingBy(
+                ClinicalAttribute::getAttrId,
+                Collectors.groupingBy(ClinicalAttribute::getPatientAttribute)
+            ));
 
         groupedAttributesByIdAndType.entrySet().forEach(entry -> {
             if (entry.getValue().keySet().size() == 1) {
@@ -42,7 +49,7 @@ public class ClinicalAttributeUtil {
                 });
             }
         });
-        
+
         sampleAttributeIds.addAll(sampleAttributeIdsSet);
         patientAttributeIds.addAll(patientAttributeIdsSet);
         conflictingPatientAttributeIds.addAll(conflictingPatientAttributeIdsSet);

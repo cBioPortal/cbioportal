@@ -2,7 +2,7 @@ package org.cbioportal.model;
 
 import javax.validation.constraints.NotNull;
 
-public class ClinicalData extends UniqueKeyBase {
+public class ClinicalData extends UniqueKeyBase implements Binnable  {
 
     private Integer internalId;
     private String sampleId;
@@ -49,6 +49,13 @@ public class ClinicalData extends UniqueKeyBase {
 
     public String getAttrId() {
         return attrId;
+    }
+
+    public Boolean isPatientAttribute() {
+        if(clinicalAttribute == null) {
+            return null;
+        }
+        return this.clinicalAttribute.getPatientAttribute();
     }
 
     public void setAttrId(String attrId) {

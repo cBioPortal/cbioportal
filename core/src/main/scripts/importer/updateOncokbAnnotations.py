@@ -30,7 +30,6 @@ import argparse
 import importlib
 import logging.handlers
 import os
-import requests
 import sys
 import MySQLdb
 from pathlib import Path

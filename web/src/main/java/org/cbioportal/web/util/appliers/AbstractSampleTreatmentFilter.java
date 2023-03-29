@@ -13,7 +13,7 @@ import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-public abstract class AbstractSampleTreatmentFilter extends StudyViewSubFilterApplier {
+public abstract class AbstractSampleTreatmentFilter implements StudyViewSubFilterApplier {
     @Autowired
     TreatmentService treatmentService;
 

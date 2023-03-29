@@ -101,11 +101,6 @@ public class TestDaoMutation {
         mutation.setSequencingCenter("Broad");
         mutation.setSequencer("SOLiD");
         mutation.setProteinChange("BRCA1_123");
-        mutation.setFunctionalImpactScore("H");
-        mutation.setFisValue(Float.MIN_VALUE);
-        mutation.setLinkXVar("link1");
-        mutation.setLinkPdb("link2");
-        mutation.setLinkMsa("link3");
         mutation.setNcbiBuild("37/hg19");
         mutation.setStrand("+");
         mutation.setVariantType("Consolidated");
@@ -132,13 +127,11 @@ public class TestDaoMutation {
         mutation.setTumorRefCount(16);
         mutation.setNormalAltCount(8);
         mutation.setNormalRefCount(18);
-        mutation.setOncotatorDbSnpRs("rs149680468");
-        mutation.setOncotatorCodonChange("c.(133-135)TCT>TTT");
-        mutation.setOncotatorRefseqMrnaId("NM_001904");
-        mutation.setOncotatorUniprotName("CTNB1_HUMAN");
-        mutation.setOncotatorUniprotAccession("P35222");
-        mutation.setOncotatorProteinPosStart(666);
-        mutation.setOncotatorProteinPosEnd(678);
+        mutation.setCodonChange("c.(133-135)TCT>TTT");
+        mutation.setRefseqMrnaId("NM_001904");
+        mutation.setUniprotAccession("P35222");
+        mutation.setProteinPosStart(666);
+        mutation.setProteinPosEnd(678);
         mutation.setCanonicalTranscript(true);
         mutation.setAnnotationJson(makeMockAnnotationJsonString());
 
@@ -174,11 +167,6 @@ public class TestDaoMutation {
         assertEquals("Broad", mutation.getSequencingCenter());
         assertEquals("SOLiD", mutation.getSequencer());
         assertEquals("BRCA1_123", mutation.getProteinChange());
-        assertEquals("H", mutation.getFunctionalImpactScore());
-        assertEquals(Float.MIN_VALUE, mutation.getFisValue(), 1E-30);
-        assertEquals("link1", mutation.getLinkXVar());
-        assertEquals("link2", mutation.getLinkPdb());
-        assertEquals("link3", mutation.getLinkMsa());
         assertEquals("37/hg19", mutation.getNcbiBuild());
         assertEquals("+", mutation.getStrand());
         assertEquals("Consolidated", mutation.getVariantType());
@@ -204,13 +192,11 @@ public class TestDaoMutation {
         assertEquals(Integer.valueOf(16), mutation.getTumorRefCount());
         assertEquals(Integer.valueOf(8), mutation.getNormalAltCount());
         assertEquals(Integer.valueOf(18), mutation.getNormalRefCount());
-        assertEquals("rs149680468", mutation.getOncotatorDbSnpRs());
-        assertEquals("c.(133-135)TCT>TTT", mutation.getOncotatorCodonChange());
-        assertEquals("NM_001904", mutation.getOncotatorRefseqMrnaId());
-        assertEquals("CTNB1_HUMAN", mutation.getOncotatorUniprotName());
-        assertEquals("P35222", mutation.getOncotatorUniprotAccession());
-        assertEquals(666, mutation.getOncotatorProteinPosStart());
-        assertEquals(678, mutation.getOncotatorProteinPosEnd());
+        assertEquals("c.(133-135)TCT>TTT", mutation.getCodonChange());
+        assertEquals("NM_001904", mutation.getRefseqMrnaId());
+        assertEquals("P35222", mutation.getUniprotAccession());
+        assertEquals(666, mutation.getProteinPosStart());
+        assertEquals(678, mutation.getProteinPosEnd());
         assertEquals(true, mutation.isCanonicalTranscript());
         validateMockAnnotationJson(mutation);
 

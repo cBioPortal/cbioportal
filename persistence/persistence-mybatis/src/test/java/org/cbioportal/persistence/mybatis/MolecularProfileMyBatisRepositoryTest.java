@@ -13,7 +13,6 @@ import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
 import java.util.Arrays;
 import java.util.List;
-import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -186,9 +185,11 @@ public class MolecularProfileMyBatisRepositoryTest {
         List<MolecularProfile> result = molecularProfileMyBatisRepository.getMolecularProfiles(Stream.of(
             "study_tcga_pub_gistic", "study_tcga_pub_mrna").collect(Collectors.toSet()), "SUMMARY");
 
-        Assert.assertEquals(2, result.size());
-        Assert.assertEquals("study_tcga_pub_gistic", result.get(0).getStableId());
-        Assert.assertEquals("study_tcga_pub_mrna", result.get(1).getStableId());
+        final List<String> expected = Arrays.asList(
+            "study_tcga_pub_gistic",
+            "study_tcga_pub_mrna"
+        );
+        assertArrayEquals(expected.stream().toArray(), result.stream().map(m -> m.getStableId()).toArray());
     }
 
     @Test

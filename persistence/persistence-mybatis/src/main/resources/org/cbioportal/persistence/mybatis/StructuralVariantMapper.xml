@@ -89,20 +89,17 @@
             <bind name="noDriverAnnotationsSelected" value="not geneFilterQuery.getIncludeDriver() and not geneFilterQuery.getIncludeVUS() and not geneFilterQuery.getIncludeUnknownOncogenicity()" />
             <choose>
                 <when test="not allDriverAnnotationsSelected and not noDriverAnnotationsSelected">
-                    <trim prefix="" prefixOverrides="AND ( )">
-                        <trim prefix="AND (" prefixOverrides="OR">
-                            <if test="geneFilterQuery.getIncludeDriver()">
-                                OR LOWER(alteration_driver_annotation.DRIVER_FILTER) = 'putative_driver'
-                            </if>
-                            <if test="geneFilterQuery.getIncludeVUS()">
-                                OR LOWER(alteration_driver_annotation.DRIVER_FILTER) = 'putative_passenger'
-                            </if>
-                            <if test="geneFilterQuery.getIncludeUnknownOncogenicity()">
-                                OR alteration_driver_annotation.DRIVER_FILTER IS NULL
-                                OR LOWER(alteration_driver_annotation.DRIVER_FILTER) IN ('unknown', 'na', '')
-                            </if>
-                            )
-                        </trim>
+                    <trim prefix="AND (" suffix=")" prefixOverrides="OR">
+                        <if test="geneFilterQuery.getIncludeDriver()">
+                            OR LOWER(alteration_driver_annotation.DRIVER_FILTER) = 'putative_driver'
+                        </if>
+                        <if test="geneFilterQuery.getIncludeVUS()">
+                            OR LOWER(alteration_driver_annotation.DRIVER_FILTER) = 'putative_passenger'
+                        </if>
+                        <if test="geneFilterQuery.getIncludeUnknownOncogenicity()">
+                            OR alteration_driver_annotation.DRIVER_FILTER IS NULL
+                            OR LOWER(alteration_driver_annotation.DRIVER_FILTER) IN ('unknown', 'na', '')
+                        </if>
                     </trim>
                 </when>
                 <when test="noDriverAnnotationsSelected">
@@ -121,7 +118,7 @@
                     AND NOT LOWER(alteration_driver_annotation.DRIVER_TIERS_FILTER) IN ('', 'na', 'unknown')
                 </when>
                 <when test="not allTierOptionsSelected and not noTierOptionsSelected">
-                    <trim prefix="AND (" prefixOverrides="OR">
+                    <trim prefix="AND (" suffix=")" prefixOverrides="OR">
                         <if test="geneFilterQuery.getSelectedTiers() != null and geneFilterQuery.getSelectedTiers().hasValues()">
                             OR alteration_driver_annotation.DRIVER_TIERS_FILTER IN
                             <foreach item="item" collection="geneFilterQuery.getSelectedTiers()" open="(" separator="," close=")">
@@ -133,7 +130,6 @@
                             OR LOWER(alteration_driver_annotation.DRIVER_TIERS_FILTER) IN ('', 'na', 'unknown')
                         </if>
                     </trim>
-                    )
                 </when>
                 <when test="noTierOptionsSelected">
                     AND NULL
@@ -148,14 +144,46 @@
     
     <sql id="whereWithEntrezGeneIds">
         <if test="entrezGeneIds != null and !entrezGeneIds.isEmpty()">
-            AND (structural_variant.SITE1_ENTREZ_GENE_ID in
-            <foreach item="item" collection="entrezGeneIds" open="(" separator="," close=")">
-                #{item}
-            </foreach>
-            OR structural_variant.SITE2_ENTREZ_GENE_ID IN
-            <foreach item="item" collection="entrezGeneIds" open="(" separator="," close=")">
-                #{item}
-            </foreach>
+            OR (
+                structural_variant.SITE1_ENTREZ_GENE_ID in
+                <foreach item="item" collection="entrezGeneIds" open="(" separator="," close=")">
+                    #{item}
+                </foreach>
+                OR 
+                structural_variant.SITE2_ENTREZ_GENE_ID IN
+                <foreach item="item" collection="entrezGeneIds" open="(" separator="," close=")">
+                    #{item}
+                </foreach>
+            )
+        </if>
+    </sql>
+
+    <sql id="whereStructuralVariantQueries">
+        <if test="structuralVariantQueries != null and !structuralVariantQueries.isEmpty()">
+            OR (
+                <foreach item="item" collection="structuralVariantQueries" open="(" separator=") OR (" close=")">
+                    <if test="item.gene1.entrezId != null">
+                        structural_variant.SITE1_ENTREZ_GENE_ID=#{item.gene1.entrezId}
+                    </if>
+                    <if test='item.gene1.specialValue != null and item.gene1.specialValue.name() == "NO_GENE"'>
+                        structural_variant.SITE1_ENTREZ_GENE_ID IS NULL
+                    </if>                
+                    <if test='item.gene1.specialValue != null and item.gene1.specialValue.name() == "ANY_GENE"'>
+                        TRUE
+                    </if>
+                    
+                    AND
+                    
+                    <if test="item.gene2.entrezId != null">
+                        structural_variant.SITE2_ENTREZ_GENE_ID=#{item.gene2.entrezId}
+                    </if>
+                    <if test='item.gene2.specialValue != null and item.gene2.specialValue.name() == "NO_GENE"'>
+                        structural_variant.SITE2_ENTREZ_GENE_ID IS NULL
+                    </if>
+                    <if test='item.gene2.specialValue != null and item.gene2.specialValue.name() == "ANY_GENE"'>
+                        TRUE
+                    </if>
+                </foreach>
             )
         </if>
     </sql>
@@ -178,7 +206,10 @@
         and structural_variant.INTERNAL_ID = alteration_driver_annotation.ALTERATION_EVENT_ID
         <where>
             <include refid="whereInMultipleMolecularProfiles"/>
-            <include refid="whereWithEntrezGeneIds"/>
+            <trim prefix="AND (" suffix=")" prefixOverrides="OR">
+                <include refid="whereWithEntrezGeneIds"/>
+                <include refid="whereStructuralVariantQueries"/>
+            </trim>
         </where>
         ORDER BY gene1.HUGO_GENE_SYMBOL, gene2.HUGO_GENE_SYMBOL
     </select>

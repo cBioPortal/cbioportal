@@ -49,6 +49,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import org.cbioportal.model.GenericAssayData;
 import org.cbioportal.model.GenesetMolecularData;
 import org.cbioportal.model.StructuralVariant;
+import org.cbioportal.model.StructuralVariantQuery;
 import org.cbioportal.persistence.PersistenceConstants;
 import org.cbioportal.service.GenericAssayService;
 import org.cbioportal.service.GenesetDataService;
@@ -180,7 +181,8 @@ public class TestIntegrationTest {
             geneticProfileStableIds = Collections.nCopies(sampleIds.size(), "study_es_0_structural_variants");
 
             StructuralVariantService structuralVariantService = applicationContext.getBean(StructuralVariantService.class);
-            List<StructuralVariant> structuralVariants = structuralVariantService.fetchStructuralVariants(geneticProfileStableIds, sampleIds, entrezGeneIds);
+            List<StructuralVariantQuery> noStructVars = Collections.emptyList();
+            List<StructuralVariant> structuralVariants = structuralVariantService.fetchStructuralVariants(geneticProfileStableIds, sampleIds, entrezGeneIds, noStructVars);
 
             // Check if all 45 structural variants are imported
             assertEquals(45, structuralVariants.size());

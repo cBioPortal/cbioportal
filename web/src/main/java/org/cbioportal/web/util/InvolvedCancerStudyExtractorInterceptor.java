@@ -73,6 +73,7 @@ public class InvolvedCancerStudyExtractorInterceptor extends HandlerInterceptorA
     public static final String MUTATION_MULTIPLE_STUDY_FETCH_PATH = "/mutations/fetch";
     public static final String COPY_NUMBER_SEG_FETCH_PATH = "/copy-number-segments/fetch";
     public static final String STUDY_VIEW_CLINICAL_DATA_BIN_COUNTS_PATH = "/clinical-data-bin-counts/fetch";
+    public static final String STUDY_VIEW_CUSTOM_DATA_BIN_COUNTS_PATH = "/custom-data-bin-counts/fetch";
     public static final String STUDY_VIEW_GENOMICL_DATA_BIN_COUNTS_PATH = "/genomic-data-bin-counts/fetch";
     public static final String STUDY_VIEW_GENERIC_ASSAY_DATA_BIN_COUNTS_PATH = "/generic-assay-data-bin-counts/fetch";
     public static final String STUDY_VIEW_GENERIC_ASSAY_DATA_COUNTS_PATH = "/generic-assay-data-counts/fetch";
@@ -99,6 +100,7 @@ public class InvolvedCancerStudyExtractorInterceptor extends HandlerInterceptorA
     public static final String TREATMENTS_PATIENT_PATH = "/treatments/patient";
     public static final String TREATMENTS_SAMPLE_PATH = "/treatments/sample";
     public static final String GENERIC_ASSAY_ENRICHMENT_FETCH_PATH = "/generic-assay-enrichments/fetch";
+    public static final String CLINICAL_EVENT_TYPE_COUNT_FETCH_PATH = "/clinical-event-type-counts/fetch";
 
     @Override public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object handler) throws Exception {
         if (!request.getMethod().equals("POST")) {
@@ -123,7 +125,7 @@ public class InvolvedCancerStudyExtractorInterceptor extends HandlerInterceptorA
             return extractAttributesFromMutationMultipleStudyFilter(request);
         } else if (requestPathInfo.equals(COPY_NUMBER_SEG_FETCH_PATH)) {
             return extractAttributesFromSampleIdentifiers(request);
-        } else if (requestPathInfo.equals(STUDY_VIEW_CLINICAL_DATA_BIN_COUNTS_PATH)) {
+        } else if (Arrays.asList(STUDY_VIEW_CLINICAL_DATA_BIN_COUNTS_PATH, STUDY_VIEW_CUSTOM_DATA_BIN_COUNTS_PATH).contains(requestPathInfo)) {
             return extractAttributesFromClinicalDataBinCountFilter(request);
         } else if (requestPathInfo.equals(STUDY_VIEW_GENOMICL_DATA_BIN_COUNTS_PATH)) {
             return extractAttributesFromGenomicDataBinCountFilter(request);
@@ -137,7 +139,7 @@ public class InvolvedCancerStudyExtractorInterceptor extends HandlerInterceptorA
         } else if (Arrays.asList(STUDY_VIEW_CLINICAL_DATA_DENSITY_PATH, STUDY_VIEW_CLINICAL_DATA_VIOLIN_PATH, STUDY_VIEW_CNA_GENES,
                 STUDY_VIEW_FILTERED_SAMPLES, STUDY_VIEW_MUTATED_GENES, STUDY_VIEW_STRUCTURAL_VARIANT_GENES,
                 STUDY_VIEW_SAMPLE_COUNTS, STUDY_VIEW_SAMPLE_LIST_COUNTS_PATH, STUDY_VIEW_CLINICAL_TABLE_DATA_FETCH_PATH,
-                TREATMENTS_PATIENT_PATH, TREATMENTS_SAMPLE_PATH, STUDY_VIEW_PROFILE_SAMPLE_COUNTS_PATH
+                TREATMENTS_PATIENT_PATH, TREATMENTS_SAMPLE_PATH, STUDY_VIEW_PROFILE_SAMPLE_COUNTS_PATH, CLINICAL_EVENT_TYPE_COUNT_FETCH_PATH
         ).contains(requestPathInfo)) {
             return extractAttributesFromStudyViewFilter(request);
         } else if (requestPathInfo.equals(CLINICAL_DATA_ENRICHMENT_FETCH_PATH)) {
@@ -629,6 +631,11 @@ public class InvolvedCancerStudyExtractorInterceptor extends HandlerInterceptorA
             StructuralVariantFilter structuralVariantFilter = objectMapper.readValue(request.getInputStream(),
                     StructuralVariantFilter.class);
             LOG.debug("extracted structuralVariantFilter: " + structuralVariantFilter.toString());
+            if (structuralVariantFilter.getStructuralVariantQueries() == null) {
+                // For backwards compatibility an empty set of queries is inferred
+                // when the StructuralVariantFilter is not part of the request.
+                structuralVariantFilter.setStructuralVariantQueries(new ArrayList<>());
+            }
             LOG.debug("setting interceptedStructuralVariantFilter to " + structuralVariantFilter);
             request.setAttribute("interceptedStructuralVariantFilter", structuralVariantFilter);
             if (cacheMapUtil.hasCacheEnabled()) {

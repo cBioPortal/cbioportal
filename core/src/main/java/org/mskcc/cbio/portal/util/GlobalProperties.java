@@ -50,6 +50,7 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Properties;
 
+import org.cbioportal.security.spring.authentication.PortalUserDetails;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
@@ -122,6 +123,7 @@ public class GlobalProperties {
     private static String skinAuthorizationMessage;
     @Value("${skin.authorization_message:Access to this portal is only available to authorized users.}")
     public void setSkinAuthorizationMessage(String property) { skinAuthorizationMessage = property; }
+    public static final String SKIN_USER_DISPLAY_NAME = "skin.user_display_name";
     public static final String SKIN_EXAMPLE_STUDY_QUERIES = "skin.example_study_queries";
     public static final String DEFAULT_SKIN_EXAMPLE_STUDY_QUERIES =        
             "tcga pancancer atlas\n" +
@@ -517,11 +519,33 @@ public class GlobalProperties {
      * @return String userName 
      * Return authenticated username. If the user is not authenticated, 'anonymousUser' will be returned.
      */
+    public static String getAuthenticatedDisplayName() {
+        String authenticatedParameter = portalProperties.getProperty(SKIN_USER_DISPLAY_NAME);
+        if (authenticatedParameter != null && authenticatedParameter.equals("username")) {
+            return getAuthenticatedUserName();
+        } else {
+            return getAuthenticatedUserEmail(); //Default is email
+        }
+    }
+
     public static String getAuthenticatedUserName() {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-        
+
+        if(authentication != null) {
+            PortalUserDetails userDetails = (PortalUserDetails) authentication.getPrincipal();
+            return userDetails.getUserName();
+
+        }else {
+            return "anonymousUser";
+        }
+    }
+
+    public static String getAuthenticatedUserEmail() {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+
         if(authentication != null) {
             return authentication.getName();
+
         }else {
             return "anonymousUser";
         }

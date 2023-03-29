@@ -61,7 +61,7 @@ public class ImportCosmicData {
         DaoGeneOptimized daoGeneOptimized = DaoGeneOptimized.getInstance();
         // Pattern: must have gene, strand, cds, aa and cnt in any order, with other strings possibly in between.
         Pattern p = Pattern.compile("(?=.*GENE=[^;]+.*)(?=.*STRAND=(.).*)(?=.*CDS=[^;]+.*)(?=.*AA=p\\.[^;]+.*)(?=.*CNT=[0-9]+.*)");
-
+        Pattern id_pat = Pattern.compile("(?=.*LEGACY_ID=[^;]+.*)");
         MySQLbulkLoader.bulkLoadOn();
         FileReader reader = new FileReader(file);
         BufferedReader buf = new BufferedReader(reader);
@@ -77,13 +77,27 @@ public class ImportCosmicData {
                 }
 
                 String id = parts[2];
+                String infoColumnValue = parts[7];
                 if (!id.matches("COS(M|V)[0-9]+")) {
                     System.err.println("Wrong cosmic ID: "+id);
                 } else {
-                    id = id.substring(4);
+                    if (id.matches("COSM[0-9]+")) {  //COSM can be taken as is
+                        id = id.substring(4);
+                    } else {  //COSV does not map correctly, COSM still present in info-column
+                        Matcher id_match = id_pat.matcher(infoColumnValue);
+                        if (!id_match.find()) {
+                            System.err.println("Cannot parse Legacy ID: "+line);
+                        }
+                        String id_items[] = infoColumnValue.split(";");
+                        for (String s: id_items) {
+                            if (s.startsWith("LEGACY_ID=")) {
+                                id = s.substring(14);
+                            }
+                        }
+                        
+                    }
                 }
-
-                String infoColumnValue = parts[7];
+                
                 Matcher m = p.matcher(infoColumnValue);
                 if (m.find()) {
                     Map<String, String> fieldValues = evaluateFieldValues(infoColumnValue);

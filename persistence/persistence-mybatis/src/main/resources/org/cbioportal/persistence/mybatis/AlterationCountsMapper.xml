@@ -181,20 +181,17 @@
         <bind name="noDriverAnnotationsSelected" value="not includeDriver and not includeVUS and not includeUnknownOncogenicity" />
         <choose>
             <when test="not allDriverAnnotationsSelected and not noDriverAnnotationsSelected">
-                <trim prefix="" prefixOverrides="AND ( )">
-                    <trim prefix="AND (" prefixOverrides="OR">
-                        <if test="includeDriver">
-                            OR LOWER(alteration_driver_annotation.DRIVER_FILTER) = 'putative_driver'
-                        </if>
-                        <if test="includeVUS">
-                            OR LOWER(alteration_driver_annotation.DRIVER_FILTER) = 'putative_passenger'
-                        </if>
-                        <if test="includeUnknownOncogenicity">
-                            OR alteration_driver_annotation.DRIVER_FILTER IS NULL
-                            OR LOWER(alteration_driver_annotation.DRIVER_FILTER) IN ('unknown', 'na', '')
-                        </if>
-                        )
-                    </trim>
+                <trim prefix="AND (" suffix=")" prefixOverrides="OR">
+                    <if test="includeDriver">
+                        OR LOWER(alteration_driver_annotation.DRIVER_FILTER) = 'putative_driver'
+                    </if>
+                    <if test="includeVUS">
+                        OR LOWER(alteration_driver_annotation.DRIVER_FILTER) = 'putative_passenger'
+                    </if>
+                    <if test="includeUnknownOncogenicity">
+                        OR alteration_driver_annotation.DRIVER_FILTER IS NULL
+                        OR LOWER(alteration_driver_annotation.DRIVER_FILTER) IN ('unknown', 'na', '')
+                    </if>
                 </trim>
             </when>
             <when test="noDriverAnnotationsSelected">
@@ -212,7 +209,7 @@
         <bind name="noTierOptionsSelected" value="(selectedTiers == null or selectedTiers.hasNone()) and not includeUnknownTier" />
         <choose>
             <when test="not allTierOptionsSelected and not noTierOptionsSelected">
-                <trim prefix="AND (" prefixOverrides="OR">    
+                <trim prefix="AND (" suffix=")" prefixOverrides="OR">    
                     <if test="selectedTiers != null and selectedTiers.hasValues()">
                         OR alteration_driver_annotation.DRIVER_TIERS_FILTER IN
                         <foreach item="item" collection="selectedTiers" open="(" separator="," close=")">
@@ -224,7 +221,6 @@
                         OR LOWER(alteration_driver_annotation.DRIVER_TIERS_FILTER) IN ('', 'na', 'unknown')
                     </if>
                 </trim>
-                )
             </when>
             <when test="noTierOptionsSelected">
                 AND NULL
@@ -240,22 +236,19 @@
         <bind name="noMutationStatusSelected" value="not includeGermline and not includeSomatic and not includeUnknownStatus" />
         <choose>
             <when test="not allMutationStatusSelected and not noMutationStatusSelected">
-                <trim prefix="" prefixOverrides="AND ( )">
-                    <trim prefix="AND (" prefixOverrides="OR">
-                        <if test="includeGermline">
-                            OR
-                            LOWER(mutation.MUTATION_STATUS) = 'germline'
-                        </if>
-                        <if test="includeSomatic">
-                            OR
-                            LOWER(mutation.MUTATION_STATUS) = 'somatic'
-                        </if>
-                        <if test="includeUnknownStatus">
-                            OR
-                            LOWER(mutation.MUTATION_STATUS) NOT IN ('germline', 'somatic')
-                        </if>
-                        )
-                    </trim>
+                <trim prefix="AND (" suffix=")" prefixOverrides="OR">
+                    <if test="includeGermline">
+                        OR
+                        LOWER(mutation.MUTATION_STATUS) LIKE '%germline%'
+                    </if>
+                    <if test="includeSomatic">
+                        OR
+                        LOWER(mutation.MUTATION_STATUS) = 'somatic'
+                    </if>
+                    <if test="includeUnknownStatus">
+                        OR
+                        (LOWER(mutation.MUTATION_STATUS) != 'somatic' AND LOWER(mutation.MUTATION_STATUS) NOT LIKE '%germline%')
+                    </if>
                 </trim>
             </when>
             <when test="noMutationStatusSelected">
@@ -272,22 +265,19 @@
         <bind name="noSVStatusSelected" value="not includeGermline and not includeSomatic and not includeUnknownStatus" />
         <choose>
             <when test="not allSVStatusSelected and not noSVStatusSelected">
-                <trim prefix="" prefixOverrides="AND ( )">
-                    <trim prefix="AND (" prefixOverrides="OR">
-                        <if test="includeGermline">
-                            OR
-                            LOWER(combinedResults.SV_STATUS) = 'germline'
-                        </if>
-                        <if test="includeSomatic">
-                            OR
-                            LOWER(combinedResults.SV_STATUS) = 'somatic'
-                        </if>
-                        <if test="includeUnknownStatus">
-                            OR
-                            LOWER(combinedResults.SV_STATUS) NOT IN ('germline', 'somatic')
-                        </if>
-                        )
-                    </trim>
+                <trim prefix="AND (" suffix=")" prefixOverrides="OR">
+                    <if test="includeGermline">
+                        OR
+                        LOWER(combinedResults.SV_STATUS) = 'germline'
+                    </if>
+                    <if test="includeSomatic">
+                        OR
+                        LOWER(combinedResults.SV_STATUS) = 'somatic'
+                    </if>
+                    <if test="includeUnknownStatus">
+                        OR
+                        LOWER(combinedResults.SV_STATUS) NOT IN ('germline', 'somatic')
+                    </if>
                 </trim>
             </when>
             <when test="noSVStatusSelected">

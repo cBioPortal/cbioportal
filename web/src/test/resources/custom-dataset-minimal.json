@@ -1,0 +1,48 @@
+{
+    "id": "test",
+    "data": {
+        "owner": "test",
+        "origin": [
+            "test"
+        ],
+        "created": 1674657017813,
+        "lastUpdated": 1674657017813,
+        "users": [
+            "test"
+        ],
+        "displayName": "test",
+        "description": "test",
+        "datatype": "NUMBER",
+        "patientAttribute": false,
+        "priority": "0",
+        "data": [
+            {"sampleId": "test-0-01", "patientId": "test-A", "studyId": "test", "value": "-1.1"},
+            
+            {"sampleId": "test-0-01", "patientId": "test-A", "studyId": "test", "value": "0"},
+            
+            {"sampleId": "test-1-same-patient-01", "patientId": "test-1-same-patient", "studyId": "test", "value": "1"},
+
+            {"sampleId": "test-1-same-patient-02", "patientId": "test-1-same-patient", "studyId": "test", "value": "1.1"},
+            {"sampleId": "test-2-01", "patientId": "test-2", "studyId": "test", "value": "2"},
+            
+            {"sampleId": "test-3-01", "patientId": "test-3", "studyId": "test", "value": "3"},
+            {"sampleId": "test-other-patient-same-bin-01", "patientId": "test-other-patient-same-bin", "studyId": "test", "value": "3"},
+            
+            {"sampleId": "test-5-01", "patientId": "test-5", "studyId": "test", "value": "4"},
+            
+            {"sampleId": "test-6-01", "patientId": "test-6", "studyId": "test", "value": "6"},
+
+            {"sampleId": "test-7-01", "patientId": "test-7", "studyId": "test", "value": "7"},
+
+            {"sampleId": "test-8-01", "patientId": "test-8", "studyId": "test", "value": "8"},
+
+            {"sampleId": "test-9-01", "patientId": "test-9", "studyId": "test", "value": "9"},
+            
+            {"sampleId": "test-9-01", "patientId": "test-9", "studyId": "test", "value": "10"},
+            
+            {"sampleId": "test-9-01", "patientId": "test-9", "studyId": "test", "value": "11"}
+        ]
+    },
+    "source": "test",
+    "type": "custom_data"
+}

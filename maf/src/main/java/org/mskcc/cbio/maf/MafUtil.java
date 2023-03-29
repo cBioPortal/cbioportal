@@ -110,22 +110,13 @@ public class MafUtil {
     public static final String PROTEIN_POSITION = "Protein_position";
 
     // oncotator column names
-    public static final String ONCOTATOR_DBSNP_RS = "ONCOTATOR_DBSNP_RS";
     public static final String ONCOTATOR_VARIANT_CLASSIFICATION = "ONCOTATOR_VARIANT_CLASSIFICATION";
     public static final String ONCOTATOR_REFSEQ_MRNA_ID = "ONCOTATOR_REFSEQ_MRNA_ID";
-    public static final String ONCOTATOR_UNIPROT_ENTRY_NAME = "ONCOTATOR_UNIPROT_ENTRY_NAME";
     public static final String ONCOTATOR_UNIPROT_ACCESSION = "ONCOTATOR_UNIPROT_ACCESSION";
     public static final String ONCOTATOR_CODON_CHANGE = "ONCOTATOR_CODON_CHANGE";
     public static final String ONCOTATOR_PROTEIN_POS_START = "ONCOTATOR_PROTEIN_POS_START";
     public static final String ONCOTATOR_PROTEIN_POS_END = "ONCOTATOR_PROTEIN_POS_END";
-
-    // mutation assessor column names
-    public static final String MA_FIMPACT = "MA:FImpact";
-    public static final String MA_FIS = "MA:FIS";
-    public static final String MA_LINK_VAR = "MA:link.var";
-    public static final String MA_LINK_MSA = "MA:link.MSA";
-    public static final String MA_LINK_PDB = "MA:link.PDB";
-
+    
     // custom filtering of passenger and driver mutations column names
     public static final String DRIVER_FILTER = "cbp_driver";
     public static final String DRIVER_FILTER_ANNOTATION = "cbp_driver_annotation";
@@ -182,10 +173,8 @@ public class MafUtil {
     private int normalVafIndex = -1;
 
     // default Oncotator column indices
-    private int oncoDbSnpRsIndex = -1;
     private int oncoVariantClassificationIndex = -1;
     private int oncoRefseqMrnaIdIndex = -1;
-    private int oncoUniprotNameIndex = -1;
     private int oncoUniprotAccessionIndex = -1;
     private int oncoCodonChangeIndex = -1;
     private int oncoProteinPosStartIndex = -1;
@@ -304,14 +293,10 @@ public class MafUtil {
                 scoreIndex = i;
             } else if(header.equalsIgnoreCase(BAM_FILE)) {
                 bamFileIndex = i;
-            } else if(header.equalsIgnoreCase(ONCOTATOR_DBSNP_RS)) {
-                oncoDbSnpRsIndex = i;
             } else if(header.equalsIgnoreCase(ONCOTATOR_VARIANT_CLASSIFICATION)) {
                 oncoVariantClassificationIndex = i;
             } else if(header.equalsIgnoreCase(ONCOTATOR_REFSEQ_MRNA_ID)) {
                 oncoRefseqMrnaIdIndex = i;
-            } else if(header.equalsIgnoreCase(ONCOTATOR_UNIPROT_ENTRY_NAME)) {
-                oncoUniprotNameIndex = i;
             } else if(header.equalsIgnoreCase(ONCOTATOR_UNIPROT_ACCESSION)) {
                 oncoUniprotAccessionIndex = i;
             } else if(header.equalsIgnoreCase(ONCOTATOR_CODON_CHANGE)) {
@@ -320,16 +305,6 @@ public class MafUtil {
                 oncoProteinPosStartIndex = i;
             } else if(header.equalsIgnoreCase(ONCOTATOR_PROTEIN_POS_END)) {
                 oncoProteinPosEndIndex = i;
-            } else if(header.equalsIgnoreCase(MA_FIMPACT)) {
-                maFImpactIndex = i;
-            } else if(header.equalsIgnoreCase(MA_FIS)) {
-                maFisIndex = i;
-            } else if(header.equalsIgnoreCase(MA_LINK_VAR)) {
-                maLinkVarIndex = i;
-            } else if(header.equalsIgnoreCase(MA_LINK_MSA)) {
-                maLinkMsaIndex = i;
-            } else if(header.equalsIgnoreCase(MA_LINK_PDB)) {
-                maLinkPdbIndex = i;
             } else if(header.equalsIgnoreCase(T_REF_COUNT) ||
                     header.equalsIgnoreCase(I_T_REF_COUNT) ||
                     header.equalsIgnoreCase(AD_REF)) {
@@ -446,14 +421,12 @@ public class MafUtil {
         record.setMaLinkPdb(TabDelimitedFileUtil.getPartString(maLinkPdbIndex, parts));
 
         // Oncotator columns
-        record.setOncotatorDbSnpRs(TabDelimitedFileUtil.getPartString(oncoDbSnpRsIndex, parts));
-        record.setOncotatorVariantClassification(TabDelimitedFileUtil.getPartString(oncoVariantClassificationIndex, parts));
-        record.setOncotatorRefseqMrnaId(TabDelimitedFileUtil.getPartString(oncoRefseqMrnaIdIndex, parts));
-        record.setOncotatorUniprotName(TabDelimitedFileUtil.getPartString(oncoUniprotNameIndex, parts));
-        record.setOncotatorUniprotAccession(TabDelimitedFileUtil.getPartString(oncoUniprotAccessionIndex, parts));
-        record.setOncotatorCodonChange(TabDelimitedFileUtil.getPartString(oncoCodonChangeIndex, parts));
-        record.setOncotatorProteinPosStart(TabDelimitedFileUtil.getPartInt(oncoProteinPosStartIndex, parts));
-        record.setOncotatorProteinPosEnd(TabDelimitedFileUtil.getPartInt(oncoProteinPosEndIndex, parts));
+        record.setMafVariantClassification(TabDelimitedFileUtil.getPartString(oncoVariantClassificationIndex, parts));
+        record.setMafRefseqMrnaId(TabDelimitedFileUtil.getPartString(oncoRefseqMrnaIdIndex, parts));
+        record.setMafUniprotAccession(TabDelimitedFileUtil.getPartString(oncoUniprotAccessionIndex, parts));
+        record.setMafCodonChange(TabDelimitedFileUtil.getPartString(oncoCodonChangeIndex, parts));
+        record.setMafProteinPosStart(TabDelimitedFileUtil.getPartInt(oncoProteinPosStartIndex, parts));
+        record.setMafProteinPosEnd(TabDelimitedFileUtil.getPartInt(oncoProteinPosEndIndex, parts));
 
         // custom filtering of passenger and driver mutations columns
         record.setDriverFilter(TabDelimitedFileUtil.getPartStringAllowEmptyAndNA(driverIndex, parts));
@@ -640,10 +613,6 @@ public class MafUtil {
         return oncoVariantClassificationIndex;
     }
 
-    public int getOncoDbSnpRsIndex() {
-        return oncoDbSnpRsIndex;
-    }
-
     public int getMaFImpactIndex() {
         return maFImpactIndex;
     }
@@ -666,10 +635,6 @@ public class MafUtil {
 
     public int getOncoRefseqMrnaIdIndex() {
         return oncoRefseqMrnaIdIndex;
-    }
-
-    public int getOncoUniprotNameIndex() {
-        return oncoUniprotNameIndex;
     }
 
     public int getOncoCodonChangeIndex() {

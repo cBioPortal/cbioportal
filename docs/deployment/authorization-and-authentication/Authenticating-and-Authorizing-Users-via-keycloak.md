@@ -56,6 +56,7 @@ To specify attributes included in the SAML assertion, simply click on the **Mapp
 Make sure you add at least:
 - the built-in User Property mapper named _X500 email_ and
 - a _Role list_-type attribute (keep the default word _Role_ as its **Role attribute name**).
+- a _User Property_-type attribute with the name _username_. Use _username_ for the attributes **Property**, **Name**, and **SAML Attribute Name**.
 
 ![](/images/previews/add-mappers.png)
 
@@ -125,6 +126,7 @@ should now see the certificate and no private key.
     saml.idp.comm.binding.settings=defaultBinding
     saml.idp.comm.binding.type=
     saml.idp.metadata.attribute.email=email
+    saml.idp.metadata.attribute.userName=username
     saml.idp.metadata.attribute.role=Role
     saml.custom.userservice.class=org.cbioportal.security.spring.authentication.keycloak.SAMLUserDetailsServiceImpl
     # global logout (as opposed to local logout):

@@ -201,6 +201,14 @@ skin.patient_view.copy_number_table.columns.show_on_init=
 skin.patient_view.structural_variant_table.columns.show_on_init=
 ```
 
+### Choose the display name for authenticated users
+
+By default the display name for authenticated users is email, but it can be changed for the user name:
+
+```
+skin.user_display_name=username
+```
+
 ### Hide p- and q-values in survival types table
 
 ```
@@ -617,6 +625,30 @@ By default, the tree is expanded (property value is `false`).
 
 ```
 skin.geneset_hierarchy.collapse_by_default = true
+```
+
+## Cross study expression and protein data
+
+
+By default we hide expression data for multi-study queries as they are 
+usually not normalized across studies. For the public cBioPortal for instance, only TCGA Pancan Atlas studies expression data has been normalized.  
+
+If you know the expression data in your instance is comparable, or is comparable for a subset of
+studies, you can configure a rule as follows. 
+
+The value of this property can be boolean (true|false) or a javascript function
+which executes at runtime and is passed the list of study objects being queried
+by the user and evaluates whether expression data can be safely displayed.
+
+```
+// a function that accepts the users's selected studies and
+// returns whether or not to allow expression data from the involved studies to be mixed
+enable_cross_study_expression = (selectedStudies)=>{ [your logic] return true|false }
+```
+
+```
+// boolean
+enable_cross_study_expression = true|false
 ```
 
 ## Request Body Compression

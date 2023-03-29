@@ -1,11 +1,14 @@
 package org.cbioportal.service;
 
 import org.cbioportal.model.ClinicalEvent;
+import org.cbioportal.model.ClinicalEventTypeCount;
 import org.cbioportal.model.meta.BaseMeta;
 import org.cbioportal.service.exception.PatientNotFoundException;
 import org.cbioportal.service.exception.StudyNotFoundException;
 
 import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
 public interface ClinicalEventService {
     
@@ -18,9 +21,12 @@ public interface ClinicalEventService {
         throws PatientNotFoundException, StudyNotFoundException;
     
     List<ClinicalEvent> getAllClinicalEventsInStudy(String studyId, String projection, Integer pageSize,
-                                                    Integer pageNumber, String sortBy, String direction) 
-        throws StudyNotFoundException;
+                                                    Integer pageNumber, String sortBy, String direction);
     
     BaseMeta getMetaClinicalEvents(String studyId) 
-        throws StudyNotFoundException;    
+        throws StudyNotFoundException;
+
+    Map<String, Set<String>> getPatientsSamplesPerClinicalEventType(List<String> studyIds, List<String> sampleIds); 
+    
+    List<ClinicalEventTypeCount> getClinicalEventTypeCounts(List<String> studyIds, List<String> sampleIds);
 }

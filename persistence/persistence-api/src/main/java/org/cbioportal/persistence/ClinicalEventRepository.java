@@ -7,6 +7,8 @@ import org.cbioportal.model.meta.BaseMeta;
 import org.springframework.cache.annotation.Cacheable;
 
 import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
 public interface ClinicalEventRepository {
 
@@ -26,4 +28,11 @@ public interface ClinicalEventRepository {
     
     @Cacheable(cacheResolver = "generalRepositoryCacheResolver", condition = "@cacheEnabledConfig.getEnabled()")
     BaseMeta getMetaClinicalEvents(String studyId);
+
+    @Cacheable(cacheResolver = "generalRepositoryCacheResolver", condition = "@cacheEnabledConfig.getEnabled()")
+    Map<String, Set<String>> getSamplesOfPatientsPerEventTypeInStudy(List<String> studyIds, List<String> sampleIds);
+
+
+    @Cacheable(cacheResolver = "generalRepositoryCacheResolver", condition = "@cacheEnabledConfig.getEnabled()")
+    List<ClinicalEvent> getPatientsDistinctClinicalEventInStudies(List<String> studyIds, List<String> patientIds);
 }

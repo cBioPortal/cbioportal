@@ -98,13 +98,13 @@ import org.cbioportal.web.mixin.SessionDataMixin;
 import org.cbioportal.web.mixin.SessionMixin;
 import org.cbioportal.web.mixin.StructuralVariantMixin;
 import org.cbioportal.web.mixin.TypeOfCancerMixin;
-import org.cbioportal.web.parameter.CustomDataSession;
+import org.cbioportal.service.util.CustomDataSession;
 import org.cbioportal.web.parameter.PageSettings;
 import org.cbioportal.web.parameter.PageSettingsData;
 import org.cbioportal.web.parameter.StudyPageSettings;
 import org.cbioportal.web.parameter.VirtualStudy;
 import org.cbioportal.web.parameter.VirtualStudyData;
-import org.cbioportal.web.CustomAttributeWithData;
+import org.cbioportal.service.util.CustomAttributeWithData;
 
 public class CustomObjectMapper extends ObjectMapper {
 

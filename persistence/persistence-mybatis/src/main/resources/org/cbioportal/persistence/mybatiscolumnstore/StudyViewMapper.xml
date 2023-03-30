@@ -14,24 +14,72 @@
         WHERE sample_internal_id IN (
             SELECT DISTINCT sample_internal_id
                 FROM sample
-                WHERE sample_stable_id IN (
-                    -- StudyView filter
-                    SELECT sample_stable_id
-                    FROM sample
-                    WHERE cancer_study_identifier IN ('msk_impact_2017', 'msk_ch_2020', 'msk_met_2021')
-                    INTERSECT
-                    SELECT sample_stable_id
-                    FROM cna_discrete
-                    WHERE alteration IN (-2, 2)
-                    INTERSECT
-                    SELECT sample_stable_id
-                    FROM sample_clinical_attribute_categorical
-                    WHERE attribute_name = 'CANCER_TYPE' AND attribute_value = 'Anal Cancer'
-                    INTERSECT
-                    SELECT sample_stable_id
-                    FROM mutation
-                    WHERE hugo_gene_symbol IN ('BML', 'AR', 'TP53', 'BRAF'))
+                WHERE sample_unique_id IN (
+                    <trim prefixOverrides="INTERSECT">
+                        <if test="studyIds != null and !studyIds.isEmpty()">
+                            INTERSECT
+                            SELECT sample_unique_id
+                            FROM sample
+                            WHERE cancer_study_identifier IN 
+                                <foreach item="studyId" collection="studyIds" open="(" separator="," close=")">
+                                    #{studyId}
+                                </foreach>
+                        </if> 
+                        <if test="sampleIdentifiers != null and !sampleIdentifiers.isEmpty()">
+                            INTERSECT
+                            SELECT sample_unique_id
+                            FROM sample
+                            WHERE sample_unique_id IN (
+                            <foreach item="sampleIdentifier" collection="sampleIdentifiers" open="(" separator="," close=")">
+                                #{sampleIdentifier.getStudyId()}_#{sampleIdentifier.getSampleId()}
+                            </foreach>
+                            )
+                        </if>
+                        <if test="geneFilters != null and !geneFilters.isEmpty()">
+                            INTERSECT
+                            SELECT sample_unique_id
+                            FROM genomic_event
+                            <where>
+                                <trim prefixOverrides="OR">
+                                    <foreach item="profileGroup" collection="geneFilters" open="OR (" separator="," close=")">
+                                        genetic_profile_stable_id IN
+                                        <foreach item="molecularProfileId"
+                                                 collection="profileGroup.getMolecularProfileIds()" open="("
+                                                 separator="," close=")">
+                                            #{molecularProfileId}
+                                        </foreach>
+                                        AND hugo_gene_symbol IN
+                                        <foreach item="geneFilterQueryList" collection="profileGroup.getGeneQueries()">
+                                            <foreach item="geneFilterQuery" collection="geneFilterQueryList" open="("
+                                                     separator="," close=")">
+                                                #{geneFilterQuery.hugoGeneSymbol}
+                                            </foreach>
+                                        </foreach>
+                                    </foreach>
+                                </trim>
+                            </where>
+                        </if>
+<!--                        &#45;&#45; TODO Frontend should send the clinical data type (sample/patient, string/numeric)-->
+<!--                        <if test="not studyViewFilter.getClinicalDataFilters().isEmpty()">-->
+<!--                            INTERSECT-->
+<!--                            SELECT sample_stable_id-->
+<!--                            FROM patient_clinical_attribute_numeric-->
+<!--                            WHERE-->
+<!--                            <trim prefixOverrides="OR">-->
+<!--                                <foreach item="clinicalDataFilter" collection="studyViewFilter.getClinicalDataFilters()" open="(" separator="," close=")">-->
+<!--                                    OR (-->
+<!--                                        attribute_name = '#{clinicalDataFilter.getAttributeId()}' AND attribute_value IN-->
+<!--                                        <foreach item="dataFilterValue" collection="clinicalDataFilter.getValues()" open="("-->
+<!--                                                 separator="," close=")">-->
+<!--                                            #{dataFilterValue.getValue()}-->
+<!--                                        </foreach>-->
+<!--                                    )-->
+<!--                                </foreach>-->
+<!--                            </trim>-->
+<!--                        </if>-->
+                    </trim>
                 )
+        )
         ORDER BY sample_stable_id ASC;
     </select>
 

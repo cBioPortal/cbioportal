@@ -16,6 +16,7 @@ public class StudyViewMyBatisRepository implements StudyViewRepository {
     
     @Override
     public List<Sample> getFilteredSamplesFromColumnstore(StudyViewFilter studyViewFilter) {
-        return studyViewMapper.getFilteredSamples(studyViewFilter);
+        final List<Sample> filteredSamples = studyViewMapper.getFilteredSamples(studyViewFilter);
+        return filteredSamples;
     }
 }

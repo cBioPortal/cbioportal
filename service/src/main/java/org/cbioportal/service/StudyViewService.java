@@ -24,4 +24,6 @@ public interface StudyViewService {
     List<GenericAssayDataCountItem> fetchGenericAssayDataCounts(List<String> sampleIds, List<String> studyIds, List<String> stableIds, List<String> profileTypes);
 
     List<Sample> getFilteredSamplesFromColumnstore(StudyViewFilter studyViewFilter);
+
+    List<AlterationCountByGene> getMutatedGenesFromColumnstore(StudyViewFilter interceptedStudyViewFilter);
 }

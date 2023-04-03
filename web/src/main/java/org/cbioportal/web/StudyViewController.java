@@ -203,10 +203,11 @@ public class StudyViewController {
         @RequestAttribute(required = false, value = "involvedCancerStudies") Collection<String> involvedCancerStudies,
         @ApiIgnore // prevent reference to this attribute in the swagger-ui interface. this attribute is needed for the @PreAuthorize tag above.
         @Valid @RequestAttribute(required = false, value = "interceptedStudyViewFilter") StudyViewFilter interceptedStudyViewFilter
-    ) throws StudyNotFoundException {
-        boolean singleStudyUnfiltered = studyViewFilterUtil.isSingleStudyUnfiltered(interceptedStudyViewFilter);
-        List<AlterationCountByGene> alterationCountByGenes = instance.cachedFetchMutatedGenes(interceptedStudyViewFilter, singleStudyUnfiltered);
-        return new ResponseEntity<>(alterationCountByGenes, HttpStatus.OK);
+    ) {
+        return new ResponseEntity<>(
+            studyViewService.getMutatedGenesFromColumnstore(interceptedStudyViewFilter),
+            HttpStatus.OK
+        );
     }
 
     @Cacheable(

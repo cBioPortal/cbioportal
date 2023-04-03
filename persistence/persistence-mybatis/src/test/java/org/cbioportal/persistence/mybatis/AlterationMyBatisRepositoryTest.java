@@ -20,9 +20,6 @@ import java.util.*;
 @Configurable
 public class AlterationMyBatisRepositoryTest {
 
-    @Autowired
-    private org.springframework.jdbc.datasource.DriverManagerDataSource datasource;
-    
     //    mutation and cna events in testSql.sql
     //        SAMPLE_ID,    ENTREZ_GENE_ID, HUGO_GENE_SYMBOL, GENETIC_PROFILE_ID, TYPE, MUTATION_TYPE, DRIVER_FILTER, DRIVER_TIERS_FILTER, PATIENT_ID, MUTATION_TYPE
     //        1	    207	    AKT1	2	CNA         -2	                Putative_Driver	    Tier 1  TCGA-A1-A0SB    germline

@@ -53,9 +53,6 @@ public class StructuralVariantMyBatisRepositoryTest {
     @Autowired
     StructuralVariantMyBatisRepository structuralVariantMyBatisRepository;
 
-    @Autowired
-    private org.springframework.jdbc.datasource.DriverManagerDataSource datasource;
-    
     @Before
     public void init() {
         molecularProfileIds = new ArrayList<>();

@@ -252,7 +252,11 @@ public class StudyViewServiceImpl implements StudyViewService {
 
     @Override
     public List<Sample> getFilteredSamplesFromColumnstore(StudyViewFilter studyViewFilter) {
-        List<Sample> samples = studyViewRepository.getFilteredSamplesFromColumnstore(studyViewFilter);
-        return samples;
+        return studyViewRepository.getFilteredSamplesFromColumnstore(studyViewFilter);
+    }
+
+    @Override
+    public List<AlterationCountByGene> getMutatedGenesFromColumnstore(StudyViewFilter studyViewFilter) {
+        return studyViewRepository.getMutatedGenes(studyViewFilter);
     }
 }

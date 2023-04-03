@@ -1,5 +1,6 @@
 package org.cbioportal.persistence.mybatiscolumnstore;
 
+import org.cbioportal.model.AlterationCountByGene;
 import org.cbioportal.model.Sample;
 import org.cbioportal.persistence.StudyViewRepository;
 import org.cbioportal.webparam.StudyViewFilter;
@@ -16,7 +17,11 @@ public class StudyViewMyBatisRepository implements StudyViewRepository {
     
     @Override
     public List<Sample> getFilteredSamplesFromColumnstore(StudyViewFilter studyViewFilter) {
-        final List<Sample> filteredSamples = studyViewMapper.getFilteredSamples(studyViewFilter);
-        return filteredSamples;
+        return studyViewMapper.getFilteredSamples(studyViewFilter);
+    }
+    
+    @Override
+    public List<AlterationCountByGene> getMutatedGenes(StudyViewFilter studyViewFilter) {
+        return studyViewMapper.getMutatedGenes(studyViewFilter);
     }
 }

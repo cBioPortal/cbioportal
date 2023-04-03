@@ -103,6 +103,7 @@
                             </foreach>
                         </foreach>
                     </trim>
+                 )
             </if>
         </trim>
     </sql>

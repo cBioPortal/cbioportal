@@ -190,6 +190,7 @@
         </if>
     </sql>
 
+    <!-- Row should only be returned once, also when both sv sites match -->
     <sql id="whereSite1IsNot2">
         (
             structural_variant.SITE2_ENTREZ_GENE_ID != structural_variant.SITE1_ENTREZ_GENE_ID

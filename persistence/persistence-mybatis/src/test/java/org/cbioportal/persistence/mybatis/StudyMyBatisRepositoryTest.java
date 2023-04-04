@@ -222,6 +222,7 @@ public class StudyMyBatisRepositoryTest {
         Assert.assertEquals("{\"Analyst\": {\"Name\": \"Jack\", \"Email\": \"jack@something.com\"}, \"Load id\": 35}", result.getTags());
     }
     
+    @Test
     public void getMultipleTags() throws Exception {
 
         List<CancerStudyTags> result = studyMyBatisRepository.getTagsForMultipleStudies(Arrays.asList("study_tcga_pub", "acc_tcga"));
@@ -229,9 +230,11 @@ public class StudyMyBatisRepositoryTest {
         Assert.assertEquals(2, result.size());
         CancerStudyTags cancerStudyTags1 = result.get(1);
         Assert.assertEquals((Integer) 1, cancerStudyTags1.getCancerStudyId());
+        Assert.assertEquals("study_tcga_pub", cancerStudyTags1.getStudyId());
         Assert.assertEquals("{\"Analyst\": {\"Name\": \"Jack\", \"Email\": \"jack@something.com\"}, \"Load id\": 35}", cancerStudyTags1.getTags());
         CancerStudyTags cancerStudyTags2 = result.get(0);
         Assert.assertEquals((Integer) 2, cancerStudyTags2.getCancerStudyId());
-        Assert.assertEquals("{\"Load id\": 36}", cancerStudyTags2.getTags()); 
+        Assert.assertEquals("acc_tcga", cancerStudyTags2.getStudyId());
+        Assert.assertEquals("{\"Load id\": 36}", cancerStudyTags2.getTags());
     }
 }

@@ -90,6 +90,7 @@ public class CalcFisherExactTest extends HttpServlet  {
                 int c = Integer.parseInt(dataSet.split(" ")[2]);
                 int d = Integer.parseInt(dataSet.split(" ")[3]);    
                 FisherExact fisher = new FisherExact(a + b + c + d);
+                // We generally use the two tailed Fisher's exact test for calculations
                 double pValue = fisher.getTwoTailedP(a, b, c, d);
                 result = result.concat(String.valueOf(pValue) + " ");                
             }

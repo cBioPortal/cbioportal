@@ -235,7 +235,9 @@ public class FisherExact {
      * @param b
      * @param c
      * @param d
-     * @return two-tailed P-value
+     * @return two-tailed P-value, 
+     * we generally prefer to use this value for research purposes
+     * consult with statisticians on if a new feature is going to use a one-sided Fisher's test value
      */
     public final double getTwoTailedP(int a, int b, int c, int d) {
         int min, i;

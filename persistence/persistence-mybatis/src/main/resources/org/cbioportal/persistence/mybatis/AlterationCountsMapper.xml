@@ -176,6 +176,29 @@
         </if>
     </sql>
     
+    <sql id="fromIncludeCustomAnnotationsSV">
+        <!--For better performance, only join in the alteration_driver_annotation table when we need to filter on it.-->
+        <bind name="allDriverAnnotationsSelected" value="includeDriver and includeVUS and includeUnknownOncogenicity" />
+        <bind name="noDriverAnnotationsSelected" value="not includeDriver and not includeVUS and not includeUnknownOncogenicity" />
+        <bind name="allTierOptionsSelected" value="(selectedTiers != null and selectedTiers.hasAll()) and includeUnknownTier" />
+        <bind name="noTierOptionsSelected" value="(selectedTiers == null or selectedTiers.hasNone()) and not includeUnknownTier" />
+        <if test="(not allDriverAnnotationsSelected and not noDriverAnnotationsSelected) or (not allTierOptionsSelected and not noTierOptionsSelected)">
+            LEFT JOIN alteration_driver_annotation ON
+            structural_variant.INTERNAL_ID = alteration_driver_annotation.ALTERATION_EVENT_ID
+            AND structural_variant.GENETIC_PROFILE_ID = alteration_driver_annotation.GENETIC_PROFILE_ID
+            AND structural_variant.SAMPLE_ID = alteration_driver_annotation.SAMPLE_ID
+        </if>
+    </sql>
+
+    <!-- Row should only be returned once, also when both sv sites match -->
+    <sql id="whereSite1IsNot2">
+        (
+            structural_variant.SITE2_ENTREZ_GENE_ID != structural_variant.SITE1_ENTREZ_GENE_ID
+            OR
+            structural_variant.SITE1_ENTREZ_GENE_ID IS NULL
+        )
+    </sql>
+
     <sql id="whereCustomAnnotations">
         <bind name="allDriverAnnotationsSelected" value="includeDriver and includeVUS and includeUnknownOncogenicity" />
         <bind name="noDriverAnnotationsSelected" value="not includeDriver and not includeVUS and not includeUnknownOncogenicity" />
@@ -183,14 +206,14 @@
             <when test="not allDriverAnnotationsSelected and not noDriverAnnotationsSelected">
                 <trim prefix="AND (" suffix=")" prefixOverrides="OR">
                     <if test="includeDriver">
-                        OR LOWER(alteration_driver_annotation.DRIVER_FILTER) = 'putative_driver'
+                        OR LOWER(DRIVER_FILTER) = 'putative_driver'
                     </if>
                     <if test="includeVUS">
-                        OR LOWER(alteration_driver_annotation.DRIVER_FILTER) = 'putative_passenger'
+                        OR LOWER(DRIVER_FILTER) = 'putative_passenger'
                     </if>
                     <if test="includeUnknownOncogenicity">
-                        OR alteration_driver_annotation.DRIVER_FILTER IS NULL
-                        OR LOWER(alteration_driver_annotation.DRIVER_FILTER) IN ('unknown', 'na', '')
+                        OR DRIVER_FILTER IS NULL
+                        OR LOWER(DRIVER_FILTER) IN ('unknown', 'na', '')
                     </if>
                 </trim>
             </when>
@@ -211,14 +234,14 @@
             <when test="not allTierOptionsSelected and not noTierOptionsSelected">
                 <trim prefix="AND (" suffix=")" prefixOverrides="OR">    
                     <if test="selectedTiers != null and selectedTiers.hasValues()">
-                        OR alteration_driver_annotation.DRIVER_TIERS_FILTER IN
+                        OR DRIVER_TIERS_FILTER IN
                         <foreach item="item" collection="selectedTiers" open="(" separator="," close=")">
                             #{item}
                         </foreach>
                     </if>
                     <if test="includeUnknownTier">
-                        OR alteration_driver_annotation.DRIVER_TIERS_FILTER IS NULL
-                        OR LOWER(alteration_driver_annotation.DRIVER_TIERS_FILTER) IN ('', 'na', 'unknown')
+                        OR DRIVER_TIERS_FILTER IS NULL
+                        OR LOWER(DRIVER_TIERS_FILTER) IN ('', 'na', 'unknown')
                     </if>
                 </trim>
             </when>
@@ -405,14 +428,19 @@
                 <include refid="caseStableIdentifier" /> as caseStableId,
                 genetic_profile.GENETIC_PROFILE_ID as geneticProfileId,
                 structural_variant.SV_STATUS
-                
             FROM
                 structural_variant
             INNER JOIN genetic_profile ON structural_variant.GENETIC_PROFILE_ID = genetic_profile.GENETIC_PROFILE_ID
             INNER JOIN sample ON structural_variant.SAMPLE_ID = sample.INTERNAL_ID
             INNER JOIN patient ON sample.PATIENT_ID = patient.INTERNAL_ID
             INNER JOIN gene ON structural_variant.SITE1_ENTREZ_GENE_ID = gene.ENTREZ_GENE_ID
+            <include refid="fromIncludeCustomAnnotationsSV"/>
+            <where>
+                <include refid="whereCustomAnnotations"/>
+            </where>
+
             UNION ALL
+
             SELECT 
                 gene.ENTREZ_GENE_ID AS entrezGeneId,
                 gene.HUGO_GENE_SYMBOL AS hugoGeneSymbol,
@@ -426,17 +454,20 @@
             INNER JOIN sample ON structural_variant.SAMPLE_ID = sample.INTERNAL_ID
             INNER JOIN patient ON sample.PATIENT_ID = patient.INTERNAL_ID
             INNER JOIN gene ON structural_variant.SITE2_ENTREZ_GENE_ID = gene.ENTREZ_GENE_ID
-            WHERE structural_variant.SITE2_ENTREZ_GENE_ID != structural_variant.SITE1_ENTREZ_GENE_ID
-                OR structural_variant.SITE1_ENTREZ_GENE_ID IS NULL
+            <include refid="fromIncludeCustomAnnotationsSV"/>
+            <where>
+                <include refid="whereSite1IsNot2"/>
+                <include refid="whereCustomAnnotations"/>
+            </where>
             ) AS combinedResults
-        <where>
-            <include refid="whereSVStatus"/>
-            <include refid="caseFilter">
-                <property name="identifiers" value="structuralVariantMolecularProfileCaseIdentifiers" />
-                <property name="geneticProfileIdentifier" value="geneticProfileId" />
-                <property name="caseStableIdentifier" value="caseUniqueId" />
-            </include>
-        </where>
+            <where>
+                <include refid="whereSVStatus"/>
+                <include refid="caseFilter">
+                    <property name="identifiers" value="structuralVariantMolecularProfileCaseIdentifiers" />
+                    <property name="geneticProfileIdentifier" value="geneticProfileId" />
+                    <property name="caseStableIdentifier" value="caseUniqueId" />
+                </include>
+            </where> 
     </sql>
 
     <sql id="caseFilter">

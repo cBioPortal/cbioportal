@@ -44,16 +44,20 @@ import javax.servlet.http.HttpServletResponse;
 import org.mskcc.cbio.portal.stats.FisherExact;
 
 /**
- * Calculate the cumulative (one-tail) p-value out of fisher exact test
+ * Calculate the cumulative (two-tail) p-value out of fisher exact test
  * 
  * @param a a, b, c, d are the four cells in a 2x2 matrix
  * @param b
  * @param c
  * @param d
- * @return one-tailed P-value (right or left, whichever is smallest)
+ * @return two-tailed P-value (right or left, whichever is smallest)
  * 
  */
 public class CalcFisherExactTest extends HttpServlet  {
+    /**
+     * Note: currently no front-end component makes request for fisher's exact test
+     * However, it was discussed that it's helpful to keep this around for future developers
+     */
 
     /**
      * Handles HTTP GET Request.
@@ -86,7 +90,7 @@ public class CalcFisherExactTest extends HttpServlet  {
                 int c = Integer.parseInt(dataSet.split(" ")[2]);
                 int d = Integer.parseInt(dataSet.split(" ")[3]);    
                 FisherExact fisher = new FisherExact(a + b + c + d);
-                double pValue = fisher.getCumlativeP(a, b, c, d);
+                double pValue = fisher.getTwoTailedP(a, b, c, d);
                 result = result.concat(String.valueOf(pValue) + " ");                
             }
         }

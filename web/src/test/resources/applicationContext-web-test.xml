@@ -27,7 +27,7 @@
         </property>
         <property name="ignoreUnresolvablePlaceholders" value="true" />
     </bean>
-    
-    <!-- load the beans from the prodution configuration xml file -->
+
+    <!-- load the beans from the production configuration xml file -->
     <import resource="classpath:applicationContext-web.xml" />
 </beans>

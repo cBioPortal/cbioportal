@@ -12,6 +12,7 @@ import org.springframework.beans.factory.annotation.Configurable;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
+import java.sql.ResultSet;
 import java.util.*;
 
 @RunWith(SpringJUnit4ClassRunner.class)
@@ -1021,6 +1022,36 @@ public class AlterationMyBatisRepositoryTest {
             svEntrezGeneIds,
             alterationFilter);
         Assert.assertEquals(0, result.size());
+    }
+    
+    @Test
+    public void getPatientStructuralVariantCountIncludeCustomDriverAnnotationsIncludeUnknown() throws Exception {
+        alterationFilter.setStructuralVariants(true);
+        alterationFilter.setMutationTypeSelect(Select.none());
+        alterationFilter.setCnaTypeSelect(Select.none());
+        alterationFilter.setSelectedTiers(Select.byValues(List.of("Class 2")));
+        alterationFilter.setIncludeUnknownTier(true);
+        List<AlterationCountByGene> result = alterationMyBatisRepository.getPatientAlterationCounts(
+            svPatientIdToProfileId,
+            svEntrezGeneIds,
+            alterationFilter
+        );
+        Assert.assertEquals(4, result.size());
+    }
+    
+    @Test
+    public void getPatientStructuralVariantCountIncludeCustomDriverAnnotationsExcludeUnknown() throws Exception {
+        alterationFilter.setStructuralVariants(true);
+        alterationFilter.setMutationTypeSelect(Select.none());
+        alterationFilter.setCnaTypeSelect(Select.none());
+        alterationFilter.setSelectedTiers(Select.byValues(List.of("Class 2")));
+        alterationFilter.setIncludeUnknownTier(false);
+        List<AlterationCountByGene> result = alterationMyBatisRepository.getPatientAlterationCounts(
+            svPatientIdToProfileId,
+            svEntrezGeneIds,
+            alterationFilter
+        );
+        Assert.assertEquals(1, result.size());
     }
     
 }

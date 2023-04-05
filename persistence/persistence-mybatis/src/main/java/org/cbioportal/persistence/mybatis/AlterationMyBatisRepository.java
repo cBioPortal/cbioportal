@@ -110,7 +110,8 @@ public class AlterationMyBatisRepository implements AlterationRepository {
             alterationFilter.getIncludeUnknownTier(),
             alterationFilter.getIncludeGermline(),
             alterationFilter.getIncludeSomatic(),
-            alterationFilter.getIncludeUnknownStatus());
+            alterationFilter.getIncludeUnknownStatus()
+        );
     }
 
     @Override

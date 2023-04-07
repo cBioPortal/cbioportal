@@ -99,7 +99,8 @@ public class StudyController {
         @RequestParam(required = false) StudySortBy sortBy,
         @ApiParam("Direction of the sort")
         @RequestParam(defaultValue = "ASC") Direction direction,
-        Authentication authentication) {
+        @ApiParam(hidden = true, required = false)
+        @RequestParam(required = false) Authentication authentication) {
         
         // Only use this feature on the public portal and make sure it is never used
         // on portals using auth, as in auth setting, different users will have different

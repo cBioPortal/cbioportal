@@ -14,6 +14,7 @@ In the database migration process, we are going to have two main steps: building
         - Run `sh /data/portal-con/scripts/automation-environment.sh`
     - Specific to cbioportal build, looks for properties and xml files off of $PORTAL_HOME
         - Run `export PORTAL_HOME=/data/portal-cron/git-repos/cbioportal`
+    - Make sure the local cbioportal codebase is on the correct git hash at `/data/portal-cron/git-repos/cbioportal`
     - Specify importer to be build
         - Copy importer properties to `/data/portal-con-git-repos/cbioportal/src/main/resources` (e.g. triage `/data/portal-cron/git-repos/pipelines-configuration/properties/import-triage/*`)
     - Navigate to pipelines folder
@@ -28,6 +29,7 @@ In the database migration process, we are going to have two main steps: building
         - Run `sh /data/portal-con/scripts/automation-environment.sh`
     - Specific to cbioportal build, looks for properties and xml files off of $PORTAL_HOME
         - Run `export PORTAL_HOME=/data/portal-cron/git-repos/cbioportal`
+    - Make sure the local cbioportal codebase is on the correct git hash at `/data/portal-cron/git-repos/cbioportal`
     - Go to build importer jars folder
         - `cd /data/portal-cron/git-repo/pipelines-configuration/build-importer-jars`
     - (Optional) Remove existing jars

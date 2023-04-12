@@ -1,7 +1,10 @@
-# Database Migration
+# MSK Maintenance (In Progress)
+We provide our cBioPortal's maintenance page publicly in the hope that it may be useful to others
+
+## Database Migration
 In the database migration process, we are going to have two main steps: building importers and updating database scheme.
 
-## Building Importers
+### Building Importers
 - Codebases:
     - [cbioportal](https://github.com/cBioPortal/cbioportal)
     - [genome nexus annotation pipeline](https://github.com/genome-nexus/genome-nexus-annotation-pipeline)
@@ -37,7 +40,7 @@ In the database migration process, we are going to have two main steps: building
     - Build all importers at once
         - `sh buildproductionjars.sh -sd=true -sgp=true -b=importers`
 
-## Updating Database Scheme
+### Updating Database Scheme
 Database needs to be updated one by one, we have four main databases: triage, private, genie, and public. Take triage database as an example.
 - Migrate one database (e.g. triage)
     - SSH into pipeline server

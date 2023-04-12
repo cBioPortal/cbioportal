@@ -37,8 +37,23 @@ In the database migration process, we are going to have two main steps: building
         - `cd /data/portal-cron/git-repo/pipelines-configuration/build-importer-jars`
     - (Optional) Remove existing jars
         - `rm *.jar`
-    - Build all importers at once
+    - Build all importers at once (build all importers except cmo-pipelines)
         - `sh buildproductionjars.sh -sd=true -sgp=true -b=importers`
+        - Available parameters:
+          - [--cbioportal-git-hash|-cgh=<cbioportal_commit_hash>]
+          - [--skip-deployment|-sd=<true|false>]
+          - [--skip-git-pull|-sgp=<true|false>]
+          - [--build|-b=<build_specifier>], build_specifier should be one of the following
+            - all (build for all artifacts)
+            - importers (all importers except cmo-pipelines)
+            - cmo-pipelines (cmo-pipelines artifacts only)
+            - triage-cmo-importer
+            - msk-dmp-importer
+            - msk-cmo-importer
+            - public-importer
+            - genie-aws-importer
+            - genie-archive-importer
+            - hgnc-importer
 
 ### Updating Database Scheme
 Database needs to be updated one by one, we have four main databases: triage, private, genie, and public. Take triage database as an example.

@@ -9,6 +9,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.lang.NonNull;
 import org.springframework.stereotype.Component;
 
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
@@ -25,7 +26,11 @@ public final class ClinicalEventFilterApplier implements StudyViewSubFilterAppli
     
     @Override
     public List<SampleIdentifier> filter(@NonNull List<SampleIdentifier> toFilter, @NonNull StudyViewFilter filters) {
-       
+
+       if (toFilter == null || toFilter.isEmpty()) {
+           return new ArrayList<>();
+       }
+        
        List<String> studyIds = toFilter.stream()
            .map(SampleIdentifier::getStudyId)
            .collect(Collectors.toList());

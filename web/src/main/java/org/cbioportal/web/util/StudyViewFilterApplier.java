@@ -296,6 +296,10 @@ public class StudyViewFilterApplier {
     private List<SampleIdentifier> filterMutatedGenes(List<GeneFilter> mutatedGenefilters,
             Map<String, MolecularProfile> molecularProfileMap, List<SampleIdentifier> sampleIdentifiers) {
 
+        if (sampleIdentifiers == null || sampleIdentifiers.isEmpty()) {
+            return new ArrayList<>();
+        }
+
         for (GeneFilter genefilter : mutatedGenefilters) {
 
             List<MolecularProfile> filteredMolecularProfiles = genefilter
@@ -364,6 +368,10 @@ public class StudyViewFilterApplier {
 
     private List<SampleIdentifier> filterStructuralVariantGenes(List<GeneFilter> svGenefilters,
             Map<String, MolecularProfile> molecularProfileMap, List<SampleIdentifier> sampleIdentifiers) {
+            
+        if (sampleIdentifiers == null || sampleIdentifiers.isEmpty()) {
+            return new ArrayList<>();
+        }
 
         for (GeneFilter genefilter : svGenefilters) {
 
@@ -433,6 +441,10 @@ public class StudyViewFilterApplier {
 
     private List<SampleIdentifier> filterCNAGenes(List<GeneFilter> cnaGeneFilters,
             Map<String, MolecularProfile> molecularProfileMap, List<SampleIdentifier> sampleIdentifiers) {
+        
+        if (sampleIdentifiers == null || sampleIdentifiers.isEmpty()) {
+            return new ArrayList<>();
+        }
 
         for (GeneFilter geneFilter : cnaGeneFilters) {
 

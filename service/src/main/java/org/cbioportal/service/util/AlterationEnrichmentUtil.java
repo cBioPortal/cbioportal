@@ -168,7 +168,7 @@ public class AlterationEnrichmentUtil<T extends AlterationCountBase> {
         // These are arrays of equal length, where every index
         // represents a sample id / profile id-combination
         List<String> sampleIds = new ArrayList<>();
-        List<String> molecularProfileIds = new ArrayList<>();
+        List<String> molecularProfileIds = new ArrayList<>();   
         molecularProfileCaseIdentifiers.forEach(pair -> {
             sampleIds.add(pair.getCaseId());
             molecularProfileIds.add(pair.getMolecularProfileId());
@@ -190,7 +190,7 @@ public class AlterationEnrichmentUtil<T extends AlterationCountBase> {
 
     public long includeFrequencyForPatients(
             List<MolecularProfileCaseIdentifier> molecularProfileCaseIdentifiers,
-            List<T> AlterationCountBases,
+            List<T> alterationCounts,
             boolean includeMissingAlterationsFromGenePanel) {
 
         // Collect profile id and sample id arrays.
@@ -206,7 +206,7 @@ public class AlterationEnrichmentUtil<T extends AlterationCountBase> {
         List<GenePanelData> genePanelDataList = genePanelService
             .fetchGenePanelDataInMultipleMolecularProfilesByPatientIds(molecularProfileCaseIdentifiers);
 
-        profiledCasesCounter.calculate(AlterationCountBases, genePanelDataList,
+        profiledCasesCounter.calculate(alterationCounts, genePanelDataList,
             includeMissingAlterationsFromGenePanel, profiledCasesCounter.patientUniqueIdentifier);
 
         return genePanelDataList

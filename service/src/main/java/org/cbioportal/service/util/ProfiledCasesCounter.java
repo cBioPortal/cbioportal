@@ -121,16 +121,16 @@ public class ProfiledCasesCounter<T extends AlterationCountBase> {
         }
 
         if (includeMissingAlterationsFromGenePanel) {
-            Map<Integer, Boolean> genesWithAlteration = alterationCounts.stream()
+            Set<Integer> genesWithAlteration = alterationCounts.stream()
                     .flatMap(count -> Arrays.stream(count.getEntrezGeneIds()))
-                    .collect(Collectors.toMap(entrezGeneId -> entrezGeneId, x -> true));
+                    .collect(Collectors.toSet());
 
             geneToGenePanel.entrySet().forEach(entry -> {
                 Integer entrezGeneId = entry.getKey().getFirst();
                 String hugoGeneSymbol = entry.getKey().getSecond();
                 // add alterationCount object where there are no alterations but have genePanel
                 // object
-                if (!genesWithAlteration.containsKey(entrezGeneId)) {
+                if (!genesWithAlteration.contains(entrezGeneId)) {
                     AlterationCountByGene alterationCountByGene = new AlterationCountByGene();
 
                     Set<String> totalProfiledPatients = new HashSet<>();

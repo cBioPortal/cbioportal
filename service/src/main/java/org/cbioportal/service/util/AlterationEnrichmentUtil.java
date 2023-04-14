@@ -3,7 +3,6 @@ package org.cbioportal.service.util;
 import org.apache.commons.math3.stat.inference.ChiSquareTest;
 import org.apache.commons.math3.util.Pair;
 import org.cbioportal.model.AlterationCountBase;
-import org.cbioportal.model.AlterationCountBase;
 import org.cbioportal.model.AlterationCountByGene;
 import org.cbioportal.model.AlterationEnrichment;
 import org.cbioportal.model.CountSummary;
@@ -21,7 +20,6 @@ import org.springframework.stereotype.Component;
 
 import java.math.BigDecimal;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;

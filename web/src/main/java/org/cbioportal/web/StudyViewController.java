@@ -86,10 +86,6 @@ public class StudyViewController {
     @Autowired
     private ClinicalDataBinUtil clinicalDataBinUtil;
     @Autowired
-    private AlterationCountService alterationCountService;
-    @Autowired
-    private CustomDataService customDataService;
-    @Autowired
     private ClinicalEventService clinicalEventService;
 
     @PreAuthorize("hasPermission(#involvedCancerStudies, 'Collection<CancerStudyId>', T(org.cbioportal.utils.security.AccessLevel).READ)")

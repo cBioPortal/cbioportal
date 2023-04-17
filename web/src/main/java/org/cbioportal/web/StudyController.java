@@ -186,7 +186,8 @@ public class StudyController {
     @ApiOperation("Get the study tags by IDs")
     public ResponseEntity<List<CancerStudyTags>> getTagsForMultipleStudies(
         @ApiParam(required = true, value = "List of Study IDs")
-        @RequestBody List<String> studyIds) {
+        @RequestBody List<String> studyIds
+    ) {
 
         List<CancerStudyTags> cancerStudyTags = studyService.getTagsForMultipleStudies(studyIds);
 

@@ -5,6 +5,7 @@ import java.io.Serializable;
 public class CancerStudyTags implements Serializable {
 
     private Integer cancerStudyId;
+    private String studyId;
     private String tags;
 
     public Integer getCancerStudyId() {
@@ -21,5 +22,13 @@ public class CancerStudyTags implements Serializable {
 
     public void setTags(String tags) {
         this.tags = tags;
+    }
+
+    public String getStudyId() {
+        return studyId;
+    }
+
+    public void setStudyId(String studyId) {
+        this.studyId = studyId;
     }
 }

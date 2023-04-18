@@ -651,6 +651,15 @@ enable_cross_study_expression = (selectedStudies)=>{ [your logic] return true|fa
 enable_cross_study_expression = true|false
 ```
 
+## Combined Study View Summary Limits
+### Background
+A limit is added to prevent poor performance of Study View when selecting too large sample numbers.
+### Properties
+* `studyview.max_samples_selected`: Limit is disabled when not set
+
+### Behavior
+When these limits are exceeded the "Explore Selected Studies" button will be disabled on the Study View Page.
+
 ## Request Body Compression
 
 ### Background

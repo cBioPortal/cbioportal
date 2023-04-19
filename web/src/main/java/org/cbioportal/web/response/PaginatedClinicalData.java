@@ -1,7 +1,5 @@
 package org.cbioportal.web.response;
 
-import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
-import com.fasterxml.jackson.annotation.JsonInclude;
 import org.cbioportal.model.ClinicalData;
 import org.cbioportal.model.ClinicalDataCollection;
 import org.springframework.data.domain.Page;
@@ -12,39 +10,43 @@ import org.springframework.data.domain.Pageable;
 import java.util.ArrayList;
 import java.util.List;
 
-@JsonInclude(JsonInclude.Include.NON_NULL)
-@JsonIgnoreProperties(ignoreUnknown = true)
-public class ClinicalDataCollectionResponse {
+public class PaginatedClinicalData {
+
+    public static class ClinicalDataPage extends PageImpl<ClinicalData> {
+        public ClinicalDataPage(List<ClinicalData> content, Pageable pageable, long total) {
+            super(content, pageable, total);
+        }
+    }
 
     /**
      * Paginated resource
      */
-    private Page<ClinicalData> sampleClinicalData = Page.empty();
+    public ClinicalDataPage samplePage;
 
     /**
      * Patient info associated with paginated samples
      */
     private List<ClinicalData> patientClinicalData = new ArrayList<>();
 
-    public ClinicalDataCollectionResponse(
+    public PaginatedClinicalData(
         ClinicalDataCollection clinicalDataCollection,
         int pageNumber,
-        int pageSize, 
+        int pageSize,
         int total
     ) {
         Pageable params = PageRequest.of(pageNumber, pageSize);
-        this.sampleClinicalData = new PageImpl<>(clinicalDataCollection.getSampleClinicalData(), params, total);
+        this.samplePage = new ClinicalDataPage(clinicalDataCollection.getSampleClinicalData(), params, total);
         this.patientClinicalData = clinicalDataCollection.getPatientClinicalData();
     }
 
-    public ClinicalDataCollectionResponse() {}
+    public PaginatedClinicalData() {}
 
-    public Page<ClinicalData> getSampleClinicalData() {
-        return sampleClinicalData;
+    public ClinicalDataPage getSamplePage() {
+        return samplePage;
     }
 
-    public void setSampleClinicalData(Page<ClinicalData> sampleClinicalData) {
-        this.sampleClinicalData = sampleClinicalData;
+    public void setSamplePage(ClinicalDataPage samplePage) {
+        this.samplePage = samplePage;
     }
 
     public List<ClinicalData> getPatientClinicalData() {

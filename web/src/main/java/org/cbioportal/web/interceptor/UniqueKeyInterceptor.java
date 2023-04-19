@@ -13,7 +13,7 @@ import org.cbioportal.model.Patient;
 import org.cbioportal.model.ResourceData;
 import org.cbioportal.model.Sample;
 import org.cbioportal.model.StructuralVariant;
-import org.cbioportal.web.response.ClinicalDataCollectionResponse;
+import org.cbioportal.web.response.PaginatedClinicalData;
 import org.springframework.core.MethodParameter;
 import org.springframework.http.MediaType;
 import org.springframework.http.converter.json.MappingJacksonValue;
@@ -42,8 +42,8 @@ public class UniqueKeyInterceptor extends AbstractMappingJacksonResponseBodyAdvi
         Object value = mappingJacksonValue.getValue();
         if (value instanceof List) {
             mapList((List) value);
-        } else if (value instanceof ClinicalDataCollectionResponse) {
-            mapClinicalDataCollection((ClinicalDataCollectionResponse) value);
+        } else if (value instanceof PaginatedClinicalData) {
+            mapClinicalDataCollection((PaginatedClinicalData) value);
         }
     }
 
@@ -110,9 +110,9 @@ public class UniqueKeyInterceptor extends AbstractMappingJacksonResponseBodyAdvi
         }
     }
 
-    private void mapClinicalDataCollection(ClinicalDataCollectionResponse value) {
-        if (value.getSampleClinicalData() != null) {
-            value.getSampleClinicalData().forEach(
+    private void mapClinicalDataCollection(PaginatedClinicalData value) {
+        if (value.getSamplePage() != null) {
+            value.getSamplePage().forEach(
                 clinicalData -> {
                     clinicalData.setUniqueSampleKey(calculateBase64(clinicalData.getSampleId(), clinicalData.getStudyId()));
                     clinicalData.setUniquePatientKey(calculateBase64(clinicalData.getPatientId(), clinicalData.getStudyId()));

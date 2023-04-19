@@ -17,7 +17,7 @@ import org.cbioportal.web.config.annotation.InternalApi;
 import org.cbioportal.model.AlterationFilter;
 import org.cbioportal.web.parameter.*;
 import org.cbioportal.web.parameter.sort.ClinicalDataSortBy;
-import org.cbioportal.web.response.ClinicalDataCollectionResponse;
+import org.cbioportal.web.response.PaginatedClinicalData;
 import org.cbioportal.web.util.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cache.annotation.Cacheable;
@@ -884,7 +884,7 @@ public class StudyViewController {
     @RequestMapping(value = "/clinical-data-table/fetch", method = RequestMethod.POST,
         consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
     @ApiOperation("Fetch clinical data for the Clinical Tab of Study View")
-    public ResponseEntity<ClinicalDataCollectionResponse> fetchClinicalDataClinicalTable(
+    public ResponseEntity<PaginatedClinicalData> fetchClinicalDataClinicalTable(
         @ApiParam(required = true, value = "Study view filter")
         @Valid @RequestBody(required = false) StudyViewFilter studyViewFilter,
         @ApiIgnore // prevent reference to this attribute in the swagger-ui interface
@@ -922,7 +922,7 @@ public class StudyViewController {
             
         // Return empty when possible.
         if (sampleClinicalData.isEmpty()) {
-            return new ResponseEntity<>(new ClinicalDataCollectionResponse(), HttpStatus.OK);
+            return new ResponseEntity<>(new PaginatedClinicalData(), HttpStatus.OK);
         }
 
         // Resolve for which patient clinical data should be included.
@@ -942,7 +942,7 @@ public class StudyViewController {
         clinicalDataCollection.setSampleClinicalData(sampleClinicalData);
         clinicalDataCollection.setPatientClinicalData(patientClinicalData);
 
-        ClinicalDataCollectionResponse response = new ClinicalDataCollectionResponse(clinicalDataCollection, pageNumber, pageSize, 200);
+        PaginatedClinicalData response = new PaginatedClinicalData(clinicalDataCollection, pageNumber, pageSize, 200);
         
         return new ResponseEntity<>(response, HttpStatus.OK);
     }

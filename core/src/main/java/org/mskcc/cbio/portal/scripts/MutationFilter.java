@@ -133,6 +133,7 @@ public class MutationFilter {
               if( safeStringTest( mutation.getMutationType(), "5'Flank" ) ) {
                   mutation.setProteinChange("Promoter");
               }
+              this.accepts++;
               return true;
           }
       } else {

@@ -2,7 +2,6 @@ package org.cbioportal.web.response;
 
 import org.cbioportal.model.ClinicalData;
 import org.cbioportal.model.ClinicalDataCollection;
-import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;

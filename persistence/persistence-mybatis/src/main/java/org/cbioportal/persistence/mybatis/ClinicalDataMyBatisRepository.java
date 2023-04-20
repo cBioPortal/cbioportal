@@ -150,6 +150,13 @@ public class ClinicalDataMyBatisRepository implements ClinicalDataRepository {
     }
 
     @Override
+    public Integer fetchSampleClinicalDataClinicalTableCount(List<String> studyIds, List<String> sampleIds, 
+                                                             String searchTerm, String sortBy, String direction) {
+        return clinicalDataMapper.getSampleClinicalDataClinicalTableCount(studyIds, sampleIds,"SUMMARY", 
+            searchTerm, sortBy, direction);
+    }
+
+    @Override
     public BaseMeta fetchMetaClinicalData(List<String> studyIds, List<String> ids, List<String> attributeIds,
                                           String clinicalDataType) {
 

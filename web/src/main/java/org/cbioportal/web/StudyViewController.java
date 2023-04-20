@@ -918,7 +918,15 @@ public class StudyViewController {
             pageNumber,
             searchTerm,
             sortBy != null ? sortBy.getOriginalValue() : null,
-            direction.name());
+            direction.name()
+        );
+        Integer total = clinicalDataService.fetchSampleClinicalDataClinicalTableCount(
+            sampleStudyIds,
+            sampleIds,
+            searchTerm,
+            sortBy != null ? sortBy.getOriginalValue() : null,
+            direction.name()
+        );
             
         // Return empty when possible.
         if (sampleClinicalData.isEmpty()) {
@@ -941,9 +949,8 @@ public class StudyViewController {
         final ClinicalDataCollection clinicalDataCollection = new ClinicalDataCollection();
         clinicalDataCollection.setSampleClinicalData(sampleClinicalData);
         clinicalDataCollection.setPatientClinicalData(patientClinicalData);
-
-        PaginatedClinicalData response = new PaginatedClinicalData(clinicalDataCollection, pageNumber, pageSize, 200);
         
+        PaginatedClinicalData response = new PaginatedClinicalData(clinicalDataCollection, pageNumber, pageSize, total);
         return new ResponseEntity<>(response, HttpStatus.OK);
     }
 

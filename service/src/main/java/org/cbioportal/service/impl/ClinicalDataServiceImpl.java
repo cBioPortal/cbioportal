@@ -234,4 +234,11 @@ public class ClinicalDataServiceImpl implements ClinicalDataService {
         return clinicalDataRepository.fetchSampleClinicalDataClinicalTable(studyIds, sampleIds, pageSize, pageNumber, searchTerm,
                                                                             sortBy, direction);
     }
+
+    @Override
+    public Integer fetchSampleClinicalDataClinicalTableCount(List<String> studyIds, List<String> sampleIds, 
+                                                             String searchTerm, String sortBy, String direction) {
+        return clinicalDataRepository.fetchSampleClinicalDataClinicalTableCount(studyIds, sampleIds, searchTerm, 
+            sortBy, direction);
+    }
 }

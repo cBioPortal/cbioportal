@@ -22,6 +22,9 @@ public interface ClinicalDataMapper {
                                                           Integer limit, Integer offset, String searchTerm,
                                                           String sortBy, String direction);
 
+    Integer getSampleClinicalDataClinicalTableCount(List<String> studyIds, List<String> sampleIds, String projection, 
+                                                          String searchTerm, String sortBy, String direction);
+
     BaseMeta getMetaPatientClinicalData(List<String> studyIds, List<String> patientIds, List<String> attributeIds);
 
     List<ClinicalDataCount> fetchSampleClinicalDataCounts(List<String> studyIds, List<String> sampleIds,
@@ -33,5 +36,4 @@ public interface ClinicalDataMapper {
     List<ClinicalData> getPatientClinicalDataDetailedToSample(List<String> studyIds, List<String> patientIds,
                                                               List<String> attributeIds, String projection, Integer limit,
                                                               Integer offset, String sortBy, String direction);
-
 }

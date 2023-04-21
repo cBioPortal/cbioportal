@@ -118,6 +118,9 @@ setting controlling which name should be used to display the authenticated user 
 # true | false | (studies)=>{ return true } 
 # enable_cross_study_expression=
 
+## Combined Study View Comparison Limits
+# Any Number | Disabled when not set
+# studyview.max_samples_selected=
 
 ## change the `-Dauthenticate=` JVM argument to configure
 ## which method of authentication to use (false, googleplus, social_auth_google, social_auth_microsoft, saml, openid, noauthsessionservice)

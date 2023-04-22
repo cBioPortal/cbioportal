@@ -1,5 +1,6 @@
 input: ./docs
 output: .retype
+url: https://docs.cbioportal.org
 branding:
   title: cBioPortal Docs
   logo: images/cbio-logo.png

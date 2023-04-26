@@ -5545,6 +5545,37 @@ def validate_study(study_dir, portal_instance, logger, relaxed_mode, strict_maf_
     # additional validation between meta files, after all meta files are processed
     validate_data_relations(validators_by_meta_type, logger)
 
+    # validate the uncalled mutations
+    def check_duplicate_mutations():
+        # check if data_mutations_uncalled.txt exists
+        if os.path.exists('data_mutations_uncalled.txt') is not None:
+            # read data_mutations.txt and data_mutations_uncalled.txt
+            with open('data_mutations.txt', 'r') as mutations_file, open('data_mutations_uncalled.txt', 'r') as uncalled_file:
+
+                next(mutations_file, uncalled_file)
+                mutations = set()
+                uncalled_mutations = set()
+                uncalled_mutation = set()
+                for line in mutations_file:
+                    words = line.split()
+                    mutations.add(words[0])
+
+                for line in uncalled_file:
+                    words = line.split()
+                    uncalled_mutations.add(words[0])
+                
+                # combine mutations from both files and check for duplicates
+                all_mutations = mutations.union(uncalled_mutations)
+                duplicates = set()
+                for mutation in all_mutations:
+                    if mutation in mutations and mutation in uncalled_mutations:
+                        duplicates.add(mutation.strip())
+                if duplicates:
+                    print('Found duplicate mutations:')
+                    logger.warning('Multiple gene panel matrix files detected')
+                    print(duplicates)
+
+
     logger.info('Validation complete')
 
 

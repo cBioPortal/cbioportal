@@ -1,5 +1,5 @@
 ## May 2, 2023
-*   **New Feature**: Mutations tab supports new revue variants annotation.
+*   **New Feature**: The mutations tab now shows variant annotations from the [repository of Variant with Unexpected Effects (reVUE)](https://www.cancerrevue.org/).
     <img src="https://user-images.githubusercontent.com/16869603/234271379-6a0876ea-8477-426e-a0e4-5e0b0b66aef9.gif" width="700" />
 
 ## Apr 11, 2023

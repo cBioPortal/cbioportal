@@ -696,3 +696,21 @@ There are two `portal.property` values related to this feature:
 * This is not a cure-all for performance issues
   * Most requests the cBioPortal makes do not have large request bodies, so most requests will not be compressed, and will see no performance improvement.
   * Users with good upload speeds will see minimal performance improvements, as their upload speed is not a bottleneck.
+
+# DataSets Tab (Study Download Links)
+### Background
+The DataSets tab has the ability to create a ``download`` button that allows users to quickly download "raw" public studies.
+### Properties
+* ``study_download_url`` : when set, the feature will be enabled
+### Behavior
+For private instances that want to replicate the``public-portal`` they first must set up their studies 
+they want available for download in a similar format to what is described in the Example section below.
+The studies are located on the ``public-portal`` at  `https://cbioportal-datahub.s3.amazonaws.com/`. 
+Then there is a ``study_list.json`` defined that list the studies that can be downloaded.
+The studies to be downloaded need to be compressed with the extension ``tar.gz``
+
+### Example
+* We have set ``study_download_url`` property to `https://cbioportal-datahub.s3.amazonaws.com/`
+* ``study_list.json`` resides ``https://cbioportal-datahub.s3.amazonaws.com/study_list.json``
+  * ``[ "acbc_mskcc_2015", "acc_2019"]`` Example of contents
+* ``acbc_mskcc_2015.tar.gz`` resides `https://cbioportal-datahub.s3.amazonaws.com/acbc_mskcc_2015.tar.gz`

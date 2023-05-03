@@ -25,6 +25,8 @@ The higher the score, the higher priority it will be displayed in the study view
 If you want to hide chart, please set the priority to 0.
 For combination chart, as long as one of the clinical attributes has been set to 0, it will be hidden.
 
+To disable the chart, set the priority to -1.(Currently disables charts for single clinical attributes only)
+
 Currently, we preassigned priority to few charts, but as long as you assign a priority in the database except than 1, these preassigned priorities will be overwritten.
 
 | Chart name(clinical attribute ID)                          	| Frontend default priority 	| Additional Info                                   |

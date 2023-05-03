@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width,initial-scale=1">
-    <meta name="turbo-cache-control" content="no-cache" data-turbo-track="reload" data-track-token="2.4.0.736439502686">
+    <meta name="turbo-cache-control" content="no-cache" data-turbo-track="reload" data-track-token="2.4.0.736439952648">
 
     <!-- See retype.com -->
     <meta name="generator" content="Retype 2.4.0">
@@ -33,11 +33,11 @@
     <script>(function () { var el = document.documentElement, m = localStorage.getItem("doc_theme"), wm = window.matchMedia; if (m === "dark" || (!m && wm && wm("(prefers-color-scheme: dark)").matches)) { el.classList.add("dark") } else { el.classList.remove("dark") } })();</script>
 
     <link href="../../../images/cbio-logo.png" rel="icon" />
-    <link href="../../../resources/css/retype.css?v=2.4.0.736439502686" rel="stylesheet" />
+    <link href="../../../resources/css/retype.css?v=2.4.0.736439952648" rel="stylesheet" />
 
-    <script type="text/javascript" src="../../../resources/js/config.js?v=2.4.0.736439502686" data-turbo-eval="false" defer></script>
+    <script type="text/javascript" src="../../../resources/js/config.js?v=2.4.0.736439952648" data-turbo-eval="false" defer></script>
     <script type="text/javascript" src="../../../resources/js/retype.js?v=2.4.0" data-turbo-eval="false" defer></script>
-    <script id="lunr-js" type="text/javascript" src="../../../resources/js/lunr.js?v=2.4.0.736439502686" data-turbo-eval="false" defer></script>
+    <script id="lunr-js" type="text/javascript" src="../../../resources/js/lunr.js?v=2.4.0.736439952648" data-turbo-eval="false" defer></script>
     <link href="../../../resources/css/katex.css?v=2.4.0" rel="stylesheet" />
     <script id="katex-js" type="text/javascript" src="../../../resources/js/katex.js?v=2.4.0" defer></script>
 
@@ -1005,6 +1005,54 @@ enable_cross_study_expression = true|false</code></pre>
 <li>Users with good upload speeds will see minimal performance improvements, as their upload speed is not a bottleneck.</li>
 </ul>
 </li>
+</ul>
+<doc-anchor-target id="datasets-tab-study-download-links">
+    <h1>
+        <doc-anchor-trigger class="header-anchor-trigger" to="#datasets-tab-study-download-links">#</doc-anchor-trigger>
+        <span>DataSets Tab (Study Download Links)</span>
+    </h1>
+</doc-anchor-target>
+<doc-anchor-target id="background-2">
+    <h3>
+        <doc-anchor-trigger class="header-anchor-trigger" to="#background-2">#</doc-anchor-trigger>
+        <span>Background</span>
+    </h3>
+</doc-anchor-target>
+<p>The DataSets tab has the ability to create a <code v-pre>download</code> button that allows users to quickly download &quot;raw&quot; public studies.</p>
+<doc-anchor-target id="properties-3">
+    <h3>
+        <doc-anchor-trigger class="header-anchor-trigger" to="#properties-3">#</doc-anchor-trigger>
+        <span>Properties</span>
+    </h3>
+</doc-anchor-target>
+<ul>
+<li><code v-pre>study_download_url</code> : when set, the feature will be enabled</li>
+</ul>
+<doc-anchor-target id="behavior-2">
+    <h3>
+        <doc-anchor-trigger class="header-anchor-trigger" to="#behavior-2">#</doc-anchor-trigger>
+        <span>Behavior</span>
+    </h3>
+</doc-anchor-target>
+<p>For private instances that want to replicate the<code v-pre>public-portal</code> they first must set up their studies
+they want available for download in a similar format to what is described in the Example section below.
+The studies are located on the <code v-pre>public-portal</code> at  <code v-pre>https://cbioportal-datahub.s3.amazonaws.com/</code>.
+Then there is a <code v-pre>study_list.json</code> defined that list the studies that can be downloaded.
+The studies to be downloaded need to be compressed with the extension <code v-pre>tar.gz</code></p>
+<doc-anchor-target id="example">
+    <h3>
+        <doc-anchor-trigger class="header-anchor-trigger" to="#example">#</doc-anchor-trigger>
+        <span>Example</span>
+    </h3>
+</doc-anchor-target>
+<ul>
+<li>We have set <code v-pre>study_download_url</code> property to <code v-pre>https://cbioportal-datahub.s3.amazonaws.com/</code></li>
+<li><code v-pre>study_list.json</code> resides <code v-pre>https://cbioportal-datahub.s3.amazonaws.com/study_list.json</code>
+<ul>
+<li><code v-pre>[ &quot;acbc_mskcc_2015&quot;, &quot;acc_2019&quot;]</code> Example of contents</li>
+</ul>
+</li>
+<li><code v-pre>acbc_mskcc_2015.tar.gz</code> resides <code v-pre>https://cbioportal-datahub.s3.amazonaws.com/acbc_mskcc_2015.tar.gz</code></li>
 </ul>
 
                                 

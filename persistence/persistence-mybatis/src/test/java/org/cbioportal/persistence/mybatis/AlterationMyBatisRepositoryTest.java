@@ -19,7 +19,7 @@ import java.util.*;
 public class AlterationMyBatisRepositoryTest {
 
     //    mutation and cna events in testSql.sql
-    //        SAMPLE_ID,    ENTREZ_GENE_ID, HUGO_GENE_SYMBOL, GENETIC_PROFILE_ID, TYPE, MUTATION_TYPE, DRIVER_FILTER, DRIVER_TIERS_FILTER, PATIENT_ID, MUTATION_TYPE
+    //        SAMPLE_ID,    ENTREZ_GENE_ID, HUGO_GENE_SYMBOL, GENETIC_PROFILE_ID, TYPE, MUTATIONio_TYPE, DRIVER_FILTER, DRIVER_TIERS_FILTER, PATIENT_ID, MUTATION_TYPE
     //        1	    207	    AKT1	2	CNA         -2	                Putative_Driver	    Tier 1  TCGA-A1-A0SB    germline
     //        2	    207	    AKT1	2	CNA         2	                Putative_Passenger	Tier 2  TCGA-A1-A0SD    germline
     //        1	    207	    AKT1	6	MUTATION    Nonsense_Mutation	Putative_Driver	    Tier 1  TCGA-A1-A0SB    germline
@@ -42,7 +42,8 @@ public class AlterationMyBatisRepositoryTest {
     //       15     57670-673   KIAA..-BRAF 13  SV          Fusion              <noi>               <noi>   TCGA-A1-A0SD    somatic
     //        1     8031-5979   NCOA4-RET   7   SV          Fusion              <noi>               <noi>   TCGA-A1-A0SB    somatic
     //       15     8031-5979   NCOA4-RET   13  SV          Fusion              <noi>               <noi>   TCGA-A1-A0SB    somatic
-    //        1     7113-2078   TMPRSS2-ERG 7   SV          Fusion              <noi>               <noi>   TCGA-A1-A0SB    somatic
+    //       15     7113-2078   TMPRSS2-ERG 7   SV          Fusion              <noi>               <noi>   TCGA-A1-A0SB    somatic
+    //       15     8031-       NCOA4-      13  SV          Fusion              <noi>               <noi>   TCGA-A1-A0SB    somatic
 
     @Autowired
     private AlterationMyBatisRepository alterationMyBatisRepository;
@@ -79,6 +80,7 @@ public class AlterationMyBatisRepositoryTest {
         sampleIdToProfileId.add(new MolecularProfileCaseIdentifier("TCGA-A1-A0SD-01", "study_tcga_pub_gistic"));
         svSampleIdToProfileId.add(new MolecularProfileCaseIdentifier("TCGA-A1-A0SB-01", "study_tcga_pub_sv"));
         svSampleIdToProfileId.add(new MolecularProfileCaseIdentifier("TCGA-A1-A0SD-01", "study_tcga_pub_sv"));
+        svSampleIdToProfileId.add(new MolecularProfileCaseIdentifier("TCGA-A1-B0SO-01", "acc_tcga_sv"));
 
         patientIdToProfileId.add(new MolecularProfileCaseIdentifier("TCGA-A1-A0SB", "study_tcga_pub_mutations"));
         patientIdToProfileId.add(new MolecularProfileCaseIdentifier("TCGA-A1-A0SE", "study_tcga_pub_mutations"));
@@ -91,6 +93,7 @@ public class AlterationMyBatisRepositoryTest {
         patientIdToProfileId.add(new MolecularProfileCaseIdentifier("TCGA-A1-A0SD", "study_tcga_pub_gistic"));
         svPatientIdToProfileId.add(new MolecularProfileCaseIdentifier("TCGA-A1-A0SB", "study_tcga_pub_sv"));
         svPatientIdToProfileId.add(new MolecularProfileCaseIdentifier("TCGA-A1-A0SD", "study_tcga_pub_sv"));
+        svPatientIdToProfileId.add(new MolecularProfileCaseIdentifier("TCGA-A1-B0SO", "acc_tcga_sv"));
 
         entrezGeneIds = Select.byValues(Arrays.asList(207, 208, 672, 2064));
         svEntrezGeneIds = Select.byValues(Arrays.asList(57670, 8031, 27436, 7113));
@@ -881,11 +884,14 @@ public class AlterationMyBatisRepositoryTest {
 
         AlterationCountByGene result57670 = result.stream().filter(r -> r.getEntrezGeneId() == 57670).findFirst().get();
         AlterationCountByGene result27436 = result.stream().filter(r -> r.getEntrezGeneId() == 27436).findFirst().get();
-        Assert.assertEquals(2, result.size());
+        AlterationCountByGene result7113 = result.stream().filter(r -> r.getEntrezGeneId() == 7113).findFirst().get();
+        Assert.assertEquals(3, result.size());
         Assert.assertEquals((Integer) 1, result57670.getTotalCount());
         Assert.assertEquals((Integer) 1, result57670.getNumberOfAlteredCases());
         Assert.assertEquals((Integer) 1, result27436.getTotalCount());
         Assert.assertEquals((Integer) 1, result27436.getNumberOfAlteredCases());
+        Assert.assertEquals((Integer) 1, result7113.getTotalCount());
+        Assert.assertEquals((Integer) 1, result7113.getNumberOfAlteredCases());
     }
 
     @Test
@@ -905,10 +911,10 @@ public class AlterationMyBatisRepositoryTest {
         AlterationCountByGene result8031 = result.stream().filter(r -> r.getEntrezGeneId() == 8031).findFirst().get();
         AlterationCountByGene result27436 = result.stream().filter(r -> r.getEntrezGeneId() == 27436).findFirst().get();
         AlterationCountByGene result7113 = result.stream().filter(r -> r.getEntrezGeneId() == 7113).findFirst().get();
-        Assert.assertEquals((Integer) 2, result57670.getTotalCount());
-        Assert.assertEquals((Integer) 2, result57670.getNumberOfAlteredCases());
-        Assert.assertEquals((Integer) 1, result8031.getTotalCount());
-        Assert.assertEquals((Integer) 1, result8031.getNumberOfAlteredCases());
+        Assert.assertEquals((Integer) 3, result57670.getTotalCount());
+        Assert.assertEquals((Integer) 3, result57670.getNumberOfAlteredCases());
+        Assert.assertEquals((Integer) 3, result8031.getTotalCount());
+        Assert.assertEquals((Integer) 2, result8031.getNumberOfAlteredCases());
         Assert.assertEquals((Integer) 1, result27436.getTotalCount());
         Assert.assertEquals((Integer) 1, result27436.getNumberOfAlteredCases());
         Assert.assertEquals((Integer) 1, result7113.getTotalCount());
@@ -969,14 +975,17 @@ public class AlterationMyBatisRepositoryTest {
             svEntrezGeneIds,
             alterationFilter);
         // two structural variants in testSql.sql are germline mutations
-        Assert.assertEquals(2, result.size());
+        Assert.assertEquals(3, result.size());
 
         AlterationCountByGene result57670 = result.stream().filter(r -> r.getEntrezGeneId() == 57670).findFirst().get();
         AlterationCountByGene result27436 = result.stream().filter(r -> r.getEntrezGeneId() == 27436).findFirst().get();
+        AlterationCountByGene result7113 = result.stream().filter(r -> r.getEntrezGeneId() == 7113).findFirst().get();
         Assert.assertEquals((Integer) 1, result57670.getTotalCount());
         Assert.assertEquals((Integer) 1, result57670.getNumberOfAlteredCases());
         Assert.assertEquals((Integer) 1, result27436.getTotalCount());
         Assert.assertEquals((Integer) 1, result27436.getNumberOfAlteredCases());
+        Assert.assertEquals((Integer) 1, result7113.getTotalCount());
+        Assert.assertEquals((Integer) 1, result7113.getNumberOfAlteredCases());
     }
 
     @Test
@@ -996,10 +1005,10 @@ public class AlterationMyBatisRepositoryTest {
         AlterationCountByGene result8031 = result.stream().filter(r -> r.getEntrezGeneId() == 8031).findFirst().get();
         AlterationCountByGene result27436 = result.stream().filter(r -> r.getEntrezGeneId() == 27436).findFirst().get();
         AlterationCountByGene result7113 = result.stream().filter(r -> r.getEntrezGeneId() == 7113).findFirst().get();
-        Assert.assertEquals((Integer) 2, result57670.getTotalCount());
-        Assert.assertEquals((Integer) 2, result57670.getNumberOfAlteredCases());
-        Assert.assertEquals((Integer) 1, result8031.getTotalCount());
-        Assert.assertEquals((Integer) 1, result8031.getNumberOfAlteredCases());
+        Assert.assertEquals((Integer) 3, result57670.getTotalCount());
+        Assert.assertEquals((Integer) 3, result57670.getNumberOfAlteredCases());
+        Assert.assertEquals((Integer) 3, result8031.getTotalCount());
+        Assert.assertEquals((Integer) 2, result8031.getNumberOfAlteredCases());
         Assert.assertEquals((Integer) 1, result27436.getTotalCount());
         Assert.assertEquals((Integer) 1, result27436.getNumberOfAlteredCases());
         Assert.assertEquals((Integer) 1, result7113.getTotalCount());
@@ -1049,27 +1058,29 @@ public class AlterationMyBatisRepositoryTest {
         );
         Assert.assertEquals(1, result.size());
     }
-    
     @Test
     public void getSampleStructuralVariantCount() throws Exception {
         List<AlterationCountByStructuralVariant> result = alterationMyBatisRepository.getSampleStructuralVariantCounts(
             svSampleIdToProfileId,
             alterationFilter);
 
-        // Should be one KIAA154-BRAF and one NCOA4-RET
-        Assert.assertEquals(4, result.size());
+        // Should be one KIAA154-BRAF, one NCOA4-RET and one NCOA4-null
+        Assert.assertEquals(5, result.size());
         AlterationCountByStructuralVariant resultEmlAlk = findStructVarCount("EML4", "ALK", result);
         AlterationCountByStructuralVariant resultKiaaBraf= findStructVarCount("KIAA1549", "BRAF", result);
         AlterationCountByStructuralVariant resultTmprsErg = findStructVarCount("TMPRSS2", "ERG", result);
         AlterationCountByStructuralVariant resultNcoRet = findStructVarCount("NCOA4", "RET", result);
+        AlterationCountByStructuralVariant resultNcoNull = findStructVarCount("NCOA4", null, result);
         Assert.assertEquals((Integer) 2, resultEmlAlk.getTotalCount());
         Assert.assertEquals((Integer) 2, resultEmlAlk.getNumberOfAlteredCases());
-        Assert.assertEquals((Integer) 3, resultKiaaBraf.getTotalCount());
-        Assert.assertEquals((Integer) 2, resultKiaaBraf.getNumberOfAlteredCases());
-        Assert.assertEquals((Integer) 1, resultNcoRet.getTotalCount());
-        Assert.assertEquals((Integer) 1, resultNcoRet.getNumberOfAlteredCases());
-        Assert.assertEquals((Integer) 1, resultTmprsErg.getTotalCount());
-        Assert.assertEquals((Integer) 1, resultTmprsErg.getNumberOfAlteredCases());
+        Assert.assertEquals((Integer) 4, resultKiaaBraf.getTotalCount());
+        Assert.assertEquals((Integer) 3, resultKiaaBraf.getNumberOfAlteredCases());
+        Assert.assertEquals((Integer) 2, resultNcoRet.getTotalCount());
+        Assert.assertEquals((Integer) 2, resultNcoRet.getNumberOfAlteredCases());
+        Assert.assertEquals((Integer) 1, resultNcoNull.getTotalCount());
+        Assert.assertEquals((Integer) 1, resultNcoNull.getNumberOfAlteredCases());
+        Assert.assertEquals((Integer) 2, resultTmprsErg.getTotalCount());
+        Assert.assertEquals((Integer) 2, resultTmprsErg.getNumberOfAlteredCases());
     }
 
     @Test
@@ -1096,13 +1107,16 @@ public class AlterationMyBatisRepositoryTest {
             svSampleIdToProfileId,
             alterationFilter);
 
-        Assert.assertEquals(2, result.size());
+        Assert.assertEquals(3, result.size());
         AlterationCountByStructuralVariant resultKiaaBraf= findStructVarCount("KIAA1549", "BRAF", result);
         AlterationCountByStructuralVariant resultEmlAlk = findStructVarCount("EML4", "ALK", result);
+        AlterationCountByStructuralVariant resultTmprsErg = findStructVarCount("TMPRSS2", "ERG", result);
         Assert.assertEquals((Integer) 1, resultKiaaBraf.getTotalCount());
         Assert.assertEquals((Integer) 1, resultKiaaBraf.getNumberOfAlteredCases());
         Assert.assertEquals((Integer) 1, resultEmlAlk.getTotalCount());
         Assert.assertEquals((Integer) 1, resultEmlAlk.getNumberOfAlteredCases());
+        Assert.assertEquals((Integer) 1, resultTmprsErg.getTotalCount());
+        Assert.assertEquals((Integer) 1, resultTmprsErg.getNumberOfAlteredCases());
     }
 
     @Test
@@ -1114,17 +1128,20 @@ public class AlterationMyBatisRepositoryTest {
             svSampleIdToProfileId,
             alterationFilter);
 
-        Assert.assertEquals(4, result.size());
+        Assert.assertEquals(5, result.size());
         AlterationCountByStructuralVariant resultEmlAlk = findStructVarCount("EML4", "ALK", result);
         AlterationCountByStructuralVariant resultKiaaBraf= findStructVarCount("KIAA1549", "BRAF", result);
         AlterationCountByStructuralVariant resultTmprsErg = findStructVarCount("TMPRSS2", "ERG", result);
         AlterationCountByStructuralVariant resultNcoRet = findStructVarCount("NCOA4", "RET", result);
+        AlterationCountByStructuralVariant resultNcoNull = findStructVarCount("NCOA4", null, result);
         Assert.assertEquals((Integer) 1, resultEmlAlk.getTotalCount());
         Assert.assertEquals((Integer) 1, resultEmlAlk.getNumberOfAlteredCases());
-        Assert.assertEquals((Integer) 2, resultKiaaBraf.getTotalCount());
-        Assert.assertEquals((Integer) 2, resultKiaaBraf.getNumberOfAlteredCases());
-        Assert.assertEquals((Integer) 1, resultNcoRet.getTotalCount());
-        Assert.assertEquals((Integer) 1, resultNcoRet.getNumberOfAlteredCases());
+        Assert.assertEquals((Integer) 3, resultKiaaBraf.getTotalCount());
+        Assert.assertEquals((Integer) 3, resultKiaaBraf.getNumberOfAlteredCases());
+        Assert.assertEquals((Integer) 2, resultNcoRet.getTotalCount());
+        Assert.assertEquals((Integer) 2, resultNcoRet.getNumberOfAlteredCases());
+        Assert.assertEquals((Integer) 1, resultNcoNull.getTotalCount());
+        Assert.assertEquals((Integer) 1, resultNcoNull.getNumberOfAlteredCases());
         Assert.assertEquals((Integer) 1, resultTmprsErg.getTotalCount());
         Assert.assertEquals((Integer) 1, resultTmprsErg.getNumberOfAlteredCases());
     }
@@ -1142,20 +1159,21 @@ public class AlterationMyBatisRepositoryTest {
         AlterationCountByStructuralVariant resultNcoRet = findStructVarCount("NCOA4", "RET", result);
         Assert.assertEquals((Integer) 2, resultEmlAlk.getTotalCount());
         Assert.assertEquals((Integer) 2, resultEmlAlk.getNumberOfAlteredCases());
-        Assert.assertEquals((Integer) 3, resultKiaaBraf.getTotalCount());
-        Assert.assertEquals((Integer) 2, resultKiaaBraf.getNumberOfAlteredCases());
-        Assert.assertEquals((Integer) 1, resultNcoRet.getTotalCount());
-        Assert.assertEquals((Integer) 1, resultNcoRet.getNumberOfAlteredCases());
-        Assert.assertEquals((Integer) 1, resultTmprsErg.getTotalCount());
-        Assert.assertEquals((Integer) 1, resultTmprsErg.getNumberOfAlteredCases());
+        Assert.assertEquals((Integer) 4, resultKiaaBraf.getTotalCount());
+        Assert.assertEquals((Integer) 3, resultKiaaBraf.getNumberOfAlteredCases());
+        Assert.assertEquals((Integer) 2, resultNcoRet.getTotalCount());
+        Assert.assertEquals((Integer) 2, resultNcoRet.getNumberOfAlteredCases());
+        Assert.assertEquals((Integer) 2, resultTmprsErg.getTotalCount());
+        Assert.assertEquals((Integer) 2, resultTmprsErg.getNumberOfAlteredCases());
     }
 
     private AlterationCountByStructuralVariant findStructVarCount(String gene1HugoSymbol,
                                                                   String gene2HugoSymbol,
                                                                   List<AlterationCountByStructuralVariant> counts) {
         return counts.stream().filter(
-            c -> c.getGene1HugoGeneSymbol().equals(gene1HugoSymbol)
-                && c.getGene2HugoGeneSymbol().equals(gene2HugoSymbol)).findFirst().get();
+            c -> ((c.getGene1HugoGeneSymbol() == null && gene1HugoSymbol == null) || (c.getGene1HugoGeneSymbol() != null && c.getGene1HugoGeneSymbol().equals(gene1HugoSymbol)))
+              && ((c.getGene2HugoGeneSymbol() == null && gene2HugoSymbol == null) || (c.getGene2HugoGeneSymbol() != null && c.getGene2HugoGeneSymbol().equals(gene2HugoSymbol)))
+            ).findFirst().get();
     }
     
 }

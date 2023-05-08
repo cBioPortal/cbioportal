@@ -23,6 +23,7 @@ The cBioPortal for Cancer Genomics was originally developed at [Memorial Sloan K
 ## Dana-Farber Cancer Institute
 * Ethan Cerami
 * Tali Mazor
+* Jeremy Easton-Marks
 * Zhaoyuan (Ryan) Fu
 * Augustin Luna
 * James Lindsay

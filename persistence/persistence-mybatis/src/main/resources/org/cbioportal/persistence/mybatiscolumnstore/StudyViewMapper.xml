@@ -3,6 +3,7 @@
 
 <mapper namespace="org.cbioportal.persistence.mybatiscolumnstore.StudyViewMapper">
 
+    <!-- for /filtered-sample/fetch (returns Sample objects) -->
     <select id="getFilteredSamples" resultType="org.cbioportal.model.Sample">
         SELECT
             patient_stable_id as patientStableId,
@@ -16,12 +17,14 @@
             SELECT DISTINCT sample_internal_id
             FROM sample
             WHERE sample_unique_id IN (
+                <!-- Study View Filter-->
                 <include refid="sampleUniqueIdsFromStudyViewFilter"/>
             )
         )
         ORDER BY sample_stable_id ASC;
     </select>
-    
+
+    <!-- for /mutated-genes/fetch (returns AlterationCountByGene objects) -->
     <select id="getMutatedGenes" resultType="org.cbioportal.model.AlterationCountByGene">
         SELECT
             hugo_gene_symbol as hugoGeneSymbol,
@@ -38,6 +41,7 @@
         ORDER BY totalCount DESC;
     </select>
     
+    <!-- This block represents the Study View Filter -->
     <sql id="sampleUniqueIdsFromStudyViewFilter">
         <trim prefixOverrides="INTERSECT">
             <if test="studyIds != null and !studyIds.isEmpty()">
@@ -105,6 +109,7 @@
                     </trim>
                  )
             </if>
+            <!-- ... extend for other elements of the StudyViewFilter object -->
         </trim>
     </sql>
 

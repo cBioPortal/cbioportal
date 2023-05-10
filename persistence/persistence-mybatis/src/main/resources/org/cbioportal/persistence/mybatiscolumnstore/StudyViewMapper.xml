@@ -25,7 +25,7 @@
         SELECT
             hugo_gene_symbol as hugoGeneSymbol,
             1 as entrezGeneId,
-            -- TODO incorporate login on gene panels to assess the number of profiled cases.
+            -- TODO incorporate logic on gene panels to assess the number of profiled cases.
             COUNT(DISTINCT sample_unique_id) as numberOfProfiledCases,
             COUNT(DISTINCT sample_unique_id) as numberOfAlteredCases,
             COUNT(*) as totalCount

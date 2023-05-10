@@ -8,15 +8,11 @@
         SELECT
             patient_stable_id as patientStableId,
             sample_stable_id as stableId,
-            sample_internal_id as internalId,
             cancer_study_identifier as cancerStudyIdentifier,
-            uniqueSampleKey,
-            uniquePatientKey
-        FROM sample_mysql
-        WHERE sample_internal_id IN (
-            SELECT DISTINCT sample_internal_id
-            FROM sample
-            WHERE sample_unique_id IN (
+            base64Encode(sample_unique_id) as uniqueSampleKey,
+            base64Encode(patient_unique_id) as uniquePatientKey
+        FROM sample
+        WHERE sample_unique_id IN (
                 <!-- Study View Filter-->
                 <include refid="sampleUniqueIdsFromStudyViewFilter"/>
             )

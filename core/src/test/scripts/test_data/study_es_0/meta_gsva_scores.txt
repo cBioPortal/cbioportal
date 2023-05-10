@@ -7,4 +7,4 @@ profile_name: GSVA scores on oncogenic signatures gene sets
 profile_description: GSVA scores using mRNA expression data
 data_filename: data_gsva_scores.txt
 show_profile_in_analysis_tab: true
-geneset_def_version: msigdb_6.1
+geneset_def_version: msigdb_7.5.1

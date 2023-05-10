@@ -7,7 +7,7 @@ public class ClickhouseJdbcDataSource extends BasicDataSource {
         this.setDriverClassName("com.clickhouse.jdbc.ClickHouseDriver");
         this.setUsername("cbio");
         this.setPassword("P@ssword1");
-        this.setUrl("jdbc:ch://localhost:8123/cbioportal?user=cbio&password=P@ssword1&zeroDateTimeBehavior=convertToNull&useSSL=false");
+        this.setUrl("jdbc:ch://clickhouse:8123/cbioportal?user=cbio&zeroDateTimeBehavior=convertToNull&useSSL=false");
         this.setJmxName("org.cbioportal:DataSource=clickhouse");
     }
 }

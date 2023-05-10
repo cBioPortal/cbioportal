@@ -13,9 +13,8 @@
             base64Encode(patient_unique_id) as uniquePatientKey
         FROM sample
         WHERE sample_unique_id IN (
-                <!-- Study View Filter-->
-                <include refid="sampleUniqueIdsFromStudyViewFilter"/>
-            )
+            <!-- Study View Filter-->
+            <include refid="sampleUniqueIdsFromStudyViewFilter" />
         )
         ORDER BY sample_stable_id ASC;
     </select>
@@ -31,7 +30,7 @@
             COUNT(*) as totalCount
         FROM mutation
         WHERE sample_unique_id IN (
-            <include refid="sampleUniqueIdsFromStudyViewFilter"/>
+            <include refid="sampleUniqueIdsFromStudyViewFilter" />
         )
         GROUP BY hugo_gene_symbol
         ORDER BY totalCount DESC;

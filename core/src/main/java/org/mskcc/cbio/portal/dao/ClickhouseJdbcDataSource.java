@@ -7,8 +7,8 @@ public class ClickhouseJdbcDataSource extends BasicDataSource {
     
     public ClickhouseJdbcDataSource() {
         String connectionString = GlobalProperties.getProperty("db.clickhouse.connection_string");
-        String user = GlobalProperties.getProperty("db.user");
-        String password = GlobalProperties.getProperty("db.password");
+        String user = GlobalProperties.getProperty("db.clickhouse.user");
+        String password = GlobalProperties.getProperty("db.clickhouse.password");
         this.setDriverClassName("com.clickhouse.jdbc.ClickHouseDriver");
         this.setUsername(user);
         this.setPassword(password);

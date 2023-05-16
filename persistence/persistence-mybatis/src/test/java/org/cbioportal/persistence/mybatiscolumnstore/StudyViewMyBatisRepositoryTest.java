@@ -1,6 +1,7 @@
 package org.cbioportal.persistence.mybatiscolumnstore;
 
 import org.cbioportal.model.AlterationCountByGene;
+import org.cbioportal.model.ClinicalData;
 import org.cbioportal.model.ClinicalDataCount;
 import org.cbioportal.model.Sample;
 import org.cbioportal.model.util.Select;
@@ -20,7 +21,6 @@ import java.math.BigDecimal;
 import java.util.*;
 import java.util.Arrays;
 import java.util.Collections;
-import java.util.Comparator;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
@@ -58,6 +58,33 @@ public class StudyViewMyBatisRepositoryTest {
 
         List<AlterationCountByGene> mutations = studyViewMyBatisRepository.getMutatedGenes(studyViewFilter, CategorizedClinicalDataCountFilter.getBuilder().build());
         Assert.assertEquals(2, mutations.size());
+    }
+
+    @Test
+    @Ignore
+    public void getPatientClinicalDataFromStudyViewFilter() {
+        StudyViewFilter studyViewFilter = generateStudyViewFilter(new String[]{"msk_ch_2020"}, null);
+        List<ClinicalData> clinicalData = studyViewMyBatisRepository.getPatientClinicalDataFromStudyViewFilter(studyViewFilter, List.of("AGE"), CategorizedClinicalDataCountFilter.getBuilder().build());
+        Assert.assertEquals(24146, clinicalData.size());
+
+        List<ClinicalDataFilter> clinicalDataFilters = Arrays.asList(generateCategoricalClinicalDataFilter("SEX", new String[]{"Female"}));
+        CategorizedClinicalDataCountFilter clinicalDataCountFilters = CategorizedClinicalDataCountFilter.getBuilder()
+            .setPatientCategoricalClinicalDataFilters(clinicalDataFilters)
+            .build();
+        studyViewFilter = generateStudyViewFilter((new String[]{"msk_ch_2020"} ), clinicalDataFilters);
+        clinicalData = studyViewMyBatisRepository.getPatientClinicalDataFromStudyViewFilter(studyViewFilter, List.of("AGE"), clinicalDataCountFilters);
+        Assert.assertEquals(13121, clinicalData.size());
+
+        // TODO how to apply sample identifiers when fetching patient clinical data? 
+//        studyViewFilter = generateStudyViewFilter((new String[]{"msk_ch_2020"} ), clinicalDataFilters);
+//        List<SampleIdentifier> sampleIdentifierFilters = new ArrayList<>();
+//        SampleIdentifier sampleIdentifier = new SampleIdentifier();
+//        sampleIdentifier.setSampleId("P-0000015");
+//        sampleIdentifier.setStudyId("msk_ch_2020");
+//        sampleIdentifierFilters.add(sampleIdentifier);
+//        studyViewFilter.setSampleIdentifiers(sampleIdentifierFilters);
+//        clinicalData = studyViewMyBatisRepository.getPatientClinicalDataFromStudyViewFilter(studyViewFilter, List.of("AGE"), clinicalDataCountFilters);
+//        Assert.assertEquals(1, clinicalData.size());
     }
     
     @Test

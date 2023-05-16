@@ -5,14 +5,18 @@ import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
 import org.cbioportal.model.AlterationCountByGene;
 import org.cbioportal.model.AlterationFilter;
+import org.cbioportal.model.ClinicalDataBin;
 import org.cbioportal.model.ClinicalDataCountItem;
 import org.cbioportal.model.Sample;
 import org.cbioportal.service.StudyViewService;
 import org.cbioportal.service.exception.StudyNotFoundException;
 import org.cbioportal.web.columnstore.util.NewStudyViewFilterUtil;
 import org.cbioportal.web.config.annotation.InternalApi;
-import org.cbioportal.webparam.ClinicalDataCountFilter;
+import org.cbioportal.web.util.ClinicalDataBinUtil;
 import org.cbioportal.webparam.ClinicalDataFilter;
+import org.cbioportal.webparam.ClinicalDataCountFilter;
+import org.cbioportal.webparam.ClinicalDataBinCountFilter;
+import org.cbioportal.webparam.DataBinMethod;
 import org.cbioportal.webparam.StudyViewFilter;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -24,6 +28,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestAttribute;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import springfox.documentation.annotations.ApiIgnore;
@@ -44,6 +49,8 @@ public class StudyViewColumnStoreController {
     
     @Autowired
     private StudyViewService studyViewService;
+    @Autowired
+    private ClinicalDataBinUtil clinicalDataBinUtil;
     
     @PreAuthorize("hasPermission(#involvedCancerStudies, 'Collection<CancerStudyId>', T(org.cbioportal.utils.security.AccessLevel).READ)")
     @PostMapping(value = "/column-store/filtered-samples/fetch",
@@ -114,5 +121,27 @@ public class StudyViewColumnStoreController {
             //studyIds, sampleIds, attributes.stream().map(a -> a.getAttributeId()).collect(Collectors.toList())); 
         return new ResponseEntity<>(result, HttpStatus.OK);
 
+    }
+
+    @PreAuthorize("hasPermission(#involvedCancerStudies, 'Collection<CancerStudyId>', T(org.cbioportal.utils.security.AccessLevel).READ)")
+    @RequestMapping(value = "/column-store/clinical-data-bin-counts/fetch", method = RequestMethod.POST,
+        consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
+    @ApiOperation("Fetch clinical data bin counts by study view filter")
+    public ResponseEntity<List<ClinicalDataBin>> fetchClinicalDataBinCounts(
+        @ApiParam("Method for data binning")
+        @RequestParam(defaultValue = "DYNAMIC") DataBinMethod dataBinMethod,
+        @ApiParam(required = true, value = "Clinical data bin count filter")
+        @Valid @RequestBody(required = false) ClinicalDataBinCountFilter clinicalDataBinCountFilter,
+        @ApiIgnore // prevent reference to this attribute in the swagger-ui interface
+        @RequestAttribute(required = false, value = "involvedCancerStudies") Collection<String> involvedCancerStudies,
+        @ApiIgnore // prevent reference to this attribute in the swagger-ui interface. this attribute is needed for the @PreAuthorize tag above.
+        @Valid @RequestAttribute(required = false, value = "interceptedClinicalDataBinCountFilter") ClinicalDataBinCountFilter interceptedClinicalDataBinCountFilter
+    ) {
+        List<ClinicalDataBin> clinicalDataBins = clinicalDataBinUtil.fetchClinicalDataBinCountsFromColumnStore(
+            dataBinMethod,
+            interceptedClinicalDataBinCountFilter,
+            true
+        );
+        return new ResponseEntity<>(clinicalDataBins, HttpStatus.OK);
     }
 }

@@ -3,8 +3,10 @@ package org.cbioportal.web.util;
 import org.cbioportal.model.ClinicalAttribute;
 import org.cbioportal.model.ClinicalData;
 import org.cbioportal.model.ClinicalDataBin;
+import org.cbioportal.model.Sample;
 import org.cbioportal.service.ClinicalAttributeService;
 import org.cbioportal.service.PatientService;
+import org.cbioportal.service.StudyViewService;
 import org.cbioportal.service.util.ClinicalAttributeUtil;
 import org.cbioportal.webparam.ClinicalDataBinCountFilter;
 import org.cbioportal.webparam.ClinicalDataBinFilter;
@@ -37,6 +39,9 @@ public class ClinicalDataBinUtil {
     @Autowired
     private PatientService patientService;
     
+    @Autowired
+    private StudyViewService studyViewService; 
+    
     public StudyViewFilter removeSelfFromFilter(ClinicalDataBinCountFilter dataBinCountFilter) {
         List<ClinicalDataBinFilter> attributes = dataBinCountFilter.getAttributes();
         StudyViewFilter studyViewFilter = dataBinCountFilter.getStudyViewFilter();
@@ -58,6 +63,97 @@ public class ClinicalDataBinUtil {
             // by default call the method to remove self from filter
             true
         );
+    }
+    
+    public List<ClinicalDataBin> fetchClinicalDataBinCountsFromColumnStore(
+        DataBinMethod dataBinMethod,
+        ClinicalDataBinCountFilter dataBinCountFilter,
+        boolean shouldRemoveSelfFromFilter
+    ) {
+        List<ClinicalDataBinFilter> attributes = dataBinCountFilter.getAttributes();
+        StudyViewFilter studyViewFilter = dataBinCountFilter.getStudyViewFilter();
+
+        if (shouldRemoveSelfFromFilter) {
+            studyViewFilter = removeSelfFromFilter(dataBinCountFilter);
+        }
+
+        List<String> attributeIds = attributes.stream().map(ClinicalDataBinFilter::getAttributeId).collect(Collectors.toList());
+
+        // a new StudyView filter to partially filter by study and sample ids only
+        StudyViewFilter partialFilter = new StudyViewFilter();
+        partialFilter.setStudyIds(studyViewFilter.getStudyIds());
+        partialFilter.setSampleIdentifiers(studyViewFilter.getSampleIdentifiers());
+        
+        // filter only by study id and sample identifiers, ignore rest
+        List<Sample> unfilteredSamples = studyViewService.getFilteredSamplesFromColumnstore(partialFilter);
+        List<Sample> filteredSamples = studyViewService.getFilteredSamplesFromColumnstore(studyViewFilter);
+
+        // TODO make sure these keys don't need to be distinct
+        List<String> unfilteredUniqueSampleKeys = unfilteredSamples.stream().map(Sample::getUniqueSampleKey).collect(Collectors.toList());
+        List<String> filteredUniqueSampleKeys = filteredSamples.stream().map(Sample::getUniqueSampleKey).collect(Collectors.toList());
+        List<String> unfilteredUniquePatientKeys = unfilteredSamples.stream().map(Sample::getUniquePatientKey).collect(Collectors.toList());
+        List<String> filteredUniquePatientKeys = filteredSamples.stream().map(Sample::getUniquePatientKey).collect(Collectors.toList());
+
+        // TODO make sure we don't need a distinction between sample vs patient attribute ids here
+        //  ideally we shouldn't because we have patient clinical data separated from sample clinical data in clickhouse
+        List<ClinicalData> unfilteredClinicalDataForSamples = studyViewService.getSampleClinicalDataFromStudyViewFilter(partialFilter, attributeIds);
+        List<ClinicalData> filteredClinicalDataForSamples = studyViewService.getSampleClinicalDataFromStudyViewFilter(studyViewFilter, attributeIds);
+        List<ClinicalData> unfilteredClinicalDataForPatients = studyViewService.getPatientClinicalDataFromStudyViewFilter(partialFilter, attributeIds);
+        List<ClinicalData> filteredClinicalDataForPatients = studyViewService.getPatientClinicalDataFromStudyViewFilter(studyViewFilter, attributeIds);
+        
+        Map<String, ClinicalDataType> attributeDatatypeMap = constructAttributeDataMap(
+            unfilteredClinicalDataForSamples.stream().map(ClinicalData::getAttrId).collect(Collectors.toList()),
+            unfilteredClinicalDataForPatients.stream().map(ClinicalData::getAttrId).collect(Collectors.toList()),
+            Collections.emptyList() // TODO ignoring conflictingPatientAttributeIds for now
+        );
+
+        List<ClinicalData> unfilteredClinicalData = Stream.of(
+            unfilteredClinicalDataForSamples,
+            unfilteredClinicalDataForPatients
+            // unfilteredClinicalDataForConflictingPatientAttributes /// TODO ignoring conflictingPatientAttributeIds for now
+        ).flatMap(Collection::stream).collect(Collectors.toList());
+
+        List<ClinicalData> filteredClinicalData = Stream.of(
+            filteredClinicalDataForSamples,
+            filteredClinicalDataForPatients
+            // filteredClinicalDataForConflictingPatientAttributes // TODO ignoring conflictingPatientAttributeIds for now
+        ).flatMap(Collection::stream).collect(Collectors.toList());
+        
+        Map<String, List<ClinicalData>> unfilteredClinicalDataByAttributeId =
+            unfilteredClinicalData.stream().collect(Collectors.groupingBy(ClinicalData::getAttrId));
+
+        Map<String, List<ClinicalData>> filteredClinicalDataByAttributeId =
+            filteredClinicalData.stream().collect(Collectors.groupingBy(ClinicalData::getAttrId));
+        
+        List<ClinicalDataBin> clinicalDataBins = Collections.emptyList();
+
+        if (dataBinMethod == DataBinMethod.STATIC) {
+            if (!unfilteredSamples.isEmpty() && !unfilteredClinicalData.isEmpty()) {
+                clinicalDataBins = calculateStaticDataBins(
+                    attributes,
+                    attributeDatatypeMap,
+                    unfilteredClinicalDataByAttributeId,
+                    filteredClinicalDataByAttributeId,
+                    unfilteredUniqueSampleKeys,
+                    unfilteredUniquePatientKeys,
+                    filteredUniqueSampleKeys,
+                    filteredUniquePatientKeys
+                );
+            }
+        }
+        else { // dataBinMethod == DataBinMethod.DYNAMIC
+            if (!filteredClinicalData.isEmpty()) {
+                clinicalDataBins = calculateDynamicDataBins(
+                    attributes,
+                    attributeDatatypeMap,
+                    filteredClinicalDataByAttributeId,
+                    filteredUniqueSampleKeys,
+                    filteredUniquePatientKeys
+                );
+            }
+        }
+
+        return clinicalDataBins;
     }
     
     public List<ClinicalDataBin> fetchClinicalDataBinCounts(

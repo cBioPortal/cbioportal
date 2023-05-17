@@ -1203,6 +1203,7 @@
                     <goals>
                       <goal>execute</goal>
                     </goals>
+                    <versionRange></versionRange>
                   </pluginExecutionFilter>
                   <action>
                     <ignore/>

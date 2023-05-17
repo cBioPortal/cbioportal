@@ -78,7 +78,7 @@
                     </trim>
                 </where>
             </if>
-            <if test="clinicalDataFilters != null and !clinicalDataFilters.isEmpty()">
+            <!-- <if test="clinicalDataFilters != null and !clinicalDataFilters.isEmpty()">
                 INTERSECT
                 SELECT sample_unique_id
                 FROM sample
@@ -103,6 +103,27 @@
                         </foreach>
                     </trim>
                  )
+            </if>  -->
+             <if test="clinicalDataFilters != null and !clinicalDataFilters.isEmpty()">
+                <foreach item="clinicalDataFilter" collection="clinicalDataFilters" open="INTERSECT" separator="INTERSECT">
+                    SELECT sample_unique_id
+                    FROM sample_clinical_attribute_numeric
+                    WHERE attribute_name = '${clinicalDataFilter.attributeId}'
+                    <foreach item="dataFilterValue" collection="clinicalDataFilter.values" open=" AND ((" separator=") OR (" close="))">
+                        <trim prefix="" prefixOverrides="AND">
+                            <if test="dataFilterValue.value eq 'NA'">
+                                AND attribute_value = -1000000
+                            </if>
+                            <if test="dataFilterValue.start != null">
+                                AND attribute_value &gt; ${dataFilterValue.start}
+                            </if>
+                            <if test="dataFilterValue.end != null">
+                                AND attribute_value &lt;= ${dataFilterValue.end}
+                            </if>
+                        </trim>
+                    </foreach>
+                </foreach>
+                )
             </if>
             <!-- ... extend for other elements of the StudyViewFilter object -->
         </trim>

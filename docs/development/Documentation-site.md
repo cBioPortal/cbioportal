@@ -1,6 +1,6 @@
 # Documentation site
 
-This documentation site is created using [https://retype.com/](), a static site generator based on markdown.
+This documentation site is created using [https://retype.com/](https://retype.com/), a static site generator based on markdown.
 
 Visit their site for installation instructions and a guide
 on how

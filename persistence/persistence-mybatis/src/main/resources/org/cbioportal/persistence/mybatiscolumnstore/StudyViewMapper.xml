@@ -9,8 +9,8 @@
             patient_stable_id as patientStableId,
             sample_stable_id as stableId,
             cancer_study_identifier as cancerStudyIdentifier,
-            base64Encode(sample_unique_id) as uniqueSampleKey,
-            base64Encode(patient_unique_id) as uniquePatientKey
+            sample_unique_id_base64 as uniqueSampley,
+            patient_unique_id_base64 as uniquePatientKey
         FROM sample
         WHERE sample_unique_id IN (
             <!-- Study View Filter-->

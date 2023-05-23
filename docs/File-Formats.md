@@ -21,6 +21,7 @@
     * [Study Tags file](#study-tags-file)
     * [Generic Assay](#generic-assay)
         * [Arm Level CNA Data](#arm-level-cna-data)
+        * [Mutational Signature Data](#mutational-signature-data)
     * [Resource Data](#resource-data)
     * [Custom namespace columns](#custom-namespace-columns)
 
@@ -1598,6 +1599,32 @@ Arm-level copy-number data is a predefined subtype of Generic Assay Data.
 Allowed values for Arm-level copy-number data are `Loss`, `Gain`, and `Unchanged`, use `NA` or leave the cell blank to indicate a missing value.
 
 Please find example file format here: [Meta file example](https://github.com/cBioPortal/cbioportal-frontend/blob/master/end-to-end-test/local/studies/lgg_ucsf_2014_test_generic_assay/meta_armlevel_CNA.txt) and [Data file example](https://github.com/cBioPortal/cbioportal-frontend/blob/master/end-to-end-test/local/studies/lgg_ucsf_2014_test_generic_assay/data_armlevel_CNA.txt)
+
+### Mutational Signature Data
+Mutational Signature data is a predefined subtype of Generic Assay Data. Setting `generic_assay_type: MUTATIONAL_SIGNATURE` 
+in the meta file will make cBioPortal interpret the data as Mutational Signature data.
+
+#### Mutational Signature meta files
+The mutational signature meta files follow the same convention as the [Generic Assay Meta file](#generic-assay-meta-file),
+however there are some key differences:
+- `genetic_assay_type` should be set to `MUTATIONAL_SIGNATURE`
+- `datatype` should be set to `LIMIT_VALUE`
+- `stable_id` values should end with: `_{filetype}_{identifier}`, where:
+  - `filetype` is either `contribution`, `pvalue` or `counts`
+  - `identifier` is consistent between files belonging to the same analysis
+  - Multiple signatures can be added to a single study, as long as they have different identifiers in their stable id (e.g., `contribution_SBS` and `contribution_DBS`)
+- In `generic_entity_meta_properties` the `NAME` value is required. The `DESCRIPTION` and `URL` values can be added 
+  to display more information and link to external resources in the mutational signatures tab.
+
+#### Mutational Signature data files
+The mutational signature data files follow the same convention as the [Generic Assay Data file](#generic-assay-data-file).
+Each collection of mutational signatures can consist of up to three different data files, each with an accompanying meta file.
+- Signature _contribution_ file (**required**)
+  - Data file containing the contribution of each signature-sample pair. Values are expected to be 0 ≥ x ≥ 1.
+- Signature _pvalue_ file (optional)
+  - Data file containing p-values for each signature-sample pair. Values below 0.05 will be shown as significant.
+- Mutational _counts_ matrix file (optional)
+  - Data file containing nucleotide changes of a sample. cBioPortal has specific visualization options for single-base substitutions (96 channels), double-base substitutions (72 channels) and insertion/deletions (83 channels), following the signatures defined by [COSMIC](https://cancer.sanger.ac.uk/signatures/). But other channels can also be used. Values are expected to be positive integers.
 
 ## Resource Data
 

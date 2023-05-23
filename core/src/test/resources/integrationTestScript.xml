@@ -35,7 +35,7 @@
                     <value>--data</value>
                     <value>src/test/resources/genesets/study_es_0_genesets.gmt</value>
                     <value>--new-version</value>
-                    <value>msigdb_6.1</value>
+                    <value>msigdb_7.5.1</value>
                 </list>
              
                 <!-- #2 Remove study if exists -->

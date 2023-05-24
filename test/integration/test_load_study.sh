@@ -17,6 +17,8 @@ run_in_service cbioportal "cd /cbioportal/core/src/main/scripts/ && perl importG
                           /cbioportal/core/src/test/scripts/test_data/study_es_0/data_gene_panel_testpanel1.txt"
 run_in_service cbioportal "cd /cbioportal/core/src/main/scripts/ && perl importGenePanel.pl --data \
                           /cbioportal/core/src/test/scripts/test_data/study_es_0/data_gene_panel_testpanel2.txt"
+run_in_service cbioportal "cd /cbioportal/core/src/main/scripts/ && echo yes | ./importGenesetData.pl --data /cbioportal/core/src/test/resources/genesets/study_es_0_genesets.gmt --new-version msigdb_7.5.1 --supp /cbioportal/core/src/test/resources/genesets/study_es_0_supp-genesets.txt"
+run_in_service cbioportal "cd /cbioportal/core/src/main/scripts/ && ./importGenesetHierarchy.pl --data /cbioportal/core/src/test/resources/genesets/study_es_0_tree.yaml"
 
 # dump portal info
 echo "Testing the dump of local portal info directory..."

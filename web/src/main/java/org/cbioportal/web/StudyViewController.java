@@ -17,11 +17,11 @@ import org.cbioportal.web.config.annotation.InternalApi;
 import org.cbioportal.model.AlterationFilter;
 import org.cbioportal.web.parameter.*;
 import org.cbioportal.web.parameter.sort.ClinicalDataSortBy;
-import org.cbioportal.web.response.PaginatedClinicalData;
 import org.cbioportal.web.util.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.context.ApplicationContext;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -884,7 +884,7 @@ public class StudyViewController {
     @RequestMapping(value = "/clinical-data-table/fetch", method = RequestMethod.POST,
         consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
     @ApiOperation("Fetch clinical data for the Clinical Tab of Study View")
-    public ResponseEntity<PaginatedClinicalData> fetchClinicalDataClinicalTable(
+    public ResponseEntity<ClinicalDataCollection> fetchClinicalDataClinicalTable(
         @ApiParam(required = true, value = "Study view filter")
         @Valid @RequestBody(required = false) StudyViewFilter studyViewFilter,
         @ApiIgnore // prevent reference to this attribute in the swagger-ui interface
@@ -930,7 +930,7 @@ public class StudyViewController {
             
         // Return empty when possible.
         if (sampleClinicalData.isEmpty()) {
-            return new ResponseEntity<>(new PaginatedClinicalData(), HttpStatus.OK);
+            return new ResponseEntity<>(new ClinicalDataCollection(), HttpStatus.OK);
         }
 
         // Resolve for which patient clinical data should be included.
@@ -950,8 +950,9 @@ public class StudyViewController {
         clinicalDataCollection.setSampleClinicalData(sampleClinicalData);
         clinicalDataCollection.setPatientClinicalData(patientClinicalData);
         
-        PaginatedClinicalData response = new PaginatedClinicalData(clinicalDataCollection, pageNumber, pageSize, total);
-        return new ResponseEntity<>(response, HttpStatus.OK);
+        HttpHeaders responseHeaders = new HttpHeaders();
+        responseHeaders.add(HeaderKeyConstants.TOTAL_COUNT, total.toString());
+        return new ResponseEntity<>(clinicalDataCollection, responseHeaders, HttpStatus.OK);
     }
 
     @PreAuthorize("hasPermission(#involvedCancerStudies, 'Collection<CancerStudyId>', T(org.cbioportal.utils.security.AccessLevel).READ)")

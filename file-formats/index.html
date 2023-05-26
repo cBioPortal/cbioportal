@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width,initial-scale=1">
-    <meta name="turbo-cache-control" content="no-cache" data-turbo-track="reload" data-track-token="2.4.0.738277981319">
+    <meta name="turbo-cache-control" content="no-cache" data-turbo-track="reload" data-track-token="2.4.0.738431680409">
 
     <!-- See retype.com -->
     <meta name="generator" content="Retype 2.4.0">
@@ -33,12 +33,12 @@
     <script>(function () { var el = document.documentElement, m = localStorage.getItem("doc_theme"), wm = window.matchMedia; if (m === "dark" || (!m && wm && wm("(prefers-color-scheme: dark)").matches)) { el.classList.add("dark") } else { el.classList.remove("dark") } })();</script>
 
     <link href="../images/cbio-logo.png" rel="icon" />
-    <link href="../resources/css/retype.css?v=2.4.0.738277981319" rel="stylesheet" />
+    <link href="../resources/css/retype.css?v=2.4.0.738431680409" rel="stylesheet" />
 
-    <script type="text/javascript" src="../resources/js/config.js?v=2.4.0.738277981319" data-turbo-eval="false" defer></script>
+    <script type="text/javascript" src="../resources/js/config.js?v=2.4.0.738431680409" data-turbo-eval="false" defer></script>
     <script type="text/javascript" src="../resources/js/retype.js?v=2.4.0" data-turbo-eval="false" defer></script>
-    <script id="lunr-js" type="text/javascript" src="../resources/js/lunr.js?v=2.4.0.738277981319" data-turbo-eval="false" defer></script>
-    <script id="prism-js" type="text/javascript" src="../resources/js/prism.js?v=2.4.0.738277981319" defer></script>
+    <script id="lunr-js" type="text/javascript" src="../resources/js/lunr.js?v=2.4.0.738431680409" data-turbo-eval="false" defer></script>
+    <script id="prism-js" type="text/javascript" src="../resources/js/prism.js?v=2.4.0.738431680409" defer></script>
 
     <link rel="stylesheet" href="/static/custom.css"></link>
 </head>
@@ -268,6 +268,7 @@
 <li><doc-anchor-trigger to="#generic-assay">Generic Assay</doc-anchor-trigger>
 <ul>
 <li><doc-anchor-trigger to="#arm-level-cna-data">Arm Level CNA Data</doc-anchor-trigger></li>
+<li><doc-anchor-trigger to="#mutational-signature-data">Mutational Signature Data</doc-anchor-trigger></li>
 </ul>
 </li>
 <li><doc-anchor-trigger to="#resource-data">Resource Data</doc-anchor-trigger></li>
@@ -2572,6 +2573,60 @@ In addition, the patient or sample identifiers need to be included in the <doc-a
 <p>Arm-level copy-number data is a predefined subtype of Generic Assay Data.</p>
 <p>Allowed values for Arm-level copy-number data are <code v-pre>Loss</code>, <code v-pre>Gain</code>, and <code v-pre>Unchanged</code>, use <code v-pre>NA</code> or leave the cell blank to indicate a missing value.</p>
 <p>Please find example file format here: <a href="https://github.com/cBioPortal/cbioportal-frontend/blob/master/end-to-end-test/local/studies/lgg_ucsf_2014_test_generic_assay/meta_armlevel_CNA.txt">Meta file example</a> and <a href="https://github.com/cBioPortal/cbioportal-frontend/blob/master/end-to-end-test/local/studies/lgg_ucsf_2014_test_generic_assay/data_armlevel_CNA.txt">Data file example</a></p>
+<doc-anchor-target id="mutational-signature-data">
+    <h3>
+        <doc-anchor-trigger class="header-anchor-trigger" to="#mutational-signature-data">#</doc-anchor-trigger>
+        <span>Mutational Signature Data</span>
+    </h3>
+</doc-anchor-target>
+<p>Mutational Signature data is a predefined subtype of Generic Assay Data. Setting <code v-pre>generic_assay_type: MUTATIONAL_SIGNATURE</code>
+in the meta file will make cBioPortal interpret the data as Mutational Signature data.</p>
+<doc-anchor-target id="mutational-signature-meta-files">
+    <h4>
+        <doc-anchor-trigger class="header-anchor-trigger" to="#mutational-signature-meta-files">#</doc-anchor-trigger>
+        <span>Mutational Signature meta files</span>
+    </h4>
+</doc-anchor-target>
+<p>The mutational signature meta files follow the same convention as the <doc-anchor-trigger to="#generic-assay-meta-file">Generic Assay Meta file</doc-anchor-trigger>,
+however there are some key differences:</p>
+<ul>
+<li><code v-pre>genetic_assay_type</code> should be set to <code v-pre>MUTATIONAL_SIGNATURE</code></li>
+<li><code v-pre>datatype</code> should be set to <code v-pre>LIMIT_VALUE</code></li>
+<li><code v-pre>stable_id</code> values should end with: <code v-pre>_{filetype}_{identifier}</code>, where:
+<ul>
+<li><code v-pre>filetype</code> is either <code v-pre>contribution</code>, <code v-pre>pvalue</code> or <code v-pre>counts</code></li>
+<li><code v-pre>identifier</code> is consistent between files belonging to the same analysis</li>
+<li>Multiple signatures can be added to a single study, as long as they have different identifiers in their stable id (e.g., <code v-pre>contribution_SBS</code> and <code v-pre>contribution_DBS</code>)</li>
+</ul>
+</li>
+<li>In <code v-pre>generic_entity_meta_properties</code> the <code v-pre>NAME</code> value is required. The <code v-pre>DESCRIPTION</code> and <code v-pre>URL</code> values can be added
+to display more information and link to external resources in the mutational signatures tab.</li>
+</ul>
+<doc-anchor-target id="mutational-signature-data-files">
+    <h4>
+        <doc-anchor-trigger class="header-anchor-trigger" to="#mutational-signature-data-files">#</doc-anchor-trigger>
+        <span>Mutational Signature data files</span>
+    </h4>
+</doc-anchor-target>
+<p>The mutational signature data files follow the same convention as the <doc-anchor-trigger to="#generic-assay-data-file">Generic Assay Data file</doc-anchor-trigger>.
+Each collection of mutational signatures can consist of up to three different data files, each with an accompanying meta file.</p>
+<ul>
+<li>Signature <em>contribution</em> file (<strong>required</strong>)
+<ul>
+<li>Data file containing the contribution of each signature-sample pair. Values are expected to be 0 ≥ x ≥ 1.</li>
+</ul>
+</li>
+<li>Signature <em>pvalue</em> file (optional)
+<ul>
+<li>Data file containing p-values for each signature-sample pair. Values below 0.05 will be shown as significant.</li>
+</ul>
+</li>
+<li>Mutational <em>counts</em> matrix file (optional)
+<ul>
+<li>Data file containing nucleotide changes of a sample. cBioPortal has specific visualization options for single-base substitutions (96 channels), double-base substitutions (72 channels) and insertion/deletions (83 channels), following the signatures defined by <a href="https://cancer.sanger.ac.uk/signatures/">COSMIC</a>. But other channels can also be used. Values are expected to be positive integers.</li>
+</ul>
+</li>
+</ul>
 <doc-anchor-target id="resource-data">
     <h2>
         <doc-anchor-trigger class="header-anchor-trigger" to="#resource-data">#</doc-anchor-trigger>

@@ -38,7 +38,7 @@ For releases with database migrations, we increase the MINOR number in MAJOR.MIN
 
 ### From pre-release to official release
 
-On the [GitHub Release Page](https://github.com/cBioPortal/cbioportal/releases) you will see that some releases have the pre-release indication whereas others do not. In general we make a new pre-release release every week. We test it out in production (https://cbioportal.org) for one week and if no new critical issues are identified we make it an official release.
+On the [GitHub Release Page](https://github.com/cBioPortal/cbioportal/releases) you will see that some releases have the pre-release indication whereas others do not. In general we make a new pre-release release every week. We test it out in production (https://cbioportal.org) for one month and if no new critical issues are identified we make it an official release.
 
 ### cBioPortal Software Version Numbers
 

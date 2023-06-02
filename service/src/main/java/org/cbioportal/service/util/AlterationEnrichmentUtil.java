@@ -29,9 +29,7 @@ import java.util.Map.Entry;
 
 @Component
 public class AlterationEnrichmentUtil<T extends AlterationCountByGene> {
-
-    @Autowired
-    private FisherExactTestCalculator fisherExactTestCalculator;
+    
     @Autowired
     private GeneService geneService;
     @Autowired
@@ -131,7 +129,10 @@ public class AlterationEnrichmentUtil<T extends AlterationCountByGene> {
                         int alteredOnlyInQueryGenesCount = counts.get(0).getProfiledCount()
                             - counts.get(0).getAlteredCount();
 
-                        pValue = fisherExactTestCalculator.getCumulativePValue(alteredInNoneCount,
+                        FisherExact fisher = new FisherExact(alteredInNoneCount +
+                            counts.get(1).getAlteredCount() + alteredOnlyInQueryGenesCount +
+                            counts.get(0).getAlteredCount());
+                        pValue = fisher.getCumlativeP(alteredInNoneCount,
                             counts.get(1).getAlteredCount(), alteredOnlyInQueryGenesCount,
                             counts.get(0).getAlteredCount());
                     } else {

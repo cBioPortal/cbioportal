@@ -103,7 +103,7 @@ public class OddsRatio {
         return oddsRatio;
     }
 
-    public double getCumulativeP() {
+    public double getTwoTailedP() {
         return pValue;
     }
 

@@ -70,7 +70,7 @@ public class TestOddsRatio extends TestCase {
 
         OddsRatio oddsRatio = new OddsRatio(pDataSummary, "BRCA1", "BRCA2");
         double oddsRatioValue = oddsRatio.getOddsRatio();
-        double p = oddsRatio.getCumulativeP();
+        double p = oddsRatio.getTwoTailedP();
         assertEquals(0.16666, oddsRatioValue, 0.0001);
         assertEquals(0.0849, p, 0.0001);
         //System.out.println (oddsRatio.getRCommand());

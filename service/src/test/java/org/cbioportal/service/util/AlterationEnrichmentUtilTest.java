@@ -17,13 +17,9 @@ public class AlterationEnrichmentUtilTest {
 
     @InjectMocks
     private AlterationEnrichmentUtil alterationEnrichmentUtil;
-
-    @Mock
-    private FisherExactTestCalculator fisherExactTestCalculator;
+    
     @Mock
     private GeneService geneService;
-    @Mock
-    private ProfiledCasesCounter profiledCasesCounter;
 
     @Test
     public void createAlterationEnrichments() throws Exception {
@@ -100,9 +96,6 @@ public class AlterationEnrichmentUtilTest {
         mutationCountsbyEntrezGeneIdAndGroup.put("group2", new Pair<List<AlterationCountByGene>, Long>(Arrays.asList(alterationSampleCountByGene2, alterationSampleCount1ByGene2), 0L));
 
         // START: for 2 groups
-
-        Mockito.when(fisherExactTestCalculator.getCumulativePValue(1, 1, 2, 0)).thenReturn(1.0);
-        Mockito.when(fisherExactTestCalculator.getCumulativePValue(2, 0, 0, 2)).thenReturn(0.3);
 
         List<AlterationEnrichment> result = alterationEnrichmentUtil.createAlterationEnrichments(
                 mutationCountsbyEntrezGeneIdAndGroup);

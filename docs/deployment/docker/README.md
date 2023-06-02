@@ -18,7 +18,7 @@ In this example we use [Docker Compose](https://docs.docker.com/compose/) to spi
 git clone https://github.com/cBioPortal/cbioportal-docker-compose.git
 cd cbioportal-docker-compose
 ./init.sh
-docker-compose up
+docker compose up
 ```
 
 You should now be able to see the cBioPortal website at http://localhost:8080
@@ -26,7 +26,7 @@ You should now be able to see the cBioPortal website at http://localhost:8080
 Import studies with:
 
 ```
-docker-compose run cbioportal metaImport.py -u http://cbioportal:8080 -s study/lgg_ucsf_2014/ -o
+docker compose run cbioportal metaImport.py -u http://cbioportal:8080 -s study/lgg_ucsf_2014/ -o
 ```
 
 Clear persistent data volumes with:
@@ -54,7 +54,7 @@ Then download all necessary files (seed data, example config and example study f
 Then run:
 
 ```
-docker-compose up
+docker compose up
 ```
 
 This will start all four containers (services) defined [here](https://github.com/cBioPortal/cbioportal-docker-compose/blob/master/docker-compose.yml). That is:
@@ -76,7 +76,7 @@ Go to the next step to see how to import studies.
 If you prefer to run the services in detached mode (i.e. not logging everything to your terminal), you can run
 
 ```
-docker-compose up -d
+docker compose up -d
 ```
 
 In this mode, you'll have to check the logs of each container manually using e.g.:
@@ -95,12 +95,12 @@ docker ps -a
 To import studies you can run:
 
 ```
-docker-compose run cbioportal metaImport.py -u http://cbioportal:8080 -s study/lgg_ucsf_2014/ -o
+docker compose run cbioportal metaImport.py -u http://cbioportal:8080 -s study/lgg_ucsf_2014/ -o
 ```
 This will import the [lgg_ucsf_2014 study](https://www.cbioportal.org/patient?studyId=lgg_ucsf_2014) into your local database. It will take a few minutes to import. After importing, restart the cbioportal web container:
 
 ```
-docker-compose restart cbioportal
+docker compose restart cbioportal
 ```
 
 or 

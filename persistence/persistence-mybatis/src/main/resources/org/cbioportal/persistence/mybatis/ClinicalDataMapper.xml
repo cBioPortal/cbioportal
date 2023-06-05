@@ -235,30 +235,33 @@
         <include refid="fromSample"/>
         <include refid="whereSampleSearchAndPagination"/>
     </select>
-
+    
     <sql id="whereSampleSearchAndPagination">
-        INNER JOIN
-        (SELECT DISTINCT clinical_sample.INTERNAL_ID
-            <if test="_parameter.containsKey('sortBy') and sortBy != null">
-                , clinical_sample.ATTR_ID, clinical_sample.ATTR_VALUE
-            </if>
-            <include refid="fromSample"/>
-            <include refid="whereSample"/>
-            <if test="_parameter.containsKey('searchTerm') and searchTerm != null and not searchTerm.isBlank()">
-                AND
-                clinical_sample.ATTR_VALUE LIKE CONCAT('%','${searchTerm}', '%')
-            </if>
-            <if test="_parameter.containsKey('sortBy') and sortBy != null">
-                AND 
-                clinical_sample.ATTR_ID = '${sortBy}'
-                ORDER BY clinical_sample.ATTR_VALUE ${direction}
-            </if>
-            <!-- Return all samples when no valid limit present -->
-            <if test="_parameter.containsKey('limit') and limit != null and limit != 0">
-                LIMIT #{limit} OFFSET #{offset}
-            </if>
+        INNER JOIN (
+            SELECT DISTINCT sort_subquery.INTERNAL_ID FROM (
+                SELECT clinical_sample.INTERNAL_ID
+                    <if test="_parameter.containsKey('sortBy') and sortBy != null">
+                        <!-- Keep samples without the attribute that is being sorted on, and mark them as NULL: -->
+                        , CASE WHEN clinical_sample.ATTR_ID = #{sortBy} THEN clinical_sample.ATTR_VALUE ELSE NULL END as SORT_BY
+                    </if>
+                    <include refid="fromSample"/>
+                    <include refid="whereSample"/>
+                    <if test="_parameter.containsKey('searchTerm') and searchTerm != null and not searchTerm.isBlank()">
+                        AND
+                        clinical_sample.ATTR_VALUE LIKE CONCAT('%', #{searchTerm}, '%')
+                    </if>
+                    <if test="_parameter.containsKey('sortBy') and sortBy != null">
+                        <!-- Put NULL-samples last: -->
+                        ORDER BY ISNULL(SORT_BY), SORT_BY ${direction}
+                    </if>
+                ) as sort_subquery
+       
+                <!-- Return all samples when no valid limit present: -->
+                <if test="_parameter.containsKey('limit') and limit != null and limit != 0">
+                    LIMIT #{limit} OFFSET #{offset}
+                </if>
         ) as sample_id_subquery
-        ON clinical_sample.INTERNAL_ID = sample_id_subquery.INTERNAL_ID
+          ON clinical_sample.INTERNAL_ID = sample_id_subquery.INTERNAL_ID
     </sql>
     
 </mapper>

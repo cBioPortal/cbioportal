@@ -901,8 +901,8 @@ public class StudyViewController {
         @ApiParam("Search term to filter sample rows. Samples are returned " +
             "with a partial match to the search term for any sample clinical attribute.")
         @RequestParam(defaultValue = "") String searchTerm,
-        @ApiParam("Name of the property that the result list is sorted by")
-        @RequestParam(required = false) ClinicalDataSortBy sortBy,
+        @ApiParam("Name of the attribute that the result list is sorted by")
+        @RequestParam(required = false) String sortBy,
         @ApiParam("Direction of the sort")
         @RequestParam(defaultValue = "ASC") Direction direction
     ) {
@@ -917,14 +917,14 @@ public class StudyViewController {
             pageSize,
             pageNumber,
             searchTerm,
-            sortBy != null ? sortBy.getOriginalValue() : null,
+            sortBy,
             direction.name()
         );
         Integer total = clinicalDataService.fetchSampleClinicalDataClinicalTableCount(
             sampleStudyIds,
             sampleIds,
             searchTerm,
-            sortBy != null ? sortBy.getOriginalValue() : null,
+            sortBy,
             direction.name()
         );
             

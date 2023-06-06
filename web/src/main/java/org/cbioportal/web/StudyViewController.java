@@ -886,25 +886,34 @@ public class StudyViewController {
     @ApiOperation("Fetch clinical data for the Clinical Tab of Study View")
     public ResponseEntity<ClinicalDataCollection> fetchClinicalDataClinicalTable(
         @ApiParam(required = true, value = "Study view filter")
-        @Valid @RequestBody(required = false) StudyViewFilter studyViewFilter,
+        @Valid @RequestBody(required = false) 
+            StudyViewFilter studyViewFilter,
         @ApiIgnore // prevent reference to this attribute in the swagger-ui interface
-        @RequestAttribute(required = false, value = "involvedCancerStudies") Collection<String> involvedCancerStudies,
+        @RequestAttribute(required = false, value = "involvedCancerStudies") 
+            Collection<String> involvedCancerStudies,
         @ApiIgnore // prevent reference to this attribute in the swagger-ui interface. this attribute is needed for the @PreAuthorize tag above.
-        @Valid @RequestAttribute(required = false, value = "interceptedStudyViewFilter") StudyViewFilter interceptedStudyViewFilter,
+        @Valid @RequestAttribute(required = false, value = "interceptedStudyViewFilter") 
+            StudyViewFilter interceptedStudyViewFilter,
         @ApiParam("Page size of the result list")
         @Max(CLINICAL_TAB_MAX_PAGE_SIZE)
         @Min(PagingConstants.NO_PAGING_PAGE_SIZE)
-        @RequestParam(defaultValue = PagingConstants.DEFAULT_NO_PAGING_PAGE_SIZE) Integer pageSize,
+        @RequestParam(defaultValue = PagingConstants.DEFAULT_NO_PAGING_PAGE_SIZE) 
+            Integer pageSize,
         @ApiParam("Page number of the result list")
         @Min(PagingConstants.MIN_PAGE_NUMBER)
-        @RequestParam(defaultValue = PagingConstants.DEFAULT_PAGE_NUMBER) Integer pageNumber,
+        @RequestParam(defaultValue = PagingConstants.DEFAULT_PAGE_NUMBER) 
+            Integer pageNumber,
         @ApiParam("Search term to filter sample rows. Samples are returned " +
             "with a partial match to the search term for any sample clinical attribute.")
-        @RequestParam(defaultValue = "") String searchTerm,
-        @ApiParam("Name of the attribute that the result list is sorted by")
-        @RequestParam(required = false) String sortBy,
+        @RequestParam(defaultValue = "") 
+            String searchTerm,
+        @ApiParam(value = "sampleId, patientId, or the ATTR_ID to sorted by")
+        @RequestParam(required = false) 
+            // TODO: Can we narrow down this string to a specific enum? 
+            String sortBy,
         @ApiParam("Direction of the sort")
-        @RequestParam(defaultValue = "ASC") Direction direction
+        @RequestParam(defaultValue = "ASC") 
+            Direction direction
     ) {
         List<String> sampleStudyIds = new ArrayList<>();
         List<String> sampleIds = new ArrayList<>();

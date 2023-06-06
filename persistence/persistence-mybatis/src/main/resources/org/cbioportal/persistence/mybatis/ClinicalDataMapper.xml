@@ -241,8 +241,17 @@
             SELECT DISTINCT sort_subquery.INTERNAL_ID FROM (
                 SELECT clinical_sample.INTERNAL_ID
                     <if test="_parameter.containsKey('sortBy') and sortBy != null">
-                        <!-- Keep samples without the attribute that is being sorted on, and mark them as NULL: -->
-                        , CASE WHEN clinical_sample.ATTR_ID = #{sortBy} THEN clinical_sample.ATTR_VALUE ELSE NULL END as SORT_BY
+                        <if test="sortBy == 'sampleId'">
+                          , sample.STABLE_ID AS SORT_BY
+                        </if>
+                        <if test="sortBy == 'patientId'">
+                          , patient.STABLE_ID AS SORT_BY
+                        </if>
+                        -- else:
+                        <if test="sortBy != 'sampleId' and sortBy != 'patientId'">
+                          <!-- Mark samples without the attribute to sort by as NULL: -->
+                          , CASE WHEN clinical_sample.ATTR_ID = #{sortBy} THEN clinical_sample.ATTR_VALUE ELSE NULL END as SORT_BY
+                        </if>
                     </if>
                     <include refid="fromSample"/>
                     <include refid="whereSample"/>
@@ -251,7 +260,7 @@
                         clinical_sample.ATTR_VALUE LIKE CONCAT('%', #{searchTerm}, '%')
                     </if>
                     <if test="_parameter.containsKey('sortBy') and sortBy != null">
-                        <!-- Put NULL-samples last: -->
+                        <!-- Put NULL-attribute samples last: -->
                         ORDER BY ISNULL(SORT_BY), SORT_BY ${direction}
                     </if>
                 ) as sort_subquery

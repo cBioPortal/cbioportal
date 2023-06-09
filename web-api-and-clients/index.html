@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width,initial-scale=1">
-    <meta name="turbo-cache-control" content="no-cache" data-turbo-track="reload" data-track-token="3.0.3.739634485006">
+    <meta name="turbo-cache-control" content="no-cache" data-turbo-track="reload" data-track-token="3.0.3.739635278485">
 
     <!-- See retype.com -->
     <meta name="generator" content="Retype 3.0.3">
@@ -31,12 +31,12 @@
     <script>(function () { var el = document.documentElement, m = localStorage.getItem("doc_theme"), wm = window.matchMedia; if (m === "dark" || (!m && wm && wm("(prefers-color-scheme: dark)").matches)) { el.classList.add("dark") } else { el.classList.remove("dark") } })();</script>
 
     <link href="../images/cbio-logo.png" rel="icon" />
-    <link href="../resources/css/retype.css?v=3.0.3.739634485006" rel="stylesheet" />
+    <link href="../resources/css/retype.css?v=3.0.3.739635278485" rel="stylesheet" />
 
-    <script type="text/javascript" src="../resources/js/config.js?v=3.0.3.739634485006" data-turbo-eval="false" defer></script>
+    <script type="text/javascript" src="../resources/js/config.js?v=3.0.3.739635278485" data-turbo-eval="false" defer></script>
     <script type="text/javascript" src="../resources/js/retype.js?v=3.0.3" data-turbo-eval="false" defer></script>
-    <script id="lunr-js" type="text/javascript" src="../resources/js/lunr.js?v=3.0.3.739634485006" data-turbo-eval="false" defer></script>
-    <script id="prism-js" type="text/javascript" src="../resources/js/prism.js?v=3.0.3.739634485006" defer></script>
+    <script id="lunr-js" type="text/javascript" src="../resources/js/lunr.js?v=3.0.3.739635278485" data-turbo-eval="false" defer></script>
+    <script id="prism-js" type="text/javascript" src="../resources/js/prism.js?v=3.0.3.739635278485" defer></script>
 
     <link rel="stylesheet" href="/static/custom.css"></link>
 </head>
@@ -255,13 +255,13 @@
     </h2>
 </doc-anchor-target>
 <p>The cBioPortal REST API is described using Swagger/OpenAPI, which allows one to generate a client in most programming languages. One can use the command line tool <code v-pre>curl</code> for dowloading data on the command line or use another language such as <code v-pre>Python</code> or <code v-pre>R</code> to make visualizations. We list some common examples below, but if your language is not listed, there is likely a client generator available elsewhere (see e.g. <a href="https://swagger.io/tools/swagger-codegen/">https://swagger.io/tools/swagger-codegen/</a>). Do reach out if you&#x27;d like us to add a language.</p>
-<doc-anchor-target id="r-client">
+<doc-anchor-target id="r-clients">
     <h3>
-        <doc-anchor-trigger class="header-anchor-trigger" to="#r-client">#</doc-anchor-trigger>
-        <span>R client</span>
+        <doc-anchor-trigger class="header-anchor-trigger" to="#r-clients">#</doc-anchor-trigger>
+        <span>R clients</span>
     </h3>
 </doc-anchor-target>
-<p>There are multiple ways to access the API using R. The recommended way is to use <code v-pre>cBioPortalData</code>.</p>
+<p>There are multiple ways to access the API using R. Below are two recommended R packages to access cBioPortal data.</p>
 <doc-anchor-target id="cbioportaldata-recommended">
     <h4>
         <doc-anchor-trigger class="header-anchor-trigger" to="#cbioportaldata-recommended">#</doc-anchor-trigger>
@@ -284,13 +284,29 @@
     token = &quot;~/Downloads/cbioportal_data_access_token.txt&quot;
 )</code></pre>
 </doc-codeblock></div>
+<doc-anchor-target id="cbioportalr-recommended">
+    <h4>
+        <doc-anchor-trigger class="header-anchor-trigger" to="#cbioportalr-recommended">#</doc-anchor-trigger>
+        <span>cbioportalR (recommended)</span>
+    </h4>
+</doc-anchor-target>
+<p>cbioportalR offers easy-to-use functions that allow users to browse and pull data from public or institutional cBioPortal sites without knowledge of web service or Bioconductor infrastructures. The package is tidyverse-compatible. Key package features include:</p>
+<ol>
+<li>Comprehensive documentation aimed at helping clinical researchers understand the underlying structure of cBioPortal data</li>
+<li><a href="%5Bhttps://www.karissawhiting.com/cbioportalR/articles/overview-of-workflow.html%5D">Tutorials</a> for quick API authentication and set up</li>
+<li>Functions to pull complete clinical and genomic data by study ID, molecular profile ID, sample list IDs or individual sample ID (e.g. <code v-pre>get_genetics_by_study()</code>, <code v-pre>get_genetics_by_sample()</code>)</li>
+<li>Functions to navigate and identify patient IDs, sample IDs or study IDs as needed, or infer necessary ID information for queries when not supplied by user.</li>
+<li>Helper functions to pull information on gene panels (<code v-pre>get_gene_panel()</code>), or lookup entrez ID (<code v-pre>get_entrez_id()</code>), Hugo Symbol (<code v-pre>get_hugo_symbol()</code>) or common gene aliases (<code v-pre>get_alias()</code>) of genes</li>
+<li>Capability to query multiple sample IDs from different studies concurrently</li>
+</ol>
+<p>For a detailed tutorial on <code v-pre>cbioportalR</code>, see the package website: <a href="https://www.karissawhiting.com/cbioportalR/articles/overview-of-workflow.html">https://www.karissawhiting.com/cbioportalR/articles/overview-of-workflow.html</a></p>
 <doc-anchor-target id="rapiclient">
     <h4>
         <doc-anchor-trigger class="header-anchor-trigger" to="#rapiclient">#</doc-anchor-trigger>
         <span>rapiclient</span>
     </h4>
 </doc-anchor-target>
-<p>Although we recommend to use <a href="../#cbioportaldata-recommended">cBioPortalData</a> for most use cases, it is possible to connect to the API directly using <a href="https://github.com/bergant/rapiclient">rapiclient</a>:</p>
+<p>Although we recommend <a href="../#cbioportaldata-recommended">cBioPortalData</a> or <a href="../#cbioportalR-recommended">cbioportalR</a> for most use cases, it is possible to connect to the API directly using <a href="https://github.com/bergant/rapiclient">rapiclient</a>:</p>
 <div class="codeblock-wrapper"><doc-codeblock>
 <pre class="language-none"><code v-pre class="language-none">library(rapiclient)
 client &lt;- get_api(url = &quot;https://www.cbioportal.org/api/v2/api-docs&quot;)</code></pre>

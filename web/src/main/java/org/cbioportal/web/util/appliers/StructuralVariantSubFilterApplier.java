@@ -75,7 +75,7 @@ public class StructuralVariantSubFilterApplier implements StudyViewSubFilterAppl
                         .map(SampleIdentifier::getSampleId)
                         .collect(Collectors.toList());
 
-                final List<StructVarFilterQuery> entrezIdEnhancedSvQueries = studyViewFilterUtil.addEntrezGeneIds(structVarQueries);
+                final List<StructVarFilterQuery> entrezIdEnhancedSvQueries = studyViewFilterUtil.resolveEntrezGeneIds(structVarQueries);
                 remainingSampleIdentifiers = structuralVariantService
                     .fetchStructuralVariantsByStructVarQueries(molecularProfileIds, sampleIds, entrezIdEnhancedSvQueries)
                     .stream()

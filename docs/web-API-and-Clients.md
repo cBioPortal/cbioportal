@@ -8,9 +8,9 @@ Please see the full reference documentation for the API [here](https://www.cbiop
 
 The cBioPortal REST API is described using Swagger/OpenAPI, which allows one to generate a client in most programming languages. One can use the command line tool `curl` for dowloading data on the command line or use another language such as `Python` or `R` to make visualizations. We list some common examples below, but if your language is not listed, there is likely a client generator available elsewhere (see e.g. https://swagger.io/tools/swagger-codegen/). Do reach out if you'd like us to add a language.
 
-### R client
+### R clients
 
-There are multiple ways to access the API using R. The recommended way is to use `cBioPortalData`.
+There are multiple ways to access the API using R. Below are two recommended R packages to access cBioPortal data.
 
 #### cBioPortalData (recommended)
 
@@ -34,9 +34,22 @@ cBioPortal(
 )
 ```
 
+#### cbioportalR (recommended)
+
+cbioportalR offers easy-to-use functions that allow users to browse and pull data from public or institutional cBioPortal sites without knowledge of web service or Bioconductor infrastructures. The package is tidyverse-compatible. Key package features include:
+
+1. Comprehensive documentation aimed at helping clinical researchers understand the underlying structure of cBioPortal data
+2. [Tutorials]([https://www.karissawhiting.com/cbioportalR/articles/overview-of-workflow.html]) for quick API authentication and set up
+3. Functions to pull complete clinical and genomic data by study ID, molecular profile ID, sample list IDs or individual sample ID (e.g. `get_genetics_by_study()`, `get_genetics_by_sample()`)
+4. Functions to navigate and identify patient IDs, sample IDs or study IDs as needed, or infer necessary ID information for queries when not supplied by user.
+5. Helper functions to pull information on gene panels (`get_gene_panel()`), or lookup entrez ID (`get_entrez_id()`), Hugo Symbol (`get_hugo_symbol()`) or common gene aliases (`get_alias()`) of genes
+6. Capability to query multiple sample IDs from different studies concurrently
+
+For a detailed tutorial on `cbioportalR`, see the package website: https://www.karissawhiting.com/cbioportalR/articles/overview-of-workflow.html
+
 #### rapiclient
 
-Although we recommend to use [cBioPortalData](/#cbioportaldata-recommended) for most use cases, it is possible to connect to the API directly using [rapiclient](https://github.com/bergant/rapiclient):
+Although we recommend [cBioPortalData](/#cbioportaldata-recommended) or [cbioportalR](/#cbioportalR-recommended) for most use cases, it is possible to connect to the API directly using [rapiclient](https://github.com/bergant/rapiclient):
 
 ```
 library(rapiclient)

@@ -21,7 +21,6 @@ import org.mockito.junit.MockitoJUnitRunner;
 import java.util.Arrays;
 import java.util.HashSet;
 import java.util.List;
-import java.util.Set;
 
 import static org.mockito.ArgumentMatchers.anyList;
 import static org.mockito.ArgumentMatchers.eq;
@@ -86,7 +85,7 @@ public class StructuralVariantSubFilterApplierTest {
             createStructVar("5", ST_1_ID)
         );
         // Subsequently, return results for svA and svB queries.
-        when(studyViewFilterUtil.addEntrezGeneIds(anyList()))
+        when(studyViewFilterUtil.resolveEntrezGeneIds(anyList()))
             .thenReturn(svA, svB);
         when(structuralVariantService.fetchStructuralVariantsByStructVarQueries(anyList(), anyList(), anyList())
         ).thenReturn(structuralVariantsQuerySvA, structuralVariantsQuerySvB);

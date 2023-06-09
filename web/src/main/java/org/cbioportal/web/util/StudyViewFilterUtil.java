@@ -292,9 +292,7 @@ public class StudyViewFilterUtil {
         return symbolToEntrezGeneId;
     }
 
-    // TODO Pim test this logic.
-    // TODO Pim write test.
-    public List<StructVarFilterQuery> addEntrezGeneIds(List<StructVarFilterQuery> structVarQueries) {
+    public List<StructVarFilterQuery> resolveEntrezGeneIds(List<StructVarFilterQuery> structVarQueries) {
 
         List<String> hugoGeneSymbols = structVarQueries
             .stream()

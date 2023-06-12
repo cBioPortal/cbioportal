@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width,initial-scale=1">
-    <meta name="turbo-cache-control" content="no-cache" data-turbo-track="reload" data-track-token="3.0.3.739635278485">
+    <meta name="turbo-cache-control" content="no-cache" data-turbo-track="reload" data-track-token="3.0.3.739912799075">
 
     <!-- See retype.com -->
     <meta name="generator" content="Retype 3.0.3">
@@ -33,11 +33,11 @@
     <script>(function () { var el = document.documentElement, m = localStorage.getItem("doc_theme"), wm = window.matchMedia; if (m === "dark" || (!m && wm && wm("(prefers-color-scheme: dark)").matches)) { el.classList.add("dark") } else { el.classList.remove("dark") } })();</script>
 
     <link href="../../images/cbio-logo.png" rel="icon" />
-    <link href="../../resources/css/retype.css?v=3.0.3.739635278485" rel="stylesheet" />
+    <link href="../../resources/css/retype.css?v=3.0.3.739912799075" rel="stylesheet" />
 
-    <script type="text/javascript" src="../../resources/js/config.js?v=3.0.3.739635278485" data-turbo-eval="false" defer></script>
+    <script type="text/javascript" src="../../resources/js/config.js?v=3.0.3.739912799075" data-turbo-eval="false" defer></script>
     <script type="text/javascript" src="../../resources/js/retype.js?v=3.0.3" data-turbo-eval="false" defer></script>
-    <script id="lunr-js" type="text/javascript" src="../../resources/js/lunr.js?v=3.0.3.739635278485" data-turbo-eval="false" defer></script>
+    <script id="lunr-js" type="text/javascript" src="../../resources/js/lunr.js?v=3.0.3.739912799075" data-turbo-eval="false" defer></script>
 
     <link rel="stylesheet" href="/static/custom.css"></link>
 </head>
@@ -268,6 +268,7 @@
 <li><doc-anchor-trigger to="#what-is-a-virtual-study">What is a Virtual Study?</doc-anchor-trigger></li>
 <li><doc-anchor-trigger to="#is-it-necessary-to-log-in-to-use-virtual-studies-if-i-do-log-in-what-additional-functionality-do-i-gain">Is it necessary to log in to use virtual studies? If I do log in, what additional functionality do I gain?</doc-anchor-trigger></li>
 <li><doc-anchor-trigger to="#what-is-group-comparison">What is Group Comparison?</doc-anchor-trigger></li>
+<li><doc-anchor-trigger to="#what-are-the-statistical-significance-tests-in-group-comparison">What are the statistical significance tests in Group Comparison?</doc-anchor-trigger></li>
 </ul>
 </li>
 <li><doc-anchor-trigger to="#data-questions">Data Questions</doc-anchor-trigger>
@@ -519,6 +520,37 @@
     </h4>
 </doc-anchor-target>
 <p>Group Comparison is a suite of analysis features which allows a user to compare clinical or genomic features of user-defined groups of samples. These groups can be defined based on any clinical or genomic features. For an overview, see <a href="https://www.cbioportal.org/tutorials">our tutorial on group comparison</a>.</p>
+<doc-anchor-target id="what-are-the-statistical-significance-tests-in-group-comparison">
+    <h4>
+        <doc-anchor-trigger class="header-anchor-trigger" to="#what-are-the-statistical-significance-tests-in-group-comparison">#</doc-anchor-trigger>
+        <span>What are the statistical significance tests in Group Comparison?</span>
+    </h4>
+</doc-anchor-target>
+<ul>
+<li>Survival tab: Log-rank test</li>
+<li>Clinical tab:
+<ul>
+<li>Continuous data: Chi-squared test</li>
+<li>Categorical data: Kruskal Wallis test</li>
+</ul>
+</li>
+<li>Other tabs
+<ul>
+<li>2 groups
+<ul>
+<li>Continuous data: one-sided t-test</li>
+<li>Categorical data: one-sided Fisher&#x27;s exact test</li>
+</ul>
+</li>
+<li>3 or more groups
+<ul>
+<li>Continuous data: one-way ANOVA</li>
+<li>Categorical data: Chi-squared test</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
 <doc-anchor-target id="data-questions">
     <h2>
         <doc-anchor-trigger class="header-anchor-trigger" to="#data-questions">#</doc-anchor-trigger>

@@ -269,7 +269,14 @@
             </if>
             <if test="_parameter.containsKey('sortBy') and sortBy != null">
                 <!-- Put 'NULL samples' last: -->
-                ORDER BY ISNULL(SORT_BY), SORT_BY ${direction}
+                <choose>
+                    <when test="_databaseId == 'mysql'">
+                        ORDER BY ISNULL(SORT_BY), SORT_BY ${direction}
+                    </when>
+                    <when test="_databaseId == 'h2'">
+                        ORDER BY SORT_BY ${direction} NULLS LAST
+                    </when>
+                </choose>
             </if>
             
             <if test="_parameter.containsKey('limit') and limit != null and limit != 0">

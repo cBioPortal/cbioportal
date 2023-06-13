@@ -8,7 +8,7 @@ import java.util.Set;
 public class StudyViewStructuralVariantFilter implements Serializable {
 
     private Set<String> molecularProfileIds;
-    private List<List<StructVarFilterQuery>> structVarQueries;
+    private List<List<StructuralVariantFilterQuery>> structVarQueries;
 
     @AssertTrue(message = "'specialValue' field of gene1/gene2 StructVarGeneSubQueries cannot be both ANY_GENE or NO_GENE.")
     private boolean isGeneQueriesSpecialValueCorrect() {
@@ -53,11 +53,11 @@ public class StudyViewStructuralVariantFilter implements Serializable {
         this.molecularProfileIds = molecularProfileIds;
     }
 
-    public List<List<StructVarFilterQuery>> getStructVarQueries() {
+    public List<List<StructuralVariantFilterQuery>> getStructVarQueries() {
         return structVarQueries;
     }
 
-    public void setStructVarQueries(List<List<StructVarFilterQuery>> structVarQueries) {
+    public void setStructVarQueries(List<List<StructuralVariantFilterQuery>> structVarQueries) {
         this.structVarQueries = structVarQueries;
     }
 }

@@ -15,7 +15,7 @@ import org.cbioportal.model.Gene;
 import org.cbioportal.model.GeneFilterQuery;
 import org.cbioportal.model.Patient;
 import org.cbioportal.model.SampleList;
-import org.cbioportal.model.StructVarFilterQuery;
+import org.cbioportal.model.StructuralVariantFilterQuery;
 import org.cbioportal.model.StructuralVariantSpecialValue;
 import org.cbioportal.service.GeneService;
 import org.cbioportal.service.util.CustomDataSession;
@@ -292,7 +292,7 @@ public class StudyViewFilterUtil {
         return symbolToEntrezGeneId;
     }
 
-    public List<StructVarFilterQuery> resolveEntrezGeneIds(List<StructVarFilterQuery> structVarQueries) {
+    public List<StructuralVariantFilterQuery> resolveEntrezGeneIds(List<StructuralVariantFilterQuery> structVarQueries) {
 
         List<String> hugoGeneSymbols = structVarQueries
             .stream()

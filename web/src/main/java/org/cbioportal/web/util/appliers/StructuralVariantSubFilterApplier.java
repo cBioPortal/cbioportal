@@ -1,7 +1,7 @@
 package org.cbioportal.web.util.appliers;
 
 import org.cbioportal.model.MolecularProfile;
-import org.cbioportal.model.StructVarFilterQuery;
+import org.cbioportal.model.StructuralVariantFilterQuery;
 import org.cbioportal.model.StudyViewStructuralVariantFilter;
 import org.cbioportal.service.MolecularProfileService;
 import org.cbioportal.service.StructuralVariantService;
@@ -59,7 +59,7 @@ public class StructuralVariantSubFilterApplier implements StudyViewSubFilterAppl
                 .stream()
                 .collect(Collectors.groupingBy(MolecularProfile::getCancerStudyIdentifier));
 
-            for (List<StructVarFilterQuery> structVarQueries: structuralVariantFilter.getStructVarQueries()) {
+            for (List<StructuralVariantFilterQuery> structVarQueries: structuralVariantFilter.getStructVarQueries()) {
 
                 // Remove samples in remainingSampleIdentifiers that belong to a study that is not accessible to the current user
                 // (do not appear in the molecularProfileMap argument). 
@@ -75,7 +75,7 @@ public class StructuralVariantSubFilterApplier implements StudyViewSubFilterAppl
                         .map(SampleIdentifier::getSampleId)
                         .collect(Collectors.toList());
 
-                final List<StructVarFilterQuery> entrezIdEnhancedSvQueries = studyViewFilterUtil.resolveEntrezGeneIds(structVarQueries);
+                final List<StructuralVariantFilterQuery> entrezIdEnhancedSvQueries = studyViewFilterUtil.resolveEntrezGeneIds(structVarQueries);
                 remainingSampleIdentifiers = structuralVariantService
                     .fetchStructuralVariantsByStructVarQueries(molecularProfileIds, sampleIds, entrezIdEnhancedSvQueries)
                     .stream()

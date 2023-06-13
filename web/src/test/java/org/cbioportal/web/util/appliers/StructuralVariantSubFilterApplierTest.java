@@ -1,7 +1,7 @@
 package org.cbioportal.web.util.appliers;
 
 import org.cbioportal.model.MolecularProfile;
-import org.cbioportal.model.StructVarFilterQuery;
+import org.cbioportal.model.StructuralVariantFilterQuery;
 import org.cbioportal.model.StructuralVariant;
 import org.cbioportal.model.StudyViewStructuralVariantFilter;
 import org.cbioportal.model.util.Select;
@@ -55,9 +55,9 @@ public class StructuralVariantSubFilterApplierTest {
         // For the test this arrangement does not matter much. What is more important
         // is the SVs returned by the structuralVariantService service mock in response to
         // subsequent query filter calls.
-        List<StructVarFilterQuery> svA = Arrays.asList(createQuery(G1, G2));
-        List<StructVarFilterQuery> svB = Arrays.asList(createQuery(G1, G2));
-        List<List<StructVarFilterQuery>> svA_and_svB_filterQuery = Arrays.asList(svA, svB);
+        List<StructuralVariantFilterQuery> svA = Arrays.asList(createQuery(G1, G2));
+        List<StructuralVariantFilterQuery> svB = Arrays.asList(createQuery(G1, G2));
+        List<List<StructuralVariantFilterQuery>> svA_and_svB_filterQuery = Arrays.asList(svA, svB);
 
         final StudyViewStructuralVariantFilter structuralVariantFilter = new StudyViewStructuralVariantFilter();
         structuralVariantFilter.setStructVarQueries(svA_and_svB_filterQuery);
@@ -119,8 +119,8 @@ public class StructuralVariantSubFilterApplierTest {
         Assert.assertTrue(subject.shouldApplyFilter(structVarStudyViewFilter)); 
     }
     
-    private StructVarFilterQuery createQuery(String gene1, String gene2) {
-        return new StructVarFilterQuery(gene1, null, gene2, null,
+    private StructuralVariantFilterQuery createQuery(String gene1, String gene2) {
+        return new StructuralVariantFilterQuery(gene1, null, gene2, null,
             true, true, true, Select.all(),
             true, true, true, true);
     }

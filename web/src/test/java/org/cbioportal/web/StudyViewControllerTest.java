@@ -858,7 +858,7 @@ public class StudyViewControllerTest {
         StudyViewFilter studyViewFilter = new StudyViewFilter();
         studyViewFilter.setStudyIds(Arrays.asList(TEST_STUDY_ID));
 
-        final StructVarFilterQuery structVarFilterQuery = new StructVarFilterQuery("A", null, "B", null,
+        final StructuralVariantFilterQuery structVarFilterQuery = new StructuralVariantFilterQuery("A", null, "B", null,
             true, true, true, Select.all(),
             true, true, true, true);
         final StudyViewStructuralVariantFilter structuralVariantFilter = new StudyViewStructuralVariantFilter();
@@ -885,7 +885,7 @@ public class StudyViewControllerTest {
         StudyViewFilter studyViewFilter = new StudyViewFilter();
         studyViewFilter.setStudyIds(Arrays.asList(TEST_STUDY_ID));
 
-        final StructVarFilterQuery structVarFilterQuery = new StructVarFilterQuery("A", null, "B", null,
+        final StructuralVariantFilterQuery structVarFilterQuery = new StructuralVariantFilterQuery("A", null, "B", null,
             true, true, true, Select.all(),
             true, true, true, true);
         final StudyViewStructuralVariantFilter structuralVariantFilter = new StudyViewStructuralVariantFilter();
@@ -913,7 +913,7 @@ public class StudyViewControllerTest {
         StudyViewFilter studyViewFilter = new StudyViewFilter();
         studyViewFilter.setStudyIds(Arrays.asList(TEST_STUDY_ID));
 
-        final StructVarFilterQuery structVarFilterQuery = new StructVarFilterQuery("A", null, "B", null,
+        final StructuralVariantFilterQuery structVarFilterQuery = new StructuralVariantFilterQuery("A", null, "B", null,
             true, true, true, Select.all(),
             true, true, true, true);
         final StudyViewStructuralVariantFilter structuralVariantFilter = new StudyViewStructuralVariantFilter();
@@ -942,7 +942,7 @@ public class StudyViewControllerTest {
         studyViewFilter.setStudyIds(Arrays.asList(TEST_STUDY_ID));
 
         // Test case:
-        final StructVarFilterQuery structVarFilterQuery = new StructVarFilterQuery(null, null, null, null,
+        final StructuralVariantFilterQuery structVarFilterQuery = new StructuralVariantFilterQuery(null, null, null, null,
             true, true, true, Select.all(),
             true, true, true, true);
             
@@ -968,7 +968,7 @@ public class StudyViewControllerTest {
         studyViewFilter.setStudyIds(Arrays.asList(TEST_STUDY_ID));
 
         // Test case:
-        final StructVarFilterQuery structVarFilterQuery = new StructVarFilterQuery(null, null, "B", null,
+        final StructuralVariantFilterQuery structVarFilterQuery = new StructuralVariantFilterQuery(null, null, "B", null,
             true, true, true, Select.all(),
             true, true, true, true);
         structVarFilterQuery.getGene1Query().setSpecialValue(null);

@@ -26,7 +26,7 @@ package org.cbioportal.service;
 import java.util.List;
 
 import org.cbioportal.model.GeneFilterQuery;
-import org.cbioportal.model.StructVarFilterQuery;
+import org.cbioportal.model.StructuralVariantFilterQuery;
 import org.cbioportal.model.StructuralVariant;
 import org.cbioportal.model.StructuralVariantQuery;
 
@@ -45,5 +45,5 @@ public interface StructuralVariantService {
 
     List<StructuralVariant> fetchStructuralVariantsByStructVarQueries(List<String> molecularProfileIds,
                                                                       List<String> sampleIds,
-                                                                      List<StructVarFilterQuery> structVarQueries);
+                                                                      List<StructuralVariantFilterQuery> structVarQueries);
 }

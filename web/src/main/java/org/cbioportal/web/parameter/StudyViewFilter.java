@@ -17,7 +17,7 @@ import org.cbioportal.model.StudyViewStructuralVariantFilter;
 import org.cbioportal.web.parameter.filter.*;
 
 @JsonIgnoreProperties(ignoreUnknown = true)
-@JsonInclude(Include.ALWAYS)
+@JsonInclude(Include.NON_NULL)
 public class StudyViewFilter implements Serializable {
 
     @Size(min = 1)

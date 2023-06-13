@@ -24,7 +24,7 @@
 package org.cbioportal.persistence.mybatis;
 
 import org.cbioportal.model.GeneFilterQuery;
-import org.cbioportal.model.StructVarFilterQuery;
+import org.cbioportal.model.StructuralVariantFilterQuery;
 import org.cbioportal.model.StructuralVariant;
 import org.cbioportal.model.StructuralVariantGeneSubQuery;
 import org.cbioportal.model.StructuralVariantQuery;
@@ -98,11 +98,11 @@ public class StructuralVariantMyBatisRepositoryTest {
         geneQueries =  Arrays.asList(geneFilterQuery1, geneFilterQuery2, geneFilterQuery3, geneFilterQuery4);
 
         // Only search for the KIAA1549-BRAF and EML4-ALK fusions.
-        structVarFilterQuery1 = new StructVarFilterQuery("KIAA1549", 57670, "BRAF", 673, includeDriver, includeVUS, includeUnknownOncogenicity, tiers, includeUnknownTier, includeGermline, includeSomatic, includeUnknownStatus);
-        structVarFilterQuery2 = new StructVarFilterQuery("EML4", 27436, "ALK", 238, includeDriver, includeVUS, includeUnknownOncogenicity, tiers, includeUnknownTier, includeGermline, includeSomatic, includeUnknownStatus);
+        structVarFilterQuery1 = new StructuralVariantFilterQuery("KIAA1549", 57670, "BRAF", 673, includeDriver, includeVUS, includeUnknownOncogenicity, tiers, includeUnknownTier, includeGermline, includeSomatic, includeUnknownStatus);
+        structVarFilterQuery2 = new StructuralVariantFilterQuery("EML4", 27436, "ALK", 238, includeDriver, includeVUS, includeUnknownOncogenicity, tiers, includeUnknownTier, includeGermline, includeSomatic, includeUnknownStatus);
         structVarQueries = Arrays.asList(structVarFilterQuery1, structVarFilterQuery2);
-        structVarFilterQueryNullGene1 = new StructVarFilterQuery(null, null, "BRAF", 673, includeDriver, includeVUS, includeUnknownOncogenicity, tiers, includeUnknownTier, includeGermline, includeSomatic, includeUnknownStatus);
-        structVarFilterQueryNullGene2 = new StructVarFilterQuery("NCOA4", 8031, null, null, includeDriver, includeVUS, includeUnknownOncogenicity, tiers, includeUnknownTier, includeGermline, includeSomatic, includeUnknownStatus);
+        structVarFilterQueryNullGene1 = new StructuralVariantFilterQuery(null, null, "BRAF", 673, includeDriver, includeVUS, includeUnknownOncogenicity, tiers, includeUnknownTier, includeGermline, includeSomatic, includeUnknownStatus);
+        structVarFilterQueryNullGene2 = new StructuralVariantFilterQuery("NCOA4", 8031, null, null, includeDriver, includeVUS, includeUnknownOncogenicity, tiers, includeUnknownTier, includeGermline, includeSomatic, includeUnknownStatus);
     }
 
     List<String> molecularProfileIds = new ArrayList<>();
@@ -118,11 +118,11 @@ public class StructuralVariantMyBatisRepositoryTest {
     private List<GeneFilterQuery> geneQueries;
     List<Integer> noEntrezIds = Collections.emptyList();
     private List<StructuralVariantQuery> noStructVars = Collections.emptyList();
-    private List<StructVarFilterQuery> structVarQueries;
-    private StructVarFilterQuery structVarFilterQuery1;
-    private StructVarFilterQuery structVarFilterQuery2;
-    private StructVarFilterQuery structVarFilterQueryNullGene1;
-    private StructVarFilterQuery structVarFilterQueryNullGene2;
+    private List<StructuralVariantFilterQuery> structVarQueries;
+    private StructuralVariantFilterQuery structVarFilterQuery1;
+    private StructuralVariantFilterQuery structVarFilterQuery2;
+    private StructuralVariantFilterQuery structVarFilterQueryNullGene1;
+    private StructuralVariantFilterQuery structVarFilterQueryNullGene2;
 
     @Test
     public void fetchStructuralVariantsNoSampleIdentifiers() {

@@ -883,7 +883,7 @@ public class StudyViewController {
     @RequestMapping(value = "/clinical-data-table/fetch", method = RequestMethod.POST,
         consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
     @ApiOperation("Fetch clinical data for the Clinical Tab of Study View")
-    public ResponseEntity<ClinicalDataCollection> fetchClinicalTable(
+    public ResponseEntity<ClinicalDataCollection> fetchClinicalDataClinicalTable(
         @ApiParam(required = true, value = "Study view filter")
         @Valid @RequestBody(required = false) 
             StudyViewFilter studyViewFilter,

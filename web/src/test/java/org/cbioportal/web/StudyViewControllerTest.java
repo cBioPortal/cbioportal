@@ -765,7 +765,6 @@ public class StudyViewControllerTest {
 
     @Test
     public void fetchClinicalDataClinicalTable() throws Exception {
-
         // For this sake of this test the sample clinical data and patient clinical data are identical.
         when(clinicalDataService.fetchSampleClinicalTable(anyList(), anyList(),
             anyInt(), anyInt(), anyString(), any(), anyString())).thenReturn(clinicalData);

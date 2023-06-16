@@ -138,15 +138,22 @@ public class ClinicalDataMyBatisRepository implements ClinicalDataRepository {
     }
 
     @Override
-    public List<ClinicalData> fetchSampleClinicalDataClinicalTable(List<String> studyIds, List<String> ids,
-                                                                   Integer pageSize, Integer pageNumber, String searchTerm,
-                                                                   String sortBy, String direction) {
+    public List<ClinicalData> fetchSampleClinicalTable(List<String> studyIds, List<String> ids,
+                                                       Integer pageSize, Integer pageNumber, String searchTerm,
+                                                       String sortBy, String direction) {
         if (ids.isEmpty()) {
             return new ArrayList<>();
         }
         int offset = offsetCalculator.calculate(pageSize, pageNumber);
-        return clinicalDataMapper.getSampleClinicalDataClinicalTable(studyIds, ids,"SUMMARY", pageSize,
+        return clinicalDataMapper.getSampleClinicalTable(studyIds, ids,"SUMMARY", pageSize,
             offset, searchTerm, sortBy, direction);
+    }
+
+    @Override
+    public Integer fetchSampleClinicalTableCount(List<String> studyIds, List<String> sampleIds,
+                                                 String searchTerm, String sortBy, String direction) {
+        return clinicalDataMapper.getSampleClinicalTableCount(studyIds, sampleIds,"SUMMARY", 
+            searchTerm, sortBy, direction);
     }
 
     @Override

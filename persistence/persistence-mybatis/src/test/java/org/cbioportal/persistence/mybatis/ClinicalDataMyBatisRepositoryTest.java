@@ -354,9 +354,9 @@ public class ClinicalDataMyBatisRepositoryTest {
     @Test
     public void fetchClinicalSampleDataClinicalTabPagingSuccess() {
 
-        List<ClinicalData> resultFirstPage = clinicalDataMyBatisRepository.fetchSampleClinicalDataClinicalTable(studyIds,
+        List<ClinicalData> resultFirstPage = clinicalDataMyBatisRepository.fetchSampleClinicalTable(studyIds,
             sampleIds, 1, 0, noSearch, noSort, "DESC");
-        List<ClinicalData> resultSecondPage = clinicalDataMyBatisRepository.fetchSampleClinicalDataClinicalTable(studyIds,
+        List<ClinicalData> resultSecondPage = clinicalDataMyBatisRepository.fetchSampleClinicalTable(studyIds,
             sampleIds, 1, 1, noSearch, noSort, "DESC");
 
         Assert.assertEquals(4, resultFirstPage.size());
@@ -380,7 +380,7 @@ public class ClinicalDataMyBatisRepositoryTest {
     public void fetchClinicalSampleDataClinicalTablePagingHandleNoneExistingPage() {
 
         // There are only two patients in total. The second page (index 1) with pageSize 2 does not refer to any records.
-        List<ClinicalData> resultNonExistingPage = clinicalDataMyBatisRepository.fetchSampleClinicalDataClinicalTable(
+        List<ClinicalData> resultNonExistingPage = clinicalDataMyBatisRepository.fetchSampleClinicalTable(
             studyIds, sampleIds, 2, 1, noSearch, noSort, "DESC");
 
         Assert.assertEquals(0, resultNonExistingPage.size());
@@ -389,7 +389,7 @@ public class ClinicalDataMyBatisRepositoryTest {
     @Test
     public void fetchClinicalSampleDataClinicalTabSearchTermSuccess() {
 
-        List<ClinicalData> resultSample1 = clinicalDataMyBatisRepository.fetchSampleClinicalDataClinicalTable(
+        List<ClinicalData> resultSample1 = clinicalDataMyBatisRepository.fetchSampleClinicalTable(
             studyIds, sampleIds, noPaging, noPaging, "5C631CE8", noSort, "DESC");
             
         Assert.assertEquals(4, resultSample1.size());
@@ -397,7 +397,7 @@ public class ClinicalDataMyBatisRepositoryTest {
         Assert.assertEquals(1, observedSampleIds.size());
         Assert.assertEquals("TCGA-A1-A0SB-01", observedSampleIds.get(0));
 
-        List<ClinicalData> resultSample2 = clinicalDataMyBatisRepository.fetchSampleClinicalDataClinicalTable(
+        List<ClinicalData> resultSample2 = clinicalDataMyBatisRepository.fetchSampleClinicalTable(
             studyIds, sampleIds, noPaging, noPaging, "F3408556-9259", noSort, "DESC");
 
         Assert.assertEquals(4, resultSample2.size());
@@ -409,7 +409,7 @@ public class ClinicalDataMyBatisRepositoryTest {
     @Test
     public void fetchClinicalSampleDataEClinicalTabEmptyStringSearchTerm() {
 
-        List<ClinicalData> result = clinicalDataMyBatisRepository.fetchSampleClinicalDataClinicalTable(
+        List<ClinicalData> result = clinicalDataMyBatisRepository.fetchSampleClinicalTable(
             studyIds, sampleIds, noPaging, noPaging, "", noSort, "DESC");
             
         Assert.assertEquals(8, result.size());
@@ -418,9 +418,9 @@ public class ClinicalDataMyBatisRepositoryTest {
     @Test
     public void fetchClinicalSampleDataClinicalTabSortSuccess() {
 
-        List<ClinicalData> resultSortAsc = clinicalDataMyBatisRepository.fetchSampleClinicalDataClinicalTable(studyIds,
+        List<ClinicalData> resultSortAsc = clinicalDataMyBatisRepository.fetchSampleClinicalTable(studyIds,
             sampleIds, 1, 0, noSearch, "SAMPLE_TYPE", "ASC");
-        List<ClinicalData> resultSortDesc = clinicalDataMyBatisRepository.fetchSampleClinicalDataClinicalTable(studyIds,
+        List<ClinicalData> resultSortDesc = clinicalDataMyBatisRepository.fetchSampleClinicalTable(studyIds,
             sampleIds, 1, 0, noSearch, "SAMPLE_TYPE", "DESC");
 
         Assert.assertEquals(4, resultSortAsc.size());

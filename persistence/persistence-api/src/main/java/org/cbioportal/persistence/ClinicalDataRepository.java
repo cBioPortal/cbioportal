@@ -47,9 +47,13 @@ public interface ClinicalDataRepository {
     List<ClinicalData> fetchClinicalData(List<String> studyIds, List<String> ids, List<String> attributeIds,
                                          String clinicalDataType, String projection);
 
-    List<ClinicalData> fetchSampleClinicalDataClinicalTable(List<String> studyIds, List<String> ids,
-                                                            Integer pageSize, Integer pageNumber, String searchTerm,
-                                                            String sortBy, String direction);
+    List<ClinicalData> fetchSampleClinicalTable(List<String> studyIds, List<String> ids,
+                                                Integer pageSize, Integer pageNumber, String searchTerm,
+                                                String sortBy, String direction);
+
+    @Cacheable(cacheResolver = "generalRepositoryCacheResolver", condition = "@cacheEnabledConfig.getEnabled()")
+    Integer fetchSampleClinicalTableCount(List<String> studyIds, List<String> ids, String searchTerm,
+                                          String sortBy, String direction);
 
     @Cacheable(cacheResolver = "generalRepositoryCacheResolver", condition = "@cacheEnabledConfig.getEnabled()")
     BaseMeta fetchMetaClinicalData(List<String> studyIds, List<String> ids, List<String> attributeIds,

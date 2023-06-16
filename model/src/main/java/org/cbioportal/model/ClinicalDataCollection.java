@@ -5,9 +5,16 @@ import java.util.List;
 
 public class ClinicalDataCollection {
 
+    /**
+     * Paginated resource
+     */
     private List<ClinicalData> sampleClinicalData = new ArrayList<>();
-    private List<ClinicalData> patientClinicalData = new ArrayList<>();
 
+    /**
+     * Patient info associated with paginated samples
+     */
+    private List<ClinicalData> patientClinicalData = new ArrayList<>();
+    
     public List<ClinicalData> getSampleClinicalData() {
         return sampleClinicalData;
     }

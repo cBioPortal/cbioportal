@@ -1928,7 +1928,7 @@ class MutationsExtendedValidator(CustomDriverAnnotationValidator, CustomNamespac
 
             if variant_type == "SNP":
                 # Expect alleles to have length 2 when variant type is SNP
-                if not (len(ref_allele) == 1 and len(tumor_seq_allele1) == 1 and len(tumor_seq_allele1) == 1):
+                if not (len(ref_allele) == 1 and len(tumor_seq_allele1) == 1 and len(tumor_seq_allele2) == 1):
                     log_message = "Variant_Type indicates a SNP, but length of Reference_Allele, Tumor_Seq_Allele1 " \
                                   "and/or Tumor_Seq_Allele2 do not equal 1."
                     extra_dict = {'line_number': self.line_number,
@@ -1936,7 +1936,7 @@ class MutationsExtendedValidator(CustomDriverAnnotationValidator, CustomNamespac
                     self.send_log_message(self.strict_maf_checks, log_message, extra_dict)
             if variant_type == "DNP":
                 # Expect alleles to have length 2 when variant type is DNP
-                if not (len(ref_allele) == 2 and len(tumor_seq_allele1) == 2 and len(tumor_seq_allele1) == 2):
+                if not (len(ref_allele) == 2 and len(tumor_seq_allele1) == 2 and len(tumor_seq_allele2) == 2):
                     log_message = "Variant_Type indicates a DNP, but length of Reference_Allele, Tumor_Seq_Allele1 " \
                                   "and/or Tumor_Seq_Allele2 do not equal 2."
                     extra_dict = {'line_number': self.line_number,
@@ -1944,7 +1944,7 @@ class MutationsExtendedValidator(CustomDriverAnnotationValidator, CustomNamespac
                     self.send_log_message(self.strict_maf_checks, log_message, extra_dict)
             if variant_type == "TNP":
                 # Expect alleles to have length 3 when variant type is TNP
-                if not (len(ref_allele) == 3 and len(tumor_seq_allele1) == 3 and len(tumor_seq_allele1) == 3):
+                if not (len(ref_allele) == 3 and len(tumor_seq_allele1) == 3 and len(tumor_seq_allele2) == 3):
                     log_message = "Variant_Type indicates a TNP, but length of Reference_Allele, Tumor_Seq_Allele1 " \
                                   "and/or Tumor_Seq_Allele2 do not equal 3."
                     extra_dict = {'line_number': self.line_number,

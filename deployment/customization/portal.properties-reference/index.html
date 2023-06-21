@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width,initial-scale=1">
-    <meta name="turbo-cache-control" content="no-cache" data-turbo-track="reload" data-track-token="3.0.3.740619662802">
+    <meta name="turbo-cache-control" content="no-cache" data-turbo-track="reload" data-track-token="3.0.3.740687022913">
 
     <!-- See retype.com -->
     <meta name="generator" content="Retype 3.0.3">
@@ -33,11 +33,11 @@
     <script>(function () { var el = document.documentElement, m = localStorage.getItem("doc_theme"), wm = window.matchMedia; if (m === "dark" || (!m && wm && wm("(prefers-color-scheme: dark)").matches)) { el.classList.add("dark") } else { el.classList.remove("dark") } })();</script>
 
     <link href="../../../images/cbio-logo.png" rel="icon" />
-    <link href="../../../resources/css/retype.css?v=3.0.3.740619662802" rel="stylesheet" />
+    <link href="../../../resources/css/retype.css?v=3.0.3.740687022913" rel="stylesheet" />
 
-    <script type="text/javascript" src="../../../resources/js/config.js?v=3.0.3.740619662802" data-turbo-eval="false" defer></script>
+    <script type="text/javascript" src="../../../resources/js/config.js?v=3.0.3.740687022913" data-turbo-eval="false" defer></script>
     <script type="text/javascript" src="../../../resources/js/retype.js?v=3.0.3" data-turbo-eval="false" defer></script>
-    <script id="lunr-js" type="text/javascript" src="../../../resources/js/lunr.js?v=3.0.3.740619662802" data-turbo-eval="false" defer></script>
+    <script id="lunr-js" type="text/javascript" src="../../../resources/js/lunr.js?v=3.0.3.740687022913" data-turbo-eval="false" defer></script>
     <link href="../../../resources/css/katex.css?v=3.0.3" rel="stylesheet" />
     <script id="katex-js" type="text/javascript" src="../../../resources/js/katex.js?v=3.0.3" defer></script>
 
@@ -414,6 +414,16 @@ skin.right_nav.show_twitter=</code></pre>
 <p>If <em>show_unauthorized_studies</em> feature has been enabled, a message (template) can be defined by the property below that informs the user of insufficient permissions. This message will appear inside a tooltip when hovering the lock icon next to the study name on the Study Selection page. This message may contain placeholders for study-specific information derived from <a href="../../../file-formats/#study-tags-file">study tags data</a>. The information in the study tags JSON file can be accessed using Json Path placeholders. For example <code v-pre>{$.Owner.email}</code> points to member <code v-pre>{Owner: {email: &quot;me@myself.org&quot;}}</code>. For the studies that don&#x27;t have this information available in the study tags, the default message &quot;The study is unauthorized. You need to request access.&quot; will be displayed. In addition to the study tags information, the cancer study identifier can be included in the message using {<span class="math">.studyId} placeholder (does not have to be present in study tags file). For example: skin.home\_page.unauthorized\_studies\_global\_message=You do not have access to this study. You can request access with {</span>.Owner.email} (please mention the &#x27;{$.studyId}&#x27; study identifier).</p>
 <div class="codeblock-wrapper"><doc-codeblock>
 <pre class="language-none"><code v-pre class="language-none">skin.home_page.unauthorized_studies_global_message=</code></pre>
+</doc-codeblock></div>
+<doc-anchor-target id="show-badge-with-reference-genome">
+    <h3>
+        <doc-anchor-trigger class="header-anchor-trigger" to="#show-badge-with-reference-genome">#</doc-anchor-trigger>
+        <span>Show badge with reference genome</span>
+    </h3>
+</doc-anchor-target>
+<p>In instances with hg19 and hg38 studies you can show the reference genome in the home page next to the number of samples. This can be done setting this property to <code v-pre>true</code> (<code v-pre>false</code> by default):</p>
+<div class="codeblock-wrapper"><doc-codeblock>
+<pre class="language-none"><code v-pre class="language-none">skin.home_page.show_reference_genome=</code></pre>
 </doc-codeblock></div>
 <doc-anchor-target id="control-the-appearance-of-the-settings-menu-in-study-view-and-group-comparison-that-controls-custom-annotation-based-filtering">
     <h3>

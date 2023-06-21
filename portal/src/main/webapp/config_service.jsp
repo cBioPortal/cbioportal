@@ -147,7 +147,8 @@
             "skin.patient_view.structural_variant_table.columns.show_on_init",
             "comparison.categorical_na_values",
             "skin.hide_download_controls",
-            "study_download_url"
+            "study_download_url",
+            "skin.home_page.show_reference_genome"
         };
 
 

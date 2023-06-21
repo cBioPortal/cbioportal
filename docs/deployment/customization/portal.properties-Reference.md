@@ -167,6 +167,13 @@ If _show\_unauthorized\_studies_ feature has been enabled, a message (template) 
 skin.home_page.unauthorized_studies_global_message=
 ```
 
+### Show badge with reference genome
+In instances with hg19 and hg38 studies you can show the reference genome in the home page next to the number of samples. This can be done setting this property to `true` (`false` by default):
+
+```
+skin.home_page.show_reference_genome=
+```
+
 ### Control the appearance of the settings menu in study view and group comparison that controls custom annotation-based filtering
 
 A settings menu that allows the user to filter alterations in study view and group comparison may be used when [custom driver annotations](/File-Formats.md#custom-driver-annotations) were loaded for the study or studies displayed in these sections. This menu will only appear, when setting the property _skin.show\_settings\_menu_ to _true_.

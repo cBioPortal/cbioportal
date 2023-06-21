@@ -104,6 +104,8 @@ skin.study_view.link_text=To build your own case set, try out our enhanced Study
 # skin.home_page.show_unauthorized_studies=false
 ## enable this to configure a global message for the studies that are unauthorized; the message can contain placecards like {$.Owner.email} for the studies that have the information in the study tags 
 # skin.home_page.unauthorized_studies_global_message=The study is unauthorized. You need to request access.
+## enable this to show reference genome next to the samples
+# skin.home_page.show_reference_genome=false
 
 setting controlling whether Download tabs and download/copy-to-clipboard controls should be shown
 # skin.hide_download_controls=true

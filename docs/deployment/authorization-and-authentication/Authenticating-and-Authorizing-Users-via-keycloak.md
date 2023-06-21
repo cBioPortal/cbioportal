@@ -69,10 +69,32 @@ particular cBioPortal instance are listed in assertions sent to the
 instance, and not any other roles tracked in Keycloak.
 
 ### Export configuration for cBioPortal
+
+There are two known ways to download the keycloak configuration (aka IDP SSO Descriptor) file for cBioPortal.
+
+#### I. Download via link
+
+The file can be fetched by the following url:
+
+```
+http(s)://{KEYCLOAK-URL}/auth/realms/{REALM-NAME}/protocol/saml/descriptor
+```
+
+For example:
+
+```
+curl -o client-tailored-saml-idp-metadata.xml "http://localhost:8081/auth/realms/cbioportal/protocol/saml/descriptor"
+```
+
+**Note:** if you use https protocol with self-signed protocol you need to add `--insecure` option to the above curl command.
+
+#### II. Export via GUI (legacy)
 1. Next, navigate to the **Installation** tab for the same client.
 2. Select _SAML Metadata IDPSSODescriptor_ as the Format Option and click the **Download** button.
-4. Move the downloaded XML file to `portal/src/main/resources/` if you're compiling cBioPortal yourself or if you're using the Docker container, mount the file in the `/cbioportal-webapp` folder with `-v /path/to/client-tailored-saml-idp-metadata.xml:/cbioportal-webapp/WEB-INF/classes/client-tailored-saml-idp-metadata.xml`.
+**Note:** This GUI option removed from the newer versions of keycloak.
 ![](/images/previews/download-IDPSSODescriptor-file.png)
+
+After you've downloaded the XML file with one of the above ways, move it to `portal/src/main/resources/` if you're compiling cBioPortal yourself or if you're using the Docker container, mount the file in the `/cbioportal-webapp` folder with `-v /path/to/client-tailored-saml-idp-metadata.xml:/cbioportal-webapp/WEB-INF/classes/client-tailored-saml-idp-metadata.xml`.
 
 ## Create a signing key for cBioPortal
 
@@ -207,6 +229,8 @@ Role** button. Enter a name (e.g.  `brca_tcga_pub`) and description
 for the role and hit the **Save** button.
 
 ![](/images/previews/add-role-for-study.png)
+
+**Note:** if `filter_groups_by_appname` is set to `false` as specified above, the `Role Name` has to match with an id of the study you would give access to by assigning this role. Otherwise, if `filter_groups_by_appname` is set to `true` (**DEFAULT**), you have to add the application name (`app.name`) followed by the colon as a prefix to the study id. e.g. `cbioportal:brca_tcga_pub`
 
 #### Groups
 
@@ -347,26 +371,11 @@ More information on configuration of the cBioPortal backend can be found in [Aut
 #### Logging
 
 Getting this to work requires many steps, and can be a bit tricky.  If you get stuck or get an obscure error message, your best bet is to turn on all DEBUG logging.
-This can be done via `src/main/resources/logback.xml`.  For example:
-
-```
-<root level="debug">
-    <appender-ref ref="STDOUT" />
-    <appender-ref ref="FILE" />
-</root>
-
-<logger name="org.mskcc" level="debug">
-    <appender-ref ref="STDOUT" />
-    <appender-ref ref="FILE" />
-</logger>
-
-<logger name="org.cbioportal.security" level="debug">
-    <appender-ref ref="STDOUT" />
-    <appender-ref ref="FILE" />
-</logger>
-```
+This can be done via `src/main/resources/logback.xml`. See [logback.DEBUG.EXAMPLE.xml](./logback.DEBUG.EXAMPLE.xml) file for an example of how to configure debug levels for cbioportal.
 
 Then, rebuild the WAR, redeploy, and try to authenticate again.  Your log file will then include hundreds of SAML-specific messages, even the full XML of each SAML message, and this should help you debug the error.
+
+if you're using the Docker container, mount the file instead with `-v ./logback.xml:/cbioportal-webapp/WEB-INF/classes/logback.xml`.
 
 #### Determining jwtRolesPath for OAuth2 Token
 By default user-roles are extracted from path `resource_access::cbioportal::roles` in the JWT json. Changes to the configuration of roles at the realm and client level in Keycloak instance can alter this path and must be set acordingly with the `dat.oauth2.jwtRolesPath` property in the `portal.properties` file. 

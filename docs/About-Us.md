@@ -61,7 +61,7 @@ The cBioPortal for Cancer Genomics was originally developed at [Memorial Sloan K
 
 ## Bilkent University
 * Ugur Dogrusoz
-* Yusuf Ziya Sengul
+* Yusuf Ziya Ozgul
 
 ## Alumni
 * Adam Abeshouse

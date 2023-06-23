@@ -91,7 +91,7 @@ curl -o client-tailored-saml-idp-metadata.xml "http://localhost:8081/auth/realms
 #### II. Export via GUI (legacy)
 1. Next, navigate to the **Installation** tab for the same client.
 2. Select _SAML Metadata IDPSSODescriptor_ as the Format Option and click the **Download** button.
-**Note:** This GUI option removed from the newer versions of keycloak.
+⚠️ This GUI option has been removed from the newer versions of Keycloak.
 ![](/images/previews/download-IDPSSODescriptor-file.png)
 
 After you've downloaded the XML file with one of the above ways, move it to `portal/src/main/resources/` if you're compiling cBioPortal yourself or if you're using the Docker container, mount the file in the `/cbioportal-webapp` folder with `-v /path/to/client-tailored-saml-idp-metadata.xml:/cbioportal-webapp/WEB-INF/classes/client-tailored-saml-idp-metadata.xml`.
@@ -375,7 +375,7 @@ This can be done via `src/main/resources/logback.xml`. See [logback.DEBUG.EXAMPL
 
 Then, rebuild the WAR, redeploy, and try to authenticate again.  Your log file will then include hundreds of SAML-specific messages, even the full XML of each SAML message, and this should help you debug the error.
 
-if you're using the Docker container, mount the file instead with `-v ./logback.xml:/cbioportal-webapp/WEB-INF/classes/logback.xml`.
+If you're using the Docker container, mount the file instead with `-v ./logback.xml:/cbioportal-webapp/WEB-INF/classes/logback.xml`.
 
 #### Determining jwtRolesPath for OAuth2 Token
 By default user-roles are extracted from path `resource_access::cbioportal::roles` in the JWT json. Changes to the configuration of roles at the realm and client level in Keycloak instance can alter this path and must be set acordingly with the `dat.oauth2.jwtRolesPath` property in the `portal.properties` file. 

@@ -9,7 +9,6 @@ import org.cbioportal.model.EnrichmentType;
 import org.cbioportal.model.MolecularProfileCaseIdentifier;
 import org.cbioportal.model.MutationCountByGene;
 import org.cbioportal.model.MutationEventType;
-import org.cbioportal.model.QueryElement;
 import org.cbioportal.model.util.Select;
 import org.cbioportal.service.AlterationCountService;
 import org.cbioportal.service.util.AlterationEnrichmentUtil;
@@ -71,7 +70,7 @@ public class AlterationEnrichmentServiceImplTest extends BaseServiceImplTest {
 
         //  return counts for each of the two groups 
         for (String molecularProfileId : groupMolecularProfileCaseSets.keySet()) {
-            Mockito.when(alterationCountService.getSampleAlterationCounts(
+            Mockito.when(alterationCountService.getSampleAlterationGeneCounts(
                 groupMolecularProfileCaseSets.get(molecularProfileId),
                 Select.all(), true, true, alterationFilter)
             ).thenReturn(alterationSampleCountByGeneList);

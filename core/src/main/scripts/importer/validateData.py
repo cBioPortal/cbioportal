@@ -3270,12 +3270,12 @@ class StructuralVariantValidator(CustomNamespacesValidator):
                     'No Entrez gene id or gene symbol provided for site 1 and site 2',
                     extra={'line_number': self.line_number})
         elif site1_gene is None and site2_gene is not None:
-            self.logger.warning(
+            self.logger.info(
                 'No Entrez gene id or gene symbol provided for site 1. '
                 'Assuming either the intragenic, deletion, duplication, translocation or inversion variant',
                 extra={'line_number': self.line_number})
         elif site2_gene is None and site1_gene is not None:
-            self.logger.warning(
+            self.logger.info(
                 'No Entrez gene id or gene symbol provided for site 2. '
                 'Assuming either the intragenic, deletion, duplication, translocation or inversion variant',
                 extra={'line_number': self.line_number})

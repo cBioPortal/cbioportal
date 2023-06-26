@@ -2,7 +2,6 @@ package org.cbioportal.service.impl;
 
 import org.apache.commons.math3.util.Pair;
 import org.cbioportal.model.*;
-import org.cbioportal.model.QueryElement;
 import org.cbioportal.model.util.Select;
 import org.cbioportal.persistence.AlterationRepository;
 import org.cbioportal.persistence.MolecularProfileRepository;
@@ -33,6 +32,8 @@ public class AlterationCountServiceImplTest extends BaseServiceImplTest {
     private AlterationEnrichmentUtil<AlterationCountByGene> alterationEnrichmentUtil;
     @Mock
     private AlterationEnrichmentUtil<CopyNumberCountByGene> alterationEnrichmentUtilCna;
+    @Mock
+    private AlterationEnrichmentUtil<AlterationCountByStructuralVariant> alterationEnrichmentUtilStructVar;
     @Spy
     @InjectMocks
     private MolecularProfileUtil molecularProfileUtil;
@@ -47,6 +48,7 @@ public class AlterationCountServiceImplTest extends BaseServiceImplTest {
     boolean includeMissingAlterationsFromGenePanel = false;
     List<AlterationCountByGene> expectedCountByGeneList;
     List<CopyNumberCountByGene> expectedCnaCountByGeneList;
+    List<AlterationCountByStructuralVariant> expectedStructuralVariantList;
     AlterationFilter alterationFilter = new AlterationFilter(
         mutationEventTypes,
         cnaEventTypes,
@@ -79,18 +81,26 @@ public class AlterationCountServiceImplTest extends BaseServiceImplTest {
         copyNumberCountByGene.setEntrezGeneId(ENTREZ_GENE_ID_1);
         copyNumberCountByGene.setAlteration(2);
         expectedCnaCountByGeneList = Arrays.asList(copyNumberCountByGene);
+
+        final AlterationCountByStructuralVariant alterationCountByStructuralVariant = new AlterationCountByStructuralVariant();
+        alterationCountByStructuralVariant.setGene1EntrezGeneId(ENTREZ_GENE_ID_1);
+        alterationCountByStructuralVariant.setGene2EntrezGeneId(ENTREZ_GENE_ID_2);
+        alterationCountByStructuralVariant.setGene1HugoGeneSymbol(HUGO_GENE_SYMBOL_1);
+        alterationCountByStructuralVariant.setGene2HugoGeneSymbol(HUGO_GENE_SYMBOL_2);
+        expectedStructuralVariantList = Arrays.asList(alterationCountByStructuralVariant);
+        
     }
     
     @Test
-    public void getSampleAlterationCounts() {
+    public void getSampleAlterationGeneCounts() {
 
         // this mock tests correct argument types
-        when(alterationRepository.getSampleAlterationCounts(
+        when(alterationRepository.getSampleAlterationGeneCounts(
             new HashSet<>(caseIdentifiers),
             entrezGeneIds,
             alterationFilter)).thenReturn(expectedCountByGeneList);
 
-        Pair<List<AlterationCountByGene>, Long> result = alterationCountService.getSampleAlterationCounts(
+        Pair<List<AlterationCountByGene>, Long> result = alterationCountService.getSampleAlterationGeneCounts(
             caseIdentifiers,
             entrezGeneIds,
             includeFrequency,
@@ -102,15 +112,15 @@ public class AlterationCountServiceImplTest extends BaseServiceImplTest {
     }
 
     @Test
-    public void getPatientAlterationCounts() {
+    public void getPatientAlterationGeneCounts() {
 
         // this mock tests correct argument types
-        when(alterationRepository.getPatientAlterationCounts(
-            caseIdentifiers,
+        when(alterationRepository.getPatientAlterationGeneCounts(
+            new HashSet<>(caseIdentifiers),
             entrezGeneIds,
             alterationFilter)).thenReturn(expectedCountByGeneList);
 
-        Pair<List<AlterationCountByGene>, Long> result = alterationCountService.getPatientAlterationCounts(
+        Pair<List<AlterationCountByGene>, Long> result = alterationCountService.getPatientAlterationGeneCounts(
             caseIdentifiers,
             entrezGeneIds,
             includeFrequency,
@@ -122,14 +132,14 @@ public class AlterationCountServiceImplTest extends BaseServiceImplTest {
     
 
     @Test
-    public void getSampleMutationCounts() {
+    public void getSampleMutationGeneCounts() {
         // this mock tests correct argument types
-        when(alterationRepository.getSampleAlterationCounts(
+        when(alterationRepository.getSampleAlterationGeneCounts(
             new HashSet<>(caseIdentifiers),
             entrezGeneIds,
             alterationFilter)).thenReturn(expectedCountByGeneList);
 
-        Pair<List<AlterationCountByGene>, Long> result = alterationCountService.getSampleMutationCounts(
+        Pair<List<AlterationCountByGene>, Long> result = alterationCountService.getSampleMutationGeneCounts(
             caseIdentifiers,
             entrezGeneIds,
             includeFrequency,
@@ -141,15 +151,15 @@ public class AlterationCountServiceImplTest extends BaseServiceImplTest {
     }
 
     @Test
-    public void getPatientMutationCounts() throws MolecularProfileNotFoundException {
+    public void getPatientMutationGeneCounts() throws MolecularProfileNotFoundException {
 
         // this mock tests correct argument types
-        when(alterationRepository.getPatientAlterationCounts(
-            caseIdentifiers,
+        when(alterationRepository.getPatientAlterationGeneCounts(
+            new HashSet<>(caseIdentifiers),
             entrezGeneIds,
             alterationFilter)).thenReturn(expectedCountByGeneList);
 
-        Pair<List<AlterationCountByGene>, Long> result = alterationCountService.getPatientMutationCounts(
+        Pair<List<AlterationCountByGene>, Long> result = alterationCountService.getPatientMutationGeneCounts(
             caseIdentifiers,
             entrezGeneIds,
             includeFrequency,
@@ -161,15 +171,15 @@ public class AlterationCountServiceImplTest extends BaseServiceImplTest {
     }
 
     @Test
-    public void getSampleCnaCounts() {
+    public void getSampleCnaGeneCounts() {
 
         // this mock tests correct argument types
-        when(alterationRepository.getSampleCnaCounts(
+        when(alterationRepository.getSampleCnaGeneCounts(
             new TreeSet<>(caseIdentifiers),
             entrezGeneIds,
             alterationFilter)).thenReturn(expectedCnaCountByGeneList);
 
-        Pair<List<CopyNumberCountByGene>, Long> result = alterationCountService.getSampleCnaCounts(
+        Pair<List<CopyNumberCountByGene>, Long> result = alterationCountService.getSampleCnaGeneCounts(
             caseIdentifiers,
             entrezGeneIds,
             includeFrequency,
@@ -182,16 +192,16 @@ public class AlterationCountServiceImplTest extends BaseServiceImplTest {
     }
 
     @Test
-    public void getPatientCnaCounts() {
+    public void getPatientCnaGeneCounts() {
 
         // this mock tests correct argument types
-        when(alterationRepository.getPatientCnaCounts(
-            caseIdentifiers,
+        when(alterationRepository.getPatientCnaGeneCounts(
+            new HashSet<>(caseIdentifiers),
             entrezGeneIds,
             alterationFilter)).thenReturn(expectedCnaCountByGeneList);
 
 
-        Pair<List<CopyNumberCountByGene>, Long> result = alterationCountService.getPatientCnaCounts(
+        Pair<List<CopyNumberCountByGene>, Long> result = alterationCountService.getPatientCnaGeneCounts(
             caseIdentifiers,
             entrezGeneIds,
             includeFrequency,
@@ -200,5 +210,23 @@ public class AlterationCountServiceImplTest extends BaseServiceImplTest {
 
         verify(alterationEnrichmentUtilCna, times(1)).includeFrequencyForPatients(anyList(), anyList(), anyBoolean());
         Assert.assertEquals(expectedCnaCountByGeneList, result.getFirst());
+    }
+
+    @Test
+    public void getSampleStructuralVariantCounts() {
+
+        when(alterationRepository.getSampleStructuralVariantCounts(
+            new TreeSet<>(caseIdentifiers),
+            alterationFilter)).thenReturn(expectedStructuralVariantList);
+
+        Pair<List<AlterationCountByStructuralVariant>, Long> result = alterationCountService.getSampleStructuralVariantCounts(
+            caseIdentifiers,
+            includeFrequency,
+            includeMissingAlterationsFromGenePanel,
+            alterationFilter);
+
+        verify(alterationEnrichmentUtilStructVar, times(1)).includeFrequencyForSamples(anyList(), anyList(), anyBoolean());
+        Assert.assertEquals(expectedStructuralVariantList, result.getFirst());
+
     }
 }

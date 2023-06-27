@@ -99,9 +99,10 @@ public class StudyController {
         @RequestParam(required = false) StudySortBy sortBy,
         @ApiParam("Direction of the sort")
         @RequestParam(defaultValue = "ASC") Direction direction,
-        @ApiParam(hidden = true, required = false)
-        @RequestParam(required = false) Authentication authentication) {
-        
+        // adding @RequestParam causes error HTTP 400 error as by default required = true 
+        // if set to required = false causes unauthorized studies to be shown as authorized - see issue 10221
+        @ApiParam(hidden = true)
+        Authentication authentication) {
         // Only use this feature on the public portal and make sure it is never used
         // on portals using auth, as in auth setting, different users will have different
         // results.

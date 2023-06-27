@@ -80,7 +80,7 @@
     
     <!-- scan for mappers and let them be autowired -->
     <bean class="org.mybatis.spring.mapper.MapperScannerConfigurer">
-        <property name="basePackage" value="org.mskcc.cbio.portal.persistence,org.cbioportal.persistence.mybatis" />
+        <property name="basePackage" value="org.mskcc.cbio.portal.persistence,org.cbioportal.persistence.mybatis,org.cbioportal.persistence.mybatiscolumnstore" />
     </bean>
 
     <!-- enable component scanning (beware that this does not enable mapper scanning!) -->

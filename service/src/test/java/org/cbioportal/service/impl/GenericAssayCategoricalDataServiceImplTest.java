@@ -1,0 +1,194 @@
+package org.cbioportal.service.impl;
+
+import org.cbioportal.model.*;
+import org.cbioportal.model.meta.GenericAssayMeta;
+import org.cbioportal.persistence.MolecularDataRepository;
+import org.cbioportal.service.GeneService;
+import org.cbioportal.service.GenericAssayService;
+import org.cbioportal.service.MolecularProfileService;
+import org.cbioportal.service.SampleService;
+import org.cbioportal.service.exception.MolecularProfileNotFoundException;
+import org.cbioportal.service.util.ExpressionEnrichmentUtil;
+import org.junit.Assert;
+import org.junit.Before;
+import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.mockito.InjectMocks;
+import org.mockito.Mock;
+import org.mockito.Mockito;
+import org.mockito.Spy;
+import org.mockito.junit.MockitoJUnitRunner;
+
+import java.math.BigDecimal;
+import java.util.*;
+
+@RunWith(MockitoJUnitRunner.class)
+public class GenericAssayCategoricalDataServiceImplTest extends BaseServiceImplTest{
+    @InjectMocks
+    private ExpressionEnrichmentServiceImpl enrichmentServiceImpl;
+    @InjectMocks
+    private GenericAssayCategoricalDataServiceImpl genericAssayCategoricalDataServiceImpl;
+    @Mock
+    private SampleService sampleService;
+    @Mock
+    private MolecularProfileService molecularProfileService;
+    @Mock
+    private MolecularDataRepository molecularDataRepository;
+    @Mock
+    private GeneService geneService;
+    @Spy
+    @InjectMocks
+    private ExpressionEnrichmentUtil expressionEnrichmentUtil;
+    @Mock
+    private GenericAssayService genericAssayService;
+
+    CancerStudy cancerStudy = new CancerStudy();
+    MolecularProfile geneMolecularProfile = new MolecularProfile();
+    MolecularProfileSamples molecularProfileSamples = new MolecularProfileSamples();
+    List<Sample> samples = new ArrayList<>();
+    Map<String, List<MolecularProfileCaseIdentifier>> molecularProfileCaseSets = new HashMap<>();
+    Map<String, List<MolecularProfileCaseIdentifier>> molecularProfilePatientLevelCaseSets = new HashMap<>();
+    // patient level only data
+    public static final String SAMPLE_ID5 = "sample_id5";
+
+
+    @Before
+    public void setup() throws MolecularProfileNotFoundException {
+        cancerStudy.setReferenceGenome(ReferenceGenome.HOMO_SAPIENS_DEFAULT_GENOME_NAME);
+        cancerStudy.setCancerStudyIdentifier(STUDY_ID);
+
+        geneMolecularProfile.setCancerStudyIdentifier(STUDY_ID);
+        geneMolecularProfile.setStableId(MOLECULAR_PROFILE_ID);
+
+        geneMolecularProfile.setCancerStudy(cancerStudy);
+
+        molecularProfileSamples.setMolecularProfileId(MOLECULAR_PROFILE_ID);
+        molecularProfileSamples.setCommaSeparatedSampleIds("1,2,3,4");
+
+        Sample sample1 = new Sample();
+        sample1.setStableId(SAMPLE_ID1);
+        sample1.setInternalId(1);
+        sample1.setCancerStudyIdentifier(STUDY_ID);
+        sample1.setPatientId(1);
+        samples.add(sample1);
+        Sample sample2 = new Sample();
+        sample2.setStableId(SAMPLE_ID2);
+        sample2.setInternalId(2);
+        sample2.setCancerStudyIdentifier(STUDY_ID);
+        sample2.setPatientId(2);
+        samples.add(sample2);
+        Sample sample3 = new Sample();
+        sample3.setStableId(SAMPLE_ID3);
+        sample3.setInternalId(3);
+        sample3.setCancerStudyIdentifier(STUDY_ID);
+        sample3.setPatientId(3);
+        samples.add(sample3);
+        Sample sample4 = new Sample();
+        sample4.setStableId(SAMPLE_ID4);
+        sample4.setInternalId(4);
+        sample4.setCancerStudyIdentifier(STUDY_ID);
+        sample4.setPatientId(4);
+        samples.add(sample4);
+
+        List<MolecularProfileCaseIdentifier> alteredSampleIdentifieres = new ArrayList<>();
+        List<MolecularProfileCaseIdentifier> unalteredSampleIdentifieres = new ArrayList<>();
+        List<MolecularProfileCaseIdentifier> unalteredPatientLevelSampleIdentifieres = new ArrayList<>();
+
+        MolecularProfileCaseIdentifier caseIdentifier1 = new MolecularProfileCaseIdentifier();
+        caseIdentifier1.setMolecularProfileId(MOLECULAR_PROFILE_ID);
+        caseIdentifier1.setCaseId(SAMPLE_ID1);
+        alteredSampleIdentifieres.add(caseIdentifier1);
+
+        MolecularProfileCaseIdentifier caseIdentifier2 = new MolecularProfileCaseIdentifier();
+        caseIdentifier2.setMolecularProfileId(MOLECULAR_PROFILE_ID);
+        caseIdentifier2.setCaseId(SAMPLE_ID2);
+        alteredSampleIdentifieres.add(caseIdentifier2);
+
+        MolecularProfileCaseIdentifier caseIdentifier3 = new MolecularProfileCaseIdentifier();
+        caseIdentifier3.setMolecularProfileId(MOLECULAR_PROFILE_ID);
+        caseIdentifier3.setCaseId(SAMPLE_ID3);
+        unalteredSampleIdentifieres.add(caseIdentifier3);
+        unalteredPatientLevelSampleIdentifieres.add(caseIdentifier3);
+
+        MolecularProfileCaseIdentifier caseIdentifier4 = new MolecularProfileCaseIdentifier();
+        caseIdentifier4.setMolecularProfileId(MOLECULAR_PROFILE_ID);
+        caseIdentifier4.setCaseId(SAMPLE_ID4);
+        unalteredSampleIdentifieres.add(caseIdentifier4);
+        unalteredPatientLevelSampleIdentifieres.add(caseIdentifier4);
+
+        // patient level only data
+        MolecularProfileCaseIdentifier caseIdentifier5 = new MolecularProfileCaseIdentifier();
+        caseIdentifier5.setMolecularProfileId(MOLECULAR_PROFILE_ID);
+        caseIdentifier5.setCaseId(SAMPLE_ID5);
+        unalteredPatientLevelSampleIdentifieres.add(caseIdentifier5);
+
+        molecularProfileCaseSets.put("altered samples", alteredSampleIdentifieres);
+        molecularProfileCaseSets.put("unaltered samples", unalteredSampleIdentifieres);
+        molecularProfilePatientLevelCaseSets.put("altered samples", alteredSampleIdentifieres);
+        molecularProfilePatientLevelCaseSets.put("unaltered samples", unalteredPatientLevelSampleIdentifieres);
+
+        Mockito.when(molecularProfileService.getMolecularProfile(MOLECULAR_PROFILE_ID))
+            .thenReturn(geneMolecularProfile);
+
+        Mockito.when(molecularDataRepository.getCommaSeparatedSampleIdsOfMolecularProfile(MOLECULAR_PROFILE_ID))
+            .thenReturn(molecularProfileSamples);
+
+        Mockito.when(sampleService.fetchSamples(Arrays.asList(STUDY_ID, STUDY_ID, STUDY_ID, STUDY_ID),
+            Arrays.asList(SAMPLE_ID3, SAMPLE_ID4, SAMPLE_ID1, SAMPLE_ID2), "ID")).thenReturn(samples);
+    }
+
+    @Test
+    public void getGenericAssayCategoricalEnrichments() throws MolecularProfileNotFoundException {
+        geneMolecularProfile.setMolecularAlterationType(MolecularProfile.MolecularAlterationType.GENERIC_ASSAY);
+
+        List<GenericAssayMolecularAlteration> molecularDataList = new ArrayList<GenericAssayMolecularAlteration>();
+        GenericAssayMolecularAlteration genericAssayMolecularAlteration1 = new GenericAssayMolecularAlteration();
+        genericAssayMolecularAlteration1.setGenericAssayStableId(HUGO_GENE_SYMBOL_1);
+        genericAssayMolecularAlteration1.setValues("category1,category1,category2,category2");
+        molecularDataList.add(genericAssayMolecularAlteration1);
+
+        GenericAssayMolecularAlteration genericAssayMolecularAlteration2 = new GenericAssayMolecularAlteration();
+        genericAssayMolecularAlteration2.setGenericAssayStableId(HUGO_GENE_SYMBOL_2); 
+        genericAssayMolecularAlteration2.setValues("category2,category2,category1,category1");
+        molecularDataList.add(genericAssayMolecularAlteration2);
+        Mockito.when(molecularDataRepository.getGenericAssayMolecularAlterationsIterable(MOLECULAR_PROFILE_ID, null,
+            "SUMMARY")).thenReturn(molecularDataList);
+
+        Mockito.when(genericAssayService.getGenericAssayMetaByStableIdsAndMolecularIds(
+                Arrays.asList(HUGO_GENE_SYMBOL_1, HUGO_GENE_SYMBOL_2),
+                Arrays.asList(MOLECULAR_PROFILE_ID, MOLECULAR_PROFILE_ID), "SUMMARY"))
+            .thenReturn(Arrays.asList(new GenericAssayMeta(HUGO_GENE_SYMBOL_1),
+                new GenericAssayMeta(HUGO_GENE_SYMBOL_2)));
+
+        List<GenericAssayCategoricalEnrichment> result = genericAssayCategoricalDataServiceImpl.getGenericAssayCategoricalEnrichments(MOLECULAR_PROFILE_ID,
+            molecularProfileCaseSets, EnrichmentType.SAMPLE);
+
+        Assert.assertEquals(2, result.size());
+        GenericAssayCategoricalEnrichment genericAssayCategoricalEnrichment = result.get(0);
+        Assert.assertEquals(HUGO_GENE_SYMBOL_1, genericAssayCategoricalEnrichment.getStableId());
+        Assert.assertEquals(2, genericAssayCategoricalEnrichment.getGroupsStatistics().size());
+
+        GroupStatistics unalteredGroupStats = genericAssayCategoricalEnrichment.getGroupsStatistics().get(0);
+        Assert.assertEquals("unaltered samples", unalteredGroupStats.getName());
+
+        GroupStatistics alteredGroupStats = genericAssayCategoricalEnrichment.getGroupsStatistics().get(1);
+        Assert.assertEquals("altered samples", alteredGroupStats.getName());
+
+        Assert.assertEquals(new BigDecimal("0.31731050786291115"), genericAssayCategoricalEnrichment.getpValue());
+        Assert.assertEquals(new BigDecimal("0.31731050786291115"), genericAssayCategoricalEnrichment.getqValue());
+
+        genericAssayCategoricalEnrichment = result.get(1);
+        Assert.assertEquals(HUGO_GENE_SYMBOL_2, genericAssayCategoricalEnrichment.getStableId());
+        Assert.assertEquals(2, genericAssayCategoricalEnrichment.getGroupsStatistics().size());
+
+        unalteredGroupStats = genericAssayCategoricalEnrichment.getGroupsStatistics().get(0);
+        Assert.assertEquals("unaltered samples", unalteredGroupStats.getName());
+
+        alteredGroupStats = genericAssayCategoricalEnrichment.getGroupsStatistics().get(1);
+        Assert.assertEquals("altered samples", alteredGroupStats.getName());
+
+        Assert.assertEquals(new BigDecimal("0.31731050786291115"), genericAssayCategoricalEnrichment.getpValue());
+        Assert.assertEquals(new BigDecimal("0.31731050786291115"), genericAssayCategoricalEnrichment.getqValue());
+    }
+
+}

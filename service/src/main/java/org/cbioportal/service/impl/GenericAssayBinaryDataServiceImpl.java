@@ -14,18 +14,8 @@ import org.cbioportal.service.util.FisherExactTestCalculator;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-
 import java.math.BigDecimal;
-import java.util.List;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.Comparator;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Set;
-import java.util.Map;
+import java.util.*;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
@@ -43,6 +33,7 @@ public class GenericAssayBinaryDataServiceImpl implements GenericAssayBinaryData
 
     @Autowired
     private FisherExactTestCalculator fisherExactTestCalculator = new FisherExactTestCalculator();
+
 
     @Autowired
     private ExpressionEnrichmentUtil expressionEnrichmentUtil;

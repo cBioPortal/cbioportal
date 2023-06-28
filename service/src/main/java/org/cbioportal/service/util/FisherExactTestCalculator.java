@@ -2,6 +2,8 @@ package org.cbioportal.service.util;
 
 import org.springframework.stereotype.Component;
 
+import java.math.BigDecimal;
+
 @Component
 public class FisherExactTestCalculator {
 
@@ -39,5 +41,38 @@ public class FisherExactTestCalculator {
             }
         }
         return p;
+    }
+
+    public BigDecimal[] calcqValue(BigDecimal[] pValuesInIncreasingOrder) {
+        BigDecimal cachedElement = BigDecimal.valueOf(0.0);
+        int dataLength = pValuesInIncreasingOrder.length;
+        BigDecimal[]  reversedQValues = new BigDecimal[dataLength];
+
+        reverseValues(dataLength, pValuesInIncreasingOrder);
+
+        for (int i = 0; i < dataLength; i++) {
+            if (i > 0) {
+                BigDecimal calculatedValue = cachedElement.min(
+                    (pValuesInIncreasingOrder[i].multiply(new BigDecimal(dataLength))).divide(new BigDecimal(dataLength - i))
+                );
+                cachedElement = calculatedValue;
+                reversedQValues[i] = calculatedValue;
+            } else {
+                cachedElement = pValuesInIncreasingOrder[i];
+                reversedQValues[i] = pValuesInIncreasingOrder[i];
+            }
+        }
+
+        reverseValues(dataLength, reversedQValues);
+
+        return reversedQValues;
+    }
+
+    private void reverseValues(int dataLength, BigDecimal[]  reversedQValues) {
+        for (int i = 0; i < dataLength / 2; i++) {
+            BigDecimal temp = reversedQValues[i];
+            reversedQValues[i] = reversedQValues[dataLength - i - 1];
+            reversedQValues[dataLength - i - 1] = temp;
+        }
     }
 }

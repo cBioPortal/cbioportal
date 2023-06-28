@@ -29,7 +29,7 @@ import java.util.List;
 @RestController
 @Validated
 @Api(tags = "Study View Column Store")
-public class StudyViewControllerColumnStore {
+public class StudyViewColumnStoreController {
 
     @Autowired
     private StudyViewService studyViewService;

@@ -88,7 +88,7 @@ public class FisherExactTestCalculator {
             }
         }
         return p;
-    } 
+    }
     public BigDecimal[] calcqValue(BigDecimal[] pValuesInIncreasingOrder) {
         BigDecimal cachedElement = BigDecimal.valueOf(0.0);
         int dataLength = pValuesInIncreasingOrder.length;
@@ -120,6 +120,5 @@ public class FisherExactTestCalculator {
             reversedQValues[i] = reversedQValues[dataLength - i - 1];
             reversedQValues[dataLength - i - 1] = temp;
         }
-
     }
 }

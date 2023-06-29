@@ -23,6 +23,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -98,11 +99,10 @@ public class StudyController {
         @ApiParam("Name of the property that the result list is sorted by")
         @RequestParam(required = false) StudySortBy sortBy,
         @ApiParam("Direction of the sort")
-        @RequestParam(defaultValue = "ASC") Direction direction,
-        // adding @RequestParam causes error HTTP 400 error as by default required = true 
-        // if set to required = false causes unauthorized studies to be shown as authorized - see issue 10221
-        @ApiParam(hidden = true)
-        Authentication authentication) {
+        @RequestParam(defaultValue = "ASC") Direction direction
+    ) {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        
         // Only use this feature on the public portal and make sure it is never used
         // on portals using auth, as in auth setting, different users will have different
         // results.

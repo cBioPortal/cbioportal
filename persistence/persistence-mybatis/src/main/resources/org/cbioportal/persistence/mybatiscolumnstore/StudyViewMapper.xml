@@ -39,31 +39,31 @@
     <!-- This block represents the Study View Filter -->
     <sql id="sampleUniqueIdsFromStudyViewFilter">
         <trim prefixOverrides="INTERSECT">
-            <if test="studyIds != null and !studyIds.isEmpty()">
+            <if test="studyViewFilter.studyIds != null and !studyViewFilter.studyIds.isEmpty()">
                 INTERSECT
                 SELECT sample_unique_id
                 FROM sample
                 WHERE cancer_study_identifier IN
-                <foreach item="studyId" collection="studyIds" open="(" separator="," close=")">
+                <foreach item="studyId" collection="studyViewFilter.studyIds" open="(" separator="," close=")">
                     #{studyId}
                 </foreach>
             </if>
-            <if test="sampleIdentifiers != null and !sampleIdentifiers.isEmpty()">
+            <if test="studyViewFilter.sampleIdentifiers != null and !studyViewFilter.sampleIdentifiers.isEmpty()">
                 INTERSECT
                 SELECT sample_unique_id
                 FROM sample
                 WHERE sample_unique_id IN
-                <foreach item="sampleIdentifier" collection="sampleIdentifiers" open="(" separator="," close=")">
+                <foreach item="sampleIdentifier" collection="studyViewFilter.sampleIdentifiers" open="(" separator="," close=")">
                     #{sampleIdentifier.getStudyId()}_#{sampleIdentifier.getSampleId()}
                 </foreach>
             </if>
-            <if test="geneFilters != null and !geneFilters.isEmpty()">
+            <if test="studyViewFilter.geneFilters != null and !geneFilters.isEmpty()">
                 INTERSECT
                 SELECT sample_unique_id
                 FROM genomic_event
                 <where>
                     <trim prefixOverrides="OR">
-                        <foreach item="profileGroup" collection="geneFilters" open="OR (" separator="," close=")">
+                        <foreach item="profileGroup" collection="studyViewFilter.geneFilters" open="OR (" separator="," close=")">
                             genetic_profile_stable_id IN
                             <foreach item="molecularProfileId" collection="profileGroup.getMolecularProfileIds()" open="(" separator="," close=")">
                                 #{molecularProfileId}
@@ -104,8 +104,8 @@
                     </trim>
                  )
             </if>  -->
-             <if test="clinicalDataFilters != null and !clinicalDataFilters.isEmpty()">
-                <foreach item="clinicalDataFilter" collection="clinicalDataFilters" open="INTERSECT" separator="INTERSECT">
+            <if test="categorizedClinicalDataCountFilter.getSampleNumericalClinicalDataFilters() != null and !categorizedClinicalDataCountFilter.getSampleNumericalClinicalDataFilters().isEmpty()">
+                <foreach item="clinicalDataFilter" collection="categorizedClinicalDataCountFilter.getSampleNumericalClinicalDataFilters()" open="INTERSECT" separator="INTERSECT">
                     SELECT sample_unique_id
                     FROM sample_clinical_attribute_numeric
                     WHERE attribute_name = '${clinicalDataFilter.attributeId}'
@@ -114,18 +114,30 @@
                             <if test="dataFilterValue.value eq 'NA'">
                                 AND attribute_value = -1000000
                             </if>
-                            <if test="dataFilterValue.start != null">
-                                AND attribute_value &gt; ${dataFilterValue.start}
-                            </if>
-                            <if test="dataFilterValue.end != null">
-                                AND attribute_value &lt;= ${dataFilterValue.end}
-                            </if>
+                            <choose>
+                                <when test="dataFilterValue.start == dataFilterValue.end">
+                                    AND ABS(attribute_value - ${dataFilterValue.start}) &lt; EXP(-11) 
+                                </when>
+                                <otherwise>
+                                    <if test="dataFilterValue.start != null">
+                                        AND attribute_value &gt; ${dataFilterValue.start}
+                                    </if>
+                                    <if test="dataFilterValue.end != null">
+                                        AND attribute_value &lt;= ${dataFilterValue.end}
+                                    </if>
+                                </otherwise>
+                            </choose>
                         </trim>
                     </foreach>
-                </foreach>                
+                </foreach>
             </if>
             <!-- ... extend for other elements of the StudyViewFilter object -->
         </trim>
     </sql>
 
+    <select id="getClinicalAttributeNames" resultType="String">
+        SELECT
+        DISTINCT(attribute_name)
+        FROM ${tableName};
+    </select>
 </mapper>

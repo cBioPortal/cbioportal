@@ -2,6 +2,9 @@ package org.cbioportal.persistence.mybatiscolumnstore;
 
 import org.cbioportal.model.AlterationCountByGene;
 import org.cbioportal.model.Sample;
+import org.cbioportal.persistence.enums.ClinicalAttributeDataSource;
+import org.cbioportal.persistence.enums.ClinicalAttributeDataType;
+import org.cbioportal.webparam.CategorizedClinicalDataCountFilter;
 import org.cbioportal.webparam.ClinicalDataFilter;
 import org.cbioportal.webparam.DataFilterValue;
 import org.cbioportal.webparam.StudyViewFilter;
@@ -14,9 +17,12 @@ import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
 import java.math.BigDecimal;
-import java.util.*;
+import java.util.Arrays;
+import java.util.Collections;
 import java.util.function.Function;
 import java.util.stream.Collectors;
+import java.util.ArrayList;
+import java.util.List;
 
 @RunWith(SpringJUnit4ClassRunner.class)
 @ContextConfiguration("/testContextDatabaseClickhouse.xml")
@@ -31,7 +37,7 @@ public class StudyViewMyBatisRepositoryTest {
         StudyViewFilter studyViewFilter = generateStudyViewFilter(new String[]{"msk_ch_2020", "msk_impact_2017"}, null);
         
         // test total number of samples
-        List<Sample> samples = studyViewMyBatisRepository.getFilteredSamplesFromColumnstore(studyViewFilter);
+        List<Sample> samples = studyViewMyBatisRepository.getFilteredSamplesFromColumnstore(studyViewFilter, CategorizedClinicalDataCountFilter.getBuilder().build());
         Assert.assertEquals(11, samples.size());
         
         // test sample numerical clinical attributes
@@ -42,7 +48,7 @@ public class StudyViewMyBatisRepositoryTest {
             )
         );
 
-        samples = studyViewMyBatisRepository.getFilteredSamplesFromColumnstore(studyViewFilter);
+        samples = studyViewMyBatisRepository.getFilteredSamplesFromColumnstore(studyViewFilter, CategorizedClinicalDataCountFilter.getBuilder().build());
         Assert.assertEquals(2, samples.size());
     }
 
@@ -50,10 +56,9 @@ public class StudyViewMyBatisRepositoryTest {
     public void getMutatedGenes() {
         StudyViewFilter studyViewFilter = generateStudyViewFilter(new String[]{"msk_ch_2020"}, null);
 
-        List<AlterationCountByGene> mutations = studyViewMyBatisRepository.getMutatedGenes(studyViewFilter);
+        List<AlterationCountByGene> mutations = studyViewMyBatisRepository.getMutatedGenes(studyViewFilter, CategorizedClinicalDataCountFilter.getBuilder().build());
         Assert.assertEquals(2, mutations.size());
     }
-
     
     private StudyViewFilter generateStudyViewFilter(
         String[] studyIds,
@@ -101,4 +106,32 @@ public class StudyViewMyBatisRepositoryTest {
         
         return dataFilterValue;
     };
+    @Test
+    public void getClinicalAttributeNames() {
+        List<String> names = studyViewMyBatisRepository.getClinicalDataAttributeNames(ClinicalAttributeDataSource.PATIENT, ClinicalAttributeDataType.CATEGORICAL);
+        Assert.assertTrue(names.size() > 0);
+        Assert.assertTrue(names.contains("OS_STATUS"));
+    }
+    
+    @Test
+    public void getFilterSamplesWithClinicalDataFilter() {
+        ClinicalDataFilter clinicalDataFilter = new ClinicalDataFilter();
+        clinicalDataFilter.setAttributeId("TMB_NONSYNONYMOUS");
+        DataFilterValue filterValue = new DataFilterValue();
+        filterValue.setStart(BigDecimal.valueOf(0.033333333));
+        filterValue.setEnd(BigDecimal.valueOf(0.033333333));
+        clinicalDataFilter.setValues(List.of(filterValue));
+        StudyViewFilter studyViewFilter = new StudyViewFilter();
+        CategorizedClinicalDataCountFilter categorizedClinicalDataCountFilter = CategorizedClinicalDataCountFilter.getBuilder()
+            .setSampleNumericalClinicalDataFilters(List.of(clinicalDataFilter))
+            .build();
+
+        List<String> studyIds = new ArrayList<>();
+        studyIds.add("msk_ch_2020");
+        studyViewFilter.setStudyIds(studyIds);
+        
+        List<ClinicalDataFilter> test = categorizedClinicalDataCountFilter.getSampleNumericalClinicalDataFilters();
+        List<Sample> samples = studyViewMyBatisRepository.getFilteredSamplesFromColumnstore(studyViewFilter, categorizedClinicalDataCountFilter);
+        Assert.assertEquals(4507, samples.size()); 
+    }
 }

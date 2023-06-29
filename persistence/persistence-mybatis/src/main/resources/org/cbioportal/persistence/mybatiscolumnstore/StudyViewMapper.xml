@@ -122,8 +122,7 @@
                             </if>
                         </trim>
                     </foreach>
-                </foreach>
-                )
+                </foreach>                
             </if>
             <!-- ... extend for other elements of the StudyViewFilter object -->
         </trim>

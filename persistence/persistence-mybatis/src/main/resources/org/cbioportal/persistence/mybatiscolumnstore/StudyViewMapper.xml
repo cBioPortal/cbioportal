@@ -78,32 +78,6 @@
                     </trim>
                 </where>
             </if>
-            <!-- <if test="clinicalDataFilters != null and !clinicalDataFilters.isEmpty()">
-                INTERSECT
-                SELECT sample_unique_id
-                FROM sample
-                WHERE patient_unique_id IN (
-                    SELECT patient_unique_id
-                    FROM patient_clinical_attribute_numeric
-                    WHERE
-                    <trim prefixOverrides="AND">
-                        <foreach item="clinicalDataFilter" collection="clinicalDataFilters" open="(" separator=") AND (" close=")">
-                            <foreach item="dataFilterValue" collection="clinicalDataFilter.values" open="(" separator=") OR (" close=")">
-                                attribute_name = '${clinicalDataFilter.attributeId}'
-                                <if test="dataFilterValue.value eq 'NA'">
-                                    AND attribute_value = -1000000
-                                </if>
-                                <if test="dataFilterValue.start != null">
-                                    AND attribute_value &gt; ${dataFilterValue.start}
-                                </if>
-                                <if test="dataFilterValue.end != null">
-                                    AND attribute_value &lt;= ${dataFilterValue.end}
-                                </if>
-                            </foreach>
-                        </foreach>
-                    </trim>
-                 )
-            </if>  -->
             <if test="categorizedClinicalDataCountFilter.getSampleNumericalClinicalDataFilters() != null and !categorizedClinicalDataCountFilter.getSampleNumericalClinicalDataFilters().isEmpty()">
                 <foreach item="clinicalDataFilter" collection="categorizedClinicalDataCountFilter.getSampleNumericalClinicalDataFilters()" open="INTERSECT" separator="INTERSECT">
                     SELECT sample_unique_id
@@ -127,6 +101,57 @@
                                     </if>
                                 </otherwise>
                             </choose>
+                        </trim>
+                    </foreach>
+                </foreach>
+            </if>
+            <if test="categorizedClinicalDataCountFilter.getSampleCategoricalClinicalDataFilters() != null and !categorizedClinicalDataCountFilter.getSampleCategoricalClinicalDataFilters().isEmpty()">
+                <foreach item="clinicalDataFilter" collection="categorizedClinicalDataCountFilter.getSampleCategoricalClinicalDataFilters()" open="INTERSECT" separator="INTERSECT">
+                    SELECT sample_unique_id
+                    FROM sample_clinical_attribute_categorical
+                    WHERE attribute_name = '${clinicalDataFilter.attributeId}'
+                    <foreach item="dataFilterValue" collection="clinicalDataFilter.values" open=" AND ((" separator=") OR (" close="))">
+                        <trim prefix="" prefixOverrides="AND">
+                            AND attribute_value = '${dataFilterValue.value}'
+                        </trim>
+                    </foreach>
+                </foreach>
+            </if>
+            <if test="categorizedClinicalDataCountFilter.getPatientNumericalClinicalDataFilters() != null and !categorizedClinicalDataCountFilter.getPatientNumericalClinicalDataFilters().isEmpty()">
+                <foreach item="clinicalDataFilter" collection="categorizedClinicalDataCountFilter.getPatientNumericalClinicalDataFilters()" open="INTERSECT" separator="INTERSECT">
+                    SELECT sample_unique_id
+                    FROM patient_clinical_attribute_numeric
+                    WHERE attribute_name = '${clinicalDataFilter.attributeId}'
+                    <foreach item="dataFilterValue" collection="clinicalDataFilter.values" open=" AND ((" separator=") OR (" close="))">
+                        <trim prefix="" prefixOverrides="AND">
+                            <if test="dataFilterValue.value eq 'NA'">
+                                AND attribute_value = -1000000
+                            </if>
+                            <choose>
+                                <when test="dataFilterValue.start == dataFilterValue.end">
+                                    AND ABS(attribute_value - ${dataFilterValue.start}) &lt; EXP(-11)
+                                </when>
+                                <otherwise>
+                                    <if test="dataFilterValue.start != null">
+                                        AND attribute_value &gt; ${dataFilterValue.start}
+                                    </if>
+                                    <if test="dataFilterValue.end != null">
+                                        AND attribute_value &lt;= ${dataFilterValue.end}
+                                    </if>
+                                </otherwise>
+                            </choose>
+                        </trim>
+                    </foreach>
+                </foreach>
+            </if>
+            <if test="categorizedClinicalDataCountFilter.getPatientCategoricalClinicalDataFilters() != null and !categorizedClinicalDataCountFilter.getPatientCategoricalClinicalDataFilters().isEmpty()">
+                <foreach item="clinicalDataFilter" collection="categorizedClinicalDataCountFilter.getPatientCategoricalClinicalDataFilters()" open="INTERSECT" separator="INTERSECT">
+                    SELECT sample_unique_id
+                    FROM patient_clinical_attribute_categorical
+                    WHERE attribute_name = '${clinicalDataFilter.attributeId}'
+                    <foreach item="dataFilterValue" collection="clinicalDataFilter.values" open=" AND ((" separator=") OR (" close="))">
+                        <trim prefix="" prefixOverrides="AND">
+                            AND attribute_value = '${dataFilterValue.value}'
                         </trim>
                     </foreach>
                 </foreach>

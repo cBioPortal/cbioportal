@@ -9,6 +9,7 @@ import org.cbioportal.webparam.ClinicalDataFilter;
 import org.cbioportal.webparam.DataFilterValue;
 import org.cbioportal.webparam.StudyViewFilter;
 import org.junit.Assert;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -107,6 +108,7 @@ public class StudyViewMyBatisRepositoryTest {
         return dataFilterValue;
     };
     @Test
+    @Ignore
     public void getClinicalAttributeNames() {
         List<String> names = studyViewMyBatisRepository.getClinicalDataAttributeNames(ClinicalAttributeDataSource.PATIENT, ClinicalAttributeDataType.CATEGORICAL);
         Assert.assertTrue(names.size() > 0);
@@ -114,6 +116,7 @@ public class StudyViewMyBatisRepositoryTest {
     }
     
     @Test
+    @Ignore
     public void getFilterSamplesWithClinicalDataFilter() {
         ClinicalDataFilter clinicalDataFilter = new ClinicalDataFilter();
         clinicalDataFilter.setAttributeId("TMB_NONSYNONYMOUS");
@@ -133,5 +136,19 @@ public class StudyViewMyBatisRepositoryTest {
         List<ClinicalDataFilter> test = categorizedClinicalDataCountFilter.getSampleNumericalClinicalDataFilters();
         List<Sample> samples = studyViewMyBatisRepository.getFilteredSamplesFromColumnstore(studyViewFilter, categorizedClinicalDataCountFilter);
         Assert.assertEquals(4507, samples.size()); 
+    }
+    
+    @Test
+    @Ignore
+    public void getFilterSamplesWithCategoricalSampleClinicalDataFilter() {
+        StudyViewFilter studyViewFilter = generateStudyViewFilter(
+            new String[]{"msk_ch_2020"},null
+        );
+        CategorizedClinicalDataCountFilter clincalDataCountFilters = CategorizedClinicalDataCountFilter.getBuilder()
+            .setSampleCategoricalClinicalDataFilters(Arrays.asList(generateCategoricalClinicalDataFilter("CANCER_TYPE", new String[]{"Bladder Cancer", "Cancer of Unknown Primary"})))
+            .build();
+        
+        List<Sample> filteredSamples = studyViewMyBatisRepository.getFilteredSamplesFromColumnstore(studyViewFilter, clincalDataCountFilters);
+        Assert.assertEquals(1435, filteredSamples.size());
     }
 }

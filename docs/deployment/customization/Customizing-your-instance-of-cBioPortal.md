@@ -247,6 +247,13 @@ Below you can find the complete list of all the available skin properties.
             <td>false</td>
             <td>true / false / data</td>
         </tr>
+		<tr>
+            <td>download_group</td>
+            <td>controls download options in UI for each user. If present and user is authenticated, this value is checked against user roles.
+If the download_group is present in user groups then download options are shown in UI, else it fallback to **skin.hide_download_controls**</td>
+            <td></td>
+            <td>text</td>
+        </tr>
         <tr>
             <td>skin.show_settings_menu</td>
             <td>controls the appearance of the settings menu in study view and group comparison that controls annotation-based filtering.</td>

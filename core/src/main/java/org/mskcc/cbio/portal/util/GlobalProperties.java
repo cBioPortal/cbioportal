@@ -50,11 +50,13 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Properties;
 
+import org.apache.commons.lang.StringUtils;
 import org.cbioportal.security.spring.authentication.PortalUserDetails;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.core.Authentication;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Component;
 import org.springframework.util.ResourceUtils;
@@ -361,6 +363,10 @@ public class GlobalProperties {
     private static String frontendUrlRuntime;
     @Value("${frontend.url.runtime:}") 
     public void setFrontendUrlRuntime(String property) { frontendUrlRuntime = property; }
+
+    private static String downloadGroup;
+    @Value("${download_group:}") // default is empty string
+    public void setDownloadGroup(String property) { downloadGroup = property; }
 
     private static Logger LOG = LoggerFactory.getLogger(GlobalProperties.class);
     private static ConfigPropertyResolver portalProperties = new ConfigPropertyResolver();
@@ -1264,18 +1270,30 @@ public class GlobalProperties {
     }
 
     public static String getDownloadControl() {
-        String downloadControlOption = getProperty("skin.hide_download_controls");
-        /*
-            skin.hide_download_controls   return_value
-                    true                    hide
-                    false                   show
-                    data                    data
-                    null/empty              show
-         */
-        switch ((downloadControlOption != null) ? downloadControlOption.trim().toLowerCase() : "false") {
-            case "true" : return "hide";
-            case "data" : return "data";
-            default: return "show";
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+
+        if (authentication != null &&
+            StringUtils.isNotEmpty(downloadGroup) &&
+            authentication.getAuthorities().contains(new SimpleGrantedAuthority(downloadGroup))) {
+            return "show";
+        } else {
+            String downloadControlOption = getProperty("skin.hide_download_controls");
+            /*
+                skin.hide_download_controls   return_value
+                        true                    hide
+                        false                   show
+                        data                    data
+                        null/empty              show
+             */
+            switch ((downloadControlOption != null) ? downloadControlOption.trim().toLowerCase() : "false") {
+                case "true":
+                    return "hide";
+                case "data":
+                    return "data";
+                case "false":
+                default:
+                    return "show";
+            }
         }
     }
 }

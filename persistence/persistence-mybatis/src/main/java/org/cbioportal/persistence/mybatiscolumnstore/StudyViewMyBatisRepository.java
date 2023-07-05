@@ -20,12 +20,13 @@ public class StudyViewMyBatisRepository implements StudyViewRepository {
     
     @Override
     public List<Sample> getFilteredSamplesFromColumnstore(StudyViewFilter studyViewFilter, CategorizedClinicalDataCountFilter categorizedClinicalDataCountFilter) {
-        return studyViewMapper.getFilteredSamples(studyViewFilter, categorizedClinicalDataCountFilter);
+        
+        return studyViewMapper.getFilteredSamples(studyViewFilter, categorizedClinicalDataCountFilter, shouldApplyPatientIdFilters(categorizedClinicalDataCountFilter));
     }
     
     @Override
     public List<AlterationCountByGene> getMutatedGenes(StudyViewFilter studyViewFilter, CategorizedClinicalDataCountFilter categorizedClinicalDataCountFilter) {
-        return studyViewMapper.getMutatedGenes(studyViewFilter, categorizedClinicalDataCountFilter);
+        return studyViewMapper.getMutatedGenes(studyViewFilter, categorizedClinicalDataCountFilter, shouldApplyPatientIdFilters(categorizedClinicalDataCountFilter));
     }
 
     @Override
@@ -34,5 +35,8 @@ public class StudyViewMyBatisRepository implements StudyViewRepository {
         return studyViewMapper.getClinicalAttributeNames(tableName);
     }
 
-
+    private boolean shouldApplyPatientIdFilters(CategorizedClinicalDataCountFilter categorizedClinicalDataCountFilter) {
+        return categorizedClinicalDataCountFilter.getPatientCategoricalClinicalDataFilters() != null && !categorizedClinicalDataCountFilter.getPatientCategoricalClinicalDataFilters().isEmpty()
+            || categorizedClinicalDataCountFilter.getPatientNumericalClinicalDataFilters() != null && !categorizedClinicalDataCountFilter.getPatientNumericalClinicalDataFilters().isEmpty();
+    }
 }

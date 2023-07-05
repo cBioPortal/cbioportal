@@ -274,6 +274,10 @@ public class StudyViewServiceImpl implements StudyViewService {
            buildClinicalAttributeNameMap(); 
         }
         
+        if(studyViewFilter.getClinicalDataFilters() == null) {
+            return CategorizedClinicalDataCountFilter.getBuilder().build();
+        }
+        
         final String patientCategoricalKey = ClinicalAttributeDataSource.PATIENT.getValue() + ClinicalAttributeDataType.CATEGORICAL.getValue();
         final String patientNumericKey = ClinicalAttributeDataSource.PATIENT.getValue() + ClinicalAttributeDataType.NUMERIC.getValue();
         final String sampleCategoricalKey = ClinicalAttributeDataSource.SAMPLE.getValue() + ClinicalAttributeDataType.CATEGORICAL.getValue();

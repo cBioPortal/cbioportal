@@ -33,7 +33,12 @@
             COUNT(*) as totalCount
         FROM mutation
         <where>
-           sample_unique_id IN ( <include refid="sampleUniqueIdsFromStudyViewFilter"/>)
+           sample_unique_id IN ( <include refid="sampleUniqueIdsFromStudyViewFilter"/>
+            <if test="applyPatientIdFilters == true">
+                INTERSECT <include refid="getSampleIdsFromPatientIds"/>
+            </if> 
+            )
+
         </where>
         GROUP BY hugo_gene_symbol
         ORDER BY totalCount DESC;
@@ -157,6 +162,14 @@
                     AND attribute_value = '${dataFilterValue.value}'
                 </trim>
             </foreach>
+    </sql>
+    
+    <sql id="getSampleIdsFromPatientIds">
+        SELECT sample_unique_id
+        FROM sample
+        <where>
+            patient_unique_id IN (<include refid="patientUniqueIdsFromStudyViewFilter"/>) 
+        </where>
     </sql>
 
     <select id="getClinicalAttributeNames" resultType="String">

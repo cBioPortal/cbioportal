@@ -151,4 +151,64 @@ public class StudyViewMyBatisRepositoryTest {
         List<Sample> filteredSamples = studyViewMyBatisRepository.getFilteredSamplesFromColumnstore(studyViewFilter, clincalDataCountFilters);
         Assert.assertEquals(1435, filteredSamples.size());
     }
+    @Test
+    @Ignore
+    public void getFilterSamplesWithNumericPatientClinicalDataFilter() {
+        StudyViewFilter studyViewFilter = generateStudyViewFilter(
+            new String[]{"msk_ch_2020"},null
+        );
+        CategorizedClinicalDataCountFilter clincalDataCountFilters = CategorizedClinicalDataCountFilter.getBuilder()
+            .setPatientNumericalClinicalDataFilters(Arrays.asList(generateNumericalClinicalDataFilter("AGE", new String[]{"60-65"})))
+            .build();
+
+        List<Sample> filteredSamples = studyViewMyBatisRepository.getFilteredSamplesFromColumnstore(studyViewFilter, clincalDataCountFilters);
+        Assert.assertEquals(3343, filteredSamples.size());
+    }
+    @Test
+    @Ignore
+    public void getFilterSamplesWithPatientClinicalDataFilterAndSampleClinicalDataFilter() {
+        StudyViewFilter studyViewFilter = generateStudyViewFilter(
+            new String[]{"msk_ch_2020"},null
+        );
+
+        ClinicalDataFilter clinicalDataFilter = new ClinicalDataFilter();
+        clinicalDataFilter.setAttributeId("TMB_NONSYNONYMOUS");
+        DataFilterValue filterValue = new DataFilterValue();
+        filterValue.setStart(BigDecimal.valueOf(0.033333333));
+        filterValue.setEnd(BigDecimal.valueOf(0.033333333));
+        clinicalDataFilter.setValues(List.of(filterValue));
+        
+        CategorizedClinicalDataCountFilter clincalDataCountFilters = CategorizedClinicalDataCountFilter.getBuilder()
+            .setPatientNumericalClinicalDataFilters(List.of(generateNumericalClinicalDataFilter("AGE", new String[]{"60-65"})))
+            .setSampleNumericalClinicalDataFilters(List.of(clinicalDataFilter))
+            .setSampleCategoricalClinicalDataFilters(List.of(generateCategoricalClinicalDataFilter("CANCER_TYPE", new String[]{"Bladder Cancer"})))
+            .build();
+
+        List<Sample> filteredSamples = studyViewMyBatisRepository.getFilteredSamplesFromColumnstore(studyViewFilter, clincalDataCountFilters);
+        Assert.assertEquals(21, filteredSamples.size());
+    }
+
+    @Test
+    @Ignore
+    public void getMutatedGenesWithPatientClinicalDataFilterAndSampleClinicalDataFilter() {
+        StudyViewFilter studyViewFilter = generateStudyViewFilter(
+            new String[]{"msk_ch_2020"},null
+        );
+
+        ClinicalDataFilter clinicalDataFilter = new ClinicalDataFilter();
+        clinicalDataFilter.setAttributeId("TMB_NONSYNONYMOUS");
+        DataFilterValue filterValue = new DataFilterValue();
+        filterValue.setStart(BigDecimal.valueOf(0.033333333));
+        filterValue.setEnd(BigDecimal.valueOf(0.033333333));
+        clinicalDataFilter.setValues(List.of(filterValue));
+
+        CategorizedClinicalDataCountFilter clincalDataCountFilters = CategorizedClinicalDataCountFilter.getBuilder()
+            .setPatientNumericalClinicalDataFilters(List.of(generateNumericalClinicalDataFilter("AGE", new String[]{"60-65"})))
+            .setSampleNumericalClinicalDataFilters(List.of(clinicalDataFilter))
+            .setSampleCategoricalClinicalDataFilters(List.of(generateCategoricalClinicalDataFilter("CANCER_TYPE", new String[]{"Bladder Cancer"})))
+            .build();
+
+        List<AlterationCountByGene> mutatedGenes = studyViewMyBatisRepository.getMutatedGenes(studyViewFilter, clincalDataCountFilters);
+        Assert.assertEquals(16, mutatedGenes.size());
+    }
 }

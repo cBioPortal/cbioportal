@@ -1,6 +1,7 @@
 package org.cbioportal.persistence.mybatiscolumnstore;
 
 import org.cbioportal.model.AlterationCountByGene;
+import org.cbioportal.model.ClinicalDataCount;
 import org.cbioportal.model.Sample;
 import org.cbioportal.persistence.enums.ClinicalAttributeDataSource;
 import org.cbioportal.persistence.enums.ClinicalAttributeDataType;
@@ -20,6 +21,7 @@ import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import java.math.BigDecimal;
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.Comparator;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 import java.util.ArrayList;
@@ -139,13 +141,13 @@ public class StudyViewMyBatisRepositoryTest {
     }
     
     @Test
-    @Ignore
+    //@Ignore
     public void getFilterSamplesWithCategoricalSampleClinicalDataFilter() {
         StudyViewFilter studyViewFilter = generateStudyViewFilter(
             new String[]{"msk_ch_2020"},null
         );
         CategorizedClinicalDataCountFilter clincalDataCountFilters = CategorizedClinicalDataCountFilter.getBuilder()
-            .setSampleCategoricalClinicalDataFilters(Arrays.asList(generateCategoricalClinicalDataFilter("CANCER_TYPE", new String[]{"Bladder Cancer", "Cancer of Unknown Primary"})))
+            .setSampleCategoricalClinicalDataFilters(Arrays.asList(generateCategoricalClinicalDataFilter("CANCER_TYPE", new String[]{"Bladder Cancer", "Breast Cancer"})))
             .build();
         
         List<Sample> filteredSamples = studyViewMyBatisRepository.getFilteredSamplesFromColumnstore(studyViewFilter, clincalDataCountFilters);
@@ -210,5 +212,20 @@ public class StudyViewMyBatisRepositoryTest {
 
         List<AlterationCountByGene> mutatedGenes = studyViewMyBatisRepository.getMutatedGenes(studyViewFilter, clincalDataCountFilters);
         Assert.assertEquals(16, mutatedGenes.size());
+    }
+    
+    @Test
+    @Ignore
+    public void getClinicalDataCounts() {
+        StudyViewFilter studyViewFilter = generateStudyViewFilter(
+            new String[]{"msk_ch_2020"},null
+        ); 
+        
+        List<ClinicalDataCount> counts = studyViewMyBatisRepository.getClinicalDataCounts(studyViewFilter, CategorizedClinicalDataCountFilter.getBuilder().build(),
+            List.of("CANCER_TYPE"));
+        
+        Assert.assertEquals(counts.size(), 50);
+        
+        
     }
 }

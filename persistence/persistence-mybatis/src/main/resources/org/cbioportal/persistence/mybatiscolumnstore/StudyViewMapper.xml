@@ -126,7 +126,7 @@
                     #{sampleIdentifier.getStudyId()}_#{sampleIdentifier.getSampleId()}
                 </foreach>
             </if>
-            <if test="studyViewFilter.geneFilters != null and !geneFilters.isEmpty()">
+            <if test="studyViewFilter.geneFilters != null and !studyViewFilter.geneFilters.isEmpty()">
                 INTERSECT
                 SELECT sample_unique_id
                 FROM genomic_event
@@ -137,12 +137,13 @@
                             <foreach item="molecularProfileId" collection="profileGroup.getMolecularProfileIds()" open="(" separator="," close=")">
                                 #{molecularProfileId}
                             </foreach>
-                            AND hugo_gene_symbol IN
-                            <foreach item="geneFilterQueryList" collection="profileGroup.getGeneQueries()">
-                                <foreach item="geneFilterQuery" collection="geneFilterQueryList" open="(" separator="," close=")">
+                            AND hugo_gene_symbol IN (
+                            <foreach item="geneFilterQueryList" collection="profileGroup.getGeneQueries()" separator=",">
+                                <foreach item="geneFilterQuery" collection="geneFilterQueryList" separator=",">
                                     #{geneFilterQuery.hugoGeneSymbol}
                                 </foreach>
                             </foreach>
+                            )
                         </foreach>
                     </trim>
                 </where>

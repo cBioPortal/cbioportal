@@ -7,6 +7,7 @@ import org.cbioportal.model.AlterationCountByGene;
 import org.cbioportal.model.ClinicalDataCountItem;
 import org.cbioportal.model.Sample;
 import org.cbioportal.service.StudyViewService;
+import org.cbioportal.web.columnstore.util.NewStudyViewFilterUtil;
 import org.cbioportal.web.config.annotation.InternalApi;
 import org.cbioportal.webparam.ClinicalDataCountFilter;
 import org.cbioportal.webparam.ClinicalDataFilter;
@@ -94,11 +95,12 @@ public class StudyViewColumnStoreController {
         List<ClinicalDataFilter> attributes = interceptedClinicalDataCountFilter.getAttributes();
         StudyViewFilter studyViewFilter = interceptedClinicalDataCountFilter.getStudyViewFilter();
 
-        //if (attributes.size() == 1) {
-          //  studyViewFilterUtil.removeSelfFromFilter(attributes.get(0).getAttributeId(), studyViewFilter);
-       // }
+        if (attributes.size() == 1) {
+            NewStudyViewFilterUtil.removeSelfFromFilter(attributes.get(0).getAttributeId(), studyViewFilter);
+       }
        // boolean singleStudyUnfiltered = studyViewFilterUtil.isSingleStudyUnfiltered(studyViewFilter);
-        List<ClinicalDataCountItem> result = new ArrayList<>();//clinicalDataService.fetchClinicalDataCounts(
+        List<ClinicalDataCountItem> result = studyViewService.getClinicalDataCountsFromColumnStore(studyViewFilter, 
+            attributes.stream().map(ClinicalDataFilter::getAttributeId).collect(Collectors.toList()));
             //studyIds, sampleIds, attributes.stream().map(a -> a.getAttributeId()).collect(Collectors.toList())); 
         return new ResponseEntity<>(result, HttpStatus.OK);
 

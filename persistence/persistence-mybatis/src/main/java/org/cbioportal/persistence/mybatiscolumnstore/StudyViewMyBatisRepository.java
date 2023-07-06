@@ -1,6 +1,8 @@
 package org.cbioportal.persistence.mybatiscolumnstore;
 
 import org.cbioportal.model.AlterationCountByGene;
+import org.cbioportal.model.ClinicalData;
+import org.cbioportal.model.ClinicalDataCount;
 import org.cbioportal.model.Sample;
 import org.cbioportal.persistence.StudyViewRepository;
 import org.cbioportal.persistence.enums.ClinicalAttributeDataSource;
@@ -15,6 +17,7 @@ import java.util.List;
 @Repository
 public class StudyViewMyBatisRepository implements StudyViewRepository {
 
+    private final List<String> FILTERED_CLINICAL_ATTR_VALUES = List.of("NA", "NAN", "N/A");
     @Autowired
     private StudyViewMapper studyViewMapper;
     
@@ -27,6 +30,24 @@ public class StudyViewMyBatisRepository implements StudyViewRepository {
     @Override
     public List<AlterationCountByGene> getMutatedGenes(StudyViewFilter studyViewFilter, CategorizedClinicalDataCountFilter categorizedClinicalDataCountFilter) {
         return studyViewMapper.getMutatedGenes(studyViewFilter, categorizedClinicalDataCountFilter, shouldApplyPatientIdFilters(categorizedClinicalDataCountFilter));
+    }
+
+    @Override
+    public List<ClinicalDataCount> getClinicalDataCounts(StudyViewFilter studyViewFilter, CategorizedClinicalDataCountFilter categorizedClinicalDataCountFilter, List<String> filteredAttributes) {
+        return studyViewMapper.getClinicalDataCounts(studyViewFilter, categorizedClinicalDataCountFilter, shouldApplyPatientIdFilters(categorizedClinicalDataCountFilter),
+            filteredAttributes, FILTERED_CLINICAL_ATTR_VALUES );
+    }
+
+    @Override
+    public List<ClinicalDataCount> getSampleClinicalDataCounts(StudyViewFilter studyViewFilter, CategorizedClinicalDataCountFilter categorizedClinicalDataCountFilter, List<String> filteredAttributes) {
+        return studyViewMapper.getSampleClinicalDataCounts(studyViewFilter, categorizedClinicalDataCountFilter, shouldApplyPatientIdFilters(categorizedClinicalDataCountFilter),
+           filteredAttributes, FILTERED_CLINICAL_ATTR_VALUES );
+    }
+
+    @Override
+    public List<ClinicalDataCount> getPatientClinicalDataCounts(StudyViewFilter studyViewFilter, CategorizedClinicalDataCountFilter categorizedClinicalDataCountFilter, List<String> filteredAttributes) {
+        return studyViewMapper.getPatientClinicalDataCounts(studyViewFilter, categorizedClinicalDataCountFilter, shouldApplyPatientIdFilters(categorizedClinicalDataCountFilter),
+            filteredAttributes, FILTERED_CLINICAL_ATTR_VALUES);
     }
 
     @Override

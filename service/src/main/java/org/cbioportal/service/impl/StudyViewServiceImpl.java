@@ -20,6 +20,7 @@ import org.springframework.stereotype.Service;
 import java.util.*;
 import java.util.function.Function;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 @Service
 public class StudyViewServiceImpl implements StudyViewService {
@@ -268,7 +269,25 @@ public class StudyViewServiceImpl implements StudyViewService {
         CategorizedClinicalDataCountFilter categorizedClinicalDataCountFilter = extractClinicalDataCountFilters(studyViewFilter);
         return studyViewRepository.getMutatedGenes(studyViewFilter, categorizedClinicalDataCountFilter);
     }
+
+    @Override
+    public List<ClinicalDataCountItem> getClinicalDataCountsFromColumnStore(StudyViewFilter studyViewFilter, List<String> filteredAttributes) {
+        CategorizedClinicalDataCountFilter categorizedClinicalDataCountFilter = extractClinicalDataCountFilters(studyViewFilter);
+        
+        return studyViewRepository.getClinicalDataCounts(studyViewFilter, categorizedClinicalDataCountFilter, filteredAttributes)
+            .stream().collect(Collectors.groupingBy(ClinicalDataCount::getAttributeId))
+            .entrySet().stream().map(e -> {
+                ClinicalDataCountItem item = new ClinicalDataCountItem();
+                item.setAttributeId(e.getKey());
+                item.setCounts(e.getValue());
+                return item;
+            }).collect(Collectors.toList());
+    }
     
+    private boolean isClinicalDataValueEmpty(String clinicalDataValue) {
+        return clinicalDataValue.equalsIgnoreCase("NA") || clinicalDataValue.equalsIgnoreCase("NAN") || clinicalDataValue.equalsIgnoreCase("N/A");
+    }
+
     private CategorizedClinicalDataCountFilter extractClinicalDataCountFilters(final StudyViewFilter studyViewFilter) {
         if(clinicalAttributeNameMap.isEmpty()) {
            buildClinicalAttributeNameMap(); 

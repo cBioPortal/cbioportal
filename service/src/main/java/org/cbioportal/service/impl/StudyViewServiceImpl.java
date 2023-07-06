@@ -284,10 +284,6 @@ public class StudyViewServiceImpl implements StudyViewService {
             }).collect(Collectors.toList());
     }
     
-    private boolean isClinicalDataValueEmpty(String clinicalDataValue) {
-        return clinicalDataValue.equalsIgnoreCase("NA") || clinicalDataValue.equalsIgnoreCase("NAN") || clinicalDataValue.equalsIgnoreCase("N/A");
-    }
-
     private CategorizedClinicalDataCountFilter extractClinicalDataCountFilters(final StudyViewFilter studyViewFilter) {
         if(clinicalAttributeNameMap.isEmpty()) {
            buildClinicalAttributeNameMap(); 

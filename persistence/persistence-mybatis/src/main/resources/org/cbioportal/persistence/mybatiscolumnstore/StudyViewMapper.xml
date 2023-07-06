@@ -63,7 +63,7 @@
             </if>
             )
             AND UPPER(attribute_value) NOT IN
-            <foreach item="filteredAttributeValue" collection="filterAttributeValues" open="(" separator="," close=")">
+            <foreach item="filteredAttributeValue" collection="filteredAttributeValues" open="(" separator="," close=")">
                 #{filteredAttributeValue}
             </foreach>
             AND attribute_name IN
@@ -93,7 +93,7 @@
             </if>
             )
             AND UPPER(attribute_value) NOT IN
-            <foreach item="filteredAttributeValue" collection="filterAttributeValues" open="(" separator="," close=")">
+            <foreach item="filteredAttributeValue" collection="filteredAttributeValues" open="(" separator="," close=")">
                 #{filteredAttributeValue}
             </foreach>
             AND attribute_name IN

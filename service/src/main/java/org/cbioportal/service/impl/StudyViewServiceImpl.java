@@ -276,7 +276,7 @@ public class StudyViewServiceImpl implements StudyViewService {
         
         return studyViewRepository.getClinicalDataCounts(studyViewFilter, categorizedClinicalDataCountFilter, filteredAttributes)
             .stream().collect(Collectors.groupingBy(ClinicalDataCount::getAttributeId))
-            .entrySet().stream().map(e -> {
+            .entrySet().parallelStream().map(e -> {
                 ClinicalDataCountItem item = new ClinicalDataCountItem();
                 item.setAttributeId(e.getKey());
                 item.setCounts(e.getValue());

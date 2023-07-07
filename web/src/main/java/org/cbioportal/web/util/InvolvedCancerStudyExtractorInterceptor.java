@@ -566,6 +566,11 @@ public class InvolvedCancerStudyExtractorInterceptor extends HandlerInterceptorA
                 // when the AlterationFilter is not part of the request.
                 studyViewFilter.setAlterationFilter(new AlterationFilter());
             }
+            if (studyViewFilter.getStructuralVariantFilters() == null) {
+                // For backwards compatibility an inactive filter is set
+                // when the StructuralVariantFilters are not part of the request.
+                studyViewFilter.setStructuralVariantFilters(new ArrayList<>());
+            }
             LOG.debug("extracted studyViewFilter: " + studyViewFilter.toString());
             LOG.debug("setting interceptedStudyViewFilter to " + studyViewFilter);
             request.setAttribute("interceptedStudyViewFilter", studyViewFilter);

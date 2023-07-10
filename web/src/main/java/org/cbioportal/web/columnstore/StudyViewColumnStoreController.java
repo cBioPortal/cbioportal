@@ -4,9 +4,11 @@ import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
 import org.cbioportal.model.AlterationCountByGene;
+import org.cbioportal.model.AlterationFilter;
 import org.cbioportal.model.ClinicalDataCountItem;
 import org.cbioportal.model.Sample;
 import org.cbioportal.service.StudyViewService;
+import org.cbioportal.service.exception.StudyNotFoundException;
 import org.cbioportal.web.columnstore.util.NewStudyViewFilterUtil;
 import org.cbioportal.web.config.annotation.InternalApi;
 import org.cbioportal.webparam.ClinicalDataCountFilter;
@@ -73,9 +75,17 @@ public class StudyViewColumnStoreController {
         @RequestAttribute(required = false, value = "involvedCancerStudies") Collection<String> involvedCancerStudies,
         @ApiIgnore // prevent reference to this attribute in the swagger-ui interface. this attribute is needed for the @PreAuthorize tag above.
         @Valid @RequestAttribute(required = false, value = "interceptedStudyViewFilter") StudyViewFilter interceptedStudyViewFilter
-    ) {
+    ) throws StudyNotFoundException {
+        AlterationFilter annotationFilters = interceptedStudyViewFilter.getAlterationFilter();
+        List<Sample> samples = studyViewService.getFilteredSamplesFromColumnstore(interceptedStudyViewFilter);
+        List<String> studyIds = new ArrayList<>();
+        List<String> sampleIds = new ArrayList<>();
+        for(Sample sample : samples) {
+            studyIds.add(sample.getCancerStudyIdentifier());
+            sampleIds.add(sample.getStableId());
+        }
         return new ResponseEntity<>(
-            studyViewService.getMutatedGenesFromColumnstore(interceptedStudyViewFilter),
+            studyViewService.getMutationAlterationCountByGenes(studyIds, sampleIds, annotationFilters),
             HttpStatus.OK
         );
     }

@@ -26,4 +26,6 @@ public interface StudyViewService {
     List<Sample> getFilteredSamplesFromColumnstore(StudyViewFilter studyViewFilter);
 
     List<AlterationCountByGene> getMutatedGenesFromColumnstore(StudyViewFilter interceptedStudyViewFilter);
+    
+    List<ClinicalDataCountItem> getClinicalDataCountsFromColumnStore(StudyViewFilter studyViewFilter, List<String> filteredAttributes);
 }

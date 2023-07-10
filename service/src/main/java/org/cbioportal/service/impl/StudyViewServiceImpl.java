@@ -5,10 +5,14 @@ import org.apache.commons.lang3.StringUtils;
 import org.cbioportal.model.*;
 import org.cbioportal.model.util.Select;
 import org.cbioportal.persistence.StudyViewRepository;
+import org.cbioportal.persistence.enums.ClinicalAttributeDataSource;
+import org.cbioportal.persistence.enums.ClinicalAttributeDataType;
 import org.cbioportal.service.*;
 import org.cbioportal.service.exception.MolecularProfileNotFoundException;
 import org.cbioportal.service.exception.StudyNotFoundException;
 import org.cbioportal.service.util.MolecularProfileUtil;
+import org.cbioportal.webparam.CategorizedClinicalDataCountFilter;
+import org.cbioportal.webparam.ClinicalDataFilter;
 import org.cbioportal.webparam.StudyViewFilter;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -16,10 +20,14 @@ import org.springframework.stereotype.Service;
 import java.util.*;
 import java.util.function.Function;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 @Service
 public class StudyViewServiceImpl implements StudyViewService {
     private static final List<CNA> CNA_TYPES_AMP_AND_HOMDEL = Collections.unmodifiableList(Arrays.asList(CNA.AMP, CNA.HOMDEL));
+    
+    private final Map<String, List<String>> clinicalAttributeNameMap = new HashMap<>();
+    
     @Autowired
     private MolecularProfileService molecularProfileService;
     @Autowired
@@ -252,11 +260,67 @@ public class StudyViewServiceImpl implements StudyViewService {
 
     @Override
     public List<Sample> getFilteredSamplesFromColumnstore(StudyViewFilter studyViewFilter) {
-        return studyViewRepository.getFilteredSamplesFromColumnstore(studyViewFilter);
+        CategorizedClinicalDataCountFilter categorizedClinicalDataCountFilter = extractClinicalDataCountFilters(studyViewFilter);
+        return studyViewRepository.getFilteredSamplesFromColumnstore(studyViewFilter, categorizedClinicalDataCountFilter);
     }
 
     @Override
     public List<AlterationCountByGene> getMutatedGenesFromColumnstore(StudyViewFilter studyViewFilter) {
-        return studyViewRepository.getMutatedGenes(studyViewFilter);
+        CategorizedClinicalDataCountFilter categorizedClinicalDataCountFilter = extractClinicalDataCountFilters(studyViewFilter);
+        return studyViewRepository.getMutatedGenes(studyViewFilter, categorizedClinicalDataCountFilter);
+    }
+
+    @Override
+    public List<ClinicalDataCountItem> getClinicalDataCountsFromColumnStore(StudyViewFilter studyViewFilter, List<String> filteredAttributes) {
+        CategorizedClinicalDataCountFilter categorizedClinicalDataCountFilter = extractClinicalDataCountFilters(studyViewFilter);
+        
+        return studyViewRepository.getClinicalDataCounts(studyViewFilter, categorizedClinicalDataCountFilter, filteredAttributes)
+            .stream().collect(Collectors.groupingBy(ClinicalDataCount::getAttributeId))
+            .entrySet().parallelStream().map(e -> {
+                ClinicalDataCountItem item = new ClinicalDataCountItem();
+                item.setAttributeId(e.getKey());
+                item.setCounts(e.getValue());
+                return item;
+            }).collect(Collectors.toList());
+    }
+    
+    private CategorizedClinicalDataCountFilter extractClinicalDataCountFilters(final StudyViewFilter studyViewFilter) {
+        if(clinicalAttributeNameMap.isEmpty()) {
+           buildClinicalAttributeNameMap(); 
+        }
+        
+        if(studyViewFilter.getClinicalDataFilters() == null) {
+            return CategorizedClinicalDataCountFilter.getBuilder().build();
+        }
+        
+        final String patientCategoricalKey = ClinicalAttributeDataSource.PATIENT.getValue() + ClinicalAttributeDataType.CATEGORICAL.getValue();
+        final String patientNumericKey = ClinicalAttributeDataSource.PATIENT.getValue() + ClinicalAttributeDataType.NUMERIC.getValue();
+        final String sampleCategoricalKey = ClinicalAttributeDataSource.SAMPLE.getValue() + ClinicalAttributeDataType.CATEGORICAL.getValue();
+        final String sampleNumericKey = ClinicalAttributeDataSource.SAMPLE.getValue() + ClinicalAttributeDataType.NUMERIC.getValue();
+        
+        return CategorizedClinicalDataCountFilter.getBuilder()
+            .setPatientCategoricalClinicalDataFilters(studyViewFilter.getClinicalDataFilters()
+                .stream().filter(clinicalDataFilter -> clinicalAttributeNameMap.get(patientCategoricalKey).contains(clinicalDataFilter.getAttributeId()))
+                .collect(Collectors.toList()))
+            .setPatientNumericalClinicalDataFilters(studyViewFilter.getClinicalDataFilters().stream()
+                .filter(clinicalDataFilter -> clinicalAttributeNameMap.get(patientNumericKey).contains(clinicalDataFilter.getAttributeId()))
+                .collect(Collectors.toList()))
+            .setSampleCategoricalClinicalDataFilters(studyViewFilter.getClinicalDataFilters().stream()
+                .filter(clinicalDataFilter -> clinicalAttributeNameMap.get(sampleCategoricalKey).contains(clinicalDataFilter.getAttributeId()))
+                .collect(Collectors.toList()))
+            .setSampleNumericalClinicalDataFilters(studyViewFilter.getClinicalDataFilters().stream()
+                .filter(clinicalDataFilter -> clinicalAttributeNameMap.get(sampleNumericKey).contains(clinicalDataFilter.getAttributeId()))
+                .collect(Collectors.toList()))
+            .build();
+    }
+    
+    private void buildClinicalAttributeNameMap() {
+       List<ClinicalAttributeDataSource> clinicalAttributeDataSources = List.of(ClinicalAttributeDataSource.values());
+       for(ClinicalAttributeDataSource clinicalAttributeDataSource : clinicalAttributeDataSources) {
+           String categoricalKey = clinicalAttributeDataSource.getValue() + ClinicalAttributeDataType.CATEGORICAL;
+           String numericKey = clinicalAttributeDataSource.getValue() + ClinicalAttributeDataType.NUMERIC;
+           clinicalAttributeNameMap.put(categoricalKey, studyViewRepository.getClinicalDataAttributeNames(clinicalAttributeDataSource, ClinicalAttributeDataType.CATEGORICAL));
+           clinicalAttributeNameMap.put(numericKey, studyViewRepository.getClinicalDataAttributeNames(clinicalAttributeDataSource, ClinicalAttributeDataType.NUMERIC));
+       }
     }
 }

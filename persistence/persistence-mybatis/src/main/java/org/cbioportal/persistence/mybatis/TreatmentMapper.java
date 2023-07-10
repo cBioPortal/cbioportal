@@ -15,9 +15,9 @@ public interface TreatmentMapper {
 
     Set<String> getAllUniqueTreatments(List<String> sampleIds, List<String> studyIds, String key);
 
-    Integer getTreatmentCount(List<String> sampleIds, List<String> studyIds, String key);
+    Boolean hasTreatmentData(List<String> sampleIds, List<String> studyIds, String key);
 
-    Integer getSampleCount(List<String> sampleIds, List<String> studyIds);
+    Boolean hasSampleTimelineData(List<String> sampleIds, List<String> studyIds);
 
     Boolean studyIdHasTreatments(String studyId, String key);
 }

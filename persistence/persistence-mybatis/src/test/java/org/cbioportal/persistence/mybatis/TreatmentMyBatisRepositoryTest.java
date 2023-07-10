@@ -147,19 +147,17 @@ public class TreatmentMyBatisRepositoryTest {
     }
 
     @Test
-    public void getTreatmentCount() {
-        Integer expected = 1;
-        Integer actual = treatmentRepository.getTreatmentCount(Collections.singletonList("study_tcga_pub"), ClinicalEventKeyCode.Agent.getKey());
+    public void hasTreatmentData() {
+        Boolean actual = treatmentRepository.hasTreatmentData(Collections.singletonList("study_tcga_pub"), ClinicalEventKeyCode.Agent.getKey());
         
-        Assert.assertEquals(actual, expected);
+        Assert.assertEquals(actual, true);
     }
 
     @Test
     public void getSampleCount() {
-        Integer expected = 2;
-        Integer actual = treatmentRepository.getSampleCount(Collections.singletonList("study_tcga_pub"));
+        Boolean actual = treatmentRepository.hasSampleTimelineData(Collections.singletonList("study_tcga_pub"));
         
-        Assert.assertEquals(actual, expected);
+        Assert.assertEquals(actual, true);
     }
     
 }

@@ -23,10 +23,10 @@ public interface TreatmentRepository {
     public Set<String> getAllUniqueTreatments(List<String> sampleIds, List<String> studyIds, ClinicalEventKeyCode key);
 
     @Cacheable(cacheResolver = "generalRepositoryCacheResolver", condition = "@cacheEnabledConfig.getEnabled()")
-    public Integer getTreatmentCount(List<String> studies, String key);
+    public Boolean hasTreatmentData(List<String> studies, String key);
 
     @Cacheable(cacheResolver = "generalRepositoryCacheResolver", condition = "@cacheEnabledConfig.getEnabled()")
-    public Integer getSampleCount(List<String> studies);
+    public Boolean hasSampleTimelineData(List<String> studies);
 
     @Cacheable(cacheResolver = "generalRepositoryCacheResolver", condition = "@cacheEnabledConfig.getEnabled()")
     public Boolean studyIdHasTreatments(String studyId, ClinicalEventKeyCode key);

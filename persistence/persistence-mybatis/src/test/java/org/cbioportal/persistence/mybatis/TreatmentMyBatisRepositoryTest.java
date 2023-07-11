@@ -134,21 +134,8 @@ public class TreatmentMyBatisRepositoryTest {
     }
 
     @Test
-    public void getAllUniqueTreatments() {
-        HashSet<String> expected = new HashSet<>(Collections.singletonList("Madeupanib"));
-        
-        Set<String> actual = treatmentRepository.getAllUniqueTreatments(
-            Collections.singletonList("TCGA-A1-A0SD-01"),
-            Collections.singletonList("study_tcga_pub"),
-            ClinicalEventKeyCode.Agent
-        );
-        
-        Assert.assertEquals(actual, expected);
-    }
-
-    @Test
     public void hasTreatmentData() {
-        Boolean actual = treatmentRepository.hasTreatmentData(Collections.singletonList("study_tcga_pub"), ClinicalEventKeyCode.Agent.getKey());
+        Boolean actual = treatmentRepository.hasTreatmentData(Collections.singletonList("study_tcga_pub"), ClinicalEventKeyCode.Agent);
         
         Assert.assertEquals(actual, true);
     }

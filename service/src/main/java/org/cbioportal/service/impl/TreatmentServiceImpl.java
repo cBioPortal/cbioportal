@@ -25,7 +25,7 @@ public class TreatmentServiceImpl implements TreatmentService {
         }
         Set<String> studiesWithTreatments = studyIds.stream()
             .distinct()
-            .filter(studyId -> treatmentRepository.studyIdHasTreatments(studyId, key))
+            .filter(studyId -> treatmentRepository.hasTreatmentData(Collections.singletonList(studyId), key))
             .collect(Collectors.toSet());
         
         ArrayList<String> filteredSampleIds = new ArrayList<>();
@@ -158,62 +158,37 @@ public class TreatmentServiceImpl implements TreatmentService {
         sampleIds = filteredIds.getLeft();
         studyIds = filteredIds.getRight();
 
-        Map<String, List<Treatment>> treatmentsByPatient =
-            treatmentRepository.getTreatmentsByPatientId(sampleIds, studyIds, key);
         Map<String, List<ClinicalEventSample>> samplesByPatient = treatmentRepository
-            .getShallowSamplesByPatientId(sampleIds, studyIds)
-            .entrySet()
+            .getShallowSamplesByPatientId(sampleIds, studyIds);
+
+        Map<String, List<Treatment>> treatmentSet = treatmentRepository.getTreatments(sampleIds, studyIds, key)
             .stream()
-            .filter(e -> treatmentsByPatient.containsKey(e.getKey()))
-            .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
-        Set<String> treatments = treatmentRepository.getAllUniqueTreatments(sampleIds, studyIds, key);
+            .collect(groupingBy(Treatment::getTreatment));
 
-        return treatments.stream()
-            .map(t -> createPatientTreatmentRowForTreatment(t, treatmentsByPatient, samplesByPatient))
-            .collect(Collectors.toList());
-    }
-
-    private PatientTreatmentRow createPatientTreatmentRowForTreatment(
-        String treatment,
-        Map<String, List<Treatment>> treatmentsByPatient,
-        Map<String, List<ClinicalEventSample>> samplesByPatient
-    ) {
-        // find all the patients that have received this treatment
-        List<Map.Entry<String, List<Treatment>>> matchingPatients = matchingPatients(treatment, treatmentsByPatient);
-
-        // from those patients, extract the unique samples
-        Set<ClinicalEventSample> samples = matchingPatients
+        return treatmentSet.entrySet()
             .stream()
-            .map(Map.Entry::getKey)
-            .flatMap(patient -> samplesByPatient.getOrDefault(patient, new ArrayList<>()).stream())
-            .collect(Collectors.toSet());
-
-
-        return new PatientTreatmentRow(treatment, matchingPatients.size(), samples);
-    }
-
-    private List<Map.Entry<String, List<Treatment>>> matchingPatients(
-        String treatment,
-        Map<String, List<Treatment>> treatmentsByPatient
-    ) {
-        return treatmentsByPatient.entrySet().stream()
-            .filter(p -> p.getValue().stream().anyMatch(t -> t.getTreatment().equals(treatment)))
+            .map(entry -> {
+                String treatment = entry.getKey();
+                Set<String> patientIds = entry.getValue().stream().map(Treatment::getPatientId).collect(toSet());
+                Set<ClinicalEventSample> clinicalEventSamples = patientIds
+                    .stream()
+                    .flatMap(patientId -> samplesByPatient.getOrDefault(patientId, new ArrayList<>()).stream())
+                    .collect(toSet());
+                return new PatientTreatmentRow(treatment, patientIds.size(), clinicalEventSamples);
+            })
             .collect(toList());
     }
 
     @Override
     public Boolean containsTreatmentData(List<String> studies, ClinicalEventKeyCode key) {
-        return treatmentRepository.hasTreatmentData(studies, key.getKey());
+        return treatmentRepository.hasTreatmentData(studies, key);
     }
 
     @Override
     public Boolean containsSampleTreatmentData(List<String> studyIds, ClinicalEventKeyCode key) {
         studyIds = studyIds.stream()
-            .filter(studyId -> treatmentRepository.studyIdHasTreatments(studyId, key))
+            .filter(studyId -> treatmentRepository.hasTreatmentData(Collections.singletonList(studyId), key))
             .collect(Collectors.toList());
-        if(studyIds.size() > 0 && treatmentRepository.hasSampleTimelineData(studyIds)) {
-            return treatmentRepository.hasTreatmentData(studyIds, key.getKey());
-        }
-        return false;
+        return studyIds.size() > 0 && treatmentRepository.hasSampleTimelineData(studyIds);
     }
 }

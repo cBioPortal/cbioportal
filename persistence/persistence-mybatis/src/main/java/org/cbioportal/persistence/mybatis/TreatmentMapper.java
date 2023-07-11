@@ -13,11 +13,7 @@ public interface TreatmentMapper {
     
     List<ClinicalEventSample> getAllShallowSamples(List<String> sampleIds, List<String> studyIds);
 
-    Set<String> getAllUniqueTreatments(List<String> sampleIds, List<String> studyIds, String key);
-
     Boolean hasTreatmentData(List<String> sampleIds, List<String> studyIds, String key);
 
     Boolean hasSampleTimelineData(List<String> sampleIds, List<String> studyIds);
-
-    Boolean studyIdHasTreatments(String studyId, String key);
 }

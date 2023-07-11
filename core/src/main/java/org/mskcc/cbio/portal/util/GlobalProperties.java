@@ -1262,4 +1262,20 @@ public class GlobalProperties {
     public static String getOncoKbToken()  {
         return portalProperties.getProperty(ONCOKB_TOKEN, null);
     }
+
+    public static String getDownloadControl() {
+        String downloadControlOption = getProperty("skin.hide_download_controls");
+        /*
+            skin.hide_download_controls   return_value
+                    true                    hide
+                    false                   show
+                    data                    data
+                    null/empty              show
+         */
+        switch ((downloadControlOption != null) ? downloadControlOption.trim().toLowerCase() : "false") {
+            case "true" : return "hide";
+            case "data" : return "data";
+            default: return "show";
+        }
+    }
 }

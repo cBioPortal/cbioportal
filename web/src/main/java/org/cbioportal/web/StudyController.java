@@ -101,7 +101,8 @@ public class StudyController {
         @ApiParam("Direction of the sort")
         @RequestParam(defaultValue = "ASC") Direction direction
     ) {
-        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+       
+        Authentication authentication = null;
         
         // Only use this feature on the public portal and make sure it is never used
         // on portals using auth, as in auth setting, different users will have different
@@ -116,6 +117,9 @@ public class StudyController {
                 && direction == Direction.ASC) {
             return new ResponseEntity<>(defaultResponse, HttpStatus.OK);
         }
+        else
+            authentication = SecurityContextHolder.getContext().getAuthentication();
+
 
         if (projection == Projection.META) {
             HttpHeaders responseHeaders = new HttpHeaders();

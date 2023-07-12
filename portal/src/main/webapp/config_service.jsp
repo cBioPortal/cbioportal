@@ -146,7 +146,6 @@
             "skin.patient_view.copy_number_table.columns.show_on_init",
             "skin.patient_view.structural_variant_table.columns.show_on_init",
             "comparison.categorical_na_values",
-            "skin.hide_download_controls",
             "study_download_url",
             "skin.home_page.show_reference_genome"
         };
@@ -203,6 +202,8 @@
         obj.put("oncoKbTokenDefined", !StringUtils.isEmpty(GlobalProperties.getOncoKbToken()));
 
         obj.put("sessionServiceEnabled", !StringUtils.isEmpty(GlobalProperties.getSessionServiceUrl()));
+        
+        obj.put("skin_hide_download_controls", GlobalProperties.getDownloadControl());
 
         out.println(obj.toJSONString());
 

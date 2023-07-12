@@ -243,11 +243,9 @@ Below you can find the complete list of all the available skin properties.
         </tr>
 		<tr>
             <td>skin.hide_download_controls</td>
-            <td>removes all download and copy-to-clipboard options.</td>
-            <td>show</td>
-            <td>
-                string. "show" enables all download and copy-to-clipboard options. "data" disables data download but keeps figure and top-level data. "hide" disables all the download and copy-to-keyboard options.
-            </td>
+            <td>controls download options in UI. **true**: hides all download options. **false**:  shows all download options. **data**: disable data download but not figure download</td>
+            <td>false</td>
+            <td>true / false / data</td>
         </tr>
         <tr>
             <td>skin.show_settings_menu</td>

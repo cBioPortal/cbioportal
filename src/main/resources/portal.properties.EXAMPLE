@@ -108,7 +108,7 @@ skin.study_view.link_text=To build your own case set, try out our enhanced Study
 # skin.home_page.show_reference_genome=false
 
 ## setting controlling whether Download tabs and download/copy-to-clipboard controls should be shown
-# skin.hide_download_controls=show
+# skin.hide_download_controls=false
 
 ## setting controlling which name should be used to display the authenticated user (email, or username)
 # skin.user_display_name=email

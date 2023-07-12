@@ -12,8 +12,6 @@ import java.util.*;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-import static java.util.stream.Collectors.*;
-
 @Service
 public class TreatmentServiceImpl implements TreatmentService {
     @Autowired
@@ -163,20 +161,26 @@ public class TreatmentServiceImpl implements TreatmentService {
 
         Map<String, List<Treatment>> treatmentSet = treatmentRepository.getTreatments(sampleIds, studyIds, key)
             .stream()
-            .collect(groupingBy(Treatment::getTreatment));
+            .collect(Collectors.groupingBy(Treatment::getTreatment));
 
+        /*
+            This logic transforms treatmentSet to list of PatientTreatmentRow. transformation steps:
+            - key in treatmentSet is going to be treatment
+            - get all unique patient ids -> this is going to give count
+            - get all clinicalEventSamples using above unique patient ids
+         */
         return treatmentSet.entrySet()
             .stream()
             .map(entry -> {
                 String treatment = entry.getKey();
-                Set<String> patientIds = entry.getValue().stream().map(Treatment::getPatientId).collect(toSet());
+                Set<String> patientIds = entry.getValue().stream().map(Treatment::getPatientId).collect(Collectors.toSet());
                 Set<ClinicalEventSample> clinicalEventSamples = patientIds
                     .stream()
                     .flatMap(patientId -> samplesByPatient.getOrDefault(patientId, new ArrayList<>()).stream())
-                    .collect(toSet());
+                    .collect(Collectors.toSet());
                 return new PatientTreatmentRow(treatment, patientIds.size(), clinicalEventSamples);
             })
-            .collect(toList());
+            .collect(Collectors.toList());
     }
 
     @Override

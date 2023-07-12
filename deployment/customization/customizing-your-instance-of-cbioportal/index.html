@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width,initial-scale=1">
-    <meta name="turbo-cache-control" content="no-cache" data-turbo-track="reload" data-track-token="3.0.3.742320055121">
+    <meta name="turbo-cache-control" content="no-cache" data-turbo-track="reload" data-track-token="3.0.3.742486091186">
 
     <!-- See retype.com -->
     <meta name="generator" content="Retype 3.0.3">
@@ -31,11 +31,11 @@
     <script>(function () { var el = document.documentElement, m = localStorage.getItem("doc_theme"), wm = window.matchMedia; if (m === "dark" || (!m && wm && wm("(prefers-color-scheme: dark)").matches)) { el.classList.add("dark") } else { el.classList.remove("dark") } })();</script>
 
     <link href="../../../images/cbio-logo.png" rel="icon" />
-    <link href="../../../resources/css/retype.css?v=3.0.3.742320055121" rel="stylesheet" />
+    <link href="../../../resources/css/retype.css?v=3.0.3.742486091186" rel="stylesheet" />
 
-    <script type="text/javascript" src="../../../resources/js/config.js?v=3.0.3.742320055121" data-turbo-eval="false" defer></script>
+    <script type="text/javascript" src="../../../resources/js/config.js?v=3.0.3.742486091186" data-turbo-eval="false" defer></script>
     <script type="text/javascript" src="../../../resources/js/retype.js?v=3.0.3" data-turbo-eval="false" defer></script>
-    <script id="lunr-js" type="text/javascript" src="../../../resources/js/lunr.js?v=3.0.3.742320055121" data-turbo-eval="false" defer></script>
+    <script id="lunr-js" type="text/javascript" src="../../../resources/js/lunr.js?v=3.0.3.742486091186" data-turbo-eval="false" defer></script>
 
     <link rel="stylesheet" href="/static/custom.css"></link>
 </head>
@@ -488,11 +488,9 @@ does not yet contain a <code v-pre>portal.properties</code> file, you can copy
         </tr>
 		<tr>
             <td>skin.hide_download_controls</td>
-            <td>removes all download and copy-to-clipboard options.</td>
-            <td>show</td>
-            <td>
-                string. "show" enables all download and copy-to-clipboard options. "data" disables data download but keeps figure and top-level data. "hide" disables all the download and copy-to-keyboard options.
-            </td>
+            <td>controls download options in UI. **true**: hides all download options. **false**:  shows all download options. **data**: disable data download but not figure download</td>
+            <td>false</td>
+            <td>true / false / data</td>
         </tr>
         <tr>
             <td>skin.show_settings_menu</td>

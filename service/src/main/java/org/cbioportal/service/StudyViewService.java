@@ -1,11 +1,8 @@
 package org.cbioportal.service;
 
 import org.cbioportal.model.*;
-import org.cbioportal.service.exception.MolecularProfileNotFoundException;
 import org.cbioportal.service.exception.StudyNotFoundException;
-import org.cbioportal.webparam.SampleIdentifier;
 import org.cbioportal.webparam.StudyViewFilter;
-import org.springframework.cache.annotation.Cacheable;
 
 import java.util.List;
 
@@ -28,4 +25,8 @@ public interface StudyViewService {
     List<AlterationCountByGene> getMutatedGenesFromColumnstore(StudyViewFilter interceptedStudyViewFilter);
     
     List<ClinicalDataCountItem> getClinicalDataCountsFromColumnStore(StudyViewFilter studyViewFilter, List<String> filteredAttributes);
+    
+    List<ClinicalData> getSampleClinicalDataFromStudyViewFilter(StudyViewFilter studyViewFilter, List<String> attributeIds);
+    
+    List<ClinicalData> getPatientClinicalDataFromStudyViewFilter(StudyViewFilter studyViewFilter, List<String> attributeIds);
 }

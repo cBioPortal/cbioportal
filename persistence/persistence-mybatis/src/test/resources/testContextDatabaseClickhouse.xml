@@ -16,7 +16,7 @@
         <!-- 
             Enable this to connect to an actual clickhouse Database instead of a mock one.
             Note that this is only intended for temporary local use, not for automated CI tests.
-        -->         
+        -->
 <!--        <property name="url" value="jdbc:ch://localhost:8123/cbioportal"/>-->
 <!--        <property name="password" value="cbio_pass"/>-->
 <!--        <property name="username" value="cbio_user"/>-->

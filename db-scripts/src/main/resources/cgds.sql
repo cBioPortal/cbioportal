@@ -755,5 +755,5 @@ CREATE TABLE `resource_study` (
 );
 
 -- THIS MUST BE KEPT IN SYNC WITH db.version PROPERTY IN pom.xml
-INSERT INTO info VALUES ('2.13.0', NULL);
+INSERT INTO info VALUES ('2.13.1', NULL);
 

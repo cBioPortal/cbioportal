@@ -16,6 +16,7 @@
             INNER JOIN sample ON patient.INTERNAL_ID = sample.PATIENT_ID
             INNER JOIN cancer_study ON patient.CANCER_STUDY_ID = cancer_study.CANCER_STUDY_ID
         <include refid="where"/>
+        AND clinical_event.EVENT_TYPE = 'TREATMENT'
         AND clinical_event_data.KEY = #{key}
     </select>
 
@@ -48,9 +49,9 @@
         <include refid="where"/>
     </select>
 
-    <select id="getAllUniqueTreatments" resultType="java.lang.String">
-        SELECT 
-            DISTINCT clinical_event_data.VALUE
+    <select id="hasTreatmentData" resultType="java.lang.Boolean">
+        SELECT EXISTS(SELECT
+            *
         FROM
             clinical_event
             INNER JOIN clinical_event_data ON clinical_event.CLINICAL_EVENT_ID = clinical_event_data.CLINICAL_EVENT_ID
@@ -58,25 +59,14 @@
             INNER JOIN sample ON patient.INTERNAL_ID = sample.PATIENT_ID
             INNER JOIN cancer_study ON patient.CANCER_STUDY_ID = cancer_study.CANCER_STUDY_ID
         <include refid="where"/>
-            AND clinical_event_data.KEY = #{key}
+            AND clinical_event.EVENT_TYPE = 'TREATMENT'
+            AND clinical_event_data.KEY = #{key} LIMIT 1
+        )
     </select>
 
-    <select id="getTreatmentCount" resultType="java.lang.Integer">
-        SELECT
-            COUNT(clinical_event.PATIENT_ID)
-        FROM
-            clinical_event
-            INNER JOIN clinical_event_data ON clinical_event.CLINICAL_EVENT_ID = clinical_event_data.CLINICAL_EVENT_ID
-            INNER JOIN patient ON clinical_event.PATIENT_ID = patient.INTERNAL_ID
-            INNER JOIN sample ON patient.INTERNAL_ID = sample.PATIENT_ID
-            INNER JOIN cancer_study ON patient.CANCER_STUDY_ID = cancer_study.CANCER_STUDY_ID
-        <include refid="where"/>
-            AND clinical_event_data.KEY = #{key}
-    </select>
-
-    <select id="getSampleCount" resultType="java.lang.Integer">
-        SELECT
-            COUNT(sample.STABLE_ID)
+    <select id="hasSampleTimelineData" resultType="java.lang.Boolean">
+        SELECT EXISTS(SELECT
+            *
         FROM
             clinical_event
             INNER JOIN clinical_event_data ON clinical_event.CLINICAL_EVENT_ID = clinical_event_data.CLINICAL_EVENT_ID
@@ -85,20 +75,7 @@
             INNER JOIN cancer_study ON patient.CANCER_STUDY_ID = cancer_study.CANCER_STUDY_ID
         <include refid="where"/>
             AND clinical_event_data.KEY = 'SAMPLE_ID'
-            AND (clinical_event.EVENT_TYPE LIKE 'Sample Acquisition' OR clinical_event.EVENT_TYPE LIKE 'SPECIMEN')
-    </select>
-    
-    <select id="studyIdHasTreatments" resultType="java.lang.Boolean">
-        SELECT
-            count(cancer_study.CANCER_STUDY_IDENTIFIER) > 0
-        FROM
-            clinical_event
-            INNER JOIN clinical_event_data ON clinical_event.CLINICAL_EVENT_ID = clinical_event_data.CLINICAL_EVENT_ID
-            INNER JOIN patient ON clinical_event.PATIENT_ID = patient.INTERNAL_ID
-            INNER JOIN cancer_study ON patient.CANCER_STUDY_ID = cancer_study.CANCER_STUDY_ID
-        WHERE
-            clinical_event_data.KEY = #{key}
-            AND cancer_study.CANCER_STUDY_IDENTIFIER = #{studyId}
+            AND (clinical_event.EVENT_TYPE LIKE 'Sample Acquisition' OR clinical_event.EVENT_TYPE LIKE 'SPECIMEN') LIMIT 1)
     </select>
 
     <sql id="where">

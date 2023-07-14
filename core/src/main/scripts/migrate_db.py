@@ -61,6 +61,9 @@ def get_db_cursor(portal_properties):
         connection_kwargs['db'] = portal_properties.database_name
         if portal_properties.database_use_ssl == 'true':
             connection_kwargs['ssl'] = {"ssl_mode": True}
+            connection_kwargs['ssl_mode'] = 'REQUIRED'
+        else:
+            connection_kwargs['ssl_mode'] = 'DISABLED'          
         
         connection = MySQLdb.connect(**connection_kwargs)
     except MySQLdb.Error as exception:

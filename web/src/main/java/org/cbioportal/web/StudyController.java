@@ -22,6 +22,7 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreFilter;
 import org.springframework.security.core.Authentication;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -180,7 +181,7 @@ public class StudyController {
         return new ResponseEntity<>(map, HttpStatus.OK);
     }
 
-    @PreAuthorize("hasPermission(#studyIds, 'Collection<CancerStudyId>', T(org.cbioportal.utils.security.AccessLevel).READ)")
+    @PreFilter("hasPermission(#studyIds, 'Collection<CancerStudyId>', T(org.cbioportal.utils.security.AccessLevel).READ)")
     @RequestMapping(value = "/studies/tags/fetch", method = RequestMethod.POST,
         produces = MediaType.APPLICATION_JSON_VALUE)
     @ApiOperation("Get the study tags by IDs")

@@ -7,7 +7,12 @@ import org.cbioportal.model.Sample;
 import org.cbioportal.model.util.Select;
 import org.cbioportal.persistence.enums.ClinicalAttributeDataSource;
 import org.cbioportal.persistence.enums.ClinicalAttributeDataType;
-import org.cbioportal.webparam.*;
+import org.cbioportal.webparam.CategorizedClinicalDataCountFilter;
+import org.cbioportal.webparam.ClinicalDataFilter;
+import org.cbioportal.webparam.DataFilterValue;
+import org.cbioportal.webparam.GeneFilterQuery;
+import org.cbioportal.webparam.StudyViewFilter;
+import org.cbioportal.webparam.StudyViewGeneFilter;
 import org.junit.Assert;
 import org.junit.Ignore;
 import org.junit.Test;
@@ -18,9 +23,11 @@ import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
 import java.math.BigDecimal;
-import java.util.*;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.HashSet;
+import java.util.List;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
@@ -278,13 +285,13 @@ public class StudyViewMyBatisRepositoryTest {
         filterValue.setEnd(BigDecimal.valueOf(0.033333333));
         clinicalDataFilter.setValues(List.of(filterValue));
 
-        CategorizedClinicalDataCountFilter clincalDataCountFilters = CategorizedClinicalDataCountFilter.getBuilder()
+        CategorizedClinicalDataCountFilter clinicalDataCountFilters = CategorizedClinicalDataCountFilter.getBuilder()
             .setPatientNumericalClinicalDataFilters(List.of(generateNumericalClinicalDataFilter("AGE", new String[]{"60-65"})))
             .setSampleNumericalClinicalDataFilters(List.of(clinicalDataFilter))
             .setSampleCategoricalClinicalDataFilters(List.of(generateCategoricalClinicalDataFilter("CANCER_TYPE", new String[]{"Bladder Cancer"})))
             .build();
 
-        List<AlterationCountByGene> mutatedGenes = studyViewMyBatisRepository.getMutatedGenes(studyViewFilter, clincalDataCountFilters);
+        List<AlterationCountByGene> mutatedGenes = studyViewMyBatisRepository.getMutatedGenes(studyViewFilter, clinicalDataCountFilters);
         Assert.assertEquals(16, mutatedGenes.size());
     }
     
@@ -293,13 +300,16 @@ public class StudyViewMyBatisRepositoryTest {
     public void getClinicalDataCounts() {
         StudyViewFilter studyViewFilter = generateStudyViewFilter(
             new String[]{"msk_ch_2020"},null
-        ); 
+        );
+
+        CategorizedClinicalDataCountFilter clinicalDataCountFilters = CategorizedClinicalDataCountFilter.getBuilder()
+            .setPatientNumericalClinicalDataFilters(List.of(generateNumericalClinicalDataFilter("AGE", new String[]{"60-65"})))
+            .setSampleCategoricalClinicalDataFilters(List.of(generateCategoricalClinicalDataFilter("CANCER_TYPE", new String[]{"Bladder Cancer"})))
+            .build();
         
-        List<ClinicalDataCount> counts = studyViewMyBatisRepository.getClinicalDataCounts(studyViewFilter, CategorizedClinicalDataCountFilter.getBuilder().build(),
-            List.of("CANCER_TYPE"));
+        List<ClinicalDataCount> counts = studyViewMyBatisRepository.getClinicalDataCounts(studyViewFilter, clinicalDataCountFilters,
+            List.of("SEX"));
         
-        Assert.assertEquals(counts.size(), 50);
-        
-        
+        Assert.assertEquals(counts.size(), 2);
     }
 }

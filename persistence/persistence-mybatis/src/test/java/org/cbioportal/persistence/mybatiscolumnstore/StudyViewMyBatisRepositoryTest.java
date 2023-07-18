@@ -3,6 +3,7 @@ package org.cbioportal.persistence.mybatiscolumnstore;
 import org.cbioportal.model.AlterationCountByGene;
 import org.cbioportal.model.ClinicalData;
 import org.cbioportal.model.ClinicalDataCount;
+import org.cbioportal.model.Gene;
 import org.cbioportal.model.Sample;
 import org.cbioportal.model.util.Select;
 import org.cbioportal.persistence.enums.ClinicalAttributeDataSource;
@@ -102,7 +103,7 @@ public class StudyViewMyBatisRepositoryTest {
         StudyViewGeneFilter mutationStudyViewGeneFilter = new StudyViewGeneFilter();
         mutationStudyViewGeneFilter.setMolecularProfileIds(new HashSet<>(Arrays.asList("msk_impact_2017_mutations")));
         
-        mutationStudyViewGeneFilter.setGeneQueries(getFilters.apply("moo"));
+        mutationStudyViewGeneFilter.setGeneQueries(generateGeneFilters(List.of("SMARCD1", "TP53"), false));
 
         studyViewGeneFilters.add(mutationStudyViewGeneFilter);
         
@@ -147,8 +148,8 @@ public class StudyViewMyBatisRepositoryTest {
         return dataFilterValue;
     };
     
-    private final Function<String,List<List<GeneFilterQuery>>> getFilters = v -> {
-
+    private List<List<GeneFilterQuery>> generateGeneFilters(List<String> genesToFilter, boolean createOrRelationship) {
+        
         boolean includeDriver = true;
         boolean includeVUS = true;
         boolean includeUnknownOncogenicity = true;
@@ -157,27 +158,25 @@ public class StudyViewMyBatisRepositoryTest {
         boolean includeUnknownStatus = true;
         Select<String> selectedTiers = Select.none();
         boolean includeUnknownTier = true;
-
-        GeneFilterQuery geneFilterQuery1 = new GeneFilterQuery("SMARCD1", null,
-            null, includeDriver, includeVUS, includeUnknownOncogenicity,  selectedTiers, includeUnknownTier,
-            includeGermline, includeSomatic, includeUnknownStatus);
-
-        GeneFilterQuery geneFilterQuery2 = new GeneFilterQuery("TP53", null,
-            null, includeDriver, includeVUS, includeUnknownOncogenicity,  selectedTiers, includeUnknownTier,
-            includeGermline, includeSomatic, includeUnknownStatus);
-
-        List<List<GeneFilterQuery>> q1 = new ArrayList<>();
-        List<GeneFilterQuery> q2 = new ArrayList<>();
-        List<GeneFilterQuery> q3 = new ArrayList<>();
         
-        q2.add(geneFilterQuery1);
-        q3.add(geneFilterQuery2);
-        q1.add(q2);
-        q1.add(q3);
-        return q1;
-        
-    };
-    
+        if(createOrRelationship) {
+            List<GeneFilterQuery> ordGeneFilters = genesToFilter.stream().map(geneToFilter -> new GeneFilterQuery(geneToFilter,
+                    null, null, includeDriver, includeVUS, includeUnknownOncogenicity, selectedTiers,
+                    includeUnknownTier, includeGermline, includeSomatic, includeUnknownStatus))
+                .collect(Collectors.toList());
+
+            return List.of(ordGeneFilters);
+        } else {
+            List<List<GeneFilterQuery>> filter = new ArrayList<>();
+            for (String geneToFilter : genesToFilter) {
+               
+                filter.add(List.of( new GeneFilterQuery(geneToFilter, null,
+                    null, includeDriver, includeVUS, includeUnknownOncogenicity,  selectedTiers, includeUnknownTier,
+                    includeGermline, includeSomatic, includeUnknownStatus)));
+            }
+            return filter;
+        }
+    }
     
     private final Function<String, DataFilterValue> mapNumericalValues = v -> {
         DataFilterValue dataFilterValue = new DataFilterValue();
@@ -311,5 +310,46 @@ public class StudyViewMyBatisRepositoryTest {
             List.of("SEX"));
         
         Assert.assertEquals(counts.size(), 2);
+    }
+    
+    @Test
+    public void getFilteredSamplesWithGeneFilters() {
+        StudyViewFilter studyViewFilter = generateStudyViewFilter(new String[]{"msk_impact_2017"}, null);
+
+        List<StudyViewGeneFilter> studyViewGeneFilters = new ArrayList<>();
+        StudyViewGeneFilter mutationStudyViewGeneFilter = new StudyViewGeneFilter();
+        mutationStudyViewGeneFilter.setMolecularProfileIds(new HashSet<>(List.of("msk_impact_2017_mutations")));
+        mutationStudyViewGeneFilter.setGeneQueries(generateGeneFilters(List.of("KRAS", "TP53"), false));
+        studyViewGeneFilters.add(mutationStudyViewGeneFilter);
+
+        studyViewFilter.setGeneFilters(studyViewGeneFilters);
+        
+        List<Sample> samples = studyViewMyBatisRepository.getFilteredSamplesFromColumnstore(studyViewFilter, CategorizedClinicalDataCountFilter.getBuilder().build());
+        Assert.assertEquals(845, samples.size());
+
+        mutationStudyViewGeneFilter.setGeneQueries(generateGeneFilters(List.of("SMARCD1", "TP53"), true));
+        List<Sample> samplesFilteredViaOrRelationship = studyViewMyBatisRepository.getFilteredSamplesFromColumnstore(studyViewFilter, CategorizedClinicalDataCountFilter.getBuilder().build());
+        Assert.assertEquals(4561, samplesFilteredViaOrRelationship.size()); 
+    }
+
+    @Test
+    public void getFilteredSamplesWithMultipleStudyViewGeneFilters() {
+        StudyViewFilter studyViewFilter = generateStudyViewFilter(new String[]{"msk_impact_2017"}, null);
+
+        List<StudyViewGeneFilter> studyViewGeneFilters = new ArrayList<>();
+        StudyViewGeneFilter mutationStudyViewGeneFilter = new StudyViewGeneFilter();
+        mutationStudyViewGeneFilter.setMolecularProfileIds(new HashSet<>(List.of("msk_impact_2017_mutations")));
+        mutationStudyViewGeneFilter.setGeneQueries(generateGeneFilters(List.of("TP53"), false));
+        
+        StudyViewGeneFilter cnaStudyViewGeneFilter = new StudyViewGeneFilter();
+        cnaStudyViewGeneFilter.setMolecularProfileIds(new HashSet<>(List.of("msk_impact_2017_structural_variants")));
+        cnaStudyViewGeneFilter.setGeneQueries(generateGeneFilters(List.of("BRAF"), true));
+        studyViewGeneFilters.add(mutationStudyViewGeneFilter);
+        studyViewGeneFilters.add(cnaStudyViewGeneFilter);
+
+        studyViewFilter.setGeneFilters(studyViewGeneFilters);
+
+        List<Sample> samples = studyViewMyBatisRepository.getFilteredSamplesFromColumnstore(studyViewFilter, CategorizedClinicalDataCountFilter.getBuilder().build());
+        Assert.assertEquals(16, samples.size()); 
     }
 }

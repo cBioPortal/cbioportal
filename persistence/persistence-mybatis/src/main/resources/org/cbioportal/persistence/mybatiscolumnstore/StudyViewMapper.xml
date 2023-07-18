@@ -160,26 +160,24 @@
                 </foreach>
             </if>
             <if test="studyViewFilter.geneFilters != null and !studyViewFilter.geneFilters.isEmpty()">
-                INTERSECT
-                SELECT sample_unique_id
-                FROM genomic_event
-                <where>
-                    <trim prefixOverrides="OR">
-                        <foreach item="profileGroup" collection="studyViewFilter.geneFilters" open="OR (" separator="," close=")">
+                <foreach item="profileGroup" collection="studyViewFilter.geneFilters">
+                    <foreach item="geneFilterQueryList" collection="profileGroup.getGeneQueries()" open="INTERSECT" separator="INTERSECT">
+                        SELECT sample_unique_id
+                        FROM genomic_event
+                        <where>
                             genetic_profile_stable_id IN
                             <foreach item="molecularProfileId" collection="profileGroup.getMolecularProfileIds()" open="(" separator="," close=")">
                                 #{molecularProfileId}
                             </foreach>
                             AND hugo_gene_symbol IN (
-                            <foreach item="geneFilterQueryList" collection="profileGroup.getGeneQueries()" separator=",">
-                                <foreach item="geneFilterQuery" collection="geneFilterQueryList" separator=",">
-                                    #{geneFilterQuery.hugoGeneSymbol}
-                                </foreach>
+                            <foreach item="geneFilterQuery" collection="geneFilterQueryList" separator=",">
+                                #{geneFilterQuery.hugoGeneSymbol}
                             </foreach>
                             )
-                        </foreach>
-                    </trim>
-                </where>
+                        </where>
+                        
+                    </foreach>
+                </foreach>
             </if>
             <if test="categorizedClinicalDataCountFilter.getSampleNumericalClinicalDataFilters() != null and !categorizedClinicalDataCountFilter.getSampleNumericalClinicalDataFilters().isEmpty()">
                 <foreach item="clinicalDataFilter" collection="categorizedClinicalDataCountFilter.getSampleNumericalClinicalDataFilters()" open="INTERSECT" separator="INTERSECT">

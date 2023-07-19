@@ -1034,7 +1034,7 @@ public class AlterationMyBatisRepositoryTest {
         alterationFilter.setStructuralVariants(true);
         alterationFilter.setMutationTypeSelect(Select.none());
         alterationFilter.setCnaTypeSelect(Select.none());
-        alterationFilter.setSelectedTiers(Select.byValues(List.of("Class 2")));
+        alterationFilter.setSelectedTiers(Select.byValues(Arrays.asList("Class 2")));
         alterationFilter.setIncludeUnknownTier(true);
         List<AlterationCountByGene> result = alterationMyBatisRepository.getPatientAlterationGeneCounts(
             svPatientIdToProfileId,
@@ -1049,7 +1049,7 @@ public class AlterationMyBatisRepositoryTest {
         alterationFilter.setStructuralVariants(true);
         alterationFilter.setMutationTypeSelect(Select.none());
         alterationFilter.setCnaTypeSelect(Select.none());
-        alterationFilter.setSelectedTiers(Select.byValues(List.of("Class 2")));
+        alterationFilter.setSelectedTiers(Select.byValues(Arrays.asList("Class 2")));
         alterationFilter.setIncludeUnknownTier(false);
         List<AlterationCountByGene> result = alterationMyBatisRepository.getPatientAlterationGeneCounts(
             svPatientIdToProfileId,

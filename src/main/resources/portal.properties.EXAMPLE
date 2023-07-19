@@ -434,3 +434,5 @@ persistence.cache_type=no-cache
 # Set StudyDownloadLinkUrl
 # Allows download links within DataSets Tab (See Portal.Properties documentation for more info)
 # study_download_url=
+
+# download_group=

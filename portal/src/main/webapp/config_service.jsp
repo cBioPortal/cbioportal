@@ -202,7 +202,7 @@
         obj.put("oncoKbTokenDefined", !StringUtils.isEmpty(GlobalProperties.getOncoKbToken()));
 
         obj.put("sessionServiceEnabled", !StringUtils.isEmpty(GlobalProperties.getSessionServiceUrl()));
-        
+
         obj.put("skin_hide_download_controls", GlobalProperties.getDownloadControl());
 
         out.println(obj.toJSONString());

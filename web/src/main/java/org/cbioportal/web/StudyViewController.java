@@ -11,6 +11,7 @@ import org.apache.commons.math3.stat.correlation.PearsonsCorrelation;
 import org.apache.commons.math3.stat.correlation.SpearmansCorrelation;
 import org.cbioportal.model.*;
 import org.cbioportal.service.*;
+import org.cbioportal.service.exception.MolecularProfileNotFoundException;
 import org.cbioportal.service.exception.StudyNotFoundException;
 import org.cbioportal.service.util.ClinicalAttributeUtil;
 import org.cbioportal.web.config.annotation.InternalApi;
@@ -27,19 +28,14 @@ import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.validation.annotation.Validated;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestAttribute;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 import springfox.documentation.annotations.ApiIgnore;
 
 import javax.annotation.PostConstruct;
 import javax.validation.Valid;
 import javax.validation.constraints.Max;
 import javax.validation.constraints.Min;
+import javax.validation.constraints.Size;
 import java.math.BigDecimal;
 import java.util.*;
 import java.util.function.Function;
@@ -844,6 +840,29 @@ public class StudyViewController {
                 .filter(dataCount -> dataCount.getCount() > 0)
                 .collect(Collectors.toList());
 
+    }
+
+    @PreAuthorize("hasPermission(#involvedCancerStudies, 'Collection<CancerStudyId>', T(org.cbioportal.utils.security.AccessLevel).READ)")
+    @RequestMapping(value = "/genomic-data-counts/fetch", method = RequestMethod.POST,
+        consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
+    @ApiOperation("Fetch genomic data counts by CopyNumberCountFilter")
+    public ResponseEntity<List<GenomicDataCount>> fetchGenomicDataCounts(
+        @ApiIgnore // prevent reference to this attribute in the swagger-ui interface
+        @RequestAttribute(required = false, value = "involvedCancerStudies") Collection<String> involvedCancerStudies,
+        @ApiParam(required = true, value = "List of copy number count identifiers")
+        @RequestBody CopyNumberCountFilter copyNumberCountFilter
+    ) throws MolecularProfileNotFoundException {
+        String molecularProfileId = copyNumberCountFilter.getMolecularProfileId();
+        int entrezGeneId = copyNumberCountFilter.getEntrezGeneId();
+
+        List<Integer> entrezGeneIds = new ArrayList<>();
+        List<Integer> alterations = DiscreteCopyNumberEventType.ALL.getAlterationTypes();
+        for (int i = 0; i < alterations.size(); i++) entrezGeneIds.add(entrezGeneId);
+        
+        return new ResponseEntity<>(
+            studyViewService.getCNAAlterationCountsByEvent(molecularProfileId, entrezGeneIds, alterations), 
+            HttpStatus.OK
+        );
     }
     
     @PreAuthorize("hasPermission(#involvedCancerStudies, 'Collection<CancerStudyId>', T(org.cbioportal.utils.security.AccessLevel).READ)")

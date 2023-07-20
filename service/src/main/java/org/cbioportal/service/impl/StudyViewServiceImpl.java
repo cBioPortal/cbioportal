@@ -37,6 +37,9 @@ public class StudyViewServiceImpl implements StudyViewService {
     @Autowired
     private AlterationRepository alterationRepository;
 
+    @Autowired
+    private DiscreteCopyNumberService discreteCopyNumberService;
+    
     @Override
     public List<GenomicDataCount> getGenomicDataCounts(List<String> studyIds, List<String> sampleIds) {
         List<MolecularProfileCaseIdentifier> molecularProfileSampleIdentifiers =
@@ -184,6 +187,30 @@ public class StudyViewServiceImpl implements StudyViewService {
             });
         }
         return copyNumberCountByGenes;
+    }
+
+    @Override
+    public List<GenomicDataCount> getCNAAlterationCountsByEvent(String molecularProfileId, List<Integer> entrezGeneIds,
+                                                                List<Integer> alterations) throws MolecularProfileNotFoundException {
+
+        List<CopyNumberCount> copyNumberCounts = discreteCopyNumberService.fetchCopyNumberCounts(molecularProfileId, entrezGeneIds, alterations);
+        
+        return copyNumberCounts
+            .stream()
+            .filter(c -> c.getNumberOfSamplesWithAlterationInGene() != null)
+            .map(entry -> {
+                int count = entry.getNumberOfSamplesWithAlterationInGene();
+                int alteration = entry.getAlteration();
+                String label = CNA.getByCode(entry.getAlteration().shortValue()).getDescription();
+                
+                GenomicDataCount genomicDataCount = new GenomicDataCount();
+                genomicDataCount.setLabel(label);
+                genomicDataCount.setValue(String.valueOf(alteration));
+                genomicDataCount.setCount(count);
+
+                return genomicDataCount;
+            })
+            .collect(Collectors.toList());
     }
 
     @Override

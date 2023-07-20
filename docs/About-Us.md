@@ -42,6 +42,7 @@ The cBioPortal for Cancer Genomics was originally developed at [Memorial Sloan K
 ## Caris Life Sciences
 * Jianjiong Gao
 * Priti Kumari
+* Karthik Kalletla
 
 ## The Hyve
 * Oleguer Plantalech
@@ -82,7 +83,6 @@ The cBioPortal for Cancer Genomics was originally developed at [Memorial Sloan K
 * Zachary Heins
 * Michael Heuer
 * Anders Jacobsen
-* Karthik Kalletla
 * Peter Kok
 * Erik Larsson
 * Dong Li

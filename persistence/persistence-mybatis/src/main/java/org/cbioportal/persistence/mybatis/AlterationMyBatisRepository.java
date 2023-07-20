@@ -36,8 +36,10 @@ public class AlterationMyBatisRepository implements AlterationRepository {
             || (molecularProfileCaseIdentifiers == null || molecularProfileCaseIdentifiers.isEmpty())
             || allAlterationsExcludedDriverAnnotation(alterationFilter)
             || allAlterationsExcludedMutationStatus(alterationFilter)
-            || allAlterationsExcludedDriverTierAnnotation(alterationFilter)) {
-            return Collections.emptyList();
+            || allAlterationsExcludedDriverTierAnnotation(alterationFilter)
+        ) {
+            // We want a mutable empty list:
+            return new ArrayList<>();
         }
 
         Set<String> molecularProfileIds = molecularProfileCaseIdentifiers.stream()

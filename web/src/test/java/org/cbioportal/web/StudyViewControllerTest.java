@@ -62,6 +62,9 @@ public class StudyViewControllerTest {
     private static final String TEST_GENERIC_ASSAY_DATA_VALUE_2 = "value2";
     private static final String TEST_CLINICAL_EVENT_TYPE = "STATUS";
     private static final Integer TEST_CLINICAL_EVENT_TYPE_COUNT = 513;
+    private static final String TEST_CNA_ALTERATION_NAME = "test_cna_event_type";
+    private static final String TEST_CNA_ALTERATION_VALUE = "2";
+    private static final String TEST_MOLECULAR_PROFILE_ID = "test_molecular_profile_id";
 
     private List<SampleIdentifier> filteredSampleIdentifiers = new ArrayList<>();
     private List<ClinicalData> clinicalData = new ArrayList<>();
@@ -506,6 +509,41 @@ public class StudyViewControllerTest {
             .andExpect(MockMvcResultMatchers.jsonPath("$[1].count").value(2));
     }
 
+
+    @Test
+    public void fetchGenomicDataCounts() throws Exception {
+        List<GenomicDataCount> genomicDataCounts = new ArrayList<>();
+        GenomicDataCount genomicDataCount1 = new GenomicDataCount();
+        genomicDataCount1.setLabel(TEST_CNA_ALTERATION_NAME);
+        genomicDataCount1.setValue(TEST_CNA_ALTERATION_VALUE);
+        genomicDataCount1.setCount(1);
+        genomicDataCounts.add(genomicDataCount1);
+
+        List<Integer> entrezGeneIds = new ArrayList<>();
+        List<Integer> alterations = DiscreteCopyNumberEventType.ALL.getAlterationTypes();
+        for (int i = 0; i < alterations.size(); i++) entrezGeneIds.add(TEST_ENTREZ_GENE_ID_1);
+        
+        when(studyViewService.getCNAAlterationCountsByEvent(
+            eq(TEST_MOLECULAR_PROFILE_ID),
+            eq(entrezGeneIds),
+            eq(alterations)))
+            .thenReturn(genomicDataCounts);
+
+        CopyNumberCountFilter copyNumberCountFilter = new CopyNumberCountFilter();
+        copyNumberCountFilter.setEntrezGeneId(TEST_ENTREZ_GENE_ID_1);
+        copyNumberCountFilter.setMolecularProfileId(TEST_MOLECULAR_PROFILE_ID);
+        
+        mockMvc.perform(MockMvcRequestBuilders.post("/genomic-data-counts/fetch")
+                .accept(MediaType.APPLICATION_JSON)
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(copyNumberCountFilter)))
+            .andExpect(MockMvcResultMatchers.status().isOk())
+            .andExpect(MockMvcResultMatchers.content().contentTypeCompatibleWith(MediaType.APPLICATION_JSON))
+            .andExpect(MockMvcResultMatchers.jsonPath("$[0].label").value(TEST_CNA_ALTERATION_NAME))
+            .andExpect(MockMvcResultMatchers.jsonPath("$[0].value").value(TEST_CNA_ALTERATION_VALUE))
+            .andExpect(MockMvcResultMatchers.jsonPath("$[0].count").value(1));
+    }
+    
     @Ignore("Skip StudyViewControllerTest.fetchClinicalDataDensityPlot due to assertion errors")
     @Test
     public void fetchClinicalDataDensityPlot() throws Exception {

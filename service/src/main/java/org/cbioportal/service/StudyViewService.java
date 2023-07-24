@@ -19,9 +19,6 @@ public interface StudyViewService {
 
     List<CopyNumberCountByGene> getCNAAlterationCountByGenes(List<String> studyIds, List<String> sampleIds, AlterationFilter annotationFilter)
         throws StudyNotFoundException;
-    
-//    List<GenomicDataCount> getCNAAlterationCountsByEvent(List<String> studyIds, List<String> sampleIds, AlterationFilter annotationFilter)
-//        throws StudyNotFoundException;
 
     List<GenomicDataCount> getCNAAlterationCountsByEvent(String molecularProfileId, List<Integer> entrezGeneIds,
                                                          List<Integer> alterations) throws MolecularProfileNotFoundException;

@@ -14,6 +14,7 @@ import org.cbioportal.service.util.ExpressionEnrichmentUtil;
 import org.cbioportal.service.util.FisherExactTestCalculator;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
 import java.util.*;
@@ -33,7 +34,7 @@ public class GenericAssayBinaryDataServiceImpl implements GenericAssayBinaryData
     private MolecularProfileService molecularProfileService;
 
     @Autowired
-    private FisherExactTestCalculator fisherExactTestCalculator;
+    private FisherExactTestCalculator fisherExactTestCalculator = new FisherExactTestCalculator();
 
     @Autowired
     private ExpressionEnrichmentUtil expressionEnrichmentUtil;
@@ -41,6 +42,7 @@ public class GenericAssayBinaryDataServiceImpl implements GenericAssayBinaryData
     private GenericAssayService genericAssayService;
 
     @Override
+    @Transactional(readOnly = true)
     public List<GenericAssayBinaryEnrichment> getGenericAssayBinaryEnrichments(
         String molecularProfileId,
         Map<String, List<MolecularProfileCaseIdentifier>> molecularProfileCaseSets, EnrichmentType enrichmentType) 
@@ -90,6 +92,7 @@ public class GenericAssayBinaryDataServiceImpl implements GenericAssayBinaryData
 
         // Extract pValues and calculate qValues.
         BigDecimal[] pValues = genericAssayBinaryEnrichments.stream().map(a -> a.getpValue()).toArray(BigDecimal[]::new);
+
         BigDecimal[] qValues = fisherExactTestCalculator.calcqValue(pValues);
 
         // Assign qValues back to the objects.

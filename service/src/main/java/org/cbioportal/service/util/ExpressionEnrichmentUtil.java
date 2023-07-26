@@ -7,6 +7,7 @@ import java.util.function.Function;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
+import io.swagger.models.auth.In;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.math.NumberUtils;
 import org.apache.commons.math3.stat.StatUtils;
@@ -43,7 +44,6 @@ public class ExpressionEnrichmentUtil {
 		Map<String, List<Integer>> groupIndicesMap = getGroupIndicesMap(molecularProfileCaseSets, enrichmentType,
 				molecularProfile);
 		for (MolecularAlteration ma : maItr) {
-
 			List<GroupStatistics> groupsStatistics = new ArrayList<GroupStatistics>();
 			// used for p-value calculation
 			List<double[]> groupedValues = new ArrayList<double[]>();
@@ -112,7 +112,7 @@ public class ExpressionEnrichmentUtil {
         Map<String, Map<String, Integer>> groupCategoryStatistics = new HashMap<>();
         Map<String, List<Integer>> groupIndicesMap = getGroupIndicesMap(molecularProfileCaseSets, enrichmentType,
             molecularProfile);
-        
+
         for (MolecularAlteration ma : maItr) {
             List<GroupStatistics> groupsStatistics = new ArrayList<GroupStatistics>();
             for (Entry<String, List<Integer>> group : groupIndicesMap.entrySet()) {
@@ -136,12 +136,16 @@ public class ExpressionEnrichmentUtil {
             }
 
             // calculate p-value and add enrichment if atleast 2 groups have data
+
             if (groupsStatistics.size() > 1) {
                 long[][] array = getCategoricalValues(groupCategoryStatistics);
                 double pValue;
-
-                ChiSquareTest chiSquareTest = new ChiSquareTest();
-                pValue = chiSquareTest.chiSquareTest(array);
+                if(array[0].length <= 1) {
+                    pValue = 1;
+                } else {
+                    ChiSquareTest chiSquareTest = new ChiSquareTest();
+                    pValue = chiSquareTest.chiSquareTest(array);
+                }
 
                 // set p-value to 1 when the cases in all groups are altered
                 if (Double.isNaN(pValue)) {
@@ -179,16 +183,8 @@ public class ExpressionEnrichmentUtil {
             for (Entry<String, List<Integer>> group : groupIndicesMap.entrySet()) {
                 GenericAssayCountSummary genericAssayCountSummary = new GenericAssayCountSummary();
                 genericAssayCountSummary.setName(group.getKey());
-                // Get the corresponding split values for the group
-                List<String> groupValues = group.getValue().stream()
-                    .map(sampleIndex -> ma.getSplitValues()[sampleIndex])
-                    .collect(Collectors.toList());
-                // Group and count the split values
-                Map<String, Integer> groupedSplitValues = groupValues.stream()
-                    .collect(Collectors.toMap(Function.identity(), v -> 1, Integer::sum));
 
                 // get expression values to all the indices in the group, filter NA and map binary values
-                //unaltered:1:1,0 2:0,1 altered:1:1,1 2:0,0
                 List<String> molecularDataValues = group.getValue().stream()
                     .map(sampleIndex -> ma.getSplitValues()[sampleIndex])
                     .filter(StringUtils::isNotEmpty)
@@ -199,9 +195,12 @@ public class ExpressionEnrichmentUtil {
                 if (molecularDataValues.size() < 2) {
                     continue;
                 }
-
+                genericAssayCountSummary.setTotalCount(molecularDataValues.size());
+                
                 double[] values = getAlterationValues(molecularDataValues, molecularProfile.getStableId());
-
+                genericAssayCountSummary.setCount((int) Arrays.stream(values)
+                    .filter(num -> num == 1)
+                    .count());
                 GroupStatistics groupStatistics = new GroupStatistics();
                 double alteredMean = StatUtils.mean(values);
                 double alteredStandardDeviation = calculateStandardDeviation(values);
@@ -217,11 +216,11 @@ public class ExpressionEnrichmentUtil {
                 groupStatistics.setStandardDeviation(BigDecimal.valueOf(alteredStandardDeviation));
                 groupsStatistics.add(groupStatistics);
                 genericAssayCountSummaries.add(genericAssayCountSummary);
-
             }
 
             // calculate p-value and add enrichment if atleast 2 groups have data
             if (groupsStatistics.size() > 1) {
+
                 double pValue = calculatePValue(groupedValues);
                 if (Double.isNaN(pValue)) {
                     continue;
@@ -388,11 +387,5 @@ public class ExpressionEnrichmentUtil {
 					.collect(Collectors.toMap(Sample::getStableId, x -> Arrays.asList(x.getInternalId())));
 		}
 	}
-    public static void main(String[] args) {
-        List<double[]> alteredValues = null;
-        alteredValues.add(new double[]{0, 0});
-        alteredValues.add(new double[]{0, 1});
-        double pValue = TestUtils.tTest(alteredValues.get(0), alteredValues.get(1));
-        System.out.println("Calculated p-value: " + pValue);
-    }
+
 }

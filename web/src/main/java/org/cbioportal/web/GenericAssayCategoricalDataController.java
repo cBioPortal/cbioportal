@@ -4,10 +4,7 @@ import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
 import org.apache.commons.lang3.StringUtils;
-import org.cbioportal.model.EnrichmentType;
-import org.cbioportal.model.GenericAssayData;
-import org.cbioportal.model.GenericAssayCategoricalEnrichment;
-import org.cbioportal.model.MolecularProfileCaseIdentifier;
+import org.cbioportal.model.*;
 import org.cbioportal.service.GenericAssayCategoricalDataService;
 import org.cbioportal.service.GenericAssayService;
 import org.cbioportal.service.SampleService;
@@ -56,7 +53,13 @@ public class GenericAssayCategoricalDataController {
         @ApiIgnore
         @Valid @RequestAttribute(required = false, value = "interceptedMolecularProfileCasesGroupFilters") List<MolecularProfileCasesGroupFilter> interceptedMolecularProfileCasesGroupFilters)
         throws MolecularProfileNotFoundException, UnsupportedOperationException {
-
+        
+        return new ResponseEntity<>(fetchExpressionEnrichments(enrichmentType, interceptedMolecularProfileCasesGroupFilters),
+            HttpStatus.OK);
+    }
+    private List<GenericAssayCategoricalEnrichment> fetchExpressionEnrichments(EnrichmentType enrichmentType,
+                                                                                List<MolecularProfileCasesGroupFilter> interceptedMolecularProfileCasesGroupFilters
+                                                                                ) throws MolecularProfileNotFoundException {
         Map<String, List<MolecularProfileCaseIdentifier>> groupCaseIdentifierSet = interceptedMolecularProfileCasesGroupFilters
             .stream().collect(Collectors.toMap(MolecularProfileCasesGroupFilter::getName,
                 MolecularProfileCasesGroupFilter::getMolecularProfileCaseIdentifiers));
@@ -65,15 +68,13 @@ public class GenericAssayCategoricalDataController {
             .flatMap(molecularProfileCaseSet -> molecularProfileCaseSet.stream()
                 .map(MolecularProfileCaseIdentifier::getMolecularProfileId))
             .collect(Collectors.toSet());
-        
+
         if (molecularProfileIds.size() > 1) {
-            throw new UnsupportedOperationException("Multi-study enrichments is not yet implemented");
+            throw new UnsupportedOperationException("Multi-study expression enrichments is not yet implemented");
         }
-
-        return new ResponseEntity<>(
-            genericAssayCategoricalDataService.getGenericAssayCategoricalEnrichments(
-                molecularProfileIds.iterator().next(), groupCaseIdentifierSet, enrichmentType),
-            HttpStatus.OK);
+        return genericAssayCategoricalDataService.getGenericAssayCategoricalEnrichments(
+            molecularProfileIds.iterator().next(), groupCaseIdentifierSet, enrichmentType);
     }
-
 }
+
+

@@ -101,6 +101,8 @@ public class InvolvedCancerStudyExtractorInterceptor extends HandlerInterceptorA
     public static final String TREATMENTS_PATIENT_PATH = "/treatments/patient";
     public static final String TREATMENTS_SAMPLE_PATH = "/treatments/sample";
     public static final String GENERIC_ASSAY_ENRICHMENT_FETCH_PATH = "/generic-assay-enrichments/fetch";
+    public static final String GENERIC_ASSAY_CATEGORICAL_ENRICHMENT_FETCH_PATH = "/generic-assay-enrichments/categorical/fetch";
+    public static final String GENERIC_ASSAY_BINARY_ENRICHMENT_FETCH_PATH = "/generic-assay-enrichments/binary/fetch";
     public static final String CLINICAL_EVENT_TYPE_COUNT_FETCH_PATH = "/clinical-event-type-counts/fetch";
 
     @Override public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object handler) throws Exception {
@@ -148,7 +150,9 @@ public class InvolvedCancerStudyExtractorInterceptor extends HandlerInterceptorA
         } else if (requestPathInfo.equals(MUTATION_ENRICHMENT_FETCH_PATH) ||
         		requestPathInfo.equals(COPY_NUMBER_ENRICHMENT_FETCH_PATH) ||
         		requestPathInfo.equals(EXPRESSION_ENRICHMENT_FETCH_PATH) ||
-        		requestPathInfo.equals(GENERIC_ASSAY_ENRICHMENT_FETCH_PATH)) {
+        		requestPathInfo.equals(GENERIC_ASSAY_ENRICHMENT_FETCH_PATH) ||
+                requestPathInfo.equals(GENERIC_ASSAY_CATEGORICAL_ENRICHMENT_FETCH_PATH) ||
+                requestPathInfo.equals(GENERIC_ASSAY_BINARY_ENRICHMENT_FETCH_PATH)) {
             return extractAttributesFromMolecularProfileCasesGroups(request);
         } else if (requestPathInfo.equals(ALTERATION_ENRICHMENT_FETCH_PATH)) {
             return extractAttributesFromMolecularProfileCasesGroupsAndAlterationTypes(request);

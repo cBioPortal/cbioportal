@@ -41,7 +41,7 @@ public class GenericAssayBinaryDataController {
         method = RequestMethod.POST, consumes = MediaType.APPLICATION_JSON_VALUE,
         produces = MediaType.APPLICATION_JSON_VALUE)
     @ApiOperation("Fetch generic assay binary data enrichments in a molecular profile")
-    public ResponseEntity<List<GenericAssayBinaryEnrichment>> fetchGenericAssayCategoricalDataEnrichmentInMultipleMolecularProfiles(
+    public ResponseEntity<List<GenericAssayBinaryEnrichment>> fetchGenericAssayBinaryDataEnrichmentInMultipleMolecularProfiles(
         @ApiIgnore
         @RequestAttribute(required = false, value = "involvedCancerStudies") Collection<String> involvedCancerStudies,
         @ApiParam("Type of the enrichment e.g. SAMPLE or PATIENT")

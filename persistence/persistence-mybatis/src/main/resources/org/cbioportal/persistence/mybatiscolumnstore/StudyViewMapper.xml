@@ -31,14 +31,15 @@
             COUNT(DISTINCT sample_unique_id) as numberOfProfiledCases,
             COUNT(DISTINCT sample_unique_id) as numberOfAlteredCases,
             COUNT(*) as totalCount
-        FROM mutation
+        FROM genomic_event
         <where>
-           sample_unique_id IN ( <include refid="sampleUniqueIdsFromStudyViewFilter"/>
+            variant_type = 'mutation'
+            AND
+            sample_unique_id IN ( <include refid="sampleUniqueIdsFromStudyViewFilter"/>
             <if test="applyPatientIdFilters == true">
                 INTERSECT <include refid="getSampleIdsFromPatientIds"/>
             </if> 
             )
-
         </where>
         GROUP BY hugo_gene_symbol
         ORDER BY totalCount DESC;

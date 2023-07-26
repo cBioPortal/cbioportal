@@ -45,19 +45,27 @@ public class StudyViewFilterUtil {
     }
 
     public void removeSelfFromFilter(String attributeId, StudyViewFilter studyViewFilter) {
-        if (studyViewFilter!= null && studyViewFilter.getClinicalDataFilters() != null) {
+        if (studyViewFilter != null && studyViewFilter.getClinicalDataFilters() != null) {
             studyViewFilter.getClinicalDataFilters().removeIf(f -> f.getAttributeId().equals(attributeId));
+        }
+    }
+    
+    public void removeSelfFromGenomicDataFilter(String hugoGeneSymbol, String profileType, StudyViewFilter studyViewFilter) {
+        if (studyViewFilter != null && studyViewFilter.getGenomicDataFilters() != null) {
+            studyViewFilter.getGenomicDataFilters().removeIf(f -> 
+                f.getHugoGeneSymbol().equals(hugoGeneSymbol) && f.getProfileType().equals(profileType)
+            );
         }
     }
 
     public void removeSelfFromGenericAssayFilter(String stableId, StudyViewFilter studyViewFilter) {
-        if (studyViewFilter!= null && studyViewFilter.getGenericAssayDataFilters() != null) {
+        if (studyViewFilter != null && studyViewFilter.getGenericAssayDataFilters() != null) {
             studyViewFilter.getGenericAssayDataFilters().removeIf(f -> f.getStableId().equals(stableId));
         }
     }
 
     public void removeSelfCustomDataFromFilter(String attributeId, StudyViewFilter studyViewFilter) {
-        if (studyViewFilter!= null && studyViewFilter.getCustomDataFilters() != null) {
+        if (studyViewFilter != null && studyViewFilter.getCustomDataFilters() != null) {
             studyViewFilter.getCustomDataFilters().removeIf(f -> f.getAttributeId().equals(attributeId));
         }
     }

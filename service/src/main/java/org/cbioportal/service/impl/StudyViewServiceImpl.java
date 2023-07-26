@@ -38,7 +38,7 @@ public class StudyViewServiceImpl implements StudyViewService {
     private AlterationRepository alterationRepository;
 
     @Autowired
-    private DiscreteCopyNumberService discreteCopyNumberService;
+    private GeneService geneService;
     
     @Override
     public List<GenomicDataCount> getGenomicDataCounts(List<String> studyIds, List<String> sampleIds) {
@@ -157,7 +157,7 @@ public class StudyViewServiceImpl implements StudyViewService {
         throws StudyNotFoundException {
         List<MolecularProfileCaseIdentifier> caseIdentifiers =
             molecularProfileService.getFirstDiscreteCNAProfileCaseIdentifiers(studyIds, sampleIds);
-        Select<CNA> cnaTypes = Select.byValues(CNA_TYPES_AMP_AND_HOMDEL);
+        
         List<CopyNumberCountByGene> copyNumberCountByGenes = alterationCountService.getSampleCnaGeneCounts(
             caseIdentifiers,
             Select.all(),
@@ -190,28 +190,47 @@ public class StudyViewServiceImpl implements StudyViewService {
     }
 
     @Override
-    public List<GenomicDataCount> getCNAAlterationCountsByEvent(String molecularProfileId, List<Integer> entrezGeneIds,
-                                                                List<Integer> alterations) throws MolecularProfileNotFoundException {
+    public List<GenomicDataCount> getCNAAlterationCountsByGeneSpecific(List<String> studyIds,
+                                                                       List<String> sampleIds,
+                                                                       List<String> hugoGeneSymbols,
+                                                                       AlterationFilter alterationFilter) throws StudyNotFoundException {
+        List<MolecularProfileCaseIdentifier> caseIdentifiers =
+            molecularProfileService.getFirstDiscreteCNAProfileCaseIdentifiers(studyIds, sampleIds);
 
-        List<CopyNumberCount> copyNumberCounts = discreteCopyNumberService.fetchCopyNumberCounts(molecularProfileId, entrezGeneIds, alterations);
-        
-        return copyNumberCounts
+        Select<Integer> entrezGeneIds = Select.byValues(
+            geneService
+            .fetchGenes(hugoGeneSymbols,
+                "HUGO_GENE_SYMBOL", "SUMMARY")
             .stream()
-            .filter(c -> c.getNumberOfSamplesWithAlterationInGene() != null)
-            .map(entry -> {
-                int count = entry.getNumberOfSamplesWithAlterationInGene();
-                int alteration = entry.getAlteration();
-                String label = CNA.getByCode(entry.getAlteration().shortValue()).getDescription();
-                
-                GenomicDataCount genomicDataCount = new GenomicDataCount();
-                genomicDataCount.setLabel(label);
-                genomicDataCount.setValue(String.valueOf(alteration));
-                genomicDataCount.setCount(count);
+            .map(Gene::getEntrezGeneId));
 
-                return genomicDataCount;
-            })
-            .collect(Collectors.toList());
-    }
+        List<CopyNumberCountByGene> copyNumberCountByGenes = alterationCountService.getSampleCnaGeneCounts(
+            caseIdentifiers,
+            entrezGeneIds,
+            true,
+            false,
+            alterationFilter).getFirst();
+        Set<String> distinctStudyIds = new HashSet<>(studyIds);
+        if (distinctStudyIds.size() == 1 && !copyNumberCountByGenes.isEmpty()) {
+            return copyNumberCountByGenes
+                .stream()
+                .filter(c -> c.getNumberOfAlteredCases() != null && c.getNumberOfAlteredCases() > 0)
+                .map(entry -> {
+                    int count = entry.getNumberOfAlteredCases();
+                    int alteration = entry.getAlteration();
+                    String label = CNA.getByCode(entry.getAlteration().shortValue()).getDescription();
+
+                    GenomicDataCount genomicDataCount = new GenomicDataCount();
+                    genomicDataCount.setLabel(label);
+                    genomicDataCount.setValue(String.valueOf(alteration));
+                    genomicDataCount.setCount(count);
+
+                    return genomicDataCount;
+                })
+                .collect(Collectors.toList());
+        }
+        return new ArrayList<GenomicDataCount>();
+    };
 
     @Override
     public List<GenericAssayDataCountItem> fetchGenericAssayDataCounts(List<String> sampleIds, List<String> studyIds,

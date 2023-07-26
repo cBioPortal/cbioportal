@@ -43,7 +43,7 @@ public class StudyViewServiceImplTest extends BaseServiceImplTest {
     @Mock
     private GenericAssayService genericAssayService;
     @Mock
-    private DiscreteCopyNumberService discreteCopyNumberService;
+    private GeneService geneService;
     private AlterationFilter alterationFilter = new AlterationFilter();
 
     @Test
@@ -259,61 +259,61 @@ public class StudyViewServiceImplTest extends BaseServiceImplTest {
     }
 
     @Test
-    public void getCNAAlterationCountByEvent() throws Exception {
+    public void getCNAAlterationCountByGeneSpecific() throws Exception {
 
-        List<Integer> entrezGeneIds = new ArrayList<>();
-        List<Integer> alterations = new ArrayList<>();
+        List<String> sampleIds = Arrays.asList(BaseServiceImplTest.SAMPLE_ID1, BaseServiceImplTest.SAMPLE_ID2, BaseServiceImplTest.SAMPLE_ID3);
+        List<String> studyIds = Collections.nCopies(3, BaseServiceImplTest.STUDY_ID);
+        List<String> hugoGeneSymbols = Arrays.asList(BaseServiceImplTest.HUGO_GENE_SYMBOL_1);
+
+        List<MolecularProfileCaseIdentifier> molecularProfileCaseIdentifiers = new ArrayList<>();
+        MolecularProfileCaseIdentifier profileCaseIdentifier1 = new MolecularProfileCaseIdentifier(BaseServiceImplTest.SAMPLE_ID1, BaseServiceImplTest.MOLECULAR_PROFILE_ID);
+        molecularProfileCaseIdentifiers.add(profileCaseIdentifier1);
+        MolecularProfileCaseIdentifier profileCaseIdentifier2 = new MolecularProfileCaseIdentifier(BaseServiceImplTest.SAMPLE_ID2, BaseServiceImplTest.MOLECULAR_PROFILE_ID);
+        molecularProfileCaseIdentifiers.add(profileCaseIdentifier2);
+        Mockito.when(molecularProfileService.getFirstDiscreteCNAProfileCaseIdentifiers(studyIds, sampleIds))
+            .thenReturn(molecularProfileCaseIdentifiers);
         
-        for (int i = -2; i < 3; i++) {
-            entrezGeneIds.add(BaseServiceImplTest.ENTREZ_GENE_ID_1);
-            alterations.add(i);
-        }
-
-        List<CopyNumberCount> alterationCountByEvents = new ArrayList<>();
-        CopyNumberCount alterationCountByEvent1 = new CopyNumberCount();
-        CopyNumberCount alterationCountByEvent2 = new CopyNumberCount();
-        CopyNumberCount alterationCountByEvent3 = new CopyNumberCount();
-        CopyNumberCount alterationCountByEvent4 = new CopyNumberCount();
-        CopyNumberCount alterationCountByEvent5 = new CopyNumberCount();
+        List<CopyNumberCountByGene> alterationCountByGenes = new ArrayList<>();
+        CopyNumberCountByGene alterationCountByGene1 = new CopyNumberCountByGene();
         
-        alterationCountByEvent1.setMolecularProfileId(BaseServiceImplTest.MOLECULAR_PROFILE_ID);
-        alterationCountByEvent1.setEntrezGeneId(BaseServiceImplTest.ENTREZ_GENE_ID_1);
-        alterationCountByEvent1.setAlteration(-2);
-        alterationCountByEvent1.setNumberOfSamples(5);
-        alterationCountByEvent1.setNumberOfSamplesWithAlterationInGene(1);
-        alterationCountByEvent2.setMolecularProfileId(BaseServiceImplTest.MOLECULAR_PROFILE_ID);
-        alterationCountByEvent2.setEntrezGeneId(BaseServiceImplTest.ENTREZ_GENE_ID_1);
-        alterationCountByEvent2.setAlteration(-1);
-        alterationCountByEvent2.setNumberOfSamples(5);
-        alterationCountByEvent2.setNumberOfSamplesWithAlterationInGene(1);
-        alterationCountByEvent3.setMolecularProfileId(BaseServiceImplTest.MOLECULAR_PROFILE_ID);
-        alterationCountByEvent3.setEntrezGeneId(BaseServiceImplTest.ENTREZ_GENE_ID_1);
-        alterationCountByEvent3.setAlteration(0);
-        alterationCountByEvent3.setNumberOfSamples(5);
-        alterationCountByEvent3.setNumberOfSamplesWithAlterationInGene(1);
-        alterationCountByEvent4.setMolecularProfileId(BaseServiceImplTest.MOLECULAR_PROFILE_ID);
-        alterationCountByEvent4.setEntrezGeneId(BaseServiceImplTest.ENTREZ_GENE_ID_1);
-        alterationCountByEvent4.setAlteration(1);
-        alterationCountByEvent4.setNumberOfSamples(5);
-        alterationCountByEvent4.setNumberOfSamplesWithAlterationInGene(1);
-        alterationCountByEvent5.setMolecularProfileId(BaseServiceImplTest.MOLECULAR_PROFILE_ID);
-        alterationCountByEvent5.setEntrezGeneId(BaseServiceImplTest.ENTREZ_GENE_ID_1);
-        alterationCountByEvent5.setAlteration(2);
-        alterationCountByEvent5.setNumberOfSamples(5);
-        alterationCountByEvent5.setNumberOfSamplesWithAlterationInGene(1);
-        alterationCountByEvents.add(alterationCountByEvent1);
-        alterationCountByEvents.add(alterationCountByEvent2);
-        alterationCountByEvents.add(alterationCountByEvent3);
-        alterationCountByEvents.add(alterationCountByEvent4);
-        alterationCountByEvents.add(alterationCountByEvent5);
+        alterationCountByGene1.setEntrezGeneId(BaseServiceImplTest.ENTREZ_GENE_ID_1);
+        alterationCountByGene1.setAlteration(-2);
+        alterationCountByGene1.setNumberOfAlteredCases(1);
+        alterationCountByGenes.add(alterationCountByGene1);
 
-        Mockito.when(discreteCopyNumberService.fetchCopyNumberCounts(
-            eq(BaseServiceImplTest.MOLECULAR_PROFILE_ID),
-            eq(entrezGeneIds),
-            eq(alterations)
-)).thenReturn(alterationCountByEvents);
-        List<GenomicDataCount> result = studyViewService.getCNAAlterationCountsByEvent(BaseServiceImplTest.MOLECULAR_PROFILE_ID, entrezGeneIds, alterations);
-        Assert.assertEquals(5, result.size());
+        CopyNumberCountByGene alterationCountByGene2 = new CopyNumberCountByGene();
+        alterationCountByGene2.setEntrezGeneId(BaseServiceImplTest.ENTREZ_GENE_ID_1);
+        alterationCountByGene2.setAlteration(-1);
+        alterationCountByGene2.setNumberOfAlteredCases(1);
+        alterationCountByGenes.add(alterationCountByGene2);
+
+        CopyNumberCountByGene alterationCountByGene3 = new CopyNumberCountByGene();
+        alterationCountByGene3.setEntrezGeneId(BaseServiceImplTest.ENTREZ_GENE_ID_1);
+        alterationCountByGene3.setAlteration(0);
+        alterationCountByGene3.setNumberOfAlteredCases(1);
+        alterationCountByGenes.add(alterationCountByGene3);
+
+        CopyNumberCountByGene alterationCountByGene4 = new CopyNumberCountByGene();
+        alterationCountByGene4.setEntrezGeneId(BaseServiceImplTest.ENTREZ_GENE_ID_1);
+        alterationCountByGene4.setAlteration(1);
+        alterationCountByGene4.setNumberOfAlteredCases(1);
+        alterationCountByGenes.add(alterationCountByGene4);
+
+        CopyNumberCountByGene alterationCountByGene5 = new CopyNumberCountByGene();
+        alterationCountByGene5.setEntrezGeneId(BaseServiceImplTest.ENTREZ_GENE_ID_1);
+        alterationCountByGene5.setAlteration(2);
+        alterationCountByGene5.setNumberOfAlteredCases(1);
+        alterationCountByGenes.add(alterationCountByGene5);
+
+        Mockito.when(alterationCountService.getSampleCnaGeneCounts(
+            any(),
+            any(),
+            eq(true),
+            eq(false),
+            any(AlterationFilter.class)))
+            .thenReturn(new Pair<>(alterationCountByGenes, 5L));
+        List<GenomicDataCount> result = studyViewService.getCNAAlterationCountsByGeneSpecific(studyIds, sampleIds, hugoGeneSymbols, new AlterationFilter());
+        Assert.assertEquals(5L, result.size());
     }
 
     @Test

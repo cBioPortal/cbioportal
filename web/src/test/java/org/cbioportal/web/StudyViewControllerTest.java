@@ -64,7 +64,7 @@ public class StudyViewControllerTest {
     private static final Integer TEST_CLINICAL_EVENT_TYPE_COUNT = 513;
     private static final String TEST_CNA_ALTERATION_NAME = "test_cna_event_type";
     private static final String TEST_CNA_ALTERATION_VALUE = "2";
-    private static final String TEST_MOLECULAR_PROFILE_ID = "test_molecular_profile_id";
+    private static final String TEST_MOLECULAR_PROFILE_TYPE = "test_molecular_profile_type";
 
     private List<SampleIdentifier> filteredSampleIdentifiers = new ArrayList<>();
     private List<ClinicalData> clinicalData = new ArrayList<>();
@@ -512,31 +512,39 @@ public class StudyViewControllerTest {
 
     @Test
     public void fetchGenomicDataCounts() throws Exception {
+
+        when(studyViewFilterApplier.apply(any())).thenReturn(filteredSampleIdentifiers);
+        
         List<GenomicDataCount> genomicDataCounts = new ArrayList<>();
         GenomicDataCount genomicDataCount1 = new GenomicDataCount();
         genomicDataCount1.setLabel(TEST_CNA_ALTERATION_NAME);
         genomicDataCount1.setValue(TEST_CNA_ALTERATION_VALUE);
         genomicDataCount1.setCount(1);
         genomicDataCounts.add(genomicDataCount1);
-
-        List<Integer> entrezGeneIds = new ArrayList<>();
-        List<Integer> alterations = DiscreteCopyNumberEventType.ALL.getAlterationTypes();
-        for (int i = 0; i < alterations.size(); i++) entrezGeneIds.add(TEST_ENTREZ_GENE_ID_1);
         
-        when(studyViewService.getCNAAlterationCountsByEvent(
-            eq(TEST_MOLECULAR_PROFILE_ID),
-            eq(entrezGeneIds),
-            eq(alterations)))
+        when(studyViewService.getCNAAlterationCountsByGeneSpecific(
+            anyList(),
+            anyList(),
+            anyList(),
+            any(AlterationFilter.class)))
             .thenReturn(genomicDataCounts);
 
-        CopyNumberCountFilter copyNumberCountFilter = new CopyNumberCountFilter();
-        copyNumberCountFilter.setEntrezGeneId(TEST_ENTREZ_GENE_ID_1);
-        copyNumberCountFilter.setMolecularProfileId(TEST_MOLECULAR_PROFILE_ID);
+        GenomicDataCountFilter genomicDataCountFilter = new GenomicDataCountFilter();
+        List<GenomicDataFilter> genomicDataFilters = new ArrayList<>();
+        GenomicDataFilter genomicDataFilter1 = new GenomicDataFilter();
+        genomicDataFilter1.setHugoGeneSymbol(TEST_HUGO_GENE_SYMBOL_1);
+        genomicDataFilter1.setProfileType(TEST_MOLECULAR_PROFILE_TYPE);
+        genomicDataFilters.add(genomicDataFilter1);
+        genomicDataCountFilter.setGenomicDataFilters(genomicDataFilters);
+        StudyViewFilter studyViewFilter = new StudyViewFilter();
+        studyViewFilter.setStudyIds(Arrays.asList(TEST_STUDY_ID));
+        studyViewFilter.setAlterationFilter(alterationFilter);
+        genomicDataCountFilter.setStudyViewFilter(studyViewFilter);
         
         mockMvc.perform(MockMvcRequestBuilders.post("/genomic-data-counts/fetch")
                 .accept(MediaType.APPLICATION_JSON)
                 .contentType(MediaType.APPLICATION_JSON)
-                .content(objectMapper.writeValueAsString(copyNumberCountFilter)))
+                .content(objectMapper.writeValueAsString(genomicDataCountFilter)))
             .andExpect(MockMvcResultMatchers.status().isOk())
             .andExpect(MockMvcResultMatchers.content().contentTypeCompatibleWith(MediaType.APPLICATION_JSON))
             .andExpect(MockMvcResultMatchers.jsonPath("$[0].label").value(TEST_CNA_ALTERATION_NAME))

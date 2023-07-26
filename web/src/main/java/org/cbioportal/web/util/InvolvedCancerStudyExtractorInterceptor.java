@@ -131,6 +131,8 @@ public class InvolvedCancerStudyExtractorInterceptor extends HandlerInterceptorA
             return extractAttributesFromClinicalDataBinCountFilter(request);
         } else if (requestPathInfo.equals(STUDY_VIEW_GENOMICL_DATA_BIN_COUNTS_PATH)) {
             return extractAttributesFromGenomicDataBinCountFilter(request);
+        } else if (requestPathInfo.equals(STUDY_VIEW_GENOMICL_DATA_COUNTS_PATH)) {
+            return extractAttributesFromGenomicDataCountFilter(request);
         } else if (requestPathInfo.equals(STUDY_VIEW_GENERIC_ASSAY_DATA_BIN_COUNTS_PATH)) {
             return extractAttributesFromGenericAssayDataBinCountFilter(request);
         } else if (requestPathInfo.equals(STUDY_VIEW_GENERIC_ASSAY_DATA_COUNTS_PATH)) {
@@ -478,6 +480,26 @@ public class InvolvedCancerStudyExtractorInterceptor extends HandlerInterceptorA
         return true;
     }
 
+    private boolean extractAttributesFromGenomicDataCountFilter(HttpServletRequest request) {
+        try {
+            GenomicDataCountFilter genomicDataCountFilter = objectMapper.readValue(request.getInputStream(),
+                GenomicDataCountFilter.class);
+            LOG.debug("extracted genomicDataCountFilter: " + genomicDataCountFilter.toString());
+            LOG.debug("setting interceptedGenomicDataCountFilter to " + genomicDataCountFilter);
+            request.setAttribute("interceptedGenomicDataCountFilter", genomicDataCountFilter);
+            if (cacheMapUtil.hasCacheEnabled()) {
+                Collection<String> cancerStudyIdCollection = extractCancerStudyIdsFromGenomicDataCountFilter(
+                    genomicDataCountFilter);
+                LOG.debug("setting involvedCancerStudies to " + cancerStudyIdCollection);
+                request.setAttribute("involvedCancerStudies", cancerStudyIdCollection);
+            }
+        } catch (Exception e) {
+            LOG.error("exception thrown during extraction of genomicDataBinCountFilter: " + e);
+            return false;
+        }
+        return true;
+    }
+
     private boolean extractAttributesFromGenericAssayDataBinCountFilter(HttpServletRequest request) {
         try {
             GenericAssayDataBinCountFilter genericAssayDataBinCountFilter = objectMapper
@@ -719,6 +741,14 @@ public class InvolvedCancerStudyExtractorInterceptor extends HandlerInterceptorA
             GenomicDataBinCountFilter genomicDataBinCountFilter) {
         if (genomicDataBinCountFilter.getStudyViewFilter() != null) {
             return extractCancerStudyIdsFromStudyViewFilter(genomicDataBinCountFilter.getStudyViewFilter());
+        }
+        return new HashSet<String>();
+    }
+
+    private Set<String> extractCancerStudyIdsFromGenomicDataCountFilter(
+        GenomicDataCountFilter genomicDataCountFilter) {
+        if (genomicDataCountFilter.getStudyViewFilter() != null) {
+            return extractCancerStudyIdsFromStudyViewFilter(genomicDataCountFilter.getStudyViewFilter());
         }
         return new HashSet<String>();
     }

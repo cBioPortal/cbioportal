@@ -53,7 +53,7 @@ public class FisherExactTestCalculator {
         for (int i = 0; i < dataLength; i++) {
             if (i > 0) {
                 BigDecimal calculatedValue = cachedElement.min(
-                    (pValuesInIncreasingOrder[i].multiply(new BigDecimal(dataLength))).divide(new BigDecimal(dataLength - i))
+                    (pValuesInIncreasingOrder[i].multiply(new BigDecimal(dataLength))).divide(new BigDecimal(dataLength - i), BigDecimal.ROUND_HALF_UP)
                 );
                 cachedElement = calculatedValue;
                 reversedQValues[i] = calculatedValue;

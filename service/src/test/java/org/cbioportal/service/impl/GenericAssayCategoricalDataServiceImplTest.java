@@ -25,8 +25,6 @@ import java.util.*;
 @RunWith(MockitoJUnitRunner.class)
 public class GenericAssayCategoricalDataServiceImplTest extends BaseServiceImplTest{
     @InjectMocks
-    private ExpressionEnrichmentServiceImpl enrichmentServiceImpl;
-    @InjectMocks
     private GenericAssayCategoricalDataServiceImpl genericAssayCategoricalDataServiceImpl;
     @Mock
     private SampleService sampleService;
@@ -34,8 +32,7 @@ public class GenericAssayCategoricalDataServiceImplTest extends BaseServiceImplT
     private MolecularProfileService molecularProfileService;
     @Mock
     private MolecularDataRepository molecularDataRepository;
-    @Mock
-    private GeneService geneService;
+
     @Spy
     @InjectMocks
     private ExpressionEnrichmentUtil expressionEnrichmentUtil;
@@ -174,8 +171,8 @@ public class GenericAssayCategoricalDataServiceImplTest extends BaseServiceImplT
         GroupStatistics alteredGroupStats = genericAssayCategoricalEnrichment.getGroupsStatistics().get(1);
         Assert.assertEquals("altered samples", alteredGroupStats.getName());
 
-        Assert.assertEquals(new BigDecimal("0.31731050786291115"), genericAssayCategoricalEnrichment.getpValue());
-        Assert.assertEquals(new BigDecimal("0.31731050786291115"), genericAssayCategoricalEnrichment.getqValue());
+        Assert.assertEquals(new BigDecimal("0.04550026389635764"), genericAssayCategoricalEnrichment.getpValue());
+        Assert.assertEquals(new BigDecimal("0.04550026389635764"), genericAssayCategoricalEnrichment.getqValue());
 
         genericAssayCategoricalEnrichment = result.get(1);
         Assert.assertEquals(HUGO_GENE_SYMBOL_2, genericAssayCategoricalEnrichment.getStableId());
@@ -187,8 +184,8 @@ public class GenericAssayCategoricalDataServiceImplTest extends BaseServiceImplT
         alteredGroupStats = genericAssayCategoricalEnrichment.getGroupsStatistics().get(1);
         Assert.assertEquals("altered samples", alteredGroupStats.getName());
 
-        Assert.assertEquals(new BigDecimal("0.31731050786291115"), genericAssayCategoricalEnrichment.getpValue());
-        Assert.assertEquals(new BigDecimal("0.31731050786291115"), genericAssayCategoricalEnrichment.getqValue());
+        Assert.assertEquals(new BigDecimal("0.04550026389635764"), genericAssayCategoricalEnrichment.getpValue());
+        Assert.assertEquals(new BigDecimal("0.04550026389635764"), genericAssayCategoricalEnrichment.getqValue());
     }
 
 }

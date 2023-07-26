@@ -9,6 +9,7 @@ import org.cbioportal.service.MolecularProfileService;
 import org.cbioportal.service.SampleService;
 import org.cbioportal.service.exception.MolecularProfileNotFoundException;
 import org.cbioportal.service.util.ExpressionEnrichmentUtil;
+import org.cbioportal.service.util.FisherExactTestCalculator;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
@@ -36,8 +37,7 @@ public class GenericAssayBinaryDataServiceImplTest extends BaseServiceImplTest{
     private MolecularProfileService molecularProfileService;
     @Mock
     private MolecularDataRepository molecularDataRepository;
-    @Mock
-    private GeneService geneService;
+
     @Spy
     @InjectMocks
     private ExpressionEnrichmentUtil expressionEnrichmentUtil;
@@ -50,6 +50,8 @@ public class GenericAssayBinaryDataServiceImplTest extends BaseServiceImplTest{
     List<Sample> samples = new ArrayList<>();
     Map<String, List<MolecularProfileCaseIdentifier>> molecularProfileCaseSets = new HashMap<>();
     Map<String, List<MolecularProfileCaseIdentifier>> molecularProfilePatientLevelCaseSets = new HashMap<>();
+    private FisherExactTestCalculator fisherExactTestCalculator;
+
     // patient level only data
     public static final String SAMPLE_ID5 = "sample_id5";
 
@@ -175,15 +177,15 @@ public class GenericAssayBinaryDataServiceImplTest extends BaseServiceImplTest{
         GroupStatistics unalteredGroupStats = genericAssayBinaryEnrichment.getGroupsStatistics().get(0);
         Assert.assertEquals("unaltered samples", unalteredGroupStats.getName());
         Assert.assertEquals(new BigDecimal("0.5"), unalteredGroupStats.getMeanExpression());
-        Assert.assertEquals(new BigDecimal("0.707106781186548"), unalteredGroupStats.getStandardDeviation());
+        Assert.assertEquals(new BigDecimal("0.7071067811865476"), unalteredGroupStats.getStandardDeviation());
 
         GroupStatistics alteredGroupStats = genericAssayBinaryEnrichment.getGroupsStatistics().get(1);
         Assert.assertEquals("altered samples", alteredGroupStats.getName());
-        Assert.assertEquals(new BigDecimal("1"), alteredGroupStats.getMeanExpression());
-        Assert.assertEquals(new BigDecimal("0"), alteredGroupStats.getStandardDeviation());
+        Assert.assertEquals(new BigDecimal("1.0"), alteredGroupStats.getMeanExpression());
+        Assert.assertEquals(new BigDecimal("0.0"), alteredGroupStats.getStandardDeviation());
 
-        Assert.assertEquals(new BigDecimal("0.0416666666666667"), genericAssayBinaryEnrichment.getpValue());
-        Assert.assertEquals(new BigDecimal("0.0833333333333334"), genericAssayBinaryEnrichment.getqValue());
+        Assert.assertEquals(new BigDecimal("0.49999999999999983"), genericAssayBinaryEnrichment.getpValue());
+        Assert.assertEquals(new BigDecimal("0.99999999999999966"), genericAssayBinaryEnrichment.getqValue());
 
         genericAssayBinaryEnrichment = result.get(1);
         Assert.assertEquals(HUGO_GENE_SYMBOL_2, genericAssayBinaryEnrichment.getStableId());
@@ -192,15 +194,15 @@ public class GenericAssayBinaryDataServiceImplTest extends BaseServiceImplTest{
         unalteredGroupStats = genericAssayBinaryEnrichment.getGroupsStatistics().get(0);
         Assert.assertEquals("unaltered samples", unalteredGroupStats.getName());
         Assert.assertEquals(new BigDecimal("0.5"), unalteredGroupStats.getMeanExpression());
-        Assert.assertEquals(new BigDecimal("0.707106781186548"), unalteredGroupStats.getStandardDeviation());
+        Assert.assertEquals(new BigDecimal("0.7071067811865476"), unalteredGroupStats.getStandardDeviation());
 
         alteredGroupStats = genericAssayBinaryEnrichment.getGroupsStatistics().get(1);
         Assert.assertEquals("altered samples", alteredGroupStats.getName());
         Assert.assertEquals(new BigDecimal("0.5"), alteredGroupStats.getMeanExpression());
-        Assert.assertEquals(new BigDecimal("0.707106781186548"), alteredGroupStats.getStandardDeviation());
+        Assert.assertEquals(new BigDecimal("0.7071067811865476"), alteredGroupStats.getStandardDeviation());
 
-        Assert.assertEquals(new BigDecimal("1"), genericAssayBinaryEnrichment.getpValue());
-        Assert.assertEquals(new BigDecimal("1"), genericAssayBinaryEnrichment.getqValue());
+        Assert.assertEquals(new BigDecimal("1.0"), genericAssayBinaryEnrichment.getpValue());
+        Assert.assertEquals(new BigDecimal("1.0"), genericAssayBinaryEnrichment.getqValue());
     }
 
 

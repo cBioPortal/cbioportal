@@ -32,20 +32,20 @@ public class GenericAssayCategoricalDataServiceImpl implements GenericAssayCateg
     private MolecularProfileService molecularProfileService;
 
     @Autowired
-    private FisherExactTestCalculator fisherExactTestCalculator;
+    private FisherExactTestCalculator fisherExactTestCalculator = new FisherExactTestCalculator();
 
     @Autowired
-    private ExpressionEnrichmentUtil expressionEnrichmentUtil;
+    private ExpressionEnrichmentUtil expressionEnrichmentUtil = new ExpressionEnrichmentUtil();
     @Autowired
     private GenericAssayService genericAssayService;
 
     @Override
+    @Transactional(readOnly = true)
     public List<GenericAssayCategoricalEnrichment> getGenericAssayCategoricalEnrichments(String molecularProfileId, 
           Map<String, List<MolecularProfileCaseIdentifier>> molecularProfileCaseSets, EnrichmentType enrichmentType) 
         throws MolecularProfileNotFoundException {
 
             MolecularProfile molecularProfile = molecularProfileService.getMolecularProfile(molecularProfileId);
-
             validateMolecularProfile(molecularProfile, Arrays.asList(MolecularProfile.MolecularAlterationType.GENERIC_ASSAY));
 
             Iterable<GenericAssayMolecularAlteration> maItr = molecularDataRepository
@@ -56,7 +56,10 @@ public class GenericAssayCategoricalDataServiceImpl implements GenericAssayCateg
                 List<String> sampleIds = molecularProfileCaseSets.values().stream().flatMap(Collection::stream).map(MolecularProfileCaseIdentifier::getCaseId).collect(Collectors.toList());
                 List<String> studyIds = Collections.nCopies(sampleIds.size(), molecularProfile.getCancerStudyIdentifier());
                 List<Sample> samples = sampleService.fetchSamples(studyIds, sampleIds, "ID");
-                Map<String, Integer> sampleIdToPatientIdMap = samples.stream().collect(Collectors.toMap(Sample::getStableId, Sample::getPatientId));
+
+                Map<String, Integer> sampleIdToPatientIdMap = samples.stream()
+                    .filter(sample -> sample != null && sample.getStableId() != null && sample.getPatientId() != null)
+                    .collect(Collectors.toMap(Sample::getStableId, Sample::getPatientId));
 
                 filteredMolecularProfileCaseSets = new HashMap<>();
                 for (Map.Entry<String, List<MolecularProfileCaseIdentifier>> pair : molecularProfileCaseSets.entrySet()) {

@@ -46,7 +46,6 @@ public class GenericAssayCategoricalDataServiceImpl implements GenericAssayCateg
         throws MolecularProfileNotFoundException {
 
             MolecularProfile molecularProfile = molecularProfileService.getMolecularProfile(molecularProfileId);
-
             validateMolecularProfile(molecularProfile, Arrays.asList(MolecularProfile.MolecularAlterationType.GENERIC_ASSAY));
 
             Iterable<GenericAssayMolecularAlteration> maItr = molecularDataRepository
@@ -57,8 +56,7 @@ public class GenericAssayCategoricalDataServiceImpl implements GenericAssayCateg
                 List<String> sampleIds = molecularProfileCaseSets.values().stream().flatMap(Collection::stream).map(MolecularProfileCaseIdentifier::getCaseId).collect(Collectors.toList());
                 List<String> studyIds = Collections.nCopies(sampleIds.size(), molecularProfile.getCancerStudyIdentifier());
                 List<Sample> samples = sampleService.fetchSamples(studyIds, sampleIds, "ID");
-
-
+                
                 Map<String, Integer> sampleIdToPatientIdMap = samples.stream()
                     .filter(sample -> sample != null && sample.getStableId() != null && sample.getPatientId() != null)
                     .collect(Collectors.toMap(Sample::getStableId, Sample::getPatientId));

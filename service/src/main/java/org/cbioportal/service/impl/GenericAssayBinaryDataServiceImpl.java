@@ -34,7 +34,6 @@ public class GenericAssayBinaryDataServiceImpl implements GenericAssayBinaryData
     @Autowired
     private FisherExactTestCalculator fisherExactTestCalculator = new FisherExactTestCalculator();
 
-
     @Autowired
     private ExpressionEnrichmentUtil expressionEnrichmentUtil;
     @Autowired

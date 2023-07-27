@@ -264,7 +264,8 @@ public class StudyViewServiceImplTest extends BaseServiceImplTest {
         List<String> sampleIds = Arrays.asList(BaseServiceImplTest.SAMPLE_ID1, BaseServiceImplTest.SAMPLE_ID2, BaseServiceImplTest.SAMPLE_ID3);
         List<String> studyIds = Collections.nCopies(3, BaseServiceImplTest.STUDY_ID);
         List<String> hugoGeneSymbols = Arrays.asList(BaseServiceImplTest.HUGO_GENE_SYMBOL_1);
-
+        List<String> profileTypes = Arrays.asList(BaseServiceImplTest.MOLECULAR_PROFILE_TYPE);
+        
         List<MolecularProfileCaseIdentifier> molecularProfileCaseIdentifiers = new ArrayList<>();
         MolecularProfileCaseIdentifier profileCaseIdentifier1 = new MolecularProfileCaseIdentifier(BaseServiceImplTest.SAMPLE_ID1, BaseServiceImplTest.MOLECULAR_PROFILE_ID);
         molecularProfileCaseIdentifiers.add(profileCaseIdentifier1);
@@ -272,10 +273,10 @@ public class StudyViewServiceImplTest extends BaseServiceImplTest {
         molecularProfileCaseIdentifiers.add(profileCaseIdentifier2);
         Mockito.when(molecularProfileService.getFirstDiscreteCNAProfileCaseIdentifiers(studyIds, sampleIds))
             .thenReturn(molecularProfileCaseIdentifiers);
-        
+
         List<CopyNumberCountByGene> alterationCountByGenes = new ArrayList<>();
         CopyNumberCountByGene alterationCountByGene1 = new CopyNumberCountByGene();
-        
+
         alterationCountByGene1.setEntrezGeneId(BaseServiceImplTest.ENTREZ_GENE_ID_1);
         alterationCountByGene1.setAlteration(-2);
         alterationCountByGene1.setNumberOfAlteredCases(1);
@@ -312,7 +313,7 @@ public class StudyViewServiceImplTest extends BaseServiceImplTest {
             eq(false),
             any(AlterationFilter.class)))
             .thenReturn(new Pair<>(alterationCountByGenes, 5L));
-        List<GenomicDataCount> result = studyViewService.getCNAAlterationCountsByGeneSpecific(studyIds, sampleIds, hugoGeneSymbols, new AlterationFilter());
+        List<GenomicDataCount> result = studyViewService.getCNAAlterationCountsByGeneSpecific(studyIds, sampleIds, hugoGeneSymbols, profileTypes, new AlterationFilter());
         Assert.assertEquals(5L, result.size());
     }
 

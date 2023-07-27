@@ -894,6 +894,7 @@ public class StudyViewController {
             studyIds,
             sampleIds,
             gdFilters.stream().map(GenomicDataFilter::getHugoGeneSymbol).collect(Collectors.toList()),
+            gdFilters.stream().map(GenomicDataFilter::getProfileType).collect(Collectors.toList()), 
             studyViewFilter.getAlterationFilter());
 
         return new ResponseEntity<>(result, HttpStatus.OK);

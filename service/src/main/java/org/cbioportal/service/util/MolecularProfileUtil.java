@@ -3,10 +3,8 @@ package org.cbioportal.service.util;
 import org.cbioportal.model.MolecularProfile;
 import org.cbioportal.model.MolecularProfileCaseIdentifier;
 import org.springframework.stereotype.Component;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
+
+import java.util.*;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -38,24 +36,39 @@ public class MolecularProfileUtil {
     public List<MolecularProfileCaseIdentifier> getFilteredMolecularProfileCaseIdentifiers(List<MolecularProfile> molecularProfiles,
                                                                                            List<String> studyIds,
                                                                                            List<String> sampleIds,
+                                                                                           Optional<List<Integer>> molecularProfileIds,
+                                                                                           Optional<Predicate<MolecularProfile>> profileFilter) {
+        
+        Map<String, List<MolecularProfile>> mapByStudyId = getFilteredMolecularProfilesByStudyId(molecularProfiles, profileFilter);
+        List<MolecularProfileCaseIdentifier> caseIdentifiers = new ArrayList<>();
+        for (int i = 0; i < studyIds.size(); i++) {
+            String studyId = studyIds.get(i);
+            if (mapByStudyId.containsKey(studyId)) {
+                // add case identifiers for all molecular profiles
+                int finalI = i;
+                mapByStudyId
+                    .getOrDefault(studyId, new ArrayList<>())
+                    .stream().filter(profile ->
+                        (!molecularProfileIds.isPresent() || molecularProfileIds.get().contains(profile.getMolecularProfileId())))
+                    .forEach(molecularProfile -> {
+                        caseIdentifiers.add(new MolecularProfileCaseIdentifier(sampleIds.get(finalI), molecularProfile.getStableId()));
+                    });
+            }
+        }
+        return caseIdentifiers;
+    }
+
+    public List<MolecularProfileCaseIdentifier> getFirstMolecularProfileCaseIdentifiers(List<MolecularProfile> molecularProfiles,
+                                                                                           List<String> studyIds,
+                                                                                           List<String> sampleIds,
                                                                                            Optional<Predicate<MolecularProfile>> profileFilter) {
         Map<String, List<MolecularProfile>> mapByStudyId = getFilteredMolecularProfilesByStudyId(molecularProfiles, profileFilter);
         List<MolecularProfileCaseIdentifier> caseIdentifiers = new ArrayList<>();
         for (int i = 0; i < studyIds.size(); i++) {
             String studyId = studyIds.get(i);
             if (mapByStudyId.containsKey(studyId)) {
-                if (profileFilter.isPresent()) {
-                    // only add identifier for one molecular profile
-                    caseIdentifiers.add(new MolecularProfileCaseIdentifier(sampleIds.get(i), mapByStudyId.get(studyId).get(0).getStableId()));
-                } else {
-                    // add case identifiers for all molecular profiles
-                    int finalI = i;
-                    mapByStudyId
-                        .getOrDefault(studyId, new ArrayList<>())
-                        .forEach(molecularProfile -> {
-                            caseIdentifiers.add(new MolecularProfileCaseIdentifier(sampleIds.get(finalI), molecularProfile.getStableId()));
-                        });
-                }
+                // only add identifier for one molecular profile
+                caseIdentifiers.add(new MolecularProfileCaseIdentifier(sampleIds.get(i), mapByStudyId.get(studyId).get(0).getStableId()));
             }
         }
         return caseIdentifiers;

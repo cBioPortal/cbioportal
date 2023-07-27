@@ -193,10 +193,12 @@ public class StudyViewServiceImpl implements StudyViewService {
     public List<GenomicDataCount> getCNAAlterationCountsByGeneSpecific(List<String> studyIds,
                                                                        List<String> sampleIds,
                                                                        List<String> hugoGeneSymbols,
+                                                                       List<String> profileTypes,
                                                                        AlterationFilter alterationFilter) throws StudyNotFoundException {
+        
         List<MolecularProfileCaseIdentifier> caseIdentifiers =
-            molecularProfileService.getFirstDiscreteCNAProfileCaseIdentifiers(studyIds, sampleIds);
-
+            molecularProfileService.getFilteredDiscreteCNAProfileCaseIdentifiers(studyIds, sampleIds, profileTypes);
+        
         Select<Integer> entrezGeneIds = Select.byValues(
             geneService
             .fetchGenes(hugoGeneSymbols,

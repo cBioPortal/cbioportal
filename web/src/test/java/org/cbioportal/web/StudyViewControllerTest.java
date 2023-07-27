@@ -526,6 +526,7 @@ public class StudyViewControllerTest {
             anyList(),
             anyList(),
             anyList(),
+            anyList(),
             any(AlterationFilter.class)))
             .thenReturn(genomicDataCounts);
 

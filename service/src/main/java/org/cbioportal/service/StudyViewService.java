@@ -23,6 +23,7 @@ public interface StudyViewService {
     List<GenomicDataCount> getCNAAlterationCountsByGeneSpecific(List<String> studyIds,
                                                                 List<String> sampleIds,
                                                                 List<String> hugoGeneSymbols,
+                                                                List<String> profileTypes,
                                                                 AlterationFilter alterationFilter) 
         throws StudyNotFoundException;
 

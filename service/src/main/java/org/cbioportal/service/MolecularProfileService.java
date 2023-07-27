@@ -42,4 +42,8 @@ public interface MolecularProfileService {
     List<MolecularProfileCaseIdentifier> getFirstMutationProfileCaseIdentifiers(List<String> studyIds, List<String> sampleIds);
     List<MolecularProfileCaseIdentifier> getFirstDiscreteCNAProfileCaseIdentifiers(List<String> studyIds, List<String> sampleIds);
     List<MolecularProfileCaseIdentifier> getFirstStructuralVariantProfileCaseIdentifiers(List<String> studyIds, List<String> sampleIds);
+
+    List<MolecularProfileCaseIdentifier> getFilteredMutationProfileCaseIdentifiers(List<String> studyIds, List<String> sampleIds, List<String> profileTypes);
+    List<MolecularProfileCaseIdentifier> getFilteredDiscreteCNAProfileCaseIdentifiers(List<String> studyIds, List<String> sampleIds, List<String> profileTypes);
+    List<MolecularProfileCaseIdentifier> getFilteredStructuralVariantProfileCaseIdentifiers(List<String> studyIds, List<String> sampleIds, List<String> profileTypes);
 }

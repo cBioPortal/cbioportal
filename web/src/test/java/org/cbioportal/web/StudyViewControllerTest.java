@@ -62,8 +62,10 @@ public class StudyViewControllerTest {
     private static final String TEST_GENERIC_ASSAY_DATA_VALUE_2 = "value2";
     private static final String TEST_CLINICAL_EVENT_TYPE = "STATUS";
     private static final Integer TEST_CLINICAL_EVENT_TYPE_COUNT = 513;
-    private static final String TEST_CNA_ALTERATION_NAME = "test_cna_event_type";
-    private static final String TEST_CNA_ALTERATION_VALUE = "2";
+    private static final String TEST_CNA_ALTERATION_NAME_1 = "test_cna_event_type_1";
+    private static final String TEST_CNA_ALTERATION_NAME_2 = "test_cna_event_type_2";
+    private static final String TEST_CNA_ALTERATION_VALUE_1 = "2";
+    private static final String TEST_CNA_ALTERATION_VALUE_2 = "-2";
     private static final String TEST_MOLECULAR_PROFILE_TYPE = "test_molecular_profile_type";
 
     private List<SampleIdentifier> filteredSampleIdentifiers = new ArrayList<>();
@@ -514,42 +516,85 @@ public class StudyViewControllerTest {
     public void fetchGenomicDataCounts() throws Exception {
 
         when(studyViewFilterApplier.apply(any())).thenReturn(filteredSampleIdentifiers);
-        
-        List<GenomicDataCount> genomicDataCounts = new ArrayList<>();
+
+        List<GenomicDataCountItem> genomicDataCountItems = new ArrayList<>();
+
         GenomicDataCount genomicDataCount1 = new GenomicDataCount();
-        genomicDataCount1.setLabel(TEST_CNA_ALTERATION_NAME);
-        genomicDataCount1.setValue(TEST_CNA_ALTERATION_VALUE);
+        genomicDataCount1.setLabel(TEST_CNA_ALTERATION_NAME_1);
+        genomicDataCount1.setValue(TEST_CNA_ALTERATION_VALUE_1);
         genomicDataCount1.setCount(1);
-        genomicDataCounts.add(genomicDataCount1);
         
+        GenomicDataCount genomicDataCount2 = new GenomicDataCount();
+        genomicDataCount2.setLabel(TEST_CNA_ALTERATION_NAME_2);
+        genomicDataCount2.setValue(TEST_CNA_ALTERATION_VALUE_2);
+        genomicDataCount2.setCount(1);
+
+        GenomicDataCountItem genomicDataCountItem1 = new GenomicDataCountItem();
+        List<GenomicDataCount> genomicDataCounts1 = new ArrayList<>();
+        genomicDataCounts1.add(genomicDataCount1);
+        genomicDataCounts1.add(genomicDataCount2);
+        genomicDataCountItem1.setHugoGeneSymbol(TEST_HUGO_GENE_SYMBOL_1);
+        genomicDataCountItem1.setProfileType(TEST_MOLECULAR_PROFILE_TYPE);
+        genomicDataCountItem1.setCounts(genomicDataCounts1);
+
+        GenomicDataCountItem genomicDataCountItem2 = new GenomicDataCountItem();
+        List<GenomicDataCount> genomicDataCounts2 = new ArrayList<>();
+        genomicDataCounts2.add(genomicDataCount1);
+        genomicDataCounts2.add(genomicDataCount2);
+        genomicDataCountItem2.setHugoGeneSymbol(TEST_HUGO_GENE_SYMBOL_2);
+        genomicDataCountItem2.setProfileType(TEST_MOLECULAR_PROFILE_TYPE);
+        genomicDataCountItem2.setCounts(genomicDataCounts2);
+
+        genomicDataCountItems.add(genomicDataCountItem1);
+        genomicDataCountItems.add(genomicDataCountItem2);
+
         when(studyViewService.getCNAAlterationCountsByGeneSpecific(
             anyList(),
             anyList(),
-            anyList(),
-            any(AlterationFilter.class)))
-            .thenReturn(genomicDataCounts);
+            anyList()))
+            .thenReturn(genomicDataCountItems);
 
         GenomicDataCountFilter genomicDataCountFilter = new GenomicDataCountFilter();
         List<GenomicDataFilter> genomicDataFilters = new ArrayList<>();
+        
         GenomicDataFilter genomicDataFilter1 = new GenomicDataFilter();
         genomicDataFilter1.setHugoGeneSymbol(TEST_HUGO_GENE_SYMBOL_1);
         genomicDataFilter1.setProfileType(TEST_MOLECULAR_PROFILE_TYPE);
         genomicDataFilters.add(genomicDataFilter1);
+        
+        GenomicDataFilter genomicDataFilter2 = new GenomicDataFilter();
+        genomicDataFilter2.setHugoGeneSymbol(TEST_HUGO_GENE_SYMBOL_2);
+        genomicDataFilter2.setProfileType(TEST_MOLECULAR_PROFILE_TYPE);
+        genomicDataFilters.add(genomicDataFilter2);
+        
         genomicDataCountFilter.setGenomicDataFilters(genomicDataFilters);
+        
         StudyViewFilter studyViewFilter = new StudyViewFilter();
         studyViewFilter.setStudyIds(Arrays.asList(TEST_STUDY_ID));
-        studyViewFilter.setAlterationFilter(alterationFilter);
         genomicDataCountFilter.setStudyViewFilter(studyViewFilter);
-        
+
         mockMvc.perform(MockMvcRequestBuilders.post("/genomic-data-counts/fetch")
                 .accept(MediaType.APPLICATION_JSON)
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(objectMapper.writeValueAsString(genomicDataCountFilter)))
             .andExpect(MockMvcResultMatchers.status().isOk())
             .andExpect(MockMvcResultMatchers.content().contentTypeCompatibleWith(MediaType.APPLICATION_JSON))
-            .andExpect(MockMvcResultMatchers.jsonPath("$[0].label").value(TEST_CNA_ALTERATION_NAME))
-            .andExpect(MockMvcResultMatchers.jsonPath("$[0].value").value(TEST_CNA_ALTERATION_VALUE))
-            .andExpect(MockMvcResultMatchers.jsonPath("$[0].count").value(1));
+            .andExpect(MockMvcResultMatchers.jsonPath("$[0].hugoGeneSymbol").value(TEST_HUGO_GENE_SYMBOL_1))
+            .andExpect(MockMvcResultMatchers.jsonPath("$[0].profileType").value(TEST_MOLECULAR_PROFILE_TYPE))
+            .andExpect(MockMvcResultMatchers.jsonPath("$[0].counts[0].label").value(TEST_CNA_ALTERATION_NAME_1))
+            .andExpect(MockMvcResultMatchers.jsonPath("$[0].counts[0].value").value(TEST_CNA_ALTERATION_VALUE_1))
+            .andExpect(MockMvcResultMatchers.jsonPath("$[0].counts[0].count").value(1))
+            .andExpect(MockMvcResultMatchers.jsonPath("$[0].counts[1].label").value(TEST_CNA_ALTERATION_NAME_2))
+            .andExpect(MockMvcResultMatchers.jsonPath("$[0].counts[1].value").value(TEST_CNA_ALTERATION_VALUE_2))
+            .andExpect(MockMvcResultMatchers.jsonPath("$[0].counts[1].count").value(1))
+            .andExpect(MockMvcResultMatchers.jsonPath("$[1].hugoGeneSymbol").value(TEST_HUGO_GENE_SYMBOL_2))
+            .andExpect(MockMvcResultMatchers.jsonPath("$[1].profileType").value(TEST_MOLECULAR_PROFILE_TYPE))
+            .andExpect(MockMvcResultMatchers.jsonPath("$[1].counts[0].label").value(TEST_CNA_ALTERATION_NAME_1))
+            .andExpect(MockMvcResultMatchers.jsonPath("$[1].counts[0].value").value(TEST_CNA_ALTERATION_VALUE_1))
+            .andExpect(MockMvcResultMatchers.jsonPath("$[1].counts[0].count").value(1))
+            .andExpect(MockMvcResultMatchers.jsonPath("$[1].counts[1].label").value(TEST_CNA_ALTERATION_NAME_2))
+            .andExpect(MockMvcResultMatchers.jsonPath("$[1].counts[1].value").value(TEST_CNA_ALTERATION_VALUE_2))
+            .andExpect(MockMvcResultMatchers.jsonPath("$[1].counts[1].count").value(1));
     }
     
     @Ignore("Skip StudyViewControllerTest.fetchClinicalDataDensityPlot due to assertion errors")

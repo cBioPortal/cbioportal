@@ -14,11 +14,7 @@ import org.mockito.Mockito;
 import org.mockito.Spy;
 import org.mockito.junit.MockitoJUnitRunner;
 
-import java.lang.reflect.Array;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.List;
+import java.util.*;
 
 import static org.mockito.ArgumentMatchers.*;
 
@@ -42,6 +38,8 @@ public class StudyViewServiceImplTest extends BaseServiceImplTest {
     private SignificantCopyNumberRegionService significantCopyNumberRegionService;
     @Mock
     private GenericAssayService genericAssayService;
+    @Mock
+    private MolecularDataService molecularDataService;
     @Mock
     private GeneService geneService;
     private AlterationFilter alterationFilter = new AlterationFilter();
@@ -263,57 +261,72 @@ public class StudyViewServiceImplTest extends BaseServiceImplTest {
 
         List<String> sampleIds = Arrays.asList(BaseServiceImplTest.SAMPLE_ID1, BaseServiceImplTest.SAMPLE_ID2, BaseServiceImplTest.SAMPLE_ID3);
         List<String> studyIds = Collections.nCopies(3, BaseServiceImplTest.STUDY_ID);
-        List<String> hugoGeneSymbols = Arrays.asList(BaseServiceImplTest.HUGO_GENE_SYMBOL_1);
+        List<Pair<String, String>> genomicDataFilters = new ArrayList<>();
+        Pair<String, String> genomicDataFilter1 = new Pair<>(BaseServiceImplTest.HUGO_GENE_SYMBOL_1, BaseServiceImplTest.PROFILE_TYPE_1);
+        Pair<String, String> genomicDataFilter2 = new Pair<>(BaseServiceImplTest.HUGO_GENE_SYMBOL_2, BaseServiceImplTest.PROFILE_TYPE_2);
+        genomicDataFilters.add(genomicDataFilter1);
+        genomicDataFilters.add(genomicDataFilter2);
 
-        List<MolecularProfileCaseIdentifier> molecularProfileCaseIdentifiers = new ArrayList<>();
-        MolecularProfileCaseIdentifier profileCaseIdentifier1 = new MolecularProfileCaseIdentifier(BaseServiceImplTest.SAMPLE_ID1, BaseServiceImplTest.MOLECULAR_PROFILE_ID);
-        molecularProfileCaseIdentifiers.add(profileCaseIdentifier1);
-        MolecularProfileCaseIdentifier profileCaseIdentifier2 = new MolecularProfileCaseIdentifier(BaseServiceImplTest.SAMPLE_ID2, BaseServiceImplTest.MOLECULAR_PROFILE_ID);
-        molecularProfileCaseIdentifiers.add(profileCaseIdentifier2);
-        Mockito.when(molecularProfileService.getFirstDiscreteCNAProfileCaseIdentifiers(studyIds, sampleIds))
-            .thenReturn(molecularProfileCaseIdentifiers);
+        List<MolecularProfile> molecularProfiles = new ArrayList<>();
+        MolecularProfile molecularProfile = new MolecularProfile();
+        molecularProfile.setCancerStudyIdentifier(BaseServiceImplTest.STUDY_ID);
+        molecularProfile.setStableId(BaseServiceImplTest.STUDY_ID + "_" + BaseServiceImplTest.MOLECULAR_PROFILE_ID_A);
+        molecularProfiles.add(molecularProfile);
         
-        List<CopyNumberCountByGene> alterationCountByGenes = new ArrayList<>();
-        CopyNumberCountByGene alterationCountByGene1 = new CopyNumberCountByGene();
+        Mockito.when(molecularProfileService.getMolecularProfilesInStudies(studyIds, "SUMMARY"))
+            .thenReturn(molecularProfiles);
         
-        alterationCountByGene1.setEntrezGeneId(BaseServiceImplTest.ENTREZ_GENE_ID_1);
-        alterationCountByGene1.setAlteration(-2);
-        alterationCountByGene1.setNumberOfAlteredCases(1);
-        alterationCountByGenes.add(alterationCountByGene1);
+        Map<String, List<MolecularProfile>> molecularProfileMap = new HashMap<>();
+        molecularProfileMap.put(BaseServiceImplTest.PROFILE_TYPE_1, molecularProfiles);
+        molecularProfileMap.put(BaseServiceImplTest.PROFILE_TYPE_2, molecularProfiles);
+   
+        Mockito.when(molecularProfileUtil.categorizeMolecularProfilesByStableIdSuffixes(molecularProfiles))
+            .thenReturn(molecularProfileMap);
+        
+        List<Gene> genes = new ArrayList<>();
+        Gene gene1 = new Gene();
+        gene1.setEntrezGeneId(BaseServiceImplTest.ENTREZ_GENE_ID_1);
+        gene1.setHugoGeneSymbol(BaseServiceImplTest.HUGO_GENE_SYMBOL_1);
+        Gene gene2 = new Gene();
+        gene2.setEntrezGeneId(BaseServiceImplTest.ENTREZ_GENE_ID_2);
+        gene2.setHugoGeneSymbol(BaseServiceImplTest.HUGO_GENE_SYMBOL_2);
+        genes.add(gene1);
+        genes.add(gene2);
 
-        CopyNumberCountByGene alterationCountByGene2 = new CopyNumberCountByGene();
-        alterationCountByGene2.setEntrezGeneId(BaseServiceImplTest.ENTREZ_GENE_ID_1);
-        alterationCountByGene2.setAlteration(-1);
-        alterationCountByGene2.setNumberOfAlteredCases(1);
-        alterationCountByGenes.add(alterationCountByGene2);
+        Mockito.when(geneService.fetchGenes(anyList(), anyString(), anyString()))
+                .thenReturn(genes);
 
-        CopyNumberCountByGene alterationCountByGene3 = new CopyNumberCountByGene();
-        alterationCountByGene3.setEntrezGeneId(BaseServiceImplTest.ENTREZ_GENE_ID_1);
-        alterationCountByGene3.setAlteration(0);
-        alterationCountByGene3.setNumberOfAlteredCases(1);
-        alterationCountByGenes.add(alterationCountByGene3);
-
-        CopyNumberCountByGene alterationCountByGene4 = new CopyNumberCountByGene();
-        alterationCountByGene4.setEntrezGeneId(BaseServiceImplTest.ENTREZ_GENE_ID_1);
-        alterationCountByGene4.setAlteration(1);
-        alterationCountByGene4.setNumberOfAlteredCases(1);
-        alterationCountByGenes.add(alterationCountByGene4);
-
-        CopyNumberCountByGene alterationCountByGene5 = new CopyNumberCountByGene();
-        alterationCountByGene5.setEntrezGeneId(BaseServiceImplTest.ENTREZ_GENE_ID_1);
-        alterationCountByGene5.setAlteration(2);
-        alterationCountByGene5.setNumberOfAlteredCases(1);
-        alterationCountByGenes.add(alterationCountByGene5);
-
-        Mockito.when(alterationCountService.getSampleCnaGeneCounts(
-            any(),
-            any(),
-            eq(true),
-            eq(false),
-            any(AlterationFilter.class)))
-            .thenReturn(new Pair<>(alterationCountByGenes, 5L));
-        List<GenomicDataCount> result = studyViewService.getCNAAlterationCountsByGeneSpecific(studyIds, sampleIds, hugoGeneSymbols, new AlterationFilter());
-        Assert.assertEquals(5L, result.size());
+        List<GeneMolecularData> geneMolecularData = new ArrayList<>();
+        GeneMolecularData geneMolecularData1 = new GeneMolecularData();
+        geneMolecularData1.setValue("-2");
+        GeneMolecularData geneMolecularData2 = new GeneMolecularData();
+        geneMolecularData2.setValue("-2");
+        GeneMolecularData geneMolecularData3 = new GeneMolecularData();
+        geneMolecularData3.setValue("2");
+        GeneMolecularData geneMolecularData4 = new GeneMolecularData();
+        geneMolecularData4.setValue("2");
+        geneMolecularData.add(geneMolecularData1);
+        geneMolecularData.add(geneMolecularData2);
+        geneMolecularData.add(geneMolecularData3);
+        geneMolecularData.add(geneMolecularData4);
+        
+        Mockito.when(molecularDataService.getMolecularDataInMultipleMolecularProfiles(
+            anyList(),
+            anyList(),
+            anyList(),
+            anyString()))
+            .thenReturn(geneMolecularData);
+        
+        List<GenomicDataCountItem> result = studyViewService.getCNAAlterationCountsByGeneSpecific(studyIds, sampleIds, genomicDataFilters);
+        Assert.assertEquals(2L, result.size());
+        Assert.assertEquals(BaseServiceImplTest.HUGO_GENE_SYMBOL_1, result.get(0).getHugoGeneSymbol());
+        Assert.assertEquals(BaseServiceImplTest.PROFILE_TYPE_1, result.get(0).getProfileType());
+        Assert.assertEquals(2, result.get(0).getCounts().get(0).getCount().intValue());
+        Assert.assertEquals(2, result.get(0).getCounts().get(1).getCount().intValue());
+        Assert.assertEquals(BaseServiceImplTest.HUGO_GENE_SYMBOL_2, result.get(1).getHugoGeneSymbol());
+        Assert.assertEquals(BaseServiceImplTest.PROFILE_TYPE_2, result.get(1).getProfileType());
+        Assert.assertEquals(2, result.get(1).getCounts().get(0).getCount().intValue());
+        Assert.assertEquals(2, result.get(1).getCounts().get(1).getCount().intValue());
     }
 
     @Test

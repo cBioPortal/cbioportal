@@ -1,5 +1,6 @@
 package org.cbioportal.service;
 
+import org.apache.commons.math3.util.Pair;
 import org.cbioportal.model.*;
 import org.cbioportal.service.exception.MolecularProfileNotFoundException;
 import org.cbioportal.service.exception.StudyNotFoundException;
@@ -20,10 +21,7 @@ public interface StudyViewService {
     List<CopyNumberCountByGene> getCNAAlterationCountByGenes(List<String> studyIds, List<String> sampleIds, AlterationFilter annotationFilter)
         throws StudyNotFoundException;
 
-    List<GenomicDataCount> getCNAAlterationCountsByGeneSpecific(List<String> studyIds,
-                                                                List<String> sampleIds,
-                                                                List<String> hugoGeneSymbols,
-                                                                AlterationFilter alterationFilter) 
+    List<GenomicDataCountItem> getCNAAlterationCountsByGeneSpecific(List<String> studyIds, List<String> sampleIds, List<Pair<String, String>> genomicDataFilters) 
         throws StudyNotFoundException;
 
     List<GenericAssayDataCountItem> fetchGenericAssayDataCounts(List<String> sampleIds, List<String> studyIds, List<String> stableIds, List<String> profileTypes);

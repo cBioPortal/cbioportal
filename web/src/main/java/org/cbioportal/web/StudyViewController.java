@@ -9,15 +9,14 @@ import org.apache.commons.lang3.math.NumberUtils;
 import org.apache.commons.lang3.tuple.ImmutablePair;
 import org.apache.commons.math3.stat.correlation.PearsonsCorrelation;
 import org.apache.commons.math3.stat.correlation.SpearmansCorrelation;
+import org.apache.commons.math3.util.Pair;
 import org.cbioportal.model.*;
 import org.cbioportal.service.*;
-import org.cbioportal.service.exception.MolecularProfileNotFoundException;
 import org.cbioportal.service.exception.StudyNotFoundException;
 import org.cbioportal.service.util.ClinicalAttributeUtil;
 import org.cbioportal.web.config.annotation.InternalApi;
 import org.cbioportal.model.AlterationFilter;
 import org.cbioportal.web.parameter.*;
-import org.cbioportal.web.parameter.sort.ClinicalDataSortBy;
 import org.cbioportal.web.util.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cache.annotation.Cacheable;
@@ -861,11 +860,11 @@ public class StudyViewController {
     @RequestMapping(value = "/genomic-data-counts/fetch", method = RequestMethod.POST,
         consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
     @ApiOperation("Fetch genomic data counts by GenomicDataCountFilter")
-    public ResponseEntity<List<GenomicDataCount>> fetchGenomicDataCounts(
-        @ApiParam(required = true, value = "Genomic data bin count filter") @Valid @RequestBody(required = false) GenomicDataCountFilter genomicDataCountFilter,
+    public ResponseEntity<List<GenomicDataCountItem>> fetchGenomicDataCounts(
+        @ApiParam(required = true, value = "Genomic data count filter") @Valid @RequestBody(required = false) GenomicDataCountFilter genomicDataCountFilter,
         @ApiIgnore // prevent reference to this attribute in the swagger-ui interface
         @RequestAttribute(required = false, value = "involvedCancerStudies") Collection<String> involvedCancerStudies,
-        @ApiParam(required = true, value = "List of copy number count identifiers")
+        @ApiParam(required = true, value = "Intercepted Genomic Data Count Filter")
         @ApiIgnore
         @Valid @RequestAttribute(required = false, value = "interceptedGenomicDataCountFilter") GenomicDataCountFilter interceptedGenomicDataCountFilter
     ) throws StudyNotFoundException {
@@ -890,11 +889,10 @@ public class StudyViewController {
         List<String> sampleIds = new ArrayList<>();
         studyViewFilterUtil.extractStudyAndSampleIds(filteredSampleIdentifiers, studyIds, sampleIds);
         
-        List<GenomicDataCount> result = studyViewService.getCNAAlterationCountsByGeneSpecific(
+        List<GenomicDataCountItem> result = studyViewService.getCNAAlterationCountsByGeneSpecific(
             studyIds,
             sampleIds,
-            gdFilters.stream().map(GenomicDataFilter::getHugoGeneSymbol).collect(Collectors.toList()),
-            studyViewFilter.getAlterationFilter());
+            gdFilters.stream().map(gdFilter -> new Pair<>(gdFilter.getHugoGeneSymbol(), gdFilter.getProfileType())).collect(Collectors.toList()));
 
         return new ResponseEntity<>(result, HttpStatus.OK);
     }

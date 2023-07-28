@@ -2,6 +2,7 @@ package org.cbioportal.service.impl;
 
 import org.apache.commons.collections4.map.MultiKeyMap;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.math3.util.Pair;
 import org.cbioportal.model.*;
 import org.cbioportal.model.util.Select;
 import org.cbioportal.persistence.AlterationRepository;
@@ -15,6 +16,7 @@ import org.springframework.stereotype.Service;
 import java.util.*;
 import java.util.function.Function;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 @Service
 public class StudyViewServiceImpl implements StudyViewService {
@@ -39,6 +41,9 @@ public class StudyViewServiceImpl implements StudyViewService {
 
     @Autowired
     private GeneService geneService;
+    
+    @Autowired 
+    private MolecularDataService molecularDataService;
     
     @Override
     public List<GenomicDataCount> getGenomicDataCounts(List<String> studyIds, List<String> sampleIds) {
@@ -190,46 +195,82 @@ public class StudyViewServiceImpl implements StudyViewService {
     }
 
     @Override
-    public List<GenomicDataCount> getCNAAlterationCountsByGeneSpecific(List<String> studyIds,
-                                                                       List<String> sampleIds,
-                                                                       List<String> hugoGeneSymbols,
-                                                                       AlterationFilter alterationFilter) throws StudyNotFoundException {
-        List<MolecularProfileCaseIdentifier> caseIdentifiers =
-            molecularProfileService.getFirstDiscreteCNAProfileCaseIdentifiers(studyIds, sampleIds);
+    public List<GenomicDataCountItem> getCNAAlterationCountsByGeneSpecific(List<String> studyIds, 
+                                                                           List<String> sampleIds,
+                                                                           List<Pair<String, String>> genomicDataFilters) throws StudyNotFoundException {
+        
+        List<MolecularProfile> molecularProfiles = molecularProfileService.getMolecularProfilesInStudies(studyIds,
+            "SUMMARY");
 
-        Select<Integer> entrezGeneIds = Select.byValues(
-            geneService
-            .fetchGenes(hugoGeneSymbols,
-                "HUGO_GENE_SYMBOL", "SUMMARY")
+        Map<String, List<MolecularProfile>> molecularProfileMap = molecularProfileUtil
+            .categorizeMolecularProfilesByStableIdSuffixes(molecularProfiles);
+
+        Set<String> hugoGeneSymbols = genomicDataFilters.stream().map(Pair::getKey)
+            .collect(Collectors.toSet());
+
+        Map<String, Integer> geneSymbolIdMap = geneService
+            .fetchGenes(new ArrayList<>(hugoGeneSymbols), "HUGO_GENE_SYMBOL",
+                "SUMMARY")
+            .stream().collect(Collectors.toMap(Gene::getHugoGeneSymbol, Gene::getEntrezGeneId));
+        
+        return genomicDataFilters
             .stream()
-            .map(Gene::getEntrezGeneId));
+            .flatMap(gdFilter -> {
+                GenomicDataCountItem genomicDataCountItem = new GenomicDataCountItem();
+                String hugoGeneSymbol = gdFilter.getKey();
+                String profileType = gdFilter.getValue();
+                genomicDataCountItem.setHugoGeneSymbol(hugoGeneSymbol);
+                genomicDataCountItem.setProfileType(profileType);
+                
+                List<String> stableIds = Arrays.asList(geneSymbolIdMap.get(hugoGeneSymbol).toString());
 
-        List<CopyNumberCountByGene> copyNumberCountByGenes = alterationCountService.getSampleCnaGeneCounts(
-            caseIdentifiers,
-            entrezGeneIds,
-            true,
-            false,
-            alterationFilter).getFirst();
-        Set<String> distinctStudyIds = new HashSet<>(studyIds);
-        if (distinctStudyIds.size() == 1 && !copyNumberCountByGenes.isEmpty()) {
-            return copyNumberCountByGenes
-                .stream()
-                .filter(c -> c.getNumberOfAlteredCases() != null && c.getNumberOfAlteredCases() > 0)
-                .map(entry -> {
-                    int count = entry.getNumberOfAlteredCases();
-                    int alteration = entry.getAlteration();
-                    String label = CNA.getByCode(entry.getAlteration().shortValue()).getDescription();
+                Map<String, String> studyIdToMolecularProfileIdMap = molecularProfileMap
+                    .getOrDefault(profileType, new ArrayList<MolecularProfile>()).stream()
+                    .collect(Collectors.toMap(MolecularProfile::getCancerStudyIdentifier,
+                        MolecularProfile::getStableId));
+                
+                List<String> mappedSampleIds = new ArrayList<>();
+                List<String> mappedProfileIds = new ArrayList<>();
 
-                    GenomicDataCount genomicDataCount = new GenomicDataCount();
-                    genomicDataCount.setLabel(label);
-                    genomicDataCount.setValue(String.valueOf(alteration));
-                    genomicDataCount.setCount(count);
+                for (int i = 0; i < sampleIds.size(); i++) {
+                    String studyId = studyIds.get(i);
+                    if (studyIdToMolecularProfileIdMap.containsKey(studyId)) {
+                        mappedSampleIds.add(sampleIds.get(i));
+                        mappedProfileIds.add(studyIdToMolecularProfileIdMap.get(studyId));
+                    }
+                }
 
-                    return genomicDataCount;
-                })
-                .collect(Collectors.toList());
-        }
-        return new ArrayList<GenomicDataCount>();
+                if (mappedSampleIds.isEmpty()) {
+                    return Stream.of();
+                }
+
+                List<GeneMolecularData> geneMolecularDataList = molecularDataService.getMolecularDataInMultipleMolecularProfiles(mappedProfileIds, mappedSampleIds,
+                        stableIds.stream().map(Integer::parseInt).collect(Collectors.toList()), "SUMMARY");
+                    
+                List<GenomicDataCount> genomicDataCounts = geneMolecularDataList
+                    .stream()
+                    .collect(Collectors.groupingBy(GeneMolecularData::getValue))
+                    .entrySet()
+                    .stream()
+                    .filter(entry -> entry.getKey() != null && !entry.getKey().equals("NA") && entry.getValue().size() > 0)
+                    .map(entry -> {
+                        Integer alteration = Integer.valueOf(entry.getKey());
+                        List<GeneMolecularData> geneMolecularData = entry.getValue();
+                        int count = geneMolecularData.size();
+
+                        String label = CNA.getByCode(alteration.shortValue()).getDescription();
+
+                        GenomicDataCount genomicDataCount = new GenomicDataCount();
+                        genomicDataCount.setLabel(label);
+                        genomicDataCount.setValue(String.valueOf(alteration));
+                        genomicDataCount.setCount(count);
+
+                        return genomicDataCount;
+                    }).collect(Collectors.toList());
+
+                genomicDataCountItem.setCounts(genomicDataCounts);
+                return Stream.of(genomicDataCountItem);
+            }).collect(Collectors.toList());
     };
 
     @Override

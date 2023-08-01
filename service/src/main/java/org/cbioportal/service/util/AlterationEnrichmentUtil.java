@@ -132,7 +132,7 @@ public class AlterationEnrichmentUtil<T extends AlterationCountBase> {
                         int alteredOnlyInQueryGenesCount = counts.get(0).getProfiledCount()
                             - counts.get(0).getAlteredCount();
 
-                        pValue = fisherExactTestCalculator.getCumulativePValue(alteredInNoneCount,
+                        pValue = fisherExactTestCalculator.getTwoTailedPValue(alteredInNoneCount,
                             counts.get(1).getAlteredCount(), alteredOnlyInQueryGenesCount,
                             counts.get(0).getAlteredCount());
                     } else {

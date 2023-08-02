@@ -153,6 +153,13 @@ Different samples of a patient may have been analyzed with different gene panels
 skin.patientview.filter_genes_profiled_all_samples=
 ```
 
+### Control default settings of the VAF line chart in the genomic evolution tab of patient view
+If you want to enablelog scale and sequential mode by default, set this property to `true`:
+```
+vaf.log_scale.default=true|false
+vaf.sequential_mode.default=true|false
+```
+
 ### Control unauthorized studies to be displayed on the home page
 
 By default, on an authenticated portal the home page will only show studies for which the current user is authorized. By setting the _skin.home\_page.show\_unauthorized\_studies_ property to _true_ the home page will also show unauthorized studies. The unauthorized studies will appear greyed out and cannot be selected for downstream analysis in Results View or Study View.
@@ -434,6 +441,11 @@ If you want to disable the automatic selection of OncoKB and hotspots as annotat
 ```
 oncoprint.oncokb.default=true|false
 oncoprint.hotspots.default=true|false
+```
+
+If you want to enable oncoprint heatmap clustering by default, set this property to `true`:
+```
+oncoprint.clustered.default=true|false
 ```
 
 **Automatic hiding of variants of unknown significance (VUS)**

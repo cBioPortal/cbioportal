@@ -197,7 +197,7 @@ public class StudyViewServiceImpl implements StudyViewService {
     @Override
     public List<GenomicDataCountItem> getCNAAlterationCountsByGeneSpecific(List<String> studyIds, 
                                                                            List<String> sampleIds,
-                                                                           List<Pair<String, String>> genomicDataFilters) throws StudyNotFoundException {
+                                                                           List<Pair<String, String>> genomicDataFilters) {
         
         List<MolecularProfile> molecularProfiles = molecularProfileService.getMolecularProfilesInStudies(studyIds,
             "SUMMARY");
@@ -246,13 +246,13 @@ public class StudyViewServiceImpl implements StudyViewService {
 
                 List<GeneMolecularData> geneMolecularDataList = molecularDataService.getMolecularDataInMultipleMolecularProfiles(mappedProfileIds, mappedSampleIds,
                         stableIds.stream().map(Integer::parseInt).collect(Collectors.toList()), "SUMMARY");
-                    
+                
                 List<GenomicDataCount> genomicDataCounts = geneMolecularDataList
                     .stream()
+                    .filter(g -> StringUtils.isNotEmpty(g.getValue()) && !g.getValue().equals("NA"))
                     .collect(Collectors.groupingBy(GeneMolecularData::getValue))
                     .entrySet()
                     .stream()
-                    .filter(entry -> entry.getKey() != null && !entry.getKey().equals("NA") && entry.getValue().size() > 0)
                     .map(entry -> {
                         Integer alteration = Integer.valueOf(entry.getKey());
                         List<GeneMolecularData> geneMolecularData = entry.getValue();
@@ -268,6 +268,17 @@ public class StudyViewServiceImpl implements StudyViewService {
                         return genomicDataCount;
                     }).collect(Collectors.toList());
 
+                int totalCount = genomicDataCounts.stream().mapToInt(GenomicDataCount::getCount).sum();
+                int naCount = sampleIds.size() - totalCount;
+                
+                if (naCount > 0) {
+                    GenomicDataCount genomicDataCount = new GenomicDataCount();
+                    genomicDataCount.setLabel("NA");
+                    genomicDataCount.setValue("NA");
+                    genomicDataCount.setCount(naCount);
+                    genomicDataCounts.add(genomicDataCount);
+                }
+                
                 genomicDataCountItem.setCounts(genomicDataCounts);
                 return Stream.of(genomicDataCountItem);
             }).collect(Collectors.toList());
@@ -348,5 +359,4 @@ public class StudyViewServiceImpl implements StudyViewService {
             })
             .collect(Collectors.toList());
     }
-
 }

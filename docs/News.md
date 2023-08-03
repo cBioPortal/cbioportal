@@ -1,3 +1,14 @@
+## Aug 1, 2023
+*   **Enhancement**: This enhancement involves changing one-sided Fisher's exact tests to two-sided Fisher's exact tests, which will impact the calculation of p-values and q-values in several places. The affected areas are as follows:
+    *    Results View Page - Mutual Exclusivity Tab
+    *    Results View Page - Comparison Tab - Genomic Alterations Tab
+    *    Comparison Page - Genomic Alterations Tab
+    *    Comparison Page - Mutations Tab
+    
+    Please note that the Mutations tab is our new feature and when it was introduced to cBioPortal, it's already started using two-sided Fisher's exact tests.
+
+    To learn discussion about this change, please see our discussion [here](https://github.com/cBioPortal/cbioportal/issues/9943).
+
 ## May 2, 2023
 *   **New Feature**: The mutations tab now shows variant annotations from the [repository of Variant with Unexpected Effects (reVUE)](https://www.cancerrevue.org/).
     <img src="https://user-images.githubusercontent.com/16869603/234271379-6a0876ea-8477-426e-a0e4-5e0b0b66aef9.gif" width="700" />

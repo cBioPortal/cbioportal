@@ -5,7 +5,7 @@
     *    Comparison Page - Genomic Alterations Tab
     *    Comparison Page - Mutations Tab
     
-    Please note that the Mutations tab on te Comparison page is a recent feature and was introduced with the two-sided Fisher's exact test already implemented.
+    Please note that the Mutations tab on the Comparison page is a recent feature and was introduced with the two-sided Fisher's exact test already implemented.
 
     Several users pointed out that using a one-sided test was incorrect for these comparisons. Please see discussions [here](https://github.com/cBioPortal/cbioportal/issues/9943) for more information.
 

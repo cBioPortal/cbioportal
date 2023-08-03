@@ -1,11 +1,11 @@
 ## Aug 1, 2023
-*   **Enhancement**: One-sided Fisher's exact tests were changed to two-sided Fisher's exact tests. The affected areas are as follows:
+*   **Enhancement**: One-sided Fisher's exact tests were changed to be two-sided. The affected pages are:
     *    Results View Page - Mutual Exclusivity Tab
     *    Results View Page - Comparison Tab - Genomic Alterations Tab
     *    Comparison Page - Genomic Alterations Tab
     *    Comparison Page - Mutations Tab
     
-    Please note that the Comparison page Mutations tab is a recent feature and was introduced with two-sided Fisher's exact test already implemented.
+    Please note that the Mutations tab on te Comparison page is a recent feature and was introduced with the two-sided Fisher's exact test already implemented.
 
     Several users pointed out that using a one-sided test was incorrect for these comparisons. Please see discussions [here](https://github.com/cBioPortal/cbioportal/issues/9943) for more information.
 

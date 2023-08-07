@@ -368,6 +368,12 @@ public class GlobalProperties {
     @Value("${download_group:}") // default is empty string
     public void setDownloadGroup(String property) { downloadGroup = property; }
 
+    public static final String DEFAULT_DAT_METHOD = "none";
+    
+    private static String tokenAccessUserRole;
+    @Value("${dat.filter_user_role:}") // default is empty string
+    public void setTokenAccessUserRole(String property) { tokenAccessUserRole = property; }
+    
     private static Logger LOG = LoggerFactory.getLogger(GlobalProperties.class);
     private static ConfigPropertyResolver portalProperties = new ConfigPropertyResolver();
     private static Properties mavenProperties = initializeProperties(MAVEN_PROPERTIES_FILE_NAME);
@@ -1294,6 +1300,18 @@ public class GlobalProperties {
                 default:
                     return "show";
             }
+        }
+    }
+
+    public static String getDataAccessTokenMethod() {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        String dataAccessTokenMethod = getProperty("dat.method");
+        
+        if (authentication != null &&
+            StringUtils.isNotEmpty(tokenAccessUserRole)) {
+            return authentication.getAuthorities().contains(new SimpleGrantedAuthority(tokenAccessUserRole)) ? dataAccessTokenMethod : DEFAULT_DAT_METHOD;
+        } else {
+            return dataAccessTokenMethod;
         }
     }
 }

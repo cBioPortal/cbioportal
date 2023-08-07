@@ -35,8 +35,10 @@ package org.cbioportal.web;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
+import org.apache.commons.lang3.StringUtils;
 import org.cbioportal.model.DataAccessToken;
 import org.cbioportal.service.DataAccessTokenService;
+import org.cbioportal.service.exception.DataAccessTokenNoUserIdentityException;
 import org.cbioportal.service.exception.DataAccessTokenProhibitedUserException;
 import org.cbioportal.web.config.annotation.InternalApi;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -46,6 +48,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.client.HttpClientErrorException;
@@ -76,6 +79,9 @@ public class OAuth2DataAccessTokenController {
     @Value("${dat.oauth2.clientId}")
     private String clientId;
 
+    @Value("${dat.filter_user_role:}") // default is empty string
+    private String userRoleToAccessToken;
+
     @Autowired
     private DataAccessTokenService tokenService;
     private String authorizationUrl;
@@ -97,6 +103,8 @@ public class OAuth2DataAccessTokenController {
     @ApiOperation("Create a new data access token")
     public ResponseEntity<String> downloadDataAccessToken(Authentication authentication,
         HttpServletRequest request, HttpServletResponse response) throws IOException {
+
+        isUserAuthorizedToAccess(authentication);
 
         // redirect to authentication endpoint
         HttpHeaders headers = new HttpHeaders();
@@ -154,6 +162,17 @@ public class OAuth2DataAccessTokenController {
     @ApiOperation("Delete a data access token")
     public void revokeDataAccessToken(@ApiParam(required = true, value = "token") @PathVariable String token) {
         throw new UnsupportedOperationException("this endpoint is does not apply to OAuth2 data access token method.");
+    }
+
+    private void isUserAuthorizedToAccess(Authentication authentication) {
+        if (authentication == null || !authentication.isAuthenticated()) {
+            throw new DataAccessTokenNoUserIdentityException();
+        }
+
+        if(StringUtils.isNotEmpty(userRoleToAccessToken) &&
+            !authentication.getAuthorities().contains(new SimpleGrantedAuthority(userRoleToAccessToken))) {
+            throw new DataAccessTokenProhibitedUserException();
+        }
     }
 
 }

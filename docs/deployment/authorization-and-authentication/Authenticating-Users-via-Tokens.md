@@ -45,6 +45,12 @@ The following properties must be present in portal.properties in order to allow 
 * **Permissible Values**: jwt, uuid, oauth2, none
 * **Default Value**: none
 
+**Property**: dat.filter\_user\_role (optional)
+
+* **Description**: This property determines users access in token generation. If present, this role will be checked in user roles before generating a token.
+* **Permissible Values**: A string value.
+* **Default Value**: none
+
 **Property**: dat.unauth\_users (optional, not used for dat.method = oauth2)
 
 * **Description**: A list of users that should not be allowed to download a data access token.

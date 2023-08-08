@@ -89,8 +89,7 @@ public class GenericAssayBinaryDataServiceImpl implements GenericAssayBinaryData
         });
 
         // Extract pValues and calculate qValues.
-        BigDecimal[] pValues = genericAssayBinaryEnrichments.stream().map(a -> a.getpValue()).toArray(BigDecimal[]::new);
-
+        BigDecimal[] pValues = genericAssayBinaryEnrichments.stream().map(GenericAssayBinaryEnrichment ::getpValue).toArray(BigDecimal[]::new);
         BigDecimal[] qValues = fisherExactTestCalculator.calcqValue(pValues);
 
         // Assign qValues back to the objects.

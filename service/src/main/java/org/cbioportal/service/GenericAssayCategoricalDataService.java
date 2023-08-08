@@ -1,6 +1,7 @@
 package org.cbioportal.service;
 
 import org.cbioportal.model.EnrichmentType;
+
 import org.cbioportal.model.GenericAssayCategoricalEnrichment;
 import org.cbioportal.model.MolecularProfileCaseIdentifier;
 import org.cbioportal.service.exception.MolecularProfileNotFoundException;

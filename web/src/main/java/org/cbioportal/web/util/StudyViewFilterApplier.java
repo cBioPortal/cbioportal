@@ -909,7 +909,7 @@ public class StudyViewFilterApplier {
 
             List<SampleIdentifier> newSampleIdentifiers = new ArrayList<>();
             for (SampleIdentifier sampleIdentifier : sampleIdentifiers) {
-                int count =  clinicalDataFilterApplier.apply(attributes, clinicalDataMap,
+                int count = clinicalDataFilterApplier.apply(attributes, clinicalDataMap,
                     sampleIdentifier.getSampleId(), sampleIdentifier.getStudyId(), negateFilters);
 
                 if (count == attributes.size()) {

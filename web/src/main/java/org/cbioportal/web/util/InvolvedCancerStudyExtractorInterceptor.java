@@ -494,7 +494,7 @@ public class InvolvedCancerStudyExtractorInterceptor extends HandlerInterceptorA
                 request.setAttribute("involvedCancerStudies", cancerStudyIdCollection);
             }
         } catch (Exception e) {
-            LOG.error("exception thrown during extraction of genomicDataBinCountFilter: " + e);
+            LOG.error("exception thrown during extraction of genomicDataCountFilter: " + e);
             return false;
         }
         return true;

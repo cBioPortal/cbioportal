@@ -110,7 +110,8 @@ public class GenericAssayEnrichmentServiceImpl implements GenericAssayEnrichment
     }
 
     private void validateMolecularProfile(MolecularProfile molecularProfile,
-                                          List<MolecularProfile.MolecularAlterationType> validMolecularAlterationTypes, boolean isBinary) throws MolecularProfileNotFoundException {
+                                          List<MolecularProfile.MolecularAlterationType> validMolecularAlterationTypes, 
+                                          boolean isBinary) throws MolecularProfileNotFoundException {
         if (!validMolecularAlterationTypes.contains(molecularProfile.getMolecularAlterationType())) {
             throw new MolecularProfileNotFoundException(molecularProfile.getStableId());
         }

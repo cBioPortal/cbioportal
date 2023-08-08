@@ -7,10 +7,8 @@ import org.cbioportal.model.EnrichmentType;
 import org.cbioportal.model.GenericAssayBinaryEnrichment;
 import org.cbioportal.model.GenericAssayCategoricalEnrichment;
 import org.cbioportal.model.MolecularProfileCaseIdentifier;
-import org.cbioportal.service.GenericAssayBinaryDataService;
-import org.cbioportal.service.GenericAssayCategoricalDataService;
+import org.cbioportal.service.GenericAssayEnrichmentService;
 import org.cbioportal.service.exception.MolecularProfileNotFoundException;
-import org.cbioportal.service.impl.GenericAssayBinaryDataServiceImpl;
 import org.cbioportal.web.config.annotation.InternalApi;
 import org.cbioportal.web.parameter.MolecularProfileCasesGroupFilter;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -35,9 +33,7 @@ import java.util.stream.Collectors;
 @Api(tags = "Generic Assay Enrichment Data", description = " ")
 public class GenericAssayEnrichmentController {
     @Autowired
-    private GenericAssayCategoricalDataService genericAssayCategoricalDataService;
-    @Autowired
-    private GenericAssayBinaryDataService genericAssayBinaryDataService;
+    private GenericAssayEnrichmentService genericAssayEnrichmentService;
 
     @PreAuthorize("hasPermission(#involvedCancerStudies, 'Collection<CancerStudyId>', T(org.cbioportal.utils.security.AccessLevel).READ)")
     @RequestMapping(value = "/generic-assay-categorical-enrichments/fetch",
@@ -89,7 +85,7 @@ public class GenericAssayEnrichmentController {
         }
 
         return new ResponseEntity<>(
-            genericAssayBinaryDataService.getGenericAssayBinaryEnrichments(
+            genericAssayEnrichmentService.getGenericAssayBinaryEnrichments(
                 molecularProfileIds.iterator().next(), groupCaseIdentifierSet, enrichmentType),
             HttpStatus.OK);
     }
@@ -109,7 +105,7 @@ public class GenericAssayEnrichmentController {
         if (molecularProfileIds.size() > 1) {
             throw new UnsupportedOperationException("Multi-study expression enrichments is not yet implemented");
         }
-        return genericAssayCategoricalDataService.getGenericAssayCategoricalEnrichments(
+        return genericAssayEnrichmentService.getGenericAssayCategoricalEnrichments(
             molecularProfileIds.iterator().next(), groupCaseIdentifierSet, enrichmentType);
     }
 }

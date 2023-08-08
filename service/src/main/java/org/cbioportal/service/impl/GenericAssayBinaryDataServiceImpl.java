@@ -4,7 +4,6 @@ import org.apache.commons.lang3.BooleanUtils;
 import org.cbioportal.model.*;
 import org.cbioportal.model.meta.GenericAssayMeta;
 import org.cbioportal.persistence.MolecularDataRepository;
-import org.cbioportal.persistence.SampleListRepository;
 import org.cbioportal.service.GenericAssayBinaryDataService;
 import org.cbioportal.service.GenericAssayService;
 import org.cbioportal.service.MolecularProfileService;
@@ -17,7 +16,16 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
-import java.util.*;
+import java.util.List;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Set;
+import java.util.Map;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 

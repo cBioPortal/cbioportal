@@ -38,9 +38,6 @@ public class GenericAssayBinaryDataServiceImplTest extends BaseServiceImplTest{
     @Mock
     private MolecularDataRepository molecularDataRepository;
 
-    @Spy
-    @InjectMocks
-    private ExpressionEnrichmentUtil expressionEnrichmentUtil;
     @Mock
     private GenericAssayService genericAssayService;
 

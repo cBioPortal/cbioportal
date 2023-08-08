@@ -81,12 +81,7 @@ public class GenericAssayCategoricalDataServiceImpl implements GenericAssayCateg
                 filteredMolecularProfileCaseSets, enrichmentType, maItr);
 
             // Sort the list based on pValue.
-            Collections.sort(genericAssayCategoricalEnrichments, new Comparator<GenericAssayCategoricalEnrichment>() {
-                @Override
-                public int compare(GenericAssayCategoricalEnrichment c1, GenericAssayCategoricalEnrichment c2) {
-                    return c1.getpValue().compareTo(c2.getpValue());
-                }
-            });
+            Collections.sort(genericAssayCategoricalEnrichments, GenericAssayEnrichment::compare);
     
             // Extract pValues and calculate qValues.
             BigDecimal[] pValues = genericAssayCategoricalEnrichments.stream().map(a -> a.getpValue()).toArray(BigDecimal[]::new);
@@ -117,6 +112,9 @@ public class GenericAssayCategoricalDataServiceImpl implements GenericAssayCateg
     private void validateMolecularProfile(MolecularProfile molecularProfile,
                                           List<MolecularProfile.MolecularAlterationType> validMolecularAlterationTypes) throws MolecularProfileNotFoundException {
         if (!validMolecularAlterationTypes.contains(molecularProfile.getMolecularAlterationType())) {
+            throw new MolecularProfileNotFoundException(molecularProfile.getStableId());
+        }
+        if(!molecularProfile.getGenericAssayType().equals("CATEGORICAL")) {
             throw new MolecularProfileNotFoundException(molecularProfile.getStableId());
         }
     }

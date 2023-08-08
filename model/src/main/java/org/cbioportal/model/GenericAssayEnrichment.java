@@ -5,7 +5,7 @@ import java.util.HashMap;
 
 import javax.validation.constraints.NotNull;
 
-public class GenericAssayEnrichment extends ExpressionEnrichment implements Serializable {
+public abstract class GenericAssayEnrichment extends ExpressionEnrichment implements Serializable {
 
 	@NotNull
 	private String stableId;
@@ -38,4 +38,7 @@ public class GenericAssayEnrichment extends ExpressionEnrichment implements Seri
 		this.genericEntityMetaProperties = genericEntityMetaProperties;
 	}
 
+    public static int compare(GenericAssayEnrichment c1, GenericAssayEnrichment c2) {
+        return c1.getpValue().compareTo(c2.getpValue());
+    }
 }

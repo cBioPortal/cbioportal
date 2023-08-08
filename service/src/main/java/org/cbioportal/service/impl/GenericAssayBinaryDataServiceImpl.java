@@ -92,14 +92,7 @@ public class GenericAssayBinaryDataServiceImpl implements GenericAssayBinaryData
         List<GenericAssayBinaryEnrichment> genericAssayBinaryEnrichments = expressionEnrichmentUtil.getGenericAssayBinaryEnrichments(molecularProfile,
             filteredMolecularProfileCaseSets, enrichmentType, maItr);
 
-        // Sort the list based on pValue.
-        Collections.sort(genericAssayBinaryEnrichments, new Comparator<GenericAssayBinaryEnrichment>() {
-            @Override
-            public int compare(GenericAssayBinaryEnrichment c1, GenericAssayBinaryEnrichment c2) {
-                return c1.getpValue().compareTo(c2.getpValue());
-            }
-        });
-
+        Collections.sort(genericAssayBinaryEnrichments, GenericAssayEnrichment::compare);
         // Extract pValues and calculate qValues.
         BigDecimal[] pValues = genericAssayBinaryEnrichments.stream().map(GenericAssayBinaryEnrichment ::getpValue).toArray(BigDecimal[]::new);
         BigDecimal[] qValues = fisherExactTestCalculator.calcqValue(pValues);
@@ -131,6 +124,10 @@ public class GenericAssayBinaryDataServiceImpl implements GenericAssayBinaryData
     private void validateMolecularProfile(MolecularProfile molecularProfile,
                                           List<MolecularProfile.MolecularAlterationType> validMolecularAlterationTypes) throws MolecularProfileNotFoundException {
         if (!validMolecularAlterationTypes.contains(molecularProfile.getMolecularAlterationType())) {
+            throw new MolecularProfileNotFoundException(molecularProfile.getStableId());
+        }
+        System.out.println(molecularProfile.getGenericAssayType());
+        if(!molecularProfile.getGenericAssayType().equals("BINARY")) {
             throw new MolecularProfileNotFoundException(molecularProfile.getStableId());
         }
     }

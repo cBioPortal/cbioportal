@@ -6,7 +6,7 @@ import java.util.List;
 
 import javax.validation.constraints.NotNull;
 
-public class ExpressionEnrichment implements Serializable {
+public abstract class ExpressionEnrichment implements Serializable {
 
 	@NotNull
 	private List<GroupStatistics> groupsStatistics;

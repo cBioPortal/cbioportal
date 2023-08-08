@@ -318,7 +318,7 @@ public class StudyViewServiceImplTest extends BaseServiceImplTest {
             .thenReturn(geneMolecularData);
         
         List<GenomicDataCountItem> result = studyViewService.getCNAAlterationCountsByGeneSpecific(studyIds, sampleIds, genomicDataFilters);
-        Assert.assertEquals(2L, result.size());
+        Assert.assertEquals(2, result.size());
         Assert.assertEquals(BaseServiceImplTest.HUGO_GENE_SYMBOL_1, result.get(0).getHugoGeneSymbol());
         Assert.assertEquals(BaseServiceImplTest.PROFILE_TYPE_1, result.get(0).getProfileType());
         Assert.assertEquals(2, result.get(0).getCounts().get(0).getCount().intValue());

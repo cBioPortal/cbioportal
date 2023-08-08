@@ -5,8 +5,10 @@ import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
 import org.cbioportal.model.EnrichmentType;
 import org.cbioportal.model.GenericAssayBinaryEnrichment;
+import org.cbioportal.model.GenericAssayCategoricalEnrichment;
 import org.cbioportal.model.MolecularProfileCaseIdentifier;
 import org.cbioportal.service.GenericAssayBinaryDataService;
+import org.cbioportal.service.GenericAssayCategoricalDataService;
 import org.cbioportal.service.exception.MolecularProfileNotFoundException;
 import org.cbioportal.service.impl.GenericAssayBinaryDataServiceImpl;
 import org.cbioportal.web.config.annotation.InternalApi;
@@ -30,14 +32,35 @@ import java.util.stream.Collectors;
 @InternalApi
 @RestController
 @Validated
-@Api(tags = "Generic Assay Binary Data", description = " ")
-public class GenericAssayBinaryDataController {
+@Api(tags = "Generic Assay Enrichment Data", description = " ")
+public class GenericAssayEnrichmentController {
+    @Autowired
+    private GenericAssayCategoricalDataService genericAssayCategoricalDataService;
     @Autowired
     private GenericAssayBinaryDataService genericAssayBinaryDataService;
 
+    @PreAuthorize("hasPermission(#involvedCancerStudies, 'Collection<CancerStudyId>', T(org.cbioportal.utils.security.AccessLevel).READ)")
+    @RequestMapping(value = "/generic-assay-categorical-enrichments/fetch",
+        method = RequestMethod.POST, consumes = MediaType.APPLICATION_JSON_VALUE,
+        produces = MediaType.APPLICATION_JSON_VALUE)
+    @ApiOperation("Fetch generic assay categorical data enrichments in a molecular profile")
+    public ResponseEntity<List<GenericAssayCategoricalEnrichment>> fetchGenericAssayCategoricalDataEnrichmentInMultipleMolecularProfiles(
+        @ApiIgnore
+        @RequestAttribute(required = false, value = "involvedCancerStudies") Collection<String> involvedCancerStudies,
+        @ApiParam("Type of the enrichment e.g. SAMPLE or PATIENT")
+        @RequestParam(defaultValue = "SAMPLE") EnrichmentType enrichmentType,
+        @ApiParam(required = true, value = "List of groups containing sample and molecular profile identifiers")
+        @Valid @RequestBody(required = false) List<MolecularProfileCasesGroupFilter> groups,
+        @ApiIgnore
+        @Valid @RequestAttribute(required = false, value = "interceptedMolecularProfileCasesGroupFilters") List<MolecularProfileCasesGroupFilter> interceptedMolecularProfileCasesGroupFilters)
+        throws MolecularProfileNotFoundException, UnsupportedOperationException {
+
+        return new ResponseEntity<>(fetchExpressionEnrichments(enrichmentType, interceptedMolecularProfileCasesGroupFilters),
+            HttpStatus.OK);
+    }
 
     @PreAuthorize("hasPermission(#involvedCancerStudies, 'Collection<CancerStudyId>', T(org.cbioportal.utils.security.AccessLevel).READ)")
-    @RequestMapping(value = "/generic-assay-enrichments/binary/fetch",
+    @RequestMapping(value = "/generic-assay-binary-enrichments/fetch",
         method = RequestMethod.POST, consumes = MediaType.APPLICATION_JSON_VALUE,
         produces = MediaType.APPLICATION_JSON_VALUE)
     @ApiOperation("Fetch generic assay binary data enrichments in a molecular profile")
@@ -71,4 +94,22 @@ public class GenericAssayBinaryDataController {
             HttpStatus.OK);
     }
 
+    private List<GenericAssayCategoricalEnrichment> fetchExpressionEnrichments(EnrichmentType enrichmentType,
+                                                                               List<MolecularProfileCasesGroupFilter> interceptedMolecularProfileCasesGroupFilters
+    ) throws MolecularProfileNotFoundException {
+        Map<String, List<MolecularProfileCaseIdentifier>> groupCaseIdentifierSet = interceptedMolecularProfileCasesGroupFilters
+            .stream().collect(Collectors.toMap(MolecularProfileCasesGroupFilter::getName,
+                MolecularProfileCasesGroupFilter::getMolecularProfileCaseIdentifiers));
+
+        Set<String> molecularProfileIds = groupCaseIdentifierSet.values().stream()
+            .flatMap(molecularProfileCaseSet -> molecularProfileCaseSet.stream()
+                .map(MolecularProfileCaseIdentifier::getMolecularProfileId))
+            .collect(Collectors.toSet());
+
+        if (molecularProfileIds.size() > 1) {
+            throw new UnsupportedOperationException("Multi-study expression enrichments is not yet implemented");
+        }
+        return genericAssayCategoricalDataService.getGenericAssayCategoricalEnrichments(
+            molecularProfileIds.iterator().next(), groupCaseIdentifierSet, enrichmentType);
+    }
 }

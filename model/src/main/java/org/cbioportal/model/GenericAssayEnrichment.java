@@ -1,16 +1,19 @@
 package org.cbioportal.model;
 
 import java.io.Serializable;
+import java.math.BigDecimal;
 import java.util.HashMap;
 
 import javax.validation.constraints.NotNull;
 
-public abstract class GenericAssayEnrichment extends ExpressionEnrichment implements Serializable {
+public class GenericAssayEnrichment extends ExpressionEnrichment implements Serializable {
 
 	@NotNull
 	private String stableId;
 	@NotNull
 	private String name;
+    @NotNull
+    private BigDecimal qValue;
 	@NotNull
 	private HashMap<String, String> genericEntityMetaProperties;
 
@@ -40,5 +43,12 @@ public abstract class GenericAssayEnrichment extends ExpressionEnrichment implem
 
     public static int compare(GenericAssayEnrichment c1, GenericAssayEnrichment c2) {
         return c1.getpValue().compareTo(c2.getpValue());
+    }
+    public BigDecimal getqValue() {
+        return qValue;
+    }
+
+    public void setqValue(BigDecimal qValue) {
+        this.qValue = qValue;
     }
 }

@@ -30,7 +30,7 @@ import static org.junit.Assert.*;
 public class GenericAssayBinaryDataServiceImplTest extends BaseServiceImplTest{
 
     @InjectMocks
-    private GenericAssayBinaryDataServiceImpl genericAssayBinaryDataServiceImpl;
+    private GenericAssayEnrichmentServiceImpl genericAssayEnrichmentServiceImpl;
     @Mock
     private SampleService sampleService;
     @Mock
@@ -163,7 +163,7 @@ public class GenericAssayBinaryDataServiceImplTest extends BaseServiceImplTest{
             .thenReturn(Arrays.asList(new GenericAssayMeta(HUGO_GENE_SYMBOL_1),
                 new GenericAssayMeta(HUGO_GENE_SYMBOL_2)));
 
-        List<GenericAssayBinaryEnrichment> result = genericAssayBinaryDataServiceImpl.getGenericAssayBinaryEnrichments(MOLECULAR_PROFILE_ID,
+        List<GenericAssayBinaryEnrichment> result = genericAssayEnrichmentServiceImpl.getGenericAssayBinaryEnrichments(MOLECULAR_PROFILE_ID,
             molecularProfileCaseSets, EnrichmentType.SAMPLE);
 
         Assert.assertEquals(2, result.size());

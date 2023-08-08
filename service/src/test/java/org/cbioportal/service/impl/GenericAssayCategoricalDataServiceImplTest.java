@@ -25,7 +25,7 @@ import java.util.*;
 @RunWith(MockitoJUnitRunner.class)
 public class GenericAssayCategoricalDataServiceImplTest extends BaseServiceImplTest{
     @InjectMocks
-    private GenericAssayCategoricalDataServiceImpl genericAssayCategoricalDataServiceImpl;
+    private GenericAssayEnrichmentServiceImpl genericAssayEnrichmentServiceImpl;
     @Mock
     private SampleService sampleService;
     @Mock
@@ -157,7 +157,7 @@ public class GenericAssayCategoricalDataServiceImplTest extends BaseServiceImplT
             .thenReturn(Arrays.asList(new GenericAssayMeta(HUGO_GENE_SYMBOL_1),
                 new GenericAssayMeta(HUGO_GENE_SYMBOL_2)));
 
-        List<GenericAssayCategoricalEnrichment> result = genericAssayCategoricalDataServiceImpl.getGenericAssayCategoricalEnrichments(MOLECULAR_PROFILE_ID,
+        List<GenericAssayCategoricalEnrichment> result = genericAssayEnrichmentServiceImpl.getGenericAssayCategoricalEnrichments(MOLECULAR_PROFILE_ID,
             molecularProfileCaseSets, EnrichmentType.SAMPLE);
 
         Assert.assertEquals(2, result.size());

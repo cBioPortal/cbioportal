@@ -7,8 +7,6 @@ import java.util.List;
 public class GenericAssayBinaryEnrichment extends GenericAssayEnrichment {
     @NotNull
     private List<GenericAssayCountSummary> counts;
-    @NotNull
-    private BigDecimal qValue;
 
     public List<GenericAssayCountSummary> getCounts() {
         return counts;
@@ -17,12 +15,5 @@ public class GenericAssayBinaryEnrichment extends GenericAssayEnrichment {
     public void setCounts(List<GenericAssayCountSummary> counts) {
         this.counts = counts;
     }
-
-    public BigDecimal getqValue() {
-        return qValue;
-    }
-
-    public void setqValue(BigDecimal qValue) {
-        this.qValue = qValue;
-    }
+    
 }

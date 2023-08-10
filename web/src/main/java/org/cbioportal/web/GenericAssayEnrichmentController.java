@@ -7,7 +7,7 @@ import org.cbioportal.model.EnrichmentType;
 import org.cbioportal.model.GenericAssayBinaryEnrichment;
 import org.cbioportal.model.GenericAssayCategoricalEnrichment;
 import org.cbioportal.model.MolecularProfileCaseIdentifier;
-import org.cbioportal.service.GenericAssayEnrichmentService;
+import org.cbioportal.service.ExpressionEnrichmentService;
 import org.cbioportal.service.exception.MolecularProfileNotFoundException;
 import org.cbioportal.web.config.annotation.InternalApi;
 import org.cbioportal.web.parameter.MolecularProfileCasesGroupFilter;
@@ -33,7 +33,7 @@ import java.util.stream.Collectors;
 @Api(tags = "Generic Assay Enrichment Data", description = " ")
 public class GenericAssayEnrichmentController {
     @Autowired
-    private GenericAssayEnrichmentService genericAssayEnrichmentService;
+    private ExpressionEnrichmentService genericAssayEnrichmentService;
 
     @PreAuthorize("hasPermission(#involvedCancerStudies, 'Collection<CancerStudyId>', T(org.cbioportal.utils.security.AccessLevel).READ)")
     @RequestMapping(value = "/generic-assay-categorical-enrichments/fetch",

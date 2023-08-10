@@ -154,7 +154,7 @@ skin.patientview.filter_genes_profiled_all_samples=
 ```
 
 ### Control default settings of the VAF line chart in the genomic evolution tab of patient view
-If you want to enablelog scale and sequential mode by default, set this property to `true`:
+If you want to enable log scale and sequential mode by default, set this property to `true`:
 ```
 vaf.log_scale.default=true|false
 vaf.sequential_mode.default=true|false

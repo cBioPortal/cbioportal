@@ -316,6 +316,7 @@ oncoprint.oncokb.default=true
 oncoprint.hotspots.default=true
 # oncoprint.hide_vus.default=true
 # oncoprint.clinical_tracks.config_json=classpath:/oncoprint-default-tracks.json
+# oncoprint.clustered.default=true
 
 # Custom gene sets
 # querypage.setsofgenes.location=file:/<path>
@@ -436,3 +437,6 @@ persistence.cache_type=no-cache
 # study_download_url=
 
 # download_group=
+
+# vaf.sequential_mode.default=false
+# vaf.log_scale.default=false

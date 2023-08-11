@@ -37,6 +37,7 @@
             "oncoprint.custom_driver_annotation.binary.default",
             "oncoprint.oncokb.default",
             "oncoprint.hotspots.default",
+            "oncoprint.clustered.default",
             "genomenexus.url",
             "genomenexus.url.grch38",
             "google_analytics_profile_id",
@@ -146,7 +147,9 @@
             "skin.patient_view.structural_variant_table.columns.show_on_init",
             "comparison.categorical_na_values",
             "study_download_url",
-            "skin.home_page.show_reference_genome"
+            "skin.home_page.show_reference_genome",
+            "vaf.sequential_mode.default",
+            "vaf.log_scale.default"
         };
 
 

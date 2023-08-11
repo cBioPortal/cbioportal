@@ -369,6 +369,10 @@ public class GlobalProperties {
     public void setDownloadGroup(String property) { downloadGroup = property; }
 
     public static final String DEFAULT_DAT_METHOD = "none";
+
+    private static String dataAccessTokenMethod;
+    @Value("${dat.method:none}") // default is empty string
+    public void setDataAccessTokenMethod(String property) { dataAccessTokenMethod = property; }
     
     private static String tokenAccessUserRole;
     @Value("${dat.filter_user_role:}") // default is empty string
@@ -1305,7 +1309,6 @@ public class GlobalProperties {
 
     public static String getDataAccessTokenMethod() {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-        String dataAccessTokenMethod = getProperty("dat.method");
         
         if (authentication != null &&
             StringUtils.isNotEmpty(tokenAccessUserRole)) {

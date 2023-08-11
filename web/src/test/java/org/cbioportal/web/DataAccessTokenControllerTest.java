@@ -268,4 +268,15 @@ public class DataAccessTokenControllerTest {
             Assert.fail("Unexpected argument passed to service class. Expected argument: " + MOCK_USER + " Received argument: " + receivedArgument);
         }
     }
+
+    @Test
+    public void createTokenNotLoggedIn() throws Exception {
+        ReflectionTestUtils.setField(DataAccessTokenController.class, "userRoleToAccessToken", "TEST");
+        Mockito.when(tokenService.createDataAccessToken(ArgumentMatchers.anyString())).thenReturn(MOCK_TOKEN_INFO);
+        MvcResult result = mockMvc.perform(MockMvcRequestBuilders.post("/data-access-tokens")
+                .accept(MediaType.APPLICATION_JSON)
+                .contentType(MediaType.APPLICATION_JSON))
+            .andExpect(MockMvcResultMatchers.status().isUnauthorized())
+            .andReturn();
+    }
 }

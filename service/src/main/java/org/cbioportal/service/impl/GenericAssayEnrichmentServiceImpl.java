@@ -1,8 +1,15 @@
 package org.cbioportal.service.impl;
 
 import org.apache.commons.lang3.BooleanUtils;
-import org.cbioportal.model.*;
+import org.cbioportal.model.EnrichmentType;
+import org.cbioportal.model.GenericAssayBinaryEnrichment;
+import org.cbioportal.model.GenericAssayCategoricalEnrichment;
+import org.cbioportal.model.GenericAssayMolecularAlteration;
+import org.cbioportal.model.MolecularProfileCaseIdentifier;
 import org.cbioportal.model.meta.GenericAssayMeta;
+import org.cbioportal.model.MolecularProfile;
+import org.cbioportal.model.Sample;
+import org.cbioportal.model.GenericAssayEnrichment;
 import org.cbioportal.persistence.MolecularDataRepository;
 import org.cbioportal.service.GenericAssayEnrichmentService;
 import org.cbioportal.service.GenericAssayService;

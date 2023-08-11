@@ -271,7 +271,6 @@ public class DataAccessTokenControllerTest {
 
     @Test
     public void createTokenNotLoggedIn() throws Exception {
-        ReflectionTestUtils.setField(DataAccessTokenController.class, "userRoleToAccessToken", "TEST");
         Mockito.when(tokenService.createDataAccessToken(ArgumentMatchers.anyString())).thenReturn(MOCK_TOKEN_INFO);
         MvcResult result = mockMvc.perform(MockMvcRequestBuilders.post("/data-access-tokens")
                 .accept(MediaType.APPLICATION_JSON)

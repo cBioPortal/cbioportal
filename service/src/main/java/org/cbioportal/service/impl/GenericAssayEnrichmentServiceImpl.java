@@ -51,9 +51,7 @@ public class GenericAssayEnrichmentServiceImpl implements GenericAssayEnrichment
         Iterable<GenericAssayMolecularAlteration> maItr = molecularDataRepository
             .getGenericAssayMolecularAlterationsIterable(molecularProfile.getStableId(), null, "SUMMARY");
 
-        Map<String, List<MolecularProfileCaseIdentifier>> filteredMolecularProfileCaseSets;
-
-        filteredMolecularProfileCaseSets = filterMolecularProfileCaseSets(molecularProfile, molecularProfileCaseSets);
+        Map<String, List<MolecularProfileCaseIdentifier>> filteredMolecularProfileCaseSets = filterMolecularProfileCaseSets(molecularProfile, molecularProfileCaseSets);
 
         List<GenericAssayBinaryEnrichment> genericAssayBinaryEnrichments = expressionEnrichmentUtil.getGenericAssayBinaryEnrichments(molecularProfile,
             filteredMolecularProfileCaseSets, enrichmentType, maItr);

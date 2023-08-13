@@ -29,7 +29,7 @@ import java.util.Map;
 @RunWith(MockitoJUnitRunner.class)
 public class GenericAssayEnrichmentServiceImplTest extends BaseServiceImplTest{
     @InjectMocks
-    private GenericAssayEnrichmentServiceImpl genericAssayEnrichmentServiceImpl;
+    private ExpressionEnrichmentServiceImpl expressionEnrichmentServiceImpl;
     @Mock
     private SampleService sampleService;
     @Mock
@@ -164,7 +164,7 @@ public class GenericAssayEnrichmentServiceImplTest extends BaseServiceImplTest{
             .thenReturn(Arrays.asList(new GenericAssayMeta(HUGO_GENE_SYMBOL_1),
                 new GenericAssayMeta(HUGO_GENE_SYMBOL_2)));
 
-        List<GenericAssayBinaryEnrichment> result = genericAssayEnrichmentServiceImpl.getGenericAssayBinaryEnrichments(MOLECULAR_PROFILE_ID,
+        List<GenericAssayBinaryEnrichment> result = expressionEnrichmentServiceImpl.getGenericAssayBinaryEnrichments(MOLECULAR_PROFILE_ID,
             molecularProfileCaseSets, EnrichmentType.SAMPLE);
 
         Assert.assertEquals(2, result.size());
@@ -227,7 +227,7 @@ public class GenericAssayEnrichmentServiceImplTest extends BaseServiceImplTest{
             .thenReturn(Arrays.asList(new GenericAssayMeta(HUGO_GENE_SYMBOL_1),
                 new GenericAssayMeta(HUGO_GENE_SYMBOL_2)));
 
-        List<GenericAssayCategoricalEnrichment> result = genericAssayEnrichmentServiceImpl.getGenericAssayCategoricalEnrichments(MOLECULAR_PROFILE_ID,
+        List<GenericAssayCategoricalEnrichment> result = expressionEnrichmentServiceImpl.getGenericAssayCategoricalEnrichments(MOLECULAR_PROFILE_ID,
             molecularProfileCaseSets, EnrichmentType.SAMPLE);
 
         Assert.assertEquals(2, result.size());

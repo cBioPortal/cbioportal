@@ -89,7 +89,7 @@ public class ExpressionEnrichmentServiceImpl implements ExpressionEnrichmentServ
     // transaction needs to be setup here in order to return Iterable from
     // molecularDataRepository in getGenericAssayMolecularAlterationsIterable
     @Transactional(readOnly = true)
-    public List<GenericAssayEnrichment> getGenericAssayEnrichments(String molecularProfileId,
+    public List<GenericAssayEnrichment> getGenericAssayNumericalEnrichments(String molecularProfileId,
                                                                    Map<String, List<MolecularProfileCaseIdentifier>> molecularProfileCaseSets, EnrichmentType enrichmentType)
         throws MolecularProfileNotFoundException {
         MolecularProfile molecularProfile = molecularProfileService.getMolecularProfile(molecularProfileId);
@@ -203,7 +203,7 @@ public class ExpressionEnrichmentServiceImpl implements ExpressionEnrichmentServ
             return enrichmentDatum;
         }).collect(Collectors.toList());
     }
-    
+
     private MolecularProfile getAndValidateMolecularProfile(String molecularProfileId, String dataType) throws MolecularProfileNotFoundException {
         MolecularProfile molecularProfile = molecularProfileService.getMolecularProfile(molecularProfileId);
         validateMolecularProfile(molecularProfile, Arrays.asList(MolecularProfile.MolecularAlterationType.GENERIC_ASSAY), dataType);
@@ -266,5 +266,10 @@ public class ExpressionEnrichmentServiceImpl implements ExpressionEnrichmentServ
             enrichments.get(i).setqValue(qValues[i]);
         }
     }
-
+    private void validateMolecularProfile(MolecularProfile molecularProfile,
+                                          List<MolecularAlterationType> validMolecularAlterationTypes) throws MolecularProfileNotFoundException {
+        if (!validMolecularAlterationTypes.contains(molecularProfile.getMolecularAlterationType())) {
+            throw new MolecularProfileNotFoundException(molecularProfile.getStableId());
+        }
+    }
 }

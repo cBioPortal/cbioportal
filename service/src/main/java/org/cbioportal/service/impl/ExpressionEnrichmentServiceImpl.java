@@ -5,9 +5,19 @@ import java.util.function.Function;
 import java.util.stream.Collectors;
 
 import org.apache.commons.lang3.BooleanUtils;
-import org.cbioportal.model.*;
 import org.cbioportal.model.MolecularProfile.MolecularAlterationType;
 import org.cbioportal.model.meta.GenericAssayMeta;
+import org.cbioportal.model.EnrichmentType;
+import org.cbioportal.model.GenericAssayBinaryEnrichment;
+import org.cbioportal.model.GenericAssayCategoricalEnrichment;
+import org.cbioportal.model.GenericAssayMolecularAlteration;
+import org.cbioportal.model.MolecularProfileCaseIdentifier;
+import org.cbioportal.model.MolecularProfile;
+import org.cbioportal.model.Sample;
+import org.cbioportal.model.GenericAssayEnrichment;
+import org.cbioportal.model.GenomicEnrichment;
+import org.cbioportal.model.Gene;
+import org.cbioportal.model.GeneMolecularAlteration;
 import org.cbioportal.persistence.MolecularDataRepository;
 import org.cbioportal.service.ExpressionEnrichmentService;
 import org.cbioportal.service.GeneService;
@@ -43,62 +53,49 @@ public class ExpressionEnrichmentServiceImpl implements ExpressionEnrichmentServ
     // molecularDataService in fetchCoExpressions
     @Transactional(readOnly = true)
     public List<GenomicEnrichment> getGenomicEnrichments(String molecularProfileId,
-            Map<String, List<MolecularProfileCaseIdentifier>> molecularProfileCaseSets, EnrichmentType enrichmentType)
-            throws MolecularProfileNotFoundException {
-
+                                                         Map<String, List<MolecularProfileCaseIdentifier>> molecularProfileCaseSets, EnrichmentType enrichmentType)
+        throws MolecularProfileNotFoundException {
         MolecularProfile molecularProfile = molecularProfileService.getMolecularProfile(molecularProfileId);
-
         List<MolecularAlterationType> validGenomicMolecularAlterationTypes = Arrays.asList(
-                MolecularAlterationType.MICRO_RNA_EXPRESSION, MolecularAlterationType.MRNA_EXPRESSION,
-                MolecularAlterationType.MRNA_EXPRESSION_NORMALS, MolecularAlterationType.RNA_EXPRESSION,
-                MolecularAlterationType.METHYLATION, MolecularAlterationType.METHYLATION_BINARY,
-                MolecularAlterationType.PHOSPHORYLATION, MolecularAlterationType.PROTEIN_LEVEL,
-                MolecularAlterationType.PROTEIN_ARRAY_PROTEIN_LEVEL,
-                MolecularAlterationType.PROTEIN_ARRAY_PHOSPHORYLATION);
-
+            MolecularAlterationType.MICRO_RNA_EXPRESSION, MolecularAlterationType.MRNA_EXPRESSION,
+            MolecularAlterationType.MRNA_EXPRESSION_NORMALS, MolecularAlterationType.RNA_EXPRESSION,
+            MolecularAlterationType.METHYLATION, MolecularAlterationType.METHYLATION_BINARY,
+            MolecularAlterationType.PHOSPHORYLATION, MolecularAlterationType.PROTEIN_LEVEL,
+            MolecularAlterationType.PROTEIN_ARRAY_PROTEIN_LEVEL,
+            MolecularAlterationType.PROTEIN_ARRAY_PHOSPHORYLATION);
         validateMolecularProfile(molecularProfile, validGenomicMolecularAlterationTypes);
-
         Iterable<GeneMolecularAlteration> maItr = molecularDataRepository
-                .getGeneMolecularAlterationsIterableFast(molecularProfile.getStableId());
-
+            .getGeneMolecularAlterationsIterableFast(molecularProfile.getStableId());
         List<GenomicEnrichment> expressionEnrichments = expressionEnrichmentUtil.getEnrichments(molecularProfile,
-                molecularProfileCaseSets, enrichmentType, maItr);
-
+            molecularProfileCaseSets, enrichmentType, maItr);
         List<Integer> entrezGeneIds = expressionEnrichments.stream().map(GenomicEnrichment::getEntrezGeneId)
-                .collect(Collectors.toList());
-
+            .collect(Collectors.toList());
         Map<Integer, List<Gene>> geneMapByEntrezId = geneService
-                .fetchGenes(entrezGeneIds.stream().map(Object::toString).collect(Collectors.toList()), "ENTREZ_GENE_ID",
-                        "SUMMARY")
-                .stream().collect(Collectors.groupingBy(Gene::getEntrezGeneId));
-
+            .fetchGenes(entrezGeneIds.stream().map(Object::toString).collect(Collectors.toList()), "ENTREZ_GENE_ID",
+                "SUMMARY")
+            .stream().collect(Collectors.groupingBy(Gene::getEntrezGeneId));
         return expressionEnrichments.stream()
-                // filter Enrichments having no gene reference object(this
-                // happens when multiple
-                // entrez ids map to same hugo gene symbol)
-                .filter(expressionEnrichment -> geneMapByEntrezId.containsKey(expressionEnrichment.getEntrezGeneId()))
-                .map(expressionEnrichment -> {
-                    Gene gene = geneMapByEntrezId.get(expressionEnrichment.getEntrezGeneId()).get(0);
-                    expressionEnrichment.setHugoGeneSymbol(gene.getHugoGeneSymbol());
-                    return expressionEnrichment;
-                }).collect(Collectors.toList());
+            // filter Enrichments having no gene reference object(this
+            // happens when multiple
+            // entrez ids map to same hugo gene symbol)
+            .filter(expressionEnrichment -> geneMapByEntrezId.containsKey(expressionEnrichment.getEntrezGeneId()))
+            .map(expressionEnrichment -> {
+                Gene gene = geneMapByEntrezId.get(expressionEnrichment.getEntrezGeneId()).get(0);
+                expressionEnrichment.setHugoGeneSymbol(gene.getHugoGeneSymbol());
+                return expressionEnrichment;
+            }).collect(Collectors.toList());
     }
-
     @Override
     // transaction needs to be setup here in order to return Iterable from
     // molecularDataRepository in getGenericAssayMolecularAlterationsIterable
     @Transactional(readOnly = true)
     public List<GenericAssayEnrichment> getGenericAssayEnrichments(String molecularProfileId,
-            Map<String, List<MolecularProfileCaseIdentifier>> molecularProfileCaseSets, EnrichmentType enrichmentType)
-            throws MolecularProfileNotFoundException {
-
+                                                                   Map<String, List<MolecularProfileCaseIdentifier>> molecularProfileCaseSets, EnrichmentType enrichmentType)
+        throws MolecularProfileNotFoundException {
         MolecularProfile molecularProfile = molecularProfileService.getMolecularProfile(molecularProfileId);
-
         validateMolecularProfile(molecularProfile, Arrays.asList(MolecularAlterationType.GENERIC_ASSAY));
-
         Iterable<GenericAssayMolecularAlteration> maItr = molecularDataRepository
-                .getGenericAssayMolecularAlterationsIterable(molecularProfile.getStableId(), null, "SUMMARY");
-
+            .getGenericAssayMolecularAlterationsIterable(molecularProfile.getStableId(), null, "SUMMARY");
         Map<String, List<MolecularProfileCaseIdentifier>> filteredMolecularProfileCaseSets;
         if (BooleanUtils.isTrue(molecularProfile.getPatientLevel())) {
             // Build sampleIdToPatientIdMap to quick find if a sample has shared patientId with other samples
@@ -120,33 +117,24 @@ public class ExpressionEnrichmentServiceImpl implements ExpressionEnrichmentServ
                 filteredMolecularProfileCaseSets.put(pair.getKey(), identifierListUniqueByPatientId);
             }
         } else {
-                filteredMolecularProfileCaseSets = molecularProfileCaseSets;
+            filteredMolecularProfileCaseSets = molecularProfileCaseSets;
         }
         List<GenericAssayEnrichment> genericAssayEnrichments = expressionEnrichmentUtil.getEnrichments(molecularProfile,
-                filteredMolecularProfileCaseSets, enrichmentType, maItr);
+            filteredMolecularProfileCaseSets, enrichmentType, maItr);
         List<String> getGenericAssayStableIds = genericAssayEnrichments.stream()
-                .map(GenericAssayEnrichment::getStableId).collect(Collectors.toList());
+            .map(GenericAssayEnrichment::getStableId).collect(Collectors.toList());
         Map<String, GenericAssayMeta> genericAssayMetaByStableId = genericAssayService
-                .getGenericAssayMetaByStableIdsAndMolecularIds(getGenericAssayStableIds,
-                        getGenericAssayStableIds.stream().map(stableId -> molecularProfileId)
-                                .collect(Collectors.toList()),
-                        "SUMMARY")
-                .stream().collect(Collectors.toMap(GenericAssayMeta::getStableId, Function.identity()));
+            .getGenericAssayMetaByStableIdsAndMolecularIds(getGenericAssayStableIds,
+                getGenericAssayStableIds.stream().map(stableId -> molecularProfileId)
+                    .collect(Collectors.toList()),
+                "SUMMARY")
+            .stream().collect(Collectors.toMap(GenericAssayMeta::getStableId, Function.identity()));
         return genericAssayEnrichments.stream().map(enrichmentDatum -> {
             enrichmentDatum.setGenericEntityMetaProperties(
-                    genericAssayMetaByStableId.get(enrichmentDatum.getStableId()).getGenericEntityMetaProperties());
+                genericAssayMetaByStableId.get(enrichmentDatum.getStableId()).getGenericEntityMetaProperties());
             return enrichmentDatum;
         }).collect(Collectors.toList());
     }
-
-
-    private void validateMolecularProfile(MolecularProfile molecularProfile,
-            List<MolecularAlterationType> validMolecularAlterationTypes) throws MolecularProfileNotFoundException {
-        if (!validMolecularAlterationTypes.contains(molecularProfile.getMolecularAlterationType())) {
-            throw new MolecularProfileNotFoundException(molecularProfile.getStableId());
-        }
-    }
-
 
     @Override
     @Transactional(readOnly = true)
@@ -156,7 +144,7 @@ public class ExpressionEnrichmentServiceImpl implements ExpressionEnrichmentServ
         throws MolecularProfileNotFoundException {
 
         // Validate and fetch molecular profile
-        MolecularProfile molecularProfile = getAndValidateMolecularProfile(molecularProfileId, true);
+        MolecularProfile molecularProfile = getAndValidateMolecularProfile(molecularProfileId, "BINARY");
 
         // Get the molecular alterations for the provided profile
         Iterable<GenericAssayMolecularAlteration> maItr = molecularDataRepository
@@ -193,13 +181,12 @@ public class ExpressionEnrichmentServiceImpl implements ExpressionEnrichmentServ
                                                                                          Map<String, List<MolecularProfileCaseIdentifier>> molecularProfileCaseSets, EnrichmentType enrichmentType)
         throws MolecularProfileNotFoundException {
 
-        MolecularProfile molecularProfile = getAndValidateMolecularProfile(molecularProfileId, false);
+        MolecularProfile molecularProfile = getAndValidateMolecularProfile(molecularProfileId, "CATEGORICAL");
 
         Iterable<GenericAssayMolecularAlteration> maItr = molecularDataRepository
             .getGenericAssayMolecularAlterationsIterable(molecularProfile.getStableId(), null, "SUMMARY");
 
-        Map<String, List<MolecularProfileCaseIdentifier>> filteredMolecularProfileCaseSets;
-        filteredMolecularProfileCaseSets = filterMolecularProfileCaseSets(molecularProfile, molecularProfileCaseSets);
+        Map<String, List<MolecularProfileCaseIdentifier>> filteredMolecularProfileCaseSets = filterMolecularProfileCaseSets(molecularProfile, molecularProfileCaseSets);
 
         List<GenericAssayCategoricalEnrichment> genericAssayCategoricalEnrichments = expressionEnrichmentUtil.getGenericAssayCategoricalEnrichments(molecularProfile,
             filteredMolecularProfileCaseSets, enrichmentType, maItr);
@@ -216,30 +203,24 @@ public class ExpressionEnrichmentServiceImpl implements ExpressionEnrichmentServ
             return enrichmentDatum;
         }).collect(Collectors.toList());
     }
-
-    private MolecularProfile getAndValidateMolecularProfile(String molecularProfileId, boolean isBinary) throws MolecularProfileNotFoundException {
+    
+    private MolecularProfile getAndValidateMolecularProfile(String molecularProfileId, String dataType) throws MolecularProfileNotFoundException {
         MolecularProfile molecularProfile = molecularProfileService.getMolecularProfile(molecularProfileId);
-        validateMolecularProfile(molecularProfile, Arrays.asList(MolecularProfile.MolecularAlterationType.GENERIC_ASSAY), isBinary);
+        validateMolecularProfile(molecularProfile, Arrays.asList(MolecularProfile.MolecularAlterationType.GENERIC_ASSAY), dataType);
         return molecularProfile;
     }
 
     private void validateMolecularProfile(MolecularProfile molecularProfile,
                                           List<MolecularProfile.MolecularAlterationType> validMolecularAlterationTypes,
-                                          boolean isBinary) throws MolecularProfileNotFoundException {
+                                          String dataType) throws MolecularProfileNotFoundException {
         if (!validMolecularAlterationTypes.contains(molecularProfile.getMolecularAlterationType())) {
             // Check alteration type
             throw new MolecularProfileNotFoundException(molecularProfile.getStableId());
         }
         // Check datatype for binary or categorical
-        if(isBinary) {
-            if(!molecularProfile.getDatatype().equals("BINARY")) {
-                throw new MolecularProfileNotFoundException(molecularProfile.getStableId());
-            }
-        } else {
-            if(!molecularProfile.getDatatype().equals("CATEGORICAL")) {
-                throw new MolecularProfileNotFoundException(molecularProfile.getStableId());
-            }
-        }
+        if(molecularProfile.getMolecularAlterationType().equals(MolecularProfile.MolecularAlterationType.GENERIC_ASSAY) &&
+            !molecularProfile.getDatatype().equals(dataType))
+            throw new MolecularProfileNotFoundException(molecularProfile.getStableId());
     }
 
     private Map<String, List<MolecularProfileCaseIdentifier>> filterMolecularProfileCaseSets(MolecularProfile molecularProfile, Map<String, List<MolecularProfileCaseIdentifier>> molecularProfileCaseSets) {

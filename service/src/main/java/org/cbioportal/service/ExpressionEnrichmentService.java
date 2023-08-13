@@ -18,7 +18,7 @@ public interface ExpressionEnrichmentService {
                                                   Map<String, List<MolecularProfileCaseIdentifier>> molecularProfileCaseSets, EnrichmentType enrichmentType)
             throws MolecularProfileNotFoundException;
 
-    List<GenericAssayEnrichment> getGenericAssayEnrichments(String molecularProfileId,
+    List<GenericAssayEnrichment> getGenericAssayNumericalEnrichments(String molecularProfileId,
             Map<String, List<MolecularProfileCaseIdentifier>> molecularProfileCaseSets, EnrichmentType enrichmentType)
             throws MolecularProfileNotFoundException;
     List<GenericAssayBinaryEnrichment> getGenericAssayBinaryEnrichments(

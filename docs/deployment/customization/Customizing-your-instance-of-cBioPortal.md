@@ -243,9 +243,16 @@ Below you can find the complete list of all the available skin properties.
         </tr>
 		<tr>
             <td>skin.hide_download_controls</td>
-            <td>removes all download and copy-to-clipboard options.</td>
+            <td>controls download options in UI. **true**: hides all download options. **false**:  shows all download options. **data**: disable data download but not figure download</td>
             <td>false</td>
-            <td>true / false</td>
+            <td>true / false / data</td>
+        </tr>
+		<tr>
+            <td>download_group</td>
+            <td>controls download options in UI for each user. If present and user is authenticated, this value is checked against user roles.
+If the download_group is present in user groups then download options are shown in UI, else it fallback to **skin.hide_download_controls**</td>
+            <td></td>
+            <td>text</td>
         </tr>
         <tr>
             <td>skin.show_settings_menu</td>

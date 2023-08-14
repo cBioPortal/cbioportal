@@ -12,4 +12,4 @@ Note that cBioPortal is split into a backend project (api) and a frontend projec
 - [Backend](http://www.github.com/cbioportal/cbioportal)
   (Java, Spring, MySQL, MongoDB)
 
-If you are interested in coordinating the development of new features, please contact cbioportal@cbio.mskcc.org or reach out on https://slack.cbioportal.org.
+If you are interested in coordinating the development of new features, please contact cbioportal@cbioportal.org or reach out on https://slack.cbioportal.org.

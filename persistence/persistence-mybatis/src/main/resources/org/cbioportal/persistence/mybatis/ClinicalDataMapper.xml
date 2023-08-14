@@ -47,6 +47,11 @@
         INNER JOIN cancer_study ON patient.CANCER_STUDY_ID = cancer_study.CANCER_STUDY_ID
     </sql>
 
+    <sql id="fromSampleAndClinicalPatient">
+        <include refid="fromSample"/>
+        LEFT JOIN clinical_patient ON clinical_patient.INTERNAL_ID = patient.INTERNAL_ID
+    </sql>
+
     <sql id="fromPatient">
         FROM clinical_patient
         INNER JOIN patient ON clinical_patient.INTERNAL_ID = patient.INTERNAL_ID
@@ -221,7 +226,7 @@
         GROUP BY clinical_patient.ATTR_ID, clinical_patient.ATTR_VALUE
     </select>
 
-    <select id="getSampleClinicalDataClinicalTable" resultType="org.cbioportal.model.ClinicalData">
+    <select id="getSampleClinicalTable" resultType="org.cbioportal.model.ClinicalData">
         SELECT
         <include refid="selectSample">
             <property name="prefix" value=""/>
@@ -230,28 +235,55 @@
         <include refid="whereSampleSearchAndPagination"/>
     </select>
 
+    <select id="getSampleClinicalTableCount" resultType="Integer">
+        SELECT count(DISTINCT clinical_sample.INTERNAL_ID)
+        <include refid="fromSample"/>
+        <include refid="whereSampleSearchAndPagination"/>
+    </select>
+    
     <sql id="whereSampleSearchAndPagination">
-        INNER JOIN
-        (SELECT DISTINCT clinical_sample.INTERNAL_ID
+        INNER JOIN (
+            SELECT DISTINCT clinical_sample.INTERNAL_ID
             <if test="_parameter.containsKey('sortBy') and sortBy != null">
-                , clinical_sample.ATTR_ID, clinical_sample.ATTR_VALUE
+                <if test="sortBy == 'sampleId'">
+                  , sample.STABLE_ID AS SORT_BY
+                </if>
+                <if test="sortBy == 'patientId'">
+                  , patient.STABLE_ID AS SORT_BY
+                </if>
+                <!-- else: -->
+                <if test="sortBy != 'sampleId' and sortBy != 'patientId'">
+                  <!-- Mark samples without the sort attribute as NULL: -->
+                  , CASE 
+                        WHEN clinical_sample.ATTR_ID = #{sortBy} THEN clinical_sample.ATTR_VALUE 
+                        WHEN clinical_patient.ATTR_ID = #{sortBy} THEN clinical_patient.ATTR_VALUE 
+                        ELSE NULL 
+                    END AS SORT_BY
+                </if>
             </if>
-            <include refid="fromSample"/>
+            <include refid="fromSampleAndClinicalPatient"/>
             <include refid="whereSample"/>
             <if test="_parameter.containsKey('searchTerm') and searchTerm != null and not searchTerm.isBlank()">
                 AND
-                clinical_sample.ATTR_VALUE LIKE CONCAT('%','${searchTerm}', '%')
+                clinical_sample.ATTR_VALUE LIKE CONCAT('%', #{searchTerm}, '%')
             </if>
             <if test="_parameter.containsKey('sortBy') and sortBy != null">
-                AND 
-                clinical_sample.ATTR_ID = '${sortBy}'
-                ORDER BY clinical_sample.ATTR_VALUE ${direction}
+                <!-- Put 'NULL samples' last: -->
+                <choose>
+                    <when test="_databaseId == 'mysql'">
+                        ORDER BY ISNULL(SORT_BY), SORT_BY ${direction}
+                    </when>
+                    <when test="_databaseId == 'h2'">
+                        ORDER BY SORT_BY ${direction} NULLS LAST
+                    </when>
+                </choose>
             </if>
+            
             <if test="_parameter.containsKey('limit') and limit != null and limit != 0">
                 LIMIT #{limit} OFFSET #{offset}
             </if>
-        ) as sample_id_subquery
-        ON clinical_sample.INTERNAL_ID = sample_id_subquery.INTERNAL_ID
+        ) AS sample_id_subquery
+          ON clinical_sample.INTERNAL_ID = sample_id_subquery.INTERNAL_ID
     </sql>
     
 </mapper>

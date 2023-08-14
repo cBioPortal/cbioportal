@@ -28,6 +28,7 @@ import javax.validation.constraints.Size;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
+import java.util.Set;
 
 @PublicApi
 @RestController
@@ -151,10 +152,16 @@ public class TreatmentController {
         @ApiParam(required = true, value = "List of Study IDs")
         @Size(min = 1, max = PagingConstants.MAX_PAGE_SIZE)
         @RequestBody
-        List<String> studyIds
+        Set<String> studyIds
     ) {
-        Boolean containsTreatmentData = treatmentService.containsTreatmentData(studyIds, tier);
+        Boolean containsTreatmentData = instance.cacheableGetContainsTreatmentData(studyIds, tier);
         return new ResponseEntity<>(containsTreatmentData, HttpStatus.OK);
+    }
+
+    // Caching enabled for any number of studies as the requests contains only studyIds and the response is a boolean
+    @Cacheable(cacheResolver = "generalRepositoryCacheResolver", condition = "@cacheEnabledConfig.getEnabled()")
+    public Boolean cacheableGetContainsTreatmentData(Set<String> studyIds, ClinicalEventKeyCode tier) {
+        return treatmentService.containsTreatmentData(new ArrayList<>(studyIds), tier);
     }
 
     @PreAuthorize("hasPermission(#studyIds, 'Collection<CancerStudyId>', T(org.cbioportal.utils.security.AccessLevel).READ)")
@@ -168,9 +175,14 @@ public class TreatmentController {
         @ApiParam(required = true, value = "List of Study IDs")
         @Size(min = 1, max = PagingConstants.MAX_PAGE_SIZE)
         @RequestBody
-        List<String> studyIds
+        Set<String> studyIds
     ) {
-        Boolean containsTreatmentData = treatmentService.containsSampleTreatmentData(studyIds, tier);
+        Boolean containsTreatmentData = instance.cacheableGetContainsSampleTreatmentData(studyIds, tier);
         return new ResponseEntity<>(containsTreatmentData, HttpStatus.OK);
+    }
+
+    @Cacheable(cacheResolver = "generalRepositoryCacheResolver", condition = "@cacheEnabledConfig.getEnabled()")
+    public Boolean cacheableGetContainsSampleTreatmentData(Set<String> studyIds, ClinicalEventKeyCode tier) {
+        return treatmentService.containsSampleTreatmentData(new ArrayList<>(studyIds), tier);
     }
 }

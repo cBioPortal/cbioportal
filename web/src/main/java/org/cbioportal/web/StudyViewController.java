@@ -9,20 +9,19 @@ import org.apache.commons.lang3.math.NumberUtils;
 import org.apache.commons.lang3.tuple.ImmutablePair;
 import org.apache.commons.math3.stat.correlation.PearsonsCorrelation;
 import org.apache.commons.math3.stat.correlation.SpearmansCorrelation;
+import org.apache.commons.math3.util.Pair;
 import org.cbioportal.model.*;
 import org.cbioportal.service.*;
 import org.cbioportal.service.exception.StudyNotFoundException;
 import org.cbioportal.service.util.ClinicalAttributeUtil;
-import org.cbioportal.service.util.CustomDataSession;
 import org.cbioportal.web.config.annotation.InternalApi;
 import org.cbioportal.model.AlterationFilter;
 import org.cbioportal.web.parameter.*;
-import org.cbioportal.web.parameter.sort.ClinicalDataSortBy;
-import org.cbioportal.web.studyview.CustomDataController;
 import org.cbioportal.web.util.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.context.ApplicationContext;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -86,9 +85,6 @@ public class StudyViewController {
     private StudyViewService studyViewService;
     @Autowired
     private ClinicalDataBinUtil clinicalDataBinUtil;
-    @Autowired
-    private CustomDataService customDataService;
-    
     @Autowired
     private ClinicalEventService clinicalEventService;
 
@@ -289,7 +285,43 @@ public class StudyViewController {
         }
         return alterationCountByGenes;
     }
+    
+    @PreAuthorize("hasPermission(#involvedCancerStudies, 'Collection<CancerStudyId>', T(org.cbioportal.utils.security.AccessLevel).READ)")
+    @RequestMapping(value = "/structuralvariant-counts/fetch", method = RequestMethod.POST,
+        consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
+    @ApiOperation("Fetch structural variant genes by study view filter")
+    public ResponseEntity<List<AlterationCountByStructuralVariant>> fetchStructuralVariantCounts(
+        @ApiParam(required = true, value = "Study view filter")
+        @Valid @RequestBody(required = false) StudyViewFilter studyViewFilter,
+        @ApiIgnore // prevent reference to this attribute in the swagger-ui interface. This attribute is needed for the @PreAuthorize tag above.
+        @RequestAttribute(required = false, value = "involvedCancerStudies") Collection<String> involvedCancerStudies,
+        @ApiIgnore // prevent reference to this attribute in the swagger-ui interface.
+        @Valid @RequestAttribute(required = false, value = "interceptedStudyViewFilter") StudyViewFilter interceptedStudyViewFilter
+    ) throws StudyNotFoundException {
 
+        boolean singleStudyUnfiltered = studyViewFilterUtil.isSingleStudyUnfiltered(interceptedStudyViewFilter);
+        List<AlterationCountByStructuralVariant> alterationCountByStructuralVariants = 
+            instance.cacheableFetchStructuralVariantCounts(interceptedStudyViewFilter, singleStudyUnfiltered);
+        return new ResponseEntity<>(alterationCountByStructuralVariants, HttpStatus.OK);
+    }
+
+    @Cacheable(
+        cacheResolver = "staticRepositoryCacheOneResolver",
+        condition = "@cacheEnabledConfig.getEnabled() && #singleStudyUnfiltered"
+    )
+    public List<AlterationCountByStructuralVariant> cacheableFetchStructuralVariantCounts(
+        StudyViewFilter interceptedStudyViewFilter, boolean singleStudyUnfiltered
+    ) throws StudyNotFoundException {
+
+        List<SampleIdentifier> sampleIdentifiers = studyViewFilterApplier.apply(interceptedStudyViewFilter);
+        if(CollectionUtils.isNotEmpty(sampleIdentifiers)) {
+            List<String> studyIds = new ArrayList<>();
+            List<String> sampleIds = new ArrayList<>();
+            studyViewFilterUtil.extractStudyAndSampleIds(sampleIdentifiers, studyIds, sampleIds);
+            return studyViewService.getStructuralVariantAlterationCounts(studyIds, sampleIds, interceptedStudyViewFilter.getAlterationFilter());
+        }
+        return new ArrayList<>();
+    }
 
     @PreAuthorize("hasPermission(#involvedCancerStudies, 'Collection<CancerStudyId>', T(org.cbioportal.utils.security.AccessLevel).READ)")
     @RequestMapping(value = "/cna-genes/fetch", method = RequestMethod.POST,
@@ -409,6 +441,7 @@ public class StudyViewController {
     @RequestMapping(value = "/clinical-data-density-plot/fetch", method = RequestMethod.POST,
         consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
     @ApiOperation("Fetch clinical data density plot bins by study view filter")
+    @Validated
     public ResponseEntity<DensityPlotData> fetchClinicalDataDensityPlot(
         @ApiParam(required = true, value = "Clinical Attribute ID of the X axis")
         @RequestParam String xAxisAttributeId,
@@ -435,7 +468,7 @@ public class StudyViewController {
         @ApiIgnore // prevent reference to this attribute in the swagger-ui interface. this attribute is needed for the @PreAuthorize tag above.
         @Valid @RequestAttribute(required = false, value = "interceptedStudyViewFilter") StudyViewFilter interceptedStudyViewFilter,
         @ApiParam(required = true, value = "Study view filter")
-        @Valid @RequestBody(required = false) StudyViewFilter studyViewFilter) {
+        @RequestBody(required = false) StudyViewFilter studyViewFilter) {
 
         List<String> studyIds = new ArrayList<>();
         List<String> sampleIds = new ArrayList<>();
@@ -829,6 +862,47 @@ public class StudyViewController {
     }
 
     @PreAuthorize("hasPermission(#involvedCancerStudies, 'Collection<CancerStudyId>', T(org.cbioportal.utils.security.AccessLevel).READ)")
+    @RequestMapping(value = "/genomic-data-counts/fetch", method = RequestMethod.POST,
+        consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
+    @ApiOperation("Fetch genomic data counts by GenomicDataCountFilter")
+    public ResponseEntity<List<GenomicDataCountItem>> fetchGenomicDataCounts(
+        @ApiParam(required = true, value = "Genomic data count filter") @Valid @RequestBody(required = false) GenomicDataCountFilter genomicDataCountFilter,
+        @ApiIgnore // prevent reference to this attribute in the swagger-ui interface
+        @RequestAttribute(required = false, value = "involvedCancerStudies") Collection<String> involvedCancerStudies,
+        @ApiParam(required = true, value = "Intercepted Genomic Data Count Filter")
+        @ApiIgnore
+        @Valid @RequestAttribute(required = false, value = "interceptedGenomicDataCountFilter") GenomicDataCountFilter interceptedGenomicDataCountFilter
+    ) throws StudyNotFoundException {
+        List<GenomicDataFilter> gdFilters = interceptedGenomicDataCountFilter.getGenomicDataFilters();
+        StudyViewFilter studyViewFilter = interceptedGenomicDataCountFilter.getStudyViewFilter();
+        // when there is only one filter, it means study view is doing a single chart filter operation
+        // remove filter from studyViewFilter to return all data counts
+        // the reason we do this is to make sure after chart get filtered, user can still see unselected portion of the chart
+        if (gdFilters.size() == 1) {
+            studyViewFilterUtil.removeSelfFromGenomicDataFilter(
+                gdFilters.get(0).getHugoGeneSymbol(), 
+                gdFilters.get(0).getProfileType(), 
+                studyViewFilter);
+        }
+        List<SampleIdentifier> filteredSampleIdentifiers = studyViewFilterApplier.apply(studyViewFilter);
+
+        if (filteredSampleIdentifiers.isEmpty()) {
+            return new ResponseEntity<>(new ArrayList<>(), HttpStatus.OK);
+        }
+
+        List<String> studyIds = new ArrayList<>();
+        List<String> sampleIds = new ArrayList<>();
+        studyViewFilterUtil.extractStudyAndSampleIds(filteredSampleIdentifiers, studyIds, sampleIds);
+        
+        List<GenomicDataCountItem> result = studyViewService.getCNAAlterationCountsByGeneSpecific(
+            studyIds,
+            sampleIds,
+            gdFilters.stream().map(gdFilter -> new Pair<>(gdFilter.getHugoGeneSymbol(), gdFilter.getProfileType())).collect(Collectors.toList()));
+
+        return new ResponseEntity<>(result, HttpStatus.OK);
+    }
+    
+    @PreAuthorize("hasPermission(#involvedCancerStudies, 'Collection<CancerStudyId>', T(org.cbioportal.utils.security.AccessLevel).READ)")
     @RequestMapping(value = "/generic-assay-data-counts/fetch", method = RequestMethod.POST, consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
     @ApiOperation("Fetch generic assay data counts by study view filter")
     public ResponseEntity<List<GenericAssayDataCountItem>> fetchGenericAssayDataCounts(
@@ -887,39 +961,56 @@ public class StudyViewController {
     @ApiOperation("Fetch clinical data for the Clinical Tab of Study View")
     public ResponseEntity<ClinicalDataCollection> fetchClinicalDataClinicalTable(
         @ApiParam(required = true, value = "Study view filter")
-        @Valid @RequestBody(required = false) StudyViewFilter studyViewFilter,
+        @Valid @RequestBody(required = false) 
+            StudyViewFilter studyViewFilter,
         @ApiIgnore // prevent reference to this attribute in the swagger-ui interface
-        @RequestAttribute(required = false, value = "involvedCancerStudies") Collection<String> involvedCancerStudies,
+        @RequestAttribute(required = false, value = "involvedCancerStudies") 
+            Collection<String> involvedCancerStudies,
         @ApiIgnore // prevent reference to this attribute in the swagger-ui interface. this attribute is needed for the @PreAuthorize tag above.
-        @Valid @RequestAttribute(required = false, value = "interceptedStudyViewFilter") StudyViewFilter interceptedStudyViewFilter,
+        @Valid @RequestAttribute(required = false, value = "interceptedStudyViewFilter") 
+            StudyViewFilter interceptedStudyViewFilter,
         @ApiParam("Page size of the result list")
         @Max(CLINICAL_TAB_MAX_PAGE_SIZE)
         @Min(PagingConstants.NO_PAGING_PAGE_SIZE)
-        @RequestParam(defaultValue = PagingConstants.DEFAULT_NO_PAGING_PAGE_SIZE) Integer pageSize,
+        @RequestParam(defaultValue = PagingConstants.DEFAULT_NO_PAGING_PAGE_SIZE) 
+            Integer pageSize,
         @ApiParam("Page number of the result list")
         @Min(PagingConstants.MIN_PAGE_NUMBER)
-        @RequestParam(defaultValue = PagingConstants.DEFAULT_PAGE_NUMBER) Integer pageNumber,
+        @RequestParam(defaultValue = PagingConstants.DEFAULT_PAGE_NUMBER) 
+            Integer pageNumber,
         @ApiParam("Search term to filter sample rows. Samples are returned " +
             "with a partial match to the search term for any sample clinical attribute.")
-        @RequestParam(defaultValue = "") String searchTerm,
-        @ApiParam("Name of the property that the result list is sorted by")
-        @RequestParam(required = false) ClinicalDataSortBy sortBy,
+        @RequestParam(defaultValue = "") 
+            String searchTerm,
+        @ApiParam(value = "sampleId, patientId, or the ATTR_ID to sorted by")
+        @RequestParam(required = false) 
+            // TODO: Can we narrow down this string to a specific enum? 
+            String sortBy,
         @ApiParam("Direction of the sort")
-        @RequestParam(defaultValue = "ASC") Direction direction) {
-
+        @RequestParam(defaultValue = "ASC") 
+            Direction direction
+    ) {
         List<String> sampleStudyIds = new ArrayList<>();
         List<String> sampleIds = new ArrayList<>();
         List<SampleIdentifier> filteredSampleIdentifiers = studyViewFilterApplier.apply(interceptedStudyViewFilter);
         studyViewFilterUtil.extractStudyAndSampleIds(filteredSampleIdentifiers, sampleStudyIds, sampleIds);
         
-        List<ClinicalData> sampleClinicalData = clinicalDataService.fetchSampleClinicalDataClinicalTable(
+        List<ClinicalData> sampleClinicalData = clinicalDataService.fetchSampleClinicalTable(
             sampleStudyIds,
             sampleIds,
             pageSize,
             pageNumber,
             searchTerm,
-            sortBy != null ? sortBy.getOriginalValue() : null,
-            direction.name());
+            sortBy,
+            direction.name()
+        );
+        Integer total = clinicalDataService.fetchSampleClinicalTableCount(
+            sampleStudyIds,
+            sampleIds,
+            searchTerm,
+            sortBy,
+            direction.name()
+        );
             
         // Return empty when possible.
         if (sampleClinicalData.isEmpty()) {
@@ -942,8 +1033,10 @@ public class StudyViewController {
         final ClinicalDataCollection clinicalDataCollection = new ClinicalDataCollection();
         clinicalDataCollection.setSampleClinicalData(sampleClinicalData);
         clinicalDataCollection.setPatientClinicalData(patientClinicalData);
-
-        return new ResponseEntity<>(clinicalDataCollection, HttpStatus.OK);
+        
+        HttpHeaders responseHeaders = new HttpHeaders();
+        responseHeaders.add(HeaderKeyConstants.TOTAL_COUNT, total.toString());
+        return new ResponseEntity<>(clinicalDataCollection, responseHeaders, HttpStatus.OK);
     }
 
     @PreAuthorize("hasPermission(#involvedCancerStudies, 'Collection<CancerStudyId>', T(org.cbioportal.utils.security.AccessLevel).READ)")

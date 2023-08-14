@@ -31,13 +31,13 @@
         String[] propNameArray = {
             "app.version",
             "app.name",
-            "dat.method",
             "oncoprint.custom_driver_annotation.binary.menu_label",
             "disabled_tabs",
             "civic.url",
             "oncoprint.custom_driver_annotation.binary.default",
             "oncoprint.oncokb.default",
             "oncoprint.hotspots.default",
+            "oncoprint.clustered.default",
             "genomenexus.url",
             "genomenexus.url.grch38",
             "google_analytics_profile_id",
@@ -146,8 +146,10 @@
             "skin.patient_view.copy_number_table.columns.show_on_init",
             "skin.patient_view.structural_variant_table.columns.show_on_init",
             "comparison.categorical_na_values",
-            "skin.hide_download_controls",
-            "study_download_url"
+            "study_download_url",
+            "skin.home_page.show_reference_genome",
+            "vaf.sequential_mode.default",
+            "vaf.log_scale.default"
         };
 
 
@@ -202,6 +204,10 @@
         obj.put("oncoKbTokenDefined", !StringUtils.isEmpty(GlobalProperties.getOncoKbToken()));
 
         obj.put("sessionServiceEnabled", !StringUtils.isEmpty(GlobalProperties.getSessionServiceUrl()));
+
+        obj.put("skin_hide_download_controls", GlobalProperties.getDownloadControl());
+        
+        obj.put("dat_method", GlobalProperties.getDataAccessTokenMethod());
 
         out.println(obj.toJSONString());
 

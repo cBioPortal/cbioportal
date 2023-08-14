@@ -20,6 +20,7 @@
     * [What is a Virtual Study?](/user-guide/faq.md#what-is-a-virtual-study)
     * [Is it necessary to log in to use virtual studies? If I do log in, what additional functionality do I gain?](/user-guide/faq.md#is-it-necessary-to-log-in-to-use-virtual-studies-if-i-do-log-in-what-additional-functionality-do-i-gain)
     * [What is Group Comparison?](/user-guide/faq.md#what-is-group-comparison)
+    * [What are the statistical significance tests in Group Comparison?](/user-guide/faq.md#what-are-the-statistical-significance-tests-in-group-comparison)
 * [Data Questions](/user-guide/faq.md#data-questions)
     * [General Data](/user-guide/faq.md#general-data)
         * [Does the portal contain cancer study X?](/user-guide/faq.md#does-the-portal-contain-cancer-study-x)
@@ -137,7 +138,18 @@ No. A user that has not logged in can create virtual studies and run queries in 
 If you log in, you gain the ability to save your virtual study to the list of existing studies on the homepage. This makes a virtual study functionally the same as any other study: you can access your virtual studies in the query builder and you can combine an existing virtual study with any other study to create a new virtual study.
 #### What is Group Comparison?
 Group Comparison is a suite of analysis features which allows a user to compare clinical or genomic features of user-defined groups of samples. These groups can be defined based on any clinical or genomic features. For an overview, see [our tutorial on group comparison](https://www.cbioportal.org/tutorials).
-
+#### What are the statistical significance tests in Group Comparison?
+- Survival tab: Log-rank test
+- Clinical tab:
+    - Continuous data: Chi-squared test
+    - Categorical data: Kruskal Wallis test
+- Other tabs
+    - 2 groups
+        - Continuous data: one-sided t-test
+        - Categorical data: two-sided Fisher's exact test
+    - 3 or more groups
+        - Continuous data: one-way ANOVA
+        - Categorical data: Chi-squared test
 
 ## Data Questions
 ### General Data

@@ -2,6 +2,7 @@ package org.cbioportal.service.util;
 
 import org.apache.commons.math3.stat.inference.ChiSquareTest;
 import org.apache.commons.math3.util.Pair;
+import org.cbioportal.model.AlterationCountBase;
 import org.cbioportal.model.AlterationCountByGene;
 import org.cbioportal.model.AlterationEnrichment;
 import org.cbioportal.model.CountSummary;
@@ -28,7 +29,7 @@ import java.util.stream.Collectors;
 import java.util.Map.Entry;
 
 @Component
-public class AlterationEnrichmentUtil<T extends AlterationCountByGene> {
+public class AlterationEnrichmentUtil<T extends AlterationCountBase> {
 
     @Autowired
     private FisherExactTestCalculator fisherExactTestCalculator;
@@ -41,7 +42,7 @@ public class AlterationEnrichmentUtil<T extends AlterationCountByGene> {
     @Autowired
     private MolecularProfileService molecularProfileService;
 
-    public List<AlterationEnrichment> createAlterationEnrichments(Map<String, Pair<List<T>, Long>> mutationCountsbyGroup) {
+    public List<AlterationEnrichment> createAlterationEnrichments(Map<String, Pair<List<AlterationCountByGene>, Long>> mutationCountsbyGroup) {
         
         Map<String, Map<Integer, AlterationCountByGene>> mutationCountsbyEntrezGeneIdAndGroup = mutationCountsbyGroup
                     .entrySet()
@@ -131,7 +132,7 @@ public class AlterationEnrichmentUtil<T extends AlterationCountByGene> {
                         int alteredOnlyInQueryGenesCount = counts.get(0).getProfiledCount()
                             - counts.get(0).getAlteredCount();
 
-                        pValue = fisherExactTestCalculator.getCumulativePValue(alteredInNoneCount,
+                        pValue = fisherExactTestCalculator.getTwoTailedPValue(alteredInNoneCount,
                             counts.get(1).getAlteredCount(), alteredOnlyInQueryGenesCount,
                             counts.get(0).getAlteredCount());
                     } else {
@@ -160,14 +161,14 @@ public class AlterationEnrichmentUtil<T extends AlterationCountByGene> {
     
     public long includeFrequencyForSamples(
             List<MolecularProfileCaseIdentifier> molecularProfileCaseIdentifiers,
-            List<T> alterationCountByGenes,
+            List<T> alterationCounts,
             boolean includeMissingAlterationsFromGenePanel) {
 
         // Collect profile id and sample id arrays.
         // These are arrays of equal length, where every index
         // represents a sample id / profile id-combination
         List<String> sampleIds = new ArrayList<>();
-        List<String> molecularProfileIds = new ArrayList<>();
+        List<String> molecularProfileIds = new ArrayList<>();   
         molecularProfileCaseIdentifiers.forEach(pair -> {
             sampleIds.add(pair.getCaseId());
             molecularProfileIds.add(pair.getMolecularProfileId());
@@ -176,7 +177,7 @@ public class AlterationEnrichmentUtil<T extends AlterationCountByGene> {
         List<GenePanelData> genePanelDataList = genePanelService
             .fetchGenePanelDataInMultipleMolecularProfiles(molecularProfileCaseIdentifiers);
 
-        profiledCasesCounter.calculate(alterationCountByGenes, genePanelDataList,
+        profiledCasesCounter.calculate(alterationCounts, genePanelDataList,
                 includeMissingAlterationsFromGenePanel, profiledCasesCounter.sampleUniqueIdentifier);
 
         return genePanelDataList
@@ -189,7 +190,7 @@ public class AlterationEnrichmentUtil<T extends AlterationCountByGene> {
 
     public long includeFrequencyForPatients(
             List<MolecularProfileCaseIdentifier> molecularProfileCaseIdentifiers,
-            List<T> alterationCountByGenes,
+            List<T> alterationCounts,
             boolean includeMissingAlterationsFromGenePanel) {
 
         // Collect profile id and sample id arrays.
@@ -205,7 +206,7 @@ public class AlterationEnrichmentUtil<T extends AlterationCountByGene> {
         List<GenePanelData> genePanelDataList = genePanelService
             .fetchGenePanelDataInMultipleMolecularProfilesByPatientIds(molecularProfileCaseIdentifiers);
 
-        profiledCasesCounter.calculate(alterationCountByGenes, genePanelDataList,
+        profiledCasesCounter.calculate(alterationCounts, genePanelDataList,
             includeMissingAlterationsFromGenePanel, profiledCasesCounter.patientUniqueIdentifier);
 
         return genePanelDataList

@@ -171,6 +171,7 @@ dat.method=none
 dat.ttl_seconds=2592000
 dat.uuid.max_number_per_user=1
 dat.jwt.secret_key=
+dat.filter_user_role=
 
 # OAuth2 token data access settings
 #dat.oauth2.clientId=<client-id>

@@ -31,7 +31,6 @@
         String[] propNameArray = {
             "app.version",
             "app.name",
-            "dat.method",
             "oncoprint.custom_driver_annotation.binary.menu_label",
             "disabled_tabs",
             "civic.url",
@@ -207,6 +206,8 @@
         obj.put("sessionServiceEnabled", !StringUtils.isEmpty(GlobalProperties.getSessionServiceUrl()));
 
         obj.put("skin_hide_download_controls", GlobalProperties.getDownloadControl());
+        
+        obj.put("dat_method", GlobalProperties.getDataAccessTokenMethod());
 
         out.println(obj.toJSONString());
 

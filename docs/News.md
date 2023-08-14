@@ -1,5 +1,5 @@
 ## Aug 15, 2023
-*   **Added data** consisting of 2,472 samples from 5 studies:
+*   **Added data** consisting of 4,488 samples from 7 studies:
     * [Lung Adenocarcinoma Met Organotropism (MSK, Cancer Cell 2023)](https://www.cbioportal.org/study/summary?id=luad_mskcc_2023_met_organotropism) *2653 samples*
     * [Acute Myeloid Leukemia (OHSU, Cancer Cell 2022)](https://www.cbioportal.org/study/summary?id=aml_ohsu_2022) *942 samples*
     * [Colon Cancer (Sidra-LUMC AC-ICAM, Nat Med 2023)](https://www.cbioportal.org/study/summary?id=coad_silu_2022) *348 samples*

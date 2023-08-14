@@ -109,9 +109,6 @@ The cBioPortal for Cancer Genomics was originally developed at [Memorial Sloan K
 * Diana Baiceanu
 * Paul van Dijk
 * Kees van Bochove
-* Yichao Sun
-* Adam Abeshouse
-* Divya Madala
 
 ## Funding for the cBioPortal for Cancer Genomics is or has been provided by:
 

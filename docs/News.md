@@ -1,3 +1,22 @@
+## Aug 15, 2023
+*   **Added data** consisting of 2,472 samples from 5 studies:
+    * [Lung Adenocarcinoma Met Organotropism (MSK, Cancer Cell 2023)](https://www.cbioportal.org/study/summary?id=luad_mskcc_2023_met_organotropism) *2653 samples*
+    * [Acute Myeloid Leukemia (OHSU, Cancer Cell 2022)](https://www.cbioportal.org/study/summary?id=aml_ohsu_2022) *942 samples*
+    * [Colon Cancer (Sidra-LUMC AC-ICAM, Nat Med 2023)](https://www.cbioportal.org/study/summary?id=coad_silu_2022) *348 samples*
+    * [Pediatric Neuroblastoma (MSK, Nat Genet 2023)](https://www.cbioportal.org/study/summary?id=nbl_msk_2023) *223 samples*    
+    * [Colorectal Adenocarcinoma (MSK, Nat Commun 2022)](https://www.cbioportal.org/study/summary?id=bowel_colitis_msk_2022) *180 samples*
+    * [Bladder Cancer (Columbia University/MSK, Cell 2018)](https://www.cbioportal.org/study/summary?id=bladder_columbia_msk_2018) *130 samples*
+    * [Myoepithelial Carcinomas of Soft Tissue (WCM, CSH Molecular Case Studies 2022)](https://www.cbioportal.org/study/summary?id=stmyec_wcm_2022) *12 samples*
+
+* **Gene Tables Update** Updated tables of genes (main and alias), based on [Apr 1, 2023 HGNC release](http://ftp.ebi.ac.uk/pub/databases/genenames/hgnc/archive/monthly/tsv/). See seedDB release note [here](https://github.com/cBioPortal/datahub/tree/master/seedDB#latest-seed-database) for details.
+
+* **Data Improvement**
+   * Pan-can studies methylation addition: methylation profile 450K is added to all 32 TCGA Pan-Can studies, in generic assay format. Data source: [GDC](https://gdc.cancer.gov/node/977). Example: Search by gene or probe from dropdown, to add a chart in study view, a track in Oncoprint (single study query only), or plots in plots tab. 
+<img width="1151" alt="Screen Shot 2023-08-14 at 1 57 29 PM" src="https://github.com/cBioPortal/datahub/assets/61431648/80ce4e7f-84c0-4de4-8cec-deaa79236201">
+
+   * Pan-can studies Ancestry addition: Genetic Ancestry data is added to all 32 TCGA Pan-Can studies, in generic assay format. Data source: [GDC](https://gdc.cancer.gov/about-data/publications/CCG-AIM-2020). Example: Search by each ancestry from dropdown, to add a chart in study view, a track in Oncoprint. 
+<img width="1129" alt="Screen Shot 2023-08-14 at 4 26 22 PM" src="https://github.com/cBioPortal/datahub/assets/61431648/1e5a212c-518c-4eb1-add4-330452c28926">
+
 ## Aug 1, 2023
 *   **Enhancement**: One-sided Fisher's exact tests were changed to be two-sided. The affected pages are:
     *    Results View Page - Mutual Exclusivity Tab

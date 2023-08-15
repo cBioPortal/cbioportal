@@ -44,7 +44,7 @@ jobs:
                     git clone https://github.com/$FRONTEND_ORG/cbioportal-frontend.git && \
                     cd cbioportal-frontend && \
                     git fetch --tags && \
-                    git checkout ${FRONTEND_VERSION}
+                    git checkout master
             - persist_to_workspace:
                 root: /tmp/repos
                 paths:
@@ -219,7 +219,7 @@ jobs:
             - store_artifacts:
                     path: /tmp/repos/cbioportal-frontend/end-to-end-test/local/junit/errors/
                     destination: /errors
-                
+
         environment:
             PORTAL_SOURCE_DIR: /tmp/repos/cbioportal-frontend/
             TEST_HOME: /tmp/repos/cbioportal-frontend/end-to-end-test/local

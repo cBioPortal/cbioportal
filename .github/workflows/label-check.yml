@@ -1,0 +1,50 @@
+# This GitHub Actions workflow is designed to automatically check pull requests in the cBioPortal repository for valid labels before they can be merged.
+# The workflow ensures that pull requests have labels that are defined in the .github/release-drafter.yml file's "categories" section.
+# If a pull request lacks a valid label, the workflow will fail, preventing the merge until valid labels are applied.
+name: Label Check
+
+on:
+  pull_request:
+    types:
+      - opened
+      - synchronize
+
+jobs:
+  label-check:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check PR Labels
+        uses: actions/checkout@v2
+
+      - name: Install dependencies
+        run: |
+          wget https://github.com/mikefarah/yq/releases/download/v4.34.2/yq_linux_amd64 -O /usr/local/bin/yq
+          chmod +x /usr/local/bin/yq
+      - name: Get Labels from release-drafter.yml
+        id: get_labels
+        run: |
+          curl -s "https://raw.githubusercontent.com/cBioPortal/cbioportal/master/.github/release-drafter.yml" | \
+            yq -r '.categories[].labels[]' > labels.txt
+      - name: Check Labels
+        id: check_labels
+        run: |
+          PR_NUMBER=$(jq -r ".number" $GITHUB_EVENT_PATH)
+          PR_LABELS=$(curl -s "https://api.github.com/repos/${{ github.repository }}/pulls/$PR_NUMBER" | \
+                       jq -r '.labels[].name')
+          mapfile -t AVAILABLE_LABELS < labels.txt
+          for LABEL in ${PR_LABELS[@]}; do
+            if [[ "$LABEL" == "skip-changelog" ]]; then
+              echo "PR contains a valid label: skip-changelog"
+              exit 0  # Valid label found, exit successfully
+            fi
+            for AVAILABLE_LABEL in "${AVAILABLE_LABELS[@]}"; do
+              if [[ "$AVAILABLE_LABEL" == "$LABEL" ]]; then
+                echo "PR contains a valid label: $LABEL"
+                exit 0  # Valid label found, exit successfully
+              fi
+            done
+          done
+          echo "No valid label found on PR."
+          echo "Available label options from release-drafter.yml:"
+          cat labels.txt
+          exit 1  # No valid label found, exit with an error

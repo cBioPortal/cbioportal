@@ -9,6 +9,7 @@ Describe changes proposed in this pull request:
 - [ ] Has tests or has a separate issue that describes the types of test that should be created. If no test is included it should explicitly be mentioned in the PR why there is no test.
 - [ ] The commit log is comprehensible. It follows [7 rules of great commit messages](http://chris.beams.io/posts/git-commit/). For most PRs a single commit should suffice, in some cases multiple topical commits can be useful. During review it is ok to see tiny commits (e.g. Fix reviewer comments), but right before the code gets merged to master or rc branch, any such commits should be squashed since they are useless to the other developers. Definitely avoid [merge commits, use rebase instead.](http://nathanleclaire.com/blog/2014/09/14/dont-be-scared-of-git-rebase/)
 - [ ] Is this PR adding logic based on one or more **clinical** attributes? If yes, please make sure validation for this attribute is also present in the data validation / data loading layers (in backend repo) and documented in [File-Formats Clinical data section](https://github.com/cBioPortal/cbioportal/blob/master/docs/File-Formats.md#clinical-data)!
+- [ ] Make sure your PR has one of the labels defined in https://github.com/cBioPortal/cbioportal/blob/master/.github/release-drafter.yml
 
 # Any screenshots or GIFs?
 If this is a new visual feature please add a before/after screenshot or gif

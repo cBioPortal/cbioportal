@@ -1,4 +1,4 @@
-## Aug 15, 2023
+## Aug 18, 2023
 *   **Added data** consisting of 4,488 samples from 7 studies:
     * [Lung Adenocarcinoma Met Organotropism (MSK, Cancer Cell 2023)](https://www.cbioportal.org/study/summary?id=luad_mskcc_2023_met_organotropism) *2653 samples*
     * [Acute Myeloid Leukemia (OHSU, Cancer Cell 2022)](https://www.cbioportal.org/study/summary?id=aml_ohsu_2022) *942 samples*
@@ -12,17 +12,13 @@
 
 * **Data Improvements**
    
- * Methylation profile 450K is added to all 32 TCGA Pan-Can studies, in generic assay format. Data source: [GDC](https://gdc.cancer.gov/node/977). 
-     * Examples: Query by gene or probe from the dropdown box in the charts tab of the study summary page.
-     * Add a chart in the study view. 
-     * Create a track in Oncoprint (single study query only), or plots in the plots tab.
-<img width="1145" alt="Screen Shot 2023-08-14 at 7 35 42 PM" src="https://github.com/cBioPortal/datahub/assets/61431648/d4841094-cdd0-49bd-b91d-8513014be7d6">
+   * Methylation profile 450K is added to all 32 TCGA Pan-Can studies, in generic assay format. Data source: [GDC](https://gdc.cancer.gov/node/977). 
+<img width="973" alt="Screen Shot 2023-08-17 at 5 50 25 PM" src="https://github.com/cBioPortal/datahub/assets/61431648/7c8a53bd-9696-4e10-a49c-ac206ad9f263">
+
     
- * Genetic Ancestry data is added to all 32 TCGA Pan-Can studies, in generic assay format. Data source: [GDC](https://gdc.cancer.gov/about-data/publications/CCG-AIM-2020).
-     * Examples: Query by each ancestry population from the dropdown in the charts tab of the study summary page.
-     * Add an ancestry chart in the study view and can compare it with other populations.
-     * Create a track in Oncoprint (single study query only), or plots in the plots tab. 
-<img width="1121" alt="Screen Shot 2023-08-14 at 7 42 24 PM" src="https://github.com/cBioPortal/datahub/assets/61431648/58394b31-71fb-4326-99c1-989ee0f8bed1">
+   * Genetic Ancestry data is added to all 32 TCGA Pan-Can studies, in generic assay format. Data source: [GDC](https://gdc.cancer.gov/about-data/publications/CCG-AIM-2020). 
+<img width="855" alt="Screen Shot 2023-08-17 at 5 49 21 PM" src="https://github.com/cBioPortal/datahub/assets/61431648/e23df5d3-483a-4ed7-baab-198352bb724e">
+
 
 ## Aug 1, 2023
 *   **Enhancement**: One-sided Fisher's exact tests were changed to be two-sided. The affected pages are:

@@ -145,6 +145,12 @@ Below you can find the complete list of all the available skin properties.
 			<td>Text for public cBioPortal.org.</td>
 			<td>Any HTML text</td>
 		</tr>
+        <tr>
+			<td>skin.right_nav.show_web_tours</td>
+			<td>set the "Interactive Tours" section in the right navigation bar</td>
+			<td>true</td>
+			<td>true / false</td>
+		</tr>
 		<tr>
 			<td>skin.show_about_tab</td>
 			<td>show the "ABOUT" tab in the header</td>

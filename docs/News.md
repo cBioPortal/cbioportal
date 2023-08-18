@@ -1,4 +1,4 @@
-## Aug 18, 2023
+## Aug 21, 2023
 *   **Added data** consisting of 4,488 samples from 7 studies:
     * [Lung Adenocarcinoma Met Organotropism (MSK, Cancer Cell 2023)](https://www.cbioportal.org/study/summary?id=luad_mskcc_2023_met_organotropism) *2653 samples*
     * [Acute Myeloid Leukemia (OHSU, Cancer Cell 2022)](https://www.cbioportal.org/study/summary?id=aml_ohsu_2022) *942 samples*
@@ -12,12 +12,8 @@
 
 * **Data Improvements**
    
-   * Methylation profile 450K is added to all 32 TCGA Pan-Can studies, in generic assay format. Data source: [GDC](https://gdc.cancer.gov/node/977). 
-<img width="973" alt="Screen Shot 2023-08-17 at 5 50 25 PM" src="https://github.com/cBioPortal/datahub/assets/61431648/7c8a53bd-9696-4e10-a49c-ac206ad9f263">
-
-    
    * Genetic Ancestry data is added to all 32 TCGA Pan-Can studies, in generic assay format. Data source: [GDC](https://gdc.cancer.gov/about-data/publications/CCG-AIM-2020). 
-<img width="855" alt="Screen Shot 2023-08-17 at 5 49 21 PM" src="https://github.com/cBioPortal/datahub/assets/61431648/e23df5d3-483a-4ed7-baab-198352bb724e">
+<img width="1191" alt="Screen Shot 2023-08-18 at 3 24 21 PM" src="https://github.com/cBioPortal/datahub/assets/61431648/9c026fdd-df32-4277-82a0-ef5486af2aa1">
 
 
 ## Aug 1, 2023

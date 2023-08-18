@@ -98,6 +98,7 @@
             "skin.right_nav.show_whats_new",
             "skin.right_nav.show_twitter",
             "skin.right_nav.whats_new_blurb",
+            "skin.right_nav.show_web_tours",
             "skin.show_about_tab",
             "skin.show_data_tab",
             "skin.show_faqs_tab",

@@ -100,6 +100,9 @@ skin.right_nav.show_whats_new=
 skin.right_nav.show_twitter=
 ```
 
+#Interactive tours section
+skin.right_nav.show_web_tours=
+
 ### Control the content of specific sections
 
 Setting controlling the blurb: you can add any HTML code here that you want to visualize. This will be shown between the cBioPortal menu and the Query selector in the main page.

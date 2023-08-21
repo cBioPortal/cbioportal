@@ -10,12 +10,6 @@
 
 * **Gene Tables Update** Updated tables of genes (main and alias), based on [Apr 1, 2023 HGNC release](http://ftp.ebi.ac.uk/pub/databases/genenames/hgnc/archive/monthly/tsv/). See seedDB release note [here](https://github.com/cBioPortal/datahub/tree/master/seedDB#latest-seed-database) for details.
 
-* **Data Improvements**
-   
-   * Genetic Ancestry data is added to all 32 TCGA Pan-Can studies, in generic assay format. Data source: [GDC](https://gdc.cancer.gov/about-data/publications/CCG-AIM-2020). 
-<img width="1191" alt="Screen Shot 2023-08-18 at 3 24 21 PM" src="https://github.com/cBioPortal/datahub/assets/61431648/9c026fdd-df32-4277-82a0-ef5486af2aa1">
-
-
 ## Aug 1, 2023
 *   **Enhancement**: One-sided Fisher's exact tests were changed to be two-sided. The affected pages are:
     *    Results View Page - Mutual Exclusivity Tab

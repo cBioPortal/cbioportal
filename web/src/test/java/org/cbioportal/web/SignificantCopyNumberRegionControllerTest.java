@@ -4,7 +4,7 @@ import org.cbioportal.model.Gistic;
 import org.cbioportal.model.GisticToGene;
 import org.cbioportal.model.meta.BaseMeta;
 import org.cbioportal.service.SignificantCopyNumberRegionService;
-import org.cbioportal.webparam.HeaderKeyConstants;
+import org.cbioportal.web.parameter.HeaderKeyConstants;
 import org.hamcrest.Matchers;
 import org.junit.Before;
 import org.junit.Test;

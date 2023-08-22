@@ -1,7 +1,7 @@
 package org.cbioportal.service.impl;
 
 import org.cbioportal.model.*;
-import org.cbioportal.webparam.GeneFilterQuery;
+import org.cbioportal.model.GeneFilterQuery;
 import org.cbioportal.model.MolecularProfile.MolecularAlterationType;
 import org.cbioportal.model.meta.BaseMeta;
 import org.cbioportal.persistence.DiscreteCopyNumberRepository;

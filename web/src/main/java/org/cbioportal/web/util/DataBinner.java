@@ -6,10 +6,10 @@ import org.cbioportal.model.Binnable;
 import org.cbioportal.model.ClinicalData;
 import org.cbioportal.model.ClinicalData;
 import org.cbioportal.model.DataBin;
-import org.cbioportal.webparam.BinsGeneratorConfig;
-import org.cbioportal.webparam.ClinicalDataBinFilter;
-import org.cbioportal.webparam.ClinicalDataType;
-import org.cbioportal.webparam.DataBinFilter;
+import org.cbioportal.web.parameter.BinsGeneratorConfig;
+import org.cbioportal.web.parameter.ClinicalDataBinFilter;
+import org.cbioportal.web.parameter.ClinicalDataType;
+import org.cbioportal.web.parameter.DataBinFilter;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 

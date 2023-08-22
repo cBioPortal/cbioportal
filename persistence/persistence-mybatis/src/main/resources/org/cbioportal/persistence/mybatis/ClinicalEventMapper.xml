@@ -181,7 +181,7 @@
                 </if>
             </if>
         </where>
-        GROUP BY clinical_event.CLINICAL_EVENT_ID, clinical_event.EVENT_TYPE, patient.STABLE_ID
+        Group by clinical_event.EVENT_TYPE, patient.STABLE_ID
     </select>
 
 </mapper>

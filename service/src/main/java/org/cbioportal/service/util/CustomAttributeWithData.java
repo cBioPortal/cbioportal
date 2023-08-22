@@ -1,4 +1,3 @@
-
 package org.cbioportal.service.util;
 
 import java.io.Serializable;

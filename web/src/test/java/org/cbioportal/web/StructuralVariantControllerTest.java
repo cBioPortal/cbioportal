@@ -32,8 +32,8 @@ import org.cbioportal.model.StructuralVariant;
 import org.cbioportal.model.StructuralVariantQuery;
 import org.cbioportal.model.StructuralVariantSpecialValue;
 import org.cbioportal.service.StructuralVariantService;
-import org.cbioportal.webparam.SampleMolecularIdentifier;
-import org.cbioportal.webparam.StructuralVariantFilter;
+import org.cbioportal.web.parameter.SampleMolecularIdentifier;
+import org.cbioportal.web.parameter.StructuralVariantFilter;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.hamcrest.Matchers;

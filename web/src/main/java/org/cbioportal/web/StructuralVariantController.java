@@ -25,6 +25,7 @@ package org.cbioportal.web;
 
 import org.cbioportal.model.StructuralVariant;
 import org.cbioportal.service.StructuralVariantService;
+import org.cbioportal.web.parameter.StructuralVariantFilter;
 
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
@@ -32,7 +33,6 @@ import io.swagger.annotations.ApiParam;
 
 import org.cbioportal.web.config.InternalApiTags;
 import org.cbioportal.web.config.annotation.InternalApi;
-import org.cbioportal.webparam.StructuralVariantFilter;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;

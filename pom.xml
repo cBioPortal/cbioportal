@@ -331,7 +331,6 @@
     <module>security</module>
     <module>utils</module>
     <module>maf</module>
-    <module>webparam</module>
   </modules>
 
   <dependencies>
@@ -441,11 +440,6 @@
         <version>${project.version}</version>
       </dependency>
       <dependency>
-        <groupId>org.mskcc.cbio</groupId>
-        <artifactId>webparam</artifactId>
-        <version>${project.version}</version>
-      </dependency>
-      <dependency>
         <groupId>com.github.cbioportal</groupId>
         <artifactId>session-service</artifactId>
         <classifier>model</classifier>
@@ -459,11 +453,6 @@
         <artifactId>mysql-connector-java</artifactId>
         <version>${mysql-connector.version}</version>
       </dependency>
-        <dependency>
-            <groupId>com.clickhouse</groupId>
-            <artifactId>clickhouse-jdbc</artifactId>
-            <version>0.4.0</version>
-        </dependency>
       <!-- Apache commons -->
       <dependency>
         <groupId>org.apache.commons</groupId>
@@ -1203,7 +1192,6 @@
                     <goals>
                       <goal>execute</goal>
                     </goals>
-                    <versionRange></versionRange>
                   </pluginExecutionFilter>
                   <action>
                     <ignore/>

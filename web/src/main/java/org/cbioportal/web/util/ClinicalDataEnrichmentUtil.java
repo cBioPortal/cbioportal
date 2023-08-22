@@ -15,7 +15,7 @@ import org.cbioportal.model.ClinicalDataEnrichment;
 import org.cbioportal.model.Sample;
 import org.cbioportal.service.ClinicalDataService;
 import org.cbioportal.service.util.ClinicalAttributeUtil;
-import org.cbioportal.webparam.ClinicalDataType;
+import org.cbioportal.web.parameter.ClinicalDataType;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;

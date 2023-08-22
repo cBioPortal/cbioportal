@@ -3,7 +3,7 @@ package org.cbioportal.web;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.cbioportal.model.VariantCount;
 import org.cbioportal.service.VariantCountService;
-import org.cbioportal.webparam.VariantCountIdentifier;
+import org.cbioportal.web.parameter.VariantCountIdentifier;
 import org.hamcrest.Matchers;
 import org.junit.Before;
 import org.junit.Test;

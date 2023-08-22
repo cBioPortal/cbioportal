@@ -7,32 +7,13 @@ import java.util.stream.Stream;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.collections4.map.MultiKeyMap;
 import org.cbioportal.model.*;
+import org.cbioportal.model.GeneFilter;
 import org.cbioportal.model.MolecularProfile.MolecularAlterationType;
 import org.cbioportal.service.*;
 import org.cbioportal.service.exception.MolecularProfileNotFoundException;
 import org.cbioportal.service.util.MolecularProfileUtil;
+import org.cbioportal.web.parameter.*;
 import org.cbioportal.web.util.appliers.*;
-import org.cbioportal.webparam.ClinicalDataFilter;
-import org.cbioportal.webparam.ClinicalDataType;
-import org.cbioportal.webparam.DataBinCountFilter;
-import org.cbioportal.webparam.DataBinFilter;
-import org.cbioportal.webparam.DataBinMethod;
-import org.cbioportal.webparam.DataFilter;
-import org.cbioportal.webparam.DiscreteCopyNumberEventType;
-import org.cbioportal.webparam.GeneFilter;
-import org.cbioportal.webparam.GeneFilterQuery;
-import org.cbioportal.webparam.GeneIdType;
-import org.cbioportal.webparam.GenericAssayDataBinCountFilter;
-import org.cbioportal.webparam.GenericAssayDataBinFilter;
-import org.cbioportal.webparam.GenericAssayDataFilter;
-import org.cbioportal.webparam.GenomicDataBinCountFilter;
-import org.cbioportal.webparam.GenomicDataBinFilter;
-import org.cbioportal.webparam.GenomicDataFilter;
-import org.cbioportal.webparam.Projection;
-import org.cbioportal.webparam.SampleIdentifier;
-import org.cbioportal.webparam.StructuralVariantFilter;
-import org.cbioportal.webparam.StudyViewFilter;
-import org.cbioportal.webparam.StudyViewGeneFilter;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.context.ApplicationContext;
@@ -225,9 +206,9 @@ public class StudyViewFilterApplier {
         if (!CollectionUtils.isEmpty(studyViewFilter.getGeneFilters())) {
             Map<String, MolecularProfile> molecularProfileMap = molecularProfiles.stream()
                     .collect(Collectors.toMap(MolecularProfile::getStableId, Function.identity()));
-            List<StudyViewGeneFilter> mutatedGeneFilters = new ArrayList<>();
-            List<StudyViewGeneFilter> structuralVariantGeneFilters = new ArrayList<>();
-            List<StudyViewGeneFilter> cnaGeneFilters = new ArrayList<>();
+            List<GeneFilter> mutatedGeneFilters = new ArrayList<GeneFilter>();
+            List<GeneFilter> structuralVariantGeneFilters = new ArrayList<GeneFilter>();
+            List<GeneFilter> cnaGeneFilters = new ArrayList<GeneFilter>();
 
             splitGeneFiltersByMolecularAlterationType(studyViewFilter.getGeneFilters(), molecularProfileMap,
                     mutatedGeneFilters, structuralVariantGeneFilters, cnaGeneFilters);
@@ -343,7 +324,7 @@ public class StudyViewFilterApplier {
         return clinicalDataEqualityFilterApplier.apply(sampleIdentifiers, clinicalDataEqualityFilters, negateFilters);
     }
 
-    private List<SampleIdentifier> filterMutatedGenes(List<StudyViewGeneFilter> mutatedGenefilters,
+    private List<SampleIdentifier> filterMutatedGenes(List<GeneFilter> mutatedGenefilters,
             Map<String, MolecularProfile> molecularProfileMap, List<SampleIdentifier> sampleIdentifiers) {
 
         if (sampleIdentifiers == null || sampleIdentifiers.isEmpty()) {
@@ -416,7 +397,7 @@ public class StudyViewFilterApplier {
         return sampleIdentifiers;
     }
 
-    private List<SampleIdentifier> filterStructuralVariantGenes(List<StudyViewGeneFilter> svGenefilters,
+    private List<SampleIdentifier> filterStructuralVariantGenes(List<GeneFilter> svGenefilters,
             Map<String, MolecularProfile> molecularProfileMap, List<SampleIdentifier> sampleIdentifiers) {
             
         if (sampleIdentifiers == null || sampleIdentifiers.isEmpty()) {
@@ -489,7 +470,7 @@ public class StudyViewFilterApplier {
         return sampleIdentifiers;
     }
 
-    private List<SampleIdentifier> filterCNAGenes(List<StudyViewGeneFilter> cnaGeneFilters,
+    private List<SampleIdentifier> filterCNAGenes(List<GeneFilter> cnaGeneFilters,
             Map<String, MolecularProfile> molecularProfileMap, List<SampleIdentifier> sampleIdentifiers) {
         
         if (sampleIdentifiers == null || sampleIdentifiers.isEmpty()) {
@@ -571,11 +552,11 @@ public class StudyViewFilterApplier {
         return sampleIdentifiers;
     }
 
-    private void splitGeneFiltersByMolecularAlterationType(List<StudyViewGeneFilter> genefilters,
-            Map<String, MolecularProfile> molecularProfileMap, List<StudyViewGeneFilter> mutatedGeneFilters,
-            List<StudyViewGeneFilter> structuralVariantGeneFilters, List<StudyViewGeneFilter> cnaGeneFilters) {
+    private void splitGeneFiltersByMolecularAlterationType(List<GeneFilter> genefilters,
+            Map<String, MolecularProfile> molecularProfileMap, List<GeneFilter> mutatedGeneFilters,
+            List<GeneFilter> structuralVariantGeneFilters, List<GeneFilter> cnaGeneFilters) {
 
-        for (StudyViewGeneFilter genefilter : genefilters) {
+        for (GeneFilter genefilter : genefilters) {
 
             List<MolecularProfile> filteredMolecularProfiles = genefilter.getMolecularProfileIds().stream()
                     // need this filter criteria since profile id might be present
@@ -584,7 +565,7 @@ public class StudyViewFilterApplier {
                     .map(molecularProfileMap::get)
                     .collect(Collectors.toList());
 
-            Set<MolecularProfile.MolecularAlterationType> alterationTypes = filteredMolecularProfiles.stream()
+            Set<MolecularAlterationType> alterationTypes = filteredMolecularProfiles.stream()
                     .map(MolecularProfile::getMolecularAlterationType)
                     .collect(Collectors.toSet());
 
@@ -598,13 +579,13 @@ public class StudyViewFilterApplier {
             genefilter.setMolecularProfileIds(filteredMolecularProfileIds);
 
             if (alterationTypes.size() == 1) {
-                MolecularProfile.MolecularAlterationType alterationType = alterationTypes.iterator().next();
+                MolecularAlterationType alterationType = alterationTypes.iterator().next();
 
                 if (alterationType.equals(MolecularAlterationType.STRUCTURAL_VARIANT)) {
                     structuralVariantGeneFilters.add(genefilter);
                 } else if (alterationType == MolecularAlterationType.MUTATION_EXTENDED) {
                     mutatedGeneFilters.add(genefilter);
-                } else if (alterationType == MolecularProfile.MolecularAlterationType.COPY_NUMBER_ALTERATION
+                } else if (alterationType == MolecularAlterationType.COPY_NUMBER_ALTERATION
                         && dataTypes.size() == 1 && dataTypes.iterator().next().equals("DISCRETE")) {
                     cnaGeneFilters.add(genefilter);
                 }
@@ -621,7 +602,7 @@ public class StudyViewFilterApplier {
     }
 
     public <T extends DataBinCountFilter, S extends DataBinFilter, U extends DataBin> List<U> getDataBins(
-        DataBinMethod dataBinMethod, T dataBinCountFilter) {
+            DataBinMethod dataBinMethod, T dataBinCountFilter) {
         List<S> dataBinFilters = fetchDataBinFilters(dataBinCountFilter);
 
         StudyViewFilter studyViewFilter = dataBinCountFilter.getStudyViewFilter();
@@ -879,7 +860,7 @@ public class StudyViewFilterApplier {
     }
 
     private GenericAssayDataBin dataBintoGenericAssayDataBin(GenericAssayDataBinFilter genericAssayDataBinFilter,
-                                                             DataBin dataBin) {
+            DataBin dataBin) {
         GenericAssayDataBin genericAssayDataBin = new GenericAssayDataBin();
         genericAssayDataBin.setCount(dataBin.getCount());
         genericAssayDataBin.setStableId(genericAssayDataBinFilter.getStableId());

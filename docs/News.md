@@ -1,3 +1,15 @@
+## Aug 21, 2023
+*   **Added data** consisting of 4,488 samples from 7 studies:
+    * [Lung Adenocarcinoma Met Organotropism (MSK, Cancer Cell 2023)](https://www.cbioportal.org/study/summary?id=luad_mskcc_2023_met_organotropism) *2653 samples*
+    * [Acute Myeloid Leukemia (OHSU, Cancer Cell 2022)](https://www.cbioportal.org/study/summary?id=aml_ohsu_2022) *942 samples*
+    * [Colon Cancer (Sidra-LUMC AC-ICAM, Nat Med 2023)](https://www.cbioportal.org/study/summary?id=coad_silu_2022) *348 samples*
+    * [Pediatric Neuroblastoma (MSK, Nat Genet 2023)](https://www.cbioportal.org/study/summary?id=nbl_msk_2023) *223 samples*    
+    * [Colorectal Adenocarcinoma (MSK, Nat Commun 2022)](https://www.cbioportal.org/study/summary?id=bowel_colitis_msk_2022) *180 samples*
+    * [Bladder Cancer (Columbia University/MSK, Cell 2018)](https://www.cbioportal.org/study/summary?id=bladder_columbia_msk_2018) *130 samples*
+    * [Myoepithelial Carcinomas of Soft Tissue (WCM, CSH Molecular Case Studies 2022)](https://www.cbioportal.org/study/summary?id=stmyec_wcm_2022) *12 samples*
+
+* **Gene Tables Update** Updated tables of genes (main and alias), based on [Apr 1, 2023 HGNC release](http://ftp.ebi.ac.uk/pub/databases/genenames/hgnc/archive/monthly/tsv/). See seedDB release note [here](https://github.com/cBioPortal/datahub/tree/master/seedDB#latest-seed-database) for details.
+
 ## Aug 1, 2023
 *   **Enhancement**: One-sided Fisher's exact tests were changed to be two-sided. The affected pages are:
     *    Results View Page - Mutual Exclusivity Tab

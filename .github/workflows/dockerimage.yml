@@ -5,6 +5,7 @@ on:
       - master
       - release-*
       - rc
+      - rfc*
       - demo-*
       - fusion-sv-migration
       - redis-branch-up-to-date

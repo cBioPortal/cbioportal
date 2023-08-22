@@ -49,6 +49,7 @@ public class ExpressionEnrichmentUtil {
     private static final double LOG2 = Math.log(2);
     private static final String RNA_SEQ = "rna_seq";
     private static final String[] posTypeList = {"true", "yes"};
+    private static final String[] negTypeList = {"false", "no"};
     private static final String ALTERED = "1";
     private static final String UNALTERED = "0";
     public <T extends MolecularAlteration, S extends ExpressionEnrichment> List<S> getEnrichments(
@@ -204,7 +205,15 @@ public class ExpressionEnrichmentUtil {
                 List<String> molecularDataValues = group.getValue().stream()
                     .map(sampleIndex -> ma.getSplitValues()[sampleIndex])
                     .filter(StringUtils::isNotEmpty)
-                    .map(a -> Arrays.asList(posTypeList).contains(a) ? ALTERED : UNALTERED)
+                    .map(a ->{
+                        if (Arrays.asList(posTypeList).contains(a)) {
+                            return ALTERED;
+                        } else if (Arrays.asList(negTypeList).contains(a)) {
+                            return UNALTERED;
+                        } else {
+                            return a;
+                        }
+                    })
                     .collect(Collectors.toList());
 
                 // ignore group if there are less than 2 values

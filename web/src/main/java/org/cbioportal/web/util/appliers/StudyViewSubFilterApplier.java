@@ -1,7 +1,7 @@
 package org.cbioportal.web.util.appliers;
 
-import org.cbioportal.web.parameter.SampleIdentifier;
-import org.cbioportal.web.parameter.StudyViewFilter;
+import org.cbioportal.webparam.SampleIdentifier;
+import org.cbioportal.webparam.StudyViewFilter;
 
 import java.util.List;
 

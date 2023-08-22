@@ -7,7 +7,7 @@ import org.cbioportal.model.meta.BaseMeta;
 import org.cbioportal.service.StudyService;
 import org.cbioportal.service.exception.StudyNotFoundException;
 import org.cbioportal.utils.security.AccessLevel;
-import org.cbioportal.web.parameter.HeaderKeyConstants;
+import org.cbioportal.webparam.HeaderKeyConstants;
 import org.hamcrest.Matchers;
 import org.junit.Before;
 import org.junit.Test;

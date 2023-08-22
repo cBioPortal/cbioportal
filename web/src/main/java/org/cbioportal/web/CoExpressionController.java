@@ -7,7 +7,7 @@ import org.cbioportal.model.CoExpression;
 import org.cbioportal.model.EntityType;
 import org.cbioportal.service.CoExpressionService;
 import org.cbioportal.web.config.annotation.InternalApi;
-import org.cbioportal.web.parameter.CoExpressionFilter;
+import org.cbioportal.webparam.CoExpressionFilter;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;

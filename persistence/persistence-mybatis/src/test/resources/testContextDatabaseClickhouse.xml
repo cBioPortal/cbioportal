@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<beans
+    xmlns="http://www.springframework.org/schema/beans"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xmlns:util="http://www.springframework.org/schema/util"
+    xmlns:context="http://www.springframework.org/schema/context"
+    xsi:schemaLocation="http://www.springframework.org/schema/beans
+                      http://www.springframework.org/schema/beans/spring-beans.xsd
+                      http://www.springframework.org/schema/context
+                      http://www.springframework.org/schema/context/spring-context.xsd
+                      http://www.springframework.org/schema/util
+                      http://www.springframework.org/schema/util/spring-util.xsd">
+    <bean id="dbcpDataSource" class="org.springframework.jdbc.datasource.DriverManagerDataSource">
+        <property name="url" value="jdbc:h2:mem:;MODE=MySQL;DATABASE_TO_UPPER=false;INIT=RUNSCRIPT FROM 'classpath:clickhouseSchema.sql'\;RUNSCRIPT FROM 'classpath:clickhouseTestSql.sql'"/>
+        <!-- 
+            Enable this to connect to an actual clickhouse Database instead of a mock one.
+            Note that this is only intended for temporary local use, not for automated CI tests.
+        -->
+<!--        <property name="url" value="jdbc:ch://localhost:8123/cbioportal"/>-->
+<!--        <property name="password" value="cbio_pass"/>-->
+<!--        <property name="username" value="cbio_user"/>-->
+    </bean>
+
+
+    <bean id="sqlSessionFactory" class="org.mybatis.spring.SqlSessionFactoryBean">
+        <property name="dataSource" ref="dbcpDataSource"/>
+        <property name="typeAliasesPackage" value="org.mskcc.cbio.portal.model"/>
+        <property name="typeHandlersPackage" value="org.cbioportal.persistence.mybatis.typehandler"/>
+    </bean>
+
+    <bean id="transactionManager" class="org.springframework.jdbc.datasource.DataSourceTransactionManager">
+        <property name="dataSource" ref="dbcpDataSource" />
+    </bean>
+
+    <bean class="org.mybatis.spring.mapper.MapperScannerConfigurer">
+        <property name="basePackage" value="org.cbioportal.persistence.mybatiscolumnstore"/>
+    </bean>
+
+    <context:component-scan base-package="org.cbioportal.persistence.mybatiscolumnstore"/>
+
+</beans>

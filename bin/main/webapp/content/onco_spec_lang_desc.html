@@ -1,0 +1,142 @@
+<h1 id="advanced-cancer-genomic-data-visualization-the-onco-query-language-oql">Advanced cancer genomic data visualization: The Onco Query Language (OQL)</h1>
+<p>You can use the Onco Query Language (OQL) to select and define genetic alterations for all output
+on the cBioPortal for Cancer Genomics, including the OncoPrint, heat map, and data downloads.</p>
+<h2 id="genetic-alterations">Genetic Alterations</h2>
+<p>Users can define genetic alterations for three data types:</p>
+<table>
+    <tr>
+        <th>Data Type</th>
+        <th>Keyword</th>
+        <th>Categories and Levels</th>
+        <th>Default</th>
+    </tr>
+    <tr>
+        <td>Copy Number Alterations</td>
+        <td><TT>CNA</TT></td>
+        <td><TT>AMP </TT> Amplified<BR>
+            <TT>HOMDEL </TT> Deep Deletion<BR>
+            <TT>GAIN </TT> Gained<BR>
+            <TT>HETLOSS </TT> Shallow Deletion
+        </td>
+        <td><TT>AMP</TT> and <TT>HOMDEL</TT></td>
+    </tr>
+    <tr>
+        <td>Mutations</td>
+        <td><TT>MUT</TT></td>
+        <td><TT>MUT </TT> Show mutated cases<BR>
+            <TT>MUT = X</TT> Specific mutations or mutation types.
+        </td>
+        <td>All somatic, non-synonymous mutations</td>
+    </tr>
+    <tr>
+        <td>Fusions</td>
+        <td><TT>FUSION</TT></td>
+        <td><TT>FUSION</TT></td>
+        <td>Show cases with fusions</td>
+    </tr>
+    <tr>
+        <td>mRNA Expression</td>
+        <td><TT>EXP</TT></td>
+        <td><TT>EXP &lt; -x </TT> Under-expression is less than <TT>x</TT> SDs below the mean.<BR>
+        <TT>EXP &gt; x </TT> Over-expression is greater than <TT>x</TT> SDs above the mean.<BR>
+            The comparison operators <TT>&lt;=</TT> and <TT>&gt;=</TT> also work.<BR>
+    </td>
+        <td>At least 2 standard deviations (SD) from the mean.</td>
+    </tr>
+    <tr>
+        <td>Protein/phosphoprotein level (RPPA)</td>
+        <td><TT>PROT</TT></td>
+        <td><TT>PROT &lt; -x </TT> Protein-level under-expression is less than <TT>x</TT> SDs below the mean.<BR>
+        <TT>PROT &gt; x </TT> Protein-level over-expression is greater than <TT>x</TT> SDs above the mean.<BR>
+            The comparison operators <TT>&lt;=</TT> and <TT>&gt;=</TT> also work.<BR>
+        </td>
+        <td>At least 2 standard deviations (SD) from the mean.</td>
+    </tr>
+</table>
+
+<h2 id="basic-usage">Basic Usage</h2>
+<p>Assuming you have selected mutations, copy number data, and mRNA expression data in step 2 of
+your query, you can use OQL to view only amplified cases in CCNE1:</p>
+<pre><code> CCNE1: AMP
+</code></pre>
+<p>or amplified and gained cases:</p>
+<pre><code> CCNE1:  CNA &gt;= GAIN
+</code></pre>
+<p>which can also be written:</p>
+<pre><code> CCNE1:  GAIN AMP
+</code></pre>
+<p>To view cases with specific mutations:</p>
+<pre><code> BRAF: MUT = V600E
+</code></pre>
+<p>or mutations on specific position only:</p>
+<pre><code> BRAF: MUT = V600
+</code></pre>
+<p>or mutations of a specific type:</p>
+<pre><code> TP53: MUT = &lt;TYPE&gt;
+</code></pre>
+<p>&lt;TYPE&gt; could be</p>
+<ul>
+<li>MISSENSE</li>
+<li>NONSENSE</li>
+<li>NONSTART</li>
+<li>NONSTOP</li>
+<li>FRAMESHIFT</li>
+<li>INFRAME</li>
+<li>SPLICE</li>
+<li>TRUNC</li>
+</ul>
+<p>e.g., to view TP53 truncating mutations and in-frame insertions/deletions:</p>
+<pre><code> TP53: MUT = TRUNC MUT = INFRAME
+</code></pre>
+<p>To view amplified and mutated cases:</p>
+<pre><code> CCNE1:  AMP MUT
+</code></pre>
+<p>but to define over-expressed cases as those with mRNA expression greater than 3 standard deviations above the mean:</p>
+<pre><code> CCNE1: EXP &gt; 3
+</code></pre>
+<p>To query cases that are over expressed in RPPA protein/phopshoprotein level:</p>
+<pre><code> EGFR: PROT &gt; 2
+</code></pre>
+<p>or</p>
+<pre><code> EGFR_PY992: PROT &gt; 2
+</code></pre>
+<p>Hint: inputing RPPA-PROTEIN or RPPA-PHOSPHO in the query will allow you to select from all proteins or phopshoproteins that have RPPA levels.</p>
+<p>In general, any combination of OQL keywords and/or categories can annotate any gene.</p>
+<h2 id="example-rb-pathway">Example:  RB Pathway</h2>
+<h3 id="using-the-defaults">Using the Defaults</h3>
+<p>Assuming these data types are selected in Step 2 of your query:</p>
+<ul>
+<li>Mutations</li>
+<li>Copy-number alterations</li>
+<li>mRNA expression</li>
+</ul>
+<p>Selecting ovarian cancer and inputting the following three genes in the RB1 pathway</p>
+<pre><code>CCNE1 RB1 CDKN2A
+</code></pre>
+<p>displays the default visualization:</p>
+<p><img alt="Example 1" src="images/example_oncoPrint_for_instructions_1.png" /></p>
+<h3 id="greater-insight-with-the-oql-language">Greater Insight with the OQL Language</h3>
+<p>Given what is known about the RB pathway, the events that are most likely selected for
+in the tumors are CCNE1 amplification, RB1 deletions or mutations, and loss of expression
+of CDKN2A.  To investigate this hypothesis, we use OQL to display only
+these events:</p>
+<pre><code>CCNE1: AMP MUT
+RB1: HOMDEL MUT
+CDKN2A: HOMDEL EXP &lt; -1
+</code></pre>
+<p><img alt="Example 1" src="images/example_oncoPrint_for_instructions_2.png" /></p>
+<p>This shows that alterations in these genes are almost entirely mutually-exclusive --
+no cases are altered in all three genes, and only 8 are altered in two genes.
+This supports the theory that the tumor has selected for these events. </p>
+<h2 id="the-datatypes-command">The DATATYPES Command</h2>
+<p>To save copying and pasting, the DATATYPES command sets the genetic annotation for all subsequent genes. Thus,</p>
+<pre><code>DATATYPES: AMP GAIN HOMDEL EXP &gt; 1.5 EXP&lt;=-1.5; CDKN2A MDM2 TP53
+</code></pre>
+<p>is equivalent to</p>
+<pre><code>CDKN2A : AMP GAIN HOMDEL EXP&lt;=-1.5 EXP&gt;1.5;
+MDM2   : AMP GAIN HOMDEL EXP&lt;=-1.5 EXP&gt;1.5;
+TP53   : AMP GAIN HOMDEL EXP&lt;=-1.5 EXP&gt;1.5;
+</code></pre>
+<p>Note that the order of datatype specifications is immaterial,
+and that a ': sequence of data specifications ' command can be terminated by an end-of-line, a semicolon or both.</p>
+<p>Please share any questions or feedback on this language with us.</p>

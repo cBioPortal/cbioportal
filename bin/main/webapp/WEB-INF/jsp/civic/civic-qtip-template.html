@@ -1,0 +1,49 @@
+<script type="text/template" id="civic-qtip">
+    <div class="civic-qtip">
+        <div class="z-depth-2">
+            <div class="col s12 tip-header">{{title}}</div>
+
+            <div class="col s12 civic-qtip-content">
+                <div class="col s12 civic-qtip-gene">
+                    <span class="civic-qtip-gene-name"><a href="{{gene.url}}" target="_blank">{{gene.name}}</a></span>
+                    - {{gene.description}}
+                </div>
+    
+                <div class="col s12">
+                    <ul>
+                        {{variantsHTML}}
+                    </ul>
+                </div>
+    
+                <div class="item disclaimer">
+                <span>
+                  Disclaimer: This resource is intended for purely research purposes.
+                  It should not be used for emergencies or medical or professional advice.
+                </span>
+                </div>
+            </div>
+    
+            <div class="item footer">
+                <a href="{{url}}" target="_blank">
+                    <img class="civic-logo" src="images/civic_text_logo.png" />
+                </a>
+            </div>
+        </div>
+    </div>
+</script>
+
+<script type="text/template" id="civic-qtip-variant-item">
+    <div class="civic-qtip-variant">
+        <div class="civic-qtip-variant-header">
+            <span class="civic-qtip-variant-name"><a href="{{url}}" target="_blank">{{name}}</a></span>
+            <span class="civic-qtip-variant-entry-types">Entries: {{entryTypes}}</span>
+        </div>
+        <div class="civic-qtip-variant-description summary">{{description}}</div>
+    </div>
+</script>
+
+<script type="text/template" id="civic-qtip-variant-item-not-available">
+    <div class="civic-qtip-variant">
+        <div class="civic-qtip-variant-description summary">Information about the oncogenic activity of this alteration is not yet available in CiVIC.</div>
+    </div>
+</script>

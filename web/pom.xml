@@ -14,6 +14,10 @@
   <description>Web Module for Portal</description>
 
   <dependencies>
+      <dependency>
+          <groupId>org.mskcc.cbio</groupId>
+          <artifactId>webparam</artifactId>
+      </dependency>
     <dependency>
       <groupId>org.mskcc.cbio</groupId>
       <artifactId>service</artifactId>
@@ -162,6 +166,14 @@
           </execution>
         </executions>
       </plugin>
+        <plugin>
+            <groupId>org.apache.maven.plugins</groupId>
+            <artifactId>maven-compiler-plugin</artifactId>
+            <configuration>
+                <source>9</source>
+                <target>9</target>
+            </configuration>
+        </plugin>
     </plugins>
   </build>
 

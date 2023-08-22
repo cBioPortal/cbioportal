@@ -4,7 +4,7 @@ import org.cbioportal.model.TypeOfCancer;
 import org.cbioportal.model.meta.BaseMeta;
 import org.cbioportal.service.CancerTypeService;
 import org.cbioportal.service.exception.CancerTypeNotFoundException;
-import org.cbioportal.web.parameter.HeaderKeyConstants;
+import org.cbioportal.webparam.HeaderKeyConstants;
 import org.hamcrest.Matchers;
 import org.junit.Before;
 import org.junit.Test;

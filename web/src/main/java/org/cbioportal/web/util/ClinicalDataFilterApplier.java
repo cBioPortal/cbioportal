@@ -9,9 +9,9 @@ import org.cbioportal.model.ClinicalData;
 import org.cbioportal.model.Patient;
 import org.cbioportal.service.ClinicalDataService;
 import org.cbioportal.service.PatientService;
-import org.cbioportal.web.parameter.ClinicalDataFilter;
-import org.cbioportal.web.parameter.Projection;
-import org.cbioportal.web.parameter.SampleIdentifier;
+import org.cbioportal.webparam.ClinicalDataFilter;
+import org.cbioportal.webparam.Projection;
+import org.cbioportal.webparam.SampleIdentifier;
 
 public abstract class ClinicalDataFilterApplier implements DataFilterApplier<ClinicalDataFilter> {
     private PatientService patientService;

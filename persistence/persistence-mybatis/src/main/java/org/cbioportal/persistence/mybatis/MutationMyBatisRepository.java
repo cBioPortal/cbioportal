@@ -1,6 +1,6 @@
 package org.cbioportal.persistence.mybatis;
 
-import org.cbioportal.model.GeneFilterQuery;
+import org.cbioportal.webparam.GeneFilterQuery;
 import org.cbioportal.model.Mutation;
 import org.cbioportal.model.MutationCountByPosition;
 import org.cbioportal.model.meta.MutationMeta;

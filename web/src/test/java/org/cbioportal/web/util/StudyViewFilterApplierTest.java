@@ -206,9 +206,9 @@ public class StudyViewFilterApplierTest {
         boolean includeUnknownStatus = true;
         Select<String> selectedTiers = Select.none();
         boolean includeUnknownTier = true;
-        List<GeneFilter> geneFilters = new ArrayList<>();
-        GeneFilter mutationGeneFilter = new GeneFilter();
-        mutationGeneFilter.setMolecularProfileIds(new HashSet<>(Arrays.asList(MOLECULAR_PROFILE_ID_1)));
+        List<StudyViewGeneFilter> studyViewGeneFilters = new ArrayList<>();
+        StudyViewGeneFilter mutationStudyViewGeneFilter = new StudyViewGeneFilter();
+        mutationStudyViewGeneFilter.setMolecularProfileIds(new HashSet<>(Arrays.asList(MOLECULAR_PROFILE_ID_1)));
 
         GeneFilterQuery geneFilterQuery1 = new GeneFilterQuery("HUGO_GENE_SYMBOL_1", null,
             null, includeDriver, includeVUS, includeUnknownOncogenicity,  selectedTiers, includeUnknownTier,
@@ -217,10 +217,10 @@ public class StudyViewFilterApplierTest {
         List<GeneFilterQuery> q2 = new ArrayList<>();
         q2.add(geneFilterQuery1);
         q1.add(q2);
-        mutationGeneFilter.setGeneQueries(q1);
+        mutationStudyViewGeneFilter.setGeneQueries(q1);
 
-        GeneFilter copyNumberGeneFilter = new GeneFilter();
-        copyNumberGeneFilter.setMolecularProfileIds(new HashSet<>(Arrays.asList(MOLECULAR_PROFILE_ID_2)));
+        StudyViewGeneFilter copyNumberStudyViewGeneFilter = new StudyViewGeneFilter();
+        copyNumberStudyViewGeneFilter.setMolecularProfileIds(new HashSet<>(Arrays.asList(MOLECULAR_PROFILE_ID_2)));
         GeneFilterQuery geneFilterQuery2 = new GeneFilterQuery("HUGO_GENE_SYMBOL_2", null,
             Arrays.asList(CNA.HOMDEL), includeDriver, includeVUS, includeUnknownOncogenicity,  selectedTiers,
             includeUnknownTier,includeGermline, includeSomatic, includeUnknownStatus);
@@ -228,11 +228,11 @@ public class StudyViewFilterApplierTest {
         List<GeneFilterQuery> q4 = new ArrayList<>();
         q4.add(geneFilterQuery2);
         q3.add(q4);
-        copyNumberGeneFilter.setGeneQueries(q3);
+        copyNumberStudyViewGeneFilter.setGeneQueries(q3);
 
-        geneFilters.add(mutationGeneFilter);
-        geneFilters.add(copyNumberGeneFilter);
-        studyViewFilter.setGeneFilters(geneFilters);
+        studyViewGeneFilters.add(mutationStudyViewGeneFilter);
+        studyViewGeneFilters.add(copyNumberStudyViewGeneFilter);
+        studyViewFilter.setGeneFilters(studyViewGeneFilters);
 
         List<Sample> samples = new ArrayList<>();
         Sample sample1 = new Sample();

@@ -4,7 +4,7 @@ import org.cbioportal.model.ClinicalEvent;
 import org.cbioportal.model.ClinicalEventData;
 import org.cbioportal.model.meta.BaseMeta;
 import org.cbioportal.service.ClinicalEventService;
-import org.cbioportal.web.parameter.HeaderKeyConstants;
+import org.cbioportal.webparam.HeaderKeyConstants;
 import org.hamcrest.Matchers;
 import org.junit.Before;
 import org.junit.Test;

@@ -314,7 +314,7 @@ filterJson is set in the url hash string. Here are the allowed parameters and fo
 			"value": "string"
 		}]
 	}],
-	"geneFilters": [{
+	"studyViewGeneFilters": [{
 		"geneQueries": [
 			["string"]
 		],

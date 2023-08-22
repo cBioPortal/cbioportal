@@ -24,7 +24,7 @@
 
         <!-- scan for mappers and let them be autowired -->
         <bean class="org.mybatis.spring.mapper.MapperScannerConfigurer">
-            <property name="basePackage" value="org.mskcc.cbio.portal.persistence,org.cbioportal.persistence.mybatis" />
+            <property name="basePackage" value="org.mskcc.cbio.portal.persistence,org.cbioportal.persistence.mybatis,org.cbioportal.persistence.mybatiscolumnstore" />
         </bean>
 
         <!-- enable component scanning (beware that this does not enable mapper scanning!) -->
@@ -42,6 +42,10 @@
         <bean id="transactionManager" class="org.springframework.jdbc.datasource.DataSourceTransactionManager">
             <property name="dataSource" ref="businessDataSource" />
         </bean>
+        
+        <bean id="columnstoreTransactionManager" class="org.springframework.jdbc.datasource.DataSourceTransactionManager">
+            <property name="dataSource" ref="columnstoreDataSource" />
+        </bean>
 
         <bean id="customObjectFactory" class="org.cbioportal.persistence.mybatis.util.CustomMyBatisObjectFactory" />
         
@@ -54,7 +58,7 @@
             </property>
         </bean> 
         <!-- define the SqlSessionFactory -->
-        <bean id="sqlSessionFactory" class="org.mybatis.spring.SqlSessionFactoryBean">
+        <bean id="sqlSessionFactory" class="org.mybatis.spring.SqlSessionFactoryBean" primary="true">
             <property name="dataSource" ref="businessDataSource" />
             <property name="typeAliasesPackage" value="org.mskcc.cbio.portal.model" />
             <property name="typeHandlersPackage" value="org.cbioportal.persistence.mybatis.typehandler" />
@@ -70,6 +74,19 @@
             <property name="mapperLocations" value="classpath*:org/cbioportal/persistence/mybatis/**/*.xml" />
             <property name="databaseIdProvider" ref="databaseIdProvider"/>
         </bean>
+        <bean id="columnstoreSqlSessionFactory" class="org.mybatis.spring.SqlSessionFactoryBean">
+            <property name="dataSource" ref="columnstoreDataSource" />
+            <property name="typeAliasesPackage" value="org.mskcc.cbio.portal.model" />
+            <property name="typeHandlersPackage" value="org.cbioportal.persistence.mybatis.typehandler" />
+            <property name="objectFactory" ref="customObjectFactory" />
+            <!-- mapper locations is set here to support interdependency between mappers without -->
+            <!-- having to autowire repositories into java classes that do not make direct use of them -->
+            <!--            <property name="mapperLocations" value="classpath*:org/cbioportal/persistence/mybatiscolumnstore/*.xml" />-->
+        </bean>
+        <bean id="studyViewMapper" class="org.mybatis.spring.mapper.MapperFactoryBean">
+            <property name="mapperInterface" value="org.cbioportal.persistence.mybatiscolumnstore.StudyViewMapper" />
+            <property name="sqlSessionFactory" ref="columnstoreSqlSessionFactory" />
+        </bean>
     </beans>
   
     <beans profile="dbcp">
@@ -81,6 +98,8 @@
                 <list><ref bean="businessDataSource"/></list>
             </property>
         </bean>
+        <bean id="columnstoreDataSource" destroy-method="close"
+            class="org.mskcc.cbio.portal.dao.ClickhouseJdbcDataSource" />
     </beans>
 
     <beans profile="jndi">

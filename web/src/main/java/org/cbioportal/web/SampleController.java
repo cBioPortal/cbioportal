@@ -4,23 +4,28 @@ import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
 import org.cbioportal.model.CancerStudy;
-import org.cbioportal.model.SampleList;
-import org.cbioportal.model.meta.BaseMeta;
 import org.cbioportal.model.Sample;
+import org.cbioportal.model.meta.BaseMeta;
 import org.cbioportal.service.SampleListService;
+import org.cbioportal.service.SampleService;
 import org.cbioportal.service.StudyService;
 import org.cbioportal.service.exception.PatientNotFoundException;
 import org.cbioportal.service.exception.SampleListNotFoundException;
 import org.cbioportal.service.exception.SampleNotFoundException;
 import org.cbioportal.service.exception.StudyNotFoundException;
-import org.cbioportal.service.SampleService;
 import org.cbioportal.utils.security.AccessLevel;
 import org.cbioportal.utils.security.PortalSecurityConfig;
 import org.cbioportal.web.config.PublicApiTags;
 import org.cbioportal.web.config.annotation.PublicApi;
-import org.cbioportal.web.parameter.*;
-import org.cbioportal.web.parameter.sort.SampleSortBy;
 import org.cbioportal.web.util.UniqueKeyExtractor;
+import org.cbioportal.webparam.Constants;
+import org.cbioportal.webparam.Direction;
+import org.cbioportal.webparam.HeaderKeyConstants;
+import org.cbioportal.webparam.PagingConstants;
+import org.cbioportal.webparam.Projection;
+import org.cbioportal.webparam.SampleFilter;
+import org.cbioportal.webparam.SampleIdentifier;
+import org.cbioportal.webparam.sort.SampleSortBy;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpHeaders;
@@ -38,10 +43,13 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import springfox.documentation.annotations.ApiIgnore;
 
+import javax.validation.Valid;
 import javax.validation.constraints.Max;
 import javax.validation.constraints.Min;
-import javax.validation.Valid;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.List;
 import java.util.stream.Collectors;
 
 @PublicApi
@@ -49,9 +57,6 @@ import java.util.stream.Collectors;
 @Validated
 @Api(tags = PublicApiTags.SAMPLES, description = " ")
 public class SampleController {
-
-    public static final int SAMPLE_MAX_PAGE_SIZE = 10000000;
-    private static final String SAMPLE_DEFAULT_PAGE_SIZE = "10000000";
 
     @Value("${authenticate}")
     private String authenticate;
@@ -139,9 +144,9 @@ public class SampleController {
         @ApiParam("Level of detail of the response")
         @RequestParam(defaultValue = "SUMMARY") Projection projection,
         @ApiParam("Page size of the result list")
-        @Max(SAMPLE_MAX_PAGE_SIZE)
+        @Max(Constants.SAMPLE_MAX_PAGE_SIZE)
         @Min(PagingConstants.MIN_PAGE_SIZE)
-        @RequestParam(defaultValue = SAMPLE_DEFAULT_PAGE_SIZE) Integer pageSize,
+        @RequestParam(defaultValue = Constants.SAMPLE_DEFAULT_PAGE_SIZE) Integer pageSize,
         @ApiParam("Page number of the result list")
         @Min(PagingConstants.MIN_PAGE_NUMBER)
         @RequestParam(defaultValue = PagingConstants.DEFAULT_PAGE_NUMBER) Integer pageNumber,
@@ -187,9 +192,9 @@ public class SampleController {
         @ApiParam("Level of detail of the response")
         @RequestParam(defaultValue = "SUMMARY") Projection projection,
         @ApiParam("Page size of the result list")
-        @Max(SAMPLE_MAX_PAGE_SIZE)
+        @Max(Constants.SAMPLE_MAX_PAGE_SIZE)
         @Min(PagingConstants.MIN_PAGE_SIZE)
-        @RequestParam(defaultValue = SAMPLE_DEFAULT_PAGE_SIZE) Integer pageSize,
+        @RequestParam(defaultValue = Constants.SAMPLE_DEFAULT_PAGE_SIZE) Integer pageSize,
         @ApiParam("Page number of the result list")
         @Min(PagingConstants.MIN_PAGE_NUMBER)
         @RequestParam(defaultValue = PagingConstants.DEFAULT_PAGE_NUMBER) Integer pageNumber,

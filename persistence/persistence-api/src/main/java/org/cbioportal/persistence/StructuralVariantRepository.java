@@ -2,6 +2,7 @@ package org.cbioportal.persistence;
 
 import java.util.List;
 
+
 import org.cbioportal.model.GeneFilterQuery;
 import org.cbioportal.model.StructuralVariantFilterQuery;
 import org.cbioportal.model.StructuralVariant;

@@ -2,7 +2,7 @@ package org.cbioportal.persistence.mybatis;
 
 import org.cbioportal.model.CopyNumberCountByGene;
 import org.cbioportal.model.DiscreteCopyNumberData;
-import org.cbioportal.model.GeneFilterQuery;
+import org.cbioportal.webparam.GeneFilterQuery;
 import org.cbioportal.model.meta.BaseMeta;
 
 import java.util.List;

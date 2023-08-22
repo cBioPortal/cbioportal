@@ -34,12 +34,16 @@ package org.cbioportal.security;
 
 import java.io.Serializable;
 import java.util.*;
+
+import org.cbioportal.model.CancerStudy;
+import org.cbioportal.model.MolecularProfile;
+import org.cbioportal.model.Patient;
+import org.cbioportal.model.SampleList;
+import org.cbioportal.persistence.cachemaputil.CacheMapUtil;
+import org.cbioportal.utils.security.AccessLevel;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.cbioportal.model.*;
-import org.cbioportal.persistence.cachemaputil.CacheMapUtil;
 import org.springframework.beans.factory.annotation.*;
-import org.cbioportal.utils.security.AccessLevel;
 import org.springframework.security.access.PermissionEvaluator;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.authority.AuthorityUtils;

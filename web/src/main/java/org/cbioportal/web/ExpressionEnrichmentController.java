@@ -14,7 +14,7 @@ import org.cbioportal.service.exception.GenericAssayNotFoundException;
 import org.cbioportal.service.exception.MolecularProfileNotFoundException;
 import org.cbioportal.web.config.annotation.InternalApi;
 import org.cbioportal.model.EnrichmentType;
-import org.cbioportal.web.parameter.MolecularProfileCasesGroupFilter;
+import org.cbioportal.webparam.MolecularProfileCasesGroupFilter;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;

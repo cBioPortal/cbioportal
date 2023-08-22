@@ -1,10 +1,10 @@
 package org.cbioportal.web.util.appliers;
 
 import org.cbioportal.service.ClinicalEventService;
-import org.cbioportal.web.parameter.DataFilter;
-import org.cbioportal.web.parameter.DataFilterValue;
-import org.cbioportal.web.parameter.SampleIdentifier;
-import org.cbioportal.web.parameter.StudyViewFilter;
+import org.cbioportal.webparam.DataFilter;
+import org.cbioportal.webparam.DataFilterValue;
+import org.cbioportal.webparam.SampleIdentifier;
+import org.cbioportal.webparam.StudyViewFilter;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.lang.NonNull;
 import org.springframework.stereotype.Component;

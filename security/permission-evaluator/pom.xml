@@ -19,10 +19,6 @@
             <groupId>org.mskcc.cbio</groupId>
             <artifactId>persistence-mybatis</artifactId>
         </dependency>
-        <dependency>
-            <groupId>org.mskcc.cbio</groupId>
-            <artifactId>model</artifactId>
-        </dependency>
     </dependencies>
 
 </project>

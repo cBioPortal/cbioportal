@@ -3,7 +3,7 @@ package org.cbioportal.web;
 import org.cbioportal.model.MutSig;
 import org.cbioportal.model.meta.BaseMeta;
 import org.cbioportal.service.SignificantlyMutatedGeneService;
-import org.cbioportal.webparam.HeaderKeyConstants;
+import org.cbioportal.web.parameter.HeaderKeyConstants;
 import org.hamcrest.Matchers;
 import org.junit.Before;
 import org.junit.Test;

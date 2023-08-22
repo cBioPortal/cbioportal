@@ -24,11 +24,6 @@
             <appender-ref ref="STDOUT" />
             <appender-ref ref="FILE" />
         </logger>
-        
-        <logger name="org.cbioportal.persistence.mybatiscolumnstore" level="debug">
-            <appender-ref ref="STDOUT" />
-            <appender-ref ref="FILE" />
-        </logger>
     -->
 
     <root level="info">

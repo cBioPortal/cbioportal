@@ -5,7 +5,7 @@ import org.cbioportal.model.SampleList;
 import org.cbioportal.model.meta.BaseMeta;
 import org.cbioportal.service.SampleListService;
 import org.cbioportal.service.exception.SampleListNotFoundException;
-import org.cbioportal.webparam.HeaderKeyConstants;
+import org.cbioportal.web.parameter.HeaderKeyConstants;
 import org.hamcrest.Matchers;
 import org.junit.Before;
 import org.junit.Test;

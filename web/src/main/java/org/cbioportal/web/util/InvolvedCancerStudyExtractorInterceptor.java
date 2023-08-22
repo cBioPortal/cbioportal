@@ -39,35 +39,12 @@ import java.util.stream.Collectors;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import org.apache.commons.lang3.StringUtils;
 import org.cbioportal.model.AlterationFilter;
 import org.cbioportal.model.MolecularProfile;
 import org.cbioportal.model.MolecularProfileCaseIdentifier;
 import org.cbioportal.model.SampleList;
 import org.cbioportal.persistence.cachemaputil.CacheMapUtil;
-import org.cbioportal.webparam.ClinicalAttributeCountFilter;
-import org.cbioportal.webparam.ClinicalDataBinCountFilter;
-import org.cbioportal.webparam.ClinicalDataCountFilter;
-import org.cbioportal.webparam.ClinicalDataIdentifier;
-import org.cbioportal.webparam.ClinicalDataMultiStudyFilter;
-import org.cbioportal.webparam.GenePanelDataMultipleStudyFilter;
-import org.cbioportal.webparam.GenericAssayDataBinCountFilter;
-import org.cbioportal.webparam.GenericAssayDataCountFilter;
-import org.cbioportal.webparam.GenericAssayDataMultipleStudyFilter;
-import org.cbioportal.webparam.GenomicDataBinCountFilter;
-import org.cbioportal.webparam.GroupFilter;
-import org.cbioportal.webparam.MolecularDataMultipleStudyFilter;
-import org.cbioportal.webparam.MolecularProfileCasesGroupAndAlterationTypeFilter;
-import org.cbioportal.webparam.MolecularProfileCasesGroupFilter;
-import org.cbioportal.webparam.MolecularProfileFilter;
-import org.cbioportal.webparam.MutationMultipleStudyFilter;
-import org.cbioportal.webparam.PatientFilter;
-import org.cbioportal.webparam.PatientIdentifier;
-import org.cbioportal.webparam.SampleFilter;
-import org.cbioportal.webparam.SampleIdentifier;
-import org.cbioportal.webparam.SampleMolecularIdentifier;
-import org.cbioportal.webparam.StructuralVariantFilter;
-import org.cbioportal.webparam.StudyViewFilter;
+import org.cbioportal.web.parameter.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -133,7 +110,7 @@ public class InvolvedCancerStudyExtractorInterceptor extends HandlerInterceptorA
         if (!request.getMethod().equals("POST")) {
             return true; // no attribute extraction needed because all user supplied filter objects are in POST requests
         }
-        String requestPathInfo = StringUtils.removeStart(request.getPathInfo(), "/column-store");
+        String requestPathInfo = request.getPathInfo();
         if (requestPathInfo.equals(PATIENT_FETCH_PATH)) {
             return extractAttributesFromPatientFilter(request);
         } else if (requestPathInfo.equals(SAMPLE_FETCH_PATH)) {

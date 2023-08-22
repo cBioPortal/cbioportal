@@ -7,7 +7,7 @@ import org.cbioportal.model.MutationSpectrum;
 import org.cbioportal.service.MutationSpectrumService;
 import org.cbioportal.service.exception.MolecularProfileNotFoundException;
 import org.cbioportal.web.config.annotation.InternalApi;
-import org.cbioportal.webparam.MutationSpectrumFilter;
+import org.cbioportal.web.parameter.MutationSpectrumFilter;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;

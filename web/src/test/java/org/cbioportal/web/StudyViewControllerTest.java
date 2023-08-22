@@ -7,7 +7,7 @@ import org.cbioportal.persistence.AlterationRepository;
 import org.cbioportal.service.*;
 import org.cbioportal.service.util.MolecularProfileUtil;
 import org.cbioportal.web.config.CustomObjectMapper;
-import org.cbioportal.webparam.*;
+import org.cbioportal.web.parameter.*;
 import org.cbioportal.web.util.StudyViewFilterApplier;
 import org.junit.Before;
 import org.junit.Ignore;

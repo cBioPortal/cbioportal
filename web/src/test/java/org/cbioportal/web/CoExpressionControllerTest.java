@@ -4,7 +4,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import org.cbioportal.model.CoExpression;
 import org.cbioportal.model.EntityType;
 import org.cbioportal.service.CoExpressionService;
-import org.cbioportal.webparam.CoExpressionFilter;
+import org.cbioportal.web.parameter.CoExpressionFilter;
 import org.hamcrest.Matchers;
 import org.junit.Before;
 import org.junit.Test;

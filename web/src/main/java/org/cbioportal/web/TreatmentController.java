@@ -8,11 +8,9 @@ import org.cbioportal.model.SampleTreatmentRow;
 import org.cbioportal.model.ClinicalEventKeyCode;
 import org.cbioportal.service.TreatmentService;
 import org.cbioportal.web.config.annotation.PublicApi;
+import org.cbioportal.web.parameter.*;
 import org.cbioportal.web.util.StudyViewFilterApplier;
 import org.cbioportal.web.util.StudyViewFilterUtil;
-import org.cbioportal.webparam.PagingConstants;
-import org.cbioportal.webparam.SampleIdentifier;
-import org.cbioportal.webparam.StudyViewFilter;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.context.ApplicationContext;
@@ -66,7 +64,7 @@ public class TreatmentController {
         
         @ApiParam(required = true, value = "Study view filter")
         @Valid
-        @RequestBody(required = false)
+        @RequestBody(required = false) 
         StudyViewFilter studyViewFilter,
         
         @ApiIgnore // prevent reference to this attribute in the swagger-ui interface

@@ -286,7 +286,7 @@ public class SampleMyBatisRepositoryTest {
         sampleListIds.add("study_tcga_pub_all");
         sampleListIds.add("study_tcga_pub_acgh");
 
-        List<Sample> result = sampleMyBatisRepository.fetchSamples(sampleListIds, "SUMMARY");
+        List<Sample> result = sampleMyBatisRepository.fetchSamplesBySampleListIds(sampleListIds, "SUMMARY");
 
         Assert.assertEquals(14, result.size());
         Assert.assertEquals("TCGA-A1-A0SB-01", result.get(0).getStableId());

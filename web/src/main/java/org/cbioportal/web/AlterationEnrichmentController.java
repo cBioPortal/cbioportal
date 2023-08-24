@@ -22,7 +22,7 @@ import java.util.*;
 import java.util.stream.Collectors;
 
 @InternalApi
-@RestController
+@RestController("/api")
 @Validated
 @Api(tags = "Alteration Enrichments", description = " ")
 public class AlterationEnrichmentController {
@@ -30,8 +30,8 @@ public class AlterationEnrichmentController {
     @Autowired
     private AlterationEnrichmentService alterationEnrichmentService;
 
-    @PreAuthorize("hasPermission(#involvedCancerStudies, 'Collection<CancerStudyId>', 'read')")
-    @PostMapping(value = "/api/alteration-enrichments/fetch",
+    @PreAuthorize("hasPermission(#involvedCancerStudies, 'Collection<CancerStudyId>', T(org.cbioportal.utils.security.AccessLevel).READ)")
+    @PostMapping(value = "/alteration-enrichments/fetch",
         consumes = MediaType.APPLICATION_JSON_VALUE,
         produces = MediaType.APPLICATION_JSON_VALUE)
     @ApiOperation("Fetch alteration enrichments in molecular profiles")

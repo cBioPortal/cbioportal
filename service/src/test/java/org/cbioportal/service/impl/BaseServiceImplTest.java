@@ -59,5 +59,7 @@ public class BaseServiceImplTest {
     public static final String CATEGORY_VALUE_1 = "category_value1";
     public static final String CATEGORY_VALUE_2 = "category_value2";
     public static final String EMPTY_VALUE_1 = "";
-    public static final String EMPTY_VALUE_2 = "NA";    
+    public static final String EMPTY_VALUE_2 = "NA";
+    public static final String PROFILE_TYPE_1 = "profile_type1";
+    public static final String PROFILE_TYPE_2 = "profile_type2";
 }

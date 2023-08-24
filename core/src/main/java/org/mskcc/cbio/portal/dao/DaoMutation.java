@@ -1,15 +1,15 @@
 /*
- * Copyright (c) 2015 Memorial Sloan-Kettering Cancer Center.
+ * Copyright (c) 2015 - 2022 Memorial Sloan Kettering Cancer Center.
  *
  * This library is distributed in the hope that it will be useful, but WITHOUT
  * ANY WARRANTY, WITHOUT EVEN THE IMPLIED WARRANTY OF MERCHANTABILITY OR FITNESS
  * FOR A PARTICULAR PURPOSE. The software and documentation provided hereunder
- * is on an "as is" basis, and Memorial Sloan-Kettering Cancer Center has no
+ * is on an "as is" basis, and Memorial Sloan Kettering Cancer Center has no
  * obligations to provide maintenance, support, updates, enhancements or
- * modifications. In no event shall Memorial Sloan-Kettering Cancer Center be
+ * modifications. In no event shall Memorial Sloan Kettering Cancer Center be
  * liable to any party for direct, indirect, special, incidental or
  * consequential damages, including lost profits, arising out of the use of this
- * software and its documentation, even if Memorial Sloan-Kettering Cancer
+ * software and its documentation, even if Memorial Sloan Kettering Cancer
  * Center has been advised of the possibility of such damage.
  */
 
@@ -145,23 +145,16 @@ public final class DaoMutation {
                 event.getTumorSeqAllele(),
                 event.getProteinChange(),
                 event.getMutationType(),
-                event.getFunctionalImpactScore(),
-                Float.toString(event.getFisValue()),
-                event.getLinkXVar(),
-                event.getLinkPdb(),
-                event.getLinkMsa(),
                 event.getNcbiBuild(),
                 event.getStrand(),
                 event.getVariantType(),
                 event.getDbSnpRs(),
                 event.getDbSnpValStatus(),
-                event.getOncotatorDbSnpRs(),
-                event.getOncotatorRefseqMrnaId(),
-                event.getOncotatorCodonChange(),
-                event.getOncotatorUniprotName(),
-                event.getOncotatorUniprotAccession(),
-                Integer.toString(event.getOncotatorProteinPosStart()),
-                Integer.toString(event.getOncotatorProteinPosEnd()),
+                event.getRefseqMrnaId(),
+                event.getCodonChange(),
+                event.getUniprotAccession(),
+                Integer.toString(event.getProteinPosStart()),
+                Integer.toString(event.getProteinPosEnd()),
                 boolToStr(event.isCanonicalTranscript()),
                 keyword==null ? "\\N":(event.getGene().getHugoGeneSymbolAllCaps()+" "+keyword));
         return 1;
@@ -188,8 +181,7 @@ public final class DaoMutation {
              * We do not add the MUTATION_COUNT clinical data for the sample if
              * it's not profiled. If it *is* profiled but there are 0
              * mutations, add a MUTATION_COUNT with 0 value record. Do not
-             * include germline and fusions (msk internal) when counting
-             * mutations.
+             * include germline when counting mutations.
              *
              * Use REPLACE (conditional INSERT/UPDATE) which inserts
              * new counts if they don't exist and overwrites them if they do.
@@ -207,7 +199,6 @@ public final class DaoMutation {
                     "LEFT JOIN mutation ON mutation.`SAMPLE_ID` = sample_profile.`SAMPLE_ID` " +
                     "AND ( mutation.`MUTATION_STATUS` <> 'GERMLINE' OR mutation.`MUTATION_STATUS` IS NULL ) " +
                     "LEFT JOIN mutation_event ON mutation.`MUTATION_EVENT_ID` = mutation_event.`MUTATION_EVENT_ID` " +
-                    "AND ( mutation_event.`MUTATION_TYPE` <> 'Fusion' OR mutation_event.`MUTATION_TYPE` IS NULL ) " +
                     "INNER JOIN genetic_profile ON genetic_profile.`GENETIC_PROFILE_ID` = sample_profile.`GENETIC_PROFILE_ID` " +
                     "WHERE genetic_profile.`GENETIC_ALTERATION_TYPE` = 'MUTATION_EXTENDED' " +
                     "AND genetic_profile.`GENETIC_PROFILE_ID`=? " +
@@ -802,24 +793,17 @@ public final class DaoMutation {
         event.setEndPosition(rs.getLong("END_POSITION"));
         event.setProteinChange(rs.getString("PROTEIN_CHANGE"));
         event.setMutationType(rs.getString("MUTATION_TYPE"));
-        event.setFunctionalImpactScore(rs.getString("FUNCTIONAL_IMPACT_SCORE"));
-        event.setFisValue(rs.getFloat("FIS_VALUE"));
-        event.setLinkXVar(rs.getString("LINK_XVAR"));
-        event.setLinkPdb(rs.getString("LINK_PDB"));
-        event.setLinkMsa(rs.getString("LINK_MSA"));
         event.setNcbiBuild(rs.getString("NCBI_BUILD"));
         event.setStrand(rs.getString("STRAND"));
         event.setVariantType(rs.getString("VARIANT_TYPE"));
         event.setDbSnpRs(rs.getString("DB_SNP_RS"));
         event.setDbSnpValStatus(rs.getString("DB_SNP_VAL_STATUS"));
         event.setReferenceAllele(rs.getString("REFERENCE_ALLELE"));
-        event.setOncotatorDbSnpRs(rs.getString("ONCOTATOR_DBSNP_RS"));
-        event.setOncotatorRefseqMrnaId(rs.getString("ONCOTATOR_REFSEQ_MRNA_ID"));
-        event.setOncotatorCodonChange(rs.getString("ONCOTATOR_CODON_CHANGE"));
-        event.setOncotatorUniprotName(rs.getString("ONCOTATOR_UNIPROT_ENTRY_NAME"));
-        event.setOncotatorUniprotAccession(rs.getString("ONCOTATOR_UNIPROT_ACCESSION"));
-        event.setOncotatorProteinPosStart(rs.getInt("ONCOTATOR_PROTEIN_POS_START"));
-        event.setOncotatorProteinPosEnd(rs.getInt("ONCOTATOR_PROTEIN_POS_END"));
+        event.setRefseqMrnaId(rs.getString("REFSEQ_MRNA_ID"));
+        event.setCodonChange(rs.getString("CODON_CHANGE"));
+        event.setUniprotAccession(rs.getString("UNIPROT_ACCESSION"));
+        event.setProteinPosStart(rs.getInt("PROTEIN_POS_START"));
+        event.setProteinPosEnd(rs.getInt("PROTEIN_POS_END"));
         event.setCanonicalTranscript(rs.getBoolean("CANONICAL_TRANSCRIPT"));
         event.setTumorSeqAllele(rs.getString("TUMOR_SEQ_ALLELE"));
         event.setKeyword(rs.getString("KEYWORD"));
@@ -1393,12 +1377,12 @@ public final class DaoMutation {
         if (geneIdSet.size() == 0 || internalProfileIds.size() == 0) return new ArrayList<Map<String, Object>>(); //empty IN() clause would be a SQL error below
         try {
             con = JdbcUtil.getDbConnection(DaoMutation.class);
-            String sql = "SELECT ONCOTATOR_PROTEIN_POS_START, GENETIC_PROFILE_ID, mutation.ENTREZ_GENE_ID, count(DISTINCT SAMPLE_ID) " +
+            String sql = "SELECT PROTEIN_POS_START, GENETIC_PROFILE_ID, mutation.ENTREZ_GENE_ID, count(DISTINCT SAMPLE_ID) " +
                     "FROM mutation INNER JOIN mutation_event ON mutation.MUTATION_EVENT_ID=mutation_event.MUTATION_EVENT_ID " +
                     "WHERE mutation.ENTREZ_GENE_ID IN (" + StringUtils.join(geneIdSet, ",") + ") " +
                     "AND GENETIC_PROFILE_ID IN (" + StringUtils.join(internalProfileIds, ",") + ") " +
-                    "AND (mutation.ENTREZ_GENE_ID, ONCOTATOR_PROTEIN_POS_START) IN (" + StringUtils.join(proteinPosStarts, ",") + ") " +
-                    "GROUP BY ONCOTATOR_PROTEIN_POS_START, GENETIC_PROFILE_ID, mutation.ENTREZ_GENE_ID";
+                    "AND (mutation.ENTREZ_GENE_ID, PROTEIN_POS_START) IN (" + StringUtils.join(proteinPosStarts, ",") + ") " +
+                    "GROUP BY PROTEIN_POS_START, GENETIC_PROFILE_ID, mutation.ENTREZ_GENE_ID";
             pstmt = con.prepareStatement(sql);
             rs = pstmt.executeQuery();
             Collection<Map<String, Object>> data = new ArrayList<Map<String, Object>>();

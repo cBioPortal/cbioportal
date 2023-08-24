@@ -29,15 +29,15 @@ import io.swagger.annotations.ApiParam;
 import springfox.documentation.annotations.ApiIgnore;
 
 @InternalApi
-@RestController
+@RestController("/api")
 @Validated
 @Api(tags = "Enrichments", description = " ")
 public class ExpressionEnrichmentController {
     @Autowired
     private ExpressionEnrichmentService expressionEnrichmentService;
     
-    @PreAuthorize("hasPermission(#involvedCancerStudies, 'Collection<CancerStudyId>', 'read')")
-    @RequestMapping(value = "/api/expression-enrichments/fetch",
+    @PreAuthorize("hasPermission(#involvedCancerStudies, 'Collection<CancerStudyId>', T(org.cbioportal.utils.security.AccessLevel).READ)")
+    @RequestMapping(value = "/expression-enrichments/fetch",
         method = RequestMethod.POST, consumes = MediaType.APPLICATION_JSON_VALUE,
         produces = MediaType.APPLICATION_JSON_VALUE)
     @ApiOperation("Fetch genomic enrichments in a molecular profile")
@@ -56,8 +56,8 @@ public class ExpressionEnrichmentController {
                 HttpStatus.OK);
     }
 
-    @PreAuthorize("hasPermission(#involvedCancerStudies, 'Collection<CancerStudyId>', 'read')")
-    @RequestMapping(value = "/api/generic-assay-enrichments/fetch",
+    @PreAuthorize("hasPermission(#involvedCancerStudies, 'Collection<CancerStudyId>', T(org.cbioportal.utils.security.AccessLevel).READ)")
+    @RequestMapping(value = "/generic-assay-enrichments/fetch",
         method = RequestMethod.POST, consumes = MediaType.APPLICATION_JSON_VALUE,
         produces = MediaType.APPLICATION_JSON_VALUE)
     @ApiOperation("Fetch generic assay enrichments in a molecular profile")
@@ -95,7 +95,7 @@ public class ExpressionEnrichmentController {
         }
 
         if (isRequestForGenericAssayEnrichments) {
-            return (List<S>) expressionEnrichmentService.getGenericAssayEnrichments(
+            return (List<S>) expressionEnrichmentService.getGenericAssayNumericalEnrichments(
                     molecularProfileIds.iterator().next(), groupCaseIdentifierSet, enrichmentType);
         }
         

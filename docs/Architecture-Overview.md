@@ -1,16 +1,19 @@
 # Architecture Overview
 cBioPortal consists of the following components:
 
-- [backend](https://github.com/cBioPortal/cbioportal) written in Java
-- MySQL database that the backend uses
+- [backend](https://github.com/cBioPortal/cbioportal)
+    - MySQL database
+    - REST API written in Java Spring
+    - Redis cache for storing frequently used queries (optional)
 - [validator](https://github.com/cBioPortal/cbioportal/tree/master/core/src/main/scripts/importer)
-  which checks file formats before importing data into the database
+  checks file formats before importing data into the database
 - [frontend](https://github.com/cBioPortal/cbioportal-frontend)
   built with React, Mobx and Bootstrap
 - [session service](https://github.com/cBioPortal/session-service) for storing
   user saved data such as virtual studies and groups
-- Mongo database which session service uses
-- cBioPortal also uses the APIs from various [external services](#External-Services) to provide more information about a variant
+     - REST API written in Java Spring enabling retrieval and writing to the database
+     - MongoDB database
+- cBioPortal also uses the APIs from various [external services](#external-services) to provide more information about a variant
 
 ## Backend
 
@@ -18,7 +21,8 @@ The [backend](https://github.com/cBioPortal/cbioportal) is written in Java and
 connects to a MySQL database to serve a REST API following the OpenAPI
 specification (https://www.cbioportal.org/api/). Note that the repo where this
 lives in (https://github.com/cBioPortal/cbioportal) also contains Java classes
-to import data as well as the validator.
+to import data as well as the validator. The backend can be configured to
+connect to a Redis cache to store database query results for improved performance.
 
 The backend is organized as a multi-module Maven project.
 See [cBioPortal backend code organization](Backend-Code-Organization.md).
@@ -50,17 +54,17 @@ with the backend so no extra setup is required.
 cBioPortal uses the APIs from several external services to provide more
 information about a variant:
 
-- [OncoKB](#OncoKB)
-- [CIVIC](#CIVIC)
-- [Genome Nexus](#Genome-Nexus)
-- [G2S](#G2S)
+- [OncoKB](#oncokb)
+- [CIVIC](#civic)
+- [Genome Nexus](#genome-nexus)
+- [G2S](#g2s)
 
-For privacy concerns see the section: [A note on privacy](#A-note-on-privacy).
+For privacy concerns see the section: [A note on privacy](#a-note-on-privacy).
 
 ### OncoKB
 [OncoKB](https://www.oncokb.org) is a precision oncology knowledge base that
 contains information about the effects and treatment implications of specific
-cancer gene alterations. See the section [OncoKB Data Access](OncoKB-Data-Access.md)
+cancer gene alterations. See the section [OncoKB Data Access](/deployment/integration-with-other-webservices/OncoKB-Data-Access.md)
 for how to configure external OncoKB service.
 
 ### CIVIC
@@ -70,7 +74,7 @@ relevance of variants (or biomarker alterations) in cancer. For information on
 how to deploy this service yourself see:
 https://github.com/griffithlab/civic-server. It is also possible to disable
 showing CIVIC in cBioPortal by setting `show.civic=false` in the
-`portal.properties` (See [portal.properties reference](portal.properties-Reference.md)).
+`portal.properties` (See [portal.properties reference](/deployment/customization/portal.properties-Reference.md#civic-integration)).
 
 ### Genome Nexus
 [Genome Nexus](https://www.genomenexus.org) is a comprehensive one-stop

@@ -27,7 +27,7 @@ import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
 
 @InternalApi
-@RestController
+@RestController("/api")
 @Validated
 @Api(tags = InternalApiTags.RESOURCE_DATA, description = " ")
 public class ResourceDataController {
@@ -38,8 +38,8 @@ public class ResourceDataController {
     @Autowired
     private ResourceDataService resourceDataService;
 
-    @PreAuthorize("hasPermission(#studyId, 'CancerStudyId', 'read')")
-    @RequestMapping(value = "/api/studies/{studyId}/samples/{sampleId}/resource-data", method = RequestMethod.GET,
+    @PreAuthorize("hasPermission(#studyId, 'CancerStudyId', T(org.cbioportal.utils.security.AccessLevel).READ)")
+    @RequestMapping(value = "/studies/{studyId}/samples/{sampleId}/resource-data", method = RequestMethod.GET,
         produces = MediaType.APPLICATION_JSON_VALUE)
     @ApiOperation("Get all resource data of a sample in a study")
     public ResponseEntity<List<ResourceData>> getAllResourceDataOfSampleInStudy(
@@ -74,8 +74,8 @@ public class ResourceDataController {
         }
     }
 
-    @PreAuthorize("hasPermission(#studyId, 'CancerStudyId', 'read')")
-    @RequestMapping(value = "/api/studies/{studyId}/patients/{patientId}/resource-data", method = RequestMethod.GET,
+    @PreAuthorize("hasPermission(#studyId, 'CancerStudyId', T(org.cbioportal.utils.security.AccessLevel).READ)")
+    @RequestMapping(value = "/studies/{studyId}/patients/{patientId}/resource-data", method = RequestMethod.GET,
         produces = MediaType.APPLICATION_JSON_VALUE)
     @ApiOperation("Get all resource data of a patient in a study")
     public ResponseEntity<List<ResourceData>> getAllResourceDataOfPatientInStudy(
@@ -110,8 +110,8 @@ public class ResourceDataController {
         }
     }
 
-    @PreAuthorize("hasPermission(#studyId, 'CancerStudyId', 'read')")
-    @RequestMapping(value = "/api/studies/{studyId}/resource-data", method = RequestMethod.GET,
+    @PreAuthorize("hasPermission(#studyId, 'CancerStudyId', T(org.cbioportal.utils.security.AccessLevel).READ)")
+    @RequestMapping(value = "/studies/{studyId}/resource-data", method = RequestMethod.GET,
         produces = MediaType.APPLICATION_JSON_VALUE)
     @ApiOperation("Get all resource data for a study")
     public ResponseEntity<List<ResourceData>> getAllStudyResourceDataInStudy(

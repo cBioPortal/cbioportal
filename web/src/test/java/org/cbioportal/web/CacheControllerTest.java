@@ -6,7 +6,12 @@ import static org.mockito.Mockito.verify;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
 
 
+import org.cbioportal.model.CancerStudy;
+import org.cbioportal.persistence.StudyRepository;
 import org.cbioportal.service.CacheService;
+import org.cbioportal.service.exception.CacheOperationException;
+import org.junit.Before;
+import org.junit.Ignore;
 import org.cbioportal.web.config.TestConfig;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -16,7 +21,6 @@ import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.MediaType;
 import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.context.ContextConfiguration;
-import org.springframework.test.context.TestPropertySource;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import org.springframework.test.util.ReflectionTestUtils;
 import org.springframework.test.web.servlet.MockMvc;
@@ -43,6 +47,21 @@ public class CacheControllerTest {
     @Autowired
     private CacheController cacheController;
     
+    // ---- Imitate @MockBean annotations of Spring Boot
+    @Autowired
+    private CacheService cacheService;
+    @Bean
+    public CacheService cacheService() {
+        return mock(CacheService.class);
+    }
+    // ----
+
+    @Before
+    public void setUp() throws Exception {
+        reset(cacheService);
+        mockMvc = MockMvcBuilders.webAppContextSetup(wac).build();
+    }
+
     @Test
     @WithMockUser
     public void clearAllCachesNoKeyProvided() throws Exception {
@@ -91,6 +110,73 @@ public class CacheControllerTest {
             .andExpect(MockMvcResultMatchers.status().isOk())
             .andExpect(MockMvcResultMatchers.content().contentTypeCompatibleWith(MediaType.TEXT_PLAIN_VALUE));
         verify(cacheService, times(1)).clearCaches(false);
+    }
+
+    @Ignore // Unable to to configure context with the GlobalExceptionHandler ControllerAdvise.
+    @Test
+    public void clearAllCachesServiceException() throws Exception {
+        doThrow(CacheOperationException.class).when(cacheService).clearCaches(anyBoolean());
+        mockMvc.perform(MockMvcRequestBuilders.delete("/cache")
+                .header("X-API-KEY", "correct-key"))
+            .andExpect(MockMvcResultMatchers.status().isInternalServerError())
+            .andExpect(MockMvcResultMatchers.content().contentTypeCompatibleWith(MediaType.TEXT_PLAIN_VALUE));
+        verify(cacheService, times(1)).clearCaches(true);
+    }
+    
+    @Test
+    public void clearCacheForStudyNoKeyProvided() throws Exception {
+        mockMvc.perform(MockMvcRequestBuilders.delete("/cache/study_es_0"))
+            .andExpect(MockMvcResultMatchers.status().isBadRequest());
+        verify(cacheService, never()).clearCachesForStudy(anyString(), anyBoolean());
+    }
+
+    @Test
+    public void clearCacheForStudyUnauthorized() throws Exception {
+        mockMvc.perform(MockMvcRequestBuilders.delete("/cache/study_es_0")
+                .header("X-API-KEY", "incorrect-key"))
+            .andExpect(MockMvcResultMatchers.status().isUnauthorized())
+            .andExpect(MockMvcResultMatchers.content().contentTypeCompatibleWith(MediaType.TEXT_PLAIN_VALUE));
+        verify(cacheService, never()).clearCachesForStudy(anyString(), anyBoolean());
+    }
+
+    @Test
+    public void clearCacheForStudySuccess() throws Exception {
+        mockMvc.perform(MockMvcRequestBuilders.delete("/cache/study_es_0")
+                .header("X-API-KEY", "correct-key"))
+            .andExpect(MockMvcResultMatchers.status().isOk())
+            .andExpect(MockMvcResultMatchers.content().contentTypeCompatibleWith(MediaType.TEXT_PLAIN_VALUE));
+        verify(cacheService, times(1)).clearCachesForStudy(eq("study_es_0"), anyBoolean());
+    }
+
+    @Test
+    public void clearCacheForStudyDisabled() throws Exception {
+        ReflectionTestUtils.setField(cacheController, "cacheEndpointEnabled", false);
+        mockMvc.perform(MockMvcRequestBuilders.delete("/cache/study_es_0")
+                .header("X-API-KEY", "correct-key"))
+            .andExpect(MockMvcResultMatchers.status().isNotFound())
+            .andExpect(MockMvcResultMatchers.content().contentTypeCompatibleWith(MediaType.TEXT_PLAIN_VALUE));
+        verify(cacheService, never()).clearCachesForStudy(anyString(), anyBoolean());
+        ReflectionTestUtils.setField(cacheController, "cacheEndpointEnabled", true);
+    }
+
+    @Test
+    public void clearCacheForStudySkipSpringManaged() throws Exception {
+        mockMvc.perform(MockMvcRequestBuilders.delete("/cache/study_es_0").param("springManagedCache", "false")
+                .header("X-API-KEY", "correct-key"))
+            .andExpect(MockMvcResultMatchers.status().isOk())
+            .andExpect(MockMvcResultMatchers.content().contentTypeCompatibleWith(MediaType.TEXT_PLAIN_VALUE));
+        verify(cacheService, times(1)).clearCachesForStudy(anyString(), eq(false));
+    }
+
+    @Ignore // Unable to to configure context with the GlobalExceptionHandler ControllerAdvise.
+    @Test
+    public void clearCacheForStudyServiceException() throws Exception {
+        doThrow(CacheOperationException.class).when(cacheService).clearCachesForStudy(eq("study_es_0"), anyBoolean());
+        mockMvc.perform(MockMvcRequestBuilders.delete("/cache/study_es_0")
+                .header("X-API-KEY", "correct-key"))
+            .andExpect(MockMvcResultMatchers.status().isInternalServerError())
+            .andExpect(MockMvcResultMatchers.content().contentTypeCompatibleWith(MediaType.TEXT_PLAIN_VALUE));
+        verify(cacheService, times(1)).clearCachesForStudy(anyString(), eq(true));
     }
 
 }

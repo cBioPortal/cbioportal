@@ -7,12 +7,15 @@ import java.util.regex.Pattern;
 import javax.servlet.http.HttpServletResponse;
 import javax.validation.constraints.Size;
 
+import com.google.common.collect.ImmutableMap;
+import org.cbioportal.service.util.CustomAttributeWithData;
+import org.cbioportal.service.util.CustomDataSession;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.cbioportal.web.parameter.*;
-import org.cbioportal.web.util.SessionServiceRequestHandler;
-import org.cbioportal.utils.removeme.Session;
-import org.cbioportal.utils.removeme.Session.SessionType;
+import org.cbioportal.service.util.SessionServiceRequestHandler;
+import org.cbioportal.session_service.domain.Session;
+import org.cbioportal.session_service.domain.SessionType;
 import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
 import org.json.simple.parser.ParseException;
@@ -47,8 +50,16 @@ public class SessionServiceController {
     @Autowired
     SessionServiceRequestHandler sessionServiceRequestHandler;
 
+    @Autowired
+    private ObjectMapper sessionServiceObjectMapper;
+
     @Value("${session.service.url:}")
     private String sessionServiceURL;
+
+    private static Map<SessionPage, Class<? extends PageSettingsData>> pageToSettingsDataClass = ImmutableMap.of(
+         SessionPage.study_view, StudyPageSettings.class,
+         SessionPage.results_view, ResultsPageSettings.class
+     );
 
     private boolean isAuthorized() {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
@@ -90,15 +101,16 @@ public class SessionServiceController {
         return sessions.isEmpty() ? null : sessions.get(0);
     }
 
-    private ResponseEntity<Session> addSession(SessionType type, Optional<SessionOperation> operation,
-            JSONObject body) {
+    private ResponseEntity<Session> addSession(
+        SessionType type, 
+        Optional<SessionOperation> operation,
+        JSONObject body
+    ) {
         try {
             HttpEntity<?> httpEntity;
-            ObjectMapper mapper = new ObjectMapper().configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES,
-                    false);
             if (type.equals(SessionType.virtual_study) || type.equals(SessionType.group)) {
                 // JSON from file to Object
-                VirtualStudyData virtualStudyData = mapper.readValue(body.toString(), VirtualStudyData.class);
+                VirtualStudyData virtualStudyData = sessionServiceObjectMapper.readValue(body.toString(), VirtualStudyData.class);
 
                 if (isAuthorized()) {
                     virtualStudyData.setOwner(userName());
@@ -114,13 +126,19 @@ public class SessionServiceController {
                 if (!(isAuthorized())) {
                     return new ResponseEntity<>(HttpStatus.SERVICE_UNAVAILABLE);
                 }
-                StudyPageSettings studyPageSettings = mapper.readValue(body.toString(), StudyPageSettings.class);
-                studyPageSettings.setOwner(userName());
-                httpEntity = new HttpEntity<>(studyPageSettings, sessionServiceRequestHandler.getHttpHeaders());
+                Class<? extends PageSettingsData> pageDataClass = pageToSettingsDataClass.get(
+                    SessionPage.valueOf((String) body.get("page"))
+                );
+                PageSettingsData pageSettings = sessionServiceObjectMapper.readValue(
+                    body.toString(),
+                    pageDataClass
+                );
+                pageSettings.setOwner(userName());
+                httpEntity = new HttpEntity<>(pageSettings, sessionServiceRequestHandler.getHttpHeaders());
 
             } else if(type.equals(SessionType.custom_data)) {
                 // JSON from file to Object
-                CustomAttributeWithData customData = mapper.readValue(body.toString(), CustomAttributeWithData.class);
+                CustomAttributeWithData customData = sessionServiceObjectMapper.readValue(body.toString(), CustomAttributeWithData.class);
 
                 if (isAuthorized()) {
                     customData.setOwner(userName());
@@ -133,7 +151,7 @@ public class SessionServiceController {
                 if (!(isAuthorized())) {
                      return new ResponseEntity<>(HttpStatus.SERVICE_UNAVAILABLE);
                 }
-                CustomGeneListData customGeneListData = mapper.readValue(body.toString(), CustomGeneListData.class);
+                CustomGeneListData customGeneListData = sessionServiceObjectMapper.readValue(body.toString(), CustomGeneListData.class);
                 customGeneListData.setUsers(Collections.singleton(userName()));
                 httpEntity = new HttpEntity<>(customGeneListData, sessionServiceRequestHandler.getHttpHeaders());
             } else {
@@ -159,9 +177,25 @@ public class SessionServiceController {
     public ResponseEntity<Session> getSession(@PathVariable SessionType type, @PathVariable String id) {
 
         try {
-            Session session = sessionServiceRequestHandler.getSession(type, id);
+            String sessionDataJson = sessionServiceRequestHandler.getSessionDataJson(type, id);
+            Session session;
+            switch (type) {
+                case virtual_study:
+                    session = sessionServiceObjectMapper.readValue(sessionDataJson, VirtualStudy.class);
+                    break;
+                case settings:
+                    session = sessionServiceObjectMapper.readValue(sessionDataJson, PageSettings.class);
+                    break;
+                case custom_data:
+                    session = sessionServiceObjectMapper.readValue(sessionDataJson, CustomDataSession.class);
+                    break;
+                case custom_gene_list:
+                    session = sessionServiceObjectMapper.readValue(sessionDataJson, CustomGeneList.class);
+                    break;
+                default:
+                    session = sessionServiceObjectMapper.readValue(sessionDataJson, Session.class);
+            }
             return new ResponseEntity<>(session, HttpStatus.OK);
-
         } catch (Exception exception) {
             LOG.error("Error occurred", exception);
             return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
@@ -214,28 +248,26 @@ public class SessionServiceController {
             @PathVariable Operation operation, HttpServletResponse response) throws IOException {
 
         if (sessionServiceRequestHandler.isSessionServiceEnabled() && isAuthorized()) {
-            ObjectMapper mapper = new ObjectMapper().configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES,
-                    false);
             HttpEntity<?> httpEntity;
             if (type.equals(SessionType.custom_data)) {
-                String virtualStudyStr = mapper.writeValueAsString(getSession(type, id).getBody());
-                CustomDataSession customDataSession = mapper.readValue(virtualStudyStr, CustomDataSession.class);
+                String virtualStudyStr = sessionServiceObjectMapper.writeValueAsString(getSession(type, id).getBody());
+                CustomDataSession customDataSession = sessionServiceObjectMapper.readValue(virtualStudyStr, CustomDataSession.class);
                 CustomAttributeWithData customAttributeWithData = customDataSession.getData();
                 Set<String> users = customAttributeWithData.getUsers();
                 updateUserList(operation, users);
                 customAttributeWithData.setUsers(users);
                 httpEntity = new HttpEntity<>(customAttributeWithData, sessionServiceRequestHandler.getHttpHeaders());
              } else if (type.equals(SessionType.custom_gene_list)) {
-                String customGeneListStr = mapper.writeValueAsString(getSession(type, id).getBody());
-                CustomGeneList customGeneList = mapper.readValue(customGeneListStr, CustomGeneList.class);
+                String customGeneListStr = sessionServiceObjectMapper.writeValueAsString(getSession(type, id).getBody());
+                CustomGeneList customGeneList = sessionServiceObjectMapper.readValue(customGeneListStr, CustomGeneList.class);
                 CustomGeneListData customGeneListData = customGeneList.getData();
                 Set<String> users = customGeneListData.getUsers();
                 updateUserList(operation, users);
                 customGeneListData.setUsers(users);
                 httpEntity = new HttpEntity<>(customGeneListData, sessionServiceRequestHandler.getHttpHeaders());                
              } else {
-                String virtualStudyStr = mapper.writeValueAsString(getSession(type, id).getBody());
-                VirtualStudy virtualStudy = mapper.readValue(virtualStudyStr, VirtualStudy.class);
+                String virtualStudyStr = sessionServiceObjectMapper.writeValueAsString(getSession(type, id).getBody());
+                VirtualStudy virtualStudy = sessionServiceObjectMapper.readValue(virtualStudyStr, VirtualStudy.class);
                 VirtualStudyData virtualStudyData = virtualStudy.getData();
                 Set<String> users = virtualStudyData.getUsers();
                 updateUserList(operation, users);
@@ -300,8 +332,7 @@ public class SessionServiceController {
     }
 
     @RequestMapping(value = "/settings", method = RequestMethod.POST)
-    public void updateUserPageSettings(@RequestBody PageSettingsData settingsData, HttpServletResponse response)
-            throws IOException {
+    public void updateUserPageSettings(@RequestBody PageSettingsData settingsData, HttpServletResponse response) {
 
         try {
             ObjectMapper objectMapper = new ObjectMapper()
@@ -328,7 +359,7 @@ public class SessionServiceController {
                 if (pageSettings == null) {
                     addSession(SessionType.settings, Optional.empty(), jsonObject);
                 } else {
-                    updatedPageSettingSession(pageSettings, jsonObject, response);
+                    updatedPageSettingSession(pageSettings, settingsData, response);
                 }
                 response.setStatus(HttpStatus.OK.value());
             } else {
@@ -341,26 +372,25 @@ public class SessionServiceController {
     }
 
     // updates only allowed for type page settings session 
-    private void updatedPageSettingSession(PageSettings pageSettings, @RequestBody JSONObject body,
-                                           HttpServletResponse response) throws IOException {
+    private void updatedPageSettingSession(
+        PageSettings pageSettings, 
+        @RequestBody PageSettingsData body,
+        HttpServletResponse response
+    ) throws IOException {
 
         if (isAuthorized()) {
 
-            ObjectMapper mapper = new ObjectMapper().configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES,
-                    false);
-
             PageSettingsData pageSettingsData = pageSettings.getData();
-            StudyPageSettings updatedPageSettings = mapper.readValue(body.toString(), StudyPageSettings.class);
             // only allow owner to update his session and see if the origin(studies) are same
             if (userName().equals(pageSettingsData.getOwner()) &&
-                sameOrigin(pageSettingsData.getOrigin(), updatedPageSettings.getOrigin())) {
+                sameOrigin(pageSettingsData.getOrigin(), body.getOrigin())) {
 
-                updatedPageSettings.setCreated(pageSettingsData.getCreated());
-                updatedPageSettings.setOwner(pageSettingsData.getOwner());
-                updatedPageSettings.setOrigin(pageSettingsData.getOrigin());
+                body.setCreated(pageSettingsData.getCreated());
+                body.setOwner(pageSettingsData.getOwner());
+                body.setOrigin(pageSettingsData.getOrigin());
 
                 RestTemplate restTemplate = new RestTemplate();
-                HttpEntity<Object> httpEntity = new HttpEntity<>(updatedPageSettings, sessionServiceRequestHandler.getHttpHeaders());
+                HttpEntity<Object> httpEntity = new HttpEntity<>(body, sessionServiceRequestHandler.getHttpHeaders());
 
                 restTemplate.put(sessionServiceURL + pageSettings.getType() + "/" + pageSettings.getId(), httpEntity);
                 response.setStatus(HttpStatus.OK.value());

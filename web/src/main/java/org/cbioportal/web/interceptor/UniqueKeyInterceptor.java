@@ -2,6 +2,7 @@ package org.cbioportal.web.interceptor;
 
 import org.cbioportal.model.Alteration;
 import org.cbioportal.model.ClinicalData;
+import org.cbioportal.model.ClinicalDataCollection;
 import org.cbioportal.model.ClinicalEvent;
 import org.cbioportal.model.CopyNumberSeg;
 import org.cbioportal.model.GenePanelData;
@@ -96,6 +97,21 @@ public class UniqueKeyInterceptor extends AbstractMappingJacksonResponseBodyAdvi
                         resourceData.setUniquePatientKey(calculateBase64(resourceData.getPatientId(), resourceData.getStudyId()));
                     }
                 }
+            }
+        } else if (value instanceof ClinicalDataCollection) {
+            ClinicalDataCollection collection = (ClinicalDataCollection) value;
+            if (collection.getSampleClinicalData() != null) {
+                collection.getSampleClinicalData().forEach(
+                    clinicalData -> {
+                        clinicalData.setUniqueSampleKey(calculateBase64(clinicalData.getSampleId(), clinicalData.getStudyId()));
+                        clinicalData.setUniquePatientKey(calculateBase64(clinicalData.getPatientId(), clinicalData.getStudyId()));
+                    }
+                );
+            }
+            if (collection.getPatientClinicalData() != null) {
+                collection.getPatientClinicalData().forEach(
+                    clinicalData -> clinicalData.setUniquePatientKey(calculateBase64(clinicalData.getPatientId(), clinicalData.getStudyId()))
+                );
             }
         }
     }

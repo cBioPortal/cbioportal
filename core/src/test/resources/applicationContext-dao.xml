@@ -10,11 +10,14 @@
      http://www.springframework.org/schema/tx http://www.springframework.org/schema/tx/spring-tx.xsd">
 
     <!-- Mock beans for Ehcache manager and statistics -->
-     <bean id="cacheManager" class="org.mockito.Mockito" factory-method="mock">
-         <constructor-arg value="javax.cache.CacheManager" />
-     </bean>
-     <bean id="ehcacheStatistics" class="org.mockito.Mockito" factory-method="mock">
+    <bean id="cacheManager" class="org.mockito.Mockito" factory-method="mock">
+        <constructor-arg value="javax.cache.CacheManager" />
+    </bean>
+    <bean id="ehcacheStatistics" class="org.mockito.Mockito" factory-method="mock">
         <constructor-arg value="org.cbioportal.persistence.util.EhcacheStatistics" />
+    </bean>
+    <bean id="customEhcachingProvider" class="org.mockito.Mockito" factory-method="mock">
+        <constructor-arg value="org.cbioportal.persistence.util.CustomEhcachingProvider" />
     </bean>
 
     <bean id="propertyPlaceholderConfigurer" class="org.springframework.beans.factory.config.PropertyPlaceholderConfigurer">
@@ -55,7 +58,7 @@
 	<!-- Values are for testing only, so need to correspond to the cgds in the pom.xml -->
 	<bean id="dbcpDataSource" destroy-method="close" class="org.apache.commons.dbcp2.BasicDataSource">
 		<property name="driverClassName" value="com.mysql.jdbc.Driver" />
-		<property name="url" value="jdbc:mysql://localhost:3306/cgds_test" />
+		<property name="url" value="jdbc:mysql://localhost:3306/cgds_test?allowLoadLocalInfile=true&amp;useSSL=false" />
         <!-- - test db credentials should be keep in sync with parent pom.xml -->
 		<property name="username" value="${db.test.username:cbio_user}" />
 		<property name="password" value="${db.test.password:somepassword}" />
@@ -64,7 +67,16 @@
 		<property name="maxTotal" value="100" />
 		<property name="poolPreparedStatements" value="true" />
 	</bean>
-	
+
+    <bean id="databaseIdProvider" class="org.apache.ibatis.mapping.VendorDatabaseIdProvider">
+        <property name="properties">
+            <props>
+                <prop key="MySQL">mysql</prop>
+                <prop key="H2">h2</prop>
+            </props>
+        </property>
+    </bean>
+    
     <!-- define the SqlSessionFactory -->
     <bean id="sqlSessionFactory" class="org.mybatis.spring.SqlSessionFactoryBean">
         <property name="dataSource" ref="businessDataSource" />
@@ -73,6 +85,7 @@
         <!-- mapper locations is set here to support interdependency between mappers without -->
         <!-- having to autowire repositories into java classes that do not make direct uses of them -->
         <property name="mapperLocations" value="classpath*:org/cbioportal/persistence/mybatis/**/*.xml"/>
+        <property name="databaseIdProvider" ref="databaseIdProvider"/>
     </bean>
     
     <!-- scan for mappers and let them be autowired -->

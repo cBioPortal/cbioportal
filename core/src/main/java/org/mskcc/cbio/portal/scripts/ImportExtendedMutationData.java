@@ -1,15 +1,15 @@
 /*
- * Copyright (c) 2015 Memorial Sloan-Kettering Cancer Center.
+ * Copyright (c) 2015 - 2022 Memorial Sloan Kettering Cancer Center.
  *
  * This library is distributed in the hope that it will be useful, but WITHOUT
  * ANY WARRANTY, WITHOUT EVEN THE IMPLIED WARRANTY OF MERCHANTABILITY OR FITNESS
  * FOR A PARTICULAR PURPOSE. The software and documentation provided hereunder
- * is on an "as is" basis, and Memorial Sloan-Kettering Cancer Center has no
+ * is on an "as is" basis, and Memorial Sloan Kettering Cancer Center has no
  * obligations to provide maintenance, support, updates, enhancements or
- * modifications. In no event shall Memorial Sloan-Kettering Cancer Center be
+ * modifications. In no event shall Memorial Sloan Kettering Cancer Center be
  * liable to any party for direct, indirect, special, incidental or
  * consequential damages, including lost profits, arising out of the use of this
- * software and its documentation, even if Memorial Sloan-Kettering Cancer
+ * software and its documentation, even if Memorial Sloan Kettering Cancer
  * Center has been advised of the possibility of such damage.
  */
 
@@ -73,7 +73,7 @@ public class ImportExtendedMutationData{
     private Set<String> filteredMutations = new HashSet<String>();
     private Set<String> namespaces = new HashSet<String>();
     private Pattern SEQUENCE_SAMPLES_REGEX = Pattern.compile("^.*sequenced_samples:(.*)$");
-    private final String ASCN_NAMESPACE = "ascn";
+    private final String ASCN_NAMESPACE = "ASCN";
 
     /**
      * construct an ImportExtendedMutationData.
@@ -145,13 +145,11 @@ public class ImportExtendedMutationData{
         GeneticProfile geneticProfile = DaoGeneticProfile.getGeneticProfileById(geneticProfileId);
 
         CancerStudy cancerStudy = DaoCancerStudy.getCancerStudyByInternalId(geneticProfile.getCancerStudyId());
-        String genomeBuildName;
         String referenceGenome = cancerStudy.getReferenceGenome();
         if (referenceGenome == null) {
-            genomeBuildName = GlobalProperties.getReferenceGenomeName();
-        } else {
-            genomeBuildName = DaoReferenceGenome.getReferenceGenomeByGenomeName(referenceGenome).getBuildName();
+            referenceGenome = GlobalProperties.getReferenceGenomeName();
         }
+        String genomeBuildName = DaoReferenceGenome.getReferenceGenomeByGenomeName(referenceGenome).getBuildName();
 
         while((line=buf.readLine()) != null)
         {
@@ -208,31 +206,6 @@ public class ImportExtendedMutationData{
                 if (record.getEndPosition() < 0)
                     record.setEndPosition(0);
 
-                String functionalImpactScore = "";
-                // using -1 is not safe, FIS can be a negative value
-                Float fisValue = Float.MIN_VALUE;
-                String linkXVar = "";
-                String linkMsa = "";
-                String linkPdb = "";
-
-                if (fileHasOMAData)
-                {
-//                    functionalImpactScore = getField(parts, "MA:FImpact" );
-//                    fisValue = getField(parts, "MA:FIS");
-//                    linkXVar = getField(parts, "MA:link.var" );
-//                    linkMsa = getField(parts, "MA:link.MSA" );
-//                    linkPdb = getField(parts, "MA:link.PDB" );
-
-                    functionalImpactScore = record.getMaFuncImpact();
-                    fisValue = record.getMaFIS();
-                    linkXVar = record.getMaLinkVar();
-                    linkMsa = record.getMaLinkMsa();
-                    linkPdb = record.getMaLinkPdb();
-
-                    functionalImpactScore = transformOMAScore(functionalImpactScore);
-                    linkXVar = linkXVar.replace("\"", "");
-                }
-
                 String mutationType,
                     proteinChange,
                     aaChange,
@@ -269,12 +242,9 @@ public class ImportExtendedMutationData{
                 aaChange = record.getAminoAcidChange();
                 codonChange = record.getCodons();
                 refseqMrnaId = record.getRefSeq();
-                if (this.swissprotIsAccession) {
-                    uniprotAccession = record.getSwissprot();
-                } else {
-                    String uniprotName = record.getSwissprot();
-                    uniprotAccession = DaoUniProtIdMapping.mapFromUniprotIdToAccession(uniprotName);
-                }
+                //always uniprot accession
+                uniprotAccession = record.getSwissprot();
+                
                 proteinPosStart = ExtendedMutationUtil.getProteinPosStart(
                         record.getProteinPosition(), proteinChange);
                 proteinPosEnd = ExtendedMutationUtil.getProteinPosEnd(
@@ -366,11 +336,6 @@ public class ImportExtendedMutationData{
                     mutation.setEndPosition(record.getEndPosition());
                     mutation.setValidationStatus(record.getValidationStatus());
                     mutation.setMutationStatus(record.getMutationStatus());
-                    mutation.setFunctionalImpactScore(functionalImpactScore);
-                    mutation.setFisValue(fisValue);
-                    mutation.setLinkXVar(linkXVar);
-                    mutation.setLinkPdb(linkPdb);
-                    mutation.setLinkMsa(linkMsa);
                     mutation.setNcbiBuild(record.getNcbiBuild());
                     mutation.setStrand(record.getStrand());
                     mutation.setVariantType(record.getVariantType());
@@ -402,12 +367,12 @@ public class ImportExtendedMutationData{
                     mutation.setNormalAltCount(ExtendedMutationUtil.getNormalAltCount(record));
                     mutation.setNormalRefCount(ExtendedMutationUtil.getNormalRefCount(record));
 
-                    // TODO rename the oncotator column names (remove "oncotator")
-                    mutation.setOncotatorCodonChange(codonChange);
-                    mutation.setOncotatorRefseqMrnaId(refseqMrnaId);
-                    mutation.setOncotatorUniprotAccession(uniprotAccession);
-                    mutation.setOncotatorProteinPosStart(proteinPosStart);
-                    mutation.setOncotatorProteinPosEnd(proteinPosEnd);
+                    //  renamed the oncotator column names to mutation
+                    mutation.setCodonChange(codonChange);
+                    mutation.setRefseqMrnaId(refseqMrnaId);
+                    mutation.setUniprotAccession(uniprotAccession);
+                    mutation.setProteinPosStart(proteinPosStart);
+                    mutation.setProteinPosEnd(proteinPosEnd);
 
                     mutation.setDriverFilter(record.getDriverFilter());
                     mutation.setDriverFilterAnn(record.getDriverFilterAnn());
@@ -419,15 +384,15 @@ public class ImportExtendedMutationData{
 
                     AlleleSpecificCopyNumber ascn = null;
                     if (namespaces != null && namespaces.contains(ASCN_NAMESPACE)) {
-                        Map<String, String> ascnData = record.getNamespacesMap().remove(ASCN_NAMESPACE);
+                        Map<String, Object> ascnData = record.getNamespacesMap().remove(ASCN_NAMESPACE);
                         // The AlleleSpecificCopyNumber constructor will construct the record from
                         // the ascnData hashmap and the ascnData will simultaneously be removed from
                         // the record's namespaces map since it is going into its own table
                         ascn = new AlleleSpecificCopyNumber(ascnData);
                     }
-                    if (record.getNamespacesMap() != null && !record.getNamespacesMap().isEmpty()) {
-                        mutation.setAnnotationJson(convertMapToJsonString(record.getNamespacesMap()));
-                    }
+                    mutation.setAnnotationJson(
+                        mafUtil.getNamespaceColumnParser().writeValueAsString(record.getNamespacesMap())
+                    );
 
                     sequencedCaseSet.add(sample.getStableId());
 
@@ -506,7 +471,7 @@ public class ImportExtendedMutationData{
         }
 
         /*
-         * At MSKCC there are some MUTATION_UNCALLED and FUSION
+         * At MSKCC there are some MUTATION_UNCALLED
          * profiles that shouldn't be included when determining the number of
          * mutations for a sample
          */
@@ -643,7 +608,7 @@ public class ImportExtendedMutationData{
         throw new NullPointerException("Sample is not found in database (is it missing from clinical data file?): " + stableSampleID);
     }
 
-    private String convertMapToJsonString(Map<String, Map<String, String>> map) throws JsonProcessingException {
+    private String convertMapToJsonString(Map<String, Map<String, Object>> map) throws JsonProcessingException {
         ObjectMapper mapper = new ObjectMapper();
         return mapper.writeValueAsString(map);
     }

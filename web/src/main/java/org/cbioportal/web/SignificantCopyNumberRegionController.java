@@ -30,7 +30,7 @@ import javax.validation.constraints.Min;
 import java.util.List;
 
 @InternalApi
-@RestController
+@RestController("/api")
 @Validated
 @Api(tags = "Significant Copy Number Regions", description = " ")
 public class SignificantCopyNumberRegionController {
@@ -38,8 +38,8 @@ public class SignificantCopyNumberRegionController {
     @Autowired
     private SignificantCopyNumberRegionService significantCopyNumberRegionService;
 
-    @PreAuthorize("hasPermission(#studyId, 'CancerStudyId', 'read')")
-    @RequestMapping(value = "/api/studies/{studyId}/significant-copy-number-regions", method = RequestMethod.GET,
+    @PreAuthorize("hasPermission(#studyId, 'CancerStudyId', T(org.cbioportal.utils.security.AccessLevel).READ)")
+    @RequestMapping(value = "/studies/{studyId}/significant-copy-number-regions", method = RequestMethod.GET,
         produces = MediaType.APPLICATION_JSON_VALUE)
     @ApiOperation("Get significant copy number alteration regions in a study")
     public ResponseEntity<List<Gistic>> getSignificantCopyNumberRegions(

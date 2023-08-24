@@ -84,7 +84,7 @@ public class TreatmentControllerTest {
         List<PatientTreatmentRow> treatmentRows = Arrays.asList(rowA, rowB);
 
         Mockito
-            .when(treatmentService.getAllPatientTreatmentRows(Mockito.anyList(), Mockito.anyList()))
+            .when(treatmentService.getAllPatientTreatmentRows(Mockito.anyList(), Mockito.anyList(), Mockito.any()))
             .thenReturn(treatmentRows);
         
         mockMvc.perform(MockMvcRequestBuilders.post(
@@ -112,7 +112,7 @@ public class TreatmentControllerTest {
         List<SampleTreatmentRow> sampleTreatmentRows = Arrays.asList(rowA, rowB, rowC, rowD);
 
         Mockito
-            .when(treatmentService.getAllSampleTreatmentRows(Mockito.anyList(), Mockito.anyList()))
+            .when(treatmentService.getAllSampleTreatmentRows(Mockito.anyList(), Mockito.anyList(), Mockito.any()))
             .thenReturn(sampleTreatmentRows);
 
         mockMvc.perform(MockMvcRequestBuilders.post(
@@ -143,7 +143,7 @@ public class TreatmentControllerTest {
             .thenReturn(sampleIdentifiers);
 
         Mockito
-            .when(treatmentService.containsTreatmentData(Mockito.anyList()))
+            .when(treatmentService.containsTreatmentData(Mockito.anyList(), Mockito.any()))
             .thenReturn(true);
 
         mockMvc.perform(MockMvcRequestBuilders.post("/api/treatments/display-patient").with(csrf())

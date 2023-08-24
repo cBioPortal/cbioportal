@@ -1,0 +1,36 @@
+input: ./docs
+output: .retype
+url: https://docs.cbioportal.org
+branding:
+  title: cBioPortal Docs
+  logo: images/cbio-logo.png
+
+
+
+ # label: Docs
+links:
+  - text: cBioPortal
+    link: https://www.cbioportal.org
+    icon: images/cbio-logo.png
+  - text: Github
+    link: https://github.com/cbioportal/cbioportal/
+    icon: mark-github
+  - text: Issues
+    link: https://github.com/cbioportal/cbioportal/issues/
+    icon: bug
+  - text: Google Group
+    link: https://groups.google.com/g/cbioportal
+    icon: comment-discussion
+
+https://groups:
+  google:
+    com/g/cbioportal:
+
+favicon: images/cbio-logo.png
+footer:
+  copyright: "&copy; Copyright {{ year }}. All rights reserved."
+
+edit:
+  repo: "https://github.com/cbioportal/cbioportal/"
+  branch: master
+  base: /docs/

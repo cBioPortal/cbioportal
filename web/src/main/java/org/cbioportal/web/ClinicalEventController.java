@@ -32,7 +32,7 @@ import javax.validation.constraints.Min;
 import java.util.List;
 
 @InternalApi
-@RestController
+@RestController("/api")
 @Validated
 @Api(tags = InternalApiTags.CLINICAL_EVENTS, description = " ")
 public class ClinicalEventController {
@@ -40,8 +40,8 @@ public class ClinicalEventController {
     @Autowired
     private ClinicalEventService clinicalEventService;
 
-    @PreAuthorize("hasPermission(#studyId, 'CancerStudyId', 'read')")
-    @RequestMapping(value = "/api/studies/{studyId}/patients/{patientId}/clinical-events", method = RequestMethod.GET,
+    @PreAuthorize("hasPermission(#studyId, 'CancerStudyId', T(org.cbioportal.utils.security.AccessLevel).READ)")
+    @RequestMapping(value = "/studies/{studyId}/patients/{patientId}/clinical-events", method = RequestMethod.GET,
         produces = MediaType.APPLICATION_JSON_VALUE)
     @ApiOperation("Get all clinical events of a patient in a study")
     public ResponseEntity<List<ClinicalEvent>> getAllClinicalEventsOfPatientInStudy(
@@ -77,8 +77,8 @@ public class ClinicalEventController {
         }
     }
 
-    @PreAuthorize("hasPermission(#studyId, 'CancerStudyId', 'read')")
-    @RequestMapping(value = "/api/studies/{studyId}/clinical-events", method = RequestMethod.GET,
+    @PreAuthorize("hasPermission(#studyId, 'CancerStudyId', T(org.cbioportal.utils.security.AccessLevel).READ)")
+    @RequestMapping(value = "/studies/{studyId}/clinical-events", method = RequestMethod.GET,
         produces = MediaType.APPLICATION_JSON_VALUE)
     @ApiOperation("Get all clinical events in a study")
     public ResponseEntity<List<ClinicalEvent>> getAllClinicalEventsInStudy(

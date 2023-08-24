@@ -23,10 +23,12 @@
 
 package org.cbioportal.web.parameter;
 
+import javax.validation.Valid;
 import javax.validation.constraints.AssertTrue;
 import javax.validation.constraints.Size;
 
-import org.apache.commons.collections.CollectionUtils;
+import org.apache.commons.collections4.CollectionUtils;
+import org.cbioportal.model.StructuralVariantQuery;
 
 import java.io.Serializable;
 import java.util.List;
@@ -39,6 +41,9 @@ public class StructuralVariantFilter implements Serializable {
     private List<String> molecularProfileIds;
     @Size(max = PagingConstants.MAX_PAGE_SIZE)
     private List<Integer> entrezGeneIds;
+    @Valid 
+    @Size(max = PagingConstants.MAX_PAGE_SIZE)
+    private List<StructuralVariantQuery> structuralVariantQueries;
 
     @AssertTrue
     private boolean isEitherMolecularProfileIdsOrSampleMolecularIdentifiersPresent() {
@@ -69,4 +74,11 @@ public class StructuralVariantFilter implements Serializable {
         this.sampleMolecularIdentifiers = sampleMolecularIdentifiers;
     }
 
+    public List<StructuralVariantQuery> getStructuralVariantQueries() {
+        return structuralVariantQueries;
+    }
+
+    public void setStructuralVariantQueries(List<StructuralVariantQuery> structuralVariantQueries) {
+        this.structuralVariantQueries = structuralVariantQueries;
+    }
 }

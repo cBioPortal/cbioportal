@@ -48,10 +48,17 @@
                   </includes>
                   <excludes>
                     <exclude>**/portal.properties.*</exclude>
-                    <exclude>**/log4j.properties.*</exclude>
+                    <exclude>**/logback.xml.*</exclude>
                     <exclude>**/maven.properties.*</exclude>
                     <exclude>**/*.EXAMPLE</exclude>
                   </excludes>
+                </resource>
+                <resource>
+                  <directory>${PORTAL_HOME}/portal/src/main/webapp/WEB-INF</directory>
+                  <filtering>true</filtering>
+                  <includes>
+                    <include>logback.xml</include>
+                  </includes>
                 </resource>
               </resources>
             </configuration>

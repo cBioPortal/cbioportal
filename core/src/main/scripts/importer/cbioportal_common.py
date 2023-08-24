@@ -45,6 +45,7 @@ class MetaFileTypes(object):
     SAMPLE_ATTRIBUTES = 'meta_clinical_sample'
     PATIENT_ATTRIBUTES = 'meta_clinical_patient'
     CNA_DISCRETE = 'meta_CNA'
+    CNA_DISCRETE_LONG = 'meta_CNA_long'
     CNA_LOG2 = 'meta_log2CNA'
     CNA_CONTINUOUS = 'meta_contCNA'
     SEG = 'meta_segment'
@@ -52,7 +53,6 @@ class MetaFileTypes(object):
     MUTATION = 'meta_mutations_extended'
     MUTATION_UNCALLED = 'meta_mutations_uncalled'
     METHYLATION = 'meta_methylation'
-    FUSION = 'meta_fusions'
     PROTEIN = 'meta_protein'
     GISTIC_GENES = 'meta_gistic_genes'
     TIMELINE = 'meta_timeline'
@@ -113,6 +113,18 @@ META_FIELD_MAP = {
         'data_filename': True,
         'gene_panel': False,
         'pd_annotations_filename': False
+    },
+    MetaFileTypes.CNA_DISCRETE_LONG: {
+        'cancer_study_identifier': True,
+        'genetic_alteration_type': True,
+        'datatype': True,
+        'stable_id': True,
+        'show_profile_in_analysis_tab': True,
+        'profile_name': True,
+        'profile_description': True,
+        'data_filename': True,
+        'gene_panel': False,
+        'namespaces': False
     },
     MetaFileTypes.CNA_LOG2: {
         'cancer_study_identifier': True,
@@ -198,17 +210,6 @@ META_FIELD_MAP = {
         'gene_panel': False
     },
     MetaFileTypes.PROTEIN: {
-        'cancer_study_identifier': True,
-        'genetic_alteration_type': True,
-        'datatype': True,
-        'stable_id': True,
-        'show_profile_in_analysis_tab': True,
-        'profile_name': True,
-        'profile_description': True,
-        'data_filename': True,
-        'gene_panel': False
-    },
-    MetaFileTypes.FUSION: {
         'cancer_study_identifier': True,
         'genetic_alteration_type': True,
         'datatype': True,
@@ -326,6 +327,7 @@ META_FIELD_MAP = {
         'profile_description': True,
         'data_filename': True,
         'gene_panel': False,
+        'namespaces': False
     },
     MetaFileTypes.SAMPLE_RESOURCES: {
         'cancer_study_identifier': True,
@@ -355,6 +357,7 @@ IMPORTER_CLASSNAME_BY_META_TYPE = {
     MetaFileTypes.SAMPLE_ATTRIBUTES: "org.mskcc.cbio.portal.scripts.ImportClinicalData",
     MetaFileTypes.PATIENT_ATTRIBUTES: "org.mskcc.cbio.portal.scripts.ImportClinicalData",
     MetaFileTypes.CNA_DISCRETE: "org.mskcc.cbio.portal.scripts.ImportProfileData",
+    MetaFileTypes.CNA_DISCRETE_LONG: "org.mskcc.cbio.portal.scripts.ImportProfileData",
     MetaFileTypes.CNA_LOG2: "org.mskcc.cbio.portal.scripts.ImportProfileData",
     MetaFileTypes.CNA_CONTINUOUS: "org.mskcc.cbio.portal.scripts.ImportProfileData",
     MetaFileTypes.SEG: "org.mskcc.cbio.portal.scripts.ImportCopyNumberSegmentData",
@@ -362,7 +365,6 @@ IMPORTER_CLASSNAME_BY_META_TYPE = {
     MetaFileTypes.MUTATION: "org.mskcc.cbio.portal.scripts.ImportProfileData",
     MetaFileTypes.MUTATION_UNCALLED: "org.mskcc.cbio.portal.scripts.ImportProfileData",
     MetaFileTypes.METHYLATION: "org.mskcc.cbio.portal.scripts.ImportProfileData",
-    MetaFileTypes.FUSION: "org.mskcc.cbio.portal.scripts.ImportProfileData",
     MetaFileTypes.PROTEIN: "org.mskcc.cbio.portal.scripts.ImportProfileData",
     MetaFileTypes.GISTIC_GENES: "org.mskcc.cbio.portal.scripts.ImportGisticData",
     MetaFileTypes.TIMELINE: "org.mskcc.cbio.portal.scripts.ImportTimelineData",
@@ -554,8 +556,16 @@ class CollapsingLogMessageHandler(logging.handlers.MemoryHandler):
                                  record.getMessage())
             if identifying_tuple not in grouping_dict:
                 grouping_dict[identifying_tuple] = []
-            grouping_dict[identifying_tuple].append(record)
 
+            # add a tuple that keeps the relation between the line number,
+            # the column number and the cause for the HTML report
+            record.__dict__['value'] = (
+                getattr(record, 'line_number', None),
+                getattr(record, 'column_number', None),
+                getattr(record, 'cause', None))
+
+            grouping_dict[identifying_tuple].append(record)
+        
         aggregated_buffer = []
         # for each list of same-message records
         for record_list in list(grouping_dict.values()):
@@ -622,6 +632,7 @@ def get_meta_file_type(meta_dictionary, logger, filename):
         ("PROTEIN_LEVEL", "CONTINUOUS"): MetaFileTypes.PROTEIN,
         # cna
         ("COPY_NUMBER_ALTERATION", "DISCRETE"): MetaFileTypes.CNA_DISCRETE,
+        ("COPY_NUMBER_ALTERATION", "DISCRETE_LONG"): MetaFileTypes.CNA_DISCRETE_LONG,
         ("COPY_NUMBER_ALTERATION", "CONTINUOUS"): MetaFileTypes.CNA_CONTINUOUS,
         ("COPY_NUMBER_ALTERATION", "LOG2-VALUE"): MetaFileTypes.CNA_LOG2,
         ("COPY_NUMBER_ALTERATION", "SEG"): MetaFileTypes.SEG,
@@ -634,7 +645,6 @@ def get_meta_file_type(meta_dictionary, logger, filename):
         ("MUTATION_UNCALLED", "MAF"): MetaFileTypes.MUTATION_UNCALLED,
         # others
         ("METHYLATION", "CONTINUOUS"): MetaFileTypes.METHYLATION,
-        ("FUSION", "FUSION"): MetaFileTypes.FUSION,
         ("GENE_PANEL_MATRIX", "GENE_PANEL_MATRIX"): MetaFileTypes.GENE_PANEL_MATRIX,
         ("STRUCTURAL_VARIANT", "SV"): MetaFileTypes.STRUCTURAL_VARIANT,
         # cross-sample molecular statistics (for gene selection)
@@ -654,13 +664,22 @@ def get_meta_file_type(meta_dictionary, logger, filename):
         if (genetic_alteration_type, data_type) in alt_type_datatype_to_meta:
             result = alt_type_datatype_to_meta[(genetic_alteration_type, data_type)]
         else:
-            logger.error(
-                'Could not determine the file type. Please check your meta files for correct configuration.',
-                extra={'filename_': filename,
-                       'cause': ('genetic_alteration_type: %s, '
-                                 'datatype: %s' % (
-                                     meta_dictionary['genetic_alteration_type'],
-                                     meta_dictionary['datatype']))})
+            if meta_dictionary['datatype'] == 'FUSION':
+                logger.error(
+                    'The Fusion file format is deprecated. Consider adding the data in Structural Variant format.',
+                    extra={'filename_': filename,
+                               'cause': ('genetic_alteration_type: %s, '
+                                     'datatype: %s' % (
+                                         meta_dictionary['genetic_alteration_type'],
+                                         meta_dictionary['datatype']))})
+            else:
+                logger.error(
+                    'Could not determine the file type. Please check your meta files for correct configuration.',
+                    extra={'filename_': filename,
+                               'cause': ('genetic_alteration_type: %s, '
+                                     'datatype: %s' % (
+                                         meta_dictionary['genetic_alteration_type'],
+                                         meta_dictionary['datatype']))})
     elif 'cancer_study_identifier' in meta_dictionary and 'type_of_cancer' in meta_dictionary:
         result = MetaFileTypes.STUDY
     elif 'type_of_cancer' in meta_dictionary:

@@ -6,13 +6,13 @@
         String[] propNameArray = {
             "app.version",
             "app.name",
-            "dat.method",
             "oncoprint.custom_driver_annotation.binary.menu_label",
             "disabled_tabs",
             "civic.url",
             "oncoprint.custom_driver_annotation.binary.default",
             "oncoprint.oncokb.default",
             "oncoprint.hotspots.default",
+            "oncoprint.clustered.default",
             "genomenexus.url",
             "genomenexus.url.grch38",
             "google_analytics_profile_id",
@@ -20,6 +20,7 @@
             "oncoprint.hide_vus.default",
             "mycancergenome.show",
             "oncokb.public_api.url",
+            "oncokb.merge_icons_by_default",
             "digitalslidearchive.iframe.url",
             "digitalslidearchive.meta.url",
             "mdacc.heatmap.meta.url",
@@ -33,13 +34,18 @@
             "priority_studies",
             "show.hotspot",
             "show.oncokb",
+            "show.cbioportal",
+            "show.cosmic",
             "show.civic",
             "show.genomenexus",
             "show.genomenexus.annotation_sources",
+            "genomenexus.isoform_override_source",
             "show.mutation_mappert_tool.grch38",
             "show.transcript_dropdown",
             "show.signal",
+            "show.ndex",
             "survival.show_p_q_values_in_survival_type_table",
+            "survival.min_group_threshold",
             "survival.initial_x_axis_limit",
             "skin.documentation.about",
             "skin.documentation.baseurl",
@@ -67,6 +73,7 @@
             "skin.right_nav.show_whats_new",
             "skin.right_nav.show_twitter",
             "skin.right_nav.whats_new_blurb",
+            "skin.right_nav.show_web_tours",
             "skin.show_about_tab",
             "skin.show_data_tab",
             "skin.show_faqs_tab",
@@ -78,8 +85,11 @@
             "skin.show_tweet_button",
             "skin.patientview.filter_genes_profiled_all_samples",
             "skin.patientview.show_mskcc_slide_viewer",
+            "skin.home_page.show_unauthorized_studies",
+            "skin.home_page.unauthorized_studies_global_message",
             "skin.show_settings_menu",
             "skin.hide_logout_button",
+            "enable_cross_study_expression",
             "quick_search.enabled",
             "default_cross_cancer_study_session_id",
             "default_cross_cancer_study_list",
@@ -92,15 +102,30 @@
             "bitly.user",
             "bitly.access.token",
             "oncoprint.custom_driver_annotation.tiers.default",
+            "oncoprint.clinical_tracks.config_json",
             "ensembl.transcript_url",
             "enable_persistent_cache",
             "enable_request_body_gzip_compression",
+            "enable_treatment_groups",
             "query_product_limit",
-            "skin.show_gsva",
+            "studyview.max_samples_selected",
+            "clinical_attribute_product_limit",
             "saml.logout.local",
             "skin.citation_rule_text",
+            "skin.show_gsva",
             "skin.geneset_hierarchy.default_p_value",
             "skin.geneset_hierarchy.default_gsva_score",
+            "skin.geneset_hierarchy.collapse_by_default",
+            "skin.mutation_table.namespace_column.show_by_default",
+            "skin.patient_view.mutation_table.columns.show_on_init",
+            "skin.results_view.mutation_table.columns.show_on_init",
+            "skin.patient_view.copy_number_table.columns.show_on_init",
+            "skin.patient_view.structural_variant_table.columns.show_on_init",
+            "comparison.categorical_na_values",
+            "study_download_url",
+            "skin.home_page.show_reference_genome",
+            "vaf.sequential_mode.default",
+            "vaf.log_scale.default"
         };
 
 
@@ -129,9 +154,11 @@
 
         obj.put("base_url", baseURL);
 
-        obj.put("user_email_address",GlobalProperties.getAuthenticatedUserName());
+        obj.put("user_display_name", GlobalProperties.getAuthenticatedDisplayName());
 
         obj.put("frontendConfigOverride",GlobalProperties.getFrontendConfig());
+
+        obj.put("oncoprint_clinical_tracks_config_json",GlobalProperties.getOncoprintClinicalTracksConfigJson());
 
         obj.put("authenticationMethod",GlobalProperties.authenticationMethod());
 
@@ -153,6 +180,10 @@
         obj.put("oncoKbTokenDefined", !ObjectUtils.isEmpty(GlobalProperties.getOncoKbToken()));
 
         obj.put("sessionServiceEnabled", !ObjectUtils.isEmpty(GlobalProperties.getSessionServiceUrl()));
+
+        obj.put("skin_hide_download_controls", GlobalProperties.getDownloadControl());
+        
+        obj.put("dat_method", GlobalProperties.getDataAccessTokenMethod());
 
         out.println(obj.toJSONString());
 

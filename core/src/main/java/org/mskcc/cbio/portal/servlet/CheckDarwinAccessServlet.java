@@ -88,7 +88,7 @@ public class CheckDarwinAccessServlet extends HttpServlet {
         public static String checkAccess(HttpServletRequest request) {
             if (!existsDarwinProperties()) return "";
             // if sample id does not match regex or username matches cis username then return empty string
-            String userName = GlobalProperties.getAuthenticatedUserName().split("@")[0];
+            String userName = GlobalProperties.getAuthenticatedDisplayName().split("@")[0];
             String darwinResponse = "";
             try {
                 String[] sampleIds = request.getParameter(PatientView.SAMPLE_ID).split(",");

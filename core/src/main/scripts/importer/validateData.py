@@ -33,7 +33,7 @@ import sys
 import os
 import importlib
 import logging.handlers
-from collections import OrderedDict
+from collections import OrderedDict, namedtuple
 import argparse
 import re
 import csv
@@ -48,8 +48,8 @@ import math
 from abc import ABCMeta, abstractmethod
 from urllib.parse import urlparse
 
-# configure relative imports if running as a script; see PEP 366
-# it might passed as empty string by certain tooling to mark a top level module
+# Configure relative imports if running as a script; see PEP 366
+# it might passed as empty string by certain tooling to mark a top level module.
 if __name__ == "__main__" and (__package__ is None or __package__ == ''):
     # replace the script's location in the Python search path by the main
     # scripts/ folder, above it, so that the importer package folder is in
@@ -73,7 +73,6 @@ PATIENTS_WITH_SAMPLES = None
 DEFINED_CANCER_TYPES = None
 mutation_sample_ids = None
 mutation_file_sample_ids = set()
-fusion_file_sample_ids = set()
 sample_ids_panel_dict = {}
 
 # resource globals
@@ -87,10 +86,17 @@ prior_validated_geneset_ids = None
 # Global variable to compare stable IDs from meta file with gene panel matrix file
 study_meta_dictionary = {}
 
+# Global variable for the regex that checks hexadecimal colors
+COLOR_REGEX = re.compile("^#[a-fA-F0-9]{6}$")
+
+# global character limit on sample stable ids
+MAX_SAMPLE_STABLE_ID_LENGTH = 63
+
 # ----------------------------------------------------------------------------
 
 VALIDATOR_IDS = {
     cbioportal_common.MetaFileTypes.CNA_DISCRETE: 'CNADiscreteValidator',
+    cbioportal_common.MetaFileTypes.CNA_DISCRETE_LONG: 'CNADiscreteLongValidator',
     cbioportal_common.MetaFileTypes.CNA_LOG2:'CNAContinuousValuesValidator',
     cbioportal_common.MetaFileTypes.CNA_CONTINUOUS:'CNAContinuousValuesValidator',
     cbioportal_common.MetaFileTypes.EXPRESSION:'ContinuousValuesValidator',
@@ -101,7 +107,6 @@ VALIDATOR_IDS = {
     cbioportal_common.MetaFileTypes.SAMPLE_ATTRIBUTES:'SampleClinicalValidator',
     cbioportal_common.MetaFileTypes.PATIENT_ATTRIBUTES:'PatientClinicalValidator',
     cbioportal_common.MetaFileTypes.SEG:'SegValidator',
-    cbioportal_common.MetaFileTypes.FUSION:'FusionValidator',
     cbioportal_common.MetaFileTypes.PROTEIN:'ProteinLevelValidator',
     cbioportal_common.MetaFileTypes.GISTIC_GENES: 'GisticGenesValidator',
     cbioportal_common.MetaFileTypes.TIMELINE:'TimelineValidator',
@@ -182,11 +187,10 @@ class Jinja2HtmlHandler(logging.handlers.BufferingHandler):
 
     """Logging handler that formats aggregated HTML reports using Jinja2."""
 
-    def __init__(self, study_dir, output_filename, max_reported_values, *args, **kwargs):
+    def __init__(self, study_dir, output_filename, *args, **kwargs):
         """Set study directory name, output filename and buffer size."""
         self.study_dir = study_dir
         self.output_filename = output_filename
-        self.max_reported_values = max_reported_values
         self.max_level = logging.NOTSET
         self.closed = False
         # get the directory name of the currently running script,
@@ -231,7 +235,6 @@ class Jinja2HtmlHandler(logging.handlers.BufferingHandler):
         template = j_env.get_template('validation_report_template.html.jinja')
         doc = template.render(
             study_dir=self.study_dir,
-            max_reported_values=self.max_reported_values,
             record_list=self.buffer,
             max_level=logging.getLevelName(self.max_level),
             **kwargs)
@@ -303,12 +306,12 @@ class PortalInstance(object):
             if entrez_map is not None:
                 for entrez_list in list(entrez_map.values()):
                     for entrez_id in entrez_list:
-                        self.entrez_set.add(entrez_id)
+                        self.entrez_set.add(int(entrez_id))
 
         #Set defaults for genome version and species
         self.__species = 'human'
-        self.__ncbi_build = '37'
-        self.__genome_build = 'hg19'
+        self.__ncbi_build = 'GRCh37'
+        self.__genome_name = 'hg19'
 
         # determine version, and the reason why it might be unknown
         if portal_info_dict is None:
@@ -327,23 +330,26 @@ class PortalInstance(object):
 
     @species.setter
     def species(self, species):
-       self.__species= species
+       self.__species = species
 
     @property
-    def genome_build(self):
-        return self.__genome_build
+    def reference_genome(self):
+        return self.__genome_name
 
-    @genome_build.setter
-    def genome_build(self, genome_build):
-       self.__genome_build= genome_build
+    @reference_genome.setter
+    def reference_genome(self, genome_name):
+       self.__genome_name = genome_name
 
     @property
     def ncbi_build(self):
        return self.__ncbi_build
 
     @ncbi_build.setter
-    def ncbi_build(self, ncbi_build):
-       self.__ncbi_build = ncbi_build
+    def ncbi_build(self, ncbi_build):    
+        prefix = 'GRCm' if self.__species == 'mouse' else 'GRCh'
+        if str(ncbi_build) in ('37', '38'):
+            ncbi_build = prefix + str(ncbi_build)
+        self.__ncbi_build = ncbi_build
 
 class Validator(object):
 
@@ -419,12 +425,6 @@ class Validator(object):
 
         self.logger.debug('Starting validation of file')
 
-        # Validate whether it's a normal file (skip for now)
-        if self.filename.endswith("_normals.txt") or 'mrna_seq_v2_rsem_normal_samples' in self.filename:
-            self.logger.info('Ignoring *_normals.txt files (TMP) '
-                        'Continuing with validation...')
-            return
-
         # Validate whether the file can be opened
         try:
             opened_file = open(self.filename, 'r', newline=None)
@@ -484,7 +484,9 @@ class Validator(object):
             try:
                 dialect = csv.Sniffer().sniff(sample_content, delimiters='\t')
             except csv.Error:
-                self.logger.error('Not a valid tab separated file. Check if all lines have the same number of columns and if all separators are tabs.')
+                self.logger.warning('Could not detect a tab separator. Confirm that the file should be single-column'
+                                    ' and else if all lines have the same number of columns, and if all separators are '
+                                    'tabs.')
                 return
             # sniffer assumes " if no quote character exists
             if dialect.quotechar == '"' and not (
@@ -730,7 +732,7 @@ class Validator(object):
                        'cause': sample_id})
             return False
         return True
-    
+
     def checkPatientId(self, patient_id, column_number):
         """Check whether a patient id is defined, logging an error if not.
 
@@ -746,7 +748,7 @@ class Validator(object):
         return True
 
     # TODO: let this function know the column numbers for logging messages
-    def checkGeneIdentification(self, gene_symbol=None, entrez_id=None):
+    def checkGeneIdentification(self, gene_symbol=None, entrez_id=None, profile_type=None):
         """Attempt to resolve a symbol-Entrez pair, logging any issues.
 
         It will fail to resolve in these cases:
@@ -814,9 +816,10 @@ class Validator(object):
 
         # check whether at least one is present
         if entrez_id is None and gene_symbol is None:
-            self.logger.error(
-                'No Entrez gene id or gene symbol provided for gene.',
-                extra={'line_number': self.line_number})
+            if profile_type != 'SV':
+                self.logger.error(
+                    'No Entrez gene id or gene symbol provided for gene.',
+                    extra={'line_number': self.line_number})
             return None
 
         # if portal information is absent, skip the rest of the checks
@@ -934,7 +937,7 @@ class Validator(object):
         return num_errors
 
     @staticmethod
-    def load_chromosome_lengths(genome_build, logger):
+    def load_chromosome_lengths(reference_genome, logger):
 
         """Get the length of each chromosome and return a dict.
 
@@ -954,9 +957,10 @@ class Validator(object):
                      chrom_size_file)
 
         try:
-            chrom_size_dict = chrom_sizes[genome_build]
+            chrom_size_dict = chrom_sizes[reference_genome]
         except KeyError:
-            raise KeyError('Could not load chromosome sizes for genome build %s.' % genome_build)
+            raise KeyError('Could not load chromosome sizes for genome build %s. Expecting one of '
+                           '["hg19", "hg38", "mm10"]' % reference_genome)
 
         return chrom_size_dict
 
@@ -1109,7 +1113,7 @@ class FeaturewiseFileValidator(Validator):
         # check either sample Id or patient Id
         # override this to check Id
         return 0
-    
+
     def checkIdInSamples(self):
         # check sample Id
         num_errors = 0
@@ -1291,7 +1295,7 @@ class CustomDriverAnnotationValidator(Validator):
         has_custom_driver_cols = len(list(set(self.cols) & set(self.CUSTOM_DRIVER_CHECK_FUNCTION_MAP.keys()))) > 0
         if not has_custom_driver_cols:
             return
-        
+
         driver_value, driver_annotation, driver_tiers_value, driver_tiers_annotation = self.parsePdAnnotations(data)
         if driver_tiers_annotation is not None and driver_tiers_value is None:
             self.logger.error(
@@ -1389,6 +1393,153 @@ class CustomDriverAnnotationValidator(Validator):
                    'column_number': col_index + 1,
                    'cause': value})
 
+class CustomNamespacesValidator(Validator):
+    """ Logic to validate custom namespace data."""
+
+    def __init__(self, *args, **kwargs):
+        super(CustomNamespacesValidator, self).__init__(*args, **kwargs)
+
+    def checkHeader(self, cols):
+        num_errors = super(CustomNamespacesValidator, self).checkHeader(cols)
+
+        #Namespaces column are compulsory when custom namespaces are defined in meta file
+        namespaces = []
+        if 'namespaces' in self.meta_dict:
+            namespaces = self.meta_dict['namespaces'].split(',')
+        for namespace in namespaces:
+            defined_namespace = namespace.strip().lower()
+            defined_namespace_found = any([True for col in cols if col.lower().startswith(defined_namespace + '.')])
+            if not defined_namespace_found:
+                self.logger.error('%s namespace defined but the file does not have any matching columns' 
+                                  % (defined_namespace))
+                num_errors += 1
+        
+        return num_errors
+
+class CNADiscreteLongValidator(CustomDriverAnnotationValidator, CustomNamespacesValidator):
+    """ Logic to validate discrete long CNA data."""
+    REQUIRED_HEADERS = [
+        'Sample_Id',
+        'Value'
+    ]
+    OPTIONAL_HEADERS = [
+        'Hugo_Symbol',
+        'Entrez_Gene_Id',
+        'cbp_driver',
+        'cbp_driver_annotation',
+        'cbp_driver_tiers',
+        'cbp_driver_tiers_annotation'
+    ]
+    REQUIRE_COLUMN_ORDER = False
+    ALLOW_BLANKS = True
+
+    NULL_VALUES = ['NA']
+
+    ALLOWED_CNA_VALUES = ['-2', '-1.5', '-1', '0', '1', '2'] + NULL_VALUES
+
+    
+
+    def __init__(self, *args, **kwargs):
+        super(CNADiscreteLongValidator, self).__init__(*args, **kwargs)
+        self.cna_entries = {} #Dictionary of dictionaries with sampleid: {entrez: hugo}
+        self.cna_entry = namedtuple('CNAEntry', 'hugo line')
+
+    def checkHeader(self, cols):
+        num_errors = super(CNADiscreteLongValidator, self).checkHeader(cols)
+        if ('Hugo_Symbol' not in cols and
+                'Entrez_Gene_Id' not in cols):
+            self.logger.error('Hugo_Symbol or Entrez_Gene_Id column needs to be present in the file.',
+                              extra={'line_number': self.line_number})
+            num_errors += 1
+
+        return num_errors
+
+    def checkLine(self, data):
+        super(CNADiscreteLongValidator, self).checkLine(data)
+        sample_id_index = self.cols.index('Sample_Id')
+        self.checkSampleId(data[sample_id_index], column_number = sample_id_index + 1)
+
+        entrez_gene_id = None
+        hugo_symbol = None
+        if 'Entrez_Gene_Id' in self.cols:
+            if data[self.cols.index('Entrez_Gene_Id')] != '':
+                entrez_gene_id = data[self.cols.index('Entrez_Gene_Id')]
+        if 'Hugo_Symbol' in self.cols:
+            if data[self.cols.index('Hugo_Symbol')] != '':
+                hugo_symbol = data[self.cols.index('Hugo_Symbol')]
+        entrez_gene_id = self.checkGeneIdentification(hugo_symbol, entrez_gene_id)
+
+        #Check uniqueness gene - sampleId
+        sample_id = data[self.cols.index('Sample_Id')]
+        if entrez_gene_id is not None:
+            if sample_id in self.cna_entries.keys():
+                if entrez_gene_id in self.cna_entries[sample_id]:
+                    if hugo_symbol is not None and self.cna_entries[sample_id][entrez_gene_id].hugo is not None:
+                        if self.cna_entries[sample_id][entrez_gene_id].hugo == hugo_symbol:
+                            self.logger.error(
+                                'Duplicated gene found within the same sample.',
+                                extra = {'line_number': self.line_number,
+                                'cause': 'Sample Id: %s, Hugo Symbol: %s, Entrez Gene Id: %s '
+                                '(already defined on line %d)' % (
+                                    sample_id,
+                                    hugo_symbol,
+                                    entrez_gene_id,
+                                    self.cna_entries[sample_id][entrez_gene_id].line)})
+                        else:
+                            self.logger.error(
+                                'Two different Hugo Symbols that map to the same Entrez Gene Id '
+                                'found within the same sample.',
+                                extra = {'line_number': self.line_number,
+                                'cause': 'Sample Id: %s, Entrez Gene Id: %s, '
+                                'Hugo Symbol: %s (already defined on line %d, '
+                                'with Hugo Symbol: %s)' % (
+                                    sample_id,
+                                    entrez_gene_id,
+                                    hugo_symbol,
+                                    self.cna_entries[sample_id][entrez_gene_id].line,
+                                    self.cna_entries[sample_id][entrez_gene_id].hugo)})
+                    elif hugo_symbol is not None or self.cna_entries[sample_id][entrez_gene_id].hugo is not None:
+                            #self.logger.error("Error: %s %s %s %s" %(str(sample_id), str(entrez_gene_id), str(hugo_symbol), str(self.cna_entries[sample_id])))
+                            self.logger.error(
+                                        'A Hugo Symbol that maps to an already existing Entrez Gene '
+                                        'Id found within the same sample.',
+                                        extra = {'line_number': self.line_number,
+                                        'cause': 'Sample Id: %s, Hugo Symbol: %s, '
+                                        'Entrez Gene Id: %s '
+                                        '(already defined on line %d)' % (
+                                            sample_id,
+                                            hugo_symbol if hugo_symbol is not None else self.cna_entries[sample_id][entrez_gene_id].hugo,
+                                            entrez_gene_id,
+                                            self.cna_entries[sample_id][entrez_gene_id].line)})
+                    else:
+                        self.logger.error(
+                                'Duplicated Entrez Gene Id found within the same sample.',
+                                extra = {'line_number': self.line_number,
+                                'cause': 'Sample Id: %s, Entrez Gene Id: %s '
+                                '(already defined on line %d)' % (
+                                    sample_id,
+                                    entrez_gene_id,
+                                    self.cna_entries[sample_id][entrez_gene_id].line)})
+                else:
+                    self.cna_entries[sample_id][entrez_gene_id] = self.cna_entry(hugo=hugo_symbol, line=self.line_number)
+            else:
+                self.cna_entries[sample_id] = {entrez_gene_id: self.cna_entry(hugo=hugo_symbol, line=self.line_number)}
+
+        if 'Value' in self.cols:
+            cna_value = data[self.cols.index('Value')]
+            if cna_value.strip() not in self.ALLOWED_CNA_VALUES:
+                if self.logger.isEnabledFor(logging.ERROR):
+                    self.logger.error(
+                        'Invalid CNA value: possible values are [%s]',
+                        ', '.join(self.ALLOWED_CNA_VALUES),
+                        extra={'line_number': self.line_number,
+                            'column_number': self.cols.index('Value'),
+                            'cause': cna_value})
+
+    def onComplete(self):
+        #End validation of this data type by running the super function
+        super(CNADiscreteLongValidator, self).onComplete()
+
 class CNADiscretePDAAnnotationsValidator(CustomDriverAnnotationValidator):
     REQUIRED_HEADERS = [
         'SAMPLE_ID'
@@ -1433,7 +1584,8 @@ class CNADiscretePDAAnnotationsValidator(CustomDriverAnnotationValidator):
             if data[self.cols.index('Hugo_Symbol')] != '':
                 hugo_symbol = data[self.cols.index('Hugo_Symbol')]
         entrez_gene_id = self.checkGeneIdentification(hugo_symbol, entrez_gene_id)
-        self.entrez_gene_ids.add(entrez_gene_id)
+        if entrez_gene_id is not None:
+            self.entrez_gene_ids.add(entrez_gene_id)
 
     def onComplete(self):
         """Perform final validations based on the data parsed."""
@@ -1449,7 +1601,7 @@ class CNAContinuousValuesValidator(CNAValidator, ContinuousValuesValidator):
     """Logic to validate continuous CNA data."""
 
 
-class MutationsExtendedValidator(CustomDriverAnnotationValidator):
+class MutationsExtendedValidator(CustomDriverAnnotationValidator, CustomNamespacesValidator):
     """Sub-class mutations_extended validator."""
 
     # TODO - maybe this should comply to https://wiki.nci.nih.gov/display/TCGA/Mutation+Annotation+Format+%28MAF%29+Specification ?
@@ -1572,14 +1724,6 @@ class MutationsExtendedValidator(CustomDriverAnnotationValidator):
                                   'Missing %s' % (','.join(missing_ascn_columns)))
                 num_errors += 1
 
-        for namespace in namespaces:
-            defined_namespace = namespace.strip().lower()
-            if defined_namespace != 'ascn':
-                defined_namespace_found = any([True for col in cols if col.lower().startswith(defined_namespace + '.')])
-                if not defined_namespace_found:
-                    self.logger.error('%s namespace defined but MAF '
-                                      'does not have any matching columns' % (defined_namespace))
-                    num_errors += 1
         return num_errors
 
     def checkLine(self, data):
@@ -1623,7 +1767,7 @@ class MutationsExtendedValidator(CustomDriverAnnotationValidator):
         sample_id = data[sample_id_column_index]
         self.checkSampleId(sample_id, column_number=sample_id_column_index + 1)
 
-        # Keep track of all sample IDs in the fusion data file
+        # Keep track of all sample IDs in the mutation data file
         mutation_file_sample_ids.add(sample_id)
 
         # parse hugo and entrez to validate them together
@@ -1698,7 +1842,7 @@ class MutationsExtendedValidator(CustomDriverAnnotationValidator):
             tumor_seq_allele2 = data[self.cols.index('Tumor_Seq_Allele2')].strip()
         if set(necessary_columns_check10).issubset(self.cols):
             # Set positions to False if position are empty, so checks will not be performed
-            if data[self.cols.index('Start_Position')] == "" or data[self.cols.index('End_Position')] == "":
+            if data[self.cols.index('Start_Position')].strip() == '' or data[self.cols.index('Start_Position')] == 'NA' or data[self.cols.index('End_Position')].strip() == '' or data[self.cols.index('End_Position')] == 'NA':
                 positions = False
             else:
                 positions = True
@@ -1988,20 +2132,20 @@ class MutationsExtendedValidator(CustomDriverAnnotationValidator):
 
 
     def checkNCBIbuild(self, value):
+        """
+        Checks whether the value found in MAF NCBI_Build column matches the genome specified in portal.properties at 
+        field ncbi.build. Expecting GRCh37, GRCh38, GRCm38 or without the GRCx prefix
+        """    
+    
         if value != '':
-            # based on MutationDataUtils.getNcbiBuild
-            if self.portal.species == "human":
-                if value not in [str(self.portal.ncbi_build), self.portal.genome_build, 'GRCh'+str(self.portal.ncbi_build)]:
-                    self.logger.error('The specified reference genome does not correspond with the reference genome found in the MAF.',
-                                      extra={'line_number': self.line_number,
-                                             'cause':value})
-                    return False
-            elif self.portal.species == "mouse":
-                if value not in [str(self.portal.ncbi_build), self.portal.genome_build, 'GRCm'+str(self.portal.ncbi_build)]:
-                    self.logger.error('The specified reference genome does not correspond with the reference genome found in the MAF.',
-                                      extra={'line_number': self.line_number,
-                                             'cause':value})
-                    return False
+            prefix = 'GRCm' if self.portal.species == 'mouse' else 'GRCh'
+            if str(value) in ('37', '38'):
+                value = prefix + str(value)
+            if value != str(self.portal.ncbi_build):
+                self.extra = 'The reference genome in column NCBI_Build does not correspond with the ' \
+                             'reference genome specified for this study (%s)' % (self.portal.ncbi_build)
+                self.extra_exists = True
+                return False
         return True
 
     def checkMatchedNormSampleBarcode(self, value):
@@ -2205,7 +2349,7 @@ class MutationsExtendedValidator(CustomDriverAnnotationValidator):
 
     def checkStartPosition(self, value):
         """Check that the Start_Position value is an integer."""
-        if value == 'NA':
+        if value.strip() == '' or value == 'NA':
             self.logger.warning(
                 'The start position of this variant is not '
                     'defined. The chromosome plot in the patient view '
@@ -2225,7 +2369,7 @@ class MutationsExtendedValidator(CustomDriverAnnotationValidator):
 
     def checkEndPosition(self, value):
         """Check that the End_Position value is an integer."""
-        if value == 'NA':
+        if value.strip() == '' or value == 'NA':
             self.logger.warning(
                 'The end position of this variant is not '
                     'defined. The chromosome plot in the patient view '
@@ -2456,12 +2600,12 @@ class ClinicalValidator(Validator):
                         invalid_values = True
                 elif self.METADATA_LINES[line_index] == 'priority':
                     try:
-                        if int(value) < 0:
+                        if int(value) < -1:
                             raise ValueError()
                     except ValueError:
                         self.logger.error(
                             'Priority definition should be an integer, and should be '
-                            'greater than or equal to zero',
+                            'greater than or equal to -1',
                             extra={'line_number': line_index + 1,
                                    'column_number': col_index + 1,
                                    'cause': value})
@@ -2666,6 +2810,14 @@ class SampleClinicalValidator(ClinicalValidator):
                                'column_number': col_index + 1,
                                'cause': value})
                     continue
+                if len(value.strip()) > MAX_SAMPLE_STABLE_ID_LENGTH:
+                    self.logger.error(
+                        'SAMPLE_ID too long (%s character maximum)' % (MAX_SAMPLE_STABLE_ID_LENGTH),
+                        extra={'line_number': self.line_number,
+                               'column_number': col_index + 1,
+                               'cause': value})
+                    continue
+                
                 if value in self.sample_id_lines:
                     if value.startswith('TCGA-'):
                         self.logger.warning(
@@ -2789,7 +2941,6 @@ class PatientClinicalValidator(ClinicalValidator):
                     self.logger.error(
                             'Value in DFS_STATUS column is not 0:DiseaseFree, '
                             '1:Recurred/Progressed, 1:Recurred, 1:Progressed',
-                            'DiseaseFree, Recurred/Progressed, Recurred or Progressed',
                             extra={'line_number': self.line_number,
                                    'column_number': col_index + 1,
                                    'cause': value})
@@ -2952,74 +3103,9 @@ class SegValidator(Validator):
         # meanwhile adding up the number of (non-overlapping) bases covered on
         # that chromosome in that patient.
 
+class StructuralVariantValidator(CustomNamespacesValidator):
 
-class FusionValidator(Validator):
-
-    """Basic validation for fusion data. Validates:
-
-    1. Required column headers and the order
-    2. Values of Hugo_Symbol, Entrez_Gene_Id, Fusion and Tumor_Sample_Barcode
-    3. Uniqueness of lines
-    """
-
-    REQUIRED_HEADERS = [
-        'Hugo_Symbol',
-        'Entrez_Gene_Id',
-        'Center',
-        'Tumor_Sample_Barcode',
-        'Fusion',
-        'DNA_support',
-        'RNA_support',
-        'Method',
-        'Frame']
-    REQUIRE_COLUMN_ORDER = True
-    ALLOW_BLANKS = True
-
-    def __init__(self, *args, ** kwargs):
-        super(FusionValidator, self).__init__(*args, **kwargs)
-        self.fusion_entries = {}
-
-    def checkLine(self, data):
-
-        super(FusionValidator, self).checkLine(data)
-
-        # parse hugo and entrez to validate them together
-        hugo_symbol = None
-        entrez_id = None
-        if 'Hugo_Symbol' in self.cols:
-            hugo_symbol = data[self.cols.index('Hugo_Symbol')].strip()
-            # treat the empty string or 'Unknown' as a missing value
-            if hugo_symbol == '':
-                hugo_symbol = None
-        if 'Entrez_Gene_Id' in self.cols:
-            entrez_id = data[self.cols.index('Entrez_Gene_Id')].strip()
-            # treat empty string, 0 or 'NA' as a missing value
-            if entrez_id in ['', '0', 'NA']:
-                entrez_id = None
-        # validate hugo and entrez together:
-        self.checkGeneIdentification(hugo_symbol, entrez_id)
-
-        # validate uniqueness based on Hugo_Symbol, Entrez_Gene_Id, Tumor_Sample_Barcode and Fusion
-        fusion_entry = "\t".join([data[self.cols.index('Hugo_Symbol')],
-                                  data[self.cols.index('Entrez_Gene_Id')],
-                                  data[self.cols.index('Tumor_Sample_Barcode')],
-                                  data[self.cols.index('Fusion')]])
-        if fusion_entry in self.fusion_entries:
-            self.logger.warning(
-                'Duplicate entry in fusion data.',
-                extra = {'line_number': self.line_number,
-                         'cause': '%s (already defined on line %d)' % (
-                             fusion_entry,
-                             self.fusion_entries[fusion_entry])})
-        else:
-            self.fusion_entries[fusion_entry] = self.line_number
-
-        # Keep a list of samples which are in the fusion genetic profile
-        fusion_file_sample_ids.add(data[self.cols.index('Tumor_Sample_Barcode')])
-
-class StructuralVariantValidator(Validator):
-
-    """Basic validation for fusion data. Validates:
+    """Basic validation for structural variant data. Validates:
 
     1. Required column headers
     2. Gene IDs
@@ -3027,53 +3113,72 @@ class StructuralVariantValidator(Validator):
     """
 
     REQUIRED_HEADERS = [
-        'Sample_ID',
-        'Event_Info',  # For example: Fusion
+        'Sample_Id',
+        'SV_Status',
         ]
     REQUIRE_COLUMN_ORDER = False
     ALLOW_BLANKS = True
+    
+    UNIQUENESS_COLUMNS = [
+        'Sample_Id',
+        'Site1_Hugo_Symbol',
+        'Site1_Entrez_Gene_Id',
+        'Site1_Chromosome',
+        'Site1_Position',
+        'Site1_Region_Number',
+        'Site1_Ensembl_Transcript_Id', 
+        'Site2_Hugo_Symbol',
+        'Site2_Entrez_Gene_Id',
+        'Site2_Chromosome',
+        'Site2_Position',
+        'Site2_Region_Number',
+        'Site2_Ensembl_Transcript_Id',
+        'Event_Info']
 
-    def __init__(self, *args, ** kwargs):
+    # TODO: Revive the support to validate the events based on transcripts and exons - once the new visualization features (UI for fusion tab, breakpoint visualization) are added to front-end.
+    
+    def __init__(self, *args, **kwargs):
         super(StructuralVariantValidator, self).__init__(*args, **kwargs)
-        self.structural_variant_entries = {}
+        self.sv_entries = {}
         self.ncbi_build = None
-        self.transcript_set = set()
-        self.transcript_exons_dict = {}
+        self.unique_fields = []
+        self.other_required_genomic_fields = ['Site1_Region', 'Site2_Region', 'Site1_Contig', 'Site2_Contig']
+        self.missing_genomic_fields = []
 
     def checkHeader(self, data):
         num_errors = super(StructuralVariantValidator, self).checkHeader(data)
 
         # Check presence of gene
         if not ('Site1_Hugo_Symbol' in self.cols or 'Site1_Entrez_Gene_Id' in self.cols):
-            self.logger.error('Structural variant requires Site1_Entrez_Gene_Id and/or Site1_Hugo_Symbol column',
+            self.logger.error('Structural variant event requires Site1_Entrez_Gene_Id and/or Site1_Hugo_Symbol column',
                               extra={'line_number': self.line_number})
             num_errors += 1
 
         # Check second gene column
         if not ('Site2_Hugo_Symbol' in self.cols or 'Site2_Entrez_Gene_Id' in self.cols):
-            self.logger.error('Fusion event requires Site2_Entrez_Gene_Id and/or Site2_Hugo_Symbol column',
+            self.logger.error('Structural variant event requires Site2_Entrez_Gene_Id and/or Site2_Hugo_Symbol column',
                               extra={'line_number': self.line_number})
             num_errors += 1
 
-        # Fusion events should be described by exons.
-        # Using chromosomal locations to describe fusion events is not supported.
-        if not {'Site1_Exon', 'Site2_Exon'}.issubset(set(self.cols)):
-            self.logger.error('Fusion event requires "Site1_Exon" and "Site2_Exon" columns',
-                              extra={'line_number': self.line_number})
-            num_errors += 1
-
-        if not {'Site1_Ensembl_Transcript_Id', 'Site2_Ensembl_Transcript_Id'}.issubset(set(self.cols)):
-            self.logger.error('Fusion event requires "Site1_Ensembl_Transcript_Id" and "Site2_Ensembl_Transcript_Id" '
-                              'columns',
-                              extra={'line_number': self.line_number})
-            num_errors += 1
+        # Check the columns to define the uniqueness of SV records
+        # Report the missing genomic fields
+        for value in self.UNIQUENESS_COLUMNS:
+            if value in self.cols:
+                self.unique_fields.append(value)
+            else:
+                self.missing_genomic_fields.append(value)
+        
+        self.missing_genomic_fields.extend([value for value in self.other_required_genomic_fields if value not in self.cols])
+        
+        if len(self.missing_genomic_fields) > 1:
+            self.logger.warning('Missing genomic information. Consider'
+                                 ' adding the fields: [%s]', ', '.join(sorted(self.missing_genomic_fields)),
+                                 extra={'line_number': self.line_number})
 
         return num_errors
 
     def checkLine(self, data):
         super(StructuralVariantValidator, self).checkLine(data)
-
-        self.structural_variant_entries[self.line_number] = {}
 
         # Check whether a value is present or not available
         def checkPresenceValue(column_name, self, data):
@@ -3081,7 +3186,7 @@ class StructuralVariantValidator(Validator):
             if column_name in self.cols:
                 column_value = data[self.cols.index(column_name)].strip()
                 # Treat the empty string or 'NA' as a missing value
-                if column_value in ['', 'NA']:
+                if column_value in ['', 'NA', 'Unknown', '0']:
                     column_value = None
             return column_value
 
@@ -3103,51 +3208,21 @@ class StructuralVariantValidator(Validator):
                         self.logger.error('Multiple values in NCBI_Build found, this is not supported',
                                           extra={'line_number': self.line_number,
                                                  'cause': '%s and %s' % (self.ncbi_build, ncbi_build)})
-
-        def checkFusionValues(self, data):
-            """Check if all values are present for a fusion event"""
-
-            def checkTranscriptPresence(self, transcript, column_name):
-                """Check if transcript is present"""
-                if transcript is None and column_name in self.cols:
-                    self.logger.error('No Ensembl transcript ID found. Please provide the Ensembl transcript ID '
-                                      'to refer the fusion event to the correct transcript and exons',
+                                                                                       
+        def checkSVstatus(sv_status):
+            """ Allowed values for SV_Status column are SOMATIC and GERMLINE """
+            if sv_status is None:
+                self.logger.warning('No value in SV_Status, assuming the variant is SOMATIC',
+                                  extra={'line_number': self.line_number})
+            else:
+                if not sv_status.lower() in ['somatic', 'germline']:
+                    self.logger.error('Invalid SV_Status value: possible values are [SOMATIC, GERMLINE]',
                                       extra={'line_number': self.line_number,
-                                             'column_number': self.cols.index(column_name) + 1})
+                                             'cause': sv_status})
 
-            def checkExonPresence(self, exon, column_name):
-                """Check if exon is present"""
-                if exon is None and column_name in self.cols:
-                    self.logger.error('No exon found. Please provide the exon for breakpoint visualization',
-                                      extra={'line_number': self.line_number,
-                                     'column_number': self.cols.index(column_name) + 1})
-
-            # Check presence of values in the columns
-            site1_transcript = checkPresenceValue('Site1_Ensembl_Transcript_Id', self, data)
-            site2_transcript = checkPresenceValue('Site2_Ensembl_Transcript_Id', self, data)
-            site1_exon = checkPresenceValue('Site1_Exon', self, data)
-            site2_exon = checkPresenceValue('Site2_Exon', self, data)
-
-            # Give specific error messages when values are None
-            checkTranscriptPresence(self, site1_transcript, 'Site1_Ensembl_Transcript_Id')
-            checkTranscriptPresence(self, site2_transcript, 'Site2_Ensembl_Transcript_Id')
-            checkExonPresence(self, site1_exon, 'Site1_Exon')
-            checkExonPresence(self, site2_exon, 'Site2_Exon')
-
-            # Attempt to parse exon values
-            if None not in [site1_exon, site2_exon]:
-                # Check value of exon
-                site1_exon = self.parse_exon(site1_exon, column_number=self.cols.index('Site1_Exon') + 1)
-                site2_exon = self.parse_exon(site2_exon, column_number=self.cols.index('Site2_Exon') + 1)
-
-            # Add values to dictionary which we have to check after we've retrieved transcripts and exons
-            self.structural_variant_entries[self.line_number]['Site1_Ensembl_Transcript_Id'] = site1_transcript
-            self.structural_variant_entries[self.line_number]['Site1_Exon'] = site1_exon
-            self.structural_variant_entries[self.line_number]['Site2_Ensembl_Transcript_Id'] = site2_transcript
-            self.structural_variant_entries[self.line_number]['Site2_Exon'] = site2_exon
-            self.structural_variant_entries[self.line_number]['NCBI_Build'] = self.ncbi_build
-            self.structural_variant_entries[self.line_number]['Event_Info'] = 'Fusion'
-            return
+        # Check SV_Status
+        sv_status = checkPresenceValue('SV_Status', self, data)
+        checkSVstatus(sv_status)
 
         # Check NCBI build
         if 'NCBI_Build' in self.cols:
@@ -3156,131 +3231,69 @@ class StructuralVariantValidator(Validator):
         else:
             self.logger.warning('No column NCBI_Build, assuming GRCh37 is the assembly',
                               extra={'line_number': self.line_number})
-
+                              
+        # Check whether sample ID is in clinical sample IDs
+        sample_id = checkPresenceValue('Sample_Id', self, data)
+        self.checkSampleId(sample_id, column_number = self.cols.index('Sample_Id') + 1)
+        
         # Parse Hugo Symbol and Entrez Gene Id and check them for Site 1
         site1_hugo_symbol = checkPresenceValue('Site1_Hugo_Symbol', self, data)
         site1_entrez_gene_id = checkPresenceValue('Site1_Entrez_Gene_Id', self, data)
-        self.checkGeneIdentification(site1_hugo_symbol, site1_entrez_gene_id)
+        site1_gene = self.checkGeneIdentification(site1_hugo_symbol, site1_entrez_gene_id, 'SV')
 
         # Parse Hugo Symbol and Entrez Gene Id and check them for Site 2
         site2_hugo_symbol = checkPresenceValue('Site2_Hugo_Symbol', self, data)
         site2_entrez_gene_id = checkPresenceValue('Site2_Entrez_Gene_Id', self, data)
-        self.checkGeneIdentification(site2_hugo_symbol, site2_entrez_gene_id)
-
-        # Validate fusion events if Event_Info is 'Fusion'
-        if data[self.cols.index('Event_Info')] == 'Fusion':
-            checkFusionValues(self, data)
-
+        site2_gene = self.checkGeneIdentification(site2_hugo_symbol, site2_entrez_gene_id, 'SV')
+        
+        # Check whether at least one of the Site1 or Site2 is valid.
+        if site1_gene is None and site2_gene is None:
+            # Check if the Site1 and Site2 Hugo Symbols or Entrez Gene Ids have been left empty or not
+            # If they are defined, but the gene is none, it means they are not included in the db so  
+            # we need to throw a warning rather than an error.
+            non_recognized_genes = []
+            if site1_hugo_symbol is not None:
+                non_recognized_genes += [site1_hugo_symbol]
+            elif site1_entrez_gene_id is not None:
+                non_recognized_genes += [site1_entrez_gene_id]
+            elif site2_hugo_symbol is not None:
+                non_recognized_genes += [site2_hugo_symbol]
+            elif site2_entrez_gene_id is not None:
+                non_recognized_genes += [site2_entrez_gene_id]
+            if len(non_recognized_genes) > 0:
+                self.logger.warning(
+                    'All Entrez Gene Ids and Gene Symbols provided for site 1 and site 2 are not known to the cBioPortal instance. ' \
+                        'This record will not be loaded.;',
+                    extra={'line_number': self.line_number, 'cause': ", ".join(non_recognized_genes) })
+            else: #Explicit empty Entrez Gene Ids and Gene Symbols in Site1 and Site2
+                self.logger.error(
+                    'No Entrez gene id or gene symbol provided for site 1 and site 2',
+                    extra={'line_number': self.line_number})
+        elif site1_gene is None and site2_gene is not None:
+            self.logger.info(
+                'No Entrez gene id or gene symbol provided for site 1. '
+                'Assuming either the intragenic, deletion, duplication, translocation or inversion variant',
+                extra={'line_number': self.line_number})
+        elif site2_gene is None and site1_gene is not None:
+            self.logger.info(
+                'No Entrez gene id or gene symbol provided for site 2. '
+                'Assuming either the intragenic, deletion, duplication, translocation or inversion variant',
+                extra={'line_number': self.line_number})
+                
+        # validate the uniqueness of SV records
+        sv_entry = "\t".join([data[self.cols.index(attr)] for attr in self.unique_fields])
+        if sv_entry in self.sv_entries:
+            self.logger.error(
+                'Duplicate entry in structural variant data',
+                extra = {'line_number': self.line_number,
+                         'cause': '%s (already defined on line %d)' % (
+                             sv_entry,
+                             self.sv_entries[sv_entry])})
+        else:
+            self.sv_entries[sv_entry] = self.line_number
+         
+         
     def onComplete(self):
-        """Perform final validations based on the data parsed."""
-
-        def listAllTranscripts(self):
-            """List all transcripts"""
-            for line_number in self.structural_variant_entries.keys():
-                # skip non-fusion events
-                if len(self.structural_variant_entries[line_number].keys()) == 0:
-                    continue
-                if self.structural_variant_entries[line_number]['Site1_Ensembl_Transcript_Id'] is not None:
-                    self.transcript_set.add(self.structural_variant_entries[line_number]['Site1_Ensembl_Transcript_Id'])
-                if self.structural_variant_entries[line_number]['Site2_Ensembl_Transcript_Id'] is not None:
-                    self.transcript_set.add(self.structural_variant_entries[line_number]['Site2_Ensembl_Transcript_Id'])
-
-        def retrieveTranscriptsAndExons(self):
-            """Retrieve transcript and exons information from Genome Nexus."""
-            request_url = "http://v1.genomenexus.org/ensembl/transcript"
-            request_headers = {'Content-Type': 'application/json', 'Accept': 'application/json'}
-            request_data = '{ "transcriptIds" : ["%s"] }' % ('", "'.join(self.transcript_set))
-            request = requests.post(url=request_url, headers=request_headers, data=request_data)
-            if request.ok:
-                # Parse transcripts and exons from JSON
-                result_json = request.json()
-                for transcript in result_json:
-                    if 'exons' not in transcript:
-                        self.transcript_exons_dict[transcript['transcriptId']] = None
-                    else:
-                        self.transcript_exons_dict[transcript['transcriptId']] = transcript['exons']
-            else:
-                if request.status_code == 404:
-                    self.logger.error(
-                        'An error occurred when trying to connect to Genome Nexus for retrieving exons in transcripts',
-                        extra={'cause': request.status_code})
-                else:
-                    request.raise_for_status()
-            return
-
-        def validateTranscripts(self):
-            """Validate whether the transcripts in the data can also be found in Genome Nexus"""
-
-            for transcript in list(self.transcript_set):
-                if transcript not in self.transcript_exons_dict:
-                    self.logger.error('Ensembl transcript not found in Genome Nexus.',
-                                      extra={'cause': transcript})
-                else:
-                    if self.transcript_exons_dict[transcript] is None:
-                        self.logger.error('This transcript does not contain known exons in Genome Nexus. Please update'
-                                          'the Ensembl transcript in your data. `Homo_sapiens.GRCh37.87.gff3.gz` is '
-                                          'used by Genome Nexus for retrieving exons in transcripts',
-                                          extra={'cause': transcript})
-
-        def validateExons(self):
-            """Validate exons, particularly for structural variants"""
-
-            def validateExonsInTranscript(self, transcript, exon, line_number):
-                """Check if exons are in transcript"""
-
-                # Loop over the exons in the transcript and try to find the exon in the 'rank' field
-                exon_in_transcript = False
-                for retrieved_exon in self.transcript_exons_dict[transcript]:
-                    if int(exon) is retrieved_exon['rank']:
-                        exon_in_transcript = True
-                        break
-
-                # Log an error if the transcript is not found in the transcript
-                if not exon_in_transcript:
-                    self.logger.error('Exon is not found in rank of transcript',
-                                      extra={'line_number': line_number,
-                                             'cause': '%s not in %s' % (exon, transcript)})
-
-            # Check all structural variants
-            for line_number in self.structural_variant_entries.keys():
-
-                # For fusion events, exons have to be validated
-                if self.structural_variant_entries[line_number]['Event_Info'] == 'Fusion':
-
-                    # Retrieve event info
-                    site1_exon = self.structural_variant_entries[line_number]['Site1_Exon']
-                    site2_exon = self.structural_variant_entries[line_number]['Site2_Exon']
-                    site1_transcript = self.structural_variant_entries[line_number]['Site1_Ensembl_Transcript_Id']
-                    site2_transcript = self.structural_variant_entries[line_number]['Site2_Ensembl_Transcript_Id']
-
-                    # Validate exons
-                    if (site1_exon is not None and
-                            site1_transcript is not None and
-                            site1_transcript in self.transcript_exons_dict):
-                        if self.transcript_exons_dict[site1_transcript] is not None:
-                            validateExonsInTranscript(self, site1_transcript, site1_exon, line_number)
-                    if (site2_exon is not None and
-                            site2_transcript is not None and
-                            site2_transcript in self.transcript_exons_dict):
-                        if self.transcript_exons_dict[site2_transcript] is not None:
-                            validateExonsInTranscript(self, site2_transcript, site2_exon, line_number)
-
-            return
-
-        # Start with validation for onComplete(self)
-        # List all transcripts
-        listAllTranscripts(self)
-
-        # Retrieve all transcripts and exons in Genome Nexus
-        if len(self.transcript_set) > 0:
-            retrieveTranscriptsAndExons(self)
-
-            # Validate whether the transcripts in the data can also be found in Genome Nexus
-            validateTranscripts(self)
-
-            # For every fusion event, check if exon is part of the transcript
-            validateExons(self)
-
         # End validation of this data type by running the super function
         super(StructuralVariantValidator, self).onComplete()
 
@@ -3378,7 +3391,7 @@ class GenePanelMatrixValidator(Validator):
         # Check whether gene panel stable ids are in the database
         if self.portal.gene_panel_list is not None:
             for gene_panel_id in data:
-                if gene_panel_id not in self.portal.gene_panel_list and gene_panel_id != 'NA':
+                if gene_panel_id not in self.portal.gene_panel_list and gene_panel_id not in ['NA','WGS','WXS','WXS/WGS']:
                     self.logger.error('Gene panel ID is not in database. Please import this gene panel before loading '
                                     'study data.',
                                     extra={'line_number': self.line_number,
@@ -3459,6 +3472,20 @@ class TimelineValidator(Validator):
                 if not value.strip().lstrip('-').isdigit():
                     self.logger.error(
                         'Invalid START_DATE',
+                        extra={'line_number': self.line_number,
+                               'column_number': col_index + 1,
+                               'cause': value})
+            elif col_name == 'STYLE_COLOR':
+                 if not COLOR_REGEX.match(value.strip()):
+                    self.logger.error(
+                        'Invalid STYLE_COLOR',
+                        extra={'line_number': self.line_number,
+                               'column_number': col_index + 1,
+                               'cause': value})
+            elif col_name == 'STYLE_SHAPE':
+                if not value.strip().lower() in ['circle', 'square', 'triangle', 'diamond', 'star', 'camera']:
+                    self.logger.error(
+                        'Invalid STYLE_SHAPE',
                         extra={'line_number': self.line_number,
                                'column_number': col_index + 1,
                                'cause': value})
@@ -3905,13 +3932,6 @@ class PatientResourceValidator(ResourceValidator):
                                'cause': RESOURCE_DEFINITION_DICTIONARY[value]})
                 resource_id = value
             if col_name == 'PATIENT_ID':
-                if value not in RESOURCE_PATIENTS_WITH_SAMPLES:
-                    self.logger.warning(
-                        'Resource data defined for a patient with '
-                        'no samples',
-                        extra={'line_number': self.line_number,
-                                'column_number': col_index + 1,
-                                'cause': value})
                 if value not in self.patient_id_lines:
                     self.patient_id_lines[value] = self.line_number
                 patient_id = value
@@ -3925,16 +3945,6 @@ class PatientResourceValidator(ResourceValidator):
                         'duplicated_line_number': self.defined_resources[(resource_id, patient_id, resource_url)]})
         else:
             self.defined_resources[(resource_id, patient_id, resource_url)] = self.line_number
-
-    def onComplete(self):
-        """Perform final validations based on the data parsed."""
-        for patient_id in RESOURCE_PATIENTS_WITH_SAMPLES:
-            if patient_id not in self.patient_id_lines:
-                self.logger.warning(
-                    'Missing resource data for a patient associated with '
-                    'samples',
-                    extra={'cause': patient_id})
-        super(PatientResourceValidator, self).onComplete()
 
 class StudyResourceValidator(ResourceValidator):
 
@@ -4453,7 +4463,7 @@ class GenericAssayWiseFileValidator(FeaturewiseFileValidator):
                                      'column_number': 1,
                                      'cause': nonsample_col_vals[0]})
         return value
-    
+
     def checkId(self):
         """Check if patient/sample IDs are imported"""
         num_errors = 0
@@ -4474,7 +4484,7 @@ class GenericAssayWiseFileValidator(FeaturewiseFileValidator):
                         id,
                         column_number=self.num_nonsample_cols + index + 1):
                     num_errors += 1
-            else:           
+            else:
                 # check sample id for non patient level data
                 if not self.checkSampleId(
                         id,
@@ -4550,12 +4560,42 @@ class GenericAssayCategoricalValidator(GenericAssayWiseFileValidator):
 
     """ Validator for files containing generic assay categorical values.
     """
+
+    # Global validation for specific generic assay types
+    GENERIC_ASSAY_CATEGORICAL_VALUES_MAP_BY_TYPE = {
+        'ARMLEVEL_CNA': ['Gain', 'Loss', 'Unchanged'],
+    }
+
+    ALLOWED_VALUES = None
+
     def __init__(self, *args, **kwargs):
         """Initialize the instance attributes of the data file validator."""
         super(GenericAssayCategoricalValidator, self).__init__(*args, **kwargs)
+        # Define ALLOWED_VALUES based on generic_assay_type
+        if 'generic_assay_type' in self.meta_dict:
+            generic_assay_type = self.meta_dict['generic_assay_type'].strip().upper()
+            if generic_assay_type in self.GENERIC_ASSAY_CATEGORICAL_VALUES_MAP_BY_TYPE:
+                self.ALLOWED_VALUES = self.GENERIC_ASSAY_CATEGORICAL_VALUES_MAP_BY_TYPE[generic_assay_type]
 
-    # Categorical data do not need further validation
     def checkValue(self, value, col_index):
+        """ Check value if ALLOWED_VALUES defined, or Categorical data do not need further validation """
+        if self.ALLOWED_VALUES:
+            stripped_value = value.strip()
+            # do not check null values
+            # 'NA' is an allowed value. No further validations apply.
+            if stripped_value in self.NULL_VALUES:
+                return
+            # value is not defined (empty cell)
+            if len(stripped_value) == 0:
+                # empty cell is allowed
+                return
+            if stripped_value not in self.ALLOWED_VALUES:
+                self.logger.error(
+                    'Invalid generic assay categorical value: possible values are [%s]',
+                    ', '.join(self.ALLOWED_VALUES),
+                    extra={'line_number': self.line_number,
+                           'column_number': col_index + 1,
+                           'cause': value})
         return
 
 class GenericAssayBinaryValidator(GenericAssayWiseFileValidator):
@@ -4638,9 +4678,9 @@ def process_metadata_files(directory, portal_instance, logger, relaxed_mode, str
 
     # implemented ref genomes
     reference_genome_map = {
-        'hg19':('human','37','hg19'),
-        'hg38':('human','38','hg38'),
-        'mm10':('mouse','38','mm10')
+        'hg19': ('human', 'GRCh37', 'hg19'),
+        'hg38': ('human', 'GRCh38', 'hg38'),
+        'mm10': ('mouse', 'GRCm38', 'mm10')
     }
 
     DISALLOWED_CHARACTERS = r'[^A-Za-z0-9_-]'
@@ -4708,17 +4748,20 @@ def process_metadata_files(directory, portal_instance, logger, relaxed_mode, str
                         meta_dictionary['add_global_case_list'].lower() == 'true'):
                     case_list_suffix_fns['all'] = filename
 
+            # if reference_genome is specified in the meta file, override the defaults in portal properties
             if 'reference_genome' in meta_dictionary:
                 if meta_dictionary['reference_genome'] not in reference_genome_map:
                     logger.error('Unknown reference genome defined. Should be one of %s' %
                                  list(reference_genome_map.keys()),
                                  extra={
-                                     'filename_':filename,
-                                     'cause':meta_dictionary['reference_genome'].strip()
+                                     'filename_': filename,
+                                     'cause': meta_dictionary['reference_genome'].strip()
                                  })
                 else:
-                    portal_instance.species, portal_instance.ncbi_build, portal_instance.genome_build = \
-                        reference_genome_map[meta_dictionary['reference_genome']]
+                    genome_info = reference_genome_map[meta_dictionary['reference_genome']]
+                    logger.info('Setting reference genome to %s (%s, %s)' % genome_info,
+                                extra={'filename_': filename})
+                    portal_instance.species, portal_instance.ncbi_build, portal_instance.reference_genome = genome_info
             else:
                 logger.info('No reference genome specified -- using default (hg19)',
                             extra={'filename_': filename})
@@ -4911,18 +4954,6 @@ def processCaseListDirectory(caseListDir, cancerStudyId, logger,
                         extra={'filename_': case,
                                'cause': mutation_sample_ids_not_in_case_list})
 
-            # When the fusion events are moved to the structural variant data model, this validation should check the
-            # samples in the fusion data with the samples in the '_structural_variant' case list.
-            if len(fusion_file_sample_ids) > 0:
-                if not fusion_file_sample_ids.issubset(mutation_sample_ids):
-                    fusion_sample_ids_not_in_case_list = ", ".join(fusion_file_sample_ids - mutation_sample_ids)
-                    logger.warning(
-                        "Sample IDs from fusion data are missing from the '_sequenced' case list. This might lead to "
-                        "incorrect calculation of mutated samples. In the future fusion variants will be moved to the "
-                        "'structural variant' data model and its respective case list.",
-                        extra={'filename_': case,
-                               'cause': fusion_sample_ids_not_in_case_list})
-
     logger.info('Validation of case list folder complete')
 
     return stableid_files
@@ -5081,6 +5112,11 @@ def request_from_portal_api(server_url, api_name, logger):
     elif api_name in ['genesets_version']:
         service_url = server_url + '/api/genesets/version'
 
+    # NOTE: There is no 'genesaliases' API enpoint and iterative querying by symbol is not viable.
+    # Thus for now, aliases can be imported only in offline mode 
+    elif api_name == 'genesaliases':
+        return []
+
     logger.debug("Requesting %s from portal at '%s'",
                 api_name, server_url)
     # this may raise a requests.exceptions.RequestException subclass,
@@ -5227,7 +5263,12 @@ def load_portal_info(path, logger, offline=False):
             ('genesets_version',
                 lambda json_data: str(json_data).strip(' \'[]')),
             ('gene-panels',
-                lambda json_data: extract_panels(json_data, 'genePanelId'))):
+                lambda json_data: extract_panels(json_data, 'genePanelId')),
+            ('genesaliases',
+                lambda json_data: transform_symbol_entrez_map(json_data, 
+                                                              id_field='alias', 
+                                                              values_field='entrezGeneId'))
+    ):
         if offline:
             parsed_json = read_portal_json_file(path, api_name, logger)
         else:
@@ -5242,7 +5283,7 @@ def load_portal_info(path, logger, offline=False):
                           cancer_type_dict=portal_dict['cancer-types'],
                           hugo_entrez_map=portal_dict['genes'],
                           # TODO - create a /genealiases equivalent in the new api
-                          alias_entrez_map={},
+                          alias_entrez_map=portal_dict['genesaliases'],
                           gene_set_list=portal_dict['genesets'],
                           gene_panel_list=portal_dict['gene-panels'],
                           geneset_version = portal_dict['genesets_version'],
@@ -5286,14 +5327,6 @@ def interface(args=None):
                         action='store_true', default=False,
                         help='Option to enable strict mode for validator when '
                              'validating mutation data')
-    parser.add_argument('-a', '--max_reported_values', required=False,
-                        type=int, default=3,
-                        help='Cutoff in HTML report for the maximum number of line numbers '
-                             'and values encountered to report for each message. '
-                             'For example, set this to a high number to '
-                             'report all genes that could not be loaded, instead '
-                             'of reporting "GeneA, GeneB, GeneC, 213 more"')
-
     parser = parser.parse_args(args)
     return parser
 
@@ -5538,7 +5571,6 @@ def main_validate(args):
     html_output_filename = args.html_table
     relaxed_mode = args.relaxed_clinical_definitions
     strict_maf_checks = args.strict_maf_checks
-    max_reported_values = args.max_reported_values
 
     # determine the log level for terminal and html output
     output_loglevel = logging.INFO
@@ -5571,7 +5603,6 @@ def main_validate(args):
         html_handler = Jinja2HtmlHandler(
             study_dir,
             html_output_filename,
-            max_reported_values=max_reported_values,
             capacity=1e5)
         # TODO extend CollapsingLogMessageHandler to flush to multiple targets,
         # and get rid of the duplicated buffering of messages here

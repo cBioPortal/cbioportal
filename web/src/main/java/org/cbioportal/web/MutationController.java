@@ -42,7 +42,7 @@ import javax.validation.Valid;
 import java.util.*;
 
 @PublicApi
-@RestController
+@RestController("/api")
 @Validated
 @Api(tags = PublicApiTags.MUTATIONS, description = " ")
 public class MutationController {
@@ -50,8 +50,8 @@ public class MutationController {
     @Autowired
     private MutationService mutationService;
 
-    @PreAuthorize("hasPermission(#molecularProfileId, 'MolecularProfileId', 'read')")
-    @RequestMapping(value = "/api/molecular-profiles/{molecularProfileId}/mutations", method = RequestMethod.GET,
+    @PreAuthorize("hasPermission(#molecularProfileId, 'MolecularProfileId', T(org.cbioportal.utils.security.AccessLevel).READ)")
+    @RequestMapping(value = "/molecular-profiles/{molecularProfileId}/mutations", method = RequestMethod.GET,
         produces = MediaType.APPLICATION_JSON_VALUE)
     @ApiOperation("Get mutations in a molecular profile by Sample List ID")
     public ResponseEntity<List<Mutation>> getMutationsInMolecularProfileBySampleListId(
@@ -90,8 +90,8 @@ public class MutationController {
         }
     }
 
-    @PreAuthorize("hasPermission(#molecularProfileId, 'MolecularProfileId', 'read')")
-    @RequestMapping(value = "/api/molecular-profiles/{molecularProfileId}/mutations/fetch", method = RequestMethod.POST,
+    @PreAuthorize("hasPermission(#molecularProfileId, 'MolecularProfileId', T(org.cbioportal.utils.security.AccessLevel).READ)")
+    @RequestMapping(value = "/molecular-profiles/{molecularProfileId}/mutations/fetch", method = RequestMethod.POST,
         consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
     @ApiOperation("Fetch mutations in a molecular profile")
     public ResponseEntity<List<Mutation>> fetchMutationsInMolecularProfile(
@@ -143,8 +143,8 @@ public class MutationController {
         }
     }
 
-    @PreAuthorize("hasPermission(#involvedCancerStudies, 'Collection<CancerStudyId>', 'read')")
-    @RequestMapping(value = "/api/mutations/fetch", method = RequestMethod.POST,
+    @PreAuthorize("hasPermission(#involvedCancerStudies, 'Collection<CancerStudyId>', T(org.cbioportal.utils.security.AccessLevel).READ)")
+    @RequestMapping(value = "/mutations/fetch", method = RequestMethod.POST,
         consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
     @ApiOperation("Fetch mutations in multiple molecular profiles by sample IDs")
     public ResponseEntity<List<Mutation>> fetchMutationsInMultipleMolecularProfiles(

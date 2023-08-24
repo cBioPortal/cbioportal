@@ -4,6 +4,7 @@ import java.io.Serializable;
 import java.util.List;
 import java.util.Objects;
 
+import javax.validation.Valid;
 import javax.validation.constraints.AssertTrue;
 import javax.validation.constraints.Size;
 
@@ -12,6 +13,7 @@ import com.fasterxml.jackson.annotation.JsonInclude.Include;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import org.cbioportal.model.AlterationFilter;
 import org.cbioportal.model.GeneFilter;
+import org.cbioportal.model.StudyViewStructuralVariantFilter;
 import org.cbioportal.web.parameter.filter.*;
 
 @JsonIgnoreProperties(ignoreUnknown = true)
@@ -24,14 +26,22 @@ public class StudyViewFilter implements Serializable {
     private List<String> studyIds;
     private List<ClinicalDataFilter> clinicalDataFilters;
     private List<GeneFilter> geneFilters;
+    @Valid
+    private List<StudyViewStructuralVariantFilter> structuralVariantFilters;
     private AndedSampleTreatmentFilters sampleTreatmentFilters;
+    private AndedSampleTreatmentFilters sampleTreatmentGroupFilters;
+    private AndedSampleTreatmentFilters sampleTreatmentTargetFilters;
     private AndedPatientTreatmentFilters patientTreatmentFilters;
+    private AndedPatientTreatmentFilters patientTreatmentGroupFilters;
+    private AndedPatientTreatmentFilters patientTreatmentTargetFilters;
 	private List<List<String>> genomicProfiles;
     private List<GenomicDataFilter> genomicDataFilters;
     private List<GenericAssayDataFilter> genericAssayDataFilters;
     private List<List<String>> caseLists;
     private List<ClinicalDataFilter> customDataFilters;
     private AlterationFilter alterationFilter;
+
+    private List<DataFilter> clinicalEventFilters;
     
     @AssertTrue
     private boolean isEitherSampleIdentifiersOrStudyIdsPresent() {
@@ -104,6 +114,14 @@ public class StudyViewFilter implements Serializable {
         this.geneFilters = geneFilters;
     }
 
+    public List<StudyViewStructuralVariantFilter> getStructuralVariantFilters() {
+        return structuralVariantFilters;
+    }
+
+    public void setStructuralVariantFilters(List<StudyViewStructuralVariantFilter> structuralVariantFilters) {
+        this.structuralVariantFilters = structuralVariantFilters;
+    }
+
     public List<List<String>> getGenomicProfiles() {
         return genomicProfiles;
     }
@@ -166,5 +184,45 @@ public class StudyViewFilter implements Serializable {
 
     public void setAlterationFilter(AlterationFilter alterationFilter) {
         this.alterationFilter = alterationFilter;
+    }
+
+    public AndedSampleTreatmentFilters getSampleTreatmentGroupFilters() {
+        return sampleTreatmentGroupFilters;
+    }
+
+    public void setSampleTreatmentGroupFilters(AndedSampleTreatmentFilters sampleTreatmentGroupFilters) {
+        this.sampleTreatmentGroupFilters = sampleTreatmentGroupFilters;
+    }
+
+    public AndedPatientTreatmentFilters getPatientTreatmentGroupFilters() {
+        return patientTreatmentGroupFilters;
+    }
+
+    public void setPatientTreatmentGroupFilters(AndedPatientTreatmentFilters patientTreatmentGroupFilters) {
+        this.patientTreatmentGroupFilters = patientTreatmentGroupFilters;
+    }
+
+    public AndedSampleTreatmentFilters getSampleTreatmentTargetFilters() {
+        return sampleTreatmentTargetFilters;
+    }
+
+    public void setSampleTreatmentTargetFilters(AndedSampleTreatmentFilters sampleTreatmentTargetFilters) {
+        this.sampleTreatmentTargetFilters = sampleTreatmentTargetFilters;
+    }
+
+    public AndedPatientTreatmentFilters getPatientTreatmentTargetFilters() {
+        return patientTreatmentTargetFilters;
+    }
+
+    public void setPatientTreatmentTargetFilters(AndedPatientTreatmentFilters patientTreatmentTagetFilters) {
+        this.patientTreatmentTargetFilters = patientTreatmentTagetFilters;
+    }
+
+    public List<DataFilter> getClinicalEventFilters() {
+        return clinicalEventFilters;
+    }
+
+    public void setClinicalEventFilters(List<DataFilter> clinicalEventFilters) {
+        this.clinicalEventFilters = clinicalEventFilters;
     }
 }

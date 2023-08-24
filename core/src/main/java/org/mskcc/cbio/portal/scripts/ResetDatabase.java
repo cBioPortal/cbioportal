@@ -73,18 +73,6 @@ public class ResetDatabase {
         DaoCopyNumberSegmentFile.deleteAllRecords();
         DaoMutation.deleteAllRecords();
         DaoGeneticProfileSamples.deleteAllRecords();
-        DaoInteraction daoInteraction = DaoInteraction.getInstance();
-        daoInteraction.deleteAllRecords();
-        DaoProteinArrayData.getInstance().deleteAllRecords();
-        DaoProteinArrayInfo.getInstance().deleteAllRecords();
-        DaoProteinArrayTarget.getInstance().deleteAllRecords();
-        DaoDrug.getInstance().deleteAllRecords();
-        DaoUniProtIdMapping.deleteAllRecords();
-        DaoDrugInteraction.getInstance().deleteAllRecords();
-        DaoSangerCensus daoSangerCensus = DaoSangerCensus.getInstance();
-        daoSangerCensus.deleteAllRecords();
-        DaoTextCache daoTextCache = new DaoTextCache();
-        daoTextCache.deleteAllKeys();
         DaoPatient.deleteAllRecords();
         DaoSample.deleteAllRecords();
         System.out.println("all database reset.");

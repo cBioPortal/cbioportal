@@ -35,7 +35,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 @InternalApi
-@RestController
+@RestController("/api")
 @Validated
 @Api(tags = InternalApiTags.DISCRETE_COPY_NUMBER_ALTERATION_COUNTS, description = " ")
 public class DiscreteCopyNumberCountController {
@@ -45,8 +45,8 @@ public class DiscreteCopyNumberCountController {
     @Autowired
     private DiscreteCopyNumberService discreteCopyNumberService;
 
-    @PreAuthorize("hasPermission(#molecularProfileId, 'MolecularProfileId', 'read')")
-    @RequestMapping(value = "/api/molecular-profiles/{molecularProfileId}/discrete-copy-number-counts/fetch",
+    @PreAuthorize("hasPermission(#molecularProfileId, 'MolecularProfileId', T(org.cbioportal.utils.security.AccessLevel).READ)")
+    @RequestMapping(value = "/molecular-profiles/{molecularProfileId}/discrete-copy-number-counts/fetch",
         method = RequestMethod.POST, consumes = MediaType.APPLICATION_JSON_VALUE,
         produces = MediaType.APPLICATION_JSON_VALUE)
     @ApiOperation("Get counts of specific genes and alterations within a CNA molecular profile")

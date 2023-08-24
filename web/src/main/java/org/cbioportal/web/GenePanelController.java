@@ -38,7 +38,7 @@ import java.util.*;
 import java.util.stream.Collectors;
 
 @PublicApi
-@RestController
+@RestController("/api")
 @Validated
 @Api(tags = PublicApiTags.GENE_PANELS, description = " ")
 public class GenePanelController {
@@ -46,7 +46,7 @@ public class GenePanelController {
     @Autowired
     private GenePanelService genePanelService;
 
-    @RequestMapping(value = "/api/gene-panels", method = RequestMethod.GET,
+    @RequestMapping(value = "/gene-panels", method = RequestMethod.GET,
         produces = MediaType.APPLICATION_JSON_VALUE)
     @ApiOperation("Get all gene panels")
     public ResponseEntity<List<GenePanel>> getAllGenePanels(
@@ -76,7 +76,7 @@ public class GenePanelController {
         }
     }
 
-    @RequestMapping(value = "/api/gene-panels/{genePanelId}", method = RequestMethod.GET,
+    @RequestMapping(value = "/gene-panels/{genePanelId}", method = RequestMethod.GET,
         produces = MediaType.APPLICATION_JSON_VALUE)
     @ApiOperation("Get gene panel")
     public ResponseEntity<GenePanel> getGenePanel(
@@ -86,7 +86,7 @@ public class GenePanelController {
         return new ResponseEntity<>(genePanelService.getGenePanel(genePanelId), HttpStatus.OK);
     }
 
-    @RequestMapping(value = "/api/gene-panels/fetch", method = RequestMethod.POST,
+    @RequestMapping(value = "/gene-panels/fetch", method = RequestMethod.POST,
         consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
     @ApiOperation("Get gene panel")
     public ResponseEntity<List<GenePanel>> fetchGenePanels(
@@ -97,59 +97,5 @@ public class GenePanelController {
         @RequestParam(defaultValue = "SUMMARY") Projection projection) {
 
         return new ResponseEntity<>(genePanelService.fetchGenePanels(genePanelIds, projection.name()), HttpStatus.OK);
-    }
-
-    @PreAuthorize("hasPermission(#molecularProfileId, 'MolecularProfileId', 'read')")
-    @RequestMapping(value = "/api/molecular-profiles/{molecularProfileId}/gene-panel-data/fetch", method = RequestMethod.POST,
-        consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
-    @ApiOperation("Get gene panel data")
-    public ResponseEntity<List<GenePanelData>> getGenePanelData(
-        @ApiParam(required = true, value = "Molecular Profile ID e.g. nsclc_unito_2016_mutations")
-        @PathVariable String molecularProfileId,
-        @ApiParam(required = true, value = "List of Sample IDs/Sample List ID and Entrez Gene IDs")
-        @Valid @RequestBody GenePanelDataFilter genePanelDataFilter) throws MolecularProfileNotFoundException {
-
-        List<GenePanelData> genePanelDataList;
-        if (genePanelDataFilter.getSampleListId() != null) {
-            genePanelDataList = genePanelService.getGenePanelData(molecularProfileId,
-                genePanelDataFilter.getSampleListId());
-        } else {
-            genePanelDataList = genePanelService.fetchGenePanelData(molecularProfileId,
-                genePanelDataFilter.getSampleIds());
-        }
-
-        return new ResponseEntity<>(genePanelDataList, HttpStatus.OK);
-    }
-
-    @PreAuthorize("hasPermission(#involvedCancerStudies, 'Collection<CancerStudyId>', 'read')")
-    @RequestMapping(value = "/api/gene-panel-data/fetch", method = RequestMethod.POST,
-        consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
-    @ApiOperation("Fetch gene panel data")
-    public ResponseEntity<List<GenePanelData>> fetchGenePanelDataInMultipleMolecularProfiles(
-        @ApiIgnore // prevent reference to this attribute in the swagger-ui interface
-        @RequestAttribute(required = false, value = "involvedCancerStudies") Collection<String> involvedCancerStudies,
-        @ApiIgnore // prevent reference to this attribute in the swagger-ui interface. this attribute is needed for the @PreAuthorize tag above.
-        @Valid @RequestAttribute(required = false, value = "interceptedGenePanelDataMultipleStudyFilter") GenePanelDataMultipleStudyFilter interceptedGenePanelDataMultipleStudyFilter,
-        @ApiParam(required = true, value = "Gene panel data filter object")
-        @RequestBody(required = false) GenePanelDataMultipleStudyFilter genePanelDataMultipleStudyFilter) {
-
-        List<GenePanelData> genePanelDataList;
-        if(CollectionUtils.isEmpty(interceptedGenePanelDataMultipleStudyFilter.getMolecularProfileIds())) {
-            List<MolecularProfileCaseIdentifier> molecularProfileSampleIdentifiers = interceptedGenePanelDataMultipleStudyFilter.getSampleMolecularIdentifiers()
-                .stream()
-                .map(sampleMolecularIdentifier -> {
-                    MolecularProfileCaseIdentifier profileCaseIdentifier = new MolecularProfileCaseIdentifier();
-                    profileCaseIdentifier.setMolecularProfileId(sampleMolecularIdentifier.getMolecularProfileId());
-                    profileCaseIdentifier.setCaseId(sampleMolecularIdentifier.getSampleId());
-                    return profileCaseIdentifier;
-                })
-                .collect(Collectors.toList());
-
-            genePanelDataList = genePanelService.fetchGenePanelDataInMultipleMolecularProfiles(molecularProfileSampleIdentifiers);
-        } else {
-            genePanelDataList = genePanelService.fetchGenePanelDataByMolecularProfileIds(new HashSet<>(interceptedGenePanelDataMultipleStudyFilter.getMolecularProfileIds()));
-        }
-        
-        return new ResponseEntity<>(genePanelDataList, HttpStatus.OK);
     }
 }

@@ -17,8 +17,10 @@ window.legacySupportFrontendConfig = {
     showTranscriptDropdown : <%=GlobalProperties.showTranscriptDropdown()%>,
     showGenomeNexus : <%=GlobalProperties.showGenomeNexus()%>,
     showGenomeNexusAnnotationSources : <%=GlobalProperties.showGenomeNexusAnnotationSources()%>,
+    genomeNexusIsoformOverrideSource : <%=GlobalProperties.getGenomeNexusIsoformOverrideSource()%>,
     showMutationMapperToolGrch38 : <%=GlobalProperties.showMutationMapperToolGrch38()%>,
     showSignal : <%=GlobalProperties.showSignal()%>,
+    showNdex : <%=GlobalProperties.showNdex()%>,
     querySetsOfGenes : JSON.parse('<%=GlobalProperties.getQuerySetsOfGenes()%>'),
     skinBlurb : '<%=GlobalProperties.getBlurb()%>',
     skinExampleStudyQueries : '<%=GlobalProperties.getExampleStudyQueries().replace("\n","\\n")%>'.split("\n"),
@@ -28,10 +30,11 @@ window.legacySupportFrontendConfig = {
     skinRightNavShowExamples : <%=GlobalProperties.showRightNavExamples()%>,
     skinRightNavShowTestimonials : <%=GlobalProperties.showRightNavTestimonials()%>,
     skinRightNavShowWhatsNew : <%=GlobalProperties.showRightNavWhatsNew()%>,
+    skinRightNavShowWebTours: <%=GlobalProperties.showRightNavInteractiveTour()%>,
     skinRightNavExamplesHTML : '<%=GlobalProperties.getExamplesRightColumnHtml()%>',
     skinRightNavExamplesHTML : '<%=GlobalProperties.getExamplesRightColumnHtml()%>',
     skinRightNavWhatsNewBlurb : '<%=GlobalProperties.getRightNavWhatsNewBlurb()%>',
-    userEmailAddress : '<%=GlobalProperties.getAuthenticatedUserName()%>',
+    skinUserDisplayName : '<%=GlobalProperties.getAuthenticatedDisplayName()%>',
     oncoprintCustomDriverAnnotationBinaryMenuLabel: '<%=GlobalProperties.getBinaryCustomDriverAnnotationMenuLabel()%>',
     oncoprintCustomDriverAnnotationTiersMenuLabel: '<%=GlobalProperties.getTiersCustomDriverAnnotationMenuLabel()%>',
     oncoprintCustomDriverAnnotationDefault:'<%=GlobalProperties.enableDriverAnnotations()%>' !== "false", // true unless "false"
@@ -97,10 +100,13 @@ if (/localdist=true/.test(window.location.href)) {
 }
 window.localdist = localStorage.getItem("localdist") === "true";
 
-if (window.localdist || window.localdev) {
-	window.frontendConfig.frontendUrl = '//localhost:3000/'
+if (window.localdist) {
+    window.frontendConfig.frontendUrl = '//localhost:3000/'
+} else if ( window.localdev) {
+    // localdev always on https now (with fake cert)
+    window.frontendConfig.frontendUrl = 'https://localhost:3000/'
 } else if (localStorage.netlify) {
-	var netlifyInstance = '//' + localStorage.getItem('netlify') + '.netlify.app/';
+	var netlifyInstance = 'https://' + localStorage.getItem('netlify') + '.netlify.app/';
 	window.frontendConfig.frontendUrl = netlifyInstance;
 }
 // clean userEmailAddress config

@@ -4,13 +4,18 @@ import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
 import org.cbioportal.model.CancerStudy;
+import org.cbioportal.model.SampleList;
 import org.cbioportal.model.meta.BaseMeta;
 import org.cbioportal.model.Sample;
+import org.cbioportal.service.SampleListService;
 import org.cbioportal.service.StudyService;
 import org.cbioportal.service.exception.PatientNotFoundException;
+import org.cbioportal.service.exception.SampleListNotFoundException;
 import org.cbioportal.service.exception.SampleNotFoundException;
 import org.cbioportal.service.exception.StudyNotFoundException;
 import org.cbioportal.service.SampleService;
+import org.cbioportal.utils.security.AccessLevel;
+import org.cbioportal.utils.security.PortalSecurityConfig;
 import org.cbioportal.web.config.PublicApiTags;
 import org.cbioportal.web.config.annotation.PublicApi;
 import org.cbioportal.web.parameter.*;
@@ -40,7 +45,7 @@ import java.util.*;
 import java.util.stream.Collectors;
 
 @PublicApi
-@RestController
+@RestController("/api")
 @Validated
 @Api(tags = PublicApiTags.SAMPLES, description = " ")
 public class SampleController {
@@ -48,9 +53,14 @@ public class SampleController {
     public static final int SAMPLE_MAX_PAGE_SIZE = 10000000;
     private static final String SAMPLE_DEFAULT_PAGE_SIZE = "10000000";
 
+    @Value("${authenticate}")
+    private String authenticate;
     
     @Autowired
     private SampleService sampleService;
+
+    @Autowired
+    private SampleListService sampleListService;
     
     @Autowired
     private StudyService studyService;
@@ -58,16 +68,13 @@ public class SampleController {
     @Autowired
     private UniqueKeyExtractor uniqueKeyExtractor;
 
-    @Value("${authenticate:false}")
-    private String authenticate;
-    
     private boolean usingAuth() {
         return !authenticate.isEmpty()
-                && !authenticate.equals("false")
-                && !authenticate.contains("social_auth");
+            && !authenticate.equals("false")
+            && !authenticate.contains("social_auth");
     }
     
-    @RequestMapping(value = "/api/samples", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
+    @RequestMapping(value = "/samples", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
     @ApiOperation("Get all samples matching keyword")
     public ResponseEntity<List<Sample>> getSamplesByKeyword(
         @ApiParam("Search keyword that applies to the study ID")
@@ -93,7 +100,7 @@ public class SampleController {
     ) {
         String sort = sortBy == null ? null : sortBy.getOriginalValue();
         List<String> studyIds = null;
-        if (usingAuth()) {
+        if (PortalSecurityConfig.userAuthorizationEnabled(authenticate)) {
             /*
              If using auth, filter the list of samples returned using the list of study ids the
              user has access to. If the user has access to no studies, the endpoint should not 403,
@@ -106,7 +113,9 @@ public class SampleController {
                     PagingConstants.MAX_PAGE_SIZE,
                     0,
                     null,
-                    direction.name()
+                    direction.name(),
+                    null,
+                    AccessLevel.READ
                 )
                 .stream()
                 .map(CancerStudy::getCancerStudyIdentifier)
@@ -126,8 +135,8 @@ public class SampleController {
         );
     }
 
-    @PreAuthorize("hasPermission(#studyId, 'CancerStudyId', 'read')")
-    @RequestMapping(value = "/api/studies/{studyId}/samples", method = RequestMethod.GET,
+    @PreAuthorize("hasPermission(#studyId, 'CancerStudyId', T(org.cbioportal.utils.security.AccessLevel).READ)")
+    @RequestMapping(value = "/studies/{studyId}/samples", method = RequestMethod.GET,
         produces = MediaType.APPLICATION_JSON_VALUE)
     @ApiOperation("Get all samples in a study")
     public ResponseEntity<List<Sample>> getAllSamplesInStudy(
@@ -159,8 +168,8 @@ public class SampleController {
         }
     }
 
-    @PreAuthorize("hasPermission(#studyId, 'CancerStudyId', 'read')")
-    @RequestMapping(value = "/api/studies/{studyId}/samples/{sampleId}", method = RequestMethod.GET,
+    @PreAuthorize("hasPermission(#studyId, 'CancerStudyId', T(org.cbioportal.utils.security.AccessLevel).READ)")
+    @RequestMapping(value = "/studies/{studyId}/samples/{sampleId}", method = RequestMethod.GET,
         produces = MediaType.APPLICATION_JSON_VALUE)
     @ApiOperation("Get a sample in a study")
     public ResponseEntity<Sample> getSampleInStudy(
@@ -172,8 +181,8 @@ public class SampleController {
         return new ResponseEntity<>(sampleService.getSampleInStudy(studyId, sampleId), HttpStatus.OK);
     }
 
-    @PreAuthorize("hasPermission(#studyId, 'CancerStudyId', 'read')")
-    @RequestMapping(value = "/api/studies/{studyId}/patients/{patientId}/samples", method = RequestMethod.GET,
+    @PreAuthorize("hasPermission(#studyId, 'CancerStudyId', T(org.cbioportal.utils.security.AccessLevel).READ)")
+    @RequestMapping(value = "/studies/{studyId}/patients/{patientId}/samples", method = RequestMethod.GET,
         produces = MediaType.APPLICATION_JSON_VALUE)
     @ApiOperation("Get all samples of a patient in a study")
     public ResponseEntity<List<Sample>> getAllSamplesOfPatientInStudy(
@@ -208,8 +217,8 @@ public class SampleController {
         }
     }
 
-    @PreAuthorize("hasPermission(#involvedCancerStudies, 'Collection<CancerStudyId>', 'read')")
-    @RequestMapping(value = "/api/samples/fetch", method = RequestMethod.POST, consumes = MediaType.APPLICATION_JSON_VALUE,
+    @PreAuthorize("hasPermission(#involvedCancerStudies, 'Collection<CancerStudyId>', T(org.cbioportal.utils.security.AccessLevel).READ)")
+    @RequestMapping(value = "/samples/fetch", method = RequestMethod.POST, consumes = MediaType.APPLICATION_JSON_VALUE,
         produces = MediaType.APPLICATION_JSON_VALUE)
     @ApiOperation("Fetch samples by ID")
     public ResponseEntity<List<Sample>> fetchSamples(
@@ -220,7 +229,7 @@ public class SampleController {
         @ApiParam(required = true, value = "List of sample identifiers")
         @Valid @RequestBody(required = false) SampleFilter sampleFilter,
         @ApiParam("Level of detail of the response")
-        @RequestParam(defaultValue = "SUMMARY") Projection projection) {
+        @RequestParam(defaultValue = "SUMMARY") Projection projection) throws SampleListNotFoundException {
 
         List<String> studyIds = new ArrayList<>();
         List<String> sampleIds = new ArrayList<>();
@@ -244,11 +253,24 @@ public class SampleController {
         } else {
             List<Sample> samples;
             if (interceptedSampleFilter.getSampleListIds() != null) {
-                samples = new ArrayList<>();
                 List<String> sampleListIds = interceptedSampleFilter.getSampleListIds();
+                
+                samples = new ArrayList<Sample>();
+                
                 for (String sampleListId : sampleListIds) {
-                    samples.addAll(fetchSamplesInner(Arrays.asList(sampleListId), projection.name()));
+                    // check that all sample lists exist (this method throws an exception if one does not)
+                    sampleListService.getSampleList(sampleListId);
                 }
+                
+                for (String sampleListId : sampleListIds) {
+                    // fetch by sampleId so that we get cache at level of id instead list of ids
+                    samples.addAll(
+                        sampleService.fetchSamples(Arrays.asList(sampleListId), projection.name())
+                    );
+                }
+                
+                //samples = sampleService.fetchSamples(sampleListIds, projection.name());
+            
             } else {
                 if (interceptedSampleFilter.getSampleIdentifiers() != null) {
                     extractStudyAndSampleIds(interceptedSampleFilter, studyIds, sampleIds);
@@ -260,12 +282,6 @@ public class SampleController {
 
             return new ResponseEntity<>(samples, HttpStatus.OK);
         }
-    }
-    
-    public List<Sample> fetchSamplesInner(
-        List<String> sampleListIds, String projection
-    ) {
-        return sampleService.fetchSamples(sampleListIds, projection);
     }
     
     private void extractStudyAndSampleIds(SampleFilter sampleFilter, List<String> studyIds, List<String> sampleIds) {

@@ -8,6 +8,7 @@ import java.util.Map;
 import java.util.Set;
 import org.cbioportal.model.ClinicalEventSample;
 import org.cbioportal.model.Treatment;
+import org.cbioportal.model.ClinicalEventKeyCode;
 import org.cbioportal.persistence.TreatmentRepository;
 import org.cbioportal.persistence.mybatis.config.TestConfig;
 import org.junit.Assert;
@@ -39,7 +40,39 @@ public class TreatmentMyBatisRepositoryTest {
 
         Map<String, List<Treatment>> actual = treatmentRepository.getTreatmentsByPatientId(
             Collections.singletonList("TCGA-A1-A0SD-01"),
-            Collections.singletonList("study_tcga_pub")
+            Collections.singletonList("study_tcga_pub"),
+            ClinicalEventKeyCode.Agent
+        );
+
+
+        Assert.assertEquals(actual, expected);
+    }
+
+
+    @Test
+    public void getTreatmentAgentsByPatientId() {
+        Treatment targetA = new Treatment();
+        targetA.setTreatment("Directly to forehead");
+        targetA.setStudyId("study_tcga_pub");
+        targetA.setPatientId("TCGA-A1-A0SD");
+        targetA.setStart(213);
+        targetA.setStop(445);
+
+        Treatment targetB = new Treatment();
+        targetB.setTreatment("Elbow");
+        targetB.setStudyId("study_tcga_pub");
+        targetB.setPatientId("TCGA-A1-A0SD");
+        targetB.setStart(213);
+        targetB.setStop(445);
+
+        Map<String, List<Treatment>> expected = new HashMap<>();
+        expected.put("TCGA-A1-A0SD", Arrays.asList(targetA, targetB));
+
+
+        Map<String, List<Treatment>> actual = treatmentRepository.getTreatmentsByPatientId(
+            Collections.singletonList("TCGA-A1-A0SD-01"),
+            Collections.singletonList("study_tcga_pub"),
+            ClinicalEventKeyCode.AgentTarget
         );
 
 
@@ -47,7 +80,7 @@ public class TreatmentMyBatisRepositoryTest {
     }
 
     @Test
-    public void getSamplesByPatientId() {
+    public void getSamplesByPatientIdWhenNoMatchingSamples() {
         ClinicalEventSample clinicalEventSample = new ClinicalEventSample();
         clinicalEventSample.setPatientId("TCGA-A1-A0SD");
         clinicalEventSample.setSampleId("TCGA-A1-A0SD-01");
@@ -55,14 +88,30 @@ public class TreatmentMyBatisRepositoryTest {
         clinicalEventSample.setTimeTaken(211);
 
         HashMap<String, List<ClinicalEventSample>> expected = new HashMap<>();
-        expected.put("TCGA-A1-A0SD", Collections.singletonList(clinicalEventSample));
-
 
         Map<String, List<ClinicalEventSample>> actual = treatmentRepository.getSamplesByPatientId(
             Collections.singletonList("TCGA-A1-A0SD-01"),
             Collections.singletonList("study_tcga_pub")
         );
+        
+        Assert.assertEquals(actual, expected);
+    }
 
+    @Test
+    public void getSamplesByPatientId() {
+        ClinicalEventSample clinicalEventSample = new ClinicalEventSample();
+        clinicalEventSample.setPatientId("TCGA-A1-A0SB");
+        clinicalEventSample.setSampleId("TCGA-A1-A0SB-01");
+        clinicalEventSample.setStudyId("study_tcga_pub");
+        clinicalEventSample.setTimeTaken(211);
+
+        HashMap<String, List<ClinicalEventSample>> expected = new HashMap<>();
+        expected.put("TCGA-A1-A0SB", Collections.singletonList(clinicalEventSample));
+        
+        Map<String, List<ClinicalEventSample>> actual = treatmentRepository.getSamplesByPatientId(
+            Collections.singletonList("TCGA-A1-A0SB-01"),
+            Collections.singletonList("study_tcga_pub")
+        );
 
         Assert.assertEquals(actual, expected);
     }
@@ -89,31 +138,20 @@ public class TreatmentMyBatisRepositoryTest {
     }
 
     @Test
-    public void getAllUniqueTreatments() {
-        HashSet<String> expected = new HashSet<>(Collections.singletonList("Madeupanib"));
-        
-        Set<String> actual = treatmentRepository.getAllUniqueTreatments(
-            Collections.singletonList("TCGA-A1-A0SD-01"),
-            Collections.singletonList("study_tcga_pub")
-        );
-        
-        Assert.assertEquals(actual, expected);
+    public void hasTreatmentData() {
+
+        Assert.assertEquals(true, treatmentRepository.hasTreatmentData(Collections.singletonList("study_tcga_pub"), ClinicalEventKeyCode.Agent));
+
+        Assert.assertEquals(false, treatmentRepository.hasTreatmentData(Collections.singletonList("acc_tcga"), ClinicalEventKeyCode.Agent));
+
     }
 
     @Test
-    public void getTreatmentCount() {
-        Integer expected = 1;
-        Integer actual = treatmentRepository.getTreatmentCount(Collections.singletonList("study_tcga_pub"));
-        
-        Assert.assertEquals(actual, expected);
-    }
+    public void hasSampleTimelineData() {
 
-    @Test
-    public void getSampleCount() {
-        Integer expected = 4;
-        Integer actual = treatmentRepository.getSampleCount(Collections.singletonList("study_tcga_pub"));
-        
-        Assert.assertEquals(actual, expected);
+        Assert.assertEquals(true, treatmentRepository.hasSampleTimelineData(Collections.singletonList("study_tcga_pub")));
+
+        Assert.assertEquals(false, treatmentRepository.hasSampleTimelineData(Collections.singletonList("acc_tcga")));
     }
     
 }

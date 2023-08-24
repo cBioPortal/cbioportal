@@ -4,9 +4,11 @@ import org.cbioportal.model.TemporalRelation;
 import org.cbioportal.model.SampleTreatmentRow;
 import org.cbioportal.web.parameter.SampleIdentifier;
 
+import java.io.Serializable;
 import java.util.Map;
+import java.util.Set;
 
-public class SampleTreatmentFilter {
+public class SampleTreatmentFilter implements Serializable {
     private String treatment;
     private TemporalRelation time;
 
@@ -16,9 +18,9 @@ public class SampleTreatmentFilter {
      * @param sampleId sample.STABLE_ID
      * @param treatments key is SampleTreatmentRow::calculateKey
      */
-    public boolean filter(SampleIdentifier sampleId, Map<String, Map<String, Boolean>> treatments) {
-        Map<String, Boolean> row = treatments.get(treatment + time.name());
-        return row != null && row.containsKey(sampleId.toString());
+    public boolean filter(SampleIdentifier sampleId, Map<String, Set<String>> treatments) {
+        Set<String> row = treatments.get(treatment + time.name());
+        return row != null && row.contains(sampleId.toString());
     }
 
     public String getTreatment() {

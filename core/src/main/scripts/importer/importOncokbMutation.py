@@ -54,9 +54,9 @@ portal_instance = None
 FIELD_ENTREZ_ID = 'Entrez_Gene_Id'
 FIELD_HUGO_SYMBOL = 'Hugo_Symbol'
 INTERNAL_ID = 'id'
-PROTEIN_CHANGE = 'HGVSp_Short'
-VARIANT_CLASS = 'Variant_Classification'
-PROTEIN_POSITION = 'Protein_position'
+FIELD_PROTEIN_CHANGE = 'HGVSp_Short'
+FIELD_VARIANT_CLASS = 'Variant_Classification'
+FIELD_PROTEIN_POSITION = 'Protein_position'
 ONCOGENIC = libImportOncokb.ONCOKB_JSON_ONCOGENIC_FIELD
 ONCOKB_ID = libImportOncokb.ONCOKB_JSON_ID_FIELD
 ONCOKB_QUERY = libImportOncokb.ONCOKB_JSON_QUERY_FIELD
@@ -95,7 +95,7 @@ def main_import(args):
     else:
         portal_instance = validateData.load_portal_info(server_url, logger)
 
-    row_number_to_mutation_event = get_features(mutation_file_path)
+    row_number_to_mutation_event = get_features(mutation_file_path, server_url, portal_instance.alias_entrez_map)
     row_number_to_annotation = fetch_and_map_oncokb_annotations(row_number_to_mutation_event)
     write_annotations_to_file(row_number_to_annotation, mutation_file_path)
 
@@ -113,8 +113,10 @@ def check_disallowed_columns(header_elements):
                            "Disallowed column(s): [" + ", ".join(disallowed_columns) + "]")
 
 
-def get_features(mutation_file_path):
+def get_features(mutation_file_path, server_url=None, alias_map=None):
     """Extract Mutation events from MAF data file."""
+    assert server_url or alias_map, 'At least one of "server_url" or "alias_map" must be specified'
+    
     header_elements = libImportOncokb.get_first_line_cells(libImportOncokb.open_file(mutation_file_path), '\t')
     header_indexes = {}
     for required_column in required_mutation_columns + [FIELD_ENTREZ_ID]:
@@ -122,33 +124,42 @@ def get_features(mutation_file_path):
     row_number_to_feature = {}
     row_counter = 0
     mutation_file = libImportOncokb.open_file(mutation_file_path)
+    
+    # reduce API requests
+    resolved_aliases = {}
+    
     print("Reading features from file ...", end = '')
     for line in mutation_file:
         row_counter += 1
         if line == '\n' or line.startswith('#') or line.startswith(header_elements[0]):
             continue  # skip comment and header line
-        line_elements = line.rstrip().split('\t')
+        line_elements = line.rstrip('\n').split('\t')
         feature = {}
         for column_name, index in header_indexes.items():
             value = line_elements[index]
             if value != '':
-                if column_name == PROTEIN_CHANGE:
+                if column_name == FIELD_PROTEIN_CHANGE:
                     value = value.replace('p.', '')
                 feature[column_name] = value
-            elif column_name != FIELD_ENTREZ_ID and column_name != PROTEIN_POSITION and column_name != PROTEIN_CHANGE:
+            elif column_name != FIELD_ENTREZ_ID and column_name != FIELD_PROTEIN_POSITION and column_name != FIELD_PROTEIN_CHANGE:
                 raise RuntimeError("Empty value encountered in column '" +
                                    column_name + "' in row " + str(row_counter) + "." \
                                                                                   "OncoKB annotations cannot be imported. Please fix and rerun.")
 
         # skip lines that have empty protein change column
-        if PROTEIN_CHANGE not in feature:
+        if FIELD_PROTEIN_CHANGE not in feature:
             continue
             
         # resolve gene symbols to Entrez Ids if needed
         if FIELD_ENTREZ_ID in feature and feature[FIELD_ENTREZ_ID] is not None and feature[FIELD_ENTREZ_ID] != '':
             entrez_gene_ids = [feature[FIELD_ENTREZ_ID]]
         else:
-            entrez_gene_ids = portal_instance.hugo_entrez_map[feature[FIELD_HUGO_SYMBOL]]
+            # in case of failure, try aliases
+            entrez_gene_ids = portal_instance.hugo_entrez_map.get(
+                feature[FIELD_HUGO_SYMBOL],
+                resolved_aliases.get(feature[FIELD_HUGO_SYMBOL])
+            ) or libImportOncokb.try_get_entrez_from_alias(feature[FIELD_HUGO_SYMBOL], server_url, alias_map)
+            resolved_aliases[feature[FIELD_HUGO_SYMBOL]] = entrez_gene_ids
 
         if len(entrez_gene_ids) > 1:
             logger.error(""" Multiple Entrez gene ids were found for a gene.
@@ -156,7 +167,7 @@ def get_features(mutation_file_path):
                              Please fix and rerun. """,
                          extra={'symbol': feature[FIELD_HUGO_SYMBOL], 'row': str(row_counter)})
             feature[FIELD_ENTREZ_ID] = None
-        elif len(entrez_gene_ids) == 0:
+        elif len(entrez_gene_ids) == 0:            
             logger.error(""" Could not find the Entrez gene id for a gene.
                              OncoKB annotations will not be imported for this gene.
                              Please fix and rerun. """,
@@ -165,7 +176,7 @@ def get_features(mutation_file_path):
         else:
             feature[FIELD_ENTREZ_ID] = str(entrez_gene_ids[0])
             feature[INTERNAL_ID] = "_".join(
-                [feature[FIELD_ENTREZ_ID], feature[PROTEIN_CHANGE], feature[VARIANT_CLASS]])
+                [feature[FIELD_ENTREZ_ID], feature[FIELD_PROTEIN_CHANGE], feature[FIELD_VARIANT_CLASS]])
 
         row_number_to_feature[row_counter] = feature
     mutation_file.close()
@@ -192,9 +203,9 @@ def create_request_payload(row_number_to_feature):
     """Translate mutation events into JSON for message body."""    
     elements = {}
     for row_number, feature in row_number_to_feature.items():
-        protein_position = feature[PROTEIN_POSITION] if PROTEIN_POSITION in feature and feature[
-            PROTEIN_POSITION] != 'NA' else None
-        protein_change = feature[PROTEIN_CHANGE] if PROTEIN_CHANGE in feature and feature[PROTEIN_CHANGE] != 'NA' else None
+        protein_position = feature[FIELD_PROTEIN_POSITION] if FIELD_PROTEIN_POSITION in feature and feature[
+            FIELD_PROTEIN_POSITION] != 'NA' else None
+        protein_change = feature[FIELD_PROTEIN_CHANGE] if FIELD_PROTEIN_CHANGE in feature and feature[FIELD_PROTEIN_CHANGE] != 'NA' else None
         proteinStart = libImportOncokb.get_protein_pos_start(protein_position, protein_change)
         proteinEnd = libImportOncokb.get_protein_pos_end(protein_position, protein_change)
         if proteinEnd == -1:
@@ -202,12 +213,12 @@ def create_request_payload(row_number_to_feature):
         if proteinStart != -1:
             elements[feature[
                 INTERNAL_ID]] = '{ "alteration":"%s", "consequence":"%s", "gene":{"entrezGeneId":%s}, "id":"%s", "proteinStart":%s, "proteinEnd":%s, "tumorType":null} ' \
-                         % (feature[PROTEIN_CHANGE], feature[VARIANT_CLASS], feature[FIELD_ENTREZ_ID],
+                         % (feature[FIELD_PROTEIN_CHANGE], feature[FIELD_VARIANT_CLASS], feature[FIELD_ENTREZ_ID],
                             feature[INTERNAL_ID], proteinStart, proteinEnd)
         else:
             elements[feature[
                 INTERNAL_ID]] = '{ "alteration":"%s", "consequence":"%s", "gene":{"entrezGeneId":%s}, "id":"%s", "tumorType":null} ' \
-                         % (feature[PROTEIN_CHANGE], feature[VARIANT_CLASS], feature[FIELD_ENTREZ_ID],
+                         % (feature[FIELD_PROTEIN_CHANGE], feature[FIELD_VARIANT_CLASS], feature[FIELD_ENTREZ_ID],
                             feature[INTERNAL_ID])
 
     # normalize for alteration id since same alteration is represented in multiple samples

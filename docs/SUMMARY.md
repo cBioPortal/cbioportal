@@ -1,78 +1,73 @@
-# Summary
+# Table of contents
 
-## 1. General
-* [News](News.md)
-* [Frequently Asked Questions](FAQ.md)
+* [Home](README.md)
 * [About Us](About-Us.md)
 * [List of RFCs](RFC-List.md)
+* [User Guide](user-guide/README.md)
+  * [New Users](user-guide/new-users.md)
+  * [Frequently Asked Questions](user-guide/faq.md)
+  * [Overview of Resources](user-guide/overview.md)
+  * [Page Specific Resources](user-guide/by-page.md)
+  * [OQL](user-guide/oql.md)
+  * [News](News.md)
+  * [Genie News](News-Genie.md)
+* [Web API and API Clients](web-API-and-Clients.md)
+* [Deployment](deployment/README.md)
+  * [Architecture overview](Architecture-Overview.md)
+  * [Hardware Requirements](Hardware-Requirements.md)
+  * [Deploy with Docker (Recommended)](deployment/docker/README.md)
+    * [Import data with Docker](deployment/docker/import\_data.md)
+    * [Example Commands](deployment/docker/example\_commands.md)
+    * [Authenticating and Authorizing Users using Keycloak in Docker](deployment/docker/using-keycloak.md)
+  * [Deploy without Docker](deployment/deploy-without-docker/README.md)
+    * [Software Requirements](deployment/deploy-without-docker/Software-Requirements.md)
+    * [Pre-Build Steps](deployment/deploy-without-docker/Pre-Build-Steps.md)
+    * [Building from Source](deployment/deploy-without-docker/Build-from-Source.md)
+    * [Importing the Seed Database](deployment/deploy-without-docker/Import-the-Seed-Database.md)
+    * [Deploying the Web Application](deployment/deploy-without-docker/Deploying.md)
+    * [Loading a Sample Study](deployment/deploy-without-docker/Load-Sample-Cancer-Study.md)
+  * [Authorization and Authentication](deployment/authorization-and-authentication/README.md)
+    * [User Authorization](deployment/authorization-and-authentication/User-Authorization.md)
+    * [Authenticating Users via SAML](deployment/authorization-and-authentication/Authenticating-Users-via-SAML.md)
+    * [Authenticating Users via LDAP](deployment/authorization-and-authentication/Authenticating-Users-via-LDAP.md)
+    * [Authenticating and Authorizing Users via Keycloak](deployment/authorization-and-authentication/Authenticating-and-Authorizing-Users-via-keycloak.md)
+    * [Authenticating Users via Tokens](deployment/authorization-and-authentication/Authenticating-Users-via-Tokens.md)
+  * [Customization]()
+    * [Customizing your cBioPortal Instance via portal.properties](deployment/customization/Customizing-your-instance-of-cBioPortal.md)
+    * [More portal.properties Settings](deployment/customization/portal.properties-Reference.md)
+    * [Configuring Caching Behavior](deployment/customization/Caching.md)
+    * [How does the study view organize the charts](deployment/customization/Studyview.md)
+    * [Utilize priority setting from database to visualize charts](deployment/customization/Studyview.md)
+  * [Integration with Other Webservices]()
+    * [OncoKB Data Access](deployment/integration-with-other-webservices/OncoKB-Data-Access.md)
+  * [Data Loading Overview](Data-Loading.md)
+    * [Downloads](Downloads.md)
+    * [Using the Dataset Validator](Using-the-dataset-validator.md)
+    * [Using the metaImport Script](Using-the-metaImport-script.md)
+    * [File Formats](File-Formats.md)
+      * [Z-Score Normalization](Z-Score-normalization-script.md)
+    * [Study Curation Guide](Study-Curation-Guide.md)
+    * [Maintaining Studies](Data-Loading-Maintaining-Studies.md)
+    * [For Developers](Data-Loading-For-Developers.md)
+    * [Tips and Best Practices](Data-Loading-Tips-and-Best-Practices.md)
+    * [Mutation Data Transcript Annotation](mutation-data-transcript-annotation.md)
+    * [Import OncoKB annotations as custom driver annotations](Import-OncoKB-annotations-as-Custom-Driver-Annotations.md)
+    * [Importing Gene Sets for Gene Set Scoring Data](Import-Gene-Sets.md)
+    * [Importing Gene Panels](Import-Gene-Panels.md)
+    * [Study View Customization with Priority Data](deployment/customization/Studyview.md)
+  * [cBioPortal Maintenance](deployment/cbioportal-maintenance/README.md)
+    * [Updating your cBioPortal Database Scheme](Updating-your-cBioPortal-installation.md)
+    * [Update genes and gene aliases](Updating-gene-and-gene_alias-tables.md)
+    * [Migration Guide](Migration-Guide.md)
+    * [MSK Maintenance](MSK-Maintenance.md)
+* [Development](development/README.md)
+  * [Feature Development Guide](development/feature-development-guide.md)
+  * [cBioPortal Entity-relationship Diagram](development/cBioPortal-ER-Diagram.md)
+  * [cBioPortal Database Versioning](development/Database-Versioning.md)
+  * [Build cBioPortal with a different frontend version](development/Build-Different-Frontend.md)
+  * [Session Service](development/session-service-working.md)
+  * [Manual test cases](development/manual-test-cases.md)
+  * [Release Procedure](development/Release-Procedure.md)
+  * [Deployment Procedure](development/Deployment-Procedure.md)
+  * [This documentation site](development/Documentation-site.md)
 
-## 2. cBioPortal Deployment
-
-### 2.1 Deployment
-
-* [Architecture overview](Architecture-Overview.md)
-* [Hardware Requirements](Hardware-Requirements.md)
-
-### 2.1.1 Deploy with Docker (Recommended)
-* [Deploy with Docker](docker/README.md)
-* [Import data with Docker](docker/import_data.md)
-* [Example Commands](docker/example_commands.md)
-* [Authenticating and Authorizing Users using Keycloak in Docker](docker/using-keycloak.md)
-
-### 2.1.2 Deploy without Docker
-* [Software Requirements](Software-Requirements.md)
-* [Pre-Build Steps](Pre-Build-Steps.md)
-* [Building from Source](Build-from-Source.md)
-* [Importing the Seed Database](Import-the-Seed-Database.md)
-* [Deploying the Web Application](Deploying.md)
-* [Loading a Sample Study](Load-Sample-Cancer-Study.md)
-
-### 2.2 Authorization and Authentication
-* [User Authorization](User-Authorization.md)
-* [Authenticating Users via SAML](Authenticating-Users-via-SAML.md)
-* [Authenticating Users via LDAP](Authenticating-Users-via-LDAP.md)
-* [Authenticating and Authorizing Users via Keycloak](Authenticating-and-Authorizing-Users-via-keycloak.md)
-* [Authenticating Users via Tokens](Authenticating-Users-via-Tokens.md)
-
-### 2.3 Customization 
-* [Customizing your cBioPortal Instance via portal.properties](Customizing-your-instance-of-cBioPortal.md)
-* [More portal.properties Settings](portal.properties-Reference.md)
-* [Configuring Caching Behavior](Caching.md)
-* [How does the study view organize the charts](study-view/layout.md)
-* [Utilize priority setting from database to visualize charts](study-view/priority.md)
-
-### 2.4 Integration with Other Webservices
-* [OncoKB Data Access](OncoKB-Data-Access.md)
-
-## 3. cBioPortal Maintenance
-* [Updating your cBioPortal Database Scheme](Updating-your-cBioPortal-installation.md)
-* [Update genes and gene aliases](Updating-gene-and-gene_alias-tables.md)
-
-## 4. Development
-* [Feature Development Guide](feature-development-guide.md)
-* [cBioPortal Entity-relationship Diagram](cBioPortal-ER-Diagram.md)
-* [Build cBioPortal with a different frontend version](Build-Different-Frontend.md)
-* [Session Service](session-service-working.md)
-* [Manual test cases](manual-test-cases.md)
-* [Release Procedure](Release-Procedure.md)
-* [Deployment Procedure](Deployment-Procedure.md)
-
-## 5. Data Loading
-### 5.1 Data Loading
-* [Data Loading Overview](Data-Loading.md)
-   * [Using the Dataset Validator](Using-the-dataset-validator.md)
-   * [Using the metaImport Script](Using-the-metaImport-script.md)
-   * [File Formats](File-Formats.md)
-       * [Z-Score Normalization](Z-Score-normalization-script.md)
-   * [Maintaining Studies](Data-Loading-Maintaining-Studies.md)
-   * [For Developers](Data-Loading-For-Developers.md)
-   * [Tips and Best Practices](Data-Loading-Tips-and-Best-Practices.md)
-   * [Importing Gene Sets for Gene Set Scoring Data](Import-Gene-Sets.md)
-   * [Importing Gene Panels](Import-Gene-Panels.md)
-   * [Study View Customization with Priority Data](Study-View.md)
-
-### 5.2 Datasets
-* [Downloads](Downloads.md)
-
-## 6. Web API and Clients
- * [API and API Clients](API-and-API-Clients.md)

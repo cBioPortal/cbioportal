@@ -30,7 +30,7 @@ import javax.validation.constraints.Min;
 import java.util.List;
 
 @InternalApi
-@RestController
+@RestController("/api")
 @Validated
 @Api(tags = "Significantly Mutated Genes", description = " ")
 public class SignificantlyMutatedGenesController {
@@ -38,8 +38,8 @@ public class SignificantlyMutatedGenesController {
     @Autowired
     private SignificantlyMutatedGeneService significantlyMutatedGeneService;
 
-    @PreAuthorize("hasPermission(#studyId, 'CancerStudyId', 'read')")
-    @RequestMapping(value = "/api/studies/{studyId}/significantly-mutated-genes", method = RequestMethod.GET,
+    @PreAuthorize("hasPermission(#studyId, 'CancerStudyId', T(org.cbioportal.utils.security.AccessLevel).READ)")
+    @RequestMapping(value = "/studies/{studyId}/significantly-mutated-genes", method = RequestMethod.GET,
         produces = MediaType.APPLICATION_JSON_VALUE)
     @ApiOperation("Get significantly mutated genes in a study")
     public ResponseEntity<List<MutSig>> getSignificantlyMutatedGenes(

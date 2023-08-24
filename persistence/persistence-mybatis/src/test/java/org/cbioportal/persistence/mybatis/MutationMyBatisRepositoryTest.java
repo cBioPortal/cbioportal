@@ -23,11 +23,15 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+
 @RunWith(SpringJUnit4ClassRunner.class)
 @SpringBootTest(classes = {MutationMyBatisRepository.class, MolecularProfileCaseIdentifierUtil.class, TestConfig.class})
 public class MutationMyBatisRepositoryTest {
 
-    //    mutation and cna events in testSql.sql
+    //    mutation, cna and struct var events in testSql.sql
     //        SAMPLE_ID, ENTREZ_GENE_ID, HUGO_GENE_SYMBOL, GENETIC_PROFILE_ID, TYPE, MUTATION_TYPE, DRIVER_FILTER, DRIVER_TIERS_FILTER, PATIENT_ID, MUTATION_TYPE
     //        1	    207	AKT1	2	CNA         -2	                Putative_Driver	    Tier 1  TCGA-A1-A0SB    germline
     //        2	    207	AKT1	2	CNA         2	                Putative_Passenger	Tier 2  TCGA-A1-A0SD    germline
@@ -40,7 +44,16 @@ public class MutationMyBatisRepositoryTest {
     //        7	    672	BRCA1	6	MUTATION    Nonsense_Mutation	Putative_Driver	    Tier 2  TCGA-A1-A0SI    germline
     //        12	672	BRCA1	6	MUTATION    Splice_Site	        Putative_Passenger	Tier 1  TCGA-A1-A0SO    germline
     //        13	672	BRCA1	6	MUTATION    Splice_Site	        Putative_Driver	    Tier 1  TCGA-A1-A0SP    germline
-    //        7 	2064	ERBB2	6	FUSION              	        <null>	            <null>  TCGA-A1-A0SI    NA
+    //        1     27436-238   EML4-ALK    7   SV          Fusion              <noi>               <noi>   TCGA-A1-A0SB    germline
+    //        2     27436-238   EML4-ALK    7   SV          Fusion              <noi>               <noi>   TCGA-A1-A0SD    somatic
+    //        1     57670-673   KIAA..-BRAF 7   SV          Fusion              <noi>               <noi>   TCGA-A1-A0SB    somatic
+    //        2     57670-673   KIAA..-BRAF 7   SV          Fusion              <noi>               <noi>   TCGA-A1-A0SD    germline
+    //        2     57670-673   KIAA..-BRAF 7   SV          Fusion              <noi>               <noi>   TCGA-A1-A0SD    somatic
+    //       15     57670-673   KIAA..-BRAF 13  SV          Fusion              <noi>               <noi>   TCGA-A1-A0SD    somatic
+    //        1     8031-5979   NCOA4-RET   7   SV          Fusion              <noi>               <noi>   TCGA-A1-A0SB    somatic
+    //       15     8031-5979   NCOA4-RET   13  SV          Fusion              <noi>               <noi>   TCGA-A1-A0SB    somatic
+    //        1     7113-2078   TMPRSS2-ERG 7   SV          Fusion              <noi>               <noi>   TCGA-A1-A0SB    somatic
+    //       15     8031-NULL   NCOA4-      13  SV          Fusion              <noi>               <noi>   TCGA-A1-A0SB    somatic
 
 
     @Autowired
@@ -124,9 +137,9 @@ public class MutationMyBatisRepositoryTest {
         Assert.assertEquals("37", mutation.getNcbiBuild());
         Assert.assertEquals((Integer) (-1), mutation.getNormalAltCount());
         Assert.assertEquals((Integer) (-1), mutation.getNormalRefCount());
-        Assert.assertEquals((Integer) 934, mutation.getOncotatorProteinPosEnd());
-        Assert.assertEquals((Integer) 934, mutation.getOncotatorProteinPosStart());
-        Assert.assertEquals("NM_007294", mutation.getOncotatorRefseqMrnaId());
+        Assert.assertEquals((Integer) 934, mutation.getProteinPosEnd());
+        Assert.assertEquals((Integer) 934, mutation.getProteinPosStart());
+        Assert.assertEquals("NM_007294", mutation.getRefseqMrnaId());
         Assert.assertEquals("Q934*", mutation.getProteinChange());
         Assert.assertEquals("G", mutation.getReferenceAllele());
         Assert.assertEquals((Long) 41244748L, mutation.getStartPosition());
@@ -169,9 +182,9 @@ public class MutationMyBatisRepositoryTest {
         Assert.assertEquals("37", mutation.getNcbiBuild());
         Assert.assertEquals((Integer) (-1), mutation.getNormalAltCount());
         Assert.assertEquals((Integer) (-1), mutation.getNormalRefCount());
-        Assert.assertEquals((Integer) 934, mutation.getOncotatorProteinPosEnd());
-        Assert.assertEquals((Integer) 934, mutation.getOncotatorProteinPosStart());
-        Assert.assertEquals("NM_007294", mutation.getOncotatorRefseqMrnaId());
+        Assert.assertEquals((Integer) 934, mutation.getProteinPosEnd());
+        Assert.assertEquals((Integer) 934, mutation.getProteinPosStart());
+        Assert.assertEquals("NM_007294", mutation.getRefseqMrnaId());
         Assert.assertEquals("Q934*", mutation.getProteinChange());
         Assert.assertEquals("G", mutation.getReferenceAllele());
         Assert.assertEquals((Long) 41244748L, mutation.getStartPosition());
@@ -208,17 +221,12 @@ public class MutationMyBatisRepositoryTest {
         Assert.assertEquals("BRCA1 truncating", mutation.getKeyword());
         Assert.assertEquals("Germline", mutation.getMutationStatus());
         Assert.assertEquals("Nonsense_Mutation", mutation.getMutationType());
-        Assert.assertEquals("NA", mutation.getFunctionalImpactScore());
-        Assert.assertEquals(new BigDecimal("0.0"), mutation.getFisValue());
-        Assert.assertEquals("getma.org/?cm=var&var=hg19,17,41244748,G,A&fts=all", mutation.getLinkXvar());
-        Assert.assertEquals("NA", mutation.getLinkPdb());
-        Assert.assertEquals("NA", mutation.getLinkMsa());
         Assert.assertEquals("37", mutation.getNcbiBuild());
         Assert.assertEquals((Integer) (-1), mutation.getNormalAltCount());
         Assert.assertEquals((Integer) (-1), mutation.getNormalRefCount());
-        Assert.assertEquals((Integer) 934, mutation.getOncotatorProteinPosEnd());
-        Assert.assertEquals((Integer) 934, mutation.getOncotatorProteinPosStart());
-        Assert.assertEquals("NM_007294", mutation.getOncotatorRefseqMrnaId());
+        Assert.assertEquals((Integer) 934, mutation.getProteinPosEnd());
+        Assert.assertEquals((Integer) 934, mutation.getProteinPosStart());
+        Assert.assertEquals("NM_007294", mutation.getRefseqMrnaId());
         Assert.assertEquals("Q934*", mutation.getProteinChange());
         Assert.assertEquals("G", mutation.getReferenceAllele());
         Assert.assertEquals((Long) 41244748L, mutation.getStartPosition());
@@ -503,28 +511,6 @@ public class MutationMyBatisRepositoryTest {
         Assert.assertEquals(3, result.size());
         List<String> expectedSampleIds = Arrays.asList("TCGA-A1-A0SB-01", "TCGA-A1-A0SH-01", "TCGA-A1-A0SO-01");
         Assert.assertTrue(result.stream().allMatch(r -> expectedSampleIds.contains(r.getSampleId())));
-    }
-
-    @Test
-    public void getFusionsInMultipleMolecularProfiles() throws Exception {
-
-        List<String> molecularProfileIds = new ArrayList<>();
-        molecularProfileIds.add("acc_tcga_mutations");
-        molecularProfileIds.add("study_tcga_pub_mutations");
-        molecularProfileIds.add("study_tcga_pub_mutations");
-
-        List<String> sampleIds = new ArrayList<>();
-        sampleIds.add("TCGA-A1-B0SO-01");
-        sampleIds.add("TCGA-A1-A0SH-01");
-        sampleIds.add("TCGA-A1-A0SI-01");
-        
-        List<String> tiers = new ArrayList<>();
-        List<Mutation> result = mutationMyBatisRepository.getFusionsInMultipleMolecularProfiles(molecularProfileIds,
-            sampleIds, null, "SUMMARY", null, null, null, null);
-
-        // TODO: cleanup once fusion/structural data is fixed in database
-        // This test should correctly return entries from the structural_variant table (7 records)
-        Assert.assertEquals(1, result.size());
     }
 
     @Test

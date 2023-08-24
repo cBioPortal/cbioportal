@@ -38,7 +38,7 @@ import javax.validation.Valid;
 import java.util.*;
 
 @PublicApi
-@RestController
+@RestController("/api")
 @Validated
 @Api(tags = PublicApiTags.MOLECULAR_PROFILES, description = " ")
 public class MolecularProfileController {
@@ -46,7 +46,7 @@ public class MolecularProfileController {
     @Autowired
     private MolecularProfileService molecularProfileService;
 
-    @RequestMapping(value = "/api/molecular-profiles", method = RequestMethod.GET,
+    @RequestMapping(value = "/molecular-profiles", method = RequestMethod.GET,
         produces = MediaType.APPLICATION_JSON_VALUE)
     @ApiOperation("Get all molecular profiles")
     public ResponseEntity<List<MolecularProfile>> getAllMolecularProfiles(
@@ -76,8 +76,8 @@ public class MolecularProfileController {
         }
     }
 
-    @PreAuthorize("hasPermission(#molecularProfileId, 'MolecularProfileId', 'read')")
-    @RequestMapping(value = "/api/molecular-profiles/{molecularProfileId}", method = RequestMethod.GET,
+    @PreAuthorize("hasPermission(#molecularProfileId, 'MolecularProfileId', T(org.cbioportal.utils.security.AccessLevel).READ)")
+    @RequestMapping(value = "/molecular-profiles/{molecularProfileId}", method = RequestMethod.GET,
         produces = MediaType.APPLICATION_JSON_VALUE)
     @ApiOperation("Get molecular profile")
     public ResponseEntity<MolecularProfile> getMolecularProfile(
@@ -87,8 +87,8 @@ public class MolecularProfileController {
         return new ResponseEntity<>(molecularProfileService.getMolecularProfile(molecularProfileId), HttpStatus.OK);
     }
 
-    @PreAuthorize("hasPermission(#studyId, 'CancerStudyId', 'read')")
-    @RequestMapping(value = "/api/studies/{studyId}/molecular-profiles", method = RequestMethod.GET,
+    @PreAuthorize("hasPermission(#studyId, 'CancerStudyId', T(org.cbioportal.utils.security.AccessLevel).READ)")
+    @RequestMapping(value = "/studies/{studyId}/molecular-profiles", method = RequestMethod.GET,
         produces = MediaType.APPLICATION_JSON_VALUE)
     @ApiOperation("Get all molecular profiles in a study")
     public ResponseEntity<List<MolecularProfile>> getAllMolecularProfilesInStudy(
@@ -120,8 +120,8 @@ public class MolecularProfileController {
         }
     }
 
-    @PreAuthorize("hasPermission(#involvedCancerStudies, 'Collection<CancerStudyId>', 'read')")
-    @RequestMapping(value = "/api/molecular-profiles/fetch", method = RequestMethod.POST,
+    @PreAuthorize("hasPermission(#involvedCancerStudies, 'Collection<CancerStudyId>', T(org.cbioportal.utils.security.AccessLevel).READ)")
+    @RequestMapping(value = "/molecular-profiles/fetch", method = RequestMethod.POST,
         consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
     @ApiOperation("Fetch molecular profiles")
     public ResponseEntity<List<MolecularProfile>> fetchMolecularProfiles(

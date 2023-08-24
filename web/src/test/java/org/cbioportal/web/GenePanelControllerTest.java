@@ -150,8 +150,7 @@ public class GenePanelControllerTest {
             .andExpect(MockMvcResultMatchers.status().isOk())
             .andExpect(MockMvcResultMatchers.header().string(HeaderKeyConstants.TOTAL_COUNT, "2"));
     }
-
-
+    
     @Test
     @WithMockUser
     public void getGenePanelNotFound() throws Exception {

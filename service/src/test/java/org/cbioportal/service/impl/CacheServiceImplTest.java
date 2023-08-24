@@ -1,6 +1,10 @@
 package org.cbioportal.service.impl;
 
-import org.cbioportal.persistence.mybatis.util.CacheMapUtil;
+import org.cbioportal.model.CancerStudy;
+import org.cbioportal.persistence.StudyRepository;
+import org.cbioportal.persistence.cachemaputil.StaticRefCacheMapUtil;
+import org.cbioportal.persistence.util.CacheUtils;
+import org.cbioportal.service.exception.CacheOperationException;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -12,6 +16,7 @@ import org.springframework.cache.CacheManager;
 import org.springframework.test.util.ReflectionTestUtils;
 
 import java.util.Arrays;
+import java.util.List;
 
 import static org.mockito.Mockito.*;
 
@@ -25,37 +30,88 @@ public class CacheServiceImplTest {
     private CacheManager cacheManager;
 
     @Mock
-    private CacheMapUtil cacheMapUtil;
+    private StaticRefCacheMapUtil cacheMapUtil;
+    
+    @Mock
+    private CacheUtils cacheUtils;
+    
     private Cache mockCache;
+    private String clearAllKeysRegex = ".*";
 
+    @Mock
+    private StudyRepository studyRepository;
+    
     @Before
     public void init() {
-        mockCache = mock(Cache.class);
-        when(cacheManager.getCacheNames()).thenReturn(Arrays.asList(new String[]{"name_1", "name_2"}));
-        when(cacheManager.getCache(anyString())).thenReturn(mockCache);
+        when(cacheManager.getCacheNames()).thenReturn(Arrays.asList("name_1", "name_2"));
+        CancerStudy cancerStudy1 = mock(CancerStudy.class);
+        when(cancerStudy1.getCancerStudyIdentifier()).thenReturn("study1");
+        CancerStudy cancerStudy2 = mock(CancerStudy.class);
+        when(cancerStudy2.getCancerStudyIdentifier()).thenReturn("study2");
+        List<CancerStudy> studies = Arrays.asList(cancerStudy1, cancerStudy2);
+        when(studyRepository.getAllStudies(nullable(String.class), nullable(String.class), nullable(Integer.class), nullable(Integer.class), nullable(String.class), nullable(String.class))).thenReturn(studies);
     }
 
     @Test
-    public void evictAllCachesSuccess() {
+    public void evictAllCachesSuccess() throws Exception {
         cachingService.clearCaches(true);
-        verify(mockCache, times(2)).clear();
+        verify(cacheUtils, times(2)).evictByPattern(anyString(), eq(clearAllKeysRegex));
         verify(cacheMapUtil, times(1)).initializeCacheMemory();
     }
 
     @Test
-    public void evictAllCachesNullManager() {
+    public void evictAllCachesNullManager() throws Exception {
         ReflectionTestUtils.setField(cachingService, "cacheManager", null);
         cachingService.clearCaches(true);
-        verify(mockCache, never()).clear();
+        verify(cacheUtils, never()).evictByPattern(anyString(),anyString());
         verify(cacheMapUtil, times(1)).initializeCacheMemory();
         ReflectionTestUtils.setField(cachingService, "cacheManager", cacheManager);
     }
     
     @Test
-    public void evictAllCachesSkipSpringManagedCache() {
+    public void evictAllCachesSkipSpringManagedCache() throws Exception {
         cachingService.clearCaches(false);
-        verify(mockCache, never()).clear();
+        verify(cacheUtils, never()).evictByPattern(anyString(), anyString());
         verify(cacheMapUtil, times(1)).initializeCacheMemory();
+    }
+
+    @Test(expected = CacheOperationException.class)
+    public void evictAllCachesThrowsException() throws Exception {
+        doThrow(RuntimeException.class).when(cacheUtils).evictByPattern(anyString(), anyString());
+        cachingService.clearCaches(true);
+    }
+
+    @Test
+    public void evictCacheForStudySuccess() throws Exception {
+        List<String> studiesInPortal = Arrays.asList("study1", "study2");
+        cachingService.clearCachesForStudy("study3", true);
+        verify(cacheUtils, times(2)).evictByPattern(anyString(), eq("^(?=.*study3).*|^(?!.*study3)(?!.*study1)(?!.*study2).*"));
+        verify(cacheMapUtil, times(1)).initializeCacheMemory();
+    }
+
+    @Test
+    public void evictCacheForStudyNullManager() throws Exception {
+        ReflectionTestUtils.setField(cachingService, "cacheManager", null);
+        List<String> studiesInPortal = Arrays.asList("study1", "study2");
+        cachingService.clearCachesForStudy("study3", true);
+        verify(cacheUtils, never()).evictByPattern(anyString(), anyString());
+        verify(cacheMapUtil, times(1)).initializeCacheMemory();
+        ReflectionTestUtils.setField(cachingService, "cacheManager", cacheManager);
+    }
+
+    @Test
+    public void evictCacheForStudySkipSpringManagedCache() throws Exception {
+        List<String> studiesInPortal = Arrays.asList("study1", "study2");
+        cachingService.clearCachesForStudy("study3", false);
+        verify(cacheUtils, never()).evictByPattern(anyString(), anyString());
+        verify(cacheMapUtil, times(1)).initializeCacheMemory();
+    }
+
+    @Test(expected = CacheOperationException.class)
+    public void evictCacheForStudyThrowsException() throws Exception {
+        List<String> studiesInPortal = Arrays.asList("study1", "study2");
+        doThrow(RuntimeException.class).when(cacheUtils).evictByPattern(anyString(), anyString());
+        cachingService.clearCachesForStudy("study3", true);
     }
     
 }

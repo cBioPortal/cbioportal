@@ -92,6 +92,7 @@ public class GenericAssayControllerTest {
                 .andExpect(MockMvcResultMatchers.jsonPath("$[1].value").value(VALUE_2));
     }
 
+
     @Test
     @WithMockUser
     public void testGenericAssayDataFetchInMultipleMolecularProfiles() throws Exception {
@@ -146,6 +147,16 @@ public class GenericAssayControllerTest {
                 .andExpect(MockMvcResultMatchers.jsonPath("$[1].genericEntityMetaProperties", Matchers.hasValue(TEST_DESCRIPTION_VALUE)));
     }
 
+    private List<GenericAssayMeta> createGenericAssayMetaSingleItem() {
+
+        List<GenericAssayMeta> genericAssayMetaItems = new ArrayList<>();
+        
+        GenericAssayMeta item2 = new GenericAssayMeta(ENTITY_TYPE, GENERIC_ASSAY_STABLE_ID_2, GENERIC_ENTITY_META_PROPERTIES);
+        genericAssayMetaItems.add(item2);
+
+        return genericAssayMetaItems;
+    }
+    
     private List<GenericAssayMeta> createGenericAssayMetaItemsList() {
 
         List<GenericAssayMeta> genericAssayMetaItems = new ArrayList<>();
@@ -158,69 +169,4 @@ public class GenericAssayControllerTest {
 
         return genericAssayMetaItems;
     }
-
-    private List<GenericAssayData> createGenericAssayDataItemsList() {
-
-        List<GenericAssayData> genericAssayDataItems = new ArrayList<>();
-
-        GenericAssayData item1 = new GenericAssayData();
-        item1.setGenericAssayStableId(GENERIC_ASSAY_STABLE_ID_1);
-        item1.setMolecularProfileId(PROF_ID);
-        item1.setSampleId(SAMPLE_ID);
-        item1.setValue(VALUE_1);
-        genericAssayDataItems.add(item1);
-
-        GenericAssayData item2 = new GenericAssayData();
-        item2.setGenericAssayStableId(GENERIC_ASSAY_STABLE_ID_2);
-        item2.setMolecularProfileId(PROF_ID);
-        item2.setSampleId(SAMPLE_ID);
-        item2.setValue(VALUE_2);
-        genericAssayDataItems.add(item2);
-
-        // This item should be filtered out in api result
-        GenericAssayData item3 = new GenericAssayData();
-        item3.setGenericAssayStableId(GENERIC_ASSAY_STABLE_ID_3);
-        item3.setMolecularProfileId(PROF_ID);
-        item3.setSampleId(SAMPLE_ID);
-        item3.setValue(VALUE_3);
-        genericAssayDataItems.add(item3);
-
-        // This item should be filtered out in api result
-        GenericAssayData item4 = new GenericAssayData();
-        item4.setGenericAssayStableId(GENERIC_ASSAY_STABLE_ID_4);
-        item4.setMolecularProfileId(PROF_ID);
-        item4.setSampleId(SAMPLE_ID);
-        item4.setValue(VALUE_4);
-        genericAssayDataItems.add(item4);
-
-        return genericAssayDataItems;
-    }
-
-    private List<SampleMolecularIdentifier> createSampleMolecularIdentifiers() {
-
-        List<SampleMolecularIdentifier> sampleMolecularIdentifiers = new ArrayList<>();
-
-        SampleMolecularIdentifier identifier1 = new SampleMolecularIdentifier();
-        identifier1.setSampleId(SAMPLE_ID);
-        identifier1.setMolecularProfileId(GENERIC_ASSAY_STABLE_ID_1);
-        sampleMolecularIdentifiers.add(identifier1);
-
-        SampleMolecularIdentifier identifier2 = new SampleMolecularIdentifier();
-        identifier2.setSampleId(SAMPLE_ID);
-        identifier2.setMolecularProfileId(GENERIC_ASSAY_STABLE_ID_2);
-        sampleMolecularIdentifiers.add(identifier2);
-
-        SampleMolecularIdentifier identifier3 = new SampleMolecularIdentifier();
-        identifier3.setSampleId(SAMPLE_ID);
-        identifier3.setMolecularProfileId(GENERIC_ASSAY_STABLE_ID_3);
-        sampleMolecularIdentifiers.add(identifier3);
-
-        SampleMolecularIdentifier identifier4 = new SampleMolecularIdentifier();
-        identifier4.setSampleId(SAMPLE_ID);
-        identifier4.setMolecularProfileId(GENERIC_ASSAY_STABLE_ID_4);
-        sampleMolecularIdentifiers.add(identifier4);
-
-        return sampleMolecularIdentifiers;
-    }
-
 }

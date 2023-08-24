@@ -39,7 +39,7 @@ import org.springframework.web.bind.annotation.RestController;
 import springfox.documentation.annotations.ApiIgnore;
 
 @PublicApi
-@RestController
+@RestController("/api")
 @Validated
 @Api(tags = PublicApiTags.CLINICAL_ATTRIBUTES, description = " ")
 public class ClinicalAttributeController {
@@ -47,7 +47,7 @@ public class ClinicalAttributeController {
     @Autowired
     private ClinicalAttributeService clinicalAttributeService;
 
-    @RequestMapping(value = "/api/clinical-attributes", method = RequestMethod.GET,
+    @RequestMapping(value = "/clinical-attributes", method = RequestMethod.GET,
             produces = MediaType.APPLICATION_JSON_VALUE)
     @ApiOperation("Get all clinical attributes")
     public ResponseEntity<List<ClinicalAttribute>> getAllClinicalAttributes(
@@ -77,8 +77,8 @@ public class ClinicalAttributeController {
         }
     }
 
-    @PreAuthorize("hasPermission(#studyId, 'CancerStudyId', 'read')")
-    @RequestMapping(value = "/api/studies/{studyId}/clinical-attributes", method = RequestMethod.GET,
+    @PreAuthorize("hasPermission(#studyId, 'CancerStudyId', T(org.cbioportal.utils.security.AccessLevel).READ)")
+    @RequestMapping(value = "/studies/{studyId}/clinical-attributes", method = RequestMethod.GET,
             produces = MediaType.APPLICATION_JSON_VALUE)
     @ApiOperation("Get all clinical attributes in the specified study")
     public ResponseEntity<List<ClinicalAttribute>> getAllClinicalAttributesInStudy(
@@ -111,8 +111,8 @@ public class ClinicalAttributeController {
         }
     }
 
-    @PreAuthorize("hasPermission(#studyId, 'CancerStudyId', 'read')")
-    @RequestMapping(value = "/api/studies/{studyId}/clinical-attributes/{clinicalAttributeId}", method = RequestMethod.GET,
+    @PreAuthorize("hasPermission(#studyId, 'CancerStudyId', T(org.cbioportal.utils.security.AccessLevel).READ)")
+    @RequestMapping(value = "/studies/{studyId}/clinical-attributes/{clinicalAttributeId}", method = RequestMethod.GET,
             produces = MediaType.APPLICATION_JSON_VALUE)
     @ApiOperation("Get specified clinical attribute")
     public ResponseEntity<ClinicalAttribute> getClinicalAttributeInStudy(
@@ -126,8 +126,8 @@ public class ClinicalAttributeController {
                 HttpStatus.OK);
     }
 
-    @PreAuthorize("hasPermission(#studyIds, 'Collection<CancerStudyId>', 'read')")
-    @RequestMapping(value = "/api/clinical-attributes/fetch", method = RequestMethod.POST,
+    @PreAuthorize("hasPermission(#studyIds, 'Collection<CancerStudyId>', T(org.cbioportal.utils.security.AccessLevel).READ)")
+    @RequestMapping(value = "/clinical-attributes/fetch", method = RequestMethod.POST,
         consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
     @ApiOperation("Fetch clinical attributes")
     public ResponseEntity<List<ClinicalAttribute>> fetchClinicalAttributes(

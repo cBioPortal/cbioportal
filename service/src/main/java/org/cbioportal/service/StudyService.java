@@ -4,13 +4,15 @@ import org.cbioportal.model.CancerStudy;
 import org.cbioportal.model.CancerStudyTags;
 import org.cbioportal.model.meta.BaseMeta;
 import org.cbioportal.service.exception.StudyNotFoundException;
+import org.cbioportal.utils.security.AccessLevel;
+import org.springframework.security.core.Authentication;
 
 import java.util.List;
 
 public interface StudyService {
 
-    List<CancerStudy> getAllStudies(String keyword, String projection, Integer pageSize, Integer pageNumber, 
-                                    String sortBy, String direction);
+    List<CancerStudy> getAllStudies(String keyword, String projection, Integer pageSize, Integer pageNumber,
+                                    String sortBy, String direction, Authentication authentication, AccessLevel accessLevel);
 
     BaseMeta getMetaStudies(String keyword);
 
@@ -20,7 +22,7 @@ public interface StudyService {
 
 	BaseMeta fetchMetaStudies(List<String> studyIds);
 
-    CancerStudyTags getTags(String studyId);
+    CancerStudyTags getTags(String studyId, AccessLevel accessLevel);
     
     List<CancerStudyTags> getTagsForMultipleStudies(List<String> studyIds);
 }

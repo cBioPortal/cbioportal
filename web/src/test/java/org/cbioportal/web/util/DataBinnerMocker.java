@@ -867,6 +867,14 @@ public class DataBinnerMocker {
             "696476372", "3532676582", "3851721681"
         };
     }
+    
+    public static String[] mockQ1Q2Q3Identical() {
+        return new String[]{"10", "11", "12", "13", "14", "15", "16", "17", "18", "19", "20", "250", "250", "250", "250", "250", "250", "250", "250", "250", "250", "250", "250", "250", "250", "250", "250", "250", "250", "250", "250", "250", "250", "250", "250", "250", "250", "250", "250", "250", "250", "250", "250", "250", "250", "250", "250", "250", "250", "250"};
+    }
+    
+    public static String[] mockQ2Q3Identical() {
+        return new String[]{"10", "11", "12", "13", "14", "15", "16", "17", "18", "19", "20", "250", "250", "250", "250", "250", "250", "250", "250", "250", "250", "250", "250"};
+    }
 
     public static Map<String, String[]> mockData() {
         Map<String, String[]> mockData = new LinkedHashMap<>();
@@ -888,6 +896,8 @@ public class DataBinnerMocker {
         mockData.put("genie_N_SCANS_PET_CT_PT", mockGenieNScansPetCtPt());
         mockData.put("genie_N_SCANS_BONE_PT", mockGenieNScansBonePt());
         mockData.put("random_BIG_NUMBER", mockBigNumbers());
+        mockData.put("q1q2q3_identical", mockQ1Q2Q3Identical());
+        mockData.put("q2q3_identical", mockQ2Q3Identical());
 
         return mockData;
     }

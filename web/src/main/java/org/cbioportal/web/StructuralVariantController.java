@@ -31,13 +31,14 @@ import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
 
-import org.cbioportal.web.config.PublicApiTags;
-import org.cbioportal.web.config.annotation.PublicApi;
+import org.cbioportal.web.config.InternalApiTags;
+import org.cbioportal.web.config.annotation.InternalApi;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.util.Assert;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.RequestAttribute;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -49,25 +50,26 @@ import springfox.documentation.annotations.ApiIgnore;
 import javax.validation.Valid;
 import java.util.*;
 
-@PublicApi
-@RestController
+@InternalApi
+@RestController("/api")
 @Validated
-@Api(tags = PublicApiTags.STRUCTURAL_VARIANTS, description = " ")
+@Api(tags = InternalApiTags.STRUCTURAL_VARIANTS, description = " ")
 public class StructuralVariantController {
     @Autowired
     private StructuralVariantService structuralVariantService;
 
-    @PreAuthorize("hasPermission(#involvedCancerStudies, 'Collection<CancerStudyId>', 'read')")
-    @RequestMapping(value = "/api/structural-variant/fetch", method = RequestMethod.POST,
+    @PreAuthorize("hasPermission(#involvedCancerStudies, 'Collection<CancerStudyId>', T(org.cbioportal.utils.security.AccessLevel).READ)")
+    @RequestMapping(value = "/structural-variant/fetch", method = RequestMethod.POST,
             consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
     @ApiOperation("Fetch structural variants for entrezGeneIds and molecularProfileIds or sampleMolecularIdentifiers")
     public ResponseEntity<List<StructuralVariant>> fetchStructuralVariants(
             @ApiIgnore // prevent reference to this attribute in the swagger-ui interface
             @RequestAttribute(required = false, value = "involvedCancerStudies") Collection<String> involvedCancerStudies,
+            @ApiIgnore // prevent reference to this attribute in the swagger-ui interface
             @Valid @RequestAttribute(required = false, value = "interceptedStructuralVariantFilter") StructuralVariantFilter interceptedStructuralVariantFilter,
-            @ApiParam(required = true, value = "List of entrezGeneIds and molecularProfileIds or sampleMolecularIdentifiers")
+            @ApiParam(required = true, value = "List of entrezGeneIds, structural variant queries and molecularProfileIds or sampleMolecularIdentifiers")
             @Valid @RequestBody(required = false) StructuralVariantFilter structuralVariantFilter) {
-
+        
         List<String> molecularProfileIds = new ArrayList<>();
         List<String> sampleIds = new ArrayList<>();
 
@@ -82,10 +84,12 @@ public class StructuralVariantController {
         } else {
             molecularProfileIds.addAll(interceptedStructuralVariantFilter.getMolecularProfileIds());
         }
-        List<StructuralVariant> structuralVariantList = structuralVariantService.fetchStructuralVariants(molecularProfileIds,
+        List<StructuralVariant> structuralVariantList = structuralVariantService.fetchStructuralVariants(
+            molecularProfileIds,
             sampleIds,
-            interceptedStructuralVariantFilter.getEntrezGeneIds());
-
+            interceptedStructuralVariantFilter.getEntrezGeneIds(),
+            interceptedStructuralVariantFilter.getStructuralVariantQueries()
+        );
 
         return new ResponseEntity<>(structuralVariantList, HttpStatus.OK);
 

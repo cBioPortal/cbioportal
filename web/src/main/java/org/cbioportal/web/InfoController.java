@@ -3,7 +3,8 @@ package org.cbioportal.web;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import org.cbioportal.model.Info;
-import org.cbioportal.web.config.annotation.InternalApi;
+import org.cbioportal.web.config.PublicApiTags;
+import org.cbioportal.web.config.annotation.PublicApi;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
@@ -13,10 +14,10 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
 
-@InternalApi
+@PublicApi
 @RestController
 @Validated
-@Api(tags = "Info", description = " ")
+@Api(tags = PublicApiTags.INFO, description = " ")
 public class InfoController {
 
     @Value("${portal.version}")

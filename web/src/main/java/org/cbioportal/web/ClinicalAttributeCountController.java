@@ -39,7 +39,7 @@ import org.springframework.web.bind.annotation.RestController;
 import springfox.documentation.annotations.ApiIgnore;
 
 @InternalApi
-@RestController
+@RestController("/api")
 @Validated
 @Api(tags = InternalApiTags.CLINICAL_ATTRIBUTES_COUNT, description = " ")
 public class ClinicalAttributeCountController {
@@ -47,8 +47,8 @@ public class ClinicalAttributeCountController {
     @Autowired
     private ClinicalAttributeService clinicalAttributeService;
  
-    @PreAuthorize("hasPermission(#involvedCancerStudies, 'Collection<CancerStudyId>', 'read')")
-    @RequestMapping(value = "/api/clinical-attributes/counts/fetch", method = RequestMethod.POST, consumes = MediaType.APPLICATION_JSON_VALUE,
+    @PreAuthorize("hasPermission(#involvedCancerStudies, 'Collection<CancerStudyId>', T(org.cbioportal.utils.security.AccessLevel).READ)")
+    @RequestMapping(value = "/clinical-attributes/counts/fetch", method = RequestMethod.POST, consumes = MediaType.APPLICATION_JSON_VALUE,
                     produces = MediaType.APPLICATION_JSON_VALUE)
     @ApiOperation("Get counts for clinical attributes according to their data availability for selected samples/patients")
     public ResponseEntity<List<ClinicalAttributeCount>> getClinicalAttributeCounts(

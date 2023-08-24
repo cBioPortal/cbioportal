@@ -1,7 +1,6 @@
 package org.cbioportal.persistence;
 
 import org.cbioportal.model.*;
-import org.cbioportal.model.QueryElement;
 import org.cbioportal.model.util.Select;
 import org.springframework.cache.annotation.Cacheable;
 
@@ -11,25 +10,31 @@ import java.util.Set;
 public interface AlterationRepository {
 
     @Cacheable(cacheResolver = "generalRepositoryCacheResolver", condition = "@cacheEnabledConfig.getEnabled()")
-    List<AlterationCountByGene> getSampleAlterationCounts(Set<MolecularProfileCaseIdentifier> molecularProfileCaseIdentifiers,
-                                                          Select<Integer> entrezGeneIds,
-                                                          QueryElement searchFusions,
-                                                          AlterationFilter alterationFilter);
+    List<AlterationCountByGene> getSampleAlterationGeneCounts(Set<MolecularProfileCaseIdentifier> molecularProfileCaseIdentifiers,
+                                                              Select<Integer> entrezGeneIds,
+                                                              AlterationFilter alterationFilter);
 
     @Cacheable(cacheResolver = "generalRepositoryCacheResolver", condition = "@cacheEnabledConfig.getEnabled()")
-    List<AlterationCountByGene> getPatientAlterationCounts(List<MolecularProfileCaseIdentifier> molecularProfileCaseIdentifiers,
-                                                           Select<Integer> entrezGeneIds,
-                                                           QueryElement searchFusions,
-                                                           AlterationFilter alterationFilter);
+    List<AlterationCountByGene> getPatientAlterationGeneCounts(Set<MolecularProfileCaseIdentifier> molecularProfileCaseIdentifiers,
+                                                               Select<Integer> entrezGeneIds,
+                                                               AlterationFilter alterationFilter);
 
     @Cacheable(cacheResolver = "generalRepositoryCacheResolver", condition = "@cacheEnabledConfig.getEnabled()")
-    List<CopyNumberCountByGene> getSampleCnaCounts(Set<MolecularProfileCaseIdentifier> molecularProfileCaseIdentifiers,
-                                                   Select<Integer> entrezGeneIds,
-                                                   AlterationFilter alterationFilter);
+    List<CopyNumberCountByGene> getSampleCnaGeneCounts(Set<MolecularProfileCaseIdentifier> molecularProfileCaseIdentifiers,
+                                                       Select<Integer> entrezGeneIds,
+                                                       AlterationFilter alterationFilter);
 
     @Cacheable(cacheResolver = "generalRepositoryCacheResolver", condition = "@cacheEnabledConfig.getEnabled()")
-    List<CopyNumberCountByGene> getPatientCnaCounts(List<MolecularProfileCaseIdentifier> molecularProfileCaseIdentifiers,
-                                                    Select<Integer> entrezGeneIds,
-                                                    AlterationFilter alterationFilter);
+    List<CopyNumberCountByGene> getPatientCnaGeneCounts(Set<MolecularProfileCaseIdentifier> molecularProfileCaseIdentifiers,
+                                                        Select<Integer> entrezGeneIds,
+                                                        AlterationFilter alterationFilter);
+
+    @Cacheable(cacheResolver = "generalRepositoryCacheResolver", condition = "@cacheEnabledConfig.getEnabled()")
+    List<AlterationCountByStructuralVariant> getSampleStructuralVariantCounts(Set<MolecularProfileCaseIdentifier> molecularProfileCaseIdentifiers,
+                                                              AlterationFilter alterationFilter);
+
+    @Cacheable(cacheResolver = "generalRepositoryCacheResolver", condition = "@cacheEnabledConfig.getEnabled()")
+    List<AlterationCountByStructuralVariant> getPatientStructuralVariantCounts(Set<MolecularProfileCaseIdentifier> molecularProfileCaseIdentifiers,
+                                                               AlterationFilter alterationFilter);
     
 }

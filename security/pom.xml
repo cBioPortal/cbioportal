@@ -14,6 +14,7 @@
 
     <modules>
         <module>security-spring</module>
+        <module>permission-evaluator</module>
     </modules>
 
     <properties>

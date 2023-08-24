@@ -2,7 +2,7 @@
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 
 <mapper namespace="org.cbioportal.persistence.mybatis.ClinicalEventMapper">
-
+    
     <sql id="select">
         clinical_event.CLINICAL_EVENT_ID AS "clinicalEventId",
         clinical_event.EVENT_TYPE AS "eventType",
@@ -95,4 +95,93 @@
         <include refid="from"/>
         <include refid="whereStudy"/>
     </select>
+    
+    <select id="getSamplesOfPatientsPerEventType" resultType="org.cbioportal.model.ClinicalEvent">
+        SELECT
+        clinical_event.CLINICAL_EVENT_ID as clinicalEventId,
+        clinical_event.EVENT_TYPE as eventType,
+        sample.STABLE_ID as uniqueSampleKey,
+        patient.STABLE_ID as patientId
+        from sample
+        Inner Join patient on sample.PATIENT_ID = patient.INTERNAL_ID
+        Inner join clinical_event on clinical_event.PATIENT_ID = patient.INTERNAL_ID
+        Inner Join cancer_study on cancer_study.CANCER_STUDY_ID = patient.cancer_STUDY_ID
+        <where>
+            <if test="sampleIds == null and studyIds != null">
+                cancer_study.CANCER_STUDY_IDENTIFIER IN
+                <if test="studyIds.isEmpty()">
+                    (NULL)
+                </if>
+                <if test="!studyIds.isEmpty()">
+                    <foreach item="item" collection="studyIds" open="(" separator="," close=")">
+                        #{item}
+                    </foreach>
+                </if>
+            </if>
+            <if test="sampleIds != null">
+                <if test="@java.util.Arrays@stream(studyIds.toArray()).distinct().count() == 1">
+                    cancer_study.CANCER_STUDY_IDENTIFIER = #{studyIds[0]} AND
+                    sample.STABLE_ID IN
+                    <foreach item="item" collection="sampleIds" open="(" separator="," close=")">
+                        #{item}
+                    </foreach>
+                </if>
+                <if test="@java.util.Arrays@stream(studyIds.toArray()).distinct().count() > 1">
+                    cancer_study.CANCER_STUDY_IDENTIFIER IN
+                    <foreach item="item" collection="@java.util.Arrays@stream(studyIds.toArray()).distinct().collect(@java.util.stream.Collectors@toList())" open="(" separator="," close=")">
+                        #{item}
+                    </foreach>
+                    AND (cancer_study.CANCER_STUDY_IDENTIFIER, sample.STABLE_ID) IN
+                    <foreach index="i" collection="sampleIds" open="(" separator="," close=")">
+                        (#{studyIds[${i}]}, #{sampleIds[${i}]})
+                    </foreach>
+                </if>
+            </if>
+        </where>
+    </select>
+
+    <select id="getPatientsDistinctClinicalEventInStudies" resultType="org.cbioportal.model.ClinicalEvent">
+        SELECT
+        <choose>
+            <when test="_databaseId == 'mysql'">
+                ANY_VALUE(clinical_event.CLINICAL_EVENT_ID) AS clinicalEventId,
+            </when>
+            <when test="_databaseId == 'h2'">
+                clinical_event.CLINICAL_EVENT_ID AS clinicalEventId,
+            </when>
+        </choose>
+        clinical_event.EVENT_TYPE AS eventType,
+        patient.STABLE_ID AS patientId
+        <include refid="from"/>
+        <where>
+            <if test="patientIds == null and studyIds != null">
+                cancer_study.CANCER_STUDY_IDENTIFIER IN
+                <if test="studyIds.isEmpty()">
+                    (NULL)
+                </if>
+                <if test="!studyIds.isEmpty()">
+                    <foreach item="item" collection="studyIds" open="(" separator="," close=")">
+                        #{item}
+                    </foreach>
+                </if>
+            </if>
+            <if test="patientIds != null">
+                <if test="@java.util.Arrays@stream(patientIds.toArray()).distinct().count() == 1">
+                    cancer_study.CANCER_STUDY_IDENTIFIER = #{studyIds[0]} AND
+                    patient.STABLE_ID IN
+                    <foreach item="item" collection="patientIds" open="(" separator="," close=")">
+                        #{item}
+                    </foreach>
+                </if>
+                <if test="@java.util.Arrays@stream(patientIds.toArray()).distinct().count() > 1">
+                    (cancer_study.CANCER_STUDY_IDENTIFIER, patient.STABLE_ID) IN
+                    <foreach index="i" collection="patientIds" open="(" separator="," close=")">
+                        (#{studyIds[${i}]}, #{patientIds[${i}]})
+                    </foreach>
+                </if>
+            </if>
+        </where>
+        Group by clinical_event.EVENT_TYPE, patient.STABLE_ID
+    </select>
+
 </mapper>

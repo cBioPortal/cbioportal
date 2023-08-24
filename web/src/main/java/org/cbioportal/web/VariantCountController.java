@@ -25,7 +25,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 @InternalApi
-@RestController
+@RestController("/api")
 @Validated
 @Api(tags = "Variant Counts", description = " ")
 public class VariantCountController {
@@ -35,8 +35,8 @@ public class VariantCountController {
     @Autowired
     private VariantCountService variantCountService;
 
-    @PreAuthorize("hasPermission(#molecularProfileId, 'MolecularProfileId', 'read')")
-    @RequestMapping(value = "/api/molecular-profiles/{molecularProfileId}/variant-counts/fetch",
+    @PreAuthorize("hasPermission(#molecularProfileId, 'MolecularProfileId', T(org.cbioportal.utils.security.AccessLevel).READ)")
+    @RequestMapping(value = "/molecular-profiles/{molecularProfileId}/variant-counts/fetch",
         method = RequestMethod.POST, consumes = MediaType.APPLICATION_JSON_VALUE,
         produces = MediaType.APPLICATION_JSON_VALUE)
     @ApiOperation("Get counts of specific variants within a mutation molecular profile")

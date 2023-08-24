@@ -1,15 +1,15 @@
 --
--- Copyright (c) 2016 - 2020 Memorial Sloan-Kettering Cancer Center.
+-- Copyright (c) 2016 - 2022 Memorial Sloan Kettering Cancer Center.
 --
 -- This library is distributed in the hope that it will be useful, but WITHOUT
 -- ANY WARRANTY, WITHOUT EVEN THE IMPLIED WARRANTY OF MERCHANTABILITY OR FITNESS
 -- FOR A PARTICULAR PURPOSE. The software and documentation provided hereunder
--- is on an "as is" basis, and Memorial Sloan-Kettering Cancer Center has no
+-- is on an "as is" basis, and Memorial Sloan Kettering Cancer Center has no
 -- obligations to provide maintenance, support, updates, enhancements or
--- modifications. In no event shall Memorial Sloan-Kettering Cancer Center be
+-- modifications. In no event shall Memorial Sloan Kettering Cancer Center be
 -- liable to any party for direct, indirect, special, incidental or
 -- consequential damages, including lost profits, arising out of the use of this
--- software and its documentation, even if Memorial Sloan-Kettering Cancer
+-- software and its documentation, even if Memorial Sloan Kettering Cancer
 -- Center has been advised of the possibility of such damage.
 --
 -- This file is part of cBioPortal.
@@ -953,3 +953,78 @@ UPDATE `info` SET `DB_SCHEMA_VERSION`="2.12.9";
 -- so set 0 (false) as default value for PATIENT_LEVEL field
 ALTER TABLE `genetic_profile` ADD COLUMN `PATIENT_LEVEL` boolean DEFAULT 0;
 UPDATE `info` SET `DB_SCHEMA_VERSION`="2.12.10";
+
+##version: 2.12.12
+DROP TABLE IF EXISTS `pdb_uniprot_residue_mapping`;
+DROP TABLE IF EXISTS `pdb_uniprot_alignment`;
+DROP TABLE IF EXISTS `protein_array_data`;
+DROP TABLE IF EXISTS `protein_array_target`;
+DROP TABLE IF EXISTS `protein_array_info`;
+DROP TABLE IF EXISTS `protein_array_cancer_study`;
+DROP TABLE IF EXISTS `sanger_cancer_census`;
+DROP TABLE IF EXISTS `uniprot_id_mapping`;
+DROP TABLE IF EXISTS `pfam_graphics`;
+DROP TABLE IF EXISTS `text_cache`;
+DROP TABLE IF EXISTS `drug_interaction`;
+DROP TABLE IF EXISTS `drug`;
+DROP TABLE IF EXISTS `interaction`;
+-- changes for issue 9257
+ALTER TABLE `reference_genome_gene` DROP COLUMN `EXONIC_LENGTH`;
+-- changes for issue 9032
+ALTER TABLE `genetic_entity` MODIFY COLUMN `STABLE_ID` VARCHAR(255) DEFAULT NULL;
+UPDATE `info` SET `DB_SCHEMA_VERSION`="2.12.12";
+
+##version: 2.12.13
+ALTER TABLE `sample` MODIFY COLUMN `STABLE_ID` VARCHAR(63) NOT NULL;
+UPDATE `info` SET `DB_SCHEMA_VERSION`="2.12.13";
+
+
+
+##version: 2.12.14
+ALTER TABLE `structural_variant` MODIFY COLUMN `SITE1_ENTREZ_GENE_ID` int(11);
+ALTER TABLE `structural_variant` ADD COLUMN `SITE1_REGION` varchar(25) AFTER `SITE1_CHROMOSOME`;
+ALTER TABLE `structural_variant` ADD COLUMN `SITE1_REGION_NUMBER` int(11) AFTER `SITE1_REGION`;
+ALTER TABLE `structural_variant` ADD COLUMN `SITE1_CONTIG` varchar(100) AFTER `SITE1_REGION_NUMBER`;
+ALTER TABLE `structural_variant` ADD COLUMN `SITE2_REGION` varchar(25) AFTER `SITE2_CHROMOSOME`;
+ALTER TABLE `structural_variant` ADD COLUMN `SITE2_REGION_NUMBER` int(11) AFTER `SITE2_REGION`;
+ALTER TABLE `structural_variant` ADD COLUMN `SITE2_CONTIG` varchar(100) AFTER `SITE2_REGION_NUMBER`;
+ALTER TABLE `structural_variant` ADD COLUMN `SV_STATUS` varchar(25) NOT NULL DEFAULT 'SOMATIC' COMMENT 'GERMLINE or SOMATIC.' AFTER `COMMENTS`;
+ALTER TABLE `structural_variant` DROP COLUMN `SITE1_EXON`;
+ALTER TABLE `structural_variant` DROP COLUMN `SITE2_EXON`;
+ALTER TABLE `structural_variant` DROP COLUMN `CENTER`;
+ALTER TABLE `structural_variant` DROP COLUMN `EXTERNAL_ANNOTATION`;
+UPDATE `info` SET `DB_SCHEMA_VERSION`="2.12.14";
+
+##version: 2.12.15
+ALTER TABLE `sample_cna_event` ADD COLUMN `ANNOTATION_JSON` JSON AFTER `GENETIC_PROFILE_ID`;
+UPDATE `info` SET `DB_SCHEMA_VERSION`="2.12.15";
+
+##version: 2.12.16
+ALTER TABLE `structural_variant` ADD COLUMN `ANNOTATION_JSON` JSON AFTER `SV_STATUS`;
+UPDATE `info` SET `DB_SCHEMA_VERSION`="2.12.16";
+
+##version: 2.13.0
+-- changes for issue 9461
+ALTER TABLE `mutation_event` DROP COLUMN `FUNCTIONAL_IMPACT_SCORE`;
+ALTER TABLE `mutation_event` DROP COLUMN `FIS_VALUE`;
+ALTER TABLE `mutation_event` DROP COLUMN `LINK_XVAR`;
+ALTER TABLE `mutation_event` DROP COLUMN `LINK_PDB`;
+ALTER TABLE `mutation_event` DROP COLUMN `LINK_MSA`;
+
+-- changes for issue 9779
+ALTER TABLE `mutation_event` DROP COLUMN `ONCOTATOR_DBSNP_RS`;
+ALTER TABLE `mutation_event` DROP COLUMN `ONCOTATOR_UNIPROT_ENTRY_NAME`;
+ALTER TABLE `mutation_event` CHANGE COLUMN `ONCOTATOR_REFSEQ_MRNA_ID` `REFSEQ_MRNA_ID` varchar(64);
+ALTER TABLE `mutation_event` CHANGE COLUMN `ONCOTATOR_CODON_CHANGE` `CODON_CHANGE` varchar(255);
+ALTER TABLE `mutation_event` CHANGE COLUMN `ONCOTATOR_UNIPROT_ACCESSION` `UNIPROT_ACCESSION` varchar(64);
+ALTER TABLE `mutation_event` CHANGE COLUMN `ONCOTATOR_PROTEIN_POS_START` `PROTEIN_POS_START` int(11);
+ALTER TABLE `mutation_event` CHANGE COLUMN `ONCOTATOR_PROTEIN_POS_END` `PROTEIN_POS_END` int(11);
+UPDATE `info` SET `DB_SCHEMA_VERSION`="2.13.0";
+
+
+##version: 2.13.1
+ALTER TABLE `clinical_event_data` MODIFY COLUMN `VALUE` varchar(3000) NOT NULL;
+CREATE INDEX idx_clinical_event_key ON clinical_event_data (`KEY`);
+CREATE INDEX idx_clinical_event_value ON clinical_event_data (`VALUE`);
+CREATE INDEX idx_sample_stable_id ON sample (`STABLE_ID`);
+UPDATE `info` SET `DB_SCHEMA_VERSION`="2.13.1";

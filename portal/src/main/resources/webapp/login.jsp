@@ -168,7 +168,7 @@ a {text-decoration: none;}
                 </div>
                 </form>
 
-                <% } else if (authenticationMethod.equals("saml")) { %>
+                <% } else if (authenticationMethod.equals("saml") || authenticationMethod.equals("saml_plus_basic")) { %>
                   <p>
                     <!-- removed the hard-coded saml registration html and calling GlobalProperties instead -->
                     <button id="saml_login_button" type="button" class="btn btn-danger btn-lg" onclick="window.location = 'saml/login?idp=<%= GlobalProperties.getSamlIdpMetadataEntityid() %>'" >

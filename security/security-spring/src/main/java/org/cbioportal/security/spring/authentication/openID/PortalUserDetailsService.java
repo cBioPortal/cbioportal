@@ -163,7 +163,7 @@ public class PortalUserDetailsService
                         AuthorityUtils.createAuthorityList(authorities.getAuthorities().toArray(new String[authorities.getAuthorities().size()]));
                     toReturn = new PortalUserDetails(id, grantedAuthorities);
                     toReturn.setEmail(email);
-                    toReturn.setName(fullName);
+                    toReturn.setUserName(fullName);
                 }
             }
         }

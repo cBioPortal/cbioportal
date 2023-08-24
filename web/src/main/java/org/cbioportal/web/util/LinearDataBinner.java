@@ -70,12 +70,14 @@ public class LinearDataBinner {
         return dataBins;
     }
 
-    public List<DataBin> initDataBins(List<BigDecimal> bins) {
+    // Add boundaries that have a defined start and end value.
+    // Ignore boundaries for lower (<=) and upper (>) limits.
+    public List<DataBin> initDataBins(List<BigDecimal> boundaries) {
         List<DataBin> dataBins = new ArrayList<>();
-        for (int i = 0; i < bins.size() - 1; i++) {
+        for (int i = 0; i < boundaries.size() - 1; i++) {
             DataBin dataBin = new DataBin();
-            dataBin.setStart(bins.get(i));
-            dataBin.setEnd(bins.get(i + 1));
+            dataBin.setStart(boundaries.get(i));
+            dataBin.setEnd(boundaries.get(i + 1));
             dataBin.setCount(0);
             dataBins.add(dataBin);
         }

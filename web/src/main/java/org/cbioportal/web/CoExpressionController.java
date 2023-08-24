@@ -24,7 +24,7 @@ import javax.validation.Valid;
 import java.util.List;
 
 @InternalApi
-@RestController
+@RestController("/api")
 @Validated
 @Api(tags = "Co-Expressions", description = " ")
 public class CoExpressionController {
@@ -33,8 +33,8 @@ public class CoExpressionController {
     private CoExpressionService coExpressionService;
 
     // requires permission to access both molecularProfileIdA and molecularProfileIdB because service layer does not enforce requirement that both profiles are in the same study
-    @PreAuthorize("hasPermission(#molecularProfileIdA, 'MolecularProfileId', 'read') and hasPermission(#molecularProfileIdB, 'MolecularProfileId', 'read')")
-    @RequestMapping(value = "/api/molecular-profiles/co-expressions/fetch",
+    @PreAuthorize("hasPermission(#molecularProfileIdA, 'MolecularProfileId', T(org.cbioportal.utils.security.AccessLevel).READ) and hasPermission(#molecularProfileIdB, 'MolecularProfileId', T(org.cbioportal.utils.security.AccessLevel).READ)")
+    @RequestMapping(value = "/molecular-profiles/co-expressions/fetch",
         method = RequestMethod.POST, consumes = MediaType.APPLICATION_JSON_VALUE,
         produces = MediaType.APPLICATION_JSON_VALUE)
     @ApiOperation("Calculates correlations between a genetic entity from a specific profile and another profile from the same study")

@@ -19,7 +19,7 @@ import org.springframework.web.bind.annotation.RestController;
 import java.util.List;
 
 @InternalApi
-@RestController
+@RestController("/api")
 @Validated
 @Api(tags = "Custom driver annotations", description = " ")
 public class AlterationDriverAnnotationController {
@@ -27,8 +27,8 @@ public class AlterationDriverAnnotationController {
     @Autowired
     private AlterationDriverAnnotationService alterationDriverAnnotationService;
 
-    @PreAuthorize("hasPermission(#molecularProfileIds, 'Collection<MolecularProfileId>', 'read')")
-    @PostMapping(value = "/api/custom-driver-annotation-report/fetch",
+    @PreAuthorize("hasPermission(#molecularProfileIds, 'Collection<MolecularProfileId>', T(org.cbioportal.utils.security.AccessLevel).READ)")
+    @PostMapping(value = "/custom-driver-annotation-report/fetch",
         consumes = MediaType.APPLICATION_JSON_VALUE,
         produces = MediaType.APPLICATION_JSON_VALUE)
     @ApiOperation("Return availability of custom driver annotations for molecular profiles")

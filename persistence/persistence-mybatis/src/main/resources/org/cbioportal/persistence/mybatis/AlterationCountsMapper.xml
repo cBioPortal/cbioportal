@@ -3,7 +3,7 @@
 
 <mapper namespace="org.cbioportal.persistence.mybatis.AlterationCountsMapper">
 
-    <select id="getSampleAlterationCounts" resultType="org.cbioportal.model.AlterationCountByGene">
+    <select id="getSampleAlterationGeneCounts" resultType="org.cbioportal.model.AlterationCountByGene">
         SELECT 
             ENTREZ_GENE_ID AS "entrezGeneId",
             HUGO_GENE_SYMBOL AS "hugoGeneSymbol",
@@ -37,7 +37,7 @@
         GROUP BY ENTREZ_GENE_ID, HUGO_GENE_SYMBOL;
     </select>
 
-    <select id="getPatientAlterationCounts" resultType="org.cbioportal.model.AlterationCountByGene">
+    <select id="getPatientAlterationGeneCounts" resultType="org.cbioportal.model.AlterationCountByGene">
         SELECT
             ENTREZ_GENE_ID AS entrezGeneId,
             HUGO_GENE_SYMBOL AS hugoGeneSymbol,
@@ -71,7 +71,7 @@
         GROUP BY ENTREZ_GENE_ID, HUGO_GENE_SYMBOL;
     </select>
 
-    <select id="getSampleCnaCounts" resultType="org.cbioportal.model.CopyNumberCountByGene">
+    <select id="getSampleCnaGeneCounts" resultType="org.cbioportal.model.CopyNumberCountByGene">
         SELECT
             cna_event.ENTREZ_GENE_ID AS entrezGeneId,
             gene.HUGO_GENE_SYMBOL AS hugoGeneSymbol,
@@ -111,7 +111,7 @@
         GROUP BY cna_event.ENTREZ_GENE_ID, cna_event.ALTERATION, reference_genome_gene.CYTOBAND, gene.HUGO_GENE_SYMBOL
     </select>
 
-    <select id="getPatientCnaCounts" resultType="org.cbioportal.model.CopyNumberCountByGene">
+    <select id="getPatientCnaGeneCounts" resultType="org.cbioportal.model.CopyNumberCountByGene">
         SELECT
             cna_event.ENTREZ_GENE_ID AS entrezGeneId,
             gene.HUGO_GENE_SYMBOL AS hugoGeneSymbol,
@@ -147,6 +147,60 @@
         </where>
         GROUP BY cna_event.ENTREZ_GENE_ID, cna_event.ALTERATION, gene.HUGO_GENE_SYMBOL
     </select>
+    
+    <select id="getSampleStructuralVariantCounts" resultType="org.cbioportal.model.AlterationCountByStructuralVariant">
+        SELECT
+            gene1.ENTREZ_GENE_ID AS gene1EntrezGeneId,
+            gene1.HUGO_GENE_SYMBOL AS gene1HugoGeneSymbol,
+            gene2.ENTREZ_GENE_ID AS gene2EntrezGeneId,
+            gene2.HUGO_GENE_SYMBOL AS gene2HugoGeneSymbol,
+            COUNT(*) AS totalCount,
+            COUNT(DISTINCT(sample.INTERNAL_ID)) AS numberOfAlteredCases
+        FROM structural_variant
+            INNER JOIN genetic_profile ON structural_variant.GENETIC_PROFILE_ID = genetic_profile.GENETIC_PROFILE_ID
+            <include refid="fromIncludeCustomAnnotationsSV" />
+            INNER JOIN sample ON structural_variant.SAMPLE_ID = sample.INTERNAL_ID
+            INNER JOIN patient ON sample.PATIENT_ID = patient.INTERNAL_ID
+            LEFT JOIN gene as gene1 ON structural_variant.SITE1_ENTREZ_GENE_ID = gene1.ENTREZ_GENE_ID
+            LEFT JOIN gene as gene2 ON structural_variant.SITE2_ENTREZ_GENE_ID = gene2.ENTREZ_GENE_ID
+        <where>
+            <include refid="whereCustomAnnotations"/>
+            <include refid="whereSVStatus" />
+            <include refid="caseFilter">
+                <property name="case_type" value="'SAMPLE_ID'"/>
+                <property name="identifiers" value="structuralVariantMolecularProfileCaseIdentifiers" />
+                <property name="geneticProfileIdentifier" value="genetic_profile.STABLE_ID" />
+                <property name="caseStableIdentifier" value="caseStableIdentifier" />
+            </include>
+        </where>
+        GROUP BY gene1.ENTREZ_GENE_ID, gene2.ENTREZ_GENE_ID
+    </select>
+    
+    <select id="getPatientStructuralVariantCounts" resultType="org.cbioportal.model.AlterationCountByStructuralVariant">
+        SELECT
+            gene1.ENTREZ_GENE_ID AS gene1EntrezGeneId,
+            gene1.HUGO_GENE_SYMBOL AS gene1HugoGeneSymbol,
+            gene2.ENTREZ_GENE_ID AS gene2EntrezGeneId,
+            gene2.HUGO_GENE_SYMBOL AS gene2HugoGeneSymbol,
+            COUNT(*) AS totalCount,
+            COUNT(DISTINCT(patient.INTERNAL_ID)) AS numberOfAlteredCases
+        FROM structural_variant
+            INNER JOIN genetic_profile ON structural_variant.GENETIC_PROFILE_ID = genetic_profile.GENETIC_PROFILE_ID
+            INNER JOIN sample ON structural_variant.SAMPLE_ID = sample.INTERNAL_ID
+            INNER JOIN patient ON sample.PATIENT_ID = patient.INTERNAL_ID
+            INNER JOIN gene as gene1 ON structural_variant.SITE1_ENTREZ_GENE_ID = gene1.ENTREZ_GENE_ID
+            INNER JOIN gene as gene2 ON structural_variant.SITE2_ENTREZ_GENE_ID = gene2.ENTREZ_GENE_ID
+        <where>
+            <include refid="whereSVStatus" />
+            <include refid="caseFilter">
+                <property name="case_type" value="'PATIENT_ID'"/>
+                <property name="identifiers" value="structuralVariantMolecularProfileCaseIdentifiers" />
+                <property name="geneticProfileIdentifier" value="genetic_profile.STABLE_ID" />
+                <property name="caseStableIdentifier" value="caseStableIdentifier" />
+            </include>
+        </where>
+        GROUP BY gene1.ENTREZ_GENE_ID, gene2.ENTREZ_GENE_ID
+    </select>
 
     <sql id="fromIncludeCustomAnnotationsMutation">
         <!--For better performance, only join in the alteration_driver_annotation table when we need to filter on it.-->
@@ -176,25 +230,45 @@
         </if>
     </sql>
     
+    <sql id="fromIncludeCustomAnnotationsSV">
+        <!--For better performance, only join in the alteration_driver_annotation table when we need to filter on it.-->
+        <bind name="allDriverAnnotationsSelected" value="includeDriver and includeVUS and includeUnknownOncogenicity" />
+        <bind name="noDriverAnnotationsSelected" value="not includeDriver and not includeVUS and not includeUnknownOncogenicity" />
+        <bind name="allTierOptionsSelected" value="(selectedTiers != null and selectedTiers.hasAll()) and includeUnknownTier" />
+        <bind name="noTierOptionsSelected" value="(selectedTiers == null or selectedTiers.hasNone()) and not includeUnknownTier" />
+        <if test="(not allDriverAnnotationsSelected and not noDriverAnnotationsSelected) or (not allTierOptionsSelected and not noTierOptionsSelected)">
+            LEFT JOIN alteration_driver_annotation ON
+            structural_variant.INTERNAL_ID = alteration_driver_annotation.ALTERATION_EVENT_ID
+            AND structural_variant.GENETIC_PROFILE_ID = alteration_driver_annotation.GENETIC_PROFILE_ID
+            AND structural_variant.SAMPLE_ID = alteration_driver_annotation.SAMPLE_ID
+        </if>
+    </sql>
+
+    <!-- Row should only be returned once, also when both sv sites match -->
+    <sql id="whereSite1IsNot2">
+        (
+            structural_variant.SITE2_ENTREZ_GENE_ID != structural_variant.SITE1_ENTREZ_GENE_ID
+            OR
+            structural_variant.SITE1_ENTREZ_GENE_ID IS NULL
+        )
+    </sql>
+
     <sql id="whereCustomAnnotations">
         <bind name="allDriverAnnotationsSelected" value="includeDriver and includeVUS and includeUnknownOncogenicity" />
         <bind name="noDriverAnnotationsSelected" value="not includeDriver and not includeVUS and not includeUnknownOncogenicity" />
         <choose>
             <when test="not allDriverAnnotationsSelected and not noDriverAnnotationsSelected">
-                <trim prefix="" prefixOverrides="AND ( )">
-                    <trim prefix="AND (" prefixOverrides="OR">
-                        <if test="includeDriver">
-                            OR LOWER(alteration_driver_annotation.DRIVER_FILTER) = 'putative_driver'
-                        </if>
-                        <if test="includeVUS">
-                            OR LOWER(alteration_driver_annotation.DRIVER_FILTER) = 'putative_passenger'
-                        </if>
-                        <if test="includeUnknownOncogenicity">
-                            OR alteration_driver_annotation.DRIVER_FILTER IS NULL
-                            OR LOWER(alteration_driver_annotation.DRIVER_FILTER) IN ('unknown', 'na', '')
-                        </if>
-                        )
-                    </trim>
+                <trim prefix="AND (" suffix=")" prefixOverrides="OR">
+                    <if test="includeDriver">
+                        OR LOWER(DRIVER_FILTER) = 'putative_driver'
+                    </if>
+                    <if test="includeVUS">
+                        OR LOWER(DRIVER_FILTER) = 'putative_passenger'
+                    </if>
+                    <if test="includeUnknownOncogenicity">
+                        OR DRIVER_FILTER IS NULL
+                        OR LOWER(DRIVER_FILTER) IN ('unknown', 'na', '')
+                    </if>
                 </trim>
             </when>
             <when test="noDriverAnnotationsSelected">
@@ -212,19 +286,18 @@
         <bind name="noTierOptionsSelected" value="(selectedTiers == null or selectedTiers.hasNone()) and not includeUnknownTier" />
         <choose>
             <when test="not allTierOptionsSelected and not noTierOptionsSelected">
-                <trim prefix="AND (" prefixOverrides="OR">    
+                <trim prefix="AND (" suffix=")" prefixOverrides="OR">    
                     <if test="selectedTiers != null and selectedTiers.hasValues()">
-                        OR alteration_driver_annotation.DRIVER_TIERS_FILTER IN
+                        OR DRIVER_TIERS_FILTER IN
                         <foreach item="item" collection="selectedTiers" open="(" separator="," close=")">
                             #{item}
                         </foreach>
                     </if>
                     <if test="includeUnknownTier">
-                        OR alteration_driver_annotation.DRIVER_TIERS_FILTER IS NULL
-                        OR LOWER(alteration_driver_annotation.DRIVER_TIERS_FILTER) IN ('', 'na', 'unknown')
+                        OR DRIVER_TIERS_FILTER IS NULL
+                        OR LOWER(DRIVER_TIERS_FILTER) IN ('', 'na', 'unknown')
                     </if>
                 </trim>
-                )
             </when>
             <when test="noTierOptionsSelected">
                 AND NULL
@@ -240,22 +313,19 @@
         <bind name="noMutationStatusSelected" value="not includeGermline and not includeSomatic and not includeUnknownStatus" />
         <choose>
             <when test="not allMutationStatusSelected and not noMutationStatusSelected">
-                <trim prefix="" prefixOverrides="AND ( )">
-                    <trim prefix="AND (" prefixOverrides="OR">
-                        <if test="includeGermline">
-                            OR
-                            LOWER(mutation.MUTATION_STATUS) = 'germline'
-                        </if>
-                        <if test="includeSomatic">
-                            OR
-                            LOWER(mutation.MUTATION_STATUS) = 'somatic'
-                        </if>
-                        <if test="includeUnknownStatus">
-                            OR
-                            LOWER(mutation.MUTATION_STATUS) NOT IN ('germline', 'somatic')
-                        </if>
-                        )
-                    </trim>
+                <trim prefix="AND (" suffix=")" prefixOverrides="OR">
+                    <if test="includeGermline">
+                        OR
+                        LOWER(mutation.MUTATION_STATUS) LIKE '%germline%'
+                    </if>
+                    <if test="includeSomatic">
+                        OR
+                        LOWER(mutation.MUTATION_STATUS) = 'somatic'
+                    </if>
+                    <if test="includeUnknownStatus">
+                        OR
+                        (LOWER(mutation.MUTATION_STATUS) != 'somatic' AND LOWER(mutation.MUTATION_STATUS) NOT LIKE '%germline%')
+                    </if>
                 </trim>
             </when>
             <when test="noMutationStatusSelected">
@@ -267,15 +337,33 @@
         </choose>
     </sql>
 
-    <sql id="whereSearchFusions">
-        <if test="searchFusions.name() == 'ACTIVE'">
-            AND
-            LOWER(mutation_event.MUTATION_TYPE) = 'fusion'
-        </if>
-        <if test="searchFusions.name() == 'INACTIVE'">
-            AND
-            LOWER(mutation_event.MUTATION_TYPE) != 'fusion'
-        </if>
+    <sql id="whereSVStatus">
+        <bind name="allSVStatusSelected" value="includeGermline and includeSomatic and includeUnknownStatus" />
+        <bind name="noSVStatusSelected" value="not includeGermline and not includeSomatic and not includeUnknownStatus" />
+        <choose>
+            <when test="not allSVStatusSelected and not noSVStatusSelected">
+                <trim prefix="AND (" suffix=")" prefixOverrides="OR">
+                    <if test="includeGermline">
+                        OR
+                        LOWER(SV_STATUS) = 'germline'
+                    </if>
+                    <if test="includeSomatic">
+                        OR
+                        LOWER(SV_STATUS) = 'somatic'
+                    </if>
+                    <if test="includeUnknownStatus">
+                        OR
+                        LOWER(SV_STATUS) NOT IN ('germline', 'somatic')
+                    </if>
+                </trim>
+            </when>
+            <when test="noSVStatusSelected">
+                AND NULL
+            </when>
+            <otherwise>
+                <!--when allSVStatusSelected do not filter-->
+            </otherwise>
+        </choose>
     </sql>
 
     <sql id="whereGene">
@@ -336,15 +424,6 @@
                         LOWER(#{type})
                     </foreach>
                 </when>
-                <!-- BEWARE: at the moment fusions are in the mutations table with MUTATION_TYPE 
-                    'Fusion' this results in undesired interaction of fusion vs mutation queries 
-                    and the ability to pass a list of mutation types (that can include fusion 
-                    events). Now, fusions can be only filtered out when there is no limit on 
-                    the mutation types ('mutationTypes.hasAll()'). This code should be changed 
-                    when fusions move to the strucural variants table. -->
-                <when test="mutationTypes.hasAll()">
-                    <include refid="whereSearchFusions" />
-                </when>
             </choose>
             <include refid="whereCustomAnnotations"/>
             <include refid="whereMutationStatus"/>
@@ -401,34 +480,48 @@
                 gene.HUGO_GENE_SYMBOL AS "hugoGeneSymbol",
                 <include refid="caseUniqueIdentifier" /> as "caseUniqueId",
                 <include refid="caseStableIdentifier" /> as "caseStableId",
-                genetic_profile.GENETIC_PROFILE_ID as "geneticProfileId"
-                
+                genetic_profile.GENETIC_PROFILE_ID as "geneticProfileId",
+                structural_variant.SV_STATUS as "SV_STATUS"
             FROM
                 structural_variant
             INNER JOIN genetic_profile ON structural_variant.GENETIC_PROFILE_ID = genetic_profile.GENETIC_PROFILE_ID
             INNER JOIN sample ON structural_variant.SAMPLE_ID = sample.INTERNAL_ID
             INNER JOIN patient ON sample.PATIENT_ID = patient.INTERNAL_ID
             INNER JOIN gene ON structural_variant.SITE1_ENTREZ_GENE_ID = gene.ENTREZ_GENE_ID
+            <include refid="fromIncludeCustomAnnotationsSV"/>
+            <where>
+                <include refid="whereCustomAnnotations"/>
+            </where>
+
             UNION ALL
+
             SELECT 
                 gene.ENTREZ_GENE_ID AS entrezGeneId,
                 gene.HUGO_GENE_SYMBOL AS hugoGeneSymbol,
                 <include refid="caseUniqueIdentifier" /> as caseUniqueId,
                 <include refid="caseStableIdentifier" /> as caseStableId,
-                genetic_profile.GENETIC_PROFILE_ID as geneticProfileId
+                genetic_profile.GENETIC_PROFILE_ID as geneticProfileId,
+                structural_variant.SV_STATUS as SV_STATUS
             FROM
                 structural_variant
             INNER JOIN genetic_profile ON structural_variant.GENETIC_PROFILE_ID = genetic_profile.GENETIC_PROFILE_ID
             INNER JOIN sample ON structural_variant.SAMPLE_ID = sample.INTERNAL_ID
             INNER JOIN patient ON sample.PATIENT_ID = patient.INTERNAL_ID
-            INNER JOIN gene ON structural_variant.SITE2_ENTREZ_GENE_ID = gene.ENTREZ_GENE_ID) as combinedResults
-        <where>
-            <include refid="caseFilter">
-                <property name="identifiers" value="structuralVariantMolecularProfileCaseIdentifiers" />
-                <property name="geneticProfileIdentifier" value="geneticProfileId" />
-                <property name="caseStableIdentifier" value="caseStableId" />
-            </include>
-        </where>
+            INNER JOIN gene ON structural_variant.SITE2_ENTREZ_GENE_ID = gene.ENTREZ_GENE_ID
+            <include refid="fromIncludeCustomAnnotationsSV"/>
+            <where>
+                <include refid="whereSite1IsNot2"/>
+                <include refid="whereCustomAnnotations"/>
+            </where>
+            ) AS combinedResults
+            <where>
+                <include refid="whereSVStatus"/>
+                <include refid="caseFilter">
+                    <property name="identifiers" value="structuralVariantMolecularProfileCaseIdentifiers" />
+                    <property name="geneticProfileIdentifier" value="geneticProfileId" />
+                    <property name="caseStableIdentifier" value="caseUniqueId" />
+                </include>
+            </where> 
     </sql>
 
     <sql id="caseFilter">
@@ -480,6 +573,10 @@
 
     <sql id="caseStableId">
         caseStableId
+    </sql>
+    
+    <sql id="caseUniqueId">
+        caseUniqueId
     </sql>
     
     <select id="getMolecularProfileCaseInternalIdentifier" resultType="org.cbioportal.model.MolecularProfileCaseIdentifier">

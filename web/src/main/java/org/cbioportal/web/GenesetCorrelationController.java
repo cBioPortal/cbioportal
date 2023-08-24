@@ -52,7 +52,7 @@ import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
 
 @InternalApi
-@RestController
+@RestController("/api")
 @Validated
 @Api(tags = "Gene Set Correlation", description = " ")
 public class GenesetCorrelationController {
@@ -60,8 +60,8 @@ public class GenesetCorrelationController {
     @Autowired
     private GenesetCorrelationService genesetCorrelationService;
 
-    @PreAuthorize("hasPermission(#geneticProfileId, 'GeneticProfileId', 'read')")
-    @RequestMapping(value = "/api/genesets/{genesetId}/expression-correlation/fetch", method = RequestMethod.POST,
+    @PreAuthorize("hasPermission(#geneticProfileId, 'GeneticProfileId', T(org.cbioportal.utils.security.AccessLevel).READ)")
+    @RequestMapping(value = "/genesets/{genesetId}/expression-correlation/fetch", method = RequestMethod.POST,
         consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
     @ApiOperation("Get the genes in a gene set that have expression correlated to the gene set scores (calculated using Spearman's correlation)")
     public ResponseEntity<List<GenesetCorrelation>> fetchCorrelatedGenes(

@@ -7,6 +7,7 @@
         cna_event.ENTREZ_GENE_ID as entrezGeneId,
         cna_event.ALTERATION AS "alteration",
         genetic_profile.STABLE_ID AS "molecularProfileId",
+        sample_cna_event.ANNOTATION_JSON as annotationJson,
         sample.STABLE_ID AS "sampleId",
         patient.STABLE_ID AS "patientId",
         cancer_study.CANCER_STUDY_IDENTIFIER AS "studyId",
@@ -124,20 +125,17 @@
                 <bind name="noDriverAnnotationsSelected" value="not geneFilterQuery.getIncludeDriver() and not geneFilterQuery.getIncludeVUS() and not geneFilterQuery.getIncludeUnknownOncogenicity()" />
                 <choose>
                     <when test="not allDriverAnnotationsSelected and not noDriverAnnotationsSelected">
-                        <trim prefix="" prefixOverrides="AND ( )">
-                            <trim prefix="AND (" prefixOverrides="OR">
-                                <if test="geneFilterQuery.getIncludeDriver()">
-                                    OR LOWER(alteration_driver_annotation.DRIVER_FILTER) = 'putative_driver'
-                                </if>
-                                <if test="geneFilterQuery.getIncludeVUS()">
-                                    OR LOWER(alteration_driver_annotation.DRIVER_FILTER) = 'putative_passenger'
-                                </if>
-                                <if test="geneFilterQuery.getIncludeUnknownOncogenicity()">
-                                    OR alteration_driver_annotation.DRIVER_FILTER IS NULL
-                                    OR LOWER(alteration_driver_annotation.DRIVER_FILTER) IN ('unknown', 'na', '')
-                                </if>
-                                )
-                            </trim>
+                        <trim prefix="AND (" suffix=")" prefixOverrides="OR">
+                            <if test="geneFilterQuery.getIncludeDriver()">
+                                OR LOWER(alteration_driver_annotation.DRIVER_FILTER) = 'putative_driver'
+                            </if>
+                            <if test="geneFilterQuery.getIncludeVUS()">
+                                OR LOWER(alteration_driver_annotation.DRIVER_FILTER) = 'putative_passenger'
+                            </if>
+                            <if test="geneFilterQuery.getIncludeUnknownOncogenicity()">
+                                OR alteration_driver_annotation.DRIVER_FILTER IS NULL
+                                OR LOWER(alteration_driver_annotation.DRIVER_FILTER) IN ('unknown', 'na', '')
+                            </if>
                         </trim>
                     </when>
                     <when test="noDriverAnnotationsSelected">
@@ -156,7 +154,7 @@
                         AND NOT LOWER(alteration_driver_annotation.DRIVER_TIERS_FILTER) IN ('', 'na', 'unknown')
                     </when>
                     <when test="not allTierOptionsSelected and not noTierOptionsSelected">
-                        <trim prefix="AND (" prefixOverrides="OR">
+                        <trim prefix="AND (" suffix=")" prefixOverrides="OR">
                             <if test="geneFilterQuery.getSelectedTiers() != null and geneFilterQuery.getSelectedTiers().hasValues()">
                                 OR alteration_driver_annotation.DRIVER_TIERS_FILTER IN
                                 <foreach item="item" collection="geneFilterQuery.getSelectedTiers()" open="(" separator="," close=")">
@@ -168,7 +166,6 @@
                                 OR LOWER(alteration_driver_annotation.DRIVER_TIERS_FILTER) IN ('', 'na', 'unknown')
                             </if>
                         </trim>
-                        )
                     </when>
                     <when test="noTierOptionsSelected">
                         AND NULL
@@ -180,13 +177,12 @@
                 <bind name="someAlterationTypesSelected" value="geneFilterQuery.getAlterations() != null and not geneFilterQuery.getAlterations().isEmpty()" />
                 <choose>
                     <when test="someAlterationTypesSelected">
-                        <trim prefix="AND (" prefixOverrides="OR">
+                        <trim prefix="AND (" suffix=")" prefixOverrides="OR">
                             OR cna_event.ALTERATION IN
                             <foreach item="item" collection="geneFilterQuery.getAlterations()" open="(" separator="," close=")">
                                 ${item.getCode()}
                             </foreach>
                         </trim>
-                        )
                     </when>
                     <otherwise>
                         AND NULL

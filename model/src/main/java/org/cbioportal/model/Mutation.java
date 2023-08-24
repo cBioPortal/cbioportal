@@ -23,16 +23,11 @@ public class Mutation extends Alteration implements Serializable {
     private String tumorSeqAllele;
     private String proteinChange;
     private String mutationType;
-    private String functionalImpactScore;
-    private BigDecimal fisValue;
-    private String linkXvar;
-    private String linkPdb;
-    private String linkMsa;
     private String ncbiBuild;
     private String variantType;
-    private String oncotatorRefseqMrnaId;
-    private Integer oncotatorProteinPosStart;
-    private Integer oncotatorProteinPosEnd;
+    private String refseqMrnaId;
+    private Integer proteinPosStart;
+    private Integer proteinPosEnd;
     private String keyword;
     private AlleleSpecificCopyNumber alleleSpecificCopyNumber;
     @JsonRawValue
@@ -155,46 +150,6 @@ public class Mutation extends Alteration implements Serializable {
         this.mutationType = mutationType;
     }
 
-    public String getFunctionalImpactScore() {
-        return functionalImpactScore;
-    }
-
-    public void setFunctionalImpactScore(String functionalImpactScore) {
-        this.functionalImpactScore = functionalImpactScore;
-    }
-
-    public BigDecimal getFisValue() {
-        return fisValue;
-    }
-
-    public void setFisValue(BigDecimal fisValue) {
-        this.fisValue = fisValue;
-    }
-
-    public String getLinkXvar() {
-        return linkXvar;
-    }
-
-    public void setLinkXvar(String linkXvar) {
-        this.linkXvar = linkXvar;
-    }
-
-    public String getLinkPdb() {
-        return linkPdb;
-    }
-
-    public void setLinkPdb(String linkPdb) {
-        this.linkPdb = linkPdb;
-    }
-
-    public String getLinkMsa() {
-        return linkMsa;
-    }
-
-    public void setLinkMsa(String linkMsa) {
-        this.linkMsa = linkMsa;
-    }
-
     public String getNcbiBuild() {
         return ncbiBuild;
     }
@@ -210,29 +165,28 @@ public class Mutation extends Alteration implements Serializable {
     public void setVariantType(String variantType) {
         this.variantType = variantType;
     }
-
-    public String getOncotatorRefseqMrnaId() {
-        return oncotatorRefseqMrnaId;
+    public String getRefseqMrnaId() {
+        return refseqMrnaId;
     }
 
-    public void setOncotatorRefseqMrnaId(String oncotatorRefseqMrnaId) {
-        this.oncotatorRefseqMrnaId = oncotatorRefseqMrnaId;
+    public void setRefseqMrnaId(String refseqMrnaId) {
+        this.refseqMrnaId = refseqMrnaId;
+    }
+    
+    public Integer getProteinPosStart() {
+        return proteinPosStart;
     }
 
-    public Integer getOncotatorProteinPosStart() {
-        return oncotatorProteinPosStart;
+    public void setProteinPosStart(Integer proteinPosStart) {
+        this.proteinPosStart = proteinPosStart;
     }
 
-    public void setOncotatorProteinPosStart(Integer oncotatorProteinPosStart) {
-        this.oncotatorProteinPosStart = oncotatorProteinPosStart;
+    public Integer getProteinPosEnd() {
+        return proteinPosEnd;
     }
 
-    public Integer getOncotatorProteinPosEnd() {
-        return oncotatorProteinPosEnd;
-    }
-
-    public void setOncotatorProteinPosEnd(Integer oncotatorProteinPosEnd) {
-        this.oncotatorProteinPosEnd = oncotatorProteinPosEnd;
+    public void setProteinPosEnd(Integer proteinPosEnd) {
+        this.proteinPosEnd = proteinPosEnd;
     }
 
     public String getKeyword() {

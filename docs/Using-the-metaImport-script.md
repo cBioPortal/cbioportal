@@ -14,7 +14,7 @@ $./metaImport.py -h
 usage: metaImport.py [-h] -s STUDY_DIRECTORY
                      [-u URL_SERVER | -p PORTAL_INFO_DIR | -n]
                      [-jar JAR_PATH] [-html HTML_TABLE]
-                     [-v] [-o] [-r] [-m] [-a MAX_REPORTED_VALUES]
+                     [-v] [-o] [-r] [-m]
 
 cBioPortal meta Importer
 
@@ -45,17 +45,10 @@ optional arguments:
   -m, --strict_maf_checks
                         Option to enable strict mode for validator when
                         validating mutation data
-  -a MAX_REPORTED_VALUES, --max_reported_values MAX_REPORTED_VALUES
-                        Cutoff in report for the maximum number of line
-                        numbers and values encountered to report for each
-                        message in the HTML report. For example, set this to a
-                        high number to report all genes that could not be
-                        loaded, instead of reporting "(GeneA, GeneB, GeneC,
-                        213 more)".
 ```
 
 #### Example of Importing a study
-Export `PORTAL_HOME` as explained [here](Load-Sample-Cancer-Study.md), e.g.
+Export `PORTAL_HOME` as explained [here](/deployment/deploy-without-docker/Load-Sample-Cancer-Study.md), e.g.
 
 ```
 export PORTAL_HOME=<cbioportal_configuration_folder>

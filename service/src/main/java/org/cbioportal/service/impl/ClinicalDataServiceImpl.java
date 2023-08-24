@@ -112,9 +112,11 @@ public class ClinicalDataServiceImpl implements ClinicalDataService {
     }
 
     @Override
-    public List<ClinicalData> fetchClinicalData(List<String> studyIds, List<String> ids, List<String> attributeIds, 
+    public List<ClinicalData> fetchClinicalData(List<String> studyIds, List<String> ids, List<String> attributeIds,
                                                 String clinicalDataType, String projection) {
-
+        if (ids.isEmpty()) {
+            return new ArrayList<>();
+        }
         return clinicalDataRepository.fetchClinicalData(studyIds, ids, attributeIds, clinicalDataType, projection);
     }
 
@@ -222,5 +224,20 @@ public class ClinicalDataServiceImpl implements ClinicalDataService {
     public List<ClinicalData> getPatientClinicalDataDetailedToSample(List<String> studyIds, List<String> patientIds,
             List<String> attributeIds) {
         return clinicalDataRepository.getPatientClinicalDataDetailedToSample(studyIds, patientIds, attributeIds);
+    }
+
+    @Override
+    public List<ClinicalData> fetchSampleClinicalTable(List<String> studyIds, List<String> sampleIds, Integer pageSize,
+                                                       Integer pageNumber, String searchTerm, String sortBy,
+                                                       String direction) {
+        return clinicalDataRepository.fetchSampleClinicalTable(studyIds, sampleIds, pageSize, pageNumber, searchTerm,
+                                                                            sortBy, direction);
+    }
+
+    @Override
+    public Integer fetchSampleClinicalTableCount(List<String> studyIds, List<String> sampleIds,
+                                                 String searchTerm, String sortBy, String direction) {
+        return clinicalDataRepository.fetchSampleClinicalTableCount(studyIds, sampleIds, searchTerm, 
+            sortBy, direction);
     }
 }

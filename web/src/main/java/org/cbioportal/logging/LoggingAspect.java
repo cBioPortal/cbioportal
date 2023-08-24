@@ -7,11 +7,13 @@ import org.aspectj.lang.annotation.Before;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
+import org.cbioportal.utils.config.annotation.ConditionalOnProperty;
 
 
 // TODO is this logging aspect still usefull?
 //@Aspect
 //@Component
+//@ConditionalOnProperty(name = "aspect.enable.logging", havingValue = "true")
 public class LoggingAspect {
 
     private static final Logger logger = LoggerFactory.getLogger("LoggingAspect");

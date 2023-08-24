@@ -35,7 +35,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 @PublicApi
-@RestController
+@RestController("/api")
 @Validated
 @Api(tags = PublicApiTags.DISCRETE_COPY_NUMBER_ALTERATIONS, description = " ")
 public class DiscreteCopyNumberController {
@@ -43,8 +43,8 @@ public class DiscreteCopyNumberController {
     @Autowired
     private DiscreteCopyNumberService discreteCopyNumberService;
 
-    @PreAuthorize("hasPermission(#molecularProfileId, 'MolecularProfileId', 'read')")
-    @RequestMapping(value = "/api/molecular-profiles/{molecularProfileId}/discrete-copy-number", method = RequestMethod.GET,
+    @PreAuthorize("hasPermission(#molecularProfileId, 'MolecularProfileId', T(org.cbioportal.utils.security.AccessLevel).READ)")
+    @RequestMapping(value = "/molecular-profiles/{molecularProfileId}/discrete-copy-number", method = RequestMethod.GET,
         produces = MediaType.APPLICATION_JSON_VALUE)
     @ApiOperation("Get discrete copy number alterations in a molecular profile")
     public ResponseEntity<List<DiscreteCopyNumberData>> getDiscreteCopyNumbersInMolecularProfile(
@@ -71,8 +71,8 @@ public class DiscreteCopyNumberController {
         }
     }
 
-    @PreAuthorize("hasPermission(#molecularProfileId, 'MolecularProfileId', 'read')")
-    @RequestMapping(value = "/api/molecular-profiles/{molecularProfileId}/discrete-copy-number/fetch",
+    @PreAuthorize("hasPermission(#molecularProfileId, 'MolecularProfileId', T(org.cbioportal.utils.security.AccessLevel).READ)")
+    @RequestMapping(value = "/molecular-profiles/{molecularProfileId}/discrete-copy-number/fetch",
         method = RequestMethod.POST, consumes = MediaType.APPLICATION_JSON_VALUE,
         produces = MediaType.APPLICATION_JSON_VALUE)
     @ApiOperation("Fetch discrete copy number alterations in a molecular profile by sample ID")

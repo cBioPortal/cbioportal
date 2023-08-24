@@ -8,4 +8,5 @@ public class InternalApiTags {
     public static final String REFERENCE_GENOME_GENES = "Reference Genome Genes";
     public static final String RESOURCE_DEFINITIONS = "Resource Definitions";
     public static final String RESOURCE_DATA = "Resource Data";
+    public static final String STRUCTURAL_VARIANTS = "Structural Variants";
 }

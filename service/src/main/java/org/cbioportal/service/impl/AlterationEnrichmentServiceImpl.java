@@ -2,7 +2,6 @@ package org.cbioportal.service.impl;
 
 import org.apache.commons.math3.util.Pair;
 import org.cbioportal.model.*;
-import org.cbioportal.model.QueryElement;
 import org.cbioportal.model.util.Select;
 import org.cbioportal.service.AlterationEnrichmentService;
 import org.cbioportal.service.AlterationCountService;
@@ -47,21 +46,19 @@ public class AlterationEnrichmentServiceImpl implements AlterationEnrichmentServ
 
                     if (enrichmentType.equals(EnrichmentType.SAMPLE)) {
                         return alterationCountService
-                            .getSampleAlterationCounts(
+                            .getSampleAlterationGeneCounts(
                                 entry.getValue(),
                                 Select.all(),
                                 true,
                                 true,
-                                QueryElement.PASS,
                                 alterationFilter);
                     } else {
                         return alterationCountService
-                            .getPatientAlterationCounts(
+                            .getPatientAlterationGeneCounts(
                                 entry.getValue(),
                                 Select.all(),
                                 true,
                                 true,
-                                QueryElement.PASS,
                                 alterationFilter);
                     }
                 }));

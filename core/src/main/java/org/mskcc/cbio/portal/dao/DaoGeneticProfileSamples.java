@@ -56,7 +56,7 @@ public final class DaoGeneticProfileSamples
      * @return number of rows added.
      * @throws DaoException Data Access Exception.
      */
-    public static int addGeneticProfileSamples(int geneticProfileId, ArrayList<Integer> orderedSampleList)
+    public static int addGeneticProfileSamples(int geneticProfileId, List<Integer> orderedSampleList)
             throws DaoException {
         Connection con = null;
         PreparedStatement pstmt = null;

@@ -50,7 +50,7 @@ import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
 
 @InternalApi
-@RestController
+@RestController("/api")
 @Validated
 @Api(tags = "Gene Set Hierarchy", description = " ")
 public class GenesetHierarchyController {
@@ -58,8 +58,8 @@ public class GenesetHierarchyController {
     @Autowired
     private GenesetHierarchyService genesetHierarchyService;
 
-    @PreAuthorize("hasPermission(#geneticProfileId, 'GeneticProfileId', 'read')")
-    @RequestMapping(value = "/api/geneset-hierarchy/fetch", method = RequestMethod.POST,
+    @PreAuthorize("hasPermission(#geneticProfileId, 'GeneticProfileId', T(org.cbioportal.utils.security.AccessLevel).READ)")
+    @RequestMapping(value = "/geneset-hierarchy/fetch", method = RequestMethod.POST,
             consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
     @ApiOperation("Get gene set hierarchical organization information. I.e. how different gene sets relate to other gene sets, in a hierarchy")
     public ResponseEntity<List<GenesetHierarchyInfo>> fetchGenesetHierarchyInfo(

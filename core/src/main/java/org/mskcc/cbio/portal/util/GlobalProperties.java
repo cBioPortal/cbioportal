@@ -50,10 +50,13 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Properties;
 
+import org.apache.commons.lang.StringUtils;
+import org.cbioportal.security.spring.authentication.PortalUserDetails;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.core.Authentication;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Component;
 import org.springframework.util.ResourceUtils;
@@ -119,9 +122,11 @@ public class GlobalProperties {
     public static final String SKIN_RIGHT_NAV_SHOW_EXAMPLES = "skin.right_nav.show_examples";
     public static final String SKIN_RIGHT_NAV_SHOW_TESTIMONIALS = "skin.right_nav.show_testimonials";
     public static final String SKIN_RIGHT_NAV_SHOW_WHATS_NEW = "skin.right_nav.show_whats_new";
+    public static final String SKIN_RIGHT_NAV_SHOW_WEB_TOURS = "skin.right_nav.show_web_tours";
     private static String skinAuthorizationMessage;
     @Value("${skin.authorization_message:Access to this portal is only available to authorized users.}")
     public void setSkinAuthorizationMessage(String property) { skinAuthorizationMessage = property; }
+    public static final String SKIN_USER_DISPLAY_NAME = "skin.user_display_name";
     public static final String SKIN_EXAMPLE_STUDY_QUERIES = "skin.example_study_queries";
     public static final String DEFAULT_SKIN_EXAMPLE_STUDY_QUERIES =        
             "tcga pancancer atlas\n" +
@@ -153,6 +158,7 @@ public class GlobalProperties {
     public static final String STUDY_VIEW_MDACC_HEATMAP_META_URL = "mdacc.heatmap.study.meta.url";
 
     public static final String SHOW_ONCOKB = "show.oncokb";
+    public static final String MERGE_ONCOKB_ICONS_BY_DEFAULT = "oncokb.merge_icons_by_default";
     public static final String ONCOKB_TOKEN = "oncokb.token";
 
     private static String sessionServiceURL;
@@ -170,6 +176,12 @@ public class GlobalProperties {
     private static String frontendConfig;
     @Value("${frontend.config:}") // default is empty string
     public void setFrontendConfig(String property) { frontendConfig = property; }
+
+    private static String oncoprintClinicalTracksConfigJson;
+    @Value("${oncoprint.clinical_tracks.config_json:}") // default is empty string
+    public void setOncoprintClinicalTracksConfigJson(String property) {
+        oncoprintClinicalTracksConfigJson = property; 
+    }
 
     // properties for showing the right logo in the header_bar and default logo
     public static final String SKIN_RIGHT_LOGO = "skin.right_logo";
@@ -214,13 +226,13 @@ public class GlobalProperties {
     public static final String SKIN_DOCUMENTATION_MARKDOWN="skin.documentation.markdown";
 
     public static final String SKIN_FAQ="skin.documentation.faq";
-    public static final String DEFAULT_SKIN_FAQ="FAQ.md";
+    public static final String DEFAULT_SKIN_FAQ="user-guide/faq.md";
     public static final String SKIN_ABOUT="skin.documentation.about";
     public static final String DEFAULT_SKIN_ABOUT="About-Us.md";
     public static final String SKIN_NEWS="skin.documentation.news";
     public static final String DEFAULT_SKIN_NEWS="News.md";
     public static final String SKIN_OQL="skin.documentation.oql";
-    public static final String DEFAULT_SKIN_OQL="Onco-Query-Language.md";
+    public static final String DEFAULT_SKIN_OQL="user-guide/oql.md";
 
     public static final String SKIN_EXAMPLES_RIGHT_COLUMN_HTML="skin.examples_right_column_html";
     
@@ -287,6 +299,10 @@ public class GlobalProperties {
     @Value("${show.genomenexus.annotation_sources:mutation_assessor}") // Available sources: mutation_assessor
     public void setShowGenomeNexusAnnotationSources(String property) { showGenomeNexusAnnotationSources = property; }
 
+    private static String genomeNexusIsoformOverrideSource;
+    @Value("${genomenexus.isoform_override_source:mskcc}") // Options: mskcc, uniprot
+    public void setGenomeNexusIsoformOverrideSource(String property) { genomeNexusIsoformOverrideSource = property; }
+
     private static boolean showMutationMapperToolGrch38;
     @Value("${show.mutation_mappert_tool.grch38:true}") // default is true
     public void setShowMutationMapperToolGrch38(String property) { showMutationMapperToolGrch38 = Boolean.parseBoolean(property); }
@@ -294,6 +310,10 @@ public class GlobalProperties {
     private static boolean showSignal;
     @Value("${show.signal:false}") // default is false
     public void setShowSignal(String property) { showSignal = Boolean.parseBoolean(property); }
+
+    private static boolean showNdex;
+    @Value("${show.ndex:true}") // default is true
+    public void setShowNdex(String property) { showNdex = Boolean.parseBoolean(property); }
 
 	/*
      * Trim whitespace of url and append / if it does not exist. Return empty
@@ -345,6 +365,20 @@ public class GlobalProperties {
     @Value("${frontend.url.runtime:}") 
     public void setFrontendUrlRuntime(String property) { frontendUrlRuntime = property; }
 
+    private static String downloadGroup;
+    @Value("${download_group:}") // default is empty string
+    public void setDownloadGroup(String property) { downloadGroup = property; }
+
+    public static final String DEFAULT_DAT_METHOD = "none";
+
+    private static String dataAccessTokenMethod;
+    @Value("${dat.method:none}") // default is empty string
+    public void setDataAccessTokenMethod(String property) { dataAccessTokenMethod = property; }
+    
+    private static String tokenAccessUserRole;
+    @Value("${dat.filter_user_role:}") // default is empty string
+    public void setTokenAccessUserRole(String property) { tokenAccessUserRole = property; }
+    
     private static Logger LOG = LoggerFactory.getLogger(GlobalProperties.class);
     private static ConfigPropertyResolver portalProperties = new ConfigPropertyResolver();
     private static Properties mavenProperties = initializeProperties(MAVEN_PROPERTIES_FILE_NAME);
@@ -484,11 +518,12 @@ public class GlobalProperties {
 		return (studies.length > 0) ? Arrays.asList(studies) : Collections.<String>emptyList();
 	}
 
-    // CHANGES TO THIS LIST MUST BE PROPAGATED TO 'CacheMapUtil'
+    // This method is the equivalent of @portalSecurityConfig.userAuthorizationEnabled()
+    // method in the org.cbioportal.utils package. Update both when changes are needed.
     public static boolean usersMustAuthenticate()
     {
         // authentication for social_auth/social_auth_google/social_auth_microsoft is optional
-        return (!authenticate.isEmpty() && !authenticate.equals("false") && !authenticate.contains("social_auth"));
+        return (!authenticate.isEmpty() && !authenticate.equals("noauthsessionservice") && !authenticate.equals("false") && !authenticate.contains("social_auth"));
     }
 
     public static String authenticationMethod()
@@ -501,11 +536,33 @@ public class GlobalProperties {
      * @return String userName 
      * Return authenticated username. If the user is not authenticated, 'anonymousUser' will be returned.
      */
+    public static String getAuthenticatedDisplayName() {
+        String authenticatedParameter = portalProperties.getProperty(SKIN_USER_DISPLAY_NAME);
+        if (authenticatedParameter != null && authenticatedParameter.equals("username")) {
+            return getAuthenticatedUserName();
+        } else {
+            return getAuthenticatedUserEmail(); //Default is email
+        }
+    }
+
     public static String getAuthenticatedUserName() {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-        
+
+        if(authentication != null) {
+            PortalUserDetails userDetails = (PortalUserDetails) authentication.getPrincipal();
+            return userDetails.getUserName();
+
+        }else {
+            return "anonymousUser";
+        }
+    }
+
+    public static String getAuthenticatedUserEmail() {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+
         if(authentication != null) {
             return authentication.getName();
+
         }else {
             return "anonymousUser";
         }
@@ -749,6 +806,12 @@ public class GlobalProperties {
         return showFlag == null || Boolean.parseBoolean(showFlag);
     }
 
+    public static boolean showRightNavWebTours()
+    {
+        String showFlag = portalProperties.getProperty(SKIN_RIGHT_NAV_SHOW_WEB_TOURS);
+        return showFlag == null || Boolean.parseBoolean(showFlag);
+    }
+
     public static String getAuthorizationMessage()
     {
         return skinAuthorizationMessage;
@@ -901,6 +964,15 @@ public class GlobalProperties {
         }
     }
 
+    public static boolean mergeOncoKBIcons() {
+        String mergeOncoKbIconsByDefault = portalProperties.getProperty(MERGE_ONCOKB_ICONS_BY_DEFAULT);
+        if (mergeOncoKbIconsByDefault == null || mergeOncoKbIconsByDefault.isEmpty()) {
+            return true; // merge OncoKB icons by default
+        } else {
+            return Boolean.parseBoolean(mergeOncoKbIconsByDefault);
+        }
+    }
+
     public static boolean showHotspot() {
         String hotspot = portalProperties.getProperty(SHOW_HOTSPOT);
         if (hotspot==null) {
@@ -934,8 +1006,16 @@ public class GlobalProperties {
         return showGenomeNexusAnnotationSources;
     }
 
+    public static String getGenomeNexusIsoformOverrideSource() {
+        return genomeNexusIsoformOverrideSource;
+    }
+
     public static boolean showMutationMapperToolGrch38() {
         return showMutationMapperToolGrch38;
+    }
+
+    public static boolean showNdex() {
+        return showNdex;
     }
 
     public static boolean showSignal() {
@@ -1168,6 +1248,14 @@ public class GlobalProperties {
             return null;
         }
     }
+
+    public static String getOncoprintClinicalTracksConfigJson() {
+        if (oncoprintClinicalTracksConfigJson.length() > 0) {
+            return readFile(oncoprintClinicalTracksConfigJson);
+        } else {
+            return null;
+        }
+    }
     
     public static String getQuerySetsOfGenes() {
         String fileName = portalProperties.getProperty(SETSOFGENES_LOCATION, null);
@@ -1196,5 +1284,44 @@ public class GlobalProperties {
     
     public static String getOncoKbToken()  {
         return portalProperties.getProperty(ONCOKB_TOKEN, null);
+    }
+
+    public static String getDownloadControl() {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+
+        if (authentication != null &&
+            StringUtils.isNotEmpty(downloadGroup) &&
+            authentication.getAuthorities().contains(new SimpleGrantedAuthority(downloadGroup))) {
+            return "show";
+        } else {
+            String downloadControlOption = getProperty("skin.hide_download_controls");
+            /*
+                skin.hide_download_controls   return_value
+                        true                    hide
+                        false                   show
+                        data                    data
+                        null/empty              show
+             */
+            switch ((downloadControlOption != null) ? downloadControlOption.trim().toLowerCase() : "false") {
+                case "true":
+                    return "hide";
+                case "data":
+                    return "data";
+                case "false":
+                default:
+                    return "show";
+            }
+        }
+    }
+
+    public static String getDataAccessTokenMethod() {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        
+        if (authentication != null &&
+            StringUtils.isNotEmpty(tokenAccessUserRole)) {
+            return authentication.getAuthorities().contains(new SimpleGrantedAuthority(tokenAccessUserRole)) ? dataAccessTokenMethod : DEFAULT_DAT_METHOD;
+        } else {
+            return dataAccessTokenMethod;
+        }
     }
 }

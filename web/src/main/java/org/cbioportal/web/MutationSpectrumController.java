@@ -24,7 +24,7 @@ import javax.validation.Valid;
 import java.util.List;
 
 @InternalApi
-@RestController
+@RestController("/api")
 @Validated
 @Api(tags = "Mutation Spectrums", description = " ")
 public class MutationSpectrumController {
@@ -32,8 +32,8 @@ public class MutationSpectrumController {
     @Autowired
     private MutationSpectrumService mutationSpectrumService;
 
-    @PreAuthorize("hasPermission(#molecularProfileId, 'MolecularProfileId', 'read')")
-    @RequestMapping(value = "/api/molecular-profiles/{molecularProfileId}/mutation-spectrums/fetch",
+    @PreAuthorize("hasPermission(#molecularProfileId, 'MolecularProfileId', T(org.cbioportal.utils.security.AccessLevel).READ)")
+    @RequestMapping(value = "/molecular-profiles/{molecularProfileId}/mutation-spectrums/fetch",
         method = RequestMethod.POST, consumes = MediaType.APPLICATION_JSON_VALUE,
         produces = MediaType.APPLICATION_JSON_VALUE)
     @ApiOperation("Fetch mutation spectrums in a molecular profile")

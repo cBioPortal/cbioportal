@@ -32,9 +32,6 @@
 
 package org.mskcc.cbio.portal.model;
 
-import org.mskcc.cbio.portal.dao.DaoException;
-import org.mskcc.cbio.portal.dao.DaoSangerCensus;
-
 import java.util.*;
 import java.io.Serializable;
 
@@ -220,17 +217,6 @@ public class CanonicalGene extends Gene implements Serializable {
 
     public void setSomaticMutationFrequency(double somaticMutationFrequency) {
         this.somaticMutationFrequency = somaticMutationFrequency;
-    }
-
-    @JsonIgnore
-    // significant speedup to jackson json writing in
-    // DumpPortalInfo.java with this field ignored (not needed)
-    public boolean isSangerGene() throws DaoException {
-        DaoSangerCensus daoSangerCensus = DaoSangerCensus.getInstance();
-
-        String hugo = this.getHugoGeneSymbolAllCaps();
-
-        return daoSangerCensus.getCancerGeneSet().containsKey(hugo);
     }
 
     @Override

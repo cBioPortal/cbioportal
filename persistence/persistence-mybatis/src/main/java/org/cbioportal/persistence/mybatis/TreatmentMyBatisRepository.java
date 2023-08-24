@@ -1,17 +1,15 @@
 package org.cbioportal.persistence.mybatis;
 
-import static java.util.stream.Collectors.groupingBy;
-
-import java.util.Comparator;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-
-import org.cbioportal.model.ClinicalEventSample;
-import org.cbioportal.model.Treatment;
+import org.cbioportal.model.*;
 import org.cbioportal.persistence.TreatmentRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
+
+import java.util.*;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
+
+import static java.util.stream.Collectors.groupingBy;
 
 @Repository
 public class TreatmentMyBatisRepository implements TreatmentRepository {
@@ -19,10 +17,35 @@ public class TreatmentMyBatisRepository implements TreatmentRepository {
     private TreatmentMapper treatmentMapper;
     
     @Override
-    public Map<String, List<Treatment>> getTreatmentsByPatientId(List<String> sampleIds, List<String> studyIds) {
-        return treatmentMapper.getAllTreatments(sampleIds, studyIds)
+    public Map<String, List<Treatment>> getTreatmentsByPatientId(List<String> sampleIds, List<String> studyIds, ClinicalEventKeyCode key) {
+        return getTreatments(sampleIds, studyIds, key)
             .stream()
             .collect(groupingBy(Treatment::getPatientId));
+    }
+
+    @Override
+    public List<Treatment> getTreatments(List<String> sampleIds, List<String> studyIds, ClinicalEventKeyCode key) {
+        return treatmentMapper.getAllTreatments(sampleIds, studyIds, key.getKey())
+            .stream()
+            .flatMap(treatment -> splitIfDelimited(treatment, key))
+            .collect(Collectors.toList());
+    }
+
+    private Stream<Treatment> splitIfDelimited(Treatment unsplitTreatment, ClinicalEventKeyCode key) {
+        if (key.isDelimited()) {
+            return Arrays.stream(unsplitTreatment.getTreatment().split(key.getDelimiter()))
+                .map(treatmentName -> {
+                    Treatment treatment = new Treatment();
+                    treatment.setTreatment(treatmentName);
+                    treatment.setStudyId(unsplitTreatment.getStudyId());
+                    treatment.setPatientId(unsplitTreatment.getPatientId());
+                    treatment.setStart(unsplitTreatment.getStart());
+                    treatment.setStop(unsplitTreatment.getStop());
+                    treatment.setPatientId(unsplitTreatment.getPatientId());
+                    return treatment;
+                });
+        }
+        return Stream.of(unsplitTreatment);
     }
 
     @Override
@@ -43,17 +66,12 @@ public class TreatmentMyBatisRepository implements TreatmentRepository {
     }
 
     @Override
-    public Set<String> getAllUniqueTreatments(List<String> sampleIds, List<String> studyIds) {
-        return treatmentMapper.getAllUniqueTreatments(sampleIds, studyIds);
+    public Boolean hasTreatmentData(List<String> studies, ClinicalEventKeyCode key) {
+        return treatmentMapper.hasTreatmentData(null, studies, key.getKey());
     }
 
     @Override
-    public Integer getTreatmentCount(List<String> studies) {
-        return treatmentMapper.getTreatmentCount(null, studies);
-    }
-
-    @Override
-    public Integer getSampleCount(List<String> studies) {
-        return treatmentMapper.getSampleCount(null, studies);
+    public Boolean hasSampleTimelineData(List<String> studies) {
+        return treatmentMapper.hasSampleTimelineData(null, studies);
     }
 }

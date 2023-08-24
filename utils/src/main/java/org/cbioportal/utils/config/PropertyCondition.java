@@ -45,6 +45,7 @@ import java.util.stream.Stream;
         @PropertySource(value="classpath:application.properties", ignoreResourceNotFound=true),
         @PropertySource(value="file:///${PORTAL_HOME}/portal.properties", ignoreResourceNotFound=true)
 })
+// Adapted from Spring Boot
 public class PropertyCondition implements Condition {
 
     public PropertyCondition() {

@@ -25,7 +25,7 @@ import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
 
 @InternalApi
-@RestController
+@RestController("/api")
 @Validated
 @Api(tags = InternalApiTags.RESOURCE_DEFINITIONS, description = " ")
 public class ResourceDefinitionController {
@@ -33,8 +33,8 @@ public class ResourceDefinitionController {
     @Autowired
     private ResourceDefinitionService resourceDefinitionService;
 
-    @PreAuthorize("hasPermission(#studyId, 'CancerStudyId', 'read')")
-    @RequestMapping(value = "/api/studies/{studyId}/resource-definitions", method = RequestMethod.GET,
+    @PreAuthorize("hasPermission(#studyId, 'CancerStudyId', T(org.cbioportal.utils.security.AccessLevel).READ)")
+    @RequestMapping(value = "/studies/{studyId}/resource-definitions", method = RequestMethod.GET,
             produces = MediaType.APPLICATION_JSON_VALUE)
     @ApiOperation("Get all resource definitions in the specified study")
     public ResponseEntity<List<ResourceDefinition>> getAllResourceDefinitionsInStudy(
@@ -64,8 +64,8 @@ public class ResourceDefinitionController {
         }
     }
 
-    @PreAuthorize("hasPermission(#studyId, 'CancerStudyId', 'read')")
-    @RequestMapping(value = "/api/studies/{studyId}/resource-definitions/{resourceId}", method = RequestMethod.GET,
+    @PreAuthorize("hasPermission(#studyId, 'CancerStudyId', T(org.cbioportal.utils.security.AccessLevel).READ)")
+    @RequestMapping(value = "/studies/{studyId}/resource-definitions/{resourceId}", method = RequestMethod.GET,
             produces = MediaType.APPLICATION_JSON_VALUE)
     @ApiOperation("Get specified resource definition")
     public ResponseEntity<ResourceDefinition> getResourceDefinitionInStudy(
@@ -79,8 +79,8 @@ public class ResourceDefinitionController {
                 HttpStatus.OK);
     }
 
-    @PreAuthorize("hasPermission(#studyIds, 'Collection<CancerStudyId>', 'read')")
-    @RequestMapping(value = "/api/resource-definitions/fetch", method = RequestMethod.POST, consumes = MediaType.APPLICATION_JSON_VALUE,
+    @PreAuthorize("hasPermission(#studyIds, 'Collection<CancerStudyId>', T(org.cbioportal.utils.security.AccessLevel).READ)")
+    @RequestMapping(value = "/resource-definitions/fetch", method = RequestMethod.POST, consumes = MediaType.APPLICATION_JSON_VALUE,
         produces = MediaType.APPLICATION_JSON_VALUE)
     @ApiOperation("Get all resource definitions for specified studies")
     public ResponseEntity<List<ResourceDefinition>> fetchResourceDefinitions(

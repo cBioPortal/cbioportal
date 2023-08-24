@@ -112,17 +112,18 @@ public final class DaoGeneticProfile {
             pstmt.setString(6, profile.getProfileDescription());
             pstmt.setBoolean(7, profile.showProfileInAnalysisTab());
 
-            // `pivot_threshold_value` and `value_sort_order` fields are treatment data 
-            // specific. These fields are set to null when not present in profile object.
+            // `pivot_threshold_value` and `value_sort_order` `GENERIC_ASSAY_TYPE` fields are geneirc assay data specific.
+            // These fields are set to null when not present in profile object.
             if (profile.getPivotThreshold() == null) {
                 pstmt.setNull(8, java.sql.Types.FLOAT);
-                pstmt.setNull(9, java.sql.Types.INTEGER);
             } else {
                 pstmt.setFloat(8, profile.getPivotThreshold());
+            }
+            if (profile.getSortOrder() == null) {
+                pstmt.setNull(9, java.sql.Types.INTEGER);
+            } else {
                 pstmt.setString(9, profile.getSortOrder());
             }
-
-            // `GENERIC_ASSAY_TYPE` is for Generic Assay, this field is set to null when not present in profile object.
             if (profile.getGenericAssayType() == null) {
                 pstmt.setNull(10, java.sql.Types.VARCHAR);
             } else {
@@ -172,6 +173,34 @@ public final class DaoGeneticProfile {
             JdbcUtil.closeAll(DaoGeneticProfile.class, con, pstmt, rs);
         }
         
+        reCache();
+        return ret;
+    }    
+    
+    /**
+     * Updates a Genetic Profile datatype
+     */
+    public static boolean updateDatatype(
+        int geneticProfileId,
+        String datatype
+    ) throws DaoException {
+        Connection con = null;
+        PreparedStatement pstmt = null;
+        ResultSet rs = null;
+        boolean ret;
+        try {
+            con = JdbcUtil.getDbConnection(DaoGeneticProfile.class);
+            pstmt = con.prepareStatement("UPDATE genetic_profile SET DATATYPE=? " +
+                "WHERE GENETIC_PROFILE_ID=?");
+            pstmt.setString(1, datatype);
+            pstmt.setInt(2, geneticProfileId);
+            ret = pstmt.executeUpdate() > 0;
+        } catch (SQLException e) {
+            throw new DaoException(e);
+        } finally {
+            JdbcUtil.closeAll(DaoGeneticProfile.class, con, pstmt, rs);
+        }
+
         reCache();
         return ret;
     }

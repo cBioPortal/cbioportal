@@ -25,7 +25,7 @@ import javax.validation.constraints.Size;
 import java.util.List;
 
 @InternalApi
-@RestController
+@RestController("/api")
 @Validated
 @Api(tags = "mRNA Percentile", description = " ")
 public class MrnaPercentileController {
@@ -33,8 +33,8 @@ public class MrnaPercentileController {
     @Autowired
     private MrnaPercentileService mrnaPercentileService;
 
-    @PreAuthorize("hasPermission(#molecularProfileId, 'MolecularProfileId', 'read')")
-    @RequestMapping(value = "/api/molecular-profiles/{molecularProfileId}/mrna-percentile/fetch",
+    @PreAuthorize("hasPermission(#molecularProfileId, 'MolecularProfileId', T(org.cbioportal.utils.security.AccessLevel).READ)")
+    @RequestMapping(value = "/molecular-profiles/{molecularProfileId}/mrna-percentile/fetch",
         method = RequestMethod.POST, consumes = MediaType.APPLICATION_JSON_VALUE,
         produces = MediaType.APPLICATION_JSON_VALUE)
     @ApiOperation("Get mRNA expression percentiles for list of genes for a sample")

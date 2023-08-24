@@ -94,7 +94,8 @@ public class PortalUserDetailsService implements UserDetailsService {
                                 authorities.getAuthorities().toArray(new String[authorities.getAuthorities().size()]));
                 toReturn = new PortalUserDetails(username, grantedAuthorities);
                 toReturn.setEmail(user.getEmail());
-                toReturn.setName(user.getName());
+                toReturn.setUserName(user.getName());
+
             }
         }
 

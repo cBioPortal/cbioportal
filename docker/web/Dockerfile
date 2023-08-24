@@ -13,14 +13,15 @@
 #
 # WARNING: the shendoah image is a nightly, untested, experimental build. If
 # you want to use an official openjdk image instead use the web-and-data image.
-FROM maven:3-openjdk-11 as build
+FROM maven:3-eclipse-temurin-11 as build
 COPY $PWD /cbioportal
 WORKDIR /cbioportal
 ARG MAVEN_OPTS=-DskipTests
-RUN mvn ${MAVEN_OPTS} clean install
+# Use quite output so we can see the build steps easily
+RUN mvn ${MAVEN_OPTS} clean install -q
 RUN mkdir -p portal/target/dependency && (cd portal/target/dependency; jar -xf ../*.jar)
 
-FROM shipilev/openjdk:11
+FROM eclipse-temurin:11
 
 ENV PORTAL_WEB_HOME=/cbioportal-webapp
 
@@ -34,4 +35,4 @@ COPY --from=build ${DEPENDENCY}/BOOT-INF/classes    $PORTAL_WEB_HOME/
 
 RUN mkdir -p $PORTAL_WEB_HOME
 
-CMD ["java ${JAVA_OPTS}", "-cp", "/cbioportal-webapp:/cbioportal-webapp/lib/*", "org.cbioportal.PortalApplication ${WEBAPP_OPTS}"]
+CMD ["java ${JAVA_OPTS}", "-cp", "/cbioportal-webapp:/cbioportal-webapp/lib/*", "org.cbioportal.PortalApplication ${WEBAPP_OPTS} ${PORTAL_WEB_HOME}"]

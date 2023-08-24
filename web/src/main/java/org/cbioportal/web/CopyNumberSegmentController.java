@@ -37,7 +37,7 @@ import javax.validation.constraints.Size;
 import java.util.*;
 
 @PublicApi
-@RestController
+@RestController("/api")
 @Validated
 @Api(tags = PublicApiTags.COPY_NUMBER_SEGMENTS, description = " ")
 public class CopyNumberSegmentController {
@@ -48,8 +48,8 @@ public class CopyNumberSegmentController {
     @Autowired
     private CopyNumberSegmentService copyNumberSegmentService;
 
-    @PreAuthorize("hasPermission(#studyId, 'CancerStudyId', 'read')")
-    @RequestMapping(value = "/api/studies/{studyId}/samples/{sampleId}/copy-number-segments", method = RequestMethod.GET,
+    @PreAuthorize("hasPermission(#studyId, 'CancerStudyId', T(org.cbioportal.utils.security.AccessLevel).READ)")
+    @RequestMapping(value = "/studies/{studyId}/samples/{sampleId}/copy-number-segments", method = RequestMethod.GET,
         produces = MediaType.APPLICATION_JSON_VALUE)
     @ApiOperation("Get copy number segments in a sample in a study")
     public ResponseEntity<List<CopyNumberSeg>> getCopyNumberSegmentsInSampleInStudy(
@@ -87,8 +87,8 @@ public class CopyNumberSegmentController {
         }
     }
 
-    @PreAuthorize("hasPermission(#involvedCancerStudies, 'Collection<CancerStudyId>', 'read')")
-    @RequestMapping(value = "/api/copy-number-segments/fetch", method = RequestMethod.POST,
+    @PreAuthorize("hasPermission(#involvedCancerStudies, 'Collection<CancerStudyId>', T(org.cbioportal.utils.security.AccessLevel).READ)")
+    @RequestMapping(value = "/copy-number-segments/fetch", method = RequestMethod.POST,
         consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
     @ApiOperation("Fetch copy number segments by sample ID")
     public ResponseEntity<List<CopyNumberSeg>> fetchCopyNumberSegments(

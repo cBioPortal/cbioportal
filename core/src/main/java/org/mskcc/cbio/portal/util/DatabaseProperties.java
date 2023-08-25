@@ -47,6 +47,7 @@ public class DatabaseProperties {
     private String dbDriverClassName;
     private String dbUseSSL;
     private String dbEnablePooling;
+    private String connectionURL;
 
     // No production keys stored in filesystem or code: digest the key; put it in properties; load it into dbms on startup
     private static DatabaseProperties dbProperties;
@@ -63,6 +64,7 @@ public class DatabaseProperties {
             dbProperties.setDbDriverClassName(GlobalProperties.getProperty("db.driver"));
             dbProperties.setDbUseSSL(GlobalProperties.getProperty("db.use_ssl"));
             dbProperties.setDbEnablePooling(GlobalProperties.getProperty("db.enable_pooling"));
+            dbProperties.setConnectionURL(GlobalProperties.getProperty("db.connection_string"));
         }
         return dbProperties;
     }
@@ -134,4 +136,12 @@ public class DatabaseProperties {
         this.dbEnablePooling = dbEnablePooling;
     }
 
+    public String getConnectionURL() {
+        return connectionURL;
+    }
+
+    public void setConnectionURL(String connectionURL) {
+        this.connectionURL = connectionURL;
+    }
+    
 }

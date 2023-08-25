@@ -29,10 +29,12 @@
 import argparse
 import importlib
 import logging.handlers
-import os
 import sys
 import MySQLdb
 from pathlib import Path
+from cbioportal_common import get_database_properties, get_db_cursor
+import libImportOncokb
+
 
 # configure relative imports if running as a script; see PEP 366
 # it might passed as empty string by certain tooling to mark a top level module
@@ -46,16 +48,8 @@ if __name__ == "__main__" and (__package__ is None or __package__ == ''):
     # doesn't include https://github.com/python/cpython/pull/2639
     importlib.import_module(__package__)
 
-from . import cbioportal_common
-from . import libImportOncokb
-from . import validateData
 
 ERROR_FILE = sys.stderr
-DATABASE_HOST = 'db.host'
-DATABASE_NAME = 'db.portal_db_name'
-DATABASE_USER = 'db.user'
-DATABASE_PW = 'db.password'
-REQUIRED_PROPERTIES = [DATABASE_HOST, DATABASE_NAME, DATABASE_USER, DATABASE_PW]
 REFERENCE_GENOME = {'hg19': 'GRCh37', 'hg38': 'GRCh38'}
 
 # from: cbioportal-frontend file CopyNumberUtils.ts
@@ -65,84 +59,6 @@ cna_alteration_types = {
     "GAIN": 1,
     "AMPLIFICATION": 2,
 }
-
-class PortalProperties(object):
-    """ Properties object class, just has fields for db conn """
-
-    def __init__(self, database_host, database_name, database_user, database_pw):
-        # default port:
-        self.database_port = 3306
-        # if there is a port added to the host name, split and use this one:
-        if ':' in database_host:
-            host_and_port = database_host.split(':')
-            self.database_host = host_and_port[0]
-            if self.database_host.strip() == 'localhost':
-                print(
-                    "Invalid host config '" + database_host + "' in properties file. If you want to specify a port on local host use '127.0.0.1' instead of 'localhost'",
-                    file=ERROR_FILE)
-                sys.exit(1)
-            self.database_port = int(host_and_port[1])
-        else:
-            self.database_host = database_host
-        self.database_name = database_name
-        self.database_user = database_user
-        self.database_pw = database_pw
-
-def get_portal_properties(properties_filename):
-    """ Returns a properties object """
-    properties = {}
-    with open(properties_filename, 'r') as properties_file:
-        for line in properties_file:
-            line = line.strip()
-            # skip line if its blank or a comment
-            if len(line) == 0 or line.startswith('#'):
-                continue
-            try:
-                name, value = line.split('=', maxsplit=1)
-            except ValueError:
-                print(
-                    'Skipping invalid entry in property file: %s' % (line),
-                    file=ERROR_FILE)
-                continue
-            properties[name] = value.strip()
-    missing_properties = []
-    for required_property in REQUIRED_PROPERTIES:
-        if required_property not in properties or len(properties[required_property]) == 0:
-            missing_properties.append(required_property)
-    if missing_properties:
-        print(
-            'Missing required properties : (%s)' % (', '.join(missing_properties)),
-            file=ERROR_FILE)
-        return None
-    # return an instance of PortalProperties
-    return PortalProperties(properties[DATABASE_HOST],
-                            properties[DATABASE_NAME],
-                            properties[DATABASE_USER],
-                            properties[DATABASE_PW])
-
-def get_db_cursor(portal_properties):
-    """ Establishes a MySQL connection """
-    try:
-        connection = MySQLdb.connect(host=portal_properties.database_host,
-            port = portal_properties.database_port,
-            user = portal_properties.database_user,
-            passwd = portal_properties.database_pw,
-            db = portal_properties.database_name)
-        connection.autocommit = False
-    except MySQLdb.Error as exception:
-        print(exception, file=ERROR_FILE)
-        port_info = ''
-        if portal_properties.database_host.strip() != 'localhost':
-            # only add port info if host is != localhost (since with localhost apparently sockets are used and not the given port) TODO - perhaps this applies for all names vs ips?
-            port_info = " on port " + str(portal_properties.database_port)
-        message = (
-            "--> Error connecting to server "
-            + portal_properties.database_host
-            + port_info)
-        print(message, file=ERROR_FILE)
-        raise ConnectionError(message) from exception
-    if connection is not None:
-        return connection, connection.cursor()
 
 def get_current_mutation_data(study_id, cursor):
     """ Get mutation data from the current study.
@@ -306,41 +222,36 @@ def update_annotations(result, connection, cursor, study_id):
             except MySQLdb.Error as msg:
                 print(msg, file=ERROR_FILE)
         
-def main_import(study_id, properties_filename):    
-    # check existence of properties file
-    if not os.path.exists(properties_filename):
-        print('properties file %s cannot be found' % (properties_filename), file=ERROR_FILE)
-        sys.exit(2)
+def main_import(study_id, properties_filename):
 
-    # parse properties file
-    portal_properties = get_portal_properties(properties_filename)
+    portal_properties = get_database_properties(properties_filename)
     if portal_properties is None:
-        print('failure reading properties file (%s)' % (properties_filename), file=ERROR_FILE)
+        print('failure reading properties file (%s)' % properties_filename, file=ERROR_FILE)
         sys.exit(1)
 
-    # Connect to the database
+    # Connect to the database.
     # TODO: must be a unique transaction
     connection, cursor = get_db_cursor(portal_properties)
     if cursor is None:
         print('failure connecting to sql database', file=ERROR_FILE)
         sys.exit(1)
 
-    #Query DB to get mutation, cna and structural variant data of the study
+    # Query DB to get mutation, cna and structural variant data of the study.
     mutation_study_data = get_current_mutation_data(study_id, cursor)
     cna_study_data = get_current_cna_data(study_id, cursor)
     sv_study_data = get_current_sv_data(study_id, cursor)
 
-    #Call oncokb to get annotations for the mutation, cna and structural variant data retrieved
+    # Call OncoKB to get annotations for the mutation, cna and structural variant data retrieved.
     ref_genome = get_reference_genome(study_id, cursor)
     mutation_result = fetch_oncokb_mutation_annotations(mutation_study_data, ref_genome)
     cna_result = fetch_oncokb_copy_number_annotations(cna_study_data, ref_genome)
     sv_result = fetch_oncokb_sv_annotations(sv_study_data, ref_genome)
     all_results = mutation_result + cna_result + sv_result
     
-    #Query DB to update alteration_driver_annotation table data, one record at a time
+    # Query DB to update alteration_driver_annotation table data, one record at a time.
     update_annotations(all_results, connection, cursor, study_id)
 
-    #Commit changes to the database at once to ensure a unique transaction
+    # Commit changes to the database at once to ensure a unique transaction.
     try:
         connection.commit()
         print('Update complete')

@@ -31,8 +31,8 @@ public class StudyServiceImpl implements StudyService {
     @Autowired
     private CancerTypeService cancerTypeService;
 
-    @Autowired
-    private ReadPermissionService readPermissionService;
+    //@Autowired
+    //private ReadPermissionService readPermissionService;
 
     @Override
     @PostFilter("hasPermission(filterObject,#accessLevel)")
@@ -41,7 +41,6 @@ public class StudyServiceImpl implements StudyService {
 
         List<CancerStudy> allStudies = studyRepository.getAllStudies(keyword, projection, pageSize, pageNumber, sortBy, direction);
         Map<String,CancerStudy> sortedAllStudiesByCancerStudyIdentifier = allStudies.stream().collect(Collectors.toMap(c -> c.getCancerStudyIdentifier(), c -> c, (e1, e2) -> e2, LinkedHashMap::new));
-
         if (keyword != null && (pageSize == null || allStudies.size() < pageSize)) {
             List<CancerStudy> primarySiteMatchingStudies = findPrimarySiteMatchingStudies(keyword);
             for (CancerStudy cancerStudy : primarySiteMatchingStudies) {
@@ -53,18 +52,11 @@ public class StudyServiceImpl implements StudyService {
                 }
             }
         }
-
         // For authenticated portals it is essential to make a new list, such
         // that @PostFilter does not taint the list stored in the mybatis
         // second-level cache. When making changes to this make sure to copy the
         // allStudies list at least for the AUTHENTICATE.equals("true") case
-        List<CancerStudy> returnedStudyObjects = sortedAllStudiesByCancerStudyIdentifier.values().stream().collect(Collectors.toList());
-        
-        // When using prop. 'skin.home_page.show_unauthorized_studies' this endpoint
-        // returns the full list of studies, some of which can be accessed by the user.
-        readPermissionService.setReadPermission(returnedStudyObjects, authentication);
-        
-        return returnedStudyObjects;
+        return sortedAllStudiesByCancerStudyIdentifier.values().stream().collect(Collectors.toList());
     }
 
     @Override

@@ -25,6 +25,7 @@ import java.util.Properties;
 // See: https://stackoverflow.com/a/30686733/11651683
 
 @RestController
+@RequestMapping("/proxy")
 public class ProxyController {
     private static final String DEFAULT_ONCOKB_URL = "https://public.api.oncokb.org/api/v1";
     private Properties properties;
@@ -42,6 +43,7 @@ public class ProxyController {
         // TODO when reimplemeting different dispatcherservlets with different context roots
         // reset this to  'String requestPathInfo = request.getPathInfo();'
         String requestPathInfo = request.getPathInfo() == null? request.getServletPath() : request.getPathInfo();
+        
         return exchangeData(body,
             buildUri(requestPathInfo, request.getQueryString(), false),
             method,

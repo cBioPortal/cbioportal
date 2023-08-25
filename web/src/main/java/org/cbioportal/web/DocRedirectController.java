@@ -15,7 +15,7 @@ import java.util.regex.Pattern;
  * This redirect puts the api-doc json in the specified path so that the swagger UI works
  * and the frontend can pull the json.
  */
-@Controller
+//@Controller
 public class DocRedirectController {
     @GetMapping("/api-docs")
     public RedirectView docRedirect(

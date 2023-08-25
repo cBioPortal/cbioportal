@@ -7,18 +7,25 @@ This page describes the main properties within portal.properties.
 ```
 db.user=
 db.password=
-db.host=[e.g. localhost to connect via socket, or e.g. 127.0.0.1:3307 to connect to a different port like 3307. Used by Java data import layer]
-db.portal_db_name=[the database name in mysql, e.g. cbiodb]
+db.connection_string=
 db.driver=[this is the name of your JDBC driver, e.g., com.mysql.jdbc.Driver]
 ```
 
-Include `db_connection_string` with the format specified below, and replace `localhost` by the value of `db.host`:
+The format of the `db.connection_string` is:
+```
+jdbc:mysql://<host>:<port>/<database name>?<parameter1>&<parameter2>&<parameter...>
+```
+
+For example:
 
 ```
-db.connection_string=jdbc:mysql://localhost/
+jdbc:mysql://localhost:3306/cbiodb?zeroDateTimeBehavior=convertToNull&useSSL=false
 ```
 
-db.tomcat\_resource\_name is required in order to work with the tomcat database connection pool and should have the default value jdbc/cbioportal in order to work correctly with the your WAR file.
+:warning: The fields `db.host` and `db.portal_db_name` and `db.use_ssl` are deprecated. It is required to configure the database connection using
+the `db.connection_string` instead.
+
+`db.tomcat_resource_name` is required in order to work with the tomcat database connection pool and should have the default value jdbc/cbioportal in order to work correctly with the your WAR file.
 
 ```
 db.tomcat_resource_name=jdbc/cbioportal

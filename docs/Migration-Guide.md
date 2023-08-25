@@ -2,7 +2,7 @@
 
 This page describes various changes deployers will need to make as they deploy newer versions of the portal. -
 
-## <v5.3.19 --> v5.3.20
+## <v5.3.19 --> v5.4.0
 
 - Remove `db.host` and `db.portal_db_name` and `db.use_ssl` properties from the _portal.properties_ file or JVM
   parameters. Update property `db.connection_string` to encode the hostname, port, database and other parameters

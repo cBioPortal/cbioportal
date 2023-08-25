@@ -1,9 +1,8 @@
 package org.cbioportal.web.util;
 
-import com.google.common.collect.Range;
 import org.cbioportal.model.DataBin;
 import org.springframework.stereotype.Component;
-
+import com.google.common.collect.Range;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.util.*;

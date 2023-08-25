@@ -15,7 +15,6 @@ import org.cbioportal.web.config.TestConfig;
 import org.cbioportal.web.parameter.GenericAssayDataMultipleStudyFilter;
 import org.cbioportal.web.parameter.GenericAssayFilter;
 import org.cbioportal.web.parameter.GenericAssayMetaFilter;
-import org.cbioportal.web.parameter.SampleMolecularIdentifier;
 import org.hamcrest.Matchers;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -67,57 +66,50 @@ public class GenericAssayControllerTest {
     @Test
     @WithMockUser
     public void testGenericAssayDataFetch() throws Exception {
-        List<GenericAssayData> genericAssayDataItems = createGenericAssayDataItemsList();
-        Mockito.when(genericAssayService.fetchGenericAssayData(Mockito.anyString(), Mockito.anyList(),
-            Mockito.anyList(), Mockito.anyString())).thenReturn(genericAssayDataItems);
+        List<GenericAssayMeta> genericAssayMetaSingleItem = createGenericAssayMetaSingleItem();
 
-        GenericAssayFilter genericAssayDataFilter = new GenericAssayFilter();
-        genericAssayDataFilter.setSampleIds(Arrays.asList(SAMPLE_ID));
-        genericAssayDataFilter.setGenericAssayStableIds(Arrays.asList(GENERIC_ASSAY_STABLE_ID_1, GENERIC_ASSAY_STABLE_ID_2, GENERIC_ASSAY_STABLE_ID_3, GENERIC_ASSAY_STABLE_ID_4));
+        Mockito.when(genericAssayService.getGenericAssayMetaByStableIdsAndMolecularIds(Mockito.any(), Mockito.any(), Mockito.any())).thenReturn(genericAssayMetaSingleItem);
 
-        mockMvc.perform(MockMvcRequestBuilders.post("/api/generic_assay_data/" + PROF_ID + "/fetch").with(csrf())
-                .accept(MediaType.APPLICATION_JSON)
-                .contentType(MediaType.APPLICATION_JSON)
-                .content(objectMapper.writeValueAsString(genericAssayDataFilter)))
-                .andExpect(MockMvcResultMatchers.status().isOk())
-                .andExpect(MockMvcResultMatchers.content().contentTypeCompatibleWith(MediaType.APPLICATION_JSON))
-                .andExpect(MockMvcResultMatchers.jsonPath("$", Matchers.hasSize(2)))
-                .andExpect(MockMvcResultMatchers.jsonPath("$[0].molecularProfileId").value(PROF_ID))
-                .andExpect(MockMvcResultMatchers.jsonPath("$[0].genericAssayStableId").value(GENERIC_ASSAY_STABLE_ID_1))
-                .andExpect(MockMvcResultMatchers.jsonPath("$[0].sampleId").value(SAMPLE_ID))
-                .andExpect(MockMvcResultMatchers.jsonPath("$[0].value").value(VALUE_1))
-                .andExpect(MockMvcResultMatchers.jsonPath("$[1].molecularProfileId").value(PROF_ID))
-                .andExpect(MockMvcResultMatchers.jsonPath("$[1].genericAssayStableId").value(GENERIC_ASSAY_STABLE_ID_2))
-                .andExpect(MockMvcResultMatchers.jsonPath("$[1].sampleId").value(SAMPLE_ID))
-                .andExpect(MockMvcResultMatchers.jsonPath("$[1].value").value(VALUE_2));
+        mockMvc.perform(MockMvcRequestBuilders.get("/generic-assay-meta/generic-assay/" + GENERIC_ASSAY_STABLE_ID_2)
+                .accept(MediaType.APPLICATION_JSON))
+            .andExpect(MockMvcResultMatchers.status().isOk())
+            .andExpect(MockMvcResultMatchers.status().isOk())
+            .andExpect(MockMvcResultMatchers.content().contentTypeCompatibleWith(MediaType.APPLICATION_JSON))
+            .andExpect(MockMvcResultMatchers.jsonPath("$", Matchers.hasSize(1)))
+            .andExpect(MockMvcResultMatchers.jsonPath("$[0].entityType").value(ENTITY_TYPE))
+            .andExpect(MockMvcResultMatchers.jsonPath("$[0].stableId").value(GENERIC_ASSAY_STABLE_ID_2))
+            .andExpect(MockMvcResultMatchers.jsonPath("$[0].genericEntityMetaProperties", Matchers.hasKey(TEST_NAME)))
+            .andExpect(MockMvcResultMatchers.jsonPath("$[0].genericEntityMetaProperties", Matchers.hasValue(TEST_NAME_VALUE)))
+            .andExpect(MockMvcResultMatchers.jsonPath("$[0].genericEntityMetaProperties", Matchers.hasKey(TEST_DESCRIPTION)))
+            .andExpect(MockMvcResultMatchers.jsonPath("$[0].genericEntityMetaProperties", Matchers.hasValue(TEST_DESCRIPTION_VALUE)));
     }
 
 
     @Test
     @WithMockUser
     public void testGenericAssayDataFetchInMultipleMolecularProfiles() throws Exception {
-        List<GenericAssayData> genericAssayDataItems = createGenericAssayDataItemsList();
-        GenericAssayDataMultipleStudyFilter genericAssayDataMultipleStudyFilter = new GenericAssayDataMultipleStudyFilter();
-        genericAssayDataMultipleStudyFilter.setSampleMolecularIdentifiers(createSampleMolecularIdentifiers());
+        List<GenericAssayMeta> genericAssayMetaItems = createGenericAssayMetaItemsList();
+        List<String> genericAssayStableIds = Arrays.asList(GENERIC_ASSAY_STABLE_ID_1, GENERIC_ASSAY_STABLE_ID_2);
+        GenericAssayMetaFilter genericAssayMetaFilter = new GenericAssayMetaFilter();
+        genericAssayMetaFilter.setGenericAssayStableIds(genericAssayStableIds);
 
-        Mockito.when(genericAssayService.fetchGenericAssayData(Mockito.anyList(), Mockito.any(),
-            Mockito.any(), Mockito.any())).thenReturn(genericAssayDataItems);
+        Mockito.when(genericAssayService.getGenericAssayMetaByStableIdsAndMolecularIds(Mockito.any(), Mockito.any(), Mockito.any())).thenReturn(genericAssayMetaItems);
 
-        mockMvc.perform(MockMvcRequestBuilders.post("/api/generic_assay_data/fetch").with(csrf())
+        mockMvc.perform(MockMvcRequestBuilders.post("/generic_assay_meta/fetch")
                 .accept(MediaType.APPLICATION_JSON)
                 .contentType(MediaType.APPLICATION_JSON)
-                .content(objectMapper.writeValueAsString(genericAssayDataMultipleStudyFilter)))
-                .andExpect(MockMvcResultMatchers.status().isOk())
-                .andExpect(MockMvcResultMatchers.content().contentTypeCompatibleWith(MediaType.APPLICATION_JSON))
-                .andExpect(MockMvcResultMatchers.jsonPath("$", Matchers.hasSize(2)))
-                .andExpect(MockMvcResultMatchers.jsonPath("$[0].molecularProfileId").value(PROF_ID))
-                .andExpect(MockMvcResultMatchers.jsonPath("$[0].genericAssayStableId").value(GENERIC_ASSAY_STABLE_ID_1))
-                .andExpect(MockMvcResultMatchers.jsonPath("$[0].sampleId").value(SAMPLE_ID))
-                .andExpect(MockMvcResultMatchers.jsonPath("$[0].value").value(VALUE_1))
-                .andExpect(MockMvcResultMatchers.jsonPath("$[1].molecularProfileId").value(PROF_ID))
-                .andExpect(MockMvcResultMatchers.jsonPath("$[1].genericAssayStableId").value(GENERIC_ASSAY_STABLE_ID_2))
-                .andExpect(MockMvcResultMatchers.jsonPath("$[1].sampleId").value(SAMPLE_ID))
-                .andExpect(MockMvcResultMatchers.jsonPath("$[1].value").value(VALUE_2));
+                .content(objectMapper.writeValueAsString(genericAssayMetaFilter)))
+            .andExpect(MockMvcResultMatchers.status().isOk())
+            .andExpect(MockMvcResultMatchers.content().contentTypeCompatibleWith(MediaType.APPLICATION_JSON))
+            .andExpect(MockMvcResultMatchers.jsonPath("$", Matchers.hasSize(2)))
+            .andExpect(MockMvcResultMatchers.jsonPath("$[0].entityType").value(ENTITY_TYPE))
+            .andExpect(MockMvcResultMatchers.jsonPath("$[0].stableId").value(GENERIC_ASSAY_STABLE_ID_1))
+            .andExpect(MockMvcResultMatchers.jsonPath("$[1].entityType").value(ENTITY_TYPE))
+            .andExpect(MockMvcResultMatchers.jsonPath("$[1].stableId").value(GENERIC_ASSAY_STABLE_ID_2))
+            .andExpect(MockMvcResultMatchers.jsonPath("$[1].genericEntityMetaProperties", Matchers.hasKey(TEST_NAME)))
+            .andExpect(MockMvcResultMatchers.jsonPath("$[1].genericEntityMetaProperties", Matchers.hasValue(TEST_NAME_VALUE)))
+            .andExpect(MockMvcResultMatchers.jsonPath("$[1].genericEntityMetaProperties", Matchers.hasKey(TEST_DESCRIPTION)))
+            .andExpect(MockMvcResultMatchers.jsonPath("$[1].genericEntityMetaProperties", Matchers.hasValue(TEST_DESCRIPTION_VALUE)));
     }
 
     @Test

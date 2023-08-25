@@ -51,16 +51,6 @@ public class ClinicalDataControllerTest {
     @Autowired
     private MockMvc mockMvc;
 
-    @Bean
-    public ClinicalDataService clinicalDataService() {
-        return mock(ClinicalDataService.class);
-    }
-
-    @Before
-    public void setUp() throws Exception {
-        reset(clinicalDataService);
-        mockMvc = MockMvcBuilders.webAppContextSetup(wac).build();
-    }
 
     @Test
     @WithMockUser

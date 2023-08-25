@@ -1,5 +1,6 @@
 package org.cbioportal.proxy;
 
+import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -48,9 +49,9 @@ public class ProxyController {
             String.class
         ).getBody();
     }
-    
-    @RequestMapping("/proxy/oncokb/**")
-    public String proxyOncokb(
+    //TODO: Hey figure out if we need this
+    @RequestMapping("/legacy/proxy/oncokb/**")
+    public String legacyProxyOncokb(
         @RequestBody(required = false) String body,
         HttpMethod method,
         HttpServletRequest request

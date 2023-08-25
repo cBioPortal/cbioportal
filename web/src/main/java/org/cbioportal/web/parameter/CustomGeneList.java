@@ -3,10 +3,9 @@ package org.cbioportal.web.parameter;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import org.cbioportal.utils.removeme.Session;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.cbioportal.session_service.domain.Session;
-import org.cbioportal.session_service.domain.SessionType;
 
 import java.io.IOException;
 

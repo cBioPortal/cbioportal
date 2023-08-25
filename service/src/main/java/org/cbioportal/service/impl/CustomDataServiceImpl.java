@@ -4,7 +4,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import org.cbioportal.service.CustomDataService;
 import org.cbioportal.service.util.CustomDataSession;
 import org.cbioportal.service.util.SessionServiceRequestHandler;
-import org.cbioportal.session_service.domain.SessionType;
+import org.cbioportal.utils.removeme.Session;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -34,7 +34,7 @@ public class CustomDataServiceImpl implements CustomDataService {
                 attributeId -> CompletableFuture.supplyAsync(() -> {
                     try {
                         String customDataSessionJson = sessionServiceRequestHandler.getSessionDataJson(
-                            SessionType.custom_data,
+                            Session.SessionType.custom_data,
                             attributeId
                         );
                         return sessionServiceObjectMapper.readValue(customDataSessionJson, CustomDataSession.class);

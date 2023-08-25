@@ -32,11 +32,12 @@
 
 package org.cbioportal.web.config;
 
+import java.util.HashMap;
+import java.util.Map;
+
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
-import java.util.HashMap;
-import java.util.Map;
 import org.cbioportal.model.CancerStudy;
 import org.cbioportal.model.ClinicalAttribute;
 import org.cbioportal.model.ClinicalAttributeCount;
@@ -66,7 +67,6 @@ import org.cbioportal.model.SampleList;
 import org.cbioportal.model.StructuralVariant;
 import org.cbioportal.model.TypeOfCancer;
 import org.cbioportal.utils.removeme.Session;
-import org.cbioportal.web.CustomAttributeWithData;
 import org.cbioportal.web.mixin.CancerStudyMixin;
 import org.cbioportal.web.mixin.ClinicalAttributeCountMixin;
 import org.cbioportal.web.mixin.ClinicalAttributeMixin;
@@ -95,11 +95,8 @@ import org.cbioportal.web.mixin.SampleListMixin;
 import org.cbioportal.web.mixin.SampleMixin;
 import org.cbioportal.web.mixin.SessionDataMixin;
 import org.cbioportal.web.mixin.SessionMixin;
-import org.cbioportal.web.mixin.SessionDataMixin;
-import org.cbioportal.web.mixin.SessionMixin;
 import org.cbioportal.web.mixin.StructuralVariantMixin;
 import org.cbioportal.web.mixin.TypeOfCancerMixin;
-import org.cbioportal.web.parameter.CustomDataSession;
 import org.cbioportal.web.parameter.PageSettings;
 import org.cbioportal.web.parameter.PageSettingsData;
 import org.cbioportal.web.parameter.StudyPageSettings;
@@ -108,11 +105,6 @@ import org.cbioportal.web.parameter.VirtualStudyData;
 import org.springframework.context.annotation.Primary;
 import org.springframework.stereotype.Component;
 import org.cbioportal.service.util.CustomDataSession;
-import org.cbioportal.web.parameter.PageSettings;
-import org.cbioportal.web.parameter.PageSettingsData;
-import org.cbioportal.web.parameter.StudyPageSettings;
-import org.cbioportal.web.parameter.VirtualStudy;
-import org.cbioportal.web.parameter.VirtualStudyData;
 import org.cbioportal.service.util.CustomAttributeWithData;
 
 // This bean automatically registers with MappingJackson2HttpMessageConverter

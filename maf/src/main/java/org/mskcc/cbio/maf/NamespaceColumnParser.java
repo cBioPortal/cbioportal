@@ -1,7 +1,7 @@
 package org.mskcc.cbio.maf;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.*;
+import com.fasterxml.jackson.databind.ObjectMapper;
 
 import java.util.*;
 

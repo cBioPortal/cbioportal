@@ -33,6 +33,8 @@
 package org.cbioportal.web.util;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashSet;
@@ -45,7 +47,7 @@ import org.cbioportal.model.AlterationFilter;
 import org.cbioportal.model.MolecularProfile;
 import org.cbioportal.model.MolecularProfileCaseIdentifier;
 import org.cbioportal.model.SampleList;
-import org.cbioportal.persistence.mybatis.util.CacheMapUtil;
+import org.cbioportal.persistence.cachemaputil.CacheMapUtil;
 import org.cbioportal.web.parameter.ClinicalAttributeCountFilter;
 import org.cbioportal.web.parameter.ClinicalDataBinCountFilter;
 import org.cbioportal.web.parameter.ClinicalDataCountFilter;
@@ -57,6 +59,7 @@ import org.cbioportal.web.parameter.GenericAssayDataCountFilter;
 import org.cbioportal.web.parameter.GenericAssayDataMultipleStudyFilter;
 import org.cbioportal.web.parameter.GenericAssayMetaFilter;
 import org.cbioportal.web.parameter.GenomicDataBinCountFilter;
+import org.cbioportal.web.parameter.GenomicDataCountFilter;
 import org.cbioportal.web.parameter.GroupFilter;
 import org.cbioportal.web.parameter.MolecularDataMultipleStudyFilter;
 import org.cbioportal.web.parameter.MolecularProfileCasesGroupAndAlterationTypeFilter;

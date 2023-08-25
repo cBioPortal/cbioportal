@@ -1,11 +1,10 @@
 package org.cbioportal.persistence.mybatis;
 
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 import org.cbioportal.model.ClinicalEventSample;
 import org.cbioportal.model.Treatment;
 import org.cbioportal.model.ClinicalEventKeyCode;

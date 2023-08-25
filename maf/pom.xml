@@ -4,8 +4,8 @@
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <parent>
         <artifactId>master</artifactId>
-        <groupId>org.mskcc.cbio</groupId>
-        <version>0-unknown-version-SNAPSHOT</version>
+        <groupId>org.cbioportal</groupId>
+        <version>0.0.1-SNAPSHOT</version>
     </parent>
     <modelVersion>4.0.0</modelVersion>
     <artifactId>maf</artifactId>
@@ -21,5 +21,4 @@
             <artifactId>jackson-databind</artifactId>
         </dependency>
     </dependencies>
-
 </project>

@@ -19,15 +19,22 @@ import org.cbioportal.model.ClinicalAttribute;
 import org.cbioportal.model.ClinicalData;
 import org.cbioportal.model.ClinicalDataCount;
 import org.cbioportal.model.ClinicalDataCountItem;
+import org.cbioportal.model.ClinicalEventTypeCount;
 import org.cbioportal.model.CopyNumberCountByGene;
 import org.cbioportal.model.GenericAssayDataCount;
 import org.cbioportal.model.GenericAssayDataCountItem;
 import org.cbioportal.model.GenomicDataCount;
+import org.cbioportal.model.GenomicDataCountItem;
 import org.cbioportal.model.Sample;
+import org.cbioportal.model.StructuralVariantFilterQuery;
+import org.cbioportal.model.StructuralVariantSpecialValue;
+import org.cbioportal.model.StudyViewStructuralVariantFilter;
+import org.cbioportal.model.util.Select;
 import org.cbioportal.persistence.AlterationRepository;
 import org.cbioportal.service.AlterationCountService;
 import org.cbioportal.service.ClinicalAttributeService;
 import org.cbioportal.service.ClinicalDataService;
+import org.cbioportal.service.ClinicalEventService;
 import org.cbioportal.service.DiscreteCopyNumberService;
 import org.cbioportal.service.GenePanelService;
 import org.cbioportal.service.MolecularProfileService;
@@ -38,8 +45,6 @@ import org.cbioportal.service.StudyViewService;
 import org.cbioportal.service.TreatmentService;
 import org.cbioportal.service.util.ClinicalAttributeUtil;
 import org.cbioportal.service.util.MolecularProfileUtil;
-import org.cbioportal.web.config.CustomObjectMapper;
-import org.cbioportal.web.parameter.*;
 import org.cbioportal.web.config.TestConfig;
 import org.cbioportal.web.parameter.ClinicalDataBinCountFilter;
 import org.cbioportal.web.parameter.ClinicalDataBinFilter;
@@ -47,6 +52,8 @@ import org.cbioportal.web.parameter.ClinicalDataCountFilter;
 import org.cbioportal.web.parameter.ClinicalDataFilter;
 import org.cbioportal.web.parameter.GenericAssayDataCountFilter;
 import org.cbioportal.web.parameter.GenericAssayDataFilter;
+import org.cbioportal.web.parameter.GenomicDataCountFilter;
+import org.cbioportal.web.parameter.GenomicDataFilter;
 import org.cbioportal.web.parameter.SampleIdentifier;
 import org.cbioportal.web.parameter.StudyViewFilter;
 import org.cbioportal.web.util.ClinicalDataBinUtil;
@@ -61,7 +68,6 @@ import org.cbioportal.web.util.StudyViewFilterApplier;
 import org.junit.Before;
 import org.junit.Ignore;
 import org.cbioportal.web.util.StudyViewFilterUtil;
-import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -74,16 +80,8 @@ import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
-import org.springframework.test.web.servlet.setup.MockMvcBuilders;
-import org.springframework.web.context.WebApplicationContext;
-
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.List;
 
 import static org.mockito.ArgumentMatchers.*;
-import static org.mockito.Mockito.*;
 
 @RunWith(SpringJUnit4ClassRunner.class)
 @WebMvcTest
@@ -168,11 +166,59 @@ public class StudyViewControllerTest {
 
     @MockBean
     private MolecularProfileService molecularProfileService;
+    
+    @MockBean
+    private ClinicalEventService clinicalEventService;
 
     @Autowired
     private MockMvc mockMvc;
 
     private AlterationFilter alterationFilter = new AlterationFilter();
+    
+    private ArrayList<Sample> filteredSamples = new ArrayList<>();
+    
+    @Before
+    public void setUp() throws Exception {
+        SampleIdentifier sampleIdentifier = new SampleIdentifier();
+        sampleIdentifier.setSampleId(TEST_SAMPLE_ID_1);
+        sampleIdentifier.setStudyId(TEST_STUDY_ID);
+        filteredSampleIdentifiers.add(sampleIdentifier);
+
+        Sample sample1 = new Sample();
+        sample1.setStableId(TEST_SAMPLE_ID_1);
+        sample1.setPatientStableId(TEST_PATIENT_ID_1);
+        sample1.setCancerStudyIdentifier(TEST_STUDY_ID);
+        Sample sample2 = new Sample();
+        sample2.setStableId(TEST_SAMPLE_ID_2);
+        sample2.setPatientStableId(TEST_PATIENT_ID_2);
+        sample2.setCancerStudyIdentifier(TEST_STUDY_ID);
+        filteredSamples.add(sample1);
+        filteredSamples.add(sample2);
+
+        ClinicalData clinicalData1 = new ClinicalData();
+        clinicalData1.setAttrId(TEST_ATTRIBUTE_ID);
+        clinicalData1.setAttrValue(TEST_CLINICAL_DATA_VALUE_1);
+        clinicalData1.setStudyId(TEST_STUDY_ID);
+        clinicalData1.setSampleId(TEST_SAMPLE_ID_1);
+        clinicalData1.setPatientId(TEST_PATIENT_ID_1);
+        clinicalData.add(clinicalData1);
+
+        ClinicalData clinicalData2 = new ClinicalData();
+        clinicalData2.setAttrId(TEST_ATTRIBUTE_ID);
+        clinicalData2.setAttrValue(TEST_CLINICAL_DATA_VALUE_2);
+        clinicalData2.setStudyId(TEST_STUDY_ID);
+        clinicalData2.setSampleId(TEST_SAMPLE_ID_2);
+        clinicalData2.setPatientId(TEST_PATIENT_ID_2);
+        clinicalData.add(clinicalData2);
+
+        ClinicalData clinicalData3 = new ClinicalData();
+        clinicalData3.setAttrId(TEST_ATTRIBUTE_ID);
+        clinicalData3.setAttrValue(TEST_CLINICAL_DATA_VALUE_3);
+        clinicalData3.setStudyId(TEST_STUDY_ID);
+        clinicalData3.setSampleId(TEST_SAMPLE_ID_3);
+        clinicalData3.setPatientId(TEST_PATIENT_ID_3);
+        clinicalData.add(clinicalData3);
+    }
 
     @Test
     @WithMockUser
@@ -901,7 +947,7 @@ public class StudyViewControllerTest {
         genericAssayDataCountItems.add(genericAssayDataCountItem);
 
         when(studyViewService.fetchGenericAssayDataCounts(anyList(), anyList(),
-            anyList())).thenReturn(genericAssayDataCountItems);
+            anyList(), anyList())).thenReturn(genericAssayDataCountItems);
 
         GenericAssayDataCountFilter genericAssayDataCountFilter = new GenericAssayDataCountFilter();
         GenericAssayDataFilter genericAssayDataFilter = new GenericAssayDataFilter();

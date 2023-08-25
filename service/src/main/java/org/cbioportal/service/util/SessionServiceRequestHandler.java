@@ -7,19 +7,12 @@ import java.nio.charset.Charset;
 
 import org.apache.commons.codec.binary.Base64;
 import org.apache.commons.lang3.StringUtils;
-import org.cbioportal.session_service.domain.SessionType;
-import org.cbioportal.utils.removeme.*;
-import org.cbioportal.web.parameter.CustomDataSession;
-import org.cbioportal.web.parameter.CustomGeneList;
-import org.cbioportal.web.parameter.PageSettings;
-import org.cbioportal.web.parameter.VirtualStudy;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Component;
-import org.springframework.util.ObjectUtils;
 import org.springframework.web.client.RestTemplate;
 
 @Component

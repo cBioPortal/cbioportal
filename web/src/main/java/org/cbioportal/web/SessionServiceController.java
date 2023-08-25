@@ -10,12 +10,11 @@ import javax.validation.constraints.Size;
 import com.google.common.collect.ImmutableMap;
 import org.cbioportal.service.util.CustomAttributeWithData;
 import org.cbioportal.service.util.CustomDataSession;
+import org.cbioportal.utils.removeme.Session;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.cbioportal.web.parameter.*;
 import org.cbioportal.service.util.SessionServiceRequestHandler;
-import org.cbioportal.session_service.domain.Session;
-import org.cbioportal.session_service.domain.SessionType;
 import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
 import org.json.simple.parser.ParseException;
@@ -87,7 +86,7 @@ public class SessionServiceController {
         HttpEntity<String> httpEntity = new HttpEntity<String>(query, sessionServiceRequestHandler.getHttpHeaders());
 
         ResponseEntity<List<PageSettings>> responseEntity = restTemplate.exchange(
-                sessionServiceURL + SessionType.settings + "/query/fetch",
+                sessionServiceURL + Session.SessionType.settings + "/query/fetch",
                 HttpMethod.POST,
                 httpEntity,
                 new ParameterizedTypeReference<List<PageSettings>>() {});
@@ -102,27 +101,27 @@ public class SessionServiceController {
     }
 
     private ResponseEntity<Session> addSession(
-        SessionType type, 
+        Session.SessionType type, 
         Optional<SessionOperation> operation,
         JSONObject body
     ) {
         try {
             HttpEntity<?> httpEntity;
-            if (type.equals(SessionType.virtual_study) || type.equals(SessionType.group)) {
+            if (type.equals(Session.SessionType.virtual_study) || type.equals(Session.SessionType.group)) {
                 // JSON from file to Object
                 VirtualStudyData virtualStudyData = sessionServiceObjectMapper.readValue(body.toString(), VirtualStudyData.class);
 
                 if (isAuthorized()) {
                     virtualStudyData.setOwner(userName());
                     if ((operation.isPresent() && operation.get().equals(SessionOperation.save))
-                            || type.equals(SessionType.group)) {
+                            || type.equals(Session.SessionType.group)) {
                         virtualStudyData.setUsers(Collections.singleton(userName()));
                     }
                 }
 
                 // use basic authentication for session service if set
                 httpEntity = new HttpEntity<>(virtualStudyData, sessionServiceRequestHandler.getHttpHeaders());
-            } else if (type.equals(SessionType.settings)) {
+            } else if (type.equals(Session.SessionType.settings)) {
                 if (!(isAuthorized())) {
                     return new ResponseEntity<>(HttpStatus.SERVICE_UNAVAILABLE);
                 }
@@ -136,7 +135,7 @@ public class SessionServiceController {
                 pageSettings.setOwner(userName());
                 httpEntity = new HttpEntity<>(pageSettings, sessionServiceRequestHandler.getHttpHeaders());
 
-            } else if(type.equals(SessionType.custom_data)) {
+            } else if(type.equals(Session.SessionType.custom_data)) {
                 // JSON from file to Object
                 CustomAttributeWithData customData = sessionServiceObjectMapper.readValue(body.toString(), CustomAttributeWithData.class);
 
@@ -147,7 +146,7 @@ public class SessionServiceController {
 
                 // use basic authentication for session service if set
                 httpEntity = new HttpEntity<>(customData, sessionServiceRequestHandler.getHttpHeaders());
-            } else if (type.equals(SessionType.custom_gene_list)) {
+            } else if (type.equals(Session.SessionType.custom_gene_list)) {
                 if (!(isAuthorized())) {
                      return new ResponseEntity<>(HttpStatus.SERVICE_UNAVAILABLE);
                 }
@@ -174,7 +173,7 @@ public class SessionServiceController {
     }
 
     @RequestMapping(value = "/{type}/{id}", method = RequestMethod.GET)
-    public ResponseEntity<Session> getSession(@PathVariable SessionType type, @PathVariable String id) {
+    public ResponseEntity<Session> getSession(@PathVariable Session.SessionType type, @PathVariable String id) {
 
         try {
             String sessionDataJson = sessionServiceRequestHandler.getSessionDataJson(type, id);
@@ -216,7 +215,7 @@ public class SessionServiceController {
                 HttpEntity<String> httpEntity = new HttpEntity<>(basicDBObject.toString(), sessionServiceRequestHandler.getHttpHeaders());
                 
                 ResponseEntity<List<VirtualStudy>> responseEntity = restTemplate.exchange(
-                        sessionServiceURL + SessionType.virtual_study + "/query/fetch",
+                        sessionServiceURL + Session.SessionType.virtual_study + "/query/fetch",
                         HttpMethod.POST,
                         httpEntity,
                         new ParameterizedTypeReference<List<VirtualStudy>>() {});
@@ -231,7 +230,7 @@ public class SessionServiceController {
     }
 
     @RequestMapping(value = "/{type}", method = RequestMethod.POST)
-    public ResponseEntity<Session> addSession(@PathVariable SessionType type, @RequestBody JSONObject body)
+    public ResponseEntity<Session> addSession(@PathVariable Session.SessionType type, @RequestBody JSONObject body)
             throws IOException {
 
         return addSession(type, Optional.empty(), body);
@@ -240,16 +239,16 @@ public class SessionServiceController {
     @RequestMapping(value = "/virtual_study/save", method = RequestMethod.POST)
     public ResponseEntity<Session> addUserSavedVirtualStudy(@RequestBody JSONObject body) throws IOException {
 
-        return addSession(SessionType.virtual_study, Optional.of(SessionOperation.save), body);
+        return addSession(Session.SessionType.virtual_study, Optional.of(SessionOperation.save), body);
     }
 
     @RequestMapping(value = "/{type:virtual_study|group|custom_data|custom_gene_list}/{operation}/{id}", method = RequestMethod.GET)
-    public void updateUsersInSession(@PathVariable SessionType type, @PathVariable String id,
-            @PathVariable Operation operation, HttpServletResponse response) throws IOException {
+    public void updateUsersInSession(@PathVariable Session.SessionType type, @PathVariable String id,
+                                     @PathVariable Operation operation, HttpServletResponse response) throws IOException {
 
         if (sessionServiceRequestHandler.isSessionServiceEnabled() && isAuthorized()) {
             HttpEntity<?> httpEntity;
-            if (type.equals(SessionType.custom_data)) {
+            if (type.equals(Session.SessionType.custom_data)) {
                 String virtualStudyStr = sessionServiceObjectMapper.writeValueAsString(getSession(type, id).getBody());
                 CustomDataSession customDataSession = sessionServiceObjectMapper.readValue(virtualStudyStr, CustomDataSession.class);
                 CustomAttributeWithData customAttributeWithData = customDataSession.getData();
@@ -257,7 +256,7 @@ public class SessionServiceController {
                 updateUserList(operation, users);
                 customAttributeWithData.setUsers(users);
                 httpEntity = new HttpEntity<>(customAttributeWithData, sessionServiceRequestHandler.getHttpHeaders());
-             } else if (type.equals(SessionType.custom_gene_list)) {
+             } else if (type.equals(Session.SessionType.custom_gene_list)) {
                 String customGeneListStr = sessionServiceObjectMapper.writeValueAsString(getSession(type, id).getBody());
                 CustomGeneList customGeneList = sessionServiceObjectMapper.readValue(customGeneListStr, CustomGeneList.class);
                 CustomGeneListData customGeneListData = customGeneList.getData();
@@ -320,7 +319,7 @@ public class SessionServiceController {
             HttpEntity<String> httpEntity = new HttpEntity<>(queryDBObject.toString(), sessionServiceRequestHandler.getHttpHeaders());
 
             ResponseEntity<List<VirtualStudy>> responseEntity = restTemplate.exchange(
-                    sessionServiceURL + SessionType.group + "/query/fetch",
+                    sessionServiceURL + Session.SessionType.group + "/query/fetch",
                     HttpMethod.POST,
                     httpEntity,
                     new ParameterizedTypeReference<List<VirtualStudy>>() {});
@@ -357,7 +356,7 @@ public class SessionServiceController {
                 JSONObject jsonObject = (JSONObject) parser.parse(objectMapper.writeValueAsString(settingsData));
 
                 if (pageSettings == null) {
-                    addSession(SessionType.settings, Optional.empty(), jsonObject);
+                    addSession(Session.SessionType.settings, Optional.empty(), jsonObject);
                 } else {
                     updatedPageSettingSession(pageSettings, settingsData, response);
                 }
@@ -449,7 +448,7 @@ public class SessionServiceController {
                     sessionServiceRequestHandler.getHttpHeaders());
 
             ResponseEntity<List<CustomDataSession>> responseEntity = restTemplate.exchange(
-                    sessionServiceURL + SessionType.custom_data + "/query/fetch",
+                    sessionServiceURL + Session.SessionType.custom_data + "/query/fetch",
                     HttpMethod.POST,
                     httpEntity,
                     new ParameterizedTypeReference<List<CustomDataSession>>() {});
@@ -462,7 +461,7 @@ public class SessionServiceController {
 
     @RequestMapping(value = "/custom_gene_list/save", method = RequestMethod.POST)
     public ResponseEntity<Session> addUserSavedCustomGeneList(@RequestBody JSONObject body) throws IOException {
-        return addSession(SessionType.custom_gene_list, Optional.of(SessionOperation.save), body);
+        return addSession(Session.SessionType.custom_gene_list, Optional.of(SessionOperation.save), body);
     }
     
     @RequestMapping(value = "/custom_gene_list", method = RequestMethod.GET)
@@ -478,7 +477,7 @@ public class SessionServiceController {
             HttpEntity<String> httpEntity = new HttpEntity<>(basicDBObject.toString(), sessionServiceRequestHandler.getHttpHeaders());
             
             ResponseEntity<List<CustomGeneList>> responseEntity = restTemplate.exchange(
-                    sessionServiceURL + SessionType.custom_gene_list + "/query/fetch",
+                    sessionServiceURL + Session.SessionType.custom_gene_list + "/query/fetch",
                     HttpMethod.POST,
                     httpEntity,
                     new ParameterizedTypeReference<List<CustomGeneList>>() {});

@@ -1,16 +1,17 @@
 package org.cbioportal.web;
 
+import static org.mockito.ArgumentMatchers.anyBoolean;
+import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
 
 
-import org.cbioportal.model.CancerStudy;
-import org.cbioportal.persistence.StudyRepository;
 import org.cbioportal.service.CacheService;
 import org.cbioportal.service.exception.CacheOperationException;
-import org.junit.Before;
 import org.junit.Ignore;
 import org.cbioportal.web.config.TestConfig;
 import org.junit.Test;
@@ -21,6 +22,7 @@ import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.MediaType;
 import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.context.ContextConfiguration;
+import org.springframework.test.context.TestPropertySource;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import org.springframework.test.util.ReflectionTestUtils;
 import org.springframework.test.web.servlet.MockMvc;
@@ -47,21 +49,6 @@ public class CacheControllerTest {
     @Autowired
     private CacheController cacheController;
     
-    // ---- Imitate @MockBean annotations of Spring Boot
-    @Autowired
-    private CacheService cacheService;
-    @Bean
-    public CacheService cacheService() {
-        return mock(CacheService.class);
-    }
-    // ----
-
-    @Before
-    public void setUp() throws Exception {
-        reset(cacheService);
-        mockMvc = MockMvcBuilders.webAppContextSetup(wac).build();
-    }
-
     @Test
     @WithMockUser
     public void clearAllCachesNoKeyProvided() throws Exception {
@@ -112,10 +99,10 @@ public class CacheControllerTest {
         verify(cacheService, times(1)).clearCaches(false);
     }
 
-    @Ignore // Unable to to configure context with the GlobalExceptionHandler ControllerAdvise.
+    @Ignore // Unable to configure context with the GlobalExceptionHandler ControllerAdvise.
     @Test
     public void clearAllCachesServiceException() throws Exception {
-        doThrow(CacheOperationException.class).when(cacheService).clearCaches(anyBoolean());
+        //doThrow(CacheOperationException.class).when(cacheService).clearCaches(anyBoolean());
         mockMvc.perform(MockMvcRequestBuilders.delete("/cache")
                 .header("X-API-KEY", "correct-key"))
             .andExpect(MockMvcResultMatchers.status().isInternalServerError())

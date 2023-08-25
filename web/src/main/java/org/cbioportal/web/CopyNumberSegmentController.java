@@ -37,7 +37,8 @@ import javax.validation.constraints.Size;
 import java.util.*;
 
 @PublicApi
-@RestController("/api")
+@RestController()
+@RequestMapping("/api")
 @Validated
 @Api(tags = PublicApiTags.COPY_NUMBER_SEGMENTS, description = " ")
 public class CopyNumberSegmentController {

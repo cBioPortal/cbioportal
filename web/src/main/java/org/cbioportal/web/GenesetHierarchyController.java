@@ -50,7 +50,8 @@ import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
 
 @InternalApi
-@RestController("/api")
+@RestController()
+@RequestMapping("/api")
 @Validated
 @Api(tags = "Gene Set Hierarchy", description = " ")
 public class GenesetHierarchyController {

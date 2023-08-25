@@ -49,7 +49,8 @@ import java.util.List;
 import java.util.Map;
 
 @PublicApi
-@RestController("/api")
+@RestController()
+@RequestMapping("/api")
 @Validated
 @Api(tags = PublicApiTags.STUDIES, description = " ")
 public class StudyController {

@@ -38,7 +38,8 @@ import java.util.*;
 import java.util.stream.Collectors;
 
 @PublicApi
-@RestController("/api")
+@RestController()
+@RequestMapping("/api")
 @Validated
 @Api(tags = PublicApiTags.GENE_PANELS, description = " ")
 public class GenePanelController {

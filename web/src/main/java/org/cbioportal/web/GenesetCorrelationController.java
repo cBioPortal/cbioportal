@@ -52,7 +52,8 @@ import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
 
 @InternalApi
-@RestController("/api")
+@RestController()
+@RequestMapping("/api")
 @Validated
 @Api(tags = "Gene Set Correlation", description = " ")
 public class GenesetCorrelationController {

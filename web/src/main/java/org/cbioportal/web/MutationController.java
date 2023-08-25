@@ -42,7 +42,8 @@ import javax.validation.Valid;
 import java.util.*;
 
 @PublicApi
-@RestController("/api")
+@RestController()
+@RequestMapping("/api")
 @Validated
 @Api(tags = PublicApiTags.MUTATIONS, description = " ")
 public class MutationController {

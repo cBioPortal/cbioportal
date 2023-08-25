@@ -32,7 +32,8 @@ import javax.validation.constraints.Min;
 import java.util.List;
 
 @InternalApi
-@RestController("/api")
+@RestController()
+@RequestMapping("/api")
 @Validated
 @Api(tags = InternalApiTags.CLINICAL_EVENTS, description = " ")
 public class ClinicalEventController {

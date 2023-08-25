@@ -35,7 +35,8 @@ import java.util.ArrayList;
 import java.util.List;
 
 @InternalApi
-@RestController("/api")
+@RestController()
+@RequestMapping("/api")
 @Validated
 @Api(tags = InternalApiTags.DISCRETE_COPY_NUMBER_ALTERATION_COUNTS, description = " ")
 public class DiscreteCopyNumberCountController {

@@ -39,7 +39,8 @@ import org.springframework.web.bind.annotation.RestController;
 import springfox.documentation.annotations.ApiIgnore;
 
 @PublicApi
-@RestController("/api")
+@RestController()
+@RequestMapping("/api")
 @Validated
 @Api(tags = PublicApiTags.CLINICAL_ATTRIBUTES, description = " ")
 public class ClinicalAttributeController {

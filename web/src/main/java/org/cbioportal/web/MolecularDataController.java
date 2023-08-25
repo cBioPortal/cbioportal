@@ -36,7 +36,8 @@ import java.math.BigDecimal;
 import java.util.*;
 
 @PublicApi
-@RestController("/api")
+@RestController()
+@RequestMapping("/api")
 @Validated
 @Api(tags = PublicApiTags.MOLECULAR_DATA, description = " ")
 public class MolecularDataController {

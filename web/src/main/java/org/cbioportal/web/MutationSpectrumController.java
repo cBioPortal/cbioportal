@@ -24,7 +24,8 @@ import javax.validation.Valid;
 import java.util.List;
 
 @InternalApi
-@RestController("/api")
+@RestController()
+@RequestMapping("/api")
 @Validated
 @Api(tags = "Mutation Spectrums", description = " ")
 public class MutationSpectrumController {

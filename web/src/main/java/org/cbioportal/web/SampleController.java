@@ -45,7 +45,8 @@ import java.util.*;
 import java.util.stream.Collectors;
 
 @PublicApi
-@RestController("/api")
+@RestController()
+@RequestMapping("/api")
 @Validated
 @Api(tags = PublicApiTags.SAMPLES, description = " ")
 public class SampleController {

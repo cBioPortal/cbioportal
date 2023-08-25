@@ -25,7 +25,8 @@ import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
 
 @InternalApi
-@RestController("/api")
+@RestController()
+@RequestMapping("/api")
 @Validated
 @Api(tags = InternalApiTags.RESOURCE_DEFINITIONS, description = " ")
 public class ResourceDefinitionController {

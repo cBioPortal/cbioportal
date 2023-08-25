@@ -39,7 +39,8 @@ import org.springframework.web.bind.annotation.RestController;
 import springfox.documentation.annotations.ApiIgnore;
 
 @InternalApi
-@RestController("/api")
+@RestController()
+@RequestMapping("/api")
 @Validated
 @Api(tags = InternalApiTags.CLINICAL_ATTRIBUTES_COUNT, description = " ")
 public class ClinicalAttributeCountController {

@@ -31,7 +31,8 @@ import java.util.List;
 import java.util.Set;
 
 @PublicApi
-@RestController("/api")
+@RestController()
+@RequestMapping("/api")
 @Validated
 @Api(tags = "Treatments", description = " ")
 public class TreatmentController {

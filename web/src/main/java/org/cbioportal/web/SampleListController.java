@@ -34,7 +34,8 @@ import javax.validation.constraints.Size;
 import java.util.List;
 
 @PublicApi
-@RestController("/api")
+@RestController()
+@RequestMapping("/api")
 @Validated
 @Api(tags = PublicApiTags.SAMPLE_LISTS, description = " ")
 public class SampleListController {

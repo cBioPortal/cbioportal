@@ -22,7 +22,8 @@ import java.util.*;
 import java.util.stream.Collectors;
 
 @InternalApi
-@RestController("/api")
+@RestController()
+@RequestMapping("/api")
 @Validated
 @Api(tags = "Alteration Enrichments", description = " ")
 public class AlterationEnrichmentController {

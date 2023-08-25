@@ -38,7 +38,8 @@ import javax.validation.Valid;
 import java.util.*;
 
 @PublicApi
-@RestController("/api")
+@RestController()
+@RequestMapping("/api")
 @Validated
 @Api(tags = PublicApiTags.MOLECULAR_PROFILES, description = " ")
 public class MolecularProfileController {

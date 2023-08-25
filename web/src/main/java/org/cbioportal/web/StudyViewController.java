@@ -46,7 +46,8 @@ import java.util.function.Function;
 import java.util.stream.Collectors;
 
 @InternalApi
-@RestController("/api")
+@RestController()
+@RequestMapping("/api")
 @Validated
 @Api(tags = "Study View", description = " ")
 public class StudyViewController {

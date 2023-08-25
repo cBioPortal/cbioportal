@@ -25,7 +25,8 @@ import java.util.ArrayList;
 import java.util.List;
 
 @InternalApi
-@RestController("/api")
+@RestController()
+@RequestMapping("/api")
 @Validated
 @Api(tags = "Variant Counts", description = " ")
 public class VariantCountController {

@@ -30,7 +30,8 @@ import javax.validation.constraints.Min;
 import java.util.List;
 
 @InternalApi
-@RestController("/api")
+@RestController()
+@RequestMapping("/api")
 @Validated
 @Api(tags = "Significant Copy Number Regions", description = " ")
 public class SignificantCopyNumberRegionController {

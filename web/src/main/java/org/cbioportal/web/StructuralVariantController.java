@@ -51,7 +51,8 @@ import javax.validation.Valid;
 import java.util.*;
 
 @InternalApi
-@RestController("/api")
+@RestController()
+@RequestMapping("/api")
 @Validated
 @Api(tags = InternalApiTags.STRUCTURAL_VARIANTS, description = " ")
 public class StructuralVariantController {

@@ -35,7 +35,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 @PublicApi
-@RestController("/api")
+@RestController()
 @Validated
 @Api(tags = PublicApiTags.DISCRETE_COPY_NUMBER_ALTERATIONS, description = " ")
 public class DiscreteCopyNumberController {

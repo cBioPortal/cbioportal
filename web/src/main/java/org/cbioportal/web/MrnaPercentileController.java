@@ -25,7 +25,8 @@ import javax.validation.constraints.Size;
 import java.util.List;
 
 @InternalApi
-@RestController("/api")
+@RestController()
+@RequestMapping("/api")
 @Validated
 @Api(tags = "mRNA Percentile", description = " ")
 public class MrnaPercentileController {

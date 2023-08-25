@@ -34,7 +34,8 @@ import javax.validation.Valid;
 import java.util.*;
 
 @PublicApi
-@RestController("/api")
+@RestController()
+@RequestMapping("/api")
 @Validated
 @Api(tags = PublicApiTags.PATIENTS, description = " ")
 public class PatientController {

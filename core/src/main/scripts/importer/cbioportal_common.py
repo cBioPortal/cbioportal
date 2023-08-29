@@ -1090,9 +1090,13 @@ def get_db_cursor(portal_properties: PortalProperties):
             "port": url_elements.port if url_elements.port is not None else 3306,
             "db": url_elements.paths[0],
             "user": portal_properties.database_user,
-            "passwd": portal_properties.database_pw,
-            "ssl": "useSSL" not in url_elements.query or url_elements.query["useSSL"] == "true"
+            "passwd": portal_properties.database_pw
         }
+        if url_elements.query["useSSL"] == "true":
+            connection_kwargs['ssl'] = {"ssl_mode": True}
+            connection_kwargs['ssl_mode'] = 'REQUIRED'
+        else:
+            connection_kwargs['ssl_mode'] = 'DISABLED'   
         connection = MySQLdb.connect(**connection_kwargs)
     except MySQLdb.Error as exception:
         print(exception, file=ERROR_FILE)

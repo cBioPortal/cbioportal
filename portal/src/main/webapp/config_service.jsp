@@ -185,7 +185,7 @@
 
         obj.put("oncoprint_clinical_tracks_config_json",GlobalProperties.getOncoprintClinicalTracksConfigJson());
 
-        obj.put("skin_patient_view_custom_sample_types_json", GlobalProperties.getSkinPatientViewCustomSampleTypesJson());
+        obj.put("skin_patient_view_custom_sample_type_colors_json", GlobalProperties.getSkinPatientViewCustomSampleTypeColorsJson());
 
         obj.put("authenticationMethod",GlobalProperties.authenticationMethod());
 

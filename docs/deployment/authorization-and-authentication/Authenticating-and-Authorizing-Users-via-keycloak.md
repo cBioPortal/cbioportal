@@ -1,5 +1,7 @@
 # Authenticating and Authorizing Users via Keycloak
 
+** ⚠️ Most of this documentation is for keycloak <v20
+
 ## Introduction
 
 The cBioPortal includes support for Keycloak authentication. Keycloak can function as an Identity Provider (IDP) for cBioPortal.
@@ -7,7 +9,7 @@ This document explains why you might find Keycloak authentication useful for sto
 the cBioPortal database. It also shows you how to configure Keycloak to communicate with your instance of cBioPortal using
 SAML (Security Assertion Markup Language).
 
-Please note that configuring your local instance to use Keycloak authentication requires a Keycloak server to be set up. For details on how to set up a Keycloak server, please read online document at <https://www.keycloak.org/docs/latest/server_installation/index.html>.
+Please note that configuring your local instance to use Keycloak authentication requires a Keycloak server to be set up. For details on how to set up a Keycloak server, please read online document at <https://www.keycloak.org/guides#server>.
 
 This document focuses mainly on the steps to configure Keycloak for **authenticating** cBioPortal users.
 
@@ -15,7 +17,7 @@ To skip to the authorization section see: [authorization with Keycloak](#authori
 
 ### Why Keycloak?
 
-Keycloak is an [open source identity and access management solution](https://keycloak.gitbooks.io/documentation/server_admin/topics/overview.html). It has a built-in RDBM system to store login information. It can help build a security layer on top of the cBioPortal web application.
+Keycloak is an [open source identity and access management solution](https://www.keycloak.org/docs/latest/server_admin/index.html). It has a built-in RDBM system to store login information. It can help build a security layer on top of the cBioPortal web application.
 
 Keycloak boils down to three simple terms:
 * **realm**: A realm secures and manages security metadata for a set of users, application, and registered auth clients.
@@ -156,9 +158,9 @@ cBioPortal, deciding which authorities to grant when telling
 cBioPortal that the user has authenticated.
 
 Please refer to the Keycloak documentation on
-[user federation](https://keycloak.gitbooks.io/documentation/server_admin/topics/user-federation.html)
+[user federation](https://www.keycloak.org/docs/latest/server_admin/index.html#_user-storage-federation)
 and
-[identity brokering](https://keycloak.gitbooks.io/documentation/server_admin/topics/identity-broker.html)
+[identity brokering](https://www.keycloak.org/docs/latest/server_admin/index.html#_identity_broker)
 for more information on how to integrate Keycloak with your local LDAP
 or SAML service.
 

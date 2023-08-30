@@ -1,6 +1,6 @@
 # Authenticating and Authorizing Users via Keycloak
 
-**⚠️ This documentation is for keycloak <v20, see related [ticket](https://github.com/cBioPortal/cbioportal/issues/10360)**
+**⚠️ This documentation is for keycloak <v20, see related [ticket](https://github.com/cBioPortal/cbioportal/issues/10360) ⚠️**
 
 ## Introduction
 

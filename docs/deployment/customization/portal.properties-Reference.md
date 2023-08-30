@@ -223,6 +223,13 @@ Define the colors of custom sample types in the patient view using a json object
 ```
 skin.patient_view.custom_sample_type_colors_json=classpath:/skin-patient-view-custom-sample-type-colors.json
 ```
+Example of json file contents:
+```json
+{
+    "Primary": "green",
+    "Biopsy 3": "#00c040ff"
+}
+```
 
 ### Choose the display name for authenticated users
 

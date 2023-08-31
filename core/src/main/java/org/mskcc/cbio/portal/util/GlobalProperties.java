@@ -183,6 +183,12 @@ public class GlobalProperties {
         oncoprintClinicalTracksConfigJson = property; 
     }
 
+    private static String skinPatientViewCustomSampleTypeColorsJson;
+    @Value("${skin.patient_view.custom_sample_type_colors_json:}") // default is empty string
+    public void setSkinPatientViewCustomSampleTypeColorsJson(String property) {
+        skinPatientViewCustomSampleTypeColorsJson = property; 
+    }
+
     // properties for showing the right logo in the header_bar and default logo
     public static final String SKIN_RIGHT_LOGO = "skin.right_logo";
 
@@ -1252,6 +1258,14 @@ public class GlobalProperties {
     public static String getOncoprintClinicalTracksConfigJson() {
         if (oncoprintClinicalTracksConfigJson.length() > 0) {
             return readFile(oncoprintClinicalTracksConfigJson);
+        } else {
+            return null;
+        }
+    }
+    
+    public static String getSkinPatientViewCustomSampleTypeColorsJson() {
+        if (skinPatientViewCustomSampleTypeColorsJson.length() > 0) {
+            return readFile(skinPatientViewCustomSampleTypeColorsJson);
         } else {
             return null;
         }

@@ -225,6 +225,19 @@ skin.patient_view.copy_number_table.columns.show_on_init=
 skin.patient_view.structural_variant_table.columns.show_on_init=
 ```
 
+### Define custom sample type colors
+Define the colors of custom sample types in the patient view using a json object with for each sample type a color:
+```
+skin.patient_view.custom_sample_type_colors_json=classpath:/skin-patient-view-custom-sample-type-colors.json
+```
+Example of json file contents:
+```json
+{
+    "Primary": "green",
+    "Biopsy 3": "#00c040ff"
+}
+```
+
 ### Choose the display name for authenticated users
 
 By default the display name for authenticated users is email, but it can be changed for the user name:

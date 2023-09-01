@@ -7,7 +7,7 @@ gene panel files in `./study` which is mounted inside the container on `/study/.
 ```shell
 docker-compose run \
     -v <path_to_genepanel_file>:/gene_panels/gene_panel.txt:ro \
-    cbioportal
+    cbioportal \
     bash -c 'cd /cbioportal/core/src/main/scripts/ && ./importGenePanel.pl --data /gene_panels/gene_panel.txt'
 ```
 

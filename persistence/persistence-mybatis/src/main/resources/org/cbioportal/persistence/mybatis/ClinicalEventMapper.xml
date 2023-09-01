@@ -105,7 +105,7 @@
         from sample
         Inner Join patient on sample.PATIENT_ID = patient.INTERNAL_ID
         Inner join clinical_event on clinical_event.PATIENT_ID = patient.INTERNAL_ID
-        Inner Join cancer_study on cancer_study.CANCER_STUDY_ID = patient.cancer_STUDY_ID
+        Inner Join cancer_study on cancer_study.CANCER_STUDY_ID = patient.CANCER_STUDY_ID
         <where>
             <if test="sampleIds == null and studyIds != null">
                 cancer_study.CANCER_STUDY_IDENTIFIER IN

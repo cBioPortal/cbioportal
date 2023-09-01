@@ -1,5 +1,6 @@
 package org.cbioportal.persistence.mybatis;
 
+import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashSet;
@@ -16,6 +17,7 @@ import org.cbioportal.model.MutationEventType;
 import org.cbioportal.model.QueryElement;
 import org.cbioportal.model.util.Select;
 import org.cbioportal.persistence.mybatis.config.TestConfig;
+import org.h2.tools.Server;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;

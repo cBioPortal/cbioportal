@@ -3,23 +3,6 @@
 
 <mapper namespace="org.cbioportal.persistence.mybatis.ClinicalDataMapper">
 
-    <!--    TODO duplicate of select in ClinicalAttributeMapper - remove-->
-    <!--    somehow the namespace mechanism does not work for this mapper xml-->
-    <sql id="selectClinicalAttribute">
-        clinical_attribute_meta.ATTR_ID AS "${prefix}attrId",
-        cancer_study.CANCER_STUDY_IDENTIFIER AS "${prefix}cancerStudyIdentifier",
-        clinical_attribute_meta.CANCER_STUDY_ID AS "${prefix}cancerStudyId",
-        clinical_attribute_meta.PATIENT_ATTRIBUTE AS "${prefix}patientAttribute",
-        clinical_attribute_meta.DISPLAY_NAME AS "${prefix}displayName"
-        <if test="projection == 'SUMMARY' || projection == 'DETAILED'">
-            ,
-            clinical_attribute_meta.DESCRIPTION AS "${prefix}description",
-            clinical_attribute_meta.DATATYPE AS "${prefix}datatype",
-            clinical_attribute_meta.PRIORITY AS "${prefix}priority"
-        </if>
-    </sql>
-
-    
     <sql id="selectSample">
         clinical_sample.INTERNAL_ID AS "${prefix}internalId",
         sample.STABLE_ID AS "${prefix}sampleId",
@@ -32,7 +15,7 @@
             </if>
             <if test="projection == 'DETAILED'">
                 ,
-                <include refid="selectClinicalAttribute">
+                <include refid="org.cbioportal.persistence.mybatis.ClinicalAttributeMapper.select">
                     <property name="prefix" value="${prefix}clinicalAttribute."/>
                 </include>
             </if>
@@ -50,12 +33,12 @@
             </if>
             <if test="projection == 'DETAILED'">
                 ,
-                <include refid="selectClinicalAttribute">
+                <include refid="org.cbioportal.persistence.mybatis.ClinicalAttributeMapper.select">
                     <property name="prefix" value="${prefix}clinicalAttribute."/>
                 </include>
             </if>
         </if>
-     </sql>
+    </sql>
 
     <sql id="fromSample">
         FROM clinical_sample
@@ -149,7 +132,7 @@
             INNER JOIN type_of_cancer ON cancer_study.TYPE_OF_CANCER_ID = type_of_cancer.TYPE_OF_CANCER_ID
         </if>
         <include refid="whereSample"/>
-        <if test="_parameter.containsKey('sortBy') and sortBy != null and projection != 'ID'">
+        <if test="sortBy != null and projection != 'ID'">
             ORDER BY "${sortBy}" ${direction}
         </if>
         <if test="projection == 'ID'">
@@ -179,7 +162,7 @@
             INNER JOIN type_of_cancer ON cancer_study.TYPE_OF_CANCER_ID = type_of_cancer.TYPE_OF_CANCER_ID
         </if>
         <include refid="wherePatient"/>
-        <if test="_parameter.containsKey('sortBy') and sortBy != null and projection != 'ID'">
+        <if test="sortBy != null and projection != 'ID'">
             ORDER BY ${sortBy} ${direction}
         </if>
         <if test="projection == 'ID'">
@@ -261,7 +244,7 @@
     <sql id="whereSampleSearchAndPagination">
         INNER JOIN (
             SELECT DISTINCT clinical_sample.INTERNAL_ID
-            <if test="_parameter.containsKey('sortBy') and sortBy != null">
+            <if test="sortBy != null">
                 <if test="sortBy == 'sampleId'">
                   , sample.STABLE_ID AS SORT_BY
                 </if>
@@ -280,11 +263,11 @@
             </if>
             <include refid="fromSampleAndClinicalPatient"/>
             <include refid="whereSample"/>
-            <if test="_parameter.containsKey('searchTerm') and searchTerm != null and not searchTerm.isBlank()">
+            <if test="searchTerm != null and not searchTerm.isBlank()">
                 AND
                 clinical_sample.ATTR_VALUE LIKE CONCAT('%', #{searchTerm}, '%')
             </if>
-            <if test="_parameter.containsKey('sortBy') and sortBy != null">
+            <if test=" sortBy != null">
                 <!-- Put 'NULL samples' last: -->
                 <choose>
                     <when test="_databaseId == 'mysql'">

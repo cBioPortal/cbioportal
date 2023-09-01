@@ -15,7 +15,7 @@ public interface ClinicalDataMapper {
     BaseMeta getMetaSampleClinicalData(List<String> studyIds, List<String> sampleIds, List<String> attributeIds);
 
     List<ClinicalData> getPatientClinicalData(List<String> studyIds, List<String> patientIds, List<String> attributeIds,
-                                              String projection, Integer limit, Integer offset, String sortby,
+                                              String projection, Integer limit, Integer offset, String sortBy,
                                               String direction);
 
     List<ClinicalData> getSampleClinicalTable(List<String> studyIds, List<String> sampleIds, String projection,

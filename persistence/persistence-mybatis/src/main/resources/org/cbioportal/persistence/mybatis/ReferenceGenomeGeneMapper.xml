@@ -10,7 +10,7 @@
         reference_genome_gene.REFERENCE_GENOME_ID AS "${prefix}referenceGenomeId"
         <if test="projection == 'SUMMARY' || projection == 'DETAILED'">
             ,
-            gene.hugo_gene_symbol AS "${prefix}hugoGeneSymbol",
+            gene.HUGO_GENE_SYMBOL AS "${prefix}hugoGeneSymbol",
             reference_genome_gene.CHR AS "${prefix}chromosome",
             reference_genome_gene.CYTOBAND AS "${prefix}cytoband",
             reference_genome_gene.START AS "${prefix}start",
@@ -24,7 +24,7 @@
             <property name="prefix" value=""/>
         </include>
         FROM reference_genome_gene
-        INNER JOIN gene on gene.entrez_gene_id = reference_genome_gene.entrez_gene_id
+        INNER JOIN gene on gene.ENTREZ_GENE_ID = reference_genome_gene.ENTREZ_GENE_ID
         <if test="genomeName != null">
             INNER JOIN reference_genome ON reference_genome.REFERENCE_GENOME_ID = reference_genome_gene.REFERENCE_GENOME_ID
             WHERE reference_genome.NAME = #{genomeName}
@@ -38,7 +38,7 @@
         </include>
         FROM reference_genome_gene
         INNER JOIN reference_genome ON reference_genome.REFERENCE_GENOME_ID = reference_genome_gene.REFERENCE_GENOME_ID
-        INNER JOIN gene ON gene.entrez_gene_id = reference_genome_gene.entrez_gene_id
+        INNER JOIN gene ON gene.ENTREZ_GENE_ID = reference_genome_gene.ENTREZ_GENE_ID
         <where>
             <if test="geneIds != null and !geneIds.isEmpty() and genomeName != null">
                 gene.HUGO_GENE_SYMBOL IN
@@ -60,7 +60,7 @@
         </include>
         FROM reference_genome_gene
         INNER JOIN reference_genome ON reference_genome.REFERENCE_GENOME_ID = reference_genome_gene.REFERENCE_GENOME_ID
-        INNER JOIN gene ON gene.entrez_gene_id = reference_genome_gene.entrez_gene_id
+        INNER JOIN gene ON gene.ENTREZ_GENE_ID = reference_genome_gene.ENTREZ_GENE_ID
         <where>
             <if test="geneIds != null and !geneIds.isEmpty() and genomeName != null">
                 gene.ENTREZ_GENE_ID IN
@@ -82,7 +82,7 @@
         </include>
         FROM reference_genome_gene
         INNER JOIN reference_genome ON reference_genome.REFERENCE_GENOME_ID = reference_genome_gene.REFERENCE_GENOME_ID
-        INNER JOIN gene ON gene.entrez_gene_id = reference_genome_gene.entrez_gene_id
+        INNER JOIN gene ON gene.ENTREZ_GENE_ID = reference_genome_gene.ENTREZ_GENE_ID
         <where>
             <if test="genomeName != null and geneId != null">
                 reference_genome.NAME = #{genomeName} AND gene.ENTREZ_GENE_ID = #{geneId}
@@ -95,11 +95,11 @@
             <property name="prefix" value=""/>
         </include>
         FROM reference_genome_gene
-        INNER JOIN gene on gene.entrez_gene_id = reference_genome_gene.entrez_gene_id
+        INNER JOIN gene on gene.ENTREZ_GENE_ID = reference_genome_gene.ENTREZ_GENE_ID
         INNER JOIN reference_genome ON reference_genome.REFERENCE_GENOME_ID = reference_genome_gene.REFERENCE_GENOME_ID
         <where>
             <if test="genomeName != null and geneticEntityId != null">
-                reference_genome.NAME = #{genomeName} AND gene.genetic_entity_id = #{geneticEntityId}
+                reference_genome.NAME = #{genomeName} AND gene.GENETIC_ENTITY_ID = #{geneticEntityId}
             </if>
             <if test="genomeName == null or geneticEntityId == null">
                 FALSE

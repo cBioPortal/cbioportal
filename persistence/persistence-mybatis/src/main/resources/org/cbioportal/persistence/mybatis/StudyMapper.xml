@@ -21,17 +21,6 @@
         </if>
     </sql>
 
-    <!--TODO fix duplicate -->
-    <sql id="CancerTypeMapperSelect">
-        type_of_cancer.TYPE_OF_CANCER_ID AS "${prefix}typeOfCancerId"
-        <if test="projection == 'SUMMARY' || projection == 'DETAILED'">
-            ,
-            type_of_cancer.NAME AS "${prefix}name",
-            type_of_cancer.DEDICATED_COLOR AS "${prefix}dedicatedColor",
-            type_of_cancer.SHORT_NAME AS "${prefix}shortName",
-            type_of_cancer.PARENT AS "${prefix}parent"
-        </if>
-    </sql>
 
     <sql id="selectDetailed">
         ,
@@ -45,8 +34,8 @@
         COUNT(CASE WHEN sample_list.STABLE_ID = CONCAT(cancer_study.CANCER_STUDY_IDENTIFIER,'_rppa') THEN 1 ELSE NULL END) AS rppaSampleCount,
         COUNT(CASE WHEN sample_list.STABLE_ID = CONCAT(cancer_study.CANCER_STUDY_IDENTIFIER,'_protein_quantification') THEN 1 ELSE NULL END) AS massSpectrometrySampleCount,
         COUNT(CASE WHEN sample_list.STABLE_ID = CONCAT(cancer_study.CANCER_STUDY_IDENTIFIER,'_3way_complete') THEN 1 ELSE NULL END) AS completeSampleCount,
-        IFNULL(treatment.count, 0 ) as treatmentCount, 
-        <include refid="CancerTypeMapperSelect">
+        IFNULL(treatment.count, 0 ) as treatmentCount,
+        <include refid="org.cbioportal.persistence.mybatis.CancerTypeMapper.select">
             <property name="prefix" value="typeOfCancer."/>
         </include>
     </sql>

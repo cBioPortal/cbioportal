@@ -13,13 +13,12 @@
             sample.SAMPLE_TYPE AS "${prefix}sampleType",
             sample.PATIENT_ID AS "${prefix}patientId"
         </if>
-        <!--TODO: This causes an error while referencing another sql statement. Need to fix -->
-<!--        <if test="projection == 'DETAILED'">-->
-<!--            ,-->
-<!--            <include refid="org.cbioportal.persistence.mybatis.PatientMapper.select">-->
-<!--                <property name="prefix" value="${prefix}patient."/>-->
-<!--            </include>-->
-<!--        </if>-->
+        <if test="projection == 'DETAILED'">
+            ,
+            <include refid="org.cbioportal.persistence.mybatis.PatientMapper.select">
+                <property name="prefix" value="${prefix}patient."/>
+            </include>
+        </if>
     </sql>
 
     <sql id="from">

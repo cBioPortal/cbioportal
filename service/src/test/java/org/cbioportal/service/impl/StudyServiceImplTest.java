@@ -4,7 +4,6 @@ import org.cbioportal.model.CancerStudy;
 import org.cbioportal.model.meta.BaseMeta;
 import org.cbioportal.persistence.StudyRepository;
 import org.cbioportal.service.CancerTypeService;
-import org.cbioportal.service.ReadPermissionService;
 import org.cbioportal.service.exception.StudyNotFoundException;
 import org.cbioportal.utils.security.AccessLevel;
 import org.junit.Assert;
@@ -20,8 +19,6 @@ import java.util.HashMap;
 import java.util.List;
 
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.*;
-import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.when;
 
 @RunWith(MockitoJUnitRunner.class)
@@ -34,8 +31,6 @@ public class StudyServiceImplTest extends BaseServiceImplTest {
     private StudyRepository studyRepository;
     @Mock
     private CancerTypeService cancerTypeService;
-    @Mock
-    private ReadPermissionService readPermissionService;
 
     @Test
     public void getAllStudies() throws Exception {
@@ -52,7 +47,6 @@ public class StudyServiceImplTest extends BaseServiceImplTest {
         List<CancerStudy> result = studyService.getAllStudies(KEYWORD, PROJECTION, PAGE_SIZE, PAGE_NUMBER, SORT, DIRECTION, null, AccessLevel.READ);
 
         Assert.assertEquals(expectedCancerStudyList.get(0), result.get(0));
-        verify(readPermissionService, times(1)).setReadPermission(any(), any());
     }
 
     @Test

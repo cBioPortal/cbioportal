@@ -6,7 +6,6 @@ import org.cbioportal.model.TypeOfCancer;
 import org.cbioportal.model.meta.BaseMeta;
 import org.cbioportal.persistence.StudyRepository;
 import org.cbioportal.service.CancerTypeService;
-import org.cbioportal.service.ReadPermissionService;
 import org.cbioportal.service.StudyService;
 import org.cbioportal.service.exception.StudyNotFoundException;
 import org.cbioportal.utils.security.AccessLevel;
@@ -30,9 +29,6 @@ public class StudyServiceImpl implements StudyService {
     
     @Autowired
     private CancerTypeService cancerTypeService;
-
-    //@Autowired
-    //private ReadPermissionService readPermissionService;
 
     @Override
     @PostFilter("hasPermission(filterObject,#accessLevel)")

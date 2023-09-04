@@ -4456,12 +4456,17 @@ class GenericAssayWiseFileValidator(FeaturewiseFileValidator):
 
     def parseFeatureColumns(self, nonsample_col_vals):
         """Check the IDs in the first column."""
+
+        allowed_characters = r'[^A-Za-z0-9_.-]'
+
         value = nonsample_col_vals[0].strip()
-        if ' ' in value:
-            self.logger.error('Do not use space in the stable id',
+
+        # Check if genetic entity is present and contains allowed characters
+        if re.search(allowed_characters, value) is not None:
+            self.logger.error('Feature id contains one or more illegal characters',
                               extra={'line_number': self.line_number,
-                                     'column_number': 1,
-                                     'cause': nonsample_col_vals[0]})
+                                     'cause': 'id was`' + value + '` and only alpha-numeric, _, . and - are allowed.'})
+
         return value
 
     def checkId(self):

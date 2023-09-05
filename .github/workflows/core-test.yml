@@ -35,11 +35,6 @@ jobs:
           mysql --host=127.0.0.1 --port=3306 --user=root --password=root <<< "CREATE USER 'cbio_user'@'localhost' IDENTIFIED BY 'somepassword'" && \
           mysql --host=127.0.0.1 --port=3306 --user=root --password=root <<< "GRANT ALL ON cgds_test.* TO 'cbio_user'@'localhost'" && \
           mysql --host=127.0.0.1 --port=3306 --user=root --password=root <<< "flush privileges"
-      - name: 'Copy maven settings'
-        working-directory: ./cbioportal
-        run: |
-          mkdir -p ~/.m2 && \
-          cp .github/settings.xml ~/.m2
       - name: 'Build cBioPortal once without tests'
         working-directory: ./cbioportal
         run: |

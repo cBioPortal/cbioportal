@@ -17,6 +17,7 @@ The cBioPortal for Cancer Genomics was originally developed at [Memorial Sloan K
 * Bryan Lai
 * Calla Chennault
 * Anusha Satravada
+* Rima AlHamad
 * Nikolaus Schultz
 
 ## Dana-Farber Cancer Institute
@@ -38,6 +39,7 @@ The cBioPortal for Cancer Genomics was originally developed at [Memorial Sloan K
 * Allison Heath
 * John Maris
 * Adam Resnick
+* Miguel Brown
 
 ## Caris Life Sciences
 * Jianjiong Gao

@@ -47,12 +47,12 @@ public class WebServletContextListener implements ServletContextListener, Initia
 
     private void checkOncokbInfo() {
         if(StringUtils.isEmpty(this.oncokbToken) && (StringUtils.isEmpty(this.oncokbURL) || this.oncokbURL.equalsIgnoreCase(DEFAULT_ONCOKB_URL))) {
-            System.out.println("----------------------------------------------------------------------------------------------------------------");
+            System.out.println("\n----------------------------------------------------------------------------------------------------------------");
             // oncokb.org is deprecated, www.oncokb.org should be used
             System.out.println("-- You are connecting to the OncoKB public instance which does not include any therapeutic information.");
             System.out.println("-- Please consider obtaining a license to support future OncoKB development by following https://docs.cbioportal.org/2.4-integration-with-other-webservices/oncokb-data-access.");
             System.out.println("-- Thank you.");
-            System.out.println("----------------------------------------------------------------------------------------------------------------");
+            System.out.println("----------------------------------------------------------------------------------------------------------------\n");
         }
     }
     

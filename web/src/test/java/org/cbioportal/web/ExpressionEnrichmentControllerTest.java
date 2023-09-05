@@ -186,7 +186,7 @@ public class ExpressionEnrichmentControllerTest {
         genericAssayEnrichment2.setpValue(TEST_P_VALUE_2);
         genericAssayEnrichments.add(genericAssayEnrichment2);
 
-        Mockito.when(expressionEnrichmentService.getGenericAssayEnrichments(Mockito.anyString(), Mockito.anyMap(),
+        Mockito.when(expressionEnrichmentService.getGenericAssayNumericalEnrichments(Mockito.anyString(), Mockito.anyMap(),
                 Mockito.any(EnrichmentType.class))).thenReturn(genericAssayEnrichments);
 
         mockMvc.perform(MockMvcRequestBuilders.post("/generic-assay-enrichments/fetch")

@@ -275,8 +275,11 @@
             <include refid="fromSampleAndClinicalPatient"/>
             <include refid="whereSample"/>
             <if test="_parameter.containsKey('searchTerm') and searchTerm != null and not searchTerm.isBlank()">
-                AND
-                clinical_sample.ATTR_VALUE LIKE CONCAT('%', #{searchTerm}, '%')
+                AND (
+                    clinical_sample.ATTR_VALUE LIKE CONCAT('%', #{searchTerm}, '%')
+                    OR clinical_sample.STABLE_ID LIKE CONCAT('%', #{searchTerm}, '%')
+                    OR clinical_patient.STABLE_ID LIKE CONCAT('%', #{searchTerm}, '%')
+                )
             </if>
             <if test="_parameter.containsKey('sortBy') and sortBy != null">
                 <!-- Put 'NULL samples' last: -->

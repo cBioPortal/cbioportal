@@ -122,6 +122,7 @@ public class GlobalProperties {
     public static final String SKIN_RIGHT_NAV_SHOW_EXAMPLES = "skin.right_nav.show_examples";
     public static final String SKIN_RIGHT_NAV_SHOW_TESTIMONIALS = "skin.right_nav.show_testimonials";
     public static final String SKIN_RIGHT_NAV_SHOW_WHATS_NEW = "skin.right_nav.show_whats_new";
+    public static final String SKIN_RIGHT_NAV_SHOW_WEB_TOURS = "skin.right_nav.show_web_tours";
     private static String skinAuthorizationMessage;
     @Value("${skin.authorization_message:Access to this portal is only available to authorized users.}")
     public void setSkinAuthorizationMessage(String property) { skinAuthorizationMessage = property; }
@@ -180,6 +181,12 @@ public class GlobalProperties {
     @Value("${oncoprint.clinical_tracks.config_json:}") // default is empty string
     public void setOncoprintClinicalTracksConfigJson(String property) {
         oncoprintClinicalTracksConfigJson = property; 
+    }
+
+    private static String skinPatientViewCustomSampleTypeColorsJson;
+    @Value("${skin.patient_view.custom_sample_type_colors_json:}") // default is empty string
+    public void setSkinPatientViewCustomSampleTypeColorsJson(String property) {
+        skinPatientViewCustomSampleTypeColorsJson = property; 
     }
 
     // properties for showing the right logo in the header_bar and default logo
@@ -368,6 +375,16 @@ public class GlobalProperties {
     @Value("${download_group:}") // default is empty string
     public void setDownloadGroup(String property) { downloadGroup = property; }
 
+    public static final String DEFAULT_DAT_METHOD = "none";
+
+    private static String dataAccessTokenMethod;
+    @Value("${dat.method:none}") // default is empty string
+    public void setDataAccessTokenMethod(String property) { dataAccessTokenMethod = property; }
+    
+    private static String tokenAccessUserRole;
+    @Value("${dat.filter_user_role:}") // default is empty string
+    public void setTokenAccessUserRole(String property) { tokenAccessUserRole = property; }
+    
     private static Logger LOG = LoggerFactory.getLogger(GlobalProperties.class);
     private static ConfigPropertyResolver portalProperties = new ConfigPropertyResolver();
     private static Properties mavenProperties = initializeProperties(MAVEN_PROPERTIES_FILE_NAME);
@@ -792,6 +809,12 @@ public class GlobalProperties {
     public static boolean showRightNavWhatsNew()
     {
         String showFlag = portalProperties.getProperty(SKIN_RIGHT_NAV_SHOW_WHATS_NEW);
+        return showFlag == null || Boolean.parseBoolean(showFlag);
+    }
+
+    public static boolean showRightNavWebTours()
+    {
+        String showFlag = portalProperties.getProperty(SKIN_RIGHT_NAV_SHOW_WEB_TOURS);
         return showFlag == null || Boolean.parseBoolean(showFlag);
     }
 
@@ -1240,6 +1263,14 @@ public class GlobalProperties {
         }
     }
     
+    public static String getSkinPatientViewCustomSampleTypeColorsJson() {
+        if (skinPatientViewCustomSampleTypeColorsJson.length() > 0) {
+            return readFile(skinPatientViewCustomSampleTypeColorsJson);
+        } else {
+            return null;
+        }
+    }
+    
     public static String getQuerySetsOfGenes() {
         String fileName = portalProperties.getProperty(SETSOFGENES_LOCATION, null);
         return readFile(fileName);
@@ -1294,6 +1325,17 @@ public class GlobalProperties {
                 default:
                     return "show";
             }
+        }
+    }
+
+    public static String getDataAccessTokenMethod() {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        
+        if (authentication != null &&
+            StringUtils.isNotEmpty(tokenAccessUserRole)) {
+            return authentication.getAuthorities().contains(new SimpleGrantedAuthority(tokenAccessUserRole)) ? dataAccessTokenMethod : DEFAULT_DAT_METHOD;
+        } else {
+            return dataAccessTokenMethod;
         }
     }
 }

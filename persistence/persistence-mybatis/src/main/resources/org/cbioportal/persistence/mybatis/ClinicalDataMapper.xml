@@ -50,6 +50,7 @@
     <sql id="fromSampleAndClinicalPatient">
         <include refid="fromSample"/>
         LEFT JOIN clinical_patient ON clinical_patient.INTERNAL_ID = patient.INTERNAL_ID
+        LEFT JOIN clinical_attribute_meta ON clinical_sample.ATTR_ID = clinical_attribute_meta.ATTR_ID AND cancer_study.CANCER_STUDY_ID = clinical_attribute_meta.CANCER_STUDY_ID
     </sql>
 
     <sql id="fromPatient">
@@ -246,19 +247,29 @@
             SELECT DISTINCT clinical_sample.INTERNAL_ID
             <if test="_parameter.containsKey('sortBy') and sortBy != null">
                 <if test="sortBy == 'sampleId'">
-                  , sample.STABLE_ID AS SORT_BY
+                  , sample.STABLE_ID AS sortValue
                 </if>
                 <if test="sortBy == 'patientId'">
-                  , patient.STABLE_ID AS SORT_BY
+                  , patient.STABLE_ID AS sortValue
                 </if>
                 <!-- else: -->
                 <if test="sortBy != 'sampleId' and sortBy != 'patientId'">
-                  <!-- Mark samples without the sort attribute as NULL: -->
-                  , CASE 
-                        WHEN clinical_sample.ATTR_ID = #{sortBy} THEN clinical_sample.ATTR_VALUE 
-                        WHEN clinical_patient.ATTR_ID = #{sortBy} THEN clinical_patient.ATTR_VALUE 
+                    <!-- For sorting, add a sample or patient attribute value (evaluated by attribute id) -->
+                    <!-- Cast to number when needed (in the database all attributes are stored as string) -->
+                    , CASE
+                        WHEN clinical_sample.ATTR_ID = #{sortBy} THEN
+                            CASE
+                                WHEN clinical_attribute_meta.DATATYPE = 'NUMBER' THEN CONVERT(clinical_sample.ATTR_VALUE, DECIMAL)
+                                ELSE clinical_sample.ATTR_VALUE
+                            END
+                        WHEN clinical_patient.ATTR_ID = #{sortBy} THEN
+                            CASE
+                                WHEN clinical_attribute_meta.DATATYPE = 'NUMBER' THEN CONVERT(clinical_patient.ATTR_VALUE, DECIMAL)
+                                ELSE clinical_patient.ATTR_VALUE
+                            END
+                        <!-- Mark samples without the sort attribute as NULL: -->
                         ELSE NULL 
-                    END AS SORT_BY
+                    END AS sortValue
                 </if>
             </if>
             <include refid="fromSampleAndClinicalPatient"/>
@@ -271,10 +282,10 @@
                 <!-- Put 'NULL samples' last: -->
                 <choose>
                     <when test="_databaseId == 'mysql'">
-                        ORDER BY ISNULL(SORT_BY), SORT_BY ${direction}
+                        ORDER BY ISNULL(sortValue), sortValue ${direction}
                     </when>
                     <when test="_databaseId == 'h2'">
-                        ORDER BY SORT_BY ${direction} NULLS LAST
+                        ORDER BY sortValue ${direction} NULLS LAST
                     </when>
                 </choose>
             </if>

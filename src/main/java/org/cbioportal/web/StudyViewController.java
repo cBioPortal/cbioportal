@@ -1167,4 +1167,46 @@ public class StudyViewController {
         studyViewFilterUtil.extractStudyAndSampleIds(filteredSampleIdentifiers, studyIds, sampleIds);
         return clinicalEventService.getClinicalEventTypeCounts(studyIds, sampleIds);
     }
+
+    @PreAuthorize("hasPermission(#involvedCancerStudies, 'Collection<CancerStudyId>', T(org.cbioportal.utils.security.AccessLevel).READ)")
+    @RequestMapping(value = "/mutation-data-counts/fetch", method = RequestMethod.POST,
+        consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
+    @ApiOperation("Fetch mutation data counts by GenomicDataCountFilter")
+    public ResponseEntity<List<GenomicDataCountItem>> fetchMutationDataCounts(
+        @ApiParam(required = true, value = "Genomic data count filter") @Valid @RequestBody(required = false) GenomicDataCountFilter genomicDataCountFilter,
+        @ApiIgnore // prevent reference to this attribute in the swagger-ui interface
+        @RequestAttribute(required = false, value = "involvedCancerStudies") Collection<String> involvedCancerStudies,
+        @ApiParam(required = true, value = "Intercepted Genomic Data Count Filter")
+        @ApiIgnore
+        @Valid @RequestAttribute(required = false, value = "interceptedGenomicDataCountFilter") GenomicDataCountFilter interceptedGenomicDataCountFilter
+    ) throws StudyNotFoundException {
+        List<GenomicDataFilter> gdFilters = interceptedGenomicDataCountFilter.getGenomicDataFilters();
+        StudyViewFilter studyViewFilter = interceptedGenomicDataCountFilter.getStudyViewFilter();
+        // when there is only one filter, it means study view is doing a single chart filter operation
+        // remove filter from studyViewFilter to return all data counts
+        // the reason we do this is to make sure after chart get filtered, user can still see unselected portion of the chart
+        if (gdFilters.size() == 1) {
+            studyViewFilterUtil.removeSelfFromGenomicDataFilter(
+                gdFilters.get(0).getHugoGeneSymbol(),
+                gdFilters.get(0).getProfileType(),
+                studyViewFilter);
+        }
+        List<SampleIdentifier> filteredSampleIdentifiers = studyViewFilterApplier.apply(studyViewFilter);
+
+        if (filteredSampleIdentifiers.isEmpty()) {
+            return new ResponseEntity<>(new ArrayList<>(), HttpStatus.OK);
+        }
+
+        List<String> studyIds = new ArrayList<>();
+        List<String> sampleIds = new ArrayList<>();
+        studyViewFilterUtil.extractStudyAndSampleIds(filteredSampleIdentifiers, studyIds, sampleIds);
+
+        List<GenomicDataCountItem> result = studyViewService.getMutationCountsByGeneSpecific(
+            studyIds,
+            sampleIds,
+            gdFilters.stream().map(gdFilter -> new Pair<>(gdFilter.getHugoGeneSymbol(), gdFilter.getProfileType())).collect(Collectors.toList()),
+            studyViewFilter.getAlterationFilter());
+
+        return new ResponseEntity<>(result, HttpStatus.OK);
+    }
 }

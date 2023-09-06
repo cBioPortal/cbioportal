@@ -47,12 +47,6 @@
         INNER JOIN cancer_study ON patient.CANCER_STUDY_ID = cancer_study.CANCER_STUDY_ID
     </sql>
 
-    <sql id="fromSampleAndClinicalPatient">
-        <include refid="fromSample"/>
-        LEFT JOIN clinical_patient ON clinical_patient.INTERNAL_ID = patient.INTERNAL_ID
-        LEFT JOIN clinical_attribute_meta ON clinical_sample.ATTR_ID = clinical_attribute_meta.ATTR_ID AND cancer_study.CANCER_STUDY_ID = clinical_attribute_meta.CANCER_STUDY_ID
-    </sql>
-
     <sql id="fromPatient">
         FROM clinical_patient
         INNER JOIN patient ON clinical_patient.INTERNAL_ID = patient.INTERNAL_ID
@@ -242,62 +236,87 @@
         <include refid="whereSampleSearchAndPagination"/>
     </select>
     
-    <sql id="whereSampleSearchAndPagination">
-        INNER JOIN (
-            SELECT DISTINCT clinical_sample.INTERNAL_ID
-            <if test="_parameter.containsKey('sortBy') and sortBy != null">
-                <if test="sortBy == 'sampleId'">
-                  , sample.STABLE_ID AS sortValue
-                </if>
-                <if test="sortBy == 'patientId'">
-                  , patient.STABLE_ID AS sortValue
-                </if>
-                <!-- else: -->
-                <if test="sortBy != 'sampleId' and sortBy != 'patientId'">
-                    <!-- For sorting, add a sample or patient attribute value (evaluated by attribute id) -->
-                    <!-- Cast to number when needed (in the database all attributes are stored as string) -->
-                    , CASE
-                        WHEN clinical_sample.ATTR_ID = #{sortBy} THEN
-                            CASE
-                                WHEN clinical_attribute_meta.DATATYPE = 'NUMBER' THEN CONVERT(clinical_sample.ATTR_VALUE, DECIMAL)
-                                ELSE clinical_sample.ATTR_VALUE
-                            END
-                        WHEN clinical_patient.ATTR_ID = #{sortBy} THEN
-                            CASE
-                                WHEN clinical_attribute_meta.DATATYPE = 'NUMBER' THEN CONVERT(clinical_patient.ATTR_VALUE, DECIMAL)
-                                ELSE clinical_patient.ATTR_VALUE
-                            END
-                        <!-- Mark samples without the sort attribute as NULL: -->
-                        ELSE NULL 
-                    END AS sortValue
-                </if>
+    <sql id="sampleIdsFromSearchAndPagination">
+        <bind name="doSearch"        value="_parameter.containsKey('searchTerm') and searchTerm != null and not searchTerm.isBlank()" />
+        <bind name="doSort"          value="_parameter.containsKey('sortBy') and sortBy != null" />
+        <bind name="doPaginate"      value="_parameter.containsKey('limit') and limit != null and limit != 0" />
+        <bind name="sortBySampleId"  value="sortBy == 'sampleId'" />
+        <bind name="sortByPatientId" value="sortBy == 'patientId'" />
+        <bind name="sortByAttribute" value="sortBy != 'sampleId' and sortBy != 'patientId'" />
+        SELECT sample.INTERNAL_ID
+        FROM sample
+            INNER JOIN patient ON sample.PATIENT_ID = patient.INTERNAL_ID
+            INNER JOIN cancer_study ON patient.CANCER_STUDY_ID = cancer_study.CANCER_STUDY_ID
+            <if test="doSort">
+                LEFT JOIN(
+                    <include refid="sampleAttributeDataForSortOrSearch">
+                        <property name="whereSectionInclude" value="whereAttributeDataForSort"/>
+                    </include>
+                ) as sortData
+                ON sample.INTERNAL_ID = sortData.INTERNAL_ID
+            </if>    
+            <if test="doSearch">
+                INNER JOIN(
+                    <include refid="sampleAttributeDataForSortOrSearch">
+                        <property name="whereSectionInclude" value="whereAttributeDataForSearch"/>
+                    </include>
+                ) as searchData
+                ON sample.INTERNAL_ID = searchData.INTERNAL_ID
             </if>
-            <include refid="fromSampleAndClinicalPatient"/>
-            <include refid="whereSample"/>
-            <if test="_parameter.containsKey('searchTerm') and searchTerm != null and not searchTerm.isBlank()">
-                AND (
-                    clinical_sample.ATTR_VALUE LIKE CONCAT('%', #{searchTerm}, '%')
-                    OR clinical_sample.STABLE_ID LIKE CONCAT('%', #{searchTerm}, '%')
-                    OR clinical_patient.STABLE_ID LIKE CONCAT('%', #{searchTerm}, '%')
-                )
-            </if>
-            <if test="_parameter.containsKey('sortBy') and sortBy != null">
-                <!-- Put 'NULL samples' last: -->
-                <choose>
-                    <when test="_databaseId == 'mysql'">
-                        ORDER BY ISNULL(sortValue), sortValue ${direction}
-                    </when>
-                    <when test="_databaseId == 'h2'">
-                        ORDER BY sortValue ${direction} NULLS LAST
-                    </when>
-                </choose>
-            </if>
-            
-            <if test="_parameter.containsKey('limit') and limit != null and limit != 0">
-                LIMIT #{limit} OFFSET #{offset}
-            </if>
-        ) AS sample_id_subquery
-          ON clinical_sample.INTERNAL_ID = sample_id_subquery.INTERNAL_ID
+        <include refid="whereSample"/>
+        <if test="doSort">
+            <choose>
+                <when test="sortBySampleId">
+                    ORDER BY sample.STABLE_ID ${direction}
+                </when>
+                <when test="sortByPatientId">
+                    ORDER BY patient.STABLE_ID ${direction}
+                </when>
+                <when test="sortByAttribute">
+                    ORDER BY ISNULL(sortAttrValue),
+                    CASE
+                        WHEN sortValueType = 'NUMBER' THEN CONVERT(sortAttrValue, DECIMAL )
+                        ELSE sortAttrValue
+                    END ${direction}
+                </when>
+                <otherwise></otherwise>
+            </choose>
+        </if>
+        <if test="doPaginate">
+            LIMIT #{limit} OFFSET #{offset}
+        </if>
+    </sql>
+
+    <sql id="sampleAttributeDataForSortOrSearch">
+        SELECT sample.INTERNAL_ID, sample.STABLE_ID sampleId, patient.STABLE_ID patientId, clinical_sample.ATTR_ID sortAttrId, clinical_sample.ATTR_VALUE sortAttrValue, sampleDatatype sortValueType
+        FROM clinical_sample
+        INNER JOIN sample ON clinical_sample.INTERNAL_ID = sample.INTERNAL_ID
+        INNER JOIN patient ON sample.PATIENT_ID = patient.INTERNAL_ID
+        INNER JOIN cancer_study ON patient.CANCER_STUDY_ID = cancer_study.CANCER_STUDY_ID
+        LEFT JOIN (SELECT ATTR_ID, CANCER_STUDY_ID, DATATYPE sampleDatatype
+        FROM clinical_attribute_meta) as sampleDatatypeTable
+        ON clinical_sample.ATTR_ID = sampleDatatypeTable.ATTR_ID AND
+        cancer_study.CANCER_STUDY_ID = sampleDatatypeTable.CANCER_STUDY_ID
+        <include refid="${whereSectionInclude}" />
+        UNION ALL
+        SELECT sample.INTERNAL_ID, sample.STABLE_ID sampleId, patient.STABLE_ID patientId, clinical_patient.ATTR_ID sortAttrId, clinical_patient.ATTR_VALUE sortAttrValue, patientDatatype sortValueType
+        FROM sample
+        INNER JOIN patient ON sample.PATIENT_ID = patient.INTERNAL_ID
+        INNER JOIN cancer_study ON patient.CANCER_STUDY_ID = cancer_study.CANCER_STUDY_ID
+        RIGHT OUTER JOIN clinical_patient ON patient.INTERNAL_ID = clinical_patient.INTERNAL_ID
+        LEFT JOIN (SELECT ATTR_ID, CANCER_STUDY_ID, DATATYPE patientDatatype
+        FROM clinical_attribute_meta) as patientDatatypeTable
+        ON clinical_patient.ATTR_ID = patientDatatypeTable.ATTR_ID AND
+        cancer_study.CANCER_STUDY_ID = patientDatatypeTable.CANCER_STUDY_ID
+        <include refid="${whereSectionInclude}" />
+    </sql>
+
+    <sql id="whereAttributeDataForSearch">
+        WHERE (ATTR_VALUE LIKE CONCAT('%', #{searchTerm}, '%') OR sample.STABLE_ID LIKE CONCAT('%', #{searchTerm}, '%') OR patient.STABLE_ID LIKE CONCAT('%', #{searchTerm}, '%'))
+    </sql>
+
+    <sql id="whereAttributeDataForSort">
+        WHERE clinical_patient.ATTR_ID = #{sortBy}
     </sql>
     
 </mapper>

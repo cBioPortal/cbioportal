@@ -126,19 +126,21 @@ public class StudyControllerTest {
     }
 
     @Test
+    @WithMockUser
     public void getAllStudiesSetAccessLevelReadIsDefault() throws Exception {
 
         AccessLevel expectedAccessLevel = AccessLevel.READ;
         Mockito.when(studyService.getAllStudies(Mockito.any(), Mockito.any(), Mockito.any(), Mockito.any(),
                 Mockito.any(), Mockito.any(), Mockito.any(), eq(expectedAccessLevel))).thenReturn(new ArrayList<>());
 
-        mockMvc.perform(MockMvcRequestBuilders.get("/studies")
+        mockMvc.perform(MockMvcRequestBuilders.get("/api/studies")
                 .accept(MediaType.APPLICATION_JSON))
                 .andExpect(MockMvcResultMatchers.status().isOk());
 
     }
 
     @Test
+    @WithMockUser
     public void getAllStudiesSetAccessLevelListConditionally() throws Exception {
 
         ReflectionTestUtils.setField(studyController, "showUnauthorizedStudiesOnHomePage", true);
@@ -147,7 +149,7 @@ public class StudyControllerTest {
         Mockito.when(studyService.getAllStudies(Mockito.any(), Mockito.any(), Mockito.any(), Mockito.any(),
                 Mockito.any(), Mockito.any(), Mockito.any(), eq(expectedAccessLevel))).thenReturn(new ArrayList<>());
 
-        mockMvc.perform(MockMvcRequestBuilders.get("/studies")
+        mockMvc.perform(MockMvcRequestBuilders.get("/api/studies")
                 .accept(MediaType.APPLICATION_JSON))
                 .andExpect(MockMvcResultMatchers.status().isOk());
 

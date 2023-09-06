@@ -39,6 +39,7 @@ import springfox.documentation.annotations.ApiIgnore;
 
 @InternalApi
 @RestController
+@RequestMapping("/api")
 @Validated
 @Api(tags = "Clinical Data Enrichments", description = " ")
 public class ClinicalDataEnrichmentController {

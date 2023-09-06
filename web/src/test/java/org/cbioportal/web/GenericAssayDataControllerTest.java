@@ -4,6 +4,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import org.cbioportal.model.GenericAssayData;
 import org.cbioportal.model.meta.GenericAssayMeta;
 import org.cbioportal.service.GenericAssayService;
+import org.cbioportal.web.config.TestConfig;
 import org.cbioportal.web.parameter.GenericAssayDataMultipleStudyFilter;
 import org.cbioportal.web.parameter.GenericAssayFilter;
 import org.cbioportal.web.parameter.GenericAssayMetaFilter;
@@ -14,6 +15,8 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
+import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.MediaType;
@@ -32,9 +35,8 @@ import java.util.HashMap;
 import java.util.List;
 
 @RunWith(SpringJUnit4ClassRunner.class)
-@WebAppConfiguration
-@ContextConfiguration("/applicationContext-web-test.xml")
-@Configuration
+@WebMvcTest
+@ContextConfiguration(classes = {GenericAssayDataController.class, TestConfig.class})
 public class GenericAssayDataControllerTest {
 
     private static final String PROF_ID = "test_prof_id";
@@ -60,8 +62,9 @@ public class GenericAssayDataControllerTest {
     @Autowired
     private WebApplicationContext wac;
 
-    @Autowired
+    @MockBean
     private GenericAssayService genericAssayService;
+   @Autowired
     private MockMvc mockMvc;
 
     private ObjectMapper objectMapper = new ObjectMapper();
@@ -83,7 +86,7 @@ public class GenericAssayDataControllerTest {
         genericAssayDataFilter.setSampleIds(Arrays.asList(SAMPLE_ID));	
         genericAssayDataFilter.setGenericAssayStableIds(Arrays.asList(GENERIC_ASSAY_STABLE_ID_1, GENERIC_ASSAY_STABLE_ID_2, GENERIC_ASSAY_STABLE_ID_3, GENERIC_ASSAY_STABLE_ID_4));	
 
-        mockMvc.perform(MockMvcRequestBuilders.post("/generic_assay_data/" + PROF_ID + "/fetch")	
+        mockMvc.perform(MockMvcRequestBuilders.post("/api/generic_assay_data/" + PROF_ID + "/fetch")	
                 .accept(MediaType.APPLICATION_JSON)	
                 .contentType(MediaType.APPLICATION_JSON)	
                 .content(objectMapper.writeValueAsString(genericAssayDataFilter)))	
@@ -109,7 +112,7 @@ public class GenericAssayDataControllerTest {
         Mockito.when(genericAssayService.fetchGenericAssayData(Mockito.anyList(), Mockito.any(),
             Mockito.any(), Mockito.any())).thenReturn(genericAssayDataItems);
 
-        mockMvc.perform(MockMvcRequestBuilders.post("/generic_assay_data/fetch")
+        mockMvc.perform(MockMvcRequestBuilders.post("/api/generic_assay_data/fetch")
                 .accept(MediaType.APPLICATION_JSON)
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(objectMapper.writeValueAsString(genericAssayDataMultipleStudyFilter)))
@@ -131,7 +134,7 @@ public class GenericAssayDataControllerTest {
         Mockito.when(genericAssayService.fetchGenericAssayData(Mockito.anyString(), Mockito.anyList(),
             Mockito.anyList(), Mockito.anyString())).thenReturn(genericAssayDataItems);
         
-        mockMvc.perform(MockMvcRequestBuilders.get("/generic-assay-data/" + PROF_ID + "/generic-assay/" + GENERIC_ASSAY_STABLE_ID_1)
+        mockMvc.perform(MockMvcRequestBuilders.get("/api/generic-assay-data/" + PROF_ID + "/generic-assay/" + GENERIC_ASSAY_STABLE_ID_1)
             .accept(MediaType.APPLICATION_JSON))
             .andExpect(MockMvcResultMatchers.status().isOk())
             .andExpect(MockMvcResultMatchers.content().contentTypeCompatibleWith(MediaType.APPLICATION_JSON))

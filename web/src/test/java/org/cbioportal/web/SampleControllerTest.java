@@ -8,6 +8,7 @@ import java.util.ArrayList;
 import java.util.List;
 import org.cbioportal.model.Sample;
 import org.cbioportal.model.meta.BaseMeta;
+import org.cbioportal.service.SampleListService;
 import org.cbioportal.service.SampleService;
 import org.cbioportal.service.StudyService;
 import org.cbioportal.service.exception.SampleNotFoundException;
@@ -47,6 +48,9 @@ public class SampleControllerTest {
 
     @MockBean
     private SampleService sampleService;
+    
+    @MockBean
+    private SampleListService sampleListService;
 
     @MockBean
     private StudyService studyService;

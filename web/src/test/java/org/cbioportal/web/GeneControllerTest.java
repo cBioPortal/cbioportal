@@ -95,8 +95,6 @@ public class GeneControllerTest {
 
     @Test
     @WithMockUser
-    // TODO investigate
-    @Ignore
     public void getGeneNotFound() throws Exception {
 
         Mockito.when(geneService.getGene(eq("test_gene_id"))).thenThrow(new GeneNotFoundException("test_gene_id"));

@@ -36,7 +36,8 @@ public class TestConfig {
 
         @Override
         public void addInterceptors(InterceptorRegistry registry) {
-            registry.addInterceptor(involvedCancerStudyExtractorInterceptor);
+            registry.addInterceptor(involvedCancerStudyExtractorInterceptor)
+                .addPathPatterns("/api/**");
         }
     }
 

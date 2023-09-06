@@ -35,6 +35,7 @@ import java.util.stream.Collectors;
 
 @PublicApi
 @RestController
+@RequestMapping("/api")
 @Validated
 @Api(tags = PublicApiTags.GENE_PANEL_DATA, description = " ")
 public class GenePanelDataController {

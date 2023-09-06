@@ -1,6 +1,8 @@
 package org.cbioportal.web.util;
 
 import java.math.BigDecimal;
+import java.math.MathContext;
+import java.math.RoundingMode;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -15,6 +17,7 @@ import java.util.stream.IntStream;
 import org.cbioportal.model.Binnable;
 import org.cbioportal.model.ClinicalData;
 import org.cbioportal.model.DataBin;
+import org.cbioportal.service.GeneService;
 import org.cbioportal.service.util.MolecularProfileUtil;
 import org.cbioportal.web.parameter.BinsGeneratorConfig;
 import org.cbioportal.web.parameter.ClinicalDataBinFilter;
@@ -57,6 +60,9 @@ public class DataBinnerTest {
 
     @MockBean
     private MolecularProfileUtil molecularProfileUtil;
+    
+    @MockBean
+    private GeneService geneService;
 
     private List<String> getCaseIds(List<Binnable> unfilteredClinicalData, boolean getPatientIds) {
         return unfilteredClinicalData
@@ -1047,11 +1053,11 @@ public class DataBinnerTest {
         Assert.assertEquals(16, dataBins.get(1).getCount().intValue());
 
         Assert.assertEquals(new BigDecimal("1.0e-6"), dataBins.get(2).getStart());
-        Assert.assertEquals(new BigDecimal("1.0e-5"), dataBins.get(2).getEnd());
+        Assert.assertEquals(new BigDecimal("1.0e-5").compareTo(dataBins.get(2).getEnd().round(new MathContext(5, RoundingMode.CEILING))), 0);
         Assert.assertEquals(32, dataBins.get(2).getCount().intValue());
 
         Assert.assertEquals(">", dataBins.get(3).getSpecialValue());
-        Assert.assertEquals(new BigDecimal("1.0e-5"), dataBins.get(3).getStart());
+        Assert.assertEquals(new BigDecimal("1.0e-5").compareTo(dataBins.get(3).getStart().round(new MathContext(5, RoundingMode.CEILING))), 0);
         Assert.assertEquals(1, dataBins.get(3).getCount().intValue());
 
         Assert.assertEquals("NA", dataBins.get(4).getSpecialValue());

@@ -283,9 +283,10 @@ public class StructuralVariantControllerTest {
     }
     
     @Test
+    @WithMockUser
     public void fetchStructuralVariantsWithBothEntrezIdsAndStructVariantIdsReturnsStatusOk() throws Exception {
         String structuralVariantFilter = createStructuralVariantFilterWithEntrezIdAndStructuralVariantJson();
-        mockMvc.perform(MockMvcRequestBuilders.post("/structural-variant/fetch")
+        mockMvc.perform(MockMvcRequestBuilders.post("/api/structural-variant/fetch").with(csrf())
                 .accept(MediaType.APPLICATION_JSON)
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(structuralVariantFilter))
@@ -293,6 +294,7 @@ public class StructuralVariantControllerTest {
     }
     
     @Test
+    @WithMockUser
     public void fetchStructuralVariantsWithStructuralVariantSpecialQueryValues() throws Exception {
 
         List<StructuralVariant> structuralVariant = createExampleStructuralVariant();
@@ -303,7 +305,7 @@ public class StructuralVariantControllerTest {
         )).thenReturn(structuralVariant);
 
         String structuralVariantFilterJson = createStructuralVariantFilterWithStructuralVariantWildcard();
-        mockMvc.perform(MockMvcRequestBuilders.post("/structural-variant/fetch")
+        mockMvc.perform(MockMvcRequestBuilders.post("/api/structural-variant/fetch").with(csrf())
                 .accept(MediaType.APPLICATION_JSON)
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(structuralVariantFilterJson))
@@ -328,6 +330,7 @@ public class StructuralVariantControllerTest {
     }
 
     @Test
+    @WithMockUser
     public void fetchStructuralVariantsWithStructuralVariantIdWithNoIdAndSpecialValueReturnsBadRequest() throws Exception {
 
         List<StructuralVariant> structuralVariant = createExampleStructuralVariant();
@@ -337,7 +340,7 @@ public class StructuralVariantControllerTest {
         )).thenReturn(structuralVariant);
 
         String structuralVariantFilterJson = createStructuralVariantFilterWithEmptyStructuralVariantId();
-        mockMvc.perform(MockMvcRequestBuilders.post("/structural-variant/fetch")
+        mockMvc.perform(MockMvcRequestBuilders.post("/api/structural-variant/fetch").with(csrf())
                 .accept(MediaType.APPLICATION_JSON)
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(structuralVariantFilterJson))

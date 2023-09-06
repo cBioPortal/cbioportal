@@ -105,6 +105,80 @@ public class StudyViewServiceImpl implements StudyViewService {
     }
 
     @Override
+    public List<GenomicDataCountItem> getMutationCountsByGeneSpecific(List<String> studyIds,
+                                                                               List<String> sampleIds,
+                                                                               List<Pair<String, String>> genomicDataFilters,
+                                                                               AlterationFilter alterationFilter)
+        throws StudyNotFoundException {
+        List<MolecularProfileCaseIdentifier> caseIdentifiers =
+            molecularProfileService.getMutationProfileCaseIdentifiers(studyIds, sampleIds);
+
+        Set<String> hugoGeneSymbols = genomicDataFilters.stream().map(Pair::getKey)
+            .collect(Collectors.toSet());
+
+        List<Integer> entrezGeneIds = geneService
+            .fetchGenes(new ArrayList<>(hugoGeneSymbols), "HUGO_GENE_SYMBOL",
+                "SUMMARY")
+            .stream()
+            .map(Gene::getEntrezGeneId)
+            .collect(Collectors.toList());
+        
+        List<AlterationCountByGene> alterationCountByGenes = alterationCountService.getSampleMutationGeneCounts(
+            caseIdentifiers,
+            Select.byValues(entrezGeneIds),
+            true,
+            false,
+            alterationFilter).getFirst();
+        
+        return genomicDataFilters
+            .stream()
+            .flatMap(gdFilter -> {
+                GenomicDataCountItem genomicDataCountItem = new GenomicDataCountItem();
+                String hugoGeneSymbol = gdFilter.getKey();
+                String profileType = gdFilter.getValue();
+                genomicDataCountItem.setHugoGeneSymbol(hugoGeneSymbol);
+                genomicDataCountItem.setProfileType(profileType);
+
+                Optional<AlterationCountByGene> filteredAlterationCount = alterationCountByGenes
+                    .stream()
+                    .filter(g -> StringUtils.isNotEmpty(g.getHugoGeneSymbol()) && g.getHugoGeneSymbol().equals(hugoGeneSymbol))
+                    .findFirst();
+                    
+                if (!filteredAlterationCount.isPresent()) {
+                    return Stream.of();
+                }
+                
+                int mutatedCount = filteredAlterationCount.get().getNumberOfAlteredCases();
+                int profiledCount = filteredAlterationCount.get().getNumberOfProfiledCases();
+                int totalCount = sampleIds.size();
+                
+                List<GenomicDataCount> genomicDataCounts = new ArrayList<>();
+                GenomicDataCount genomicDataCountMutated = new GenomicDataCount();
+                genomicDataCountMutated.setLabel("Mutated");
+                genomicDataCountMutated.setValue("Mutated");
+                genomicDataCountMutated.setCount(mutatedCount);
+
+                GenomicDataCount genomicDataCountNotMutated = new GenomicDataCount();
+                genomicDataCountNotMutated.setLabel("Not Mutated");
+                genomicDataCountNotMutated.setValue("Not Mutated");
+                genomicDataCountNotMutated.setCount(profiledCount - mutatedCount);
+
+                GenomicDataCount genomicDataCountNotProfiled = new GenomicDataCount();
+                genomicDataCountNotProfiled.setLabel("Not Profiled");
+                genomicDataCountNotProfiled.setValue("Not Profiled");
+                genomicDataCountNotProfiled.setCount(totalCount - profiledCount);
+                
+                genomicDataCounts.add(genomicDataCountMutated);
+                genomicDataCounts.add(genomicDataCountNotMutated);
+                genomicDataCounts.add(genomicDataCountNotProfiled);
+                genomicDataCountItem.setCounts(genomicDataCounts);
+                
+                return Stream.of(genomicDataCountItem);
+            })
+            .collect(Collectors.toList());
+    }
+
+    @Override
     public List<AlterationCountByGene> getStructuralVariantAlterationCountByGenes(List<String> studyIds,
                                                                                   List<String> sampleIds,
                                                                                   AlterationFilter alterationFilter)

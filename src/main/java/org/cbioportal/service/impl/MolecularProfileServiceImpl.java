@@ -125,8 +125,13 @@ public class MolecularProfileServiceImpl implements MolecularProfileService {
 
     @Override
 	public List<MolecularProfileCaseIdentifier> getFirstMutationProfileCaseIdentifiers(List<String> studyIds, List<String> sampleIds) {
-        return getFilteredMolecularProfileCaseIdentifiers(studyIds, sampleIds, Optional.of(molecularProfileUtil.isMutationProfile));
+        return getFirstFilteredMolecularProfileCaseIdentifiers(studyIds, sampleIds, Optional.of(molecularProfileUtil.isMutationProfile));
 	}
+
+    @Override
+    public List<MolecularProfileCaseIdentifier> getMutationProfileCaseIdentifiers(List<String> studyIds, List<String> sampleIds) {
+        return getFilteredMolecularProfileCaseIdentifiers(studyIds, sampleIds, Optional.of(molecularProfileUtil.isMutationProfile));
+    }
 
 	@Override
 	public List<MolecularProfileCaseIdentifier> getFirstDiscreteCNAProfileCaseIdentifiers(List<String> studyIds, List<String> sampleIds) {
@@ -135,7 +140,13 @@ public class MolecularProfileServiceImpl implements MolecularProfileService {
 
     @Override
     public List<MolecularProfileCaseIdentifier> getFirstStructuralVariantProfileCaseIdentifiers(List<String> studyIds, List<String> sampleIds) {
-        return getFilteredMolecularProfileCaseIdentifiers(studyIds, sampleIds, Optional.of(molecularProfileUtil.isStructuralVariantMolecularProfile));
+        return getFirstFilteredMolecularProfileCaseIdentifiers(studyIds, sampleIds, Optional.of(molecularProfileUtil.isStructuralVariantMolecularProfile));
+    }
+
+    private List<MolecularProfileCaseIdentifier> getFirstFilteredMolecularProfileCaseIdentifiers(List<String> studyIds, List<String> sampleIds, Optional<Predicate<MolecularProfile>> profileFilter) {
+        List<MolecularProfile> molecularProfiles =
+            getMolecularProfilesInStudies(studyIds.stream().distinct().collect(Collectors.toList()), "SUMMARY");
+        return molecularProfileUtil.getFirstFilteredMolecularProfileCaseIdentifiers(molecularProfiles, studyIds, sampleIds, profileFilter);
     }
 
     private List<MolecularProfileCaseIdentifier> getFilteredMolecularProfileCaseIdentifiers(List<String> studyIds, List<String> sampleIds, Optional<Predicate<MolecularProfile>> profileFilter) {

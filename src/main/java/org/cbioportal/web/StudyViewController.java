@@ -16,57 +16,12 @@ import org.apache.commons.lang3.tuple.ImmutablePair;
 import org.apache.commons.math3.stat.correlation.PearsonsCorrelation;
 import org.apache.commons.math3.stat.correlation.SpearmansCorrelation;
 import org.apache.commons.math3.util.Pair;
-import org.cbioportal.model.AlterationCountByGene;
-import org.cbioportal.model.AlterationCountByStructuralVariant;
-import org.cbioportal.model.AlterationFilter;
-import org.cbioportal.model.CaseListDataCount;
-import org.cbioportal.model.ClinicalAttribute;
-import org.cbioportal.model.ClinicalData;
-import org.cbioportal.model.ClinicalDataBin;
-import org.cbioportal.model.ClinicalDataCollection;
-import org.cbioportal.model.ClinicalDataCountItem;
-import org.cbioportal.model.ClinicalEventTypeCount;
-import org.cbioportal.model.ClinicalViolinPlotData;
-import org.cbioportal.model.CopyNumberCountByGene;
-import org.cbioportal.model.DensityPlotBin;
-import org.cbioportal.model.DensityPlotData;
-import org.cbioportal.model.GenericAssayDataBin;
-import org.cbioportal.model.GenericAssayDataCountItem;
-import org.cbioportal.model.GenomicDataBin;
-import org.cbioportal.model.GenomicDataCount;
-import org.cbioportal.model.GenomicDataCountItem;
-import org.cbioportal.model.Patient;
-import org.cbioportal.model.Sample;
-import org.cbioportal.model.SampleList;
-import org.cbioportal.service.ClinicalAttributeService;
-import org.cbioportal.service.ClinicalDataService;
-import org.cbioportal.service.ClinicalEventService;
-import org.cbioportal.service.PatientService;
-import org.cbioportal.service.SampleListService;
-import org.cbioportal.service.SampleService;
-import org.cbioportal.service.StudyViewService;
-import org.cbioportal.service.ViolinPlotService;
+import org.cbioportal.model.*;
+import org.cbioportal.service.*;
 import org.cbioportal.service.exception.StudyNotFoundException;
 import org.cbioportal.service.util.ClinicalAttributeUtil;
 import org.cbioportal.web.config.annotation.InternalApi;
-import org.cbioportal.web.parameter.ClinicalDataBinCountFilter;
-import org.cbioportal.web.parameter.ClinicalDataBinFilter;
-import org.cbioportal.web.parameter.ClinicalDataCountFilter;
-import org.cbioportal.web.parameter.ClinicalDataFilter;
-import org.cbioportal.web.parameter.ClinicalDataType;
-import org.cbioportal.web.parameter.DataBinMethod;
-import org.cbioportal.web.parameter.Direction;
-import org.cbioportal.web.parameter.GenericAssayDataBinCountFilter;
-import org.cbioportal.web.parameter.GenericAssayDataCountFilter;
-import org.cbioportal.web.parameter.GenericAssayDataFilter;
-import org.cbioportal.web.parameter.GenomicDataBinCountFilter;
-import org.cbioportal.web.parameter.GenomicDataCountFilter;
-import org.cbioportal.web.parameter.GenomicDataFilter;
-import org.cbioportal.web.parameter.HeaderKeyConstants;
-import org.cbioportal.web.parameter.PagingConstants;
-import org.cbioportal.web.parameter.Projection;
-import org.cbioportal.web.parameter.SampleIdentifier;
-import org.cbioportal.web.parameter.StudyViewFilter;
+import org.cbioportal.web.parameter.*;
 import org.cbioportal.web.util.ClinicalDataBinUtil;
 import org.cbioportal.web.util.ClinicalDataFetcher;
 import org.cbioportal.web.util.StudyViewFilterApplier;
@@ -80,22 +35,10 @@ import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.validation.annotation.Validated;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestAttribute;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.math.BigDecimal;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
+import java.util.*;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
@@ -1171,15 +1114,17 @@ public class StudyViewController {
     @PreAuthorize("hasPermission(#involvedCancerStudies, 'Collection<CancerStudyId>', T(org.cbioportal.utils.security.AccessLevel).READ)")
     @RequestMapping(value = "/mutation-data-counts/fetch", method = RequestMethod.POST,
         consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
-    @ApiOperation("Fetch mutation data counts by GenomicDataCountFilter")
+    @Operation(description = "Fetch mutation data counts by GenomicDataCountFilter")
     public ResponseEntity<List<GenomicDataCountItem>> fetchMutationDataCounts(
-        @ApiParam(required = true, value = "Genomic data count filter") @Valid @RequestBody(required = false) GenomicDataCountFilter genomicDataCountFilter,
-        @ApiIgnore // prevent reference to this attribute in the swagger-ui interface
+        @Parameter(description = "Level of detail of the response")
+        @RequestParam(defaultValue = "MUTATED") Categorization categorization,
+        @Parameter(required = true, description = "Genomic data count filter") 
+        @Valid @RequestBody(required = false) GenomicDataCountFilter genomicDataCountFilter,
+        @Parameter(hidden = true) // prevent reference to this attribute in the swagger-ui interface
         @RequestAttribute(required = false, value = "involvedCancerStudies") Collection<String> involvedCancerStudies,
-        @ApiParam(required = true, value = "Intercepted Genomic Data Count Filter")
-        @ApiIgnore
+        @Parameter(hidden = true) // prevent reference to this attribute in the swagger-ui interface
         @Valid @RequestAttribute(required = false, value = "interceptedGenomicDataCountFilter") GenomicDataCountFilter interceptedGenomicDataCountFilter
-    ) throws StudyNotFoundException {
+    ) {
         List<GenomicDataFilter> gdFilters = interceptedGenomicDataCountFilter.getGenomicDataFilters();
         StudyViewFilter studyViewFilter = interceptedGenomicDataCountFilter.getStudyViewFilter();
         // when there is only one filter, it means study view is doing a single chart filter operation
@@ -1191,6 +1136,11 @@ public class StudyViewController {
                 gdFilters.get(0).getProfileType(),
                 studyViewFilter);
         }
+        
+        if (gdFilters.stream().anyMatch(gdFilter -> !gdFilter.getProfileType().equals("mutations"))) {
+            return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+        }
+        
         List<SampleIdentifier> filteredSampleIdentifiers = studyViewFilterApplier.apply(studyViewFilter);
 
         if (filteredSampleIdentifiers.isEmpty()) {
@@ -1200,13 +1150,21 @@ public class StudyViewController {
         List<String> studyIds = new ArrayList<>();
         List<String> sampleIds = new ArrayList<>();
         studyViewFilterUtil.extractStudyAndSampleIds(filteredSampleIdentifiers, studyIds, sampleIds);
-
-        List<GenomicDataCountItem> result = studyViewService.getMutationCountsByGeneSpecific(
-            studyIds,
-            sampleIds,
-            gdFilters.stream().map(gdFilter -> new Pair<>(gdFilter.getHugoGeneSymbol(), gdFilter.getProfileType())).collect(Collectors.toList()),
-            studyViewFilter.getAlterationFilter());
-
+        
+        List<GenomicDataCountItem> result;
+        if (categorization == Categorization.MUTATED) {
+            result = studyViewService.getMutationCountsByGeneSpecific(
+                studyIds,
+                sampleIds,
+                gdFilters.stream().map(gdFilter -> new Pair<>(gdFilter.getHugoGeneSymbol(), gdFilter.getProfileType())).collect(Collectors.toList()),
+                studyViewFilter.getAlterationFilter());
+        } else {
+            result = studyViewService.getMutationTypeCountsByGeneSpecific(
+                studyIds,
+                sampleIds,
+                gdFilters.stream().map(gdFilter -> new Pair<>(gdFilter.getHugoGeneSymbol(), gdFilter.getProfileType())).collect(Collectors.toList()));
+        }
+        
         return new ResponseEntity<>(result, HttpStatus.OK);
     }
 }
